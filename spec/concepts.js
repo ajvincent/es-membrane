@@ -1,8 +1,23 @@
+/*
+import "../dist/es6-modules/Membrane.js";
+import "../dist/es6-modules/MembraneMocks.js";
+*/
+
+if (typeof MembraneMocks != "function") {
+    if (typeof require == "function") {
+        var { MembraneMocks } = require("../dist/node/mocks.js");
+    }
+}
+
+if (typeof MembraneMocks != "function") {
+    throw new Error("Unable to run tests");
+}
+
 describe("basic concepts: ", function() {
   var wetDocument, dryDocument;
   
   beforeEach(function() {
-    let parts = MembraneConceptsViaSampleDoc();
+    let parts = MembraneMocks();
     wetDocument = parts.wet.doc;
     dryDocument = parts.dry.doc;
   });
@@ -84,7 +99,7 @@ describe("basic concepts: ", function() {
     let wetRoot, ElementWet, NodeWet;
     let dryRoot, ElementDry, NodeDry;
 
-    let parts = MembraneConceptsViaSampleDoc();
+    let parts = MembraneMocks();
     wetRoot     = parts.wet.doc.rootElement;
     ElementWet  = parts.wet.Element;
     NodeWet     = parts.wet.Node;
@@ -119,7 +134,7 @@ describe("basic concepts: ", function() {
   });
 
   it("ElementDry as a constructor reflects assigned properties", function() {
-    let parts = MembraneConceptsViaSampleDoc();
+    let parts = MembraneMocks();
     
     let ElementDry = parts.dry.Element;
     let ElementWet = parts.wet.Element;
@@ -318,7 +333,7 @@ describe("basic concepts: ", function() {
     let wetRoot, ElementWet, NodeWet;
     let dryRoot, ElementDry, NodeDry;
 
-    let parts = MembraneConceptsViaSampleDoc();
+    let parts = MembraneMocks();
     wetRoot     = parts.wet.doc.rootElement;
     ElementWet  = parts.wet.Element;
     NodeWet     = parts.wet.Node;
@@ -404,7 +419,7 @@ describe("basic concepts: ", function() {
 });
 
 it("More than one object graph can be available", function() {
-  let parts = MembraneConceptsViaSampleDoc();
+  let parts = MembraneMocks();
   let wetDocument = parts.wet.doc;
   let dryDocument = parts.dry.doc;
 

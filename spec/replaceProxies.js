@@ -1,7 +1,23 @@
+/*
+import "../dist/es6-modules/Membrane.js";
+import "../dist/es6-modules/MembraneMocks.js";
+*/
+
+if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
+    if (typeof require == "function") {
+        var { Membrane } = require("../dist/node/es7-membrane.js");
+        var { MembraneMocks } = require("../dist/node/mocks.js");
+    }
+}
+
+if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
+    throw new Error("Unable to run tests");
+}
+
 describe("replacing proxies tests: ", function() {
   let parts, dryHandler, replacedProxy;
   beforeEach(function() {
-    parts = MembraneConceptsViaSampleDoc();
+    parts = MembraneMocks();
     dryHandler = parts.membrane.getHandlerByField("dry");
     replacedProxy = null;
   });

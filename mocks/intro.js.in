@@ -1,2 +1,2 @@
-function MembraneConceptsViaSampleDoc() {
+function MembraneMocks() {
   "use strict";
