@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" [
+  <!ENTITY js "application/javascript">
+  <!ENTITY lib-jasmine "node_modules/jasmine-core/lib/jasmine-core">
+]>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>ES7 Membrane Jasmine Tests</title>
+    <meta charset="utf-8"/>
+    <base href="../.."/>
+
+    <link rel="shortcut icon" type="image/png"
+          href="node_modules/jasmine-core/images/jasmine_favicon.png"/>
+
+    <link rel="stylesheet" type="text/css" href="&lib-jasmine;/jasmine.css"/>
+    <script type="&js;" src="&lib-jasmine;/jasmine.js"></script>
+    <script type="&js;" src="&lib-jasmine;/jasmine-html.js"></script>
+    <script type="&js;" src="&lib-jasmine;/boot.js"></script>
+
+    <script type="&js;" src="dist/browser/assert.js"></script>
+    <script type="&js;" src="dist/browser/sharedUtilities.js"></script>
+
+    <!-- The library we are testing. -->
+    <script type="&js;" src="dist/browser/es7-membrane.js"></script>
+
+    <!-- Mocks to help with exercising the membrane. -->
+    <script type="&js;" src="dist/browser/mocks.js"></script>
+
+    <!-- Specifications -->
+    <script type="&js;" src="spec/concepts.js"></script>
+    <script type="&js;" src="spec/replaceProxies.js"></script>
+</head>
+<body>
+</body>
+</html>
