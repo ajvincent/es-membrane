@@ -1,0 +1,16 @@
+  // The bare essentials.
+  return {
+    wet: {
+      doc: wetDocument,
+      Node: NodeWet,
+      Element: ElementWet,
+    },
+    dry: {
+      doc: dryDocument,
+      Node: NodeDry,
+      Element: ElementDry,
+    },
+
+    membrane: dryWetMB
+  };
+}
