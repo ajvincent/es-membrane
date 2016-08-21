@@ -1,4 +1,6 @@
-.PHONY:: clean base mockDocs specs browser node package
+all:: clean browser node
+
+.PHONY:: clean base mockDocs specs browser node package all
 
 SOURCE_FILES = \
 	source/moduleUtilities.js \
