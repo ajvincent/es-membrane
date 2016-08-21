@@ -1,6 +1,12 @@
 all:: clean browser node
 
-.PHONY:: clean base mockDocs specs browser node package all
+.PHONY:: clean base mockDocs specs browser node package all travis-ci
+
+travis-ci:: all
+ifneq ("$(shell git status --porcelain)","")
+	@echo "This test fails because the build process changed some files that haven't been committed yet."
+	@exit 1;
+endif
 
 SOURCE_FILES = \
 	source/moduleUtilities.js \
