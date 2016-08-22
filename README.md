@@ -193,15 +193,15 @@ ObjectGraphHandler instances:
   * .ownsHandler(handler)
 * The Membrane's prototype also manages access to ProxyMapping instances, which as we stated above match proxies to original values in an one-to-one relationship.
   * .hasProxyForValue(field, value)
+  * .convertArgumentToProxy(originHandler, targetHandler, arg, options)
   * .getMembraneValue(field, value) _(private method)_
   * .getMembraneProxy(field, value) _(private method)_
   * .buildMapping(field, value, options) _(private method)_
   * .wrapArgumentByHandler(handler, arg, options) _(private method)_
   * .wrapArgumentByProxyMapping(mapping, arg, options) _(private method)_
-  * .convertArgumentToProxy(originHandler, targetHandler, arg, options)
   * .wrapDescriptor(originField, targetField, desc) _(private method)_
 * The Membrane also maintains a WeakMap(object or proxy -> ProxyMapping) member.
-* Each ObjectGraphHandler is a [handler for a Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) and [ProxyHandler](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler) implementing all the traps.
+* Each ObjectGraphHandler is a [handler for a Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler) implementing all the traps.
   * For simple operations that don't need a Membrane, such as .isExtensible(), the handler forwards the request directly to [Reflect](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect), which also implements the Proxy handler traps.
   * (An exception to this rule is the .has() trap, which uses this.getOwnPropertyDescriptor and this.getPrototypeOf to walk the prototype chain, without the .has trap itself crossing the object graph's borders.)
   * When getting a property descriptor from a proxy by the property name, there are several steps:
@@ -214,20 +214,20 @@ ObjectGraphHandler instances:
   * When getting the prototype of a proxy,
   1. Look up the ProxyMapping object matching the proxy's target in the membrane's WeakMap.
   2. If the retrieved ProxyMapping object doesn't have a valid "protoMapping" property,
-    a. Look up the original "this" object from the ProxyMapping, and call it originalThis.
-    b. Set proto = Reflect.getPrototypeOf(originalThis).
-    c. Wrap proto, and a new Proxy for proto in the desired object graph, in the membrane via a second ProxyMapping.
-    d. Set the second ProxyMapping object as the "protoMapping" property of the first ProxyMapping object.
+    1. Look up the original "this" object from the ProxyMapping, and call it originalThis.
+    2. Set proto = Reflect.getPrototypeOf(originalThis).
+    3. Wrap proto, and a new Proxy for proto in the desired object graph, in the membrane via a second ProxyMapping.
+    4. Set the second ProxyMapping object as the "protoMapping" property of the first ProxyMapping object.
   3. Return the proxy belonging to both the object graph and the "protoMapping" object.
   * The .get() trap follows the ECMAScript 7th Edition specification for .get(), calling its .getOwnPropertyDescriptor() and .getPrototypeOf() traps respectively.  It then wraps whatever return value it gets from those methods.
   * When I say 'wrap a value', what I mean is:
   1. If the value is a primitive, just return the value as-is.
   2. If there isn't a ProxyMapping in the owning Membrane's WeakMap for the value,
-    a. Create a ProxyMapping and set it in the membrane's WeakMap.
-    b. Let origin be the ObjectGraphHandler that the value came from, and target be this.
-    c. Set the value as a property of the ProxyMapping with the name of the origin object graph.
-    d. Let parts = Proxy.revocable(value, this).
-    e. Set parts as a property of the ProxyMapping with this object graph's name.
+    1. Create a ProxyMapping and set it in the membrane's WeakMap.
+    2. Let origin be the ObjectGraphHandler that the value came from, and target be this.
+    3. Set the value as a property of the ProxyMapping with the name of the origin object graph.
+    4. Let parts = Proxy.revocable(value, this).
+    5. Set parts as a property of the ProxyMapping with this object graph's name.
   3. Get the ProxyMapping for the value from the owning Membrane's WeakMap.
   4. Get the property of the ProxyMapping with this object's graph name.
   5. Return the property (which should be a Proxy).
