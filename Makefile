@@ -37,7 +37,7 @@ OVERRIDE_FILES = \
 	$(NULL)
 
 USE_CASE_FILES = \
-	spec/useCases/empty.js \
+	spec/useCases/sampleUseCase.js \
 	$(NULL)
 
 specs::
