@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ajvincent/es7-membrane.svg?branch=master)](https://travis-ci.org/ajvincent/es7-membrane)
+
 # The concepts driving a membrane
 
 Suppose you have a set of JavaScript-based constructors and prototypes.  You've built it out, tested it, and ensured it works correctly.  But you don't necessarily trust that other people will use your API as you intended.  They might try to access or overwrite member properties you want to keep private, for example.  Or they might replace some of your methods with others.  While you can't keep people from forking your code base, at runtime you have some options.
