@@ -3,7 +3,7 @@
  * Object graph: A collection of values that talk to each other directly.
  */
 
-function Membrane(options) {
+function MembraneInternal(options) {
   Object.defineProperties(this, {
     "showGraphName": {
       value: Boolean(options.showGraphName),
@@ -50,7 +50,7 @@ function Membrane(options) {
   });
 }
 { // Membrane definition
-Membrane.prototype = {
+MembraneInternal.prototype = {
   /**
    * Returns true if we have a proxy for the value.
    */
