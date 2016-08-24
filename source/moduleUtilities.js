@@ -9,10 +9,13 @@ function valueType(value) {
 
 function inGraphHandler(trapName, callback) {
   return function() {
-    this.membrane.handlerDepth++;
+    this.membrane.handlerStack.unshift(trapName);
 
     if (typeof this.logger == "object") {
-      this.logger.trace(trapName + " inGraphHandler++", this.membrane.handlerDepth);
+      this.logger.trace(
+        trapName + " inGraphHandler++",
+        this.membrane.handlerStack.length - 2
+      );
     }
 
     var rv;
@@ -23,9 +26,12 @@ function inGraphHandler(trapName, callback) {
     // We might have a catch block here to wrap exceptions crossing the membrane.
 
     finally {
-      this.membrane.handlerDepth--;
+      this.membrane.handlerStack.shift();
       if (typeof this.logger == "object") {
-        this.logger.trace(trapName + " inGraphHandler--", this.membrane.handlerDepth);
+        this.logger.trace(
+          trapName + " inGraphHandler--",
+          this.membrane.handlerStack.length - 2
+        );
       }
     }
 

@@ -40,7 +40,9 @@ ObjectGraphHandler.prototype = {
   ownKeys: inGraphHandler("ownKeys", function(target) {
     var targetMap = this.membrane.map.get(target);
     var _this = targetMap.getOriginal();
-    var rv = Reflect.ownKeys(_this);
+    var rv = this.externalHandler(function() {
+      return Reflect.ownKeys(_this);
+    });
 
     if (this.membrane.showGraphName && !rv.includes("membraneGraphName")) {
       rv.push("membraneGraphName");
@@ -119,7 +121,9 @@ ObjectGraphHandler.prototype = {
         if (parent === null)
           return undefined;
         // This will call this.get(parent, propName, receiver);
-        rv = Reflect.get(parent, propName, receiver);
+        rv = this.externalHandler(function() {
+          return Reflect.get(parent, propName, receiver);
+        });
         found = true;
       }
     }
@@ -151,7 +155,9 @@ ObjectGraphHandler.prototype = {
           return undefined;
         if (type !== "function")
           throw new Error("getter is not a function");
-        rv = Reflect.apply(getter, receiver, []);
+        rv = this.externalHandler(function() {
+          return Reflect.apply(getter, receiver, []);
+        });
         found = true;
       }
     }
@@ -187,7 +193,9 @@ ObjectGraphHandler.prototype = {
       var targetMap = this.membrane.map.get(target);
       var _this = targetMap.getOriginal();
 
-      var desc = Reflect.getOwnPropertyDescriptor(_this, propName);
+      var desc = this.externalHandler(function() {
+        return Reflect.getOwnPropertyDescriptor(_this, propName);
+      });
       desc = this.membrane.wrapDescriptor(
         targetMap.originField,
         this.fieldName,
@@ -208,7 +216,9 @@ ObjectGraphHandler.prototype = {
     try {
       var targetMap = this.membrane.map.get(target);
       if (targetMap.protoMapping === NOT_YET_DETERMINED) {
-        let proto = Reflect.getPrototypeOf(target);
+        let proto = this.externalHandler(function() {
+          return Reflect.getPrototypeOf(target);
+        });
         let pType = valueType(proto);
         if (pType == "primitive") {
           assert(proto === null,
@@ -256,7 +266,9 @@ ObjectGraphHandler.prototype = {
   isExtensible: inGraphHandler("isExtensible", function(target) {
     var targetMap = this.membrane.map.get(target);
     var _this = targetMap.getOriginal();
-    return Reflect.isExtensible(_this);
+    return this.externalHandler(function() {
+      return Reflect.isExtensible(_this);
+    });
   }),
 
   // ProxyHandler
@@ -265,7 +277,9 @@ ObjectGraphHandler.prototype = {
       return true;
     var targetMap = this.membrane.map.get(target);
     var _this = targetMap.getOriginal();
-    return Reflect.preventExtensions(_this);
+    return this.externalHandler(function() {
+      return Reflect.preventExtensions(_this);
+    });
   }),
 
   // ProxyHandler
@@ -277,7 +291,9 @@ ObjectGraphHandler.prototype = {
     try {
       var targetMap = this.membrane.map.get(target);
       var _this = targetMap.getOriginal();
-      return Reflect.deleteProperty(_this, propName);
+      return this.externalHandler(function() {
+        return Reflect.deleteProperty(_this, propName);
+      });
     }
     catch (e) {
       if (mayLog) {
@@ -303,7 +319,9 @@ ObjectGraphHandler.prototype = {
         targetMap.originField,
         desc
       );
-      return Reflect.defineProperty(_this, propName, desc);
+      return this.externalHandler(function() {
+        return Reflect.defineProperty(_this, propName, desc);
+      });
     }
     catch (e) {
       if (mayLog) {
@@ -381,7 +399,9 @@ ObjectGraphHandler.prototype = {
         let parent = this.getPrototypeOf(target);
         if (parent) {
           // This will call this.set(parent, propName, value, receiver);
-          return Reflect.set(parent, propName, value, receiver);
+          return this.externalHandler(function() {
+            return Reflect.set(parent, propName, value, receiver);
+          });
         }
         else
           ownDesc = new DataDescriptor(undefined, true);
@@ -432,18 +452,19 @@ ObjectGraphHandler.prototype = {
         e. Else Receiver does not currently have a property P,
             i.   Return ? CreateDataProperty(Receiver, P, V).
     */
-    let valueDesc;
     if (isDataDescriptor(ownDesc)) {
       if (!ownDesc.writable || (valueType(receiver) == "primitive"))
         return false;
       
-      let existingDesc = Reflect.getOwnPropertyDescriptor(receiver, propName);
+      let existingDesc = this.externalHandler(function() {
+        return Reflect.getOwnPropertyDescriptor(receiver, propName);
+      });
       if (existingDesc !== undefined) {
         if (isAccessorDescriptor(existingDesc) || !existingDesc.writable)
           return false;
       }
 
-      valueDesc = new DataDescriptor(
+      let rvProxy = new DataDescriptor(
         // Only now do we convert the value to the target object graph.
         this.membrane.convertArgumentToProxy(
           this,
@@ -452,7 +473,9 @@ ObjectGraphHandler.prototype = {
         ),
         true
       );
-      return Reflect.defineProperty(receiver, propName, valueDesc);
+      return this.externalHandler(function() {
+        return Reflect.defineProperty(receiver, propName, rvProxy);
+      });
     }
 
     // 5. Assert: IsAccessorDescriptor(ownDesc) is true.
@@ -467,18 +490,17 @@ ObjectGraphHandler.prototype = {
     if (typeof setter === "undefined")
       return false;
     // 8. Perform ? Call(setter, Receiver, « V »).
-    Reflect.apply(
-      setter,
-      receiver,
-      [
-        // Only now do we convert the value to the target object graph.
-        this.membrane.convertArgumentToProxy(
-          this,
-          this.membrane.getHandlerByField(receiverMap.originField),
-          value
-        )
-      ]
-    );
+    {
+      // Only now do we convert the value to the target object graph.
+      let rvProxy = this.membrane.convertArgumentToProxy(
+        this,
+        this.membrane.getHandlerByField(receiverMap.originField),
+        value
+      );
+      this.externalHandler(function() {
+        Reflect.apply(setter, receiver, [ rvProxy ]);
+      });
+    }
 
     // 9. Return true.
     return true;
@@ -489,14 +511,14 @@ ObjectGraphHandler.prototype = {
     try {
       var targetMap = this.membrane.map.get(target);
       var _this = targetMap.getOriginal();
-      var rv = Reflect.setPrototypeOf(
-        _this,
-        this.membrane.convertArgumentToProxy(
-          this,
-          this.membrane.getHandlerByField(targetMap.originField),
-          proto
-        )
+      let protoProxy = this.membrane.convertArgumentToProxy(
+        this,
+        this.membrane.getHandlerByField(targetMap.originField),
+        proto
       );
+      var rv = this.externalHandler(function() {
+        return Reflect.setPrototypeOf(_this, protoProxy);
+      });
 
       // We want to break any links that this.getPrototypeOf might have cached.
       targetMap.protoMapping = NOT_YET_DETERMINED;
@@ -528,7 +550,6 @@ ObjectGraphHandler.prototype = {
       ].join(""));
     }
 
-
     _this = this.membrane.convertArgumentToProxy(
       this,
       argHandler,
@@ -555,7 +576,9 @@ ObjectGraphHandler.prototype = {
     if (mayLog) {
       this.membrane.logger.debug("apply about to call function");
     }
-    var rv = Reflect.apply(target, _this, args);
+    var rv = this.externalHandler(function() {
+      return Reflect.apply(target, _this, args);
+    });
     if (mayLog) {
       this.membrane.logger.debug("apply wrapping return value");
     }
@@ -603,7 +626,9 @@ ObjectGraphHandler.prototype = {
       }
     }
 
-    var rv = Reflect.construct(target, args, newTarget);
+    var rv = this.externalHandler(function() {
+      return Reflect.construct(target, args, newTarget);
+    });
 
     rv = this.membrane.convertArgumentToProxy(
       argHandler,
@@ -619,6 +644,15 @@ ObjectGraphHandler.prototype = {
     }
     return rv;
   }),
+
+  /**
+   * Handle a call to code the membrane doesn't control.
+   *
+   * @private
+   */
+  externalHandler: function(callback) {
+    return inGraphHandler("external", callback).apply(this);
+  },
 
   /**
    * Add a ProxyMapping or a Proxy.revoke function to our list.

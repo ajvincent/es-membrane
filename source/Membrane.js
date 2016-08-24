@@ -23,8 +23,12 @@ function Membrane(options) {
       configurable:false
     },
 
-    "handlerDepth": {
-      value: 0,
+    "handlerStack": {
+      /* This has two "external" strings because at all times, we require
+       * two items on the handlerStack, for
+       * Membrane.prototype.calledFromHandlerTrap().
+       */
+      value: ["external", "external"],
       writable: true,
       enumerable: false,
       configurable: false,
@@ -325,6 +329,10 @@ Membrane.prototype = {
     }, this);
 
     return wrappedDesc;
+  },
+
+  calledFromHandlerTrap: function() {
+    return this.handlerStack[1] !== "external";
   },
 
   /**
