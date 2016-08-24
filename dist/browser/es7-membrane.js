@@ -455,6 +455,11 @@ MembraneInternal.prototype = {
   wrapDescriptor: function(originField, targetField, desc) {
     if (!desc)
       return desc;
+
+    // XXX ajvincent This optimization may need to go away for wrapping primitives.
+    if (isDataDescriptor(desc) && (valueType(desc.value) === "primitive"))
+      return desc;
+
     var keys = Object.keys(desc);
 
     var wrappedDesc = {
@@ -620,11 +625,12 @@ ObjectGraphHandler.prototype = {
         let parent = this.getPrototypeOf(target);
         if (parent === null)
           return undefined;
-        // This will call this.get(parent, propName, receiver);
-        rv = this.externalHandler(function() {
-          return Reflect.get(parent, propName, receiver);
-        });
-        found = true;
+
+        let other;
+        [found, other] = this.membrane.getMembraneProxy(this.fieldName, parent);
+        assert(found, "Must find membrane proxy for prototype");
+        assert(other === parent, "Retrieved prototypes must match");
+        return this.get(parent, propName, receiver);
       }
     }
 
@@ -898,7 +904,13 @@ ObjectGraphHandler.prototype = {
       if (!ownDesc) {
         let parent = this.getPrototypeOf(target);
         if (parent) {
-          // This will call this.set(parent, propName, value, receiver);
+          // This should call this.set(parent, propName, value, receiver);
+          /* XXX ajvincent I tried calling this.set() directly, and a test
+           * failed.  We need to find out why.
+           */
+          let [found, other] = this.membrane.getMembraneProxy(this.fieldName, parent);
+          assert(found, "Must find membrane proxy for prototype");
+          assert(other === parent, "Retrieved prototypes must match");
           return this.externalHandler(function() {
             return Reflect.set(parent, propName, value, receiver);
           });

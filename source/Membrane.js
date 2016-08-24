@@ -304,6 +304,11 @@ MembraneInternal.prototype = {
   wrapDescriptor: function(originField, targetField, desc) {
     if (!desc)
       return desc;
+
+    // XXX ajvincent This optimization may need to go away for wrapping primitives.
+    if (isDataDescriptor(desc) && (valueType(desc.value) === "primitive"))
+      return desc;
+
     var keys = Object.keys(desc);
 
     var wrappedDesc = {
