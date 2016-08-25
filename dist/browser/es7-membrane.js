@@ -976,15 +976,22 @@ ObjectGraphHandler.prototype = {
           return false;
       }
 
-      let rvProxy = new DataDescriptor(
-        // Only now do we convert the value to the target object graph.
-        this.membrane.convertArgumentToProxy(
-          this,
-          this.membrane.getHandlerByField(receiverMap.originField),
-          value
-        ),
-        true
-      );
+      let rvProxy;
+      if (receiverMap.originField !== this.fieldName) {
+        rvProxy = new DataDescriptor(
+          // Only now do we convert the value to the target object graph.
+          this.membrane.convertArgumentToProxy(
+            this,
+            this.membrane.getHandlerByField(receiverMap.originField),
+            value
+          ),
+          true
+        );
+      }
+      else {
+        rvProxy = new DataDescriptor(value, true);
+      }
+
       return this.externalHandler(function() {
         return Reflect.defineProperty(receiver, propName, rvProxy);
       });
@@ -1023,11 +1030,20 @@ ObjectGraphHandler.prototype = {
     try {
       var targetMap = this.membrane.map.get(target);
       var _this = targetMap.getOriginal();
-      let protoProxy = this.membrane.convertArgumentToProxy(
-        this,
-        this.membrane.getHandlerByField(targetMap.originField),
-        proto
-      );
+
+
+      let protoProxy;
+      if (targetMap.originField !== this.fieldName) {
+        protoProxy = this.membrane.convertArgumentToProxy(
+          this,
+          this.membrane.getHandlerByField(targetMap.originField),
+          proto
+        );
+      }
+      else {
+        protoProxy = proto;
+      }
+
       var rv = this.externalHandler(function() {
         return Reflect.setPrototypeOf(_this, protoProxy);
       });

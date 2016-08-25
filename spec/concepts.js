@@ -148,7 +148,8 @@ describe("basic concepts: ", function() {
 
     let proto2 = Object.getPrototypeOf(k);
     expect(proto1 === proto2).toBe(true);
-    expect(k.ownerDocument === owner).toBe(true);
+    let kOwner = k.ownerDocument;
+    expect(kOwner === owner).toBe(true);
     owner.root = k;
 
     /* This might be cheating, since on the "wet" object graph, there's no
