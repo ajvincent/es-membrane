@@ -711,11 +711,13 @@ ObjectGraphHandler.prototype = {
       var desc = this.externalHandler(function() {
         return Reflect.getOwnPropertyDescriptor(_this, propName);
       });
-      desc = this.membrane.wrapDescriptor(
-        targetMap.originField,
-        this.fieldName,
-        desc
-      );
+      if (desc !== undefined) {
+        desc = this.membrane.wrapDescriptor(
+          targetMap.originField,
+          this.fieldName,
+          desc
+        );
+      }
       return desc;
     }
     catch (e) {
@@ -829,11 +831,13 @@ ObjectGraphHandler.prototype = {
     try {
       var targetMap = this.membrane.map.get(target);
       var _this = targetMap.getOriginal();
-      desc = this.membrane.wrapDescriptor(
-        this.fieldName,
-        targetMap.originField,
-        desc
-      );
+      if (desc !== undefined) {
+        desc = this.membrane.wrapDescriptor(
+          this.fieldName,
+          targetMap.originField,
+          desc
+        );
+      }
       return this.externalHandler(function() {
         return Reflect.defineProperty(_this, propName, desc);
       });
