@@ -13,6 +13,7 @@ SOURCE_FILES = \
 	source/ProxyMapping.js \
 	source/Membrane.js \
 	source/ObjectGraphHandler.js \
+	source/ModifyRulesAPI.js \
 	source/dogfood.js \
 	$(NULL)
 

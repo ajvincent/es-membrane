@@ -46,6 +46,13 @@ function MembraneInternal(options) {
       writable: false,
       enumerable: false,
       configurable: false
+    },
+
+    "modifyRules": {
+      value: new ModifyRulesAPI(this),
+      writable: false,
+      enumerable: true,
+      configurable: false
     }
   });
 }
@@ -147,6 +154,12 @@ MembraneInternal.prototype = {
     return mapping;
   },
 
+  hasHandlerByField: function(field) {
+    if (typeof field !== "string")
+      throw new Error("field is not a string!");
+    return Reflect.ownKeys(this.handlersByFieldName).includes(field);
+  },
+
   /**
    * Get an ObjectGraphHandler object by field name.  Build it if necessary.
    *
@@ -155,7 +168,7 @@ MembraneInternal.prototype = {
    * @returns {ObjectGraphHandler} The handler for the object graph.
    */
   getHandlerByField: function(field) {
-    if (!(field in this.handlersByFieldName))
+    if (!this.hasHandlerByField(field))
       this.handlersByFieldName[field] = new ObjectGraphHandler(this, field);
     return this.handlersByFieldName[field];
   },
@@ -169,6 +182,8 @@ MembraneInternal.prototype = {
    * @returns {Boolean} True if the handler is one we own.
    */
   ownsHandler: function(handler) {
+    if (ChainHandlers.has(handler))
+      handler = handler.baseHandler;
     return (Boolean(handler) &&
             (this.handlersByFieldName[handler.fieldName] === handler));
   },
@@ -184,6 +199,8 @@ MembraneInternal.prototype = {
    */
   wrapArgumentByHandler: function(handler, arg, options = {}) {
     // XXX ajvincent Ensure all callers do not need the return argument!
+    if (ChainHandlers.has(handler))
+      handler = handler.baseHandler;
     if (!(handler instanceof ObjectGraphHandler) ||
         (handler !== this.getHandlerByField(handler.fieldName)))
       throw new Error("wrapArgumentByHandler:  handler mismatch");

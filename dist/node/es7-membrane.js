@@ -212,6 +212,13 @@ function MembraneInternal(options) {
       writable: false,
       enumerable: false,
       configurable: false
+    },
+
+    "modifyRules": {
+      value: new ModifyRulesAPI(this),
+      writable: false,
+      enumerable: true,
+      configurable: false
     }
   });
 }
@@ -313,6 +320,12 @@ MembraneInternal.prototype = {
     return mapping;
   },
 
+  hasHandlerByField: function(field) {
+    if (typeof field !== "string")
+      throw new Error("field is not a string!");
+    return Reflect.ownKeys(this.handlersByFieldName).includes(field);
+  },
+
   /**
    * Get an ObjectGraphHandler object by field name.  Build it if necessary.
    *
@@ -321,7 +334,7 @@ MembraneInternal.prototype = {
    * @returns {ObjectGraphHandler} The handler for the object graph.
    */
   getHandlerByField: function(field) {
-    if (!(field in this.handlersByFieldName))
+    if (!this.hasHandlerByField(field))
       this.handlersByFieldName[field] = new ObjectGraphHandler(this, field);
     return this.handlersByFieldName[field];
   },
@@ -335,6 +348,8 @@ MembraneInternal.prototype = {
    * @returns {Boolean} True if the handler is one we own.
    */
   ownsHandler: function(handler) {
+    if (ChainHandlers.has(handler))
+      handler = handler.baseHandler;
     return (Boolean(handler) &&
             (this.handlersByFieldName[handler.fieldName] === handler));
   },
@@ -350,6 +365,8 @@ MembraneInternal.prototype = {
    */
   wrapArgumentByHandler: function(handler, arg, options = {}) {
     // XXX ajvincent Ensure all callers do not need the return argument!
+    if (ChainHandlers.has(handler))
+      handler = handler.baseHandler;
     if (!(handler instanceof ObjectGraphHandler) ||
         (handler !== this.getHandlerByField(handler.fieldName)))
       throw new Error("wrapArgumentByHandler:  handler mismatch");
@@ -553,7 +570,7 @@ ObjectGraphHandler.prototype = {
    * Error stack trace hiding will be determined by the membrane itself.
    *
    * Hiding of properties should be done by another proxy altogether.
-   * See replaceProxy method for details.
+   * See modifyRules.replaceProxy method for details.
    */
 
   // ProxyHandler
@@ -1234,55 +1251,144 @@ ObjectGraphHandler.prototype = {
       else // typeof revocable == "function"
         revocable();
     }
+  }
+};
+
+} // end ObjectGraphHandler definition
+const ChainHandlers = new WeakSet();
+
+// XXX ajvincent These rules are examples of what DogfoodMembrane should set.
+const ChainHandlerProtection = Object.create(Reflect, {
+  "isProtectedName": new DataDescriptor(function(target, propName) {
+    let rv = ["nextHandler", "baseHandler"];
+    if (target !== Reflect)
+      rv = rv.concat(Reflect.ownKeys(target.baseHandler));
+    return rv.includes(propName);
+  }, false, false, false),
+  
+  "setPrototypeOf": new DataDescriptor(function() {
+    return false;
+  }, false, false, false),
+
+  "deleteProperty": new DataDescriptor(function(target, propName) {
+    if (this.isProtectedName(target, propName))
+      return false;
+    return Reflect.deleteProperty(target, propName);
+  }, false, false, false),
+
+  "defineProperty": new DataDescriptor(function(target, propName, desc) {
+    if (this.isProtectedName(target, propName))
+      return false;
+    return Reflect.defineProperty(target, propName, desc);
+  }, false, false, false)
+});
+
+function ModifyRulesAPI(membrane) {
+  Object.defineProperty(this, "membrane", {
+    value: membrane,
+    writable: false,
+    enumerable: false,
+    configurable: false
+  });
+}
+ModifyRulesAPI.prototype = Object.freeze({
+  createChainHandler: function(existingHandler) {
+    let baseHandler = Reflect, description = "Reflect";
+    if (existingHandler instanceof ObjectGraphHandler) {
+      if (!this.membrane.ownsHandler(existingHandler)) 
+        throw new Error("fieldName must be a string representing an ObjectGraphName in the Membrane, or null to represent Reflect");
+      baseHandler = this.membrane.getHandlerByField(existingHandler.fieldName);
+      description = "our membrane's " + baseHandler.fieldName + " ObjectGraphHandler";
+    }
+    else if (existingHandler !== null) {
+      throw new Error("fieldName must be a string representing an ObjectGraphName in the Membrane, or null to represent Reflect");
+    }
+
+    if ((baseHandler !== existingHandler) && !ChainHandlers.has(existingHandler)) {
+      throw new Error("Existing handler neither is " + description + " nor inherits from it");
+    }
+
+    var rv = Object.create(existingHandler, {
+      "nextHandler": new DataDescriptor(existingHandler, false, false, false),
+      "baseHandler": new DataDescriptor(baseHandler, false, false, false)
+    });
+
+    rv = new Proxy(rv, ChainHandlerProtection);
+    ChainHandlers.add(rv);
+    return rv;
   },
 
   replaceProxy: function(oldProxy, handler) {
-    if (this.__isDead__)
-      throw new Error("This membrane handler is dead!");
+    let baseHandler = ChainHandlers.has(handler) ? handler.baseHandler : handler;
+    {
+      /* These assertions are to make sure the proxy we're replacing is safe to
+       * use in the membrane.
+       */
 
-    /* These assertions are to make sure the proxy we're replacing is safe to
-     * use in the membrane.
-     *
-     * First, ensure the proxy actually belongs to the object graph this
-     * handler represents.
-     */
-    let map = this.membrane.map.get(oldProxy);
-    let thisMsg = "this ObjectGraphHandler (" + this.fieldName + ")";
-    if (!map || map.getProxy(this.fieldName) != oldProxy) {
-      throw new Error("You cannot replace a proxy that doesn't belong to " + thisMsg + "!");
+      /* Ensure it has an appropriate ProxyHandler on its prototype chain.  If
+       * the old proxy is actually the original value, the handler must have
+       * Reflect on its prototype chain.  Otherwise, the handler must have this
+       * on its prototype chain.
+       *
+       * Note that the handler can be Reflect or this, respectively:  that's
+       * perfectly legal, as a way of restoring original behavior for the given
+       * object graph.
+       */
+
+      let accepted = false;
+      if (baseHandler === Reflect) {
+        accepted = true;
+      }
+      else if (baseHandler instanceof ObjectGraphHandler) {
+        let fieldName = baseHandler.fieldName;
+        accepted = (this.membrane.hasHandlerByField(fieldName) &&
+                    (this.membrane.getHandlerByField(fieldName) === baseHandler));
+      }
+
+      if (!accepted) {
+        throw new Error("handler neither inherits from Reflect or an ObjectGraphHandler in this membrane");
+      }
     }
 
-    /* Second, to try and ensure the handler respects the rules of the
-     * membrane and the object graph, ensure it has an appropriate
-     * ProxyHandler on its prototype chain.  If the old proxy is actually the
-     * original value, the handler must have Reflect on its prototype chain.
-     * Otherwise, the handler must have this on its prototype chain.
-     *
-     * Note that the handler can be Reflect or this, respectively:  that's
-     * perfectly legal, as a way of restoring original behavior for the given
-     * object graph.
+    /*
+     * Ensure the proxy actually belongs to the object graph the base handler
+     * represents.
      */
-    let isOrigin = (this.fieldName === map.originField);
-    let baseProto = isOrigin ? Reflect : this;
-    let desiredProto = handler;
-    while (desiredProto !== baseProto) {
-      desiredProto = Object.getPrototypeOf(desiredProto);
-      if (!desiredProto)
-        throw new Error("ProxyHandler must inherit from " + (isOrigin ? "Reflect" : thisMsg) + "!");
+    if (!this.membrane.map.has(oldProxy)) {
+      throw new Error("This membrane does not own the proxy!");
     }
+
+    let map = this.membrane.map.get(oldProxy), cachedProxy, cachedField;
+    if (baseHandler === Reflect) {
+      cachedField = map.originField;
+    }
+    else {
+      cachedField = baseHandler.fieldName;
+    }
+    cachedProxy = map.getProxy(baseHandler.fieldName);      
+    
+    if (cachedProxy != oldProxy)
+      throw new Error("You cannot replace the proxy with a handler from a different object graph!");
 
     // Finally, do the actual proxy replacement.
     let original = map.getOriginal();
     let parts = Proxy.revocable(original, handler);
     parts.value = original;
     parts.override = true;
-    map.set(this.membrane, this.fieldName, parts);
-    this.addRevocable(map.originField === this.fieldName ? mapping : parts.revoke);
+    //parts.extendedHandler = handler;
+    map.set(this.membrane, cachedField, parts);
+
+    let gHandler = this.membrane.getHandlerByField(cachedField);
+    gHandler.addRevocable(map.originField === cachedField ? mapping : parts.revoke);
     return parts.proxy;
   },
-};
 
-} // end ObjectGraphHandler definition
+  /*
+  overrideTrap: function(value, graphName, trapName, newTrap) {
+    
+  },
+  */
+});
 /*
 We will wrap the Membrane constructor in a Membrane, to protect the internal API
 from public usage.  This is known as "eating your own dogfood" in software

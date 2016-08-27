@@ -15,28 +15,30 @@ if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
 }
 
 describe("replacing proxies tests: ", function() {
-  let parts, dryHandler, replacedProxy;
+  let parts, membrane, dryHandler, replacedProxy;
   beforeEach(function() {
     parts = MembraneMocks();
-    dryHandler = parts.membrane.getHandlerByField("dry");
+    membrane = parts.membrane;
+    dryHandler = membrane.getHandlerByField("dry");
     replacedProxy = null;
   });
   afterEach(function() {
     parts = null;
+    membrane = null;
     dryHandler = null;
     replacedProxy = null;
   });
 
   it("Attempting to replace unknown object in dryHandler fails", function() {
     expect(function() {
-      dryHandler.replaceProxy({}, dryHandler);
+      membrane.modifyRules.replaceProxy({}, dryHandler);
     }).toThrow();
   });
 
   it("Attempting to replace wetDocument in dryHandler fails", function() {
     let wetDocument = parts.wet.doc;
     expect(function() {
-      dryHandler.replaceProxy(wetDocument, dryHandler);
+      membrane.modifyRules.replaceProxy(wetDocument, dryHandler);
     }).toThrow();
   });
 
@@ -52,13 +54,13 @@ describe("replacing proxies tests: ", function() {
 
       it("with bare object fails", function() {
         expect(function() {
-          dryHandler.replaceProxy(dryObject, {});
+          membrane.modifyRules.replaceProxy(dryObject, {});
         }).toThrow();
       });
 
       it("with Reflect fails", function() {
         expect(function() {
-          dryHandler.replaceProxy(dryObject, Reflect);
+          membrane.modifyRules.replaceProxy(dryObject, Reflect);
         }).toThrow();
       });
 
@@ -72,27 +74,27 @@ describe("replacing proxies tests: ", function() {
           }
         });
         expect(function() {
-          dryHandler.replaceProxy(dryObject, handler);
+          membrane.modifyRules.replaceProxy(dryObject, handler);
         }).toThrow();
       });
 
       it("handler with dryHandler succeeds", function() {
-        replacedProxy = dryHandler.replaceProxy(dryObject, dryHandler);
+        replacedProxy = membrane.modifyRules.replaceProxy(dryObject, dryHandler);
         let mGN = replacedProxy.membraneGraphName;
         expect(mGN).toBe("dry");
       });
 
       it("handler with dryHandler a second time fails", function() {
-        dryHandler.replaceProxy(dryObject, dryHandler);
+        membrane.modifyRules.replaceProxy(dryObject, dryHandler);
         expect(function() {
-          dryHandler.replaceProxy(dryObject, dryHandler);
+          membrane.modifyRules.replaceProxy(dryObject, dryHandler);
         }).toThrow();
       });
 
       it("'s previously replaced handler with dryHandler succeeds", function() {
-        replacedProxy = dryHandler.replaceProxy(dryObject, dryHandler);
+        replacedProxy = membrane.modifyRules.replaceProxy(dryObject, dryHandler);
         expect(function() {
-          replacedProxy = dryHandler.replaceProxy(replacedProxy, dryHandler);
+          replacedProxy = membrane.modifyRules.replaceProxy(replacedProxy, dryHandler);
         }).not.toThrow();
         let mGN = replacedProxy.membraneGraphName;
         expect(mGN).toBe("dry");
@@ -100,7 +102,11 @@ describe("replacing proxies tests: ", function() {
 
       describe("with object inheriting from dryHandler", function() {
         it("directly succeeds", function() {
-          let handler = Object.create(dryHandler, {
+          let handler = membrane.modifyRules.createChainHandler(dryHandler);
+          expect(handler.nextHandler).toBe(dryHandler);
+          expect(handler.baseHandler).toBe(dryHandler);
+
+          Object.defineProperties(handler, {
             "thisIsATest": {
               value: true,
               writable: true,
@@ -108,13 +114,23 @@ describe("replacing proxies tests: ", function() {
               configurable: true
             }
           });
-          replacedProxy = dryHandler.replaceProxy(dryObject, handler);
+
+          replacedProxy = membrane.modifyRules.replaceProxy(dryObject, handler);
+          let [found, cachedProxy] = membrane.getMembraneProxy("dry", dryObject);
+          expect(found).toBe(true);
+          expect(cachedProxy).toBe(replacedProxy);
+
+          [found, cachedProxy] = membrane.getMembraneProxy("dry", replacedProxy);
+          expect(found).toBe(true);
+          expect(cachedProxy).toBe(replacedProxy);
+
           let mGN = replacedProxy.membraneGraphName;
           expect(mGN).toBe("dry");
         });
 
         it("indirectly succeeds", function() {
-          let handler = Object.create(dryHandler, {
+          let handler = membrane.modifyRules.createChainHandler(dryHandler);
+          Object.defineProperties(handler, {
             "thisIsATest": {
               value: true,
               writable: true,
@@ -122,7 +138,11 @@ describe("replacing proxies tests: ", function() {
               configurable: true
             }
           });
-          handler = Object.create(handler, {
+          let handler2 = membrane.modifyRules.createChainHandler(handler);
+          expect(handler2.nextHandler).toBe(handler);
+          expect(handler2.baseHandler).toBe(dryHandler);
+
+          Object.defineProperties(handler2, {
             "anotherTest": {
               value: true,
               writable: true,
@@ -130,9 +150,51 @@ describe("replacing proxies tests: ", function() {
               configurable: true
             }
           });
-          replacedProxy = dryHandler.replaceProxy(dryObject, handler);
+          replacedProxy = membrane.modifyRules.replaceProxy(dryObject, handler2);
           let mGN = replacedProxy.membraneGraphName;
           expect(mGN).toBe("dry");
+        });
+
+        it("and replacing all traps with forwarding traps", function() {
+          let handler = membrane.modifyRules.createChainHandler(dryHandler);
+          const trapList = [
+            "getPrototypeOf",
+            "setPrototypeOf",
+            "isExtensible",
+            "preventExtensions",
+            "getOwnPropertyDescriptor",
+            "defineProperty",
+            "has",
+            "get",
+            "set",
+            "deleteProperty",
+            "ownKeys",
+            "apply",
+            "construct"
+          ];
+          let numCalls = 0;
+          trapList.forEach(function(trapName) {
+            handler[trapName] = function() {
+              numCalls++;
+              return this.nextHandler[trapName].apply(this, arguments);
+            };
+          });
+
+          replacedProxy = membrane.modifyRules.replaceProxy(dryObject, handler);
+          let mGN = replacedProxy.membraneGraphName;
+          expect(mGN).toBe("dry");
+          expect(numCalls).toBeGreaterThan(0);
+
+          /* XXX ajvincent It's unclear in this sort of scenario whether
+           * handler.get() should call handler.getOwnPropertyDescriptor()
+           * indirectly via handler.baseHandler.get().  Thus, a proxy overriding
+           * only .getOwnPropertyDescriptor to add or hide properties might not
+           * mirror that behavior through the handler's .get trap.  Similar
+           * ambiguities exist with .set, .defineProperty, also.
+           *
+           * The most "natural" behavior, I think, is yes, to use the
+           * nextHandler's trap as a method of this, via .apply().
+           */
         });
       });
     };

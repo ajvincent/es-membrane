@@ -33,7 +33,7 @@ ObjectGraphHandler.prototype = {
    * Error stack trace hiding will be determined by the membrane itself.
    *
    * Hiding of properties should be done by another proxy altogether.
-   * See replaceProxy method for details.
+   * See modifyRules.replaceProxy method for details.
    */
 
   // ProxyHandler
@@ -714,52 +714,7 @@ ObjectGraphHandler.prototype = {
       else // typeof revocable == "function"
         revocable();
     }
-  },
-
-  replaceProxy: function(oldProxy, handler) {
-    if (this.__isDead__)
-      throw new Error("This membrane handler is dead!");
-
-    /* These assertions are to make sure the proxy we're replacing is safe to
-     * use in the membrane.
-     *
-     * First, ensure the proxy actually belongs to the object graph this
-     * handler represents.
-     */
-    let map = this.membrane.map.get(oldProxy);
-    let thisMsg = "this ObjectGraphHandler (" + this.fieldName + ")";
-    if (!map || map.getProxy(this.fieldName) != oldProxy) {
-      throw new Error("You cannot replace a proxy that doesn't belong to " + thisMsg + "!");
-    }
-
-    /* Second, to try and ensure the handler respects the rules of the
-     * membrane and the object graph, ensure it has an appropriate
-     * ProxyHandler on its prototype chain.  If the old proxy is actually the
-     * original value, the handler must have Reflect on its prototype chain.
-     * Otherwise, the handler must have this on its prototype chain.
-     *
-     * Note that the handler can be Reflect or this, respectively:  that's
-     * perfectly legal, as a way of restoring original behavior for the given
-     * object graph.
-     */
-    let isOrigin = (this.fieldName === map.originField);
-    let baseProto = isOrigin ? Reflect : this;
-    let desiredProto = handler;
-    while (desiredProto !== baseProto) {
-      desiredProto = Object.getPrototypeOf(desiredProto);
-      if (!desiredProto)
-        throw new Error("ProxyHandler must inherit from " + (isOrigin ? "Reflect" : thisMsg) + "!");
-    }
-
-    // Finally, do the actual proxy replacement.
-    let original = map.getOriginal();
-    let parts = Proxy.revocable(original, handler);
-    parts.value = original;
-    parts.override = true;
-    map.set(this.membrane, this.fieldName, parts);
-    this.addRevocable(map.originField === this.fieldName ? mapping : parts.revoke);
-    return parts.proxy;
-  },
+  }
 };
 
 } // end ObjectGraphHandler definition
