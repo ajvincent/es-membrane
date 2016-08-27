@@ -68,16 +68,22 @@ ProxyMapping.prototype.set = function(membrane, field, parts) {
 
   this.proxiedFields[field] = parts;
 
-  if (override || (field !== this.originField))
+  if (override || (field !== this.originField)) {
+    if (DogfoodMembrane && (membrane !== DogfoodMembrane))
+      DogfoodMembrane.ProxyToMembraneMap.add(parts.proxy);
     membrane.map.set(parts.proxy, this);
+  }
   else if (this.originalValue === NOT_YET_DETERMINED) {
     this.originalValue = parts.value;
     delete parts.proxy;
     delete parts.revoke;
   }
   
-  if (!membrane.map.has(parts.value))
+  if (!membrane.map.has(parts.value)) {
+    if (DogfoodMembrane && (membrane !== DogfoodMembrane))
+      DogfoodMembrane.ProxyToMembraneMap.add(parts.value);
     membrane.map.set(parts.value, this);
+  }
   else
     assert(this === membrane.map.get(parts.value), "ProxyMapping mismatch?");
 };
