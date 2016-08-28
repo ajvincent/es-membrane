@@ -155,7 +155,8 @@ describe("replacing proxies tests: ", function() {
           expect(mGN).toBe("dry");
         });
 
-        it("and replacing all traps with forwarding traps", function() {
+        it("and replacing all traps with forwarding traps succeeds",
+           function() {
           let handler = membrane.modifyRules.createChainHandler(dryHandler);
           let numCalls = 0;
           membrane.allTraps.forEach(function(trapName) {
@@ -181,6 +182,14 @@ describe("replacing proxies tests: ", function() {
            * nextHandler's trap as a method of this, via .apply().
            */
         });
+
+        it("and then again with the original dryHandler succeeds", function() {
+          let handler = membrane.modifyRules.createChainHandler(dryHandler);
+          replacedProxy = membrane.modifyRules.replaceProxy(dryObject, handler);
+          replacedProxy = membrane.modifyRules.replaceProxy(replacedProxy, dryHandler);
+          let mGN = replacedProxy.membraneGraphName;
+          expect(mGN).toBe("dry");
+        });
       });
     };
   };
@@ -202,4 +211,92 @@ describe("replacing proxies tests: ", function() {
       }
     )
   );
+
+  describe("Replacing wetDocument", function() {
+    it("with a direct Reflect proxy works", function() {
+      let wetDocument = parts.wet.doc;
+      let [found, wetProxy] = membrane.getMembraneProxy("wet", wetDocument);
+      expect(found).toBe(true);
+      expect(wetProxy).toBe(wetDocument);
+
+      membrane.modifyRules.replaceProxy(wetDocument, Reflect);
+      [found, wetProxy] = membrane.getMembraneProxy("wet", wetDocument);
+      expect(found).toBe(true);
+      expect(wetProxy).not.toBe(wetDocument);
+      expect(wetProxy.nodeName).toBe("#document");
+    });
+
+    it("with an indirect Reflect proxy works", function() {
+      let wetDocument = parts.wet.doc;
+      let [found, wetProxy] = membrane.getMembraneProxy("wet", wetDocument);
+      expect(found).toBe(true);
+      expect(wetProxy).toBe(wetDocument);
+      expect(wetProxy.nodeName).toBe("#document");
+
+      let keys = Reflect.ownKeys(wetProxy);
+      expect(keys.includes("shouldNotBeAmongKeys")).toBe(true);
+      
+      let handler = membrane.modifyRules.createChainHandler(Reflect);
+      expect(handler.nextHandler).toBe(Reflect);
+      expect(handler.baseHandler).toBe(Reflect);
+      let lastVisited = null;
+      membrane.allTraps.forEach(function(trapName) {
+        handler[trapName] = function() {
+          try {
+            var rv = this.nextHandler[trapName].apply(this, arguments);
+            if ((trapName == "ownKeys") && rv.includes("shouldNotBeAmongKeys")) {
+              rv.splice(rv.indexOf("shouldNotBeAmongKeys"), 1);
+            }
+            return rv;
+          }
+          finally {
+            lastVisited = trapName;
+          }
+        };
+      });
+
+      let proxy = membrane.modifyRules.replaceProxy(wetDocument, handler);
+      [found, wetProxy] = membrane.getMembraneProxy("wet", wetDocument);
+      expect(found).toBe(true);
+      expect(wetProxy).not.toBe(wetDocument);
+      expect(wetProxy).toBe(proxy);
+      let name = wetProxy.nodeName;
+      expect(name).toBe("#document");
+      expect(lastVisited).toBe("get");
+
+      keys = Reflect.ownKeys(wetProxy);
+      expect(keys.includes("shouldNotBeAmongKeys")).toBe(false);
+      expect(lastVisited).toBe("ownKeys");
+
+      // This tests propagation of newly generated properties across the membrane.
+      let dryDocument = parts.dry.doc;
+      keys = Reflect.ownKeys(dryDocument);
+      expect(keys.includes("shouldNotBeAmongKeys")).toBe(false);
+      expect(lastVisited).toBe("ownKeys");
+    });
+
+    it(
+      "with a proxy inheriting from the wet object graph does not work",
+      function() {
+        let wetDocument = parts.wet.doc;
+        let wetHandler = membrane.getHandlerByField("wet");
+        let found, wetProxy;
+
+        expect(function() {
+          wetDocument = membrane.modifyRules.replaceProxy(wetDocument, wetHandler);
+        }).toThrow();
+        [found, wetProxy] = membrane.getMembraneProxy("wet", wetDocument);
+        expect(found).toBe(true);
+        expect(wetProxy).toBe(wetDocument);
+
+        let handler = membrane.modifyRules.createChainHandler(wetHandler);
+        expect(function() {
+          wetDocument = membrane.modifyRules.replaceProxy(wetDocument, handler);
+        }).toThrow();
+        [found, wetProxy] = membrane.getMembraneProxy("wet", wetDocument);
+        expect(found).toBe(true);
+        expect(wetProxy).toBe(wetDocument);
+      }
+    );
+  });
 });

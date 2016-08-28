@@ -47,9 +47,10 @@ const ChainHandlerProtection = Object.create(Reflect, {
    * Return true if a property should not be deleted or redefined.
    */
   "isProtectedName": new DataDescriptor(function(chainHandler, propName) {
-    let rv = ["nextHandler", "baseHandler"];
-    if (chainHandler !== Reflect)
-      rv = rv.concat(Reflect.ownKeys(chainHandler.baseHandler));
+    let rv = ["nextHandler", "baseHandler", "membrane"];
+    let baseHandler = chainHandler.baseHandler;
+    if (baseHandler !== Reflect)
+      rv = rv.concat(Reflect.ownKeys(baseHandler));
     return rv.includes(propName);
   }, false, false, false),
 
@@ -127,7 +128,8 @@ ModifyRulesAPI.prototype = Object.seal({
 
     var rv = Object.create(existingHandler, {
       "nextHandler": new DataDescriptor(existingHandler, false, false, false),
-      "baseHandler": new DataDescriptor(baseHandler, false, false, false)
+      "baseHandler": new DataDescriptor(baseHandler, false, false, false),
+      "membrane":    new DataDescriptor(this.membrane, false, false, false),
     });
 
     rv = new Proxy(rv, ChainHandlerProtection);
@@ -188,8 +190,10 @@ ModifyRulesAPI.prototype = Object.seal({
     }
     else {
       cachedField = baseHandler.fieldName;
+      if (cachedField == map.originField)
+        throw new Error("You must replace original values with either Reflect or a ChainHandler inheriting from Reflect");
     }
-    cachedProxy = map.getProxy(baseHandler.fieldName);      
+    cachedProxy = map.getProxy(cachedField);
     
     if (cachedProxy != oldProxy)
       throw new Error("You cannot replace the proxy with a handler from a different object graph!");
@@ -203,7 +207,7 @@ ModifyRulesAPI.prototype = Object.seal({
     map.set(this.membrane, cachedField, parts);
 
     let gHandler = this.membrane.getHandlerByField(cachedField);
-    gHandler.addRevocable(map.originField === cachedField ? mapping : parts.revoke);
+    gHandler.addRevocable(map.originField === cachedField ? map : parts.revoke);
     return parts.proxy;
   },
 });

@@ -24,7 +24,7 @@ function ProxyMapping(originField) {
 ProxyMapping.prototype.getOriginal = function() {
   if (this.originalValue === NOT_YET_DETERMINED)
     throw new Error("getOriginal called but the original value hasn't been set!");
-  return this.originalValue;
+  return this.getProxy(this.originField);
 };
 
 ProxyMapping.prototype.hasField = function(field) {
@@ -43,7 +43,7 @@ ProxyMapping.prototype.getProxy = function(field) {
   var rv = this.proxiedFields[field];
   if (!rv)
     throw new Error("getProxy called for unknown field!");
-  rv = (field === this.originField) ? rv.value : rv.proxy;
+  rv = (!rv.override && (field === this.originField)) ? rv.value : rv.proxy;
   return rv;
 };
 
@@ -71,8 +71,6 @@ ProxyMapping.prototype.set = function(membrane, field, parts) {
   let override = (typeof parts.override === "boolean") && parts.override;
   if (!override && this.hasField(field))
     throw new Error("set called for previously defined field!");
-
-  delete parts.override;
 
   this.proxiedFields[field] = parts;
 
