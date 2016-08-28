@@ -6,6 +6,7 @@ var {
     AccessorDescriptor,
     isDataDescriptor,
     isAccessorDescriptor,
+    allTraps,
 } = require("./utilities.js");
 var { Membrane } = require("./es7-membrane.js");
 function MembraneMocks() {

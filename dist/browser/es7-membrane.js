@@ -1293,6 +1293,18 @@ const ChainHandlerProtection = Object.create(Reflect, {
   "defineProperty": new DataDescriptor(function(chainHandler, propName, desc) {
     if (this.isProtectedName(chainHandler, propName))
       return false;
+
+    if (allTraps.includes(propName)) {
+      if (!isDataDescriptor(desc) || (typeof desc.value !== "function"))
+        return false;
+      desc = {
+        value: inGraphHandler(propName, desc.value),
+        writable: desc.writable,
+        enumerable: desc.enumerable,
+        configurable: desc.configurable,
+      };
+    }
+
     return Reflect.defineProperty(chainHandler, propName, desc);
   }, false, false, false)
 });

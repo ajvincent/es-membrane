@@ -5,4 +5,5 @@ var {
     AccessorDescriptor,
     isDataDescriptor,
     isAccessorDescriptor,
+    allTraps,
 } = require("./utilities.js");

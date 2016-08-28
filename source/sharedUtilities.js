@@ -37,3 +37,19 @@ function isAccessorDescriptor(desc) {
     return false;
   return true;
 }
+
+const allTraps = Object.freeze([
+  "getPrototypeOf",
+  "setPrototypeOf",
+  "isExtensible",
+  "preventExtensions",
+  "getOwnPropertyDescriptor",
+  "defineProperty",
+  "has",
+  "get",
+  "set",
+  "deleteProperty",
+  "ownKeys",
+  "apply",
+  "construct"
+]);
