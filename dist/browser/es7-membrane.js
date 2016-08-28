@@ -9,9 +9,10 @@ function valueType(value) {
 
 function inGraphHandler(trapName, callback) {
   return function() {
-    this.membrane.handlerStack.unshift(trapName);
+    let mayLog = this.membrane.__mayLog__();
 
-    if (typeof this.logger == "object") {
+    this.membrane.handlerStack.unshift(trapName);
+    if (mayLog) {
       this.logger.trace(
         trapName + " inGraphHandler++",
         this.membrane.handlerStack.length - 2
@@ -27,7 +28,7 @@ function inGraphHandler(trapName, callback) {
 
     finally {
       this.membrane.handlerStack.shift();
-      if (typeof this.logger == "object") {
+      if (mayLog) {
         this.logger.trace(
           trapName + " inGraphHandler--",
           this.membrane.handlerStack.length - 2
@@ -45,6 +46,17 @@ Object.defineProperty(
   "not_yet_determined",
   new DataDescriptor(true)
 );
+
+/**
+ * Helper function to determine if anyone may log.
+ * @private
+ *
+ * @returns {Boolean} True if logging is permitted.
+ */
+// This function is here because I can blacklist moduleUtilities during debugging.
+function MembraneMayLog() {
+  return (typeof this.logger == "object") && Boolean(this.logger);
+}
 function ProxyMapping(originField) {
   this.originField = originField;
   this.proxiedFields = {
@@ -516,15 +528,9 @@ MembraneInternal.prototype = Object.seal({
     return this.handlerStack[1] !== "external";
   },
 
-  /**
-   * Helper function to determine if anyone may log.
-   * @private
-   *
-   * @returns {Boolean} True if logging is permitted.
-   */
-  __mayLog__: function() {
-    return (typeof this.logger == "object") && Boolean(this.logger);
-  },
+
+
+  __mayLog__: MembraneMayLog,
 });
 
 } // end Membrane definition

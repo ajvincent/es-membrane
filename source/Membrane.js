@@ -355,15 +355,9 @@ MembraneInternal.prototype = Object.seal({
     return this.handlerStack[1] !== "external";
   },
 
-  /**
-   * Helper function to determine if anyone may log.
-   * @private
-   *
-   * @returns {Boolean} True if logging is permitted.
-   */
-  __mayLog__: function() {
-    return (typeof this.logger == "object") && Boolean(this.logger);
-  },
+
+
+  __mayLog__: MembraneMayLog,
 });
 
 } // end Membrane definition
