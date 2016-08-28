@@ -34,7 +34,7 @@ function ModifyRulesAPI(membrane) {
     configurable: false
   });
 }
-ModifyRulesAPI.prototype = Object.freeze({
+ModifyRulesAPI.prototype = Object.seal({
   createChainHandler: function(existingHandler) {
     let baseHandler = Reflect, description = "Reflect";
     if (existingHandler instanceof ObjectGraphHandler) {
@@ -132,3 +132,4 @@ ModifyRulesAPI.prototype = Object.freeze({
   },
   */
 });
+Object.seal(ModifyRulesAPI);

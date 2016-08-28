@@ -163,7 +163,11 @@ ProxyMapping.prototype.revoke = function() {
     this.proxiedFields[fields[i]].revoke();
   }
 };
+
+Object.seal(ProxyMapping.prototype);
 } // end ProxyMapping definition
+
+Object.seal(ProxyMapping);
 /* Reference:  http://soft.vub.ac.be/~tvcutsem/invokedynamic/js-membranes
  * Definitions:
  * Object graph: A collection of values that talk to each other directly.
@@ -223,7 +227,7 @@ function MembraneInternal(options) {
   });
 }
 { // Membrane definition
-MembraneInternal.prototype = {
+MembraneInternal.prototype = Object.seal({
   /**
    * Returns true if we have a proxy for the value.
    */
@@ -532,9 +536,10 @@ MembraneInternal.prototype = {
   __mayLog__: function() {
     return (typeof this.logger == "object") && Boolean(this.logger);
   },
-};
-} // end Membrane definition
+});
 
+} // end Membrane definition
+Object.seal(MembraneInternal);
 /* A proxy handler designed to return only primitives and objects in a given
  * object graph, defined by the fieldName.
  */
@@ -559,7 +564,7 @@ function ObjectGraphHandler(membrane, fieldName) {
   });
 }
 { // ObjectGraphHandler definition
-ObjectGraphHandler.prototype = {
+ObjectGraphHandler.prototype = Object.seal({
   /* Strategy for each handler trap:
    * (1) Determine the target's origin field name.
    * (2) Wrap all non-primitive arguments for Reflect in the target field.
@@ -1252,34 +1257,42 @@ ObjectGraphHandler.prototype = {
         revocable();
     }
   }
-};
+});
 
 } // end ObjectGraphHandler definition
+
+Object.seal(ObjectGraphHandler);
 const ChainHandlers = new WeakSet();
 
 // XXX ajvincent These rules are examples of what DogfoodMembrane should set.
 const ChainHandlerProtection = Object.create(Reflect, {
-  "isProtectedName": new DataDescriptor(function(target, propName) {
+  /**
+   * List the property names which cannot be changed.
+   */
+  "isProtectedName": new DataDescriptor(function(chainHandler, propName) {
     let rv = ["nextHandler", "baseHandler"];
-    if (target !== Reflect)
-      rv = rv.concat(Reflect.ownKeys(target.baseHandler));
+    if (chainHandler !== Reflect)
+      rv = rv.concat(Reflect.ownKeys(chainHandler.baseHandler));
     return rv.includes(propName);
   }, false, false, false),
-  
+
+  /**
+   * Deny setting the prototype of a ChainHandler.
+   */
   "setPrototypeOf": new DataDescriptor(function() {
     return false;
   }, false, false, false),
 
-  "deleteProperty": new DataDescriptor(function(target, propName) {
-    if (this.isProtectedName(target, propName))
+  "deleteProperty": new DataDescriptor(function(chainHandler, propName) {
+    if (this.isProtectedName(chainHandler, propName))
       return false;
-    return Reflect.deleteProperty(target, propName);
+    return Reflect.deleteProperty(chainHandler, propName);
   }, false, false, false),
 
-  "defineProperty": new DataDescriptor(function(target, propName, desc) {
-    if (this.isProtectedName(target, propName))
+  "defineProperty": new DataDescriptor(function(chainHandler, propName, desc) {
+    if (this.isProtectedName(chainHandler, propName))
       return false;
-    return Reflect.defineProperty(target, propName, desc);
+    return Reflect.defineProperty(chainHandler, propName, desc);
   }, false, false, false)
 });
 
@@ -1389,6 +1402,8 @@ ModifyRulesAPI.prototype = Object.freeze({
   },
   */
 });
+
+Object.freeze(ModifyRulesAPI);
 /*
 We will wrap the Membrane constructor in a Membrane, to protect the internal API
 from public usage.  This is known as "eating your own dogfood" in software

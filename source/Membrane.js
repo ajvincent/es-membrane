@@ -57,7 +57,7 @@ function MembraneInternal(options) {
   });
 }
 { // Membrane definition
-MembraneInternal.prototype = {
+MembraneInternal.prototype = Object.seal({
   /**
    * Returns true if we have a proxy for the value.
    */
@@ -366,6 +366,7 @@ MembraneInternal.prototype = {
   __mayLog__: function() {
     return (typeof this.logger == "object") && Boolean(this.logger);
   },
-};
-} // end Membrane definition
+});
 
+} // end Membrane definition
+Object.seal(MembraneInternal);

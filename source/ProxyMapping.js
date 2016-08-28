@@ -107,4 +107,8 @@ ProxyMapping.prototype.revoke = function() {
     this.proxiedFields[fields[i]].revoke();
   }
 };
+
+Object.seal(ProxyMapping.prototype);
 } // end ProxyMapping definition
+
+Object.seal(ProxyMapping);

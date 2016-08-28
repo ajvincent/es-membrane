@@ -22,7 +22,7 @@ function ObjectGraphHandler(membrane, fieldName) {
   });
 }
 { // ObjectGraphHandler definition
-ObjectGraphHandler.prototype = {
+ObjectGraphHandler.prototype = Object.seal({
   /* Strategy for each handler trap:
    * (1) Determine the target's origin field name.
    * (2) Wrap all non-primitive arguments for Reflect in the target field.
@@ -715,6 +715,8 @@ ObjectGraphHandler.prototype = {
         revocable();
     }
   }
-};
+});
 
 } // end ObjectGraphHandler definition
+
+Object.seal(ObjectGraphHandler);
