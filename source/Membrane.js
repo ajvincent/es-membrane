@@ -163,12 +163,13 @@ MembraneInternal.prototype = Object.seal({
   /**
    * Get an ObjectGraphHandler object by field name.  Build it if necessary.
    *
-   * @param field {String} The field name for the object graph.
+   * @param field      {String}  The field name for the object graph.
+   * @param mustCreate {Boolean} True if we must create a missing graph handler.
    *
    * @returns {ObjectGraphHandler} The handler for the object graph.
    */
-  getHandlerByField: function(field) {
-    if (!this.hasHandlerByField(field))
+  getHandlerByField: function(field, mustCreate = true) {
+    if (mustCreate && !this.hasHandlerByField(field))
       this.handlersByFieldName[field] = new ObjectGraphHandler(this, field);
     return this.handlersByFieldName[field];
   },
@@ -176,16 +177,13 @@ MembraneInternal.prototype = Object.seal({
   /**
    * Determine if the handler is a ObjectGraphHandler for this object graph.
    *
-   * XXX ajvincent With ObjectGraphHandler.replaceProxy, we must check the
-   * prototype chain!
-   *
    * @returns {Boolean} True if the handler is one we own.
    */
   ownsHandler: function(handler) {
     if (ChainHandlers.has(handler))
       handler = handler.baseHandler;
-    return (Boolean(handler) &&
-            (this.handlersByFieldName[handler.fieldName] === handler));
+    return (handler instanceof ObjectGraphHandler) &&
+           (this.handlersByFieldName[handler.fieldName] === handler);
   },
 
   /**

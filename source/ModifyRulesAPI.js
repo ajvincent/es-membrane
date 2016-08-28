@@ -2,48 +2,69 @@ const ChainHandlers = new WeakSet();
 
 // XXX ajvincent These rules are examples of what DogfoodMembrane should set.
 const ChainHandlerProtection = Object.create(Reflect, {
-  "isProtectedName": new DataDescriptor(function(target, propName) {
+  /**
+   * Return true if a property should not be deleted or redefined.
+   */
+  "isProtectedName": new DataDescriptor(function(chainHandler, propName) {
     let rv = ["nextHandler", "baseHandler"];
-    if (target !== Reflect)
-      rv = rv.concat(Reflect.ownKeys(target.baseHandler));
+    if (chainHandler !== Reflect)
+      rv = rv.concat(Reflect.ownKeys(chainHandler.baseHandler));
     return rv.includes(propName);
   }, false, false, false),
-  
+
+  /**
+   * Thou shalt not set the prototype of a ChainHandler.
+   */
   "setPrototypeOf": new DataDescriptor(function() {
     return false;
   }, false, false, false),
 
-  "deleteProperty": new DataDescriptor(function(target, propName) {
-    if (this.isProtectedName(target, propName))
+  /**
+   * Proxy/handler trap restricting which properties may be deleted.
+   */
+  "deleteProperty": new DataDescriptor(function(chainHandler, propName) {
+    if (this.isProtectedName(chainHandler, propName))
       return false;
-    return Reflect.deleteProperty(target, propName);
+    return Reflect.deleteProperty(chainHandler, propName);
   }, false, false, false),
 
-  "defineProperty": new DataDescriptor(function(target, propName, desc) {
-    if (this.isProtectedName(target, propName))
+  /**
+   * Proxy/handler trap restricting which properties may be redefined.
+   */
+  "defineProperty": new DataDescriptor(function(chainHandler, propName, desc) {
+    if (this.isProtectedName(chainHandler, propName))
       return false;
-    return Reflect.defineProperty(target, propName, desc);
+    return Reflect.defineProperty(chainHandler, propName, desc);
   }, false, false, false)
 });
 
 function ModifyRulesAPI(membrane) {
-  Object.defineProperty(this, "membrane", {
-    value: membrane,
-    writable: false,
-    enumerable: false,
-    configurable: false
-  });
+  Object.defineProperty(this, "membrane", new DataDescriptor(
+    membrane, false, false, false
+  ));
+  Object.seal(this);
 }
 ModifyRulesAPI.prototype = Object.seal({
+  /**
+   * Create a ProxyHandler inheriting from Reflect or an ObjectGraphHandler.
+   *
+   * @param existingHandler {ProxyHandler} The prototype of the new handler.
+   */
   createChainHandler: function(existingHandler) {
+    // Yes, the logic is a little convoluted, but it seems to work this way.
     let baseHandler = Reflect, description = "Reflect";
+    if (ChainHandlers.has(existingHandler))
+      baseHandler = existingHandler.baseHandler;
+
     if (existingHandler instanceof ObjectGraphHandler) {
       if (!this.membrane.ownsHandler(existingHandler)) 
         throw new Error("fieldName must be a string representing an ObjectGraphName in the Membrane, or null to represent Reflect");
+
       baseHandler = this.membrane.getHandlerByField(existingHandler.fieldName);
       description = "our membrane's " + baseHandler.fieldName + " ObjectGraphHandler";
     }
-    else if (existingHandler !== null) {
+
+    else if (baseHandler !== Reflect) {
       throw new Error("fieldName must be a string representing an ObjectGraphName in the Membrane, or null to represent Reflect");
     }
 
@@ -61,6 +82,13 @@ ModifyRulesAPI.prototype = Object.seal({
     return rv;
   },
 
+  /**
+   * Replace a proxy in the membrane.
+   *
+   * @param oldProxy {Proxy} The proxy to replace.
+   * @param handler  {ProxyHandler} What to base the new proxy on.
+   * 
+   */
   replaceProxy: function(oldProxy, handler) {
     let baseHandler = ChainHandlers.has(handler) ? handler.baseHandler : handler;
     {
@@ -84,8 +112,8 @@ ModifyRulesAPI.prototype = Object.seal({
       }
       else if (baseHandler instanceof ObjectGraphHandler) {
         let fieldName = baseHandler.fieldName;
-        accepted = (this.membrane.hasHandlerByField(fieldName) &&
-                    (this.membrane.getHandlerByField(fieldName) === baseHandler));
+        let ownedHandler = this.membrane.getHandlerByField(fieldName, false);
+        accepted = ownedHandler === baseHandler;
       }
 
       if (!accepted) {
