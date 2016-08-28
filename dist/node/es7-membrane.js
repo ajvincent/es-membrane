@@ -241,6 +241,8 @@ function MembraneInternal(options) {
 }
 { // Membrane definition
 MembraneInternal.prototype = Object.seal({
+  allTraps: allTraps,
+
   /**
    * Returns true if we have a proxy for the value.
    */
@@ -537,8 +539,6 @@ MembraneInternal.prototype = Object.seal({
   calledFromHandlerTrap: function() {
     return this.handlerStack[1] !== "external";
   },
-
-
 
   __mayLog__: MembraneMayLog,
 });

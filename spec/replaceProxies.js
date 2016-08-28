@@ -157,23 +157,8 @@ describe("replacing proxies tests: ", function() {
 
         it("and replacing all traps with forwarding traps", function() {
           let handler = membrane.modifyRules.createChainHandler(dryHandler);
-          const trapList = [
-            "getPrototypeOf",
-            "setPrototypeOf",
-            "isExtensible",
-            "preventExtensions",
-            "getOwnPropertyDescriptor",
-            "defineProperty",
-            "has",
-            "get",
-            "set",
-            "deleteProperty",
-            "ownKeys",
-            "apply",
-            "construct"
-          ];
           let numCalls = 0;
-          trapList.forEach(function(trapName) {
+          membrane.allTraps.forEach(function(trapName) {
             handler[trapName] = function() {
               numCalls++;
               return this.nextHandler[trapName].apply(this, arguments);
