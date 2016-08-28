@@ -9,8 +9,9 @@ var {
     allTraps,
 } = require("./utilities.js");
 var { Membrane } = require("./es7-membrane.js");
-function MembraneMocks() {
+function MembraneMocks(includeDamp) {
   "use strict";
+  includeDamp = Boolean(includeDamp);
 function EventListenerWet() {
   this.__events__ = [];
 }
@@ -298,8 +299,26 @@ var ElementDry, NodeDry, dryDocument;
   [found, NodeDry] = dryWetMB.getMembraneProxy("dry", NodeWet);
   assert(found, "NodeDry not found as a proxy!");
 }
+function dampObjectGraph(parts) {
+    parts.handlers = {
+        "wet":  parts.membrane.getHandlerByField("wet"),
+        "dry":  parts.membrane.getHandlerByField("dry"),
+        "damp": parts.membrane.getHandlerByField("damp"),
+    };
+
+    let keys = Object.getOwnPropertyNames(parts.wet);
+    parts.damp = {};
+    for (let i = 0; i < keys.length; i++) {
+        let key = keys[i];
+        parts.damp[key] = parts.membrane.convertArgumentToProxy(
+            parts.handlers.wet,
+            parts.handlers.damp,
+            parts.wet[key]
+        );
+    }
+}
   // The bare essentials.
-  return {
+  var Mocks = {
     wet: {
       doc: wetDocument,
       Node: NodeWet,
@@ -313,5 +332,10 @@ var ElementDry, NodeDry, dryDocument;
 
     membrane: dryWetMB
   };
+
+  if (includeDamp)
+    dampObjectGraph(Mocks); 
+
+  return Mocks;
 }
 exports.MembraneMocks = MembraneMocks;

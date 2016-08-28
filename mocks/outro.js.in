@@ -1,5 +1,5 @@
   // The bare essentials.
-  return {
+  var Mocks = {
     wet: {
       doc: wetDocument,
       Node: NodeWet,
@@ -13,4 +13,9 @@
 
     membrane: dryWetMB
   };
+
+  if (includeDamp)
+    dampObjectGraph(Mocks); 
+
+  return Mocks;
 }

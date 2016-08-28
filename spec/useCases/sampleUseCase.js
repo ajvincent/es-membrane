@@ -7,19 +7,10 @@ if (typeof MembraneMocks != "function") {
         throw new Error("Unable to run tests: cannot get MembraneMocks");
 }
 
-if (typeof dampObjectGraph != "function") {
-    if (typeof require == "function") {
-        var { dampObjectGraph } = require("../../mocks/dampObjectGraph.js");
-    }
-    else
-        throw new Error("Unable to run tests:  cannot get dampObjectGraph");
-}
-
 {
     let MockupsForThisTest = function() {
         // This function you're free to customize any way you want.
-        let parts = MembraneMocks();
-        dampObjectGraph(parts);
+        let parts = MembraneMocks(true);
     
         let dryProto = parts.membrane.convertArgumentToProxy(
             parts.handlers.wet,

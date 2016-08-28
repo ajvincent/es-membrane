@@ -1,6 +1,6 @@
 function dampObjectGraph(parts) {
     parts.handlers = {
-        "wet":  parts.membrane.getHandlerbyField("wet"),
+        "wet":  parts.membrane.getHandlerByField("wet"),
         "dry":  parts.membrane.getHandlerByField("dry"),
         "damp": parts.membrane.getHandlerByField("damp"),
     };
@@ -15,9 +15,4 @@ function dampObjectGraph(parts) {
             parts.wet[key]
         );
     }
-}
-
-if ((typeof module == "object") && (typeof module.exports == "object"))
-{
-    module.exports.dampObjectGraph = dampObjectGraph;
 }

@@ -420,18 +420,10 @@ describe("basic concepts: ", function() {
 });
 
 it("More than one object graph can be available", function() {
-  let parts = MembraneMocks();
+  let parts = MembraneMocks(true);
   let wetDocument = parts.wet.doc;
   let dryDocument = parts.dry.doc;
-
-  let dampDocument;
-  {
-    let dryWetMB = parts.membrane;
-    let dampHandler = dryWetMB.getHandlerByField("damp");
-    dryWetMB.wrapArgumentByHandler(dampHandler, wetDocument);
-    let found;
-    [found, dampDocument] = dryWetMB.getMembraneProxy("damp", wetDocument);
-  }
+  let dampDocument = parts.damp.doc;
 
   wetDocument.dispatchEvent("unload");
 
