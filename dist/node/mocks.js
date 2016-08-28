@@ -334,7 +334,7 @@ function dampObjectGraph(parts) {
   };
 
   if (includeDamp)
-    dampObjectGraph(Mocks); 
+    dampObjectGraph(Mocks);
 
   return Mocks;
 }

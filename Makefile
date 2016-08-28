@@ -28,6 +28,7 @@ MOCKS_FILES = \
 	mocks/membrane.js \
 	mocks/dryDocument.js \
 	mocks/dampObjectGraph.js \
+	mocks/return.js \
 	mocks/outro.js.in \
 	$(NULL)
 
