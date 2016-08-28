@@ -1,3 +1,44 @@
+/**
+ * @fileoverview
+ *
+ * The Membrane implementation represents a perfect mirroring of objects and
+ * properties from one object graph to another... until the code creating the
+ * membrane invokes methods of membrane.modifyRules.  Then, through either
+ * methods on ProxyMapping or new proxy traps, the membrane will be able to use
+ * the full power proxies expose, without carrying the operations over to the
+ * object graph which owns a particular "original" value (meaning unwrapped for
+ * direct access).
+ *
+ * For developers modifying this API to add new general-behavior rules, here are
+ * the original author's recommendations:
+ *
+ * (1) Add your public API on ModifyRulesAPI.prototype.
+ *   * When it makes sense to do so, the new methods' names and arguments should
+ *     resemble methods on Object or Reflect.  (This does not mean
+ *     they should have exactly the same names and arguments - only that you
+ *     should consider existing standardized methods on standardized globals,
+ *     and try to make new methods on ModifyRulesAPI.prototype follow roughly
+ *     the same pattern in the new API.)
+ * (2) When practical, especially when it affects only one object graph
+ *     directly, use ProxyMapping objects to store properties which determine
+ *     the rules, as opposed to new proxy traps.
+ *   * Define new methods on ProxyMapping.prototype for storing or retrieving
+ *     the properties.
+ *   * Internally, the new methods should store properties on
+ *     this.proxiedFields[fieldName].
+ *   * Modify the existing ProxyHandler traps in ObjectGraphHandler.prototype
+ *     to call the ProxyMapping methods, in order to implement the new behavior.
+ * (3) If the new API must define a new proxy, or more than one:
+ *   * Use membrane.modifyRules.createChainHandler to define the ProxyHandler.
+ *   * In the ChainHandler's own-property traps, use this.nextHandler[trapName]
+ *     or this.baseHandler[trapName] to forward operations to the next or
+ *     original traps in the prototype chain, respectively.
+ *   * Be minimalistic:  Implement only the traps you explicitly need, and only
+ *     to do the specific behavior you need.  Other ProxyHandlers in the
+ *     prototype chain should be trusted to handle the behaviors you don't need.
+ *   * Use membrane.modifyRules.replaceProxy to apply the new ProxyHandler.
+ */
+
 const ChainHandlers = new WeakSet();
 
 // XXX ajvincent These rules are examples of what DogfoodMembrane should set.
@@ -165,11 +206,5 @@ ModifyRulesAPI.prototype = Object.seal({
     gHandler.addRevocable(map.originField === cachedField ? mapping : parts.revoke);
     return parts.proxy;
   },
-
-  /*
-  overrideTrap: function(value, graphName, trapName, newTrap) {
-    
-  },
-  */
 });
 Object.seal(ModifyRulesAPI);

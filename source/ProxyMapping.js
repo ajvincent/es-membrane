@@ -1,3 +1,11 @@
+/**
+ * @private
+ *
+ * In Production, instances of ProxyMapping must NEVER be exposed outside of the
+ * membrane module!  (Neither should instances Membrane or ObjectGraphHandler,
+ * but the ProxyMapping is strictly for internal use of the module.)
+ */
+
 function ProxyMapping(originField) {
   this.originField = originField;
   this.proxiedFields = {
