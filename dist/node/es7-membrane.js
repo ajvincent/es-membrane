@@ -1245,6 +1245,14 @@ ObjectGraphHandler.prototype = Object.seal({
     this.__revokeFunctions__.push(revoke);
   },
 
+  removeRevocable: function(revoke) {
+    let index = this.__revokeFunctions__.indexOf(revoke);
+    if (index == -1) {
+      throw new Error("Unknown revoke function!");
+    }
+    this.__revokeFunctions__.splice(index, 1);
+  },
+
   /**
    * Revoke the entire object graph.
    *
