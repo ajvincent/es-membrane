@@ -4,13 +4,13 @@ import "../dist/es6-modules/MembraneMocks.js";
 */
 
 if (typeof MembraneMocks != "function") {
-    if (typeof require == "function") {
-        var { MembraneMocks } = require("../dist/node/mocks.js");
-    }
+  if (typeof require == "function") {
+    var { MembraneMocks } = require("../dist/node/mocks.js");
+  }
 }
 
 if (typeof MembraneMocks != "function") {
-    throw new Error("Unable to run tests");
+  throw new Error("Unable to run tests");
 }
 
 describe("basic concepts: ", function() {
