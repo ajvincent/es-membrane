@@ -1,3 +1,5 @@
+// Describe the use case in question:  a theoretical problem and a solution.
+
 /*
 if (typeof MembraneMocks != "function") {
   if (typeof require == "function") {
@@ -29,7 +31,7 @@ if (typeof MembraneMocks != "function") {
     return parts;
   };
 
-  xdescribe("Sample use case template", function() {
+  xit("Sample use case template", function() {
     // Customize this for whatever variables you need.
     var parts;
     beforeEach(function() {
@@ -39,22 +41,20 @@ if (typeof MembraneMocks != "function") {
       parts = null;
     });
 
-    xit("Sample test case", function() {
-      // Check the new property is available in the dry object graph.
-      expect(parts.dry.doc.membraneGraphName).toBe("dry");
+    // Check the new property is available in the dry object graph.
+    expect(parts.dry.doc.membraneGraphName).toBe("dry");
 
-      // Ensure the new property is NOT available in the wet object graph.
-      // This represents unwrapped objects.
-      expect(typeof parts.wet.doc.membraneGraphName).toBe("undefined");
-      expect("membraneGraphName" in parts.wet.doc).toBe(false);
+    // Ensure the new property is NOT available in the wet object graph.
+    // This represents unwrapped objects.
+    expect(typeof parts.wet.doc.membraneGraphName).toBe("undefined");
+    expect("membraneGraphName" in parts.wet.doc).toBe(false);
 
-      // Ensure the new property is NOT available in the damp object graph.
-      // This represents that only the desired object graph is affected.
-      expect(typeof parts.damp.doc.membraneGraphName).toBe("undefined");
-      expect("membraneGraphName" in parts.damp.doc).toBe(false);
+    // Ensure the new property is NOT available in the damp object graph.
+    // This represents that only the desired object graph is affected.
+    expect(typeof parts.damp.doc.membraneGraphName).toBe("undefined");
+    expect("membraneGraphName" in parts.damp.doc).toBe(false);
 
-      // etc., etc., etc.
-    });
+    // etc., etc., etc.
 
     // Update wrappers/browser/test-browser.xhtml to include this test.
   });

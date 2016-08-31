@@ -224,4 +224,13 @@ describe("Storing unknown properties locally", function() {
     function() {
     }
   );
+
+  xit("requires a value or proxy already known to the membrane", function() {
+    expect(function() {
+      membrane.modifyRules.storeUnknownAsLocal("wet", {});
+    }).toThrow();
+    expect(function() {
+      membrane.modifyRules.storeUnknownAsLocal("dry", {});
+    }).toThrow();
+  });
 });
