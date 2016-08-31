@@ -44,6 +44,18 @@ ObjectGraphHandler.prototype = Object.seal({
       return Reflect.ownKeys(_this);
     });
 
+    /* The key list is guaranteed through rv.length to be unique.  Make it so
+     * for the newly added items.
+     */
+    let index = rv.length;
+    rv = rv.concat(targetMap.localOwnKeys(this.fieldName));
+    for (let i = rv.length - 1; i >= index; i--) {
+      let item = rv[i];
+      if (rv.indexOf(item) < i)
+        rv.splice(i, 1);
+    }
+    
+
     if (this.membrane.showGraphName && !rv.includes("membraneGraphName")) {
       rv.push("membraneGraphName");
     }
@@ -107,6 +119,28 @@ ObjectGraphHandler.prototype = Object.seal({
     }
 
     var desc;
+    {
+      /* Special case:  Look for a local property descriptors first, and if we
+       * find it, return it unwrapped.
+       */
+      let targetMap = this.membrane.map.get(target);
+      desc = targetMap.getLocalDescriptor(this.fieldName, propName);
+
+      if (desc) {
+        // Quickly repeating steps 4-8 from above algorithm.
+        if (isDataDescriptor(desc))
+          return desc.value;
+        if (!isAccessorDescriptor(desc))
+          throw new Error("desc must be a data descriptor or an accessor descriptor!");
+        let type = typeof desc.get;
+        if (type === "undefined")
+          return undefined;
+        if (type !== "function")
+          throw new Error("getter is not a function");
+        return Reflect.apply(desc.get, receiver, []);
+      }
+    }
+
     /*
     2. Let desc be ? O.[[GetOwnProperty]](P).
     3. If desc is undefined, then
@@ -192,9 +226,12 @@ ObjectGraphHandler.prototype = Object.seal({
 
     try {
       var targetMap = this.membrane.map.get(target);
-      var _this = targetMap.getOriginal();
+      var desc = targetMap.getLocalDescriptor(this.fieldName, propName);
+      if (desc !== undefined)
+        return desc;
 
-      var desc = this.externalHandler(function() {
+      var _this = targetMap.getOriginal();
+      desc = this.externalHandler(function() {
         return Reflect.getOwnPropertyDescriptor(_this, propName);
       });
       if (desc !== undefined) {
@@ -278,6 +315,7 @@ ObjectGraphHandler.prototype = Object.seal({
   preventExtensions: inGraphHandler("preventExtensions", function(target) {
     if (!this.isExtensible(target))
       return true;
+
     var targetMap = this.membrane.map.get(target);
     var _this = targetMap.getOriginal();
     return this.externalHandler(function() {
@@ -317,6 +355,21 @@ ObjectGraphHandler.prototype = Object.seal({
     try {
       var targetMap = this.membrane.map.get(target);
       var _this = targetMap.getOriginal();
+
+      if (targetMap.requiresUnknownAsLocal(this.fieldName) ||
+          targetMap.requiresUnknownAsLocal(targetMap.originField)) {
+        let hasOwn = this.externalHandler(function() {
+          return Boolean(Reflect.getOwnPropertyDescriptor(_this, propName));
+        });
+        if (!hasOwn && desc) {
+          return targetMap.setLocalDescriptor(this.fieldName, propName, desc);
+        }
+        else {
+          targetMap.deleteLocalDescriptor(this.fieldName, propName);
+          // fall through to Reflect's defineProperty
+        }
+      }
+
       if (desc !== undefined) {
         desc = this.membrane.wrapDescriptor(
           this.fieldName,
@@ -324,6 +377,7 @@ ObjectGraphHandler.prototype = Object.seal({
           desc
         );
       }
+
       return this.externalHandler(function() {
         return Reflect.defineProperty(_this, propName, desc);
       });

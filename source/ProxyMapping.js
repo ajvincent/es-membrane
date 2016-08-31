@@ -21,98 +21,150 @@ function ProxyMapping(originField) {
   this.protoMapping = NOT_YET_DETERMINED;
 }
 { // ProxyMapping definition
-ProxyMapping.prototype.getOriginal = function() {
-  if (this.originalValue === NOT_YET_DETERMINED)
-    throw new Error("getOriginal called but the original value hasn't been set!");
-  return this.getProxy(this.originField);
-};
+Object.defineProperties(ProxyMapping.prototype, {
+  "getOriginal": new DataDescriptor(function() {
+    if (this.originalValue === NOT_YET_DETERMINED)
+      throw new Error("getOriginal called but the original value hasn't been set!");
+    return this.getProxy(this.originField);
+  }),
 
-ProxyMapping.prototype.hasField = function(field) {
-  return Object.getOwnPropertyNames(this.proxiedFields).includes(field);
-};
+  "hasField": new DataDescriptor(function(field) {
+    return Object.getOwnPropertyNames(this.proxiedFields).includes(field);
+  }),
 
-ProxyMapping.prototype.getValue = function(field) {
-  var rv = this.proxiedFields[field];
-  if (!rv)
-    throw new Error("getValue called for unknown field!");
-  rv = rv.value;
-  return rv;
-};
+  "getValue": new DataDescriptor(function(field) {
+    var rv = this.proxiedFields[field];
+    if (!rv)
+      throw new Error("getValue called for unknown field!");
+    rv = rv.value;
+    return rv;
+  }),
 
-ProxyMapping.prototype.getProxy = function(field) {
-  var rv = this.proxiedFields[field];
-  if (!rv)
-    throw new Error("getProxy called for unknown field!");
-  rv = (!rv.override && (field === this.originField)) ? rv.value : rv.proxy;
-  return rv;
-};
+  "getProxy": new DataDescriptor(function(field) {
+    var rv = this.proxiedFields[field];
+    if (!rv)
+      throw new Error("getProxy called for unknown field!");
+    rv = (!rv.override && (field === this.originField)) ? rv.value : rv.proxy;
+    return rv;
+  }),
 
-ProxyMapping.prototype.hasProxy = function(proxy) {
-  let fields = Object.getOwnPropertyNames(this.proxiedFields);
-  for (let i = 0; i < fields.length; i++) {
-    if (this.getProxy(fields[i]) === proxy)
-      return true;
-  }
-  return false;
-};
-
-/**
- * Add a value to the mapping.
- *
- * @param membrane {Membrane} The owning membrane.
- * @param field    {String}   The field name of the object graph.
- * @param parts    {Object} containing:
- *   @param value    {Variant}  The value to add.
- *   @param proxy    {Proxy}    A proxy associated with the object graph and the value.
- *   @param revoke   {Function} A revocation function for the proxy, if available.
- *   @param override {Boolean}  True if the field should be overridden.
- */
-ProxyMapping.prototype.set = function(membrane, field, parts) {
-  let override = (typeof parts.override === "boolean") && parts.override;
-  if (!override && this.hasField(field))
-    throw new Error("set called for previously defined field!");
-
-  this.proxiedFields[field] = parts;
-
-  if (override || (field !== this.originField)) {
-    if (DogfoodMembrane && (membrane !== DogfoodMembrane))
-      DogfoodMembrane.ProxyToMembraneMap.add(parts.proxy);
-    membrane.map.set(parts.proxy, this);
-  }
-  else if (this.originalValue === NOT_YET_DETERMINED) {
-    this.originalValue = parts.value;
-    delete parts.proxy;
-    delete parts.revoke;
-  }
-  
-  if (!membrane.map.has(parts.value)) {
-    if (DogfoodMembrane && (membrane !== DogfoodMembrane))
-      DogfoodMembrane.ProxyToMembraneMap.add(parts.value);
-    membrane.map.set(parts.value, this);
-  }
-  else
-    assert(this === membrane.map.get(parts.value), "ProxyMapping mismatch?");
-};
-
-ProxyMapping.prototype.selfDestruct = function(membrane) {
-  let fields = Object.getOwnPropertyNames(this.proxiedFields);
-  for (let i = (fields.length - 1); i >= 0; i--) {
-    let field = fields[i];
-    if (field !== this.originField) {
-      membrane.map.delete(this.proxiedFields[field].proxy);
+  "hasProxy": new DataDescriptor(function(proxy) {
+    let fields = Object.getOwnPropertyNames(this.proxiedFields);
+    for (let i = 0; i < fields.length; i++) {
+      if (this.getProxy(fields[i]) === proxy)
+        return true;
     }
-    membrane.map.delete(this.proxiedFields[field].value);
-    delete this.proxiedFields[field];
-  }
-};
+    return false;
+  }),
 
-ProxyMapping.prototype.revoke = function() {
-  let fields = Object.getOwnPropertyNames(this.proxiedFields);
-  // fields[0] === this.originField
-  for (let i = 1; i < fields.length; i++) {
-    this.proxiedFields[fields[i]].revoke();
-  }
-};
+  /**
+   * Add a value to the mapping.
+   *
+   * @param membrane {Membrane} The owning membrane.
+   * @param field    {String}   The field name of the object graph.
+   * @param parts    {Object} containing:
+   *   @param value    {Variant}  The value to add.
+   *   @param proxy    {Proxy}    A proxy associated with the object graph and
+   *                              the value.
+   *   @param revoke   {Function} A revocation function for the proxy, if
+   *                              available.
+   *   @param override {Boolean}  True if the field should be overridden.
+   */
+  "set": new DataDescriptor(function(membrane, field, parts) {
+    let override = (typeof parts.override === "boolean") && parts.override;
+    if (!override && this.hasField(field))
+      throw new Error("set called for previously defined field!");
+
+    this.proxiedFields[field] = parts;
+
+    if (override || (field !== this.originField)) {
+      if (DogfoodMembrane && (membrane !== DogfoodMembrane))
+        DogfoodMembrane.ProxyToMembraneMap.add(parts.proxy);
+      membrane.map.set(parts.proxy, this);
+    }
+    else if (this.originalValue === NOT_YET_DETERMINED) {
+      this.originalValue = parts.value;
+      delete parts.proxy;
+      delete parts.revoke;
+    }
+  
+    if (!membrane.map.has(parts.value)) {
+      if (DogfoodMembrane && (membrane !== DogfoodMembrane))
+        DogfoodMembrane.ProxyToMembraneMap.add(parts.value);
+      membrane.map.set(parts.value, this);
+    }
+    else
+      assert(this === membrane.map.get(parts.value), "ProxyMapping mismatch?");
+  }),
+
+  "selfDestruct": new DataDescriptor(function(membrane) {
+    let fields = Object.getOwnPropertyNames(this.proxiedFields);
+    for (let i = (fields.length - 1); i >= 0; i--) {
+      let field = fields[i];
+      if (field !== this.originField) {
+        membrane.map.delete(this.proxiedFields[field].proxy);
+      }
+      membrane.map.delete(this.proxiedFields[field].value);
+      delete this.proxiedFields[field];
+    }
+  }),
+
+  "revoke": new DataDescriptor(function() {
+    let fields = Object.getOwnPropertyNames(this.proxiedFields);
+    // fields[0] === this.originField
+    for (let i = 1; i < fields.length; i++) {
+      this.proxiedFields[fields[i]].revoke();
+    }
+  }),
+
+  "storeUnknownAsLocal":
+  new DataDescriptor(function(fieldName, value) {
+    this.proxiedFields[fieldName].unknownAsLocal = Boolean(value);
+  }),
+
+  "requiresUnknownAsLocal":
+  new DataDescriptor(function(fieldName) {
+    return Boolean(this.proxiedFields[fieldName].unknownAsLocal);
+  }),
+
+  "getLocalDescriptor":
+  new DataDescriptor(function(fieldName, propName) {
+    let desc;
+    let metadata = this.proxiedFields[fieldName];
+    if (metadata.localDescriptors)
+      desc = metadata.localDescriptors.get(propName);
+    return desc;
+  }),
+
+  "setLocalDescriptor":
+  new DataDescriptor(function(fieldName, propName, desc) {
+    let metadata = this.proxiedFields[fieldName];
+    if (!metadata.localDescriptors) {
+      metadata.localDescriptors = new Map();
+    }
+
+    metadata.localDescriptors.set(propName, desc);
+    return true;
+  }),
+
+  "deleteLocalDescriptor":
+  new DataDescriptor(function(fieldName, propName) {
+    let metadata = this.proxiedFields[fieldName];
+    if (!("localDescriptors" in metadata))
+      return;
+
+    metadata.localDescriptors.delete(propName);
+    if (metadata.localDescriptors.size === 0)
+      delete metadata.localDescriptors;
+  }),
+
+  "localOwnKeys": new DataDescriptor(function(fieldName) {
+    let metadata = this.proxiedFields[fieldName], rv = [];
+    if ("localDescriptors" in metadata)
+      rv = Array.from(metadata.localDescriptors.keys());
+    return rv;
+  }),
+});
 
 Object.seal(ProxyMapping.prototype);
 } // end ProxyMapping definition
