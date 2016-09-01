@@ -48,7 +48,10 @@ ObjectGraphHandler.prototype = Object.seal({
      * for the newly added items.
      */
     let index = rv.length;
-    rv = rv.concat(targetMap.localOwnKeys(this.fieldName));
+    rv = rv.concat(
+      targetMap.localOwnKeys(this.fieldName),
+      targetMap.localOwnKeys(targetMap.originField)
+    );
     for (let i = rv.length - 1; i >= index; i--) {
       let item = rv[i];
       if (rv.indexOf(item) < i)
@@ -234,7 +237,7 @@ ObjectGraphHandler.prototype = Object.seal({
       desc = this.externalHandler(function() {
         return Reflect.getOwnPropertyDescriptor(_this, propName);
       });
-      if (desc !== undefined) {
+      if ((desc !== undefined) && (targetMap.originField !== this.fieldName)) {
         desc = this.membrane.wrapDescriptor(
           targetMap.originField,
           this.fieldName,
@@ -344,9 +347,29 @@ ObjectGraphHandler.prototype = Object.seal({
     }
   }),
 
-  // ProxyHandler
+  /**
+   * Define a property on a target.
+   *
+   * @param {Object}  target   The target object.
+   * @param {String}  propName The name of the property to define.
+   * @param {Object}  desc     The descriptor for the property being defined
+   *                           or modified.
+   * @param {Boolean} shouldBeLocal True if the property must be defined only
+   *                                on the proxy (versus carried over to the
+   *                                actual target).
+   *
+   * @note This is a ProxyHandler trap for defineProperty, modified to include 
+   *       the shouldBeLocal argument.
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/defineProperty
+   */
   defineProperty:
-  inGraphHandler("defineProperty", function(target, propName, desc) {
+  inGraphHandler("defineProperty", function(target, propName, desc,
+                                            shouldBeLocal = false) {
+    /* Regarding the funny indentation:  With long names such as defineProperty,
+     * inGraphHandler, and shouldBeLocal, it's hard to make everything fit
+     * within 80 characters on a line, and properly indent only two spaces.
+     * I choose descriptiveness and preserving commit history over reformatting.
+     */
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
       this.membrane.logger.debug("propName: " + propName.toString());
@@ -356,8 +379,10 @@ ObjectGraphHandler.prototype = Object.seal({
       var targetMap = this.membrane.map.get(target);
       var _this = targetMap.getOriginal();
 
-      if (targetMap.requiresUnknownAsLocal(this.fieldName) ||
-          targetMap.requiresUnknownAsLocal(targetMap.originField)) {
+      if (!shouldBeLocal)
+        shouldBeLocal = targetMap.requiresUnknownAsLocal(this.fieldName) ||
+                        targetMap.requiresUnknownAsLocal(targetMap.originField);
+      if (shouldBeLocal) {
         let hasOwn = this.externalHandler(function() {
           return Boolean(Reflect.getOwnPropertyDescriptor(_this, propName));
         });
@@ -390,8 +415,26 @@ ObjectGraphHandler.prototype = Object.seal({
     }
   }),
 
-  // ProxyHandler
-  set: inGraphHandler("set", function(target, propName, value, receiver) {
+  /**
+   * Set a property on a target.
+   *
+   * @param {Object}  target   The target object.
+   * @param {String}  propName The name of the property to set.
+   * @param {Variant} value    The new value of the property to set.
+   * @param {Object}  receiver The object to which the assignment was originally
+   *                           directed. This is usually the proxy itself.  But
+   *                           a set handler can also be called indirectly, via
+   *                           the prototype chain or various other ways.
+   * @param {Boolean} shouldBeLocal True if the property must be defined only
+   *                                on the proxy (versus carried over to the
+   *                                actual target).
+   * @note This is a ProxyHandler trap for defineProperty, modified to include 
+   *       the shouldBeLocal argument.
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/set
+   */
+  set: inGraphHandler(
+    "set",
+    function(target, propName, value, receiver, shouldBeLocal = false) {
     /*
     http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-set-p-v-receiver
 
@@ -437,6 +480,11 @@ ObjectGraphHandler.prototype = Object.seal({
         throw new Error("propName is not a symbol or a string!");
     }
 
+    var targetMap = this.membrane.map.get(target);
+    if (!shouldBeLocal)
+      shouldBeLocal = (targetMap.requiresUnknownAsLocal(this.fieldName) ||
+                       targetMap.requiresUnknownAsLocal(targetMap.originField));
+
     /*
     2. Let ownDesc be ? O.[[GetOwnProperty]](P).
     3. If ownDesc is undefined, then
@@ -457,16 +505,10 @@ ObjectGraphHandler.prototype = Object.seal({
       if (!ownDesc) {
         let parent = this.getPrototypeOf(target);
         if (parent) {
-          // This should call this.set(parent, propName, value, receiver);
-          /* XXX ajvincent I tried calling this.set() directly, and a test
-           * failed.  We need to find out why.
-           */
           let [found, other] = this.membrane.getMembraneProxy(this.fieldName, parent);
           assert(found, "Must find membrane proxy for prototype");
           assert(other === parent, "Retrieved prototypes must match");
-          return this.externalHandler(function() {
-            return Reflect.set(parent, propName, value, receiver);
-          });
+          return this.set(parent, propName, value, receiver, shouldBeLocal);
         }
         else
           ownDesc = new DataDescriptor(undefined, true);
@@ -502,7 +544,6 @@ ObjectGraphHandler.prototype = Object.seal({
       if (receiverMap.originField === this.fieldName)
         throw new Error("Receiver's field name should not match!");
     }
-    receiver = receiverMap.getOriginal();
     
     /*
     4. If IsDataDescriptor(ownDesc) is true, then
@@ -520,9 +561,10 @@ ObjectGraphHandler.prototype = Object.seal({
     if (isDataDescriptor(ownDesc)) {
       if (!ownDesc.writable || (valueType(receiver) == "primitive"))
         return false;
-      
+
+      let origReceiver = receiverMap.getOriginal();
       let existingDesc = this.externalHandler(function() {
-        return Reflect.getOwnPropertyDescriptor(receiver, propName);
+        return Reflect.getOwnPropertyDescriptor(origReceiver, propName);
       });
       if (existingDesc !== undefined) {
         if (isAccessorDescriptor(existingDesc) || !existingDesc.writable)
@@ -545,9 +587,7 @@ ObjectGraphHandler.prototype = Object.seal({
         rvProxy = new DataDescriptor(value, true);
       }
 
-      return this.externalHandler(function() {
-        return Reflect.defineProperty(receiver, propName, rvProxy);
-      });
+      return this.defineProperty(receiver, propName, rvProxy, shouldBeLocal);
     }
 
     // 5. Assert: IsAccessorDescriptor(ownDesc) is true.
@@ -569,9 +609,7 @@ ObjectGraphHandler.prototype = Object.seal({
         this.membrane.getHandlerByField(receiverMap.originField),
         value
       );
-      this.externalHandler(function() {
-        Reflect.apply(setter, receiver, [ rvProxy ]);
-      });
+      this.apply(setter, receiver, [ rvProxy ]);
     }
 
     // 9. Return true.

@@ -171,13 +171,25 @@ describe("Storing unknown properties locally", function() {
         );
 
         xit(
-          "when the object has a data descriptor with that name",
+          "when the object has a direct data descriptor with that name",
           function() {
           }
         );
 
         xit(
-          "when the object has an accessor descriptor with that name",
+          "when the object has a direct accessor descriptor with that name",
+          function() {
+          }
+        );
+
+        xit(
+          "when the object has an inherited data descriptor with that name",
+          function() {
+          }
+        );
+
+        xit(
+          "when the object has an inherited accessor descriptor with that name",
           function() {
           }
         );

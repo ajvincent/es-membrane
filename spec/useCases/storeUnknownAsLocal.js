@@ -27,17 +27,27 @@ if (typeof MembraneMocks != "function") {
 }
 
 {
-  xit("Use case:  membrane.modifyRules.storeUnknownAsLocal", function() {
+  it("Use case:  membrane.modifyRules.storeUnknownAsLocal", function() {
+    /* XXX ajvincent This is a hack, for a property that shouldn't be in the
+       real membrane.
+    */
+    function fixKeys(keys) {
+      if (keys.includes("membraneGraphName"))
+        keys.splice(keys.indexOf("membraneGraphName"), 1);
+    }
+
     var dryRoot, wetRoot, wetPropKeys;
 
     // Internal code, setting up the environment.
     {
       let parts = MembraneMocks();
       let dryWetMB = parts.membrane;
-      dryWetMB.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node);
+      dryWetMB.buildMapping("wet", parts.wet.Node.prototype);
+      dryWetMB.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node.prototype);
 
       wetRoot = parts.wet.doc.rootElement;
       wetPropKeys = Object.keys(wetRoot);
+      fixKeys(wetPropKeys);
 
       dryRoot = parts.dry.doc.rootElement;
     }
@@ -45,6 +55,7 @@ if (typeof MembraneMocks != "function") {
     // External code, which this environment only partially controls.
     {
       let firstKeySet = Object.keys(dryRoot);
+      fixKeys(firstKeySet);
 
       dryRoot.factoids = {
         statesInTheUSA: 50,
@@ -55,6 +66,7 @@ if (typeof MembraneMocks != "function") {
       // and other miscellaneous crud
 
       let secondKeySet = Object.keys(dryRoot);
+      fixKeys(secondKeySet);
       expect(secondKeySet.length).toBe(firstKeySet.length + 3);
       for (let i = 0; i < firstKeySet.length; i++) {
         expect(secondKeySet[i]).toBe(firstKeySet[i]);
@@ -69,6 +81,7 @@ if (typeof MembraneMocks != "function") {
     // We check this with Object.keys().
     {
       let keys = Object.keys(wetRoot);
+      fixKeys(keys);
       expect(keys.length).toBe(wetPropKeys.length);
       let length = Math.min(keys.length, wetPropKeys.length);
       for (let i = 0; i < length; i++)
