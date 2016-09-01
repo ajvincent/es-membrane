@@ -162,10 +162,10 @@ var dryWetMB = new Membrane({
 });
 
 // 3. Establish "wet" ObjectGraphHandler.
-var wetHandler = dryWetMB.getHandlerByField("wet");
+var wetHandler = dryWetMB.getHandlerByField("wet", true);
 
 // 4. Establish "dry" ObjectGraphHandler.
-var dryHandler = dryWetMB.getHandlerByField("dry");
+var dryHandler = dryWetMB.getHandlerByField("dry", true);
 
 // 5. Establish "wet" view of an object.
 // 6. Get a "dry" view of the same object.
@@ -191,14 +191,14 @@ Such a membrane is, for obvious reasons, useless.  But this perfect mirroring ha
 
 * The Membrane's prototype methods provide API for getting unique
 ObjectGraphHandler instances:
-  * .getHandlerByField(graphName)
+  * .getHandlerByField(graphName, mustCreate = false)
   * .ownsHandler(handler)
 * The Membrane's prototype also manages access to ProxyMapping instances, which as we stated above match proxies to original values in an one-to-one relationship.
   * .hasProxyForValue(field, value)
+  * .buildMapping(field, value, options)
   * .convertArgumentToProxy(originHandler, targetHandler, arg, options)
   * .getMembraneValue(field, value) _(private method)_
   * .getMembraneProxy(field, value) _(private method)_
-  * .buildMapping(field, value, options) _(private method)_
   * .wrapArgumentByHandler(handler, arg, options) _(private method)_
   * .wrapArgumentByProxyMapping(mapping, arg, options) _(private method)_
   * .wrapDescriptor(originField, targetField, desc) _(private method)_

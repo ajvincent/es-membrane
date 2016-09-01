@@ -375,6 +375,10 @@ MembraneInternal.prototype = Object.seal({
   buildMapping: function(field, value, options = {}) {
     if (typeof field != "string")
       throw new Error("field must be a string!");
+    let handler = this.getHandlerByField(field);
+    if (!handler)
+      throw new Error("We don't have an ObjectGraphHandler with that name!");
+
     var mapping = ("mapping" in options) ? options.mapping : null;
 
     if (!mapping) {
@@ -389,7 +393,6 @@ MembraneInternal.prototype = Object.seal({
     assert(mapping instanceof ProxyMapping,
            "buildMapping requires a ProxyMapping object!");
 
-    let handler = this.getHandlerByField(field);
     let parts = Proxy.revocable(value, handler);
     parts.value = value;
     mapping.set(this, field, parts);
@@ -411,7 +414,7 @@ MembraneInternal.prototype = Object.seal({
    *
    * @returns {ObjectGraphHandler} The handler for the object graph.
    */
-  getHandlerByField: function(field, mustCreate = true) {
+  getHandlerByField: function(field, mustCreate = false) {
     if (mustCreate && !this.hasHandlerByField(field))
       this.handlersByFieldName[field] = new ObjectGraphHandler(this, field);
     return this.handlersByFieldName[field];
@@ -1556,7 +1559,7 @@ ModifyRulesAPI.prototype = Object.seal({
       }
       else if (baseHandler instanceof ObjectGraphHandler) {
         let fieldName = baseHandler.fieldName;
-        let ownedHandler = this.membrane.getHandlerByField(fieldName, false);
+        let ownedHandler = this.membrane.getHandlerByField(fieldName);
         accepted = ownedHandler === baseHandler;
       }
 
@@ -1638,8 +1641,8 @@ if (false) {
    * (1) Let value be the value the "dogfood" membrane's "public" object graph
    *     handler would normally return.
    * (2) Let dogfood be the "dogfood" membrane.
-   * (3) Let map be dogfood.map.get(value).  This will be a ProxyMapping instance
-   *     belonging to the "dogfood" membrane.
+   * (3) Let map be dogfood.map.get(value).  This will be a ProxyMapping
+   *     instance belonging to the "dogfood" membrane.
    * (4) Let original be map.getOriginal().
    * (5) Let x be ProxyToMembraneMap.has(original).  This will either be true if
    *     original refers to a MembraneInternal instance, or false if there is no
@@ -1654,8 +1657,8 @@ if (false) {
    */
   DogfoodMembrane.ProxyToMembraneMap = new WeakSet();
 
-  let publicAPI   = DogfoodMembrane.getHandlerByField("public");
-  let internalAPI = DogfoodMembrane.getHandlerByField("internal");
+  let publicAPI   = DogfoodMembrane.getHandlerByField("public", true);
+  let internalAPI = DogfoodMembrane.getHandlerByField("internal", true);
 
   // lockdown of the public API here
 

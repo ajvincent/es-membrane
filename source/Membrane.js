@@ -134,6 +134,10 @@ MembraneInternal.prototype = Object.seal({
   buildMapping: function(field, value, options = {}) {
     if (typeof field != "string")
       throw new Error("field must be a string!");
+    let handler = this.getHandlerByField(field);
+    if (!handler)
+      throw new Error("We don't have an ObjectGraphHandler with that name!");
+
     var mapping = ("mapping" in options) ? options.mapping : null;
 
     if (!mapping) {
@@ -148,7 +152,6 @@ MembraneInternal.prototype = Object.seal({
     assert(mapping instanceof ProxyMapping,
            "buildMapping requires a ProxyMapping object!");
 
-    let handler = this.getHandlerByField(field);
     let parts = Proxy.revocable(value, handler);
     parts.value = value;
     mapping.set(this, field, parts);
@@ -170,7 +173,7 @@ MembraneInternal.prototype = Object.seal({
    *
    * @returns {ObjectGraphHandler} The handler for the object graph.
    */
-  getHandlerByField: function(field, mustCreate = true) {
+  getHandlerByField: function(field, mustCreate = false) {
     if (mustCreate && !this.hasHandlerByField(field))
       this.handlersByFieldName[field] = new ObjectGraphHandler(this, field);
     return this.handlersByFieldName[field];

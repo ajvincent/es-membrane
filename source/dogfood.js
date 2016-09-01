@@ -23,8 +23,8 @@ if (false) {
    * (1) Let value be the value the "dogfood" membrane's "public" object graph
    *     handler would normally return.
    * (2) Let dogfood be the "dogfood" membrane.
-   * (3) Let map be dogfood.map.get(value).  This will be a ProxyMapping instance
-   *     belonging to the "dogfood" membrane.
+   * (3) Let map be dogfood.map.get(value).  This will be a ProxyMapping
+   *     instance belonging to the "dogfood" membrane.
    * (4) Let original be map.getOriginal().
    * (5) Let x be ProxyToMembraneMap.has(original).  This will either be true if
    *     original refers to a MembraneInternal instance, or false if there is no
@@ -39,8 +39,8 @@ if (false) {
    */
   DogfoodMembrane.ProxyToMembraneMap = new WeakSet();
 
-  let publicAPI   = DogfoodMembrane.getHandlerByField("public");
-  let internalAPI = DogfoodMembrane.getHandlerByField("internal");
+  let publicAPI   = DogfoodMembrane.getHandlerByField("public", true);
+  let internalAPI = DogfoodMembrane.getHandlerByField("internal", true);
 
   // lockdown of the public API here
 

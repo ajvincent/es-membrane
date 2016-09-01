@@ -2,7 +2,7 @@ function dampObjectGraph(parts) {
   parts.handlers = {
     "wet":  parts.membrane.getHandlerByField("wet"),
     "dry":  parts.membrane.getHandlerByField("dry"),
-    "damp": parts.membrane.getHandlerByField("damp"),
+    "damp": parts.membrane.getHandlerByField("damp", true),
   };
 
   let keys = Object.getOwnPropertyNames(parts.wet);

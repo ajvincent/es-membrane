@@ -2,7 +2,7 @@
 var ElementDry, NodeDry, dryDocument;
 {
   // Establish proxy handler for "dry" mode.
-  let dryHandler = dryWetMB.getHandlerByField("dry");
+  let dryHandler = dryWetMB.getHandlerByField("dry", true);
   let found, doc;
 
   doc = dryWetMB.wrapArgumentByHandler(dryHandler, wetDocument);

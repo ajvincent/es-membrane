@@ -206,9 +206,10 @@ describe("Storing unknown properties locally", function() {
     addUnknownPropertySpecs();
   });
 
-  xdescribe("when required by the wet object graph, ObjectGraphHandler(dry).", function() {
+  describe("when required by the wet object graph, ObjectGraphHandler(dry).", function() {
     beforeEach(function() {
-      membrane.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node);
+      membrane.buildMapping("wet", parts.wet.Node.prototype);
+      membrane.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node.prototype);
     });
     addUnknownPropertySpecs();
   });

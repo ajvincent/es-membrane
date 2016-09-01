@@ -167,7 +167,7 @@ ModifyRulesAPI.prototype = Object.seal({
       }
       else if (baseHandler instanceof ObjectGraphHandler) {
         let fieldName = baseHandler.fieldName;
-        let ownedHandler = this.membrane.getHandlerByField(fieldName, false);
+        let ownedHandler = this.membrane.getHandlerByField(fieldName);
         accepted = ownedHandler === baseHandler;
       }
 

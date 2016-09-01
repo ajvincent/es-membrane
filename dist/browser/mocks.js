@@ -229,7 +229,7 @@ var dryWetMB = new Membrane({
 
 {
   // Establish "wet" view of document.
-  wetHandler = dryWetMB.getHandlerByField("wet");
+  wetHandler = dryWetMB.getHandlerByField("wet", true);
   
   let [found, doc] = dryWetMB.getMembraneValue("wet", wetDocument);
   assert(!found, "wetDocument should not be known");
@@ -248,7 +248,7 @@ var dryWetMB = new Membrane({
 var ElementDry, NodeDry, dryDocument;
 {
   // Establish proxy handler for "dry" mode.
-  let dryHandler = dryWetMB.getHandlerByField("dry");
+  let dryHandler = dryWetMB.getHandlerByField("dry", true);
   let found, doc;
 
   doc = dryWetMB.wrapArgumentByHandler(dryHandler, wetDocument);
@@ -292,7 +292,7 @@ function dampObjectGraph(parts) {
   parts.handlers = {
     "wet":  parts.membrane.getHandlerByField("wet"),
     "dry":  parts.membrane.getHandlerByField("dry"),
-    "damp": parts.membrane.getHandlerByField("damp"),
+    "damp": parts.membrane.getHandlerByField("damp", true),
   };
 
   let keys = Object.getOwnPropertyNames(parts.wet);
