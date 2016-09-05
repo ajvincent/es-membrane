@@ -124,7 +124,8 @@ Object.defineProperties(ProxyMapping.prototype, {
 
   "requiresUnknownAsLocal":
   new DataDescriptor(function(fieldName) {
-    return Boolean(this.proxiedFields[fieldName].unknownAsLocal);
+    return this.hasField(fieldName) &&
+           Boolean(this.proxiedFields[fieldName].unknownAsLocal);
   }),
 
   "getLocalDescriptor":

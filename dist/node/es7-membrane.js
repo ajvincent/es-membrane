@@ -193,7 +193,8 @@ Object.defineProperties(ProxyMapping.prototype, {
 
   "requiresUnknownAsLocal":
   new DataDescriptor(function(fieldName) {
-    return Boolean(this.proxiedFields[fieldName].unknownAsLocal);
+    return this.hasField(fieldName) &&
+           Boolean(this.proxiedFields[fieldName].unknownAsLocal);
   }),
 
   "getLocalDescriptor":
@@ -657,8 +658,8 @@ ObjectGraphHandler.prototype = Object.seal({
      */
     let index = rv.length;
     rv = rv.concat(
-      targetMap.localOwnKeys(this.fieldName),
-      targetMap.localOwnKeys(targetMap.originField)
+      targetMap.localOwnKeys(targetMap.originField),
+      targetMap.localOwnKeys(this.fieldName)
     );
     for (let i = rv.length - 1; i >= index; i--) {
       let item = rv[i];
@@ -987,9 +988,21 @@ ObjectGraphHandler.prototype = Object.seal({
       var targetMap = this.membrane.map.get(target);
       var _this = targetMap.getOriginal();
 
-      if (!shouldBeLocal)
-        shouldBeLocal = targetMap.requiresUnknownAsLocal(this.fieldName) ||
-                        targetMap.requiresUnknownAsLocal(targetMap.originField);
+      if (!shouldBeLocal) {
+        // Walk the prototype chain to look for shouldBeLocal.
+        let map = targetMap, protoTarget = target;
+        while (!shouldBeLocal) {
+          shouldBeLocal = map.requiresUnknownAsLocal(this.fieldName) ||
+                          map.requiresUnknownAsLocal(targetMap.originField);
+          if (!shouldBeLocal) {
+            protoTarget = this.getPrototypeOf(protoTarget);
+            if (!protoTarget)
+              break;
+            map = this.membrane.map.get(protoTarget);
+          }
+        }
+      }
+
       if (shouldBeLocal) {
         let hasOwn = this.externalHandler(function() {
           return Boolean(Reflect.getOwnPropertyDescriptor(_this, propName));
@@ -1089,9 +1102,14 @@ ObjectGraphHandler.prototype = Object.seal({
     }
 
     var targetMap = this.membrane.map.get(target);
-    if (!shouldBeLocal)
+    if (!shouldBeLocal) {
+      /* Think carefully before making this walk the prototype chain as in
+         .defineProperty().  Remember, this.set() calls itself below, so you
+         could accidentally create a O(n^2) operation here.
+       */
       shouldBeLocal = (targetMap.requiresUnknownAsLocal(this.fieldName) ||
                        targetMap.requiresUnknownAsLocal(targetMap.originField));
+    }
 
     /*
     2. Let ownDesc be ? O.[[GetOwnProperty]](P).

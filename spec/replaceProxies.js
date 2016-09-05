@@ -272,7 +272,9 @@ describe("replacing proxies tests: ", function() {
       let dryDocument = parts.dry.doc;
       keys = Reflect.ownKeys(dryDocument);
       expect(keys.includes("shouldNotBeAmongKeys")).toBe(false);
+      /*
       expect(lastVisited).toBe("ownKeys");
+      */
     });
 
     it(
