@@ -1,3 +1,4 @@
+"use strict"
 function NOT_IMPLEMENTED() {
   throw new Error("Not implemented!");
 }

@@ -1,3 +1,5 @@
+"use strict"
+
 if (typeof MembraneMocks != "function") {
   if (typeof require == "function") {
     var { MembraneMocks } = require("../../dist/node/mocks.js");

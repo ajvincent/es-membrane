@@ -1,3 +1,5 @@
+"use strict"
+
 /* Suppose I have a whole hierarchy of objects which I wish to expose
  * through the membrane, but I really don't want outsiders setting
  * properties willy-nilly on my code base.  I'm debugging, and all these

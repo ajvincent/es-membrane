@@ -7,6 +7,49 @@ function valueType(value) {
   return type;
 }
 
+var ShadowKeyMap = new WeakMap();
+
+/**
+ * Define a shadow target, so we can manipulate the proxy independently of the
+ * original target.
+ *
+ * @argument value {Object} The original target.
+ *
+ * @returns {Object} A shadow target to minimally emulate the real one.
+ * @private
+ */
+function makeShadowTarget(value) {
+  "use strict";
+  var rv;
+  if (typeof value == "object")
+    rv = {};
+  else if (typeof value == "function") {
+    rv = function() {};
+    /* ES7 specification says that functions in strict mode do not have their
+     * own "arguments" or "length" properties naturally.  But in non-strict
+     * code, V8 adds those properties.  (Mozilla adds them for both strict code
+     * and non-strict code, which technically is a spec violation.)  So to make
+     * the membrane code work correctly with shadow targets, we start with the
+     * minimalist case (strict mode explicitly on), and add missing properties.
+     */
+    let keys = Reflect.ownKeys(value);
+    keys.forEach(function(key) {
+      if (Reflect.getOwnPropertyDescriptor(rv))
+        return;
+      let desc = Reflect.getOwnPropertyDescriptor(value, key);
+      Reflect.defineProperty(rv, key, desc);
+    });
+  }
+  else
+    throw new Error("Unknown value for makeShadowTarget");
+  ShadowKeyMap.set(rv, value);
+  return rv;
+}
+
+function getRealTarget(target) {
+  return ShadowKeyMap.has(target) ? ShadowKeyMap.get(target) : target;
+}
+
 function inGraphHandler(trapName, callback) {
   return function() {
     let mayLog = this.membrane.__mayLog__();

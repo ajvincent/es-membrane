@@ -1,3 +1,5 @@
+"use strict"
+
 /*
 import "../dist/es6-modules/Membrane.js";
 import "../dist/es6-modules/MembraneMocks.js";

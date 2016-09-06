@@ -1,3 +1,5 @@
+"use strict"
+
 // Describe the use case in question:  a theoretical problem and a solution.
 
 /*

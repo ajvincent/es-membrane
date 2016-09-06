@@ -55,14 +55,15 @@ clean::
 browser:: base mockDocs specs
 	@mkdir -p dist/browser
 	@cp wrappers/browser/test-browser.xhtml dist/browser/test-browser.xhtml
-	@cp dist/staging/es7-membrane.js dist/browser/es7-membrane.js
-	@cp dist/staging/sharedUtilities.js dist/browser/sharedUtilities.js
-	@cp dist/staging/mocks.js dist/browser/mocks.js
+	@cat wrappers/useStrict.js dist/staging/es7-membrane.js > dist/browser/es7-membrane.js
+	@cat wrappers/useStrict.js dist/staging/sharedUtilities.js > dist/browser/sharedUtilities.js
+	@cat wrappers/useStrict.js dist/staging/mocks.js > dist/browser/mocks.js
 	@cp wrappers/browser/assert.js dist/browser/assert.js
 	@echo "You may now open './dist/staging/test-browser.xhtml'."
 	@echo "  (if Mozilla Firefox, version 51 or later is required)"
 
 NODE_DIST_FILES = \
+	wrappers/useStrict.js \
 	wrappers/node/require-assert.js \
 	wrappers/node/require-utilities.js \
 	dist/staging/es7-membrane.js \
@@ -70,6 +71,7 @@ NODE_DIST_FILES = \
 	$(NULL)
 
 NODE_MOCKS_FILES = \
+	wrappers/useStrict.js \
 	wrappers/node/require-assert.js \
 	wrappers/node/require-utilities.js \
 	wrappers/node/require-membrane.js \
@@ -78,6 +80,7 @@ NODE_MOCKS_FILES = \
 	$(NULL)
 
 NODE_UTILITIES_FILES = \
+	wrappers/useStrict.js \
 	dist/staging/sharedUtilities.js \
 	wrappers/node/export-utilities.js \
 	$(NULL)

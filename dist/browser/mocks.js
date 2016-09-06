@@ -1,3 +1,4 @@
+"use strict"
 function MembraneMocks(includeDamp) {
   "use strict";
   includeDamp = Boolean(includeDamp);

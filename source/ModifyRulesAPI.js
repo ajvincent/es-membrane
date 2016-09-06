@@ -199,8 +199,16 @@ ModifyRulesAPI.prototype = Object.seal({
       throw new Error("You cannot replace the proxy with a handler from a different object graph!");
 
     // Finally, do the actual proxy replacement.
-    let original = map.getOriginal();
-    let parts = Proxy.revocable(original, handler);
+    let original = map.getOriginal(), newTarget;
+    if (baseHandler === Reflect) {
+      newTarget = original;
+    }
+    else {
+      newTarget = makeShadowTarget(original);
+      if (!Reflect.isExtensible(original))
+        Reflect.preventExtensions(newTarget);
+    }
+    let parts = Proxy.revocable(newTarget, handler);
     parts.value = original;
     parts.override = true;
     //parts.extendedHandler = handler;

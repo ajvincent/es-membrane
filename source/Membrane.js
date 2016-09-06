@@ -152,7 +152,10 @@ MembraneInternal.prototype = Object.seal({
     assert(mapping instanceof ProxyMapping,
            "buildMapping requires a ProxyMapping object!");
 
-    let parts = Proxy.revocable(value, handler);
+    let newTarget = makeShadowTarget(value);
+    if (!Reflect.isExtensible(value))
+      Reflect.preventExtensions(newTarget);
+    let parts = Proxy.revocable(newTarget, handler);
     parts.value = value;
     mapping.set(this, field, parts);
     handler.addRevocable(mapping.originField === field ? mapping : parts.revoke);

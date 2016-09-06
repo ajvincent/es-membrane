@@ -1,3 +1,4 @@
+"use strict"
 function valueType(value) {
   if (value === null)
     return "primitive";
@@ -5,6 +6,49 @@ function valueType(value) {
   if ((type != "function") && (type != "object"))
     return "primitive";
   return type;
+}
+
+var ShadowKeyMap = new WeakMap();
+
+/**
+ * Define a shadow target, so we can manipulate the proxy independently of the
+ * original target.
+ *
+ * @argument value {Object} The original target.
+ *
+ * @returns {Object} A shadow target to minimally emulate the real one.
+ * @private
+ */
+function makeShadowTarget(value) {
+  "use strict";
+  var rv;
+  if (typeof value == "object")
+    rv = {};
+  else if (typeof value == "function") {
+    rv = function() {};
+    /* ES7 specification says that functions in strict mode do not have their
+     * own "arguments" or "length" properties naturally.  But in non-strict
+     * code, V8 adds those properties.  (Mozilla adds them for both strict code
+     * and non-strict code, which technically is a spec violation.)  So to make
+     * the membrane code work correctly with shadow targets, we start with the
+     * minimalist case (strict mode explicitly on), and add missing properties.
+     */
+    let keys = Reflect.ownKeys(value);
+    keys.forEach(function(key) {
+      if (Reflect.getOwnPropertyDescriptor(rv))
+        return;
+      let desc = Reflect.getOwnPropertyDescriptor(value, key);
+      Reflect.defineProperty(rv, key, desc);
+    });
+  }
+  else
+    throw new Error("Unknown value for makeShadowTarget");
+  ShadowKeyMap.set(rv, value);
+  return rv;
+}
+
+function getRealTarget(target) {
+  return ShadowKeyMap.has(target) ? ShadowKeyMap.get(target) : target;
 }
 
 function inGraphHandler(trapName, callback) {
@@ -384,7 +428,10 @@ MembraneInternal.prototype = Object.seal({
     assert(mapping instanceof ProxyMapping,
            "buildMapping requires a ProxyMapping object!");
 
-    let parts = Proxy.revocable(value, handler);
+    let newTarget = makeShadowTarget(value);
+    if (!Reflect.isExtensible(value))
+      Reflect.preventExtensions(newTarget);
+    let parts = Proxy.revocable(newTarget, handler);
     parts.value = value;
     mapping.set(this, field, parts);
     handler.addRevocable(mapping.originField === field ? mapping : parts.revoke);
@@ -636,7 +683,8 @@ ObjectGraphHandler.prototype = Object.seal({
    */
 
   // ProxyHandler
-  ownKeys: inGraphHandler("ownKeys", function(target) {
+  ownKeys: inGraphHandler("ownKeys", function(shadowTarget) {
+    var target = getRealTarget(shadowTarget);
     var targetMap = this.membrane.map.get(target);
     var _this = targetMap.getOriginal();
     var rv = this.externalHandler(function() {
@@ -665,7 +713,8 @@ ObjectGraphHandler.prototype = Object.seal({
   }),
 
   // ProxyHandler
-  has: inGraphHandler("has", function(target, propName) {
+  has: inGraphHandler("has", function(shadowTarget, propName) {
+    var target = getRealTarget(shadowTarget);
     /*
     http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-hasproperty-p
 
@@ -695,7 +744,8 @@ ObjectGraphHandler.prototype = Object.seal({
   }),
 
   // ProxyHandler
-  get: inGraphHandler("get", function(target, propName, receiver) {
+  get: inGraphHandler("get", function(shadowTarget, propName, receiver) {
+    var target = getRealTarget(shadowTarget);
     var found = false, rv;
     /*
     http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-get-p-receiver
@@ -816,7 +866,8 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   getOwnPropertyDescriptor:
-  inGraphHandler("getOwnPropertyDescriptor", function(target, propName) {
+  inGraphHandler("getOwnPropertyDescriptor", function(shadowTarget, propName) {
+    var target = getRealTarget(shadowTarget);
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
       this.membrane.logger.debug("propName: " + propName.toString());
@@ -854,7 +905,8 @@ ObjectGraphHandler.prototype = Object.seal({
   }),
 
   // ProxyHandler
-  getPrototypeOf: inGraphHandler("getPrototypeOf", function(target) {
+  getPrototypeOf: inGraphHandler("getPrototypeOf", function(shadowTarget) {
+    var target = getRealTarget(shadowTarget);
     try {
       var targetMap = this.membrane.map.get(target);
       if (targetMap.protoMapping === NOT_YET_DETERMINED) {
@@ -905,28 +957,48 @@ ObjectGraphHandler.prototype = Object.seal({
   }),
 
   // ProxyHandler
-  isExtensible: inGraphHandler("isExtensible", function(target) {
+  isExtensible: inGraphHandler("isExtensible", function(shadowTarget) {
+    if (!Reflect.isExtensible(shadowTarget))
+      return false;
+    var target = getRealTarget(shadowTarget);
+    var shouldBeLocal = this.allowLocalProperties(target, true);
+    if (shouldBeLocal)
+      return true;
+    
     var targetMap = this.membrane.map.get(target);
     var _this = targetMap.getOriginal();
-    return this.externalHandler(function() {
+    var rv = this.externalHandler(function() {
       return Reflect.isExtensible(_this);
     });
+    if (!rv)
+      Reflect.preventExtensions(shadowTarget);
+    return rv;
   }),
 
   // ProxyHandler
-  preventExtensions: inGraphHandler("preventExtensions", function(target) {
+  preventExtensions: inGraphHandler("preventExtensions", function(shadowTarget) {
+    var target = getRealTarget(shadowTarget);
+    // Walk the prototype chain to look for shouldBeLocal.
+    var shouldBeLocal = this.allowLocalProperties(target, true);
+    if (shouldBeLocal) 
+      return Reflect.preventExtensions(shadowTarget);
+
     if (!this.isExtensible(target))
       return true;
 
     var targetMap = this.membrane.map.get(target);
     var _this = targetMap.getOriginal();
-    return this.externalHandler(function() {
+    var rv = this.externalHandler(function() {
       return Reflect.preventExtensions(_this);
     });
+    if (rv)
+      Reflect.preventExtensions(shadowTarget);
+    return rv;
   }),
 
   // ProxyHandler
-  deleteProperty: inGraphHandler("deleteProperty", function(target, propName) {
+  deleteProperty: inGraphHandler("deleteProperty", function(shadowTarget, propName) {
+    var target = getRealTarget(shadowTarget);
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
       this.membrane.logger.debug("propName: " + propName.toString());
@@ -962,8 +1034,9 @@ ObjectGraphHandler.prototype = Object.seal({
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/defineProperty
    */
   defineProperty:
-  inGraphHandler("defineProperty", function(target, propName, desc,
+  inGraphHandler("defineProperty", function(shadowTarget, propName, desc,
                                             shouldBeLocal = false) {
+    var target = getRealTarget(shadowTarget);
     /* Regarding the funny indentation:  With long names such as defineProperty,
      * inGraphHandler, and shouldBeLocal, it's hard to make everything fit
      * within 80 characters on a line, and properly indent only two spaces.
@@ -980,17 +1053,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
       if (!shouldBeLocal) {
         // Walk the prototype chain to look for shouldBeLocal.
-        let map = targetMap, protoTarget = target;
-        while (!shouldBeLocal) {
-          shouldBeLocal = map.requiresUnknownAsLocal(this.fieldName) ||
-                          map.requiresUnknownAsLocal(targetMap.originField);
-          if (!shouldBeLocal) {
-            protoTarget = this.getPrototypeOf(protoTarget);
-            if (!protoTarget)
-              break;
-            map = this.membrane.map.get(protoTarget);
-          }
-        }
+        shouldBeLocal = this.allowLocalProperties(target, true);
       }
 
       if (shouldBeLocal) {
@@ -1045,7 +1108,8 @@ ObjectGraphHandler.prototype = Object.seal({
    */
   set: inGraphHandler(
     "set",
-    function(target, propName, value, receiver, shouldBeLocal = false) {
+    function(shadowTarget, propName, value, receiver, shouldBeLocal = false) {
+    var target = getRealTarget(shadowTarget);
     /*
     http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-set-p-v-receiver
 
@@ -1091,14 +1155,12 @@ ObjectGraphHandler.prototype = Object.seal({
         throw new Error("propName is not a symbol or a string!");
     }
 
-    var targetMap = this.membrane.map.get(target);
     if (!shouldBeLocal) {
       /* Think carefully before making this walk the prototype chain as in
          .defineProperty().  Remember, this.set() calls itself below, so you
          could accidentally create a O(n^2) operation here.
        */
-      shouldBeLocal = (targetMap.requiresUnknownAsLocal(this.fieldName) ||
-                       targetMap.requiresUnknownAsLocal(targetMap.originField));
+      shouldBeLocal = this.allowLocalProperties(target, false);
     }
 
     /*
@@ -1233,7 +1295,8 @@ ObjectGraphHandler.prototype = Object.seal({
   }),
 
   // ProxyHandler
-  setPrototypeOf: inGraphHandler("setPrototypeOf", function(target, proto) {
+  setPrototypeOf: inGraphHandler("setPrototypeOf", function(shadowTarget, proto) {
+    var target = getRealTarget(shadowTarget);
     try {
       var targetMap = this.membrane.map.get(target);
       var _this = targetMap.getOriginal();
@@ -1270,7 +1333,8 @@ ObjectGraphHandler.prototype = Object.seal({
   }),
 
   // ProxyHandler
-  apply: inGraphHandler("apply", function(target, thisArg, argumentsList) {
+  apply: inGraphHandler("apply", function(shadowTarget, thisArg, argumentsList) {
+    var target = getRealTarget(shadowTarget);
     var _this, args = [];
     let targetMap  = this.membrane.map.get(target);
     let argHandler = this.membrane.getHandlerByField(targetMap.originField);
@@ -1332,7 +1396,8 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   construct:
-  inGraphHandler("construct", function(target, argumentsList, newTarget) {
+  inGraphHandler("construct", function(shadowTarget, argumentsList, newTarget) {
+    var target = getRealTarget(shadowTarget);
     var args = [];
     let targetMap  = this.membrane.map.get(target);
     let argHandler = this.membrane.getHandlerByField(targetMap.originField);
@@ -1387,6 +1452,36 @@ ObjectGraphHandler.prototype = Object.seal({
    */
   externalHandler: function(callback) {
     return inGraphHandler("external", callback).apply(this);
+  },
+
+  /**
+   * Determine if a target, or any prototype ancestor, wants local-to-the-proxy
+   * properties.
+   *
+   * @argument target    {Object} The proxy target.
+   * @argument recursive {Boolean} True if we should look at prototype ancestors.
+   *
+   * @returns {Boolean} True if local properties have been requested.
+   *
+   * @private
+   */
+  allowLocalProperties: function(target, recursive = false) {
+    var shouldBeLocal = false;
+    // Walk the prototype chain to look for shouldBeLocal.
+    let targetMap = this.membrane.map.get(target);
+    let map = targetMap, protoTarget = target;
+    while (true) {
+      shouldBeLocal = map.requiresUnknownAsLocal(this.fieldName) ||
+                      map.requiresUnknownAsLocal(targetMap.originField);
+      if (shouldBeLocal)
+        return true;
+      if (!recursive)
+        return false;
+      protoTarget = this.getPrototypeOf(protoTarget);
+      if (!protoTarget)
+        return false;
+      map = this.membrane.map.get(protoTarget);
+    }
   },
 
   /**
@@ -1637,8 +1732,16 @@ ModifyRulesAPI.prototype = Object.seal({
       throw new Error("You cannot replace the proxy with a handler from a different object graph!");
 
     // Finally, do the actual proxy replacement.
-    let original = map.getOriginal();
-    let parts = Proxy.revocable(original, handler);
+    let original = map.getOriginal(), newTarget;
+    if (baseHandler === Reflect) {
+      newTarget = original;
+    }
+    else {
+      newTarget = makeShadowTarget(original);
+      if (!Reflect.isExtensible(original))
+        Reflect.preventExtensions(newTarget);
+    }
+    let parts = Proxy.revocable(newTarget, handler);
     parts.value = original;
     parts.override = true;
     //parts.extendedHandler = handler;
