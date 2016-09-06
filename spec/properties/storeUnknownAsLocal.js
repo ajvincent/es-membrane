@@ -240,7 +240,7 @@ describe("Storing unknown properties locally", function() {
      * pass typeof tests (for function calls), and maintains its own
      * extensibility settings.
      */
-    xit(
+    it(
       "defineProperty does nothing when the proxy is not extensible",
       function() {
         Object.preventExtensions(dryRoot);

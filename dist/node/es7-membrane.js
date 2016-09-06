@@ -719,6 +719,8 @@ ObjectGraphHandler.prototype = Object.seal({
     if (this.membrane.showGraphName && !rv.includes("membraneGraphName")) {
       rv.push("membraneGraphName");
     }
+
+    this.fixOwnProperties(shadowTarget, rv);
     return rv;
   }),
 
@@ -990,8 +992,12 @@ ObjectGraphHandler.prototype = Object.seal({
     var target = getRealTarget(shadowTarget);
     // Walk the prototype chain to look for shouldBeLocal.
     var shouldBeLocal = this.allowLocalProperties(target, true);
-    if (shouldBeLocal) 
+    if (shouldBeLocal) {
+      // Call this.fixOwnProperties with all the properties we need.
+      this.ownKeys(shadowTarget);
+
       return Reflect.preventExtensions(shadowTarget);
+    }
 
     if (!this.isExtensible(target))
       return true;
@@ -1058,6 +1064,8 @@ ObjectGraphHandler.prototype = Object.seal({
     }
 
     try {
+      if (!this.isExtensible(shadowTarget))
+        return false;
       var targetMap = this.membrane.map.get(target);
       var _this = targetMap.getOriginal();
 
@@ -1492,6 +1500,36 @@ ObjectGraphHandler.prototype = Object.seal({
         return false;
       map = this.membrane.map.get(protoTarget);
     }
+  },
+
+  fixOwnProperties: function(shadowTarget, keyList) {
+    let mustDelKeys = Reflect.ownKeys(shadowTarget);
+    for (let i = keyList.length - 1; i >= 0; i--) {
+      let key = keyList[i];
+      let index = mustDelKeys.indexOf(key);
+      if (index == -1) {
+        Reflect.defineProperty(
+          shadowTarget,
+          key,
+          this.getOwnPropertyDescriptor(shadowTarget, key)
+        );
+      }
+      else {
+        mustDelKeys.splice(index, 1);
+      }
+    }
+    for (let i = 0; i < mustDelKeys.length; i++) {
+      let key = mustDelKeys[i];
+      Reflect.deleteProperty(shadowTarget, key);
+    }
+
+    keyList = keyList.slice(0);
+    keyList.sort();
+    let latestKeys = Reflect.ownKeys(shadowTarget);
+    latestKeys.sort();
+    assert(keyList.length === latestKeys.length, "Key length mismatch!");
+    for (let i = 0; i < keyList.length; i++)
+      assert(keyList[i] === latestKeys[i], "Key item mismatch at " + keyList[i]);
   },
 
   /**
