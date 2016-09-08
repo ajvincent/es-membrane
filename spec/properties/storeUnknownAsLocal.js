@@ -382,22 +382,83 @@ describe("Storing unknown properties locally", function() {
       }
     );
 
-    xit(
+    it(
       "deleteProperty on the dry graph deletes from both the dry graph and the wet graph",
       function() {
-        // XXX ajvincent Test that ownKeys preserves ordering of keys.
+        Reflect.defineProperty(dryRoot, "extra", {
+          value: 1,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
+
+        Reflect.defineProperty(wetRoot, "extra", {
+          value: 2,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
+
+        expect(Reflect.deleteProperty(dryRoot, "extra")).toBe(true);
+
+        expect(typeof dryRoot.extra).toBe("undefined");
+        expect(typeof wetRoot.extra).toBe("undefined");
       }
     );
 
-    xit(
+    it(
       "deleteProperty called on the wet graph does not override the dry graph",
       function() {
+        Reflect.defineProperty(dryRoot, "firstExtra", {
+          value: 1,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
+        Reflect.defineProperty(wetRoot, "firstExtra", {
+          value: 2,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
+
+        expect(wetRoot.firstExtra).toBe(2);
+        expect(dryRoot.firstExtra).toBe(1);
+
+        Reflect.deleteProperty(wetRoot, "firstExtra");
+        expect(typeof wetRoot.firstExtra).toBe("undefined");
+        expect(dryRoot.firstExtra).toBe(1);
+
+        let keys = Reflect.ownKeys(dryRoot);
+        expect(keys.includes("firstExtra")).toBe(true);
       }
     );
 
-    xit(
+    it(
       "deleteProperty called on the damp graph does not override the dry graph",
       function() {
+        Reflect.defineProperty(dryRoot, "firstExtra", {
+          value: 1,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
+        Reflect.defineProperty(dampRoot, "firstExtra", {
+          value: 2,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
+
+        expect(dampRoot.firstExtra).toBe(2);
+        expect(dryRoot.firstExtra).toBe(1);
+
+        Reflect.deleteProperty(dampRoot, "firstExtra");
+        expect(typeof dampRoot.firstExtra).toBe("undefined");
+        expect(dryRoot.firstExtra).toBe(1);
+
+        let keys = Reflect.ownKeys(dryRoot);
+        expect(keys.includes("firstExtra")).toBe(true);
       }
     );
 
@@ -473,6 +534,7 @@ describe("Storing unknown properties locally", function() {
       membrane.buildMapping("wet", parts.wet.Node.prototype);
       membrane.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node.prototype);
     });
+    
     addUnknownPropertySpecs();
   });
 

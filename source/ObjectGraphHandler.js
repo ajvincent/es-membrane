@@ -365,6 +365,7 @@ ObjectGraphHandler.prototype = Object.seal({
     }
     try {
       var targetMap = this.membrane.map.get(target);
+      targetMap.deleteLocalDescriptor(this.fieldName, propName);
       var _this = targetMap.getOriginal();
       return this.externalHandler(function() {
         return Reflect.deleteProperty(_this, propName);
