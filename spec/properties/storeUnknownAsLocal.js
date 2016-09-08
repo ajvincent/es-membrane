@@ -215,18 +215,62 @@ describe("Storing unknown properties locally", function() {
       }
     );
 
-    xit(
+    it(
       "defineProperty will not mask existing properties of the wet object graph",
       function() {
+        Reflect.defineProperty(dryRoot, "nodeType", {
+          value: 0,
+          enumerable: true,
+          writable: false,
+          configurable: true
+        });
+        expect(wetRoot.nodeType).toBe(0);
+        Reflect.defineProperty(wetRoot, "nodeType", {
+          value: 9,
+          enumerable: true,
+          writable: false,
+          configurable: true
+        });
+        expect(dryRoot.nodeType).toBe(9);
       }
     );
 
-    xdescribe(
+    describe(
       "defineProperty works correctly with previously defined accessor descriptors",
       function() {
-        xit("on the wet object graph", function() {
+        beforeEach(function() {
+          membrane.modifyRules.storeUnknownAsLocal("dry", parts.dry.doc);
         });
-        xit("on the dry object graph", function() {
+        it("on the wet object graph", function() {
+          parts.dry.doc.baseURL = "about:blank";
+          expect(parts.wet.doc.baseURL).toBe("about:blank");
+        });
+
+        it("on the dry object graph", function() {
+          var local = "one";
+          // This isn't the test.
+          Reflect.defineProperty(dryRoot, "localProp", {
+            get: function() { return local; },
+            set: function(val) { local = val; },
+            enumerable: true,
+            configurable: true
+          });
+          expect(dryRoot.localProp).toBe("one");
+
+          // extra test:  did localProp make it to wetRoot?
+          expect(Reflect.getOwnPropertyDescriptor(wetRoot, "localProp"))
+                .toBe(undefined);
+
+          // This is what we're really testing.
+          Reflect.defineProperty(dryRoot, "localProp", {
+            value: "two",
+            writable: true,
+            enumerable: false,
+            configurable: true
+          });
+          expect(dryRoot.localProp).toBe("two");
+          expect(Reflect.getOwnPropertyDescriptor(wetRoot, "localProp"))
+                .toBe(undefined);
         });
       }
     );
@@ -260,16 +304,81 @@ describe("Storing unknown properties locally", function() {
       }
     );
 
-    xit(
+    it(
       "defineProperty called on the wet graph for the same name does not override the dry graph",
       function() {
-        // XXX ajvincent Duplicate names in the wet graph mustn't reorder Reflect.ownKeys().
+        Reflect.defineProperty(dryRoot, "firstExtra", {
+          value: 1,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
+
+        Reflect.defineProperty(dryRoot, "secondExtra", {
+          value: 2,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
+
+        expect(typeof wetRoot.firstExtra).toBe("undefined");
+        expect(typeof wetRoot.secondExtra).toBe("undefined");
+
+        expect(dryRoot.firstExtra).toBe(1);
+        expect(dryRoot.secondExtra).toBe(2);
+
+        Reflect.defineProperty(wetRoot, "secondExtra", {
+          value: 0,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
+
+        expect(dryRoot.firstExtra).toBe(1);
+        expect(dryRoot.secondExtra).toBe(2);
+
+        let keys = Reflect.ownKeys(dryRoot);
+        expect(keys.includes("firstExtra")).toBe(true);
+        expect(keys.includes("secondExtra")).toBe(true);
       }
     );
 
-    xit(
+    it(
       "defineProperty called on the damp graph for the same name does not override the dry graph",
       function() {
+        Reflect.defineProperty(dryRoot, "firstExtra", {
+          value: 1,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
+
+        Reflect.defineProperty(dryRoot, "secondExtra", {
+          value: 2,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
+
+        expect(typeof dampRoot.firstExtra).toBe("undefined");
+        expect(typeof dampRoot.secondExtra).toBe("undefined");
+
+        expect(dryRoot.firstExtra).toBe(1);
+        expect(dryRoot.secondExtra).toBe(2);
+
+        Reflect.defineProperty(dampRoot, "secondExtra", {
+          value: 0,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
+
+        expect(dryRoot.firstExtra).toBe(1);
+        expect(dryRoot.secondExtra).toBe(2);
+
+        let keys = Reflect.ownKeys(dryRoot);
+        expect(keys.includes("firstExtra")).toBe(true);
+        expect(keys.includes("secondExtra")).toBe(true);
       }
     );
 
