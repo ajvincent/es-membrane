@@ -495,36 +495,138 @@ describe("Storing unknown properties locally", function() {
       }
     );
 
-    xdescribe(
+    describe(
       "set stores unknown properties locally on the dry graph, unwrapped",
       function() {
-        xit(
+        it(
           "when the object doesn't have a descriptor with that name",
           function() {
+            let x = { isExtra: true };
+            dryRoot.extra = x;
+            expect(Reflect.has(wetRoot, "extra")).toBe(false);
+            let dryGetExtra = Reflect.get(dryRoot, "extra");
+            expect(dryGetExtra === x).toBe(true);
           }
         );
 
-        xit(
+        it(
           "when the object has a direct data descriptor with that name",
           function() {
+            Reflect.defineProperty(dryRoot, "extra", {
+              value: { isExtra: 1 },
+              writable: true,
+              enumerable: true,
+              configurable: true
+            });
+
+            let x = { isExtra: true };
+            dryRoot.extra = x;
+
+            expect(Reflect.has(wetRoot, "extra")).toBe(false);
+            let dryGetExtra = Reflect.get(dryRoot, "extra");
+            expect(dryGetExtra === x).toBe(true);
           }
         );
 
-        xit(
+        it(
           "when the object has a direct accessor descriptor with that name",
           function() {
+            let extraValue = 1;
+            Reflect.defineProperty(dryRoot, "extra", {
+              get: function() { return extraValue; },
+              set: function(val) { extraValue = val; },
+              enumerable: true,
+              configurable: true
+            });
+
+            let x = { isExtra: true };
+            dryRoot.extra = x;
+
+            expect(Reflect.has(wetRoot, "extra")).toBe(false);
+            let dryGetExtra = Reflect.get(dryRoot, "extra");
+            expect(dryGetExtra === x).toBe(true);
           }
         );
 
-        xit(
-          "when the object has an inherited data descriptor with that name",
+        it(
+          "when the object has a locally inherited data descriptor with that name",
           function() {
+            Reflect.defineProperty(parts.dry.Node.prototype, "extra", {
+              value: { isExtra: 1 },
+              writable: true,
+              enumerable: true,
+              configurable: true
+            });
+
+            let x = { isExtra: true };
+            dryRoot.extra = x;
+
+            expect(Reflect.has(wetRoot, "extra")).toBe(false);
+            let dryGetExtra = Reflect.get(dryRoot, "extra");
+            expect(dryGetExtra === x).toBe(true);
           }
         );
 
-        xit(
-          "when the object has an inherited accessor descriptor with that name",
+        it(
+          "when the object has a proxied inherited data descriptor with that name",
           function() {
+            let y = { isExtra: 1 };
+            Reflect.defineProperty(parts.wet.Node.prototype, "extra", {
+              value: y,
+              writable: true,
+              enumerable: true,
+              configurable: true
+            });
+
+            let x = { isExtra: true };
+            dryRoot.extra = x;
+
+            let wetGetExtra = Reflect.get(wetRoot, "extra");
+            expect(wetGetExtra === y).toBe(true);
+            let dryGetExtra = Reflect.get(dryRoot, "extra");
+            expect(dryGetExtra === x).toBe(true);
+          }
+        );
+
+
+        it(
+          "when the object has a locally inherited accessor descriptor with that name",
+          function() {
+            let extraValue = 1;
+            Reflect.defineProperty(parts.dry.Node.prototype, "extra", {
+              get: function() { return extraValue; },
+              set: function(val) { extraValue = val; },
+              enumerable: true,
+              configurable: true
+            });
+
+            let x = { isExtra: true };
+            dryRoot.extra = x;
+
+            expect(Reflect.has(wetRoot, "extra")).toBe(false);
+            let dryGetExtra = Reflect.get(dryRoot, "extra");
+            expect(dryGetExtra === x).toBe(true);
+          }
+        );
+
+        it(
+          "when the object has a proxied inherited accessor descriptor with that name",
+          function() {
+            let extraValue = 1;
+            Reflect.defineProperty(parts.wet.Node.prototype, "extra", {
+              get: function() { return extraValue; },
+              set: function(val) { extraValue = val; },
+              enumerable: true,
+              configurable: true
+            });
+
+            let x = { isExtra: true };
+            dryRoot.extra = x;
+
+            let wetGetExtra = Reflect.get(wetRoot, "extra");
+            expect(wetGetExtra === 1).toBe(true);
+            let dryGetExtra = Reflect.get(dryRoot, "extra");
+            expect(dryGetExtra === x).toBe(true);
           }
         );
       }

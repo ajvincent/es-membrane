@@ -1127,8 +1127,14 @@ ObjectGraphHandler.prototype = Object.seal({
    */
   set: inGraphHandler(
     "set",
-    function(shadowTarget, propName, value, receiver, shouldBeLocal = false) {
+    function(shadowTarget, propName, value, receiver,
+             options = {}) {
     var target = getRealTarget(shadowTarget);
+    var {
+      checkedPropName = false,
+      shouldBeLocal = false,
+      walkedAllowLocal = false
+    } = options;
     /*
     http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-set-p-v-receiver
 
@@ -1167,19 +1173,22 @@ ObjectGraphHandler.prototype = Object.seal({
     if (mayLog) {
       this.membrane.logger.debug("set propName: " + propName);
     }
-    {
+
+    if (!checkedPropName) {
       // 1. Assert: IsPropertyKey(P) is true.
       let type = typeof propName;
       if ((type != "string") && (type != "symbol"))
         throw new Error("propName is not a symbol or a string!");
+      checkedPropName = true;
     }
 
-    if (!shouldBeLocal) {
+    if (!shouldBeLocal && !walkedAllowLocal) {
       /* Think carefully before making this walk the prototype chain as in
          .defineProperty().  Remember, this.set() calls itself below, so you
          could accidentally create a O(n^2) operation here.
        */
-      shouldBeLocal = this.allowLocalProperties(target, false);
+      walkedAllowLocal = true;
+      shouldBeLocal = this.allowLocalProperties(target, true);
     }
 
     /*
@@ -1205,7 +1214,13 @@ ObjectGraphHandler.prototype = Object.seal({
           let [found, other] = this.membrane.getMembraneProxy(this.fieldName, parent);
           assert(found, "Must find membrane proxy for prototype");
           assert(other === parent, "Retrieved prototypes must match");
-          return this.set(parent, propName, value, receiver, shouldBeLocal);
+          return this.set(
+            parent, propName, value, receiver, {
+              checkedPropName,
+              shouldBeLocal,
+              walkedAllowLocal
+            }
+          );
         }
         else
           ownDesc = new DataDescriptor(undefined, true);
@@ -1269,7 +1284,7 @@ ObjectGraphHandler.prototype = Object.seal({
       }
 
       let rvProxy;
-      if (receiverMap.originField !== this.fieldName) {
+      if (!shouldBeLocal && (receiverMap.originField !== this.fieldName)) {
         rvProxy = new DataDescriptor(
           // Only now do we convert the value to the target object graph.
           this.membrane.convertArgumentToProxy(
@@ -1299,7 +1314,7 @@ ObjectGraphHandler.prototype = Object.seal({
     if (typeof setter === "undefined")
       return false;
     // 8. Perform ? Call(setter, Receiver, « V »).
-    {
+    if (!shouldBeLocal) {
       // Only now do we convert the value to the target object graph.
       let rvProxy = this.membrane.convertArgumentToProxy(
         this,
@@ -1307,6 +1322,9 @@ ObjectGraphHandler.prototype = Object.seal({
         value
       );
       this.apply(setter, receiver, [ rvProxy ]);
+    }
+    else {
+      this.defineProperty(receiver, propName, new DataDescriptor(value), shouldBeLocal);
     }
 
     // 9. Return true.
