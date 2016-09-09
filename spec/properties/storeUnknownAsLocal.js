@@ -462,12 +462,35 @@ describe("Storing unknown properties locally", function() {
       }
     );
 
-    xdescribe(
+    describe(
       "deleteProperty works correctly with previously defined accessor descriptors",
       function() {
-        xit("on the wet object graph", function() {
+        beforeEach(function() {
+          membrane.modifyRules.storeUnknownAsLocal("dry", parts.dry.doc);
         });
-        xit("on the dry object graph", function() {
+
+        it("on the wet object graph", function() {
+          delete parts.dry.doc.baseURL;
+          expect(parts.wet.doc.baseURL).toBe(undefined);
+        });
+
+        it("on the dry object graph", function() {
+          var local = "one";
+          // This isn't the test.
+          Reflect.defineProperty(wetRoot, "localProp", {
+            get: function() { return local; },
+            set: function(val) { local = val; },
+            enumerable: true,
+            configurable: true
+          });
+          expect(dryRoot.localProp).toBe("one");
+
+          // This is what we're really testing.
+          expect(Reflect.deleteProperty(dryRoot, "localProp")).toBe(true);
+          expect(Reflect.getOwnPropertyDescriptor(dryRoot, "localProp"))
+                .toBe(undefined);
+          expect(Reflect.getOwnPropertyDescriptor(wetRoot, "localProp"))
+                .toBe(undefined);
         });
       }
     );
@@ -557,7 +580,7 @@ describe("Storing unknown properties locally", function() {
     }
   );
 
-  xit("requires a value or proxy already known to the membrane", function() {
+  it("requires a value or proxy already known to the membrane", function() {
     expect(function() {
       membrane.modifyRules.storeUnknownAsLocal("wet", {});
     }).toThrow();
