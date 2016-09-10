@@ -226,12 +226,12 @@ describe("Storing unknown properties locally", function() {
         });
         expect(wetRoot.nodeType).toBe(0);
         Reflect.defineProperty(wetRoot, "nodeType", {
-          value: 9,
+          value: 15,
           enumerable: true,
           writable: false,
           configurable: true
         });
-        expect(dryRoot.nodeType).toBe(9);
+        expect(dryRoot.nodeType).toBe(15);
       }
     );
 
@@ -632,16 +632,30 @@ describe("Storing unknown properties locally", function() {
       }
     );
 
-    xit(
-      "deleteProperty followed by .defineProperty is consistent for local properties",
+    it(
+      "deleteProperty followed by .defineProperty is consistent",
       function() {
-        // mask a property 
         // delete the property on the dry graph
-        // define the property on the dry graph
-        // define the property on the wet graph
-        // ensure the property on the dry graph takes precedence
+        Reflect.deleteProperty(dryRoot, "nodeType");
 
-        // repeat all steps with an accessor descriptor on the wet object graph
+        // define the property on the dry graph
+        Reflect.defineProperty(dryRoot, "nodeType", {
+          value: 0,
+          enumerable: true,
+          writable: false,
+          configurable: true
+        });
+
+        // define the property on the wet graph
+        Reflect.defineProperty(wetRoot, "nodeType", {
+          value: 15,
+          enumerable: true,
+          writable: false,
+          configurable: true
+        });
+
+        // ensure the property on the dry graph takes precedence
+        expect(dryRoot.nodeType).toBe(0);
       }
     );
   }
@@ -663,12 +677,6 @@ describe("Storing unknown properties locally", function() {
     addUnknownPropertySpecs();
   });
 
-  xdescribe(
-    "when required by the damp object graph (neither wet nor dry, should behave normally), ObjectGraphHandler(dry).",
-    function() {
-    }
-  );
-
   describe(
     "when required by both the wet and the dry object graphs, ObjectGraphHandler(dry).",
     function() {
@@ -681,6 +689,49 @@ describe("Storing unknown properties locally", function() {
       addUnknownPropertySpecs();
     }
   );
+
+  describe("when required by the damp object graph, ObjectGraphHandler(dry).", function() {
+    beforeEach(function() {
+      membrane.modifyRules.storeUnknownAsLocal("damp", parts.damp.Node.prototype);
+    });
+    it("defineProperty refers to the original object graph", function() {
+      Reflect.defineProperty(dryRoot, "extra", {
+        value: 15,
+        enumerable: true,
+        writable: false,
+        configurable: true
+      });
+
+      let wetExtra = wetRoot.extra;
+      expect(wetExtra).toBe(15);
+
+      let dampExtra = dampRoot.extra;
+      expect(dampExtra).toBe(15);
+
+      let dryExtra = dryRoot.extra;
+      expect(dryExtra).toBe(15);
+    });
+
+    it("deleteProperty refers to the original object graph", function() {
+      expect(Reflect.deleteProperty(dryRoot, "nodeName")).toBe(true);
+      expect(Reflect.has(wetRoot, "nodeName")).toBe(false);
+      expect(Reflect.has(dryRoot, "nodeName")).toBe(false);
+      expect(Reflect.has(dampRoot, "nodeName")).toBe(false);
+    });
+
+    it("set refers to the original object graph", function() {
+      dryRoot.extra = 15;
+
+      let wetExtra = wetRoot.extra;
+      expect(wetExtra).toBe(15);
+
+      let dampExtra = dampRoot.extra;
+      expect(dampExtra).toBe(15);
+
+      let dryExtra = dryRoot.extra;
+      expect(dryExtra).toBe(15);
+    });
+  });
 
   it("requires a value or proxy already known to the membrane", function() {
     expect(function() {
