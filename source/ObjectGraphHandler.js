@@ -48,17 +48,34 @@ ObjectGraphHandler.prototype = Object.seal({
     /* The key list is guaranteed through rv.length to be unique.  Make it so
      * for the newly added items.
      */
-    let index = rv.length;
     rv = rv.concat(
       targetMap.localOwnKeys(targetMap.originField),
       targetMap.localOwnKeys(this.fieldName)
     );
-    for (let i = rv.length - 1; i >= index; i--) {
-      let item = rv[i];
-      if (rv.indexOf(item) < i)
-        rv.splice(i, 1);
+
+    {
+      let mustSkip = new Set();
+      targetMap.appendDeletedNames(targetMap.originField, mustSkip);
+      targetMap.appendDeletedNames(this.fieldName, mustSkip);
+      /*
+      let originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
+      let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
+      */
+      rv = rv.filter(function(elem) {
+        if (mustSkip.has(elem))
+          return false;
+        mustSkip.add(elem);
+
+        var accepted = true;
+        /*
+        if (originFilter)
+          accepted = originFilter.apply(this, arguments);
+        if (accepted && localFilter)
+          accepted = localFilter.apply(this, arguments);
+        */
+        return accepted;
+      });
     }
-    
 
     if (this.membrane.showGraphName && !rv.includes("membraneGraphName")) {
       rv.push("membraneGraphName");
@@ -83,11 +100,8 @@ ObjectGraphHandler.prototype = Object.seal({
     6. Return false. 
     */
 
-    {
-      let type = typeof propName;
-      if ((type != "string") && (type != "symbol"))
-        throw new Error("propName is not a symbol or a string!");
-    }
+    // 1. Assert: IsPropertyKey(P) is true.
+    AssertIsPropertyKey(propName);
 
     var hasOwn;
     while (target !== null) {
@@ -119,12 +133,8 @@ ObjectGraphHandler.prototype = Object.seal({
     8. Return ? Call(getter, Receiver). 
      */
 
-    {
-      // 1. Assert: IsPropertyKey(P) is true.
-      let type = typeof propName;
-      if ((type != "string") && (type != "symbol"))
-        throw new Error("propName is not a symbol or a string!");
-    }
+    // 1. Assert: IsPropertyKey(P) is true.
+    AssertIsPropertyKey(propName);
 
     var desc;
     {
@@ -235,6 +245,10 @@ ObjectGraphHandler.prototype = Object.seal({
 
     try {
       var targetMap = this.membrane.map.get(target);
+      if (targetMap.wasDeletedLocally(targetMap.originField, propName) ||
+          targetMap.wasDeletedLocally(this.fieldName, propName))
+        return undefined;
+
       var desc = targetMap.getLocalDescriptor(this.fieldName, propName);
       if (desc !== undefined)
         return desc;
@@ -363,13 +377,39 @@ ObjectGraphHandler.prototype = Object.seal({
     if (mayLog) {
       this.membrane.logger.debug("propName: " + propName.toString());
     }
+
+    /*
+    Assert: IsPropertyKey(P) is true.
+    Let desc be ? O.[[GetOwnProperty]](P).
+    If desc is undefined, return true.
+    If desc.[[Configurable]] is true, then
+        Remove the own property with name P from O.
+        Return true.
+    Return false. 
+    */
+
+    // 1. Assert: IsPropertyKey(P) is true.
+    AssertIsPropertyKey(propName);
+
+    let desc = this.getOwnPropertyDescriptor(target, propName);
+    if (!desc)
+      return true;
+
+    if (!desc.configurable)
+      return false;
+
     try {
       var targetMap = this.membrane.map.get(target);
-      targetMap.deleteLocalDescriptor(this.fieldName, propName);
-      var _this = targetMap.getOriginal();
-      return this.externalHandler(function() {
-        return Reflect.deleteProperty(_this, propName);
-      });
+      targetMap.deleteLocalDescriptor(this.fieldName, propName, true);
+
+      var shouldBeLocal = this.requiresDeletesBeLocal(target);
+      if (!shouldBeLocal) {
+        var _this = targetMap.getOriginal();
+        this.externalHandler(function() {
+          return Reflect.deleteProperty(_this, propName);
+        });
+      }
+      return true;
     }
     catch (e) {
       if (mayLog) {
@@ -427,7 +467,7 @@ ObjectGraphHandler.prototype = Object.seal({
           return targetMap.setLocalDescriptor(this.fieldName, propName, desc);
         }
         else {
-          targetMap.deleteLocalDescriptor(this.fieldName, propName);
+          targetMap.deleteLocalDescriptor(this.fieldName, propName, false);
           // fall through to Reflect's defineProperty
         }
       }
@@ -520,9 +560,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
     if (!checkedPropName) {
       // 1. Assert: IsPropertyKey(P) is true.
-      let type = typeof propName;
-      if ((type != "string") && (type != "symbol"))
-        throw new Error("propName is not a symbol or a string!");
+      AssertIsPropertyKey(propName);
       checkedPropName = true;
     }
 
@@ -858,6 +896,21 @@ ObjectGraphHandler.prototype = Object.seal({
         return true;
       if (!recursive)
         return false;
+      protoTarget = this.getPrototypeOf(protoTarget);
+      if (!protoTarget)
+        return false;
+      map = this.membrane.map.get(protoTarget);
+    }
+  },
+
+  requiresDeletesBeLocal: function(target) {
+    let targetMap = this.membrane.map.get(target);
+    let map = targetMap, protoTarget = target, shouldBeLocal = false;
+    while (true) {
+      shouldBeLocal = map.requiresDeletesBeLocal(this.fieldName) ||
+                      map.requiresDeletesBeLocal(targetMap.originField);
+      if (shouldBeLocal)
+        return true;
       protoTarget = this.getPrototypeOf(protoTarget);
       if (!protoTarget)
         return false;

@@ -140,6 +140,12 @@ Object.defineProperties(ProxyMapping.prototype, {
   "setLocalDescriptor":
   new DataDescriptor(function(fieldName, propName, desc) {
     let metadata = this.proxiedFields[fieldName];
+    if (metadata.deletedLocals) {
+      metadata.deletedLocals.delete(propName);
+      if (metadata.deletedLocals.size === 0)
+        delete metadata.deletedLocals;
+    }
+
     if (!metadata.localDescriptors) {
       metadata.localDescriptors = new Map();
     }
@@ -149,14 +155,24 @@ Object.defineProperties(ProxyMapping.prototype, {
   }),
 
   "deleteLocalDescriptor":
-  new DataDescriptor(function(fieldName, propName) {
+  new DataDescriptor(function(fieldName, propName, recordLocalDelete) {
     let metadata = this.proxiedFields[fieldName];
-    if (!("localDescriptors" in metadata))
-      return;
+    if (recordLocalDelete) {
+      if (!metadata.deletedLocals)
+        metadata.deletedLocals = new Set();
+      metadata.deletedLocals.add(propName);
+    }
+    else if (metadata.deletedLocals) {
+      metadata.deletedLocals.delete(propName);
+      if (metadata.deletedLocals.size === 0)
+        delete metadata.deletedLocals;
+    }
 
-    metadata.localDescriptors.delete(propName);
-    if (metadata.localDescriptors.size === 0)
-      delete metadata.localDescriptors;
+    if ("localDescriptors" in metadata) {
+      metadata.localDescriptors.delete(propName);
+      if (metadata.localDescriptors.size === 0)
+        delete metadata.localDescriptors;
+    }
   }),
 
   "localOwnKeys": new DataDescriptor(function(fieldName) {
@@ -164,6 +180,40 @@ Object.defineProperties(ProxyMapping.prototype, {
     if ("localDescriptors" in metadata)
       rv = Array.from(metadata.localDescriptors.keys());
     return rv;
+  }),
+
+  "requireLocalDelete":
+  new DataDescriptor(function(fieldName, value) {
+    this.proxiedFields[fieldName].mustDeleteLocally = Boolean(value);
+  }),
+
+  "requiresDeletesBeLocal":
+  new DataDescriptor(function(fieldName) {
+    return this.hasField(fieldName) &&
+           Boolean(this.proxiedFields[fieldName].mustDeleteLocally);
+  }),
+
+  "appendDeletedNames":
+  new DataDescriptor(function(fieldName, set) {
+    if (!this.hasField(fieldName))
+      return null;
+    var locals = this.proxiedFields[fieldName].deletedLocals;
+    if (!locals || !locals.size)
+      return null;
+    var iter = locals.values(), next;
+    do {
+      next = iter.next();
+      if (!next.done)
+        set.add(next.value);
+    } while (!next.done);
+  }),
+
+  "wasDeletedLocally":
+  new DataDescriptor(function(fieldName, propName) {
+    if (!this.hasField(fieldName))
+      return false;
+    var locals = this.proxiedFields[fieldName].deletedLocals;
+    return Boolean(locals) && locals.has(propName);
   }),
 });
 

@@ -230,5 +230,17 @@ ModifyRulesAPI.prototype = Object.seal({
     let metadata = this.membrane.map.get(proxy);
     metadata.storeUnknownAsLocal(fieldName, true);
   },
+
+  requireLocalDelete: function(fieldName, proxy) {
+    {
+      let [found, match] = this.membrane.getMembraneProxy(fieldName, proxy);
+      if (!found || (proxy !== match)) {
+        throw new Error("requireLocalDelete requires a known proxy!");
+      }
+    }
+
+    let metadata = this.membrane.map.get(proxy);
+    metadata.requireLocalDelete(fieldName, true);
+  },
 });
 Object.seal(ModifyRulesAPI);

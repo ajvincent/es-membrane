@@ -100,3 +100,9 @@ Object.defineProperty(
 function MembraneMayLog() {
   return (typeof this.logger == "object") && Boolean(this.logger);
 }
+
+function AssertIsPropertyKey(propName) {
+  var type = typeof propName;
+  if ((type != "string") && (type != "symbol"))
+    throw new Error("propName is not a symbol or a string!");
+}

@@ -14,7 +14,7 @@ if (typeof MembraneMocks != "function") {
 {
   let MockupsForThisTest = function() {
     // This function you're free to customize any way you want.
-    let parts = MembraneMocks(true);
+    let parts = MembraneMocks();
 
     let dryProto = parts.membrane.convertArgumentToProxy(
       parts.handlers.wet,
@@ -33,15 +33,9 @@ if (typeof MembraneMocks != "function") {
     return parts;
   };
 
-  xit("Sample use case template", function() {
+  it("Sample use case template", function() {
     // Customize this for whatever variables you need.
-    var parts;
-    beforeEach(function() {
-      parts = MockupsForThisTest();
-    });
-    afterEach(function() {
-      parts = null;
-    });
+    var parts = MockupsForThisTest();
 
     // Check the new property is available in the dry object graph.
     expect(parts.dry.doc.membraneGraphName).toBe("dry");
@@ -59,6 +53,7 @@ if (typeof MembraneMocks != "function") {
     // etc., etc., etc.
 
     // Update wrappers/browser/test-browser.xhtml to include this test.
+    // Update wrappers/browser/debug-browser.xhtml to include this test.
   });
 }
 */
