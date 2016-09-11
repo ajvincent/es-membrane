@@ -158,7 +158,7 @@ Object.defineProperties(ProxyMapping.prototype, {
         metadata.deletedLocals = new Set();
       metadata.deletedLocals.add(propName);
     }
-    else 
+    else
       this.unmaskDeletion(fieldName, propName);
 
     if ("localDescriptors" in metadata) {

@@ -277,7 +277,7 @@ Object.defineProperties(ProxyMapping.prototype, {
         metadata.deletedLocals = new Set();
       metadata.deletedLocals.add(propName);
     }
-    else 
+    else
       this.unmaskDeletion(fieldName, propName);
 
     if ("localDescriptors" in metadata) {
@@ -1117,9 +1117,9 @@ ObjectGraphHandler.prototype = Object.seal({
 
     try {
       var targetMap = this.membrane.map.get(target);
-      targetMap.deleteLocalDescriptor(this.fieldName, propName, true);
-
       var shouldBeLocal = this.requiresDeletesBeLocal(target);
+      targetMap.deleteLocalDescriptor(this.fieldName, propName, shouldBeLocal);
+
       if (!shouldBeLocal) {
         var _this = targetMap.getOriginal();
         this.externalHandler(function() {

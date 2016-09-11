@@ -18,6 +18,7 @@ describe("Deleting properties locally", function() {
     dampRoot = parts.damp.doc.rootElement;
     membrane = parts.membrane;
   });
+
   afterEach(function() {
     dryRoot  = null;
     wetRoot  = null;
@@ -27,42 +28,47 @@ describe("Deleting properties locally", function() {
   });
 
   function checkProperties(expectedDryExtra) {
-    const extraAsBool = Boolean(expectedDryExtra);
+    const extraDryAsBool = Boolean(expectedDryExtra);
+    const expectedWetExtra = (arguments.length > 1) ? arguments[1] : 1;
+    const extraWetAsBool = Boolean(expectedWetExtra);
     {
       let keys = Reflect.ownKeys(dryRoot);
-      expect(keys.includes("extra")).toBe(extraAsBool);
+      expect(keys.includes("extra")).toBe(extraDryAsBool);
     }
 
     {
       let keys = Reflect.ownKeys(wetRoot);
-      expect(keys.includes("extra")).toBe(true);
+      expect(keys.includes("extra")).toBe(extraWetAsBool);
     }
 
     {
       let desc = Reflect.getOwnPropertyDescriptor(dryRoot, "extra");
       let expectation = expect(desc);
-      if (extraAsBool)
+      if (extraDryAsBool)
         expectation = expectation.not;
       expectation.toBe(undefined);
-      if (extraAsBool && desc)
+      if (extraDryAsBool && desc)
         expect(desc.value).toBe(expectedDryExtra);
     }
 
     {
       let desc = Reflect.getOwnPropertyDescriptor(wetRoot, "extra");
-      expect(desc).not.toBe(undefined);
-      if (desc)
-        expect(desc.value).toBe(1);
+      let expectation = expect(desc);
+      if (extraWetAsBool)
+        expectation = expectation.not;
+      expectation.toBe(undefined);
+      if (extraWetAsBool && desc)
+        expect(desc.value).toBe(expectedWetExtra);
     }
 
     {
       let found = Reflect.has(dryRoot, "extra");
-      expect(found).toBe(extraAsBool);
+      expect(found).toBe(extraDryAsBool);
     }
 
     {
       let found = Reflect.has(wetRoot, "extra");
-      expect(found).toBe(true);
+      expect(found).toBe(extraWetAsBool);
     }
 
     {
@@ -72,7 +78,7 @@ describe("Deleting properties locally", function() {
 
     {
       let val = Reflect.get(wetRoot, "extra");
-      expect(val).toBe(1);
+      expect(val).toBe(expectedWetExtra);
     }
   }
 
@@ -183,7 +189,7 @@ describe("Deleting properties locally", function() {
     );
     
     it(
-      "deleteProperty(), followed by defineProperty() on the wet graph, does not expose the property again",
+      "deleteProperty() on the dry graph, followed by defineProperty() on the wet graph, does not expose the property again",
       function() {
         Reflect.defineProperty(dryRoot, "extra", {
           value: 2,
@@ -206,7 +212,7 @@ describe("Deleting properties locally", function() {
     );
 
     it(
-      "deleteProperty(), followed by defineProperty() on the damp graph, does not expose the property again",
+      "deleteProperty() on the dry graph, followed by defineProperty() on the damp graph, does not expose the property again",
       function() {
         Reflect.defineProperty(dryRoot, "extra", {
           value: 2,
@@ -354,10 +360,265 @@ describe("Deleting properties locally", function() {
     }
   );
 
-  xdescribe("when required by the damp object graph, ObjectGraphHandler(dry).", function() {
+  describe("when required by the damp object graph, ObjectGraphHandler(dry).", function() {
     beforeEach(function() {
       membrane.modifyRules.requireLocalDelete("damp", parts.damp.Node.prototype);
     });
+
+    it(
+      "deleteProperty() removes a configurable property",
+      function() {
+        Reflect.defineProperty(dryRoot, "extra", {
+          value: 1,
+          writable: true,
+          enumerable: false,
+          configurable: true
+        });
+
+        {
+          let deleted = Reflect.deleteProperty(dryRoot, "extra");
+          expect(deleted).toBe(true);
+        }
+
+        checkProperties(undefined, undefined);
+      }
+    );
+
+    it(
+      "deleteProperty() does not remove a non-configurable property",
+      function() {
+        Reflect.defineProperty(dryRoot, "extra", {
+          value: 1,
+          writable: true,
+          enumerable: false,
+          configurable: false
+        });
+
+        {
+          let deleted = Reflect.deleteProperty(dryRoot, "extra");
+          expect(deleted).toBe(false);
+        }
+
+        checkProperties(1, 1);
+      }
+    );
+
+    it(
+      "deleteProperty() does not remove an inherited property",
+      function() {
+        Reflect.defineProperty(parts.dry.Node.prototype, "extra", {
+          value: 1,
+          writable: true,
+          enumerable: false,
+          configurable: true
+        });
+
+        {
+          let deleted = Reflect.deleteProperty(dryRoot, "extra");
+          expect(deleted).toBe(true);
+        }
+
+        {
+          let keys = Reflect.ownKeys(dryRoot);
+          expect(keys.includes("extra")).toBe(false);
+        }
+
+        {
+          let keys = Reflect.ownKeys(wetRoot);
+          expect(keys.includes("extra")).toBe(false);
+        }
+
+        {
+          let desc = Reflect.getOwnPropertyDescriptor(dryRoot, "extra");
+          expect(desc).toBe(undefined);
+        }
+
+        {
+          let desc = Reflect.getOwnPropertyDescriptor(wetRoot, "extra");
+          expect(desc).toBe(undefined);
+        }
+
+        {
+          let found = Reflect.has(dryRoot, "extra");
+          expect(found).toBe(true);
+        }
+
+        {
+          let found = Reflect.has(wetRoot, "extra");
+          expect(found).toBe(true);
+        }
+
+        {
+          let val = Reflect.get(dryRoot, "extra");
+          expect(val).toBe(1);
+        }
+
+        {
+          let val = Reflect.get(wetRoot, "extra");
+          expect(val).toBe(1);
+        }
+      }
+    );
+
+    it(
+      "deleteProperty() does not hide a property stored first on the wet graph",
+      function() {
+        Reflect.defineProperty(wetRoot, "extra", {
+          value: 1,
+          writable: true,
+          enumerable: false,
+          configurable: true
+        });
+
+        {
+          let deleted = Reflect.deleteProperty(dryRoot, "extra");
+          expect(deleted).toBe(true);
+        }
+
+        checkProperties(undefined, undefined);
+      }
+    );
+
+    it(
+      "deleteProperty() on the dry graph, followed by defineProperty() on the wet graph, exposes the property again",
+      function() {
+        Reflect.defineProperty(dryRoot, "extra", {
+          value: 2,
+          writable: true,
+          enumerable: false,
+          configurable: true
+        });
+  
+        Reflect.deleteProperty(dryRoot, "extra");
+
+        Reflect.defineProperty(wetRoot, "extra", {
+          value: 1,
+          writable: true,
+          enumerable: false,
+          configurable: true
+        });
+
+        checkProperties(1, 1);
+      }
+    );
+
+    it(
+      "deleteProperty() on the dry graph, followed by defineProperty() on the damp graph, exposes the property again",
+      function() {
+        Reflect.defineProperty(dryRoot, "extra", {
+          value: 2,
+          writable: true,
+          enumerable: false,
+          configurable: true
+        });
+  
+        Reflect.deleteProperty(dryRoot, "extra");
+
+        Reflect.defineProperty(dampRoot, "extra", {
+          value: 1,
+          writable: true,
+          enumerable: false,
+          configurable: true
+        });
+
+        checkProperties(1, 1);
+      }
+    );
+
+    it(
+      "deleteProperty() on the dry graph, followed by defineProperty() on the dry graph, exposes the property again",
+      function() {
+        Reflect.defineProperty(dryRoot, "extra", {
+          value: 2,
+          writable: true,
+          enumerable: false,
+          configurable: true
+        });
+  
+        Reflect.deleteProperty(dryRoot, "extra");
+
+        Reflect.defineProperty(dryRoot, "extra", {
+          value: 1,
+          writable: true,
+          enumerable: false,
+          configurable: true
+        });
+
+        checkProperties(1, 1);
+      }
+    );
+
+    it(
+      "deleteProperty() is not impacted by .preventExtensions() on the dry graph",
+      function() {
+        Reflect.defineProperty(dryRoot, "extra", {
+          value: 1,
+          writable: true,
+          enumerable: false,
+          configurable: true
+        });
+
+        Reflect.preventExtensions(dryRoot);
+        expect(Reflect.isExtensible(dryRoot)).toBe(false);
+        expect(Reflect.isExtensible(wetRoot)).toBe(false);
+        expect(Reflect.isExtensible(dampRoot)).toBe(false);
+
+        {
+          let deleted = Reflect.deleteProperty(dryRoot, "extra");
+          expect(deleted).toBe(true);
+        }
+
+        checkProperties(undefined, undefined);
+      }
+    );
+
+    it(
+      "deleteProperty() is not impacted by .preventExtensions() on the wet graph",
+      function() {
+        Reflect.defineProperty(dryRoot, "extra", {
+          value: 1,
+          writable: true,
+          enumerable: false,
+          configurable: true
+        });
+
+        Reflect.preventExtensions(wetRoot);
+        expect(Reflect.isExtensible(dryRoot)).toBe(false);
+        expect(Reflect.isExtensible(wetRoot)).toBe(false);
+        expect(Reflect.isExtensible(dampRoot)).toBe(false);
+
+        {
+          let deleted = Reflect.deleteProperty(dryRoot, "extra");
+          expect(deleted).toBe(true);
+        }
+
+        checkProperties(undefined, undefined);
+      }
+    );
+
+    it(
+      "deleteProperty() is not impacted by .preventExtensions() on the damp graph",
+      function() {
+        Reflect.defineProperty(dryRoot, "extra", {
+          value: 1,
+          writable: true,
+          enumerable: false,
+          configurable: true
+        });
+
+        Reflect.preventExtensions(dampRoot);
+        expect(Reflect.isExtensible(dryRoot)).toBe(false);
+        expect(Reflect.isExtensible(wetRoot)).toBe(false);
+        expect(Reflect.isExtensible(dampRoot)).toBe(false);
+
+        {
+          let deleted = Reflect.deleteProperty(dryRoot, "extra");
+          expect(deleted).toBe(true);
+        }
+
+        checkProperties(undefined, undefined);
+      }
+    );
   });
 
   it("requires a value or proxy already known to the membrane", function() {
