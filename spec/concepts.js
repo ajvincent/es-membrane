@@ -302,6 +302,16 @@ describe("basic concepts: ", function() {
      * On the other hand, we've just tested that setting a property from the
      * "dry" side retains its identity with the "dry" object graph.
      */
+
+    // Additional test for configurable: false
+    Object.defineProperty(dryDocument, "extra", {
+      value: 1,
+      writable: true,
+      enumerable: false,
+      configurable: false
+    });
+    let extra = dryDocument.extra;
+    expect(extra).toBe(1);
   });
 
   it("Defining a property directly works as expected", function() {

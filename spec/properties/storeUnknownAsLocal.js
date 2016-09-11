@@ -235,6 +235,20 @@ describe("Storing unknown properties locally", function() {
       }
     );
 
+    it(
+      "defineProperty works when the property is not configurable",
+      function() {
+        Object.defineProperty(dryRoot, "extra", {
+          value: 1,
+          writable: true,
+          enumerable: false,
+          configurable: false
+        });
+        let extra = dryRoot.extra;
+        expect(extra).toBe(1);
+      }
+    );
+
     describe(
       "defineProperty works correctly with previously defined accessor descriptors",
       function() {

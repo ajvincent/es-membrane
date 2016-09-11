@@ -1171,12 +1171,16 @@ ObjectGraphHandler.prototype = Object.seal({
         shouldBeLocal = this.allowLocalProperties(target, true);
       }
 
+      var rv;
       if (shouldBeLocal) {
         let hasOwn = this.externalHandler(function() {
           return Boolean(Reflect.getOwnPropertyDescriptor(_this, propName));
         });
         if (!hasOwn && desc) {
-          return targetMap.setLocalDescriptor(this.fieldName, propName, desc);
+          rv = targetMap.setLocalDescriptor(this.fieldName, propName, desc);
+          if (rv)
+            this.ownKeys(shadowTarget); // fix up property list
+          return rv;
         }
         else {
           targetMap.deleteLocalDescriptor(this.fieldName, propName, false);
@@ -1192,9 +1196,12 @@ ObjectGraphHandler.prototype = Object.seal({
         );
       }
 
-      return this.externalHandler(function() {
+      rv = this.externalHandler(function() {
         return Reflect.defineProperty(_this, propName, desc);
       });
+      if (rv)
+        this.ownKeys(shadowTarget); // fix up property list
+      return rv;
     }
     catch (e) {
       if (mayLog) {
