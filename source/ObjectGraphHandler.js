@@ -487,8 +487,10 @@ ObjectGraphHandler.prototype = Object.seal({
       rv = this.externalHandler(function() {
         return Reflect.defineProperty(_this, propName, desc);
       });
-      if (rv)
+      if (rv) {
+        targetMap.unmaskDeletion(this.fieldName, propName);
         this.ownKeys(shadowTarget); // fix up property list
+      }
       return rv;
     }
     catch (e) {

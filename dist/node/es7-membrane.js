@@ -258,12 +258,8 @@ Object.defineProperties(ProxyMapping.prototype, {
 
   "setLocalDescriptor":
   new DataDescriptor(function(fieldName, propName, desc) {
+    this.unmaskDeletion(fieldName, propName);
     let metadata = this.proxiedFields[fieldName];
-    if (metadata.deletedLocals) {
-      metadata.deletedLocals.delete(propName);
-      if (metadata.deletedLocals.size === 0)
-        delete metadata.deletedLocals;
-    }
 
     if (!metadata.localDescriptors) {
       metadata.localDescriptors = new Map();
@@ -281,11 +277,8 @@ Object.defineProperties(ProxyMapping.prototype, {
         metadata.deletedLocals = new Set();
       metadata.deletedLocals.add(propName);
     }
-    else if (metadata.deletedLocals) {
-      metadata.deletedLocals.delete(propName);
-      if (metadata.deletedLocals.size === 0)
-        delete metadata.deletedLocals;
-    }
+    else 
+      this.unmaskDeletion(fieldName, propName);
 
     if ("localDescriptors" in metadata) {
       metadata.localDescriptors.delete(propName);
@@ -315,10 +308,10 @@ Object.defineProperties(ProxyMapping.prototype, {
   "appendDeletedNames":
   new DataDescriptor(function(fieldName, set) {
     if (!this.hasField(fieldName))
-      return null;
+      return;
     var locals = this.proxiedFields[fieldName].deletedLocals;
     if (!locals || !locals.size)
-      return null;
+      return;
     var iter = locals.values(), next;
     do {
       next = iter.next();
@@ -333,6 +326,18 @@ Object.defineProperties(ProxyMapping.prototype, {
       return false;
     var locals = this.proxiedFields[fieldName].deletedLocals;
     return Boolean(locals) && locals.has(propName);
+  }),
+
+  "unmaskDeletion":
+  new DataDescriptor(function(fieldName, propName) {
+    if (!this.hasField(fieldName))
+      return;
+    var metadata = this.proxiedFields[fieldName];
+    if (!metadata.deletedLocals)
+      return;
+    metadata.deletedLocals.delete(propName);
+    if (metadata.deletedLocals.size === 0)
+      delete metadata.deletedLocals;
   }),
 });
 
@@ -1199,8 +1204,10 @@ ObjectGraphHandler.prototype = Object.seal({
       rv = this.externalHandler(function() {
         return Reflect.defineProperty(_this, propName, desc);
       });
-      if (rv)
+      if (rv) {
+        targetMap.unmaskDeletion(this.fieldName, propName);
         this.ownKeys(shadowTarget); // fix up property list
+      }
       return rv;
     }
     catch (e) {
