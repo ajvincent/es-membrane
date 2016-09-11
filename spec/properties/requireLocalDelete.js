@@ -77,7 +77,7 @@ describe("Deleting properties locally", function() {
       }
     });
 
-    xit("deleteProperty() does not remove a non-configurable property", function() {
+    it("deleteProperty() does not remove a non-configurable property", function() {
       Reflect.defineProperty(dryRoot, "extra", {
         value: 1,
         writable: true,
@@ -123,7 +123,7 @@ describe("Deleting properties locally", function() {
       }
     });
 
-    xit("deleteProperty() does not remove an inherited property", function() {
+    it("deleteProperty() does not remove an inherited property", function() {
       Reflect.defineProperty(parts.dry.Node.prototype, "extra", {
         value: 1,
         writable: true,
@@ -137,30 +137,28 @@ describe("Deleting properties locally", function() {
       }
 
       {
-        let deleted = Reflect.deleteProperty(dryRoot, "extra");
+        let deleted = Reflect.deleteProperty(wetRoot, "extra");
         expect(deleted).toBe(true);
       }
 
       {
         let keys = Reflect.ownKeys(dryRoot);
-        expect(keys.includes("extra")).toBe(true);
+        expect(keys.includes("extra")).toBe(false);
       }
 
       {
         let keys = Reflect.ownKeys(wetRoot);
-        expect(keys.includes("extra")).toBe(true);
+        expect(keys.includes("extra")).toBe(false);
       }
 
       {
         let desc = Reflect.getOwnPropertyDescriptor(dryRoot, "extra");
-        expect(desc).not.toBe(undefined);
-        expect(desc.value).toBe(1);
+        expect(desc).toBe(undefined);
       }
 
       {
         let desc = Reflect.getOwnPropertyDescriptor(wetRoot, "extra");
-        expect(desc).not.toBe(undefined);
-        expect(desc.value).toBe(1);
+        expect(desc).toBe(undefined);
       }
 
       {

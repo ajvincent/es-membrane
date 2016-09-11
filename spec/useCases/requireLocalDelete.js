@@ -27,10 +27,10 @@ let MockupsForThisTest = function() {
   return parts;
 };
 
-xit("Use case:  membrane.modifyRules.requireLocalDelete", function() {
+it("Use case:  membrane.modifyRules.requireLocalDelete", function() {
   // Customize this for whatever variables you need.
   var parts = MockupsForThisTest();
-  membrane.modifyRules.requireLocalDelete("wet", parts.wet.doc);
+  parts.membrane.modifyRules.requireLocalDelete("wet", parts.wet.doc);
 
   delete parts.dry.doc.__events__;
   expect("__events__" in parts.dry.doc).toBe(false);
