@@ -363,6 +363,13 @@ MembraneInternal.prototype = Object.seal({
     return this.handlerStack[1] !== "external";
   },
 
+  /**
+   * A flag indicating if internal properties of the Membrane are private.
+   * 
+   * @public
+   */
+  secured: false,
+
   __mayLog__: MembraneMayLog,
 });
 

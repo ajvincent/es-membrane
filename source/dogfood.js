@@ -48,6 +48,9 @@ if (false) {
   Membrane = DogfoodMembrane.convertArgumentToProxy(
     internalAPI, publicAPI, MembraneInternal
   );
+  /* XXX ajvincent Membrane.prototype should return an object with descriptor
+   * "secured": {value: true, writable: false, enumerable: false, configurable: false}
+   */
 
   if (false) {
     /* XXX ajvincent Right now it's unclear if this operation is safe.  It

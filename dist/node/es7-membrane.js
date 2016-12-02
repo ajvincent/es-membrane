@@ -727,6 +727,13 @@ MembraneInternal.prototype = Object.seal({
     return this.handlerStack[1] !== "external";
   },
 
+  /**
+   * A flag indicating if internal properties of the Membrane are private.
+   * 
+   * @public
+   */
+  secured: false,
+
   __mayLog__: MembraneMayLog,
 });
 
@@ -2102,6 +2109,9 @@ if (false) {
   Membrane = DogfoodMembrane.convertArgumentToProxy(
     internalAPI, publicAPI, MembraneInternal
   );
+  /* XXX ajvincent Membrane.prototype should return an object with descriptor
+   * "secured": {value: true, writable: false, enumerable: false, configurable: false}
+   */
 
   if (false) {
     /* XXX ajvincent Right now it's unclear if this operation is safe.  It

@@ -15,9 +15,6 @@ if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
   throw new Error("Unable to run tests");
 }
 
-/* XXX ajvincent This test will break when we secure the exported Membrane
- * constructor via source/dogfood.js.
- */
 it(
   "A Membrane is always aware when it is in its own code, versus code it wraps",
   function() {
@@ -43,6 +40,17 @@ it(
     let parts, dryHandler, dryWetMB, dryDocument, isInTrap;
     parts = MembraneMocks();
     dryWetMB = parts.membrane;
+
+    /*
+    XXX ajvincent I expect, as we begin to secure the Membrane constructor and
+    friends against tampering, that a "secured" flag will be set irrevocably to
+    true, which will make calling isInternal() impossible.
+
+    if (dryWetMB.secured)
+      return;
+    */
+    expect(dryWetMB.secured).toBe(false);
+
     dryHandler = dryWetMB.getHandlerByField("dry");
     dryDocument = parts.dry.doc;
 
