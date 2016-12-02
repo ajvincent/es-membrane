@@ -52,10 +52,17 @@ specs::
 clean::
 	@rm -rf dist
 
+BROWSER_MEMBRANE_FILES = \
+  wrappers/browser/membrane-intro.js.in \
+  wrappers/useStrict.js \
+  dist/staging/es7-membrane.js \
+  wrappers/browser/membrane-outro.js.in \
+  $(NULL)
+
 browser:: base mockDocs specs
 	@mkdir -p dist/browser
 	@cp wrappers/browser/test-browser.xhtml dist/browser/test-browser.xhtml
-	@cat wrappers/useStrict.js dist/staging/es7-membrane.js > dist/browser/es7-membrane.js
+	@cat $(BROWSER_MEMBRANE_FILES) > dist/browser/es7-membrane.js
 	@cat wrappers/useStrict.js dist/staging/sharedUtilities.js > dist/browser/sharedUtilities.js
 	@cat wrappers/useStrict.js dist/staging/mocks.js > dist/browser/mocks.js
 	@cp wrappers/browser/assert.js dist/browser/assert.js

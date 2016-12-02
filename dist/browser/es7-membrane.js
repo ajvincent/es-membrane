@@ -1,3 +1,6 @@
+var Membrane = (function() {
+  // entering Membrane pseudo-module definition
+
 "use strict"
 function valueType(value) {
   if (value === null)
@@ -2121,3 +2124,7 @@ else {
   Membrane = MembraneInternal;
 }
 MembraneInternal = null;
+
+  // exiting Membrane pseudo-module definition
+  return Membrane;
+})();
