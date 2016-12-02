@@ -13,6 +13,7 @@ function ProxyMapping(originField) {
      *   value: value,
      *   proxy: proxy,
      *   revoke: revoke
+     *   (other properties as necessary)
      * }
      */
   };
@@ -166,6 +167,22 @@ Object.defineProperties(ProxyMapping.prototype, {
       if (metadata.localDescriptors.size === 0)
         delete metadata.localDescriptors;
     }
+  }),
+
+  "cachedOwnKeys": new DataDescriptor(function (fieldName) {
+    if (!this.hasField(fieldName))
+      return null;
+    let metadata = this.proxiedFields[fieldName];
+    if ("cachedOwnKeys" in metadata)
+      return metadata.cachedOwnKeys;
+    return null;
+  }),
+
+  "setCachedOwnKeys": new DataDescriptor(function(fieldName, keys, original) {
+    this.proxiedFields[fieldName].cachedOwnKeys = {
+      keys: keys,
+      original: original
+    };
   }),
 
   "localOwnKeys": new DataDescriptor(function(fieldName) {

@@ -40,49 +40,23 @@ ObjectGraphHandler.prototype = Object.seal({
   ownKeys: inGraphHandler("ownKeys", function(shadowTarget) {
     var target = getRealTarget(shadowTarget);
     var targetMap = this.membrane.map.get(target);
-    var _this = targetMap.getOriginal();
-    var rv = this.externalHandler(function() {
-      return Reflect.ownKeys(_this);
-    });
 
-    /* The key list is guaranteed through rv.length to be unique.  Make it so
-     * for the newly added items.
-     */
-    rv = rv.concat(
-      targetMap.localOwnKeys(targetMap.originField),
-      targetMap.localOwnKeys(this.fieldName)
-    );
-
-    {
-      let mustSkip = new Set();
-      targetMap.appendDeletedNames(targetMap.originField, mustSkip);
-      targetMap.appendDeletedNames(this.fieldName, mustSkip);
-      /*
-      let originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
-      let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
-      */
-      rv = rv.filter(function(elem) {
-        if (mustSkip.has(elem))
-          return false;
-        mustSkip.add(elem);
-
-        var accepted = true;
-        /*
-        if (originFilter)
-          accepted = originFilter.apply(this, arguments);
-        if (accepted && localFilter)
-          accepted = localFilter.apply(this, arguments);
-        */
-        return accepted;
+    // cached keys are only valid if original keys have not changed
+    var cached = targetMap.cachedOwnKeys(this.fieldName);
+    if (cached) {
+      let _this = targetMap.getOriginal();
+      let check = this.externalHandler(function() {
+        return Reflect.ownKeys(_this);
       });
-    }
 
-    if (this.membrane.showGraphName && !rv.includes("membraneGraphName")) {
-      rv.push("membraneGraphName");
+      let pass = ((check.length == cached.original.length) &&
+        (check.every(function(elem) {
+          return cached.original.includes(elem);
+        })));
+      if (pass)
+        return cached.keys.slice(0);
     }
-
-    this.fixOwnProperties(shadowTarget, rv);
-    return rv;
+    return this.setOwnKeys(shadowTarget);
   }),
 
   // ProxyHandler
@@ -340,33 +314,51 @@ ObjectGraphHandler.prototype = Object.seal({
     var rv = this.externalHandler(function() {
       return Reflect.isExtensible(_this);
     });
-    if (!rv)
+    if (!rv) {
+      // This is our one and only chance to set properties on the shadow target.
+      let keys = this.setOwnKeys(shadowTarget);
+      keys.forEach(this.copyProperty.bind(this, _this, shadowTarget));
       Reflect.preventExtensions(shadowTarget);
+    }
     return rv;
   }),
 
   // ProxyHandler
   preventExtensions: inGraphHandler("preventExtensions", function(shadowTarget) {
     var target = getRealTarget(shadowTarget);
+    var targetMap = this.membrane.map.get(target);
+    var _this = targetMap.getOriginal();
+
+
     // Walk the prototype chain to look for shouldBeLocal.
     var shouldBeLocal = this.allowLocalProperties(target, true);
     if (shouldBeLocal) {
-      // Call this.fixOwnProperties with all the properties we need.
-      this.ownKeys(shadowTarget);
-
+      /* We must set the ownKeys of the shadow target always.  But, if the
+       * ownKeys hasn't been set yet, ever, now is our one and only chance to
+       * copy the properties from the real target to the shadow target.  This is
+       * necessary to maintain the assertions that a property may not appear
+       * magically later, say, when calling Reflect.ownKeys().
+       */
+      let mustSetProps = (!targetMap.cachedOwnKeys(this.fieldName));
+      let keys = this.setOwnKeys(shadowTarget);
+      if (mustSetProps) {
+        keys.forEach(this.copyProperty.bind(this, _this, shadowTarget));
+      }
       return Reflect.preventExtensions(shadowTarget);
     }
 
     if (!this.isExtensible(target))
       return true;
 
-    var targetMap = this.membrane.map.get(target);
-    var _this = targetMap.getOriginal();
     var rv = this.externalHandler(function() {
       return Reflect.preventExtensions(_this);
     });
-    if (rv)
+    if (rv) {
+      // This is our one and only chance to set properties on the shadow target.
+      let keys = this.setOwnKeys(shadowTarget);
+      keys.forEach(this.copyProperty.bind(this, _this, shadowTarget));
       Reflect.preventExtensions(shadowTarget);
+    }
     return rv;
   }),
 
@@ -409,6 +401,10 @@ ObjectGraphHandler.prototype = Object.seal({
           return Reflect.deleteProperty(_this, propName);
         });
       }
+
+      Reflect.deleteProperty(shadowTarget, propName);
+      this.setOwnKeys(shadowTarget);
+
       return true;
     }
     catch (e) {
@@ -467,7 +463,9 @@ ObjectGraphHandler.prototype = Object.seal({
         if (!hasOwn && desc) {
           rv = targetMap.setLocalDescriptor(this.fieldName, propName, desc);
           if (rv)
-            this.ownKeys(shadowTarget); // fix up property list
+            this.setOwnKeys(shadowTarget); // fix up property list
+          if (!desc.configurable && !desc.enumerable)
+            Reflect.defineProperty(shadowTarget, propName, desc);
           return rv;
         }
         else {
@@ -489,7 +487,10 @@ ObjectGraphHandler.prototype = Object.seal({
       });
       if (rv) {
         targetMap.unmaskDeletion(this.fieldName, propName);
-        this.ownKeys(shadowTarget); // fix up property list
+        this.setOwnKeys(shadowTarget); // fix up property list
+
+        if (!desc.configurable && !desc.enumerable)
+          Reflect.defineProperty(shadowTarget, propName, desc);
       }
       return rv;
     }
@@ -883,6 +884,90 @@ ObjectGraphHandler.prototype = Object.seal({
   },
 
   /**
+   * Specify the list of ownKeys this proxy exposes.
+   *
+   * @param {Object} shadowTarget The proxy target
+   * @private
+   *
+   * @returns {String[]} The list of exposed keys.
+   */
+  setOwnKeys: function(shadowTarget) {
+    var target = getRealTarget(shadowTarget);
+    var targetMap = this.membrane.map.get(target);
+    var _this = targetMap.getOriginal();
+
+    // First, get the underlying object's key list, forming a base.
+    var rv = this.externalHandler(function() {
+      return Reflect.ownKeys(_this);
+    });
+    var originalKeys = rv.slice(0);
+
+    // Append the local proxy keys.
+    rv = rv.concat(
+      targetMap.localOwnKeys(targetMap.originField),
+      targetMap.localOwnKeys(this.fieldName)
+    );
+
+    // Remove duplicated names and keys that have been deleted.
+    {
+      let mustSkip = new Set();
+      targetMap.appendDeletedNames(targetMap.originField, mustSkip);
+      targetMap.appendDeletedNames(this.fieldName, mustSkip);
+      /*
+      let originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
+      let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
+      */
+      if (mustSkip.size > 0) {
+        originalKeys = originalKeys.filter(function(elem) {
+          return !mustSkip.has(elem);
+        });
+        rv = rv.filter(function(elem) {
+          if (mustSkip.has(elem))
+            return false;
+          mustSkip.add(elem);
+  
+          var accepted = true;
+          /*
+          if (originFilter)
+            accepted = originFilter.apply(this, arguments);
+          if (accepted && localFilter)
+            accepted = localFilter.apply(this, arguments);
+          */
+          return accepted;
+        });
+      }
+    }
+
+    if (this.membrane.showGraphName && !rv.includes("membraneGraphName")) {
+      rv.push("membraneGraphName");
+    }
+
+    // Optimization, storing the generated key list for future retrieval.
+    targetMap.setCachedOwnKeys(this.fieldName, rv, originalKeys);
+    return rv;
+  },
+
+  /**
+   * Copy a property from the original target to the shadow target.
+   *
+   * @param _this        {Object} The original target.
+   * @param shadowTarget {Object} The target to apply the property to.
+   * @param propName     {String} The name of the property.
+   *
+   * @private
+   */
+  copyProperty: function(_this, shadowTarget, propName) {
+    if (this.membrane.showGraphName && (propName == "membraneGraphName")) {
+      // Special case.
+      Reflect.defineProperty(shadowTarget, propName, this.graphNameDescriptor);
+    }
+    else {
+      let desc = Reflect.getOwnPropertyDescriptor(_this, propName);
+      Reflect.defineProperty(shadowTarget, propName, desc);
+    }
+  },
+
+  /**
    * Determine if a target, or any prototype ancestor, wants local-to-the-proxy
    * properties.
    *
@@ -912,6 +997,14 @@ ObjectGraphHandler.prototype = Object.seal({
     }
   },
 
+  /**
+   * Determine whether this proxy (or one it inherits from) requires local
+   * property deletions.
+   *
+   * @param target {Object} The proxy target.
+   *
+   * @returns {Boolean} True if deletes should be local.
+   */
   requiresDeletesBeLocal: function(target) {
     let targetMap = this.membrane.map.get(target);
     let map = targetMap, protoTarget = target, shouldBeLocal = false;
@@ -927,36 +1020,6 @@ ObjectGraphHandler.prototype = Object.seal({
     }
   },
 
-  fixOwnProperties: function(shadowTarget, keyList) {
-    let mustDelKeys = Reflect.ownKeys(shadowTarget);
-    for (let i = keyList.length - 1; i >= 0; i--) {
-      let key = keyList[i];
-      let index = mustDelKeys.indexOf(key);
-      if (index == -1) {
-        Reflect.defineProperty(
-          shadowTarget,
-          key,
-          this.getOwnPropertyDescriptor(shadowTarget, key)
-        );
-      }
-      else {
-        mustDelKeys.splice(index, 1);
-      }
-    }
-    for (let i = 0; i < mustDelKeys.length; i++) {
-      let key = mustDelKeys[i];
-      Reflect.deleteProperty(shadowTarget, key);
-    }
-
-    keyList = keyList.slice(0);
-    keyList.sort();
-    let latestKeys = Reflect.ownKeys(shadowTarget);
-    latestKeys.sort();
-    assert(keyList.length === latestKeys.length, "Key length mismatch!");
-    for (let i = 0; i < keyList.length; i++)
-      assert(keyList[i] === latestKeys[i], "Key item mismatch at " + keyList[i]);
-  },
-
   /**
    * Add a ProxyMapping or a Proxy.revoke function to our list.
    *
@@ -968,6 +1031,11 @@ ObjectGraphHandler.prototype = Object.seal({
     this.__revokeFunctions__.push(revoke);
   },
 
+  /**
+   * Remove a ProxyMapping or a Proxy.revoke function from our list.
+   *
+   * @private
+   */
   removeRevocable: function(revoke) {
     let index = this.__revokeFunctions__.indexOf(revoke);
     if (index == -1) {
