@@ -207,10 +207,22 @@ ObjectGraphHandler.prototype = Object.seal({
   // ProxyHandler
   getOwnPropertyDescriptor:
   inGraphHandler("getOwnPropertyDescriptor", function(shadowTarget, propName) {
-    var target = getRealTarget(shadowTarget);
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
       this.membrane.logger.debug("propName: " + propName.toString());
+    }
+    var target = getRealTarget(shadowTarget);
+    var targetMap = this.membrane.map.get(target);
+
+    {
+      let originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
+      if (originFilter && !originFilter(propName))
+        return undefined;
+    }
+    {
+      let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
+      if (localFilter && !localFilter(propName))
+        return undefined;
     }
 
     if (this.membrane.showGraphName && (propName == "membraneGraphName")) {
@@ -218,7 +230,6 @@ ObjectGraphHandler.prototype = Object.seal({
     }
 
     try {
-      var targetMap = this.membrane.map.get(target);
       if (targetMap.wasDeletedLocally(targetMap.originField, propName) ||
           targetMap.wasDeletedLocally(this.fieldName, propName))
         return undefined;
@@ -897,46 +908,37 @@ ObjectGraphHandler.prototype = Object.seal({
     var _this = targetMap.getOriginal();
 
     // First, get the underlying object's key list, forming a base.
-    var rv = this.externalHandler(function() {
+    var originalKeys = this.externalHandler(function() {
       return Reflect.ownKeys(_this);
     });
-    var originalKeys = rv.slice(0);
-
-    // Append the local proxy keys.
-    rv = rv.concat(
-      targetMap.localOwnKeys(targetMap.originField),
-      targetMap.localOwnKeys(this.fieldName)
-    );
 
     // Remove duplicated names and keys that have been deleted.
     {
       let mustSkip = new Set();
       targetMap.appendDeletedNames(targetMap.originField, mustSkip);
       targetMap.appendDeletedNames(this.fieldName, mustSkip);
-      /*
+
       let originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
       let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
-      */
-      if (mustSkip.size > 0) {
+
+      if ((mustSkip.size > 0) || originFilter || localFilter) {
         originalKeys = originalKeys.filter(function(elem) {
-          return !mustSkip.has(elem);
-        });
-        rv = rv.filter(function(elem) {
           if (mustSkip.has(elem))
             return false;
-          mustSkip.add(elem);
-  
-          var accepted = true;
-          /*
-          if (originFilter)
-            accepted = originFilter.apply(this, arguments);
-          if (accepted && localFilter)
-            accepted = localFilter.apply(this, arguments);
-          */
-          return accepted;
+          if (originFilter && !originFilter.apply(this, arguments))
+            return false;
+          if (localFilter && !localFilter.apply(this, arguments))
+            return false;
+          return true;
         });
       }
     }
+
+    // Append the local proxy keys.
+    var rv = originalKeys.concat(
+      targetMap.localOwnKeys(targetMap.originField),
+      targetMap.localOwnKeys(this.fieldName)
+    );
 
     if (this.membrane.showGraphName && !rv.includes("membraneGraphName")) {
       rv.push("membraneGraphName");

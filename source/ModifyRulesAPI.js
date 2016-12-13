@@ -219,28 +219,33 @@ ModifyRulesAPI.prototype = Object.seal({
     return parts.proxy;
   },
 
-  storeUnknownAsLocal: function(fieldName, proxy) {
-    {
-      let [found, match] = this.membrane.getMembraneProxy(fieldName, proxy);
-      if (!found || (proxy !== match)) {
-        throw new Error("storeUnknownAsLocal requires a known proxy!");
-      }
+  assertLocalProxy: function(fieldName, proxy, methodName) {
+    let [found, match] = this.membrane.getMembraneProxy(fieldName, proxy);
+    if (!found || (proxy !== match)) {
+      throw new Error(methodName + " requires a known proxy!");
     }
+  },
+
+  storeUnknownAsLocal: function(fieldName, proxy) {
+    this.assertLocalProxy(fieldName, proxy, "storeUnknownAsLocal");
 
     let metadata = this.membrane.map.get(proxy);
     metadata.storeUnknownAsLocal(fieldName, true);
   },
 
   requireLocalDelete: function(fieldName, proxy) {
-    {
-      let [found, match] = this.membrane.getMembraneProxy(fieldName, proxy);
-      if (!found || (proxy !== match)) {
-        throw new Error("requireLocalDelete requires a known proxy!");
-      }
-    }
+    this.assertLocalProxy(fieldName, proxy, "requireLocalDelete");
 
     let metadata = this.membrane.map.get(proxy);
     metadata.requireLocalDelete(fieldName, true);
+  },
+
+  filterOwnKeys: function(fieldName, proxy, filter) {
+    this.assertLocalProxy(fieldName, proxy, "filterOwnKeys");
+    if ((typeof filter !== "function") && (filter !== null))
+      throw new Error("filterOwnKeys must be a filter function!");
+    let metadata = this.membrane.map.get(proxy);
+    metadata.setOwnKeysFilter(fieldName, filter);
   },
 });
 Object.seal(ModifyRulesAPI);

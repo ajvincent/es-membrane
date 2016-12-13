@@ -138,7 +138,6 @@ ElementWet.prototype = new NodeWet(null);
  */
 
 const wetDocument = {
-  // ownerDocument will be defined momentarily.  See below.
   ownerDocument: null,
 
   childNodes: [],

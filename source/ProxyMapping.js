@@ -237,6 +237,21 @@ Object.defineProperties(ProxyMapping.prototype, {
     if (metadata.deletedLocals.size === 0)
       delete metadata.deletedLocals;
   }),
+
+  "getOwnKeysFilter":
+  new DataDescriptor(function(fieldName) {
+    if (!this.hasField(fieldName))
+      return null;
+    var metadata = this.proxiedFields[fieldName];
+    return (typeof metadata.ownKeysFilter == "function") ?
+           metadata.ownKeysFilter :
+           null;
+  }),
+
+  "setOwnKeysFilter":
+  new DataDescriptor(function(fieldName, filter) {
+    this.proxiedFields[fieldName].ownKeysFilter = filter;
+  }),
 });
 
 Object.seal(ProxyMapping.prototype);
