@@ -27,7 +27,11 @@
     <script type="&js;" src="dist/browser/mocks.js"></script>
     <script type="&js;" src="mocks/dampObjectGraph.js"></script>
 
-    <!-- Specifications -->
+	<!-- Tests for proxy behaviors that might be unexpected.
+	     Used to inform the membrane implementation. -->
+	<script type="&js;" src="spec/non-membrane/filterOwnKeys.js"></script>
+
+    <!-- Main Specifications -->
     <script type="&js;" src="spec/concepts.js"></script>
     <script type="&js;" src="spec/replaceProxies.js"></script>
     <script type="&js;" src="spec/calledFromHandler.js"></script>
