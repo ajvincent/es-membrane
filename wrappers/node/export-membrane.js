@@ -1,1 +1,1 @@
-exports.Membrane = Membrane;
+module.exports.Membrane = Membrane;

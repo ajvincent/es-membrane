@@ -23,6 +23,7 @@ base::
 	@cat $(SOURCE_FILES) > dist/staging/es7-membrane.js
 
 MOCKS_FILES = \
+	mocks/logger.js \
 	mocks/intro.js.in \
 	mocks/wetDocument.js \
 	mocks/membrane.js \

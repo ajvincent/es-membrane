@@ -2153,4 +2153,4 @@ else {
   Membrane = MembraneInternal;
 }
 MembraneInternal = null;
-exports.Membrane = Membrane;
+module.exports.Membrane = Membrane;

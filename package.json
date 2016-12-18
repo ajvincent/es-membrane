@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/ajvincent/es7-membrane#readme",
   "dependencies": {
-    "assert": "^1.4.1",
+    "assert": "^1.4.1"
+  },
+  "devDependencies": {
     "jasmine": "^2.4.1"
   }
 }
