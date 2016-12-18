@@ -22,7 +22,7 @@ describe("Jasmine mock logger library works", function() {
     appender = null;
   });
 
-  it("at a basic level", function() {
+  it("for one message", function() {
     logger.info("Hello World");
     expect(appender.events.length).toBe(1);
     if (appender.events.length > 0) {
@@ -31,4 +31,22 @@ describe("Jasmine mock logger library works", function() {
       expect(event.message).toBe("Hello World");
     }
   });
+
+  it("for two messages", function() {
+    logger.info("Hello World");
+    logger.debug("It's a small world after all");
+
+    expect(appender.events.length).toBe(2);
+    if (appender.events.length > 0) {
+      let event = appender.events[0];
+      expect(event.level).toBe("INFO");
+      expect(event.message).toBe("Hello World");
+    }
+    if (appender.events.length > 1) {
+      let event = appender.events[1];
+      expect(event.level).toBe("DEBUG");
+      expect(event.message).toBe("It's a small world after all");
+    }
+  });
+
 });
