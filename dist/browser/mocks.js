@@ -8,9 +8,20 @@ var loggerLib = (function() {
   }
   BasicLogger.prototype = {
     log: function(level, message) {
+      var exn = null, exnFound = false;
       this.appenders.forEach(function(appender) {
-        appender.notify(level, message);
+        try {
+          appender.notify(level, message);
+        }
+        catch (e) {
+          if (!exnFound) {
+            exnFound = true;
+            exn = e;
+          }
+        }
       });
+      if (exnFound)
+        throw exn;
     },
 
     addAppender: function(appender) {
@@ -32,14 +43,20 @@ var loggerLib = (function() {
 
   function BasicAppender() {
     this.clear();
+    this.threshold = "TRACE";
   }
   BasicAppender.prototype = {
     clear: function() {
       this.events = [];
     },
     notify: function(level, message) {
-      this.events.push({ level, message });
-    }
+      if (BasicLogger.prototype.levels.indexOf(level) <= BasicLogger.prototype.levels.indexOf(this.threshold))
+        this.events.push({ level, message });
+    },
+    setThreshold: function(level) {
+      if (BasicLogger.prototype.levels.includes(level))
+        this.threshold = level;
+    },
   };
 
   var loggerMap = new Map();

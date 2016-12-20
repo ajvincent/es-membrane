@@ -484,6 +484,34 @@ ObjectGraphHandler.prototype = Object.seal({
           // fall through to Reflect's defineProperty
         }
       }
+      else
+      {
+        /* It is dangerous to have an ownKeys filter and define a non-local
+         * property.  It will work when the property name passes through the
+         * filters.  But when that property name is not permitted, then we can
+         * get some strange side effects.
+         *
+         * Specifically, if the descriptor's configurable property is set to
+         * false, either the shadow target must get the property, or an
+         * exception is thrown.
+         *
+         * If the descriptor's configurable property is true, the ECMAScript
+         * specification doesn't object...
+         *
+         * In either case, the property would be set, but never retrievable.  I
+         * think this is fundamentally a bad thing, so I'm going to play it safe
+         * and return false here, denying the property being set on either the
+         * proxy or the protected target.
+         */
+        let originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
+        let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
+        if (originFilter || localFilter)
+          this.membrane.warnOnce(this.membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
+        if (originFilter && !originFilter(propName))
+          return false;
+        if (localFilter && !localFilter(propName))
+          return false;
+      }
 
       if (desc !== undefined) {
         desc = this.membrane.wrapDescriptor(

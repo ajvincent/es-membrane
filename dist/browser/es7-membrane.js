@@ -60,7 +60,7 @@ function inGraphHandler(trapName, callback) {
 
     this.membrane.handlerStack.unshift(trapName);
     if (mayLog) {
-      this.logger.trace(
+      this.membrane.logger.trace(
         trapName + " inGraphHandler++",
         this.membrane.handlerStack.length - 2
       );
@@ -76,7 +76,7 @@ function inGraphHandler(trapName, callback) {
     finally {
       this.membrane.handlerStack.shift();
       if (mayLog) {
-        this.logger.trace(
+        this.membrane.logger.trace(
           trapName + " inGraphHandler--",
           this.membrane.handlerStack.length - 2
         );
@@ -110,6 +110,15 @@ function AssertIsPropertyKey(propName) {
   if ((type != "string") && (type != "symbol"))
     throw new Error("propName is not a symbol or a string!");
 }
+
+const Constants = {
+  warnings: {
+    FILTERED_KEYS_WITHOUT_LOCAL: "Filtering own keys without allowing local properties or deletes is dangerous"
+  }
+};
+
+Object.freeze(Constants.warnings);
+Object.freeze(Constants);
 /**
  * @private
  *
@@ -415,6 +424,13 @@ function MembraneInternal(options) {
 
     "logger": {
       value: options.logger || null,
+      writable: false,
+      enumerable: false,
+      configurable: false
+    },
+
+    "warnOnceSet": {
+      value: (options.logger ? new Set() : null),
       writable: false,
       enumerable: false,
       configurable: false
@@ -743,6 +759,17 @@ MembraneInternal.prototype = Object.seal({
   secured: false,
 
   __mayLog__: MembraneMayLog,
+
+  warnOnce: function(message) {
+    if (this.logger && !this.warnOnceSet.has(message)) {
+      this.warnOnceSet.add(message);
+      this.logger.warn(message);
+    }
+  },
+
+  get constants() {
+    return Constants;
+  }
 });
 
 } // end Membrane definition
@@ -1232,6 +1259,34 @@ ObjectGraphHandler.prototype = Object.seal({
           targetMap.deleteLocalDescriptor(this.fieldName, propName, false);
           // fall through to Reflect's defineProperty
         }
+      }
+      else
+      {
+        /* It is dangerous to have an ownKeys filter and define a non-local
+         * property.  It will work when the property name passes through the
+         * filters.  But when that property name is not permitted, then we can
+         * get some strange side effects.
+         *
+         * Specifically, if the descriptor's configurable property is set to
+         * false, either the shadow target must get the property, or an
+         * exception is thrown.
+         *
+         * If the descriptor's configurable property is true, the ECMAScript
+         * specification doesn't object...
+         *
+         * In either case, the property would be set, but never retrievable.  I
+         * think this is fundamentally a bad thing, so I'm going to play it safe
+         * and return false here, denying the property being set on either the
+         * proxy or the protected target.
+         */
+        let originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
+        let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
+        if (originFilter || localFilter)
+          this.membrane.warnOnce(this.membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
+        if (originFilter && !originFilter(propName))
+          return false;
+        if (localFilter && !localFilter(propName))
+          return false;
       }
 
       if (desc !== undefined) {

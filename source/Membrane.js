@@ -48,6 +48,13 @@ function MembraneInternal(options) {
       configurable: false
     },
 
+    "warnOnceSet": {
+      value: (options.logger ? new Set() : null),
+      writable: false,
+      enumerable: false,
+      configurable: false
+    },
+
     "modifyRules": {
       value: new ModifyRulesAPI(this),
       writable: false,
@@ -371,6 +378,17 @@ MembraneInternal.prototype = Object.seal({
   secured: false,
 
   __mayLog__: MembraneMayLog,
+
+  warnOnce: function(message) {
+    if (this.logger && !this.warnOnceSet.has(message)) {
+      this.warnOnceSet.add(message);
+      this.logger.warn(message);
+    }
+  },
+
+  get constants() {
+    return Constants;
+  }
 });
 
 } // end Membrane definition

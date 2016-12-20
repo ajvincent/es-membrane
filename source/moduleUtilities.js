@@ -56,7 +56,7 @@ function inGraphHandler(trapName, callback) {
 
     this.membrane.handlerStack.unshift(trapName);
     if (mayLog) {
-      this.logger.trace(
+      this.membrane.logger.trace(
         trapName + " inGraphHandler++",
         this.membrane.handlerStack.length - 2
       );
@@ -72,7 +72,7 @@ function inGraphHandler(trapName, callback) {
     finally {
       this.membrane.handlerStack.shift();
       if (mayLog) {
-        this.logger.trace(
+        this.membrane.logger.trace(
           trapName + " inGraphHandler--",
           this.membrane.handlerStack.length - 2
         );
@@ -106,3 +106,12 @@ function AssertIsPropertyKey(propName) {
   if ((type != "string") && (type != "symbol"))
     throw new Error("propName is not a symbol or a string!");
 }
+
+const Constants = {
+  warnings: {
+    FILTERED_KEYS_WITHOUT_LOCAL: "Filtering own keys without allowing local properties or deletes is dangerous"
+  }
+};
+
+Object.freeze(Constants.warnings);
+Object.freeze(Constants);
