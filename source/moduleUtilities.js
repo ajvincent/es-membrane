@@ -21,7 +21,9 @@ var ShadowKeyMap = new WeakMap();
 function makeShadowTarget(value) {
   "use strict";
   var rv;
-  if (typeof value == "object")
+  if (Array.isArray(value))
+    rv = [];
+  else if (typeof value == "object")
     rv = {};
   else if (typeof value == "function") {
     rv = function() {};

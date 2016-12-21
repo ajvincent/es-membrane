@@ -258,6 +258,72 @@ describe("basic concepts: ", function() {
     });
   });
 
+  describe("Deleting a property via Reflect.deleteProperty(...) works as expected", function() {
+    it("when the property doesn't exist", function() {
+      expect(Reflect.deleteProperty(dryDocument, "doesNotExist")).toBe(true);
+    });
+
+    it("when the property descriptor has configurable: true", function() {
+      Reflect.defineProperty(dryDocument, "doesNotExist", {
+        value: 2,
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });
+      expect(Reflect.deleteProperty(dryDocument, "doesNotExist")).toBe(true);
+      expect(Reflect.getOwnPropertyDescriptor(dryDocument, "doesNotExist")).toBe(undefined);
+    });
+
+    it("when the property descriptor has configurable: false", function() {
+      Reflect.defineProperty(dryDocument, "doesNotExist", {
+        value: 2,
+        writable: true,
+        enumerable: true,
+        configurable: false
+      });
+      expect(Reflect.deleteProperty(dryDocument, "doesNotExist")).toBe(false);
+      let desc = Reflect.getOwnPropertyDescriptor(dryDocument, "doesNotExist");
+      expect(typeof desc).toBe("object");
+      if (desc) {
+        expect(desc.value).toBe(2);
+      }
+    });
+
+    it(
+      "when the property descriptor is initially defined on the original target with configurable: true",
+      function() {
+        Reflect.defineProperty(wetDocument, "doesNotExist", {
+          value: 2,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
+        expect(Reflect.deleteProperty(dryDocument, "doesNotExist")).toBe(true);
+        expect(
+          Reflect.getOwnPropertyDescriptor(dryDocument, "doesNotExist")
+        ).toBe(undefined);
+      }
+    );
+
+    it(
+      "when the property descriptor is initially defined on the original target with configurable: false",
+      function() {
+        Reflect.defineProperty(wetDocument, "doesNotExist", {
+          value: 2,
+          writable: true,
+          enumerable: true,
+          configurable: false
+        });
+        expect(Reflect.deleteProperty(dryDocument, "doesNotExist")).toBe(false);
+        let desc = Reflect.getOwnPropertyDescriptor(dryDocument, "doesNotExist");
+        expect(typeof desc).toBe("object");
+        if (desc) {
+          expect(desc.value).toBe(2);
+        }
+      }
+    );
+  });
+
   it("Defining a property via Object.defineProperty(...) works as expected", function() {
     Object.defineProperty(dryDocument, "screenWidth", {
       value: 200,

@@ -249,6 +249,13 @@ ObjectGraphHandler.prototype = Object.seal({
           desc
         );
       }
+
+      // Non-configurable descriptors must apply on the actual proxy target.
+      if (desc && !desc.configurable &&
+          !Reflect.getOwnPropertyDescriptor(shadowTarget, propName)) {
+        Reflect.defineProperty(shadowTarget, propName, desc);
+      }
+
       return desc;
     }
     catch (e) {
@@ -555,7 +562,7 @@ ObjectGraphHandler.prototype = Object.seal({
         targetMap.unmaskDeletion(this.fieldName, propName);
         this.setOwnKeys(shadowTarget); // fix up property list
 
-        if (!desc.configurable && !desc.enumerable)
+        if (!desc.configurable)
           Reflect.defineProperty(shadowTarget, propName, desc);
       }
       return rv;
