@@ -252,9 +252,6 @@ describe("Storing unknown properties locally", function() {
     describe(
       "defineProperty works correctly with previously defined accessor descriptors",
       function() {
-        beforeEach(function() {
-          membrane.modifyRules.storeUnknownAsLocal("dry", parts.dry.doc);
-        });
         it("on the wet object graph", function() {
           parts.dry.doc.baseURL = "about:blank";
           expect(parts.wet.doc.baseURL).toBe("about:blank");
@@ -479,9 +476,6 @@ describe("Storing unknown properties locally", function() {
     describe(
       "deleteProperty works correctly with previously defined accessor descriptors",
       function() {
-        beforeEach(function() {
-          membrane.modifyRules.storeUnknownAsLocal("dry", parts.dry.doc);
-        });
 
         it("on the wet object graph", function() {
           delete parts.dry.doc.baseURL;

@@ -113,7 +113,7 @@ function AssertIsPropertyKey(propName) {
 
 const Constants = {
   warnings: {
-    FILTERED_KEYS_WITHOUT_LOCAL: "Filtering own keys without allowing local properties or deletes is dangerous"
+    FILTERED_KEYS_WITHOUT_LOCAL: "Filtering own keys without allowing local property defines or deletes is dangerous"
   }
 };
 
@@ -1158,6 +1158,8 @@ ObjectGraphHandler.prototype = Object.seal({
     }
 
     /*
+    http://www.ecma-international.org/ecma-262/7.0/#sec-ordinarydelete
+
     Assert: IsPropertyKey(P) is true.
     Let desc be ? O.[[GetOwnProperty]](P).
     If desc is undefined, return true.
@@ -1170,6 +1172,33 @@ ObjectGraphHandler.prototype = Object.seal({
     // 1. Assert: IsPropertyKey(P) is true.
     AssertIsPropertyKey(propName);
 
+    try {
+      var targetMap = this.membrane.map.get(target);
+      var shouldBeLocal = this.requiresDeletesBeLocal(target);
+
+      if (!shouldBeLocal) {
+        /* See .defineProperty trap for why.  Basically, if the property name
+         * is blacklisted, we should treat it as if the property doesn't exist
+         * on the original target.  The spec says if GetOwnProperty returns
+         * undefined (which it will for our proxy), we should return true.
+         */
+        let originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
+        let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
+        if (originFilter || localFilter)
+          this.membrane.warnOnce(this.membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
+        if (originFilter && !originFilter(propName))
+          return true;
+        if (localFilter && !localFilter(propName))
+          return true;
+      }
+    }
+    catch (e) {
+      if (mayLog) {
+        this.membrane.logger.error(e.message, e.stack);
+      }
+      throw e;
+    }
+
     let desc = this.getOwnPropertyDescriptor(target, propName);
     if (!desc)
       return true;
@@ -1178,8 +1207,6 @@ ObjectGraphHandler.prototype = Object.seal({
       return false;
 
     try {
-      var targetMap = this.membrane.map.get(target);
-      var shouldBeLocal = this.requiresDeletesBeLocal(target);
       targetMap.deleteLocalDescriptor(this.fieldName, propName, shouldBeLocal);
 
       if (!shouldBeLocal) {

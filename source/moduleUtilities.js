@@ -109,7 +109,7 @@ function AssertIsPropertyKey(propName) {
 
 const Constants = {
   warnings: {
-    FILTERED_KEYS_WITHOUT_LOCAL: "Filtering own keys without allowing local properties or deletes is dangerous"
+    FILTERED_KEYS_WITHOUT_LOCAL: "Filtering own keys without allowing local property defines or deletes is dangerous"
   }
 };
 

@@ -43,6 +43,10 @@ describe("Filtering own keys ", function() {
 
   // Customize this for whatever variables you need.
   var parts, membrane, dryDocument, wetDocument, dampDocument;
+  const logger = loggerLib.getLogger("membrane.test.defineProperty");
+  var appender = new loggerLib.Appender();
+  appender.setThreshold("WARN");
+  logger.addAppender(appender);
 
   function setParts() {
     dryDocument  = parts.dry.doc;
@@ -54,6 +58,7 @@ describe("Filtering own keys ", function() {
   beforeEach(function() {
     parts = MembraneMocks(true);
     setParts();
+    appender.clear();
   });
 
   function clearParts() {
@@ -63,9 +68,33 @@ describe("Filtering own keys ", function() {
 
     membrane.getHandlerByField("dry").revokeEverything();
     membrane = null;
-    parts    = null;    
+    parts    = null;
   }
   afterEach(clearParts);
+
+  function checkDeleted() {
+    expect(Reflect.deleteProperty(dryDocument, "blacklisted")).toBe(true);
+    var keys = Reflect.ownKeys(dryDocument);
+    fixKeys(keys);
+    expect(keys.includes("blacklisted")).toBe(false);
+    expect(Reflect.has(dryDocument, "blacklisted")).toBe(false);
+    {
+      let extra = Reflect.getOwnPropertyDescriptor(dryDocument, "blacklisted");
+      expect(extra).toBe(undefined);
+    }
+    expect(Reflect.get(dryDocument, "blacklisted")).toBe(undefined);
+  }
+
+  function checkAppenderForWarning() {
+    expect(appender.events.length).toBe(1);
+    if (appender.events.length > 0) {
+      let event = appender.events[0];
+      expect(event.level).toBe("WARN");
+      expect(event.message).toBe(
+        membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL
+      );
+    }
+  }
 
   function defineFilteredTests(filterWet = false, filterDry = false) {
     beforeEach(function() {
@@ -74,6 +103,17 @@ describe("Filtering own keys ", function() {
       if (filterDry)
         membrane.modifyRules.filterOwnKeys("dry", dryDocument, BlacklistFilter);
     });
+
+    function rebuildMocksWithLogger() {
+      clearParts();
+      appender.clear();
+      parts = MembraneMocks(true, logger);
+      setParts();
+      if (filterWet)
+        membrane.modifyRules.filterOwnKeys("wet", wetDocument, BlacklistFilter);
+      if (filterDry)
+        membrane.modifyRules.filterOwnKeys("dry", dryDocument, BlacklistFilter);
+    }
 
     it(
       "hides defined properties from getters via the wet object graph",
@@ -125,10 +165,11 @@ describe("Filtering own keys ", function() {
       "does not affect setting or deleting a (configurable) property that isn't blacklisted",
       function() {
         var keys;
-        membrane.modifyRules.filterOwnKeys("wet", wetDocument, BlacklistFilter);
   
         // Set extra initially to 3.
-        Reflect.defineProperty(dryDocument, "extra", extraDesc);
+        expect(
+          Reflect.defineProperty(dryDocument, "extra", extraDesc)
+        ).toBe(true);
   
         keys = Reflect.ownKeys(dryDocument);
         fixKeys(keys);
@@ -153,8 +194,10 @@ describe("Filtering own keys ", function() {
         expect(Reflect.get(wetDocument, "extra")).toBe(3);
   
         // Set extra again, to 4.
-        Reflect.defineProperty(dryDocument, "extra", extraDesc2);
-  
+        expect(
+          Reflect.defineProperty(dryDocument, "extra", extraDesc2)
+        ).toBe(true);
+
         keys = Reflect.ownKeys(dryDocument);
         fixKeys(keys);
         expect(keys.includes("extra")).toBe(true);
@@ -219,18 +262,18 @@ describe("Filtering own keys ", function() {
   
         it("where desc.configurable is false,", function() {
           desc.configurable = false;
-          expect(Reflect.defineProperty(
-            dryDocument, "blacklisted", desc
-          )).toBe(false);
+          expect(
+            Reflect.defineProperty(dryDocument, "blacklisted", desc)
+          ).toBe(false);
           expect(dryDocument.blacklisted).toBe(undefined);
           expect(wetDocument.blacklisted).toBe(undefined);
         });
   
         it("where desc.configurable is true,", function() {
           desc.configurable = true;
-          expect(Reflect.defineProperty(
-            dryDocument, "blacklisted", desc
-          )).toBe(false);
+          expect(
+            Reflect.defineProperty(dryDocument, "blacklisted", desc)
+          ).toBe(false);
           expect(dryDocument.blacklisted).toBe(undefined);
           expect(wetDocument.blacklisted).toBe(undefined);
         });
@@ -238,22 +281,11 @@ describe("Filtering own keys ", function() {
     );
 
     describe(
-      ".defineProperty(dryDocument, 'blacklisted', desc) triggers a membrane logger warning",
+      ".defineProperty(dryDocument, 'blacklisted', desc) triggers a membrane logger warning once",
       function() {
-        var desc, appender;
-        const logger = loggerLib.getLogger("membrane.test.defineProperty");
+        var desc;
         beforeEach(function() {
-          clearParts();
-          appender = new loggerLib.Appender();
-          appender.setThreshold("WARN");
-          logger.addAppender(appender);
-          parts = MembraneMocks(true, logger);
-          setParts();
-          if (filterWet)
-            membrane.modifyRules.filterOwnKeys("wet", wetDocument, BlacklistFilter);
-          if (filterDry)
-            membrane.modifyRules.filterOwnKeys("dry", dryDocument, BlacklistFilter);
-
+          rebuildMocksWithLogger();
           desc = {
             "value": 2,
             "writable": true,
@@ -273,12 +305,7 @@ describe("Filtering own keys ", function() {
           expect(dryDocument.blacklisted).toBe(undefined);
           expect(wetDocument.blacklisted).toBe(undefined);
 
-          expect(appender.events.length).toBe(1);
-          if (appender.events.length > 0) {
-            let event = appender.events[0];
-            expect(event.level).toBe("WARN");
-            expect(event.message).toBe(membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
-          }
+          checkAppenderForWarning();
         });
   
         it("where desc.configurable is true,", function() {
@@ -289,80 +316,162 @@ describe("Filtering own keys ", function() {
           expect(dryDocument.blacklisted).toBe(undefined);
           expect(wetDocument.blacklisted).toBe(undefined);
 
-          expect(appender.events.length).toBe(1);
-          if (appender.events.length > 0) {
-            let event = appender.events[0];
-            expect(event.level).toBe("WARN");
-            expect(event.message).toBe(membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
-          }
+          checkAppenderForWarning();
         });
       }
     );
 
-    it(
-      "Deleting a blacklisted property works locally",
+    describe(
+      ".deleteProperty(dryDocument, 'blacklisted') returns true for a blacklisted property",
       function() {
-        var keys;
-        membrane.modifyRules.filterOwnKeys("wet", wetDocument, BlacklistFilter);
+        beforeEach(function() {
+          rebuildMocksWithLogger();
+        });
+
+        it("when the property was never defined", function() {
+          expect(Reflect.deleteProperty(dryDocument, "blacklisted")).toBe(true);
+          checkDeleted();
+        });
+
+        it(
+          "when the property was previously defined on the wet graph as configurable",
+          function() {
+            // Set extra initially to 3.
+            Reflect.defineProperty(wetDocument, "blacklisted", extraDesc);
+            expect(
+              Reflect.deleteProperty(dryDocument, "blacklisted")
+            ).toBe(true);
+            checkDeleted();
+    
+            // Test that the delete didn't propagate through.
+            let desc = Reflect.getOwnPropertyDescriptor(
+              wetDocument, "blacklisted"
+            );
+            expect(desc).not.toBe(undefined);
+            if (desc) {
+              expect(desc.value).toBe(3);
+            }
+          }
+        );
+
+        it(
+          "when the property was previously defined on the wet graph as non-configurable",
+          function() {
+            // Set extra initially to 3.
+            Reflect.defineProperty(wetDocument, "blacklisted", {
+              value: 3,
+              writable: true,
+              enumerable: true,
+              configurable: false
+            });
+            expect(
+              Reflect.deleteProperty(dryDocument, "blacklisted")
+            ).toBe(true);
+            checkDeleted();
   
-        // Set extra initially to 3.
-        Reflect.defineProperty(dryDocument, "blacklisted", extraDesc);
+            // Test that the delete didn't propagate through.
+            let desc = Reflect.getOwnPropertyDescriptor(
+              wetDocument, "blacklisted"
+            );
+            expect(desc).not.toBe(undefined);
+            if (desc) {
+              expect(desc.value).toBe(3);
+            }
+          }
+        );
+
+        it(
+          "when the property's definition on the dry graph was attempted",
+          function() {
+            /* We don't care whether defineProperty returns true or false.  That
+             * should've been tested above.
+             */
+            Reflect.defineProperty(dryDocument, "blacklisted", extraDesc);
   
-        // Delete extra.
-        expect(Reflect.deleteProperty(dryDocument, "blacklisted")).toBe(true);
-        keys = Reflect.ownKeys(dryDocument);
-        fixKeys(keys);
-        expect(keys.includes("blacklisted")).toBe(false);
-        expect(Reflect.has(dryDocument, "blacklisted")).toBe(false);
-        {
-          let extra = Reflect.getOwnPropertyDescriptor(dryDocument, "blacklisted");
-          expect(extra).toBe(undefined);
-        }
-        expect(Reflect.get(dryDocument, "blacklisted")).toBe(undefined);
+            expect(
+              Reflect.deleteProperty(dryDocument, "blacklisted")
+            ).toBe(true);
+            checkDeleted();
+  
+            // Test that the delete didn't propagate through.
+            let desc = Reflect.getOwnPropertyDescriptor(
+              wetDocument, "blacklisted"
+            );
+            expect(desc).toBe(undefined);
+          }
+        );
       }
     );
 
-    it(
-      "Deleting a blacklisted property defined on the original target via the dry graph",
+    describe(
+      ".deleteProperty(dryDocument, 'blacklisted') triggers a membrane logger warning once",
       function() {
-        var keys, didDelete;
-        membrane.modifyRules.filterOwnKeys("wet", wetDocument, BlacklistFilter);
+        beforeEach(function() {
+          rebuildMocksWithLogger();
+        });
+
+        it("when the property was never defined", function() {
+          expect(Reflect.deleteProperty(dryDocument, "blacklisted")).toBe(true);
+          checkDeleted();
+          checkAppenderForWarning();
+        });
+
+        it(
+          "when the property was previously defined on the wet graph as configurable",
+          function() {
+            // Set extra initially to 3.
+            Reflect.defineProperty(wetDocument, "blacklisted", extraDesc);
+            appender.clear();
+            expect(
+              Reflect.deleteProperty(dryDocument, "blacklisted")
+            ).toBe(true);
+            checkDeleted();
+            checkAppenderForWarning();
   
-        // Set extra initially to 3.
-        Reflect.defineProperty(dryDocument, "blacklisted", extraDesc);
+            // Test that the delete didn't propagate through.
+            let desc = Reflect.getOwnPropertyDescriptor(
+              wetDocument, "blacklisted"
+            );
+            expect(desc).not.toBe(undefined);
+            if (desc) {
+              expect(desc.value).toBe(3);
+            }
+          }
+        );
+
+        it(
+          "when the property was previously defined on the wet graph as non-configurable",
+          function() {
+            // Set extra initially to 3.
+            Reflect.defineProperty(wetDocument, "blacklisted", {
+              value: 3,
+              writable: true,
+              enumerable: true,
+              configurable: false
+            });
+            appender.clear();
+            expect(
+              Reflect.deleteProperty(dryDocument, "blacklisted")
+            ).toBe(true);
+            checkDeleted();
+            checkAppenderForWarning();
   
-        /* XXX ajvincent This behavior is not defined, because it is not obvious
-         * at this time what we should do.
-         * http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-delete-p
-         *
-         * The algorithm for DeleteProperty states that if [[GetOwnProperty]]
-         * returns undefined, the delete operation should return true and do nothing.
-         * But here we have allowed the defineProperty to succeed in propagating
-         * the blacklisted property through, before we called Reflect.deleteProperty.
-         *
-         * So technically we don't have an inconsistency, from the perspective of
-         * the dry proxy to the wet object.  But we can't guarantee that the
-         * deletion command will or will not propagate through to the wet object
-         * graph.
-         *
-         * This merely emphasizes even more why users of the filterOwnKeys() code
-         * should probably consider requiring "storeUnknownAsLocal" and
-         * "requireLocalDelete" first!
+            // Test that the delete didn't propagate through.
+            let desc = Reflect.getOwnPropertyDescriptor(
+              wetDocument, "blacklisted"
+            );
+            expect(desc).not.toBe(undefined);
+            if (desc) {
+              expect(desc.value).toBe(3);
+            }
+          }
+        );
+
+        /* "when the property's definition on the dry graph was attempted"
+         * No point trying to test this case for the logger warning once:
+         * it would have logged the first time for the defineProperty call,
+         * so a call to .deleteProperty wouldn't trigger the warning again.
          */
-        
-        didDelete = Reflect.deleteProperty(dryDocument, "blacklisted");
-        expect(didDelete).toBe(true);
-        pending("undefined behavior");
-  
-        keys = Reflect.ownKeys(wetDocument);
-        fixKeys(keys);
-        expect(keys.includes("blacklisted")).toBe(false);
-        expect(Reflect.has(wetDocument, "blacklisted")).toBe(false);
-        {
-          let extra = Reflect.getOwnPropertyDescriptor(wetDocument, "blacklisted");
-          expect(extra).toBe(undefined);
-        }
-        expect(Reflect.get(wetDocument, "blacklisted")).toBe(undefined);
       }
     );
   }

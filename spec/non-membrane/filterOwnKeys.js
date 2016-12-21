@@ -150,4 +150,8 @@ describe("Proxy with filtering on .ownKeys:  ", function() {
         expect(desc.value).toBe(2);
     }
   );
+
+  it("Deleting a non-existent blacklisted property returns true", function() {
+    expect(Reflect.deleteProperty(outer, "blacklisted")).toBe(true);
+  });
 });
