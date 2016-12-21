@@ -214,22 +214,17 @@ ObjectGraphHandler.prototype = Object.seal({
     var target = getRealTarget(shadowTarget);
     var targetMap = this.membrane.map.get(target);
 
-    {
-      let originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
-      if (originFilter && !originFilter(propName))
-        return undefined;
-    }
-    {
-      let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
-      if (localFilter && !localFilter(propName))
-        return undefined;
-    }
-
     if (this.membrane.showGraphName && (propName == "membraneGraphName")) {
       return this.graphNameDescriptor;
     }
 
     try {
+      /* Order of operations:
+       * (1) locally deleted property:  undefined
+       * (2) locally set property:  the property
+       * (3) own keys filtered property: undefined
+       * (4) original property:  wrapped property.
+       */
       if (targetMap.wasDeletedLocally(targetMap.originField, propName) ||
           targetMap.wasDeletedLocally(this.fieldName, propName))
         return undefined;
@@ -237,6 +232,17 @@ ObjectGraphHandler.prototype = Object.seal({
       var desc = targetMap.getLocalDescriptor(this.fieldName, propName);
       if (desc !== undefined)
         return desc;
+
+      {
+        let originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
+        if (originFilter && !originFilter(propName))
+          return undefined;
+      }
+      {
+        let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
+        if (localFilter && !localFilter(propName))
+          return undefined;
+      }
 
       var _this = targetMap.getOriginal();
       desc = this.externalHandler(function() {
