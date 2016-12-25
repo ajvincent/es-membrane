@@ -19,6 +19,8 @@ function ObjectGraphHandler(membrane, fieldName) {
     "__revokeFunctions__": new DataDescriptor([], false, false, false),
 
     "__isDead__": new DataDescriptor(false, true, true, true),
+
+    "__proxyListeners__": new DataDescriptor([], false, false, false),
   });
 }
 { // ObjectGraphHandler definition
@@ -954,6 +956,30 @@ ObjectGraphHandler.prototype = Object.seal({
   }),
 
   /**
+   * Add a listener for new proxies.
+   *
+   * @see ProxyNotify
+   */
+  addProxyListener: function(listener) {
+    if (typeof listener != "function")
+      throw new Error("listener is not a function!");
+    if (!this.__proxyListeners__.includes(listener))
+      this.__proxyListeners__.push(listener);
+  },
+
+  /**
+   * Remove a listener for new proxies.
+   *
+   * @see ProxyNotify
+   */
+  removeProxyListener: function(listener) {
+    let index = this.__proxyListeners__.indexOf(listener);
+    if (index == -1)
+      throw new Error("listener is not registered!");
+    this.__proxyListeners__.splice(index, 1);
+  },
+
+  /**
    * Handle a call to code the membrane doesn't control.
    *
    * @private
@@ -1074,6 +1100,8 @@ ObjectGraphHandler.prototype = Object.seal({
    * @param target {Object} The proxy target.
    *
    * @returns {Boolean} True if deletes should be local.
+   *
+   * @private
    */
   requiresDeletesBeLocal: function(target) {
     let targetMap = this.membrane.map.get(target);

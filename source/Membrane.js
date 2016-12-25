@@ -3,7 +3,7 @@
  * Object graph: A collection of values that talk to each other directly.
  */
 
-function MembraneInternal(options) {
+function MembraneInternal(options = {}) {
   Object.defineProperties(this, {
     "showGraphName": {
       value: Boolean(options.showGraphName),
@@ -159,13 +159,19 @@ MembraneInternal.prototype = Object.seal({
     assert(mapping instanceof ProxyMapping,
            "buildMapping requires a ProxyMapping object!");
 
+    const isOriginal = (mapping.originField === field);
     let newTarget = makeShadowTarget(value);
     if (!Reflect.isExtensible(value))
       Reflect.preventExtensions(newTarget);
     let parts = Proxy.revocable(newTarget, handler);
+    parts.shadowTarget = newTarget;
     parts.value = value;
     mapping.set(this, field, parts);
-    handler.addRevocable(mapping.originField === field ? mapping : parts.revoke);
+
+    if (!isOriginal)
+      ProxyNotify(parts, handler);
+
+    handler.addRevocable(isOriginal ? mapping : parts.revoke);
     return mapping;
   },
 
