@@ -183,7 +183,8 @@ describe("An object graph handler's proxy listeners", function() {
 
     it("via counter-wrapping a non-primitive argument", function() {
       var cbVal;
-      function callback(k, k2) {
+      const Z = { argIndex: 0 }, Z2 = { argIndex: 1 }, rv = { isRV: true };
+      function callback(k) {
         logger.info("Entering callback");
         cbVal = k;
         logger.info("Exiting callback");
@@ -204,13 +205,11 @@ describe("An object graph handler's proxy listeners", function() {
         Y = null;
       }
 
-      const Z = { argIndex: 0 }, Z2 = { argIndex: 1 }, rv = { isRV: true };
-
       logger.info("Calling X.arg1 start");
       var K = X.arg1(Z, Z2);
       logger.info("Calling X.arg1 end");
       expect(cbVal).not.toBe(undefined);
-      expect(cbVal).not.toBe(null)
+      expect(cbVal).not.toBe(null);
       expect(typeof cbVal).toBe("object");
       if (cbVal)
         expect(cbVal.argIndex).toBe(0);
