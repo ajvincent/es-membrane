@@ -229,14 +229,14 @@ ModifyRulesAPI.prototype = Object.seal({
     this.assertLocalProxy(fieldName, proxy, "storeUnknownAsLocal");
 
     let metadata = this.membrane.map.get(proxy);
-    metadata.storeUnknownAsLocal(fieldName, true);
+    metadata.setLocalFlag(fieldName, "storeUnknownAsLocal", true);
   },
 
   requireLocalDelete: function(fieldName, proxy) {
     this.assertLocalProxy(fieldName, proxy, "requireLocalDelete");
 
     let metadata = this.membrane.map.get(proxy);
-    metadata.requireLocalDelete(fieldName, true);
+    metadata.setLocalFlag(fieldName, "requireLocalDelete", true);
   },
 
   filterOwnKeys: function(fieldName, proxy, filter) {

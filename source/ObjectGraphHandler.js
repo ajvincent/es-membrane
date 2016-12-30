@@ -331,7 +331,7 @@ ObjectGraphHandler.prototype = Object.seal({
     if (!Reflect.isExtensible(shadowTarget))
       return false;
     var target = getRealTarget(shadowTarget);
-    var shouldBeLocal = this.allowLocalProperties(target, true);
+    var shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
     if (shouldBeLocal)
       return true;
     
@@ -357,7 +357,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
 
     // Walk the prototype chain to look for shouldBeLocal.
-    var shouldBeLocal = this.allowLocalProperties(target, true);
+    var shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
     if (shouldBeLocal) {
       /* We must set the ownKeys of the shadow target always.  But, if the
        * ownKeys hasn't been set yet, ever, now is our one and only chance to
@@ -505,7 +505,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
       if (!shouldBeLocal) {
         // Walk the prototype chain to look for shouldBeLocal.
-        shouldBeLocal = this.allowLocalProperties(target, true);
+        shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
       }
 
       var rv;
@@ -661,7 +661,7 @@ ObjectGraphHandler.prototype = Object.seal({
          could accidentally create a O(n^2) operation here.
        */
       walkedAllowLocal = true;
-      shouldBeLocal = this.allowLocalProperties(target, true);
+      shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
     }
 
     /*
@@ -1069,27 +1069,27 @@ ObjectGraphHandler.prototype = Object.seal({
   },
 
   /**
-   * Determine if a target, or any prototype ancestor, wants local-to-the-proxy
-   * properties.
+   * Determine if a target, or any prototype ancestor, has a local-to-the-proxy
+   * flag.
    *
    * @argument target    {Object} The proxy target.
-   * @argument recursive {Boolean} True if we should look at prototype ancestors.
+   * @argument flagName  {String} The name of the flag.
+   * @argument recurse {Boolean} True if we should look at prototype ancestors.
    *
    * @returns {Boolean} True if local properties have been requested.
    *
    * @private
    */
-  allowLocalProperties: function(target, recursive = false) {
+  getLocalFlag: function(target, flagName, recurse = false) {
     var shouldBeLocal = false;
-    // Walk the prototype chain to look for shouldBeLocal.
     let targetMap = this.membrane.map.get(target);
     let map = targetMap, protoTarget = target;
     while (true) {
-      shouldBeLocal = map.requiresUnknownAsLocal(this.fieldName) ||
-                      map.requiresUnknownAsLocal(targetMap.originField);
+      shouldBeLocal = map.getLocalFlag(this.fieldName, flagName) ||
+                      map.getLocalFlag(targetMap.originField, flagName);
       if (shouldBeLocal)
         return true;
-      if (!recursive)
+      if (!recurse)
         return false;
       protoTarget = this.getPrototypeOf(protoTarget);
       if (!protoTarget)
@@ -1112,8 +1112,8 @@ ObjectGraphHandler.prototype = Object.seal({
     let targetMap = this.membrane.map.get(target);
     let map = targetMap, protoTarget = target, shouldBeLocal = false;
     while (true) {
-      shouldBeLocal = map.requiresDeletesBeLocal(this.fieldName) ||
-                      map.requiresDeletesBeLocal(targetMap.originField);
+      shouldBeLocal = map.getLocalFlag(this.fieldName, "requireLocalDelete") ||
+                      map.getLocalFlag(targetMap.originField, "requireLocalDelete");
       if (shouldBeLocal)
         return true;
       protoTarget = this.getPrototypeOf(protoTarget);

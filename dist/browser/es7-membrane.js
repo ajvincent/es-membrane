@@ -143,6 +143,13 @@ function ProxyMapping(originField) {
 
   this.originalValue = NOT_YET_DETERMINED;
   this.protoMapping = NOT_YET_DETERMINED;
+
+  /**
+   * @private
+   *
+   * Local flags determining behavior.
+   */
+  //this.localFlags = null
 }
 { // ProxyMapping definition
 Object.defineProperties(ProxyMapping.prototype, {
@@ -249,15 +256,23 @@ Object.defineProperties(ProxyMapping.prototype, {
     }
   }),
 
-  "storeUnknownAsLocal":
-  new DataDescriptor(function(fieldName, value) {
-    this.proxiedFields[fieldName].unknownAsLocal = Boolean(value);
+  "setLocalFlag":
+  new DataDescriptor(function(fieldName, flagName, value) {
+    if (!this.localFlags)
+      this.localFlags = new Set();
+    var flag = flagName + ":" + fieldName;
+    if (value)
+      this.localFlags.add(flag);
+    else
+      this.localFlags.delete(flag);
   }),
 
-  "requiresUnknownAsLocal":
-  new DataDescriptor(function(fieldName) {
-    return this.hasField(fieldName) &&
-           Boolean(this.proxiedFields[fieldName].unknownAsLocal);
+  "getLocalFlag":
+  new DataDescriptor(function(fieldName, flagName) {
+    if (!this.localFlags)
+      return false;
+    var flag = flagName + ":" + fieldName;
+    return this.localFlags.has(flag);
   }),
 
   "getLocalDescriptor":
@@ -321,17 +336,6 @@ Object.defineProperties(ProxyMapping.prototype, {
     if ("localDescriptors" in metadata)
       rv = Array.from(metadata.localDescriptors.keys());
     return rv;
-  }),
-
-  "requireLocalDelete":
-  new DataDescriptor(function(fieldName, value) {
-    this.proxiedFields[fieldName].mustDeleteLocally = Boolean(value);
-  }),
-
-  "requiresDeletesBeLocal":
-  new DataDescriptor(function(fieldName) {
-    return this.hasField(fieldName) &&
-           Boolean(this.proxiedFields[fieldName].mustDeleteLocally);
   }),
 
   "appendDeletedNames":
@@ -1123,7 +1127,7 @@ ObjectGraphHandler.prototype = Object.seal({
     if (!Reflect.isExtensible(shadowTarget))
       return false;
     var target = getRealTarget(shadowTarget);
-    var shouldBeLocal = this.allowLocalProperties(target, true);
+    var shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
     if (shouldBeLocal)
       return true;
     
@@ -1149,7 +1153,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
 
     // Walk the prototype chain to look for shouldBeLocal.
-    var shouldBeLocal = this.allowLocalProperties(target, true);
+    var shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
     if (shouldBeLocal) {
       /* We must set the ownKeys of the shadow target always.  But, if the
        * ownKeys hasn't been set yet, ever, now is our one and only chance to
@@ -1297,7 +1301,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
       if (!shouldBeLocal) {
         // Walk the prototype chain to look for shouldBeLocal.
-        shouldBeLocal = this.allowLocalProperties(target, true);
+        shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
       }
 
       var rv;
@@ -1453,7 +1457,7 @@ ObjectGraphHandler.prototype = Object.seal({
          could accidentally create a O(n^2) operation here.
        */
       walkedAllowLocal = true;
-      shouldBeLocal = this.allowLocalProperties(target, true);
+      shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
     }
 
     /*
@@ -1861,27 +1865,27 @@ ObjectGraphHandler.prototype = Object.seal({
   },
 
   /**
-   * Determine if a target, or any prototype ancestor, wants local-to-the-proxy
-   * properties.
+   * Determine if a target, or any prototype ancestor, has a local-to-the-proxy
+   * flag.
    *
    * @argument target    {Object} The proxy target.
-   * @argument recursive {Boolean} True if we should look at prototype ancestors.
+   * @argument flagName  {String} The name of the flag.
+   * @argument recurse {Boolean} True if we should look at prototype ancestors.
    *
    * @returns {Boolean} True if local properties have been requested.
    *
    * @private
    */
-  allowLocalProperties: function(target, recursive = false) {
+  getLocalFlag: function(target, flagName, recurse = false) {
     var shouldBeLocal = false;
-    // Walk the prototype chain to look for shouldBeLocal.
     let targetMap = this.membrane.map.get(target);
     let map = targetMap, protoTarget = target;
     while (true) {
-      shouldBeLocal = map.requiresUnknownAsLocal(this.fieldName) ||
-                      map.requiresUnknownAsLocal(targetMap.originField);
+      shouldBeLocal = map.getLocalFlag(this.fieldName, flagName) ||
+                      map.getLocalFlag(targetMap.originField, flagName);
       if (shouldBeLocal)
         return true;
-      if (!recursive)
+      if (!recurse)
         return false;
       protoTarget = this.getPrototypeOf(protoTarget);
       if (!protoTarget)
@@ -1904,8 +1908,8 @@ ObjectGraphHandler.prototype = Object.seal({
     let targetMap = this.membrane.map.get(target);
     let map = targetMap, protoTarget = target, shouldBeLocal = false;
     while (true) {
-      shouldBeLocal = map.requiresDeletesBeLocal(this.fieldName) ||
-                      map.requiresDeletesBeLocal(targetMap.originField);
+      shouldBeLocal = map.getLocalFlag(this.fieldName, "requireLocalDelete") ||
+                      map.getLocalFlag(targetMap.originField, "requireLocalDelete");
       if (shouldBeLocal)
         return true;
       protoTarget = this.getPrototypeOf(protoTarget);
@@ -2325,14 +2329,14 @@ ModifyRulesAPI.prototype = Object.seal({
     this.assertLocalProxy(fieldName, proxy, "storeUnknownAsLocal");
 
     let metadata = this.membrane.map.get(proxy);
-    metadata.storeUnknownAsLocal(fieldName, true);
+    metadata.setLocalFlag(fieldName, "storeUnknownAsLocal", true);
   },
 
   requireLocalDelete: function(fieldName, proxy) {
     this.assertLocalProxy(fieldName, proxy, "requireLocalDelete");
 
     let metadata = this.membrane.map.get(proxy);
-    metadata.requireLocalDelete(fieldName, true);
+    metadata.setLocalFlag(fieldName, "requireLocalDelete", true);
   },
 
   filterOwnKeys: function(fieldName, proxy, filter) {

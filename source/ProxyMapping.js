@@ -20,6 +20,13 @@ function ProxyMapping(originField) {
 
   this.originalValue = NOT_YET_DETERMINED;
   this.protoMapping = NOT_YET_DETERMINED;
+
+  /**
+   * @private
+   *
+   * Local flags determining behavior.
+   */
+  //this.localFlags = null
 }
 { // ProxyMapping definition
 Object.defineProperties(ProxyMapping.prototype, {
@@ -126,15 +133,23 @@ Object.defineProperties(ProxyMapping.prototype, {
     }
   }),
 
-  "storeUnknownAsLocal":
-  new DataDescriptor(function(fieldName, value) {
-    this.proxiedFields[fieldName].unknownAsLocal = Boolean(value);
+  "setLocalFlag":
+  new DataDescriptor(function(fieldName, flagName, value) {
+    if (!this.localFlags)
+      this.localFlags = new Set();
+    var flag = flagName + ":" + fieldName;
+    if (value)
+      this.localFlags.add(flag);
+    else
+      this.localFlags.delete(flag);
   }),
 
-  "requiresUnknownAsLocal":
-  new DataDescriptor(function(fieldName) {
-    return this.hasField(fieldName) &&
-           Boolean(this.proxiedFields[fieldName].unknownAsLocal);
+  "getLocalFlag":
+  new DataDescriptor(function(fieldName, flagName) {
+    if (!this.localFlags)
+      return false;
+    var flag = flagName + ":" + fieldName;
+    return this.localFlags.has(flag);
   }),
 
   "getLocalDescriptor":
@@ -198,17 +213,6 @@ Object.defineProperties(ProxyMapping.prototype, {
     if ("localDescriptors" in metadata)
       rv = Array.from(metadata.localDescriptors.keys());
     return rv;
-  }),
-
-  "requireLocalDelete":
-  new DataDescriptor(function(fieldName, value) {
-    this.proxiedFields[fieldName].mustDeleteLocally = Boolean(value);
-  }),
-
-  "requiresDeletesBeLocal":
-  new DataDescriptor(function(fieldName) {
-    return this.hasField(fieldName) &&
-           Boolean(this.proxiedFields[fieldName].mustDeleteLocally);
   }),
 
   "appendDeletedNames":
