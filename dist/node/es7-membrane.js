@@ -649,7 +649,7 @@ MembraneInternal.prototype = Object.seal({
     else {
       passOptions = options;
     }
-        
+
     this.buildMapping(
       handler.fieldName,
       arg,
@@ -1664,9 +1664,12 @@ ObjectGraphHandler.prototype = Object.seal({
       thisArg
     );
 
+    /* XXX ajvincent This seemed like a good idea, but I realized it adds execution time.
     if (mayLog) {
       this.membrane.logger.debug("apply this.membraneGraphName: " + _this.membraneGraphName);
     }
+    */
+
     for (var i = 0; i < argumentsList.length; i++) {
       let nextArg = argumentsList[i];
       nextArg = this.membrane.convertArgumentToProxy(
@@ -1676,9 +1679,11 @@ ObjectGraphHandler.prototype = Object.seal({
       );
       args.push(nextArg);
 
+      /* XXX ajvincent This seemed like a good idea, but I realized it adds execution time.
       if (mayLog && (valueType(nextArg) != "primitive")) {
         this.membrane.logger.debug("apply argument " + i + "'s membraneGraphName: " + nextArg.membraneGraphName);
       }
+      */
     }
 
     if (mayLog) {
@@ -2066,7 +2071,7 @@ function ProxyNotify(parts, handler) {
      * Explicitly throw an exception from the listener, through the membrane.
      */
     "throwException": addFields({
-      "value": function(e) { exnFound = true; exn = e; },
+      "value": function(e) { stopped = true; exnFound = true; exn = e; },
       "writable": false
     })
   });

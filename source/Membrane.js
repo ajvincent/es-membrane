@@ -251,7 +251,7 @@ MembraneInternal.prototype = Object.seal({
     else {
       passOptions = options;
     }
-        
+
     this.buildMapping(
       handler.fieldName,
       arg,

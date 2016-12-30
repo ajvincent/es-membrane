@@ -31,25 +31,20 @@ describe("An object graph handler's proxy listeners", function() {
   ctor1.prototype.label = "ctor1 prototype";
   ctor1.prototype.number = 2;
 
-  function ctor2(arg1, arg2) {
-    ctor1.apply(this, arguments);
-    this.arg2 = arg2;
-  }
-  ctor2.prototype.bool = true;
-
   function getMessageProp(event) { return event.message; }
   function getMessages() {
     return this.events.map(getMessageProp);
   }
 
   beforeEach(function() {
-    membrane = new Membrane();
+    membrane = new Membrane({logger: logger});
     wetHandler = membrane.getHandlerByField("wet", true);
     dryHandler = membrane.getHandlerByField("dry", true);
 
     appender = new loggerLib.Appender();
     logger.addAppender(appender);
     appender.getMessages = getMessages;
+    appender.setThreshold("INFO");
   });
 
   afterEach(function() {
@@ -188,8 +183,11 @@ describe("An object graph handler's proxy listeners", function() {
 
     it("via counter-wrapping a non-primitive argument", function() {
       var cbVal;
-      function callback(k) {
+      function callback(k, k2) {
+        logger.info("Entering callback");
         cbVal = k;
+        logger.info("Exiting callback");
+        return rv;
       }
 
       var x = new ctor1(callback);
@@ -206,24 +204,44 @@ describe("An object graph handler's proxy listeners", function() {
         Y = null;
       }
 
-      const Z = {};
+      const Z = { argIndex: 0 }, Z2 = { argIndex: 1 }, rv = { isRV: true };
 
       logger.info("Calling X.arg1 start");
-      X.arg1(Z);
+      var K = X.arg1(Z, Z2);
       logger.info("Calling X.arg1 end");
       expect(cbVal).not.toBe(undefined);
+      expect(cbVal).not.toBe(null)
+      expect(typeof cbVal).toBe("object");
+      if (cbVal)
+        expect(cbVal.argIndex).toBe(0);
 
       let messages = appender.getMessages();
-      expect(messages.length).toBe(4);
+      expect(messages.length).toBe(10);
       expect(messages[0]).toBe("Calling X.arg1 start");
+      // for argument 0
       expect(messages[1]).toBe("listener0");
       expect(messages[2]).toBe("listener2");
-      expect(messages[3]).toBe("Calling X.arg1 end");
 
-      expect(meta2).toBe(meta0);
+      // for argument 1
+      expect(messages[3]).toBe("listener0");
+      expect(messages[4]).toBe("listener2");
+
+      // executing the method
+      expect(messages[5]).toBe("Entering callback");
+      expect(messages[6]).toBe("Exiting callback");
+
+      // for return value
+      expect(messages[7]).toBe("listener1");
+      expect(messages[8]).toBe("listener2");
+
+      expect(messages[9]).toBe("Calling X.arg1 end");
+
       expect(typeof meta2).toBe("object");
-      expect(meta1).toBe(undefined);
-      expect(meta2.proxy).toBe(cbVal);
+      expect(K).not.toBe(undefined);
+      expect(K).not.toBe(null);
+      expect(typeof K).toBe("object");
+      if (K)
+        expect(K.isRV).toBe(true);
     });
 
     it("via counter-wrapping a primitive argument", function() {
@@ -381,6 +399,144 @@ describe("An object graph handler's proxy listeners", function() {
       let XDesc = Reflect.getOwnPropertyDescriptor(X, "extra");
       expect(XDesc.value).toBe(3);
       expect(x.extra).toBe(undefined);
+    });
+  });
+
+  describe("can stop iteration to further listeners", function() {
+    var meta1, meta2;
+    beforeEach(function() {
+      meta1 = undefined;
+      meta2 = undefined;
+    });
+
+    it("by invoking meta.stopIteration();", function() {
+      function listener1(meta) {
+        meta1 = meta;
+        logger.info("listener1: stopped = " + meta.stopped);
+        logger.info("listener1: calling meta.stopIteration();");
+        meta.stopIteration();
+        logger.info("listener1: stopped = " + meta.stopped);
+      }
+
+      function listener2(meta) {
+        meta2 = meta;
+        logger.info("listener2: stopped = " + meta.stopped);
+        logger.info("listener2: calling meta.stopIteration();");
+        meta.stopIteration();
+        logger.info("listener2: stopped = " + meta.stopped);
+      }
+
+      dryHandler.addProxyListener(listener1);
+      dryHandler.addProxyListener(listener2);
+
+      var x = new ctor1("one");
+      logger.info("x created");
+      var X = membrane.convertArgumentToProxy(
+        wetHandler,
+        dryHandler,
+        x
+      );
+      logger.info("dry(x) created");
+      expect(X.label).toBe("ctor1 instance");
+      expect(X).not.toBe(x);
+
+      let messages = appender.getMessages();
+      expect(messages.length).toBe(5);
+      expect(messages[0]).toBe("x created");
+      expect(messages[1]).toBe("listener1: stopped = false");
+      expect(messages[2]).toBe("listener1: calling meta.stopIteration();");
+      expect(messages[3]).toBe("listener1: stopped = true");
+      expect(messages[4]).toBe("dry(x) created");
+
+      expect(meta2).toBe(undefined);
+      expect(typeof meta1).toBe("object");
+      expect(meta1.proxy).toBe(X);
+      expect(meta1.stopped).toBe(true);
+    });
+
+    it("by invoking meta.throwException(exn);", function() {
+      const dummyExn = {};
+      function listener1(meta) {
+        meta1 = meta;
+        logger.info("listener1: stopped = " + meta.stopped);
+        logger.info("listener1: calling meta.throwException(exn1);");
+        meta.throwException(dummyExn);
+        logger.info("listener1: stopped = " + meta.stopped);
+      }
+
+      function listener2(meta) {
+        meta2 = meta;
+        logger.info("listener2: stopped = " + meta.stopped);
+        logger.info("listener2: calling meta.stopIteration();");
+        meta.stopIteration();
+        logger.info("listener2: stopped = " + meta.stopped);
+      }
+
+      dryHandler.addProxyListener(listener1);
+      dryHandler.addProxyListener(listener2);
+
+      var x = new ctor1("one");
+      logger.info("x created");
+      expect(function() {
+        membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          x
+        );
+      }).toThrow(dummyExn);
+      logger.info("dry(x) threw");
+
+      let messages = appender.getMessages();
+      expect(messages.length).toBe(5);
+      expect(messages[0]).toBe("x created");
+      expect(messages[1]).toBe("listener1: stopped = false");
+      expect(messages[2]).toBe("listener1: calling meta.throwException(exn1);");
+      expect(messages[3]).toBe("listener1: stopped = true");
+      expect(messages[4]).toBe("dry(x) threw");
+
+      expect(meta2).toBe(undefined);
+      expect(typeof meta1).toBe("object");
+      expect(meta1.stopped).toBe(true);
+    });
+
+    it("but not by accidentally triggering an exception", function() {
+      const dummyExn = {};
+      function listener1(meta) {
+        meta1 = meta;
+        logger.info("listener1: stopped = " + meta.stopped);
+        throw dummyExn; // this is supposed to be an accident
+      }
+
+      function listener2(meta) {
+        meta2 = meta;
+        logger.info("listener2: stopped = " + meta.stopped);
+      }
+
+      dryHandler.addProxyListener(listener1);
+      dryHandler.addProxyListener(listener2);
+
+      var x = new ctor1("one");
+      logger.info("x created");
+      var X = membrane.convertArgumentToProxy(
+        wetHandler,
+        dryHandler,
+        x
+      );
+      logger.info("dry(x) created");
+      expect(X.label).toBe("ctor1 instance");
+      expect(X).not.toBe(x);
+
+      let messages = appender.getMessages();
+      expect(messages.length).toBe(5);
+      expect(messages[0]).toBe("x created");
+      expect(messages[1]).toBe("listener1: stopped = false");
+      expect(messages[2]).toBe(dummyExn);
+      expect(messages[3]).toBe("listener2: stopped = false");
+      expect(messages[4]).toBe("dry(x) created");
+
+      expect(meta2).toBe(meta1);
+      expect(typeof meta2).toBe("object");
+      expect(meta2.proxy).toBe(X);
     });
   });
 });

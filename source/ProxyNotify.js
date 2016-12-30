@@ -95,7 +95,7 @@ function ProxyNotify(parts, handler) {
      * Explicitly throw an exception from the listener, through the membrane.
      */
     "throwException": addFields({
-      "value": function(e) { exnFound = true; exn = e; },
+      "value": function(e) { stopped = true; exnFound = true; exn = e; },
       "writable": false
     })
   });
