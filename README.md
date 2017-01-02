@@ -139,36 +139,41 @@ Finally, you have enough information to uniquely identify x by both its object g
   * [ "trusted", "sandboxed" ]
   * [ "private", "public" ]
 2. Create an instance of Membrane.
+  * The constructor for Membrane takes an optional options object.
+  * If options.showGraphName is true (or "truthy" in the JavaScript sense), each ObjectGraphHandler instance will expose an additional "membraneGraphName" property for proxies created from it.
+    * This is more for debugging purposes than anything else, and should not be turned on in a Production environment.
+  * If options.logger is defined, it is presumed to be a (http://log4javascript.org/)[log4javascript]-compatible logger object for the membrane to use.
 3. Ask for an ObjectGraphHandler from the membrane, by a name as a string.  This will be where "your" objects live.
 4. Ask for another ObjectGraphHandler from the membrane, by a different object graph name.  This will be where "their" objects live.
-5. Add a "top-level" object to "your" ObjectGraphHandler instance.
-6. Ask the membrane to get a proxy for the original object from "their" object graph, based on the graph name.
-7. (Optional) Replace that proxy with another, for custom handling, through "their" ObjectGraphHandler.
-8. Repeat steps 5 through 7 for any additional objects that need special handling.
+5. (Optional) Use the .addProxyListener() method of the ObjectGraphHandler, to add listeners for the creation of new proxies.
+6. Add a "top-level" object to "your" ObjectGraphHandler instance.
+7. Ask the membrane to get a proxy for the original object from "their" object graph, based on the graph name.
+8. (Optional) Use the membrane's modifyRules object to customize default behaviors of individual proxies.
+9. Repeat steps 5 through 7 for any additional objects that need special handling.
   * Example:  Prototypes of constructors, which is where most property lookups go.
-9. Return "top-level" proxies to objects, from "their" object graph, to the end-user.
+10. Return "top-level" proxies to objects, from "their" object graph, to the end-user.
   * **DO NOT** return the Membrane, or any ObjectGraphHandler.  Returning those allows others to change the rules you so carefully crafted.
 
 Example code:
 ```javascript
-/* 1.  The object graph names I want are "dry" and "wet".
+/* The object graph names I want are "dry" and "wet".
  * "wet" is what I own.
  * "dry" is what I don't trust.
  */
 
-// 2. Establish the Membrane.
+// Establish the Membrane.
 var dryWetMB = new Membrane({
   // These are configuration options.
 });
 
-// 3. Establish "wet" ObjectGraphHandler.
+// Establish "wet" ObjectGraphHandler.
 var wetHandler = dryWetMB.getHandlerByField("wet", true);
 
-// 4. Establish "dry" ObjectGraphHandler.
+// Establish "dry" ObjectGraphHandler.
 var dryHandler = dryWetMB.getHandlerByField("dry", true);
 
-// 5. Establish "wet" view of an object.
-// 6. Get a "dry" view of the same object.
+// Establish "wet" view of an object.
+// Get a "dry" view of the same object.
 var dryDocument = dryWetMB.convertArgumentToProxy(
   wetHandler,
   dryHandler,
@@ -176,16 +181,67 @@ var dryDocument = dryWetMB.convertArgumentToProxy(
 );
 // dryDocument is a Proxy whose target is wetDocument, and whose handler is dryHandler.
 
-// 7. (optional, skipped for now)
-// 8. (skipped for this example)
-
-// 9. Return "top-level" document proxy.
+// Return "top-level" document proxy.
 return dryDocument;
 ```
 
 This will give the end-user a very basic proxy in the "dry" object graph, which also implements the identity and property lookup rules of the object graph and the membrane.  In fact, it is a _perfect_ one-to-one correspondence:  because no special proxy traps are established in steps 7 and 8 above, _any and all_ operations on the "dry" document proxy, or objects and functions retrieved through that proxy (directly or indirectly) will be reflected and repeated on the corresponding "wet" document objects _exactly_ with no side effects. (Except possibly those demanded through the Membrane's configuration options, such as providing a logger.)
 
 Such a membrane is, for obvious reasons, useless.  But this perfect mirroring has to be established first before anyone can customize the membrane's various proxies, and thus, rules for accessing and manipulating objects.  It is through custom proxies whose handlers inherit from ObjectGraphHandler instances in the membrane that you can achieve proper hiding of properties, expose new properties, and so on.
+
+## Modifying the proxy behavior:  The ModifyRules API
+
+Every membrane has a .modifyRules object which allows developers to modify how an individual proxy behaves.
+
+The .modifyRules object has several public methods:
+
+* .createChainHandler(ObjectGraphHandler):  Create a ProxyHandler inheriting from Reflect or an ObjectGraphHandler.  The returned object will have two additional properties:
+  * .nextHandler, for the handler you passed in,
+  * .baseHandler, for the ObjectGraphHandler that the originated all handlers in the chain.
+  * The idea is that you can use .nextHandler and .baseHandler for any custom-implemented traps on the new handler, to refer to existing behavior.
+* .replaceProxy(oldProxy, handler):  Replace a proxy in the membrane with a new one based on a chained ObjectGraphHandler.
+  * Use this method after modifying a chain handler to define your own rules for a proxy.
+  * This method probably shouldn't be used directly - instead, use a proxy listener to override the proxy before the membrane returns it to a customer.
+* .storeUnknownAsLocal(fieldName, proxy): Require that any unknown properties be stored "locally", instead of propagating to the underlying object.
+  * If the property name doesn't exist on the original object, the proxy itself keeps the property name and value.
+  * The underlying object will only accept property descriptors for properties it has defined on itself.
+  * You can call .storeUnknownAsLocal on the underlying object to require that all proxies store unknown properties locally.
+  * This setting is inherited:  any objects constructed with the proxy or its target in the prototype chain will also store unknown properties locally.
+* .requireLocalDelete(fieldName, proxy):  Require that the deletion of a property is "local", that it does not propagate to the underlying object.
+  * Similar to .storeUnknownAsLocal, except .requireLocalDelete works for the delete operator.
+* .filterOwnKeys(fieldName, proxy, filter):  Applies a filter function for Reflect.ownKeys as it applies to properties defined on the underlying object.
+  * The filter function is cached in the membrane, so that it applies to all non-local properties in the future.
+  * The filter function also affects what .getOwnPropertyDescriptor() returns:  if there isn't a local property defined, and the filter rejects the property name, the property is considered undefined.
+  * You can call .filterOwnKeys on the underlying object to require that all proxies apply the filter.
+  * You can apply two filters to each proxy, one locally and one global (on the underlying object).
+  * Local property definitions (or deletes) override the filter(s).
+  * See [Array.prototype.filter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter) on developer.mozilla.org for good examples of how array filters work.
+
+## Proxy listeners:  Reacting to new proxies
+
+When the membrane creates a new proxy and is about to return it to a caller, there is one chance to change the rules for that proxy before the caller ever sees it.  This is through the proxy listener API.
+
+Each object graph handler has two methods:
+* .addProxyListener(callback):  Add a function to the sequence of proxy listeners.
+* .removeProxyListener(callback):  Remove the function from the sequence of proxy listeners.
+
+The callbacks are executed in the order they were added, with a single object argument.  This "meta" object has several methods and properties:
+* get stopped():  True if iteration to the remaining proxy listeners is canceled.
+* get proxy(): The proxy object (or value) currently scheduled to be returned to the user.
+* set proxy(val):  Override the proxy object to schedule another value to be returned in its place.
+* get target(): The original value being hidden in a proxy.
+* get handler():  The proxy handler which the proxy is based on.
+* set handler(val): Override the proxy handler.
+* rebuildProxy(): A method to recreate the proxy from the original value and the current proxy handler.
+* logger:  A log4javascript-compatible logging object from the membrane's construction options, or null.
+* stopIteration():  Set stopped to true, so that no more proxy listeners are executed.
+* throwException(exception):  Explicitly throw an exception, so that the proxy is NOT returned but the exception propagates from the membrane.
+
+An exception accidentally thrown from a proxy listener will *not* stop iteration:
+* The exception will be caught, and if the membrane has a logger, the logger will log the exception.
+* The next proxy listener in the sequence will then execute as if the exception had not been thrown.
+
+That's why the throwException() method exists:  to make it clear that you intended to throw the exception outside the membrane.
 
 # How the Membrane actually works
 
