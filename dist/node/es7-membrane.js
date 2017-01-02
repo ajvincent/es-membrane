@@ -2325,6 +2325,15 @@ ModifyRulesAPI.prototype = Object.seal({
     return parts.proxy;
   },
 
+  /**
+   * Ensure that the proxy passed in matches the object graph handler.
+   *
+   * @param fieldName  {String} The handler's field name.
+   * @param proxy      {Proxy}  The value to look up.
+   * @param methodName {String} The calling function's name.
+   * 
+   * @private
+   */
   assertLocalProxy: function(fieldName, proxy, methodName) {
     let [found, match] = this.membrane.getMembraneProxy(fieldName, proxy);
     if (!found || (proxy !== match)) {
@@ -2332,6 +2341,15 @@ ModifyRulesAPI.prototype = Object.seal({
     }
   },
 
+  /**
+   * Require that new properties be stored via the proxies instead of propagated
+   * through to the underlying object.
+   *
+   * @param fieldName {String} The field name of the object graph handler the
+   *                           proxy uses.
+   * @param proxy     {Proxy}  The proxy (or underlying object) needing local
+   *                           property protection.
+   */
   storeUnknownAsLocal: function(fieldName, proxy) {
     this.assertLocalProxy(fieldName, proxy, "storeUnknownAsLocal");
 
@@ -2339,6 +2357,15 @@ ModifyRulesAPI.prototype = Object.seal({
     metadata.setLocalFlag(fieldName, "storeUnknownAsLocal", true);
   },
 
+  /**
+   * Require that properties be deleted only on the proxy instead of propagated
+   * through to the underlying object.
+   *
+   * @param fieldName {String} The field name of the object graph handler the
+   *                           proxy uses.
+   * @param proxy     {Proxy}  The proxy (or underlying object) needing local
+   *                           property protection.
+   */
   requireLocalDelete: function(fieldName, proxy) {
     this.assertLocalProxy(fieldName, proxy, "requireLocalDelete");
 
@@ -2346,6 +2373,21 @@ ModifyRulesAPI.prototype = Object.seal({
     metadata.setLocalFlag(fieldName, "requireLocalDelete", true);
   },
 
+  /**
+   * Apply a filter to the original list of own property names from an
+   * underlying object.
+   *
+   * @note Local properties and local delete operations of a proxy are NOT
+   * affected by the filters.
+   * 
+   * @param fieldName {String}   The field name of the object graph handler the
+   *                             proxy uses.
+   * @param proxy     {Proxy}    The proxy (or underlying object) needing local
+   *                             property protection.
+   * @param filter    {Function} The filtering function.
+   *
+   * @see Array.prototype.filter.
+   */
   filterOwnKeys: function(fieldName, proxy, filter) {
     this.assertLocalProxy(fieldName, proxy, "filterOwnKeys");
     if ((typeof filter !== "function") && (filter !== null))
