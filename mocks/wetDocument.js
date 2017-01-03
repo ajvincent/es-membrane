@@ -1,11 +1,13 @@
-function EventListenerWet() {
+function EventTargetWet() {
   this.__events__ = [];
 }
-EventListenerWet.prototype.addEventListener = function(type, listener, isBubbling) {
+EventTargetWet.prototype.addEventListener = function(type, listener, isBubbling) {
   if (typeof listener == "function") {
     listener = { handleEvent: listener };
   }
-  if ((typeof listener !== "object") || (typeof listener.handleEvent !== "function"))
+  if ((typeof listener !== "object") ||
+      (listener === null) ||
+      (typeof listener.handleEvent !== "function"))
     throw new Error("Invalid event listener!");
   this.__events__.push({
     type: type,
@@ -14,11 +16,12 @@ EventListenerWet.prototype.addEventListener = function(type, listener, isBubblin
   });
 };
 
-EventListenerWet.prototype.dispatchEvent = function(eventType) {
+EventTargetWet.prototype.dispatchEvent = function(eventType) {
   let current = this.parentNode;
   let chain = [];
   while (current) {
     chain.unshift(current);
+    current = current.parentNode;
   }
 
   let event = {
@@ -38,7 +41,7 @@ EventListenerWet.prototype.dispatchEvent = function(eventType) {
     chain[i].handleEventAtTarget(event);
 };
 
-EventListenerWet.prototype.handleEventAtTarget = function(event) {
+EventTargetWet.prototype.handleEventAtTarget = function(event) {
   let handlers = this.__events__.slice(0);
   let length = handlers.length;
   for (let i = 0; i < length; i++) {
@@ -62,7 +65,7 @@ const wetMarker = {
 };
 
 function NodeWet(ownerDoc) {
-  EventListenerWet.apply(this, arguments); // this takes care of event handling
+  EventTargetWet.apply(this, arguments); // this takes care of event handling
   Object.defineProperty(this, "childNodes", new DataDescriptor([]));
   Object.defineProperty(this, "ownerDocument", new DataDescriptor(ownerDoc));
   Object.defineProperty(this, "parentNode", new DataDescriptor(null, true));
@@ -71,7 +74,7 @@ function NodeWet(ownerDoc) {
   // property in the "wet" object graph.
   this.wetMarker = wetMarker;
 }
-NodeWet.prototype = new EventListenerWet();
+NodeWet.prototype = new EventTargetWet();
 Object.defineProperties(NodeWet.prototype, {
   "childNodes": NOT_IMPLEMENTED_DESC,
   "nodeType": NOT_IMPLEMENTED_DESC,
@@ -141,36 +144,6 @@ const wetDocument = {
   nodeName: "#document",
   parentNode: null,
 
-  createElement: function(name) {
-    if (typeof name != "string") {
-      throw new Error("createElement requires name be a string!");
-    }
-    return new ElementWet(this, name);
-  },
-
-  insertBefore: function(newChild, refChild) {
-    if (!(newChild instanceof NodeWet)) {
-      throw new Error("insertBefore expects a Node!");
-    }
-    if ((refChild !== null) && !(refChild instanceof NodeWet)) {
-      throw new Error("insertBefore's refChild must be null or a Node!");
-    }
-    var index;
-    if (refChild) {
-      index = this.childNodes.indexOf(refChild);
-    }
-    else {
-      index = this.childNodes.length;
-    }
-    
-    if (index >= 0) {
-      this.childNodes.splice(index, 0, newChild);
-      return newChild;
-    }
-
-    throw new Error("refChild is not a child of this node!");
-  },
-
   get firstChild() {
     if (this.childNodes.length > 0) {
       return this.childNodes[0];
@@ -189,14 +162,55 @@ const wetDocument = {
 
   // EventListener
   __events__: [],
-  addEventListener: EventListenerWet.prototype.addEventListener,
-  dispatchEvent: EventListenerWet.prototype.dispatchEvent,
-  handleEventAtTarget: EventListenerWet.prototype.handleEventAtTarget,
+  addEventListener: EventTargetWet.prototype.addEventListener,
+  dispatchEvent: EventTargetWet.prototype.dispatchEvent,
+  handleEventAtTarget: EventTargetWet.prototype.handleEventAtTarget,
 
   shouldNotBeAmongKeys: false,
 
   membraneGraphName: "wet" // faking it for now
 };
+
+Object.defineProperty(wetDocument, "createElement", {
+  value: function(name) {
+    if (typeof name != "string") {
+      throw new Error("createElement requires name be a string!");
+    }
+    return new ElementWet(this, name);
+  },
+  writable: false,
+  enumerable: true,
+  configurable: true
+});
+
+Object.defineProperty(wetDocument, "insertBefore", {
+  value: function(newChild, refChild) {
+    if (!(newChild instanceof NodeWet)) {
+      throw new Error("insertBefore expects a Node!");
+    }
+    if ((refChild !== null) && !(refChild instanceof NodeWet)) {
+      throw new Error("insertBefore's refChild must be null or a Node!");
+    }
+    var index;
+    if (refChild) {
+      index = this.childNodes.indexOf(refChild);
+    }
+    else {
+      index = this.childNodes.length;
+    }
+    
+    if (index >= 0) {
+      this.childNodes.splice(index, 0, newChild);
+      newChild.parentNode = this;
+      return newChild;
+    }
+
+    throw new Error("refChild is not a child of this node!");
+  },
+  writable: false,
+  enumerable: true,
+  configurable: true
+});
 /* We can get away with a var declaration here because everything is inside a
    closure.
 */
@@ -216,3 +230,9 @@ Object.defineProperty(
 
 assert(wetDocument.rootElement.ownerDocument == wetDocument,
        "wetDocument cyclic reference isn't correct");
+
+Mocks.wet = {
+  doc: wetDocument,
+  Node: NodeWet,
+  Element: ElementWet,  
+};

@@ -72,17 +72,23 @@ var loggerLib = (function() {
   };
   return loggerLib;
 })();
-function MembraneMocks(includeDamp, logger) {
+function MembraneMocks(includeDamp, logger, mockOptions) {
   "use strict";
   includeDamp = Boolean(includeDamp);
-function EventListenerWet() {
+  if (!mockOptions)
+    mockOptions = {};
+
+  var Mocks = {};
+function EventTargetWet() {
   this.__events__ = [];
 }
-EventListenerWet.prototype.addEventListener = function(type, listener, isBubbling) {
+EventTargetWet.prototype.addEventListener = function(type, listener, isBubbling) {
   if (typeof listener == "function") {
     listener = { handleEvent: listener };
   }
-  if ((typeof listener !== "object") || (typeof listener.handleEvent !== "function"))
+  if ((typeof listener !== "object") ||
+      (listener === null) ||
+      (typeof listener.handleEvent !== "function"))
     throw new Error("Invalid event listener!");
   this.__events__.push({
     type: type,
@@ -91,11 +97,12 @@ EventListenerWet.prototype.addEventListener = function(type, listener, isBubblin
   });
 };
 
-EventListenerWet.prototype.dispatchEvent = function(eventType) {
+EventTargetWet.prototype.dispatchEvent = function(eventType) {
   let current = this.parentNode;
   let chain = [];
   while (current) {
     chain.unshift(current);
+    current = current.parentNode;
   }
 
   let event = {
@@ -115,7 +122,7 @@ EventListenerWet.prototype.dispatchEvent = function(eventType) {
     chain[i].handleEventAtTarget(event);
 };
 
-EventListenerWet.prototype.handleEventAtTarget = function(event) {
+EventTargetWet.prototype.handleEventAtTarget = function(event) {
   let handlers = this.__events__.slice(0);
   let length = handlers.length;
   for (let i = 0; i < length; i++) {
@@ -139,7 +146,7 @@ const wetMarker = {
 };
 
 function NodeWet(ownerDoc) {
-  EventListenerWet.apply(this, arguments); // this takes care of event handling
+  EventTargetWet.apply(this, arguments); // this takes care of event handling
   Object.defineProperty(this, "childNodes", new DataDescriptor([]));
   Object.defineProperty(this, "ownerDocument", new DataDescriptor(ownerDoc));
   Object.defineProperty(this, "parentNode", new DataDescriptor(null, true));
@@ -148,7 +155,7 @@ function NodeWet(ownerDoc) {
   // property in the "wet" object graph.
   this.wetMarker = wetMarker;
 }
-NodeWet.prototype = new EventListenerWet();
+NodeWet.prototype = new EventTargetWet();
 Object.defineProperties(NodeWet.prototype, {
   "childNodes": NOT_IMPLEMENTED_DESC,
   "nodeType": NOT_IMPLEMENTED_DESC,
@@ -218,36 +225,6 @@ const wetDocument = {
   nodeName: "#document",
   parentNode: null,
 
-  createElement: function(name) {
-    if (typeof name != "string") {
-      throw new Error("createElement requires name be a string!");
-    }
-    return new ElementWet(this, name);
-  },
-
-  insertBefore: function(newChild, refChild) {
-    if (!(newChild instanceof NodeWet)) {
-      throw new Error("insertBefore expects a Node!");
-    }
-    if ((refChild !== null) && !(refChild instanceof NodeWet)) {
-      throw new Error("insertBefore's refChild must be null or a Node!");
-    }
-    var index;
-    if (refChild) {
-      index = this.childNodes.indexOf(refChild);
-    }
-    else {
-      index = this.childNodes.length;
-    }
-    
-    if (index >= 0) {
-      this.childNodes.splice(index, 0, newChild);
-      return newChild;
-    }
-
-    throw new Error("refChild is not a child of this node!");
-  },
-
   get firstChild() {
     if (this.childNodes.length > 0) {
       return this.childNodes[0];
@@ -266,14 +243,55 @@ const wetDocument = {
 
   // EventListener
   __events__: [],
-  addEventListener: EventListenerWet.prototype.addEventListener,
-  dispatchEvent: EventListenerWet.prototype.dispatchEvent,
-  handleEventAtTarget: EventListenerWet.prototype.handleEventAtTarget,
+  addEventListener: EventTargetWet.prototype.addEventListener,
+  dispatchEvent: EventTargetWet.prototype.dispatchEvent,
+  handleEventAtTarget: EventTargetWet.prototype.handleEventAtTarget,
 
   shouldNotBeAmongKeys: false,
 
   membraneGraphName: "wet" // faking it for now
 };
+
+Object.defineProperty(wetDocument, "createElement", {
+  value: function(name) {
+    if (typeof name != "string") {
+      throw new Error("createElement requires name be a string!");
+    }
+    return new ElementWet(this, name);
+  },
+  writable: false,
+  enumerable: true,
+  configurable: true
+});
+
+Object.defineProperty(wetDocument, "insertBefore", {
+  value: function(newChild, refChild) {
+    if (!(newChild instanceof NodeWet)) {
+      throw new Error("insertBefore expects a Node!");
+    }
+    if ((refChild !== null) && !(refChild instanceof NodeWet)) {
+      throw new Error("insertBefore's refChild must be null or a Node!");
+    }
+    var index;
+    if (refChild) {
+      index = this.childNodes.indexOf(refChild);
+    }
+    else {
+      index = this.childNodes.length;
+    }
+    
+    if (index >= 0) {
+      this.childNodes.splice(index, 0, newChild);
+      newChild.parentNode = this;
+      return newChild;
+    }
+
+    throw new Error("refChild is not a child of this node!");
+  },
+  writable: false,
+  enumerable: true,
+  configurable: true
+});
 /* We can get away with a var declaration here because everything is inside a
    closure.
 */
@@ -293,6 +311,12 @@ Object.defineProperty(
 
 assert(wetDocument.rootElement.ownerDocument == wetDocument,
        "wetDocument cyclic reference isn't correct");
+
+Mocks.wet = {
+  doc: wetDocument,
+  Node: NodeWet,
+  Element: ElementWet,  
+};
 // First, set up the membrane, and register the "wet" form of "the document".
 var docMap, wetHandler;
 var dryWetMB = new Membrane({
@@ -300,9 +324,17 @@ var dryWetMB = new Membrane({
   logger: ((typeof logger == "object") ? logger : null),
 });
 
+Mocks.membrane = dryWetMB;
+Mocks.handlers = {};
+
 {
   // Establish "wet" view of document.
   wetHandler = dryWetMB.getHandlerByField("wet", true);
+  Mocks.handlers.wet = wetHandler;
+  // Mocks.wet is established in wetDocument.js
+
+  if (typeof mockOptions.wetHandlerCreated == "function")
+    mockOptions.wetHandlerCreated(wetHandler, Mocks);
   
   let [found, doc] = dryWetMB.getMembraneValue("wet", wetDocument);
   assert(!found, "wetDocument should not be known");
@@ -322,6 +354,12 @@ var ElementDry, NodeDry, dryDocument;
 {
   // Establish proxy handler for "dry" mode.
   let dryHandler = dryWetMB.getHandlerByField("dry", true);
+  Mocks.handlers.dry = dryHandler;
+  Mocks.dry = {};
+
+  if (typeof mockOptions.dryHandlerCreated == "function")
+    mockOptions.dryHandlerCreated(dryHandler, Mocks);
+
   let found, doc;
 
   doc = dryWetMB.wrapArgumentByHandler(dryHandler, wetDocument);
@@ -338,12 +376,14 @@ var ElementDry, NodeDry, dryDocument;
   dryDocument = doc;
 
   dryDocument.addEventListener("unload", function() {
-    if (typeof logger == "object")
+    if ((typeof logger == "object") && (logger !== null))
       logger.debug("Revoking all proxies in dry object graph");
     dryHandler.revokeEverything();
-    if (typeof logger == "object")
+    if ((typeof logger == "object") && (logger !== null))
       logger.debug("Revoked all proxies in dry object graph");
   }, true);
+
+  Mocks.dry.doc = dryDocument;
 }
 
 {
@@ -352,6 +392,8 @@ var ElementDry, NodeDry, dryDocument;
   let found;
   [found, ElementDry] = dryWetMB.getMembraneProxy("dry", ElementWet);
   assert(found, "ElementDry not found as a proxy!");
+
+  Mocks.dry.Element = ElementDry;
 }
 
 {
@@ -360,13 +402,14 @@ var ElementDry, NodeDry, dryDocument;
   let found;
   [found, NodeDry] = dryWetMB.getMembraneProxy("dry", NodeWet);
   assert(found, "NodeDry not found as a proxy!");
+
+  Mocks.dry.Node = NodeDry;
 }
 function dampObjectGraph(parts) {
-  parts.handlers = {
-    "wet":  parts.membrane.getHandlerByField("wet"),
-    "dry":  parts.membrane.getHandlerByField("dry"),
-    "damp": parts.membrane.getHandlerByField("damp", true),
-  };
+  parts.handlers.damp = parts.membrane.getHandlerByField("damp", true);
+
+  if (typeof mockOptions.dampHandlerCreated == "function")
+    mockOptions.dampHandlerCreated(parts.handlers.damp, parts);
 
   let keys = Object.getOwnPropertyNames(parts.wet);
   parts.damp = {};
@@ -380,6 +423,7 @@ function dampObjectGraph(parts) {
   }
 }
   // The bare essentials.
+  /*
   var Mocks = {
     wet: {
       doc: wetDocument,
@@ -394,6 +438,7 @@ function dampObjectGraph(parts) {
 
     membrane: dryWetMB
   };
+  */
 
   if (includeDamp)
     dampObjectGraph(Mocks);

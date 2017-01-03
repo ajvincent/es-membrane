@@ -168,8 +168,15 @@ MembraneInternal.prototype = Object.seal({
     parts.value = value;
     mapping.set(this, field, parts);
 
-    if (!isOriginal)
-      ProxyNotify(parts, handler);
+    if (!isOriginal) {
+      let notifyOptions = { isThis: false };
+      ["trapName", "callable", "isThis", "argIndex"].forEach(function(propName) {
+        if (Reflect.has(options, propName))
+          notifyOptions[propName] = options[propName];
+      });
+      
+      ProxyNotify(parts, handler, notifyOptions);
+    }
 
     handler.addRevocable(isOriginal ? mapping : parts.revoke);
     return mapping;
@@ -320,8 +327,8 @@ MembraneInternal.prototype = Object.seal({
       throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
     }
 
-    this.wrapArgumentByHandler(originHandler, arg);
-    this.wrapArgumentByHandler(targetHandler, arg);
+    this.wrapArgumentByHandler(originHandler, arg, options);
+    this.wrapArgumentByHandler(targetHandler, arg, options);
 
     let found, rv;
     [found, rv] = this.getMembraneProxy(

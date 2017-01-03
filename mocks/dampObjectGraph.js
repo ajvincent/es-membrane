@@ -1,9 +1,8 @@
 function dampObjectGraph(parts) {
-  parts.handlers = {
-    "wet":  parts.membrane.getHandlerByField("wet"),
-    "dry":  parts.membrane.getHandlerByField("dry"),
-    "damp": parts.membrane.getHandlerByField("damp", true),
-  };
+  parts.handlers.damp = parts.membrane.getHandlerByField("damp", true);
+
+  if (typeof mockOptions.dampHandlerCreated == "function")
+    mockOptions.dampHandlerCreated(parts.handlers.damp, parts);
 
   let keys = Object.getOwnPropertyNames(parts.wet);
   parts.damp = {};

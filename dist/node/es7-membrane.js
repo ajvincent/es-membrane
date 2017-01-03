@@ -570,8 +570,15 @@ MembraneInternal.prototype = Object.seal({
     parts.value = value;
     mapping.set(this, field, parts);
 
-    if (!isOriginal)
-      ProxyNotify(parts, handler);
+    if (!isOriginal) {
+      let notifyOptions = { isThis: false };
+      ["trapName", "callable", "isThis", "argIndex"].forEach(function(propName) {
+        if (Reflect.has(options, propName))
+          notifyOptions[propName] = options[propName];
+      });
+      
+      ProxyNotify(parts, handler, notifyOptions);
+    }
 
     handler.addRevocable(isOriginal ? mapping : parts.revoke);
     return mapping;
@@ -722,8 +729,8 @@ MembraneInternal.prototype = Object.seal({
       throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
     }
 
-    this.wrapArgumentByHandler(originHandler, arg);
-    this.wrapArgumentByHandler(targetHandler, arg);
+    this.wrapArgumentByHandler(originHandler, arg, options);
+    this.wrapArgumentByHandler(targetHandler, arg, options);
 
     let found, rv;
     [found, rv] = this.getMembraneProxy(
@@ -945,10 +952,10 @@ ObjectGraphHandler.prototype = Object.seal({
          b. If parent is null, return undefined.
          c. Return ? parent.[[Get]](P, Receiver).
      */
-    desc = this.getOwnPropertyDescriptor(target, propName);
+    desc = this.getOwnPropertyDescriptor(shadowTarget, propName);
     {
       if (!desc) {
-        let parent = this.getPrototypeOf(target);
+        let parent = this.getPrototypeOf(shadowTarget);
         if (parent === null)
           return undefined;
 
@@ -1311,25 +1318,8 @@ ObjectGraphHandler.prototype = Object.seal({
         shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
       }
 
-      var rv;
-      if (shouldBeLocal) {
-        let hasOwn = this.externalHandler(function() {
-          return Boolean(Reflect.getOwnPropertyDescriptor(_this, propName));
-        });
-        if (!hasOwn && desc) {
-          rv = targetMap.setLocalDescriptor(this.fieldName, propName, desc);
-          if (rv)
-            this.setOwnKeys(shadowTarget); // fix up property list
-          if (!desc.configurable && !desc.enumerable)
-            Reflect.defineProperty(shadowTarget, propName, desc);
-          return rv;
-        }
-        else {
-          targetMap.deleteLocalDescriptor(this.fieldName, propName, false);
-          // fall through to Reflect's defineProperty
-        }
-      }
-      else
+      var rv, originFilter, localFilter;
+
       {
         /* It is dangerous to have an ownKeys filter and define a non-local
          * property.  It will work when the property name passes through the
@@ -1348,10 +1338,41 @@ ObjectGraphHandler.prototype = Object.seal({
          * and return false here, denying the property being set on either the
          * proxy or the protected target.
          */
-        let originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
-        let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
+        originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
+        localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
         if (originFilter || localFilter)
           this.membrane.warnOnce(this.membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
+      }
+
+      if (shouldBeLocal) {
+        let hasOwn = true;
+
+        // Own-keys filters modify hasOwn.
+        if (hasOwn && originFilter && !originFilter(propName))
+          hasOwn = false;
+        if (hasOwn && localFilter && !localFilter(propName))
+          hasOwn = false;
+
+        // It's probably more expensive to look up a property than to filter the name.
+        if (hasOwn)
+          hasOwn = this.externalHandler(function() {
+            return Boolean(Reflect.getOwnPropertyDescriptor(_this, propName));
+          });
+
+        if (!hasOwn && desc) {
+          rv = targetMap.setLocalDescriptor(this.fieldName, propName, desc);
+          if (rv)
+            this.setOwnKeys(shadowTarget); // fix up property list
+          if (!desc.configurable)
+            Reflect.defineProperty(shadowTarget, propName, desc);
+          return rv;
+        }
+        else {
+          targetMap.deleteLocalDescriptor(this.fieldName, propName, false);
+          // fall through to Reflect's defineProperty
+        }
+      }
+      else {
         if (originFilter && !originFilter(propName))
           return false;
         if (localFilter && !localFilter(propName))
@@ -1662,10 +1683,17 @@ ObjectGraphHandler.prototype = Object.seal({
       ].join(""));
     }
 
+    // This is where we are "counter-wrapping" an argument.
+    const optionsBase = Object.seal({
+      callable: target,
+      trapName: "apply"
+    });
+
     _this = this.membrane.convertArgumentToProxy(
       this,
       argHandler,
-      thisArg
+      thisArg,
+      Object.create(optionsBase, { "isThis": new DataDescriptor(true) })
     );
 
     /* XXX ajvincent This seemed like a good idea, but I realized it adds execution time.
@@ -1674,12 +1702,13 @@ ObjectGraphHandler.prototype = Object.seal({
     }
     */
 
-    for (var i = 0; i < argumentsList.length; i++) {
+    for (let i = 0; i < argumentsList.length; i++) {
       let nextArg = argumentsList[i];
       nextArg = this.membrane.convertArgumentToProxy(
         this,
         argHandler,
-        nextArg
+        nextArg,
+        Object.create(optionsBase, { "argIndex": new DataDescriptor(i) })
       );
       args.push(nextArg);
 
@@ -1730,12 +1759,19 @@ ObjectGraphHandler.prototype = Object.seal({
       ].join(""));
     }
 
-    for (var i = 0; i < argumentsList.length; i++) {
+    // This is where we are "counter-wrapping" an argument.
+    const optionsBase = Object.seal({
+      callable: target,
+      trapName: "construct"
+    });
+
+    for (let i = 0; i < argumentsList.length; i++) {
       let nextArg = argumentsList[i];
       nextArg = this.membrane.convertArgumentToProxy(
         this,
         argHandler,
-        nextArg
+        nextArg,
+        Object.create(optionsBase, { "argIndex": new DataDescriptor(i) })
       );
       args.push(nextArg);
 
@@ -1983,10 +2019,11 @@ Object.seal(ObjectGraphHandler);
  *
  * @param parts   {Object} The field object from a ProxyMapping's proxiedFields.
  * @param handler {ObjectGraphHandler} The handler for the proxy.
+ * @param options {Object} Special options to pass on to the listeners.
  *
  * @private
  */
-function ProxyNotify(parts, handler) {
+function ProxyNotify(parts, handler, options = {}) {
   function addFields(desc) {
     desc.enumerable = true;
     desc.configurable = false;
@@ -2001,8 +2038,7 @@ function ProxyNotify(parts, handler) {
   var index = 0, exn = null, exnFound = false, stopped = false;
 
   // the actual metadata object for the listener
-  var meta = {};
-  Object.defineProperties(meta, {
+  var meta = Object.create(options, {
     /**
      * The proxy or value the Membrane will return to the caller.
      *

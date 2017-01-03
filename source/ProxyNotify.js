@@ -3,10 +3,11 @@
  *
  * @param parts   {Object} The field object from a ProxyMapping's proxiedFields.
  * @param handler {ObjectGraphHandler} The handler for the proxy.
+ * @param options {Object} Special options to pass on to the listeners.
  *
  * @private
  */
-function ProxyNotify(parts, handler) {
+function ProxyNotify(parts, handler, options = {}) {
   function addFields(desc) {
     desc.enumerable = true;
     desc.configurable = false;
@@ -21,8 +22,7 @@ function ProxyNotify(parts, handler) {
   var index = 0, exn = null, exnFound = false, stopped = false;
 
   // the actual metadata object for the listener
-  var meta = {};
-  Object.defineProperties(meta, {
+  var meta = Object.create(options, {
     /**
      * The proxy or value the Membrane will return to the caller.
      *

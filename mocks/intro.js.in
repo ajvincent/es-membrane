@@ -1,3 +1,7 @@
-function MembraneMocks(includeDamp, logger) {
+function MembraneMocks(includeDamp, logger, mockOptions) {
   "use strict";
   includeDamp = Boolean(includeDamp);
+  if (!mockOptions)
+    mockOptions = {};
+
+  var Mocks = {};
