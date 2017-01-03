@@ -68,6 +68,24 @@ describe("basic concepts: ", function() {
     expect(typeof method1).toBe("function");
   });
 
+  it(
+    "Looking up a non-configurable, non-writable property twice returns the same property, unprotected",
+    function() {
+      const obj = {};
+      Reflect.defineProperty(wetDocument, "extra", {
+        value: obj,
+        writable: false,
+        enumerable: true,
+        configurable: false
+      });
+  
+      var lookup1 = dryDocument.extra;
+      var lookup2 = dryDocument.extra;
+      expect(lookup1 === lookup2).toBe(true);
+      expect(lookup1 === obj).toBe(true);
+    }
+  );
+
   it("Looking up an accessor descriptor works", function() {
     var desc = Object.getOwnPropertyDescriptor(dryDocument, "firstChild");
     expect(desc.configurable).toBe(true);
@@ -370,14 +388,15 @@ describe("basic concepts: ", function() {
      */
 
     // Additional test for configurable: false
+    const obj = {};
     Object.defineProperty(dryDocument, "extra", {
-      value: 1,
+      value: obj,
       writable: true,
       enumerable: false,
       configurable: false
     });
     let extra = dryDocument.extra;
-    expect(extra).toBe(1);
+    expect(extra).toBe(obj);
   });
 
   it("Defining a property directly works as expected", function() {
