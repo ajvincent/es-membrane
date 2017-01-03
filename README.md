@@ -234,6 +234,11 @@ The callbacks are executed in the order they were added, with a single object ar
 * set handler(val): Override the proxy handler.
 * rebuildProxy(): A method to recreate the proxy from the original value and the current proxy handler.
 * logger:  A log4javascript-compatible logging object from the membrane's construction options, or null.
+* For the .apply and .construct traps, there are additional properties:
+  * trapName: Either "apply" or "construct", depending on the trap invoked.
+  * callable: The target function being called.
+  * isThis:  True for the "this" argument in the "apply" trap.  False otherwise.
+  * argIndex:  The argument index number, if isThis is false.
 * stopIteration():  Set stopped to true, so that no more proxy listeners are executed.
 * throwException(exception):  Explicitly throw an exception, so that the proxy is NOT returned but the exception propagates from the membrane.
 
