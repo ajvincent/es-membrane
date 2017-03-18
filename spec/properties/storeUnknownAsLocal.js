@@ -1,8 +1,9 @@
 "use strict"
 
-if (typeof MembraneMocks != "function") {
+if ((typeof MembraneMocks != "function") ||
+    (typeof DAMP != "symbol")) {
   if (typeof require == "function") {
-    var { MembraneMocks } = require("../../dist/node/mocks.js");
+    var { MembraneMocks, DAMP } = require("../../dist/node/mocks.js");
   }
   else
     throw new Error("Unable to run tests: cannot get MembraneMocks");
@@ -20,7 +21,7 @@ describe("Storing unknown properties locally", function() {
     parts = MembraneMocks(true);
     dryRoot  = parts.dry.doc.rootElement;
     wetRoot  = parts.wet.doc.rootElement;
-    dampRoot = parts.damp.doc.rootElement;
+    dampRoot = parts[DAMP].doc.rootElement;
     membrane = parts.membrane;
   });
   afterEach(function() {
@@ -55,13 +56,13 @@ describe("Storing unknown properties locally", function() {
         }
 
         {
-          let np = parts.damp.Node.prototype;
+          let np = parts[DAMP].Node.prototype;
           expect(Reflect.ownKeys(np).includes("extra")).toBe(false);
           let desc = Reflect.getOwnPropertyDescriptor(np, "extra");
           expect(desc).toBe(undefined);
           expect(Reflect.has(np, "extra")).toBe(false);
           expect(Reflect.get(np, "extra")).toBe(undefined);
-          let root = parts.damp.doc.rootElement;
+          let root = parts[DAMP].doc.rootElement;
           expect(Reflect.has(root, "extra")).toBe(false);
           expect(Reflect.get(root, "extra")).toBe(undefined);
         }
@@ -118,13 +119,13 @@ describe("Storing unknown properties locally", function() {
         }
 
         {
-          let np = parts.damp.Node.prototype;
+          let np = parts[DAMP].Node.prototype;
           expect(Reflect.ownKeys(np).includes("extra")).toBe(false);
           let desc = Reflect.getOwnPropertyDescriptor(np, "extra");
           expect(desc).toBe(undefined);
           expect(Reflect.has(np, "extra")).toBe(false);
           expect(Reflect.get(np, "extra")).toBe(undefined);
-          let root = parts.damp.doc.rootElement;
+          let root = parts[DAMP].doc.rootElement;
           expect(Reflect.has(root, "extra")).toBe(false);
           expect(Reflect.get(root, "extra")).toBe(undefined);
         }
@@ -700,7 +701,7 @@ describe("Storing unknown properties locally", function() {
 
   describe("when required by the damp object graph, ObjectGraphHandler(dry).", function() {
     beforeEach(function() {
-      membrane.modifyRules.storeUnknownAsLocal("damp", parts.damp.Node.prototype);
+      membrane.modifyRules.storeUnknownAsLocal(DAMP, parts[DAMP].Node.prototype);
     });
     it("defineProperty refers to the original object graph", function() {
       Reflect.defineProperty(dryRoot, "extra", {

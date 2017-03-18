@@ -1,9 +1,10 @@
 "use strict"
 
 if ((typeof MembraneMocks != "function") ||
+    (typeof DAMP != "symbol") ||
     (typeof loggerLib != "object")) {
   if (typeof require == "function") {
-    var { MembraneMocks, loggerLib } = require("../../dist/node/mocks.js");
+    var { MembraneMocks, loggerLib, DAMP } = require("../../dist/node/mocks.js");
   }
   else
     throw new Error("Unable to run tests: cannot get MembraneMocks");
@@ -51,7 +52,7 @@ describe("Filtering own keys ", function() {
   function setParts() {
     dryDocument  = parts.dry.doc;
     wetDocument  = parts.wet.doc;
-    dampDocument = parts.damp.doc;
+    dampDocument = parts[DAMP].doc;
     membrane     = parts.membrane;
   }
 
@@ -486,7 +487,7 @@ describe("Filtering own keys ", function() {
 
   describe("with the damp object graph (not affecting dry or wet)", function() {
     beforeEach(function() {
-      membrane.modifyRules.filterOwnKeys("damp", dampDocument, BlacklistFilter);
+      membrane.modifyRules.filterOwnKeys(DAMP, dampDocument, BlacklistFilter);
     });
 
     function rebuildMocksWithLogger() {
@@ -494,7 +495,7 @@ describe("Filtering own keys ", function() {
       appender.clear();
       parts = MembraneMocks(true, logger);
       setParts();
-      membrane.modifyRules.filterOwnKeys("damp", dampDocument, BlacklistFilter);
+      membrane.modifyRules.filterOwnKeys(DAMP, dampDocument, BlacklistFilter);
     }
 
     it(

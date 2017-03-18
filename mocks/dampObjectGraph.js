@@ -1,16 +1,16 @@
 function dampObjectGraph(parts) {
-  parts.handlers.damp = parts.membrane.getHandlerByField("damp", true);
+  parts.handlers[DAMP] = parts.membrane.getHandlerByField(DAMP, true);
 
   if (typeof mockOptions.dampHandlerCreated == "function")
-    mockOptions.dampHandlerCreated(parts.handlers.damp, parts);
+    mockOptions.dampHandlerCreated(parts.handlers[DAMP], parts);
 
   let keys = Object.getOwnPropertyNames(parts.wet);
-  parts.damp = {};
+  parts[DAMP] = {};
   for (let i = 0; i < keys.length; i++) {
     let key = keys[i];
-    parts.damp[key] = parts.membrane.convertArgumentToProxy(
+    parts[DAMP][key] = parts.membrane.convertArgumentToProxy(
       parts.handlers.wet,
-      parts.handlers.damp,
+      parts.handlers[DAMP],
       parts.wet[key]
     );
   }

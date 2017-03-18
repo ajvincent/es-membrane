@@ -112,14 +112,14 @@ ModifyRulesAPI.prototype = Object.seal({
 
     if (existingHandler instanceof ObjectGraphHandler) {
       if (!this.membrane.ownsHandler(existingHandler)) 
-        throw new Error("fieldName must be a string representing an ObjectGraphName in the Membrane, or null to represent Reflect");
+        throw new Error("fieldName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
 
       baseHandler = this.membrane.getHandlerByField(existingHandler.fieldName);
       description = "our membrane's " + baseHandler.fieldName + " ObjectGraphHandler";
     }
 
     else if (baseHandler !== Reflect) {
-      throw new Error("fieldName must be a string representing an ObjectGraphName in the Membrane, or null to represent Reflect");
+      throw new Error("fieldName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
     }
 
     if ((baseHandler !== existingHandler) && !ChainHandlers.has(existingHandler)) {
@@ -221,7 +221,7 @@ ModifyRulesAPI.prototype = Object.seal({
   /**
    * Ensure that the proxy passed in matches the object graph handler.
    *
-   * @param fieldName  {String} The handler's field name.
+   * @param fieldName  {Symbol|String} The handler's field name.
    * @param proxy      {Proxy}  The value to look up.
    * @param methodName {String} The calling function's name.
    * 
@@ -238,8 +238,8 @@ ModifyRulesAPI.prototype = Object.seal({
    * Require that new properties be stored via the proxies instead of propagated
    * through to the underlying object.
    *
-   * @param fieldName {String} The field name of the object graph handler the
-   *                           proxy uses.
+   * @param fieldName {Symbol|String} The field name of the object graph handler
+   *                                  the proxy uses.
    * @param proxy     {Proxy}  The proxy (or underlying object) needing local
    *                           property protection.
    */
@@ -254,8 +254,8 @@ ModifyRulesAPI.prototype = Object.seal({
    * Require that properties be deleted only on the proxy instead of propagated
    * through to the underlying object.
    *
-   * @param fieldName {String} The field name of the object graph handler the
-   *                           proxy uses.
+   * @param fieldName {Symbol|String} The field name of the object graph handler
+   *                                  the proxy uses.
    * @param proxy     {Proxy}  The proxy (or underlying object) needing local
    *                           property protection.
    */
@@ -273,8 +273,8 @@ ModifyRulesAPI.prototype = Object.seal({
    * @note Local properties and local delete operations of a proxy are NOT
    * affected by the filters.
    * 
-   * @param fieldName {String}   The field name of the object graph handler the
-   *                             proxy uses.
+   * @param fieldName {Symbol|String} The field name of the object graph handler
+   *                                  the proxy uses.
    * @param proxy     {Proxy}    The proxy (or underlying object) needing local
    *                             property protection.
    * @param filter    {Function} The filtering function.

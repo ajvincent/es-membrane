@@ -160,7 +160,7 @@ Object.defineProperties(ProxyMapping.prototype, {
   }),
 
   "hasField": new DataDescriptor(function(field) {
-    return Object.getOwnPropertyNames(this.proxiedFields).includes(field);
+    return Reflect.ownKeys(this.proxiedFields).includes(field);
   }),
 
   "getValue": new DataDescriptor(function(field) {
@@ -200,7 +200,7 @@ Object.defineProperties(ProxyMapping.prototype, {
    * Add a value to the mapping.
    *
    * @param membrane {Membrane} The owning membrane.
-   * @param field    {String}   The field name of the object graph.
+   * @param field    {Symbol|String}   The field name of the object graph.
    * @param parts    {Object} containing:
    *   @param value    {Variant}  The value to add.
    *   @param proxy    {Proxy}    A proxy associated with the object graph and
@@ -257,23 +257,63 @@ Object.defineProperties(ProxyMapping.prototype, {
   }),
 
   "setLocalFlag":
-  new DataDescriptor(function(fieldName, flagName, value) {
-    if (!this.localFlags)
-      this.localFlags = new Set();
-    var flag = flagName + ":" + fieldName;
-    if (value)
-      this.localFlags.add(flag);
-    else
-      this.localFlags.delete(flag);
-  }),
+  new DataDescriptor(
+    /**
+     * fieldName: {Symbol|String} The object graph's field name.
+     * flagName:  {String} The flag to set.
+     * value:     {Boolean} The value to set.
+     */
+    function(fieldName, flagName, value) {
+      if (typeof fieldName == "string") {
+        if (!this.localFlags)
+          this.localFlags = new Set();
+  
+        let flag = flagName + ":" + fieldName;
+        if (value)
+          this.localFlags.add(flag);
+        else
+          this.localFlags.delete(flag);
+      }
+      else if (typeof fieldName == "symbol") {
+        // It's harder to combine symbols and strings into a string...
+        if (!this.localFlagsSymbols)
+          this.localFlagsSymbols = new Map();
+        let obj = this.localFlagsSymbols.get(fieldName) || {};
+        obj[flagName] = value;
+        this.localFlagsSymbols.set(fieldName, obj);
+      }
+      else
+        throw new Error("fieldName is neither a symbol nor a string!");
+    }
+  ),
 
   "getLocalFlag":
-  new DataDescriptor(function(fieldName, flagName) {
-    if (!this.localFlags)
-      return false;
-    var flag = flagName + ":" + fieldName;
-    return this.localFlags.has(flag);
-  }),
+  new DataDescriptor(
+    /**
+     * fieldName: {Symbol|String} The object graph's field name.
+     * flagName:  {String} The flag to set.
+     *
+     * @returns {Boolean} The value to set.
+     */
+    function(fieldName, flagName) {
+      if (typeof fieldName == "string") {
+        if (!this.localFlags)
+          return false;
+        let flag = flagName + ":" + fieldName;
+        return this.localFlags.has(flag);
+      }
+      else if (typeof fieldName == "symbol") {
+        if (!this.localFlagsSymbols)
+          return false;
+        let obj = this.localFlagsSymbols.get(fieldName);
+        if (!obj || !obj[flagName])
+          return false;
+        return true;
+      }
+      else
+        throw new Error("fieldName is neither a symbol nor a string!");
+    }
+  ),
 
   "getLocalDescriptor":
   new DataDescriptor(function(fieldName, propName) {
@@ -473,7 +513,7 @@ MembraneInternal.prototype = Object.seal({
   /**
    * Get the value associated with a field name and another known value.
    *
-   * @param field {String}  The field to look for.
+   * @param field {Symbol|String}  The field to look for.
    * @param value {Variant} The key for the ProxyMapping map.
    *
    * @returns [
@@ -496,7 +536,7 @@ MembraneInternal.prototype = Object.seal({
   /**
    * Get the proxy associated with a field name and another known value.
    *
-   * @param field {String}  The field to look for.
+   * @param field {Symbol|String}  The field to look for.
    * @param value {Variant} The key for the ProxyMapping map.
    *
    * @returns [
@@ -525,7 +565,7 @@ MembraneInternal.prototype = Object.seal({
   /**
    * Assign a value to an object graph.
    *
-   * @param field {String} The name of the object graph.
+   * @param field {Symbol|String} The name of the object graph.
    * @param value {Variant} The value to assign.
    *
    * Options:
@@ -534,8 +574,12 @@ MembraneInternal.prototype = Object.seal({
    * @returns {ProxyMapping} A mapping holding the value.
    */
   buildMapping: function(field, value, options = {}) {
-    if (typeof field != "string")
-      throw new Error("field must be a string!");
+    {
+      let t = typeof field;
+      if ((t != "string") && (t != "symbol"))
+        throw new Error("field must be a string or a symbol!");
+    }
+
     let handler = this.getHandlerByField(field);
     if (!handler)
       throw new Error("We don't have an ObjectGraphHandler with that name!");
@@ -578,15 +622,18 @@ MembraneInternal.prototype = Object.seal({
   },
 
   hasHandlerByField: function(field) {
-    if (typeof field !== "string")
-      throw new Error("field is not a string!");
+    {
+      let t = typeof field;
+      if ((t != "string") && (t != "symbol"))
+        throw new Error("field must be a string or a symbol!");
+    }
     return Reflect.ownKeys(this.handlersByFieldName).includes(field);
   },
 
   /**
    * Get an ObjectGraphHandler object by field name.  Build it if necessary.
    *
-   * @param field      {String}  The field name for the object graph.
+   * @param field      {Symbol|String}  The field name for the object graph.
    * @param mustCreate {Boolean} True if we must create a missing graph handler.
    *
    * @returns {ObjectGraphHandler} The handler for the object graph.
@@ -805,8 +852,11 @@ Object.seal(MembraneInternal);
  * object graph, defined by the fieldName.
  */
 function ObjectGraphHandler(membrane, fieldName) {
-  if (typeof fieldName != "string")
-    throw new Error("fieldName must be a string!");
+  {
+    let t = typeof fieldName;
+    if ((t != "string") && (t != "symbol"))
+      throw new Error("field must be a string or a symbol!");
+  }
 
   Object.defineProperties(this, {
     "membrane": new DataDescriptor(membrane, false, false, false),
@@ -2248,14 +2298,14 @@ ModifyRulesAPI.prototype = Object.seal({
 
     if (existingHandler instanceof ObjectGraphHandler) {
       if (!this.membrane.ownsHandler(existingHandler)) 
-        throw new Error("fieldName must be a string representing an ObjectGraphName in the Membrane, or null to represent Reflect");
+        throw new Error("fieldName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
 
       baseHandler = this.membrane.getHandlerByField(existingHandler.fieldName);
       description = "our membrane's " + baseHandler.fieldName + " ObjectGraphHandler";
     }
 
     else if (baseHandler !== Reflect) {
-      throw new Error("fieldName must be a string representing an ObjectGraphName in the Membrane, or null to represent Reflect");
+      throw new Error("fieldName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
     }
 
     if ((baseHandler !== existingHandler) && !ChainHandlers.has(existingHandler)) {
@@ -2357,7 +2407,7 @@ ModifyRulesAPI.prototype = Object.seal({
   /**
    * Ensure that the proxy passed in matches the object graph handler.
    *
-   * @param fieldName  {String} The handler's field name.
+   * @param fieldName  {Symbol|String} The handler's field name.
    * @param proxy      {Proxy}  The value to look up.
    * @param methodName {String} The calling function's name.
    * 
@@ -2374,8 +2424,8 @@ ModifyRulesAPI.prototype = Object.seal({
    * Require that new properties be stored via the proxies instead of propagated
    * through to the underlying object.
    *
-   * @param fieldName {String} The field name of the object graph handler the
-   *                           proxy uses.
+   * @param fieldName {Symbol|String} The field name of the object graph handler
+   *                                  the proxy uses.
    * @param proxy     {Proxy}  The proxy (or underlying object) needing local
    *                           property protection.
    */
@@ -2390,8 +2440,8 @@ ModifyRulesAPI.prototype = Object.seal({
    * Require that properties be deleted only on the proxy instead of propagated
    * through to the underlying object.
    *
-   * @param fieldName {String} The field name of the object graph handler the
-   *                           proxy uses.
+   * @param fieldName {Symbol|String} The field name of the object graph handler
+   *                                  the proxy uses.
    * @param proxy     {Proxy}  The proxy (or underlying object) needing local
    *                           property protection.
    */
@@ -2409,8 +2459,8 @@ ModifyRulesAPI.prototype = Object.seal({
    * @note Local properties and local delete operations of a proxy are NOT
    * affected by the filters.
    * 
-   * @param fieldName {String}   The field name of the object graph handler the
-   *                             proxy uses.
+   * @param fieldName {Symbol|String} The field name of the object graph handler
+   *                                  the proxy uses.
    * @param proxy     {Proxy}    The proxy (or underlying object) needing local
    *                             property protection.
    * @param filter    {Function} The filtering function.

@@ -2,8 +2,11 @@
  * object graph, defined by the fieldName.
  */
 function ObjectGraphHandler(membrane, fieldName) {
-  if (typeof fieldName != "string")
-    throw new Error("fieldName must be a string!");
+  {
+    let t = typeof fieldName;
+    if ((t != "string") && (t != "symbol"))
+      throw new Error("field must be a string or a symbol!");
+  }
 
   Object.defineProperties(this, {
     "membrane": new DataDescriptor(membrane, false, false, false),

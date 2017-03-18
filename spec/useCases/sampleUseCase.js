@@ -3,7 +3,8 @@
 // Describe the use case in question:  a theoretical problem and a solution.
 
 /*
-if (typeof MembraneMocks != "function") {
+if ((typeof MembraneMocks != "function") ||
+    (typeof DAMP != "symbol")) {
   if (typeof require == "function") {
     var { MembraneMocks } = require("../../dist/node/mocks.js");
   }
@@ -47,8 +48,8 @@ if (typeof MembraneMocks != "function") {
 
     // Ensure the new property is NOT available in the damp object graph.
     // This represents that only the desired object graph is affected.
-    expect(typeof parts.damp.doc.membraneGraphName).toBe("undefined");
-    expect("membraneGraphName" in parts.damp.doc).toBe(false);
+    expect(typeof parts[DAMP].doc.membraneGraphName).toBe("undefined");
+    expect("membraneGraphName" in parts[DAMP].doc).toBe(false);
 
     // etc., etc., etc.
 

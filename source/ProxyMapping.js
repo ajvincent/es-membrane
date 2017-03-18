@@ -37,7 +37,7 @@ Object.defineProperties(ProxyMapping.prototype, {
   }),
 
   "hasField": new DataDescriptor(function(field) {
-    return Object.getOwnPropertyNames(this.proxiedFields).includes(field);
+    return Reflect.ownKeys(this.proxiedFields).includes(field);
   }),
 
   "getValue": new DataDescriptor(function(field) {
@@ -77,7 +77,7 @@ Object.defineProperties(ProxyMapping.prototype, {
    * Add a value to the mapping.
    *
    * @param membrane {Membrane} The owning membrane.
-   * @param field    {String}   The field name of the object graph.
+   * @param field    {Symbol|String}   The field name of the object graph.
    * @param parts    {Object} containing:
    *   @param value    {Variant}  The value to add.
    *   @param proxy    {Proxy}    A proxy associated with the object graph and
@@ -134,23 +134,63 @@ Object.defineProperties(ProxyMapping.prototype, {
   }),
 
   "setLocalFlag":
-  new DataDescriptor(function(fieldName, flagName, value) {
-    if (!this.localFlags)
-      this.localFlags = new Set();
-    var flag = flagName + ":" + fieldName;
-    if (value)
-      this.localFlags.add(flag);
-    else
-      this.localFlags.delete(flag);
-  }),
+  new DataDescriptor(
+    /**
+     * fieldName: {Symbol|String} The object graph's field name.
+     * flagName:  {String} The flag to set.
+     * value:     {Boolean} The value to set.
+     */
+    function(fieldName, flagName, value) {
+      if (typeof fieldName == "string") {
+        if (!this.localFlags)
+          this.localFlags = new Set();
+  
+        let flag = flagName + ":" + fieldName;
+        if (value)
+          this.localFlags.add(flag);
+        else
+          this.localFlags.delete(flag);
+      }
+      else if (typeof fieldName == "symbol") {
+        // It's harder to combine symbols and strings into a string...
+        if (!this.localFlagsSymbols)
+          this.localFlagsSymbols = new Map();
+        let obj = this.localFlagsSymbols.get(fieldName) || {};
+        obj[flagName] = value;
+        this.localFlagsSymbols.set(fieldName, obj);
+      }
+      else
+        throw new Error("fieldName is neither a symbol nor a string!");
+    }
+  ),
 
   "getLocalFlag":
-  new DataDescriptor(function(fieldName, flagName) {
-    if (!this.localFlags)
-      return false;
-    var flag = flagName + ":" + fieldName;
-    return this.localFlags.has(flag);
-  }),
+  new DataDescriptor(
+    /**
+     * fieldName: {Symbol|String} The object graph's field name.
+     * flagName:  {String} The flag to set.
+     *
+     * @returns {Boolean} The value to set.
+     */
+    function(fieldName, flagName) {
+      if (typeof fieldName == "string") {
+        if (!this.localFlags)
+          return false;
+        let flag = flagName + ":" + fieldName;
+        return this.localFlags.has(flag);
+      }
+      else if (typeof fieldName == "symbol") {
+        if (!this.localFlagsSymbols)
+          return false;
+        let obj = this.localFlagsSymbols.get(fieldName);
+        if (!obj || !obj[flagName])
+          return false;
+        return true;
+      }
+      else
+        throw new Error("fieldName is neither a symbol nor a string!");
+    }
+  ),
 
   "getLocalDescriptor":
   new DataDescriptor(function(fieldName, propName) {

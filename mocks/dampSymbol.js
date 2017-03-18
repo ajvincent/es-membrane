@@ -1,0 +1,1 @@
+var DAMP = Symbol("damp");

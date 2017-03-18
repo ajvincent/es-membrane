@@ -1,8 +1,9 @@
 "use strict"
 
-if (typeof MembraneMocks != "function") {
+if ((typeof MembraneMocks != "function") ||
+    (typeof DAMP != "symbol")) {
   if (typeof require == "function") {
-    var { MembraneMocks } = require("../../dist/node/mocks.js");
+    var { MembraneMocks, DAMP } = require("../../dist/node/mocks.js");
   }
   else
     throw new Error("Unable to run tests: cannot get MembraneMocks");
@@ -15,7 +16,7 @@ describe("Deleting properties locally", function() {
     parts = MembraneMocks(true);
     dryRoot  = parts.dry.doc.rootElement;
     wetRoot  = parts.wet.doc.rootElement;
-    dampRoot = parts.damp.doc.rootElement;
+    dampRoot = parts[DAMP].doc.rootElement;
     membrane = parts.membrane;
   });
 
@@ -362,7 +363,7 @@ describe("Deleting properties locally", function() {
 
   describe("when required by the damp object graph, ObjectGraphHandler(dry).", function() {
     beforeEach(function() {
-      membrane.modifyRules.requireLocalDelete("damp", parts.damp.Node.prototype);
+      membrane.modifyRules.requireLocalDelete(DAMP, parts[DAMP].Node.prototype);
     });
 
     it(

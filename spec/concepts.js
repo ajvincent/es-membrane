@@ -4,9 +4,10 @@ import "../dist/es6-modules/Membrane.js";
 import "../dist/es6-modules/MembraneMocks.js";
 */
 
-if (typeof MembraneMocks != "function") {
+if ((typeof MembraneMocks != "function") ||
+    (typeof DAMP != "symbol")) {
   if (typeof require == "function") {
-    var { MembraneMocks } = require("../dist/node/mocks.js");
+    var { MembraneMocks, DAMP } = require("../dist/node/mocks.js");
   }
 }
 
@@ -519,7 +520,7 @@ it("More than one object graph can be available", function() {
   let parts = MembraneMocks(true);
   let wetDocument = parts.wet.doc;
   let dryDocument = parts.dry.doc;
-  let dampDocument = parts.damp.doc;
+  let dampDocument = parts[DAMP].doc;
 
   wetDocument.dispatchEvent("unload");
 

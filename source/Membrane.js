@@ -78,7 +78,7 @@ MembraneInternal.prototype = Object.seal({
   /**
    * Get the value associated with a field name and another known value.
    *
-   * @param field {String}  The field to look for.
+   * @param field {Symbol|String}  The field to look for.
    * @param value {Variant} The key for the ProxyMapping map.
    *
    * @returns [
@@ -101,7 +101,7 @@ MembraneInternal.prototype = Object.seal({
   /**
    * Get the proxy associated with a field name and another known value.
    *
-   * @param field {String}  The field to look for.
+   * @param field {Symbol|String}  The field to look for.
    * @param value {Variant} The key for the ProxyMapping map.
    *
    * @returns [
@@ -130,7 +130,7 @@ MembraneInternal.prototype = Object.seal({
   /**
    * Assign a value to an object graph.
    *
-   * @param field {String} The name of the object graph.
+   * @param field {Symbol|String} The name of the object graph.
    * @param value {Variant} The value to assign.
    *
    * Options:
@@ -139,8 +139,12 @@ MembraneInternal.prototype = Object.seal({
    * @returns {ProxyMapping} A mapping holding the value.
    */
   buildMapping: function(field, value, options = {}) {
-    if (typeof field != "string")
-      throw new Error("field must be a string!");
+    {
+      let t = typeof field;
+      if ((t != "string") && (t != "symbol"))
+        throw new Error("field must be a string or a symbol!");
+    }
+
     let handler = this.getHandlerByField(field);
     if (!handler)
       throw new Error("We don't have an ObjectGraphHandler with that name!");
@@ -183,15 +187,18 @@ MembraneInternal.prototype = Object.seal({
   },
 
   hasHandlerByField: function(field) {
-    if (typeof field !== "string")
-      throw new Error("field is not a string!");
+    {
+      let t = typeof field;
+      if ((t != "string") && (t != "symbol"))
+        throw new Error("field must be a string or a symbol!");
+    }
     return Reflect.ownKeys(this.handlersByFieldName).includes(field);
   },
 
   /**
    * Get an ObjectGraphHandler object by field name.  Build it if necessary.
    *
-   * @param field      {String}  The field name for the object graph.
+   * @param field      {Symbol|String}  The field name for the object graph.
    * @param mustCreate {Boolean} True if we must create a missing graph handler.
    *
    * @returns {ObjectGraphHandler} The handler for the object graph.
