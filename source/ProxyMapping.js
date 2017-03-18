@@ -113,6 +113,10 @@ Object.defineProperties(ProxyMapping.prototype, {
       assert(this === membrane.map.get(parts.value), "ProxyMapping mismatch?");
   }),
 
+  "remove": new DataDescriptor(function(field) {
+    delete this.proxiedFields[field];
+  }),
+
   "selfDestruct": new DataDescriptor(function(membrane) {
     let fields = Object.getOwnPropertyNames(this.proxiedFields);
     for (let i = (fields.length - 1); i >= 0; i--) {

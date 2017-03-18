@@ -171,6 +171,7 @@ MembraneInternal.prototype = Object.seal({
     parts.shadowTarget = newTarget;
     parts.value = value;
     mapping.set(this, field, parts);
+    makeRevokeDeleteRefs(parts, mapping, field);
 
     if (!isOriginal) {
       let notifyOptions = { isThis: false };

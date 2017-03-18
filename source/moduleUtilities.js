@@ -95,6 +95,14 @@ Object.defineProperty(
   new DataDescriptor(true)
 );
 
+function makeRevokeDeleteRefs(parts, mapping, field) {
+  let oldRevoke = parts.revoke;
+  parts.revoke = function() {
+    oldRevoke.apply(parts);
+    mapping.remove(field);
+  };
+}
+
 /**
  * Helper function to determine if anyone may log.
  * @private

@@ -99,6 +99,14 @@ Object.defineProperty(
   new DataDescriptor(true)
 );
 
+function makeRevokeDeleteRefs(parts, mapping, field) {
+  let oldRevoke = parts.revoke;
+  parts.revoke = function() {
+    oldRevoke.apply(parts);
+    mapping.remove(field);
+  };
+}
+
 /**
  * Helper function to determine if anyone may log.
  * @private
@@ -237,6 +245,10 @@ Object.defineProperties(ProxyMapping.prototype, {
     }
     else
       assert(this === membrane.map.get(parts.value), "ProxyMapping mismatch?");
+  }),
+
+  "remove": new DataDescriptor(function(field) {
+    delete this.proxiedFields[field];
   }),
 
   "selfDestruct": new DataDescriptor(function(membrane) {
@@ -609,6 +621,7 @@ MembraneInternal.prototype = Object.seal({
     parts.shadowTarget = newTarget;
     parts.value = value;
     mapping.set(this, field, parts);
+    makeRevokeDeleteRefs(parts, mapping, field);
 
     if (!isOriginal) {
       let notifyOptions = { isThis: false };
@@ -2401,6 +2414,7 @@ ModifyRulesAPI.prototype = Object.seal({
     parts.shadowTarget = shadowTarget;
     //parts.extendedHandler = handler;
     map.set(this.membrane, cachedField, parts);
+    makeRevokeDeleteRefs(parts, map, cachedField);
 
     let gHandler = this.membrane.getHandlerByField(cachedField);
     gHandler.addRevocable(map.originField === cachedField ? map : parts.revoke);

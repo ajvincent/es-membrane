@@ -212,6 +212,7 @@ ModifyRulesAPI.prototype = Object.seal({
     parts.shadowTarget = shadowTarget;
     //parts.extendedHandler = handler;
     map.set(this.membrane, cachedField, parts);
+    makeRevokeDeleteRefs(parts, map, cachedField);
 
     let gHandler = this.membrane.getHandlerByField(cachedField);
     gHandler.addRevocable(map.originField === cachedField ? map : parts.revoke);
