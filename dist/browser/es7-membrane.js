@@ -58,6 +58,9 @@ function getRealTarget(target) {
 
 function inGraphHandler(trapName, callback) {
   return function() {
+    if (this.__isDead__)
+      throw new Error("This membrane handler is dead!");
+
     let mayLog = this.membrane.__mayLog__();
 
     this.membrane.handlerStack.unshift(trapName);
