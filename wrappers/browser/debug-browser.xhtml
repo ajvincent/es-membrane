@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" [
   <!ENTITY js "application/javascript">
-  <!ENTITY lib-jasmine "node_modules/jasmine-core/lib/jasmine-core">
+  <!ENTITY lib-jasmine "docs/libraries/jasmine-2.5.2">
 ]>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -22,39 +22,39 @@
 
     <!-- The library we are testing. -->
     <script type="&js;" src="source/moduleUtilities.js"></script>
-	<script type="&js;" src="source/ProxyMapping.js"></script>
-	<script type="&js;" src="source/Membrane.js"></script>
-	<script type="&js;" src="source/ObjectGraphHandler.js"></script>
-	<script type="&js;" src="source/ProxyNotify.js"></script>
-	<script type="&js;" src="source/ModifyRulesAPI.js"></script>
-	<script type="&js;" src="source/dogfood.js"></script>
+    <script type="&js;" src="source/ProxyMapping.js"></script>
+    <script type="&js;" src="source/Membrane.js"></script>
+    <script type="&js;" src="source/ObjectGraphHandler.js"></script>
+    <script type="&js;" src="source/ProxyNotify.js"></script>
+    <script type="&js;" src="source/ModifyRulesAPI.js"></script>
+    <script type="&js;" src="source/dogfood.js"></script>
 
     <!-- Mocks to help with exercising the membrane. -->
-    <script type="&js;" src="dist/browser/mocks.js"></script>
+    <script type="&js;" src="docs/dist/browser/mocks.js"></script>
 
-	<!-- Tests for proxy behaviors that might be unexpected.
-	     Used to inform the membrane implementation. -->
-	<script type="&js;" src="spec/non-membrane/logger.js"></script>
-	<script type="&js;" src="spec/non-membrane/defineProperty.js"></script>
-	<script type="&js;" src="spec/non-membrane/deleteProperty.js"></script>
-	<script type="&js;" src="spec/non-membrane/filterOwnKeys.js"></script>
+    <!-- Tests for proxy behaviors that might be unexpected.
+         Used to inform the membrane implementation. -->
+    <script type="&js;" src="spec/non-membrane/logger.js"></script>
+    <script type="&js;" src="spec/non-membrane/defineProperty.js"></script>
+    <script type="&js;" src="spec/non-membrane/deleteProperty.js"></script>
+    <script type="&js;" src="spec/non-membrane/filterOwnKeys.js"></script>
 
     <!-- Main Specifications -->
     <script type="&js;" src="spec/concepts.js"></script>
     <script type="&js;" src="spec/replaceProxies.js"></script>
     <script type="&js;" src="spec/calledFromHandler.js"></script>
-	<script type="&js;" src="spec/proxyListeners.js"></script>
-	<script type="&js;" src="spec/properties/storeUnknownAsLocal.js"></script>
-	<script type="&js;" src="spec/properties/requireLocalDelete.js"></script>
-	<script type="&js;" src="spec/properties/filterOwnKeys.js"></script>
-	<script type="&js;" src="spec/properties/precedence.js"></script>
-	<script type="&js;" src="spec/properties/whitelist.js"></script>
+    <script type="&js;" src="spec/proxyListeners.js"></script>
+    <script type="&js;" src="spec/properties/storeUnknownAsLocal.js"></script>
+    <script type="&js;" src="spec/properties/requireLocalDelete.js"></script>
+    <script type="&js;" src="spec/properties/filterOwnKeys.js"></script>
+    <script type="&js;" src="spec/properties/precedence.js"></script>
+    <script type="&js;" src="spec/properties/whitelist.js"></script>
 
     <!-- Use case specifications -->
-	<script type="&js;" src="spec/useCases/storeUnknownAsLocal.js"></script>
-	<script type="&js;" src="spec/useCases/requireLocalDelete.js"></script>
-	<script type="&js;" src="spec/useCases/filterOwnKeys.js"></script>
-	<script type="&js;" src="spec/useCases/whitelist.js"></script>
+    <script type="&js;" src="spec/useCases/storeUnknownAsLocal.js"></script>
+    <script type="&js;" src="spec/useCases/requireLocalDelete.js"></script>
+    <script type="&js;" src="spec/useCases/filterOwnKeys.js"></script>
+    <script type="&js;" src="spec/useCases/whitelist.js"></script>
 </head>
 <body>
 </body>

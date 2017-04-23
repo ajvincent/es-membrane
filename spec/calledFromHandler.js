@@ -1,13 +1,13 @@
 "use strict"
 /*
-import "../dist/es6-modules/Membrane.js";
-import "../dist/es6-modules/MembraneMocks.js";
+import "../docs/dist/es6-modules/Membrane.js";
+import "../docs/dist/es6-modules/MembraneMocks.js";
 */
 
 if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
   if (typeof require == "function") {
-    var { Membrane } = require("../dist/node/es7-membrane.js");
-    var { MembraneMocks } = require("../dist/node/mocks.js");
+    var { Membrane } = require("../docs/dist/node/es7-membrane.js");
+    var { MembraneMocks } = require("../docs/dist/node/mocks.js");
   }
 }
 

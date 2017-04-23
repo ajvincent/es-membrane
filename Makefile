@@ -2,6 +2,8 @@ all:: clean browser node
 
 .PHONY:: clean base mockDocs specs browser node package all travis-ci
 
+DIST=docs/dist
+
 travis-ci:: all
 ifneq ("$(shell git status --porcelain)","")
 	@echo "This test fails because the build process changed some files that haven't been committed yet."
@@ -19,9 +21,9 @@ SOURCE_FILES = \
 	$(NULL)
 
 base::
-	@mkdir -p dist/staging
-	@cp source/sharedUtilities.js dist/staging/sharedUtilities.js
-	@cat $(SOURCE_FILES) > dist/staging/es7-membrane.js
+	@mkdir -p $(DIST)/staging
+	@cp source/sharedUtilities.js $(DIST)/staging/sharedUtilities.js
+	@cat $(SOURCE_FILES) > $(DIST)/staging/es7-membrane.js
 
 MOCKS_FILES = \
 	mocks/logger.js \
@@ -36,8 +38,8 @@ MOCKS_FILES = \
 	$(NULL)
 
 mockDocs::
-	@mkdir -p dist/staging
-	@cat $(MOCKS_FILES) > dist/staging/mocks.js
+	@mkdir -p $(DIST)/staging
+	@cat $(MOCKS_FILES) > $(DIST)/staging/mocks.js
 
 OVERRIDE_FILES = \
 	spec/overrides/empty.js \
@@ -48,9 +50,9 @@ USE_CASE_FILES = \
 	$(NULL)
 
 specs::
-	@mkdir -p dist/staging
-	@cat $(OVERRIDE_FILES) > dist/staging/specs-overrides.js
-	@cat $(USE_CASE_FILES) > dist/staging/specs-use-cases.js
+	@mkdir -p $(DIST)/staging
+	@cat $(OVERRIDE_FILES) > $(DIST)/staging/specs-overrides.js
+	@cat $(USE_CASE_FILES) > $(DIST)/staging/specs-use-cases.js
 
 clean::
 	@rm -rf dist
@@ -58,25 +60,25 @@ clean::
 BROWSER_MEMBRANE_FILES = \
   wrappers/browser/membrane-intro.js.in \
   wrappers/useStrict.js \
-  dist/staging/es7-membrane.js \
+  $(DIST)/staging/es7-membrane.js \
   wrappers/browser/membrane-outro.js.in \
   $(NULL)
 
 browser:: base mockDocs specs
-	@mkdir -p dist/browser
-	@cp wrappers/browser/test-browser.xhtml dist/browser/test-browser.xhtml
-	@cat $(BROWSER_MEMBRANE_FILES) > dist/browser/es7-membrane.js
-	@cat wrappers/useStrict.js dist/staging/sharedUtilities.js > dist/browser/sharedUtilities.js
-	@cat wrappers/useStrict.js dist/staging/mocks.js > dist/browser/mocks.js
-	@cp wrappers/browser/assert.js dist/browser/assert.js
-	@echo "You may now open './dist/staging/test-browser.xhtml'."
+	@mkdir -p $(DIST)/browser
+	@cp wrappers/browser/test-browser.xhtml $(DIST)/browser/test-browser.xhtml
+	@cat $(BROWSER_MEMBRANE_FILES) > $(DIST)/browser/es7-membrane.js
+	@cat wrappers/useStrict.js $(DIST)/staging/sharedUtilities.js > $(DIST)/browser/sharedUtilities.js
+	@cat wrappers/useStrict.js $(DIST)/staging/mocks.js > $(DIST)/browser/mocks.js
+	@cp wrappers/browser/assert.js $(DIST)/browser/assert.js
+	@echo "You may now open './$(DIST)/staging/test-browser.xhtml'."
 	@echo "  (if Mozilla Firefox, version 51 or later is required)"
 
 NODE_DIST_FILES = \
 	wrappers/useStrict.js \
 	wrappers/node/require-assert.js \
 	wrappers/node/require-utilities.js \
-	dist/staging/es7-membrane.js \
+	$(DIST)/staging/es7-membrane.js \
 	wrappers/node/export-membrane.js \
 	$(NULL)
 
@@ -85,19 +87,19 @@ NODE_MOCKS_FILES = \
 	wrappers/node/require-assert.js \
 	wrappers/node/require-utilities.js \
 	wrappers/node/require-membrane.js \
-	dist/staging/mocks.js \
+	$(DIST)/staging/mocks.js \
 	wrappers/node/export-mocks.js \
 	$(NULL)
 
 NODE_UTILITIES_FILES = \
 	wrappers/useStrict.js \
-	dist/staging/sharedUtilities.js \
+	$(DIST)/staging/sharedUtilities.js \
 	wrappers/node/export-utilities.js \
 	$(NULL)
 
 node:: base mockDocs specs
-	@mkdir -p dist/node
-	@cat $(NODE_DIST_FILES) > dist/node/es7-membrane.js
-	@cat $(NODE_MOCKS_FILES) > dist/node/mocks.js
-	@cat $(NODE_UTILITIES_FILES) > dist/node/utilities.js
+	@mkdir -p $(DIST)/node
+	@cat $(NODE_DIST_FILES) > $(DIST)/node/es7-membrane.js
+	@cat $(NODE_MOCKS_FILES) > $(DIST)/node/mocks.js
+	@cat $(NODE_UTILITIES_FILES) > $(DIST)/node/utilities.js
 	@npm test

@@ -1,0 +1,36 @@
+aside
+{
+  float: left;
+  resize: horizontal;
+  overflow: auto;
+  border: 2px solid black;
+  min-height: 800px;
+}
+
+#TestDriver-iframe
+{
+  min-width: 600px;
+  resize: both;
+}
+
+#test-startup
+{
+  display: none;
+}
+
+#objectGraph-standardBody
+{
+  font-family: monospace;
+  white-space: pre;
+}
+
+#objectGraphTable button
+{
+  white-space: normal;
+  float: left;
+}
+
+#objectGraphTable tbody td
+{
+  border: 1px dashed black;
+}

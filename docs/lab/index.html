@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Membrane Laboratory</title>
+  <base href="../">
+  <meta charset="UTF-8">
+
+  <!-- CodeMirror -->
+  <!--
+  <script src="libraries/codemirror-5.25.2/lib/codemirror.js"></script>
+  <link rel="stylesheet" href="libraries/codemirror-5.25.2/lib/codemirror.css">
+  <script src="libraries/codemirror-5.25.2/mode/javascript/javascript.js"></script>
+  -->
+
+  <script type="application/javascript"
+          src="lab/utilities/defineElementGetter.js"
+         ></script>
+  <script type="application/javascript"
+          src="lab/utilities/ObjectGraphManager.js"
+         ></script>
+  <script type="application/javascript"
+          src="lab/utilities/CodeMirrorManager.js"
+         ></script>
+  <script type="application/javascript"
+          src="lab/utilities/TestDriver.js"
+         ></script>
+  <script type="application/javascript"
+          src="lab/lab.js"
+         ></script>
+  <link rel="stylesheet" href="lab/lab.css">
+</head>
+
+<body>
+  <aside>
+    <form id="objectGraph-form" action="javascript:void();">
+      <table id="objectGraphTable">
+        <caption>
+          Object graphs
+        </caption>
+
+        <thead>
+          <tr>
+            <td>Graph Name</td>
+            <td>Symbol?</td>
+            <td>Callback Name</td>
+            <td>Commands</td>
+          </tr>
+        </thead>
+
+        <tfoot>
+          <tr>
+            <td colspan="4"><span>
+              <button onclick="ObjectGraphManager.addRow();">
+                Add object graph
+              </button>
+            </span></td>
+          </tr>
+        </tfoot>
+
+        <tbody id="objectGraph-standardBody">
+          <tr>
+            <td>wet</td>
+            <td>No</td>
+            <td>withWetDoc</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>dry</td>
+            <td>No</td>
+            <td>withDryDoc</td>
+            <td></td>
+          </tr>
+        </tbody>
+
+        <!-- This is for custom object graph rows. -->
+        <tbody id="objectGraph-customBody">
+        </tbody>
+
+      </table>
+    </form>
+
+    <template id="objectGraph-rowTemplate">
+      <tr>
+        <td><input type="text" size="6"></td>
+        <td><input type="checkbox"></td>
+        <td><input type="text" size="10"></td>
+        <td><span>
+          <button disabled="disabled"
+                  onclick="ObjectGraphManager.moveUp(event);"
+                 >&#x21E7;</button>
+          <button disabled="disabled"
+                  onclick="ObjectGraphManager.moveDown(event);"
+                 >&#x21E9;</button>
+          <button onclick="ObjectGraphManager.removeRow(event);"
+                 >X</button>
+        </span></td>
+      </tr>
+    </template>
+
+    <hr>
+    <label for="TestDriver-DOMEnvironment">DOM Environment</label>
+    <select id="TestDriver-DOMEnvironment">
+      <option>JS-based DOM mocks</option>
+      <!--
+      <option>Actual XML DOM</option>
+      -->
+    </select>
+    <hr>
+    <label for="TestDriver-pageEnvironment">Test Environment</label>
+    <select id="TestDriver-pageEnvironment">
+      <option value="jasmine.html">Jasmine 2.5.2</option>
+    </select>
+  </aside>
+  <section>
+    <textarea readonly="true" id="mockOptions" rows="10" cols="80">
+const mockOptions = {
+  wetHandlerCreated: function(wetHandler, Mocks)
+  {
+  
+  },
+  dryHandlerCreated: function(dryHandler, Mocks)
+  {
+  
+  },
+  postMembrane: function(Mocks)
+  {
+  
+  }
+};
+    </textarea>
+    <hr>
+    <textarea readonly="true" id="userTest" rows="30" cols="80">
+(function(withWetDoc, withDryDoc)
+{
+describe("A document has node type 9", function() {
+  it("in the wet graph.", function() {
+    withWetDoc(function(document) {
+      expect(document.nodeType).toBe(9);
+    });
+  });
+  it("in the dry graph.", function() {
+    withDryDoc(function(document) {
+      expect(document.nodeType).toBe(9);
+    });
+  });
+});
+})();
+    </textarea>
+    <output readonly="true" id="test-startup">
+describe("The key objects exist for this test: ", function() {
+  it("Membrane", function() {
+    expect(typeof Membrane).toBe("function");
+  });
+
+  it("MembraneMocks", function() {
+    expect(typeof MembraneMocks).toBe("function");
+  });
+
+  it("loggerLib", function() {
+    expect(typeof loggerLib).toBe("object");
+  });
+});
+    </output>
+    <hr>
+    <button onclick="TestDriver.run(['mockOptions', 'userTest']);"
+            disabled="disabled"
+            id="TestDriver-runButton">
+      Run the test
+    </button>
+    <br>
+    <iframe src="lab/error.html" id="TestDriver-iframe"></iframe>
+  </section>
+</body>
+</html>

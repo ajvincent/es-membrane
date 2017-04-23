@@ -4,7 +4,7 @@ if ((typeof MembraneMocks != "function") ||
     (typeof DAMP != "symbol") ||
     (typeof loggerLib != "object")) {
   if (typeof require == "function") {
-    var { MembraneMocks, loggerLib, DAMP } = require("../../dist/node/mocks.js");
+    var { MembraneMocks, loggerLib, DAMP } = require("../../docs/dist/node/mocks.js");
   }
   else
     throw new Error("Unable to run tests: cannot get MembraneMocks");
@@ -16,7 +16,7 @@ if ((typeof DataDescriptor != "function") ||
     var {
       DataDescriptor,
       isDataDescriptor
-    } = require("../../dist/node/utilities.js");
+    } = require("../../docs/dist/node/utilities.js");
   }
   else
     throw new Error("Unable to run tests: cannot get DataDescriptor");

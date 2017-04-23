@@ -2,7 +2,7 @@
 
 if (typeof loggerLib != "object") {
   if (typeof require == "function") {
-    var { loggerLib } = require("../../dist/node/mocks.js");
+    var { loggerLib } = require("../../docs/dist/node/mocks.js");
   }
   else
     throw new Error("Unable to run tests: cannot get MembraneMocks");

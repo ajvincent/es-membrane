@@ -33,7 +33,7 @@
 
 if (typeof MembraneMocks != "function") {
   if (typeof require == "function") {
-    var { MembraneMocks } = require("../../dist/node/mocks.js");
+    var { MembraneMocks } = require("../../docs/dist/node/mocks.js");
   }
   else
     throw new Error("Unable to run tests: cannot get MembraneMocks");
