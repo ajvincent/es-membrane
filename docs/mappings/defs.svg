@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     version="1.1">
+  <defs>
+    <polygon points="4,100 54,13.397459621 104,100"
+             stroke="none"
+             fill="aqua"
+             id="wet"
+            />
+    <polygon points="4,100 54,13.397459621 104,100"
+             stroke="red" stroke-width="5px"
+             fill="aqua"
+             id="wetInDry"
+            />
+    <polygon points="4,100 54,13.397459621 104,100"
+             stroke="purple" stroke-width="5px"
+             fill="aqua"
+             id="wetInDamp"
+            />
+
+    <polygon points="4,100 54,13.397459621 104,100"
+             stroke="none"
+             fill="red"
+             id="dry"
+            />
+    <polygon points="4,100 54,13.397459621 104,100"
+             stroke="aqua" stroke-width="5px"
+             fill="red"
+             id="dryInWet"
+            />
+    <polygon points="4,100 54,13.397459621 104,100"
+             stroke="purple" stroke-width="5px"
+             fill="red"
+             id="dryInDamp"
+            />
+
+    <polygon points="4,100 54,13.397459621 104,100"
+             stroke="none"
+             fill="purple"
+             id="damp"
+            />
+    <polygon points="4,100 54,13.397459621 104,100"
+             stroke="red" stroke-width="5px"
+             fill="purple"
+             id="dampInDry"
+            />
+    <polygon points="4,100 54,13.397459621 104,100"
+             stroke="aqua" stroke-width="5px"
+             fill="purple"
+             id="dampInWet"
+            />
+
+    <polygon points="0,100 100,100 170.71067,0 70.71067,0"
+             stroke="black" stroke-width="5px"
+             fill="none"
+             id="parallelogram"
+            />
+  </defs>
+</svg>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html xmlns:xlink="http://www.w3.org/1999/xlink">
+<head>
+  <title>Objects, WeakMaps, and Proxies into a Membrane:  The es7-membrane design</title>
+  <style type="text/css">
+#sidebar {
+  position: fixed;
+  height: 600px;
+  width: 200px;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  float: left;
+  border: 1px solid black;
+}
+
+#sidebar .header {
+  fill: black;
+  font-size: 18px;
+  font-weight: bold;
+  font-style: italic;
+}
+
+text {
+  stroke: none;
+  fill: black;
+}
+
+.obgraph-border {
+  stroke-width: 1px;
+  fill: none;
+  stroke: black;
+  stroke-dasharray: 5,5;
+}
+
+.graph-connect {
+  stroke: #007f00;
+  stroke-width: 3px;
+  stroke-linecap: round;
+  stroke-dashoffset: 5;
+  stroke-dasharray: 10,5;
+  stroke-opacity: 0.5;
+  fill: none;
+}
+
+#main {
+  float: left;
+  margin-left: 200px;
+}
+
+textarea: {
+  float: left;
+}
+
+h2 {
+  font-style: italic;
+}
+    </style>
+</head>
+
+<body>
+  <aside id="sidebar">
+    <svg height="600px" width="200px"
+         xmlns="http://www.w3.org/2000/svg"
+         version="1.1">
+      <text class="header" x="20" y="20">Legend</text>
+      <g transform="translate(0, 40)">
+        <use xlink:href="defs.svg#wet" transform="scale(0.25)" x="0" y="0"/>
+        <text x="30" y="20" >wet object</text>
+      </g>
+
+      <g transform="translate(0, 80)">
+        <use xlink:href="defs.svg#wetInDry" transform="scale(0.25)" x="0" y="0"/>
+        <text x="40" y="20"  style="font-style: italic">... in dry graph</text>
+      </g>
+
+      <g transform="translate(0, 120)">
+        <use xlink:href="defs.svg#wetInDamp" transform="scale(0.25)" x="0" y="0"/>
+        <text x="40" y="20"  style="font-style: italic">... in damp graph</text>
+      </g>
+
+      <g transform="translate(0, 160)">
+        <use xlink:href="defs.svg#dry" transform="scale(0.25)" x="0" y="0"/>
+        <text x="30" y="20" >dry object</text>
+      </g>
+
+      <g transform="translate(0, 200)">
+        <use xlink:href="defs.svg#dryInWet" transform="scale(0.25)" x="0" y="0"/>
+        <text x="40" y="20"  style="font-style: italic">... in wet graph</text>
+      </g>
+
+      <g transform="translate(0, 240)">
+        <use xlink:href="defs.svg#dryInDamp" transform="scale(0.25)" x="0" y="0"/>
+        <text x="40" y="20"  style="font-style: italic">... in damp graph</text>
+      </g>
+
+      <g transform="translate(0, 280)">
+        <use xlink:href="defs.svg#damp" transform="scale(0.25)" x="0" y="0"/>
+        <text x="30" y="20" >damp object</text>
+      </g>
+
+      <g transform="translate(0, 320)">
+        <use xlink:href="defs.svg#dampInWet" transform="scale(0.25)" x="0" y="0"/>
+        <text x="40" y="20"  style="font-style: italic">... in wet graph</text>
+      </g>
+
+      <g transform="translate(0, 360)">
+        <use xlink:href="defs.svg#dampInDry" transform="scale(0.25)" x="0" y="0"/>
+        <text x="40" y="20" style="font-style: italic">... in dry graph</text>
+      </g>
+
+      <g transform="translate(0, 400)">
+        <rect x="0" y="0" width="20" height="20" stroke="black" fill="none" stroke-width="1" transform="translate(4, 4)"/>
+        <text x="30" y="20" style="font-style: italic">JS object ({})</text>
+      </g>
+
+      <g transform="translate(0, 440)">
+        <rect x="15" y="0" width="20" height="20" transform="skewX(-30)"
+              stroke="black" stroke-width="1px" fill="none"/>
+        <text x="30" y="20" style="font-style: italic">JS WeakMap</text>
+      </g>
+
+      <g transform="translate(0, 480)">
+        <ellipse cx="15" cy="15" rx="12.5" ry="6.25" class="obgraph-border"
+                 />
+        <text x="30" y="20" style="font-style: italic">Object graph border</text>
+      </g>
+    </svg>
+  </aside>
+  <section id="main">
+    <h1>Objects, WeakMaps, and Proxies into a Membrane:  The es7-membrane design</h1>
+    <h2>One-to-one relationships in JavaScript</h2>
+    <section>
+      <p>In the early days of JavaScript, when you wanted a hashtable-like
+      relationship between a key and a value, you were very limited:  you could
+      define a JavaScript object and store (key =&gt; value) relationships on
+      that object, but the keys were transformed into strings by necessity.  It
+      worked, in other words, if all your keys were strings that weren't
+      reserved property names of an object:</p>
+
+      <textarea readonly="true" rows="5" cols="20" style="float: left;">
+{
+  "wet1": dry1,
+  "wet2": dry2
+};
+      </textarea>
+      <svg height="80px" width="400px">
+        <rect x="5" y="0" width="200" height="70"
+              stroke="black" fill="none" stroke-width="1"/>
+  
+        <g transform="translate(10, 10)">
+          <text x="0" y="15">"wet1" &#8658;</text>
+          <rect x="65" y="0" width="40" height="20"
+                stroke="black" fill="red" stroke-width="1"/>
+          <text x="70" y="15" style="font-style: italic">dry1</text>
+        </g>
+  
+        <g transform="translate(10, 40)">
+          <text x="0" y="15">"wet2" &#8658;</text>
+          <rect x="65" y="0" width="40" height="20"
+                stroke="black" fill="red" stroke-width="1"/>
+          <text x="70" y="15" style="font-style: italic">dry2</text>
+        </g>
+      </svg>      
+    </section>
+
+    <section>
+      <p>This wasn't terribly useful, but it was the only option available for
+      many years.  Later came WeakMap objects, which added objects as valid keys,
+      provided you used the .get() and .set() methods to pass in both key and
+      value:</p>
+
+      <textarea readonly="true" rows="5" cols="30">
+var wetMap = new WeakMap();
+wetMap.set(wet1, dry1);
+wetMap.set(wet2, dry2);
+      </textarea>
+
+      <svg height="80px" width="400px">
+        <rect x="70" y="0" width="150" height="80" transform="skewX(-30)"
+              stroke="black" stroke-width="1px" fill="none"/>
+        <g transform="translate(70, 10)">
+          <rect x="0" y="0" width="40" height="20"
+                stroke="black" fill="aqua" stroke-width="1"/>
+          <text x="5" y="15" style="font-style: italic;">wet1</text>
+          <text x="45" y="15">&#8658;</text>
+          <rect x="65" y="0" width="40" height="20"
+                stroke="black" fill="red" stroke-width="1"/>
+          <text x="70" y="15" style="font-style: italic">dry1</text>
+        </g>
+  
+        <g transform="translate(70, 40)">
+          <rect x="0" y="0" width="40" height="20"
+                stroke="black" fill="aqua" stroke-width="1"/>
+          <text x="5" y="15" style="font-style: italic;">wet2</text>
+          <text x="45" y="15">&#8658;</text>
+          <rect x="65" y="0" width="40" height="20"
+                stroke="black" fill="red" stroke-width="1"/>
+          <text x="70" y="15" style="font-style: italic">dry2</text>
+        </g>
+      </svg>
+    </section>
+    <section>
+      <p>You could similarly have a WeakMap that stored references the other
+      way:</p>
+  
+      <textarea readonly="true" rows="5" cols="30">
+var dryMap = new WeakMap();
+dryMap.set(dry1, wet1);
+dryMap.set(dry2, wet2);
+      </textarea>
+  
+      <svg height="80px" width="400px">
+        <rect x="70" y="0" width="150" height="80" transform="skewX(-30)"
+              stroke="black" stroke-width="1px" fill="none"/>
+        <g transform="translate(70, 10)">
+          <rect x="0" y="0" width="40" height="20"
+                stroke="black" fill="red" stroke-width="1"/>
+          <text x="5" y="15" style="font-style: italic;">dry1</text>
+          <text x="45" y="15">&#8658;</text>
+          <rect x="65" y="0" width="40" height="20"
+                stroke="black" fill="aqua" stroke-width="1"/>
+          <text x="70" y="15" style="font-style: italic">wet1</text>
+        </g>
+  
+        <g transform="translate(70, 40)">
+          <rect x="0" y="0" width="40" height="20"
+                stroke="black" fill="red" stroke-width="1"/>
+          <text x="5" y="15" style="font-style: italic;">dry2</text>
+          <text x="45" y="15">&#8658;</text>
+          <rect x="65" y="0" width="40" height="20"
+                stroke="black" fill="aqua" stroke-width="1"/>
+          <text x="70" y="15" style="font-style: italic">wet2</text>
+        </g>
+      </svg>
+      
+    </section>
+
+    <section>
+      <p>This requires, then, two WeakMaps, and defines a proper one-to-one
+      relationship between objects in the "wet" object graph and objects (or
+      proxies) in the "dry" object graph.  But this is not the approach I took.</p>
+  
+      <p>Instead, I created a hybrid of both systems.  First, I defined an object
+      (let's call it <code>submap</code> for now) which stores references to a
+      "wet" object, and also to a corresponding "dry" object (or proxy).   Then, I
+      created another wrapper object around it:</p>
+  
+      <textarea readonly="true" rows="12" cols="30">
+var submap = {
+  "proxiedFields": {
+    "wet": {
+      "value": wet1,
+    },
+    "dry": {
+      "value": dry1,
+      "revoke": dryRevoke,
+    }
+  },
+  "originField": "wet"
+};
+      </textarea>
+  
+      <svg height="170px" width="400px">
+        <g>
+          <rect x="5" y="5" width="260" height="160"
+                fill="none" stroke="black" stroke-width="1"/>
+          <text x="7" y="20">"proxiedFields": </text>
+          <g transform="translate(25, 25)">
+            <rect x="5" y="0" width="210" height="120"
+                  stroke="black" fill="none" stroke-width="1"/>
+  
+            <g transform="translate(10, 10)">
+              <text x="0" y="15">"wet" &#8658;</text>
+              <rect x="60" y="0" width="130" height="35"
+                    stroke="black" fill="none" stroke-width="1"/>
+              <text x="65" y="25">"value" &#8658;</text>
+              <g transform="translate(130, 10)">
+                <rect x="5" y="0" width="40" height="20"
+                      stroke="black" fill="aqua" stroke-width="1"/>
+                <text x="10" y="15" style="font-style: italic">wet1</text>
+              </g>
+            </g>
+
+            <g transform="translate(10, 50)">
+              <text x="0" y="15">"dry" &#8658;</text>
+              <rect x="60" y="0" width="130" height="60"
+                    stroke="black" fill="none" stroke-width="1"/>
+              <text x="65" y="25">"value" &#8658;</text>
+              <g transform="translate(130, 10)">
+                <rect x="5" y="0" width="40" height="20"
+                      stroke="black" fill="red" stroke-width="1"/>
+                <text x="10" y="15" style="font-style: italic">dry1</text>
+              </g>
+              <text x="65" y="50">"revoke" &#8658;
+                <tspan style="font-style: italic;">() ...</tspan>
+              </text>
+            </g>
+          </g>
+  
+          <text x="7" y="160">"originField": "wet"</text>
+        </g>
+      </svg>      
+    </section>
+
+    <section>
+      <p>Then I defined <em>one</em> WeakMap, and in that map, I required both
+      the "wet" and the "dry" values point to the <code>submap</code> object:
+      </p>
+  
+      <textarea readonly="true" rows="15" cols="30">
+var submap = {
+  "proxiedFields": {
+    "wet": {
+      "value": wet1,
+    },
+    "dry": {
+      "value": dry1,
+      "revoke": dryRevoke,
+    }
+  },
+  "originField": "wet"
+};
+var m = new WeakMap();
+m.set(wet1, submap);
+m.set(dry1, submap);
+      </textarea>
+
+      <svg height="200px" width="540px">
+        <rect x="110" y="5" width="420" height="180" transform="skewX(-30)"
+              stroke="black" stroke-width="1px" fill="none"/>
+  
+        <g transform="translate(90, 50)">
+          <rect x="0" y="0" width="40" height="20"
+                stroke="black" fill="aqua" stroke-width="1"/>
+          <text x="5" y="15" style="font-style: italic;">wet1</text>
+          <text x="45" y="15">&#8658;</text>
+        </g>
+  
+        <g transform="translate(90, 80)">
+          <rect x="0" y="0" width="40" height="20"
+                stroke="black" fill="red" stroke-width="1"/>
+          <text x="5" y="15" style="font-style: italic;">dry1</text>
+          <text x="45" y="15">&#8658;</text>
+        </g>
+  
+        <g transform="translate(150, 5)">
+          <rect x="5" y="5" width="260" height="160"
+                fill="none" stroke="black" stroke-width="1"/>
+          <text x="7" y="20">"proxiedFields": </text>
+          <g transform="translate(25, 25)">
+            <rect x="5" y="0" width="210" height="120"
+                  stroke="black" fill="none" stroke-width="1"/>
+  
+            <g transform="translate(10, 10)">
+              <text x="0" y="15">"wet" &#8658;</text>
+              <rect x="60" y="0" width="130" height="35"
+                    stroke="black" fill="none" stroke-width="1"/>
+              <text x="65" y="25">"value" &#8658;</text>
+              <g transform="translate(130, 10)">
+                <rect x="5" y="0" width="40" height="20"
+                      stroke="black" fill="aqua" stroke-width="1"/>
+                <text x="10" y="15" style="font-style: italic">wet1</text>
+              </g>
+            </g>
+
+            <g transform="translate(10, 50)">
+              <text x="0" y="15">"dry" &#8658;</text>
+              <rect x="60" y="0" width="130" height="60"
+                    stroke="black" fill="none" stroke-width="1"/>
+              <text x="65" y="25">"value" &#8658;</text>
+              <g transform="translate(130, 10)">
+                <rect x="5" y="0" width="40" height="20"
+                      stroke="black" fill="red" stroke-width="1"/>
+                <text x="10" y="15" style="font-style: italic">dry1</text>
+              </g>
+              <text x="65" y="50">"revoke" &#8658;
+                <tspan style="font-style: italic;">() ...</tspan>
+              </text>
+            </g>
+          </g>
+  
+          <text x="7" y="160">"originField": "wet"</text>
+        </g>
+      </svg>      
+    </section>
+    
+    <section>
+      <p>There are a number of advantages to this approach, in my view:</p>
+      <ol>
+        <li>I can easily define a "damp" object graph value on
+          <code>submap</code>, by simply adding a new property to
+          <code>submap.proxiedFields</code>.  Similarly, there is no limit to
+          the number of object graphs I can define.</li>
+        <li>I can store flags and special proxy functions on the relevant member
+        of the <code>submap.proxiedFields</code> object, such as a filter
+        function for the "own keys" of a proxy.</li>
+        <li>I can store other object graph metadata on the submap which is not
+        specific to a given object graph, such as a reference to the next object
+        in the prototype chain.</li>
+        <li>I can generalize <code>submap</code> into a
+          <code>ProxyMapping</code> constructor, and define methods on the
+          <code>ProxyMapping.prototype</code> object, for managing access to the
+          various object graph values, fields, and special properties.
+        </li>
+      </ol>
+      
+      <p>The <code>submap</code> and the <code>ProxyMapping</code> constructor,
+      though, does not a membrane make.  It only defines a wrapper for how a
+      native value in one object graph relates to the equivalent proxies in
+      other object graphs.  For that, we have to put the submaps and
+      ProxyMapping objects aside.</p>
+    </section>
+
+    <h2>Membranes and Object Graphs</h2>
+    <section>
+      <p>Borrowing from
+        <a href="http://soft.vub.ac.be/%7Etvcutsem/invokedynamic/js-membranes"
+          >Tom van Cutsem's visualization of wet and dry object graphs</a>,
+      let's draw a similar diagram with triangles.</p>
+
+      <svg height="400px" width="600px">
+        <!--
+        <rect x="0" y="0" width="600" height="400" fill="#ccffcc" stroke="none"/>
+        -->
+        <g transform="translate(105, 101)">
+          <ellipse class="obgraph-border" cx="-20" cy="0" rx="80" ry="100"
+                   transform="skewX(10)"/>
+          <use xlink:href="defs.svg#wet" transform="scale(0.5)" x="-130" y="-180"
+               transform="scale(0.5)"/>
+          <text x="-50" y="-27">W1</text>
+
+          <use xlink:href="defs.svg#wet" transform="scale(0.5)" x="-110" y="-60"
+               transform="scale(0.5)"/>
+          <text x="-40" y="33">W2</text>
+
+          <use xlink:href="defs.svg#dryInWet" transform="scale(0.5)" x="-70" y="55"
+               transform="scale(0.5)"/>
+          <text x="-28" y="90">w(D3)</text>
+        </g>
+
+        <g transform="translate(405, 101)">
+          <ellipse class="obgraph-border" cx="-20" cy="0" rx="80" ry="100"
+                   transform="skewX(10)"/>
+          <use xlink:href="defs.svg#wetInDry" transform="scale(0.5)" x="-130" y="-180"
+               transform="scale(0.5)"/>
+          <text x="-58" y="-27">d(W1)</text>
+
+          <use xlink:href="defs.svg#wetInDry" transform="scale(0.5)" x="-110" y="-60"
+               transform="scale(0.5)"/>
+          <text x="-48" y="33">d(W2)</text>
+
+          <use xlink:href="defs.svg#dry" transform="scale(0.5)" x="-70" y="55"
+               transform="scale(0.5)"/>
+          <text x="-18" y="90">D3</text>
+        </g>
+
+        <line x1="66" y1="35" x2="368" y2="35" class="graph-connect"/>
+        <line x1="76" y1="95" x2="378" y2="95" class="graph-connect"/>
+        <line x1="96" y1="152" x2="398" y2="152" class="graph-connect"/>
+
+        <g transform="translate(270, 295)">
+          <ellipse class="obgraph-border" cx="-20" cy="0" rx="80" ry="100"
+                   transform="skewX(10)"/>
+          <use xlink:href="defs.svg#wetInDamp" transform="scale(0.5)" x="-130" y="-180"
+               transform="scale(0.5)"/>
+          <text x="-58" y="-27">p(W1)</text>
+
+          <use xlink:href="defs.svg#wetInDamp" transform="scale(0.5)" x="-110" y="-60"
+               transform="scale(0.5)"/>
+          <text x="-48" y="33">p(W2)</text>
+
+          <use xlink:href="defs.svg#dryInDamp" transform="scale(0.5)" x="-70" y="55"
+               transform="scale(0.5)"/>
+          <text x="-28" y="90">p(D3)</text>
+        </g>
+
+        <line x1="66" y1="35" x2="232" y2="226" class="graph-connect"/>
+        <line x1="368" y1="35" x2="232" y2="226" class="graph-connect"/>
+
+        <line x1="76" y1="95" x2="242" y2="286" class="graph-connect"/>
+        <line x1="378" y1="95" x2="242" y2="286" class="graph-connect"/>
+
+        <line x1="96" y1="152" x2="262" y2="346" class="graph-connect"/>
+        <line x1="398" y1="152" x2="262" y2="346" class="graph-connect"/>
+      </svg>
+    </section>
+    <section>
+      <p><code>W1</code>, <code>W2</code> and <code>D3</code> are the "original"
+      objects (or functions).  <code>d(W1)</code> is a "dry" proxy to the "wet"
+      object <code>W1</code>, and similarly, <code>d(W2)</code> is a "dry" proxy
+      to the "wet" object <code>W2</code>.  The "wet" object graph also has a
+      proxy to the "dry" object graph, in the form of <code>w(D3)</code>.
+      Finally, the "damp" object graph has proxies to the "wet" and "dry"
+      object graphs, in <code>p(W1)</code>, <code>p(W2)</code>, and
+      <code>p(D3)</code>.</p>
+
+      <p>In the original membrane designs, <em>you couldn't have a "damp"
+      graph</em>.  Nobody really considered it.  But there are a few different
+      use-cases I can imagine:</p>
+      <ul>
+        <li>Different levels of privileges or security clearance, with different
+        API's exposed to the proxies</li>
+        <li>A common base set of proxies, and then special extended sets of
+        proxies for specific sections of the object graph (example:  shadow
+        content of Web Components should only be available to the code owning
+        the component)</li>
+        <li>A function broken up into different phases:  precondition,
+        postcondition, argument validation, main body
+          <ul>
+            <li>Special case:  logging entry and exit</li>
+            <li>Special case:  class invariants when body doesn't throw</li>
+            <li>Think aspect-oriented programming, in a possibly ugly mess</li>
+            <li>This doesn't allow code running between lines of a function - at
+            least, I don't see how that would be possible without an interpreter
+            like ye olde
+              <a href="https://github.com/mozilla/narcissus">Narcissus</a>.
+            </li>
+          </ul>
+        </li>
+        <li>A "read-only" view of an object graph, where .defineProperty()
+        returns false every time.  (As opposed to a hidden or "whitelisted"
+        object graph.)</li>
+      </ul>
+    </section>
+    
+  </section>
+</body>
+</html>
