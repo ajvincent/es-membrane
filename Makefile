@@ -41,21 +41,31 @@ mockDocs::
 	@mkdir -p $(DIST)/staging
 	@cat $(MOCKS_FILES) > $(DIST)/staging/mocks.js
 
-OVERRIDE_FILES = \
-	spec/overrides/empty.js \
-	$(NULL)
-
-USE_CASE_FILES = \
-	spec/useCases/sampleUseCase.js \
+ALL_SPEC_FILES = \
+	spec/non-membrane/logger.js \
+	spec/non-membrane/defineProperty.js \
+	spec/non-membrane/deleteProperty.js \
+	spec/non-membrane/filterOwnKeys.js \
+	spec/concepts.js \
+	spec/replaceProxies.js \
+	spec/calledFromHandler.js \
+	spec/proxyListeners.js \
+	spec/properties/storeUnknownAsLocal.js \
+	spec/properties/requireLocalDelete.js \
+	spec/properties/filterOwnKeys.js \
+	spec/properties/precedence.js \
+	spec/properties/whitelist.js \
+	spec/useCases/storeUnknownAsLocal.js \
+	spec/useCases/requireLocalDelete.js \
+	spec/useCases/filterOwnKeys.js \
+	spec/useCases/whitelist.js \
 	$(NULL)
 
 specs::
-	@mkdir -p $(DIST)/staging
-	@cat $(OVERRIDE_FILES) > $(DIST)/staging/specs-overrides.js
-	@cat $(USE_CASE_FILES) > $(DIST)/staging/specs-use-cases.js
+	@cat $(ALL_SPEC_FILES) > $(DIST)/all-specs.js
 
 clean::
-	@rm -rf dist
+	@rm -rf $(DIST)
 
 BROWSER_MEMBRANE_FILES = \
   wrappers/browser/membrane-intro.js.in \

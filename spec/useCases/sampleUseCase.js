@@ -53,7 +53,7 @@ if ((typeof MembraneMocks != "function") ||
 
     // etc., etc., etc.
 
-    // Update wrappers/browser/test-browser.xhtml to include this test.
+    // Update Makefile in ALL_SPECS_FILES to include this test.
     // Update wrappers/browser/debug-browser.xhtml to include this test.
   });
 }
