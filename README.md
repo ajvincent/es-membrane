@@ -38,18 +38,14 @@ What people really wanted, though, begins with the concept of a **proxy**.  By t
 
 ```javascript
 var handler = {
-  getOwnPropertyDescriptor: (target, propName) {
-    if (propName === "id")
-      return {
-        value: 3,
-        writable: false,
-        enumerable: true,
-        configurable: true
-      };
+  get: function(target, propName, receiver) {
+    if (propName === "id") {
+      return 3;
+    }
 
     return Reflect.getOwnPropertyDescriptor(target, propName);
   }
-}
+};
 
 var x = {}; // a vanilla object
 
