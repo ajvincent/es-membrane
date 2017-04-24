@@ -43,7 +43,7 @@ var handler = {
       return 3;
     }
 
-    return Reflect.getOwnPropertyDescriptor(target, propName);
+    return Reflect.get(target, propName, receiver);
   }
 };
 
