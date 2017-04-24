@@ -71,8 +71,9 @@ const ObjectGraphManager = {
 
   graphNames: function()
   {
-    let names = new Set();
-    let callbacks = new Set();
+    let names = [];     // Object graph names
+    let callbacks = []; // Arguments named in runMembraneTest
+    callbacks.push("buildMembrane");
     let rv = [];
     rv = rv.concat(this.getGraphNamesByBody(this.standardBody, names, callbacks));
     rv = rv.concat(this.getGraphNamesByBody(this.customBody,   names, callbacks));
@@ -92,6 +93,7 @@ const ObjectGraphManager = {
       rv.push(this.getGraphName(row, names, callbacks));
       row = row.nextElementSibling;
     }
+    return rv;
   },
 
   /**
@@ -101,15 +103,15 @@ const ObjectGraphManager = {
   {
     let kids = row.children;
     let isSymbol  = this.getCellChecked(kids[1]);
-    let graphName = this.getCellValue(kids[0], !isSymbol ? names : null),
-        callback  = this.getCellValue(kids[2], callbacks);
+    let graphName = this.getCellValue(kids[0], names, isSymbol),
+        callback  = this.getCellValue(kids[2], callbacks, false);
     return { graphName, callback };
   },
 
   /**
    * @private
    */
-  getCellValue: function(td, nameSet)
+  getCellValue: function(td, nameSet, isSymbol)
   {
     let node = td.firstChild;
     var rv;
@@ -117,17 +119,12 @@ const ObjectGraphManager = {
     if (node.nodeType == 1)
     {
       rv = node.value;
-      if (nameSet)
-      {
-        if (rv.length === 0)
-          node.setCustomValidity("Name must not be empty");
-        else if (/\s/.test(rv))
-          node.setCustomValidity("Spaces are not valid in name");
-        else if (nameSet && nameSet.has(rv))
-          node.setCustomValidity("This name is already defined.");
-        else
-          node.setCustomValidity("");
-      }
+      if (rv.length === 0)
+        node.setCustomValidity("Name must not be empty");
+      else if (/\s/.test(rv))
+        node.setCustomValidity("Spaces are not valid in name");
+      else if (nameSet.includes(rv))
+        node.setCustomValidity("This name is already defined.");
       else
         node.setCustomValidity("");
     }
@@ -136,10 +133,10 @@ const ObjectGraphManager = {
       rv = node.nodeValue;
     }
 
-    if (nameSet)
-      nameSet.add(rv);
-    else
+    if (isSymbol)
       rv = Symbol(rv);
+
+    nameSet.push(rv);
     return rv;
   },
 

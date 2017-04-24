@@ -7,15 +7,58 @@ const TestDriver = {
 
   // private
   locks: new Set(),
-  
-  run: function runTest(sourcesById)
+
+  run: function()
   {
     "use strict";
     let testrunner = this.pageEnvironment.value;
-
     let blobs = [];
-    sourcesById.forEach(function(id) {
-      let source = document.getElementById(id).value;
+
+    {
+      // Assemble the blob defining the graph names.
+      let graphData = ObjectGraphManager.graphNames();
+      void(graphData);
+      let sources = [
+`
+const graphData = [
+`,
+// individual graph info
+`
+];
+`
+      ];
+      graphData.forEach(function(item) {
+        let name = item.graphName.toString();
+        if (typeof item.graphName == "symbol")
+        {
+          name = [
+            'Symbol(`',
+            name.substring(7, name.length - 1),
+            '`)'
+          ].join("");
+        }
+        else
+          name = JSON.stringify(item.graphName);
+        let lineSource = `
+  {
+    "graphName": ${name},
+    "callback": "${item.callback}"
+  },
+`;
+        sources.splice(sources.length - 1, 0, lineSource);
+      });
+      let b = new Blob(sources, { type: "application/javascript" });
+      blobs.push(b);
+    }
+
+    [
+      "mockOptionsEditor",
+      "runMembraneTestEditor",
+    ].forEach(function(propName) {
+      if (!(propName in CodeMirrorManager)) {
+        throw new Error("Missing editor: " + propName);
+      }
+      let source = CodeMirrorManager[propName].getValue();
       let b = new Blob([source], { type: "application/javascript" });
       blobs.push(b);
     });
@@ -28,6 +71,13 @@ const TestDriver = {
     let finalURL = runnerURL.href;
 
     this.iframe.setAttribute("src", finalURL);
+  },
+
+  firstRun: function()
+  {
+    let runnerURL = new URL("jasmine.html", window.location.href);
+    runnerURL.searchParams.set("firstRun", "1");
+    this.iframe.setAttribute("src", runnerURL.href);
   },
 
   setLockStatus: function(symbol, enabled)

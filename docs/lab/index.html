@@ -6,11 +6,24 @@
   <meta charset="UTF-8">
 
   <!-- CodeMirror -->
-  <!--
-  <script src="libraries/codemirror-5.25.2/lib/codemirror.js"></script>
-  <link rel="stylesheet" href="libraries/codemirror-5.25.2/lib/codemirror.css">
-  <script src="libraries/codemirror-5.25.2/mode/javascript/javascript.js"></script>
-  -->
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/lib/codemirror.js"></script>
+  <link rel="stylesheet"
+        href="libraries/codemirror-5.25.2/lib/codemirror.css">
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/foldcode.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/foldgutter.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/brace-fold.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/comment-fold.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/indent-fold.js"></script>
+  <link rel="stylesheet"
+        href="libraries/codemirror-5.25.2/addon/fold/foldgutter.css">
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/mode/javascript/javascript.js"></script>
 
   <script type="application/javascript"
           src="lab/utilities/defineElementGetter.js"
@@ -50,9 +63,12 @@
         <tfoot>
           <tr>
             <td colspan="4"><span>
-              <button onclick="ObjectGraphManager.addRow();">
+              <button onclick="ObjectGraphManager.addRow();"
+                      disabled="disabled"
+                     >
                 Add object graph
               </button>
+              <!-- We will work on supporting this later. -->
             </span></td>
           </tr>
         </tfoot>
@@ -112,7 +128,7 @@
     </select>
   </aside>
   <section>
-    <textarea readonly="true" id="mockOptions" rows="10" cols="80">
+    <textarea readonly="true" id="CM-mockOptions" rows="10" cols="80">
 const mockOptions = {
   wetHandlerCreated: function(wetHandler, Mocks)
   {
@@ -122,48 +138,33 @@ const mockOptions = {
   {
   
   },
-  postMembrane: function(Mocks)
+  postMembrane: function(Mocks, ...customGraphNames)
   {
   
   }
 };
     </textarea>
     <hr>
-    <textarea readonly="true" id="userTest" rows="30" cols="80">
-(function(withWetDoc, withDryDoc)
+    <textarea readonly="true" id="CM-runMembraneTest" rows="20" cols="80">
+function defineTests(buildMembrane, withWetDoc, withDryDoc)
 {
-describe("A document has node type 9", function() {
-  it("in the wet graph.", function() {
-    withWetDoc(function(document) {
-      expect(document.nodeType).toBe(9);
+  describe("A document has node type 9", function() {
+    beforeEach(buildMembrane);
+    it("in the wet graph.", function() {
+      withWetDoc(function(document) {
+        expect(document.nodeType).toBe(9);
+      });
+    });
+    it("in the dry graph.", function() {
+      withDryDoc(function(document) {
+        expect(document.nodeType).toBe(9);
+      });
     });
   });
-  it("in the dry graph.", function() {
-    withDryDoc(function(document) {
-      expect(document.nodeType).toBe(9);
-    });
-  });
-});
-})();
+};
     </textarea>
-    <output readonly="true" id="test-startup">
-describe("The key objects exist for this test: ", function() {
-  it("Membrane", function() {
-    expect(typeof Membrane).toBe("function");
-  });
-
-  it("MembraneMocks", function() {
-    expect(typeof MembraneMocks).toBe("function");
-  });
-
-  it("loggerLib", function() {
-    expect(typeof loggerLib).toBe("object");
-  });
-});
-    </output>
     <hr>
-    <button onclick="TestDriver.run(['mockOptions', 'userTest']);"
-            disabled="disabled"
+    <button onclick="TestDriver.run(['CM-mockOptions', 'CM-runMembraneTest']);"
             id="TestDriver-runButton">
       Run the test
     </button>
