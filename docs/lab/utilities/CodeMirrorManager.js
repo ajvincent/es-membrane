@@ -12,10 +12,13 @@ const CodeMirrorManager = {
           name: "javascript",
           lineNumbers: true,
           foldGutter: true,
-          gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+          gutters: [
+            "CodeMirror-linenumbers",
+            "CodeMirror-foldgutter"
+          ],
         }
       );
-      this.mockOptionsEditor.setSize(600, 200);
+      this.mockOptionsEditor.setSize(600, 300);
     }
 
     {
@@ -25,11 +28,22 @@ const CodeMirrorManager = {
           name: "javascript",
           lineNumbers: true,
           foldGutter: true,
-          gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+          gutters: [
+            "CodeMirror-linenumbers",
+            "CodeMirror-foldgutter"
+          ],
         }
       );
       this.runMembraneTestEditor.setSize(600, 300);
     }
+  },
+
+  defineTestsArgList: function(argList)
+  {
+    const line = `function defineTests(${argList.join(", ")})`;
+    // the editor's line 0 is rendered as line #1.
+    const startPos = { line: 0, ch: 0}, endPos = { line: 0, ch: Infinity };
+    this.runMembraneTestEditor.replaceRange(line, startPos, endPos);
   }
 };
 

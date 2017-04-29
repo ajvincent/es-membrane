@@ -23,13 +23,24 @@ function defineTestsIfAvailable()
     throw new Error("Missing a mandatory object");
 
   let parts = null;
+
   function buildMembrane()
   {
     parts = MembraneMocks(false, null, mockOptions);
+    if (typeof mockOptions.postMembrane == "function")
+    {
+      let argList = graphData.map(function(item) {
+        return item.graphName;
+      });
+      argList.splice(0, 2, parts); // drop the wet and dry graphs, add the mocks
+      mockOptions.postMembrane.apply(mockOptions, argList);
+    }
   }
+
   let args = [
     buildMembrane
   ];
+
   graphData.forEach(function(item) {
     args.push(function(graphCallback) {
       if (typeof graphCallback !== "function")

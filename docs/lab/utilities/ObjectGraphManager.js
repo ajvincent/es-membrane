@@ -19,6 +19,7 @@ const ObjectGraphManager = {
     let row = this.rowForEvent(event);
     row.parentNode.insertBefore(row, row.previousSibling);
     this.resetMoveButtons();
+    this.inputChangeListener();
   },
 
   moveDown: function(event)
@@ -26,6 +27,7 @@ const ObjectGraphManager = {
     let row = this.rowForEvent(event);
     row.parentNode.insertBefore(row.nextSibling, row);
     this.resetMoveButtons();
+    this.inputChangeListener();
   },
 
   removeRow: function(event)
@@ -33,6 +35,7 @@ const ObjectGraphManager = {
     let row = this.rowForEvent(event);
     row.parentNode.removeChild(row);
     this.resetMoveButtons();
+    this.inputChangeListener();
   },
 
   rowForEvent: function(event)
@@ -162,9 +165,17 @@ const ObjectGraphManager = {
    * @private
    */
   inputChangeListener: function() {
-    void(this.graphNames());
+    const graphData = this.graphNames();
     var rv = this.form.reportValidity();
     TestDriver.setLockStatus(this.lockSymbol, !rv);
+    if (rv)
+    {
+      let argList = graphData.map(function(o) {
+        return o.callback;
+      });
+      argList.unshift("buildMembrane");
+      CodeMirrorManager.defineTestsArgList(argList);
+    }
   }
 };
 
