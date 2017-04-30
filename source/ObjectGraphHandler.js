@@ -936,7 +936,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   construct:
-  inGraphHandler("construct", function(shadowTarget, argumentsList, newTarget) {
+  inGraphHandler("construct", function(shadowTarget, argumentsList, ctorTarget) {
     var target = getRealTarget(shadowTarget);
     var args = [];
     let targetMap  = this.membrane.map.get(target);
@@ -973,8 +973,14 @@ ObjectGraphHandler.prototype = Object.seal({
       }
     }
 
+    const ctor = this.membrane.convertArgumentToProxy(
+      this,
+      argHandler,
+      ctorTarget
+    );
+
     var rv = this.externalHandler(function() {
-      return Reflect.construct(target, args, newTarget);
+      return Reflect.construct(target, args, ctor);
     });
 
     rv = this.membrane.convertArgumentToProxy(
@@ -982,9 +988,6 @@ ObjectGraphHandler.prototype = Object.seal({
       this,
       rv
     );
-
-    let proto = this.get(target, "prototype");
-    this.setPrototypeOf(rv, proto);
 
     if (mayLog) {
       this.membrane.logger.debug("construct exiting");
