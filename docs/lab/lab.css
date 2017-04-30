@@ -10,6 +10,7 @@ aside
 #TestDriver-iframe
 {
   min-width: 600px;
+  height: 400px;
   resize: both;
 }
 
