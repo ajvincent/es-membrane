@@ -1489,33 +1489,13 @@ ObjectGraphHandler.prototype = Object.seal({
     }
   }),
 
-  /**
-   * Set a property on a target.
-   *
-   * @param {Object}  target   The target object.
-   * @param {String}  propName The name of the property to set.
-   * @param {Variant} value    The new value of the property to set.
-   * @param {Object}  receiver The object to which the assignment was originally
-   *                           directed. This is usually the proxy itself.  But
-   *                           a set handler can also be called indirectly, via
-   *                           the prototype chain or various other ways.
-   * @param {Boolean} shouldBeLocal True if the property must be defined only
-   *                                on the proxy (versus carried over to the
-   *                                actual target).
-   * @note This is a ProxyHandler trap for defineProperty, modified to include 
-   *       the shouldBeLocal argument.
-   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/set
-   */
-  set: inGraphHandler(
-    "set",
-    function(shadowTarget, propName, value, receiver,
-             options = {}) {
-    var target = getRealTarget(shadowTarget);
-    var {
-      checkedPropName = false,
-      shouldBeLocal = false,
-      walkedAllowLocal = false
-    } = options;
+  // ProxyHandler
+  set: inGraphHandler("set", function(shadowTarget, propName, value, receiver) {
+    const mayLog = this.membrane.__mayLog__();
+    if (mayLog) {
+      this.membrane.logger.debug("set propName: " + propName);
+    }
+
     /*
     http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-set-p-v-receiver
 
@@ -1550,60 +1530,67 @@ ObjectGraphHandler.prototype = Object.seal({
     9. Return true. 
     */
 
-    const mayLog = this.membrane.__mayLog__();
-    if (mayLog) {
-      this.membrane.logger.debug("set propName: " + propName);
-    }
+    /* Optimization:  Recursively calling this.set() is a pain in the neck,
+     * especially for the stack trace.  So let's use a do...while loop to reset
+     * only the entry arguments we need (specifically, shadowTarget, target).
+     * We should exit the loop with desc, or return from the function.
+     */
 
-    if (!checkedPropName) {
-      // 1. Assert: IsPropertyKey(P) is true.
-      AssertIsPropertyKey(propName);
-      checkedPropName = true;
-    }
-
-    if (!shouldBeLocal && !walkedAllowLocal) {
-      /* Think carefully before making this walk the prototype chain as in
-         .defineProperty().  Remember, this.set() calls itself below, so you
-         could accidentally create a O(n^2) operation here.
-       */
-      walkedAllowLocal = true;
-      shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
-    }
-
-    /*
-    2. Let ownDesc be ? O.[[GetOwnProperty]](P).
-    3. If ownDesc is undefined, then
-        a. Let parent be ? O.[[GetPrototypeOf]]().
-        b. If parent is not null, then
-            i.   Return ? parent.[[Set]](P, V, Receiver).
-        c. Else,
-            i.   Let ownDesc be the PropertyDescriptor{
-                   [[Value]]: undefined,
-                   [[Writable]]: true,
-                   [[Enumerable]]: true,
-                   [[Configurable]]: true
-                 }.
-    */
-    let ownDesc;
+    var ownDesc, shouldBeLocal = false;
     {
-      ownDesc = this.getOwnPropertyDescriptor(target, propName);
-      if (!ownDesc) {
-        let parent = this.getPrototypeOf(target);
-        if (parent) {
-          let [found, other] = this.membrane.getMembraneProxy(this.fieldName, parent);
-          assert(found, "Must find membrane proxy for prototype");
-          assert(other === parent, "Retrieved prototypes must match");
-          return this.set(
-            parent, propName, value, receiver, {
-              checkedPropName,
-              shouldBeLocal,
-              walkedAllowLocal
-            }
-          );
+      let checkedPropName = false, walkedAllowLocal = false;
+
+      do {
+        let target = getRealTarget(shadowTarget);
+
+        if (!checkedPropName) {
+          // 1. Assert: IsPropertyKey(P) is true.
+          AssertIsPropertyKey(propName);
+          checkedPropName = true;
         }
-        else
-          ownDesc = new DataDescriptor(undefined, true);
-      }
+
+        if (!shouldBeLocal && !walkedAllowLocal) {
+          /* Think carefully before making this walk the prototype chain as in
+             .defineProperty().  Remember, this.set() calls itself below, so you
+             could accidentally create a O(n^2) operation here.
+           */
+          walkedAllowLocal = true;
+          shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
+        }
+
+        /*
+        2. Let ownDesc be ? O.[[GetOwnProperty]](P).
+        3. If ownDesc is undefined, then
+            a. Let parent be ? O.[[GetPrototypeOf]]().
+            b. If parent is not null, then
+                i.   Return ? parent.[[Set]](P, V, Receiver).
+            c. Else,
+                i.   Let ownDesc be the PropertyDescriptor{
+                       [[Value]]: undefined,
+                       [[Writable]]: true,
+                       [[Enumerable]]: true,
+                       [[Configurable]]: true
+                     }.
+        */
+
+        {
+          ownDesc = this.getOwnPropertyDescriptor(target, propName);
+          if (!ownDesc) {
+            let parent = this.getPrototypeOf(target);
+            if (parent !== null) {
+              let [found, other] = this.membrane.getMembraneProxy(
+                this.fieldName,
+                parent
+              );
+              assert(found, "Must find membrane proxy for prototype");
+              assert(other === parent, "Retrieved prototypes must match");
+              shadowTarget = parent;
+            }
+            else
+              ownDesc = new DataDescriptor(undefined, true);
+          }
+        }
+      } while (!ownDesc); // end optimization for ownDesc
     }
 
     // Special step:  convert receiver to unwrapped value.
@@ -1628,14 +1615,14 @@ ObjectGraphHandler.prototype = Object.seal({
       else {
         this.membrane.convertArgumentToProxy(pHandler, this, receiver);
       }
-      
+
       receiverMap = this.membrane.map.get(receiver);
       if (!receiverMap)
         throw new Error("How do we still not have a receiverMap?");
       if (receiverMap.originField === this.fieldName)
         throw new Error("Receiver's field name should not match!");
     }
-    
+
     /*
     4. If IsDataDescriptor(ownDesc) is true, then
         a. If ownDesc.[[Writable]] is false, return false.
