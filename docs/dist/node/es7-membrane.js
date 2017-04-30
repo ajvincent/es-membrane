@@ -1855,7 +1855,7 @@ ObjectGraphHandler.prototype = Object.seal({
       ctorTarget
     );
 
-    var rv = this.externalHandler(function() {
+    let rv = this.externalHandler(function() {
       return Reflect.construct(target, args, ctor);
     });
 
