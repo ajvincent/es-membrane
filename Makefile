@@ -59,6 +59,7 @@ ALL_SPEC_FILES = \
 	spec/useCases/requireLocalDelete.js \
 	spec/useCases/filterOwnKeys.js \
 	spec/useCases/whitelist.js \
+	spec/security/exports.js \
 	$(NULL)
 
 specs::
