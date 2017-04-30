@@ -48,7 +48,6 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/filterOwnKeys.js \
 	spec/concepts.js \
 	spec/replaceProxies.js \
-	spec/calledFromHandler.js \
 	spec/proxyListeners.js \
 	spec/properties/storeUnknownAsLocal.js \
 	spec/properties/requireLocalDelete.js \

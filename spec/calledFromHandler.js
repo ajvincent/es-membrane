@@ -15,7 +15,8 @@ if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
   throw new Error("Unable to run tests");
 }
 
-it(
+// Disabled; this code no longer seems necessary.
+xit(
   "A Membrane is always aware when it is in its own code, versus code it wraps",
   function() {
     function isInternal() {

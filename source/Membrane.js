@@ -23,16 +23,17 @@ function MembraneInternal(options = {}) {
       configurable:false
     },
 
+    /* Disabled, dead API.
     "handlerStack": {
-      /* This has two "external" strings because at all times, we require
-       * two items on the handlerStack, for
-       * Membrane.prototype.calledFromHandlerTrap().
-       */
+      // This has two "external" strings because at all times, we require
+      // two items on the handlerStack, for
+      // Membrane.prototype.calledFromHandlerTrap().
       value: ["external", "external"],
       writable: true,
       enumerable: false,
       configurable: false,
     },
+    */
 
     "handlersByFieldName": {
       value: {},
@@ -387,9 +388,11 @@ MembraneInternal.prototype = Object.seal({
     return wrappedDesc;
   },
 
+  /* Disabled, dead API.
   calledFromHandlerTrap: function() {
     return this.handlerStack[1] !== "external";
   },
+  */
 
   /**
    * A flag indicating if internal properties of the Membrane are private.

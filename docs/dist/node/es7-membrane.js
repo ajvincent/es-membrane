@@ -63,7 +63,15 @@ function getRealTarget(target) {
   return ShadowKeyMap.has(target) ? ShadowKeyMap.get(target) : target;
 }
 
+/**
+ * @deprecated
+ */
 function inGraphHandler(trapName, callback) {
+  return callback;
+  /* This seemed like a good idea at the time.  I wanted to know
+     when the membrane was executing internal code or not.  But practically
+     speaking, it's useless...
+
   return function() {
     if (this.__isDead__)
       throw new Error("This membrane handler is dead!");
@@ -97,6 +105,7 @@ function inGraphHandler(trapName, callback) {
 
     return rv;
   };
+  */
 }
 
 const NOT_YET_DETERMINED = {};
@@ -483,16 +492,17 @@ function MembraneInternal(options = {}) {
       configurable:false
     },
 
+    /* Disabled, dead API.
     "handlerStack": {
-      /* This has two "external" strings because at all times, we require
-       * two items on the handlerStack, for
-       * Membrane.prototype.calledFromHandlerTrap().
-       */
+      // This has two "external" strings because at all times, we require
+      // two items on the handlerStack, for
+      // Membrane.prototype.calledFromHandlerTrap().
       value: ["external", "external"],
       writable: true,
       enumerable: false,
       configurable: false,
     },
+    */
 
     "handlersByFieldName": {
       value: {},
@@ -847,9 +857,11 @@ MembraneInternal.prototype = Object.seal({
     return wrappedDesc;
   },
 
+  /* Disabled, dead API.
   calledFromHandlerTrap: function() {
     return this.handlerStack[1] !== "external";
   },
+  */
 
   /**
    * A flag indicating if internal properties of the Membrane are private.
