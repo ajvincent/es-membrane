@@ -149,7 +149,7 @@ MembraneInternal.prototype = Object.seal({
     if (!handler)
       throw new Error("We don't have an ObjectGraphHandler with that name!");
 
-    var mapping = ("mapping" in options) ? options.mapping : null;
+    let mapping = ("mapping" in options) ? options.mapping : null;
 
     if (!mapping) {
       if (this.map.has(value)) {
@@ -243,7 +243,7 @@ MembraneInternal.prototype = Object.seal({
       return arg;
     const mayLog = this.__mayLog__();
 
-    var found = this.hasProxyForValue(handler.fieldName, arg);
+    let found = this.hasProxyForValue(handler.fieldName, arg);
     if (found)
       return arg;
 
@@ -331,7 +331,7 @@ MembraneInternal.prototype = Object.seal({
     }
     if (!this.ownsHandler(originHandler) ||
         !this.ownsHandler(targetHandler) ||
-        (originHandler === targetHandler)) {
+        (originHandler.fieldName === targetHandler.fieldName)) {
       throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
     }
 

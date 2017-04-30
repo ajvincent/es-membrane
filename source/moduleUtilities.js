@@ -97,6 +97,8 @@ Object.defineProperty(
 
 function makeRevokeDeleteRefs(parts, mapping, field) {
   let oldRevoke = parts.revoke;
+  if (!oldRevoke)
+    return;
   parts.revoke = function() {
     oldRevoke.apply(parts);
     mapping.remove(field);
@@ -118,6 +120,7 @@ function AssertIsPropertyKey(propName) {
   var type = typeof propName;
   if ((type != "string") && (type != "symbol"))
     throw new Error("propName is not a symbol or a string!");
+  return true;
 }
 
 const Constants = {

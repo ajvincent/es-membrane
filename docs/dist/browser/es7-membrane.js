@@ -101,6 +101,8 @@ Object.defineProperty(
 
 function makeRevokeDeleteRefs(parts, mapping, field) {
   let oldRevoke = parts.revoke;
+  if (!oldRevoke)
+    return;
   parts.revoke = function() {
     oldRevoke.apply(parts);
     mapping.remove(field);
@@ -122,6 +124,7 @@ function AssertIsPropertyKey(propName) {
   var type = typeof propName;
   if ((type != "string") && (type != "symbol"))
     throw new Error("propName is not a symbol or a string!");
+  return true;
 }
 
 const Constants = {
@@ -599,7 +602,7 @@ MembraneInternal.prototype = Object.seal({
     if (!handler)
       throw new Error("We don't have an ObjectGraphHandler with that name!");
 
-    var mapping = ("mapping" in options) ? options.mapping : null;
+    let mapping = ("mapping" in options) ? options.mapping : null;
 
     if (!mapping) {
       if (this.map.has(value)) {
@@ -693,7 +696,7 @@ MembraneInternal.prototype = Object.seal({
       return arg;
     const mayLog = this.__mayLog__();
 
-    var found = this.hasProxyForValue(handler.fieldName, arg);
+    let found = this.hasProxyForValue(handler.fieldName, arg);
     if (found)
       return arg;
 
@@ -781,7 +784,7 @@ MembraneInternal.prototype = Object.seal({
     }
     if (!this.ownsHandler(originHandler) ||
         !this.ownsHandler(targetHandler) ||
-        (originHandler === targetHandler)) {
+        (originHandler.fieldName === targetHandler.fieldName)) {
       throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
     }
 
@@ -960,8 +963,8 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   get: inGraphHandler("get", function(shadowTarget, propName, receiver) {
-    var target = getRealTarget(shadowTarget);
-    var found = false, rv;
+    var desc, target, found, rv, protoLookups = 0;
+
     /*
     http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-get-p-receiver
 
@@ -978,56 +981,69 @@ ObjectGraphHandler.prototype = Object.seal({
     8. Return ? Call(getter, Receiver). 
      */
 
-    // 1. Assert: IsPropertyKey(P) is true.
-    AssertIsPropertyKey(propName);
-
-    var desc;
-    {
-      /* Special case:  Look for a local property descriptors first, and if we
-       * find it, return it unwrapped.
-       */
-      let targetMap = this.membrane.map.get(target);
-      desc = targetMap.getLocalDescriptor(this.fieldName, propName);
-
-      if (desc) {
-        // Quickly repeating steps 4-8 from above algorithm.
-        if (isDataDescriptor(desc))
-          return desc.value;
-        if (!isAccessorDescriptor(desc))
-          throw new Error("desc must be a data descriptor or an accessor descriptor!");
-        let type = typeof desc.get;
-        if (type === "undefined")
-          return undefined;
-        if (type !== "function")
-          throw new Error("getter is not a function");
-        return Reflect.apply(desc.get, receiver, []);
-      }
-    }
-
-    /*
-    2. Let desc be ? O.[[GetOwnProperty]](P).
-    3. If desc is undefined, then
-         a. Let parent be ? O.[[GetPrototypeOf]]().
-         b. If parent is null, return undefined.
-         c. Return ? parent.[[Get]](P, Receiver).
+    /* Optimization:  Recursively calling this.get() is a pain in the neck,
+     * especially for the stack trace.  So let's use a do...while loop to reset
+     * only the entry arguments we need (specifically, shadowTarget, target).
+     * We should exit the loop with desc, or return from the function.
      */
-    desc = this.getOwnPropertyDescriptor(shadowTarget, propName);
-    {
+    do {
+      target = getRealTarget(shadowTarget);  
+
+      // 1. Assert: IsPropertyKey(P) is true.
+      if (protoLookups === 0)
+        AssertIsPropertyKey(propName);
+
+      {
+        /* Special case:  Look for a local property descriptors first, and if we
+         * find it, return it unwrapped.
+         */
+        let targetMap = this.membrane.map.get(target);
+        desc = targetMap.getLocalDescriptor(this.fieldName, propName);
+
+        if (desc) {
+          // Quickly repeating steps 4-8 from above algorithm.
+          if (isDataDescriptor(desc))
+            return desc.value;
+          if (!isAccessorDescriptor(desc))
+            throw new Error("desc must be a data descriptor or an accessor descriptor!");
+          let type = typeof desc.get;
+          if (type === "undefined")
+            return undefined;
+          if (type !== "function")
+            throw new Error("getter is not a function");
+          return Reflect.apply(desc.get, receiver, []);
+        }
+      }
+
+      /*
+      2. Let desc be ? O.[[GetOwnProperty]](P).
+      3. If desc is undefined, then
+           a. Let parent be ? O.[[GetPrototypeOf]]().
+           b. If parent is null, return undefined.
+           c. Return ? parent.[[Get]](P, Receiver).
+       */
+      desc = this.getOwnPropertyDescriptor(shadowTarget, propName);
       if (!desc) {
+        protoLookups++;
         let parent = this.getPrototypeOf(shadowTarget);
         if (parent === null)
           return undefined;
 
-        let other;
-        [found, other] = this.membrane.getMembraneProxy(this.fieldName, parent);
-        assert(found, "Must find membrane proxy for prototype");
+        let [foundProto, other] = this.membrane.getMembraneProxy(
+          this.fieldName,
+          parent
+        );
+        assert(foundProto, "Must find membrane proxy for prototype");
         assert(other === parent, "Retrieved prototypes must match");
-        return this.get(parent, propName, receiver);
+        shadowTarget = parent;
       }
-    }
+    } while (!desc);
+
+    found = false;
+    rv = undefined;
 
     // 4. If IsDataDescriptor(desc) is true, return desc.[[Value]].
-    if (!found && isDataDescriptor(desc)) {
+    if (isDataDescriptor(desc)) {
       rv = desc.value;
       found = true;
       if (!desc.configurable && !desc.writable)
