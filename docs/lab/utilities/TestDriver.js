@@ -13,7 +13,31 @@ const TestDriver = {
     "use strict";
     let testrunner = this.pageEnvironment.value;
     let blobs = [];
+    let runnerURL = new URL(testrunner, window.location.href);
+    runnerURL.searchParams.set("testMode", this.DOMEnvironment.value);
 
+    if (this.DOMEnvironment.value === "MembraneMocks")
+      this.getMocksBlobs(blobs);
+
+
+    blobs.forEach(function(b) {
+      runnerURL.searchParams.append("scriptblob", URL.createObjectURL(b));
+    });
+    let finalURL = runnerURL.href;
+
+    this.iframe.setAttribute("src", finalURL);
+  },
+
+  firstRun: function()
+  {
+    let runnerURL = new URL("jasmine.html", window.location.href);
+    runnerURL.searchParams.set("testMode", "firstRun");
+    this.iframe.setAttribute("src", runnerURL.href);
+  },
+
+  getMocksBlobs: function(blobs)
+  {
+    "use strict";
     {
       // Assemble the blob defining the graph names.
       let graphData = ObjectGraphManager.graphNames();
@@ -62,22 +86,6 @@ const graphData = [
       let b = new Blob([source], { type: "application/javascript" });
       blobs.push(b);
     });
-
-    let runnerURL = new URL(testrunner, window.location.href);
-
-    blobs.forEach(function(b) {
-      runnerURL.searchParams.append("scriptblob", URL.createObjectURL(b));
-    });
-    let finalURL = runnerURL.href;
-
-    this.iframe.setAttribute("src", finalURL);
-  },
-
-  firstRun: function()
-  {
-    let runnerURL = new URL("jasmine.html", window.location.href);
-    runnerURL.searchParams.set("firstRun", "1");
-    this.iframe.setAttribute("src", runnerURL.href);
   },
 
   setLockStatus: function(symbol, enabled)

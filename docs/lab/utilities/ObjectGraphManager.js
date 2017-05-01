@@ -1,75 +1,14 @@
-const ObjectGraphManager = {
+const ObjectGraphManager = new TBodyRowManager({
   // see below, private
-  rowTemplate: null, 
   customBody: null,  
   standardBody: null,
   form: null,
+  table: null,
 
-  addRow: function()
+  init: function()
   {
-    let row = this.rowTemplate.content.firstElementChild;
-    row = row.cloneNode(true);
-    this.customBody.appendChild(row);
-    this.resetMoveButtons();
-    this.inputChangeListener();
-  },
-
-  moveUp: function(event)
-  {
-    let row = this.rowForEvent(event);
-    row.parentNode.insertBefore(row, row.previousSibling);
-    this.resetMoveButtons();
-    this.inputChangeListener();
-  },
-
-  moveDown: function(event)
-  {
-    let row = this.rowForEvent(event);
-    row.parentNode.insertBefore(row.nextSibling, row);
-    this.resetMoveButtons();
-    this.inputChangeListener();
-  },
-
-  removeRow: function(event)
-  {
-    let row = this.rowForEvent(event);
-    row.parentNode.removeChild(row);
-    this.resetMoveButtons();
-    this.inputChangeListener();
-  },
-
-  rowForEvent: function(event)
-  {
-    let elem = event.target;
-    while (elem.localName != "tr")
-      elem = elem.parentNode;
-    return elem;
-  },
-
-  resetMoveButtons: function()
-  {
-    const UP = 0, DOWN = 1, TOP_ROW = 0, LAST_ROW = -1;
-    this.setButtonDisabled(TOP_ROW,      DOWN, false);
-    this.setButtonDisabled(TOP_ROW + 1,  UP,   false);
-
-    this.setButtonDisabled(LAST_ROW,     UP,   false);
-    this.setButtonDisabled(LAST_ROW - 1, DOWN, false);
-
-    this.setButtonDisabled(TOP_ROW,  UP,   true);
-    this.setButtonDisabled(LAST_ROW, DOWN, true);
-  },
-
-  /**
-   * @private
-   */
-  setButtonDisabled: function(rowIndex, btnIndex, disabled)
-  {
-    const rows = this.customBody.children;
-    let length = rows.length;
-    if (rowIndex < 0)
-      rowIndex += length;
-    if ((0 <= rowIndex) && (rowIndex < length))
-      rows[rowIndex].getElementsByTagName("button")[btnIndex].disabled = disabled;
+    this.finishTable();
+    this.attachEvents();
   },
 
   graphNames: function()
@@ -164,7 +103,8 @@ const ObjectGraphManager = {
   /**
    * @private
    */
-  inputChangeListener: function() {
+  inputChangeListener: function()
+  {
     const graphData = this.graphNames();
     var rv = this.form.reportValidity();
     TestDriver.setLockStatus(this.lockSymbol, !rv);
@@ -176,15 +116,29 @@ const ObjectGraphManager = {
       argList.unshift("buildMembrane");
       CodeMirrorManager.defineTestsArgList(argList);
     }
-  }
-};
+  },
+
+  finishTable: function()
+  {
+    var cell, content;
+    cell = this.table.tFoot.getElementsByClassName("footerCell")[0];
+    content = this.footerCell.content.firstElementChild.cloneNode(true);
+    cell.appendChild(content);
+    this.bindClickEvent(content, "addRowButton", "addRow");
+
+    cell = this.rowTemplate.content.firstElementChild.getElementsByClassName("commandsCell")[0];
+    content = this.commandsCell.content.firstElementChild.cloneNode(true);
+    cell.appendChild(content);
+  },
+});
 
 {
   let elems = [
     "customBody",
     "standardBody",
     "rowTemplate",
-    "form"
+    "form",
+    "table",
   ];
   elems.forEach(function(idSuffix)
   {

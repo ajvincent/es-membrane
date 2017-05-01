@@ -29,6 +29,9 @@
           src="lab/utilities/defineElementGetter.js"
          ></script>
   <script type="application/javascript"
+          src="lab/utilities/TBodyRowManager.js"
+         ></script>
+  <script type="application/javascript"
           src="lab/utilities/ObjectGraphManager.js"
          ></script>
   <script type="application/javascript"
@@ -45,8 +48,20 @@
 
 <body>
   <section>
+    <label for="TestDriver-DOMEnvironment">DOM Environment</label>
+    <select id="TestDriver-DOMEnvironment">
+      <option value="MembraneMocks">JS-based DOM mocks</option>
+      <option value="Freeform">Ordinary JavaScript</option>
+    </select>
+    <label for="TestDriver-pageEnvironment">Test Environment</label>
+    <select id="TestDriver-pageEnvironment">
+      <option value="jasmine.html">Jasmine 2.5.2</option>
+    </select>
+  </section>
+  <hr>
+  <section>
     <form id="objectGraph-form" action="javascript:void();">
-      <table id="objectGraphTable">
+      <table id="objectGraph-table">
         <caption>
           Object graphs
         </caption>
@@ -79,53 +94,34 @@
         <tbody id="objectGraph-customBody">
         </tbody>
 
+        <tfoot><tr><td colspan="4" class="footerCell"></td></tr></tfoot>
+
         <template id="objectGraph-rowTemplate">
           <tr>
             <td><input type="text" size="6"></td>
             <td><input type="checkbox"></td>
             <td><input type="text" size="10" pattern="^[a-zA-Z$_][a-zA-Z0-9$_]*$"></td>
-            <td><span>
-              <button disabled="disabled"
-                      onclick="ObjectGraphManager.moveUp(event);"
-                     >&#x21E7;</button>
-              <button disabled="disabled"
-                      onclick="ObjectGraphManager.moveDown(event);"
-                     >&#x21E9;</button>
-              <button onclick="ObjectGraphManager.removeRow(event);"
-                     >X</button>
-            </span></td>
+            <td class="commandsCell"></td>
           </tr>
         </template>
 
-        <tfoot>
-          <tr>
-            <td colspan="4"><span>
-              <button onclick="ObjectGraphManager.addRow();"
-                     >
-                Add object graph
-              </button>
-              <!-- We will work on supporting this later. -->
-            </span></td>
-          </tr>
-        </tfoot>
+        <template id="TBodyRowManager-commandsCell">
+          <span>
+            <button disabled="disabled" class="moveUpButton">&#x21E7;</button>
+            <button disabled="disabled" class="moveDnButton">&#x21E9;</button>
+            <button class="deleteButton">X</button>
+          </span>
+        </template>
+
+        <template id="TBodyRowManager-footerCell">
+          <span>
+            <button class="addRowButton">Add object graph</button>
+          </span>
+        </template>
+
       </table>
     </form>
-
     <hr>
-    <label for="TestDriver-DOMEnvironment">DOM Environment</label>
-    <select id="TestDriver-DOMEnvironment">
-      <option>JS-based DOM mocks</option>
-      <!--
-      <option>Actual XML DOM</option>
-      -->
-    </select>
-    <hr>
-    <label for="TestDriver-pageEnvironment">Test Environment</label>
-    <select id="TestDriver-pageEnvironment">
-      <option value="jasmine.html">Jasmine 2.5.2</option>
-    </select>
-  </section>
-  <section>
     <textarea readonly="true" id="CM-mockOptions" rows="10" cols="80">
 /*
 var Mocks = {
@@ -168,7 +164,7 @@ const mockOptions = {
     </textarea>
     <hr>
     <textarea readonly="true" id="CM-runMembraneTest" rows="20" cols="80">
-function defineTests(buildMembrane, withWetDoc, withDryDoc)
+function defineMocksTests(buildMembrane, withWetDoc, withDryDoc)
 {
   describe("A document has node type 9", function() {
     beforeEach(buildMembrane);
@@ -188,7 +184,16 @@ function defineTests(buildMembrane, withWetDoc, withDryDoc)
 };
     </textarea>
     <hr>
-    <button onclick="TestDriver.run(['CM-mockOptions', 'CM-runMembraneTest']);"
+  </section>
+  <section>
+    <template id="CM-freeform">
+      <textarea></textarea>
+      <div class="console"></div>
+      <hr>
+    </template>
+  </section>
+  <section>
+    <button onclick="TestDriver.run();"
             id="TestDriver-runButton">
       Run the test
     </button>

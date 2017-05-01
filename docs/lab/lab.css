@@ -1,12 +1,6 @@
-aside
-{
-  float: left;
-  resize: horizontal;
-  overflow: auto;
-  border: 2px solid black;
-  min-height: 800px;
+body {
+  font-family: Verdana;
 }
-
 #TestDriver-iframe
 {
   min-width: 600px;
