@@ -61,34 +61,76 @@ function defineMocksTestsIfAvailable()
   defineMocksTests.apply(this, args);
 }
 
-function addBlobs()
-{
-  "use strict";
-  const params = new URL(window.location.href).searchParams;
-  const testMode = params.get("testMode");
-  if (testMode == "firstRun")
+const BlobLoader = {
+  loadFired: false,
+  testsStarted: false,
+  init: function()
   {
-    window.addEventListener("DOMContentLoaded", defineBasicTests, true);
-    return;
-  }
+    "use strict";
+    window.addEventListener("load", this, true);
 
-  let blobs = params.getAll("scriptblob");
-  let blobURLs = [];
-  blobs.forEach(function(b) {
-    let scriptElem = document.createElement("script");
-    scriptElem.setAttribute("src", b);
-    document.head.appendChild(scriptElem);
-    blobURLs.push(b);
-  });
+    const params = new URL(window.location.href).searchParams;
+    const testMode = params.get("testMode");
+    if (testMode == "firstRun")
+    {
+      this.setTestStart(0, defineBasicTests);
+      return;
+    }
 
-  if (testMode == "MembraneMocks")
-    window.addEventListener("DOMContentLoaded", defineMocksTestsIfAvailable, true);
+    let blobs = params.getAll("scriptblob");
 
-  window.addEventListener("unload", function() {
-    blobURLs.forEach(function(b) {
-      URL.revokeObjectURL(b);
+    if (testMode == "MembraneMocks")
+      BlobLoader.setTestStart(blobs.length, defineMocksTestsIfAvailable);
+
+    let blobURLs = [];
+    blobs.forEach(function(b) {
+      let scriptElem = document.createElement("script");
+      scriptElem.setAttribute("src", b);
+      document.head.appendChild(scriptElem);
+      blobURLs.push(b);
     });
-  });
-}
 
-addBlobs();
+    window.addEventListener("unload", function() {
+      blobURLs.forEach(function(b) {
+        URL.revokeObjectURL(b);
+      });
+    });
+  },
+
+  setTestStart: function(blobCount, defineTests)
+  {
+    this.blobCount = blobCount;
+    this.defineTests = defineTests;
+  },
+
+  decrement: function()
+  {
+    --this.blobCount;
+    this.mayStartTests();
+  },
+
+  mayStartTests: function()
+  {
+    if ((this.blobCount > 0) || !this.loadFired || this.testsStarted)
+      return;
+
+    this.testsStarted = true;
+    this.defineTests();
+    jasmine.getEnv().execute();
+  },
+
+  handleEvent: function(event) {
+    if (event.target != document)
+      return;
+    window.setTimeout(this.handleLoad.bind(this), 0);
+    window.removeEventListener("load", this, true);
+  },
+
+  handleLoad: function()
+  {
+    this.loadFired = true;
+    this.mayStartTests();
+  }
+};
+
+BlobLoader.init();

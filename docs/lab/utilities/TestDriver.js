@@ -19,7 +19,6 @@ const TestDriver = {
     if (this.DOMEnvironment.value === "MembraneMocks")
       this.getMocksBlobs(blobs);
 
-
     blobs.forEach(function(b) {
       runnerURL.searchParams.append("scriptblob", URL.createObjectURL(b));
     });
@@ -71,8 +70,7 @@ const graphData = [
 `;
         sources.splice(sources.length - 1, 0, lineSource);
       });
-      let b = new Blob(sources, { type: "application/javascript" });
-      blobs.push(b);
+      this.convertSourcesToTestBlob(sources, blobs);
     }
 
     [
@@ -83,9 +81,18 @@ const graphData = [
         throw new Error("Missing editor: " + propName);
       }
       let source = CodeMirrorManager[propName].getValue();
-      let b = new Blob([source], { type: "application/javascript" });
-      blobs.push(b);
-    });
+      this.convertSourcesToTestBlob([source], blobs);
+    }, this);
+  },
+
+  convertSourcesToTestBlob: function(sources, blobs)
+  {
+    sources.push(`
+if (BlobLoader)
+  BlobLoader.decrement();
+`);
+    let b = new Blob(sources, { type: "application/javascript" });
+    blobs.push(b);
   },
 
   setLockStatus: function(symbol, enabled)
