@@ -6,8 +6,25 @@ function TBodyRowManager(obj) {
 }
 TBodyRowManager.prototype = {
   // private, see below
-  rowTemplate: null,
   footerCellTemplate: null,
+
+  finishTable: function()
+  {
+    var cell, content;
+    cell = this.table.tFoot.getElementsByClassName("footerCell")[0];
+    content = this.footerCell.content.firstElementChild.cloneNode(true);
+    cell.appendChild(content);
+    this.bindClickEvent(content, "addRowButton", "addRow");
+    {
+      let btn  = content.getElementsByClassName("addRowButton")[0];
+      let text = this.table.getAttribute("addRowText");
+      btn.appendChild(document.createTextNode(text));
+    }
+
+    cell = this.rowTemplate.content.firstElementChild.getElementsByClassName("commandsCell")[0];
+    content = this.commandsCell.content.firstElementChild.cloneNode(true);
+    cell.appendChild(content);
+  },
 
   addRow: function()
   {
@@ -20,6 +37,7 @@ TBodyRowManager.prototype = {
     this.bindClickEvent(row, "deleteButton", "removeRow");
     this.resetMoveButtons();
     this.inputChangeListener();
+    return row;
   },
 
   moveUp: function(event)

@@ -3,7 +3,8 @@ window.addEventListener(
   function()
   {
     ObjectGraphManager.init();
-    CodeMirrorManager.setInitialState();
+    FreeformManager.init();
+    TestDriver.init();
   },
   true
 );

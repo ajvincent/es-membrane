@@ -61,6 +61,8 @@ function defineMocksTestsIfAvailable()
   defineMocksTests.apply(this, args);
 }
 
+function voidFunc() { /* do nothing */ }
+
 const BlobLoader = {
   loadFired: false,
   testsStarted: false,
@@ -80,7 +82,10 @@ const BlobLoader = {
     let blobs = params.getAll("scriptblob");
 
     if (testMode == "MembraneMocks")
-      BlobLoader.setTestStart(blobs.length, defineMocksTestsIfAvailable);
+      this.setTestStart(blobs.length, defineMocksTestsIfAvailable);
+
+    else if (testMode == "Freeform")
+      this.setTestStart(blobs.length, voidFunc);
 
     let blobURLs = [];
     blobs.forEach(function(b) {

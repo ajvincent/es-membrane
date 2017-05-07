@@ -29,3 +29,13 @@ body {
 {
   border: 1px dashed black;
 }
+
+section[collapsed="true"]
+{
+  display: none;
+}
+
+#Freeform-table tbody td
+{
+  border: 1px dashed black;
+}

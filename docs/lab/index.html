@@ -24,7 +24,6 @@
         href="libraries/codemirror-5.25.2/addon/fold/foldgutter.css">
   <script type="application/javascript"
           src="libraries/codemirror-5.25.2/mode/javascript/javascript.js"></script>
-
   <script type="application/javascript"
           src="lab/utilities/defineElementGetter.js"
          ></script>
@@ -33,6 +32,9 @@
          ></script>
   <script type="application/javascript"
           src="lab/utilities/ObjectGraphManager.js"
+         ></script>
+  <script type="application/javascript"
+          src="lab/utilities/FreeformManager.js"
          ></script>
   <script type="application/javascript"
           src="lab/utilities/CodeMirrorManager.js"
@@ -48,8 +50,8 @@
 
 <body>
   <section>
-    <label for="TestDriver-DOMEnvironment">DOM Environment</label>
-    <select id="TestDriver-DOMEnvironment">
+    <label for="TestDriver-scriptEnvironment">Script Environment</label>
+    <select id="TestDriver-scriptEnvironment">
       <option value="MembraneMocks">JS-based DOM mocks</option>
       <option value="Freeform">Ordinary JavaScript</option>
     </select>
@@ -60,8 +62,18 @@
   </section>
   <hr>
   <section>
+    <button onclick="TestDriver.run();"
+            disabled="disabled"
+            id="TestDriver-runButton">
+      Run the test
+    </button>
+    <br>
+    <iframe src="lab/error.html" id="TestDriver-iframe"></iframe>
+  </section>
+  <hr>
+  <section id="panel-MembraneMocks">
     <form id="objectGraph-form" action="javascript:void();">
-      <table id="objectGraph-table">
+      <table id="objectGraph-table" addRowText="Add object graph">
         <caption>
           Object graphs
         </caption>
@@ -115,14 +127,14 @@
 
         <template id="TBodyRowManager-footerCell">
           <span>
-            <button class="addRowButton">Add object graph</button>
+            <button class="addRowButton"></button>
           </span>
         </template>
 
       </table>
     </form>
     <hr>
-    <textarea readonly="true" id="CM-mockOptions" rows="10" cols="80">
+    <textarea readonly="true" id="objectGraph-mockOptions" rows="10" cols="80">
 /*
 var Mocks = {
   wet: {
@@ -163,7 +175,7 @@ const mockOptions = {
 };
     </textarea>
     <hr>
-    <textarea readonly="true" id="CM-runMembraneTest" rows="20" cols="80">
+    <textarea readonly="true" id="objectGraph-runMembraneTest" rows="20" cols="80">
 function defineMocksTests(buildMembrane, withWetDoc, withDryDoc)
 {
   describe("A document has node type 9", function() {
@@ -185,20 +197,28 @@ function defineMocksTests(buildMembrane, withWetDoc, withDryDoc)
     </textarea>
     <hr>
   </section>
-  <section>
-    <template id="CM-freeform">
-      <textarea></textarea>
-      <div class="console"></div>
-      <hr>
-    </template>
-  </section>
-  <section>
-    <button onclick="TestDriver.run();"
-            id="TestDriver-runButton">
-      Run the test
-    </button>
-    <br>
-    <iframe src="lab/error.html" id="TestDriver-iframe"></iframe>
+  <section id="panel-Freeform" collapsed="true">
+    <table id="Freeform-table" addRowText="Add script">
+      <caption>Freeform JavaScripts</caption>
+      <thead>
+        <tr>
+          <td>Source code</td>
+          <td>Commands</td>
+        </tr>
+      </thead>
+      
+      <tbody id="Freeform-customBody">
+      </tbody>
+
+      <tfoot><tr><td colspan="2" class="footerCell"></td></tr></tfoot>
+
+      <template id="Freeform-rowTemplate">
+        <tr>
+          <td><textarea></textarea></td>
+          <td class="commandsCell"></td>
+        </tr>
+      </template>
+    </table>
   </section>
 </body>
 </html>

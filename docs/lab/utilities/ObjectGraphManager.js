@@ -2,12 +2,16 @@ const ObjectGraphManager = new TBodyRowManager({
   // see below, private
   customBody: null,  
   standardBody: null,
+  rowTemplate: null,
   form: null,
   table: null,
+  mockOptionsText: null,
+  runMembraneTest: null,
 
   init: function()
   {
     this.finishTable();
+    this.initEditors();
     this.attachEvents();
   },
 
@@ -107,28 +111,80 @@ const ObjectGraphManager = new TBodyRowManager({
   {
     const graphData = this.graphNames();
     var rv = this.form.reportValidity();
-    TestDriver.setLockStatus(this.lockSymbol, !rv);
+    TestDriver.setLockStatus("MembraneMocks", this.lockSymbol, !rv);
     if (rv)
     {
       let argList = graphData.map(function(o) {
         return o.callback;
       });
       argList.unshift("buildMembrane");
-      CodeMirrorManager.defineTestsArgList(argList);
+      this.defineTestsArgList(argList);
     }
   },
 
-  finishTable: function()
+  defineTestsArgList: function(argList)
   {
-    var cell, content;
-    cell = this.table.tFoot.getElementsByClassName("footerCell")[0];
-    content = this.footerCell.content.firstElementChild.cloneNode(true);
-    cell.appendChild(content);
-    this.bindClickEvent(content, "addRowButton", "addRow");
+    const line = `function defineMocksTests(${argList.join(", ")})`;
+    // the editor's line 0 is rendered as line #1.
+    const startPos = { line: 0, ch: 0}, endPos = { line: 0, ch: Infinity };
+    this.runMembraneTestEditor.replaceRange(line, startPos, endPos);
+  },
 
-    cell = this.rowTemplate.content.firstElementChild.getElementsByClassName("commandsCell")[0];
-    content = this.commandsCell.content.firstElementChild.cloneNode(true);
-    cell.appendChild(content);
+  initEditors: function()
+  {
+    this.mockOptionsEditor     = CodeMirrorManager.buildNewEditor(this.mockOptions);
+    this.runMembraneTestEditor = CodeMirrorManager.buildNewEditor(this.runMembraneTest);
+  },
+
+  getBlobs: function(blobs)
+  {
+    "use strict";
+    {
+      // Assemble the blob defining the graph names.
+      let graphData = this.graphNames();
+      void(graphData);
+      let sources = [
+`
+const graphData = [
+`,
+// individual graph info
+`
+];
+`
+      ];
+      graphData.forEach(function(item) {
+        let name = item.graphName.toString();
+        if (typeof item.graphName == "symbol")
+        {
+          name = [
+            'Symbol(`',
+            name.substring(7, name.length - 1),
+            '`)'
+          ].join("");
+        }
+        else
+          name = JSON.stringify(item.graphName);
+        let lineSource = `
+  {
+    "graphName": ${name},
+    "callback": "${item.callback}"
+  },
+`;
+        sources.splice(sources.length - 1, 0, lineSource);
+      });
+      TestDriver.convertSourcesToTestBlob(sources, blobs);
+    }
+
+    [
+      "mockOptionsEditor",
+      "runMembraneTestEditor",
+    ].forEach(function(propName) {
+      if (!(propName in ObjectGraphManager)) {
+        throw new Error("Missing editor: " + propName);
+      }
+      let source = this[propName].getValue();
+      TestDriver.convertSourcesToTestBlob([source], blobs);
+    }, this);
   },
 });
 
@@ -139,6 +195,8 @@ const ObjectGraphManager = new TBodyRowManager({
     "rowTemplate",
     "form",
     "table",
+    "mockOptions",
+    "runMembraneTest",
   ];
   elems.forEach(function(idSuffix)
   {
