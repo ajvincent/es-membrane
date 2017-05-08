@@ -76,6 +76,7 @@ BROWSER_MEMBRANE_FILES = \
 
 browser:: base mockDocs specs
 	@mkdir -p $(DIST)/browser
+	@cp wrappers/browser/fireJasmine.js $(DIST)/browser/fireJasmine.js
 	@cp wrappers/browser/test-browser.xhtml $(DIST)/browser/test-browser.xhtml
 	@cat $(BROWSER_MEMBRANE_FILES) > $(DIST)/browser/es7-membrane.js
 	@cat wrappers/useStrict.js $(DIST)/staging/sharedUtilities.js > $(DIST)/browser/sharedUtilities.js
