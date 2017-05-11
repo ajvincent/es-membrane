@@ -43,10 +43,7 @@ const TestDriver = {
     if (this.scriptEnvironment.value === "MembraneMocks")
       ObjectGraphManager.getBlobs(blobs);
     else if (this.scriptEnvironment.value === "Freeform")
-    {
-      debugger;
       FreeformManager.getBlobs(blobs);
-    }
 
     blobs.forEach(function(b) {
       runnerURL.searchParams.append("scriptblob", URL.createObjectURL(b));

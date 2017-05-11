@@ -1,7 +1,8 @@
 "use strict";
 
-if (typeof MembraneMocks != "function") {
+if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
   if (typeof require == "function") {
+    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
     var { MembraneMocks } = require("../../docs/dist/node/mocks.js");
   }
   else
@@ -478,4 +479,79 @@ describe("Whitelisting object properties", function() {
       }
     });
   });
+
+  it(
+    "and getting a handler from a protected membrane works correctly",
+    function() {
+      const Dogfood = new Membrane();
+
+      const publicAPI   = Dogfood.getHandlerByField("public", true);
+      const internalAPI = Dogfood.getHandlerByField("internal", true);
+
+      // lockdown of the public API here
+      const mbListener = {
+        mustProxyMethods: new Set(),
+
+        whitelist: function(meta, names, field="internal") {
+          if (typeof meta.target === "function")
+          {
+            names = names.concat(["prototype", "length", "name"]);
+          }
+
+          names = new Set(names);
+          Dogfood.modifyRules.storeUnknownAsLocal(field, meta.target);
+          Dogfood.modifyRules.requireLocalDelete(field, meta.target);
+          Dogfood.modifyRules.filterOwnKeys(
+            field, meta.target, names.has.bind(names)
+          );
+          meta.stopIteration();
+        },
+
+        handleProxy: function(meta) {
+          if (meta.target instanceof Membrane)
+          {
+            this.whitelist(meta, ["modifyRules", "logger"]);
+          }
+          else if (meta.target === Membrane)
+          {
+            this.whitelist(meta, []);
+          }
+          else if (meta.target === Membrane.prototype)
+          {
+            this.whitelist(meta, [
+              "hasHandlerByField",
+              "getHandlerByField",
+              "convertArgumentToProxy",
+              "warnOnce"
+            ]);
+          }
+          else if (!this.mustProxyMethods.has(meta.target))
+          {
+            meta.proxy = meta.target;
+          }
+        }
+      };
+
+      {
+        let keys = Reflect.ownKeys(Membrane.prototype);
+        keys.forEach(function(propName) {
+          let value = Membrane.prototype[propName];
+          if (typeof value == "function")
+            mbListener.mustProxyMethods.add(value);
+        });
+      }
+
+      Object.freeze(mbListener);
+      publicAPI.addProxyListener(mbListener.handleProxy.bind(mbListener));
+
+      const DMembrane = Dogfood.convertArgumentToProxy(
+        internalAPI, publicAPI, Membrane
+      );
+  
+      expect(function() {
+        const dryWetMB = new DMembrane();
+        const wetHandler = dryWetMB.getHandlerByField("wet", true);
+      }).not.toThrow();
+    }
+  );
 });

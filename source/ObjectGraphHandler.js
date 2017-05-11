@@ -88,6 +88,14 @@ ObjectGraphHandler.prototype = Object.seal({
       if (typeof hasOwn !== "undefined")
         return true;
       target = this.getPrototypeOf(target);
+      if (target === null)
+        break;
+      let foundProto;
+      [foundProto, target] = this.membrane.getMembraneValue(
+        this.fieldName,
+        target
+      );
+      assert(foundProto, "Must find membrane value for prototype");
     }
     return false;
   }),
@@ -95,6 +103,8 @@ ObjectGraphHandler.prototype = Object.seal({
   // ProxyHandler
   get: inGraphHandler("get", function(shadowTarget, propName, receiver) {
     var desc, target, found, rv, protoLookups = 0;
+    target = getRealTarget(shadowTarget);
+    shadowTarget = null;
 
     /*
     http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-get-p-receiver
@@ -112,18 +122,17 @@ ObjectGraphHandler.prototype = Object.seal({
     8. Return ? Call(getter, Receiver). 
      */
 
+
+    // 1. Assert: IsPropertyKey(P) is true.
+    // Optimization:  do this once!
+    AssertIsPropertyKey(propName);
+
     /* Optimization:  Recursively calling this.get() is a pain in the neck,
      * especially for the stack trace.  So let's use a do...while loop to reset
-     * only the entry arguments we need (specifically, shadowTarget, target).
+     * only the entry arguments we need (specifically, target).
      * We should exit the loop with desc, or return from the function.
      */
     do {
-      target = getRealTarget(shadowTarget);  
-
-      // 1. Assert: IsPropertyKey(P) is true.
-      if (protoLookups === 0)
-        AssertIsPropertyKey(propName);
-
       {
         /* Special case:  Look for a local property descriptors first, and if we
          * find it, return it unwrapped.
@@ -153,10 +162,10 @@ ObjectGraphHandler.prototype = Object.seal({
            b. If parent is null, return undefined.
            c. Return ? parent.[[Get]](P, Receiver).
        */
-      desc = this.getOwnPropertyDescriptor(shadowTarget, propName);
+      desc = this.getOwnPropertyDescriptor(target, propName);
       if (!desc) {
         protoLookups++;
-        let parent = this.getPrototypeOf(shadowTarget);
+        let parent = this.getPrototypeOf(target);
         if (parent === null)
           return undefined;
 
@@ -166,7 +175,11 @@ ObjectGraphHandler.prototype = Object.seal({
         );
         assert(foundProto, "Must find membrane proxy for prototype");
         assert(other === parent, "Retrieved prototypes must match");
-        shadowTarget = parent;
+        [foundProto, target] = this.membrane.getMembraneValue(
+          this.fieldName,
+          parent
+        );
+        assert(foundProto, "Must find membrane proxy for prototype");
       }
     } while (!desc);
 
@@ -230,6 +243,11 @@ ObjectGraphHandler.prototype = Object.seal({
       this.membrane.logger.debug("propName: " + propName.toString());
     }
     var target = getRealTarget(shadowTarget);
+    {
+      let [found, unwrapped] = this.membrane.getMembraneValue(this.fieldName, target);
+      assert(found, "Original target must be found after calling getRealTarget");
+      assert(unwrapped === target, "Original target must match getMembraneValue's return value");
+    }
     var targetMap = this.membrane.map.get(target);
 
     if (this.membrane.showGraphName && (propName == "membraneGraphName")) {
@@ -275,6 +293,7 @@ ObjectGraphHandler.prototype = Object.seal({
       }
 
       // Non-configurable descriptors must apply on the actual proxy target.
+      // XXX ajvincent Somehow shadowTarget is a proxy... that seems bad.
       if (desc && !desc.configurable &&
           !Reflect.getOwnPropertyDescriptor(shadowTarget, propName)) {
         Reflect.defineProperty(shadowTarget, propName, desc);
@@ -619,6 +638,8 @@ ObjectGraphHandler.prototype = Object.seal({
     if (mayLog) {
       this.membrane.logger.debug("set propName: " + propName);
     }
+    let target = getRealTarget(shadowTarget);
+    shadowTarget = undefined;
 
     /*
     http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-set-p-v-receiver
@@ -665,8 +686,6 @@ ObjectGraphHandler.prototype = Object.seal({
       let checkedPropName = false, walkedAllowLocal = false;
 
       do {
-        let target = getRealTarget(shadowTarget);
-
         if (!checkedPropName) {
           // 1. Assert: IsPropertyKey(P) is true.
           AssertIsPropertyKey(propName);
@@ -708,7 +727,11 @@ ObjectGraphHandler.prototype = Object.seal({
               );
               assert(found, "Must find membrane proxy for prototype");
               assert(other === parent, "Retrieved prototypes must match");
-              shadowTarget = parent;
+              [found, target] = this.membrane.getMembraneValue(
+                this.fieldName,
+                parent
+              );
+              assert(found, "Must find membrane value for prototype");
             }
             else
               ownDesc = new DataDescriptor(undefined, true);
