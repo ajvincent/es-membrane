@@ -1,6 +1,6 @@
 {
   "name": "es7-membrane",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "An ECMAScript implementation of a Membrane, allowing users to dynamically hide, override, or extend objects in JavaScript with controlled effects on the original objects.",
   "main": "docs/dist/node/es7-membrane.js",
   "scripts": {
