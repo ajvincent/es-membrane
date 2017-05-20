@@ -39,6 +39,12 @@ function isAccessorDescriptor(desc) {
   return true;
 }
 
+function isGenericDescriptor(desc) {
+  if (typeof desc === "undefined")
+    return false;
+  return !isAccessorDescriptor(desc) && !isDataDescriptor(desc);
+}
+
 const allTraps = Object.freeze([
   "getPrototypeOf",
   "setPrototypeOf",

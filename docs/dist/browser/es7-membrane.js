@@ -2,6 +2,67 @@ var Membrane = (function() {
   // entering Membrane pseudo-module definition
 
 "use strict"
+function NOT_IMPLEMENTED() {
+  throw new Error("Not implemented!");
+}
+
+function DataDescriptor(value, writable = false, enumerable = true, configurable = true) {
+  this.value = value;
+  this.writable = writable;
+  this.enumerable = enumerable;
+  this.configurable = configurable;
+}
+
+function AccessorDescriptor(getter, setter, enumerable = true, configurable = true) {
+  this.get = getter;
+  this.set = setter;
+  this.enumerable = enumerable;
+  this.configurable = configurable;
+}
+
+const NOT_IMPLEMENTED_DESC = new AccessorDescriptor(
+  NOT_IMPLEMENTED,
+  NOT_IMPLEMENTED
+);
+
+function isDataDescriptor(desc) {
+  if (typeof desc === "undefined")
+    return false;
+  if (!("value" in desc) && !("writable" in desc))
+    return false;
+  return true;
+}
+
+function isAccessorDescriptor(desc) {
+  if (typeof desc === "undefined") {
+    return false;
+  }
+  if (!("get" in desc) && !("set" in desc))
+    return false;
+  return true;
+}
+
+function isGenericDescriptor(desc) {
+  if (typeof desc === "undefined")
+    return false;
+  return !isAccessorDescriptor(desc) && !isDataDescriptor(desc);
+}
+
+const allTraps = Object.freeze([
+  "getPrototypeOf",
+  "setPrototypeOf",
+  "isExtensible",
+  "preventExtensions",
+  "getOwnPropertyDescriptor",
+  "defineProperty",
+  "has",
+  "get",
+  "set",
+  "deleteProperty",
+  "ownKeys",
+  "apply",
+  "construct"
+]);
 function valueType(value) {
   if (value === null)
     return "primitive";
@@ -56,6 +117,22 @@ function getRealTarget(target) {
   return ShadowKeyMap.has(target) ? ShadowKeyMap.get(target) : target;
 }
 
+function stringifyArg(arg) {
+  if (arg === null)
+    return "null";
+  if (arg === undefined)
+    return "undefined";
+  if (Array.isArray(arg))
+    return "[" + arg.map(stringifyArg).join(", ") + "]";
+
+  let type = valueType(arg);
+  if (type == "primitive")
+    return arg.toString();
+  if (type == "function")
+    return "()";
+  return "{}";
+}
+
 /**
  * @deprecated
  */
@@ -68,14 +145,23 @@ function inGraphHandler(trapName, callback) {
   return function() {
     if (this.__isDead__)
       throw new Error("This membrane handler is dead!");
+    var msg;
 
     let mayLog = this.membrane.__mayLog__();
 
     this.membrane.handlerStack.unshift(trapName);
     if (mayLog) {
-      this.membrane.logger.trace(
-        trapName + " inGraphHandler++",
-        this.membrane.handlerStack.length - 2
+      msg = trapName + "(";
+      for (let i = 0; i < arguments.length; i++) {
+        let arg = arguments[i];
+        msg += stringifyArg(arg) + ", ";
+      }
+      if (arguments.length)
+        msg = msg.substr(0, msg.length - 2);
+      msg += ")";
+
+      this.membrane.logger.info(
+        msg + " inGraphHandler++"
       );
     }
 
@@ -89,16 +175,16 @@ function inGraphHandler(trapName, callback) {
     finally {
       this.membrane.handlerStack.shift();
       if (mayLog) {
-        this.membrane.logger.trace(
-          trapName + " inGraphHandler--",
-          this.membrane.handlerStack.length - 2
+        msg += " returned " + stringifyArg(rv);
+        this.membrane.logger.info(
+          msg + " inGraphHandler--"
         );
       }
     }
 
     return rv;
   };
-  */
+  //*/
 }
 
 const NOT_YET_DETERMINED = {};
@@ -712,7 +798,7 @@ MembraneInternal.prototype = Object.seal({
 
     let argMap = this.map.get(arg);
     if (mayLog) {
-      this.logger.trace("wrapArgumentByHandler found: " + Boolean(argMap));
+      this.logger.debug("wrapArgumentByHandler found: " + Boolean(argMap));
     }
 
     let passOptions;
@@ -1132,6 +1218,9 @@ ObjectGraphHandler.prototype = Object.seal({
     var targetMap = this.membrane.map.get(target);
 
     if (this.membrane.showGraphName && (propName == "membraneGraphName")) {
+      let checkDesc = Reflect.getOwnPropertyDescriptor(shadowTarget, propName);
+      if (checkDesc && !checkDesc.configurable)
+        return checkDesc;
       return this.graphNameDescriptor;
     }
 
@@ -1271,7 +1360,6 @@ ObjectGraphHandler.prototype = Object.seal({
     var targetMap = this.membrane.map.get(target);
     var _this = targetMap.getOriginal();
 
-
     // Walk the prototype chain to look for shouldBeLocal.
     var shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
     if (shouldBeLocal) {
@@ -1292,16 +1380,11 @@ ObjectGraphHandler.prototype = Object.seal({
     if (!this.isExtensible(target))
       return true;
 
-    var rv = this.externalHandler(function() {
-      return Reflect.preventExtensions(_this);
-    });
-    if (rv) {
-      // This is our one and only chance to set properties on the shadow target.
-      let keys = this.setOwnKeys(shadowTarget);
-      keys.forEach(this.copyProperty.bind(this, _this, shadowTarget));
-      Reflect.preventExtensions(shadowTarget);
-    }
-    return rv;
+    /* OrdinaryPreventExtensions unconditionally returns true. */
+    let keys = this.setOwnKeys(shadowTarget);
+    keys.forEach(this.copyProperty.bind(this, _this, shadowTarget));
+    Reflect.preventExtensions(shadowTarget);
+    return Reflect.preventExtensions(_this);
   }),
 
   // ProxyHandler
@@ -1413,9 +1496,11 @@ ObjectGraphHandler.prototype = Object.seal({
       this.membrane.logger.debug("propName: " + propName.toString());
     }
 
+    if (this.membrane.showGraphName && (propName == "membraneGraphName")) {
+      return Reflect.defineProperty(shadowTarget, propName, desc);
+    }
+
     try {
-      if (!this.isExtensible(shadowTarget))
-        return false;
       var targetMap = this.membrane.map.get(target);
       var _this = targetMap.getOriginal();
 
@@ -1451,6 +1536,9 @@ ObjectGraphHandler.prototype = Object.seal({
       }
 
       if (shouldBeLocal) {
+        if (!Reflect.isExtensible(shadowTarget))
+          return false;
+
         let hasOwn = true;
 
         // Own-keys filters modify hasOwn.

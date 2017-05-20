@@ -4,4 +4,5 @@ module.exports.DataDescriptor = DataDescriptor;
 module.exports.AccessorDescriptor = AccessorDescriptor;
 module.exports.isDataDescriptor = isDataDescriptor;
 module.exports.isAccessorDescriptor = isAccessorDescriptor;
+module.exports.isGenericDescriptor = isGenericDescriptor;
 module.exports.allTraps = allTraps;

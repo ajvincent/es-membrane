@@ -52,6 +52,22 @@ function getRealTarget(target) {
   return ShadowKeyMap.has(target) ? ShadowKeyMap.get(target) : target;
 }
 
+function stringifyArg(arg) {
+  if (arg === null)
+    return "null";
+  if (arg === undefined)
+    return "undefined";
+  if (Array.isArray(arg))
+    return "[" + arg.map(stringifyArg).join(", ") + "]";
+
+  let type = valueType(arg);
+  if (type == "primitive")
+    return arg.toString();
+  if (type == "function")
+    return "()";
+  return "{}";
+}
+
 /**
  * @deprecated
  */
@@ -64,14 +80,23 @@ function inGraphHandler(trapName, callback) {
   return function() {
     if (this.__isDead__)
       throw new Error("This membrane handler is dead!");
+    var msg;
 
     let mayLog = this.membrane.__mayLog__();
 
     this.membrane.handlerStack.unshift(trapName);
     if (mayLog) {
-      this.membrane.logger.trace(
-        trapName + " inGraphHandler++",
-        this.membrane.handlerStack.length - 2
+      msg = trapName + "(";
+      for (let i = 0; i < arguments.length; i++) {
+        let arg = arguments[i];
+        msg += stringifyArg(arg) + ", ";
+      }
+      if (arguments.length)
+        msg = msg.substr(0, msg.length - 2);
+      msg += ")";
+
+      this.membrane.logger.info(
+        msg + " inGraphHandler++"
       );
     }
 
@@ -85,16 +110,16 @@ function inGraphHandler(trapName, callback) {
     finally {
       this.membrane.handlerStack.shift();
       if (mayLog) {
-        this.membrane.logger.trace(
-          trapName + " inGraphHandler--",
-          this.membrane.handlerStack.length - 2
+        msg += " returned " + stringifyArg(rv);
+        this.membrane.logger.info(
+          msg + " inGraphHandler--"
         );
       }
     }
 
     return rv;
   };
-  */
+  //*/
 }
 
 const NOT_YET_DETERMINED = {};

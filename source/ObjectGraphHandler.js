@@ -251,6 +251,9 @@ ObjectGraphHandler.prototype = Object.seal({
     var targetMap = this.membrane.map.get(target);
 
     if (this.membrane.showGraphName && (propName == "membraneGraphName")) {
+      let checkDesc = Reflect.getOwnPropertyDescriptor(shadowTarget, propName);
+      if (checkDesc && !checkDesc.configurable)
+        return checkDesc;
       return this.graphNameDescriptor;
     }
 
@@ -390,7 +393,6 @@ ObjectGraphHandler.prototype = Object.seal({
     var targetMap = this.membrane.map.get(target);
     var _this = targetMap.getOriginal();
 
-
     // Walk the prototype chain to look for shouldBeLocal.
     var shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
     if (shouldBeLocal) {
@@ -411,16 +413,11 @@ ObjectGraphHandler.prototype = Object.seal({
     if (!this.isExtensible(target))
       return true;
 
-    var rv = this.externalHandler(function() {
-      return Reflect.preventExtensions(_this);
-    });
-    if (rv) {
-      // This is our one and only chance to set properties on the shadow target.
-      let keys = this.setOwnKeys(shadowTarget);
-      keys.forEach(this.copyProperty.bind(this, _this, shadowTarget));
-      Reflect.preventExtensions(shadowTarget);
-    }
-    return rv;
+    /* OrdinaryPreventExtensions unconditionally returns true. */
+    let keys = this.setOwnKeys(shadowTarget);
+    keys.forEach(this.copyProperty.bind(this, _this, shadowTarget));
+    Reflect.preventExtensions(shadowTarget);
+    return Reflect.preventExtensions(_this);
   }),
 
   // ProxyHandler
@@ -532,9 +529,11 @@ ObjectGraphHandler.prototype = Object.seal({
       this.membrane.logger.debug("propName: " + propName.toString());
     }
 
+    if (this.membrane.showGraphName && (propName == "membraneGraphName")) {
+      return Reflect.defineProperty(shadowTarget, propName, desc);
+    }
+
     try {
-      if (!this.isExtensible(shadowTarget))
-        return false;
       var targetMap = this.membrane.map.get(target);
       var _this = targetMap.getOriginal();
 
@@ -570,6 +569,9 @@ ObjectGraphHandler.prototype = Object.seal({
       }
 
       if (shouldBeLocal) {
+        if (!Reflect.isExtensible(shadowTarget))
+          return false;
+
         let hasOwn = true;
 
         // Own-keys filters modify hasOwn.

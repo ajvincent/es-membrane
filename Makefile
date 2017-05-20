@@ -11,6 +11,7 @@ ifneq ("$(shell git status --porcelain)","")
 endif
 
 SOURCE_FILES = \
+	source/sharedUtilities.js \
 	source/moduleUtilities.js \
 	source/ProxyMapping.js \
 	source/Membrane.js \
@@ -47,6 +48,7 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/deleteProperty.js \
 	spec/non-membrane/filterOwnKeys.js \
 	spec/concepts.js \
+	spec/object-freeze.js \
 	spec/replaceProxies.js \
 	spec/proxyListeners.js \
 	spec/properties/storeUnknownAsLocal.js \
@@ -88,7 +90,6 @@ browser:: base mockDocs specs
 NODE_DIST_FILES = \
 	wrappers/useStrict.js \
 	wrappers/node/require-assert.js \
-	wrappers/node/require-utilities.js \
 	$(DIST)/staging/es7-membrane.js \
 	wrappers/node/export-membrane.js \
 	$(NULL)

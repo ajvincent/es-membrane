@@ -250,7 +250,7 @@ MembraneInternal.prototype = Object.seal({
 
     let argMap = this.map.get(arg);
     if (mayLog) {
-      this.logger.trace("wrapArgumentByHandler found: " + Boolean(argMap));
+      this.logger.debug("wrapArgumentByHandler found: " + Boolean(argMap));
     }
 
     let passOptions;
