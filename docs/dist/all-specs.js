@@ -1252,8 +1252,9 @@ describe("basic concepts: ", function() {
     const traceMap = new Map(/* value: name */);
     {
       traceMap.addMember = function(value, name) {
-        this.set(value, name);
-        if (typeof value === "function")
+        if (!this.has(value))
+          this.set(value, name);
+        if ((typeof value === "function") && !this.has(value.prototype))
           this.set(value.prototype, name + ".prototype");
       };
 
@@ -1362,7 +1363,6 @@ describe("basic concepts: ", function() {
       ];
       expect(chain).toEqual(expectedChain);
     }
-    return;
 
     expect(dryRoot.namespaceURI).toBe(XHTMLElementDryProto.namespaceURI);
     expect(wetRoot.namespaceURI).toBe(XHTMLElementDryProto.namespaceURI);
@@ -1380,7 +1380,6 @@ describe("basic concepts: ", function() {
       let chain = traceMap.getPrototypeChain(x);
       let expectedChain = [
         "x",
-        "XHTMLElementDry.prototype",
         "XHTMLElementDryProto",
         "parts.dry.Element.prototype",
         "parts.dry.Node.prototype",
