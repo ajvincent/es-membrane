@@ -68,7 +68,7 @@ Object.defineProperties(ProxyMapping.prototype, {
   "getShadowTarget": new DataDescriptor(function(field) {
     var rv = this.proxiedFields[field];
     if (!rv)
-      throw new Error("getValue called for unknown field!");
+      throw new Error("getShadowTarget called for unknown field!");
     rv = rv.shadowTarget;
     return rv;
   }),

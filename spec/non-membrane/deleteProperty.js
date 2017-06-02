@@ -39,6 +39,21 @@ describe("Reflect.deleteProperty() in non-proxy operations returns", function() 
       expect(inner.prop).toBe(2);
     }
   );
+
+  it(
+    "true when the object is non-extensible",
+    function() {
+      Reflect.defineProperty(inner, "prop", {
+        value: 2,
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });
+      Reflect.preventExtensions(inner);
+      expect(Reflect.deleteProperty(inner, "prop")).toBe(true);
+      expect(inner.prop).toBe(undefined);
+    }
+  );
 });
 
 describe("Reflect.deleteProperty() in proxy operations returns", function() {
@@ -88,6 +103,22 @@ describe("Reflect.deleteProperty() in proxy operations returns", function() {
       expect(Reflect.deleteProperty(proxy, "prop")).toBe(false);
       expect(inner.prop).toBe(2);
       expect(proxy.prop).toBe(2);
+    }
+  );
+
+  it(
+    "true when the proxy is non-extensible",
+    function() {
+      Reflect.defineProperty(inner, "prop", {
+        value: 2,
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });
+      Reflect.preventExtensions(proxy);
+      expect(Reflect.deleteProperty(proxy, "prop")).toBe(true);
+      expect(inner.prop).toBe(undefined);
+      expect(proxy.prop).toBe(undefined);
     }
   );
 });

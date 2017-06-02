@@ -49,7 +49,7 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/filterOwnKeys.js \
 	spec/non-membrane/freeze-seal.js \
 	spec/concepts.js \
-	spec/object-freeze.js \
+	spec/freeze-seal.js \
 	spec/replaceProxies.js \
 	spec/proxyListeners.js \
 	spec/properties/storeUnknownAsLocal.js \
