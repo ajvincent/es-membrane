@@ -1208,14 +1208,7 @@ ObjectGraphHandler.prototype = Object.seal({
       throw new Error("Membrane fall-through: we should not get here");
     }
 
-    {
-      let targetMap = this.membrane.map.get(target);
-      return this.membrane.convertArgumentToProxy(
-        this.membrane.getHandlerByField(targetMap.originField),
-        this,
-        rv
-      );
-    }
+    return rv;
   }),
 
   // ProxyHandler
