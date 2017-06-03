@@ -48,6 +48,7 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/deleteProperty.js \
 	spec/non-membrane/filterOwnKeys.js \
 	spec/non-membrane/freeze-seal.js \
+	spec/non-membrane/prototypes.js \
 	spec/concepts.js \
 	spec/freeze-seal.js \
 	spec/replaceProxies.js \

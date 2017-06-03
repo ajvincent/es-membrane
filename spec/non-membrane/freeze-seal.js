@@ -117,6 +117,7 @@ describe("Object.freeze() on objects with proxies directly reflecting them", fun
     revoke();
   });
 });
+
 describe("Object.freeze() on proxies to objects", function() {
   "use strict";
   it("works as expected with primitive properties", function() {
