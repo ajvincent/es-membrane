@@ -570,16 +570,6 @@ function MembraneInternal(options = {}) {
       configurable:false
     },
 
-    /**
-     * A map of membrane proxies (belonging to function prototypes) to freezable
-     * ordinary Proxies.
-     *
-     * @private
-     */
-    "prototypeMap": new DataDescriptor(new WeakMap(/*
-      proxy: new Proxy(proxy, Reflect)
-    */)),
-
     /* Disabled, dead API.
     "handlerStack": {
       // This has two "external" strings because at all times, we require
@@ -1156,11 +1146,6 @@ ObjectGraphHandler.prototype = Object.seal({
             proto
           );
           assert(foundProto, "Must find membrane proxy for prototype");
-
-          let sMapping = this.membrane.map.get(proto);
-          assert(sMapping, "Missing a ProxyMapping?");
-          if (sMapping.originField != this.fieldName)
-            other = this.membrane.prototypeMap.get(other);
           assert(other === proto, "Retrieved prototypes must match");
         }
 
@@ -1285,8 +1270,6 @@ ObjectGraphHandler.prototype = Object.seal({
           targetMap.originField, this.fieldName, desc
         );
         desc.configurable = configurable;
-
-        desc.value = this.wrapPrototype(desc.value);
       }
       else if ((desc !== undefined) &&
                (targetMap.originField !== this.fieldName)) {
@@ -1331,10 +1314,6 @@ ObjectGraphHandler.prototype = Object.seal({
      * doesn't have a non-configurability requirement to exactly match the way
      * the .prototype property lookup does.
      *
-     * To alleviate this, I introduced wrapPrototype, which wraps a retrieved
-     * proxy in a Reflect proxy.  Technically this double-wrapping may not be
-     * necessary, but it helped me spot bugs along the way.
-     *
      * It's also for this reason that getPrototypeOf and setPrototypeOf were
      * completely rewritten to more directly use the real prototype chain.
      *
@@ -1369,7 +1348,6 @@ ObjectGraphHandler.prototype = Object.seal({
 
       let pMapping = this.membrane.map.get(proxy);
       if (pMapping && (pMapping.originField !== this.fieldName)) {
-        proxy = this.wrapPrototype(proxy);
         assert(Reflect.setPrototypeOf(shadowTarget, proxy),
                "shadowTarget could not receive prototype?");
       }
@@ -1732,8 +1710,6 @@ ObjectGraphHandler.prototype = Object.seal({
         assert(sMapping, "Missing a ProxyMapping?");
 
         if (sMapping.originField != this.fieldName) {
-          other = this.membrane.prototypeMap.get(other);
-          assert(other === parent, "Retrieved prototypes must match");
           [found, target] = this.membrane.getMembraneValue(
             this.fieldName,
             parent
@@ -1870,7 +1846,6 @@ ObjectGraphHandler.prototype = Object.seal({
           this.fieldName, proto
         );
         assert(found, "Membrane proxy not found immediately after wrapping!");
-        wrappedProxy = this.wrapPrototype(wrappedProxy);
       }
       else {
         protoProxy = proto;
@@ -2165,27 +2140,12 @@ ObjectGraphHandler.prototype = Object.seal({
       desc.configurable = true;
       desc = this.membrane.wrapDescriptor(originField, this.fieldName, desc);
       desc.configurable = configurable;
-
-      desc.value = this.wrapPrototype(desc.value);
     }
     else
       desc = this.membrane.wrapDescriptor(originField, this.fieldName, desc);
 
     if (desc)
       Reflect.defineProperty(shadowTarget, propName, desc);
-  },
-
-  wrapPrototype: function(proto) {
-    if (!proto)
-      return proto;
-    if (!this.membrane.prototypeMap.has(proto)) {
-      const mapping = this.membrane.map.get(proto);
-      assert(mapping instanceof ProxyMapping, "No mapping found for prototype?");
-      let proxy = new Proxy(proto, Reflect);
-      this.membrane.prototypeMap.set(proto, proxy);
-      this.membrane.map.set(proxy, mapping);
-    }
-    return this.membrane.prototypeMap.get(proto);
   },
 
   /**
@@ -2627,11 +2587,8 @@ ModifyRulesAPI.prototype = Object.seal({
       if (cachedField == map.originField)
         throw new Error("You must replace original values with either Reflect or a ChainHandler inheriting from Reflect");
     }
-    cachedProxy = map.getProxy(cachedField);
-    // special case for function prototypes
-    if (this.membrane.prototypeMap.has(cachedProxy))
-      cachedProxy = this.membrane.prototypeMap.get(cachedProxy);
 
+    cachedProxy = map.getProxy(cachedField);
     if (cachedProxy != oldProxy)
       throw new Error("You cannot replace the proxy with a handler from a different object graph!");
 
@@ -2667,16 +2624,7 @@ ModifyRulesAPI.prototype = Object.seal({
    */
   assertLocalProxy: function(fieldName, proxy, methodName) {
     let [found, match] = this.membrane.getMembraneProxy(fieldName, proxy);
-    if (!found) {
-      throw new Error(methodName + " requires a known proxy!");
-    }
-
-    // special case for function prototypes
-    if ((proxy !== match) && this.membrane.prototypeMap.has(match)) {
-      match = this.membrane.prototypeMap.get(match);
-    }
-
-    if (proxy !== match) {
+    if (!found || (proxy !== match)) {
       throw new Error(methodName + " requires a known proxy!");
     }
   },

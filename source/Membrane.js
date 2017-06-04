@@ -23,16 +23,6 @@ function MembraneInternal(options = {}) {
       configurable:false
     },
 
-    /**
-     * A map of membrane proxies (belonging to function prototypes) to freezable
-     * ordinary Proxies.
-     *
-     * @private
-     */
-    "prototypeMap": new DataDescriptor(new WeakMap(/*
-      proxy: new Proxy(proxy, Reflect)
-    */)),
-
     /* Disabled, dead API.
     "handlerStack": {
       // This has two "external" strings because at all times, we require

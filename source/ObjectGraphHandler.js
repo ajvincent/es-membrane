@@ -180,11 +180,6 @@ ObjectGraphHandler.prototype = Object.seal({
             proto
           );
           assert(foundProto, "Must find membrane proxy for prototype");
-
-          let sMapping = this.membrane.map.get(proto);
-          assert(sMapping, "Missing a ProxyMapping?");
-          if (sMapping.originField != this.fieldName)
-            other = this.membrane.prototypeMap.get(other);
           assert(other === proto, "Retrieved prototypes must match");
         }
 
@@ -309,8 +304,6 @@ ObjectGraphHandler.prototype = Object.seal({
           targetMap.originField, this.fieldName, desc
         );
         desc.configurable = configurable;
-
-        desc.value = this.wrapPrototype(desc.value);
       }
       else if ((desc !== undefined) &&
                (targetMap.originField !== this.fieldName)) {
@@ -355,10 +348,6 @@ ObjectGraphHandler.prototype = Object.seal({
      * doesn't have a non-configurability requirement to exactly match the way
      * the .prototype property lookup does.
      *
-     * To alleviate this, I introduced wrapPrototype, which wraps a retrieved
-     * proxy in a Reflect proxy.  Technically this double-wrapping may not be
-     * necessary, but it helped me spot bugs along the way.
-     *
      * It's also for this reason that getPrototypeOf and setPrototypeOf were
      * completely rewritten to more directly use the real prototype chain.
      *
@@ -393,7 +382,6 @@ ObjectGraphHandler.prototype = Object.seal({
 
       let pMapping = this.membrane.map.get(proxy);
       if (pMapping && (pMapping.originField !== this.fieldName)) {
-        proxy = this.wrapPrototype(proxy);
         assert(Reflect.setPrototypeOf(shadowTarget, proxy),
                "shadowTarget could not receive prototype?");
       }
@@ -756,8 +744,6 @@ ObjectGraphHandler.prototype = Object.seal({
         assert(sMapping, "Missing a ProxyMapping?");
 
         if (sMapping.originField != this.fieldName) {
-          other = this.membrane.prototypeMap.get(other);
-          assert(other === parent, "Retrieved prototypes must match");
           [found, target] = this.membrane.getMembraneValue(
             this.fieldName,
             parent
@@ -894,7 +880,6 @@ ObjectGraphHandler.prototype = Object.seal({
           this.fieldName, proto
         );
         assert(found, "Membrane proxy not found immediately after wrapping!");
-        wrappedProxy = this.wrapPrototype(wrappedProxy);
       }
       else {
         protoProxy = proto;
@@ -1189,27 +1174,12 @@ ObjectGraphHandler.prototype = Object.seal({
       desc.configurable = true;
       desc = this.membrane.wrapDescriptor(originField, this.fieldName, desc);
       desc.configurable = configurable;
-
-      desc.value = this.wrapPrototype(desc.value);
     }
     else
       desc = this.membrane.wrapDescriptor(originField, this.fieldName, desc);
 
     if (desc)
       Reflect.defineProperty(shadowTarget, propName, desc);
-  },
-
-  wrapPrototype: function(proto) {
-    if (!proto)
-      return proto;
-    if (!this.membrane.prototypeMap.has(proto)) {
-      const mapping = this.membrane.map.get(proto);
-      assert(mapping instanceof ProxyMapping, "No mapping found for prototype?");
-      let proxy = new Proxy(proto, Reflect);
-      this.membrane.prototypeMap.set(proto, proxy);
-      this.membrane.map.set(proxy, mapping);
-    }
-    return this.membrane.prototypeMap.get(proto);
   },
 
   /**
