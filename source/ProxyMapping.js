@@ -19,7 +19,6 @@ function ProxyMapping(originField) {
   };
 
   this.originalValue = NOT_YET_DETERMINED;
-  this.protoMapping = NOT_YET_DETERMINED;
 
   /**
    * @private

@@ -251,7 +251,6 @@ function ProxyMapping(originField) {
   };
 
   this.originalValue = NOT_YET_DETERMINED;
-  this.protoMapping = NOT_YET_DETERMINED;
 
   /**
    * @private
@@ -570,6 +569,16 @@ function MembraneInternal(options = {}) {
       enumerable: false,
       configurable:false
     },
+
+    /**
+     * A map of membrane proxies (belonging to function prototypes) to freezable
+     * ordinary Proxies.
+     *
+     * @private
+     */
+    "prototypeMap": new DataDescriptor(new WeakMap(/*
+      proxy: new Proxy(proxy, Reflect)
+    */)),
 
     /* Disabled, dead API.
     "handlerStack": {
@@ -1073,7 +1082,6 @@ ObjectGraphHandler.prototype = Object.seal({
   get: inGraphHandler("get", function(shadowTarget, propName, receiver) {
     var desc, target, found, rv, protoLookups = 0;
     target = getRealTarget(shadowTarget);
-    shadowTarget = null;
 
     /*
     http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-get-p-receiver
@@ -1134,28 +1142,29 @@ ObjectGraphHandler.prototype = Object.seal({
       let shadow = targetMap.getShadowTarget(this.fieldName);
       desc = this.getOwnPropertyDescriptor(shadow, propName);
       if (!desc) {
+        // this is just for debugging purposes and has no real meaning.
         protoLookups++;
+
         let proto = this.getPrototypeOf(shadow);
         if (proto === null)
           return undefined;
 
-        let isExt = Reflect.isExtensible(shadow);
         {
           let foundProto, other;
-          if (isExt)
-            [foundProto, other] = this.membrane.getMembraneProxy(
-              this.fieldName,
-              proto
-            );
-          else
-            [foundProto, other] = this.membrane.getMembraneValue(
-              this.fieldName,
-              proto
-            );
+          [foundProto, other] = this.membrane.getMembraneProxy(
+            this.fieldName,
+            proto
+          );
           assert(foundProto, "Must find membrane proxy for prototype");
+
+          let sMapping = this.membrane.map.get(proto);
+          assert(sMapping, "Missing a ProxyMapping?");
+          if (sMapping.originField != this.fieldName)
+            other = this.membrane.prototypeMap.get(other);
           assert(other === proto, "Retrieved prototypes must match");
         }
-        if (isExt)
+
+        if (Reflect.isExtensible(shadow))
         {
           let foundProto;
           [foundProto, target] = this.membrane.getMembraneValue(
@@ -1265,7 +1274,22 @@ ObjectGraphHandler.prototype = Object.seal({
       desc = this.externalHandler(function() {
         return Reflect.getOwnPropertyDescriptor(_this, propName);
       });
-      if ((desc !== undefined) && (targetMap.originField !== this.fieldName)) {
+
+      // See .getPrototypeOf trap comments for why this matters.
+      const isProtoDesc = (propName === "prototype") && isDataDescriptor(desc);
+      if (isProtoDesc) {
+        // This is necessary to force desc.value to really be a proxy.
+        let configurable = desc.configurable;
+        desc.configurable = true;
+        desc = this.membrane.wrapDescriptor(
+          targetMap.originField, this.fieldName, desc
+        );
+        desc.configurable = configurable;
+
+        desc.value = this.wrapPrototype(desc.value);
+      }
+      else if ((desc !== undefined) &&
+               (targetMap.originField !== this.fieldName)) {
         desc = this.membrane.wrapDescriptor(
           targetMap.originField,
           this.fieldName,
@@ -1274,10 +1298,11 @@ ObjectGraphHandler.prototype = Object.seal({
       }
 
       // Non-configurable descriptors must apply on the actual proxy target.
-      // XXX ajvincent Somehow shadowTarget is a proxy... that seems bad.
-      if (desc && !desc.configurable &&
-          !Reflect.getOwnPropertyDescriptor(shadowTarget, propName)) {
-        Reflect.defineProperty(shadowTarget, propName, desc);
+      if (desc && !desc.configurable) {
+        let current = Reflect.getOwnPropertyDescriptor(shadowTarget, propName);
+        let attempt = Reflect.defineProperty(shadowTarget, propName, desc);
+        assert(!current || attempt,
+               "Non-configurable descriptors must apply on the actual proxy target.");
       }
 
       return desc;
@@ -1292,56 +1317,63 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   getPrototypeOf: inGraphHandler("getPrototypeOf", function(shadowTarget) {
+    /* Prototype objects are special in JavaScript, but with proxies there is a
+     * major drawback.  If the prototype property of a function is
+     * non-configurable on the proxy target, the proxy is required to return the
+     * proxy target's actual prototype property instead of a wrapper.  You might
+     * think "just store the wrapped prototype on the shadow target," and maybe
+     * that would work.
+     *
+     * The trouble arises when you have multiple objects sharing the same
+     * prototype object (either through .prototype on functions or through
+     * Reflect.getPrototypeOf on ordinary objects).  Some of them may be frozen,
+     * others may be sealed, still others not.  The point is .getPrototypeOf()
+     * doesn't have a non-configurability requirement to exactly match the way
+     * the .prototype property lookup does.
+     *
+     * To alleviate this, I introduced wrapPrototype, which wraps a retrieved
+     * proxy in a Reflect proxy.  Technically this double-wrapping may not be
+     * necessary, but it helped me spot bugs along the way.
+     *
+     * It's also for this reason that getPrototypeOf and setPrototypeOf were
+     * completely rewritten to more directly use the real prototype chain.
+     *
+     * One more thing:  it is a relatively safe practice to use a proxy to add,
+     * remove or modify individual properties, and ModifyRulesAPI.js supports
+     * that in several flavors.  It is doable, but NOT safe, to alter the
+     * prototype chain in such a way that breaks the perfect mirroring between
+     * object graphs.  Thus, this membrane code will never directly support that
+     * as an option.  If you really insist, you should look at either
+     * ModifyRulesAPI.prototype.replaceProxy(), or replacing the referring
+     * membrane proxy in the object graph with its own shadow target.
+     *
+     * XXX ajvincent update this comment after fixing #76 to specify how the
+     * user will extract the shadow target.
+     */
+    const target = getRealTarget(shadowTarget);
+    const targetMap = this.membrane.map.get(target);
+    if (targetMap.getShadowTarget(this.fieldName) !== shadowTarget)
+      throw new Error("getPrototypeOf must be called with a shadow target");
+
     try {
-      const target = getRealTarget(shadowTarget);
-      const targetMap = this.membrane.map.get(target);
-      assert(targetMap.getShadowTarget(this.fieldName) === shadowTarget,
-             "getPrototypeOf must be called with a shadow target");
-      if (targetMap.protoMapping === NOT_YET_DETERMINED) {
-        let proto = this.externalHandler(function() {
-          return Reflect.getPrototypeOf(target);
-        });
-        let pType = valueType(proto);
-        if (pType == "primitive") {
-          assert(proto === null,
-                 "Reflect.getPrototypeOf(target) should return Object or null");
-          targetMap.protoMapping = null;
-        }
-        else {
-          let pMapping = this.membrane.map.get(proto);
-          if (!pMapping) {
-            this.membrane.wrapArgumentByProxyMapping(targetMap, proto);
-            pMapping = this.membrane.map.get(proto);
-            assert(pMapping instanceof ProxyMapping,
-                   "We didn't get a proxy mapping for proto?");
-          }
-          targetMap.protoMapping = pMapping;
-        }
+      const proto = Reflect.getPrototypeOf(target);
+      let proxy;
+      if (targetMap.originField !== this.fieldName)
+        proxy = this.membrane.convertArgumentToProxy(
+          this.membrane.getHandlerByField(targetMap.originField),
+          this,
+          proto
+        );
+      else
+        proxy = proto;
+
+      let pMapping = this.membrane.map.get(proxy);
+      if (pMapping && (pMapping.originField !== this.fieldName)) {
+        proxy = this.wrapPrototype(proxy);
+        assert(Reflect.setPrototypeOf(shadowTarget, proxy),
+               "shadowTarget could not receive prototype?");
       }
-
-      {
-        let pMapping = targetMap.protoMapping;
-        if (pMapping === null)
-          return null;
-        assert(pMapping instanceof ProxyMapping,
-               "We must have a property mapping by now!");
-        if (!pMapping.hasField(this.fieldName)) {
-          let proto = pMapping.getOriginal();
-          this.membrane.wrapArgumentByHandler(this, proto);
-          assert(pMapping.hasField(this.fieldName),
-                 "wrapArgumentByHandler should've established a field name!");
-        }
-
-        let sIsExt = Reflect.isExtensible(shadowTarget);
-        let proxy = sIsExt ? pMapping.getProxy(this.fieldName) : pMapping.getOriginal();
-
-        if (!sIsExt) {
-          let sProxy = Reflect.getPrototypeOf(shadowTarget);
-          assert(sProxy === proxy, "Why are these prototype proxies different?");
-        }
-        assert(Reflect.setPrototypeOf(shadowTarget, proxy), "shadowTarget could not receive prototype?");
-        return proxy;
-      }
+      return proxy;
     }
     catch (e) {
       if (this.membrane.__mayLog__()) {
@@ -1362,25 +1394,15 @@ ObjectGraphHandler.prototype = Object.seal({
     
     var targetMap = this.membrane.map.get(target);
     var _this = targetMap.getOriginal();
+
     var rv = this.externalHandler(function() {
       return Reflect.isExtensible(_this);
     });
-    if (!rv) {
+
+    if (!rv)
       // This is our one and only chance to set properties on the shadow target.
-      let keys = this.setOwnKeys(shadowTarget);
-      keys.forEach(this.copyProperty.bind(this, _this, shadowTarget));
-      {
-        // fix the prototype;
-        let proto = this.getPrototypeOf(shadowTarget);
-        if (proto) {
-          let pMap  = this.membrane.map.get(proto);
-          proto = pMap.getOriginal();
-        }
-        assert(Reflect.setPrototypeOf(shadowTarget, proto),
-               "Failed to set unwrapped prototype on non-extensible?");
-      }
-      Reflect.preventExtensions(shadowTarget);
-    }
+      this.lockShadowTarget(shadowTarget);
+
     return rv;
   }),
 
@@ -1397,20 +1419,7 @@ ObjectGraphHandler.prototype = Object.seal({
       return true;
 
     // This is our one and only chance to set properties on the shadow target.
-    let keys = this.setOwnKeys(shadowTarget);
-    keys.forEach(this.copyProperty.bind(this, _this, shadowTarget));
-
-    {
-      // fix the prototype;
-      let proto = this.getPrototypeOf(shadowTarget);
-      if (proto) {
-        let pMap  = this.membrane.map.get(proto);
-        proto = pMap.getOriginal();
-      }
-      assert(Reflect.setPrototypeOf(shadowTarget, proto),
-             "Failed to set unwrapped prototype on non-extensible?");
-    }
-    var rv = Reflect.preventExtensions(shadowTarget);
+    var rv = this.lockShadowTarget(shadowTarget);
 
     if (!shouldBeLocal)
       rv = Reflect.preventExtensions(_this);
@@ -1638,7 +1647,6 @@ ObjectGraphHandler.prototype = Object.seal({
       this.membrane.logger.debug("set propName: " + propName);
     }
     let target = getRealTarget(shadowTarget);
-    shadowTarget = undefined;
 
     /*
     http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-set-p-v-receiver
@@ -1680,66 +1688,64 @@ ObjectGraphHandler.prototype = Object.seal({
      * We should exit the loop with desc, or return from the function.
      */
 
-    var ownDesc, shouldBeLocal = false;
-    {
-      let checkedPropName = false, walkedAllowLocal = false;
+    // 1. Assert: IsPropertyKey(P) is true.
+    AssertIsPropertyKey(propName);
 
-      do {
-        if (!checkedPropName) {
-          // 1. Assert: IsPropertyKey(P) is true.
-          AssertIsPropertyKey(propName);
-          checkedPropName = true;
+    var ownDesc,
+        shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
+
+    do {
+      /*
+      2. Let ownDesc be ? O.[[GetOwnProperty]](P).
+      3. If ownDesc is undefined, then
+          a. Let parent be ? O.[[GetPrototypeOf]]().
+          b. If parent is not null, then
+              i.   Return ? parent.[[Set]](P, V, Receiver).
+          c. Else,
+              i.   Let ownDesc be the PropertyDescriptor{
+                     [[Value]]: undefined,
+                     [[Writable]]: true,
+                     [[Enumerable]]: true,
+                     [[Configurable]]: true
+                   }.
+      */
+
+      let pMapping = this.membrane.map.get(target);
+      let shadow = pMapping.getShadowTarget(this.fieldName);
+      ownDesc = this.getOwnPropertyDescriptor(shadow, propName);
+      if (ownDesc)
+        break;
+
+      {
+        let parent = this.getPrototypeOf(shadow);
+        if (parent === null) {
+          ownDesc = new DataDescriptor(undefined, true);
+          break;
         }
 
-        if (!shouldBeLocal && !walkedAllowLocal) {
-          /* Think carefully before making this walk the prototype chain as in
-             .defineProperty().  Remember, this.set() calls itself below, so you
-             could accidentally create a O(n^2) operation here.
-           */
-          walkedAllowLocal = true;
-          shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
+        let [found, other] = this.membrane.getMembraneProxy(
+          this.fieldName,
+          parent
+        );
+        assert(found, "Must find membrane proxy for prototype");
+        let sMapping = this.membrane.map.get(parent);
+        assert(sMapping, "Missing a ProxyMapping?");
+
+        if (sMapping.originField != this.fieldName) {
+          other = this.membrane.prototypeMap.get(other);
+          assert(other === parent, "Retrieved prototypes must match");
+          [found, target] = this.membrane.getMembraneValue(
+            this.fieldName,
+            parent
+          );
+          assert(found, "Must find membrane value for prototype");
         }
-
-        /*
-        2. Let ownDesc be ? O.[[GetOwnProperty]](P).
-        3. If ownDesc is undefined, then
-            a. Let parent be ? O.[[GetPrototypeOf]]().
-            b. If parent is not null, then
-                i.   Return ? parent.[[Set]](P, V, Receiver).
-            c. Else,
-                i.   Let ownDesc be the PropertyDescriptor{
-                       [[Value]]: undefined,
-                       [[Writable]]: true,
-                       [[Enumerable]]: true,
-                       [[Configurable]]: true
-                     }.
-        */
-
+        else
         {
-          ownDesc = this.getOwnPropertyDescriptor(target, propName);
-          if (!ownDesc) {
-            let pMapping = this.membrane.map.get(target);
-            let shadow = pMapping.getShadowTarget(this.fieldName);
-            let parent = this.getPrototypeOf(shadow);
-            if (parent !== null) {
-              let [found, other] = this.membrane.getMembraneProxy(
-                this.fieldName,
-                parent
-              );
-              assert(found, "Must find membrane proxy for prototype");
-              assert(other === parent, "Retrieved prototypes must match");
-              [found, target] = this.membrane.getMembraneValue(
-                this.fieldName,
-                parent
-              );
-              assert(found, "Must find membrane value for prototype");
-            }
-            else
-              ownDesc = new DataDescriptor(undefined, true);
-          }
+          target = parent;
         }
-      } while (!ownDesc); // end optimization for ownDesc
-    }
+      }
+    } while (true); // end optimization for ownDesc
 
     // Special step:  convert receiver to unwrapped value.
     let receiverMap = this.membrane.map.get(receiver);
@@ -1847,35 +1853,36 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   setPrototypeOf: inGraphHandler("setPrototypeOf", function(shadowTarget, proto) {
-    /* XXX ajvincent Heisenbug warning!
-    Stepping through this code in a debugger will cause complete chaos.  We must
-    debug by logging only.
-    */
-
     var target = getRealTarget(shadowTarget);
     try {
       var targetMap = this.membrane.map.get(target);
       var _this = targetMap.getOriginal();
 
 
-      let protoProxy;
+      let protoProxy, wrappedProxy, found;
       if (targetMap.originField !== this.fieldName) {
         protoProxy = this.membrane.convertArgumentToProxy(
           this,
           this.membrane.getHandlerByField(targetMap.originField),
           proto
         );
+        [found, wrappedProxy] = this.membrane.getMembraneProxy(
+          this.fieldName, proto
+        );
+        assert(found, "Membrane proxy not found immediately after wrapping!");
+        wrappedProxy = this.wrapPrototype(wrappedProxy);
       }
       else {
         protoProxy = proto;
+        wrappedProxy = proto;
       }
 
       var rv = this.externalHandler(function() {
         return Reflect.setPrototypeOf(_this, protoProxy);
       });
-
-      // We want to break any links that this.getPrototypeOf might have cached.
-      targetMap.protoMapping = NOT_YET_DETERMINED;
+      if (rv)
+        assert(Reflect.setPrototypeOf(shadowTarget, wrappedProxy),
+               "shadowTarget could not receive prototype?");
 
       return rv;
     }
@@ -2058,6 +2065,23 @@ ObjectGraphHandler.prototype = Object.seal({
   },
 
   /**
+   * @private
+   */
+  lockShadowTarget: function(shadowTarget) {
+    const target = getRealTarget(shadowTarget);
+    const targetMap = this.membrane.map.get(target);
+    const _this = targetMap.getOriginal();
+    const keys = this.setOwnKeys(shadowTarget);
+    keys.forEach(this.copyProperty.bind(this, _this, shadowTarget, targetMap.originField));
+
+    // fix the prototype;
+    const proto = this.getPrototypeOf(shadowTarget);
+    assert(Reflect.setPrototypeOf(shadowTarget, proto),
+           "Failed to set unwrapped prototype on non-extensible?");
+    return Reflect.preventExtensions(shadowTarget);
+  },
+
+  /**
    * Specify the list of ownKeys this proxy exposes.
    *
    * @param {Object} shadowTarget The proxy target
@@ -2117,19 +2141,51 @@ ObjectGraphHandler.prototype = Object.seal({
    *
    * @param _this        {Object} The original target.
    * @param shadowTarget {Object} The target to apply the property to.
+   * @param originField  {String|Symbol}
+   *                     The graph name the original target is from.
    * @param propName     {String} The name of the property.
    *
    * @private
    */
-  copyProperty: function(_this, shadowTarget, propName) {
+  copyProperty: function(_this, shadowTarget, originField, propName) {
     if (this.membrane.showGraphName && (propName == "membraneGraphName")) {
       // Special case.
       Reflect.defineProperty(shadowTarget, propName, this.graphNameDescriptor);
+      return;
     }
-    else {
-      let desc = Reflect.getOwnPropertyDescriptor(_this, propName);
+
+    var desc = Reflect.getOwnPropertyDescriptor(_this, propName);
+    if (!desc)
+      return;
+    const isProtoDesc = (propName === "prototype") && isDataDescriptor(desc);
+    if (isProtoDesc)
+    {
+      // This is necessary to force desc.value to be wrapped in the membrane.
+      let configurable = desc.configurable;
+      desc.configurable = true;
+      desc = this.membrane.wrapDescriptor(originField, this.fieldName, desc);
+      desc.configurable = configurable;
+
+      desc.value = this.wrapPrototype(desc.value);
+    }
+    else
+      desc = this.membrane.wrapDescriptor(originField, this.fieldName, desc);
+
+    if (desc)
       Reflect.defineProperty(shadowTarget, propName, desc);
+  },
+
+  wrapPrototype: function(proto) {
+    if (!proto)
+      return proto;
+    if (!this.membrane.prototypeMap.has(proto)) {
+      const mapping = this.membrane.map.get(proto);
+      assert(mapping instanceof ProxyMapping, "No mapping found for prototype?");
+      let proxy = new Proxy(proto, Reflect);
+      this.membrane.prototypeMap.set(proto, proxy);
+      this.membrane.map.set(proxy, mapping);
     }
+    return this.membrane.prototypeMap.get(proto);
   },
 
   /**
@@ -2572,6 +2628,9 @@ ModifyRulesAPI.prototype = Object.seal({
         throw new Error("You must replace original values with either Reflect or a ChainHandler inheriting from Reflect");
     }
     cachedProxy = map.getProxy(cachedField);
+    // special case for function prototypes
+    if (this.membrane.prototypeMap.has(cachedProxy))
+      cachedProxy = this.membrane.prototypeMap.get(cachedProxy);
 
     if (cachedProxy != oldProxy)
       throw new Error("You cannot replace the proxy with a handler from a different object graph!");
@@ -2608,7 +2667,16 @@ ModifyRulesAPI.prototype = Object.seal({
    */
   assertLocalProxy: function(fieldName, proxy, methodName) {
     let [found, match] = this.membrane.getMembraneProxy(fieldName, proxy);
-    if (!found || (proxy !== match)) {
+    if (!found) {
+      throw new Error(methodName + " requires a known proxy!");
+    }
+
+    // special case for function prototypes
+    if ((proxy !== match) && this.membrane.prototypeMap.has(match)) {
+      match = this.membrane.prototypeMap.get(match);
+    }
+
+    if (proxy !== match) {
       throw new Error(methodName + " requires a known proxy!");
     }
   },

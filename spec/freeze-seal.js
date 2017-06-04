@@ -133,34 +133,23 @@ let freezeSealTests = function(expectedFrozen, defineListeners, adjustParts) {
 
     // setPrototypeOf
     expect(Reflect.getPrototypeOf(parts.wet.b)).toBe(parts.wet.B.prototype);
-
-    /* XXX ajvincent Disabled for now:  see issue #82.
     expect(Reflect.getPrototypeOf(parts.dry.b)).toBe(parts.dry.B.prototype);
-    */
 
     expect(Reflect.setPrototypeOf(parts.wet.b, parts.wet.A.prototype)).toBe(false);
     expect(Reflect.getPrototypeOf(parts.wet.b)).toBe(parts.wet.B.prototype);
-    /* XXX ajvincent Disabled for now:  see issue #82.
     expect(Reflect.getPrototypeOf(parts.dry.b)).toBe(parts.dry.B.prototype);
-    */
 
     expect(Reflect.setPrototypeOf(parts.wet.b, parts.wet.C.prototype)).toBe(false);
     expect(Reflect.getPrototypeOf(parts.wet.b)).toBe(parts.wet.B.prototype);
-    /* XXX ajvincent Disabled for now:  see issue #82.
     expect(Reflect.getPrototypeOf(parts.dry.b)).toBe(parts.dry.B.prototype);
-    */
 
     expect(Reflect.setPrototypeOf(parts.wet.b, parts.wet.B.prototype)).toBe(true);
     expect(Reflect.getPrototypeOf(parts.wet.b)).toBe(parts.wet.B.prototype);
-    /* XXX ajvincent Disabled for now:  see issue #82.
     expect(Reflect.getPrototypeOf(parts.dry.b)).toBe(parts.dry.B.prototype);
-    */
 
     expect(Reflect.setPrototypeOf(parts.wet.b, {})).toBe(false);
     expect(Reflect.getPrototypeOf(parts.wet.b)).toBe(parts.wet.B.prototype);
-    /* XXX ajvincent Disabled for now:  see issue #82.
     expect(Reflect.getPrototypeOf(parts.dry.b)).toBe(parts.dry.B.prototype);
-    */
   });
 
 
@@ -216,26 +205,24 @@ let freezeSealTests = function(expectedFrozen, defineListeners, adjustParts) {
     expect(Object.isSealed(parts.dry.b)).toBe(true);
 
     // setPrototypeOf
-    /* XXX ajvincent Disabled for now:  see issue #82.
     expect(Reflect.getPrototypeOf(parts.wet.b)).toBe(parts.wet.B.prototype);
     expect(Reflect.getPrototypeOf(parts.dry.b)).toBe(parts.dry.B.prototype);
 
-    expect(Reflect.setPrototypeOf(parts.dry.b, parts.wet.A.prototype)).toBe(false);
+    expect(Reflect.setPrototypeOf(parts.dry.b, parts.dry.A.prototype)).toBe(false);
     expect(Reflect.getPrototypeOf(parts.wet.b)).toBe(parts.wet.B.prototype);
     expect(Reflect.getPrototypeOf(parts.dry.b)).toBe(parts.dry.B.prototype);
 
-    expect(Reflect.setPrototypeOf(parts.dry.b, parts.wet.C.prototype)).toBe(false);
+    expect(Reflect.setPrototypeOf(parts.dry.b, parts.dry.C.prototype)).toBe(false);
     expect(Reflect.getPrototypeOf(parts.wet.b)).toBe(parts.wet.B.prototype);
     expect(Reflect.getPrototypeOf(parts.dry.b)).toBe(parts.dry.B.prototype);
 
-    expect(Reflect.setPrototypeOf(parts.dry.b, parts.wet.B.prototype)).toBe(true);
+    expect(Reflect.setPrototypeOf(parts.dry.b, parts.dry.B.prototype)).toBe(true);
     expect(Reflect.getPrototypeOf(parts.wet.b)).toBe(parts.wet.B.prototype);
     expect(Reflect.getPrototypeOf(parts.dry.b)).toBe(parts.dry.B.prototype);
 
     expect(Reflect.setPrototypeOf(parts.dry.b, {})).toBe(false);
     expect(Reflect.getPrototypeOf(parts.wet.b)).toBe(parts.wet.B.prototype);
     expect(Reflect.getPrototypeOf(parts.dry.b)).toBe(parts.dry.B.prototype);
-    */
   });
 };
 

@@ -194,6 +194,9 @@ ModifyRulesAPI.prototype = Object.seal({
         throw new Error("You must replace original values with either Reflect or a ChainHandler inheriting from Reflect");
     }
     cachedProxy = map.getProxy(cachedField);
+    // special case for function prototypes
+    if (this.membrane.prototypeMap.has(cachedProxy))
+      cachedProxy = this.membrane.prototypeMap.get(cachedProxy);
 
     if (cachedProxy != oldProxy)
       throw new Error("You cannot replace the proxy with a handler from a different object graph!");
@@ -230,7 +233,16 @@ ModifyRulesAPI.prototype = Object.seal({
    */
   assertLocalProxy: function(fieldName, proxy, methodName) {
     let [found, match] = this.membrane.getMembraneProxy(fieldName, proxy);
-    if (!found || (proxy !== match)) {
+    if (!found) {
+      throw new Error(methodName + " requires a known proxy!");
+    }
+
+    // special case for function prototypes
+    if ((proxy !== match) && this.membrane.prototypeMap.has(match)) {
+      match = this.membrane.prototypeMap.get(match);
+    }
+
+    if (proxy !== match) {
       throw new Error(methodName + " requires a known proxy!");
     }
   },
