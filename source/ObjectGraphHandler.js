@@ -1340,12 +1340,7 @@ ObjectGraphHandler.prototype = Object.seal({
   revokeEverything: function() {
     if (this.__isDead__)
       throw new Error("This membrane handler is dead!");
-    Object.defineProperty(this, "__isDead__", {
-      value: true,
-      writable: false,
-      enumerable: true,
-      configurable: false
-    });
+    Object.defineProperty(this, "__isDead__", new DataDescriptor(true));
     let length = this.__revokeFunctions__.length;
     for (var i = 0; i < length; i++) {
       let revocable = this.__revokeFunctions__[i];

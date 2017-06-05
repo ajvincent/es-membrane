@@ -8,12 +8,6 @@
  * @private
  */
 function ProxyNotify(parts, handler, options = {}) {
-  function addFields(desc) {
-    desc.enumerable = true;
-    desc.configurable = false;
-    return desc;
-  }
-  
   // private variables
   const listeners = handler.__proxyListeners__.slice(0);
   if (listeners.length === 0)
@@ -34,10 +28,10 @@ function ProxyNotify(parts, handler, options = {}) {
      * do NOT just call Proxy.revocable and set this property.  Instead, set the
      * handler property with the new proxy handler, and call .rebuildProxy().
      */
-    "proxy": addFields({
-      "get": () => parts.proxy,
-      "set": (val) => { if (!stopped) parts.proxy = val; }
-    }),
+    "proxy": new AccessorDescriptor(
+      () => parts.proxy,
+      (val) => { if (!stopped) parts.proxy = val; }
+    ),
 
     /* XXX ajvincent revoke is explicitly NOT exposed, lest a listener call it 
      * and cause chaos for any new proxy trying to rely on the existing one.  If
@@ -47,57 +41,48 @@ function ProxyNotify(parts, handler, options = {}) {
     /**
      * The unwrapped object or function we're building the proxy for.
      */
-    "target": addFields({
-      "value": parts.value,
-      "writable": false,
-    }),
+    "target": new DataDescriptor(parts.value),
 
     /**
      * The proxy handler.  This should be an ObjectGraphHandler.
      */
-    "handler": addFields({
-      "get": () => handler,
-      "set": (val) => { if (!stopped) handler = val; }
-    }),
+    "handler": new AccessorDescriptor(
+      () => handler,
+      (val) => { if (!stopped) handler = val; }
+    ),
 
     /**
      * A reference to the membrane logger, if there is one.
      */
-    "logger": addFields({
-      "value": handler.membrane.logger,
-      "writable": false
-    }),
+    "logger": new DataDescriptor(handler.membrane.logger),
 
     /**
      * Rebuild the proxy object.
      */
-    "rebuildProxy": addFields({
-      "value": function() {
+    "rebuildProxy": new DataDescriptor(
+      function() {
         if (!stopped)
           parts.proxy = modifyRules.replaceProxy(parts.proxy, this.handler);
-      },
-      "writable": false
-    }),
+      }
+    ),
 
     /**
      * Notify no more listeners.
      */
-    "stopIteration": addFields({
-      "value": () => stopped = true,
-      "writable": false
-    }),
+    "stopIteration": new DataDescriptor(
+      () => { stopped = true; }
+    ),
 
-    "stopped": addFields({
-      "get": () => stopped,
-    }),
+    "stopped": new AccessorDescriptor(
+      () => stopped
+    ),
 
     /**
      * Explicitly throw an exception from the listener, through the membrane.
      */
-    "throwException": addFields({
-      "value": function(e) { stopped = true; exnFound = true; exn = e; },
-      "writable": false
-    })
+    "throwException": new DataDescriptor(
+      function(e) { stopped = true; exnFound = true; exn = e; }
+    )
   });
 
   while (!stopped && (index < listeners.length)) {

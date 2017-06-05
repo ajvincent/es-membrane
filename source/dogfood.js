@@ -49,7 +49,7 @@ if (false) {
     internalAPI, publicAPI, MembraneInternal
   );
   /* XXX ajvincent Membrane.prototype should return an object with descriptor
-   * "secured": {value: true, writable: false, enumerable: false, configurable: false}
+   * "secured": new DataDescriptor(true, false, false, false)
    */
 
   if (false) {

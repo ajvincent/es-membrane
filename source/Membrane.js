@@ -5,63 +5,26 @@
 
 function MembraneInternal(options = {}) {
   Object.defineProperties(this, {
-    "showGraphName": {
-      value: Boolean(options.showGraphName),
-      writable: false,
-      enumerable: false,
-      configurable: false
-    },
+    "showGraphName": new DataDescriptor(
+      Boolean(options.showGraphName), false, false, false
+    ),
 
-    "map": {
-      value: new WeakMap(/*
+    "map": new DataDescriptor(
+      new WeakMap(/*
         key: ProxyMapping instance
 
         key may be a Proxy, a value associated with a proxy, or an original value.
-      */),
-      writable: false,
-      enumerable: false,
-      configurable:false
-    },
+      */), false, false, false),
 
-    /* Disabled, dead API.
-    "handlerStack": {
-      // This has two "external" strings because at all times, we require
-      // two items on the handlerStack, for
-      // Membrane.prototype.calledFromHandlerTrap().
-      value: ["external", "external"],
-      writable: true,
-      enumerable: false,
-      configurable: false,
-    },
-    */
+    "handlersByFieldName": new DataDescriptor({}, false, false, false),
 
-    "handlersByFieldName": {
-      value: {},
-      writable: false,
-      enumerable: false,
-      configurable: false
-    },
+    "logger": new DataDescriptor(options.logger || null, false, false, false),
 
-    "logger": {
-      value: options.logger || null,
-      writable: false,
-      enumerable: false,
-      configurable: false
-    },
+    "warnOnceSet": new DataDescriptor(
+      (options.logger ? new Set() : null), false, false, false
+    ),
 
-    "warnOnceSet": {
-      value: (options.logger ? new Set() : null),
-      writable: false,
-      enumerable: false,
-      configurable: false
-    },
-
-    "modifyRules": {
-      value: new ModifyRulesAPI(this),
-      writable: false,
-      enumerable: true,
-      configurable: false
-    }
+    "modifyRules": new DataDescriptor(new ModifyRulesAPI(this))
   });
 }
 { // Membrane definition
@@ -256,12 +219,7 @@ MembraneInternal.prototype = Object.seal({
     let passOptions;
     if (argMap) {
       passOptions = Object.create(options, {
-        "mapping": {
-          "value": argMap,
-          "writable": false,
-          "enumerable": true,
-          "configurable": true
-        }
+        "mapping": new DataDescriptor(argMap)
       });
     }
     else {

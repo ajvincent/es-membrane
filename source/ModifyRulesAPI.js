@@ -80,12 +80,12 @@ const ChainHandlerProtection = Object.create(Reflect, {
     if (allTraps.includes(propName)) {
       if (!isDataDescriptor(desc) || (typeof desc.value !== "function"))
         return false;
-      desc = {
-        value: inGraphHandler(propName, desc.value),
-        writable: desc.writable,
-        enumerable: desc.enumerable,
-        configurable: desc.configurable,
-      };
+      desc = new DataDescriptor(
+        inGraphHandler(propName, desc.value),
+        desc.writable,
+        desc.enumerable,
+        desc.configurable
+      );
     }
 
     return Reflect.defineProperty(chainHandler, propName, desc);
