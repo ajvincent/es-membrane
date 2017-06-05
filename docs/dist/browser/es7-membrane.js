@@ -1009,6 +1009,8 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   ownKeys: inGraphHandler("ownKeys", function(shadowTarget) {
+    this.ensureShadowTarget(shadowTarget);
+
     var target = getRealTarget(shadowTarget);
     var targetMap = this.membrane.map.get(target);
 
@@ -1032,6 +1034,8 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   has: inGraphHandler("has", function(shadowTarget, propName) {
+    this.ensureShadowTarget(shadowTarget);
+
     var target = getRealTarget(shadowTarget);
     /*
     http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-hasproperty-p
@@ -1070,6 +1074,8 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   get: inGraphHandler("get", function(shadowTarget, propName, receiver) {
+    this.ensureShadowTarget(shadowTarget);
+
     var desc, target, found, rv, protoLookups = 0;
     target = getRealTarget(shadowTarget);
 
@@ -1210,6 +1216,8 @@ ObjectGraphHandler.prototype = Object.seal({
   // ProxyHandler
   getOwnPropertyDescriptor:
   inGraphHandler("getOwnPropertyDescriptor", function(shadowTarget, propName) {
+    this.ensureShadowTarget(shadowTarget);
+
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
       this.membrane.logger.debug("propName: " + propName.toString());
@@ -1300,6 +1308,8 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   getPrototypeOf: inGraphHandler("getPrototypeOf", function(shadowTarget) {
+    this.ensureShadowTarget(shadowTarget);
+
     /* Prototype objects are special in JavaScript, but with proxies there is a
      * major drawback.  If the prototype property of a function is
      * non-configurable on the proxy target, the proxy is required to return the
@@ -1331,8 +1341,6 @@ ObjectGraphHandler.prototype = Object.seal({
      */
     const target = getRealTarget(shadowTarget);
     const targetMap = this.membrane.map.get(target);
-    if (targetMap.getShadowTarget(this.fieldName) !== shadowTarget)
-      throw new Error("getPrototypeOf must be called with a shadow target");
 
     try {
       const proto = Reflect.getPrototypeOf(target);
@@ -1363,6 +1371,8 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   isExtensible: inGraphHandler("isExtensible", function(shadowTarget) {
+    this.ensureShadowTarget(shadowTarget);
+
     if (!Reflect.isExtensible(shadowTarget))
       return false;
     var target = getRealTarget(shadowTarget);
@@ -1386,6 +1396,8 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   preventExtensions: inGraphHandler("preventExtensions", function(shadowTarget) {
+    this.ensureShadowTarget(shadowTarget);
+
     var target = getRealTarget(shadowTarget);
     var targetMap = this.membrane.map.get(target);
     var _this = targetMap.getOriginal();
@@ -1393,7 +1405,7 @@ ObjectGraphHandler.prototype = Object.seal({
     // Walk the prototype chain to look for shouldBeLocal.
     var shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
 
-    if (!shouldBeLocal && !this.isExtensible(target))
+    if (!shouldBeLocal && !this.isExtensible(shadowTarget))
       return true;
 
     // This is our one and only chance to set properties on the shadow target.
@@ -1406,6 +1418,8 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   deleteProperty: inGraphHandler("deleteProperty", function(shadowTarget, propName) {
+    this.ensureShadowTarget(shadowTarget);
+
     var target = getRealTarget(shadowTarget);
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -1502,6 +1516,8 @@ ObjectGraphHandler.prototype = Object.seal({
   defineProperty:
   inGraphHandler("defineProperty", function(shadowTarget, propName, desc,
                                             shouldBeLocal = false) {
+    this.ensureShadowTarget(shadowTarget);
+
     var target = getRealTarget(shadowTarget);
     /* Regarding the funny indentation:  With long names such as defineProperty,
      * inGraphHandler, and shouldBeLocal, it's hard to make everything fit
@@ -1620,6 +1636,8 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   set: inGraphHandler("set", function(shadowTarget, propName, value, receiver) {
+    this.ensureShadowTarget(shadowTarget);
+
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
       this.membrane.logger.debug("set propName: " + propName);
@@ -1795,7 +1813,12 @@ ObjectGraphHandler.prototype = Object.seal({
         rvProxy = new DataDescriptor(value, true);
       }
 
-      return this.defineProperty(receiver, propName, rvProxy, shouldBeLocal);
+      return this.defineProperty(
+        this.getShadowTarget(receiver),
+        propName,
+        rvProxy,
+        shouldBeLocal
+      );
     }
 
     // 5. Assert: IsAccessorDescriptor(ownDesc) is true.
@@ -1810,6 +1833,7 @@ ObjectGraphHandler.prototype = Object.seal({
     if (typeof setter === "undefined")
       return false;
     // 8. Perform ? Call(setter, Receiver, « V »).
+
     if (!shouldBeLocal) {
       // Only now do we convert the value to the target object graph.
       let rvProxy = this.membrane.convertArgumentToProxy(
@@ -1817,10 +1841,15 @@ ObjectGraphHandler.prototype = Object.seal({
         this.membrane.getHandlerByField(receiverMap.originField),
         value
       );
-      this.apply(setter, receiver, [ rvProxy ]);
+      this.apply(this.getShadowTarget(setter), receiver, [ rvProxy ]);
     }
     else {
-      this.defineProperty(receiver, propName, new DataDescriptor(value), shouldBeLocal);
+      this.defineProperty(
+        this.getShadowTarget(receiver),
+        propName,
+        new DataDescriptor(value),
+        shouldBeLocal
+      );
     }
 
     // 9. Return true.
@@ -1829,11 +1858,12 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   setPrototypeOf: inGraphHandler("setPrototypeOf", function(shadowTarget, proto) {
+    this.ensureShadowTarget(shadowTarget);
+
     var target = getRealTarget(shadowTarget);
     try {
       var targetMap = this.membrane.map.get(target);
       var _this = targetMap.getOriginal();
-
 
       let protoProxy, wrappedProxy, found;
       if (targetMap.originField !== this.fieldName) {
@@ -1872,6 +1902,8 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   apply: inGraphHandler("apply", function(shadowTarget, thisArg, argumentsList) {
+    this.ensureShadowTarget(shadowTarget);
+
     var target = getRealTarget(shadowTarget);
     var _this, args = [];
     let targetMap  = this.membrane.map.get(target);
@@ -1948,6 +1980,8 @@ ObjectGraphHandler.prototype = Object.seal({
   // ProxyHandler
   construct:
   inGraphHandler("construct", function(shadowTarget, argumentsList, ctorTarget) {
+    this.ensureShadowTarget(shadowTarget);
+
     var target = getRealTarget(shadowTarget);
     var args = [];
     let targetMap  = this.membrane.map.get(target);
@@ -2007,6 +2041,31 @@ ObjectGraphHandler.prototype = Object.seal({
   }),
 
   /**
+   * Ensure the first argument is a known shadow target.
+   *
+   * @param {Object} shadowTarget The supposed target.
+   * @private
+   */
+  ensureShadowTarget: function(shadowTarget) {
+    var pass = false;
+    try {
+      const target = getRealTarget(shadowTarget);
+      const targetMap = this.membrane.map.get(target);
+      pass = (targetMap.getShadowTarget(this.fieldName) === shadowTarget);
+    }
+    finally {
+      if (!pass) {
+        throw new Error("ObjectGraphHandler traps must be called with a shadow target");
+      }
+    }
+  },
+
+  getShadowTarget: function(target) {
+    let targetMap = this.membrane.map.get(target);
+    return targetMap.getShadowTarget(this.fieldName);
+  },
+
+  /**
    * Add a listener for new proxies.
    *
    * @see ProxyNotify
@@ -2040,6 +2099,8 @@ ObjectGraphHandler.prototype = Object.seal({
   },
 
   /**
+   * Set all properties on a shadow target, including prototype, and seal it.
+   *
    * @private
    */
   lockShadowTarget: function(shadowTarget) {
@@ -2493,6 +2554,16 @@ function ModifyRulesAPI(membrane) {
   Object.seal(this);
 }
 ModifyRulesAPI.prototype = Object.seal({
+  /**
+   * Convert a shadow target to a real proxy target.
+   *
+   *
+   * @param {Object} shadowTarget The supposed target.
+   *
+   * @returns {Object} The target this shadow target maps to.
+   */
+  getRealTarget: getRealTarget,
+
   /**
    * Create a ProxyHandler inheriting from Reflect or an ObjectGraphHandler.
    *
