@@ -43,7 +43,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   ownKeys: inGraphHandler("ownKeys", function(shadowTarget) {
-    this.ensureShadowTarget(shadowTarget);
+    this.validateTrapAndShadowTarget("ownKeys", shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     var targetMap = this.membrane.map.get(target);
@@ -68,7 +68,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   has: inGraphHandler("has", function(shadowTarget, propName) {
-    this.ensureShadowTarget(shadowTarget);
+    this.validateTrapAndShadowTarget("has", shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     /*
@@ -108,7 +108,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   get: inGraphHandler("get", function(shadowTarget, propName, receiver) {
-    this.ensureShadowTarget(shadowTarget);
+    this.validateTrapAndShadowTarget("get", shadowTarget);
 
     var desc, target, found, rv, protoLookups = 0;
     target = getRealTarget(shadowTarget);
@@ -250,7 +250,7 @@ ObjectGraphHandler.prototype = Object.seal({
   // ProxyHandler
   getOwnPropertyDescriptor:
   inGraphHandler("getOwnPropertyDescriptor", function(shadowTarget, propName) {
-    this.ensureShadowTarget(shadowTarget);
+    this.validateTrapAndShadowTarget("getOwnPropertyDescriptor", shadowTarget);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -342,7 +342,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   getPrototypeOf: inGraphHandler("getPrototypeOf", function(shadowTarget) {
-    this.ensureShadowTarget(shadowTarget);
+    this.validateTrapAndShadowTarget("getPrototypeOf", shadowTarget);
 
     /* Prototype objects are special in JavaScript, but with proxies there is a
      * major drawback.  If the prototype property of a function is
@@ -405,7 +405,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   isExtensible: inGraphHandler("isExtensible", function(shadowTarget) {
-    this.ensureShadowTarget(shadowTarget);
+    this.validateTrapAndShadowTarget("isExtensible", shadowTarget);
 
     if (!Reflect.isExtensible(shadowTarget))
       return false;
@@ -430,7 +430,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   preventExtensions: inGraphHandler("preventExtensions", function(shadowTarget) {
-    this.ensureShadowTarget(shadowTarget);
+    this.validateTrapAndShadowTarget("preventExtensions", shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     var targetMap = this.membrane.map.get(target);
@@ -452,7 +452,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   deleteProperty: inGraphHandler("deleteProperty", function(shadowTarget, propName) {
-    this.ensureShadowTarget(shadowTarget);
+    this.validateTrapAndShadowTarget("deleteProperty", shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     const mayLog = this.membrane.__mayLog__();
@@ -550,7 +550,7 @@ ObjectGraphHandler.prototype = Object.seal({
   defineProperty:
   inGraphHandler("defineProperty", function(shadowTarget, propName, desc,
                                             shouldBeLocal = false) {
-    this.ensureShadowTarget(shadowTarget);
+    this.validateTrapAndShadowTarget("defineProperty", shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     /* Regarding the funny indentation:  With long names such as defineProperty,
@@ -670,7 +670,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   set: inGraphHandler("set", function(shadowTarget, propName, value, receiver) {
-    this.ensureShadowTarget(shadowTarget);
+    this.validateTrapAndShadowTarget("set", shadowTarget);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -892,7 +892,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   setPrototypeOf: inGraphHandler("setPrototypeOf", function(shadowTarget, proto) {
-    this.ensureShadowTarget(shadowTarget);
+    this.validateTrapAndShadowTarget("setPrototypeOf", shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     try {
@@ -936,7 +936,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   apply: inGraphHandler("apply", function(shadowTarget, thisArg, argumentsList) {
-    this.ensureShadowTarget(shadowTarget);
+    this.validateTrapAndShadowTarget("apply", shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     var _this, args = [];
@@ -1014,7 +1014,7 @@ ObjectGraphHandler.prototype = Object.seal({
   // ProxyHandler
   construct:
   inGraphHandler("construct", function(shadowTarget, argumentsList, ctorTarget) {
-    this.ensureShadowTarget(shadowTarget);
+    this.validateTrapAndShadowTarget("construct", shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     var args = [];
@@ -1080,18 +1080,19 @@ ObjectGraphHandler.prototype = Object.seal({
    * @param {Object} shadowTarget The supposed target.
    * @private
    */
-  ensureShadowTarget: function(shadowTarget) {
-    var pass = false;
-    try {
-      const target = getRealTarget(shadowTarget);
-      const targetMap = this.membrane.map.get(target);
-      pass = (targetMap.getShadowTarget(this.fieldName) === shadowTarget);
-    }
-    finally {
-      if (!pass) {
-        throw new Error("ObjectGraphHandler traps must be called with a shadow target");
-      }
-    }
+  validateTrapAndShadowTarget: function(trapName, shadowTarget) {
+    const target = getRealTarget(shadowTarget);
+    const targetMap = this.membrane.map.get(target);
+    if (!(targetMap instanceof ProxyMapping))
+      throw new Error("No ProxyMapping found for shadow target!");
+    if (targetMap.getShadowTarget(this.fieldName) !== shadowTarget)
+      throw new Error(
+        "ObjectGraphHandler traps must be called with a shadow target!"
+      );
+    const disableTrapFlag = `disableTrap(${trapName})`;
+    if (targetMap.getLocalFlag(this.fieldName, disableTrapFlag) ||
+        targetMap.getLocalFlag(targetMap.originField, disableTrapFlag))
+      throw new Error(`The ${trapName} trap is not executable.`);
   },
 
   getShadowTarget: function(target) {

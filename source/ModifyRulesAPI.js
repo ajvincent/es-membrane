@@ -299,5 +299,17 @@ ModifyRulesAPI.prototype = Object.seal({
     let metadata = this.membrane.map.get(proxy);
     metadata.setOwnKeysFilter(fieldName, filter);
   },
+
+  disableTraps: function(fieldName, proxy, trapList) {
+    this.assertLocalProxy(fieldName, proxy, "disableTraps");
+    if (!Array.isArray(trapList) ||
+        (trapList.some((t) => { return typeof t !== "string"; })))
+      throw new Error("Trap list must be an array of strings!");
+    const map = this.membrane.map.get(proxy);
+    trapList.forEach(function(t) {
+      if (allTraps.includes(t))
+        this.setLocalFlag(fieldName, `disableTrap(${t})`, true);
+    }, map);
+  },
 });
 Object.seal(ModifyRulesAPI);
