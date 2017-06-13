@@ -567,6 +567,8 @@ function MembraneInternal(options = {}) {
 
     "logger": new DataDescriptor(options.logger || null, false, false, false),
 
+    "__functionListeners__": new DataDescriptor([], false, false, false),
+
     "warnOnceSet": new DataDescriptor(
       (options.logger ? new Set() : null), false, false, false
     ),
@@ -900,6 +902,33 @@ MembraneInternal.prototype = Object.seal({
   */
 
   /**
+   * Add a listener for function entry, return and throw operations.
+   *
+   * @param listener {Function} The listener to add.
+   *
+   * @see ObjectGraphHandler.prototype.notifyFunctionListeners for what each
+   * listener will get for its arguments.
+   */
+  addFunctionListener: function(listener) {
+    if (typeof listener != "function")
+      throw new Error("listener is not a function!");
+    if (!this.__functionListeners__.includes(listener))
+      this.__functionListeners__.push(listener);
+  },
+
+  /**
+   * Add a listener for function entry, return and throw operations.
+   *
+   * @param listener {Function} The listener to remove.
+   */
+  removeFunctionListener: function(listener) {
+    let index = this.__functionListeners__.indexOf(listener);
+    if (index == -1)
+      throw new Error("listener is not registered!");
+    this.__functionListeners__.splice(index, 1);
+  },
+
+  /**
    * A flag indicating if internal properties of the Membrane are private.
    * 
    * @public
@@ -948,6 +977,8 @@ function ObjectGraphHandler(membrane, fieldName) {
     "__isDead__": new DataDescriptor(false, true, true, true),
 
     "__proxyListeners__": new DataDescriptor([], false, false, false),
+
+    "__functionListeners__": new DataDescriptor([], false, false, false),
   });
 }
 { // ObjectGraphHandler definition
@@ -1916,9 +1947,32 @@ ObjectGraphHandler.prototype = Object.seal({
     if (mayLog) {
       this.membrane.logger.debug("apply about to call function");
     }
-    var rv = this.externalHandler(function() {
-      return Reflect.apply(target, _this, args);
-    });
+
+    this.notifyFunctionListeners(
+      "enter",
+      "apply",
+      target,
+      undefined,
+      argHandler
+    );
+
+    var rv;
+    try {
+      rv = this.externalHandler(function() {
+        return Reflect.apply(target, _this, args);
+      });
+    }
+    catch (ex) {
+      this.notifyFunctionListeners(
+        "throw",
+        "apply",
+        target,
+        ex,
+        argHandler
+      );
+      throw ex;
+    }
+
     if (mayLog) {
       this.membrane.logger.debug("apply wrapping return value");
     }
@@ -1927,6 +1981,22 @@ ObjectGraphHandler.prototype = Object.seal({
       argHandler,
       this,
       rv
+    );
+
+    /* This is a design decision, to pass the wrapped proxy object instead of
+     * the unwrapped value.  There's no particular reason for it, except that I
+     * wanted to ensure that the returned value had been wrapped before invoking
+     * the listener (so that both the proxy and the unwrapped value could be
+     * found from the membrane).  Once the wrapping is done, we could pass the
+     * unwrapped value if we wanted... but there's no particular reason to favor
+     * the proxy versus the unwrapped value, or vice versa.
+    */
+    this.notifyFunctionListeners(
+      "return",
+      "apply",
+      target,
+      rv,
+      argHandler
     );
 
     if (mayLog) {
@@ -1982,14 +2052,52 @@ ObjectGraphHandler.prototype = Object.seal({
       ctorTarget
     );
 
-    let rv = this.externalHandler(function() {
-      return Reflect.construct(target, args, ctor);
-    });
+    this.notifyFunctionListeners(
+      "enter",
+      "construct",
+      target,
+      undefined,
+      argHandler
+    );
+
+    var rv;
+
+    try {
+      rv = this.externalHandler(function() {
+        return Reflect.construct(target, args, ctor);
+      });
+    }
+    catch (ex) {
+      this.notifyFunctionListeners(
+        "throw",
+        "construct",
+        target,
+        ex,
+        argHandler
+      );
+      throw ex;
+    }
 
     rv = this.membrane.convertArgumentToProxy(
       argHandler,
       this,
       rv
+    );
+
+    /* This is a design decision, to pass the wrapped proxy object instead of
+     * the unwrapped value.  There's no particular reason for it, except that I
+     * wanted to ensure that the returned value had been wrapped before invoking
+     * the listener (so that both the proxy and the unwrapped value could be
+     * found from the membrane).  Once the wrapping is done, we could pass the
+     * unwrapped value if we wanted... but there's no particular reason to favor
+     * the proxy versus the unwrapped value, or vice versa.
+    */
+    this.notifyFunctionListeners(
+      "return",
+      "construct",
+      target,
+      rv,
+      argHandler
     );
 
     if (mayLog) {
@@ -2046,6 +2154,86 @@ ObjectGraphHandler.prototype = Object.seal({
     if (index == -1)
       throw new Error("listener is not registered!");
     this.__proxyListeners__.splice(index, 1);
+  },
+
+  /**
+   * Add a listener for function entry, return and throw operations.
+   *
+   * @param listener {Function} The listener to add.
+   *
+   * @see ObjectGraphHandler.prototype.notifyFunctionListeners for what each
+   * listener will get for its arguments.
+   */
+  addFunctionListener: function(listener) {
+    if (typeof listener != "function")
+      throw new Error("listener is not a function!");
+    if (!this.__functionListeners__.includes(listener))
+      this.__functionListeners__.push(listener);
+  },
+
+  /**
+   * Add a listener for function entry, return and throw operations.
+   *
+   * @param listener {Function} The listener to remove.
+   */
+  removeFunctionListener: function(listener) {
+    let index = this.__functionListeners__.indexOf(listener);
+    if (index == -1)
+      throw new Error("listener is not registered!");
+    this.__functionListeners__.splice(index, 1);
+  },
+
+  /**
+   * Notify listeners we are transitioning from one object graph to another for
+   * a function call.
+   *
+   * @param reason   {String} Either "enter", "return" or "throw".
+   * @param trapName {String} Either "apply" or "construct".
+   * @param target   {Object} The unwrapped target we call.
+   * @param rvOrExn  {Any}    If reason is "enter", undefined.
+   *                          If reason is "return", the return value.
+   *                          If reason is "throw", the exception.
+   * @param origin   {ObjectGraphHandler} The origin graph handler.
+   *
+   * @note
+   *
+   * @private
+   */
+  notifyFunctionListeners:
+  function(reason, trapName, target, rvOrExn, origin) {
+    const args = [
+      reason,
+      trapName,
+      this.fieldName,
+      origin.fieldName,
+      target,
+      rvOrExn
+    ];
+    Object.freeze(args);
+
+    var listeners;
+    {
+      let ourListeners = this.__functionListeners__.slice(0);
+      let nativeListeners = origin.__functionListeners__.slice(0);
+      let membraneListeners = this.membrane.__functionListeners__.slice(0);
+      listeners = ourListeners.concat(nativeListeners, membraneListeners);
+    }
+
+    listeners.forEach((func) => {
+      try {
+        func.apply(null, args);
+      }
+      catch (ex) {
+        if (this.membrane.__mayLog__()) {
+          try {
+            this.membrane.logger.error(ex);
+          }
+          catch (ex2) {
+            // do nothing
+          }
+        }
+      }
+    }, this);
   },
 
   /**

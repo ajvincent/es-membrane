@@ -44,7 +44,7 @@ describe("Filtering own keys ", function() {
 
   // Customize this for whatever variables you need.
   var parts, membrane, dryDocument, wetDocument, dampDocument;
-  const logger = loggerLib.getLogger("membrane.test.defineProperty");
+  const logger = loggerLib.getLogger("test.membrane.defineProperty");
   var appender = new loggerLib.Appender();
   appender.setThreshold("WARN");
   logger.addAppender(appender);

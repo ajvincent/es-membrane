@@ -22,7 +22,7 @@ if (typeof Membrane != "function") {
 
 describe("An object graph handler's proxy listeners", function() {
   var membrane, wetHandler, dryHandler, appender;
-  const logger = loggerLib.getLogger("membrane.test.defineProperty");
+  const logger = loggerLib.getLogger("test.membrane.proxylisteners");
 
   function ctor1(arg1) {
     this.label = "ctor1 instance";

@@ -20,6 +20,8 @@ function MembraneInternal(options = {}) {
 
     "logger": new DataDescriptor(options.logger || null, false, false, false),
 
+    "__functionListeners__": new DataDescriptor([], false, false, false),
+
     "warnOnceSet": new DataDescriptor(
       (options.logger ? new Set() : null), false, false, false
     ),
@@ -351,6 +353,33 @@ MembraneInternal.prototype = Object.seal({
     return this.handlerStack[1] !== "external";
   },
   */
+
+  /**
+   * Add a listener for function entry, return and throw operations.
+   *
+   * @param listener {Function} The listener to add.
+   *
+   * @see ObjectGraphHandler.prototype.notifyFunctionListeners for what each
+   * listener will get for its arguments.
+   */
+  addFunctionListener: function(listener) {
+    if (typeof listener != "function")
+      throw new Error("listener is not a function!");
+    if (!this.__functionListeners__.includes(listener))
+      this.__functionListeners__.push(listener);
+  },
+
+  /**
+   * Add a listener for function entry, return and throw operations.
+   *
+   * @param listener {Function} The listener to remove.
+   */
+  removeFunctionListener: function(listener) {
+    let index = this.__functionListeners__.indexOf(listener);
+    if (index == -1)
+      throw new Error("listener is not registered!");
+    this.__functionListeners__.splice(index, 1);
+  },
 
   /**
    * A flag indicating if internal properties of the Membrane are private.
