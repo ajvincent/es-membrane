@@ -121,6 +121,9 @@ let freezeSealTests = function(expectedFrozen, defineListeners, adjustParts) {
       expect(actual).toBe(!expectedFrozen);
     }
 
+    expect(Reflect.deleteProperty(parts.wet.b, "instance")).toBe(false);
+    expect(Reflect.deleteProperty(parts.wet.b, "doesNotExist")).toBe(true);
+
     const expectedValue = expectedFrozen ? 1 : 2;
     expect(parts.wet.b.instance).toBe(expectedValue);
     expect(parts.dry.b.instance).toBe(expectedValue);
@@ -193,6 +196,9 @@ let freezeSealTests = function(expectedFrozen, defineListeners, adjustParts) {
       let actual = Reflect.defineProperty(parts.dry.b, "instance", newDesc);
       expect(actual).toBe(!expectedFrozen);
     }
+
+    expect(Reflect.deleteProperty(parts.wet.b, "instance")).toBe(false);
+    expect(Reflect.deleteProperty(parts.wet.b, "doesNotExist")).toBe(true);
 
     const expectedValue = expectedFrozen ? 1 : 2;
     expect(parts.wet.b.instance).toBe(expectedValue);

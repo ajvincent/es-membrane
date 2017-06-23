@@ -486,6 +486,7 @@ describe("Object.freeze() on ordinary objects", function() {
     }).toThrow();
 
     expect(Reflect.deleteProperty(frozen, "x")).toBe(false);
+    expect(Reflect.deleteProperty(frozen, "doesNotExist")).toBe(true);
 
     expect(frozen.x).toBe(3);
     expect(Object.isFrozen(frozen)).toBe(true);
@@ -543,6 +544,7 @@ describe("Object.freeze() on objects with proxies directly reflecting them", fun
     }).toThrow();
 
     expect(Reflect.deleteProperty(frozen, "x")).toBe(false);
+    expect(Reflect.deleteProperty(frozen, "doesNotExist")).toBe(true);
 
     expect(frozen.x).toBe(3);
     expect(Object.isFrozen(frozen)).toBe(true);
@@ -607,6 +609,7 @@ describe("Object.freeze() on proxies to objects", function() {
     }).toThrow();
 
     expect(Reflect.deleteProperty(frozen, "x")).toBe(false);
+    expect(Reflect.deleteProperty(frozen, "doesNotExist")).toBe(true);
 
     expect(frozen.x).toBe(3);
     expect(Object.isFrozen(frozen)).toBe(true);
@@ -670,6 +673,8 @@ describe("Object.seal() on ordinary objects", function() {
     expect(Object.isSealed(sealed)).toBe(true);
 
     expect(Reflect.deleteProperty(sealed, "x")).toBe(false);
+    expect(Reflect.deleteProperty(sealed, "doesNotExist")).toBe(true);
+
     expect(sealed.x).toBe(4);
   });
 
@@ -725,6 +730,8 @@ describe("Object.seal() on objects with proxies directly reflecting them", funct
     expect(Object.isSealed(sealed)).toBe(true);
 
     expect(Reflect.deleteProperty(sealed, "x")).toBe(false);
+    expect(Reflect.deleteProperty(sealed, "doesNotExist")).toBe(true);
+
     expect(sealed.x).toBe(4);
 
     revoke();
@@ -788,6 +795,8 @@ describe("Object.seal() on proxies of objects", function() {
     expect(Object.isSealed(sealed)).toBe(true);
 
     expect(Reflect.deleteProperty(sealed, "x")).toBe(false);
+    expect(Reflect.deleteProperty(sealed, "doesNotExist")).toBe(true);
+
     expect(sealed.x).toBe(4);
 
     revoke();
@@ -1782,6 +1791,9 @@ let freezeSealTests = function(expectedFrozen, defineListeners, adjustParts) {
       expect(actual).toBe(!expectedFrozen);
     }
 
+    expect(Reflect.deleteProperty(parts.wet.b, "instance")).toBe(false);
+    expect(Reflect.deleteProperty(parts.wet.b, "doesNotExist")).toBe(true);
+
     const expectedValue = expectedFrozen ? 1 : 2;
     expect(parts.wet.b.instance).toBe(expectedValue);
     expect(parts.dry.b.instance).toBe(expectedValue);
@@ -1854,6 +1866,9 @@ let freezeSealTests = function(expectedFrozen, defineListeners, adjustParts) {
       let actual = Reflect.defineProperty(parts.dry.b, "instance", newDesc);
       expect(actual).toBe(!expectedFrozen);
     }
+
+    expect(Reflect.deleteProperty(parts.wet.b, "instance")).toBe(false);
+    expect(Reflect.deleteProperty(parts.wet.b, "doesNotExist")).toBe(true);
 
     const expectedValue = expectedFrozen ? 1 : 2;
     expect(parts.wet.b.instance).toBe(expectedValue);
@@ -3141,6 +3156,7 @@ describe("Function listeners", function() {
           return;
         throw staticException;
       });
+
       parts.handlers.dry.addFunctionListener(TestListeners.dry0);
 
       mAppender.clear();
