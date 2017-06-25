@@ -999,6 +999,8 @@ ObjectGraphHandler.prototype = Object.seal({
   // ProxyHandler
   ownKeys: inGraphHandler("ownKeys", function(shadowTarget) {
     this.validateTrapAndShadowTarget("ownKeys", shadowTarget);
+    if (!Reflect.isExtensible(shadowTarget))
+      return Reflect.ownKeys(shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     var targetMap = this.membrane.map.get(target);
@@ -2878,8 +2880,34 @@ ModifyRulesAPI.prototype = Object.seal({
     this.assertLocalProxy(fieldName, proxy, "filterOwnKeys");
     if ((typeof filter !== "function") && (filter !== null))
       throw new Error("filterOwnKeys must be a filter function!");
+
+    /* Defining a filter after a proxy's shadow target is not extensible
+     * guarantees inconsistency.  So we must disallow that possibility.
+     *
+     * Note that if the proxy becomes not extensible after setting a filter,
+     * that's all right.  When the proxy becomes not extensible, it then sets
+     * all the proxies of the shadow target before making the shadow target not
+     * extensible.
+     */
     let metadata = this.membrane.map.get(proxy);
-    metadata.setOwnKeysFilter(fieldName, filter);
+    let fieldsToCheck;
+    if (metadata.originField === fieldName)
+    {
+      fieldsToCheck = Reflect.ownKeys(metadata.proxiedFields);
+      fieldsToCheck.splice(fieldsToCheck.indexOf(fieldName), 1);
+    }
+    else
+      fieldsToCheck = [ fieldName ];
+
+    let allowed = fieldsToCheck.every(function(f) {
+      let s = metadata.getShadowTarget(f);
+      return Reflect.isExtensible(s);
+    });
+
+    if (allowed)
+      metadata.setOwnKeysFilter(fieldName, filter);
+    else
+      throw new Error("filterOwnKeys cannot apply to a non-extensible proxy");
   },
 
   disableTraps: function(fieldName, proxy, trapList) {

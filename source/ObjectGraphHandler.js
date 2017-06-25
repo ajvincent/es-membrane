@@ -46,6 +46,8 @@ ObjectGraphHandler.prototype = Object.seal({
   // ProxyHandler
   ownKeys: inGraphHandler("ownKeys", function(shadowTarget) {
     this.validateTrapAndShadowTarget("ownKeys", shadowTarget);
+    if (!Reflect.isExtensible(shadowTarget))
+      return Reflect.ownKeys(shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     var targetMap = this.membrane.map.get(target);

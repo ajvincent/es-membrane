@@ -119,6 +119,7 @@ describe("Filtering own keys ", function() {
     it(
       "hides defined properties from getters",
       function() {
+        const isExtensible = Reflect.isExtensible(dryDocument);
         let keys = Reflect.ownKeys(dryDocument);
         fixKeys(keys);
         expect(keys.includes("nodeType")).toBe(true);
@@ -168,58 +169,83 @@ describe("Filtering own keys ", function() {
         var keys;
   
         // Set extra initially to 3.
+        const isExtensible = Reflect.isExtensible(wetDocument)
         expect(
           Reflect.defineProperty(dryDocument, "extra", extraDesc)
-        ).toBe(true);
+        ).toBe(isExtensible);
   
         keys = Reflect.ownKeys(dryDocument);
         fixKeys(keys);
-        expect(keys.includes("extra")).toBe(true);
-        expect(Reflect.has(dryDocument, "extra")).toBe(true);
+        expect(keys.includes("extra")).toBe(isExtensible);
+        expect(Reflect.has(dryDocument, "extra")).toBe(isExtensible);
         {
           let extra = Reflect.getOwnPropertyDescriptor(dryDocument, "extra");
-          expect(isDataDescriptor(extra)).toBe(true);
-          expect(extra.value).toBe(3);
+          if (isExtensible)
+          {
+            expect(isDataDescriptor(extra)).toBe(true);
+            expect(extra.value).toBe(3);
+          }
+          else
+          {
+            expect(extra).toBe(undefined);
+          }
         }
-        expect(Reflect.get(dryDocument, "extra")).toBe(3);
+        expect(Reflect.get(dryDocument, "extra")).toBe(isExtensible ? 3 : undefined);
   
         keys = Reflect.ownKeys(wetDocument);
         fixKeys(keys);
-        expect(keys.includes("extra")).toBe(true);
-        expect(Reflect.has(wetDocument, "extra")).toBe(true);
+        expect(keys.includes("extra")).toBe(isExtensible);
+        expect(Reflect.has(wetDocument, "extra")).toBe(isExtensible);
         {
           let extra = Reflect.getOwnPropertyDescriptor(wetDocument, "extra");
-          expect(isDataDescriptor(extra)).toBe(true);
-          expect(extra.value).toBe(3);
+          if (isExtensible)
+          {
+            expect(isDataDescriptor(extra)).toBe(true);
+            expect(extra.value).toBe(3);
+          }
+          else
+          {
+            expect(extra).toBe(undefined);
+          }
         }
-        expect(Reflect.get(wetDocument, "extra")).toBe(3);
+        expect(Reflect.get(wetDocument, "extra")).toBe(isExtensible ? 3 : undefined);
   
         // Set extra again, to 4.
         expect(
           Reflect.defineProperty(dryDocument, "extra", extraDesc2)
-        ).toBe(true);
+        ).toBe(isExtensible);
 
         keys = Reflect.ownKeys(dryDocument);
         fixKeys(keys);
-        expect(keys.includes("extra")).toBe(true);
-        expect(Reflect.has(dryDocument, "extra")).toBe(true);
+        expect(keys.includes("extra")).toBe(isExtensible);
+        expect(Reflect.has(dryDocument, "extra")).toBe(isExtensible);
         {
           let extra = Reflect.getOwnPropertyDescriptor(dryDocument, "extra");
-          expect(isDataDescriptor(extra)).toBe(true);
-          expect(extra.value).toBe(4);
+          if (isExtensible)
+          {
+            expect(isDataDescriptor(extra)).toBe(true);
+            expect(extra.value).toBe(4);
+          }
+          else
+            expect(extra).toBe(undefined);
         }
-        expect(Reflect.get(dryDocument, "extra")).toBe(4);
+        expect(Reflect.get(dryDocument, "extra")).toBe(isExtensible ? 4 : undefined);
   
         keys = Reflect.ownKeys(wetDocument);
         fixKeys(keys);
-        expect(keys.includes("extra")).toBe(true);
-        expect(Reflect.has(wetDocument, "extra")).toBe(true);
+        expect(keys.includes("extra")).toBe(isExtensible);
+        expect(Reflect.has(wetDocument, "extra")).toBe(isExtensible);
         {
           let extra = Reflect.getOwnPropertyDescriptor(wetDocument, "extra");
-          expect(isDataDescriptor(extra)).toBe(true);
-          expect(extra.value).toBe(4);
+          if (isExtensible)
+          {
+            expect(isDataDescriptor(extra)).toBe(true);
+            expect(extra.value).toBe(4);
+          }
+          else
+            expect(extra).toBe(undefined);
         }
-        expect(Reflect.get(wetDocument, "extra")).toBe(4);
+        expect(Reflect.get(wetDocument, "extra")).toBe(isExtensible ? 4 : undefined);
   
         // Delete extra.
         expect(Reflect.deleteProperty(dryDocument, "extra")).toBe(true);
@@ -333,6 +359,7 @@ describe("Filtering own keys ", function() {
         it(
           "when the property was previously defined on the wet graph as configurable",
           function() {
+            const isExtensible = Reflect.isExtensible(wetDocument);
             // Set extra initially to 3.
             Reflect.defineProperty(wetDocument, "blacklisted", extraDesc);
             expect(
@@ -344,7 +371,10 @@ describe("Filtering own keys ", function() {
             let desc = Reflect.getOwnPropertyDescriptor(
               wetDocument, "blacklisted"
             );
-            expect(desc).not.toBe(undefined);
+            let expectation = expect(desc);
+            if (isExtensible)
+              expectation = expectation.not;
+            expectation.toBe(undefined);
             if (desc) {
               expect(desc.value).toBe(3);
             }
@@ -354,6 +384,7 @@ describe("Filtering own keys ", function() {
         it(
           "when the property was previously defined on the wet graph as non-configurable",
           function() {
+            const isExtensible = Reflect.isExtensible(wetDocument);
             // Set extra initially to 3.
             Reflect.defineProperty(wetDocument, "blacklisted", {
               value: 3,
@@ -370,7 +401,10 @@ describe("Filtering own keys ", function() {
             let desc = Reflect.getOwnPropertyDescriptor(
               wetDocument, "blacklisted"
             );
-            expect(desc).not.toBe(undefined);
+            let expectedDesc = expect(desc);
+            if (isExtensible)
+              expectedDesc = expectedDesc.not;
+            expectedDesc.toBe(undefined);
             if (desc) {
               expect(desc.value).toBe(3);
             }
@@ -896,5 +930,89 @@ describe("Filtering own keys ", function() {
          */
       }
     );
+  });
+
+  describe("with the wet object graph and wetDocument sealed", function() {
+    defineFilteredTests(true, false);
+    beforeEach(function() {
+      Object.seal(wetDocument);
+    });
+  });
+
+  describe("with the wet object graph and dryDocument sealed", function() {
+    defineFilteredTests(true, false);
+
+    /* XXX ajvincent It turns out the order of beforeEach() calls matters here.
+       defineFilteredTests installs a beforeEach which sets a filter.
+       This beforeEach seals the dryDocument and thus locks in the set of
+       ownKeys.  If we tried to seal the dryDocument before the filter was in
+       place, the tests become inconsistent.  This will be disallowed in another
+       test.
+    */
+
+    beforeEach(function() {
+      Object.seal(dryDocument);
+    });
+  });
+
+  describe("with the dry object graph and wetDocument sealed", function() {
+    defineFilteredTests(false, true);
+    beforeEach(function() {
+      Object.seal(wetDocument);
+    });
+  });
+
+  describe("with the dry object graph and dryDocument sealed", function() {
+    defineFilteredTests(false, true);
+    beforeEach(function() {
+      Object.seal(dryDocument);
+    });
+  });
+
+  describe("with the wet object graph and wetDocument frozen", function() {
+    defineFilteredTests(true, false);
+    beforeEach(function() {
+      Object.seal(wetDocument);
+    });
+  });
+
+  describe("with the wet object graph and dryDocument frozen", function() {
+    defineFilteredTests(true, false);
+    beforeEach(function() {
+      Object.seal(dryDocument);
+    });
+  });
+
+  describe("with the dry object graph and wetDocument frozen", function() {
+    defineFilteredTests(false, true);
+    beforeEach(function() {
+      Object.seal(wetDocument);
+    });
+  });
+
+  describe("with the dry object graph and dryDocument frozen", function() {
+    defineFilteredTests(false, true);
+    beforeEach(function() {
+      Object.seal(dryDocument);
+    });
+  });
+
+  it("is disallowed when the proxy is known to be not extensible", function() {
+    function checkKeys() {
+      let keys = Reflect.ownKeys(dryDocument);
+      fixKeys(keys);
+      expect(keys.includes("handleEventAtTarget")).toBe(true);
+    }
+    Reflect.preventExtensions(dryDocument);
+    checkKeys();
+
+    expect(function() {
+      membrane.modifyRules.filterOwnKeys("wet", wetDocument, BlacklistFilter);
+    }).toThrow();
+    checkKeys();
+    expect(function() {
+      membrane.modifyRules.filterOwnKeys("dry", dryDocument, BlacklistFilter);
+    }).toThrow();
+    checkKeys();
   });
 });
