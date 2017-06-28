@@ -334,6 +334,16 @@ ObjectGraphHandler.prototype = Object.seal({
                "Non-configurable descriptors must apply on the actual proxy target.");
       }
 
+      // If a shadow target has a non-configurable descriptor, we must return it.
+      /* XXX ajvincent It's unclear why this block couldn't go earlier in this
+       * function.  There's either a bug here, or a gap in my own understanding.
+       */
+      {
+        let shadowDesc = Reflect.getOwnPropertyDescriptor(shadowTarget, propName);
+        if (shadowDesc && !shadowDesc.configurable)
+          return shadowDesc;
+      }
+
       return desc;
     }
     catch (e) {
@@ -608,7 +618,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
       if (shouldBeLocal) {
         if (!Reflect.isExtensible(shadowTarget))
-          return false;
+          return Reflect.defineProperty(shadowTarget, propName, desc);
 
         let hasOwn = true;
 
