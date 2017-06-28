@@ -4075,6 +4075,7 @@ describe("Deleting properties locally", function() {
 
   function requireLocalDeleteSpecs() {
     it("deleteProperty() removes a configurable property locally", function() {
+      const isExtensible = Reflect.isExtensible(wetRoot);
       Reflect.defineProperty(dryRoot, "extra", {
         value: 1,
         writable: true,
@@ -4087,10 +4088,12 @@ describe("Deleting properties locally", function() {
         expect(deleted).toBe(true);
       }
 
-      checkProperties(undefined);
+      const expectedWet = isExtensible ? 1 : undefined;
+      checkProperties(undefined, expectedWet);
     });
 
     it("deleteProperty() does not remove a non-configurable property", function() {
+      const isExtensible = Reflect.isExtensible(wetRoot);
       Reflect.defineProperty(dryRoot, "extra", {
         value: 1,
         writable: true,
@@ -4100,10 +4103,11 @@ describe("Deleting properties locally", function() {
 
       {
         let deleted = Reflect.deleteProperty(dryRoot, "extra");
-        expect(deleted).toBe(false);
+        expect(deleted).toBe(!isExtensible);
       }
 
-      checkProperties(1);
+      const expectedWet = isExtensible ? 1 : undefined;
+      checkProperties(expectedWet, expectedWet);
     });
 
     it("deleteProperty() does not remove an inherited property", function() {
@@ -4163,6 +4167,7 @@ describe("Deleting properties locally", function() {
     it(
       "deleteProperty() hides a property stored first on the wet graph",
       function() {
+        const isExtensible = Reflect.isExtensible(wetRoot);
         Reflect.defineProperty(wetRoot, "extra", {
           value: 1,
           writable: true,
@@ -4175,13 +4180,15 @@ describe("Deleting properties locally", function() {
           expect(deleted).toBe(true);
         }
 
-        checkProperties(undefined);
+        const expectedWet = isExtensible ? 1 : undefined;
+        checkProperties(undefined, expectedWet);
       }
     );
     
     it(
       "deleteProperty() on the dry graph, followed by defineProperty() on the wet graph, does not expose the property again",
       function() {
+        const isExtensible = Reflect.isExtensible(wetRoot);
         Reflect.defineProperty(dryRoot, "extra", {
           value: 2,
           writable: true,
@@ -4198,13 +4205,15 @@ describe("Deleting properties locally", function() {
           configurable: true
         });
 
-        checkProperties(undefined);
+        const expectedWet = isExtensible ? 1 : undefined;
+        checkProperties(undefined, expectedWet);
       }
     );
 
     it(
       "deleteProperty() on the dry graph, followed by defineProperty() on the damp graph, does not expose the property again",
       function() {
+        const isExtensible = Reflect.isExtensible(wetRoot);
         Reflect.defineProperty(dryRoot, "extra", {
           value: 2,
           writable: true,
@@ -4221,13 +4230,15 @@ describe("Deleting properties locally", function() {
           configurable: true
         });
 
-        checkProperties(undefined);
+        const expectedWet = isExtensible ? 1 : undefined;
+        checkProperties(undefined, expectedWet);
       }
     );
 
     it(
       "deleteProperty() on the dry graph, followed by defineProperty() on the dry graph, re-exposes the property",
       function() {
+        const isExtensible = Reflect.isExtensible(wetRoot);
         Reflect.defineProperty(dryRoot, "extra", {
           value: 2,
           writable: true,
@@ -4244,13 +4255,15 @@ describe("Deleting properties locally", function() {
           configurable: true
         });
 
-        checkProperties(1);
+        const expectedWet = isExtensible ? 1 : undefined;
+        checkProperties(expectedWet, expectedWet);
       }
     );
 
     it(
       "deleteProperty() is not impacted by .preventExtensions() on the dry graph",
       function() {
+        const isExtensible = Reflect.isExtensible(wetRoot);
         Reflect.defineProperty(dryRoot, "extra", {
           value: 1,
           writable: true,
@@ -4259,8 +4272,8 @@ describe("Deleting properties locally", function() {
         });
 
         Reflect.preventExtensions(dryRoot);
-        expect(Reflect.isExtensible(dryRoot)).toBe(false);
         expect(Reflect.isExtensible(wetRoot)).toBe(false);
+        expect(Reflect.isExtensible(dryRoot)).toBe(false);
         expect(Reflect.isExtensible(dampRoot)).toBe(false);
 
         {
@@ -4268,13 +4281,15 @@ describe("Deleting properties locally", function() {
           expect(deleted).toBe(true);
         }
 
-        checkProperties(undefined);
+        const expectedWet = isExtensible ? 1 : undefined;
+        checkProperties(undefined, expectedWet);
       }
     );
 
     it(
       "deleteProperty() is not impacted by .preventExtensions() on the wet graph",
       function() {
+        const isExtensible = Reflect.isExtensible(wetRoot);
         Reflect.defineProperty(dryRoot, "extra", {
           value: 1,
           writable: true,
@@ -4292,13 +4307,15 @@ describe("Deleting properties locally", function() {
           expect(deleted).toBe(true);
         }
 
-        checkProperties(undefined);
+        const expectedWet = isExtensible ? 1 : undefined;
+        checkProperties(undefined, expectedWet);
       }
     );
 
     it(
       "deleteProperty() is not impacted by .preventExtensions() on the damp graph",
       function() {
+        const isExtensible = Reflect.isExtensible(wetRoot);
         Reflect.defineProperty(dryRoot, "extra", {
           value: 1,
           writable: true,
@@ -4316,30 +4333,66 @@ describe("Deleting properties locally", function() {
           expect(deleted).toBe(true);
         }
 
-        checkProperties(undefined);
+        const expectedWet = isExtensible ? 1 : undefined;
+        checkProperties(undefined, expectedWet);
       }
     );
   }
 
-  describe("when required by the dry object graph, ObjectGraphHandler(dry).", function() {
+  function specsWithSealAndFreezeOptions() {
+    describe(
+      "on unsealed objects, ObjectGraphHandler(dry).",
+      requireLocalDeleteSpecs
+    );
+
+    describe("on sealed objects, ObjectGraphHandler(dry).", function() {
+      requireLocalDeleteSpecs();
+      beforeEach(function() {
+        Object.seal(wetRoot);
+      });
+    });
+
+    describe("on sealed proxies, ObjectGraphHandler(dry).", function() {
+      requireLocalDeleteSpecs();
+      beforeEach(function() {
+        Object.seal(dryRoot);
+      });
+    });
+
+    describe("on frozen objects, ObjectGraphHandler(dry).", function() {
+      requireLocalDeleteSpecs();
+      beforeEach(function() {
+        Object.freeze(wetRoot);
+      });
+    });
+
+    describe("on frozen proxies, ObjectGraphHandler(dry).", function() {
+      requireLocalDeleteSpecs();
+      beforeEach(function() {
+        Object.freeze(dryRoot);
+      });
+    });
+  }
+  
+  describe("when required by the dry object graph, ", function() {
     beforeEach(function() {
       membrane.modifyRules.requireLocalDelete("dry", parts.dry.Node.prototype);
     });
 
-    requireLocalDeleteSpecs();
+    specsWithSealAndFreezeOptions();
   });
 
-  describe("when required by the wet object graph, ObjectGraphHandler(dry).", function() {
+  describe("when required by the wet object graph, ", function() {
     beforeEach(function() {
       membrane.buildMapping("wet", parts.wet.Node.prototype);
       membrane.modifyRules.requireLocalDelete("wet", parts.wet.Node.prototype);
     });
     
-    requireLocalDeleteSpecs();
+    specsWithSealAndFreezeOptions();
   });
 
   describe(
-    "when required by both the wet and the dry object graphs, ObjectGraphHandler(dry).",
+    "when required by both the wet and the dry object graphs, ",
     function() {
       beforeEach(function() {
         membrane.buildMapping("wet", parts.wet.Node.prototype);
@@ -4347,7 +4400,7 @@ describe("Deleting properties locally", function() {
         membrane.modifyRules.requireLocalDelete("dry", parts.dry.Node.prototype);
       });
 
-      requireLocalDeleteSpecs();
+      specsWithSealAndFreezeOptions();
     }
   );
 
@@ -4620,6 +4673,60 @@ describe("Deleting properties locally", function() {
       membrane.modifyRules.requireLocalDelete("dry", {});
     }).toThrow();
   });
+
+  it(
+    "and then applying a seal() operation on the proxy still works",
+    function() {
+      Reflect.defineProperty(wetRoot, "extra", {
+        value: 1,
+        writable: true,
+        enumerable: false,
+        configurable: true
+      });
+
+      /* This is an order-of-operations test:  unlike the above tests, which
+       * may seal the dryRoot before the delete operation, this test deletes
+       * the property and then seals the dryRoot.
+       */
+
+      membrane.modifyRules.requireLocalDelete("dry", parts.dry.Node.prototype);
+      {
+        let deleted = Reflect.deleteProperty(dryRoot, "extra");
+        expect(deleted).toBe(true);
+      }
+
+      Object.seal(dryRoot);
+
+      checkProperties(undefined, 1);
+    }
+  );
+
+  it(
+    "and then applying a freeze() operation on the proxy still works",
+    function() {
+      Reflect.defineProperty(wetRoot, "extra", {
+        value: 1,
+        writable: true,
+        enumerable: false,
+        configurable: true
+      });
+
+      /* This is an order-of-operations test:  unlike the above tests, which
+       * may seal the dryRoot before the delete operation, this test deletes
+       * the property and then seals the dryRoot.
+       */
+
+      membrane.modifyRules.requireLocalDelete("dry", parts.dry.Node.prototype);
+      {
+        let deleted = Reflect.deleteProperty(dryRoot, "extra");
+        expect(deleted).toBe(true);
+      }
+
+      Object.freeze(dryRoot);
+
+      checkProperties(undefined, 1);
+    }
+  );
 });
 "use strict"
 
