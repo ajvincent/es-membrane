@@ -130,11 +130,20 @@ MembraneInternal.prototype = Object.seal({
            "buildMapping requires a ProxyMapping object!");
 
     const isOriginal = (mapping.originField === field);
-    let newTarget = makeShadowTarget(value);
+    let shadowTarget = makeShadowTarget(value);
+
+    /* Special case for Function.prototype[@@hasInstance] */
+    if (!isOriginal && (value === Function.prototype)) {
+      let hasInstance = makeSymbolHasInstance(this, mapping.originField, field);
+      let desc = new DataDescriptor(hasInstance);
+      let didSet = Reflect.defineProperty(shadowTarget, Symbol.hasInstance, desc);
+      assert(didSet, "Symbol.hasInstance must be set on wrapped Function.prototype!");
+    }
+
     if (!Reflect.isExtensible(value))
-      Reflect.preventExtensions(newTarget);
-    let parts = Proxy.revocable(newTarget, handler);
-    parts.shadowTarget = newTarget;
+      Reflect.preventExtensions(shadowTarget);
+    let parts = Proxy.revocable(shadowTarget, handler);
+    parts.shadowTarget = shadowTarget;
     parts.value = value;
     mapping.set(this, field, parts);
     makeRevokeDeleteRefs(parts, mapping, field);

@@ -71,9 +71,9 @@ describe("basic concepts: ", function() {
   });
 
   it(
-    "Looking up a non-configurable, non-writable property twice returns the same property, unprotected",
+    "Looking up a non-configurable, non-writable property twice returns the same property, protected",
     function() {
-      const obj = {};
+      const obj = { value: 6 };
       Reflect.defineProperty(wetDocument, "extra", {
         value: obj,
         writable: false,
@@ -83,8 +83,11 @@ describe("basic concepts: ", function() {
   
       var lookup1 = dryDocument.extra;
       var lookup2 = dryDocument.extra;
+
       expect(lookup1 === lookup2).toBe(true);
-      expect(lookup1 === obj).toBe(true);
+      expect(lookup1 === obj).toBe(false);
+
+      expect(lookup1.value).toBe(6);
     }
   );
 

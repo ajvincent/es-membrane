@@ -1093,9 +1093,9 @@ describe("basic concepts: ", function() {
   });
 
   it(
-    "Looking up a non-configurable, non-writable property twice returns the same property, unprotected",
+    "Looking up a non-configurable, non-writable property twice returns the same property, protected",
     function() {
-      const obj = {};
+      const obj = { value: 6 };
       Reflect.defineProperty(wetDocument, "extra", {
         value: obj,
         writable: false,
@@ -1105,8 +1105,11 @@ describe("basic concepts: ", function() {
   
       var lookup1 = dryDocument.extra;
       var lookup2 = dryDocument.extra;
+
       expect(lookup1 === lookup2).toBe(true);
-      expect(lookup1 === obj).toBe(true);
+      expect(lookup1 === obj).toBe(false);
+
+      expect(lookup1.value).toBe(6);
     }
   );
 
@@ -6236,9 +6239,13 @@ if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
 }
 
 describe("Whitelisting object properties", function() {
-  describe("manually", function() {
+  var wetDocument, dryDocument;
+
+  var testCount = 0;
+
+  function defineWhitelistTests() {
     //{ Setting up environment values.
-    function HEAT() { return "handleEventAtTarget stub" }
+    function HEAT() { return "handleEventAtTarget stub"; }
     function HEAT_NEW() { return "Hello World"; }
 
     const EventListenerWetWhiteList = [
@@ -6398,7 +6405,6 @@ describe("Whitelisting object properties", function() {
     };
     //}
 
-    var wetDocument, dryDocument;
     beforeEach(function() {
       parts = MembraneMocks(false, null, mockOptions);
       wetDocument = parts.wet.doc;
@@ -6463,13 +6469,14 @@ describe("Whitelisting object properties", function() {
       function () {
         var oldDescWet = Reflect.getOwnPropertyDescriptor(wetDocument, "handleEventAtTarget");
 
+        const isDryExtensible = Reflect.isExtensible(dryDocument);
         var defined = Reflect.defineProperty(dryDocument, "handleEventAtTarget", {
           value: HEAT_NEW,
           writable: false,
           enumerable: true,
           configurable: true
         });
-        expect(defined).toBe(true);
+        expect(defined).toBe(isDryExtensible);
 
         var descWet = Reflect.getOwnPropertyDescriptor(wetDocument, "handleEventAtTarget");
         expect(descWet).not.toBe(undefined);
@@ -6477,7 +6484,10 @@ describe("Whitelisting object properties", function() {
           expect(descWet.value).toBe(oldDescWet.value);
 
         var descDry = Reflect.getOwnPropertyDescriptor(dryDocument, "handleEventAtTarget");
-        expect(descDry).not.toBe(undefined);
+        let expectation = expect(descDry);
+        if (isDryExtensible)
+          expectation = expectation.not;
+        expectation.toBe(undefined);
         if (descDry)
           expect(descDry.value).toBe(HEAT_NEW);
       }
@@ -6511,19 +6521,23 @@ describe("Whitelisting object properties", function() {
     it(
       "and defining a new property on the dry document has no effect on the wet document.",
       function() {
+        const isDryExtensible = Reflect.isExtensible(dryDocument);
         let defined = Reflect.defineProperty(dryDocument, "extra", {
           value: 2,
           writable: false,
           enumerable: true,
           configurable: true
         });
-        expect(defined).toBe(true);
+        expect(defined).toBe(isDryExtensible);
 
         let descWet = Reflect.getOwnPropertyDescriptor(wetDocument, "extra");
         expect(descWet).toBe(undefined);
 
         let descDry = Reflect.getOwnPropertyDescriptor(dryDocument, "extra");
-        expect(descDry).not.toBe(undefined);
+        let expectation = expect(descDry);
+        if (isDryExtensible)
+          expectation = expectation.not;
+        expectation.toBe(undefined);
         if (descDry)
           expect(descDry.value).toBe(2);
       }
@@ -6552,18 +6566,22 @@ describe("Whitelisting object properties", function() {
     it(
       "and defining a new property on the wet document has no effect on the dry document.",
       function() {
+        const isWetExtensible = Reflect.isExtensible(wetDocument);
         let defined = Reflect.defineProperty(wetDocument, "extra", {
           value: 2,
           writable: false,
           enumerable: true,
           configurable: true
         });
-        expect(defined).toBe(true);
+        expect(defined).toBe(isWetExtensible);
 
         let descWet = Reflect.getOwnPropertyDescriptor(wetDocument, "extra");
-        expect(descWet).not.toBe(undefined);
+        let expectation = expect(descWet);
+        if (isWetExtensible)
+          expectation = expectation.not;
+        expectation.toBe(undefined);
         if (descWet)
-          expect(descWet.value).toBe(2);      
+          expect(descWet.value).toBe(2);
 
         let descDry = Reflect.getOwnPropertyDescriptor(dryDocument, "extra");
         expect(descDry).toBe(undefined);
@@ -6594,6 +6612,7 @@ describe("Whitelisting object properties", function() {
     it("applies similarly to inherited names.", function() {
       // Whitelisting applies similarly to inherited names.
       let dryRoot = dryDocument.rootElement;
+      expect(dryRoot).not.toBe(wetDocument.rootElement);
       dryDocument.insertBefore(dryRoot, null);
 
       // ElementWet constructor tests.
@@ -6704,8 +6723,41 @@ describe("Whitelisting object properties", function() {
         expect(event.thisObj).toBe(listener);
       }
     });
-  });
+  }
 
+  describe("manually", function() {
+    describe("on unsealed objects", defineWhitelistTests);
+
+    describe("on sealed dry objects", function() {
+      defineWhitelistTests();
+      beforeEach(function() {
+        Object.seal(dryDocument);
+      });
+    });
+
+    describe("on sealed wet objects", function() {
+      defineWhitelistTests();
+      beforeEach(function() {
+        testCount++;
+        Object.seal(wetDocument);
+      });
+    });
+
+    describe("on frozen dry objects", function() {
+      defineWhitelistTests();
+      beforeEach(function() {
+        Object.freeze(dryDocument);
+      });
+    });
+
+    describe("on frozen wet objects", function() {
+      defineWhitelistTests();
+      beforeEach(function() {
+        Object.freeze(wetDocument);
+      });
+    });
+  });
+  
   it(
     "and getting a handler from a protected membrane works correctly",
     function() {

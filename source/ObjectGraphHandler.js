@@ -308,7 +308,9 @@ ObjectGraphHandler.prototype = Object.seal({
 
       // See .getPrototypeOf trap comments for why this matters.
       const isProtoDesc = (propName === "prototype") && isDataDescriptor(desc);
-      if (isProtoDesc) {
+      const isForeign = ((desc !== undefined) &&
+                         (targetMap.originField !== this.fieldName));
+      if (isProtoDesc || isForeign) {
         // This is necessary to force desc.value to really be a proxy.
         let configurable = desc.configurable;
         desc.configurable = true;
@@ -316,14 +318,6 @@ ObjectGraphHandler.prototype = Object.seal({
           targetMap.originField, this.fieldName, desc
         );
         desc.configurable = configurable;
-      }
-      else if ((desc !== undefined) &&
-               (targetMap.originField !== this.fieldName)) {
-        desc = this.membrane.wrapDescriptor(
-          targetMap.originField,
-          this.fieldName,
-          desc
-        );
       }
 
       // Non-configurable descriptors must apply on the actual proxy target.

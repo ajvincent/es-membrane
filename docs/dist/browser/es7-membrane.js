@@ -101,6 +101,9 @@ function makeShadowTarget(value) {
      */
     let keys = Reflect.ownKeys(value);
     keys.forEach(function(key) {
+      if (key === Symbol.hasInstance) {
+        return;
+      }
       if (Reflect.getOwnPropertyDescriptor(rv))
         return;
       let desc = Reflect.getOwnPropertyDescriptor(value, key);
@@ -201,6 +204,49 @@ function makeRevokeDeleteRefs(parts, mapping, field) {
   parts.revoke = function() {
     oldRevoke.apply(parts);
     mapping.remove(field);
+  };
+}
+
+/** 
+ * Helper function for Symbol.hasInstance
+ *
+ * @private
+ */
+function makeSymbolHasInstance(membrane, originField, wrappedField) {
+  return function(wrappedV) {
+    const wrappedHandler = membrane.getHandlerByField(wrappedField);
+    const originHandler  = membrane.getHandlerByField(originField);
+
+    // Safety check against unintentionally wrapping unknown values.
+    {
+      let [found, value] = membrane.getMembraneProxy(wrappedField, this);
+      assert(found, "Must find membrane proxy for prototype");
+      assert(value === this, "Retrieved proxeis must match");
+      if (!found || (value !== this))
+        return false;
+    }
+
+    // Safety check against unintentionally wrapping unknown values.
+    {
+      let [found, value] = membrane.getMembraneProxy(wrappedField, wrappedV);
+      if (!found || (value !== wrappedV))
+        return false;
+    }
+    
+
+    let _this = membrane.convertArgumentToProxy(
+      wrappedHandler,
+      originHandler,
+      this
+    );
+
+    let V = parts.membrane.convertArgumentToProxy(
+      wrappedHandler,
+      originHandler,
+      wrappedV
+    );
+
+    return V instanceof _this;
   };
 }
 
@@ -677,11 +723,20 @@ MembraneInternal.prototype = Object.seal({
            "buildMapping requires a ProxyMapping object!");
 
     const isOriginal = (mapping.originField === field);
-    let newTarget = makeShadowTarget(value);
+    let shadowTarget = makeShadowTarget(value);
+
+    /* Special case for Function.prototype[@@hasInstance] */
+    if (!isOriginal && (value === Function.prototype)) {
+      let hasInstance = makeSymbolHasInstance(this, mapping.originField, field);
+      let desc = new DataDescriptor(hasInstance);
+      let didSet = Reflect.defineProperty(shadowTarget, Symbol.hasInstance, desc);
+      assert(didSet, "Symbol.hasInstance must be set on wrapped Function.prototype!");
+    }
+
     if (!Reflect.isExtensible(value))
-      Reflect.preventExtensions(newTarget);
-    let parts = Proxy.revocable(newTarget, handler);
-    parts.shadowTarget = newTarget;
+      Reflect.preventExtensions(shadowTarget);
+    let parts = Proxy.revocable(shadowTarget, handler);
+    parts.shadowTarget = shadowTarget;
     parts.value = value;
     mapping.set(this, field, parts);
     makeRevokeDeleteRefs(parts, mapping, field);
@@ -1261,7 +1316,9 @@ ObjectGraphHandler.prototype = Object.seal({
 
       // See .getPrototypeOf trap comments for why this matters.
       const isProtoDesc = (propName === "prototype") && isDataDescriptor(desc);
-      if (isProtoDesc) {
+      const isForeign = ((desc !== undefined) &&
+                         (targetMap.originField !== this.fieldName));
+      if (isProtoDesc || isForeign) {
         // This is necessary to force desc.value to really be a proxy.
         let configurable = desc.configurable;
         desc.configurable = true;
@@ -1269,14 +1326,6 @@ ObjectGraphHandler.prototype = Object.seal({
           targetMap.originField, this.fieldName, desc
         );
         desc.configurable = configurable;
-      }
-      else if ((desc !== undefined) &&
-               (targetMap.originField !== this.fieldName)) {
-        desc = this.membrane.wrapDescriptor(
-          targetMap.originField,
-          this.fieldName,
-          desc
-        );
       }
 
       // Non-configurable descriptors must apply on the actual proxy target.

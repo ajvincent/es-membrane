@@ -36,6 +36,9 @@ function makeShadowTarget(value) {
      */
     let keys = Reflect.ownKeys(value);
     keys.forEach(function(key) {
+      if (key === Symbol.hasInstance) {
+        return;
+      }
       if (Reflect.getOwnPropertyDescriptor(rv))
         return;
       let desc = Reflect.getOwnPropertyDescriptor(value, key);
@@ -136,6 +139,49 @@ function makeRevokeDeleteRefs(parts, mapping, field) {
   parts.revoke = function() {
     oldRevoke.apply(parts);
     mapping.remove(field);
+  };
+}
+
+/** 
+ * Helper function for Symbol.hasInstance
+ *
+ * @private
+ */
+function makeSymbolHasInstance(membrane, originField, wrappedField) {
+  return function(wrappedV) {
+    const wrappedHandler = membrane.getHandlerByField(wrappedField);
+    const originHandler  = membrane.getHandlerByField(originField);
+
+    // Safety check against unintentionally wrapping unknown values.
+    {
+      let [found, value] = membrane.getMembraneProxy(wrappedField, this);
+      assert(found, "Must find membrane proxy for prototype");
+      assert(value === this, "Retrieved proxeis must match");
+      if (!found || (value !== this))
+        return false;
+    }
+
+    // Safety check against unintentionally wrapping unknown values.
+    {
+      let [found, value] = membrane.getMembraneProxy(wrappedField, wrappedV);
+      if (!found || (value !== wrappedV))
+        return false;
+    }
+    
+
+    let _this = membrane.convertArgumentToProxy(
+      wrappedHandler,
+      originHandler,
+      this
+    );
+
+    let V = parts.membrane.convertArgumentToProxy(
+      wrappedHandler,
+      originHandler,
+      wrappedV
+    );
+
+    return V instanceof _this;
   };
 }
 
