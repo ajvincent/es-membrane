@@ -99,7 +99,7 @@ function makeShadowTarget(value) {
      */
     let keys = Reflect.ownKeys(value);
     keys.forEach(function(key) {
-      if (key === Symbol.hasInstance) {
+      if ((key === Symbol.hasInstance) && (value === Function.prototype)) {
         return;
       }
       if (Reflect.getOwnPropertyDescriptor(rv))
