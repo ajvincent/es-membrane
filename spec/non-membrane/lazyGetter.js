@@ -1,50 +1,50 @@
-"use strict";
-
-const wetInner = { color: "red" };
-const wetOuter = { getInner: () => wetInner };
-var callCount;
-Reflect.defineProperty(wetOuter, "inner", {
-  get: () => wetInner,
-  enumerable: true,
-  configurable: false
-});
-
-function defineLazyGetter(source, target, propName) {
-  const desc = {
-    get: function() {
-      let sourceDesc = Reflect.getOwnPropertyDescriptor(source, propName);
-      if ((sourceDesc !== undefined) && ("value" in sourceDesc)) {
-        return desc.set.call(this, sourceDesc.value);
-      }
-
-      callCount++;
-      expect(Reflect.deleteProperty(target, propName)).toBe(true);
-      expect(Reflect.defineProperty(target, propName, sourceDesc)).toBe(true);
-      if ((sourceDesc !== undefined) && ("get" in sourceDesc))
-        return sourceDesc.get.apply(target);
-      return undefined;
-    },
-
-    set: function(value) {
-      callCount++;
-      expect(Reflect.deleteProperty(target, propName)).toBe(true);
-      expect(Reflect.defineProperty(target, propName, {
-        value,
-        writable: true,
-        enumerable: true,
-        configurable: true,
-      })).toBe(true);
-      return value;
-    },
-    enumerable: true,
-    configurable: true,
-  }
-  return Reflect.defineProperty(target, propName, desc);
-}
-
 describe(
   "A lazy getter can define a property before it is needed", 
   function() {
+    "use strict";
+
+    const wetInner = { color: "red" };
+    const wetOuter = { getInner: () => wetInner };
+    var callCount;
+    Reflect.defineProperty(wetOuter, "inner", {
+      get: () => wetInner,
+      enumerable: true,
+      configurable: false
+    });
+  
+    function defineLazyGetter(source, target, propName) {
+      const desc = {
+        get: function() {
+          let sourceDesc = Reflect.getOwnPropertyDescriptor(source, propName);
+          if ((sourceDesc !== undefined) && ("value" in sourceDesc)) {
+            return desc.set.call(this, sourceDesc.value);
+          }
+
+          callCount++;
+          expect(Reflect.deleteProperty(target, propName)).toBe(true);
+          expect(Reflect.defineProperty(target, propName, sourceDesc)).toBe(true);
+          if ((sourceDesc !== undefined) && ("get" in sourceDesc))
+            return sourceDesc.get.apply(target);
+          return undefined;
+        },
+
+        set: function(value) {
+          callCount++;
+          expect(Reflect.deleteProperty(target, propName)).toBe(true);
+          expect(Reflect.defineProperty(target, propName, {
+            value,
+            writable: true,
+            enumerable: true,
+            configurable: true,
+          })).toBe(true);
+          return value;
+        },
+        enumerable: true,
+        configurable: true,
+      };
+      return Reflect.defineProperty(target, propName, desc);
+    }
+
     describe("on an ordinary object", function() {
       var shadowOuter;
       beforeEach(function() {
