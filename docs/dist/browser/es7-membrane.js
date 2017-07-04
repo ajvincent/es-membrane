@@ -1421,10 +1421,11 @@ ObjectGraphHandler.prototype = Object.seal({
 
     // 1. Assert: IsPropertyKey(P) is true.
     AssertIsPropertyKey(propName);
+    var targetMap, shouldBeLocal;
 
     try {
-      var targetMap = this.membrane.map.get(target);
-      var shouldBeLocal = this.requiresDeletesBeLocal(target);
+      targetMap = this.membrane.map.get(target);
+      shouldBeLocal = this.requiresDeletesBeLocal(target);
 
       if (!shouldBeLocal) {
         /* See .defineProperty trap for why.  Basically, if the property name
@@ -1700,10 +1701,10 @@ ObjectGraphHandler.prototype = Object.seal({
           break;
         }
 
-        let [found, other] = this.membrane.getMembraneProxy(
+        let found = this.membrane.getMembraneProxy(
           this.fieldName,
           parent
-        );
+        )[0];
         assert(found, "Must find membrane proxy for prototype");
         let sMapping = this.membrane.map.get(parent);
         assert(sMapping, "Missing a ProxyMapping?");
@@ -2194,6 +2195,16 @@ ObjectGraphHandler.prototype = Object.seal({
    */
   notifyFunctionListeners:
   function(reason, trapName, target, rvOrExn, origin) {
+    var listeners;
+    {
+      let ourListeners = this.__functionListeners__.slice(0);
+      let nativeListeners = origin.__functionListeners__.slice(0);
+      let membraneListeners = this.membrane.__functionListeners__.slice(0);
+      listeners = ourListeners.concat(nativeListeners, membraneListeners);
+    }
+    if (listeners.length === 0)
+      return;
+
     const args = [
       reason,
       trapName,
@@ -2203,14 +2214,6 @@ ObjectGraphHandler.prototype = Object.seal({
       rvOrExn
     ];
     Object.freeze(args);
-
-    var listeners;
-    {
-      let ourListeners = this.__functionListeners__.slice(0);
-      let nativeListeners = origin.__functionListeners__.slice(0);
-      let membraneListeners = this.membrane.__functionListeners__.slice(0);
-      listeners = ourListeners.concat(nativeListeners, membraneListeners);
-    }
 
     listeners.forEach((func) => {
       try {
