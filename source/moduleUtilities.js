@@ -25,26 +25,8 @@ function makeShadowTarget(value) {
     rv = [];
   else if (typeof value == "object")
     rv = {};
-  else if (typeof value == "function") {
+  else if (typeof value == "function")
     rv = function() {};
-    /* ES7 specification says that functions in strict mode do not have their
-     * own "arguments" or "length" properties naturally.  But in non-strict
-     * code, V8 adds those properties.  (Mozilla adds them for both strict code
-     * and non-strict code, which technically is a spec violation.)  So to make
-     * the membrane code work correctly with shadow targets, we start with the
-     * minimalist case (strict mode explicitly on), and add missing properties.
-     */
-    let keys = Reflect.ownKeys(value);
-    keys.forEach(function(key) {
-      if ((key === Symbol.hasInstance) && (value === Function.prototype)) {
-        return;
-      }
-      if (Reflect.getOwnPropertyDescriptor(rv))
-        return;
-      let desc = Reflect.getOwnPropertyDescriptor(value, key);
-      Reflect.defineProperty(rv, key, desc);
-    });
-  }
   else
     throw new Error("Unknown value for makeShadowTarget");
   ShadowKeyMap.set(rv, value);
@@ -139,49 +121,6 @@ function makeRevokeDeleteRefs(parts, mapping, field) {
   parts.revoke = function() {
     oldRevoke.apply(parts);
     mapping.remove(field);
-  };
-}
-
-/** 
- * Helper function for Symbol.hasInstance
- *
- * @private
- */
-function makeSymbolHasInstance(membrane, originField, wrappedField) {
-  return function(wrappedV) {
-    const wrappedHandler = membrane.getHandlerByField(wrappedField);
-    const originHandler  = membrane.getHandlerByField(originField);
-
-    // Safety check against unintentionally wrapping unknown values.
-    {
-      let [found, value] = membrane.getMembraneProxy(wrappedField, this);
-      assert(found, "Must find membrane proxy for prototype");
-      assert(value === this, "Retrieved proxeis must match");
-      if (!found || (value !== this))
-        return false;
-    }
-
-    // Safety check against unintentionally wrapping unknown values.
-    {
-      let [found, value] = membrane.getMembraneProxy(wrappedField, wrappedV);
-      if (!found || (value !== wrappedV))
-        return false;
-    }
-    
-
-    let _this = membrane.convertArgumentToProxy(
-      wrappedHandler,
-      originHandler,
-      this
-    );
-
-    let V = parts.membrane.convertArgumentToProxy(
-      wrappedHandler,
-      originHandler,
-      wrappedV
-    );
-
-    return Function.prototype[Symbol.hasInstance].apply(_this, V);
   };
 }
 

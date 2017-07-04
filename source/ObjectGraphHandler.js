@@ -1162,6 +1162,7 @@ ObjectGraphHandler.prototype = Object.seal({
   /**
    * Ensure the first argument is a known shadow target.
    *
+   * @param {String} trapName     The name of the trap to run.
    * @param {Object} shadowTarget The supposed target.
    * @private
    */

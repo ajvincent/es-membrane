@@ -132,14 +132,6 @@ MembraneInternal.prototype = Object.seal({
     const isOriginal = (mapping.originField === field);
     let shadowTarget = makeShadowTarget(value);
 
-    /* Special case for Function.prototype[@@hasInstance] */
-    if (!isOriginal && (value === Function.prototype)) {
-      let hasInstance = makeSymbolHasInstance(this, mapping.originField, field);
-      let desc = new DataDescriptor(hasInstance);
-      let didSet = Reflect.defineProperty(shadowTarget, Symbol.hasInstance, desc);
-      assert(didSet, "Symbol.hasInstance must be set on wrapped Function.prototype!");
-    }
-
     if (!Reflect.isExtensible(value))
       Reflect.preventExtensions(shadowTarget);
     let parts = Proxy.revocable(shadowTarget, handler);
