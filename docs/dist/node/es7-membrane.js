@@ -244,7 +244,7 @@ function makeSymbolHasInstance(membrane, originField, wrappedField) {
       wrappedV
     );
 
-    return V instanceof _this;
+    return Function.prototype[Symbol.hasInstance].apply(_this, V);
   };
 }
 
