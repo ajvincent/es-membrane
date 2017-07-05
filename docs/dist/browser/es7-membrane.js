@@ -2251,7 +2251,19 @@ ObjectGraphHandler.prototype = Object.seal({
     const targetMap = this.membrane.map.get(target);
     const _this = targetMap.getOriginal();
     const keys = this.setOwnKeys(shadowTarget);
-    keys.forEach(this.copyProperty.bind(this, _this, shadowTarget, targetMap.originField));
+    keys.forEach(function(propName) {
+      if (this.membrane.showGraphName && (propName == "membraneGraphName")) {
+        // Special case.
+        Reflect.defineProperty(
+          shadowTarget, propName, this.graphNameDescriptor
+        );
+      }
+      else
+        this.defineLazyGetter(_this, shadowTarget, propName);
+
+      // We want to trigger the lazy getter so that the property can be frozen.
+      void(Reflect.get(shadowTarget, propName));
+    }, this);
 
     // fix the prototype;
     const proto = this.getPrototypeOf(shadowTarget);
@@ -2316,40 +2328,101 @@ ObjectGraphHandler.prototype = Object.seal({
   },
 
   /**
-   * Copy a property from the original target to the shadow target.
+   * Define a "lazy" accessor descriptor which replaces itself with a direct
+   * property descriptor when needed.
    *
-   * @param _this        {Object} The original target.
-   * @param shadowTarget {Object} The target to apply the property to.
-   * @param originField  {String|Symbol}
-   *                     The graph name the original target is from.
-   * @param propName     {String} The name of the property.
+   * @param source       {Object} The source object holding a property.
+   * @param shadowTarget {Object} The shadow target for a proxy.
+   * @param propName     {String|Symbol} The name of the property to copy.
    *
-   * @private
+   * @returns {Boolean} true if the lazy property descriptor was defined.
    */
-  copyProperty: function(_this, shadowTarget, originField, propName) {
-    if (this.membrane.showGraphName && (propName == "membraneGraphName")) {
-      // Special case.
-      Reflect.defineProperty(shadowTarget, propName, this.graphNameDescriptor);
-      return;
-    }
+  defineLazyGetter: function(source, shadowTarget, propName) {
+    const handler = this;
+    const desc = {
+      get: function() {
+        handler.validateTrapAndShadowTarget("defineLazyGetter", shadowTarget);
 
-    var desc = Reflect.getOwnPropertyDescriptor(_this, propName);
-    if (!desc)
-      return;
-    const isProtoDesc = (propName === "prototype") && isDataDescriptor(desc);
-    if (isProtoDesc)
-    {
-      // This is necessary to force desc.value to be wrapped in the membrane.
-      let configurable = desc.configurable;
-      desc.configurable = true;
-      desc = this.membrane.wrapDescriptor(originField, this.fieldName, desc);
-      desc.configurable = configurable;
-    }
-    else
-      desc = this.membrane.wrapDescriptor(originField, this.fieldName, desc);
+        const target = getRealTarget(shadowTarget);
+        const targetMap = handler.membrane.map.get(target);
 
-    if (desc)
-      Reflect.defineProperty(shadowTarget, propName, desc);
+        // sourceDesc is the descriptor we really want
+        let sourceDesc = (
+          targetMap.getLocalDescriptor(handler.fieldName, propName) ||
+          Reflect.getOwnPropertyDescriptor(source, propName)
+        );
+
+        if (sourceDesc !== undefined) {
+          // Maybe we have to wrap the actual descriptor.
+          if (targetMap.originField !== handler.fieldName) {
+            // This is necessary to force desc.value to be wrapped in the membrane.
+            let configurable = sourceDesc.configurable;
+            sourceDesc.configurable = true;
+            sourceDesc = handler.membrane.wrapDescriptor(
+              targetMap.originField, handler.fieldName, sourceDesc
+            );
+            sourceDesc.configurable = configurable;
+          }
+        }
+
+        assert(
+          Reflect.deleteProperty(shadowTarget, propName),
+          "Couldn't delete original descriptor?"
+        );
+        assert(
+          Reflect.defineProperty(shadowTarget, propName, sourceDesc),
+          "Couldn't redefine shadowTarget with descriptor?"
+        );
+
+        // Finally, run the actual getter.
+        if (sourceDesc === undefined)
+          return undefined;
+        if ("get" in sourceDesc)
+          return sourceDesc.get.apply(shadowTarget);
+        if ("value")
+          return sourceDesc.value;
+        return undefined;
+      },
+
+      set: function(value) {
+        handler.validateTrapAndShadowTarget("defineLazyGetter", shadowTarget);
+
+        if (valueType(value) !== "primitive") {
+          // Maybe we have to wrap the actual descriptor.
+          const target = getRealTarget(shadowTarget);
+          const targetMap = handler.membrane.map.get(target);
+          if (targetMap.originField !== handler.fieldName) {
+            let originHandler = handler.membrane.getHandlerByField(
+              targetMap.originField
+            );
+            value = handler.membrane.convertArgumentToProxy(
+              originHandler, handler, value
+            );
+          }
+        }
+
+        assert(
+          Reflect.deleteProperty(shadowTarget, propName),
+          "Couldn't delete original descriptor?"
+        );
+        assert(
+          Reflect.defineProperty(shadowTarget, propName, {
+            value,
+            writable: true,
+            enumerable: true,
+            configurable: true,
+          }),
+          "Couldn't redefine shadowTarget with descriptor?"
+        );
+
+        return value;
+      },
+
+      enumerable: true,
+      configurable: true,
+    };
+
+    return Reflect.defineProperty(shadowTarget, propName, desc);
   },
 
   /**
