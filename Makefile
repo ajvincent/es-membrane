@@ -65,6 +65,7 @@ ALL_SPEC_FILES = \
 	spec/useCases/filterOwnKeys.js \
 	spec/useCases/whitelist.js \
 	spec/useCases/disableTraps.js \
+	spec/internal/lazyGetters.js \
 	spec/security/exports.js \
 	$(NULL)
 
