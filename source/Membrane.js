@@ -310,6 +310,133 @@ MembraneInternal.prototype = Object.seal({
   },
 
   /**
+   * Link two values together across object graphs.
+   *
+   * @param handler0 {ObjectGraphHandler} The graph handler that should own value0.
+   * @param value0   {Object}             The first value to store.
+   * @param handler1 {ObjectGraphHandler} The graph handler that should own value1.
+   * @param value1   {Variant}            The second value to store.
+   */
+  bindValuesByHandlers: function(handler0, value0, handler1, value1) {
+    /** XXX ajvincent The logic here is convoluted, I admit.  Basically, if we
+     * succeed:
+     * handler0 must own value0
+     * handler1 must own value1
+     * the ProxyMapping instances for value0 and value1 must be the same
+     * there must be no collisions between any properties of the ProxyMapping
+     *
+     * If we fail, there must be no side-effects.
+     */
+    function bag(h, v) {
+      if (!this.ownsHandler(h))
+        throw new Error("bindValuesByHandlers requires two ObjectGraphHandlers from different graphs");
+      let rv = {
+        handler: h,
+        value: v,
+        type: valueType(v),
+      };
+      if (rv.type !== "primitive") {
+        rv.proxyMap = this.map.get(v);
+        const field = rv.handler.fieldName;
+        const valid = (!rv.proxyMap ||
+                        (rv.proxyMap.hasField(field) &&
+                        (rv.proxyMap.getProxy(field) === v)));
+        if (!valid)
+          throw new Error("Value argument does not belong to proposed ObjectGraphHandler");
+      }
+
+      return rv;
+    }
+
+    function checkField(bag) {
+      if (proxyMap.hasField(bag.handler.fieldName)) {
+        let check = proxyMap.getProxy(bag.handler.fieldName);
+        if (check !== bag.value)
+          throw new Error("Value argument does not belong to proposed object graph");
+        bag.maySet = false;
+      }
+      else
+        bag.maySet = true;
+    }
+
+    function applyBag(bag) {
+      if (!bag.maySet)
+        return;
+      let parts = { proxy: bag.value };
+      if (proxyMap.originField === bag.handler.fieldName)
+        parts.value = bag.value;
+      else
+        parts.value = proxyMap.getOriginal();
+      proxyMap.set(this, bag.handler.fieldName, parts);
+    }
+
+    var propBag0 = bag.apply(this, [handler0, value0]);
+    var propBag1 = bag.apply(this, [handler1, value1]);
+    var proxyMap = propBag0.proxyMap;
+
+    if (propBag0.type === "primitive") {
+      if (propBag1.type === "primitive") {
+        throw new Error("bindValuesByHandlers requires two non-primitive values");
+      }
+
+      proxyMap = propBag1.proxyMap;
+
+      let temp = propBag0;
+      propBag0 = propBag1;
+      propBag1 = temp;
+    }
+
+    if (propBag0.proxyMap && propBag1.proxyMap) {
+      if (propBag0.proxyMap !== propBag1.proxyMap) {
+        // See https://github.com/ajvincent/es7-membrane/issues/77 .
+        throw new Error("Linking two ObjectGraphHandlers in this way is not safe.");
+      }
+    }
+    else if (!propBag0.proxyMap) {
+      if (!propBag1.proxyMap) {
+        proxyMap = new ProxyMapping(propBag0.handler.fieldName);
+      }
+      else
+        proxyMap = propBag1.proxyMap;
+    }
+
+    checkField(propBag0);
+    checkField(propBag1);
+
+    if (propBag0.handler.fieldName === propBag1.handler.fieldName) {
+      if (propBag0.value !== propBag1.value)
+        throw new Error("bindValuesByHandlers requires two ObjectGraphHandlers from different graphs");
+      // no-op
+      propBag0.maySet = false;
+      propBag1.maySet = false;
+    }
+
+    applyBag.apply(this, [propBag0]);
+    applyBag.apply(this, [propBag1]);
+
+    // Postconditions
+    if (propBag0.type !== "primitive") {
+      let [found, check] = this.getMembraneProxy(propBag0.handler.fieldName, propBag0.value);
+      assert(found, "value0 mapping not found?");
+      assert(check === propBag0.value, "value0 not found in handler0 field name?");
+
+      [found, check] = this.getMembraneProxy(propBag1.handler.fieldName, propBag0.value);
+      assert(found, "value0 mapping not found?");
+      assert(check === propBag1.value, "value0 not found in handler0 field name?");
+    }
+
+    if (propBag1.type !== "primitive") {
+      let [found, check] = this.getMembraneProxy(propBag0.handler.fieldName, propBag1.value);
+      assert(found, "value1 mapping not found?");
+      assert(check === propBag0.value, "value0 not found in handler0 field name?");
+
+      [found, check] = this.getMembraneProxy(propBag1.handler.fieldName, propBag1.value);
+      assert(found, "value1 mapping not found?");
+      assert(check === propBag1.value, "value1 not found in handler1 field name?");
+    }
+  },
+
+  /**
    * Wrap the methods of a descriptor in an object graph.
    *
    * This method should NOT be exposed to the public.

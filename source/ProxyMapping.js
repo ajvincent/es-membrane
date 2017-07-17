@@ -93,9 +93,11 @@ Object.defineProperties(ProxyMapping.prototype, {
     this.proxiedFields[field] = parts;
 
     if (override || (field !== this.originField)) {
-      if (DogfoodMembrane && (membrane !== DogfoodMembrane))
-        DogfoodMembrane.ProxyToMembraneMap.add(parts.proxy);
-      membrane.map.set(parts.proxy, this);
+      if (valueType(parts.proxy) !== "primitive") {
+        if (DogfoodMembrane && (membrane !== DogfoodMembrane))
+          DogfoodMembrane.ProxyToMembraneMap.add(parts.proxy);
+        membrane.map.set(parts.proxy, this);
+      }
     }
     else if (this.originalValue === NOT_YET_DETERMINED) {
       this.originalValue = parts.value;

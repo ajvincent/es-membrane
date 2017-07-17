@@ -1426,6 +1426,20 @@ ObjectGraphHandler.prototype = Object.seal({
           }
         }
 
+        /* When the shadow target is sealed, desc.configurable is not updated.
+         * But the shadow target's properties all get the [[Configurable]] flag
+         * removed.  So an attempt to delete the property will fail, which means
+         * the assert below will throw.
+         * 
+         * The tests required only that an exception be thrown.  However,
+         * asserts are for internal errors, and in theory can be disabled at any
+         * time:  they're not for catching mistakes by the end-user.  That's why
+         * I am deliberately throwing an exception here, before the assert call.
+         */
+        let current = Reflect.getOwnPropertyDescriptor(shadowTarget, propName);
+        if (!current.configurable)
+          throw new Error("lazy getter descriptor is not configurable -- this is fatal");
+
         assert(
           Reflect.deleteProperty(shadowTarget, propName),
           "Couldn't delete original descriptor?"
@@ -1461,6 +1475,20 @@ ObjectGraphHandler.prototype = Object.seal({
             );
           }
         }
+
+        /* When the shadow target is sealed, desc.configurable is not updated.
+         * But the shadow target's properties all get the [[Configurable]] flag
+         * removed.  So an attempt to delete the property will fail, which means
+         * the assert below will throw.
+         * 
+         * The tests required only that an exception be thrown.  However,
+         * asserts are for internal errors, and in theory can be disabled at any
+         * time:  they're not for catching mistakes by the end-user.  That's why
+         * I am deliberately throwing an exception here, before the assert call.
+         */
+        let current = Reflect.getOwnPropertyDescriptor(shadowTarget, propName);
+        if (!current.configurable)
+          throw new Error("lazy getter descriptor is not configurable -- this is fatal");
 
         assert(
           Reflect.deleteProperty(shadowTarget, propName),

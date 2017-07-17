@@ -55,6 +55,7 @@ ALL_SPEC_FILES = \
 	spec/replaceProxies.js \
 	spec/proxyListeners.js \
 	spec/functionListeners.js \
+	spec/manualBind.js \
 	spec/properties/storeUnknownAsLocal.js \
 	spec/properties/requireLocalDelete.js \
 	spec/properties/filterOwnKeys.js \
