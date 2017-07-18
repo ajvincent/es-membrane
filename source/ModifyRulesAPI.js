@@ -326,6 +326,14 @@ ModifyRulesAPI.prototype = Object.seal({
       throw new Error("filterOwnKeys cannot apply to a non-extensible proxy");
   },
 
+  /**
+   * Disable traps for a given proxy.
+   *
+   * @param fieldName {String}   The name of the object graph the proxy is part
+   *                             of.
+   * @param proxy     {Proxy}    The proxy to affect.
+   * @param trapList  {String[]} A list of proxy (Reflect) traps to disable.
+   */
   disableTraps: function(fieldName, proxy, trapList) {
     this.assertLocalProxy(fieldName, proxy, "disableTraps");
     if (!Array.isArray(trapList) ||

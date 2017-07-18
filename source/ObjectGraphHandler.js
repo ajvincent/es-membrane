@@ -1454,7 +1454,7 @@ ObjectGraphHandler.prototype = Object.seal({
           return undefined;
         if ("get" in sourceDesc)
           return sourceDesc.get.apply(shadowTarget);
-        if ("value")
+        if ("value" in sourceDesc)
           return sourceDesc.value;
         return undefined;
       },
@@ -1549,6 +1549,7 @@ ObjectGraphHandler.prototype = Object.seal({
       if (!protoTarget)
         return false;
       map = this.membrane.map.get(protoTarget);
+      assert(map instanceof ProxyMapping, "map not found in getLocalFlag?");
     }
   },
 

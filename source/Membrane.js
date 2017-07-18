@@ -452,9 +452,10 @@ MembraneInternal.prototype = Object.seal({
     var keys = Object.keys(desc);
 
     var wrappedDesc = {
-      configurable: Boolean(desc.configurable),
-      enumerable: Boolean(desc.enumerable)
+      configurable: Boolean(desc.configurable)
     };
+    if ("enumerable" in desc)
+      wrappedDesc.enumerable = Boolean(desc.enumerable);
     if (keys.includes("writable")) {
       wrappedDesc.writable = Boolean(desc.writable);
       if (!wrappedDesc.configurable && !wrappedDesc.writable)

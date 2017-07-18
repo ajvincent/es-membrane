@@ -2410,8 +2410,13 @@ describe("An object graph handler's proxy listeners", function() {
   const logger = loggerLib.getLogger("test.membrane.proxylisteners");
 
   function ctor1(arg1) {
-    this.label = "ctor1 instance";
-    this.arg1 = arg1;
+    try {
+      this.label = "ctor1 instance";
+      this.arg1 = arg1;
+    }
+    catch (ex) {
+      // do nothing, this is not that important to our tests
+    }    
   }
   ctor1.prototype.label = "ctor1 prototype";
   ctor1.prototype.number = 2;
@@ -2784,6 +2789,334 @@ describe("An object graph handler's proxy listeners", function() {
       expect(XDesc.value).toBe(3);
       expect(x.extra).toBe(undefined);
     });
+
+    /**
+     * @note This function here is for testing meta.useShadowTarget.  This test
+     * exposes an optimization which replaces the proxy using the
+     * heavy-duty ObjectGraphHandler with another proxy using only lightweight
+     * methods (and in the case of target functions, the graph handler's .call
+     * and .construct methods).
+     *
+     * For the Object.freeze() and Object.seal() tests, you'll see properties
+     * and prototypes looked up at the time of sealing.  For the normal case,
+     * those properties will be looked up on demand only.  That's why the 
+     * "if (mode) { ... } else { ... }" blocks exist:  to distinguish between
+     * sealed object tests and lazy getter tests.
+     */
+    function useShadowTargetTests(mode) {
+      // begin test infrastructure
+      function ctor2(arg1, arg2) {
+        ctor1.apply(this, [arg1]);
+        this.arg2 = arg2;
+      }
+      ctor2.prototype = new ctor1("ctor2 base");
+
+      var lastLogArg;
+      function logTest(arg) {
+        logger.info("Executing logTest");
+        lastLogArg = arg;
+      }
+
+      function testListener(meta) {
+        try {
+          if ([x, logTest, ctor2, ctor2.prototype].includes(meta.target)) {
+            logger.info("starting useShadowTarget");
+            meta.useShadowTarget(mode);
+            logger.info("finished useShadowTarget");
+          }
+        }
+        catch (ex) {
+          meta.throwException(ex);
+        }
+      }
+      // end test infrastructure, begin real tests
+
+      dryHandler.addProxyListener(testListener);
+
+      var x, X;
+      {
+        x = new ctor2("one", logTest);
+        logger.info("x created");
+
+        X = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          x
+        );
+        logger.info("dry(x) created");
+
+        // Invocation of proxy listeners
+        let messages = appender.getMessages();
+        if (mode !== "prepared") {
+          expect(messages.length).toBe(8);
+          expect(messages[0]).toBe("x created");
+
+          // X 
+          expect(messages[1]).toBe("starting useShadowTarget");
+
+          // Reflect.getPrototypeOf(X)
+          expect(messages[2]).toBe("starting useShadowTarget");
+          expect(messages[3]).toBe("finished useShadowTarget");
+
+          // X.arg2, also known as logTest
+          expect(messages[4]).toBe("starting useShadowTarget");
+          expect(messages[5]).toBe("finished useShadowTarget");
+
+          // X
+          expect(messages[6]).toBe("finished useShadowTarget");
+
+          expect(messages[7]).toBe("dry(x) created");
+        }
+        else {
+          expect(messages.length).toBe(4);
+          expect(messages[0]).toBe("x created");
+          expect(messages[1]).toBe("starting useShadowTarget");
+          expect(messages[2]).toBe("finished useShadowTarget");
+          expect(messages[3]).toBe("dry(x) created");
+        }
+      }
+
+      appender.clear();
+      {
+        let keys = Reflect.ownKeys(X).sort();
+        expect(keys.length).toBe(3);
+        expect(keys[0]).toBe("arg1");
+        expect(keys[1]).toBe("arg2");
+        expect(keys[2]).toBe("label");
+      }
+
+      /* Property descriptors for each property.  Lazy properties will have
+       * .get() and .set().  Sealed properties will have .value and .writable.
+       */
+      ["arg1", "arg2", "label"].forEach(function(key) {
+        let desc = Reflect.getOwnPropertyDescriptor(X, key);
+        expect(typeof desc.get).toBe(mode !== "prepared" ? "undefined" : "function");
+        expect(typeof desc.set).toBe(mode !== "prepared" ? "undefined" : "function");
+
+        let expectation;
+        expectation = expect(typeof desc.value);
+        if (mode !== "prepared")
+          expectation = expectation.not;
+        expectation.toBe("undefined");
+
+        let expectedValue;
+        if (mode === "frozen")
+          expectedValue = false;
+        else if (mode === "sealed")
+          expectedValue = true;
+        else
+          expectedValue = undefined;
+        expect(desc.writable).toBe(expectedValue);
+
+        expect(desc.enumerable).toBe(true);
+        expect(desc.configurable).toBe(mode === "prepared");
+      });
+
+      expect(X.arg1).toBe("one");
+
+      // Invoking the lazy getters in the prepared case for arg2.
+      {
+        appender.clear();
+        logger.info("looking up arg2");
+        expect(typeof X.arg2).toBe("function");
+        logger.info("exiting arg2 lookup");
+        let messages = appender.getMessages();
+
+        if (mode !== "prepared") {
+          // The lazy getters have already been invoked and discarded.
+          expect(messages.length).toBe(2);
+          expect(messages[0]).toBe("looking up arg2");
+          expect(messages[1]).toBe("exiting arg2 lookup");
+        }
+        else {
+          // The lazy getters force us into the listener again.
+          expect(messages.length).toBe(4);
+          expect(messages[0]).toBe("looking up arg2");
+          expect(messages[1]).toBe("starting useShadowTarget");
+          expect(messages[2]).toBe("finished useShadowTarget");
+          expect(messages[3]).toBe("exiting arg2 lookup");
+        }
+      }
+
+      {
+        /* Looking up X.arg2 this time doesn't invoke useShadowTarget, because
+         * the lazy getter for arg2 was replaced with a descriptor referring
+         * directly to the wrapped method.
+         */
+        appender.clear();
+        logger.info("looking up arg2");
+        expect(typeof X.arg2).toBe("function");
+        logger.info("exiting arg2 lookup");
+        let messages = appender.getMessages();
+        expect(messages.length).toBe(2);
+        expect(messages[0]).toBe("looking up arg2");
+        expect(messages[1]).toBe("exiting arg2 lookup");
+      }
+
+      if (typeof X.arg2 === "function") {
+        appender.clear();
+        X.arg2();
+        let messages = appender.getMessages();
+        expect(messages.length).toBe(1);
+        expect(messages[0]).toBe("Executing logTest");
+      }
+
+      expect(X.label).toBe("ctor1 instance");
+
+      // Property descriptors, this time direct instead of lazy.
+      ["arg1", "arg2", "label"].forEach(function(key) {
+        let desc = Reflect.getOwnPropertyDescriptor(X, key);
+        let check = Reflect.getOwnPropertyDescriptor(x, key);
+        expect(typeof desc.get).toBe("undefined");
+        expect(typeof desc.set).toBe("undefined");
+        expect(typeof desc.value).toBe(typeof check.value);
+
+        let expectedValue;
+        if (mode === "frozen")
+          expectedValue = false;
+        else
+          expectedValue = true;
+        expect(desc.writable).toBe(expectedValue);
+
+        expect(desc.enumerable).toBe(true);
+        expect(desc.configurable).toBe(mode === "prepared");
+      });
+
+      // testing wrapping of arguments:  are we actually invoking call?
+      const dryArg = {};
+      for (let loop = 0; loop < 2; loop++) {
+        appender.clear();
+        logger.info("entering logTest with argument");
+        X.arg2(dryArg);
+        logger.info("leaving logTest with argument");
+        let wetArg = membrane.convertArgumentToProxy(
+          dryHandler,
+          wetHandler,
+          dryArg
+        );
+        expect(lastLogArg === wetArg).toBe(true);
+
+        let messages = appender.getMessages();
+        expect(messages.length).toBe(3);
+        expect(messages[0]).toBe("entering logTest with argument");
+        expect(messages[1]).toBe("Executing logTest");
+        expect(messages[2]).toBe("leaving logTest with argument");
+      }
+
+      // disabling the call trap, so that a function should not be executable
+      {
+        const funcWrapper = X.arg2;
+        membrane.modifyRules.disableTraps(
+          dryHandler.fieldName, funcWrapper, ["apply"]
+        );
+        appender.clear();
+        logger.info("entering logTest with argument");
+        expect(function() {
+          funcWrapper(dryArg);
+        }).toThrow();
+        logger.info("leaving logTest with argument");
+        let messages = appender.getMessages();
+        expect(messages.length).toBe(2);
+      }
+
+      // testing the construct trap
+      {
+        let CTOR2 = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          ctor2
+        );
+
+        let wetArg = membrane.convertArgumentToProxy(
+          dryHandler,
+          wetHandler,
+          dryArg
+        );
+
+        {
+          appender.clear();
+          let K = new CTOR2("foo", dryArg);
+          let k = membrane.convertArgumentToProxy(
+            dryHandler,
+            wetHandler,
+            K
+          );
+          expect(k.arg2 === wetArg).toBe(true);
+        }
+
+        // testing disableTraps on a constructor
+        membrane.modifyRules.disableTraps(
+          dryHandler.fieldName, CTOR2, ["construct"]
+        );
+
+        expect(function() {
+          void(new CTOR2());
+        }).toThrow();
+      }
+
+      /* XXX ajvincent Beyond this point, you should not step through in a
+       * debugger.  You will get inconsistent results if you do.
+       */
+
+      {
+        /* The first time for non-sealed objects, we should invoke the lazy
+         * getPrototypeOf call.  For sealed objects, we've already invoked the
+         * lazy call when sealing the object.
+         */
+        appender.clear();
+        logger.info("entering getPrototypeOf");
+        Reflect.getPrototypeOf(X);
+        logger.info("exiting getPrototypeOf");
+
+        let messages = appender.getMessages();
+        if (mode !== "prepared") {
+          expect(messages.length).toBe(2);
+          expect(messages[0]).toBe("entering getPrototypeOf");
+          expect(messages[1]).toBe("exiting getPrototypeOf");
+        }
+        else {
+          expect(messages.length).toBe(4);
+          expect(messages[0]).toBe("entering getPrototypeOf");
+          expect(messages[1]).toBe("starting useShadowTarget");
+          expect(messages[2]).toBe("finished useShadowTarget");
+          expect(messages[3]).toBe("exiting getPrototypeOf");
+        }
+      }
+
+      {
+        // The second time, the getPrototypeOf call should be direct.
+        appender.clear();
+        logger.info("entering getPrototypeOf");
+        let Y = Reflect.getPrototypeOf(X);
+        logger.info("exiting getPrototypeOf");
+
+        let messages = appender.getMessages();
+        expect(messages.length).toBe(2);
+        expect(messages[0]).toBe("entering getPrototypeOf");
+        expect(messages[1]).toBe("exiting getPrototypeOf");
+
+        appender.clear();
+
+        let expectedY = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          ctor2.prototype
+        );
+
+        messages = appender.getMessages();
+        expect(messages.length).toBe(0);
+
+        expect(Y === expectedY).toBe(true);
+      }
+    }
+
+    it("a prepared shadow target", useShadowTargetTests.bind(null, "prepared"));
+    it("a sealed shadow target",   useShadowTargetTests.bind(null, "sealed"));
+    it("a frozen shadow target",   useShadowTargetTests.bind(null, "frozen"));
+
+    /* XXX ajvincent Need tests for sealing and freezing a lazy-getter-based
+     * proxy.
+     */
   });
 
   describe("can stop iteration to further listeners", function() {

@@ -986,9 +986,10 @@ MembraneInternal.prototype = Object.seal({
     var keys = Object.keys(desc);
 
     var wrappedDesc = {
-      configurable: Boolean(desc.configurable),
-      enumerable: Boolean(desc.enumerable)
+      configurable: Boolean(desc.configurable)
     };
+    if ("enumerable" in desc)
+      wrappedDesc.enumerable = Boolean(desc.enumerable);
     if (keys.includes("writable")) {
       wrappedDesc.writable = Boolean(desc.writable);
       if (!wrappedDesc.configurable && !wrappedDesc.writable)
@@ -2517,7 +2518,14 @@ ObjectGraphHandler.prototype = Object.seal({
           "Couldn't redefine shadowTarget with descriptor?"
         );
 
-        return Reflect.get(shadowTarget, propName);
+        // Finally, run the actual getter.
+        if (sourceDesc === undefined)
+          return undefined;
+        if ("get" in sourceDesc)
+          return sourceDesc.get.apply(shadowTarget);
+        if ("value" in sourceDesc)
+          return sourceDesc.value;
+        return undefined;
       },
 
       set: function(value) {
@@ -2610,6 +2618,7 @@ ObjectGraphHandler.prototype = Object.seal({
       if (!protoTarget)
         return false;
       map = this.membrane.map.get(protoTarget);
+      assert(map instanceof ProxyMapping, "map not found in getLocalFlag?");
     }
   },
 
@@ -2752,6 +2761,67 @@ function ProxyNotify(parts, handler, options = {}) {
       function() {
         if (!stopped)
           parts.proxy = modifyRules.replaceProxy(parts.proxy, this.handler);
+      }
+    ),
+
+    /**
+     * Direct the membrane to use the shadow target instead of the full proxy.
+     *
+     * @param mode {String} One of several values:
+     *   - "frozen" means return a frozen shadow target.
+     *   - "sealed" means return a sealed shadow target.
+     *   - "prepared" means return a shadow target with lazy getters for all
+     *     available properties and for its prototype.
+     */
+    "useShadowTarget": new DataDescriptor(
+      function(mode) {
+        let newHandler = {};
+
+        if (mode === "frozen")
+          Object.freeze(parts.proxy);
+        else if (mode === "sealed")
+          Object.seal(parts.proxy);
+        else if (mode === "prepared") {
+          const keys = Reflect.ownKeys(parts.proxy);
+          keys.forEach(function(key) {
+            handler.defineLazyGetter(parts.value, parts.shadowTarget, key);
+          });
+
+          // Lazy getPrototypeOf, setPrototypeOf.
+          newHandler.getPrototypeOf = function(st) {
+            var proto = handler.getPrototypeOf.apply(handler, [st]);
+            this.setPrototypeOf(st, proto);
+            return proto;
+          };
+          newHandler.setPrototypeOf = function(st, proto) {
+            var rv = handler.setPrototypeOf.apply(handler, [st, proto]);
+            delete newHandler.getPrototypeOf;
+            delete newHandler.setPrototypeOf;
+            return rv;
+          };
+        }
+        else {
+          throw new Error("useShadowTarget requires its first argument be 'frozen', 'sealed', or 'prepared'");
+        }
+
+        stopped = true;
+        if (typeof parts.shadowTarget == "function") {
+          newHandler.apply     = handler.apply.bind(handler);
+          newHandler.construct = handler.construct.bind(handler);
+        }
+        else if (Reflect.ownKeys(newHandler).length === 0)
+          newHandler = Reflect; // yay, maximum optimization
+
+        let newParts = Proxy.revocable(parts.shadowTarget, newHandler);
+        parts.proxy = newParts.proxy;
+        parts.revoke = newParts.revoke;
+
+        const masterMap = handler.membrane.map;
+        let map = masterMap.get(parts.value);
+        assert(map instanceof ProxyMapping,
+               "Didn't get a ProxyMapping for an existing value?");
+        masterMap.set(parts.proxy, map);
+        makeRevokeDeleteRefs(parts, map, handler.fieldName);
       }
     ),
 
@@ -3127,6 +3197,14 @@ ModifyRulesAPI.prototype = Object.seal({
       throw new Error("filterOwnKeys cannot apply to a non-extensible proxy");
   },
 
+  /**
+   * Disable traps for a given proxy.
+   *
+   * @param fieldName {String}   The name of the object graph the proxy is part
+   *                             of.
+   * @param proxy     {Proxy}    The proxy to affect.
+   * @param trapList  {String[]} A list of proxy (Reflect) traps to disable.
+   */
   disableTraps: function(fieldName, proxy, trapList) {
     this.assertLocalProxy(fieldName, proxy, "disableTraps");
     if (!Array.isArray(trapList) ||

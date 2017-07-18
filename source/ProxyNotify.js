@@ -67,6 +67,67 @@ function ProxyNotify(parts, handler, options = {}) {
     ),
 
     /**
+     * Direct the membrane to use the shadow target instead of the full proxy.
+     *
+     * @param mode {String} One of several values:
+     *   - "frozen" means return a frozen shadow target.
+     *   - "sealed" means return a sealed shadow target.
+     *   - "prepared" means return a shadow target with lazy getters for all
+     *     available properties and for its prototype.
+     */
+    "useShadowTarget": new DataDescriptor(
+      function(mode) {
+        let newHandler = {};
+
+        if (mode === "frozen")
+          Object.freeze(parts.proxy);
+        else if (mode === "sealed")
+          Object.seal(parts.proxy);
+        else if (mode === "prepared") {
+          const keys = Reflect.ownKeys(parts.proxy);
+          keys.forEach(function(key) {
+            handler.defineLazyGetter(parts.value, parts.shadowTarget, key);
+          });
+
+          // Lazy getPrototypeOf, setPrototypeOf.
+          newHandler.getPrototypeOf = function(st) {
+            var proto = handler.getPrototypeOf.apply(handler, [st]);
+            this.setPrototypeOf(st, proto);
+            return proto;
+          };
+          newHandler.setPrototypeOf = function(st, proto) {
+            var rv = handler.setPrototypeOf.apply(handler, [st, proto]);
+            delete newHandler.getPrototypeOf;
+            delete newHandler.setPrototypeOf;
+            return rv;
+          };
+        }
+        else {
+          throw new Error("useShadowTarget requires its first argument be 'frozen', 'sealed', or 'prepared'");
+        }
+
+        stopped = true;
+        if (typeof parts.shadowTarget == "function") {
+          newHandler.apply     = handler.apply.bind(handler);
+          newHandler.construct = handler.construct.bind(handler);
+        }
+        else if (Reflect.ownKeys(newHandler).length === 0)
+          newHandler = Reflect; // yay, maximum optimization
+
+        let newParts = Proxy.revocable(parts.shadowTarget, newHandler);
+        parts.proxy = newParts.proxy;
+        parts.revoke = newParts.revoke;
+
+        const masterMap = handler.membrane.map;
+        let map = masterMap.get(parts.value);
+        assert(map instanceof ProxyMapping,
+               "Didn't get a ProxyMapping for an existing value?");
+        masterMap.set(parts.proxy, map);
+        makeRevokeDeleteRefs(parts, map, handler.fieldName);
+      }
+    ),
+
+    /**
      * Notify no more listeners.
      */
     "stopIteration": new DataDescriptor(
