@@ -1076,10 +1076,23 @@ function ObjectGraphHandler(membrane, fieldName) {
     if ((t != "string") && (t != "symbol"))
       throw new Error("field must be a string or a symbol!");
   }
+  
+  let boundMethods = {};
+  [
+    "apply",
+    "construct",
+  ].forEach(function(key) {
+    Reflect.defineProperty(boundMethods, key, new DataDescriptor(
+      this[key].bind(this), false, false, false
+    ));
+  }, this);
+  Object.freeze(boundMethods);
 
   Object.defineProperties(this, {
     "membrane": new DataDescriptor(membrane, false, false, false),
     "fieldName": new DataDescriptor(fieldName, false, false, false),
+
+    "boundMethods": new DataDescriptor(boundMethods, false, false, false),
 
     /* Temporary until membraneGraphName is defined on Object.prototype through
      * the object graph.
@@ -2391,7 +2404,7 @@ ObjectGraphHandler.prototype = Object.seal({
       else
         this.defineLazyGetter(_this, shadowTarget, propName);
 
-      // We want to trigger the lazy getter so that the property can be frozen.
+      // We want to trigger the lazy getter so that the property can be sealed.
       void(Reflect.get(shadowTarget, propName));
     }, this);
 
@@ -2787,16 +2800,23 @@ function ProxyNotify(parts, handler, options = {}) {
             handler.defineLazyGetter(parts.value, parts.shadowTarget, key);
           });
 
-          // Lazy getPrototypeOf, setPrototypeOf.
+          // Lazy getPrototypeOf, setPrototypeOf, preventExtensions.
           newHandler.getPrototypeOf = function(st) {
             var proto = handler.getPrototypeOf.apply(handler, [st]);
             this.setPrototypeOf(st, proto);
             return proto;
           };
+
           newHandler.setPrototypeOf = function(st, proto) {
             var rv = handler.setPrototypeOf.apply(handler, [st, proto]);
             delete newHandler.getPrototypeOf;
             delete newHandler.setPrototypeOf;
+            return rv;
+          };
+
+          newHandler.preventExtensions = function(st) {
+            var rv = handler.preventExtensions.apply(handler, [st]);
+            delete newHandler.preventExtensions;
             return rv;
           };
         }
@@ -2806,8 +2826,8 @@ function ProxyNotify(parts, handler, options = {}) {
 
         stopped = true;
         if (typeof parts.shadowTarget == "function") {
-          newHandler.apply     = handler.apply.bind(handler);
-          newHandler.construct = handler.construct.bind(handler);
+          newHandler.apply     = handler.boundMethods.apply;
+          newHandler.construct = handler.boundMethods.construct;
         }
         else if (Reflect.ownKeys(newHandler).length === 0)
           newHandler = Reflect; // yay, maximum optimization

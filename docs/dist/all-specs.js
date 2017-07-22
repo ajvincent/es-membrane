@@ -2607,20 +2607,9 @@ if (typeof Membrane != "function") {
 }
 
 describe("An object graph handler's proxy listeners", function() {
-  var membrane, wetHandler, dryHandler, appender;
+  var membrane, wetHandler, dryHandler, appender, ctor1;
   const logger = loggerLib.getLogger("test.membrane.proxylisteners");
 
-  function ctor1(arg1) {
-    try {
-      this.label = "ctor1 instance";
-      this.arg1 = arg1;
-    }
-    catch (ex) {
-      // do nothing, this is not that important to our tests
-    }    
-  }
-  ctor1.prototype.label = "ctor1 prototype";
-  ctor1.prototype.number = 2;
 
   function getMessageProp(event) { return event.message; }
   function getMessages() {
@@ -2636,6 +2625,18 @@ describe("An object graph handler's proxy listeners", function() {
     logger.addAppender(appender);
     appender.getMessages = getMessages;
     appender.setThreshold("INFO");
+
+    ctor1 = function(arg1) {
+      try {
+        this.label = "ctor1 instance";
+        this.arg1 = arg1;
+      }
+      catch (ex) {
+        // do nothing, this is not that important to our tests
+      }    
+    };
+    ctor1.prototype.label = "ctor1 prototype";
+    ctor1.prototype.number = 2;
   });
 
   afterEach(function() {
@@ -3020,7 +3021,8 @@ describe("An object graph handler's proxy listeners", function() {
 
       function testListener(meta) {
         try {
-          if ([x, logTest, ctor2, ctor2.prototype].includes(meta.target)) {
+          if ([x, logTest, ctor2, ctor2.prototype, a, b, c].includes(meta.target))
+          {
             logger.info("starting useShadowTarget");
             meta.useShadowTarget(mode);
             logger.info("finished useShadowTarget");
@@ -3030,11 +3032,57 @@ describe("An object graph handler's proxy listeners", function() {
           meta.throwException(ex);
         }
       }
+
+      function lazyDescTest(obj, propName) {
+        const desc = Reflect.getOwnPropertyDescriptor(obj, propName);
+        const hasGetAndSet = mode !== "prepared" ? "undefined" : "function";
+        expect(typeof desc.get).toBe(hasGetAndSet);
+        expect(typeof desc.set).toBe(hasGetAndSet);
+
+        let expectation;
+        expectation = expect(typeof desc.value);
+        if (mode !== "prepared")
+          expectation = expectation.not;
+        expectation.toBe("undefined");
+
+        let expectedValue;
+        if (mode === "frozen")
+          expectedValue = false;
+        else if (mode === "sealed")
+          expectedValue = true;
+        else
+          expectedValue = undefined;
+        expect(desc.writable).toBe(expectedValue);
+
+        expect(desc.enumerable).toBe(true);
+        expect(desc.configurable).toBe(mode === "prepared");
+      }
+
+      function directDescTest(proxy, target, propName) {
+        let desc = Reflect.getOwnPropertyDescriptor(proxy, propName);
+        let check = Reflect.getOwnPropertyDescriptor(target, propName);
+        expect(typeof desc.get).toBe("undefined");
+        expect(typeof desc.set).toBe("undefined");
+        expect(typeof desc.value).toBe(typeof check.value);
+
+        let expectedValue;
+        if (mode === "frozen")
+          expectedValue = false;
+        else
+          expectedValue = true;
+        expect(desc.writable).toBe(expectedValue);
+
+        expect(desc.enumerable).toBe(true);
+        expect(desc.configurable).toBe(mode === "prepared");
+      }
       // end test infrastructure, begin real tests
 
       dryHandler.addProxyListener(testListener);
 
-      var x, X;
+      /* Most tests are done with x and X.  I do special cyclic value tests
+      with a/b/c, and A/B/C.
+      */
+      var x, X, a, A, b, B, c, C;
       {
         x = new ctor2("one", logTest);
         logger.info("x created");
@@ -3090,27 +3138,7 @@ describe("An object graph handler's proxy listeners", function() {
        * .get() and .set().  Sealed properties will have .value and .writable.
        */
       ["arg1", "arg2", "label"].forEach(function(key) {
-        let desc = Reflect.getOwnPropertyDescriptor(X, key);
-        expect(typeof desc.get).toBe(mode !== "prepared" ? "undefined" : "function");
-        expect(typeof desc.set).toBe(mode !== "prepared" ? "undefined" : "function");
-
-        let expectation;
-        expectation = expect(typeof desc.value);
-        if (mode !== "prepared")
-          expectation = expectation.not;
-        expectation.toBe("undefined");
-
-        let expectedValue;
-        if (mode === "frozen")
-          expectedValue = false;
-        else if (mode === "sealed")
-          expectedValue = true;
-        else
-          expectedValue = undefined;
-        expect(desc.writable).toBe(expectedValue);
-
-        expect(desc.enumerable).toBe(true);
-        expect(desc.configurable).toBe(mode === "prepared");
+        lazyDescTest(X, key);
       });
 
       expect(X.arg1).toBe("one");
@@ -3166,21 +3194,7 @@ describe("An object graph handler's proxy listeners", function() {
 
       // Property descriptors, this time direct instead of lazy.
       ["arg1", "arg2", "label"].forEach(function(key) {
-        let desc = Reflect.getOwnPropertyDescriptor(X, key);
-        let check = Reflect.getOwnPropertyDescriptor(x, key);
-        expect(typeof desc.get).toBe("undefined");
-        expect(typeof desc.set).toBe("undefined");
-        expect(typeof desc.value).toBe(typeof check.value);
-
-        let expectedValue;
-        if (mode === "frozen")
-          expectedValue = false;
-        else
-          expectedValue = true;
-        expect(desc.writable).toBe(expectedValue);
-
-        expect(desc.enumerable).toBe(true);
-        expect(desc.configurable).toBe(mode === "prepared");
+        directDescTest(X, x, key);
       });
 
       // testing wrapping of arguments:  are we actually invoking call?
@@ -3255,6 +3269,124 @@ describe("An object graph handler's proxy listeners", function() {
         }).toThrow();
       }
 
+      // Cyclic object references
+      if (mode !== "prepared")
+        pending("cyclic object references do not yet work when sealed");
+      {
+        a = { objName: "a" };
+        b = { objName: "b" };
+        a.child = b;
+        b.parent = a;
+
+        appender.clear();
+        logger.info("wrapping a");
+        A = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          a
+        );
+        logger.info("wrapping b");
+        B = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          b
+        );
+        logger.info("done wrapping");
+
+        lazyDescTest(A, "child");
+        lazyDescTest(B, "parent");
+
+        {
+          let messages = appender.getMessages();
+
+          if (mode !== "prepared") {
+            // The lazy getters have already been invoked and discarded.
+            expect(messages.length).toBe(7);
+            expect(messages[0]).toBe("wrapping a");
+
+            // A
+            expect(messages[1]).toBe("starting useShadowTarget");
+
+            // A.child == B
+            expect(messages[2]).toBe("starting useShadowTarget");
+            expect(messages[3]).toBe("finished useShadowTarget");
+
+            // A
+            expect(messages[4]).toBe("finished useShadowTarget");
+
+            expect(messages[5]).toBe("wrapping b");
+            expect(messages[6]).toBe("done wrapping");
+          }
+          else {
+            // The lazy getters force us into the listener again.
+            expect(messages.length).toBe(7);
+
+            // A
+            expect(messages[0]).toBe("wrapping a");
+            expect(messages[1]).toBe("starting useShadowTarget");
+            expect(messages[2]).toBe("finished useShadowTarget");
+
+            // B
+            expect(messages[3]).toBe("wrapping b");
+            expect(messages[4]).toBe("starting useShadowTarget");
+            expect(messages[5]).toBe("finished useShadowTarget");
+
+            expect(messages[6]).toBe("done wrapping");
+          }
+        }
+
+        appender.clear();
+        expect(A.child.parent === A).toBe(true);
+        expect(B.parent.child === B).toBe(true);
+
+        /* By invoking the properties, we've converted from lazy getters to
+           direct descriptors.  So we should now test for this.
+        */
+        directDescTest(A, a, "child");
+        directDescTest(B, b, "parent");
+      }
+
+      // really push the cyclic test a step further, for scalability testing
+      {
+        a = { objName: "a" };
+        b = { objName: "b" };
+        c = { objName: "c" };
+
+        a.child = b;
+        b.child = c;
+        c.grandParent = a;
+
+        A = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          a
+        );
+
+        B = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          b
+        );
+
+        C = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          c
+        );
+
+        lazyDescTest(A, "child");
+        lazyDescTest(B, "child");
+        lazyDescTest(C, "grandParent");
+
+        expect(A.child.child.grandParent === A).toBe(true);
+        expect(B.child.grandParent.child === B).toBe(true);
+        expect(C.grandParent.child.child === C).toBe(true);
+
+        directDescTest(A, a, "child");
+        directDescTest(B, b, "child");
+        directDescTest(C, c, "grandParent");
+      }
+
       /* XXX ajvincent Beyond this point, you should not step through in a
        * debugger.  You will get inconsistent results if you do.
        */
@@ -3315,9 +3447,153 @@ describe("An object graph handler's proxy listeners", function() {
     it("a sealed shadow target",   useShadowTargetTests.bind(null, "sealed"));
     it("a frozen shadow target",   useShadowTargetTests.bind(null, "frozen"));
 
-    /* XXX ajvincent Need tests for sealing and freezing a lazy-getter-based
-     * proxy.
-     */
+    function useShadowWithDefer(objOp) {
+      // begin test infrastructure
+      function ctor2(arg1, arg2) {
+        ctor1.apply(this, [arg1]);
+        this.arg2 = arg2;
+      }
+      ctor2.prototype = new ctor1("ctor2 base");
+
+      var lastLogArg;
+      function logTest(arg) {
+        logger.info("Executing logTest");
+        lastLogArg = arg;
+      }
+
+      function testListener(meta) {
+        try {
+          if ([p, logTest, ctor2, ctor2.prototype, a, b, c].includes(meta.target)) {
+            logger.info("starting useShadowTarget");
+            meta.useShadowTarget("prepared");
+            logger.info("finished useShadowTarget");
+          }
+        }
+        catch (ex) {
+          meta.throwException(ex);
+        }
+      }
+      // end test infrastructure, begin real tests
+
+      dryHandler.addProxyListener(testListener);
+
+      // I do special cyclic value tests with a/b/c, and A/B/C.
+      var p, P, a, A, b, B, c, C;
+      {
+        // repeating earlier conditions
+        p = new ctor2("one", logTest);
+
+        appender.clear();
+
+        P = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          p
+        );
+
+        logger.info(`starting ${objOp}`);
+        Object[objOp](P);
+        logger.info(`finished ${objOp}`);
+
+        let messages = appender.getMessages();
+        expect(messages.length).toBe(8);
+        expect(messages[0]).toBe("starting useShadowTarget");
+        expect(messages[1]).toBe("finished useShadowTarget");
+        expect(messages[2]).toBe(`starting ${objOp}`);
+
+        /* Reflect.getPrototypeOf(p), aka ctor2.prototype,
+         * via ObjectGraphHandler.getLocalFlag("storeUnknownAsLocal")
+         */
+        expect(messages[3]).toBe("starting useShadowTarget");
+        expect(messages[4]).toBe("finished useShadowTarget");
+
+        // logtest, aka p.arg2, via Object.seal(P).
+        expect(messages[5]).toBe("starting useShadowTarget");
+        expect(messages[6]).toBe("finished useShadowTarget");
+
+        expect(messages[7]).toBe(`finished ${objOp}`);
+
+        let desc = Reflect.getOwnPropertyDescriptor(P, "arg2");
+        expect(desc.configurable).toBe(false);
+        expect("value" in desc).toBe(true);
+      }
+
+      
+      // Cyclic object references
+      pending("cyclic object references do not yet work when sealed");
+      {
+        a = { objName: "a" };
+        b = { objName: "b" };
+        a.child = b;
+        b.parent = a;
+
+        A = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          a
+        );
+
+        B = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          b
+        );
+
+        expect(A.child.parent === A).toBe(true);
+        expect(B.parent.child === B).toBe(true);
+      }
+
+      // really push the cyclic test a step further, for scalability testing
+      {
+        a = { objName: "a" };
+        b = { objName: "b" };
+        c = { objName: "c" };
+
+        a.child = b;
+        b.child = c;
+        c.grandParent = a;
+
+        A = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          a
+        );
+
+        B = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          b
+        );
+
+        C = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          c
+        );
+
+        lazyDescTest(A, "child");
+        lazyDescTest(B, "child");
+        lazyDescTest(C, "child");
+
+        expect(A.child.child.grandParent === A).toBe(true);
+        expect(B.child.grandParent.child === B).toBe(true);
+        expect(C.grandParent.child.child === C).toBe(true);
+
+        directDescTest(A, a, "child");
+        directDescTest(B, b, "child");
+        directDescTest(C, c, "grandParent");
+      }
+    }
+
+    it(
+      "a prepared shadow target which is later sealed",
+      useShadowWithDefer.bind(null, "seal")
+    );
+
+    it(
+      "a prepared shadow target which is later frozen",
+      useShadowWithDefer.bind(null, "freeze")
+    );
   });
 
   describe("can stop iteration to further listeners", function() {

@@ -7,10 +7,23 @@ function ObjectGraphHandler(membrane, fieldName) {
     if ((t != "string") && (t != "symbol"))
       throw new Error("field must be a string or a symbol!");
   }
+  
+  let boundMethods = {};
+  [
+    "apply",
+    "construct",
+  ].forEach(function(key) {
+    Reflect.defineProperty(boundMethods, key, new DataDescriptor(
+      this[key].bind(this), false, false, false
+    ));
+  }, this);
+  Object.freeze(boundMethods);
 
   Object.defineProperties(this, {
     "membrane": new DataDescriptor(membrane, false, false, false),
     "fieldName": new DataDescriptor(fieldName, false, false, false),
+
+    "boundMethods": new DataDescriptor(boundMethods, false, false, false),
 
     /* Temporary until membraneGraphName is defined on Object.prototype through
      * the object graph.
@@ -1322,7 +1335,7 @@ ObjectGraphHandler.prototype = Object.seal({
       else
         this.defineLazyGetter(_this, shadowTarget, propName);
 
-      // We want to trigger the lazy getter so that the property can be frozen.
+      // We want to trigger the lazy getter so that the property can be sealed.
       void(Reflect.get(shadowTarget, propName));
     }, this);
 

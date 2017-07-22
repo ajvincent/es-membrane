@@ -89,16 +89,23 @@ function ProxyNotify(parts, handler, options = {}) {
             handler.defineLazyGetter(parts.value, parts.shadowTarget, key);
           });
 
-          // Lazy getPrototypeOf, setPrototypeOf.
+          // Lazy getPrototypeOf, setPrototypeOf, preventExtensions.
           newHandler.getPrototypeOf = function(st) {
             var proto = handler.getPrototypeOf.apply(handler, [st]);
             this.setPrototypeOf(st, proto);
             return proto;
           };
+
           newHandler.setPrototypeOf = function(st, proto) {
             var rv = handler.setPrototypeOf.apply(handler, [st, proto]);
             delete newHandler.getPrototypeOf;
             delete newHandler.setPrototypeOf;
+            return rv;
+          };
+
+          newHandler.preventExtensions = function(st) {
+            var rv = handler.preventExtensions.apply(handler, [st]);
+            delete newHandler.preventExtensions;
             return rv;
           };
         }
@@ -108,8 +115,8 @@ function ProxyNotify(parts, handler, options = {}) {
 
         stopped = true;
         if (typeof parts.shadowTarget == "function") {
-          newHandler.apply     = handler.apply.bind(handler);
-          newHandler.construct = handler.construct.bind(handler);
+          newHandler.apply     = handler.boundMethods.apply;
+          newHandler.construct = handler.boundMethods.construct;
         }
         else if (Reflect.ownKeys(newHandler).length === 0)
           newHandler = Reflect; // yay, maximum optimization
