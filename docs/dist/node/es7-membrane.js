@@ -1074,7 +1074,7 @@ function ObjectGraphHandler(membrane, fieldName) {
     if ((t != "string") && (t != "symbol"))
       throw new Error("field must be a string or a symbol!");
   }
-  
+
   let boundMethods = {};
   [
     "apply",
@@ -1097,6 +1097,12 @@ function ObjectGraphHandler(membrane, fieldName) {
      */
     "graphNameDescriptor": new DataDescriptor(
       new DataDescriptor(fieldName), false, false, false
+    ),
+
+    // see .defineLazyGetter, ProxyNotify for details.
+    "proxiesInConstruction": new DataDescriptor(
+      new WeakMap(/* original value: [callback() {}, ...]*/),
+      false, false, false
     ),
 
     "__revokeFunctions__": new DataDescriptor([], false, false, false),
@@ -1414,7 +1420,7 @@ ObjectGraphHandler.prototype = Object.seal({
        */
       {
         let shadowDesc = Reflect.getOwnPropertyDescriptor(shadowTarget, propName);
-        if (shadowDesc && !shadowDesc.configurable)
+        if (shadowDesc)
           return shadowDesc;
       }
 
@@ -2048,34 +2054,28 @@ ObjectGraphHandler.prototype = Object.seal({
       trapName: "apply"
     });
 
-    _this = this.membrane.convertArgumentToProxy(
-      this,
-      argHandler,
-      thisArg,
-      Object.create(optionsBase, { "isThis": new DataDescriptor(true) })
-    );
-
-    /* XXX ajvincent This seemed like a good idea, but I realized it adds execution time.
-    if (mayLog) {
-      this.membrane.logger.debug("apply this.membraneGraphName: " + _this.membraneGraphName);
-    }
-    */
-
-    for (let i = 0; i < argumentsList.length; i++) {
-      let nextArg = argumentsList[i];
-      nextArg = this.membrane.convertArgumentToProxy(
+    if (targetMap.originField !== this.fieldName) {
+      _this = this.membrane.convertArgumentToProxy(
         this,
         argHandler,
-        nextArg,
-        Object.create(optionsBase, { "argIndex": new DataDescriptor(i) })
+        thisArg,
+        Object.create(optionsBase, { "isThis": new DataDescriptor(true) })
       );
-      args.push(nextArg);
 
-      /* XXX ajvincent This seemed like a good idea, but I realized it adds execution time.
-      if (mayLog && (valueType(nextArg) != "primitive")) {
-        this.membrane.logger.debug("apply argument " + i + "'s membraneGraphName: " + nextArg.membraneGraphName);
+      for (let i = 0; i < argumentsList.length; i++) {
+        let nextArg = argumentsList[i];
+        nextArg = this.membrane.convertArgumentToProxy(
+          this,
+          argHandler,
+          nextArg,
+          Object.create(optionsBase, { "argIndex": new DataDescriptor(i) })
+        );
+        args.push(nextArg);
       }
-      */
+    }
+    else {
+      _this = thisArg;
+      args = argumentsList.slice(0);
     }
 
     if (mayLog) {
@@ -2111,11 +2111,12 @@ ObjectGraphHandler.prototype = Object.seal({
       this.membrane.logger.debug("apply wrapping return value");
     }
 
-    rv = this.membrane.convertArgumentToProxy(
-      argHandler,
-      this,
-      rv
-    );
+    if (targetMap.originField !== this.fieldName)
+      rv = this.membrane.convertArgumentToProxy(
+        argHandler,
+        this,
+        rv
+      );
 
     /* This is a design decision, to pass the wrapped proxy object instead of
      * the unwrapped value.  There's no particular reason for it, except that I
@@ -2477,34 +2478,62 @@ ObjectGraphHandler.prototype = Object.seal({
    * @param propName     {String|Symbol} The name of the property to copy.
    *
    * @returns {Boolean} true if the lazy property descriptor was defined.
+   *
+   * @private
    */
   defineLazyGetter: function(source, shadowTarget, propName) {
     const handler = this;
-    const desc = {
+
+    let lockState = "none", lockedValue;
+    function setLockedValue(value) {
+      /* XXX ajvincent The intent is to mark this accessor descriptor as one
+       * that can safely be converted to (new DataDescriptor(value)).
+       * Unfortunately, a sealed accessor descriptor has the .configurable
+       * property set to false, so we can never replace this getter in that
+       * scenario with a data descriptor.  ES7 spec sections 7.3.14
+       * (SetIntegrityLevel) and 9.1.6.3 (ValidateAndApplyPropertyDescriptor)
+       * force that upon us.
+       *
+       * I hope that a ECMAScript engine can be written (and a future ES7
+       * specification written) that could detect this unbreakable contract and
+       * internally convert the accessor descriptor to a data descriptor.  That
+       * would be a nice optimization for a "just-in-time" compiler.
+       *
+       * Simply put:  (1) The only setter for lockedValue is setLockedValue.
+       * (2) There are at most only two references to setLockedValue ever, and
+       * that only briefly in a recursive chain of proxy creation operations.
+       * (3) I go out of our way to ensure all references to the enclosed
+       * setLockedValue function go away as soon as possible.  Therefore, (4)
+       * when all references to setLockedValue go away, lockedValue is
+       * effectively a constant.  (5) lockState can only be set to "finalized"
+       * by setLockedState.  (6) the setter for this property has been removed
+       * before then.  Therefore, (7) lazyDesc.get() can return only one
+       * possible value once lockState has become "finalized", and (8) despite
+       * the property descriptor's [[Configurable]] flag being set to false, it
+       * is completely safe to convert the property to a data descriptor.
+       *
+       * Lacking such an automated optimization, it would be nice if a future
+       * ECMAScript standard could define
+       * Object.lockPropertyDescriptor(obj, propName) which could quickly assert
+       * the accessor descriptor really can only generate one value in the
+       * future, and then internally do the data conversion.
+       */
+
+      // This lockState check should be treated as an assertion.
+      if (lockState !== "transient")
+        throw new Error("setLockedValue should be callable exactly once!");
+      lockedValue = value;
+      lockState = "finalized";
+    }
+
+    const lazyDesc = {
       get: function() {
-        handler.validateTrapAndShadowTarget("defineLazyGetter", shadowTarget);
-
-        const target = getRealTarget(shadowTarget);
-        const targetMap = handler.membrane.map.get(target);
-
-        // sourceDesc is the descriptor we really want
-        let sourceDesc = (
-          targetMap.getLocalDescriptor(handler.fieldName, propName) ||
-          Reflect.getOwnPropertyDescriptor(source, propName)
-        );
-
-        if (sourceDesc !== undefined) {
-          // Maybe we have to wrap the actual descriptor.
-          if (targetMap.originField !== handler.fieldName) {
-            // This is necessary to force desc.value to be wrapped in the membrane.
-            let configurable = sourceDesc.configurable;
-            sourceDesc.configurable = true;
-            sourceDesc = handler.membrane.wrapDescriptor(
-              targetMap.originField, handler.fieldName, sourceDesc
-            );
-            sourceDesc.configurable = configurable;
-          }
-        }
+        if (lockState === "finalized")
+          return lockedValue;
+        if (lockState === "transient")
+          return handler.membrane.getMembraneProxy(
+            handler.fieldName, shadowTarget
+          ).proxy;
 
         /* When the shadow target is sealed, desc.configurable is not updated.
          * But the shadow target's properties all get the [[Configurable]] flag
@@ -2520,12 +2549,54 @@ ObjectGraphHandler.prototype = Object.seal({
         if (!current.configurable)
           throw new Error("lazy getter descriptor is not configurable -- this is fatal");
 
+        handler.validateTrapAndShadowTarget("defineLazyGetter", shadowTarget);
+
+        const target = getRealTarget(shadowTarget);
+        const targetMap = handler.membrane.map.get(target);
+
+        // sourceDesc is the descriptor we really want
+        let sourceDesc = (
+          targetMap.getLocalDescriptor(handler.fieldName, propName) ||
+          Reflect.getOwnPropertyDescriptor(source, propName)
+        );
+
+        if ((sourceDesc !== undefined) &&
+            (targetMap.originField !== handler.fieldName)) {
+          let hasUnwrapped = "value" in sourceDesc,
+              unwrapped = sourceDesc.value;
+
+          // This is necessary to force desc.value to be wrapped in the membrane.
+          let configurable = sourceDesc.configurable;
+          sourceDesc.configurable = true;
+          sourceDesc = handler.membrane.wrapDescriptor(
+            targetMap.originField, handler.fieldName, sourceDesc
+          );
+          sourceDesc.configurable = configurable;
+
+          if (hasUnwrapped && handler.proxiesInConstruction.has(unwrapped)) {
+            /* Ah, nuts.  Somewhere in our stack trace, the unwrapped value has
+             * a proxy in this object graph under construction.  That's not
+             * supposed to happen very often, but can happen during a recursive
+             * Object.seal() or Object.freeze() call.  What that means is that
+             * we may not be able to replace the lazy getter (which is an
+             * accessor descriptor) with a data descriptor when external code
+             * looks up the property on the shadow target.
+             */
+            handler.proxiesInConstruction.get(unwrapped).push(setLockedValue);
+            sourceDesc = lazyDesc;
+            delete sourceDesc.set;
+            lockState = "transient";
+          }
+        }
+
+        setLockedValue = undefined;
+
         assert(
           Reflect.deleteProperty(shadowTarget, propName),
           "Couldn't delete original descriptor?"
         );
         assert(
-          Reflect.defineProperty(shadowTarget, propName, sourceDesc),
+          Reflect.defineProperty(this, propName, sourceDesc),
           "Couldn't redefine shadowTarget with descriptor?"
         );
 
@@ -2570,17 +2641,15 @@ ObjectGraphHandler.prototype = Object.seal({
         if (!current.configurable)
           throw new Error("lazy getter descriptor is not configurable -- this is fatal");
 
+        setLockedValue = undefined;
+        const desc = new DataDescriptor(value, true, current.enumerable, true);
+
         assert(
           Reflect.deleteProperty(shadowTarget, propName),
           "Couldn't delete original descriptor?"
         );
         assert(
-          Reflect.defineProperty(shadowTarget, propName, {
-            value,
-            writable: true,
-            enumerable: true,
-            configurable: true,
-          }),
+          Reflect.defineProperty(this, propName, desc),
           "Couldn't redefine shadowTarget with descriptor?"
         );
 
@@ -2591,7 +2660,18 @@ ObjectGraphHandler.prototype = Object.seal({
       configurable: true,
     };
 
-    return Reflect.defineProperty(shadowTarget, propName, desc);
+    {
+      handler.membrane.wrapArgumentByHandler(handler, lazyDesc.get);
+      handler.membrane.wrapArgumentByHandler(handler, lazyDesc.set);
+    }
+
+    {
+      let current = Reflect.getOwnPropertyDescriptor(source, propName);
+      if (current && !current.enumerable)
+        lazyDesc.enumerable = false;
+    }
+
+    return Reflect.defineProperty(shadowTarget, propName, lazyDesc);
   },
 
   /**
@@ -2862,28 +2942,45 @@ function ProxyNotify(parts, handler, options = {}) {
     )
   });
 
-  while (!stopped && (index < listeners.length)) {
-    try {
-      listeners[index](meta);
-    }
-    catch (e) {
-      if (meta.logger) {
-        /* We don't want an accidental exception to break the iteration.
-        That's why the throwException() method exists:  a deliberate call means
-        yes, we really want that exception to propagate outward... which is
-        still nasty when you consider what a membrane is for.
-        */
-        try {
-          meta.logger.error(e);
-        }
-        catch (f) {
-          // really do nothing, there's no point
+  const callbacks = [];
+  handler.proxiesInConstruction.set(parts.value, callbacks);
+
+  try {
+    while (!stopped && (index < listeners.length)) {
+      try {
+        listeners[index](meta);
+      }
+      catch (e) {
+        if (meta.logger) {
+          /* We don't want an accidental exception to break the iteration.
+          That's why the throwException() method exists:  a deliberate call means
+          yes, we really want that exception to propagate outward... which is
+          still nasty when you consider what a membrane is for.
+          */
+          try {
+            meta.logger.error(e);
+          }
+          catch (f) {
+            // really do nothing, there's no point
+          }
         }
       }
+      if (exnFound)
+        throw exn;
+      index++;
     }
-    if (exnFound)
-      throw exn;
-    index++;
+  }
+  finally {
+    callbacks.forEach(function(c) {
+      try {
+        c(parts.proxy);
+      }
+      catch (e) {
+        // do nothing
+      }
+    });
+
+    handler.proxiesInConstruction.delete(parts.value);
   }
   stopped = true;
 }

@@ -3270,80 +3270,25 @@ describe("An object graph handler's proxy listeners", function() {
       }
 
       // Cyclic object references
-      if (mode !== "prepared")
-        pending("cyclic object references do not yet work when sealed");
       {
         a = { objName: "a" };
         b = { objName: "b" };
         a.child = b;
         b.parent = a;
 
-        appender.clear();
-        logger.info("wrapping a");
         A = membrane.convertArgumentToProxy(
           wetHandler,
           dryHandler,
           a
         );
-        logger.info("wrapping b");
         B = membrane.convertArgumentToProxy(
           wetHandler,
           dryHandler,
           b
         );
-        logger.info("done wrapping");
 
-        lazyDescTest(A, "child");
-        lazyDescTest(B, "parent");
-
-        {
-          let messages = appender.getMessages();
-
-          if (mode !== "prepared") {
-            // The lazy getters have already been invoked and discarded.
-            expect(messages.length).toBe(7);
-            expect(messages[0]).toBe("wrapping a");
-
-            // A
-            expect(messages[1]).toBe("starting useShadowTarget");
-
-            // A.child == B
-            expect(messages[2]).toBe("starting useShadowTarget");
-            expect(messages[3]).toBe("finished useShadowTarget");
-
-            // A
-            expect(messages[4]).toBe("finished useShadowTarget");
-
-            expect(messages[5]).toBe("wrapping b");
-            expect(messages[6]).toBe("done wrapping");
-          }
-          else {
-            // The lazy getters force us into the listener again.
-            expect(messages.length).toBe(7);
-
-            // A
-            expect(messages[0]).toBe("wrapping a");
-            expect(messages[1]).toBe("starting useShadowTarget");
-            expect(messages[2]).toBe("finished useShadowTarget");
-
-            // B
-            expect(messages[3]).toBe("wrapping b");
-            expect(messages[4]).toBe("starting useShadowTarget");
-            expect(messages[5]).toBe("finished useShadowTarget");
-
-            expect(messages[6]).toBe("done wrapping");
-          }
-        }
-
-        appender.clear();
         expect(A.child.parent === A).toBe(true);
         expect(B.parent.child === B).toBe(true);
-
-        /* By invoking the properties, we've converted from lazy getters to
-           direct descriptors.  So we should now test for this.
-        */
-        directDescTest(A, a, "child");
-        directDescTest(B, b, "parent");
       }
 
       // really push the cyclic test a step further, for scalability testing
@@ -3374,17 +3319,9 @@ describe("An object graph handler's proxy listeners", function() {
           c
         );
 
-        lazyDescTest(A, "child");
-        lazyDescTest(B, "child");
-        lazyDescTest(C, "grandParent");
-
         expect(A.child.child.grandParent === A).toBe(true);
         expect(B.child.grandParent.child === B).toBe(true);
         expect(C.grandParent.child.child === C).toBe(true);
-
-        directDescTest(A, a, "child");
-        directDescTest(B, b, "child");
-        directDescTest(C, c, "grandParent");
       }
 
       /* XXX ajvincent Beyond this point, you should not step through in a
@@ -3473,6 +3410,7 @@ describe("An object graph handler's proxy listeners", function() {
           meta.throwException(ex);
         }
       }
+
       // end test infrastructure, begin real tests
 
       dryHandler.addProxyListener(testListener);
@@ -3518,9 +3456,34 @@ describe("An object graph handler's proxy listeners", function() {
         expect("value" in desc).toBe(true);
       }
 
-      
-      // Cyclic object references
-      pending("cyclic object references do not yet work when sealed");
+      // Cyclic object references, sealing after initial creation.
+      {
+        a = { objName: "a" };
+        b = { objName: "b" };
+        a.child = b;
+        b.parent = a;
+
+        A = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          a
+        );
+
+        Object[objOp](A);
+
+        B = membrane.convertArgumentToProxy(
+          wetHandler,
+          dryHandler,
+          b
+        );
+
+        Object[objOp](B);
+
+        expect(A.child.parent === A).toBe(true);
+        expect(B.parent.child === B).toBe(true);
+      }
+
+      // Cyclic object references, sealing after all proxies' creation.
       {
         a = { objName: "a" };
         b = { objName: "b" };
@@ -3539,9 +3502,13 @@ describe("An object graph handler's proxy listeners", function() {
           b
         );
 
+        Object[objOp](A);
+        Object[objOp](B);
+
         expect(A.child.parent === A).toBe(true);
         expect(B.parent.child === B).toBe(true);
       }
+
 
       // really push the cyclic test a step further, for scalability testing
       {
@@ -3571,17 +3538,13 @@ describe("An object graph handler's proxy listeners", function() {
           c
         );
 
-        lazyDescTest(A, "child");
-        lazyDescTest(B, "child");
-        lazyDescTest(C, "child");
+        Object[objOp](A);
+        Object[objOp](B);
+        Object[objOp](C);
 
         expect(A.child.child.grandParent === A).toBe(true);
         expect(B.child.grandParent.child === B).toBe(true);
         expect(C.grandParent.child.child === C).toBe(true);
-
-        directDescTest(A, a, "child");
-        directDescTest(B, b, "child");
-        directDescTest(C, c, "grandParent");
       }
     }
 
@@ -8651,14 +8614,11 @@ describe("Internal API:  Defining a lazy getter", function() {
     shadow = mapping.getShadowTarget("dry");
   });
 
-  it("by itself does not affect an original target", function() {
+  it("by itself does not affect an original target or a proxy", function() {
     parts.handlers.dry.defineLazyGetter(wetDocument, shadow, "parentNode");
 
     let wetDesc = Reflect.getOwnPropertyDescriptor(wetDocument, "parentNode");
     expect("value" in wetDesc).toBe(true);
-
-    let dryDesc = Reflect.getOwnPropertyDescriptor(dryDocument, "parentNode");
-    expect("value" in dryDesc).toBe(true);
 
     let shadowDesc = Reflect.getOwnPropertyDescriptor(shadow, "parentNode");
     expect(shadowDesc).not.toBe(undefined);
@@ -8669,18 +8629,13 @@ describe("Internal API:  Defining a lazy getter", function() {
     }
   });
 
-  it("and then defining a value through the dry object ignores the lazy getter", function() {
+  it("and then defining a value through the dry object sets the value on the wet object while removing the lazy getter", function() {
     parts.handlers.dry.defineLazyGetter(wetDocument, shadow, "nodeType");
     dryDocument.nodeType = 15;
     expect(wetDocument.nodeType).toBe(15);
 
     let shadowDesc = Reflect.getOwnPropertyDescriptor(shadow, "nodeType");
-    expect(shadowDesc).not.toBe(undefined);
-    if (shadowDesc) {
-      expect("value" in shadowDesc).toBe(false);
-      expect("get" in shadowDesc).toBe(true);
-      expect(shadowDesc.configurable).toBe(true);
-    }
+    expect(shadowDesc).toBe(undefined);
   });
 
   it("and then defining a value through the wet object ignores the lazy getter", function() {
@@ -8697,29 +8652,13 @@ describe("Internal API:  Defining a lazy getter", function() {
     }
   });
 
-  it("and then invoking the lazy getter's .get() returns an expected value", function() {
+  it("and then invoking the proxy's .get() returns an expected value while removing the lazy getter", function() {
     parts.handlers.dry.defineLazyGetter(wetDocument, shadow, "rootElement");
     let dryRoot = dryDocument.rootElement;
+    expect(dryRoot instanceof parts.dry.Element).toBe(true);
 
     let shadowDesc = Reflect.getOwnPropertyDescriptor(shadow, "rootElement");
-    expect(shadowDesc).not.toBe(undefined);
-    if (shadowDesc) {
-      expect("value" in shadowDesc).toBe(false);
-      expect("get" in shadowDesc).toBe(true);
-      expect(shadowDesc.configurable).toBe(true);
-    }
-
-    let root = shadow.rootElement;
-
-    shadowDesc = Reflect.getOwnPropertyDescriptor(shadow, "rootElement");
-    expect(shadowDesc).not.toBe(undefined);
-    if (shadowDesc) {
-      expect("value" in shadowDesc).toBe(true);
-      expect("get" in shadowDesc).toBe(false);
-      expect(shadowDesc.configurable).toBe(true);
-    }
-
-    expect(root).toBe(dryRoot);
+    expect(shadowDesc).toBe(undefined);
   });
 
   it(
@@ -8728,13 +8667,13 @@ describe("Internal API:  Defining a lazy getter", function() {
       parts.handlers.dry.defineLazyGetter(wetDocument, shadow, "nodeType");
       expect(shadow.nodeType).toBe(9);
       wetDocument.nodeType = 15;
-      expect(dryDocument.nodeType).toBe(15);
+
       expect(shadow.nodeType).toBe(9);
     }
   );
 
   it(
-    "and then setting the named value overrides the lazy getter but does not propagate the property to the underlying target",
+    "and then setting the named value on the shadow overrides the lazy getter but does not propagate the property to the underlying target",
     function() {
       parts.handlers.dry.defineLazyGetter(wetDocument, shadow, "nodeType");
       shadow.nodeType = 15;

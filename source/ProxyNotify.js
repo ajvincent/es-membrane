@@ -153,28 +153,45 @@ function ProxyNotify(parts, handler, options = {}) {
     )
   });
 
-  while (!stopped && (index < listeners.length)) {
-    try {
-      listeners[index](meta);
-    }
-    catch (e) {
-      if (meta.logger) {
-        /* We don't want an accidental exception to break the iteration.
-        That's why the throwException() method exists:  a deliberate call means
-        yes, we really want that exception to propagate outward... which is
-        still nasty when you consider what a membrane is for.
-        */
-        try {
-          meta.logger.error(e);
-        }
-        catch (f) {
-          // really do nothing, there's no point
+  const callbacks = [];
+  handler.proxiesInConstruction.set(parts.value, callbacks);
+
+  try {
+    while (!stopped && (index < listeners.length)) {
+      try {
+        listeners[index](meta);
+      }
+      catch (e) {
+        if (meta.logger) {
+          /* We don't want an accidental exception to break the iteration.
+          That's why the throwException() method exists:  a deliberate call means
+          yes, we really want that exception to propagate outward... which is
+          still nasty when you consider what a membrane is for.
+          */
+          try {
+            meta.logger.error(e);
+          }
+          catch (f) {
+            // really do nothing, there's no point
+          }
         }
       }
+      if (exnFound)
+        throw exn;
+      index++;
     }
-    if (exnFound)
-      throw exn;
-    index++;
+  }
+  finally {
+    callbacks.forEach(function(c) {
+      try {
+        c(parts.proxy);
+      }
+      catch (e) {
+        // do nothing
+      }
+    });
+
+    handler.proxiesInConstruction.delete(parts.value);
   }
   stopped = true;
 }

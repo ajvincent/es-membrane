@@ -30,14 +30,11 @@ describe("Internal API:  Defining a lazy getter", function() {
     shadow = mapping.getShadowTarget("dry");
   });
 
-  it("by itself does not affect an original target", function() {
+  it("by itself does not affect an original target or a proxy", function() {
     parts.handlers.dry.defineLazyGetter(wetDocument, shadow, "parentNode");
 
     let wetDesc = Reflect.getOwnPropertyDescriptor(wetDocument, "parentNode");
     expect("value" in wetDesc).toBe(true);
-
-    let dryDesc = Reflect.getOwnPropertyDescriptor(dryDocument, "parentNode");
-    expect("value" in dryDesc).toBe(true);
 
     let shadowDesc = Reflect.getOwnPropertyDescriptor(shadow, "parentNode");
     expect(shadowDesc).not.toBe(undefined);
@@ -48,18 +45,13 @@ describe("Internal API:  Defining a lazy getter", function() {
     }
   });
 
-  it("and then defining a value through the dry object ignores the lazy getter", function() {
+  it("and then defining a value through the dry object sets the value on the wet object while removing the lazy getter", function() {
     parts.handlers.dry.defineLazyGetter(wetDocument, shadow, "nodeType");
     dryDocument.nodeType = 15;
     expect(wetDocument.nodeType).toBe(15);
 
     let shadowDesc = Reflect.getOwnPropertyDescriptor(shadow, "nodeType");
-    expect(shadowDesc).not.toBe(undefined);
-    if (shadowDesc) {
-      expect("value" in shadowDesc).toBe(false);
-      expect("get" in shadowDesc).toBe(true);
-      expect(shadowDesc.configurable).toBe(true);
-    }
+    expect(shadowDesc).toBe(undefined);
   });
 
   it("and then defining a value through the wet object ignores the lazy getter", function() {
@@ -76,29 +68,13 @@ describe("Internal API:  Defining a lazy getter", function() {
     }
   });
 
-  it("and then invoking the lazy getter's .get() returns an expected value", function() {
+  it("and then invoking the proxy's .get() returns an expected value while removing the lazy getter", function() {
     parts.handlers.dry.defineLazyGetter(wetDocument, shadow, "rootElement");
     let dryRoot = dryDocument.rootElement;
+    expect(dryRoot instanceof parts.dry.Element).toBe(true);
 
     let shadowDesc = Reflect.getOwnPropertyDescriptor(shadow, "rootElement");
-    expect(shadowDesc).not.toBe(undefined);
-    if (shadowDesc) {
-      expect("value" in shadowDesc).toBe(false);
-      expect("get" in shadowDesc).toBe(true);
-      expect(shadowDesc.configurable).toBe(true);
-    }
-
-    let root = shadow.rootElement;
-
-    shadowDesc = Reflect.getOwnPropertyDescriptor(shadow, "rootElement");
-    expect(shadowDesc).not.toBe(undefined);
-    if (shadowDesc) {
-      expect("value" in shadowDesc).toBe(true);
-      expect("get" in shadowDesc).toBe(false);
-      expect(shadowDesc.configurable).toBe(true);
-    }
-
-    expect(root).toBe(dryRoot);
+    expect(shadowDesc).toBe(undefined);
   });
 
   it(
@@ -107,13 +83,13 @@ describe("Internal API:  Defining a lazy getter", function() {
       parts.handlers.dry.defineLazyGetter(wetDocument, shadow, "nodeType");
       expect(shadow.nodeType).toBe(9);
       wetDocument.nodeType = 15;
-      expect(dryDocument.nodeType).toBe(15);
+
       expect(shadow.nodeType).toBe(9);
     }
   );
 
   it(
-    "and then setting the named value overrides the lazy getter but does not propagate the property to the underlying target",
+    "and then setting the named value on the shadow overrides the lazy getter but does not propagate the property to the underlying target",
     function() {
       parts.handlers.dry.defineLazyGetter(wetDocument, shadow, "nodeType");
       shadow.nodeType = 15;
