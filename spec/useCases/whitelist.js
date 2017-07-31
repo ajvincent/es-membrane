@@ -1,5 +1,3 @@
-"use strict";
-
 /* The concept of whitelisting is pretty easy to explain, but hard to implement.
  * Basically, when you whitelist a set of properties, you are restricting what
  * other users can see of your property lists.  One good analogy is private
@@ -31,16 +29,17 @@
  * with unexpected properties.
  */
 
-if (typeof MembraneMocks != "function") {
+if ((typeof MembraneMocks != "function") ||
+    (typeof DAMP != "symbol")) {
   if (typeof require == "function") {
-    var { MembraneMocks } = require("../../docs/dist/node/mocks.js");
+    var { MembraneMocks, DAMP } = require("../../docs/dist/node/mocks.js");
   }
   else
     throw new Error("Unable to run tests: cannot get MembraneMocks");
 }
 
 describe("Use case:  The membrane can be used to safely whitelist properties", function() {
-  it("manually", function() {
+  function buildTests(shouldStop, secondWetListener, secondDryListener, extraTests) {
     function HEAT() { return descWet.value.apply(this, arguments); }
     function HEAT_NEW() { return "Hello World"; }
 
@@ -99,7 +98,8 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
     nameFilters.node = buildFilter(NodeWhiteList, nameFilters.target);
     nameFilters.element = buildFilter(ElementWhiteList, nameFilters.node);
     nameFilters.proto = {};
-    nameFilters.proto.node = buildFilter(NodeProtoWhiteList, nameFilters.target);
+    nameFilters.proto.function = buildFilter(Reflect.ownKeys(function() {}));
+    nameFilters.proto.node = buildFilter(NodeProtoWhiteList, nameFilters.proto.function);
     nameFilters.proto.element = buildFilter([], nameFilters.proto.node);
     
     var parts, dryWetMB, descWet;
@@ -109,7 +109,8 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
         dryWetMB.modifyRules.storeUnknownAsLocal(field, meta.target);
         dryWetMB.modifyRules.requireLocalDelete(field, meta.target);
         dryWetMB.modifyRules.filterOwnKeys(field, meta.target, filter);
-        meta.stopIteration();
+        if (shouldStop)
+          meta.stopIteration();
       },
 
       wetHandlerCreated: function(handler, Mocks) {
@@ -147,7 +148,10 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
             meta.throwException(ex);
           }
         }).bind(this);
+
         handler.addProxyListener(listener);
+
+        handler.addProxyListener(secondWetListener);
       },
 
       dryHandlerCreated: function(handler/*, Mocks */) {
@@ -190,14 +194,18 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
         }).bind(this);
 
         handler.addProxyListener(listener);
+
+        handler.addProxyListener(secondDryListener);
       },
     };
+    mockOptions.dampHandlerCreated = mockOptions.dryHandlerCreated;
 
-    parts = MembraneMocks(false, null, mockOptions);
+    parts = MembraneMocks(true, null, mockOptions);
     var wetDocument = parts.wet.doc, dryDocument = parts.dry.doc;
 
     {
       descWet = Reflect.getOwnPropertyDescriptor(wetDocument, "nodeName");
+      void(dryDocument.nodeName); // necessary to resolve lazy getter
       let descDry = Reflect.getOwnPropertyDescriptor(dryDocument, "nodeName");
       expect(typeof descWet).not.toBe(undefined);
       expect(typeof descDry).not.toBe(undefined);
@@ -252,7 +260,61 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
         expect(descDry.value).toBe(HEAT_NEW);
     }
 
+    extraTests(parts);
+
     // Clean up.
     parts.dry.doc.dispatchEvent("unload");
+  }
+
+  function voidFunc() {}
+  it(
+    "manually without shadow targets",
+    buildTests.bind(null, true, voidFunc, voidFunc, voidFunc)
+  );
+
+  it("manually with shadow targets", function() {
+    /* DAMP represents the whitelist without calling on useShadowTarget.
+     * "dry" represents the whitelist with useShadowTarget("prepared").
+     * The idea is to demonstrate that using shadow targets is faster.
+     */
+
+    function secondDryListener(meta) {
+      // dry and damp handler secondary listener
+      if (meta.handler.fieldName === DAMP) {
+        meta.handler.removeProxyListener(secondDryListener);
+        return;
+      }
+
+      try {
+        meta.useShadowTarget("prepared");
+      }
+      catch (ex) {
+        meta.throwException(ex);
+      }
+    }
+
+    function exerciseDoc(doc, limit) {
+      for (let i = 0; i < limit; i++) {
+        let elem = doc.createElement("foo");
+        let root = doc.rootElement;
+        let refChild = root.firstChild;
+        root.insertBefore(elem, refChild);
+      }
+    }
+
+    function extraTests(parts) {
+      /* This is to make sure the parts actually work.  The first pass, there
+       * will be lazy getters on the "dry" object graph.  The second pass, the
+       * properties should be directly defined.
+       */
+      exerciseDoc(parts[DAMP].doc, 2);
+      exerciseDoc(parts.dry.doc, 2);
+
+      /* You would think that the shadow targets offer faster operation.
+       * Experimentation, though, shows the difference to be negligible.
+       */
+    }
+
+    buildTests(false, voidFunc, secondDryListener, extraTests);
   });
 });

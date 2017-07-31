@@ -12,8 +12,6 @@ if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
 describe("Whitelisting object properties", function() {
   var wetDocument, dryDocument;
 
-  var testCount = 0;
-
   function defineWhitelistTests() {
     //{ Setting up environment values.
     function HEAT() { return "handleEventAtTarget stub"; }
@@ -509,7 +507,6 @@ describe("Whitelisting object properties", function() {
     describe("on sealed wet objects", function() {
       defineWhitelistTests();
       beforeEach(function() {
-        testCount++;
         Object.seal(wetDocument);
       });
     });

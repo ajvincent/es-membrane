@@ -84,25 +84,19 @@ function ProxyNotify(parts, handler, options = {}) {
         else if (mode === "sealed")
           Object.seal(parts.proxy);
         else if (mode === "prepared") {
+          // Establish the list of own properties.
           const keys = Reflect.ownKeys(parts.proxy);
           keys.forEach(function(key) {
             handler.defineLazyGetter(parts.value, parts.shadowTarget, key);
           });
 
-          // Lazy getPrototypeOf, setPrototypeOf, preventExtensions.
-          newHandler.getPrototypeOf = function(st) {
-            var proto = handler.getPrototypeOf.apply(handler, [st]);
-            this.setPrototypeOf(st, proto);
-            return proto;
-          };
+          /* Establish the prototype.  (I tried using a lazy getPrototypeOf,
+           * but testing showed that fails a later test.)
+           */
+          let proto = handler.getPrototypeOf(parts.shadowTarget);
+          Reflect.setPrototypeOf(parts.shadowTarget, proto);
 
-          newHandler.setPrototypeOf = function(st, proto) {
-            var rv = handler.setPrototypeOf.apply(handler, [st, proto]);
-            delete newHandler.getPrototypeOf;
-            delete newHandler.setPrototypeOf;
-            return rv;
-          };
-
+          // Lazy preventExtensions.
           newHandler.preventExtensions = function(st) {
             var rv = handler.preventExtensions.apply(handler, [st]);
             delete newHandler.preventExtensions;

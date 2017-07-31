@@ -531,11 +531,18 @@ describe("An object graph handler's proxy listeners", function() {
           expect(messages[7]).toBe("dry(x) created");
         }
         else {
-          expect(messages.length).toBe(4);
+          expect(messages.length).toBe(6);
           expect(messages[0]).toBe("x created");
+          // x
           expect(messages[1]).toBe("starting useShadowTarget");
-          expect(messages[2]).toBe("finished useShadowTarget");
-          expect(messages[3]).toBe("dry(x) created");
+
+          // Reflect.getPrototypeOf(X)
+          expect(messages[2]).toBe("starting useShadowTarget");
+          expect(messages[3]).toBe("finished useShadowTarget");
+
+          // X
+          expect(messages[4]).toBe("finished useShadowTarget");
+          expect(messages[5]).toBe("dry(x) created");
         }
       }
 
@@ -753,18 +760,9 @@ describe("An object graph handler's proxy listeners", function() {
         logger.info("exiting getPrototypeOf");
 
         let messages = appender.getMessages();
-        if (mode !== "prepared") {
-          expect(messages.length).toBe(2);
-          expect(messages[0]).toBe("entering getPrototypeOf");
-          expect(messages[1]).toBe("exiting getPrototypeOf");
-        }
-        else {
-          expect(messages.length).toBe(4);
-          expect(messages[0]).toBe("entering getPrototypeOf");
-          expect(messages[1]).toBe("starting useShadowTarget");
-          expect(messages[2]).toBe("finished useShadowTarget");
-          expect(messages[3]).toBe("exiting getPrototypeOf");
-        }
+        expect(messages.length).toBe(2);
+        expect(messages[0]).toBe("entering getPrototypeOf");
+        expect(messages[1]).toBe("exiting getPrototypeOf");
       }
 
       {
@@ -849,15 +847,17 @@ describe("An object graph handler's proxy listeners", function() {
 
         let messages = appender.getMessages();
         expect(messages.length).toBe(8);
+        
+        // P
         expect(messages[0]).toBe("starting useShadowTarget");
-        expect(messages[1]).toBe("finished useShadowTarget");
-        expect(messages[2]).toBe(`starting ${objOp}`);
 
-        /* Reflect.getPrototypeOf(p), aka ctor2.prototype,
-         * via ObjectGraphHandler.getLocalFlag("storeUnknownAsLocal")
-         */
-        expect(messages[3]).toBe("starting useShadowTarget");
-        expect(messages[4]).toBe("finished useShadowTarget");
+        // Reflect.getPrototypeOf(P)
+        expect(messages[1]).toBe("starting useShadowTarget");
+        expect(messages[2]).toBe("finished useShadowTarget");
+
+        // P
+        expect(messages[3]).toBe("finished useShadowTarget");
+        expect(messages[4]).toBe(`starting ${objOp}`);
 
         // logtest, aka p.arg2, via Object.seal(P).
         expect(messages[5]).toBe("starting useShadowTarget");

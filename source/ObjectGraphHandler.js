@@ -1399,6 +1399,64 @@ ObjectGraphHandler.prototype = Object.seal({
 
     // Optimization, storing the generated key list for future retrieval.
     targetMap.setCachedOwnKeys(this.fieldName, rv, originalKeys);
+
+    {
+      /* Give the shadow target any non-configurable keys it needs.
+         @see http://www.ecma-international.org/ecma-262/7.0/#sec-proxy-object-internal-methods-and-internal-slots-ownpropertykeys
+         This code tries to fix steps 17 and 19.
+      */
+
+      // trap == rv, in step 5
+
+      // step 9
+      const extensibleTarget = Reflect.isExtensible(shadowTarget);
+
+      // step 10
+      let targetKeys = Reflect.ownKeys(shadowTarget);
+
+      // step 12, 13
+      let targetConfigurableKeys = [], targetNonconfigurableKeys = [];
+
+      // step 14
+      targetKeys.forEach(function(key) {
+        let desc = Reflect.getOwnPropertyDescriptor(shadowTarget, key);
+        if (desc && !desc.configurable)
+          targetNonconfigurableKeys.push(key);
+        else
+          targetConfigurableKeys.push(key);
+      });
+
+      // step 15
+      if (extensibleTarget && (targetNonconfigurableKeys.length === 0)) {
+        return rv;
+      }
+
+      // step 16
+      let uncheckedResultKeys = new Set(rv);
+
+      // step 17
+      targetNonconfigurableKeys.forEach(function(propName) {
+        if (!uncheckedResultKeys.has(propName)) {
+          rv.push(propName);
+        }
+        uncheckedResultKeys.delete(propName);
+      }, this);
+
+      // step 18
+      if (extensibleTarget)
+        return rv;
+
+      // step 19
+      targetConfigurableKeys.forEach(function(key) {
+        if (!uncheckedResultKeys.has(key)) {
+          rv.push(propName);
+        }
+        uncheckedResultKeys.delete(key);
+      });
+
+      // step 20
+      assert(uncheckedResultKeys.size === 0, "all required keys should be applied by now");
+    }
     return rv;
   },
 
@@ -1537,7 +1595,7 @@ ObjectGraphHandler.prototype = Object.seal({
         if (sourceDesc === undefined)
           return undefined;
         if ("get" in sourceDesc)
-          return sourceDesc.get.apply(shadowTarget);
+          return sourceDesc.get.apply(this);
         if ("value" in sourceDesc)
           return sourceDesc.value;
         return undefined;
