@@ -41,7 +41,7 @@ describe("basic concepts: ", function() {
   it("Looking up null through a property name works", function() {
     expect(dryDocument.ownerDocument).toBe(null);
   });
-  
+
   it("Looking up null through a property getter works", function() {
     expect(dryDocument.firstChild).toBe(null);
   });
