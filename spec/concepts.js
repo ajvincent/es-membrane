@@ -41,7 +41,7 @@ describe("basic concepts: ", function() {
   it("Looking up null through a property name works", function() {
     expect(dryDocument.ownerDocument).toBe(null);
   });
-
+  
   it("Looking up null through a property getter works", function() {
     expect(dryDocument.firstChild).toBe(null);
   });
@@ -629,6 +629,17 @@ describe("basic concepts: ", function() {
       expect(lookup(root, "parentNode")).toThrow();
       expect(lookup(root, "ownerDocument")).toThrow();
       expect(lookup(root, "membraneGraphName")).toThrow();
+  });
+
+  it("Wrapped descriptors throw if membrane revoked", function () {
+    wetDocument.dispatchEvent("unload");
+    expect(function () {
+      dryDocument.baseURL = "https://www.ecmascript.org/";
+    }).toThrow();
+
+    expect(function () {
+      dryDocument.baseURL;
+    }).toThrow();
   });
 });
 
