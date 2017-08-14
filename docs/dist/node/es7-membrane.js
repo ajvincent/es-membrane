@@ -1959,7 +1959,7 @@ ObjectGraphHandler.prototype = Object.seal({
       else {
         rvProxy = new DataDescriptor(value, true);
       }
-      
+
       return this.defineProperty(
         this.getShadowTarget(receiver),
         propName,
@@ -2688,7 +2688,7 @@ ObjectGraphHandler.prototype = Object.seal({
 
       set: function(value) {
         handler.validateTrapAndShadowTarget("defineLazyGetter", shadowTarget);
-        
+
         if (valueType(value) !== "primitive") {
           // Maybe we have to wrap the actual descriptor.
           const target = getRealTarget(shadowTarget);
