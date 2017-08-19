@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HTML Page Framework</title>
+  <base href="../">
+  <meta charset="UTF-8">
+
+  <!-- CodeMirror support -->
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/lib/codemirror.js"></script>
+  <link rel="stylesheet"
+        href="libraries/codemirror-5.25.2/lib/codemirror.css">
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/foldcode.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/foldgutter.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/brace-fold.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/comment-fold.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/indent-fold.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/xml-fold.js"></script>
+  <link rel="stylesheet"
+        href="libraries/codemirror-5.25.2/addon/fold/foldgutter.css">
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/mode/javascript/javascript.js"></script>
+  <script src="libraries/codemirror-5.25.2/addon/selection/selection-pointer.js"></script>
+  <script src="libraries/codemirror-5.25.2/addon/hint/show-hint.js"></script>
+  <script src="libraries/codemirror-5.25.2/addon/hint/xml-hint.js"></script>
+  <script src="libraries/codemirror-5.25.2/addon/hint/html-hint.js"></script>
+  <script src="libraries/codemirror-5.25.2/mode/xml/xml.js"></script>
+  <script src="libraries/codemirror-5.25.2/mode/javascript/javascript.js"></script>
+  <script src="libraries/codemirror-5.25.2/mode/css/css.js"></script>
+  <script src="libraries/codemirror-5.25.2/mode/htmlmixed/htmlmixed.js"></script>
+
+  <!-- Our code. -->
+  <script src="html-framework/utilities/CodeMirrorManager.js"></script>
+  <script src="html-framework/index.js"></script>
+  <link rel="stylesheet"
+        href="html-framework/index.css">
+</head>
+
+<body>
+  <!-- So it's table-based layout.  It's not nested.  -->
+  <table id="editTable">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Source</th>
+        <th>Render</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>HTML</td>
+        <td>
+          <textarea rows="10" cols="40" id="source-html"></textarea>
+        </td>
+        <td><iframe id="render-html" src="about:blank"></iframe></td>
+      </tr>
+
+      <tr>
+        <td>CSS</td>
+        <td><textarea rows="10" cols="40" id="source-css"></textarea></td>
+        <td><iframe id="render-css" src="about:blank"></iframe></td>
+      </tr>
+
+      <tr>
+        <td>JS</td>
+        <td><textarea rows="10" cols="40" id="source-js"></textarea></td>
+        <td><iframe id="render-js" src="about:blank"></iframe></td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

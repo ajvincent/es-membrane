@@ -1,0 +1,9 @@
+#editTable td {
+  border: 1px solid black;
+}
+
+iframe {
+  border: none;
+  width: 400px;
+  height: 300px;
+}
