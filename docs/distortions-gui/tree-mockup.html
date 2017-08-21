@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>Distortions User Interface</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="tree.css">
+</head>
+<body>
+  <p class="truncate">Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+  <h3>Membrane instance</h3>
+  <div class="treeroot">
+    <ul>
+      <li class="header">
+        <span>Rule</span>
+        <span>Enabled?</span>
+      </li>
+      <li class="collapsible">
+        <label>Show own keys</label>
+        <input type="checkbox" checked="checked">
+        <ul class="propertyRow">
+          <li>
+            <span>map</span>
+            <span><input type="checkbox" checked="checked"></span>
+          </li>
+          <li>
+            <span>handlersByFieldName</span>
+            <span><input type="checkbox" checked="checked"></span>
+          </li>
+          <li>
+            <span>logger</span>
+            <span><input type="checkbox" checked="checked"></span></li>
+          <li>
+            <span>__functionListeners__</span>
+            <span><input type="checkbox" checked="checked"></span></li>
+          <li>
+            <span>warnOnceSet</span>
+            <span><input type="checkbox" checked="checked"></span></li>
+          <li>
+            <span>modifyRules</span>
+            <span><input type="checkbox" checked="checked"></span></li>
+          <li>
+            <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit</span>
+            <span><input type="checkbox" checked="checked"></span>
+          </li>
+        </ul>
+      </li>
+
+      <li class="collapsible">
+        <label>Other distortions</label>
+        <input type="checkbox" checked="checked">
+        <ul class="propertyRow">
+          <li>
+            <span>Local properties</span>
+            <span><input type="checkbox" checked="checked"></span></li>
+          <li>
+            <span>Local deletes</span>
+            <span><input type="checkbox" checked="checked"></span>
+          </li>
+          <li>
+            <span>Use shadow target</span>
+            <span><input type="checkbox" checked="checked"></span>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <div style="width: 470px; z-index: -1; border-right: 1px solid black; height: 230px; position: absolute; top: 12px;"></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,83 @@
+.treeroot {
+  position: absolute;
+  font-family: monospace;
+}
+
+.treeroot li ul {
+  padding-left: 25px;
+}
+
+.treeroot li {
+  list-style: none;
+}
+
+.treeroot li.collapsible > label:first-child {
+  cursor: pointer;
+  display: block;
+}
+
+.treeroot li.collapsible > input[type="checkbox"]:nth-child(2) {
+  position: relative;
+  left: -20px;
+  top: -20px;
+  margin-left: 0;
+  opacity: 0;
+  z-index: 2;
+  cursor: pointer;
+  height: 1em;
+  width: 1em;
+}
+
+.treeroot li.collapsible > input[type="checkbox"]:nth-child(2) + ul {
+  margin-top: -35px;
+  margin-left: -15px;
+  background-repeat: no-repeat;
+}
+
+.treeroot li.collapsible > input[type="checkbox"]:nth-child(2):not(:checked) + ul {
+  background-image: url("plusicon.png");
+  height: 20px;
+}
+
+.treeroot li.collapsible > input[type="checkbox"]:nth-child(2):checked + ul {
+  background-image: url("minusicon.png");
+  padding-top: 15px;
+}
+
+.treeroot li.collapsible > input[type="checkbox"]:nth-child(2):not(:checked) + ul > li {
+  display: none;
+}
+
+.treeroot li > span:nth-child(1) {
+  display: inline-block;
+  width: 350px;
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.treeroot li > span:nth-child(2) {
+  position: absolute;
+  left: 400px;
+  margin-left: 5px;
+  width: 60px;
+  border-bottom: 1px dashed black;
+}
+
+.treeroot ul.propertyRow > li {
+  border-bottom: 1px dashed black;
+}
+
+.treeroot ul.propertyRow > li > span:nth-child(2) {
+  margin-top: -5px;
+}
+
+.treeroot > ul {
+  border-right: 1px solid black;
+}
+
+.treeroot > ul > li.header {
+  font-weight: bold;
+  border-bottom: 1px double black;
+}
