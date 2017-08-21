@@ -1395,6 +1395,30 @@ describe("basic concepts: ", function() {
     expect(dryDocument.firstChild).toBe(null);
   });
 
+  it("Setters should wrap and unwrap values correctly", function () {
+    var extraHolder;
+    const desc = {
+      get: function() { return extraHolder; },
+      set: function(val) { 
+        extraHolder = val;
+        return val;
+      },
+      enumerable: true,
+      configurable: true
+    };
+    
+    Reflect.defineProperty(dryDocument, "extra", desc);
+    
+    var dryExtra = {};
+    dryDocument.extra = dryExtra;
+    
+    expect(typeof extraHolder).toBe("object");
+    expect(extraHolder).not.toBe(dryExtra);
+    expect(wetDocument.extra).toBe(extraHolder);
+    
+    expect(dryDocument.extra).toBe(dryExtra);
+  })
+
   it("Looking up an object twice returns the same object", function() {
     var root1 = dryDocument.rootElement;
     var root2 = dryDocument.rootElement;

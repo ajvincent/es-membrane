@@ -475,20 +475,26 @@ MembraneInternal.prototype = Object.seal({
             desc[descProp]
           );
         else if (descProp === "get")
-          wrappedDesc[descProp] = this.wrapArgumentByHandler(targetHandler, function wrappedGetter () {
-            const wrappedThis = membrane.wrapArgumentByHandler(targetHandler, this);
+          wrappedDesc[descProp] = function wrappedGetter () {
+            const wrappedThis = membrane.convertArgumentToProxy(originHandler, targetHandler, this);
             return membrane.convertArgumentToProxy(
               originHandler,
               targetHandler,
               desc[descProp].call(wrappedThis)
             );
-          });
+          };
         else if (descProp === "set" && typeof desc[descProp] === "function") {
-          wrappedDesc[descProp] = this.wrapArgumentByHandler(targetHandler, function wrappedSetter (value) {
-            const wrappedThis = membrane.wrapArgumentByHandler(targetHandler, this);
-            const wrappedValue = membrane.wrapArgumentByHandler(originHandler, value);
-            return desc[descProp].call(wrappedThis, wrappedValue);
-          });
+          function wrappedSetter (value) {
+            const wrappedThis = membrane.convertArgumentToProxy(originHandler, targetHandler, this);
+            const wrappedValue = membrane.convertArgumentToProxy(originHandler, targetHandler, value);
+            return membrane.convertArgumentToProxy(
+              originHandler,
+              targetHandler,
+              desc[descProp].call(wrappedThis, wrappedValue)
+            );
+          };
+          this.buildMapping(targetField, wrappedSetter)
+          wrappedDesc[descProp] = wrappedSetter;
         }
     }, this);
 
