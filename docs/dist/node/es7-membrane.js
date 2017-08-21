@@ -1020,8 +1020,8 @@ MembraneInternal.prototype = Object.seal({
             const wrappedThis = membrane.convertArgumentToProxy(originHandler, targetHandler, this);
             const wrappedValue = membrane.convertArgumentToProxy(originHandler, targetHandler, value);
             return membrane.convertArgumentToProxy(
-              originHandler,
               targetHandler,
+              originHandler,
               desc[descProp].call(wrappedThis, wrappedValue)
             );
           };
