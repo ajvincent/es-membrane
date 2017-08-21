@@ -998,14 +998,38 @@ MembraneInternal.prototype = Object.seal({
 
     var originHandler = this.getHandlerByField(originField);
     var targetHandler = this.getHandlerByField(targetField);
+    var membrane = this;
 
     ["value", "get", "set"].forEach(function(descProp) {
       if (keys.includes(descProp))
-        wrappedDesc[descProp] = this.convertArgumentToProxy(
-          originHandler,
-          targetHandler,
-          desc[descProp]
-        );
+        if (descProp === "value")
+          wrappedDesc[descProp] = this.convertArgumentToProxy(
+            originHandler,
+            targetHandler,
+            desc[descProp]
+          );
+        else if (descProp === "get")
+          wrappedDesc[descProp] = function wrappedGetter () {
+            const wrappedThis = membrane.convertArgumentToProxy(originHandler, targetHandler, this);
+            return membrane.convertArgumentToProxy(
+              originHandler,
+              targetHandler,
+              desc[descProp].call(wrappedThis)
+            );
+          };
+        else if (descProp === "set" && typeof desc[descProp] === "function") {
+          function wrappedSetter (value) {
+            const wrappedThis = membrane.convertArgumentToProxy(originHandler, targetHandler, this);
+            const wrappedValue = membrane.convertArgumentToProxy(originHandler, targetHandler, value);
+            return membrane.convertArgumentToProxy(
+              targetHandler,
+              originHandler,
+              desc[descProp].call(wrappedThis, wrappedValue)
+            );
+          };
+          this.buildMapping(targetField, wrappedSetter)
+          wrappedDesc[descProp] = wrappedSetter;
+        }
     }, this);
 
     return wrappedDesc;
