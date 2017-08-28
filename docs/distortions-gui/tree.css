@@ -1,83 +1,162 @@
-.treeroot {
-  position: absolute;
+.gridtree {
+  display: grid;
+  width: 500px;
+  grid-template-columns: 300px 1fr 1fr;
+  background-color: #fff;
   font-family: monospace;
+  font-size: 1em;
 }
 
-.treeroot li ul {
-  padding-left: 25px;
+.gridtree .header {
+  font-weight: bold;
 }
 
-.treeroot li {
-  list-style: none;
+.gridtree .header > span {
+  padding-left: 20px;
 }
 
-.treeroot li.collapsible > label:first-child {
-  cursor: pointer;
-  display: block;
+.gridtree > .treeroot {
+  grid-row-start: 1;
+  grid-row-end: 1;
 }
 
-.treeroot li.collapsible > input[type="checkbox"]:nth-child(2) {
-  position: relative;
-  left: -20px;
-  top: -20px;
-  margin-left: 0;
-  opacity: 0;
-  z-index: 2;
-  cursor: pointer;
-  height: 1em;
-  width: 1em;
-}
-
-.treeroot li.collapsible > input[type="checkbox"]:nth-child(2) + ul {
-  margin-top: -35px;
-  margin-left: -15px;
-  background-repeat: no-repeat;
-}
-
-.treeroot li.collapsible > input[type="checkbox"]:nth-child(2):not(:checked) + ul {
-  background-image: url("plusicon.png");
-  height: 20px;
-}
-
-.treeroot li.collapsible > input[type="checkbox"]:nth-child(2):checked + ul {
-  background-image: url("minusicon.png");
-  padding-top: 15px;
-}
-
-.treeroot li.collapsible > input[type="checkbox"]:nth-child(2):not(:checked) + ul > li {
+.gridtree > .treeroot[hidden="true"] {
   display: none;
 }
 
-.treeroot li > span:nth-child(1) {
-  display: inline-block;
-  width: 350px;
-  max-width: 350px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* Graceful degradation if the JavaScript code doesn't run */
+.gridtree > .treeroot li > span:not(:first-child) {
+  display: none;
+  margin-top: -16px;
 }
 
-.treeroot li > span:nth-child(2) {
+.gridtree > .treeroot li > span:first-child {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.gridtree > .treeroot li > span:nth-child(2) {
+  display: inline;
+  position: absolute;
+  left: 320px;
+}
+.gridtree > .treeroot li > span:nth-child(3) {
+  display: inline;
   position: absolute;
   left: 400px;
-  margin-left: 5px;
-  width: 60px;
-  border-bottom: 1px dashed black;
 }
 
-.treeroot ul.propertyRow > li {
-  border-bottom: 1px dashed black;
+/* Credit where credit is due:  Ryan Seddon of The CSS Ninja:
+ * https://www.thecssninja.com/css/css-tree-menu
+ *
+ * This code is derived from his examples.
+ */
+
+/* CSS Tree menu styles */
+.gridtree > .treeroot ul
+{
+	padding: 0 0 0 30px;
+	width: 300px;
 }
 
-.treeroot ul.propertyRow > li > span:nth-child(2) {
-  margin-top: -5px;
+.gridtree > .treeroot > ul {
+  padding: 0 0 0 20px;
+}
+	.gridtree > .treeroot li 
+	{ 
+		position: relative; 
+		margin-left: -15px;
+		list-style: none;
+	}
+	.gridtree > .treeroot li.file
+	{
+		margin-left: -1px !important;
+	}
+
+	.gridtree > .treeroot li input.collapsible-check
+	{
+		position: absolute;
+		left: 0;
+		margin-left: 0;
+		opacity: 0;
+		z-index: 2;
+		cursor: pointer;
+		height: 1em;
+		width: 1em;
+		top: 0;
+	}
+		.gridtree > .treeroot li input.collapsible-check ~ ul:last-child
+		{
+			background: url(plusicon.svg) 40px 0 no-repeat;
+			margin: -1.25em 0 0 -44px; /* 15px */
+			height: 16px;
+		}
+		.gridtree > .treeroot li input.collapsible-check ~ ul:last-child > li {
+      display: none;
+      margin-left: -14px !important;
+      padding-left: 1px;
+    }
+	.gridtree > .treeroot li.collapsible span:first-child
+	{
+		/*background: url(folder-horizontal.png) 15px 1px no-repeat;*/
+		cursor: pointer;
+		display: block;
+		padding-left: 12px;
+	}
+
+	.gridtree > .treeroot li.collapsible input.collapsible-check:checked ~ ul:last-child
+	{
+		background-image: url(minusicon.svg);
+		margin: -1.25em 0 0 -44px; /* 20px */
+		padding: 1.563em 0 0 80px;
+		height: auto;
+	}
+  
+  .gridtree > .treeroot li.collapsible input.collapsible-check:checked ~ ul:last-child > li
+  {
+    display: list-item;
+  }
+
+/* Going back to a grid-based indentation scheme. */
+.gridtree > .treeroot li > span:first-child,
+.gridtree > span[row][firstcol] {
+	width: 300px;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-.treeroot > ul {
-  border-right: 1px solid black;
+.gridtree > span[row][firstcol][indent="1"] {
+  padding-left: 30px;
+  width: 270px;
 }
 
-.treeroot > ul > li.header {
-  font-weight: bold;
-  border-bottom: 1px double black;
+.gridtree > span[row][firstcol][indent="2"] {
+  padding-left: 60px;
+  width: 240px;
+}
+/* etc., etc., etc. for different levels of indent. */
+
+.gridtree > span[row][firstcol] > input[type="checkbox"]:first-child {
+  opacity: 0;
+  position: absolute;
+  margin: 0;
+}
+
+.gridtree > span[row][firstcol] > input[type="checkbox"]:first-child + span {
+  background: url(plusicon.svg) 2px 3px no-repeat;
+  width: 16px;
+  height: 16px;
+  z-index: 1;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.gridtree > span[row][firstcol] > input[type="checkbox"]:first-child:checked + span {
+  background-image: url(minusicon.svg);
+}
+
+.gridtree > span[row]:not(.collapsible-check) > input[type="checkbox"] {
+  margin-top: 0px;
 }
