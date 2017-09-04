@@ -1,0 +1,40 @@
+.tabbox > input[type="radio"] {
+  display: none;
+}
+
+.tabbox > input[type="radio"] + label {
+  border: 1px solid black;
+  padding: 1px;
+}
+
+.tabbox > input[type="radio"]:not(:checked) + label {
+  background-color: #cccccc;
+}
+
+.tabbox > input[type="radio"]:checked + label {
+  background-color: #ffffff;
+}
+
+.tabbox > input[type="radio"]:not(:checked) + label > img {
+  background-position: 0px 4px;
+}
+
+.tabbox > section[tablabel] {
+  display: none;
+  z-index: 0;
+}
+
+/* Quick & dirty support for <dialog> in Mozilla Firefox */
+.tabbox > dialog[confirm-close="true"][moz-open]:not([moz-open='true']):last-child {
+  display: none;
+}
+
+.tabbox > dialog[confirm-close="true"][moz-open]:last-child {
+  z-index: 1;
+  top: 0px;
+  background-color: white;
+  min-width: 200px;
+  min-height: 70px;
+  border: 3px solid black;
+  display: block;
+}

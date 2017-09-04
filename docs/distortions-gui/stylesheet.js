@@ -48,8 +48,13 @@ CSSRuleEventHandler.prototype = {
     }
   },
 
+  eventFilter: () => true,
+
   // DOMEventListener
-  handleEvent: function() {
+  handleEvent: function(event) {
+    if (!this.eventFilter(event))
+      return;
+
     if (this.input.checked === this.enableWhenChecked)
       this.enable();
     else
