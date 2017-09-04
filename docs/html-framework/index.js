@@ -19,7 +19,6 @@ window.onload = function() {
   editors.html.setValue(`<html>
 <head>
   <title></title>
-  <base href="../">
   <meta charset="UTF-8">
 </head>
 <body>
