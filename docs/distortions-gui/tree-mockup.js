@@ -1,43 +1,6 @@
-function getCustomStylesheet() {
-  var elem = document.createElement("style");
-  document.head.appendChild(elem);
-  var comment = document.createComment(
-    "This stylesheet exists to hold dynamically created style rules.  " +
-    "That's why this is empty.  See tree-mockup.js for details."
-  );
-  elem.appendChild(comment);
-  return elem.sheet;
-}
-
 function styleAndMoveTreeColumns(gridtree) {
   "use strict";
   const sheet = getCustomStylesheet(), inputMap = new Map();
-
-  function checkboxListener(event) {
-    let input = event.target;
-    var ruleText = inputMap.get(input);
-
-    if (input.checked) {
-      // this means we've just expanded a collapsed section,
-      // so we should remove the CSS rule hiding that section's cells.
-      let rules = sheet.cssRules;
-      for (let i = 0; i < rules.length; i++) {
-        if (rules[i].cssText === ruleText) {
-          sheet.deleteRule(i);
-          break;
-        }
-      }
-    }
-    else {
-      // we're collapsing an expanded section, so we should set a rule that
-      // hides the row's associated cells.
-      sheet.insertRule(ruleText, 0);
-
-      // The browser may modify whitespace on the rule.
-      ruleText = sheet.cssRules[0].cssText;
-      inputMap.set(input, ruleText);
-    }
-  }
 
   // Step 1:  Mark all the ul elements as a row block.
   {
@@ -62,9 +25,9 @@ function styleAndMoveTreeColumns(gridtree) {
         continue;
       let ruleText = `#${gridId} > .rowblock-${ul.getAttribute("rowblock")}`;
       ruleText += " {\n  display: none;\n}";
-      inputMap.set(input, ruleText);
-      input.addEventListener("click", checkboxListener, true);
-      checkboxListener({ target: input });
+      let ruleHandler = new CSSRuleEventHandler(sheet, input, ruleText, false);
+      input.addEventListener("click", ruleHandler, true);
+      ruleHandler.handleEvent({ target: input });
     }
   }
 
