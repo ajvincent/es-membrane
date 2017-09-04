@@ -1,27 +1,14 @@
-.gridtree {
-  display: grid;
-  width: 500px;
-  grid-template-columns: 300px 1fr 1fr;
-  background-color: #fff;
-  font-family: monospace;
-  font-size: 1em;
-}
-
 .gridtree .header {
   font-weight: bold;
 }
 
-.gridtree .header > span {
+.gridtree > .treeroot .header > span {
   padding-left: 20px;
 }
 
 .gridtree > .treeroot {
   grid-row-start: 1;
   grid-row-end: 1;
-}
-
-.gridtree > .treeroot[hidden="true"] {
-  display: none;
 }
 
 /* Graceful degradation if the JavaScript code doesn't run */
@@ -118,45 +105,89 @@
   }
 
 /* Going back to a grid-based indentation scheme. */
-.gridtree > .treeroot li > span:first-child,
-.gridtree > span[row][firstcol] {
-	width: 300px;
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-}
+@supports(display: grid) {
+  .gridtree {
+    display: grid;
+    width: 500px;
+    grid-template-columns: 300px 1fr 1fr;
+    background-color: #fff;
+    font-family: monospace;
+    font-size: 1em;
+  }
 
-.gridtree > span[row][firstcol][indent="1"] {
-  padding-left: 30px;
-  width: 270px;
-}
+  /*
+  if (@supports(display: subgrid))
+    .gridtree[cellgrouping="subgrid"]
+  else if (@supports(display: contents))
+    .gridtree[cellgrouping="row-contents"]
+  else {
+    .gridtree[cellgrouping="none"]
+  */
 
-.gridtree > span[row][firstcol][indent="2"] {
-  padding-left: 60px;
-  width: 240px;
-}
-/* etc., etc., etc. for different levels of indent. */
+  
+  @supports(display: contents) {
+    .gridtree[cellgrouping="row-contents"] > div[row] {
+      display: contents;
+    }
+  }
 
-.gridtree > span[row][firstcol] > input[type="checkbox"]:first-child {
-  opacity: 0;
-  position: absolute;
-  margin: 0;
-}
+  .gridtree > .treeroot li > span:first-child,
+  .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child,
+  .gridtree[cellgrouping="none"] > span[row][firstcol]
+  {
+    width: 300px;
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
 
-.gridtree > span[row][firstcol] > input[type="checkbox"]:first-child + span {
-  background: url(plusicon.svg) 2px 3px no-repeat;
-  width: 16px;
-  height: 16px;
-  z-index: 1;
-  display: inline-block;
-  cursor: pointer;
-}
+  .gridtree[cellgrouping="row-contents"] > div[row][indent="0"] > span:first-child > span,
+  .gridtree[cellgrouping="none"] > span[row][firstcol][indent="1"] {
+    padding-left: 30px;
+    width: 270px;
+  }
 
-.gridtree > span[row][firstcol] > input[type="checkbox"]:first-child:checked + span {
-  background-image: url(minusicon.svg);
-}
+  .gridtree[cellgrouping="row-contents"] > div[row][indent="1"] > span:first-child > span  , 
+  .gridtree[cellgrouping="none"] > span[row][firstcol][indent="2"] {
+    padding-left: 60px;
+    width: 240px;
+  }
+  /* etc., etc., etc. for different levels of indent. */
+  
+  .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > input[type="checkbox"]:first-child,
+  .gridtree[cellgrouping="none"] > span[row][firstcol] > input[type="checkbox"]:first-child
+  {
+    opacity: 0;
+    position: absolute;
+  }
+  
+  .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > input[type="checkbox"]:first-child + span,
+  .gridtree[cellgrouping="none"] > span[row][firstcol] > input[type="checkbox"]:first-child + span
+  {
+    background-image: url(plusicon.svg);
+    background-repeat: no-repeat;
+    width: 16px;
+    height: 16px;
+    z-index: 1;
+    display: inline-block;
+    cursor: pointer;
+  }
 
-.gridtree > span[row]:not(.collapsible-check) > input[type="checkbox"] {
-  margin-top: 0px;
+  /* XXX ajvincent This may be a Firefox vs Chrome bug, in the positioning and sizing of the invisible checkboxes. */
+  .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > input[type="checkbox"]:first-child + span
+  {
+    background-position: 3px 0px;
+  }
+  
+  .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > input[type="checkbox"]:first-child:checked + span,
+  .gridtree[cellgrouping="none"] > span[row][firstcol] > input[type="checkbox"]:first-child:checked + span
+  {
+    background-image: url(minusicon.svg);
+  }
+
+  .gridtree[cellgrouping="row-contents"] > div[row] > span:not(.collapsible-check) > input[type="checkbox"],
+  .gridtree[cellgrouping="none"] > span[row]:not(.collapsible-check) > input[type="checkbox"] {
+    margin-top: 0px;
+  }
 }
