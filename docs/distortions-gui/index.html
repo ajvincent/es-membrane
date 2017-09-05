@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <title>Distortions User Interface</title>
+  <base href="../">
+  <meta charset="UTF-8">
+
+  <link rel="stylesheet" href="distortions-gui/grid-outer.css">
+
+  <script type="application/javascript"
+          src="distortions-gui/utilities/defineElementGetter.js"
+         ></script>
+
+  <script type="application/javascript"
+          src="distortions-gui/stylesheet.js"></script>
+  <script type="application/javascript"
+          src="distortions-gui/attributeControl.js"></script>
+
+  <script type="application/javascript"
+          src="distortions-gui/DistortionsGUI.js"></script>
+  <script type="application/javascript"
+          src="distortions-gui/OuterGridManager.js"></script>
+
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/lib/codemirror.js"></script>
+  <link rel="stylesheet"
+        href="libraries/codemirror-5.25.2/lib/codemirror.css">
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/foldcode.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/foldgutter.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/brace-fold.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/comment-fold.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/indent-fold.js"></script>
+  <link rel="stylesheet"
+        href="libraries/codemirror-5.25.2/addon/fold/foldgutter.css">
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/mode/javascript/javascript.js"></script>
+
+  <script type="application/javascript"
+          src="distortions-gui/utilities/CodeMirrorManager.js"
+         ></script>
+
+</head>
+
+<body>
+  <div id="grid-outer">
+    <!-- row 1 -->
+    <div id="tabbox-files" class="tabbar">
+      <input type="radio" name="files" checked="checked"
+             value="" id="tabbox-files-start"/>
+      <label for="tabbox-files-start">
+        <strong>Start</strong>
+      </label>
+
+      <span style="width: 10px;" class="insertPoint">&nbsp;</span>
+      <input type="radio" name="files" disabled="disabled"
+             value="" id="tabbox-files-addPanel">
+      <label for="tabbox-files-addPanel">
+        <strong>Add Value</strong>
+      </label>
+      <input type="radio" name="files" disabled="disabled"
+             value="" id="tabbox-files-output">
+      <label for="tabbox-files-output">
+        <strong>Output</strong>
+      </label>
+    </div>
+    <span><!-- this element intentionally left blank --></span>
+
+    <div id="grid-outer-mainpanels">
+      <section class="startPanel">
+        <h2>Start here</h2>
+        <form id="grid-outer-start"
+              method="post"
+              enctype="multipart/form-data"
+              action="javascript:DistortionsGUI.loadConfigAndStart();">
+          <span id="grid-outer-start-config-span">
+            <label for="grid-outer-start-config">
+              If you have a Distortions GUI configuration file already, please
+              select it here:
+            </label>
+            <!-- XXX ajvincent to-do later, too complex for initial pass
+            <input type="radio" name="config" value="file"
+                   checked="checked"
+                   id="grid-outer-start-config-file">
+            <label for="grid-outer-start-config-file">
+              as file
+            </label>
+
+            <input type="radio" name="config" value="url"
+                   id="grid-outer-start-config-url">
+            <label for="grid-outer-start-config-url">
+              as URL
+            </label>
+            <button type="button" class="url"
+                    onclick="OuterGridManager.showAddURLDialog();">
+              Browse...
+            </button>
+            -->
+
+            <br>
+            <!-- Loading distortions GUI config files isn't supported yet. -->
+            <input id="grid-outer-start-config"
+                   type="file"
+                   value=""
+                   name="config"
+                   accept="application/javascript"
+                   disabled="disabled"
+                  >
+          </span>
+          <hr>
+
+          <span id="grid-outer-start-location-span">
+            <label for="grid-outer-start-location">
+              Specify common source JavaScript files to include here:
+            </label>
+            
+            <!-- XXX ajvincent to-do later, too complex for initial pass
+            <input type="radio" name="locationType" value="file"
+                   checked="checked"
+                   id="grid-outer-start-locationType-file">
+            <label for="grid-outer-start-locationType-file">
+              as file
+            </label>
+
+            <input type="radio" name="locationType" value="url"
+                   id="grid-outer-start-locationType-url">
+            <label for="grid-outer-start-locationType-url">
+              as URL
+            </label>
+            <button type="button" class="url"
+                    onclick="OuterGridManager.showAddURLDialog();">
+              Browse...
+            </button>
+            -->
+
+            <br>
+            <input id="grid-outer-start-location"
+                   type="file"
+                   multiple="multiple"
+                   value=""
+                   name="location"
+                   required="required"
+                   accept="application/javascript"
+                  >
+          </span>
+          <hr>
+
+          <button type="submit">Continue</button>
+        </form>
+      </section>
+      
+      <section class="addPanel">
+        <h2>Add a function (or other object)</h2>
+        <form id="grid-outer-addValue"
+              method="post"
+              enctype="multipart/form-data"
+              action="javascript:DistortionsGUI.createValuePanel();">
+          <span id="grid-outer-addValue-location-span">
+            <label for="grid-outer-addValue-location">
+              Additional source JavaScript files:
+            </label>
+            <!-- XXX ajvincent to-do later, too complex for initial pass
+            <input type="radio" name="locationType" value="file"
+                   checked="checked"
+                   id="grid-outer-addValue-locationType-file">
+            <label for="grid-outer-addValue-locationType-file">
+              as file
+            </label>
+
+            <input type="radio" name="locationType" value="url"
+                   id="grid-outer-addValue-locationType-url">
+            <label for="grid-outer-addValue-locationType-url">
+              as URL
+            </label>
+            <button type="button" class="url"
+                    onclick="OuterGridManager.showAddURLDialog();">
+              Browse...
+            </button>
+            -->
+            <input id="grid-outer-addValue-location"
+                   type="file"
+                   multiple="multiple"
+                   value=""
+                   name="location"
+                   accept="application/javascript"
+                  >
+          </span>
+          <br>
+
+          <span>
+            <label for="grid-outer-addValue-valueName">
+              How the code internally names the function or literal object.
+            </label>
+            <input id="grid-outer-addValue-valueName"
+                   type="text"
+                   size="30"
+                   name="nameOfValue"
+                   required="required"
+                  >
+          </span>
+          <br>
+
+          <div>
+            <label for="grid-outer-addValue-valueReference">
+              Return the function or literal object we will examine.
+            </label>
+            <textarea id="grid-outer-addValue-valueReference">
+function() {
+  return {};
+}();
+            </textarea>
+          </div>
+          <hr>
+
+          <button type="submit">
+            Add the file and start work
+            <img src="distortions-gui/plusicon.svg">
+          </button>
+          &nbsp;
+          <button type="reset">
+            Clear this panel
+            <img src="distortions-gui/minusicon.svg">
+          </button>
+        </form>
+      </section>
+
+      <section class="output">
+        <h2>Generated output</h2>
+      </section>
+    </div>
+
+    <div id="tabbox-function-traps" class="tabbar">
+      <input type="radio" name="function-traps" checked="checked"
+             value="value" id="tabbox-function-traps-value">
+      <label for="tabbox-function-traps-value">Value</label>
+
+      <input type="radio" name="function-traps"
+             value="prototype" id="tabbox-function-traps-prototype">
+      <label for="tabbox-function-traps-prototype">Prototype</label>
+
+      <input type="radio" name="function-traps"
+             value="apply" id="tabbox-function-traps-apply">
+      <label for="tabbox-function-traps-apply">Return from apply trap</label>
+
+      <input type="radio" name="function-traps"
+             value="construct" id="tabbox-function-traps-construct">
+      <label for="tabbox-function-traps-construct">Return from construct trap</label>
+    </div>
+  </div>
+</body>
+</html>

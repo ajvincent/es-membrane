@@ -4,11 +4,26 @@ function getCustomStylesheet(document) {
   document.head.appendChild(elem);
   var comment = document.createComment(
     "This stylesheet exists to hold dynamically created style rules.  " +
-    "That's why this is empty.  See tree-mockup.js for details."
+    "That's why this is empty."
   );
   elem.appendChild(comment);
   return elem.sheet;
 }
+
+function CSSClassToggleHandler(input, classTarget, className, enableWhenChecked)
+{
+  this.input = input;
+  this.classList = classTarget.classList;
+  this.className = className;
+  this.enableWhenChecked = enableWhenChecked;
+}
+CSSClassToggleHandler.prototype.handleEvent = function() {
+  const shouldEnable = (this.input.checked === this.enableWhenChecked);
+  if (shouldEnable)
+    this.classList.add(this.className);
+  else
+    this.classList.remove(this.className);
+};
 
 function CSSRuleEventHandler(sheet, input, ruleText, enableWhenChecked) {
   this.sheet = sheet;

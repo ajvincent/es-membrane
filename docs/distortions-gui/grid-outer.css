@@ -1,0 +1,69 @@
+#grid-outer {
+  display: grid;
+  grid-template-columns: 800px 250px;
+  grid-gap: 5px;
+}
+
+#tabbox-files {
+  max-height: 2em;
+  width: 800px;
+  overflow-x: scroll;
+}
+
+#grid-outer > .tabbar > input[type="radio"]
+{
+  display: none;
+}
+
+#grid-outer > .tabbar > input[type="radio"] + label {
+  border: 1px solid black;
+  padding: 1px;
+}
+
+#grid-outer > .tabbar > input[type="radio"]:disabled + label {
+  color: #7f7f7f;
+}
+
+#grid-outer > .tabbar > input[type="radio"]:not(:checked) + label {
+  background-color: #cccccc;
+}
+
+#grid-outer > .tabbar > input[type="radio"]:checked + label {
+  background-color: #ffffff;
+}
+
+#grid-outer > .tabbar > input[type="radio"]:not(:checked) + label > img {
+  background-position: 0px 4px;
+}
+
+#grid-outer-mainpanels {
+  width: 800px;
+  height: 600px;
+}
+
+#tabbox-function-traps > label {
+  display: block;
+}
+
+#grid-outer > * {
+  border: 1px solid green;
+}
+
+#grid-outer-mainpanels > section {
+  display: none;
+  padding: 5px;
+}
+
+#grid-outer.start > #grid-outer-mainpanels > section.startPanel,
+#grid-outer.addValue > #grid-outer-mainpanels > section.addPanel,
+#grid-outer.outputFile > #grid-outer-mainpanels > section.output
+{
+  display: block;
+}
+
+#grid-outer.start > #tabbox-function-traps > label,
+#grid-outer.addValue > #tabbox-function-traps > label,
+#grid-outer.outputFile > #tabbox-function-traps > label
+{
+  display: none;
+}
