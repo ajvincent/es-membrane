@@ -50,6 +50,7 @@
   <div id="grid-outer">
     <!-- row 1 -->
     <div id="tabbox-files" class="tabbar">
+      <!-- tabbox-files occupies two horizontal cells -->
       <input type="radio" name="files" checked="checked"
              value="" id="tabbox-files-start"/>
       <label for="tabbox-files-start">
@@ -58,7 +59,7 @@
 
       <span style="width: 10px;" class="insertPoint">&nbsp;</span>
       <input type="radio" name="files" disabled="disabled"
-             value="" id="tabbox-files-addPanel">
+             value="" id="tabbox-files-addPanel"/>
       <label for="tabbox-files-addPanel">
         <strong>Add Value</strong>
       </label>
@@ -231,6 +232,17 @@ function() {
       <section class="output">
         <h2>Generated output</h2>
       </section>
+      <!-- this is where <section> elements containing the distortions UI for
+      individual values will live.  -->
+    </div>
+
+    <div id="help-and-notes">
+      <!-- This space holds two different kinds of panel:
+        (1) help text explaining the proxy traps and how disabling them affects
+        the proxy to the value,
+        (2) HTML textareas (possibly editable HTML areas) for the user to write
+        their own notes.
+      -->
     </div>
 
     <div id="tabbox-function-traps" class="tabbar">
@@ -251,5 +263,126 @@ function() {
       <label for="tabbox-function-traps-construct">Return from construct trap</label>
     </div>
   </div>
+
+  <template id="distortions-tree-ui-main">
+    <ul>
+      <li class="header">
+        <span>Rule</span>
+        <span>Enabled?</span>
+        <span>Help</span>
+      </li>
+      <li class="collapsible">
+        <span>Show own keys</span>
+        <input type="checkbox" checked="checked" class="collapsible-check">
+        <span>&nbsp;</span>
+        <ul class="propertyList"></ul>
+      </li>
+
+      <li class="collapsible">
+        <span>Proxy traps</span>
+        <input type="checkbox" checked="checked" class="collapsible-check">
+        <ul>
+          <li>
+            <span>getPrototypeOf</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+          <li>
+            <span>setPrototypeOf</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+          <li>
+            <span>isExtensible</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+          <li>
+            <span>preventExtensions</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+          <li>
+            <span>getOwnPropertyDescriptor</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+          <li>
+            <span>defineProperty</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+          <li>
+            <span>has</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+          <li>
+            <span>get</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+          <li>
+            <span>set</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+          <li>
+            <span>deleteProperty</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+          <li>
+            <span>ownKeys</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+          <li>
+            <span>apply</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+          <li>
+            <span>construct</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+        </ul>
+      </li>
+
+      <li class="collapsible">
+        <span>Other distortions</span>
+        <input type="checkbox" checked="checked" class="collapsible-check">
+        <ul>
+          <li>
+            <span>Local properties</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+          <li>
+            <span>Local deletes</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+          <li>
+            <span>Use shadow target</span>
+            <span><input type="checkbox" checked="checked"></span>
+            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </template>
+
+  <template id="distortions-tree-ui-property">
+    <li>
+      <span class="propertyName"></span>
+      <span><input type="checkbox" checked="checked"></span>
+      <span>
+        <!-- To be determined:  some kind of HTML input to select a HTML
+        textarea for the user to write notes about this property. -->
+      </span>
+    </li>
+  </template>
 </body>
 </html>

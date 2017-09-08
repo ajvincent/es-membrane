@@ -1,13 +1,15 @@
 #grid-outer {
   display: grid;
-  grid-template-columns: 800px 250px;
+  grid-template-columns: 800px 200px 250px;
   grid-gap: 5px;
 }
 
 #tabbox-files {
   max-height: 2em;
-  width: 800px;
+  width: 1002.5px;
   overflow-x: scroll;
+  grid-column-start: 1;
+  grid-column-end: 3;
 }
 
 #grid-outer > .tabbar > input[type="radio"]
