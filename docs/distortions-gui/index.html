@@ -265,113 +265,117 @@ function() {
   </div>
 
   <template id="distortions-tree-ui-main">
-    <ul>
-      <li class="header">
-        <span>Rule</span>
-        <span>Enabled?</span>
-        <span>Help</span>
-      </li>
-      <li class="collapsible">
-        <span>Show own keys</span>
-        <input type="checkbox" checked="checked" class="collapsible-check">
-        <span>&nbsp;</span>
-        <ul class="propertyList"></ul>
-      </li>
-
-      <li class="collapsible">
-        <span>Proxy traps</span>
-        <input type="checkbox" checked="checked" class="collapsible-check">
+    <div class="gridtree">
+      <div class="treeroot">
         <ul>
-          <li>
-            <span>getPrototypeOf</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          <li class="header">
+            <span>Rule</span>
+            <span>Enabled?</span>
+            <span>Help</span>
           </li>
-          <li>
-            <span>setPrototypeOf</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+          <li class="collapsible">
+            <span>Show own keys</span>
+            <input type="checkbox" checked="checked" class="collapsible-check">
+            <span>&nbsp;</span>
+            <ul class="propertyList"></ul>
           </li>
-          <li>
-            <span>isExtensible</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+    
+          <li class="collapsible">
+            <span>Proxy traps</span>
+            <input type="checkbox" checked="checked" class="collapsible-check">
+            <ul>
+              <li>
+                <span>getPrototypeOf</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
+                <span>setPrototypeOf</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
+                <span>isExtensible</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
+                <span>preventExtensions</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
+                <span>getOwnPropertyDescriptor</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
+                <span>defineProperty</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
+                <span>has</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
+                <span>get</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
+                <span>set</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
+                <span>deleteProperty</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
+                <span>ownKeys</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
+                <span>apply</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
+                <span>construct</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+            </ul>
           </li>
-          <li>
-            <span>preventExtensions</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
-          </li>
-          <li>
-            <span>getOwnPropertyDescriptor</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
-          </li>
-          <li>
-            <span>defineProperty</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
-          </li>
-          <li>
-            <span>has</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
-          </li>
-          <li>
-            <span>get</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
-          </li>
-          <li>
-            <span>set</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
-          </li>
-          <li>
-            <span>deleteProperty</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
-          </li>
-          <li>
-            <span>ownKeys</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
-          </li>
-          <li>
-            <span>apply</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
-          </li>
-          <li>
-            <span>construct</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+    
+          <li class="collapsible">
+            <span>Other distortions</span>
+            <input type="checkbox" checked="checked" class="collapsible-check">
+            <ul>
+              <li>
+                <span>Local properties</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
+                <span>Local deletes</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
+                <span>Use shadow target</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
+              </li>
+            </ul>
           </li>
         </ul>
-      </li>
-
-      <li class="collapsible">
-        <span>Other distortions</span>
-        <input type="checkbox" checked="checked" class="collapsible-check">
-        <ul>
-          <li>
-            <span>Local properties</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
-          </li>
-          <li>
-            <span>Local deletes</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
-          </li>
-          <li>
-            <span>Use shadow target</span>
-            <span><input type="checkbox" checked="checked"></span>
-            <span><a href="#"><img src="Tango-style_question_icon.svg"></a></span>
-          </li>
-        </ul>
-      </li>
-    </ul>
+      </div>
+    </div>
   </template>
 
   <template id="distortions-tree-ui-property">
