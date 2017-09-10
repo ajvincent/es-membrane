@@ -41,6 +41,7 @@
 #grid-outer-mainpanels {
   width: 800px;
   height: 600px;
+  overflow: scroll;
 }
 
 #tabbox-function-traps > label {
@@ -67,5 +68,16 @@
 #grid-outer.addValue > #tabbox-function-traps > label,
 #grid-outer.outputFile > #tabbox-function-traps > label
 {
+  display: none;
+}
+
+#grid-outer-mainpanels section.error {
+  background-color: #ffcccc;
+  border: 2px solid #ff0000;
+  font-family: monospace;
+}
+
+/* this doesn't really belong in this file, but it's a ride-along. */
+#iframe-box {
   display: none;
 }

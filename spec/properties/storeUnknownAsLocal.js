@@ -857,7 +857,7 @@ describe("Storing unknown properties locally", function() {
     });
   }
 
-  describe("when required by the dry object graph, ObjectGraphHandler(dry).", function() {
+  describe("when required by the dry object graph, ", function() {
     beforeEach(function() {
       membrane.modifyRules.storeUnknownAsLocal("dry", parts.dry.Node.prototype);
     });
@@ -875,7 +875,7 @@ describe("Storing unknown properties locally", function() {
   });
 
   describe(
-    "when required by both the wet and the dry object graphs, ObjectGraphHandler(dry).",
+    "when required by both the wet and the dry object graphs, ",
     function() {
       beforeEach(function() {
         membrane.buildMapping("wet", parts.wet.Node.prototype);

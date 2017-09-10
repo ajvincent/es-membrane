@@ -13,7 +13,7 @@ function styleAndMoveTreeColumns(gridtree) {
       return;
   }
 
-  const sheet = getCustomStylesheet(gridtree.ownerDocument);
+  const sheet = getCustomStylesheet(document);
 
   // Step 1:  Mark all the ul elements as a row block.
   {
