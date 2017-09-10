@@ -26,6 +26,14 @@ const OuterGridManager = {
       listener.handleEvent();
     }
 
+    {
+      let listener = new TabboxRadioEventHandler(
+        this.tabboxForm, "functionTraps", this.grid, "trapsTab"
+      );
+      this.trapsTabbox.addEventListener("change", listener, true);
+      listener.handleEvent();
+    }
+
     this.filesTabbox.addEventListener("change", {
       handleEvent: function(event) {
         if (event.target !== OuterGridManager.addPanelRadio)
@@ -47,7 +55,7 @@ const OuterGridManager = {
 
     panel.classList.add(radioClass);
 
-    const cssRule = `#grid-outer[filesTab="${radioClass}"] > #grid-outer-mainpanels > section.${radioClass} {
+    const cssRule = `#grid-outer[filesTab="${radioClass}"][trapsTab="value"] > #grid-outer-mainpanels > section[trapsTab="value"].${radioClass} {
       display: block;
     }`;
     this.sheet.insertRule(cssRule);

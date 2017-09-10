@@ -164,6 +164,7 @@ const DistortionsGUI = {
     const panel = document.createElement("section");
     panel.dataset.valueName = valueName;
     const radioClass = "valuepanel-" + DistortionsManager.valueNameToTabMap.size;
+    panel.setAttribute("trapsTab", "value");
 
     const radio = OuterGridManager.insertValuePanel(
       valueName, radioClass, panel
