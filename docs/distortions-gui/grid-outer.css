@@ -57,16 +57,16 @@
   padding: 5px;
 }
 
-#grid-outer.start > #grid-outer-mainpanels > section.startPanel,
-#grid-outer.addValue > #grid-outer-mainpanels > section.addPanel,
-#grid-outer.outputFile > #grid-outer-mainpanels > section.output
+#grid-outer[filesTab="start"] > #grid-outer-mainpanels > section.startPanel,
+#grid-outer[filesTab="addValue"] > #grid-outer-mainpanels > section.addPanel,
+#grid-outer[filesTab="outputFile"] > #grid-outer-mainpanels > section.output
 {
   display: block;
 }
 
-#grid-outer.start > #tabbox-function-traps > label,
-#grid-outer.addValue > #tabbox-function-traps > label,
-#grid-outer.outputFile > #tabbox-function-traps > label
+#grid-outer[filesTab="start"] > #tabbox-function-traps > label,
+#grid-outer[filesTab="addValue"] > #tabbox-function-traps > label,
+#grid-outer[filesTab="outputFile"] > #tabbox-function-traps > label
 {
   display: none;
 }

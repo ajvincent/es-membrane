@@ -49,31 +49,32 @@
 </head>
 
 <body>
+  <form action="javascript:void(null);" id="tabbox-form"></form>
   <div id="grid-outer">
     <!-- row 1 -->
     <div id="tabbox-files" class="tabbar">
       <!-- tabbox-files occupies two horizontal cells -->
-      <input type="radio" name="files" checked="checked"
-             value="" id="tabbox-files-start"/>
+      <input type="radio" name="files" checked="checked" form="tabbox-form"
+             value="start" id="tabbox-files-start"/>
       <label for="tabbox-files-start">
         <strong>Start</strong>
       </label>
 
       <span style="width: 10px;" class="insertPoint">&nbsp;</span>
-      <input type="radio" name="files" disabled="disabled"
-             value="" id="tabbox-files-addPanel"/>
+      <input type="radio" name="files" disabled="disabled" form="tabbox-form"
+             value="addValue" id="tabbox-files-addPanel"/>
       <label for="tabbox-files-addPanel">
         <strong>Add Value</strong>
       </label>
-      <input type="radio" name="files" disabled="disabled"
-             value="" id="tabbox-files-output">
+      <input type="radio" name="files" disabled="disabled" form="tabbox-form"
+             value="output" id="tabbox-files-output">
       <label for="tabbox-files-output">
         <strong>Output</strong>
       </label>
     </div>
     <span><!-- this element intentionally left blank --></span>
 
-    <div id="grid-outer-mainpanels">
+    <div id="grid-outer-mainpanels" filesTab="start">
       <section class="startPanel">
         <h2>Start here</h2>
         <form id="grid-outer-start"
@@ -249,20 +250,24 @@ function() {
 
     <div id="tabbox-function-traps" class="tabbar">
       <input type="radio" name="function-traps" checked="checked"
+             form="tabbox-form"
              value="value" id="tabbox-function-traps-value">
       <label for="tabbox-function-traps-value">Value</label>
 
       <input type="radio" name="function-traps"
+             form="tabbox-form"
              disabled="disabled"
              value="prototype" id="tabbox-function-traps-prototype">
       <label for="tabbox-function-traps-prototype">Prototype</label>
 
       <input type="radio" name="function-traps"
+             form="tabbox-form"
              disabled="disabled"
              value="apply" id="tabbox-function-traps-apply">
       <label for="tabbox-function-traps-apply">Return from apply trap</label>
 
       <input type="radio" name="function-traps"
+             form="tabbox-form"
              disabled="disabled"
              value="construct" id="tabbox-function-traps-construct">
       <label for="tabbox-function-traps-construct">Return from construct trap</label>

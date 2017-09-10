@@ -5,6 +5,7 @@ const OuterGridManager = {
   panels: null,
   filesTabbox: null,
   trapsTabbox: null,
+  tabboxForm: null,
   startForm: null,
   startPanelRadio: null,
   addPanelRadio: null,
@@ -18,24 +19,8 @@ const OuterGridManager = {
     this.sheet = getCustomStylesheet(document);
 
     {
-      let listener = new CSSClassToggleHandler(
-        this.startPanelRadio, this.grid, "start", true
-      );
-      this.filesTabbox.addEventListener("change", listener, true);
-      listener.handleEvent();
-    }
-
-    {
-      let listener = new CSSClassToggleHandler(
-        this.addPanelRadio, this.grid, "addValue", true
-      );
-      this.filesTabbox.addEventListener("change", listener, true);
-      listener.handleEvent();
-    }
-
-    {
-      let listener = new CSSClassToggleHandler(
-        this.outputPanelRadio, this.grid, "outputFile", true
+      let listener = new TabboxRadioEventHandler(
+        this.tabboxForm, "files", this.grid, "filesTab"
       );
       this.filesTabbox.addEventListener("change", listener, true);
       listener.handleEvent();
@@ -53,15 +38,16 @@ const OuterGridManager = {
 
   insertValuePanel: function(valueName, radioClass, panel) {
     const radio = document.createElement("input");
+    radio.setAttribute("form", "tabbox-form");
     radio.setAttribute("type", "radio");
     radio.setAttribute("name", "files");
-    radio.setAttribute("value", valueName);
+    radio.setAttribute("value", radioClass);
 
     radio.setAttribute("id", radioClass);
 
     panel.classList.add(radioClass);
 
-    const cssRule = `#grid-outer-mainpanels.${radioClass} > section.${radioClass} {
+    const cssRule = `#grid-outer[filesTab="${radioClass}"] > #grid-outer-mainpanels > section.${radioClass} {
       display: block;
     }`;
     this.sheet.insertRule(cssRule);
@@ -85,12 +71,24 @@ const OuterGridManager = {
   }
 };
 
+function TabboxRadioEventHandler(form, inputName, target, attr) {
+  this.form = form;
+  this.inputName = inputName;
+  this.target = target;
+  this.attr = attr;
+}
+TabboxRadioEventHandler.prototype.handleEvent = function() {
+  const value = this.form[this.inputName].value;
+  this.target.setAttribute(this.attr, value);
+};
+
 {
   let elems = {
     "grid": "grid-outer",
     "panels": "grid-outer-mainpanels",
     "filesTabbox": "tabbox-files",
     "trapsTabbox": "tabbox-function-traps",
+    "tabboxForm": "tabbox-form",
     "startForm": "grid-outer-start",
 
     "startPanelRadio": "tabbox-files-start",
