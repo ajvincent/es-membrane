@@ -10,6 +10,12 @@ const OuterGridManager = {
   startPanelRadio: null,
   addPanelRadio: null,
   outputPanelRadio: null,
+  prototypeRadio: null,
+
+  selectedTabs: {
+    file: null,
+    trap: null,
+  },
 
   // public
   init: function() {
@@ -34,6 +40,25 @@ const OuterGridManager = {
       listener.handleEvent();
     }
 
+    this.filesTabbox.addEventListener("change", function(event) {
+      const radio = event.target;
+      OuterGridManager.selectedTabs.file = radio;
+
+      const fTabsDisabled = !(radio.dataset.valueIsFunction);
+      OuterGridManager.prototypeRadio.disabled = fTabsDisabled;
+      /*
+      OuterGridManager.instanceRadio.disabled  = fTabsDisabled;
+      */
+
+      if (radio.dataset.lastTrap)
+        OuterGridManager.tabboxForm.functionTraps.value = radio.dataset.lastTrap;
+    });
+
+    this.trapsTabbox.addEventListener("change", function(event) {
+      OuterGridManager.selectedTabs.trap = event.target;
+      OuterGridManager.selectedTabs.file.dataset.lastTrap = event.target.value;
+    }, true);
+
     this.filesTabbox.addEventListener("change", {
       handleEvent: function(event) {
         if (event.target !== OuterGridManager.addPanelRadio)
@@ -50,15 +75,12 @@ const OuterGridManager = {
     radio.setAttribute("type", "radio");
     radio.setAttribute("name", "files");
     radio.setAttribute("value", radioClass);
-
     radio.setAttribute("id", radioClass);
+    radio.dataset.lastTrap = "value";
 
     panel.classList.add(radioClass);
 
-    const cssRule = `#grid-outer[filesTab="${radioClass}"][trapsTab="value"] > #grid-outer-mainpanels > section[trapsTab="value"].${radioClass} {
-      display: block;
-    }`;
-    this.sheet.insertRule(cssRule);
+    this.addCSSPanelRule(radioClass, "value");
 
     const listener = new CSSClassToggleHandler(
       radio, this.panels, radioClass, true
@@ -76,7 +98,21 @@ const OuterGridManager = {
     this.filesTabbox.insertBefore(label, refChild);
 
     return radio;
-  }
+  },
+
+  insertOtherPanel: function(radio, panel) {
+    const radioClass = radio.getAttribute("value");
+    panel.classList.add(radioClass);
+    this.addCSSPanelRule(radioClass, panel.getAttribute("trapsTab"));
+    this.panels.appendChild(panel);
+  },
+
+  addCSSPanelRule: function(radioClass, trapsTab) {
+    const cssRule = `#grid-outer[filesTab="${radioClass}"][trapsTab="${trapsTab}"] > #grid-outer-mainpanels > section[trapsTab="${trapsTab}"].${radioClass} {
+      display: block;
+    }`;
+    this.sheet.insertRule(cssRule);
+  },
 };
 
 function TabboxRadioEventHandler(form, inputName, target, attr) {
@@ -102,6 +138,8 @@ TabboxRadioEventHandler.prototype.handleEvent = function() {
     "startPanelRadio": "tabbox-files-start",
     "addPanelRadio": "tabbox-files-addPanel",
     "outputPanelRadio": "tabbox-files-output",
+
+    "prototypeRadio": "tabbox-function-traps-prototype",
   };
   let keys = Reflect.ownKeys(elems);
   keys.forEach(function(key) {

@@ -2,6 +2,7 @@ const DistortionsManager = {
   commonFileURLs: new Map(),
   
   valueToValueName: new Map(/*
+    value: valueName (string)
   */),
 
   valueNameToTabMap: new Map(/*
@@ -195,10 +196,29 @@ const DistortionsGUI = {
       panel.appendChild(document.createTextNode(BlobLoader.errorMessage));
     }
     else {
-      this.buildDistortions(panel, value);
+      const rules = this.buildDistortions(panel, value);
+      DistortionsManager.valueNameToRulesMap.set(
+        panel.dataset.valueName, { "value": rules }
+      );
     }
 
     this.addValuePanel.mainPanels.appendChild(panel);
+
+    if (typeof value === "function") {
+      const valueName = DistortionsManager.valueToValueName.get(value);
+      const radio = DistortionsManager.valueNameToTabMap.get(valueName);
+
+      radio.dataset.valueIsFunction = true;
+      const protoPanel = this.buildPrototypePanel(value, valueName);
+      if (protoPanel)
+        OuterGridManager.insertOtherPanel(radio, protoPanel);
+
+      /*
+      let instancePanel = this.buildInstancePanel(value);
+      if (instancePanel)
+        OuterGridManager.insertOtherPanel(radio, instancePanel);
+      */
+    }
   },
 
   buildDistortions: function(panel, value) {
@@ -231,12 +251,28 @@ const DistortionsGUI = {
     rules.initByValue(value, treeroot);
 
     DistortionsManager.valueToValueName.set(value, panel.dataset.valueName);
-    DistortionsManager.valueNameToRulesMap.set(panel.dataset.valueName, rules);
 
     styleAndMoveTreeColumns(gridtree);
-
     panel.appendChild(gridtree);
-  }
+
+    return rules;
+  },
+
+  buildPrototypePanel: function(value, valueName) {
+    if (typeof value.prototype !== "object") {
+      // Normally, this is never true... typeof Function.prototype == "function"
+      return null;
+    }
+
+    const panel = document.createElement("section");
+    panel.dataset.valueName = valueName;
+    panel.setAttribute("trapsTab", "prototype");
+
+    const rules = this.buildDistortions(panel, value.prototype);
+    DistortionsManager.valueNameToRulesMap.get(valueName).proto = rules;
+
+    return panel;
+  },
 };
 
 {
