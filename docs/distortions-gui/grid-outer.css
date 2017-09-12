@@ -1,6 +1,6 @@
 #grid-outer {
   display: grid;
-  grid-template-columns: 800px 200px 250px;
+  grid-template-columns: 600px 400px 250px;
   grid-gap: 5px;
 }
 
@@ -39,7 +39,7 @@
 }
 
 #grid-outer-mainpanels {
-  width: 800px;
+  width: 600px;
   height: 600px;
   overflow: scroll;
 }

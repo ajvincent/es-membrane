@@ -263,14 +263,8 @@ function() {
       <input type="radio" name="functionTraps"
              form="tabbox-form"
              disabled="disabled"
-             value="apply" id="tabbox-function-traps-apply">
-      <label for="tabbox-function-traps-apply">Return from apply trap</label>
-
-      <input type="radio" name="functionTraps"
-             form="tabbox-form"
-             disabled="disabled"
              value="construct" id="tabbox-function-traps-construct">
-      <label for="tabbox-function-traps-construct">Return from construct trap</label>
+      <label for="tabbox-function-traps-construct">Constructed By</label>
     </div>
   </div>
 
@@ -281,7 +275,7 @@ function() {
           <li class="header">
             <span>Rule</span>
             <span>Enabled?</span>
-            <span>Help</span>
+            <span>Help / Notes</span>
           </li>
           <li class="collapsible">
             <span>Show own keys</span>
@@ -377,6 +371,14 @@ function() {
                 <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
+                <span data-name="truncateArgList">Truncate argument list</span>
+                <span>
+                  <input type="checkbox" checked="checked">
+                  <input type="number" min="0" value="0" style="width: 30px;">
+                </span>
+                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+              </li>
+              <li>
                 <span data-name="useShadowTarget">Use shadow target</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
@@ -395,6 +397,7 @@ function() {
       <span>
         <!-- To be determined:  some kind of HTML input to select a HTML
         textarea for the user to write notes about this property. -->
+        <a href="#"><img src="distortions-gui/notes-icon.svg"></a>
       </span>
     </li>
   </template>
