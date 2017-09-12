@@ -252,6 +252,12 @@ const DistortionsGUI = {
 
     DistortionsManager.valueToValueName.set(value, panel.dataset.valueName);
 
+    if (typeof value !== "function") {
+      const fnCheckboxes = gridtree.getElementsByClassName("function-only");
+      for (let i = 0; i < fnCheckboxes.length; i++)
+        fnCheckboxes[i].disabled = true;
+    }
+
     styleAndMoveTreeColumns(gridtree);
     panel.appendChild(gridtree);
 
