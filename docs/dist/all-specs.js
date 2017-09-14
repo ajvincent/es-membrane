@@ -2083,8 +2083,8 @@ let FreezeSealMocks = function(defineListeners, adjustParts) {
 
   parts.wet.b.instance = 1;
 
-  parts.handlers.wet = parts.membrane.getHandlerByField("wet", true);
-  parts.handlers.dry = parts.membrane.getHandlerByField("dry", true);
+  parts.handlers.wet = parts.membrane.getHandlerByName("wet", true);
+  parts.handlers.dry = parts.membrane.getHandlerByName("dry", true);
 
   defineListeners(parts);
 
@@ -2336,7 +2336,7 @@ describe("replacing proxies tests: ", function() {
   beforeEach(function() {
     parts = MembraneMocks();
     membrane = parts.membrane;
-    dryHandler = membrane.getHandlerByField("dry");
+    dryHandler = membrane.getHandlerByName("dry");
     replacedProxy = null;
   });
   afterEach(function() {
@@ -2598,7 +2598,7 @@ describe("replacing proxies tests: ", function() {
       "with a proxy inheriting from the wet object graph does not work",
       function() {
         let wetDocument = parts.wet.doc;
-        let wetHandler = membrane.getHandlerByField("wet");
+        let wetHandler = membrane.getHandlerByName("wet");
         let found, wetProxy;
 
         expect(function() {
@@ -2653,8 +2653,8 @@ describe("An object graph handler's proxy listeners", function() {
 
   beforeEach(function() {
     membrane = new Membrane({logger: logger});
-    wetHandler = membrane.getHandlerByField("wet", true);
-    dryHandler = membrane.getHandlerByField("dry", true);
+    wetHandler = membrane.getHandlerByName("wet", true);
+    dryHandler = membrane.getHandlerByName("dry", true);
 
     appender = new loggerLib.Appender();
     logger.addAppender(appender);
@@ -3782,7 +3782,7 @@ describe("Function listeners", function() {
     wetDocument  = null;
     dampDocument = null;
 
-    membrane.getHandlerByField("dry").revokeEverything();
+    membrane.getHandlerByName("dry").revokeEverything();
     membrane = null;
     parts    = null;
   }
@@ -4202,8 +4202,8 @@ describe("Binding two values manually", function() {
   var membrane, graphA, graphB, graphC, graphD;
   beforeEach(function() {
     membrane = new Membrane();
-    graphA = membrane.getHandlerByField(graphNames.A, true);
-    graphB = membrane.getHandlerByField(graphNames.B, true);
+    graphA = membrane.getHandlerByName(graphNames.A, true);
+    graphB = membrane.getHandlerByName(graphNames.B, true);
   });
   afterEach(function() {
     graphA.revokeEverything();
@@ -4281,7 +4281,7 @@ describe("Binding two values manually", function() {
   it(
     "when the second value is known to the membrane and the first value is an object",
     function() {
-      graphC = membrane.getHandlerByField(graphNames.C, true);
+      graphC = membrane.getHandlerByName(graphNames.C, true);
       membrane.bindValuesByHandlers(graphC, values.objC,
                                     graphB, values.objB);
       membrane.bindValuesByHandlers(graphA, values.objA,
@@ -4309,7 +4309,7 @@ describe("Binding two values manually", function() {
   );
 
   it("to a third object graph holding a proxy", function() {
-    graphC = membrane.getHandlerByField(graphNames.C, true);
+    graphC = membrane.getHandlerByName(graphNames.C, true);
     let objC = membrane.convertArgumentToProxy(
       graphA,
       graphC,
@@ -4398,7 +4398,7 @@ describe("Binding two values manually", function() {
   it(
     "fails when an object is passed in for the wrong object graph",
     function() {
-      graphC = membrane.getHandlerByField(graphNames.C, true);
+      graphC = membrane.getHandlerByName(graphNames.C, true);
       membrane.convertArgumentToProxy(
         graphA,
         graphC,
@@ -4429,8 +4429,8 @@ describe("Binding two values manually", function() {
   });
 
   it("fails when trying to join two sets of object graphs", function() {
-    graphC = membrane.getHandlerByField(graphNames.C, true);
-    graphD = membrane.getHandlerByField(graphNames.D, true);
+    graphC = membrane.getHandlerByName(graphNames.C, true);
+    graphD = membrane.getHandlerByName(graphNames.D, true);
 
     membrane.bindValuesByHandlers(graphA, values.objA,
                                   graphB, values.objB);
@@ -6241,7 +6241,7 @@ describe("Filtering own keys ", function() {
     wetDocument  = null;
     dampDocument = null;
 
-    membrane.getHandlerByField("dry").revokeEverything();
+    membrane.getHandlerByName("dry").revokeEverything();
     membrane = null;
     parts    = null;
   }
@@ -7241,7 +7241,7 @@ describe(
       dryDocument  = null;
       wetDocument  = null;
 
-      membrane.getHandlerByField("dry").revokeEverything();
+      membrane.getHandlerByName("dry").revokeEverything();
       membrane = null;
       parts    = null;
     });
@@ -7358,7 +7358,7 @@ describe(
       dryDocument  = null;
       wetDocument  = null;
 
-      membrane.getHandlerByField("dry").revokeEverything();
+      membrane.getHandlerByName("dry").revokeEverything();
       membrane = null;
       parts    = null;
     });
@@ -7966,8 +7966,8 @@ describe("Whitelisting object properties", function() {
     function() {
       const Dogfood = new Membrane();
 
-      const publicAPI   = Dogfood.getHandlerByField("public", true);
-      const internalAPI = Dogfood.getHandlerByField("internal", true);
+      const publicAPI   = Dogfood.getHandlerByName("public", true);
+      const internalAPI = Dogfood.getHandlerByName("internal", true);
 
       // lockdown of the public API here
       const mbListener = {
@@ -8001,7 +8001,7 @@ describe("Whitelisting object properties", function() {
           {
             this.whitelist(meta, [
               "hasHandlerByField",
-              "getHandlerByField",
+              "getHandlerByName",
               "convertArgumentToProxy",
               "warnOnce"
             ]);
@@ -8031,7 +8031,7 @@ describe("Whitelisting object properties", function() {
   
       expect(function() {
         const dryWetMB = new DMembrane();
-        const wetHandler = dryWetMB.getHandlerByField("wet", true);
+        const wetHandler = dryWetMB.getHandlerByName("wet", true);
       }).not.toThrow();
     }
   );
@@ -8626,8 +8626,8 @@ describe(
 
     beforeEach(function() {
       membrane = new Membrane();
-      wetHandler = membrane.getHandlerByField("wet", true);
-      dryHandler = membrane.getHandlerByField("dry", true);
+      wetHandler = membrane.getHandlerByName("wet", true);
+      dryHandler = membrane.getHandlerByName("dry", true);
       dryVoid = membrane.convertArgumentToProxy(
         wetHandler,
         dryHandler,

@@ -111,7 +111,7 @@ MembraneInternal.prototype = Object.seal({
         throw new Error("field must be a string or a symbol!");
     }
 
-    let handler = this.getHandlerByField(field);
+    let handler = this.getHandlerByName(field);
     if (!handler)
       throw new Error("We don't have an ObjectGraphHandler with that name!");
 
@@ -171,7 +171,7 @@ MembraneInternal.prototype = Object.seal({
    *
    * @returns {ObjectGraphHandler} The handler for the object graph.
    */
-  getHandlerByField: function(field, mustCreate = false) {
+  getHandlerByName: function(field, mustCreate = false) {
     if (mustCreate && !this.hasHandlerByField(field))
       this.handlersByFieldName[field] = new ObjectGraphHandler(this, field);
     return this.handlersByFieldName[field];
@@ -203,7 +203,7 @@ MembraneInternal.prototype = Object.seal({
     if (ChainHandlers.has(handler))
       handler = handler.baseHandler;
     if (!(handler instanceof ObjectGraphHandler) ||
-        (handler !== this.getHandlerByField(handler.fieldName)))
+        (handler !== this.getHandlerByName(handler.fieldName)))
       throw new Error("wrapArgumentByHandler:  handler mismatch");
     const type = valueType(arg);
     if (type == "primitive")
@@ -252,7 +252,7 @@ MembraneInternal.prototype = Object.seal({
     if (this.map.has(arg) || (valueType(arg) === "primitive"))
       return;
 
-    let handler = this.getHandlerByField(mapping.originField);
+    let handler = this.getHandlerByName(mapping.originField);
     this.wrapArgumentByHandler(handler, arg, options);
     
     assert(this.map.has(arg),
@@ -462,8 +462,8 @@ MembraneInternal.prototype = Object.seal({
         return desc;
     }
 
-    var originHandler = this.getHandlerByField(originField);
-    var targetHandler = this.getHandlerByField(targetField);
+    var originHandler = this.getHandlerByName(originField);
+    var targetHandler = this.getHandlerByName(targetField);
     var membrane = this;
 
     ["value", "get", "set"].forEach(function(descProp) {

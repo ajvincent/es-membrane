@@ -531,8 +531,8 @@ describe("Whitelisting object properties", function() {
     function() {
       const Dogfood = new Membrane();
 
-      const publicAPI   = Dogfood.getHandlerByField("public", true);
-      const internalAPI = Dogfood.getHandlerByField("internal", true);
+      const publicAPI   = Dogfood.getHandlerByName("public", true);
+      const internalAPI = Dogfood.getHandlerByName("internal", true);
 
       // lockdown of the public API here
       const mbListener = {
@@ -566,7 +566,7 @@ describe("Whitelisting object properties", function() {
           {
             this.whitelist(meta, [
               "hasHandlerByField",
-              "getHandlerByField",
+              "getHandlerByName",
               "convertArgumentToProxy",
               "warnOnce"
             ]);
@@ -596,7 +596,7 @@ describe("Whitelisting object properties", function() {
   
       expect(function() {
         const dryWetMB = new DMembrane();
-        const wetHandler = dryWetMB.getHandlerByField("wet", true);
+        const wetHandler = dryWetMB.getHandlerByName("wet", true);
       }).not.toThrow();
     }
   );

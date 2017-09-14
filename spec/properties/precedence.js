@@ -49,7 +49,7 @@ describe(
       dryDocument  = null;
       wetDocument  = null;
 
-      membrane.getHandlerByField("dry").revokeEverything();
+      membrane.getHandlerByName("dry").revokeEverything();
       membrane = null;
       parts    = null;
     });
@@ -166,7 +166,7 @@ describe(
       dryDocument  = null;
       wetDocument  = null;
 
-      membrane.getHandlerByField("dry").revokeEverything();
+      membrane.getHandlerByName("dry").revokeEverything();
       membrane = null;
       parts    = null;
     });

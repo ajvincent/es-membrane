@@ -48,8 +48,8 @@ let FreezeSealMocks = function(defineListeners, adjustParts) {
 
   parts.wet.b.instance = 1;
 
-  parts.handlers.wet = parts.membrane.getHandlerByField("wet", true);
-  parts.handlers.dry = parts.membrane.getHandlerByField("dry", true);
+  parts.handlers.wet = parts.membrane.getHandlerByName("wet", true);
+  parts.handlers.dry = parts.membrane.getHandlerByName("dry", true);
 
   defineListeners(parts);
 

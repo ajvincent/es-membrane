@@ -645,7 +645,7 @@ MembraneInternal.prototype = Object.seal({
         throw new Error("field must be a string or a symbol!");
     }
 
-    let handler = this.getHandlerByField(field);
+    let handler = this.getHandlerByName(field);
     if (!handler)
       throw new Error("We don't have an ObjectGraphHandler with that name!");
 
@@ -705,7 +705,7 @@ MembraneInternal.prototype = Object.seal({
    *
    * @returns {ObjectGraphHandler} The handler for the object graph.
    */
-  getHandlerByField: function(field, mustCreate = false) {
+  getHandlerByName: function(field, mustCreate = false) {
     if (mustCreate && !this.hasHandlerByField(field))
       this.handlersByFieldName[field] = new ObjectGraphHandler(this, field);
     return this.handlersByFieldName[field];
@@ -737,7 +737,7 @@ MembraneInternal.prototype = Object.seal({
     if (ChainHandlers.has(handler))
       handler = handler.baseHandler;
     if (!(handler instanceof ObjectGraphHandler) ||
-        (handler !== this.getHandlerByField(handler.fieldName)))
+        (handler !== this.getHandlerByName(handler.fieldName)))
       throw new Error("wrapArgumentByHandler:  handler mismatch");
     const type = valueType(arg);
     if (type == "primitive")
@@ -786,7 +786,7 @@ MembraneInternal.prototype = Object.seal({
     if (this.map.has(arg) || (valueType(arg) === "primitive"))
       return;
 
-    let handler = this.getHandlerByField(mapping.originField);
+    let handler = this.getHandlerByName(mapping.originField);
     this.wrapArgumentByHandler(handler, arg, options);
     
     assert(this.map.has(arg),
@@ -996,8 +996,8 @@ MembraneInternal.prototype = Object.seal({
         return desc;
     }
 
-    var originHandler = this.getHandlerByField(originField);
-    var targetHandler = this.getHandlerByField(targetField);
+    var originHandler = this.getHandlerByName(originField);
+    var targetHandler = this.getHandlerByName(targetField);
     var membrane = this;
 
     ["value", "get", "set"].forEach(function(descProp) {
@@ -1501,7 +1501,7 @@ ObjectGraphHandler.prototype = Object.seal({
       let proxy;
       if (targetMap.originField !== this.fieldName)
         proxy = this.membrane.convertArgumentToProxy(
-          this.membrane.getHandlerByField(targetMap.originField),
+          this.membrane.getHandlerByName(targetMap.originField),
           this,
           proto
         );
@@ -1902,7 +1902,7 @@ ObjectGraphHandler.prototype = Object.seal({
       // We may be under construction.
       let proto = Object.getPrototypeOf(receiver);
       let protoMap = this.membrane.map.get(proto);
-      let pHandler = this.membrane.getHandlerByField(protoMap.originField);
+      let pHandler = this.membrane.getHandlerByName(protoMap.originField);
 
       if (this.membrane.map.has(receiver)) {
         /* XXX ajvincent If you're stepping through in a debugger, the debugger
@@ -1958,7 +1958,7 @@ ObjectGraphHandler.prototype = Object.seal({
           // Only now do we convert the value to the target object graph.
           this.membrane.convertArgumentToProxy(
             this,
-            this.membrane.getHandlerByField(receiverMap.originField),
+            this.membrane.getHandlerByName(receiverMap.originField),
             value
           ),
           true
@@ -1993,7 +1993,7 @@ ObjectGraphHandler.prototype = Object.seal({
       // Only now do we convert the value to the target object graph.
       let rvProxy = this.membrane.convertArgumentToProxy(
         this,
-        this.membrane.getHandlerByField(receiverMap.originField),
+        this.membrane.getHandlerByName(receiverMap.originField),
         value
       );
       this.apply(this.getShadowTarget(setter), receiver, [ rvProxy ]);
@@ -2024,7 +2024,7 @@ ObjectGraphHandler.prototype = Object.seal({
       if (targetMap.originField !== this.fieldName) {
         protoProxy = this.membrane.convertArgumentToProxy(
           this,
-          this.membrane.getHandlerByField(targetMap.originField),
+          this.membrane.getHandlerByName(targetMap.originField),
           proto
         );
         [found, wrappedProxy] = this.membrane.getMembraneProxy(
@@ -2062,7 +2062,7 @@ ObjectGraphHandler.prototype = Object.seal({
     var target = getRealTarget(shadowTarget);
     var _this, args = [];
     let targetMap  = this.membrane.map.get(target);
-    let argHandler = this.membrane.getHandlerByField(targetMap.originField);
+    let argHandler = this.membrane.getHandlerByName(targetMap.originField);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -2174,7 +2174,7 @@ ObjectGraphHandler.prototype = Object.seal({
     var target = getRealTarget(shadowTarget);
     var args = [];
     let targetMap  = this.membrane.map.get(target);
-    let argHandler = this.membrane.getHandlerByField(targetMap.originField);
+    let argHandler = this.membrane.getHandlerByName(targetMap.originField);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -2702,7 +2702,7 @@ ObjectGraphHandler.prototype = Object.seal({
           const target = getRealTarget(shadowTarget);
           const targetMap = handler.membrane.map.get(target);
           if (targetMap.originField !== handler.fieldName) {
-            let originHandler = handler.membrane.getHandlerByField(
+            let originHandler = handler.membrane.getHandlerByName(
               targetMap.originField
             );
             value = handler.membrane.convertArgumentToProxy(
@@ -3188,7 +3188,7 @@ ModifyRulesAPI.prototype = Object.seal({
       if (!this.membrane.ownsHandler(existingHandler)) 
         throw new Error("fieldName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
 
-      baseHandler = this.membrane.getHandlerByField(existingHandler.fieldName);
+      baseHandler = this.membrane.getHandlerByName(existingHandler.fieldName);
       description = "our membrane's " + baseHandler.fieldName + " ObjectGraphHandler";
     }
 
@@ -3241,7 +3241,7 @@ ModifyRulesAPI.prototype = Object.seal({
       }
       else if (baseHandler instanceof ObjectGraphHandler) {
         let fieldName = baseHandler.fieldName;
-        let ownedHandler = this.membrane.getHandlerByField(fieldName);
+        let ownedHandler = this.membrane.getHandlerByName(fieldName);
         accepted = ownedHandler === baseHandler;
       }
 
@@ -3288,7 +3288,7 @@ ModifyRulesAPI.prototype = Object.seal({
     map.set(this.membrane, cachedField, parts);
     makeRevokeDeleteRefs(parts, map, cachedField);
 
-    let gHandler = this.membrane.getHandlerByField(cachedField);
+    let gHandler = this.membrane.getHandlerByName(cachedField);
     gHandler.addRevocable(map.originField === cachedField ? map : parts.revoke);
     return parts.proxy;
   },
@@ -3452,8 +3452,8 @@ if (false) {
    */
   DogfoodMembrane.ProxyToMembraneMap = new WeakSet();
 
-  let publicAPI   = DogfoodMembrane.getHandlerByField("public", true);
-  let internalAPI = DogfoodMembrane.getHandlerByField("internal", true);
+  let publicAPI   = DogfoodMembrane.getHandlerByName("public", true);
+  let internalAPI = DogfoodMembrane.getHandlerByName("internal", true);
 
   // lockdown of the public API here
 

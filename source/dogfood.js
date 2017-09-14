@@ -39,8 +39,8 @@ if (false) {
    */
   DogfoodMembrane.ProxyToMembraneMap = new WeakSet();
 
-  let publicAPI   = DogfoodMembrane.getHandlerByField("public", true);
-  let internalAPI = DogfoodMembrane.getHandlerByField("internal", true);
+  let publicAPI   = DogfoodMembrane.getHandlerByName("public", true);
+  let internalAPI = DogfoodMembrane.getHandlerByName("internal", true);
 
   // lockdown of the public API here
 

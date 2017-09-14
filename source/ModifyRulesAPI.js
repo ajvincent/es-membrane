@@ -124,7 +124,7 @@ ModifyRulesAPI.prototype = Object.seal({
       if (!this.membrane.ownsHandler(existingHandler)) 
         throw new Error("fieldName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
 
-      baseHandler = this.membrane.getHandlerByField(existingHandler.fieldName);
+      baseHandler = this.membrane.getHandlerByName(existingHandler.fieldName);
       description = "our membrane's " + baseHandler.fieldName + " ObjectGraphHandler";
     }
 
@@ -177,7 +177,7 @@ ModifyRulesAPI.prototype = Object.seal({
       }
       else if (baseHandler instanceof ObjectGraphHandler) {
         let fieldName = baseHandler.fieldName;
-        let ownedHandler = this.membrane.getHandlerByField(fieldName);
+        let ownedHandler = this.membrane.getHandlerByName(fieldName);
         accepted = ownedHandler === baseHandler;
       }
 
@@ -224,7 +224,7 @@ ModifyRulesAPI.prototype = Object.seal({
     map.set(this.membrane, cachedField, parts);
     makeRevokeDeleteRefs(parts, map, cachedField);
 
-    let gHandler = this.membrane.getHandlerByField(cachedField);
+    let gHandler = this.membrane.getHandlerByName(cachedField);
     gHandler.addRevocable(map.originField === cachedField ? map : parts.revoke);
     return parts.proxy;
   },

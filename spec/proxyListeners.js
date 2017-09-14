@@ -32,8 +32,8 @@ describe("An object graph handler's proxy listeners", function() {
 
   beforeEach(function() {
     membrane = new Membrane({logger: logger});
-    wetHandler = membrane.getHandlerByField("wet", true);
-    dryHandler = membrane.getHandlerByField("dry", true);
+    wetHandler = membrane.getHandlerByName("wet", true);
+    dryHandler = membrane.getHandlerByName("dry", true);
 
     appender = new loggerLib.Appender();
     logger.addAppender(appender);

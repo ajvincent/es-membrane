@@ -2,7 +2,7 @@
 var ElementDry, NodeDry, dryDocument;
 {
   // Establish proxy handler for "dry" mode.
-  let dryHandler = dryWetMB.getHandlerByField("dry", true);
+  let dryHandler = dryWetMB.getHandlerByName("dry", true);
   Mocks.handlers.dry = dryHandler;
   Mocks.dry = {};
 
@@ -36,7 +36,7 @@ var ElementDry, NodeDry, dryDocument;
 }
 
 {
-  let dryHandler = dryWetMB.getHandlerByField("dry");
+  let dryHandler = dryWetMB.getHandlerByName("dry");
   dryWetMB.wrapArgumentByHandler(dryHandler, ElementWet);
   let found;
   [found, ElementDry] = dryWetMB.getMembraneProxy("dry", ElementWet);
@@ -46,7 +46,7 @@ var ElementDry, NodeDry, dryDocument;
 }
 
 {
-  let dryHandler = dryWetMB.getHandlerByField("dry");
+  let dryHandler = dryWetMB.getHandlerByName("dry");
   dryWetMB.wrapArgumentByHandler(dryHandler, NodeWet);
   let found;
   [found, NodeDry] = dryWetMB.getMembraneProxy("dry", NodeWet);

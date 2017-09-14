@@ -21,7 +21,7 @@ describe("replacing proxies tests: ", function() {
   beforeEach(function() {
     parts = MembraneMocks();
     membrane = parts.membrane;
-    dryHandler = membrane.getHandlerByField("dry");
+    dryHandler = membrane.getHandlerByName("dry");
     replacedProxy = null;
   });
   afterEach(function() {
@@ -283,7 +283,7 @@ describe("replacing proxies tests: ", function() {
       "with a proxy inheriting from the wet object graph does not work",
       function() {
         let wetDocument = parts.wet.doc;
-        let wetHandler = membrane.getHandlerByField("wet");
+        let wetHandler = membrane.getHandlerByName("wet");
         let found, wetProxy;
 
         expect(function() {

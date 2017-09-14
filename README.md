@@ -163,10 +163,10 @@ var dryWetMB = new Membrane({
 });
 
 // Establish "wet" ObjectGraphHandler.
-var wetHandler = dryWetMB.getHandlerByField("wet", true);
+var wetHandler = dryWetMB.getHandlerByName("wet", true);
 
 // Establish "dry" ObjectGraphHandler.
-var dryHandler = dryWetMB.getHandlerByField("dry", true);
+var dryHandler = dryWetMB.getHandlerByName("dry", true);
 
 // Establish "wet" view of an object.
 // Get a "dry" view of the same object.
@@ -248,7 +248,7 @@ That's why the throwException() method exists:  to make it clear that you intend
 
 * The Membrane's prototype methods provide API for getting unique
 ObjectGraphHandler instances:
-  * .getHandlerByField(graphName, mustCreate = false)
+  * .getHandlerByName(graphName, mustCreate = false)
   * .ownsHandler(handler)
 * The Membrane's prototype also manages access to ProxyMapping instances, which as we stated above match proxies to original values in an one-to-one relationship.
   * .hasProxyForValue(field, value)

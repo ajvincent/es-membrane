@@ -1,5 +1,5 @@
 function dampObjectGraph(parts) {
-  parts.handlers[DAMP] = parts.membrane.getHandlerByField(DAMP, true);
+  parts.handlers[DAMP] = parts.membrane.getHandlerByName(DAMP, true);
 
   if (typeof mockOptions.dampHandlerCreated == "function")
     mockOptions.dampHandlerCreated(parts.handlers[DAMP], parts);

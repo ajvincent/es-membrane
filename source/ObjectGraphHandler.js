@@ -408,7 +408,7 @@ ObjectGraphHandler.prototype = Object.seal({
       let proxy;
       if (targetMap.originField !== this.fieldName)
         proxy = this.membrane.convertArgumentToProxy(
-          this.membrane.getHandlerByField(targetMap.originField),
+          this.membrane.getHandlerByName(targetMap.originField),
           this,
           proto
         );
@@ -809,7 +809,7 @@ ObjectGraphHandler.prototype = Object.seal({
       // We may be under construction.
       let proto = Object.getPrototypeOf(receiver);
       let protoMap = this.membrane.map.get(proto);
-      let pHandler = this.membrane.getHandlerByField(protoMap.originField);
+      let pHandler = this.membrane.getHandlerByName(protoMap.originField);
 
       if (this.membrane.map.has(receiver)) {
         /* XXX ajvincent If you're stepping through in a debugger, the debugger
@@ -865,7 +865,7 @@ ObjectGraphHandler.prototype = Object.seal({
           // Only now do we convert the value to the target object graph.
           this.membrane.convertArgumentToProxy(
             this,
-            this.membrane.getHandlerByField(receiverMap.originField),
+            this.membrane.getHandlerByName(receiverMap.originField),
             value
           ),
           true
@@ -900,7 +900,7 @@ ObjectGraphHandler.prototype = Object.seal({
       // Only now do we convert the value to the target object graph.
       let rvProxy = this.membrane.convertArgumentToProxy(
         this,
-        this.membrane.getHandlerByField(receiverMap.originField),
+        this.membrane.getHandlerByName(receiverMap.originField),
         value
       );
       this.apply(this.getShadowTarget(setter), receiver, [ rvProxy ]);
@@ -931,7 +931,7 @@ ObjectGraphHandler.prototype = Object.seal({
       if (targetMap.originField !== this.fieldName) {
         protoProxy = this.membrane.convertArgumentToProxy(
           this,
-          this.membrane.getHandlerByField(targetMap.originField),
+          this.membrane.getHandlerByName(targetMap.originField),
           proto
         );
         [found, wrappedProxy] = this.membrane.getMembraneProxy(
@@ -969,7 +969,7 @@ ObjectGraphHandler.prototype = Object.seal({
     var target = getRealTarget(shadowTarget);
     var _this, args = [];
     let targetMap  = this.membrane.map.get(target);
-    let argHandler = this.membrane.getHandlerByField(targetMap.originField);
+    let argHandler = this.membrane.getHandlerByName(targetMap.originField);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -1081,7 +1081,7 @@ ObjectGraphHandler.prototype = Object.seal({
     var target = getRealTarget(shadowTarget);
     var args = [];
     let targetMap  = this.membrane.map.get(target);
-    let argHandler = this.membrane.getHandlerByField(targetMap.originField);
+    let argHandler = this.membrane.getHandlerByName(targetMap.originField);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -1609,7 +1609,7 @@ ObjectGraphHandler.prototype = Object.seal({
           const target = getRealTarget(shadowTarget);
           const targetMap = handler.membrane.map.get(target);
           if (targetMap.originField !== handler.fieldName) {
-            let originHandler = handler.membrane.getHandlerByField(
+            let originHandler = handler.membrane.getHandlerByName(
               targetMap.originField
             );
             value = handler.membrane.convertArgumentToProxy(
