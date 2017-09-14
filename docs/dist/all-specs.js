@@ -7150,28 +7150,28 @@ describe("Filtering own keys ", function() {
   describe("with the wet object graph and wetDocument frozen", function() {
     defineFilteredTests(true, false);
     beforeEach(function() {
-      Object.seal(wetDocument);
+      Object.freeze(wetDocument);
     });
   });
 
   describe("with the wet object graph and dryDocument frozen", function() {
     defineFilteredTests(true, false);
     beforeEach(function() {
-      Object.seal(dryDocument);
+      Object.freeze(dryDocument);
     });
   });
 
   describe("with the dry object graph and wetDocument frozen", function() {
     defineFilteredTests(false, true);
     beforeEach(function() {
-      Object.seal(wetDocument);
+      Object.freeze(wetDocument);
     });
   });
 
   describe("with the dry object graph and dryDocument frozen", function() {
     defineFilteredTests(false, true);
     beforeEach(function() {
-      Object.seal(dryDocument);
+      Object.freeze(dryDocument);
     });
   });
 
