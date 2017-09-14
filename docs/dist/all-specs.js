@@ -5303,7 +5303,7 @@ describe("Storing unknown properties locally", function() {
     });
   }
 
-  describe("when required by the dry object graph, ObjectGraphHandler(dry).", function() {
+  describe("when required by the dry object graph, ", function() {
     beforeEach(function() {
       membrane.modifyRules.storeUnknownAsLocal("dry", parts.dry.Node.prototype);
     });
@@ -5321,7 +5321,7 @@ describe("Storing unknown properties locally", function() {
   });
 
   describe(
-    "when required by both the wet and the dry object graphs, ObjectGraphHandler(dry).",
+    "when required by both the wet and the dry object graphs, ",
     function() {
       beforeEach(function() {
         membrane.buildMapping("wet", parts.wet.Node.prototype);
@@ -8569,8 +8569,36 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
       exerciseDoc(parts.dry.doc, 2);
 
       /* You would think that the shadow targets offer faster operation.
-       * Experimentation, though, shows the difference to be negligible.
+       * Experimentation, though, shows the difference to be negligible, or that
+       * it is often slower.
        */
+      /*
+      if (typeof performance !== "object")
+        return;
+
+      let slow = 0, fast = 0;
+      for (let i = 0; i < 100; i++) {
+        performance.clearMarks();
+        performance.clearMeasures();
+        performance.mark("start");
+        exerciseDoc(parts[DAMP].doc, 100);
+        performance.mark("middle");
+        exerciseDoc(parts.dry.doc, 100);
+        performance.mark("end");
+
+        performance.measure("timings", "start", "middle");
+        performance.measure("timings", "middle", "end");
+
+        let measures = performance.getEntriesByName("timings");
+        slow += measures[0].duration;
+        fast += measures[1].duration;
+      }
+
+      performance.clearMarks();
+      performance.clearMeasures();
+
+      console.log("slow path: " + (slow) + ", fast path: " + (fast));
+      */
     }
 
     buildTests(false, voidFunc, secondDryListener, extraTests);
