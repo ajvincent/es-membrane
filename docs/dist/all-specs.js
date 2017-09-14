@@ -6176,7 +6176,26 @@ describe("Deleting properties locally", function() {
     }
   );
 });
-"use strict"
+/**
+ * @fileoverview
+ *
+ * This defines a common set of tests for a large number of scenarios involving
+ * filtering of "own keys".  The basic tests are in definePropertyTests().  The
+ * various conditions, through combinatorics, ensure the filtering works in
+ * any practical scenario.
+ *
+ * Everything before definePropertyTests is infrastructure used in the tests.
+ *
+ * Everything after definePropertyTests sets up conditions for each round of
+ * tests, in a nested pattern.  Here is (roughly) the stack trace for the test
+ * rounds:
+ *
+ * definePropertyTests
+ * defineTestSet
+ * defineTestsByFilter
+ * defineTestsByObjectGraph
+ * defineTestsBySealant
+ */
 
 if ((typeof MembraneMocks != "function") ||
     (typeof DAMP != "symbol") ||
@@ -6201,6 +6220,30 @@ if ((typeof DataDescriptor != "function") ||
 }
 
 describe("Filtering own keys ", function() {
+  "use strict";
+  /* XXX ajvincent These tests have grown very complex, even for me.
+   * To debug a specific test may require several steps:
+   * (1) Set the if (false) condition below to true.
+   * (2) In the "defineTests" functions,
+     beforeEach(function() {
+       debugConditions.add(foo);
+     });
+   * 
+   * (3) In the actual test:
+     if (debugConditions.has(foo) && debugConditions.has(bar)...)
+       debugger;
+   */
+  const debugConditions = new Set();
+  if (false) {
+    afterEach(function() {
+      debugConditions.clear();
+    });
+  }
+
+  //{ infrastructure
+
+  function voidFunc() {}
+
   function fixKeys(keys) {
     if (keys.includes("membraneGraphName"))
       keys.splice(keys.indexOf("membraneGraphName"), 1);
@@ -6216,6 +6259,27 @@ describe("Filtering own keys ", function() {
     }
     return true;
   }
+
+  // In theory, an array or set should behave just like a whitelist filter.
+  const keysAsArray = [
+    "ownerDocument",
+    "childNodes",
+    "nodeType",
+    "nodeName",
+    "parentNode",
+    "firstChild",
+    "baseURL",
+    "addEventListener",
+    "dispatchEvent",
+    "membraneGraphName",
+
+    "extra" // to test whitelisted properties that aren't defined
+  ];
+  Object.freeze(keysAsArray);
+
+  const keysAsSet = new Set();
+  keysAsArray.forEach((key) => keysAsSet.add(key));
+  Object.freeze(keysAsSet);
 
   var extraDesc = new DataDescriptor(3, true, true, true);
   var extraDesc2 = new DataDescriptor(4, true, true, true);
@@ -6274,30 +6338,34 @@ describe("Filtering own keys ", function() {
       );
     }
   }
+  
+  function sealWetDocument() {
+    Object.seal(wetDocument);
+  }
+  function sealDryDocument() {
+    Object.seal(dryDocument);
+  }
+  function freezeWetDocument() {
+    Object.freeze(wetDocument);
+  }
+  function freezeDryDocument() {
+    Object.freeze(dryDocument);
+  }
 
-  function defineFilteredTests(filterWet = false, filterDry = false) {
-    beforeEach(function() {
-      if (filterWet)
-        membrane.modifyRules.filterOwnKeys("wet", wetDocument, BlacklistFilter);
-      if (filterDry)
-        membrane.modifyRules.filterOwnKeys("dry", dryDocument, BlacklistFilter);
-    });
+  //} end infrastructure
 
+  function definePropertyTests(modifyFilter) {
     function rebuildMocksWithLogger() {
       clearParts();
       appender.clear();
       parts = MembraneMocks(true, logger);
       setParts();
-      if (filterWet)
-        membrane.modifyRules.filterOwnKeys("wet", wetDocument, BlacklistFilter);
-      if (filterDry)
-        membrane.modifyRules.filterOwnKeys("dry", dryDocument, BlacklistFilter);
+      modifyFilter();
     }
 
     it(
       "hides defined properties from getters",
       function() {
-        const isExtensible = Reflect.isExtensible(dryDocument);
         let keys = Reflect.ownKeys(dryDocument);
         fixKeys(keys);
         expect(keys.includes("nodeType")).toBe(true);
@@ -6347,7 +6415,7 @@ describe("Filtering own keys ", function() {
         var keys;
   
         // Set extra initially to 3.
-        const isExtensible = Reflect.isExtensible(wetDocument)
+        const isExtensible = Reflect.isExtensible(wetDocument);
         expect(
           Reflect.defineProperty(dryDocument, "extra", extraDesc)
         ).toBe(isExtensible);
@@ -6629,19 +6697,25 @@ describe("Filtering own keys ", function() {
           "when the property was previously defined on the wet graph as configurable",
           function() {
             // Set extra initially to 3.
-            Reflect.defineProperty(wetDocument, "blacklisted", extraDesc);
+            const wasDefined = Reflect.defineProperty(
+              wetDocument, "blacklisted", extraDesc
+            );
             appender.clear();
             expect(
               Reflect.deleteProperty(dryDocument, "blacklisted")
             ).toBe(true);
             checkDeleted();
-            checkAppenderForWarning();
-  
+
+            if (wasDefined)
+              checkAppenderForWarning();
+            else
+              expect(appender.events.length).toBe(0);
+
             // Test that the delete didn't propagate through.
             let desc = Reflect.getOwnPropertyDescriptor(
               wetDocument, "blacklisted"
             );
-            expect(desc).not.toBe(undefined);
+            expect(Boolean(desc)).toBe(wasDefined);
             if (desc) {
               expect(desc.value).toBe(3);
             }
@@ -6652,7 +6726,7 @@ describe("Filtering own keys ", function() {
           "when the property was previously defined on the wet graph as non-configurable",
           function() {
             // Set extra initially to 3.
-            Reflect.defineProperty(wetDocument, "blacklisted", {
+            const wasDefined = Reflect.defineProperty(wetDocument, "blacklisted", {
               value: 3,
               writable: true,
               enumerable: true,
@@ -6663,13 +6737,17 @@ describe("Filtering own keys ", function() {
               Reflect.deleteProperty(dryDocument, "blacklisted")
             ).toBe(true);
             checkDeleted();
-            checkAppenderForWarning();
+
+            if (wasDefined)
+              checkAppenderForWarning();
+            else
+              expect(appender.events.length).toBe(0);
   
             // Test that the delete didn't propagate through.
             let desc = Reflect.getOwnPropertyDescriptor(
               wetDocument, "blacklisted"
             );
-            expect(desc).not.toBe(undefined);
+            expect(Boolean(desc)).toBe(wasDefined);
             if (desc) {
               expect(desc.value).toBe(3);
             }
@@ -6685,16 +6763,65 @@ describe("Filtering own keys ", function() {
     );
   }
 
-  describe("with the wet object graph:", function() {
-    defineFilteredTests(true, false);
-  });
+  function defineTestSet(
+    filterWet, filterDry, filterObj, descTail, beforeTail
+  )
+  {
+    function modifyFilter() {
+      if (filterWet)
+        membrane.modifyRules.filterOwnKeys("wet", wetDocument, filterObj);
+      if (filterDry)
+        membrane.modifyRules.filterOwnKeys("dry", dryDocument, filterObj);
+    }
 
-  describe("with the dry object graph:", function() {
-    defineFilteredTests(false, true);
-  });
+    describe("and with a " + descTail, function() {
+      /* XXX ajvincent It turns out the order of beforeEach() calls matters.
+         If we tried to seal a mock document before the filter was in
+         place, the tests become inconsistent.  Another test at the end of this
+         file ensures that a filter does not apply to a sealed document.
+      */
+
+      beforeEach(modifyFilter);
+      definePropertyTests(modifyFilter);
+      beforeEach(beforeTail);
+    });
+  }
+
+  function defineTestsByFilter(filterWet, filterDry, beforeTail) {
+    defineTestSet(
+      filterWet, filterDry, BlacklistFilter, "blacklist function", beforeTail
+    );
+
+    defineTestSet(
+      filterWet, filterDry, keysAsArray, "whitelist array", beforeTail
+    );
+    defineTestSet(
+      filterWet, filterDry, keysAsSet, "whitelist set", beforeTail
+    );
+  }
+  
+  function defineTestsByObjectGraph(graphName, beforeTail) {
+    const isWet = graphName === "wet";
+    describe(`with the ${graphName} object graph`, function() {
+      defineTestsByFilter(isWet, !isWet, beforeTail);
+    });
+  }
+  
+  function defineTestsBySealant(sealTail) {
+    defineTestsByObjectGraph("wet", sealTail);
+    defineTestsByObjectGraph("dry", sealTail);
+  }
+
+  [
+    voidFunc,
+    sealWetDocument,
+    sealDryDocument,
+    freezeWetDocument,
+    freezeDryDocument,
+  ].forEach(defineTestsBySealant);
 
   describe("with the wet and dry object graphs", function() {
-    defineFilteredTests(true, true);
+    defineTestsByFilter(true, true, voidFunc);
   });
 
   describe("with the damp object graph (not affecting dry or wet)", function() {
@@ -7110,71 +7237,6 @@ describe("Filtering own keys ", function() {
     );
   });
 
-  describe("with the wet object graph and wetDocument sealed", function() {
-    defineFilteredTests(true, false);
-    beforeEach(function() {
-      Object.seal(wetDocument);
-    });
-  });
-
-  describe("with the wet object graph and dryDocument sealed", function() {
-    defineFilteredTests(true, false);
-
-    /* XXX ajvincent It turns out the order of beforeEach() calls matters here.
-       defineFilteredTests installs a beforeEach which sets a filter.
-       This beforeEach seals the dryDocument and thus locks in the set of
-       ownKeys.  If we tried to seal the dryDocument before the filter was in
-       place, the tests become inconsistent.  This will be disallowed in another
-       test.
-    */
-
-    beforeEach(function() {
-      Object.seal(dryDocument);
-    });
-  });
-
-  describe("with the dry object graph and wetDocument sealed", function() {
-    defineFilteredTests(false, true);
-    beforeEach(function() {
-      Object.seal(wetDocument);
-    });
-  });
-
-  describe("with the dry object graph and dryDocument sealed", function() {
-    defineFilteredTests(false, true);
-    beforeEach(function() {
-      Object.seal(dryDocument);
-    });
-  });
-
-  describe("with the wet object graph and wetDocument frozen", function() {
-    defineFilteredTests(true, false);
-    beforeEach(function() {
-      Object.freeze(wetDocument);
-    });
-  });
-
-  describe("with the wet object graph and dryDocument frozen", function() {
-    defineFilteredTests(true, false);
-    beforeEach(function() {
-      Object.freeze(dryDocument);
-    });
-  });
-
-  describe("with the dry object graph and wetDocument frozen", function() {
-    defineFilteredTests(false, true);
-    beforeEach(function() {
-      Object.freeze(wetDocument);
-    });
-  });
-
-  describe("with the dry object graph and dryDocument frozen", function() {
-    defineFilteredTests(false, true);
-    beforeEach(function() {
-      Object.freeze(dryDocument);
-    });
-  });
-
   it("is disallowed when the proxy is known to be not extensible", function() {
     function checkKeys() {
       let keys = Reflect.ownKeys(dryDocument);
@@ -7188,6 +7250,7 @@ describe("Filtering own keys ", function() {
       membrane.modifyRules.filterOwnKeys("wet", wetDocument, BlacklistFilter);
     }).toThrow();
     checkKeys();
+
     expect(function() {
       membrane.modifyRules.filterOwnKeys("dry", dryDocument, BlacklistFilter);
     }).toThrow();

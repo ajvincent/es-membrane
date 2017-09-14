@@ -288,12 +288,20 @@ ModifyRulesAPI.prototype = Object.seal({
    *                                  the proxy uses.
    * @param proxy     {Proxy}    The proxy (or underlying object) needing local
    *                             property protection.
-   * @param filter    {Function} The filtering function.
+   * @param filter    {Function} The filtering function.  (May be an Array or
+   *                             a Set, which becomes a whitelist filter.)
    *
    * @see Array.prototype.filter.
    */
   filterOwnKeys: function(fieldName, proxy, filter) {
     this.assertLocalProxy(fieldName, proxy, "filterOwnKeys");
+    if (Array.isArray(filter)) {
+      filter = new Set(filter);
+    }
+    if (filter instanceof Set) {
+      const s = filter;
+      filter = (key) => s.has(key);
+    }
     if ((typeof filter !== "function") && (filter !== null))
       throw new Error("filterOwnKeys must be a filter function!");
 
