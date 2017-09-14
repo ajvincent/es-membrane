@@ -699,11 +699,17 @@ MembraneInternal.prototype = Object.seal({
    * Get an ObjectGraphHandler object by field name.  Build it if necessary.
    *
    * @param field      {Symbol|String}  The field name for the object graph.
-   * @param mustCreate {Boolean} True if we must create a missing graph handler.
+   * @param options    {Object} Broken down as follows:
+   * - mustCreate {Boolean} True if we must create a missing graph handler.
    *
    * @returns {ObjectGraphHandler} The handler for the object graph.
    */
-  getHandlerByName: function(field, mustCreate = false) {
+  getHandlerByName: function(field, options) {
+    if (typeof options === "boolean")
+      throw new Error("fix me!");
+    let mustCreate = (typeof options == "object") ?
+                     Boolean(options.mustCreate) :
+                     false;
     if (mustCreate && !this.hasHandlerByField(field))
       this.handlersByFieldName[field] = new ObjectGraphHandler(this, field);
     return this.handlersByFieldName[field];

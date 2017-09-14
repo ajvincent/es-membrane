@@ -10,7 +10,7 @@ Mocks.handlers = {};
 
 {
   // Establish "wet" view of document.
-  wetHandler = dryWetMB.getHandlerByName("wet", true);
+  wetHandler = dryWetMB.getHandlerByName("wet", { mustCreate: true });
   Mocks.handlers.wet = wetHandler;
   // Mocks.wet is established in wetDocument.js
 

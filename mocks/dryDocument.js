@@ -2,7 +2,7 @@
 var ElementDry, NodeDry, dryDocument;
 {
   // Establish proxy handler for "dry" mode.
-  let dryHandler = dryWetMB.getHandlerByName("dry", true);
+  let dryHandler = dryWetMB.getHandlerByName("dry", { mustCreate: true });
   Mocks.handlers.dry = dryHandler;
   Mocks.dry = {};
 

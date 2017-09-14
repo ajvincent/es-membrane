@@ -531,8 +531,12 @@ describe("Whitelisting object properties", function() {
     function() {
       const Dogfood = new Membrane();
 
-      const publicAPI   = Dogfood.getHandlerByName("public", true);
-      const internalAPI = Dogfood.getHandlerByName("internal", true);
+      const publicAPI   = Dogfood.getHandlerByName(
+        "public", { mustCreate: true }
+      );
+      const internalAPI = Dogfood.getHandlerByName(
+        "internal", { mustCreate: true }
+      );
 
       // lockdown of the public API here
       const mbListener = {
@@ -596,7 +600,9 @@ describe("Whitelisting object properties", function() {
   
       expect(function() {
         const dryWetMB = new DMembrane();
-        const wetHandler = dryWetMB.getHandlerByName("wet", true);
+        const wetHandler = dryWetMB.getHandlerByName(
+          "wet", { mustCreate: true }
+        );
       }).not.toThrow();
     }
   );
