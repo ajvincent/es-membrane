@@ -290,20 +290,59 @@ ModifyRulesAPI.prototype = Object.seal({
    *                             property protection.
    * @param filter    {Function} The filtering function.  (May be an Array or
    *                             a Set, which becomes a whitelist filter.)
+   * @param options   {Object} Broken down as follows:
+   * - inheritFilter: {Boolean} True if we should accept whatever the filter for
+   *                            Reflect.getPrototypeOf(proxy) accepts.
    *
    * @see Array.prototype.filter.
    */
-  filterOwnKeys: function(fieldName, proxy, filter) {
+  filterOwnKeys: function(fieldName, proxy, filter, options = {}) {
     this.assertLocalProxy(fieldName, proxy, "filterOwnKeys");
+
     if (Array.isArray(filter)) {
       filter = new Set(filter);
     }
+
     if (filter instanceof Set) {
       const s = filter;
       filter = (key) => s.has(key);
     }
+
     if ((typeof filter !== "function") && (filter !== null))
-      throw new Error("filterOwnKeys must be a filter function!");
+      throw new Error("filterOwnKeys must be a filter function, array or Set!");
+
+    if (filter &&
+        ("inheritFilter" in options) &&
+        (options.inheritFilter === true)) 
+    {
+      const firstFilter = filter;
+      const membrane = this.membrane;
+      filter = function(key) {
+        if (firstFilter(key))
+          return true;
+
+        const proto = Reflect.getPrototypeOf(proxy);
+        if (proto === null)
+          return false; // firstFilter is the final filter: reject
+
+        // XXX ajvincent unclear what we should do here if the assert fails
+        const pMapping = membrane.map.get(proto);
+        assert(pMapping instanceof ProxyMapping,
+               "Found prototype of membrane proxy, but it has no ProxyMapping!");
+
+        const nextFilter = pMapping.getOwnKeysFilter(fieldName);
+        if (!nextFilter) {
+          membrane.warnOnce(
+            membrane.constants.warnings.PROTOTYPE_FILTER_MISSING
+          );
+          return true; // prototype does no filtering of their own keys
+        }
+        if (nextFilter && !nextFilter(key))
+          return false;
+
+        return true;
+      };
+    }
 
     /* Defining a filter after a proxy's shadow target is not extensible
      * guarantees inconsistency.  So we must disallow that possibility.

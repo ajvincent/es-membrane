@@ -144,7 +144,8 @@ function AssertIsPropertyKey(propName) {
 
 const Constants = {
   warnings: {
-    FILTERED_KEYS_WITHOUT_LOCAL: "Filtering own keys without allowing local property defines or deletes is dangerous"
+    FILTERED_KEYS_WITHOUT_LOCAL: "Filtering own keys without allowing local property defines or deletes is dangerous",
+    PROTOTYPE_FILTER_MISSING: "Proxy filter specified to inherit from prototype, but prototype provides no filter",
   }
 };
 

@@ -7,7 +7,11 @@
  *
  * @private
  */
-function ProxyNotify(parts, handler, options = {}) {
+function ProxyNotify(parts, handler, options) {
+  "use strict";
+  if (typeof options === "undefined")
+    options = {};
+
   // private variables
   const listeners = handler.__proxyListeners__.slice(0);
   if (listeners.length === 0)
@@ -76,55 +80,8 @@ function ProxyNotify(parts, handler, options = {}) {
      *     available properties and for its prototype.
      */
     "useShadowTarget": new DataDescriptor(
-      function(mode) {
-        let newHandler = {};
-
-        if (mode === "frozen")
-          Object.freeze(parts.proxy);
-        else if (mode === "sealed")
-          Object.seal(parts.proxy);
-        else if (mode === "prepared") {
-          // Establish the list of own properties.
-          const keys = Reflect.ownKeys(parts.proxy);
-          keys.forEach(function(key) {
-            handler.defineLazyGetter(parts.value, parts.shadowTarget, key);
-          });
-
-          /* Establish the prototype.  (I tried using a lazy getPrototypeOf,
-           * but testing showed that fails a later test.)
-           */
-          let proto = handler.getPrototypeOf(parts.shadowTarget);
-          Reflect.setPrototypeOf(parts.shadowTarget, proto);
-
-          // Lazy preventExtensions.
-          newHandler.preventExtensions = function(st) {
-            var rv = handler.preventExtensions.apply(handler, [st]);
-            delete newHandler.preventExtensions;
-            return rv;
-          };
-        }
-        else {
-          throw new Error("useShadowTarget requires its first argument be 'frozen', 'sealed', or 'prepared'");
-        }
-
-        stopped = true;
-        if (typeof parts.shadowTarget == "function") {
-          newHandler.apply     = handler.boundMethods.apply;
-          newHandler.construct = handler.boundMethods.construct;
-        }
-        else if (Reflect.ownKeys(newHandler).length === 0)
-          newHandler = Reflect; // yay, maximum optimization
-
-        let newParts = Proxy.revocable(parts.shadowTarget, newHandler);
-        parts.proxy = newParts.proxy;
-        parts.revoke = newParts.revoke;
-
-        const masterMap = handler.membrane.map;
-        let map = masterMap.get(parts.value);
-        assert(map instanceof ProxyMapping,
-               "Didn't get a ProxyMapping for an existing value?");
-        masterMap.set(parts.proxy, map);
-        makeRevokeDeleteRefs(parts, map, handler.fieldName);
+      (mode) => {
+        ProxyNotify.useShadowTarget.apply(meta, [parts, handler, mode]);
       }
     ),
 
@@ -189,3 +146,58 @@ function ProxyNotify(parts, handler, options = {}) {
   }
   stopped = true;
 }
+
+ProxyNotify.useShadowTarget = function(parts, handler, mode) {
+  "use strict";
+  let newHandler = {};
+
+  if (mode === "frozen")
+    Object.freeze(parts.proxy);
+  else if (mode === "sealed")
+    Object.seal(parts.proxy);
+  else if (mode === "prepared") {
+    // Establish the list of own properties.
+    const keys = Reflect.ownKeys(parts.proxy);
+    keys.forEach(function(key) {
+      handler.defineLazyGetter(parts.value, parts.shadowTarget, key);
+    });
+
+    /* Establish the prototype.  (I tried using a lazy getPrototypeOf,
+     * but testing showed that fails a later test.)
+     */
+    let proto = handler.getPrototypeOf(parts.shadowTarget);
+    Reflect.setPrototypeOf(parts.shadowTarget, proto);
+
+    // Lazy preventExtensions.
+    newHandler.preventExtensions = function(st) {
+      var rv = handler.preventExtensions.apply(handler, [st]);
+      delete newHandler.preventExtensions;
+      return rv;
+    };
+  }
+  else {
+    throw new Error("useShadowTarget requires its first argument be 'frozen', 'sealed', or 'prepared'");
+  }
+
+  this.stopIteration();
+  if (typeof parts.shadowTarget == "function") {
+    newHandler.apply     = handler.boundMethods.apply;
+    newHandler.construct = handler.boundMethods.construct;
+  }
+  else if (Reflect.ownKeys(newHandler).length === 0)
+    newHandler = Reflect; // yay, maximum optimization
+
+  let newParts = Proxy.revocable(parts.shadowTarget, newHandler);
+  parts.proxy = newParts.proxy;
+  parts.revoke = newParts.revoke;
+
+  const masterMap = handler.membrane.map;
+  let map = masterMap.get(parts.value);
+  assert(map instanceof ProxyMapping,
+         "Didn't get a ProxyMapping for an existing value?");
+  masterMap.set(parts.proxy, map);
+  makeRevokeDeleteRefs(parts, map, handler.fieldName);
+};
+
+Object.freeze(ProxyNotify);
+Object.freeze(ProxyNotify.useShadowTarget);

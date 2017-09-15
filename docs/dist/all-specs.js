@@ -6249,7 +6249,7 @@ describe("Filtering own keys ", function() {
       keys.splice(keys.indexOf("membraneGraphName"), 1);
   }
 
-  function BlacklistFilter(name) {
+  function DocBlacklistFilter(name) {
     switch (name) {
       case "__events__":
       case "handleEventAtTarget":
@@ -6261,7 +6261,7 @@ describe("Filtering own keys ", function() {
   }
 
   // In theory, an array or set should behave just like a whitelist filter.
-  const keysAsArray = [
+  const docKeysAsArray = [
     "ownerDocument",
     "childNodes",
     "nodeType",
@@ -6272,14 +6272,17 @@ describe("Filtering own keys ", function() {
     "addEventListener",
     "dispatchEvent",
     "membraneGraphName",
+    "createElement",
+    "insertBefore",
+    "rootElement",
 
     "extra" // to test whitelisted properties that aren't defined
   ];
-  Object.freeze(keysAsArray);
+  Object.freeze(docKeysAsArray);
 
-  const keysAsSet = new Set();
-  keysAsArray.forEach((key) => keysAsSet.add(key));
-  Object.freeze(keysAsSet);
+  const docKeysAsSet = new Set();
+  docKeysAsArray.forEach((key) => docKeysAsSet.add(key));
+  Object.freeze(docKeysAsSet);
 
   var extraDesc = new DataDescriptor(3, true, true, true);
   var extraDesc2 = new DataDescriptor(4, true, true, true);
@@ -6328,13 +6331,13 @@ describe("Filtering own keys ", function() {
     expect(Reflect.get(dryDocument, "blacklisted")).toBe(undefined);
   }
 
-  function checkAppenderForWarning() {
+  function checkAppenderForWarning(wName) {
     expect(appender.events.length).toBe(1);
     if (appender.events.length > 0) {
       let event = appender.events[0];
       expect(event.level).toBe("WARN");
       expect(event.message).toBe(
-        membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL
+        membrane.constants.warnings[wName]
       );
     }
   }
@@ -6578,7 +6581,7 @@ describe("Filtering own keys ", function() {
           expect(dryDocument.blacklisted).toBe(undefined);
           expect(wetDocument.blacklisted).toBe(undefined);
 
-          checkAppenderForWarning();
+          checkAppenderForWarning("FILTERED_KEYS_WITHOUT_LOCAL");
         });
   
         it("where desc.configurable is true,", function() {
@@ -6589,7 +6592,7 @@ describe("Filtering own keys ", function() {
           expect(dryDocument.blacklisted).toBe(undefined);
           expect(wetDocument.blacklisted).toBe(undefined);
 
-          checkAppenderForWarning();
+          checkAppenderForWarning("FILTERED_KEYS_WITHOUT_LOCAL");
         });
       }
     );
@@ -6690,7 +6693,7 @@ describe("Filtering own keys ", function() {
         it("when the property was never defined", function() {
           expect(Reflect.deleteProperty(dryDocument, "blacklisted")).toBe(true);
           checkDeleted();
-          checkAppenderForWarning();
+          checkAppenderForWarning("FILTERED_KEYS_WITHOUT_LOCAL");
         });
 
         it(
@@ -6707,7 +6710,7 @@ describe("Filtering own keys ", function() {
             checkDeleted();
 
             if (wasDefined)
-              checkAppenderForWarning();
+              checkAppenderForWarning("FILTERED_KEYS_WITHOUT_LOCAL");
             else
               expect(appender.events.length).toBe(0);
 
@@ -6739,7 +6742,7 @@ describe("Filtering own keys ", function() {
             checkDeleted();
 
             if (wasDefined)
-              checkAppenderForWarning();
+              checkAppenderForWarning("FILTERED_KEYS_WITHOUT_LOCAL");
             else
               expect(appender.events.length).toBe(0);
   
@@ -6789,14 +6792,14 @@ describe("Filtering own keys ", function() {
 
   function defineTestsByFilter(filterWet, filterDry, beforeTail) {
     defineTestSet(
-      filterWet, filterDry, BlacklistFilter, "blacklist function", beforeTail
+      filterWet, filterDry, DocBlacklistFilter, "blacklist function", beforeTail
     );
 
     defineTestSet(
-      filterWet, filterDry, keysAsArray, "whitelist array", beforeTail
+      filterWet, filterDry, docKeysAsArray, "whitelist array", beforeTail
     );
     defineTestSet(
-      filterWet, filterDry, keysAsSet, "whitelist set", beforeTail
+      filterWet, filterDry, docKeysAsSet, "whitelist set", beforeTail
     );
   }
   
@@ -6826,7 +6829,7 @@ describe("Filtering own keys ", function() {
 
   describe("with the damp object graph (not affecting dry or wet)", function() {
     beforeEach(function() {
-      membrane.modifyRules.filterOwnKeys(DAMP, dampDocument, BlacklistFilter);
+      membrane.modifyRules.filterOwnKeys(DAMP, dampDocument, DocBlacklistFilter);
     });
 
     function rebuildMocksWithLogger() {
@@ -6834,7 +6837,7 @@ describe("Filtering own keys ", function() {
       appender.clear();
       parts = MembraneMocks(true, logger);
       setParts();
-      membrane.modifyRules.filterOwnKeys(DAMP, dampDocument, BlacklistFilter);
+      membrane.modifyRules.filterOwnKeys(DAMP, dampDocument, DocBlacklistFilter);
     }
 
     it(
@@ -7247,14 +7250,182 @@ describe("Filtering own keys ", function() {
     checkKeys();
 
     expect(function() {
-      membrane.modifyRules.filterOwnKeys("wet", wetDocument, BlacklistFilter);
+      membrane.modifyRules.filterOwnKeys("wet", wetDocument, DocBlacklistFilter);
     }).toThrow();
     checkKeys();
 
     expect(function() {
-      membrane.modifyRules.filterOwnKeys("dry", dryDocument, BlacklistFilter);
+      membrane.modifyRules.filterOwnKeys("dry", dryDocument, DocBlacklistFilter);
     }).toThrow();
     checkKeys();
+  });
+
+  /* XXX ajvincent The above tests are comprehensive enough.  This is about a
+   * change to the filtering function itself, to look up the prototype for an
+   * additional filter.
+   *
+   * For this reason, nothing is sealed or frozen in these tests.
+   */
+  describe("and allowing the prototype's filter to also apply", function() {
+    const inheritOption = Object.freeze({ inheritFilter: true });
+    const ElementInstanceFilterSet = new Set([
+      /* "nodeName" excluded to test filter at top level */
+      "nodeType",
+    ]);
+    const NodeInstanceFilterSet = new Set([
+      "childNodes",
+      "ownerDocument",
+      /* "parentNode" excluded to test filter at inherited level */
+    ]);
+
+    var root;
+
+    beforeEach(function() {
+      root = dryDocument.rootElement;
+
+      membrane.modifyRules.filterOwnKeys(
+        "dry", root, ElementInstanceFilterSet, inheritOption
+      );
+
+      membrane.modifyRules.filterOwnKeys(
+        "dry", parts.dry.Element.prototype, NodeInstanceFilterSet
+      );
+    });
+
+    afterEach(function() {
+      root = null;
+    });
+
+    it(
+      "shows properties allowed by the directly applied filter",
+      function() {
+        membrane.modifyRules.filterOwnKeys(
+          "dry", parts.dry.Element.prototype, NodeInstanceFilterSet
+        );
+
+        let keys = Reflect.ownKeys(root);
+        fixKeys(keys);
+
+        expect(keys.includes("nodeType")).toBe(true);
+        {
+          let desc = Reflect.getOwnPropertyDescriptor(root, "nodeType");
+          expect(desc).not.toBe(undefined);
+          if (desc)
+            expect(desc.value).toBe(1);
+        }
+
+        expect(keys.includes("nodeName")).toBe(false);
+        {
+          let desc = Reflect.getOwnPropertyDescriptor(root, "nodeName");
+          expect(desc).toBe(undefined);
+        }
+      }
+    );
+
+    it(
+      "shows properties allowed by the inherited filter",
+      function() {
+        membrane.modifyRules.filterOwnKeys(
+          "dry", parts.dry.Element.prototype, NodeInstanceFilterSet
+        );
+
+        let keys = Reflect.ownKeys(root);
+        fixKeys(keys);
+
+        expect(keys.includes("childNodes")).toBe(true);
+        {
+          let desc = Reflect.getOwnPropertyDescriptor(root, "childNodes");
+          expect(desc).not.toBe(undefined);
+          if (desc)
+            expect(Array.isArray(desc.value)).toBe(true);
+        }
+
+        expect(keys.includes("parentNode")).toBe(false);
+        {
+          let desc = Reflect.getOwnPropertyDescriptor(root, "parentNode");
+          expect(desc).toBe(undefined);
+        }
+      }
+    );
+
+    it(
+      "shows properties allowed by the directly applied filter",
+      function() {
+        let keys = Reflect.ownKeys(root);
+        fixKeys(keys);
+
+        expect(keys.includes("nodeType")).toBe(true);
+        {
+          let desc = Reflect.getOwnPropertyDescriptor(root, "nodeType");
+          expect(desc).not.toBe(undefined);
+          if (desc)
+            expect(desc.value).toBe(1);
+        }
+
+        expect(keys.includes("nodeName")).toBe(false);
+        {
+          let desc = Reflect.getOwnPropertyDescriptor(root, "nodeName");
+          expect(desc).toBe(undefined);
+        }
+      }
+    );
+
+    it(
+      "shows all properties when the inherited filter is missing",
+      function() {
+        // rebuild root to show 
+        clearParts();
+        appender.clear();
+        parts = MembraneMocks(true, logger);
+        setParts();
+        root = parts.dry.doc.rootElement;
+
+        membrane.modifyRules.filterOwnKeys(
+          "dry", root, ElementInstanceFilterSet, inheritOption
+        );
+
+        // no filter applied for parts.dry.Element.prototype
+
+        expect(appender.events.length).toBe(0);
+
+        let keys = Reflect.ownKeys(root);
+        fixKeys(keys);
+
+        // properties filtered at the top
+        expect(keys.includes("childNodes")).toBe(true);
+        {
+          let desc = Reflect.getOwnPropertyDescriptor(root, "childNodes");
+          expect(desc).not.toBe(undefined);
+          if (desc)
+            expect(Array.isArray(desc.value)).toBe(true);
+        }
+
+        expect(keys.includes("parentNode")).toBe(true);
+        {
+          let desc = Reflect.getOwnPropertyDescriptor(root, "parentNode");
+          expect(desc).not.toBe(undefined);
+        }
+
+        // properties filtered by inheritance
+        expect(keys.includes("nodeType")).toBe(true);
+        {
+          let desc = Reflect.getOwnPropertyDescriptor(root, "nodeType");
+          expect(desc).not.toBe(undefined);
+          if (desc)
+            expect(desc.value).toBe(1);
+        }
+
+        expect(keys.includes("nodeName")).toBe(true);
+        {
+          let desc = Reflect.getOwnPropertyDescriptor(root, "nodeName");
+          expect(desc).not.toBe(undefined);
+          if (desc)
+            expect(desc.value).toBe("root");
+        }
+
+        checkAppenderForWarning("PROTOTYPE_FILTER_MISSING");
+      }
+    );
   });
 });
 "use strict"

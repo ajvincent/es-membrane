@@ -209,7 +209,8 @@ function AssertIsPropertyKey(propName) {
 
 const Constants = {
   warnings: {
-    FILTERED_KEYS_WITHOUT_LOCAL: "Filtering own keys without allowing local property defines or deletes is dangerous"
+    FILTERED_KEYS_WITHOUT_LOCAL: "Filtering own keys without allowing local property defines or deletes is dangerous",
+    PROTOTYPE_FILTER_MISSING: "Proxy filter specified to inherit from prototype, but prototype provides no filter",
   }
 };
 
@@ -2886,7 +2887,11 @@ Object.seal(ObjectGraphHandler);
  *
  * @private
  */
-function ProxyNotify(parts, handler, options = {}) {
+function ProxyNotify(parts, handler, options) {
+  "use strict";
+  if (typeof options === "undefined")
+    options = {};
+
   // private variables
   const listeners = handler.__proxyListeners__.slice(0);
   if (listeners.length === 0)
@@ -2955,55 +2960,8 @@ function ProxyNotify(parts, handler, options = {}) {
      *     available properties and for its prototype.
      */
     "useShadowTarget": new DataDescriptor(
-      function(mode) {
-        let newHandler = {};
-
-        if (mode === "frozen")
-          Object.freeze(parts.proxy);
-        else if (mode === "sealed")
-          Object.seal(parts.proxy);
-        else if (mode === "prepared") {
-          // Establish the list of own properties.
-          const keys = Reflect.ownKeys(parts.proxy);
-          keys.forEach(function(key) {
-            handler.defineLazyGetter(parts.value, parts.shadowTarget, key);
-          });
-
-          /* Establish the prototype.  (I tried using a lazy getPrototypeOf,
-           * but testing showed that fails a later test.)
-           */
-          let proto = handler.getPrototypeOf(parts.shadowTarget);
-          Reflect.setPrototypeOf(parts.shadowTarget, proto);
-
-          // Lazy preventExtensions.
-          newHandler.preventExtensions = function(st) {
-            var rv = handler.preventExtensions.apply(handler, [st]);
-            delete newHandler.preventExtensions;
-            return rv;
-          };
-        }
-        else {
-          throw new Error("useShadowTarget requires its first argument be 'frozen', 'sealed', or 'prepared'");
-        }
-
-        stopped = true;
-        if (typeof parts.shadowTarget == "function") {
-          newHandler.apply     = handler.boundMethods.apply;
-          newHandler.construct = handler.boundMethods.construct;
-        }
-        else if (Reflect.ownKeys(newHandler).length === 0)
-          newHandler = Reflect; // yay, maximum optimization
-
-        let newParts = Proxy.revocable(parts.shadowTarget, newHandler);
-        parts.proxy = newParts.proxy;
-        parts.revoke = newParts.revoke;
-
-        const masterMap = handler.membrane.map;
-        let map = masterMap.get(parts.value);
-        assert(map instanceof ProxyMapping,
-               "Didn't get a ProxyMapping for an existing value?");
-        masterMap.set(parts.proxy, map);
-        makeRevokeDeleteRefs(parts, map, handler.fieldName);
+      (mode) => {
+        ProxyNotify.useShadowTarget.apply(meta, [parts, handler, mode]);
       }
     ),
 
@@ -3068,6 +3026,61 @@ function ProxyNotify(parts, handler, options = {}) {
   }
   stopped = true;
 }
+
+ProxyNotify.useShadowTarget = function(parts, handler, mode) {
+  "use strict";
+  let newHandler = {};
+
+  if (mode === "frozen")
+    Object.freeze(parts.proxy);
+  else if (mode === "sealed")
+    Object.seal(parts.proxy);
+  else if (mode === "prepared") {
+    // Establish the list of own properties.
+    const keys = Reflect.ownKeys(parts.proxy);
+    keys.forEach(function(key) {
+      handler.defineLazyGetter(parts.value, parts.shadowTarget, key);
+    });
+
+    /* Establish the prototype.  (I tried using a lazy getPrototypeOf,
+     * but testing showed that fails a later test.)
+     */
+    let proto = handler.getPrototypeOf(parts.shadowTarget);
+    Reflect.setPrototypeOf(parts.shadowTarget, proto);
+
+    // Lazy preventExtensions.
+    newHandler.preventExtensions = function(st) {
+      var rv = handler.preventExtensions.apply(handler, [st]);
+      delete newHandler.preventExtensions;
+      return rv;
+    };
+  }
+  else {
+    throw new Error("useShadowTarget requires its first argument be 'frozen', 'sealed', or 'prepared'");
+  }
+
+  this.stopIteration();
+  if (typeof parts.shadowTarget == "function") {
+    newHandler.apply     = handler.boundMethods.apply;
+    newHandler.construct = handler.boundMethods.construct;
+  }
+  else if (Reflect.ownKeys(newHandler).length === 0)
+    newHandler = Reflect; // yay, maximum optimization
+
+  let newParts = Proxy.revocable(parts.shadowTarget, newHandler);
+  parts.proxy = newParts.proxy;
+  parts.revoke = newParts.revoke;
+
+  const masterMap = handler.membrane.map;
+  let map = masterMap.get(parts.value);
+  assert(map instanceof ProxyMapping,
+         "Didn't get a ProxyMapping for an existing value?");
+  masterMap.set(parts.proxy, map);
+  makeRevokeDeleteRefs(parts, map, handler.fieldName);
+};
+
+Object.freeze(ProxyNotify);
+Object.freeze(ProxyNotify.useShadowTarget);
 /**
  * @fileoverview
  *
@@ -3360,20 +3373,59 @@ ModifyRulesAPI.prototype = Object.seal({
    *                             property protection.
    * @param filter    {Function} The filtering function.  (May be an Array or
    *                             a Set, which becomes a whitelist filter.)
+   * @param options   {Object} Broken down as follows:
+   * - inheritFilter: {Boolean} True if we should accept whatever the filter for
+   *                            Reflect.getPrototypeOf(proxy) accepts.
    *
    * @see Array.prototype.filter.
    */
-  filterOwnKeys: function(fieldName, proxy, filter) {
+  filterOwnKeys: function(fieldName, proxy, filter, options = {}) {
     this.assertLocalProxy(fieldName, proxy, "filterOwnKeys");
+
     if (Array.isArray(filter)) {
       filter = new Set(filter);
     }
+
     if (filter instanceof Set) {
       const s = filter;
       filter = (key) => s.has(key);
     }
+
     if ((typeof filter !== "function") && (filter !== null))
-      throw new Error("filterOwnKeys must be a filter function!");
+      throw new Error("filterOwnKeys must be a filter function, array or Set!");
+
+    if (filter &&
+        ("inheritFilter" in options) &&
+        (options.inheritFilter === true)) 
+    {
+      const firstFilter = filter;
+      const membrane = this.membrane;
+      filter = function(key) {
+        if (firstFilter(key))
+          return true;
+
+        const proto = Reflect.getPrototypeOf(proxy);
+        if (proto === null)
+          return false; // firstFilter is the final filter: reject
+
+        // XXX ajvincent unclear what we should do here if the assert fails
+        const pMapping = membrane.map.get(proto);
+        assert(pMapping instanceof ProxyMapping,
+               "Found prototype of membrane proxy, but it has no ProxyMapping!");
+
+        const nextFilter = pMapping.getOwnKeysFilter(fieldName);
+        if (!nextFilter) {
+          membrane.warnOnce(
+            membrane.constants.warnings.PROTOTYPE_FILTER_MISSING
+          );
+          return true; // prototype does no filtering of their own keys
+        }
+        if (nextFilter && !nextFilter(key))
+          return false;
+
+        return true;
+      };
+    }
 
     /* Defining a filter after a proxy's shadow target is not extensible
      * guarantees inconsistency.  So we must disallow that possibility.
