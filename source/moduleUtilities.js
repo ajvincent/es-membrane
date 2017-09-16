@@ -114,14 +114,45 @@ Object.defineProperty(
   new DataDescriptor(true)
 );
 
+/* The purpose of this is to provide the membrane with a revocable reference
+ * to the value:  when the revoke method is called, the reference to the value
+ * is deleted.
+ */
+function OverriddenProxyParts(value) {
+  this.actualValue = value;
+  this.hasBeenRevoked = false;
+}
+Object.defineProperties(OverriddenProxyParts.prototype, {
+  "value": new AccessorDescriptor(
+    function() {
+      if (this.hasBeenRevoked)
+        throw new Error("This proxy has been revoked!");
+      return this.actualValue;
+    }
+  ),
+
+  "revoke": new DataDescriptor(function() {
+    this.hasBeenRevoked = true;
+    this.actualValue = undefined;
+  }),
+});
+
+Reflect.defineProperty(
+  OverriddenProxyParts.prototype,
+  "proxy",
+  Reflect.getOwnPropertyDescriptor(OverriddenProxyParts.prototype, "value")
+);
+
 function makeRevokeDeleteRefs(parts, mapping, field) {
   let oldRevoke = parts.revoke;
   if (!oldRevoke)
     return;
-  parts.revoke = function() {
+
+  // necessary: in OverriddenProxyParts, revoke is inherited and read-only.
+  Reflect.defineProperty(parts, "revoke", new DataDescriptor(function() {
     oldRevoke.apply(parts);
     mapping.remove(field);
-  };
+  }, true));
 }
 
 /**

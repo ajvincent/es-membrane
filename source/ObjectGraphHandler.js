@@ -42,6 +42,8 @@ function ObjectGraphHandler(membrane, fieldName) {
 
     "__isDead__": new DataDescriptor(false, true, true, true),
 
+    "__preProxyListeners__": new DataDescriptor([], false, false, false),
+
     "__proxyListeners__": new DataDescriptor([], false, false, false),
 
     "__functionListeners__": new DataDescriptor([], false, false, false),
@@ -1223,6 +1225,34 @@ ObjectGraphHandler.prototype = Object.seal({
     if (index == -1)
       throw new Error("listener is not registered!");
     this.__proxyListeners__.splice(index, 1);
+  },
+
+  /**
+   * Add a listener for new proxies.
+   *
+   * @see ProxyNotify
+   *
+   * @note I am assuming that proxies are relatively expensive to deal with,
+   * compared to a non-proxy value.  The idea is if we don't have to create
+   * a proxy, we shouldn't.  This is why pre-proxy listeners exist.
+   */
+  addPreProxyListener: function(listener) {
+    if (typeof listener != "function")
+      throw new Error("listener is not a function!");
+    if (!this.__preProxyListeners__.includes(listener))
+      this.__preProxyListeners__.push(listener);
+  },
+
+  /**
+   * Remove a listener for new proxies.
+   *
+   * @see ProxyNotify
+   */
+  removePreProxyListener: function(listener) {
+    let index = this.__preProxyListeners__.indexOf(listener);
+    if (index == -1)
+      throw new Error("listener is not registered!");
+    this.__preProxyListeners__.splice(index, 1);
   },
 
   /**

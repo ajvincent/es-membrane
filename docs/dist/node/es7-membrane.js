@@ -177,14 +177,45 @@ Object.defineProperty(
   new DataDescriptor(true)
 );
 
+/* The purpose of this is to provide the membrane with a revocable reference
+ * to the value:  when the revoke method is called, the reference to the value
+ * is deleted.
+ */
+function OverriddenProxyParts(value) {
+  this.actualValue = value;
+  this.hasBeenRevoked = false;
+}
+Object.defineProperties(OverriddenProxyParts.prototype, {
+  "value": new AccessorDescriptor(
+    function() {
+      if (this.hasBeenRevoked)
+        throw new Error("This proxy has been revoked!");
+      return this.actualValue;
+    }
+  ),
+
+  "revoke": new DataDescriptor(function() {
+    this.hasBeenRevoked = true;
+    this.actualValue = undefined;
+  }),
+});
+
+Reflect.defineProperty(
+  OverriddenProxyParts.prototype,
+  "proxy",
+  Reflect.getOwnPropertyDescriptor(OverriddenProxyParts.prototype, "value")
+);
+
 function makeRevokeDeleteRefs(parts, mapping, field) {
   let oldRevoke = parts.revoke;
   if (!oldRevoke)
     return;
-  parts.revoke = function() {
+
+  // necessary: in OverriddenProxyParts, revoke is inherited and read-only.
+  Reflect.defineProperty(parts, "revoke", new DataDescriptor(function() {
     oldRevoke.apply(parts);
     mapping.remove(field);
-  };
+  }, true));
 }
 
 /**
@@ -324,7 +355,10 @@ Object.defineProperties(ProxyMapping.prototype, {
     if (!membrane.map.has(parts.value)) {
       if (DogfoodMembrane && (membrane !== DogfoodMembrane))
         DogfoodMembrane.ProxyToMembraneMap.add(parts.value);
-      membrane.map.set(parts.value, this);
+
+      if (!(parts instanceof OverriddenProxyParts) ||
+          (valueType(parts.value) !== "primitive"))
+        membrane.map.set(parts.value, this);
     }
     else
       assert(this === membrane.map.get(parts.value), "ProxyMapping mismatch?");
@@ -667,13 +701,32 @@ MembraneInternal.prototype = Object.seal({
 
     if (!Reflect.isExtensible(value))
       Reflect.preventExtensions(shadowTarget);
-    let parts = Proxy.revocable(shadowTarget, handler);
+
+    var parts, overridden = false;
+    if (isOriginal) {
+      parts = { value: value };
+    }
+    else {
+      /* I am assuming that proxies are relatively expensive to deal with,
+       * compared to a non-proxy value.  The idea is if we don't have to create
+       * a proxy, we shouldn't.  This is why pre-proxy listeners exist.
+       */
+      let newValue;
+      [overridden, newValue] = PreProxyNotify(handler, value);
+      if (overridden) {
+        parts = new OverriddenProxyParts(newValue);
+      }
+      else {
+        parts = Proxy.revocable(shadowTarget, handler);
+        parts.value = value;
+      }
+    }
+
     parts.shadowTarget = shadowTarget;
-    parts.value = value;
     mapping.set(this, field, parts);
     makeRevokeDeleteRefs(parts, mapping, field);
 
-    if (!isOriginal) {
+    if (!isOriginal && !overridden) {
       let notifyOptions = { isThis: false };
       ["trapName", "callable", "isThis", "argIndex"].forEach(function(propName) {
         if (Reflect.has(options, propName))
@@ -819,7 +872,7 @@ MembraneInternal.prototype = Object.seal({
    */
   convertArgumentToProxy:
   function(originHandler, targetHandler, arg, options = {}) {
-    var override = ("override" in options) && Boolean(options.override);
+    var override = ("override" in options) && (options.override === true);
     if (override) {
       let map = this.map.get(arg);
       if (map) {
@@ -836,8 +889,10 @@ MembraneInternal.prototype = Object.seal({
       throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
     }
 
-    this.wrapArgumentByHandler(originHandler, arg, options);
-    this.wrapArgumentByHandler(targetHandler, arg, options);
+    if (!this.hasProxyForValue(targetHandler.fieldName, arg)) {
+      this.wrapArgumentByHandler(originHandler, arg, options);
+      this.wrapArgumentByHandler(targetHandler, arg, options);
+    }
 
     let found, rv;
     [found, rv] = this.getMembraneProxy(
@@ -1023,7 +1078,7 @@ MembraneInternal.prototype = Object.seal({
             );
           };
         else if (descProp === "set" && typeof desc[descProp] === "function") {
-          function wrappedSetter (value) {
+          const wrappedSetter = function(value) {
             const wrappedThis = membrane.convertArgumentToProxy(originHandler, targetHandler, this);
             const wrappedValue = membrane.convertArgumentToProxy(originHandler, targetHandler, value);
             return membrane.convertArgumentToProxy(
@@ -1032,7 +1087,7 @@ MembraneInternal.prototype = Object.seal({
               desc[descProp].call(wrappedThis, wrappedValue)
             );
           };
-          this.buildMapping(targetField, wrappedSetter)
+          this.buildMapping(targetField, wrappedSetter);
           wrappedDesc[descProp] = wrappedSetter;
         }
     }, this);
@@ -1139,6 +1194,8 @@ function ObjectGraphHandler(membrane, fieldName) {
     "__revokeFunctions__": new DataDescriptor([], false, false, false),
 
     "__isDead__": new DataDescriptor(false, true, true, true),
+
+    "__preProxyListeners__": new DataDescriptor([], false, false, false),
 
     "__proxyListeners__": new DataDescriptor([], false, false, false),
 
@@ -2324,6 +2381,34 @@ ObjectGraphHandler.prototype = Object.seal({
   },
 
   /**
+   * Add a listener for new proxies.
+   *
+   * @see ProxyNotify
+   *
+   * @note I am assuming that proxies are relatively expensive to deal with,
+   * compared to a non-proxy value.  The idea is if we don't have to create
+   * a proxy, we shouldn't.  This is why pre-proxy listeners exist.
+   */
+  addPreProxyListener: function(listener) {
+    if (typeof listener != "function")
+      throw new Error("listener is not a function!");
+    if (!this.__preProxyListeners__.includes(listener))
+      this.__preProxyListeners__.push(listener);
+  },
+
+  /**
+   * Remove a listener for new proxies.
+   *
+   * @see ProxyNotify
+   */
+  removePreProxyListener: function(listener) {
+    let index = this.__preProxyListeners__.indexOf(listener);
+    if (index == -1)
+      throw new Error("listener is not registered!");
+    this.__preProxyListeners__.splice(index, 1);
+  },
+
+  /**
    * Add a listener for function entry, return and throw operations.
    *
    * @param listener {Function} The listener to add.
@@ -2876,6 +2961,32 @@ ObjectGraphHandler.prototype = Object.seal({
 } // end ObjectGraphHandler definition
 
 Object.seal(ObjectGraphHandler);
+function PreProxyNotify(handler, value) {
+  "use strict";
+
+  // private variables
+  const listeners = handler.__preProxyListeners__;
+  if (listeners.length === 0)
+    return [false, value];
+
+  const meta = {};
+  var overridden = false;
+  Object.defineProperties(meta, {
+    "handler": new DataDescriptor(handler),
+
+    "target": new DataDescriptor(value),
+
+    "override": new DataDescriptor((newValue) => {
+      overridden = true;
+      value = newValue;
+      meta.stopIteration();
+    }),
+  });
+
+  invokeProxyListeners(listeners, meta);
+  return [overridden, value];
+}
+
 /**
  * Notify all proxy listeners of a new proxy.
  *
@@ -2891,11 +3002,10 @@ function ProxyNotify(parts, handler, options) {
     options = {};
 
   // private variables
-  const listeners = handler.__proxyListeners__.slice(0);
+  const listeners = handler.__proxyListeners__;
   if (listeners.length === 0)
     return;
   const modifyRules = handler.membrane.modifyRules;
-  var index = 0, exn = null, exnFound = false, stopped = false;
 
   // the actual metadata object for the listener
   var meta = Object.create(options, {
@@ -2912,7 +3022,7 @@ function ProxyNotify(parts, handler, options) {
      */
     "proxy": new AccessorDescriptor(
       () => parts.proxy,
-      (val) => { if (!stopped) parts.proxy = val; }
+      (val) => { if (!meta.stopped) parts.proxy = val; }
     ),
 
     /* XXX ajvincent revoke is explicitly NOT exposed, lest a listener call it 
@@ -2930,7 +3040,7 @@ function ProxyNotify(parts, handler, options) {
      */
     "handler": new AccessorDescriptor(
       () => handler,
-      (val) => { if (!stopped) handler = val; }
+      (val) => { if (!meta.stopped) handler = val; }
     ),
 
     /**
@@ -2943,8 +3053,8 @@ function ProxyNotify(parts, handler, options) {
      */
     "rebuildProxy": new DataDescriptor(
       function() {
-        if (!stopped)
-          parts.proxy = modifyRules.replaceProxy(parts.proxy, this.handler);
+        if (!this.stopped)
+          parts.proxy = modifyRules.replaceProxy(parts.proxy, handler);
       }
     ),
 
@@ -2962,53 +3072,13 @@ function ProxyNotify(parts, handler, options) {
         ProxyNotify.useShadowTarget.apply(meta, [parts, handler, mode]);
       }
     ),
-
-    /**
-     * Notify no more listeners.
-     */
-    "stopIteration": new DataDescriptor(
-      () => { stopped = true; }
-    ),
-
-    "stopped": new AccessorDescriptor(
-      () => stopped
-    ),
-
-    /**
-     * Explicitly throw an exception from the listener, through the membrane.
-     */
-    "throwException": new DataDescriptor(
-      function(e) { stopped = true; exnFound = true; exn = e; }
-    )
   });
 
   const callbacks = [];
   handler.proxiesInConstruction.set(parts.value, callbacks);
 
   try {
-    while (!stopped && (index < listeners.length)) {
-      try {
-        listeners[index](meta);
-      }
-      catch (e) {
-        if (meta.logger) {
-          /* We don't want an accidental exception to break the iteration.
-          That's why the throwException() method exists:  a deliberate call means
-          yes, we really want that exception to propagate outward... which is
-          still nasty when you consider what a membrane is for.
-          */
-          try {
-            meta.logger.error(e);
-          }
-          catch (f) {
-            // really do nothing, there's no point
-          }
-        }
-      }
-      if (exnFound)
-        throw exn;
-      index++;
-    }
+    invokeProxyListeners(listeners, meta);
   }
   finally {
     callbacks.forEach(function(c) {
@@ -3022,7 +3092,6 @@ function ProxyNotify(parts, handler, options) {
 
     handler.proxiesInConstruction.delete(parts.value);
   }
-  stopped = true;
 }
 
 ProxyNotify.useShadowTarget = function(parts, handler, mode) {
@@ -3076,6 +3145,59 @@ ProxyNotify.useShadowTarget = function(parts, handler, mode) {
   masterMap.set(parts.proxy, map);
   makeRevokeDeleteRefs(parts, map, handler.fieldName);
 };
+
+function invokeProxyListeners(listeners, meta) {
+  listeners = listeners.slice(0);
+  var index = 0, exn = null, exnFound = false, stopped = false;
+
+  Object.defineProperties(meta, {
+    /**
+     * Notify no more listeners.
+     */
+    "stopIteration": new DataDescriptor(
+      () => { stopped = true; }
+    ),
+
+    "stopped": new AccessorDescriptor(
+      () => stopped
+    ),
+
+    /**
+     * Explicitly throw an exception from the listener, through the membrane.
+     */
+    "throwException": new DataDescriptor(
+      function(e) { stopped = true; exnFound = true; exn = e; }
+    )
+  });
+
+  Object.seal(meta);
+
+  while (!stopped && (index < listeners.length)) {
+    try {
+      listeners[index](meta);
+    }
+    catch (e) {
+      if (meta.logger) {
+        /* We don't want an accidental exception to break the iteration.
+        That's why the throwException() method exists:  a deliberate call means
+        yes, we really want that exception to propagate outward... which is
+        still nasty when you consider what a membrane is for.
+        */
+        try {
+          meta.logger.error(e);
+        }
+        catch (f) {
+          // really do nothing, there's no point
+        }
+      }
+    }
+    if (exnFound)
+      throw exn;
+    index++;
+  }
+
+  stopped = true;
+}
 
 Object.freeze(ProxyNotify);
 Object.freeze(ProxyNotify.useShadowTarget);

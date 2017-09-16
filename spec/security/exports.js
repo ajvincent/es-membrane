@@ -9,6 +9,7 @@ describe("Internal values are not exposed:  ", function() {
     "getRealTarget",
     "inGraphHandler",
     "NOT_YET_DETERMINED",
+    "OverriddenProxyParts",
     "makeRevokeDeleteRefs",
     "MembraneMayLog",
     "AssertIsPropertyKey",

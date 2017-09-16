@@ -1,3 +1,29 @@
+function PreProxyNotify(handler, value) {
+  "use strict";
+
+  // private variables
+  const listeners = handler.__preProxyListeners__;
+  if (listeners.length === 0)
+    return [false, value];
+
+  const meta = {};
+  var overridden = false;
+  Object.defineProperties(meta, {
+    "handler": new DataDescriptor(handler),
+
+    "target": new DataDescriptor(value),
+
+    "override": new DataDescriptor((newValue) => {
+      overridden = true;
+      value = newValue;
+      meta.stopIteration();
+    }),
+  });
+
+  invokeProxyListeners(listeners, meta);
+  return [overridden, value];
+}
+
 /**
  * Notify all proxy listeners of a new proxy.
  *
@@ -13,11 +39,10 @@ function ProxyNotify(parts, handler, options) {
     options = {};
 
   // private variables
-  const listeners = handler.__proxyListeners__.slice(0);
+  const listeners = handler.__proxyListeners__;
   if (listeners.length === 0)
     return;
   const modifyRules = handler.membrane.modifyRules;
-  var index = 0, exn = null, exnFound = false, stopped = false;
 
   // the actual metadata object for the listener
   var meta = Object.create(options, {
@@ -34,7 +59,7 @@ function ProxyNotify(parts, handler, options) {
      */
     "proxy": new AccessorDescriptor(
       () => parts.proxy,
-      (val) => { if (!stopped) parts.proxy = val; }
+      (val) => { if (!meta.stopped) parts.proxy = val; }
     ),
 
     /* XXX ajvincent revoke is explicitly NOT exposed, lest a listener call it 
@@ -52,7 +77,7 @@ function ProxyNotify(parts, handler, options) {
      */
     "handler": new AccessorDescriptor(
       () => handler,
-      (val) => { if (!stopped) handler = val; }
+      (val) => { if (!meta.stopped) handler = val; }
     ),
 
     /**
@@ -65,8 +90,8 @@ function ProxyNotify(parts, handler, options) {
      */
     "rebuildProxy": new DataDescriptor(
       function() {
-        if (!stopped)
-          parts.proxy = modifyRules.replaceProxy(parts.proxy, this.handler);
+        if (!this.stopped)
+          parts.proxy = modifyRules.replaceProxy(parts.proxy, handler);
       }
     ),
 
@@ -84,53 +109,13 @@ function ProxyNotify(parts, handler, options) {
         ProxyNotify.useShadowTarget.apply(meta, [parts, handler, mode]);
       }
     ),
-
-    /**
-     * Notify no more listeners.
-     */
-    "stopIteration": new DataDescriptor(
-      () => { stopped = true; }
-    ),
-
-    "stopped": new AccessorDescriptor(
-      () => stopped
-    ),
-
-    /**
-     * Explicitly throw an exception from the listener, through the membrane.
-     */
-    "throwException": new DataDescriptor(
-      function(e) { stopped = true; exnFound = true; exn = e; }
-    )
   });
 
   const callbacks = [];
   handler.proxiesInConstruction.set(parts.value, callbacks);
 
   try {
-    while (!stopped && (index < listeners.length)) {
-      try {
-        listeners[index](meta);
-      }
-      catch (e) {
-        if (meta.logger) {
-          /* We don't want an accidental exception to break the iteration.
-          That's why the throwException() method exists:  a deliberate call means
-          yes, we really want that exception to propagate outward... which is
-          still nasty when you consider what a membrane is for.
-          */
-          try {
-            meta.logger.error(e);
-          }
-          catch (f) {
-            // really do nothing, there's no point
-          }
-        }
-      }
-      if (exnFound)
-        throw exn;
-      index++;
-    }
+    invokeProxyListeners(listeners, meta);
   }
   finally {
     callbacks.forEach(function(c) {
@@ -144,7 +129,6 @@ function ProxyNotify(parts, handler, options) {
 
     handler.proxiesInConstruction.delete(parts.value);
   }
-  stopped = true;
 }
 
 ProxyNotify.useShadowTarget = function(parts, handler, mode) {
@@ -198,6 +182,59 @@ ProxyNotify.useShadowTarget = function(parts, handler, mode) {
   masterMap.set(parts.proxy, map);
   makeRevokeDeleteRefs(parts, map, handler.fieldName);
 };
+
+function invokeProxyListeners(listeners, meta) {
+  listeners = listeners.slice(0);
+  var index = 0, exn = null, exnFound = false, stopped = false;
+
+  Object.defineProperties(meta, {
+    /**
+     * Notify no more listeners.
+     */
+    "stopIteration": new DataDescriptor(
+      () => { stopped = true; }
+    ),
+
+    "stopped": new AccessorDescriptor(
+      () => stopped
+    ),
+
+    /**
+     * Explicitly throw an exception from the listener, through the membrane.
+     */
+    "throwException": new DataDescriptor(
+      function(e) { stopped = true; exnFound = true; exn = e; }
+    )
+  });
+
+  Object.seal(meta);
+
+  while (!stopped && (index < listeners.length)) {
+    try {
+      listeners[index](meta);
+    }
+    catch (e) {
+      if (meta.logger) {
+        /* We don't want an accidental exception to break the iteration.
+        That's why the throwException() method exists:  a deliberate call means
+        yes, we really want that exception to propagate outward... which is
+        still nasty when you consider what a membrane is for.
+        */
+        try {
+          meta.logger.error(e);
+        }
+        catch (f) {
+          // really do nothing, there's no point
+        }
+      }
+    }
+    if (exnFound)
+      throw exn;
+    index++;
+  }
+
+  stopped = true;
+}
 
 Object.freeze(ProxyNotify);
 Object.freeze(ProxyNotify.useShadowTarget);

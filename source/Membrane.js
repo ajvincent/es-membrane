@@ -134,13 +134,32 @@ MembraneInternal.prototype = Object.seal({
 
     if (!Reflect.isExtensible(value))
       Reflect.preventExtensions(shadowTarget);
-    let parts = Proxy.revocable(shadowTarget, handler);
+
+    var parts, overridden = false;
+    if (isOriginal) {
+      parts = { value: value };
+    }
+    else {
+      /* I am assuming that proxies are relatively expensive to deal with,
+       * compared to a non-proxy value.  The idea is if we don't have to create
+       * a proxy, we shouldn't.  This is why pre-proxy listeners exist.
+       */
+      let newValue;
+      [overridden, newValue] = PreProxyNotify(handler, value);
+      if (overridden) {
+        parts = new OverriddenProxyParts(newValue);
+      }
+      else {
+        parts = Proxy.revocable(shadowTarget, handler);
+        parts.value = value;
+      }
+    }
+
     parts.shadowTarget = shadowTarget;
-    parts.value = value;
     mapping.set(this, field, parts);
     makeRevokeDeleteRefs(parts, mapping, field);
 
-    if (!isOriginal) {
+    if (!isOriginal && !overridden) {
       let notifyOptions = { isThis: false };
       ["trapName", "callable", "isThis", "argIndex"].forEach(function(propName) {
         if (Reflect.has(options, propName))
@@ -286,7 +305,7 @@ MembraneInternal.prototype = Object.seal({
    */
   convertArgumentToProxy:
   function(originHandler, targetHandler, arg, options = {}) {
-    var override = ("override" in options) && Boolean(options.override);
+    var override = ("override" in options) && (options.override === true);
     if (override) {
       let map = this.map.get(arg);
       if (map) {
@@ -303,8 +322,10 @@ MembraneInternal.prototype = Object.seal({
       throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
     }
 
-    this.wrapArgumentByHandler(originHandler, arg, options);
-    this.wrapArgumentByHandler(targetHandler, arg, options);
+    if (!this.hasProxyForValue(targetHandler.fieldName, arg)) {
+      this.wrapArgumentByHandler(originHandler, arg, options);
+      this.wrapArgumentByHandler(targetHandler, arg, options);
+    }
 
     let found, rv;
     [found, rv] = this.getMembraneProxy(
@@ -490,7 +511,7 @@ MembraneInternal.prototype = Object.seal({
             );
           };
         else if (descProp === "set" && typeof desc[descProp] === "function") {
-          function wrappedSetter (value) {
+          const wrappedSetter = function(value) {
             const wrappedThis = membrane.convertArgumentToProxy(originHandler, targetHandler, this);
             const wrappedValue = membrane.convertArgumentToProxy(originHandler, targetHandler, value);
             return membrane.convertArgumentToProxy(
@@ -499,7 +520,7 @@ MembraneInternal.prototype = Object.seal({
               desc[descProp].call(wrappedThis, wrappedValue)
             );
           };
-          this.buildMapping(targetField, wrappedSetter)
+          this.buildMapping(targetField, wrappedSetter);
           wrappedDesc[descProp] = wrappedSetter;
         }
     }, this);

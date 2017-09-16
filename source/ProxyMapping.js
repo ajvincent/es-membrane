@@ -108,7 +108,10 @@ Object.defineProperties(ProxyMapping.prototype, {
     if (!membrane.map.has(parts.value)) {
       if (DogfoodMembrane && (membrane !== DogfoodMembrane))
         DogfoodMembrane.ProxyToMembraneMap.add(parts.value);
-      membrane.map.set(parts.value, this);
+
+      if (!(parts instanceof OverriddenProxyParts) ||
+          (valueType(parts.value) !== "primitive"))
+        membrane.map.set(parts.value, this);
     }
     else
       assert(this === membrane.map.get(parts.value), "ProxyMapping mismatch?");
