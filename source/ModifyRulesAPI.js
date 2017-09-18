@@ -374,6 +374,37 @@ ModifyRulesAPI.prototype = Object.seal({
   },
 
   /**
+   * Assign the number of arguments to truncate a method's argument list to.
+   *
+   * @param fieldName {Symbol|String} The field name of the object graph handler
+   *                                  the proxy uses.
+   * @param proxy     {Proxy(Function)} The method needing argument truncation.
+   * @param value     {Boolean|Number}
+   *   - if true, limit to a function's arity.
+   *   - if false, do not limit at all.
+   *   - if a non-negative integer, limit to that number.
+   */
+  truncateArgList: function(fieldName, proxy, value) {
+    this.assertLocalProxy(fieldName, proxy, "truncateArgList");
+    if (typeof proxy !== "function")
+      throw new Error("proxy must be a function!");
+    {
+      const type = typeof value;
+      if (type === "number") {
+        if (!Number.isInteger(value) || (value < 0)) {
+          throw new Error("value must be a non-negative integer or a boolean!");
+        }
+      }
+      else if (type !== "boolean") {
+        throw new Error("value must be a non-negative integer or a boolean!");
+      }
+    }
+
+    let metadata = this.membrane.map.get(proxy);
+    metadata.setTruncateArgList(fieldName, value);
+  },
+
+  /**
    * Disable traps for a given proxy.
    *
    * @param fieldName {String}   The name of the object graph the proxy is part

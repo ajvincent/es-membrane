@@ -312,6 +312,21 @@ Object.defineProperties(ProxyMapping.prototype, {
   new DataDescriptor(function(fieldName, filter) {
     this.proxiedFields[fieldName].ownKeysFilter = filter;
   }),
+
+  "getTruncateArgList":
+  new DataDescriptor(function(fieldName) {
+    if (!this.hasField(fieldName))
+      return false;
+    var metadata = this.proxiedFields[fieldName];
+    return (typeof metadata.truncateArgList !== "undefined") ?
+           metadata.truncateArgList :
+           false;
+  }),
+
+  "setTruncateArgList":
+  new DataDescriptor(function(fieldName, value) {
+    this.proxiedFields[fieldName].truncateArgList = value;
+  }),
 });
 
 Object.seal(ProxyMapping.prototype);

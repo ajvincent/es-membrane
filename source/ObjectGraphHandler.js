@@ -59,9 +59,6 @@ ObjectGraphHandler.prototype = Object.seal({
    * (5) return rv.
    *
    * Error stack trace hiding will be determined by the membrane itself.
-   *
-   * Hiding of properties should be done by another proxy altogether.
-   * See modifyRules.replaceProxy method for details.
    */
 
   // ProxyHandler
@@ -983,6 +980,8 @@ ObjectGraphHandler.prototype = Object.seal({
       ].join(""));
     }
 
+    argumentsList = this.truncateArguments(target, argumentsList);
+
     // This is where we are "counter-wrapping" an argument.
     const optionsBase = Object.seal({
       callable: target,
@@ -1094,6 +1093,8 @@ ObjectGraphHandler.prototype = Object.seal({
         this.fieldName
       ].join(""));
     }
+
+    argumentsList = this.truncateArguments(target, argumentsList);
 
     // This is where we are "counter-wrapping" an argument.
     const optionsBase = Object.seal({
@@ -1759,6 +1760,42 @@ ObjectGraphHandler.prototype = Object.seal({
         return false;
       map = this.membrane.map.get(protoTarget);
     }
+  },
+
+  /**
+   * Truncate the argument list, if necessary.
+   *
+   * @param target        {Function} The method about to be invoked.
+   * @param argumentsList {Value[]}  The list of arguments
+   *
+   * returns {Value[]} a copy of the list of arguments, truncated.
+   *
+   * @private
+   */
+  truncateArguments: function(target, argumentsList) {
+    assert(Array.isArray(argumentsList), "argumentsList must be an array!");
+    const map = this.membrane.map.get(target);
+
+    var originCount = map.getTruncateArgList(map.originField);
+    if (typeof originCount === "boolean") {
+      originCount = originCount ? target.length : Infinity;
+    }
+    else {
+      assert(Number.isInteger(originCount) && (originCount >= 0),
+             "must call slice with a non-negative integer length");
+    }
+
+    var targetCount = map.getTruncateArgList(this.fieldName);
+    if (typeof targetCount === "boolean") {
+      targetCount = targetCount ? target.length : Infinity;
+    }
+    else {
+      assert(Number.isInteger(targetCount) && (targetCount >= 0),
+             "must call slice with a non-negative integer length");
+    }
+
+    const count = Math.min(originCount, targetCount);
+    return argumentsList.slice(0, count);
   },
 
   /**

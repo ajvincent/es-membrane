@@ -559,6 +559,21 @@ Object.defineProperties(ProxyMapping.prototype, {
   new DataDescriptor(function(fieldName, filter) {
     this.proxiedFields[fieldName].ownKeysFilter = filter;
   }),
+
+  "getTruncateArgList":
+  new DataDescriptor(function(fieldName) {
+    if (!this.hasField(fieldName))
+      return false;
+    var metadata = this.proxiedFields[fieldName];
+    return (typeof metadata.truncateArgList !== "undefined") ?
+           metadata.truncateArgList :
+           false;
+  }),
+
+  "setTruncateArgList":
+  new DataDescriptor(function(fieldName, value) {
+    this.proxiedFields[fieldName].truncateArgList = value;
+  }),
 });
 
 Object.seal(ProxyMapping.prototype);
@@ -1212,9 +1227,6 @@ ObjectGraphHandler.prototype = Object.seal({
    * (5) return rv.
    *
    * Error stack trace hiding will be determined by the membrane itself.
-   *
-   * Hiding of properties should be done by another proxy altogether.
-   * See modifyRules.replaceProxy method for details.
    */
 
   // ProxyHandler
@@ -2136,6 +2148,8 @@ ObjectGraphHandler.prototype = Object.seal({
       ].join(""));
     }
 
+    argumentsList = this.truncateArguments(target, argumentsList);
+
     // This is where we are "counter-wrapping" an argument.
     const optionsBase = Object.seal({
       callable: target,
@@ -2247,6 +2261,8 @@ ObjectGraphHandler.prototype = Object.seal({
         this.fieldName
       ].join(""));
     }
+
+    argumentsList = this.truncateArguments(target, argumentsList);
 
     // This is where we are "counter-wrapping" an argument.
     const optionsBase = Object.seal({
@@ -2915,6 +2931,42 @@ ObjectGraphHandler.prototype = Object.seal({
   },
 
   /**
+   * Truncate the argument list, if necessary.
+   *
+   * @param target        {Function} The method about to be invoked.
+   * @param argumentsList {Value[]}  The list of arguments
+   *
+   * returns {Value[]} a copy of the list of arguments, truncated.
+   *
+   * @private
+   */
+  truncateArguments: function(target, argumentsList) {
+    assert(Array.isArray(argumentsList), "argumentsList must be an array!");
+    const map = this.membrane.map.get(target);
+
+    var originCount = map.getTruncateArgList(map.originField);
+    if (typeof originCount === "boolean") {
+      originCount = originCount ? target.length : Infinity;
+    }
+    else {
+      assert(Number.isInteger(originCount) && (originCount >= 0),
+             "must call slice with a non-negative integer length");
+    }
+
+    var targetCount = map.getTruncateArgList(this.fieldName);
+    if (typeof targetCount === "boolean") {
+      targetCount = targetCount ? target.length : Infinity;
+    }
+    else {
+      assert(Number.isInteger(targetCount) && (targetCount >= 0),
+             "must call slice with a non-negative integer length");
+    }
+
+    const count = Math.min(originCount, targetCount);
+    return argumentsList.slice(0, count);
+  },
+
+  /**
    * Add a ProxyMapping or a Proxy.revoke function to our list.
    *
    * @private
@@ -3574,6 +3626,37 @@ ModifyRulesAPI.prototype = Object.seal({
       metadata.setOwnKeysFilter(fieldName, filter);
     else
       throw new Error("filterOwnKeys cannot apply to a non-extensible proxy");
+  },
+
+  /**
+   * Assign the number of arguments to truncate a method's argument list to.
+   *
+   * @param fieldName {Symbol|String} The field name of the object graph handler
+   *                                  the proxy uses.
+   * @param proxy     {Proxy(Function)} The method needing argument truncation.
+   * @param value     {Boolean|Number}
+   *   - if true, limit to a function's arity.
+   *   - if false, do not limit at all.
+   *   - if a non-negative integer, limit to that number.
+   */
+  truncateArgList: function(fieldName, proxy, value) {
+    this.assertLocalProxy(fieldName, proxy, "truncateArgList");
+    if (typeof proxy !== "function")
+      throw new Error("proxy must be a function!");
+    {
+      const type = typeof value;
+      if (type === "number") {
+        if (!Number.isInteger(value) || (value < 0)) {
+          throw new Error("value must be a non-negative integer or a boolean!");
+        }
+      }
+      else if (type !== "boolean") {
+        throw new Error("value must be a non-negative integer or a boolean!");
+      }
+    }
+
+    let metadata = this.membrane.map.get(proxy);
+    metadata.setTruncateArgList(fieldName, value);
   },
 
   /**

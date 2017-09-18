@@ -61,6 +61,7 @@ ALL_SPEC_FILES = \
 	spec/properties/filterOwnKeys.js \
 	spec/properties/precedence.js \
 	spec/properties/whitelist.js \
+	spec/properties/truncateArgList.js \
 	spec/useCases/storeUnknownAsLocal.js \
 	spec/useCases/requireLocalDelete.js \
 	spec/useCases/filterOwnKeys.js \
