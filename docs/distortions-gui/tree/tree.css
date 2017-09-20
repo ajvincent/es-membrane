@@ -74,7 +74,7 @@
 	}
 		.gridtree > .treeroot li input.collapsible-check ~ ul:last-child
 		{
-			background: url(plusicon.svg) 40px 0 no-repeat;
+			background: url(../icons/plusicon.svg) 40px 0 no-repeat;
 			margin: -1.25em 0 0 -44px; /* 15px */
 			height: 16px;
 		}
@@ -93,7 +93,7 @@
 
 	.gridtree > .treeroot li.collapsible input.collapsible-check:checked ~ ul:last-child
 	{
-		background-image: url(minusicon.svg);
+		background-image: url(../icons/minusicon.svg);
 		margin: -1.25em 0 0 -44px; /* 20px */
 		padding: 1.563em 0 0 80px;
 		height: auto;
@@ -165,7 +165,7 @@
   .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > input[type="checkbox"]:first-child + span,
   .gridtree[cellgrouping="none"] > span[row][firstcol] > input[type="checkbox"]:first-child + span
   {
-    background-image: url(plusicon.svg);
+    background-image: url(../icons/plusicon.svg);
     background-repeat: no-repeat;
     width: 16px;
     height: 16px;
@@ -183,7 +183,7 @@
   .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > input[type="checkbox"]:first-child:checked + span,
   .gridtree[cellgrouping="none"] > span[row][firstcol] > input[type="checkbox"]:first-child:checked + span
   {
-    background-image: url(minusicon.svg);
+    background-image: url(../icons/minusicon.svg);
   }
 
   .gridtree[cellgrouping="row-contents"] > div[row] > span:not(.collapsible-check) > input[type="checkbox"],

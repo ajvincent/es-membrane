@@ -141,7 +141,7 @@ const DistortionsGUI = {
     if (DistortionsManager.valueNameToTabMap.has(valueName))
       return;
 
-    let urlObject = new URL("BlobLoader.html", window.location.href);
+    let urlObject = new URL("blob/BlobLoader.html", window.location.href);
     {
       let scriptIter = DistortionsManager.commonFileURLs.values();
       let step = scriptIter.next();
@@ -150,6 +150,7 @@ const DistortionsGUI = {
         step = scriptIter.next();
       }
     }
+
     {
       let sources = [
         "window.BlobLoader.getValue = ",

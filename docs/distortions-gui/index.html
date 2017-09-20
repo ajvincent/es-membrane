@@ -6,23 +6,23 @@
   <meta charset="UTF-8">
 
   <link rel="stylesheet" href="distortions-gui/grid-outer.css">
-  <link rel="stylesheet" href="distortions-gui/tree.css">
 
   <script type="application/javascript"
           src="distortions-gui/utilities/defineElementGetter.js"
          ></script>
   <script type="application/javascript"
-          src="distortions-gui/stylesheet.js"></script>
-  <script type="application/javascript"
-          src="distortions-gui/attributeControl.js"></script>
-  <script type="application/javascript"
-          src="distortions-gui/tree.js"></script>
+          src="distortions-gui/utilities/stylesheet.js"></script>
 
+  <link rel="stylesheet" href="distortions-gui/tree/tree.css">
+  <script type="application/javascript"
+          src="distortions-gui/tree/tree.js"></script>
 
   <script type="application/javascript"
           src="distortions-gui/DistortionsGUI.js"></script>
   <script type="application/javascript"
           src="distortions-gui/OuterGridManager.js"></script>
+
+  <link rel="stylesheet" href="distortions-gui/multistate/multistate.css">
 
   <script type="application/javascript"
           src="libraries/codemirror-5.25.2/lib/codemirror.js"></script>
@@ -222,12 +222,12 @@ function() {
 
           <button type="submit">
             Add the file and start work
-            <img src="distortions-gui/plusicon.svg">
+            <img src="distortions-gui/icons/plusicon.svg">
           </button>
           &nbsp;
           <button type="reset">
             Clear this panel
-            <img src="distortions-gui/minusicon.svg">
+            <img src="distortions-gui/icons/minusicon.svg">
           </button>
         </form>
       </section>
@@ -291,67 +291,67 @@ function() {
               <li>
                 <span>getPrototypeOf</span>
                 <span><input type="checkbox" checked="checked"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
                 <span>setPrototypeOf</span>
                 <span><input type="checkbox" checked="checked"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
                 <span>isExtensible</span>
                 <span><input type="checkbox" checked="checked"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
                 <span>preventExtensions</span>
                 <span><input type="checkbox" checked="checked"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
                 <span>getOwnPropertyDescriptor</span>
                 <span><input type="checkbox" checked="checked"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
                 <span>defineProperty</span>
                 <span><input type="checkbox" checked="checked"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
                 <span>has</span>
                 <span><input type="checkbox" checked="checked"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
                 <span>get</span>
                 <span><input type="checkbox" checked="checked"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
                 <span>set</span>
                 <span><input type="checkbox" checked="checked"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
                 <span>deleteProperty</span>
                 <span><input type="checkbox" checked="checked"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
                 <span>ownKeys</span>
                 <span><input type="checkbox" checked="checked"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
                 <span>apply</span>
                 <span><input type="checkbox" checked="checked" class="function-only"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
                 <span>construct</span>
                 <span><input type="checkbox" checked="checked" class="function-only"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
             </ul>
           </li>
@@ -363,25 +363,30 @@ function() {
               <li>
                 <span data-name="storeUnknownAsLocal">Local properties</span>
                 <span><input type="checkbox" checked="checked"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
                 <span data-name="requireLocalDelete">Local deletes</span>
                 <span><input type="checkbox" checked="checked"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
-                <span data-name="truncateArgList">Truncate argument list</span>
+                <span data-name="truncateArgList">Argument list truncation?</span>
                 <span>
-                  <input type="checkbox" class="function-only">
-                  <input type="number" min="0" value="0" style="width: 30px;">
+                  <button type="button" class="multistate" disabled="disabled">
+                    <span data-state="false">None</span>
+                    <span data-state="true">Arity</span>
+                    <span data-state="number">#:</span>
+                  </button>
+                  <input type="number" min="0" value="0" data-name="truncateArgMax"
+                         disabled="disabled" style="width: 30px;">
                 </span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
               <li>
                 <span data-name="useShadowTarget">Use shadow target</span>
                 <span><input type="checkbox" checked="checked"></span>
-                <span><a href="#"><img src="distortions-gui/Tango-style_question_icon.svg"></a></span>
+                <span><a href="#"><img src="distortions-gui/icons/Tango-style_question_icon.svg"></a></span>
               </li>
             </ul>
           </li>
@@ -397,7 +402,7 @@ function() {
       <span>
         <!-- To be determined:  some kind of HTML input to select a HTML
         textarea for the user to write notes about this property. -->
-        <a href="#"><img src="distortions-gui/notes-icon.svg"></a>
+        <a href="#"><img src="distortions-gui/icons/notes-icon.svg"></a>
       </span>
     </li>
   </template>

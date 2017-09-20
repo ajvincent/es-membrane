@@ -1,0 +1,11 @@
+.multistate {
+  padding: 0;
+  border: 1px dashed black;
+  background-color: beige;
+  font-family: monospace;
+  font-size: 1em;
+}
+
+.multistate > span:not(:first-child) {
+  display: none;
+}
