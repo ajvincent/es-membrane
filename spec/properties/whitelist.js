@@ -12,51 +12,50 @@ if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
 describe("Whitelisting object properties", function() {
   var wetDocument, dryDocument;
 
-  function defineWhitelistTests() {
-    //{ Setting up environment values.
-    function HEAT() { return "handleEventAtTarget stub"; }
-    function HEAT_NEW() { return "Hello World"; }
+  function HEAT() { return "handleEventAtTarget stub"; }
+  function HEAT_NEW() { return "Hello World"; }
 
-    const EventListenerWetWhiteList = [
-      "handleEvent",
-    ];
+  const EventListenerWetWhiteList = [
+    "handleEvent",
+  ];
 
-    const EventTargetWhiteList = [
-      "addEventListener",
-      "dispatchEvent",
-    ];
+  const EventTargetWhiteList = [
+    "addEventListener",
+    "dispatchEvent",
+  ];
 
-    const NodeWhiteList = [
-      "childNodes",
-      "ownerDocument",
-      "parentNode",
-    ];
+  const NodeWhiteList = [
+    "childNodes",
+    "ownerDocument",
+    "parentNode",
+  ];
 
-    const NodeProtoWhiteList = [
-      "insertBefore",
-      "firstChild",
-    ];
+  const NodeProtoWhiteList = [
+    "insertBefore",
+    "firstChild",
+  ];
 
-    const ElementWhiteList = [
-      "nodeType",
-      "nodeName",
-    ];
+  const ElementWhiteList = [
+    "nodeType",
+    "nodeName",
+  ];
 
-    const docWhiteList = [
-      "ownerDocument",
-      "childNodes",
-      "nodeType",
-      "nodeName",
-      "parentNode",
-      "createElement",
-      "insertBefore",
-      "firstChild",
-      "baseURL",
-      "addEventListener",
-      "dispatchEvent",
-      "rootElement",
-    ];
+  const docWhiteList = [
+    "ownerDocument",
+    "childNodes",
+    "nodeType",
+    "nodeName",
+    "parentNode",
+    "createElement",
+    "insertBefore",
+    "firstChild",
+    "baseURL",
+    "addEventListener",
+    "dispatchEvent",
+    "rootElement",
+  ];
 
+  function defineManualMockOptions() {
     function buildFilter(names, prevFilter) {
       return function(elem) {
         if (prevFilter && prevFilter(elem))
@@ -75,8 +74,10 @@ describe("Whitelisting object properties", function() {
     nameFilters.proto.node = buildFilter(NodeProtoWhiteList, nameFilters.target);
     nameFilters.proto.element = buildFilter([], nameFilters.proto.node);
     
-    var parts, dryWetMB, EventListenerProto, checkEvent = null;
+    var parts, dryWetMB, EventListenerProto;
     const mockOptions = {
+      checkEvent: null,
+
       whitelist: function(meta, filter, field = "wet") {
         dryWetMB.modifyRules.storeUnknownAsLocal(field, meta.target);
         dryWetMB.modifyRules.requireLocalDelete(field, meta.target);
@@ -92,8 +93,8 @@ describe("Whitelisting object properties", function() {
         {
           let oldHandleEvent = EventListenerProto.handleEventAtTarget;
           EventListenerProto.handleEventAtTarget = function(event) {
-            if (checkEvent)
-              checkEvent.apply(this, arguments);
+            if (mockOptions.checkEvent)
+              mockOptions.checkEvent.apply(this, arguments);
             return oldHandleEvent.apply(this, arguments);
           };
           parts.wet.doc.handleEventAtTarget = EventListenerProto.handleEventAtTarget;
@@ -103,7 +104,7 @@ describe("Whitelisting object properties", function() {
          * This is a proxy listener for protecting the listener argument of
          * EventTargetWet.prototype.addEventListener().
          */
-        var listener = (function(meta) {
+        const listener = (function(meta) {
           if ((meta.callable !== EventListenerProto.addEventListener) ||
               (meta.trapName !== "apply") ||
               (meta.argIndex !== 1))
@@ -172,21 +173,113 @@ describe("Whitelisting object properties", function() {
         handler.addProxyListener(listener);
       },
     };
-    //}
 
+    return mockOptions;
+  }
+  
+  function defineMockOptionsByDistortionsListener() {
+    var parts, dryWetMB, EventListenerProto;
+    const mockOptions = {
+      checkEvent: null,
+
+      wetHandlerCreated: function(handler, Mocks) {
+        parts = Mocks;
+        dryWetMB = parts.membrane;
+        EventListenerProto = Object.getPrototypeOf(parts.wet.Node.prototype);
+
+        const distortions = dryWetMB.modifyRules.createDistortionsListener();
+        {
+          let oldHandleEvent = EventListenerProto.handleEventAtTarget;
+          EventListenerProto.handleEventAtTarget = function(event) {
+            if (mockOptions.checkEvent)
+              mockOptions.checkEvent.apply(this, arguments);
+            return oldHandleEvent.apply(this, arguments);
+          };
+          parts.wet.doc.handleEventAtTarget = EventListenerProto.handleEventAtTarget;
+        }
+
+        /**
+         * This is a proxy listener for protecting the listener argument of
+         * EventTargetWet.prototype.addEventListener().
+         */
+
+        const evLConfig = distortions.sampleConfig();
+        evLConfig.filterOwnKeys = EventListenerWetWhiteList;
+        evLConfig.storeUnknownAsLocal = true;
+        evLConfig.requireLocalDelete = true;
+
+        const evLFilter = function(meta) {
+          if ((meta.callable !== EventListenerProto.addEventListener) ||
+              (meta.trapName !== "apply") ||
+              (meta.argIndex !== 1))
+            return false;
+
+          if (typeof meta.target == "function")
+            return false;
+
+          if ((typeof meta.target != "object") || (meta.target === null)) {
+            meta.throwException(new Error(".addEventListener requires listener be an object or a function!"));
+            return false;
+          }
+
+          return true;
+        };
+
+        distortions.addListener(evLFilter, "filter", evLConfig);
+        distortions.bindToHandler(handler);
+      },
+
+      whitelist: function(distortions, value, filteredOwnKeys, inherit, category) {
+        const config = distortions.sampleConfig();
+        config.filterOwnKeys = filteredOwnKeys;
+        config.inheritOwnKeys = inherit;
+        config.storeUnknownAsLocal = true;
+        config.requireLocalDelete = true;
+        distortions.addListener(value, category, config);
+      },
+
+      dryHandlerCreated: function(handler/*, Mocks */) {
+        const distortions = dryWetMB.modifyRules.createDistortionsListener();
+
+        this.whitelist(distortions, parts.wet.doc, docWhiteList, false, "value");
+        this.whitelist(
+          distortions, parts.wet.Element, ElementWhiteList, true, "instance"
+        );
+        this.whitelist(
+          distortions, parts.wet.Node, NodeWhiteList, true, "instance"
+        );
+        this.whitelist(distortions, parts.wet.Element, [], true, "value");
+        this.whitelist(
+          distortions, parts.wet.Node, NodeProtoWhiteList, true, "value"
+        );
+        this.whitelist(
+          distortions, parts.wet.Node, NodeProtoWhiteList, true, "prototype"
+        );
+        this.whitelist(
+          distortions, EventListenerProto, EventTargetWhiteList, false, "value"
+        );
+        distortions.bindToHandler(handler);
+      },
+    };
+
+    return mockOptions;
+  }
+
+  function defineWhitelistTests(mockDefine) {
+    var parts, mockOptions;
     beforeEach(function() {
+      mockOptions = mockDefine();
       parts = MembraneMocks(false, null, mockOptions);
       wetDocument = parts.wet.doc;
       dryDocument = parts.dry.doc;
-      checkEvent = null;
     });
 
     afterEach(function() {
       dryDocument.dispatchEvent("unload");
       dryDocument = null;
       wetDocument = null;
-      dryWetMB = null;
-      checkEvent = null;
+      mockOptions.checkEvent = null;
+      mockOptions = null;
     });
 
     it("exposes listed values.", function() {
@@ -437,7 +530,7 @@ describe("Whitelisting object properties", function() {
       dryDocument.addEventListener("asMethod", listener, false);
       dryDocument.insertBefore(dryDocument.rootElement, null);
 
-      checkEvent = function(event) {
+      mockOptions.checkEvent = function(event) {
         let handlers = this.__events__.slice(0);
         let length = handlers.length;
         let desired = null;
@@ -478,11 +571,11 @@ describe("Whitelisting object properties", function() {
         expect(listener.didFire).toBe(false);
 
         listener.didFire = true;
-        checkEvent = null;
+        mockOptions.checkEvent = null;
       };
 
       dryDocument.rootElement.dispatchEvent("asMethod");
-      checkEvent = null;
+      mockOptions.checkEvent = null;
       expect(listener.didFire).toBe(true);
 
       expect(event).not.toBe(null);
@@ -494,36 +587,46 @@ describe("Whitelisting object properties", function() {
     });
   }
 
-  describe("manually", function() {
-    describe("on unsealed objects", defineWhitelistTests);
+  function defineSealingTests(mockDefine) {
+    describe("on unsealed objects", function() {
+      defineWhitelistTests(mockDefine);
+    });
 
     describe("on sealed dry objects", function() {
-      defineWhitelistTests();
+      defineWhitelistTests(mockDefine);
       beforeEach(function() {
         Object.seal(dryDocument);
       });
     });
 
     describe("on sealed wet objects", function() {
-      defineWhitelistTests();
+      defineWhitelistTests(mockDefine);
       beforeEach(function() {
         Object.seal(wetDocument);
       });
     });
 
     describe("on frozen dry objects", function() {
-      defineWhitelistTests();
+      defineWhitelistTests(mockDefine);
       beforeEach(function() {
         Object.freeze(dryDocument);
       });
     });
 
     describe("on frozen wet objects", function() {
-      defineWhitelistTests();
+      defineWhitelistTests(mockDefine);
       beforeEach(function() {
         Object.freeze(wetDocument);
       });
     });
+  }
+
+  describe("manually", function() {
+    defineSealingTests(defineManualMockOptions);
+  });
+
+  describe("automatically using a 'distortions listener'", function() {
+    defineSealingTests(defineMockOptionsByDistortionsListener);
   });
   
   it(

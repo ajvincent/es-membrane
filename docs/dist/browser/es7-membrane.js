@@ -20,6 +20,14 @@ function AccessorDescriptor(getter, setter, enumerable = true, configurable = tr
   this.configurable = configurable;
 }
 
+function NWNCDataDescriptor(value, enumerable = true) {
+  this.value = value;
+  this.enumerable = enumerable;
+}
+NWNCDataDescriptor.prototype.writable = false;
+NWNCDataDescriptor.prototype.configurable = false;
+Object.freeze(NWNCDataDescriptor.prototype);
+
 const NOT_IMPLEMENTED_DESC = new AccessorDescriptor(
   NOT_IMPLEMENTED,
   NOT_IMPLEMENTED
@@ -62,6 +70,58 @@ const allTraps = Object.freeze([
   "ownKeys",
   "apply",
   "construct"
+]);
+
+/* XXX ajvincent This is supposed to be a complete list of top-level globals.
+   Copied from https://github.com/tc39/proposal-realms/blob/master/shim/src/stdlib.js
+   on September 20, 2016.
+*/
+const Primordials = Object.freeze([
+  Array,
+  ArrayBuffer,
+  Boolean,
+  DataView,
+  Date,
+  decodeURI,
+  decodeURIComponent,
+  encodeURI,
+  encodeURIComponent,
+  Error,
+  eval,
+  EvalError,
+  Float32Array,
+  Float64Array,
+  Function,
+  Int8Array,
+  Int16Array,
+  Int32Array,
+  isFinite,
+  isNaN,
+  JSON,
+  Map,
+  Math,
+  Number,
+  Object,
+  parseFloat,
+  parseInt,
+  Promise,
+  Proxy,
+  RangeError,
+  ReferenceError,
+  Reflect,
+  RegExp,
+  Set,
+  String,
+  Symbol,
+  SyntaxError,
+  TypeError,
+  Uint8Array,
+  Uint8ClampedArray,
+  Uint16Array,
+  Uint32Array,
+  URIError,
+  WeakMap,
+  WeakSet,
 ]);
 function valueType(value) {
   if (value === null)
@@ -1183,40 +1243,40 @@ function ObjectGraphHandler(membrane, fieldName) {
     "apply",
     "construct",
   ].forEach(function(key) {
-    Reflect.defineProperty(boundMethods, key, new DataDescriptor(
-      this[key].bind(this), false, false, false
+    Reflect.defineProperty(boundMethods, key, new NWNCDataDescriptor(
+      this[key].bind(this), false
     ));
   }, this);
   Object.freeze(boundMethods);
 
+  // private
   Object.defineProperties(this, {
-    "membrane": new DataDescriptor(membrane, false, false, false),
-    "fieldName": new DataDescriptor(fieldName, false, false, false),
+    "membrane": new NWNCDataDescriptor(membrane, false),
+    "fieldName": new NWNCDataDescriptor(fieldName, false),
 
-    "boundMethods": new DataDescriptor(boundMethods, false, false, false),
+    "boundMethods": new NWNCDataDescriptor(boundMethods, false),
 
     /* Temporary until membraneGraphName is defined on Object.prototype through
      * the object graph.
      */
-    "graphNameDescriptor": new DataDescriptor(
-      new DataDescriptor(fieldName), false, false, false
+    "graphNameDescriptor": new NWNCDataDescriptor(
+      new DataDescriptor(fieldName), false
     ),
 
     // see .defineLazyGetter, ProxyNotify for details.
-    "proxiesInConstruction": new DataDescriptor(
-      new WeakMap(/* original value: [callback() {}, ...]*/),
-      false, false, false
+    "proxiesInConstruction": new NWNCDataDescriptor(
+      new WeakMap(/* original value: [callback() {}, ...]*/), false
     ),
 
-    "__revokeFunctions__": new DataDescriptor([], false, false, false),
+    "__revokeFunctions__": new NWNCDataDescriptor([], false),
 
     "__isDead__": new DataDescriptor(false, true, true, true),
 
-    "__preProxyListeners__": new DataDescriptor([], false, false, false),
+    "__preProxyListeners__": new NWNCDataDescriptor([], false),
 
-    "__proxyListeners__": new DataDescriptor([], false, false, false),
+    "__proxyListeners__": new NWNCDataDescriptor([], false),
 
-    "__functionListeners__": new DataDescriptor([], false, false, false),
+    "__functionListeners__": new NWNCDataDescriptor([], false),
   });
 }
 { // ObjectGraphHandler definition
@@ -2369,6 +2429,11 @@ ObjectGraphHandler.prototype = Object.seal({
       throw new Error(`The ${trapName} trap is not executable.`);
   },
 
+  /**
+   * Get the shadow target associated with a real value.
+   *
+   * @private
+   */
   getShadowTarget: function(target) {
     let targetMap = this.membrane.map.get(target);
     return targetMap.getShadowTarget(this.fieldName);
@@ -3378,14 +3443,17 @@ ModifyRulesAPI.prototype = Object.seal({
       baseHandler = existingHandler.baseHandler;
 
     if (existingHandler instanceof ObjectGraphHandler) {
-      if (!this.membrane.ownsHandler(existingHandler)) 
+      if (!this.membrane.ownsHandler(existingHandler)) {
+        // XXX ajvincent Fix this error message!!
         throw new Error("fieldName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
+      }
 
       baseHandler = this.membrane.getHandlerByName(existingHandler.fieldName);
       description = "our membrane's " + baseHandler.fieldName + " ObjectGraphHandler";
     }
 
     else if (baseHandler !== Reflect) {
+      // XXX ajvincent Fix this error message!!
       throw new Error("fieldName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
     }
 
@@ -3680,8 +3748,178 @@ ModifyRulesAPI.prototype = Object.seal({
         this.setLocalFlag(fieldName, `disableTrap(${t})`, true);
     }, map);
   },
+
+  createDistortionsListener: function() {
+    return new DistortionsListener(this.membrane);
+  }
 });
 Object.seal(ModifyRulesAPI);
+function DistortionsListener(membrane) {
+  // private
+  Object.defineProperties(this, {
+    "membrane":
+      new NWNCDataDescriptor(membrane, false),
+    "preProxyListener":
+      new NWNCDataDescriptor(this.preProxyListener.bind(this), false),
+    "proxyListener":
+      new NWNCDataDescriptor(this.proxyListener.bind(this), false),
+    "valueAndProtoMap":
+      new NWNCDataDescriptor(new Map(/*
+        object or function.prototype: JSON configuration
+      */), false),
+  
+    "instanceMap":
+      new NWNCDataDescriptor(new Map(/*
+        function: JSON configuration
+      */), false),
+
+    "filterToConfigMap":
+      new NWNCDataDescriptor(new Map(/*
+        function returning boolean: JSON configuration
+      */), false),
+  
+    "ignorableValues":
+      new NWNCDataDescriptor(new Set(), false),
+  });
+}
+
+Object.defineProperties(DistortionsListener.prototype, {
+  "addListener": new NWNCDataDescriptor(function(value, category, config) {
+    if ((category === "prototype") || (category === "instance"))
+      value = value.prototype;
+    if ((category === "prototype") || (category === "value"))
+      this.valueAndProtoMap.set(value, config);
+    else if (category === "instance")
+      this.instanceMap.set(value, config);
+    else if ((category === "filter") && (typeof value === "function"))
+      this.filterToConfigMap.set(value, config);
+  }),
+
+  "removeListener": new NWNCDataDescriptor(function(value, category) {
+    if ((category === "prototype") || (category === "instance"))
+      value = value.prototype;
+    if ((category === "prototype") || (category === "value"))
+      this.valueAndProtoMap.set(value);
+    else if (category === "instance")
+      this.instanceMap.delete(value);
+  }),
+
+  "listenOnce": new NWNCDataDescriptor(function(meta, config) {
+    this.addListener(meta.target, "value", config);
+    try {
+      this.proxyListener(meta);
+    }
+    finally {
+      this.removeListener(meta.target, "value");
+    }
+  }),
+
+  "sampleConfig": new NWNCDataDescriptor(function(isFunction) {
+    const rv = {
+      formatVersion: "0.8.0",
+      dataVersion: "0.1",
+
+      filterOwnKeys: [],
+      inheritOwnKeys: false,
+      storeUnknownAsLocal: false,
+      requireLocalDelete: false,
+      proxyTraps: allTraps.slice(0),
+      useShadowTarget: false,
+    };
+
+    if (isFunction) {
+      rv.truncateArgList = false;
+    }
+    return rv;
+  }, true),
+
+  "bindToHandler": new NWNCDataDescriptor(function(handler) {
+    if (!this.membrane.ownsHandler(handler)) {
+      throw new Error("Membrane must own the first argument as an object graph handler!");
+    }
+    handler.addPreProxyListener(this.preProxyListener);
+    handler.addProxyListener(this.proxyListener);
+  }, true),
+
+  "ignorePrimordials": new NWNCDataDescriptor(function() {
+    Primordials.forEach(function(p) {
+      if (p)
+        this.ignorableValues.add(p);
+    });
+  }, true),
+
+  /**
+   * @private
+   */
+  "preProxyListener": new NWNCDataDescriptor(function(meta) {
+    if (meta.target in this.ignorableValues) {
+      meta.override(meta.target);
+      meta.stopPropagation();
+    }
+  }, false),
+
+  /**
+   * @private
+   */
+  "proxyListener": new NWNCDataDescriptor(function(meta) {
+    let config = this.valueAndProtoMap.get(meta.target);
+    if (!config) {
+      let proto = Reflect.getPrototypeOf(meta.target);
+      config = this.instanceMap.get(proto);
+    }
+
+    if (!config) {
+      let iter, filter, testConfig;
+      iter = this.filterToConfigMap.entries();
+      let entry = iter.next();
+      while (!entry.done && !meta.stopped) {
+        filter = entry.value[0];
+        testConfig = entry.value[1];
+        if (filter(meta)) {
+          config = testConfig;
+          entry.done = true;
+        }
+        else {
+          entry = iter.next();
+        }
+      }
+    }
+
+    if (!config)
+      return;
+
+    const rules = this.membrane.modifyRules;
+    const fieldName = meta.handler.fieldName;
+    if (Array.isArray(config.filterOwnKeys)) {
+      rules.filterOwnKeys(
+        fieldName,
+        meta.proxy,
+        config.filterOwnKeys,
+        {
+          inheritFilter: Boolean(config.inheritOwnKeys)
+        }
+      );
+    }
+
+    const deadTraps = this.membrane.allTraps.filter(function(key) {
+      return !config.proxyTraps.includes(key);
+    });
+    rules.disableTraps(fieldName, meta.proxy, deadTraps);
+
+    if (config.storeUnknownAsLocal)
+      rules.storeUnknownAsLocal(fieldName, meta.proxy);
+
+    if (config.requireLocalDelete)
+      rules.requireLocalDelete(fieldName, meta.proxy);
+
+    if (("truncateArgList" in config) && (config.truncateArgList !== false))
+      rules.truncateArgList(fieldName, meta.proxy, config.truncateArgList);
+
+    meta.stopIteration();
+  }, false),
+});
+
+Object.freeze(DistortionsListener.prototype);
 /*
 We will wrap the Membrane constructor in a Membrane, to protect the internal API
 from public usage.  This is known as "eating your own dogfood" in software

@@ -18,6 +18,7 @@ SOURCE_FILES = \
 	source/ObjectGraphHandler.js \
 	source/ProxyNotify.js \
 	source/ModifyRulesAPI.js \
+	source/DistortionsListener.js \
 	source/dogfood.js \
 	$(NULL)
 

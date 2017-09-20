@@ -13,40 +13,40 @@ function ObjectGraphHandler(membrane, fieldName) {
     "apply",
     "construct",
   ].forEach(function(key) {
-    Reflect.defineProperty(boundMethods, key, new DataDescriptor(
-      this[key].bind(this), false, false, false
+    Reflect.defineProperty(boundMethods, key, new NWNCDataDescriptor(
+      this[key].bind(this), false
     ));
   }, this);
   Object.freeze(boundMethods);
 
+  // private
   Object.defineProperties(this, {
-    "membrane": new DataDescriptor(membrane, false, false, false),
-    "fieldName": new DataDescriptor(fieldName, false, false, false),
+    "membrane": new NWNCDataDescriptor(membrane, false),
+    "fieldName": new NWNCDataDescriptor(fieldName, false),
 
-    "boundMethods": new DataDescriptor(boundMethods, false, false, false),
+    "boundMethods": new NWNCDataDescriptor(boundMethods, false),
 
     /* Temporary until membraneGraphName is defined on Object.prototype through
      * the object graph.
      */
-    "graphNameDescriptor": new DataDescriptor(
-      new DataDescriptor(fieldName), false, false, false
+    "graphNameDescriptor": new NWNCDataDescriptor(
+      new DataDescriptor(fieldName), false
     ),
 
     // see .defineLazyGetter, ProxyNotify for details.
-    "proxiesInConstruction": new DataDescriptor(
-      new WeakMap(/* original value: [callback() {}, ...]*/),
-      false, false, false
+    "proxiesInConstruction": new NWNCDataDescriptor(
+      new WeakMap(/* original value: [callback() {}, ...]*/), false
     ),
 
-    "__revokeFunctions__": new DataDescriptor([], false, false, false),
+    "__revokeFunctions__": new NWNCDataDescriptor([], false),
 
     "__isDead__": new DataDescriptor(false, true, true, true),
 
-    "__preProxyListeners__": new DataDescriptor([], false, false, false),
+    "__preProxyListeners__": new NWNCDataDescriptor([], false),
 
-    "__proxyListeners__": new DataDescriptor([], false, false, false),
+    "__proxyListeners__": new NWNCDataDescriptor([], false),
 
-    "__functionListeners__": new DataDescriptor([], false, false, false),
+    "__functionListeners__": new NWNCDataDescriptor([], false),
   });
 }
 { // ObjectGraphHandler definition
@@ -1199,6 +1199,11 @@ ObjectGraphHandler.prototype = Object.seal({
       throw new Error(`The ${trapName} trap is not executable.`);
   },
 
+  /**
+   * Get the shadow target associated with a real value.
+   *
+   * @private
+   */
   getShadowTarget: function(target) {
     let targetMap = this.membrane.map.get(target);
     return targetMap.getShadowTarget(this.fieldName);

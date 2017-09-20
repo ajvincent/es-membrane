@@ -121,14 +121,17 @@ ModifyRulesAPI.prototype = Object.seal({
       baseHandler = existingHandler.baseHandler;
 
     if (existingHandler instanceof ObjectGraphHandler) {
-      if (!this.membrane.ownsHandler(existingHandler)) 
+      if (!this.membrane.ownsHandler(existingHandler)) {
+        // XXX ajvincent Fix this error message!!
         throw new Error("fieldName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
+      }
 
       baseHandler = this.membrane.getHandlerByName(existingHandler.fieldName);
       description = "our membrane's " + baseHandler.fieldName + " ObjectGraphHandler";
     }
 
     else if (baseHandler !== Reflect) {
+      // XXX ajvincent Fix this error message!!
       throw new Error("fieldName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
     }
 
@@ -423,5 +426,9 @@ ModifyRulesAPI.prototype = Object.seal({
         this.setLocalFlag(fieldName, `disableTrap(${t})`, true);
     }, map);
   },
+
+  createDistortionsListener: function() {
+    return new DistortionsListener(this.membrane);
+  }
 });
 Object.seal(ModifyRulesAPI);
