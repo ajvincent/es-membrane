@@ -2,6 +2,8 @@
   display: grid;
   grid-template-columns: 600px 400px 250px;
   grid-gap: 5px;
+
+  font-family: Verdana, sans-serif;
 }
 
 #tabbox-files {
@@ -75,6 +77,15 @@
   background-color: #ffcccc;
   border: 2px solid #ff0000;
   font-family: monospace;
+}
+
+#help-and-notes {
+  height: 600px;
+  overflow: scroll;
+}
+
+#help-and-notes > article {
+  display: none;
 }
 
 /* this doesn't really belong in this file, but it's a ride-along. */

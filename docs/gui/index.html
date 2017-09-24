@@ -246,6 +246,44 @@ function() {
         (2) HTML textareas (possibly editable HTML areas) for the user to write
         their own notes.
       -->
+
+      <article id="help:getPrototypeOf">
+        <h2>getPrototypeOf()</h2>
+        <h3>Summary</h3>
+        <p>The getPrototypeOf() trap
+          <a title="Reflect.getPrototypeOf() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/getPrototypeOf"
+             target="_blank"
+             rel="noopener">"returns the prototype (i.e. the value of the
+             internal <code>[[Prototype]]</code> property) of the specified
+             object."</a></p>
+        <h3>Examples</h3>
+        <p>In JavaScript, it's very common to have a constructor function with
+        methods defined on the prototype property of the function:</p>
+        <pre>function Rectangle(width, height) {
+  this.width = width;
+  this.height = height;
+}
+Rectangle.prototype.getArea = function() {
+  return this.width * this.height;
+};
+
+var r = new Rectangle(3, 4);
+r.getArea(); // returns 12</pre>
+        <p>The prototype of <code>r</code> in this case is Rectangle.prototype.</p>
+        <pre>Reflect.getPrototypeOf(r) === Rectangle.prototype;
+// returns true</pre>
+        <p>The <code>getArea()</code> method is available to the <code>r</code>
+          object because it inherits from
+          <code>Rectangle.prototype</code>.</p>
+        <h3>Usage in es7-membrane</h3>
+        <p>I do not recommend disabling the getPrototypeOf() trap, because
+        prototypes are central to the normal operation of JavaScript.&nbsp;
+        Currently, it throws an exception when disabled.</p>
+        <h4>Coming soon</h4>
+        <p>When the getPrototypeOf() trap is disabled, it will return null to indicate there is no prototype available.</p>
+        <p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/getPrototypeOf">Reflect.getPrototypeOf</a> by <a class="new" href="https://developer.mozilla.org/en-US/docs/MDN/About$history">Mozilla Contributors</a> is licensed under <a class="external external-icon" href="http://creativecommons.org/licenses/by-sa/2.5/">CC-BY-SA 2.5</a>.</p>
+              </article>
     </div>
 
     <div id="tabbox-function-traps" class="tabbar">
