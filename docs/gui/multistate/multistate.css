@@ -4,8 +4,13 @@
   background-color: beige;
   font-family: monospace;
   font-size: 1em;
+  width: 115px;
 }
 
-.multistate > span:not(:first-child) {
-  display: none;
+.multistate .toggleBtn {
+  width: 65px;
+}
+
+.multistate .numBox {
+  width: 35px;
 }
