@@ -8,7 +8,7 @@
 }
 
 .multistate > span:not(:first-child) {
-}
+} 
 
 .multistate .toggleBtn {
   width: 65px;
