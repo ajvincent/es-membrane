@@ -79,15 +79,6 @@
   font-family: monospace;
 }
 
-#help-and-notes {
-  height: 600px;
-  overflow: scroll;
-}
-
-#help-and-notes > article {
-  display: none;
-}
-
 /* this doesn't really belong in this file, but it's a ride-along. */
 #iframe-box {
   display: none;

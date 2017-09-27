@@ -11,6 +11,8 @@ const OuterGridManager = {
   addPanelRadio: null,
   outputPanelRadio: null,
   prototypeRadio: null,
+  helpAndNotes: null,
+  selectedHelpAndNotesPanel: null,
 
   selectedTabs: {
     file: null,
@@ -67,6 +69,11 @@ const OuterGridManager = {
         DistortionsGUI.addValuePanel.init();
       }
     }, true);
+
+    this.panels.addEventListener("click", function(event) {
+      if (event.target.classList.contains("helpButton"))
+        OuterGridManager.setHelpPanel(event.target);
+    }, true);
   },
 
   insertValuePanel: function(valueName, radioClass, panel) {
@@ -113,6 +120,15 @@ const OuterGridManager = {
     }`;
     this.sheet.insertRule(cssRule);
   },
+
+  setHelpPanel: function(button) {
+    if (this.selectedHelpAndNotesPanel)
+      this.selectedHelpAndNotesPanel.dataset.selected = false;
+    const panelId = "help-" + button.dataset.for;
+    this.selectedHelpAndNotesPanel = document.getElementById(panelId);
+    if (this.selectedHelpAndNotesPanel)
+      this.selectedHelpAndNotesPanel.dataset.selected = true;
+  }
 };
 
 function TabboxRadioEventHandler(form, inputName, target, attr) {
@@ -140,6 +156,8 @@ TabboxRadioEventHandler.prototype.handleEvent = function() {
     "outputPanelRadio": "tabbox-files-output",
 
     "prototypeRadio": "tabbox-function-traps-prototype",
+
+    "helpAndNotes": "help-and-notes"
   };
   let keys = Reflect.ownKeys(elems);
   keys.forEach(function(key) {

@@ -1,0 +1,14 @@
+#help-and-notes {
+  height: 600px;
+  overflow: scroll;
+}
+
+#help-and-notes > *:not([data-selected="true"]) {
+  display: none;
+}
+
+button.helpButton {
+  padding: 0;
+  border: none;
+  background: none;
+}
