@@ -1,11 +1,11 @@
 .multistate {
   display: inline-block;
-  padding: 2px;
+  padding: 0;
   /*border: 1px dashed black;
   background-color: beige;*/
   font-family: monospace;
   font-size: 1em;
-  width: 60px;
+  width: 50px;
   text-align: center;
   text-transform: uppercase;
 }
