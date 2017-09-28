@@ -1,19 +1,15 @@
 .multistate {
-  padding: 0;
-  border: 1px dashed black;
-  background-color: beige;
+  display: inline-block;
+  padding: 2px;
+  /*border: 1px dashed black;
+  background-color: beige;*/
   font-family: monospace;
   font-size: 1em;
-  width: 115px;
+  width: 60px;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .multistate > span:not(:first-child) {
-} 
-
-.multistate .toggleBtn {
-  width: 65px;
-}
-
-.multistate .numBox {
-  width: 35px;
+  display: none;
 }
