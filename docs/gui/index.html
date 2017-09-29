@@ -284,8 +284,104 @@ r.getArea(); // returns 12</pre>
         Currently, it throws an exception when disabled.</p>
         <h4>Coming soon</h4>
         <p>When the getPrototypeOf() trap is disabled, it will return null to indicate there is no prototype available.</p>
-        <p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/getPrototypeOf">Reflect.getPrototypeOf</a> by <a class="new" href="https://developer.mozilla.org/en-US/docs/MDN/About$history">Mozilla Contributors</a> is licensed under <a class="external external-icon" href="http://creativecommons.org/licenses/by-sa/2.5/">CC-BY-SA 2.5</a>.</p>
-              </article>
+        <p>
+          <a title="Reflect.getPrototypeOf() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/getPrototypeOf"
+             target="_blank"
+             rel="noopener">Reflect.getPrototypeOf()</a>
+          by
+          <a href="https://developer.mozilla.org/en-US/docs/MDN/About$history">
+            Mozilla Contributors
+          </a>
+          is licensed under
+          <a class="external external-icon"
+             href="http://creativecommons.org/licenses/by-sa/2.5/">CC-BY-SA 2.5</a>
+          .
+        </p>
+      </article>
+
+      <article id="help-proxy-setPrototypeOf">
+        <h2>setPrototypeOf()</h2>
+        <h3>Summary</h3>
+        <p>The setPrototypeOf() trap
+          <a title="Reflect.setPrototypeOf() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/setPrototypeOf"
+             target="_blank"
+             rel="noopener">"sets the prototype (i.e., the internal
+             <code>[[Prototype]]</code> property) of a specified object to
+             another object or to null."</a></p>
+        <h3>Examples</h3>
+        <p>In JavaScript, it's very common to have a constructor function with
+        methods defined on the prototype property of the function:</p>
+        <pre>function Rectangle(width, height) {
+  this.width = width;
+  this.height = height;
+}
+Rectangle.prototype.getArea = function() {
+  return this.width * this.height;
+};
+
+var r = new Rectangle(3, 4);
+r.getArea(); // returns 12</pre>
+        <p>The prototype of <code>r</code> in this case is Rectangle.prototype.
+        The <code>getArea()</code> method is available to the <code>r</code>
+        object because it inherits from <code>Rectangle.prototype</code>.</p>
+        <p><em>Setting</em> the prototype means altering all the inherited
+        properties of the object you're inspecting:</p>
+        <pre>function Rectangle(width, height) {
+  this.width = width;
+  this.height = height;
+}
+Rectangle.prototype.getArea = function() {
+  return this.width * this.height;
+};
+
+var r = new Rectangle(3, 4);
+
+const newProto = {
+  getPerimeter: function() {
+    return (this.width + this.height) * 2;
+  }
+};
+
+Reflect.setPrototypeOf(r, newProto);
+
+r.getPerimeter(); // returns 14;
+
+try {
+  r.getArea(); // throws TypeError: r.getArea is not a function
+}
+catch (e) {
+  // do nothing
+}
+  
+Reflect.setPrototypeOf(newProto, Rectangle.prototype);
+  
+r.getArea(); // returns 12</pre>
+        <h3>Usage in es7-membrane</h3>
+        <p>I strongly recommend disabling the setPrototypeOf() trap, because
+        anyone who sets a prototype on your objects effectively owns all the
+        inherited properties of your objects.  For this reason, the
+        setPrototypeOf() trap is not checked by default.</p>
+        <p>
+          <a title="Reflect.setPrototypeOf() - JavaScript | MDN"
+               href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/setPrototypeOf"
+               target="_blank"
+               rel="noopener">
+            Reflect.setPrototypeOf()
+          </a>
+          by
+          <a class="new"
+             href="https://developer.mozilla.org/en-US/docs/MDN/About$history">
+            Mozilla Contributors
+          </a>
+          is licensed under
+          <a class="external external-icon"
+             href="http://creativecommons.org/licenses/by-sa/2.5/">
+            CC-BY-SA 2.5
+          </a>
+        .</p>
+      </article>
     </div>
 
     <div id="tabbox-function-traps" class="tabbar">
@@ -342,7 +438,7 @@ r.getArea(); // returns 12</pre>
               </li>
               <li>
                 <span>setPrototypeOf</span>
-                <span><input type="checkbox" checked="checked"></span>
+                <span><input type="checkbox"></span>
                 <span>
                   <button class="helpButton" data-for="proxy-setPrototypeOf"></button>
                 </span>

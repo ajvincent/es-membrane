@@ -51,6 +51,7 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/freeze-seal.js \
 	spec/non-membrane/prototypes.js \
 	spec/non-membrane/lazyGetter.js \
+	spec/non-membrane/argumentTruncation.js \
 	spec/concepts.js \
 	spec/freeze-seal.js \
 	spec/replaceProxies.js \

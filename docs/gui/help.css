@@ -1,5 +1,8 @@
-#help-and-notes {
+#help-and-notes > * {
   height: 600px;
+}
+
+#help-and-notes > article {
   overflow: scroll;
 }
 
