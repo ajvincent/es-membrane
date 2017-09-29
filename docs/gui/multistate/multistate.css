@@ -4,6 +4,9 @@
   background-color: beige;
   font-family: monospace;
   font-size: 1em;
+  width: 50px;
+  text-align: center;
+  cursor: pointer;
 }
 
 .multistate > span:not(:first-child) {
