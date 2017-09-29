@@ -1,13 +1,12 @@
 .multistate {
-  display: inline-block;
   padding: 0;
-  /*border: 1px dashed black;
-  background-color: beige;*/
+  border: 1px dashed black;
+  background-color: beige;
   font-family: monospace;
   font-size: 1em;
   width: 50px;
   text-align: center;
-  text-transform: uppercase;
+  cursor: pointer;
 }
 
 .multistate > span:not(:first-child) {
