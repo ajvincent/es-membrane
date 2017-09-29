@@ -28,11 +28,19 @@ function DistortionsRules() {
 }
 DistortionsRules.prototype = {
   bindUI: function() {
-    let lists = this.treeroot.getElementsByTagName("ul");
-    for (let i = 0; i < lists.length; i++) {
-      let list = lists[i];
-      if (list.dataset.group)
-        this.bindULInputsByGroup(list);
+    {
+      let multistates = this.treeroot.getElementsByClassName("multistate");
+      for (let i = 0; i < multistates.length; i++)
+        updateMultistate(multistates[i]);
+    }
+
+    {
+      let lists = this.treeroot.getElementsByTagName("ul");
+      for (let i = 0; i < lists.length; i++) {
+        let list = lists[i];
+        if (list.dataset.group)
+          this.bindULInputsByGroup(list);
+      }
     }
   },
 
@@ -42,15 +50,20 @@ DistortionsRules.prototype = {
     let items = list.children;
     for (let i = 0; i < items.length; i++) {
       let item = items[i];
-      let input = item.children[1].firstElementChild;
 
       let label = item.firstElementChild;
       let propertyName = label.dataset.name || label.firstChild.nodeValue;
-      input.dataset.propertyName = propertyName;
 
-      inputList.push(input);
-      this.inputToGroupMap.set(input, groupName);
-      input.addEventListener("change", this, false);
+      let input = item.children[1].firstElementChild;
+      while (input) {
+        input.dataset.propertyName = propertyName;
+
+        inputList.push(input);
+        this.inputToGroupMap.set(input, groupName);
+        let eventType = (input.localName === "button" ? "click" : "change");
+        input.addEventListener(eventType, this, false);
+        input = input.nextElementSibling;
+      }
     }
 
     this.updateGroup(groupName);
@@ -66,9 +79,23 @@ DistortionsRules.prototype = {
   updateGroup: function(groupName) {
     const members = this.settings[groupName] = [];
     let inputs = this.groupToInputsMap.get(groupName);
+    var truncateArgButtonValue;
     for (let i = 0; i < inputs.length; i++) {
       let input = inputs[i];
-      if (input.checked)
+      if (input.dataset.propertyName === "truncateArgList") {
+        // special handling
+        if (input.localName === "button") {
+          truncateArgButtonValue = input.value;
+          if (truncateArgButtonValue === "true")
+            this.settings.truncateArgList = true;
+          else if (truncateArgButtonValue === "false")
+            this.settings.truncateArgList = false;
+        }
+        else if (truncateArgButtonValue === "number")
+          this.settings.truncateArgList = parseInt(input.value);
+      }
+
+      else if (input.checked)
         members.push(input.dataset.propertyName);
     }
   },
@@ -82,8 +109,14 @@ DistortionsRules.prototype = {
   },
 
   handleEvent: function(event) {
+    const el = event.target;
+    if ((el.classList.contains("multistate")) &&
+        (el.dataset.propertyName === "truncateArgList")) {
+      el.nextElementSibling.disabled = (el.value !== "number");
+    }
+
     {
-      let groupName = this.inputToGroupMap.get(event.target);
+      let groupName = this.inputToGroupMap.get(el);
       if (groupName) {
         this.updateGroup(groupName);
         return;

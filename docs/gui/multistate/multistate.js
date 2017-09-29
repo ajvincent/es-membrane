@@ -1,13 +1,11 @@
 function MultistateHandler(event) {
   const multistate = event.target;
+  if (!multistate.classList.contains("multistate"))
+    return;
   multistate.appendChild(multistate.firstElementChild);
-  multistate.value = multistate.firstElementChild.dataset.state;
+  updateMultistate(multistate);
 }
 
-/*
-{
-  let buttons = document.getElementsByClassName("multistate");
-  for (let i = 0; i < buttons.length; i++)
-    buttons[i].addEventListener("click", MultistateHandler, true);
+function updateMultistate(multistate) {
+  multistate.value = multistate.firstElementChild.dataset.state;
 }
-*/

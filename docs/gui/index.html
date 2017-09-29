@@ -25,6 +25,8 @@
           src="gui/OuterGridManager.js"></script>
 
   <link rel="stylesheet" href="gui/multistate/multistate.css">
+  <script type="application/javascript"
+          src="gui/multistate/multistate.js"></script>
 
   <script type="application/javascript"
           src="libraries/codemirror-5.25.2/lib/codemirror.js"></script>
@@ -415,8 +417,10 @@ r.getArea(); // returns 12</pre>
           </li>
           <li class="collapsible">
             <span>Show own keys</span>
+            <!-- This checkbox is for folding the filterOwnKeys list -->
             <input type="checkbox" checked="checked" class="collapsible-check">
             <span>
+              <!-- This checkbox is for enabling/disabling the filterOwnKeys rule. -->
               <input type="checkbox" checked="checked">
             </span>
             <span>
@@ -544,7 +548,7 @@ r.getArea(); // returns 12</pre>
               <li>
                 <span data-name="truncateArgList">Argument list truncation?</span>
                 <span>
-                  <button type="button" class="multistate" disabled="disabled">
+                  <button type="button" class="multistate" data-name="truncateArgList">
                     <span data-state="false">None</span>
                     <span data-state="true">Arity</span>
                     <span data-state="number">#:</span>

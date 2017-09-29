@@ -74,6 +74,8 @@ const OuterGridManager = {
       if (event.target.classList.contains("helpButton"))
         OuterGridManager.setHelpPanel(event.target);
     }, true);
+
+    this.panels.addEventListener("click", MultistateHandler, true);
   },
 
   insertValuePanel: function(valueName, radioClass, panel) {
