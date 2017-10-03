@@ -1,0 +1,13 @@
+#grid-outer-start-objectgraphs {
+  display: grid;
+  grid-template-columns: 110px 80px 20px;
+}
+
+#grid-outer-start-objectgraphs > button.deleteRow {
+  background-image: url("icons/close.svg");
+}
+
+#grid-outer-start-objectgraphs > button.addRow {
+  background-image: url("icons/plusicon.svg");
+  grid-column-start: -2;
+}

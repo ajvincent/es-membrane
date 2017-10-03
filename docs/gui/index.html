@@ -13,6 +13,11 @@
   <script type="application/javascript"
           src="gui/utilities/stylesheet.js"></script>
 
+  <!-- start panel -->
+  <link rel="stylesheet" href="gui/startpanel.css">
+  <script type="application/javascript"
+          src="gui/HandlerNames.js"></script>
+
   <link rel="stylesheet" href="gui/tree/tree.css">
   <script type="application/javascript"
           src="gui/tree/tree.js"></script>
@@ -90,25 +95,6 @@
               If you have a Distortions GUI configuration file already, please
               select it here:
             </label>
-            <!-- XXX ajvincent to-do later, too complex for initial pass
-            <input type="radio" name="config" value="file"
-                   checked="checked"
-                   id="grid-outer-start-config-file">
-            <label for="grid-outer-start-config-file">
-              as file
-            </label>
-
-            <input type="radio" name="config" value="url"
-                   id="grid-outer-start-config-url">
-            <label for="grid-outer-start-config-url">
-              as URL
-            </label>
-            <button type="button" class="url"
-                    onclick="OuterGridManager.showAddURLDialog();">
-              Browse...
-            </button>
-            -->
-
             <br>
             <!-- Loading distortions GUI config files isn't supported yet. -->
             <input id="grid-outer-start-config"
@@ -125,25 +111,6 @@
             <label for="grid-outer-start-location">
               Specify common source JavaScript files to include here:
             </label>
-            
-            <!-- XXX ajvincent to-do later, too complex for initial pass
-            <input type="radio" name="locationType" value="file"
-                   checked="checked"
-                   id="grid-outer-start-locationType-file">
-            <label for="grid-outer-start-locationType-file">
-              as file
-            </label>
-
-            <input type="radio" name="locationType" value="url"
-                   id="grid-outer-start-locationType-url">
-            <label for="grid-outer-start-locationType-url">
-              as URL
-            </label>
-            <button type="button" class="url"
-                    onclick="OuterGridManager.showAddURLDialog();">
-              Browse...
-            </button>
-            -->
 
             <br>
             <input id="grid-outer-start-location"
@@ -156,6 +123,11 @@
                   >
           </span>
           <hr>
+
+          <p>Name the object graphs you want here.  This is an unordered set.  (Examples:  ["public", "internal"] or ["dry", "wet"].)</p>
+          <div id="grid-outer-start-objectgraphs">
+            <button class="icon addRow" onclick="HandlerNames.addRow();"></button>
+          </div>
 
           <button type="submit">Continue</button>
         </form>
@@ -171,24 +143,6 @@
             <label for="grid-outer-addValue-location">
               Additional source JavaScript files:
             </label>
-            <!-- XXX ajvincent to-do later, too complex for initial pass
-            <input type="radio" name="locationType" value="file"
-                   checked="checked"
-                   id="grid-outer-addValue-locationType-file">
-            <label for="grid-outer-addValue-locationType-file">
-              as file
-            </label>
-
-            <input type="radio" name="locationType" value="url"
-                   id="grid-outer-addValue-locationType-url">
-            <label for="grid-outer-addValue-locationType-url">
-              as URL
-            </label>
-            <button type="button" class="url"
-                    onclick="OuterGridManager.showAddURLDialog();">
-              Browse...
-            </button>
-            -->
             <input id="grid-outer-addValue-location"
                    type="file"
                    multiple="multiple"
@@ -406,6 +360,13 @@ r.getArea(); // returns 12</pre>
     </div>
   </div>
 
+  <template id="objectgraph-name-row">
+    <label>Symbol?<input type="checkbox" onchange="HandlerNames.update();"></label>
+    <input type="text" size="10" required="required" onchange="HandlerNames.update();">
+    <button class="icon deleteRow" disabled="disabled"
+            onclick="HandlerNames.deleteRow(event);"></button>
+  </template>
+
   <template id="distortions-tree-ui-main">
     <div class="gridtree">
       <div class="treeroot">
@@ -424,7 +385,7 @@ r.getArea(); // returns 12</pre>
               <input type="checkbox" checked="checked">
             </span>
             <span>
-              <button class="helpButton" data-for="distortions-filterOwnKeys"></button>
+              <button class="icon helpButton" data-for="distortions-filterOwnKeys"></button>
             </span>
             <ul data-group="ownKeys"></ul>
           </li>
@@ -437,91 +398,91 @@ r.getArea(); // returns 12</pre>
                 <span>getPrototypeOf</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span>
-                  <button class="helpButton" data-for="proxy-getPrototypeOf"></button>
+                  <button class="icon helpButton" data-for="proxy-getPrototypeOf"></button>
                 </span>
               </li>
               <li>
                 <span>setPrototypeOf</span>
                 <span><input type="checkbox"></span>
                 <span>
-                  <button class="helpButton" data-for="proxy-setPrototypeOf"></button>
+                  <button class="icon helpButton" data-for="proxy-setPrototypeOf"></button>
                 </span>
               </li>
               <li>
                 <span>isExtensible</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span>
-                  <button class="helpButton" data-for="proxy-isExtensible"></button>
+                  <button class="icon helpButton" data-for="proxy-isExtensible"></button>
                 </span>
               </li>
               <li>
                 <span>preventExtensions</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span>
-                  <button class="helpButton" data-for="proxy-preventExtensions"></button>
+                  <button class="icon helpButton" data-for="proxy-preventExtensions"></button>
                 </span>
               </li>
               <li>
                 <span>getOwnPropertyDescriptor</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span>
-                  <button class="helpButton" data-for="proxy-getOwnPropertyDescriptor"></button>
+                  <button class="icon helpButton" data-for="proxy-getOwnPropertyDescriptor"></button>
                 </span>
               </li>
               <li>
                 <span>defineProperty</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span>
-                  <button class="helpButton" data-for="proxy-defineProperty"></button>
+                  <button class="icon helpButton" data-for="proxy-defineProperty"></button>
                 </span>
               </li>
               <li>
                 <span>has</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span>
-                  <button class="helpButton" data-for="proxy-has"></button>
+                  <button class="icon helpButton" data-for="proxy-has"></button>
                 </span>
               </li>
               <li>
                 <span>get</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span>
-                  <button class="helpButton" data-for="proxy-get"></button>
+                  <button class="icon helpButton" data-for="proxy-get"></button>
                 </span>
               </li>
               <li>
                 <span>set</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span>
-                  <button class="helpButton" data-for="proxy-set"></button>
+                  <button class="icon helpButton" data-for="proxy-set"></button>
                 </span>
               </li>
               <li>
                 <span>deleteProperty</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span>
-                  <button class="helpButton" data-for="proxy-deleteProperty"></button>
+                  <button class="icon helpButton" data-for="proxy-deleteProperty"></button>
                 </span>
               </li>
               <li>
                 <span>ownKeys</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span>
-                  <button class="helpButton" data-for="proxy-ownKeys"></button>
+                  <button class="icon helpButton" data-for="proxy-ownKeys"></button>
                 </span>
               </li>
               <li>
                 <span>apply</span>
                 <span><input type="checkbox" checked="checked" class="function-only"></span>
                 <span>
-                  <button class="helpButton" data-for="proxy-apply"></button>
+                  <button class="icon helpButton" data-for="proxy-apply"></button>
                 </span>
               </li>
               <li>
                 <span>construct</span>
                 <span><input type="checkbox" checked="checked" class="function-only"></span>
                 <span>
-                  <button class="helpButton" data-for="proxy-construct"></button>
+                  <button class="icon helpButton" data-for="proxy-construct"></button>
                 </span>
               </li>
             </ul>
@@ -535,14 +496,14 @@ r.getArea(); // returns 12</pre>
                 <span data-name="storeUnknownAsLocal">Local properties</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span>
-                  <button class="helpButton" data-for="distortions-storeUnknownAsLocal"></button>
+                  <button class="icon helpButton" data-for="distortions-storeUnknownAsLocal"></button>
                 </span>
               </li>
               <li>
                 <span data-name="requireLocalDelete">Local deletes</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span>
-                  <button class="helpButton" data-for="distortions-requireLocalDelete"></button>
+                  <button class="icon helpButton" data-for="distortions-requireLocalDelete"></button>
                 </span>
               </li>
               <li>
@@ -557,14 +518,14 @@ r.getArea(); // returns 12</pre>
                          disabled="disabled" style="width: 30px;">
                 </span>
                 <span>
-                  <button class="helpButton" data-for="distortions-truncateArgList"></button>
+                  <button class="icon helpButton" data-for="distortions-truncateArgList"></button>
                 </span>
               </li>
               <li>
                 <span data-name="useShadowTarget">Use shadow target</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span>
-                  <button class="helpButton" data-for="distortions-useShadowTarget"></button>
+                  <button class="icon helpButton" data-for="distortions-useShadowTarget"></button>
                 </span>
               </li>
             </ul>

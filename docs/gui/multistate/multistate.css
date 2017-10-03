@@ -1,4 +1,4 @@
-.multistate {
+button.multistate {
   padding: 0;
   border: 1px dashed black;
   background-color: beige;
@@ -9,6 +9,6 @@
   cursor: pointer;
 }
 
-.multistate > span:not(:first-child) {
+button.multistate > span:not(:first-child) {
   display: none;
 }

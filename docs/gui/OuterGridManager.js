@@ -26,6 +26,8 @@ const OuterGridManager = {
     // used to add CSS rules controlling dynamic tabbox panels.
     this.sheet = getCustomStylesheet(document);
 
+    HandlerNames.init();
+
     {
       let listener = new TabboxRadioEventHandler(
         this.tabboxForm, "files", this.grid, "filesTab"

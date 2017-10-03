@@ -11,9 +11,5 @@
 }
 
 button.helpButton {
-  padding: 0;
-  border: none;
   background-image: url("icons/Tango-style_question_icon.svg");
-  width: 16px;
-  height: 16px;
 }

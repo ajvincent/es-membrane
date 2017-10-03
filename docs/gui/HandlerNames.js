@@ -1,0 +1,72 @@
+const HandlerNames = {
+  // private
+  grid: null,
+  template: null,
+
+  /**
+   * Initialize the UI.
+   */
+  init: function() {
+    // we start with two rows:  less than that makes no sense.
+    this.addRow();
+    this.addRow();
+  },
+
+  /**
+   * Add a graph name row.
+   */
+  addRow: function() {
+    let frag = this.template.content.cloneNode(true);
+    this.grid.insertBefore(frag, this.grid.lastElementChild);
+    this.update();
+  },
+
+  /**
+   * Delete a graph name row.
+   *
+   * @param event {DOMEvent} The click event on a delete button.
+   */
+  deleteRow: function(event) {
+    let range = document.createRange();
+    const delButton = event.target;
+    range.setEndAfter(delButton);
+    range.setStartBefore(delButton.previousElementSibling.previousElementSibling);
+    range.deleteContents();
+
+    this.update();
+  },
+
+  /**
+   * Update the validity of the elements, and control whether rows can be deleted.
+   *
+   * @private
+   */
+  update: function() {
+    const buttons = this.grid.getElementsByTagName("button");
+    const disabled = (buttons.length <= 3);
+
+    let names = new Set();
+
+    for (let i = 0; i < buttons.length - 1; i++) {
+      buttons[i].disabled = disabled;
+
+      let input = buttons[i].previousElementSibling,
+      checkbox =  input.previousElementSibling;
+      valid = checkbox.checked || !names.has(input.value);
+      input.setCustomValidity(valid ? "" : "String names of object graphs must be unique.");
+      if (!checkbox.checked)
+        names.add(input.value);
+    }
+  }
+};
+
+{
+  let elems = {
+    "grid": "grid-outer-start-objectgraphs",
+    "template": "objectgraph-name-row",
+  };
+  let keys = Reflect.ownKeys(elems);
+  keys.forEach(function(key) {
+    defineElementGetter(HandlerNames, key, elems[key]);
+  });
+}
