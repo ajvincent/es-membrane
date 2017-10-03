@@ -51,12 +51,33 @@ const HandlerNames = {
       buttons[i].disabled = disabled;
 
       let input = buttons[i].previousElementSibling,
-      checkbox =  input.previousElementSibling;
+      checkbox =  input.previousElementSibling.firstElementChild;
       valid = checkbox.checked || !names.has(input.value);
       input.setCustomValidity(valid ? "" : "String names of object graphs must be unique.");
       if (!checkbox.checked)
         names.add(input.value);
     }
+  },
+
+  /**
+   * Get the graph names to use.
+   *
+   * @returns [
+   *   graphNames       {String[]}  The names of each graph.
+   *   graphSymbolLists {Integer[]} Element indexes of symbols in graphNames.
+   * ]
+   */
+  getNames: function() {
+    const graphNames = [], graphSymbolLists = [];
+    const buttons = this.grid.getElementsByTagName("button");
+    for (let i = 0; i < buttons.length - 1; i++) {
+      let input = buttons[i].previousElementSibling,
+      checkbox =  input.previousElementSibling.firstElementChild;
+      graphNames.push(input.value);
+      if (checkbox.checked)
+        graphSymbolLists.push(graphNames.length - 1);
+    }
+    return [graphNames, graphSymbolLists];
   }
 };
 

@@ -63,12 +63,31 @@ const OuterGridManager = {
       OuterGridManager.selectedTabs.file.dataset.lastTrap = event.target.value;
     }, true);
 
+    /* CodeMirror requires visible textareas, which will not happen until the
+     * panel is visible.
+     */
     this.filesTabbox.addEventListener("change", {
       handleEvent: function(event) {
         if (event.target !== OuterGridManager.addPanelRadio)
           return;
         OuterGridManager.filesTabbox.removeEventListener("change", this, true);
         DistortionsGUI.addValuePanel.init();
+      }
+    }, true);
+
+    this.filesTabbox.addEventListener("change", {
+      handleEvent: function(event) {
+        if (event.target !== OuterGridManager.outputPanelRadio)
+          return;
+        OuterGridManager.filesTabbox.removeEventListener("change", this, true);
+        OutputPanel.init();
+      }
+    }, true);
+
+    this.filesTabbox.addEventListener("change", {
+      handleEvent: function(event) {
+        if (event.target === OuterGridManager.outputPanelRadio)
+          OutputPanel.update();
       }
     }, true);
 

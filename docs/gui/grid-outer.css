@@ -61,14 +61,14 @@
 
 #grid-outer[filesTab="start"] > #grid-outer-mainpanels > section.startPanel,
 #grid-outer[filesTab="addValue"] > #grid-outer-mainpanels > section.addPanel,
-#grid-outer[filesTab="outputFile"] > #grid-outer-mainpanels > section.output
+#grid-outer[filesTab="output"] > #grid-outer-mainpanels > section.output
 {
   display: block;
 }
 
 #grid-outer[filesTab="start"] > #tabbox-function-traps > label,
 #grid-outer[filesTab="addValue"] > #tabbox-function-traps > label,
-#grid-outer[filesTab="outputFile"] > #tabbox-function-traps > label
+#grid-outer[filesTab="output"] > #tabbox-function-traps > label
 {
   display: none;
 }

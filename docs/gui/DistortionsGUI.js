@@ -125,7 +125,6 @@ DistortionsRules.prototype = {
   }
 };
 
-
 const DistortionsGUI = {
   // private, see below
   configFileInput: null,

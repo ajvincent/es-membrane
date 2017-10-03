@@ -28,7 +28,10 @@
           src="gui/DistortionsGUI.js"></script>
   <script type="application/javascript"
           src="gui/OuterGridManager.js"></script>
+  <script type="application/javascript"
+          src="gui/OutputPanel.js"></script>
 
+  <!-- Multistate button for truncateArgList, in #grid-outer-mainpanels -->
   <link rel="stylesheet" href="gui/multistate/multistate.css">
   <script type="application/javascript"
           src="gui/multistate/multistate.js"></script>
@@ -124,7 +127,8 @@
           </span>
           <hr>
 
-          <p>Name the object graphs you want here.  This is an unordered set.  (Examples:  ["public", "internal"] or ["dry", "wet"].)</p>
+          <p>Name the object graphs you want here.  This is an unordered set.
+          (Examples:  [internal, public] or [wet, dry].)</p>
           <div id="grid-outer-start-objectgraphs">
             <button class="icon addRow" onclick="HandlerNames.addRow();"></button>
           </div>
@@ -192,6 +196,33 @@ function() {
 
       <section class="output">
         <h2>Generated output</h2>
+        <p>This panel contains two outputs:  a Distortions GUI configuration
+        file, and a generated JavaScript file to initialize your
+        Membrane.  I recommend committing both files to your project repository.
+        </p>
+        <div id="grid-outer-output-error"></div>
+
+        <hr>
+        <div>
+          <label>
+            <a id="grid-outer-output-config-download"
+               download="membrane-distortions-gui.json">
+              Download configuration
+            </a>
+          </label>
+          <textarea id="grid-outer-output-configuration"></textarea>
+        </div>
+
+        <hr>
+        <div>
+          <label>
+            <a id="grid-outer-output-js-download"
+               download="build-membrane.js">
+              Download membrane initialization file
+            </a>
+          </label>
+          <textarea id="grid-outer-output-javascript"></textarea>
+        </div>
       </section>
       <!-- this is where <section> elements containing the distortions UI for
       individual values will live.  -->
