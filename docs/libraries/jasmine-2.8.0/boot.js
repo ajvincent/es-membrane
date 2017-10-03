@@ -119,7 +119,9 @@
       currentWindowOnload();
     }
     htmlReporter.initialize();
+    /* XXX ajvincent I always end up disabling this code...
     env.execute();
+    */
   };
 
   /**

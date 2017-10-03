@@ -20,6 +20,6 @@
     "assert": "^1.4.1"
   },
   "devDependencies": {
-    "jasmine": "^2.4.1"
+    "jasmine": "^2.8.0"
   }
 }
