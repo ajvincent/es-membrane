@@ -2654,10 +2654,21 @@ ObjectGraphHandler.prototype = Object.seal({
     }
 
     // Append the local proxy keys.
-    var rv = originalKeys.concat(
-      targetMap.localOwnKeys(targetMap.originField),
-      targetMap.localOwnKeys(this.fieldName)
-    );
+    var rv;
+    {
+      let originExtraKeys = targetMap.localOwnKeys(targetMap.originField);
+      let targetExtraKeys = targetMap.localOwnKeys(this.fieldName);
+      let known = new Set(originalKeys);
+      let f = function(key) {
+        if (known.has(key))
+          return false;
+        known.add(key);
+        return true;
+      };
+      originExtraKeys = originExtraKeys.filter(f);
+      targetExtraKeys = targetExtraKeys.filter(f);
+      rv = originalKeys.concat(originExtraKeys, targetExtraKeys);
+    }
 
     if (this.membrane.showGraphName && !rv.includes("membraneGraphName")) {
       rv.push("membraneGraphName");
