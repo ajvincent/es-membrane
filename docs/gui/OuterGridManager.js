@@ -1,4 +1,4 @@
-const OuterGridManager = {
+const OuterGridManager = window.OuterGridManager = {
   // private, see below
   sheet: null,
   grid: null,

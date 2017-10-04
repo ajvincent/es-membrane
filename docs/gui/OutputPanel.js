@@ -1,4 +1,4 @@
-const OutputPanel = {
+const OutputPanel = window.OutputPanel = {
   // private, see below
   configTextarea: null,
   jsTextarea: null,

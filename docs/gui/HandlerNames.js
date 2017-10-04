@@ -1,4 +1,4 @@
-const HandlerNames = {
+const HandlerNames = window.HandlerNames = {
   // private
   grid: null,
   template: null,

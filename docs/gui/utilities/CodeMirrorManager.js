@@ -1,4 +1,4 @@
-const CodeMirrorManager = {
+const CodeMirrorManager = window.CodeMirrorManager = {
   buildNewEditor: function(textarea, baseOptions = {})
   {
     const options = {

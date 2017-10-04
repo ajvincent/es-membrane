@@ -1,4 +1,4 @@
-const DistortionsManager = {
+const DistortionsManager = window.DistortionsManager = {
   commonFileURLs: new Map(),
   
   valueToValueName: new Map(/*
@@ -125,7 +125,7 @@ DistortionsRules.prototype = {
   }
 };
 
-const DistortionsGUI = {
+const DistortionsGUI = window.DistortionsGUI = {
   // private, see below
   configFileInput: null,
   commonFilesInput: null,
