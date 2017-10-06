@@ -133,22 +133,8 @@ const DistortionsGUI = window.DistortionsGUI = {
 
   gridTreeCount: 0,
 
-  addValuePanel: {
-    // private, see below
-    form: null,
-    textarea: null,
-    mainPanels: null,
-
-    // private, set in event listener from OuterGridManager.init().
-    getValueEditor: null,
-    
-    init: function() {
-      this.getValueEditor = CodeMirrorManager.buildNewEditor(this.textarea);
-    }
-  },
-
   createValuePanel: function() {
-    const valueName = this.addValuePanel.form.nameOfValue.value;
+    const valueName = AddValuePanel.form.nameOfValue.value;
     if (DistortionsManager.valueNameToTabMap.has(valueName))
       return;
 
@@ -165,7 +151,7 @@ const DistortionsGUI = window.DistortionsGUI = {
     {
       let sources = [
         "window.BlobLoader.getValue = ",
-        this.addValuePanel.getValueEditor.getValue()
+        AddValuePanel.getValueEditor.getValue()
       ];
       let b = new Blob(sources, { type: "application/javascript" });
       urlObject.searchParams.append("scriptblob", URL.createObjectURL(b));
@@ -214,7 +200,7 @@ const DistortionsGUI = window.DistortionsGUI = {
       );
     }
 
-    this.addValuePanel.mainPanels.appendChild(panel);
+    AddValuePanel.mainPanels.appendChild(panel);
 
     if (typeof value === "function") {
       const valueName = DistortionsManager.valueToValueName.get(value);
@@ -304,17 +290,5 @@ const DistortionsGUI = window.DistortionsGUI = {
   let keys = Reflect.ownKeys(elems);
   keys.forEach(function(key) {
     defineElementGetter(DistortionsGUI, key, elems[key]);
-  });
-}
-
-{
-  let elems = {
-    "form": "grid-outer-addValue",
-    "textarea": "grid-outer-addValue-valueReference",
-    "mainPanels": "grid-outer-mainpanels",
-  };
-  let keys = Reflect.ownKeys(elems);
-  keys.forEach(function(key) {
-    defineElementGetter(DistortionsGUI.addValuePanel, key, elems[key]);
   });
 }

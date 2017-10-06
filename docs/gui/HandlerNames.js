@@ -78,7 +78,19 @@ const HandlerNames = window.HandlerNames = {
         graphSymbolLists.push(graphNames.length - 1);
     }
     return [graphNames, graphSymbolLists];
-  }
+  },
+
+  getFormattedNames: function() {
+    const [graphNames, graphSymbolLists] = this.getNames();
+    return graphNames.map(function(elem, index) {
+      elem = JSON.stringify(elem);
+      if (graphSymbolLists.length && (graphSymbolLists[0] === index)) {
+        graphSymbolLists.shift();
+        return `Symbol(${elem})`;
+      }
+      return elem;
+    });
+  },
 };
 
 {

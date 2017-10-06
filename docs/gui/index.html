@@ -13,11 +13,6 @@
   <script type="application/javascript"
           src="gui/utilities/stylesheet.js"></script>
 
-  <!-- start panel -->
-  <link rel="stylesheet" href="gui/startpanel.css">
-  <script type="application/javascript"
-          src="gui/HandlerNames.js"></script>
-
   <link rel="stylesheet" href="gui/tree/tree.css">
   <script type="application/javascript"
           src="gui/tree/tree.js"></script>
@@ -28,8 +23,20 @@
           src="gui/DistortionsGUI.js"></script>
   <script type="application/javascript"
           src="gui/OuterGridManager.js"></script>
+
+  <!-- start panel -->
+  <link rel="stylesheet" href="gui/startpanel.css">
+  <script type="application/javascript"
+          src="gui/HandlerNames.js"></script>
   <script type="application/javascript"
           src="gui/StartPanel.js"></script>
+
+  <!-- add value panel -->
+  <link rel="stylesheet" href="gui/addvaluepanel.css">
+  <script type="application/javascript"
+          src="gui/AddValuePanel.js"></script>
+
+  <!-- output panel -->
   <script type="application/javascript"
           src="gui/OutputPanel.js"></script>
 
@@ -149,6 +156,7 @@
               method="post"
               enctype="multipart/form-data"
               action="javascript:DistortionsGUI.createValuePanel();">
+          <!-- This needs to be rethought.
           <span id="grid-outer-addValue-location-span">
             <label for="grid-outer-addValue-location">
               Additional source JavaScript files:
@@ -163,6 +171,14 @@
                   >
           </span>
           <br>
+          -->
+
+          <div id="grid-outer-addValue-graphs">
+            <label>Source graph</label>
+            <label>Target graph</label>
+            <select size="5" id="grid-outer-addValue-sourcegraph" required="required"></select>
+            <select size="5" id="grid-outer-addValue-targetgraph" required="required"></select>
+          </div>
 
           <span>
             <label for="grid-outer-addValue-valueName">

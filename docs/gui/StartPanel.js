@@ -1,3 +1,5 @@
+// see also HandlerNames.js
+
 const StartPanel = window.StartPanel = {
   // private, see below
   commonFilesInput: null,
@@ -13,7 +15,6 @@ const StartPanel = window.StartPanel = {
       return;
     {
       let files = this.commonFilesInput.files;
-      if (files.length == 0)
       for (let i = 0; i < files.length; i++) {
         let file = files[i];
         DistortionsManager.commonFileURLs.set(file, URL.createObjectURL(file));

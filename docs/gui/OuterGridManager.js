@@ -71,7 +71,7 @@ const OuterGridManager = window.OuterGridManager = {
         if (event.target !== OuterGridManager.addPanelRadio)
           return;
         OuterGridManager.filesTabbox.removeEventListener("change", this, true);
-        DistortionsGUI.addValuePanel.init();
+        AddValuePanel.init();
       }
     }, true);
 

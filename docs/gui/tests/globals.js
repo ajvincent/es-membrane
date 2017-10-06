@@ -12,6 +12,7 @@ it("Top-level globals for the Distortion UI exist", function() {
     "TabboxRadioEventHandler",
     "MultistateHandler",
     "StartPanel",
+    "AddValuePanel",
     "OutputPanel",
     "styleAndMoveTreeColumns",
     "CodeMirrorManager",

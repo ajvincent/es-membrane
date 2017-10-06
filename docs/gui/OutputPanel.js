@@ -82,19 +82,10 @@ const OutputPanel = window.OutputPanel = {
     /**************************************************************************
      * Step 3:  Generate Membrane crafting JavaScript file.                   *
      **************************************************************************/
-    graphNames = graphNames.map(function(elem, index) {
-      elem = JSON.stringify(elem);
-      if (graphSymbolLists.length && (graphSymbolLists[0] === index)) {
-        graphSymbolLists.shift();
-        return `Symbol(${elem})`;
-      }
-      return elem;
-    });
-
     const script = `function buildMembrane() {
   "use strict";
   const devMembrane = new Membrane();
-  const graphNames = [\n    ${graphNames.join(",\n    ")}\n  ];
+  const graphNames = [\n    ${HandlerNames.getFormattedNames().join(",\n    ")}\n  ];
   graphNames.forEach(function(name) {
     devMembrane.getHandlerByName(name, true);
   });
