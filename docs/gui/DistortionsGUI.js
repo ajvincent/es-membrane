@@ -127,8 +127,6 @@ DistortionsRules.prototype = {
 
 const DistortionsGUI = window.DistortionsGUI = {
   // private, see below
-  configFileInput: null,
-  commonFilesInput: null,
   iframeBox: null,
   treeUITemplate: null,
   propertyTreeTemplate: null,
@@ -147,25 +145,6 @@ const DistortionsGUI = window.DistortionsGUI = {
     init: function() {
       this.getValueEditor = CodeMirrorManager.buildNewEditor(this.textarea);
     }
-  },
-
-  loadConfigAndStart: function() {
-    if (this.configFileInput.files.length) {
-      /* loading config files isn't yet supported. */
-    }
-
-    {
-      let files = this.commonFilesInput.files;
-      for (let i = 0; i < files.length; i++) {
-        let file = files[i];
-        DistortionsManager.commonFileURLs.set(file, URL.createObjectURL(file));
-      }
-    }
-
-    OuterGridManager.addPanelRadio.disabled = false;
-    OuterGridManager.outputPanelRadio.disabled = false;
-
-    OuterGridManager.addPanelRadio.click();
   },
 
   createValuePanel: function() {
@@ -316,8 +295,6 @@ const DistortionsGUI = window.DistortionsGUI = {
 
 {
   let elems = {
-    "configFileInput": "grid-outer-start-config",
-    "commonFilesInput": "grid-outer-start-location",
     "addValueForm": "grid-outer-addValue",
     "addValueTextarea": "grid-outer-addValue-valueReference",
     "iframeBox": "iframe-box",

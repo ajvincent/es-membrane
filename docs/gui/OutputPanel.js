@@ -30,7 +30,7 @@ const OutputPanel = window.OutputPanel = {
     while (this.errorDiv.firstChild)
       this.errorDiv.removeChild(this.errorDiv.firstChild);
 
-    if (!OuterGridManager.startForm.reportValidity()) {
+    if (!StartPanel.graphNamesForm.reportValidity()) {
       this.errorDiv.appendChild(document.createTextNode(
         `There is a problem with the graph names.  Please return to the Start ` +
         `panel and fix the errors.`
@@ -56,7 +56,7 @@ const OutputPanel = window.OutputPanel = {
      **************************************************************************/
     const commonFiles = [];
     {
-      let fileList = DistortionsGUI.commonFilesInput.files;
+      let fileList = StartPanel.commonFilesInput.files;
       for (let i = 0; i < fileList.length; i++)
         commonFiles.push(fileList[i].name);
     }
