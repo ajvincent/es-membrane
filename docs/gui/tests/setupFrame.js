@@ -4,14 +4,22 @@ window.addEventListener("load", function() {
   testFrame = document.getElementById("testFrame");
 }, CAPTURE_ONCE);
 
+function getDocumentLoadPromise(url) {
+  var p = new Promise(function (resolve/*, reject */) {
+    testFrame.addEventListener("load", function() {
+      resolve(testFrame.contentDocument)
+    }, CAPTURE_ONCE);
+  });
+  testFrame.setAttribute("src", url);
+  return p;
+}
+
 beforeEach(function(done) {
-  testFrame.addEventListener("load", done, {once: true, capture: true});
-  testFrame.setAttribute("src", "gui/index.html");
+  getDocumentLoadPromise("gui/index.html").then(done);
 });
 
 afterEach(function(done) {
-  testFrame.addEventListener("load", done, {once: true, capture: true});
-  testFrame.setAttribute("src", "about:blank");  
+  getDocumentLoadPromise("about:blank").then(done);
 });
 
 afterAll(function() {
