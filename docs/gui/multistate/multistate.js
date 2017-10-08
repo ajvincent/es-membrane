@@ -1,5 +1,5 @@
 function MultistateHandler(event) {
-  const multistate = event.target;
+  const multistate = event.currentTarget;
   if (!multistate.classList.contains("multistate"))
     return;
   multistate.appendChild(multistate.firstElementChild);
