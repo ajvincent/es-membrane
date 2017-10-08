@@ -6,37 +6,60 @@
   font-family: Verdana, sans-serif;
 }
 
-#tabbox-files {
-  max-height: 2em;
+#tabbox-files-cell {
   width: 1002.5px;
   overflow-x: scroll;
   grid-column-start: 1;
   grid-column-end: 3;
 }
 
-#grid-outer > .tabbar > input[type="radio"]
+#tabbox-files {
+  display: grid;
+  /* The repeat section is for new grid cells added for values to wrap */
+  grid-template-columns: 50px 5px /*repeat(x, auto)*/ 5px 95px 65px;
+}
+
+#tabbox-files > span.tabgroup:first-child {
+  grid-column-start: 3; /* after the Start and first spacer cells */
+}
+
+#tabbox-files-start + label {
+  grid-column-start: 1;
+}
+
+#tabbox-files-addPanel + label {
+  grid-column-start: -3;
+}
+
+#grid-outer .tabbar > input[type="radio"]
 {
   display: none;
 }
 
-#grid-outer > .tabbar > input[type="radio"] + label {
+#grid-outer .tabbar > input[type="radio"] + label,
+#tabbox-files > span.tabgroup {
   border: 1px solid black;
   padding: 1px;
 }
 
-#grid-outer > .tabbar > input[type="radio"]:disabled + label {
+#tabbox-files > span.tabgroup {
+  background-color: #00ff00;
+  font-style: italic;
+}
+
+#grid-outer .tabbar > input[type="radio"]:disabled + label {
   color: #7f7f7f;
 }
 
-#grid-outer > .tabbar > input[type="radio"]:not(:checked) + label {
+#grid-outer .tabbar > input[type="radio"]:not(:checked) + label {
   background-color: #cccccc;
 }
 
-#grid-outer > .tabbar > input[type="radio"]:checked + label {
+#grid-outer .tabbar > input[type="radio"]:checked + label {
   background-color: #ffffff;
 }
 
-#grid-outer > .tabbar > input[type="radio"]:not(:checked) + label > img {
+#grid-outer .tabbar > input[type="radio"]:not(:checked) + label > img {
   background-position: 0px 4px;
 }
 

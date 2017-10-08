@@ -2,6 +2,7 @@ const HandlerNames = window.HandlerNames = {
   // private
   grid: null,
   template: null,
+  cachedNames: null,
 
   /**
    * Initialize the UI.
@@ -67,7 +68,7 @@ const HandlerNames = window.HandlerNames = {
    *   graphSymbolLists {Integer[]} Element indexes of symbols in graphNames.
    * ]
    */
-  getNames: function() {
+  serializableNames: function() {
     const graphNames = [], graphSymbolLists = [];
     const buttons = this.grid.getElementsByTagName("button");
     for (let i = 0; i < buttons.length - 1; i++) {
@@ -81,7 +82,7 @@ const HandlerNames = window.HandlerNames = {
   },
 
   getFormattedNames: function() {
-    const [graphNames, graphSymbolLists] = this.getNames();
+    const [graphNames, graphSymbolLists] = this.serializableNames();
     return graphNames.map(function(elem, index) {
       elem = JSON.stringify(elem);
       if (graphSymbolLists.length && (graphSymbolLists[0] === index)) {
@@ -90,6 +91,20 @@ const HandlerNames = window.HandlerNames = {
       }
       return elem;
     });
+  },
+
+  getGraphNames: function() {
+    if (!this.cachedNames) {
+      const [graphNames, graphSymbolLists] = this.serializableNames();
+      this.cachedNames = graphNames.map(function(elem, index) {
+        if (graphSymbolLists.length && (graphSymbolLists[0] === index)) {
+          graphSymbolLists.shift();
+          return Symbol(elem);
+        }
+        return elem;
+      });
+    }
+    return this.cachedNames.slice(0);
   },
 };
 

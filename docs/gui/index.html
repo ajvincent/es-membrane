@@ -73,25 +73,34 @@
   <form action="javascript:void(null);" id="tabbox-form"></form>
   <div id="grid-outer">
     <!-- row 1 -->
-    <div id="tabbox-files" class="tabbar">
-      <!-- tabbox-files occupies two horizontal cells -->
-      <input type="radio" name="files" checked="checked" form="tabbox-form"
-             value="start" id="tabbox-files-start"/>
-      <label for="tabbox-files-start">
-        <strong>Start</strong>
-      </label>
+    <div id="tabbox-files-cell">
+      <!-- tabbox-files-cell occupies two horizontal cells in grid-outer -->
 
-      <span style="width: 10px;" class="insertPoint">&nbsp;</span>
-      <input type="radio" name="files" disabled="disabled" form="tabbox-form"
-             value="addValue" id="tabbox-files-addPanel"/>
-      <label for="tabbox-files-addPanel">
-        <strong>Add Value</strong>
-      </label>
-      <input type="radio" name="files" disabled="disabled" form="tabbox-form"
-             value="output" id="tabbox-files-output">
-      <label for="tabbox-files-output">
-        <strong>Output</strong>
-      </label>
+      <div id="tabbox-files" class="tabbar">
+        <!-- tabbox-files defines its own grid.
+             row 1 is for object graph handlers by name, which is how tabs are grouped.
+          -->
+
+        <!-- row 2 -->
+        <input type="radio" name="files" checked="checked" form="tabbox-form"
+               value="start" id="tabbox-files-start"/>
+        <label for="tabbox-files-start">
+          <strong>Start</strong>
+        </label>
+        <span>&nbsp;</span>
+
+        <span class="insertPoint">&nbsp;</span>
+        <input type="radio" name="files" disabled="disabled" form="tabbox-form"
+               value="addValue" id="tabbox-files-addPanel"/>
+        <label for="tabbox-files-addPanel">
+          <strong>Add Value</strong>
+        </label>
+        <input type="radio" name="files" disabled="disabled" form="tabbox-form"
+               value="output" id="tabbox-files-output">
+        <label for="tabbox-files-output">
+          <strong>Output</strong>
+        </label>
+      </div>
     </div>
     <span><!-- this element intentionally left blank --></span>
 
@@ -155,7 +164,7 @@
         <form id="grid-outer-addValue"
               method="post"
               enctype="multipart/form-data"
-              action="javascript:DistortionsGUI.createValuePanel();">
+              action="javascript:DistortionsGUI.buildValuePanel();">
           <!-- This needs to be rethought.
           <span id="grid-outer-addValue-location-span">
             <label for="grid-outer-addValue-location">
@@ -176,8 +185,16 @@
           <div id="grid-outer-addValue-graphs">
             <label>Source graph</label>
             <label>Target graph</label>
-            <select size="5" id="grid-outer-addValue-sourcegraph" required="required"></select>
-            <select size="5" id="grid-outer-addValue-targetgraph" required="required"></select>
+            <select size="5"
+                    id="grid-outer-addValue-sourcegraph"
+                    name="sourceGraph"
+                    required="required">
+            </select>
+            <select size="5"
+                    id="grid-outer-addValue-targetgraph"
+                    name="targetGraph"
+                    required="required">
+            </select>
           </div>
 
           <span>

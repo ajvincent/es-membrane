@@ -12,6 +12,10 @@ const DistortionsManager = window.DistortionsManager = {
   valueNameToRulesMap: new Map(/*
     valueName: new DistortionRules(value, treeroot)
   */),
+
+  hashGraphAndValueNames: function(valueName, graphIndex) {
+    return valueName + "-" + graphIndex;
+  },
 };
 
 function DistortionsRules() {
@@ -133,9 +137,11 @@ const DistortionsGUI = window.DistortionsGUI = {
 
   gridTreeCount: 0,
 
-  createValuePanel: function() {
-    const valueName = AddValuePanel.form.nameOfValue.value;
-    if (DistortionsManager.valueNameToTabMap.has(valueName))
+  buildValuePanel: function() {
+    const valueName = AddValuePanel.form.nameOfValue.value,
+          graphIndex = AddValuePanel.form.targetGraph.selectedIndex,
+          hash = DistortionsManager.hashGraphAndValueNames(valueName, graphIndex);
+    if (DistortionsManager.valueNameToTabMap.has(hash))
       return;
 
     let urlObject = new URL("blob/BlobLoader.html", window.location.href);
@@ -162,13 +168,14 @@ const DistortionsGUI = window.DistortionsGUI = {
 
     const panel = document.createElement("section");
     panel.dataset.valueName = valueName;
+    panel.dataset.hash = hash;
     const radioClass = "valuepanel-" + DistortionsManager.valueNameToTabMap.size;
     panel.setAttribute("trapsTab", "value");
 
     const radio = OuterGridManager.insertValuePanel(
-      valueName, radioClass, panel
+      graphIndex, valueName, radioClass, panel
     );
-    DistortionsManager.valueNameToTabMap.set(valueName, radio);
+    DistortionsManager.valueNameToTabMap.set(hash, radio);
 
     iframe.addEventListener("load", function() {
       DistortionsGUI.finalizeValuePanel(iframe.contentWindow.BlobLoader, panel);
@@ -196,18 +203,18 @@ const DistortionsGUI = window.DistortionsGUI = {
     else {
       const rules = this.buildDistortions(panel, value);
       DistortionsManager.valueNameToRulesMap.set(
-        panel.dataset.valueName, { "value": rules }
+        panel.dataset.hash, { "value": rules }
       );
     }
 
     AddValuePanel.mainPanels.appendChild(panel);
 
     if (typeof value === "function") {
-      const valueName = DistortionsManager.valueToValueName.get(value);
-      const radio = DistortionsManager.valueNameToTabMap.get(valueName);
+      const hash = DistortionsManager.valueToValueName.get(value);
+      const radio = DistortionsManager.valueNameToTabMap.get(hash);
 
       radio.dataset.valueIsFunction = true;
-      const protoPanel = this.buildPrototypePanel(value, valueName);
+      const protoPanel = this.buildPrototypePanel(value, hash);
       if (protoPanel)
         OuterGridManager.insertOtherPanel(radio, protoPanel);
 
@@ -248,7 +255,7 @@ const DistortionsGUI = window.DistortionsGUI = {
     const rules = new DistortionsRules();
     rules.initByValue(value, treeroot);
 
-    DistortionsManager.valueToValueName.set(value, panel.dataset.valueName);
+    DistortionsManager.valueToValueName.set(value, panel.dataset.hash);
 
     if (typeof value !== "function") {
       const fnCheckboxes = gridtree.getElementsByClassName("function-only");
@@ -262,18 +269,18 @@ const DistortionsGUI = window.DistortionsGUI = {
     return rules;
   },
 
-  buildPrototypePanel: function(value, valueName) {
+  buildPrototypePanel: function(value, hash) {
     if (typeof value.prototype !== "object") {
       // Normally, this is never true... typeof Function.prototype == "function"
       return null;
     }
 
     const panel = document.createElement("section");
-    panel.dataset.valueName = valueName;
+    panel.dataset.hash = hash;
     panel.setAttribute("trapsTab", "prototype");
 
     const rules = this.buildDistortions(panel, value.prototype);
-    DistortionsManager.valueNameToRulesMap.get(valueName).proto = rules;
+    DistortionsManager.valueNameToRulesMap.get(hash).proto = rules;
 
     return panel;
   },

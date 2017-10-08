@@ -14,6 +14,14 @@ const OuterGridManager = window.OuterGridManager = {
   helpAndNotes: null,
   selectedHelpAndNotesPanel: null,
 
+  graphNamesCache: {
+    items: null,
+    labelElements: [],
+    firstRadioElements: [],
+    radioElementCounts: [],
+    groupColumnsRule: null,
+  },
+
   selectedTabs: {
     file: null,
     trap: null,
@@ -99,7 +107,7 @@ const OuterGridManager = window.OuterGridManager = {
     this.panels.addEventListener("click", MultistateHandler, true);
   },
 
-  insertValuePanel: function(valueName, radioClass, panel) {
+  insertValuePanel: function(graphIndex, valueName, radioClass, panel) {
     const radio = document.createElement("input");
     radio.setAttribute("form", "tabbox-form");
     radio.setAttribute("type", "radio");
@@ -109,7 +117,6 @@ const OuterGridManager = window.OuterGridManager = {
     radio.dataset.lastTrap = "value";
 
     panel.classList.add(radioClass);
-
     this.addCSSPanelRule(radioClass, "value");
 
     const listener = new CSSClassToggleHandler(
@@ -123,11 +130,79 @@ const OuterGridManager = window.OuterGridManager = {
 
     this.panels.appendChild(panel);
 
-    const refChild = this.filesTabbox.getElementsByClassName("insertPoint")[0];
+    const refChild = this.getGraphIndexRef(graphIndex, radio);
     this.filesTabbox.insertBefore(radio, refChild);
     this.filesTabbox.insertBefore(label, refChild);
 
     return radio;
+  },
+
+  getGraphIndexRef: function(index, radioToInsert) {
+    const cache = this.graphNamesCache;
+    if (!cache.items) {
+      cache.items = HandlerNames.getGraphNames();
+    }
+
+    // Cache the radio button, to insert another element before it later.
+    if (!cache.firstRadioElements[index]) {
+      cache.firstRadioElements[index] = radioToInsert;
+    }
+
+    // We should track how many values belong to an object graph.
+    if (typeof cache.radioElementCounts[index] === "number")
+      cache.radioElementCounts[index]++;
+    else
+      cache.radioElementCounts[index] = 1;
+
+    // Renumber the grid columns of this.filesTabbox.
+    if (!cache.groupColumnsRule) {
+      const widths = window.getComputedStyle(this.filesTabbox, null)
+                           .gridTemplateColumns
+                           .split(" ");
+      widths.splice(2, 0, "repeat(var(--column-count), auto)");
+      const ruleText = `#tabbox-files { grid-template-columns: ${widths.join(" ")};}`;
+      const ruleIndex = this.sheet.insertRule(ruleText, this.sheet.cssRules.length);
+      cache.groupColumnsRule = this.sheet.cssRules[ruleIndex];
+    }
+
+    // Ensure each column is counted.
+    {
+      const count = cache.radioElementCounts.reduce(function(sum, value) {
+        return sum + (value || 0);
+      }, 0);
+      cache.groupColumnsRule.style.setProperty("--column-count", count);
+    }
+
+    // Insert the group label for the object graph.
+    if (!cache.labelElements[index]) {
+      const span = document.createElement("span");
+      span.classList.add("tabgroup");
+      cache.labelElements[index] = span;
+      span.appendChild(document.createTextNode(cache.items[index]));
+
+      // Find the insertion point
+      const following = cache.labelElements.slice(index + 1);
+      const ref = following.find(function(el) {
+        return Boolean(el);
+      }) || this.startPanelRadio;
+
+      this.filesTabbox.insertBefore(span, ref);
+    }
+
+    // Ensure the graph's label goes across all of its wrapped values.
+    {
+      const span = cache.labelElements[index];
+      span.style.gridColumnEnd = "span " + cache.radioElementCounts[index];
+    }
+
+    // Now, finally, find where the radio button we were passed should be inserted.
+    {
+      const following = this.graphNamesCache.firstRadioElements.slice(index + 1);
+      const ref = following.find(function(el) {
+        return Boolean(el);
+      }) || this.filesTabbox.getElementsByClassName("insertPoint")[0];
+      return ref;
+    }
   },
 
   insertOtherPanel: function(radio, panel) {

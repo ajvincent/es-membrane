@@ -61,7 +61,7 @@ const OutputPanel = window.OutputPanel = {
         commonFiles.push(fileList[i].name);
     }
     
-    var [graphNames, graphSymbolLists] = HandlerNames.getNames();
+    var [graphNames, graphSymbolLists] = HandlerNames.serializableNames();
 
     /**************************************************************************
      * Step 2:  Generate Distortions GUI JSON file.                           *
