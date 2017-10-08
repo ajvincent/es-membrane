@@ -113,7 +113,17 @@ DistortionsRules.prototype = {
   },
 
   handleEvent: function(event) {
-    const el = event.target;
+    let el = event.target;
+    {
+      let multistate = el;
+      if (multistate.localName.toLowerCase() === "span") {
+        multistate = multistate.parentNode;
+        if ((multistate.localName.toLowerCase() === "button") &&
+            multistate.classList.contains("multistate"))
+          el = multistate;
+      }
+    }
+
     if ((el.classList.contains("multistate")) &&
         (el.dataset.propertyName === "truncateArgList")) {
       el.nextElementSibling.disabled = (el.value !== "number");
