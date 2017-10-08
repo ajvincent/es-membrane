@@ -1,5 +1,7 @@
 function MultistateHandler(event) {
-  const multistate = event.currentTarget;
+  const multistate = event.target;
+  if (multistate.localName.toLowerCase() === "span")
+    multistate = multistate.parentNode;
   if (!multistate.classList.contains("multistate"))
     return;
   multistate.appendChild(multistate.firstElementChild);
