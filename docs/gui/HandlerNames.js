@@ -60,6 +60,21 @@ const HandlerNames = window.HandlerNames = {
     }
   },
 
+  get rowCount() {
+    return this.grid.getElementsByTagName("button").length - 2;
+  },
+
+  setRow: function(index, name, isSymbol) {
+    while (this.rowCount < index)
+      this.addRow();
+    const button = this.grid.getElementsByTagName("button")[index];
+    const input = button.previousElementSibling,
+    checkbox =  input.previousElementSibling.firstElementChild;
+
+    input.value = name;
+    checkbox.checked = isSymbol;
+  },
+
   /**
    * Get the graph names to use.
    *
@@ -74,6 +89,10 @@ const HandlerNames = window.HandlerNames = {
     for (let i = 0; i < buttons.length - 1; i++) {
       let input = buttons[i].previousElementSibling,
       checkbox =  input.previousElementSibling.firstElementChild;
+
+      if (!input.checkValidity())
+        continue;
+
       graphNames.push(input.value);
       if (checkbox.checked)
         graphSymbolLists.push(graphNames.length - 1);

@@ -10,10 +10,25 @@ const StartPanel = window.StartPanel = {
   graphNamesForm: null,
   graphNamesSubmit: null,
 
+  // public for testing purposes
+  testMode: false,
+
   startWithGraphNames: function() {
-    if (!this.startFilesForm.reportValidity())
-      return;
-    {
+    if (this.testMode) {
+      [
+        "../dist/browser/assert.js",
+        "../dist/browser/sharedUtilities.js",
+        "../dist/browser/es7-membrane.js",
+        "../dist/browser/mocks.js"
+      ].forEach(function(filepath) {
+        DistortionsManager.commonFileURLs.set(
+          filepath, new URL(filepath, window.location.href)
+        );
+      });
+    }
+    else {
+      if (!this.startFilesForm.reportValidity())
+        return;
       let files = this.commonFilesInput.files;
       for (let i = 0; i < files.length; i++) {
         let file = files[i];
