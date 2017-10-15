@@ -1,13 +1,14 @@
 const CAPTURE_ONCE = Object.freeze({once: true, capture: true});
 var testFrame;
-window.addEventListener("load", function() {
-  testFrame = document.getElementById("testFrame");
-}, CAPTURE_ONCE);
 
 function getDocumentLoadPromise(url) {
   var p = new Promise(function (resolve/*, reject */) {
+    if (!testFrame) {
+      testFrame = document.createElement("iframe");
+      document.body.appendChild(testFrame);
+    }
     testFrame.addEventListener("load", function() {
-      resolve(testFrame.contentDocument)
+      resolve(testFrame.contentDocument);
     }, CAPTURE_ONCE);
   });
   testFrame.setAttribute("src", url);
@@ -15,7 +16,7 @@ function getDocumentLoadPromise(url) {
 }
 
 beforeEach(function(done) {
-  getDocumentLoadPromise("gui/index.html").then(done);
+  getDocumentLoadPromise("base/gui/index.html").then(done);
 });
 
 afterEach(function(done) {

@@ -124,4 +124,6 @@ node:: base mockDocs specs
 	@cat $(NODE_DIST_FILES) > $(DIST)/node/es7-membrane.js
 	@cat $(NODE_MOCKS_FILES) > $(DIST)/node/mocks.js
 	@cat $(NODE_UTILITIES_FILES) > $(DIST)/node/utilities.js
-	@npm test
+	npm test
+	npm run gui-tests
+
