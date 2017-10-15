@@ -1,4 +1,4 @@
-all:: clean browser node
+all:: clean node browser
 
 .PHONY:: clean base mockDocs specs browser node package all travis-ci
 
@@ -96,6 +96,8 @@ browser:: base mockDocs specs
 	@cp wrappers/browser/assert.js $(DIST)/browser/assert.js
 	@echo "You may now open './$(DIST)/staging/test-browser.xhtml'."
 	@echo "  (if Mozilla Firefox, version 51 or later is required)"
+	npm run gui-tests
+
 
 NODE_DIST_FILES = \
 	wrappers/useStrict.js \
@@ -125,5 +127,4 @@ node:: base mockDocs specs
 	@cat $(NODE_MOCKS_FILES) > $(DIST)/node/mocks.js
 	@cat $(NODE_UTILITIES_FILES) > $(DIST)/node/utilities.js
 	npm test
-	npm run gui-tests
 
