@@ -29,6 +29,11 @@ const AddValuePanel = window.AddValuePanel = {
     this.updateSelects();
 
     this.getValueEditor = CodeMirrorManager.buildNewEditor(this.textarea);
+
+    window.postMessage(
+      "addValue initialized",
+      window.location.origin
+    );
   },
 
   updateSelects: function() {

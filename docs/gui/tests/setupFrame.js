@@ -15,6 +15,10 @@ function getDocumentLoadPromise(url) {
   return p;
 }
 
+function promiseToJasmine(p, done) {
+  return p.then(null, fail).then(done);
+}
+
 beforeEach(function(done) {
   getDocumentLoadPromise("base/gui/index.html").then(done);
 });

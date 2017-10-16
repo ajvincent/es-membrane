@@ -23,18 +23,27 @@ describe("Start Panel Operations:", function() {
     expect(graphSymbolLists.length).toBe(0);
   });
 
-  it("can build a fresh configuration with test mode", function() {
-    window.HandlerNames.setRow(0, "wet", false);
-    window.HandlerNames.setRow(1, "dry", false);
-    window.HandlerNames.update();
+  it("can build a fresh configuration with test mode", function(done) {
+    let [startSequence, p] = getGUIMocksPromise(["doc"]);
+    p = p.then(
+      function() {
+        const loaders = [];
+        {
+          let iframe = window.DistortionsGUI.iframeBox.firstElementChild;
+          while (iframe) {
+            loaders.push(iframe.contentWindow.BlobLoader);
+            iframe = iframe.nextElementSibling;
+          }
+        }
 
-    const isValid = window.StartPanel.graphNamesForm.checkValidity();
-    expect(isValid).toBe(true);
-    if (!isValid)
-      return;
+        expect(loaders.length).toBe(1);
+        expect(loaders[0].validated).toBe(true);
+        expect(loaders[0].errorFired).toBe(false);
+        expect(loaders[0].getValue().nodeType).toBe(9);
+      }
+    );
+    promiseToJasmine(p, done);
 
-    window.StartPanel.startWithGraphNames();
-
-    expect(window.OuterGridManager.selectedTabs.file).toBe(window.OuterGridManager.addPanelRadio);
+    startSequence();
   });
 });

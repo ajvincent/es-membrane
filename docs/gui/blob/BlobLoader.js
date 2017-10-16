@@ -2,7 +2,14 @@ window.BlobLoader = {
   getValue: () => undefined,
   errorFired: false,
   errorMessage: undefined,
-  
+  validated: false,
+
+  getValueAndValidate: function() {
+    const rv = this.getValue();
+    this.validated = true;
+    return rv;
+  },
+
   init: function() {
     "use strict";
     const params = new URL(window.location.href).searchParams;

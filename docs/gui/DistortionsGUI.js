@@ -190,14 +190,14 @@ const DistortionsGUI = window.DistortionsGUI = {
     iframe.addEventListener("load", function() {
       DistortionsGUI.finalizeValuePanel(iframe.contentWindow.BlobLoader, panel);
       radio.click();
-    });
+    }, {once: true, capture: true});
     this.iframeBox.appendChild(iframe);
   },
 
   finalizeValuePanel: function(BlobLoader, panel) {
     var value;
     try {
-      value = BlobLoader.getValue();
+      value = BlobLoader.getValueAndValidate();
     }
     catch (e) {
       BlobLoader.registerError(e);
