@@ -23,27 +23,20 @@ describe("Start Panel Operations:", function() {
     expect(graphSymbolLists.length).toBe(0);
   });
 
-  it("can build a fresh configuration with test mode", function(done) {
-    let [startSequence, p] = getGUIMocksPromise(["doc"]);
-    p = p.then(
-      function() {
-        const loaders = [];
-        {
-          let iframe = window.DistortionsGUI.iframeBox.firstElementChild;
-          while (iframe) {
-            loaders.push(iframe.contentWindow.BlobLoader);
-            iframe = iframe.nextElementSibling;
-          }
-        }
-
-        expect(loaders.length).toBe(1);
-        expect(loaders[0].validated).toBe(true);
-        expect(loaders[0].errorFired).toBe(false);
-        expect(loaders[0].getValue().nodeType).toBe(9);
+  it("can build a fresh configuration with test mode", async function() {
+    await getGUIMocksPromise(["doc"]);
+    const loaders = [];
+    {
+      let iframe = window.DistortionsGUI.iframeBox.firstElementChild;
+      while (iframe) {
+        loaders.push(iframe.contentWindow.BlobLoader);
+        iframe = iframe.nextElementSibling;
       }
-    );
-    promiseToJasmine(p, done);
+    }
 
-    startSequence();
+    expect(loaders.length).toBe(1);
+    expect(loaders[0].validated).toBe(true);
+    expect(loaders[0].errorFired).toBe(false);
+    expect(loaders[0].getValue().nodeType).toBe(9);
   });
 });

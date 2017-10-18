@@ -2,30 +2,16 @@ const CAPTURE_ONCE = Object.freeze({once: true, capture: true});
 var testFrame;
 
 function getDocumentLoadPromise(url) {
-  var p = new Promise(function (resolve/*, reject */) {
-    if (!testFrame) {
-      testFrame = document.createElement("iframe");
-      document.body.appendChild(testFrame);
-    }
-    testFrame.addEventListener("load", function() {
-      resolve(testFrame.contentDocument);
-    }, CAPTURE_ONCE);
-  });
-  testFrame.setAttribute("src", url);
-  return p;
+  if (!testFrame) {
+    testFrame = document.createElement("iframe");
+    document.body.appendChild(testFrame);
+  }
+  return IFrameLoadPromise(testFrame, url);
 }
 
-function promiseToJasmine(p, done) {
-  return p.then(null, fail).then(done);
-}
+beforeEach(getDocumentLoadPromise.bind(null, "base/gui/index.html"));
 
-beforeEach(function(done) {
-  getDocumentLoadPromise("base/gui/index.html").then(done);
-});
-
-afterEach(function(done) {
-  getDocumentLoadPromise("about:blank").then(done);
-});
+afterEach(getDocumentLoadPromise.bind(null, "about:blank"));
 
 afterAll(function() {
   testFrame.setAttribute("src", "data:text/html," + encodeURIComponent([
