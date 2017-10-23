@@ -20,7 +20,6 @@ describe("Output panel", function() {
         expect(actualJSON.graphSymbolLists).toEqual([]);
       }
 
-
       // Tinkering around with HandlerNames, even though the user can't:
       // this is for consistency
       window.HandlerNames.setRow(2, "damp", true);

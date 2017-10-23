@@ -19,6 +19,7 @@ const OutputPanel = window.OutputPanel = {
     this.jsEditor     = CodeMirrorManager.buildNewEditor(
       this.jsTextarea, { readOnly: true }
     );
+
     window.postMessage(
       "output initialized",
       window.location.origin

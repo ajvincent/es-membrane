@@ -11,3 +11,9 @@
   background-image: url("../icons/plusicon.svg");
   grid-column-start: -2;
 }
+
+#grid-outer-start-postSubmitError {
+  color: red;
+  white-space: pre;
+  font-family: monospace;
+}

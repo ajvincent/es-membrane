@@ -56,3 +56,17 @@ function XHRPromise(url, body = null) {
   XHR.send(body);
   return p;
 }
+
+function FileReaderPromise(file, methodName) {
+  const reader = new FileReader();
+  const p = new Promise((resolve, reject) => {
+    reader.onload = function() {
+      resolve(reader.result);
+    };
+    reader.onerror = function() {
+      reject(reader.error);
+    };
+  });
+  reader[methodName](file);
+  return p;
+}

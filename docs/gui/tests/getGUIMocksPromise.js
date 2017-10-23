@@ -1,7 +1,4 @@
 async function getGUIMocksPromise(propNames) {
-  /* This function returns Promise.all(cachedPromises), so a single reject will
-   * reject the entire sequence.
-   */
   var window = testFrame.contentWindow;
 
   // This part is synchronous:  if it fails, we're dead anyway.
@@ -23,6 +20,7 @@ async function getGUIMocksPromise(propNames) {
     let p = MessageEventPromise(window, "addValue initialized");
     window.StartPanel.startWithGraphNames();
     await p;
+
     const OGM = window.OuterGridManager;
     expect(OGM.selectedTabs.file).toBe(OGM.addPanelRadio);
   }

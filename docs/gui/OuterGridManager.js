@@ -105,6 +105,8 @@ const OuterGridManager = window.OuterGridManager = {
     }, true);
 
     this.panels.addEventListener("click", MultistateHandler, true);
+
+    this.startPanelRadio.click();
   },
 
   insertValuePanel: function(graphIndex, valueName, radioClass, panel) {

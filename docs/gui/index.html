@@ -125,7 +125,10 @@
           </span>
           <hr>
         </form>
-        <form id="grid-outer-start-configform">
+        <form id="grid-outer-start-configform"
+              method="post"
+              enctype="multipart/form-data"
+              action="javascript:StartPanel.startWithConfigForm();">
           <span id="grid-outer-start-config-span">
             <label for="grid-outer-start-config">
               If you have a Distortions GUI configuration file already, please
@@ -137,10 +140,11 @@
                    type="file"
                    value=""
                    name="config"
-                   accept="application/javascript"
-                   disabled="disabled"
+                   accept="application/json"
+                   required="required"
                   >
           </span>
+          <output id="grid-outer-start-postSubmitError"></output>
           <button type="submit" id="grid-outer-start-configform-submit">Continue</button>
           <hr>
         </form>

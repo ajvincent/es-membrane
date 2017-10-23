@@ -28,7 +28,7 @@ const HandlerNames = window.HandlerNames = {
    * @param event {DOMEvent} The click event on a delete button.
    */
   deleteRow: function(event) {
-    let range = document.createRange();
+    const range = document.createRange();
     const delButton = event.target;
     range.setEndAfter(delButton);
     range.setStartBefore(delButton.previousElementSibling.previousElementSibling);
@@ -73,6 +73,25 @@ const HandlerNames = window.HandlerNames = {
 
     input.value = name;
     checkbox.checked = isSymbol;
+  },
+
+  /**
+   * Import the graph names and symbol settings from a configuration file.
+   *
+   * @param config {JSONObject} The configuration.
+   */
+  importConfig: function(config) {
+    for (let i = 0; i < config.graphNames.length; i++) {
+      this.setRow(i, config.graphNames[i], config.graphSymbolLists.includes(i));
+    }
+
+    const range = document.createRange();
+    const delButton = this.grid.getElementsByTagName("button")[config.graphNames.length];
+    range.setEndBefore(this.grid.lastChild);
+    range.setStartAfter(delButton);
+    range.deleteContents();
+
+    this.update();
   },
 
   /**
