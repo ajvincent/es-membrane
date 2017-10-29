@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HTML fixture for multicolumn collapsible tree</title>
+  <base href="../../">
+  <meta charset="UTF-8">
+
+  <script type="application/javascript"
+          src="gui/utilities/stylesheet.js"></script>
+  <link rel="stylesheet" href="gui/tree/tree.css">
+  <script type="application/javascript"
+          src="gui/tree/tree.js"></script>
+  <script type="application/javascript"><!--
+function redrawTree() {
+  let tree = document.getElementsByClassName("gridtree")[0];
+  styleAndMoveTreeColumns(tree);
+  window.postMessage(
+    "tree fixture initialized",
+    window.location.origin
+  );
+}
+  --></script>
+</head>
+<body onload="redrawTree();">
+  <div class="gridtree" id="gTree" data-width="500px">
+    <div class="treeroot">
+      <ul>
+        <li class="header">
+          <span data-column-width="300px">Month / Year</span>
+          <span data-column-width="1fr">Amount Paid</span>
+          <span data-column-width="1fr">Payment Date</span>
+        </li>
+        <li class="collapsible">
+          <span>2018</span>
+          <input type="checkbox" checked="checked" class="collapsible-check">
+          <ul>
+            <li class="collapsible">
+              <span>February</span>
+              <input type="checkbox" checked="checked" class="collapsible-check">
+              <ul>
+                <li>
+                  <span>1st Payment</span>
+                  <span>$150.00</span>
+                  <span>February 12</span>
+                </li>
+
+                <li>
+                  <span>2nd Payment</span>
+                  <span>$200.00</span>
+                  <span>February 6</span>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <span>January</span>
+              <span>$348.00</span>
+              <span>January 17</span>
+            </li>
+          </ul>
+        </li>
+
+        <li class="collapsible">
+          <span>2017</span>
+          <input type="checkbox" checked="checked" class="collapsible-check">
+          <ul>
+            <li>
+              <span>December</span>
+              <span>$390.00</span>
+              <span>December 29</span>
+            </li>
+            <li>
+              <span>November</span>
+              <span>$260.00</span>
+              <span>November 3</span>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

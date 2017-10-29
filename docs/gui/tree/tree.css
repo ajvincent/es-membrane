@@ -108,8 +108,10 @@
 @supports(display: grid) {
   .gridtree {
     display: grid;
+    /*
     width: 500px;
     grid-template-columns: 300px 1fr 1fr;
+    */
     background-color: #fff;
     font-family: monospace;
     font-size: 1em;
@@ -142,46 +144,111 @@
     white-space: nowrap;
   }
 
-  .gridtree[cellgrouping="row-contents"] > div[row][indent="0"] > span:first-child > span,
-  .gridtree[cellgrouping="none"] > span[row][firstcol][indent="1"] {
-    padding-left: 30px;
-    width: 270px;
+  .gridtree > *[indent="0"] {
+    --indent: 0;
+  }
+  .gridtree > *[indent="1"] {
+    --indent: 1;
+  }
+  .gridtree > *[indent="2"] {
+    --indent: 2;
+  }
+  .gridtree > *[indent="3"] {
+    --indent: 3;
+  }
+  .gridtree > *[indent="4"] {
+    --indent: 4;
+  }
+  .gridtree > *[indent="5"] {
+    --indent: 5;
+  }
+  .gridtree > *[indent="6"] {
+    --indent: 6;
+  }
+  .gridtree > *[indent="7"] {
+    --indent: 7;
+  }
+  .gridtree > *[indent="8"] {
+    --indent: 8;
+  }
+  .gridtree > *[indent="9"] {
+    --indent: 9;
   }
 
-  .gridtree[cellgrouping="row-contents"] > div[row][indent="1"] > span:first-child > span  , 
-  .gridtree[cellgrouping="none"] > span[row][firstcol][indent="2"] {
-    padding-left: 60px;
-    width: 240px;
+  .gridtree > *[indent="10"] {
+    --indent: 10;
+  }
+  .gridtree > *[indent="11"] {
+    --indent: 11;
+  }
+  .gridtree > *[indent="12"] {
+    --indent: 12;
+  }
+  .gridtree > *[indent="13"] {
+    --indent: 13;
+  }
+  .gridtree > *[indent="14"] {
+    --indent: 14;
+  }
+  .gridtree > *[indent="15"] {
+    --indent: 15;
+  }
+  .gridtree > *[indent="16"] {
+    --indent: 16;
+  }
+  .gridtree > *[indent="17"] {
+    --indent: 17;
+  }
+  .gridtree > *[indent="18"] {
+    --indent: 18;
+  }
+  .gridtree > *[indent="19"] {
+    --indent: 19;
+  }
+
+  .gridtree[cellgrouping="row-contents"] > div[row][indent] > span:first-child > span.spacer,
+  .gridtree[cellgrouping="none"] > span[row][firstcol][indent] > span.spacer {
+    padding-right: calc(var(--indent) * 12px);
   }
   /* etc., etc., etc. for different levels of indent. */
+
+  .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > span:last-child,
+  .gridtree[cellgrouping="none"] > span[row][firstcol] > span:last-child {
+    padding-left: 18px;
+  }
+
+  .gridtree[cellgrouping="none"] > span[row][firstcol] > span[checkspan] + span:last-child {
+    padding-left: 2px;
+  }
   
-  .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > input[type="checkbox"]:first-child,
-  .gridtree[cellgrouping="none"] > span[row][firstcol] > input[type="checkbox"]:first-child
+  
+  .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > input[type="checkbox"].collapsible-check,
+  .gridtree[cellgrouping="none"] > span[row][firstcol] > input[type="checkbox"].collapsible-check
   {
     opacity: 0;
     position: absolute;
   }
   
-  .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > input[type="checkbox"]:first-child + span,
-  .gridtree[cellgrouping="none"] > span[row][firstcol] > input[type="checkbox"]:first-child + span
+  .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > input[type="checkbox"].collapsible-check + span,
+  .gridtree[cellgrouping="none"] > span[row][firstcol] > input[type="checkbox"].collapsible-check + span
   {
     background-image: url(../icons/plusicon.svg);
     background-repeat: no-repeat;
     width: 16px;
-    height: 16px;
+    height: 1em;
     z-index: 1;
     display: inline-block;
     cursor: pointer;
   }
 
   /* XXX ajvincent This may be a Firefox vs Chrome bug, in the positioning and sizing of the invisible checkboxes. */
-  .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > input[type="checkbox"]:first-child + span
+  .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > input[type="checkbox"].collapsible-check + span
   {
     background-position: 3px 0px;
   }
   
-  .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > input[type="checkbox"]:first-child:checked + span,
-  .gridtree[cellgrouping="none"] > span[row][firstcol] > input[type="checkbox"]:first-child:checked + span
+  .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child > input[type="checkbox"].collapsible-check:checked + span,
+  .gridtree[cellgrouping="none"] > span[row][firstcol] > input[type="checkbox"].collapsible-check:checked + span
   {
     background-image: url(../icons/minusicon.svg);
   }

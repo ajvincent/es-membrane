@@ -13,6 +13,12 @@ function styleAndMoveTreeColumns(gridtree) {
       return;
   }
 
+  if (!gridtree.hasAttribute("id"))
+    throw new Error("gridtree needs an ID attribute");
+  const gridId = gridtree.getAttribute("id");
+
+  gridtree.firstElementChild.style.display = "none";
+
   const sheet = getCustomStylesheet(document);
 
   // Step 1:  Mark all the ul elements as a row block.
@@ -31,7 +37,6 @@ function styleAndMoveTreeColumns(gridtree) {
   // Step 2:  Bind each collapsible-check input to the appropriate row block by CSS selectors.
   {
     let inputs = gridtree.getElementsByClassName("collapsible-check");
-    const gridId = gridtree.getAttribute("id");
     for (let i = 0; i < inputs.length; i++) {
       let input = inputs[i], ul = input.parentNode.lastElementChild;
       if (ul.nodeName.toLowerCase() != "ul")
@@ -39,34 +44,75 @@ function styleAndMoveTreeColumns(gridtree) {
       let ruleText = `#${gridId} > .rowblock-${ul.getAttribute("rowblock")}`;
       ruleText += " {\n  display: none;\n}";
       let ruleHandler = new CSSRuleEventHandler(sheet, input, ruleText, false);
-      input.addEventListener("click", ruleHandler, true);
+      input.addEventListener("change", ruleHandler, true);
       ruleHandler.handleEvent({ target: input });
+
+      // create binding for DOM as well
+      input.previousElementSibling.collapseCheckbox = input;
     }
   }
 
   // Step 3:  Ensure each li element has the same number of span elements.
+  const gridCellsByRow = [ /*
+    [ span+ ], [ span+ ]... one span for each cell, one array for each row
+  */ ];
   {
     let items = gridtree.getElementsByTagName("li");
-    const minSpanCount = items[0].getElementsByTagName("span").length;
-    items[0].setAttribute("row", 0);
+    let widthRule = `#${gridId} {\n  grid-template-columns: `;
+    {
+      let currentRow = [], item = items[0];
+      gridCellsByRow.push(currentRow);
+      item.setAttribute("row", 0);
+      for (let j = item.firstElementChild; j; j = j.nextElementSibling) {
+        if (j.nodeName.toLowerCase() == "span") {
+          currentRow.push(j);
+          widthRule += j.dataset.columnWidth + " ";
+        }
+      }
+      Object.freeze(currentRow);
+    }
+    const minSpanCount = gridCellsByRow[0].length;
+    widthRule += `;\n  width: ${gridtree.dataset.width};\n}`;
+    sheet.insertRule(widthRule, 0);
+    
     for (let i = 1; i < items.length; i++) {
+      let currentRow = [];
+      gridCellsByRow.push(currentRow);
+
       let item = items[i], refChild = item.lastElementChild;
       item.setAttribute("row", i);
       if (refChild.nodeName.toLowerCase() != "ul")
         refChild = null;
       let spanCount = 0;
-      for (let j = 0; j < item.childNodes.length; j++) {
-        if (item.childNodes[j].nodeName.toLowerCase() == "span")
+      for (let j = item.firstElementChild; j; j = j.nextElementSibling) {
+        if (j.nodeName.toLowerCase() == "span") {
           spanCount++;
+          currentRow.push(j);
+        }
       }
       while (spanCount < minSpanCount) {
         let span = document.createElement("span");
         item.insertBefore(span, refChild);
         spanCount++;
+        currentRow.push(span);
       }
+
+      Object.freeze(currentRow);
     }
   }
-  
+
+  /* XXX ajvincent If we were concerned with dynamically modifying the rows of
+   * the tree, this is not how I would get cells. But the contents of the grid
+   * are static, so for convenience of testing, I am keeping this simple.
+   */
+  Object.freeze(gridCellsByRow);
+  Reflect.defineProperty(gridtree, "__cellsByRow__", {
+    value: gridCellsByRow,
+    writable: false,
+    enumerable: false,
+    configurable: false
+  });
+
   /*
   if (CSS.supports("display", "subgrid"))
     gridtree.setAttribute("rowdisplay", "subgrid");
@@ -85,7 +131,6 @@ function styleAndMoveTreeColumns(gridtree) {
       row.setAttribute("row", item.getAttribute("row"));
       if (item.classList.contains("header"))
         row.classList.add("header");
-
 
       let ul = item.parentNode, indent = 0;
       do {
@@ -130,6 +175,12 @@ function styleAndMoveTreeColumns(gridtree) {
           row.appendChild(elem);
       }
 
+      {
+        let spacer = document.createElement("span");
+        spacer.classList.add("spacer");
+        let firstCell = row.firstElementChild;
+        firstCell.insertBefore(spacer, firstCell.firstChild);
+      }
     }
   }
   else {
@@ -177,6 +228,7 @@ function styleAndMoveTreeColumns(gridtree) {
             span = document.createElement("span"),
             checkSpan = document.createElement("span"),
             child;
+        checkSpan.setAttribute("checkspan", "true");
         span.setAttribute("row", item.getAttribute("row"));
         if (item.classList.contains("header"))
           span.classList.add("header");
@@ -207,14 +259,65 @@ function styleAndMoveTreeColumns(gridtree) {
           indent++;
         } while (true);
         span.setAttribute("indent", indent);
+
+        {
+          let spacer = document.createElement("span");
+          spacer.classList.add("spacer");
+          let firstCell = span;
+          firstCell.insertBefore(spacer, firstCell.firstChild);
+        }
   
         let refChild = listitemMap.get(item);
         gridtree.insertBefore(span, refChild);
         listitemMap.delete(item);
       }
     }
-
   }
+
+  // DOM properties.  This API should be considered unstable, but is mainly for testing.
+  gridtree.getRowCount = function() {
+    return this.__cellsByRow__.length;
+  };
+  gridtree.getColumnCount = function() {
+    return this.__cellsByRow__[0].length;
+  };
+
+  Reflect.defineProperty(gridtree, "__ensureValidRow__", {
+    value: function(row) {
+      if (!Number.isInteger(row) || (row < 0) || (row >= this.__cellsByRow__.length))
+        throw new Error("row must be an integer between 0 and " + (this.__cellsByRow__.length - 1));
+    },
+    writable: false,
+    enumerable: false,
+    configurable: false
+  });
+
+  gridtree.getCell = function(row, col) {
+    this.__ensureValidRow__(row);
+    if (!Number.isInteger(col) || (col < 0) || (col >= this.__cellsByRow__[0].length))
+      throw new Error("col must be an integer between 0 and " + (this.__cellsByRow__[0].length - 1));
+
+    return this.__cellsByRow__[row][col];
+  };
+
+  gridtree.getCollapseState = function(row) {
+    this.__ensureValidRow__(row);
+    let cell = this.getCell(row, 0);
+    if (!cell.collapseCheckbox)
+      return "not collapsible";
+    return cell.collapseCheckbox.checked ? "expanded" : "collapsed";
+  };
+
+  gridtree.setCollapsed = function(row, state) {
+    this.__ensureValidRow__(row);
+    if (typeof state !== "boolean")
+      throw new Error("state must be true or false");
+    let cell = this.getCell(row, 0);
+    if (!cell.collapseCheckbox)
+      throw new Error("row is not collapsible");
+    if (state === cell.collapseCheckbox.checked)
+      cell.collapseCheckbox.click();
+  };
 
   // Final step:  Remove the tree, since it no longer contains useful information.
   gridtree.removeChild(gridtree.firstElementChild);
