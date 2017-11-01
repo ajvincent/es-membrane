@@ -11,6 +11,8 @@ function DistortionsRules() {
   };
 }
 DistortionsRules.prototype = {
+  propertyTreeTemplate: null,
+
   bindUI: function() {
     {
       let multistates = this.treeroot.getElementsByClassName("multistate");
@@ -53,9 +55,40 @@ DistortionsRules.prototype = {
     this.updateGroup(groupName);
   },
 
+  fillProperties: function() {
+    let propertyList;
+    {
+      const lists = this.treeroot.getElementsByTagName("ul");
+      for (let i = 0; i < lists.length; i++) {
+        let list = lists[i];
+        if (list.dataset.group === "ownKeys") {
+          propertyList = list;
+          break;
+        }
+      }
+    }
+    const listItemBase = this.propertyTreeTemplate.content.firstElementChild;
+    const keys = Reflect.ownKeys(this.value);
+
+    keys.forEach(function(key) {
+      const listItem = listItemBase.cloneNode(true);
+      const propElement = listItem.getElementsByClassName("propertyName")[0];
+      propElement.appendChild(document.createTextNode(key));
+      propertyList.appendChild(listItem);
+    }, this);
+
+    if (typeof this.value !== "function") {
+      const fnInputs = this.treeroot.getElementsByClassName("function-only");
+      for (let i = 0; i < fnInputs.length; i++)
+        fnInputs[i].disabled = true;
+    }
+  },
+
   initByValue: function(value, treeroot) {
     this.value = value;
     this.treeroot = treeroot;
+
+    this.fillProperties();
 
     this.bindUI();
   },
@@ -118,4 +151,10 @@ DistortionsRules.prototype = {
     }
   }
 };
+
+defineElementGetter(
+  DistortionsRules.prototype,
+  "propertyTreeTemplate",
+  "distortions-tree-ui-property"
+);
 

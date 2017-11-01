@@ -138,6 +138,12 @@
   .gridtree[cellgrouping="none"] > span[row][firstcol]
   {
     width: 300px;
+  }
+
+  .gridtree > .treeroot li > span:first-child,
+  .gridtree[cellgrouping="row-contents"] > div[row] > span,
+  .gridtree[cellgrouping="none"] > span
+  {
     display: block;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -235,7 +241,7 @@
     background-image: url(../icons/plusicon.svg);
     background-repeat: no-repeat;
     width: 16px;
-    height: 1em;
+    height: 16px;
     z-index: 1;
     display: inline-block;
     cursor: pointer;

@@ -116,41 +116,16 @@ const DistortionsGUI = window.DistortionsGUI = {
   },
 
   buildDistortions: function(panel, value) {
-    const keys = Reflect.ownKeys(value);
-
     // Build the GUI.
     const gridtree = this.treeUITemplate.content.firstElementChild.cloneNode(true);
     gridtree.setAttribute("id", "gridtree-" + this.gridTreeCount);
     this.gridTreeCount++;
-
-    const propertyList = (function() {
-      const lists = gridtree.getElementsByTagName("ul");
-      for (let i = 0; i < lists.length; i++) {
-        let list = lists[i];
-        if (list.dataset.group === "ownKeys")
-          return list;
-      }
-    })();
-    const listItemBase = this.propertyTreeTemplate.content.firstElementChild;
-
-    keys.forEach(function(key) {
-      const listItem = listItemBase.cloneNode(true);
-      const propElement = listItem.getElementsByClassName("propertyName")[0];
-      propElement.appendChild(document.createTextNode(key));
-      propertyList.appendChild(listItem);
-    }, this);
 
     const treeroot = gridtree.getElementsByClassName("treeroot")[0];
     const rules = new DistortionsRules();
     rules.initByValue(value, treeroot);
 
     DistortionsManager.valueToValueName.set(value, panel.dataset.hash);
-
-    if (typeof value !== "function") {
-      const fnCheckboxes = gridtree.getElementsByClassName("function-only");
-      for (let i = 0; i < fnCheckboxes.length; i++)
-        fnCheckboxes[i].disabled = true;
-    }
 
     styleAndMoveTreeColumns(gridtree);
     panel.appendChild(gridtree);

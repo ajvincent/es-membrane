@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HTML fixture for DistortionsRules</title>
+  <base href="../../">
+  <meta charset="UTF-8">
+  <script type="application/javascript"
+          src="gui/utilities/defineElementGetter.js"></script>
+
+  <script type="application/javascript"
+          src="gui/utilities/stylesheet.js"></script>
+
+  <link rel="stylesheet" href="gui/help.css">
+
+  <link rel="stylesheet" href="gui/tree/tree.css">
+  <script type="application/javascript"
+          src="gui/tree/tree.js"></script>
+
+  <style type="text/css"><!--
+button.icon {
+  padding: 0;
+  border: none;
+  width: 16px;
+  height: 16px;
+}
+  --></style>
+
+  <!-- Multistate button for truncateArgList, in #grid-outer-mainpanels -->
+  <link rel="stylesheet" href="gui/multistate/multistate.css">
+  <script type="application/javascript"
+          src="gui/multistate/multistate.js"></script>
+
+  <script type="application/javascript"
+          src="gui/DistortionsRules.js"></script>
+  <script type="application/javascript"><!--
+function Counter() {
+  this.init();
+}
+Counter.prototype.init = function() {
+  this.value = 0;
+};
+Counter.prototype.addOne = function() {
+  this.value++;
+};
+
+function DecrementCounter() {
+  this.init();
+}
+DecrementCounter.prototype = new Counter();
+DecrementCounter.prototype.subtractOne = function() {
+  this.value--;
+};
+
+window.DecrementCounter = DecrementCounter;
+window.Counter = Counter;
+
+window.setupRules = function(value) {
+  const gridtree = document.getElementsByClassName("gridtree")[0];
+  const treeroot = gridtree.getElementsByClassName("treeroot")[0];
+
+  const rules = new DistortionsRules();
+  rules.initByValue(value, treeroot);
+
+  styleAndMoveTreeColumns(gridtree);
+
+  return rules;
+};
+  --></script>
+</head>
+<body>
+  <section>
+    <!-- This is copied directly from index.html and should stay in sync. -->
+    <div class="gridtree" data-width="600px" id="tree">
+      <div class="treeroot">
+        <ul>
+          <li class="header">
+            <span data-column-width="300px">Rule</span>
+            <span data-column-width="150px">Enabled?</span>
+            <span data-column-width="150px">Help / Notes</span>
+          </li>
+          <li class="collapsible">
+            <span>Show own keys</span>
+            <!-- This checkbox is for folding the filterOwnKeys list -->
+            <input type="checkbox" checked="checked" class="collapsible-check">
+            <span>
+              <!-- This checkbox is for enabling/disabling the filterOwnKeys rule. -->
+              <input type="checkbox" checked="checked">
+            </span>
+            <span>
+              <button class="icon helpButton" data-for="distortions-filterOwnKeys"></button>
+            </span>
+            <ul data-group="ownKeys"></ul>
+          </li>
+    
+          <li class="collapsible">
+            <span>Proxy traps</span>
+            <input type="checkbox" checked="checked" class="collapsible-check">
+            <ul data-group="traps">
+              <li>
+                <span>getPrototypeOf</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span>
+                  <button class="icon helpButton" data-for="proxy-getPrototypeOf"></button>
+                </span>
+              </li>
+              <li>
+                <span>setPrototypeOf</span>
+                <span><input type="checkbox"></span>
+                <span>
+                  <button class="icon helpButton" data-for="proxy-setPrototypeOf"></button>
+                </span>
+              </li>
+              <li>
+                <span>isExtensible</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span>
+                  <button class="icon helpButton" data-for="proxy-isExtensible"></button>
+                </span>
+              </li>
+              <li>
+                <span>preventExtensions</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span>
+                  <button class="icon helpButton" data-for="proxy-preventExtensions"></button>
+                </span>
+              </li>
+              <li>
+                <span>getOwnPropertyDescriptor</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span>
+                  <button class="icon helpButton" data-for="proxy-getOwnPropertyDescriptor"></button>
+                </span>
+              </li>
+              <li>
+                <span>defineProperty</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span>
+                  <button class="icon helpButton" data-for="proxy-defineProperty"></button>
+                </span>
+              </li>
+              <li>
+                <span>has</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span>
+                  <button class="icon helpButton" data-for="proxy-has"></button>
+                </span>
+              </li>
+              <li>
+                <span>get</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span>
+                  <button class="icon helpButton" data-for="proxy-get"></button>
+                </span>
+              </li>
+              <li>
+                <span>set</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span>
+                  <button class="icon helpButton" data-for="proxy-set"></button>
+                </span>
+              </li>
+              <li>
+                <span>deleteProperty</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span>
+                  <button class="icon helpButton" data-for="proxy-deleteProperty"></button>
+                </span>
+              </li>
+              <li>
+                <span>ownKeys</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span>
+                  <button class="icon helpButton" data-for="proxy-ownKeys"></button>
+                </span>
+              </li>
+              <li>
+                <span>apply</span>
+                <span><input type="checkbox" checked="checked" class="function-only"></span>
+                <span>
+                  <button class="icon helpButton" data-for="proxy-apply"></button>
+                </span>
+              </li>
+              <li>
+                <span>construct</span>
+                <span><input type="checkbox" checked="checked" class="function-only"></span>
+                <span>
+                  <button class="icon helpButton" data-for="proxy-construct"></button>
+                </span>
+              </li>
+            </ul>
+          </li>
+    
+          <li class="collapsible">
+            <span>Other distortions</span>
+            <input type="checkbox" checked="checked" class="collapsible-check">
+            <ul data-group="other">
+              <li>
+                <span data-name="storeUnknownAsLocal">Local properties</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span>
+                  <button class="icon helpButton" data-for="distortions-storeUnknownAsLocal"></button>
+                </span>
+              </li>
+              <li>
+                <span data-name="requireLocalDelete">Local deletes</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span>
+                  <button class="icon helpButton" data-for="distortions-requireLocalDelete"></button>
+                </span>
+              </li>
+              <li>
+                <span data-name="truncateArgList">Argument list truncation?</span>
+                <span>
+                  <button type="button" class="multistate function-only"
+                          data-name="truncateArgList">
+                    <span data-state="false">None</span>
+                    <span data-state="true">Arity</span>
+                    <span data-state="number">#:</span>
+                  </button>
+                  <input type="number" min="0" value="0" data-name="truncateArgMax"
+                         disabled="disabled" style="width: 30px;">
+                </span>
+                <span>
+                  <button class="icon helpButton" data-for="distortions-truncateArgList"></button>
+                </span>
+              </li>
+              <li>
+                <span data-name="useShadowTarget">Use shadow target</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span>
+                  <button class="icon helpButton" data-for="distortions-useShadowTarget"></button>
+                </span>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <template id="distortions-tree-ui-property">
+    <li>
+      <span class="propertyName"></span>
+      <span><input type="checkbox" checked="checked"></span>
+      <span>
+        <!-- To be determined:  some kind of HTML input to select a HTML
+        textarea for the user to write notes about this property. -->
+        <a href="#"><img src="gui/icons/notes-icon.svg"></a>
+      </span>
+    </li>
+  </template>
+</body>
+</html>
