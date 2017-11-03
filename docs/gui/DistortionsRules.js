@@ -30,6 +30,13 @@ DistortionsRules.prototype = {
     }
   },
 
+  /**
+   * Bind HTML inputs to this.updateGroup.
+   *
+   * @argument {list} <html:ul data-group="...">
+   *
+   * @private
+   */
   bindULInputsByGroup: function(list) {
     const inputList = [], groupName = list.dataset.group;
     this.groupToInputsMap.set(groupName, inputList);
@@ -42,17 +49,14 @@ DistortionsRules.prototype = {
 
       let input = item.children[1].firstElementChild;
       while (input) {
-        input.dataset.propertyName = propertyName;
-
+        if (!input.dataset.name)
+          input.dataset.name = propertyName;
         inputList.push(input);
-        this.inputToGroupMap.set(input, groupName);
-        let eventType = (input.localName === "button" ? "click" : "change");
-        input.addEventListener(eventType, this, false);
+        if ((propertyName === "truncateArgList") && (input.classList.contains("multistate")))
+          input.addEventListener("click", this, false);
         input = input.nextElementSibling;
       }
     }
-
-    this.updateGroup(groupName);
   },
 
   fillProperties: function() {
@@ -84,37 +88,13 @@ DistortionsRules.prototype = {
     }
   },
 
-  initByValue: function(value, treeroot) {
+  initByValue: function(value, gridtree) {
     this.value = value;
-    this.treeroot = treeroot;
-
+    this.gridtree = gridtree;
+    this.treeroot = gridtree.firstElementChild;
     this.fillProperties();
-
     this.bindUI();
-  },
-
-  updateGroup: function(groupName) {
-    const members = this.settings[groupName] = [];
-    let inputs = this.groupToInputsMap.get(groupName);
-    var truncateArgButtonValue;
-    for (let i = 0; i < inputs.length; i++) {
-      let input = inputs[i];
-      if (input.dataset.propertyName === "truncateArgList") {
-        // special handling
-        if (input.localName === "button") {
-          truncateArgButtonValue = input.value;
-          if (truncateArgButtonValue === "true")
-            this.settings.truncateArgList = true;
-          else if (truncateArgButtonValue === "false")
-            this.settings.truncateArgList = false;
-        }
-        else if (truncateArgButtonValue === "number")
-          this.settings.truncateArgList = parseInt(input.value);
-      }
-
-      else if (input.checked)
-        members.push(input.dataset.propertyName);
-    }
+    this.treeroot = null;
   },
 
   updateFromConfiguration: function(/*config*/) {
@@ -122,7 +102,38 @@ DistortionsRules.prototype = {
   },
 
   configurationAsJSON: function() {
-    return JSON.stringify(this.settings);
+    const rv = {
+      formatVersion: "0.8.0",
+      dataVersion: "0.1",
+
+      /*
+      filterOwnKeys: [] || null,
+      inheritOwnKeys: false,
+      storeUnknownAsLocal: false,
+      requireLocalDelete: false,
+      useShadowTarget: false,
+      proxyTraps: allTraps.slice(0),
+       */
+    };
+
+    // filterOwnKeys
+    {
+      let i = this.gridtree.getElementsByClassName("filterOwnKeys-control")[0];
+      if (i.checked) {
+        let inputs = this.groupToInputsMap.get("ownKeys");
+        rv.filterOwnKeys = inputs.filter(function(checkbox) {
+          return checkbox.checked;
+        }).map(function(checkbox) {
+          return checkbox.dataset.name;
+        });
+      }
+      else
+        rv.filterOwnKeys = null;
+    }
+
+    if (typeof this.value === "function")
+      rv.truncateArgList = false;
+    return rv;
   },
 
   handleEvent: function(event) {
@@ -140,14 +151,6 @@ DistortionsRules.prototype = {
     if ((el.classList.contains("multistate")) &&
         (el.dataset.propertyName === "truncateArgList")) {
       el.nextElementSibling.disabled = (el.value !== "number");
-    }
-
-    {
-      let groupName = this.inputToGroupMap.get(el);
-      if (groupName) {
-        this.updateGroup(groupName);
-        return;
-      }
     }
   }
 };
