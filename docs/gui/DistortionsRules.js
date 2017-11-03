@@ -52,7 +52,8 @@ DistortionsRules.prototype = {
         if (!input.dataset.name)
           input.dataset.name = propertyName;
         inputList.push(input);
-        if ((propertyName === "truncateArgList") && (input.classList.contains("multistate")))
+        if ((propertyName === "truncateArgList") &&
+            (input.classList.contains("multistate")))
           input.addEventListener("click", this, false);
         input = input.nextElementSibling;
       }
@@ -72,7 +73,29 @@ DistortionsRules.prototype = {
       }
     }
     const listItemBase = this.propertyTreeTemplate.content.firstElementChild;
-    const keys = Reflect.ownKeys(this.value);
+    let keys = Reflect.ownKeys(this.value);
+
+    if (typeof this.value === "function") {
+      /* XXX ajvincent JS functions are inconsistent between Google Chrome and
+       * Mozilla Firefox.  Consider the following test:
+       *
+       * { let k = function() {}; k.foo = 3; k.bar = 6; Reflect.ownKeys(k) }
+       *
+       * In Mozilla Firefox, this returns:
+       * Array [ "foo", "bar", "prototype", "length", "name" ]
+       *
+       * In Google Chrome, this returns:
+       * (7) ["length", "name", "arguments", "caller", "prototype", "foo", "bar"]
+       *
+       * So, to make it consistent, we're going to enforce the following rules:
+       * (1) The first five properties in the list will be
+       * ["arguments", "caller", "length", "name", "prototype"]
+       * (2) Additional properties will appear in their original order after these.
+       */
+      const forcedKeys = ["arguments", "caller", "length", "name", "prototype"];
+      keys = keys.filter((k) => !forcedKeys.includes(k));
+      keys = forcedKeys.concat(keys);
+    }
 
     keys.forEach(function(key) {
       const listItem = listItemBase.cloneNode(true);

@@ -71,7 +71,7 @@ describe("DistortionsRules", function() {
       expect(Array.isArray(items)).toBe(true);
       isCheckboxWithName(items[0],  "storeUnknownAsLocal", true);
       isCheckboxWithName(items[1],  "requireLocalDelete", true);
-      expect(items[2] instanceof HTMLButtonElement).toBe(true);
+      expect(items[2] instanceof window.HTMLButtonElement).toBe(true);
       expect(items[2].dataset.name).toBe("truncateArgList");
       expect(items[2].value).toBe("false");
       expect(items[2].disabled).toBe(!isFunction);
@@ -98,9 +98,18 @@ describe("DistortionsRules", function() {
     testValue(counter, ["value"]);
   });
 
-  it("can fully initialize with a function", function() {
+  it("can fully initialize with a function having no extra properties", function() {
     testValue(window.DecrementCounter, [
-      "prototype", "length", "name"
+      "arguments", "caller", "length", "name", "prototype"
+    ]);
+  });
+
+  it("can fully initialize with a function having no extra properties", function() {
+    let k = function() {};
+    k.foo = 3;
+    k.bar = 6;
+    testValue(k, [
+      "arguments", "caller", "length", "name", "prototype", "foo", "bar"
     ]);
   });
 
