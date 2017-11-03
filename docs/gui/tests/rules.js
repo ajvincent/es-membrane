@@ -25,7 +25,7 @@ describe("DistortionsRules", function() {
 
 
   function isCheckboxWithName(item, expectedName, expectedChecked, expectedDisabled = false) {
-    expect(item instanceof HTMLInputElement).toBe(true);
+    expect(item instanceof window.HTMLInputElement).toBe(true);
     expect(item.dataset.name).toBe(expectedName);
     if (item.type === "checkbox")
       expect(item.checked).toBe(expectedChecked);
