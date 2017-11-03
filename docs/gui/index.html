@@ -455,11 +455,17 @@ r.getArea(); // returns 12</pre>
           </li>
           <li class="collapsible">
             <span>Show own keys</span>
+
             <!-- This checkbox is for folding the filterOwnKeys list -->
             <input type="checkbox" checked="checked" class="collapsible-check">
+
             <span>
               <!-- This checkbox is for enabling/disabling the filterOwnKeys rule. -->
-              <input type="checkbox" checked="checked">
+              <input type="checkbox"
+                     checked="checked"
+                     class="filterOwnKeys-control"
+                     data-name="filterOwnKeys"
+                    >
             </span>
             <span>
               <button class="icon helpButton" data-for="distortions-filterOwnKeys"></button>
@@ -568,7 +574,14 @@ r.getArea(); // returns 12</pre>
           <li class="collapsible">
             <span>Other distortions</span>
             <input type="checkbox" checked="checked" class="collapsible-check">
-            <ul data-group="other">
+            <ul data-group="distortions">
+              <li>
+                <span data-name="inheritFilter">Accept filter of own keys from prototype</span>
+                <span><input type="checkbox" checked="checked"></span>
+                <span>
+                  <button class="icon helpButton" data-for="distortions-inheritFilter"></button>
+                </span>
+              </li>
               <li>
                 <span data-name="storeUnknownAsLocal">Local properties</span>
                 <span><input type="checkbox" checked="checked"></span>
@@ -601,7 +614,7 @@ r.getArea(); // returns 12</pre>
               </li>
               <li>
                 <span data-name="useShadowTarget">Use shadow target</span>
-                <span><input type="checkbox" checked="checked"></span>
+                <span><input type="checkbox"></span>
                 <span>
                   <button class="icon helpButton" data-for="distortions-useShadowTarget"></button>
                 </span>
