@@ -60,14 +60,14 @@ Object.defineProperties(DistortionsListener.prototype, {
 
   "sampleConfig": new NWNCDataDescriptor(function(isFunction) {
     const rv = {
-      formatVersion: "0.8.0",
+      formatVersion: "0.8.2",
       dataVersion: "0.1",
 
       filterOwnKeys: [],
-      inheritOwnKeys: false,
+      proxyTraps: allTraps.slice(0),
+      inheritFilter: false,
       storeUnknownAsLocal: false,
       requireLocalDelete: false,
-      proxyTraps: allTraps.slice(0),
       useShadowTarget: false,
     };
 
@@ -140,7 +140,7 @@ Object.defineProperties(DistortionsListener.prototype, {
         meta.proxy,
         config.filterOwnKeys,
         {
-          inheritFilter: Boolean(config.inheritOwnKeys)
+          inheritFilter: Boolean(config.inheritFilter)
         }
       );
     }

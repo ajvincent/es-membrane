@@ -70,7 +70,7 @@ const allTraps = Object.freeze([
 
 /* XXX ajvincent This is supposed to be a complete list of top-level globals.
    Copied from https://github.com/tc39/proposal-realms/blob/master/shim/src/stdlib.js
-   on September 20, 2016.
+   on September 20, 2017.
 */
 const Primordials = Object.freeze([
   Array,

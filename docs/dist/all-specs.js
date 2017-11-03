@@ -8180,7 +8180,7 @@ describe("Whitelisting object properties", function() {
       whitelist: function(distortions, value, filteredOwnKeys, inherit, category) {
         const config = distortions.sampleConfig();
         config.filterOwnKeys = filteredOwnKeys;
-        config.inheritOwnKeys = inherit;
+        config.inheritFilter = inherit;
         config.storeUnknownAsLocal = true;
         config.requireLocalDelete = true;
         distortions.addListener(value, category, config);

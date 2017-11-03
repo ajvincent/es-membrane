@@ -72,7 +72,7 @@ const allTraps = Object.freeze([
 
 /* XXX ajvincent This is supposed to be a complete list of top-level globals.
    Copied from https://github.com/tc39/proposal-realms/blob/master/shim/src/stdlib.js
-   on September 20, 2016.
+   on September 20, 2017.
 */
 const Primordials = Object.freeze([
   Array,
@@ -3825,14 +3825,14 @@ Object.defineProperties(DistortionsListener.prototype, {
 
   "sampleConfig": new NWNCDataDescriptor(function(isFunction) {
     const rv = {
-      formatVersion: "0.8.0",
+      formatVersion: "0.8.2",
       dataVersion: "0.1",
 
       filterOwnKeys: [],
-      inheritOwnKeys: false,
+      proxyTraps: allTraps.slice(0),
+      inheritFilter: false,
       storeUnknownAsLocal: false,
       requireLocalDelete: false,
-      proxyTraps: allTraps.slice(0),
       useShadowTarget: false,
     };
 
@@ -3905,7 +3905,7 @@ Object.defineProperties(DistortionsListener.prototype, {
         meta.proxy,
         config.filterOwnKeys,
         {
-          inheritFilter: Boolean(config.inheritOwnKeys)
+          inheritFilter: Boolean(config.inheritFilter)
         }
       );
     }

@@ -16,8 +16,10 @@ DistortionsRules.prototype = {
   bindUI: function() {
     {
       let multistates = this.treeroot.getElementsByClassName("multistate");
-      for (let i = 0; i < multistates.length; i++)
+      for (let i = 0; i < multistates.length; i++) {
+        multistates[i].addEventListener("click", MultistateHandler, true);
         updateMultistate(multistates[i]);
+      }
     }
 
     {
@@ -126,7 +128,7 @@ DistortionsRules.prototype = {
 
   configurationAsJSON: function() {
     const rv = {
-      formatVersion: "0.8.0",
+      formatVersion: "0.8.2",
       dataVersion: "0.1",
 
       /*
@@ -144,35 +146,47 @@ DistortionsRules.prototype = {
       let i = this.gridtree.getElementsByClassName("filterOwnKeys-control")[0];
       if (i.checked) {
         let inputs = this.groupToInputsMap.get("ownKeys");
-        rv.filterOwnKeys = inputs.filter(function(checkbox) {
-          return checkbox.checked;
-        }).map(function(checkbox) {
-          return checkbox.dataset.name;
-        });
+        rv.filterOwnKeys = inputs.filter((checkbox) => checkbox.checked)
+                                 .map((checkbox) => checkbox.dataset.name);
       }
       else
         rv.filterOwnKeys = null;
     }
 
-    if (typeof this.value === "function")
-      rv.truncateArgList = false;
+    // proxyTraps
+    {
+      let inputs = this.groupToInputsMap.get("traps");
+      rv.proxyTraps = inputs.filter((checkbox) => checkbox.checked)
+                            .map((checkbox) => checkbox.dataset.name);
+    }
+
+    // other distortions
+    {
+      let inputs = this.groupToInputsMap.get("distortions");
+      let truncateInputs = [];
+      inputs.forEach((input) => {
+        const name = input.dataset.name;
+        if (name.startsWith("truncateArg"))
+          truncateInputs.push(input);
+        else
+          rv[name] = input.checked;
+      });
+
+      if (typeof this.value === "function") {
+        if (truncateInputs[0].value === "number")
+          rv.truncateArgList = parseInt(truncateInputs[1].value, 10);
+        else
+          rv.truncateArgList = truncateInputs[0].value === "true";
+      }
+    }
+
     return rv;
   },
 
   handleEvent: function(event) {
-    let el = event.target;
-    {
-      let multistate = el;
-      if (multistate.localName.toLowerCase() === "span") {
-        multistate = multistate.parentNode;
-        if ((multistate.localName.toLowerCase() === "button") &&
-            multistate.classList.contains("multistate"))
-          el = multistate;
-      }
-    }
-
+    let el = event.currentTarget;
     if ((el.classList.contains("multistate")) &&
-        (el.dataset.propertyName === "truncateArgList")) {
+        (el.dataset.name === "truncateArgList")) {
       el.nextElementSibling.disabled = (el.value !== "number");
     }
   }
