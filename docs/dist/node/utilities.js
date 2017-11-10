@@ -1,4 +1,11 @@
 "use strict"
+function returnTrue() {
+  return true;
+}
+function returnFalse() {
+  return false;
+}
+
 function NOT_IMPLEMENTED() {
   throw new Error("Not implemented!");
 }

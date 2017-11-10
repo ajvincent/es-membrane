@@ -19,6 +19,8 @@ function ObjectGraphHandler(membrane, fieldName) {
   }, this);
   Object.freeze(boundMethods);
 
+  var passThroughFilter = returnFalse;
+
   // private
   Object.defineProperties(this, {
     "membrane": new NWNCDataDescriptor(membrane, false),
@@ -42,6 +44,19 @@ function ObjectGraphHandler(membrane, fieldName) {
 
     "__isDead__": new DataDescriptor(false, true, true, true),
 
+    "passThroughFilter": {
+      get: () => passThroughFilter,
+      set: (val) => {
+        if (passThroughFilter !== returnFalse)
+          throw new Error("passThroughFilter has been defined once already!");
+        if (typeof val !== "function")
+          throw new Error("passThroughFilter must be a function");
+        passThroughFilter = val;
+        return val;
+      },
+      enumerable: false,
+      configurable: false,
+    },
     "__preProxyListeners__": new NWNCDataDescriptor([], false),
 
     "__proxyListeners__": new NWNCDataDescriptor([], false),

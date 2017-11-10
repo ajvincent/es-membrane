@@ -2,6 +2,13 @@ var Membrane = (function() {
   // entering Membrane pseudo-module definition
 
 "use strict"
+function returnTrue() {
+  return true;
+}
+function returnFalse() {
+  return false;
+}
+
 function NOT_IMPLEMENTED() {
   throw new Error("Not implemented!");
 }
@@ -648,30 +655,42 @@ Object.seal(ProxyMapping);
  */
 
 function MembraneInternal(options = {}) {
+  let passThrough = (typeof options.passThroughFilter === "function") ?
+                    options.passThroughFilter :
+                    returnFalse;
+
   Object.defineProperties(this, {
-    "showGraphName": new DataDescriptor(
-      Boolean(options.showGraphName), false, false, false
+    "showGraphName": new NWNCDataDescriptor(
+      Boolean(options.showGraphName), false
     ),
 
-    "map": new DataDescriptor(
+    "map": new NWNCDataDescriptor(
       new WeakMap(/*
         key: ProxyMapping instance
 
         key may be a Proxy, a value associated with a proxy, or an original value.
-      */), false, false, false),
+      */), false),
 
-    "handlersByFieldName": new DataDescriptor({}, false, false, false),
+    "handlersByFieldName": new NWNCDataDescriptor({}, false),
 
-    "logger": new DataDescriptor(options.logger || null, false, false, false),
+    "logger": new NWNCDataDescriptor(options.logger || null, false),
 
-    "__functionListeners__": new DataDescriptor([], false, false, false),
+    "__functionListeners__": new NWNCDataDescriptor([], false),
 
-    "warnOnceSet": new DataDescriptor(
-      (options.logger ? new Set() : null), false, false, false
+    "warnOnceSet": new NWNCDataDescriptor(
+      (options.logger ? new Set() : null), false
     ),
 
-    "modifyRules": new DataDescriptor(new ModifyRulesAPI(this))
+    "modifyRules": new NWNCDataDescriptor(new ModifyRulesAPI(this)),
+
+    "passThroughFilter": new NWNCDataDescriptor(passThrough, false)
   });
+
+  /* XXX ajvincent Somehow adding this line breaks not only npm test, but the
+     ability to build as well.  The breakage comes in trying to create a mock of
+     a dogfood membrane.
+  Object.seal(this);
+  */
 }
 { // Membrane definition
 MembraneInternal.prototype = Object.seal({
@@ -932,6 +951,8 @@ MembraneInternal.prototype = Object.seal({
            "wrapArgumentByProxyMapping didn't establish the original?");
   },
 
+  passThroughFilter: () => false,
+
   /**
    * Ensure an argument is properly wrapped in a proxy.
    *
@@ -960,18 +981,28 @@ MembraneInternal.prototype = Object.seal({
     if (valueType(arg) === "primitive") {
       return arg;
     }
+
+    let found, rv;
+    [found, rv] = this.getMembraneProxy(
+      targetHandler.fieldName, arg
+    );
+    if (found)
+      return rv;
+
     if (!this.ownsHandler(originHandler) ||
         !this.ownsHandler(targetHandler) ||
         (originHandler.fieldName === targetHandler.fieldName)) {
       throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
     }
 
-    if (!this.hasProxyForValue(targetHandler.fieldName, arg)) {
-      this.wrapArgumentByHandler(originHandler, arg, options);
-      this.wrapArgumentByHandler(targetHandler, arg, options);
+    if (this.passThroughFilter(arg) ||
+        (originHandler.passThroughFilter(arg) && targetHandler.passThroughFilter(arg))) {
+      return arg;
     }
 
-    let found, rv;
+    this.wrapArgumentByHandler(originHandler, arg, options);
+    this.wrapArgumentByHandler(targetHandler, arg, options);
+
     [found, rv] = this.getMembraneProxy(
       targetHandler.fieldName, arg
     );
@@ -1249,6 +1280,8 @@ function ObjectGraphHandler(membrane, fieldName) {
   }, this);
   Object.freeze(boundMethods);
 
+  var passThroughFilter = returnFalse;
+
   // private
   Object.defineProperties(this, {
     "membrane": new NWNCDataDescriptor(membrane, false),
@@ -1272,6 +1305,19 @@ function ObjectGraphHandler(membrane, fieldName) {
 
     "__isDead__": new DataDescriptor(false, true, true, true),
 
+    "passThroughFilter": {
+      get: () => passThroughFilter,
+      set: (val) => {
+        if (passThroughFilter !== returnFalse)
+          throw new Error("passThroughFilter has been defined once already!");
+        if (typeof val !== "function")
+          throw new Error("passThroughFilter must be a function");
+        passThroughFilter = val;
+        return val;
+      },
+      enumerable: false,
+      configurable: false,
+    },
     "__preProxyListeners__": new NWNCDataDescriptor([], false),
 
     "__proxyListeners__": new NWNCDataDescriptor([], false),

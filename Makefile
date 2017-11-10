@@ -55,6 +55,7 @@ ALL_SPEC_FILES = \
 	spec/concepts.js \
 	spec/freeze-seal.js \
 	spec/replaceProxies.js \
+	spec/passThroughFilters.js \
 	spec/proxyListeners.js \
 	spec/functionListeners.js \
 	spec/manualBind.js \
