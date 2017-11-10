@@ -291,8 +291,10 @@ describe("Pass-through filters", function() {
     );
 
     it("cannot be replaced more than once", function() {
+      expect(wetHandler.mayReplacePassThrough).toBe(true);
       let oldFilter = wetHandler.passThroughFilter;
       wetHandler.passThroughFilter = passP;
+      expect(wetHandler.mayReplacePassThrough).toBe(false);
 
       let desc = Reflect.getOwnPropertyDescriptor(
         wetHandler, "passThroughFilter"

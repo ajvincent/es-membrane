@@ -3,8 +3,6 @@ function DistortionsListener(membrane) {
   Object.defineProperties(this, {
     "membrane":
       new NWNCDataDescriptor(membrane, false),
-    "preProxyListener":
-      new NWNCDataDescriptor(this.preProxyListener.bind(this), false),
     "proxyListener":
       new NWNCDataDescriptor(this.proxyListener.bind(this), false),
     "valueAndProtoMap":
@@ -81,8 +79,10 @@ Object.defineProperties(DistortionsListener.prototype, {
     if (!this.membrane.ownsHandler(handler)) {
       throw new Error("Membrane must own the first argument as an object graph handler!");
     }
-    handler.addPreProxyListener(this.preProxyListener);
     handler.addProxyListener(this.proxyListener);
+
+    if (handler.mayReplacePassThrough)
+      handler.passThroughFilter = this.passThroughFilter.bind(this);
   }, true),
 
   "ignorePrimordials": new NWNCDataDescriptor(function() {
@@ -91,16 +91,6 @@ Object.defineProperties(DistortionsListener.prototype, {
         this.ignorableValues.add(p);
     });
   }, true),
-
-  /**
-   * @private
-   */
-  "preProxyListener": new NWNCDataDescriptor(function(meta) {
-    if (meta.target in this.ignorableValues) {
-      meta.override(meta.target);
-      meta.stopPropagation();
-    }
-  }, false),
 
   /**
    * @private
@@ -160,6 +150,10 @@ Object.defineProperties(DistortionsListener.prototype, {
       rules.truncateArgList(fieldName, meta.proxy, config.truncateArgList);
 
     meta.stopIteration();
+  }, false),
+
+  "passThroughFilter": new NWNCDataDescriptor(function(value) {
+    return this.ignorableValues.has(value);
   }, false),
 });
 

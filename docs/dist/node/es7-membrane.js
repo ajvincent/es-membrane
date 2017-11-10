@@ -1316,6 +1316,13 @@ function ObjectGraphHandler(membrane, fieldName) {
       enumerable: false,
       configurable: false,
     },
+
+    "mayReplacePassThrough": {
+      get: () => passThroughFilter === returnFalse,
+      enumerable: true,
+      configurable: false
+    },
+
     "__preProxyListeners__": new NWNCDataDescriptor([], false),
 
     "__proxyListeners__": new NWNCDataDescriptor([], false),
@@ -2505,34 +2512,6 @@ ObjectGraphHandler.prototype = Object.seal({
     if (index == -1)
       throw new Error("listener is not registered!");
     this.__proxyListeners__.splice(index, 1);
-  },
-
-  /**
-   * Add a listener for new proxies.
-   *
-   * @see ProxyNotify
-   *
-   * @note I am assuming that proxies are relatively expensive to deal with,
-   * compared to a non-proxy value.  The idea is if we don't have to create
-   * a proxy, we shouldn't.  This is why pre-proxy listeners exist.
-   */
-  addPreProxyListener: function(listener) {
-    if (typeof listener != "function")
-      throw new Error("listener is not a function!");
-    if (!this.__preProxyListeners__.includes(listener))
-      this.__preProxyListeners__.push(listener);
-  },
-
-  /**
-   * Remove a listener for new proxies.
-   *
-   * @see ProxyNotify
-   */
-  removePreProxyListener: function(listener) {
-    let index = this.__preProxyListeners__.indexOf(listener);
-    if (index == -1)
-      throw new Error("listener is not registered!");
-    this.__preProxyListeners__.splice(index, 1);
   },
 
   /**
@@ -3814,8 +3793,6 @@ function DistortionsListener(membrane) {
   Object.defineProperties(this, {
     "membrane":
       new NWNCDataDescriptor(membrane, false),
-    "preProxyListener":
-      new NWNCDataDescriptor(this.preProxyListener.bind(this), false),
     "proxyListener":
       new NWNCDataDescriptor(this.proxyListener.bind(this), false),
     "valueAndProtoMap":
@@ -3892,8 +3869,10 @@ Object.defineProperties(DistortionsListener.prototype, {
     if (!this.membrane.ownsHandler(handler)) {
       throw new Error("Membrane must own the first argument as an object graph handler!");
     }
-    handler.addPreProxyListener(this.preProxyListener);
     handler.addProxyListener(this.proxyListener);
+
+    if (handler.mayReplacePassThrough)
+      handler.passThroughFilter = this.passThroughFilter.bind(this);
   }, true),
 
   "ignorePrimordials": new NWNCDataDescriptor(function() {
@@ -3902,16 +3881,6 @@ Object.defineProperties(DistortionsListener.prototype, {
         this.ignorableValues.add(p);
     });
   }, true),
-
-  /**
-   * @private
-   */
-  "preProxyListener": new NWNCDataDescriptor(function(meta) {
-    if (meta.target in this.ignorableValues) {
-      meta.override(meta.target);
-      meta.stopPropagation();
-    }
-  }, false),
 
   /**
    * @private
@@ -3971,6 +3940,10 @@ Object.defineProperties(DistortionsListener.prototype, {
       rules.truncateArgList(fieldName, meta.proxy, config.truncateArgList);
 
     meta.stopIteration();
+  }, false),
+
+  "passThroughFilter": new NWNCDataDescriptor(function(value) {
+    return this.ignorableValues.has(value);
   }, false),
 });
 
