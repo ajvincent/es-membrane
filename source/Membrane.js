@@ -41,6 +41,13 @@ function MembraneInternal(options = {}) {
   Object.seal(this);
   */
 }
+
+Reflect.defineProperty(
+  MembraneInternal,
+  "Primordials",
+  new NWNCDataDescriptor(Primordials, true) // this should be visible
+);
+
 { // Membrane definition
 MembraneInternal.prototype = Object.seal({
   allTraps: allTraps,

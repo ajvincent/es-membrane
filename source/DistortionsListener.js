@@ -89,7 +89,7 @@ Object.defineProperties(DistortionsListener.prototype, {
     Primordials.forEach(function(p) {
       if (p)
         this.ignorableValues.add(p);
-    });
+    }, this);
   }, true),
 
   /**
@@ -111,7 +111,7 @@ Object.defineProperties(DistortionsListener.prototype, {
         testConfig = entry.value[1];
         if (filter(meta)) {
           config = testConfig;
-          entry.done = true;
+          break;
         }
         else {
           entry = iter.next();
@@ -135,7 +135,7 @@ Object.defineProperties(DistortionsListener.prototype, {
       );
     }
 
-    const deadTraps = this.membrane.allTraps.filter(function(key) {
+    const deadTraps = allTraps.filter(function(key) {
       return !config.proxyTraps.includes(key);
     });
     rules.disableTraps(fieldName, meta.proxy, deadTraps);

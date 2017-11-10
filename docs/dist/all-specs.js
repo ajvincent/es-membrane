@@ -4904,6 +4904,84 @@ describe("Binding two values manually", function() {
     }).toThrow();
   });
 });
+if (typeof Membrane != "function") {
+  if (typeof require == "function") {
+    var { Membrane } = require("../docs/dist/node/es7-membrane.js");
+  }
+  else
+    throw new Error("Unable to run tests: cannot get Membrane");
+}
+
+describe("Primordial values", function() {
+  "use strict";
+  const MUSTCREATE = Object.freeze({ mustCreate: true });
+  const topValues = [Object, Function, Array, Map, Set, WeakMap, WeakSet, Date];
+  function passThrough() {
+    const pSet = new Set(Membrane.Primordials);
+    return pSet.has;
+  }
+
+  it("are available on the Membrane as a frozen array", function() {
+    expect(Array.isArray(Membrane.Primordials)).toBe(true);
+    expect(Object.isFrozen(Membrane.Primordials)).toBe(true);
+    {
+      let desc = Reflect.getOwnPropertyDescriptor(Membrane, "Primordials");
+      expect(desc.writable).toBe(false);
+      expect(desc.configurable).toBe(false);
+    }
+
+    if (!Array.isArray(Membrane.Primordials))
+      return;
+
+    topValues.forEach(function(k) {
+      expect(Membrane.Primordials.includes(k)).toBe(true);
+    });
+  });
+
+  it("can pass through all object graphs, if requested", function() {
+    const membrane = new Membrane({passThroughFilter: passThrough});
+    const wetHandler = membrane.getHandlerByName("wet", MUSTCREATE);
+    const dryHandler = membrane.getHandlerByName("dry", MUSTCREATE);
+
+    topValues.forEach(function(p) {
+      let wrappedP = membrane.convertArgumentToProxy(wetHandler, dryHandler, p);
+      expect(wrappedP).toBe(p);
+    });
+  });
+
+  it("can pass through specific object graphs, if requested", function() {
+    const membrane = new Membrane();
+    const wetHandler = membrane.getHandlerByName("wet", MUSTCREATE);
+    const dryHandler = membrane.getHandlerByName("dry", MUSTCREATE);
+
+    wetHandler.passThroughFilter = passThrough;
+    dryHandler.passThroughFilter = passThrough;
+
+    topValues.forEach(function(p) {
+      let wrappedP = membrane.convertArgumentToProxy(wetHandler, dryHandler, p);
+      expect(wrappedP).toBe(p);
+    });
+  });
+
+  it("are available through DistortionsListener instances", function() {
+    const membrane = new Membrane();
+    const wetHandler = membrane.getHandlerByName("wet", MUSTCREATE);
+    const dryHandler = membrane.getHandlerByName("dry", MUSTCREATE);
+
+    let wetDL = membrane.modifyRules.createDistortionsListener();
+    wetDL.ignorePrimordials();
+    wetDL.bindToHandler(wetHandler);
+
+    let dryDL = membrane.modifyRules.createDistortionsListener();
+    dryDL.ignorePrimordials();
+    dryDL.bindToHandler(dryHandler);
+
+    topValues.forEach(function(p) {
+      let wrappedP = membrane.convertArgumentToProxy(wetHandler, dryHandler, p);
+      expect(wrappedP).toBe(p);
+    });
+  });
+});
 "use strict"
 
 if ((typeof MembraneMocks != "function") ||
@@ -8127,8 +8205,6 @@ describe(
     });
   }
 );
-"use strict";
-
 if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
   if (typeof require == "function") {
     var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
@@ -8139,6 +8215,7 @@ if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
 }
 
 describe("Whitelisting object properties", function() {
+  "use strict";
   var wetDocument, dryDocument;
 
   function HEAT() { return "handleEventAtTarget stub"; }
@@ -8221,7 +8298,7 @@ describe("Whitelisting object properties", function() {
 
         {
           let oldHandleEvent = EventListenerProto.handleEventAtTarget;
-          EventListenerProto.handleEventAtTarget = function(event) {
+          EventListenerProto.handleEventAtTarget = function(/*event*/) {
             if (mockOptions.checkEvent)
               mockOptions.checkEvent.apply(this, arguments);
             return oldHandleEvent.apply(this, arguments);
@@ -8319,7 +8396,7 @@ describe("Whitelisting object properties", function() {
         const distortions = dryWetMB.modifyRules.createDistortionsListener();
         {
           let oldHandleEvent = EventListenerProto.handleEventAtTarget;
-          EventListenerProto.handleEventAtTarget = function(event) {
+          EventListenerProto.handleEventAtTarget = function(/*event*/) {
             if (mockOptions.checkEvent)
               mockOptions.checkEvent.apply(this, arguments);
             return oldHandleEvent.apply(this, arguments);
@@ -8832,7 +8909,7 @@ describe("Whitelisting object properties", function() {
   
       expect(function() {
         const dryWetMB = new DMembrane();
-        const wetHandler = dryWetMB.getHandlerByName(
+        dryWetMB.getHandlerByName(
           "wet", { mustCreate: true }
         );
       }).not.toThrow();

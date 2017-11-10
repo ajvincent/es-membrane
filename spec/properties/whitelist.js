@@ -1,5 +1,3 @@
-"use strict";
-
 if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
   if (typeof require == "function") {
     var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
@@ -10,6 +8,7 @@ if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
 }
 
 describe("Whitelisting object properties", function() {
+  "use strict";
   var wetDocument, dryDocument;
 
   function HEAT() { return "handleEventAtTarget stub"; }
@@ -92,7 +91,7 @@ describe("Whitelisting object properties", function() {
 
         {
           let oldHandleEvent = EventListenerProto.handleEventAtTarget;
-          EventListenerProto.handleEventAtTarget = function(event) {
+          EventListenerProto.handleEventAtTarget = function(/*event*/) {
             if (mockOptions.checkEvent)
               mockOptions.checkEvent.apply(this, arguments);
             return oldHandleEvent.apply(this, arguments);
@@ -190,7 +189,7 @@ describe("Whitelisting object properties", function() {
         const distortions = dryWetMB.modifyRules.createDistortionsListener();
         {
           let oldHandleEvent = EventListenerProto.handleEventAtTarget;
-          EventListenerProto.handleEventAtTarget = function(event) {
+          EventListenerProto.handleEventAtTarget = function(/*event*/) {
             if (mockOptions.checkEvent)
               mockOptions.checkEvent.apply(this, arguments);
             return oldHandleEvent.apply(this, arguments);
@@ -703,7 +702,7 @@ describe("Whitelisting object properties", function() {
   
       expect(function() {
         const dryWetMB = new DMembrane();
-        const wetHandler = dryWetMB.getHandlerByName(
+        dryWetMB.getHandlerByName(
           "wet", { mustCreate: true }
         );
       }).not.toThrow();
