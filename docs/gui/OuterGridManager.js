@@ -104,8 +104,6 @@ const OuterGridManager = window.OuterGridManager = {
         OuterGridManager.setHelpPanel(event.target);
     }, true);
 
-    this.panels.addEventListener("click", MultistateHandler, true);
-
     this.startPanelRadio.click();
   },
 

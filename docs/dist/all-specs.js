@@ -4915,7 +4915,7 @@ if (typeof Membrane != "function") {
 describe("Primordial values", function() {
   "use strict";
   const MUSTCREATE = Object.freeze({ mustCreate: true });
-  const topValues = [Object, Function, Array, Map, Set, WeakMap, WeakSet, Date];
+  const topValues = [Object, Function, Array, Date, Map, Set, WeakMap, WeakSet];
   function passThrough() {
     const pSet = new Set(Membrane.Primordials);
     return pSet.has;
