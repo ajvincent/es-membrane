@@ -69,12 +69,18 @@ const OutputPanel = window.OutputPanel = {
     var [graphNames, graphSymbolLists] = HandlerNames.serializableNames();
 
     /**************************************************************************
-     * Step 2:  Generate Distortions GUI JSON file.                           *
+     * Step 2:  Get the DistortionsRules' configurations.                     *
+     **************************************************************************/
+    const distortionsData = DistortionsGUI.metadataInGraphOrder();
+
+    /**************************************************************************
+     * Step 3:  Generate Distortions GUI JSON file.                           *
      **************************************************************************/
     const guiConfig = JSON.stringify({
       "commonFiles": commonFiles,
       "graphNames": graphNames,
-      "graphSymbolLists": graphSymbolLists
+      "graphSymbolLists": graphSymbolLists,
+      "distortionsByGraph": distortionsData,
     }, null, 2) + "\n";
 
     this.configEditor.setValue(guiConfig);
@@ -85,22 +91,36 @@ const OutputPanel = window.OutputPanel = {
     }
 
     /**************************************************************************
-     * Step 3:  Generate Membrane crafting JavaScript file.                   *
+     * Step 4:  Generate Membrane crafting JavaScript file.                   *
      **************************************************************************/
-    const script = `function buildMembrane() {
+    var script = `function buildMembrane() {
   "use strict";
   const devMembrane = new Membrane();
   const graphNames = [\n    ${HandlerNames.getFormattedNames().join(",\n    ")}\n  ];
-  graphNames.forEach(function(name) {
-    devMembrane.getHandlerByName(name, true);
-  });
+  const graphs = graphNames.map(function(name) {
+    return devMembrane.getHandlerByName(name, true);
+  });\n\n`;
+    distortionsData.forEach(function(dataArray, graphIndex) {
+      if (dataArray.length === 0)
+        return;
+      const nl = "\n    ";
+      script += `  {\n    const rules = devMembrane.modifyRules.createDistortionsListener();\n`;
+      dataArray.forEach(function(data) {
+        script += `${nl}rules.addListener(${data.name}, "value", `;
+        script += JSON.stringify(data.rules.value, null, 2).replace(/\n/gm, nl) + `);\n`;
+        if (!("proto" in data.rules))
+          return;
+        script += `${nl}rules.addListener(${data.name}, "proto", `;
+        script += JSON.stringify(data.rules.proto, null, 2).replace(/\n/gm, nl) + `);\n`;
+      });
+      script += `${nl}rules.bindToHandler(graphs[${graphIndex}]);\n  }\n\n`;
+    });
 
-  return devMembrane;
-}\n`;
+    script += "  return devMembrane;\n}\n";
 
     this.jsEditor.setValue(script);
     {
-      let blob = new Blob([script, "\n"], { type: "application/javascript" });
+      let blob = new Blob([script], { type: "application/javascript" });
       let href = URL.createObjectURL(blob);
       this.jsLink.href = href;
     }

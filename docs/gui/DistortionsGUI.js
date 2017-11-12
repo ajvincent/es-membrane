@@ -2,20 +2,31 @@ const DistortionsManager = window.DistortionsManager = {
   commonFileURLs: new Map(),
   
   valueToValueName: new Map(/*
-    value: valueName (string)
+    value: hash(valueName, graphIndex) (string)
   */),
 
   valueNameToTabMap: new Map(/*
-    valueName: <input type="radio"/>
+    hash: <input type="radio"/>
   */),
 
   valueNameToRulesMap: new Map(/*
-    valueName: new DistortionRules(value, treeroot)
+    hash: {
+      "value": new DistortionRules(value, treeroot),
+      "source": source code to generate value
+      "proto": new DistortionRules(value.prototype, treeroot)
+    }
   */),
 
   hashGraphAndValueNames: function(valueName, graphIndex) {
     return valueName + "-" + graphIndex;
   },
+
+  getNameAndGraphIndex: function(hash) {
+    let index = hash.lastIndexOf("-");
+    let valueName = hash.substr(0, index);
+    let graphIndex = parseInt(hash.substr(index + 1), 10);
+    return [valueName, graphIndex];
+  }
 };
 
 const DistortionsGUI = window.DistortionsGUI = {
@@ -43,10 +54,12 @@ const DistortionsGUI = window.DistortionsGUI = {
       }
     }
 
+    const valueFromSource = AddValuePanel.getValueEditor.getValue();
+
     {
       let sources = [
         "window.BlobLoader.getValue = ",
-        AddValuePanel.getValueEditor.getValue()
+        valueFromSource
       ];
       let b = new Blob(sources, { type: "application/javascript" });
       urlObject.searchParams.append("scriptblob", URL.createObjectURL(b));
@@ -57,6 +70,7 @@ const DistortionsGUI = window.DistortionsGUI = {
 
     const panel = document.createElement("section");
     panel.dataset.valueName = valueName;
+    panel.dataset.graphIndex = graphIndex;
     panel.dataset.hash = hash;
     const radioClass = "valuepanel-" + DistortionsManager.valueNameToTabMap.size;
     panel.setAttribute("trapsTab", "value");
@@ -67,13 +81,17 @@ const DistortionsGUI = window.DistortionsGUI = {
     DistortionsManager.valueNameToTabMap.set(hash, radio);
 
     iframe.addEventListener("load", function() {
-      DistortionsGUI.finalizeValuePanel(iframe.contentWindow.BlobLoader, panel);
+      DistortionsGUI.finalizeValuePanel(
+        iframe.contentWindow.BlobLoader,
+        panel,
+        valueFromSource
+      );
       radio.click();
     }, {once: true, capture: true});
     this.iframeBox.appendChild(iframe);
   },
 
-  finalizeValuePanel: function(BlobLoader, panel) {
+  finalizeValuePanel: function(BlobLoader, panel, valueFromSource) {
     var value;
     try {
       value = BlobLoader.getValueAndValidate();
@@ -92,11 +110,14 @@ const DistortionsGUI = window.DistortionsGUI = {
     else {
       const rules = this.buildDistortions(panel, value);
       DistortionsManager.valueNameToRulesMap.set(
-        panel.dataset.hash, { "value": rules }
+        panel.dataset.hash, {
+          "value": rules,
+          "source": valueFromSource,
+        }
       );
     }
 
-    AddValuePanel.mainPanels.appendChild(panel);
+    OuterGridManager.panels.appendChild(panel);
 
     if (typeof value === "function") {
       const hash = DistortionsManager.valueToValueName.get(value);
@@ -148,6 +169,45 @@ const DistortionsGUI = window.DistortionsGUI = {
 
     return panel;
   },
+
+  metadataInGraphOrder: function() {
+    const rv = [];
+    if (!Array.isArray(OuterGridManager.graphNamesCache.items))
+      return rv;
+
+    for (let i = 0; i < OuterGridManager.graphNamesCache.items.length; i++)
+      rv.push([]);
+
+    const hashes = DistortionsManager.valueToValueName.values();
+    let step;
+    while ((step = hashes.next()) && !step.done) {
+      let hash = step.value;
+      const [
+        valueName,
+        graphIndex
+      ] = DistortionsManager.getNameAndGraphIndex(hash);
+
+      const data = {
+        name: valueName,
+        rules: {},
+        hash: hash
+      };
+
+      const rulesMap = DistortionsManager.valueNameToRulesMap.get(hash);
+      for (let prop in rulesMap) {
+        if (rulesMap[prop] instanceof DistortionsRules)
+          data.rules[prop] = rulesMap[prop].configurationAsJSON();
+        else
+          data.rules[prop] = rulesMap[prop];
+      }
+
+      rv[graphIndex].push(data);
+
+      step = hashes.next();
+    }
+
+    return rv;
+  }
 };
 
 {

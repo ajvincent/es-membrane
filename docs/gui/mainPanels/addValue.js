@@ -2,7 +2,6 @@ const AddValuePanel = window.AddValuePanel = {
   // private, see below
   form: null,
   textarea: null,
-  mainPanels: null,
   sourceGraphSelect: null,
   targetGraphSelect: null,
   
@@ -63,7 +62,6 @@ const AddValuePanel = window.AddValuePanel = {
   let elems = {
     "form": "grid-outer-addValue",
     "textarea": "grid-outer-addValue-valueReference",
-    "mainPanels": "grid-outer-mainpanels",
     "sourceGraphSelect": "grid-outer-addValue-sourcegraph",
     "targetGraphSelect": "grid-outer-addValue-targetgraph",
   };

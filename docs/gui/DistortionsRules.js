@@ -23,6 +23,11 @@ DistortionsRules.prototype = {
     }
 
     {
+      let i = this.gridtree.getElementsByClassName("filterOwnKeys-control")[0];
+      this.filterOwnKeysControl = i;
+    }
+
+    {
       let lists = this.treeroot.getElementsByTagName("ul");
       for (let i = 0; i < lists.length; i++) {
         let list = lists[i];
@@ -143,8 +148,7 @@ DistortionsRules.prototype = {
 
     // filterOwnKeys
     {
-      let i = this.gridtree.getElementsByClassName("filterOwnKeys-control")[0];
-      if (i.checked) {
+      if (this.filterOwnKeysControl.checked) {
         let inputs = this.groupToInputsMap.get("ownKeys");
         rv.filterOwnKeys = inputs.filter((checkbox) => checkbox.checked)
                                  .map((checkbox) => checkbox.dataset.name);
