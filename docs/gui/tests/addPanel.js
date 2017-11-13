@@ -1,6 +1,7 @@
 describe("Add Panel Operations:", function() {
   var window;
-  beforeEach(function() {
+  beforeEach(async function() {
+    await getDocumentLoadPromise("base/gui/index.html");
     window = testFrame.contentWindow;
     window.StartPanel.testMode = true;
   });

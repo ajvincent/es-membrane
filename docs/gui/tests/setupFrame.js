@@ -9,8 +9,6 @@ function getDocumentLoadPromise(url) {
   return IFrameLoadPromise(testFrame, url);
 }
 
-beforeEach(getDocumentLoadPromise.bind(null, "base/gui/index.html"));
-
 afterEach(getDocumentLoadPromise.bind(null, "about:blank"));
 
 afterAll(function() {
