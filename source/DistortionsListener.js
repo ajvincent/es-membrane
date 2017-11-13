@@ -29,12 +29,15 @@ Object.defineProperties(DistortionsListener.prototype, {
   "addListener": new NWNCDataDescriptor(function(value, category, config) {
     if ((category === "prototype") || (category === "instance"))
       value = value.prototype;
+
     if ((category === "prototype") || (category === "value"))
       this.valueAndProtoMap.set(value, config);
     else if (category === "instance")
       this.instanceMap.set(value, config);
     else if ((category === "filter") && (typeof value === "function"))
       this.filterToConfigMap.set(value, config);
+    else
+      throw new Error(`Unsupported category ${category} for value`);
   }),
 
   "removeListener": new NWNCDataDescriptor(function(value, category) {

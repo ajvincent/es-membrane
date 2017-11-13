@@ -40,6 +40,7 @@ const DistortionsGUI = window.DistortionsGUI = {
   buildValuePanel: function() {
     const valueName = AddValuePanel.form.nameOfValue.value,
           graphIndex = AddValuePanel.form.targetGraph.selectedIndex,
+          sourceGraphIndex = AddValuePanel.form.sourceGraph.selectedIndex,
           hash = DistortionsManager.hashGraphAndValueNames(valueName, graphIndex);
     if (DistortionsManager.valueNameToTabMap.has(hash))
       return;
@@ -84,14 +85,16 @@ const DistortionsGUI = window.DistortionsGUI = {
       DistortionsGUI.finalizeValuePanel(
         iframe.contentWindow.BlobLoader,
         panel,
-        valueFromSource
+        valueFromSource,
+        sourceGraphIndex
       );
       radio.click();
     }, {once: true, capture: true});
     this.iframeBox.appendChild(iframe);
   },
 
-  finalizeValuePanel: function(BlobLoader, panel, valueFromSource) {
+  finalizeValuePanel:
+  function(BlobLoader, panel, valueFromSource, sourceGraphIndex) {
     var value;
     try {
       value = BlobLoader.getValueAndValidate();
@@ -113,6 +116,7 @@ const DistortionsGUI = window.DistortionsGUI = {
         panel.dataset.hash, {
           "value": rules,
           "source": valueFromSource,
+          "sourceGraphIndex": sourceGraphIndex,
         }
       );
     }
@@ -178,10 +182,10 @@ const DistortionsGUI = window.DistortionsGUI = {
     for (let i = 0; i < OuterGridManager.graphNamesCache.items.length; i++)
       rv.push([]);
 
-    const hashes = DistortionsManager.valueToValueName.values();
+    const entries = DistortionsManager.valueToValueName.values();
     let step;
-    while ((step = hashes.next()) && !step.done) {
-      let hash = step.value;
+    while ((step = entries.next()) && !step.done) {
+      let [value, hash] = step.value;
       const [
         valueName,
         graphIndex
@@ -189,14 +193,18 @@ const DistortionsGUI = window.DistortionsGUI = {
 
       const data = {
         name: valueName,
+        source: null,
         rules: {},
-        hash: hash
+        hash: hash,
+        isFunction: (typeof value === "function"),
       };
 
       const rulesMap = DistortionsManager.valueNameToRulesMap.get(hash);
       for (let prop in rulesMap) {
         if (rulesMap[prop] instanceof DistortionsRules)
           data.rules[prop] = rulesMap[prop].configurationAsJSON();
+        else if (prop in ["source", "sourceGraphIndex"])
+          data[prop] = rulesMap[prop];
         else
           data.rules[prop] = rulesMap[prop];
       }

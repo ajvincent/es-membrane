@@ -1,4 +1,4 @@
-function DistortionsRules() {
+window.DistortionsRules = function DistortionsRules() {
   this.inputToGroupMap = new Map(/*
     <input type="checkbox">: groupName
   */);
@@ -10,6 +10,97 @@ function DistortionsRules() {
     /* serializable JSON settings */
   };
 }
+
+/**
+ * Throws a string if a configuration is unusable.
+ *
+ * @param config {Object} The configuration to test.
+ */
+DistortionsRules.validateConfiguration = function(config) {
+  // assume we've tested typeof config === "object" already
+
+  function requireType(field, type) {
+    if (typeof config[field] !== type)
+      throw `${field} must be of type ${type}`;
+  }
+  requireType("formatVersion", "string");
+  if (!/^\d+\.\d+(?:\.\d)?$/.test(config.formatVersion))
+    throw `formatVersion must be a normal semantic versioning number`;
+  requireType("dataVersion", "string");
+  if (!/^\d+\.\d+(?:\.\d)?$/.test(config.dataVersion))
+    throw `dataVersion must be a normal semantic versioning number`;
+
+  // filterOwnKeys
+  {
+    const errPrefix = "filterOwnKeys must be null or an array of unique strings and symbols";
+    if (!("filterOwnKeys" in config))
+      throw `${errPrefix} (absent)`;
+    if (config.filterOwnKeys === null) 
+    {
+      // do nothing
+    }
+    else if (!Array.isArray(config.filterOwnKeys))
+      throw `${errPrefix} (not an array)`;
+    else {
+      const keys = config.filterOwnKeys.slice(0).filter(function(k) {
+        return typeof k !== "symbol";
+      });
+      keys.sort();
+      let lastKey;
+      keys.forEach(function(key, index) {
+        if (typeof key !== "string")
+          throw `${errPrefix} (not a string or symbol: ${key})`;
+        if ((index > 0) && (key === lastKey))
+          throw `${errPrefix} (duplicate key "${key}")`;
+        lastKey = key;
+      });
+    }
+  }
+
+  // proxyTraps
+  {
+    if (!Array.isArray(config.proxyTraps))
+      throw "config.proxyTraps is not an array";
+    const allTraps = [
+      "getPrototypeOf",
+      "setPrototypeOf",
+      "isExtensible",
+      "preventExtensions",
+      "getOwnPropertyDescriptor",
+      "defineProperty",
+      "has",
+      "get",
+      "set",
+      "deleteProperty",
+      "ownKeys",
+      "apply",
+      "construct"
+    ];
+    const available = new Set(allTraps);
+    config.proxyTraps.forEach(function(trap) {
+      if (available.has(trap)) {
+        available.delete(trap);
+        return;
+      }
+      if (allTraps.includes(trap))
+        throw `config.proxyTraps has a duplicate string: ${trap}`;
+      throw `config.proxyTraps has an unexpected value: ${trap}`;
+    });
+  }
+
+  requireType("inheritFilter", "boolean");
+  requireType("storeUnknownAsLocal", "boolean");
+  requireType("requireLocalDelete", "boolean");
+  requireType("useShadowTarget", "boolean");
+  if (typeof config.truncateArgList === "boolean")
+  {
+    // do nothing
+  }
+  else if (!Number.isInteger(config.truncateArgList) ||
+           (config.truncateArgList < 0))
+    throw "truncateArgList must be a boolean or a non-negative integer";
+};
+
 DistortionsRules.prototype = {
   propertyTreeTemplate: null,
 

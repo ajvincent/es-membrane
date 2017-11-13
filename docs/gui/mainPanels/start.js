@@ -49,6 +49,66 @@ const StartPanel = window.StartPanel = {
     this.enableOtherPanels();
   },
 
+  validateDistortions:
+  function(instructions, index, graphIndex, graphsTotal) {
+    const errorPrefix = `config.distortionsByGraph[${graphIndex}][${index}]`;
+    function requireType(field, type) {
+      if (typeof instructions[field] !== type)
+        throw new Error(`${errorPrefix}.${field} must be of type ${type}`);
+    }
+    if (typeof instructions !== "object")
+      throw new Error(errorPrefix + " must be an object");
+
+    requireType("name", "string");
+    requireType("source", "string");
+    requireType("hash", "string");
+    requireType("isFunction", "boolean");
+    requireType("rules", "object");
+
+    // XXX ajvincent We're not going to attempt parsing instructions.source now.
+
+    {
+      const max = graphsTotal - 1;
+      if (!Number.isInteger(instructions.sourceGraphIndex) ||
+          (instructions.sourceGraphIndex < 0) ||
+          (instructions.sourceGraphIndex >= graphsTotal))
+        throw new Error(
+          `${errorPrefix}.sourceGraphIndex must be an integer from 0 to ${max}`
+        );
+    }
+
+    if (instructions.sourceGraphIndex === graphIndex)
+      throw new Error(
+        `${errorPrefix}.sourceGraphIndex cannot be the target graph index ${graphIndex}`
+      );
+
+    const rulesMembers = ["value"];
+    if (instructions.isFunction) {
+      /*
+      rulesMembers.push("proto");
+      rulesMembers.push("instance");
+      */
+    }
+    rulesMembers.forEach(function(member) {
+      if (typeof instructions.rules[member] !== "object") {
+        throw new Error(
+          `${errorPrefix}.rules.${member} must be an object`
+        );
+      }
+      try {
+        DistortionsRules.validateConfiguration(instructions.rules[member]);
+      }
+      catch (msg) {
+        throw new Error(`${errorPrefix}.rules.${member}.${msg}`);
+      }
+    }, this);
+
+    if (!instructions.isFunction)
+      return;
+
+    // Special rules for functions
+  },
+
   startWithConfigFile: async function(testJSONSource) {
     var config;
     this.collectCommonFileURLs();
@@ -93,6 +153,22 @@ const StartPanel = window.StartPanel = {
             stringKeys.add(key);
           }
         });
+
+        if (!Array.isArray(config.distortionsByGraph) ||
+            (config.distortionsByGraph.length != config.graphNames.length) ||
+            !config.distortionsByGraph.every(Array.isArray))
+          throw new Error(
+            `config.distortionsByGraph must be an array with length ` +
+            config.graphNames.length + ` of arrays`
+          );
+
+        config.distortionsByGraph.forEach(function(items, graphIndex) {
+          items.forEach(function(item, index) {
+            this.validateDistortions(
+              item, index, graphIndex, config.graphNames.length
+            );
+          }, this);
+        }, this);
       }
 
       HandlerNames.importConfig(config);
