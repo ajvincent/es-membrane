@@ -132,7 +132,7 @@
         <form id="grid-outer-start-configform"
               method="post"
               enctype="multipart/form-data"
-              action="javascript:StartPanel.startWithConfigFile();">
+              action="javascript:StartPanel.startWithConfigFile(); return false;">
           <span id="grid-outer-start-config-span">
             <label for="grid-outer-start-config">
               If you have a Distortions GUI configuration file already, please
@@ -156,7 +156,7 @@
         <form id="grid-outer-start-graphnamesform"
               method="post"
               enctype="multipart/form-data"
-              action="javascript:StartPanel.startWithGraphNames();">
+              action="javascript:StartPanel.startWithGraphNames(); return false;">
           <p>Name the object graphs you want here.  This is an unordered set.
           (Examples:  [internal, public] or [wet, dry].)</p>
           <div id="grid-outer-start-objectgraphs">
@@ -172,7 +172,7 @@
         <form id="grid-outer-addValue"
               method="post"
               enctype="multipart/form-data"
-              action="javascript:DistortionsGUI.buildValuePanel();">
+              action="javascript:DistortionsGUI.buildValuePanel(); return false;">
           <!-- This needs to be rethought.
           <span id="grid-outer-addValue-location-span">
             <label for="grid-outer-addValue-location">
