@@ -22,7 +22,7 @@ const StartPanel = window.StartPanel = {
       "../dist/browser/mocks.js"
     ].forEach(function(filepath) {
       DistortionsManager.commonFileURLs.set(
-        filepath, new URL(filepath, window.location.href)
+        filepath, (new URL(filepath, window.location.href)).href
       );
     });
   },
@@ -44,7 +44,7 @@ const StartPanel = window.StartPanel = {
 
     let urlArray = [];
     DistortionsManager.commonFileURLs.forEach(function(url) {
-      urlArray.push(url.href);
+      urlArray.push(url);
     });
     while (urlArray.length) {
       await DistortionsManager.BlobLoader.addCommonURL(urlArray.shift());
