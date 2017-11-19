@@ -34,7 +34,7 @@ describe("Add Panel Operations:", function() {
         window.AddValuePanel.sourceGraphSelect.selectedIndex = 1;
         window.AddValuePanel.targetGraphSelect.selectedIndex = 0;
         window.AddValuePanel.form.nameOfValue.value = "parts.wet.foo";
-        window.AddValuePanel.getValueEditor.setValue("() => {}");
+        window.AddValuePanel.getValueEditor.setValue("function() { return {}; }");
 
         {
           let isValid = window.AddValuePanel.form.checkValidity();
@@ -43,9 +43,7 @@ describe("Add Panel Operations:", function() {
             return;
         }
 
-        let p = BlobLoaderPromise(window.DistortionsGUI.iframeBox);
-        window.DistortionsGUI.buildValuePanel();
-        await p;
+        await window.DistortionsGUI.buildValuePanel();
       }
 
       // tabs: labels for objects

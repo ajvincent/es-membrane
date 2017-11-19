@@ -27,25 +27,34 @@ const StartPanel = window.StartPanel = {
     });
   },
 
-  collectCommonFileURLs: function() {
+  /**
+   * @private
+   */
+  collectCommonFileURLs: async function() {
     if (this.testMode) {
       this.setTestModeFiles();
     }
     else {
-      if (!this.startFilesForm.reportValidity())
-        return;
       let files = this.commonFilesInput.files;
       for (let i = 0; i < files.length; i++) {
         let file = files[i];
         DistortionsManager.commonFileURLs.set(file, URL.createObjectURL(file));
       }
     }
+
+    let urlArray = [];
+    DistortionsManager.commonFileURLs.forEach(function(url) {
+      urlArray.push(url.href);
+    });
+    while (urlArray.length) {
+      await DistortionsManager.BlobLoader.addCommonURL(urlArray.shift());
+    }
   },
 
-  startWithGraphNames: function() {
-    this.collectCommonFileURLs();
+  startWithGraphNames: async function() {
     if (!this.testMode && !this.startFilesForm.reportValidity())
       return;
+    await this.collectCommonFileURLs();
     this.enableOtherPanels();
   },
 
@@ -110,10 +119,10 @@ const StartPanel = window.StartPanel = {
   },
 
   startWithConfigFile: async function(testJSONSource) {
-    var config;
-    this.collectCommonFileURLs();
     if (!this.testMode && !this.startFilesForm.reportValidity())
       return;
+    var config;
+    await this.collectCommonFileURLs();
     try {
       {
         let p, jsonAsText;

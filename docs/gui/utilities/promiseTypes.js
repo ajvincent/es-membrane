@@ -4,16 +4,6 @@ function TimeoutPromise(delay) {
 }
 */
 
-function IFrameLoadPromise(iframe, url) {
-  const p = new Promise(function (resolve) {
-    iframe.addEventListener("load", function() {
-      resolve(iframe.contentDocument);
-    }, CAPTURE_ONCE);
-  });
-  iframe.setAttribute("src", url);
-  return p;
-}
-
 function MessageEventPromise(target, expectedMessage) {
   let pResolve;
   target.addEventListener("message", {

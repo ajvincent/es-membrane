@@ -1,6 +1,16 @@
 const DistortionsManager = window.DistortionsManager = {
   commonFileURLs: new Map(),
-  
+
+  get BlobLoader() {
+    try {
+      return document.getElementById("BlobLoader").contentWindow.BlobLoader;
+    }
+    catch (e) {
+      console.error(e);
+      return null;
+    }
+  },
+
   valueToValueName: new Map(/*
     value: hash(valueName, graphIndex) (string)
   */),
@@ -37,7 +47,7 @@ const DistortionsGUI = window.DistortionsGUI = {
 
   gridTreeCount: 0,
 
-  buildValuePanel: function() {
+  buildValuePanel: async function() {
     const valueName = AddValuePanel.form.nameOfValue.value,
           graphIndex = AddValuePanel.form.targetGraph.selectedIndex,
           sourceGraphIndex = AddValuePanel.form.sourceGraph.selectedIndex,
@@ -45,29 +55,8 @@ const DistortionsGUI = window.DistortionsGUI = {
     if (DistortionsManager.valueNameToTabMap.has(hash))
       return;
 
-    let urlObject = new URL("blob/BlobLoader.html", window.location.href);
-    {
-      let scriptIter = DistortionsManager.commonFileURLs.values();
-      let step = scriptIter.next();
-      while (!step.done) {
-        urlObject.searchParams.append("scriptblob", step.value);
-        step = scriptIter.next();
-      }
-    }
-
     const valueFromSource = AddValuePanel.getValueEditor.getValue();
-
-    {
-      let sources = [
-        "window.BlobLoader.getValue = ",
-        valueFromSource
-      ];
-      let b = new Blob(sources, { type: "application/javascript" });
-      urlObject.searchParams.append("scriptblob", URL.createObjectURL(b));
-    }
-
-    const iframe = document.createElement("iframe");
-    iframe.setAttribute("src", urlObject.href);
+    await DistortionsManager.BlobLoader.addNamedValue(valueName, valueFromSource);
 
     const panel = document.createElement("section");
     panel.dataset.valueName = valueName;
@@ -81,45 +70,15 @@ const DistortionsGUI = window.DistortionsGUI = {
     );
     DistortionsManager.valueNameToTabMap.set(hash, radio);
 
-    iframe.addEventListener("load", function() {
-      DistortionsGUI.finalizeValuePanel(
-        iframe.contentWindow.BlobLoader,
-        panel,
-        valueFromSource,
-        sourceGraphIndex
-      );
-      radio.click();
-    }, {once: true, capture: true});
-    this.iframeBox.appendChild(iframe);
-  },
-
-  finalizeValuePanel:
-  function(BlobLoader, panel, valueFromSource, sourceGraphIndex) {
-    var value;
-    try {
-      value = BlobLoader.getValueAndValidate();
-    }
-    catch (e) {
-      BlobLoader.registerError(e);
-      console.error(e);
-    }
-    if (BlobLoader.errorFired) {
-      panel.classList.add("error");
-      let strong = document.createElement("strong");
-      strong.appendChild(document.createTextNode("Error: "));
-      panel.appendChild(strong);
-      panel.appendChild(document.createTextNode(BlobLoader.errorMessage));
-    }
-    else {
-      const rules = this.buildDistortions(panel, value);
-      DistortionsManager.valueNameToRulesMap.set(
-        panel.dataset.hash, {
-          "value": rules,
-          "source": valueFromSource,
-          "sourceGraphIndex": sourceGraphIndex,
-        }
-      );
-    }
+    const value = DistortionsManager.BlobLoader.valuesByName.get(panel.dataset.valueName);
+    const rules = this.buildDistortions(panel, value);
+    DistortionsManager.valueNameToRulesMap.set(
+      panel.dataset.hash, {
+        "value": rules,
+        "source": valueFromSource,
+        "sourceGraphIndex": sourceGraphIndex,
+      }
+    );
 
     OuterGridManager.panels.appendChild(panel);
 

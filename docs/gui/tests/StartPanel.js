@@ -35,19 +35,8 @@ describe("Start Panel Operations:", function() {
 
   it("can build a fresh configuration with test mode", async function() {
     await getGUIMocksPromise(["doc"]);
-    const loaders = [];
-    {
-      let iframe = window.DistortionsGUI.iframeBox.firstElementChild;
-      while (iframe) {
-        loaders.push(iframe.contentWindow.BlobLoader);
-        iframe = iframe.nextElementSibling;
-      }
-    }
-
-    expect(loaders.length).toBe(1);
-    expect(loaders[0].validated).toBe(true);
-    expect(loaders[0].errorFired).toBe(false);
-    expect(loaders[0].getValue().nodeType).toBe(9);
+    const BlobLoader = window.DistortionsManager.BlobLoader;
+    expect(BlobLoader.valuesByName.get("parts.dry.doc").nodeType).toBe(9);
 
     expect(getErrorMessage()).toBe(null);
   });

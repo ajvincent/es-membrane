@@ -42,9 +42,7 @@ async function getGUIMocksPromise(propNames) {
       if (!isValid)
         return;
     }
-    let p = BlobLoaderPromise(window.DistortionsGUI.iframeBox);
-    window.DistortionsGUI.buildValuePanel();
-    await p;
+    await window.DistortionsGUI.buildValuePanel();
   };
 
   {
