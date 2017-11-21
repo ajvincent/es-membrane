@@ -83,9 +83,6 @@ const DistortionsGUI = window.DistortionsGUI = {
     OuterGridManager.panels.appendChild(panel);
 
     if (typeof value === "function") {
-      const hash = DistortionsManager.valueToValueName.get(value);
-      const radio = DistortionsManager.valueNameToTabMap.get(hash);
-
       radio.dataset.valueIsFunction = true;
       const protoPanel = this.buildPrototypePanel(value, hash);
       if (protoPanel)
@@ -97,6 +94,7 @@ const DistortionsGUI = window.DistortionsGUI = {
         OuterGridManager.insertOtherPanel(radio, instancePanel);
       */
     }
+    radio.click();
   },
 
   buildDistortions: function(panel, value) {
@@ -141,7 +139,7 @@ const DistortionsGUI = window.DistortionsGUI = {
     for (let i = 0; i < OuterGridManager.graphNamesCache.items.length; i++)
       rv.push([]);
 
-    const entries = DistortionsManager.valueToValueName.values();
+    const entries = DistortionsManager.valueToValueName.entries();
     let step;
     while ((step = entries.next()) && !step.done) {
       let [value, hash] = step.value;
@@ -169,8 +167,6 @@ const DistortionsGUI = window.DistortionsGUI = {
       }
 
       rv[graphIndex].push(data);
-
-      step = hashes.next();
     }
 
     return rv;
