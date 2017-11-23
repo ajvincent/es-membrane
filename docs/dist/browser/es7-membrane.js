@@ -885,55 +885,6 @@ MembraneInternal.prototype = Object.seal({
   },
 
   /**
-   * Wrap a value in the object graph for a given ObjectGraphHandler.
-   *
-   * @param handler {ObjectGraphHandler} The handler for the desired object graph.
-   * @param arg     {Variant}            The value to wrap.
-   * @param options {Object}             Options to forward to this.buildMapping.
-   *
-   * @returns {Variant} The value in the targeted object graph.  (NOT a Proxy.)
-   */
-  wrapArgumentByHandler: function(handler, arg, options = {}) {
-    // XXX ajvincent Ensure all callers do not need the return argument!
-    if (ChainHandlers.has(handler))
-      handler = handler.baseHandler;
-    if (!(handler instanceof ObjectGraphHandler) ||
-        (handler !== this.getHandlerByName(handler.fieldName)))
-      throw new Error("wrapArgumentByHandler:  handler mismatch");
-    const type = valueType(arg);
-    if (type == "primitive")
-      return arg;
-    const mayLog = this.__mayLog__();
-
-    let found = this.hasProxyForValue(handler.fieldName, arg);
-    if (found)
-      return arg;
-
-    let argMap = this.map.get(arg);
-    if (mayLog) {
-      this.logger.debug("wrapArgumentByHandler found: " + Boolean(argMap));
-    }
-
-    let passOptions;
-    if (argMap) {
-      passOptions = Object.create(options, {
-        "mapping": new DataDescriptor(argMap)
-      });
-    }
-    else {
-      passOptions = options;
-    }
-
-    this.buildMapping(
-      handler.fieldName,
-      arg,
-      passOptions
-    );
-
-    return arg; // It may have changed along the way.
-  },
-
-  /**
    * Wrap a value for the first time in an object graph.
    *
    * @param mapping {ProxyMapping}  A mapping whose origin field refers to the
@@ -948,7 +899,11 @@ MembraneInternal.prototype = Object.seal({
       return;
 
     let handler = this.getHandlerByName(mapping.originField);
-    this.wrapArgumentByHandler(handler, arg, options);
+    this.buildMapping(
+      handler.fieldName,
+      arg,
+      options
+    );
     
     assert(this.map.has(arg),
            "wrapArgumentByProxyMapping should define a ProxyMapping for arg");
@@ -1007,8 +962,43 @@ MembraneInternal.prototype = Object.seal({
       return arg;
     }
 
-    this.wrapArgumentByHandler(originHandler, arg, options);
-    this.wrapArgumentByHandler(targetHandler, arg, options);
+    if (!this.hasProxyForValue(originHandler.fieldName, arg)) {
+      let argMap = this.map.get(arg);
+      let passOptions;
+      if (argMap) {
+        passOptions = Object.create(options, {
+          "mapping": new DataDescriptor(argMap)
+        });
+      }
+      else {
+        passOptions = options;
+      }
+
+      this.buildMapping(
+        originHandler.fieldName,
+        arg,
+        passOptions
+      );
+    }
+    
+    if (!this.hasProxyForValue(targetHandler.fieldName, arg)) {
+      let argMap = this.map.get(arg);
+      let passOptions = Object.create(options, {
+        "originHandler": new DataDescriptor(originHandler)
+      });
+
+      if (argMap) {
+        Reflect.defineProperty(
+          passOptions, "originHandler", new DataDescriptor(argMap)
+        );
+      }
+
+      this.buildMapping(
+        targetHandler.fieldName,
+        arg,
+        passOptions
+      );
+    }
 
     [found, rv] = this.getMembraneProxy(
       targetHandler.fieldName, arg
@@ -2889,8 +2879,6 @@ ObjectGraphHandler.prototype = Object.seal({
           }
         }
 
-        setLockedValue = undefined;
-
         assert(
           Reflect.deleteProperty(shadowTarget, propName),
           "Couldn't delete original descriptor?"
@@ -2941,7 +2929,6 @@ ObjectGraphHandler.prototype = Object.seal({
         if (!current.configurable)
           throw new Error("lazy getter descriptor is not configurable -- this is fatal");
 
-        setLockedValue = undefined;
         const desc = new DataDescriptor(value, true, current.enumerable, true);
 
         assert(
@@ -2961,8 +2948,8 @@ ObjectGraphHandler.prototype = Object.seal({
     };
 
     {
-      handler.membrane.wrapArgumentByHandler(handler, lazyDesc.get);
-      handler.membrane.wrapArgumentByHandler(handler, lazyDesc.set);
+      handler.membrane.buildMapping(handler.fieldName, lazyDesc.get);
+      handler.membrane.buildMapping(handler.fieldName, lazyDesc.set);
     }
 
     {

@@ -363,8 +363,7 @@ var ElementDry, NodeDry, dryDocument;
 
   let found, doc;
 
-  doc = dryWetMB.wrapArgumentByHandler(dryHandler, wetDocument);
-  assert(doc === wetDocument, "Expected to get back the wet document");
+  dryWetMB.convertArgumentToProxy(wetHandler, dryHandler, wetDocument);
 
   [found, doc] = dryWetMB.getMembraneValue("dry", wetDocument);
   assert(found, "Must find dryDocument from membrane wrapping of wetDocument");
@@ -389,7 +388,7 @@ var ElementDry, NodeDry, dryDocument;
 
 {
   let dryHandler = dryWetMB.getHandlerByName("dry");
-  dryWetMB.wrapArgumentByHandler(dryHandler, ElementWet);
+  dryWetMB.buildMapping(dryHandler.fieldName, ElementWet);
   let found;
   [found, ElementDry] = dryWetMB.getMembraneProxy("dry", ElementWet);
   assert(found, "ElementDry not found as a proxy!");
@@ -399,7 +398,7 @@ var ElementDry, NodeDry, dryDocument;
 
 {
   let dryHandler = dryWetMB.getHandlerByName("dry");
-  dryWetMB.wrapArgumentByHandler(dryHandler, NodeWet);
+  dryWetMB.buildMapping(dryHandler.fieldName, NodeWet);
   let found;
   [found, NodeDry] = dryWetMB.getMembraneProxy("dry", NodeWet);
   assert(found, "NodeDry not found as a proxy!");

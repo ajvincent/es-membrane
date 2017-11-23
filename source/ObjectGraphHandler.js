@@ -1621,8 +1621,6 @@ ObjectGraphHandler.prototype = Object.seal({
           }
         }
 
-        setLockedValue = undefined;
-
         assert(
           Reflect.deleteProperty(shadowTarget, propName),
           "Couldn't delete original descriptor?"
@@ -1673,7 +1671,6 @@ ObjectGraphHandler.prototype = Object.seal({
         if (!current.configurable)
           throw new Error("lazy getter descriptor is not configurable -- this is fatal");
 
-        setLockedValue = undefined;
         const desc = new DataDescriptor(value, true, current.enumerable, true);
 
         assert(
@@ -1693,8 +1690,8 @@ ObjectGraphHandler.prototype = Object.seal({
     };
 
     {
-      handler.membrane.wrapArgumentByHandler(handler, lazyDesc.get);
-      handler.membrane.wrapArgumentByHandler(handler, lazyDesc.set);
+      handler.membrane.buildMapping(handler.fieldName, lazyDesc.get);
+      handler.membrane.buildMapping(handler.fieldName, lazyDesc.set);
     }
 
     {
