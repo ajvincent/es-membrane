@@ -64,8 +64,6 @@ function ObjectGraphHandler(membrane, fieldName) {
       configurable: false
     },
 
-    "__preProxyListeners__": new NWNCDataDescriptor([], false),
-
     "__proxyListeners__": new NWNCDataDescriptor([], false),
 
     "__functionListeners__": new NWNCDataDescriptor([], false),
@@ -1211,10 +1209,11 @@ ObjectGraphHandler.prototype = Object.seal({
     const targetMap = this.membrane.map.get(target);
     if (!(targetMap instanceof ProxyMapping))
       throw new Error("No ProxyMapping found for shadow target!");
-    if (targetMap.getShadowTarget(this.fieldName) !== shadowTarget)
+    if (!targetMap.isShadowTarget(shadowTarget)) {
       throw new Error(
         "ObjectGraphHandler traps must be called with a shadow target!"
       );
+    }
     const disableTrapFlag = `disableTrap(${trapName})`;
     if (targetMap.getLocalFlag(this.fieldName, disableTrapFlag) ||
         targetMap.getLocalFlag(targetMap.originField, disableTrapFlag))
@@ -1690,8 +1689,8 @@ ObjectGraphHandler.prototype = Object.seal({
     };
 
     {
-      handler.membrane.buildMapping(handler.fieldName, lazyDesc.get);
-      handler.membrane.buildMapping(handler.fieldName, lazyDesc.set);
+      handler.membrane.buildMapping(handler, lazyDesc.get);
+      handler.membrane.buildMapping(handler, lazyDesc.set);
     }
 
     {

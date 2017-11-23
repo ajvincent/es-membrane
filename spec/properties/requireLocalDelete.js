@@ -394,7 +394,7 @@ describe("Deleting properties locally", function() {
 
   describe("when required by the wet object graph, ", function() {
     beforeEach(function() {
-      membrane.buildMapping("wet", parts.wet.Node.prototype);
+      membrane.buildMapping(parts.handlers.wet, parts.wet.Node.prototype);
       membrane.modifyRules.requireLocalDelete("wet", parts.wet.Node.prototype);
     });
     
@@ -405,7 +405,7 @@ describe("Deleting properties locally", function() {
     "when required by both the wet and the dry object graphs, ",
     function() {
       beforeEach(function() {
-        membrane.buildMapping("wet", parts.wet.Node.prototype);
+        membrane.buildMapping(parts.handlers.wet, parts.wet.Node.prototype);
         membrane.modifyRules.requireLocalDelete("wet", parts.wet.Node.prototype);
         membrane.modifyRules.requireLocalDelete("dry", parts.dry.Node.prototype);
       });

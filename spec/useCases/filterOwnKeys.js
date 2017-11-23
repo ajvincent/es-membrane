@@ -32,7 +32,6 @@ if (typeof MembraneMocks != "function") {
       let parts = MembraneMocks();
       let dryWetMB = parts.membrane;
       wetDocument = parts.wet.doc;
-      //dryWetMB.buildMapping("wet", wetDocument);
 
       const whiteListedDocProps = new Set([
         "ownerDocument", "childNodes", "nodeType", "nodeName", "parentNode",

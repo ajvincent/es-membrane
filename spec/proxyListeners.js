@@ -119,15 +119,22 @@ describe("An object graph handler's proxy listeners", function() {
       expect(X).not.toBe(x);
 
       let messages = appender.getMessages();
-      expect(messages.length).toBe(4);
+      expect(messages.length).toBe(6);
       expect(messages[0]).toBe("x created");
-      expect(messages[1]).toBe("listener1");
+
+      // origin ObjectGraphHandler's listeners
+      expect(messages[1]).toBe("listener0");
       expect(messages[2]).toBe("listener2");
-      expect(messages[3]).toBe("dry(x) created");
+
+      // target ObjectGraphHandler's listeners
+      expect(messages[3]).toBe("listener1");
+      expect(messages[4]).toBe("listener2");
+
+      expect(messages[5]).toBe("dry(x) created");
 
       expect(meta2).toBe(meta1);
       expect(typeof meta2).toBe("object");
-      expect(meta0).toBe(undefined);
+      expect(meta0).not.toBe(undefined);
       expect(meta2.proxy).toBe(X);
     });
 
@@ -148,15 +155,22 @@ describe("An object graph handler's proxy listeners", function() {
       expect(Y).not.toBe(y);
 
       let messages = appender.getMessages();
-      expect(messages.length).toBe(4);
+      expect(messages.length).toBe(6);
       expect(messages[0]).toBe("X.y retrieval start");
-      expect(messages[1]).toBe("listener1");
+
+      // origin ObjectGraphHandler's listeners
+      expect(messages[1]).toBe("listener0");
       expect(messages[2]).toBe("listener2");
-      expect(messages[3]).toBe("X.y retrieval end");
+
+      // target ObjectGraphHandler's listeners
+      expect(messages[3]).toBe("listener1");
+      expect(messages[4]).toBe("listener2");
+
+      expect(messages[5]).toBe("X.y retrieval end");
 
       expect(meta2).toBe(meta1);
       expect(typeof meta2).toBe("object");
-      expect(meta0).toBe(undefined);
+      expect(meta0).not.toBe(undefined);
       expect(meta2.proxy).toBe(Y);
     });
 
@@ -220,25 +234,38 @@ describe("An object graph handler's proxy listeners", function() {
         expect(cbVal.argIndex).toBe(0);
 
       let messages = appender.getMessages();
-      expect(messages.length).toBe(10);
+      expect(messages.length).toBe(16);
       expect(messages[0]).toBe("Calling X.arg1 start");
-      // for argument 0
-      expect(messages[1]).toBe("listener0");
-      expect(messages[2]).toBe("listener2");
 
-      // for argument 1
+      // for argument 0
+      // origin ObjectGraphHandler's listeners
+      expect(messages[1]).toBe("listener1");
+      expect(messages[2]).toBe("listener2");
+      // target ObjectGraphHandler's listeners
       expect(messages[3]).toBe("listener0");
       expect(messages[4]).toBe("listener2");
 
-      // executing the method
-      expect(messages[5]).toBe("Entering callback");
-      expect(messages[6]).toBe("Exiting callback");
-
-      // for return value
-      expect(messages[7]).toBe("listener1");
+      // for argument 1
+      // origin ObjectGraphHandler's listeners
+      expect(messages[5]).toBe("listener1");
+      expect(messages[6]).toBe("listener2");
+      // target ObjectGraphHandler's listeners
+      expect(messages[7]).toBe("listener0");
       expect(messages[8]).toBe("listener2");
 
-      expect(messages[9]).toBe("Calling X.arg1 end");
+      // executing the method
+      expect(messages[9]).toBe("Entering callback");
+      expect(messages[10]).toBe("Exiting callback");
+
+      // for return value
+      // origin ObjectGraphHandler's listeners
+      expect(messages[11]).toBe("listener0");
+      expect(messages[12]).toBe("listener2");
+      // target ObjectGraphHandler's listeners
+      expect(messages[13]).toBe("listener1");
+      expect(messages[14]).toBe("listener2");
+
+      expect(messages[15]).toBe("Calling X.arg1 end");
 
       expect(typeof meta2).toBe("object");
       expect(K).not.toBe(undefined);

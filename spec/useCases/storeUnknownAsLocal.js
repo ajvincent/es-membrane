@@ -44,7 +44,7 @@ if (typeof MembraneMocks != "function") {
     {
       let parts = MembraneMocks();
       let dryWetMB = parts.membrane;
-      dryWetMB.buildMapping("wet", parts.wet.Node.prototype);
+      dryWetMB.buildMapping(parts.handlers.wet, parts.wet.Node.prototype);
       dryWetMB.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node.prototype);
 
       wetRoot = parts.wet.doc.rootElement;

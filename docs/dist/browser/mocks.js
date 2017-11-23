@@ -336,19 +336,6 @@ Mocks.handlers = {};
 
   if (typeof mockOptions.wetHandlerCreated == "function")
     mockOptions.wetHandlerCreated(wetHandler, Mocks);
-  
-  let [found, doc] = dryWetMB.getMembraneValue("wet", wetDocument);
-  assert(!found, "wetDocument should not be known");
-
-  docMap = dryWetMB.buildMapping("wet", wetDocument);
-  [found, doc] = dryWetMB.getMembraneValue("wet", wetDocument);
-  assert(found, "wetDocument was not found?");
-  assert(doc === wetDocument, "wetDocument was not retrieved?");
-}
-
-{
-  dryWetMB.buildMapping("wet", NodeWet);
-  dryWetMB.buildMapping("wet", ElementWet);
 }
 // The "dry" part of the membrane's wet document.
 var ElementDry, NodeDry, dryDocument;
@@ -388,7 +375,7 @@ var ElementDry, NodeDry, dryDocument;
 
 {
   let dryHandler = dryWetMB.getHandlerByName("dry");
-  dryWetMB.buildMapping(dryHandler.fieldName, ElementWet);
+  dryWetMB.convertArgumentToProxy(wetHandler, dryHandler, ElementWet);
   let found;
   [found, ElementDry] = dryWetMB.getMembraneProxy("dry", ElementWet);
   assert(found, "ElementDry not found as a proxy!");
@@ -398,7 +385,7 @@ var ElementDry, NodeDry, dryDocument;
 
 {
   let dryHandler = dryWetMB.getHandlerByName("dry");
-  dryWetMB.buildMapping(dryHandler.fieldName, NodeWet);
+  dryWetMB.convertArgumentToProxy(wetHandler, dryHandler, NodeWet);
   let found;
   [found, NodeDry] = dryWetMB.getMembraneProxy("dry", NodeWet);
   assert(found, "NodeDry not found as a proxy!");

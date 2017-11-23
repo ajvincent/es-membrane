@@ -388,6 +388,12 @@ Object.defineProperties(ProxyMapping.prototype, {
     return rv;
   }),
 
+  "isShadowTarget": new DataDescriptor(function(shadowTarget) {
+    return Reflect.ownKeys(this.proxiedFields).some(function(field) {
+      return this.proxiedFields[field].shadowTarget === shadowTarget;
+    }, this);
+  }),
+
   /**
    * Add a value to the mapping.
    *
@@ -766,25 +772,19 @@ MembraneInternal.prototype = Object.seal({
   /**
    * Assign a value to an object graph.
    *
-   * @param field {Symbol|String} The name of the object graph.
-   * @param value {Variant} The value to assign.
+   * @param handler {ObjectGraphHandler} A graph handler to bind to the value.
+   * @param value   {Variant} The value to assign.
    *
    * Options:
    *   @param mapping {ProxyMapping} A mapping with associated values and proxies.
    *
    * @returns {ProxyMapping} A mapping holding the value.
+   *
+   * @private
    */
-  buildMapping: function(field, value, options = {}) {
-    {
-      let t = typeof field;
-      if ((t != "string") && (t != "symbol"))
-        throw new Error("field must be a string or a symbol!");
-    }
-
-    let handler = this.getHandlerByName(field);
-    if (!handler)
-      throw new Error("We don't have an ObjectGraphHandler with that name!");
-
+  buildMapping: function(handler, value, options = {}) {
+    if (!this.ownsHandler(handler))
+      throw new Error("handler is not an ObjectGraphHandler we own!");
     let mapping = ("mapping" in options) ? options.mapping : null;
 
     if (!mapping) {
@@ -793,49 +793,41 @@ MembraneInternal.prototype = Object.seal({
       }
   
       else {
-        mapping = new ProxyMapping(field);
+        mapping = new ProxyMapping(handler.fieldName);
       }
     }
     assert(mapping instanceof ProxyMapping,
            "buildMapping requires a ProxyMapping object!");
 
-    const isOriginal = (mapping.originField === field);
+    const isOriginal = (mapping.originField === handler.fieldName);
+    assert(isOriginal || this.ownsHandler(options.originHandler),
+           "Proxy requests must pass in an origin handler");
     let shadowTarget = makeShadowTarget(value);
 
     if (!Reflect.isExtensible(value))
       Reflect.preventExtensions(shadowTarget);
 
-    var parts, overridden = false;
+    var parts;
     if (isOriginal) {
       parts = { value: value };
     }
     else {
-      /* I am assuming that proxies are relatively expensive to deal with,
-       * compared to a non-proxy value.  The idea is if we don't have to create
-       * a proxy, we shouldn't.  This is why pre-proxy listeners exist.
-       */
-      let newValue;
-      [overridden, newValue] = PreProxyNotify(handler, value);
-      if (overridden) {
-        parts = new OverriddenProxyParts(newValue);
-      }
-      else {
-        parts = Proxy.revocable(shadowTarget, handler);
-        parts.value = value;
-      }
+      parts = Proxy.revocable(shadowTarget, handler);
+      parts.value = value;
     }
 
     parts.shadowTarget = shadowTarget;
-    mapping.set(this, field, parts);
-    makeRevokeDeleteRefs(parts, mapping, field);
+    mapping.set(this, handler.fieldName, parts);
+    makeRevokeDeleteRefs(parts, mapping, handler.fieldName);
 
-    if (!isOriginal && !overridden) {
+    if (!isOriginal) {
       let notifyOptions = { isThis: false };
       ["trapName", "callable", "isThis", "argIndex"].forEach(function(propName) {
         if (Reflect.has(options, propName))
           notifyOptions[propName] = options[propName];
       });
       
+      ProxyNotify(parts, options.originHandler, notifyOptions);
       ProxyNotify(parts, handler, notifyOptions);
     }
 
@@ -899,11 +891,7 @@ MembraneInternal.prototype = Object.seal({
       return;
 
     let handler = this.getHandlerByName(mapping.originField);
-    this.buildMapping(
-      handler.fieldName,
-      arg,
-      options
-    );
+    this.buildMapping(handler, arg, options);
     
     assert(this.map.has(arg),
            "wrapArgumentByProxyMapping should define a ProxyMapping for arg");
@@ -970,15 +958,10 @@ MembraneInternal.prototype = Object.seal({
           "mapping": new DataDescriptor(argMap)
         });
       }
-      else {
+      else
         passOptions = options;
-      }
 
-      this.buildMapping(
-        originHandler.fieldName,
-        arg,
-        passOptions
-      );
+      this.buildMapping(originHandler, arg, passOptions);
     }
     
     if (!this.hasProxyForValue(targetHandler.fieldName, arg)) {
@@ -986,18 +969,13 @@ MembraneInternal.prototype = Object.seal({
       let passOptions = Object.create(options, {
         "originHandler": new DataDescriptor(originHandler)
       });
+      assert(argMap, "ProxyMapping not created before invoking target handler?");
 
-      if (argMap) {
-        Reflect.defineProperty(
-          passOptions, "originHandler", new DataDescriptor(argMap)
-        );
-      }
-
-      this.buildMapping(
-        targetHandler.fieldName,
-        arg,
-        passOptions
+      Reflect.defineProperty(
+        passOptions, "mapping", new DataDescriptor(argMap)
       );
+
+      this.buildMapping(targetHandler, arg, passOptions);
     }
 
     [found, rv] = this.getMembraneProxy(
@@ -1165,37 +1143,38 @@ MembraneInternal.prototype = Object.seal({
     var targetHandler = this.getHandlerByName(targetField);
     var membrane = this;
 
-    ["value", "get", "set"].forEach(function(descProp) {
-      if (keys.includes(descProp))
-        if (descProp === "value")
-          wrappedDesc[descProp] = this.convertArgumentToProxy(
-            originHandler,
-            targetHandler,
-            desc[descProp]
-          );
-        else if (descProp === "get")
-          wrappedDesc[descProp] = function wrappedGetter () {
-            const wrappedThis = membrane.convertArgumentToProxy(originHandler, targetHandler, this);
-            return membrane.convertArgumentToProxy(
-              originHandler,
-              targetHandler,
-              desc[descProp].call(wrappedThis)
-            );
-          };
-        else if (descProp === "set" && typeof desc[descProp] === "function") {
-          const wrappedSetter = function(value) {
-            const wrappedThis = membrane.convertArgumentToProxy(originHandler, targetHandler, this);
-            const wrappedValue = membrane.convertArgumentToProxy(originHandler, targetHandler, value);
-            return membrane.convertArgumentToProxy(
-              targetHandler,
-              originHandler,
-              desc[descProp].call(wrappedThis, wrappedValue)
-            );
-          };
-          this.buildMapping(targetField, wrappedSetter);
-          wrappedDesc[descProp] = wrappedSetter;
-        }
-    }, this);
+    if (keys.includes("value")) {
+      wrappedDesc.value = this.convertArgumentToProxy(
+        originHandler,
+        targetHandler,
+        desc.value
+      );
+    }
+
+    if (keys.includes("get")) {
+      wrappedDesc.get = function wrappedGetter () {
+        const wrappedThis = membrane.convertArgumentToProxy(originHandler, targetHandler, this);
+        return membrane.convertArgumentToProxy(
+          originHandler,
+          targetHandler,
+          desc.get.call(wrappedThis)
+        );
+      };
+    }
+
+    if (keys.includes("set") && (typeof desc.set === "function")) {
+      const wrappedSetter = function(value) {
+        const wrappedThis  = membrane.convertArgumentToProxy(originHandler, targetHandler, this);
+        const wrappedValue = membrane.convertArgumentToProxy(originHandler, targetHandler, value);
+        return membrane.convertArgumentToProxy(
+          targetHandler,
+          originHandler,
+          desc.set.call(wrappedThis, wrappedValue)
+        );
+      };
+      this.buildMapping(targetHandler, wrappedSetter);
+      wrappedDesc.set = wrappedSetter;
+    }
 
     return wrappedDesc;
   },
@@ -1321,8 +1300,6 @@ function ObjectGraphHandler(membrane, fieldName) {
       enumerable: true,
       configurable: false
     },
-
-    "__preProxyListeners__": new NWNCDataDescriptor([], false),
 
     "__proxyListeners__": new NWNCDataDescriptor([], false),
 
@@ -2469,10 +2446,11 @@ ObjectGraphHandler.prototype = Object.seal({
     const targetMap = this.membrane.map.get(target);
     if (!(targetMap instanceof ProxyMapping))
       throw new Error("No ProxyMapping found for shadow target!");
-    if (targetMap.getShadowTarget(this.fieldName) !== shadowTarget)
+    if (!targetMap.isShadowTarget(shadowTarget)) {
       throw new Error(
         "ObjectGraphHandler traps must be called with a shadow target!"
       );
+    }
     const disableTrapFlag = `disableTrap(${trapName})`;
     if (targetMap.getLocalFlag(this.fieldName, disableTrapFlag) ||
         targetMap.getLocalFlag(targetMap.originField, disableTrapFlag))
@@ -2948,8 +2926,8 @@ ObjectGraphHandler.prototype = Object.seal({
     };
 
     {
-      handler.membrane.buildMapping(handler.fieldName, lazyDesc.get);
-      handler.membrane.buildMapping(handler.fieldName, lazyDesc.set);
+      handler.membrane.buildMapping(handler, lazyDesc.get);
+      handler.membrane.buildMapping(handler, lazyDesc.set);
     }
 
     {

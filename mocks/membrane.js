@@ -16,17 +16,4 @@ Mocks.handlers = {};
 
   if (typeof mockOptions.wetHandlerCreated == "function")
     mockOptions.wetHandlerCreated(wetHandler, Mocks);
-  
-  let [found, doc] = dryWetMB.getMembraneValue("wet", wetDocument);
-  assert(!found, "wetDocument should not be known");
-
-  docMap = dryWetMB.buildMapping("wet", wetDocument);
-  [found, doc] = dryWetMB.getMembraneValue("wet", wetDocument);
-  assert(found, "wetDocument was not found?");
-  assert(doc === wetDocument, "wetDocument was not retrieved?");
-}
-
-{
-  dryWetMB.buildMapping("wet", NodeWet);
-  dryWetMB.buildMapping("wet", ElementWet);
 }

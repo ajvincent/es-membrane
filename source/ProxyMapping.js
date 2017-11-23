@@ -72,6 +72,12 @@ Object.defineProperties(ProxyMapping.prototype, {
     return rv;
   }),
 
+  "isShadowTarget": new DataDescriptor(function(shadowTarget) {
+    return Reflect.ownKeys(this.proxiedFields).some(function(field) {
+      return this.proxiedFields[field].shadowTarget === shadowTarget;
+    }, this);
+  }),
+
   /**
    * Add a value to the mapping.
    *
