@@ -246,35 +246,6 @@ Object.defineProperty(
   new DataDescriptor(true)
 );
 
-/* The purpose of this is to provide the membrane with a revocable reference
- * to the value:  when the revoke method is called, the reference to the value
- * is deleted.
- */
-function OverriddenProxyParts(value) {
-  this.actualValue = value;
-  this.hasBeenRevoked = false;
-}
-Object.defineProperties(OverriddenProxyParts.prototype, {
-  "value": new AccessorDescriptor(
-    function() {
-      if (this.hasBeenRevoked)
-        throw new Error("This proxy has been revoked!");
-      return this.actualValue;
-    }
-  ),
-
-  "revoke": new DataDescriptor(function() {
-    this.hasBeenRevoked = true;
-    this.actualValue = undefined;
-  }),
-});
-
-Reflect.defineProperty(
-  OverriddenProxyParts.prototype,
-  "proxy",
-  Reflect.getOwnPropertyDescriptor(OverriddenProxyParts.prototype, "value")
-);
-
 function makeRevokeDeleteRefs(parts, mapping, field) {
   let oldRevoke = parts.revoke;
   if (!oldRevoke)
@@ -431,8 +402,7 @@ Object.defineProperties(ProxyMapping.prototype, {
       if (DogfoodMembrane && (membrane !== DogfoodMembrane))
         DogfoodMembrane.ProxyToMembraneMap.add(parts.value);
 
-      if (!(parts instanceof OverriddenProxyParts) ||
-          (valueType(parts.value) !== "primitive"))
+      if (valueType(parts.value) !== "primitive")
         membrane.map.set(parts.value, this);
     }
     else
@@ -3088,32 +3058,6 @@ ObjectGraphHandler.prototype = Object.seal({
 } // end ObjectGraphHandler definition
 
 Object.seal(ObjectGraphHandler);
-function PreProxyNotify(handler, value) {
-  "use strict";
-
-  // private variables
-  const listeners = handler.__preProxyListeners__;
-  if (listeners.length === 0)
-    return [false, value];
-
-  const meta = {};
-  var overridden = false;
-  Object.defineProperties(meta, {
-    "handler": new DataDescriptor(handler),
-
-    "target": new DataDescriptor(value),
-
-    "override": new DataDescriptor((newValue) => {
-      overridden = true;
-      value = newValue;
-      meta.stopIteration();
-    }),
-  });
-
-  invokeProxyListeners(listeners, meta);
-  return [overridden, value];
-}
-
 /**
  * Notify all proxy listeners of a new proxy.
  *

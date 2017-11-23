@@ -1,29 +1,3 @@
-function PreProxyNotify(handler, value) {
-  "use strict";
-
-  // private variables
-  const listeners = handler.__preProxyListeners__;
-  if (listeners.length === 0)
-    return [false, value];
-
-  const meta = {};
-  var overridden = false;
-  Object.defineProperties(meta, {
-    "handler": new DataDescriptor(handler),
-
-    "target": new DataDescriptor(value),
-
-    "override": new DataDescriptor((newValue) => {
-      overridden = true;
-      value = newValue;
-      meta.stopIteration();
-    }),
-  });
-
-  invokeProxyListeners(listeners, meta);
-  return [overridden, value];
-}
-
 /**
  * Notify all proxy listeners of a new proxy.
  *

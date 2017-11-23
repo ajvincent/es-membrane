@@ -115,8 +115,7 @@ Object.defineProperties(ProxyMapping.prototype, {
       if (DogfoodMembrane && (membrane !== DogfoodMembrane))
         DogfoodMembrane.ProxyToMembraneMap.add(parts.value);
 
-      if (!(parts instanceof OverriddenProxyParts) ||
-          (valueType(parts.value) !== "primitive"))
+      if (valueType(parts.value) !== "primitive")
         membrane.map.set(parts.value, this);
     }
     else
