@@ -791,14 +791,18 @@ MembraneInternal.prototype = Object.seal({
     makeRevokeDeleteRefs(parts, mapping, handler.fieldName);
 
     if (!isOriginal) {
-      let notifyOptions = { isThis: false };
+      const notifyOptions = {
+        isThis: false,
+        originHandler: options.originHandler,
+        targetHandler: handler,
+      };
       ["trapName", "callable", "isThis", "argIndex"].forEach(function(propName) {
         if (Reflect.has(options, propName))
           notifyOptions[propName] = options[propName];
       });
       
-      ProxyNotify(parts, options.originHandler, notifyOptions);
-      ProxyNotify(parts, handler, notifyOptions);
+      ProxyNotify(parts, options.originHandler, true, notifyOptions);
+      ProxyNotify(parts, handler, false, notifyOptions);
     }
 
     handler.addRevocable(isOriginal ? mapping : parts.revoke);
@@ -3061,13 +3065,14 @@ Object.seal(ObjectGraphHandler);
 /**
  * Notify all proxy listeners of a new proxy.
  *
- * @param parts   {Object} The field object from a ProxyMapping's proxiedFields.
- * @param handler {ObjectGraphHandler} The handler for the proxy.
- * @param options {Object} Special options to pass on to the listeners.
+ * @param parts    {Object} The field object from a ProxyMapping's proxiedFields.
+ * @param handler  {ObjectGraphHandler} The handler for the proxy.
+ * @param isOrigin {Boolean} True if the handler is the origin graph handler.
+ * @param options  {Object} Special options to pass on to the listeners.
  *
  * @private
  */
-function ProxyNotify(parts, handler, options) {
+function ProxyNotify(parts, handler, isOrigin, options) {
   "use strict";
   if (typeof options === "undefined")
     options = {};
@@ -3105,6 +3110,8 @@ function ProxyNotify(parts, handler, options) {
      * The unwrapped object or function we're building the proxy for.
      */
     "target": new DataDescriptor(parts.value),
+
+    "isOriginGraph": new DataDescriptor(isOrigin),
 
     /**
      * The proxy handler.  This should be an ObjectGraphHandler.
@@ -3602,7 +3609,24 @@ ModifyRulesAPI.prototype = Object.seal({
         if (proto === null)
           return false; // firstFilter is the final filter: reject
 
-        // XXX ajvincent unclear what we should do here if the assert fails
+        if (!membrane.map.has(proto)) {
+          /* This can happen when we are applying a filter for the first time,
+           * but the prototype was never wrapped.  If you're using inheritFilter,
+           * that means presumably you're aware of filtering by the chain.  So
+           * it should be safe to wrap the prototype now...
+           */
+
+          if ((options.originHandler instanceof ObjectGraphHandler) &&
+              (options.targetHandler instanceof ObjectGraphHandler))
+          {
+            membrane.convertArgumentToProxy(
+              options.originHandler,
+              options.targetHandler,
+              proto
+            );
+          }
+        }
+
         const pMapping = membrane.map.get(proto);
         assert(pMapping instanceof ProxyMapping,
                "Found prototype of membrane proxy, but it has no ProxyMapping!");
@@ -3835,30 +3859,36 @@ Object.defineProperties(DistortionsListener.prototype, {
 
     const rules = this.membrane.modifyRules;
     const fieldName = meta.handler.fieldName;
+    const modifyTarget = (meta.isOriginGraph) ? meta.target : meta.proxy;
     if (Array.isArray(config.filterOwnKeys)) {
+      const filterOptions = {
+        inheritFilter: Boolean(config.inheritFilter)
+      };
+      if (meta.originHandler)
+        filterOptions.originHandler = meta.originHandler;
+      if (meta.targetHandler)
+        filterOptions.targetHandler = meta.targetHandler;
       rules.filterOwnKeys(
         fieldName,
-        meta.proxy,
+        modifyTarget,
         config.filterOwnKeys,
-        {
-          inheritFilter: Boolean(config.inheritFilter)
-        }
+        filterOptions
       );
     }
 
     const deadTraps = allTraps.filter(function(key) {
       return !config.proxyTraps.includes(key);
     });
-    rules.disableTraps(fieldName, meta.proxy, deadTraps);
+    rules.disableTraps(fieldName, modifyTarget, deadTraps);
 
     if (config.storeUnknownAsLocal)
-      rules.storeUnknownAsLocal(fieldName, meta.proxy);
+      rules.storeUnknownAsLocal(fieldName, modifyTarget);
 
     if (config.requireLocalDelete)
-      rules.requireLocalDelete(fieldName, meta.proxy);
+      rules.requireLocalDelete(fieldName, modifyTarget);
 
     if (("truncateArgList" in config) && (config.truncateArgList !== false))
-      rules.truncateArgList(fieldName, meta.proxy, config.truncateArgList);
+      rules.truncateArgList(fieldName, modifyTarget, config.truncateArgList);
 
     meta.stopIteration();
   }, false),

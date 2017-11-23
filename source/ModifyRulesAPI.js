@@ -328,7 +328,24 @@ ModifyRulesAPI.prototype = Object.seal({
         if (proto === null)
           return false; // firstFilter is the final filter: reject
 
-        // XXX ajvincent unclear what we should do here if the assert fails
+        if (!membrane.map.has(proto)) {
+          /* This can happen when we are applying a filter for the first time,
+           * but the prototype was never wrapped.  If you're using inheritFilter,
+           * that means presumably you're aware of filtering by the chain.  So
+           * it should be safe to wrap the prototype now...
+           */
+
+          if ((options.originHandler instanceof ObjectGraphHandler) &&
+              (options.targetHandler instanceof ObjectGraphHandler))
+          {
+            membrane.convertArgumentToProxy(
+              options.originHandler,
+              options.targetHandler,
+              proto
+            );
+          }
+        }
+
         const pMapping = membrane.map.get(proto);
         assert(pMapping instanceof ProxyMapping,
                "Found prototype of membrane proxy, but it has no ProxyMapping!");

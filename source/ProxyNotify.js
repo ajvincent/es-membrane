@@ -1,13 +1,14 @@
 /**
  * Notify all proxy listeners of a new proxy.
  *
- * @param parts   {Object} The field object from a ProxyMapping's proxiedFields.
- * @param handler {ObjectGraphHandler} The handler for the proxy.
- * @param options {Object} Special options to pass on to the listeners.
+ * @param parts    {Object} The field object from a ProxyMapping's proxiedFields.
+ * @param handler  {ObjectGraphHandler} The handler for the proxy.
+ * @param isOrigin {Boolean} True if the handler is the origin graph handler.
+ * @param options  {Object} Special options to pass on to the listeners.
  *
  * @private
  */
-function ProxyNotify(parts, handler, options) {
+function ProxyNotify(parts, handler, isOrigin, options) {
   "use strict";
   if (typeof options === "undefined")
     options = {};
@@ -45,6 +46,8 @@ function ProxyNotify(parts, handler, options) {
      * The unwrapped object or function we're building the proxy for.
      */
     "target": new DataDescriptor(parts.value),
+
+    "isOriginGraph": new DataDescriptor(isOrigin),
 
     /**
      * The proxy handler.  This should be an ObjectGraphHandler.

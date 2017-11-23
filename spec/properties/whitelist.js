@@ -176,7 +176,7 @@ describe("Whitelisting object properties", function() {
     return mockOptions;
   }
   
-  function defineMockOptionsByDistortionsListener() {
+  function defineMockOptionsByDistortionsListener(mainIsWet = false) {
     var parts, dryWetMB, EventListenerProto;
     const mockOptions = {
       checkEvent: null,
@@ -225,6 +225,10 @@ describe("Whitelisting object properties", function() {
         };
 
         distortions.addListener(evLFilter, "filter", evLConfig);
+
+        if (mainIsWet)
+          this.whitelistMain(distortions);
+
         distortions.bindToHandler(handler);
       },
 
@@ -238,8 +242,14 @@ describe("Whitelisting object properties", function() {
       },
 
       dryHandlerCreated: function(handler/*, Mocks */) {
+        if (mainIsWet)
+          return;
         const distortions = dryWetMB.modifyRules.createDistortionsListener();
+        this.whitelistMain(distortions);
+        distortions.bindToHandler(handler);
+      },
 
+      whitelistMain: function(distortions) {
         this.whitelist(distortions, parts.wet.doc, docWhiteList, false, "value");
         this.whitelist(
           distortions, parts.wet.Element, ElementWhiteList, true, "instance"
@@ -257,7 +267,6 @@ describe("Whitelisting object properties", function() {
         this.whitelist(
           distortions, EventListenerProto, EventTargetWhiteList, false, "value"
         );
-        distortions.bindToHandler(handler);
       },
     };
 
@@ -624,8 +633,12 @@ describe("Whitelisting object properties", function() {
     defineSealingTests(defineManualMockOptions);
   });
 
-  describe("automatically using a 'distortions listener'", function() {
-    defineSealingTests(defineMockOptionsByDistortionsListener);
+  describe("automatically using distortions listeners on two object graphs", function() {
+    defineSealingTests(defineMockOptionsByDistortionsListener.bind(null, false));
+  });
+
+  describe("automatically using distortions listeners on one object graph", function() {
+    defineSealingTests(defineMockOptionsByDistortionsListener.bind(null, true));
   });
   
   it(

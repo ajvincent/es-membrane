@@ -127,30 +127,36 @@ Object.defineProperties(DistortionsListener.prototype, {
 
     const rules = this.membrane.modifyRules;
     const fieldName = meta.handler.fieldName;
+    const modifyTarget = (meta.isOriginGraph) ? meta.target : meta.proxy;
     if (Array.isArray(config.filterOwnKeys)) {
+      const filterOptions = {
+        inheritFilter: Boolean(config.inheritFilter)
+      };
+      if (meta.originHandler)
+        filterOptions.originHandler = meta.originHandler;
+      if (meta.targetHandler)
+        filterOptions.targetHandler = meta.targetHandler;
       rules.filterOwnKeys(
         fieldName,
-        meta.proxy,
+        modifyTarget,
         config.filterOwnKeys,
-        {
-          inheritFilter: Boolean(config.inheritFilter)
-        }
+        filterOptions
       );
     }
 
     const deadTraps = allTraps.filter(function(key) {
       return !config.proxyTraps.includes(key);
     });
-    rules.disableTraps(fieldName, meta.proxy, deadTraps);
+    rules.disableTraps(fieldName, modifyTarget, deadTraps);
 
     if (config.storeUnknownAsLocal)
-      rules.storeUnknownAsLocal(fieldName, meta.proxy);
+      rules.storeUnknownAsLocal(fieldName, modifyTarget);
 
     if (config.requireLocalDelete)
-      rules.requireLocalDelete(fieldName, meta.proxy);
+      rules.requireLocalDelete(fieldName, modifyTarget);
 
     if (("truncateArgList" in config) && (config.truncateArgList !== false))
-      rules.truncateArgList(fieldName, meta.proxy, config.truncateArgList);
+      rules.truncateArgList(fieldName, modifyTarget, config.truncateArgList);
 
     meta.stopIteration();
   }, false),

@@ -164,14 +164,18 @@ MembraneInternal.prototype = Object.seal({
     makeRevokeDeleteRefs(parts, mapping, handler.fieldName);
 
     if (!isOriginal) {
-      let notifyOptions = { isThis: false };
+      const notifyOptions = {
+        isThis: false,
+        originHandler: options.originHandler,
+        targetHandler: handler,
+      };
       ["trapName", "callable", "isThis", "argIndex"].forEach(function(propName) {
         if (Reflect.has(options, propName))
           notifyOptions[propName] = options[propName];
       });
       
-      ProxyNotify(parts, options.originHandler, notifyOptions);
-      ProxyNotify(parts, handler, notifyOptions);
+      ProxyNotify(parts, options.originHandler, true, notifyOptions);
+      ProxyNotify(parts, handler, false, notifyOptions);
     }
 
     handler.addRevocable(isOriginal ? mapping : parts.revoke);
