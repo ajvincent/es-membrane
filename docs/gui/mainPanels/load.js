@@ -1,18 +1,14 @@
-// see also HandlerNames.js
-
-const StartPanel = window.StartPanel = {
+window.LoadPanel = {
+  update: function() {
+    // do nothing
+  },
+  
   // private, see below
   commonFilesInput: null,
-  startFilesForm: null,
-  configFileForm: null,
   configFileInput: null,
-  configFileSubmit: null,
-  configFileError: null,
-  graphNamesForm: null,
-  graphNamesSubmit: null,
 
-  // public for testing purposes
-  testMode: false,
+  // treat this as restricted to testing purposes
+  testMode: null,
 
   setTestModeFiles: function() {
     [
@@ -27,35 +23,11 @@ const StartPanel = window.StartPanel = {
     });
   },
 
-  /**
-   * @private
-   */
-  collectCommonFileURLs: async function() {
+  notifyTestOfInit: function(name) {
     if (this.testMode) {
-      this.setTestModeFiles();
+      console.log("postMessage requested:", `${name} initialized`);
+      window.postMessage(`${name} initialized`, window.location.origin);
     }
-    else {
-      let files = this.commonFilesInput.files;
-      for (let i = 0; i < files.length; i++) {
-        let file = files[i];
-        DistortionsManager.commonFileURLs.set(file, URL.createObjectURL(file));
-      }
-    }
-
-    let urlArray = [];
-    DistortionsManager.commonFileURLs.forEach(function(url) {
-      urlArray.push(url);
-    });
-    while (urlArray.length) {
-      await DistortionsManager.BlobLoader.addCommonURL(urlArray.shift());
-    }
-  },
-
-  startWithGraphNames: async function() {
-    if (!this.testMode && !this.startFilesForm.reportValidity())
-      return;
-    await this.collectCommonFileURLs();
-    this.enableOtherPanels();
   },
 
   validateDistortions:
@@ -118,16 +90,45 @@ const StartPanel = window.StartPanel = {
     // Special rules for functions
   },
 
-  startWithConfigFile: async function(testJSONSource) {
-    if (!this.testMode && !this.startFilesForm.reportValidity())
-      return;
-    var config;
-    await this.collectCommonFileURLs();
+  /**
+   * @private
+   */
+  collectCommonFileURLs: async function() {
+    if (this.testMode && this.testMode.fakeFiles) {
+      this.setTestModeFiles();
+    }
+    else {
+      let files = this.commonFilesInput.files;
+      for (let i = 0; i < files.length; i++) {
+        let file = files[i];
+        DistortionsManager.commonFileURLs.set(file, URL.createObjectURL(file));
+      }
+    }
+
+    let urlArray = [];
+    DistortionsManager.commonFileURLs.forEach(function(url) {
+      urlArray.push(url);
+    });
+    while (urlArray.length) {
+      await DistortionsManager.BlobLoader.addCommonURL(urlArray.shift());
+    }
+  },
+
+  getConfiguration: async function() {
+    if (this.commonFilesInput.files.length || 
+        (this.testMode && this.testMode.fakeFiles)) {
+      await this.collectCommonFileURLs();
+    }
+
+    var config = null;
+    if (!this.configFileInput.files.length && (
+        !this.testMode || !this.testMode.configSource))
+      return config;
     try {
       {
         let p, jsonAsText;
         if (this.testMode) {
-          p = Promise.resolve(testJSONSource);
+          p = Promise.resolve(this.testMode.configSource);
         }
         else {
           const file = this.configFileInput.files[0];
@@ -143,13 +144,19 @@ const StartPanel = window.StartPanel = {
         if (!Array.isArray(config.graphNames))
           throw new Error("config.graphNames must be an array of strings");
 
-        if (!Array.isArray(config.graphSymbolLists) || !config.graphSymbolLists.every(function(key, index) {
-          let rv = Number.isInteger(key) && (0 <= key) && (key < config.graphNames.length);
+        if (!Array.isArray(config.graphSymbolLists) ||
+            !config.graphSymbolLists.every(function(key, index) {
+          let rv = (Number.isInteger(key) && (0 <= key) && 
+                    (key < config.graphNames.length));
           if (rv && (index > 0))
             rv = key > config.graphSymbolLists[index - 1];
           return rv;
         }))
-          throw new Error("config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length");
+          throw new Error(
+            "config.graphSymbolLists must be an ordered array of unique " +
+            "non-negative integers, each member of which is less than " +
+            "config.graphNames.length"
+          );
 
         let stringKeys = new Set();
         config.graphNames.forEach((key, index) => {
@@ -157,7 +164,10 @@ const StartPanel = window.StartPanel = {
             throw new Error("config.graphNames must be an array of strings");
           if (!(config.graphSymbolLists.includes(index))) {
             if (stringKeys.has(key)) {
-              throw new Error(`config.graphNames[${index}] = "${key}", but this string name appears earlier in config.graphNames`);
+              throw new Error(
+                `config.graphNames[${index}] = "${key}", ` +
+                "but this string name appears earlier in config.graphNames"
+              );
             }
             stringKeys.add(key);
           }
@@ -166,10 +176,12 @@ const StartPanel = window.StartPanel = {
         if (!Array.isArray(config.distortionsByGraph) ||
             (config.distortionsByGraph.length != config.graphNames.length) ||
             !config.distortionsByGraph.every(Array.isArray))
+        {
           throw new Error(
             `config.distortionsByGraph must be an array with length ` +
             config.graphNames.length + ` of arrays`
           );
+        }
 
         config.distortionsByGraph.forEach(function(items, graphIndex) {
           items.forEach(function(item, index) {
@@ -181,41 +193,24 @@ const StartPanel = window.StartPanel = {
       }
 
       HandlerNames.importConfig(config);
-
-      this.enableOtherPanels();
+      OuterGridManager.setCurrentErrorText(null);
     }
     catch (e) {
-      if (!this.configFileError.firstChild) {
-        let text = document.createTextNode("");
-        this.configFileError.appendChild(text);
-      }
-      this.configFileError.firstChild.nodeValue = e.message;
+      OuterGridManager.setCurrentErrorText(e);
       throw e;
     }
-  },
 
-  enableOtherPanels: function() {
-    OuterGridManager.startPanelRadio.disabled = true;
-    OuterGridManager.addPanelRadio.disabled = false;
-    OuterGridManager.outputPanelRadio.disabled = false;
-
-    OuterGridManager.addPanelRadio.click();
+    return config;
   }
 };
 
 {
   let elems = {
-    "commonFilesInput": "grid-outer-start-location",
-    "startFilesForm":   "grid-outer-start-filesform",
-    "configFileForm":   "grid-outer-start-configform",
-    "configFileInput":  "grid-outer-start-config-input",
-    "configFileSubmit": "grid-outer-start-configform-submit",
-    "configFileError":  "grid-outer-start-postSubmitError",
-    "graphNamesForm":   "grid-outer-start-graphnamesform",
-    "graphNamesSubmit": "grid-outer-start-graphnames-submit",
+    "commonFilesInput": "grid-outer-load-location",
+    "configFileInput":  "grid-outer-load-config-input",
   };
   let keys = Reflect.ownKeys(elems);
   keys.forEach(function(key) {
-    defineElementGetter(StartPanel, key, elems[key]);
+    defineElementGetter(window.LoadPanel, key, elems[key]);
   });
 }

@@ -1,6 +1,16 @@
 async function getGUIMocksPromise(propNames) {
   var window = testFrame.contentWindow;
 
+  window.LoadPanel.testMode = { fakeFiles: true };
+  {
+    let p1 = MessageEventPromise(window, "MembranePanel initialized");
+    let p2 = MessageEventPromise(
+      window, "MembranePanel cached configuration reset"
+    );
+    window.OuterGridManager.membranePanelRadio.click();
+    await Promise.all([p1, p2]);
+  }
+
   // This part is synchronous:  if it fails, we're dead anyway.
   {
     window.HandlerNames.setRow(0, "wet", false);
@@ -8,7 +18,7 @@ async function getGUIMocksPromise(propNames) {
     window.HandlerNames.update();
 
     {
-      let isValid = window.StartPanel.graphNamesForm.checkValidity();
+      let isValid = window.HandlerNames.graphNamesForm.checkValidity();
       expect(isValid).toBe(true);
       if (!isValid)
         throw new Error("graphNames form is not valid");
@@ -16,9 +26,8 @@ async function getGUIMocksPromise(propNames) {
   }
 
   {
-    window.StartPanel.testMode = true;
-    let p = MessageEventPromise(window, "addValue initialized");
-    window.StartPanel.startWithGraphNames();
+    let p = MessageEventPromise(window, "AddValuePanel initialized");
+    window.MembranePanel.configureMembrane();
     await p;
 
     const OGM = window.OuterGridManager;
@@ -46,7 +55,7 @@ async function getGUIMocksPromise(propNames) {
   };
 
   {
-    let p = MessageEventPromise(window, "output initialized");
+    let p = MessageEventPromise(window, "OutputPanel initialized");
     window.OuterGridManager.outputPanelRadio.click();
     await p;
   }

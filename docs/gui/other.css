@@ -1,0 +1,17 @@
+#grid-outer-start-postSubmitError {
+  color: red;
+  white-space: pre;
+  font-family: monospace;
+}
+
+#iframe-box {
+  display: none;
+}
+
+*.CodeMirror .readOnly {
+  background-color: #cccccc;
+}
+
+*.CodeMirror.disabled {
+  opacity: 0.3;
+}

@@ -6,6 +6,7 @@
   <meta charset="UTF-8">
 
   <link rel="stylesheet" href="gui/grid-outer.css">
+  <link rel="stylesheet" href="gui/other.css">
 
   <script type="application/javascript"
           src="gui/utilities/defineElementGetter.js"
@@ -28,10 +29,15 @@
   <script type="application/javascript"
           src="gui/DistortionsRules.js"></script>
 
-  <!-- start panel -->
-  <link rel="stylesheet" href="gui/mainPanels/start.css">
+  <!-- load panel -->
+  <link rel="stylesheet" href="gui/mainPanels/load.css">
   <script type="application/javascript"
-          src="gui/mainPanels/start.js"></script>
+          src="gui/mainPanels/load.js"></script>
+
+  <!-- membrane panel -->
+  <link rel="stylesheet" href="gui/mainPanels/membrane.css">
+  <script type="application/javascript"
+          src="gui/mainPanels/membrane.js"></script>
   <script type="application/javascript"
           src="gui/HandlerNames.js"></script>
 
@@ -76,7 +82,7 @@
 <body>
   <form action="javascript:void(null);" id="tabbox-form"></form>
   <div id="grid-outer">
-    <!-- row 1 -->
+    <!-- row 1, 2 -->
     <div id="tabbox-files-cell">
       <!-- tabbox-files-cell occupies two horizontal cells in grid-outer -->
 
@@ -87,10 +93,17 @@
 
         <!-- row 2 -->
         <input type="radio" name="files" checked="checked" form="tabbox-form"
-               value="start" id="tabbox-files-start"/>
-        <label for="tabbox-files-start">
-          <strong>Start</strong>
+               value="load" id="tabbox-files-load"/>
+        <label for="tabbox-files-load">
+          <strong>Load</strong>
         </label>
+
+        <input type="radio" name="files" form="tabbox-form"
+               value="membrane" id="tabbox-files-membrane"/>
+        <label for="tabbox-files-membrane">
+          <strong>Membrane</strong>
+        </label>
+
         <span>&nbsp;</span>
 
         <span class="insertPoint">&nbsp;</span>
@@ -99,6 +112,7 @@
         <label for="tabbox-files-addPanel">
           <strong>Add Value</strong>
         </label>
+
         <input type="radio" name="files" disabled="disabled" form="tabbox-form"
                value="output" id="tabbox-files-output">
         <label for="tabbox-files-output">
@@ -108,17 +122,18 @@
     </div>
     <span><!-- this element intentionally left blank --></span>
 
+    <!-- row 3 -->
     <div id="grid-outer-mainpanels" filesTab="start">
-      <section class="startPanel">
+      <section class="loadPanel">
         <h2>Start here</h2>
-        <form id="grid-outer-start-filesform">
-          <span id="grid-outer-start-location-span">
-            <label for="grid-outer-start-location">
+        <form id="grid-outer-load-filesform">
+          <span>
+            <label for="grid-outer-load-location">
               Specify common source JavaScript files to include here:
             </label>
 
             <br>
-            <input id="grid-outer-start-location"
+            <input id="grid-outer-load-location"
                    type="file"
                    multiple="multiple"
                    value=""
@@ -129,18 +144,18 @@
           </span>
           <hr>
         </form>
-        <form id="grid-outer-start-configform"
+        <form id="grid-outer-load-configform"
               method="post"
               enctype="multipart/form-data"
-              action="javascript:void(StartPanel.startWithConfigFile());">
-          <span id="grid-outer-start-config-span">
-            <label for="grid-outer-start-config">
+              action="javascript:void();">
+          <span>
+            <label for="grid-outer-load-config-input">
               If you have a Distortions GUI configuration file already, please
               select it here:
             </label>
             <br>
             <!-- Loading distortions GUI config files isn't supported yet. -->
-            <input id="grid-outer-start-config-input"
+            <input id="grid-outer-load-config-input"
                    type="file"
                    value=""
                    name="config"
@@ -148,48 +163,77 @@
                    required="required"
                   >
           </span>
-          <output id="grid-outer-start-postSubmitError"></output>
-          <button type="submit" id="grid-outer-start-configform-submit">Continue</button>
           <hr>
         </form>
+        <p>When you have selected all the files you need to set up your script
+        environment, please select the Membrane tab above to begin configuring
+        your membrane.</p>
+      </section>
 
-        <form id="grid-outer-start-graphnamesform"
+      <section class="membranePanel">
+        <form id="grid-outer-membrane-configForm"
               method="post"
               enctype="multipart/form-data"
-              action="javascript:void(StartPanel.startWithGraphNames());">
+              action="javascript:void(MembranePanel.configureMembrane());">
+          <div>
+            <label>
+              <input type="checkbox" id="grid-outer-membrane-enablePT">
+              Enable pass-through function.
+            </label>
+          </div>
+          <br>
+          <div>
+            <label>
+              <input type="checkbox" id="grid-outer-membrane-primordials">
+              The membrane should ignore primordials (Object, Function, Array,
+              etc.), and their prototypes.
+            </label>
+          </div>
+          <br>
+          <div>
+            <label for="grid-outer-membrane-passthrough">
+              Pass-through function source:
+            </label>
+            <br>
+            <textarea id="grid-outer-membrane-passthrough">const PassThroughFilter = (function() {
+  const items = [];
+
+  {
+    const s = new Set(items);
+    return s.has.bind(s);
+  }
+})();
+</textarea>
+          </div>
+          <br>
+
           <p>Name the object graphs you want here.  This is an unordered set.
           (Examples:  [internal, public] or [wet, dry].)</p>
-          <div id="grid-outer-start-objectgraphs">
+          <div id="grid-outer-membrane-objectgraphs">
             <button class="icon addRow" onclick="HandlerNames.addRow();"></button>
           </div>
 
-          <button type="submit" id="grid-outer-start-graphnames-submit">Continue</button>
+          <button type="submit"
+                  id="grid-outer-membrane-graphnames-submit">
+            Continue
+          </button>
+
+          <button type="button"
+                  onclick="void(window.MembranePanel.reset());">
+            Reset from loaded configuration
+          </button>
+          <input type="hidden"
+                 id="grid-outer-membrane-graphnames-validity"
+                 >
         </form>
       </section>
-      
+
       <section class="addPanel">
         <h2>Add a function (or other object)</h2>
         <form id="grid-outer-addValue"
               method="post"
               enctype="multipart/form-data"
               action="javascript:void(DistortionsGUI.buildValuePanel());">
-          <!-- This needs to be rethought.
-          <span id="grid-outer-addValue-location-span">
-            <label for="grid-outer-addValue-location">
-              Additional source JavaScript files:
-            </label>
-            <input id="grid-outer-addValue-location"
-                   type="file"
-                   multiple="multiple"
-                   value=""
-                   name="location"
-                   accept="application/javascript"
-                   disabled="disabled"
-                  >
-          </span>
-          <br>
-          -->
-
           <div id="grid-outer-addValue-graphs">
             <label>Source graph</label>
             <label>Target graph</label>
@@ -437,6 +481,9 @@ r.getArea(); // returns 12</pre>
              value="construct" id="tabbox-function-traps-construct">
       <label for="tabbox-function-traps-construct">Constructed By</label>
     </div>
+
+    <!-- row 4 -->
+    <output id="config-error"></output>
   </div>
 
   <template id="objectgraph-name-row">

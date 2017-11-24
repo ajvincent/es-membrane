@@ -6,13 +6,14 @@ const OuterGridManager = window.OuterGridManager = {
   filesTabbox: null,
   trapsTabbox: null,
   tabboxForm: null,
-  startForm: null,
-  startPanelRadio: null,
+  loadPanelRadio: null,
+  membranePanelRadio: null,
   addPanelRadio: null,
   outputPanelRadio: null,
   prototypeRadio: null,
   helpAndNotes: null,
   selectedHelpAndNotesPanel: null,
+  currentErrorOutput: null,
 
   graphNamesCache: {
     items: null,
@@ -52,6 +53,29 @@ const OuterGridManager = window.OuterGridManager = {
       listener.handleEvent();
     }
 
+    /* CodeMirror requires visible textareas, which will not happen until the
+     * panel is visible.
+     */
+
+    {
+      const handler = {
+        mainPanelRadios: [],
+
+        handleEvent: function(event) {
+          if (!this.mainPanelRadios.includes(event.target))
+            return;
+          let panel = event.target.value;
+          panel = panel[0].toUpperCase() + panel.substr(1) + "Panel";
+          window[panel].update(); // fire and forget:  update is async
+        }
+      };
+
+      let inputs = this.filesTabbox.getElementsByTagName("input");
+      for (let i = 0; i < inputs.length; i++)
+        handler.mainPanelRadios.push(inputs[i]);
+      this.filesTabbox.addEventListener("change", handler, true);
+    }
+
     this.filesTabbox.addEventListener("change", function(event) {
       const radio = event.target;
       OuterGridManager.selectedTabs.file = radio;
@@ -71,40 +95,12 @@ const OuterGridManager = window.OuterGridManager = {
       OuterGridManager.selectedTabs.file.dataset.lastTrap = event.target.value;
     }, true);
 
-    /* CodeMirror requires visible textareas, which will not happen until the
-     * panel is visible.
-     */
-    this.filesTabbox.addEventListener("change", {
-      handleEvent: function(event) {
-        if (event.target !== OuterGridManager.addPanelRadio)
-          return;
-        OuterGridManager.filesTabbox.removeEventListener("change", this, true);
-        AddValuePanel.init();
-      }
-    }, true);
-
-    this.filesTabbox.addEventListener("change", {
-      handleEvent: function(event) {
-        if (event.target !== OuterGridManager.outputPanelRadio)
-          return;
-        OuterGridManager.filesTabbox.removeEventListener("change", this, true);
-        OutputPanel.init();
-      }
-    }, true);
-
-    this.filesTabbox.addEventListener("change", {
-      handleEvent: function(event) {
-        if (event.target === OuterGridManager.outputPanelRadio)
-          OutputPanel.update();
-      }
-    }, true);
-
     this.panels.addEventListener("click", function(event) {
       if (event.target.classList.contains("helpButton"))
         OuterGridManager.setHelpPanel(event.target);
     }, true);
 
-    this.startPanelRadio.click();
+    this.loadPanelRadio.click();
   },
 
   insertValuePanel: function(graphIndex, valueName, radioClass, panel) {
@@ -159,7 +155,7 @@ const OuterGridManager = window.OuterGridManager = {
       const widths = window.getComputedStyle(this.filesTabbox, null)
                            .gridTemplateColumns
                            .split(" ");
-      widths.splice(2, 0, "repeat(var(--column-count), auto)");
+      widths.splice(3, 0, "repeat(var(--column-count), auto)");
       const ruleText = `#tabbox-files { grid-template-columns: ${widths.join(" ")};}`;
       const ruleIndex = this.sheet.insertRule(ruleText, this.sheet.cssRules.length);
       cache.groupColumnsRule = this.sheet.cssRules[ruleIndex];
@@ -184,7 +180,7 @@ const OuterGridManager = window.OuterGridManager = {
       const following = cache.labelElements.slice(index + 1);
       const ref = following.find(function(el) {
         return Boolean(el);
-      }) || this.startPanelRadio;
+      }) || this.loadPanelRadio;
 
       this.filesTabbox.insertBefore(span, ref);
     }
@@ -226,6 +222,15 @@ const OuterGridManager = window.OuterGridManager = {
     this.selectedHelpAndNotesPanel = document.getElementById(panelId);
     if (this.selectedHelpAndNotesPanel)
       this.selectedHelpAndNotesPanel.dataset.selected = true;
+  },
+
+  setCurrentErrorText: function(e) {
+    if (!this.currentErrorOutput.firstChild) {
+      let text = document.createTextNode("");
+      this.currentErrorOutput.appendChild(text);
+    }
+    const errorText = e ? e.message : "";
+    this.currentErrorOutput.firstChild.nodeValue = errorText;
   }
 };
 
@@ -247,15 +252,17 @@ TabboxRadioEventHandler.prototype.handleEvent = function() {
     "filesTabbox": "tabbox-files",
     "trapsTabbox": "tabbox-function-traps",
     "tabboxForm": "tabbox-form",
-    "startForm": "grid-outer-start",
 
-    "startPanelRadio": "tabbox-files-start",
+    "loadPanelRadio": "tabbox-files-load",
+    "membranePanelRadio": "tabbox-files-membrane",
     "addPanelRadio": "tabbox-files-addPanel",
     "outputPanelRadio": "tabbox-files-output",
 
     "prototypeRadio": "tabbox-function-traps-prototype",
 
-    "helpAndNotes": "help-and-notes"
+    "helpAndNotes": "help-and-notes",
+
+    "currentErrorOutput": "config-error",
   };
   let keys = Reflect.ownKeys(elems);
   keys.forEach(function(key) {

@@ -16,14 +16,14 @@
 #tabbox-files {
   display: grid;
   /* The repeat section is for new grid cells added for values to wrap */
-  grid-template-columns: 50px 5px /*repeat(x, auto)*/ 5px 95px 65px;
+  grid-template-columns: 50px 100px 5px /*repeat(x, auto)*/ 5px 95px 65px;
 }
 
 #tabbox-files > span.tabgroup:first-child {
-  grid-column-start: 3; /* after the Start and first spacer cells */
+  grid-column-start: 4; /* after the Start and first spacer cells */
 }
 
-#tabbox-files-start + label {
+#tabbox-files-load + label {
   grid-column-start: 1;
 }
 
@@ -82,14 +82,16 @@
   padding: 5px;
 }
 
-#grid-outer[filesTab="start"] > #grid-outer-mainpanels > section.startPanel,
+#grid-outer[filesTab="load"] > #grid-outer-mainpanels > section.loadPanel,
+#grid-outer[filesTab="membrane"] > #grid-outer-mainpanels > section.membranePanel,
 #grid-outer[filesTab="addValue"] > #grid-outer-mainpanels > section.addPanel,
 #grid-outer[filesTab="output"] > #grid-outer-mainpanels > section.output
 {
   display: block;
 }
 
-#grid-outer[filesTab="start"] > #tabbox-function-traps > label,
+#grid-outer[filesTab="load"] > #tabbox-function-traps > label,
+#grid-outer[filesTab="membrane"] > #tabbox-function-traps > label,
 #grid-outer[filesTab="addValue"] > #tabbox-function-traps > label,
 #grid-outer[filesTab="output"] > #tabbox-function-traps > label
 {
@@ -100,11 +102,6 @@
   background-color: #ffcccc;
   border: 2px solid #ff0000;
   font-family: monospace;
-}
-
-/* this doesn't really belong in this file, but it's a ride-along. */
-#iframe-box {
-  display: none;
 }
 
 #grid-outer button.icon {

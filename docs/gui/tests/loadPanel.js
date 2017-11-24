@@ -1,37 +1,26 @@
-describe("Start Panel Operations:", function() {
-  var window;
+describe("Load Panel Operations:", function() {
+  "use strict";
+  var window, OGM;
+
   beforeEach(async function() {
     await getDocumentLoadPromise("base/gui/index.html");
     window = testFrame.contentWindow;
-    window.StartPanel.testMode = true;
+    window.LoadPanel.testMode = {};
+    OGM = window.OuterGridManager;
   });
 
   function getErrorMessage() {
-    let output = window.StartPanel.configFileError;
-    if (!output.firstChild)
+    let output = window.OuterGridManager.currentErrorOutput;
+    if (!output.firstChild || (output.firstChild.nodeValue === ""))
       return null;
     return output.firstChild.nodeValue;
   }
 
-  it("starts with no graph names and two rows", function() {
-    // two delete buttons and one add button
-    {
-      let buttons = window.HandlerNames.grid.getElementsByTagName("button");
-      expect(buttons.length).toBe(3);
-      for (let i = 0; i < buttons.length; i++) {
-        expect(buttons[i].disabled).toBe(i < buttons.length - 1);
-      }
-    }
-
-    const [graphNames, graphSymbolLists] =
-      window.HandlerNames.serializableNames();
-    expect(Array.isArray(graphNames)).toBe(true);
-    expect(Array.isArray(graphSymbolLists)).toBe(true);
-    expect(graphNames.length).toBe(0);
-    expect(graphSymbolLists.length).toBe(0);
-
-    expect(getErrorMessage()).toBe(null);
-  });
+  function chooseMembranePanel() {
+    let p = MessageEventPromise(window, "MembranePanel initialized");
+    OGM.membranePanelRadio.click();
+    return p;
+  }
 
   it("can build a fresh configuration with test mode", async function() {
     await getGUIMocksPromise(["doc"]);
@@ -42,8 +31,7 @@ describe("Start Panel Operations:", function() {
   });
 
   it("can import a configuration with test mode", async function() {
-    let p1 = MessageEventPromise(window, "addValue initialized");
-    let p2 = window.StartPanel.startWithConfigFile(`{
+    window.LoadPanel.testMode.configSource = `{
       "graphNames": ["wet", "dry", "damp"],
       "graphSymbolLists": [2],
       "distortionsByGraph": [
@@ -51,30 +39,34 @@ describe("Start Panel Operations:", function() {
         [],
         []
       ]
-    }`);
-    await Promise.all([p1, p2]);
+    }`;
+    await chooseMembranePanel();
 
     let [graphNames, graphSymbolLists] = window.HandlerNames.serializableNames();
     expect(graphNames).toEqual(["wet", "dry", "damp"]);
     expect(graphSymbolLists).toEqual([2]);
 
     expect(getErrorMessage()).toBe(null);
-    const OGM = window.OuterGridManager;
+
+    const valid = window.MembranePanel.form.checkValidity();
+    expect(valid).toBe(true);
+
+    if (!valid)
+      return;
+    let p = MessageEventPromise(window, "AddValuePanel initialized");
+    window.MembranePanel.form.submit();
+    await p;
     expect(OGM.selectedTabs.file).toBe(OGM.addPanelRadio);
   });
 
   describe("tests for configuration file errors", function() {
     async function expectError(jsonSource) {
-      let exnThrown = false;
-      try {
-        await window.StartPanel.startWithConfigFile(jsonSource);
-      }
-      catch (e) {
-        exnThrown = true;
-      }
-      if (!exnThrown) {
-        throw new Error("no exception caught from startWithConfigFile");
-      }
+      window.LoadPanel.testMode.configSource = jsonSource;
+      let p1 = MessageEventPromise(
+        window, "MembranePanel exception thrown in reset"
+      );
+      await Promise.all([p1, chooseMembranePanel()]);
+      expect(OGM.selectedTabs.file).toBe(OGM.membranePanelRadio);
     }
 
     it("with a not-well-formed JSON file", async function() {
@@ -84,8 +76,6 @@ describe("Start Panel Operations:", function() {
       `); // missing closing brace
 
       expect(getErrorMessage()).not.toBe(null);
-      const OGM = window.OuterGridManager;
-      expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
     });
     
     it("with graphNames not being an array", async function() {
@@ -94,9 +84,9 @@ describe("Start Panel Operations:", function() {
         "graphSymbolLists": [2]
       }`);
 
-      expect(getErrorMessage()).toBe("config.graphNames must be an array of strings");
-      const OGM = window.OuterGridManager;
-      expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
+      expect(getErrorMessage()).toBe(
+        "config.graphNames must be an array of strings"
+      );
     });
 
     it("with graphSymbolLists not being an array", async function() {
@@ -108,8 +98,6 @@ describe("Start Panel Operations:", function() {
       expect(getErrorMessage()).toBe(
         "config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length"
       );
-      const OGM = window.OuterGridManager;
-      expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
     });
 
     it("with graphSymbolLists holding a number too big", async function() {
@@ -121,8 +109,6 @@ describe("Start Panel Operations:", function() {
       expect(getErrorMessage()).toBe(
         "config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length"
       );
-      const OGM = window.OuterGridManager;
-      expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
     });
 
     it("with graphSymbolLists holding a number too small", async function() {
@@ -134,8 +120,6 @@ describe("Start Panel Operations:", function() {
       expect(getErrorMessage()).toBe(
         "config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length"
       );
-      const OGM = window.OuterGridManager;
-      expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
     });
 
     it("with graphSymbolLists holding a number not an integer", async function() {
@@ -147,8 +131,6 @@ describe("Start Panel Operations:", function() {
       expect(getErrorMessage()).toBe(
         "config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length"
       );
-      const OGM = window.OuterGridManager;
-      expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
     });
 
     it("with graphSymbolLists holding a string value", async function() {
@@ -160,8 +142,6 @@ describe("Start Panel Operations:", function() {
       expect(getErrorMessage()).toBe(
         "config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length"
       );
-      const OGM = window.OuterGridManager;
-      expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
     });
 
     it("with graphSymbolLists holding a duplicate value", async function() {
@@ -173,8 +153,6 @@ describe("Start Panel Operations:", function() {
       expect(getErrorMessage()).toBe(
         "config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length"
       );
-      const OGM = window.OuterGridManager;
-      expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
     });
 
     it("with graphSymbolLists holding a value out of order", async function() {
@@ -186,8 +164,6 @@ describe("Start Panel Operations:", function() {
       expect(getErrorMessage()).toBe(
         "config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length"
       );
-      const OGM = window.OuterGridManager;
-      expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
     });
 
     it("with duplicate non-symbol graphNames", async function() {
@@ -199,8 +175,6 @@ describe("Start Panel Operations:", function() {
       expect(getErrorMessage()).toBe(
         `config.graphNames[2] = "wet", but this string name appears earlier in config.graphNames`
       );
-      const OGM = window.OuterGridManager;
-      expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
     });
 
     it("with a missing graphDistortions property", async function() {
@@ -211,8 +185,6 @@ describe("Start Panel Operations:", function() {
       expect(getErrorMessage()).toBe(
         `config.distortionsByGraph must be an array with length 2 of arrays`
       );
-      const OGM = window.OuterGridManager;
-      expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
     });
 
     it("with a graphDistortions property not an array", async function() {
@@ -224,35 +196,79 @@ describe("Start Panel Operations:", function() {
       expect(getErrorMessage()).toBe(
         `config.distortionsByGraph must be an array with length 3 of arrays`
       );
-      const OGM = window.OuterGridManager;
-      expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
     });
 
-    it("with a graphDistortions array containing a non-array", async function() {
-      await expectError(`{
-        "graphNames": ["wet", "dry"],
-        "graphSymbolLists": [],
-        "graphDistortions": [[], false]
-      }`);
-      expect(getErrorMessage()).toBe(
-        `config.distortionsByGraph must be an array with length 2 of arrays`
-      );
-      const OGM = window.OuterGridManager;
-      expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
-    });
+    it(
+      "with a graphDistortions array containing a non-array",
+      async function() {
+        await expectError(`{
+          "graphNames": ["wet", "dry"],
+          "graphSymbolLists": [],
+          "graphDistortions": [[], false]
+        }`);
+        expect(getErrorMessage()).toBe(
+          `config.distortionsByGraph must be an array with length 2 of arrays`
+        );
+      }
+    );
 
-    it("with a graphDistortions array containing the wrong number of arrays", async function() {
-      await expectError(`{
-        "graphNames": ["wet", "dry"],
-        "graphSymbolLists": [],
-        "graphDistortions": [[]]
-      }`);
-      expect(getErrorMessage()).toBe(
-        `config.distortionsByGraph must be an array with length 2 of arrays`
-      );
-      const OGM = window.OuterGridManager;
-      expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
-    });
+    it(
+      "with a graphDistortions array containing the wrong number of arrays",
+      async function() {
+        await expectError(`{
+          "graphNames": ["wet", "dry"],
+          "graphSymbolLists": [],
+          "graphDistortions": [[]]
+        }`);
+        expect(getErrorMessage()).toBe(
+          `config.distortionsByGraph must be an array with length 2 of arrays`
+        );
+      }
+    );
+
+    it(
+      "can progress after fixing the error",
+      async function() {
+        await expectError(`{
+          "graphNames": ["wet", "dry"],
+          "graphSymbolLists": [],
+          "graphDistortions": [[]]
+        }`);
+        OGM.loadPanelRadio.click();
+
+        window.LoadPanel.testMode.configSource = `{
+          "graphNames": ["wet", "dry", "damp"],
+          "graphSymbolLists": [2],
+          "distortionsByGraph": [
+            [],
+            [],
+            []
+          ]
+        }`;
+
+        let p = MessageEventPromise(
+          window, "MembranePanel cached configuration reset"
+        );
+        OGM.membranePanelRadio.click();
+        await p;
+    
+        let [graphNames, graphSymbolLists] = window.HandlerNames.serializableNames();
+        expect(graphNames).toEqual(["wet", "dry", "damp"]);
+        expect(graphSymbolLists).toEqual([2]);
+    
+        expect(getErrorMessage()).toBe(null);
+    
+        const valid = window.MembranePanel.form.checkValidity();
+        expect(valid).toBe(true);
+    
+        if (!valid)
+          return;
+        p = MessageEventPromise(window, "AddValuePanel initialized");
+        window.MembranePanel.form.submit();
+        await p;
+        expect(OGM.selectedTabs.file).toBe(OGM.addPanelRadio);
+      }
+    );
 
     describe("with a set of distortions rules: ", function() {
       function getFullConfig(middle) {
@@ -297,20 +313,14 @@ describe("Start Panel Operations:", function() {
         await expectError(getFullConfig(JSON.stringify(valid)));
   
         expect(getErrorMessage()).toBe(`${errPrefix}${errPostfix}`);
-        const OGM = window.OuterGridManager;
-        expect(OGM.selectedTabs.file).not.toBe(OGM.addPanelRadio);
       }
 
-      it("with a minimal configuration", async function() {
-        let p1 = MessageEventPromise(window, "addValue initialized");
-        let p2 = window.StartPanel.startWithConfigFile(
-          getFullConfig(JSON.stringify(valid))
-        );
-        await Promise.all([p1, p2]);
+      it("and a minimal configuration", async function() {
+        const config = getFullConfig(JSON.stringify(valid));
+        window.LoadPanel.testMode.configSource = config;
+        await chooseMembranePanel();
 
         expect(getErrorMessage()).toBe(null);
-        const OGM = window.OuterGridManager;
-        expect(OGM.selectedTabs.file).toBe(OGM.addPanelRadio);
       });
 
       it("missing name", async function() {
@@ -425,4 +435,5 @@ describe("Start Panel Operations:", function() {
       });
     });
   });
+
 });

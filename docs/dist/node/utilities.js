@@ -80,7 +80,8 @@ const allTraps = Object.freeze([
    Copied from https://github.com/tc39/proposal-realms/blob/master/shim/src/stdlib.js
    on September 20, 2017.
 */
-const Primordials = Object.freeze([
+const Primordials = Object.freeze((function() {
+const p = [
   Array,
   ArrayBuffer,
   Boolean,
@@ -126,7 +127,15 @@ const Primordials = Object.freeze([
   URIError,
   WeakMap,
   WeakSet,
-]);
+];
+
+return p.concat(p.filter((i) => {
+    if (!i.name)
+      return false;
+    let j = i.name[0];
+    return j.toUpperCase() === j;
+  }).map((k) => k.prototype));
+})());
 module.exports.NOT_IMPLEMENTED = NOT_IMPLEMENTED;
 module.exports.NOT_IMPLEMENTED_DESC = NOT_IMPLEMENTED_DESC;
 module.exports.DataDescriptor = DataDescriptor;

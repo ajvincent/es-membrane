@@ -9,10 +9,12 @@ const OutputPanel = window.OutputPanel = {
   configEditor: null,
   jsEditor: null,
 
+  isInitialized: false,
+
   /**
    * Initialize the output panel.
    */
-  init: function() {
+  initialize: function() {
     this.configEditor = CodeMirrorManager.buildNewEditor(
       this.configTextarea, { readOnly: true }
     );
@@ -20,10 +22,8 @@ const OutputPanel = window.OutputPanel = {
       this.jsTextarea, { readOnly: true }
     );
 
-    window.postMessage(
-      "output initialized",
-      window.location.origin
-    );
+    this.isInitialized = true;
+    window.LoadPanel.notifyTestOfInit("OutputPanel");
   },
 
   /**
@@ -35,10 +35,10 @@ const OutputPanel = window.OutputPanel = {
     while (this.errorDiv.firstChild)
       this.errorDiv.removeChild(this.errorDiv.firstChild);
 
-    if (!StartPanel.graphNamesForm.reportValidity()) {
+    if (!MembranePanel.form.reportValidity()) {
       this.errorDiv.appendChild(document.createTextNode(
-        `There is a problem with the graph names.  Please return to the Start ` +
-        `panel and fix the errors.`
+        `There is a problem with the graph names.  Please return to the ` + 
+        `Membrane panel and fix the errors.`
       ));
       return false;
     }
@@ -50,6 +50,9 @@ const OutputPanel = window.OutputPanel = {
    * Generate the Distortions GUI JSON and the membrane crafting file.
    */
   update: function() {
+    if (!this.isInitialized)
+      this.initialize();
+
     if (!this.validate()) {
       this.configEditor.setValue("");
       this.jsEditor.setValue("");
@@ -61,10 +64,11 @@ const OutputPanel = window.OutputPanel = {
      **************************************************************************/
     const commonFiles = [];
     {
-      let fileList = StartPanel.commonFilesInput.files;
+      let fileList = LoadPanel.commonFilesInput.files;
       for (let i = 0; i < fileList.length; i++)
         commonFiles.push(fileList[i].name);
     }
+    const PassThroughSource = MembranePanel.getPassThrough();
     
     var [graphNames, graphSymbolLists] = HandlerNames.serializableNames();
 
@@ -78,6 +82,7 @@ const OutputPanel = window.OutputPanel = {
      **************************************************************************/
     const guiConfig = JSON.stringify({
       "commonFiles": commonFiles,
+      "passThrough": PassThroughSource,
       "graphNames": graphNames,
       "graphSymbolLists": graphSymbolLists,
       "distortionsByGraph": distortionsData,
@@ -93,9 +98,17 @@ const OutputPanel = window.OutputPanel = {
     /**************************************************************************
      * Step 4:  Generate Membrane crafting JavaScript file.                   *
      **************************************************************************/
-    var script = `function buildMembrane() {
+    var script = `function buildMembrane(utilities) {
   "use strict";
-  const devMembrane = new Membrane();
+  
+  const devMembrane = new Membrane({
+    logger: (utilities.logger || null)`;
+    if (PassThroughSource) {
+      script += `,
+    passThrough: ${PassThroughSource.replace(/\n/gm, "\n    ")}`;
+    }
+    script += `
+  });
   const graphNames = [\n    ${HandlerNames.getFormattedNames().join(",\n    ")}\n  ];
   const graphs = graphNames.map(function(name) {
     return devMembrane.getHandlerByName(name, true);

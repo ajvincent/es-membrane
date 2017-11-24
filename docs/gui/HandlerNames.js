@@ -31,7 +31,9 @@ const HandlerNames = window.HandlerNames = {
     const range = document.createRange();
     const delButton = event.target;
     range.setEndAfter(delButton);
-    range.setStartBefore(delButton.previousElementSibling.previousElementSibling);
+    range.setStartBefore(
+      delButton.previousElementSibling.previousElementSibling
+    );
     range.deleteContents();
 
     this.update();
@@ -54,7 +56,9 @@ const HandlerNames = window.HandlerNames = {
       let input = buttons[i].previousElementSibling,
       checkbox =  input.previousElementSibling.firstElementChild;
       valid = checkbox.checked || !names.has(input.value);
-      input.setCustomValidity(valid ? "" : "String names of object graphs must be unique.");
+      input.setCustomValidity(
+        valid ? "" : "String names of object graphs must be unique."
+      );
       if (!checkbox.checked)
         names.add(input.value);
     }
@@ -86,7 +90,9 @@ const HandlerNames = window.HandlerNames = {
     }
 
     const range = document.createRange();
-    const delButton = this.grid.getElementsByTagName("button")[config.graphNames.length];
+    const delButton = this.grid.getElementsByTagName("button")[
+      config.graphNames.length
+    ];
     range.setEndBefore(this.grid.lastChild);
     range.setStartAfter(delButton);
     range.deleteContents();
@@ -148,8 +154,9 @@ const HandlerNames = window.HandlerNames = {
 
 {
   let elems = {
-    "grid": "grid-outer-start-objectgraphs",
-    "template": "objectgraph-name-row",
+    "grid":           "grid-outer-membrane-objectgraphs",
+    "template":       "objectgraph-name-row",
+    "graphNamesForm": "grid-outer-membrane-configForm",
   };
   let keys = Reflect.ownKeys(elems);
   keys.forEach(function(key) {

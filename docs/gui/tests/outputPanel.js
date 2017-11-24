@@ -4,7 +4,7 @@ describe("Output panel", function() {
   beforeEach(async function() {
     await getDocumentLoadPromise("base/gui/index.html");
     window = testFrame.contentWindow;
-    window.StartPanel.testMode = true;
+    window.LoadPanel.testMode = {fakeFiles: true};
   });
 
   /* We could check the contents of the CodeMirror instance... but

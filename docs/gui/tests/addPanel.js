@@ -3,7 +3,7 @@ describe("Add Panel Operations:", function() {
   beforeEach(async function() {
     await getDocumentLoadPromise("base/gui/index.html");
     window = testFrame.contentWindow;
-    window.StartPanel.testMode = true;
+    window.LoadPanel.testMode = {fakeFiles: true};
   });
 
   function getText(elem) {
@@ -50,15 +50,16 @@ describe("Add Panel Operations:", function() {
       {
         const tabs = OGM.filesTabbox;
         let labels = tabs.getElementsByTagName("label");
-        expect(labels.length).toBe(7);
-        expect(getText(labels[0])).toBe("Start");
+        expect(labels.length).toBe(8);
+        expect(getText(labels[0])).toBe("Load");
+        expect(getText(labels[1])).toBe("Membrane");
         expect(getText(labels[labels.length - 2])).toBe("Add Value");
         expect(getText(labels[labels.length - 1])).toBe("Output");
 
-        expect(getText(labels[1])).toBe("parts.wet.foo");
-        expect(getText(labels[2])).toBe("parts.dry.doc");
-        expect(getText(labels[3])).toBe("parts.dry.doc.rootElement");
-        expect(getText(labels[4])).toBe("parts.dry.Element");
+        expect(getText(labels[2])).toBe("parts.wet.foo");
+        expect(getText(labels[3])).toBe("parts.dry.doc");
+        expect(getText(labels[4])).toBe("parts.dry.doc.rootElement");
+        expect(getText(labels[5])).toBe("parts.dry.Element");
       }
 
       // tabs: object graph names by group

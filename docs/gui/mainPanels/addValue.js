@@ -1,17 +1,6 @@
 const AddValuePanel = window.AddValuePanel = {
-  // private, see below
-  form: null,
-  textarea: null,
-  sourceGraphSelect: null,
-  targetGraphSelect: null,
-  
-  // private
-  lastSourceSelected: -1,
-
-  // private
-  getValueEditor: null,
-  
-  init: function() {
+  isInitialized: false,
+  initialize: function() {
     this.sourceGraphSelect.addEventListener("change", (function() {
       const index = this.sourceGraphSelect.selectedIndex;
       if (this.lastSourceSelected >= 0)
@@ -25,15 +14,30 @@ const AddValuePanel = window.AddValuePanel = {
         this.targetGraphSelect.selectedIndex = -1;
     }).bind(this), true);
 
-    this.updateSelects();
-
     this.getValueEditor = CodeMirrorManager.buildNewEditor(this.textarea);
 
-    window.postMessage(
-      "addValue initialized",
-      window.location.origin
-    );
+    this.isInitialized = true;
+    window.LoadPanel.notifyTestOfInit("AddValuePanel");
   },
+
+  update: function() {
+    if (!this.isInitialized)
+      this.initialize();
+
+    this.updateSelects();
+  },
+
+  // private, see below
+  form: null,
+  textarea: null,
+  sourceGraphSelect: null,
+  targetGraphSelect: null,
+  
+  // private
+  lastSourceSelected: -1,
+
+  // private
+  getValueEditor: null,
 
   updateSelects: function() {
     const names = HandlerNames.getFormattedNames();
