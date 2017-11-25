@@ -1,5 +1,6 @@
 async function getGUIMocksPromise(propNames) {
-  var window = testFrame.contentWindow;
+  const window = testFrame.contentWindow;
+  const OGM = window.OuterGridManager;
 
   window.LoadPanel.testMode = { fakeFiles: true };
   {
@@ -7,7 +8,7 @@ async function getGUIMocksPromise(propNames) {
     let p2 = MessageEventPromise(
       window, "MembranePanel cached configuration reset"
     );
-    window.OuterGridManager.membranePanelRadio.click();
+    OGM.membranePanelRadio.click();
     await Promise.all([p1, p2]);
   }
 
@@ -26,31 +27,45 @@ async function getGUIMocksPromise(propNames) {
   }
 
   {
-    let p = MessageEventPromise(window, "AddValuePanel initialized");
-    window.MembranePanel.configureMembrane();
-    await p;
+    let p1 = MessageEventPromise(
+      window, "OuterGridManager: object graphs defined"
+    );
+    let p2 = MessageEventPromise(
+      window, "Graph panel shown: graphpanel-0"
+    );
+    OGM.defineGraphs();
+    await Promise.all([p1, p2]);
+    expect(OGM.graphNamesCache.lastVisibleGraph).not.toBe(null);
+    expect(OGM.selectedTabs.file).toBe(OGM.graphNamesCache.lastVisibleGraph.radio);
 
-    const OGM = window.OuterGridManager;
-    expect(OGM.selectedTabs.file).toBe(OGM.addPanelRadio);
+    /* Assume for now that the controllers and HTML content are set up
+     * correctly:  there should be a separate test for this.
+     */
   }
 
+  const dryController = OGM.graphNamesCache.controllers[1];
   for (let i = 0; i < propNames.length; i++)
   {
     const name = propNames[i];
-    window.OuterGridManager.addPanelRadio.click();
-    window.AddValuePanel.sourceGraphSelect.selectedIndex = 0;
-    window.AddValuePanel.targetGraphSelect.selectedIndex = 1;
-    window.AddValuePanel.form.nameOfValue.value = `parts.dry.${name}`;
-    window.AddValuePanel.getValueEditor.setValue(
+
+    let p = MessageEventPromise(
+      window, "Graph panel shown: graphpanel-1"
+    );
+    dryController.radio.click();
+    await p;
+    expect(OGM.graphNamesCache.lastVisibleGraph).toBe(dryController);
+    expect(OGM.selectedTabs.file).toBe(dryController.radio);
+
+    dryController.nameOfValue.value = `parts.dry.${name}`;
+    dryController.valueGetterEditor.setValue(
       `function() { return MembraneMocks().dry.${name}; }`
     );
 
-    {
-      let isValid = window.AddValuePanel.form.checkValidity();
-      expect(isValid).toBe(true);
-      if (!isValid)
-        return;
-    }
+    let isValid = dryController.newValueForm.checkValidity();
+    expect(isValid).toBe(true);
+    if (!isValid)
+      return;
+
     await window.DistortionsGUI.buildValuePanel();
   };
 

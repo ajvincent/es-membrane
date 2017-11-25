@@ -45,13 +45,6 @@ window.MembranePanel = {
       return this.handlePassThrough(event);
   },
 
-  configureMembrane: function() {
-    OuterGridManager.addPanelRadio.disabled = false;
-    OuterGridManager.outputPanelRadio.disabled = false;
-
-    OuterGridManager.addPanelRadio.click();
-  },
-
   getPassThrough: function() {
     if (!this.passThroughCheckbox.checked)
       return null;
@@ -67,6 +60,10 @@ window.MembranePanel = {
 
     if (!this.cachedConfig)
       await this.reset();
+
+    if (LoadPanel.testMode) {
+      window.postMessage("MembranePanel updated", window.location.origin);
+    }
   },
 
   reset: async function() {

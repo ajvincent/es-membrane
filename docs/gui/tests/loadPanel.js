@@ -30,7 +30,7 @@ describe("Load Panel Operations:", function() {
     expect(getErrorMessage()).toBe(null);
   });
 
-  it("can import a configuration with test mode", async function() {
+  it("can import a simple configuration with test mode", async function() {
     window.LoadPanel.testMode.configSource = `{
       "graphNames": ["wet", "dry", "damp"],
       "graphSymbolLists": [2],
@@ -53,10 +53,18 @@ describe("Load Panel Operations:", function() {
 
     if (!valid)
       return;
-    let p = MessageEventPromise(window, "AddValuePanel initialized");
+
+    let p1 = MessageEventPromise(
+      window, "OuterGridManager: object graphs defined"
+    );
+    let p2 = MessageEventPromise(
+      window, "Graph panel shown: graphpanel-0"
+    );
     window.MembranePanel.form.submit();
-    await p;
-    expect(OGM.selectedTabs.file).toBe(OGM.addPanelRadio);
+    await Promise.all([p1, p2]);
+
+    expect(OGM.graphNamesCache.lastVisibleGraph).not.toBe(null);
+    expect(OGM.selectedTabs.file).toBe(OGM.graphNamesCache.lastVisibleGraph.radio);
   });
 
   describe("tests for configuration file errors", function() {
@@ -263,10 +271,18 @@ describe("Load Panel Operations:", function() {
     
         if (!valid)
           return;
-        p = MessageEventPromise(window, "AddValuePanel initialized");
+
+        let p1 = MessageEventPromise(
+          window, "OuterGridManager: object graphs defined"
+        );
+        let p2 = MessageEventPromise(
+          window, "Graph panel shown: graphpanel-0"
+        );
         window.MembranePanel.form.submit();
-        await p;
-        expect(OGM.selectedTabs.file).toBe(OGM.addPanelRadio);
+        await Promise.all([p1, p2]);
+
+        expect(OGM.graphNamesCache.lastVisibleGraph).not.toBe(null);
+        expect(OGM.selectedTabs.file).toBe(OGM.graphNamesCache.lastVisibleGraph.radio);
       }
     );
 

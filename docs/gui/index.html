@@ -41,14 +41,13 @@
   <script type="application/javascript"
           src="gui/HandlerNames.js"></script>
 
-  <!-- add value panel -->
-  <link rel="stylesheet" href="gui/mainPanels/addValue.css">
-  <script type="application/javascript"
-          src="gui/mainPanels/addValue.js"></script>
-
   <!-- output panel -->
   <script type="application/javascript"
           src="gui/mainPanels/output.js"></script>
+
+  <!-- object graph management panels -->
+  <script type="application/javascript"
+          src="gui/mainPanels/graphs.js"></script>
 
   <!-- Multistate button for truncateArgList, in #grid-outer-mainpanels -->
   <link rel="stylesheet" href="gui/multistate/multistate.css">
@@ -107,12 +106,6 @@
         <span>&nbsp;</span>
 
         <span class="insertPoint">&nbsp;</span>
-        <input type="radio" name="files" disabled="disabled" form="tabbox-form"
-               value="addValue" id="tabbox-files-addPanel"/>
-        <label for="tabbox-files-addPanel">
-          <strong>Add Value</strong>
-        </label>
-
         <input type="radio" name="files" disabled="disabled" form="tabbox-form"
                value="output" id="tabbox-files-output">
         <label for="tabbox-files-output">
@@ -174,7 +167,7 @@
         <form id="grid-outer-membrane-configForm"
               method="post"
               enctype="multipart/form-data"
-              action="javascript:void(MembranePanel.configureMembrane());">
+              action="javascript:void(OuterGridManager.defineGraphs());">
           <div>
             <label>
               <input type="checkbox" id="grid-outer-membrane-enablePT">
@@ -207,7 +200,9 @@
           </div>
           <br>
 
-          <p>Name the object graphs you want here.  This is an unordered set.
+          <p>Name the object graphs you want here.  This is an ordered set for
+          the configuration files that interact with this tool and the Membrane
+          constructor.</p>
           (Examples:  [internal, public] or [wet, dry].)</p>
           <div id="grid-outer-membrane-objectgraphs">
             <button class="icon addRow" onclick="HandlerNames.addRow();"></button>
@@ -225,64 +220,6 @@
           <input type="hidden"
                  id="grid-outer-membrane-graphnames-validity"
                  >
-        </form>
-      </section>
-
-      <section class="addPanel">
-        <h2>Add a function (or other object)</h2>
-        <form id="grid-outer-addValue"
-              method="post"
-              enctype="multipart/form-data"
-              action="javascript:void(DistortionsGUI.buildValuePanel());">
-          <div id="grid-outer-addValue-graphs">
-            <label>Source graph</label>
-            <label>Target graph</label>
-            <select size="5"
-                    id="grid-outer-addValue-sourcegraph"
-                    name="sourceGraph"
-                    required="required">
-            </select>
-            <select size="5"
-                    id="grid-outer-addValue-targetgraph"
-                    name="targetGraph"
-                    required="required">
-            </select>
-          </div>
-
-          <span>
-            <label for="grid-outer-addValue-valueName">
-              How the code internally names the function or literal object.
-            </label>
-            <input id="grid-outer-addValue-valueName"
-                   type="text"
-                   size="30"
-                   name="nameOfValue"
-                   required="required"
-                  >
-          </span>
-          <br>
-
-          <div>
-            <label for="grid-outer-addValue-valueReference">
-              Return the function or literal object we will examine.
-            </label>
-            <textarea id="grid-outer-addValue-valueReference">
-function() {
-  return {};
-}
-</textarea>
-          </div>
-          <hr>
-
-          <button type="submit">
-            Add the file and start work
-            <img src="gui/icons/plusicon.svg">
-          </button>
-          &nbsp;
-          <button type="reset">
-            Clear this panel
-            <img src="gui/icons/minusicon.svg">
-          </button>
         </form>
       </section>
 
@@ -485,6 +422,85 @@ r.getArea(); // returns 12</pre>
     <!-- row 4 -->
     <output id="config-error"></output>
   </div>
+
+  <template id="objectgraph-main">
+    <section>
+      <form method="post"
+            enctype="multipart/form-data"
+            action="javascript:void();">
+        <h2>Pass through values</h2>
+        <div>
+          <label>
+            <input type="checkbox" class="enablePT">
+            Enable pass-through function.
+          </label>
+        </div>
+        <br>
+        <div>
+          <label>
+            <input type="checkbox" class="ignore-primordials">
+            The membrane should ignore primordials (Object, Function, Array,
+            etc.), and their prototypes.
+          </label>
+        </div>
+        <br>
+        <div>
+          <label>
+            Pass-through function source:
+          </label>
+          <br>
+          <textarea class="passThroughSource">const PassThroughFilter = (function() {
+  const items = [];
+
+  {
+    const s = new Set(items);
+    return s.has.bind(s);
+  }
+})();
+</textarea>
+        </div>
+      </form>
+  
+      <form method="post"
+            enctype="multipart/form-data"
+            class="newValueForm"
+            action="javascript:void(DistortionsGUI.buildValuePanel());">
+        <h2>Add a function (or other object)</h2>
+        <span>
+          <label>
+            How the code internally names the function or literal object.
+          </label>
+          <input class="nameOfValue"
+                 type="text"
+                 size="30"
+                 required="required"
+                >
+        </span>
+        <br>
+  
+        <div>
+          <label>
+            Return the function or literal object we will examine.
+          </label>
+          <textarea class="valueGetterSource">function() {
+  return {};
+}
+</textarea>
+        </div>
+        <hr>
+  
+        <button type="submit">
+          Build distortions
+          <img src="gui/icons/plusicon.svg">
+        </button>
+        &nbsp;
+        <button type="reset">
+          Clear this panel
+          <img src="gui/icons/minusicon.svg">
+        </button>
+      </form>
+    </section>
+  </template>
 
   <template id="objectgraph-name-row">
     <label>Symbol?<input type="checkbox" onchange="HandlerNames.update();"></label>

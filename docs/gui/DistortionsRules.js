@@ -234,6 +234,7 @@ DistortionsRules.prototype = {
       requireLocalDelete: false,
       useShadowTarget: false,
       proxyTraps: allTraps.slice(0),
+      truncateArgList: Non-negative integer || false || true,
        */
     };
 

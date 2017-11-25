@@ -8,7 +8,6 @@ const OuterGridManager = window.OuterGridManager = {
   tabboxForm: null,
   loadPanelRadio: null,
   membranePanelRadio: null,
-  addPanelRadio: null,
   outputPanelRadio: null,
   prototypeRadio: null,
   helpAndNotes: null,
@@ -16,11 +15,16 @@ const OuterGridManager = window.OuterGridManager = {
   currentErrorOutput: null,
 
   graphNamesCache: {
-    items: null,
+    controllers: [],
+    visited: false,
+
     labelElements: [],
     firstRadioElements: [],
     radioElementCounts: [],
+
     groupColumnsRule: null,
+
+    lastVisibleGraph: null,
   },
 
   selectedTabs: {
@@ -56,7 +60,6 @@ const OuterGridManager = window.OuterGridManager = {
     /* CodeMirror requires visible textareas, which will not happen until the
      * panel is visible.
      */
-
     {
       const handler = {
         mainPanelRadios: [],
@@ -67,6 +70,7 @@ const OuterGridManager = window.OuterGridManager = {
           let panel = event.target.value;
           panel = panel[0].toUpperCase() + panel.substr(1) + "Panel";
           window[panel].update(); // fire and forget:  update is async
+          delete OuterGridManager.grid.dataset.showvalue;
         }
       };
 
@@ -103,6 +107,47 @@ const OuterGridManager = window.OuterGridManager = {
     this.loadPanelRadio.click();
   },
 
+  defineGraphs: function() {
+    const config = MembranePanel.cachedConfig;
+
+    // Update the cached configuration
+    {
+      const [graphNames, graphSymbolLists] = HandlerNames.serializableNames();
+      config.graphNames = graphNames;
+      config.graphSymbolLists = graphSymbolLists;
+    }
+
+    // Define our object graph managers
+    {
+      const names = HandlerNames.getFormattedNames();
+      for (let i = 0; i < names.length; i++) {
+        const name = names[i];
+        if (this.graphNamesCache.controllers.length == i) {
+          this.graphNamesCache.controllers.push(new ObjectGraphManager());
+        }
+        const controller = this.graphNamesCache.controllers[i];
+        controller.setGraphName(name);
+        controller.readDistortionsData(config.distortionsByGraph[i]);
+      }
+
+      const deadControllers = this.graphNamesCache.controllers.slice(names.length);
+      deadControllers.forEach((controller) => {controller.remove();});
+      this.graphNamesCache.controllers.length = names.length;
+    }
+
+    if (!this.graphNamesCache.visited) {
+      this.graphNamesCache.visited = true;
+      this.graphNamesCache.controllers[0].selectPanel();
+    }
+
+    this.outputPanelRadio.disabled = false;
+    if (LoadPanel.testMode) {
+      window.postMessage(
+        "OuterGridManager: object graphs defined", window.location.origin
+      );
+    }
+  },
+  
   insertValuePanel: function(graphIndex, valueName, radioClass, panel) {
     const radio = document.createElement("input");
     radio.setAttribute("form", "tabbox-form");
@@ -133,22 +178,28 @@ const OuterGridManager = window.OuterGridManager = {
     return radio;
   },
 
-  getGraphIndexRef: function(index, radioToInsert) {
+  addGraphUI: function(radioClass, groupLabel, radio, panelLabel) {
     const cache = this.graphNamesCache;
-    if (!cache.items) {
-      cache.items = HandlerNames.getGraphNames();
-    }
+    cache.labelElements.push(groupLabel);
+    cache.firstRadioElements.push(radio);
+    cache.radioElementCounts.push(1);
 
-    // Cache the radio button, to insert another element before it later.
-    if (!cache.firstRadioElements[index]) {
-      cache.firstRadioElements[index] = radioToInsert;
-    }
+    // Show the panel when the radio button is checked.
+    {
+      const cssRule = [
+        `#grid-outer[filesTab="${radioClass}"] >`,
+        "#grid-outer-mainpanels >",
+        `section.${radioClass} {\n  `,
+        "display: block;\n",
+        "}\n\n"
+      ].join("");
+      this.sheet.insertRule(cssRule);
 
-    // We should track how many values belong to an object graph.
-    if (typeof cache.radioElementCounts[index] === "number")
-      cache.radioElementCounts[index]++;
-    else
-      cache.radioElementCounts[index] = 1;
+      const listener = new CSSClassToggleHandler(
+        radio, this.panels, radioClass, true
+      );
+      this.filesTabbox.addEventListener("change", listener, true);
+    }
 
     // Renumber the grid columns of this.filesTabbox.
     if (!cache.groupColumnsRule) {
@@ -163,26 +214,31 @@ const OuterGridManager = window.OuterGridManager = {
 
     // Ensure each column is counted.
     {
-      const count = cache.radioElementCounts.reduce(function(sum, value) {
-        return sum + (value || 0);
-      }, 0);
+      const count = cache.radioElementCounts.reduce(
+        (sum, value) => { return sum + value; }, 0
+      );
       cache.groupColumnsRule.style.setProperty("--column-count", count);
     }
+    groupLabel.style.gridColumnEnd = "span 1";
 
-    // Insert the group label for the object graph.
-    if (!cache.labelElements[index]) {
-      const span = document.createElement("span");
-      span.classList.add("tabgroup");
-      cache.labelElements[index] = span;
-      span.appendChild(document.createTextNode(cache.items[index]));
+    // Actually show the UI.
+    this.filesTabbox.insertBefore(groupLabel, this.loadPanelRadio);
 
-      // Find the insertion point
-      const following = cache.labelElements.slice(index + 1);
-      const ref = following.find(function(el) {
-        return Boolean(el);
-      }) || this.loadPanelRadio;
+    const ref = this.filesTabbox.getElementsByClassName("insertPoint")[0];
+    this.filesTabbox.insertBefore(panelLabel, ref);
+    this.filesTabbox.insertBefore(radio, panelLabel);
+  },
 
-      this.filesTabbox.insertBefore(span, ref);
+  getGraphIndexRef: function(index) {
+    const cache = this.graphNamesCache;
+    cache.radioElementCounts[index]++;
+    
+    // Ensure each column is counted.
+    {
+      const count = cache.radioElementCounts.reduce(
+        (sum, value) => { return sum + value; }, 0
+      );
+      cache.groupColumnsRule.style.setProperty("--column-count", count);
     }
 
     // Ensure the graph's label goes across all of its wrapped values.
@@ -192,13 +248,11 @@ const OuterGridManager = window.OuterGridManager = {
     }
 
     // Now, finally, find where the radio button we were passed should be inserted.
-    {
-      const following = this.graphNamesCache.firstRadioElements.slice(index + 1);
-      const ref = following.find(function(el) {
-        return Boolean(el);
-      }) || this.filesTabbox.getElementsByClassName("insertPoint")[0];
-      return ref;
-    }
+    const firstRadios = this.graphNamesCache.firstRadioElements;
+    index++;
+    return index == firstRadios.length ?
+           this.filesTabbox.getElementsByClassName("insertPoint")[0] :
+           firstRadios[index];
   },
 
   insertOtherPanel: function(radio, panel) {
@@ -209,9 +263,13 @@ const OuterGridManager = window.OuterGridManager = {
   },
 
   addCSSPanelRule: function(radioClass, trapsTab) {
-    const cssRule = `#grid-outer[filesTab="${radioClass}"][trapsTab="${trapsTab}"] > #grid-outer-mainpanels > section[trapsTab="${trapsTab}"].${radioClass} {
-      display: block;
-    }`;
+    const cssRule = [
+      `#grid-outer[filesTab="${radioClass}"][trapsTab="${trapsTab}"] >`,
+      "#grid-outer-mainpanels >",
+      `section[trapsTab="${trapsTab}"].${radioClass} {\n  `,
+      "display: block;\n",
+      "}\n\n"
+    ].join("");
     this.sheet.insertRule(cssRule);
   },
 
@@ -255,7 +313,6 @@ TabboxRadioEventHandler.prototype.handleEvent = function() {
 
     "loadPanelRadio": "tabbox-files-load",
     "membranePanelRadio": "tabbox-files-membrane",
-    "addPanelRadio": "tabbox-files-addPanel",
     "outputPanelRadio": "tabbox-files-output",
 
     "prototypeRadio": "tabbox-function-traps-prototype",

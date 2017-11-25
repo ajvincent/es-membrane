@@ -134,7 +134,13 @@ window.LoadPanel = {
       await this.collectCommonFileURLs();
     }
 
-    var config = null;
+    var config = {
+      commonFiles: [],
+      passThrough: null,
+      graphNames: [],
+      graphSymbolLists: [],
+      distortionsByGraph: [],
+    };
     if (!this.configFileInput.files.length && (
         !this.testMode || !this.testMode.configSource))
       return config;

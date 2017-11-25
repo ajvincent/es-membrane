@@ -47,56 +47,6 @@ const DistortionsGUI = window.DistortionsGUI = {
 
   gridTreeCount: 0,
 
-  buildValuePanel: async function() {
-    const valueName = AddValuePanel.form.nameOfValue.value,
-          graphIndex = AddValuePanel.form.targetGraph.selectedIndex,
-          sourceGraphIndex = AddValuePanel.form.sourceGraph.selectedIndex,
-          hash = DistortionsManager.hashGraphAndValueNames(valueName, graphIndex);
-    if (DistortionsManager.valueNameToTabMap.has(hash))
-      return;
-
-    const valueFromSource = AddValuePanel.getValueEditor.getValue();
-    await DistortionsManager.BlobLoader.addNamedValue(valueName, valueFromSource);
-
-    const panel = document.createElement("section");
-    panel.dataset.valueName = valueName;
-    panel.dataset.graphIndex = graphIndex;
-    panel.dataset.hash = hash;
-    const radioClass = "valuepanel-" + DistortionsManager.valueNameToTabMap.size;
-    panel.setAttribute("trapsTab", "value");
-
-    const radio = OuterGridManager.insertValuePanel(
-      graphIndex, valueName, radioClass, panel
-    );
-    DistortionsManager.valueNameToTabMap.set(hash, radio);
-
-    const value = DistortionsManager.BlobLoader.valuesByName.get(panel.dataset.valueName);
-    const rules = this.buildDistortions(panel, value);
-    DistortionsManager.valueNameToRulesMap.set(
-      panel.dataset.hash, {
-        "value": rules,
-        "source": valueFromSource,
-        "sourceGraphIndex": sourceGraphIndex,
-      }
-    );
-
-    OuterGridManager.panels.appendChild(panel);
-
-    if (typeof value === "function") {
-      radio.dataset.valueIsFunction = true;
-      const protoPanel = this.buildPrototypePanel(value, hash);
-      if (protoPanel)
-        OuterGridManager.insertOtherPanel(radio, protoPanel);
-
-      /*
-      let instancePanel = this.buildInstancePanel(value);
-      if (instancePanel)
-        OuterGridManager.insertOtherPanel(radio, instancePanel);
-      */
-    }
-    radio.click();
-  },
-
   buildDistortions: function(panel, value) {
     // Build the GUI.
     const gridtree = this.treeUITemplate.content.firstElementChild.cloneNode(true);
@@ -129,6 +79,10 @@ const DistortionsGUI = window.DistortionsGUI = {
     DistortionsManager.valueNameToRulesMap.get(hash).proto = rules;
 
     return panel;
+  },
+
+  buildInstancePanel: function(/*value, hash*/) {
+    return null;
   },
 
   metadataInGraphOrder: function() {
@@ -170,13 +124,64 @@ const DistortionsGUI = window.DistortionsGUI = {
     }
 
     return rv;
-  }
+  },
+
+  buildValuePanel: async function() {
+    const graph = OuterGridManager.graphNamesCache.lastVisibleGraph,
+          valueName = graph.nameOfValue.value,
+          graphIndex = OuterGridManager.graphNamesCache.controllers.indexOf(graph),
+          hash = DistortionsManager.hashGraphAndValueNames(valueName, graphIndex);
+    if (DistortionsManager.valueNameToTabMap.has(hash))
+      // XXX ajvincent Need to let the GUI know this value name is taken
+      return;
+
+    const valueFromSource = graph.valueGetterEditor.getValue();
+    await DistortionsManager.BlobLoader.addNamedValue(valueName, valueFromSource);
+
+    const panel = document.createElement("section");
+    panel.dataset.valueName = valueName;
+    panel.dataset.graphIndex = graphIndex;
+    panel.dataset.hash = hash;
+    const radioClass = "valuepanel-" + DistortionsManager.valueNameToTabMap.size;
+    panel.setAttribute("trapsTab", "value");
+
+    const radio = OuterGridManager.insertValuePanel(
+      graphIndex, valueName, radioClass, panel
+    );
+    DistortionsManager.valueNameToTabMap.set(hash, radio);
+
+    const value = DistortionsManager.BlobLoader.valuesByName.get(panel.dataset.valueName);
+    const rules = this.buildDistortions(panel, value);
+    DistortionsManager.valueNameToRulesMap.set(
+      panel.dataset.hash, {
+        "value": rules,
+        "source": valueFromSource,
+      }
+    );
+
+    OuterGridManager.panels.appendChild(panel);
+
+    if (typeof value === "function") {
+      radio.dataset.valueIsFunction = true;
+      const protoPanel = this.buildPrototypePanel(value, hash);
+      if (protoPanel)
+        OuterGridManager.insertOtherPanel(radio, protoPanel);
+
+
+      let instancePanel = this.buildInstancePanel(value, hash);
+      if (instancePanel)
+        OuterGridManager.insertOtherPanel(radio, instancePanel);
+    }
+    radio.click();
+  },
 };
 
 {
   let elems = {
+    /*
     "addValueForm": "grid-outer-addValue",
     "addValueTextarea": "grid-outer-addValue-valueReference",
+    */
     "iframeBox": "iframe-box",
     "treeUITemplate": "distortions-tree-ui-main",
     "propertyTreeTemplate": "distortions-tree-ui-property"

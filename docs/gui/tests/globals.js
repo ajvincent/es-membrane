@@ -14,7 +14,6 @@ it("Top-level globals for the Distortion UI exist", async function() {
     "MultistateHandler",
     "LoadPanel",
     "MembranePanel",
-    "AddValuePanel",
     "OutputPanel",
     "styleAndMoveTreeColumns",
     "CodeMirrorManager",

@@ -10,7 +10,7 @@ describe("Output panel", function() {
 
   function membranePanelSelect() {
     let p = MessageEventPromise(
-      window, "MembranePanel cached configuration reset"
+      window, "MembranePanel updated"
     );
     OGM.membranePanelRadio.click();
     return p;
@@ -97,8 +97,10 @@ describe("Output panel", function() {
   });
 
   describe("has good syntax in the downloadable JavaScript", function() {
+    var counter;
     beforeEach(async function() {
       await getGUIMocksPromise([]);
+      counter = 0;
     });
 
     async function testScriptForSyntax() {
@@ -111,8 +113,10 @@ describe("Output panel", function() {
 
       const BlobLoader = window.DistortionsManager.BlobLoader;
 
-      await BlobLoader.addNamedValue("test", source);
-      expect(BlobLoader.valuesByName.get("test")).toBe(true);
+      // named values must have unique names, hence the counter
+      await BlobLoader.addNamedValue("test" + counter, source);
+      expect(BlobLoader.valuesByName.get("test" + counter)).toBe(true);
+      counter++;
     }
 
     it("in a baseline configuration", testScriptForSyntax);

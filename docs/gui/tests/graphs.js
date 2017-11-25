@@ -1,4 +1,4 @@
-describe("Add Panel Operations:", function() {
+describe("ObjectGraphManager", function() {
   var window;
   beforeEach(async function() {
     await getDocumentLoadPromise("base/gui/index.html");
@@ -21,23 +21,19 @@ describe("Add Panel Operations:", function() {
   }
 
   it(
-    "provides each object with its own tab in the files tabbox, and resources",
+    "provides each object with its own tab in the files tabbox, and supporting graph tabs",
     async function() {
-      {
-        let p = getGUIMocksPromise(["doc", "doc.rootElement", "Element"]);
-        await p;
-      }
+      await getGUIMocksPromise(["doc", "doc.rootElement", "Element"]);
       const OGM = window.OuterGridManager;
 
       {
-        OGM.addPanelRadio.click();
-        window.AddValuePanel.sourceGraphSelect.selectedIndex = 1;
-        window.AddValuePanel.targetGraphSelect.selectedIndex = 0;
-        window.AddValuePanel.form.nameOfValue.value = "parts.wet.foo";
-        window.AddValuePanel.getValueEditor.setValue("function() { return {}; }");
+        const wetController = OGM.graphNamesCache.controllers[0];
+        wetController.radio.click();
+        wetController.nameOfValue.value = "parts.wet.foo";
+        wetController.valueGetterEditor.setValue("function() { return {}; }");
 
         {
-          let isValid = window.AddValuePanel.form.checkValidity();
+          let isValid = wetController.newValueForm.checkValidity();
           expect(isValid).toBe(true);
           if (!isValid)
             return;
@@ -50,16 +46,17 @@ describe("Add Panel Operations:", function() {
       {
         const tabs = OGM.filesTabbox;
         let labels = tabs.getElementsByTagName("label");
-        expect(labels.length).toBe(8);
+        expect(labels.length).toBe(9);
         expect(getText(labels[0])).toBe("Load");
         expect(getText(labels[1])).toBe("Membrane");
-        expect(getText(labels[labels.length - 2])).toBe("Add Value");
         expect(getText(labels[labels.length - 1])).toBe("Output");
 
-        expect(getText(labels[2])).toBe("parts.wet.foo");
-        expect(getText(labels[3])).toBe("parts.dry.doc");
-        expect(getText(labels[4])).toBe("parts.dry.doc.rootElement");
-        expect(getText(labels[5])).toBe("parts.dry.Element");
+        expect(getText(labels[2])).toBe("(Graph)");
+        expect(getText(labels[3])).toBe("parts.wet.foo");
+        expect(getText(labels[4])).toBe("(Graph)");
+        expect(getText(labels[5])).toBe("parts.dry.doc");
+        expect(getText(labels[6])).toBe("parts.dry.doc.rootElement");
+        expect(getText(labels[7])).toBe("parts.dry.Element");
       }
 
       // tabs: object graph names by group
@@ -69,13 +66,8 @@ describe("Add Panel Operations:", function() {
         const groups = tabs.getElementsByClassName("tabgroup");
         {
           expect(groups.length).toBe(2);
-          expect(getText(groups[0])).toBe("wet"); // first named graph
-          expect(getText(groups[1])).toBe("dry");
-
-          expect(Array.isArray(GNC.items)).toBe(true);
-          expect(GNC.items.length).toBe(2);
-          expect(GNC.items[0]).toBe("wet");
-          expect(GNC.items[1]).toBe("dry");
+          expect(getText(groups[0])).toBe('"wet"'); // first named graph
+          expect(getText(groups[1])).toBe('"dry"');
         }
 
         {
@@ -84,13 +76,13 @@ describe("Add Panel Operations:", function() {
           expect(groups[0]).toBe(labelElems[0]);
           expect(groups[1]).toBe(labelElems[1]);
 
-          expect(getColumnCount(labelElems[0])).toBe(1);
-          expect(getColumnCount(labelElems[1])).toBe(3);
+          expect(getColumnCount(labelElems[0])).toBe(2);
+          expect(getColumnCount(labelElems[1])).toBe(4);
 
           expect(Array.isArray(GNC.radioElementCounts)).toBe(true);
           expect(GNC.radioElementCounts.length).toBe(2);
-          expect(GNC.radioElementCounts[0]).toBe(1);
-          expect(GNC.radioElementCounts[1]).toBe(3);
+          expect(GNC.radioElementCounts[0]).toBe(2);
+          expect(GNC.radioElementCounts[1]).toBe(4);
         }
       }
     }
