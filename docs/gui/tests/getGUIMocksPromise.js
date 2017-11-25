@@ -55,8 +55,9 @@ async function getGUIMocksPromise(propNames) {
   };
 
   {
-    let p = MessageEventPromise(window, "OutputPanel initialized");
+    let p1 = MessageEventPromise(window, "OutputPanel initialized");
+    let p2 = MessageEventPromise(window, "OutputPanel updated download links");
     window.OuterGridManager.outputPanelRadio.click();
-    await p;
+    await Promise.all([p1, p2]);
   }
 }

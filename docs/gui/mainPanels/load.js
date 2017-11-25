@@ -7,6 +7,8 @@ window.LoadPanel = {
   commonFilesInput: null,
   configFileInput: null,
 
+  commonFilesLoaded: false,
+
   // treat this as restricted to testing purposes
   testMode: null,
 
@@ -109,6 +111,18 @@ window.LoadPanel = {
     DistortionsManager.commonFileURLs.forEach(function(url) {
       urlArray.push(url);
     });
+
+    if (this.commonFilesLoaded) {
+      const iframe = window.document.getElementById("BlobLoader");
+      let p = new Promise(function (resolve) {
+        iframe.addEventListener("load", resolve, {once: true, capture: true});
+      });
+      this.commonFilesLoaded = false;
+      iframe.contentWindow.location.reload(true);
+      await p;
+    }
+
+    this.commonFilesLoaded = true;
     while (urlArray.length) {
       await DistortionsManager.BlobLoader.addCommonURL(urlArray.shift());
     }

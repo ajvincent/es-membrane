@@ -6,6 +6,13 @@ describe("Membrane Panel Operations:", function() {
     await getDocumentLoadPromise("base/gui/index.html");
     window = testFrame.contentWindow;
     window.LoadPanel.testMode = {fakeFiles: true};
+
+    let p1 = MessageEventPromise(window, "MembranePanel initialized");
+    let p2 = MessageEventPromise(
+      window, "MembranePanel cached configuration reset"
+    );
+    window.OuterGridManager.membranePanelRadio.click();
+    await Promise.all([p1, p2]);
   });
 
   function getErrorMessage() {
@@ -15,15 +22,7 @@ describe("Membrane Panel Operations:", function() {
     return output.firstChild.nodeValue;
   }
 
-  function chooseMembranePanel() {
-    let p = MessageEventPromise(window, "MembranePanel initialized");
-    window.OuterGridManager.membranePanelRadio.click();
-    return p;
-  }
-
-  it("starts with no graph names and two rows", async function() {
-    await chooseMembranePanel();
-
+  it("starts with no graph names and two rows", function() {
     // two delete buttons and one add button
     {
       let buttons = window.HandlerNames.grid.getElementsByTagName("button");
@@ -41,5 +40,60 @@ describe("Membrane Panel Operations:", function() {
     expect(graphSymbolLists.length).toBe(0);
 
     expect(getErrorMessage()).toBe(null);
+  });
+
+  it("supports the pass-through function for the membrane", function() {
+    const editor = window.MembranePanel.passThroughEditor;
+    {
+      expect(window.MembranePanel.passThroughCheckbox.checked).toBe(false);
+      expect(window.MembranePanel.primordialsCheckbox.checked).toBe(false);
+      expect(window.MembranePanel.primordialsCheckbox.disabled).toBe(true);
+      expect(window.CodeMirrorManager.getEditorEnabled(editor)).toBe(false);
+      expect(window.MembranePanel.getPassThrough()).toBe(null);
+    }
+
+    {
+      window.MembranePanel.passThroughCheckbox.click();
+      expect(window.MembranePanel.passThroughCheckbox.checked).toBe(true);
+      expect(window.MembranePanel.primordialsCheckbox.disabled).toBe(false);
+      expect(window.CodeMirrorManager.getEditorEnabled(editor)).toBe(true);
+
+      const prelim = "(function() {\n  const items = [];\n\n";
+      const value = window.MembranePanel.getPassThrough();
+      expect(value.startsWith(prelim)).toBe(true);
+    }
+
+    {
+      window.MembranePanel.primordialsCheckbox.click();
+      expect(window.MembranePanel.passThroughCheckbox.checked).toBe(true);
+      expect(window.MembranePanel.primordialsCheckbox.checked).toBe(true);
+      expect(window.MembranePanel.primordialsCheckbox.disabled).toBe(false);
+      expect(window.CodeMirrorManager.getEditorEnabled(editor)).toBe(true);
+
+      const prelim = "(function() {\n  const items = Membrane.Primordials.slice(0);\n\n";
+      const value = window.MembranePanel.getPassThrough();
+      expect(value.startsWith(prelim)).toBe(true);
+    }
+
+    {
+      window.MembranePanel.primordialsCheckbox.click();
+      expect(window.MembranePanel.passThroughCheckbox.checked).toBe(true);
+      expect(window.MembranePanel.primordialsCheckbox.checked).toBe(false);
+      expect(window.MembranePanel.primordialsCheckbox.disabled).toBe(false);
+      expect(window.CodeMirrorManager.getEditorEnabled(editor)).toBe(true);
+
+      const prelim = "(function() {\n  const items = [];\n\n";
+      const value = window.MembranePanel.getPassThrough();
+      expect(value.startsWith(prelim)).toBe(true);
+    }
+
+    {
+      window.MembranePanel.passThroughCheckbox.click();
+      expect(window.MembranePanel.passThroughCheckbox.checked).toBe(false);
+      expect(window.MembranePanel.primordialsCheckbox.checked).toBe(false);
+      expect(window.MembranePanel.primordialsCheckbox.disabled).toBe(true);
+      expect(window.CodeMirrorManager.getEditorEnabled(editor)).toBe(false);
+      expect(window.MembranePanel.getPassThrough()).toBe(null);
+    }
   });
 });

@@ -60,6 +60,10 @@ const CodeMirrorManager = window.CodeMirrorManager = {
     };
   },
 
+  getEditorEnabled: function(editor) {
+    return !editor.getOption("readOnly");
+  },
+
   setEditorEnabled: function(editor, enabled) {
     editor.setOption("readOnly", enabled ? false : "nocursor");
     const classList = editor.getWrapperElement().classList;

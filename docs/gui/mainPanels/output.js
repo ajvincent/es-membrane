@@ -137,6 +137,12 @@ const OutputPanel = window.OutputPanel = {
       let href = URL.createObjectURL(blob);
       this.jsLink.href = href;
     }
+
+    if (window.LoadPanel.testMode) {
+      window.postMessage(
+        "OutputPanel updated download links", window.location.origin
+      );
+    }
   }
 };
 
