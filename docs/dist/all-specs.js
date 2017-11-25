@@ -4942,7 +4942,12 @@ if (typeof Membrane != "function") {
 describe("Primordial values", function() {
   "use strict";
   const MUSTCREATE = Object.freeze({ mustCreate: true });
-  const topValues = [Object, Function, Array, Date, Map, Set, WeakMap, WeakSet];
+  const topValues = [
+    /* explicitly testing for prototypes passing through */
+    Object.prototype, Function.prototype, Array.prototype,
+    /* testing common primordials as well */
+    Object, Function, Array, Date, Map, Set, WeakMap, WeakSet
+  ];
   function passThrough() {
     const pSet = new Set(Membrane.Primordials);
     return pSet.has;
