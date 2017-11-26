@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Distortions GUI Configuration File Specification</title>
+
+  <base href="../">
+  <meta charset="UTF-8">
+
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/lib/codemirror.js"></script>
+  <link rel="stylesheet"
+        href="libraries/codemirror-5.25.2/lib/codemirror.css">
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/foldcode.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/foldgutter.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/brace-fold.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/comment-fold.js"></script>
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/addon/fold/indent-fold.js"></script>
+  <link rel="stylesheet"
+        href="libraries/codemirror-5.25.2/addon/fold/foldgutter.css">
+  <script type="application/javascript"
+          src="libraries/codemirror-5.25.2/mode/javascript/javascript.js"></script>
+
+  <script type="application/javascript"
+          src="gui/utilities/CodeMirrorManager.js"
+         ></script>
+
+  <script type="application/javascript"
+          src="gui/spec-render.js"></script>
+</head>
+<body>
+  <h1>Distortions GUI Configuration File Specification</h1>
+  <h2>Root structure</h2>
+  <textarea id="root-source">{
+  /* Configuration of the script environment the GUI should work with. */
+  "configurationSetup": {
+    /* True if the files are in a zip archive the user provides,
+       false if the user must provide files manually. */
+    "useZip": true, 
+    "commonFiles": [
+      /* String[] of relative paths to source code files defining the
+         objects the Membrane is supposed to reflect and/or distort. */
+    ],
+    /* a floating point number representing this format version */
+    "formatVersion": 1.0,
+
+    /* UTC datetime stamp for when this was last generated.
+    "lastUpdated": "",
+
+    /* String[] of user comments.  Optional. */
+    "comments": [],
+  },
+
+  "membrane": {
+    /* source code of membrane's passthrough function, or null */
+    "passThrough": "", 
+
+    /* String[] of user comments.  Optional. */
+    "comments": [],
+  },
+
+  "preGraphSources": [
+  
+  ],
+  
+  "graphs": [
+    {
+      "name": "", /* String for the graph name */
+      "isSymbol": false, /* true if the graph name is a Symbol */
+
+      /* source code of object graph's passthrough function, or null */
+      "passThrough": "", 
+
+      "distortions": [
+        /* Distortions configuration objects */
+      ],
+
+      "proxyListeners": [
+        /* Source code for proxy listeners on this graph, after the distortions
+           listener has run. */
+      ],
+
+      "functionListeners": [
+        /* Source code for function listeners on this graph. */
+      ],
+
+      /* String[] of user comments.  Optional. */
+      "comments": [],
+    }
+  ],
+
+  "postGraphSources": [
+  
+  ]
+}
+</textarea>
+
+
+  <h2>Distortions configuration objects</h2>
+  <textarea id="distortions">{
+  /* String name of the object in the source code. */
+  "objectName": "",
+
+  /* True if the object is a function. */
+  "isFunction": true,
+
+  "getExample": "",
+
+  "valueByName": {
+    "filterOwnKeys": [],
+    "proxyTraps": [],
+    "inheritFilter": false,
+    "storeUnknownAsLocal": false,
+    "requireLocalDelete": false,
+    "useShadowTarget": false,
+    "truncateArgList": false,
+    "whitelistFilter": null,
+    "notesPerKey": {  
+    },
+    "comments": []
+  },
+
+  "valueByFilter": {
+    /* same shape as "valueByName" above */
+  },
+  "filterToMatch": "",
+
+  "prototype": {
+    /* same shape as "valueByName" above */
+  },
+
+  "instance": {
+    /* same shape as "valueByName" above */
+  },
+
+  "argument:this": {
+    /* same shape as "valueByName" above */
+  },
+
+  "argument:0" {
+    /* same shape as "valueByName" above */
+  },
+
+  /* String[] of user comments.  Optional. */
+  "comments": [],
+}
+</textarea>
+</body>
+</html>
