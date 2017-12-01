@@ -35,7 +35,12 @@ const CodeMirrorManager = window.CodeMirrorManager = {
   getTextLock: function(editor, startLine, endLine)
   {
     const doc = editor.getDoc();
-    const options = Object.freeze({ readOnly: true, className: "readOnly" });
+    const options = { readOnly: true, className: "readOnly" };
+    if (startLine === 0)
+      options.inclusiveLeft = true;
+    if (endLine === Infinity)
+      options.inclusiveRight = true;
+    Object.freeze(options);
     let mark = doc.markText(
       {line: startLine, ch: 0},
       {line: endLine, ch: 0},
