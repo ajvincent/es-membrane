@@ -1,9 +1,12 @@
 function ObjectGraphManager() {
   this.radioClass = `graphpanel-${ObjectGraphManager.instanceCount}`;
   ObjectGraphManager.instanceCount++;
-  this.distortions = [];
+
+  this.distortionMaps = [];
   this.passThroughEditor = null;
   this.valueGetterEditor = null;
+
+  this.jsonBase = null;
 
   this.buildUI();
 }
@@ -32,17 +35,64 @@ ObjectGraphManager.prototype.buildUI = function() {
   this.radio.addEventListener("change", this, true);
 }
 
-ObjectGraphManager.prototype.setGraphName = function(name) {
+ObjectGraphManager.prototype.importJSON = function(data) {
+  this.jsonBase = {
+    "name": data.name,
+    "isSymbol": data.isSymbol
+  };
+};
+
+ObjectGraphManager.prototype.exportJSON = function(graphIndex) {
+  const rv = {
+    "name": this.jsonBase.name,
+    "isSymbol": this.jsonBase.isSymbol,
+    "passThroughSource": null,
+    "passThroughEnabled": null,
+    "primordialsPass": false,
+    "distortions": [],
+  };
+
+  if (this.passThroughEditor) {
+    let lines = this.passThroughEditor.getValue().split("\n");
+    lines = lines.slice(2, -6);
+    rv.passThroughSource = lines.join("\n");
+
+    rv.passThroughEnabled = this.passThroughCheckbox.checked;
+    rv.primordialsPass = this.primordialsCheckbox.checked;
+  }
+  else {
+    const config = MembranePanel.cachedConfig;
+    const lastGraph = Array.isArray(config.graphs) ? config.graphs[graphIndex] : null;
+    if (lastGraph) {
+      rv.passThroughSource = lastGraph.passThroughSource;
+      rv.passThroughEnabled = lastGraph.passThroughEnabled;
+      rv.primordialsPass = lastGraph.primordialsPass;
+    }
+  }
+
+  this.distortionMaps.forEach(function(dm) {
+    let d = {}, keys = Reflect.ownKeys(dm);
+    keys.forEach(function(key) {
+      if (key === "about") {
+        d[key] = dm[key];
+        return;
+      }
+      d[key] = dm[key].exportJSON();
+    });
+
+    rv.distortions.push(d);
+  });
+
+  return rv;
+};
+
+ObjectGraphManager.prototype.setGraphName = function(name, jsonName, isSymbol) {
   this.groupLabel.firstChild.nodeValue = name;
   if (!this.groupLabel.parentNode) {
     OuterGridManager.addGraphUI(
       this.radioClass, this.groupLabel, this.radio, this.panelLabel
     );
   }
-};
-
-ObjectGraphManager.prototype.readDistortionsData = function(data) {
-  
 };
 
 ObjectGraphManager.prototype.remove = function() {
@@ -86,6 +136,32 @@ ObjectGraphManager.prototype.handlePassThrough = function(event) {
   const checked = event.target.checked;
   this.primordialsCheckbox.disabled = !checked;
   CodeMirrorManager.setEditorEnabled(this.passThroughEditor, checked);
+};
+
+ObjectGraphManager.prototype.getPassThrough = function(fullSource = false) {
+  if (!this.passThroughCheckbox.checked)
+    return null;
+
+  if (!this.passThroughEditor) {
+    const config = MembranePanel.cachedConfig;
+    if (Array.isArray(config.graphs)) {
+      let index = OuterGridManager.graphNamesCache.controllers.indexOf(this);
+      if (config.graphs[index])
+        return config.graphs[index].passThrough;
+    }
+    return null;
+  }
+
+  if (!fullSource) {
+    let lines = this.passThroughEditor.getValue().split("\n");
+    lines = lines.slice(2, -6);
+    return lines.join("\n");
+  }
+
+  let value = this.passThroughEditor.getValue();
+  value = value.substr(value.indexOf("("));
+  value = value.replace(/;\n$/, ",\n");
+  return value;
 };
 
 ObjectGraphManager.prototype.handleEvent = function(event) {

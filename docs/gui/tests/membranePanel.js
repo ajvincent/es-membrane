@@ -49,7 +49,6 @@ describe("Membrane Panel Operations:", function() {
       expect(window.MembranePanel.primordialsCheckbox.checked).toBe(false);
       expect(window.MembranePanel.primordialsCheckbox.disabled).toBe(true);
       expect(window.CodeMirrorManager.getEditorEnabled(editor)).toBe(false);
-      expect(window.MembranePanel.getPassThrough()).toBe(null);
     }
 
     {
@@ -57,10 +56,6 @@ describe("Membrane Panel Operations:", function() {
       expect(window.MembranePanel.passThroughCheckbox.checked).toBe(true);
       expect(window.MembranePanel.primordialsCheckbox.disabled).toBe(false);
       expect(window.CodeMirrorManager.getEditorEnabled(editor)).toBe(true);
-
-      const prelim = "(function() {\n  const items = [];\n\n";
-      const value = window.MembranePanel.getPassThrough();
-      expect(value.startsWith(prelim)).toBe(true);
     }
 
     {
@@ -71,7 +66,7 @@ describe("Membrane Panel Operations:", function() {
       expect(window.CodeMirrorManager.getEditorEnabled(editor)).toBe(true);
 
       const prelim = "(function() {\n  const items = Membrane.Primordials.slice(0);\n\n";
-      const value = window.MembranePanel.getPassThrough();
+      const value = window.MembranePanel.getPassThrough(true);
       expect(value.startsWith(prelim)).toBe(true);
     }
 
@@ -81,10 +76,6 @@ describe("Membrane Panel Operations:", function() {
       expect(window.MembranePanel.primordialsCheckbox.checked).toBe(false);
       expect(window.MembranePanel.primordialsCheckbox.disabled).toBe(false);
       expect(window.CodeMirrorManager.getEditorEnabled(editor)).toBe(true);
-
-      const prelim = "(function() {\n  const items = [];\n\n";
-      const value = window.MembranePanel.getPassThrough();
-      expect(value.startsWith(prelim)).toBe(true);
     }
 
     {
@@ -93,7 +84,6 @@ describe("Membrane Panel Operations:", function() {
       expect(window.MembranePanel.primordialsCheckbox.checked).toBe(false);
       expect(window.MembranePanel.primordialsCheckbox.disabled).toBe(true);
       expect(window.CodeMirrorManager.getEditorEnabled(editor)).toBe(false);
-      expect(window.MembranePanel.getPassThrough()).toBe(null);
     }
   });
 });

@@ -48,7 +48,7 @@
     /* a floating point number representing this format version */
     "formatVersion": 1.0,
 
-    /* UTC datetime stamp for when this was last generated.
+    /* UTC datetime stamp for when this was last generated. */
     "lastUpdated": "",
 
     /* String[] of user comments.  Optional. */
@@ -57,7 +57,9 @@
 
   "membrane": {
     /* source code of membrane's passthrough function, or null */
-    "passThrough": "", 
+    "passThroughSource": "",
+    "passThroughEnabled": false,
+    "primordialsPass": false,
 
     /* String[] of user comments.  Optional. */
     "comments": [],
@@ -73,7 +75,9 @@
       "isSymbol": false, /* true if the graph name is a Symbol */
 
       /* source code of object graph's passthrough function, or null */
-      "passThrough": "", 
+      "passThroughSource": "",
+      "passThroughEnabled": false,
+      "primordialsPass": false,
 
       "distortions": [
         /* Distortions configuration objects */
@@ -102,15 +106,22 @@
 
   <h2>Distortions configuration objects</h2>
   <textarea id="distortions">{
-  /* String name of the object in the source code. */
-  "objectName": "",
+  "about": {
+    /* String name of the object in the source code. */
+    "valueName": "",
+  
+    /* True if the object is a function. */
+    "isFunction": true,
+  
+    "getExample": "",
 
-  /* True if the object is a function. */
-  "isFunction": true,
+    "filterToMatch": "",
 
-  "getExample": "",
+    /* String[] of user comments.  Optional. */
+    "comments": []
+  },
 
-  "valueByName": {
+  "value": {
     "filterOwnKeys": [],
     "proxyTraps": [],
     "inheritFilter": false,
@@ -124,16 +135,15 @@
     "comments": []
   },
 
-  "valueByFilter": {
-    /* same shape as "valueByName" above */
-  },
-  "filterToMatch": "",
-
   "prototype": {
     /* same shape as "valueByName" above */
   },
 
   "instance": {
+    /* same shape as "valueByName" above */
+  },
+
+  "valueByFilter": {
     /* same shape as "valueByName" above */
   },
 
@@ -144,9 +154,6 @@
   "argument:0" {
     /* same shape as "valueByName" above */
   },
-
-  /* String[] of user comments.  Optional. */
-  "comments": [],
 }
 </textarea>
 </body>

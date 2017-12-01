@@ -5,7 +5,7 @@ describe("Load Panel Operations:", function() {
   beforeEach(async function() {
     await getDocumentLoadPromise("base/gui/index.html");
     window = testFrame.contentWindow;
-    window.LoadPanel.testMode = {};
+    window.LoadPanel.testMode = {fakeFiles: true};
     OGM = window.OuterGridManager;
   });
 
@@ -32,15 +32,29 @@ describe("Load Panel Operations:", function() {
 
   it("can import a simple configuration with test mode", async function() {
     window.LoadPanel.testMode.configSource = `{
-      "graphNames": ["wet", "dry", "damp"],
-      "graphSymbolLists": [2],
-      "distortionsByGraph": [
-        [],
-        [],
-        []
+      "configurationSetup": {},
+      "graphs": [
+        {
+          "name": "wet",
+          "isSymbol": false,
+          "distortions": []
+        },
+
+        {
+          "name": "dry",
+          "isSymbol": false,
+          "distortions": []
+        },
+
+        {
+          "name": "damp",
+          "isSymbol": true,
+          "distortions": []
+        }
       ]
     }`;
     await chooseMembranePanel();
+    let temp = await window.LoadPanel.getConfiguration();
 
     let [graphNames, graphSymbolLists] = window.HandlerNames.serializableNames();
     expect(graphNames).toEqual(["wet", "dry", "damp"]);
@@ -50,21 +64,6 @@ describe("Load Panel Operations:", function() {
 
     const valid = window.MembranePanel.form.checkValidity();
     expect(valid).toBe(true);
-
-    if (!valid)
-      return;
-
-    let p1 = MessageEventPromise(
-      window, "OuterGridManager: object graphs defined"
-    );
-    let p2 = MessageEventPromise(
-      window, "Graph panel shown: graphpanel-0"
-    );
-    window.MembranePanel.form.submit();
-    await Promise.all([p1, p2]);
-
-    expect(OGM.graphNamesCache.lastVisibleGraph).not.toBe(null);
-    expect(OGM.selectedTabs.file).toBe(OGM.graphNamesCache.lastVisibleGraph.radio);
   });
 
   describe("tests for configuration file errors", function() {
@@ -79,232 +78,157 @@ describe("Load Panel Operations:", function() {
 
     it("with a not-well-formed JSON file", async function() {
       await expectError(`{
-        "graphNames": ["wet", "dry", "damp"],
-        "graphSymbolLists": [2]
+        "configurationSetup": {},
+        "graphs": [
+          {
+            "name": "wet",
+            "isSymbol": false,
+            "distortions": []
+          },
+  
+          {
+            "name": "dry",
+            "isSymbol": false,
+            "distortions": []
+          },
+  
+          {
+            "name": "damp",
+            "isSymbol": true,
+            "distortions": []
+          }
+        ]
       `); // missing closing brace
 
       expect(getErrorMessage()).not.toBe(null);
     });
     
-    it("with graphNames not being an array", async function() {
+    it("with graphs not being an array", async function() {
       await expectError(`{
-        "graphNames": 4,
-        "graphSymbolLists": [2]
+        "graphs": 4
       }`);
 
       expect(getErrorMessage()).toBe(
-        "config.graphNames must be an array of strings"
-      );
-    });
-
-    it("with graphSymbolLists not being an array", async function() {
-      await expectError(`{
-        "graphNames": ["wet", "dry", "damp"],
-        "graphSymbolLists": 2
-      }`);
-
-      expect(getErrorMessage()).toBe(
-        "config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length"
-      );
-    });
-
-    it("with graphSymbolLists holding a number too big", async function() {
-      await expectError(`{
-        "graphNames": ["wet", "dry", "damp"],
-        "graphSymbolLists": [3]
-      }`);
-
-      expect(getErrorMessage()).toBe(
-        "config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length"
-      );
-    });
-
-    it("with graphSymbolLists holding a number too small", async function() {
-      await expectError(`{
-        "graphNames": ["wet", "dry", "damp"],
-        "graphSymbolLists": [-1]
-      }`);
-
-      expect(getErrorMessage()).toBe(
-        "config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length"
-      );
-    });
-
-    it("with graphSymbolLists holding a number not an integer", async function() {
-      await expectError(`{
-        "graphNames": ["wet", "dry", "damp"],
-        "graphSymbolLists": [0.5]
-      }`);
-
-      expect(getErrorMessage()).toBe(
-        "config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length"
-      );
-    });
-
-    it("with graphSymbolLists holding a string value", async function() {
-      await expectError(`{
-        "graphNames": ["wet", "dry", "damp"],
-        "graphSymbolLists": ["wet"]
-      }`);
-
-      expect(getErrorMessage()).toBe(
-        "config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length"
-      );
-    });
-
-    it("with graphSymbolLists holding a duplicate value", async function() {
-      await expectError(`{
-        "graphNames": ["wet", "dry", "damp"],
-        "graphSymbolLists": [2, 2]
-      }`);
-
-      expect(getErrorMessage()).toBe(
-        "config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length"
-      );
-    });
-
-    it("with graphSymbolLists holding a value out of order", async function() {
-      await expectError(`{
-        "graphNames": ["wet", "dry", "damp"],
-        "graphSymbolLists": [2, 1]
-      }`);
-
-      expect(getErrorMessage()).toBe(
-        "config.graphSymbolLists must be an ordered array of unique non-negative integers, each member of which is less than config.graphNames.length"
+        "config.graphs must be an array of objects"
       );
     });
 
     it("with duplicate non-symbol graphNames", async function() {
       await expectError(`{
-        "graphNames": ["wet", "dry", "wet"],
-        "graphSymbolLists": []
+        "configurationSetup": {},
+        "graphs": [
+          {
+            "name": "wet",
+            "isSymbol": false,
+            "distortions": []
+          },
+  
+          {
+            "name": "dry",
+            "isSymbol": false,
+            "distortions": []
+          },
+  
+          {
+            "name": "wet",
+            "isSymbol": false,
+            "distortions": []
+          }
+        ]
       }`);
 
       expect(getErrorMessage()).toBe(
-        `config.graphNames[2] = "wet", but this string name appears earlier in config.graphNames`
+        `config.graphs[2].name = "wet", but this name appears earlier in config.graphs, and neither name is a symbol`
       );
     });
 
-    it("with a missing graphDistortions property", async function() {
+    it("with a missing distortions property", async function() {
       await expectError(`{
-        "graphNames": ["wet", "dry"],
-        "graphSymbolLists": []
+        "configurationSetup": {},
+        "graphs": [
+          {
+            "name": "wet",
+            "isSymbol": false
+          },
+  
+          {
+            "name": "dry",
+            "isSymbol": false,
+            "distortions": []
+          },
+  
+          {
+            "name": "damp",
+            "isSymbol": true,
+            "distortions": []
+          }
+        ]
       }`);
       expect(getErrorMessage()).toBe(
-        `config.distortionsByGraph must be an array with length 2 of arrays`
+        `config.graphs[0].distortions must be an array`
       );
     });
 
-    it("with a graphDistortions property not an array", async function() {
+    it("with a distortions property not an array", async function() {
       await expectError(`{
-        "graphNames": ["wet", "dry", "damp"],
-        "graphSymbolLists": [],
-        "graphDistortions": false
+        "configurationSetup": {},
+        "graphs": [
+          {
+            "name": "wet",
+            "isSymbol": false,
+            "distortions": []
+          },
+  
+          {
+            "name": "dry",
+            "isSymbol": false,
+            "distortions": false
+          },
+  
+          {
+            "name": "damp",
+            "isSymbol": true,
+            "distortions": []
+          }
+        ]
       }`);
       expect(getErrorMessage()).toBe(
-        `config.distortionsByGraph must be an array with length 3 of arrays`
+        `config.graphs[1].distortions must be an array`
       );
     });
-
-    it(
-      "with a graphDistortions array containing a non-array",
-      async function() {
-        await expectError(`{
-          "graphNames": ["wet", "dry"],
-          "graphSymbolLists": [],
-          "graphDistortions": [[], false]
-        }`);
-        expect(getErrorMessage()).toBe(
-          `config.distortionsByGraph must be an array with length 2 of arrays`
-        );
-      }
-    );
-
-    it(
-      "with a graphDistortions array containing the wrong number of arrays",
-      async function() {
-        await expectError(`{
-          "graphNames": ["wet", "dry"],
-          "graphSymbolLists": [],
-          "graphDistortions": [[]]
-        }`);
-        expect(getErrorMessage()).toBe(
-          `config.distortionsByGraph must be an array with length 2 of arrays`
-        );
-      }
-    );
-
-    it(
-      "can progress after fixing the error",
-      async function() {
-        await expectError(`{
-          "graphNames": ["wet", "dry"],
-          "graphSymbolLists": [],
-          "graphDistortions": [[]]
-        }`);
-        OGM.loadPanelRadio.click();
-
-        window.LoadPanel.testMode.configSource = `{
-          "graphNames": ["wet", "dry", "damp"],
-          "graphSymbolLists": [2],
-          "distortionsByGraph": [
-            [],
-            [],
-            []
-          ]
-        }`;
-
-        let p = MessageEventPromise(
-          window, "MembranePanel cached configuration reset"
-        );
-        OGM.membranePanelRadio.click();
-        await p;
-    
-        let [graphNames, graphSymbolLists] = window.HandlerNames.serializableNames();
-        expect(graphNames).toEqual(["wet", "dry", "damp"]);
-        expect(graphSymbolLists).toEqual([2]);
-    
-        expect(getErrorMessage()).toBe(null);
-    
-        const valid = window.MembranePanel.form.checkValidity();
-        expect(valid).toBe(true);
-    
-        if (!valid)
-          return;
-
-        let p1 = MessageEventPromise(
-          window, "OuterGridManager: object graphs defined"
-        );
-        let p2 = MessageEventPromise(
-          window, "Graph panel shown: graphpanel-0"
-        );
-        window.MembranePanel.form.submit();
-        await Promise.all([p1, p2]);
-
-        expect(OGM.graphNamesCache.lastVisibleGraph).not.toBe(null);
-        expect(OGM.selectedTabs.file).toBe(OGM.graphNamesCache.lastVisibleGraph.radio);
-      }
-    );
 
     describe("with a set of distortions rules: ", function() {
       function getFullConfig(middle) {
         return `{
-          "graphNames": ["wet", "dry"],
-          "graphSymbolLists": [],
-          "distortionsByGraph": [
-            [],
-            [${middle}]
+          "configurationSetup": {},
+          "graphs": [
+            {
+              "name": "wet",
+              "isSymbol": false,
+              "distortions": [${middle}]
+            },
+    
+            {
+              "name": "dry",
+              "isSymbol": false,
+              "distortions": []
+            },
+    
+            {
+              "name": "damp",
+              "isSymbol": true,
+              "distortions": []
+            }
           ]
         }`;
       }
 
-      const errPrefix = 'config.distortionsByGraph[1][0]';
+      const errPrefix = 'config.graphs[0].distortions[0]';
       let valid;
       beforeEach(function() {
         valid = {
           "name": "ObjectGraphHandler",
           "source": "function() {\n  return ObjectGraphHandler;\n};\n",
-          "sourceGraphIndex": 0,
           "rules": {
             "value": {
               "formatVersion": "0.8.2",
@@ -387,62 +311,6 @@ describe("Load Panel Operations:", function() {
       it("wrong type: rules", async function() {
         valid.rules = function() {};
         await runTestForFailure(".rules must be of type object");
-      });
-
-      it("missing sourceGraphIndex", async function() {
-        delete valid.sourceGraphIndex;
-        await runTestForFailure(
-          ".sourceGraphIndex must be an integer from 0 to 1"
-        );
-      });
-
-      it("string sourceGraphIndex", async function() {
-        valid.sourceGraphIndex = "";
-        await runTestForFailure(
-          ".sourceGraphIndex must be an integer from 0 to 1"
-        );
-      });
-
-      it("NaN sourceGraphIndex", async function() {
-        valid.sourceGraphIndex = NaN;
-        await runTestForFailure(
-          ".sourceGraphIndex must be an integer from 0 to 1"
-        );
-      });
-
-      it("negative sourceGraphIndex", async function() {
-        valid.sourceGraphIndex = -1;
-        await runTestForFailure(
-          ".sourceGraphIndex must be an integer from 0 to 1"
-        );
-      });
-
-      it("Infinity sourceGraphIndex", async function() {
-        valid.sourceGraphIndex = Infinity;
-        await runTestForFailure(
-          ".sourceGraphIndex must be an integer from 0 to 1"
-        );
-      });
-
-      it("non-integer sourceGraphIndex", async function() {
-        valid.sourceGraphIndex = 0.5;
-        await runTestForFailure(
-          ".sourceGraphIndex must be an integer from 0 to 1"
-        );
-      });
-
-      it("sourceGraphIndex too large", async function() {
-        valid.sourceGraphIndex = 2;
-        await runTestForFailure(
-          ".sourceGraphIndex must be an integer from 0 to 1"
-        );
-      });
-
-      it("sourceGraphIndex matches graphIndex", async function() {
-        valid.sourceGraphIndex = 1;
-        await runTestForFailure(
-          ".sourceGraphIndex cannot be the target graph index 1"
-        );
       });
 
       it("rules.value is missing", async function() {

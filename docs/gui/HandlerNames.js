@@ -85,13 +85,13 @@ const HandlerNames = window.HandlerNames = {
    * @param config {JSONObject} The configuration.
    */
   importConfig: function(config) {
-    for (let i = 0; i < config.graphNames.length; i++) {
-      this.setRow(i, config.graphNames[i], config.graphSymbolLists.includes(i));
+    for (let i = 0; i < config.graphs.length; i++) {
+      this.setRow(i, config.graphs[i].name, config.graphs[i].isSymbol);
     }
 
     const range = document.createRange();
     const delButton = this.grid.getElementsByTagName("button")[
-      config.graphNames.length
+      config.graphs.length
     ];
     range.setEndBefore(this.grid.lastChild);
     range.setStartAfter(delButton);

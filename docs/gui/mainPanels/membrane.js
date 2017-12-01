@@ -45,9 +45,13 @@ window.MembranePanel = {
       return this.handlePassThrough(event);
   },
 
-  getPassThrough: function() {
-    if (!this.passThroughCheckbox.checked)
-      return null;
+  getPassThrough: function(fullSource = false) {
+    if (!fullSource) {
+      let lines = this.passThroughEditor.getValue().split("\n");
+      lines = lines.slice(2, -6);
+      return lines.join("\n");
+    }
+
     let value = this.passThroughEditor.getValue();
     value = value.substr(value.indexOf("("));
     value = value.replace(/;\n$/, ",\n");

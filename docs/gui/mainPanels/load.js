@@ -32,9 +32,8 @@ window.LoadPanel = {
     }
   },
 
-  validateDistortions:
-  function(instructions, index, graphIndex, graphsTotal) {
-    const errorPrefix = `config.distortionsByGraph[${graphIndex}][${index}]`;
+  validateDistortions: function(instructions, index, graphIndex) {
+    const errorPrefix = `config.graphs[${graphIndex}].distortions[${index}]`;
     function requireType(field, type) {
       if (typeof instructions[field] !== type)
         throw new Error(`${errorPrefix}.${field} must be of type ${type}`);
@@ -49,22 +48,6 @@ window.LoadPanel = {
     requireType("rules", "object");
 
     // XXX ajvincent We're not going to attempt parsing instructions.source now.
-
-    {
-      const max = graphsTotal - 1;
-      if (!Number.isInteger(instructions.sourceGraphIndex) ||
-          (instructions.sourceGraphIndex < 0) ||
-          (instructions.sourceGraphIndex >= graphsTotal))
-        throw new Error(
-          `${errorPrefix}.sourceGraphIndex must be an integer from 0 to ${max}`
-        );
-    }
-
-    if (instructions.sourceGraphIndex === graphIndex)
-      throw new Error(
-        `${errorPrefix}.sourceGraphIndex cannot be the target graph index ${graphIndex}`
-      );
-
     const rulesMembers = ["value"];
     if (instructions.isFunction) {
       /*
@@ -135,15 +118,14 @@ window.LoadPanel = {
     }
 
     var config = {
-      commonFiles: [],
-      passThrough: null,
-      graphNames: [],
-      graphSymbolLists: [],
-      distortionsByGraph: [],
+      "configurationSetup": {},
+      "membrane": {},
+      "graphs": []
     };
     if (!this.configFileInput.files.length && (
         !this.testMode || !this.testMode.configSource))
       return config;
+
     try {
       {
         let p, jsonAsText;
@@ -161,55 +143,33 @@ window.LoadPanel = {
 
       // Validate the configuration.
       {
-        if (!Array.isArray(config.graphNames))
-          throw new Error("config.graphNames must be an array of strings");
-
-        if (!Array.isArray(config.graphSymbolLists) ||
-            !config.graphSymbolLists.every(function(key, index) {
-          let rv = (Number.isInteger(key) && (0 <= key) && 
-                    (key < config.graphNames.length));
-          if (rv && (index > 0))
-            rv = key > config.graphSymbolLists[index - 1];
-          return rv;
-        }))
-          throw new Error(
-            "config.graphSymbolLists must be an ordered array of unique " +
-            "non-negative integers, each member of which is less than " +
-            "config.graphNames.length"
-          );
+        if (!Array.isArray(config.graphs))
+          throw new Error("config.graphs must be an array of objects");
 
         let stringKeys = new Set();
-        config.graphNames.forEach((key, index) => {
-          if (typeof key !== "string")
-            throw new Error("config.graphNames must be an array of strings");
-          if (!(config.graphSymbolLists.includes(index))) {
-            if (stringKeys.has(key)) {
+        config.graphs.forEach((graph, graphIndex) => {
+          if (typeof graph.name !== "string")
+            throw new Error(`config.graphs[${graphIndex}].name must be a string`);
+          if (typeof graph.isSymbol !== "boolean")
+            throw new Error(`config.graphs[${graphIndex}].isSymbol must be a boolean`);
+          if (!graph.isSymbol) {
+            if (stringKeys.has(graph.name)) {
               throw new Error(
-                `config.graphNames[${index}] = "${key}", ` +
-                "but this string name appears earlier in config.graphNames"
+                `config.graphs[${graphIndex}].name = "${graph.name}", ` +
+                "but this name appears earlier in config.graphs, and neither name is a symbol"
               );
             }
-            stringKeys.add(key);
+            stringKeys.add(graph.name);
           }
-        });
 
-        if (!Array.isArray(config.distortionsByGraph) ||
-            (config.distortionsByGraph.length != config.graphNames.length) ||
-            !config.distortionsByGraph.every(Array.isArray))
-        {
-          throw new Error(
-            `config.distortionsByGraph must be an array with length ` +
-            config.graphNames.length + ` of arrays`
-          );
-        }
+          if (!Array.isArray(graph.distortions)) {
+            throw new Error(`config.graphs[${graphIndex}].distortions must be an array`);
+          }
 
-        config.distortionsByGraph.forEach(function(items, graphIndex) {
-          items.forEach(function(item, index) {
-            this.validateDistortions(
-              item, index, graphIndex, config.graphNames.length
-            );
+          graph.distortions.forEach(function(item, index) {
+            this.validateDistortions(item, index, graphIndex);
           }, this);
-        }, this);
+        });
       }
 
       HandlerNames.importConfig(config);

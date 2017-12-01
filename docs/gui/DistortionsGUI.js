@@ -114,7 +114,7 @@ const DistortionsGUI = window.DistortionsGUI = {
       for (let prop in rulesMap) {
         if (rulesMap[prop] instanceof DistortionsRules)
           data.rules[prop] = rulesMap[prop].configurationAsJSON();
-        else if (prop in ["source", "sourceGraphIndex"])
+        else if (prop === "source")
           data[prop] = rulesMap[prop];
         else
           data.rules[prop] = rulesMap[prop];
@@ -135,7 +135,8 @@ const DistortionsGUI = window.DistortionsGUI = {
       // XXX ajvincent Need to let the GUI know this value name is taken
       return;
 
-    const valueFromSource = graph.valueGetterEditor.getValue();
+    let valueFromSource = graph.valueGetterEditor.getValue();
+
     await DistortionsManager.BlobLoader.addNamedValue(valueName, valueFromSource);
 
     const panel = document.createElement("section");
@@ -152,12 +153,16 @@ const DistortionsGUI = window.DistortionsGUI = {
 
     const value = DistortionsManager.BlobLoader.valuesByName.get(panel.dataset.valueName);
     const rules = this.buildDistortions(panel, value);
-    DistortionsManager.valueNameToRulesMap.set(
-      panel.dataset.hash, {
-        "value": rules,
-        "source": valueFromSource,
-      }
-    );
+    const distortionsSet = {
+      "about": {
+        "valueName": valueName,
+        "isFunction": (typeof value === "function"),
+        "getExample": valueFromSource.split("\n").slice(1, -2).join("\n"),
+      },
+      "value": rules,
+    };
+    DistortionsManager.valueNameToRulesMap.set(panel.dataset.hash, distortionsSet);
+    graph.distortionMaps.push(distortionsSet);
 
     OuterGridManager.panels.appendChild(panel);
 

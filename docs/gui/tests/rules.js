@@ -120,7 +120,7 @@ describe("DistortionsRules", function() {
 
     // Configuration dynamic properties.
     {
-      let config = rules.configurationAsJSON();
+      let config = rules.exportJSON();
       delete config.formatVersion;
       delete config.dataVersion;
 
@@ -138,7 +138,7 @@ describe("DistortionsRules", function() {
     // Configuration update tests
     testCheckboxState(
       filterKeysCheckbox,
-      () => Array.isArray(rules.configurationAsJSON().filterOwnKeys)
+      () => Array.isArray(rules.exportJSON().filterOwnKeys)
     );
 
     expectedKeys.forEach(function(key) {
@@ -147,7 +147,7 @@ describe("DistortionsRules", function() {
       if (!checkbox)
         return;
       testCheckboxState(
-        checkbox, () => rules.configurationAsJSON().filterOwnKeys.includes(key)
+        checkbox, () => rules.exportJSON().filterOwnKeys.includes(key)
       );
     });
 
@@ -168,7 +168,7 @@ describe("DistortionsRules", function() {
     ].forEach(function(key) {
       const checkbox = getCheckbox("traps", key);
       testCheckboxState(
-        checkbox, () => rules.configurationAsJSON().proxyTraps.includes(key)
+        checkbox, () => rules.exportJSON().proxyTraps.includes(key)
       );
     });
 
@@ -182,18 +182,18 @@ describe("DistortionsRules", function() {
       expect(checkbox).not.toBe(undefined);
       if (!checkbox)
         return;
-      testCheckboxState(checkbox, () => rules.configurationAsJSON()[key]);
+      testCheckboxState(checkbox, () => rules.exportJSON()[key]);
     });
 
     if (isFunction) {
       for (let i = 0; i < 2; i++) {
-        expect(rules.configurationAsJSON().truncateArgList).toBe(false);
+        expect(rules.exportJSON().truncateArgList).toBe(false);
         truncateArgButton.click();
-        expect(rules.configurationAsJSON().truncateArgList).toBe(true);
+        expect(rules.exportJSON().truncateArgList).toBe(true);
         truncateArgButton.click();
-        expect(rules.configurationAsJSON().truncateArgList).toBe(i);
+        expect(rules.exportJSON().truncateArgList).toBe(i);
         truncateArgMax.stepUp();
-        expect(rules.configurationAsJSON().truncateArgList).toBe(i + 1);
+        expect(rules.exportJSON().truncateArgList).toBe(i + 1);
         truncateArgButton.click();
       }
     }

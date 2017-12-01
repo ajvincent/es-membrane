@@ -222,11 +222,8 @@ DistortionsRules.prototype = {
     throw new Error("Not implemented!");
   },
 
-  configurationAsJSON: function() {
+  exportJSON: function() {
     const rv = {
-      formatVersion: "0.8.2",
-      dataVersion: "0.1",
-
       /*
       filterOwnKeys: [] || null,
       inheritOwnKeys: false,

@@ -38,17 +38,30 @@ describe("Output panel", function() {
 
       {
         let actualJSON = await getJSON();
-        expect(actualJSON.graphNames).toEqual(["wet", "dry"]);
-        expect(actualJSON.graphSymbolLists).toEqual([]);
+        expect(Array.isArray(actualJSON.graphs)).toBe(true);
+        expect(actualJSON.graphs[0].name).toBe("wet");
+        expect(actualJSON.graphs[0].isSymbol).toBe(false);
+        expect(actualJSON.graphs[1].name).toBe("dry");
+        expect(actualJSON.graphs[1].isSymbol).toBe(false);
       }
 
+      await membranePanelSelect();
       window.HandlerNames.setRow(2, "damp", true);
-      window.OutputPanel.update();
+      OGM.defineGraphs();
+
+      await linkUpdatePromise();
 
       {
         let actualJSON = await getJSON();
-        expect(actualJSON.graphNames).toEqual(["wet", "dry", "damp"]);
-        expect(actualJSON.graphSymbolLists).toEqual([2]);
+
+        expect(Array.isArray(actualJSON.graphs)).toBe(true);
+        expect(actualJSON.graphs[0].name).toBe("wet");
+        expect(actualJSON.graphs[0].isSymbol).toBe(false);
+        expect(actualJSON.graphs[1].name).toBe("dry");
+        expect(actualJSON.graphs[1].isSymbol).toBe(false);
+
+        expect(actualJSON.graphs[2].name).toBe("damp");
+        expect(actualJSON.graphs[2].isSymbol).toBe(true);
       }
 
       // XXX ajvincent Checking for files depends on issues #121, 122.
@@ -58,7 +71,9 @@ describe("Output panel", function() {
       await getGUIMocksPromise([]);
       {
         let actualJSON = await getJSON();
-        expect(actualJSON.passThrough).toBe(null);
+        expect(actualJSON.membrane.passThroughSource).toBe("");
+        expect(actualJSON.membrane.passThroughEnabled).toBe(false);
+        expect(actualJSON.membrane.primordialsPass).toBe(false);
       }
 
       {
@@ -67,9 +82,9 @@ describe("Output panel", function() {
 
         await linkUpdatePromise();
         let actualJSON = await getJSON();
-        expect(typeof actualJSON.passThrough).toBe("string");
-        const prelim = "(function() {\n  const items = [];\n\n";
-        expect(actualJSON.passThrough.startsWith(prelim)).toBe(true);
+        expect(actualJSON.membrane.passThroughSource).toBe("");
+        expect(actualJSON.membrane.passThroughEnabled).toBe(true);
+        expect(actualJSON.membrane.primordialsPass).toBe(false);
       }
 
       {
@@ -79,9 +94,9 @@ describe("Output panel", function() {
 
         await linkUpdatePromise();
         let actualJSON = await getJSON();
-        expect(typeof actualJSON.passThrough).toBe("string");
-        const prelim = "(function() {\n  const items = Membrane.Primordials.slice(0);\n\n";
-        expect(actualJSON.passThrough.startsWith(prelim)).toBe(true);
+        expect(actualJSON.membrane.passThroughSource).toBe("");
+        expect(actualJSON.membrane.passThroughEnabled).toBe(true);
+        expect(actualJSON.membrane.primordialsPass).toBe(true);
       }
 
       {
@@ -91,7 +106,9 @@ describe("Output panel", function() {
 
         await linkUpdatePromise();
         let actualJSON = await getJSON();
-        expect(actualJSON.passThrough).toBe(null);
+        expect(actualJSON.membrane.passThroughSource).toBe("");
+        expect(actualJSON.membrane.passThroughEnabled).toBe(false);
+        expect(actualJSON.membrane.primordialsPass).toBe(true);
       }
     });
   });
@@ -106,9 +123,7 @@ describe("Output panel", function() {
     async function testScriptForSyntax() {
       let url = window.OutputPanel.jsLink.getAttribute("href");
       let source = await XHRPromise(url);
-      expect(
-        source.startsWith("function buildMembrane(utilities) {\n")
-      ).toBe(true);
+      expect(source.startsWith("function buildMembrane(")).toBe(true);
       source = `function() {\n${source}\nreturn true;\n}`;
 
       const BlobLoader = window.DistortionsManager.BlobLoader;

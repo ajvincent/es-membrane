@@ -68,25 +68,32 @@ const OutputPanel = window.OutputPanel = {
       for (let i = 0; i < fileList.length; i++)
         commonFiles.push(fileList[i].name);
     }
-    const PassThroughSource = MembranePanel.getPassThrough();
-    
-    var [graphNames, graphSymbolLists] = HandlerNames.serializableNames();
 
     /**************************************************************************
-     * Step 2:  Get the DistortionsRules' configurations.                     *
+     * Step 2:  Generate Distortions GUI JSON file.                           *
      **************************************************************************/
-    const distortionsData = DistortionsGUI.metadataInGraphOrder();
+    const guiConfigAsJSON = {
+      "configurationSetup": {
+        "commonFiles": commonFiles,
+        "formatVersion": 1.0,
+        "lastUpdated": (new Date()).toUTCString(),
+      },
+      "membrane": {
+        "passThroughSource": MembranePanel.getPassThrough(),
+        "passThroughEnabled": MembranePanel.passThroughCheckbox.checked,
+        "primordialsPass": MembranePanel.primordialsCheckbox.checked,
+      },
 
-    /**************************************************************************
-     * Step 3:  Generate Distortions GUI JSON file.                           *
-     **************************************************************************/
-    const guiConfig = JSON.stringify({
-      "commonFiles": commonFiles,
-      "passThrough": PassThroughSource,
-      "graphNames": graphNames,
-      "graphSymbolLists": graphSymbolLists,
-      "distortionsByGraph": distortionsData,
-    }, null, 2) + "\n";
+      "graphs": []
+    };
+
+    {
+      const controllers = OuterGridManager.graphNamesCache.controllers;
+      controllers.forEach(function(c, i) {
+        guiConfigAsJSON.graphs.push(c.exportJSON(i));
+      });
+    }
+    const guiConfig = JSON.stringify(guiConfigAsJSON, null, 2) + "\n";
 
     this.configEditor.setValue(guiConfig);
     {
@@ -96,40 +103,56 @@ const OutputPanel = window.OutputPanel = {
     }
 
     /**************************************************************************
-     * Step 4:  Generate Membrane crafting JavaScript file.                   *
+     * Step 3:  Generate Membrane crafting JavaScript file.                   *
      **************************************************************************/
-    var script = `function buildMembrane(utilities) {
+    const PassThroughSource = MembranePanel.getPassThrough(true);
+    const formattedNames = HandlerNames.getFormattedNames();
+    var script = `function buildMembrane(___utilities___) {
   "use strict";
   
-  const devMembrane = new Membrane({
-    logger: (utilities.logger || null)`;
+  const rvMembrane = new Membrane({
+    logger: (___utilities___.logger || null)`;
     if (PassThroughSource) {
       script += `,
     passThrough: ${PassThroughSource.replace(/\n/gm, "\n    ")}`;
     }
     script += `
   });
-  const graphNames = [\n    ${HandlerNames.getFormattedNames().join(",\n    ")}\n  ];
-  const graphs = graphNames.map(function(name) {
-    return devMembrane.getHandlerByName(name, true);
-  });\n\n`;
-    distortionsData.forEach(function(dataArray, graphIndex) {
-      if (dataArray.length === 0)
-        return;
-      const nl = "\n    ";
-      script += `  {\n    const rules = devMembrane.modifyRules.createDistortionsListener();\n`;
-      dataArray.forEach(function(data) {
-        script += `${nl}rules.addListener(${data.name}, "value", `;
-        script += JSON.stringify(data.rules.value, null, 2).replace(/\n/gm, nl) + `);\n`;
-        if (!("proto" in data.rules))
-          return;
-        script += `${nl}rules.addListener(${data.name}, "proto", `;
-        script += JSON.stringify(data.rules.proto, null, 2).replace(/\n/gm, nl) + `);\n`;
-      });
-      script += `${nl}rules.bindToHandler(graphs[${graphIndex}]);\n  }\n\n`;
-    });
 
-    script += "  return devMembrane;\n}\n";
+`;
+
+    {
+      const controllers = OuterGridManager.graphNamesCache.controllers;
+      controllers.forEach(function(c, index) {
+        const graph = guiConfigAsJSON.graphs[index];
+
+        script += `  {\n    `;
+        if (graph.distortions.length || c.passThroughCheckbox.checked)
+          script += `const ___graph___ = `;
+        script += `rvMembrane.getHandlerByName(${formattedNames[index]}, { mustCreate: true });\n`;
+
+        if (c.passThroughCheckbox.checked) {
+          script += `    ___graph___.passThroughFilter = ${c.getPassThrough(true)};\n`;
+        }
+
+        if (graph.distortions.length) {
+          script += `    const ___listener___ = rvMembrane.modifyRules.createDistortionsListener();\n`;
+          graph.distortions.forEach(function(d) {
+            const keys = Reflect.ownKeys(d);
+            keys.splice(keys.indexOf("about"), 1);
+            keys.forEach(function(k) {
+              const distortionAsJSON = JSON.stringify(d[k], null, 2).replace(/\n/gm, "\n    ");
+              script += `    ___listener___.addListener(${d.about.valueName}, "${k}", ${distortionAsJSON});\n\n`;
+            });
+          });
+          script += `    ___listener___.bindToHandler(___graph___);\n`;
+        }
+
+        script += `  }\n\n`;
+      });
+    }
+
+    script += "  return rvMembrane;\n}\n";
 
     this.jsEditor.setValue(script);
     {

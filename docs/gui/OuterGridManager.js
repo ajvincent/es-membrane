@@ -113,8 +113,15 @@ const OuterGridManager = window.OuterGridManager = {
     // Update the cached configuration
     {
       const [graphNames, graphSymbolLists] = HandlerNames.serializableNames();
-      config.graphNames = graphNames;
-      config.graphSymbolLists = graphSymbolLists;
+      if (!Array.isArray(config.graphs)) {
+        config.graphs = [];
+      }
+      while (config.graphs.length < graphNames.length)
+        config.graphs.push({});
+      graphNames.forEach(function(name, index) {
+        config.graphs[index].name = name;
+        config.graphs[index].isSymbol = graphSymbolLists.includes(index);
+      });
     }
 
     // Define our object graph managers
@@ -126,8 +133,8 @@ const OuterGridManager = window.OuterGridManager = {
           this.graphNamesCache.controllers.push(new ObjectGraphManager());
         }
         const controller = this.graphNamesCache.controllers[i];
+        controller.importJSON(config.graphs[i]);
         controller.setGraphName(name);
-        controller.readDistortionsData(config.distortionsByGraph[i]);
       }
 
       const deadControllers = this.graphNamesCache.controllers.slice(names.length);
