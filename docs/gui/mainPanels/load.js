@@ -63,7 +63,7 @@ window.LoadPanel = {
     p = p.then(function() {
       let requiredFiles = fileList.slice(0, 4);
       requiredFiles.sort();
-      window.LoadPanel.testMode.requiredFiles = requiredFiles;
+      LoadPanel.testMode.requiredFiles = requiredFiles;
     });
 
     return p;
@@ -389,13 +389,13 @@ window.LoadPanel = {
       }
 
       if (config.configurationSetup &&
+          (config.configurationSetup.useZip === true) &&
           Array.isArray(config.configurationSetup.commonFiles)) {
         if (this.zipData.map) {
           const fileSet = new Set(config.configurationSetup.commonFiles);
           this.zipData.map.forEach(function(meta, relPath) {
-            if (!meta.checkbox)
-              return;
-            meta.checkbox.checked = fileSet.has(relPath);
+            if (meta.checkbox)
+              meta.checkbox.checked = fileSet.has(relPath);
           }, this);
         }
 

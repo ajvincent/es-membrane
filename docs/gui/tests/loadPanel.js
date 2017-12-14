@@ -382,7 +382,7 @@ describe("Load Panel Operations with zip archives", function() {
             "browser/mocks.js"
           ],
           "formatVersion": 1.0,
-      
+
           "lastUpdated": "2017-12-13T00:00:00.000Z"
         },
         "graphs": [
@@ -412,7 +412,7 @@ describe("Load Panel Operations with zip archives", function() {
             "browser/mocks.js"
           ],
           "formatVersion": 1.0,
-      
+
           "lastUpdated": "2017-12-13T00:00:00.000Z"
         },
         "graphs": [
@@ -427,6 +427,67 @@ describe("Load Panel Operations with zip archives", function() {
       expect(getCheckbox("browser/fireJasmine.js").checked).toBe(false);
       expect(getCheckbox("browser/mocks.js").checked).toBe(true);
       expect(getCheckbox("browser/sharedUtilities.js").checked).toBe(true);
+    }
+  );
+
+  it(
+    "does not pre-select files listed in configuration when configuration file has useZip: false",
+    async function() {
+      window.LoadPanel.testMode.configSource = `{
+        "configurationSetup": {
+          "useZip": false, 
+          "commonFiles": [
+            "browser/assert.js",
+            "browser/sharedUtilities.js",
+            "browser/es7-membrane.js",
+            "browser/mocks.js"
+          ],
+          "formatVersion": 1.0,
+
+          "lastUpdated": "2017-12-13T00:00:00.000Z"
+        },
+        "graphs": [
+        ]
+      }\n`;
+      await window.LoadPanel.updateLoadFiles();
+
+      await window.LoadPanel.setTestModeZip();
+
+      expect(getCheckbox("browser/assert.js").checked).toBe(false);
+      expect(getCheckbox("browser/es7-membrane.js").checked).toBe(false);
+      expect(getCheckbox("browser/fireJasmine.js").checked).toBe(false);
+      expect(getCheckbox("browser/mocks.js").checked).toBe(false);
+      expect(getCheckbox("browser/sharedUtilities.js").checked).toBe(false);
+    }
+  );
+
+  it(
+    "does not pre-select files listed in configuration when configuration file is missing useZip",
+    async function() {
+      window.LoadPanel.testMode.configSource = `{
+        "configurationSetup": {
+          "commonFiles": [
+            "browser/assert.js",
+            "browser/sharedUtilities.js",
+            "browser/es7-membrane.js",
+            "browser/mocks.js"
+          ],
+          "formatVersion": 1.0,
+
+          "lastUpdated": "2017-12-13T00:00:00.000Z"
+        },
+        "graphs": [
+        ]
+      }\n`;
+      await window.LoadPanel.updateLoadFiles();
+
+      await window.LoadPanel.setTestModeZip();
+
+      expect(getCheckbox("browser/assert.js").checked).toBe(false);
+      expect(getCheckbox("browser/es7-membrane.js").checked).toBe(false);
+      expect(getCheckbox("browser/fireJasmine.js").checked).toBe(false);
+      expect(getCheckbox("browser/mocks.js").checked).toBe(false);
+      expect(getCheckbox("browser/sharedUtilities.js").checked).toBe(false);
     }
   );
 });

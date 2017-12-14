@@ -8,7 +8,6 @@ window.MembranePanel = {
   initialize: function() {
     "use strict";
 
-    this.form.reset();
     this.passThroughEditor = CodeMirrorManager.buildNewEditor(
       this.passThroughTextarea
     );
