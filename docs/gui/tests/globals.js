@@ -21,6 +21,7 @@ it("Top-level globals for the Distortion UI exist", async function() {
     "getCustomStylesheet",
     "CSSClassToggleHandler",
     "CSSRuleEventHandler",
+    "JSZip",
   ].forEach(function(k) {
     let val = testFrame.contentWindow[k];
     expect(typeof val).not.toBe("undefined", "missing " + k);

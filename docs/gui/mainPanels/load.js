@@ -9,6 +9,14 @@ window.LoadPanel = {
 
   commonFilesLoaded: false,
 
+  // private
+  zipData: {
+    // instance of JSZip
+    reader: null,
+
+    map: null,
+  },
+
   // treat this as restricted to testing purposes
   testMode: null,
 
@@ -23,6 +31,42 @@ window.LoadPanel = {
         filepath, (new URL(filepath, window.location.href)).href
       );
     });
+  },
+
+  setTestModeZip: function() {
+    const fileList = [
+      "browser/assert.js",
+      "browser/sharedUtilities.js",
+      "browser/es7-membrane.js",
+      "browser/mocks.js",
+      "browser/fireJasmine.js"
+    ];
+
+    let zip = new window.JSZip();
+    let p = Promise.all(fileList.map(function(filepath) {
+      const abspath = (new URL("../dist/" + filepath, window.location.href)).href;
+      let request = new Request(abspath);
+      let filePromise = fetch(request);
+      filePromise = filePromise.then(response => response.blob());
+      filePromise = filePromise.then(function(blob) {
+        zip.file(filepath, blob);
+      });
+      return filePromise;
+    }));
+
+    p = p.then(function() {
+      return zip.generateAsync({type: "blob"});
+    });
+
+    p = p.then(this.buildZipTree.bind(this));
+
+    p = p.then(function() {
+      let requiredFiles = fileList.slice(0, 4);
+      requiredFiles.sort();
+      window.LoadPanel.testMode.requiredFiles = requiredFiles;
+    });
+
+    return p;
   },
 
   notifyTestOfInit: function(name) {
@@ -75,14 +119,150 @@ window.LoadPanel = {
     // Special rules for functions
   },
 
+  updateLoadFiles: async function() {
+    window.MembranePanel.cachedConfig = null;
+    await window.MembranePanel.reset();
+  },
+
+  buildZipTree: async function(blob) {
+    this.zipData.map = null;
+    if (!blob) {
+      this.zipData.reader = null;
+      return;
+    }
+
+    // Clear the previous environment.
+    if (this.testMode && this.testMode.requiredFiles)
+      this.testMode.requiredFiles = null;
+
+    if (this.zipForm.children.length > 1) {
+      let range = document.createRange();
+      range.setStartAfter(this.zipForm.firstElementChild);
+      range.setEndAfter(this.zipForm.lastChild);
+      range.deleteContents();
+      range.detach();
+    }
+
+    this.zipData.reader = new window.JSZip();
+    {
+      let isValidZip = false;
+      try {
+        await this.zipData.reader.loadAsync(blob, {createFolders: true});
+        isValidZip = true;
+      }
+      finally {
+        if (!this.testMode)
+          this.zipFileInput.setCustomValidity(
+            isValidZip ? "" : "This does not appear to be a ZIP file."
+          );
+      }
+    }
+
+    // Beyond this point, we cannot fail.
+
+    // Get the files for the existing environment.
+    this.zipData.map = new Map();
+    const tree = this.zipTreeTemplate.content.firstElementChild.cloneNode(true);
+    tree.setAttribute("id", "grid-outer-load-ziptree");
+
+    {
+      // First pass: Extract all the file paths.
+      // In particular, do not assume that JSZip sorts its entries.
+      let paths = [];
+      {
+        const _this = this;
+        this.zipData.reader.forEach(function(relPath, zipObject) {
+          _this.zipData.map.set(relPath, {zipObject});
+          paths.push(relPath);
+        }, this);
+      }
+      paths.sort();
+
+      // Second pass: establish the tree.
+      const root = tree.getElementsByTagName("ul")[0];
+      const treeitemBase = this.zipItemTemplate.content.firstElementChild;
+      paths.forEach(function(relPath) {
+        const item = treeitemBase.cloneNode(true);
+        let isRoot, leafName;
+        {
+          let pathSteps = relPath.split("/");
+          if (pathSteps[pathSteps.length - 1] === "")
+            pathSteps.pop();
+          isRoot = pathSteps.length === 1;
+          leafName = pathSteps[pathSteps.length - 1];
+        }
+        item.firstElementChild.appendChild(document.createTextNode(leafName));
+
+        const meta = this.zipData.map.get(relPath);
+        meta.listitem = item;
+
+        if (isRoot) {
+          root.appendChild(item);
+          return;
+        }
+
+        const parentPath = relPath.substr(0, relPath.length - leafName.length);
+        const parentItem = this.zipData.map.get(parentPath).listitem;
+        if (!parentItem.classList.contains("collapsible")) {
+          let ul = document.createElement("ul");
+          parentItem.appendChild(ul);
+
+          let check = document.createElement("input");
+          check.setAttribute("type", "checkbox");
+          check.classList.add("collapsible-check");
+          parentItem.insertBefore(check, parentItem.children[1]);
+
+          parentItem.classList.add("collapsible");
+        }
+
+        parentItem.lastElementChild.appendChild(item);
+      }, this);
+
+      // Third pass:  establish the loadable files checkboxes.
+      paths.filter((p) => p.endsWith(".js")).forEach(function(relPath) {
+        const meta = this.zipData.map.get(relPath);
+        const item = meta.listitem;
+        if (item.classList.contains("collapsible")) {
+          return;
+        }
+        let check = document.createElement("input");
+        check.setAttribute("type", "checkbox");
+        check.setAttribute("name", "selectFile");
+        check.setAttribute("value", relPath);
+        item.children[1].appendChild(check);
+        meta.checkbox = check;
+      }, this);
+    }
+
+    this.zipForm.appendChild(tree);
+    styleAndMoveTreeColumns(tree);
+
+    return this.updateLoadFiles();
+  },
+
   /**
    * @private
    */
   collectCommonFileURLs: async function() {
+    DistortionsManager.commonFileURLs.clear();
     if (this.testMode && this.testMode.fakeFiles) {
       this.setTestModeFiles();
     }
-    else {
+    else if (this.zipData.map) {
+      let promiseArray = [];
+      this.zipData.map.forEach(function(meta, relPath) {
+        if (!meta.checkbox || !meta.checkbox.checked)
+          return;
+        let p = meta.zipObject.async("blob");
+        p = p.then(function(blob) {
+          const url = URL.createObjectURL(blob);
+          DistortionsManager.commonFileURLs.set(relPath, url);
+        });
+        promiseArray.push(p);
+      });
+      await Promise.all(promiseArray);
+    }
+    else if (this.commonFilesInput.files.length) {
       let files = this.commonFilesInput.files;
       for (let i = 0; i < files.length; i++) {
         let file = files[i];
@@ -105,14 +285,15 @@ window.LoadPanel = {
       await p;
     }
 
-    this.commonFilesLoaded = true;
     while (urlArray.length) {
       await DistortionsManager.BlobLoader.addCommonURL(urlArray.shift());
     }
+    this.commonFilesLoaded = true;
   },
 
   getConfiguration: async function() {
-    if (this.commonFilesInput.files.length || 
+    if (this.commonFilesInput.files.length ||
+        this.zipData.map ||
         (this.testMode && this.testMode.fakeFiles)) {
       await this.collectCommonFileURLs();
     }
@@ -122,8 +303,8 @@ window.LoadPanel = {
       "membrane": {},
       "graphs": []
     };
-    if (!this.configFileInput.files.length && (
-        !this.testMode || !this.testMode.configSource))
+    if (!this.configFileInput.files.length &&
+        (!this.testMode || !this.testMode.configSource))
       return config;
 
     try {
@@ -138,7 +319,18 @@ window.LoadPanel = {
         }
 
         jsonAsText = await p;
-        config = JSON.parse(jsonAsText);
+        let isJSON = false;
+        try {
+          config = JSON.parse(jsonAsText);
+          isJSON = true;
+        }
+        finally {
+          if (!this.testMode)
+            this.configFileInput.setCustomValidity(
+              isJSON ? "" : "This does not appear to be a JSON file."
+            );
+        }
+        
       }
 
       // Validate the configuration.
@@ -172,6 +364,20 @@ window.LoadPanel = {
         });
       }
 
+      if (config.configurationSetup &&
+          Array.isArray(config.configurationSetup.commonFiles)) {
+        if (this.zipData.map) {
+          const fileSet = new Set(config.configurationSetup.commonFiles);
+          this.zipData.map.forEach(function(meta, relPath) {
+            if (!meta.checkbox)
+              return;
+            meta.checkbox.checked = fileSet.has(relPath);
+          }, this);
+        }
+
+        // file load ordering goes here
+      }
+
       HandlerNames.importConfig(config);
       OuterGridManager.setCurrentErrorText(null);
     }
@@ -188,6 +394,10 @@ window.LoadPanel = {
   let elems = {
     "commonFilesInput": "grid-outer-load-location",
     "configFileInput":  "grid-outer-load-config-input",
+    "zipForm":          "grid-outer-load-zipform",
+    "zipFileInput":     "grid-outer-load-zipfile",
+    "zipTreeTemplate":  "zipform-tree",
+    "zipItemTemplate":  "zipform-listitem",
   };
   let keys = Reflect.ownKeys(elems);
   keys.forEach(function(key) {

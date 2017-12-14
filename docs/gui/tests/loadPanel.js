@@ -1,4 +1,4 @@
-describe("Load Panel Operations:", function() {
+describe("Load Panel Operations with flat files", function() {
   "use strict";
   var window, OGM;
 
@@ -53,8 +53,10 @@ describe("Load Panel Operations:", function() {
         }
       ]
     }`;
-    await chooseMembranePanel();
-    let temp = await window.LoadPanel.getConfiguration();
+    await Promise.all([
+      MessageEventPromise(window, "MembranePanel cached configuration reset"),
+      chooseMembranePanel()
+    ]);
 
     let [graphNames, graphSymbolLists] = window.HandlerNames.serializableNames();
     expect(graphNames).toEqual(["wet", "dry", "damp"]);
@@ -319,5 +321,112 @@ describe("Load Panel Operations:", function() {
       });
     });
   });
+});
 
+describe("Load Panel Operations with zip archives", function() {
+  "use strict";
+  var window, OGM;
+
+  beforeEach(async function() {
+    await getDocumentLoadPromise("base/gui/index.html");
+    window = testFrame.contentWindow;
+    window.LoadPanel.testMode = {fakeZip: true};
+    OGM = window.OuterGridManager;
+  });
+
+  afterEach(function() {
+    window = null;
+    OGM = null;
+  })
+
+  function getErrorMessage() {
+    let output = window.OuterGridManager.currentErrorOutput;
+    if (!output.firstChild || (output.firstChild.nodeValue === ""))
+      return null;
+    return output.firstChild.nodeValue;
+  }
+
+  function chooseMembranePanel() {
+    let p = MessageEventPromise(window, "MembranePanel initialized");
+    OGM.membranePanelRadio.click();
+    return p;
+  }
+
+  function getCheckbox(relPath) {
+    return window.LoadPanel.zipData.map.get(relPath).checkbox;
+  }
+
+  it("generates a valid gridtree and form from test files", async function() {
+    await window.LoadPanel.setTestModeZip();
+    const fileList = window.LoadPanel.zipForm.elements.selectFile;
+    expect(fileList.length).toBe(5);
+    expect(fileList[0].value).toBe("browser/assert.js");
+    expect(fileList[1].value).toBe("browser/es7-membrane.js");
+    expect(fileList[2].value).toBe("browser/fireJasmine.js");
+    expect(fileList[3].value).toBe("browser/mocks.js");
+    expect(fileList[4].value).toBe("browser/sharedUtilities.js");
+  });
+
+  it(
+    "pre-selects files listed in configuration when zip file loads first",
+    async function() {
+      await window.LoadPanel.setTestModeZip();
+
+      window.LoadPanel.testMode.configSource = `{
+        "configurationSetup": {
+          "useZip": true, 
+          "commonFiles": [
+            "browser/assert.js",
+            "browser/sharedUtilities.js",
+            "browser/es7-membrane.js",
+            "browser/mocks.js"
+          ],
+          "formatVersion": 1.0,
+      
+          "lastUpdated": "2017-12-13T00:00:00.000Z"
+        },
+        "graphs": [
+        ]
+      }\n`;
+
+      await window.LoadPanel.updateLoadFiles();
+
+      expect(getCheckbox("browser/assert.js").checked).toBe(true);
+      expect(getCheckbox("browser/es7-membrane.js").checked).toBe(true);
+      expect(getCheckbox("browser/fireJasmine.js").checked).toBe(false);
+      expect(getCheckbox("browser/mocks.js").checked).toBe(true);
+      expect(getCheckbox("browser/sharedUtilities.js").checked).toBe(true);
+    }
+  );
+
+  it(
+    "pre-selects files listed in configuration when configuration file loads first",
+    async function() {
+      window.LoadPanel.testMode.configSource = `{
+        "configurationSetup": {
+          "useZip": true, 
+          "commonFiles": [
+            "browser/assert.js",
+            "browser/sharedUtilities.js",
+            "browser/es7-membrane.js",
+            "browser/mocks.js"
+          ],
+          "formatVersion": 1.0,
+      
+          "lastUpdated": "2017-12-13T00:00:00.000Z"
+        },
+        "graphs": [
+        ]
+      }\n`;
+      await window.LoadPanel.updateLoadFiles();
+
+      await window.LoadPanel.setTestModeZip();
+
+      expect(getCheckbox("browser/assert.js").checked).toBe(true);
+      expect(getCheckbox("browser/es7-membrane.js").checked).toBe(true);
+      expect(getCheckbox("browser/fireJasmine.js").checked).toBe(false);
+      expect(getCheckbox("browser/mocks.js").checked).toBe(true);
+      expect(getCheckbox("browser/sharedUtilities.js").checked).toBe(true);
+    }
+  );
 });

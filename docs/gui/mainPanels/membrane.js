@@ -1,4 +1,8 @@
 window.MembranePanel = {
+  // private
+  cachedConfig: null,
+
+  // private
   isInitialized: false,
 
   initialize: function() {

@@ -76,6 +76,11 @@
   <script type="application/javascript"
           src="gui/utilities/CodeMirrorManager.js"
          ></script>
+
+  <script type="application/javascript"
+          defer="defer"
+          src="libraries/jszip.min.js"
+         ></script>
 </head>
 
 <body>
@@ -119,24 +124,6 @@
     <div id="grid-outer-mainpanels" filesTab="start">
       <section class="loadPanel">
         <h2>Start here</h2>
-        <form id="grid-outer-load-filesform">
-          <span>
-            <label for="grid-outer-load-location">
-              Specify common source JavaScript files to include here:
-            </label>
-
-            <br>
-            <input id="grid-outer-load-location"
-                   type="file"
-                   multiple="multiple"
-                   value=""
-                   name="location"
-                   required="required"
-                   accept="application/javascript"
-                  >
-          </span>
-          <hr>
-        </form>
         <form id="grid-outer-load-configform"
               method="post"
               enctype="multipart/form-data"
@@ -154,10 +141,46 @@
                    name="config"
                    accept="application/json"
                    required="required"
+                   onchange="void(window.LoadPanel.updateLoadFiles());"
                   >
           </span>
           <hr>
         </form>
+
+        <form id="grid-outer-load-zipform">
+          <span>
+            <label for="grid-outer-load-zipfile">
+              Specify a zip file containing your JavaScript files.
+            </label>
+            <input id="grid-outer-load-zipfile"
+                   type="file"
+                   name="zipfile"
+                   required="required"
+                   accept="application/zip"
+                   onchange="void(window.LoadPanel.buildZipTree(event.target.files[0]));"
+                  >
+          </span>
+        </form>
+
+        <form id="grid-outer-load-filesform">
+          <span>
+            <label for="grid-outer-load-location">
+              Or specify common source JavaScript files to include here.
+            </label>
+
+            <br>
+            <input id="grid-outer-load-location"
+                   type="file"
+                   multiple="multiple"
+                   value=""
+                   name="location"
+                   required="required"
+                   accept="application/javascript"
+                  >
+          </span>
+          <hr>
+        </form>
+
         <p>When you have selected all the files you need to set up your script
         environment, please select the Membrane tab above to begin configuring
         your membrane.</p>
@@ -422,6 +445,26 @@ r.getArea(); // returns 12</pre>
     <!-- row 4 -->
     <output id="config-error"></output>
   </div>
+
+  <template id="zipform-tree">
+    <div class="gridtree" data-width="450px">
+      <div class="treeroot">
+        <ul>
+          <li class="header">
+            <span data-column-width="300px">File</span>
+            <span data-column-width="150px">Load?</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </template>
+
+  <template id="zipform-listitem">
+    <li>
+      <span></span>
+      <span></span>
+    </li>
+  </template>
 
   <template id="objectgraph-main">
     <section>

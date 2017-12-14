@@ -1,4 +1,4 @@
-describe("Membrane Panel Operations:", function() {
+describe("Membrane Panel Operations with flat files:", function() {
   "use strict";
   var window;
 

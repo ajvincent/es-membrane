@@ -85,6 +85,8 @@ const HandlerNames = window.HandlerNames = {
    * @param config {JSONObject} The configuration.
    */
   importConfig: function(config) {
+    while (config.graphs.length < 2)
+      config.graphs.push({name: "", isSymbol: false});
     for (let i = 0; i < config.graphs.length; i++) {
       this.setRow(i, config.graphs[i].name, config.graphs[i].isSymbol);
     }
