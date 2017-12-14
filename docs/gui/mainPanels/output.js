@@ -63,7 +63,14 @@ const OutputPanel = window.OutputPanel = {
      * Step 1:  Gather metadata.                                              *
      **************************************************************************/
     const commonFiles = [];
-    {
+    if (LoadPanel.zipData.map) {
+      LoadPanel.zipData.map.forEach(function(meta, relPath) {
+        if (meta.checkbox && meta.checkbox.checked) {
+          commonFiles.push(relPath);
+        }
+      });
+    }
+    else {
       let fileList = LoadPanel.commonFilesInput.files;
       for (let i = 0; i < fileList.length; i++)
         commonFiles.push(fileList[i].name);
@@ -74,6 +81,7 @@ const OutputPanel = window.OutputPanel = {
      **************************************************************************/
     const guiConfigAsJSON = {
       "configurationSetup": {
+        "useZip": Boolean(LoadPanel.zipData.map),
         "commonFiles": commonFiles,
         "formatVersion": 1.0,
         "lastUpdated": (new Date()).toUTCString(),
