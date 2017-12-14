@@ -119,6 +119,14 @@ window.LoadPanel = {
     // Special rules for functions
   },
 
+  // nsIDOMEventListener
+  handleEvent: function(event) {
+    if ((event.target.form === this.zipForm) &&
+        (event.target.name == "selectFile")) {
+      this.updateLoadFiles();
+    }
+  },
+
   updateLoadFiles: async function() {
     window.MembranePanel.cachedConfig = null;
     await window.MembranePanel.reset();
@@ -237,14 +245,30 @@ window.LoadPanel = {
     this.zipForm.appendChild(tree);
     styleAndMoveTreeColumns(tree);
 
-    return this.updateLoadFiles();
+    await this.updateLoadFiles();
+
+    // Fourth pass:  Attach event listeners.
+    this.zipData.map.forEach(function(meta, relPath) {
+      if (meta.checkbox)
+        meta.checkbox.addEventListener("change", this, true);
+    }, this);
   },
 
   /**
    * @private
    */
   collectCommonFileURLs: async function() {
+    // clean up previous data
+    DistortionsManager.commonFileURLs.forEach(function(url, file) {
+      try {
+        URL.revokeObjectURL(url);
+      }
+      catch (e) {
+        // do nothing
+      }
+    }, this);
     DistortionsManager.commonFileURLs.clear();
+
     if (this.testMode && this.testMode.fakeFiles) {
       this.setTestModeFiles();
     }
