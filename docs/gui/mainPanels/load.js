@@ -59,7 +59,7 @@ window.LoadPanel = {
       return zip.generateAsync({type: "blob"});
     });
 
-    p = p.then(this.buildZipTree.bind(this));
+    p = p.then(this.updateZipTree.bind(this));
 
     p = p.then(function() {
       let requiredFiles = fileList.slice(0, 4);
@@ -77,70 +77,7 @@ window.LoadPanel = {
     }
   },
 
-  validateDistortions: function(instructions, index, graphIndex) {
-    const errorPrefix = `config.graphs[${graphIndex}].distortions[${index}]`;
-    function requireType(field, type) {
-      if (typeof instructions[field] !== type)
-        throw new Error(`${errorPrefix}.${field} must be of type ${type}`);
-    }
-    if (typeof instructions !== "object")
-      throw new Error(errorPrefix + " must be an object");
-
-    requireType("name", "string");
-    requireType("source", "string");
-    requireType("hash", "string");
-    requireType("isFunction", "boolean");
-    requireType("rules", "object");
-
-    // XXX ajvincent We're not going to attempt parsing instructions.source now.
-    const rulesMembers = ["value"];
-    if (instructions.isFunction) {
-      /*
-      rulesMembers.push("proto");
-      rulesMembers.push("instance");
-      */
-    }
-    rulesMembers.forEach(function(member) {
-      if (typeof instructions.rules[member] !== "object") {
-        throw new Error(
-          `${errorPrefix}.rules.${member} must be an object`
-        );
-      }
-      try {
-        DistortionsRules.validateConfiguration(instructions.rules[member]);
-      }
-      catch (msg) {
-        throw new Error(`${errorPrefix}.rules.${member}.${msg}`);
-      }
-    }, this);
-
-    if (!instructions.isFunction)
-      return;
-
-    // Special rules for functions
-  },
-
-  // nsIDOMEventListener
-  handleEvent: function(event) {
-    if ((event.target.form === this.zipForm) &&
-        (event.target.name == "selectFile")) {
-      this.updateLoadFiles();
-    }
-  },
-
-  updateLoadFiles: async function() {
-    window.MembranePanel.cachedConfig = null;
-    await window.MembranePanel.reset();
-  },
-
-  buildZipTree: async function(blob) {
-    this.zipData.map = null;
-    if (!blob) {
-      this.zipData.reader = null;
-      return;
-    }
-
-    // Clear the previous environment.
+  clearZipTree: function() {
     if (this.testMode && this.testMode.requiredFiles)
       this.testMode.requiredFiles = null;
 
@@ -151,24 +88,9 @@ window.LoadPanel = {
       range.deleteContents();
       range.detach();
     }
+  },
 
-    this.zipData.reader = new window.JSZip();
-    {
-      let isValidZip = false;
-      try {
-        await this.zipData.reader.loadAsync(blob, {createFolders: true});
-        isValidZip = true;
-      }
-      finally {
-        if (!this.testMode)
-          this.zipFileInput.setCustomValidity(
-            isValidZip ? "" : "This does not appear to be a ZIP file."
-          );
-      }
-    }
-
-    // Beyond this point, we cannot fail.
-
+  buildZipTree: function() {
     // Get the files for the existing environment.
     this.zipData.map = new Map();
     const tree = this.zipTreeTemplate.content.firstElementChild.cloneNode(true);
@@ -245,6 +167,75 @@ window.LoadPanel = {
 
     this.zipForm.appendChild(tree);
     styleAndMoveTreeColumns(tree);
+  },
+
+  validateDistortions: function(instructions, index, graphIndex) {
+    const errorPrefix = `config.graphs[${graphIndex}].distortions[${index}]`;
+    function requireType(field, type) {
+      if (typeof instructions[field] !== type)
+        throw new Error(`${errorPrefix}.${field} must be of type ${type}`);
+    }
+    if (typeof instructions !== "object")
+      throw new Error(errorPrefix + " must be an object");
+
+    requireType("name", "string");
+    requireType("source", "string");
+    requireType("hash", "string");
+    requireType("isFunction", "boolean");
+    requireType("rules", "object");
+
+    // XXX ajvincent We're not going to attempt parsing instructions.source now.
+    const rulesMembers = ["value"];
+    if (instructions.isFunction) {
+      /*
+      rulesMembers.push("proto");
+      rulesMembers.push("instance");
+      */
+    }
+    rulesMembers.forEach(function(member) {
+      if (typeof instructions.rules[member] !== "object") {
+        throw new Error(
+          `${errorPrefix}.rules.${member} must be an object`
+        );
+      }
+      try {
+        DistortionsRules.validateConfiguration(instructions.rules[member]);
+      }
+      catch (msg) {
+        throw new Error(`${errorPrefix}.rules.${member}.${msg}`);
+      }
+    }, this);
+
+    if (!instructions.isFunction)
+      return;
+
+    // Special rules for functions
+  },
+
+  // nsIDOMEventListener
+  handleEvent: function(event) {
+    if ((event.target.form === this.zipForm) &&
+        (event.target.name == "selectFile")) {
+      this.updateLoadFiles();
+    }
+  },
+
+  updateLoadFiles: async function() {
+    window.MembranePanel.cachedConfig = null;
+    await window.MembranePanel.reset();
+  },
+
+  updateZipTree: async function(blob) {
+    this.zipData.map = null;
+    if (!blob) {
+      this.zipData.reader = null;
+      return;
+    }
+
+    this.clearZipTree();
+    await this.readFromZip(blob);
+    this.buildZipTree();
+    // Beyond this point, we cannot fail.
 
     await this.updateLoadFiles();
 
@@ -253,6 +244,23 @@ window.LoadPanel = {
       if (meta.checkbox)
         meta.checkbox.addEventListener("change", this, true);
     }, this);
+  },
+
+  readFromZip: async function(blob) {
+    this.zipData.reader = new window.JSZip();
+    {
+      let isValidZip = false;
+      try {
+        await this.zipData.reader.loadAsync(blob, {createFolders: true});
+        isValidZip = true;
+      }
+      finally {
+        if (!this.testMode)
+          this.zipFileInput.setCustomValidity(
+            isValidZip ? "" : "This does not appear to be a ZIP file."
+          );
+      }
+    }
   },
 
   /**
