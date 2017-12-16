@@ -181,6 +181,9 @@
           <hr>
         </form>
 
+        <!-- A simple file-ordering grid.  No display:contents. -->
+        <div id="grid-outer-load-fileorder" class="hidden"></div>
+
         <p>When you have selected all the files you need to set up your script
         environment, please select the Membrane tab above to begin configuring
         your membrane.</p>
@@ -464,6 +467,12 @@ r.getArea(); // returns 12</pre>
       <span></span>
       <span></span>
     </li>
+  </template>
+
+  <template id="fileorder-gridcells">
+    <span></span>
+    <button class="icon up"></button>
+    <button class="icon down"></button>
   </template>
 
   <template id="objectgraph-main">

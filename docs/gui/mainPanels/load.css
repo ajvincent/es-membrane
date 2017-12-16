@@ -1,3 +1,23 @@
 #grid-outer-load-ziptree {
   border: 1px dashed black;
 }
+
+#grid-outer-load-fileorder {
+  border: 1px dashed black;
+  font-family: Verdana, sans-serif;
+  display: grid;
+  grid-template-columns: 400px 16px 16px;
+  grid-gap: 2px;
+}
+
+#grid-outer-load-fileorder.hidden {
+  display: none;
+}
+
+#grid-outer-load-fileorder > button.up {
+  background-image: url("../icons/arrowicon-up.svg");
+}
+
+#grid-outer-load-fileorder > button.down {
+  background-image: url("../icons/arrowicon-down.svg");
+}
