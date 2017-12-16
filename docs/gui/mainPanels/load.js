@@ -22,6 +22,7 @@ window.LoadPanel = {
   testMode: null,
 
   setTestModeFiles: function() {
+    // XXX ajvincent This is wrong, because it establishes a default ordering.
     [
       "../dist/browser/assert.js",
       "../dist/browser/sharedUtilities.js",
@@ -333,26 +334,6 @@ window.LoadPanel = {
         this.commonFileURLs.set(file, URL.createObjectURL(file));
       }
     }
-
-    let urlArray = [];
-    this.commonFileURLs.forEach(function(url) {
-      urlArray.push(url);
-    });
-
-    if (this.commonFilesLoaded) {
-      const iframe = window.document.getElementById("BlobLoader");
-      let p = new Promise(function (resolve) {
-        iframe.addEventListener("load", resolve, {once: true, capture: true});
-      });
-      this.commonFilesLoaded = false;
-      iframe.contentWindow.location.reload(true);
-      await p;
-    }
-
-    while (urlArray.length) {
-      await DistortionsManager.BlobLoader.addCommonURL(urlArray.shift());
-    }
-    this.commonFilesLoaded = true;
   },
 
   getConfiguration: async function() {
@@ -360,6 +341,7 @@ window.LoadPanel = {
         this.zipData.map ||
         (this.testMode && this.testMode.fakeFiles)) {
       await this.collectCommonFileURLs();
+      await this.loadCommonScripts();
     }
 
     var config = {
@@ -398,6 +380,28 @@ window.LoadPanel = {
     }
 
     return config;
+  },
+
+  loadCommonScripts: async function() {
+    let urlArray = [];
+    this.commonFileURLs.forEach(function(url) {
+      urlArray.push(url);
+    });
+
+    if (this.commonFilesLoaded) {
+      const iframe = window.document.getElementById("BlobLoader");
+      let p = new Promise(function (resolve) {
+        iframe.addEventListener("load", resolve, {once: true, capture: true});
+      });
+      this.commonFilesLoaded = false;
+      iframe.contentWindow.location.reload(true);
+      await p;
+    }
+
+    while (urlArray.length) {
+      await DistortionsManager.BlobLoader.addCommonURL(urlArray.shift());
+    }
+    this.commonFilesLoaded = true;
   },
 
   readConfigFromFile: async function() {
