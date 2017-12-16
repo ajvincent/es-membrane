@@ -8,6 +8,7 @@ window.LoadPanel = {
   configFileInput: null,
 
   commonFilesLoaded: false,
+  commonFileURLs: new Map(),
 
   // private
   zipData: {
@@ -27,10 +28,10 @@ window.LoadPanel = {
       "../dist/browser/es7-membrane.js",
       "../dist/browser/mocks.js"
     ].forEach(function(filepath) {
-      DistortionsManager.commonFileURLs.set(
+      this.commonFileURLs.set(
         filepath, (new URL(filepath, window.location.href)).href
       );
-    });
+    }, this);
   },
 
   setTestModeZip: function() {
@@ -259,7 +260,7 @@ window.LoadPanel = {
    */
   collectCommonFileURLs: async function() {
     // clean up previous data
-    DistortionsManager.commonFileURLs.forEach(function(url, file) {
+    this.commonFileURLs.forEach(function(url, file) {
       try {
         URL.revokeObjectURL(url);
       }
@@ -267,7 +268,7 @@ window.LoadPanel = {
         // do nothing
       }
     }, this);
-    DistortionsManager.commonFileURLs.clear();
+    this.commonFileURLs.clear();
 
     if (this.testMode && this.testMode.fakeFiles) {
       this.setTestModeFiles();
@@ -280,7 +281,7 @@ window.LoadPanel = {
         let p = meta.zipObject.async("blob");
         p = p.then(function(blob) {
           const url = URL.createObjectURL(blob);
-          DistortionsManager.commonFileURLs.set(relPath, url);
+          LoadPanel.commonFileURLs.set(relPath, url);
         });
         promiseArray.push(p);
       });
@@ -290,12 +291,12 @@ window.LoadPanel = {
       let files = this.commonFilesInput.files;
       for (let i = 0; i < files.length; i++) {
         let file = files[i];
-        DistortionsManager.commonFileURLs.set(file, URL.createObjectURL(file));
+        this.commonFileURLs.set(file, URL.createObjectURL(file));
       }
     }
 
     let urlArray = [];
-    DistortionsManager.commonFileURLs.forEach(function(url) {
+    this.commonFileURLs.forEach(function(url) {
       urlArray.push(url);
     });
 
@@ -354,7 +355,6 @@ window.LoadPanel = {
               isJSON ? "" : "This does not appear to be a JSON file."
             );
         }
-        
       }
 
       // Validate the configuration.

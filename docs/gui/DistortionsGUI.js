@@ -1,6 +1,4 @@
 const DistortionsManager = window.DistortionsManager = {
-  commonFileURLs: new Map(),
-
   get BlobLoader() {
     try {
       return document.getElementById("BlobLoader").contentWindow.BlobLoader;
