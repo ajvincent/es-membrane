@@ -169,6 +169,36 @@ window.LoadPanel = {
     styleAndMoveTreeColumns(tree);
   },
 
+  validateConfiguration: function(config) {
+    if (!Array.isArray(config.graphs))
+      throw new Error("config.graphs must be an array of objects");
+
+    let stringKeys = new Set();
+    config.graphs.forEach((graph, graphIndex) => {
+      if (typeof graph.name !== "string")
+        throw new Error(`config.graphs[${graphIndex}].name must be a string`);
+      if (typeof graph.isSymbol !== "boolean")
+        throw new Error(`config.graphs[${graphIndex}].isSymbol must be a boolean`);
+      if (!graph.isSymbol) {
+        if (stringKeys.has(graph.name)) {
+          throw new Error(
+            `config.graphs[${graphIndex}].name = "${graph.name}", ` +
+            "but this name appears earlier in config.graphs, and neither name is a symbol"
+          );
+        }
+        stringKeys.add(graph.name);
+      }
+
+      if (!Array.isArray(graph.distortions)) {
+        throw new Error(`config.graphs[${graphIndex}].distortions must be an array`);
+      }
+
+      graph.distortions.forEach(function(item, index) {
+        this.validateDistortions(item, index, graphIndex);
+      }, this);
+    });
+  },
+
   validateDistortions: function(instructions, index, graphIndex) {
     const errorPrefix = `config.graphs[${graphIndex}].distortions[${index}]`;
     function requireType(field, type) {
@@ -341,65 +371,13 @@ window.LoadPanel = {
       return config;
 
     try {
-      {
-        let p, jsonAsText;
-        if (this.testMode) {
-          p = Promise.resolve(this.testMode.configSource);
-        }
-        else {
-          const file = this.configFileInput.files[0];
-          p = FileReaderPromise(file, "readAsText");
-        }
+      config = await this.readConfigFromFile();
+      this.validateConfiguration(config);
 
-        jsonAsText = await p;
-        let isJSON = false;
-        try {
-          config = JSON.parse(jsonAsText);
-          isJSON = true;
-        }
-        finally {
-          if (!this.testMode)
-            this.configFileInput.setCustomValidity(
-              isJSON ? "" : "This does not appear to be a JSON file."
-            );
-        }
-      }
-
-      // Validate the configuration.
-      {
-        if (!Array.isArray(config.graphs))
-          throw new Error("config.graphs must be an array of objects");
-
-        let stringKeys = new Set();
-        config.graphs.forEach((graph, graphIndex) => {
-          if (typeof graph.name !== "string")
-            throw new Error(`config.graphs[${graphIndex}].name must be a string`);
-          if (typeof graph.isSymbol !== "boolean")
-            throw new Error(`config.graphs[${graphIndex}].isSymbol must be a boolean`);
-          if (!graph.isSymbol) {
-            if (stringKeys.has(graph.name)) {
-              throw new Error(
-                `config.graphs[${graphIndex}].name = "${graph.name}", ` +
-                "but this name appears earlier in config.graphs, and neither name is a symbol"
-              );
-            }
-            stringKeys.add(graph.name);
-          }
-
-          if (!Array.isArray(graph.distortions)) {
-            throw new Error(`config.graphs[${graphIndex}].distortions must be an array`);
-          }
-
-          graph.distortions.forEach(function(item, index) {
-            this.validateDistortions(item, index, graphIndex);
-          }, this);
-        });
-      }
 
       if (config.configurationSetup &&
-          (config.configurationSetup.useZip === true) &&
           Array.isArray(config.configurationSetup.commonFiles)) {
-        if (this.zipData.map) {
+        if (this.zipData.map && (config.configurationSetup.useZip === true)) {
           const fileSet = new Set(config.configurationSetup.commonFiles);
           this.zipData.map.forEach(function(meta, relPath) {
             if (meta.checkbox)
@@ -419,7 +397,32 @@ window.LoadPanel = {
     }
 
     return config;
-  }
+  },
+
+  readConfigFromFile: async function() {
+    let p, jsonAsText;
+    if (this.testMode) {
+      p = Promise.resolve(this.testMode.configSource);
+    }
+    else {
+      const file = this.configFileInput.files[0];
+      p = FileReaderPromise(file, "readAsText");
+    }
+
+    jsonAsText = await p;
+    let isJSON = false;
+    try {
+      var config = JSON.parse(jsonAsText);
+      isJSON = true;
+    }
+    finally {
+      if (!this.testMode)
+        this.configFileInput.setCustomValidity(
+          isJSON ? "" : "This does not appear to be a JSON file."
+        );
+    }
+    return config;
+  },
 };
 
 {
