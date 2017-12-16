@@ -134,7 +134,6 @@
               select it here:
             </label>
             <br>
-            <!-- Loading distortions GUI config files isn't supported yet. -->
             <input id="grid-outer-load-config-input"
                    type="file"
                    value=""
@@ -176,6 +175,7 @@
                    name="location"
                    required="required"
                    accept="application/javascript"
+                   onchange="void(window.LoadPanel.updateFlatFiles());"
                   >
           </span>
           <hr>

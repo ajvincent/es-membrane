@@ -77,6 +77,11 @@ window.LoadPanel = {
     }
   },
 
+  updateFlatFiles: function() {
+    this.zipForm.reset();
+    this.clearZipTree();
+  },
+
   clearZipTree: function() {
     if (this.testMode && this.testMode.requiredFiles)
       this.testMode.requiredFiles = null;
@@ -88,6 +93,12 @@ window.LoadPanel = {
       range.deleteContents();
       range.detach();
     }
+
+    // clean up previous data
+    this.commonFileURLs.forEach(function(url) {
+      URL.revokeObjectURL(url);
+    }, this);
+    this.commonFileURLs.clear();
   },
 
   buildZipTree: function() {
@@ -256,6 +267,7 @@ window.LoadPanel = {
   },
 
   updateZipTree: async function(blob) {
+    this.commonFilesInput.form.reset();
     this.zipData.map = null;
     if (!blob) {
       this.zipData.reader = null;
@@ -297,17 +309,6 @@ window.LoadPanel = {
    * @private
    */
   collectCommonFileURLs: async function() {
-    // clean up previous data
-    this.commonFileURLs.forEach(function(url, file) {
-      try {
-        URL.revokeObjectURL(url);
-      }
-      catch (e) {
-        // do nothing
-      }
-    }, this);
-    this.commonFileURLs.clear();
-
     if (this.testMode && this.testMode.fakeFiles) {
       this.setTestModeFiles();
     }
