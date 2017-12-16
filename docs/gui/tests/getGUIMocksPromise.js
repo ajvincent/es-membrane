@@ -3,6 +3,16 @@ async function getGUIMocksPromise(propNames) {
   const OGM = window.OuterGridManager;
 
   window.LoadPanel.testMode = { fakeFiles: true };
+  window.LoadPanel.setTestModeFiles();
+  window.LoadPanel.testMode.cachedConfig = `{
+    "configurationSetup": {
+      "useZip": false,
+      "commonFiles": ${JSON.stringify(window.LoadPanel.testMode.requiredFiles.slice(0))},
+      "formatVersion": "1.0"
+    }
+  }`;
+  window.LoadPanel.buildFileOrderTree();
+
   {
     let p1 = MessageEventPromise(window, "MembranePanel initialized");
     let p2 = MessageEventPromise(

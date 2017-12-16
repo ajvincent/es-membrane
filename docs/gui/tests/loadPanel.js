@@ -1,4 +1,7 @@
-describe("Load Panel Operations with flat files", function() {
+describe("Load Panel Operations with faked flat files", function() {
+  /* The "faked" flat files are meant to simulate what happens with real files.
+   * These tests can't actually set real files in the HTML file inputs.
+   */
   "use strict";
   var window, OGM;
 
@@ -21,14 +24,6 @@ describe("Load Panel Operations with flat files", function() {
     OGM.membranePanelRadio.click();
     return p;
   }
-
-  it("can build a fresh configuration with test mode", async function() {
-    await getGUIMocksPromise(["doc"]);
-    const BlobLoader = window.DistortionsManager.BlobLoader;
-    expect(BlobLoader.valuesByName.get("parts.dry.doc").nodeType).toBe(9);
-
-    expect(getErrorMessage()).toBe(null);
-  });
 
   it("can import a simple configuration with test mode", async function() {
     window.LoadPanel.testMode.configSource = `{
@@ -68,7 +63,17 @@ describe("Load Panel Operations with flat files", function() {
     expect(valid).toBe(true);
   });
 
-  describe("tests for configuration file errors", function() {
+  
+
+  it("can build a fresh configuration with test mode", async function() {
+    await getGUIMocksPromise(["doc"]);
+    const BlobLoader = window.DistortionsManager.BlobLoader;
+    expect(BlobLoader.valuesByName.get("parts.dry.doc").nodeType).toBe(9);
+
+    expect(getErrorMessage()).toBe(null);
+  });
+
+  describe("tests for configuration file errors in the graphs property", function() {
     async function expectError(jsonSource) {
       window.LoadPanel.testMode.configSource = jsonSource;
       let p1 = MessageEventPromise(
@@ -396,6 +401,14 @@ describe("Load Panel Operations with zip archives", function() {
       expect(getCheckbox("browser/fireJasmine.js").checked).toBe(false);
       expect(getCheckbox("browser/mocks.js").checked).toBe(true);
       expect(getCheckbox("browser/sharedUtilities.js").checked).toBe(true);
+
+      const fileList = window.LoadPanel.getCommonFileOrdering();
+      expect(fileList).toEqual([
+        "browser/assert.js",
+        "browser/sharedUtilities.js",
+        "browser/es7-membrane.js",
+        "browser/mocks.js"
+      ]);
     }
   );
 
@@ -427,6 +440,14 @@ describe("Load Panel Operations with zip archives", function() {
       expect(getCheckbox("browser/fireJasmine.js").checked).toBe(false);
       expect(getCheckbox("browser/mocks.js").checked).toBe(true);
       expect(getCheckbox("browser/sharedUtilities.js").checked).toBe(true);
+
+      const fileList = window.LoadPanel.getCommonFileOrdering();
+      expect(fileList).toEqual([
+        "browser/assert.js",
+        "browser/sharedUtilities.js",
+        "browser/es7-membrane.js",
+        "browser/mocks.js"
+      ]);
     }
   );
 

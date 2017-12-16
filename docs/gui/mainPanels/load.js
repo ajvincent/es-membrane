@@ -1,6 +1,13 @@
 window.LoadPanel = {
+  isInitialized: false,
   update: function() {
-    // do nothing
+    if (!this.isInitialized) {
+      this.loadOrderTree.addEventListener("click", this, false);
+      this.commonFilesInput.form.reset();
+      this.configFileInput.form.reset();
+      this.zipForm.reset();
+      this.isInitialized = true;
+    }
   },
   
   // private, see below
@@ -22,13 +29,13 @@ window.LoadPanel = {
   testMode: null,
 
   setTestModeFiles: function() {
-    // XXX ajvincent This is wrong, because it establishes a default ordering.
-    [
+    this.testMode.requiredFiles = [
       "../dist/browser/assert.js",
       "../dist/browser/sharedUtilities.js",
       "../dist/browser/es7-membrane.js",
       "../dist/browser/mocks.js"
-    ].forEach(function(filepath) {
+    ];
+    this.testMode.requiredFiles.forEach(function(filepath) {
       this.commonFileURLs.set(
         filepath, (new URL(filepath, window.location.href)).href
       );
@@ -64,7 +71,6 @@ window.LoadPanel = {
 
     p = p.then(function() {
       let requiredFiles = fileList.slice(0, 4);
-      requiredFiles.sort();
       LoadPanel.testMode.requiredFiles = requiredFiles;
     });
 
@@ -76,11 +82,6 @@ window.LoadPanel = {
       console.log("postMessage requested:", `${name} initialized`);
       window.postMessage(`${name} initialized`, window.location.origin);
     }
-  },
-
-  updateFlatFiles: function() {
-    this.zipForm.reset();
-    this.clearZipTree();
   },
 
   clearZipTree: function() {
@@ -162,6 +163,18 @@ window.LoadPanel = {
       }, this);
 
       // Third pass:  establish the loadable files checkboxes.
+      let checkedSet;
+      {
+        let checkedPaths = [];
+        const config = window.MembranePanel.cachedConfig;
+        if (config && config.configurationSetup &&
+            config.configurationSetup.useZip &&
+            Array.isArray(config.configurationSetup.commonFiles)) {
+          checkedPaths = config.configurationSetup.commonFiles.slice(0);
+        }
+        checkedSet = new Set(checkedPaths);
+      }
+
       paths.filter((p) => p.endsWith(".js")).forEach(function(relPath) {
         const meta = this.zipData.map.get(relPath);
         const item = meta.listitem;
@@ -172,6 +185,8 @@ window.LoadPanel = {
         check.setAttribute("type", "checkbox");
         check.setAttribute("name", "selectFile");
         check.setAttribute("value", relPath);
+        check.checked = checkedSet.has(relPath);
+
         item.children[1].appendChild(check);
         meta.checkbox = check;
       }, this);
@@ -254,17 +269,142 @@ window.LoadPanel = {
     // Special rules for functions
   },
 
+  getCommonFileOrdering: function() {
+    let paths = [];
+    let walker = document.createTreeWalker(this.loadOrderTree, NodeFilter.SHOW_TEXT, null, true);
+    while (walker.nextNode()) {
+      paths.push(walker.currentNode.nodeValue);
+    }
+    return paths;
+  },
+
+  getInitialFileOrder: function(config = {}) {
+    if (!config.configurationSetup)
+      config.configurationSetup = {};
+    if (!Array.isArray(config.configurationSetup.commonFiles))
+      config.configurationSetup.commonFiles = [];
+
+    const commonFiles = config.configurationSetup.commonFiles;
+
+    // Get the list of raw file paths.
+    const rawFilePaths = [];
+    const excludedPaths = [];
+    if (this.testMode && this.testMode.fakeFiles) {
+      if (commonFiles.length == 0) {
+        this.testMode.requiredFiles.forEach((path) => commonFiles.push(path));
+      }
+    }
+    else if (this.zipData.map) {
+      this.zipData.map.forEach(function(meta, relPath) {
+        if (!meta.checkbox)
+          return;
+        let paths = meta.checkbox.checked ? rawFilePaths : excludedPaths;
+        paths.push(relPath);
+      });
+    }
+    else if (this.commonFilesInput.files.length) {
+      const filesInput = this.commonFilesInput.files;
+      for (let i = 0; i < filesInput.length; i++)
+        rawFilePaths.push(filesInput[i].name);
+    }
+
+    let orderedFiles;
+    if (excludedPaths.length) {
+      orderedFiles = commonFiles.filter(function(j) {
+        return !excludedPaths.includes(j);
+      });
+    }
+    else
+      orderedFiles = commonFiles;
+
+    orderedFiles = orderedFiles.concat(rawFilePaths.filter(function(k) {
+      return !commonFiles.includes(k);
+    }));
+
+    return orderedFiles;
+  },
+
+  buildFileOrderTree: function(config) {
+    const orderedFiles = this.getInitialFileOrder(config);
+
+    // Clear the file tree.
+    this.loadOrderTree.classList.add("hidden");
+    {
+      let range = document.createRange();
+      range.selectNodeContents(this.loadOrderTree);
+      range.deleteContents();
+      range.detach();
+    }
+
+    if (orderedFiles.length === 0)
+      return;
+
+    // Create the rows.
+    const rowFrag = this.loadOrderRow.content.cloneNode(true);
+    {
+      for (let i = rowFrag.childNodes.length - 1; i >= 0; i--) {
+        let child = rowFrag.childNodes[i];
+        if (child.nodeType !== 1)
+          rowFrag.removeChild(child);
+      }
+    }
+
+    const frag = document.createDocumentFragment();
+    orderedFiles.forEach(function(path) {
+      const row = rowFrag.cloneNode(true);
+      row.firstChild.appendChild(document.createTextNode(path));
+      frag.appendChild(row);
+    }, this);
+
+    frag.childNodes[1].disabled = true;
+    frag.lastChild.disabled = true;
+
+    this.loadOrderTree.appendChild(frag);
+    this.loadOrderTree.classList.remove("hidden");
+  },
+  
   // nsIDOMEventListener
   handleEvent: function(event) {
-    if ((event.target.form === this.zipForm) &&
+    if ((event.target instanceof HTMLInputElement) &&
+        (event.target.form === this.zipForm) &&
         (event.target.name == "selectFile")) {
       this.updateLoadFiles();
+      return;
+    }
+
+    if ((event.target instanceof HTMLButtonElement) &&
+        (event.currentTarget === this.loadOrderTree) &&
+        !event.target.disabled) {
+      const isUp = event.target.classList.contains("up");
+      let elem1, elem2;
+      if (isUp) {
+        elem1 = event.target.previousElementSibling;
+        let i = 0;
+        for (elem2 = elem1; i < 3; i++)
+          elem2 = elem2.previousElementSibling;
+      }
+      else {
+        // event.target.classList.has("down")
+        elem1 = event.target.previousElementSibling.previousElementSibling;
+        elem2 = event.target.nextElementSibling;
+      }
+      elem1.appendChild(elem2.firstChild);
+      elem2.appendChild(elem1.firstChild);
     }
   },
 
   updateLoadFiles: async function() {
     window.MembranePanel.cachedConfig = null;
     await window.MembranePanel.reset();
+
+    this.buildFileOrderTree(window.MembranePanel.cachedConfig);
+  },
+
+  updateFlatFiles: async function() {
+    this.zipForm.reset();
+    this.clearZipTree();
+
+    await this.updateLoadFiles();
   },
 
   updateZipTree: async function(blob) {
@@ -320,6 +460,8 @@ window.LoadPanel = {
           return;
         let p = meta.zipObject.async("blob");
         p = p.then(function(blob) {
+          if (LoadPanel.commonFileURLs.has(relPath))
+            return;
           const url = URL.createObjectURL(blob);
           LoadPanel.commonFileURLs.set(relPath, url);
         });
@@ -345,7 +487,9 @@ window.LoadPanel = {
     }
 
     var config = {
-      "configurationSetup": {},
+      "configurationSetup": {
+        "commonFiles": this.getCommonFileOrdering()
+      },
       "membrane": {},
       "graphs": []
     };
@@ -356,7 +500,6 @@ window.LoadPanel = {
     try {
       config = await this.readConfigFromFile();
       this.validateConfiguration(config);
-
 
       if (config.configurationSetup &&
           Array.isArray(config.configurationSetup.commonFiles)) {
@@ -383,10 +526,13 @@ window.LoadPanel = {
   },
 
   loadCommonScripts: async function() {
+    let pathArray = this.getCommonFileOrdering();
     let urlArray = [];
-    this.commonFileURLs.forEach(function(url) {
-      urlArray.push(url);
-    });
+    pathArray.forEach(function(path) {
+      let url = this.commonFileURLs.get(path);
+      if (url)
+        urlArray.push(url);
+    }, this);
 
     if (this.commonFilesLoaded) {
       const iframe = window.document.getElementById("BlobLoader");
@@ -438,9 +584,15 @@ window.LoadPanel = {
     "zipFileInput":     "grid-outer-load-zipfile",
     "zipTreeTemplate":  "zipform-tree",
     "zipItemTemplate":  "zipform-listitem",
+    "loadOrderTree":    "grid-outer-load-fileorder",
+    "loadOrderRow":     "fileorder-gridcells",
   };
   let keys = Reflect.ownKeys(elems);
   keys.forEach(function(key) {
     defineElementGetter(window.LoadPanel, key, elems[key]);
   });
 }
+
+window.addEventListener("load", function() {
+  window.LoadPanel.update();
+}, true);
