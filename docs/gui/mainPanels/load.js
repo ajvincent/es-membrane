@@ -504,6 +504,8 @@ window.LoadPanel = {
       "membrane": {},
       "graphs": []
     };
+    // This is about the configuration file, not the common files...
+    // (I write this because I've stumbled here about a dozen times.)
     if (!this.configFileInput.files.length &&
         (!this.testMode || !this.testMode.configSource))
       return config;
@@ -522,7 +524,8 @@ window.LoadPanel = {
           }, this);
         }
 
-        // file load ordering goes here
+        await this.buildFileOrderTree(config);
+        await this.loadCommonScripts();
       }
 
       HandlerNames.importConfig(config);
