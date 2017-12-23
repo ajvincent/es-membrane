@@ -272,13 +272,20 @@ window.LoadPanel = {
   getCommonFileOrdering: function() {
     let paths = [];
     let walker = document.createTreeWalker(this.loadOrderTree, NodeFilter.SHOW_TEXT, null, true);
+    let found = false;
     while (walker.nextNode()) {
       paths.push(walker.currentNode.nodeValue);
+      found = true;
     }
+
+    if (!found && this.commonFilesInput.files.length)
+      throw new Error("No common files selected?");
     return paths;
   },
 
-  getInitialFileOrder: function(config = {}) {
+  getInitialFileOrder: function(config) {
+    if (!config)
+      config = {};
     if (!config.configurationSetup)
       config.configurationSetup = {};
     if (!Array.isArray(config.configurationSetup.commonFiles))
@@ -473,8 +480,11 @@ window.LoadPanel = {
       let files = this.commonFilesInput.files;
       for (let i = 0; i < files.length; i++) {
         let file = files[i];
-        this.commonFileURLs.set(file, URL.createObjectURL(file));
+        this.commonFileURLs.set(file.name, URL.createObjectURL(file));
       }
+    }
+    else {
+      throw new Error("collectCommonFileURLs, how did we get invoked?");
     }
   },
 
@@ -483,6 +493,7 @@ window.LoadPanel = {
         this.zipData.map ||
         (this.testMode && this.testMode.fakeFiles)) {
       await this.collectCommonFileURLs();
+      await this.buildFileOrderTree(window.MembranePanel.cachedConfig);
       await this.loadCommonScripts();
     }
 
