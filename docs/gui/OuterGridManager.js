@@ -287,8 +287,8 @@ const OuterGridManager = window.OuterGridManager = {
   },
 
   getSelectedPanel: function() {
-    const id = this.tabboxForm.files.value;
-    const trap = this.tabboxForm.functionTraps.value;
+    const id = this.tabboxForm.elements.files.value;
+    const trap = this.tabboxForm.elements.functionTraps.value;
     const hash = document.getElementById(id).dataset.hash;
     const path = `//section[@trapsTab="${trap}"][@data-hash="${hash}"]`;
     const result = document.evaluate(
