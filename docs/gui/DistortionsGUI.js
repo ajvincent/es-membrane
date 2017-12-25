@@ -51,9 +51,8 @@ const DistortionsGUI = window.DistortionsGUI = {
     gridtree.setAttribute("id", "gridtree-" + this.gridTreeCount);
     this.gridTreeCount++;
 
-    const treeroot = gridtree.getElementsByClassName("treeroot")[0];
     const rules = new DistortionsRules();
-    rules.initByValue(value, treeroot);
+    rules.initByValue(value, gridtree);
 
     DistortionsManager.valueToValueName.set(value, panel.dataset.hash);
 
@@ -71,7 +70,7 @@ const DistortionsGUI = window.DistortionsGUI = {
 
     const panel = document.createElement("section");
     panel.dataset.hash = hash;
-    panel.setAttribute("trapsTab", "prototype");
+    panel.setAttribute("trapsTab", "proto");
 
     const rules = this.buildDistortions(panel, value.prototype);
     DistortionsManager.valueNameToRulesMap.get(hash).proto = rules;
@@ -79,8 +78,48 @@ const DistortionsGUI = window.DistortionsGUI = {
     return panel;
   },
 
-  buildInstancePanel: function(/*value, hash*/) {
-    return null;
+  buildInstancePanel: function(value, hash) {
+    if (typeof value.prototype !== "object") {
+      // Normally, this is never true... typeof Function.prototype == "function"
+      return null;
+    }
+
+    const panel = document.createElement("section");
+    panel.dataset.hash = hash;
+    panel.setAttribute("trapsTab", "instance");
+
+    const prelude = this.instancePreludeTemplate.content.cloneNode(true);
+    panel.appendChild(prelude);
+
+    return panel;
+  },
+
+  initializeInstancePanel: function() {
+    const panel = OuterGridManager.getSelectedPanel();
+    if (panel.initialized)
+      return;
+
+    // Set up the CodeMirror instance.
+    {
+      const textarea = panel.getElementsByClassName("exampleSource")[0];
+
+      let source = textarea.value;
+      const valueName = DistortionsManager.getNameAndGraphIndex(
+        panel.dataset.hash
+      )[0];
+      source = source.replace(
+        "Object",
+        `window.BlobLoader.valuesByName.get("${valueName}")`
+      );
+      textarea.value = source;
+
+      panel.exampleEditor = CodeMirrorManager.buildNewEditor(textarea);
+      // CodeMirror uses 0 for the first line of text.
+      CodeMirrorManager.getTextLock(panel.exampleEditor, 0, 2);
+      CodeMirrorManager.getTextLock(panel.exampleEditor, 3, Infinity);
+    }
+
+    panel.initialized = true;
   },
 
   metadataInGraphOrder: function() {
@@ -133,9 +172,10 @@ const DistortionsGUI = window.DistortionsGUI = {
       // XXX ajvincent Need to let the GUI know this value name is taken
       return;
 
-    let valueFromSource = graph.valueGetterEditor.getValue();
+    const valueFromSource = graph.valueGetterEditor.getValue();
+    const BL = DistortionsManager.BlobLoader;
 
-    await DistortionsManager.BlobLoader.addNamedValue(valueName, valueFromSource);
+    await BL.addNamedValue(valueName, valueFromSource);
 
     const panel = document.createElement("section");
     panel.dataset.valueName = valueName;
@@ -147,9 +187,10 @@ const DistortionsGUI = window.DistortionsGUI = {
     const radio = OuterGridManager.insertValuePanel(
       graphIndex, valueName, radioClass, panel
     );
+    radio.dataset.hash = hash;
     DistortionsManager.valueNameToTabMap.set(hash, radio);
 
-    const value = DistortionsManager.BlobLoader.valuesByName.get(panel.dataset.valueName);
+    const value = BL.valuesByName.get(panel.dataset.valueName);
     const rules = this.buildDistortions(panel, value);
     const distortionsSet = {
       "about": {
@@ -177,17 +218,50 @@ const DistortionsGUI = window.DistortionsGUI = {
     }
     radio.click();
   },
+
+  finishInstancePanel: async function() {
+    const panel = OuterGridManager.getSelectedPanel();
+    const source = panel.exampleEditor.getValue();
+    let sourceExtract;
+    {
+      let lines = source.split("\n");
+      lines = lines.slice(2, -2);
+      sourceExtract = lines.join("\n");
+    }
+
+    const exampleValue = await DistortionsManager.BlobLoader.addNamedValue(
+      panel.dataset.hash + " instance", source
+    );
+    
+    // Build the DistortionRules UI.
+    {
+      panel.appendChild(document.createElement("hr"));
+
+      const rules = this.buildDistortions(panel, exampleValue);
+      const map = DistortionsManager.valueNameToRulesMap.get(panel.dataset.hash);
+      map.instance = rules;
+      map.about.getInstance = sourceExtract;
+    }
+
+    // Disable the prelude UI.
+    {
+      const submitButton = panel.getElementsByClassName("submitButton")[0];
+      submitButton.disabled = true;
+      submitButton.nextElementSibling.disabled = true;
+
+      window.CodeMirrorManager.setEditorEnabled(panel.exampleEditor, false);
+    }
+
+    window.LoadPanel.notifyTestOfInit("instanceof panel");
+  },
 };
 
 {
   let elems = {
-    /*
-    "addValueForm": "grid-outer-addValue",
-    "addValueTextarea": "grid-outer-addValue-valueReference",
-    */
-    "iframeBox": "iframe-box",
-    "treeUITemplate": "distortions-tree-ui-main",
-    "propertyTreeTemplate": "distortions-tree-ui-property"
+    "iframeBox":               "iframe-box",
+    "treeUITemplate":          "distortions-tree-ui-main",
+    "propertyTreeTemplate":    "distortions-tree-ui-property",
+    "instancePreludeTemplate": "distortions-instanceof-prelude",
   };
   let keys = Reflect.ownKeys(elems);
   keys.forEach(function(key) {

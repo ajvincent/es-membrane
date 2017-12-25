@@ -35,6 +35,7 @@ const OuterGridManager = window.OuterGridManager = {
   // public
   init: function() {
     "use strict";
+    this.tabboxForm.reset();
 
     // used to add CSS rules controlling dynamic tabbox panels.
     this.sheet = getCustomStylesheet(document);
@@ -86,17 +87,22 @@ const OuterGridManager = window.OuterGridManager = {
 
       const fTabsDisabled = !(radio.dataset.valueIsFunction);
       OuterGridManager.prototypeRadio.disabled = fTabsDisabled;
-      /*
       OuterGridManager.instanceRadio.disabled  = fTabsDisabled;
-      */
 
       if (radio.dataset.lastTrap)
         OuterGridManager.tabboxForm.functionTraps.value = radio.dataset.lastTrap;
+
+      if (OuterGridManager.selectedTabs.file.dataset.lastTrap === "instance")
+        window.DistortionsGUI.initializeInstancePanel();
     });
 
     this.trapsTabbox.addEventListener("change", function(event) {
-      OuterGridManager.selectedTabs.trap = event.target;
-      OuterGridManager.selectedTabs.file.dataset.lastTrap = event.target.value;
+      const t = event.target;
+      OuterGridManager.selectedTabs.trap = t;
+      OuterGridManager.selectedTabs.file.dataset.lastTrap = t.value;
+
+      if (t.value === "instance")
+        window.DistortionsGUI.initializeInstancePanel();
     }, true);
 
     this.panels.addEventListener("click", function(event) {
@@ -280,6 +286,17 @@ const OuterGridManager = window.OuterGridManager = {
     this.sheet.insertRule(cssRule);
   },
 
+  getSelectedPanel: function() {
+    const id = this.tabboxForm.files.value;
+    const trap = this.tabboxForm.functionTraps.value;
+    const hash = document.getElementById(id).dataset.hash;
+    const path = `//section[@trapsTab="${trap}"][@data-hash="${hash}"]`;
+    const result = document.evaluate(
+      path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
+    );
+    return result.singleNodeValue;
+  },
+
   setHelpPanel: function(button) {
     if (this.selectedHelpAndNotesPanel)
       this.selectedHelpAndNotesPanel.dataset.selected = false;
@@ -322,7 +339,9 @@ TabboxRadioEventHandler.prototype.handleEvent = function() {
     "membranePanelRadio": "tabbox-files-membrane",
     "outputPanelRadio": "tabbox-files-output",
 
+    "valueRadio":     "tabbox-function-traps-value",
     "prototypeRadio": "tabbox-function-traps-prototype",
+    "instanceRadio":  "tabbox-function-traps-instance",
 
     "helpAndNotes": "help-and-notes",
 

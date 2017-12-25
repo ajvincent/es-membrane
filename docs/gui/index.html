@@ -427,22 +427,29 @@ r.getArea(); // returns 12</pre>
     </div>
 
     <div id="tabbox-function-traps" class="tabbar">
-      <input type="radio" name="functionTraps" checked="checked"
+      <input type="radio"
+             name="functionTraps"
+             checked="checked"
              form="tabbox-form"
-             value="value" id="tabbox-function-traps-value">
+             value="value"
+             id="tabbox-function-traps-value">
       <label for="tabbox-function-traps-value">Value</label>
 
-      <input type="radio" name="functionTraps"
+      <input type="radio"
+             name="functionTraps"
              form="tabbox-form"
              disabled="disabled"
-             value="prototype" id="tabbox-function-traps-prototype">
+             value="proto"
+             id="tabbox-function-traps-prototype">
       <label for="tabbox-function-traps-prototype">Prototype</label>
 
-      <input type="radio" name="functionTraps"
+      <input type="radio"
+             name="functionTraps"
              form="tabbox-form"
              disabled="disabled"
-             value="construct" id="tabbox-function-traps-construct">
-      <label for="tabbox-function-traps-construct">Constructed By</label>
+             value="instance"
+             id="tabbox-function-traps-instance">
+      <label for="tabbox-function-traps-instance">Constructed By</label>
     </div>
 
     <!-- row 4 -->
@@ -723,7 +730,7 @@ r.getArea(); // returns 12</pre>
                     <span data-state="number">#:</span>
                   </button>
                   <input type="number" min="0" value="0" data-name="truncateArgMax"
-                         disabled="disabled" style="width: 30px;">
+                         disabled="disabled" style="width: 30px;"/>
                 </span>
                 <span>
                   <button class="icon helpButton" data-for="distortions-truncateArgList"></button>
@@ -753,6 +760,38 @@ r.getArea(); // returns 12</pre>
         <a href="#"><img src="gui/icons/notes-icon.svg"></a>
       </span>
     </li>
+  </template>
+
+  <template id="distortions-instanceof-prelude">
+    <form method="post"
+          enctype="multipart/form-data"
+          class="newValueForm"
+          action="javascript:void(DistortionsGUI.finishInstancePanel());">
+      <h2>Add a function (or other object)</h2>
+      <div>
+        <label>
+          Write a function which returns an example object which is a direct
+          instance of this class.
+        </label>
+        <br>
+        <textarea class="exampleSource">function() {
+  const ctor = Object;
+  return new ctor();
+}
+</textarea>
+      </div>
+      <hr>
+
+      <button type="submit" class="submitButton">
+        Build distortions
+        <img src="gui/icons/plusicon.svg">
+      </button>
+      &nbsp;
+      <button type="reset">
+        Clear this panel
+        <img src="gui/icons/minusicon.svg">
+      </button>
+    </form>
   </template>
 
   <div id="iframe-box">

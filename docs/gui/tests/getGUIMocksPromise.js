@@ -68,7 +68,7 @@ async function getGUIMocksPromise(propNames) {
 
     dryController.nameOfValue.value = `parts.dry.${name}`;
     dryController.valueGetterEditor.setValue(
-      `function() { return MembraneMocks().dry.${name}; }`
+      `function() {\n  return MembraneMocks().dry.${name};\n}\n`
     );
 
     let isValid = dryController.newValueForm.checkValidity();

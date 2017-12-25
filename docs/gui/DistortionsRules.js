@@ -9,7 +9,7 @@ window.DistortionsRules = function DistortionsRules() {
   this.settings = {
     /* serializable JSON settings */
   };
-}
+};
 
 /**
  * Throws a string if a configuration is unusable.

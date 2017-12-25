@@ -158,7 +158,9 @@
 
       let p3 = p2.then(
         async function(getter) {
-          window.BlobLoader.valuesByName.set(name, getter());
+          const value = getter();
+          window.BlobLoader.valuesByName.set(name, value);
+          return value;
         }
       ).then(
         null,
