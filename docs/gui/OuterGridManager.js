@@ -290,7 +290,7 @@ const OuterGridManager = window.OuterGridManager = {
     const id = this.tabboxForm.elements.files.value;
     const trap = this.tabboxForm.elements.functionTraps.value;
     const hash = document.getElementById(id).dataset.hash;
-    const path = `//section[@trapsTab="${trap}"][@data-hash="${hash}"]`;
+    const path = `//section[@trapstab="${trap}"][@data-hash="${hash}"]`;
     const result = document.evaluate(
       path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
     );
