@@ -25,6 +25,8 @@ button.icon {
 }
   --></style>
 
+  <link rel="stylesheet" href="gui/mainPanels/rules.css">
+
   <!-- Multistate button for truncateArgList, in #grid-outer-mainpanels -->
   <link rel="stylesheet" href="gui/multistate/multistate.css">
   <script type="application/javascript"
@@ -70,13 +72,14 @@ window.setupRules = function(value) {
 <body>
   <section>
     <!-- This is copied directly from index.html and should stay in sync. -->
-    <div class="gridtree" data-width="600px" id="tree">
+    <div class="gridtree" data-width="750px" id="tree">
       <div class="treeroot">
         <ul>
           <li class="header">
-            <span data-column-width="300px">Rule</span>
-            <span data-column-width="150px">Enabled?</span>
-            <span data-column-width="150px">Help / Notes</span>
+            <span data-column-width="250px">Rule</span>
+            <span data-column-width="120px">Enabled?</span>
+            <span data-column-width="120px">Help / Notes</span>
+            <span data-column-width="150px">Key's distortion</span>
           </li>
           <li class="collapsible">
             <span>Show own keys</span>
@@ -201,7 +204,9 @@ window.setupRules = function(value) {
             <input type="checkbox" checked="checked" class="collapsible-check">
             <ul data-group="distortions">
               <li>
-                <span data-name="inheritFilter">Accept filter of own keys from prototype</span>
+                <span data-name="inheritFilter"
+                      title="Accept filter of own keys from prototype"
+                     >Accept filter of own keys from prototype</span>
                 <span><input type="checkbox" checked="checked"></span>
                 <span>
                   <button class="icon helpButton" data-for="distortions-inheritFilter"></button>
@@ -260,7 +265,23 @@ window.setupRules = function(value) {
         textarea for the user to write notes about this property. -->
         <a href="#"><img src="gui/icons/notes-icon.svg"></a>
       </span>
+      <span>
+        <button class="distortions-group"></button>
+        <a href="javascript:void();">Go</a>
+      </span>
     </li>
   </template>
+
+  <div id="distortions-groups-dialog">
+    <input type="text"
+           id="distortions-groups-input"
+           onkeyup="window.DistortionsRules.setDistortionGroup(event);"
+           onblur="event.target.parentNode.classList.remove('visible');"
+           pattern='\w*'
+           list="distortions-groups-list">
+  </div>
+  <datalist id="distortions-groups-list">
+    <option value="(none)">(none)</option>
+  </datalist>
 </body>
 </html>

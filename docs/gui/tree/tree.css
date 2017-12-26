@@ -22,15 +22,31 @@
   margin-bottom: 2px;
 }
 
-.gridtree > .treeroot li > span:nth-child(2) {
+.gridtree > .treeroot li > span:first-child + span,
+.gridtree > .treeroot li > span:first-child + input.collapsible-check + span
+{
   display: inline;
   position: absolute;
   left: 320px;
+  width: 120px;
 }
-.gridtree > .treeroot li > span:nth-child(3) {
+
+.gridtree > .treeroot li > span:first-child + span + span,
+.gridtree > .treeroot li > span:first-child + input.collapsible-check + span + span
+{
   display: inline;
   position: absolute;
-  left: 400px;
+  left: 440px;
+  width: 120px;
+}
+
+.gridtree > .treeroot li > span:first-child + span + span + span,
+.gridtree > .treeroot li > span:first-child + input.collapsible-check + span + span + span
+{
+  display: inline;
+  position: absolute;
+  left: 580px;
+  width: 120px;
 }
 
 /* Credit where credit is due:  Ryan Seddon of The CSS Ninja:
@@ -78,11 +94,12 @@
 			margin: -1.25em 0 0 -44px; /* 15px */
 			height: 16px;
 		}
-		.gridtree > .treeroot li input.collapsible-check ~ ul:last-child > li {
-      display: none;
-      margin-left: -14px !important;
-      padding-left: 1px;
-    }
+		.gridtree > .treeroot li input.collapsible-check ~ ul:last-child > li
+        {
+          display: none;
+          margin-left: -14px !important;
+          padding-left: 1px;
+        }
 	.gridtree > .treeroot li.collapsible span:first-child
 	{
 		/*background: url(folder-horizontal.png) 15px 1px no-repeat;*/
@@ -108,10 +125,6 @@
 @supports(display: grid) {
   .gridtree {
     display: grid;
-    /*
-    width: 500px;
-    grid-template-columns: 300px 1fr 1fr;
-    */
     background-color: #fff;
     font-family: monospace;
     font-size: 1em;
@@ -137,7 +150,7 @@
   .gridtree[cellgrouping="row-contents"] > div[row] > span:first-child,
   .gridtree[cellgrouping="none"] > span[row][firstcol]
   {
-    width: 300px;
+    width: 250px;
   }
 
   .gridtree > .treeroot li > span:first-child,

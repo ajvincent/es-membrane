@@ -1,0 +1,29 @@
+button.distortions-group {
+  padding: 0;
+  border: 1px dashed black;
+  font-size: 1em;
+  font-family: monospace;
+  min-width: 20px;
+  min-height: 12px;
+  background-color: beige;
+}
+
+button.distortions-group {
+  vertical-align: top;
+}
+
+#distortions-groups-dialog {
+  display: none;
+  position:absolute;
+  z-index: 1;
+  border: 1px dashed black;
+}
+
+#distortions-groups-dialog.visible {
+  display: block;
+}
+
+#distortions-groups-input {
+  font-size: 12px;
+  font-family: monospace;
+}

@@ -101,6 +101,34 @@ DistortionsRules.validateConfiguration = function(config) {
     throw "truncateArgList must be a boolean or a non-negative integer";
 };
 
+DistortionsRules.setDistortionGroup = function(event) {
+  const dialog = event.target.parentNode;
+  const button = dialog.parentNode.firstElementChild;
+  if (event.key == "Enter") {
+    const value = event.target.value;
+    const list = document.getElementById("distortions-groups-list");
+    let option = list.firstElementChild;
+    while (option && option.value !== value)
+      option = option.nextElementSibling;
+
+    const valid = event.target.checkValidity();
+    if (value.length && (valid || option)) {
+      button.firstChild.nodeValue = value;
+
+      if (!option && valid) {
+        option = document.createElement("option");
+        option.appendChild(document.createTextNode(value));
+        option.value = value;
+        list.appendChild(option);
+      }
+    }
+  }
+
+  if ((event.key == "Enter") || 
+      (event.key == "Escape"))
+    button.focus();
+};
+
 DistortionsRules.prototype = {
   propertyTreeTemplate: null,
 
@@ -124,6 +152,14 @@ DistortionsRules.prototype = {
         let list = lists[i];
         if (list.dataset.group)
           this.bindULInputsByGroup(list);
+      }
+    }
+
+    {
+      const buttons = this.treeroot.getElementsByClassName("distortions-group");
+      for (let i = 0; i < buttons.length; i++) {
+        buttons[i].addEventListener("click", this, true);
+        buttons[i].nextElementSibling.addEventListener("click", this, true);
       }
     }
   },
@@ -276,11 +312,43 @@ DistortionsRules.prototype = {
     return rv;
   },
 
+  showDistortionsGroupNames: function(button) {
+    const dialog = document.getElementById("distortions-groups-dialog");
+    const rect = button.parentNode.getBoundingClientRect();
+    dialog.style.left = rect.right + 10;
+    dialog.style.top  = rect.top + 5;
+    button.parentNode.appendChild(dialog);
+
+    if (!button.firstChild)
+      button.appendChild(document.createTextNode(""));
+
+    const input = document.getElementById("distortions-groups-input");
+    input.value = button.firstChild.nodeValue;
+    dialog.classList.add("visible");
+    window.setTimeout(() => {
+      input.focus();
+    }, 100);
+  },
+
+  openDistortionsGroup: function(/*groupName*/) {
+    
+  },
+
   handleEvent: function(event) {
     let el = event.currentTarget;
     if ((el.classList.contains("multistate")) &&
         (el.dataset.name === "truncateArgList")) {
       el.nextElementSibling.disabled = (el.value !== "number");
+      return;
+    }
+
+    if (el.classList.contains("distortions-group"))
+      return this.showDistortionsGroupNames(el);
+
+    {
+      const prev = el.previousElementSibling;
+      if (prev && prev.classList.contains("distortions-group"))
+        return this.openDistortionsGroup(prev.firstChild.nodeValue);
     }
   }
 };
