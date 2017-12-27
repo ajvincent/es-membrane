@@ -5,10 +5,6 @@ window.DistortionsRules = function DistortionsRules() {
   this.groupToInputsMap = new Map(/*
     groupName: <input type="checkbox">[]
   */);
-
-  this.settings = {
-    /* serializable JSON settings */
-  };
 };
 
 /**
@@ -254,7 +250,7 @@ DistortionsRules.prototype = {
     this.treeroot = null;
   },
 
-  updateFromConfiguration: function(/*config*/) {
+  importJSON: function(/*config*/) {
     throw new Error("Not implemented!");
   },
 
@@ -289,7 +285,7 @@ DistortionsRules.prototype = {
                             .map((checkbox) => checkbox.dataset.name);
     }
 
-    // other distortions
+    // other distortions for this object
     {
       let inputs = this.groupToInputsMap.get("distortions");
       let truncateInputs = [];
@@ -309,13 +305,43 @@ DistortionsRules.prototype = {
       }
     }
 
+    // references to properties' DistortionsRules objects
+    {
+      const buttons = this.gridtree.getElementsByClassName("distortions-group");
+      const foundGroups = {};
+      let count = 0;
+      for (let i = 0; i < buttons.length; i++) {
+        const button = buttons[i];
+        if (!button.firstChild)
+          continue;
+        const group = button.firstChild.nodeValue;
+        if (!group)
+          continue;
+        let keyName;
+        {
+          let elem = button.parentNode;
+          while (!elem.hasAttribute("row"))
+            elem = elem.parentNode;
+          const row = parseInt(elem.getAttribute("row"), 10);
+
+          const span = this.gridtree.getCell(row, 0);
+          keyName = span.firstChild.nodeValue;
+        }
+
+        foundGroups[keyName] = group;
+        count++;
+      }
+      if (count > 0)
+        rv.groupDistortions = foundGroups;
+    }
+
     return rv;
   },
 
   showDistortionsGroupNames: function(button) {
     const dialog = document.getElementById("distortions-groups-dialog");
     const rect = button.parentNode.getBoundingClientRect();
-    dialog.style.left = rect.right + 10;
+    dialog.style.left = rect.left + 10;
     dialog.style.top  = rect.top + 5;
     button.parentNode.appendChild(dialog);
 
@@ -325,9 +351,7 @@ DistortionsRules.prototype = {
     const input = document.getElementById("distortions-groups-input");
     input.value = button.firstChild.nodeValue;
     dialog.classList.add("visible");
-    window.setTimeout(() => {
-      input.focus();
-    }, 100);
+    input.focus();
   },
 
   openDistortionsGroup: function(/*groupName*/) {
@@ -358,4 +382,3 @@ defineElementGetter(
   "propertyTreeTemplate",
   "distortions-tree-ui-property"
 );
-

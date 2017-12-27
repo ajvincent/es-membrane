@@ -197,6 +197,8 @@ describe("DistortionsRules", function() {
         truncateArgButton.click();
       }
     }
+
+    expect("groupDistortions" in rules.exportJSON()).toBe(false);
   }
 
   describe(".validateConfiguration with", function() {
@@ -482,5 +484,85 @@ describe("DistortionsRules", function() {
         "value", "subtractOne"
       ]);
     });
-  });  
+
+    function setSecondaryDistortion(row, dName) {
+      const dialog = window.document.getElementById("distortions-groups-dialog");
+      const input = window.document.getElementById("distortions-groups-input");
+
+      const propName = rules.gridtree.getCell(row, 0).firstChild.nodeValue;
+      const button = rules.gridtree.getCell(row, 3).firstElementChild;
+
+      expect(button.nodeName.toLowerCase()).toBe("button");
+      expect(button.classList.contains("distortions-group")).toBe(true);
+
+      const current = (button.firstChild) ? button.firstChild.nodeValue : "";
+
+      button.click();
+      expect(dialog.classList.contains("visible")).toBe(true);
+      expect(input.value).toBe(current);
+
+      let event = new KeyboardEvent("keyup", {
+        key: "Escape"
+      });
+      input.dispatchEvent(event);
+      button.focus();
+      expect(button.firstChild.nodeValue).toBe(current);
+
+      button.click();
+      expect(dialog.classList.contains("visible")).toBe(true);
+      expect(input.value).toBe(current);
+
+      input.value = dName;
+      event = new KeyboardEvent("keyup", {
+        key: "Enter"
+      });
+      input.dispatchEvent(event);
+      button.focus();
+
+      expect(button.firstChild.nodeValue).toBe(dName);
+
+      {
+        const exports = rules.exportJSON();
+        expect("groupDistortions" in exports).toBe(true);
+        expect(exports.groupDistortions[propName]).toBe(dName);
+      }
+
+      {
+        const options = window.document.getElementById("distortions-groups-list").options;
+        let found = false;
+        for (let i = 0; i < options.length; i++) {
+          if (options[i].firstChild.nodeValue !== dName)
+            continue;
+          found = true;
+          break;
+        }
+        expect(found).toBe(true, `datalist should have option ${dName}`);
+      }
+    }
+
+    it("can specify group distortions", function() {
+      rules = window.setupRules(window.DecrementCounter.prototype);
+      const datalist = window.document.getElementById("distortions-groups-list"); 
+
+      expect(datalist.children.length).toBe(1);
+      setSecondaryDistortion(2, "(none)");
+      setSecondaryDistortion(2, "foo");
+      setSecondaryDistortion(3, "foo");
+
+      {
+        const exports = rules.exportJSON();
+        expect("groupDistortions" in exports).toBe(true);
+        expect(exports.groupDistortions.value).toBe("foo");
+        expect(exports.groupDistortions.subtractOne).toBe("foo");
+      }
+
+      setSecondaryDistortion(2, "bar");
+      {
+        const exports = rules.exportJSON();
+        expect("groupDistortions" in exports).toBe(true);
+        expect(exports.groupDistortions.value).toBe("bar");
+        expect(exports.groupDistortions.subtractOne).toBe("foo");
+      }
+    });
+  });
 });
