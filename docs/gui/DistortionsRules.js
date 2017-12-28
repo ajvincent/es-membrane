@@ -489,7 +489,9 @@ DistortionsRules.prototype = {
       OuterGridManager.grid.setAttribute("trapstab", "value");
 
       if (LoadPanel.testMode) {
-        const msg = "openDistortionsGroup: property panel created";
+        const msg = groupName ?
+                    "openDistortionsGroup: property group panel created" :
+                    "openDistortionsGroup: property panel created";
         console.log("postMessage requested:", msg);
         window.postMessage(msg, window.location.origin);
       }
