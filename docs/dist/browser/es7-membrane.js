@@ -3773,6 +3773,8 @@ Object.defineProperties(DistortionsListener.prototype, {
 
     if ((category === "prototype") || (category === "value"))
       this.valueAndProtoMap.set(value, config);
+    else if (category === "iterable")
+      Array.from(value).forEach((item) => this.valueAndProtoMap.set(item, config));
     else if (category === "instance")
       this.instanceMap.set(value, config);
     else if ((category === "filter") && (typeof value === "function"))
@@ -3784,10 +3786,17 @@ Object.defineProperties(DistortionsListener.prototype, {
   "removeListener": new NWNCDataDescriptor(function(value, category) {
     if ((category === "prototype") || (category === "instance"))
       value = value.prototype;
+
     if ((category === "prototype") || (category === "value"))
-      this.valueAndProtoMap.set(value);
+      this.valueAndProtoMap.delete(value);
+    else if (category === "iterable")
+      Array.from(value).forEach((item) => this.valueAndProtoMap.delete(item));
     else if (category === "instance")
       this.instanceMap.delete(value);
+    else if ((category === "filter") && (typeof value === "function"))
+      this.filterToConfigMap.delete(value);
+    else
+      throw new Error(`Unsupported category ${category} for value`);
   }),
 
   "listenOnce": new NWNCDataDescriptor(function(meta, config) {
@@ -3805,7 +3814,7 @@ Object.defineProperties(DistortionsListener.prototype, {
       formatVersion: "0.8.2",
       dataVersion: "0.1",
 
-      filterOwnKeys: [],
+      filterOwnKeys: false,
       proxyTraps: allTraps.slice(0),
       inheritFilter: false,
       storeUnknownAsLocal: false,
@@ -3839,7 +3848,7 @@ Object.defineProperties(DistortionsListener.prototype, {
   /**
    * @private
    */
-  "proxyListener": new NWNCDataDescriptor(function(meta) {
+  "getConfigurationForListener": new NWNCDataDescriptor(function(meta) {
     let config = this.valueAndProtoMap.get(meta.target);
     if (!config) {
       let proto = Reflect.getPrototypeOf(meta.target);
@@ -3847,14 +3856,13 @@ Object.defineProperties(DistortionsListener.prototype, {
     }
 
     if (!config) {
-      let iter, filter, testConfig;
+      let iter, filter;
       iter = this.filterToConfigMap.entries();
       let entry = iter.next();
       while (!entry.done && !meta.stopped) {
         filter = entry.value[0];
-        testConfig = entry.value[1];
         if (filter(meta)) {
-          config = testConfig;
+          config = entry.value[1];
           break;
         }
         else {
@@ -3863,9 +3871,10 @@ Object.defineProperties(DistortionsListener.prototype, {
       }
     }
 
-    if (!config)
-      return;
+    return config;
+  }),
 
+  "applyConfiguration": new NWNCDataDescriptor(function(config, meta) {
     const rules = this.membrane.modifyRules;
     const fieldName = meta.handler.fieldName;
     const modifyTarget = (meta.isOriginGraph) ? meta.target : meta.proxy;
@@ -3898,6 +3907,14 @@ Object.defineProperties(DistortionsListener.prototype, {
 
     if (("truncateArgList" in config) && (config.truncateArgList !== false))
       rules.truncateArgList(fieldName, modifyTarget, config.truncateArgList);
+  }),
+
+  /**
+   * @private
+   */
+  "proxyListener": new NWNCDataDescriptor(function(meta) {
+    const config = this.getConfigurationForListener(meta);
+    this.applyConfiguration(config, meta);
 
     meta.stopIteration();
   }, false),

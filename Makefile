@@ -60,6 +60,7 @@ ALL_SPEC_FILES = \
 	spec/functionListeners.js \
 	spec/manualBind.js \
 	spec/primordials.js \
+	spec/DistortionsListener.js \
 	spec/properties/storeUnknownAsLocal.js \
 	spec/properties/requireLocalDelete.js \
 	spec/properties/filterOwnKeys.js \
