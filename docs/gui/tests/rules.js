@@ -24,7 +24,10 @@ describe("DistortionsRules", function() {
     rules = null;
   });
 
-  function isCheckboxWithName(item, expectedName, expectedChecked, expectedDisabled = false) {
+  function isCheckboxWithName(
+    item, expectedName, expectedChecked, expectedDisabled = false
+  )
+  {
     expect(item instanceof window.HTMLInputElement).toBe(true);
     expect(item.dataset.name).toBe(expectedName);
     if (item.type === "checkbox")
@@ -485,12 +488,15 @@ describe("DistortionsRules", function() {
       ]);
     });
 
+    // Yes, magic numbers suck.  Deal with it.
+    const groupCol = 3;
+
     function setSecondaryDistortion(row, dName) {
       const dialog = window.document.getElementById("distortions-groups-dialog");
       const input = window.document.getElementById("distortions-groups-input");
 
       const propName = rules.gridtree.getCell(row, 0).firstChild.nodeValue;
-      const button = rules.gridtree.getCell(row, 3).firstElementChild;
+      const button = rules.gridtree.getCell(row, groupCol).firstElementChild;
 
       expect(button.nodeName.toLowerCase()).toBe("button");
       expect(button.classList.contains("distortions-group")).toBe(true);
@@ -512,23 +518,27 @@ describe("DistortionsRules", function() {
       expect(dialog.classList.contains("visible")).toBe(true);
       expect(input.value).toBe(current);
 
-      input.value = dName;
+      input.value = dName === "(none)" ? "" : dName;
       event = new KeyboardEvent("keyup", {
         key: "Enter"
       });
       input.dispatchEvent(event);
       button.focus();
 
-      expect(button.firstChild.nodeValue).toBe(dName);
+      expect(button.firstChild.nodeValue).toBe(input.value);
 
-      {
-        const exports = rules.exportJSON();
+      const exports = rules.exportJSON();
+      if (dName !== "(none)") {
         expect("groupDistortions" in exports).toBe(true);
         expect(exports.groupDistortions[propName]).toBe(dName);
       }
+      else if ("groupDistortions" in exports) {
+        expect(propName in exports.groupDistortions).toBe(false);
+      }
 
       {
-        const options = window.document.getElementById("distortions-groups-list").options;
+        const list = window.document.getElementById("distortions-groups-list");
+        const options = list.options;
         let found = false;
         for (let i = 0; i < options.length; i++) {
           if (options[i].firstChild.nodeValue !== dName)
@@ -541,27 +551,39 @@ describe("DistortionsRules", function() {
     }
 
     it("can specify group distortions", function() {
+      window.DecrementCounter.prototype.doNothing = function() {};
+      window.DecrementCounter.prototype._null = null;
       rules = window.setupRules(window.DecrementCounter.prototype);
-      const datalist = window.document.getElementById("distortions-groups-list"); 
 
-      expect(datalist.children.length).toBe(1);
-      setSecondaryDistortion(2, "(none)");
-      setSecondaryDistortion(2, "foo");
-      setSecondaryDistortion(3, "foo");
-
+      // "value", which is a number
       {
-        const exports = rules.exportJSON();
-        expect("groupDistortions" in exports).toBe(true);
-        expect(exports.groupDistortions.value).toBe("foo");
-        expect(exports.groupDistortions.subtractOne).toBe("foo");
+        const cell = rules.gridtree.getCell(2, groupCol);
+        expect(cell.childNodes.length).toBe(0);
       }
 
-      setSecondaryDistortion(2, "bar");
+      setSecondaryDistortion(3, "(none)");
+      setSecondaryDistortion(3, "foo");
+      setSecondaryDistortion(4, "foo");
+
+      // "_null", which is null
+      {
+        const cell = rules.gridtree.getCell(5, groupCol);
+        expect(cell.childNodes.length).toBe(0);
+      }
+
       {
         const exports = rules.exportJSON();
         expect("groupDistortions" in exports).toBe(true);
-        expect(exports.groupDistortions.value).toBe("bar");
         expect(exports.groupDistortions.subtractOne).toBe("foo");
+        expect(exports.groupDistortions.doNothing).toBe("foo");
+      }
+
+      setSecondaryDistortion(3, "bar");
+      {
+        const exports = rules.exportJSON();
+        expect("groupDistortions" in exports).toBe(true);
+        expect(exports.groupDistortions.subtractOne).toBe("bar");
+        expect(exports.groupDistortions.doNothing).toBe("foo");
       }
     });
   });

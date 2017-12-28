@@ -61,6 +61,7 @@ describe("A function will have rules configurations", function() {
 
     const panel = OGM.getSelectedPanel();
     expect(panel.getAttribute("trapstab")).toBe("proto");
+    expect(panel.dataset.valueName).toBe("parts.dry.Element.prototype");
 
     const hash = panel.dataset.hash;
     const map = DM.valueNameToRulesMap.get(hash);
@@ -92,6 +93,7 @@ describe("A function will have rules configurations", function() {
 
     const panel = OGM.getSelectedPanel();
     expect(panel.getAttribute("trapstab")).toBe("instance");
+    expect(panel.dataset.valueName).toBe("parts.dry.Element:instance");
 
     const hash = panel.dataset.hash;
     const map = DM.valueNameToRulesMap.get(hash);

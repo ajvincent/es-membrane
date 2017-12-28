@@ -12,6 +12,10 @@ button.distortions-group {
   vertical-align: top;
 }
 
+button.distortions-group:disabled {
+  opacity: 0.3;
+}
+
 #distortions-groups-dialog {
   display: none;
   position:absolute;

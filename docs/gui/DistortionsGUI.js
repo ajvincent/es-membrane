@@ -25,6 +25,10 @@ const DistortionsManager = window.DistortionsManager = {
     }
   */),
 
+  valueToPanelMap: new Map(/*
+    value: <section/>
+  */),
+
   hashGraphAndValueNames: function(valueName, graphIndex) {
     return valueName + "-" + graphIndex;
   },
@@ -45,16 +49,18 @@ const DistortionsGUI = window.DistortionsGUI = {
 
   gridTreeCount: 0,
 
-  buildDistortions: function(panel, value) {
+  buildDistortions: function(panel, value, isTopValue = false) {
     // Build the GUI.
     const gridtree = this.treeUITemplate.content.firstElementChild.cloneNode(true);
     gridtree.setAttribute("id", "gridtree-" + this.gridTreeCount);
     this.gridTreeCount++;
 
     const rules = new DistortionsRules();
+    rules.isTopValue = isTopValue;
     rules.initByValue(value, gridtree);
 
     DistortionsManager.valueToValueName.set(value, panel.dataset.hash);
+    DistortionsManager.valueToPanelMap.set(value, panel);
 
     styleAndMoveTreeColumns(gridtree);
     panel.appendChild(gridtree);
@@ -70,7 +76,11 @@ const DistortionsGUI = window.DistortionsGUI = {
 
     const panel = document.createElement("section");
     panel.dataset.hash = hash;
-    panel.setAttribute("trapsTab", "proto");
+    {
+      const valueName = DistortionsManager.getNameAndGraphIndex(hash)[0];
+      panel.dataset.valueName = valueName + ".prototype";
+    }
+    panel.setAttribute("trapstab", "proto");
 
     const rules = this.buildDistortions(panel, value.prototype);
     DistortionsManager.valueNameToRulesMap.get(hash).proto = rules;
@@ -86,7 +96,11 @@ const DistortionsGUI = window.DistortionsGUI = {
 
     const panel = document.createElement("section");
     panel.dataset.hash = hash;
-    panel.setAttribute("trapsTab", "instance");
+    {
+      const valueName = DistortionsManager.getNameAndGraphIndex(hash)[0];
+      panel.dataset.valueName = valueName + ":instance";
+    }
+    panel.setAttribute("trapstab", "instance");
 
     const prelude = this.instancePreludeTemplate.content.cloneNode(true);
     panel.appendChild(prelude);
@@ -104,13 +118,15 @@ const DistortionsGUI = window.DistortionsGUI = {
       const textarea = panel.getElementsByClassName("exampleSource")[0];
 
       let source = textarea.value;
-      const valueName = DistortionsManager.getNameAndGraphIndex(
-        panel.dataset.hash
-      )[0];
-      source = source.replace(
-        "Object",
-        `window.BlobLoader.valuesByName.get("${valueName}")`
-      );
+      {
+        const ctorName = DistortionsManager.getNameAndGraphIndex(
+          panel.dataset.hash
+        )[0];
+        source = source.replace(
+          "Object",
+          `window.BlobLoader.valuesByName.get("${ctorName}")`
+        );
+      }
       textarea.value = source;
 
       panel.exampleEditor = CodeMirrorManager.buildNewEditor(textarea);
@@ -163,26 +179,40 @@ const DistortionsGUI = window.DistortionsGUI = {
     return rv;
   },
 
-  buildValuePanel: async function() {
-    const graph = OuterGridManager.graphNamesCache.lastVisibleGraph,
-          valueName = graph.nameOfValue.value,
-          graphIndex = OuterGridManager.graphNamesCache.controllers.indexOf(graph),
-          hash = DistortionsManager.hashGraphAndValueNames(valueName, graphIndex);
+  buildValuePanel: async function(details = null) {
+    if (!details) {
+      const graph = OuterGridManager.graphNamesCache.lastVisibleGraph;
+      details = {
+        graph: graph,
+        valueName: graph.nameOfValue.value,
+        graphIndex: OuterGridManager.graphNamesCache.controllers.indexOf(graph),
+        hasValue: false,
+        valueFromSource: graph.valueGetterEditor.getValue(),
+      };
+    }
+
+    const {
+      graph, valueName, graphIndex, hasValue, valueFromSource
+    } = details;
+    const hash = DistortionsManager.hashGraphAndValueNames(
+      valueName, graphIndex
+    );
     if (DistortionsManager.valueNameToTabMap.has(hash))
       // XXX ajvincent Need to let the GUI know this value name is taken
       return;
 
-    const valueFromSource = graph.valueGetterEditor.getValue();
     const BL = DistortionsManager.BlobLoader;
-
-    await BL.addNamedValue(valueName, valueFromSource);
+    if (!hasValue)
+    {
+      await BL.addNamedValue(valueName, valueFromSource);
+    }
 
     const panel = document.createElement("section");
     panel.dataset.valueName = valueName;
     panel.dataset.graphIndex = graphIndex;
     panel.dataset.hash = hash;
     const radioClass = "valuepanel-" + DistortionsManager.valueNameToTabMap.size;
-    panel.setAttribute("trapsTab", "value");
+    panel.setAttribute("trapstab", "value");
 
     const radio = OuterGridManager.insertValuePanel(
       graphIndex, valueName, radioClass, panel
@@ -190,16 +220,21 @@ const DistortionsGUI = window.DistortionsGUI = {
     radio.dataset.hash = hash;
     DistortionsManager.valueNameToTabMap.set(hash, radio);
 
-    const value = BL.valuesByName.get(panel.dataset.valueName);
-    const rules = this.buildDistortions(panel, value);
+    const value = hasValue ?
+                  details.value :
+                  BL.valuesByName.get(panel.dataset.valueName);
+    const rules = this.buildDistortions(panel, value, true);
     const distortionsSet = {
       "about": {
         "valueName": valueName,
         "isFunction": (typeof value === "function"),
-        "getExample": valueFromSource.split("\n").slice(1, -2).join("\n"),
       },
       "value": rules,
     };
+    if (!hasValue) {
+      const getExample = valueFromSource.split("\n").slice(1, -2).join("\n");
+      distortionsSet.about.getExample = getExample;
+    }
     DistortionsManager.valueNameToRulesMap.set(panel.dataset.hash, distortionsSet);
     graph.distortionMaps.push(distortionsSet);
 
@@ -210,7 +245,6 @@ const DistortionsGUI = window.DistortionsGUI = {
       const protoPanel = this.buildPrototypePanel(value, hash);
       if (protoPanel)
         OuterGridManager.insertOtherPanel(radio, protoPanel);
-
 
       let instancePanel = this.buildInstancePanel(value, hash);
       if (instancePanel)
@@ -230,7 +264,7 @@ const DistortionsGUI = window.DistortionsGUI = {
     }
 
     const exampleValue = await DistortionsManager.BlobLoader.addNamedValue(
-      panel.dataset.hash + " instance", source
+      panel.dataset.valueName, source
     );
     
     // Build the DistortionRules UI.

@@ -108,10 +108,10 @@ DistortionsRules.setDistortionGroup = function(event) {
       option = option.nextElementSibling;
 
     const valid = event.target.checkValidity();
-    if (value.length && (valid || option)) {
+    if (valid || option) {
       button.firstChild.nodeValue = value;
 
-      if (!option && valid) {
+      if (!option && valid && value.length) {
         option = document.createElement("option");
         option.appendChild(document.createTextNode(value));
         option.value = value;
@@ -126,6 +126,7 @@ DistortionsRules.setDistortionGroup = function(event) {
 };
 
 DistortionsRules.prototype = {
+  isTopValue: false,
   propertyTreeTemplate: null,
 
   bindUI: function() {
@@ -229,8 +230,37 @@ DistortionsRules.prototype = {
 
     keys.forEach(function(key) {
       const listItem = listItemBase.cloneNode(true);
+
       const propElement = listItem.getElementsByClassName("propertyName")[0];
       propElement.appendChild(document.createTextNode(key));
+
+      var type;
+      try {
+        type = typeof this.value[key];
+      }
+      catch (e) {
+        type = "broken";
+      }
+
+      const button = listItem.getElementsByClassName("distortions-group")[0];
+
+      let shouldRemove;
+      if (type === "object")
+        shouldRemove = this.value[key] === null;
+      else
+        shouldRemove = type !== "function";
+
+      if (shouldRemove) {
+        // no distortions possible for primitives
+        listItem.removeChild(button.parentNode);
+      }
+      else if (this.isTopValue &&
+          (typeof this.value === "function") &&
+          (key === "prototype"))
+      {
+        button.disabled = true;
+      }
+
       propertyList.appendChild(listItem);
     }, this);
 
@@ -248,6 +278,15 @@ DistortionsRules.prototype = {
     this.fillProperties();
     this.bindUI();
     this.treeroot = null;
+  },
+
+  getKeyNameForCell: function(cell) {
+    while (!cell.hasAttribute("row"))
+      cell = cell.parentNode;
+    const row = parseInt(cell.getAttribute("row"), 10);
+
+    const span = this.gridtree.getCell(row, 0);
+    return span.firstChild.nodeValue;
   },
 
   importJSON: function(/*config*/) {
@@ -317,17 +356,7 @@ DistortionsRules.prototype = {
         const group = button.firstChild.nodeValue;
         if (!group)
           continue;
-        let keyName;
-        {
-          let elem = button.parentNode;
-          while (!elem.hasAttribute("row"))
-            elem = elem.parentNode;
-          const row = parseInt(elem.getAttribute("row"), 10);
-
-          const span = this.gridtree.getCell(row, 0);
-          keyName = span.firstChild.nodeValue;
-        }
-
+        const keyName = this.getKeyNameForCell(button.parentNode);
         foundGroups[keyName] = group;
         count++;
       }
@@ -354,12 +383,82 @@ DistortionsRules.prototype = {
     input.focus();
   },
 
-  openDistortionsGroup: function(/*groupName*/) {
-    
+  openDistortionsGroup: function(event) {
+    const button = event.currentTarget.previousElementSibling;
+    const keyName = this.getKeyNameForCell(button.parentNode);
+    const target = this.value[keyName];
+
+    {
+      const existingPanel = DistortionsManager.valueToPanelMap.get(target);
+      if (existingPanel) {
+        const hash = existingPanel.dataset.hash;
+        const valueRadio = DistortionsManager.valueNameToTabMap.get(hash);
+        valueRadio.click();
+
+        const trap = existingPanel.getAttribute("trapstab");
+        OuterGridManager.tabboxForm.functionTraps.value = trap;
+        OuterGridManager.grid.setAttribute("trapstab", trap);
+
+        if (LoadPanel.testMode) {
+          const msg = "openDistortionsGroup: existing panel selected";
+          console.log("postMessage requested:", msg);
+          window.postMessage(msg, window.location.origin);
+        }
+        return;
+      }
+    }
+
+    if (this.isTopValue &&
+        (typeof this.value === "function") &&
+        (keyName === "prototype")) {
+      OuterGridManager.prototypeRadio.click();
+      return;
+    }
+
+    const panel = this.gridtree.parentNode;
+    const graphIndex = DistortionsManager.getNameAndGraphIndex(
+      panel.dataset.hash
+    )[1];
+
+    const groupName = button.firstChild ? button.firstChild.nodeValue : "";
+    if (!groupName) {
+      const path = panel.dataset.valueName + "." + keyName;
+      const hash = DistortionsManager.hashGraphAndValueNames(path, graphIndex);
+
+      let radio = DistortionsManager.valueNameToTabMap.get(hash);
+      if (radio) {
+        radio.click();
+        return;
+      }
+
+      // OK, we have to build a new value panel.
+      const details = {
+        graph: OuterGridManager.graphNamesCache.controllers[graphIndex],
+        valueName: path,
+        graphIndex: graphIndex,
+        hasValue: true,
+        value: target,
+      };
+
+      let p = DistortionsGUI.buildValuePanel(details);
+      p.then(function() {
+        OuterGridManager.valueRadio.click();
+        OuterGridManager.grid.setAttribute("trapstab", "value");
+
+        if (LoadPanel.testMode) {
+          const msg = "openDistortionsGroup: property panel created";
+          console.log("postMessage requested:", msg);
+          window.postMessage(msg, window.location.origin);
+        }
+      });
+      return;
+    }
+
+    throw new Error("Not implemented yet");
   },
 
   handleEvent: function(event) {
-    let el = event.currentTarget;
+    const el = event.currentTarget;
     if ((el.classList.contains("multistate")) &&
         (el.dataset.name === "truncateArgList")) {
       el.nextElementSibling.disabled = (el.value !== "number");
@@ -372,7 +471,7 @@ DistortionsRules.prototype = {
     {
       const prev = el.previousElementSibling;
       if (prev && prev.classList.contains("distortions-group"))
-        return this.openDistortionsGroup(prev.firstChild.nodeValue);
+        return this.openDistortionsGroup(event);
     }
   }
 };

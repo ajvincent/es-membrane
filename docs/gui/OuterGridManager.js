@@ -9,7 +9,9 @@ const OuterGridManager = window.OuterGridManager = {
   loadPanelRadio: null,
   membranePanelRadio: null,
   outputPanelRadio: null,
+  valueRadio: null,
   prototypeRadio: null,
+  instanceRadio: null,
   helpAndNotes: null,
   selectedHelpAndNotesPanel: null,
   currentErrorOutput: null,
@@ -52,7 +54,7 @@ const OuterGridManager = window.OuterGridManager = {
 
     {
       let listener = new TabboxRadioEventHandler(
-        this.tabboxForm, "functionTraps", this.grid, "trapsTab"
+        this.tabboxForm, "functionTraps", this.grid, "trapstab"
       );
       this.trapsTabbox.addEventListener("change", listener, true);
       listener.handleEvent();
@@ -271,15 +273,15 @@ const OuterGridManager = window.OuterGridManager = {
   insertOtherPanel: function(radio, panel) {
     const radioClass = radio.getAttribute("value");
     panel.classList.add(radioClass);
-    this.addCSSPanelRule(radioClass, panel.getAttribute("trapsTab"));
+    this.addCSSPanelRule(radioClass, panel.getAttribute("trapstab"));
     this.panels.appendChild(panel);
   },
 
-  addCSSPanelRule: function(radioClass, trapsTab) {
+  addCSSPanelRule: function(radioClass, trapstab) {
     const cssRule = [
-      `#grid-outer[filesTab="${radioClass}"][trapsTab="${trapsTab}"] >`,
+      `#grid-outer[filesTab="${radioClass}"][trapstab="${trapstab}"] >`,
       "#grid-outer-mainpanels >",
-      `section[trapsTab="${trapsTab}"].${radioClass} {\n  `,
+      `section[trapstab="${trapstab}"].${radioClass} {\n  `,
       "display: block;\n",
       "}\n\n"
     ].join("");

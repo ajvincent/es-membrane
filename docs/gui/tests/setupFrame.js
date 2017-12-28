@@ -9,6 +9,13 @@ function getDocumentLoadPromise(url) {
   return IFrameLoadPromise(testFrame, url);
 }
 
+function setupDebugTest() {
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
+  const iframe = document.getElementsByTagName("iframe")[0];
+  iframe.setAttribute("width", "800");
+  iframe.setAttribute("height", "600");
+}
+
 afterEach(getDocumentLoadPromise.bind(null, "about:blank"));
 
 afterAll(function() {

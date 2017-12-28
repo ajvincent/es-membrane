@@ -160,7 +160,7 @@
                    required="required"
                    accept="application/zip"
                    onchange="void(window.LoadPanel.updateZipTree(event.target.files[0]));"
-                  >
+                  />
           </span>
         </form>
 
@@ -232,7 +232,7 @@
           <p>Name the object graphs you want here.  This is an ordered set for
           the configuration files that interact with this tool and the Membrane
           constructor.</p>
-          (Examples:  [internal, public] or [wet, dry].)</p>
+          <p>(Examples:  [internal, public] or [wet, dry].)</p>
           <div id="grid-outer-membrane-objectgraphs">
             <button class="icon addRow" onclick="HandlerNames.addRow();"></button>
           </div>
@@ -248,7 +248,7 @@
           </button>
           <input type="hidden"
                  id="grid-outer-membrane-graphnames-validity"
-                 >
+                />
         </form>
       </section>
 
@@ -453,6 +453,14 @@ r.getArea(); // returns 12</pre>
              value="instance"
              id="tabbox-function-traps-instance">
       <label for="tabbox-function-traps-instance">Constructed By</label>
+
+      <input type="radio"
+             name="functionTraps"
+             form="tabbox-form"
+             disabled="disabled"
+             value="groups"
+             id="tabbox-function-traps-groups">
+      <label for="tabbox-function-traps-groups">Group Configuration</label>
     </div>
 
     <!-- row 4 -->
@@ -536,7 +544,7 @@ r.getArea(); // returns 12</pre>
                  type="text"
                  size="30"
                  required="required"
-                >
+                />
         </span>
         <br>
   
@@ -766,8 +774,8 @@ r.getArea(); // returns 12</pre>
         <a href="#"><img src="gui/icons/notes-icon.svg"></a>
       </span>
       <span>
-        <button class="distortions-group" disabled="disabled"></button>
-        <a href="javascript:void();">Go</a>
+        <button class="distortions-group"></button>
+        <a href="javascript:void(null);">Go</a>
       </span>
     </li>
   </template>
@@ -813,7 +821,7 @@ r.getArea(); // returns 12</pre>
            list="distortions-groups-list">
   </div>
   <datalist id="distortions-groups-list">
-    <option value="(none)">(none)</option>
+    <option value="">(none)</option>
   </datalist>
 
   <div id="iframe-box">
