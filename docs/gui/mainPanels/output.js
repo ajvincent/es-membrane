@@ -149,8 +149,41 @@ const OutputPanel = window.OutputPanel = {
             const keys = Reflect.ownKeys(d);
             keys.splice(keys.indexOf("about"), 1);
             keys.forEach(function(k) {
-              const distortionAsJSON = JSON.stringify(d[k], null, 2).replace(/\n/gm, "\n    ");
-              script += `    ___listener___.addListener(${d.about.valueName}, "${k}", ${distortionAsJSON});\n\n`;
+              let indent = "\n    ";
+              if (d.about.isGroup)
+                indent += "  ";
+
+              let deepCopy = {};
+              Object.assign(deepCopy, d[k]);
+              delete deepCopy.groupDistortions;
+              let distortionsAsJSON = JSON.stringify(deepCopy, null, 2);
+              distortionsAsJSON = distortionsAsJSON.replace(/\n/gm, indent);
+
+              let localScript = "";
+              if (d.about.isGroup)
+              {
+                localScript += `    ___listener___.addListener(\n      [\n`;
+                const names = OutputPanel.getGroupNames(
+                  index, d.about.valueName
+                );
+                names.forEach(function(name, index) {
+                  localScript += `        ${name}`;
+                  if (index < names.length - 1)
+                    localScript += ",\n";
+                });
+                localScript += `\n      ],\n      "iterable",\n      `;
+              }
+              else
+              {
+                localScript += `    ___listener___.addListener(${d.about.valueName},`;
+                localScript += ` "${k}", `;
+              }
+              localScript += distortionsAsJSON;
+              if (d.about.isGroup)
+                localScript += "\n    ";
+              localScript += ");\n\n";
+
+              script += localScript;
             });
           });
           script += `    ___listener___.bindToHandler(___graph___);\n`;
@@ -174,6 +207,33 @@ const OutputPanel = window.OutputPanel = {
         "OutputPanel updated download links", window.location.origin
       );
     }
+  },
+
+  getGroupNames: function(graphIndex, groupName) {
+    "use strict";
+    groupName = groupName.substring(1, groupName.length - 1);
+    let rv = [];
+    const graph = OuterGridManager.graphNamesCache.controllers[graphIndex];
+    const maps = graph.distortionMaps;
+    maps.forEach(function(dm) {
+      if (dm.about.isGroup)
+        return;
+      if ("value" in dm) {
+        const name = dm.about.valueName;
+        const keys = dm.value.getGroupKeys(groupName);
+        keys.forEach(function(k) {
+          rv.push(`${name}.${k}`);
+        });
+      }
+      if ("proto" in dm) {
+        const name = dm.about.valueName;
+        const keys = dm.proto.getGroupKeys(groupName);
+        keys.forEach(function(k) {
+          rv.push(`${name}.prototype.${k}`);
+        });
+      }
+    }, this);
+    return rv;
   }
 };
 

@@ -2,7 +2,16 @@ function ObjectGraphManager() {
   this.radioClass = `graphpanel-${ObjectGraphManager.instanceCount}`;
   ObjectGraphManager.instanceCount++;
 
-  this.distortionMaps = [];
+  this.distortionMaps = [/*
+    // see DistortionsGUI.buildValuePanel
+    {
+      "about": {
+        "valueName": valueName,
+        "isFunction": (typeof value === "function"),
+      },
+      "value": rules,
+    }
+  */];
   this.passThroughEditor = null;
   this.valueGetterEditor = null;
 
@@ -33,7 +42,7 @@ ObjectGraphManager.prototype.buildUI = function() {
   this.panelLabel.appendChild(document.createTextNode("(Graph)"));
 
   this.radio.addEventListener("change", this, true);
-}
+};
 
 ObjectGraphManager.prototype.importJSON = function(data) {
   this.jsonBase = {
@@ -86,7 +95,10 @@ ObjectGraphManager.prototype.exportJSON = function(graphIndex) {
   return rv;
 };
 
-ObjectGraphManager.prototype.setGraphName = function(name, jsonName, isSymbol) {
+ObjectGraphManager.prototype.setGraphName = function(
+  name/*, jsonName, isSymbol*/
+)
+{
   this.groupLabel.firstChild.nodeValue = name;
   if (!this.groupLabel.parentNode) {
     OuterGridManager.addGraphUI(

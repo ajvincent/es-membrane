@@ -47,7 +47,8 @@
   font-style: italic;
 }
 
-#tabbox-files > label[for^="graphpanel-"] {
+#tabbox-files > label[for^="graphpanel-"],
+#tabbox-files > label[for^="grouppanel-"] {
   font-style: italic;
 }
 

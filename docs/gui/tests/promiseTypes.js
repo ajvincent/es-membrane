@@ -59,3 +59,12 @@ function FileReaderPromise(file, methodName) {
   reader[methodName](file);
   return p;
 }
+
+function TimeLimitPromise(promise, limit=500, message="Time limit expired") {
+  return new Promise((resolve, reject) => {
+    promise.then(resolve);
+    setTimeout(function() {
+      reject(message);
+    }, limit);
+  });
+}

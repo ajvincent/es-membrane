@@ -17,6 +17,10 @@ const DistortionsManager = window.DistortionsManager = {
     hash: <input type="radio"/>
   */),
 
+  groupNameToTabMap: new Map(/*
+    hash: <input type="radio"/>
+  */),
+
   valueNameToRulesMap: new Map(/*
     hash: {
       "value": new DistortionRules(value, treeroot),
@@ -49,18 +53,32 @@ const DistortionsGUI = window.DistortionsGUI = {
 
   gridTreeCount: 0,
 
-  buildDistortions: function(panel, value, isTopValue = false) {
+  buildDistortions:
+  function(panel, value, details = {
+    isTopValue: false,
+    isGroup: false,
+    isInstance: false,
+  }) {
+    const {isTopValue, isGroup, isInstance} = details;
     // Build the GUI.
     const gridtree = this.treeUITemplate.content.firstElementChild.cloneNode(true);
     gridtree.setAttribute("id", "gridtree-" + this.gridTreeCount);
     this.gridTreeCount++;
 
+    if (isGroup) {
+      panel.appendChild(this.groupPreludeTemplate.content.cloneNode(true));
+    }
+
     const rules = new DistortionsRules();
     rules.isTopValue = isTopValue;
+    rules.isGroup    = isGroup;
+    rules.isInstance = isInstance;
     rules.initByValue(value, gridtree);
 
-    DistortionsManager.valueToValueName.set(value, panel.dataset.hash);
-    DistortionsManager.valueToPanelMap.set(value, panel);
+    if (!isGroup) {
+      DistortionsManager.valueToValueName.set(value, panel.dataset.hash);
+      DistortionsManager.valueToPanelMap.set(value, panel);
+    }
 
     styleAndMoveTreeColumns(gridtree);
     panel.appendChild(gridtree);
@@ -187,22 +205,24 @@ const DistortionsGUI = window.DistortionsGUI = {
         valueName: graph.nameOfValue.value,
         graphIndex: OuterGridManager.graphNamesCache.controllers.indexOf(graph),
         hasValue: false,
+        isGroup: false,
         valueFromSource: graph.valueGetterEditor.getValue(),
       };
     }
 
     const {
-      graph, valueName, graphIndex, hasValue, valueFromSource
+      graph, valueName, graphIndex, hasValue, isGroup, valueFromSource
     } = details;
     const hash = DistortionsManager.hashGraphAndValueNames(
       valueName, graphIndex
     );
-    if (DistortionsManager.valueNameToTabMap.has(hash))
+    if (DistortionsManager.valueNameToTabMap.has(hash) ||
+        DistortionsManager.groupNameToTabMap.has(hash))
       // XXX ajvincent Need to let the GUI know this value name is taken
       return;
 
     const BL = DistortionsManager.BlobLoader;
-    if (!hasValue)
+    if (!hasValue && !isGroup)
     {
       await BL.addNamedValue(valueName, valueFromSource);
     }
@@ -211,19 +231,26 @@ const DistortionsGUI = window.DistortionsGUI = {
     panel.dataset.valueName = valueName;
     panel.dataset.graphIndex = graphIndex;
     panel.dataset.hash = hash;
-    const radioClass = "valuepanel-" + DistortionsManager.valueNameToTabMap.size;
+    const radioClass = isGroup ?
+                       "grouppanel-" + DistortionsManager.groupNameToTabMap.size :
+                       "valuepanel-" + DistortionsManager.valueNameToTabMap.size;
     panel.setAttribute("trapstab", "value");
 
     const radio = OuterGridManager.insertValuePanel(
       graphIndex, valueName, radioClass, panel
     );
     radio.dataset.hash = hash;
-    DistortionsManager.valueNameToTabMap.set(hash, radio);
+    if (isGroup)
+      DistortionsManager.groupNameToTabMap.set(hash, radio);
+    else
+      DistortionsManager.valueNameToTabMap.set(hash, radio);
 
-    const value = hasValue ?
+    const value = hasValue || isGroup ?
                   details.value :
                   BL.valuesByName.get(panel.dataset.valueName);
-    const rules = this.buildDistortions(panel, value, true);
+    const rules = this.buildDistortions(
+      panel, value, { isTopValue: true, isGroup }
+    );
     const distortionsSet = {
       "about": {
         "valueName": valueName,
@@ -231,11 +258,14 @@ const DistortionsGUI = window.DistortionsGUI = {
       },
       "value": rules,
     };
-    if (!hasValue) {
+    if (isGroup) {
+      distortionsSet.about.isGroup = true;
+    }
+    else if (!hasValue) {
       const getExample = valueFromSource.split("\n").slice(1, -2).join("\n");
       distortionsSet.about.getExample = getExample;
     }
-    DistortionsManager.valueNameToRulesMap.set(panel.dataset.hash, distortionsSet);
+    DistortionsManager.valueNameToRulesMap.set(hash, distortionsSet);
     graph.distortionMaps.push(distortionsSet);
 
     OuterGridManager.panels.appendChild(panel);
@@ -271,7 +301,12 @@ const DistortionsGUI = window.DistortionsGUI = {
     {
       panel.appendChild(document.createElement("hr"));
 
-      const rules = this.buildDistortions(panel, exampleValue);
+      const details = {
+        isTopValue: false,
+        isGroup: false,
+        isInstance: true,
+      }
+      const rules = this.buildDistortions(panel, exampleValue, details);
       const map = DistortionsManager.valueNameToRulesMap.get(panel.dataset.hash);
       map.instance = rules;
       map.about.getInstance = sourceExtract;
@@ -296,6 +331,7 @@ const DistortionsGUI = window.DistortionsGUI = {
     "treeUITemplate":          "distortions-tree-ui-main",
     "propertyTreeTemplate":    "distortions-tree-ui-property",
     "instancePreludeTemplate": "distortions-instanceof-prelude",
+    "groupPreludeTemplate":    "distortions-groups-panel-prelude",
   };
   let keys = Reflect.ownKeys(elems);
   keys.forEach(function(key) {

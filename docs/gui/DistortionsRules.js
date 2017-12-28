@@ -127,6 +127,8 @@ DistortionsRules.setDistortionGroup = function(event) {
 
 DistortionsRules.prototype = {
   isTopValue: false,
+  isGroup: false,
+
   propertyTreeTemplate: null,
 
   bindUI: function() {
@@ -255,9 +257,14 @@ DistortionsRules.prototype = {
         listItem.removeChild(button.parentNode);
       }
       else if (this.isTopValue &&
-          (typeof this.value === "function") &&
-          (key === "prototype"))
+               (typeof this.value === "function") &&
+               (key === "prototype"))
       {
+        button.disabled = true;
+      }
+      else if (this.isInstance)
+      {
+        // properties of an instance of a ctor cannot have distortion groups.
         button.disabled = true;
       }
 
@@ -275,7 +282,14 @@ DistortionsRules.prototype = {
     this.value = value;
     this.gridtree = gridtree;
     this.treeroot = gridtree.firstElementChild;
-    this.fillProperties();
+    if (this.isGroup) {
+      const ul = this.treeroot.firstElementChild;
+      ul.removeChild(ul.children[1]);
+      const header = ul.firstElementChild;
+      header.removeChild(header.lastElementChild);
+    }
+    else
+      this.fillProperties();
     this.bindUI();
     this.treeroot = null;
   },
@@ -308,7 +322,7 @@ DistortionsRules.prototype = {
 
     // filterOwnKeys
     {
-      if (this.filterOwnKeysControl.checked) {
+      if (this.filterOwnKeysControl && this.filterOwnKeysControl.checked) {
         let inputs = this.groupToInputsMap.get("ownKeys");
         rv.filterOwnKeys = inputs.filter((checkbox) => checkbox.checked)
                                  .map((checkbox) => checkbox.dataset.name);
@@ -421,9 +435,30 @@ DistortionsRules.prototype = {
     )[1];
 
     const groupName = button.firstChild ? button.firstChild.nodeValue : "";
-    if (!groupName) {
+    let details = null, hash;
+    if (groupName)
+    {
+      const path = `[${groupName}]`;
+      hash = DistortionsManager.hashGraphAndValueNames(path, graphIndex);
+
+      let radio = DistortionsManager.groupNameToTabMap.get(hash);
+      if (radio) {
+        radio.click();
+        return;
+      }
+
+      details = {
+        graph: OuterGridManager.graphNamesCache.controllers[graphIndex],
+        valueName: path,
+        graphIndex: graphIndex,
+        hasValue: false,
+        isGroup: true,
+      };
+    }
+    else
+    {
       const path = panel.dataset.valueName + "." + keyName;
-      const hash = DistortionsManager.hashGraphAndValueNames(path, graphIndex);
+      hash = DistortionsManager.hashGraphAndValueNames(path, graphIndex);
 
       let radio = DistortionsManager.valueNameToTabMap.get(hash);
       if (radio) {
@@ -432,29 +467,47 @@ DistortionsRules.prototype = {
       }
 
       // OK, we have to build a new value panel.
-      const details = {
+      details = {
         graph: OuterGridManager.graphNamesCache.controllers[graphIndex],
         valueName: path,
         graphIndex: graphIndex,
         hasValue: true,
         value: target,
+        isGroup: false,
       };
-
-      let p = DistortionsGUI.buildValuePanel(details);
-      p.then(function() {
-        OuterGridManager.valueRadio.click();
-        OuterGridManager.grid.setAttribute("trapstab", "value");
-
-        if (LoadPanel.testMode) {
-          const msg = "openDistortionsGroup: property panel created";
-          console.log("postMessage requested:", msg);
-          window.postMessage(msg, window.location.origin);
-        }
-      });
-      return;
     }
 
-    throw new Error("Not implemented yet");
+    let p = DistortionsGUI.buildValuePanel(details);
+    p.then(function() {
+      if (!groupName) {
+        const about = DistortionsManager.valueNameToRulesMap.get(hash).about;
+        about.parent = panel.dataset.valueName;
+        about.keyName = keyName;
+      }
+
+      OuterGridManager.valueRadio.click();
+      OuterGridManager.grid.setAttribute("trapstab", "value");
+
+      if (LoadPanel.testMode) {
+        const msg = "openDistortionsGroup: property panel created";
+        console.log("postMessage requested:", msg);
+        window.postMessage(msg, window.location.origin);
+      }
+    });
+  },
+
+  getGroupKeys: function(groupName) {
+    let rv = [];
+    const buttons = this.gridtree.getElementsByClassName("distortions-group");
+    for (let i = 0; i < buttons.length; i++) {
+      const button = buttons[i];
+      if (!button.firstChild)
+        continue;
+      if (button.firstChild.nodeValue !== groupName)
+        continue;
+      rv.push(this.getKeyNameForCell(button));
+    }
+    return rv;
   },
 
   handleEvent: function(event) {

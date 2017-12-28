@@ -453,14 +453,6 @@ r.getArea(); // returns 12</pre>
              value="instance"
              id="tabbox-function-traps-instance">
       <label for="tabbox-function-traps-instance">Constructed By</label>
-
-      <input type="radio"
-             name="functionTraps"
-             form="tabbox-form"
-             disabled="disabled"
-             value="groups"
-             id="tabbox-function-traps-groups">
-      <label for="tabbox-function-traps-groups">Group Configuration</label>
     </div>
 
     <!-- row 4 -->
@@ -810,6 +802,13 @@ r.getArea(); // returns 12</pre>
         <img src="gui/icons/minusicon.svg">
       </button>
     </form>
+  </template>
+
+  <template id="distortions-groups-panel-prelude">
+    <p>Distortions for groups of values do not support selecting property keys
+    for inclusion/exclusion.  If you list a value in this group, the
+    filterOwnKeys rule is disabled for that value.</p>
+    <hr/>
   </template>
 
   <div id="distortions-groups-dialog">

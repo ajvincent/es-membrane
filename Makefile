@@ -97,8 +97,9 @@ browser:: base mockDocs specs
 	@cat wrappers/useStrict.js $(DIST)/staging/sharedUtilities.js > $(DIST)/browser/sharedUtilities.js
 	@cat wrappers/useStrict.js $(DIST)/staging/mocks.js > $(DIST)/browser/mocks.js
 	@cp wrappers/browser/assert.js $(DIST)/browser/assert.js
+	@cp mocks/static.js $(DIST)/staging
 	@rm -f $(DIST)/staging/*.zip
-	@cd $(DIST) && zip -q staging/browser.zip browser/*.js
+	@cd $(DIST) && zip -q staging/browser.zip browser/*.js staging/static.js
 	@cd $(DIST) && zip -q staging/staging.zip staging/*.js
 	@echo "You may now open './$(DIST)/staging/test-browser.xhtml'."
 	@echo "  (if Mozilla Firefox, version 51 or later is required)"
