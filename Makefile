@@ -54,13 +54,13 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/argumentTruncation.js \
 	spec/concepts.js \
 	spec/freeze-seal.js \
-	spec/replaceProxies.js \
-	spec/passThroughFilters.js \
-	spec/proxyListeners.js \
-	spec/functionListeners.js \
-	spec/manualBind.js \
-	spec/primordials.js \
-	spec/DistortionsListener.js \
+	spec/features/replaceProxies.js \
+	spec/features/passThroughFilters.js \
+	spec/features/proxyListeners.js \
+	spec/features/functionListeners.js \
+	spec/features/manualBind.js \
+	spec/features/primordials.js \
+	spec/features/DistortionsListener.js \
 	spec/properties/storeUnknownAsLocal.js \
 	spec/properties/requireLocalDelete.js \
 	spec/properties/filterOwnKeys.js \

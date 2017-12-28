@@ -7,7 +7,7 @@ if ((typeof MembraneMocks != "function") ||
     (typeof loggerLib != "object") ||
     (typeof DAMP != "symbol")) {
   if (typeof require == "function") {
-    var { MembraneMocks, loggerLib, DAMP } = require("../docs/dist/node/mocks.js");
+    var { MembraneMocks, loggerLib, DAMP } = require("../../docs/dist/node/mocks.js");
   }
 }
 

@@ -8,7 +8,7 @@
 
 if (typeof loggerLib != "object") {
   if (typeof require == "function") {
-    var { loggerLib } = require("../docs/dist/node/mocks.js");
+    var { loggerLib } = require("../../docs/dist/node/mocks.js");
   }
   else
     throw new Error("Unable to run tests: cannot get MembraneMocks");
@@ -16,7 +16,7 @@ if (typeof loggerLib != "object") {
 
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
   }
 }
 

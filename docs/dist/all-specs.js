@@ -2449,8 +2449,8 @@ import "../docs/dist/es6-modules/MembraneMocks.js";
 
 if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
   if (typeof require == "function") {
-    var { Membrane } = require("../docs/dist/node/es7-membrane.js");
-    var { MembraneMocks } = require("../docs/dist/node/mocks.js");
+    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
+    var { MembraneMocks } = require("../../docs/dist/node/mocks.js");
   }
 }
 
@@ -2752,7 +2752,7 @@ import "../docs/dist/es6-modules/MembraneMocks.js";
 */
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
   }
   else
     throw new Error("Unable to run tests: cannot get Membrane");
@@ -3090,7 +3090,7 @@ describe("Pass-through filters", function() {
 
 if (typeof loggerLib != "object") {
   if (typeof require == "function") {
-    var { loggerLib } = require("../docs/dist/node/mocks.js");
+    var { loggerLib } = require("../../docs/dist/node/mocks.js");
   }
   else
     throw new Error("Unable to run tests: cannot get MembraneMocks");
@@ -3098,7 +3098,7 @@ if (typeof loggerLib != "object") {
 
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
   }
 }
 
@@ -4228,7 +4228,7 @@ if ((typeof MembraneMocks != "function") ||
     (typeof loggerLib != "object") ||
     (typeof DAMP != "symbol")) {
   if (typeof require == "function") {
-    var { MembraneMocks, loggerLib, DAMP } = require("../docs/dist/node/mocks.js");
+    var { MembraneMocks, loggerLib, DAMP } = require("../../docs/dist/node/mocks.js");
   }
 }
 
@@ -4661,7 +4661,7 @@ describe("Function listeners", function() {
 });
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
   }
   else
     throw new Error("Unable to run tests: cannot get Membrane");
@@ -4933,7 +4933,7 @@ describe("Binding two values manually", function() {
 });
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
   }
   else
     throw new Error("Unable to run tests: cannot get Membrane");
@@ -5020,7 +5020,7 @@ import "../docs/dist/es6-modules/Membrane.js";
 
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
   }
   else
     throw new Error("Unable to run tests: cannot get Membrane");
