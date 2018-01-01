@@ -5,6 +5,14 @@ window.DistortionsRules = function DistortionsRules() {
   this.groupToInputsMap = new Map(/*
     groupName: <input type="checkbox">[]
   */);
+
+  this.value = null;
+  this.gridtree = null;
+  this.treeroot = null;
+  this.isGroup = false;
+  this.isTopValue = false;
+  this.filterOwnKeysControl = null;
+  this.helpAndNotesMap = null;
 };
 
 /**
@@ -126,12 +134,16 @@ DistortionsRules.setDistortionGroup = function(event) {
 };
 
 DistortionsRules.prototype = {
-  isTopValue: false,
-  isGroup: false,
-
   propertyTreeTemplate: null,
 
   bindUI: function() {
+    {
+      const links = this.treeroot.getElementsByClassName("notesPanelLink");
+      for (let i = 0; i < links.length; i++) {
+        links[i].addEventListener("click", this, true);
+      }
+    }
+
     {
       let multistates = this.treeroot.getElementsByClassName("multistate");
       for (let i = 0; i < multistates.length; i++) {
@@ -288,8 +300,12 @@ DistortionsRules.prototype = {
       const header = ul.firstElementChild;
       header.removeChild(header.lastElementChild);
     }
-    else
+    else {
       this.fillProperties();
+      this.helpAndNotesMap = new Map(/*
+        keyName (string) : { node: HTMLTextArea, savedValue: string }
+      */);
+    }
     this.bindUI();
     this.treeroot = null;
   },
@@ -301,6 +317,24 @@ DistortionsRules.prototype = {
 
     const span = this.gridtree.getCell(row, 0);
     return span.firstChild.nodeValue;
+  },
+
+  showNotesTextarea: function(link) {
+    const keyName = this.getKeyNameForCell(link);
+    if (!this.helpAndNotesMap.has(keyName)) {
+      this.helpAndNotesMap.set(keyName, {
+        savedValue: ""
+      });
+    }
+
+    const bag = this.helpAndNotesMap.get(keyName);
+    if (!bag.textarea) {
+      bag.textarea = document.createElement("textarea");
+      document.getElementById("help-and-notes").appendChild(bag.textarea);
+      bag.textarea.value = bag.savedValue;
+    }
+
+    OuterGridManager.setNotesPanel(bag.textarea);
   },
 
   importJSON: function(/*config*/) {
@@ -317,6 +351,7 @@ DistortionsRules.prototype = {
       useShadowTarget: false,
       proxyTraps: allTraps.slice(0),
       truncateArgList: Non-negative integer || false || true,
+      notesPerKey: { keyName (string) : notes (string) },
        */
     };
 
@@ -376,6 +411,20 @@ DistortionsRules.prototype = {
       }
       if (count > 0)
         rv.groupDistortions = foundGroups;
+    }
+
+    if (this.helpAndNotesMap && this.helpAndNotesMap.size) {
+      rv.notesPerKey = {};
+      let found = false;
+      this.helpAndNotesMap.forEach(function(bag, keyName) {
+        const value = bag.textarea ? bag.textarea.value : bag.savedValue;
+        if (value) {
+          found = true;
+          rv.notesPerKey[keyName] = value;
+        }
+      });
+      if (!found)
+        delete rv.notesPerKey;
     }
 
     return rv;
@@ -514,6 +563,9 @@ DistortionsRules.prototype = {
 
   handleEvent: function(event) {
     const el = event.currentTarget;
+    if (el.classList.contains("notesPanelLink"))
+      return this.showNotesTextarea(el);
+
     if ((el.classList.contains("multistate")) &&
         (el.dataset.name === "truncateArgList")) {
       el.nextElementSibling.disabled = (el.value !== "number");

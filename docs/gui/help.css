@@ -10,6 +10,12 @@
   display: none;
 }
 
+#help-and-notes > textarea {
+  height: 99%;
+  width: 99%;
+  resize: none;
+}
+
 button.helpButton {
   background-image: url("icons/Tango-style_question_icon.svg");
 }

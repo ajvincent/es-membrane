@@ -156,6 +156,7 @@ const OutputPanel = window.OutputPanel = {
               let deepCopy = {};
               Object.assign(deepCopy, d[k]);
               delete deepCopy.groupDistortions;
+              delete deepCopy.notesPerKey;
               let distortionsAsJSON = JSON.stringify(deepCopy, null, 2);
               distortionsAsJSON = distortionsAsJSON.replace(/\n/gm, indent);
 

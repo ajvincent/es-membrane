@@ -2,6 +2,7 @@ describe("Output panel", function() {
   "use strict";
   var window, OGM, DM, metadata, distortions;
   // Yes, magic numbers suck.  Deal with it.
+  const notesCol = 2;
   const groupCol = 3;
 
   beforeEach(async function() {
@@ -69,6 +70,13 @@ describe("Output panel", function() {
   function getRules(panel, type) {
     const hash = panel.dataset.hash;
     return DM.valueNameToRulesMap.get(hash)[type];
+  }
+
+  function getNotesLink(panel, keyName) {
+    const rules = getRules(panel, "value");
+    const row = getRowForProperty(panel, keyName);
+    const cell = rules.gridtree.getCell(row, notesCol);
+    return cell.firstElementChild;
   }
 
   function getGroupButton(panel, keyName) {
@@ -161,10 +169,16 @@ describe("Output panel", function() {
       }
     });
 
-    describe("with an object graph", function() {
+    describe("generally supports DistortionsListener instances", function() {
       it("for an object", async function() {
         await getValue("doc");
-        const rules = getRules(OGM.getSelectedPanel(), "value");
+        const docPanel = OGM.getSelectedPanel();
+        const rules = getRules(docPanel, "value");
+
+        // test for help-and-notes
+        getNotesLink(docPanel, "nodeName").click();
+        OGM.selectedHelpAndNotesPanel.value = "The name of the node.";
+
         await updateMetadata();
         expect(distortions.length).toBe(1);
 
@@ -180,7 +194,7 @@ describe("Output panel", function() {
         expect(distProps).toEqual(["about", "value"]);
       });
 
-      it("for a single object property", async function() {
+      it("for a single object's property", async function() {
         await getValue("doc");
         const docRules = getRules(OGM.getSelectedPanel(), "value");
 

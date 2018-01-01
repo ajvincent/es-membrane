@@ -112,6 +112,13 @@ const OuterGridManager = window.OuterGridManager = {
         OuterGridManager.setHelpPanel(event.target);
     }, true);
 
+    this.filesTabbox.addEventListener(
+      "change", () => this.clearHelpNotesPanel(), true
+    );
+    this.trapsTabbox.addEventListener(
+      "change", () => this.clearHelpNotesPanel(), true
+    );
+
     this.loadPanelRadio.click();
   },
 
@@ -300,12 +307,27 @@ const OuterGridManager = window.OuterGridManager = {
   },
 
   setHelpPanel: function(button) {
-    if (this.selectedHelpAndNotesPanel)
-      this.selectedHelpAndNotesPanel.dataset.selected = false;
+    this.clearHelpNotesPanel();
+
     const panelId = "help-" + button.dataset.for;
     this.selectedHelpAndNotesPanel = document.getElementById(panelId);
     if (this.selectedHelpAndNotesPanel)
       this.selectedHelpAndNotesPanel.dataset.selected = true;
+  },
+
+  setNotesPanel: function(textarea) {
+    this.clearHelpNotesPanel();
+    this.selectedHelpAndNotesPanel = textarea;
+
+    if (this.selectedHelpAndNotesPanel)
+      this.selectedHelpAndNotesPanel.dataset.selected = true;
+  },
+
+  clearHelpNotesPanel: function() {
+    if (this.selectedHelpAndNotesPanel)
+      this.selectedHelpAndNotesPanel.dataset.selected = false;
+
+    this.selectedHelpAndNotesPanel = null;
   },
 
   setCurrentErrorText: function(e) {
