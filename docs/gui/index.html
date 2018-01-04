@@ -427,6 +427,30 @@ r.getArea(); // returns 12</pre>
           </a>
         .</p>
       </article>
+
+      <article id="help-proxy-isExtensible">
+        <h2>isExtensible</h2>
+        <h3>Summary</h3>
+        <p>The isExtensible trap
+          <a title="Reflect.isExtensible() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/isExtensible"
+             target="_blank"
+             rel="noopener">"determines if an object is extensible (whether it
+             can have new properties added to it). It is similar to
+             Object.isExtensible(), but with some differences."</a></p>
+        <h3>Usage in es7-membrane</h3>
+        <p>I strongly recommend enabling the isExtensible trap.  A lot of the
+        ECMAScript specification relies on isExtensible returning true or false.
+        Disabling the trap currently means that any call to a proxy's
+        isExtensible internal property will throw an exception.  I don't know
+        how JavaScript engines respond to an exception being thrown from such a
+        call, but I guarantee it won't be pretty.  It could even lead to
+        inconsistent behavior...</p>
+        <p><strong>Help wanted:</strong> Let me know your educated opinion on 
+        how a membrane should handle at disabled isExtensible trap
+          <a href="https://github.com/ajvincent/es7-membrane/issues/101">here</a>
+        .</p>
+      </article>
     </div>
 
     <div id="tabbox-function-traps" class="tabbar">
