@@ -96,7 +96,7 @@ describe("DistortionsRules", function() {
       isCheckboxWithName(items[0],  "getPrototypeOf", true);
       isCheckboxWithName(items[1],  "setPrototypeOf", false);
       isCheckboxWithName(items[2],  "isExtensible", true);
-      isCheckboxWithName(items[3],  "preventExtensions", true);
+      isCheckboxWithName(items[3],  "preventExtensions", false);
       isCheckboxWithName(items[4],  "getOwnPropertyDescriptor", true);
       isCheckboxWithName(items[5],  "defineProperty", true);
       isCheckboxWithName(items[6],  "has", true);

@@ -451,6 +451,25 @@ r.getArea(); // returns 12</pre>
           <a href="https://github.com/ajvincent/es7-membrane/issues/101">here</a>
         .</p>
       </article>
+
+      <article id="help-proxy-preventExtensions">
+        <h2>preventExtensions</h2>
+        <h3>Summary</h3>
+        <p>The preventExtensions trap
+          <a title="Object.preventExtensions() - JavaScript | MDN"
+             target="_blank"
+             rel="noopener">"prevents new properties from ever being added to an
+             object (i.e. prevents future extensions to the object)."</a>
+        </p>
+        <h3>Usage in es7-membrane</h3>
+        <p>I strongly recommend disabling the preventExtensions trap.  If an
+        untrusted person can call preventExtensions, that means your protected
+        objects may break when you try to define new properties.</p>
+
+        <p>Additionally, you may want to enable the storeUnknownAsLocal setting,
+        so untrusted users' unique properties do not propagate across to your
+        trusted code.</p>
+      </article>
     </div>
 
     <div id="tabbox-function-traps" class="tabbar">
@@ -652,7 +671,7 @@ r.getArea(); // returns 12</pre>
               </li>
               <li>
                 <span>preventExtensions</span>
-                <span><input type="checkbox" checked="checked"></span>
+                <span><input type="checkbox"></span>
                 <span>
                   <button class="icon helpButton" data-for="proxy-preventExtensions"></button>
                 </span>
