@@ -457,6 +457,7 @@ r.getArea(); // returns 12</pre>
         <h3>Summary</h3>
         <p>The preventExtensions trap
           <a title="Object.preventExtensions() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/preventExtensions"
              target="_blank"
              rel="noopener">"prevents new properties from ever being added to an
              object (i.e. prevents future extensions to the object)."</a>
@@ -469,6 +470,23 @@ r.getArea(); // returns 12</pre>
         <p>Additionally, you may want to enable the storeUnknownAsLocal setting,
         so untrusted users' unique properties do not propagate across to your
         trusted code.</p>
+      </article>
+
+      <article id="help-proxy-getOwnPropertyDescriptor">
+        <h2>getOwnPropertyDescriptor</h2>
+        <h3>Summary</h3>
+        <p>The getOwnPropertyDescriptor trap
+          <a title="Object.getOwnPropertyDescriptor() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptor"
+             target="_blank"
+             rel="noopener">"method returns a property descriptor for an own
+             property (that is, one directly present on an object and not in the
+             object's prototype chain) of a given object."</a>
+        </p>
+        <h3>Usage in es7-membrane</h3>
+        <p>I strongly recommend enabling the getOwnPropertyDescriptor() trap.
+        The get() trap relies on the getOwnPropertyDescriptor() trap, and will
+        not work without it.</p>
       </article>
     </div>
 
