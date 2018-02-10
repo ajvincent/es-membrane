@@ -323,7 +323,7 @@ r.getArea(); // returns 12</pre>
         <p>The <code>getArea()</code> method is available to the <code>r</code>
           object because it inherits from
           <code>Rectangle.prototype</code>.</p>
-        <h3>Usage in es7-membrane</h3>
+        <h3>Usage in es-membrane</h3>
         <p>I do not recommend disabling the getPrototypeOf() trap, because
         prototypes are central to the normal operation of JavaScript.&nbsp;
         Currently, it throws an exception when disabled.</p>
@@ -403,7 +403,7 @@ catch (e) {
 Reflect.setPrototypeOf(newProto, Rectangle.prototype);
   
 r.getArea(); // returns 12</pre>
-        <h3>Usage in es7-membrane</h3>
+        <h3>Usage in es-membrane</h3>
         <p>I strongly recommend disabling the setPrototypeOf() trap, because
         anyone who sets a prototype on your objects effectively owns all the
         inherited properties of your objects.  For this reason, the
@@ -438,7 +438,7 @@ r.getArea(); // returns 12</pre>
              rel="noopener">"determines if an object is extensible (whether it
              can have new properties added to it). It is similar to
              Object.isExtensible(), but with some differences."</a></p>
-        <h3>Usage in es7-membrane</h3>
+        <h3>Usage in es-membrane</h3>
         <p>I strongly recommend enabling the isExtensible trap.  A lot of the
         ECMAScript specification relies on isExtensible returning true or false.
         Disabling the trap currently means that any call to a proxy's
@@ -448,7 +448,7 @@ r.getArea(); // returns 12</pre>
         inconsistent behavior...</p>
         <p><strong>Help wanted:</strong> Let me know your educated opinion on 
         how a membrane should handle at disabled isExtensible trap
-          <a href="https://github.com/ajvincent/es7-membrane/issues/101">here</a>
+          <a href="https://github.com/ajvincent/es-membrane/issues/101">here</a>
         .</p>
       </article>
 
@@ -462,7 +462,7 @@ r.getArea(); // returns 12</pre>
              rel="noopener">"prevents new properties from ever being added to an
              object (i.e. prevents future extensions to the object)."</a>
         </p>
-        <h3>Usage in es7-membrane</h3>
+        <h3>Usage in es-membrane</h3>
         <p>I strongly recommend disabling the preventExtensions trap.  If an
         untrusted person can call preventExtensions, that means your protected
         objects may break when you try to define new properties.</p>
@@ -483,7 +483,7 @@ r.getArea(); // returns 12</pre>
              property (that is, one directly present on an object and not in the
              object's prototype chain) of a given object."</a>
         </p>
-        <h3>Usage in es7-membrane</h3>
+        <h3>Usage in es-membrane</h3>
         <p>I strongly recommend enabling the getOwnPropertyDescriptor() trap.
         The get() trap relies on the getOwnPropertyDescriptor() trap, and will
         not work without it.</p>

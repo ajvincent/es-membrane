@@ -16,7 +16,7 @@ if (typeof loggerLib != "object") {
 
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
   }
 }
 

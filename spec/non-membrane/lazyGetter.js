@@ -258,10 +258,6 @@ describe(
         const buildingProxiesFor = new WeakMap();
 
         const revocables = [];
-        afterEach(function() {
-          revocables.forEach(function(r) { r(); });
-        });
-
         function buildSealedProxy(obj) {
           const callbacks = [/* callbacks or promises */];
           buildingProxiesFor.set(obj, callbacks);
@@ -321,6 +317,7 @@ describe(
           expect(C.grandParent.child.child === C).toBe(true);
           expect(Object.isSealed(C)).toBe(true);
         }
+        revocables.forEach(function(r) { r(); });
       }
     );
   }

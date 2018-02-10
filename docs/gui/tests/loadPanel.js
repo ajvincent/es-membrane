@@ -366,7 +366,7 @@ describe("Load Panel Operations with zip archives", function() {
     const fileList = window.LoadPanel.zipForm.elements.selectFile;
     expect(fileList.length).toBe(5);
     expect(fileList[0].value).toBe("browser/assert.js");
-    expect(fileList[1].value).toBe("browser/es7-membrane.js");
+    expect(fileList[1].value).toBe("browser/es-membrane.js");
     expect(fileList[2].value).toBe("browser/fireJasmine.js");
     expect(fileList[3].value).toBe("browser/mocks.js");
     expect(fileList[4].value).toBe("browser/sharedUtilities.js");
@@ -383,7 +383,7 @@ describe("Load Panel Operations with zip archives", function() {
           "commonFiles": [
             "browser/assert.js",
             "browser/sharedUtilities.js",
-            "browser/es7-membrane.js",
+            "browser/es-membrane.js",
             "browser/mocks.js"
           ],
           "formatVersion": 1.0,
@@ -397,7 +397,7 @@ describe("Load Panel Operations with zip archives", function() {
       await window.LoadPanel.updateLoadFiles();
 
       expect(getCheckbox("browser/assert.js").checked).toBe(true);
-      expect(getCheckbox("browser/es7-membrane.js").checked).toBe(true);
+      expect(getCheckbox("browser/es-membrane.js").checked).toBe(true);
       expect(getCheckbox("browser/fireJasmine.js").checked).toBe(false);
       expect(getCheckbox("browser/mocks.js").checked).toBe(true);
       expect(getCheckbox("browser/sharedUtilities.js").checked).toBe(true);
@@ -406,7 +406,7 @@ describe("Load Panel Operations with zip archives", function() {
       expect(fileList).toEqual([
         "browser/assert.js",
         "browser/sharedUtilities.js",
-        "browser/es7-membrane.js",
+        "browser/es-membrane.js",
         "browser/mocks.js"
       ]);
     }
@@ -421,7 +421,7 @@ describe("Load Panel Operations with zip archives", function() {
           "commonFiles": [
             "browser/assert.js",
             "browser/sharedUtilities.js",
-            "browser/es7-membrane.js",
+            "browser/es-membrane.js",
             "browser/mocks.js"
           ],
           "formatVersion": 1.0,
@@ -436,7 +436,7 @@ describe("Load Panel Operations with zip archives", function() {
       await window.LoadPanel.setTestModeZip();
 
       expect(getCheckbox("browser/assert.js").checked).toBe(true);
-      expect(getCheckbox("browser/es7-membrane.js").checked).toBe(true);
+      expect(getCheckbox("browser/es-membrane.js").checked).toBe(true);
       expect(getCheckbox("browser/fireJasmine.js").checked).toBe(false);
       expect(getCheckbox("browser/mocks.js").checked).toBe(true);
       expect(getCheckbox("browser/sharedUtilities.js").checked).toBe(true);
@@ -445,7 +445,7 @@ describe("Load Panel Operations with zip archives", function() {
       expect(fileList).toEqual([
         "browser/assert.js",
         "browser/sharedUtilities.js",
-        "browser/es7-membrane.js",
+        "browser/es-membrane.js",
         "browser/mocks.js"
       ]);
     }
@@ -460,7 +460,7 @@ describe("Load Panel Operations with zip archives", function() {
           "commonFiles": [
             "browser/assert.js",
             "browser/sharedUtilities.js",
-            "browser/es7-membrane.js",
+            "browser/es-membrane.js",
             "browser/mocks.js"
           ],
           "formatVersion": 1.0,
@@ -475,7 +475,7 @@ describe("Load Panel Operations with zip archives", function() {
       await window.LoadPanel.setTestModeZip();
 
       expect(getCheckbox("browser/assert.js").checked).toBe(false);
-      expect(getCheckbox("browser/es7-membrane.js").checked).toBe(false);
+      expect(getCheckbox("browser/es-membrane.js").checked).toBe(false);
       expect(getCheckbox("browser/fireJasmine.js").checked).toBe(false);
       expect(getCheckbox("browser/mocks.js").checked).toBe(false);
       expect(getCheckbox("browser/sharedUtilities.js").checked).toBe(false);
@@ -490,7 +490,7 @@ describe("Load Panel Operations with zip archives", function() {
           "commonFiles": [
             "browser/assert.js",
             "browser/sharedUtilities.js",
-            "browser/es7-membrane.js",
+            "browser/es-membrane.js",
             "browser/mocks.js"
           ],
           "formatVersion": 1.0,
@@ -505,7 +505,7 @@ describe("Load Panel Operations with zip archives", function() {
       await window.LoadPanel.setTestModeZip();
 
       expect(getCheckbox("browser/assert.js").checked).toBe(false);
-      expect(getCheckbox("browser/es7-membrane.js").checked).toBe(false);
+      expect(getCheckbox("browser/es-membrane.js").checked).toBe(false);
       expect(getCheckbox("browser/fireJasmine.js").checked).toBe(false);
       expect(getCheckbox("browser/mocks.js").checked).toBe(false);
       expect(getCheckbox("browser/sharedUtilities.js").checked).toBe(false);

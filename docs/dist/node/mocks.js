@@ -9,7 +9,7 @@ var {
     isAccessorDescriptor,
     allTraps,
 } = require("./utilities.js");
-var { Membrane } = require("./es7-membrane.js");
+var { Membrane } = require("./es-membrane.js");
 var loggerLib = (function() {
   function BasicLogger() {
     this.appenders = [];

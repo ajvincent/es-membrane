@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ajvincent/es7-membrane.svg?branch=master)](https://travis-ci.org/ajvincent/es7-membrane)
+[![Build Status](https://travis-ci.org/ajvincent/es-membrane.svg?branch=master)](https://travis-ci.org/ajvincent/es-membrane)
 
 # The concepts driving a membrane
 
@@ -128,7 +128,7 @@ Finally, you have enough information to uniquely identify x by both its object g
 * [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) and [ProxyHandler](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) documentation on developer.mozilla.org
 * The ECMAScript specifications, [6th Edition, aka "2015 Edition"](http://www.ecma-international.org/ecma-262/6.0/) and [7th Edition, aka "2016 Edition"](http://www.ecma-international.org/ecma-262/7.0/)
 
-# How to use the es7-membrane module
+# How to use the es-membrane module
 
 1. Define the object graphs by name you wish to use.  Examples:
   * [ "wet", "dry" ] or [ "wet", "dry", "damp"], per Tom van Cutsem

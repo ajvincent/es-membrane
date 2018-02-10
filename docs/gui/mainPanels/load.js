@@ -32,7 +32,7 @@ window.LoadPanel = {
     this.testMode.requiredFiles = [
       "../dist/browser/assert.js",
       "../dist/browser/sharedUtilities.js",
-      "../dist/browser/es7-membrane.js",
+      "../dist/browser/es-membrane.js",
       "../dist/browser/mocks.js"
     ];
     this.testMode.requiredFiles.forEach(function(filepath) {
@@ -46,7 +46,7 @@ window.LoadPanel = {
     const fileList = [
       "browser/assert.js",
       "browser/sharedUtilities.js",
-      "browser/es7-membrane.js",
+      "browser/es-membrane.js",
       "browser/mocks.js",
       "browser/fireJasmine.js"
     ];

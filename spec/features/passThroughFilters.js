@@ -4,7 +4,7 @@ import "../docs/dist/es6-modules/MembraneMocks.js";
 */
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
   }
   else
     throw new Error("Unable to run tests: cannot get Membrane");

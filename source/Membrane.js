@@ -412,7 +412,7 @@ MembraneInternal.prototype = Object.seal({
 
     if (propBag0.proxyMap && propBag1.proxyMap) {
       if (propBag0.proxyMap !== propBag1.proxyMap) {
-        // See https://github.com/ajvincent/es7-membrane/issues/77 .
+        // See https://github.com/ajvincent/es-membrane/issues/77 .
         throw new Error("Linking two ObjectGraphHandlers in this way is not safe.");
       }
     }

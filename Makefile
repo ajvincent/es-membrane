@@ -25,7 +25,7 @@ SOURCE_FILES = \
 base::
 	@mkdir -p $(DIST)/staging
 	@cp source/sharedUtilities.js $(DIST)/staging/sharedUtilities.js
-	@cat $(SOURCE_FILES) > $(DIST)/staging/es7-membrane.js
+	@cat $(SOURCE_FILES) > $(DIST)/staging/es-membrane.js
 
 MOCKS_FILES = \
 	mocks/logger.js \
@@ -85,7 +85,7 @@ clean::
 BROWSER_MEMBRANE_FILES = \
   wrappers/browser/membrane-intro.js.in \
   wrappers/useStrict.js \
-  $(DIST)/staging/es7-membrane.js \
+  $(DIST)/staging/es-membrane.js \
   wrappers/browser/membrane-outro.js.in \
   $(NULL)
 
@@ -93,7 +93,7 @@ browser:: base mockDocs specs
 	@mkdir -p $(DIST)/browser
 	@cp wrappers/browser/fireJasmine.js $(DIST)/browser/fireJasmine.js
 	@cp wrappers/browser/test-browser.xhtml $(DIST)/browser/test-browser.xhtml
-	@cat $(BROWSER_MEMBRANE_FILES) > $(DIST)/browser/es7-membrane.js
+	@cat $(BROWSER_MEMBRANE_FILES) > $(DIST)/browser/es-membrane.js
 	@cat wrappers/useStrict.js $(DIST)/staging/sharedUtilities.js > $(DIST)/browser/sharedUtilities.js
 	@cat wrappers/useStrict.js $(DIST)/staging/mocks.js > $(DIST)/browser/mocks.js
 	@cp wrappers/browser/assert.js $(DIST)/browser/assert.js
@@ -110,7 +110,7 @@ gui-tests::
 NODE_DIST_FILES = \
 	wrappers/useStrict.js \
 	wrappers/node/require-assert.js \
-	$(DIST)/staging/es7-membrane.js \
+	$(DIST)/staging/es-membrane.js \
 	wrappers/node/export-membrane.js \
 	$(NULL)
 
@@ -131,7 +131,7 @@ NODE_UTILITIES_FILES = \
 
 node:: base mockDocs specs
 	@mkdir -p $(DIST)/node
-	@cat $(NODE_DIST_FILES) > $(DIST)/node/es7-membrane.js
+	@cat $(NODE_DIST_FILES) > $(DIST)/node/es-membrane.js
 	@cat $(NODE_MOCKS_FILES) > $(DIST)/node/mocks.js
 	@cat $(NODE_UTILITIES_FILES) > $(DIST)/node/utilities.js
 

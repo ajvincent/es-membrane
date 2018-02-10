@@ -7,7 +7,7 @@ import "../docs/dist/es6-modules/MembraneMocks.js";
 
 if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
   if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
     var { MembraneMocks } = require("../../docs/dist/node/mocks.js");
   }
 }

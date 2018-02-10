@@ -1280,10 +1280,6 @@ describe(
         const buildingProxiesFor = new WeakMap();
 
         const revocables = [];
-        afterEach(function() {
-          revocables.forEach(function(r) { r(); });
-        });
-
         function buildSealedProxy(obj) {
           const callbacks = [/* callbacks or promises */];
           buildingProxiesFor.set(obj, callbacks);
@@ -1343,6 +1339,7 @@ describe(
           expect(C.grandParent.child.child === C).toBe(true);
           expect(Object.isSealed(C)).toBe(true);
         }
+        revocables.forEach(function(r) { r(); });
       }
     );
   }
@@ -2162,7 +2159,7 @@ import "../docs/dist/es6-modules/Membrane.js";
 
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../docs/dist/node/es-membrane.js");
   }
   else
     throw new Error("Unable to run tests: cannot get Membrane");
@@ -2449,7 +2446,7 @@ import "../docs/dist/es6-modules/MembraneMocks.js";
 
 if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
   if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
     var { MembraneMocks } = require("../../docs/dist/node/mocks.js");
   }
 }
@@ -2752,7 +2749,7 @@ import "../docs/dist/es6-modules/MembraneMocks.js";
 */
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
   }
   else
     throw new Error("Unable to run tests: cannot get Membrane");
@@ -3098,7 +3095,7 @@ if (typeof loggerLib != "object") {
 
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
   }
 }
 
@@ -4661,7 +4658,7 @@ describe("Function listeners", function() {
 });
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
   }
   else
     throw new Error("Unable to run tests: cannot get Membrane");
@@ -4933,7 +4930,7 @@ describe("Binding two values manually", function() {
 });
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
   }
   else
     throw new Error("Unable to run tests: cannot get Membrane");
@@ -5020,7 +5017,7 @@ import "../docs/dist/es6-modules/Membrane.js";
 
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
   }
   else
     throw new Error("Unable to run tests: cannot get Membrane");
@@ -8505,7 +8502,7 @@ describe(
 );
 if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
   if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
     var { MembraneMocks } = require("../../docs/dist/node/mocks.js");
   }
   else
@@ -10031,7 +10028,7 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
 });
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es7-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
   }
   else
     throw new Error("Unable to run tests: cannot get Membrane");
