@@ -715,6 +715,180 @@ r.getArea(); // returns 12</pre>
         non-function objects.  This is because non-function objects cannot use
         this trap.</p>
       </article>
+
+      <article id="help-distortions-filterOwnKeys">
+        <h2>Filter own keys</h2>
+        <h3>Usage in es-membrane</h3>
+        <p>This section allows you to determine which properties of your
+        underlying object are exposed through the proxy to the user.  Initially,
+        when this page generates the panel for a given object, it
+        requires sample code to generate the object.  This page then iterates
+        over the existing list of properties to generate a checklist of property
+        names to expose.</p>
+        <p>By default, each property has its filtering checkbox checked.  This
+        means whenever a property lookup for that name happens, if the property
+        exists on the underlying object, the membrane will return that property
+        (properly wrapped, of course).</p>
+        <p>On the other hand, if a property name's checkbox is <em>not</em>
+        checked, the property will not exist from the perspective of the proxy.
+        Users may use that name to define their own properties, particularly if
+        the "Local properties" checkbox is also checked.</p>
+
+        <br>
+        <p>Each property name also has an icon in its row, like this.
+          <img src="gui/icons/notes-icon.svg"/>  Clicking on this icon opens a
+          HTML textarea for you to use as a notepad for that property.
+        </p>
+        <p>To the right of this icon, you will also see a button with a "Go"
+        link.  If the button is enabled, you may click on the button to define a
+        "property group" in a HTML input.  You can then click on the "Go" link
+        to visit this property group's distortions in the configuration tool.
+        </p>
+
+        <br>
+        <p>The "Filter own keys" row also has a checkbox:  this is for enabling
+        or disabling all filtering of own-keys as a group.  If you do not want
+        any filtering of properties whatsoever, you should uncheck this box.</p>
+        <p>In general, I recommend enabling this checkbox and unchecking any
+        properties you do not wish to expose to users.  This feature is
+        essential for white-listing of properties, in my opinion.</p>
+        <br>
+        <p>Finally, containers in general (Array, Map, Set, WeakMap, etc.) do
+        not fit well within this model of hidden properties.  For instance, if I
+        expose an Array, all its property names are really numbers.  I may want
+        to hide element 2 of the unwrapped array from the wrapping object graph,
+        but I do not want element 2 to be "undefined".  Instead, I'd rather the
+        look-up operation for element 2 in the proxy return element 3
+        of the actual array (wrapped properly), for instance.  This version of
+        the Membrane library offers no direct support for this:  instead, you
+        should implement custom ChainHandler instances for containers, when
+        necessary.</p>
+        <p>Sadly, ChainHandler objects are not supported by this configuration
+        tool at this time.  (Figuring out a good user-interface for that is a
+        challenge for another day.  Help is definitely invited on this subject.)
+        </p>
+      </article>
+
+      <!-- transition to specific membrane features -->
+
+      <article id="help-distortions-inheritFilter">
+        <h2>Accept filter of own keys from prototype</h2>
+        <h3>Usage in es-membrane</h3>
+        <p>Sometimes a membrane will have a filter of "own keys" for an object's
+        prototype.  Enabling this feature means the prototype's filters also
+        apply to your list of own properties.</p>
+        <p>Specifically, if either your primary filter or the prototype's filter
+        accepts a property name, that property will be exposed through the traps
+        of the Membrane.</p>
+        <p>This should be considered as an optimization:  for common properties
+        defined through a prototype chain, you should use a filter inherited
+        through the prototype chain as well.</p>
+        <p>For values that you pass through without wrapping in the membrane,
+        there will naturally be no inherited filter, so you should not enable
+        this distortion when the prototype is not wrapped.</p>
+      </article>
+
+      <article id="help-distortions-storeUnknownAsLocal">
+        <h2>Local properties</h2>
+        <h3>Usage in es-membrane</h3>
+        <p>Users often want to set their own properties on values which you as a
+        developer may never have considered.  However, if two or more object
+        graphs rely on the same property name, then allowing each object graph
+        to propagate new properties directly to the underlying object may be
+        unwise.  The "local properties" flag exists for this reason:  to force
+        each proxy to store new properties on the proxy but not on the target
+        object.</p>
+        <p>This works primarily through a Map() associated with each Membrane
+        proxy, which stores the property name and descriptor.  When a look-up of
+        the property name happens, the proxy will look at this Map object first.
+        </p>
+        
+        <p>As a matter of preventing unexpected side-effects, and especially for
+        preventing accidental overwriting of your private values, I recommend
+        enabling this feature of the membrane proxy at all times.  This feature
+        is essential for white-listing of properties, in my opinion.</p>
+      </article>
+
+      <article id="help-distortions-requireLocalDelete">
+        <h2>Local deletes</h2>
+        <h3>Usage in es-membrane</h3>
+        <p>Suppose your customer calls delete on one of your object's properties
+        that you rely on.  This is of course a potential disaster.  Disabling
+        the delete trap is one option.  Another is to define the property
+        descriptor on your prototypes with proper [[Configurable]] settings.
+        The third option your Membrane provides is simply to delete the property
+        <em>from the perspective of the proxy only.</em>  This feature is for
+        that purpose.</p>
+        
+        <p>This works primarily through a Set() associated with each Membrane
+        proxy, which stores each "deleted" property name.  When a look-up of the
+        property name occurs, the proxy checks this set of names first.  If the
+        set contains the name, the proxy acts as if the property does not exist.
+        </p>
+
+        <p>As a matter of preventing unexpected side-effects, and especially for
+        preventing accidental deletion of your private values, I recommend
+        enabling this feature of the membrane proxy at all times.  This feature
+        is essential for white-listing of properties, in my opinion.</p>
+      </article>
+
+      <article id="help-distortions-truncateArgList">
+        <h2>Argument list truncation</h2>
+        <h3>Usage in es-membrane</h3>
+        <p>Functions in JavaScript may have any number of arguments passed to
+        them.  Each function defines a certain number of default arguments (its
+        "arity"), but other than that, there's no hints externally as to what a
+        function may have passed to it.</p>
+        <p>Unfortunately, this opens a Membrane to attack by consuming lots of
+        memory:  every single non-primitive argument potentially could need
+        wrapping in the Membrane as at least one proxy <em>per object
+        graph,</em> and that memory will persist until the target function call
+        exits, at least, potentially until the object graph is destroyed or
+        revoked.</p>
+        <p>Therefore, as a basic security measure (validating the number of
+        arguments), the Membrane offers you the option to limit the length of
+        an argument list passed to the target function from a proxy.</p>
+        <p>This control defines a three-state option, controlled first by a
+        button and then by a number input.  When the button shows:</p>
+        <ol>
+          <li>"None", no argument count restriction exists</li>
+          <li>"Arity", only the number of arguments your function defines will
+          pass through</li>
+          <li>"#:", only the number of arguments you specify in the number input
+          will pass through</li>
+        </ol>
+        <p>This feature is disabled for non-functions (as it has no meaning
+        then).</p>
+        <p>Note that if the target function defines
+          <a title="Rest parameters - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters"
+             target="_blank"
+             rel="noopener">rest parameters</a>
+          , this feature may be less useful at preventing excess arguments,
+          especially in the "Arity" setting.  The Membrane library, and this
+          configuration tool, has no way of detecting whether an argument is a
+          rest parameter.
+        </p>
+      </article>
+
+      <article id="help-distortions-useShadowTarget">
+        <h2>Use shadow target</h2>
+        <h3>Usage in es-membrane</h3>
+        <p>JavaScript proxies tend to be somewhat heavyweight, and use a
+        "shadow target" behind the scenes which, in theory, could duplicate the
+        underlying object.  This relies on a couple of assumptions:</p>
+        <ol>
+          <li>The object's properties could be reliably copied when needed</li>
+          <li>The shadow target would be lighter than the proxy in terms of
+          performance</li>
+        </ol>
+        <p>The latter assumption, at least in testing, turns out to be false at
+        this time.  For this reason, I cannot recommend enabling the "use shadow
+        target" option.</p>
+
+        <p><strong>Help wanted:</strong> If you can figure out why the shadow
+        targets do not beat the proxies in performance, please let me know.</p>
+      </article>
     </div>
 
     <div id="tabbox-function-traps" class="tabbar">
