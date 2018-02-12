@@ -429,9 +429,9 @@ r.getArea(); // returns 12</pre>
       </article>
 
       <article id="help-proxy-isExtensible">
-        <h2>isExtensible</h2>
+        <h2>isExtensible()</h2>
         <h3>Summary</h3>
-        <p>The isExtensible trap
+        <p>The isExtensible() trap
           <a title="Reflect.isExtensible() - JavaScript | MDN"
              href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/isExtensible"
              target="_blank"
@@ -453,9 +453,9 @@ r.getArea(); // returns 12</pre>
       </article>
 
       <article id="help-proxy-preventExtensions">
-        <h2>preventExtensions</h2>
+        <h2>preventExtensions()</h2>
         <h3>Summary</h3>
-        <p>The preventExtensions trap
+        <p>The preventExtensions() trap
           <a title="Object.preventExtensions() - JavaScript | MDN"
              href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/preventExtensions"
              target="_blank"
@@ -473,20 +473,247 @@ r.getArea(); // returns 12</pre>
       </article>
 
       <article id="help-proxy-getOwnPropertyDescriptor">
-        <h2>getOwnPropertyDescriptor</h2>
+        <h2>getOwnPropertyDescriptor()</h2>
         <h3>Summary</h3>
-        <p>The getOwnPropertyDescriptor trap
+        <p>The getOwnPropertyDescriptor() trap
           <a title="Object.getOwnPropertyDescriptor() - JavaScript | MDN"
              href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptor"
              target="_blank"
-             rel="noopener">"method returns a property descriptor for an own
+             rel="noopener">"returns a property descriptor for an own
              property (that is, one directly present on an object and not in the
              object's prototype chain) of a given object."</a>
+        </p>
+        <p>See
+          <a title="Object.defineProperty() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty#Description"
+             target="_blank"
+             rel="noopener">
+            the "defineProperty" Description section at MDN
+          </a>
+          for examples of property descriptors.
         </p>
         <h3>Usage in es-membrane</h3>
         <p>I strongly recommend enabling the getOwnPropertyDescriptor() trap.
         The get() trap relies on the getOwnPropertyDescriptor() trap, and will
         not work without it.</p>
+        <p><strong>Advice wanted:</strong> It's unclear what the "right"
+        behavior should be if the user disables this trap.  Currently, the
+        Membrane throws an exception.  It may be better to simply return
+        undefined.</p>
+      </article>
+
+      <article id="help-proxy-defineProperty">
+        <h2>defineProperty()</h2>
+        <h3>Summary</h3>
+        <p>The defineProperty() trap
+          <a title="Object.defineProperty() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty"
+             target="_blank"
+             rel="noopener">"defines a new property directly on an object, or
+             modifies an existing property on an object"</a> and returns a
+             boolean: true if the operation was successful, false otherwise.
+        </p>
+        <p>See the "Description" section in the "defineProperty" page for a good
+        explanation about property descriptors.</p>
+        <h3>Usage in es-membrane</h3>
+        <p>For now, I recommend enabling the defineProperty() trap.  First, the
+        set() trap relies on the defineProperty() trap.</p>
+        <p>Second, the defineProperty() trap is universal:  applying to all
+        properties.  If you really wish to prevent someone from re-defining a
+        specific property, you're probably better off setting the
+        [[Configurable]] field of the property descriptor to false, and either
+        setting [[Writable]] to false or removing the [[Set]] field.
+        </p>
+        <p>At this time, the Membrane library does not directly allow for
+        specifying certain properties as read-only to one graph and read-write
+        to another.  You may be able to achieve this feature through a
+        ChainHandler (which is not supported by this configuration tool).  
+        Remember the original object sets its own rules for access, which
+        the Membrane library currently follows.</p>
+      </article>
+
+      <article id="help-proxy-has">
+        <h2>has()</h2>
+        <h3>Summary</h3>
+        <p>The has() trap
+          <a title="Reflect.has() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/has"
+             target="_blank"
+             rel="noopener">"works like the in operator as a function."</a>
+        </p>
+        <h3>Usage in es-membrane</h3>
+        <p>I recommend enabling the has() trap.  There's really no reason to
+        disable it.</p>
+        <p><strong>Advice wanted:</strong> It's unclear what the "right"
+        behavior should be if the user disables this trap.  Currently, the
+        Membrane throws an exception.  It may be better to simply return
+        false.</p>
+        <p>In particular, you should be aware of the possibility for
+        unexpected behavior if the has() trap is enabled and the get() trap is
+        disabled, or vice-versa.</p>
+      </article>
+
+      <article id="help-proxy-get">
+        <h2>get()</h2>
+        <h3>Summary</h3>
+        <p>The get() trap
+          <a title="Reflect.get() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/get"
+             target="_blank"
+             rel="noopener">
+            "works like getting a property from an object (target[propertyKey])
+             as a function."
+          </a>
+        </p>
+        <h3>Usage in es-membrane</h3>
+        <p>Getting a property of an object is one of the most fundamental
+        operations in JavaScript.  Disabling this trap for any objects will make
+        those objects essentially useless, if not worse.  (By "worse", I mean
+        the throwing of exceptions at property lookup.)</p>
+        <p><strong>Advice wanted:</strong> It's unclear what the "right"
+        behavior should be if the user disables this trap.  Currently, the
+        Membrane throws an exception.  It may be better to simply return
+        undefined.</p>
+        <p>In particular, you should be aware of the possibility for
+        unexpected behavior if the has() trap is enabled and the get() trap is
+        disabled, or vice-versa.</p>
+      </article>
+
+      <article id="help-proxy-set">
+        <h2>set()</h2>
+        <h3>Summary</h3>
+        <p>The set() trap
+          <a title="Reflect.set() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/set"
+             target="_blank"
+             rel="noopener">
+            "works like setting a property on an object."
+          </a>
+        </p>
+        <h3>Usage in es-membrane</h3>
+        <p>If you disable this trap on an object's proxy, then any attempt to
+        set properties via that proxy will throw an exception.</p>
+        <p>Personally, I think disabling this trap is an inappropriate solution
+        to preventing users from modifying your objects (although it certainly
+        is effective, and universal).  You may be better off with specific
+        property descriptors, and/or filtering of own keys.</p>
+        <p>In particular, keep in mind that users often want to set their own
+        properties which you as a developer may never have considered.  In that
+        case, it's better to enable the "storeUnknownAsLocal" setting (shown as
+        "Local properties" in the rules configuration panel), so untrusted
+        users' unique properties do not propagate across to your trusted code.
+        </p>
+      </article>
+
+      <article id="help-proxy-deleteProperty">
+        <h2>deleteProperty()</h2>
+        <h3>Summary</h3>
+        <p>The deleteProperty() trap
+          <a title="Reflect.deleteProperty() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/deleteProperty"
+             target="_blank"
+             rel="noopener">
+            "allows to delete properties. It is like the delete operator as a
+             function."
+          </a>
+        </p>
+        <h3>Usage in es-membrane</h3>
+        <p>If you disable this trap on an object's proxy, then any attempt to
+        delete properties via that proxy will throw an exception.</p>
+        <p>Personally, I think disabling this trap is an inappropriate solution
+        to preventing users from removing properties from your objects (although
+        it certainly is effective, and universal).</p>
+        <p>The "requireLocalDelete" flag (shown as "Local deletes" in the
+        rules configuration panel) exists specifically to handle this case,
+        where a property may be "deleted" from a proxy, but that delete
+        operation does <em>not</em> propagate across to the original object.</p>
+        <p>If that is not sufficiently safe, you may be better off with specific
+        property descriptors, particularly with the [[Configurable]] field set
+        to false.</p>
+      </article>
+
+      <article id="help-proxy-ownKeys">
+        <h2>ownKeys()</h2>
+        <h3>Summary</h3>
+        <p>The ownKeys() trap
+          <a title="Reflect.ownKeys() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/ownKeys"
+             target="_blank"
+             rel="noopener">
+            "returns an array of the target object's own property keys."
+          </a>
+        </p>
+        <h3>Usage in es-membrane</h3>
+        <p>Internally, this method follows several steps:</p>
+        <ul>
+          <li>generating a list of known keys from the original object</li>
+          <li>removing any keys the origin graph or target graph decide must be
+          hidden (either by explicitly being deleted or being rejected by a
+          filter function)</li>
+          <li>appending the keys local to the origin graph (or, indirectly, the
+          target graph)</li>
+          <li>following the specification rules for configurable versus
+          non-configurable properties</li>
+        </ul>
+        <p>I recommend enabling the ownKeys() trap.  There's really no reason to
+        disable it.</p>
+        <p><strong>Advice wanted:</strong> It's unclear what the "right"
+        behavior should be if the user disables this trap.  Currently, the
+        Membrane throws an exception.  It may be better to simply return
+        an empty array.</p>
+      </article>
+
+      <article id="help-proxy-apply">
+        <h2>apply()</h2>
+        <h3>Summary</h3>
+        <p>The apply() trap
+          <a title="Reflect.apply() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/apply"
+             target="_blank"
+             rel="noopener">
+            "calls a target function with arguments as specified."
+          </a>
+        </p>
+        <h3>Usage in es-membrane</h3>
+        <p>This is one case where disabling the trap is possibly a good idea.
+        ECMAScript does not specify any good way of stating whether a function
+        should be used exclusively as a constructor or exclusively as a method.
+        Constructors typically should not be called as ordinary functions,
+        and vice versa.  Proxies, such as those provided by a Membrane, are
+        really the best way for enforcing a "constructor versus method"
+        contract.</p>
+        <p>If you intend your function to be a method, this trap should be
+        enabled.  Otherwise, this trap should be disabled.</p>
+        <p>Note that enabling/disabling this trap is not possible for
+        non-function objects.  This is because non-function objects cannot use
+        this trap.</p>
+      </article>
+
+      <article id="help-proxy-construct">
+        <h2>construct()</h2>
+        <h3>Summary</h3>
+        <p>The construct() trap
+          <a title="Reflect.construct() - JavaScript | MDN"
+             href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/construct"
+             target="_blank"
+             rel="noopener">
+            "acts like the new operator as a function. It is equivalent to
+             calling new target(...args)."
+          </a>
+        </p>
+        <h3>Usage in es-membrane</h3>
+        <p>This is one case where disabling the trap is possibly a good idea.
+        ECMAScript does not specify any good way of stating whether a function
+        should be used exclusively as a constructor or exclusively as a method.
+        Constructors typically should not be called as ordinary functions,
+        and vice versa.  Proxies, such as those provided by a Membrane, are
+        really the best way for enforcing a "constructor versus method"
+        contract.</p>
+        <p>If you intend your function to be a constructor, this trap should be
+        enabled.  Otherwise, this trap should be disabled.</p>
+        <p>Note that enabling/disabling this trap is not possible for
+        non-function objects.  This is because non-function objects cannot use
+        this trap.</p>
       </article>
     </div>
 
@@ -643,7 +870,7 @@ r.getArea(); // returns 12</pre>
             <span data-column-width="150px">Key's distortion</span>
           </li>
           <li class="collapsible">
-            <span>Show own keys</span>
+            <span>Filter own keys</span>
 
             <!-- This checkbox is for folding the filterOwnKeys list -->
             <input type="checkbox" checked="checked" class="collapsible-check">
