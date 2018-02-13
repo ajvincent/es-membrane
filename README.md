@@ -163,10 +163,10 @@ var dryWetMB = new Membrane({
 });
 
 // Establish "wet" ObjectGraphHandler.
-var wetHandler = dryWetMB.getHandlerByName("wet", true);
+var wetHandler = dryWetMB.getHandlerByName("wet", { mustCreate: true });
 
 // Establish "dry" ObjectGraphHandler.
-var dryHandler = dryWetMB.getHandlerByName("dry", true);
+var dryHandler = dryWetMB.getHandlerByName("dry", { mustCreate: true });
 
 // Establish "wet" view of an object.
 // Get a "dry" view of the same object.
