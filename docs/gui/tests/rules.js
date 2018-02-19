@@ -13,7 +13,7 @@ describe("DistortionsRules", function() {
       return;
   }
 
-  var window, rules;
+  var window, rules, testConfig;
   beforeEach(async function() {
     await getDocumentLoadPromise("base/gui/tests/rules-fixture.html");
     window = testFrame.contentWindow;
@@ -22,6 +22,7 @@ describe("DistortionsRules", function() {
   afterEach(function() {
     window = null;
     rules = null;
+    testConfig = null;
   });
 
   function isCheckboxWithName(
@@ -204,43 +205,44 @@ describe("DistortionsRules", function() {
     expect("groupDistortions" in rules.exportJSON()).toBe(false);
   }
 
+  function setTestConfig() {
+    testConfig = {
+      "formatVersion": "0.8.2",
+      "dataVersion": "0.1",
+      "filterOwnKeys": [
+        "shape",
+        "color"
+      ],
+      "proxyTraps": [
+        "getPrototypeOf",
+        "setPrototypeOf",
+        "isExtensible",
+        "preventExtensions",
+        "getOwnPropertyDescriptor",
+        "defineProperty",
+        "has",
+        "get",
+        "set",
+        "deleteProperty",
+        "ownKeys",
+        "apply",
+        "construct"
+      ],
+      "inheritFilter": true,
+      "storeUnknownAsLocal": true,
+      "requireLocalDelete": true,
+      "useShadowTarget": false,
+      "truncateArgList": false
+    };
+  }
+
   describe(".validateConfiguration with", function() {
-    let valid;
-    beforeEach(function() {
-      valid = {
-        "formatVersion": "0.8.2",
-        "dataVersion": "0.1",
-        "filterOwnKeys": [
-          "shape",
-          "color"
-        ],
-        "proxyTraps": [
-          "getPrototypeOf",
-          "setPrototypeOf",
-          "isExtensible",
-          "preventExtensions",
-          "getOwnPropertyDescriptor",
-          "defineProperty",
-          "has",
-          "get",
-          "set",
-          "deleteProperty",
-          "ownKeys",
-          "apply",
-          "construct"
-        ],
-        "inheritFilter": true,
-        "storeUnknownAsLocal": true,
-        "requireLocalDelete": true,
-        "useShadowTarget": false,
-        "truncateArgList": false
-      };
-    });
+    beforeEach(setTestConfig);
 
     function runTestForFailure(errMessage) {
       let pass = false, exn = null;
       try {
-        window.DistortionsRules.validateConfiguration(valid);
+        window.DistortionsRules.validateConfiguration(testConfig);
       }
       catch (e) {
         pass = true;
@@ -251,120 +253,120 @@ describe("DistortionsRules", function() {
     }
 
     function runTestForValidity() {
-      window.DistortionsRules.validateConfiguration(valid);
+      window.DistortionsRules.validateConfiguration(testConfig);
     }
 
     it("a normal configuration", runTestForValidity);
 
     it("formatVersion missing", function() {
-      delete valid.formatVersion;
+      delete testConfig.formatVersion;
       runTestForFailure("formatVersion must be of type string");
     });
 
     it("formatVersion not a version number", function() {
-      valid.formatVersion = "foo";
+      testConfig.formatVersion = "foo";
       runTestForFailure(
         "formatVersion must be a normal semantic versioning number"
       );
     });
 
     it("formatVersion a two-part version number", function() {
-      valid.formatVersion = "1.0";
+      testConfig.formatVersion = "1.0";
       runTestForValidity();
     });
 
     it("formatVersion a three-part version number", function() {
-      valid.formatVersion = "1.0.1";
+      testConfig.formatVersion = "1.0.1";
       runTestForValidity();
     });
 
     it("dataVersion missing", function() {
-      delete valid.dataVersion;
+      delete testConfig.dataVersion;
       runTestForFailure("dataVersion must be of type string");
     });
 
     it("dataVersion not a version number", function() {
-      valid.dataVersion = "foo";
+      testConfig.dataVersion = "foo";
       runTestForFailure(
         "dataVersion must be a normal semantic versioning number"
       );
     });
 
     it("dataVersion a two-part version number", function() {
-      valid.dataVersion = "1.0";
+      testConfig.dataVersion = "1.0";
       runTestForValidity();
     });
 
     it("dataVersion a three-part version number", function() {
-      valid.dataVersion = "1.0.1";
+      testConfig.dataVersion = "1.0.1";
       runTestForValidity();
     });
 
     it("filterOwnKeys missing", function() {
-      delete valid.filterOwnKeys;
+      delete testConfig.filterOwnKeys;
       runTestForFailure(
         "filterOwnKeys must be null or an array of unique strings and symbols (absent)"
       );
     });
 
     it("filterOwnKeys neither an array nor null", function() {
-      valid.filterOwnKeys = 0;
+      testConfig.filterOwnKeys = 0;
       runTestForFailure(
         "filterOwnKeys must be null or an array of unique strings and symbols (not an array)"
       );
     });
 
     it("filterOwnKeys null", function() {
-      valid.filterOwnKeys = null;
+      testConfig.filterOwnKeys = null;
       runTestForValidity();
     });
 
     it("filterOwnKeys an array containing a boolean member", function() {
-      valid.filterOwnKeys = ["foo", "bar", true];
+      testConfig.filterOwnKeys = ["foo", "bar", true];
       runTestForFailure(
         "filterOwnKeys must be null or an array of unique strings and symbols (not a string or symbol: true)"
       );
     });
 
     it("filterOwnKeys an array containing a Symbol", function() {
-      valid.filterOwnKeys = ["foo", "bar", Symbol("baz")];
+      testConfig.filterOwnKeys = ["foo", "bar", Symbol("baz")];
       runTestForValidity();
     });
 
     it("proxyTraps missing", function() {
-      delete valid.proxyTraps;
+      delete testConfig.proxyTraps;
       runTestForFailure("config.proxyTraps is not an array");
     });
 
     it("proxyTraps as a number", function() {
-      valid.proxyTraps = 2;
+      testConfig.proxyTraps = 2;
       runTestForFailure("config.proxyTraps is not an array");
     });
 
     it("proxyTraps as an empty array", function() {
-      valid.proxyTraps = [];
+      testConfig.proxyTraps = [];
       runTestForValidity();
     });
 
     it("proxyTraps missing a few items", function() {
-      valid.proxyTraps.splice(3, 3);
+      testConfig.proxyTraps.splice(3, 3);
       runTestForValidity();
     });
 
     it("proxyTraps having a few items out of order", function() {
       // technically this shouldn't happen but it is valid
-      let extract = valid.proxyTraps.splice(3, 3);
-      valid.proxyTraps = valid.proxyTraps.concat(extract);
+      let extract = testConfig.proxyTraps.splice(3, 3);
+      testConfig.proxyTraps = testConfig.proxyTraps.concat(extract);
       runTestForValidity();
     });
 
     it("proxyTraps having an unexpected value", function() {
-      valid.proxyTraps.splice(3, 0, "extra");
+      testConfig.proxyTraps.splice(3, 0, "extra");
       runTestForFailure("config.proxyTraps has an unexpected value: extra");
     });
 
     it("proxyTraps having a duplicate value", function() {
-      valid.proxyTraps.splice(3, 0, "ownKeys");
+      testConfig.proxyTraps.splice(3, 0, "ownKeys");
       runTestForFailure("config.proxyTraps has a duplicate string: ownKeys");
     });
 
@@ -375,87 +377,87 @@ describe("DistortionsRules", function() {
       "useShadowTarget",
     ].forEach(function(mod) {
       it(`${mod} missing`, function() {
-        delete valid[mod];
+        delete testConfig[mod];
         runTestForFailure(`${mod} must be of type boolean`);
       });
 
       it(`${mod} being a string`, function() {
-        valid[mod] = "foo";
+        testConfig[mod] = "foo";
         runTestForFailure(`${mod} must be of type boolean`);
       });
     });
 
     it("truncateArgList missing", function() {
-      delete valid.truncateArgList;
+      delete testConfig.truncateArgList;
       runTestForFailure(
         "truncateArgList must be a boolean or a non-negative integer"
       );
     });
 
     it("truncateArgList being a string", function() {
-      valid.truncateArgList = "foo";
+      testConfig.truncateArgList = "foo";
       runTestForFailure(
         "truncateArgList must be a boolean or a non-negative integer"
       );
     });
 
     it("truncateArgList being null", function() {
-      valid.truncateArgList = null;
+      testConfig.truncateArgList = null;
       runTestForFailure(
         "truncateArgList must be a boolean or a non-negative integer"
       );
     });
 
     it("truncateArgList being a negative number", function() {
-      valid.truncateArgList = -1;
+      testConfig.truncateArgList = -1;
       runTestForFailure(
         "truncateArgList must be a boolean or a non-negative integer"
       );
     });
 
     it("truncateArgList being NaN", function() {
-      valid.truncateArgList = NaN;
+      testConfig.truncateArgList = NaN;
       runTestForFailure(
         "truncateArgList must be a boolean or a non-negative integer"
       );
     });
 
     it("truncateArgList being Infinity", function() {
-      valid.truncateArgList = Infinity;
+      testConfig.truncateArgList = Infinity;
       runTestForFailure(
         "truncateArgList must be a boolean or a non-negative integer"
       );
     });
 
     it("truncateArgList being a decimal", function() {
-      valid.truncateArgList = 0.5;
+      testConfig.truncateArgList = 0.5;
       runTestForFailure(
         "truncateArgList must be a boolean or a non-negative integer"
       );
     });
 
     it("truncateArgList being true", function() {
-      valid.truncateArgList = true;
+      testConfig.truncateArgList = true;
       runTestForValidity();
     });
 
     it("truncateArgList being false", function() {
-      valid.truncateArgList = false;
+      testConfig.truncateArgList = false;
       runTestForValidity();
     });
 
     it("truncateArgList being 0", function() {
-      valid.truncateArgList = 0;
+      testConfig.truncateArgList = 0;
       runTestForValidity();
     });
 
     it("truncateArgList being 1", function() {
-      valid.truncateArgList = 1;
+      testConfig.truncateArgList = 1;
       runTestForValidity();
     });
 
     it("truncateArgList being 100", function() {
-      valid.truncateArgList = 100;
+      testConfig.truncateArgList = 100;
       runTestForValidity();
     });
   });
@@ -585,6 +587,76 @@ describe("DistortionsRules", function() {
         expect(exports.groupDistortions.subtractOne).toBe("bar");
         expect(exports.groupDistortions.doNothing).toBe("foo");
       }
+    });
+
+    describe("can import configurations", function() {
+      let expectedConfig;
+      function runImportTest() {
+        rules.importJSON(testConfig);
+        const exported = rules.exportJSON();
+        expect(exported).toEqual(expectedConfig);
+      }
+
+      beforeEach(function() {
+        setTestConfig();
+        testConfig.filterOwnKeys = [
+          "arguments", "caller", "length", "name", "prototype"
+        ];
+        expectedConfig = testConfig;
+        setTestConfig();
+        testConfig.filterOwnKeys = [
+          "arguments", "caller", "length", "name", "prototype"
+        ];
+
+        rules = window.setupRules(window.Counter);
+      });
+
+      it("without special settings", function() {
+        runImportTest();
+      });
+
+      it("with additional ownKeys", function() {
+        testConfig.filterOwnKeys.splice(2, 0, "extra");
+        runImportTest();
+      });
+
+      it("with missing ownKeys", function() {
+        testConfig.filterOwnKeys.splice(2, 1);
+        expectedConfig.filterOwnKeys.splice(2, 1);
+        runImportTest();
+      });
+
+      it("with missing and additional ownKeys", function() {
+        testConfig.filterOwnKeys.splice(2, 1, "extra");
+        expectedConfig.filterOwnKeys.splice(2, 1);
+        runImportTest();
+      });
+
+      it("with missing proxyTraps", function() {
+        testConfig.proxyTraps.splice(11, 2);
+        expectedConfig.proxyTraps.splice(11, 2);
+        runImportTest();
+      });
+
+      [
+        "inheritFilter",
+        "storeUnknownAsLocal",
+        "requireLocalDelete",
+        "useShadowTarget",
+        "truncateArgList"
+      ].forEach(function(key) {
+        it(`with ${key} inverted`, function() {
+          testConfig[key] = !testConfig[key];
+          expectedConfig[key] = !expectedConfig[key];
+          runImportTest();
+        });
+      });
+
+      it("with truncateArgList set to 7", function() {
+        testConfig.truncateArgList = 7;
+        expectedConfig.truncateArgList = 7;
+        runImportTest();
+      });
     });
   });
 });

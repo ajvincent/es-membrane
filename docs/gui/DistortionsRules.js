@@ -337,12 +337,83 @@ DistortionsRules.prototype = {
     OuterGridManager.setNotesPanel(bag.textarea);
   },
 
-  importJSON: function(/*config*/) {
-    throw new Error("Not implemented!");
+  importJSON: function(config) {
+    DistortionsRules.validateConfiguration(config);
+    if (Array.isArray(config.filterOwnKeys)) {
+      let inputs = this.groupToInputsMap.get("ownKeys");
+      let s = new Set(config.filterOwnKeys);
+      inputs.forEach(function(checkbox) {
+        checkbox.checked = s.has(checkbox.dataset.name);
+      });
+    }
+
+    if (Array.isArray(config.proxyTraps)) {
+      let inputs = this.groupToInputsMap.get("traps");
+      let s = new Set(config.proxyTraps);
+      inputs.forEach(function(checkbox) {
+        checkbox.checked = s.has(checkbox.dataset.name);
+      });
+    }
+
+    // other distortions for this object
+    {
+      let inputs = this.groupToInputsMap.get("distortions");
+      let truncateInputs = [];
+      inputs.forEach(function(input) {
+        const name = input.dataset.name;
+        if (name.startsWith("truncateArg"))
+          truncateInputs.push(input);
+        else
+          input.checked = config[name];
+      });
+
+      if (typeof this.value === "function") {
+        let desiredState;
+        if (typeof config.truncateArgList === "number") {
+          truncateInputs[1].value = config.truncateArgList;
+          desiredState = "number";
+        }
+        else if (typeof config.truncateArgList === "boolean")
+          desiredState = config.truncateArgList.toString();
+
+        while (desiredState && desiredState !== truncateInputs[0].value) {
+          MultistateHandler({currentTarget: truncateInputs[0] });
+        }
+      }      
+    }
+
+    // references to properties' DistortionsRules objects
+    if (typeof config.groupDistortions === "object") {
+      const buttons = this.gridtree.getElementsByClassName("distortions-group");
+      for (let i = 0; i < buttons.length; i++) {
+        let button = buttons[i];
+        let key = this.getKeyNameForCell(button);
+        if (key in config.groupDistortions) {
+          this.showDistortionsGroupNames(button);
+          const input = document.getElementById("distortions-groups-input");
+          input.value = config.groupDistortions[key];
+          this.setDistortionGroup({key: "Enter", target: input});
+        }
+        else if (button.firstChild) {
+          button.firstChild.nodeValue = "";
+        }
+      }
+    }
+
+    // Notes per property key
+    if (typeof config.notesPerKey === "object") {
+      this.helpAndNotesMap.clear();
+      let keys = Reflect.ownKeys(config.notesPerKey);
+      keys.forEach(function(key) {
+        this.helpAndNotesMap.set(key, { savedValue: config.notesPerKey[key] });
+      }, this);
+    }
   },
 
   exportJSON: function() {
     const rv = {
+      "formatVersion": "0.8.2",
+      "dataVersion": "0.1",
       /*
       filterOwnKeys: [] || null,
       inheritOwnKeys: false,
@@ -413,6 +484,7 @@ DistortionsRules.prototype = {
         rv.groupDistortions = foundGroups;
     }
 
+    // Notes per property key
     if (this.helpAndNotesMap && this.helpAndNotesMap.size) {
       rv.notesPerKey = {};
       let found = false;
