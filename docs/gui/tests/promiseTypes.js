@@ -14,18 +14,28 @@ function IFrameLoadPromise(iframe, url) {
   return p;
 }
 
-function MessageEventPromise(target, expectedMessage) {
-  let pResolve;
+function MessageEventPromise(target, expectedMessage, failMessage) {
+  let pResolve, pReject;
   target.addEventListener("message", {
     handleEvent: function(evt) {
-      if ((evt.origin !== window.location.origin) ||
-          (evt.data !== expectedMessage))
+      if (evt.origin !== window.location.origin)
         return;
-      target.removeEventListener("message", this, false);
-      pResolve();
+
+      if (failMessage && (evt.data === failMessage)) {
+        target.removeEventListener("message", this, false);
+        pReject(new Error(failMessage));
+      }
+
+      if (evt.data == expectedMessage) {
+        target.removeEventListener("message", this, false);
+        pResolve();
+      }
     }
   }, false);
-  return new Promise((resolve) => {pResolve = resolve;});
+  return new Promise((resolve, reject) => {
+    pResolve = resolve;
+    pReject  = reject;
+  });
 }
 
 function XHRPromise(url, body = null) {

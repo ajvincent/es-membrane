@@ -27,12 +27,6 @@ DistortionsRules.validateConfiguration = function(config) {
     if (typeof config[field] !== type)
       throw `${field} must be of type ${type}`;
   }
-  requireType("formatVersion", "string");
-  if (!/^\d+\.\d+(?:\.\d)?$/.test(config.formatVersion))
-    throw `formatVersion must be a normal semantic versioning number`;
-  requireType("dataVersion", "string");
-  if (!/^\d+\.\d+(?:\.\d)?$/.test(config.dataVersion))
-    throw `dataVersion must be a normal semantic versioning number`;
 
   // filterOwnKeys
   {
@@ -412,8 +406,6 @@ DistortionsRules.prototype = {
 
   exportJSON: function() {
     const rv = {
-      "formatVersion": "0.8.2",
-      "dataVersion": "0.1",
       /*
       filterOwnKeys: [] || null,
       inheritOwnKeys: false,

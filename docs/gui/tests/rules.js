@@ -207,8 +207,6 @@ describe("DistortionsRules", function() {
 
   function setTestConfig() {
     testConfig = {
-      "formatVersion": "0.8.2",
-      "dataVersion": "0.1",
       "filterOwnKeys": [
         "shape",
         "color"
@@ -257,50 +255,6 @@ describe("DistortionsRules", function() {
     }
 
     it("a normal configuration", runTestForValidity);
-
-    it("formatVersion missing", function() {
-      delete testConfig.formatVersion;
-      runTestForFailure("formatVersion must be of type string");
-    });
-
-    it("formatVersion not a version number", function() {
-      testConfig.formatVersion = "foo";
-      runTestForFailure(
-        "formatVersion must be a normal semantic versioning number"
-      );
-    });
-
-    it("formatVersion a two-part version number", function() {
-      testConfig.formatVersion = "1.0";
-      runTestForValidity();
-    });
-
-    it("formatVersion a three-part version number", function() {
-      testConfig.formatVersion = "1.0.1";
-      runTestForValidity();
-    });
-
-    it("dataVersion missing", function() {
-      delete testConfig.dataVersion;
-      runTestForFailure("dataVersion must be of type string");
-    });
-
-    it("dataVersion not a version number", function() {
-      testConfig.dataVersion = "foo";
-      runTestForFailure(
-        "dataVersion must be a normal semantic versioning number"
-      );
-    });
-
-    it("dataVersion a two-part version number", function() {
-      testConfig.dataVersion = "1.0";
-      runTestForValidity();
-    });
-
-    it("dataVersion a three-part version number", function() {
-      testConfig.dataVersion = "1.0.1";
-      runTestForValidity();
-    });
 
     it("filterOwnKeys missing", function() {
       delete testConfig.filterOwnKeys;

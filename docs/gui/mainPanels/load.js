@@ -197,76 +197,192 @@ window.LoadPanel = {
   },
 
   validateConfiguration: function(config) {
+    if ((typeof config.configurationSetup !== "object") ||
+        (config.configurationSetup === null))
+      throw new Error("config.configurationSetup must be an object");
+    {
+      const setup = config.configurationSetup;
+      if (typeof setup.useZip !== "boolean")
+        throw new Error(
+          "config.configurationSetup.useZip must be true or false"
+        );
+      if (!Array.isArray(setup.commonFiles) ||
+          setup.commonFiles.some(val => typeof val !== "string")) {
+        throw new Error(
+          "config.configurationSetup.commonFiles must be an array of strings"
+        );
+      }
+
+      if ((typeof setup.formatVersion !== "number") ||
+          (!/^\d+(?:\.\d)?$/.test(setup.formatVersion.toString(10))))
+        throw new Error(
+          "config.configurationSetup.formatVersion must be a floating point version number"
+        );
+      if ((typeof setup.lastUpdated !== "string") ||
+          isNaN(Date.parse(setup.lastUpdated))) {
+        throw new Error(
+          "config.configurationSetup.lastUpdated must be a date string"
+        );
+      }
+      if (("comments" in setup) &&
+          (!Array.isArray(setup.comments) ||
+           setup.comments.some(val => typeof val !== "string"))) {
+        throw new Error(
+          "config.configurationSetup.comments must be an array of strings or undefined"
+        );
+      }
+    }
+
+    if ((typeof config.membrane !== "object") ||
+        (config.membrane === null))
+      throw new Error("config.membrane must be an object");
+    {
+      const mConfig = config.membrane;
+      if ((typeof mConfig.passThroughSource !== "string") &&
+          (mConfig.passThroughSource !== null)) {
+        throw new Error(
+          "config.membrane.passThroughSource must be a string or null"
+        );
+      }
+      if (typeof mConfig.passThroughEnabled !== "boolean")
+        throw new Error(
+          "config.membrane.passThroughEnabled must be true or false"
+        );
+      if (typeof mConfig.primordialsPass !== "boolean")
+        throw new Error(
+          "config.membrane.primordialsPass must be true or false"
+        );
+      if (("comments" in mConfig) &&
+          (!Array.isArray(mConfig.comments) ||
+           mConfig.comments.some(val => typeof val !== "string"))) {
+        throw new Error(
+          "config.membrane.comments must be an array of strings or undefined"
+        );
+      }
+    }
+
     if (!Array.isArray(config.graphs))
       throw new Error("config.graphs must be an array of objects");
 
     let stringKeys = new Set();
-    config.graphs.forEach((graph, graphIndex) => {
-      if (typeof graph.name !== "string")
-        throw new Error(`config.graphs[${graphIndex}].name must be a string`);
-      if (typeof graph.isSymbol !== "boolean")
-        throw new Error(`config.graphs[${graphIndex}].isSymbol must be a boolean`);
-      if (!graph.isSymbol) {
-        if (stringKeys.has(graph.name)) {
-          throw new Error(
-            `config.graphs[${graphIndex}].name = "${graph.name}", ` +
-            "but this name appears earlier in config.graphs, and neither name is a symbol"
-          );
-        }
-        stringKeys.add(graph.name);
-      }
-
-      if (!Array.isArray(graph.distortions)) {
-        throw new Error(`config.graphs[${graphIndex}].distortions must be an array`);
-      }
-
-      graph.distortions.forEach(function(item, index) {
-        this.validateDistortions(item, index, graphIndex);
-      }, this);
-    });
+    config.graphs.forEach(this.validateGraph.bind(this, stringKeys));
   },
 
-  validateDistortions: function(instructions, index, graphIndex) {
-    const errorPrefix = `config.graphs[${graphIndex}].distortions[${index}]`;
-    function requireType(field, type) {
-      if (typeof instructions[field] !== type)
-        throw new Error(`${errorPrefix}.${field} must be of type ${type}`);
+  validateGraph: function(stringKeys, graph, graphIndex) {
+    const errorPrefix = `config.graphs[${graphIndex}]`;
+
+    function requireType(field, type, extra = "", path = []) {
+      let obj = graph;
+      let msg = errorPrefix;
+      path = path.slice(0);
+      path.push(field);
+      while (path.length) {
+        let nextPart = path.shift();
+        if (isNaN(nextPart))
+          msg += "." + nextPart;
+        else
+          msg += `[${nextPart}]`;
+        obj = obj[nextPart];
+      }
+      if (type === "array") {
+        if (!Array.isArray(obj))
+          throw new Error(`${msg} must be an array${extra}.`);
+      }
+      else if (typeof obj !== type)
+        throw new Error(`${msg} must be of type ${type}${extra}.`);
+      if ((type === "object") && (obj === null))
+        throw new Error(`${msg} must be a non-null object${extra}.`);
     }
-    if (typeof instructions !== "object")
-      throw new Error(errorPrefix + " must be an object");
 
     requireType("name", "string");
-    requireType("source", "string");
-    requireType("hash", "string");
-    requireType("isFunction", "boolean");
-    requireType("rules", "object");
-
-    // XXX ajvincent We're not going to attempt parsing instructions.source now.
-    const rulesMembers = ["value"];
-    if (instructions.isFunction) {
-      /*
-      rulesMembers.push("proto");
-      rulesMembers.push("instance");
-      */
-    }
-    rulesMembers.forEach(function(member) {
-      if (typeof instructions.rules[member] !== "object") {
+    requireType("isSymbol", "boolean");
+    if (!graph.isSymbol) {
+      if (stringKeys.has(graph.name)) {
         throw new Error(
-          `${errorPrefix}.rules.${member} must be an object`
+          `config.graphs[${graphIndex}].name = "${graph.name}", ` +
+          "but this name appears earlier in config.graphs, and neither name is a symbol"
         );
       }
-      try {
-        DistortionsRules.validateConfiguration(instructions.rules[member]);
+      stringKeys.add(graph.name);
+    }
+    if (graph.passThroughSource !== null)
+      requireType("passThroughSource", "string", " or null");
+    requireType("passThroughEnabled", "boolean");
+    requireType("primordialsPass", "boolean");
+
+    requireType("distortions", "array");
+    graph.distortions.forEach(function(distortionSet, index) {
+      requireType("about", "object", "", ["distortions", index]);
+      const aboutPath = ["distortions", index, "about"];
+      requireType("valueName", "string", "", aboutPath);
+      requireType("isFunction", "boolean", "", aboutPath);
+
+      // Exactly one of these must exist:
+      // getExample, filterToMatch, getInstance
+      {
+        let actualKeys = Reflect.ownKeys(distortionSet.about);
+        let foundKey = null, pass = false;
+        ["getExample", "filterToMatch", "getInstance"].forEach(function(key) {
+          if (!actualKeys.includes(key))
+            return;
+          if (foundKey) {
+            pass = false;
+            return;
+          }
+          foundKey = key;
+          pass = true;
+          requireType(key, "string", "", aboutPath);
+        });
+
+        if (!pass) {
+          throw new Error(
+            `${errorPrefix}.distortions[${index}].about must have exactly one of these properties: "getExample", "filterToMatch", "getInstance"`
+          );
+        }
       }
-      catch (msg) {
-        throw new Error(`${errorPrefix}.rules.${member}.${msg}`);
+
+      if (typeof distortionSet.about.comments !== "undefined") {
+        requireType("comments", "array", " or undefined", aboutPath);
+        distortionSet.about.comments.forEach(function(subitem, subindex) {
+          const commentPath = aboutPath.slice(0);
+          commentPath.push(subindex);
+          requireType(subindex, "string", "", commentPath);
+        });
       }
+
+      keys = Reflect.ownKeys(distortionSet);
+      keys.splice(keys.indexOf("about"), 1);
+      if (keys.length === 0) {
+        throw new Error(
+          `${errorPrefix}.distortions[${index}] must have a property besides about.`
+        );
+      }
+      keys.forEach(function(key) {
+        requireType(key, "object", "", ["distortions", index]);
+        try {
+          DistortionsRules.validateConfiguration(distortionSet[key]);
+        }
+        catch (errMsg) {
+          throw new Error(
+            `${errorPrefix}.distortions[${index}].${key}.${errMsg}`
+          );
+        }
+      });
     }, this);
 
-    if (!instructions.isFunction)
-      return;
-
-    // Special rules for functions
+    // Optional String[] properties of each graph
+    [
+      "proxyListeners",
+      "functionListeners",
+      "comments"
+    ].forEach(function(arrayName) {
+      if (typeof graph[arrayName] !== "undefined") {
+        requireType(arrayName, "array", " or undefined");
+        graph[arrayName].forEach(function(listener, index) {
+          requireType(index, "string", "", [arrayName]);
+        });
+      }
+    });
   },
 
   getCommonFileOrdering: function() {
