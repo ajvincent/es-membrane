@@ -1467,6 +1467,51 @@ describe(
     });
   }
 );
+describe("Receivers in proxies", function() {
+  var alpha, beta, ALPHA, BETA;
+  beforeEach(function() {
+    ALPHA = {
+      value: "A"
+    };
+    BETA  = {
+      value: "B"
+    };
+
+    alpha = {
+      get upper() {
+        return this._upper;
+      },
+      set upper(val) {
+        this._upper = val;
+      },
+      _upper: ALPHA,
+      value: "a",
+    };
+
+    beta = {
+      _upper: BETA,
+      value: "b"
+    };
+  });
+
+  afterEach(function() {
+    alpha = null;
+    beta = null;
+    ALPHA = null;
+    BETA = null;
+  });
+
+  it("are where property lookups happen", function() {
+    expect(Reflect.get(alpha, "upper", beta)).toBe(BETA);
+  });
+
+  it("are where property setter invocations happen", function() {
+    const X = {};
+    Reflect.set(alpha, "upper", X, beta);
+    expect(beta._upper).toBe(X);
+    expect(alpha._upper).toBe(ALPHA);
+  });
+});
 "use strict"
 /*
 import "../docs/dist/es6-modules/Membrane.js";
@@ -1526,16 +1571,16 @@ describe("basic concepts: ", function() {
       enumerable: true,
       configurable: true
     };
-    
+
     Reflect.defineProperty(dryDocument, "extra", desc);
-    
+
     var dryExtra = {};
     dryDocument.extra = dryExtra;
-    
+
     expect(typeof extraHolder).toBe("object");
     expect(extraHolder).not.toBe(dryExtra);
     expect(wetDocument.extra).toBe(extraHolder);
-    
+
     expect(dryDocument.extra).toBe(dryExtra);
   })
 
@@ -2133,6 +2178,61 @@ describe("basic concepts: ", function() {
     expect(function () {
       dryDocument.baseURL;
     }).toThrow();
+  });
+});
+
+describe("Receivers in proxies", function() {
+  let wetObj, dryObj;
+  beforeEach(function() {
+    wetObj = {
+      ALPHA: {
+        value: "A"
+      },
+      BETA: {
+        value: "B"
+      },
+      
+      alpha: {
+        get upper() {
+          return this._upper;
+        },
+        set upper(val) {
+          this._upper = val;
+        },
+        _upper: null,
+        value: "a",
+      },
+
+      beta: {
+        _upper: null,
+        value: "b"
+      },
+
+      X: {},
+    };
+    wetObj.alpha._upper = wetObj.ALPHA;
+    wetObj.beta._upper = wetObj.BETA;
+
+    let parts = MembraneMocks();
+    dryObj = parts.membrane.convertArgumentToProxy(
+      parts.handlers.wet, parts.handlers.dry, wetObj
+    );
+  });
+
+  it("are where property lookups happen", function() {
+    const a = dryObj.alpha, b = dryObj.beta, B = dryObj.BETA;
+    const val = Reflect.get(a, "upper", b);
+    expect(val).toBe(B);
+  });
+
+  it("are where property setter invocations happen", function() {
+    const a = dryObj.alpha, b = dryObj.beta, A = dryObj.ALPHA, X = dryObj.X;
+    const wetX = wetObj.X;
+    Reflect.set(a, "upper", X, b);
+    expect(b._upper).toBe(X);
+    expect(a._upper).toBe(A);
+
+    expect(wetObj.beta._upper).toBe(wetX);
   });
 });
 

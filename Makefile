@@ -43,6 +43,7 @@ mockDocs::
 	@mkdir -p $(DIST)/staging
 	@cat $(MOCKS_FILES) > $(DIST)/staging/mocks.js
 
+# When you update this, update wrappers/browser/debug-browser.xhtml as well.
 ALL_SPEC_FILES = \
 	spec/non-membrane/logger.js \
 	spec/non-membrane/defineProperty.js \
@@ -52,6 +53,7 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/prototypes.js \
 	spec/non-membrane/lazyGetter.js \
 	spec/non-membrane/argumentTruncation.js \
+	spec/non-membrane/receiver.js \
 	spec/concepts.js \
 	spec/freeze-seal.js \
 	spec/features/replaceProxies.js \
