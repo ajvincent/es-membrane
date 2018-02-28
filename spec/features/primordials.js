@@ -15,9 +15,10 @@ describe("Primordial values", function() {
     /* testing common primordials as well */
     Object, Function, Array, Date, Map, Set, WeakMap, WeakSet
   ];
-  function passThrough() {
+  var passThrough;
+  {
     const pSet = new Set(Membrane.Primordials);
-    return pSet.has;
+    passThrough = pSet.has.bind(pSet);
   }
 
   it("are available on the Membrane as a frozen array", function() {
@@ -46,6 +47,10 @@ describe("Primordial values", function() {
       let wrappedP = membrane.convertArgumentToProxy(wetHandler, dryHandler, p);
       expect(wrappedP).toBe(p);
     });
+
+    let wetObj = {};
+    let dryObj = membrane.convertArgumentToProxy(wetHandler, dryHandler, wetObj);
+    expect(dryObj).not.toBe(wetObj);
   });
 
   it("can pass through specific object graphs, if requested", function() {
