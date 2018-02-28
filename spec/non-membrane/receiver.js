@@ -1,4 +1,4 @@
-describe("Receivers in proxies", function() {
+describe("Receivers in Reflect", function() {
   var alpha, beta, ALPHA, BETA;
   beforeEach(function() {
     ALPHA = {
