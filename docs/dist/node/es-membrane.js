@@ -1134,7 +1134,7 @@ MembraneInternal.prototype = Object.seal({
 
     if (keys.includes("get")) {
       wrappedDesc.get = function wrappedGetter () {
-        const wrappedThis = membrane.convertArgumentToProxy(originHandler, targetHandler, this);
+        const wrappedThis = membrane.convertArgumentToProxy(targetHandler, originHandler, this);
         return membrane.convertArgumentToProxy(
           originHandler,
           targetHandler,
@@ -1145,11 +1145,11 @@ MembraneInternal.prototype = Object.seal({
 
     if (keys.includes("set") && (typeof desc.set === "function")) {
       const wrappedSetter = function(value) {
-        const wrappedThis  = membrane.convertArgumentToProxy(originHandler, targetHandler, this);
-        const wrappedValue = membrane.convertArgumentToProxy(originHandler, targetHandler, value);
+        const wrappedThis  = membrane.convertArgumentToProxy(targetHandler, originHandler, this);
+        const wrappedValue = membrane.convertArgumentToProxy(targetHandler, originHandler, value);
         return membrane.convertArgumentToProxy(
-          targetHandler,
           originHandler,
+          targetHandler,
           desc.set.call(wrappedThis, wrappedValue)
         );
       };

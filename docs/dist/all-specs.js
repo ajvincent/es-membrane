@@ -1529,15 +1529,22 @@ describe("basic concepts: ", function() {
     
     Reflect.defineProperty(dryDocument, "extra", desc);
     
-    var dryExtra = {};
-    dryDocument.extra = dryExtra;
+    var unwrappedExtra = {};
+    dryDocument.extra = unwrappedExtra;
     
     expect(typeof extraHolder).toBe("object");
-    expect(extraHolder).not.toBe(dryExtra);
-    expect(wetDocument.extra).toBe(extraHolder);
+    expect(extraHolder).toBe(unwrappedExtra);
+    expect(wetDocument.extra).not.toBe(extraHolder);
     
-    expect(dryDocument.extra).toBe(dryExtra);
-  })
+    expect(dryDocument.extra).toBe(unwrappedExtra);
+
+    expect(dryDocument.extra).not.toBe(wetDocument.extra);
+    /* In summary:
+     *
+     * dryDocument is a proxy, dryDocument.extra is an unwrapped object
+     * wetDocument is an unwrapped object, wetDocument.extra is a proxy
+     */
+  });
 
   it("Looking up an object twice returns the same object", function() {
     var root1 = dryDocument.rootElement;
@@ -2134,6 +2141,39 @@ describe("basic concepts: ", function() {
       dryDocument.baseURL;
     }).toThrow();
   });
+
+  describe(
+    "Object constructors should be properly wrapped (thanks to Luca Franceschini for this test)",
+    function() {
+      // objects returned by `should`
+      function ObjectWrapper(obj) {
+        this._obj = obj;
+      }
+
+      ObjectWrapper.prototype.equal = function equal(other) {
+        return (this._obj === other);
+      };
+      beforeEach(function() {
+        Object.defineProperty(Object.prototype, 'should', {
+          configurable: true,
+          get: function () {
+            return new ObjectWrapper(this);
+          }
+        });
+      });
+      afterEach(function() {
+        Reflect.deleteProperty(Object.prototype, "should");
+      });
+      it("for non-wrapped objects", function() {
+        const rv = wetDocument.should.equal(wetDocument);
+        expect(rv).toBe(true);
+      });
+      it("for wrapped objects", function() {
+        const rv = dryDocument.should.equal(dryDocument);
+        expect(rv).toBe(true);
+      });
+    }
+  );
 });
 
 it("More than one object graph can be available", function() {
