@@ -57,7 +57,7 @@ describe("basic concepts: ", function() {
       enumerable: true,
       configurable: true
     };
-    
+
     Reflect.defineProperty(dryDocument, "extra", desc);
     
     var unwrappedExtra = {};
@@ -705,6 +705,61 @@ describe("basic concepts: ", function() {
       });
     }
   );
+});
+
+describe("Receivers in proxies", function() {
+  let wetObj, dryObj;
+  beforeEach(function() {
+    wetObj = {
+      ALPHA: {
+        value: "A"
+      },
+      BETA: {
+        value: "B"
+      },
+      
+      alpha: {
+        get upper() {
+          return this._upper;
+        },
+        set upper(val) {
+          this._upper = val;
+        },
+        _upper: null,
+        value: "a",
+      },
+
+      beta: {
+        _upper: null,
+        value: "b"
+      },
+
+      X: {},
+    };
+    wetObj.alpha._upper = wetObj.ALPHA;
+    wetObj.beta._upper = wetObj.BETA;
+
+    let parts = MembraneMocks();
+    dryObj = parts.membrane.convertArgumentToProxy(
+      parts.handlers.wet, parts.handlers.dry, wetObj
+    );
+  });
+
+  it("are where property lookups happen", function() {
+    const a = dryObj.alpha, b = dryObj.beta, B = dryObj.BETA;
+    const val = Reflect.get(a, "upper", b);
+    expect(val).toBe(B);
+  });
+
+  it("are where property setter invocations happen", function() {
+    const a = dryObj.alpha, b = dryObj.beta, A = dryObj.ALPHA, X = dryObj.X;
+    const wetX = wetObj.X;
+    Reflect.set(a, "upper", X, b);
+    expect(b._upper).toBe(X);
+    expect(a._upper).toBe(A);
+
+    expect(wetObj.beta._upper).toBe(wetX);
+  });
 });
 
 it("More than one object graph can be available", function() {
