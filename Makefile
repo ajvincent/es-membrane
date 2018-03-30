@@ -54,6 +54,7 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/lazyGetter.js \
 	spec/non-membrane/argumentTruncation.js \
 	spec/non-membrane/receiver.js \
+	spec/non-membrane/containers/array-splice.js \
 	spec/concepts.js \
 	spec/freeze-seal.js \
 	spec/features/replaceProxies.js \
@@ -69,6 +70,10 @@ ALL_SPEC_FILES = \
 	spec/properties/precedence.js \
 	spec/properties/whitelist.js \
 	spec/properties/truncateArgList.js \
+	spec/containers/Map/default.js \
+	spec/containers/WeakMap/default.js \
+	spec/containers/Set/default.js \
+	spec/containers/WeakSet/default.js \
 	spec/useCases/storeUnknownAsLocal.js \
 	spec/useCases/requireLocalDelete.js \
 	spec/useCases/filterOwnKeys.js \
