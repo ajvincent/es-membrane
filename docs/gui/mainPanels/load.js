@@ -34,6 +34,7 @@ window.LoadPanel = {
   },
 
   setTestModeZip: function() {
+    this.testMode.fakeZip = true;
     const fileList = [
       "browser/assert.js",
       "browser/sharedUtilities.js",
@@ -58,7 +59,10 @@ window.LoadPanel = {
       return zip.generateAsync({type: "blob"});
     });
 
-    p = p.then(this.updateZipTree.bind(this));
+    p = p.then(async function(blob) {
+      LoadPanel.testMode.blob = blob;
+      return LoadPanel.update("fromZip");
+    });
 
     p = p.then(function() {
       let requiredFiles = fileList.slice(0, 4);
@@ -526,7 +530,9 @@ window.LoadPanel = {
       this.zipForm.reset();
     }
 
-    if (LoadPanel.zipFileInput.files.length)
+    if (this.testMode && this.testMode.fakeZip)
+      await this.updateZipTree(this.testMode.blob);
+    else if (LoadPanel.zipFileInput.files.length)
       await this.updateZipTree(LoadPanel.zipFileInput.files[0]);
     else
       await this.updateLoadFiles();
@@ -636,7 +642,7 @@ window.LoadPanel = {
         }
 
         await this.collectCommonFileURLs();
-        await this.buildFileOrderTree(window.MembranePanel.cachedConfig);
+        await this.buildFileOrderTree(config);
         await this.loadCommonScripts();
       }
 

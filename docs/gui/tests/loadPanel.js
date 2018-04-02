@@ -515,7 +515,7 @@ describe("Load Panel Operations with zip archives", function() {
         ]
       }\n`;
 
-      await window.LoadPanel.updateLoadFiles();
+      await window.LoadPanel.update("fromConfig");
 
       expect(getCheckbox("browser/assert.js").checked).toBe(true);
       expect(getCheckbox("browser/es-membrane.js").checked).toBe(true);
@@ -559,9 +559,10 @@ describe("Load Panel Operations with zip archives", function() {
         "graphs": [
         ]
       }\n`;
-      await window.LoadPanel.updateLoadFiles();
+      await window.LoadPanel.update("fromConfig");
 
       await window.LoadPanel.setTestModeZip();
+      await window.LoadPanel.update("fromZip");
 
       expect(getCheckbox("browser/assert.js").checked).toBe(true);
       expect(getCheckbox("browser/es-membrane.js").checked).toBe(true);
@@ -605,7 +606,7 @@ describe("Load Panel Operations with zip archives", function() {
         "graphs": [
         ]
       }\n`;
-      await window.LoadPanel.updateLoadFiles();
+      await window.LoadPanel.update("fromConfig");
 
       await window.LoadPanel.setTestModeZip();
 
