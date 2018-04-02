@@ -143,7 +143,7 @@
                    name="config"
                    accept="application/json"
                    required="required"
-                   onchange="void(window.LoadPanel.updateLoadFiles());"
+                   onchange="void(window.LoadPanel.update('fromConfig'));"
                   >
           </span>
           <hr>
@@ -159,7 +159,7 @@
                    name="zipfile"
                    required="required"
                    accept="application/zip"
-                   onchange="void(window.LoadPanel.updateZipTree(event.target.files[0]));"
+                   onchange="void(window.LoadPanel.update('fromZip'));"
                   />
           </span>
         </form>
@@ -178,7 +178,7 @@
                    name="location"
                    required="required"
                    accept="application/javascript"
-                   onchange="void(window.LoadPanel.updateFlatFiles());"
+                   onchange="void(window.LoadPanel.update('fromFlatFiles'));"
                   >
           </span>
           <hr>

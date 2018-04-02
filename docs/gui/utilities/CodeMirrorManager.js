@@ -65,6 +65,14 @@ const CodeMirrorManager = window.CodeMirrorManager = {
     };
   },
 
+  replaceLineWithSource: function(editor, source, line) {
+    editor.getDoc().replaceRange(
+      source,
+      {line, ch: 0},
+      {line, ch: Infinity}
+    );
+  },
+
   getEditorEnabled: function(editor) {
     return !editor.getOption("readOnly");
   },

@@ -29,13 +29,14 @@
 
     // private
     this.scriptElem = document.createElement("script");
+
+    this.scriptElem.addEventListener("load", this, true);
+    window.addEventListener("error", this, true);
+    
     this.scriptElem.setAttribute("type", "application/javascript");
     this.scriptElem.setAttribute("src", url);
     // no async, no defer:  load it now!
     this.url = url;
-
-    this.scriptElem.addEventListener("load", this, true);
-    window.addEventListener("error", this, true);
   }
 
   // DOMEventListener

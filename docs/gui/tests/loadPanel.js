@@ -449,7 +449,7 @@ describe("Load Panel Operations with zip archives", function() {
   beforeEach(async function() {
     await getDocumentLoadPromise("base/gui/index.html");
     window = testFrame.contentWindow;
-    window.LoadPanel.testMode = {fakeZip: true};
+    window.LoadPanel.testMode = {};
     OGM = window.OuterGridManager;
   });
 

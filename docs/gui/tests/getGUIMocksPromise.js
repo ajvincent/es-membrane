@@ -11,7 +11,10 @@ async function getGUIMocksPromise(propNames) {
       "formatVersion": "1.0"
     }
   }`;
-  window.LoadPanel.buildFileOrderTree();
+
+  await window.LoadPanel.collectCommonFileURLs();
+  await window.LoadPanel.buildFileOrderTree();
+  await window.LoadPanel.loadCommonScripts();
 
   {
     let p1 = MessageEventPromise(window, "MembranePanel initialized");

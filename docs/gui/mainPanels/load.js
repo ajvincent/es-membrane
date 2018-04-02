@@ -1,14 +1,5 @@
 window.LoadPanel = {
   isInitialized: false,
-  update: function() {
-    if (!this.isInitialized) {
-      this.loadOrderTree.addEventListener("click", this, false);
-      this.commonFilesInput.form.reset();
-      this.configFileInput.form.reset();
-      this.zipForm.reset();
-      this.isInitialized = true;
-    }
-  },
   
   // private, see below
   commonFilesInput: null,
@@ -516,22 +507,37 @@ window.LoadPanel = {
     }
   },
 
+  update: async function(action = "undeclared") {
+    if (!this.isInitialized) {
+      this.loadOrderTree.addEventListener("click", this, false);
+      this.commonFilesInput.form.reset();
+      this.configFileInput.form.reset();
+      this.zipForm.reset();
+      this.isInitialized = true;
+    }
+
+    if ((action == "pageLoad") || (action == "undeclared"))
+      return;
+
+    if (action == "fromZip") {
+      this.commonFilesInput.form.reset();
+    }
+    else if (action == "fromFlatFiles") {
+      this.zipForm.reset();
+    }
+
+    if (LoadPanel.zipFileInput.files.length)
+      await this.updateZipTree(LoadPanel.zipFileInput.files[0]);
+    else
+      await this.updateLoadFiles();
+  },
+
   updateLoadFiles: async function() {
     window.MembranePanel.cachedConfig = null;
     await window.MembranePanel.reset();
-
-    this.buildFileOrderTree(window.MembranePanel.cachedConfig);
-  },
-
-  updateFlatFiles: async function() {
-    this.zipForm.reset();
-    this.clearZipTree();
-
-    await this.updateLoadFiles();
   },
 
   updateZipTree: async function(blob) {
-    this.commonFilesInput.form.reset();
     this.zipData.map = null;
     if (!blob) {
       this.zipData.reader = null;
@@ -599,20 +605,9 @@ window.LoadPanel = {
         this.commonFileURLs.set(file.name, URL.createObjectURL(file));
       }
     }
-    else {
-      throw new Error("collectCommonFileURLs, how did we get invoked?");
-    }
   },
 
   getConfiguration: async function() {
-    if (this.commonFilesInput.files.length ||
-        this.zipData.map ||
-        (this.testMode && this.testMode.fakeFiles)) {
-      await this.collectCommonFileURLs();
-      await this.buildFileOrderTree(window.MembranePanel.cachedConfig);
-      await this.loadCommonScripts();
-    }
-
     var config = {
       "configurationSetup": {
         "commonFiles": this.getCommonFileOrdering()
@@ -640,7 +635,8 @@ window.LoadPanel = {
           }, this);
         }
 
-        await this.buildFileOrderTree(config);
+        await this.collectCommonFileURLs();
+        await this.buildFileOrderTree(window.MembranePanel.cachedConfig);
         await this.loadCommonScripts();
       }
 
@@ -656,14 +652,6 @@ window.LoadPanel = {
   },
 
   loadCommonScripts: async function() {
-    let pathArray = this.getCommonFileOrdering();
-    let urlArray = [];
-    pathArray.forEach(function(path) {
-      let url = this.commonFileURLs.get(path);
-      if (url)
-        urlArray.push(url);
-    }, this);
-
     if (this.commonFilesLoaded) {
       const iframe = window.document.getElementById("BlobLoader");
       let p = new Promise(function (resolve) {
@@ -674,9 +662,26 @@ window.LoadPanel = {
       await p;
     }
 
-    while (urlArray.length) {
-      await DistortionsManager.BlobLoader.addCommonURL(urlArray.shift());
+    let pathArray = this.getCommonFileOrdering();
+
+    if (pathArray.length &&
+        this.commonFileURLs &&
+        !this.commonFileURLs.size &&
+        (LoadPanel.zipFileInput.files.length ||
+         this.commonFilesInput.files.length)) {
+      /* XXX ajvincent if you encounter this running the project's automated
+       * tests, it's far more likely you broke something in the project...
+       */
+      throw new Error("Path array defined, script sequence defined, but no script mappings... could it be the script list is corrupted?");
     }
+
+    for (let i = 0; i < pathArray.length; i++) {
+      let path = pathArray[i];
+      let url = this.commonFileURLs ? this.commonFileURLs.get(path) : null;
+      if (!url)
+        continue;
+      await DistortionsManager.BlobLoader.addCommonURL(url);
+    };
     this.commonFilesLoaded = true;
   },
 
@@ -724,5 +729,5 @@ window.LoadPanel = {
 }
 
 window.addEventListener("load", function() {
-  window.LoadPanel.update();
+  window.LoadPanel.update("pageLoad");
 }, true);
