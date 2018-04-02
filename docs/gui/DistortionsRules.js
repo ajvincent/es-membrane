@@ -20,7 +20,7 @@ window.DistortionsRules = function DistortionsRules() {
  *
  * @param config {Object} The configuration to test.
  */
-DistortionsRules.validateConfiguration = function(config) {
+DistortionsRules.validateConfiguration = function(config, isFunction) {
   // assume we've tested typeof config === "object" already
 
   function requireType(field, type) {
@@ -90,7 +90,7 @@ DistortionsRules.validateConfiguration = function(config) {
   requireType("storeUnknownAsLocal", "boolean");
   requireType("requireLocalDelete", "boolean");
   requireType("useShadowTarget", "boolean");
-  if (typeof config.truncateArgList === "boolean")
+  if (!isFunction || (typeof config.truncateArgList === "boolean"))
   {
     // do nothing
   }
@@ -332,7 +332,15 @@ DistortionsRules.prototype = {
   },
 
   importJSON: function(config) {
-    DistortionsRules.validateConfiguration(config);
+    DistortionsRules.validateConfiguration(
+      config, typeof this.value == "function"
+    );
+
+    if (!this.gridtree)
+      throw new Error(
+        "DistortionRules.prototype.importJSON called without the GUI"
+      );
+
     if (Array.isArray(config.filterOwnKeys)) {
       let inputs = this.groupToInputsMap.get("ownKeys");
       let s = new Set(config.filterOwnKeys);

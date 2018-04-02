@@ -104,7 +104,7 @@ describe("Output panel", function() {
 
       await membranePanelSelect();
       window.HandlerNames.setRow(2, "damp", true);
-      OGM.defineGraphs();
+      await OGM.defineGraphs();
 
       await linkUpdatePromise();
 

@@ -100,6 +100,7 @@ window.MembranePanel = {
 {
   let elems = {
     "form": "grid-outer-membrane-configForm",
+    "submitButton": "grid-outer-membrane-graphnames-submit",
     "passThroughCheckbox": "grid-outer-membrane-enablePT",
     "passThroughTextarea": "grid-outer-membrane-passthrough",
     "primordialsCheckbox": "grid-outer-membrane-primordials",

@@ -158,7 +158,6 @@ const HandlerNames = window.HandlerNames = {
   let elems = {
     "grid":           "grid-outer-membrane-objectgraphs",
     "template":       "objectgraph-name-row",
-    "graphNamesForm": "grid-outer-membrane-configForm",
   };
   let keys = Reflect.ownKeys(elems);
   keys.forEach(function(key) {

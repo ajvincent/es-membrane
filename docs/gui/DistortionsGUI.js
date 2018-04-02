@@ -281,6 +281,8 @@ const DistortionsGUI = window.DistortionsGUI = {
         OuterGridManager.insertOtherPanel(radio, instancePanel);
     }
     radio.click();
+
+    return panel;
   },
 
   finishInstancePanel: async function() {

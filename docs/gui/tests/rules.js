@@ -234,13 +234,13 @@ describe("DistortionsRules", function() {
     };
   }
 
-  describe(".validateConfiguration with", function() {
+  function validateConfigurationTests(assumeFunction) {
     beforeEach(setTestConfig);
 
     function runTestForFailure(errMessage) {
       let pass = false, exn = null;
       try {
-        window.DistortionsRules.validateConfiguration(testConfig);
+        window.DistortionsRules.validateConfiguration(testConfig, assumeFunction);
       }
       catch (e) {
         pass = true;
@@ -251,7 +251,7 @@ describe("DistortionsRules", function() {
     }
 
     function runTestForValidity() {
-      window.DistortionsRules.validateConfiguration(testConfig);
+      window.DistortionsRules.validateConfiguration(testConfig, assumeFunction);
     }
 
     it("a normal configuration", runTestForValidity);
@@ -341,51 +341,53 @@ describe("DistortionsRules", function() {
       });
     });
 
+    const runTruncateTest = assumeFunction ? runTestForFailure : runTestForValidity;
+
     it("truncateArgList missing", function() {
       delete testConfig.truncateArgList;
-      runTestForFailure(
+      runTruncateTest(
         "truncateArgList must be a boolean or a non-negative integer"
       );
     });
 
     it("truncateArgList being a string", function() {
       testConfig.truncateArgList = "foo";
-      runTestForFailure(
+      runTruncateTest(
         "truncateArgList must be a boolean or a non-negative integer"
       );
     });
 
     it("truncateArgList being null", function() {
       testConfig.truncateArgList = null;
-      runTestForFailure(
+      runTruncateTest(
         "truncateArgList must be a boolean or a non-negative integer"
       );
     });
 
     it("truncateArgList being a negative number", function() {
       testConfig.truncateArgList = -1;
-      runTestForFailure(
+      runTruncateTest(
         "truncateArgList must be a boolean or a non-negative integer"
       );
     });
 
     it("truncateArgList being NaN", function() {
       testConfig.truncateArgList = NaN;
-      runTestForFailure(
+      runTruncateTest(
         "truncateArgList must be a boolean or a non-negative integer"
       );
     });
 
     it("truncateArgList being Infinity", function() {
       testConfig.truncateArgList = Infinity;
-      runTestForFailure(
+      runTruncateTest(
         "truncateArgList must be a boolean or a non-negative integer"
       );
     });
 
     it("truncateArgList being a decimal", function() {
       testConfig.truncateArgList = 0.5;
-      runTestForFailure(
+      runTruncateTest(
         "truncateArgList must be a boolean or a non-negative integer"
       );
     });
@@ -414,8 +416,16 @@ describe("DistortionsRules", function() {
       testConfig.truncateArgList = 100;
       runTestForValidity();
     });
+  };
+
+  describe(".validateConfiguration for non-functions", function() {
+    validateConfigurationTests(false);
   });
 
+  describe(".validateConfiguration for functions", function() {
+    validateConfigurationTests(true);
+  });
+  
   describe("GUI", function() {
     it("can fully initialize with an object", function() {
       let ctor = window.DecrementCounter;

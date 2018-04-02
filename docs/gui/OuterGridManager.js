@@ -122,7 +122,7 @@ const OuterGridManager = window.OuterGridManager = {
     this.loadPanelRadio.click();
   },
 
-  defineGraphs: function() {
+  defineGraphs: async function() {
     const config = MembranePanel.cachedConfig;
 
     // Update the cached configuration
@@ -328,6 +328,11 @@ const OuterGridManager = window.OuterGridManager = {
       this.selectedHelpAndNotesPanel.dataset.selected = false;
 
     this.selectedHelpAndNotesPanel = null;
+  },
+
+  hasCurrentErrorText: function() {
+    const node = this.currentErrorOutput.firstChild;
+    return node ? Boolean(node.nodeValue) : false;
   },
 
   setCurrentErrorText: function(e) {

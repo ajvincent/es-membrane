@@ -456,7 +456,7 @@ describe("Load Panel Operations with zip archives", function() {
   afterEach(function() {
     window = null;
     OGM = null;
-  })
+  });
 
   function getErrorMessage() {
     let output = window.OuterGridManager.currentErrorOutput;

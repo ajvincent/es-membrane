@@ -29,7 +29,7 @@ async function getGUIMocksPromise(propNames) {
     window.HandlerNames.update();
 
     {
-      let isValid = window.HandlerNames.graphNamesForm.checkValidity();
+      let isValid = window.MembranePanel.form.checkValidity();
       expect(isValid).toBe(true);
       if (!isValid)
         throw new Error("graphNames form is not valid");
@@ -43,7 +43,7 @@ async function getGUIMocksPromise(propNames) {
     let p2 = MessageEventPromise(
       window, "Graph panel shown: graphpanel-0"
     );
-    OGM.defineGraphs();
+    await OGM.defineGraphs();
     await Promise.all([p1, p2]);
     expect(OGM.graphNamesCache.lastVisibleGraph).not.toBe(null);
     expect(OGM.selectedTabs.file).toBe(OGM.graphNamesCache.lastVisibleGraph.radio);

@@ -68,6 +68,10 @@
     valuesByName: new Map(),
     failedNames: new Set(),
 
+    get urlCount() {
+      return document.head.getElementsByTagName("script").length - 1;
+    },
+
     /**
      * Schedule the loading of a JavaScript in sequence.
      *
