@@ -76,18 +76,24 @@ describe("Load Panel Operations with faked flat files", function() {
       chooseMembranePanel()
     ]);
 
+    /* Invalid test:  we've already built a valid configuration with
+     * window.LoadPanel.testMode = {fakeFiles: true};
+     * in the beforeEach() call.
+    expect(window.LoadPanel.commonFileURLs.size).toBe(0);
+    */
+
     let [graphNames, graphSymbolLists] = window.HandlerNames.serializableNames();
     expect(graphNames).toEqual(["wet", "dry", "damp"]);
     expect(graphSymbolLists).toEqual([2]);
 
-    
     const valid = window.MembranePanel.form.checkValidity();
     expect(valid).toBe(true);
   });
- 
 
   it("can build a fresh configuration with test mode", async function() {
     await getGUIMocksPromise(["doc"]);
+    expect(window.LoadPanel.commonFileURLs.size).toBeGreaterThan(0);
+
     const BlobLoader = window.DistortionsManager.BlobLoader;
     expect(BlobLoader.valuesByName.get("parts.dry.doc").nodeType).toBe(9);
 
@@ -517,6 +523,9 @@ describe("Load Panel Operations with zip archives", function() {
 
       await window.LoadPanel.update("fromConfig");
 
+      // Probably redundant, but it doesn't hurt to check.
+      expect(window.LoadPanel.commonFileURLs.size).toBeGreaterThan(0);
+
       expect(getCheckbox("browser/assert.js").checked).toBe(true);
       expect(getCheckbox("browser/es-membrane.js").checked).toBe(true);
       expect(getCheckbox("browser/fireJasmine.js").checked).toBe(false);
@@ -564,6 +573,9 @@ describe("Load Panel Operations with zip archives", function() {
       await window.LoadPanel.setTestModeZip();
       await window.LoadPanel.update("fromZip");
 
+      // Probably redundant, but it doesn't hurt to check.
+      expect(window.LoadPanel.commonFileURLs.size).toBeGreaterThan(0);
+
       expect(getCheckbox("browser/assert.js").checked).toBe(true);
       expect(getCheckbox("browser/es-membrane.js").checked).toBe(true);
       expect(getCheckbox("browser/fireJasmine.js").checked).toBe(false);
@@ -606,9 +618,19 @@ describe("Load Panel Operations with zip archives", function() {
         "graphs": [
         ]
       }\n`;
+      window.LoadPanel.testMode.fakeFiles = true;
       await window.LoadPanel.update("fromConfig");
+      expect(window.LoadPanel.commonFileURLs.size).toBeGreaterThan(0);
 
       await window.LoadPanel.setTestModeZip();
+
+      /* This is an interesting case:  useZip: false means files should load from the
+       * flat files interface.  But we just specified a zip file.  This behavior
+       * shouldn't be supported.
+       */
+      /*
+      expect(window.LoadPanel.commonFileURLs.size).toBe(0);
+      */
 
       expect(getCheckbox("browser/assert.js").checked).toBe(false);
       expect(getCheckbox("browser/es-membrane.js").checked).toBe(false);

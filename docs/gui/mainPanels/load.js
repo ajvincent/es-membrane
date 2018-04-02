@@ -624,8 +624,12 @@ window.LoadPanel = {
     // This is about the configuration file, not the common files...
     // (I write this because I've stumbled here about a dozen times.)
     if (!this.configFileInput.files.length &&
-        (!this.testMode || !this.testMode.configSource))
+        (!this.testMode || !this.testMode.configSource)) {
+      await this.collectCommonFileURLs();
+      await this.buildFileOrderTree(config);
+      await this.loadCommonScripts();
       return config;
+    }
 
     try {
       config = await this.readConfigFromFile();
