@@ -44,11 +44,39 @@ ObjectGraphManager.prototype.buildUI = function() {
   this.radio.addEventListener("change", this, true);
 };
 
-ObjectGraphManager.prototype.importJSON = function(data) {
-  this.jsonBase = {
-    "name": data.name,
-    "isSymbol": data.isSymbol
-  };
+ObjectGraphManager.prototype.importJSON = async function(data) {
+  this.jsonBase = data;
+  if (Array.isArray(this.jsonBase.distortions)) {
+    for (let i = 0; i < this.jsonBase.distortions.length; i++)
+    {
+      const distortionData = this.jsonBase.distortions[i];
+      const details = {
+        graph: this,
+        valueName: distortionData.about.valueName,
+        graphIndex: OuterGridManager.graphNamesCache.controllers.indexOf(this),
+        hasValue: false,
+        isGroup: false,
+        valueFromSource: this.valueGetterSource.defaultValue,
+      };
+      if (distortionData.about.getExample)
+        details.valueFromSource = details.valueFromSource.replace(
+          "  return {};", `${distortionData.about.getExample}`
+        );
+
+      try {
+        let valuePanel = await window.DistortionsGUI.buildValuePanel(details);
+        const hash = valuePanel.dataset.hash;
+        const dSet = DistortionsManager.valueNameToRulesMap.get(hash);
+        dSet.value.importJSON(distortionData.value);
+      }
+      catch (exn) {
+        if (!OuterGridManager.hasCurrentErrorText())
+          OuterGridManager.setCurrentErrorText(exn);
+
+        console.error(exn);
+      }
+    }
+  }
 };
 
 ObjectGraphManager.prototype.exportJSON = function(graphIndex) {
@@ -95,6 +123,10 @@ ObjectGraphManager.prototype.exportJSON = function(graphIndex) {
   return rv;
 };
 
+ObjectGraphManager.prototype.appendDistortionsSet = function(distortionsSet) {
+  this.distortionMaps.push(distortionsSet);
+};
+
 ObjectGraphManager.prototype.setGraphName = function(
   name/*, jsonName, isSymbol*/
 )
@@ -124,6 +156,14 @@ ObjectGraphManager.prototype.buildEditors = function() {
     this.primordialsTextSet = CodeMirrorManager.getTextLock(
       this.passThroughEditor, 0, 2
     );
+    if (this.jsonBase.passThroughSource) {
+      CodeMirrorManager.replaceLineWithSource(
+        this.passThroughEditor,
+        this.jsonBase.passThroughSource,
+        2
+      );
+    }
+    
     this.primordialsCheckbox.addEventListener("change", this, true);
     this.handlePrimordials({target: this.primordialsCheckbox});
 

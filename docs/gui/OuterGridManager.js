@@ -148,8 +148,8 @@ const OuterGridManager = window.OuterGridManager = {
           this.graphNamesCache.controllers.push(new ObjectGraphManager());
         }
         const controller = this.graphNamesCache.controllers[i];
-        controller.importJSON(config.graphs[i]);
         controller.setGraphName(name);
+        await controller.importJSON(config.graphs[i]);
       }
 
       const deadControllers = this.graphNamesCache.controllers.slice(names.length);

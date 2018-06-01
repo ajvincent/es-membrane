@@ -49,7 +49,7 @@ const OutputPanel = window.OutputPanel = {
   /**
    * Generate the Distortions GUI JSON and the membrane crafting file.
    */
-  update: function() {
+  update: async function() {
     if (!this.isInitialized)
       this.initialize();
 

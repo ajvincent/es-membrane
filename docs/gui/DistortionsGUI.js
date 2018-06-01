@@ -266,7 +266,7 @@ const DistortionsGUI = window.DistortionsGUI = {
       distortionsSet.about.getExample = getExample;
     }
     DistortionsManager.valueNameToRulesMap.set(hash, distortionsSet);
-    graph.distortionMaps.push(distortionsSet);
+    graph.appendDistortionsSet(distortionsSet);
 
     OuterGridManager.panels.appendChild(panel);
 

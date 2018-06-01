@@ -1,9 +1,5 @@
 describe("What we export we can import, and vice versa:", function() {
   "use strict";
-  beforeEach(function() {
-    setupDebugTest();
-  });
-
   var window, OGM;
 
   async function resetEnvironment(url) {
@@ -57,64 +53,49 @@ describe("What we export we can import, and vice versa:", function() {
     }
   );
 
-  xit("for a full configuration", async function() {
+  it("for a full configuration", async function() {
     await resetEnvironment("base/gui/index.html");
     await getGUIMocksPromise(["doc"]);
 
     const firstExportedData = await XHRPromise(
       window.OutputPanel.configLink.getAttribute("href")
     );
-    console.log("firstExportedData");
 
     await resetEnvironment("base/gui/index.html");
-    console.log("second load complete");
     window = testFrame.contentWindow;
     window.LoadPanel.testMode = { fakeFiles: true };
     window.LoadPanel.setTestModeFiles();
 
     // test import
-    window.LoadPanel.testMode.cachedConfig = firstExportedData;
+    window.LoadPanel.testMode.configSource = firstExportedData;
     const firstParse  = JSON.parse(firstExportedData);
 
-    {
-      let p1 = MessageEventPromise(window, "MembranePanel initialized");
-      let p2 = MessageEventPromise(
-        window,
-        "MembranePanel cached configuration reset",
-        "MembranePanel exception thrown in reset"
-      );
-      OGM.membranePanelRadio.click();
-      await Promise.all([p1, p2]);
-      console.log("Membrane panel loaded");
-    }
+    let p1 = MessageEventPromise(window, "MembranePanel initialized");
+    let p2 = MessageEventPromise(
+      window,
+      "MembranePanel cached configuration reset",
+      "MembranePanel exception thrown in reset"
+    );
 
-    window.LoadPanel.validateConfiguration(firstParse);
-    window.HandlerNames.importConfig(firstParse);
+    await window.LoadPanel.update("fromConfig");
+    OGM.membranePanelRadio.click();
+    await Promise.all([p1, p2]);
 
     expect(window.MembranePanel.submitButton.disabled).toBe(false);
-    window.MembranePanel.submitButton.click();
-
+    await window.OuterGridManager.defineGraphs();
     {
       let p1 = MessageEventPromise(window, "OutputPanel initialized");
-      p1 = p1.then(function() {
-        console.log("OutputPanel initialized");
-      });
       let p2 = MessageEventPromise(window, "OutputPanel updated download links");
-      p2 = p2.then(function() {
-        console.log("OutputPanel updated download links");
-      });
       window.OuterGridManager.outputPanelRadio.click();
       await Promise.all([p1, p2]);
-      console.log("OutputPanel loaded");
     }
 
     const secondExportedData = await XHRPromise(
       window.OutputPanel.configLink.getAttribute("href")
     );
-    console.log("Second exported data generated");
 
     const secondParse = JSON.parse(secondExportedData);
-
+    firstParse.configurationSetup.lastUpdated = secondParse.configurationSetup.lastUpdated;
     expect(secondParse).toEqual(firstParse);
   });
 });
