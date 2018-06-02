@@ -9,8 +9,6 @@ it("Top-level globals for the Distortion UI exist", async function() {
     "DistortionsRules",
     "DistortionsGUI",
     "HandlerNames",
-    "OuterGridManager",
-    "TabboxRadioEventHandler",
     "MultistateHandler",
     "LoadPanel",
     "MembranePanel",

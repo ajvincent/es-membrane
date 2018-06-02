@@ -1,3 +1,8 @@
+/**
+ * The tabbox and grid layout manager.
+ * @static
+ * @see index.html
+ */
 const OuterGridManager = window.OuterGridManager = {
   // private, see below
   sheet: null,
@@ -16,6 +21,11 @@ const OuterGridManager = window.OuterGridManager = {
   selectedHelpAndNotesPanel: null,
   currentErrorOutput: null,
 
+  /**
+   * A not-so-object-oriented cache of object graph properties.
+   *
+   * @public
+   */
   graphNamesCache: {
     controllers: [],
     visited: false,
@@ -29,12 +39,21 @@ const OuterGridManager = window.OuterGridManager = {
     lastVisibleGraph: null,
   },
 
+  /**
+   * <input type="radio"> elements for selected tabs.
+   *
+   * We need two of them because, as the rendering shows, we have a 2-D tabbox.
+   */
   selectedTabs: {
     file: null,
     trap: null,
   },
 
-  // public
+  /**
+   * Initialize this.
+   *
+   * @private
+   */
   init: function() {
     "use strict";
     this.tabboxForm.reset();
@@ -122,6 +141,9 @@ const OuterGridManager = window.OuterGridManager = {
     this.loadPanelRadio.click();
   },
 
+  /**
+   * Define the current object graph managers for the current configuration.
+   */
   defineGraphs: async function() {
     const config = MembranePanel.cachedConfig;
 
@@ -169,7 +191,17 @@ const OuterGridManager = window.OuterGridManager = {
       );
     }
   },
-  
+
+  /**
+   * Insert a "value" panel and its corresponding tabbox UI.
+   *
+   * @param graphIndex {Number}      The index of the object graph manager.
+   * @param valueName  {String}      The name of the value we're configuring.
+   * @param radioClass {String}      An unique class name for the radio button.
+   * @param panel      {HTMLElement} The "value" panel to insert.
+   *
+   * @returns {HTMLInputElement} The radio button for the "value" panel.
+   */
   insertValuePanel: function(graphIndex, valueName, radioClass, panel) {
     const radio = document.createElement("input");
     radio.setAttribute("form", "tabbox-form");
@@ -200,6 +232,15 @@ const OuterGridManager = window.OuterGridManager = {
     return radio;
   },
 
+  /**
+   * Insert an ObjectGraphManager's corresponding tabbox UI.
+   *
+   * radioClass {String}      An unique class name for the graph's radio button.
+   * groupLabel {String}      The label for the whole object graph.
+   * radio      {HTMLElement} The radio button for selecting the graph's
+   *                          configuration panel.
+   * panelLabel {String}      The label for the graph's configuration panel.
+   */
   addGraphUI: function(radioClass, groupLabel, radio, panelLabel) {
     const cache = this.graphNamesCache;
     cache.labelElements.push(groupLabel);
@@ -251,6 +292,16 @@ const OuterGridManager = window.OuterGridManager = {
     this.filesTabbox.insertBefore(radio, panelLabel);
   },
 
+  /**
+   * We're about to insert a new value panel's label.  Get the radio button the
+   * label goes in before.
+   *
+   * @param index {Number} The graph index we're appending a label to.
+   *
+   * @return {HTMLInputElement}
+   *
+   * @private
+   */
   getGraphIndexRef: function(index) {
     const cache = this.graphNamesCache;
     cache.radioElementCounts[index]++;
@@ -277,6 +328,12 @@ const OuterGridManager = window.OuterGridManager = {
            firstRadios[index];
   },
 
+  /**
+   * Insert a panel associated with a particular pair of tabs.
+   *
+   * @param radio {HTMLElement} The radio button of the "file" tab.
+   * @param panel {HTMLElement} The panel to insert.
+   */
   insertOtherPanel: function(radio, panel) {
     const radioClass = radio.getAttribute("value");
     panel.classList.add(radioClass);
@@ -284,6 +341,14 @@ const OuterGridManager = window.OuterGridManager = {
     this.panels.appendChild(panel);
   },
 
+  /**
+   * Add a CSS rule which makes a panel visible when the right tabs are selected.
+   *
+   * @param radioClass {String} The "files tab" attribute value to match to the panel.
+   * @param trapsTab   {String} The "traps tab" attribute value to match to the panel.
+   *
+   * @private
+   */
   addCSSPanelRule: function(radioClass, trapstab) {
     const cssRule = [
       `#grid-outer[filesTab="${radioClass}"][trapstab="${trapstab}"] >`,
@@ -295,6 +360,11 @@ const OuterGridManager = window.OuterGridManager = {
     this.sheet.insertRule(cssRule);
   },
 
+  /**
+   * Get the visible panel.
+   *
+   * @returns {HTMLElement} the visible panel.
+   */
   getSelectedPanel: function() {
     const id = this.tabboxForm.elements.files.value;
     const trap = this.tabboxForm.elements.functionTraps.value;
@@ -306,6 +376,12 @@ const OuterGridManager = window.OuterGridManager = {
     return result.singleNodeValue;
   },
 
+  /**
+   * Show the help panel associated with a particular proxy trap.
+   *
+   * @param button {HTMLButtonElement} The help button for the proxy trap.
+   * @private
+   */
   setHelpPanel: function(button) {
     this.clearHelpNotesPanel();
 
@@ -315,6 +391,12 @@ const OuterGridManager = window.OuterGridManager = {
       this.selectedHelpAndNotesPanel.dataset.selected = true;
   },
 
+  /**
+   * Show the user's notes text area for a given property name.
+   *
+   * @param textarea {HTMLTextAreaElement} The textarea to show.
+   * @private
+   */
   setNotesPanel: function(textarea) {
     this.clearHelpNotesPanel();
     this.selectedHelpAndNotesPanel = textarea;
@@ -323,6 +405,11 @@ const OuterGridManager = window.OuterGridManager = {
       this.selectedHelpAndNotesPanel.dataset.selected = true;
   },
 
+  /**
+   * Clear the help & notes panel.
+   *
+   * @private
+   */
   clearHelpNotesPanel: function() {
     if (this.selectedHelpAndNotesPanel)
       this.selectedHelpAndNotesPanel.dataset.selected = false;
@@ -330,11 +417,21 @@ const OuterGridManager = window.OuterGridManager = {
     this.selectedHelpAndNotesPanel = null;
   },
 
+  /**
+   * Do we have a current error text?
+   *
+   * @return {Boolean}
+   */
   hasCurrentErrorText: function() {
     const node = this.currentErrorOutput.firstChild;
     return node ? Boolean(node.nodeValue) : false;
   },
 
+  /**
+   * Sets the current error text.
+   *
+   * @param e {Error | String}  The error to show.
+   */
   setCurrentErrorText: function(e) {
     if (!this.currentErrorOutput.firstChild) {
       let text = document.createTextNode("");
@@ -345,6 +442,18 @@ const OuterGridManager = window.OuterGridManager = {
   }
 };
 
+/**
+ * A helper class for transferring radio selections to the controlling tabbox,
+ * for CSS purposes.
+ *
+ * @param form      {HTMLFormElement} The form used to manage inputs.
+ * @param inputName {String}          The form control's name.
+ * @param target    {HTMLElement}     The element receiving attributes for CSS selectors.
+ * @param attr      {String}          The name of the attribute to set.
+ *
+ * @private
+ * @constructor
+ */
 function TabboxRadioEventHandler(form, inputName, target, attr) {
   this.form = form;
   this.inputName = inputName;

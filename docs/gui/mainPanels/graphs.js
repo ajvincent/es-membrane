@@ -10,8 +10,6 @@ function ObjectGraphManager() {
    *
    * @see DistortionsGUI.buildValuePanel
    * @private
-   *
-   * @note mainpanels/output.js violates this private constraint.
    */
   this.distortionMaps = [/*
     // 
