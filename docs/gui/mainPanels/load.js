@@ -616,7 +616,7 @@ window.LoadPanel = {
   getConfiguration: async function() {
     var config = {
       "configurationSetup": {
-        "commonFiles": this.getCommonFileOrdering()
+        "commonFiles": []
       },
       "membrane": {},
       "graphs": []
@@ -628,6 +628,7 @@ window.LoadPanel = {
       await this.collectCommonFileURLs();
       await this.buildFileOrderTree(config);
       await this.loadCommonScripts();
+      config.configurationSetup.commonFiles = this.getCommonFileOrdering();
       return config;
     }
 
