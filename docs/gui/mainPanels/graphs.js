@@ -1,9 +1,20 @@
 function ObjectGraphManager() {
+  /**
+   * An unique CSS class name.
+   */
   this.radioClass = `graphpanel-${ObjectGraphManager.instanceCount}`;
   ObjectGraphManager.instanceCount++;
 
+  /**
+   * An array of objects describing values and their distortions.
+   *
+   * @see DistortionsGUI.buildValuePanel
+   * @private
+   *
+   * @note mainpanels/output.js violates this private constraint.
+   */
   this.distortionMaps = [/*
-    // see DistortionsGUI.buildValuePanel
+    // 
     {
       "about": {
         "valueName": valueName,
@@ -12,15 +23,44 @@ function ObjectGraphManager() {
       "value": rules,
     }
   */];
+
+  /**
+   * CodeMirror editor objects.
+   * @private
+   */
   this.passThroughEditor = null;
   this.valueGetterEditor = null;
 
+  /**
+   * UI controls.
+   * @private
+   */
+  this.panel = null;
+  this.groupLabel = null;
+  this.radio = null;
+  this.panelLabel = null;
+
+  /**
+   * Imported JSON data for all distortionMaps.
+   * @private
+   */
   this.jsonBase = null;
 
   this.buildUI();
 }
+
+/**
+ * The number of ObjectGraphManagers created.  Used for radioclass above.
+ * @static
+ * @private
+ */
 ObjectGraphManager.instanceCount = 0;
 
+/**
+ * Construct our UI controls.
+ *
+ * @private
+ */
 ObjectGraphManager.prototype.buildUI = function() {
   this.panel = this.template.content.firstElementChild.cloneNode(true);
   this.panel.classList.add(this.radioClass);
@@ -44,6 +84,11 @@ ObjectGraphManager.prototype.buildUI = function() {
   this.radio.addEventListener("change", this, true);
 };
 
+/**
+ * Rebuild the object graph from imported JSON data.
+ *
+ * @param data {Object} The JSON data.
+ */
 ObjectGraphManager.prototype.importJSON = async function(data) {
   this.jsonBase = data;
   if (Array.isArray(this.jsonBase.distortions)) {
@@ -79,6 +124,13 @@ ObjectGraphManager.prototype.importJSON = async function(data) {
   }
 };
 
+/**
+ * Generate JSON describing this object graph in full detail.
+ *
+ * @param graphIndex {Number} Our index in MembranePanel.cachedConfig
+ *
+ * @returns {Object} A serializable JSON object.
+ */
 ObjectGraphManager.prototype.exportJSON = function(graphIndex) {
   const rv = {
     "name": this.jsonBase.name,
@@ -123,10 +175,19 @@ ObjectGraphManager.prototype.exportJSON = function(graphIndex) {
   return rv;
 };
 
+/**
+ * Append a set of distortions.
+ * @see DistortionsGUI.buildValuePanel
+ */
 ObjectGraphManager.prototype.appendDistortionsSet = function(distortionsSet) {
   this.distortionMaps.push(distortionsSet);
 };
 
+/**
+ * Specify a name for the object graph this object represents.
+ *
+ * @param name {String} The name to assign.
+ */
 ObjectGraphManager.prototype.setGraphName = function(
   name/*, jsonName, isSymbol*/
 )
@@ -139,14 +200,17 @@ ObjectGraphManager.prototype.setGraphName = function(
   }
 };
 
-ObjectGraphManager.prototype.remove = function() {
-  
-};
-
+/**
+ * Show this panel.
+ */
 ObjectGraphManager.prototype.selectPanel = function() {
   this.radio.click();
 };
 
+/**
+ * Build the CodeMirror editors this panel uses.
+ * @private
+ */
 ObjectGraphManager.prototype.buildEditors = function() {
     this.passThroughEditor = CodeMirrorManager.buildNewEditor(
       this.passThroughSource
@@ -177,6 +241,11 @@ ObjectGraphManager.prototype.buildEditors = function() {
     CodeMirrorManager.getTextLock(this.valueGetterEditor, 0, 1);
 };
 
+/**
+ * Update the read-only portion of the graph configuration for primordials.
+ *
+ * @param event {MouseEvent}
+ */
 ObjectGraphManager.prototype.handlePrimordials = function(event) {
   const checked = event.target.checked;
   let source = `const PassThroughFilter = (function() {\n  const items = `;
@@ -184,12 +253,24 @@ ObjectGraphManager.prototype.handlePrimordials = function(event) {
   this.primordialsTextSet(source);
 };
 
+/**
+ * Update the read-only portion of the graph configuration for pass-through of unknown values.
+ *
+ * @param event {MouseEvent}
+ */
 ObjectGraphManager.prototype.handlePassThrough = function(event) {
   const checked = event.target.checked;
   this.primordialsCheckbox.disabled = !checked;
   CodeMirrorManager.setEditorEnabled(this.passThroughEditor, checked);
 };
 
+/**
+ * Extract the pass-through function's contents.
+ *
+ * @param fullSource {Boolean} True if the read-only parts should be included.
+ *
+ * @returns {String} The source code of the pass-through function.
+ */
 ObjectGraphManager.prototype.getPassThrough = function(fullSource = false) {
   if (!this.passThroughCheckbox.checked)
     return null;
@@ -216,6 +297,9 @@ ObjectGraphManager.prototype.getPassThrough = function(fullSource = false) {
   return value;
 };
 
+/**
+ * EventListener
+ */
 ObjectGraphManager.prototype.handleEvent = function(event) {
   if (event.target === this.primordialsCheckbox)
     return this.handlePrimordials(event);
