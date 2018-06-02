@@ -164,7 +164,7 @@ const OutputPanel = window.OutputPanel = {
               if (d.about.isGroup)
               {
                 localScript += `    ___listener___.addListener(\n      [\n`;
-                const names = OutputPanel.getGroupNames(
+                const names = OutputPanel.getGroupKeys(
                   index, d.about.valueName
                 );
                 names.forEach(function(name, index) {
@@ -210,31 +210,19 @@ const OutputPanel = window.OutputPanel = {
     }
   },
 
-  getGroupNames: function(graphIndex, groupName) {
+  /**
+   * Get keys belonging to a particular group name.
+   *
+   * @param graphIndex {Number} The index of the object graph manager.
+   * @param groupName {String} The name to look up, enclosed in square brackets.
+   *
+   * @return {String[]} The key names.
+   */
+  getGroupKeys: function(graphIndex, groupName) {
     "use strict";
     groupName = groupName.substring(1, groupName.length - 1);
-    let rv = [];
     const graph = OuterGridManager.graphNamesCache.controllers[graphIndex];
-    const maps = graph.distortionMaps;
-    maps.forEach(function(dm) {
-      if (dm.about.isGroup)
-        return;
-      if ("value" in dm) {
-        const name = dm.about.valueName;
-        const keys = dm.value.getGroupKeys(groupName);
-        keys.forEach(function(k) {
-          rv.push(`${name}.${k}`);
-        });
-      }
-      if ("proto" in dm) {
-        const name = dm.about.valueName;
-        const keys = dm.proto.getGroupKeys(groupName);
-        keys.forEach(function(k) {
-          rv.push(`${name}.prototype.${k}`);
-        });
-      }
-    }, this);
-    return rv;
+    return graph.getGroupKeys(groupName);
   }
 };
 

@@ -201,6 +201,37 @@ ObjectGraphManager.prototype.setGraphName = function(
 };
 
 /**
+ * Get keys belonging to a particular group name.
+ *
+ * @param groupName {String} The name to look up.
+ *
+ * @return {String[]} The key names.
+ */
+ObjectGraphManager.prototype.getGroupKeys = function(groupName) {
+  "use strict";
+  let rv = [];
+  this.distortionMaps.forEach(function(dm) {
+    if (dm.about.isGroup)
+      return;
+    if ("value" in dm) {
+      const name = dm.about.valueName;
+      const keys = dm.value.getGroupKeys(groupName);
+      keys.forEach(function(k) {
+        rv.push(`${name}.${k}`);
+      });
+    }
+    if ("proto" in dm) {
+      const name = dm.about.valueName;
+      const keys = dm.proto.getGroupKeys(groupName);
+      keys.forEach(function(k) {
+        rv.push(`${name}.prototype.${k}`);
+      });
+    }
+  }, this);
+  return rv;
+};
+
+/**
  * Show this panel.
  */
 ObjectGraphManager.prototype.selectPanel = function() {
