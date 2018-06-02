@@ -5,16 +5,7 @@ it("Top-level globals for the Distortion UI exist", async function() {
   "use strict";
   await getDocumentLoadPromise("base/gui/index.html");
   [
-    "DistortionsManager",
-    "DistortionsRules",
-    "DistortionsGUI",
-    "HandlerNames",
     "MultistateHandler",
-    "LoadPanel",
-    "MembranePanel",
-    "OutputPanel",
-    "styleAndMoveTreeColumns",
-    "CodeMirrorManager",
     "defineElementGetter",
     "getCustomStylesheet",
     "CSSClassToggleHandler",
