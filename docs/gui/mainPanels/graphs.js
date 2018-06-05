@@ -151,9 +151,9 @@ ObjectGraphManager.prototype.exportJSON = function(graphIndex) {
     const config = MembranePanel.cachedConfig;
     const lastGraph = Array.isArray(config.graphs) ? config.graphs[graphIndex] : null;
     if (lastGraph) {
-      rv.passThroughSource = lastGraph.passThroughSource;
-      rv.passThroughEnabled = lastGraph.passThroughEnabled;
-      rv.primordialsPass = lastGraph.primordialsPass;
+      rv.passThroughSource = lastGraph.passThroughSource || null;
+      rv.passThroughEnabled = lastGraph.passThroughEnabled || false;
+      rv.primordialsPass = lastGraph.primordialsPass || false;
     }
   }
 

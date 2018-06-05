@@ -107,7 +107,7 @@ browser:: base mockDocs specs
 	@cp mocks/static.js $(DIST)/staging
 	@rm -f $(DIST)/staging/*.zip
 	@cd $(DIST) && zip -q staging/browser.zip browser/*.js staging/static.js
-	@cd $(DIST) && zip -q staging/staging.zip staging/*.js
+	@cd $(DIST) && zip -q staging/staging.zip browser/assert.js staging/*.js
 	@echo "You may now open './$(DIST)/staging/test-browser.xhtml'."
 	@echo "  (if Mozilla Firefox, version 51 or later is required)"
 

@@ -1,17 +1,16 @@
 {
   "configurationSetup": {
-    "useZip": false,
+    "useZip": true,
     "commonFiles": [
-      "assert.js",
-      "es-membrane.js",
-      "sharedUtilities.js"
+      "browser/assert.js",
+      "staging/es-membrane.js"
     ],
     "formatVersion": 1,
-    "lastUpdated": "Sat, 02 Jun 2018 05:25:36 GMT"
+    "lastUpdated": "Tue, 05 Jun 2018 06:07:55 GMT"
   },
   "membrane": {
-    "passThroughSource": "  items.splice(0, 0,\n               Membrane, \n               ObjectGraphHandler,\n               ModifyRulesAPI,\n               DistortionsListener,\n               assert,\n               ChainHandlers,\n               ModifyRulesAPI,\n               ProxyMapping,\n               ProxyNotify\n               );\n  return function(value) {\n    if (value instanceof ProxyMapping)\n      throw new Error(\"ProxyMapping not allowed outside the membrane\");\n    return !items.includes(value);\n  };",
-    "passThroughEnabled": true,
+    "passThroughSource": "",
+    "passThroughEnabled": false,
     "primordialsPass": false
   },
   "graphs": [
@@ -24,10 +23,9 @@
       "distortions": [
         {
           "about": {
-            "valueName": "Membrane",
+            "valueName": "ModifyRulesAPI",
             "isFunction": true,
-            "getExample": "  return Membrane;",
-            "getInstance": "  return new ctor();"
+            "getExample": "  return ModifyRulesAPI;"
           },
           "value": {
             "filterOwnKeys": [
@@ -35,8 +33,7 @@
               "caller",
               "length",
               "name",
-              "prototype",
-              "Primordials"
+              "prototype"
             ],
             "proxyTraps": [
               "getPrototypeOf",
@@ -48,6 +45,7 @@
               "set",
               "deleteProperty",
               "ownKeys",
+              "apply",
               "construct"
             ],
             "inheritFilter": true,
@@ -58,85 +56,16 @@
           },
           "proto": {
             "filterOwnKeys": [
-              "allTraps",
-              "hasProxyForValue",
-              "getMembraneValue",
-              "getMembraneProxy",
-              "hasHandlerByField",
-              "getHandlerByName",
-              "ownsHandler",
-              "wrapArgumentByProxyMapping",
-              "passThroughFilter",
-              "convertArgumentToProxy",
-              "bindValuesByHandlers",
-              "addFunctionListener",
-              "removeFunctionListener",
-              "secured",
-              "constants"
-            ],
-            "proxyTraps": [
-              "getPrototypeOf",
-              "isExtensible",
-              "getOwnPropertyDescriptor",
-              "defineProperty",
-              "has",
-              "get",
-              "set",
-              "deleteProperty",
-              "ownKeys",
-              "apply",
-              "construct"
-            ],
-            "inheritFilter": true,
-            "storeUnknownAsLocal": true,
-            "requireLocalDelete": true,
-            "useShadowTarget": false,
-            "groupDistortions": {
-              "hasProxyForValue": "method",
-              "getMembraneValue": "method",
-              "getMembraneProxy": "method",
-              "hasHandlerByField": "method",
-              "getHandlerByName": "method",
-              "ownsHandler": "method",
-              "wrapArgumentByProxyMapping": "method",
-              "passThroughFilter": "method",
-              "convertArgumentToProxy": "method",
-              "bindValuesByHandlers": "method"
-            }
-          },
-          "instance": {
-            "filterOwnKeys": [
-              "modifyRules"
-            ],
-            "proxyTraps": [
-              "getPrototypeOf",
-              "isExtensible",
-              "getOwnPropertyDescriptor",
-              "defineProperty",
-              "has",
-              "get",
-              "set",
-              "deleteProperty",
-              "ownKeys",
-              "apply",
-              "construct"
-            ],
-            "inheritFilter": true,
-            "storeUnknownAsLocal": true,
-            "requireLocalDelete": true,
-            "useShadowTarget": false
-          }
-        },
-        {
-          "about": {
-            "valueName": "Membrane:instance.modifyRules",
-            "isFunction": false,
-            "parent": "Membrane:instance",
-            "keyName": "modifyRules"
-          },
-          "value": {
-            "filterOwnKeys": [
-              "membrane"
+              "getRealTarget",
+              "createChainHandler",
+              "replaceProxy",
+              "assertLocalProxy",
+              "storeUnknownAsLocal",
+              "requireLocalDelete",
+              "filterOwnKeys",
+              "truncateArgList",
+              "disableTraps",
+              "createDistortionsListener"
             ],
             "proxyTraps": [
               "getPrototypeOf",
@@ -162,8 +91,10 @@
     {
       "name": "public",
       "isSymbol": false,
+      "passThroughSource": null,
+      "passThroughEnabled": false,
+      "primordialsPass": false,
       "distortions": []
     }
   ]
 }
-
