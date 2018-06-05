@@ -111,6 +111,10 @@ ObjectGraphManager.prototype.importJSON = async function(data) {
         const hash = valuePanel.dataset.hash;
         const dSet = DistortionsManager.valueNameToRulesMap.get(hash);
         dSet.value.importJSON(distortionData.value);
+        if (("proto" in distortionData) && ("proto" in dSet))
+          dSet.proto.importJSON(distortionData.proto);
+        if (("instance" in distortionData) && ("instance" in dSet))
+          dSet.instance.importJSON(distortionData.instance);
       }
       catch (exn) {
         if (!OuterGridManager.hasCurrentErrorText())
