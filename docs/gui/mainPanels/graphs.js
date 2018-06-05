@@ -134,7 +134,7 @@ ObjectGraphManager.prototype.exportJSON = function(graphIndex) {
     "name": this.jsonBase.name,
     "isSymbol": this.jsonBase.isSymbol,
     "passThroughSource": null,
-    "passThroughEnabled": null,
+    "passThroughEnabled": false,
     "primordialsPass": false,
     "distortions": [],
   };
@@ -151,9 +151,12 @@ ObjectGraphManager.prototype.exportJSON = function(graphIndex) {
     const config = MembranePanel.cachedConfig;
     const lastGraph = Array.isArray(config.graphs) ? config.graphs[graphIndex] : null;
     if (lastGraph) {
-      rv.passThroughSource = lastGraph.passThroughSource || null;
-      rv.passThroughEnabled = lastGraph.passThroughEnabled || false;
-      rv.primordialsPass = lastGraph.primordialsPass || false;
+      if (typeof lastGraph.passThroughSource != "undefined")
+        rv.passThroughSource = lastGraph.passThroughSource;
+      if (typeof lastGraph.passThroughEnabled == "boolean")
+        rv.passThroughEnabled = lastGraph.passThroughEnabled;
+      if (typeof lastGraph.primordialsPass == "boolean")
+        rv.primordialsPass = lastGraph.primordialsPass;
     }
   }
 
