@@ -272,6 +272,13 @@ DistortionsRules.prototype = {
       {
         // properties of an instance of a ctor cannot have distortion groups.
         button.disabled = true;
+
+        /* We cannot safely apply distortions to the property of an instance of
+         * a constructor at this time.  It's better to have that property
+         * created via a constructor, and apply distortions to that property as
+         * a separate instance of the latter constructor.
+         */
+        button.nextElementSibling.disabled = true;
       }
 
       propertyList.appendChild(listItem);
@@ -635,6 +642,8 @@ DistortionsRules.prototype = {
 
   handleEvent: function(event) {
     const el = event.currentTarget;
+    if (el.disabled)
+      return;
     if (el.classList.contains("notesPanelLink"))
       return this.showNotesTextarea(el);
 
