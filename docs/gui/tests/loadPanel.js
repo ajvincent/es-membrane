@@ -411,7 +411,24 @@ describe("Load Panel Operations with faked flat files", function() {
       it("missing about.getExample", async function() {
         delete valid.about.getExample;
         await runTestForFailure(
-          `.about must have exactly one of these properties: "getExample", "filterToMatch", "getInstance"`
+          `.about must have at least one of these properties: "getExample", "filterToMatch", "getInstance"`
+        );
+      });
+
+      it("with about.filterToMatch and about.getExample", async function() {
+        valid.about.filterToMatch = "return false;";
+        await runTestForFailure(
+          `.about may have getExample and/or getInstance, xor filterToMatch`
+        );
+      });
+      
+
+      it("with about.filter and about.getInstance", async function() {
+        delete valid.about.getExample;
+        valid.about.filterToMatch = "return false;";
+        valid.about.getInstance = "return new ObjectGraphHandler;"
+        await runTestForFailure(
+          `.about may have getExample and/or getInstance, xor filterToMatch`
         );
       });
 

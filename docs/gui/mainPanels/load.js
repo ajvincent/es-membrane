@@ -312,28 +312,34 @@ window.LoadPanel = {
       requireType("valueName", "string", "", aboutPath);
       requireType("isFunction", "boolean", "", aboutPath);
 
-      // Exactly one of these must exist:
+      // At least one of these must exist:
       // getExample, filterToMatch, getInstance
       {
         let actualKeys = Reflect.ownKeys(distortionSet.about);
-        let foundKey = null, pass = false;
+        let pass = false;
         ["getExample", "filterToMatch", "getInstance"].forEach(function(key) {
           if (!actualKeys.includes(key))
             return;
-          if (foundKey) {
-            pass = false;
-            return;
-          }
-          foundKey = key;
           pass = true;
           requireType(key, "string", "", aboutPath);
         });
 
         if (!pass) {
           throw new Error(
-            `${errorPrefix}.distortions[${index}].about must have exactly one of these properties: "getExample", "filterToMatch", "getInstance"`
+            `${errorPrefix}.distortions[${index}].about must have at least one of these properties: "getExample", "filterToMatch", "getInstance"`
           );
         }
+      }
+
+      // filterToMatch may not be in the same about block as getExample or getInstance
+      {
+        let actualKeys = Reflect.ownKeys(distortionSet.about);
+        if (actualKeys.includes("filterToMatch") == (
+              actualKeys.includes("getExample") ||
+              actualKeys.includes("getInstance")))
+          throw new Error(
+            `${errorPrefix}.distortions[${index}].about may have getExample and/or getInstance, xor filterToMatch`
+          );
       }
 
       if (typeof distortionSet.about.comments !== "undefined") {
