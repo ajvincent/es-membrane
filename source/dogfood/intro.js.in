@@ -5,7 +5,7 @@ engineering parlance.  Not only is it an additional proof-of-concept that the
 Membrane works, but it will help ensure external consumers of the membrane
 module cannot rewrite how each individual Membrane works.
 */
-var Membrane;
+var Membrane = MembraneInternal;
 if (false) {
   /* This provides a weak reference to each proxy coming out of a Membrane.
    *

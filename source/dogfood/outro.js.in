@@ -1,10 +1,10 @@
   /* end included membrane constructor */
-  )();
+  )({});
 
   DogfoodMembrane.ProxyToMembraneMap = new WeakSet();
 
-  let publicAPI   = DogfoodMembrane.getHandlerByName("public", true);
-  let internalAPI = DogfoodMembrane.getHandlerByName("internal", true);
+  let publicAPI   = DogfoodMembrane.getHandlerByName("public", { mustCreate: true });
+  let internalAPI = DogfoodMembrane.getHandlerByName("internal", { mustCreate: true });
 
   // lockdown of the public API here
 
@@ -16,7 +16,7 @@
    * "secured": new DataDescriptor(true, false, false, false)
    */
 
-  if (false) {
+  if (true) {
     /* XXX ajvincent Right now it's unclear if this operation is safe.  It
      * probably isn't, but as long as DogfoodMembrane isn't exposed outside this
      * module, we're okay.
@@ -30,7 +30,5 @@
     DogfoodMembrane = finalWrap;
   }
 }
-else {
-  Membrane = MembraneInternal;
-}
+
 MembraneInternal = null;

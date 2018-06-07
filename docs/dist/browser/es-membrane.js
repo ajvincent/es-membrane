@@ -3932,7 +3932,7 @@ engineering parlance.  Not only is it an additional proof-of-concept that the
 Membrane works, but it will help ensure external consumers of the membrane
 module cannot rewrite how each individual Membrane works.
 */
-var Membrane;
+var Membrane = MembraneInternal;
 if (false) {
   /* This provides a weak reference to each proxy coming out of a Membrane.
    *
@@ -3968,9 +3968,12 @@ function buildMembrane(___utilities___) {
   
   const rvMembrane = new Membrane({
     logger: (___utilities___.logger || null),
-    passThrough: (function() {
+    passThroughFilter: (function() {
       const items = [];
     
+      return function() {
+        return true;
+      };
       {
         const s = new Set(items);
         return s.has.bind(s);
@@ -4010,7 +4013,7 @@ function buildMembrane(___utilities___) {
       "truncateArgList": false
     });
 
-    ___listener___.addListener(ModifyRulesAPI, "proto", {
+    ___listener___.addListener(ModifyRulesAPI, "prototype", {
       "filterOwnKeys": [
         "getRealTarget",
         "createChainHandler",
@@ -4051,12 +4054,12 @@ function buildMembrane(___utilities___) {
   return rvMembrane;
 }
   /* end included membrane constructor */
-  )();
+  )({});
 
   DogfoodMembrane.ProxyToMembraneMap = new WeakSet();
 
-  let publicAPI   = DogfoodMembrane.getHandlerByName("public", true);
-  let internalAPI = DogfoodMembrane.getHandlerByName("internal", true);
+  let publicAPI   = DogfoodMembrane.getHandlerByName("public", { mustCreate: true });
+  let internalAPI = DogfoodMembrane.getHandlerByName("internal", { mustCreate: true });
 
   // lockdown of the public API here
 
@@ -4068,7 +4071,7 @@ function buildMembrane(___utilities___) {
    * "secured": new DataDescriptor(true, false, false, false)
    */
 
-  if (false) {
+  if (true) {
     /* XXX ajvincent Right now it's unclear if this operation is safe.  It
      * probably isn't, but as long as DogfoodMembrane isn't exposed outside this
      * module, we're okay.
@@ -4082,9 +4085,7 @@ function buildMembrane(___utilities___) {
     DogfoodMembrane = finalWrap;
   }
 }
-else {
-  Membrane = MembraneInternal;
-}
+
 MembraneInternal = null;
 
   // exiting Membrane pseudo-module definition

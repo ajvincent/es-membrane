@@ -122,7 +122,7 @@ const OutputPanel = window.OutputPanel = {
     logger: (___utilities___.logger || null)`;
     if (PassThroughSource) {
       script += `,
-    passThrough: ${PassThroughSource.replace(/\n/gm, "\n    ")}`;
+    passThroughFilter: ${PassThroughSource.replace(/\n/gm, "\n    ")}`;
     }
     script += `
   });
@@ -177,7 +177,8 @@ const OutputPanel = window.OutputPanel = {
               else
               {
                 localScript += `    ___listener___.addListener(${d.about.valueName},`;
-                localScript += ` "${k}", `;
+                let name = (k == 'proto') ? 'prototype' : k;
+                localScript += ` "${name}", `;
               }
               localScript += distortionsAsJSON;
               if (d.about.isGroup)
@@ -194,7 +195,7 @@ const OutputPanel = window.OutputPanel = {
       });
     }
 
-    script += "  return rvMembrane;\n}\n";
+    script += "  return rvMembrane;\n}\n\n";
 
     this.jsEditor.setValue(script);
     {

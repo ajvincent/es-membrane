@@ -6,11 +6,11 @@
       "staging/es-membrane.js"
     ],
     "formatVersion": 1,
-    "lastUpdated": "Tue, 05 Jun 2018 06:18:42 GMT"
+    "lastUpdated": "Thu, 07 Jun 2018 04:16:48 GMT"
   },
   "membrane": {
-    "passThroughSource": "",
-    "passThroughEnabled": false,
+    "passThroughSource": "\n  return function() {\n    return true;\n  };",
+    "passThroughEnabled": true,
     "primordialsPass": false
   },
   "graphs": [

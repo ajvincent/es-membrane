@@ -3,9 +3,12 @@ function buildMembrane(___utilities___) {
   
   const rvMembrane = new Membrane({
     logger: (___utilities___.logger || null),
-    passThrough: (function() {
+    passThroughFilter: (function() {
       const items = [];
     
+      return function() {
+        return true;
+      };
       {
         const s = new Set(items);
         return s.has.bind(s);
@@ -45,7 +48,7 @@ function buildMembrane(___utilities___) {
       "truncateArgList": false
     });
 
-    ___listener___.addListener(ModifyRulesAPI, "proto", {
+    ___listener___.addListener(ModifyRulesAPI, "prototype", {
       "filterOwnKeys": [
         "getRealTarget",
         "createChainHandler",
