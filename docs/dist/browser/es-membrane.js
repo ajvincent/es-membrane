@@ -3934,10 +3934,6 @@ module cannot rewrite how each individual Membrane works.
 */
 var Membrane;
 if (false) {
-  var DogfoodMembrane = new MembraneInternal({
-    /* configuration options here */
-  });
-
   /* This provides a weak reference to each proxy coming out of a Membrane.
    *
    * Why have this tracking mechanism?  The "dogfood" membrane must ensure any
@@ -3964,6 +3960,99 @@ if (false) {
    * is referenced only by proxies exported from any Membrane, via another
    * WeakMap the ProxyMapping belongs to.
    */
+
+  var DogfoodMembrane = (
+  /* start included membrane constructor */
+function buildMembrane(___utilities___) {
+  "use strict";
+  
+  const rvMembrane = new Membrane({
+    logger: (___utilities___.logger || null),
+    passThrough: (function() {
+      const items = [];
+    
+      {
+        const s = new Set(items);
+        return s.has.bind(s);
+      }
+    })(),
+    
+  });
+
+  {
+    const ___graph___ = rvMembrane.getHandlerByName("internal", { mustCreate: true });
+    const ___listener___ = rvMembrane.modifyRules.createDistortionsListener();
+    ___listener___.addListener(ModifyRulesAPI, "value", {
+      "filterOwnKeys": [
+        "arguments",
+        "caller",
+        "length",
+        "name",
+        "prototype"
+      ],
+      "proxyTraps": [
+        "getPrototypeOf",
+        "isExtensible",
+        "getOwnPropertyDescriptor",
+        "defineProperty",
+        "has",
+        "get",
+        "set",
+        "deleteProperty",
+        "ownKeys",
+        "apply",
+        "construct"
+      ],
+      "inheritFilter": true,
+      "storeUnknownAsLocal": true,
+      "requireLocalDelete": true,
+      "useShadowTarget": false,
+      "truncateArgList": false
+    });
+
+    ___listener___.addListener(ModifyRulesAPI, "proto", {
+      "filterOwnKeys": [
+        "getRealTarget",
+        "createChainHandler",
+        "replaceProxy",
+        "storeUnknownAsLocal",
+        "requireLocalDelete",
+        "filterOwnKeys",
+        "truncateArgList",
+        "disableTraps",
+        "createDistortionsListener"
+      ],
+      "proxyTraps": [
+        "getPrototypeOf",
+        "isExtensible",
+        "getOwnPropertyDescriptor",
+        "defineProperty",
+        "has",
+        "get",
+        "set",
+        "deleteProperty",
+        "ownKeys",
+        "apply",
+        "construct"
+      ],
+      "inheritFilter": true,
+      "storeUnknownAsLocal": true,
+      "requireLocalDelete": true,
+      "useShadowTarget": false
+    });
+
+    ___listener___.bindToHandler(___graph___);
+  }
+
+  {
+    rvMembrane.getHandlerByName("public", { mustCreate: true });
+  }
+
+  return rvMembrane;
+}
+  /* end included membrane constructor */
+  )();
+
   DogfoodMembrane.ProxyToMembraneMap = new WeakSet();
 
   let publicAPI   = DogfoodMembrane.getHandlerByName("public", true);

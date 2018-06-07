@@ -1,0 +1,36 @@
+  /* end included membrane constructor */
+  )();
+
+  DogfoodMembrane.ProxyToMembraneMap = new WeakSet();
+
+  let publicAPI   = DogfoodMembrane.getHandlerByName("public", true);
+  let internalAPI = DogfoodMembrane.getHandlerByName("internal", true);
+
+  // lockdown of the public API here
+
+  // Define our Membrane constructor properly.
+  Membrane = DogfoodMembrane.convertArgumentToProxy(
+    internalAPI, publicAPI, MembraneInternal
+  );
+  /* XXX ajvincent Membrane.prototype should return an object with descriptor
+   * "secured": new DataDescriptor(true, false, false, false)
+   */
+
+  if (false) {
+    /* XXX ajvincent Right now it's unclear if this operation is safe.  It
+     * probably isn't, but as long as DogfoodMembrane isn't exposed outside this
+     * module, we're okay.
+     */
+    let finalWrap = DogfoodMembrane.convertArgumentToProxy(
+      internalAPI, publicAPI, DogfoodMembrane
+    );
+
+    // Additional securing and API overrides of DogfoodMembrane here.
+
+    DogfoodMembrane = finalWrap;
+  }
+}
+else {
+  Membrane = MembraneInternal;
+}
+MembraneInternal = null;

@@ -19,7 +19,9 @@ SOURCE_FILES = \
 	source/ProxyNotify.js \
 	source/ModifyRulesAPI.js \
 	source/DistortionsListener.js \
-	source/dogfood.js \
+	source/dogfood/intro.js.in \
+	source/dogfood/build-membrane.js \
+	source/dogfood/outro.js.in \
 	$(NULL)
 
 base::
