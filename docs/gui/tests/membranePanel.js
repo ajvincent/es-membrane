@@ -87,3 +87,56 @@ describe("Membrane Panel Operations with flat files:", function() {
     }
   });
 });
+
+it("Membrane Panel supports pass-through function", async function() {
+  await getDocumentLoadPromise("base/gui/index.html");
+  const window = testFrame.contentWindow;
+  window.LoadPanel.testMode = {
+    fakeFiles: true,
+    configSource: `{
+      "configurationSetup": {
+        "useZip": false,
+        "commonFiles": [],
+        "formatVersion": 1,
+        "lastUpdated": "Mon, 19 Feb 2018 20:56:56 GMT"
+      },
+      "membrane": {
+        "passThroughSource": "  // hello world",
+        "passThroughEnabled": true,
+        "primordialsPass": true
+      },
+      "graphs": [
+        {
+          "name": "wet",
+          "isSymbol": false,
+          "passThroughSource": "",
+          "passThroughEnabled": false,
+          "primordialsPass": false,
+          "distortions": []
+        },
+  
+        {
+          "name": "dry",
+          "isSymbol": false,
+          "passThroughSource": "",
+          "passThroughEnabled": false,
+          "primordialsPass": false,
+          "distortions": []
+        }
+      ]
+    }`
+  };
+
+  let p1 = MessageEventPromise(window, "MembranePanel initialized");
+  let p2 = MessageEventPromise(
+    window,
+    "MembranePanel cached configuration reset",
+    "MembranePanel exception thrown in reset"
+  );
+  window.OuterGridManager.membranePanelRadio.click();
+  await Promise.all([p1, p2]);
+
+  expect(window.MembranePanel.passThroughCheckbox.checked).toBe(true);
+  expect(window.MembranePanel.primordialsCheckbox.checked).toBe(true);
+  expect(window.MembranePanel.getPassThrough()).toContain("// hello world");
+});

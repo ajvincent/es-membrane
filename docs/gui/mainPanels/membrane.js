@@ -65,8 +65,19 @@ window.MembranePanel = {
     if (!this.isInitialized)
       this.initialize();
 
-    if (!this.cachedConfig)
+    if (!this.cachedConfig) {
       await this.reset();
+      if (this.cachedConfig && this.cachedConfig.membrane) {
+        const cf = this.cachedConfig.membrane;
+        this.primordialsCheckbox.checked = cf.primordialsPass;
+        this.passThroughCheckbox.checked = cf.passThroughEnabled;
+        CodeMirrorManager.replaceLineWithSource(
+          this.passThroughEditor,
+          cf.passThroughSource || "",
+          2
+        );
+      }
+    }
 
     if (LoadPanel.testMode) {
       window.postMessage("MembranePanel updated", window.location.origin);
