@@ -24,6 +24,8 @@ window.MembranePanel = {
     this.passThroughCheckbox.addEventListener("change", this, true);
     this.handlePassThrough({target: this.passThroughCheckbox});
 
+    this.importConfig();
+
     this.isInitialized = true;
     window.LoadPanel.notifyTestOfInit("MembranePanel");
   },
@@ -61,12 +63,27 @@ window.MembranePanel = {
     return value;
   },
 
+  importConfig: function() {
+    if (this.cachedConfig && this.cachedConfig.membrane) {
+      const cf = this.cachedConfig.membrane;
+      this.primordialsCheckbox.checked = cf.primordialsPass;
+      this.passThroughCheckbox.checked = cf.passThroughEnabled;
+      CodeMirrorManager.replaceLineWithSource(
+        this.passThroughEditor,
+        cf.passThroughSource || "",
+        2
+      );
+    }
+  },
+
   update: async function() {
     if (!this.isInitialized)
       this.initialize();
 
-    if (!this.cachedConfig)
+    if (!this.cachedConfig) {
       await this.reset();
+      this.importConfig();
+    }
 
     if (LoadPanel.testMode) {
       window.postMessage("MembranePanel updated", window.location.origin);
