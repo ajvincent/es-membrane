@@ -84,6 +84,16 @@
           defer="defer"
           src="libraries/jszip.min.js"
          ></script>
+
+  <script type="application/javascript"
+          defer="defer"
+          ><!--
+    if (location.protocol === "file:") {
+      getCustomStylesheet(document).insertRule(
+        "body { background-color: #fff0f0; }", 0
+      );
+    }
+  --></script>
 </head>
 
 <body>

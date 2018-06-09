@@ -102,7 +102,6 @@ ModifyRulesAPI.prototype = Object.seal({
   /**
    * Convert a shadow target to a real proxy target.
    *
-   *
    * @param {Object} shadowTarget The supposed target.
    *
    * @returns {Object} The target this shadow target maps to.

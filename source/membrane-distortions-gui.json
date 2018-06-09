@@ -6,10 +6,10 @@
       "staging/es-membrane.js"
     ],
     "formatVersion": 1,
-    "lastUpdated": "Thu, 07 Jun 2018 04:16:48 GMT"
+    "lastUpdated": "Sat, 09 Jun 2018 19:40:35 GMT"
   },
   "membrane": {
-    "passThroughSource": "\n  return function() {\n    return true;\n  };",
+    "passThroughSource": "\n  items.splice(\n    0, 0,\n    Membrane,\n    ObjectGraphHandler,\n    DistortionsListener,\n    ModifyRulesAPI\n  );\n  \n  return function(value) {\n    if ((value === ProxyMapping) || \n        (value === ProxyMapping.prototype) ||\n        (value instanceof ProxyMapping))\n      throw new Error(\"ProxyMapping is private!\");\n    if (value === ProxyNotify)\n      throw new Error(\"ProxyNotify is private!\");\n    return !items.some(function(item) {\n      return (value === item) || \n             (value === item.prototype) ||\n             (value instanceof item);\n    });\n  };",
     "passThroughEnabled": true,
     "primordialsPass": false
   },
@@ -25,7 +25,8 @@
           "about": {
             "valueName": "ModifyRulesAPI",
             "isFunction": true,
-            "getExample": "  return ModifyRulesAPI;"
+            "getExample": "  return ModifyRulesAPI;",
+            "getInstance": "  const m = new Membrane()\n  return new ctor(m);"
           },
           "value": {
             "filterOwnKeys": [
@@ -45,14 +46,13 @@
               "set",
               "deleteProperty",
               "ownKeys",
-              "apply",
               "construct"
             ],
             "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false,
-            "truncateArgList": false
+            "truncateArgList": true
           },
           "proto": {
             "filterOwnKeys": [
@@ -82,6 +82,374 @@
             "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
+            "useShadowTarget": false,
+            "groupDistortions": {
+              "getRealTarget": "method",
+              "createChainHandler": "method",
+              "replaceProxy": "method",
+              "storeUnknownAsLocal": "method",
+              "requireLocalDelete": "method",
+              "filterOwnKeys": "method",
+              "truncateArgList": "method",
+              "disableTraps": "method",
+              "createDistortionsListener": "method"
+            }
+          },
+          "instance": {
+            "filterOwnKeys": [
+              "membrane"
+            ],
+            "proxyTraps": [
+              "getPrototypeOf",
+              "isExtensible",
+              "getOwnPropertyDescriptor",
+              "defineProperty",
+              "has",
+              "get",
+              "set",
+              "deleteProperty",
+              "ownKeys",
+              "apply",
+              "construct"
+            ],
+            "inheritFilter": true,
+            "storeUnknownAsLocal": true,
+            "requireLocalDelete": true,
+            "useShadowTarget": false
+          }
+        },
+        {
+          "about": {
+            "valueName": "Membrane",
+            "isFunction": true,
+            "getExample": "  return Membrane;",
+            "getInstance": "  return new ctor();"
+          },
+          "value": {
+            "filterOwnKeys": [
+              "arguments",
+              "caller",
+              "length",
+              "name",
+              "prototype",
+              "Primordials"
+            ],
+            "proxyTraps": [
+              "getPrototypeOf",
+              "isExtensible",
+              "getOwnPropertyDescriptor",
+              "defineProperty",
+              "has",
+              "get",
+              "set",
+              "deleteProperty",
+              "ownKeys",
+              "construct"
+            ],
+            "inheritFilter": true,
+            "storeUnknownAsLocal": true,
+            "requireLocalDelete": true,
+            "useShadowTarget": false,
+            "truncateArgList": true
+          },
+          "proto": {
+            "filterOwnKeys": [
+              "allTraps",
+              "hasProxyForValue",
+              "getMembraneValue",
+              "getMembraneProxy",
+              "hasHandlerByField",
+              "getHandlerByName",
+              "ownsHandler",
+              "wrapArgumentByProxyMapping",
+              "convertArgumentToProxy",
+              "bindValuesByHandlers",
+              "addFunctionListener",
+              "removeFunctionListener",
+              "secured",
+              "warnOnce",
+              "constants"
+            ],
+            "proxyTraps": [
+              "getPrototypeOf",
+              "isExtensible",
+              "getOwnPropertyDescriptor",
+              "defineProperty",
+              "has",
+              "get",
+              "set",
+              "deleteProperty",
+              "ownKeys",
+              "apply",
+              "construct"
+            ],
+            "inheritFilter": true,
+            "storeUnknownAsLocal": true,
+            "requireLocalDelete": true,
+            "useShadowTarget": false,
+            "groupDistortions": {
+              "hasProxyForValue": "method",
+              "getMembraneValue": "method",
+              "getMembraneProxy": "method",
+              "hasHandlerByField": "method",
+              "getHandlerByName": "method",
+              "ownsHandler": "method",
+              "wrapArgumentByProxyMapping": "method",
+              "convertArgumentToProxy": "method",
+              "bindValuesByHandlers": "method",
+              "addFunctionListener": "method",
+              "removeFunctionListener": "method",
+              "warnOnce": "method"
+            }
+          },
+          "instance": {
+            "filterOwnKeys": [
+              "modifyRules"
+            ],
+            "proxyTraps": [
+              "getPrototypeOf",
+              "isExtensible",
+              "getOwnPropertyDescriptor",
+              "defineProperty",
+              "has",
+              "get",
+              "set",
+              "deleteProperty",
+              "ownKeys",
+              "apply",
+              "construct"
+            ],
+            "inheritFilter": true,
+            "storeUnknownAsLocal": true,
+            "requireLocalDelete": true,
+            "useShadowTarget": false
+          }
+        },
+        {
+          "about": {
+            "valueName": "ObjectGraphHandler",
+            "isFunction": true,
+            "getExample": "  return ObjectGraphHandler;",
+            "getInstance": "  const m = new Membrane();\n  return new ctor(m, \"dry\");"
+          },
+          "value": {
+            "filterOwnKeys": [
+              "arguments",
+              "caller",
+              "length",
+              "name",
+              "prototype"
+            ],
+            "proxyTraps": [
+              "getPrototypeOf",
+              "isExtensible",
+              "getOwnPropertyDescriptor",
+              "defineProperty",
+              "has",
+              "get",
+              "set",
+              "deleteProperty",
+              "ownKeys",
+              "construct"
+            ],
+            "inheritFilter": true,
+            "storeUnknownAsLocal": true,
+            "requireLocalDelete": true,
+            "useShadowTarget": false,
+            "truncateArgList": true
+          },
+          "proto": {
+            "filterOwnKeys": [
+              "ownKeys",
+              "has",
+              "get",
+              "getOwnPropertyDescriptor",
+              "getPrototypeOf",
+              "isExtensible",
+              "preventExtensions",
+              "deleteProperty",
+              "defineProperty",
+              "set",
+              "setPrototypeOf",
+              "apply",
+              "construct",
+              "addProxyListener",
+              "removeProxyListener",
+              "addFunctionListener",
+              "removeFunctionListener"
+            ],
+            "proxyTraps": [
+              "getPrototypeOf",
+              "isExtensible",
+              "getOwnPropertyDescriptor",
+              "defineProperty",
+              "has",
+              "get",
+              "set",
+              "deleteProperty",
+              "ownKeys",
+              "apply",
+              "construct"
+            ],
+            "inheritFilter": true,
+            "storeUnknownAsLocal": true,
+            "requireLocalDelete": true,
+            "useShadowTarget": false,
+            "groupDistortions": {
+              "ownKeys": "method",
+              "has": "method",
+              "get": "method",
+              "getOwnPropertyDescriptor": "method",
+              "getPrototypeOf": "method",
+              "isExtensible": "method",
+              "preventExtensions": "method",
+              "deleteProperty": "method",
+              "defineProperty": "method",
+              "set": "method",
+              "setPrototypeOf": "method",
+              "apply": "method",
+              "construct": "method",
+              "addProxyListener": "method",
+              "removeProxyListener": "method",
+              "addFunctionListener": "method",
+              "removeFunctionListener": "method"
+            }
+          },
+          "instance": {
+            "filterOwnKeys": [],
+            "proxyTraps": [
+              "getPrototypeOf",
+              "isExtensible",
+              "getOwnPropertyDescriptor",
+              "defineProperty",
+              "has",
+              "get",
+              "set",
+              "deleteProperty",
+              "ownKeys",
+              "apply",
+              "construct"
+            ],
+            "inheritFilter": true,
+            "storeUnknownAsLocal": true,
+            "requireLocalDelete": true,
+            "useShadowTarget": false
+          }
+        },
+        {
+          "about": {
+            "valueName": "[method]",
+            "isFunction": false,
+            "isGroup": true
+          },
+          "value": {
+            "filterOwnKeys": null,
+            "proxyTraps": [
+              "getPrototypeOf",
+              "isExtensible",
+              "getOwnPropertyDescriptor",
+              "defineProperty",
+              "has",
+              "get",
+              "set",
+              "deleteProperty",
+              "ownKeys",
+              "apply"
+            ],
+            "inheritFilter": true,
+            "storeUnknownAsLocal": true,
+            "requireLocalDelete": true,
+            "useShadowTarget": false
+          }
+        },
+        {
+          "about": {
+            "valueName": "DistortionsListener",
+            "isFunction": true,
+            "getExample": "  return DistortionsListener;",
+            "getInstance": "  const m = new Membrane();\n  return new ctor(m);"
+          },
+          "value": {
+            "filterOwnKeys": [
+              "arguments",
+              "caller",
+              "length",
+              "name",
+              "prototype"
+            ],
+            "proxyTraps": [
+              "getPrototypeOf",
+              "isExtensible",
+              "getOwnPropertyDescriptor",
+              "defineProperty",
+              "has",
+              "get",
+              "set",
+              "deleteProperty",
+              "ownKeys",
+              "construct"
+            ],
+            "inheritFilter": true,
+            "storeUnknownAsLocal": true,
+            "requireLocalDelete": true,
+            "useShadowTarget": false,
+            "truncateArgList": true
+          },
+          "proto": {
+            "filterOwnKeys": [
+              "addListener",
+              "removeListener",
+              "listenOnce",
+              "sampleConfig",
+              "bindToHandler",
+              "ignorePrimordials",
+              "applyConfiguration"
+            ],
+            "proxyTraps": [
+              "getPrototypeOf",
+              "isExtensible",
+              "getOwnPropertyDescriptor",
+              "defineProperty",
+              "has",
+              "get",
+              "set",
+              "deleteProperty",
+              "ownKeys",
+              "apply",
+              "construct"
+            ],
+            "inheritFilter": true,
+            "storeUnknownAsLocal": true,
+            "requireLocalDelete": true,
+            "useShadowTarget": false,
+            "groupDistortions": {
+              "addListener": "method",
+              "removeListener": "method",
+              "listenOnce": "method",
+              "sampleConfig": "method",
+              "bindToHandler": "method",
+              "ignorePrimordials": "method",
+              "applyConfiguration": "method"
+            }
+          },
+          "instance": {
+            "filterOwnKeys": [],
+            "proxyTraps": [
+              "getPrototypeOf",
+              "isExtensible",
+              "getOwnPropertyDescriptor",
+              "defineProperty",
+              "has",
+              "get",
+              "set",
+              "deleteProperty",
+              "ownKeys",
+              "apply",
+              "construct"
+            ],
+            "inheritFilter": true,
+            "storeUnknownAsLocal": true,
+            "requireLocalDelete": true,
             "useShadowTarget": false
           }
         }
@@ -90,7 +458,7 @@
     {
       "name": "public",
       "isSymbol": false,
-      "passThroughSource": null,
+      "passThroughSource": "",
       "passThroughEnabled": false,
       "primordialsPass": false,
       "distortions": []
