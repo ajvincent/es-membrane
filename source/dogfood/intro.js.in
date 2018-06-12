@@ -33,6 +33,22 @@ if (true) {
    * is referenced only by proxies exported from any Membrane, via another
    * WeakMap the ProxyMapping belongs to.
    */
+  function voidFunc() {}
+
+  const DogfoodLogger = {
+    _errorList: [],
+    error: function(e) {
+      this._errorList.push(e);
+    },
+    warn: voidFunc,
+    info: voidFunc,
+    debug: voidFunc,
+    trace: voidFunc,
+
+    getFirstError: function() {
+      return this._errorList.length ? this._errorList[0] : undefined;
+    }
+  };
 
   var DogfoodMembrane = (
   /* start included membrane constructor */

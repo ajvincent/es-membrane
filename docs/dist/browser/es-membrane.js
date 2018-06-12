@@ -3959,6 +3959,22 @@ if (true) {
    * is referenced only by proxies exported from any Membrane, via another
    * WeakMap the ProxyMapping belongs to.
    */
+  function voidFunc() {}
+
+  const DogfoodLogger = {
+    _errorList: [],
+    error: function(e) {
+      this._errorList.push(e);
+    },
+    warn: voidFunc,
+    info: voidFunc,
+    debug: voidFunc,
+    trace: voidFunc,
+
+    getFirstError: function() {
+      return this._errorList.length ? this._errorList[0] : undefined;
+    }
+  };
 
   var DogfoodMembrane = (
   /* start included membrane constructor */
@@ -4415,7 +4431,7 @@ function buildMembrane(___utilities___) {
   return rvMembrane;
 }
   /* end included membrane constructor */
-  )({});
+  )({logger: DogfoodLogger});
 
   DogfoodMembrane.ProxyToMembraneMap = new WeakSet();
 
@@ -4432,7 +4448,7 @@ function buildMembrane(___utilities___) {
    * "secured": new DataDescriptor(true, false, false, false)
    */
 
-  if (true) {
+  if (false) {
     /* XXX ajvincent Right now it's unclear if this operation is safe.  It
      * probably isn't, but as long as DogfoodMembrane isn't exposed outside this
      * module, we're okay.
@@ -4445,6 +4461,10 @@ function buildMembrane(___utilities___) {
 
     DogfoodMembrane = finalWrap;
   }
+
+  const firstError = DogfoodLogger.getFirstError();
+  if (firstError)
+    throw firstError;
 }
 
 MembraneInternal = null;

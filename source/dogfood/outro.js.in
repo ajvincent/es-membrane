@@ -1,5 +1,5 @@
   /* end included membrane constructor */
-  )({});
+  )({logger: DogfoodLogger});
 
   DogfoodMembrane.ProxyToMembraneMap = new WeakSet();
 
@@ -16,7 +16,7 @@
    * "secured": new DataDescriptor(true, false, false, false)
    */
 
-  if (true) {
+  if (false) {
     /* XXX ajvincent Right now it's unclear if this operation is safe.  It
      * probably isn't, but as long as DogfoodMembrane isn't exposed outside this
      * module, we're okay.
@@ -29,6 +29,10 @@
 
     DogfoodMembrane = finalWrap;
   }
+
+  const firstError = DogfoodLogger.getFirstError();
+  if (firstError)
+    throw firstError;
 }
 
 MembraneInternal = null;
