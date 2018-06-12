@@ -25,6 +25,17 @@ describe("Load Panel Operations with faked flat files", function() {
     return p;
   }
 
+  function expectImportSuccess() {
+    return Promise.all([
+      MessageEventPromise(
+        window,
+        "MembranePanel cached configuration reset",
+        "MembranePanel exception thrown in reset"
+      ),
+      chooseMembranePanel()
+    ]);
+  }
+
   it("can import a simple configuration with test mode", async function() {
     window.LoadPanel.testMode.configSource = `{
       "configurationSetup": {
@@ -67,14 +78,7 @@ describe("Load Panel Operations with faked flat files", function() {
         }
       ]
     }`;
-    await Promise.all([
-      MessageEventPromise(
-        window,
-        "MembranePanel cached configuration reset",
-        "MembranePanel exception thrown in reset"
-      ),
-      chooseMembranePanel()
-    ]);
+    await expectImportSuccess();
 
     /* Invalid test:  we've already built a valid configuration with
      * window.LoadPanel.testMode = {fakeFiles: true};
@@ -395,10 +399,8 @@ describe("Load Panel Operations with faked flat files", function() {
         expect(getErrorMessage()).toBe(`${errPrefix}${errPostfix}`);
       }
 
-      it("and a minimal configuration", async function() {
         const config = getFullConfig(JSON.stringify(valid));
         window.LoadPanel.testMode.configSource = config;
-        await chooseMembranePanel();
 
         expect(getErrorMessage()).toBe(null);
       });
