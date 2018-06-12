@@ -401,7 +401,7 @@ DistortionsRules.prototype = {
           this.showDistortionsGroupNames(button);
           const input = document.getElementById("distortions-groups-input");
           input.value = config.groupDistortions[key];
-          this.setDistortionGroup({key: "Enter", target: input});
+          DistortionsRules.setDistortionGroup({key: "Enter", target: input});
         }
         else if (button.firstChild) {
           button.firstChild.nodeValue = "";
