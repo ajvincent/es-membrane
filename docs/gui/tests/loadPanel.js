@@ -25,6 +25,17 @@ describe("Load Panel Operations with faked flat files", function() {
     return p;
   }
 
+  function expectImportSuccess() {
+    return Promise.all([
+      MessageEventPromise(
+        window,
+        "MembranePanel cached configuration reset",
+        "MembranePanel exception thrown in reset"
+      ),
+      chooseMembranePanel()
+    ]);
+  }
+
   it("can import a simple configuration with test mode", async function() {
     window.LoadPanel.testMode.configSource = `{
       "configurationSetup": {
@@ -67,14 +78,7 @@ describe("Load Panel Operations with faked flat files", function() {
         }
       ]
     }`;
-    await Promise.all([
-      MessageEventPromise(
-        window,
-        "MembranePanel cached configuration reset",
-        "MembranePanel exception thrown in reset"
-      ),
-      chooseMembranePanel()
-    ]);
+    await expectImportSuccess();
 
     /* Invalid test:  we've already built a valid configuration with
      * window.LoadPanel.testMode = {fakeFiles: true};
@@ -395,10 +399,10 @@ describe("Load Panel Operations with faked flat files", function() {
         expect(getErrorMessage()).toBe(`${errPrefix}${errPostfix}`);
       }
 
-      it("and a minimal configuration", async function() {
+      it("and a minimal (but valid) configuration", async function() {
         const config = getFullConfig(JSON.stringify(valid));
         window.LoadPanel.testMode.configSource = config;
-        await chooseMembranePanel();
+        await expectImportSuccess();
 
         expect(getErrorMessage()).toBe(null);
       });
@@ -420,8 +424,7 @@ describe("Load Panel Operations with faked flat files", function() {
         await runTestForFailure(
           `.about may have getExample and/or getInstance, xor filterToMatch`
         );
-      });
-      
+      });      
 
       it("with about.filter and about.getInstance", async function() {
         delete valid.about.getExample;
@@ -430,6 +433,39 @@ describe("Load Panel Operations with faked flat files", function() {
         await runTestForFailure(
           `.about may have getExample and/or getInstance, xor filterToMatch`
         );
+      });
+
+      it("with a group name and getExample", async function() {
+        valid.about.valueName = "[methods]";
+        await runTestForFailure(
+          ".about must not have getExample for a group configuration"
+        );
+      });
+
+      it("with a group name and filterToMatch", async function() {
+        valid.about.valueName = "[methods]";
+        delete valid.about.getExample;
+        valid.about.filterToMatch = "return false;";
+        await runTestForFailure(
+          ".about must not have filterToMatch for a group configuration"
+        );
+      });
+
+      it("with a group name and getInstance", async function() {
+        valid.about.valueName = "[methods]";
+        delete valid.about.getExample;
+        valid.about.getInstance = "return new ObjectGraphHandler;"
+        await runTestForFailure(
+          ".about must not have getInstance for a group configuration"
+        );
+      });
+
+      it("with a group name and no getters or filters", async function() {
+        valid.about.valueName = "[methods]";
+        delete valid.about.getExample;
+        await expectImportSuccess();
+
+        expect(getErrorMessage()).toBe(null);
       });
 
       it("missing isFunction", async function() {

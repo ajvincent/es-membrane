@@ -312,34 +312,44 @@ window.LoadPanel = {
       requireType("valueName", "string", "", aboutPath);
       requireType("isFunction", "boolean", "", aboutPath);
 
-      // At least one of these must exist:
-      // getExample, filterToMatch, getInstance
       {
-        let actualKeys = Reflect.ownKeys(distortionSet.about);
-        let pass = false;
-        ["getExample", "filterToMatch", "getInstance"].forEach(function(key) {
-          if (!actualKeys.includes(key))
-            return;
-          pass = true;
-          requireType(key, "string", "", aboutPath);
-        });
-
-        if (!pass) {
-          throw new Error(
-            `${errorPrefix}.distortions[${index}].about must have at least one of these properties: "getExample", "filterToMatch", "getInstance"`
-          );
+        const aboutKeys = Reflect.ownKeys(distortionSet.about);
+        if (distortionSet.about.valueName.startsWith("[")) {
+          // None of these must exist:
+          // getExample, filterToMatch, getInstance
+          ["getExample", "filterToMatch", "getInstance"].forEach(function(key) {
+            if (aboutKeys.includes(key))
+              throw new Error(
+                `${errorPrefix}.distortions[${index}].about must not have ${key} for a group configuration`
+              );
+          });
         }
-      }
+        else {
+          // At least one of these must exist:
+          // getExample, filterToMatch, getInstance
+          let pass = false;
+          ["getExample", "filterToMatch", "getInstance"].forEach(function(key) {
+            if (!aboutKeys.includes(key))
+              return;
+            pass = true;
+            requireType(key, "string", "", aboutPath);
+          });
+  
+          if (!pass) {
+            throw new Error(
+              `${errorPrefix}.distortions[${index}].about must have at least one of these properties: "getExample", "filterToMatch", "getInstance"`
+            );
+          }
 
-      // filterToMatch may not be in the same about block as getExample or getInstance
-      {
-        let actualKeys = Reflect.ownKeys(distortionSet.about);
-        if (actualKeys.includes("filterToMatch") == (
-              actualKeys.includes("getExample") ||
-              actualKeys.includes("getInstance")))
-          throw new Error(
-            `${errorPrefix}.distortions[${index}].about may have getExample and/or getInstance, xor filterToMatch`
-          );
+          // filterToMatch may not be in the same about block as getExample or getInstance
+          if (aboutKeys.includes("filterToMatch") == (
+                aboutKeys.includes("getExample") ||
+                aboutKeys.includes("getInstance"))) {
+            throw new Error(
+              `${errorPrefix}.distortions[${index}].about may have getExample and/or getInstance, xor filterToMatch`
+            );
+          }
+        }
       }
 
       if (typeof distortionSet.about.comments !== "undefined") {
