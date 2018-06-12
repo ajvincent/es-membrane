@@ -4461,8 +4461,12 @@ function buildMembrane(___utilities___) {
   }
 
   const firstError = DogfoodLogger.getFirstError();
-  if (firstError)
+  if (firstError) {
+    Membrane = function() {
+      throw new Error("Membrane constructor could not be exported");
+    };
     throw firstError;
+  }
 }
 
 MembraneInternal = null;
