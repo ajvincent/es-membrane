@@ -144,7 +144,7 @@ function buildMembrane(___utilities___) {
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false,
-      "truncateArgList": true
+      "truncateArgList": 1
     });
 
     ___listener___.addListener(Membrane, "prototype", {

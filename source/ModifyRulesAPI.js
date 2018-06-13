@@ -346,6 +346,8 @@ ModifyRulesAPI.prototype = Object.seal({
         }
 
         const pMapping = membrane.map.get(proto);
+        if (!pMapping)
+          return true;
         assert(pMapping instanceof ProxyMapping,
                "Found prototype of membrane proxy, but it has no ProxyMapping!");
 

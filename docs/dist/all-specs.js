@@ -1512,6 +1512,20 @@ describe("Receivers in Reflect", function() {
     expect(alpha._upper).toBe(ALPHA);
   });
 });
+"use strict";
+it("Reflect Proxy objects correctly implement instanceof", function() {
+  function a() {}
+  const {proxy, revoke} = Proxy.revocable(a, Reflect);
+  const A = proxy;
+
+  const b = new a();
+  expect(b instanceof a).toBe(true);
+  expect(b instanceof A).toBe(true);
+
+  const B = new A();
+  expect(B instanceof a).toBe(true);
+  expect(B instanceof A).toBe(true);
+});
 it("Array.prototype.splice generates reasonable results with a proxy", function() {
   const x = ["alpha", "beta", "gamma", "pi", "chi"];
 
@@ -1677,17 +1691,19 @@ if (typeof MembraneMocks != "function") {
 }
 
 describe("basic concepts: ", function() {
-  var wetDocument, dryDocument;
+  var wetDocument, dryDocument, membrane;
   
   beforeEach(function() {
     let parts = MembraneMocks();
     wetDocument = parts.wet.doc;
     dryDocument = parts.dry.doc;
+    membrane = parts.membrane;
   });
 
   afterEach(function() {
     wetDocument = null;
     dryDocument = null;
+    membrane = null;
   });
   
   it("dryDocument and wetDocument should not be the same", function() {
@@ -1710,7 +1726,7 @@ describe("basic concepts: ", function() {
     var extraHolder;
     const desc = {
       get: function() { return extraHolder; },
-      set: function(val) { 
+      set: function(val) {
         extraHolder = val;
         return val;
       },
@@ -1722,19 +1738,48 @@ describe("basic concepts: ", function() {
     
     var unwrappedExtra = {};
     dryDocument.extra = unwrappedExtra;
-    
     expect(typeof extraHolder).toBe("object");
-    expect(extraHolder).toBe(unwrappedExtra);
-    expect(wetDocument.extra).not.toBe(extraHolder);
-    
-    expect(dryDocument.extra).toBe(unwrappedExtra);
+    expect(extraHolder).not.toBe(null);
+    expect(extraHolder).not.toBe(unwrappedExtra);
 
-    expect(dryDocument.extra).not.toBe(wetDocument.extra);
     /* In summary:
      *
      * dryDocument is a proxy, dryDocument.extra is an unwrapped object
      * wetDocument is an unwrapped object, wetDocument.extra is a proxy
      */
+
+    let found, foundValue;
+    [found, foundValue] = membrane.getMembraneValue("wet", wetDocument);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(wetDocument);
+
+    [found, foundValue] = membrane.getMembraneValue("dry", dryDocument);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(wetDocument);
+
+    [found, foundValue] = membrane.getMembraneProxy("wet", wetDocument);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(wetDocument);
+
+    [found, foundValue] = membrane.getMembraneProxy("dry", dryDocument);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(dryDocument);
+
+    [found, foundValue] = membrane.getMembraneValue("wet", wetDocument.extra);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(unwrappedExtra);
+
+    [found, foundValue] = membrane.getMembraneValue("dry", dryDocument.extra);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(unwrappedExtra);
+
+    [found, foundValue] = membrane.getMembraneProxy("wet", wetDocument.extra);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(extraHolder);
+
+    [found, foundValue] = membrane.getMembraneProxy("dry", dryDocument.extra);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(unwrappedExtra);
   });
 
   it("Looking up an object twice returns the same object", function() {
@@ -9437,7 +9482,23 @@ describe("Whitelisting object properties", function() {
   it(
     "and getting a handler from a protected membrane works correctly",
     function() {
-      const Dogfood = new Membrane();
+      function voidFunc() {}
+
+      const DogfoodLogger = {
+        _errorList: [],
+        error: function(e) {
+          this._errorList.push(e);
+        },
+        warn: voidFunc,
+        info: voidFunc,
+        debug: voidFunc,
+        trace: voidFunc,
+
+        getFirstError: function() {
+          return this._errorList.length ? this._errorList[0] : undefined;
+        }
+      };
+      const Dogfood = new Membrane({logger: DogfoodLogger});
 
       const publicAPI   = Dogfood.getHandlerByName(
         "public", { mustCreate: true }
@@ -9512,6 +9573,7 @@ describe("Whitelisting object properties", function() {
           "wet", { mustCreate: true }
         );
       }).not.toThrow();
+      expect(DogfoodLogger.getFirstError()).toBe(undefined);
     }
   );
 });

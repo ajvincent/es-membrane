@@ -1737,6 +1737,8 @@ ObjectGraphHandler.prototype = Object.seal({
       if (!protoTarget)
         return false;
       map = this.membrane.map.get(protoTarget);
+      if (!map)
+        return false;
       assert(map instanceof ProxyMapping, "map not found in getLocalFlag?");
     }
   },

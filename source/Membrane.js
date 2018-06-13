@@ -147,12 +147,17 @@ MembraneInternal.prototype = Object.seal({
            "Proxy requests must pass in an origin handler");
     let shadowTarget = makeShadowTarget(value);
 
-    if (!Reflect.isExtensible(value))
-      Reflect.preventExtensions(shadowTarget);
-
     var parts;
     if (isOriginal) {
       parts = { value: value };
+      if (!Reflect.isExtensible(value)) {
+        const keys = Reflect.ownKeys(value);
+        keys.forEach(function(key) {
+          const desc = Reflect.getOwnPropertyDescriptor(value, key);
+          Reflect.defineProperty(shadowTarget, key, desc);
+        });
+        Reflect.preventExtensions(shadowTarget);
+      }
     }
     else {
       parts = Proxy.revocable(shadowTarget, handler);
@@ -176,6 +181,15 @@ MembraneInternal.prototype = Object.seal({
       
       ProxyNotify(parts, options.originHandler, true, notifyOptions);
       ProxyNotify(parts, handler, false, notifyOptions);
+
+      if (!Reflect.isExtensible(value)) {
+        try {
+          Reflect.preventExtensions(parts.proxy);
+        }
+        catch (e) {
+          // do nothing
+        }
+      }
     }
 
     handler.addRevocable(isOriginal ? mapping : parts.revoke);
@@ -490,38 +504,14 @@ MembraneInternal.prototype = Object.seal({
     var targetHandler = this.getHandlerByName(targetField);
     var membrane = this;
 
-    if (keys.includes("value")) {
-      wrappedDesc.value = this.convertArgumentToProxy(
-        originHandler,
-        targetHandler,
-        desc.value
-      );
-    }
-
-    if (keys.includes("get")) {
-      wrappedDesc.get = function wrappedGetter () {
-        const wrappedThis = membrane.convertArgumentToProxy(targetHandler, originHandler, this);
-        return membrane.convertArgumentToProxy(
+    ["value", "get", "set"].forEach(function(descProp) {
+      if (keys.includes(descProp))
+        wrappedDesc[descProp] = this.convertArgumentToProxy(
           originHandler,
           targetHandler,
-          desc.get.call(wrappedThis)
+          desc[descProp]
         );
-      };
-    }
-
-    if (keys.includes("set") && (typeof desc.set === "function")) {
-      const wrappedSetter = function(value) {
-        const wrappedThis  = membrane.convertArgumentToProxy(targetHandler, originHandler, this);
-        const wrappedValue = membrane.convertArgumentToProxy(targetHandler, originHandler, value);
-        return membrane.convertArgumentToProxy(
-          originHandler,
-          targetHandler,
-          desc.set.call(wrappedThis, wrappedValue)
-        );
-      };
-      this.buildMapping(targetHandler, wrappedSetter);
-      wrappedDesc.set = wrappedSetter;
-    }
+    }, this);
 
     return wrappedDesc;
   },

@@ -644,7 +644,23 @@ describe("Whitelisting object properties", function() {
   it(
     "and getting a handler from a protected membrane works correctly",
     function() {
-      const Dogfood = new Membrane();
+      function voidFunc() {}
+
+      const DogfoodLogger = {
+        _errorList: [],
+        error: function(e) {
+          this._errorList.push(e);
+        },
+        warn: voidFunc,
+        info: voidFunc,
+        debug: voidFunc,
+        trace: voidFunc,
+
+        getFirstError: function() {
+          return this._errorList.length ? this._errorList[0] : undefined;
+        }
+      };
+      const Dogfood = new Membrane({logger: DogfoodLogger});
 
       const publicAPI   = Dogfood.getHandlerByName(
         "public", { mustCreate: true }
@@ -719,6 +735,7 @@ describe("Whitelisting object properties", function() {
           "wet", { mustCreate: true }
         );
       }).not.toThrow();
+      expect(DogfoodLogger.getFirstError()).toBe(undefined);
     }
   );
 });

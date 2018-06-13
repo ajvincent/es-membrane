@@ -61,6 +61,7 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/lazyGetter.js \
 	spec/non-membrane/argumentTruncation.js \
 	spec/non-membrane/receiver.js \
+	spec/non-membrane/instanceof.js \
 	spec/non-membrane/containers/array-splice.js \
 	spec/concepts.js \
 	spec/freeze-seal.js \
