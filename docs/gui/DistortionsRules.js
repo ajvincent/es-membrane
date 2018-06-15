@@ -86,7 +86,6 @@ DistortionsRules.validateConfiguration = function(config, isFunction) {
     });
   }
 
-  requireType("inheritFilter", "boolean");
   requireType("storeUnknownAsLocal", "boolean");
   requireType("requireLocalDelete", "boolean");
   requireType("useShadowTarget", "boolean");

@@ -48,7 +48,6 @@
               "apply",
               "construct"
             ],
-            "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false,
@@ -79,7 +78,6 @@
               "apply",
               "construct"
             ],
-            "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false

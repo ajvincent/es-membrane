@@ -114,12 +114,11 @@ describe("DistortionsRules", function() {
     {
       let items = rules.groupToInputsMap.get("distortions");
       expect(Array.isArray(items)).toBe(true);
-      isCheckboxWithName(items[0],  "inheritFilter", true);
-      isCheckboxWithName(items[1],  "storeUnknownAsLocal", true);
-      isCheckboxWithName(items[2],  "requireLocalDelete", true);
+      isCheckboxWithName(items[0],  "storeUnknownAsLocal", true);
+      isCheckboxWithName(items[1],  "requireLocalDelete", true);
       // skipping truncateArgButton, truncateArgMax
-      isCheckboxWithName(items[5],  "useShadowTarget", false);
-      expect(items.length).toBe(6);
+      isCheckboxWithName(items[4],  "useShadowTarget", false);
+      expect(items.length).toBe(5);
     }
 
     // Configuration dynamic properties.
@@ -129,7 +128,6 @@ describe("DistortionsRules", function() {
       delete config.dataVersion;
 
       expect(config.filterOwnKeys).toEqual(expectedKeys);
-      expect(config.inheritFilter).toBe(true);
       expect(config.storeUnknownAsLocal).toBe(true);
       expect(config.requireLocalDelete).toBe(true);
       expect(config.useShadowTarget).toBe(false);
@@ -177,7 +175,6 @@ describe("DistortionsRules", function() {
     });
 
     [
-      "inheritFilter",
       "storeUnknownAsLocal",
       "requireLocalDelete",
       "useShadowTarget"
@@ -226,7 +223,6 @@ describe("DistortionsRules", function() {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false,
@@ -325,7 +321,6 @@ describe("DistortionsRules", function() {
     });
 
     [
-      "inheritFilter",
       "storeUnknownAsLocal",
       "requireLocalDelete",
       "useShadowTarget",
@@ -603,7 +598,6 @@ describe("DistortionsRules", function() {
       });
 
       [
-        "inheritFilter",
         "storeUnknownAsLocal",
         "requireLocalDelete",
         "useShadowTarget",

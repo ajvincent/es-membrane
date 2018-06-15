@@ -294,8 +294,7 @@ ModifyRulesAPI.prototype = Object.seal({
    * @param filter    {Function} The filtering function.  (May be an Array or
    *                             a Set, which becomes a whitelist filter.)
    * @param options   {Object} Broken down as follows:
-   * - inheritFilter: {Boolean} True if we should accept whatever the filter for
-   *                            Reflect.getPrototypeOf(proxy) accepts.
+   * - none defined at present
    *
    * @see Array.prototype.filter.
    */
@@ -313,56 +312,6 @@ ModifyRulesAPI.prototype = Object.seal({
 
     if ((typeof filter !== "function") && (filter !== null))
       throw new Error("filterOwnKeys must be a filter function, array or Set!");
-
-    if (filter &&
-        ("inheritFilter" in options) &&
-        (options.inheritFilter === true)) 
-    {
-      const firstFilter = filter;
-      const membrane = this.membrane;
-      filter = function(key) {
-        if (firstFilter(key))
-          return true;
-
-        const proto = Reflect.getPrototypeOf(proxy);
-        if (proto === null)
-          return false; // firstFilter is the final filter: reject
-
-        if (!membrane.map.has(proto)) {
-          /* This can happen when we are applying a filter for the first time,
-           * but the prototype was never wrapped.  If you're using inheritFilter,
-           * that means presumably you're aware of filtering by the chain.  So
-           * it should be safe to wrap the prototype now...
-           */
-
-          if ((options.originHandler instanceof ObjectGraphHandler) &&
-              (options.targetHandler instanceof ObjectGraphHandler))
-          {
-            membrane.convertArgumentToProxy(
-              options.originHandler,
-              options.targetHandler,
-              proto
-            );
-          }
-        }
-
-        const pMapping = membrane.map.get(proto);
-        assert(pMapping instanceof ProxyMapping,
-               "Found prototype of membrane proxy, but it has no ProxyMapping!");
-
-        const nextFilter = pMapping.getOwnKeysFilter(fieldName);
-        if (!nextFilter) {
-          membrane.warnOnce(
-            membrane.constants.warnings.PROTOTYPE_FILTER_MISSING
-          );
-          return true; // prototype does no filtering of their own keys
-        }
-        if (nextFilter && !nextFilter(key))
-          return false;
-
-        return true;
-      };
-    }
 
     /* Defining a filter after a proxy's shadow target is not extensible
      * guarantees inconsistency.  So we must disallow that possibility.

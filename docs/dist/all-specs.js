@@ -8379,174 +8379,6 @@ describe("Filtering own keys ", function() {
     }).toThrow();
     checkKeys();
   });
-
-  /* XXX ajvincent The above tests are comprehensive enough.  This is about a
-   * change to the filtering function itself, to look up the prototype for an
-   * additional filter.
-   *
-   * For this reason, nothing is sealed or frozen in these tests.
-   */
-  describe("and allowing the prototype's filter to also apply", function() {
-    const inheritOption = Object.freeze({ inheritFilter: true });
-    const ElementInstanceFilterSet = new Set([
-      /* "nodeName" excluded to test filter at top level */
-      "nodeType",
-    ]);
-    const NodeInstanceFilterSet = new Set([
-      "childNodes",
-      "ownerDocument",
-      /* "parentNode" excluded to test filter at inherited level */
-    ]);
-
-    var root;
-
-    beforeEach(function() {
-      root = dryDocument.rootElement;
-
-      membrane.modifyRules.filterOwnKeys(
-        "dry", root, ElementInstanceFilterSet, inheritOption
-      );
-
-      membrane.modifyRules.filterOwnKeys(
-        "dry", parts.dry.Element.prototype, NodeInstanceFilterSet
-      );
-    });
-
-    afterEach(function() {
-      root = null;
-    });
-
-    it(
-      "shows properties allowed by the directly applied filter",
-      function() {
-        membrane.modifyRules.filterOwnKeys(
-          "dry", parts.dry.Element.prototype, NodeInstanceFilterSet
-        );
-
-        let keys = Reflect.ownKeys(root);
-        fixKeys(keys);
-
-        expect(keys.includes("nodeType")).toBe(true);
-        {
-          let desc = Reflect.getOwnPropertyDescriptor(root, "nodeType");
-          expect(desc).not.toBe(undefined);
-          if (desc)
-            expect(desc.value).toBe(1);
-        }
-
-        expect(keys.includes("nodeName")).toBe(false);
-        {
-          let desc = Reflect.getOwnPropertyDescriptor(root, "nodeName");
-          expect(desc).toBe(undefined);
-        }
-      }
-    );
-
-    it(
-      "shows properties allowed by the inherited filter",
-      function() {
-        membrane.modifyRules.filterOwnKeys(
-          "dry", parts.dry.Element.prototype, NodeInstanceFilterSet
-        );
-
-        let keys = Reflect.ownKeys(root);
-        fixKeys(keys);
-
-        expect(keys.includes("childNodes")).toBe(true);
-        {
-          let desc = Reflect.getOwnPropertyDescriptor(root, "childNodes");
-          expect(desc).not.toBe(undefined);
-          if (desc)
-            expect(Array.isArray(desc.value)).toBe(true);
-        }
-
-        expect(keys.includes("parentNode")).toBe(false);
-        {
-          let desc = Reflect.getOwnPropertyDescriptor(root, "parentNode");
-          expect(desc).toBe(undefined);
-        }
-      }
-    );
-
-    it(
-      "shows properties allowed by the directly applied filter",
-      function() {
-        let keys = Reflect.ownKeys(root);
-        fixKeys(keys);
-
-        expect(keys.includes("nodeType")).toBe(true);
-        {
-          let desc = Reflect.getOwnPropertyDescriptor(root, "nodeType");
-          expect(desc).not.toBe(undefined);
-          if (desc)
-            expect(desc.value).toBe(1);
-        }
-
-        expect(keys.includes("nodeName")).toBe(false);
-        {
-          let desc = Reflect.getOwnPropertyDescriptor(root, "nodeName");
-          expect(desc).toBe(undefined);
-        }
-      }
-    );
-
-    it(
-      "shows all properties when the inherited filter is missing",
-      function() {
-        // rebuild root to show 
-        clearParts();
-        appender.clear();
-        parts = MembraneMocks(true, logger);
-        setParts();
-        root = parts.dry.doc.rootElement;
-
-        membrane.modifyRules.filterOwnKeys(
-          "dry", root, ElementInstanceFilterSet, inheritOption
-        );
-
-        // no filter applied for parts.dry.Element.prototype
-
-        expect(appender.events.length).toBe(0);
-
-        let keys = Reflect.ownKeys(root);
-        fixKeys(keys);
-
-        // properties filtered at the top
-        expect(keys.includes("childNodes")).toBe(true);
-        {
-          let desc = Reflect.getOwnPropertyDescriptor(root, "childNodes");
-          expect(desc).not.toBe(undefined);
-          if (desc)
-            expect(Array.isArray(desc.value)).toBe(true);
-        }
-
-        expect(keys.includes("parentNode")).toBe(true);
-        {
-          let desc = Reflect.getOwnPropertyDescriptor(root, "parentNode");
-          expect(desc).not.toBe(undefined);
-        }
-
-        // properties filtered by inheritance
-        expect(keys.includes("nodeType")).toBe(true);
-        {
-          let desc = Reflect.getOwnPropertyDescriptor(root, "nodeType");
-          expect(desc).not.toBe(undefined);
-          if (desc)
-            expect(desc.value).toBe(1);
-        }
-
-        expect(keys.includes("nodeName")).toBe(true);
-        {
-          let desc = Reflect.getOwnPropertyDescriptor(root, "nodeName");
-          expect(desc).not.toBe(undefined);
-          if (desc)
-            expect(desc.value).toBe("root");
-        }
-
-        checkAppenderForWarning("PROTOTYPE_FILTER_MISSING");
-      }
-    );
-  });
 });
 "use strict"
 
@@ -8807,6 +8639,11 @@ describe("Whitelisting object properties", function() {
   function HEAT() { return "handleEventAtTarget stub"; }
   function HEAT_NEW() { return "Hello World"; }
 
+  /* These lists specify properties defined on the objects.  For instance,
+   * childNodes is defined in NodeWhiteList because every parts.wet.Node object
+   * has a childNodes property.
+   */
+
   const EventListenerWetWhiteList = [
     "handleEvent",
   ];
@@ -8818,7 +8655,6 @@ describe("Whitelisting object properties", function() {
 
   const NodeWhiteList = [
     "childNodes",
-    "ownerDocument",
     "parentNode",
   ];
 
@@ -8862,6 +8698,7 @@ describe("Whitelisting object properties", function() {
     nameFilters.target = buildFilter(EventTargetWhiteList);
     nameFilters.node = buildFilter(NodeWhiteList, nameFilters.target);
     nameFilters.element = buildFilter(ElementWhiteList, nameFilters.node);
+
     nameFilters.proto = {};
     nameFilters.proto.node = buildFilter(NodeProtoWhiteList, nameFilters.target);
     nameFilters.proto.element = buildFilter([], nameFilters.proto.node);
@@ -8931,10 +8768,11 @@ describe("Whitelisting object properties", function() {
             return;
           }
           if (meta.target instanceof parts.wet.Element) {
-            // parts.dry.Element will be meta.proxy.
+            // parts.dry.Element will be meta.proxy or in the prototype chain.
             this.whitelist(meta, nameFilters.element);
             return;
           }
+
           if (meta.target instanceof parts.wet.Node) {
             // parts.dry.Node will be meta.proxy.
             this.whitelist(meta, nameFilters.node);
@@ -9025,10 +8863,9 @@ describe("Whitelisting object properties", function() {
         distortions.bindToHandler(handler);
       },
 
-      whitelist: function(distortions, value, filteredOwnKeys, inherit, category) {
+      whitelist: function(distortions, value, filteredOwnKeys, category) {
         const config = distortions.sampleConfig();
         config.filterOwnKeys = filteredOwnKeys;
-        config.inheritFilter = inherit;
         config.storeUnknownAsLocal = true;
         config.requireLocalDelete = true;
         distortions.addListener(value, category, config);
@@ -9043,22 +8880,22 @@ describe("Whitelisting object properties", function() {
       },
 
       whitelistMain: function(distortions) {
-        this.whitelist(distortions, parts.wet.doc, docWhiteList, false, "value");
+        this.whitelist(distortions, parts.wet.doc, docWhiteList, "value");
         this.whitelist(
-          distortions, parts.wet.Element, ElementWhiteList, true, "instance"
+          distortions, parts.wet.Element, ElementWhiteList, "instance"
         );
         this.whitelist(
-          distortions, parts.wet.Node, NodeWhiteList, true, "instance"
+          distortions, parts.wet.Node, NodeWhiteList, "instance"
         );
-        this.whitelist(distortions, parts.wet.Element, [], true, "value");
+        this.whitelist(distortions, parts.wet.Element, [], "value");
         this.whitelist(
-          distortions, parts.wet.Node, NodeProtoWhiteList, true, "value"
-        );
-        this.whitelist(
-          distortions, parts.wet.Node, NodeProtoWhiteList, true, "prototype"
+          distortions, parts.wet.Node, NodeProtoWhiteList, "value"
         );
         this.whitelist(
-          distortions, EventListenerProto, EventTargetWhiteList, false, "value"
+          distortions, parts.wet.Node, NodeProtoWhiteList, "prototype"
+        );
+        this.whitelist(
+          distortions, EventListenerProto, EventTargetWhiteList, "value"
         );
       },
     };
@@ -9289,8 +9126,14 @@ describe("Whitelisting object properties", function() {
         if (isArray)
           expect(kids.length).toBe(0);
       }
-      expect(dryRoot.ownerDocument).toBe(dryDocument);
-      expect(dryRoot.parentNode).toBe(dryDocument);
+
+      /* This doesn't appear because it's not whitelisted under the
+       * "instanceof parts.wet.Element" test.  Specifically, it's not part of
+       * NodeWhiteList or ElementWhiteList.
+       */
+      expect(dryRoot.ownerDocument).toBe(undefined);
+
+      expect(dryRoot.parentNode).not.toBe(undefined);
       expect(typeof dryRoot.wetMarker).toBe("undefined");
 
       // NodeWet.prototype tests

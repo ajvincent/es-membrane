@@ -41,7 +41,6 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false,
@@ -73,7 +72,6 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false
