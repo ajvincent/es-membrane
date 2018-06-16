@@ -15,15 +15,16 @@ if (typeof MembraneMocks != "function") {
   throw new Error("Unable to run tests");
 }
 
-describe("Private API methods are not exposed: ", function() {
+describe("Private API methods are not exposed when the membrane is marked 'secured': ", function() {
   "use strict";
-  var wetDocument, dryDocument, membrane;
+  var wetDocument, dryDocument, membrane, isPrivate;
   
   beforeEach(function() {
     let parts = MembraneMocks();
     wetDocument = parts.wet.doc;
     dryDocument = parts.dry.doc;
     membrane = parts.membrane;
+    isPrivate = membrane.secured;
   });
 
   afterEach(function() {
@@ -34,6 +35,6 @@ describe("Private API methods are not exposed: ", function() {
 
   it("Membrane.prototype.buildMapping", function() {
     const actual = typeof membrane.buildMapping;
-    expect(actual).toBe("undefined");
+    expect(actual).toBe(isPrivate ? "undefined" : "function");
   });
 });

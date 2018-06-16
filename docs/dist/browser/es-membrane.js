@@ -4402,6 +4402,12 @@ function buildMembrane(___utilities___) {
   let internalAPI = DogfoodMembrane.getHandlerByName("internal", { mustCreate: true });
 
   // lockdown of the public API here
+  Reflect.defineProperty(
+    MembraneInternal.prototype,
+    "secured",
+    new NWNCDataDescriptor(true, true)
+  );
+  assert(MembraneInternal.prototype.secured, "Failed to set secured?");
 
   // Define our Membrane constructor properly.
   Membrane = DogfoodMembrane.convertArgumentToProxy(
