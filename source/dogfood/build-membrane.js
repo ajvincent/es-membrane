@@ -22,9 +22,14 @@ function buildMembrane(___utilities___) {
         if (value === ProxyNotify)
           throw new Error("ProxyNotify is private!");
         return !items.some(function(item) {
-          return (value === item) || 
-                 (value === item.prototype) ||
-                 (value instanceof item);
+          if ((value === item) || 
+              (value === item.prototype) ||
+              (value instanceof item))
+            return true;
+          const methodKeys = Reflect.ownKeys(item.prototype);
+          return methodKeys.some(function(key) {
+            return item.prototype[key] === value;
+          });
         });
       };
       {
@@ -58,7 +63,6 @@ function buildMembrane(___utilities___) {
         "ownKeys",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false,
@@ -90,7 +94,6 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false
@@ -113,7 +116,6 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false
@@ -140,7 +142,6 @@ function buildMembrane(___utilities___) {
         "ownKeys",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false,
@@ -178,7 +179,6 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false
@@ -186,7 +186,8 @@ function buildMembrane(___utilities___) {
 
     ___listener___.addListener(Membrane, "instance", {
       "filterOwnKeys": [
-        "modifyRules"
+        "modifyRules",
+        "passThroughFilter"
       ],
       "proxyTraps": [
         "getPrototypeOf",
@@ -201,7 +202,6 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false
@@ -227,7 +227,6 @@ function buildMembrane(___utilities___) {
         "ownKeys",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false,
@@ -249,10 +248,12 @@ function buildMembrane(___utilities___) {
         "setPrototypeOf",
         "apply",
         "construct",
+        "ensureMapping",
         "addProxyListener",
         "removeProxyListener",
         "addFunctionListener",
-        "removeFunctionListener"
+        "removeFunctionListener",
+        "revokeEverything"
       ],
       "proxyTraps": [
         "getPrototypeOf",
@@ -267,14 +268,17 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
-      "storeUnknownAsLocal": true,
+      "storeUnknownAsLocal": false,
       "requireLocalDelete": true,
       "useShadowTarget": false
     });
 
     ___listener___.addListener(ObjectGraphHandler, "instance", {
-      "filterOwnKeys": [],
+      "filterOwnKeys": [
+        "fieldName",
+        "passThroughFilter",
+        "mayReplacePassThrough"
+      ],
       "proxyTraps": [
         "getPrototypeOf",
         "isExtensible",
@@ -288,8 +292,7 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
-      "storeUnknownAsLocal": true,
+      "storeUnknownAsLocal": false,
       "requireLocalDelete": true,
       "useShadowTarget": false
     });
@@ -357,7 +360,6 @@ function buildMembrane(___utilities___) {
           "ownKeys",
           "apply"
         ],
-        "inheritFilter": true,
         "storeUnknownAsLocal": true,
         "requireLocalDelete": true,
         "useShadowTarget": false
@@ -384,7 +386,6 @@ function buildMembrane(___utilities___) {
         "ownKeys",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false,
@@ -414,7 +415,6 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false
@@ -435,7 +435,6 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false

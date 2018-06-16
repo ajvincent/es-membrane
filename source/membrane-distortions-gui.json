@@ -6,10 +6,10 @@
       "staging/es-membrane.js"
     ],
     "formatVersion": 1,
-    "lastUpdated": "Sat, 09 Jun 2018 19:40:35 GMT"
+    "lastUpdated": "Sat, 16 Jun 2018 01:10:13 GMT"
   },
   "membrane": {
-    "passThroughSource": "\n  items.splice(\n    0, 0,\n    Membrane,\n    ObjectGraphHandler,\n    DistortionsListener,\n    ModifyRulesAPI\n  );\n  \n  return function(value) {\n    if ((value === ProxyMapping) || \n        (value === ProxyMapping.prototype) ||\n        (value instanceof ProxyMapping))\n      throw new Error(\"ProxyMapping is private!\");\n    if (value === ProxyNotify)\n      throw new Error(\"ProxyNotify is private!\");\n    return !items.some(function(item) {\n      return (value === item) || \n             (value === item.prototype) ||\n             (value instanceof item);\n    });\n  };",
+    "passThroughSource": "\n  items.splice(\n    0, 0,\n    Membrane,\n    ObjectGraphHandler,\n    DistortionsListener,\n    ModifyRulesAPI\n  );\n  \n  return function(value) {\n    if ((value === ProxyMapping) || \n        (value === ProxyMapping.prototype) ||\n        (value instanceof ProxyMapping))\n      throw new Error(\"ProxyMapping is private!\");\n    if (value === ProxyNotify)\n      throw new Error(\"ProxyNotify is private!\");\n    return !items.some(function(item) {\n      if ((value === item) || \n          (value === item.prototype) ||\n          (value instanceof item))\n        return true;\n      const methodKeys = Reflect.ownKeys(item.prototype);\n      return methodKeys.some(function(key) {\n        return item.prototype[key] === value;\n      });\n    });\n  };",
     "passThroughEnabled": true,
     "primordialsPass": false
   },
@@ -48,7 +48,6 @@
               "ownKeys",
               "construct"
             ],
-            "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false,
@@ -79,7 +78,6 @@
               "apply",
               "construct"
             ],
-            "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false,
@@ -112,7 +110,6 @@
               "apply",
               "construct"
             ],
-            "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false
@@ -146,7 +143,6 @@
               "ownKeys",
               "construct"
             ],
-            "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false,
@@ -183,7 +179,6 @@
               "apply",
               "construct"
             ],
-            "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false,
@@ -204,7 +199,8 @@
           },
           "instance": {
             "filterOwnKeys": [
-              "modifyRules"
+              "modifyRules",
+              "passThroughFilter"
             ],
             "proxyTraps": [
               "getPrototypeOf",
@@ -219,7 +215,6 @@
               "apply",
               "construct"
             ],
-            "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false
@@ -252,7 +247,6 @@
               "ownKeys",
               "construct"
             ],
-            "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false,
@@ -273,10 +267,12 @@
               "setPrototypeOf",
               "apply",
               "construct",
+              "ensureMapping",
               "addProxyListener",
               "removeProxyListener",
               "addFunctionListener",
-              "removeFunctionListener"
+              "removeFunctionListener",
+              "revokeEverything"
             ],
             "proxyTraps": [
               "getPrototypeOf",
@@ -291,8 +287,7 @@
               "apply",
               "construct"
             ],
-            "inheritFilter": true,
-            "storeUnknownAsLocal": true,
+            "storeUnknownAsLocal": false,
             "requireLocalDelete": true,
             "useShadowTarget": false,
             "groupDistortions": {
@@ -316,7 +311,11 @@
             }
           },
           "instance": {
-            "filterOwnKeys": [],
+            "filterOwnKeys": [
+              "fieldName",
+              "passThroughFilter",
+              "mayReplacePassThrough"
+            ],
             "proxyTraps": [
               "getPrototypeOf",
               "isExtensible",
@@ -330,8 +329,7 @@
               "apply",
               "construct"
             ],
-            "inheritFilter": true,
-            "storeUnknownAsLocal": true,
+            "storeUnknownAsLocal": false,
             "requireLocalDelete": true,
             "useShadowTarget": false
           }
@@ -356,7 +354,6 @@
               "ownKeys",
               "apply"
             ],
-            "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false
@@ -389,7 +386,6 @@
               "ownKeys",
               "construct"
             ],
-            "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false,
@@ -418,7 +414,6 @@
               "apply",
               "construct"
             ],
-            "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false,
@@ -447,7 +442,6 @@
               "apply",
               "construct"
             ],
-            "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false

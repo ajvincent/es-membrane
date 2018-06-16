@@ -75,7 +75,6 @@ Object.defineProperties(DistortionsListener.prototype, {
 
       filterOwnKeys: false,
       proxyTraps: allTraps.slice(0),
-      inheritFilter: false,
       storeUnknownAsLocal: false,
       requireLocalDelete: false,
       useShadowTarget: false,
@@ -139,7 +138,7 @@ Object.defineProperties(DistortionsListener.prototype, {
     const modifyTarget = (meta.isOriginGraph) ? meta.target : meta.proxy;
     if (Array.isArray(config.filterOwnKeys)) {
       const filterOptions = {
-        inheritFilter: Boolean(config.inheritFilter)
+        // empty, but preserved on separate lines for git blame
       };
       if (meta.originHandler)
         filterOptions.originHandler = meta.originHandler;

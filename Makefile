@@ -64,6 +64,7 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/instanceof.js \
 	spec/non-membrane/containers/array-splice.js \
 	spec/concepts.js \
+	spec/privateAPI.js \
 	spec/freeze-seal.js \
 	spec/features/replaceProxies.js \
 	spec/features/passThroughFilters.js \

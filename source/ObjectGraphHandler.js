@@ -227,7 +227,8 @@ ObjectGraphHandler.prototype = Object.seal({
             this.fieldName,
             proto
           );
-          assert(foundProto, "Must find membrane proxy for prototype");
+          if (!foundProto)
+            return Reflect.get(proto, propName, receiver);
           assert(other === proto, "Retrieved prototypes must match");
         }
 
@@ -913,6 +914,10 @@ ObjectGraphHandler.prototype = Object.seal({
     let setter = ownDesc.set;
     if (typeof setter === "undefined")
       return false;
+
+    if (!this.membrane.hasProxyForValue(this.fieldName, setter))
+      this.membrane.buildMapping(this, setter);
+
     // 8. Perform ? Call(setter, Receiver, « V »).
 
     if (!shouldBeLocal) {
@@ -1230,6 +1235,16 @@ ObjectGraphHandler.prototype = Object.seal({
     return targetMap.getShadowTarget(this.fieldName);
   },
 
+  /**
+   * Ensure a value has been wrapped in the membrane (and is available for distortions)
+   *
+   * @param target {Object} The value to wrap.
+   */
+  ensureMapping: function(target) {
+    if (!this.membrane.hasProxyForValue(this.fieldName, target))
+      this.membrane.buildMapping(this, target);
+  },
+  
   /**
    * Add a listener for new proxies.
    *
@@ -1832,8 +1847,6 @@ ObjectGraphHandler.prototype = Object.seal({
 
   /**
    * Revoke the entire object graph.
-   *
-   * @private
    */
   revokeEverything: function() {
     if (this.__isDead__)

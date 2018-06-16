@@ -664,7 +664,7 @@ describe("basic concepts: ", function() {
   });
 
   it(
-    "MembraneHandler.revokeEverything() breaks all proxy access on an object graph",
+    "ObjectGraphHandler.prototype.revokeEverything() breaks all proxy access on an object graph",
     function() {
       function lookup(obj, propName) {
         return function() {

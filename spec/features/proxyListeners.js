@@ -29,6 +29,12 @@ describe("An object graph handler's proxy listeners", function() {
     return this.events.map(getMessageProp);
   }
 
+  function mustSkip(value) {
+    return ((value === Object.prototype) ||
+            (value === ctor1) ||
+            (value === ctor1.prototype));
+  }
+
   beforeEach(function() {
     membrane = new Membrane({logger: logger});
     wetHandler = membrane.getHandlerByName("wet", { mustCreate: true });
@@ -77,14 +83,20 @@ describe("An object graph handler's proxy listeners", function() {
 
     var meta0, meta1, meta2;
     function listener1(meta) {
+      if (mustSkip(meta.target))
+        return;
       meta1 = meta;
       logger.info("listener1");
     }
     function listener2(meta) {
+      if (mustSkip(meta.target))
+        return;
       meta2 = meta;
       logger.info("listener2");
     }
     function listener0(meta) {
+      if (mustSkip(meta.target))
+        return;
       meta0 = meta;
       logger.info("listener0");
     }
@@ -668,8 +680,10 @@ describe("An object graph handler's proxy listeners", function() {
       // disabling the call trap, so that a function should not be executable
       {
         const funcWrapper = X.arg2;
+        const graphName = dryHandler.fieldName;
+        expect(typeof graphName).toBe("string");
         membrane.modifyRules.disableTraps(
-          dryHandler.fieldName, funcWrapper, ["apply"]
+          graphName, funcWrapper, ["apply"]
         );
         appender.clear();
         logger.info("entering logTest with argument");
@@ -1008,6 +1022,9 @@ describe("An object graph handler's proxy listeners", function() {
 
     it("by invoking meta.stopIteration();", function() {
       function listener1(meta) {
+        if (mustSkip(meta.target))
+          return;
+
         meta1 = meta;
         logger.info("listener1: stopped = " + meta.stopped);
         logger.info("listener1: calling meta.stopIteration();");
@@ -1016,6 +1033,9 @@ describe("An object graph handler's proxy listeners", function() {
       }
 
       function listener2(meta) {
+        if (mustSkip(meta.target))
+          return;
+
         meta2 = meta;
         logger.info("listener2: stopped = " + meta.stopped);
         logger.info("listener2: calling meta.stopIteration();");
@@ -1054,6 +1074,9 @@ describe("An object graph handler's proxy listeners", function() {
     it("by invoking meta.throwException(exn);", function() {
       const dummyExn = {};
       function listener1(meta) {
+        if (mustSkip(meta.target))
+          return;
+
         meta1 = meta;
         logger.info("listener1: stopped = " + meta.stopped);
         logger.info("listener1: calling meta.throwException(exn1);");
@@ -1062,6 +1085,9 @@ describe("An object graph handler's proxy listeners", function() {
       }
 
       function listener2(meta) {
+        if (mustSkip(meta.target))
+          return;
+
         meta2 = meta;
         logger.info("listener2: stopped = " + meta.stopped);
         logger.info("listener2: calling meta.stopIteration();");
@@ -1099,12 +1125,16 @@ describe("An object graph handler's proxy listeners", function() {
     it("but not by accidentally triggering an exception", function() {
       const dummyExn = {};
       function listener1(meta) {
+        if (mustSkip(meta.target))
+          return;
         meta1 = meta;
         logger.info("listener1: stopped = " + meta.stopped);
         throw dummyExn; // this is supposed to be an accident
       }
 
       function listener2(meta) {
+        if (mustSkip(meta.target))
+          return;
         meta2 = meta;
         logger.info("listener2: stopped = " + meta.stopped);
       }

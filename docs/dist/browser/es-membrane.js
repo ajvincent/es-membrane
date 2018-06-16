@@ -1437,7 +1437,8 @@ ObjectGraphHandler.prototype = Object.seal({
             this.fieldName,
             proto
           );
-          assert(foundProto, "Must find membrane proxy for prototype");
+          if (!foundProto)
+            return Reflect.get(proto, propName, receiver);
           assert(other === proto, "Retrieved prototypes must match");
         }
 
@@ -2123,6 +2124,10 @@ ObjectGraphHandler.prototype = Object.seal({
     let setter = ownDesc.set;
     if (typeof setter === "undefined")
       return false;
+
+    if (!this.membrane.hasProxyForValue(this.fieldName, setter))
+      this.membrane.buildMapping(this, setter);
+
     // 8. Perform ? Call(setter, Receiver, « V »).
 
     if (!shouldBeLocal) {
@@ -2440,6 +2445,16 @@ ObjectGraphHandler.prototype = Object.seal({
     return targetMap.getShadowTarget(this.fieldName);
   },
 
+  /**
+   * Ensure a value has been wrapped in the membrane (and is available for distortions)
+   *
+   * @param target {Object} The value to wrap.
+   */
+  ensureMapping: function(target) {
+    if (!this.membrane.hasProxyForValue(this.fieldName, target))
+      this.membrane.buildMapping(this, target);
+  },
+  
   /**
    * Add a listener for new proxies.
    *
@@ -3042,8 +3057,6 @@ ObjectGraphHandler.prototype = Object.seal({
 
   /**
    * Revoke the entire object graph.
-   *
-   * @private
    */
   revokeEverything: function() {
     if (this.__isDead__)
@@ -3154,7 +3167,8 @@ function ProxyNotify(parts, handler, isOrigin, options) {
   });
 
   const callbacks = [];
-  handler.proxiesInConstruction.set(parts.value, callbacks);
+  const inConstruction = handler.proxiesInConstruction;
+  inConstruction.set(parts.value, callbacks);
 
   try {
     invokeProxyListeners(listeners, meta);
@@ -3169,7 +3183,7 @@ function ProxyNotify(parts, handler, isOrigin, options) {
       }
     });
 
-    handler.proxiesInConstruction.delete(parts.value);
+    inConstruction.delete(parts.value);
   }
 }
 
@@ -3436,9 +3450,16 @@ ModifyRulesAPI.prototype = Object.seal({
    *
    * @param oldProxy {Proxy} The proxy to replace.
    * @param handler  {ProxyHandler} What to base the new proxy on.
-   * 
+   *
+   * @returns {Proxy} The newly built proxy.
    */
   replaceProxy: function(oldProxy, handler) {
+    if (DogfoodMembrane) {
+      const [found, unwrapped] = DogfoodMembrane.getMembraneValue("internal", handler);
+      if (found)
+        handler = unwrapped;
+    }
+
     let baseHandler = ChainHandlers.has(handler) ? handler.baseHandler : handler;
     {
       /* These assertions are to make sure the proxy we're replacing is safe to
@@ -3575,8 +3596,7 @@ ModifyRulesAPI.prototype = Object.seal({
    * @param filter    {Function} The filtering function.  (May be an Array or
    *                             a Set, which becomes a whitelist filter.)
    * @param options   {Object} Broken down as follows:
-   * - inheritFilter: {Boolean} True if we should accept whatever the filter for
-   *                            Reflect.getPrototypeOf(proxy) accepts.
+   * - none defined at present
    *
    * @see Array.prototype.filter.
    */
@@ -3594,58 +3614,6 @@ ModifyRulesAPI.prototype = Object.seal({
 
     if ((typeof filter !== "function") && (filter !== null))
       throw new Error("filterOwnKeys must be a filter function, array or Set!");
-
-    if (filter &&
-        ("inheritFilter" in options) &&
-        (options.inheritFilter === true)) 
-    {
-      const firstFilter = filter;
-      const membrane = this.membrane;
-      filter = function(key) {
-        if (firstFilter(key))
-          return true;
-
-        const proto = Reflect.getPrototypeOf(proxy);
-        if (proto === null)
-          return false; // firstFilter is the final filter: reject
-
-        if (!membrane.map.has(proto)) {
-          /* This can happen when we are applying a filter for the first time,
-           * but the prototype was never wrapped.  If you're using inheritFilter,
-           * that means presumably you're aware of filtering by the chain.  So
-           * it should be safe to wrap the prototype now...
-           */
-
-          if ((options.originHandler instanceof ObjectGraphHandler) &&
-              (options.targetHandler instanceof ObjectGraphHandler))
-          {
-            membrane.convertArgumentToProxy(
-              options.originHandler,
-              options.targetHandler,
-              proto
-            );
-          }
-        }
-
-        const pMapping = membrane.map.get(proto);
-        if (!pMapping)
-          return true;
-        assert(pMapping instanceof ProxyMapping,
-               "Found prototype of membrane proxy, but it has no ProxyMapping!");
-
-        const nextFilter = pMapping.getOwnKeysFilter(fieldName);
-        if (!nextFilter) {
-          membrane.warnOnce(
-            membrane.constants.warnings.PROTOTYPE_FILTER_MISSING
-          );
-          return true; // prototype does no filtering of their own keys
-        }
-        if (nextFilter && !nextFilter(key))
-          return false;
-
-        return true;
-      };
-    }
 
     /* Defining a filter after a proxy's shadow target is not extensible
      * guarantees inconsistency.  So we must disallow that possibility.
@@ -3809,7 +3777,6 @@ Object.defineProperties(DistortionsListener.prototype, {
 
       filterOwnKeys: false,
       proxyTraps: allTraps.slice(0),
-      inheritFilter: false,
       storeUnknownAsLocal: false,
       requireLocalDelete: false,
       useShadowTarget: false,
@@ -3873,7 +3840,7 @@ Object.defineProperties(DistortionsListener.prototype, {
     const modifyTarget = (meta.isOriginGraph) ? meta.target : meta.proxy;
     if (Array.isArray(config.filterOwnKeys)) {
       const filterOptions = {
-        inheritFilter: Boolean(config.inheritFilter)
+        // empty, but preserved on separate lines for git blame
       };
       if (meta.originHandler)
         filterOptions.originHandler = meta.originHandler;
@@ -3999,9 +3966,14 @@ function buildMembrane(___utilities___) {
         if (value === ProxyNotify)
           throw new Error("ProxyNotify is private!");
         return !items.some(function(item) {
-          return (value === item) || 
-                 (value === item.prototype) ||
-                 (value instanceof item);
+          if ((value === item) || 
+              (value === item.prototype) ||
+              (value instanceof item))
+            return true;
+          const methodKeys = Reflect.ownKeys(item.prototype);
+          return methodKeys.some(function(key) {
+            return item.prototype[key] === value;
+          });
         });
       };
       {
@@ -4035,7 +4007,6 @@ function buildMembrane(___utilities___) {
         "ownKeys",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false,
@@ -4067,7 +4038,6 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false
@@ -4090,7 +4060,6 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false
@@ -4117,7 +4086,6 @@ function buildMembrane(___utilities___) {
         "ownKeys",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false,
@@ -4155,7 +4123,6 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false
@@ -4163,7 +4130,8 @@ function buildMembrane(___utilities___) {
 
     ___listener___.addListener(Membrane, "instance", {
       "filterOwnKeys": [
-        "modifyRules"
+        "modifyRules",
+        "passThroughFilter"
       ],
       "proxyTraps": [
         "getPrototypeOf",
@@ -4178,7 +4146,6 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false
@@ -4204,7 +4171,6 @@ function buildMembrane(___utilities___) {
         "ownKeys",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false,
@@ -4226,10 +4192,12 @@ function buildMembrane(___utilities___) {
         "setPrototypeOf",
         "apply",
         "construct",
+        "ensureMapping",
         "addProxyListener",
         "removeProxyListener",
         "addFunctionListener",
-        "removeFunctionListener"
+        "removeFunctionListener",
+        "revokeEverything"
       ],
       "proxyTraps": [
         "getPrototypeOf",
@@ -4244,14 +4212,17 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
-      "storeUnknownAsLocal": true,
+      "storeUnknownAsLocal": false,
       "requireLocalDelete": true,
       "useShadowTarget": false
     });
 
     ___listener___.addListener(ObjectGraphHandler, "instance", {
-      "filterOwnKeys": [],
+      "filterOwnKeys": [
+        "fieldName",
+        "passThroughFilter",
+        "mayReplacePassThrough"
+      ],
       "proxyTraps": [
         "getPrototypeOf",
         "isExtensible",
@@ -4265,8 +4236,7 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
-      "storeUnknownAsLocal": true,
+      "storeUnknownAsLocal": false,
       "requireLocalDelete": true,
       "useShadowTarget": false
     });
@@ -4334,7 +4304,6 @@ function buildMembrane(___utilities___) {
           "ownKeys",
           "apply"
         ],
-        "inheritFilter": true,
         "storeUnknownAsLocal": true,
         "requireLocalDelete": true,
         "useShadowTarget": false
@@ -4361,7 +4330,6 @@ function buildMembrane(___utilities___) {
         "ownKeys",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false,
@@ -4391,7 +4359,6 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false
@@ -4412,7 +4379,6 @@ function buildMembrane(___utilities___) {
         "apply",
         "construct"
       ],
-      "inheritFilter": true,
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false

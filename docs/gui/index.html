@@ -781,23 +781,6 @@ r.getArea(); // returns 12</pre>
 
       <!-- transition to specific membrane features -->
 
-      <article id="help-distortions-inheritFilter">
-        <h2>Accept filter of own keys from prototype</h2>
-        <h3>Usage in es-membrane</h3>
-        <p>Sometimes a membrane will have a filter of "own keys" for an object's
-        prototype.  Enabling this feature means the prototype's filters also
-        apply to your list of own properties.</p>
-        <p>Specifically, if either your primary filter or the prototype's filter
-        accepts a property name, that property will be exposed through the traps
-        of the Membrane.</p>
-        <p>This should be considered as an optimization:  for common properties
-        defined through a prototype chain, you should use a filter inherited
-        through the prototype chain as well.</p>
-        <p>For values that you pass through without wrapping in the membrane,
-        there will naturally be no inherited filter, so you should not enable
-        this distortion when the prototype is not wrapped.</p>
-      </article>
-
       <article id="help-distortions-storeUnknownAsLocal">
         <h2>Local properties</h2>
         <h3>Usage in es-membrane</h3>
@@ -1175,15 +1158,6 @@ r.getArea(); // returns 12</pre>
             <span>Other distortions</span>
             <input type="checkbox" checked="checked" class="collapsible-check">
             <ul data-group="distortions">
-              <li>
-                <span data-name="inheritFilter"
-                      title="Accept filter of own keys from prototype"
-                     >Accept filter of own keys from prototype</span>
-                <span><input type="checkbox" checked="checked"></span>
-                <span>
-                  <button class="icon helpButton" data-for="distortions-inheritFilter"></button>
-                </span>
-              </li>
               <li>
                 <span data-name="storeUnknownAsLocal">Local properties</span>
                 <span><input type="checkbox" checked="checked"></span>

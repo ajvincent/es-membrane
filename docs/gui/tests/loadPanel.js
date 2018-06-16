@@ -385,7 +385,6 @@ describe("Load Panel Operations with faked flat files", function() {
             ],
             "proxyTraps": [
             ],
-            "inheritFilter": true,
             "storeUnknownAsLocal": true,
             "requireLocalDelete": true,
             "useShadowTarget": false,
