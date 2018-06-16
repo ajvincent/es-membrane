@@ -6,7 +6,7 @@ Membrane works, but it will help ensure external consumers of the membrane
 module cannot rewrite how each individual Membrane works.
 */
 var Membrane = MembraneInternal;
-if (true) {
+if (false) {
   /* This provides a weak reference to each proxy coming out of a Membrane.
    *
    * Why have this tracking mechanism?  The "dogfood" membrane must ensure any
