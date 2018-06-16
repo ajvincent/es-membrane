@@ -1512,6 +1512,20 @@ describe("Receivers in Reflect", function() {
     expect(alpha._upper).toBe(ALPHA);
   });
 });
+"use strict";
+it("Reflect Proxy objects correctly implement instanceof", function() {
+  function a() {}
+  const {proxy, revoke} = Proxy.revocable(a, Reflect);
+  const A = proxy;
+
+  const b = new a();
+  expect(b instanceof a).toBe(true);
+  expect(b instanceof A).toBe(true);
+
+  const B = new A();
+  expect(B instanceof a).toBe(true);
+  expect(B instanceof A).toBe(true);
+});
 it("Array.prototype.splice generates reasonable results with a proxy", function() {
   const x = ["alpha", "beta", "gamma", "pi", "chi"];
 
@@ -1677,17 +1691,19 @@ if (typeof MembraneMocks != "function") {
 }
 
 describe("basic concepts: ", function() {
-  var wetDocument, dryDocument;
+  var wetDocument, dryDocument, membrane;
   
   beforeEach(function() {
     let parts = MembraneMocks();
     wetDocument = parts.wet.doc;
     dryDocument = parts.dry.doc;
+    membrane = parts.membrane;
   });
 
   afterEach(function() {
     wetDocument = null;
     dryDocument = null;
+    membrane = null;
   });
   
   it("dryDocument and wetDocument should not be the same", function() {
@@ -1710,7 +1726,7 @@ describe("basic concepts: ", function() {
     var extraHolder;
     const desc = {
       get: function() { return extraHolder; },
-      set: function(val) { 
+      set: function(val) {
         extraHolder = val;
         return val;
       },
@@ -1722,19 +1738,48 @@ describe("basic concepts: ", function() {
     
     var unwrappedExtra = {};
     dryDocument.extra = unwrappedExtra;
-    
     expect(typeof extraHolder).toBe("object");
-    expect(extraHolder).toBe(unwrappedExtra);
-    expect(wetDocument.extra).not.toBe(extraHolder);
-    
-    expect(dryDocument.extra).toBe(unwrappedExtra);
+    expect(extraHolder).not.toBe(null);
+    expect(extraHolder).not.toBe(unwrappedExtra);
 
-    expect(dryDocument.extra).not.toBe(wetDocument.extra);
     /* In summary:
      *
      * dryDocument is a proxy, dryDocument.extra is an unwrapped object
      * wetDocument is an unwrapped object, wetDocument.extra is a proxy
      */
+
+    let found, foundValue;
+    [found, foundValue] = membrane.getMembraneValue("wet", wetDocument);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(wetDocument);
+
+    [found, foundValue] = membrane.getMembraneValue("dry", dryDocument);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(wetDocument);
+
+    [found, foundValue] = membrane.getMembraneProxy("wet", wetDocument);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(wetDocument);
+
+    [found, foundValue] = membrane.getMembraneProxy("dry", dryDocument);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(dryDocument);
+
+    [found, foundValue] = membrane.getMembraneValue("wet", wetDocument.extra);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(unwrappedExtra);
+
+    [found, foundValue] = membrane.getMembraneValue("dry", dryDocument.extra);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(unwrappedExtra);
+
+    [found, foundValue] = membrane.getMembraneProxy("wet", wetDocument.extra);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(extraHolder);
+
+    [found, foundValue] = membrane.getMembraneProxy("dry", dryDocument.extra);
+    expect(found).toBe(true);
+    expect(foundValue).toBe(unwrappedExtra);
   });
 
   it("Looking up an object twice returns the same object", function() {
@@ -2293,7 +2338,7 @@ describe("basic concepts: ", function() {
   });
 
   it(
-    "MembraneHandler.revokeEverything() breaks all proxy access on an object graph",
+    "ObjectGraphHandler.prototype.revokeEverything() breaks all proxy access on an object graph",
     function() {
       function lookup(obj, propName) {
         return function() {
@@ -2439,6 +2484,46 @@ it("More than one object graph can be available", function() {
   }).not.toThrow();
 });
 
+/*
+import "../docs/dist/es6-modules/Membrane.js";
+import "../docs/dist/es6-modules/MembraneMocks.js";
+*/
+
+if ((typeof MembraneMocks != "function") ||
+    (typeof loggerLib != "object") ||
+    (typeof DAMP != "symbol")) {
+  if (typeof require == "function") {
+    var { MembraneMocks, loggerLib, DAMP } = require("../docs/dist/node/mocks.js");
+  }
+}
+
+if (typeof MembraneMocks != "function") {
+  throw new Error("Unable to run tests");
+}
+
+describe("Private API methods are not exposed when the membrane is marked 'secured': ", function() {
+  "use strict";
+  var wetDocument, dryDocument, membrane, isPrivate;
+  
+  beforeEach(function() {
+    let parts = MembraneMocks();
+    wetDocument = parts.wet.doc;
+    dryDocument = parts.dry.doc;
+    membrane = parts.membrane;
+    isPrivate = membrane.secured;
+  });
+
+  afterEach(function() {
+    wetDocument = null;
+    dryDocument = null;
+    membrane = null;
+  });
+
+  it("Membrane.prototype.buildMapping", function() {
+    const actual = typeof membrane.buildMapping;
+    expect(actual).toBe(isPrivate ? "undefined" : "function");
+  });
+});
 /*
 import "../docs/dist/es6-modules/Membrane.js";
 */
@@ -3394,6 +3479,12 @@ describe("An object graph handler's proxy listeners", function() {
     return this.events.map(getMessageProp);
   }
 
+  function mustSkip(value) {
+    return ((value === Object.prototype) ||
+            (value === ctor1) ||
+            (value === ctor1.prototype));
+  }
+
   beforeEach(function() {
     membrane = new Membrane({logger: logger});
     wetHandler = membrane.getHandlerByName("wet", { mustCreate: true });
@@ -3442,14 +3533,20 @@ describe("An object graph handler's proxy listeners", function() {
 
     var meta0, meta1, meta2;
     function listener1(meta) {
+      if (mustSkip(meta.target))
+        return;
       meta1 = meta;
       logger.info("listener1");
     }
     function listener2(meta) {
+      if (mustSkip(meta.target))
+        return;
       meta2 = meta;
       logger.info("listener2");
     }
     function listener0(meta) {
+      if (mustSkip(meta.target))
+        return;
       meta0 = meta;
       logger.info("listener0");
     }
@@ -4033,8 +4130,10 @@ describe("An object graph handler's proxy listeners", function() {
       // disabling the call trap, so that a function should not be executable
       {
         const funcWrapper = X.arg2;
+        const graphName = dryHandler.fieldName;
+        expect(typeof graphName).toBe("string");
         membrane.modifyRules.disableTraps(
-          dryHandler.fieldName, funcWrapper, ["apply"]
+          graphName, funcWrapper, ["apply"]
         );
         appender.clear();
         logger.info("entering logTest with argument");
@@ -4373,6 +4472,9 @@ describe("An object graph handler's proxy listeners", function() {
 
     it("by invoking meta.stopIteration();", function() {
       function listener1(meta) {
+        if (mustSkip(meta.target))
+          return;
+
         meta1 = meta;
         logger.info("listener1: stopped = " + meta.stopped);
         logger.info("listener1: calling meta.stopIteration();");
@@ -4381,6 +4483,9 @@ describe("An object graph handler's proxy listeners", function() {
       }
 
       function listener2(meta) {
+        if (mustSkip(meta.target))
+          return;
+
         meta2 = meta;
         logger.info("listener2: stopped = " + meta.stopped);
         logger.info("listener2: calling meta.stopIteration();");
@@ -4419,6 +4524,9 @@ describe("An object graph handler's proxy listeners", function() {
     it("by invoking meta.throwException(exn);", function() {
       const dummyExn = {};
       function listener1(meta) {
+        if (mustSkip(meta.target))
+          return;
+
         meta1 = meta;
         logger.info("listener1: stopped = " + meta.stopped);
         logger.info("listener1: calling meta.throwException(exn1);");
@@ -4427,6 +4535,9 @@ describe("An object graph handler's proxy listeners", function() {
       }
 
       function listener2(meta) {
+        if (mustSkip(meta.target))
+          return;
+
         meta2 = meta;
         logger.info("listener2: stopped = " + meta.stopped);
         logger.info("listener2: calling meta.stopIteration();");
@@ -4464,12 +4575,16 @@ describe("An object graph handler's proxy listeners", function() {
     it("but not by accidentally triggering an exception", function() {
       const dummyExn = {};
       function listener1(meta) {
+        if (mustSkip(meta.target))
+          return;
         meta1 = meta;
         logger.info("listener1: stopped = " + meta.stopped);
         throw dummyExn; // this is supposed to be an accident
       }
 
       function listener2(meta) {
+        if (mustSkip(meta.target))
+          return;
         meta2 = meta;
         logger.info("listener2: stopped = " + meta.stopped);
       }
@@ -6436,7 +6551,7 @@ describe("Storing unknown properties locally", function() {
 
   describe("when required by the wet object graph, ", function() {
     beforeEach(function() {
-      membrane.buildMapping(parts.handlers.wet, parts.wet.Node.prototype);
+      parts.handlers.wet.ensureMapping(parts.wet.Node.prototype);
       membrane.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node.prototype);
       parts.wetIsLocal = true;
     });
@@ -6448,7 +6563,7 @@ describe("Storing unknown properties locally", function() {
     "when required by both the wet and the dry object graphs, ",
     function() {
       beforeEach(function() {
-        membrane.buildMapping(parts.handlers.wet, parts.wet.Node.prototype);
+        parts.handlers.wet.ensureMapping(parts.wet.Node.prototype);
         membrane.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node.prototype);
         membrane.modifyRules.storeUnknownAsLocal("dry", parts.dry.Node.prototype);
         parts.wetIsLocal = true;
@@ -6952,7 +7067,7 @@ describe("Deleting properties locally", function() {
 
   describe("when required by the wet object graph, ", function() {
     beforeEach(function() {
-      membrane.buildMapping(parts.handlers.wet, parts.wet.Node.prototype);
+      parts.handlers.wet.ensureMapping(parts.wet.Node.prototype);
       membrane.modifyRules.requireLocalDelete("wet", parts.wet.Node.prototype);
     });
     
@@ -6963,7 +7078,7 @@ describe("Deleting properties locally", function() {
     "when required by both the wet and the dry object graphs, ",
     function() {
       beforeEach(function() {
-        membrane.buildMapping(parts.handlers.wet, parts.wet.Node.prototype);
+        parts.handlers.wet.ensureMapping(parts.wet.Node.prototype);
         membrane.modifyRules.requireLocalDelete("wet", parts.wet.Node.prototype);
         membrane.modifyRules.requireLocalDelete("dry", parts.dry.Node.prototype);
       });
@@ -9280,7 +9395,23 @@ describe("Whitelisting object properties", function() {
   it(
     "and getting a handler from a protected membrane works correctly",
     function() {
-      const Dogfood = new Membrane();
+      function voidFunc() {}
+
+      const DogfoodLogger = {
+        _errorList: [],
+        error: function(e) {
+          this._errorList.push(e);
+        },
+        warn: voidFunc,
+        info: voidFunc,
+        debug: voidFunc,
+        trace: voidFunc,
+
+        getFirstError: function() {
+          return this._errorList.length ? this._errorList[0] : undefined;
+        }
+      };
+      const Dogfood = new Membrane({logger: DogfoodLogger});
 
       const publicAPI   = Dogfood.getHandlerByName(
         "public", { mustCreate: true }
@@ -9355,6 +9486,7 @@ describe("Whitelisting object properties", function() {
           "wet", { mustCreate: true }
         );
       }).not.toThrow();
+      expect(DogfoodLogger.getFirstError()).toBe(undefined);
     }
   );
 });
@@ -9980,7 +10112,7 @@ if (typeof MembraneMocks != "function") {
     {
       let parts = MembraneMocks();
       let dryWetMB = parts.membrane;
-      dryWetMB.buildMapping(parts.handlers.wet, parts.wet.Node.prototype);
+      parts.handlers.wet.ensureMapping(parts.wet.Node.prototype);
       dryWetMB.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node.prototype);
 
       wetRoot = parts.wet.doc.rootElement;

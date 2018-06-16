@@ -6,7 +6,7 @@ Membrane works, but it will help ensure external consumers of the membrane
 module cannot rewrite how each individual Membrane works.
 */
 var Membrane = MembraneInternal;
-if (false) {
+if (true) {
   /* This provides a weak reference to each proxy coming out of a Membrane.
    *
    * Why have this tracking mechanism?  The "dogfood" membrane must ensure any
@@ -33,6 +33,22 @@ if (false) {
    * is referenced only by proxies exported from any Membrane, via another
    * WeakMap the ProxyMapping belongs to.
    */
+  function voidFunc() {}
+
+  const DogfoodLogger = {
+    _errorList: [],
+    error: function(e) {
+      this._errorList.push(e);
+    },
+    warn: voidFunc,
+    info: voidFunc,
+    debug: voidFunc,
+    trace: voidFunc,
+
+    getFirstError: function() {
+      return this._errorList.length ? this._errorList[0] : undefined;
+    }
+  };
 
   var DogfoodMembrane = (
   /* start included membrane constructor */

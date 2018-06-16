@@ -781,12 +781,17 @@ MembraneInternal.prototype = Object.seal({
            "Proxy requests must pass in an origin handler");
     let shadowTarget = makeShadowTarget(value);
 
-    if (!Reflect.isExtensible(value))
-      Reflect.preventExtensions(shadowTarget);
-
     var parts;
     if (isOriginal) {
       parts = { value: value };
+      if (!Reflect.isExtensible(value)) {
+        const keys = Reflect.ownKeys(value);
+        keys.forEach(function(key) {
+          const desc = Reflect.getOwnPropertyDescriptor(value, key);
+          Reflect.defineProperty(shadowTarget, key, desc);
+        });
+        Reflect.preventExtensions(shadowTarget);
+      }
     }
     else {
       parts = Proxy.revocable(shadowTarget, handler);
@@ -810,6 +815,15 @@ MembraneInternal.prototype = Object.seal({
       
       ProxyNotify(parts, options.originHandler, true, notifyOptions);
       ProxyNotify(parts, handler, false, notifyOptions);
+
+      if (!Reflect.isExtensible(value)) {
+        try {
+          Reflect.preventExtensions(parts.proxy);
+        }
+        catch (e) {
+          // do nothing
+        }
+      }
     }
 
     handler.addRevocable(isOriginal ? mapping : parts.revoke);
@@ -1124,38 +1138,14 @@ MembraneInternal.prototype = Object.seal({
     var targetHandler = this.getHandlerByName(targetField);
     var membrane = this;
 
-    if (keys.includes("value")) {
-      wrappedDesc.value = this.convertArgumentToProxy(
-        originHandler,
-        targetHandler,
-        desc.value
-      );
-    }
-
-    if (keys.includes("get")) {
-      wrappedDesc.get = function wrappedGetter () {
-        const wrappedThis = membrane.convertArgumentToProxy(targetHandler, originHandler, this);
-        return membrane.convertArgumentToProxy(
+    ["value", "get", "set"].forEach(function(descProp) {
+      if (keys.includes(descProp))
+        wrappedDesc[descProp] = this.convertArgumentToProxy(
           originHandler,
           targetHandler,
-          desc.get.call(wrappedThis)
+          desc[descProp]
         );
-      };
-    }
-
-    if (keys.includes("set") && (typeof desc.set === "function")) {
-      const wrappedSetter = function(value) {
-        const wrappedThis  = membrane.convertArgumentToProxy(targetHandler, originHandler, this);
-        const wrappedValue = membrane.convertArgumentToProxy(targetHandler, originHandler, value);
-        return membrane.convertArgumentToProxy(
-          originHandler,
-          targetHandler,
-          desc.set.call(wrappedThis, wrappedValue)
-        );
-      };
-      this.buildMapping(targetHandler, wrappedSetter);
-      wrappedDesc.set = wrappedSetter;
-    }
+    }, this);
 
     return wrappedDesc;
   },
@@ -1445,7 +1435,8 @@ ObjectGraphHandler.prototype = Object.seal({
             this.fieldName,
             proto
           );
-          assert(foundProto, "Must find membrane proxy for prototype");
+          if (!foundProto)
+            return Reflect.get(proto, propName, receiver);
           assert(other === proto, "Retrieved prototypes must match");
         }
 
@@ -2131,6 +2122,10 @@ ObjectGraphHandler.prototype = Object.seal({
     let setter = ownDesc.set;
     if (typeof setter === "undefined")
       return false;
+
+    if (!this.membrane.hasProxyForValue(this.fieldName, setter))
+      this.membrane.buildMapping(this, setter);
+
     // 8. Perform ? Call(setter, Receiver, « V »).
 
     if (!shouldBeLocal) {
@@ -2448,6 +2443,16 @@ ObjectGraphHandler.prototype = Object.seal({
     return targetMap.getShadowTarget(this.fieldName);
   },
 
+  /**
+   * Ensure a value has been wrapped in the membrane (and is available for distortions)
+   *
+   * @param target {Object} The value to wrap.
+   */
+  ensureMapping: function(target) {
+    if (!this.membrane.hasProxyForValue(this.fieldName, target))
+      this.membrane.buildMapping(this, target);
+  },
+  
   /**
    * Add a listener for new proxies.
    *
@@ -2955,6 +2960,8 @@ ObjectGraphHandler.prototype = Object.seal({
       if (!protoTarget)
         return false;
       map = this.membrane.map.get(protoTarget);
+      if (!map)
+        return false;
       assert(map instanceof ProxyMapping, "map not found in getLocalFlag?");
     }
   },
@@ -3048,8 +3055,6 @@ ObjectGraphHandler.prototype = Object.seal({
 
   /**
    * Revoke the entire object graph.
-   *
-   * @private
    */
   revokeEverything: function() {
     if (this.__isDead__)
@@ -3160,7 +3165,8 @@ function ProxyNotify(parts, handler, isOrigin, options) {
   });
 
   const callbacks = [];
-  handler.proxiesInConstruction.set(parts.value, callbacks);
+  const inConstruction = handler.proxiesInConstruction;
+  inConstruction.set(parts.value, callbacks);
 
   try {
     invokeProxyListeners(listeners, meta);
@@ -3175,7 +3181,7 @@ function ProxyNotify(parts, handler, isOrigin, options) {
       }
     });
 
-    handler.proxiesInConstruction.delete(parts.value);
+    inConstruction.delete(parts.value);
   }
 }
 
@@ -3390,7 +3396,6 @@ ModifyRulesAPI.prototype = Object.seal({
   /**
    * Convert a shadow target to a real proxy target.
    *
-   *
    * @param {Object} shadowTarget The supposed target.
    *
    * @returns {Object} The target this shadow target maps to.
@@ -3443,9 +3448,16 @@ ModifyRulesAPI.prototype = Object.seal({
    *
    * @param oldProxy {Proxy} The proxy to replace.
    * @param handler  {ProxyHandler} What to base the new proxy on.
-   * 
+   *
+   * @returns {Proxy} The newly built proxy.
    */
   replaceProxy: function(oldProxy, handler) {
+    if (DogfoodMembrane) {
+      const [found, unwrapped] = DogfoodMembrane.getMembraneValue("internal", handler);
+      if (found)
+        handler = unwrapped;
+    }
+
     let baseHandler = ChainHandlers.has(handler) ? handler.baseHandler : handler;
     {
       /* These assertions are to make sure the proxy we're replacing is safe to
@@ -3840,6 +3852,9 @@ Object.defineProperties(DistortionsListener.prototype, {
       );
     }
 
+    if (!meta.isOriginGraph && !Reflect.isExtensible(meta.target))
+      Reflect.preventExtensions(meta.proxy);
+
     const deadTraps = allTraps.filter(function(key) {
       return !config.proxyTraps.includes(key);
     });
@@ -3879,7 +3894,7 @@ Membrane works, but it will help ensure external consumers of the membrane
 module cannot rewrite how each individual Membrane works.
 */
 var Membrane = MembraneInternal;
-if (false) {
+if (true) {
   /* This provides a weak reference to each proxy coming out of a Membrane.
    *
    * Why have this tracking mechanism?  The "dogfood" membrane must ensure any
@@ -3906,6 +3921,22 @@ if (false) {
    * is referenced only by proxies exported from any Membrane, via another
    * WeakMap the ProxyMapping belongs to.
    */
+  function voidFunc() {}
+
+  const DogfoodLogger = {
+    _errorList: [],
+    error: function(e) {
+      this._errorList.push(e);
+    },
+    warn: voidFunc,
+    info: voidFunc,
+    debug: voidFunc,
+    trace: voidFunc,
+
+    getFirstError: function() {
+      return this._errorList.length ? this._errorList[0] : undefined;
+    }
+  };
 
   var DogfoodMembrane = (
   /* start included membrane constructor */
@@ -3917,8 +3948,31 @@ function buildMembrane(___utilities___) {
     passThroughFilter: (function() {
       const items = [];
     
-      return function() {
-        return true;
+      items.splice(
+        0, 0,
+        Membrane,
+        ObjectGraphHandler,
+        DistortionsListener,
+        ModifyRulesAPI
+      );
+      
+      return function(value) {
+        if ((value === ProxyMapping) || 
+            (value === ProxyMapping.prototype) ||
+            (value instanceof ProxyMapping))
+          throw new Error("ProxyMapping is private!");
+        if (value === ProxyNotify)
+          throw new Error("ProxyNotify is private!");
+        return !items.some(function(item) {
+          if ((value === item) || 
+              (value === item.prototype) ||
+              (value instanceof item))
+            return true;
+          const methodKeys = Reflect.ownKeys(item.prototype);
+          return methodKeys.some(function(key) {
+            return item.prototype[key] === value;
+          });
+        });
       };
       {
         const s = new Set(items);
@@ -3949,13 +4003,12 @@ function buildMembrane(___utilities___) {
         "set",
         "deleteProperty",
         "ownKeys",
-        "apply",
         "construct"
       ],
       "storeUnknownAsLocal": true,
       "requireLocalDelete": true,
       "useShadowTarget": false,
-      "truncateArgList": false
+      "truncateArgList": true
     });
 
     ___listener___.addListener(ModifyRulesAPI, "prototype", {
@@ -3988,6 +4041,347 @@ function buildMembrane(___utilities___) {
       "useShadowTarget": false
     });
 
+    ___listener___.addListener(ModifyRulesAPI, "instance", {
+      "filterOwnKeys": [
+        "membrane"
+      ],
+      "proxyTraps": [
+        "getPrototypeOf",
+        "isExtensible",
+        "getOwnPropertyDescriptor",
+        "defineProperty",
+        "has",
+        "get",
+        "set",
+        "deleteProperty",
+        "ownKeys",
+        "apply",
+        "construct"
+      ],
+      "storeUnknownAsLocal": true,
+      "requireLocalDelete": true,
+      "useShadowTarget": false
+    });
+
+    ___listener___.addListener(Membrane, "value", {
+      "filterOwnKeys": [
+        "arguments",
+        "caller",
+        "length",
+        "name",
+        "prototype",
+        "Primordials"
+      ],
+      "proxyTraps": [
+        "getPrototypeOf",
+        "isExtensible",
+        "getOwnPropertyDescriptor",
+        "defineProperty",
+        "has",
+        "get",
+        "set",
+        "deleteProperty",
+        "ownKeys",
+        "construct"
+      ],
+      "storeUnknownAsLocal": true,
+      "requireLocalDelete": true,
+      "useShadowTarget": false,
+      "truncateArgList": 1
+    });
+
+    ___listener___.addListener(Membrane, "prototype", {
+      "filterOwnKeys": [
+        "allTraps",
+        "hasProxyForValue",
+        "getMembraneValue",
+        "getMembraneProxy",
+        "hasHandlerByField",
+        "getHandlerByName",
+        "ownsHandler",
+        "wrapArgumentByProxyMapping",
+        "convertArgumentToProxy",
+        "bindValuesByHandlers",
+        "addFunctionListener",
+        "removeFunctionListener",
+        "secured",
+        "warnOnce",
+        "constants"
+      ],
+      "proxyTraps": [
+        "getPrototypeOf",
+        "isExtensible",
+        "getOwnPropertyDescriptor",
+        "defineProperty",
+        "has",
+        "get",
+        "set",
+        "deleteProperty",
+        "ownKeys",
+        "apply",
+        "construct"
+      ],
+      "storeUnknownAsLocal": true,
+      "requireLocalDelete": true,
+      "useShadowTarget": false
+    });
+
+    ___listener___.addListener(Membrane, "instance", {
+      "filterOwnKeys": [
+        "modifyRules",
+        "passThroughFilter"
+      ],
+      "proxyTraps": [
+        "getPrototypeOf",
+        "isExtensible",
+        "getOwnPropertyDescriptor",
+        "defineProperty",
+        "has",
+        "get",
+        "set",
+        "deleteProperty",
+        "ownKeys",
+        "apply",
+        "construct"
+      ],
+      "storeUnknownAsLocal": true,
+      "requireLocalDelete": true,
+      "useShadowTarget": false
+    });
+
+    ___listener___.addListener(ObjectGraphHandler, "value", {
+      "filterOwnKeys": [
+        "arguments",
+        "caller",
+        "length",
+        "name",
+        "prototype"
+      ],
+      "proxyTraps": [
+        "getPrototypeOf",
+        "isExtensible",
+        "getOwnPropertyDescriptor",
+        "defineProperty",
+        "has",
+        "get",
+        "set",
+        "deleteProperty",
+        "ownKeys",
+        "construct"
+      ],
+      "storeUnknownAsLocal": true,
+      "requireLocalDelete": true,
+      "useShadowTarget": false,
+      "truncateArgList": true
+    });
+
+    ___listener___.addListener(ObjectGraphHandler, "prototype", {
+      "filterOwnKeys": [
+        "ownKeys",
+        "has",
+        "get",
+        "getOwnPropertyDescriptor",
+        "getPrototypeOf",
+        "isExtensible",
+        "preventExtensions",
+        "deleteProperty",
+        "defineProperty",
+        "set",
+        "setPrototypeOf",
+        "apply",
+        "construct",
+        "ensureMapping",
+        "addProxyListener",
+        "removeProxyListener",
+        "addFunctionListener",
+        "removeFunctionListener",
+        "revokeEverything"
+      ],
+      "proxyTraps": [
+        "getPrototypeOf",
+        "isExtensible",
+        "getOwnPropertyDescriptor",
+        "defineProperty",
+        "has",
+        "get",
+        "set",
+        "deleteProperty",
+        "ownKeys",
+        "apply",
+        "construct"
+      ],
+      "storeUnknownAsLocal": false,
+      "requireLocalDelete": true,
+      "useShadowTarget": false
+    });
+
+    ___listener___.addListener(ObjectGraphHandler, "instance", {
+      "filterOwnKeys": [
+        "fieldName",
+        "passThroughFilter",
+        "mayReplacePassThrough"
+      ],
+      "proxyTraps": [
+        "getPrototypeOf",
+        "isExtensible",
+        "getOwnPropertyDescriptor",
+        "defineProperty",
+        "has",
+        "get",
+        "set",
+        "deleteProperty",
+        "ownKeys",
+        "apply",
+        "construct"
+      ],
+      "storeUnknownAsLocal": false,
+      "requireLocalDelete": true,
+      "useShadowTarget": false
+    });
+
+    ___listener___.addListener(
+      [
+        ModifyRulesAPI.prototype.getRealTarget,
+        ModifyRulesAPI.prototype.createChainHandler,
+        ModifyRulesAPI.prototype.replaceProxy,
+        ModifyRulesAPI.prototype.storeUnknownAsLocal,
+        ModifyRulesAPI.prototype.requireLocalDelete,
+        ModifyRulesAPI.prototype.filterOwnKeys,
+        ModifyRulesAPI.prototype.truncateArgList,
+        ModifyRulesAPI.prototype.disableTraps,
+        ModifyRulesAPI.prototype.createDistortionsListener,
+        Membrane.prototype.hasProxyForValue,
+        Membrane.prototype.getMembraneValue,
+        Membrane.prototype.getMembraneProxy,
+        Membrane.prototype.hasHandlerByField,
+        Membrane.prototype.getHandlerByName,
+        Membrane.prototype.ownsHandler,
+        Membrane.prototype.wrapArgumentByProxyMapping,
+        Membrane.prototype.convertArgumentToProxy,
+        Membrane.prototype.bindValuesByHandlers,
+        Membrane.prototype.addFunctionListener,
+        Membrane.prototype.removeFunctionListener,
+        Membrane.prototype.warnOnce,
+        ObjectGraphHandler.prototype.ownKeys,
+        ObjectGraphHandler.prototype.has,
+        ObjectGraphHandler.prototype.get,
+        ObjectGraphHandler.prototype.getOwnPropertyDescriptor,
+        ObjectGraphHandler.prototype.getPrototypeOf,
+        ObjectGraphHandler.prototype.isExtensible,
+        ObjectGraphHandler.prototype.preventExtensions,
+        ObjectGraphHandler.prototype.deleteProperty,
+        ObjectGraphHandler.prototype.defineProperty,
+        ObjectGraphHandler.prototype.set,
+        ObjectGraphHandler.prototype.setPrototypeOf,
+        ObjectGraphHandler.prototype.apply,
+        ObjectGraphHandler.prototype.construct,
+        ObjectGraphHandler.prototype.addProxyListener,
+        ObjectGraphHandler.prototype.removeProxyListener,
+        ObjectGraphHandler.prototype.addFunctionListener,
+        ObjectGraphHandler.prototype.removeFunctionListener,
+        DistortionsListener.prototype.addListener,
+        DistortionsListener.prototype.removeListener,
+        DistortionsListener.prototype.listenOnce,
+        DistortionsListener.prototype.sampleConfig,
+        DistortionsListener.prototype.bindToHandler,
+        DistortionsListener.prototype.ignorePrimordials,
+        DistortionsListener.prototype.applyConfiguration
+      ],
+      "iterable",
+      {
+        "filterOwnKeys": null,
+        "proxyTraps": [
+          "getPrototypeOf",
+          "isExtensible",
+          "getOwnPropertyDescriptor",
+          "defineProperty",
+          "has",
+          "get",
+          "set",
+          "deleteProperty",
+          "ownKeys",
+          "apply"
+        ],
+        "storeUnknownAsLocal": true,
+        "requireLocalDelete": true,
+        "useShadowTarget": false
+      }
+    );
+
+    ___listener___.addListener(DistortionsListener, "value", {
+      "filterOwnKeys": [
+        "arguments",
+        "caller",
+        "length",
+        "name",
+        "prototype"
+      ],
+      "proxyTraps": [
+        "getPrototypeOf",
+        "isExtensible",
+        "getOwnPropertyDescriptor",
+        "defineProperty",
+        "has",
+        "get",
+        "set",
+        "deleteProperty",
+        "ownKeys",
+        "construct"
+      ],
+      "storeUnknownAsLocal": true,
+      "requireLocalDelete": true,
+      "useShadowTarget": false,
+      "truncateArgList": true
+    });
+
+    ___listener___.addListener(DistortionsListener, "prototype", {
+      "filterOwnKeys": [
+        "addListener",
+        "removeListener",
+        "listenOnce",
+        "sampleConfig",
+        "bindToHandler",
+        "ignorePrimordials",
+        "applyConfiguration"
+      ],
+      "proxyTraps": [
+        "getPrototypeOf",
+        "isExtensible",
+        "getOwnPropertyDescriptor",
+        "defineProperty",
+        "has",
+        "get",
+        "set",
+        "deleteProperty",
+        "ownKeys",
+        "apply",
+        "construct"
+      ],
+      "storeUnknownAsLocal": true,
+      "requireLocalDelete": true,
+      "useShadowTarget": false
+    });
+
+    ___listener___.addListener(DistortionsListener, "instance", {
+      "filterOwnKeys": [],
+      "proxyTraps": [
+        "getPrototypeOf",
+        "isExtensible",
+        "getOwnPropertyDescriptor",
+        "defineProperty",
+        "has",
+        "get",
+        "set",
+        "deleteProperty",
+        "ownKeys",
+        "apply",
+        "construct"
+      ],
+      "storeUnknownAsLocal": true,
+      "requireLocalDelete": true,
+      "useShadowTarget": false
+    });
+
     ___listener___.bindToHandler(___graph___);
   }
 
@@ -3998,7 +4392,7 @@ function buildMembrane(___utilities___) {
   return rvMembrane;
 }
   /* end included membrane constructor */
-  )({});
+  )({logger: DogfoodLogger});
 
   DogfoodMembrane.ProxyToMembraneMap = new WeakSet();
 
@@ -4006,6 +4400,12 @@ function buildMembrane(___utilities___) {
   let internalAPI = DogfoodMembrane.getHandlerByName("internal", { mustCreate: true });
 
   // lockdown of the public API here
+  Reflect.defineProperty(
+    MembraneInternal.prototype,
+    "secured",
+    new NWNCDataDescriptor(true, true)
+  );
+  assert(MembraneInternal.prototype.secured, "Failed to set secured?");
 
   // Define our Membrane constructor properly.
   Membrane = DogfoodMembrane.convertArgumentToProxy(
@@ -4015,7 +4415,7 @@ function buildMembrane(___utilities___) {
    * "secured": new DataDescriptor(true, false, false, false)
    */
 
-  if (true) {
+  if (false) {
     /* XXX ajvincent Right now it's unclear if this operation is safe.  It
      * probably isn't, but as long as DogfoodMembrane isn't exposed outside this
      * module, we're okay.
@@ -4027,6 +4427,14 @@ function buildMembrane(___utilities___) {
     // Additional securing and API overrides of DogfoodMembrane here.
 
     DogfoodMembrane = finalWrap;
+  }
+
+  const firstError = DogfoodLogger.getFirstError();
+  if (firstError) {
+    Membrane = function() {
+      throw new Error("Membrane constructor could not be exported");
+    };
+    throw firstError;
   }
 }
 

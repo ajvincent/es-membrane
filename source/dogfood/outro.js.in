@@ -1,5 +1,5 @@
   /* end included membrane constructor */
-  )({});
+  )({logger: DogfoodLogger});
 
   DogfoodMembrane.ProxyToMembraneMap = new WeakSet();
 
@@ -7,6 +7,12 @@
   let internalAPI = DogfoodMembrane.getHandlerByName("internal", { mustCreate: true });
 
   // lockdown of the public API here
+  Reflect.defineProperty(
+    MembraneInternal.prototype,
+    "secured",
+    new NWNCDataDescriptor(true, true)
+  );
+  assert(MembraneInternal.prototype.secured, "Failed to set secured?");
 
   // Define our Membrane constructor properly.
   Membrane = DogfoodMembrane.convertArgumentToProxy(
@@ -16,7 +22,7 @@
    * "secured": new DataDescriptor(true, false, false, false)
    */
 
-  if (true) {
+  if (false) {
     /* XXX ajvincent Right now it's unclear if this operation is safe.  It
      * probably isn't, but as long as DogfoodMembrane isn't exposed outside this
      * module, we're okay.
@@ -28,6 +34,14 @@
     // Additional securing and API overrides of DogfoodMembrane here.
 
     DogfoodMembrane = finalWrap;
+  }
+
+  const firstError = DogfoodLogger.getFirstError();
+  if (firstError) {
+    Membrane = function() {
+      throw new Error("Membrane constructor could not be exported");
+    };
+    throw firstError;
   }
 }
 

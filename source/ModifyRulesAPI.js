@@ -102,7 +102,6 @@ ModifyRulesAPI.prototype = Object.seal({
   /**
    * Convert a shadow target to a real proxy target.
    *
-   *
    * @param {Object} shadowTarget The supposed target.
    *
    * @returns {Object} The target this shadow target maps to.
@@ -155,9 +154,16 @@ ModifyRulesAPI.prototype = Object.seal({
    *
    * @param oldProxy {Proxy} The proxy to replace.
    * @param handler  {ProxyHandler} What to base the new proxy on.
-   * 
+   *
+   * @returns {Proxy} The newly built proxy.
    */
   replaceProxy: function(oldProxy, handler) {
+    if (DogfoodMembrane) {
+      const [found, unwrapped] = DogfoodMembrane.getMembraneValue("internal", handler);
+      if (found)
+        handler = unwrapped;
+    }
+
     let baseHandler = ChainHandlers.has(handler) ? handler.baseHandler : handler;
     {
       /* These assertions are to make sure the proxy we're replacing is safe to

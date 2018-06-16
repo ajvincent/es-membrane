@@ -89,7 +89,8 @@ function ProxyNotify(parts, handler, isOrigin, options) {
   });
 
   const callbacks = [];
-  handler.proxiesInConstruction.set(parts.value, callbacks);
+  const inConstruction = handler.proxiesInConstruction;
+  inConstruction.set(parts.value, callbacks);
 
   try {
     invokeProxyListeners(listeners, meta);
@@ -104,7 +105,7 @@ function ProxyNotify(parts, handler, isOrigin, options) {
       }
     });
 
-    handler.proxiesInConstruction.delete(parts.value);
+    inConstruction.delete(parts.value);
   }
 }
 

@@ -866,7 +866,7 @@ describe("Storing unknown properties locally", function() {
 
   describe("when required by the wet object graph, ", function() {
     beforeEach(function() {
-      membrane.buildMapping(parts.handlers.wet, parts.wet.Node.prototype);
+      parts.handlers.wet.ensureMapping(parts.wet.Node.prototype);
       membrane.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node.prototype);
       parts.wetIsLocal = true;
     });
@@ -878,7 +878,7 @@ describe("Storing unknown properties locally", function() {
     "when required by both the wet and the dry object graphs, ",
     function() {
       beforeEach(function() {
-        membrane.buildMapping(parts.handlers.wet, parts.wet.Node.prototype);
+        parts.handlers.wet.ensureMapping(parts.wet.Node.prototype);
         membrane.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node.prototype);
         membrane.modifyRules.storeUnknownAsLocal("dry", parts.dry.Node.prototype);
         parts.wetIsLocal = true;

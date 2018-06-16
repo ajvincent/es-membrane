@@ -152,6 +152,9 @@ Object.defineProperties(DistortionsListener.prototype, {
       );
     }
 
+    if (!meta.isOriginGraph && !Reflect.isExtensible(meta.target))
+      Reflect.preventExtensions(meta.proxy);
+
     const deadTraps = allTraps.filter(function(key) {
       return !config.proxyTraps.includes(key);
     });

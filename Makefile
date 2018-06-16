@@ -10,6 +10,12 @@ ifneq ("$(shell git status --porcelain)","")
 	@exit 1;
 endif
 
+DOGFOOD_FILES = \
+	source/dogfood/intro.js.in \
+	source/dogfood/build-membrane.js \
+	source/dogfood/outro.js.in \
+	$(NULL)
+
 SOURCE_FILES = \
 	source/sharedUtilities.js \
 	source/moduleUtilities.js \
@@ -19,14 +25,13 @@ SOURCE_FILES = \
 	source/ProxyNotify.js \
 	source/ModifyRulesAPI.js \
 	source/DistortionsListener.js \
-	source/dogfood/intro.js.in \
-	source/dogfood/build-membrane.js \
-	source/dogfood/outro.js.in \
+	$(DOGFOOD_FILES) \
 	$(NULL)
 
 base::
 	@mkdir -p $(DIST)/staging
 	@cp source/sharedUtilities.js $(DIST)/staging/sharedUtilities.js
+	@cat $(DOGFOOD_FILES) > $(DIST)/staging/dogfood.js
 	@cat $(SOURCE_FILES) > $(DIST)/staging/es-membrane.js
 
 MOCKS_FILES = \
@@ -56,8 +61,10 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/lazyGetter.js \
 	spec/non-membrane/argumentTruncation.js \
 	spec/non-membrane/receiver.js \
+	spec/non-membrane/instanceof.js \
 	spec/non-membrane/containers/array-splice.js \
 	spec/concepts.js \
+	spec/privateAPI.js \
 	spec/freeze-seal.js \
 	spec/features/replaceProxies.js \
 	spec/features/passThroughFilters.js \
