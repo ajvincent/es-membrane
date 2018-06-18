@@ -1531,6 +1531,27 @@ ObjectGraphHandler.prototype = Object.seal({
     const handler = this;
 
     let lockState = "none", lockedValue;
+
+    /* 
+       a = { objName: "a" };
+       b = { objName: "b" };
+       a.next = b;
+       b.next = a;
+
+      A = membrane.convertArgumentToProxy(
+        wetHandler,
+        dryHandler,
+        a
+      );
+      B = membrane.convertArgumentToProxy(
+        wetHandler,
+        dryHandler,
+        b
+      );
+      
+      We expect A.next.next === A.
+    */
+
     function setLockedValue(value) {
       /* XXX ajvincent The intent is to mark this accessor descriptor as one
        * that can safely be converted to (new DataDescriptor(value)).
@@ -1564,6 +1585,12 @@ ObjectGraphHandler.prototype = Object.seal({
        * the accessor descriptor really can only generate one value in the
        * future, and then internally do the data conversion.
        */
+
+      /*
+        See top of defineLazyGetter.  Disabling this code means we fail the
+        property lookup, when A and B should be sealed.
+        A.next.next === undefined
+      */
 
       // This lockState check should be treated as an assertion.
       if (lockState !== "transient")
@@ -1628,6 +1655,13 @@ ObjectGraphHandler.prototype = Object.seal({
              * accessor descriptor) with a data descriptor when external code
              * looks up the property on the shadow target.
              */
+
+            /*
+              See top of defineLazyGetter.  Disabling this code means we fail
+              the identity property, , when A and B should be sealed.
+              A.next.next !== A
+            */
+
             handler.proxiesInConstruction.get(unwrapped).push(setLockedValue);
             sourceDesc = lazyDesc;
             delete sourceDesc.set;

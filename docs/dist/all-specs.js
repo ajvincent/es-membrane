@@ -3485,6 +3485,15 @@ describe("An object graph handler's proxy listeners", function() {
             (value === ctor1.prototype));
   }
 
+  function isAccessorDescriptor(desc) {
+    if (typeof desc === "undefined") {
+      return false;
+    }
+    if (!("get" in desc) && !("set" in desc))
+      return false;
+    return true;
+  }
+
   beforeEach(function() {
     membrane = new Membrane({logger: logger});
     wetHandler = membrane.getHandlerByName("wet", { mustCreate: true });
@@ -4200,6 +4209,21 @@ describe("An object graph handler's proxy listeners", function() {
 
         expect(A.child.parent === A).toBe(true);
         expect(B.parent.child === B).toBe(true);
+
+        /* XXX ajvincent Ideally, the accessor count would be zero.  Currently,
+         * it's one for sealed cyclic references.  See
+         * ObjectGraphHandler.prototype.defineLazyGetter for details.
+         */
+        let accessorCount = 0;
+        if (isAccessorDescriptor(Reflect.getOwnPropertyDescriptor(A, "child")))
+          accessorCount++;
+        if (isAccessorDescriptor(Reflect.getOwnPropertyDescriptor(B, "parent")))
+          accessorCount++;
+
+        if (mode === "prepared")
+          expect(accessorCount).toBe(0);
+        else
+          expect(accessorCount).toBe(1);
       }
 
       // really push the cyclic test a step further, for scalability testing
