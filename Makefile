@@ -22,7 +22,8 @@ SOURCE_FILES = \
 	source/PriorityQueue.js \
 	source/ProxyMapping.js \
 	source/Membrane.js \
-	source/ObjectGraphHandler.js \
+	source/ProxyHandlers/ObjectGraph.js \
+	source/ProxyHandlers/Chain.js \
 	source/ProxyNotify.js \
 	source/ModifyRulesAPI.js \
 	source/DistortionsListener.js \

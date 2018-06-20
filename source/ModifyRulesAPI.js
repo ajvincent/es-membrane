@@ -41,57 +41,6 @@
 
 const ChainHandlers = new WeakSet();
 
-// XXX ajvincent These rules are examples of what DogfoodMembrane should set.
-const ChainHandlerProtection = Object.create(Reflect, {
-  /**
-   * Return true if a property should not be deleted or redefined.
-   */
-  "isProtectedName": new DataDescriptor(function(chainHandler, propName) {
-    let rv = ["nextHandler", "baseHandler", "membrane"];
-    let baseHandler = chainHandler.baseHandler;
-    if (baseHandler !== Reflect)
-      rv = rv.concat(Reflect.ownKeys(baseHandler));
-    return rv.includes(propName);
-  }, false, false, false),
-
-  /**
-   * Thou shalt not set the prototype of a ChainHandler.
-   */
-  "setPrototypeOf": new DataDescriptor(function() {
-    return false;
-  }, false, false, false),
-
-  /**
-   * Proxy/handler trap restricting which properties may be deleted.
-   */
-  "deleteProperty": new DataDescriptor(function(chainHandler, propName) {
-    if (this.isProtectedName(chainHandler, propName))
-      return false;
-    return Reflect.deleteProperty(chainHandler, propName);
-  }, false, false, false),
-
-  /**
-   * Proxy/handler trap restricting which properties may be redefined.
-   */
-  "defineProperty": new DataDescriptor(function(chainHandler, propName, desc) {
-    if (this.isProtectedName(chainHandler, propName))
-      return false;
-
-    if (allTraps.includes(propName)) {
-      if (!isDataDescriptor(desc) || (typeof desc.value !== "function"))
-        return false;
-      desc = new DataDescriptor(
-        inGraphHandler(propName, desc.value),
-        desc.writable,
-        desc.enumerable,
-        desc.configurable
-      );
-    }
-
-    return Reflect.defineProperty(chainHandler, propName, desc);
-  }, false, false, false)
-});
-
 function ModifyRulesAPI(membrane) {
   Object.defineProperty(this, "membrane", new DataDescriptor(
     membrane, false, false, false
@@ -138,13 +87,9 @@ ModifyRulesAPI.prototype = Object.seal({
       throw new Error("Existing handler neither is " + description + " nor inherits from it");
     }
 
-    var rv = Object.create(existingHandler, {
-      "nextHandler": new DataDescriptor(existingHandler, false, false, false),
-      "baseHandler": new DataDescriptor(baseHandler, false, false, false),
-      "membrane":    new DataDescriptor(this.membrane, false, false, false),
-    });
-
-    rv = new Proxy(rv, ChainHandlerProtection);
+    var rv = new ChainObjectGraphHandler(
+      existingHandler, baseHandler, this.membrane
+    );
     ChainHandlers.add(rv);
     return rv;
   },
