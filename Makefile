@@ -79,6 +79,7 @@ ALL_SPEC_FILES = \
 	spec/properties/precedence.js \
 	spec/properties/whitelist.js \
 	spec/properties/truncateArgList.js \
+	spec/sealed-cyclic/directHandler.js \
 	spec/containers/Map/default.js \
 	spec/containers/WeakMap/default.js \
 	spec/containers/Set/default.js \
