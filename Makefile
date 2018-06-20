@@ -19,6 +19,7 @@ DOGFOOD_FILES = \
 SOURCE_FILES = \
 	source/sharedUtilities.js \
 	source/moduleUtilities.js \
+	source/PriorityQueue.js \
 	source/ProxyMapping.js \
 	source/Membrane.js \
 	source/ObjectGraphHandler.js \
@@ -90,6 +91,7 @@ ALL_SPEC_FILES = \
 	spec/useCases/whitelist.js \
 	spec/useCases/disableTraps.js \
 	spec/internal/lazyGetters.js \
+	spec/internal/priorityQueue.js \
 	spec/security/exports.js \
 	$(NULL)
 

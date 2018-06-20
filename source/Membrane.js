@@ -48,6 +48,13 @@ Reflect.defineProperty(
   new NWNCDataDescriptor(Primordials, true) // this should be visible
 );
 
+/**
+ * @private
+ */
+MembraneInternal.createPriorityQueue = function(levels) {
+  return new PriorityQueue(levels);
+};
+
 { // Membrane definition
 MembraneInternal.prototype = Object.seal({
   allTraps: allTraps,
