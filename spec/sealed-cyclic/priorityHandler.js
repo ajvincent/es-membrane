@@ -1,5 +1,5 @@
 it(
-  "A sealed cyclic reference requires an accessor descriptor when the proxy handler is direct",
+  "A sealed cyclic reference can use a priority queue to ensure no accessor descriptors",
   function() {
 
 function DataDescriptor(value, writable = false, enumerable = true, configurable = true) {
@@ -25,6 +25,22 @@ function isAccessorDescriptor(desc) {
     return false;
   return true;
 }
+
+const allTraps = Object.freeze([
+  "getPrototypeOf",
+  "setPrototypeOf",
+  "isExtensible",
+  "preventExtensions",
+  "getOwnPropertyDescriptor",
+  "defineProperty",
+  "has",
+  "get",
+  "set",
+  "deleteProperty",
+  "ownKeys",
+  "apply",
+  "construct"
+]);
 
 function valueType(value) {
   if (value === null)
@@ -74,6 +90,94 @@ function makeRevokeDeleteRefs(parts, mapping, field) {
   }, true));
 }
 
+/**
+ * A simple priority queue.
+ *
+ * @constructor
+ * @params levels {Array} of strings and symbols, representing the priorities.
+ */
+function PriorityQueue(levels)
+{
+  if (!Array.isArray(levels) || (levels.length == 0))
+    throw new Error("levels must be a non-empty array of strings and symbols");
+  if (levels.some(function(l) {
+    return (typeof l !== "string") && (typeof l !== "symbol");
+  }))
+    throw new Error("levels must be a non-empty array of strings and symbols");
+  const levelSet = new Set(levels);
+  if (levelSet.size != levels.length)
+    throw new Error("levels must have no duplicates");
+
+  this.levels = Array.from(levels);
+  Object.freeze(this.levels);
+  this.levelMap = new Map();
+  this.levels.forEach((l) => this.levelMap.set(l, []));
+  Object.freeze(this.levelMap);
+  Object.freeze(this);
+}
+
+PriorityQueue.prototype.append = function(level, callback)
+{
+  if (!this.levels.includes(level))
+    throw new Error("Unknown level");
+  if (typeof callback !== "function")
+    throw new Error("callback must be a function");
+
+  this.levelMap.get(level).push(callback);
+};
+
+PriorityQueue.prototype.next = function()
+{
+  const arrays = Array.from(this.levelMap.values());
+  const firstArray = arrays.find((array) => array.length > 0);
+  if (!firstArray)
+    return false;
+
+  try
+  {
+    firstArray.shift()();
+  }
+  catch (e)
+  {
+    arrays.forEach((array) => array.length = 0);
+    throw e;
+  }
+  return true;
+};
+
+function PriorityQueueProxyHandler(nextHandler) {
+  this.nextHandler = nextHandler;
+}
+
+PriorityQueueProxyHandler.prototype.appendFirstCall = function(
+  trapName, argList
+)
+{
+  const handler = this.nextHandler;
+  handler.membrane.priorityQueue.append(
+    "firstCall", function() {
+      if (trapName in handler)
+        handler[trapName].apply(handler, argList);
+      else
+        Reflect[trapName].apply(Reflect, argList);
+    }
+  );
+};
+
+allTraps.forEach(function(trapName) {
+  PriorityQueueProxyHandler.prototype[trapName] = function() {
+    this.appendFirstCall(trapName, arguments);
+    const queue = this.nextHandler.membrane.priorityQueue;
+    while (queue.next())
+    {
+      // do nothing
+    }
+
+    return Reflect[trapName].apply(Reflect, arguments);
+  };
+});
+
+
 /* Reference:  http://soft.vub.ac.be/~tvcutsem/invokedynamic/js-membranes
  * Definitions:
  * Object graph: A collection of values that talk to each other directly.
@@ -86,6 +190,11 @@ const membrane = {
     key may be a Proxy, a value associated with a proxy, or an original value.
   */),
   handlersByFieldName: {},
+
+  priorityQueue: new PriorityQueue(["firstCall", "lazyGetter", "seal"]),
+  priorityHandlers: new WeakMap(/*
+    ObjectGraphHandler: PriorityQueueProxyHandler
+  */),
 
   /**
    * Returns true if we have a proxy for the value.
@@ -158,7 +267,8 @@ const membrane = {
       parts = { value: value };
     }
     else {
-      parts = Proxy.revocable(shadowTarget, handler);
+      const priority = this.priorityHandlers.get(handler);
+      parts = Proxy.revocable(shadowTarget, priority);
       parts.value = value;
     }
 
@@ -167,31 +277,9 @@ const membrane = {
     makeRevokeDeleteRefs(parts, mapping, handler.fieldName);
 
     if (!isOriginal && ([a, b].includes(parts.value))) {
-      const callbacks = [];
-      const inConstruction = handler.proxiesInConstruction;
-      inConstruction.set(parts.value, callbacks);
-    
-      Object.seal(parts.proxy);
-
-      callbacks.forEach(function(c) {
-        try {
-          c(parts.proxy);
-        }
-        catch (e) {
-          // do nothing
-        }
+      this.priorityQueue.append("seal", function() {
+        Object.seal(parts.proxy);
       });
-    
-      inConstruction.delete(parts.value);
-
-      if (!Reflect.isExtensible(value)) {
-        try {
-          Reflect.preventExtensions(parts.proxy);
-        }
-        catch (e) {
-          // do nothing
-        }
-      }
     }
 
     return mapping;
@@ -215,7 +303,13 @@ const membrane = {
                      Boolean(options.mustCreate) :
                      false;
     if (mustCreate && !this.hasHandlerByField(field))
-      this.handlersByFieldName[field] = new ObjectGraphHandler(this, field);
+    {
+      const handler = new ObjectGraphHandler(this, field);
+      this.handlersByFieldName[field] = handler;
+
+      const priority = new PriorityQueueProxyHandler(handler);
+      this.priorityHandlers.set(handler, priority);
+    }
     return this.handlersByFieldName[field];
   },
 
@@ -352,18 +446,16 @@ ObjectGraphHandler.prototype = Object.seal({
 
   // ProxyHandler
   preventExtensions: function(shadowTarget) {
-    var target = getRealTarget(shadowTarget);
-    var targetMap = membrane.map.get(target);
-    var _this = targetMap.getOriginal();
-
     if (!Reflect.isExtensible(shadowTarget))
       return true;
 
     // This is our one and only chance to set properties on the shadow target.
-    var rv = this.lockShadowTarget(shadowTarget);
+    this.lockShadowTarget(shadowTarget);
 
-    rv = Reflect.preventExtensions(_this);
-    return rv;
+    membrane.priorityQueue.append("seal", function() {
+      Reflect.preventExtensions(shadowTarget);
+    });
+    return true;
   },
 
   /**
@@ -387,16 +479,23 @@ ObjectGraphHandler.prototype = Object.seal({
     const _this = targetMap.getOriginal();
     const keys = this.setOwnKeys(shadowTarget);
     keys.forEach(function(propName) {
-      this.defineLazyGetter(_this, shadowTarget, propName);
-
-      // We want to trigger the lazy getter so that the property can be sealed.
-      void(Reflect.get(shadowTarget, propName));
+      let desc = Reflect.getOwnPropertyDescriptor(_this, propName);
+      const configurable = desc.configurable;
+      desc.configurable = true;
+      desc = membrane.wrapDescriptor(
+        targetMap.originField, this.fieldName, desc
+      );
+      desc.configurable = configurable;
+      Reflect.defineProperty(shadowTarget, propName, desc);
     }, this);
 
     // fix the prototype;
     const proto = this.getPrototypeOf(shadowTarget);
     Reflect.setPrototypeOf(shadowTarget, proto);
-    Reflect.preventExtensions(shadowTarget);
+
+    this.membrane.priorityQueue.append("seal", function() {
+      Reflect.preventExtensions(shadowTarget);
+    });
   },
 
   /**
@@ -471,203 +570,6 @@ ObjectGraphHandler.prototype = Object.seal({
     }
     return rv;
   },
-
-  /**
-   * Define a "lazy" accessor descriptor which replaces itself with a direct
-   * property descriptor when needed.
-   *
-   * @param source       {Object} The source object holding a property.
-   * @param shadowTarget {Object} The shadow target for a proxy.
-   * @param propName     {String|Symbol} The name of the property to copy.
-   *
-   * @private
-   */
-  defineLazyGetter: function(source, shadowTarget, propName) {
-    const handler = this;
-
-    let lockState = "none", lockedValue;
-
-    function setLockedValue(value) {
-      /* XXX ajvincent The intent is to mark this accessor descriptor as one
-       * that can safely be converted to (new DataDescriptor(value)).
-       * Unfortunately, a sealed accessor descriptor has the .configurable
-       * property set to false, so we can never replace this getter in that
-       * scenario with a data descriptor.  ES7 spec sections 7.3.14
-       * (SetIntegrityLevel) and 9.1.6.3 (ValidateAndApplyPropertyDescriptor)
-       * force that upon us.
-       *
-       * I hope that a ECMAScript engine can be written (and a future ES7
-       * specification written) that could detect this unbreakable contract and
-       * internally convert the accessor descriptor to a data descriptor.  That
-       * would be a nice optimization for a "just-in-time" compiler.
-       *
-       * Simply put:  (1) The only setter for lockedValue is setLockedValue.
-       * (2) There are at most only two references to setLockedValue ever, and
-       * that only briefly in a recursive chain of proxy creation operations.
-       * (3) I go out of our way to ensure all references to the enclosed
-       * setLockedValue function go away as soon as possible.  Therefore, (4)
-       * when all references to setLockedValue go away, lockedValue is
-       * effectively a constant.  (5) lockState can only be set to "finalized"
-       * by setLockedState.  (6) the setter for this property has been removed
-       * before then.  Therefore, (7) lazyDesc.get() can return only one
-       * possible value once lockState has become "finalized", and (8) despite
-       * the property descriptor's [[Configurable]] flag being set to false, it
-       * is completely safe to convert the property to a data descriptor.
-       *
-       * Lacking such an automated optimization, it would be nice if a future
-       * ECMAScript standard could define
-       * Object.lockPropertyDescriptor(obj, propName) which could quickly assert
-       * the accessor descriptor really can only generate one value in the
-       * future, and then internally do the data conversion.
-       */
-
-      /*
-        See top of defineLazyGetter.  Disabling this code means we fail the
-        property lookup, when A and B should be sealed.
-        A.next.next === undefined
-      */
-
-      // This lockState check should be treated as an assertion.
-      if (lockState !== "transient")
-        throw new Error("setLockedValue should be callable exactly once!");
-      lockedValue = value;
-      lockState = "finalized";
-    }
-
-    const lazyDesc = {
-      get: function() {
-        if (lockState === "finalized")
-          return lockedValue;
-        if (lockState === "transient")
-          return handler.membrane.getMembraneProxy(
-            handler.fieldName, shadowTarget
-          ).proxy;
-
-        /* When the shadow target is sealed, desc.configurable is not updated.
-         * But the shadow target's properties all get the [[Configurable]] flag
-         * removed.  So an attempt to delete the property will fail, which means
-         * the assert below will throw.
-         * 
-         * The tests required only that an exception be thrown.  However,
-         * asserts are for internal errors, and in theory can be disabled at any
-         * time:  they're not for catching mistakes by the end-user.  That's why
-         * I am deliberately throwing an exception here, before the assert call.
-         */
-        let current = Reflect.getOwnPropertyDescriptor(shadowTarget, propName);
-        if (!current.configurable)
-          throw new Error("lazy getter descriptor is not configurable -- this is fatal");
-
-        const target = getRealTarget(shadowTarget);
-        const targetMap = handler.membrane.map.get(target);
-
-        // sourceDesc is the descriptor we really want
-        let sourceDesc = (
-          Reflect.getOwnPropertyDescriptor(source, propName)
-        );
-
-        if ((sourceDesc !== undefined) &&
-            (targetMap.originField !== handler.fieldName)) {
-          let hasUnwrapped = "value" in sourceDesc,
-              unwrapped = sourceDesc.value;
-
-          // This is necessary to force desc.value to be wrapped in the membrane.
-          let configurable = sourceDesc.configurable;
-          sourceDesc.configurable = true;
-          sourceDesc = handler.membrane.wrapDescriptor(
-            targetMap.originField, handler.fieldName, sourceDesc
-          );
-          sourceDesc.configurable = configurable;
-
-          if (hasUnwrapped && handler.proxiesInConstruction.has(unwrapped)) {
-            /* Ah, nuts.  Somewhere in our stack trace, the unwrapped value has
-             * a proxy in this object graph under construction.  That's not
-             * supposed to happen very often, but can happen during a recursive
-             * Object.seal() or Object.freeze() call.  What that means is that
-             * we may not be able to replace the lazy getter (which is an
-             * accessor descriptor) with a data descriptor when external code
-             * looks up the property on the shadow target.
-             */
-
-            /*
-              Disabling this code means we fail the identity property,
-              when A and B should be sealed.
-              A.next.next !== A
-            */
-
-            handler.proxiesInConstruction.get(unwrapped).push(setLockedValue);
-            sourceDesc = lazyDesc;
-            delete sourceDesc.set;
-            lockState = "transient";
-          }
-        }
-
-        Reflect.deleteProperty(shadowTarget, propName);
-        Reflect.defineProperty(this, propName, sourceDesc);
-
-        // Finally, run the actual getter.
-        if (sourceDesc === undefined)
-          return undefined;
-        if ("get" in sourceDesc)
-          return sourceDesc.get.apply(this);
-        if ("value" in sourceDesc)
-          return sourceDesc.value;
-        return undefined;
-      },
-
-      set: function(value) {
-        if (valueType(value) !== "primitive") {
-          // Maybe we have to wrap the actual descriptor.
-          const target = getRealTarget(shadowTarget);
-          const targetMap = handler.membrane.map.get(target);
-          if (targetMap.originField !== handler.fieldName) {
-            let originHandler = handler.membrane.getHandlerByName(
-              targetMap.originField
-            );
-            value = handler.membrane.convertArgumentToProxy(
-              originHandler, handler, value
-            );
-          }
-        }
-
-        /* When the shadow target is sealed, desc.configurable is not updated.
-         * But the shadow target's properties all get the [[Configurable]] flag
-         * removed.  So an attempt to delete the property will fail, which means
-         * the assert below will throw.
-         * 
-         * The tests required only that an exception be thrown.  However,
-         * asserts are for internal errors, and in theory can be disabled at any
-         * time:  they're not for catching mistakes by the end-user.  That's why
-         * I am deliberately throwing an exception here, before the assert call.
-         */
-        let current = Reflect.getOwnPropertyDescriptor(shadowTarget, propName);
-        if (!current.configurable)
-          throw new Error("lazy getter descriptor is not configurable -- this is fatal");
-
-        const desc = new DataDescriptor(value, true, current.enumerable, true);
-
-        Reflect.deleteProperty(shadowTarget, propName);
-        Reflect.defineProperty(this, propName, desc);
-
-        return value;
-      },
-
-      enumerable: true,
-      configurable: true,
-    };
-
-    {
-      handler.membrane.buildMapping(handler, lazyDesc.get);
-      handler.membrane.buildMapping(handler, lazyDesc.set);
-    }
-
-    {
-      let current = Reflect.getOwnPropertyDescriptor(source, propName);
-      if (current && !current.enumerable)
-        lazyDesc.enumerable = false;
-    }
-
-    Reflect.defineProperty(shadowTarget, propName, lazyDesc);
-  }
 });
 
 function ProxyMapping(originField) {
@@ -768,8 +670,14 @@ Object.defineProperties(ProxyMapping.prototype, {
       b
     );
 
-    expect(A.child.parent === A).toBe(true);
-    expect(B.parent.child === B).toBe(true);
+    expect(Object.isSealed(A)).toBe(true);
+    expect(Object.isSealed(B)).toBe(true);
+
+    const Achild = A.child;
+    const Bparent = B.parent;
+
+    expect(Achild.parent === A).toBe(true);
+    expect(Bparent.child === B).toBe(true);
   
     /* XXX ajvincent Ideally, the accessor count would be zero.  Currently,
      * it's one for sealed cyclic references.  See
@@ -781,6 +689,6 @@ Object.defineProperties(ProxyMapping.prototype, {
     if (isAccessorDescriptor(Reflect.getOwnPropertyDescriptor(B, "parent")))
       accessorCount++;
   
-    expect(accessorCount).toBe(1);
+    expect(accessorCount).toBe(0);
   }
 );
