@@ -191,7 +191,7 @@ const membrane = {
   */),
   handlersByFieldName: {},
 
-  priorityQueue: new PriorityQueue(["firstCall", "lazyGetter", "seal"]),
+  priorityQueue: new PriorityQueue(["firstCall", "seal"]),
   priorityHandlers: new WeakMap(/*
     ObjectGraphHandler: PriorityQueueProxyHandler
   */),
@@ -673,16 +673,9 @@ Object.defineProperties(ProxyMapping.prototype, {
     expect(Object.isSealed(A)).toBe(true);
     expect(Object.isSealed(B)).toBe(true);
 
-    const Achild = A.child;
-    const Bparent = B.parent;
-
-    expect(Achild.parent === A).toBe(true);
-    expect(Bparent.child === B).toBe(true);
+    expect(A.child.parent === A).toBe(true);
+    expect(B.parent.child === B).toBe(true);
   
-    /* XXX ajvincent Ideally, the accessor count would be zero.  Currently,
-     * it's one for sealed cyclic references.  See
-     * ObjectGraphHandler.prototype.defineLazyGetter for details.
-     */
     let accessorCount = 0;
     if (isAccessorDescriptor(Reflect.getOwnPropertyDescriptor(A, "child")))
       accessorCount++;
