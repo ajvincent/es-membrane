@@ -112,6 +112,7 @@ describe("Promises", function() {
     }
   );
 
+  /* XXX ajvincent Disabled for Node engine not supporting async/await keywords in version 6.5.0
   it(
     "may be resolved from Proxy.getOwnPropertyDescriptor asynchronously",
     async function() {
@@ -141,7 +142,7 @@ describe("Promises", function() {
     "may be resolved from Proxy.get asynchronously",
     async function() {
       const handler = {
-        get: function(/*target, propertyName, receiver*/) {
+        get: function() {
           return builtPromise;
         }
       };
@@ -152,4 +153,5 @@ describe("Promises", function() {
       expect(await promise).toBe(true);
     }
   );
+  */
 });
