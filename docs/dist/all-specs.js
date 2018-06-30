@@ -1943,6 +1943,161 @@ describe("Sealed cyclic references: ", function() {
   );
 });
 
+describe("Promises", function() {
+  var resolve, reject, builtPromise;
+  beforeEach(function() {
+    builtPromise = new Promise(function(res, rej) {
+      resolve = res;
+      reject  = rej;
+    });
+  });
+  afterEach(function() {
+    builtPromise = null;
+    resolve      = null;
+    reject       = null;
+  });
+
+  it(
+    "may be resolved from Proxy.getOwnPropertyDescriptor synchronously",
+    function(done) {
+      const handler = {
+        getOwnPropertyDescriptor: function(target, propertyName) {
+          const rv = {
+            value: builtPromise,
+            writable: true,
+            enumerable: true,
+            configurable: true
+          };
+
+          Reflect.defineProperty(target, propertyName, rv);
+          return rv;
+        }
+      };
+
+      let proxy = new Proxy({}, handler);
+    
+      let promise = Reflect.getOwnPropertyDescriptor(proxy, "promise").value;
+      promise = promise.then(
+        (val) => { expect(val).toBe(true); },
+        () => { fail("unexpected promise rejection"); }
+      );
+      promise = promise.then(done, done);
+      resolve(true);
+    }
+  );
+
+  it(
+    "may be resolved from Proxy.get synchronously",
+    function(done) {
+      const handler = {
+        get: function(/* target, propertyName, receiver*/) {
+          return builtPromise;
+        }
+      };
+
+      let proxy = new Proxy({}, handler);
+    
+      let promise = proxy.promise;
+      promise = promise.then(
+        (val) => { expect(val).toBe(true); },
+        () => { fail("unexpected promise rejection"); }
+      );
+      promise = promise.then(done, done);
+      resolve(true);
+    }
+  );
+
+  it(
+    "may be rejected from Proxy.getOwnPropertyDescriptor synchronously",
+    function(done) {
+      const handler = {
+        getOwnPropertyDescriptor: function(target, propertyName) {
+          const rv = {
+            value: builtPromise,
+            writable: true,
+            enumerable: true,
+            configurable: true
+          };
+
+          Reflect.defineProperty(target, propertyName, rv);
+          return rv;
+        }
+      };
+
+      let proxy = new Proxy({}, handler);
+    
+      let promise = Reflect.getOwnPropertyDescriptor(proxy, "promise").value;
+      promise = promise.then(
+        () => { fail("unexpected promise resolved"); },
+        (val) => { expect(val).toBe(true); }
+      );
+      promise = promise.then(done, done);
+      reject(true);
+    }
+  );
+
+  it(
+    "may be rejected from Proxy.get synchronously",
+    function(done) {
+      const handler = {
+        get: function(/*target, propertyName, receiver*/) {
+          return builtPromise;
+        }
+      };
+
+      let proxy = new Proxy({}, handler);
+
+      let promise = proxy.promise;
+      promise = promise.then(
+        () => { fail("unexpected promise resolved"); },
+        (val) => { expect(val).toBe(true); }
+      );
+      promise = promise.then(done, done);
+      reject(true);
+    }
+  );
+
+  it(
+    "may be resolved from Proxy.getOwnPropertyDescriptor asynchronously",
+    async function() {
+      const handler = {
+        getOwnPropertyDescriptor: function(target, propertyName) {
+          const rv = {
+            value: builtPromise,
+            writable: true,
+            enumerable: true,
+            configurable: true
+          };
+
+          Reflect.defineProperty(target, propertyName, rv);
+          return rv;
+        }
+      };
+
+      let proxy = new Proxy({}, handler);
+      let promise = Reflect.getOwnPropertyDescriptor(proxy, "promise").value;
+      resolve(true);
+      let value = await promise;
+      expect(value).toBe(true);    
+    }
+  );
+
+  it(
+    "may be resolved from Proxy.get asynchronously",
+    async function() {
+      const handler = {
+        get: function(/*target, propertyName, receiver*/) {
+          return builtPromise;
+        }
+      };
+
+      let proxy = new Proxy({}, handler);
+      let promise = proxy.promise;
+      resolve(true);
+      expect(await promise).toBe(true);
+    }
+  );
+});
 it("Array.prototype.splice generates reasonable results with a proxy", function() {
   const x = ["alpha", "beta", "gamma", "pi", "chi"];
 
@@ -2903,51 +3058,11 @@ it("More than one object graph can be available", function() {
 
 /*
 import "../docs/dist/es6-modules/Membrane.js";
-import "../docs/dist/es6-modules/MembraneMocks.js";
-*/
-
-if ((typeof MembraneMocks != "function") ||
-    (typeof loggerLib != "object") ||
-    (typeof DAMP != "symbol")) {
-  if (typeof require == "function") {
-    var { MembraneMocks, loggerLib, DAMP } = require("../docs/dist/node/mocks.js");
-  }
-}
-
-if (typeof MembraneMocks != "function") {
-  throw new Error("Unable to run tests");
-}
-
-describe("Private API methods are not exposed when the membrane is marked 'secured': ", function() {
-  "use strict";
-  var wetDocument, dryDocument, membrane, isPrivate;
-  
-  beforeEach(function() {
-    let parts = MembraneMocks();
-    wetDocument = parts.wet.doc;
-    dryDocument = parts.dry.doc;
-    membrane = parts.membrane;
-    isPrivate = membrane.secured;
-  });
-
-  afterEach(function() {
-    wetDocument = null;
-    dryDocument = null;
-    membrane = null;
-  });
-
-  it("Membrane.prototype.buildMapping", function() {
-    const actual = typeof membrane.buildMapping;
-    expect(actual).toBe(isPrivate ? "undefined" : "function");
-  });
-});
-/*
-import "../docs/dist/es6-modules/Membrane.js";
 */
 
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
-    var { Membrane } = require("../docs/dist/node/es-membrane.js");
+    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
   }
   else
     throw new Error("Unable to run tests: cannot get Membrane");
@@ -3225,6 +3340,138 @@ describe("Object.seal on the dry proxy", function() {
   );
 });
 }
+/*
+import "../docs/dist/es6-modules/Membrane.js";
+*/
+
+if (typeof Membrane != "function") {
+  if (typeof require == "function") {
+    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
+  }
+  else
+    throw new Error("Unable to run tests: cannot get Membrane");
+}
+
+describe("Promises through a membrane", function() {
+  let parts;
+  beforeEach(function() {
+    parts = {
+      wet: {
+        wrapper: {}
+      },
+      dry: {},
+      handlers: {},
+      membrane: new Membrane(),
+
+      response: { value: true }
+    };
+    parts.wet.wrapper.promise = new Promise(function(resolve, reject) {
+      parts.wet.wrapper.resolve = resolve;
+      parts.wet.wrapper.reject  = reject;
+    });
+
+    parts.handlers.wet = parts.membrane.getHandlerByName(
+      "wet", { mustCreate: true }
+    );
+    parts.handlers.dry = parts.membrane.getHandlerByName(
+      "dry", { mustCreate: true }
+    );
+
+    parts.dry.wrapper = parts.membrane.convertArgumentToProxy(
+      parts.handlers.wet,
+      parts.handlers.dry,
+      parts.wet.wrapper
+    );
+  });
+
+  it(
+    "may be resolved on the wet side (where the promise came from)",
+    async function() {
+      parts.wet.wrapper.resolve(parts.response);
+      expect(parts.dry.wrapper.promise).not.toBe(parts.wet.wrapper.promise);
+      let result = await parts.dry.wrapper.promise;
+      expect(result.value).toBe(true);
+    }
+  );
+
+  it(
+    "may be rejected on the wet side",
+    function(done) {
+      parts.dry.wrapper.promise = parts.dry.wrapper.promise.then(
+        fail,
+        function(result) {
+          expect(result.value).toBe(true);
+        }
+      );
+      parts.dry.wrapper.promise = parts.dry.wrapper.promise.then(done, done);
+      parts.wet.wrapper.reject(parts.response);
+    }
+  );
+
+  it(
+    "may be resolved on the dry side",
+    async function() {
+      parts.dry.wrapper.resolve(parts.response);
+      expect(parts.dry.wrapper.promise).not.toBe(parts.wet.wrapper.promise);
+      let result = await parts.dry.wrapper.promise;
+      expect(result.value).toBe(true);
+    }
+  );
+
+  it(
+    "may be rejected on the dry side",
+    function(done) {
+      parts.dry.wrapper.promise = parts.dry.wrapper.promise.then(
+        fail,
+        function(result) {
+          expect(result.value).toBe(true);
+        }
+      );
+      parts.dry.wrapper.promise = parts.dry.wrapper.promise.then(done, done);
+      parts.dry.wrapper.reject(parts.response);
+    }
+  );
+});
+/*
+import "../docs/dist/es6-modules/Membrane.js";
+import "../docs/dist/es6-modules/MembraneMocks.js";
+*/
+
+if ((typeof MembraneMocks != "function") ||
+    (typeof loggerLib != "object") ||
+    (typeof DAMP != "symbol")) {
+  if (typeof require == "function") {
+    var { MembraneMocks, loggerLib, DAMP } = require("../docs/dist/node/mocks.js");
+  }
+}
+
+if (typeof MembraneMocks != "function") {
+  throw new Error("Unable to run tests");
+}
+
+describe("Private API methods are not exposed when the membrane is marked 'secured': ", function() {
+  "use strict";
+  var wetDocument, dryDocument, membrane, isPrivate;
+  
+  beforeEach(function() {
+    let parts = MembraneMocks();
+    wetDocument = parts.wet.doc;
+    dryDocument = parts.dry.doc;
+    membrane = parts.membrane;
+    isPrivate = membrane.secured;
+  });
+
+  afterEach(function() {
+    wetDocument = null;
+    dryDocument = null;
+    membrane = null;
+  });
+
+  it("Membrane.prototype.buildMapping", function() {
+    const actual = typeof membrane.buildMapping;
+    expect(actual).toBe(isPrivate ? "undefined" : "function");
+  });
+});
 "use strict"
 
 /*

@@ -63,10 +63,14 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/receiver.js \
 	spec/non-membrane/instanceof.js \
 	spec/non-membrane/sealed-cyclic.js \
+	spec/non-membrane/Promise.js \
+	spec/non-membrane/generators.js \
+	spec/non-membrane/iterators.js \
 	spec/non-membrane/containers/array-splice.js \
 	spec/concepts.js \
+	spec/ecma/freeze-seal.js \
+	spec/ecma/Promise.js \
 	spec/privateAPI.js \
-	spec/freeze-seal.js \
 	spec/features/replaceProxies.js \
 	spec/features/passThroughFilters.js \
 	spec/features/proxyListeners.js \
