@@ -3386,11 +3386,16 @@ describe("Promises through a membrane", function() {
 
   it(
     "may be resolved on the wet side (where the promise came from)",
-    async function() {
-      parts.wet.wrapper.resolve(parts.response);
+    function(done) {
       expect(parts.dry.wrapper.promise).not.toBe(parts.wet.wrapper.promise);
-      let result = await parts.dry.wrapper.promise;
-      expect(result.value).toBe(true);
+      parts.dry.wrapper.promise = parts.dry.wrapper.promise.then(
+        function(result) {
+          expect(result.value).toBe(true);
+        },
+        fail
+      );
+      parts.dry.wrapper.promise = parts.dry.wrapper.promise.then(done, done);
+      parts.wet.wrapper.resolve(parts.response);
     }
   );
 
