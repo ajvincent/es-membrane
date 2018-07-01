@@ -736,6 +736,17 @@ describe("basic concepts: ", function() {
       });
     }
   );
+
+  it("Array.prototype.splice works on wrapped arrays", function() {
+    wetDocument.strings = ["alpha", "beta", "gamma"];
+    expect(dryDocument.strings.length).toBe(3);
+
+    Array.prototype.splice.apply(dryDocument.strings, [
+      1, 1, "delta", "epsilon"
+    ]);
+
+    expect(wetDocument.strings).toEqual(["alpha", "delta", "epsilon", "gamma"]);
+  });
 });
 
 describe("Receivers in proxies", function() {

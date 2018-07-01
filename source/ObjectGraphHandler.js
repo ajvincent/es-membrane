@@ -895,6 +895,12 @@ ObjectGraphHandler.prototype = Object.seal({
         rvProxy = new DataDescriptor(value, true);
       }
 
+      if (!ownDesc.configurable)
+      {
+        rvProxy.configurable = false;
+        rvProxy.enumerable = ownDesc.enumerable;
+      }
+
       return this.defineProperty(
         this.getShadowTarget(receiver),
         propName,
