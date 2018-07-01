@@ -71,6 +71,7 @@ ALL_SPEC_FILES = \
 	spec/ecma/freeze-seal.js \
 	spec/ecma/Promise.js \
 	spec/ecma/generators.js \
+	spec/ecma/iterators.js \
 	spec/privateAPI.js \
 	spec/features/replaceProxies.js \
 	spec/features/passThroughFilters.js \
