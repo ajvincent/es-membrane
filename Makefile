@@ -86,6 +86,7 @@ ALL_SPEC_FILES = \
 	spec/properties/precedence.js \
 	spec/properties/whitelist.js \
 	spec/properties/truncateArgList.js \
+	spec/containers/Array/tc39.js \
 	spec/containers/Map/default.js \
 	spec/containers/WeakMap/default.js \
 	spec/containers/Set/default.js \
