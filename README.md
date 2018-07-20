@@ -123,7 +123,7 @@ Finally, you have enough information to uniquely identify x by both its object g
 
 # Additional reading
 
-* [Tom van Cutsem's original article, "Membranes in JavaScript"](http://soft.vub.ac.be/~tvcutsem/invokedynamic/js-membranes)
+* [Tom van Cutsem's original article, "Membranes in JavaScript"](https://tvcutsem.github.io/js-membranes)
 * [A StackOverflow question on why we might want a Membrane](http://stackoverflow.com/questions/36368363/what-would-be-a-use-case-for-identity-preserving-membrane-proxies/)
 * [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) and [ProxyHandler](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) documentation on developer.mozilla.org
 * The ECMAScript specifications, [6th Edition, aka "2015 Edition"](http://www.ecma-international.org/ecma-262/6.0/) and [7th Edition, aka "2016 Edition"](http://www.ecma-international.org/ecma-262/7.0/)
