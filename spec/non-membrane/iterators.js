@@ -1,7 +1,7 @@
 it(
   "Iterable objects work when returned through a Reflect proxy",
   function() {
-    let base, proxy, revoke;
+    let base, proxy, revoke, obj;
     base = {count: 0};
     base[Symbol.iterator] = function() {
       return {
