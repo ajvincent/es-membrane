@@ -144,6 +144,19 @@ Finally, you have enough information to uniquely identify x by both its object g
 * _ProxyListener_: This is a special object which reacts to the creation of a Membrane proxy before it is returned to the caller that demanded the proxy.  It is the one and only chance to customize the proxy's distortions, including recreating it or throwing a deliberate exception, before the requesting object graph receives its proxy.
 * _Primordial_:  This basically means globals provided by the ECMAScript engine, and their properties:  Object, Array, Function, String, Date, etc.
 
+# Configuring a membrane:  the GUI configuration tool
+
+https://ajvincent.github.io/es-membrane/gui/index.html
+
+This library has a HTML-based configuration tool (source at docs/gui) which allows you to set up your basic object graphs and several common distortions for white-listing by default.  The tool will, based on your inputs, generate both a membrane construction JavaScript file and a reusable JSON file for editing the configuration later.  The process is straight-forward, if complex:
+
+1. Load the source files defining your constructors and/or classes.
+  * If you have saved the configuration JSON file before, re-attach it here.
+2. Click the _Membrane_ tab to set up the Membrane's base configuration (object graph names, objects unconditionally passed through)
+3. Click the Continue button to populate the graph-specific configuration pages and the _Output_ tab.
+  * This will create two new sets of tabs:  one for your objects to configure (on a per-graph basis), and one for whether you are editing the value itself, its prototype, or direct instances of an invoked constructor.
+4. The _Output_ tab has two hyperlinks to directly save the configuration file and membrane creation file, respectively.
+
 # How to use the es-membrane module
 
 1. Define the object graphs by name you wish to use.  Examples:
