@@ -86,6 +86,117 @@ describe("Membrane Panel Operations with flat files:", function() {
       expect(window.CodeMirrorManager.getEditorEnabled(editor)).toBe(false);
     }
   });
+
+  describe(
+    "The graph handler names API requires at least two distinct names (either symbols or strings)",
+    function() {
+      function validateControls() {
+        window.HandlerNames.update();
+        const inputs = window.MembranePanel.form.getElementsByClassName("objectgraph-name");
+        const rv = [];
+        const length = inputs.length;
+        for (let i = 0; i < length; i++) {
+          rv.push(inputs[i].checkValidity());
+          expect(inputs[i].nextElementSibling.disabled).toBe(length == 2);
+        }
+        return rv;
+      }
+
+      it("initial state is disallowed for two inputs", function() {
+        const states = validateControls();
+        expect(states.length).toBe(2);
+        expect(states[0]).toBe(false);
+        expect(states[1]).toBe(false);
+      });
+
+      it("allows a name to be an unique string", function() {
+        const inputs = window.MembranePanel.form.getElementsByClassName("objectgraph-name");
+        inputs[0].value = "foo";
+        inputs[1].value = "bar";
+
+        const states = validateControls();
+        expect(states.length).toBe(2);
+        expect(states[0]).toBe(true);
+        expect(states[1]).toBe(true);
+      });
+
+      it("clicking on the addRow button really does add a new row", function() {
+        window.HandlerNames.addRow();
+        const inputs = window.MembranePanel.form.getElementsByClassName("objectgraph-name");
+        inputs[0].value = "foo";
+        inputs[1].value = "bar";
+
+        const states = validateControls();
+        expect(states.length).toBe(3);
+        expect(states[0]).toBe(true);
+        expect(states[1]).toBe(true);
+        expect(states[2]).toBe(false);
+      });
+
+      it("disallows non-unique strings", function() {
+        window.HandlerNames.addRow();
+        const inputs = window.MembranePanel.form.getElementsByClassName("objectgraph-name");
+        inputs[0].value = "foo";
+        inputs[1].value = "bar";
+        inputs[2].value = "foo";
+
+        const states = validateControls();
+        expect(states.length).toBe(3);
+        expect(states[0]).toBe(true);
+        expect(states[1]).toBe(true);
+        expect(states[2]).toBe(false);
+      });
+
+      it("allows removing a row", function() {
+        window.HandlerNames.addRow();
+        const inputs = window.MembranePanel.form.getElementsByClassName("objectgraph-name");
+        inputs[0].value = "foo";
+        inputs[1].value = "bar";
+        inputs[2].value = "baz";
+
+        inputs[0].nextElementSibling.click();
+        expect(inputs.length).toBe(2);
+        expect(inputs[0].value).toBe("bar");
+        expect(inputs[1].value).toBe("baz");
+
+        const states = validateControls();
+        expect(states.length).toBe(2);
+        expect(states[0]).toBe(true);
+        expect(states[1]).toBe(true);
+      });
+
+      it("allows a symbol to share a name with a string", function() {
+        window.HandlerNames.addRow();
+        const inputs = window.MembranePanel.form.getElementsByClassName("objectgraph-name");
+        inputs[0].value = "foo";
+        inputs[1].value = "bar";
+        inputs[2].value = "foo";
+        inputs[2].previousElementSibling.firstElementChild.checked = true; // symbol
+
+        const states = validateControls();
+        expect(states.length).toBe(3);
+        expect(states[0]).toBe(true);
+        expect(states[1]).toBe(true);
+        expect(states[2]).toBe(true);
+      });
+
+      it("allows two symbols to share a name", function() {
+        window.HandlerNames.addRow();
+        const inputs = window.MembranePanel.form.getElementsByClassName("objectgraph-name");
+        inputs[0].value = "foo";
+        inputs[1].value = "bar";
+        inputs[2].value = "foo";
+        inputs[0].previousElementSibling.firstElementChild.checked = true; // symbol
+        inputs[2].previousElementSibling.firstElementChild.checked = true; // symbol
+
+        const states = validateControls();
+        expect(states.length).toBe(3);
+        expect(states[0]).toBe(true);
+        expect(states[1]).toBe(true);
+        expect(states[2]).toBe(true);
+      });
+    }
+  );
 });
 
 it("Membrane Panel supports pass-through function", async function() {

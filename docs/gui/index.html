@@ -1021,7 +1021,8 @@ r.getArea(); // returns 12</pre>
 
   <template id="objectgraph-name-row">
     <label>Symbol?<input type="checkbox" onchange="HandlerNames.update();"></label>
-    <input type="text" size="10" required="required" onchange="HandlerNames.update();">
+    <input type="text" size="10" required="required" class="objectgraph-name"
+           onchange="HandlerNames.update();">
     <button class="icon deleteRow" disabled="disabled"
             onclick="HandlerNames.deleteRow(event);"></button>
   </template>
