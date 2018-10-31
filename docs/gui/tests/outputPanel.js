@@ -264,8 +264,10 @@ describe("Output panel", function() {
 
           const button = getGroupButton(docPanel, "addEventListener");
           const link = button.nextElementSibling;
-          const p = MessageEventPromise(
-            window, "openDistortionsGroup: property group panel created"
+          let p = MessageEventPromise(
+            window,
+            "openDistortionsGroup: property group panel created",
+            "openDistortionsGroup: error"
           );
 
           link.click();

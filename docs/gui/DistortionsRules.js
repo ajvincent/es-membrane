@@ -147,7 +147,14 @@ DistortionsRules.prototype = {
 
     {
       let i = this.gridtree.getElementsByClassName("filterOwnKeys-control")[0];
-      this.filterOwnKeysControl = i;
+      if (i) {
+        this.filterOwnKeysControl = i;
+        this.filterOwnKeysControl.addEventListener("change", this, true);
+      }
+      else {
+        // this happens for distortion groups.
+        this.filterOwnKeysControl = null;
+      }
     }
 
     {
@@ -605,7 +612,7 @@ DistortionsRules.prototype = {
     }
 
     let p = DistortionsGUI.buildValuePanel(details);
-    p.then(function() {
+    p = p.then(function() {
       if (!groupName) {
         const about = DistortionsManager.valueNameToRulesMap.get(hash).about;
         about.parent = panel.dataset.valueName;
@@ -622,6 +629,11 @@ DistortionsRules.prototype = {
         console.log("postMessage requested:", msg);
         window.postMessage(msg, window.location.origin);
       }
+    });
+    p = p.then(null, function(exn) {
+      if (LoadPanel.testMode)
+        window.postMessage("openDistortionsGroup: error", window.location.origin);
+      throw exn;
     });
   },
 
@@ -659,6 +671,17 @@ DistortionsRules.prototype = {
       const prev = el.previousElementSibling;
       if (prev && prev.classList.contains("distortions-group"))
         return this.openDistortionsGroup(event);
+    }
+
+    if ((el == this.filterOwnKeysControl) &&
+        (event.type == "change"))
+    {
+      let inputs = this.groupToInputsMap.get("ownKeys");
+      const disabled = !el.checked;
+      inputs.forEach(function(checkbox) {
+        checkbox.disabled = disabled;
+      });
+      return;
     }
   }
 };

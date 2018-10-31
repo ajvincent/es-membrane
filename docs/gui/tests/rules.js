@@ -85,7 +85,14 @@ describe("DistortionsRules", function() {
       let items = rules.groupToInputsMap.get("ownKeys");
       expect(Array.isArray(items)).toBe(true);
       expectedKeys.forEach(function(key, index) {
-        isCheckboxWithName(items[index], key, true);
+        const checkbox = items[index];
+        isCheckboxWithName(checkbox, key, true);
+
+        expect(checkbox.disabled).toBe(!rules.filterOwnKeysControl.checked);
+        rules.filterOwnKeysControl.click();
+        expect(checkbox.disabled).toBe(!rules.filterOwnKeysControl.checked);
+        rules.filterOwnKeysControl.click();
+        expect(checkbox.disabled).toBe(!rules.filterOwnKeysControl.checked);
       });
       expect(items.length).toBe(expectedKeys.length);
     }
@@ -411,7 +418,7 @@ describe("DistortionsRules", function() {
       testConfig.truncateArgList = 100;
       runTestForValidity();
     });
-  };
+  }
 
   describe(".validateConfiguration for non-functions", function() {
     validateConfigurationTests(false);
