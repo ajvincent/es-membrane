@@ -677,7 +677,7 @@ describe("An object graph handler's proxy listeners", function() {
         expect(messages[2]).toBe("leaving logTest with argument");
       }
 
-      // disabling the call trap, so that a function should not be executable
+      // disabling the apply trap, so that a function should not be executable
       {
         const funcWrapper = X.arg2;
         const graphName = dryHandler.fieldName;

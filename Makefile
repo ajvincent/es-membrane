@@ -98,6 +98,7 @@ ALL_SPEC_FILES = \
 	spec/useCases/disableTraps.js \
 	spec/internal/lazyGetters.js \
 	spec/security/exports.js \
+	spec/security/ObjectGraphHandler.js \
 	$(NULL)
 
 specs::

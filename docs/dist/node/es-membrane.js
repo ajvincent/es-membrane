@@ -1234,24 +1234,6 @@ function ObjectGraphHandler(membrane, fieldName) {
     "membrane": new NWNCDataDescriptor(membrane, false),
     "fieldName": new NWNCDataDescriptor(fieldName, false),
 
-    "boundMethods": new NWNCDataDescriptor(boundMethods, false),
-
-    /* Temporary until membraneGraphName is defined on Object.prototype through
-     * the object graph.
-     */
-    "graphNameDescriptor": new NWNCDataDescriptor(
-      new DataDescriptor(fieldName), false
-    ),
-
-    // see .defineLazyGetter, ProxyNotify for details.
-    "proxiesInConstruction": new NWNCDataDescriptor(
-      new WeakMap(/* original value: [callback() {}, ...]*/), false
-    ),
-
-    "__revokeFunctions__": new NWNCDataDescriptor([], false),
-
-    "__isDead__": new DataDescriptor(false, true, true, true),
-
     "passThroughFilter": {
       get: () => passThroughFilter,
       set: (val) => {
@@ -1271,6 +1253,27 @@ function ObjectGraphHandler(membrane, fieldName) {
       enumerable: true,
       configurable: false
     },
+  });
+
+  // private
+  Object.defineProperties(this, {
+    "boundMethods": new NWNCDataDescriptor(boundMethods, false),
+
+    /* Temporary until membraneGraphName is defined on Object.prototype through
+     * the object graph.
+     */
+    "graphNameDescriptor": new NWNCDataDescriptor(
+      new DataDescriptor(fieldName), false
+    ),
+
+    // see .defineLazyGetter, ProxyNotify for details.
+    "proxiesInConstruction": new NWNCDataDescriptor(
+      new WeakMap(/* original value: [callback() {}, ...]*/), false
+    ),
+
+    "__revokeFunctions__": new NWNCDataDescriptor([], false),
+
+    "__isDead__": new DataDescriptor(false, true, true, true),
 
     "__proxyListeners__": new NWNCDataDescriptor([], false),
 

@@ -1,5 +1,3 @@
-"use strict"
-
 /*
 import "../docs/dist/es6-modules/Membrane.js";
 import "../docs/dist/es6-modules/MembraneMocks.js";
@@ -17,6 +15,7 @@ if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
 }
 
 describe("replacing proxies tests: ", function() {
+  "use strict";
   let parts, membrane, dryHandler, replacedProxy;
   beforeEach(function() {
     parts = MembraneMocks();
