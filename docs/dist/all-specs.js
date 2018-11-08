@@ -12268,7 +12268,7 @@ describe("Security checks for object graph handlers", function() {
    * not exposed to users.
    */
 
-  it("setting the prototype of ObjectGraphHandler is disallowed", function() {
+  it("Setting the prototype of ObjectGraphHandler is disallowed", function() {
     const proto = Reflect.getPrototypeOf(dryHandler);
     expect(Reflect.ownKeys(proto).includes("ownKeys")).toBe(true);
     expect(Reflect.setPrototypeOf(proto, {})).toBe(false);
@@ -12277,7 +12277,7 @@ describe("Security checks for object graph handlers", function() {
     expect(Reflect.getPrototypeOf(proto)).toBe(Object.prototype);
   });
 
-  it("setting the prototype of a ChainHandler is disallowed", function() {
+  it("Setting the prototype of a ChainHandler is disallowed", function() {
     const chain1 = membrane.modifyRules.createChainHandler(dryHandler);
     expect(Reflect.setPrototypeOf(chain1, {})).toBe(false);
   });
