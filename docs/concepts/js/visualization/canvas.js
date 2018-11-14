@@ -42,9 +42,9 @@ const CanvasController = {
       const loader = new THREE.FontLoader();
       var baseURI = '..';
       if (document.location.protocol == "file:")
-        baseURI = "https://ajvincent.github.io/es-membrane/libraries";
+        baseURI = "https://ajvincent.github.io/es-membrane";
       loader.load(
-        baseURI + '/three-js-r98/fonts/droid/droid_sans_regular.typeface.json',
+        baseURI + '/libraries/three-js-r98/fonts/droid/droid_sans_regular.typeface.json',
         function(font) {
           CanvasController.font = font;
           CanvasController.init();
