@@ -1,3 +1,6 @@
+/**
+ * Simulating a minimalist HTML document.
+ */
 const Mocks = (function() {
   "use strict";
   const rv = [];
@@ -28,7 +31,7 @@ const Mocks = (function() {
   buildMock("title", ELEMENT, "wet", head);
   const body = buildMock("body", ELEMENT, "wet", html);
 
-  buildMock("load", "green", "dry", body); // load event listener
+  buildMock("load", 0x00ff00, "dry", body); // load event listener
 
   return rv;
 })();
