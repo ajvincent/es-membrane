@@ -6,6 +6,10 @@ const CanvasController = {
   scene: null,
   camera: null,
 
+  // HTML elements
+  _delta: null,
+  _autoRotate: null,
+
   /**
    * Run the initialization, and if it throws, log it.
    */
@@ -30,13 +34,13 @@ const CanvasController = {
   _init: function()
   {
     document.getElementById("goButton").remove();
+    this._delta = document.getElementById("delta");
+    this._autoRotate = document.getElementById("autoRotate");
     this.initGraphNames();
     this.initCanvas();
 
     this.repaint = this.repaint.bind(this);
-
-    this.startTime = new Date();
-    this.repaint();
+    this.maybeRepaint();
   },
 
   /**
@@ -97,16 +101,59 @@ const CanvasController = {
   startTime: null,
 
   /**
+   * The current delta value.
+   *
+   * @private
+   */
+  currentDelta: 0,
+
+  /**
    * Update the canvas's rotation and redraw it.
    */
   repaint: function() {
-    let delta = ((new Date() - this.startTime) / 5000) % 2;
-    delta = 1 - Math.abs(delta - 1);
+    var delta;
+    if (this._autoRotate.checked)
+    {
+      delta = ((new Date() - this.startTime) / 5000) % 2;
+      delta = 1 - Math.abs(delta - 1);
+      this.currentDelta = delta;
+    }
+    else
+      delta = this._delta.valueAsNumber;
+
     delta *= Math.PI / 2;
     this.mainGroup.rotation.set(delta * 2/3, 0, delta * -1/3);
     this.renderer.render(this.scene, this.camera);
 
-    requestAnimationFrame(this.repaint);
+    if (this._autoRotate.checked)
+      requestAnimationFrame(this.repaint);
+  },
+
+  /**
+   * Are we okay to repaint the image?
+   */
+  maybeRepaint: function()
+  {
+    if (!this._autoRotate.checked)
+      this.repaint(this._delta.valueAsNumber);
+  },
+
+  /**
+   * Start or stop automatic rotation.
+   */
+  setAutoRotate: function()
+  {
+    this._delta.disabled = this._autoRotate.checked;
+    if (this._autoRotate.checked)
+    {
+      this.startTime = new Date();
+      this.startTime -= this._delta.valueAsNumber * 5000;
+      this.repaint();
+    }
+    else
+    {
+      this._delta.valueAsNumber = this.currentDelta;
+    }
   },
 
   /**
