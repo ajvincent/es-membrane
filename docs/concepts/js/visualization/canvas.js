@@ -1,10 +1,14 @@
 const CanvasController = {
-  graphNames: new Map(/* graphName: z-offset */),
+  enableDamp: false,
 
   // THREE.js primary objects
   renderer: null,
   scene: null,
   camera: null,
+  font: null,
+
+  graphNames: new Map(/* graphName: z-offset */),
+  planeLabelMaterials: new Map(/* graphName: new THREE.Material() */),
 
   // HTML elements
   _delta: null,
@@ -33,9 +37,27 @@ const CanvasController = {
    */
   _init: function()
   {
+    if (!this.font)
+    {
+      const loader = new THREE.FontLoader();
+      var baseURI = '..';
+      if (document.location.protocol == "file:")
+        baseURI = "https://ajvincent.github.io/es-membrane/libraries";
+      loader.load(
+        baseURI + '/three-js-r98/fonts/droid/droid_sans_regular.typeface.json',
+        function(font) {
+          CanvasController.font = font;
+          CanvasController.init();
+        }
+      );
+      return;
+    }
+
     document.getElementById("goButton").remove();
+    document.getElementById("form").reset();
     this._delta = document.getElementById("delta");
     this._autoRotate = document.getElementById("autoRotate");
+
     this.initGraphNames();
     this.initCanvas();
 
@@ -81,7 +103,8 @@ const CanvasController = {
 
     this.buildGraph("wet");
     this.buildGraph("dry");
-    this.buildGraph("damp");
+    if (this.enableDamp)
+      this.buildGraph("damp");
 
     // cx = 0, cy = 0, aspect ratio = 4/3
     this.camera = new THREE.OrthographicCamera(
@@ -123,6 +146,22 @@ const CanvasController = {
 
     delta *= Math.PI / 2;
     this.mainGroup.rotation.set(delta * 2/3, 0, delta * -1/3);
+
+    this.planeLabelMaterials.forEach(function(textMaterial, graphName) {
+      if (graphName == "wet")
+      {
+        textMaterial.opacity = 1.0;
+        return;
+      }
+
+      if (delta > 0.5)
+        textMaterial.opacity = 1.0;
+      else if (delta < 0.3)
+        textMaterial.opacity = 0.0;
+      else
+        textMaterial.opacity = (delta - 0.3) * 5;
+    });
+
     this.renderer.render(this.scene, this.camera);
 
     if (this._autoRotate.checked)
@@ -190,6 +229,13 @@ const CanvasController = {
     let maxDepth = 0;
     group.translateX(-OFFSET);
 
+    const textMaterial = new THREE.MeshBasicMaterial({
+      color: "yellow",
+      transparent: true,
+      opacity: 1.0,
+    });
+    this.planeLabelMaterials.set(graphName, textMaterial);
+
     const sphereGeometry = new THREE.SphereGeometry(10, 100, 100);
     const cylinderGeometry = new THREE.CylinderGeometry(
       10, 10, 500, 100, 1, false
@@ -248,6 +294,8 @@ const CanvasController = {
       }
       group.add(sphere);
 
+      let labelText = mock.name;
+
       if (graphName == mock.graph)
       {
         const cylinder = new THREE.Mesh(cylinderGeometry, meshBases.translucent);
@@ -255,6 +303,27 @@ const CanvasController = {
         cylinder.position.y = sphere.position.y;
         cylinder.position.z = 0;
         this.mainGroup.add(cylinder);
+      }
+      else
+      {
+        labelText = `Proxy(${labelText})`;
+      }
+
+      {
+        const textGeometry = new THREE.TextBufferGeometry(
+          labelText,
+          {
+            font: this.font,
+            size: 6,
+            height: 1,
+          }
+        );
+        const text = new THREE.Mesh(textGeometry, textMaterial);
+        text.rotateX(Math.PI);
+        text.position.x = sphere.position.x + sphere.geometry.parameters.radius + 2;
+        text.position.y = sphere.position.y;
+        text.position.z = 1;
+        group.add(text);
       }
 
       if (mock.parent) // needs edge lines
@@ -299,6 +368,22 @@ const CanvasController = {
       plane.translateX(75);
       plane.translateY(60);
       group.add(plane);
+
+      const textGeometry = new THREE.TextBufferGeometry(
+        `"${graphName}" object graph`,
+        {
+          font: this.font,
+          size: 6,
+          height: 1,
+        }
+      );
+
+      const text = new THREE.Mesh(textGeometry, textMaterial);
+      text.rotateX(Math.PI);
+      text.position.x = 95;
+      text.position.y = 140;
+      text.position.z = 1;
+      group.add(text);
     }
 
     // Finalization.

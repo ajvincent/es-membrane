@@ -31,7 +31,7 @@ const Mocks = (function() {
   buildMock("title", ELEMENT, "wet", head);
   const body = buildMock("body", ELEMENT, "wet", html);
 
-  buildMock("load", 0x00ff00, "dry", body); // load event listener
+  buildMock("onload", 0x00ff00, "dry", body); // load event listener
 
   return rv;
 })();
