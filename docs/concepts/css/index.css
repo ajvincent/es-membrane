@@ -1,0 +1,83 @@
+body
+{
+  padding: 0;
+  margin: 0;
+
+  display: grid;
+  grid-template-columns: 800px 400px;
+
+  font-family: Verdana;
+  font-size: 12px;
+  width: 1200px;
+  max-height: 800px;
+}
+
+#figureDisplays
+{
+  width: 800px;
+  height: 600px;
+  padding: none;
+  margin: none;
+  overflow: none;
+}
+
+.deck > *
+{
+  display: none;
+}
+
+.deck > .visible
+{
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+nav {
+  overflow-y: scroll;
+  height: 640px;
+
+  grid-column-start: 2;
+  grid-column-end: 3;
+  grid-row-start: 1;
+  grid-row-end: 3;
+}
+
+nav a {
+  color: #0000ff !important;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+nav > ol {
+  list-style-type: upper-roman;
+}
+
+nav > ol > li > ol {
+  list-style-type: upper-alpha;
+}
+
+main {
+  grid-row-start: 3;
+  grid-column-start: 1;
+  grid-column-end: 3;
+  height: 160px;
+  overflow-y: scroll;
+  width: 1190px;
+  padding: 5px;
+}
+
+#WebGLCanvas
+{
+  width: 100%;
+  height: 100%;
+}
+
+#playerControls {
+  width: 800px;
+  height: 40px;
+}
+
+main p {
+  text-indent: 5px;
+}
