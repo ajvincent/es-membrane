@@ -254,6 +254,7 @@ const CanvasController = {
      * cylinder connecting objects and proxies together, and the edges
      * connecting an object to its parent object.
      */
+    const Mocks = DOM_Mocks();
     Mocks.forEach(function(mock, index) {
       if (!meshes.has(mock.color))
       {
