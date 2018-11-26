@@ -89,6 +89,7 @@ const CanvasController = {
     document.body.appendChild( this.renderer.domElement );
 
     this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color( 0xffffff );
 
     this.mainGroup = new THREE.Group();
 

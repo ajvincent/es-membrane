@@ -27,7 +27,7 @@ function DOM_Mocks()
   "use strict";
   const rv = [];
   const doc = buildMock(rv, "#document", "purple", "wet", null);
-  const ELEMENT = "white";
+  const ELEMENT = "black";
   const html = buildMock(rv, "html", ELEMENT, "wet", doc);
   const head = buildMock(rv, "head", ELEMENT, "wet", html);
   buildMock(rv, "title", ELEMENT, "wet", head);
@@ -43,7 +43,7 @@ function ChildNodes_Mocks()
 {
   "use strict";
   const rv = [];
-  const ELEMENT = "white";
+  const ELEMENT = "black";
   const head = buildMock(rv, "head", ELEMENT, "wet", null);
   const children = buildMock(rv, "childNodes", "orange", "wet", head);
   buildMock(rv, "title", ELEMENT, "wet", children);
