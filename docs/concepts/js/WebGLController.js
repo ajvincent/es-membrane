@@ -88,6 +88,7 @@ return {
     });
 
     this.emptyScene = new THREE.Scene();
+    this.emptyScene.background = new THREE.Color( 0xffffff );
 
     // cx = 0, cy = 0, aspect ratio = 4/3
     this.camera = new THREE.OrthographicCamera(
