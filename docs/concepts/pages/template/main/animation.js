@@ -1,6 +1,6 @@
 NavigationController.addPageDriver({
   // The path specified in ../../../index.html for this page
-  path: "template",
+  path: "template/main",
 
   // What kind of slide are we dealing with?
   slideType: "HTML",

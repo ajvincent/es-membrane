@@ -42,8 +42,13 @@
     <canvas id="WebGLCanvas" class="visible"></canvas>
   </div>
   <nav id="outline">
+    <!-- For local development, add class="scaffolding" to the li element, then
+    copy & modify the <section id="scaffolding:template"> markup appropriately.
+    You will need to match the data-path attribute in the li element with the
+    section id after the : character.
+    -->
     <ol>
-      <li data-path="template" class="scaffolding">Hello World</li>
+      <li data-path="template/main" class="scaffolding">Hello World</li>
       <li>What is a Membrane?
         <ol>
           <li>Objects</li>
@@ -198,7 +203,7 @@ nec molestie nibh. Phasellus nec venenatis leo.
     </section>
   </main>
 
-  <section id="scaffolding:template">
+  <section id="scaffolding:template/main">
     <!-- These are placeholders for asynchronously loaded content. -->
     <template dataset-filename="content.json">
       {
@@ -217,7 +222,7 @@ nec molestie nibh. Phasellus nec venenatis leo.
     <template dataset-filename="animation.js">
 NavigationController.addPageDriver({
   // The path specified in ../../../index.html for this page
-  path: "template",
+  path: "template/main",
 
   // What kind of slide are we dealing with?
   slideType: "HTML",
