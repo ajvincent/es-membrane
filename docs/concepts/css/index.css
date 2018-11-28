@@ -12,7 +12,7 @@ body
   max-height: 800px;
 }
 
-#figureDisplays
+#slides
 {
   width: 800px;
   height: 600px;
@@ -43,10 +43,14 @@ nav {
   grid-row-end: 3;
 }
 
-nav a {
-  color: #0000ff !important;
+nav li > a {
+  color: #ff0000;
   text-decoration: underline;
   cursor: pointer;
+}
+
+nav li[data-path] > a {
+  color: #0000ff;
 }
 
 nav > ol {

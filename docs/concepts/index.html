@@ -1,37 +1,49 @@
-<html>
+<html lang="en-US">
 <head>
   <title>Building Membranes in JavaScript</title>
   <meta charset="UTF-8">
   <script type="application/javascript"
+          async="async"
           src="../libraries/three-js-r98/three.min.js"
          ></script>
   <script type="application/javascript"
+          async="async"
           src="../libraries/popcorn-20181121/popcorn-complete.js"
          ></script>
   <script type="application/javascript"
+          async="async"
           src="js/visualization/mocks.js"
          ></script>
   <script type="application/javascript"
+          async="async"
           src="js/WebGLController.js"
          ></script>
   <script type="application/javascript"
+          async="async"
           src="js/PopcornController.js"
          ></script>
   <script type="application/javascript"
+          async="async"
           src="js/NavigationController.js"
          ></script>
   <script type="application/javascript"
+          async="async"
+          src="js/PageContentLoader.js"
+         ></script>
+  <script type="application/javascript"
+          async="async"
           src="js/MasterController.js"
          ></script>
   <link rel="stylesheet" type="text/css" href="css/index.css">
 </head>
 <body onload="MasterController.init();">
-  <div id="figureDisplays" class="deck">
+  <div id="slides" class="deck">
     <pre id="error"></pre>
     <canvas id="WebGLCanvas" class="visible"></canvas>
   </div>
   <nav id="outline">
     <ol>
+      <li data-path="template" class="scaffolding">Hello World</li>
       <li>What is a Membrane?
         <ol>
           <li>Objects</li>
@@ -127,7 +139,7 @@
          controls
          src="audio/silence-10m.ogg"
         ></audio>
-  <main class="deck">
+  <main id="pagedContent" class="deck">
     <section class="visible">
       <h2>Lorem ipsum</h2>
 <p>
@@ -185,5 +197,47 @@ nec molestie nibh. Phasellus nec venenatis leo.
 </p>
     </section>
   </main>
+
+  <section id="scaffolding:template">
+    <!-- These are placeholders for asynchronously loaded content. -->
+    <template dataset-filename="content.json">
+      {
+        "pageText": "text.html",
+        "slideHTML": "slide.html",
+        "audio": "../../../audio/silence-10m.ogg",
+        "script": "animation.js"
+      }
+    </template>
+    <template dataset-filename="text.html">
+      <p>Hello World</p>
+    </template>
+    <template dataset-filename="slide.html">
+      <h1>Hello World</h1>
+    </template>
+    <template dataset-filename="animation.js">
+NavigationController.addPageDriver({
+  // The path specified in ../../../index.html for this page
+  path: "template",
+
+  // What kind of slide are we dealing with?
+  slideType: "HTML",
+
+  /**
+   * Initializing the scene and/or the content.
+   */
+  init: function() {
+  },
+
+  // THREE.Scene for the WebGLController.
+  scene: null,
+
+  // HTMLSectionElement from NavigationController for the HTML- or SVG-based slide.
+  slideContent: null,
+
+  // HTMLSectionElement from NavigationController for the HTML-based text.
+  textContent: null,
+});
+    </template>
+  </section>
 </body>
 </html>

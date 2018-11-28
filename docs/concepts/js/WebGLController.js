@@ -28,11 +28,8 @@ return {
       resolve = res;
     });
     const loader = new THREE.FontLoader();
-    var baseURI = '..';
-    if (document.location.protocol == "file:")
-      baseURI = "https://ajvincent.github.io/es-membrane";
     loader.load(
-      baseURI + '/libraries/three-js-r98/fonts/droid/droid_sans_regular.typeface.json',
+      MasterController.baseURI + '/libraries/three-js-r98/fonts/droid/droid_sans_regular.typeface.json',
       function(font) {
         WebGLController.font = font;
         resolve();
@@ -42,12 +39,13 @@ return {
   },
 
   /**
-   * Bring the WebGL canvas into view and update it.
+   * True if we should continue to paint the canvas.
+   *
+   * @private
    */
-  show: function()
-  {
-    MasterController.selectedDiagram = this.renderer.domElement;
-    this.repaint();
+  get isPaintingContinuous() {
+    return (this.scene && this.autoRepaint &&
+            (MasterController.selectedSlide == this.renderer.domElement));
   },
 
   /**
@@ -56,11 +54,14 @@ return {
    * @param scene       {THREE.Scene} The scene to paint.
    * @param autoRepaint {Boolean} True for repainting the scene continuously.
    */
-  setScene: function(scene, autoRepaint)
+  setSceneAndShow: function(scene, autoRepaint)
   {
+    const wasPainting = this.isPaintingContinuous;
+    MasterController.selectedSlide = this.renderer.domElement;
     this.scene = scene;
     this.autoRepaint = autoRepaint;
-    this.repaint();
+    if (!wasPainting)
+      this.repaint();
   },
 
   /**
@@ -70,8 +71,7 @@ return {
    */
   repaint: function() {
     this.renderer.render(this.scene || this.emptyScene, this.camera);
-    if (this.scene && this.autoRepaint &&
-        (MasterController.selectedDiagram == this.renderer.domElement))
+    if (this.isPaintingContinuous)
       requestAnimationFrame(this.repaint);
   },
 

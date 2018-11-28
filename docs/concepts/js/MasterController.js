@@ -4,16 +4,26 @@ return {
   /**
    * The currently visible HTML canvas or SVG diagram.
    */
-  get selectedDiagram()
+  get selectedSlide()
   {
-    return document.getElementById("figureDisplays")
-                   .getElementsByClassName("visible")[0];
+    return this.slideContent.getElementsByClassName("visible")[0];
   },
-  set selectedDiagram(diagram)
+  set selectedSlide(slide)
   {
-    const previous = this.selectedDiagram;
+    const previous = this.selectedSlide;
     previous.classList.remove("visible");
-    diagram.classList.add("visible");
+    slide.classList.add("visible");
+  },
+
+  get selectedPage()
+  {
+    return this.pagedContent.getElementsByClassName("visible")[0];
+  },
+  set selectedPage(page)
+  {
+    const previous = this.selectedPage;
+    previous.classList.remove("visible");
+    page.classList.add("visible");
   },
 
   /**
@@ -29,7 +39,7 @@ return {
     panel.appendChild(
       document.createTextNode(e ? e.message + "\n\n" + e.stack : e)
     );
-    this.selectedDiagram = panel;
+    this.selectedSlide = panel;
     throw e;
   },
 
@@ -38,14 +48,24 @@ return {
    */
   init: function()
   {
+    this.pagedContent = document.getElementById("pagedContent");
+    this.slideContent = document.getElementById("slides");
+
+    this.baseURI = '..';
+    if (document.location.protocol == "file:")
+      this.baseURI = "https://ajvincent.github.io/es-membrane";
+
     var p;
     try
     {
       p = Promise.all([
         WebGLController.init(),
         PopcornController.init(),
-        NavigationController.init(),
+        PageContentLoader.init(),
       ]);
+      p = p.then(function() {
+        NavigationController.init();
+      });
     }
     catch (exn)
     {
