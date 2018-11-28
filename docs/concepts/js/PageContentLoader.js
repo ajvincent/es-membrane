@@ -65,20 +65,20 @@ return {
       const data = JSON.parse(this.getElementContents(path, "content.json"));
 
       const promiseArray = [];
-      promiseArray.push(this.markupPromise(data.pageText, path, "pageText"));
-      promiseArray.push(this.scriptPromise(data.script, path));
+      promiseArray.push(this.markupPromise(path, data.pageText, "pageText"));
+      promiseArray.push(this.scriptPromise(path, data.script));
       if ("slideHTML" in data)
-        promiseArray.push(this.markupPromise(data.slideHTML, path, "slide"));
+        promiseArray.push(this.markupPromise(path, data.slideHTML,  "slide"));
       return Promise.all(promiseArray);
     },
 
-    markupPromise: function(markup, path, typeOfContent) {
-      const section = this.getTemplateContent(path, markup);
+    markupPromise: function(path, subpath, typeOfContent) {
+      const section = this.getTemplateContent(path, subpath);
       PageContentLoader.addMarkup(path, section, typeOfContent);
       return Promise.resolve();
     },
 
-    scriptPromise: function(scriptPath, path)
+    scriptPromise: function(path, scriptPath)
     {
       const contents = this.getElementContents(path, scriptPath);
       if (!isValidJavaScriptStart(contents, [
@@ -115,11 +115,64 @@ return {
   },
 
   remote: {
-    allContentPromise: function(item)
+    allContentPromise: function(path)
     {
-      void(item);
-      throw new Error("Not implemented yet!");
+      let start;
+      let p = new Promise((resolve) => start = resolve);
+      p = p.then(function() {
+        return PageContentLoader.remote.jsonPromise(path);
+      });
+      p = p.then(function() {
+        console.debug("Loaded all content for " + path);
+      });
+      return [start, p];
     },
+
+    fetchRemoteURL: function(path, subpath) {
+      const req = new Request(
+        MasterController.baseURI + "/concepts/pages/" + path + "/" + subpath
+      );
+      return fetch(req);
+    },
+
+    jsonPromise: function(path) {
+      let p = this.fetchRemoteURL(path, "content.json");
+      p = p.then(response => {
+        if (!response.ok) {
+          throw new Error("HTTP error, status = " + response.status);
+        }
+        return response.json();
+      });
+      p = p.then(data => {
+        const promiseArray = [];
+        promiseArray.push(this.markupPromise(path, data.pageText, "pageText"));
+        promiseArray.push(this.scriptPromise(path, data.script));
+        if ("slideHTML" in data)
+          promiseArray.push(this.markupPromise(path, data.slideHTML, "slide"));
+        return Promise.all(promiseArray);
+      });
+      return p;
+    },
+
+    parser: new DOMParser(),
+
+    markupPromise: function(path, subpath, typeOfContent) {
+      let p = this.fetchRemoteURL(path, subpath);
+      p = p.then(response => response.text());
+      p = p.then(htmlSrc =>
+        this.parser.parseFromString(htmlSrc, "text/html").body
+      );
+      p = p.then(body => {
+        PageContentLoader.addMarkup(path, body, typeOfContent);
+      });
+      return p;
+    },
+
+    scriptPromise: function(path, scriptPath)
+    {
+      const url = MasterController.baseURI + "/concepts/pages/" + path + "/" + scriptPath;
+      return PageContentLoader.addScriptPromise(path, url);
+    }
   },
  
   addMarkup: function(path, contents, typeOfContent) {
