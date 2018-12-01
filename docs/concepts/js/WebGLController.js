@@ -90,9 +90,9 @@ return {
     this.emptyScene = new THREE.Scene();
     this.emptyScene.background = new THREE.Color( 0xffffff );
 
-    // cx = 0, cy = 0, aspect ratio = 4/3
+    // cx = 0, cy = 0, aspect ratio = 16/9
     this.camera = new THREE.OrthographicCamera(
-      -200, 200, -150, 150, -100, 500
+      -240, 240, -135, +135, -100, 500
     );
 
     this.camera.position.x = this.camera.right - 20;

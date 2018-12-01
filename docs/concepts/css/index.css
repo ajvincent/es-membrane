@@ -1,10 +1,10 @@
 body
 {
-  padding: 0;
-  margin: 0;
+  padding: 0px;
+  margin: 0px;
 
   display: grid;
-  grid-template-columns: 800px 400px;
+  grid-template-columns: 400px *;
 
   font-family: Verdana;
   font-size: 12px;
@@ -14,11 +14,11 @@ body
 
 #slides
 {
-  width: 800px;
-  height: 600px;
-  padding: none;
-  margin: none;
-  overflow: none;
+  width: 400px;
+  height: 225px;
+  padding: 0px;
+  margin: 0px;
+  overflow: 0px;
 }
 
 .deck > *
@@ -35,7 +35,7 @@ body
 
 nav {
   overflow-y: scroll;
-  height: 640px;
+  height: 265px;
 
   grid-column-start: 2;
   grid-column-end: 3;
@@ -65,7 +65,6 @@ main {
   grid-row-start: 3;
   grid-column-start: 1;
   grid-column-end: 3;
-  height: 160px;
   overflow-y: scroll;
   width: 1190px;
   padding: 5px;

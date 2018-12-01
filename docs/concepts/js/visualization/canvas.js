@@ -85,7 +85,7 @@ const CanvasController = {
   initCanvas: function()
   {
     this.renderer = new THREE.WebGLRenderer();
-    this.renderer.setSize( 800, 600 );
+    this.renderer.setSize( 1072, 603 ); // 16 : 9 aspect ratio
     document.body.appendChild( this.renderer.domElement );
 
     this.scene = new THREE.Scene();
@@ -107,13 +107,13 @@ const CanvasController = {
     if (this.enableDamp)
       this.buildGraph("damp");
 
-    // cx = 0, cy = 0, aspect ratio = 4/3
+    // cx = 0, cy = 0, aspect ratio = 16/9
     this.camera = new THREE.OrthographicCamera(
-      -200, 200, -150, 150, -100, 500
+      -240, 240, -135, +135, -100, 500
     );
 
-    this.camera.position.x = this.camera.right - 20;
-    this.camera.position.y = this.camera.bottom - 20;
+    this.camera.position.x = this.camera.right - 60;
+    this.camera.position.y = this.camera.bottom - 30;
     this.camera.position.z = 0;
   },
 
@@ -389,7 +389,7 @@ const CanvasController = {
     }
 
     // Finalization.
-    group.translateZ(100 * this.graphNames.get(graphName));
+    group.translateZ(75 * this.graphNames.get(graphName));
     this.mainGroup.add(group);
   }
 };
