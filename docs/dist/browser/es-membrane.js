@@ -1,7 +1,7 @@
 var Membrane = (function() {
   // entering Membrane pseudo-module definition
 
-"use strict"
+"use strict";
 function returnTrue() {
   return true;
 }

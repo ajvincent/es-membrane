@@ -10,10 +10,16 @@ ifneq ("$(shell git status --porcelain)","")
 	@exit 1;
 endif
 
-DOGFOOD_FILES = \
+SOURCE_DOGFOOD_FILES = \
 	source/dogfood/intro.js.in \
 	source/dogfood/build-membrane.js \
 	source/dogfood/outro.js.in \
+	$(NULL)
+
+SOURCE_HANDLER_FILES = \
+	source/ProxyHandlers/intro.js \
+	source/ProxyHandlers/Base.js \
+	source/ProxyHandlers/Forwarding.js \
 	$(NULL)
 
 SOURCE_FILES = \
@@ -25,13 +31,14 @@ SOURCE_FILES = \
 	source/ProxyNotify.js \
 	source/ModifyRulesAPI.js \
 	source/DistortionsListener.js \
-	$(DOGFOOD_FILES) \
+	$(SOURCE_DOGFOOD_FILES) \
 	$(NULL)
 
 base::
 	@mkdir -p $(DIST)/staging
 	@cp source/sharedUtilities.js $(DIST)/staging/sharedUtilities.js
-	@cat $(DOGFOOD_FILES) > $(DIST)/staging/dogfood.js
+	@cat $(SOURCE_DOGFOOD_FILES) > $(DIST)/staging/dogfood.js
+	@cat $(SOURCE_HANDLER_FILES) > $(DIST)/staging/proxyHandlers.js
 	@cat $(SOURCE_FILES) > $(DIST)/staging/es-membrane.js
 
 MOCKS_FILES = \
@@ -67,6 +74,7 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/generators.js \
 	spec/non-membrane/iterators.js \
 	spec/non-membrane/containers/array-splice.js \
+	spec/proxyHandlers/Forwarding.js \
 	spec/concepts.js \
 	spec/ecma/freeze-seal.js \
 	spec/ecma/Promise.js \
@@ -114,10 +122,18 @@ BROWSER_MEMBRANE_FILES = \
   wrappers/browser/membrane-outro.js.in \
   $(NULL)
 
+BROWSER_HANDLERS_FILES = \
+  wrappers/browser/handlers-intro.js.in \
+  wrappers/useStrict.js \
+  $(DIST)/staging/proxyHandlers.js \
+  wrappers/browser/handlers-outro.js.in \
+	$(NULL)
+
 browser:: base mockDocs specs
 	@mkdir -p $(DIST)/browser
 	@cp wrappers/browser/fireJasmine.js $(DIST)/browser/fireJasmine.js
 	@cp wrappers/browser/test-browser.xhtml $(DIST)/browser/test-browser.xhtml
+	@cat $(BROWSER_HANDLERS_FILES) > $(DIST)/browser/handlers.js
 	@cat $(BROWSER_MEMBRANE_FILES) > $(DIST)/browser/es-membrane.js
 	@cat wrappers/useStrict.js $(DIST)/staging/sharedUtilities.js > $(DIST)/browser/sharedUtilities.js
 	@cat wrappers/useStrict.js $(DIST)/staging/mocks.js > $(DIST)/browser/mocks.js
@@ -139,6 +155,14 @@ NODE_DIST_FILES = \
 	wrappers/node/export-membrane.js \
 	$(NULL)
 
+NODE_HANDLERS_FILES = \
+	wrappers/useStrict.js \
+	wrappers/node/require-assert.js \
+	wrappers/node/require-utilities.js \
+	$(DIST)/staging/proxyHandlers.js \
+	wrappers/node/export-proxyHandlers.js \
+	$(NULL)
+
 NODE_MOCKS_FILES = \
 	wrappers/useStrict.js \
 	wrappers/node/require-assert.js \
@@ -156,10 +180,10 @@ NODE_UTILITIES_FILES = \
 
 node:: base mockDocs specs
 	@mkdir -p $(DIST)/node
+	@cat $(NODE_HANDLERS_FILES) > $(DIST)/node/proxyHandlers.js
 	@cat $(NODE_DIST_FILES) > $(DIST)/node/es-membrane.js
 	@cat $(NODE_MOCKS_FILES) > $(DIST)/node/mocks.js
 	@cat $(NODE_UTILITIES_FILES) > $(DIST)/node/utilities.js
 
 node-tests::	
 	npm test
-

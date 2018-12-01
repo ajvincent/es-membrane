@@ -3,7 +3,7 @@
   <!ENTITY js "application/javascript">
   <!ENTITY lib-jasmine "docs/libraries/jasmine-2.8.0">
 ]>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
     <title>ES7 Membrane Jasmine Tests</title>
     <meta charset="utf-8"/>
@@ -19,6 +19,11 @@
 
     <script type="&js;" src="wrappers/browser/assert.js"></script>
     <script type="&js;" src="source/sharedUtilities.js"></script>
+
+    <!-- ProxyHandler implementations for (future) ObjectGraphHandler components -->
+    <script type="&js;" src="source/ProxyHandlers/intro.js"></script>
+    <script type="&js;" src="source/ProxyHandlers/Base.js"></script>
+    <script type="&js;" src="source/ProxyHandlers/Forwarding.js"></script>
 
     <!-- The library we are testing. -->
     <script type="&js;" src="source/moduleUtilities.js"></script>
@@ -51,6 +56,9 @@
     <script type="&js;" src="spec/non-membrane/iterators.js"></script>
 
     <script type="&js;" src="spec/non-membrane/containers/array-splice.js"></script>
+
+    <!-- Tests for (future) ObjectGraphHandler components. -->
+    <script type="&js;" src="spec/proxyHandlers/Forwarding.js"></script>
 
     <!-- Main Specifications -->
     <script type="&js;" src="spec/concepts.js"></script>
