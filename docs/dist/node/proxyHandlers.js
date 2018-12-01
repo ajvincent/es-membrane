@@ -16,8 +16,7 @@ allTraps.forEach((trapName) =>
   MembraneProxyHandlers.Base.prototype[trapName] = NOT_IMPLEMENTED
 );
 MembraneProxyHandlers.Forwarding = function() {
-  this.nextHandlerByTrap = new Map();
-  this.setNextHandler(allTraps, NOT_IMPLEMENTED);
+  this.nextHandler = null;
 };
 
 MembraneProxyHandlers.Forwarding.prototype = new MembraneProxyHandlers.Base();
@@ -26,15 +25,8 @@ MembraneProxyHandlers.Forwarding.prototype = new MembraneProxyHandlers.Base();
   const proto = MembraneProxyHandlers.Forwarding.prototype;
   allTraps.forEach((trapName) =>
     proto[trapName] = function(...args) {
-      const next = this.nextHandlerByTrap.get(trapName);
-      return next[trapName].apply(next, args);
+      return this.nextHandler[trapName].apply(this.nextHandler, args);
     }
   );
-
-  proto.setNextHandler = function(traps, handler) {
-    traps.forEach((trapName) =>
-      this.nextHandlerByTrap.set(trapName, handler)
-    );
-  };
 }
 module.exports.MembraneProxyHandlers = MembraneProxyHandlers;

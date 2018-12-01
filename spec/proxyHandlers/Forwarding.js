@@ -40,13 +40,9 @@ describe("MembraneProxyHandlers.Forwarding proxy handler", function() {
   });
   
   describe("can forward to Reflect", function() {
-/*
-  "ownKeys",
-  "apply",
-  "construct"
- */
+    beforeEach(() => handler.nextHandler = Reflect);
+
     it("on the getPrototypeOf trap", function() {
-      handler.setNextHandler(["getPrototypeOf"], Reflect);
       function base() {}
       shadow = new base();
       mirror = new base();
@@ -54,7 +50,6 @@ describe("MembraneProxyHandlers.Forwarding proxy handler", function() {
     });
 
     it("on the setPrototypeOf trap", function() {
-      handler.setNextHandler(["setPrototypeOf"], Reflect);
       function base() {}
       shadow = new base();
       const proto = {};
@@ -63,20 +58,17 @@ describe("MembraneProxyHandlers.Forwarding proxy handler", function() {
     });
 
     it("on the isExtensible trap", function() {
-      handler.setNextHandler(["isExtensible"], Reflect);
       expect(handler.isExtensible(shadow)).toBe(true);
       Reflect.preventExtensions(shadow);
       expect(handler.isExtensible(shadow)).toBe(false);
     });
 
     it("on the preventExtensions trap", function() {
-      handler.setNextHandler(["preventExtensions"], Reflect);
       handler.preventExtensions(shadow);
       expect(Reflect.isExtensible(shadow)).toBe(false);
     });
 
     it("on the getOwnPropertyDescriptor trap", function() {
-      handler.setNextHandler(["getOwnPropertyDescriptor"], Reflect);
       const desc = {
         value: {},
         writable: true,
@@ -92,7 +84,6 @@ describe("MembraneProxyHandlers.Forwarding proxy handler", function() {
     });
 
     it("on the defineProperty trap", function() {
-      handler.setNextHandler(["defineProperty"], Reflect);
       const desc = {
         value: {},
         writable: true,
@@ -108,7 +99,6 @@ describe("MembraneProxyHandlers.Forwarding proxy handler", function() {
     });
 
     it("on the has trap", function() {
-      handler.setNextHandler(["has"], Reflect);
       const base = {};
       base.foo = {};
       Reflect.setPrototypeOf(shadow, base);
@@ -118,7 +108,6 @@ describe("MembraneProxyHandlers.Forwarding proxy handler", function() {
     });
 
     it("on the get trap", function() {
-      handler.setNextHandler(["get"], Reflect);
       const base = {}, foo = {}, bar = {};
       Reflect.setPrototypeOf(shadow, base);
       base.foo = foo;
@@ -128,7 +117,6 @@ describe("MembraneProxyHandlers.Forwarding proxy handler", function() {
     });
 
     it("on the set trap", function() {
-      handler.setNextHandler(["set"], Reflect);
       const base = {}, foo = {}, bar = {};
       Reflect.setPrototypeOf(shadow, base);
       expect(handler.set(base, "foo", foo)).toBe(Reflect.set(mirror, "foo", foo));
@@ -138,12 +126,36 @@ describe("MembraneProxyHandlers.Forwarding proxy handler", function() {
     });
 
     it("on the deleteProperty trap", function() {
-      handler.setNextHandler(["deleteProperty"], Reflect);
       const foo = {};
       shadow.foo = foo;
       mirror.foo = foo;
       expect(handler.deleteProperty(shadow, "foo")).toBe(Reflect.deleteProperty(mirror, "foo"));
       expect(Reflect.hasOwnProperty(shadow, "foo")).toBe(false);
+    });
+
+    it("on the ownKeys trap", function() {
+      shadow.foo = 1;
+      shadow.bar = 2;
+      expect(handler.ownKeys(shadow)).toEqual(Reflect.ownKeys(shadow));
+    });
+
+    it("on the apply trap", function() {
+      const rv1 = Reflect.apply(''.charAt, 'ponies', [3]);
+      const rv2 = handler.apply(''.charAt, 'ponies', [3]);
+      expect(rv1).toBe(rv2);
+    });
+
+    it("on the construct trap", function() {
+      const base = function() {};
+      base.prototype.validate = () => true;
+      shadow = function(arg1) { this.arg = arg1; };
+      const rv1 = Reflect.construct(shadow, [ "foo" ], base);
+      expect(rv1.arg).toBe("foo");
+      expect(rv1.validate()).toBe(true);
+
+      const rv2 = handler.construct(shadow, [ "foo" ], base);
+      expect(rv2.arg).toBe("foo");
+      expect(rv2.validate()).toBe(true);
     });
   });
 });
