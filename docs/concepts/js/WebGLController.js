@@ -54,8 +54,7 @@ return {
    * @param scene       {THREE.Scene} The scene to paint.
    * @param autoRepaint {Boolean} True for repainting the scene continuously.
    */
-  setSceneAndShow: function(scene, autoRepaint)
-  {
+  setSceneAndShow: function(scene, autoRepaint) {
     const wasPainting = this.isPaintingContinuous;
     MasterController.selectedSlide = this.renderer.domElement;
     this.scene = scene;
@@ -78,29 +77,31 @@ return {
   /**
    * Initialize the WebGL controller.
    */
-  init: async function()
-  {
+  init: function() {
+    let p = Promise.resolve();
     if (!this.font)
-      await this.loadFont();
+      p = p.then(() => this.loadFont());
+    p = p.then(() => {
+      this.renderer = new THREE.WebGLRenderer({
+        canvas: document.getElementById("WebGLCanvas")
+      });
 
-    this.renderer = new THREE.WebGLRenderer({
-      canvas: document.getElementById("WebGLCanvas")
+      this.emptyScene = new THREE.Scene();
+      this.emptyScene.background = new THREE.Color( 0xffffff );
+
+      // cx = 0, cy = 0, aspect ratio = 16/9
+      this.camera = new THREE.OrthographicCamera(
+        -240, 240, -135, +135, -100, 500
+      );
+
+      this.camera.position.x = this.camera.right - 20;
+      this.camera.position.y = this.camera.bottom - 20;
+      this.camera.position.z = 0;
+
+      this.repaint = this.repaint.bind(this);
+      this.repaint();
     });
-
-    this.emptyScene = new THREE.Scene();
-    this.emptyScene.background = new THREE.Color( 0xffffff );
-
-    // cx = 0, cy = 0, aspect ratio = 16/9
-    this.camera = new THREE.OrthographicCamera(
-      -240, 240, -135, +135, -100, 500
-    );
-
-    this.camera.position.x = this.camera.right - 20;
-    this.camera.position.y = this.camera.bottom - 20;
-    this.camera.position.z = 0;
-
-    this.repaint = this.repaint.bind(this);
-    this.repaint();
+    return p;
   }
 };
 })();
