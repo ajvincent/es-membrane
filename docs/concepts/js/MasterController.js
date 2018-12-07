@@ -11,8 +11,10 @@ return {
   set selectedSlide(slide)
   {
     const previous = this.selectedSlide;
-    previous.classList.remove("visible");
-    slide.classList.add("visible");
+    if (previous)
+      previous.classList.remove("visible");
+    if (slide)
+      slide.classList.add("visible");
   },
 
   get selectedPage()
@@ -22,8 +24,10 @@ return {
   set selectedPage(page)
   {
     const previous = this.selectedPage;
-    previous.classList.remove("visible");
-    page.classList.add("visible");
+    if (previous)
+      previous.classList.remove("visible");
+    if (page)
+      page.classList.add("visible");
   },
 
   /**
@@ -60,6 +64,7 @@ return {
     {
       p = Promise.all([
         WebGLController.init(),
+        FabricController.init(),
         PopcornController.init(),
         PageContentLoader.init(),
       ]);

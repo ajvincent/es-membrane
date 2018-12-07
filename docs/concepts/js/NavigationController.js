@@ -3,8 +3,7 @@ const NavigationController = (function() {
 
 const allowedSlideTypes = [
   "THREE.Scene",
-  "HTML",
-  "SVG",
+  "FabricJS",
 ];
 
 return {
@@ -128,8 +127,8 @@ return {
       if (driver.slideType == "THREE.Scene") {
         WebGLController.setSceneAndShow(driver.scene, true);
       }
-      else {
-        MasterController.selectedSlide = document.getElementById("slide:" + path);
+      else if (driver.slideType == "FabricJS") {
+        FabricController.setGroupAndShow(driver.group);
       }
       if (driver.show)
         driver.show();

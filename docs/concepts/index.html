@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <script type="application/javascript"
           async="async"
+          src="../libraries/fabric/fabric.min.js"
+         ></script>
+  <script type="application/javascript"
+          async="async"
           src="../libraries/three-js-r98/three.min.js"
          ></script>
   <script type="application/javascript"
@@ -13,6 +17,10 @@
   <script type="application/javascript"
           async="async"
           src="js/visualization/mocks.js"
+         ></script>
+  <script type="application/javascript"
+          async="async"
+          src="js/FabricController.js"
          ></script>
   <script type="application/javascript"
           async="async"
@@ -39,7 +47,8 @@
 <body onload="MasterController.init();">
   <div id="slides" class="deck">
     <pre id="error"></pre>
-    <canvas id="WebGLCanvas" class="visible"></canvas>
+    <canvas id="FabricCanvas" class="visible"></canvas>
+    <canvas id="WebGLCanvas"></canvas>
   </div>
   <nav id="outline">
     <!-- For local development, add class="scaffolding" to the li element, then
@@ -48,7 +57,7 @@
     section id after the : character.
     -->
     <ol>
-      <li data-path="template/main">Hello World</li>
+      <li data-path="introduction/main" id="intro-link">Introduction</li>
       <li>What is a Membrane?
         <ol>
           <li>Objects</li>
@@ -208,7 +217,6 @@ nec molestie nibh. Phasellus nec venenatis leo.
     <template dataset-filename="content.json">
       {
         "pageText": "text.html",
-        "slideHTML": "slide.html",
         "audio": "../../../audio/silence-10m.ogg",
         "script": "animation.js"
       }
@@ -216,16 +224,13 @@ nec molestie nibh. Phasellus nec venenatis leo.
     <template dataset-filename="text.html">
       <p>Hello World</p>
     </template>
-    <template dataset-filename="slide.html">
-      <h1>Hello World</h1>
-    </template>
     <template dataset-filename="animation.js">
 NavigationController.addPageDriver({
   // The path specified in ../../../index.html for this page
   path: "template/main",
 
   // What kind of slide are we dealing with?
-  slideType: "HTML",
+  slideType: "FabricJS",
 
   /**
    * Initializing the scene and/or the content.
@@ -233,11 +238,11 @@ NavigationController.addPageDriver({
   init: function() {
   },
 
+  // fabric.Group for the FabricController.
+  group: null,
+
   // THREE.Scene for the WebGLController.
   scene: null,
-
-  // HTMLSectionElement from NavigationController for the HTML- or SVG-based slide.
-  slideContent: null,
 
   // HTMLSectionElement from NavigationController for the HTML-based text.
   textContent: null,
