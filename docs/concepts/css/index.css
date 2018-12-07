@@ -14,8 +14,8 @@ body
 
 #slides
 {
-  width: 400px;
-  height: 225px;
+  width: 800px;
+  height: 450px;
   padding: 0px;
   margin: 0px;
   overflow: 0px;
@@ -35,7 +35,7 @@ body
 
 nav {
   overflow-y: scroll;
-  height: 265px;
+  height: 490px;
 
   grid-column-start: 2;
   grid-column-end: 3;
@@ -70,7 +70,7 @@ main {
   padding: 5px;
 }
 
-#WebGLCanvas
+#FabricCanvas, #WebGLCanvas
 {
   width: 100%;
   height: 100%;
