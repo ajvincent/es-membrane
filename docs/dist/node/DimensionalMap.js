@@ -12,7 +12,7 @@ function buildKeyMap(obj, keySequence) {
 function validateWeakKey(keyMap, keySequence) {
   keySequence.forEach(function(key, index) {
     const part = keyMap.get(key);
-    if (!(part instanceof Object))
+    if ((typeof part !== "object") && (typeof part !== "function"))
       throw new Error(
         `DimensionalMap key ${key} at objectKeys index ${index} ` +
         `must be an object, got the ${typeof part} ${part}`
