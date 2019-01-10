@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 /*
 import "../docs/dist/es6-modules/Membrane.js";
 import "../docs/dist/es6-modules/MembraneMocks.js";
@@ -699,8 +699,10 @@ describe("basic concepts: ", function() {
       dryDocument.baseURL = "https://www.ecmascript.org/";
     }).toThrow();
 
+    function voidFunc() {}
     expect(function () {
-      dryDocument.baseURL;
+      let x = dryDocument.baseURL;
+      voidFunc(x);
     }).toThrow();
   });
 

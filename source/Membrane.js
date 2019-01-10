@@ -502,7 +502,6 @@ MembraneInternal.prototype = Object.seal({
 
     var originHandler = this.getHandlerByName(originField);
     var targetHandler = this.getHandlerByName(targetField);
-    var membrane = this;
 
     ["value", "get", "set"].forEach(function(descProp) {
       if (keys.includes(descProp))
