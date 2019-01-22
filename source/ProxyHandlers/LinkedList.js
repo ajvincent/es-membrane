@@ -1,7 +1,19 @@
 {
 const LinkedList = function(objectGraph) {
-  this.objectGraph = objectGraph;
-  this.membrane = objectGraph.membrane;
+  Reflect.defineProperty(this, "objectGraph", {
+    value: objectGraph,
+    writable: false,
+    enumerable: true,
+    configurable: false,
+  });
+
+  Reflect.defineProperty(this, "membrane", {
+    value: objectGraph.membrane,
+    writable: false,
+    enumerable: true,
+    configurable: false,
+  });
+
   Object.freeze(this);
 };
 LinkedList.prototype = new MembraneProxyHandlers.Base();

@@ -22,6 +22,7 @@ SOURCE_HANDLER_FILES = \
 	source/ProxyHandlers/Base.js \
 	source/ProxyHandlers/Forwarding.js \
 	source/ProxyHandlers/LinkedList.js \
+	source/ProxyHandlers/outro.js \
 	$(NULL)
 
 SOURCE_FILES = \
