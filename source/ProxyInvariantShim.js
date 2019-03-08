@@ -1,3 +1,23 @@
+/**
+ * @fileoverview
+ * This defines Proxy.invariant for the express purpose of verifying that an
+ * ProxyHandler implementation does not violate the ECMAScript specification's
+ * invariants regarding proxies.
+ *
+ * Why not rely on the engine to assert?  The exception that gets thrown would
+ * be after the ProxyHandler code has successfully exited.  This at least
+ * assures the offending proxy handler method is on the stack when the exception
+ * happens.
+ *
+ * This is a shim, for a proposed Proxy.invariant addition to the ECMAScript
+ * standard.  The API for each method of Proxy.invariant MUST be identical to
+ * the Reflect API, with the exception that each method has an additional
+ * tailing argument for the return value to test against.
+ *
+ * Thus, a ProxyHandler's has method wishing to verify its correctness may call:
+ *
+ * return Proxy.invariant.has(target, name, rv);
+ */
 (function() {
 "use strict";
 const isDataDescriptor = function(desc) {
@@ -93,14 +113,13 @@ const IsCompatiblePropertyDescriptor = function(extensible, Desc, current, prefi
   }
 };
 
-const ProxyInvariants = function(objectGraph) {
-  MembraneProxyHandlers.LinkedList.apply(this, [objectGraph]);
-};
-ProxyInvariants.prototype = new MembraneProxyHandlers.LinkedList(null);
+if (typeof Proxy.invariant !== "undefined")
+  return;
+ 
+Proxy.invariant = {};
 
-ProxyInvariants.prototype.getPrototypeOf = function(target) {
+Proxy.invariant.getPrototypeOf = function(target, rv) {
   // 9.5.1, https://www.ecma-international.org/ecma-262/9.0/index.html#sec-proxy-object-internal-methods-and-internal-slots-getprototypeof
-  const rv = this.nextHandler(target).getPrototypeOf(target);
   const type = typeof rv;
   if ((rv === null) || ((type !== "object") && (type !== "undefined")))
     throw new TypeError("ProxyHandler.getPrototypeOf must return a non-null object");
@@ -111,9 +130,8 @@ ProxyInvariants.prototype.getPrototypeOf = function(target) {
   return rv;
 };
 
-ProxyInvariants.prototype.setPrototypeOf = function(target, proto) {
+Proxy.invariant.setPrototypeOf = function(target, proto, rv) {
   // 9.5.2, https://www.ecma-international.org/ecma-262/9.0/index.html#sec-proxy-object-internal-methods-and-internal-slots-setprototypeof-v
-  const rv = this.nextHandler(target).setPrototypeOf(target, proto);
   if (rv === false)
     return false;
   if (rv !== true)
@@ -125,9 +143,8 @@ ProxyInvariants.prototype.setPrototypeOf = function(target, proto) {
   return rv;
 };
 
-ProxyInvariants.prototype.isExtensible = function(target) {
+Proxy.invariant.isExtensible = function(target, rv) {
   // 9.5.3, https://www.ecma-international.org/ecma-262/9.0/index.html#sec-proxy-object-internal-methods-and-internal-slots-isextensible
-  const rv = this.nextHandler(target).isExtensible(target);
   if (typeof rv !== "boolean")
     throw new TypeError("ProxyHandler.isExtensible must return true or false");
   if (rv !== Reflect.isExtensible(target))
@@ -135,9 +152,8 @@ ProxyInvariants.prototype.isExtensible = function(target) {
   return rv;
 };
 
-ProxyInvariants.prototype.preventExtensions = function(target) {
+Proxy.invariant.preventExtensions = function(target, rv) {
   // 9.5.4, https://www.ecma-international.org/ecma-262/9.0/index.html#sec-proxy-object-internal-methods-and-internal-slots-preventextensions
-  const rv = this.nextHandler(target).preventExtensions(target);
   if (typeof rv !== "boolean")
     throw new TypeError("ProxyHandler.preventExtensions must return true or false");
   if (rv && Reflect.isExtensible(target))
@@ -145,11 +161,10 @@ ProxyInvariants.prototype.preventExtensions = function(target) {
   return rv;
 };
 
-ProxyInvariants.prototype.getOwnPropertyDescriptor = function(target, name) {
+Proxy.invariant.getOwnPropertyDescriptor = function(target, name, rv) {
   // 9.5.5, https://www.ecma-international.org/ecma-262/9.0/index.html#sec-proxy-object-internal-methods-and-internal-slots-getownproperty-p
   const prefix = `ProxyHandler.getOwnPropertyDescriptor(target, ${name})`;
   IsPropertyKey(name, prefix);
-  const rv = this.nextHandler(target).getOwnPropertyDescriptor(target, name);
   const type = typeof rv;
   if ((rv === null) || ((type !== "object") && (type !== "undefined")))
     throw new TypeError(`${prefix}: proxy must return an object or undefined`);
@@ -201,12 +216,11 @@ ProxyInvariants.prototype.getOwnPropertyDescriptor = function(target, name) {
   return rv;
 };
 
-ProxyInvariants.prototype.defineProperty = function(target, name, Desc) {
+Proxy.invariant.defineProperty = function(target, name, Desc, rv) {
   // 9.5.6, https://www.ecma-international.org/ecma-262/9.0/index.html#sec-proxy-object-internal-methods-and-internal-slots-defineownproperty-p-desc
   const prefix = `ProxyHandler.defineProperty(target, ${name}, Desc)`;
   IsPropertyKey(name, prefix);
 
-  const rv = this.nextHandler(target).defineProperty(target, name, Desc);
   const type = typeof rv;
   if (type !== "boolean")
     throw new TypeError(`${prefix}: return value must be a boolean`);
@@ -231,12 +245,11 @@ ProxyInvariants.prototype.defineProperty = function(target, name, Desc) {
   return true;
 };
 
-ProxyInvariants.prototype.has = function(target, name) {
+Proxy.invariant.has = function(target, name, rv) {
   // 9.5.7, https://www.ecma-international.org/ecma-262/9.0/index.html#sec-proxy-object-internal-methods-and-internal-slots-hasproperty-p
   const prefix = `ProxyHandler.has(target, ${name})`;
   IsPropertyKey(name, prefix);
 
-  const rv = this.nextHandler(target).has(target, name);
   const type = typeof rv;
   if (type !== "boolean")
     throw new TypeError(`${prefix}: return value must be a boolean`);
@@ -253,13 +266,12 @@ ProxyInvariants.prototype.has = function(target, name) {
   return rv;
 };
 
-ProxyInvariants.prototype.get = function(target, name, receiver) {
+Proxy.invariant.get = function(target, name, receiver, rv) {
   // 9.5.8, https://www.ecma-international.org/ecma-262/9.0/index.html#sec-proxy-object-internal-methods-and-internal-slots-get-p-receiver
   const prefix = `ProxyHandler.get(target, ${name}, receiver)`;
   IsPropertyKey(name, prefix);
 
-  const rv = this.nextHandler(target).get(target, name, receiver);
-  const targetDesc = Reflect.getOwnPropertyDescriptor(target, name);
+  const targetDesc = Reflect.getOwnPropertyDescriptor(target, name, receiver);
   if ((targetDesc !== "undefined") && !targetDesc.configurable) {
     if (isDataDescriptor(targetDesc) &&
         !targetDesc.writable &&
@@ -276,18 +288,17 @@ ProxyInvariants.prototype.get = function(target, name, receiver) {
   return rv;
 };
 
-ProxyInvariants.prototype.set = function(target, name, value, receiver) {
+Proxy.invariant.set = function(target, name, value, receiver, rv) {
   // 9.5.9, https://www.ecma-international.org/ecma-262/9.0/index.html#sec-proxy-object-internal-methods-and-internal-slots-set-p-v-receiver
   const prefix = `ProxyHandler.set(target, ${name}, value, receiver)`;
   IsPropertyKey(name, prefix);
 
-  const rv = this.nextHandler(target).set(target, name, value, receiver);
   if (typeof rv !== "boolean")
     throw new TypeError(`${prefix}: return value must be a boolean`);
   if (!rv)
     return false;
 
-  const targetDesc = Reflect.getOwnPropertyDescriptor(target, name);
+  const targetDesc = Reflect.getOwnPropertyDescriptor(target, name, value, receiver);
   if ((targetDesc !== undefined) && !targetDesc.configurable) {
     if (isDataDescriptor(targetDesc) &&
         !targetDesc.writable &&
@@ -300,12 +311,11 @@ ProxyInvariants.prototype.set = function(target, name, value, receiver) {
   return true;
 };
 
-ProxyInvariants.prototype.delete = function(target, name) {
+Proxy.invariant.deleteProperty = function(target, name, rv) {
   // 9.5.10, https://www.ecma-international.org/ecma-262/9.0/index.html#sec-proxy-object-internal-methods-and-internal-slots-delete-p
   const prefix = `ProxyHandler.delete(target, ${name})`;
   IsPropertyKey(name, prefix);
 
-  const rv = this.nextHandler(target).delete(target, name);
   if (typeof rv !== "boolean")
     throw new TypeError(`${prefix}: return value must be a boolean`);
   if (rv === false)
@@ -318,10 +328,9 @@ ProxyInvariants.prototype.delete = function(target, name) {
   return true;
 };
 
-ProxyInvariants.prototype.ownKeys = function(target) {
+Proxy.invariant.ownKeys = function(target, rv) {
   // 9.5.11, https://www.ecma-international.org/ecma-262/9.0/index.html#sec-proxy-object-internal-methods-and-internal-slots-ownpropertykeys
   const prefix = `ProxyHandler.ownKeys(target)`;
-  const rv = this.nextHandler(target).ownKeys(target);
   if (!Array.isArray(rv))
     throw new TypeError(`${prefix}: ownKeys should return an array`);
 
@@ -377,19 +386,26 @@ ProxyInvariants.prototype.ownKeys = function(target) {
   return rv;
 };
 
-// 9.5.12: https://www.ecma-international.org/ecma-262/9.0/index.html#sec-proxy-object-internal-methods-and-internal-slots-call-thisargument-argumentslist
-// The apply trap makes no assertions.
+Proxy.invariant.apply = function(target, thisArg, argList, rv) {
+  // 9.5.12: https://www.ecma-international.org/ecma-262/9.0/index.html#sec-proxy-object-internal-methods-and-internal-slots-call-thisargument-argumentslist
+  /* The apply trap makes no invariant assertions after the target executes.
+   * This is mainly here for consistency with the other ProxyHandler traps.
+   */
+  return rv;
+};
 
-ProxyInvariants.prototype.construct = function(target, argList, newTarget) {
+Proxy.invariant.construct = function(target, argList, newTarget, rv) {
   // 9.5.13: https://www.ecma-international.org/ecma-262/9.0/index.html#sec-proxy-object-internal-methods-and-internal-slots-construct-argumentslist-newtarget
-  const rv = this.nextHandler(target).construct(target, argList, newTarget);
   const type = typeof rv;
   if ((rv !== null) && (type !== "object") && (type !== "function"))
     throw new TypeError(`ProxyHandler.construct: proxy must return an object`);
   return rv;
 };
 
-MembraneProxyHandlers.ProxyInvariants = ProxyInvariants;
-Object.freeze(ProxyInvariants.prototype);
-Object.freeze(ProxyInvariants);
+Object.freeze(Proxy.invariant);
+Reflect.defineProperty(Proxy, "invariant", {
+  writable: false,
+  enumerable: true,
+  configurable: false,
+});
 })();
