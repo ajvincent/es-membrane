@@ -196,4 +196,4 @@ node:: base mockDocs specs
 	@cat $(NODE_UTILITIES_FILES) > $(DIST)/node/utilities.js
 
 node-tests::	
-	$(type -P npm) test
+	$(shell type -P npm) test
