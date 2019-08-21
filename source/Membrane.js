@@ -8,17 +8,19 @@ function MembraneInternal(options = {}) {
                     options.passThroughFilter :
                     returnFalse;
 
+  let map = new WeakMap(/*
+    key: ProxyMapping instance
+
+    key may be a Proxy, a value associated with a proxy, or an original value.
+  */);
+  WeakMapOfProxyMappings(map);
+
   Object.defineProperties(this, {
     "showGraphName": new NWNCDataDescriptor(
       Boolean(options.showGraphName), false
     ),
 
-    "map": new NWNCDataDescriptor(
-      new WeakMap(/*
-        key: ProxyMapping instance
-
-        key may be a Proxy, a value associated with a proxy, or an original value.
-      */), false),
+    "map": new NWNCDataDescriptor(map, false),
 
     "handlersByFieldName": new NWNCDataDescriptor({}, false),
 
@@ -513,6 +515,10 @@ MembraneInternal.prototype = Object.seal({
     }, this);
 
     return wrappedDesc;
+  },
+
+  revokeMapping: function(key) {
+    this.map.revoke(key);
   },
 
   /* Disabled, dead API.

@@ -194,6 +194,46 @@ function stringifyArg(arg) {
   return "{}";
 }
 
+function WeakMapOfProxyMappings(map) {
+  Reflect.defineProperty(
+    map, "delete", new NWNCDataDescriptor(WeakMapOfProxyMappings.delete)
+  );
+  Reflect.defineProperty(
+    map,
+    "set",
+    new NWNCDataDescriptor(WeakMapOfProxyMappings.set.bind(map, map.set))
+  );
+  Reflect.defineProperty(
+    map,
+    "revoke",
+    new NWNCDataDescriptor(WeakMapOfProxyMappings.revoke)
+  );
+}
+WeakMapOfProxyMappings.Dead = Symbol("dead map entry");
+
+WeakMapOfProxyMappings.delete = function() {
+  throw new Error("delete not allowed on WeakMapOfProxyMappings");
+};
+
+WeakMapOfProxyMappings.set = function(_set, key, value) {
+  if (value !== WeakMapOfProxyMappings.Dead) {
+    const current = this.get(key);
+    if (current === WeakMapOfProxyMappings.Dead)
+      throw new Error("WeakMapOfProxyMappings says this key is dead");
+    else if (!(value instanceof ProxyMapping))
+      throw new Error("WeakMapOfProxyMappings only allows values of .Dead or ProxyMapping");
+    if ((current !== undefined) && (current !== value))
+      throw new Error("WeakMapOfProxyMappings already has a value for this key");
+  }
+  return _set.apply(this, [key, value]);
+};
+
+WeakMapOfProxyMappings.revoke = function(key) {
+  this.set(key, WeakMapOfProxyMappings.Dead);
+};
+
+Object.freeze(WeakMapOfProxyMappings);
+
 /**
  * @deprecated
  */
@@ -309,6 +349,7 @@ function ProxyMapping(originField) {
      *   value: value,
      *   proxy: proxy,
      *   revoke: revoke
+     *   shadowTarget: shadow target
      *   (other properties as necessary)
      * }
      */
@@ -419,7 +460,17 @@ Object.defineProperties(ProxyMapping.prototype, {
   }),
 
   "remove": new DataDescriptor(function(field) {
-    delete this.proxiedFields[field];
+    /* This will make the keys of the Membrane's WeakMapOfProxyMappings
+     * unreachable, and thus reduce the set of references to the ProxyMapping.
+     *
+     * There's also the benefit of disallowing recreating a proxy to the
+     * original object.
+     */
+    Reflect.defineProperty(
+      this.proxiedFields,
+      field,
+      new NWNCDataDescriptor(WeakMapOfProxyMappings.Dead)
+    );
   }),
 
   "selfDestruct": new DataDescriptor(function(membrane) {
@@ -434,11 +485,24 @@ Object.defineProperties(ProxyMapping.prototype, {
     }
   }),
 
-  "revoke": new DataDescriptor(function() {
+  "revoke": new DataDescriptor(function(membrane) {
     let fields = Object.getOwnPropertyNames(this.proxiedFields);
     // fields[0] === this.originField
     for (let i = 1; i < fields.length; i++) {
-      this.proxiedFields[fields[i]].revoke();
+      let parts = this.proxiedFields[fields[i]];
+      if (typeof parts.revoke === "function")
+        parts.revoke();
+      if (Object(parts.value) === parts.value)
+        membrane.revokeMapping(parts.value);
+      if (Object(parts.proxy) === parts.proxy)
+        membrane.revokeMapping(parts.proxy);
+      if (Object(parts.shadowTarget) === parts.shadowTarget)
+        membrane.revokeMapping(parts.shadowTarget);
+    }
+
+    {
+      let parts = this.proxiedFields[this.originField];
+      membrane.revokeMapping(parts.value);
     }
   }),
 
@@ -644,17 +708,19 @@ function MembraneInternal(options = {}) {
                     options.passThroughFilter :
                     returnFalse;
 
+  let map = new WeakMap(/*
+    key: ProxyMapping instance
+
+    key may be a Proxy, a value associated with a proxy, or an original value.
+  */);
+  WeakMapOfProxyMappings(map);
+
   Object.defineProperties(this, {
     "showGraphName": new NWNCDataDescriptor(
       Boolean(options.showGraphName), false
     ),
 
-    "map": new NWNCDataDescriptor(
-      new WeakMap(/*
-        key: ProxyMapping instance
-
-        key may be a Proxy, a value associated with a proxy, or an original value.
-      */), false),
+    "map": new NWNCDataDescriptor(map, false),
 
     "handlersByFieldName": new NWNCDataDescriptor({}, false),
 
@@ -1149,6 +1215,10 @@ MembraneInternal.prototype = Object.seal({
     }, this);
 
     return wrappedDesc;
+  },
+
+  revokeMapping: function(key) {
+    this.map.revoke(key);
   },
 
   /* Disabled, dead API.
@@ -3074,7 +3144,7 @@ ObjectGraphHandler.prototype = Object.seal({
     for (var i = 0; i < length; i++) {
       let revocable = this.__revokeFunctions__[i];
       if (revocable instanceof ProxyMapping)
-        revocable.revoke();
+        revocable.revoke(this.membrane);
       else // typeof revocable == "function"
         revocable();
     }
