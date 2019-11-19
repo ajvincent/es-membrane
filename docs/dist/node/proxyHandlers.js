@@ -170,20 +170,6 @@ MembraneProxyHandlers.Base = function() {};
 allTraps.forEach((trapName) =>
   MembraneProxyHandlers.Base.prototype[trapName] = NOT_IMPLEMENTED
 );
-MembraneProxyHandlers.Forwarding = function() {
-  this.nextHandler = null;
-};
-
-MembraneProxyHandlers.Forwarding.prototype = new MembraneProxyHandlers.Base();
-
-{
-  const proto = MembraneProxyHandlers.Forwarding.prototype;
-  allTraps.forEach((trapName) =>
-    proto[trapName] = function(...args) {
-      return this.nextHandler[trapName].apply(this.nextHandler, args);
-    }
-  );
-}
 {
 const LinkedList = function(objectGraph) {
   Reflect.defineProperty(this, "objectGraph", {
@@ -199,8 +185,6 @@ const LinkedList = function(objectGraph) {
     enumerable: true,
     configurable: false,
   });
-
-  Object.freeze(this);
 };
 LinkedList.prototype = new MembraneProxyHandlers.Base();
 

@@ -13,8 +13,6 @@ const LinkedList = function(objectGraph) {
     enumerable: true,
     configurable: false,
   });
-
-  Object.freeze(this);
 };
 LinkedList.prototype = new MembraneProxyHandlers.Base();
 
