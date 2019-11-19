@@ -20,6 +20,7 @@ SOURCE_HANDLER_FILES = \
 	source/ProxyHandlers/intro.js \
 	source/DimensionalMap.js \
 	source/ProxyHandlers/Base.js \
+	source/ProxyHandlers/Forwarding.js \
 	source/ProxyHandlers/LinkedList.js \
 	source/ProxyHandlers/outro.js \
 	$(NULL)
@@ -78,6 +79,7 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/iterators.js \
 	spec/non-membrane/containers/array-splice.js \
 	spec/DimensionalMap.js \
+	spec/proxyHandlers/Forwarding.js \
 	spec/proxyHandlers/LinkedList.js \
 	spec/concepts.js \
 	spec/ecma/freeze-seal.js \
