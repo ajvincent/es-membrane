@@ -53,6 +53,46 @@ function stringifyArg(arg) {
   return "{}";
 }
 
+function WeakMapOfProxyMappings(map) {
+  Reflect.defineProperty(
+    map, "delete", new NWNCDataDescriptor(WeakMapOfProxyMappings.delete)
+  );
+  Reflect.defineProperty(
+    map,
+    "set",
+    new NWNCDataDescriptor(WeakMapOfProxyMappings.set.bind(map, map.set))
+  );
+  Reflect.defineProperty(
+    map,
+    "revoke",
+    new NWNCDataDescriptor(WeakMapOfProxyMappings.revoke)
+  );
+}
+WeakMapOfProxyMappings.Dead = Symbol("dead map entry");
+
+WeakMapOfProxyMappings.delete = function() {
+  throw new Error("delete not allowed on WeakMapOfProxyMappings");
+};
+
+WeakMapOfProxyMappings.set = function(_set, key, value) {
+  if (value !== WeakMapOfProxyMappings.Dead) {
+    const current = this.get(key);
+    if (current === WeakMapOfProxyMappings.Dead)
+      throw new Error("WeakMapOfProxyMappings says this key is dead");
+    else if (!(value instanceof ProxyMapping))
+      throw new Error("WeakMapOfProxyMappings only allows values of .Dead or ProxyMapping");
+    if ((current !== undefined) && (current !== value))
+      throw new Error("WeakMapOfProxyMappings already has a value for this key");
+  }
+  return _set.apply(this, [key, value]);
+};
+
+WeakMapOfProxyMappings.revoke = function(key) {
+  this.set(key, WeakMapOfProxyMappings.Dead);
+};
+
+Object.freeze(WeakMapOfProxyMappings);
+
 /**
  * @deprecated
  */

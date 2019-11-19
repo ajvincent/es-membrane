@@ -1865,7 +1865,7 @@ ObjectGraphHandler.prototype = Object.seal({
     for (var i = 0; i < length; i++) {
       let revocable = this.__revokeFunctions__[i];
       if (revocable instanceof ProxyMapping)
-        revocable.revoke();
+        revocable.revoke(this.membrane);
       else // typeof revocable == "function"
         revocable();
     }

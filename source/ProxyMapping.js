@@ -13,6 +13,7 @@ function ProxyMapping(originField) {
      *   value: value,
      *   proxy: proxy,
      *   revoke: revoke
+     *   shadowTarget: shadow target
      *   (other properties as necessary)
      * }
      */
@@ -123,7 +124,17 @@ Object.defineProperties(ProxyMapping.prototype, {
   }),
 
   "remove": new DataDescriptor(function(field) {
-    delete this.proxiedFields[field];
+    /* This will make the keys of the Membrane's WeakMapOfProxyMappings
+     * unreachable, and thus reduce the set of references to the ProxyMapping.
+     *
+     * There's also the benefit of disallowing recreating a proxy to the
+     * original object.
+     */
+    Reflect.defineProperty(
+      this.proxiedFields,
+      field,
+      new NWNCDataDescriptor(WeakMapOfProxyMappings.Dead)
+    );
   }),
 
   "selfDestruct": new DataDescriptor(function(membrane) {
@@ -138,11 +149,24 @@ Object.defineProperties(ProxyMapping.prototype, {
     }
   }),
 
-  "revoke": new DataDescriptor(function() {
+  "revoke": new DataDescriptor(function(membrane) {
     let fields = Object.getOwnPropertyNames(this.proxiedFields);
     // fields[0] === this.originField
     for (let i = 1; i < fields.length; i++) {
-      this.proxiedFields[fields[i]].revoke();
+      let parts = this.proxiedFields[fields[i]];
+      if (typeof parts.revoke === "function")
+        parts.revoke();
+      if (Object(parts.value) === parts.value)
+        membrane.revokeMapping(parts.value);
+      if (Object(parts.proxy) === parts.proxy)
+        membrane.revokeMapping(parts.proxy);
+      if (Object(parts.shadowTarget) === parts.shadowTarget)
+        membrane.revokeMapping(parts.shadowTarget);
+    }
+
+    {
+      let parts = this.proxiedFields[this.originField];
+      membrane.revokeMapping(parts.value);
     }
   }),
 
