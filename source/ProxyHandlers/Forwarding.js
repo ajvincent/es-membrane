@@ -1,5 +1,10 @@
 MembraneProxyHandlers.Forwarding = function() {
-  this.nextHandler = null;
+  Reflect.defineProperty(this, "nextHandler", {
+    value: null,
+    writable: true,
+    enumerable: true,
+    configurable: false,
+  });
 };
 
 MembraneProxyHandlers.Forwarding.prototype = new MembraneProxyHandlers.Base();

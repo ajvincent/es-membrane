@@ -2923,7 +2923,10 @@ if ((typeof DataDescriptor != "function") ||
     (typeof isDataDescriptor != "function") ||
     !Array.isArray(allTraps)) {
   if (typeof require == "function") {
-    require("../../docs/dist/node/utilities.js");
+    let obj = require("../../docs/dist/node/utilities.js");
+    DataDescriptor = obj.DataDescriptor;
+    isDataDescriptor = obj.isDataDescriptor;
+    allTraps = obj.allTraps;
   }
   else
     throw new Error("Unable to run tests: cannot get DataDescriptor");
@@ -2937,13 +2940,14 @@ if (typeof MembraneProxyHandlers != "object") {
     throw new Error("Unable to run tests: cannot get MembraneProxyHandlers");
 }
 
-describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
+describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
   "use strict";
   let handler = null, proxy = null, revoke = null, shadow = null, mirror = null;
   beforeEach(function() {
     shadow = {};
     mirror = {};
-    handler = new MembraneProxyHandlers.LinkedList({membrane: null});
+    let list = new MembraneProxyHandlers.LinkedList({membrane: null}, Reflect);
+    handler = list.buildNode("foo");
     let obj = Proxy.revocable(shadow, handler);
     proxy = obj.proxy;
     revoke = obj.revoke;
@@ -2962,7 +2966,7 @@ describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
   it("inherits from MembraneProxyHandlers.Base", function() {
     expect(handler instanceof MembraneProxyHandlers.Base).toBe(true);
   });
-  
+
   describe("can forward to Reflect", function() {
     beforeEach(() => handler.link(null, Reflect));
 
@@ -3234,6 +3238,114 @@ describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
       expect(rv3.validate()).toBe(true);
     });
   });
+
+  describe("can override a trap", function() {
+    const dummy = function() {};
+    allTraps.forEach((trap) => {
+      it(trap, function() {
+        expect(Reflect.hasOwnProperty(handler, trap)).toBe(false);
+        expect(Reflect.defineProperty(
+          handler, trap, {
+            value: dummy,
+            writable: false,
+            enumerable: false,
+            configurable: false
+          }
+        )).toBe(true);
+        expect(handler[trap]).toBe(dummy);
+      });
+    });
+  });
+});
+
+describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
+  "use strict";
+  let handler = null, proxy = null, revoke = null, shadow = null, mirror = null;
+  beforeEach(function() {
+    shadow = {};
+    mirror = {};
+    handler = new MembraneProxyHandlers.LinkedList({membrane: null}, Reflect);
+    let obj = Proxy.revocable(shadow, handler);
+    proxy = obj.proxy;
+    revoke = obj.revoke;
+  });
+
+  afterEach(function() {
+    handler = null;
+    shadow = null;
+    mirror = null;
+    if (revoke)
+      revoke();
+    revoke = null;
+    proxy = null;
+  });
+
+  it("inherits from MembraneProxyHandlers.Forwarding", function() {
+    expect(handler instanceof MembraneProxyHandlers.Forwarding).toBe(true);
+  });
+
+  describe("cannot override its traps: ", function() {
+    const dummy = function() {};
+    allTraps.forEach((trap) => {
+      it(trap, function() {
+        expect(Reflect.hasOwnProperty(handler, trap)).toBe(false);
+        expect(Reflect.defineProperty(
+          handler, trap, {
+            value: dummy,
+            writable: false,
+            enumerable: false,
+            configurable: false
+          }
+        )).toBe(false);
+        expect(handler[trap]).toBe(MembraneProxyHandlers.Forwarding.prototype[trap]);
+      });
+    });
+  });
+
+  it("has a head node", function() {
+    expect(handler.nextHandler instanceof MembraneProxyHandlers.Base).toBe(true);
+    expect(handler.getNodeByName("head")).toBe(handler.nextHandler);
+    const desc = Reflect.getOwnPropertyDescriptor(handler, "nextHandler");
+    expect(desc).not.toBe(undefined);
+    if (desc) {
+      expect(desc.writable).toBe(false);
+      expect(desc.configurable).toBe(false);
+    }
+  });
+
+  it("has a tail node", function() {
+    expect(handler.tailNode instanceof MembraneProxyHandlers.Forwarding).toBe(true);
+    expect(handler.getNextNode("head", null)).toBe(handler.tailNode);
+    expect(handler.tailNode.nextHandler).toBe(Reflect);
+  });
+
+  it("can insert linked list nodes", function() {
+    const first = handler.buildNode("first");
+    const second = handler.buildNode("second");
+    handler.insertNode("head", first, null);
+    handler.insertNode("first", second, null);
+    expect(handler.getNextNode("head")).toBe(first);
+    expect(handler.getNextNode("first")).toBe(second);
+    expect(handler.getNextNode("second")).toBe(handler.tailNode);
+  });  
+
+  it(
+    "can be constructed with a MembraneProxyHandlers.Forwarding proxy as the tail",
+    function() {
+      const f = new MembraneProxyHandlers.Forwarding({membrane: null}, Reflect);
+      handler = new MembraneProxyHandlers.LinkedList({membrane: null}, f);
+      expect(handler.tailNode.nextHandler).toBe(f);
+    }
+  );
+
+  it(
+    "can be constructed with a MembraneProxyHandlers.LinkedList proxy as the tail",
+    function() {
+      const f = new MembraneProxyHandlers.LinkedList({membrane: null}, Reflect);
+      handler = new MembraneProxyHandlers.LinkedList({membrane: null}, f);
+      expect(handler.tailNode.nextHandler).toBe(f);
+    }
+  );
 });
 "use strict";
 /*
