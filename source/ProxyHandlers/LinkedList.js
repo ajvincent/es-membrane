@@ -151,12 +151,6 @@ LinkedList.prototype.insertNode = function(
   if (!(middleNode instanceof LinkedListNode))
     throw new Error("node must be provided by this.buildNode()");
 
-  if (this.linkNodes.has(middleNode.name))
-    throw new Error(name + " is already in the linked list");
-
-  if (middleNode.nextHandler(null))
-    throw new Error("LinkedListNode's can't have default follow-up nodes until they're inserted");
-
   const leadNode = this.linkNodes.get(leadNodeName);
   if (!leadNode)
     throw new Error("lead node must be known to the linked list");

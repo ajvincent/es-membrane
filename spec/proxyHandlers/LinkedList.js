@@ -401,11 +401,31 @@ describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
   it("can insert linked list nodes", function() {
     const first = handler.buildNode("first");
     const second = handler.buildNode("second");
+
+    const interrupt = handler.buildNode("interrupt");
+    const obj1 = {};
+    const obj2 = {};
+
     handler.insertNode("head", first, null);
     handler.insertNode("first", second, null);
+
+    handler.insertNode("head", interrupt, obj1);
+
+    handler.insertNode("first", interrupt, obj2);
+
     expect(handler.getNextNode("head")).toBe(first);
     expect(handler.getNextNode("first")).toBe(second);
     expect(handler.getNextNode("second")).toBe(handler.tailNode);
+
+    expect(handler.getNextNode("head", obj1)).toBe(interrupt);
+    expect(handler.getNextNode("interrupt", obj1)).toBe(first);
+    expect(handler.getNextNode("first", obj1)).toBe(second);
+    expect(handler.getNextNode("second", obj1)).toBe(handler.tailNode);
+
+    expect(handler.getNextNode("head", obj2)).toBe(first);
+    expect(handler.getNextNode("first", obj2)).toBe(interrupt);
+    expect(handler.getNextNode("interrupt", obj2)).toBe(second);
+    expect(handler.getNextNode("second", obj2)).toBe(handler.tailNode);
   });  
 
   it(
