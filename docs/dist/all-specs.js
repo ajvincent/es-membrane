@@ -2387,16 +2387,20 @@ it(
     expect(x).toEqual(["alpha", "epsilon", "gamma"]);
   }
 );
-if ((typeof DataDescriptor != "function") ||
-    (typeof isDataDescriptor != "function") ||
+if ((typeof DataDescriptor !== "function") ||
+    (typeof isDataDescriptor !== "function") ||
+    (typeof NWNCDataDescriptor !== "function") ||
     !Array.isArray(allTraps)) {
   if (typeof require == "function") {
-    require("../../docs/dist/node/utilities.js");
+    let obj = require("../../docs/dist/node/utilities.js");
+    DataDescriptor = obj.DataDescriptor;
+    isDataDescriptor = obj.isDataDescriptor;
+    NWNCDataDescriptor = obj.NWNCDataDescriptor;
+    allTraps = obj.allTraps;
   }
   else
     throw new Error("Unable to run tests: cannot get DataDescriptor");
 }
-
 if (typeof MembraneProxyHandlers != "object") {
   if (typeof require == "function") {
     var { MembraneProxyHandlers } = require("../../docs/dist/node/proxyHandlers.js");
@@ -2548,13 +2552,15 @@ describe("MembraneProxyHandlers.Forwarding proxy handler", function() {
     });
   });
 });
-if ((typeof DataDescriptor != "function") ||
-    (typeof isDataDescriptor != "function") ||
+if ((typeof DataDescriptor !== "function") ||
+    (typeof isDataDescriptor !== "function") ||
+    (typeof NWNCDataDescriptor !== "function") ||
     !Array.isArray(allTraps)) {
   if (typeof require == "function") {
     let obj = require("../../docs/dist/node/utilities.js");
     DataDescriptor = obj.DataDescriptor;
     isDataDescriptor = obj.isDataDescriptor;
+    NWNCDataDescriptor = obj.NWNCDataDescriptor;
     allTraps = obj.allTraps;
   }
   else
@@ -3000,13 +3006,15 @@ describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
     }
   );
 });
-if ((typeof DataDescriptor != "function") ||
-    (typeof isDataDescriptor != "function") ||
+if ((typeof DataDescriptor !== "function") ||
+    (typeof isDataDescriptor !== "function") ||
+    (typeof NWNCDataDescriptor !== "function") ||
     !Array.isArray(allTraps)) {
   if (typeof require == "function") {
     let obj = require("../../docs/dist/node/utilities.js");
     DataDescriptor = obj.DataDescriptor;
     isDataDescriptor = obj.isDataDescriptor;
+    NWNCDataDescriptor = obj.NWNCDataDescriptor;
     allTraps = obj.allTraps;
   }
   else
@@ -3632,13 +3640,15 @@ describe("MembraneProxyHandlers.Tracing node proxy handler", function() {
     });
   });
 });
-if ((typeof DataDescriptor != "function") ||
-    (typeof isDataDescriptor != "function") ||
+if ((typeof DataDescriptor !== "function") ||
+    (typeof isDataDescriptor !== "function") ||
+    (typeof NWNCDataDescriptor !== "function") ||
     !Array.isArray(allTraps)) {
   if (typeof require == "function") {
     let obj = require("../../docs/dist/node/utilities.js");
     DataDescriptor = obj.DataDescriptor;
     isDataDescriptor = obj.isDataDescriptor;
+    NWNCDataDescriptor = obj.NWNCDataDescriptor;
     allTraps = obj.allTraps;
   }
   else

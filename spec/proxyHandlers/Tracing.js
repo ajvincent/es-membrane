@@ -1,10 +1,12 @@
-if ((typeof DataDescriptor != "function") ||
-    (typeof isDataDescriptor != "function") ||
+if ((typeof DataDescriptor !== "function") ||
+    (typeof isDataDescriptor !== "function") ||
+    (typeof NWNCDataDescriptor !== "function") ||
     !Array.isArray(allTraps)) {
   if (typeof require == "function") {
     let obj = require("../../docs/dist/node/utilities.js");
     DataDescriptor = obj.DataDescriptor;
     isDataDescriptor = obj.isDataDescriptor;
+    NWNCDataDescriptor = obj.NWNCDataDescriptor;
     allTraps = obj.allTraps;
   }
   else

@@ -5,6 +5,9 @@ Each JavaScript file here describes a Proxy handler for specific tasks.  In the 
 There are several files in this directory describing ProxyHandler objects.  The most important ProxyHandler is MembraneProxyHandlers.LinkedListNode, which should be the prototype for building new ProxyHandlers.
 
 ## The various types of ProxyHandlers
+
+Each of these constructors is a property of MembraneProxyHandlers.
+
 ### Base
 
 A minimalist ProxyHandler, to implement all the ProxyHandler traps as exception-throwing methods.  Basically, it's a base class.
