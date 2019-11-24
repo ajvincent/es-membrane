@@ -18,7 +18,6 @@ SOURCE_DOGFOOD_FILES = \
 
 SOURCE_HANDLER_FILES = \
 	source/ProxyHandlers/intro.js \
-	source/DimensionalMap.js \
 	source/ProxyHandlers/Base.js \
 	source/ProxyHandlers/Forwarding.js \
 	source/ProxyHandlers/LinkedList.js \
@@ -42,7 +41,6 @@ SOURCE_FILES = \
 base::
 	@mkdir -p $(DIST)/staging
 	@cp source/sharedUtilities.js $(DIST)/staging/sharedUtilities.js
-	@cp source/DimensionalMap.js $(DIST)/staging/DimensionalMap.js
 	@cat $(SOURCE_DOGFOOD_FILES) > $(DIST)/staging/dogfood.js
 	@cat $(SOURCE_HANDLER_FILES) > $(DIST)/staging/proxyHandlers.js
 	@cat $(SOURCE_FILES) > $(DIST)/staging/es-membrane.js
@@ -80,7 +78,6 @@ ALL_SPEC_FILES = \
 	spec/non-membrane/generators.js \
 	spec/non-membrane/iterators.js \
 	spec/non-membrane/containers/array-splice.js \
-	spec/DimensionalMap.js \
 	spec/proxyHandlers/Forwarding.js \
 	spec/proxyHandlers/LinkedList.js \
 	spec/proxyHandlers/Tracing.js \
@@ -143,7 +140,6 @@ browser:: base mockDocs specs
 	@mkdir -p $(DIST)/browser
 	@cp wrappers/browser/fireJasmine.js $(DIST)/browser/fireJasmine.js
 	@cp wrappers/browser/test-browser.xhtml $(DIST)/browser/test-browser.xhtml
-	@cp $(DIST)/staging/DimensionalMap.js $(DIST)/browser/DimensionalMap.js
 	@cat $(BROWSER_HANDLERS_FILES) > $(DIST)/browser/handlers.js
 	@cat $(BROWSER_MEMBRANE_FILES) > $(DIST)/browser/es-membrane.js
 	@cat wrappers/useStrict.js $(DIST)/staging/sharedUtilities.js > $(DIST)/browser/sharedUtilities.js
@@ -164,12 +160,6 @@ NODE_DIST_FILES = \
 	wrappers/node/require-assert.js \
 	$(DIST)/staging/es-membrane.js \
 	wrappers/node/export-membrane.js \
-	$(NULL)
-
-NODE_DIMENSIONALMAP_FILES = \
-	wrappers/useStrict.js \
-	$(DIST)/staging/DimensionalMap.js \
-	wrappers/node/export-DimensionalMap.js \
 	$(NULL)
 
 NODE_HANDLERS_FILES = \
@@ -197,7 +187,6 @@ NODE_UTILITIES_FILES = \
 
 node:: base mockDocs specs
 	@mkdir -p $(DIST)/node
-	@cat $(NODE_DIMENSIONALMAP_FILES) > $(DIST)/node/DimensionalMap.js
 	@cat $(NODE_HANDLERS_FILES) > $(DIST)/node/proxyHandlers.js
 	@cat $(NODE_DIST_FILES) > $(DIST)/node/es-membrane.js
 	@cat $(NODE_MOCKS_FILES) > $(DIST)/node/mocks.js
