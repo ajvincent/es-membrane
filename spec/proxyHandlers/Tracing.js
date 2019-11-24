@@ -19,14 +19,20 @@ if (typeof MembraneProxyHandlers != "object") {
     throw new Error("Unable to run tests: cannot get MembraneProxyHandlers");
 }
 
-describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
+describe("MembraneProxyHandlers.Tracing node proxy handler", function() {
   "use strict";
-  let handler = null, proxy = null, revoke = null, shadow = null, mirror = null;
+  let handler = null,
+      proxy = null,
+      revoke = null,
+      shadow = null,
+      mirror = null,
+      list   = null;
   beforeEach(function() {
     shadow = {};
     mirror = {};
-    let list = new MembraneProxyHandlers.LinkedList({membrane: null}, Reflect);
-    handler = list.buildNode("foo");
+    list = new MembraneProxyHandlers.LinkedList({membrane: null}, Reflect);
+    handler = list.buildNode("trace", "Tracing");
+    list.insertNode("head", handler);
     let obj = Proxy.revocable(shadow, handler);
     proxy = obj.proxy;
     revoke = obj.revoke;
@@ -40,10 +46,14 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
       revoke();
     revoke = null;
     proxy = null;
+    list = null;
   });
 
-  it("inherits from MembraneProxyHandlers.Base", function() {
-    expect(handler instanceof MembraneProxyHandlers.Base).toBe(true);
+  it("inherits from MembraneProxyHandlers.LinkedListNode", function() {
+    expect(handler instanceof MembraneProxyHandlers.LinkedListNode).toBe(true);
+      expect(handler.traceLog).toEqual([
+      ]);
+      handler.clearLog();
   });
 
   describe("can forward to Reflect", function() {
@@ -62,9 +72,18 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
       const expected = Reflect.getPrototypeOf(mirror);
       let shadowActual = handler.getPrototypeOf(shadow);
       expect(shadowActual).toBe(expected);
+      expect(handler.traceLog).toEqual([
+        "enter trace, getPrototypeOf",
+        "leave trace, getPrototypeOf",
+      ]);
+      handler.clearLog();
 
       let proxyActual = Reflect.getPrototypeOf(proxy);
       expect(proxyActual).toBe(expected);
+      expect(handler.traceLog).toEqual([
+        "enter trace, getPrototypeOf",
+        "leave trace, getPrototypeOf",
+      ]);
     });
 
     it("on the setPrototypeOf trap (via the shadow)", function() {
@@ -78,6 +97,12 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
       revoke = obj.revoke;
 
       handler.setPrototypeOf(shadow, proto);
+      expect(handler.traceLog).toEqual([
+        "enter trace, setPrototypeOf",
+        "leave trace, setPrototypeOf",
+      ]);
+      handler.clearLog();
+
       expect(Reflect.getPrototypeOf(shadow)).toBe(proto);
       expect(Reflect.getPrototypeOf(proxy)).toBe(proto);
     });
@@ -94,34 +119,100 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
 
       Reflect.setPrototypeOf(proxy, proto);
       expect(Reflect.getPrototypeOf(shadow)).toBe(proto);
+      expect(handler.traceLog).toEqual([
+        "enter trace, setPrototypeOf",
+        "leave trace, setPrototypeOf",
+      ]);
+      handler.clearLog();
 
       expect(Reflect.getPrototypeOf(proxy)).toBe(proto);
     });
 
     it("on the isExtensible trap (via the shadow)", function() {
       expect(handler.isExtensible(shadow)).toBe(true);
+      expect(handler.traceLog).toEqual([
+        "enter trace, isExtensible",
+        "leave trace, isExtensible",
+      ]);
+      handler.clearLog();
+
       expect(Reflect.isExtensible(proxy)).toBe(true);
+      expect(handler.traceLog).toEqual([
+        "enter trace, isExtensible",
+        "leave trace, isExtensible",
+      ]);
+      handler.clearLog();
+
       Reflect.preventExtensions(shadow);
+
       expect(handler.isExtensible(shadow)).toBe(false);
+      expect(handler.traceLog).toEqual([
+        "enter trace, isExtensible",
+        "leave trace, isExtensible",
+      ]);
+      handler.clearLog();
+
       expect(Reflect.isExtensible(proxy)).toBe(false);
+      expect(handler.traceLog).toEqual([
+        "enter trace, isExtensible",
+        "leave trace, isExtensible",
+      ]);
+      handler.clearLog();
     });
 
     it("on the isExtensible trap (via the proxy)", function() {
       expect(handler.isExtensible(shadow)).toBe(true);
+      expect(handler.traceLog).toEqual([
+        "enter trace, isExtensible",
+        "leave trace, isExtensible",
+      ]);
+      handler.clearLog();
+
       expect(Reflect.isExtensible(proxy)).toBe(true);
+      expect(handler.traceLog).toEqual([
+        "enter trace, isExtensible",
+        "leave trace, isExtensible",
+      ]);
+      handler.clearLog();
+
       Reflect.preventExtensions(proxy);
+      handler.clearLog();
+
       expect(handler.isExtensible(shadow)).toBe(false);
+      expect(handler.traceLog).toEqual([
+        "enter trace, isExtensible",
+        "leave trace, isExtensible",
+      ]);
+      handler.clearLog();
+
       expect(Reflect.isExtensible(proxy)).toBe(false);
+      expect(handler.traceLog).toEqual([
+        "enter trace, isExtensible",
+        "leave trace, isExtensible",
+      ]);
+      handler.clearLog();
     });
 
     it("on the preventExtensions trap (via the shadow)", function() {
       handler.preventExtensions(shadow);
+      expect(handler.traceLog).toEqual([
+        "enter trace, preventExtensions",
+        "leave trace, preventExtensions",
+      ]);
+      handler.clearLog();
+
       expect(Reflect.isExtensible(shadow)).toBe(false);
       expect(handler.isExtensible(proxy)).toBe(false);
     });
 
     it("on the preventExtensions trap (via the proxy)", function() {
       Reflect.preventExtensions(proxy);
+      expect(handler.traceLog).toEqual([
+        "enter trace, preventExtensions",
+        "leave trace, preventExtensions",
+      ]);
+      handler.clearLog();
+
       expect(Reflect.isExtensible(shadow)).toBe(false);
       expect(handler.isExtensible(proxy)).toBe(false);
     });
@@ -133,21 +224,33 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
         enumerable: true,
         configurable: false
       };
-      Reflect.defineProperty(shadow, "foo", desc);
+      Reflect.defineProperty(shadow, "bar", desc);
 
-      const desc2 = handler.getOwnPropertyDescriptor(shadow, "foo");
+      const desc2 = handler.getOwnPropertyDescriptor(shadow, "bar");
 
       expect(Reflect.ownKeys(desc2)).toEqual(Reflect.ownKeys(desc));
       Reflect.ownKeys(desc).forEach((key) =>
         expect(desc2[key]).toBe(desc[key])
       );
 
-      const desc3 = Reflect.getOwnPropertyDescriptor(proxy, "foo");
+      expect(handler.traceLog).toEqual([
+        "enter trace, getOwnPropertyDescriptor, bar",
+        "leave trace, getOwnPropertyDescriptor, bar",
+      ]);
+      handler.clearLog();
+
+      const desc3 = Reflect.getOwnPropertyDescriptor(proxy, "bar");
 
       expect(Reflect.ownKeys(desc3)).toEqual(Reflect.ownKeys(desc));
       Reflect.ownKeys(desc).forEach((key) =>
         expect(desc3[key]).toBe(desc[key])
       );
+
+      expect(handler.traceLog).toEqual([
+        "enter trace, getOwnPropertyDescriptor, bar",
+        "leave trace, getOwnPropertyDescriptor, bar",
+      ]);
+      handler.clearLog();
     });
 
     it("on the defineProperty trap (via the shadow)", function() {
@@ -157,15 +260,20 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
         enumerable: true,
         configurable: false
       };
-      handler.defineProperty(shadow, "foo", desc);
+      handler.defineProperty(shadow, "bar", desc);
+      expect(handler.traceLog).toEqual([
+        "enter trace, defineProperty, bar",
+        "leave trace, defineProperty, bar",
+      ]);
+      handler.clearLog();
 
-      const desc2 = Reflect.getOwnPropertyDescriptor(shadow, "foo");
+      const desc2 = Reflect.getOwnPropertyDescriptor(shadow, "bar");
       expect(Reflect.ownKeys(desc)).toEqual(Reflect.ownKeys(desc2));
       Reflect.ownKeys(desc).forEach((key) =>
         expect(desc2[key]).toBe(desc[key])
       );
 
-      const desc3 = Reflect.getOwnPropertyDescriptor(proxy, "foo");
+      const desc3 = Reflect.getOwnPropertyDescriptor(proxy, "bar");
 
       expect(Reflect.ownKeys(desc3)).toEqual(Reflect.ownKeys(desc));
       Reflect.ownKeys(desc).forEach((key) =>
@@ -180,15 +288,20 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
         enumerable: true,
         configurable: false
       };
-      Reflect.defineProperty(proxy, "foo", desc);
+      Reflect.defineProperty(proxy, "bar", desc);
+      expect(handler.traceLog).toEqual([
+        "enter trace, defineProperty, bar",
+        "leave trace, defineProperty, bar",
+      ]);
+      handler.clearLog();
 
-      const desc2 = Reflect.getOwnPropertyDescriptor(shadow, "foo");
+      const desc2 = Reflect.getOwnPropertyDescriptor(shadow, "bar");
       expect(Reflect.ownKeys(desc)).toEqual(Reflect.ownKeys(desc2));
       Reflect.ownKeys(desc).forEach((key) =>
         expect(desc2[key]).toBe(desc[key])
       );
 
-      const desc3 = Reflect.getOwnPropertyDescriptor(proxy, "foo");
+      const desc3 = Reflect.getOwnPropertyDescriptor(proxy, "bar");
 
       expect(Reflect.ownKeys(desc3)).toEqual(Reflect.ownKeys(desc));
       Reflect.ownKeys(desc).forEach((key) =>
@@ -202,10 +315,32 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
       Reflect.setPrototypeOf(shadow, base);
       shadow.bar = {};
       expect(handler.has(shadow, "foo")).toBe(true);
+      expect(handler.traceLog).toEqual([
+        "enter trace, has, foo",
+        "leave trace, has, foo",
+      ]);
+      handler.clearLog();
+
       expect(handler.has(shadow, "bar")).toBe(true);
+      expect(handler.traceLog).toEqual([
+        "enter trace, has, bar",
+        "leave trace, has, bar",
+      ]);
+      handler.clearLog();
 
       expect(Reflect.has(proxy, "foo")).toBe(true);
+      expect(handler.traceLog).toEqual([
+        "enter trace, has, foo",
+        "leave trace, has, foo",
+      ]);
+      handler.clearLog();
+
       expect(Reflect.has(proxy, "bar")).toBe(true);
+      expect(handler.traceLog).toEqual([
+        "enter trace, has, bar",
+        "leave trace, has, bar",
+      ]);
+      handler.clearLog();
     });
 
     it("on the get trap", function() {
@@ -213,18 +348,52 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
       Reflect.setPrototypeOf(shadow, base);
       base.foo = foo;
       shadow.bar = bar;
+
       expect(handler.get(shadow, "foo")).toBe(foo);
+      expect(handler.traceLog).toEqual([
+        "enter trace, get, foo",
+        "leave trace, get, foo",
+      ]);
+      handler.clearLog();
+
       expect(handler.get(shadow, "bar")).toBe(bar);
+      expect(handler.traceLog).toEqual([
+        "enter trace, get, bar",
+        "leave trace, get, bar",
+      ]);
+      handler.clearLog();
 
       expect(Reflect.get(proxy, "foo")).toBe(foo);
+      expect(handler.traceLog).toEqual([
+        "enter trace, get, foo",
+        "leave trace, get, foo",
+      ]);
+      handler.clearLog();
+
       expect(Reflect.get(proxy, "bar")).toBe(bar);
+      expect(handler.traceLog).toEqual([
+        "enter trace, get, bar",
+        "leave trace, get, bar",
+      ]);
+      handler.clearLog();
     });
 
     it("on the set trap (via the shadow)", function() {
       const base = {}, foo = {}, bar = {};
       Reflect.setPrototypeOf(shadow, base);
       expect(handler.set(base, "foo", foo)).toBe(Reflect.set(mirror, "foo", foo));
+      expect(handler.traceLog).toEqual([
+        "enter trace, set, foo",
+        "leave trace, set, foo",
+      ]);
+      handler.clearLog();
+
       expect(handler.set(shadow, "bar", bar)).toBe(Reflect.set(mirror, "bar", bar));
+      expect(handler.traceLog).toEqual([
+        "enter trace, set, bar",
+        "leave trace, set, bar",
+      ]);
+      handler.clearLog();
 
       expect(Reflect.get(shadow, "foo")).toBe(foo);
       expect(Reflect.get(shadow, "bar")).toBe(bar);
@@ -233,11 +402,29 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
       expect(Reflect.get(proxy, "bar")).toBe(bar);
     });
 
-    it("on the set trap (via the Proxy)", function() {
+    it("on the set trap (via the proxy)", function() {
       const base = {}, foo = {}, bar = {};
       Reflect.setPrototypeOf(shadow, base);
       expect(Reflect.set(base, "foo", foo)).toBe(Reflect.set(mirror, "foo", foo));
-      expect(Reflect.set(proxy, "bar", bar)).toBe(Reflect.set(mirror, "bar", bar));
+
+      const expected = Reflect.set(mirror, "bar", bar);
+
+      /* Note:  Reflect.set defines a fourth argument for the receiver which is
+       * the same as the first argument when the fourth argument is not provided.
+       * That's why it triggers these additional traps.
+       *
+       * See http://www.ecma-international.org/ecma-262/#sec-ordinarysetwithowndescriptor
+       */
+      expect(Reflect.set(proxy, "bar", bar)).toBe(expected);
+      expect(handler.traceLog).toEqual([
+        "enter trace, set, bar",
+        "enter trace, getOwnPropertyDescriptor, bar",
+        "leave trace, getOwnPropertyDescriptor, bar",
+        "enter trace, defineProperty, bar",
+        "leave trace, defineProperty, bar",
+        "leave trace, set, bar",
+      ]);
+      handler.clearLog();
 
       expect(Reflect.get(shadow, "foo")).toBe(foo);
       expect(Reflect.get(shadow, "bar")).toBe(bar);
@@ -251,6 +438,11 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
       shadow.foo = foo;
       mirror.foo = foo;
       expect(handler.deleteProperty(shadow, "foo")).toBe(Reflect.deleteProperty(mirror, "foo"));
+      expect(handler.traceLog).toEqual([
+        "enter trace, deleteProperty, foo",
+        "leave trace, deleteProperty, foo",
+      ]);
+      handler.clearLog();
 
       expect(Reflect.hasOwnProperty(shadow, "foo")).toBe(false);
       expect(Reflect.hasOwnProperty(proxy, "foo")).toBe(false);
@@ -261,6 +453,11 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
       shadow.foo = foo;
       mirror.foo = foo;
       expect(Reflect.deleteProperty(proxy, "foo")).toBe(Reflect.deleteProperty(mirror, "foo"));
+      expect(handler.traceLog).toEqual([
+        "enter trace, deleteProperty, foo",
+        "leave trace, deleteProperty, foo",
+      ]);
+      handler.clearLog();
 
       expect(Reflect.hasOwnProperty(shadow, "foo")).toBe(false);
       expect(Reflect.hasOwnProperty(proxy, "foo")).toBe(false);
@@ -271,7 +468,19 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
       shadow.bar = 2;
       const expected = Reflect.ownKeys(shadow);
       expect(handler.ownKeys(shadow)).toEqual(expected);
+      expect(handler.traceLog).toEqual([
+        "enter trace, ownKeys",
+        "leave trace, ownKeys",
+      ]);
+      handler.clearLog();
+
       expect(Reflect.ownKeys(proxy)).toEqual(expected);
+      expect(handler.traceLog).toEqual([
+        "enter trace, ownKeys",
+        "leave trace, ownKeys",
+      ]);
+      handler.clearLog();
+
     });
 
     it("on the apply trap", function() {
@@ -291,10 +500,20 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
 
       const rv1 = handler.apply(shadow, expectedThis, expectedArgs.slice(0));
       expect(rv1).toBe(rv);
+      expect(handler.traceLog).toEqual([
+        "enter trace, apply",
+        "leave trace, apply",
+      ]);
+      handler.clearLog();
 
       expectedThis = shadow;
       const rv2 = Reflect.apply(proxy, expectedThis, expectedArgs.slice(0));
       expect(rv2).toBe(rv);
+      expect(handler.traceLog).toEqual([
+        "enter trace, apply",
+        "leave trace, apply",
+      ]);
+      handler.clearLog();
     });
 
     it("on the construct trap", function() {
@@ -315,59 +534,85 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
       const rv2 = handler.construct(shadow, [ "bar" ], base);
       expect(rv2.arg).toBe("bar");
       expect(rv2.validate()).toBe(true);
+      expect(handler.traceLog).toEqual([
+        "enter trace, construct",
+        "leave trace, construct",
+      ]);
+      handler.clearLog();
 
       const rv3 = Reflect.construct(proxy, [ "foo" ], base);
       expect(rv3.arg).toBe("foo");
       expect(rv3.validate()).toBe(true);
+      expect(handler.traceLog).toEqual([
+        "enter trace, construct",
+        "leave trace, construct",
+      ]);
+      handler.clearLog();
     });
   });
 
-  describe("can override a trap", function() {
-    const dummy = function() {};
-    allTraps.forEach((trap) => {
-      it(trap, function() {
-        expect(Reflect.hasOwnProperty(handler, trap)).toBe(false);
-        expect(Reflect.defineProperty(
-          handler, trap, {
-            value: dummy,
-            writable: false,
-            enumerable: false,
-            configurable: false
-          }
-        )).toBe(true);
-        expect(handler[trap]).toBe(dummy);
-      });
-    });
-  });
-});
+  it("logs when a trap throws an error", function() {
+    const err = list.buildNode("error");
+    list.insertNode("trace", err);
 
-describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
-  "use strict";
-  let handler = null, proxy = null, revoke = null, shadow = null, mirror = null;
-  beforeEach(function() {
-    shadow = {};
-    mirror = {};
-    handler = new MembraneProxyHandlers.LinkedList({membrane: null}, Reflect);
-    let obj = Proxy.revocable(shadow, handler);
-    proxy = obj.proxy;
-    revoke = obj.revoke;
+    function th() {
+      throw new Error("nope");
+    }
+
+    err.ownKeys = th;
+    shadow.foo = 1;
+    shadow.bar = 2;
+    try {
+      handler.ownKeys(shadow);
+      throw new Error("not reachable");
+    }
+    catch (ex) {
+      expect(ex.message).toBe("nope");
+    }
+    expect(handler.traceLog).toEqual([
+      "enter trace, ownKeys",
+      "throw trace, ownKeys",
+    ]);
+    handler.clearLog();
+
+    err.defineProperty = th;
+    const bar = {};
+
+    try {
+      Reflect.set(proxy, "bar", bar);
+      throw new Error("not reachable");
+    }
+    catch (ex) {
+      expect(ex.message).toBe("nope");
+    }
+    expect(handler.traceLog).toEqual([
+      "enter trace, set, bar",
+      "enter trace, getOwnPropertyDescriptor, bar",
+      "leave trace, getOwnPropertyDescriptor, bar",
+      "enter trace, defineProperty, bar",
+      "throw trace, defineProperty, bar",
+      "throw trace, set, bar",
+    ]);
+    handler.clearLog();
   });
 
-  afterEach(function() {
-    handler = null;
-    shadow = null;
-    mirror = null;
-    if (revoke)
-      revoke();
-    revoke = null;
-    proxy = null;
+  it("allows reusing the same trace log", function() {
+    const other = list.buildNode("other", "Tracing", handler.traceLog);
+    list.insertNode("trace", other);
+
+    shadow.foo = 1;
+    shadow.bar = 2;
+    handler.ownKeys(shadow);
+    expect(handler.traceLog).toEqual([
+      "enter trace, ownKeys",
+      "enter other, ownKeys",
+      "leave other, ownKeys",
+      "leave trace, ownKeys",
+    ]);
+    handler.clearLog();
   });
 
-  it("inherits from MembraneProxyHandlers.Forwarding", function() {
-    expect(handler instanceof MembraneProxyHandlers.Forwarding).toBe(true);
-  });
-
-  describe("cannot override its traps: ", function() {
+  describe("can not override a trap", function() {
     const dummy = function() {};
     allTraps.forEach((trap) => {
       it(trap, function() {
@@ -380,73 +625,8 @@ describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
             configurable: false
           }
         )).toBe(false);
-        expect(handler[trap]).toBe(MembraneProxyHandlers.Forwarding.prototype[trap]);
+        expect(handler[trap]).toBe(MembraneProxyHandlers.Tracing.prototype[trap]);
       });
     });
   });
-
-  it("has a head node", function() {
-    expect(handler.nextHandler instanceof MembraneProxyHandlers.Base).toBe(true);
-    expect(handler.getNodeByName("head")).toBe(handler.nextHandler);
-    const desc = Reflect.getOwnPropertyDescriptor(handler, "nextHandler");
-    expect(desc).not.toBe(undefined);
-    if (desc) {
-      expect(desc.writable).toBe(false);
-      expect(desc.configurable).toBe(false);
-    }
-  });
-
-  it("has a tail node", function() {
-    expect(handler.tailNode instanceof MembraneProxyHandlers.Forwarding).toBe(true);
-    expect(handler.getNextNode("head", null)).toBe(handler.tailNode);
-    expect(handler.tailNode.nextHandler).toBe(Reflect);
-  });
-
-  it("can insert linked list nodes", function() {
-    const first = handler.buildNode("first");
-    const second = handler.buildNode("second");
-
-    const interrupt = handler.buildNode("interrupt");
-    const obj1 = {};
-    const obj2 = {};
-
-    handler.insertNode("head", first, null);
-    handler.insertNode("first", second, null);
-
-    handler.insertNode("head", interrupt, obj1);
-
-    handler.insertNode("first", interrupt, obj2);
-
-    expect(handler.getNextNode("head")).toBe(first);
-    expect(handler.getNextNode("first")).toBe(second);
-    expect(handler.getNextNode("second")).toBe(handler.tailNode);
-
-    expect(handler.getNextNode("head", obj1)).toBe(interrupt);
-    expect(handler.getNextNode("interrupt", obj1)).toBe(first);
-    expect(handler.getNextNode("first", obj1)).toBe(second);
-    expect(handler.getNextNode("second", obj1)).toBe(handler.tailNode);
-
-    expect(handler.getNextNode("head", obj2)).toBe(first);
-    expect(handler.getNextNode("first", obj2)).toBe(interrupt);
-    expect(handler.getNextNode("interrupt", obj2)).toBe(second);
-    expect(handler.getNextNode("second", obj2)).toBe(handler.tailNode);
-  });  
-
-  it(
-    "can be constructed with a MembraneProxyHandlers.Forwarding proxy as the tail",
-    function() {
-      const f = new MembraneProxyHandlers.Forwarding({membrane: null}, Reflect);
-      handler = new MembraneProxyHandlers.LinkedList({membrane: null}, f);
-      expect(handler.tailNode.nextHandler).toBe(f);
-    }
-  );
-
-  it(
-    "can be constructed with a MembraneProxyHandlers.LinkedList proxy as the tail",
-    function() {
-      const f = new MembraneProxyHandlers.LinkedList({membrane: null}, Reflect);
-      handler = new MembraneProxyHandlers.LinkedList({membrane: null}, f);
-      expect(handler.tailNode.nextHandler).toBe(f);
-    }
-  );
 });

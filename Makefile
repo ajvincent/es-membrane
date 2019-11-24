@@ -22,6 +22,8 @@ SOURCE_HANDLER_FILES = \
 	source/ProxyHandlers/Base.js \
 	source/ProxyHandlers/Forwarding.js \
 	source/ProxyHandlers/LinkedList.js \
+	source/ProxyHandlers/Tracing.js \
+	source/ProxyHandlers/Master.js \
 	source/ProxyHandlers/outro.js \
 	$(NULL)
 
@@ -81,6 +83,8 @@ ALL_SPEC_FILES = \
 	spec/DimensionalMap.js \
 	spec/proxyHandlers/Forwarding.js \
 	spec/proxyHandlers/LinkedList.js \
+	spec/proxyHandlers/Tracing.js \
+	spec/proxyHandlers/Master.js \
 	spec/concepts.js \
 	spec/ecma/freeze-seal.js \
 	spec/ecma/Promise.js \

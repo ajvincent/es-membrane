@@ -19,43 +19,30 @@ const LinkedListNode = function(objectGraph, name) {
     writable: false,
     enumerable: true,
     configurable: false,
-  });  
+  });
+
+  Reflect.defineProperty(this, "nextHandlerMap", new DataDescriptor(
+    new WeakMap(/* target: MembraneProxyHandlers.Base or Reflect */)
+  ));
 };
 
 //{
 LinkedListNode.prototype = new MembraneProxyHandlers.Base();
-
-LinkedListNode.ForwardingMap = new DimensionalMap(
-  ["target"], /* object keys */
-  ["handler"] /* strong keys */
-  /*
-    {
-      target: (shadow target, or null for default),
-      handler: new MembraneProxyHandlers.LinkedListNode()
-    }: new MembraneProxyHandlers.LinkedListNode() or Reflect
-  */
-);
 
 const DEFAULT_TARGET = {};
 
 LinkedListNode.prototype.link = function(target, nextHandler) {
   if (target === null)
     target = DEFAULT_TARGET;
-  const key = new Map();
-  key.set("target", target);
-  key.set("handler", this);
-  LinkedListNode.ForwardingMap.set(key, nextHandler);
+  this.nextHandlerMap.set(target, nextHandler);
 };
 
 LinkedListNode.prototype.nextHandler = function(target) {
-  const key = new Map();
-  key.set("target", target);
-  key.set("handler", this);
-  let rv = LinkedListNode.ForwardingMap.get(key);
-  if (!rv) {
-    key.set("target", DEFAULT_TARGET);
-    rv = LinkedListNode.ForwardingMap.get(key);
-  }
+  let rv;
+  if (target)
+    rv = this.nextHandlerMap.get(target);
+  if (!rv)
+    rv = this.nextHandlerMap.get(DEFAULT_TARGET);
   return rv;
 };
 
@@ -69,9 +56,12 @@ LinkedListNode.prototype.nextHandler = function(target) {
   );
 }
 
-Object.freeze(LinkedListNode.prototype);
+MembraneProxyHandlers.LinkedListNode = LinkedListNode;
+Object.seal(LinkedListNode.prototype);
 Object.freeze(LinkedListNode);
 //}
+
+const LinkedListLocks = new WeakSet();
 
 const LinkedList = function(objectGraph, tailForwarding) {
   if ((tailForwarding !== Reflect) &&
@@ -133,13 +123,24 @@ LinkedList.prototype.getNextNode = function(name, target = null) {
   return this.linkNodes.get(name).nextHandler(target);
 };
 
-LinkedList.prototype.buildNode = function(name) {
+LinkedList.prototype.buildNode = function(name, ctorName = null) {
+  if (LinkedListLocks.has(this))
+    throw new Error("This linked list is locked");
   const t = typeof name;
   if ((t !== "string") && (t !== "symbol"))
     throw new Error("linked list nodes need a name");
   if (this.linkNodes.has(name))
     throw new Error(name + " is already in the linked list");
-  return new LinkedListNode(this.objectGraph, name);
+  let ctor = LinkedListNode;
+  if (ctorName) {
+    ctor = MembraneProxyHandlers[ctorName];
+    if ((ctor.prototype !== LinkedListNode.prototype) &&
+        !(ctor.prototype instanceof LinkedListNode))
+      throw new Error("constructor is not a LinkedListNode");
+  }
+  let args = [this.objectGraph, name];
+  args = args.concat(Array.from(arguments).slice(2));
+  return Reflect.construct(ctor, args);
 };
 
 LinkedList.prototype.insertNode = function(
@@ -148,6 +149,9 @@ LinkedList.prototype.insertNode = function(
   insertTarget = null
 )
 {
+  if (LinkedListLocks.has(this))
+    throw new Error("This linked list is locked");
+
   if (!(middleNode instanceof LinkedListNode))
     throw new Error("node must be provided by this.buildNode()");
 
@@ -160,6 +164,10 @@ LinkedList.prototype.insertNode = function(
   leadNode.link(insertTarget, middleNode);
 
   this.linkNodes.set(middleNode.name, middleNode);
+};
+
+LinkedList.prototype.lock = function() {
+  LinkedListLocks.add(this);
 };
 
 MembraneProxyHandlers.LinkedList = LinkedList;
