@@ -32,6 +32,14 @@ This ProxyHandler constructor is for Membrane proxies overall.  It's basically a
 * "distortions", for applying distortions to a membrane proxy
 * "inbound", for invariants on entering an object graph
 
+### ConvertFromShadow
+
+This is a helper for invoking Reflect with a real proxy target instead of a shadow target.
+
+### UpdateShadow
+
+This is a helper for ensuring Proxy invariants aren't broken for return values from later LinkedListNode objects.  It's specifically to fix the shadow target just before the Master ProxyHandler exits.
+
 ### Tracing
 
 This is a debugging ProxyHandler.  Production code shouldn't use this, but if you need to figure out how you're getting in and out of a particular ProxyHandler, this is useful.
