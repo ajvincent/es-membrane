@@ -84,11 +84,11 @@ var loggerLib = (function() {
   return loggerLib;
 })();
 var DAMP = Symbol("damp");
-function MembraneMocks(includeDamp, logger, mockOptions) {
-  "use strict";
-  includeDamp = Boolean(includeDamp);
-  if (!mockOptions)
-    mockOptions = {};
+const MembraneMocks = (function() {
+"use strict";
+function MembraneMocks(mockOptions = {}) {
+  const includeDamp = Boolean(mockOptions.includeDamp);
+  const logger = mockOptions.logger || null;
 
   var Mocks = {};
 function EventTargetWet() {
@@ -330,11 +330,14 @@ Mocks.wet = {
   Element: ElementWet,  
 };
 // First, set up the membrane, and register the "wet" form of "the document".
-var docMap, wetHandler;
-var dryWetMB = new Membrane({
-  showGraphName: true,
-  logger: ((typeof logger == "object") ? logger : null),
-});
+let dryWetMB, wetHandler;
+{
+  const options = {
+    showGraphName: true,
+    logger: ((typeof logger == "object") ? logger : null),
+  };
+  dryWetMB = new Membrane(options);
+}
 
 Mocks.membrane = dryWetMB;
 Mocks.handlers = {};
@@ -445,6 +448,8 @@ function dampObjectGraph(parts) {
 
   return Mocks;
 }
+return MembraneMocks;
+}());
 module.exports.loggerLib = loggerLib;
 module.exports.MembraneMocks = MembraneMocks;
 module.exports.DAMP = DAMP;

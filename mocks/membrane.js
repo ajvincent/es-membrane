@@ -1,9 +1,12 @@
 // First, set up the membrane, and register the "wet" form of "the document".
-var docMap, wetHandler;
-var dryWetMB = new Membrane({
-  showGraphName: true,
-  logger: ((typeof logger == "object") ? logger : null),
-});
+let dryWetMB, wetHandler;
+{
+  const options = {
+    showGraphName: true,
+    logger: ((typeof logger == "object") ? logger : null),
+  };
+  dryWetMB = new Membrane(options);
+}
 
 Mocks.membrane = dryWetMB;
 Mocks.handlers = {};

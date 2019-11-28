@@ -105,6 +105,8 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
     var parts, dryWetMB, descWet;
     var EventListenerProto, checkEvent = null;
     var mockOptions = {
+      includeDamp: true,
+
       whitelist: function(meta, filter, field = "wet") {
         dryWetMB.modifyRules.storeUnknownAsLocal(field, meta.target);
         dryWetMB.modifyRules.requireLocalDelete(field, meta.target);
@@ -200,7 +202,7 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
     };
     mockOptions.dampHandlerCreated = mockOptions.dryHandlerCreated;
 
-    parts = MembraneMocks(true, null, mockOptions);
+    parts = MembraneMocks(mockOptions);
     var wetDocument = parts.wet.doc, dryDocument = parts.dry.doc;
 
     {

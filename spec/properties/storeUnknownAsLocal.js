@@ -18,7 +18,7 @@ describe("Storing unknown properties locally", function() {
   // Customize this for whatever variables you need.
   var parts, membrane, dryRoot, wetRoot, dampRoot;
   beforeEach(function() {
-    parts = MembraneMocks(true);
+    parts = MembraneMocks({includeDamp: true});
     dryRoot  = parts.dry.doc.rootElement;
     wetRoot  = parts.wet.doc.rootElement;
     dampRoot = parts[DAMP].doc.rootElement;

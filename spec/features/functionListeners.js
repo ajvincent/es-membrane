@@ -37,7 +37,7 @@ describe("Function listeners", function() {
   }
 
   beforeEach(function() {
-    parts = MembraneMocks(true, mLogger);
+    parts = MembraneMocks({includeDamp: true, logger: mLogger});
     setParts();
     appender.clear();
     mAppender.clear();

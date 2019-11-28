@@ -124,7 +124,7 @@ describe("Filtering own keys ", function() {
   }
 
   beforeEach(function() {
-    parts = MembraneMocks(true);
+    parts = MembraneMocks({includeDamp: true});
     setParts();
     appender.clear();
   });
@@ -183,7 +183,7 @@ describe("Filtering own keys ", function() {
     function rebuildMocksWithLogger() {
       clearParts();
       appender.clear();
-      parts = MembraneMocks(true, logger);
+      parts = MembraneMocks({includeDamp: true, logger});
       setParts();
       modifyFilter();
     }
@@ -657,7 +657,7 @@ describe("Filtering own keys ", function() {
     function rebuildMocksWithLogger() {
       clearParts();
       appender.clear();
-      parts = MembraneMocks(true, logger);
+      parts = MembraneMocks({includeDamp: true, logger});
       setParts();
       membrane.modifyRules.filterOwnKeys(DAMP, dampDocument, DocBlacklistFilter);
     }

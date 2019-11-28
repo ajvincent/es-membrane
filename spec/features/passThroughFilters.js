@@ -1,6 +1,5 @@
 /*
 import "../docs/dist/es6-modules/Membrane.js";
-import "../docs/dist/es6-modules/MembraneMocks.js";
 */
 if (typeof Membrane != "function") {
   if (typeof require == "function") {

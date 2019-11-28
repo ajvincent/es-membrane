@@ -11,7 +11,7 @@ if (typeof MembraneMocks != "function") {
  */
 (function() {
 {
-  let parts = MembraneMocks(false);
+  let parts = MembraneMocks();
   if (typeof parts.handlers.dry.defineLazyGetter === "undefined")
     return;
   parts = null;
@@ -21,7 +21,7 @@ describe("Internal API:  Defining a lazy getter", function() {
   var parts, dryDocument, wetDocument, membrane, shadow;
 
   beforeEach(function() {
-    parts = MembraneMocks(false);
+    parts = MembraneMocks();
     dryDocument  = parts.dry.doc;
     wetDocument  = parts.wet.doc;
     membrane     = parts.membrane;

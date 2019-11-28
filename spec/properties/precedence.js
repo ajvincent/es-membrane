@@ -39,7 +39,7 @@ describe(
     var parts, dryDocument, wetDocument, membrane;
 
     beforeEach(function() {
-      parts = MembraneMocks(false);
+      parts = MembraneMocks();
       dryDocument  = parts.dry.doc;
       wetDocument  = parts.wet.doc;
       membrane     = parts.membrane;
@@ -156,7 +156,7 @@ describe(
     var parts, dryDocument, wetDocument, membrane;
 
     beforeEach(function() {
-      parts = MembraneMocks(false);
+      parts = MembraneMocks();
       dryDocument  = parts.dry.doc;
       wetDocument  = parts.wet.doc;
       membrane     = parts.membrane;

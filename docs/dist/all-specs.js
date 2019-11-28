@@ -4264,7 +4264,7 @@ describe("basic concepts: ", function() {
     let wetRoot, ElementWet, NodeWet;
     let dryRoot, ElementDry, NodeDry;
 
-    let parts = MembraneMocks(false, logger);
+    let parts = MembraneMocks({logger});
     wetRoot     = parts.wet.doc.rootElement;
     ElementWet  = parts.wet.Element;
     NodeWet     = parts.wet.Node;
@@ -4574,7 +4574,7 @@ describe("Receivers in proxies", function() {
 });
 
 it("More than one object graph can be available", function() {
-  let parts = MembraneMocks(true);
+  let parts = MembraneMocks({includeDamp: true});
   let wetDocument = parts.wet.doc;
   let dryDocument = parts.dry.doc;
   let dampDocument = parts[DAMP].doc;
@@ -5454,7 +5454,6 @@ describe("replacing proxies tests: ", function() {
 });
 /*
 import "../docs/dist/es6-modules/Membrane.js";
-import "../docs/dist/es6-modules/MembraneMocks.js";
 */
 if (typeof Membrane != "function") {
   if (typeof require == "function") {
@@ -6994,7 +6993,7 @@ describe("Function listeners", function() {
   }
 
   beforeEach(function() {
-    parts = MembraneMocks(true, mLogger);
+    parts = MembraneMocks({includeDamp: true, logger: mLogger});
     setParts();
     appender.clear();
     mAppender.clear();
@@ -8041,7 +8040,7 @@ describe("Storing unknown properties locally", function() {
   // Customize this for whatever variables you need.
   var parts, membrane, dryRoot, wetRoot, dampRoot;
   beforeEach(function() {
-    parts = MembraneMocks(true);
+    parts = MembraneMocks({includeDamp: true});
     dryRoot  = parts.dry.doc.rootElement;
     wetRoot  = parts.wet.doc.rootElement;
     dampRoot = parts[DAMP].doc.rootElement;
@@ -9024,7 +9023,7 @@ describe("Deleting properties locally", function() {
   // Customize this for whatever variables you need.
   var parts, membrane, dryRoot, wetRoot, dampRoot;
   beforeEach(function() {
-    parts = MembraneMocks(true);
+    parts = MembraneMocks({includeDamp: true});
     dryRoot  = parts.dry.doc.rootElement;
     wetRoot  = parts.wet.doc.rootElement;
     dampRoot = parts[DAMP].doc.rootElement;
@@ -9875,7 +9874,7 @@ describe("Filtering own keys ", function() {
   }
 
   beforeEach(function() {
-    parts = MembraneMocks(true);
+    parts = MembraneMocks({includeDamp: true});
     setParts();
     appender.clear();
   });
@@ -9934,7 +9933,7 @@ describe("Filtering own keys ", function() {
     function rebuildMocksWithLogger() {
       clearParts();
       appender.clear();
-      parts = MembraneMocks(true, logger);
+      parts = MembraneMocks({includeDamp: true, logger});
       setParts();
       modifyFilter();
     }
@@ -10408,7 +10407,7 @@ describe("Filtering own keys ", function() {
     function rebuildMocksWithLogger() {
       clearParts();
       appender.clear();
-      parts = MembraneMocks(true, logger);
+      parts = MembraneMocks({includeDamp: true, logger});
       setParts();
       membrane.modifyRules.filterOwnKeys(DAMP, dampDocument, DocBlacklistFilter);
     }
@@ -10874,7 +10873,7 @@ describe(
     var parts, dryDocument, wetDocument, membrane;
 
     beforeEach(function() {
-      parts = MembraneMocks(false);
+      parts = MembraneMocks();
       dryDocument  = parts.dry.doc;
       wetDocument  = parts.wet.doc;
       membrane     = parts.membrane;
@@ -10991,7 +10990,7 @@ describe(
     var parts, dryDocument, wetDocument, membrane;
 
     beforeEach(function() {
-      parts = MembraneMocks(false);
+      parts = MembraneMocks();
       dryDocument  = parts.dry.doc;
       wetDocument  = parts.wet.doc;
       membrane     = parts.membrane;
@@ -11158,6 +11157,8 @@ describe("Whitelisting object properties", function() {
     
     var parts, dryWetMB, EventListenerProto;
     const mockOptions = {
+      includeDamp: false,
+      logger: null,
       checkEvent: null,
 
       whitelist: function(meta, filter, field = "wet") {
@@ -11263,6 +11264,9 @@ describe("Whitelisting object properties", function() {
   function defineMockOptionsByDistortionsListener(mainIsWet = false) {
     var parts, dryWetMB, EventListenerProto;
     const mockOptions = {
+      includeDamp: false,
+      logger: null,
+
       checkEvent: null,
 
       wetHandlerCreated: function(handler, Mocks) {
@@ -11360,7 +11364,7 @@ describe("Whitelisting object properties", function() {
     var parts, mockOptions;
     beforeEach(function() {
       mockOptions = mockDefine();
-      parts = MembraneMocks(false, null, mockOptions);
+      parts = MembraneMocks(mockOptions);
       wetDocument = parts.wet.doc;
       dryDocument = parts.dry.doc;
     });
@@ -13033,6 +13037,8 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
     var parts, dryWetMB, descWet;
     var EventListenerProto, checkEvent = null;
     var mockOptions = {
+      includeDamp: true,
+
       whitelist: function(meta, filter, field = "wet") {
         dryWetMB.modifyRules.storeUnknownAsLocal(field, meta.target);
         dryWetMB.modifyRules.requireLocalDelete(field, meta.target);
@@ -13128,7 +13134,7 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
     };
     mockOptions.dampHandlerCreated = mockOptions.dryHandlerCreated;
 
-    parts = MembraneMocks(true, null, mockOptions);
+    parts = MembraneMocks(mockOptions);
     var wetDocument = parts.wet.doc, dryDocument = parts.dry.doc;
 
     {
@@ -13387,7 +13393,7 @@ if (typeof MembraneMocks != "function") {
  */
 (function() {
 {
-  let parts = MembraneMocks(false);
+  let parts = MembraneMocks();
   if (typeof parts.handlers.dry.defineLazyGetter === "undefined")
     return;
   parts = null;
@@ -13397,7 +13403,7 @@ describe("Internal API:  Defining a lazy getter", function() {
   var parts, dryDocument, wetDocument, membrane, shadow;
 
   beforeEach(function() {
-    parts = MembraneMocks(false);
+    parts = MembraneMocks();
     dryDocument  = parts.dry.doc;
     wetDocument  = parts.wet.doc;
     membrane     = parts.membrane;

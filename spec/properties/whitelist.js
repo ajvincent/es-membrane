@@ -80,6 +80,8 @@ describe("Whitelisting object properties", function() {
     
     var parts, dryWetMB, EventListenerProto;
     const mockOptions = {
+      includeDamp: false,
+      logger: null,
       checkEvent: null,
 
       whitelist: function(meta, filter, field = "wet") {
@@ -185,6 +187,9 @@ describe("Whitelisting object properties", function() {
   function defineMockOptionsByDistortionsListener(mainIsWet = false) {
     var parts, dryWetMB, EventListenerProto;
     const mockOptions = {
+      includeDamp: false,
+      logger: null,
+
       checkEvent: null,
 
       wetHandlerCreated: function(handler, Mocks) {
@@ -282,7 +287,7 @@ describe("Whitelisting object properties", function() {
     var parts, mockOptions;
     beforeEach(function() {
       mockOptions = mockDefine();
-      parts = MembraneMocks(false, null, mockOptions);
+      parts = MembraneMocks(mockOptions);
       wetDocument = parts.wet.doc;
       dryDocument = parts.dry.doc;
     });

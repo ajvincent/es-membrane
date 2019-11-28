@@ -497,7 +497,7 @@ describe("basic concepts: ", function() {
     let wetRoot, ElementWet, NodeWet;
     let dryRoot, ElementDry, NodeDry;
 
-    let parts = MembraneMocks(false, logger);
+    let parts = MembraneMocks({logger});
     wetRoot     = parts.wet.doc.rootElement;
     ElementWet  = parts.wet.Element;
     NodeWet     = parts.wet.Node;
@@ -807,7 +807,7 @@ describe("Receivers in proxies", function() {
 });
 
 it("More than one object graph can be available", function() {
-  let parts = MembraneMocks(true);
+  let parts = MembraneMocks({includeDamp: true});
   let wetDocument = parts.wet.doc;
   let dryDocument = parts.dry.doc;
   let dampDocument = parts[DAMP].doc;
