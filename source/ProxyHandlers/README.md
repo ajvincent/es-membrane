@@ -27,10 +27,12 @@ The real base class for everything you should realistically do with a Proxy hand
 ### Master
 
 This ProxyHandler constructor is for Membrane proxies overall.  It's basically a LinkedList handler of LinkedList handlers, each of which has their own specific task.  There are four named LinkedList instances under each Master:
-* "outbound", for invariants on exiting an object graph
+* "outbound", for managing certain outbound operations (and invariants if desirable)
 * "wrapping", for converting from one object graph to another
 * "distortions", for applying distortions to a membrane proxy
-* "inbound", for invariants on entering an object graph
+* "inbound", for managing certain operations going to the underlying target (and invariants if desirable)
+
+The "invariant-out" and "invariant-in" sub-lists may only be available with a debug setting, as this time to be determined.
 
 ### ConvertFromShadow
 

@@ -405,8 +405,8 @@ MembraneProxyHandlers.ConvertFromShadow = ConvertFromShadow;
 /**
  * @fileoverview
  *
- * This is to ensure the shadow target of a Proxy updates its properties from
- * actions by subsidiary ProxyHandlers.
+ * This is to update the shadow target of a Proxy from actions by subsidiary
+ * ProxyHandlers.  The intent is to make sure Proxy invariants are not violated.
  */
 {
 
@@ -512,6 +512,22 @@ const MasterHandler = function(objectGraph) {
     );
     Object.freeze(node);
   }, this);
+
+  { //  outbound
+    const subList = this.getNodeByName("outbound").subList;
+    {
+      const updateShadow = subList.buildNode("updateShadow", "UpdateShadow");
+      subList.insertNode("head", updateShadow);
+    }
+  }
+
+  { // inbound
+    const subList = this.getNodeByName("inbound").subList;
+    {
+      const convertFromShadow = subList.buildNode("convertFromShadow", "ConvertFromShadow");
+      subList.insertNode("head", convertFromShadow);
+    }
+  }
 
   this.lock();
   Object.freeze(this);
