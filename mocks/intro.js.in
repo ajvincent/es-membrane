@@ -1,4 +1,4 @@
-const MembraneMocks = (function() {
+var MembraneMocks = (function() {
 "use strict";
 function MembraneMocks(mockOptions = {}) {
   const includeDamp = Boolean(mockOptions.includeDamp);

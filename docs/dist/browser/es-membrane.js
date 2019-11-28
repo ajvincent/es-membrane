@@ -720,6 +720,8 @@ function MembraneInternal(options = {}) {
       Boolean(options.showGraphName), false
     ),
 
+    "refactor": new NWNCDataDescriptor(options.refactor || "", false),
+
     "map": new NWNCDataDescriptor(map, false),
 
     "handlersByFieldName": new NWNCDataDescriptor({}, false),
@@ -832,19 +834,21 @@ MembraneInternal.prototype = Object.seal({
       throw new Error("handler is not an ObjectGraphHandler we own!");
     let mapping = ("mapping" in options) ? options.mapping : null;
 
+    const graphKey = (this.refactor === "0.10") ? "graphName" : "fieldName";
+
     if (!mapping) {
       if (this.map.has(value)) {
         mapping = this.map.get(value);
       }
   
       else {
-        mapping = new ProxyMapping(handler.fieldName);
+        mapping = new ProxyMapping(handler[graphKey]);
       }
     }
     assert(mapping instanceof ProxyMapping,
            "buildMapping requires a ProxyMapping object!");
 
-    const isOriginal = (mapping.originField === handler.fieldName);
+    const isOriginal = (mapping.originField === handler[graphKey]);
     assert(isOriginal || this.ownsHandler(options.originHandler),
            "Proxy requests must pass in an origin handler");
     let shadowTarget = makeShadowTarget(value);
@@ -862,13 +866,16 @@ MembraneInternal.prototype = Object.seal({
       }
     }
     else {
-      parts = Proxy.revocable(shadowTarget, handler);
+      if (handler instanceof ObjectGraph)
+        parts = Proxy.revocable(shadowTarget, handler.masterProxyHandler);
+      else
+        parts = Proxy.revocable(shadowTarget, handler);
       parts.value = value;
     }
 
     parts.shadowTarget = shadowTarget;
-    mapping.set(this, handler.fieldName, parts);
-    makeRevokeDeleteRefs(parts, mapping, handler.fieldName);
+    mapping.set(this, handler[graphKey], parts);
+    makeRevokeDeleteRefs(parts, mapping, handler[graphKey]);
 
     if (!isOriginal) {
       const notifyOptions = {
@@ -922,8 +929,14 @@ MembraneInternal.prototype = Object.seal({
     let mustCreate = (typeof options == "object") ?
                      Boolean(options.mustCreate) :
                      false;
-    if (mustCreate && !this.hasHandlerByField(field))
-      this.handlersByFieldName[field] = new ObjectGraphHandler(this, field);
+    if (mustCreate && !this.hasHandlerByField(field)) {
+      let graph = null;
+      if (this.refactor === "0.10")
+        graph = new ObjectGraph(this, field);
+      else
+        graph = new ObjectGraphHandler(this, field);
+      this.handlersByFieldName[field] = graph;
+    }
     return this.handlersByFieldName[field];
   },
 
@@ -933,10 +946,13 @@ MembraneInternal.prototype = Object.seal({
    * @returns {Boolean} True if the handler is one we own.
    */
   ownsHandler: function(handler) {
+    if (handler instanceof ObjectGraph) {
+      return this.handlersByFieldName[handler.graphName] === handler;
+    }
     if (ChainHandlers.has(handler))
       handler = handler.baseHandler;
-    return (handler instanceof ObjectGraphHandler) &&
-           (this.handlersByFieldName[handler.fieldName] === handler);
+    return ((handler instanceof ObjectGraphHandler) &&
+            (this.handlersByFieldName[handler.fieldName] === handler));
   },
 
   /**
@@ -995,25 +1011,26 @@ MembraneInternal.prototype = Object.seal({
       return arg;
     }
 
+    const graphKey = (this.refactor === "0.10") ? "graphName" : "fieldName";
+
     let found, rv;
     [found, rv] = this.getMembraneProxy(
-      targetHandler.fieldName, arg
+      targetHandler[graphKey], arg
     );
     if (found)
       return rv;
 
     if (!this.ownsHandler(originHandler) ||
         !this.ownsHandler(targetHandler) ||
-        (originHandler.fieldName === targetHandler.fieldName)) {
+        (originHandler[graphKey] === targetHandler[graphKey]))
       throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
-    }
 
     if (this.passThroughFilter(arg) ||
         (originHandler.passThroughFilter(arg) && targetHandler.passThroughFilter(arg))) {
       return arg;
     }
 
-    if (!this.hasProxyForValue(originHandler.fieldName, arg)) {
+    if (!this.hasProxyForValue(originHandler[graphKey], arg)) {
       let argMap = this.map.get(arg);
       let passOptions;
       if (argMap) {
@@ -1027,7 +1044,7 @@ MembraneInternal.prototype = Object.seal({
       this.buildMapping(originHandler, arg, passOptions);
     }
     
-    if (!this.hasProxyForValue(targetHandler.fieldName, arg)) {
+    if (!this.hasProxyForValue(targetHandler[graphKey], arg)) {
       let argMap = this.map.get(arg);
       let passOptions = Object.create(options, {
         "originHandler": new DataDescriptor(originHandler)
@@ -1042,7 +1059,7 @@ MembraneInternal.prototype = Object.seal({
     }
 
     [found, rv] = this.getMembraneProxy(
-      targetHandler.fieldName, arg
+      targetHandler[graphKey], arg
     );
     if (!found)
       throw new Error("in convertArgumentToProxy(): proxy not found");
@@ -1277,6 +1294,532 @@ MembraneInternal.prototype = Object.seal({
 
 } // end Membrane definition
 Object.seal(MembraneInternal);
+/**
+ * @constructor
+ */
+function ObjectGraph(membrane, graphName) {
+  {
+    let t = typeof graphName;
+    if ((t != "string") && (t != "symbol"))
+      throw new Error("field must be a string or a symbol!");
+  }
+
+  var passThroughFilter = returnFalse;
+
+  Object.defineProperties(this, {
+    "membrane": new NWNCDataDescriptor(membrane, true),
+    "graphName": new NWNCDataDescriptor(graphName, true),
+
+    // private
+    "masterProxyHandler": new NWNCDataDescriptor(
+      new MembraneProxyHandlers.Master(this), false
+    ),
+
+    "passThroughFilter": {
+      get: () => passThroughFilter,
+      set: (val) => {
+        if (passThroughFilter !== returnFalse)
+          throw new Error("passThroughFilter has been defined once already!");
+        if (typeof val !== "function")
+          throw new Error("passThroughFilter must be a function");
+        passThroughFilter = val;
+        return val;
+      },
+      enumerable: false,
+      configurable: false,
+    },
+
+    "mayReplacePassThrough": {
+      get: () => passThroughFilter === returnFalse,
+      enumerable: true,
+      configurable: false
+    },
+
+    // private
+    "__revokeFunctions__": new NWNCDataDescriptor([], false),
+
+    // private
+    "__isDead__": new DataDescriptor(false, true, true, true),
+
+    // private
+    "__proxyListeners__": new NWNCDataDescriptor([], false),
+  });
+}
+
+/**
+ * Insert a ProxyHandler into our sequence.
+ *
+ * @param phase        {String} The phase to insert the handler in.
+ * @param leadNodeName {String} The name of the current linked list node in the given phase.
+ * @param middleNode   {MembraneProxyHandlers.LinkedListNode}
+ *                     The node to insert.
+ * @param insertTarget {Object} (optional) The shadow target to set for a redirect.
+ *                     Null if for all shadow targets in general.
+ */
+ObjectGraph.prototype.insertHandler = function(
+  phase,
+  leadNodeName,
+  middleNode,
+  insertTarget = null) {
+  const subHandler = this.masterProxyHandler.getNodeByName(phase);
+  if (!subHandler)
+    throw new Error("Phase for proxy handler does not exist");
+  subHandler.insertNode(leadNodeName, middleNode, insertTarget);
+};
+
+/**
+ * Add a ProxyMapping or a Proxy.revoke function to our list.
+ *
+ * @private
+ */
+ObjectGraph.prototype.addRevocable = function(revoke) {
+  if (this.__isDead__)
+    throw new Error("This membrane handler is dead!");
+  this.__revokeFunctions__.push(revoke);
+};
+
+/**
+ * Remove a ProxyMapping or a Proxy.revoke function from our list.
+ *
+ * @private
+ */
+ObjectGraph.prototype.removeRevocable = function(revoke) {
+  let index = this.__revokeFunctions__.indexOf(revoke);
+  if (index == -1) {
+    throw new Error("Unknown revoke function!");
+  }
+  this.__revokeFunctions__.splice(index, 1);
+};
+
+/**
+ * Revoke the entire object graph.
+ */
+ObjectGraph.prototype.revokeEverything = function() {
+  if (this.__isDead__)
+    throw new Error("This membrane handler is dead!");
+  Object.defineProperty(this, "__isDead__", new NWNCDataDescriptor(true, false));
+  let length = this.__revokeFunctions__.length;
+  for (var i = 0; i < length; i++) {
+    let revocable = this.__revokeFunctions__[i];
+    if (revocable instanceof ProxyMapping)
+      revocable.revoke(this.membrane);
+    else // typeof revocable == "function"
+      revocable();
+  }
+};
+
+Object.freeze(ObjectGraph.prototype);
+Object.freeze(ObjectGraph);
+var MembraneProxyHandlers = {};
+// A ProxyHandler base prototype, for instanceof checks.
+MembraneProxyHandlers.Base = function() {};
+allTraps.forEach((trapName) =>
+  MembraneProxyHandlers.Base.prototype[trapName] = NOT_IMPLEMENTED
+);
+MembraneProxyHandlers.Forwarding = function() {
+  Reflect.defineProperty(this, "nextHandler", {
+    value: null,
+    writable: true,
+    enumerable: true,
+    configurable: false,
+  });
+};
+
+MembraneProxyHandlers.Forwarding.prototype = new MembraneProxyHandlers.Base();
+
+{
+  const proto = MembraneProxyHandlers.Forwarding.prototype;
+  allTraps.forEach((trapName) =>
+    proto[trapName] = function(...args) {
+      return this.nextHandler[trapName].apply(this.nextHandler, args);
+    }
+  );
+}
+/**
+ * @fileoverview
+ *
+ * This implements a LinkedList proxy handler and nodes for the linked list.
+ *
+ * LinkedListNode objects should form the basis for any real-world proxy
+ * operations, as a unit-testable component.
+ *
+ * @see Tracing.js for an example of how to write a LinkedListNode subclass.
+ */
+
+{
+
+/**
+ * A proxy handler node for a linked list of handlers.
+ *
+ * @param objectGraph {ObjectGraph} The object graph from a Membrane.
+ * @param name        {String}      The name of this particular node in the linked list.
+ *
+ * @private
+ * @constructor
+ * @extends MembraneProxyHandlers.Base
+ */
+const LinkedListNode = function(objectGraph, name) {
+  Reflect.defineProperty(this, "objectGraph", new NWNCDataDescriptor(objectGraph));
+  Reflect.defineProperty(
+    this, "membrane", new NWNCDataDescriptor(objectGraph.membrane)
+  );
+  Reflect.defineProperty(this, "name", new NWNCDataDescriptor(name));
+  Reflect.defineProperty(this, "nextHandlerMap", new NWNCDataDescriptor(
+    new WeakMap(/* target: MembraneProxyHandlers.Base or Reflect */)
+  ));
+};
+
+//{
+LinkedListNode.prototype = new MembraneProxyHandlers.Base();
+
+/**
+ * An object key to use for pointing to a default next node in the linked list.
+ * @private
+ */
+const DEFAULT_TARGET = {};
+
+/**
+ * Specify which ProxyHandler is next for a given Proxy's shadow target.
+ *
+ * @param target      {Object} The shadow target.  May be null to indicate the
+ *                             default for any shadow target.
+ * @param nextHandler {MembraneProxyHandlers.Base} The next node.
+ * 
+ * @private
+ */
+LinkedListNode.prototype.link = function(target, nextHandler) {
+  if (target === null)
+    target = DEFAULT_TARGET;
+  this.nextHandlerMap.set(target, nextHandler);
+};
+
+/**
+ * Get the next ProxyHandler for a given Proxy's shadow target.
+ *
+ * @param target {Object}  The shadow target.  May be null to indicate the
+ *                         default for any shadow target.
+ *
+ * @returns {MembraneProxyHandlers.Base} The next node.
+ *
+ * @private
+ */
+LinkedListNode.prototype.nextHandler = function(target) {
+  let rv;
+  if (target)
+    rv = this.nextHandlerMap.get(target);
+  if (!rv)
+    rv = this.nextHandlerMap.get(DEFAULT_TARGET);
+  return rv;
+};
+
+// The ProxyHandler traps.
+{
+  const proto = LinkedListNode.prototype;
+  allTraps.forEach((trapName) =>
+    proto[trapName] = function(...args) {
+      const nextHandler = this.nextHandler(args[0]);
+      return nextHandler[trapName].apply(nextHandler, args);
+    }
+  );
+}
+
+MembraneProxyHandlers.LinkedListNode = LinkedListNode;
+Object.seal(LinkedListNode.prototype);
+Object.freeze(LinkedListNode);
+//}
+
+/**
+ * A set of LinkedList objects which should no longer be altered.
+ *
+ * @private
+ */
+const LinkedListLocks = new WeakSet(/* LinkedList */);
+
+/**
+ * A linked list proxy handler.
+ *
+ * @param objectGraph    {ObjectGraph} The object graph from a Membrane.
+ * @param tailForwarding {Reflect | MembraneProxyHandlers.Base} The tail of the linked list.
+ *
+ * @constructor
+ */
+const LinkedList = function(objectGraph, tailForwarding) {
+  if ((tailForwarding !== Reflect) &&
+      (!(tailForwarding instanceof MembraneProxyHandlers.Base)))
+    throw new Error("tailForwarding must be a ProxyHandler or Reflect");
+
+  Reflect.defineProperty(this, "objectGraph", new NWNCDataDescriptor(objectGraph));
+  Reflect.defineProperty(
+    this, "membrane", new NWNCDataDescriptor(objectGraph.membrane)
+  );
+
+  const tailNode = new MembraneProxyHandlers.Forwarding();
+  Reflect.defineProperty(
+    this, "tailNode", new NWNCDataDescriptor(tailNode, false)
+  );
+  Reflect.defineProperty(
+    tailNode, "nextHandler", new NWNCDataDescriptor(tailForwarding)
+  );
+
+  // @private
+  this.linkNodes = new Map(/* String: LinkedListNode */);
+
+  const headNode = this.buildNode("head");
+  this.linkNodes.set("head", headNode);
+  Reflect.defineProperty(this, "nextHandler", new NWNCDataDescriptor(headNode));
+  headNode.link(null, tailNode);
+
+  Object.freeze(this);
+};
+//{
+// the LinkedList object also acts as a head to its own linked list
+LinkedList.prototype = new MembraneProxyHandlers.Forwarding();
+
+/**
+ * Get a LinkedList node by name.
+ *
+ * @param name {String} The name of the node.
+ *
+ * @return {MembraneProxyHandlers.Base} The node.
+ */
+LinkedList.prototype.getNodeByName = function(name) {
+  return this.linkNodes.get(name);
+};
+
+/**
+ * Get the next linked list node for a given shadow target.
+ *
+ * @param name {String}   The name of the current linked list node.
+ * @param target {Object} (optional) The shadow target.
+ *
+ * @return {MembraneProxyHandlers.Base} The next node.
+ */
+LinkedList.prototype.getNextNode = function(name, target = null) {
+  return this.linkNodes.get(name).nextHandler(target);
+};
+
+/**
+ * Build a new LinkedListNode.
+ *
+ * @param name     {String} The name of the linked list node.
+ * @param ctorName {String} The name of the constructor to use.
+ *
+ * @returns {MembraneProxyHandlers.LinkedListNode} The node.
+ */
+LinkedList.prototype.buildNode = function(name, ctorName = null) {
+  if (LinkedListLocks.has(this))
+    throw new Error("This linked list is locked");
+
+  const t = typeof name;
+  if ((t !== "string") && (t !== "symbol"))
+    throw new Error("linked list nodes need a name");
+
+  if (this.linkNodes.has(name))
+    throw new Error(name + " is already in the linked list");
+
+  let ctor = LinkedListNode;
+  if (ctorName) {
+    ctor = MembraneProxyHandlers[ctorName];
+    if ((ctor.prototype !== LinkedListNode.prototype) &&
+        !(ctor.prototype instanceof LinkedListNode))
+      throw new Error("constructor is not a LinkedListNode");
+  }
+
+  let args = [this.objectGraph, name];
+  args = args.concat(Array.from(arguments).slice(2));
+  return Reflect.construct(ctor, args);
+};
+
+/**
+ * Insert a LinkedListNode into this linked list.
+ *
+ * @param leadNodeName {String} The name of the current linked list node.
+ * @param middleNode   {MembraneProxyHandlers.LinkedListNode}
+ *                     The node to insert.
+ * @param insertTarget {Object} (optional) The shadow target to set for a redirect.
+ *                     Null if for all shadow targets in general.
+ */
+LinkedList.prototype.insertNode = function(
+  leadNodeName,
+  middleNode,
+  insertTarget = null
+)
+{
+  if (LinkedListLocks.has(this))
+    throw new Error("This linked list is locked");
+
+  if (!(middleNode instanceof LinkedListNode))
+    throw new Error("node must be provided by this.buildNode()");
+
+  const leadNode = this.linkNodes.get(leadNodeName);
+  if (!leadNode)
+    throw new Error("lead node must be known to the linked list");
+
+  let tailNode = leadNode.nextHandler(null);
+  middleNode.link(insertTarget, tailNode);
+  leadNode.link(insertTarget, middleNode);
+
+  this.linkNodes.set(middleNode.name, middleNode);
+};
+
+/**
+ * Mark this linked list as locked, meaning no more insertions of nodes.
+ */
+LinkedList.prototype.lock = function() {
+  LinkedListLocks.add(this);
+};
+
+MembraneProxyHandlers.LinkedList = LinkedList;
+Object.freeze(LinkedList);
+Object.freeze(LinkedList.prototype);
+//}
+
+}
+/**
+ * @fileoverview
+ *
+ * This is a debugging ProxyHandler. Production code shouldn't use this, but if
+ * you need to figure out how you're getting in and out of a particular
+ * ProxyHandler, this is useful.
+ */
+{
+
+/**
+ * Build a LinkedListNode specifically for tracing entering and exiting a proxy handler.
+ *
+ * @param objectGraph {ObjectGraph} The object graph from a Membrane.
+ * @param name        {String}      The name of this particular node in the linked list.
+ * @param traceLog    {String[]}    Where the tracing will be recorded.
+ *
+ * @constructor
+ * @extends MembraneProxyHandlers.LinkedListNode
+ */
+const TraceLinkedListNode = function(objectGraph, name, traceLog = []) {
+  MembraneProxyHandlers.LinkedListNode.apply(this, [objectGraph, name]);
+  this.traceLog = traceLog;
+  Object.freeze(this);
+};
+
+TraceLinkedListNode.prototype = new MembraneProxyHandlers.LinkedListNode({
+  membrane: null
+});
+
+/**
+ * Clear the current log of events.
+ */
+TraceLinkedListNode.prototype.clearLog = function() {
+  this.traceLog.splice(0, this.traceLog.length);
+};
+
+/**
+ * @private
+ */
+const withProps = new Set([
+  "defineProperty",
+  "deleteProperty",
+  "get",
+  "getOwnPropertyDescriptor",
+  "has",
+  "set",
+]);
+
+/**
+ * ProxyHandler implementation
+ */
+allTraps.forEach((trapName) => {
+  const trap = function(...args) {
+    const target = args[0];
+    let msg;
+    {
+      let names = [this.name, trapName];
+      if (withProps.has(trapName))
+        names.push(args[1].toString());
+      msg = names.join(", ");
+    }
+
+    this.traceLog.push(`enter ${msg}`);
+    try {
+      const next = this.nextHandler(target);
+      let rv = next[trapName].apply(next, args);
+      this.traceLog.push(`leave ${msg}`);
+      return rv;
+    }
+    catch (ex) {
+      this.traceLog.push(`throw ${msg}`);
+      throw ex;
+    }
+  };
+  Reflect.defineProperty(TraceLinkedListNode.prototype, trapName, new DataDescriptor(trap));
+});
+
+Object.freeze(TraceLinkedListNode.prototype);
+Object.freeze(TraceLinkedListNode);
+MembraneProxyHandlers.Tracing = TraceLinkedListNode;
+  
+}
+(function() {
+"use strict";
+
+/**
+ * A convenience object for caching Proxy trap methods.
+ *
+ * Necessary because someone decided LinkedList objects should be frozen.  So
+ * these properties have to be defined locally.
+ */
+const forwardingDescriptors = new Map();
+allTraps.forEach((trapName) => {
+  forwardingDescriptors.set(trapName, new DataDescriptor(
+    function(...args) {
+      return this.subList[trapName](...args);
+    }
+  ));
+});
+
+/**
+ * The master ProxyHandler for an object graph.
+ *
+ * @param objectGraph {ObjectGraph} The object graph from a Membrane.
+ * 
+ * @constructor
+ * @extends MembraneProxyHandlers.LinkedList
+ */
+const MasterHandler = function(objectGraph) {
+  MembraneProxyHandlers.LinkedList.apply(this, [objectGraph, Reflect]);
+
+  // These are the four linked list nodes at the master level.
+  [
+    "inbound",
+    "distortions",
+    "wrapping",
+    "outbound",
+  ].forEach(function(name) {
+    let node = this.buildNode(name);
+    this.insertNode("head", node);
+
+    // Create a LinkedList for each of the master list's sections.
+    node.subList = new MembraneProxyHandlers.LinkedList(
+      objectGraph, node.nextHandler(null)
+    );
+
+    /**
+     * ProxyHandler
+     */
+    allTraps.forEach((trapName) =>
+      Reflect.defineProperty(node, trapName, forwardingDescriptors.get(trapName))
+    );
+    Object.freeze(node);
+  }, this);
+
+  this.lock();
+  Object.freeze(this);
+};
+MasterHandler.prototype = MembraneProxyHandlers.LinkedList.prototype;
+
+MembraneProxyHandlers.Master = MasterHandler;
+Object.freeze(MasterHandler.prototype);
+Object.freeze(MasterHandler);
+})();
+Object.freeze(MembraneProxyHandlers);
 /* A proxy handler designed to return only primitives and objects in a given
  * object graph, defined by the fieldName.
  */

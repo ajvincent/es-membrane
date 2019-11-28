@@ -73,7 +73,7 @@ var loggerLib = (function() {
   return loggerLib;
 })();
 var DAMP = Symbol("damp");
-const MembraneMocks = (function() {
+var MembraneMocks = (function() {
 "use strict";
 function MembraneMocks(mockOptions = {}) {
   const includeDamp = Boolean(mockOptions.includeDamp);
@@ -325,6 +325,8 @@ let dryWetMB, wetHandler;
     showGraphName: true,
     logger: ((typeof logger == "object") ? logger : null),
   };
+  if (mockOptions.refactor)
+    options.refactor = mockOptions.refactor;
   dryWetMB = new Membrane(options);
 }
 

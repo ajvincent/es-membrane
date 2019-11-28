@@ -20,6 +20,8 @@ function MembraneInternal(options = {}) {
       Boolean(options.showGraphName), false
     ),
 
+    "refactor": new NWNCDataDescriptor(options.refactor || "", false),
+
     "map": new NWNCDataDescriptor(map, false),
 
     "handlersByFieldName": new NWNCDataDescriptor({}, false),
@@ -132,19 +134,21 @@ MembraneInternal.prototype = Object.seal({
       throw new Error("handler is not an ObjectGraphHandler we own!");
     let mapping = ("mapping" in options) ? options.mapping : null;
 
+    const graphKey = (this.refactor === "0.10") ? "graphName" : "fieldName";
+
     if (!mapping) {
       if (this.map.has(value)) {
         mapping = this.map.get(value);
       }
   
       else {
-        mapping = new ProxyMapping(handler.fieldName);
+        mapping = new ProxyMapping(handler[graphKey]);
       }
     }
     assert(mapping instanceof ProxyMapping,
            "buildMapping requires a ProxyMapping object!");
 
-    const isOriginal = (mapping.originField === handler.fieldName);
+    const isOriginal = (mapping.originField === handler[graphKey]);
     assert(isOriginal || this.ownsHandler(options.originHandler),
            "Proxy requests must pass in an origin handler");
     let shadowTarget = makeShadowTarget(value);
@@ -162,13 +166,16 @@ MembraneInternal.prototype = Object.seal({
       }
     }
     else {
-      parts = Proxy.revocable(shadowTarget, handler);
+      if (handler instanceof ObjectGraph)
+        parts = Proxy.revocable(shadowTarget, handler.masterProxyHandler);
+      else
+        parts = Proxy.revocable(shadowTarget, handler);
       parts.value = value;
     }
 
     parts.shadowTarget = shadowTarget;
-    mapping.set(this, handler.fieldName, parts);
-    makeRevokeDeleteRefs(parts, mapping, handler.fieldName);
+    mapping.set(this, handler[graphKey], parts);
+    makeRevokeDeleteRefs(parts, mapping, handler[graphKey]);
 
     if (!isOriginal) {
       const notifyOptions = {
@@ -222,8 +229,14 @@ MembraneInternal.prototype = Object.seal({
     let mustCreate = (typeof options == "object") ?
                      Boolean(options.mustCreate) :
                      false;
-    if (mustCreate && !this.hasHandlerByField(field))
-      this.handlersByFieldName[field] = new ObjectGraphHandler(this, field);
+    if (mustCreate && !this.hasHandlerByField(field)) {
+      let graph = null;
+      if (this.refactor === "0.10")
+        graph = new ObjectGraph(this, field);
+      else
+        graph = new ObjectGraphHandler(this, field);
+      this.handlersByFieldName[field] = graph;
+    }
     return this.handlersByFieldName[field];
   },
 
@@ -233,10 +246,13 @@ MembraneInternal.prototype = Object.seal({
    * @returns {Boolean} True if the handler is one we own.
    */
   ownsHandler: function(handler) {
+    if (handler instanceof ObjectGraph) {
+      return this.handlersByFieldName[handler.graphName] === handler;
+    }
     if (ChainHandlers.has(handler))
       handler = handler.baseHandler;
-    return (handler instanceof ObjectGraphHandler) &&
-           (this.handlersByFieldName[handler.fieldName] === handler);
+    return ((handler instanceof ObjectGraphHandler) &&
+            (this.handlersByFieldName[handler.fieldName] === handler));
   },
 
   /**
@@ -295,25 +311,26 @@ MembraneInternal.prototype = Object.seal({
       return arg;
     }
 
+    const graphKey = (this.refactor === "0.10") ? "graphName" : "fieldName";
+
     let found, rv;
     [found, rv] = this.getMembraneProxy(
-      targetHandler.fieldName, arg
+      targetHandler[graphKey], arg
     );
     if (found)
       return rv;
 
     if (!this.ownsHandler(originHandler) ||
         !this.ownsHandler(targetHandler) ||
-        (originHandler.fieldName === targetHandler.fieldName)) {
+        (originHandler[graphKey] === targetHandler[graphKey]))
       throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
-    }
 
     if (this.passThroughFilter(arg) ||
         (originHandler.passThroughFilter(arg) && targetHandler.passThroughFilter(arg))) {
       return arg;
     }
 
-    if (!this.hasProxyForValue(originHandler.fieldName, arg)) {
+    if (!this.hasProxyForValue(originHandler[graphKey], arg)) {
       let argMap = this.map.get(arg);
       let passOptions;
       if (argMap) {
@@ -327,7 +344,7 @@ MembraneInternal.prototype = Object.seal({
       this.buildMapping(originHandler, arg, passOptions);
     }
     
-    if (!this.hasProxyForValue(targetHandler.fieldName, arg)) {
+    if (!this.hasProxyForValue(targetHandler[graphKey], arg)) {
       let argMap = this.map.get(arg);
       let passOptions = Object.create(options, {
         "originHandler": new DataDescriptor(originHandler)
@@ -342,7 +359,7 @@ MembraneInternal.prototype = Object.seal({
     }
 
     [found, rv] = this.getMembraneProxy(
-      targetHandler.fieldName, arg
+      targetHandler[graphKey], arg
     );
     if (!found)
       throw new Error("in convertArgumentToProxy(): proxy not found");

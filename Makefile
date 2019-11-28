@@ -31,6 +31,8 @@ SOURCE_FILES = \
 	source/moduleUtilities.js \
 	source/ProxyMapping.js \
 	source/Membrane.js \
+	source/ObjectGraph.js \
+	$(DIST)/staging/proxyHandlers.js \
 	source/ObjectGraphHandler.js \
 	source/ProxyNotify.js \
 	source/ModifyRulesAPI.js \
@@ -82,6 +84,7 @@ ALL_SPEC_FILES = \
 	spec/proxyHandlers/LinkedList.js \
 	spec/proxyHandlers/Tracing.js \
 	spec/proxyHandlers/Master.js \
+	spec/ObjectGraph.js \
 	spec/concepts.js \
 	spec/ecma/freeze-seal.js \
 	spec/ecma/Promise.js \
