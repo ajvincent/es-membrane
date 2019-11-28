@@ -5,8 +5,6 @@ describe("Internal values are not exposed:  ", function() {
     // source/moduleUtilities.js
     "valueType",
     "ShadowKeyMap",
-    "makeShadowTarget",
-    "getRealTarget",
     "inGraphHandler",
     "NOT_YET_DETERMINED",
     "makeRevokeDeleteRefs",

@@ -1,3 +1,5 @@
+module.exports.makeShadowTarget = makeShadowTarget;
+module.exports.getRealTarget = getRealTarget;
 module.exports.NOT_IMPLEMENTED = NOT_IMPLEMENTED;
 module.exports.NOT_IMPLEMENTED_DESC = NOT_IMPLEMENTED_DESC;
 module.exports.DataDescriptor = DataDescriptor;

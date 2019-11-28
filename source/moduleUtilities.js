@@ -7,36 +7,6 @@ function valueType(value) {
   return type;
 }
 
-var ShadowKeyMap = new WeakMap();
-
-/**
- * Define a shadow target, so we can manipulate the proxy independently of the
- * original target.
- *
- * @argument value {Object} The original target.
- *
- * @returns {Object} A shadow target to minimally emulate the real one.
- * @private
- */
-function makeShadowTarget(value) {
-  "use strict";
-  var rv;
-  if (Array.isArray(value))
-    rv = [];
-  else if (typeof value == "object")
-    rv = {};
-  else if (typeof value == "function")
-    rv = function() {};
-  else
-    throw new Error("Unknown value for makeShadowTarget");
-  ShadowKeyMap.set(rv, value);
-  return rv;
-}
-
-function getRealTarget(target) {
-  return ShadowKeyMap.has(target) ? ShadowKeyMap.get(target) : target;
-}
-
 function stringifyArg(arg) {
   if (arg === null)
     return "null";

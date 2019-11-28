@@ -1,4 +1,34 @@
 "use strict";
+const ShadowKeyMap = new WeakMap();
+
+/**
+ * Define a shadow target, so we can manipulate the proxy independently of the
+ * original target.
+ *
+ * @argument value {Object} The original target.
+ *
+ * @returns {Object} A shadow target to minimally emulate the real one.
+ * @private
+ */
+function makeShadowTarget(value) {
+  "use strict";
+  var rv;
+  if (Array.isArray(value))
+    rv = [];
+  else if (typeof value == "object")
+    rv = {};
+  else if (typeof value == "function")
+    rv = function() {};
+  else
+    throw new Error("Unknown value for makeShadowTarget");
+  ShadowKeyMap.set(rv, value);
+  return rv;
+}
+
+function getRealTarget(target) {
+  return ShadowKeyMap.has(target) ? ShadowKeyMap.get(target) : target;
+}
+
 function returnTrue() {
   return true;
 }
@@ -136,6 +166,8 @@ return p.concat(p.filter((i) => {
     return j.toUpperCase() === j;
   }).map((k) => k.prototype));
 })());
+module.exports.makeShadowTarget = makeShadowTarget;
+module.exports.getRealTarget = getRealTarget;
 module.exports.NOT_IMPLEMENTED = NOT_IMPLEMENTED;
 module.exports.NOT_IMPLEMENTED_DESC = NOT_IMPLEMENTED_DESC;
 module.exports.DataDescriptor = DataDescriptor;

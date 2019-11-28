@@ -22,6 +22,7 @@ SOURCE_HANDLER_FILES = \
 	source/ProxyHandlers/Forwarding.js \
 	source/ProxyHandlers/LinkedList.js \
 	source/ProxyHandlers/Tracing.js \
+	source/ProxyHandlers/ConvertFromShadow.js \
 	source/ProxyHandlers/Master.js \
 	source/ProxyHandlers/outro.js \
 	$(NULL)
@@ -83,6 +84,7 @@ ALL_SPEC_FILES = \
 	spec/proxyHandlers/Forwarding.js \
 	spec/proxyHandlers/LinkedList.js \
 	spec/proxyHandlers/Tracing.js \
+	spec/proxyHandlers/ConvertFromShadow.js \
 	spec/proxyHandlers/Master.js \
 	spec/ObjectGraph.js \
 	spec/concepts.js \

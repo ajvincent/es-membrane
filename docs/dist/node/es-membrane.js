@@ -1,5 +1,35 @@
 "use strict";
 var assert = require("assert");
+const ShadowKeyMap = new WeakMap();
+
+/**
+ * Define a shadow target, so we can manipulate the proxy independently of the
+ * original target.
+ *
+ * @argument value {Object} The original target.
+ *
+ * @returns {Object} A shadow target to minimally emulate the real one.
+ * @private
+ */
+function makeShadowTarget(value) {
+  "use strict";
+  var rv;
+  if (Array.isArray(value))
+    rv = [];
+  else if (typeof value == "object")
+    rv = {};
+  else if (typeof value == "function")
+    rv = function() {};
+  else
+    throw new Error("Unknown value for makeShadowTarget");
+  ShadowKeyMap.set(rv, value);
+  return rv;
+}
+
+function getRealTarget(target) {
+  return ShadowKeyMap.has(target) ? ShadowKeyMap.get(target) : target;
+}
+
 function returnTrue() {
   return true;
 }
@@ -144,36 +174,6 @@ function valueType(value) {
   if ((type != "function") && (type != "object"))
     return "primitive";
   return type;
-}
-
-var ShadowKeyMap = new WeakMap();
-
-/**
- * Define a shadow target, so we can manipulate the proxy independently of the
- * original target.
- *
- * @argument value {Object} The original target.
- *
- * @returns {Object} A shadow target to minimally emulate the real one.
- * @private
- */
-function makeShadowTarget(value) {
-  "use strict";
-  var rv;
-  if (Array.isArray(value))
-    rv = [];
-  else if (typeof value == "object")
-    rv = {};
-  else if (typeof value == "function")
-    rv = function() {};
-  else
-    throw new Error("Unknown value for makeShadowTarget");
-  ShadowKeyMap.set(rv, value);
-  return rv;
-}
-
-function getRealTarget(target) {
-  return ShadowKeyMap.has(target) ? ShadowKeyMap.get(target) : target;
 }
 
 function stringifyArg(arg) {
@@ -1754,6 +1754,50 @@ Object.freeze(TraceLinkedListNode.prototype);
 Object.freeze(TraceLinkedListNode);
 MembraneProxyHandlers.Tracing = TraceLinkedListNode;
   
+}
+/**
+ * @fileoverview
+ *
+ * This is for specifically converting the shadow target to a real target, for
+ * directly applying to Reflect traps.
+ */
+{
+
+/**
+ * Build a LinkedListNode for passing real targets to Reflect.
+ *
+ * @param objectGraph {ObjectGraph} The object graph from a Membrane.
+ * @param name        {String}      The name of this particular node in the linked list.
+ * @param traceLog    {String[]}    Where the tracing will be recorded.
+ *
+ * @constructor
+ * @extends MembraneProxyHandlers.LinkedListNode
+ */
+const ConvertFromShadow = function(objectGraph, name) {
+  MembraneProxyHandlers.LinkedListNode.apply(this, [objectGraph, name]);
+  Object.freeze(this);
+};
+
+ConvertFromShadow.prototype = new MembraneProxyHandlers.LinkedListNode({
+  membrane: null
+});
+
+/**
+ * ProxyHandler implementation
+ */
+allTraps.forEach((trapName) => {
+  const trap = function(...args) {
+    const shadowTarget = args[0];
+    args.splice(0, 1, getRealTarget(shadowTarget));
+    const next = this.nextHandler(shadowTarget);
+    return next[trapName].apply(next, args);
+  };
+  Reflect.defineProperty(ConvertFromShadow.prototype, trapName, new NWNCDataDescriptor(trap));
+});
+
+Object.freeze(ConvertFromShadow.prototype);
+Object.freeze(ConvertFromShadow);
+MembraneProxyHandlers.ConvertFromShadow = ConvertFromShadow;
 }
 (function() {
 "use strict";

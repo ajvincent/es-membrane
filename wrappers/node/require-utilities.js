@@ -1,4 +1,6 @@
 var {
+    makeShadowTarget,
+    getRealTarget,
     NOT_IMPLEMENTED,
     NOT_IMPLEMENTED_DESC,
     DataDescriptor,
