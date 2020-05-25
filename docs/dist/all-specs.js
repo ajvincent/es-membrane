@@ -4129,6 +4129,19 @@ describe("Promises through a membrane", function() {
       parts.dry.wrapper.reject(parts.response);
     }
   );
+
+  it(
+    "wrap the resolved value after an await",
+    async function(done) {
+      var obj = {"foo": 47};
+      parts.wet.wrapper.resolve(obj);
+      var p = parts.dry.wrapper.promise;
+      var result = await p;
+      expect(result).not.toBe(obj);
+      expect(result.foo).toBe(47);
+      done();
+    }
+  );
 });
 /*
 import "../docs/dist/es6-modules/Membrane.js";
