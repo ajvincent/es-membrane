@@ -404,7 +404,7 @@ describe("DistortionsRules", function() {
       runTestForValidity();
     });
 
-    it("truncateArgList being 0", function() {
+    it("truncateArgList being 0, see https://github.com/karma-runner/karma-chrome-launcher/issues/217", function() {
       testConfig.truncateArgList = 0;
       runTestForValidity();
     });
