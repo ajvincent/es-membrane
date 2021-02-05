@@ -1,7 +1,7 @@
 dist: trusty
 language: node_js
 node_js:
-  - "10.16.0"
+  - "lts/*"
 script:
   # this is a condensed version of the default PATH that puts ./node_modules/.bin at the end
   #- export PATH=/usr/bin:/home/travis/.nvm/versions/node/v6.5.0/bin:/home/travis/bin:/home/travis/.local/bin:/usr/local/phantomjs/bin:/usr/local/clang-3.4/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:./node_modules/.bin
