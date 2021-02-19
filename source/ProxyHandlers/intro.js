@@ -1,1 +1,1 @@
-var MembraneProxyHandlers = {};
+const MembraneProxyHandlers = {};

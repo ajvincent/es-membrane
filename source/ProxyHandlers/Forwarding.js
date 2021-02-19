@@ -1,13 +1,15 @@
-MembraneProxyHandlers.Forwarding = function() {
-  Reflect.defineProperty(this, "nextHandler", {
-    value: null,
-    writable: true,
-    enumerable: true,
-    configurable: false,
-  });
-};
+MembraneProxyHandlers.Forwarding = class extends MembraneProxyHandlers.Base {
+  constructor() {
+    super();
 
-MembraneProxyHandlers.Forwarding.prototype = new MembraneProxyHandlers.Base();
+    Reflect.defineProperty(this, "nextHandler", {
+      value: null,
+      writable: true,
+      enumerable: true,
+      configurable: false,
+    });
+  }
+};
 
 {
   const proto = MembraneProxyHandlers.Forwarding.prototype;

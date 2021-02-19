@@ -1,24 +1,22 @@
-(function() {
+{
 "use strict";
 
-const InvariantBase = function() {};
-InvariantBase.prototype = new MembraneProxyHandlers.LinkedList(null);
-InvariantBase.prototype.validateArgument = function(arg, argIndex) {
-  if (valueType(arg) === "primitive")
-    return;
-  if (this.membrane.getMembraneProxy(this.objectGraph.graphName, arg) === arg)
-    return;
-  if (argIndex === -1)
-    throw new TypeError(`GraphInvariant violation for return value`);
-  throw new TypeError(`GraphInvariant violation for argument ${argIndex}`);
+class InvariantBase extends MembraneProxyHandlers.LinkedList {
+  validateArgument(arg, argIndex) {
+    if (valueType(arg) === "primitive")
+      return;
+    if (this.membrane.getMembraneProxy(this.objectGraph.graphName, arg) === arg)
+      return;
+    if (argIndex === -1)
+      throw new TypeError(`GraphInvariant violation for return value`);
+    throw new TypeError(`GraphInvariant violation for argument ${argIndex}`);
+  }
 };
 Object.freeze(InvariantBase.prototype);
 Object.freeze(InvariantBase);
 
-const GraphInvariantOut = function(objectGraph) {
-  MembraneProxyHandlers.LinkedList.apply(this, [objectGraph]);
+MembraneProxyHandlers.GraphInvariantOut = class extends InvariantBase {
 };
-GraphInvariantOut.prototype = new InvariantBase();
 
 allTraps.forEach(function(trapName) {
   this[trapName] = function(target) {
@@ -26,24 +24,17 @@ allTraps.forEach(function(trapName) {
     this.validateArgument(rv, -1);
     return rv;
   };
-}, GraphInvariantOut.prototype);
+}, MembraneProxyHandlers.GraphInvariantOut);
 
-MembraneProxyHandlers.GraphInvariantOut = GraphInvariantOut;
-Object.freeze(GraphInvariantOut.prototype);
-Object.freeze(GraphInvariantOut);
 
-const GraphInvariantIn = function(objectGraph) {
-  MembraneProxyHandlers.LinkedList.apply(this, [objectGraph]);
+MembraneProxyHandlers.GraphInvariantIn = class extends InvariantBase {
 };
-GraphInvariantIn.prototype = new InvariantBase();
+
 allTraps.forEach(function(trapName) {
   this[trapName] = function() {
     Array.from(arguments).forEach(this.validateArgument, this);
     return this.nextHandler(target)[trapName].apply(this.nextHandler, arguments);
   };
-}, GraphInvariantIn.prototype);
+}, MembraneProxyHandlers.GraphInvariantIn.prototype);
 
-MembraneProxyHandlers.GraphInvariantIn = GraphInvariantIn;
-Object.freeze(GraphInvariantIn.prototype);
-Object.freeze(GraphInvariantIn);
-})();
+}

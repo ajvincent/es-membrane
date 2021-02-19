@@ -8,33 +8,6 @@
 {
 
 /**
- * Build a LinkedListNode specifically for tracing entering and exiting a proxy handler.
- *
- * @param objectGraph {ObjectGraph} The object graph from a Membrane.
- * @param name        {String}      The name of this particular node in the linked list.
- * @param traceLog    {String[]}    Where the tracing will be recorded.
- *
- * @constructor
- * @extends MembraneProxyHandlers.LinkedListNode
- */
-const TraceLinkedListNode = function(objectGraph, name, traceLog = []) {
-  MembraneProxyHandlers.LinkedListNode.apply(this, [objectGraph, name]);
-  this.traceLog = traceLog;
-  Object.freeze(this);
-};
-
-TraceLinkedListNode.prototype = new MembraneProxyHandlers.LinkedListNode({
-  membrane: null
-});
-
-/**
- * Clear the current log of events.
- */
-TraceLinkedListNode.prototype.clearLog = function() {
-  this.traceLog.splice(0, this.traceLog.length);
-};
-
-/**
  * @private
  */
 const withProps = new Set([
@@ -45,6 +18,29 @@ const withProps = new Set([
   "has",
   "set",
 ]);
+
+/**
+ * Build a LinkedListNode specifically for tracing entering and exiting a proxy handler.
+ *
+ * @param objectGraph {ObjectGraph} The object graph from a Membrane.
+ * @param name        {String}      The name of this particular node in the linked list.
+ * @param traceLog    {String[]}    Where the tracing will be recorded.
+ */
+MembraneProxyHandlers.Tracing = class extends MembraneProxyHandlers.LinkedListNode {
+  constructor(objectGraph, name, traceLog = []) {
+    super(objectGraph, name);
+    this.traceLog = traceLog;
+
+    //Object.seal(this);
+  }
+
+  /**
+   * Clear the current log of events.
+   */
+  clearLog() {
+    this.traceLog.splice(0, this.traceLog.length);
+  }
+};
 
 /**
  * ProxyHandler implementation
@@ -72,11 +68,12 @@ allTraps.forEach((trapName) => {
       throw ex;
     }
   };
-  Reflect.defineProperty(TraceLinkedListNode.prototype, trapName, new DataDescriptor(trap));
+
+  Reflect.defineProperty(
+    MembraneProxyHandlers.Tracing.prototype,
+    trapName,
+    new DataDescriptor(trap)
+  );
 });
 
-Object.freeze(TraceLinkedListNode.prototype);
-Object.freeze(TraceLinkedListNode);
-MembraneProxyHandlers.Tracing = TraceLinkedListNode;
-  
 }

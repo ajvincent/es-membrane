@@ -613,22 +613,4 @@ describe("MembraneProxyHandlers.Tracing node proxy handler", function() {
     ]);
     handler.clearLog();
   });
-
-  describe("can not override a trap", function() {
-    const dummy = function() {};
-    allTraps.forEach((trap) => {
-      it(trap, function() {
-        expect(Reflect.hasOwnProperty(handler, trap)).toBe(false);
-        expect(Reflect.defineProperty(
-          handler, trap, {
-            value: dummy,
-            writable: false,
-            enumerable: false,
-            configurable: false
-          }
-        )).toBe(false);
-        expect(handler[trap]).toBe(MembraneProxyHandlers.Tracing.prototype[trap]);
-      });
-    });
-  });
 });

@@ -2923,24 +2923,6 @@ describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
     expect(handler instanceof MembraneProxyHandlers.Forwarding).toBe(true);
   });
 
-  describe("cannot override its traps: ", function() {
-    const dummy = function() {};
-    allTraps.forEach((trap) => {
-      it(trap, function() {
-        expect(Reflect.hasOwnProperty(handler, trap)).toBe(false);
-        expect(Reflect.defineProperty(
-          handler, trap, {
-            value: dummy,
-            writable: false,
-            enumerable: false,
-            configurable: false
-          }
-        )).toBe(false);
-        expect(handler[trap]).toBe(MembraneProxyHandlers.Forwarding.prototype[trap]);
-      });
-    });
-  });
-
   it("has a head node", function() {
     expect(handler.nextHandler instanceof MembraneProxyHandlers.Base).toBe(true);
     expect(handler.getNodeByName("head")).toBe(handler.nextHandler);
@@ -3620,24 +3602,6 @@ describe("MembraneProxyHandlers.Tracing node proxy handler", function() {
       "leave trace, ownKeys",
     ]);
     handler.clearLog();
-  });
-
-  describe("can not override a trap", function() {
-    const dummy = function() {};
-    allTraps.forEach((trap) => {
-      it(trap, function() {
-        expect(Reflect.hasOwnProperty(handler, trap)).toBe(false);
-        expect(Reflect.defineProperty(
-          handler, trap, {
-            value: dummy,
-            writable: false,
-            enumerable: false,
-            configurable: false
-          }
-        )).toBe(false);
-        expect(handler[trap]).toBe(MembraneProxyHandlers.Tracing.prototype[trap]);
-      });
-    });
   });
 });
 if ((typeof makeShadowTarget !== "function") ||

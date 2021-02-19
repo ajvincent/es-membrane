@@ -12,18 +12,14 @@
  * @param objectGraph {ObjectGraph} The object graph from a Membrane.
  * @param name        {String}      The name of this particular node in the linked list.
  * @param traceLog    {String[]}    Where the tracing will be recorded.
- *
- * @constructor
- * @extends MembraneProxyHandlers.LinkedListNode
  */
-const ConvertFromShadow = function(objectGraph, name) {
-  MembraneProxyHandlers.LinkedListNode.apply(this, [objectGraph, name]);
-  Object.freeze(this);
-};
 
-ConvertFromShadow.prototype = new MembraneProxyHandlers.LinkedListNode({
-  membrane: null
-});
+MembraneProxyHandlers.ConvertFromShadow = class extends MembraneProxyHandlers.LinkedListNode {
+  constructor(objectGraph, name) {
+    super(objectGraph, name);
+    Object.freeze(this);
+  }
+};
 
 /**
  * ProxyHandler implementation
@@ -35,10 +31,13 @@ allTraps.forEach((trapName) => {
     const next = this.nextHandler(shadowTarget);
     return next[trapName].apply(next, args);
   };
-  Reflect.defineProperty(ConvertFromShadow.prototype, trapName, new NWNCDataDescriptor(trap));
+  Reflect.defineProperty(
+    MembraneProxyHandlers.ConvertFromShadow.prototype,
+    trapName,
+    new NWNCDataDescriptor(trap)
+  );
 });
 
-Object.freeze(ConvertFromShadow.prototype);
-Object.freeze(ConvertFromShadow);
-MembraneProxyHandlers.ConvertFromShadow = ConvertFromShadow;
+Object.freeze(MembraneProxyHandlers.ConvertFromShadow.prototype);
+Object.freeze(MembraneProxyHandlers.ConvertFromShadow);
 }
