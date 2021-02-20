@@ -7,7 +7,7 @@
     "debug": "node --inspect-brk ./node_modules/jasmine/bin/jasmine.js",
     "eslint": "eslint",
     "gui-tests": "karma start gui-tests.conf.js",
-    "test": "./node_modules/jasmine/bin/jasmine.js"
+    "test": "jasmine"
   },
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
   "devDependencies": {
     "eslint": "^7.20.0",
     "eslint-plugin-jasmine": "^4.1.2",
-    "jasmine": "^2.8.0",
+    "jasmine": "^3.6.2",
     "karma": "^5.0.4",
     "karma-chrome-launcher": "^2.2.0",
     "karma-cli": "^1.0.1",
