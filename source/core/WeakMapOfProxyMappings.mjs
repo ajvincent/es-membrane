@@ -1,3 +1,5 @@
+/** @module source/core/WeakMapOfProxyMappings */
+
 import {
   NWNCDataDescriptor,
   DeadProxyKey,
@@ -6,6 +8,7 @@ import {
 /**
  * Redefine methods on a weak map.
  * @param {WeakMap} map The weak map.
+ * @package
  */
 export default function WeakMapOfProxyMappings(map) {
   Reflect.defineProperty(
