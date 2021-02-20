@@ -8,6 +8,8 @@ import {
   isDataDescriptor,
   isAccessorDescriptor,
   allTraps,
+  DeadProxyKey,
+  valueType,
 } from "../../source/core/sharedUtilities.mjs";
 
 describe("Shadow targets map to real targets", () => {
@@ -252,4 +254,31 @@ it("allTraps is a frozen array describing all traps", () => {
     "apply",
     "construct",
   ]);
+});
+
+it("DeadProxyKey is a symbol", () => {
+  expect(typeof DeadProxyKey).toBe("symbol");
+});
+
+
+describe("valueType", () => {
+  it("returns 'primitive' for null", () => {
+    expect(valueType(null)).toBe("primitive");
+  });
+
+  it("returns 'primitive' for a string", () => {
+    expect(valueType("hello")).toBe("primitive");
+  });
+
+  it("returns 'object' for an object", () => {
+    expect(valueType({})).toBe("object");
+  });
+
+  it("returns 'object' for an array", () => {
+    expect(valueType([])).toBe("object");
+  });
+
+  it("returns 'function' for a function", () => {
+    expect(valueType(() => null)).toBe("function");
+  })
 });

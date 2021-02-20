@@ -1,3 +1,10 @@
+function AssertIsPropertyKey(propName) {
+  var type = typeof propName;
+  if ((type != "string") && (type != "symbol"))
+    throw new Error("propName is not a symbol or a string!");
+  return true;
+}
+
 /* A proxy handler designed to return only primitives and objects in a given
  * object graph, defined by the fieldName.
  */

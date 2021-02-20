@@ -133,7 +133,7 @@ Object.defineProperties(ProxyMapping.prototype, {
     Reflect.defineProperty(
       this.proxiedFields,
       field,
-      new NWNCDataDescriptor(WeakMapOfProxyMappings.Dead)
+      new NWNCDataDescriptor(DeadProxyKey)
     );
   }),
 

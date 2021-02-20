@@ -1,3 +1,26 @@
+const Constants = {
+  warnings: {
+    FILTERED_KEYS_WITHOUT_LOCAL: "Filtering own keys without allowing local property defines or deletes is dangerous",
+    PROTOTYPE_FILTER_MISSING: "Proxy filter specified to inherit from prototype, but prototype provides no filter",
+  }
+};
+
+Object.freeze(Constants.warnings);
+Object.freeze(Constants);
+
+
+/**
+ * Helper function to determine if anyone may log.
+ * @private
+ *
+ * @returns {Boolean} True if logging is permitted.
+ */
+// This function is here because I can blacklist moduleUtilities during debugging.
+function MembraneMayLog() {
+  return (typeof this.logger == "object") && Boolean(this.logger);
+}
+
+
 /* Reference:  http://soft.vub.ac.be/~tvcutsem/invokedynamic/js-membranes
  * Definitions:
  * Object graph: A collection of values that talk to each other directly.

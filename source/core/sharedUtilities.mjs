@@ -2,6 +2,8 @@
 
 const ShadowKeyMap = new WeakMap();
 
+export const DeadProxyKey = Symbol("dead map entry");
+
 /**
  * Define a shadow target, so we can manipulate the proxy independently of the
  * original target.
@@ -191,3 +193,37 @@ return p.concat(p.filter((i) => {
     return j.toUpperCase() === j;
   }).map((k) => k.prototype));
 })());
+
+/**
+ *
+ * @param value
+ *
+ * @return "primitive" | "function" | "object"
+ */
+export function valueType(value) {
+  if (value === null)
+    return "primitive";
+  const type = typeof value;
+  if ((type != "function") && (type != "object"))
+    return "primitive";
+  return type;
+}
+
+export function makeRevokeDeleteRefs(parts, mapping, field) {
+  let oldRevoke = parts.revoke;
+  if (!oldRevoke)
+    return;
+
+  // necessary: in OverriddenProxyParts, revoke is inherited and read-only.
+  Reflect.defineProperty(parts, "revoke", new DataDescriptor(function() {
+    oldRevoke.apply(parts);
+    mapping.remove(field);
+  }, true));
+}
+
+export const NOT_YET_DETERMINED = {};
+Object.defineProperty(
+  NOT_YET_DETERMINED,
+  "not_yet_determined",
+  new NWNCDataDescriptor(true)
+);
