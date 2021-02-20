@@ -1,14 +1,15 @@
 import {
+  AccessorDescriptor,
+  NWNCDataDescriptor,
+  DataDescriptor,
+  DeadProxyKey,
+  allTraps,
+  assert,
+  isAccessorDescriptor,
+  isDataDescriptor,
   makeShadowTarget,
   getRealTarget,
   returnFalse,
-  DataDescriptor,
-  AccessorDescriptor,
-  NWNCDataDescriptor,
-  isDataDescriptor,
-  isAccessorDescriptor,
-  allTraps,
-  DeadProxyKey,
   valueType,
 } from "../../source/core/sharedUtilities.mjs";
 
@@ -281,4 +282,14 @@ describe("valueType", () => {
   it("returns 'function' for a function", () => {
     expect(valueType(() => null)).toBe("function");
   })
+});
+
+describe("assert", () => {
+  it("does nothing on a passing condition", () => {
+    expect(() => assert(true, "do nothing")).not.toThrow();
+  });
+
+  it("throws an exception on a failed condition", () => {
+    expect(() => assert(false, "foo")).toThrowError("Assertion failure: foo");
+  });
 });

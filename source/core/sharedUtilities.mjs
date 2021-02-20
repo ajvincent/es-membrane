@@ -4,6 +4,11 @@ const ShadowKeyMap = new WeakMap();
 
 export const DeadProxyKey = Symbol("dead map entry");
 
+export function assert(condition, message) {
+  if (!condition)
+    throw new Error("Assertion failure: " + message);
+}
+
 /**
  * Define a shadow target, so we can manipulate the proxy independently of the
  * original target.
