@@ -183,8 +183,7 @@ export default class ProxyCylinder {
    */
   getProxy(graph) {
     let rv = this.getMetadata(graph);
-    rv = (!rv.override && (graph === this.originGraph)) ? rv.value : rv.proxy;
-    return rv;
+    return (graph === this.originGraph) ? rv.value : rv.proxy;
   }
 
   /**
@@ -229,7 +228,7 @@ export default class ProxyCylinder {
       throw new Error(`set called for previously defined graph "${graph}"`);
 
     if (this.proxyDataByGraph.get(graph) === DeadProxyKey)
-      throw new Error(`dead object graph ${graph}`);
+      throw new Error(`dead object graph "${graph}"`);
 
     if ((this.originalValue === NOT_YET_DETERMINED) && (override || (graph !== this.originGraph))) {
       throw new Error("original value has not been set");
@@ -289,7 +288,7 @@ export default class ProxyCylinder {
     const graphs = this.getGraphNames();
     for (let i = (graphs.length - 1); i >= 0; i--) {
       const graph = graphs[i];
-      if (graph === DeadProxyKey)
+      if (this.proxyDataByGraph.get(graph) === DeadProxyKey)
         continue;
       const metadata = this.getMetadata(graph);
       if (graph !== this.originGraph) {
@@ -308,7 +307,8 @@ export default class ProxyCylinder {
    * @public
    */
   revokeAll(membrane) {
-    this.getOriginal(); // sanity check
+    if (this.originalValue === NOT_YET_DETERMINED)
+      throw new Error("the original value hasn't been set");
 
     const graphs = this.getGraphNames();
     // graphs[0] === this.originGraph
@@ -331,10 +331,10 @@ export default class ProxyCylinder {
 
     {
       const parts = this.proxyDataByGraph.get(this.originGraph);
-      if (parts !== DeadProxyKey)
+      if (parts !== DeadProxyKey) {
         membrane.revokeMapping(parts.value);
-
-      this.remove(this.originGraph);
+        this.remove(this.originGraph);
+      }
     }
   }
 

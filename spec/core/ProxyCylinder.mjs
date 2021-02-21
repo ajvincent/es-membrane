@@ -16,10 +16,157 @@ describe("ProxyCylinder", () => {
 
   const flagSymbol = Symbol("generic flag");
 
+  function expectUnknownGraphGetters(graphName) {
+    const errorMessage = `unknown graph "${graphName}"`
+    expect(cylinder.hasGraph(graphName)).toBe(false);
+    expect(() => cylinder.getValue(graphName)).toThrowError(errorMessage);
+    expect(() => cylinder.getProxy(graphName)).toThrowError(errorMessage);
+    expect(() => cylinder.getShadowTarget(graphName)).toThrowError(errorMessage);
+    expect(() => cylinder.getLocalFlag(graphName, "foo")).toThrowError(errorMessage);
+    expect(() => cylinder.getLocalFlag(graphName, flagSymbol)).toThrowError(errorMessage);
+    expect(() => cylinder.getLocalDescriptor(graphName, "towel")).toThrowError(errorMessage);
+    expect(() => cylinder.cachedOwnKeys(graphName)).toThrowError(errorMessage);
+    expect(() => cylinder.localOwnKeys(graphName)).toThrowError(errorMessage);
+    expect(() => cylinder.wasDeletedLocally(graphName, "foo")).toThrowError(errorMessage);
+    expect(() => cylinder.getOwnKeysFilter(graphName)).toThrowError(errorMessage);
+    expect(() => cylinder.getTruncateArgList(graphName)).toThrowError(errorMessage);
+  }
+
+  function expectDeadGraphGetters(graphName) {
+    const deadMessage = `dead object graph "${graphName}"`;
+
+    expect(cylinder.hasGraph(graphName)).toBe(true);
+    expect(() => cylinder.getValue(graphName)).toThrowError(deadMessage);
+    expect(() => cylinder.getProxy(graphName)).toThrowError(deadMessage);
+    expect(() => cylinder.getShadowTarget(graphName)).toThrowError(deadMessage);
+    expect(() => cylinder.getLocalFlag(graphName, "foo")).toThrowError(deadMessage);
+    expect(() => cylinder.getLocalFlag(graphName, flagSymbol)).toThrowError(deadMessage);
+    expect(() => cylinder.getLocalDescriptor(graphName, "towel")).toThrowError(deadMessage);
+    expect(() => cylinder.cachedOwnKeys(graphName)).toThrowError(deadMessage);
+    expect(() => cylinder.localOwnKeys(graphName)).toThrowError(deadMessage);
+    expect(() => cylinder.getOwnKeysFilter(graphName)).toThrowError(deadMessage);
+    expect(() => cylinder.getTruncateArgList(graphName)).toThrowError(deadMessage);
+
+    return deadMessage;
+  }
+
+  function describeUnknownGraphSetters(graphName) {
+    it("remove()", () => {
+      expect(() => cylinder.remove(graphName)).toThrowError(`unknown graph "${graphName}"`);
+    });
+
+    it("setLocalFlag()", () => {
+      expect(() => cylinder.setLocalFlag(graphName, "foo", true)).toThrowError(`unknown graph "${graphName}"`);
+    });
+
+    it("setLocalDescriptor()", () => {
+      expect(() => cylinder.setLocalDescriptor(
+        graphName, "foo", new NWNCDataDescriptor()
+      )).toThrowError(`unknown graph "${graphName}"`);
+    });
+
+    it("deleteLocalDescriptor()", () => {
+      expect(() => cylinder.deleteLocalDescriptor(
+        graphName, "foo", false
+      )).toThrowError(`unknown graph "${graphName}"`);
+
+      expect(() => cylinder.deleteLocalDescriptor(
+        graphName, "foo", true
+      )).toThrowError(`unknown graph "${graphName}"`);
+    });
+
+    it("setCachedOwnKeys()", () => {
+      expect(() => cylinder.setCachedOwnKeys(
+        graphName, [], []
+      )).toThrowError(`unknown graph "${graphName}"`);
+    });
+
+    it("appendDeletedNames()", () => {
+      expect(() => cylinder.appendDeletedNames(
+        graphName, new Set()
+      )).toThrowError(`unknown graph "${graphName}"`);
+    });
+
+    it("unmaskDeletion()", () => {
+      expect(() => cylinder.unmaskDeletion(graphName, "foo")).toThrowError(`unknown graph "${graphName}"`);
+    });
+
+    it("setOwnKeysFilter()", () => {
+      expect(() => cylinder.setOwnKeysFilter(graphName, () => true)).toThrowError(`unknown graph "${graphName}"`);
+    });
+
+    it("setTruncateArgList()", () => {
+      expect(() => cylinder.setTruncateArgList(graphName, 0)).toThrowError(`unknown graph "${graphName}"`);
+    });
+  }
+
+  function describeDeadGraphSetters(graphName, membrane) {
+    it(".setMetadata()", () => {
+      expect(() => cylinder.setMetadata({}, "wet", { value: { dead: true }}))
+            .toThrowError(`set called for previously defined graph "${graphName}"`);
+      expect(() => cylinder.setMetadata({}, "wet", { value: { dead: true}, override: true }))
+            .toThrowError(`dead object graph "${graphName}"`);
+    });
+
+    it(".remove()", () => {
+      expect(() => cylinder.remove("wet")).toThrowError(`dead object graph "${graphName}"`);
+    });
+
+    it("allows calling .selfDestruct()", () => {
+      expect(() => cylinder.selfDestruct(membrane)).not.toThrow();
+    });
+
+    it("allows calling .revokeAll()", () => {
+      expect(() => cylinder.revokeAll(membrane)).not.toThrow();
+    });
+
+    it(".setLocalFlag()", () => {
+      expect(() => cylinder.remove("wet", "foo", true)).toThrowError(`dead object graph "${graphName}"`);
+    });
+
+    it(".setLocalDescriptor()", () => {
+      expect(() => cylinder.setLocalDescriptor(
+        "wet", "foo", new NWNCDataDescriptor({}))
+      ).toThrowError(`dead object graph "${graphName}"`);
+    });
+
+    it(".deleteLocalDescriptor()", () => {
+      expect(() => cylinder.deleteLocalDescriptor(
+        "wet", "foo", false
+      )).toThrowError(`dead object graph "${graphName}"`);
+
+      expect(() => cylinder.deleteLocalDescriptor(
+        "wet", "foo", true
+      )).toThrowError(`dead object graph "${graphName}"`);
+    });
+
+    it(".setCachedOwnKeys()", () => {
+      expect(() => cylinder.setCachedOwnKeys(
+        graphName, [], []
+      )).toThrowError(`dead object graph "${graphName}"`);
+    });
+
+    it(".appendDeletedNames()", () => {
+      expect(() => cylinder.appendDeletedNames(
+        graphName, new Set()
+      )).toThrowError(`dead object graph "${graphName}"`);
+    });
+
+    it(".unmaskDeletion()", () => {
+      expect(() => cylinder.unmaskDeletion(graphName, "foo")).toThrowError(`dead object graph "${graphName}"`);
+    });
+
+    it(".setOwnKeysFilter()", () => {
+      expect(() => cylinder.setOwnKeysFilter(graphName, () => true)).toThrowError(`dead object graph "${graphName}"`);
+    });
+
+    it(".setTruncateArgList()", () => {
+      expect(() => cylinder.setTruncateArgList(graphName, 0)).toThrowError(`dead object graph "${graphName}"`);
+    });
+  }
+
   describe("with no object graphs and", () => {
     it("initial conditions (disallows most getters)", () => {
-      const unknownWet = `unknown graph "wet"`;
-  
       // originGraph
       {
         const desc = Reflect.getOwnPropertyDescriptor(cylinder, "originGraph");
@@ -27,23 +174,14 @@ describe("ProxyCylinder", () => {
         expect(desc.writable).toBe(false);
         expect(desc.configurable).toBe(false);
       }
-  
+
       expect(() => cylinder.getOriginal()).toThrowError("the original value hasn't been set");
       expect(cylinder.hasGraph("wet")).toBe(false);
       expect(cylinder.hasGraph("dry")).toBe(false);
-      expect(() => cylinder.getValue("wet")).toThrowError(unknownWet);
-      expect(() => cylinder.getProxy("wet")).toThrowError(unknownWet);
-      expect(() => cylinder.getShadowTarget("wet")).toThrowError(unknownWet);
-      expect(() => cylinder.getLocalFlag("wet", "foo")).toThrowError(unknownWet);
-      expect(() => cylinder.getLocalFlag("wet", flagSymbol)).toThrowError(unknownWet);
       expect(cylinder.isShadowTarget({})).toBe(false);
-      expect(() => cylinder.getLocalDescriptor("wet", "towel")).toThrowError(unknownWet);
-      expect(() => cylinder.cachedOwnKeys("wet")).toThrowError(unknownWet);
-      expect(() => cylinder.localOwnKeys("wet")).toThrowError(unknownWet);
-      expect(() => cylinder.wasDeletedLocally("wet", "foo")).toThrowError(unknownWet);
-      expect(() => cylinder.getOwnKeysFilter("wet")).toThrowError(unknownWet);
-      expect(() => cylinder.getTruncateArgList("wet")).toThrowError(unknownWet);
-  
+
+      expectUnknownGraphGetters("wet");
+
       // Properties of the cylinder
       expect(Reflect.isExtensible(cylinder)).toBe(false);
       expect(Object.isFrozen(ProxyCylinder)).toBe(true);
@@ -63,14 +201,6 @@ describe("ProxyCylinder", () => {
         expect(() => cylinder.setMetadata(null, "wet", "wet")).toThrowError("metadata argument must be an object");
       });
 
-      /*
-      it("disallows setting invalid graph names", () => {
-        expect(() => cylinder.setMetadata(null, null, {})).toThrowError("graphName is neither a symbol nor a string!");
-        expect(() => cylinder.setMetadata(null, 0,    {})).toThrowError("graphName is neither a symbol nor a string!");
-        expect(() => cylinder.setMetadata(null, {},   {})).toThrowError("graphName is neither a symbol nor a string!");
-      });
-      */
-
       it("accepts undefined value properties in graph metadata", () => {
         const membrane = { map: new WeakMap };
         const metadata = {};
@@ -84,10 +214,6 @@ describe("ProxyCylinder", () => {
         cylinder.setMetadata(membrane, "wet", metadata);
         expect(membrane.map.has(metadata.value)).toBe(false);
       });
-    });
-
-    it("disallows calling remove()", () => {
-      expect(() => cylinder.remove("wet")).toThrowError(`unknown graph "wet"`);
     });
 
     it("allows calling selfDestruct() (really a no-op, but still worth checking)", () => {
@@ -111,69 +237,9 @@ describe("ProxyCylinder", () => {
         expect(() => cylinder.revokeAll(membrane)).toThrowError("the original value hasn't been set");
       });
 
-      it("setLocalFlag()", () => {
-        expect(() => cylinder.setLocalFlag("wet", "foo", true)).toThrowError(`unknown graph "wet"`);
-      });
-
-      it("setLocalDescriptor()", () => {
-        expect(() => cylinder.setLocalDescriptor(
-          "wet", "foo", new NWNCDataDescriptor()
-        )).toThrowError(`unknown graph "wet"`);
-      });
-
-      it("deleteLocalDescriptor()", () => {
-        expect(() => cylinder.deleteLocalDescriptor(
-          "wet", "foo", false
-        )).toThrowError(`unknown graph "wet"`);
-
-        expect(() => cylinder.deleteLocalDescriptor(
-          "wet", "foo", true
-        )).toThrowError(`unknown graph "wet"`);
-      });
-
-      it("setCachedOwnKeys()", () => {
-        expect(() => cylinder.setCachedOwnKeys(
-          "wet", [], []
-        )).toThrowError(`unknown graph "wet"`);
-      });
-
-      it("appendDeletedNames()", () => {
-        expect(() => cylinder.appendDeletedNames(
-          "wet", new Set()
-        )).toThrowError(`unknown graph "wet"`);
-      });
-
-      it("unmaskDeletion()", () => {
-        expect(() => cylinder.unmaskDeletion("wet", "foo")).toThrowError(`unknown graph "wet"`);
-      });
-
-      it("setOwnKeysFilter()", () => {
-        expect(() => cylinder.setOwnKeysFilter("wet", () => true)).toThrowError(`unknown graph "wet"`);
-      });
-
-      it("setTruncateArgList()", () => {
-        expect(() => cylinder.setTruncateArgList("wet", 0)).toThrowError(`unknown graph "wet"`);
-      });
+      describeUnknownGraphSetters("wet");
     });
   });
-
-  function expectDeadGraph(graphName) {
-    const deadMessage = `dead object graph "${graphName}"`;
-
-    expect(cylinder.hasGraph(graphName)).toBe(true);
-    expect(() => cylinder.getValue(graphName)).toThrowError(deadMessage);
-    expect(() => cylinder.getProxy(graphName)).toThrowError(deadMessage);
-    expect(() => cylinder.getShadowTarget(graphName)).toThrowError(deadMessage);
-    expect(() => cylinder.getLocalFlag(graphName, "foo")).toThrowError(deadMessage);
-    expect(() => cylinder.getLocalFlag(graphName, flagSymbol)).toThrowError(deadMessage);
-    expect(() => cylinder.getLocalDescriptor(graphName, "towel")).toThrowError(deadMessage);
-    expect(() => cylinder.cachedOwnKeys(graphName)).toThrowError(deadMessage);
-    expect(() => cylinder.localOwnKeys(graphName)).toThrowError(deadMessage);
-    expect(() => cylinder.getOwnKeysFilter(graphName)).toThrowError(deadMessage);
-    expect(() => cylinder.getTruncateArgList(graphName)).toThrowError(deadMessage);
-
-    return deadMessage;
-  }
 
   describe("with wet metadata and", () => {
     let membrane, wetParts;
@@ -190,7 +256,7 @@ describe("ProxyCylinder", () => {
       WeakMapOfProxyCylinders(membrane.map);
       membrane.revokeMapping.and.callThrough();
 
-      wetParts = { value: {} };
+      wetParts = { value: { isWet: true } };
 
       cylinder.setMetadata(membrane, "wet", wetParts);
     });
@@ -229,54 +295,108 @@ describe("ProxyCylinder", () => {
         expect(() => cylinder.setMetadata(membrane, "wet", {}))
               .toThrowError(`set called for previously defined graph "wet"`);
       });
+
+      it("allows setting on the same graph twice with an override", () => {
+        const newParts = { value: { isNew: true }, override: true};
+        cylinder.setMetadata(membrane, "wet", newParts);
+
+        expect(cylinder.hasGraph("wet")).toBe(true);
+        expect(cylinder.hasGraph("dry")).toBe(false);
+        expect(cylinder.getValue("wet")).toBe(newParts.value);
+        expect(cylinder.getProxy("wet")).toBe(newParts.value);
+        expect(cylinder.getShadowTarget("wet")).toBe(undefined);
+        expect(cylinder.isShadowTarget({})).toBe(false);
+        expect(cylinder.getLocalFlag("wet", "foo")).toBe(false);
+        expect(cylinder.getLocalFlag("wet", flagSymbol)).toBe(false);
+        expect(cylinder.getLocalDescriptor("wet", "towel")).toBe(undefined);
+        expect(cylinder.cachedOwnKeys("wet")).toBe(null);
+        expect(cylinder.localOwnKeys("wet")).toEqual([]);
+        expect(cylinder.wasDeletedLocally("wet", "foo")).toBe(false);
+        expect(cylinder.getOwnKeysFilter("wet")).toBe(null);
+        expect(cylinder.getTruncateArgList("wet")).toBe(false);
+
+        expect(membrane.map.get(newParts.value)).toBe(cylinder);
+        expect(membrane.revokeMapping).not.toHaveBeenCalled();
+      });
+
+      describe("doesn't recognize an unset object graph", () => {
+        it("(getters)", () => expectUnknownGraphGetters("dry"));
+        describe("(setters)", () => describeUnknownGraphSetters("dry"));
+      });
+
+      it("disallows invalid graph names", () => {
+        expect(() => cylinder.setMetadata(null, null, {})).toThrowError("graphName is neither a symbol nor a string!");
+        expect(() => cylinder.setMetadata(null, 0,    {})).toThrowError("graphName is neither a symbol nor a string!");
+        expect(() => cylinder.setMetadata(null, {},   {})).toThrowError("graphName is neither a symbol nor a string!");
+      });
     });
 
-    it(".remove() clears the reference to the original value", () => {
-      cylinder.remove("wet");
+    describe("calling .remove()", () => {
+      beforeEach(() => cylinder.remove("wet"));
 
-      const deadMessage = expectDeadGraph("wet");
+      it("clears the reference to the original value", () => {
+        expect(cylinder.originGraph).toBe("wet");
+        expect(() => cylinder.getOriginal()).toThrowError(`dead object graph "wet"`);
 
-      expect(cylinder.originGraph).toBe("wet");
-      expect(() => cylinder.getOriginal()).toThrowError(deadMessage);
+        expect(cylinder.hasGraph("wet")).toBe(true);
+        expect(cylinder.hasGraph("dry")).toBe(false);
+        expect(cylinder.isShadowTarget({})).toBe(false);
 
-      expect(cylinder.hasGraph("wet")).toBe(true);
-      expect(cylinder.hasGraph("dry")).toBe(false);
-      expect(cylinder.isShadowTarget({})).toBe(false);
+        expect(membrane.map.get(wetParts.value)).toBe(cylinder);
+        expect(membrane.revokeMapping).not.toHaveBeenCalled();
+      });
 
-      expect(membrane.map.get(wetParts.value)).toBe(cylinder);
-      expect(membrane.revokeMapping).not.toHaveBeenCalled();
+      describe("doesn't support a dead object graph", () => {
+        it("(getters)", () => expectDeadGraphGetters("wet"));
+        describe("(setters)", () => describeDeadGraphSetters("wet", membrane));
+      });
     });
 
-    it(".selfDestruct() clears the reference to the original value", () => {
-      cylinder.selfDestruct(membrane);
+    describe(".selfDestruct()", () => {
+      beforeEach(() => cylinder.selfDestruct(membrane));
 
-      const deadMessage = expectDeadGraph("wet");
+      it("clears the reference to the original value", () => {
 
-      expect(cylinder.originGraph).toBe("wet");
-      expect(() => cylinder.getOriginal()).toThrowError(deadMessage);
+        const deadMessage = expectDeadGraphGetters("wet");
+  
+        expect(cylinder.originGraph).toBe("wet");
+        expect(() => cylinder.getOriginal()).toThrowError(deadMessage);
+  
+        expect(cylinder.hasGraph("wet")).toBe(true);
+        expect(cylinder.hasGraph("dry")).toBe(false);
+        expect(cylinder.isShadowTarget({})).toBe(false);
+  
+        expect(membrane.map.get(wetParts.value)).toBe(undefined);
+        expect(membrane.revokeMapping).not.toHaveBeenCalled();
+      });
 
-      expect(cylinder.hasGraph("wet")).toBe(true);
-      expect(cylinder.hasGraph("dry")).toBe(false);
-      expect(cylinder.isShadowTarget({})).toBe(false);
-
-      expect(membrane.map.get(wetParts.value)).toBe(undefined);
-      expect(membrane.revokeMapping).not.toHaveBeenCalled();
+      describe("doesn't support a dead object graph", () => {
+        it("(getters)", () => expectDeadGraphGetters("wet"));
+        describe("(setters)", () => describeDeadGraphSetters("wet", membrane));
+      });
     });
 
-    it(".revokeAll() clears the reference to the original value", () => {
-      cylinder.revokeAll(membrane);
+    describe(".revokeAll()", () => {
+      beforeEach(() => cylinder.revokeAll(membrane));
 
-      const deadMessage = expectDeadGraph("wet");
+      it("clears the reference to the original value", () => {
+        const deadMessage = expectDeadGraphGetters("wet");
+  
+        expect(cylinder.originGraph).toBe("wet");
+        expect(() => cylinder.getOriginal()).toThrowError(deadMessage);
+        expect(cylinder.hasGraph("wet")).toBe(true);
+        expect(cylinder.hasGraph("dry")).toBe(false);
+        expect(cylinder.isShadowTarget({})).toBe(false);
+  
+        expect(membrane.map.get(wetParts.value)).toBe(DeadProxyKey);
+        expect(membrane.revokeMapping).toHaveBeenCalledWith(wetParts.value);
+        expect(membrane.revokeMapping).toHaveBeenCalledTimes(1);
+      });
 
-      expect(cylinder.originGraph).toBe("wet");
-      expect(() => cylinder.getOriginal()).toThrowError(deadMessage);
-      expect(cylinder.hasGraph("wet")).toBe(true);
-      expect(cylinder.hasGraph("dry")).toBe(false);
-      expect(cylinder.isShadowTarget({})).toBe(false);
-
-      expect(membrane.map.get(wetParts.value)).toBe(DeadProxyKey);
-      expect(membrane.revokeMapping).toHaveBeenCalledWith(wetParts.value);
-      expect(membrane.revokeMapping).toHaveBeenCalledTimes(1);
+      describe("doesn't support a dead object graph", () => {
+        it("(getters)", () => expectDeadGraphGetters("wet"));
+        describe("(setters)", () => describeDeadGraphSetters("wet", membrane));
+      });
     });
   });
 });
