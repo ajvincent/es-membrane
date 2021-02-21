@@ -16,7 +16,6 @@
 
 import {
   DeadProxyKey,
-  NOT_YET_DETERMINED,
   NWNCDataDescriptor,
   assert,
   valueType,
@@ -70,23 +69,22 @@ export default class ProxyCylinder {
     Reflect.defineProperty(this, "proxyDataByGraph", new NWNCDataDescriptor(new Map()));
 
     /**
+     * @type {Boolean}
      * @private
-     *
-     * XXX ajvincent Possible memory leak by holding a strong reference on the original value?
      */
-    this.originalValue = NOT_YET_DETERMINED;
+    this.originalValueSet = false;
   
     /**
      * Local flags for string keys determining behavior.
-     * @private
      * @type {?Set}
+     * @private
      */
     this.localFlags = null;
 
     /**
      * Local flags for symbol keys.
-     * @private
      * @type {?Map}
+     * @private
      */
     this.localFlagsSymbols = null;
 
@@ -156,7 +154,7 @@ export default class ProxyCylinder {
    * @public
    */
   getOriginal() {
-    if (this.originalValue === NOT_YET_DETERMINED)
+    if (!this.originalValueSet)
       throw new Error("the original value hasn't been set");
     return this.getProxy(this.originGraph);
   }
@@ -242,7 +240,7 @@ export default class ProxyCylinder {
     if (this.proxyDataByGraph.get(graph) === DeadProxyKey)
       throw new Error(`dead object graph "${graph}"`);
 
-    if ((this.originalValue === NOT_YET_DETERMINED) && (override || (graph !== this.originGraph))) {
+    if ((!this.originalValueSet) && (override || (graph !== this.originGraph))) {
       throw new Error("original value has not been set");
     }
 
@@ -253,8 +251,8 @@ export default class ProxyCylinder {
         membrane.map.set(metadata.proxy, this);
       }
     }
-    else if (this.originalValue === NOT_YET_DETERMINED) {
-      this.originalValue = metadata.value;
+    else if (!this.originalValueSet) {
+      Reflect.defineProperty(this, "originalValueSet", new NWNCDataDescriptor(true));
       delete metadata.proxy;
       delete metadata.revoke;
     }
@@ -319,7 +317,7 @@ export default class ProxyCylinder {
    * @public
    */
   revokeAll(membrane) {
-    if (this.originalValue === NOT_YET_DETERMINED)
+    if (!this.originalValueSet)
       throw new Error("the original value hasn't been set");
 
     const graphs = this.getGraphNames();
