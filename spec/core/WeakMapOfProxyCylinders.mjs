@@ -20,7 +20,6 @@ describe("WeakMapOfProxyCylinders", () => {
     expect(map.get).toBe(WeakMap.prototype.get);
     expect(map.has).toBe(WeakMap.prototype.has);
     expect(map.set).not.toBe(WeakMap.prototype.set);
-    expect(map.delete).toBe(WeakMapOfProxyCylinders.delete);
     expect(map.revoke).toBe(WeakMapOfProxyCylinders.revoke);
   });
 

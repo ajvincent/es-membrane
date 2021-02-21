@@ -12,9 +12,6 @@ import {
  */
 export default function WeakMapOfProxyCylinders(map) {
   Reflect.defineProperty(
-    map, "delete", new NWNCDataDescriptor(WeakMapOfProxyCylinders.delete)
-  );
-  Reflect.defineProperty(
     map,
     "set",
     new NWNCDataDescriptor(WeakMapOfProxyCylinders.set.bind(map, map.set))
@@ -25,9 +22,6 @@ export default function WeakMapOfProxyCylinders(map) {
     new NWNCDataDescriptor(WeakMapOfProxyCylinders.revoke)
   );
 }
-WeakMapOfProxyCylinders.delete = function() {
-  throw new Error("delete not allowed on WeakMapOfProxyCylinders");
-};
 
 WeakMapOfProxyCylinders.set = function(_set, key, value) {
   if (value !== DeadProxyKey) {
