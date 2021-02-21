@@ -1,27 +1,27 @@
-import WeakMapOfProxyMappings from "../../source/core/WeakMapOfProxyMappings.mjs";
+import WeakMapOfProxyCylinders from "../../source/core/WeakMapOfProxyCylinders.mjs";
 
 import {
   DeadProxyKey,
 } from "../../source/core/sharedUtilities.mjs";
 
 
-describe("WeakMapOfProxyMappings", () => {
+describe("WeakMapOfProxyCylinders", () => {
   let map;
   beforeEach(() => {
    map = new WeakMap;
-   WeakMapOfProxyMappings(map);
+   WeakMapOfProxyCylinders(map);
   });
 
   it("is itself frozen", () => {
-    expect(Object.isFrozen(WeakMapOfProxyMappings)).toBe(true);
+    expect(Object.isFrozen(WeakMapOfProxyCylinders)).toBe(true);
   });
 
   it("only overrides methods of the weak map", () => {
     expect(map.get).toBe(WeakMap.prototype.get);
     expect(map.has).toBe(WeakMap.prototype.has);
     expect(map.set).not.toBe(WeakMap.prototype.set);
-    expect(map.delete).toBe(WeakMapOfProxyMappings.delete);
-    expect(map.revoke).toBe(WeakMapOfProxyMappings.revoke);
+    expect(map.delete).toBe(WeakMapOfProxyCylinders.delete);
+    expect(map.revoke).toBe(WeakMapOfProxyCylinders.revoke);
   });
 
 
@@ -41,7 +41,7 @@ describe("WeakMapOfProxyMappings", () => {
 
     expect(() => {
       map.set(key, value);
-    }).toThrowError("WeakMapOfProxyMappings says this key is dead");
+    }).toThrowError("WeakMapOfProxyCylinders says this key is dead");
 
     expect(map.get(key)).toBe(DeadProxyKey);
   });
