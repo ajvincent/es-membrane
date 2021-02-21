@@ -34,7 +34,6 @@ import {
  * @property {Object} cachedOwnKeys   - A bag of "own keys" that is cached for performance.
  * @property {Function} ownKeysFilter - A callback to filter the list of "own keys" for an object graph.
  * @property {Number} truncateArgList - A limit on the number of arguments.
- * @property {Boolean}
  */
 
 /**
@@ -47,15 +46,18 @@ export default class ProxyCylinder {
   constructor(originGraph) {
     /**
      * @type {String | Symbol}
+     * @public
+     * @readonly
      */
-    Reflect.defineProperty(this, "originGraph", new NWNCDataDescriptor(originGraph))
+    Reflect.defineProperty(this, "originGraph", new NWNCDataDescriptor(originGraph));
 
     /**
      * @private
+     * @readonly
      */
-    Reflect.defineProperty(this, "proxyDataByGraph", new NWNCDataDescriptor({
-      /* graph: GraphMetadata */
-    }));
+    Reflect.defineProperty(this, "proxyDataByGraph", new NWNCDataDescriptor(
+      new Map(/* graph: GraphMetadata */)
+    ));
 
     /**
      * @private
@@ -75,6 +77,8 @@ export default class ProxyCylinder {
      * @type {?Map}
      */
     this.localFlagsSymbols = null;
+
+    Reflect.preventExtensions(this);
   }
 
   /**
@@ -83,7 +87,7 @@ export default class ProxyCylinder {
    * @returns {{String | Symbol}[]}
    */
   getGraphNames() {
-    return Reflect.ownKeys(this.proxyDataByGraph);
+    return Array.from(this.proxyDataByGraph.keys());
   }
 
   /**
@@ -102,7 +106,7 @@ export default class ProxyCylinder {
     }
 
     {
-      const rv = this.proxyDataByGraph[graphName];
+      const rv = this.proxyDataByGraph.get(graphName);
       if (!rv)
         throw new Error(`unknown graph "${graphName}"`);
       if (rv === DeadProxyKey)
@@ -114,7 +118,7 @@ export default class ProxyCylinder {
   /**
    * @private
    *
-   * @param {String | Symbol} graph                The graph name.
+   * @param {String | Symbol}             graph    The graph name.
    * @param {GraphMetadata| DeadProxyKey} metadata The metadata.
    *
    * @throws {Error}
@@ -129,9 +133,9 @@ export default class ProxyCylinder {
     {
       if (!metadata)
         throw new Error(`no graph for "${graphName}"`);
-      if ((metadata !== DeadProxyKey) && (this.proxyDataByGraph[graphName] === DeadProxyKey))
+      if ((metadata !== DeadProxyKey) && (this.proxyDataByGraph.get(graphName) === DeadProxyKey))
         throw new Error(`dead object graph "${graphName}"`);
-      this.proxyDataByGraph[graphName] = metadata;
+      this.proxyDataByGraph.set(graphName, metadata);
     }
   }
 
@@ -194,7 +198,7 @@ export default class ProxyCylinder {
    * @returns {Boolean} True if the shadow target belongs to this cylinder.
    */
   isShadowTarget(shadowTarget) {
-    const graphs = Object.values(this.proxyDataByGraph);
+    const graphs = Array.from(this.proxyDataByGraph.values());
     return graphs.some((graph) => (graph !== DeadProxyKey) && graph.shadowTarget === shadowTarget);
   }
 
@@ -209,7 +213,7 @@ export default class ProxyCylinder {
     let override = (typeof metadata.override === "boolean") && metadata.override;
     if (!override && this.hasGraph(graph))
       throw new Error("set called for previously defined graph!");
-    if (this.proxyDataByGraph[graph] === DeadProxyKey)
+    if (this.proxyDataByGraph.get(graph) === DeadProxyKey)
       throw new Error(`dead object graph ${graph}`);
 
     this.setMetadata(graph, metadata);
@@ -280,7 +284,7 @@ export default class ProxyCylinder {
     const graphs = this.getGraphNames();
     // graphs[0] === this.originGraph
     for (let i = 1; i < graphs.length; i++) {
-      let parts = this.proxyDataByGraph[graphs[i]];
+      const parts = this.proxyDataByGraph.get(graphs[i]);
       if (parts === DeadProxyKey)
         continue;
       if (typeof parts.revoke === "function")
@@ -296,7 +300,7 @@ export default class ProxyCylinder {
     }
 
     {
-      let parts = this.proxyDataByGraph[this.originGraph];
+      const parts = this.proxyDataByGraph.get(this.originGraph);
       if (parts !== DeadProxyKey)
         membrane.revokeMapping(parts.value);
       this.setMetadata(this.originGraph, DeadProxyKey);
@@ -560,5 +564,5 @@ export default class ProxyCylinder {
   }
 }
 
-Object.seal(ProxyCylinder.prototype);
-Object.seal(ProxyCylinder);
+Object.freeze(ProxyCylinder.prototype);
+Object.freeze(ProxyCylinder);
