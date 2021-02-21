@@ -123,7 +123,7 @@ export default class ProxyCylinder {
    *
    * @throws {Error}
    */
-  setMetadata(graphName, metadata) {
+  setMetadataInternal(graphName, metadata) {
     {
       const type = typeof graphName;
       if ((type !== "string") && (type !== "symbol"))
@@ -141,10 +141,11 @@ export default class ProxyCylinder {
 
   /**
    * Get the original, unproxied value.
+   * @public
    */
   getOriginal() {
     if (this.originalValue === NOT_YET_DETERMINED)
-      throw new Error("getOriginal called but the original value hasn't been set!");
+      throw new Error("the original value hasn't been set");
     return this.getProxy(this.originGraph);
   }
 
@@ -152,7 +153,9 @@ export default class ProxyCylinder {
    * Determine if the mapping has a particular graph.
    *
    * @param {String | Symbol} graph The graph name.
+   *
    * @returns {Boolean} true if the graph exists.
+   * @public
    */
   hasGraph(graph) {
     return this.getGraphNames().includes(graph);
@@ -162,7 +165,9 @@ export default class ProxyCylinder {
    * Get the original value associated with a graph name.
    *
    * @param {String | Symbol} graph The graph name.
+   *
    * @returns {Object}
+   * @public
    */
   getValue(graph) {
     return this.getMetadata(graph).value;
@@ -172,7 +177,9 @@ export default class ProxyCylinder {
    * Get the proxy or object associated with a graph name.
    *
    * @param {String | Symbol} graph The graph name.
+   *
    * @returns {Object | Proxy}
+   * @public
    */
   getProxy(graph) {
     let rv = this.getMetadata(graph);
@@ -185,6 +192,7 @@ export default class ProxyCylinder {
    * @param {String | Symbol} graph The graph name.
    *
    * @returns {Object} The shadow target.
+   * @public
    */
   getShadowTarget(graph) {
     return this.getMetadata(graph).shadowTarget;
@@ -196,6 +204,7 @@ export default class ProxyCylinder {
    * @param {Object} shadowTarget The presumed shadow target.
    *
    * @returns {Boolean} True if the shadow target belongs to this cylinder.
+   * @public
    */
   isShadowTarget(shadowTarget) {
     const graphs = Array.from(this.proxyDataByGraph.values());
@@ -208,15 +217,25 @@ export default class ProxyCylinder {
    * @param {Membrane}      membrane The owning membrane.
    * @param {Symbol|String} graph    The graph name of the object graph.
    * @param {GraphMetadata} metadata The metadata (proxy, value, shadow, etc.) for the graph.
+   *
+   * @public
    */
-  set(membrane, graph, metadata) {
+  setMetadata(membrane, graph, metadata) {
+    if ((typeof metadata !== "object") || (metadata === null))
+      throw new Error("metadata argument must be an object");
+
     let override = (typeof metadata.override === "boolean") && metadata.override;
     if (!override && this.hasGraph(graph))
-      throw new Error("set called for previously defined graph!");
+      throw new Error(`set called for previously defined graph "${graph}"`);
+
     if (this.proxyDataByGraph.get(graph) === DeadProxyKey)
       throw new Error(`dead object graph ${graph}`);
 
-    this.setMetadata(graph, metadata);
+    if ((this.originalValue === NOT_YET_DETERMINED) && (override || (graph !== this.originGraph))) {
+      throw new Error("original value has not been set");
+    }
+
+    this.setMetadataInternal(graph, metadata);
 
     if (override || (graph !== this.originGraph)) {
       if (valueType(metadata.proxy) !== "primitive") {
@@ -240,22 +259,28 @@ export default class ProxyCylinder {
   /**
    * Mark a graph name as dead.
    *
-   * @param {String | Symbol} graph The graph name of the object graph.
+   * @param {String | Symbol} graphName The graph name of the object graph.
+   * @public
    */
-  remove(graph) {
+  remove(graphName) {
     /* This will make the keys of the Membrane's WeakMapOfProxyMappings
      * unreachable, and thus reduce the set of references to the ProxyMapping.
      *
      * There's also the benefit of disallowing recreating a proxy to the
      * original object.
      */
-    this.setMetadata(graph, DeadProxyKey);
+
+    this.getMetadata(graphName); // ensure we're alive
+    this.setMetadataInternal(graphName, DeadProxyKey);
   }
 
   /**
    * Kill all membrane proxies this references.
    *
    * @param {Membrane} membrane The owning membrane.
+   *
+   * @public
+   *
    * @note The key difference between this.selfDestruct() and this.revoke() is
    * that when the Membrane invokes this.selfDestruct(), it's expecting to set
    * all new proxies and values.
@@ -279,14 +304,19 @@ export default class ProxyCylinder {
    * Revoke all proxies associated with a membrane.
    *
    * @param {Membrane} membrane The controlling membrane.
+   *
+   * @public
    */
-  revoke(membrane) {
+  revokeAll(membrane) {
+    this.getOriginal(); // sanity check
+
     const graphs = this.getGraphNames();
     // graphs[0] === this.originGraph
     for (let i = 1; i < graphs.length; i++) {
       const parts = this.proxyDataByGraph.get(graphs[i]);
       if (parts === DeadProxyKey)
         continue;
+
       if (typeof parts.revoke === "function")
         parts.revoke();
       if (Object(parts.value) === parts.value)
@@ -296,14 +326,15 @@ export default class ProxyCylinder {
       if (Object(parts.shadowTarget) === parts.shadowTarget)
         membrane.revokeMapping(parts.shadowTarget);
 
-      this.setMetadata(graphs[i], DeadProxyKey);
+      this.remove(graphs[i]);
     }
 
     {
       const parts = this.proxyDataByGraph.get(this.originGraph);
       if (parts !== DeadProxyKey)
         membrane.revokeMapping(parts.value);
-      this.setMetadata(this.originGraph, DeadProxyKey);
+
+      this.remove(this.originGraph);
     }
   }
 
@@ -314,6 +345,7 @@ export default class ProxyCylinder {
    * @param {String}          flagName  The flag to get.
    *
    * @returns {Boolean} The value of the flag.
+   * @public
    */
   getLocalFlag(graphName, flagName) {
     this.getMetadata(graphName); // ensure we're alive
@@ -339,6 +371,8 @@ export default class ProxyCylinder {
    * @param {Symbol | String} graphName The object graph's name.
    * @param {String}          flagName  The flag to set.
    * @param {Boolean}         value     The value to set.
+   *
+   * @public
    */
   setLocalFlag(graphName, flagName, value) {
     this.getMetadata(graphName); // ensure we're alive
@@ -369,6 +403,7 @@ export default class ProxyCylinder {
    * @param {Symbol | String} propName
    *
    * @returns {DataDescriptor | AccessorDescriptor}
+   * @public
    */
   getLocalDescriptor(graphName, propName) {
     this.getMetadata(graphName); // ensure we're alive
@@ -384,9 +419,11 @@ export default class ProxyCylinder {
   /**
    * Set a property descriptor which is local to a graph proxy.
    *
-   * @param {Symbol | String} graphName                The object graph's name.
-   * @param {Symbol | String} propName                 The property name.
-   * @param {DataDescriptor | AccessorDescriptor} desc The property descriptor.
+   * @param {Symbol | String}                     graphName The object graph's name.
+   * @param {Symbol | String}                     propName  The property name.
+   * @param {DataDescriptor | AccessorDescriptor} desc      The property descriptor.
+   *
+   * @public
    */
   setLocalDescriptor(graphName, propName, desc) {
     this.getMetadata(graphName); // ensure we're alive
@@ -407,6 +444,8 @@ export default class ProxyCylinder {
    * @param {Symbol | String} graphName         The object graph's name.
    * @param {Symbol | String} propName          The property name.
    * @param {Boolean}         recordLocalDelete True if the delete operation is local.
+   *
+   * @public
    */
   deleteLocalDescriptor(graphName, propName, recordLocalDelete) {
     this.getMetadata(graphName); // ensure we're alive
@@ -430,6 +469,9 @@ export default class ProxyCylinder {
    * Get the cached "own keys" for a particular graph.
    *
    * @param {Symbol | String} graphName The object graph's name.
+   *
+   * @returns {{Symbol | String}[]}
+   * @public
    */
   cachedOwnKeys(graphName) {
     this.getMetadata(graphName); // ensure we're alive
@@ -445,6 +487,8 @@ export default class ProxyCylinder {
    * @param {Symbol | String}     graphName The object graph's name.
    * @param {{Symbol | String}[]} keys      The set of keys to make available.
    * @param {{Symbol | String}[]} original  The set of keys on the underlying object.
+   *
+   * @public
    */
   setCachedOwnKeys(graphName, keys, original) {
     this.getMetadata(graphName); // ensure we're alive
@@ -458,6 +502,9 @@ export default class ProxyCylinder {
   /**
    * Get the list of "own keys" local to a particular object graph.
    * @param {Symbol | String} graphName The object graph's name.
+   *
+   * @returns {{Symbol | String}[]}
+   * @public
    */
   localOwnKeys(graphName) {
     const metadata = this.getMetadata(graphName);
@@ -471,6 +518,8 @@ export default class ProxyCylinder {
    * 
    * @param {Symbol | String} graphName The object graph's name.
    * @param {Set}             set       Storage for a list of names.
+   *
+   * @public
    */
   appendDeletedNames(graphName, set) {
     const metadata = this.getMetadata(graphName);
@@ -495,6 +544,7 @@ export default class ProxyCylinder {
    * @param {Symbol | String} propName  The property name.
    *
    * @returns {Boolean}
+   * @public
    */
   wasDeletedLocally(graphName, propName) {
     const metadata = this.getMetadata(graphName);
@@ -507,6 +557,8 @@ export default class ProxyCylinder {
    *
    * @param {Symbol | String} graphName The object graph's name.
    * @param {Symbol | String} propName  The property name.
+   *
+   * @public
    */
   unmaskDeletion(graphName, propName) {
     const metadata = this.getMetadata(graphName);
@@ -522,6 +574,8 @@ export default class ProxyCylinder {
    *
    * @param {Symbol | String} graphName The object graph's name.
    * @returns {?Function} The filter function.
+   *
+   * @public
    */
   getOwnKeysFilter(graphName) {
     const metadata = this.getMetadata(graphName);
@@ -535,6 +589,8 @@ export default class ProxyCylinder {
    *
    * @param {Symbol | String} graphName The object graph's name.
    * @param {?Function} The filter function.
+   *
+   * @public
    */
   setOwnKeysFilter(graphName, filter) {
     this.getMetadata(graphName).ownKeysFilter = filter;
@@ -545,6 +601,7 @@ export default class ProxyCylinder {
    * @param {Symbol | String} graphName The object graph's name.
    *
    * @returns {Number | false}
+   * @public
    */
   getTruncateArgList(graphName) {
     const metadata = this.getMetadata(graphName);
@@ -558,6 +615,8 @@ export default class ProxyCylinder {
    * Set the maximum argument count for a function proxy.
    * @param {Symbol | String} graphName The object graph's name.
    * @param {Number}          count     The argument count.
+   *
+   * @public
    */
   setTruncateArgList(graphName, count) {
     this.getMetadata(graphName).truncateArgList = count;

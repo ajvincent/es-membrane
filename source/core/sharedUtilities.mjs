@@ -22,9 +22,9 @@ export function makeShadowTarget(value) {
   var rv;
   if (Array.isArray(value))
     rv = [];
-  else if (typeof value == "object")
+  else if (typeof value === "object")
     rv = {};
-  else if (typeof value == "function")
+  else if (typeof value === "function")
     rv = function() {};
   else
     throw new Error("Unknown value for makeShadowTarget");
@@ -209,7 +209,7 @@ export function valueType(value) {
   if (value === null)
     return "primitive";
   const type = typeof value;
-  if ((type != "function") && (type != "object"))
+  if ((type !== "function") && (type !== "object"))
     return "primitive";
   return type;
 }
