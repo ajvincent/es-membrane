@@ -23,17 +23,28 @@ import {
 } from "./sharedUtilities.mjs";
 
 /**
+ * @callback OwnKeysFilter
+ * @param {Symbol | String}     key   The current key.
+ * @param {Number}              index The index of the current key.
+ * @param {{Symbol | String}[]} array The ordered set of keys to make available.
+ *
+ * @returns {Boolean}
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+ */
+
+/**
  * @typedef GraphMetadata
- * @property {!Object} value          - The original value
- * @property {Proxy} proxy            - The proxy object from Proxy.revocable()
- * @property {Function} revoke        - The revoke() function from Proxy.revocable()
- * @property {Object} shadowTarget    - The shadow target
- * @property {Boolean} override       - True if the graph should be overridden.
- * @property {Map} localDescriptors   - Property descriptors local to an object graph.
- * @property {Set} deletedLocals      - Names of properties deleted locally.
- * @property {Object} cachedOwnKeys   - A bag of "own keys" that is cached for performance.
- * @property {Function} ownKeysFilter - A callback to filter the list of "own keys" for an object graph.
- * @property {Number} truncateArgList - A limit on the number of arguments.
+ * @property {!Object} value               - The original value
+ * @property {Proxy} proxy                 - The proxy object from Proxy.revocable()
+ * @property {Function} revoke             - The revoke() function from Proxy.revocable()
+ * @property {Object} shadowTarget         - The shadow target
+ * @property {Boolean} override            - True if the graph should be overridden.
+ * @property {Map} localDescriptors        - Property descriptors local to an object graph.
+ * @property {Set} deletedLocals           - Names of properties deleted locally.
+ * @property {Object} cachedOwnKeys        - A bag of "own keys" that is cached for performance.
+ * @property {OwnKeysFilter} ownKeysFilter - A callback to filter the list of "own keys" for an object graph.
+ * @property {Number} truncateArgList      - A limit on the number of arguments.
  */
 
 /**
@@ -52,15 +63,16 @@ export default class ProxyCylinder {
     Reflect.defineProperty(this, "originGraph", new NWNCDataDescriptor(originGraph));
 
     /**
+     * @type {Map<String | Symbol, GraphMetadata>}
      * @private
      * @readonly
      */
-    Reflect.defineProperty(this, "proxyDataByGraph", new NWNCDataDescriptor(
-      new Map(/* graph: GraphMetadata */)
-    ));
+    Reflect.defineProperty(this, "proxyDataByGraph", new NWNCDataDescriptor(new Map()));
 
     /**
      * @private
+     *
+     * XXX ajvincent Possible memory leak by holding a strong reference on the original value?
      */
     this.originalValue = NOT_YET_DETERMINED;
   
@@ -355,7 +367,7 @@ export default class ProxyCylinder {
       let flag = flagName + ":" + graphName;
       return this.localFlags.has(flag);
     }
-    else if (typeof graphName == "symbol") {
+    else {
       if (!this.localFlagsSymbols)
         return false;
       let obj = this.localFlagsSymbols.get(graphName);
@@ -386,7 +398,7 @@ export default class ProxyCylinder {
       else
         this.localFlags.delete(flag);
     }
-    else if (typeof graphName == "symbol") {
+    else {
       // It's harder to combine symbols and strings into a string...
       if (!this.localFlagsSymbols)
         this.localFlagsSymbols = new Map();
@@ -394,109 +406,6 @@ export default class ProxyCylinder {
       obj[flagName] = value;
       this.localFlagsSymbols.set(graphName, obj);
     }
-  }
-
-  /**
-   * Get a property descriptor which is local to a graph proxy.
-   *
-   * @param {Symbol | String} graphName The object graph's name.
-   * @param {Symbol | String} propName
-   *
-   * @returns {DataDescriptor | AccessorDescriptor}
-   * @public
-   */
-  getLocalDescriptor(graphName, propName) {
-    this.getMetadata(graphName); // ensure we're alive
-    let desc;
-    if (!this.hasGraph(graphName))
-      return desc;
-    const metadata = this.getMetadata(graphName);
-    if (metadata.localDescriptors)
-      desc = metadata.localDescriptors.get(propName);
-    return desc;
-  }
-
-  /**
-   * Set a property descriptor which is local to a graph proxy.
-   *
-   * @param {Symbol | String}                     graphName The object graph's name.
-   * @param {Symbol | String}                     propName  The property name.
-   * @param {DataDescriptor | AccessorDescriptor} desc      The property descriptor.
-   *
-   * @public
-   */
-  setLocalDescriptor(graphName, propName, desc) {
-    this.getMetadata(graphName); // ensure we're alive
-    this.unmaskDeletion(graphName, propName);
-    const metadata = this.getMetadata(graphName);
-
-    if (!metadata.localDescriptors) {
-      metadata.localDescriptors = new Map();
-    }
-
-    metadata.localDescriptors.set(propName, desc);
-    return true;
-  }
-
-  /**
-   * Delete a property descriptor from an object graph.
-   *
-   * @param {Symbol | String} graphName         The object graph's name.
-   * @param {Symbol | String} propName          The property name.
-   * @param {Boolean}         recordLocalDelete True if the delete operation is local.
-   *
-   * @public
-   */
-  deleteLocalDescriptor(graphName, propName, recordLocalDelete) {
-    this.getMetadata(graphName); // ensure we're alive
-    const metadata = this.getMetadata(graphName);
-    if (recordLocalDelete) {
-      if (!metadata.deletedLocals)
-        metadata.deletedLocals = new Set();
-      metadata.deletedLocals.add(propName);
-    }
-    else
-      this.unmaskDeletion(graphName, propName);
-
-    if ("localDescriptors" in metadata) {
-      metadata.localDescriptors.delete(propName);
-      if (metadata.localDescriptors.size === 0)
-        metadata.localDescriptors = null;
-    }
-  }
-
-  /**
-   * Get the cached "own keys" for a particular graph.
-   *
-   * @param {Symbol | String} graphName The object graph's name.
-   *
-   * @returns {{Symbol | String}[]}
-   * @public
-   */
-  cachedOwnKeys(graphName) {
-    this.getMetadata(graphName); // ensure we're alive
-    const metadata = this.getMetadata(graphName);
-    if ("cachedOwnKeys" in metadata)
-      return metadata.cachedOwnKeys;
-    return null;
-  }
-
-  /**
-   * Set the cached "own keys" for a particular graph.
-   *
-   * @param {Symbol | String}     graphName The object graph's name.
-   * @param {{Symbol | String}[]} keys      The set of keys to make available.
-   * @param {{Symbol | String}[]} original  The set of keys on the underlying object.
-   *
-   * @public
-   */
-  setCachedOwnKeys(graphName, keys, original) {
-    this.getMetadata(graphName); // ensure we're alive
-    const metadata = this.getMetadata(graphName);
-    metadata.cachedOwnKeys = {
-      keys: keys,
-      original: original
-    };
   }
 
   /**
@@ -515,7 +424,80 @@ export default class ProxyCylinder {
   }
 
   /**
-   * 
+   * Get a property descriptor which is local to a graph proxy.
+   *
+   * @param {Symbol | String} graphName The object graph's name.
+   * @param {Symbol | String} propName
+   *
+   * @returns {DataDescriptor | AccessorDescriptor}
+   * @public
+   */
+  getLocalDescriptor(graphName, propName) {
+    const metadata = this.getMetadata(graphName); // ensure we're alive
+    let desc;
+    if (!this.hasGraph(graphName))
+      return desc;
+
+    if (metadata.localDescriptors)
+      desc = metadata.localDescriptors.get(propName);
+    return desc;
+  }
+
+  /**
+   * Set a property descriptor which is local to a graph proxy.
+   *
+   * @param {Symbol | String}                     graphName The object graph's name.
+   * @param {Symbol | String}                     propName  The property name.
+   * @param {DataDescriptor | AccessorDescriptor} desc      The property descriptor.
+   *
+   * @public
+   *
+   * @note This does not update cachedOwnKeys.
+   */
+  setLocalDescriptor(graphName, propName, desc) {
+    const metadata = this.getMetadata(graphName); // ensure we're alive
+    this.unmaskDeletion(graphName, propName);
+
+    if (!metadata.localDescriptors) {
+      metadata.localDescriptors = new Map();
+    }
+
+    metadata.localDescriptors.set(propName, desc);
+    return true;
+  }
+
+  /**
+   * Delete a property descriptor from an object graph.
+   *
+   * @param {Symbol | String} graphName         The object graph's name.
+   * @param {Symbol | String} propName          The property name.
+   * @param {Boolean}         recordLocalDelete True if the delete operation is local.
+   *
+   * @public
+   *
+   * @note This does not update cachedOwnKeys.
+   */
+  deleteLocalDescriptor(graphName, propName, recordLocalDelete) {
+    this.getMetadata(graphName); // ensure we're alive
+    const metadata = this.getMetadata(graphName);
+    if (recordLocalDelete) {
+      if (!metadata.deletedLocals)
+        metadata.deletedLocals = new Set();
+      metadata.deletedLocals.add(propName);
+    }
+    else
+      this.unmaskDeletion(graphName, propName);
+
+    if ("localDescriptors" in metadata) {
+      metadata.localDescriptors.delete(propName);
+      if (metadata.localDescriptors.size === 0) {
+        delete metadata.localDescriptors;
+      }
+    }
+  }
+
+  /**
+   *
    * @param {Symbol | String} graphName The object graph's name.
    * @param {Set}             set       Storage for a list of names.
    *
@@ -570,10 +552,41 @@ export default class ProxyCylinder {
   }
 
   /**
+   * Get the cached "own keys" for a particular graph.
+   *
+   * @param {Symbol | String} graphName The object graph's name.
+   *
+   * @returns {{Symbol | String}[]}
+   * @public
+   */
+  cachedOwnKeys(graphName) {
+    this.getMetadata(graphName); // ensure we're alive
+    const metadata = this.getMetadata(graphName);
+    if ("cachedOwnKeys" in metadata)
+      return metadata.cachedOwnKeys;
+    return null;
+  }
+
+  /**
+   * Set the cached "own keys" for a particular graph.
+   *
+   * @param {Symbol | String}     graphName The object graph's name.
+   * @param {{Symbol | String}[]} keys      The ordered set of keys to make available.
+   * @param {{Symbol | String}[]} original  The ordered set of keys on the underlying object.
+   *
+   * @public
+   */
+  setCachedOwnKeys(graphName, keys, original) {
+    this.getMetadata(graphName); // ensure we're alive
+    const metadata = this.getMetadata(graphName);
+    metadata.cachedOwnKeys = { keys, original };
+  }
+
+  /**
    * Get a filter function for a list of own keys.
    *
    * @param {Symbol | String} graphName The object graph's name.
-   * @returns {?Function} The filter function.
+   * @returns {?OwnKeysFilter} The filter function.
    *
    * @public
    */
@@ -588,12 +601,12 @@ export default class ProxyCylinder {
    * Set a filter function for a list of own keys.
    *
    * @param {Symbol | String} graphName The object graph's name.
-   * @param {?Function} The filter function.
+   * @param {?OwnKeysFilter}  filter    The filter function.
    *
    * @public
    */
   setOwnKeysFilter(graphName, filter) {
-    this.getMetadata(graphName).ownKeysFilter = filter;
+    this.getMetadata(graphName).ownKeysFilter = (typeof filter === "function") ? filter : null;
   }
 
   /**
@@ -614,12 +627,16 @@ export default class ProxyCylinder {
   /**
    * Set the maximum argument count for a function proxy.
    * @param {Symbol | String} graphName The object graph's name.
-   * @param {Number}          count     The argument count.
+   * @param {?Number | false} count     The argument count.
    *
    * @public
    */
   setTruncateArgList(graphName, count) {
-    this.getMetadata(graphName).truncateArgList = count;
+    const metadata = this.getMetadata(graphName);
+    if ((typeof count === "number") && (count >= 0) && (parseInt(count) === count) && isFinite(count))
+      metadata.truncateArgList = count;
+    else
+      delete metadata.truncateArgList;
   }
 }
 
