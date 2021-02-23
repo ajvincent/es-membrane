@@ -1,39 +1,20 @@
-if ((typeof DataDescriptor !== "function") ||
-    (typeof isDataDescriptor !== "function") ||
-    (typeof NWNCDataDescriptor !== "function") ||
-    !Array.isArray(allTraps)) {
-  if (typeof require == "function") {
-    let obj = require("../../docs/dist/node/utilities.js");
-    DataDescriptor = obj.DataDescriptor;
-    isDataDescriptor = obj.isDataDescriptor;
-    NWNCDataDescriptor = obj.NWNCDataDescriptor;
-    allTraps = obj.allTraps;
-  }
-  else
-    throw new Error("Unable to run tests: cannot get DataDescriptor");
-}
-
-if (typeof MembraneProxyHandlers != "object") {
-  if (typeof require == "function") {
-    var { MembraneProxyHandlers } = require("../../docs/dist/node/proxyHandlers.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneProxyHandlers");
-}
+import MembraneProxyHandlers from "../../source/ProxyHandlers/main.mjs";
 
 describe("MembraneProxyHandlers.Tracing node proxy handler", function() {
-  "use strict";
+  const membraneArg = {membrane: null};
+
   let handler = null,
       proxy = null,
       revoke = null,
       shadow = null,
       mirror = null,
       list   = null;
-  beforeEach(function() {
+
+      beforeEach(function() {
     shadow = {};
     mirror = {};
-    list = new MembraneProxyHandlers.LinkedList({membrane: null}, Reflect);
-    handler = list.buildNode("trace", "Tracing");
+    list = new MembraneProxyHandlers.LinkedList(membraneArg, Reflect);
+    handler = new MembraneProxyHandlers.Tracing(membraneArg, "trace");
     list.insertNode("head", handler);
     let obj = Proxy.revocable(shadow, handler);
     proxy = obj.proxy;
@@ -554,7 +535,7 @@ describe("MembraneProxyHandlers.Tracing node proxy handler", function() {
   });
 
   it("logs when a trap throws an error", function() {
-    const err = list.buildNode("error");
+    const err = new MembraneProxyHandlers.LinkedListNode(membraneArg, "error");
     list.insertNode("trace", err);
 
     function th() {
@@ -599,7 +580,9 @@ describe("MembraneProxyHandlers.Tracing node proxy handler", function() {
   });
 
   it("allows reusing the same trace log", function() {
-    const other = list.buildNode("other", "Tracing", handler.traceLog);
+    const other = new MembraneProxyHandlers.Tracing(
+      membraneArg, "other", handler.traceLog
+    );
     list.insertNode("trace", other);
 
     shadow.foo = 1;

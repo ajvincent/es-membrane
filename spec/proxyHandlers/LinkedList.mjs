@@ -389,7 +389,7 @@ describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
     expect(handler.getNextNode("first", obj2)).toBe(interrupt);
     expect(handler.getNextNode("interrupt", obj2)).toBe(second);
     expect(handler.getNextNode("second", obj2)).toBe(handler.tailNode);
-  });  
+  });
 
   it(
     "can be constructed with a MembraneProxyHandlers.Forwarding proxy as the tail",
