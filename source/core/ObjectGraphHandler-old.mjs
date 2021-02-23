@@ -18,8 +18,11 @@ function AssertIsPropertyKey(propName) {
   return true;
 }
 
-/* A proxy handler designed to return only primitives and objects in a given
+/**
+ * A proxy handler designed to return only primitives and objects in a given
  * object graph, defined by the fieldName.
+ *
+ * @package
  */
 export default class ObjectGraphHandler {
   constructor(membrane, fieldName) {
