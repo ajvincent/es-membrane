@@ -12,12 +12,13 @@ import {
   valueType,
 } from "./sharedUtilities.mjs";
 
-import {
-  ProxyNotify,
-  ChainHandlers,
-} from "./ProxyNotify.mjs";
+import ProxyNotify from "./ProxyNotify.mjs";
 
-import ModifyRulesAPI from "./ModifyRulesAPI.mjs";
+import {
+  ChainHandlers,
+  ModifyRulesAPI,
+} from "./ModifyRulesAPI.mjs";
+
 import ObjectGraphHandler from "./ObjectGraphHandler-old.mjs";
 import ObjectGraph from "./ObjectGraph.mjs";
 import ProxyCylinder from "./ProxyCylinder.mjs";
@@ -642,3 +643,5 @@ Membrane.prototype = Object.seal({
 
 } // end Membrane definition
 Object.seal(Membrane);
+
+export default Membrane;

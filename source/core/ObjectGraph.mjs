@@ -14,7 +14,7 @@ const MembraneProxyHandlers = {
 /**
  * @package
  */
-class ObjectGraph {
+export default class ObjectGraph {
   constructor(membrane, graphName) {
     {
       let t = typeof graphName;

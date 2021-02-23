@@ -17,7 +17,7 @@ import ProxyCylinder from "./ProxyCylinder.mjs";
  *
  * @package
  */
-function ProxyNotify(parts, handler, isOrigin, options) {
+export default function ProxyNotify(parts, handler, isOrigin, options) {
   "use strict";
   if (typeof options === "undefined")
     options = {};
