@@ -1,25 +1,7 @@
-if ((typeof makeShadowTarget !== "function") ||
-    (typeof getRealTarget !== "function") ||
-    (typeof NWNCDataDescriptor !== "function") ||
-    !Array.isArray(allTraps)) {
-  if (typeof require == "function") {
-    let obj = require("../../docs/dist/node/utilities.js");
-    makeShadowTarget = obj.makeShadowTarget;
-    getRealTarget = obj.getRealTarget;
-    NWNCDataDescriptor = obj.NWNCDataDescriptor;
-    allTraps = obj.allTraps;
-  }
-  else
-    throw new Error("Unable to run tests: cannot get shared utilities");
-}
-
-if (typeof MembraneProxyHandlers != "object") {
-  if (typeof require == "function") {
-    var { MembraneProxyHandlers } = require("../../docs/dist/node/proxyHandlers.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneProxyHandlers");
-}
+import {
+  NWNCDataDescriptor,
+} from "../../source/core/sharedUtilities.mjs";
+import MembraneProxyHandlers from "../../source/ProxyHandlers/main.mjs";
 
 describe("MembraneProxyHandlers.UpdateShadow node proxy handler", function() {
   "use strict";
@@ -37,11 +19,12 @@ describe("MembraneProxyHandlers.UpdateShadow node proxy handler", function() {
   }
 
   beforeEach(function() {
-    list = new MembraneProxyHandlers.LinkedList({membrane: null}, Reflect);
-    let handler = list.buildNode("updateShadow", "UpdateShadow");
+    const membraneArg = {membrane: null};
+    list = new MembraneProxyHandlers.LinkedList(membraneArg, Reflect);
+    let handler = new MembraneProxyHandlers.UpdateShadow(membraneArg, "updateShadow");
     list.insertNode("head", handler);
 
-    tail = list.buildNode("tail");
+    tail = new MembraneProxyHandlers.LinkedListNode(membraneArg, "tail");
     list.insertNode("updateShadow", tail);
     target = {};
   });
