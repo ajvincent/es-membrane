@@ -4,7 +4,8 @@
  * This is to update the shadow target of a Proxy from actions by subsidiary
  * ProxyHandlers.  The intent is to make sure Proxy invariants are not violated.
  */
-{
+
+import { LinkedListNode } from "./LinkedList.mjs";
 
 /**
  * Build a LinkedListNode for updating shadow targets to match ProxyHandler operations.
@@ -13,16 +14,13 @@
  * @param name        {String}      The name of this particular node in the linked list.
  * @param traceLog    {String[]}    Where the tracing will be recorded.
  */
-MembraneProxyHandlers.UpdateShadow = class extends MembraneProxyHandlers.LinkedListNode {
+export default class UpdateShadow extends LinkedListNode {
   constructor(objectGraph, name) {
     super(objectGraph, name);
     Object.freeze(this);
   }
 
-
-  /**
-   * ProxyHandler implementation
-   */
+  // ProxyHandler
   preventExtensions(shadowTarget) {
     const handler = this.nextHandler(shadowTarget);
     const rv = handler.preventExtensions.apply(handler, arguments);
@@ -31,6 +29,7 @@ MembraneProxyHandlers.UpdateShadow = class extends MembraneProxyHandlers.LinkedL
     return rv;
   }
 
+  // ProxyHandler
   defineProperty(shadowTarget) {
     const handler = this.nextHandler(shadowTarget);
     const rv = handler.defineProperty.apply(handler, arguments);
@@ -38,6 +37,4 @@ MembraneProxyHandlers.UpdateShadow = class extends MembraneProxyHandlers.LinkedL
       Reflect.defineProperty.apply(Reflect, arguments);
     return rv;
   }
-};
-
 }

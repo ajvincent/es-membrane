@@ -5,7 +5,12 @@
  * you need to figure out how you're getting in and out of a particular
  * ProxyHandler, this is useful.
  */
-{
+
+import { LinkedListNode } from "./LinkedList.mjs";
+import {
+  DataDescriptor,
+  allTraps,
+} from "./sharedUtilities.mjs";
 
 /**
  * @private
@@ -26,7 +31,7 @@ const withProps = new Set([
  * @param name        {String}      The name of this particular node in the linked list.
  * @param traceLog    {String[]}    Where the tracing will be recorded.
  */
-MembraneProxyHandlers.Tracing = class extends MembraneProxyHandlers.LinkedListNode {
+export default class Tracing extends LinkedListNode {
   constructor(objectGraph, name, traceLog = []) {
     super(objectGraph, name);
     this.traceLog = traceLog;
@@ -40,7 +45,7 @@ MembraneProxyHandlers.Tracing = class extends MembraneProxyHandlers.LinkedListNo
   clearLog() {
     this.traceLog.splice(0, this.traceLog.length);
   }
-};
+}
 
 /**
  * ProxyHandler implementation
@@ -70,10 +75,8 @@ allTraps.forEach((trapName) => {
   };
 
   Reflect.defineProperty(
-    MembraneProxyHandlers.Tracing.prototype,
+    Tracing.prototype,
     trapName,
     new DataDescriptor(trap)
   );
 });
-
-}

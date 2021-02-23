@@ -1,4 +1,9 @@
-MembraneProxyHandlers.Forwarding = class extends MembraneProxyHandlers.Base {
+import Base from "./Base.mjs";
+import {
+  allTraps,
+} from "./sharedUtilities.mjs";
+
+export default class Forwarding extends Base {
   constructor() {
     super();
 
@@ -9,10 +14,10 @@ MembraneProxyHandlers.Forwarding = class extends MembraneProxyHandlers.Base {
       configurable: false,
     });
   }
-};
+}
 
 {
-  const proto = MembraneProxyHandlers.Forwarding.prototype;
+  const proto = Forwarding.prototype;
   allTraps.forEach((trapName) =>
     proto[trapName] = function(...args) {
       return this.nextHandler[trapName].apply(this.nextHandler, args);

@@ -6,10 +6,15 @@
  * LinkedListNode objects should form the basis for any real-world proxy
  * operations, as a unit-testable component.
  *
- * @see Tracing.js for an example of how to write a LinkedListNode subclass.
+ * @see Tracing.mjs for an example of how to write a LinkedListNode subclass.
  */
 
-{
+import Base from "./Base.mjs";
+import Forwarding from "./Forwarding.mjs";
+import {
+  NWNCDataDescriptor,
+  allTraps,
+} from "./sharedUtilities.mjs";
 
 /**
  * An object key to use for pointing to a default next node in the linked list.
@@ -23,11 +28,8 @@ const DEFAULT_TARGET = {};
  *
  * @param objectGraph {ObjectGraph} The object graph from a Membrane.
  * @param name        {String}      The name of this particular node in the linked list.
- *
- * @private
- * @extends MembraneProxyHandlers.Base
  */
-MembraneProxyHandlers.LinkedListNode = class extends MembraneProxyHandlers.Base {
+export class LinkedListNode extends Base {
   constructor(objectGraph, name) {
     super();
 
@@ -74,11 +76,11 @@ MembraneProxyHandlers.LinkedListNode = class extends MembraneProxyHandlers.Base 
       rv = this.nextHandlerMap.get(DEFAULT_TARGET);
     return rv;
   }
-};
+}
 
 // The ProxyHandler traps.
 {
-  const proto = MembraneProxyHandlers.LinkedListNode.prototype;
+  const proto = LinkedListNode.prototype;
   allTraps.forEach((trapName) =>
     proto[trapName] = function(...args) {
       const nextHandler = this.nextHandler(args[0]);
@@ -100,13 +102,13 @@ const LinkedListLocks = new WeakSet(/* LinkedList */);
  * A linked list proxy handler.
  *
  * @param objectGraph    {ObjectGraph} The object graph from a Membrane.
- * @param tailForwarding {Reflect | MembraneProxyHandlers.Base} The tail of the linked list.
+ * @param tailForwarding {Reflect | Base} The tail of the linked list.
  */
-MembraneProxyHandlers.LinkedList = class extends MembraneProxyHandlers.Forwarding {
+export class LinkedList extends Forwarding {
   constructor(objectGraph, tailForwarding) {
     super();
     if ((tailForwarding !== Reflect) &&
-        (!(tailForwarding instanceof MembraneProxyHandlers.Base)))
+        (!(tailForwarding instanceof Base)))
       throw new Error("tailForwarding must be a ProxyHandler or Reflect");
 
     Reflect.defineProperty(this, "objectGraph", new NWNCDataDescriptor(objectGraph));
@@ -114,7 +116,7 @@ MembraneProxyHandlers.LinkedList = class extends MembraneProxyHandlers.Forwardin
       this, "membrane", new NWNCDataDescriptor(objectGraph.membrane)
     );
 
-    const tailNode = new MembraneProxyHandlers.Forwarding();
+    const tailNode = new Forwarding();
     Reflect.defineProperty(
       this, "tailNode", new NWNCDataDescriptor(tailNode, false)
     );
@@ -155,37 +157,6 @@ MembraneProxyHandlers.LinkedList = class extends MembraneProxyHandlers.Forwardin
   }
 
   /**
-   * Build a new LinkedListNode.
-   *
-   * @param name     {String} The name of the linked list node.
-   * @param ctorName {String} The name of the constructor to use.
-   *
-   * @returns {MembraneProxyHandlers.LinkedListNode} The node.
-   */
-  buildNode(name, ctorName = null, ...args) {
-    if (LinkedListLocks.has(this))
-      throw new Error("This linked list is locked");
-
-    const t = typeof name;
-    if ((t !== "string") && (t !== "symbol"))
-      throw new Error("linked list nodes need a name");
-
-    if (this.linkNodes.has(name))
-      throw new Error(name + " is already in the linked list");
-
-    let ctor = MembraneProxyHandlers.LinkedListNode;
-    if (ctorName) {
-      ctor = MembraneProxyHandlers[ctorName];
-      if ((ctor.prototype !== MembraneProxyHandlers.LinkedListNode.prototype) &&
-          !(ctor.prototype instanceof MembraneProxyHandlers.LinkedListNode))
-        throw new Error("constructor is not a LinkedListNode");
-    }
-
-    args.splice(0, 0, this.objectGraph, name);
-    return new ctor(...args);
-  };
-
-  /**
    * Insert a LinkedListNode into this linked list.
    *
    * @param leadNodeName {String} The name of the current linked list node.
@@ -203,7 +174,7 @@ MembraneProxyHandlers.LinkedList = class extends MembraneProxyHandlers.Forwardin
     if (LinkedListLocks.has(this))
       throw new Error("This linked list is locked");
 
-    if (!(middleNode instanceof MembraneProxyHandlers.LinkedListNode))
+    if (!(middleNode instanceof LinkedListNode))
       throw new Error("node must be an instance of LinkedListNode");
 
     const leadNode = this.linkNodes.get(leadNodeName);
@@ -223,8 +194,4 @@ MembraneProxyHandlers.LinkedList = class extends MembraneProxyHandlers.Forwardin
   lock() {
     LinkedListLocks.add(this);
   }
-};
-
-//}
-
 }

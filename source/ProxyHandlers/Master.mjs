@@ -1,20 +1,17 @@
-{
-"use strict";
+import {
+  LinkedList,
+  LinkedListNode
+} from "./LinkedList.mjs";
+import {
+  allTraps,
+} from "./sharedUtilities.mjs";
 
-/**
- * A convenience object for caching Proxy trap methods.
- *
- * Necessary because someone decided LinkedList objects should be frozen.  So
- * these properties have to be defined locally.
- */
-const forwardingDescriptors = new Map();
-
-class MiddleList extends MembraneProxyHandlers.LinkedListNode {
+class MiddleList extends LinkedListNode {
   constructor(master, name) {
     super(master.objectGraph, name);
-    this.subList = new MembraneProxyHandlers.LinkedList(master.objectGraph, master.getNextNode("head"));
+    this.subList = new LinkedList(master.objectGraph, master.getNextNode("head"));
   }
-};
+}
 
 allTraps.forEach((trapName) => {
   MiddleList.prototype[trapName] = function(...args) {
@@ -29,7 +26,7 @@ Object.freeze(MiddleList);
  *
  * @param objectGraph {ObjectGraph} The object graph from a Membrane.
  */
-MembraneProxyHandlers.Master = class extends MembraneProxyHandlers.LinkedList {
+export default class Master extends LinkedList {
   constructor(objectGraph) {
     super(objectGraph, Reflect);
 
@@ -64,8 +61,4 @@ MembraneProxyHandlers.Master = class extends MembraneProxyHandlers.LinkedList {
     this.lock();
     Object.freeze(this);
   }
-};
-
-
-
 }

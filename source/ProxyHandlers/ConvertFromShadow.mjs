@@ -4,7 +4,13 @@
  * This is for specifically converting the shadow target to a real target, for
  * directly applying to Reflect traps.
  */
-{
+
+import { LinkedListNode } from "./LinkedList.mjs";
+import {
+  NWNCDataDescriptor,
+  allTraps,
+  getRealTarget,
+} from "./sharedUtilities.mjs";
 
 /**
  * Build a LinkedListNode for passing real targets to Reflect.
@@ -14,12 +20,12 @@
  * @param traceLog    {String[]}    Where the tracing will be recorded.
  */
 
-MembraneProxyHandlers.ConvertFromShadow = class extends MembraneProxyHandlers.LinkedListNode {
+export class ConvertFromShadow extends LinkedListNode {
   constructor(objectGraph, name) {
     super(objectGraph, name);
     Object.freeze(this);
   }
-};
+}
 
 /**
  * ProxyHandler implementation
@@ -32,12 +38,11 @@ allTraps.forEach((trapName) => {
     return next[trapName].apply(next, args);
   };
   Reflect.defineProperty(
-    MembraneProxyHandlers.ConvertFromShadow.prototype,
+    ConvertFromShadow.prototype,
     trapName,
     new NWNCDataDescriptor(trap)
   );
-});
+})
 
-Object.freeze(MembraneProxyHandlers.ConvertFromShadow.prototype);
-Object.freeze(MembraneProxyHandlers.ConvertFromShadow);
-}
+Object.freeze(ConvertFromShadow.prototype);
+Object.freeze(ConvertFromShadow);

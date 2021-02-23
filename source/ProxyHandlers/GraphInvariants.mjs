@@ -1,7 +1,10 @@
-{
-"use strict";
+import {
+  allTraps,
+  valueType,
+} from "./sharedUtilities.mjs";
+import { LinkedListNode } from "./LinkedList.mjs";
 
-class InvariantBase extends MembraneProxyHandlers.LinkedList {
+class InvariantBase extends LinkedListNode {
   validateArgument(arg, argIndex) {
     if (valueType(arg) === "primitive")
       return;
@@ -11,12 +14,11 @@ class InvariantBase extends MembraneProxyHandlers.LinkedList {
       throw new TypeError(`GraphInvariant violation for return value`);
     throw new TypeError(`GraphInvariant violation for argument ${argIndex}`);
   }
-};
+}
 Object.freeze(InvariantBase.prototype);
 Object.freeze(InvariantBase);
 
-MembraneProxyHandlers.GraphInvariantOut = class extends InvariantBase {
-};
+export class GraphInvariantOut extends InvariantBase {}
 
 allTraps.forEach(function(trapName) {
   this[trapName] = function(target) {
@@ -24,17 +26,14 @@ allTraps.forEach(function(trapName) {
     this.validateArgument(rv, -1);
     return rv;
   };
-}, MembraneProxyHandlers.GraphInvariantOut);
+}, GraphInvariantOut);
 
 
-MembraneProxyHandlers.GraphInvariantIn = class extends InvariantBase {
-};
+export class GraphInvariantIn extends InvariantBase {}
 
 allTraps.forEach(function(trapName) {
-  this[trapName] = function() {
+  this[trapName] = function(target) {
     Array.from(arguments).forEach(this.validateArgument, this);
     return this.nextHandler(target)[trapName].apply(this.nextHandler, arguments);
   };
-}, MembraneProxyHandlers.GraphInvariantIn.prototype);
-
-}
+}, GraphInvariantIn.prototype);
