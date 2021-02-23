@@ -110,7 +110,6 @@ describe("MembraneProxyHandlers.Forwarding proxy handler", function() {
       shadow.foo = foo;
       mirror.foo = foo;
       expect(handler.deleteProperty(shadow, "foo")).toBe(Reflect.deleteProperty(mirror, "foo"));
-      //eslint-disable-next-line no-prototype-builtins
       expect(Reflect.hasOwnProperty(shadow, "foo")).toBe(false);
     });
 

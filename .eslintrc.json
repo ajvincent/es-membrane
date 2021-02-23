@@ -14,6 +14,7 @@
     "jasmine"
   ],
   "rules": {
+    "no-prototype-builtins": "off"
   },
   "overrides": [
     {

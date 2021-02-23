@@ -2,6 +2,7 @@ import Base from "./Base.mjs";
 import Forwarding from "./Forwarding.mjs";
 import {
   LinkedList,
+  LinkedListNode,
 } from "./LinkedList.mjs";
 import Tracing from "./Tracing.mjs";
 import {
@@ -19,6 +20,7 @@ const MembraneProxyHandlers = {
   Base,
   Forwarding,
   LinkedList,
+  LinkedListNode,
 
   Tracing,
   GraphInvariantIn,

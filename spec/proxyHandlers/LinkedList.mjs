@@ -1,34 +1,18 @@
-if ((typeof DataDescriptor !== "function") ||
-    (typeof isDataDescriptor !== "function") ||
-    (typeof NWNCDataDescriptor !== "function") ||
-    !Array.isArray(allTraps)) {
-  if (typeof require == "function") {
-    let obj = require("../../docs/dist/node/utilities.js");
-    DataDescriptor = obj.DataDescriptor;
-    isDataDescriptor = obj.isDataDescriptor;
-    NWNCDataDescriptor = obj.NWNCDataDescriptor;
-    allTraps = obj.allTraps;
-  }
-  else
-    throw new Error("Unable to run tests: cannot get DataDescriptor");
-}
+import {
+  allTraps,
+} from "../../source/core/sharedUtilities.mjs";
+import MembraneProxyHandlers from "../../source/ProxyHandlers/main.mjs";
 
-if (typeof MembraneProxyHandlers != "object") {
-  if (typeof require == "function") {
-    var { MembraneProxyHandlers } = require("../../docs/dist/node/proxyHandlers.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneProxyHandlers");
-}
+const membraneArg = {membrane: null};
 
 describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
-  "use strict";
   let handler = null, proxy = null, revoke = null, shadow = null, mirror = null;
   beforeEach(function() {
     shadow = {};
     mirror = {};
-    let list = new MembraneProxyHandlers.LinkedList({membrane: null}, Reflect);
-    handler = list.buildNode("foo");
+    let list = new MembraneProxyHandlers.LinkedList(membraneArg, Reflect);
+    handler = new MembraneProxyHandlers.LinkedListNode(membraneArg, "foo");
+    list.insertNode("head", handler);
     let obj = Proxy.revocable(shadow, handler);
     proxy = obj.proxy;
     revoke = obj.revoke;
@@ -345,24 +329,15 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
 
 describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
   "use strict";
-  let handler = null, proxy = null, revoke = null, shadow = null, mirror = null;
+  let handler = null, revoke = null;
   beforeEach(function() {
-    shadow = {};
-    mirror = {};
-    handler = new MembraneProxyHandlers.LinkedList({membrane: null}, Reflect);
-    let obj = Proxy.revocable(shadow, handler);
-    proxy = obj.proxy;
-    revoke = obj.revoke;
+    handler = new MembraneProxyHandlers.LinkedList(membraneArg, Reflect);
+    revoke = () => {};
   });
 
   afterEach(function() {
     handler = null;
-    shadow = null;
-    mirror = null;
-    if (revoke)
-      revoke();
-    revoke = null;
-    proxy = null;
+    revoke();
   });
 
   it("inherits from MembraneProxyHandlers.Forwarding", function() {
@@ -387,10 +362,10 @@ describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
   });
 
   it("can insert linked list nodes", function() {
-    const first = handler.buildNode("first");
-    const second = handler.buildNode("second");
+    const first = new MembraneProxyHandlers.LinkedListNode(membraneArg, "first");
+    const second = new MembraneProxyHandlers.LinkedListNode(membraneArg, "second")
 
-    const interrupt = handler.buildNode("interrupt");
+    const interrupt = new MembraneProxyHandlers.LinkedListNode(membraneArg, "interrupt");
     const obj1 = {};
     const obj2 = {};
 
@@ -419,8 +394,8 @@ describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
   it(
     "can be constructed with a MembraneProxyHandlers.Forwarding proxy as the tail",
     function() {
-      const f = new MembraneProxyHandlers.Forwarding({membrane: null}, Reflect);
-      handler = new MembraneProxyHandlers.LinkedList({membrane: null}, f);
+      const f = new MembraneProxyHandlers.Forwarding(membraneArg, Reflect);
+      handler = new MembraneProxyHandlers.LinkedList(membraneArg, f);
       expect(handler.tailNode.nextHandler).toBe(f);
     }
   );
@@ -428,8 +403,8 @@ describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
   it(
     "can be constructed with a MembraneProxyHandlers.LinkedList proxy as the tail",
     function() {
-      const f = new MembraneProxyHandlers.LinkedList({membrane: null}, Reflect);
-      handler = new MembraneProxyHandlers.LinkedList({membrane: null}, f);
+      const f = new MembraneProxyHandlers.LinkedList(membraneArg, Reflect);
+      handler = new MembraneProxyHandlers.LinkedList(membraneArg, f);
       expect(handler.tailNode.nextHandler).toBe(f);
     }
   );

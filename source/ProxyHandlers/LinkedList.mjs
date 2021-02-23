@@ -127,7 +127,7 @@ export class LinkedList extends Forwarding {
     // @private
     this.linkNodes = new Map(/* String: LinkedListNode */);
 
-    const headNode = this.buildNode("head");
+    const headNode = new LinkedListNode(objectGraph, "head");
     this.linkNodes.set("head", headNode);
     Reflect.defineProperty(this, "nextHandler", new NWNCDataDescriptor(headNode));
     headNode.link(null, tailNode);
