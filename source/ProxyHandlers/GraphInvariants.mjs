@@ -1,7 +1,7 @@
 import {
   allTraps,
   valueType,
-} from "./sharedUtilities.mjs";
+} from "../core/sharedUtilities.mjs";
 import { LinkedListNode } from "./LinkedList.mjs";
 
 class InvariantBase extends LinkedListNode {

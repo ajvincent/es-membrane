@@ -1,28 +1,8 @@
-if ((typeof DataDescriptor !== "function") ||
-    (typeof isDataDescriptor !== "function") ||
-    (typeof NWNCDataDescriptor !== "function") ||
-    !Array.isArray(allTraps)) {
-  if (typeof require == "function") {
-    let obj = require("../../docs/dist/node/utilities.js");
-    DataDescriptor = obj.DataDescriptor;
-    isDataDescriptor = obj.isDataDescriptor;
-    NWNCDataDescriptor = obj.NWNCDataDescriptor;
-    allTraps = obj.allTraps;
-  }
-  else
-    throw new Error("Unable to run tests: cannot get DataDescriptor");
-}
-if (typeof MembraneProxyHandlers != "object") {
-  if (typeof require == "function") {
-    var { MembraneProxyHandlers } = require("../../docs/dist/node/proxyHandlers.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneProxyHandlers");
-}
+import MembraneProxyHandlers from "../../source/ProxyHandlers/main.mjs";
 
 describe("MembraneProxyHandlers.Forwarding proxy handler", function() {
   "use strict";
-  let handler = null, proxy = null, revoke = null, shadow = null, mirror = null;
+  let handler = null, shadow = null, mirror = null;
   beforeEach(function() {
     shadow = {};
     mirror = {};
@@ -33,16 +13,12 @@ describe("MembraneProxyHandlers.Forwarding proxy handler", function() {
     handler = null;
     shadow = null;
     mirror = null;
-    if (revoke)
-      revoke();
-    revoke = null;
-    proxy = null;
   });
 
   it("inherits from MembraneProxyHandlers.Base", function() {
     expect(handler instanceof MembraneProxyHandlers.Base).toBe(true);
   });
-  
+
   describe("can forward to Reflect", function() {
     beforeEach(() => handler.nextHandler = Reflect);
 
@@ -134,6 +110,7 @@ describe("MembraneProxyHandlers.Forwarding proxy handler", function() {
       shadow.foo = foo;
       mirror.foo = foo;
       expect(handler.deleteProperty(shadow, "foo")).toBe(Reflect.deleteProperty(mirror, "foo"));
+      //eslint-disable-next-line no-prototype-builtins
       expect(Reflect.hasOwnProperty(shadow, "foo")).toBe(false);
     });
 

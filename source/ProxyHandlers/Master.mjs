@@ -4,7 +4,7 @@ import {
 } from "./LinkedList.mjs";
 import {
   allTraps,
-} from "./sharedUtilities.mjs";
+} from "../core/sharedUtilities.mjs";
 
 class MiddleList extends LinkedListNode {
   constructor(master, name) {

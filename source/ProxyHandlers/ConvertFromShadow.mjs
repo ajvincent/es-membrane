@@ -10,7 +10,7 @@ import {
   NWNCDataDescriptor,
   allTraps,
   getRealTarget,
-} from "./sharedUtilities.mjs";
+} from "../core/sharedUtilities.mjs";
 
 /**
  * Build a LinkedListNode for passing real targets to Reflect.
@@ -20,7 +20,7 @@ import {
  * @param traceLog    {String[]}    Where the tracing will be recorded.
  */
 
-export class ConvertFromShadow extends LinkedListNode {
+export default class ConvertFromShadow extends LinkedListNode {
   constructor(objectGraph, name) {
     super(objectGraph, name);
     Object.freeze(this);

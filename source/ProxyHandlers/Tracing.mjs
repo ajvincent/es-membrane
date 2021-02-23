@@ -10,7 +10,7 @@ import { LinkedListNode } from "./LinkedList.mjs";
 import {
   DataDescriptor,
   allTraps,
-} from "./sharedUtilities.mjs";
+} from "../core/sharedUtilities.mjs";
 
 /**
  * @private

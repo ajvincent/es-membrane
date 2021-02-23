@@ -1,7 +1,10 @@
 import {
-  NOT_IMPLEMENTED,
   allTraps,
-} from "./sharedUtilities.mjs";
+} from "../core/sharedUtilities.mjs";
+
+function NOT_IMPLEMENTED() {
+  throw new Error("Not implemented!");
+}
 
 // A ProxyHandler base prototype, for instanceof checks.
 /**
