@@ -17,7 +17,6 @@
 import {
   DeadProxyKey,
   NWNCDataDescriptor,
-  assert,
   valueType,
 } from "./sharedUtilities.mjs";
 
@@ -34,7 +33,7 @@ import {
 
 /**
  * @typedef GraphMetadata
- * @property {!Object} value               - The original value
+ * @property {Object} value                - The original value
  * @property {Proxy} proxy                 - The proxy object from Proxy.revocable()
  * @property {Function} revoke             - The revoke() function from Proxy.revocable()
  * @property {Object} shadowTarget         - The shadow target
@@ -103,7 +102,7 @@ export default class ProxyCylinder {
   /**
    * @private
    *
-   * @param {String | Symbol} graph The graph name.
+   * @param {String | Symbol} graphName The graph name.
    *
    * @returns {GraphMetadata}
    * @throws {Error}
@@ -128,25 +127,17 @@ export default class ProxyCylinder {
   /**
    * @private
    *
-   * @param {String | Symbol}             graph    The graph name.
-   * @param {GraphMetadata| DeadProxyKey} metadata The metadata.
+   * @param {String | Symbol}              graphName The graph name.
+   * @param {GraphMetadata | DeadProxyKey} metadata  The metadata.
    *
    * @throws {Error}
    */
   setMetadataInternal(graphName, metadata) {
-    {
-      const type = typeof graphName;
-      if ((type !== "string") && (type !== "symbol"))
-        throw new Error("graphName is neither a symbol nor a string!");
-    }
-
-    {
-      if (!metadata)
-        throw new Error(`no graph for "${graphName}"`);
-      if ((metadata !== DeadProxyKey) && (this.proxyDataByGraph.get(graphName) === DeadProxyKey))
-        throw new Error(`dead object graph "${graphName}"`);
-      this.proxyDataByGraph.set(graphName, metadata);
-    }
+    if (!metadata)
+      throw new Error(`no graph for "${graphName}"`);
+    if ((metadata !== DeadProxyKey) && (this.proxyDataByGraph.get(graphName) === DeadProxyKey))
+      throw new Error(`dead object graph "${graphName}"`);
+    this.proxyDataByGraph.set(graphName, metadata);
   }
 
   /**
@@ -162,49 +153,37 @@ export default class ProxyCylinder {
   /**
    * Determine if the mapping has a particular graph.
    *
-   * @param {String | Symbol} graph The graph name.
+   * @param {String | Symbol} graphName The graph name.
    *
    * @returns {Boolean} true if the graph exists.
    * @public
    */
-  hasGraph(graph) {
-    return this.getGraphNames().includes(graph);
-  }
-
-  /**
-   * Get the original value associated with a graph name.
-   *
-   * @param {String | Symbol} graph The graph name.
-   *
-   * @returns {Object}
-   * @public
-   */
-  getValue(graph) {
-    return this.getMetadata(graph).value;
+  hasGraph(graphName) {
+    return this.getGraphNames().includes(graphName);
   }
 
   /**
    * Get the proxy or object associated with a graph name.
    *
-   * @param {String | Symbol} graph The graph name.
+   * @param {String | Symbol} graphName The graph name.
    *
    * @returns {Object | Proxy}
    * @public
    */
-  getProxy(graph) {
-    let rv = this.getMetadata(graph);
-    return (graph === this.originGraph) ? rv.value : rv.proxy;
+  getProxy(graphName) {
+    let rv = this.getMetadata(graphName);
+    return (graphName === this.originGraph) ? rv.value : rv.proxy;
   }
 
   /**
    *
-   * @param {String | Symbol} graph The graph name.
+   * @param {String | Symbol} graphName The graph name.
    *
    * @returns {Object} The shadow target.
    * @public
    */
-  getShadowTarget(graph) {
-    return this.getMetadata(graph).shadowTarget;
+  getShadowTarget(graphName) {
+    return this.getMetadata(graphName).shadowTarget;
   }
 
   /**
@@ -217,52 +196,79 @@ export default class ProxyCylinder {
    */
   isShadowTarget(shadowTarget) {
     const graphs = Array.from(this.proxyDataByGraph.values());
-    return graphs.some((graph) => (graph !== DeadProxyKey) && graph.shadowTarget === shadowTarget);
+    return graphs.some(
+      graph => (graph !== DeadProxyKey) && (graph.shadowTarget === shadowTarget)
+    );
   }
 
   /**
    * Add a value to the mapping.
    *
-   * @param {Membrane}      membrane The owning membrane.
-   * @param {Symbol|String} graph    The graph name of the object graph.
-   * @param {GraphMetadata} metadata The metadata (proxy, value, shadow, etc.) for the graph.
+   * @param {Membrane}      membrane  The owning membrane.
+   * @param {Symbol|String} graphName The graph name of the object graph.
+   * @param {GraphMetadata} metadata  The metadata (proxy, value, shadow, etc.) for the graph.
    *
    * @public
    */
-  setMetadata(membrane, graph, metadata) {
+  setMetadata(membrane, graphName, metadata) {
     if ((typeof metadata !== "object") || (metadata === null))
       throw new Error("metadata argument must be an object");
 
-    let override = (typeof metadata.override === "boolean") && metadata.override;
-    if (!override && this.hasGraph(graph))
-      throw new Error(`set called for previously defined graph "${graph}"`);
+    const override = (typeof metadata.override === "boolean") && metadata.override;
+    if (!override && this.hasGraph(graphName))
+      throw new Error(`set called for previously defined graph "${graphName}"`);
 
-    if (this.proxyDataByGraph.get(graph) === DeadProxyKey)
-      throw new Error(`dead object graph "${graph}"`);
+    if (this.proxyDataByGraph.get(graphName) === DeadProxyKey)
+      throw new Error(`dead object graph "${graphName}"`);
 
-    if ((!this.originalValueSet) && (override || (graph !== this.originGraph))) {
+    const type = typeof graphName;
+    if ((type !== "string") && (type !== "symbol"))
+      throw new Error("graphName is neither a symbol nor a string!");
+
+    const isForeignGraph = (graphName !== this.originGraph);
+
+    if (!this.originalValueSet && (override || isForeignGraph))
       throw new Error("original value has not been set");
+
+    if (isForeignGraph) {
+      if (this.proxyDataByGraph.get(this.originGraph) === DeadProxyKey)
+        throw new Error(`dead origin object graph "${this.originGraph}"`);
+      if ("value" in metadata)
+        throw new Error("metadata must not include a value");
+      if (!metadata.proxy)
+        throw new Error("metadata must include a proxy");
+      if (typeof metadata.revoke !== "function")
+        throw new Error("metadata must include a revoke method");
+      if (!metadata.shadowTarget)
+        throw new Error("metadata must include a shadow target");
+    }
+    else {
+      if (!("value" in metadata))
+        throw new Error("metadata must include an original value");
+      if (metadata.proxy)
+        throw new Error("metadata must not include a proxy");
+      if (metadata.revoke)
+        throw new Error("metadata must not include a revoke method");
+      if (metadata.shadowTarget)
+        throw new Error("metadata must not include a shadow target");
     }
 
-    this.setMetadataInternal(graph, metadata);
+    this.setMetadataInternal(graphName, metadata);
 
-    if (override || (graph !== this.originGraph)) {
+    if (isForeignGraph) {
       if (valueType(metadata.proxy) !== "primitive") {
         membrane.map.set(metadata.proxy, this);
       }
     }
     else if (!this.originalValueSet) {
       Reflect.defineProperty(this, "originalValueSet", new NWNCDataDescriptor(true));
-      delete metadata.proxy;
-      delete metadata.revoke;
     }
 
-    if (!membrane.map.has(metadata.value)) {
-      if (valueType(metadata.value) !== "primitive")
-        membrane.map.set(metadata.value, this);
+    if (!isForeignGraph &&
+        !membrane.map.has(metadata.value) &&
+        (valueType(metadata.value) !== "primitive")) {
+      membrane.map.set(metadata.value, this);
     }
-    else
-      assert(this === membrane.map.get(metadata.value), "ProxyMapping mismatch?");
   }
 
   /**
@@ -271,7 +277,7 @@ export default class ProxyCylinder {
    * @param {String | Symbol} graphName The graph name of the object graph.
    * @public
    */
-  remove(graphName) {
+  removeGraph(graphName) {
     /* This will make the keys of the Membrane's WeakMapOfProxyMappings
      * unreachable, and thus reduce the set of references to the ProxyMapping.
      *
@@ -280,6 +286,14 @@ export default class ProxyCylinder {
      */
 
     this.getMetadata(graphName); // ensure we're alive
+
+    if (graphName === this.originGraph) {
+      // Ensure no other graph is alive.
+      const values = new Set(this.proxyDataByGraph.values());
+      values.delete(DeadProxyKey);
+      if (values.size !== 1)
+        throw new Error("Cannot remove the origin graph with another graph referring to it");
+    }
     this.setMetadataInternal(graphName, DeadProxyKey);
   }
 
@@ -295,17 +309,19 @@ export default class ProxyCylinder {
    * all new proxies and values.
    */
   selfDestruct(membrane) {
-    const graphs = this.getGraphNames();
-    for (let i = (graphs.length - 1); i >= 0; i--) {
-      const graph = graphs[i];
-      if (this.proxyDataByGraph.get(graph) === DeadProxyKey)
+    const names = this.getGraphNames();
+    for (let i = (names.length - 1); i >= 0; i--) {
+      const graphName = names[i];
+      if (this.proxyDataByGraph.get(graphName) === DeadProxyKey)
         continue;
-      const metadata = this.getMetadata(graph);
-      if (graph !== this.originGraph) {
+      const metadata = this.getMetadata(graphName);
+      if (graphName !== this.originGraph) {
         membrane.map.delete(metadata.proxy);
       }
-      membrane.map.delete(metadata.value);
-      this.remove(graph);
+      else {
+        membrane.map.delete(metadata.value);
+      }
+      this.removeGraph(graphName);
     }
   }
 
@@ -320,30 +336,28 @@ export default class ProxyCylinder {
     if (!this.originalValueSet)
       throw new Error("the original value hasn't been set");
 
-    const graphs = this.getGraphNames();
+    const names = this.getGraphNames();
     // graphs[0] === this.originGraph
-    for (let i = 1; i < graphs.length; i++) {
-      const parts = this.proxyDataByGraph.get(graphs[i]);
+    for (let i = 1; i < names.length; i++) {
+      const parts = this.proxyDataByGraph.get(names[i]);
       if (parts === DeadProxyKey)
         continue;
 
       if (typeof parts.revoke === "function")
         parts.revoke();
-      if (Object(parts.value) === parts.value)
-        membrane.revokeMapping(parts.value);
       if (Object(parts.proxy) === parts.proxy)
         membrane.revokeMapping(parts.proxy);
       if (Object(parts.shadowTarget) === parts.shadowTarget)
         membrane.revokeMapping(parts.shadowTarget);
 
-      this.remove(graphs[i]);
+      this.removeGraph(names[i]);
     }
 
     {
       const parts = this.proxyDataByGraph.get(this.originGraph);
       if (parts !== DeadProxyKey) {
         membrane.revokeMapping(parts.value);
-        this.remove(this.originGraph);
+        this.removeGraph(this.originGraph);
       }
     }
   }
@@ -558,7 +572,6 @@ export default class ProxyCylinder {
    * @public
    */
   cachedOwnKeys(graphName) {
-    this.getMetadata(graphName); // ensure we're alive
     const metadata = this.getMetadata(graphName);
     if ("cachedOwnKeys" in metadata)
       return metadata.cachedOwnKeys;
@@ -575,9 +588,7 @@ export default class ProxyCylinder {
    * @public
    */
   setCachedOwnKeys(graphName, keys, original) {
-    this.getMetadata(graphName); // ensure we're alive
-    const metadata = this.getMetadata(graphName);
-    metadata.cachedOwnKeys = { keys, original };
+    this.getMetadata(graphName).cachedOwnKeys = { keys, original };
   }
 
   /**
