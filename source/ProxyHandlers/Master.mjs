@@ -2,6 +2,10 @@ import {
   LinkedList,
   LinkedListNode
 } from "./LinkedList.mjs";
+
+import ConvertFromShadow from "./ConvertFromShadow.mjs";
+import UpdateShadow from "./UpdateShadow.mjs";
+
 import {
   allTraps,
 } from "../core/sharedUtilities.mjs";
@@ -45,7 +49,7 @@ export default class Master extends LinkedList {
     { //  outbound
       const subList = this.getNodeByName("outbound").subList;
       {
-        const updateShadow = subList.buildNode("updateShadow", "UpdateShadow");
+        const updateShadow = new UpdateShadow(this.objectGraph, "updateShadow");
         subList.insertNode("head", updateShadow);
       }
     }
@@ -53,7 +57,7 @@ export default class Master extends LinkedList {
     { // inbound
       const subList = this.getNodeByName("inbound").subList;
       {
-        const convertFromShadow = subList.buildNode("convertFromShadow", "ConvertFromShadow");
+        const convertFromShadow = new ConvertFromShadow(this.objectGraph, "convertFromShadow");
         subList.insertNode("head", convertFromShadow);
       }
     }

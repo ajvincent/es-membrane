@@ -1,33 +1,14 @@
-if ((typeof DataDescriptor !== "function") ||
-    (typeof isDataDescriptor !== "function") ||
-    (typeof NWNCDataDescriptor !== "function") ||
-    !Array.isArray(allTraps)) {
-  if (typeof require == "function") {
-    let obj = require("../../docs/dist/node/utilities.js");
-    DataDescriptor = obj.DataDescriptor;
-    isDataDescriptor = obj.isDataDescriptor;
-    NWNCDataDescriptor = obj.NWNCDataDescriptor;
-    allTraps = obj.allTraps;
-  }
-  else
-    throw new Error("Unable to run tests: cannot get DataDescriptor");
-}
-
-if (typeof MembraneProxyHandlers != "object") {
-  if (typeof require == "function") {
-    var { MembraneProxyHandlers } = require("../../docs/dist/node/proxyHandlers.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneProxyHandlers");
-}
+import {
+  allTraps,
+} from "../../source/core/sharedUtilities.mjs";
+import MembraneProxyHandlers from "../../source/ProxyHandlers/main.mjs";
 
 describe("MembraneProxyHandlers.Master proxy handler", function() {
-  "use strict";
-  let handler = null, proxy = null, revoke = null, shadow = null, mirror = null;
+  const membraneArg = {membrane: null};
+  let handler = null, proxy = null, revoke = null, shadow = null;
   beforeEach(function() {
     shadow = {};
-    mirror = {};
-    handler = new MembraneProxyHandlers.Master({membrane: null});
+    handler = new MembraneProxyHandlers.Master(membraneArg);
     let obj = Proxy.revocable(shadow, handler);
     proxy = obj.proxy;
     revoke = obj.revoke;
@@ -36,7 +17,6 @@ describe("MembraneProxyHandlers.Master proxy handler", function() {
   afterEach(function() {
     handler = null;
     shadow = null;
-    mirror = null;
     if (revoke)
       revoke();
     revoke = null;
@@ -67,18 +47,7 @@ describe("MembraneProxyHandlers.Master proxy handler", function() {
 
   it("cannot insert a new handler at the top level", function() {
     let msg = null;
-    try {
-      handler.buildNode("foo");
-    }
-    catch (ex) {
-      msg = ex.message;
-    }
-    expect(msg).toBe("This linked list is locked");
-
-    msg = null;
-    let other = new MembraneProxyHandlers.LinkedList(
-      {membrane: null}, Reflect
-    ).buildNode("bar");
+    let other = new MembraneProxyHandlers.LinkedListNode({membrane: null}, "bar");
     try {
       handler.insertNode("head", other);
     }
@@ -99,7 +68,7 @@ describe("MembraneProxyHandlers.Master proxy handler", function() {
     let traceLog = [];
     names.forEach((name) => {
       const subList = handler.getNodeByName(name).subList;
-      const trace = subList.buildNode(name, "Tracing", traceLog);
+      const trace = new MembraneProxyHandlers.Tracing(membraneArg, name, traceLog);
       subList.insertNode("head", trace);
       subList.lock();
     });
