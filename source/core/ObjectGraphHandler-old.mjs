@@ -1553,7 +1553,7 @@ export default class ObjectGraphHandler {
        * (SetIntegrityLevel) and 9.1.6.3 (ValidateAndApplyPropertyDescriptor)
        * force that upon us.
        *
-       * I hope that a ECMAScript engine can be written (and a future ES7
+       * I hope that a ECMAScript engine can be written (and a future
        * specification written) that could detect this unbreakable contract and
        * internally convert the accessor descriptor to a data descriptor.  That
        * would be a nice optimization for a "just-in-time" compiler.
@@ -1739,7 +1739,6 @@ export default class ObjectGraphHandler {
    * @argument {Boolean} recurse  True if we should look at prototype ancestors.
    *
    * @returns {Boolean} True if local properties have been requested.
-   *
    * @private
    */
   getLocalFlag(target, flagName, recurse) {
@@ -1780,7 +1779,6 @@ export default class ObjectGraphHandler {
    * @param {Object} target The proxy target.
    *
    * @returns {Boolean} True if deletes should be local.
-   *
    * @private
    */
   requiresDeletesBeLocal(target) {
@@ -1841,7 +1839,7 @@ export default class ObjectGraphHandler {
   /**
    * Add a ProxyCylinder or a Proxy.revoke function to our list.
    *
-   * @private
+   * @package
    */
   addRevocable(revoke) {
     if (this.__isDead__)
@@ -1852,7 +1850,7 @@ export default class ObjectGraphHandler {
   /**
    * Remove a ProxyCylinder or a Proxy.revoke function from our list.
    *
-   * @private
+   * @package
    */
   removeRevocable(revoke) {
     let index = this.__revokeFunctions__.indexOf(revoke);

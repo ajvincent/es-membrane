@@ -52,118 +52,113 @@ function MembraneMayLog() {
  * Object graph: A collection of values that talk to each other directly.
  */
 
-function Membrane(options = {}) {
-  let passThrough = (typeof options.passThroughFilter === "function") ?
-                    options.passThroughFilter :
-                    returnFalse;
+class Membrane {
+  /**
+   * 
+   * @param {Object} options
+   */
+  constructor(options = {}) {
+    let passThrough = (typeof options.passThroughFilter === "function") ?
+                      options.passThroughFilter :
+                      returnFalse;
+  
+    let map = new WeakMap(/*
+      key: ProxyCylinder instance
+  
+      key may be a Proxy, a value associated with a proxy, or an original value.
+    */);
+    WeakMapOfProxyCylinders(map);
 
-  let map = new WeakMap(/*
-    key: ProxyCylinder instance
-
-    key may be a Proxy, a value associated with a proxy, or an original value.
-  */);
-  WeakMapOfProxyCylinders(map);
-
-  Object.defineProperties(this, {
-    "showGraphName": new NWNCDataDescriptor(
-      Boolean(options.showGraphName), false
-    ),
-
-    "refactor": new NWNCDataDescriptor(options.refactor || "", false),
-
-    "map": new NWNCDataDescriptor(map, false),
-
-    "handlersByFieldName": new NWNCDataDescriptor({}, false),
-
-    "logger": new NWNCDataDescriptor(options.logger || null, false),
-
-    "__functionListeners__": new NWNCDataDescriptor([], false),
-
-    "warnOnceSet": new NWNCDataDescriptor(
-      (options.logger ? new Set() : null), false
-    ),
-
-    "modifyRules": new NWNCDataDescriptor(new ModifyRulesAPI(this)),
-
-    "passThroughFilter": new NWNCDataDescriptor(passThrough, false)
-  });
-
-  /* XXX ajvincent Somehow adding this line breaks not only npm test, but the
-     ability to build as well.  The breakage comes in trying to create a mock of
-     a dogfood membrane.
-  Object.seal(this);
-  */
-}
-
-Reflect.defineProperty(
-  Membrane,
-  "Primordials",
-  new NWNCDataDescriptor(Primordials, true) // this should be visible
-);
-
-{ // Membrane definition
-Membrane.prototype = Object.seal({
-  allTraps: allTraps,
+    Object.defineProperties(this, {
+      "showGraphName": new NWNCDataDescriptor(
+        Boolean(options.showGraphName), false
+      ),
+  
+      "refactor": new NWNCDataDescriptor(options.refactor || "", false),
+  
+      "map": new NWNCDataDescriptor(map, false),
+  
+      "handlersByFieldName": new NWNCDataDescriptor({}, false),
+  
+      "logger": new NWNCDataDescriptor(options.logger || null, false),
+  
+      "__functionListeners__": new NWNCDataDescriptor([], false),
+  
+      "warnOnceSet": new NWNCDataDescriptor(
+        (options.logger ? new Set() : null), false
+      ),
+  
+      "modifyRules": new NWNCDataDescriptor(new ModifyRulesAPI(this)),
+  
+      "passThroughFilter": new NWNCDataDescriptor(passThrough, false)
+    });
+  
+    /* XXX ajvincent Somehow adding this line breaks not only npm test, but the
+       ability to build as well.  The breakage comes in trying to create a mock of
+       a dogfood membrane.
+    Object.seal(this);
+    */
+  }
 
   /**
    * Returns true if we have a proxy for the value.
    */
-  hasProxyForValue: function(field, value) {
+  hasProxyForValue(graph, value) {
     var mapping = this.map.get(value);
-    return Boolean(mapping) && mapping.hasField(field);
-  },
+    return Boolean(mapping) && mapping.hasGraph(graph);
+  }
 
   /**
-   * Get the value associated with a field name and another known value.
+   * Get the value associated with a graph name and another known value.
    *
-   * @param field {Symbol|String}  The field to look for.
-   * @param value {Variant} The key for the ProxyCylinder map.
+   * @param {Symbol|String} graph The graph to look for.
+   * @param {Variant}       value The key for the ProxyCylinder map.
    *
    * @returns [
    *    {Boolean} True if the value was found.
-   *    {Variant} The value for that field.
+   *    {Variant} The value for that graph.
    * ]
    *
    * @note This method is not used internally in the membrane, but only by debug
    * code to assert that we have the right values stored.  Therefore you really
    * shouldn't use it in Production.
    */
-  getMembraneValue: function(field, value) {
+  getMembraneValue(graph, value) {
     var mapping = this.map.get(value);
-    if (mapping && mapping.hasField(field)) {
-      return [true, mapping.getValue(field)];
+    if (mapping && mapping.hasGraph(graph)) {
+      return [true, mapping.getValue(graph)];
     }
     return [false, NOT_YET_DETERMINED];
-  },
+  }
 
   /**
-   * Get the proxy associated with a field name and another known value.
+   * Get the proxy associated with a graph name and another known value.
    *
-   * @param field {Symbol|String}  The field to look for.
-   * @param value {Variant} The key for the ProxyCylinder map.
+   * @param {Symbol|String} graph The graph to look for.
+   * @param {Variant}       value The key for the ProxyCylinder map.
    *
    * @returns [
    *    {Boolean} True if the value was found.
-   *    {Proxy}   The proxy for that field.
-   * ] if field is not the value's origin field
+   *    {Proxy}   The proxy for that graph.
+   * ] if graph is not the value's origin graph
    * 
    * @returns [
    *    {Boolean} True if the value was found.
    *    {Variant} The actual value
-   * ] if field is the value's origin field
+   * ] if graph is the value's origin graph
    *
    * @returns [
    *    {Boolean} False if the value was not found.
    *    {Object}  NOT_YET_DETERMINED
    * ]
    */
-  getMembraneProxy: function(field, value) {
+  getMembraneProxy(graph, value) {
     var mapping = this.map.get(value);
-    if (mapping && mapping.hasField(field)) {
-      return [true, mapping.getProxy(field)];
+    if (mapping && mapping.hasGraph(graph)) {
+      return [true, mapping.getProxy(graph)];
     }
     return [false, NOT_YET_DETERMINED];
-  },
+  }
 
   /**
    * Assign a value to an object graph.
@@ -172,24 +167,24 @@ Membrane.prototype = Object.seal({
    * @param value   {Variant} The value to assign.
    *
    * Options:
-   *   @param mapping {ProxyCylinder} A mapping with associated values and proxies.
+   *   @param {ProxyCylinder} mapping  A mapping with associated values and proxies.
    *
    * @returns {ProxyCylinder} A mapping holding the value.
    *
    * @private
    */
-  buildMapping: function(handler, value, options = {}) {
+  buildMapping(handler, value, options = {}) {
     if (!this.ownsHandler(handler))
       throw new Error("handler is not an ObjectGraphHandler we own!");
     let mapping = ("mapping" in options) ? options.mapping : null;
 
-    const graphKey = (this.refactor === "0.10") ? "graphName" : "fieldName";
+    const graphKey = (this.refactor === "0.10") ? "graphName" : "graphName";
 
     if (!mapping) {
       if (this.map.has(value)) {
         mapping = this.map.get(value);
       }
-  
+
       else {
         mapping = new ProxyCylinder(handler[graphKey]);
       }
@@ -252,69 +247,74 @@ Membrane.prototype = Object.seal({
 
     handler.addRevocable(isOriginal ? mapping : parts.revoke);
     return mapping;
-  },
-
-  hasHandlerByField: function(field) {
-    {
-      let t = typeof field;
-      if ((t != "string") && (t != "symbol"))
-        throw new Error("field must be a string or a symbol!");
-    }
-    return Reflect.ownKeys(this.handlersByFieldName).includes(field);
-  },
+  }
 
   /**
-   * Get an ObjectGraphHandler object by field name.  Build it if necessary.
    *
-   * @param field      {Symbol|String}  The field name for the object graph.
-   * @param options    {Object} Broken down as follows:
-   * - mustCreate {Boolean} True if we must create a missing graph handler.
+   * @param {Symbol|String} graph The graph to look for.
+   *
+   * @returns {Boolean}
+   */
+  hasHandlerByField(graph) {
+    {
+      let t = typeof graph;
+      if ((t != "string") && (t != "symbol"))
+        throw new Error("graph must be a string or a symbol!");
+    }
+    return Reflect.ownKeys(this.handlersByFieldName).includes(graph);
+  }
+
+  /**
+   * Get an ObjectGraphHandler object by graph name.  Build it if necessary.
+   *
+   * @param {Symbol|String} graph   The graph name for the object graph.
+   * @param {Object}        options Broken down as follows:
+   * - {Boolean} mustCreate  True if we must create a missing graph handler.
    *
    * @returns {ObjectGraphHandler} The handler for the object graph.
    */
-  getHandlerByName: function(field, options) {
+  getHandlerByName(graph, options) {
     if (typeof options === "boolean")
       throw new Error("fix me!");
     let mustCreate = (typeof options == "object") ?
                      Boolean(options.mustCreate) :
                      false;
-    if (mustCreate && !this.hasHandlerByField(field)) {
+    if (mustCreate && !this.hasHandlerByField(graph)) {
       let graph = null;
       if (this.refactor === "0.10")
-        graph = new ObjectGraph(this, field);
+        graph = new ObjectGraph(this, graph);
       else
-        graph = new ObjectGraphHandler(this, field);
-      this.handlersByFieldName[field] = graph;
+        graph = new ObjectGraphHandler(this, graph);
+      this.handlersByFieldName[graph] = graph;
     }
-    return this.handlersByFieldName[field];
-  },
+    return this.handlersByFieldName[graph];
+  }
 
   /**
    * Determine if the handler is a ObjectGraphHandler for this object graph.
    *
    * @returns {Boolean} True if the handler is one we own.
    */
-  ownsHandler: function(handler) {
+  ownsHandler(handler) {
     if (handler instanceof ObjectGraph) {
       return this.handlersByFieldName[handler.graphName] === handler;
     }
     if (ChainHandlers.has(handler))
       handler = handler.baseHandler;
     return ((handler instanceof ObjectGraphHandler) &&
-            (this.handlersByFieldName[handler.fieldName] === handler));
-  },
+            (this.handlersByFieldName[handler.graphName] === handler));
+  }
 
   /**
    * Wrap a value for the first time in an object graph.
    *
-   * @param mapping {ProxyCylinder}  A mapping whose origin field refers to the
-   *                                value's object graph.
-   * @param arg     {Variant}       The value to wrap.
+   * @param {ProxyCylinder} mapping A mapping whose origin graph refers to the value's object graph.
+   * @param {Variant}       arg     The value to wrap.
    *
    * @note This marks the value as the "original" in the new ProxyCylinder it
    * creates.
    */
-  wrapArgumentByProxyCylinder: function(mapping, arg, options = {}) {
+  wrapArgumentByProxyCylinder(mapping, arg, options = {}) {
     if (this.map.has(arg) || (valueType(arg) === "primitive"))
       return;
 
@@ -327,27 +327,31 @@ Membrane.prototype = Object.seal({
     assert(argMap instanceof ProxyCylinder, "argMap isn't a ProxyCylinder?");
     assert(argMap.getOriginal() === arg,
            "wrapArgumentByProxyCylinder didn't establish the original?");
-  },
+  }
 
-  passThroughFilter: () => false,
+  /**
+   *
+   */
+  passThroughFilter() {
+    return false;
+  }
 
   /**
    * Ensure an argument is properly wrapped in a proxy.
    *
-   * @param origin {ObjectGraphHandler} Where the argument originated from
-   * @param target {ObjectGraphHandler} The object graph we're returning the arg to.
-   * @param arg    {Variant}         The argument.
+   * @param {ObjectGraphHandler} origin  Where the argument originated from
+   * @param {ObjectGraphHandler} target  The object graph we're returning the arg to.
+   * @param {Variant}            arg     The argument.
    *
-   * @returns {Proxy}   The proxy for that field
-   *   if field is not the value's origin field
+   * @returns {Proxy}   The proxy for that graph
+   *   if graph is not the value's origin graph
    * 
    * @returns {Variant} The actual value
-   *   if field is the value's origin field
+   *   if graph is the value's origin graph
    *
    * @throws {Error} if failed (this really should never happen)
    */
-  convertArgumentToProxy:
-  function(originHandler, targetHandler, arg, options = {}) {
+  convertArgumentToProxy (originHandler, targetHandler, arg, options = {}) {
     var override = ("override" in options) && (options.override === true);
     if (override) {
       let map = this.map.get(arg);
@@ -360,7 +364,7 @@ Membrane.prototype = Object.seal({
       return arg;
     }
 
-    const graphKey = (this.refactor === "0.10") ? "graphName" : "fieldName";
+    const graphKey = (this.refactor === "0.10") ? "graphName" : "graphName";
 
     let found, rv;
     [found, rv] = this.getMembraneProxy(
@@ -413,17 +417,17 @@ Membrane.prototype = Object.seal({
     if (!found)
       throw new Error("in convertArgumentToProxy(): proxy not found");
     return rv;
-  },
+  }
 
   /**
    * Link two values together across object graphs.
    *
-   * @param handler0 {ObjectGraphHandler} The graph handler that should own value0.
-   * @param value0   {Object}             The first value to store.
-   * @param handler1 {ObjectGraphHandler} The graph handler that should own value1.
-   * @param value1   {Variant}            The second value to store.
+   * @param {ObjectGraphHandler} handler0  The graph handler that should own value0.
+   * @param {Object}             value0    The first value to store.
+   * @param {ObjectGraphHandler} handler1  The graph handler that should own value1.
+   * @param {Variant}            value1    The second value to store.
    */
-  bindValuesByHandlers: function(handler0, value0, handler1, value1) {
+  bindValuesByHandlers(handler0, value0, handler1, value1) {
     /** XXX ajvincent The logic here is convoluted, I admit.  Basically, if we
      * succeed:
      * handler0 must own value0
@@ -443,10 +447,10 @@ Membrane.prototype = Object.seal({
       };
       if (rv.type !== "primitive") {
         rv.proxyMap = this.map.get(v);
-        const field = rv.handler.fieldName;
+        const graph = rv.handler.graphName;
         const valid = (!rv.proxyMap ||
-                        (rv.proxyMap.hasField(field) &&
-                        (rv.proxyMap.getProxy(field) === v)));
+                        (rv.proxyMap.hasGraph(graph) &&
+                        (rv.proxyMap.getProxy(graph) === v)));
         if (!valid)
           throw new Error("Value argument does not belong to proposed ObjectGraphHandler");
       }
@@ -455,8 +459,8 @@ Membrane.prototype = Object.seal({
     }
 
     function checkField(bag) {
-      if (proxyMap.hasField(bag.handler.fieldName)) {
-        let check = proxyMap.getProxy(bag.handler.fieldName);
+      if (proxyMap.hasGraph(bag.handler.graphName)) {
+        let check = proxyMap.getProxy(bag.handler.graphName);
         if (check !== bag.value)
           throw new Error("Value argument does not belong to proposed object graph");
         bag.maySet = false;
@@ -469,11 +473,11 @@ Membrane.prototype = Object.seal({
       if (!bag.maySet)
         return;
       let parts = { proxy: bag.value };
-      if (proxyMap.originField === bag.handler.fieldName)
+      if (proxyMap.originField === bag.handler.graphName)
         parts.value = bag.value;
       else
         parts.value = proxyMap.getOriginal();
-      proxyMap.set(this, bag.handler.fieldName, parts);
+      proxyMap.set(this, bag.handler.graphName, parts);
     }
 
     var propBag0 = bag.apply(this, [handler0, value0]);
@@ -500,7 +504,7 @@ Membrane.prototype = Object.seal({
     }
     else if (!propBag0.proxyMap) {
       if (!propBag1.proxyMap) {
-        proxyMap = new ProxyCylinder(propBag0.handler.fieldName);
+        proxyMap = new ProxyCylinder(propBag0.handler.graphName);
       }
       else
         proxyMap = propBag1.proxyMap;
@@ -509,7 +513,7 @@ Membrane.prototype = Object.seal({
     checkField(propBag0);
     checkField(propBag1);
 
-    if (propBag0.handler.fieldName === propBag1.handler.fieldName) {
+    if (propBag0.handler.graphName === propBag1.handler.graphName) {
       if (propBag0.value !== propBag1.value)
         throw new Error("bindValuesByHandlers requires two ObjectGraphHandlers from different graphs");
       // no-op
@@ -522,32 +526,32 @@ Membrane.prototype = Object.seal({
 
     // Postconditions
     if (propBag0.type !== "primitive") {
-      let [found, check] = this.getMembraneProxy(propBag0.handler.fieldName, propBag0.value);
+      let [found, check] = this.getMembraneProxy(propBag0.handler.graphName, propBag0.value);
       assert(found, "value0 mapping not found?");
-      assert(check === propBag0.value, "value0 not found in handler0 field name?");
+      assert(check === propBag0.value, "value0 not found in handler0 graph name?");
 
-      [found, check] = this.getMembraneProxy(propBag1.handler.fieldName, propBag0.value);
+      [found, check] = this.getMembraneProxy(propBag1.handler.graphName, propBag0.value);
       assert(found, "value0 mapping not found?");
-      assert(check === propBag1.value, "value0 not found in handler0 field name?");
+      assert(check === propBag1.value, "value0 not found in handler0 graph name?");
     }
 
     if (propBag1.type !== "primitive") {
-      let [found, check] = this.getMembraneProxy(propBag0.handler.fieldName, propBag1.value);
+      let [found, check] = this.getMembraneProxy(propBag0.handler.graphName, propBag1.value);
       assert(found, "value1 mapping not found?");
-      assert(check === propBag0.value, "value0 not found in handler0 field name?");
+      assert(check === propBag0.value, "value0 not found in handler0 graph name?");
 
-      [found, check] = this.getMembraneProxy(propBag1.handler.fieldName, propBag1.value);
+      [found, check] = this.getMembraneProxy(propBag1.handler.graphName, propBag1.value);
       assert(found, "value1 mapping not found?");
-      assert(check === propBag1.value, "value1 not found in handler1 field name?");
+      assert(check === propBag1.value, "value1 not found in handler1 graph name?");
     }
-  },
+  }
 
   /**
    * Wrap the methods of a descriptor in an object graph.
    *
-   * This method should NOT be exposed to the public.
+   * @package
    */
-  wrapDescriptor: function(originField, targetField, desc) {
+  wrapDescriptor(originField, targetField, desc) {
     if (!desc)
       return desc;
 
@@ -581,67 +585,74 @@ Membrane.prototype = Object.seal({
     }, this);
 
     return wrappedDesc;
-  },
+  }
 
-  revokeMapping: function(key) {
+  /**
+   * 
+   * @param key
+   */
+  revokeMapping(key) {
     this.map.revoke(key);
-  },
-
-  /* Disabled, dead API.
-  calledFromHandlerTrap: function() {
-    return this.handlerStack[1] !== "external";
-  },
-  */
+  }
 
   /**
    * Add a listener for function entry, return and throw operations.
    *
-   * @param listener {Function} The listener to add.
+   * @param {Function} listener The listener to add.
    *
    * @see ObjectGraphHandler.prototype.notifyFunctionListeners for what each
    * listener will get for its arguments.
    */
-  addFunctionListener: function(listener) {
+  addFunctionListener(listener) {
     if (typeof listener != "function")
       throw new Error("listener is not a function!");
     if (!this.__functionListeners__.includes(listener))
       this.__functionListeners__.push(listener);
-  },
+  }
 
   /**
    * Add a listener for function entry, return and throw operations.
    *
-   * @param listener {Function} The listener to remove.
+   * @param {Function} listener The listener to remove.
    */
-  removeFunctionListener: function(listener) {
+  removeFunctionListener(listener) {
     let index = this.__functionListeners__.indexOf(listener);
     if (index == -1)
       throw new Error("listener is not registered!");
     this.__functionListeners__.splice(index, 1);
-  },
+  }
 
   /**
-   * A flag indicating if internal properties of the Membrane are private.
-   * 
-   * @public
+   *
+   * @param {string} message
    */
-  secured: false,
-
-  __mayLog__: MembraneMayLog,
-
-  warnOnce: function(message) {
+  warnOnce(message) {
     if (this.logger && !this.warnOnceSet.has(message)) {
       this.warnOnceSet.add(message);
       this.logger.warn(message);
     }
-  },
-
-  get constants() {
-    return Constants;
   }
-});
+}
 
-} // end Membrane definition
+Reflect.defineProperty(
+  Membrane,
+  "Primordials",
+  new NWNCDataDescriptor(Primordials, true) // this should be visible
+);
+
+Membrane.prototype.allTraps = allTraps;
+
+/**
+ * A flag indicating if internal properties of the Membrane are private.
+ *
+ * @public
+ */
+Membrane.prototype.secured = false;
+
+Membrane.prototype.__mayLog__ = MembraneMayLog;
+
+Membrane.prototype.constants = Constants;
+
 Object.seal(Membrane);
 
 export default Membrane;
