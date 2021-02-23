@@ -1,25 +1,11 @@
-if ((typeof makeShadowTarget !== "function") ||
-    (typeof getRealTarget !== "function") ||
-    (typeof NWNCDataDescriptor !== "function") ||
-    !Array.isArray(allTraps)) {
-  if (typeof require == "function") {
-    let obj = require("../../docs/dist/node/utilities.js");
-    makeShadowTarget = obj.makeShadowTarget;
-    getRealTarget = obj.getRealTarget;
-    NWNCDataDescriptor = obj.NWNCDataDescriptor;
-    allTraps = obj.allTraps;
-  }
-  else
-    throw new Error("Unable to run tests: cannot get shared utilities");
-}
+import {
+  NWNCDataDescriptor,
+  allTraps,
+  getRealTarget,
+  makeShadowTarget,
+} from "../../source/core/sharedUtilities.mjs";
+import MembraneProxyHandlers from "../../source/ProxyHandlers/main.mjs";
 
-if (typeof MembraneProxyHandlers != "object") {
-  if (typeof require == "function") {
-    var { MembraneProxyHandlers } = require("../../docs/dist/node/proxyHandlers.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneProxyHandlers");
-}
 
 it("getRealTarget returns the original value for non-shadow targets", function() {
   const target = {};
@@ -35,8 +21,6 @@ it("getRealTarget returns the original value for shadow targets", function() {
 });
 
 describe("MembraneProxyHandlers.ConvertFromShadow node proxy handler", function() {
-  "use strict";
-
   const ReflectTraps = new Map();
   {
     const recordTarget = function(trapName, ...args) {
@@ -62,12 +46,13 @@ describe("MembraneProxyHandlers.ConvertFromShadow node proxy handler", function(
   }
 
   beforeEach(function() {
-    list = new MembraneProxyHandlers.LinkedList({membrane: null}, Reflect);
-    let handler = list.buildNode("convertFromShadow", "ConvertFromShadow");
+    const membraneArg = {membrane: null};
+    list = new MembraneProxyHandlers.LinkedList(membraneArg, Reflect);
+    let handler = new MembraneProxyHandlers.ConvertFromShadow(membraneArg, "convertFromShadow");
     list.insertNode("head", handler);
 
     {
-      const trace = list.buildNode("trace");
+      const trace = new MembraneProxyHandlers.LinkedListNode(membraneArg, "trace");
       allTraps.forEach((trapName) => {
         let rv = Reflect.defineProperty(trace, trapName, new NWNCDataDescriptor(ReflectTraps.get(trapName)));
         if (!rv)
@@ -77,7 +62,7 @@ describe("MembraneProxyHandlers.ConvertFromShadow node proxy handler", function(
     }
 
     {
-      const corrections = list.buildNode("corrections");
+      const corrections = new MembraneProxyHandlers.LinkedListNode(membraneArg, "corrections");
       Reflect.defineProperty(corrections, "preventExtensions", new NWNCDataDescriptor(
         function(shadowTarget) {
           const handler = this.nextHandler(shadowTarget);
