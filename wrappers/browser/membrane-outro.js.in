@@ -1,4 +1,0 @@
-
-  // exiting Membrane pseudo-module definition
-  return Membrane;
-})();
