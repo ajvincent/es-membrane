@@ -1,10 +1,5 @@
-if (typeof MembraneMocks != "function") {
-  if (typeof require == "function") {
-    var { MembraneMocks } = require("../../docs/dist/node/mocks.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneMocks");
-}
+import MembraneMocks from "../helpers/mocks.mjs";
+import ObjectGraphHandler from "../../source/core/ObjectGraphHandler-old.mjs";
 
 describe("Security checks for object graph handlers", function() {
   "use strict";
@@ -20,14 +15,10 @@ describe("Security checks for object graph handlers", function() {
     membrane    = null;
   });
 
-  /* spec/security/exports.js guarantees ObjectGraphHandler (the function) is
-   * not exposed to users.
-   */
-
   it("Setting the prototype of ObjectGraphHandler is disallowed", function() {
     const proto = Reflect.getPrototypeOf(dryHandler);
-    expect(Reflect.ownKeys(proto).includes("ownKeys")).toBe(true);
-    expect(Reflect.setPrototypeOf(proto, {})).toBe(false);
+    expect(proto).toBe(ObjectGraphHandler.prototype);
+    expect(Reflect.setPrototypeOf(dryHandler, {})).toBe(false);
 
     // the prototype inherits only from Object
     expect(Reflect.getPrototypeOf(proto)).toBe(Object.prototype);
