@@ -36,7 +36,7 @@ describe("Promises", function() {
         (val) => { expect(val).toBe(true); },
         () => { fail("unexpected promise rejection"); }
       );
-      promise = promise.then(done, done);
+      promise.then(done, done);
       resolve(true);
     }
   );
@@ -57,7 +57,7 @@ describe("Promises", function() {
         (val) => { expect(val).toBe(true); },
         () => { fail("unexpected promise rejection"); }
       );
-      promise = promise.then(done, done);
+      promise.then(done, done);
       resolve(true);
     }
   );
@@ -86,7 +86,7 @@ describe("Promises", function() {
         () => { fail("unexpected promise resolved"); },
         (val) => { expect(val).toBe(true); }
       );
-      promise = promise.then(done, done);
+      promise.then(done, done);
       reject(true);
     }
   );
@@ -107,12 +107,11 @@ describe("Promises", function() {
         () => { fail("unexpected promise resolved"); },
         (val) => { expect(val).toBe(true); }
       );
-      promise = promise.then(done, done);
+      promise.then(done, done);
       reject(true);
     }
   );
 
-  /* XXX ajvincent Disabled for Node engine not supporting async/await keywords in version 6.5.0
   it(
     "may be resolved from Proxy.getOwnPropertyDescriptor asynchronously",
     async function() {
@@ -153,5 +152,4 @@ describe("Promises", function() {
       expect(await promise).toBe(true);
     }
   );
-  */
 });

@@ -1,12 +1,4 @@
-"use strict"
-
-if (typeof loggerLib != "object") {
-  if (typeof require == "function") {
-    var { loggerLib } = require("../../docs/dist/node/mocks.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneMocks");
-}
+import loggerLib from "../helpers/logger.mjs";
 
 describe("Jasmine mock logger library works", function() {
   const logger = loggerLib.getLogger("test.jasmine.logger");
@@ -48,5 +40,4 @@ describe("Jasmine mock logger library works", function() {
       expect(event.message).toBe("It's a small world after all");
     }
   });
-
 });
