@@ -1,21 +1,7 @@
-if (typeof MembraneMocks != "function") {
-  if (typeof require == "function") {
-    var { MembraneMocks } = require("../../docs/dist/node/mocks.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneMocks");
-}
+import MembraneMocks from "../helpers/mocks.mjs";
 
-/* XXX ajvincent This is very specifically testing internal API's.  Hence the
- * conditional block at the start of this auto-executing function.
- */
-(function() {
-{
-  let parts = MembraneMocks();
-  if (typeof parts.handlers.dry.defineLazyGetter === "undefined")
-    return;
-  parts = null;
-}
+/* XXX ajvincent This is very specifically testing internal API's. */
+
 describe("Internal API:  Defining a lazy getter", function() {
   "use strict";
   var parts, dryDocument, wetDocument, membrane, shadow;
@@ -203,4 +189,3 @@ describe("Internal API:  Defining a lazy getter", function() {
     }).toThrow();
   });
 });
-})();
