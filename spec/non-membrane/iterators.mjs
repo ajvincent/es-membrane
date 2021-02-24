@@ -18,7 +18,6 @@ it(
         },
         set count(val) {
           base.count = val;
-          return true;
         }
       };
     };
