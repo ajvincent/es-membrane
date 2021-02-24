@@ -214,8 +214,6 @@ describe(
                   sourceDesc.value = buildSealedProxy(sourceDesc.value);
               }
 
-              setLockedValue = undefined;
-
               Reflect.deleteProperty(shadowTarget, propName);
               Reflect.defineProperty(shadowTarget, propName, sourceDesc);
               return sourceDesc.value;
@@ -237,12 +235,11 @@ describe(
               if (typeof newValue !== "object")
                 sourceDesc.value = newValue;
               else if (masterMap.has(newValue))
-                sourceDesc.value = masterMap.get(value).proxy;
+                sourceDesc.value = masterMap.get(newValue).proxy;
               else
                 sourceDesc.value = buildSealedProxy(newValue);
               Reflect.deleteProperty(shadowTarget, propName);
               Reflect.defineProperty(shadowTarget, propName, sourceDesc);
-              setLockedValue = undefined;
               return sourceDesc.value;
             },
 
