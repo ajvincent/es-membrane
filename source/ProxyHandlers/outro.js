@@ -1,1 +1,0 @@
-Object.freeze(MembraneProxyHandlers);
