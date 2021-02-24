@@ -2,35 +2,40 @@ describe(
   "A proxy handler's traps are only invoked with the required arguments from the proxy",
   function() {
     "use strict";
-    const handler = {}, unexpected = {};
-    {
-      const allTraps = {
-        "getPrototypeOf": null,
-        "setPrototypeOf": null,
-        "isExtensible": null,
-        "preventExtensions": null,
-        "getOwnPropertyDescriptor": null,
-        "defineProperty": null,
-        "has": null,
-        "get": 3,
-        "set": 4,
-        "deleteProperty": null,
-        "ownKeys": null,
-        "apply": null,
-        "construct": null
-      };
+    const unexpected = {};
+    const allTraps = {
+      "getPrototypeOf": null,
+      "setPrototypeOf": null,
+      "isExtensible": null,
+      "preventExtensions": null,
+      "getOwnPropertyDescriptor": null,
+      "defineProperty": null,
+      "has": null,
+      "get": 3,
+      "set": 4,
+      "deleteProperty": null,
+      "ownKeys": null,
+      "apply": null,
+      "construct": null
+    };
 
+    var obj, p, handler;
+    beforeEach(() => {
+      handler = {};
       Reflect.ownKeys(allTraps).forEach(function(trap) {
+        /* Ah, Jasmine.  You're a great testing framework, but when I feed you proxies, you tend to
+        trigger methods of the proxy more than you should. */
+        let firedOnce = false;
         handler[trap] = function() {
-          expect(arguments.length).toBe(allTraps[trap] || Reflect[trap].length);
-          expect(arguments[arguments.length - 1]).not.toBe(unexpected);
+          if (!firedOnce) {
+            firedOnce = true;
+            expect(arguments.length).toBe(allTraps[trap] || Reflect[trap].length);
+            expect(arguments[arguments.length - 1]).not.toBe(unexpected);
+          }
           return Reflect[trap].apply(Reflect, arguments);
         };
       });
-    }
 
-    var obj, p;
-    beforeEach(() => {
       obj = {
         method: function() {
           return 1;
