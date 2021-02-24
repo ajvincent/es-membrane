@@ -78,7 +78,7 @@ class Membrane {
   
       "map": new NWNCDataDescriptor(map, false),
   
-      "handlersByFieldName": new NWNCDataDescriptor({}, false),
+      handlersByGraphName: new NWNCDataDescriptor({}, false),
   
       "logger": new NWNCDataDescriptor(options.logger || null, false),
   
@@ -126,7 +126,7 @@ class Membrane {
   getMembraneValue(graph, value) {
     var mapping = this.map.get(value);
     if (mapping && mapping.hasGraph(graph)) {
-      return [true, mapping.getValue(graph)];
+      return [true, mapping.getOriginal()];
     }
     return [false, NOT_YET_DETERMINED];
   }
@@ -176,50 +176,41 @@ class Membrane {
   buildMapping(handler, value, options = {}) {
     if (!this.ownsHandler(handler))
       throw new Error("handler is not an ObjectGraphHandler we own!");
-    let mapping = ("mapping" in options) ? options.mapping : null;
+    let cylinder = ("mapping" in options) ? options.mapping : null;
 
-    const graphKey = (this.refactor === "0.10") ? "graphName" : "graphName";
+    const graphKey = (this.refactor === "0.10") ? "graphName" : "fieldName";
 
-    if (!mapping) {
+    if (!cylinder) {
       if (this.map.has(value)) {
-        mapping = this.map.get(value);
+        cylinder = this.map.get(value);
       }
 
       else {
-        mapping = new ProxyCylinder(handler[graphKey]);
+        cylinder = new ProxyCylinder(handler[graphKey]);
       }
     }
-    assert(mapping instanceof ProxyCylinder,
+    assert(cylinder instanceof ProxyCylinder,
            "buildMapping requires a ProxyCylinder object!");
 
-    const isOriginal = (mapping.originField === handler[graphKey]);
+    const isOriginal = (cylinder.originGraph === handler[graphKey]);
     assert(isOriginal || this.ownsHandler(options.originHandler),
            "Proxy requests must pass in an origin handler");
-    let shadowTarget = makeShadowTarget(value);
 
     var parts;
     if (isOriginal) {
-      parts = { value: value };
-      if (!Reflect.isExtensible(value)) {
-        const keys = Reflect.ownKeys(value);
-        keys.forEach(function(key) {
-          const desc = Reflect.getOwnPropertyDescriptor(value, key);
-          Reflect.defineProperty(shadowTarget, key, desc);
-        });
-        Reflect.preventExtensions(shadowTarget);
-      }
+      parts = { value };
     }
     else {
+      const shadowTarget = makeShadowTarget(value);
       if (handler instanceof ObjectGraph)
         parts = Proxy.revocable(shadowTarget, handler.masterProxyHandler);
       else
         parts = Proxy.revocable(shadowTarget, handler);
-      parts.value = value;
+      parts.shadowTarget = shadowTarget;
     }
 
-    parts.shadowTarget = shadowTarget;
-    mapping.set(this, handler[graphKey], parts);
-    makeRevokeDeleteRefs(parts, mapping, handler[graphKey]);
+    cylinder.setMetadata(this, handler[graphKey], parts);
+    makeRevokeDeleteRefs(parts, cylinder, handler[graphKey]);
 
     if (!isOriginal) {
       const notifyOptions = {
@@ -245,8 +236,8 @@ class Membrane {
       }
     }
 
-    handler.addRevocable(isOriginal ? mapping : parts.revoke);
-    return mapping;
+    handler.addRevocable(isOriginal ? cylinder : parts.revoke);
+    return cylinder;
   }
 
   /**
@@ -261,7 +252,7 @@ class Membrane {
       if ((t != "string") && (t != "symbol"))
         throw new Error("graph must be a string or a symbol!");
     }
-    return Reflect.ownKeys(this.handlersByFieldName).includes(graph);
+    return Reflect.ownKeys(this.handlersByGraphName).includes(graph);
   }
 
   /**
@@ -273,21 +264,21 @@ class Membrane {
    *
    * @returns {ObjectGraphHandler} The handler for the object graph.
    */
-  getHandlerByName(graph, options) {
+  getHandlerByName(graphName, options) {
     if (typeof options === "boolean")
       throw new Error("fix me!");
     let mustCreate = (typeof options == "object") ?
                      Boolean(options.mustCreate) :
                      false;
-    if (mustCreate && !this.hasHandlerByField(graph)) {
+    if (mustCreate && !this.hasHandlerByField(graphName)) {
       let graph = null;
       if (this.refactor === "0.10")
-        graph = new ObjectGraph(this, graph);
+        graph = new ObjectGraph(this, graphName);
       else
-        graph = new ObjectGraphHandler(this, graph);
-      this.handlersByFieldName[graph] = graph;
+        graph = new ObjectGraphHandler(this, graphName);
+      this.handlersByGraphName[graphName] = graph;
     }
-    return this.handlersByFieldName[graph];
+    return this.handlersByGraphName[graphName];
   }
 
   /**
@@ -297,12 +288,12 @@ class Membrane {
    */
   ownsHandler(handler) {
     if (handler instanceof ObjectGraph) {
-      return this.handlersByFieldName[handler.graphName] === handler;
+      return this.handlersByGraphName[handler.graphName] === handler;
     }
     if (ChainHandlers.has(handler))
       handler = handler.baseHandler;
     return ((handler instanceof ObjectGraphHandler) &&
-            (this.handlersByFieldName[handler.graphName] === handler));
+            (this.handlersByGraphName[handler.fieldName] === handler));
   }
 
   /**
@@ -318,7 +309,7 @@ class Membrane {
     if (this.map.has(arg) || (valueType(arg) === "primitive"))
       return;
 
-    let handler = this.getHandlerByName(mapping.originField);
+    let handler = this.getHandlerByName(mapping.originGraph);
     this.buildMapping(handler, arg, options);
     
     assert(this.map.has(arg),
@@ -351,7 +342,7 @@ class Membrane {
    *
    * @throws {Error} if failed (this really should never happen)
    */
-  convertArgumentToProxy (originHandler, targetHandler, arg, options = {}) {
+  convertArgumentToProxy(originHandler, targetHandler, arg, options = {}) {
     var override = ("override" in options) && (options.override === true);
     if (override) {
       let map = this.map.get(arg);
@@ -364,7 +355,7 @@ class Membrane {
       return arg;
     }
 
-    const graphKey = (this.refactor === "0.10") ? "graphName" : "graphName";
+    const graphKey = (this.refactor === "0.10") ? "graphName" : "fieldName";
 
     let found, rv;
     [found, rv] = this.getMembraneProxy(
@@ -458,7 +449,7 @@ class Membrane {
       return rv;
     }
 
-    function checkField(bag) {
+    function checkGraph(bag) {
       if (proxyMap.hasGraph(bag.handler.graphName)) {
         let check = proxyMap.getProxy(bag.handler.graphName);
         if (check !== bag.value)
@@ -473,7 +464,7 @@ class Membrane {
       if (!bag.maySet)
         return;
       let parts = { proxy: bag.value };
-      if (proxyMap.originField === bag.handler.graphName)
+      if (proxyMap.originGraph === bag.handler.graphName)
         parts.value = bag.value;
       else
         parts.value = proxyMap.getOriginal();
@@ -510,8 +501,8 @@ class Membrane {
         proxyMap = propBag1.proxyMap;
     }
 
-    checkField(propBag0);
-    checkField(propBag1);
+    checkGraph(propBag0);
+    checkGraph(propBag1);
 
     if (propBag0.handler.graphName === propBag1.handler.graphName) {
       if (propBag0.value !== propBag1.value)
@@ -551,7 +542,7 @@ class Membrane {
    *
    * @package
    */
-  wrapDescriptor(originField, targetField, desc) {
+  wrapDescriptor(originGraph, targetGraph, desc) {
     if (!desc)
       return desc;
 
@@ -572,16 +563,17 @@ class Membrane {
         return desc;
     }
 
-    var originHandler = this.getHandlerByName(originField);
-    var targetHandler = this.getHandlerByName(targetField);
+    var originHandler = this.getHandlerByName(originGraph);
+    var targetHandler = this.getHandlerByName(targetGraph);
 
     ["value", "get", "set"].forEach(function(descProp) {
-      if (keys.includes(descProp))
-        wrappedDesc[descProp] = this.convertArgumentToProxy(
-          originHandler,
-          targetHandler,
-          desc[descProp]
-        );
+      if (!keys.includes(descProp))
+        return;
+      wrappedDesc[descProp] = this.convertArgumentToProxy(
+        originHandler,
+        targetHandler,
+        desc[descProp]
+      );
     }, this);
 
     return wrappedDesc;

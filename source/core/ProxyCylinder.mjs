@@ -343,14 +343,13 @@ export default class ProxyCylinder {
       if (parts === DeadProxyKey)
         continue;
 
-      if (typeof parts.revoke === "function")
-        parts.revoke();
-      if (Object(parts.proxy) === parts.proxy)
-        membrane.revokeMapping(parts.proxy);
-      if (Object(parts.shadowTarget) === parts.shadowTarget)
-        membrane.revokeMapping(parts.shadowTarget);
+      membrane.revokeMapping(parts.shadowTarget);
+      membrane.revokeMapping(parts.proxy);
+      parts.revoke();
 
-      this.removeGraph(names[i]);
+      // XXX ajvincent The need for this check indicates a subtle bug somewhere.
+      if (this.proxyDataByGraph.get(names[i]) !== DeadProxyKey)
+        this.removeGraph(names[i]);
     }
 
     {

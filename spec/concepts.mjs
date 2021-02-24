@@ -1,20 +1,6 @@
-"use strict";
-/*
-import "../docs/dist/es6-modules/Membrane.js";
-import "../docs/dist/es6-modules/MembraneMocks.js";
-*/
-
-if ((typeof MembraneMocks != "function") ||
-    (typeof loggerLib != "object") ||
-    (typeof DAMP != "symbol")) {
-  if (typeof require == "function") {
-    var { MembraneMocks, loggerLib, DAMP } = require("../docs/dist/node/mocks.js");
-  }
-}
-
-if (typeof MembraneMocks != "function") {
-  throw new Error("Unable to run tests");
-}
+import DAMP from "./helpers/dampSymbol.mjs";
+import MembraneMocks from "./helpers/mocks.mjs";
+import loggerLib from "./helpers/logger.mjs";
 
 describe("basic concepts: ", function() {
   var wetDocument, dryDocument, membrane;
@@ -65,8 +51,8 @@ describe("basic concepts: ", function() {
     var unwrappedExtra = {};
     dryDocument.extra = unwrappedExtra;
     expect(typeof extraHolder).toBe("object");
-    expect(extraHolder).not.toBe(null);
-    expect(extraHolder).not.toBe(unwrappedExtra);
+    expect(extraHolder === null).toBe(false);
+    expect(extraHolder === unwrappedExtra).toBe(false);
 
     /* In summary:
      *
@@ -101,7 +87,7 @@ describe("basic concepts: ", function() {
 
     [found, foundValue] = membrane.getMembraneProxy("wet", wetDocument.extra);
     expect(found).toBe(true);
-    expect(foundValue).toBe(extraHolder);
+    expect(foundValue === extraHolder).toBe(true);
 
     [found, foundValue] = membrane.getMembraneProxy("dry", dryDocument.extra);
     expect(found).toBe(true);
@@ -182,11 +168,10 @@ describe("basic concepts: ", function() {
   });
 
   it("ElementDry and NodeDry respect Object.getPrototypeOf", function() {
-    let wetRoot, ElementWet, NodeWet;
+    let ElementWet, NodeWet;
     let dryRoot, ElementDry, NodeDry;
 
     let parts = MembraneMocks();
-    wetRoot     = parts.wet.doc.rootElement;
     ElementWet  = parts.wet.Element;
     NodeWet     = parts.wet.Node;
 
@@ -494,18 +479,15 @@ describe("basic concepts: ", function() {
 
   it("Setting a prototype works as expected", function() {
     const logger = loggerLib.getLogger("test.membrane.setPrototypeOf");
-    let wetRoot, ElementWet, NodeWet;
-    let dryRoot, ElementDry, NodeDry;
+    let wetRoot;
+    let dryRoot, ElementDry;
 
     let parts = MembraneMocks({logger});
     wetRoot     = parts.wet.doc.rootElement;
-    ElementWet  = parts.wet.Element;
-    NodeWet     = parts.wet.Node;
     parts.wet.root = wetRoot;
 
     dryRoot     = parts.dry.doc.rootElement;
     ElementDry  = parts.dry.Element;
-    NodeDry     = parts.dry.Node;
     parts.dry.root = dryRoot;
 
     let XHTMLElementDryProto = {
@@ -625,32 +607,8 @@ describe("basic concepts: ", function() {
       expect(chain).toEqual(expectedChain);
     }
 
-    expect(dryRoot.namespaceURI).toBe(XHTMLElementDryProto.namespaceURI);
+    expect(dryRoot.namespaceURI === XHTMLElementDryProto.namespaceURI).toBe(true);
     expect(wetRoot.namespaceURI).toBe(XHTMLElementDryProto.namespaceURI);
-
-    let XHTMLElementDry = function(ownerDoc, name) {
-      // this takes care of ownerDoc, name
-      ElementDry.apply(this, [ownerDoc, name]);
-    };
-    XHTMLElementDry.prototype = XHTMLElementDryProto;
-    traceMap.addMember(XHTMLElementDry, "XHTMLElementDry");
-
-    let x = new XHTMLElementDry(dryDocument, "test");
-    traceMap.addMember(x, "x");
-    {
-      let chain = traceMap.getPrototypeChain(x);
-      let expectedChain = [
-        "x",
-        "XHTMLElementDryProto",
-        "parts.dry.Element.prototype",
-        "parts.dry.Node.prototype",
-        "parts.dry.EventListener.prototype",
-        "(unknown)"
-      ];
-      expect(chain).toEqual(expectedChain);
-    }
-    expect(x.namespaceURI).toBe(XHTMLElementDryProto.namespaceURI);
-    expect(x.nodeType).toBe(1);
   });
 
   it("Calling Object.preventExtensions(...) works as expected", function() {

@@ -118,9 +118,7 @@ export default class ObjectGraphHandler {
     var cached = targetMap.cachedOwnKeys(this.fieldName);
     if (cached) {
       let _this = targetMap.getOriginal();
-      let check = this.externalHandler(function() {
-        return Reflect.ownKeys(_this);
-      });
+      let check = Reflect.ownKeys(_this);
 
       let pass = ((check.length == cached.original.length) &&
         (check.every(function(elem) {
@@ -236,7 +234,11 @@ export default class ObjectGraphHandler {
            c. Return ? parent.[[Get]](P, Receiver).
        */
       let shadow = targetMap.getShadowTarget(this.fieldName);
-      desc = this.getOwnPropertyDescriptor(shadow, propName);
+      if (shadow)
+        desc = this.getOwnPropertyDescriptor(shadow, propName);
+      else
+        desc = Reflect.getOwnPropertyDescriptor(target, propName);
+
       if (!desc) {
         let proto = this.getPrototypeOf(shadow);
         if (proto === null)
@@ -295,9 +297,7 @@ export default class ObjectGraphHandler {
           return undefined;
         if (type !== "function")
           throw new Error("getter is not a function");
-        rv = this.externalHandler(function() {
-          return Reflect.apply(getter, receiver, []);
-        });
+        rv = Reflect.apply(getter, receiver, []);
         found = true;
       }
     }
@@ -340,7 +340,7 @@ export default class ObjectGraphHandler {
        * (3) own keys filtered property: undefined
        * (4) original property:  wrapped property.
        */
-      if (targetMap.wasDeletedLocally(targetMap.originField, propName) ||
+      if (targetMap.wasDeletedLocally(targetMap.originGraph, propName) ||
           targetMap.wasDeletedLocally(this.fieldName, propName))
         return undefined;
 
@@ -349,7 +349,7 @@ export default class ObjectGraphHandler {
         return desc;
 
       {
-        let originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
+        let originFilter = targetMap.getOwnKeysFilter(targetMap.originGraph);
         if (originFilter && !originFilter(propName))
           return undefined;
       }
@@ -360,20 +360,18 @@ export default class ObjectGraphHandler {
       }
 
       var _this = targetMap.getOriginal();
-      desc = this.externalHandler(function() {
-        return Reflect.getOwnPropertyDescriptor(_this, propName);
-      });
+      desc = Reflect.getOwnPropertyDescriptor(_this, propName);
 
       // See .getPrototypeOf trap comments for why this matters.
       const isProtoDesc = (propName === "prototype") && isDataDescriptor(desc);
       const isForeign = ((desc !== undefined) &&
-                         (targetMap.originField !== this.fieldName));
+                         (targetMap.originGraph !== this.fieldName));
       if (isProtoDesc || isForeign) {
         // This is necessary to force desc.value to really be a proxy.
         let configurable = desc.configurable;
         desc.configurable = true;
         desc = this.membrane.wrapDescriptor(
-          targetMap.originField, this.fieldName, desc
+          targetMap.originGraph, this.fieldName, desc
         );
         desc.configurable = configurable;
       }
@@ -445,9 +443,9 @@ export default class ObjectGraphHandler {
     try {
       const proto = Reflect.getPrototypeOf(target);
       let proxy;
-      if (targetMap.originField !== this.fieldName)
+      if (targetMap.originGraph !== this.fieldName)
         proxy = this.membrane.convertArgumentToProxy(
-          this.membrane.getHandlerByName(targetMap.originField),
+          this.membrane.getHandlerByName(targetMap.originGraph),
           this,
           proto
         );
@@ -455,7 +453,7 @@ export default class ObjectGraphHandler {
         proxy = proto;
 
       let pMapping = this.membrane.map.get(proxy);
-      if (pMapping && (pMapping.originField !== this.fieldName)) {
+      if (pMapping && (pMapping.originGraph !== this.fieldName)) {
         assert(Reflect.setPrototypeOf(shadowTarget, proxy),
                "shadowTarget could not receive prototype?");
       }
@@ -483,9 +481,7 @@ export default class ObjectGraphHandler {
     var targetMap = this.membrane.map.get(target);
     var _this = targetMap.getOriginal();
 
-    var rv = this.externalHandler(function() {
-      return Reflect.isExtensible(_this);
-    });
+    var rv = Reflect.isExtensible(_this);
 
     if (!rv)
       // This is our one and only chance to set properties on the shadow target.
@@ -552,7 +548,7 @@ export default class ObjectGraphHandler {
          * on the original target.  The spec says if GetOwnProperty returns
          * undefined (which it will for our proxy), we should return true.
          */
-        let originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
+        let originFilter = targetMap.getOwnKeysFilter(targetMap.originGraph);
         let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
         if (originFilter || localFilter)
           this.membrane.warnOnce(this.membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
@@ -581,9 +577,7 @@ export default class ObjectGraphHandler {
 
       if (!shouldBeLocal) {
         var _this = targetMap.getOriginal();
-        this.externalHandler(function() {
-          return Reflect.deleteProperty(_this, propName);
-        });
+        Reflect.deleteProperty(_this, propName);
       }
 
       Reflect.deleteProperty(shadowTarget, propName);
@@ -661,7 +655,7 @@ export default class ObjectGraphHandler {
          * and return false here, denying the property being set on either the
          * proxy or the protected target.
          */
-        originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
+        originFilter = targetMap.getOwnKeysFilter(targetMap.originGraph);
         localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
         if (originFilter || localFilter)
           this.membrane.warnOnce(this.membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
@@ -681,9 +675,7 @@ export default class ObjectGraphHandler {
 
         // It's probably more expensive to look up a property than to filter the name.
         if (hasOwn)
-          hasOwn = this.externalHandler(function() {
-            return Boolean(Reflect.getOwnPropertyDescriptor(_this, propName));
-          });
+          hasOwn = Boolean(Reflect.getOwnPropertyDescriptor(_this, propName));
 
         if (!hasOwn && desc) {
           rv = targetMap.setLocalDescriptor(this.fieldName, propName, desc);
@@ -708,14 +700,12 @@ export default class ObjectGraphHandler {
       if (desc !== undefined) {
         desc = this.membrane.wrapDescriptor(
           this.fieldName,
-          targetMap.originField,
+          targetMap.originGraph,
           desc
         );
       }
 
-      rv = this.externalHandler(function() {
-        return Reflect.defineProperty(_this, propName, desc);
-      });
+      rv = Reflect.defineProperty(_this, propName, desc);
       if (rv) {
         targetMap.unmaskDeletion(this.fieldName, propName);
         this.setOwnKeys(shadowTarget); // fix up property list
@@ -827,7 +817,7 @@ export default class ObjectGraphHandler {
         let sMapping = this.membrane.map.get(parent);
         assert(sMapping, "Missing a ProxyCylinder?");
 
-        if (sMapping.originField != this.fieldName) {
+        if (sMapping.originGraph != this.fieldName) {
           [found, target] = this.membrane.getMembraneValue(
             this.fieldName,
             parent
@@ -847,7 +837,7 @@ export default class ObjectGraphHandler {
       // We may be under construction.
       let proto = Object.getPrototypeOf(receiver);
       let protoMap = this.membrane.map.get(proto);
-      let pHandler = this.membrane.getHandlerByName(protoMap.originField);
+      let pHandler = this.membrane.getHandlerByName(protoMap.originGraph);
 
       if (this.membrane.map.has(receiver)) {
         /* XXX ajvincent If you're stepping through in a debugger, the debugger
@@ -867,7 +857,7 @@ export default class ObjectGraphHandler {
       receiverMap = this.membrane.map.get(receiver);
       if (!receiverMap)
         throw new Error("How do we still not have a receiverMap?");
-      if (receiverMap.originField === this.fieldName)
+      if (receiverMap.originGraph === this.fieldName)
         throw new Error("Receiver's field name should not match!");
     }
 
@@ -889,21 +879,19 @@ export default class ObjectGraphHandler {
         return false;
 
       let origReceiver = receiverMap.getOriginal();
-      let existingDesc = this.externalHandler(function() {
-        return Reflect.getOwnPropertyDescriptor(origReceiver, propName);
-      });
+      let existingDesc = Reflect.getOwnPropertyDescriptor(origReceiver, propName);
       if (existingDesc !== undefined) {
         if (isAccessorDescriptor(existingDesc) || !existingDesc.writable)
           return false;
       }
 
       let rvProxy;
-      if (!shouldBeLocal && (receiverMap.originField !== this.fieldName)) {
+      if (!shouldBeLocal && (receiverMap.originGraph !== this.fieldName)) {
         rvProxy = new DataDescriptor(
           // Only now do we convert the value to the target object graph.
           this.membrane.convertArgumentToProxy(
             this,
-            this.membrane.getHandlerByName(receiverMap.originField),
+            this.membrane.getHandlerByName(receiverMap.originGraph),
             value
           ),
           true
@@ -948,10 +936,16 @@ export default class ObjectGraphHandler {
       // Only now do we convert the value to the target object graph.
       let rvProxy = this.membrane.convertArgumentToProxy(
         this,
-        this.membrane.getHandlerByName(receiverMap.originField),
+        this.membrane.getHandlerByName(receiverMap.originGraph),
         value
       );
-      this.apply(this.getShadowTarget(setter), receiver, [ rvProxy ]);
+
+      const shadow = this.getShadowTarget(setter);
+      if (shadow)
+        this.apply(this.getShadowTarget(setter), receiver, [ rvProxy ]);
+      else
+        Reflect.apply(setter, receiver, [ rvProxy ]);
+
     }
     else {
       this.defineProperty(
@@ -976,10 +970,10 @@ export default class ObjectGraphHandler {
       var _this = targetMap.getOriginal();
 
       let protoProxy, wrappedProxy, found;
-      if (targetMap.originField !== this.fieldName) {
+      if (targetMap.originGraph !== this.fieldName) {
         protoProxy = this.membrane.convertArgumentToProxy(
           this,
-          this.membrane.getHandlerByName(targetMap.originField),
+          this.membrane.getHandlerByName(targetMap.originGraph),
           proto
         );
         [found, wrappedProxy] = this.membrane.getMembraneProxy(
@@ -992,9 +986,7 @@ export default class ObjectGraphHandler {
         wrappedProxy = proto;
       }
 
-      var rv = this.externalHandler(function() {
-        return Reflect.setPrototypeOf(_this, protoProxy);
-      });
+      var rv = Reflect.setPrototypeOf(_this, protoProxy);
       if (rv)
         assert(Reflect.setPrototypeOf(shadowTarget, wrappedProxy),
                "shadowTarget could not receive prototype?");
@@ -1017,12 +1009,12 @@ export default class ObjectGraphHandler {
     var target = getRealTarget(shadowTarget);
     var _this, args = [];
     let targetMap  = this.membrane.map.get(target);
-    let argHandler = this.membrane.getHandlerByName(targetMap.originField);
+    let argHandler = this.membrane.getHandlerByName(targetMap.originGraph);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
       this.membrane.logger.debug([
-        "apply originFields: inbound = ",
+        "apply originGraphs: inbound = ",
         argHandler.fieldName,
         ", outbound = ",
         this.fieldName
@@ -1037,7 +1029,7 @@ export default class ObjectGraphHandler {
       trapName: "apply"
     });
 
-    if (targetMap.originField !== this.fieldName) {
+    if (targetMap.originGraph !== this.fieldName) {
       _this = this.membrane.convertArgumentToProxy(
         this,
         argHandler,
@@ -1075,9 +1067,7 @@ export default class ObjectGraphHandler {
 
     var rv;
     try {
-      rv = this.externalHandler(function() {
-        return Reflect.apply(target, _this, args);
-      });
+      rv = Reflect.apply(target, _this, args);
     }
     catch (ex) {
       this.notifyFunctionListeners(
@@ -1094,7 +1084,7 @@ export default class ObjectGraphHandler {
       this.membrane.logger.debug("apply wrapping return value");
     }
 
-    if (targetMap.originField !== this.fieldName)
+    if (targetMap.originGraph !== this.fieldName)
       rv = this.membrane.convertArgumentToProxy(
         argHandler,
         this,
@@ -1130,12 +1120,12 @@ export default class ObjectGraphHandler {
     var target = getRealTarget(shadowTarget);
     var args = [];
     let targetMap  = this.membrane.map.get(target);
-    let argHandler = this.membrane.getHandlerByName(targetMap.originField);
+    let argHandler = this.membrane.getHandlerByName(targetMap.originGraph);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
       this.membrane.logger.debug([
-        "construct originFields: inbound = ",
+        "construct originGraphs: inbound = ",
         argHandler.fieldName,
         ", outbound = ",
         this.fieldName
@@ -1182,9 +1172,7 @@ export default class ObjectGraphHandler {
     var rv;
 
     try {
-      rv = this.externalHandler(function() {
-        return Reflect.construct(target, args, ctor);
-      });
+      rv = Reflect.construct(target, args, ctor);
     }
     catch (ex) {
       this.notifyFunctionListeners(
@@ -1244,7 +1232,7 @@ export default class ObjectGraphHandler {
     }
     const disableTrapFlag = `disableTrap(${trapName})`;
     if (targetMap.getLocalFlag(this.fieldName, disableTrapFlag) ||
-        targetMap.getLocalFlag(targetMap.originField, disableTrapFlag))
+        targetMap.getLocalFlag(targetMap.originGraph, disableTrapFlag))
       throw new Error(`The ${trapName} trap is not executable.`);
   }
 
@@ -1418,17 +1406,15 @@ export default class ObjectGraphHandler {
     var _this = targetMap.getOriginal();
 
     // First, get the underlying object's key list, forming a base.
-    var originalKeys = this.externalHandler(function() {
-      return Reflect.ownKeys(_this);
-    });
+    var originalKeys = Reflect.ownKeys(_this);
 
     // Remove duplicated names and keys that have been deleted.
     {
       let mustSkip = new Set();
-      targetMap.appendDeletedNames(targetMap.originField, mustSkip);
+      targetMap.appendDeletedNames(targetMap.originGraph, mustSkip);
       targetMap.appendDeletedNames(this.fieldName, mustSkip);
 
-      let originFilter = targetMap.getOwnKeysFilter(targetMap.originField);
+      let originFilter = targetMap.getOwnKeysFilter(targetMap.originGraph);
       let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
 
       if ((mustSkip.size > 0) || originFilter || localFilter) {
@@ -1447,7 +1433,7 @@ export default class ObjectGraphHandler {
     // Append the local proxy keys.
     var rv;
     {
-      let originExtraKeys = targetMap.localOwnKeys(targetMap.originField);
+      let originExtraKeys = targetMap.localOwnKeys(targetMap.originGraph);
       let targetExtraKeys = targetMap.localOwnKeys(this.fieldName);
       let known = new Set(originalKeys);
       let f = function(key) {
@@ -1620,7 +1606,7 @@ export default class ObjectGraphHandler {
         );
 
         if ((sourceDesc !== undefined) &&
-            (targetMap.originField !== handler.fieldName)) {
+            (targetMap.originGraph !== handler.fieldName)) {
           let hasUnwrapped = "value" in sourceDesc,
               unwrapped = sourceDesc.value;
 
@@ -1628,7 +1614,7 @@ export default class ObjectGraphHandler {
           let configurable = sourceDesc.configurable;
           sourceDesc.configurable = true;
           sourceDesc = handler.membrane.wrapDescriptor(
-            targetMap.originField, handler.fieldName, sourceDesc
+            targetMap.originGraph, handler.fieldName, sourceDesc
           );
           sourceDesc.configurable = configurable;
 
@@ -1674,9 +1660,9 @@ export default class ObjectGraphHandler {
           // Maybe we have to wrap the actual descriptor.
           const target = getRealTarget(shadowTarget);
           const targetMap = handler.membrane.map.get(target);
-          if (targetMap.originField !== handler.fieldName) {
+          if (targetMap.originGraph !== handler.fieldName) {
             let originHandler = handler.membrane.getHandlerByName(
-              targetMap.originField
+              targetMap.originGraph
             );
             value = handler.membrane.convertArgumentToProxy(
               originHandler, handler, value
@@ -1744,12 +1730,12 @@ export default class ObjectGraphHandler {
   getLocalFlag(target, flagName, recurse) {
     let map = this.membrane.map.get(target);
     const field = this.fieldName;
-    const originField = map.originField;
+    const originGraph = map.originGraph;
 
     //eslint-disable-next-line no-constant-condition
     while (true) {
       let shouldBeLocal = map.getLocalFlag(field, flagName) ||
-                          map.getLocalFlag(originField, flagName);
+                          map.getLocalFlag(originGraph, flagName);
       if (shouldBeLocal)
         return true;
       if (!recurse)
@@ -1757,7 +1743,7 @@ export default class ObjectGraphHandler {
       let shadowTarget = map.getShadowTarget(this.fieldName);
 
       /* XXX ajvincent I suspect this assertion might fail if
-       * this.fieldName == map.originField:  if the field represents an original
+       * this.fieldName == map.originGraph:  if the field represents an original
        * value.
        */
       assert(shadowTarget, "getLocalFlag failed to get a shadow target!");
@@ -1784,12 +1770,12 @@ export default class ObjectGraphHandler {
   requiresDeletesBeLocal(target) {
     var protoTarget = target;
     var map = this.membrane.map.get(protoTarget);
-    const originField = map.originField;
+    const originGraph = map.originGraph;
 
     //eslint-disable-next-line no-constant-condition
     while (true) {
       let shouldBeLocal = map.getLocalFlag(this.fieldName, "requireLocalDelete") ||
-                          map.getLocalFlag(originField, "requireLocalDelete");
+                          map.getLocalFlag(originGraph, "requireLocalDelete");
       if (shouldBeLocal)
         return true;
       let shadowTarget = map.getShadowTarget(this.fieldName);
@@ -1814,7 +1800,7 @@ export default class ObjectGraphHandler {
     assert(Array.isArray(argumentsList), "argumentsList must be an array!");
     const map = this.membrane.map.get(target);
 
-    var originCount = map.getTruncateArgList(map.originField);
+    var originCount = map.getTruncateArgList(map.originGraph);
     if (typeof originCount === "boolean") {
       originCount = originCount ? target.length : Infinity;
     }
@@ -1871,7 +1857,7 @@ export default class ObjectGraphHandler {
     for (var i = 0; i < length; i++) {
       let revocable = this.__revokeFunctions__[i];
       if (revocable instanceof ProxyCylinder)
-        revocable.revoke(this.membrane);
+        revocable.revokeAll(this.membrane);
       else // typeof revocable == "function"
         revocable();
     }
