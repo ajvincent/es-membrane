@@ -4,7 +4,7 @@
     "**/*.mjs"
   ],
   "helpers": [
-    "helpers/**/*.js"
+    "helpers/**/*.mjs"
   ],
   "stopSpecOnExpectationFailure": false,
   "random": false
