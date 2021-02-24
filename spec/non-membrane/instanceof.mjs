@@ -1,4 +1,3 @@
-"use strict";
 it("Reflect Proxy objects correctly implement instanceof", function() {
   function a() {}
   const {proxy, revoke} = Proxy.revocable(a, Reflect);
@@ -11,4 +10,6 @@ it("Reflect Proxy objects correctly implement instanceof", function() {
   const B = new A();
   expect(B instanceof a).toBe(true);
   expect(B instanceof A).toBe(true);
+
+  revoke();
 });
