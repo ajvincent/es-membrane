@@ -1,4 +1,3 @@
-"use strict";
 describe("Reflect.deleteProperty() in non-proxy operations returns", function() {
   var inner;
   beforeEach(function() {
