@@ -1,10 +1,8 @@
 {
   "spec_dir": "spec",
   "spec_files": [
-    "**/*.mjs"
-  ],
-  "helpers": [
-    "helpers/**/*.mjs"
+    "**/*.mjs",
+    "!helpers/**/*.mjs"
   ],
   "stopSpecOnExpectationFailure": false,
   "random": false
