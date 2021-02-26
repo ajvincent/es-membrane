@@ -1,5 +1,8 @@
 const WeakMap_set = WeakMap.prototype.set;
 
+/**
+ * @package
+ */
 export default class WeakMultiMap extends WeakMap {
   set(key, value) {
     if (!this.has(key)) {
