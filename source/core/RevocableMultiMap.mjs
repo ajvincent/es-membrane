@@ -38,7 +38,6 @@ export default class RevocableMultiMap extends WeakMultiMap {
       }
       catch (ex) {
         if (firstErrorSet) {
-          console.error(ex);
           return;
         }
 
