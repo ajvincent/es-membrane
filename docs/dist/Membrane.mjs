@@ -1165,6 +1165,8 @@ class ObjectGraphHandler {
 
       "__functionListeners__": new NWNCDataDescriptor([], false),
     });
+
+    Reflect.preventExtensions(this);
   }
   /* Strategy for each handler trap:
    * (1) Determine the target's origin field name.
@@ -2935,7 +2937,7 @@ class ObjectGraphHandler {
   }
 }
 
-Object.seal(ObjectGraphHandler);
+Object.freeze(ObjectGraphHandler);
 
 /**
  * @package
