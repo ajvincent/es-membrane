@@ -1,14 +1,4 @@
-/*
-import "../docs/dist/es6-modules/Membrane.js";
-*/
-
-if (typeof Membrane != "function") {
-  if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get Membrane");
-}
+import Membrane from "../../source/core/Membrane.mjs";
 
 describe("Generators through a membrane", function() {
   let parts;
