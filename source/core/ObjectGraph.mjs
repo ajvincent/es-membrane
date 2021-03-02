@@ -4,7 +4,9 @@ import {
   returnFalse,
 } from "./sharedUtilities.mjs";
 
-import ProxyCylinder from "./ProxyCylinder.mjs";
+import {
+  ProxyCylinder,
+} from "./ProxyCylinder.mjs";
 
 // temporary
 const MembraneProxyHandlers = {
@@ -89,9 +91,13 @@ export default class ObjectGraph {
    * @private
    */
   addRevocable(revoke) {
+    /*
     if (this.__isDead__)
       throw new Error("This membrane handler is dead!");
     this.__revokeFunctions__.push(revoke);
+    */
+    void(revoke);
+    throw new Error("Not implemented");
   }
 
   /**
@@ -100,11 +106,15 @@ export default class ObjectGraph {
    * @private
    */
   removeRevocable(revoke) {
+    /*
     let index = this.__revokeFunctions__.indexOf(revoke);
     if (index == -1) {
       throw new Error("Unknown revoke function!");
     }
     this.__revokeFunctions__.splice(index, 1);
+    */
+    void(revoke);
+    throw new Error("Not implemented");
   }
 
   /**

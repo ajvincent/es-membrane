@@ -5,7 +5,9 @@ import {
   makeRevokeDeleteRefs,
 } from "./sharedUtilities.mjs";
 
-import ProxyCylinder from "./ProxyCylinder.mjs";
+import {
+  ProxyCylinder
+} from "./ProxyCylinder.mjs";
 
 /**
  * Notify all proxy listeners of a new proxy.
@@ -162,12 +164,12 @@ ProxyNotify.useShadowTarget = function(parts, handler, mode) {
   parts.proxy = newParts.proxy;
   parts.revoke = newParts.revoke;
 
-  const masterMap = handler.membrane.map;
-  let map = masterMap.get(parts.value);
-  assert(map instanceof ProxyCylinder,
+  const cylinderMap = handler.membrane.cylinderMap;
+  const cylinder = cylinderMap.get(parts.value);
+  assert(cylinder instanceof ProxyCylinder,
          "Didn't get a ProxyCylinder for an existing value?");
-  masterMap.set(parts.proxy, map);
-  makeRevokeDeleteRefs(parts, map, handler.fieldName);
+  cylinderMap.set(parts.proxy, cylinder);
+  makeRevokeDeleteRefs(parts, cylinder, handler.fieldName);
 };
 
 function invokeProxyListeners(listeners, meta) {

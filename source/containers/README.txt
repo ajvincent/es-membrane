@@ -164,7 +164,7 @@ How this is supposed to work:
 # At proxy creation time (ProxyListener), the Map instance is detected for wrapping.
 ```javascript
 let mapBase;
-const isNewMap = membrane.map.has(originalMap)
+const isNewMap = membrane.cylinderMap.has(originalMap)
 if (!isNewMap) {
   mapBase = new WhiteListMapBase(originHandler, originalMap);
 }
@@ -179,7 +179,7 @@ proxyMeta.stopIteration();
 
 // store a reference to the original map so we can find its 
 if (!isNewMap) {
-  membrane.map.set(originalMap, mapBase);
+  membrane.cylinderMap.set(originalMap, mapBase);
 }
 ```
 # The membrane then returns a Proxy to whiteListMap as the target graph's equivalent to

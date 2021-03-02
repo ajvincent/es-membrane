@@ -764,7 +764,7 @@ describe("Receivers in proxies", function() {
   });
 });
 
-it("More than one object graph can be available", function() {
+it("More than two object graphs can be available", function() {
   let parts = MembraneMocks({includeDamp: true});
   let wetDocument = parts.wet.doc;
   let dryDocument = parts.dry.doc;

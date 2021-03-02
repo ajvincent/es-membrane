@@ -35,7 +35,6 @@ import {
  * @typedef GraphMetadata
  * @property {Object} value                - The original value
  * @property {Proxy} proxy                 - The proxy object from Proxy.revocable()
- * @property {Function} revoke             - The revoke() function from Proxy.revocable()
  * @property {Object} shadowTarget         - The shadow target
  * @property {Boolean} override            - True if the graph should be overridden.
  * @property {Map} localDescriptors        - Property descriptors local to an object graph.
@@ -48,7 +47,7 @@ import {
 /**
  * @package
  */
-export default class ProxyCylinder {
+export class ProxyCylinder {
   /**
    * @param {String | Symbol} originGraph The name of the original graph.
    */
@@ -237,8 +236,6 @@ export default class ProxyCylinder {
         throw new Error("metadata must not include a value");
       if (!metadata.proxy)
         throw new Error("metadata must include a proxy");
-      if (typeof metadata.revoke !== "function")
-        throw new Error("metadata must include a revoke method");
       if (!metadata.shadowTarget)
         throw new Error("metadata must include a shadow target");
     }
@@ -247,8 +244,6 @@ export default class ProxyCylinder {
         throw new Error("metadata must include an original value");
       if (metadata.proxy)
         throw new Error("metadata must not include a proxy");
-      if (metadata.revoke)
-        throw new Error("metadata must not include a revoke method");
       if (metadata.shadowTarget)
         throw new Error("metadata must not include a shadow target");
     }
@@ -257,17 +252,18 @@ export default class ProxyCylinder {
 
     if (isForeignGraph) {
       if (valueType(metadata.proxy) !== "primitive") {
-        membrane.map.set(metadata.proxy, this);
+        membrane.cylinderMap.set(metadata.proxy, this);
+        membrane.cylinderMap.set(metadata.shadowTarget, this);
       }
     }
     else if (!this.originalValueSet) {
-      Reflect.defineProperty(this, "originalValueSet", new NWNCDataDescriptor(true));
+      this.originalValueSet = true;
     }
 
     if (!isForeignGraph &&
-        !membrane.map.has(metadata.value) &&
+        !membrane.cylinderMap.has(metadata.value) &&
         (valueType(metadata.value) !== "primitive")) {
-      membrane.map.set(metadata.value, this);
+      membrane.cylinderMap.set(metadata.value, this);
     }
   }
 
@@ -298,17 +294,13 @@ export default class ProxyCylinder {
   }
 
   /**
-   * Kill all membrane proxies this references.
+   * Remove all membrane proxies this references (without revocation)
    *
    * @param {Membrane} membrane The owning membrane.
    *
    * @public
-   *
-   * @note The key difference between this.selfDestruct() and this.revoke() is
-   * that when the Membrane invokes this.selfDestruct(), it's expecting to set
-   * all new proxies and values.
    */
-  selfDestruct(membrane) {
+  clearAllGraphs(membrane) {
     const names = this.getGraphNames();
     for (let i = (names.length - 1); i >= 0; i--) {
       const graphName = names[i];
@@ -316,49 +308,16 @@ export default class ProxyCylinder {
         continue;
       const metadata = this.getMetadata(graphName);
       if (graphName !== this.originGraph) {
-        membrane.map.delete(metadata.proxy);
+        membrane.cylinderMap.delete(metadata.proxy);
+        membrane.cylinderMap.delete(metadata.shadowTarget);
       }
       else {
-        membrane.map.delete(metadata.value);
-      }
-      this.removeGraph(graphName);
-    }
-  }
-
-  /**
-   * Revoke all proxies associated with a membrane.
-   *
-   * @param {Membrane} membrane The controlling membrane.
-   *
-   * @public
-   */
-  revokeAll(membrane) {
-    if (!this.originalValueSet)
-      throw new Error("the original value hasn't been set");
-
-    const names = this.getGraphNames();
-    // graphs[0] === this.originGraph
-    for (let i = 1; i < names.length; i++) {
-      const parts = this.proxyDataByGraph.get(names[i]);
-      if (parts === DeadProxyKey)
-        continue;
-
-      membrane.revokeMapping(parts.shadowTarget);
-      membrane.revokeMapping(parts.proxy);
-      parts.revoke();
-
-      // XXX ajvincent The need for this check indicates a subtle bug somewhere.
-      if (this.proxyDataByGraph.get(names[i]) !== DeadProxyKey)
-        this.removeGraph(names[i]);
-    }
-
-    {
-      const parts = this.proxyDataByGraph.get(this.originGraph);
-      if (parts !== DeadProxyKey) {
-        membrane.revokeMapping(parts.value);
-        this.removeGraph(this.originGraph);
+        membrane.cylinderMap.delete(metadata.value);
       }
     }
+
+    this.originalValueSet = false;
+    this.proxyDataByGraph.clear();
   }
 
   /**
@@ -650,3 +609,28 @@ export default class ProxyCylinder {
 
 Object.freeze(ProxyCylinder.prototype);
 Object.freeze(ProxyCylinder);
+
+const WeakMap_set = WeakMap.prototype.set;
+
+/**
+ * @package
+ */
+export class ProxyCylinderMap extends WeakMap {
+  set(key, value) {
+    if (value !== DeadProxyKey) {
+      if (!(value instanceof ProxyCylinder)) {
+        throw new Error("Value must be a ProxyCylinder, or DeadProxyKey");
+      }
+      const current = this.get(key);
+      if (current === DeadProxyKey)
+        throw new Error("WeakMapOfProxyCylinders says this key is dead");
+
+      if ((current !== undefined) && (current !== value))
+        throw new Error("WeakMapOfProxyCylinders already has a value for this key");
+    }
+
+    return WeakMap_set.apply(this, [key, value]);
+  }
+}
+
+Object.freeze(ProxyCylinderMap);

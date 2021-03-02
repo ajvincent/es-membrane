@@ -214,6 +214,9 @@ export function valueType(value) {
   return type;
 }
 
+/**
+ * @deprecated
+ */
 export function makeRevokeDeleteRefs(parts, mapping, graphName) {
   let oldRevoke = parts.revoke;
   if (!oldRevoke)

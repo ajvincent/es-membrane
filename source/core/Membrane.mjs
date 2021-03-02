@@ -6,7 +6,6 @@ import {
   allTraps,
   assert,
   isDataDescriptor,
-  makeRevokeDeleteRefs,
   makeShadowTarget,
   returnFalse,
   valueType,
@@ -20,9 +19,14 @@ import {
 } from "./ModifyRulesAPI.mjs";
 
 import ObjectGraphHandler from "./ObjectGraphHandler-old.mjs";
+
 import ObjectGraph from "./ObjectGraph.mjs";
-import ProxyCylinder from "./ProxyCylinder.mjs";
-import WeakMapOfProxyCylinders from "./WeakMapOfProxyCylinders.mjs";
+import {
+  ProxyCylinder,
+  ProxyCylinderMap,
+} from "./ProxyCylinder.mjs";
+
+import RevocableMultiMap from "./RevocableMultiMap.mjs";
 
 const Constants = {
   warnings: {
@@ -61,13 +65,6 @@ class Membrane {
     let passThrough = (typeof options.passThroughFilter === "function") ?
                       options.passThroughFilter :
                       returnFalse;
-  
-    let map = new WeakMap(/*
-      key: ProxyCylinder instance
-  
-      key may be a Proxy, a value associated with a proxy, or an original value.
-    */);
-    WeakMapOfProxyCylinders(map);
 
     Object.defineProperties(this, {
       "showGraphName": new NWNCDataDescriptor(
@@ -75,8 +72,10 @@ class Membrane {
       ),
   
       "refactor": new NWNCDataDescriptor(options.refactor || "", false),
-  
-      "map": new NWNCDataDescriptor(map, false),
+
+      "cylinderMap": new NWNCDataDescriptor(new ProxyCylinderMap, false),
+
+      "revokerMultiMap": new NWNCDataDescriptor(new RevocableMultiMap, false),
   
       handlersByGraphName: new NWNCDataDescriptor({}, false),
   
@@ -104,7 +103,7 @@ class Membrane {
    * Returns true if we have a proxy for the value.
    */
   hasProxyForValue(graph, value) {
-    var mapping = this.map.get(value);
+    var mapping = this.cylinderMap.get(value);
     return Boolean(mapping) && mapping.hasGraph(graph);
   }
 
@@ -124,7 +123,7 @@ class Membrane {
    * shouldn't use it in Production.
    */
   getMembraneValue(graph, value) {
-    var mapping = this.map.get(value);
+    var mapping = this.cylinderMap.get(value);
     if (mapping && mapping.hasGraph(graph)) {
       return [true, mapping.getOriginal()];
     }
@@ -153,7 +152,7 @@ class Membrane {
    * ]
    */
   getMembraneProxy(graph, value) {
-    var mapping = this.map.get(value);
+    var mapping = this.cylinderMap.get(value);
     if (mapping && mapping.hasGraph(graph)) {
       return [true, mapping.getProxy(graph)];
     }
@@ -179,38 +178,49 @@ class Membrane {
     let cylinder = ("mapping" in options) ? options.mapping : null;
 
     const graphKey = (this.refactor === "0.10") ? "graphName" : "fieldName";
+    const graphName = handler[graphKey];
 
     if (!cylinder) {
-      if (this.map.has(value)) {
-        cylinder = this.map.get(value);
+      if (this.cylinderMap.has(value)) {
+        cylinder = this.cylinderMap.get(value);
       }
 
       else {
-        cylinder = new ProxyCylinder(handler[graphKey]);
+        cylinder = new ProxyCylinder(graphName);
       }
     }
-    assert(cylinder instanceof ProxyCylinder,
-           "buildMapping requires a ProxyCylinder object!");
 
-    const isOriginal = (cylinder.originGraph === handler[graphKey]);
+    const isOriginal = (cylinder.originGraph === graphName);
     assert(isOriginal || this.ownsHandler(options.originHandler),
            "Proxy requests must pass in an origin handler");
 
-    var parts;
+    let parts;
     if (isOriginal) {
       parts = { value };
     }
     else {
       const shadowTarget = makeShadowTarget(value);
-      if (handler instanceof ObjectGraph)
-        parts = Proxy.revocable(shadowTarget, handler.masterProxyHandler);
-      else
-        parts = Proxy.revocable(shadowTarget, handler);
-      parts.shadowTarget = shadowTarget;
+      let obj, revoke;
+      if (handler instanceof ObjectGraph) {
+        obj = Proxy.revocable(shadowTarget, handler.masterProxyHandler);
+      }
+      else {
+        obj = Proxy.revocable(shadowTarget, handler);
+      }
+
+      parts = {
+        proxy: obj.proxy,
+        shadowTarget
+      };
+      revoke = obj.revoke;
+
+      this.revokerMultiMap.set(cylinder, revoke);
+      this.revokerMultiMap.set(cylinder, () => cylinder.removeGraph(graphName));
+      this.revokerMultiMap.set(handler, revoke);
+      this.revokerMultiMap.set(handler, () => cylinder.removeGraph(graphName));
     }
 
-    cylinder.setMetadata(this, handler[graphKey], parts);
-    makeRevokeDeleteRefs(parts, cylinder, handler[graphKey]);
+    cylinder.setMetadata(this, graphName, parts);
 
     if (!isOriginal) {
       const notifyOptions = {
@@ -236,7 +246,6 @@ class Membrane {
       }
     }
 
-    handler.addRevocable(isOriginal ? cylinder : parts.revoke);
     return cylinder;
   }
 
@@ -297,30 +306,6 @@ class Membrane {
   }
 
   /**
-   * Wrap a value for the first time in an object graph.
-   *
-   * @param {ProxyCylinder} mapping A mapping whose origin graph refers to the value's object graph.
-   * @param {Variant}       arg     The value to wrap.
-   *
-   * @note This marks the value as the "original" in the new ProxyCylinder it
-   * creates.
-   */
-  wrapArgumentByProxyCylinder(mapping, arg, options = {}) {
-    if (this.map.has(arg) || (valueType(arg) === "primitive"))
-      return;
-
-    let handler = this.getHandlerByName(mapping.originGraph);
-    this.buildMapping(handler, arg, options);
-    
-    assert(this.map.has(arg),
-           "wrapArgumentByProxyCylinder should define a ProxyCylinder for arg");
-    let argMap = this.map.get(arg);
-    assert(argMap instanceof ProxyCylinder, "argMap isn't a ProxyCylinder?");
-    assert(argMap.getOriginal() === arg,
-           "wrapArgumentByProxyCylinder didn't establish the original?");
-  }
-
-  /**
    *
    */
   passThroughFilter() {
@@ -345,9 +330,9 @@ class Membrane {
   convertArgumentToProxy(originHandler, targetHandler, arg, options = {}) {
     var override = ("override" in options) && (options.override === true);
     if (override) {
-      let map = this.map.get(arg);
-      if (map) {
-        map.selfDestruct(this);
+      let cylinder = this.cylinderMap.get(arg);
+      if (cylinder) {
+        cylinder.clearAllGraphs(this);
       }
     }
 
@@ -375,11 +360,11 @@ class Membrane {
     }
 
     if (!this.hasProxyForValue(originHandler[graphKey], arg)) {
-      let argMap = this.map.get(arg);
+      let cylinder = this.cylinderMap.get(arg);
       let passOptions;
-      if (argMap) {
+      if (cylinder) {
         passOptions = Object.create(options, {
-          "mapping": new DataDescriptor(argMap)
+          "mapping": new DataDescriptor(cylinder)
         });
       }
       else
@@ -389,14 +374,14 @@ class Membrane {
     }
     
     if (!this.hasProxyForValue(targetHandler[graphKey], arg)) {
-      let argMap = this.map.get(arg);
+      let cylinder = this.cylinderMap.get(arg);
       let passOptions = Object.create(options, {
         "originHandler": new DataDescriptor(originHandler)
       });
-      assert(argMap, "ProxyCylinder not created before invoking target handler?");
+      assert(cylinder, "ProxyCylinder not created before invoking target handler?");
 
       Reflect.defineProperty(
-        passOptions, "mapping", new DataDescriptor(argMap)
+        passOptions, "mapping", new DataDescriptor(cylinder)
       );
 
       this.buildMapping(targetHandler, arg, passOptions);
@@ -437,11 +422,11 @@ class Membrane {
         type: valueType(v),
       };
       if (rv.type !== "primitive") {
-        rv.proxyMap = this.map.get(v);
+        rv.cylinder = this.cylinderMap.get(v);
         const graph = rv.handler.graphName;
-        const valid = (!rv.proxyMap ||
-                        (rv.proxyMap.hasGraph(graph) &&
-                        (rv.proxyMap.getProxy(graph) === v)));
+        const valid = (!rv.cylinder ||
+                        (rv.cylinder.hasGraph(graph) &&
+                        (rv.cylinder.getProxy(graph) === v)));
         if (!valid)
           throw new Error("Value argument does not belong to proposed ObjectGraphHandler");
       }
@@ -450,8 +435,8 @@ class Membrane {
     }
 
     function checkGraph(bag) {
-      if (proxyMap.hasGraph(bag.handler.graphName)) {
-        let check = proxyMap.getProxy(bag.handler.graphName);
+      if (cylinder.hasGraph(bag.handler.graphName)) {
+        let check = cylinder.getProxy(bag.handler.graphName);
         if (check !== bag.value)
           throw new Error("Value argument does not belong to proposed object graph");
         bag.maySet = false;
@@ -464,41 +449,41 @@ class Membrane {
       if (!bag.maySet)
         return;
       let parts = { proxy: bag.value };
-      if (proxyMap.originGraph === bag.handler.graphName)
+      if (cylinder.originGraph === bag.handler.graphName)
         parts.value = bag.value;
       else
-        parts.value = proxyMap.getOriginal();
-      proxyMap.set(this, bag.handler.graphName, parts);
+        parts.value = cylinder.getOriginal();
+      cylinder.set(this, bag.handler.graphName, parts);
     }
 
     var propBag0 = bag.apply(this, [handler0, value0]);
     var propBag1 = bag.apply(this, [handler1, value1]);
-    var proxyMap = propBag0.proxyMap;
+    var cylinder = propBag0.cylinder;
 
     if (propBag0.type === "primitive") {
       if (propBag1.type === "primitive") {
         throw new Error("bindValuesByHandlers requires two non-primitive values");
       }
 
-      proxyMap = propBag1.proxyMap;
+      cylinder = propBag1.cylinder;
 
       let temp = propBag0;
       propBag0 = propBag1;
       propBag1 = temp;
     }
 
-    if (propBag0.proxyMap && propBag1.proxyMap) {
-      if (propBag0.proxyMap !== propBag1.proxyMap) {
+    if (propBag0.cylinder && propBag1.cylinder) {
+      if (propBag0.cylinder !== propBag1.cylinder) {
         // See https://github.com/ajvincent/es-membrane/issues/77 .
         throw new Error("Linking two ObjectGraphHandlers in this way is not safe.");
       }
     }
-    else if (!propBag0.proxyMap) {
-      if (!propBag1.proxyMap) {
-        proxyMap = new ProxyCylinder(propBag0.handler.graphName);
+    else if (!propBag0.cylinder) {
+      if (!propBag1.cylinder) {
+        cylinder = new ProxyCylinder(propBag0.handler.graphName);
       }
       else
-        proxyMap = propBag1.proxyMap;
+        cylinder = propBag1.cylinder;
     }
 
     checkGraph(propBag0);
@@ -577,14 +562,6 @@ class Membrane {
     }, this);
 
     return wrappedDesc;
-  }
-
-  /**
-   * 
-   * @param key
-   */
-  revokeMapping(key) {
-    this.map.revoke(key);
   }
 
   /**

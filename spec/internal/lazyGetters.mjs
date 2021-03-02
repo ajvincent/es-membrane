@@ -12,7 +12,7 @@ describe("Internal API:  Defining a lazy getter", function() {
     wetDocument  = parts.wet.doc;
     membrane     = parts.membrane;
 
-    let mapping = membrane.map.get(dryDocument);
+    let mapping = membrane.cylinderMap.get(dryDocument);
     shadow = mapping.getShadowTarget("dry");
   });
 

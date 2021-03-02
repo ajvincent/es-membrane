@@ -197,42 +197,42 @@ export class ModifyRulesAPI {
      * Ensure the proxy actually belongs to the object graph the base handler
      * represents.
      */
-    if (!this.membrane.map.has(oldProxy)) {
+    if (!this.membrane.cylinderMap.has(oldProxy)) {
       throw new Error("This membrane does not own the proxy!");
     }
 
-    let map = this.membrane.map.get(oldProxy), cachedProxy, cachedField;
+    let cylinder = this.membrane.cylinderMap.get(oldProxy), cachedProxy, cachedField;
     if (baseHandler === Reflect) {
-      cachedField = map.originField;
+      cachedField = cylinder.originField;
     }
     else {
       cachedField = baseHandler.fieldName;
-      if (cachedField == map.originField)
+      if (cachedField == cylinder.originField)
         throw new Error("You must replace original values with either Reflect or a ChainHandler inheriting from Reflect");
     }
 
-    cachedProxy = map.getProxy(cachedField);
+    cachedProxy = cylinder.getProxy(cachedField);
     if (cachedProxy != oldProxy)
       throw new Error("You cannot replace the proxy with a handler from a different object graph!");
 
     // Finally, do the actual proxy replacement.
-    let original = map.getOriginal(), shadowTarget;
+    let original = cylinder.getOriginal(), shadowTarget;
     if (baseHandler === Reflect) {
       shadowTarget = original;
     }
     else {
-      shadowTarget = map.getShadowTarget(cachedField);
+      shadowTarget = cylinder.getShadowTarget(cachedField);
     }
     let parts = Proxy.revocable(shadowTarget, handler);
     parts.value = original;
     parts.override = true;
     parts.shadowTarget = shadowTarget;
     //parts.extendedHandler = handler;
-    map.set(this.membrane, cachedField, parts);
-    makeRevokeDeleteRefs(parts, map, cachedField);
+    cylinder.set(this.membrane, cachedField, parts);
+    makeRevokeDeleteRefs(parts, cylinder, cachedField);
 
     let gHandler = this.membrane.getHandlerByName(cachedField);
-    gHandler.addRevocable(map.originField === cachedField ? map : parts.revoke);
+    gHandler.addRevocable(cylinder.originField === cachedField ? cylinder : parts.revoke);
     return parts.proxy;
   }
 
@@ -264,8 +264,8 @@ export class ModifyRulesAPI {
   storeUnknownAsLocal(fieldName, proxy) {
     this.assertLocalProxy(fieldName, proxy, "storeUnknownAsLocal");
 
-    let metadata = this.membrane.map.get(proxy);
-    metadata.setLocalFlag(fieldName, "storeUnknownAsLocal", true);
+    let cylinder = this.membrane.cylinderMap.get(proxy);
+    cylinder.setLocalFlag(fieldName, "storeUnknownAsLocal", true);
   }
 
   /**
@@ -280,8 +280,8 @@ export class ModifyRulesAPI {
   requireLocalDelete(fieldName, proxy) {
     this.assertLocalProxy(fieldName, proxy, "requireLocalDelete");
 
-    let metadata = this.membrane.map.get(proxy);
-    metadata.setLocalFlag(fieldName, "requireLocalDelete", true);
+    let cylinder = this.membrane.cylinderMap.get(proxy);
+    cylinder.setLocalFlag(fieldName, "requireLocalDelete", true);
   }
 
   /**
@@ -322,23 +322,23 @@ export class ModifyRulesAPI {
      * all the proxies of the shadow target before making the shadow target not
      * extensible.
      */
-    let metadata = this.membrane.map.get(proxy);
+    let cylinder = this.membrane.cylinderMap.get(proxy);
     let fieldsToCheck;
-    if (metadata.originField === fieldName)
+    if (cylinder.originField === fieldName)
     {
-      fieldsToCheck = Reflect.ownKeys(metadata.proxiedFields);
+      fieldsToCheck = Reflect.ownKeys(cylinder.proxiedFields);
       fieldsToCheck.splice(fieldsToCheck.indexOf(fieldName), 1);
     }
     else
       fieldsToCheck = [ fieldName ];
 
     let allowed = fieldsToCheck.every(function(f) {
-      let s = metadata.getShadowTarget(f);
+      let s = cylinder.getShadowTarget(f);
       return Reflect.isExtensible(s);
     });
 
     if (allowed)
-      metadata.setOwnKeysFilter(fieldName, filter);
+      cylinder.setOwnKeysFilter(fieldName, filter);
     else
       throw new Error("filterOwnKeys cannot apply to a non-extensible proxy");
   }
@@ -370,8 +370,8 @@ export class ModifyRulesAPI {
       }
     }
 
-    let metadata = this.membrane.map.get(proxy);
-    metadata.setTruncateArgList(fieldName, value);
+    let cylinder = this.membrane.cylinderMap.get(proxy);
+    cylinder.setTruncateArgList(fieldName, value);
   }
 
   /**
@@ -387,11 +387,11 @@ export class ModifyRulesAPI {
     if (!Array.isArray(trapList) ||
         (trapList.some((t) => { return typeof t !== "string"; })))
       throw new Error("Trap list must be an array of strings!");
-    const map = this.membrane.map.get(proxy);
+    const cylinder = this.membrane.cylinderMap.get(proxy);
     trapList.forEach(function(t) {
       if (allTraps.includes(t))
         this.setLocalFlag(fieldName, `disableTrap(${t})`, true);
-    }, map);
+    }, cylinder);
   }
 
   createDistortionsListener() {

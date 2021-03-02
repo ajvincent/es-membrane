@@ -1,16 +1,23 @@
 import {
-  DeadProxyKey,
   makeShadowTarget,
 } from "../../source/core/sharedUtilities.mjs";
-import ProxyCylinder from "../../source/core/ProxyCylinder.mjs";
-import WeakMapOfProxyCylinders from "../../source/core/WeakMapOfProxyCylinders.mjs";
+
+import {
+  ProxyCylinder,
+  ProxyCylinderMap,
+} from "../../source/core/ProxyCylinder.mjs";
+
 import { NWNCDataDescriptor } from "../../source/core/sharedUtilities.mjs";
 
 describe("ProxyCylinder", () => {
-  let cylinder = null;
+  let cylinder = null, membrane;
   beforeEach(() => {
     cylinder = new ProxyCylinder("wet");
   });
+  afterEach(() => {
+    membrane = null;
+    cylinder = null;
+  })
 
   const flagSymbol = Symbol("generic flag");
 
@@ -96,7 +103,7 @@ describe("ProxyCylinder", () => {
     });
   }
 
-  function describeDeadGraphSetters(graphName, membrane) {
+  function describeDeadGraphSetters(graphName) {
     it(".setMetadata()", () => {
       expect(() => cylinder.setMetadata({}, graphName, { value: { dead: true }}))
             .toThrowError(`set called for previously defined graph "${graphName}"`);
@@ -108,12 +115,8 @@ describe("ProxyCylinder", () => {
       expect(() => cylinder.removeGraph(graphName)).toThrowError(`dead object graph "${graphName}"`);
     });
 
-    it("allows calling .selfDestruct()", () => {
-      expect(() => cylinder.selfDestruct(membrane)).not.toThrow();
-    });
-
-    it("allows calling .revokeAll()", () => {
-      expect(() => cylinder.revokeAll(membrane)).not.toThrow();
+    it("allows calling .clearAllGraphs()", () => {
+      expect(() => cylinder.clearAllGraphs(membrane)).not.toThrow();
     });
 
     it(".setLocalFlag()", () => {
@@ -185,8 +188,13 @@ describe("ProxyCylinder", () => {
     });
 
     describe("calling setMetadata()", () => {
+      beforeEach(() => {
+        membrane = {
+          cylinderMap: new WeakMap,
+        };
+      });
+
       it("disallows setting non-origin graph data first", () => {
-        const membrane = { map: new WeakMap };
         const metadata = {};
         expect(() => cylinder.setMetadata(membrane, "dry", metadata)).toThrowError("original value has not been set");
       });
@@ -198,87 +206,52 @@ describe("ProxyCylinder", () => {
       });
 
       it("accepts undefined value properties in graph metadata", () => {
-        const membrane = { map: new WeakMap };
         const metadata = { value: undefined };
         cylinder.setMetadata(membrane, "wet", metadata);
-        expect(membrane.map.has(metadata.value)).toBe(false);
+        expect(membrane.cylinderMap.has(metadata.value)).toBe(false);
       });
 
       it("accepts number value properties in graph metadata", () => {
-        const membrane = { map: new WeakMap };
         const metadata = { value: 3 };
         cylinder.setMetadata(membrane, "wet", metadata);
-        expect(membrane.map.has(metadata.value)).toBe(false);
+        expect(membrane.cylinderMap.has(metadata.value)).toBe(false);
       });
 
       it("requires a value property on an origin graph", () => {
-        const membrane = { map: new WeakMap };
         const metadata = {};
         expect(() => cylinder.setMetadata(membrane, "wet", metadata))
               .toThrowError("metadata must include an original value");
       });
 
       it("disallows metadata with a proxy property on an origin graph", () => {
-        const membrane = { map: new WeakMap };
         const metadata = { value: {}, proxy: {} };
         expect(() => cylinder.setMetadata(membrane, "wet", metadata))
               .toThrowError("metadata must not include a proxy");
       });
-
-      it("disallows metadata with a revoke property on an origin graph", () => {
-        const membrane = { map: new WeakMap };
-        const metadata = { value: {}, revoke: () => {} };
-        expect(() => cylinder.setMetadata(membrane, "wet", metadata))
-              .toThrowError("metadata must not include a revoke method");
-      });
-
       it("disallows metadata with a shadow target on an origin graph", () => {
-        const membrane = { map: new WeakMap };
         const metadata = { value: {}, shadowTarget: {} };
         expect(() => cylinder.setMetadata(membrane, "wet", metadata))
               .toThrowError("metadata must not include a shadow target");
       });
     });
 
-    it("allows calling selfDestruct() (really a no-op, but still worth checking)", () => {
-      const membrane = { map: new WeakMap };
-      expect(() => cylinder.selfDestruct(membrane)).not.toThrow();
+    it("allows calling clearAllGraphs() (really a no-op, but still worth checking)", () => {
+      membrane = { map: new WeakMap };
+      expect(() => cylinder.clearAllGraphs(membrane)).not.toThrow();
     });
 
     describe("disallows setters other than (and before) setMetadata(): ", () => {
-      it("disallows calling revokeAll()", () => {
-        const membrane = {
-          map: new WeakMap(),
-          revokeMapping: jasmine.createSpy(
-            "revokeMapping", function(value) {
-              this.map.revoke(value);
-            }
-          ),
-        };
-        WeakMapOfProxyCylinders(membrane.map);
-        membrane.revokeMapping.and.callThrough();
-
-        expect(() => cylinder.revokeAll(membrane)).toThrowError("the original value hasn't been set");
-      });
-
       describeUnknownGraphSetters("wet");
     });
   });
 
   describe("with wet metadata, and", () => {
-    let membrane, wetParts;
+    let wetParts;
 
     beforeEach(() => {
       membrane = {
-        map: new WeakMap(),
-        revokeMapping: jasmine.createSpy(
-          "revokeMapping", function(value) {
-            this.map.revoke(value);
-          }
-        ),
+        cylinderMap: new ProxyCylinderMap(),
       };
-      WeakMapOfProxyCylinders(membrane.map);
-      membrane.revokeMapping.and.callThrough();
 
       wetParts = { value: { isWet: true } };
 
@@ -311,8 +284,7 @@ describe("ProxyCylinder", () => {
         expect(cylinder.getOwnKeysFilter("wet")).toBe(null);
         expect(cylinder.getTruncateArgList("wet")).toBe(false);
 
-        expect(membrane.map.get(wetParts.value)).toBe(cylinder);
-        expect(membrane.revokeMapping).not.toHaveBeenCalled();
+        expect(membrane.cylinderMap.get(wetParts.value)).toBe(cylinder);
       });
 
       it("disallows setting on the same graph twice without an override", () => {
@@ -340,8 +312,7 @@ describe("ProxyCylinder", () => {
         expect(cylinder.getOwnKeysFilter("wet")).toBe(null);
         expect(cylinder.getTruncateArgList("wet")).toBe(false);
 
-        expect(membrane.map.get(newParts.value)).toBe(cylinder);
-        expect(membrane.revokeMapping).not.toHaveBeenCalled();
+        expect(membrane.cylinderMap.get(newParts.value)).toBe(cylinder);
       });
 
       describe("doesn't recognize an unset object graph", () => {
@@ -356,29 +327,22 @@ describe("ProxyCylinder", () => {
       });
 
       it("disallows a value property on a non-origin graph", () => {
-        const membrane = { map: new WeakMap };
+        membrane = { cylinderMap: new WeakMap };
         const metadata = { value: {} };
         expect(() => cylinder.setMetadata(membrane, "dry", metadata))
               .toThrowError("metadata must not include a value");
       });
 
       it("disallows metadata with a proxy property on a non-origin graph", () => {
-        const membrane = { map: new WeakMap };
-        const metadata = { revoke: () => {}, shadowTarget: {} };
+        membrane = { cylinderMap: new WeakMap };
+        const metadata = { shadowTarget: {} };
         expect(() => cylinder.setMetadata(membrane, "dry", metadata))
               .toThrowError("metadata must include a proxy");
       });
 
-      it("disallows metadata with a revoke property on a non-origin graph", () => {
-        const membrane = { map: new WeakMap };
-        const metadata = { proxy: {}, shadowTarget: {} };
-        expect(() => cylinder.setMetadata(membrane, "dry", metadata))
-              .toThrowError("metadata must include a revoke method");
-      });
-
       it("disallows metadata with a shadow target on a non-origin graph", () => {
-        const membrane = { map: new WeakMap };
-        const metadata = { proxy: {}, revoke: () => {} };
+        membrane = { cylinderMap: new WeakMap };
+        const metadata = { proxy: {} };
         expect(() => cylinder.setMetadata(membrane, "dry", metadata))
               .toThrowError("metadata must include a shadow target");
       });
@@ -395,8 +359,7 @@ describe("ProxyCylinder", () => {
         expect(cylinder.hasGraph("dry")).toBe(false);
         expect(cylinder.isShadowTarget({})).toBe(false);
 
-        expect(membrane.map.get(wetParts.value)).toBe(cylinder);
-        expect(membrane.revokeMapping).not.toHaveBeenCalled();
+        expect(membrane.cylinderMap.get(wetParts.value)).toBe(cylinder);
       });
 
       describe("doesn't support a dead object graph", () => {
@@ -410,50 +373,29 @@ describe("ProxyCylinder", () => {
       });
     });
 
-    describe("calling .selfDestruct()", () => {
-      beforeEach(() => cylinder.selfDestruct(membrane));
+    describe("calling .clearAllGraphs()", () => {
+      beforeEach(() => cylinder.clearAllGraphs(membrane));
 
-      it("clears the reference to the original value", () => {
+      it("clears all references", () => {
+      // originGraph
+        {
+          const desc = Reflect.getOwnPropertyDescriptor(cylinder, "originGraph");
+          expect(desc.value).toBe("wet");
+          expect(desc.writable).toBe(false);
+          expect(desc.configurable).toBe(false);
+        }
 
-        const deadMessage = expectDeadGraphGetters("wet");
-  
-        expect(cylinder.originGraph).toBe("wet");
-        expect(() => cylinder.getOriginal()).toThrowError(deadMessage);
-  
-        expect(cylinder.hasGraph("wet")).toBe(true);
+        expect(() => cylinder.getOriginal()).toThrowError("the original value hasn't been set");
+        expect(cylinder.hasGraph("wet")).toBe(false);
         expect(cylinder.hasGraph("dry")).toBe(false);
         expect(cylinder.isShadowTarget({})).toBe(false);
-  
-        expect(membrane.map.get(wetParts.value)).toBe(undefined);
-        expect(membrane.revokeMapping).not.toHaveBeenCalled();
-      });
 
-      describe("doesn't support a dead object graph", () => {
-        it("(getters)", () => expectDeadGraphGetters("wet"));
-        describe("(setters)", () => describeDeadGraphSetters("wet", membrane));
-      });
-    });
+        expectUnknownGraphGetters("wet");
 
-    describe("calling .revokeAll()", () => {
-      beforeEach(() => cylinder.revokeAll(membrane));
-
-      it("clears the reference to the original value", () => {
-        const deadMessage = expectDeadGraphGetters("wet");
-
-        expect(cylinder.originGraph).toBe("wet");
-        expect(() => cylinder.getOriginal()).toThrowError(deadMessage);
-        expect(cylinder.hasGraph("wet")).toBe(true);
-        expect(cylinder.hasGraph("dry")).toBe(false);
-        expect(cylinder.isShadowTarget({})).toBe(false);
-  
-        expect(membrane.map.get(wetParts.value)).toBe(DeadProxyKey);
-        expect(membrane.revokeMapping).toHaveBeenCalledWith(wetParts.value);
-        expect(membrane.revokeMapping).toHaveBeenCalledTimes(1);
-      });
-
-      describe("doesn't support a dead object graph", () => {
-        it("(getters)", () => expectDeadGraphGetters("wet"));
-        describe("(setters)", () => describeDeadGraphSetters("wet", membrane));
+        // Properties of the cylinder
+        expect(Reflect.isExtensible(cylinder)).toBe(false);
+        expect(Object.isFrozen(ProxyCylinder)).toBe(true);
+        expect(Object.isFrozen(ProxyCylinder.prototype)).toBe(true);
       });
     });
 
@@ -659,18 +601,11 @@ describe("ProxyCylinder", () => {
   });
 
   describe("with wet and dry metadata, and", () => {
-    let membrane, wetParts, dryParts;
+    let wetParts, dryParts;
     beforeEach(() => {
       membrane = {
-        map: new WeakMap(),
-        revokeMapping: jasmine.createSpy(
-          "revokeMapping", function(value) {
-            this.map.revoke(value);
-          }
-        ),
+        cylinderMap: new ProxyCylinderMap(),
       };
-      WeakMapOfProxyCylinders(membrane.map);
-      membrane.revokeMapping.and.callThrough();
 
       wetParts = { value: { isWet: true } };
 
@@ -684,7 +619,6 @@ describe("ProxyCylinder", () => {
     });
 
     afterEach(() => {
-      membrane = null;
       wetParts = null;
       dryParts = null;
     });
@@ -728,10 +662,8 @@ describe("ProxyCylinder", () => {
       expect(cylinder.getOwnKeysFilter("dry")).toBe(null);
       expect(cylinder.getTruncateArgList("dry")).toBe(false);
   
-      expect(membrane.map.get(wetParts.value)).toBe(cylinder);
-      expect(membrane.map.get(dryParts.proxy)).toBe(cylinder);
-
-      expect(membrane.revokeMapping).not.toHaveBeenCalled();
+      expect(membrane.cylinderMap.get(wetParts.value)).toBe(cylinder);
+      expect(membrane.cylinderMap.get(dryParts.proxy)).toBe(cylinder);
     });
 
     it("requires the origin graph remain alive while another graph lives", () => {
@@ -739,12 +671,31 @@ describe("ProxyCylinder", () => {
             .toThrowError("Cannot remove the origin graph with another graph referring to it");
     });
 
-    it("allows calling .selfDestruct()", () => {
-      expect(() => cylinder.selfDestruct(membrane)).not.toThrow();
+    it("allows calling .clearAllGraphs()", () => {
+      expect(() => cylinder.clearAllGraphs(membrane)).not.toThrow();
     });
+  });
+});
 
-    it("allows calling .revokeAll()", () => {
-      expect(() => cylinder.revokeAll(membrane)).not.toThrow();
-    });
+describe("ProxyCylinderMap", () => {
+  let map;
+  beforeEach(() => {
+    map = new ProxyCylinderMap;
+  });
+
+  it("is itself frozen", () => {
+    expect(Object.isFrozen(ProxyCylinderMap)).toBe(true);
+  });
+
+  it("inherits from WeakMap", () => {
+    expect(map instanceof WeakMap).toBe(true);
+  });
+
+
+  it("disallows setting an ordinary value", () => {
+    const key = {};
+    const value = {};
+    expect(() => map.set(key, value)).toThrowError("Value must be a ProxyCylinder, or DeadProxyKey");
+    expect(map.has(key)).toBe(false);
   });
 });
