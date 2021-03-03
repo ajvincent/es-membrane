@@ -326,7 +326,7 @@ export class ModifyRulesAPI {
     let graphsToCheck;
     if (cylinder.originGraph === graphName)
     {
-      graphsToCheck = Reflect.ownKeys(cylinder.proxiedGraphs);
+      graphsToCheck = Array.from(cylinder.proxyDataByGraph.keys());
       graphsToCheck.splice(graphsToCheck.indexOf(graphName), 1);
     }
     else

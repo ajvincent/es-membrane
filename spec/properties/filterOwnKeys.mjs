@@ -19,29 +19,16 @@
  * defineTestsBySealant
  */
 
-if ((typeof MembraneMocks != "function") ||
-    (typeof DAMP != "symbol") ||
-    (typeof loggerLib != "object")) {
-  if (typeof require == "function") {
-    var { MembraneMocks, loggerLib, DAMP } = require("../../docs/dist/node/mocks.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneMocks");
-}
+import {
+  DataDescriptor,
+  isDataDescriptor
+} from "../../source/core/sharedUtilities.mjs";
 
-if ((typeof DataDescriptor != "function") ||
-    (typeof isDataDescriptor != "function")) {
-  if (typeof require == "function") {
-    var {
-      DataDescriptor,
-      isDataDescriptor
-    } = require("../../docs/dist/node/utilities.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get DataDescriptor");
-}
+import loggerLib from "../helpers/logger.mjs";
+import DAMP from "../helpers/dampSymbol.mjs";
+import MembraneMocks from "../helpers/mocks.mjs";
 
-describe("Filtering own keys ", function() {
+describe("Filtering own keys", function() {
   "use strict";
   /* XXX ajvincent These tests have grown very complex, even for me.
    * To debug a specific test may require several steps:
@@ -54,13 +41,16 @@ describe("Filtering own keys ", function() {
    * (3) In the actual test:
      if (debugConditions.has(foo) && debugConditions.has(bar)...)
        debugger;
-   */
+
   const debugConditions = new Set();
-  if (false) {
-    afterEach(function() {
-      debugConditions.clear();
-    });
-  }
+
+  beforeEach(function() {
+    debugConditions.add(foo);
+  });
+  afterEach(function() {
+    debugConditions.clear();
+  });
+  */
 
   //{ infrastructure
 
@@ -595,6 +585,7 @@ describe("Filtering own keys ", function() {
     function modifyFilter() {
       if (filterWet)
         membrane.modifyRules.filterOwnKeys("wet", wetDocument, filterObj);
+
       if (filterDry)
         membrane.modifyRules.filterOwnKeys("dry", dryDocument, filterObj);
     }
