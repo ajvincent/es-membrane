@@ -77,17 +77,17 @@ describe("Whitelisting object properties", function() {
     nameFilters.proto = {};
     nameFilters.proto.node = buildFilter(NodeProtoWhiteList, nameFilters.target);
     nameFilters.proto.element = buildFilter([], nameFilters.proto.node);
-    
+
     var parts, dryWetMB, EventListenerProto;
     const mockOptions = {
       includeDamp: false,
       logger: null,
       checkEvent: null,
 
-      whitelist: function(meta, filter, field = "wet") {
-        dryWetMB.modifyRules.storeUnknownAsLocal(field, meta.target);
-        dryWetMB.modifyRules.requireLocalDelete(field, meta.target);
-        dryWetMB.modifyRules.filterOwnKeys(field, meta.target, filter);
+      whitelist: function(meta, filter, graphName = "wet") {
+        dryWetMB.modifyRules.storeUnknownAsLocal(graphName, meta.target);
+        dryWetMB.modifyRules.requireLocalDelete(graphName, meta.target);
+        dryWetMB.modifyRules.filterOwnKeys(graphName, meta.target, filter);
         meta.stopIteration();
       },
 
@@ -689,17 +689,17 @@ describe("Whitelisting object properties", function() {
       const mbListener = {
         mustProxyMethods: new Set(),
 
-        whitelist: function(meta, names, field="internal") {
+        whitelist: function(meta, names, graphName = "internal") {
           if (typeof meta.target === "function")
           {
             names = names.concat(["prototype", "length", "name"]);
           }
 
           names = new Set(names);
-          Dogfood.modifyRules.storeUnknownAsLocal(field, meta.target);
-          Dogfood.modifyRules.requireLocalDelete(field, meta.target);
+          Dogfood.modifyRules.storeUnknownAsLocal(graphName, meta.target);
+          Dogfood.modifyRules.requireLocalDelete(graphName, meta.target);
           Dogfood.modifyRules.filterOwnKeys(
-            field, meta.target, names.has.bind(names)
+            graphName, meta.target, names.has.bind(names)
           );
           meta.stopIteration();
         },
@@ -716,7 +716,7 @@ describe("Whitelisting object properties", function() {
           else if (meta.target === Membrane.prototype)
           {
             this.whitelist(meta, [
-              "hasHandlerByField",
+              "hasHandlerByGraph",
               "getHandlerByName",
               "convertArgumentToProxy",
               "warnOnce"

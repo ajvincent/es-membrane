@@ -21,7 +21,7 @@ export default class ObjectGraph {
     {
       let t = typeof graphName;
       if ((t != "string") && (t != "symbol"))
-        throw new Error("field must be a string or a symbol!");
+        throw new Error("graph name must be a string or a symbol!");
     }
 
     var passThroughFilter = returnFalse;

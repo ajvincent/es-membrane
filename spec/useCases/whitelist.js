@@ -107,10 +107,10 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
     var mockOptions = {
       includeDamp: true,
 
-      whitelist: function(meta, filter, field = "wet") {
-        dryWetMB.modifyRules.storeUnknownAsLocal(field, meta.target);
-        dryWetMB.modifyRules.requireLocalDelete(field, meta.target);
-        dryWetMB.modifyRules.filterOwnKeys(field, meta.target, filter);
+      whitelist: function(meta, filter, graphName = "wet") {
+        dryWetMB.modifyRules.storeUnknownAsLocal(graphName, meta.target);
+        dryWetMB.modifyRules.requireLocalDelete(graphName, meta.target);
+        dryWetMB.modifyRules.filterOwnKeys(graphName, meta.target, filter);
         if (shouldStop)
           meta.stopIteration();
       },

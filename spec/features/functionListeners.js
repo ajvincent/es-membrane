@@ -55,14 +55,14 @@ describe("Function listeners", function() {
   afterEach(clearParts);
 
   function TestMessage(
-    cbToken, reason, trapName, fromField, toField, target, rvOrExn
+    cbToken, reason, trapName, fromGraph, toGraph, target, rvOrExn
   )
   {
     this.cbToken   = cbToken;
     this.reason    = reason;
     this.trapName  = trapName;
-    this.fromField = fromField;
-    this.toField   = toField;
+    this.fromGraph = fromGraph;
+    this.toGraph   = toGraph;
     this.target    = target;
     this.rvOrExn   = rvOrExn;
   }
@@ -82,19 +82,19 @@ describe("Function listeners", function() {
       this.cbToken,
       this.reason,
       this.trapName,
-      this.fromField,
-      this.toField,
+      this.fromGraph,
+      this.toGraph,
       this.target.name,
       this.rvOrExn
     ]);
   };
   
   function fireInfo(
-    cbToken, reason, trapName, fromField, toField, target, rvOrExn
+    cbToken, reason, trapName, fromGraph, toGraph, target, rvOrExn
   )
   {
     var msg = new TestMessage(
-      cbToken, reason, trapName, fromField, toField, target, rvOrExn
+      cbToken, reason, trapName, fromGraph, toGraph, target, rvOrExn
     );
     logger.info(msg);
     return appender.events.length;

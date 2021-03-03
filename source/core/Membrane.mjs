@@ -255,7 +255,7 @@ class Membrane {
    *
    * @returns {Boolean}
    */
-  hasHandlerByField(graph) {
+  hasHandlerByGraph(graph) {
     {
       let t = typeof graph;
       if ((t != "string") && (t != "symbol"))
@@ -279,7 +279,7 @@ class Membrane {
     let mustCreate = (typeof options == "object") ?
                      Boolean(options.mustCreate) :
                      false;
-    if (mustCreate && !this.hasHandlerByField(graphName)) {
+    if (mustCreate && !this.hasHandlerByGraph(graphName)) {
       let graph = null;
       if (this.refactor === "0.10")
         graph = new ObjectGraph(this, graphName);

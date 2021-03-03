@@ -1087,7 +1087,7 @@ class ObjectGraphHandler {
     {
       let t = typeof graphName;
       if ((t != "string") && (t != "symbol"))
-        throw new Error("field must be a string or a symbol!");
+        throw new Error("graph name must be a string or a symbol!");
     }
 
     let boundMethods = {};
@@ -1153,11 +1153,12 @@ class ObjectGraphHandler {
 
     Reflect.preventExtensions(this);
   }
+
   /* Strategy for each handler trap:
-   * (1) Determine the target's origin field name.
-   * (2) Wrap all non-primitive arguments for Reflect in the target field.
+   * (1) Determine the target's origin graph name.
+   * (2) Wrap all non-primitive arguments for Reflect in the target graph.
    * (3) var rv = Reflect[trapName].call(argList);
-   * (4) Wrap rv in this.graphName's field.
+   * (4) Wrap rv in this.graphName's graph.
    * (5) return rv.
    *
    * Error stack trace hiding will be determined by the membrane itself.
@@ -1916,7 +1917,7 @@ class ObjectGraphHandler {
       if (!receiverMap)
         throw new Error("How do we still not have a receiverMap?");
       if (receiverMap.originGraph === this.graphName)
-        throw new Error("Receiver's field name should not match!");
+        throw new Error("Receiver's graph name should not match!");
     }
 
     /*
@@ -2789,12 +2790,11 @@ class ObjectGraphHandler {
    */
   getLocalFlag(target, flagName, recurse) {
     let cylinder = this.membrane.cylinderMap.get(target);
-    const field = this.graphName;
     const originGraph = cylinder.originGraph;
 
     //eslint-disable-next-line no-constant-condition
     while (true) {
-      let shouldBeLocal = cylinder.getLocalFlag(field, flagName) ||
+      let shouldBeLocal = cylinder.getLocalFlag(this.graphName, flagName) ||
                           cylinder.getLocalFlag(originGraph, flagName);
       if (shouldBeLocal)
         return true;
@@ -2803,7 +2803,7 @@ class ObjectGraphHandler {
       let shadowTarget = cylinder.getShadowTarget(this.graphName);
 
       /* XXX ajvincent I suspect this assertion might fail if
-       * this.graphName == map.originGraph:  if the field represents an original
+       * this.graphName == map.originGraph:  if the graph represents an original
        * value.
        */
       assert(shadowTarget, "getLocalFlag failed to get a shadow target!");
@@ -3125,7 +3125,7 @@ Object.freeze(DistortionsListener.prototype);
  *   * Define new methods on ProxyCylinder.prototype for storing or retrieving
  *     the properties.
  *   * Internally, the new methods should store properties on
- *     this.proxiedFields[graphName].
+ *     this.proxiedGraphs[graphName].
  *   * Modify the existing ProxyHandler traps in ObjectGraphHandler.prototype
  *     to call the ProxyCylinder methods, in order to implement the new behavior.
  * (3) If the new API must define a new proxy, or more than one:
@@ -3291,17 +3291,17 @@ class ModifyRulesAPI {
       throw new Error("This membrane does not own the proxy!");
     }
 
-    let cylinder = this.membrane.cylinderMap.get(oldProxy), cachedProxy, cachedField;
+    let cylinder = this.membrane.cylinderMap.get(oldProxy), cachedProxy, cachedGraph;
     if (baseHandler === Reflect) {
-      cachedField = cylinder.originField;
+      cachedGraph = cylinder.originGraph;
     }
     else {
-      cachedField = baseHandler.graphName;
-      if (cachedField == cylinder.originField)
+      cachedGraph = baseHandler.graphName;
+      if (cachedGraph == cylinder.originGraph)
         throw new Error("You must replace original values with either Reflect or a ChainHandler inheriting from Reflect");
     }
 
-    cachedProxy = cylinder.getProxy(cachedField);
+    cachedProxy = cylinder.getProxy(cachedGraph);
     if (cachedProxy != oldProxy)
       throw new Error("You cannot replace the proxy with a handler from a different object graph!");
 
@@ -3311,25 +3311,25 @@ class ModifyRulesAPI {
       shadowTarget = original;
     }
     else {
-      shadowTarget = cylinder.getShadowTarget(cachedField);
+      shadowTarget = cylinder.getShadowTarget(cachedGraph);
     }
     let parts = Proxy.revocable(shadowTarget, handler);
     parts.value = original;
     parts.override = true;
     parts.shadowTarget = shadowTarget;
     //parts.extendedHandler = handler;
-    cylinder.set(this.membrane, cachedField, parts);
-    makeRevokeDeleteRefs(parts, cylinder, cachedField);
+    cylinder.set(this.membrane, cachedGraph, parts);
+    makeRevokeDeleteRefs(parts, cylinder, cachedGraph);
 
-    let gHandler = this.membrane.getHandlerByName(cachedField);
-    gHandler.addRevocable(cylinder.originField === cachedField ? cylinder : parts.revoke);
+    let gHandler = this.membrane.getHandlerByName(cachedGraph);
+    gHandler.addRevocable(cylinder.originGraph === cachedGraph ? cylinder : parts.revoke);
     return parts.proxy;
   }
 
   /**
    * Ensure that the proxy passed in matches the object graph handler.
    *
-   * @param graphName  {Symbol|String} The handler's field name.
+   * @param graphName  {Symbol|String} The handler's graph name.
    * @param proxy      {Proxy}  The value to look up.
    * @param methodName {String} The calling function's name.
    * 
@@ -3346,7 +3346,7 @@ class ModifyRulesAPI {
    * Require that new properties be stored via the proxies instead of propagated
    * through to the underlying object.
    *
-   * @param graphName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The graph name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy}  The proxy (or underlying object) needing local
    *                           property protection.
@@ -3362,7 +3362,7 @@ class ModifyRulesAPI {
    * Require that properties be deleted only on the proxy instead of propagated
    * through to the underlying object.
    *
-   * @param graphName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The graph name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy}  The proxy (or underlying object) needing local
    *                           property protection.
@@ -3381,7 +3381,7 @@ class ModifyRulesAPI {
    * @note Local properties and local delete operations of a proxy are NOT
    * affected by the filters.
    * 
-   * @param graphName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The graph name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy}    The proxy (or underlying object) needing local
    *                             property protection.
@@ -3413,16 +3413,16 @@ class ModifyRulesAPI {
      * extensible.
      */
     let cylinder = this.membrane.cylinderMap.get(proxy);
-    let fieldsToCheck;
-    if (cylinder.originField === graphName)
+    let graphsToCheck;
+    if (cylinder.originGraph === graphName)
     {
-      fieldsToCheck = Reflect.ownKeys(cylinder.proxiedFields);
-      fieldsToCheck.splice(fieldsToCheck.indexOf(graphName), 1);
+      graphsToCheck = Reflect.ownKeys(cylinder.proxiedGraphs);
+      graphsToCheck.splice(graphsToCheck.indexOf(graphName), 1);
     }
     else
-      fieldsToCheck = [ graphName ];
+      graphsToCheck = [ graphName ];
 
-    let allowed = fieldsToCheck.every(function(f) {
+    let allowed = graphsToCheck.every(function(f) {
       let s = cylinder.getShadowTarget(f);
       return Reflect.isExtensible(s);
     });
@@ -3436,7 +3436,7 @@ class ModifyRulesAPI {
   /**
    * Assign the number of arguments to truncate a method's argument list to.
    *
-   * @param graphName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The graph name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy(Function)} The method needing argument truncation.
    * @param value     {Boolean|Number}
@@ -3503,7 +3503,7 @@ class ObjectGraph {
     {
       let t = typeof graphName;
       if ((t != "string") && (t != "symbol"))
-        throw new Error("field must be a string or a symbol!");
+        throw new Error("graph name must be a string or a symbol!");
     }
 
     var passThroughFilter = returnFalse;
@@ -3904,7 +3904,7 @@ class Membrane {
    *
    * @returns {Boolean}
    */
-  hasHandlerByField(graph) {
+  hasHandlerByGraph(graph) {
     {
       let t = typeof graph;
       if ((t != "string") && (t != "symbol"))
@@ -3928,7 +3928,7 @@ class Membrane {
     let mustCreate = (typeof options == "object") ?
                      Boolean(options.mustCreate) :
                      false;
-    if (mustCreate && !this.hasHandlerByField(graphName)) {
+    if (mustCreate && !this.hasHandlerByGraph(graphName)) {
       let graph = null;
       if (this.refactor === "0.10")
         graph = new ObjectGraph(this, graphName);

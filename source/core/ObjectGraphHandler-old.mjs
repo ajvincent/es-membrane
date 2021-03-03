@@ -31,7 +31,7 @@ export default class ObjectGraphHandler {
     {
       let t = typeof graphName;
       if ((t != "string") && (t != "symbol"))
-        throw new Error("field must be a string or a symbol!");
+        throw new Error("graph name must be a string or a symbol!");
     }
 
     let boundMethods = {};
@@ -97,11 +97,12 @@ export default class ObjectGraphHandler {
 
     Reflect.preventExtensions(this);
   }
+
   /* Strategy for each handler trap:
-   * (1) Determine the target's origin field name.
-   * (2) Wrap all non-primitive arguments for Reflect in the target field.
+   * (1) Determine the target's origin graph name.
+   * (2) Wrap all non-primitive arguments for Reflect in the target graph.
    * (3) var rv = Reflect[trapName].call(argList);
-   * (4) Wrap rv in this.graphName's field.
+   * (4) Wrap rv in this.graphName's graph.
    * (5) return rv.
    *
    * Error stack trace hiding will be determined by the membrane itself.
@@ -860,7 +861,7 @@ export default class ObjectGraphHandler {
       if (!receiverMap)
         throw new Error("How do we still not have a receiverMap?");
       if (receiverMap.originGraph === this.graphName)
-        throw new Error("Receiver's field name should not match!");
+        throw new Error("Receiver's graph name should not match!");
     }
 
     /*
@@ -1733,12 +1734,11 @@ export default class ObjectGraphHandler {
    */
   getLocalFlag(target, flagName, recurse) {
     let cylinder = this.membrane.cylinderMap.get(target);
-    const field = this.graphName;
     const originGraph = cylinder.originGraph;
 
     //eslint-disable-next-line no-constant-condition
     while (true) {
-      let shouldBeLocal = cylinder.getLocalFlag(field, flagName) ||
+      let shouldBeLocal = cylinder.getLocalFlag(this.graphName, flagName) ||
                           cylinder.getLocalFlag(originGraph, flagName);
       if (shouldBeLocal)
         return true;
@@ -1747,7 +1747,7 @@ export default class ObjectGraphHandler {
       let shadowTarget = cylinder.getShadowTarget(this.graphName);
 
       /* XXX ajvincent I suspect this assertion might fail if
-       * this.graphName == map.originGraph:  if the field represents an original
+       * this.graphName == map.originGraph:  if the graph represents an original
        * value.
        */
       assert(shadowTarget, "getLocalFlag failed to get a shadow target!");

@@ -25,7 +25,7 @@
  *   * Define new methods on ProxyCylinder.prototype for storing or retrieving
  *     the properties.
  *   * Internally, the new methods should store properties on
- *     this.proxiedFields[graphName].
+ *     this.proxiedGraphs[graphName].
  *   * Modify the existing ProxyHandler traps in ObjectGraphHandler.prototype
  *     to call the ProxyCylinder methods, in order to implement the new behavior.
  * (3) If the new API must define a new proxy, or more than one:
@@ -201,17 +201,17 @@ export class ModifyRulesAPI {
       throw new Error("This membrane does not own the proxy!");
     }
 
-    let cylinder = this.membrane.cylinderMap.get(oldProxy), cachedProxy, cachedField;
+    let cylinder = this.membrane.cylinderMap.get(oldProxy), cachedProxy, cachedGraph;
     if (baseHandler === Reflect) {
-      cachedField = cylinder.originField;
+      cachedGraph = cylinder.originGraph;
     }
     else {
-      cachedField = baseHandler.graphName;
-      if (cachedField == cylinder.originField)
+      cachedGraph = baseHandler.graphName;
+      if (cachedGraph == cylinder.originGraph)
         throw new Error("You must replace original values with either Reflect or a ChainHandler inheriting from Reflect");
     }
 
-    cachedProxy = cylinder.getProxy(cachedField);
+    cachedProxy = cylinder.getProxy(cachedGraph);
     if (cachedProxy != oldProxy)
       throw new Error("You cannot replace the proxy with a handler from a different object graph!");
 
@@ -221,25 +221,25 @@ export class ModifyRulesAPI {
       shadowTarget = original;
     }
     else {
-      shadowTarget = cylinder.getShadowTarget(cachedField);
+      shadowTarget = cylinder.getShadowTarget(cachedGraph);
     }
     let parts = Proxy.revocable(shadowTarget, handler);
     parts.value = original;
     parts.override = true;
     parts.shadowTarget = shadowTarget;
     //parts.extendedHandler = handler;
-    cylinder.set(this.membrane, cachedField, parts);
-    makeRevokeDeleteRefs(parts, cylinder, cachedField);
+    cylinder.set(this.membrane, cachedGraph, parts);
+    makeRevokeDeleteRefs(parts, cylinder, cachedGraph);
 
-    let gHandler = this.membrane.getHandlerByName(cachedField);
-    gHandler.addRevocable(cylinder.originField === cachedField ? cylinder : parts.revoke);
+    let gHandler = this.membrane.getHandlerByName(cachedGraph);
+    gHandler.addRevocable(cylinder.originGraph === cachedGraph ? cylinder : parts.revoke);
     return parts.proxy;
   }
 
   /**
    * Ensure that the proxy passed in matches the object graph handler.
    *
-   * @param graphName  {Symbol|String} The handler's field name.
+   * @param graphName  {Symbol|String} The handler's graph name.
    * @param proxy      {Proxy}  The value to look up.
    * @param methodName {String} The calling function's name.
    * 
@@ -256,7 +256,7 @@ export class ModifyRulesAPI {
    * Require that new properties be stored via the proxies instead of propagated
    * through to the underlying object.
    *
-   * @param graphName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The graph name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy}  The proxy (or underlying object) needing local
    *                           property protection.
@@ -272,7 +272,7 @@ export class ModifyRulesAPI {
    * Require that properties be deleted only on the proxy instead of propagated
    * through to the underlying object.
    *
-   * @param graphName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The graph name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy}  The proxy (or underlying object) needing local
    *                           property protection.
@@ -291,7 +291,7 @@ export class ModifyRulesAPI {
    * @note Local properties and local delete operations of a proxy are NOT
    * affected by the filters.
    * 
-   * @param graphName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The graph name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy}    The proxy (or underlying object) needing local
    *                             property protection.
@@ -323,16 +323,16 @@ export class ModifyRulesAPI {
      * extensible.
      */
     let cylinder = this.membrane.cylinderMap.get(proxy);
-    let fieldsToCheck;
-    if (cylinder.originField === graphName)
+    let graphsToCheck;
+    if (cylinder.originGraph === graphName)
     {
-      fieldsToCheck = Reflect.ownKeys(cylinder.proxiedFields);
-      fieldsToCheck.splice(fieldsToCheck.indexOf(graphName), 1);
+      graphsToCheck = Reflect.ownKeys(cylinder.proxiedGraphs);
+      graphsToCheck.splice(graphsToCheck.indexOf(graphName), 1);
     }
     else
-      fieldsToCheck = [ graphName ];
+      graphsToCheck = [ graphName ];
 
-    let allowed = fieldsToCheck.every(function(f) {
+    let allowed = graphsToCheck.every(function(f) {
       let s = cylinder.getShadowTarget(f);
       return Reflect.isExtensible(s);
     });
@@ -346,7 +346,7 @@ export class ModifyRulesAPI {
   /**
    * Assign the number of arguments to truncate a method's argument list to.
    *
-   * @param graphName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The graph name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy(Function)} The method needing argument truncation.
    * @param value     {Boolean|Number}

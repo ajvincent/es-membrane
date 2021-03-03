@@ -175,7 +175,7 @@ describe("Binding two values manually", function() {
   });
 
   it(
-    "fails when an object is already defined in the first graph's field",
+    "fails when an object is already defined in the first graph",
     function() {
       membrane.convertArgumentToProxy(
         graphA,
@@ -198,7 +198,7 @@ describe("Binding two values manually", function() {
   );
 
   it(
-    "fails when an object is already defined in the second graph's field",
+    "fails when an object is already defined in the second graph",
     function() {
       membrane.convertArgumentToProxy(
         graphA,
