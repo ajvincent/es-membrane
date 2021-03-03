@@ -90,21 +90,23 @@ export default class ObjectGraph {
    *
    * @private
    */
+  /*
   addRevocable(revoke) {
-    /*
     if (this.__isDead__)
       throw new Error("This membrane handler is dead!");
     this.__revokeFunctions__.push(revoke);
-    */
+
     void(revoke);
     throw new Error("Not implemented");
   }
+  */
 
   /**
    * Remove a ProxyCylinder or a Proxy.revoke function from our list.
    *
    * @private
    */
+  /*
   removeRevocable(revoke) {
     /*
     let index = this.__revokeFunctions__.indexOf(revoke);
@@ -112,10 +114,11 @@ export default class ObjectGraph {
       throw new Error("Unknown revoke function!");
     }
     this.__revokeFunctions__.splice(index, 1);
-    */
+
     void(revoke);
     throw new Error("Not implemented");
   }
+  */
 
   /**
    * Revoke the entire object graph.

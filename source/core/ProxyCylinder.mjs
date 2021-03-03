@@ -448,7 +448,6 @@ export class ProxyCylinder {
    * @note This does not update cachedOwnKeys.
    */
   deleteLocalDescriptor(graphName, propName, recordLocalDelete) {
-    this.getMetadata(graphName); // ensure we're alive
     const metadata = this.getMetadata(graphName);
     if (recordLocalDelete) {
       if (!metadata.deletedLocals)

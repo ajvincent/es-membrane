@@ -21,6 +21,8 @@ const NOT_IMPLEMENTED_DESC = new AccessorDescriptor(
   NOT_IMPLEMENTED
 );
 
+export default function MembraneMocks(mockOptions = {}) {
+
 class EventTargetWet {
   constructor() {
     this.__events__ = [];
@@ -347,7 +349,6 @@ function dampObjectGraph(parts, mockOptions) {
   }
 }
 
-export default function MembraneMocks(mockOptions = {}) {
   const includeDamp = Boolean(mockOptions.includeDamp);
   const logger = mockOptions.logger || null;
 

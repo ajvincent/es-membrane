@@ -1,13 +1,5 @@
-"use strict"
-
-if ((typeof MembraneMocks != "function") ||
-    (typeof DAMP != "symbol")) {
-  if (typeof require == "function") {
-    var { MembraneMocks, DAMP } = require("../../docs/dist/node/mocks.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneMocks");
-}
+import DAMP from "../helpers/dampSymbol.mjs";
+import MembraneMocks from "../helpers/mocks.mjs";
 
 describe("Deleting properties locally", function() {
   // Customize this for whatever variables you need.
@@ -194,7 +186,7 @@ describe("Deleting properties locally", function() {
         checkProperties(undefined, expectedWet);
       }
     );
-    
+
     it(
       "deleteProperty() on the dry graph, followed by defineProperty() on the wet graph, does not expose the property again",
       function() {
@@ -384,7 +376,7 @@ describe("Deleting properties locally", function() {
     });
   }
   
-  describe("when required by the dry object graph, ", function() {
+  describe("when required by the dry object graph,", function() {
     beforeEach(function() {
       membrane.modifyRules.requireLocalDelete("dry", parts.dry.Node.prototype);
     });
@@ -392,7 +384,7 @@ describe("Deleting properties locally", function() {
     specsWithSealAndFreezeOptions();
   });
 
-  describe("when required by the wet object graph, ", function() {
+  describe("when required by the wet object graph,", function() {
     beforeEach(function() {
       parts.handlers.wet.ensureProxyCylinder(parts.wet.Node.prototype);
       membrane.modifyRules.requireLocalDelete("wet", parts.wet.Node.prototype);
@@ -402,7 +394,7 @@ describe("Deleting properties locally", function() {
   });
 
   describe(
-    "when required by both the wet and the dry object graphs, ",
+    "when required by both the wet and the dry object graphs,",
     function() {
       beforeEach(function() {
         parts.handlers.wet.ensureProxyCylinder(parts.wet.Node.prototype);

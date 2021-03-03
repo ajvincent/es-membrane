@@ -665,7 +665,6 @@ class ProxyCylinder {
    * @note This does not update cachedOwnKeys.
    */
   deleteLocalDescriptor(graphName, propName, recordLocalDelete) {
-    this.getMetadata(graphName); // ensure we're alive
     const metadata = this.getMetadata(graphName);
     if (recordLocalDelete) {
       if (!metadata.deletedLocals)
@@ -1171,12 +1170,12 @@ class ObjectGraphHandler {
       return Reflect.ownKeys(shadowTarget);
 
     var target = getRealTarget(shadowTarget);
-    var targetMap = this.membrane.cylinderMap.get(target);
+    var targetCylinder = this.membrane.cylinderMap.get(target);
 
     // cached keys are only valid if original keys have not changed
-    var cached = targetMap.cachedOwnKeys(this.graphName);
+    var cached = targetCylinder.cachedOwnKeys(this.graphName);
     if (cached) {
-      let _this = targetMap.getOriginal();
+      let _this = targetCylinder.getOriginal();
       let check = Reflect.ownKeys(_this);
 
       let pass = ((check.length == cached.original.length) &&
@@ -1263,12 +1262,12 @@ class ObjectGraphHandler {
      * We should exit the loop with desc, or return from the function.
      */
     do {
-      let targetMap = this.membrane.cylinderMap.get(target);
+      let targetCylinder = this.membrane.cylinderMap.get(target);
       {
         /* Special case:  Look for a local property descriptors first, and if we
          * find it, return it unwrapped.
          */
-        desc = targetMap.getLocalDescriptor(this.graphName, propName);
+        desc = targetCylinder.getLocalDescriptor(this.graphName, propName);
 
         if (desc) {
           // Quickly repeating steps 4-8 from above algorithm.
@@ -1292,7 +1291,7 @@ class ObjectGraphHandler {
            b. If parent is null, return undefined.
            c. Return ? parent.[[Get]](P, Receiver).
        */
-      let shadow = targetMap.getShadowTarget(this.graphName);
+      let shadow = targetCylinder.getShadowTarget(this.graphName);
       if (shadow)
         desc = this.getOwnPropertyDescriptor(shadow, propName);
       else
@@ -1383,7 +1382,7 @@ class ObjectGraphHandler {
       assert(found, "Original target must be found after calling getRealTarget");
       assert(unwrapped === target, "Original target must match getMembraneValue's return value");
     }
-    var targetMap = this.membrane.cylinderMap.get(target);
+    var targetCylinder = this.membrane.cylinderMap.get(target);
 
     if (this.membrane.showGraphName && (propName == "membraneGraphName")) {
       let checkDesc = Reflect.getOwnPropertyDescriptor(shadowTarget, propName);
@@ -1399,38 +1398,38 @@ class ObjectGraphHandler {
        * (3) own keys filtered property: undefined
        * (4) original property:  wrapped property.
        */
-      if (targetMap.wasDeletedLocally(targetMap.originGraph, propName) ||
-          targetMap.wasDeletedLocally(this.graphName, propName))
+      if (targetCylinder.wasDeletedLocally(targetCylinder.originGraph, propName) ||
+          targetCylinder.wasDeletedLocally(this.graphName, propName))
         return undefined;
 
-      var desc = targetMap.getLocalDescriptor(this.graphName, propName);
+      var desc = targetCylinder.getLocalDescriptor(this.graphName, propName);
       if (desc !== undefined)
         return desc;
 
       {
-        let originFilter = targetMap.getOwnKeysFilter(targetMap.originGraph);
+        let originFilter = targetCylinder.getOwnKeysFilter(targetCylinder.originGraph);
         if (originFilter && !originFilter(propName))
           return undefined;
       }
       {
-        let localFilter  = targetMap.getOwnKeysFilter(this.graphName);
+        let localFilter  = targetCylinder.getOwnKeysFilter(this.graphName);
         if (localFilter && !localFilter(propName))
           return undefined;
       }
 
-      var _this = targetMap.getOriginal();
+      var _this = targetCylinder.getOriginal();
       desc = Reflect.getOwnPropertyDescriptor(_this, propName);
 
       // See .getPrototypeOf trap comments for why this matters.
       const isProtoDesc = (propName === "prototype") && isDataDescriptor(desc);
       const isForeign = ((desc !== undefined) &&
-                         (targetMap.originGraph !== this.graphName));
+                         (targetCylinder.originGraph !== this.graphName));
       if (isProtoDesc || isForeign) {
         // This is necessary to force desc.value to really be a proxy.
         let configurable = desc.configurable;
         desc.configurable = true;
         desc = this.membrane.wrapDescriptor(
-          targetMap.originGraph, this.graphName, desc
+          targetCylinder.originGraph, this.graphName, desc
         );
         desc.configurable = configurable;
       }
@@ -1497,14 +1496,14 @@ class ObjectGraphHandler {
      * user will extract the shadow target.
      */
     const target = getRealTarget(shadowTarget);
-    const targetMap = this.membrane.cylinderMap.get(target);
+    const targetCylinder = this.membrane.cylinderMap.get(target);
 
     try {
       const proto = Reflect.getPrototypeOf(target);
       let proxy;
-      if (targetMap.originGraph !== this.graphName)
+      if (targetCylinder.originGraph !== this.graphName)
         proxy = this.membrane.convertArgumentToProxy(
-          this.membrane.getHandlerByName(targetMap.originGraph),
+          this.membrane.getHandlerByName(targetCylinder.originGraph),
           this,
           proto
         );
@@ -1537,8 +1536,8 @@ class ObjectGraphHandler {
     if (shouldBeLocal)
       return true;
     
-    var targetMap = this.membrane.cylinderMap.get(target);
-    var _this = targetMap.getOriginal();
+    var targetCylinder = this.membrane.cylinderMap.get(target);
+    var _this = targetCylinder.getOriginal();
 
     var rv = Reflect.isExtensible(_this);
 
@@ -1554,8 +1553,8 @@ class ObjectGraphHandler {
     this.validateTrapAndShadowTarget("preventExtensions", shadowTarget);
 
     var target = getRealTarget(shadowTarget);
-    var targetMap = this.membrane.cylinderMap.get(target);
-    var _this = targetMap.getOriginal();
+    var targetCylinder = this.membrane.cylinderMap.get(target);
+    var _this = targetCylinder.getOriginal();
 
     // Walk the prototype chain to look for shouldBeLocal.
     var shouldBeLocal = this.getLocalFlag(target, "storeUnknownAsLocal", true);
@@ -1595,10 +1594,10 @@ class ObjectGraphHandler {
 
     // 1. Assert: IsPropertyKey(P) is true.
     AssertIsPropertyKey(propName);
-    var targetMap, shouldBeLocal;
+    var targetCylinder, shouldBeLocal;
 
     try {
-      targetMap = this.membrane.cylinderMap.get(target);
+      targetCylinder = this.membrane.cylinderMap.get(target);
       shouldBeLocal = this.requiresDeletesBeLocal(target);
 
       if (!shouldBeLocal) {
@@ -1607,8 +1606,8 @@ class ObjectGraphHandler {
          * on the original target.  The spec says if GetOwnProperty returns
          * undefined (which it will for our proxy), we should return true.
          */
-        let originFilter = targetMap.getOwnKeysFilter(targetMap.originGraph);
-        let localFilter  = targetMap.getOwnKeysFilter(this.graphName);
+        let originFilter = targetCylinder.getOwnKeysFilter(targetCylinder.originGraph);
+        let localFilter  = targetCylinder.getOwnKeysFilter(this.graphName);
         if (originFilter || localFilter)
           this.membrane.warnOnce(this.membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
         if (originFilter && !originFilter(propName))
@@ -1632,10 +1631,10 @@ class ObjectGraphHandler {
       return false;
 
     try {
-      targetMap.deleteLocalDescriptor(this.graphName, propName, shouldBeLocal);
+      targetCylinder.deleteLocalDescriptor(this.graphName, propName, shouldBeLocal);
 
       if (!shouldBeLocal) {
-        var _this = targetMap.getOriginal();
+        var _this = targetCylinder.getOriginal();
         Reflect.deleteProperty(_this, propName);
       }
 
@@ -1686,8 +1685,8 @@ class ObjectGraphHandler {
     }
 
     try {
-      var targetMap = this.membrane.cylinderMap.get(target);
-      var _this = targetMap.getOriginal();
+      var targetCylinder = this.membrane.cylinderMap.get(target);
+      var _this = targetCylinder.getOriginal();
 
       if (!shouldBeLocal) {
         // Walk the prototype chain to look for shouldBeLocal.
@@ -1714,8 +1713,8 @@ class ObjectGraphHandler {
          * and return false here, denying the property being set on either the
          * proxy or the protected target.
          */
-        originFilter = targetMap.getOwnKeysFilter(targetMap.originGraph);
-        localFilter  = targetMap.getOwnKeysFilter(this.graphName);
+        originFilter = targetCylinder.getOwnKeysFilter(targetCylinder.originGraph);
+        localFilter  = targetCylinder.getOwnKeysFilter(this.graphName);
         if (originFilter || localFilter)
           this.membrane.warnOnce(this.membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
       }
@@ -1737,7 +1736,7 @@ class ObjectGraphHandler {
           hasOwn = Boolean(Reflect.getOwnPropertyDescriptor(_this, propName));
 
         if (!hasOwn && desc) {
-          rv = targetMap.setLocalDescriptor(this.graphName, propName, desc);
+          rv = targetCylinder.setLocalDescriptor(this.graphName, propName, desc);
           if (rv)
             this.setOwnKeys(shadowTarget); // fix up property list
           if (!desc.configurable)
@@ -1745,7 +1744,7 @@ class ObjectGraphHandler {
           return rv;
         }
         else {
-          targetMap.deleteLocalDescriptor(this.graphName, propName, false);
+          targetCylinder.deleteLocalDescriptor(this.graphName, propName, false);
           // fall through to Reflect's defineProperty
         }
       }
@@ -1759,14 +1758,14 @@ class ObjectGraphHandler {
       if (desc !== undefined) {
         desc = this.membrane.wrapDescriptor(
           this.graphName,
-          targetMap.originGraph,
+          targetCylinder.originGraph,
           desc
         );
       }
 
       rv = Reflect.defineProperty(_this, propName, desc);
       if (rv) {
-        targetMap.unmaskDeletion(this.graphName, propName);
+        targetCylinder.unmaskDeletion(this.graphName, propName);
         this.setOwnKeys(shadowTarget); // fix up property list
 
         if (!desc.configurable)
@@ -2025,14 +2024,14 @@ class ObjectGraphHandler {
 
     var target = getRealTarget(shadowTarget);
     try {
-      var targetMap = this.membrane.cylinderMap.get(target);
-      var _this = targetMap.getOriginal();
+      var targetCylinder = this.membrane.cylinderMap.get(target);
+      var _this = targetCylinder.getOriginal();
 
       let protoProxy, wrappedProxy, found;
-      if (targetMap.originGraph !== this.graphName) {
+      if (targetCylinder.originGraph !== this.graphName) {
         protoProxy = this.membrane.convertArgumentToProxy(
           this,
-          this.membrane.getHandlerByName(targetMap.originGraph),
+          this.membrane.getHandlerByName(targetCylinder.originGraph),
           proto
         );
         [found, wrappedProxy] = this.membrane.getMembraneProxy(
@@ -2067,8 +2066,8 @@ class ObjectGraphHandler {
 
     var target = getRealTarget(shadowTarget);
     var _this, args = [];
-    let targetMap  = this.membrane.cylinderMap.get(target);
-    let argHandler = this.membrane.getHandlerByName(targetMap.originGraph);
+    let targetCylinder  = this.membrane.cylinderMap.get(target);
+    let argHandler = this.membrane.getHandlerByName(targetCylinder.originGraph);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -2088,7 +2087,7 @@ class ObjectGraphHandler {
       trapName: "apply"
     });
 
-    if (targetMap.originGraph !== this.graphName) {
+    if (targetCylinder.originGraph !== this.graphName) {
       _this = this.membrane.convertArgumentToProxy(
         this,
         argHandler,
@@ -2143,7 +2142,7 @@ class ObjectGraphHandler {
       this.membrane.logger.debug("apply wrapping return value");
     }
 
-    if (targetMap.originGraph !== this.graphName)
+    if (targetCylinder.originGraph !== this.graphName)
       rv = this.membrane.convertArgumentToProxy(
         argHandler,
         this,
@@ -2178,8 +2177,8 @@ class ObjectGraphHandler {
 
     var target = getRealTarget(shadowTarget);
     var args = [];
-    let targetMap  = this.membrane.cylinderMap.get(target);
-    let argHandler = this.membrane.getHandlerByName(targetMap.originGraph);
+    let targetCylinder  = this.membrane.cylinderMap.get(target);
+    let argHandler = this.membrane.getHandlerByName(targetCylinder.originGraph);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -2281,17 +2280,17 @@ class ObjectGraphHandler {
    */
   validateTrapAndShadowTarget(trapName, shadowTarget) {
     const target = getRealTarget(shadowTarget);
-    const targetMap = this.membrane.cylinderMap.get(target);
-    if (!(targetMap instanceof ProxyCylinder))
+    const targetCylinder = this.membrane.cylinderMap.get(target);
+    if (!(targetCylinder instanceof ProxyCylinder))
       throw new Error("No ProxyCylinder found for shadow target!");
-    if (!targetMap.isShadowTarget(shadowTarget)) {
+    if (!targetCylinder.isShadowTarget(shadowTarget)) {
       throw new Error(
         "ObjectGraphHandler traps must be called with a shadow target!"
       );
     }
     const disableTrapFlag = `disableTrap(${trapName})`;
-    if (targetMap.getLocalFlag(this.graphName, disableTrapFlag) ||
-        targetMap.getLocalFlag(targetMap.originGraph, disableTrapFlag))
+    if (targetCylinder.getLocalFlag(this.graphName, disableTrapFlag) ||
+        targetCylinder.getLocalFlag(targetCylinder.originGraph, disableTrapFlag))
       throw new Error(`The ${trapName} trap is not executable.`);
   }
 
@@ -2301,8 +2300,8 @@ class ObjectGraphHandler {
    * @private
    */
   getShadowTarget(target) {
-    let targetMap = this.membrane.cylinderMap.get(target);
-    return targetMap.getShadowTarget(this.graphName);
+    let targetCylinder = this.membrane.cylinderMap.get(target);
+    return targetCylinder.getShadowTarget(this.graphName);
   }
 
   /**
@@ -2429,8 +2428,8 @@ class ObjectGraphHandler {
    */
   lockShadowTarget(shadowTarget) {
     const target = getRealTarget(shadowTarget);
-    const targetMap = this.membrane.cylinderMap.get(target);
-    const _this = targetMap.getOriginal();
+    const targetCylinder = this.membrane.cylinderMap.get(target);
+    const _this = targetCylinder.getOriginal();
     const keys = this.setOwnKeys(shadowTarget);
     keys.forEach(function(propName) {
       if (this.membrane.showGraphName && (propName == "membraneGraphName")) {
@@ -2463,8 +2462,8 @@ class ObjectGraphHandler {
    */
   setOwnKeys(shadowTarget) {
     var target = getRealTarget(shadowTarget);
-    var targetMap = this.membrane.cylinderMap.get(target);
-    var _this = targetMap.getOriginal();
+    var targetCylinder = this.membrane.cylinderMap.get(target);
+    var _this = targetCylinder.getOriginal();
 
     // First, get the underlying object's key list, forming a base.
     var originalKeys = Reflect.ownKeys(_this);
@@ -2472,11 +2471,11 @@ class ObjectGraphHandler {
     // Remove duplicated names and keys that have been deleted.
     {
       let mustSkip = new Set();
-      targetMap.appendDeletedNames(targetMap.originGraph, mustSkip);
-      targetMap.appendDeletedNames(this.graphName, mustSkip);
+      targetCylinder.appendDeletedNames(targetCylinder.originGraph, mustSkip);
+      targetCylinder.appendDeletedNames(this.graphName, mustSkip);
 
-      let originFilter = targetMap.getOwnKeysFilter(targetMap.originGraph);
-      let localFilter  = targetMap.getOwnKeysFilter(this.graphName);
+      let originFilter = targetCylinder.getOwnKeysFilter(targetCylinder.originGraph);
+      let localFilter  = targetCylinder.getOwnKeysFilter(this.graphName);
 
       if ((mustSkip.size > 0) || originFilter || localFilter) {
         originalKeys = originalKeys.filter(function(elem) {
@@ -2494,8 +2493,8 @@ class ObjectGraphHandler {
     // Append the local proxy keys.
     var rv;
     {
-      let originExtraKeys = targetMap.localOwnKeys(targetMap.originGraph);
-      let targetExtraKeys = targetMap.localOwnKeys(this.graphName);
+      let originExtraKeys = targetCylinder.localOwnKeys(targetCylinder.originGraph);
+      let targetExtraKeys = targetCylinder.localOwnKeys(this.graphName);
       let known = new Set(originalKeys);
       let f = function(key) {
         if (known.has(key))
@@ -2513,7 +2512,7 @@ class ObjectGraphHandler {
     }
 
     // Optimization, storing the generated key list for future retrieval.
-    targetMap.setCachedOwnKeys(this.graphName, rv, originalKeys);
+    targetCylinder.setCachedOwnKeys(this.graphName, rv, originalKeys);
 
     {
       /* Give the shadow target any non-configurable keys it needs.
@@ -2658,16 +2657,16 @@ class ObjectGraphHandler {
         handler.validateTrapAndShadowTarget("defineLazyGetter", shadowTarget);
 
         const target = getRealTarget(shadowTarget);
-        const targetMap = handler.membrane.cylinderMap.get(target);
+        const targetCylinder = handler.membrane.cylinderMap.get(target);
 
         // sourceDesc is the descriptor we really want
         let sourceDesc = (
-          targetMap.getLocalDescriptor(handler.graphName, propName) ||
+          targetCylinder.getLocalDescriptor(handler.graphName, propName) ||
           Reflect.getOwnPropertyDescriptor(source, propName)
         );
 
         if ((sourceDesc !== undefined) &&
-            (targetMap.originGraph !== handler.graphName)) {
+            (targetCylinder.originGraph !== handler.graphName)) {
           let hasUnwrapped = "value" in sourceDesc,
               unwrapped = sourceDesc.value;
 
@@ -2675,7 +2674,7 @@ class ObjectGraphHandler {
           let configurable = sourceDesc.configurable;
           sourceDesc.configurable = true;
           sourceDesc = handler.membrane.wrapDescriptor(
-            targetMap.originGraph, handler.graphName, sourceDesc
+            targetCylinder.originGraph, handler.graphName, sourceDesc
           );
           sourceDesc.configurable = configurable;
 
@@ -2720,10 +2719,10 @@ class ObjectGraphHandler {
         if (valueType(value) !== "primitive") {
           // Maybe we have to wrap the actual descriptor.
           const target = getRealTarget(shadowTarget);
-          const targetMap = handler.membrane.cylinderMap.get(target);
-          if (targetMap.originGraph !== handler.graphName) {
+          const targetCylinder = handler.membrane.cylinderMap.get(target);
+          if (targetCylinder.originGraph !== handler.graphName) {
             let originHandler = handler.membrane.getHandlerByName(
-              targetMap.originGraph
+              targetCylinder.originGraph
             );
             value = handler.membrane.convertArgumentToProxy(
               originHandler, handler, value
@@ -3572,18 +3571,35 @@ class ObjectGraph {
    *
    * @private
    */
+  /*
   addRevocable(revoke) {
+    if (this.__isDead__)
+      throw new Error("This membrane handler is dead!");
+    this.__revokeFunctions__.push(revoke);
+
+    void(revoke);
     throw new Error("Not implemented");
   }
+  */
 
   /**
    * Remove a ProxyCylinder or a Proxy.revoke function from our list.
    *
    * @private
    */
+  /*
   removeRevocable(revoke) {
+    /*
+    let index = this.__revokeFunctions__.indexOf(revoke);
+    if (index == -1) {
+      throw new Error("Unknown revoke function!");
+    }
+    this.__revokeFunctions__.splice(index, 1);
+
+    void(revoke);
     throw new Error("Not implemented");
   }
+  */
 
   /**
    * Revoke the entire object graph.
