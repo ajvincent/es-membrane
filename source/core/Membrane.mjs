@@ -167,12 +167,13 @@ class Membrane {
    *
    * Options:
    *   @param {ProxyCylinder} mapping  A mapping with associated values and proxies.
+   *   @param {}
    *
    * @returns {ProxyCylinder} A mapping holding the value.
    *
-   * @private
+   * @package
    */
-  buildMapping(handler, value, options = {}) {
+  addPartsToCylinder(handler, value, options = {}) {
     if (!this.ownsHandler(handler))
       throw new Error("handler is not an ObjectGraphHandler we own!");
     let cylinder = ("mapping" in options) ? options.mapping : null;
@@ -368,7 +369,7 @@ class Membrane {
       else
         passOptions = options;
 
-      this.buildMapping(originHandler, arg, passOptions);
+      this.addPartsToCylinder(originHandler, arg, passOptions);
     }
     
     if (!this.hasProxyForValue(targetHandler.graphName, arg)) {
@@ -382,7 +383,7 @@ class Membrane {
         passOptions, "mapping", new DataDescriptor(cylinder)
       );
 
-      this.buildMapping(targetHandler, arg, passOptions);
+      this.addPartsToCylinder(targetHandler, arg, passOptions);
     }
 
     [found, rv] = this.getMembraneProxy(

@@ -930,7 +930,7 @@ export default class ObjectGraphHandler {
       return false;
 
     if (!this.membrane.hasProxyForValue(this.graphName, setter))
-      this.membrane.buildMapping(this, setter);
+      this.membrane.addPartsToCylinder(this, setter);
 
     // 8. Perform ? Call(setter, Receiver, « V »).
 
@@ -1255,7 +1255,7 @@ export default class ObjectGraphHandler {
    */
   ensureMapping(target) {
     if (!this.membrane.hasProxyForValue(this.graphName, target))
-      this.membrane.buildMapping(this, target);
+      this.membrane.addPartsToCylinder(this, target);
   }
   
   /**
@@ -1705,8 +1705,8 @@ export default class ObjectGraphHandler {
     };
 
     {
-      handler.membrane.buildMapping(handler, lazyDesc.get);
-      handler.membrane.buildMapping(handler, lazyDesc.set);
+      handler.membrane.addPartsToCylinder(handler, lazyDesc.get);
+      handler.membrane.addPartsToCylinder(handler, lazyDesc.set);
     }
 
     {

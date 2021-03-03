@@ -1986,7 +1986,7 @@ class ObjectGraphHandler {
       return false;
 
     if (!this.membrane.hasProxyForValue(this.graphName, setter))
-      this.membrane.buildMapping(this, setter);
+      this.membrane.addPartsToCylinder(this, setter);
 
     // 8. Perform ? Call(setter, Receiver, « V »).
 
@@ -2311,7 +2311,7 @@ class ObjectGraphHandler {
    */
   ensureMapping(target) {
     if (!this.membrane.hasProxyForValue(this.graphName, target))
-      this.membrane.buildMapping(this, target);
+      this.membrane.addPartsToCylinder(this, target);
   }
   
   /**
@@ -2761,8 +2761,8 @@ class ObjectGraphHandler {
     };
 
     {
-      handler.membrane.buildMapping(handler, lazyDesc.get);
-      handler.membrane.buildMapping(handler, lazyDesc.set);
+      handler.membrane.addPartsToCylinder(handler, lazyDesc.get);
+      handler.membrane.addPartsToCylinder(handler, lazyDesc.set);
     }
 
     {
@@ -3813,12 +3813,13 @@ class Membrane {
    *
    * Options:
    *   @param {ProxyCylinder} mapping  A mapping with associated values and proxies.
+   *   @param {}
    *
    * @returns {ProxyCylinder} A mapping holding the value.
    *
-   * @private
+   * @package
    */
-  buildMapping(handler, value, options = {}) {
+  addPartsToCylinder(handler, value, options = {}) {
     if (!this.ownsHandler(handler))
       throw new Error("handler is not an ObjectGraphHandler we own!");
     let cylinder = ("mapping" in options) ? options.mapping : null;
@@ -4014,7 +4015,7 @@ class Membrane {
       else
         passOptions = options;
 
-      this.buildMapping(originHandler, arg, passOptions);
+      this.addPartsToCylinder(originHandler, arg, passOptions);
     }
     
     if (!this.hasProxyForValue(targetHandler.graphName, arg)) {
@@ -4028,7 +4029,7 @@ class Membrane {
         passOptions, "mapping", new DataDescriptor(cylinder)
       );
 
-      this.buildMapping(targetHandler, arg, passOptions);
+      this.addPartsToCylinder(targetHandler, arg, passOptions);
     }
 
     [found, rv] = this.getMembraneProxy(
