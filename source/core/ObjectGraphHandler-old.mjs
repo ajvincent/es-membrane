@@ -800,13 +800,24 @@ export default class ObjectGraphHandler {
       */
 
       let cylinder = this.membrane.cylinderMap.get(target);
-      let shadow = cylinder.getShadowTarget(this.graphName);
-      ownDesc = this.getOwnPropertyDescriptor(shadow, propName);
+      let shadow;
+      if (cylinder.originGraph === this.graphName) {
+        shadow = cylinder.getOriginal();
+        ownDesc = Reflect.getOwnPropertyDescriptor(cylinder.getOriginal(), propName);
+      }
+      else {
+        shadow = cylinder.getShadowTarget(this.graphName);
+        assert(shadow, "No shadow target?");
+        ownDesc = this.getOwnPropertyDescriptor(shadow, propName);
+      }
+
       if (ownDesc)
         break;
 
       {
-        let proto = this.getPrototypeOf(shadow);
+        let proto = (cylinder.originGraph === this.graphName) ?
+                    Reflect.getPrototypeOf(shadow) :
+                    this.getPrototypeOf(shadow);
         if (proto === null) {
           ownDesc = new DataDescriptor(undefined, true);
           break;
@@ -1228,6 +1239,7 @@ export default class ObjectGraphHandler {
     const targetCylinder = this.membrane.cylinderMap.get(target);
     if (!(targetCylinder instanceof ProxyCylinder))
       throw new Error("No ProxyCylinder found for shadow target!");
+
     if (!targetCylinder.isShadowTarget(shadowTarget)) {
       throw new Error(
         "ObjectGraphHandler traps must be called with a shadow target!"

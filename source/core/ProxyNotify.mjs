@@ -3,6 +3,7 @@ import {
   DataDescriptor,
   assert,
   makeRevokeDeleteRefs,
+  getRealTarget,
 } from "./sharedUtilities.mjs";
 
 import {
@@ -20,7 +21,6 @@ import {
  * @package
  */
 export default function ProxyNotify(parts, handler, isOrigin, options) {
-  "use strict";
   if (typeof options === "undefined")
     options = {};
 
@@ -56,7 +56,7 @@ export default function ProxyNotify(parts, handler, isOrigin, options) {
     /**
      * The unwrapped object or function we're building the proxy for.
      */
-    "target": new DataDescriptor(parts.value),
+    "target": new DataDescriptor(getRealTarget(parts.shadowTarget)),
 
     "isOriginGraph": new DataDescriptor(isOrigin),
 
@@ -101,7 +101,8 @@ export default function ProxyNotify(parts, handler, isOrigin, options) {
 
   const callbacks = [];
   const inConstruction = handler.proxiesInConstruction;
-  inConstruction.set(parts.value, callbacks);
+  const realTarget = parts.shadowTarget ? getRealTarget(parts.shadowTarget) : parts.value;
+  inConstruction.set(realTarget, callbacks);
 
   try {
     invokeProxyListeners(listeners, meta);
@@ -116,7 +117,7 @@ export default function ProxyNotify(parts, handler, isOrigin, options) {
       }
     });
 
-    inConstruction.delete(parts.value);
+    inConstruction.delete(realTarget);
   }
 }
 
