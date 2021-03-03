@@ -169,7 +169,7 @@ if (!isNewMap) {
   mapBase = new WhiteListMapBase(originHandler, originalMap);
 }
 else {
-  mapBase = membrane.getMembraneProxy(originHandler.fieldName, originalMap);
+  mapBase = membrane.getMembraneProxy(originHandler.graphName, originalMap);
 }
 
 const whiteListMap = new WhiteListMapForGraph(proxyMeta.shadowTarget, mapBase);

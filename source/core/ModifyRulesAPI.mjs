@@ -25,7 +25,7 @@
  *   * Define new methods on ProxyMapping.prototype for storing or retrieving
  *     the properties.
  *   * Internally, the new methods should store properties on
- *     this.proxiedFields[fieldName].
+ *     this.proxiedFields[graphName].
  *   * Modify the existing ProxyHandler traps in ObjectGraphHandler.prototype
  *     to call the ProxyMapping methods, in order to implement the new behavior.
  * (3) If the new API must define a new proxy, or more than one:
@@ -118,16 +118,16 @@ export class ModifyRulesAPI {
     if (existingHandler instanceof ObjectGraphHandler) {
       if (!this.membrane.ownsHandler(existingHandler)) {
         // XXX ajvincent Fix this error message!!
-        throw new Error("fieldName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
+        throw new Error("graphName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
       }
 
-      baseHandler = this.membrane.getHandlerByName(existingHandler.fieldName);
-      description = "our membrane's " + baseHandler.fieldName + " ObjectGraphHandler";
+      baseHandler = this.membrane.getHandlerByName(existingHandler.graphName);
+      description = "our membrane's " + baseHandler.graphName + " ObjectGraphHandler";
     }
 
     else if (baseHandler !== Reflect) {
       // XXX ajvincent Fix this error message!!
-      throw new Error("fieldName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
+      throw new Error("graphName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
     }
 
     if ((baseHandler !== existingHandler) && !ChainHandlers.has(existingHandler)) {
@@ -183,8 +183,8 @@ export class ModifyRulesAPI {
         accepted = true;
       }
       else if (baseHandler instanceof ObjectGraphHandler) {
-        let fieldName = baseHandler.fieldName;
-        let ownedHandler = this.membrane.getHandlerByName(fieldName);
+        let graphName = baseHandler.graphName;
+        let ownedHandler = this.membrane.getHandlerByName(graphName);
         accepted = ownedHandler === baseHandler;
       }
 
@@ -206,7 +206,7 @@ export class ModifyRulesAPI {
       cachedField = cylinder.originField;
     }
     else {
-      cachedField = baseHandler.fieldName;
+      cachedField = baseHandler.graphName;
       if (cachedField == cylinder.originField)
         throw new Error("You must replace original values with either Reflect or a ChainHandler inheriting from Reflect");
     }
@@ -239,14 +239,14 @@ export class ModifyRulesAPI {
   /**
    * Ensure that the proxy passed in matches the object graph handler.
    *
-   * @param fieldName  {Symbol|String} The handler's field name.
+   * @param graphName  {Symbol|String} The handler's field name.
    * @param proxy      {Proxy}  The value to look up.
    * @param methodName {String} The calling function's name.
    * 
    * @private
    */
-  assertLocalProxy(fieldName, proxy, methodName) {
-    let [found, match] = this.membrane.getMembraneProxy(fieldName, proxy);
+  assertLocalProxy(graphName, proxy, methodName) {
+    let [found, match] = this.membrane.getMembraneProxy(graphName, proxy);
     if (!found || (proxy !== match)) {
       throw new Error(methodName + " requires a known proxy!");
     }
@@ -256,32 +256,32 @@ export class ModifyRulesAPI {
    * Require that new properties be stored via the proxies instead of propagated
    * through to the underlying object.
    *
-   * @param fieldName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The field name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy}  The proxy (or underlying object) needing local
    *                           property protection.
    */
-  storeUnknownAsLocal(fieldName, proxy) {
-    this.assertLocalProxy(fieldName, proxy, "storeUnknownAsLocal");
+  storeUnknownAsLocal(graphName, proxy) {
+    this.assertLocalProxy(graphName, proxy, "storeUnknownAsLocal");
 
     let cylinder = this.membrane.cylinderMap.get(proxy);
-    cylinder.setLocalFlag(fieldName, "storeUnknownAsLocal", true);
+    cylinder.setLocalFlag(graphName, "storeUnknownAsLocal", true);
   }
 
   /**
    * Require that properties be deleted only on the proxy instead of propagated
    * through to the underlying object.
    *
-   * @param fieldName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The field name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy}  The proxy (or underlying object) needing local
    *                           property protection.
    */
-  requireLocalDelete(fieldName, proxy) {
-    this.assertLocalProxy(fieldName, proxy, "requireLocalDelete");
+  requireLocalDelete(graphName, proxy) {
+    this.assertLocalProxy(graphName, proxy, "requireLocalDelete");
 
     let cylinder = this.membrane.cylinderMap.get(proxy);
-    cylinder.setLocalFlag(fieldName, "requireLocalDelete", true);
+    cylinder.setLocalFlag(graphName, "requireLocalDelete", true);
   }
 
   /**
@@ -291,7 +291,7 @@ export class ModifyRulesAPI {
    * @note Local properties and local delete operations of a proxy are NOT
    * affected by the filters.
    * 
-   * @param fieldName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The field name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy}    The proxy (or underlying object) needing local
    *                             property protection.
@@ -299,8 +299,8 @@ export class ModifyRulesAPI {
    *                             a Set, which becomes a whitelist filter.)
    * @see Array.prototype.filter.
    */
-  filterOwnKeys(fieldName, proxy, filter) {
-    this.assertLocalProxy(fieldName, proxy, "filterOwnKeys");
+  filterOwnKeys(graphName, proxy, filter) {
+    this.assertLocalProxy(graphName, proxy, "filterOwnKeys");
 
     if (Array.isArray(filter)) {
       filter = new Set(filter);
@@ -324,13 +324,13 @@ export class ModifyRulesAPI {
      */
     let cylinder = this.membrane.cylinderMap.get(proxy);
     let fieldsToCheck;
-    if (cylinder.originField === fieldName)
+    if (cylinder.originField === graphName)
     {
       fieldsToCheck = Reflect.ownKeys(cylinder.proxiedFields);
-      fieldsToCheck.splice(fieldsToCheck.indexOf(fieldName), 1);
+      fieldsToCheck.splice(fieldsToCheck.indexOf(graphName), 1);
     }
     else
-      fieldsToCheck = [ fieldName ];
+      fieldsToCheck = [ graphName ];
 
     let allowed = fieldsToCheck.every(function(f) {
       let s = cylinder.getShadowTarget(f);
@@ -338,7 +338,7 @@ export class ModifyRulesAPI {
     });
 
     if (allowed)
-      cylinder.setOwnKeysFilter(fieldName, filter);
+      cylinder.setOwnKeysFilter(graphName, filter);
     else
       throw new Error("filterOwnKeys cannot apply to a non-extensible proxy");
   }
@@ -346,7 +346,7 @@ export class ModifyRulesAPI {
   /**
    * Assign the number of arguments to truncate a method's argument list to.
    *
-   * @param fieldName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The field name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy(Function)} The method needing argument truncation.
    * @param value     {Boolean|Number}
@@ -354,8 +354,8 @@ export class ModifyRulesAPI {
    *   - if false, do not limit at all.
    *   - if a non-negative integer, limit to that number.
    */
-  truncateArgList(fieldName, proxy, value) {
-    this.assertLocalProxy(fieldName, proxy, "truncateArgList");
+  truncateArgList(graphName, proxy, value) {
+    this.assertLocalProxy(graphName, proxy, "truncateArgList");
     if (typeof proxy !== "function")
       throw new Error("proxy must be a function!");
     {
@@ -371,26 +371,26 @@ export class ModifyRulesAPI {
     }
 
     let cylinder = this.membrane.cylinderMap.get(proxy);
-    cylinder.setTruncateArgList(fieldName, value);
+    cylinder.setTruncateArgList(graphName, value);
   }
 
   /**
    * Disable traps for a given proxy.
    *
-   * @param fieldName {String}   The name of the object graph the proxy is part
+   * @param graphName {String}   The name of the object graph the proxy is part
    *                             of.
    * @param proxy     {Proxy}    The proxy to affect.
    * @param trapList  {String[]} A list of proxy (Reflect) traps to disable.
    */
-  disableTraps(fieldName, proxy, trapList) {
-    this.assertLocalProxy(fieldName, proxy, "disableTraps");
+  disableTraps(graphName, proxy, trapList) {
+    this.assertLocalProxy(graphName, proxy, "disableTraps");
     if (!Array.isArray(trapList) ||
         (trapList.some((t) => { return typeof t !== "string"; })))
       throw new Error("Trap list must be an array of strings!");
     const cylinder = this.membrane.cylinderMap.get(proxy);
     trapList.forEach(function(t) {
       if (allTraps.includes(t))
-        this.setLocalFlag(fieldName, `disableTrap(${t})`, true);
+        this.setLocalFlag(graphName, `disableTrap(${t})`, true);
     }, cylinder);
   }
 

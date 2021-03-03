@@ -1010,7 +1010,7 @@ ProxyNotify.useShadowTarget = function(parts, handler, mode) {
   assert(cylinder instanceof ProxyCylinder,
          "Didn't get a ProxyCylinder for an existing value?");
   cylinderMap.set(parts.proxy, cylinder);
-  makeRevokeDeleteRefs(parts, cylinder, handler.fieldName);
+  makeRevokeDeleteRefs(parts, cylinder, handler.graphName);
 };
 
 function invokeProxyListeners(listeners, meta) {
@@ -1078,14 +1078,14 @@ function AssertIsPropertyKey(propName) {
 
 /**
  * A proxy handler designed to return only primitives and objects in a given
- * object graph, defined by the fieldName.
+ * object graph, defined by the graphName.
  *
  * @package
  */
 class ObjectGraphHandler {
-  constructor(membrane, fieldName) {
+  constructor(membrane, graphName) {
     {
-      let t = typeof fieldName;
+      let t = typeof graphName;
       if ((t != "string") && (t != "symbol"))
         throw new Error("field must be a string or a symbol!");
     }
@@ -1106,7 +1106,7 @@ class ObjectGraphHandler {
     // private
     Object.defineProperties(this, {
       "membrane": new NWNCDataDescriptor(membrane, false),
-      "fieldName": new NWNCDataDescriptor(fieldName, false),
+      "graphName": new NWNCDataDescriptor(graphName, false),
 
       "passThroughFilter": {
         get: () => passThroughFilter,
@@ -1136,7 +1136,7 @@ class ObjectGraphHandler {
       * the object graph.
       */
       "graphNameDescriptor": new NWNCDataDescriptor(
-        new DataDescriptor(fieldName), false
+        new DataDescriptor(graphName), false
       ),
 
       // see .defineLazyGetter, ProxyNotify for details.
@@ -1157,7 +1157,7 @@ class ObjectGraphHandler {
    * (1) Determine the target's origin field name.
    * (2) Wrap all non-primitive arguments for Reflect in the target field.
    * (3) var rv = Reflect[trapName].call(argList);
-   * (4) Wrap rv in this.fieldName's field.
+   * (4) Wrap rv in this.graphName's field.
    * (5) return rv.
    *
    * Error stack trace hiding will be determined by the membrane itself.
@@ -1173,7 +1173,7 @@ class ObjectGraphHandler {
     var targetMap = this.membrane.cylinderMap.get(target);
 
     // cached keys are only valid if original keys have not changed
-    var cached = targetMap.cachedOwnKeys(this.fieldName);
+    var cached = targetMap.cachedOwnKeys(this.graphName);
     if (cached) {
       let _this = targetMap.getOriginal();
       let check = Reflect.ownKeys(_this);
@@ -1211,7 +1211,7 @@ class ObjectGraphHandler {
     var hasOwn;
     while (target !== null) {
       let pMapping = this.membrane.cylinderMap.get(target);
-      let shadow = pMapping.getShadowTarget(this.fieldName);
+      let shadow = pMapping.getShadowTarget(this.graphName);
       hasOwn = this.getOwnPropertyDescriptor(shadow, propName);
       if (typeof hasOwn !== "undefined")
         return true;
@@ -1220,7 +1220,7 @@ class ObjectGraphHandler {
         break;
       let foundProto;
       [foundProto, target] = this.membrane.getMembraneValue(
-        this.fieldName,
+        this.graphName,
         target
       );
       assert(foundProto, "Must find membrane value for prototype");
@@ -1267,7 +1267,7 @@ class ObjectGraphHandler {
         /* Special case:  Look for a local property descriptors first, and if we
          * find it, return it unwrapped.
          */
-        desc = targetMap.getLocalDescriptor(this.fieldName, propName);
+        desc = targetMap.getLocalDescriptor(this.graphName, propName);
 
         if (desc) {
           // Quickly repeating steps 4-8 from above algorithm.
@@ -1291,7 +1291,7 @@ class ObjectGraphHandler {
            b. If parent is null, return undefined.
            c. Return ? parent.[[Get]](P, Receiver).
        */
-      let shadow = targetMap.getShadowTarget(this.fieldName);
+      let shadow = targetMap.getShadowTarget(this.graphName);
       if (shadow)
         desc = this.getOwnPropertyDescriptor(shadow, propName);
       else
@@ -1305,7 +1305,7 @@ class ObjectGraphHandler {
         {
           let foundProto, other;
           [foundProto, other] = this.membrane.getMembraneProxy(
-            this.fieldName,
+            this.graphName,
             proto
           );
           if (!foundProto)
@@ -1316,7 +1316,7 @@ class ObjectGraphHandler {
         if (Reflect.isExtensible(shadow))
         {
           target = this.membrane.getMembraneValue(
-            this.fieldName,
+            this.graphName,
             proto
           )[1];
         }
@@ -1378,7 +1378,7 @@ class ObjectGraphHandler {
     }
     var target = getRealTarget(shadowTarget);
     {
-      let [found, unwrapped] = this.membrane.getMembraneValue(this.fieldName, target);
+      let [found, unwrapped] = this.membrane.getMembraneValue(this.graphName, target);
       assert(found, "Original target must be found after calling getRealTarget");
       assert(unwrapped === target, "Original target must match getMembraneValue's return value");
     }
@@ -1399,10 +1399,10 @@ class ObjectGraphHandler {
        * (4) original property:  wrapped property.
        */
       if (targetMap.wasDeletedLocally(targetMap.originGraph, propName) ||
-          targetMap.wasDeletedLocally(this.fieldName, propName))
+          targetMap.wasDeletedLocally(this.graphName, propName))
         return undefined;
 
-      var desc = targetMap.getLocalDescriptor(this.fieldName, propName);
+      var desc = targetMap.getLocalDescriptor(this.graphName, propName);
       if (desc !== undefined)
         return desc;
 
@@ -1412,7 +1412,7 @@ class ObjectGraphHandler {
           return undefined;
       }
       {
-        let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
+        let localFilter  = targetMap.getOwnKeysFilter(this.graphName);
         if (localFilter && !localFilter(propName))
           return undefined;
       }
@@ -1423,13 +1423,13 @@ class ObjectGraphHandler {
       // See .getPrototypeOf trap comments for why this matters.
       const isProtoDesc = (propName === "prototype") && isDataDescriptor(desc);
       const isForeign = ((desc !== undefined) &&
-                         (targetMap.originGraph !== this.fieldName));
+                         (targetMap.originGraph !== this.graphName));
       if (isProtoDesc || isForeign) {
         // This is necessary to force desc.value to really be a proxy.
         let configurable = desc.configurable;
         desc.configurable = true;
         desc = this.membrane.wrapDescriptor(
-          targetMap.originGraph, this.fieldName, desc
+          targetMap.originGraph, this.graphName, desc
         );
         desc.configurable = configurable;
       }
@@ -1501,7 +1501,7 @@ class ObjectGraphHandler {
     try {
       const proto = Reflect.getPrototypeOf(target);
       let proxy;
-      if (targetMap.originGraph !== this.fieldName)
+      if (targetMap.originGraph !== this.graphName)
         proxy = this.membrane.convertArgumentToProxy(
           this.membrane.getHandlerByName(targetMap.originGraph),
           this,
@@ -1511,7 +1511,7 @@ class ObjectGraphHandler {
         proxy = proto;
 
       let pMapping = this.membrane.cylinderMap.get(proxy);
-      if (pMapping && (pMapping.originGraph !== this.fieldName)) {
+      if (pMapping && (pMapping.originGraph !== this.graphName)) {
         assert(Reflect.setPrototypeOf(shadowTarget, proxy),
                "shadowTarget could not receive prototype?");
       }
@@ -1607,7 +1607,7 @@ class ObjectGraphHandler {
          * undefined (which it will for our proxy), we should return true.
          */
         let originFilter = targetMap.getOwnKeysFilter(targetMap.originGraph);
-        let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
+        let localFilter  = targetMap.getOwnKeysFilter(this.graphName);
         if (originFilter || localFilter)
           this.membrane.warnOnce(this.membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
         if (originFilter && !originFilter(propName))
@@ -1631,7 +1631,7 @@ class ObjectGraphHandler {
       return false;
 
     try {
-      targetMap.deleteLocalDescriptor(this.fieldName, propName, shouldBeLocal);
+      targetMap.deleteLocalDescriptor(this.graphName, propName, shouldBeLocal);
 
       if (!shouldBeLocal) {
         var _this = targetMap.getOriginal();
@@ -1714,7 +1714,7 @@ class ObjectGraphHandler {
          * proxy or the protected target.
          */
         originFilter = targetMap.getOwnKeysFilter(targetMap.originGraph);
-        localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
+        localFilter  = targetMap.getOwnKeysFilter(this.graphName);
         if (originFilter || localFilter)
           this.membrane.warnOnce(this.membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
       }
@@ -1736,7 +1736,7 @@ class ObjectGraphHandler {
           hasOwn = Boolean(Reflect.getOwnPropertyDescriptor(_this, propName));
 
         if (!hasOwn && desc) {
-          rv = targetMap.setLocalDescriptor(this.fieldName, propName, desc);
+          rv = targetMap.setLocalDescriptor(this.graphName, propName, desc);
           if (rv)
             this.setOwnKeys(shadowTarget); // fix up property list
           if (!desc.configurable)
@@ -1744,7 +1744,7 @@ class ObjectGraphHandler {
           return rv;
         }
         else {
-          targetMap.deleteLocalDescriptor(this.fieldName, propName, false);
+          targetMap.deleteLocalDescriptor(this.graphName, propName, false);
           // fall through to Reflect's defineProperty
         }
       }
@@ -1757,7 +1757,7 @@ class ObjectGraphHandler {
 
       if (desc !== undefined) {
         desc = this.membrane.wrapDescriptor(
-          this.fieldName,
+          this.graphName,
           targetMap.originGraph,
           desc
         );
@@ -1765,7 +1765,7 @@ class ObjectGraphHandler {
 
       rv = Reflect.defineProperty(_this, propName, desc);
       if (rv) {
-        targetMap.unmaskDeletion(this.fieldName, propName);
+        targetMap.unmaskDeletion(this.graphName, propName);
         this.setOwnKeys(shadowTarget); // fix up property list
 
         if (!desc.configurable)
@@ -1855,7 +1855,7 @@ class ObjectGraphHandler {
       */
 
       let pMapping = this.membrane.cylinderMap.get(target);
-      let shadow = pMapping.getShadowTarget(this.fieldName);
+      let shadow = pMapping.getShadowTarget(this.graphName);
       ownDesc = this.getOwnPropertyDescriptor(shadow, propName);
       if (ownDesc)
         break;
@@ -1868,16 +1868,16 @@ class ObjectGraphHandler {
         }
 
         let found = this.membrane.getMembraneProxy(
-          this.fieldName,
+          this.graphName,
           parent
         )[0];
         assert(found, "Must find membrane proxy for prototype");
         let sMapping = this.membrane.cylinderMap.get(parent);
         assert(sMapping, "Missing a ProxyCylinder?");
 
-        if (sMapping.originGraph != this.fieldName) {
+        if (sMapping.originGraph != this.graphName) {
           [found, target] = this.membrane.getMembraneValue(
-            this.fieldName,
+            this.graphName,
             parent
           );
           assert(found, "Must find membrane value for prototype");
@@ -1915,7 +1915,7 @@ class ObjectGraphHandler {
       receiverMap = this.membrane.cylinderMap.get(receiver);
       if (!receiverMap)
         throw new Error("How do we still not have a receiverMap?");
-      if (receiverMap.originGraph === this.fieldName)
+      if (receiverMap.originGraph === this.graphName)
         throw new Error("Receiver's field name should not match!");
     }
 
@@ -1944,7 +1944,7 @@ class ObjectGraphHandler {
       }
 
       let rvProxy;
-      if (!shouldBeLocal && (receiverMap.originGraph !== this.fieldName)) {
+      if (!shouldBeLocal && (receiverMap.originGraph !== this.graphName)) {
         rvProxy = new DataDescriptor(
           // Only now do we convert the value to the target object graph.
           this.membrane.convertArgumentToProxy(
@@ -1985,7 +1985,7 @@ class ObjectGraphHandler {
     if (typeof setter === "undefined")
       return false;
 
-    if (!this.membrane.hasProxyForValue(this.fieldName, setter))
+    if (!this.membrane.hasProxyForValue(this.graphName, setter))
       this.membrane.buildMapping(this, setter);
 
     // 8. Perform ? Call(setter, Receiver, « V »).
@@ -2028,14 +2028,14 @@ class ObjectGraphHandler {
       var _this = targetMap.getOriginal();
 
       let protoProxy, wrappedProxy, found;
-      if (targetMap.originGraph !== this.fieldName) {
+      if (targetMap.originGraph !== this.graphName) {
         protoProxy = this.membrane.convertArgumentToProxy(
           this,
           this.membrane.getHandlerByName(targetMap.originGraph),
           proto
         );
         [found, wrappedProxy] = this.membrane.getMembraneProxy(
-          this.fieldName, proto
+          this.graphName, proto
         );
         assert(found, "Membrane proxy not found immediately after wrapping!");
       }
@@ -2073,9 +2073,9 @@ class ObjectGraphHandler {
     if (mayLog) {
       this.membrane.logger.debug([
         "apply originGraphs: inbound = ",
-        argHandler.fieldName,
+        argHandler.graphName,
         ", outbound = ",
-        this.fieldName
+        this.graphName
       ].join(""));
     }
 
@@ -2087,7 +2087,7 @@ class ObjectGraphHandler {
       trapName: "apply"
     });
 
-    if (targetMap.originGraph !== this.fieldName) {
+    if (targetMap.originGraph !== this.graphName) {
       _this = this.membrane.convertArgumentToProxy(
         this,
         argHandler,
@@ -2142,7 +2142,7 @@ class ObjectGraphHandler {
       this.membrane.logger.debug("apply wrapping return value");
     }
 
-    if (targetMap.originGraph !== this.fieldName)
+    if (targetMap.originGraph !== this.graphName)
       rv = this.membrane.convertArgumentToProxy(
         argHandler,
         this,
@@ -2184,9 +2184,9 @@ class ObjectGraphHandler {
     if (mayLog) {
       this.membrane.logger.debug([
         "construct originGraphs: inbound = ",
-        argHandler.fieldName,
+        argHandler.graphName,
         ", outbound = ",
-        this.fieldName
+        this.graphName
       ].join(""));
     }
 
@@ -2289,7 +2289,7 @@ class ObjectGraphHandler {
       );
     }
     const disableTrapFlag = `disableTrap(${trapName})`;
-    if (targetMap.getLocalFlag(this.fieldName, disableTrapFlag) ||
+    if (targetMap.getLocalFlag(this.graphName, disableTrapFlag) ||
         targetMap.getLocalFlag(targetMap.originGraph, disableTrapFlag))
       throw new Error(`The ${trapName} trap is not executable.`);
   }
@@ -2301,7 +2301,7 @@ class ObjectGraphHandler {
    */
   getShadowTarget(target) {
     let targetMap = this.membrane.cylinderMap.get(target);
-    return targetMap.getShadowTarget(this.fieldName);
+    return targetMap.getShadowTarget(this.graphName);
   }
 
   /**
@@ -2310,7 +2310,7 @@ class ObjectGraphHandler {
    * @param target {Object} The value to wrap.
    */
   ensureMapping(target) {
-    if (!this.membrane.hasProxyForValue(this.fieldName, target))
+    if (!this.membrane.hasProxyForValue(this.graphName, target))
       this.membrane.buildMapping(this, target);
   }
   
@@ -2395,8 +2395,8 @@ class ObjectGraphHandler {
     const args = [
       reason,
       trapName,
-      this.fieldName,
-      origin.fieldName,
+      this.graphName,
+      origin.graphName,
       target,
       rvOrExn
     ];
@@ -2470,10 +2470,10 @@ class ObjectGraphHandler {
     {
       let mustSkip = new Set();
       targetMap.appendDeletedNames(targetMap.originGraph, mustSkip);
-      targetMap.appendDeletedNames(this.fieldName, mustSkip);
+      targetMap.appendDeletedNames(this.graphName, mustSkip);
 
       let originFilter = targetMap.getOwnKeysFilter(targetMap.originGraph);
-      let localFilter  = targetMap.getOwnKeysFilter(this.fieldName);
+      let localFilter  = targetMap.getOwnKeysFilter(this.graphName);
 
       if ((mustSkip.size > 0) || originFilter || localFilter) {
         originalKeys = originalKeys.filter(function(elem) {
@@ -2492,7 +2492,7 @@ class ObjectGraphHandler {
     var rv;
     {
       let originExtraKeys = targetMap.localOwnKeys(targetMap.originGraph);
-      let targetExtraKeys = targetMap.localOwnKeys(this.fieldName);
+      let targetExtraKeys = targetMap.localOwnKeys(this.graphName);
       let known = new Set(originalKeys);
       let f = function(key) {
         if (known.has(key))
@@ -2510,7 +2510,7 @@ class ObjectGraphHandler {
     }
 
     // Optimization, storing the generated key list for future retrieval.
-    targetMap.setCachedOwnKeys(this.fieldName, rv, originalKeys);
+    targetMap.setCachedOwnKeys(this.graphName, rv, originalKeys);
 
     {
       /* Give the shadow target any non-configurable keys it needs.
@@ -2635,7 +2635,7 @@ class ObjectGraphHandler {
           return lockedValue;
         if (lockState === "transient")
           return handler.membrane.getMembraneProxy(
-            handler.fieldName, shadowTarget
+            handler.graphName, shadowTarget
           ).proxy;
 
         /* When the shadow target is sealed, desc.configurable is not updated.
@@ -2659,12 +2659,12 @@ class ObjectGraphHandler {
 
         // sourceDesc is the descriptor we really want
         let sourceDesc = (
-          targetMap.getLocalDescriptor(handler.fieldName, propName) ||
+          targetMap.getLocalDescriptor(handler.graphName, propName) ||
           Reflect.getOwnPropertyDescriptor(source, propName)
         );
 
         if ((sourceDesc !== undefined) &&
-            (targetMap.originGraph !== handler.fieldName)) {
+            (targetMap.originGraph !== handler.graphName)) {
           let hasUnwrapped = "value" in sourceDesc,
               unwrapped = sourceDesc.value;
 
@@ -2672,7 +2672,7 @@ class ObjectGraphHandler {
           let configurable = sourceDesc.configurable;
           sourceDesc.configurable = true;
           sourceDesc = handler.membrane.wrapDescriptor(
-            targetMap.originGraph, handler.fieldName, sourceDesc
+            targetMap.originGraph, handler.graphName, sourceDesc
           );
           sourceDesc.configurable = configurable;
 
@@ -2718,7 +2718,7 @@ class ObjectGraphHandler {
           // Maybe we have to wrap the actual descriptor.
           const target = getRealTarget(shadowTarget);
           const targetMap = handler.membrane.cylinderMap.get(target);
-          if (targetMap.originGraph !== handler.fieldName) {
+          if (targetMap.originGraph !== handler.graphName) {
             let originHandler = handler.membrane.getHandlerByName(
               targetMap.originGraph
             );
@@ -2787,7 +2787,7 @@ class ObjectGraphHandler {
    */
   getLocalFlag(target, flagName, recurse) {
     let cylinder = this.membrane.cylinderMap.get(target);
-    const field = this.fieldName;
+    const field = this.graphName;
     const originGraph = cylinder.originGraph;
 
     //eslint-disable-next-line no-constant-condition
@@ -2798,10 +2798,10 @@ class ObjectGraphHandler {
         return true;
       if (!recurse)
         return false;
-      let shadowTarget = cylinder.getShadowTarget(this.fieldName);
+      let shadowTarget = cylinder.getShadowTarget(this.graphName);
 
       /* XXX ajvincent I suspect this assertion might fail if
-       * this.fieldName == map.originGraph:  if the field represents an original
+       * this.graphName == map.originGraph:  if the field represents an original
        * value.
        */
       assert(shadowTarget, "getLocalFlag failed to get a shadow target!");
@@ -2831,11 +2831,11 @@ class ObjectGraphHandler {
 
     //eslint-disable-next-line no-constant-condition
     while (true) {
-      let shouldBeLocal = cylinder.getLocalFlag(this.fieldName, "requireLocalDelete") ||
+      let shouldBeLocal = cylinder.getLocalFlag(this.graphName, "requireLocalDelete") ||
                           cylinder.getLocalFlag(originGraph, "requireLocalDelete");
       if (shouldBeLocal)
         return true;
-      let shadowTarget = cylinder.getShadowTarget(this.fieldName);
+      let shadowTarget = cylinder.getShadowTarget(this.graphName);
       protoTarget = this.getPrototypeOf(shadowTarget);
       if (!protoTarget)
         return false;
@@ -2866,7 +2866,7 @@ class ObjectGraphHandler {
              "must call slice with a non-negative integer length");
     }
 
-    var targetCount = cylinder.getTruncateArgList(this.fieldName);
+    var targetCount = cylinder.getTruncateArgList(this.graphName);
     if (typeof targetCount === "boolean") {
       targetCount = targetCount ? target.length : Infinity;
     }
@@ -3042,7 +3042,7 @@ class DistortionsListener {
 
   applyConfiguration(config, meta) {
     const rules = this.membrane.modifyRules;
-    const fieldName = meta.handler.fieldName;
+    const graphName = meta.handler.graphName;
     const modifyTarget = (meta.isOriginGraph) ? meta.target : meta.proxy;
     if (Array.isArray(config.filterOwnKeys)) {
       const filterOptions = {
@@ -3053,7 +3053,7 @@ class DistortionsListener {
       if (meta.targetHandler)
         filterOptions.targetHandler = meta.targetHandler;
       rules.filterOwnKeys(
-        fieldName,
+        graphName,
         modifyTarget,
         config.filterOwnKeys,
         filterOptions
@@ -3066,16 +3066,16 @@ class DistortionsListener {
     const deadTraps = allTraps.filter(function(key) {
       return !config.proxyTraps.includes(key);
     });
-    rules.disableTraps(fieldName, modifyTarget, deadTraps);
+    rules.disableTraps(graphName, modifyTarget, deadTraps);
 
     if (config.storeUnknownAsLocal)
-      rules.storeUnknownAsLocal(fieldName, modifyTarget);
+      rules.storeUnknownAsLocal(graphName, modifyTarget);
 
     if (config.requireLocalDelete)
-      rules.requireLocalDelete(fieldName, modifyTarget);
+      rules.requireLocalDelete(graphName, modifyTarget);
 
     if (("truncateArgList" in config) && (config.truncateArgList !== false))
-      rules.truncateArgList(fieldName, modifyTarget, config.truncateArgList);
+      rules.truncateArgList(graphName, modifyTarget, config.truncateArgList);
   }
 
   /**
@@ -3122,7 +3122,7 @@ Object.freeze(DistortionsListener.prototype);
  *   * Define new methods on ProxyMapping.prototype for storing or retrieving
  *     the properties.
  *   * Internally, the new methods should store properties on
- *     this.proxiedFields[fieldName].
+ *     this.proxiedFields[graphName].
  *   * Modify the existing ProxyHandler traps in ObjectGraphHandler.prototype
  *     to call the ProxyMapping methods, in order to implement the new behavior.
  * (3) If the new API must define a new proxy, or more than one:
@@ -3205,16 +3205,16 @@ class ModifyRulesAPI {
     if (existingHandler instanceof ObjectGraphHandler) {
       if (!this.membrane.ownsHandler(existingHandler)) {
         // XXX ajvincent Fix this error message!!
-        throw new Error("fieldName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
+        throw new Error("graphName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
       }
 
-      baseHandler = this.membrane.getHandlerByName(existingHandler.fieldName);
-      description = "our membrane's " + baseHandler.fieldName + " ObjectGraphHandler";
+      baseHandler = this.membrane.getHandlerByName(existingHandler.graphName);
+      description = "our membrane's " + baseHandler.graphName + " ObjectGraphHandler";
     }
 
     else if (baseHandler !== Reflect) {
       // XXX ajvincent Fix this error message!!
-      throw new Error("fieldName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
+      throw new Error("graphName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
     }
 
     if ((baseHandler !== existingHandler) && !ChainHandlers.has(existingHandler)) {
@@ -3270,8 +3270,8 @@ class ModifyRulesAPI {
         accepted = true;
       }
       else if (baseHandler instanceof ObjectGraphHandler) {
-        let fieldName = baseHandler.fieldName;
-        let ownedHandler = this.membrane.getHandlerByName(fieldName);
+        let graphName = baseHandler.graphName;
+        let ownedHandler = this.membrane.getHandlerByName(graphName);
         accepted = ownedHandler === baseHandler;
       }
 
@@ -3293,7 +3293,7 @@ class ModifyRulesAPI {
       cachedField = cylinder.originField;
     }
     else {
-      cachedField = baseHandler.fieldName;
+      cachedField = baseHandler.graphName;
       if (cachedField == cylinder.originField)
         throw new Error("You must replace original values with either Reflect or a ChainHandler inheriting from Reflect");
     }
@@ -3326,14 +3326,14 @@ class ModifyRulesAPI {
   /**
    * Ensure that the proxy passed in matches the object graph handler.
    *
-   * @param fieldName  {Symbol|String} The handler's field name.
+   * @param graphName  {Symbol|String} The handler's field name.
    * @param proxy      {Proxy}  The value to look up.
    * @param methodName {String} The calling function's name.
    * 
    * @private
    */
-  assertLocalProxy(fieldName, proxy, methodName) {
-    let [found, match] = this.membrane.getMembraneProxy(fieldName, proxy);
+  assertLocalProxy(graphName, proxy, methodName) {
+    let [found, match] = this.membrane.getMembraneProxy(graphName, proxy);
     if (!found || (proxy !== match)) {
       throw new Error(methodName + " requires a known proxy!");
     }
@@ -3343,32 +3343,32 @@ class ModifyRulesAPI {
    * Require that new properties be stored via the proxies instead of propagated
    * through to the underlying object.
    *
-   * @param fieldName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The field name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy}  The proxy (or underlying object) needing local
    *                           property protection.
    */
-  storeUnknownAsLocal(fieldName, proxy) {
-    this.assertLocalProxy(fieldName, proxy, "storeUnknownAsLocal");
+  storeUnknownAsLocal(graphName, proxy) {
+    this.assertLocalProxy(graphName, proxy, "storeUnknownAsLocal");
 
     let cylinder = this.membrane.cylinderMap.get(proxy);
-    cylinder.setLocalFlag(fieldName, "storeUnknownAsLocal", true);
+    cylinder.setLocalFlag(graphName, "storeUnknownAsLocal", true);
   }
 
   /**
    * Require that properties be deleted only on the proxy instead of propagated
    * through to the underlying object.
    *
-   * @param fieldName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The field name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy}  The proxy (or underlying object) needing local
    *                           property protection.
    */
-  requireLocalDelete(fieldName, proxy) {
-    this.assertLocalProxy(fieldName, proxy, "requireLocalDelete");
+  requireLocalDelete(graphName, proxy) {
+    this.assertLocalProxy(graphName, proxy, "requireLocalDelete");
 
     let cylinder = this.membrane.cylinderMap.get(proxy);
-    cylinder.setLocalFlag(fieldName, "requireLocalDelete", true);
+    cylinder.setLocalFlag(graphName, "requireLocalDelete", true);
   }
 
   /**
@@ -3378,7 +3378,7 @@ class ModifyRulesAPI {
    * @note Local properties and local delete operations of a proxy are NOT
    * affected by the filters.
    * 
-   * @param fieldName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The field name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy}    The proxy (or underlying object) needing local
    *                             property protection.
@@ -3386,8 +3386,8 @@ class ModifyRulesAPI {
    *                             a Set, which becomes a whitelist filter.)
    * @see Array.prototype.filter.
    */
-  filterOwnKeys(fieldName, proxy, filter) {
-    this.assertLocalProxy(fieldName, proxy, "filterOwnKeys");
+  filterOwnKeys(graphName, proxy, filter) {
+    this.assertLocalProxy(graphName, proxy, "filterOwnKeys");
 
     if (Array.isArray(filter)) {
       filter = new Set(filter);
@@ -3411,13 +3411,13 @@ class ModifyRulesAPI {
      */
     let cylinder = this.membrane.cylinderMap.get(proxy);
     let fieldsToCheck;
-    if (cylinder.originField === fieldName)
+    if (cylinder.originField === graphName)
     {
       fieldsToCheck = Reflect.ownKeys(cylinder.proxiedFields);
-      fieldsToCheck.splice(fieldsToCheck.indexOf(fieldName), 1);
+      fieldsToCheck.splice(fieldsToCheck.indexOf(graphName), 1);
     }
     else
-      fieldsToCheck = [ fieldName ];
+      fieldsToCheck = [ graphName ];
 
     let allowed = fieldsToCheck.every(function(f) {
       let s = cylinder.getShadowTarget(f);
@@ -3425,7 +3425,7 @@ class ModifyRulesAPI {
     });
 
     if (allowed)
-      cylinder.setOwnKeysFilter(fieldName, filter);
+      cylinder.setOwnKeysFilter(graphName, filter);
     else
       throw new Error("filterOwnKeys cannot apply to a non-extensible proxy");
   }
@@ -3433,7 +3433,7 @@ class ModifyRulesAPI {
   /**
    * Assign the number of arguments to truncate a method's argument list to.
    *
-   * @param fieldName {Symbol|String} The field name of the object graph handler
+   * @param graphName {Symbol|String} The field name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy(Function)} The method needing argument truncation.
    * @param value     {Boolean|Number}
@@ -3441,8 +3441,8 @@ class ModifyRulesAPI {
    *   - if false, do not limit at all.
    *   - if a non-negative integer, limit to that number.
    */
-  truncateArgList(fieldName, proxy, value) {
-    this.assertLocalProxy(fieldName, proxy, "truncateArgList");
+  truncateArgList(graphName, proxy, value) {
+    this.assertLocalProxy(graphName, proxy, "truncateArgList");
     if (typeof proxy !== "function")
       throw new Error("proxy must be a function!");
     {
@@ -3458,26 +3458,26 @@ class ModifyRulesAPI {
     }
 
     let cylinder = this.membrane.cylinderMap.get(proxy);
-    cylinder.setTruncateArgList(fieldName, value);
+    cylinder.setTruncateArgList(graphName, value);
   }
 
   /**
    * Disable traps for a given proxy.
    *
-   * @param fieldName {String}   The name of the object graph the proxy is part
+   * @param graphName {String}   The name of the object graph the proxy is part
    *                             of.
    * @param proxy     {Proxy}    The proxy to affect.
    * @param trapList  {String[]} A list of proxy (Reflect) traps to disable.
    */
-  disableTraps(fieldName, proxy, trapList) {
-    this.assertLocalProxy(fieldName, proxy, "disableTraps");
+  disableTraps(graphName, proxy, trapList) {
+    this.assertLocalProxy(graphName, proxy, "disableTraps");
     if (!Array.isArray(trapList) ||
         (trapList.some((t) => { return typeof t !== "string"; })))
       throw new Error("Trap list must be an array of strings!");
     const cylinder = this.membrane.cylinderMap.get(proxy);
     trapList.forEach(function(t) {
       if (allTraps.includes(t))
-        this.setLocalFlag(fieldName, `disableTrap(${t})`, true);
+        this.setLocalFlag(graphName, `disableTrap(${t})`, true);
     }, cylinder);
   }
 
@@ -3823,8 +3823,7 @@ class Membrane {
       throw new Error("handler is not an ObjectGraphHandler we own!");
     let cylinder = ("mapping" in options) ? options.mapping : null;
 
-    const graphKey = (this.refactor === "0.10") ? "graphName" : "fieldName";
-    const graphName = handler[graphKey];
+    const graphName = handler.graphName;
 
     if (!cylinder) {
       if (this.cylinderMap.has(value)) {
@@ -3948,7 +3947,7 @@ class Membrane {
     if (ChainHandlers.has(handler))
       handler = handler.baseHandler;
     return ((handler instanceof ObjectGraphHandler) &&
-            (this.handlersByGraphName[handler.fieldName] === handler));
+            (this.handlersByGraphName[handler.graphName] === handler));
   }
 
   /**
@@ -3986,18 +3985,17 @@ class Membrane {
       return arg;
     }
 
-    const graphKey = (this.refactor === "0.10") ? "graphName" : "fieldName";
 
     let found, rv;
     [found, rv] = this.getMembraneProxy(
-      targetHandler[graphKey], arg
+      targetHandler.graphName, arg
     );
     if (found)
       return rv;
 
     if (!this.ownsHandler(originHandler) ||
         !this.ownsHandler(targetHandler) ||
-        (originHandler[graphKey] === targetHandler[graphKey]))
+        (originHandler.graphName === targetHandler.graphName))
       throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
 
     if (this.passThroughFilter(arg) ||
@@ -4005,7 +4003,7 @@ class Membrane {
       return arg;
     }
 
-    if (!this.hasProxyForValue(originHandler[graphKey], arg)) {
+    if (!this.hasProxyForValue(originHandler.graphName, arg)) {
       let cylinder = this.cylinderMap.get(arg);
       let passOptions;
       if (cylinder) {
@@ -4019,7 +4017,7 @@ class Membrane {
       this.buildMapping(originHandler, arg, passOptions);
     }
     
-    if (!this.hasProxyForValue(targetHandler[graphKey], arg)) {
+    if (!this.hasProxyForValue(targetHandler.graphName, arg)) {
       let cylinder = this.cylinderMap.get(arg);
       let passOptions = Object.create(options, {
         "originHandler": new DataDescriptor(originHandler)
@@ -4034,7 +4032,7 @@ class Membrane {
     }
 
     [found, rv] = this.getMembraneProxy(
-      targetHandler[graphKey], arg
+      targetHandler.graphName, arg
     );
     if (!found)
       throw new Error("in convertArgumentToProxy(): proxy not found");

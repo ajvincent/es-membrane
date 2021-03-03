@@ -29,8 +29,8 @@ describe("Security checks for object graph handlers", function() {
     expect(Reflect.setPrototypeOf(chain1, {})).toBe(false);
   });
 
-  it("The object graph handler disallows setting its fieldName", function() {
-    const desc = Reflect.getOwnPropertyDescriptor(dryHandler, "fieldName");
+  it("The object graph handler disallows setting its graphName", function() {
+    const desc = Reflect.getOwnPropertyDescriptor(dryHandler, "graphName");
     expect(desc.writable).toBe(false);
     expect(desc.configurable).toBe(false);
   });

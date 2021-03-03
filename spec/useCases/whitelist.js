@@ -282,7 +282,7 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
 
     function secondDryListener(meta) {
       // dry and damp handler secondary listener
-      if (meta.handler.fieldName === DAMP) {
+      if (meta.handler.graphName === DAMP) {
         meta.handler.removeProxyListener(secondDryListener);
         return;
       }

@@ -143,7 +143,7 @@ export default class DistortionsListener {
 
   applyConfiguration(config, meta) {
     const rules = this.membrane.modifyRules;
-    const fieldName = meta.handler.fieldName;
+    const graphName = meta.handler.graphName;
     const modifyTarget = (meta.isOriginGraph) ? meta.target : meta.proxy;
     if (Array.isArray(config.filterOwnKeys)) {
       const filterOptions = {
@@ -154,7 +154,7 @@ export default class DistortionsListener {
       if (meta.targetHandler)
         filterOptions.targetHandler = meta.targetHandler;
       rules.filterOwnKeys(
-        fieldName,
+        graphName,
         modifyTarget,
         config.filterOwnKeys,
         filterOptions
@@ -167,16 +167,16 @@ export default class DistortionsListener {
     const deadTraps = allTraps.filter(function(key) {
       return !config.proxyTraps.includes(key);
     });
-    rules.disableTraps(fieldName, modifyTarget, deadTraps);
+    rules.disableTraps(graphName, modifyTarget, deadTraps);
 
     if (config.storeUnknownAsLocal)
-      rules.storeUnknownAsLocal(fieldName, modifyTarget);
+      rules.storeUnknownAsLocal(graphName, modifyTarget);
 
     if (config.requireLocalDelete)
-      rules.requireLocalDelete(fieldName, modifyTarget);
+      rules.requireLocalDelete(graphName, modifyTarget);
 
     if (("truncateArgList" in config) && (config.truncateArgList !== false))
-      rules.truncateArgList(fieldName, modifyTarget, config.truncateArgList);
+      rules.truncateArgList(graphName, modifyTarget, config.truncateArgList);
   }
 
   /**

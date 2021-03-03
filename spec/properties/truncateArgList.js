@@ -50,7 +50,7 @@ describe("Truncation of argument lists", function() {
     check = null;
   });
 
-  function defineTests(fieldName) {
+  function defineTests(graphName) {
     it(
       "is disabled by default:  any number of arguments is allowed",
       function() {
@@ -171,11 +171,11 @@ describe("Truncation of argument lists", function() {
     );
   }
 
-  function defineGraphTests(fieldName) {
+  function defineGraphTests(graphName) {
     beforeEach(function() {
       truncator = function(limit) {
         membrane.modifyRules.truncateArgList(
-          fieldName, parts[fieldName].doc.checkArgCount, limit
+          graphName, parts[graphName].doc.checkArgCount, limit
         );
       };
     });
@@ -184,7 +184,7 @@ describe("Truncation of argument lists", function() {
       beforeEach(function() {
         check = dryDocument.checkArgCount;
       });
-      defineTests(fieldName);
+      defineTests(graphName);
     });
 
     describe("and the construct trap", function() {
@@ -193,7 +193,7 @@ describe("Truncation of argument lists", function() {
           return new target(a0, a1, a2);
         };
       });
-      defineTests(fieldName);
+      defineTests(graphName);
     });
   }
 

@@ -25,7 +25,7 @@ if ((typeof MembraneMocks != "function") ||
     dryHandler.defineProxyProperties(dryProto, {
       "membraneGraphName":  {
         get: function() {
-          return dryHandler.fieldName;
+          return dryHandler.graphName;
         },
         enumerable: false,
         configurable: false

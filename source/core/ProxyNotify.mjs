@@ -169,7 +169,7 @@ ProxyNotify.useShadowTarget = function(parts, handler, mode) {
   assert(cylinder instanceof ProxyCylinder,
          "Didn't get a ProxyCylinder for an existing value?");
   cylinderMap.set(parts.proxy, cylinder);
-  makeRevokeDeleteRefs(parts, cylinder, handler.fieldName);
+  makeRevokeDeleteRefs(parts, cylinder, handler.graphName);
 };
 
 function invokeProxyListeners(listeners, meta) {

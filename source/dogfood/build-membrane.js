@@ -275,7 +275,7 @@ function buildMembrane(___utilities___) {
 
     ___listener___.addListener(ObjectGraphHandler, "instance", {
       "filterOwnKeys": [
-        "fieldName",
+        "graphName",
         "passThroughFilter",
         "mayReplacePassThrough"
       ],

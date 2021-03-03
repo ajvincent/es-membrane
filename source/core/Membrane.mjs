@@ -177,8 +177,7 @@ class Membrane {
       throw new Error("handler is not an ObjectGraphHandler we own!");
     let cylinder = ("mapping" in options) ? options.mapping : null;
 
-    const graphKey = (this.refactor === "0.10") ? "graphName" : "fieldName";
-    const graphName = handler[graphKey];
+    const graphName = handler.graphName;
 
     if (!cylinder) {
       if (this.cylinderMap.has(value)) {
@@ -302,7 +301,7 @@ class Membrane {
     if (ChainHandlers.has(handler))
       handler = handler.baseHandler;
     return ((handler instanceof ObjectGraphHandler) &&
-            (this.handlersByGraphName[handler.fieldName] === handler));
+            (this.handlersByGraphName[handler.graphName] === handler));
   }
 
   /**
@@ -340,18 +339,17 @@ class Membrane {
       return arg;
     }
 
-    const graphKey = (this.refactor === "0.10") ? "graphName" : "fieldName";
 
     let found, rv;
     [found, rv] = this.getMembraneProxy(
-      targetHandler[graphKey], arg
+      targetHandler.graphName, arg
     );
     if (found)
       return rv;
 
     if (!this.ownsHandler(originHandler) ||
         !this.ownsHandler(targetHandler) ||
-        (originHandler[graphKey] === targetHandler[graphKey]))
+        (originHandler.graphName === targetHandler.graphName))
       throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
 
     if (this.passThroughFilter(arg) ||
@@ -359,7 +357,7 @@ class Membrane {
       return arg;
     }
 
-    if (!this.hasProxyForValue(originHandler[graphKey], arg)) {
+    if (!this.hasProxyForValue(originHandler.graphName, arg)) {
       let cylinder = this.cylinderMap.get(arg);
       let passOptions;
       if (cylinder) {
@@ -373,7 +371,7 @@ class Membrane {
       this.buildMapping(originHandler, arg, passOptions);
     }
     
-    if (!this.hasProxyForValue(targetHandler[graphKey], arg)) {
+    if (!this.hasProxyForValue(targetHandler.graphName, arg)) {
       let cylinder = this.cylinderMap.get(arg);
       let passOptions = Object.create(options, {
         "originHandler": new DataDescriptor(originHandler)
@@ -388,7 +386,7 @@ class Membrane {
     }
 
     [found, rv] = this.getMembraneProxy(
-      targetHandler[graphKey], arg
+      targetHandler.graphName, arg
     );
     if (!found)
       throw new Error("in convertArgumentToProxy(): proxy not found");

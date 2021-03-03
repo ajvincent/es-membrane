@@ -680,7 +680,7 @@ describe("An object graph handler's proxy listeners", function() {
       // disabling the apply trap, so that a function should not be executable
       {
         const funcWrapper = X.arg2;
-        const graphName = dryHandler.fieldName;
+        const graphName = dryHandler.graphName;
         expect(typeof graphName).toBe("string");
         membrane.modifyRules.disableTraps(
           graphName, funcWrapper, ["apply"]
@@ -722,7 +722,7 @@ describe("An object graph handler's proxy listeners", function() {
 
         // testing disableTraps on a constructor
         membrane.modifyRules.disableTraps(
-          dryHandler.fieldName, CTOR2, ["construct"]
+          dryHandler.graphName, CTOR2, ["construct"]
         );
 
         expect(function() {
