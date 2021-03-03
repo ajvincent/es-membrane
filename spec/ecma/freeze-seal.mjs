@@ -1,14 +1,4 @@
-/*
-import "../docs/dist/es6-modules/Membrane.js";
-*/
-
-if (typeof Membrane != "function") {
-  if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get Membrane");
-}
+import Membrane from "../../source/core/Membrane.mjs";
 
 /* XXX ajvincent This is actually one case where the MembraneMocks are not
  * appropriate, because they forcibly insert a "membraneGraphName" property in a
@@ -18,8 +8,8 @@ if (typeof Membrane != "function") {
  * the wet and dry graphs and experiment with freezing and sealing on those.
  */
 
-{
-let FreezeSealMocks = function(defineListeners, adjustParts) {
+
+function FreezeSealMocks(defineListeners, adjustParts) {
   function wetA() {}
   wetA.prototype.letter = "A";
 
@@ -68,12 +58,12 @@ let FreezeSealMocks = function(defineListeners, adjustParts) {
   
   adjustParts(parts);
   return parts;
-};
+}
 
 /* These tests are specifically crafted for a perfect mirroring.  Very different
  * results will occur when the mirroring is not perfect.
  */
-let freezeSealTests = function(expectedFrozen, defineListeners, adjustParts) {
+function freezeSealTests(expectedFrozen, defineListeners, adjustParts) {
   var parts;
   beforeEach(function() {
     parts = FreezeSealMocks(defineListeners, adjustParts);
@@ -234,7 +224,7 @@ let freezeSealTests = function(expectedFrozen, defineListeners, adjustParts) {
     expect(Reflect.getPrototypeOf(parts.wet.b)).toBe(parts.wet.B.prototype);
     expect(Reflect.getPrototypeOf(parts.dry.b)).toBe(parts.dry.B.prototype);
   });
-};
+}
 
 const voidFunc = function() { /* do nothing */ };
 
@@ -281,4 +271,3 @@ describe("Object.seal on the dry proxy", function() {
     }
   );
 });
-}
