@@ -1,12 +1,4 @@
-"use strict"
-
-if (typeof MembraneMocks != "function") {
-  if (typeof require == "function") {
-    var { MembraneMocks } = require("../../docs/dist/node/mocks.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneMocks");
-}
+import MembraneMocks from "../helpers/mocks.mjs";
 
 describe(
   "storeUnknownAsLocal overrides filterOwnKeys for .defineProperty()",
@@ -138,13 +130,6 @@ describe(
       }
       return true;
     }
-
-    const desc1 = {
-      value: 1,
-      writable: true,
-      enumerable: true,
-      configurable: true
-    };
 
     const desc2 = {
       value: 2,
