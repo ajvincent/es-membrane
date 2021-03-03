@@ -121,7 +121,6 @@ export default function ProxyNotify(parts, handler, isOrigin, options) {
 }
 
 ProxyNotify.useShadowTarget = function(parts, handler, mode) {
-  "use strict";
   let newHandler = {};
 
   if (mode === "frozen")

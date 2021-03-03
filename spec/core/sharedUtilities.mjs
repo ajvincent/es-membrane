@@ -261,7 +261,6 @@ it("DeadProxyKey is a symbol", () => {
   expect(typeof DeadProxyKey).toBe("symbol");
 });
 
-
 describe("valueType", () => {
   it("returns 'primitive' for null", () => {
     expect(valueType(null)).toBe("primitive");

@@ -194,4 +194,5 @@ export default class DistortionsListener {
   }
 }
 
+Object.freeze(DistortionsListener);
 Object.freeze(DistortionsListener.prototype);
