@@ -4,7 +4,7 @@
  * The Membrane implementation represents a perfect mirroring of objects and
  * properties from one object graph to another... until the code creating the
  * membrane invokes methods of membrane.modifyRules.  Then, through either
- * methods on ProxyMapping or new proxy traps, the membrane will be able to use
+ * methods on ProxyCylinder or new proxy traps, the membrane will be able to use
  * the full power proxies expose, without carrying the operations over to the
  * object graph which owns a particular "original" value (meaning unwrapped for
  * direct access).
@@ -20,14 +20,14 @@
  *     and try to make new methods on ModifyRulesAPI.prototype follow roughly
  *     the same pattern in the new API.)
  * (2) When practical, especially when it affects only one object graph
- *     directly, use ProxyMapping objects to store properties which determine
+ *     directly, use ProxyCylinder objects to store properties which determine
  *     the rules, as opposed to new proxy traps.
- *   * Define new methods on ProxyMapping.prototype for storing or retrieving
+ *   * Define new methods on ProxyCylinder.prototype for storing or retrieving
  *     the properties.
  *   * Internally, the new methods should store properties on
  *     this.proxiedFields[graphName].
  *   * Modify the existing ProxyHandler traps in ObjectGraphHandler.prototype
- *     to call the ProxyMapping methods, in order to implement the new behavior.
+ *     to call the ProxyCylinder methods, in order to implement the new behavior.
  * (3) If the new API must define a new proxy, or more than one:
  *   * Use membrane.modifyRules.createChainHandler to define the ProxyHandler.
  *   * In the ChainHandler's own-property traps, use this.nextHandler[trapName]

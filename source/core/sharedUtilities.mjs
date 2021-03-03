@@ -217,7 +217,7 @@ export function valueType(value) {
 /**
  * @deprecated
  */
-export function makeRevokeDeleteRefs(parts, mapping, graphName) {
+export function makeRevokeDeleteRefs(parts, cylinder, graphName) {
   let oldRevoke = parts.revoke;
   if (!oldRevoke)
     return;
@@ -225,7 +225,7 @@ export function makeRevokeDeleteRefs(parts, mapping, graphName) {
   // necessary: in OverriddenProxyParts, revoke is inherited and read-only.
   Reflect.defineProperty(parts, "revoke", new DataDescriptor(function() {
     oldRevoke.apply(parts);
-    mapping.removeGraph(graphName);
+    cylinder.removeGraph(graphName);
   }, true));
 }
 

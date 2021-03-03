@@ -29,7 +29,7 @@ export default function buildMembrane(___utilities___) {
         if ((value === ProxyCylinder) ||
             (value === ProxyCylinder.prototype) ||
             (value instanceof ProxyCylinder))
-          throw new Error("ProxyMapping is private!");
+          throw new Error("ProxyCylinder is private!");
         if (value === ProxyNotify)
           throw new Error("ProxyNotify is private!");
         return !items.some(function(item) {
@@ -164,7 +164,6 @@ export default function buildMembrane(___utilities___) {
         "hasHandlerByField",
         "getHandlerByName",
         "ownsHandler",
-        "wrapArgumentByProxyMapping",
         "convertArgumentToProxy",
         "bindValuesByHandlers",
         "addFunctionListener",
@@ -255,7 +254,7 @@ export default function buildMembrane(___utilities___) {
         "setPrototypeOf",
         "apply",
         "construct",
-        "ensureMapping",
+        "ensureProxyCylinder",
         "addProxyListener",
         "removeProxyListener",
         "addFunctionListener",
@@ -321,7 +320,6 @@ export default function buildMembrane(___utilities___) {
         Membrane.prototype.hasHandlerByField,
         Membrane.prototype.getHandlerByName,
         Membrane.prototype.ownsHandler,
-        Membrane.prototype.wrapArgumentByProxyMapping,
         Membrane.prototype.convertArgumentToProxy,
         Membrane.prototype.bindValuesByHandlers,
         Membrane.prototype.addFunctionListener,

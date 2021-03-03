@@ -103,8 +103,8 @@ class Membrane {
    * Returns true if we have a proxy for the value.
    */
   hasProxyForValue(graph, value) {
-    var mapping = this.cylinderMap.get(value);
-    return Boolean(mapping) && mapping.hasGraph(graph);
+    var cylinder = this.cylinderMap.get(value);
+    return Boolean(cylinder) && cylinder.hasGraph(graph);
   }
 
   /**
@@ -123,9 +123,9 @@ class Membrane {
    * shouldn't use it in Production.
    */
   getMembraneValue(graph, value) {
-    var mapping = this.cylinderMap.get(value);
-    if (mapping && mapping.hasGraph(graph)) {
-      return [true, mapping.getOriginal()];
+    var cylinder = this.cylinderMap.get(value);
+    if (cylinder && cylinder.hasGraph(graph)) {
+      return [true, cylinder.getOriginal()];
     }
     return [false, NOT_YET_DETERMINED];
   }
@@ -152,9 +152,9 @@ class Membrane {
    * ]
    */
   getMembraneProxy(graph, value) {
-    var mapping = this.cylinderMap.get(value);
-    if (mapping && mapping.hasGraph(graph)) {
-      return [true, mapping.getProxy(graph)];
+    var cylinder = this.cylinderMap.get(value);
+    if (cylinder && cylinder.hasGraph(graph)) {
+      return [true, cylinder.getProxy(graph)];
     }
     return [false, NOT_YET_DETERMINED];
   }
@@ -166,17 +166,17 @@ class Membrane {
    * @param value   {Variant} The value to assign.
    *
    * Options:
-   *   @param {ProxyCylinder} mapping  A mapping with associated values and proxies.
+   *   @param {ProxyCylinder} cylinder
    *   @param {}
    *
-   * @returns {ProxyCylinder} A mapping holding the value.
+   * @returns {ProxyCylinder}
    *
    * @package
    */
   addPartsToCylinder(handler, value, options = {}) {
     if (!this.ownsHandler(handler))
       throw new Error("handler is not an ObjectGraphHandler we own!");
-    let cylinder = ("mapping" in options) ? options.mapping : null;
+    let cylinder = ("cylinder" in options) ? options.cylinder : null;
 
     const graphName = handler.graphName;
 
@@ -363,7 +363,7 @@ class Membrane {
       let passOptions;
       if (cylinder) {
         passOptions = Object.create(options, {
-          "mapping": new DataDescriptor(cylinder)
+          "cylinder": new DataDescriptor(cylinder)
         });
       }
       else
@@ -380,7 +380,7 @@ class Membrane {
       assert(cylinder, "ProxyCylinder not created before invoking target handler?");
 
       Reflect.defineProperty(
-        passOptions, "mapping", new DataDescriptor(cylinder)
+        passOptions, "cylinder", new DataDescriptor(cylinder)
       );
 
       this.addPartsToCylinder(targetHandler, arg, passOptions);
@@ -502,21 +502,21 @@ class Membrane {
     // Postconditions
     if (propBag0.type !== "primitive") {
       let [found, check] = this.getMembraneProxy(propBag0.handler.graphName, propBag0.value);
-      assert(found, "value0 mapping not found?");
+      assert(found, "value0 not found?");
       assert(check === propBag0.value, "value0 not found in handler0 graph name?");
 
       [found, check] = this.getMembraneProxy(propBag1.handler.graphName, propBag0.value);
-      assert(found, "value0 mapping not found?");
+      assert(found, "value0 not found?");
       assert(check === propBag1.value, "value0 not found in handler0 graph name?");
     }
 
     if (propBag1.type !== "primitive") {
       let [found, check] = this.getMembraneProxy(propBag0.handler.graphName, propBag1.value);
-      assert(found, "value1 mapping not found?");
+      assert(found, "value1 not found?");
       assert(check === propBag0.value, "value0 not found in handler0 graph name?");
 
       [found, check] = this.getMembraneProxy(propBag1.handler.graphName, propBag1.value);
-      assert(found, "value1 mapping not found?");
+      assert(found, "value1 not found?");
       assert(check === propBag1.value, "value1 not found in handler1 graph name?");
     }
   }

@@ -154,8 +154,8 @@ export default class ObjectGraphHandler {
 
     var hasOwn;
     while (target !== null) {
-      let pMapping = this.membrane.cylinderMap.get(target);
-      let shadow = pMapping.getShadowTarget(this.graphName);
+      let cylinder = this.membrane.cylinderMap.get(target);
+      let shadow = cylinder.getShadowTarget(this.graphName);
       hasOwn = this.getOwnPropertyDescriptor(shadow, propName);
       if (typeof hasOwn !== "undefined")
         return true;
@@ -454,8 +454,8 @@ export default class ObjectGraphHandler {
       else
         proxy = proto;
 
-      let pMapping = this.membrane.cylinderMap.get(proxy);
-      if (pMapping && (pMapping.originGraph !== this.graphName)) {
+      let cylinder = this.membrane.cylinderMap.get(proxy);
+      if (cylinder && (cylinder.originGraph !== this.graphName)) {
         assert(Reflect.setPrototypeOf(shadowTarget, proxy),
                "shadowTarget could not receive prototype?");
       }
@@ -798,37 +798,37 @@ export default class ObjectGraphHandler {
                    }.
       */
 
-      let pMapping = this.membrane.cylinderMap.get(target);
-      let shadow = pMapping.getShadowTarget(this.graphName);
+      let cylinder = this.membrane.cylinderMap.get(target);
+      let shadow = cylinder.getShadowTarget(this.graphName);
       ownDesc = this.getOwnPropertyDescriptor(shadow, propName);
       if (ownDesc)
         break;
 
       {
-        let parent = this.getPrototypeOf(shadow);
-        if (parent === null) {
+        let proto = this.getPrototypeOf(shadow);
+        if (proto === null) {
           ownDesc = new DataDescriptor(undefined, true);
           break;
         }
 
         let found = this.membrane.getMembraneProxy(
           this.graphName,
-          parent
+          proto
         )[0];
         assert(found, "Must find membrane proxy for prototype");
-        let sMapping = this.membrane.cylinderMap.get(parent);
-        assert(sMapping, "Missing a ProxyCylinder?");
+        let protoCylinder = this.membrane.cylinderMap.get(proto);
+        assert(protoCylinder, "Missing a ProxyCylinder?");
 
-        if (sMapping.originGraph != this.graphName) {
+        if (protoCylinder.originGraph != this.graphName) {
           [found, target] = this.membrane.getMembraneValue(
             this.graphName,
-            parent
+            proto
           );
           assert(found, "Must find membrane value for prototype");
         }
         else
         {
-          target = parent;
+          target = proto;
         }
       }
     } // end optimization for ownDesc
@@ -1252,8 +1252,10 @@ export default class ObjectGraphHandler {
    * Ensure a value has been wrapped in the membrane (and is available for distortions)
    *
    * @param target {Object} The value to wrap.
+   *
+   * @package
    */
-  ensureMapping(target) {
+  ensureProxyCylinder(target) {
     if (!this.membrane.hasProxyForValue(this.graphName, target))
       this.membrane.addPartsToCylinder(this, target);
   }

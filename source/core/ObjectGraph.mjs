@@ -86,7 +86,7 @@ export default class ObjectGraph {
   }
 
   /**
-   * Add a ProxyMapping or a Proxy.revoke function to our list.
+   * Add a ProxyCylinder or a Proxy.revoke function to our list.
    *
    * @private
    */
@@ -101,7 +101,7 @@ export default class ObjectGraph {
   }
 
   /**
-   * Remove a ProxyMapping or a Proxy.revoke function from our list.
+   * Remove a ProxyCylinder or a Proxy.revoke function from our list.
    *
    * @private
    */

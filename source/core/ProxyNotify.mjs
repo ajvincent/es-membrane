@@ -12,7 +12,7 @@ import {
 /**
  * Notify all proxy listeners of a new proxy.
  *
- * @param {Object}             parts     The field object from a ProxyMapping's proxiedFields.
+ * @param {GraphMetadata}      parts     The graph metadata from a ProxyCylinder.
  * @param {ObjectGraphHandler} handler   The handler for the proxy.
  * @param {Boolean}            isOrigin  True if the handler is the origin graph handler.
  * @param {Object}             options   Special options to pass on to the listeners.

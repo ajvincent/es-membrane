@@ -150,7 +150,7 @@ export class ProxyCylinder {
   }
 
   /**
-   * Determine if the mapping has a particular graph.
+   * Determine if the cylinder has a particular graph.
    *
    * @param {String | Symbol} graphName The graph name.
    *
@@ -201,7 +201,7 @@ export class ProxyCylinder {
   }
 
   /**
-   * Add a value to the mapping.
+   * Add a value to the cylinder.
    *
    * @param {Membrane}      membrane  The owning membrane.
    * @param {Symbol|String} graphName The graph name of the object graph.
@@ -274,8 +274,8 @@ export class ProxyCylinder {
    * @public
    */
   removeGraph(graphName) {
-    /* This will make the keys of the Membrane's WeakMapOfProxyMappings
-     * unreachable, and thus reduce the set of references to the ProxyMapping.
+    /* This will make the keys of the Membrane's ProxyCylinderMap
+     * unreachable, and thus reduce the set of references to the ProxyCylinder.
      *
      * There's also the benefit of disallowing recreating a proxy to the
      * original object.

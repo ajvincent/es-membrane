@@ -216,7 +216,7 @@ function valueType(value) {
 /**
  * @deprecated
  */
-function makeRevokeDeleteRefs(parts, mapping, graphName) {
+function makeRevokeDeleteRefs(parts, cylinder, graphName) {
   let oldRevoke = parts.revoke;
   if (!oldRevoke)
     return;
@@ -224,7 +224,7 @@ function makeRevokeDeleteRefs(parts, mapping, graphName) {
   // necessary: in OverriddenProxyParts, revoke is inherited and read-only.
   Reflect.defineProperty(parts, "revoke", new DataDescriptor(function() {
     oldRevoke.apply(parts);
-    mapping.removeGraph(graphName);
+    cylinder.removeGraph(graphName);
   }, true));
 }
 
@@ -367,7 +367,7 @@ class ProxyCylinder {
   }
 
   /**
-   * Determine if the mapping has a particular graph.
+   * Determine if the cylinder has a particular graph.
    *
    * @param {String | Symbol} graphName The graph name.
    *
@@ -418,7 +418,7 @@ class ProxyCylinder {
   }
 
   /**
-   * Add a value to the mapping.
+   * Add a value to the cylinder.
    *
    * @param {Membrane}      membrane  The owning membrane.
    * @param {Symbol|String} graphName The graph name of the object graph.
@@ -491,8 +491,8 @@ class ProxyCylinder {
    * @public
    */
   removeGraph(graphName) {
-    /* This will make the keys of the Membrane's WeakMapOfProxyMappings
-     * unreachable, and thus reduce the set of references to the ProxyMapping.
+    /* This will make the keys of the Membrane's ProxyCylinderMap
+     * unreachable, and thus reduce the set of references to the ProxyCylinder.
      *
      * There's also the benefit of disallowing recreating a proxy to the
      * original object.
@@ -855,7 +855,7 @@ Object.freeze(ProxyCylinderMap);
 /**
  * Notify all proxy listeners of a new proxy.
  *
- * @param {Object}             parts     The field object from a ProxyMapping's proxiedFields.
+ * @param {GraphMetadata}      parts     The graph metadata from a ProxyCylinder.
  * @param {ObjectGraphHandler} handler   The handler for the proxy.
  * @param {Boolean}            isOrigin  True if the handler is the origin graph handler.
  * @param {Object}             options   Special options to pass on to the listeners.
@@ -1210,8 +1210,8 @@ class ObjectGraphHandler {
 
     var hasOwn;
     while (target !== null) {
-      let pMapping = this.membrane.cylinderMap.get(target);
-      let shadow = pMapping.getShadowTarget(this.graphName);
+      let cylinder = this.membrane.cylinderMap.get(target);
+      let shadow = cylinder.getShadowTarget(this.graphName);
       hasOwn = this.getOwnPropertyDescriptor(shadow, propName);
       if (typeof hasOwn !== "undefined")
         return true;
@@ -1510,8 +1510,8 @@ class ObjectGraphHandler {
       else
         proxy = proto;
 
-      let pMapping = this.membrane.cylinderMap.get(proxy);
-      if (pMapping && (pMapping.originGraph !== this.graphName)) {
+      let cylinder = this.membrane.cylinderMap.get(proxy);
+      if (cylinder && (cylinder.originGraph !== this.graphName)) {
         assert(Reflect.setPrototypeOf(shadowTarget, proxy),
                "shadowTarget could not receive prototype?");
       }
@@ -1854,37 +1854,37 @@ class ObjectGraphHandler {
                    }.
       */
 
-      let pMapping = this.membrane.cylinderMap.get(target);
-      let shadow = pMapping.getShadowTarget(this.graphName);
+      let cylinder = this.membrane.cylinderMap.get(target);
+      let shadow = cylinder.getShadowTarget(this.graphName);
       ownDesc = this.getOwnPropertyDescriptor(shadow, propName);
       if (ownDesc)
         break;
 
       {
-        let parent = this.getPrototypeOf(shadow);
-        if (parent === null) {
+        let proto = this.getPrototypeOf(shadow);
+        if (proto === null) {
           ownDesc = new DataDescriptor(undefined, true);
           break;
         }
 
         let found = this.membrane.getMembraneProxy(
           this.graphName,
-          parent
+          proto
         )[0];
         assert(found, "Must find membrane proxy for prototype");
-        let sMapping = this.membrane.cylinderMap.get(parent);
-        assert(sMapping, "Missing a ProxyCylinder?");
+        let protoCylinder = this.membrane.cylinderMap.get(proto);
+        assert(protoCylinder, "Missing a ProxyCylinder?");
 
-        if (sMapping.originGraph != this.graphName) {
+        if (protoCylinder.originGraph != this.graphName) {
           [found, target] = this.membrane.getMembraneValue(
             this.graphName,
-            parent
+            proto
           );
           assert(found, "Must find membrane value for prototype");
         }
         else
         {
-          target = parent;
+          target = proto;
         }
       }
     } // end optimization for ownDesc
@@ -2308,8 +2308,10 @@ class ObjectGraphHandler {
    * Ensure a value has been wrapped in the membrane (and is available for distortions)
    *
    * @param target {Object} The value to wrap.
+   *
+   * @package
    */
-  ensureMapping(target) {
+  ensureProxyCylinder(target) {
     if (!this.membrane.hasProxyForValue(this.graphName, target))
       this.membrane.addPartsToCylinder(this, target);
   }
@@ -3101,7 +3103,7 @@ Object.freeze(DistortionsListener.prototype);
  * The Membrane implementation represents a perfect mirroring of objects and
  * properties from one object graph to another... until the code creating the
  * membrane invokes methods of membrane.modifyRules.  Then, through either
- * methods on ProxyMapping or new proxy traps, the membrane will be able to use
+ * methods on ProxyCylinder or new proxy traps, the membrane will be able to use
  * the full power proxies expose, without carrying the operations over to the
  * object graph which owns a particular "original" value (meaning unwrapped for
  * direct access).
@@ -3117,14 +3119,14 @@ Object.freeze(DistortionsListener.prototype);
  *     and try to make new methods on ModifyRulesAPI.prototype follow roughly
  *     the same pattern in the new API.)
  * (2) When practical, especially when it affects only one object graph
- *     directly, use ProxyMapping objects to store properties which determine
+ *     directly, use ProxyCylinder objects to store properties which determine
  *     the rules, as opposed to new proxy traps.
- *   * Define new methods on ProxyMapping.prototype for storing or retrieving
+ *   * Define new methods on ProxyCylinder.prototype for storing or retrieving
  *     the properties.
  *   * Internally, the new methods should store properties on
  *     this.proxiedFields[graphName].
  *   * Modify the existing ProxyHandler traps in ObjectGraphHandler.prototype
- *     to call the ProxyMapping methods, in order to implement the new behavior.
+ *     to call the ProxyCylinder methods, in order to implement the new behavior.
  * (3) If the new API must define a new proxy, or more than one:
  *   * Use membrane.modifyRules.createChainHandler to define the ProxyHandler.
  *   * In the ChainHandler's own-property traps, use this.nextHandler[trapName]
@@ -3565,7 +3567,7 @@ class ObjectGraph {
   }
 
   /**
-   * Add a ProxyMapping or a Proxy.revoke function to our list.
+   * Add a ProxyCylinder or a Proxy.revoke function to our list.
    *
    * @private
    */
@@ -3574,7 +3576,7 @@ class ObjectGraph {
   }
 
   /**
-   * Remove a ProxyMapping or a Proxy.revoke function from our list.
+   * Remove a ProxyCylinder or a Proxy.revoke function from our list.
    *
    * @private
    */
@@ -3749,8 +3751,8 @@ class Membrane {
    * Returns true if we have a proxy for the value.
    */
   hasProxyForValue(graph, value) {
-    var mapping = this.cylinderMap.get(value);
-    return Boolean(mapping) && mapping.hasGraph(graph);
+    var cylinder = this.cylinderMap.get(value);
+    return Boolean(cylinder) && cylinder.hasGraph(graph);
   }
 
   /**
@@ -3769,9 +3771,9 @@ class Membrane {
    * shouldn't use it in Production.
    */
   getMembraneValue(graph, value) {
-    var mapping = this.cylinderMap.get(value);
-    if (mapping && mapping.hasGraph(graph)) {
-      return [true, mapping.getOriginal()];
+    var cylinder = this.cylinderMap.get(value);
+    if (cylinder && cylinder.hasGraph(graph)) {
+      return [true, cylinder.getOriginal()];
     }
     return [false, NOT_YET_DETERMINED];
   }
@@ -3798,9 +3800,9 @@ class Membrane {
    * ]
    */
   getMembraneProxy(graph, value) {
-    var mapping = this.cylinderMap.get(value);
-    if (mapping && mapping.hasGraph(graph)) {
-      return [true, mapping.getProxy(graph)];
+    var cylinder = this.cylinderMap.get(value);
+    if (cylinder && cylinder.hasGraph(graph)) {
+      return [true, cylinder.getProxy(graph)];
     }
     return [false, NOT_YET_DETERMINED];
   }
@@ -3812,17 +3814,17 @@ class Membrane {
    * @param value   {Variant} The value to assign.
    *
    * Options:
-   *   @param {ProxyCylinder} mapping  A mapping with associated values and proxies.
+   *   @param {ProxyCylinder} cylinder
    *   @param {}
    *
-   * @returns {ProxyCylinder} A mapping holding the value.
+   * @returns {ProxyCylinder}
    *
    * @package
    */
   addPartsToCylinder(handler, value, options = {}) {
     if (!this.ownsHandler(handler))
       throw new Error("handler is not an ObjectGraphHandler we own!");
-    let cylinder = ("mapping" in options) ? options.mapping : null;
+    let cylinder = ("cylinder" in options) ? options.cylinder : null;
 
     const graphName = handler.graphName;
 
@@ -4009,7 +4011,7 @@ class Membrane {
       let passOptions;
       if (cylinder) {
         passOptions = Object.create(options, {
-          "mapping": new DataDescriptor(cylinder)
+          "cylinder": new DataDescriptor(cylinder)
         });
       }
       else
@@ -4026,7 +4028,7 @@ class Membrane {
       assert(cylinder, "ProxyCylinder not created before invoking target handler?");
 
       Reflect.defineProperty(
-        passOptions, "mapping", new DataDescriptor(cylinder)
+        passOptions, "cylinder", new DataDescriptor(cylinder)
       );
 
       this.addPartsToCylinder(targetHandler, arg, passOptions);
@@ -4148,21 +4150,21 @@ class Membrane {
     // Postconditions
     if (propBag0.type !== "primitive") {
       let [found, check] = this.getMembraneProxy(propBag0.handler.graphName, propBag0.value);
-      assert(found, "value0 mapping not found?");
+      assert(found, "value0 not found?");
       assert(check === propBag0.value, "value0 not found in handler0 graph name?");
 
       [found, check] = this.getMembraneProxy(propBag1.handler.graphName, propBag0.value);
-      assert(found, "value0 mapping not found?");
+      assert(found, "value0 not found?");
       assert(check === propBag1.value, "value0 not found in handler0 graph name?");
     }
 
     if (propBag1.type !== "primitive") {
       let [found, check] = this.getMembraneProxy(propBag0.handler.graphName, propBag1.value);
-      assert(found, "value1 mapping not found?");
+      assert(found, "value1 not found?");
       assert(check === propBag0.value, "value0 not found in handler0 graph name?");
 
       [found, check] = this.getMembraneProxy(propBag1.handler.graphName, propBag1.value);
-      assert(found, "value1 mapping not found?");
+      assert(found, "value1 not found?");
       assert(check === propBag1.value, "value1 not found in handler1 graph name?");
     }
   }

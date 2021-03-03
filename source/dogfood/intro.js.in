@@ -19,7 +19,7 @@ if (false) {
    * (1) Let value be the value the "dogfood" membrane's "public" object graph
    *     handler would normally return.
    * (2) Let dogfood be the "dogfood" membrane.
-   * (3) Let map be dogfood.map.get(value).  This will be a ProxyMapping
+   * (3) Let map be dogfood.map.get(value).  This will be a ProxyCylinder
    *     instance belonging to the "dogfood" membrane.
    * (4) Let original be map.getOriginal().
    * (5) Let x be ProxyToMembraneMap.has(original).  This will either be true if
@@ -29,9 +29,9 @@ if (false) {
    * (7) Otherwise, value has been incorrectly wrapped.  Return original.
    *
    * The reference is weak because we do not want to risk leaking memory with
-   * strong references to the ProxyMapping instance.  The ProxyMapping instance
+   * strong references to the ProxyCylinder instance.  The ProxyCylinder instance
    * is referenced only by proxies exported from any Membrane, via another
-   * WeakMap the ProxyMapping belongs to.
+   * WeakMap the ProxyCylinder belongs to.
    */
   function voidFunc() {}
 
