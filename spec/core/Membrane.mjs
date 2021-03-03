@@ -29,4 +29,8 @@ describe("Membrane allows multiple revocations", () => {
     expect(() => dryProxy.value).toThrow();
     expect(() => wetProxy.value).toThrow();
   });
+
+  it("unit tests", () => {
+    fail("unit tests not in place yet");
+  })
 });

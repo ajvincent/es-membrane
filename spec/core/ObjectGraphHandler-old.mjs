@@ -6,9 +6,10 @@ describe("Legacy ObjectGraphHandler", () => {
   beforeEach(() => {
     membrane = {};
     handler = new ObjectGraphHandler(membrane, "wet");
+    void(handler);
   });
 
-  xit("exists", () => {
-    expect(handler).toBeTruthy();
+  it("works", () => {
+    fail("unit tests not in place yet");
   });
 });
