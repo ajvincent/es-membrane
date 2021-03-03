@@ -841,10 +841,10 @@ class ProxyCylinderMap extends WeakMap {
       }
       const current = this.get(key);
       if (current === DeadProxyKey)
-        throw new Error("WeakMapOfProxyCylinders says this key is dead");
+        throw new Error("ProxyCylinderMap says this key is dead");
 
       if ((current !== undefined) && (current !== value))
-        throw new Error("WeakMapOfProxyCylinders already has a value for this key");
+        throw new Error("ProxyCylinderMap already has a value for this key");
     }
 
     return WeakMap_set.apply(this, [key, value]);
@@ -899,7 +899,7 @@ function ProxyNotify(parts, handler, isOrigin, options) {
     /**
      * The unwrapped object or function we're building the proxy for.
      */
-    "target": new DataDescriptor(parts.value),
+    "target": new DataDescriptor(getRealTarget(parts.shadowTarget)),
 
     "isOriginGraph": new DataDescriptor(isOrigin),
 
@@ -944,7 +944,8 @@ function ProxyNotify(parts, handler, isOrigin, options) {
 
   const callbacks = [];
   const inConstruction = handler.proxiesInConstruction;
-  inConstruction.set(parts.value, callbacks);
+  const realTarget = parts.shadowTarget ? getRealTarget(parts.shadowTarget) : parts.value;
+  inConstruction.set(realTarget, callbacks);
 
   try {
     invokeProxyListeners(listeners, meta);
@@ -959,7 +960,7 @@ function ProxyNotify(parts, handler, isOrigin, options) {
       }
     });
 
-    inConstruction.delete(parts.value);
+    inConstruction.delete(realTarget);
   }
 }
 
@@ -1857,13 +1858,24 @@ class ObjectGraphHandler {
       */
 
       let cylinder = this.membrane.cylinderMap.get(target);
-      let shadow = cylinder.getShadowTarget(this.graphName);
-      ownDesc = this.getOwnPropertyDescriptor(shadow, propName);
+      let shadow;
+      if (cylinder.originGraph === this.graphName) {
+        shadow = cylinder.getOriginal();
+        ownDesc = Reflect.getOwnPropertyDescriptor(cylinder.getOriginal(), propName);
+      }
+      else {
+        shadow = cylinder.getShadowTarget(this.graphName);
+        assert(shadow, "No shadow target?");
+        ownDesc = this.getOwnPropertyDescriptor(shadow, propName);
+      }
+
       if (ownDesc)
         break;
 
       {
-        let proto = this.getPrototypeOf(shadow);
+        let proto = (cylinder.originGraph === this.graphName) ?
+                    Reflect.getPrototypeOf(shadow) :
+                    this.getPrototypeOf(shadow);
         if (proto === null) {
           ownDesc = new DataDescriptor(undefined, true);
           break;
@@ -2285,6 +2297,7 @@ class ObjectGraphHandler {
     const targetCylinder = this.membrane.cylinderMap.get(target);
     if (!(targetCylinder instanceof ProxyCylinder))
       throw new Error("No ProxyCylinder found for shadow target!");
+
     if (!targetCylinder.isShadowTarget(shadowTarget)) {
       throw new Error(
         "ObjectGraphHandler traps must be called with a shadow target!"
@@ -3086,7 +3099,8 @@ class DistortionsListener {
    */
   proxyListener(meta) {
     const config = this.getConfigurationForListener(meta);
-    this.applyConfiguration(config, meta);
+    if (config)
+      this.applyConfiguration(config, meta);
 
     meta.stopIteration();
   }

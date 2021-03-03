@@ -1,14 +1,17 @@
-if ((typeof Membrane != "function") || (typeof MembraneMocks != "function")) {
-  if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
-    var { MembraneMocks } = require("../../docs/dist/node/mocks.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneMocks");
-}
+import Membrane from "../../source/core/Membrane.mjs";
+import MembraneMocks from "../helpers/mocks.mjs";
 
-describe("Whitelisting object properties", function() {
-  "use strict";
+import DebugConditionsSet from "../helpers/DebugConditionsSet.mjs";
+
+const DEBUG_CONDITIONS = new DebugConditionsSet([
+  "two object graphs",
+  "unsealed objects",
+  "applies similarly",
+]);
+
+xdescribe("Whitelisting object properties", function() {
+  beforeEach(() => DEBUG_CONDITIONS.reset());
+
   var wetDocument, dryDocument;
 
   function HEAT() { return "handleEventAtTarget stub"; }
@@ -186,6 +189,7 @@ describe("Whitelisting object properties", function() {
   
   function defineMockOptionsByDistortionsListener(mainIsWet = false) {
     var parts, dryWetMB, EventListenerProto;
+
     const mockOptions = {
       includeDamp: false,
       logger: null,
@@ -278,6 +282,8 @@ describe("Whitelisting object properties", function() {
           distortions, EventListenerProto, EventTargetWhiteList, "value"
         );
       },
+
+      mainIsWet: mainIsWet,
     };
 
     return mockOptions;
@@ -490,6 +496,7 @@ describe("Whitelisting object properties", function() {
     );
 
     it("applies similarly to inherited names.", function() {
+      DEBUG_CONDITIONS.found("applies similarly");
       // Whitelisting applies similarly to inherited names.
       let dryRoot = dryDocument.rootElement;
       expect(dryRoot).not.toBe(wetDocument.rootElement);
@@ -513,6 +520,7 @@ describe("Whitelisting object properties", function() {
        */
       expect(dryRoot.ownerDocument).toBe(undefined);
 
+      // This should appear because parentNode is part of NodeWhiteList.
       expect(dryRoot.parentNode).not.toBe(undefined);
       expect(typeof dryRoot.wetMarker).toBe("undefined");
 
@@ -551,6 +559,7 @@ describe("Whitelisting object properties", function() {
         },
         didFire: false,
       };
+
       dryDocument.addEventListener("asMethod", listener, false);
       dryDocument.insertBefore(dryDocument.rootElement, null);
 
@@ -571,8 +580,8 @@ describe("Whitelisting object properties", function() {
         }
 
         // desired should be a proxy to listener.
-        expect(desired).not.toBe(listener);
-        expect(desired).not.toBe(null);
+        expect(desired !== listener).toBe(true, "desired should not be listener");
+        expect(desired !== null).toBe(true, "desired should not be null");
         if (desired === null)
           return;
 
@@ -614,12 +623,18 @@ describe("Whitelisting object properties", function() {
   function defineSealingTests(mockDefine) {
     describe("on unsealed objects", function() {
       defineWhitelistTests(mockDefine);
+
+      beforeEach(() => {
+        DEBUG_CONDITIONS.found("unsealed objects");
+      });
     });
 
     describe("on sealed dry objects", function() {
       defineWhitelistTests(mockDefine);
       beforeEach(function() {
         Object.seal(dryDocument);
+
+        DEBUG_CONDITIONS.found("sealed dry objects");
       });
     });
 
@@ -651,13 +666,14 @@ describe("Whitelisting object properties", function() {
 
   describe("automatically using distortions listeners on two object graphs", function() {
     defineSealingTests(defineMockOptionsByDistortionsListener.bind(null, false));
+    beforeEach(() => DEBUG_CONDITIONS.found("two object graphs"));
   });
 
   describe("automatically using distortions listeners on one object graph", function() {
     defineSealingTests(defineMockOptionsByDistortionsListener.bind(null, true));
   });
   
-  it(
+  xit(
     "and getting a handler from a protected membrane works correctly",
     function() {
       function voidFunc() {}
