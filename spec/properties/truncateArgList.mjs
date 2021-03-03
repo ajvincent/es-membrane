@@ -1,17 +1,4 @@
-/*
-import "../docs/dist/es6-modules/Membrane.js";
-import "../docs/dist/es6-modules/MembraneMocks.js";
-*/
-
-if (typeof MembraneMocks != "function") {
-  if (typeof require == "function") {
-    var { MembraneMocks } = require("../../docs/dist/node/mocks.js");
-  }
-}
-
-if (typeof MembraneMocks != "function") {
-  throw new Error("Unable to run tests");
-}
+import MembraneMocks from "../helpers/mocks.mjs";
 
 describe("Truncation of argument lists", function() {
   "use strict";
@@ -23,6 +10,8 @@ describe("Truncation of argument lists", function() {
 
   // a and b are here solely to check for function arity.
   function checkArgCount(a, b) {
+    void(a);
+    void(b);
     argCount = arguments.length;
     if (arguments.length > 0)
       expect(arguments[0]).toBe(arg0);
@@ -50,7 +39,7 @@ describe("Truncation of argument lists", function() {
     check = null;
   });
 
-  function defineTests(graphName) {
+  function defineTests() {
     it(
       "is disabled by default:  any number of arguments is allowed",
       function() {

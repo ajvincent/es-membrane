@@ -816,7 +816,9 @@ class ProxyCylinder {
    */
   setTruncateArgList(graphName, count) {
     const metadata = this.getMetadata(graphName);
-    if ((typeof count === "number") && (count >= 0) && (parseInt(count) === count) && isFinite(count))
+    if ((typeof count === "boolean") ||
+        ((typeof count === "number") && (count >= 0) && (parseInt(count) === count) && isFinite(count))
+       )
       metadata.truncateArgList = count;
     else
       delete metadata.truncateArgList;
