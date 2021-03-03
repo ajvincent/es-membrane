@@ -184,7 +184,8 @@ export default class DistortionsListener {
    */
   proxyListener(meta) {
     const config = this.getConfigurationForListener(meta);
-    this.applyConfiguration(config, meta);
+    if (config)
+      this.applyConfiguration(config, meta);
 
     meta.stopIteration();
   }
