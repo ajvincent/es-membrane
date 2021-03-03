@@ -624,10 +624,10 @@ export class ProxyCylinderMap extends WeakMap {
       }
       const current = this.get(key);
       if (current === DeadProxyKey)
-        throw new Error("WeakMapOfProxyCylinders says this key is dead");
+        throw new Error("ProxyCylinderMap says this key is dead");
 
       if ((current !== undefined) && (current !== value))
-        throw new Error("WeakMapOfProxyCylinders already has a value for this key");
+        throw new Error("ProxyCylinderMap already has a value for this key");
     }
 
     return WeakMap_set.apply(this, [key, value]);
