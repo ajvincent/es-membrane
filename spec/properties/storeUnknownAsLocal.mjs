@@ -1,13 +1,5 @@
-"use strict"
-
-if ((typeof MembraneMocks != "function") ||
-    (typeof DAMP != "symbol")) {
-  if (typeof require == "function") {
-    var { MembraneMocks, DAMP } = require("../../docs/dist/node/mocks.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneMocks");
-}
+import DAMP from "../helpers/dampSymbol.mjs";
+import MembraneMocks from "../helpers/mocks.mjs";
 
 describe("Storing unknown properties locally", function() {
   function fixKeys(keys) {
