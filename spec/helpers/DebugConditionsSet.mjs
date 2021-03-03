@@ -15,4 +15,8 @@ export default class DebugConditionsSet {
       debugger;
     }
   }
+
+  cleared(key) {
+    return !this.keys.has(key);
+  }
 }
