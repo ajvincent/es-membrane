@@ -1,4 +1,15 @@
-function buildMembrane(___utilities___) {
+import Membrane from "../Membrane.mjs";
+import ObjectGraphHandler from "../ObjectGraphHandler-old.mjs";
+import DistortionsListener from "../DistortionsListener.mjs";
+import {
+  ModifyRulesAPI
+} from "../ModifyRulesAPI.mjs";
+import {
+  ProxyCylinder,
+} from "../ProxyCylinder.mjs";
+import ProxyNotify from "../ProxyNotify.mjs";
+
+export default function buildMembrane(___utilities___) {
   "use strict";
   
   const rvMembrane = new Membrane({
@@ -15,9 +26,9 @@ function buildMembrane(___utilities___) {
       );
       
       return function(value) {
-        if ((value === ProxyMapping) || 
-            (value === ProxyMapping.prototype) ||
-            (value instanceof ProxyMapping))
+        if ((value === ProxyCylinder) ||
+            (value === ProxyCylinder.prototype) ||
+            (value instanceof ProxyCylinder))
           throw new Error("ProxyMapping is private!");
         if (value === ProxyNotify)
           throw new Error("ProxyNotify is private!");
@@ -32,10 +43,6 @@ function buildMembrane(___utilities___) {
           });
         });
       };
-      {
-        const s = new Set(items);
-        return s.has.bind(s);
-      }
     })(),
     
   });
