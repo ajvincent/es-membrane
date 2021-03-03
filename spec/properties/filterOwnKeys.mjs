@@ -31,25 +31,9 @@ import MembraneMocks from "../helpers/mocks.mjs";
 describe("Filtering own keys", function() {
   "use strict";
   /* XXX ajvincent These tests have grown very complex, even for me.
-   * To debug a specific test may require several steps:
-   * (1) Set the if (false) condition below to true.
-   * (2) In the "defineTests" functions,
-     beforeEach(function() {
-       debugConditions.add(foo);
-     });
-   * 
-   * (3) In the actual test:
-     if (debugConditions.has(foo) && debugConditions.has(bar)...)
-       debugger;
 
-  const debugConditions = new Set();
-
-  beforeEach(function() {
-    debugConditions.add(foo);
-  });
-  afterEach(function() {
-    debugConditions.clear();
-  });
+  Use DebugConditionsSet from ../helpers/DebugConditionsSet.mjs to set
+  forced debugger statements based on the nested conditions of your test.
   */
 
   //{ infrastructure
