@@ -8,7 +8,7 @@
   },
   "scripts": {
     "debug": "node --inspect-brk ./node_modules/jasmine/bin/jasmine.js",
-    "eslint": "eslint",
+    "eslint": "eslint source/",
     "gui-tests": "karma start gui-tests.conf.js",
     "rollup": "rollup --config rollup.config.mjs",
     "test": "jasmine"
