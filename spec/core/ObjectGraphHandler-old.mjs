@@ -1,6 +1,6 @@
 import ObjectGraphHandler from "../../source/core/ObjectGraphHandler-old.mjs";
 
-describe("Legacy ObjectGraphHandler", () => {
+xdescribe("Legacy ObjectGraphHandler", () => {
   let handler, membrane;
 
   beforeEach(() => {
