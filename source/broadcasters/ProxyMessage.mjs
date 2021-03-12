@@ -8,6 +8,9 @@ import {
  */
 const PROXYMESSAGE_PRIVATE = new WeakMap();
 
+/**
+ * @package
+ */
 export default class ProxyMessage {
   constructor(proxy, realTarget, graph, isOrigin) {
     const privateObj = {
@@ -22,6 +25,11 @@ export default class ProxyMessage {
     Reflect.defineProperty(this, "realTarget",    new DataDescriptor(realTarget));
     Reflect.defineProperty(this, "graph",         new DataDescriptor(graph));
     Reflect.defineProperty(this, "isOriginGraph", new DataDescriptor(isOrigin));
+    Reflect.defineProperty(this, "logger",        new DataDescriptor(
+      graph.membrane && (typeof graph.membrane.logger !== "undefined") ?
+      graph.membrane.logger :
+      null
+    ));
   }
 
   /**
