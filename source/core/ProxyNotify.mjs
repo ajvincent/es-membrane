@@ -20,7 +20,7 @@ import {
  *
  * @package
  */
-export default function ProxyNotify(parts, handler, isOrigin, options) {
+export function ProxyNotify(parts, handler, isOrigin, options) {
   if (typeof options === "undefined")
     options = {};
 

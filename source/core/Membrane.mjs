@@ -11,7 +11,9 @@ import {
   valueType,
 } from "./sharedUtilities.mjs";
 
-import ProxyNotify from "./ProxyNotify.mjs";
+import {
+  ProxyNotify,
+} from "./ProxyNotify.mjs";
 
 import {
   ChainHandlers,
