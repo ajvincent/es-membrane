@@ -19,6 +19,7 @@ import {
  * @param {Object}             options   Special options to pass on to the listeners.
  *
  * @package
+ * @deprecated
  */
 export function ProxyNotify(parts, handler, isOrigin, options) {
   if (typeof options === "undefined")

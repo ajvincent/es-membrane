@@ -862,6 +862,7 @@ Object.freeze(ProxyCylinderMap);
  * @param {Object}             options   Special options to pass on to the listeners.
  *
  * @package
+ * @deprecated
  */
 function ProxyNotify(parts, handler, isOrigin, options) {
   if (typeof options === "undefined")
