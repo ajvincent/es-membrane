@@ -1,6 +1,6 @@
 import {
   DataDescriptor,
-} from "../core/sharedUtilities.mjs";
+} from "../sharedUtilities.mjs";
 
 /**
  * @private

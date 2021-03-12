@@ -1,5 +1,5 @@
-import ProxyMessage from "../../source/broadcasters/ProxyMessage.mjs";
-import ProxyBroadcaster from "../../source/broadcasters/ProxyBroadcaster.mjs";
+import ProxyMessage from "../../../source/core/broadcasters/ProxyMessage.mjs";
+import ProxyBroadcaster from "../../../source/core/broadcasters/ProxyBroadcaster.mjs";
 
 describe("ProxyBroadcaster", () => {
   let broadcaster;

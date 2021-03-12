@@ -1,4 +1,4 @@
-import ProxyMessage from "../../source/broadcasters/ProxyMessage.mjs";
+import ProxyMessage from "../../../source/core/broadcasters/ProxyMessage.mjs";
 
 describe("ProxyMessage", () => {
   let message;
