@@ -3,7 +3,6 @@ import MembraneMocks from "../helpers/mocks.mjs";
 /* XXX ajvincent This is very specifically testing internal API's. */
 
 describe("Internal API:  Defining a lazy getter", function() {
-  "use strict";
   var parts, dryDocument, wetDocument, membrane, shadow;
 
   beforeEach(function() {

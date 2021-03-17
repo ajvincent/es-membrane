@@ -5,20 +5,8 @@
  *
  * Similarly, the logger we create will not be attached to the membrane.
  */
-
-if (typeof loggerLib != "object") {
-  if (typeof require == "function") {
-    var { loggerLib } = require("../../docs/dist/node/mocks.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get MembraneMocks");
-}
-
-if (typeof Membrane != "function") {
-  if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
-  }
-}
+import loggerLib from "../helpers/logger.mjs"
+import Membrane from "../../source/core/Membrane.mjs"
 
 describe("An object graph handler's proxy listeners", function() {
   var membrane, wetHandler, dryHandler, appender, ctor1;
@@ -29,11 +17,8 @@ describe("An object graph handler's proxy listeners", function() {
     return this.events.map(getMessageProp);
   }
 
-  function mustSkip(value) {
-    return ((value === Object.prototype) ||
-            (value === ctor1) ||
-            (value === ctor1.prototype));
-  }
+  const acceptSet = new Set();
+  afterEach(() => acceptSet.clear());
 
   beforeEach(function() {
     membrane = new Membrane({logger: logger});
@@ -82,24 +67,25 @@ describe("An object graph handler's proxy listeners", function() {
     */
 
     var meta0, meta1, meta2;
+    function listener0(meta) {
+      if (acceptSet.has(meta.target)) {
+        meta0 = meta;
+        logger.info("listener0");
+      }
+    }
     function listener1(meta) {
-      if (mustSkip(meta.target))
-        return;
-      meta1 = meta;
-      logger.info("listener1");
+      if (acceptSet.has(meta.target)) {
+        meta1 = meta;
+        logger.info("listener1");
+      }
     }
     function listener2(meta) {
-      if (mustSkip(meta.target))
-        return;
-      meta2 = meta;
-      logger.info("listener2");
+      if (acceptSet.has(meta.target)) {
+        meta2 = meta;
+        logger.info("listener2");
+      }
     }
-    function listener0(meta) {
-      if (mustSkip(meta.target))
-        return;
-      meta0 = meta;
-      logger.info("listener0");
-    }
+
 
     function reset() {
       appender.clear();
@@ -120,6 +106,8 @@ describe("An object graph handler's proxy listeners", function() {
 
     it("via membrane.convertArgumentToProxy", function() {
       var x = new ctor1("one");
+      acceptSet.add(x);
+
       logger.info("x created");
       var X = membrane.convertArgumentToProxy(
         wetHandler,
@@ -160,15 +148,16 @@ describe("An object graph handler's proxy listeners", function() {
         x
       );
       appender.clear();
+      acceptSet.add(x.arg1);
 
-      logger.info("X.y retrieval start");
+      logger.info("X.arg1 retrieval start");
       var Y = X.arg1;
-      logger.info("X.y retrieval end");
+      logger.info("X.arg1 retrieval end");
       expect(Y).not.toBe(y);
 
       let messages = appender.getMessages();
       expect(messages.length).toBe(6);
-      expect(messages[0]).toBe("X.y retrieval start");
+      expect(messages[0]).toBe("X.arg1 retrieval start");
 
       // origin ObjectGraphHandler's listeners
       expect(messages[1]).toBe("listener0");
@@ -178,7 +167,7 @@ describe("An object graph handler's proxy listeners", function() {
       expect(messages[3]).toBe("listener1");
       expect(messages[4]).toBe("listener2");
 
-      expect(messages[5]).toBe("X.y retrieval end");
+      expect(messages[5]).toBe("X.arg1 retrieval end");
 
       expect(meta2).toBe(meta1);
       expect(typeof meta2).toBe("object");
@@ -190,6 +179,7 @@ describe("An object graph handler's proxy listeners", function() {
       var y = 4;
       var x = new ctor1(y);
       expect(x.arg1).toBe(y);
+
       var X = membrane.convertArgumentToProxy(
         wetHandler,
         dryHandler,
@@ -197,15 +187,15 @@ describe("An object graph handler's proxy listeners", function() {
       );
       reset();
 
-      logger.info("X.y retrieval start");
+      logger.info("X.arg1 retrieval start");
       var Y = X.arg1;
-      logger.info("X.y retrieval end");
+      logger.info("X.arg1 retrieval end");
       expect(Y).toBe(y); // because it's a primitive
 
       let messages = appender.getMessages();
       expect(messages.length).toBe(2);
-      expect(messages[0]).toBe("X.y retrieval start");
-      expect(messages[1]).toBe("X.y retrieval end");
+      expect(messages[0]).toBe("X.arg1 retrieval start");
+      expect(messages[1]).toBe("X.arg1 retrieval end");
 
       expect(meta0).toBe(undefined);
       expect(meta1).toBe(undefined);
@@ -230,13 +220,13 @@ describe("An object graph handler's proxy listeners", function() {
         x
       );
 
-      {
-        let Y = X.arg1; // we've already tested this above
-        reset();
-        Y = null;
-      }
+      reset();
+      acceptSet.add(Z);
+      acceptSet.add(Z2);
+      acceptSet.add(rv);
 
       logger.info("Calling X.arg1 start");
+
       var K = X.arg1(Z, Z2);
       logger.info("Calling X.arg1 end");
       expect(cbVal).not.toBe(undefined);
@@ -281,7 +271,7 @@ describe("An object graph handler's proxy listeners", function() {
 
       expect(typeof meta2).toBe("object");
       expect(K).not.toBe(undefined);
-      expect(K).not.toBe(null);
+      expect(K !== null).toBe(true, "expect(K).not.toBe(null)");
       expect(typeof K).toBe("object");
       if (K)
         expect(K.isRV).toBe(true);
@@ -301,13 +291,10 @@ describe("An object graph handler's proxy listeners", function() {
         x
       );
 
-      {
-        let Y = X.arg1; // we've already tested this above
-        reset();
-        Y = null;
-      }
+      reset();
 
       const Z = true;
+      acceptSet.add(Z);
 
       logger.info("Calling X.arg1 start");
       X.arg1(Z);
@@ -326,7 +313,8 @@ describe("An object graph handler's proxy listeners", function() {
     });
   });
 
-  describe("can override the proxy to return", function() {
+  // deprecated API
+  xdescribe("can override the proxy to return", function() {
     it("with a primitive", function() {
       var rv = "primitive";
       dryHandler.addProxyListener(function(meta) {
@@ -372,7 +360,7 @@ describe("An object graph handler's proxy listeners", function() {
       expect(X.arg1).toBe(rv);
     });
 
-    it("with a new proxy built from the existing handler", function() {
+    xit("with a new proxy built from the existing handler", function() {
       var handler2 = membrane.modifyRules.createChainHandler(dryHandler);
       var extraDesc = {
         value: 3,
@@ -844,10 +832,8 @@ describe("An object graph handler's proxy listeners", function() {
       }
       ctor2.prototype = new ctor1("ctor2 base");
 
-      var lastLogArg;
-      function logTest(arg) {
+      function logTest() {
         logger.info("Executing logTest");
-        lastLogArg = arg;
       }
 
       function testListener(meta) {
@@ -1022,7 +1008,7 @@ describe("An object graph handler's proxy listeners", function() {
 
     it("by invoking meta.stopIteration();", function() {
       function listener1(meta) {
-        if (mustSkip(meta.target))
+        if (!acceptSet.has(meta.target))
           return;
 
         meta1 = meta;
@@ -1033,9 +1019,10 @@ describe("An object graph handler's proxy listeners", function() {
       }
 
       function listener2(meta) {
-        if (mustSkip(meta.target))
+        if (!acceptSet.has(meta.target))
           return;
 
+        // we should never get here
         meta2 = meta;
         logger.info("listener2: stopped = " + meta.stopped);
         logger.info("listener2: calling meta.stopIteration();");
@@ -1047,6 +1034,8 @@ describe("An object graph handler's proxy listeners", function() {
       dryHandler.addProxyListener(listener2);
 
       var x = new ctor1("one");
+      acceptSet.add(x);
+
       logger.info("x created");
       var X = membrane.convertArgumentToProxy(
         wetHandler,
@@ -1074,7 +1063,7 @@ describe("An object graph handler's proxy listeners", function() {
     it("by invoking meta.throwException(exn);", function() {
       const dummyExn = {};
       function listener1(meta) {
-        if (mustSkip(meta.target))
+        if (!acceptSet.has(meta.target))
           return;
 
         meta1 = meta;
@@ -1085,9 +1074,10 @@ describe("An object graph handler's proxy listeners", function() {
       }
 
       function listener2(meta) {
-        if (mustSkip(meta.target))
+        if (!acceptSet.has(meta.target))
           return;
 
+        // we should never get here
         meta2 = meta;
         logger.info("listener2: stopped = " + meta.stopped);
         logger.info("listener2: calling meta.stopIteration();");
@@ -1099,6 +1089,7 @@ describe("An object graph handler's proxy listeners", function() {
       dryHandler.addProxyListener(listener2);
 
       var x = new ctor1("one");
+      acceptSet.add(x);
       logger.info("x created");
       expect(function() {
         membrane.convertArgumentToProxy(
@@ -1125,7 +1116,7 @@ describe("An object graph handler's proxy listeners", function() {
     it("but not by accidentally triggering an exception", function() {
       const dummyExn = {};
       function listener1(meta) {
-        if (mustSkip(meta.target))
+        if (!acceptSet.has(meta.target))
           return;
         meta1 = meta;
         logger.info("listener1: stopped = " + meta.stopped);
@@ -1133,7 +1124,7 @@ describe("An object graph handler's proxy listeners", function() {
       }
 
       function listener2(meta) {
-        if (mustSkip(meta.target))
+        if (!acceptSet.has(meta.target))
           return;
         meta2 = meta;
         logger.info("listener2: stopped = " + meta.stopped);
@@ -1143,6 +1134,8 @@ describe("An object graph handler's proxy listeners", function() {
       dryHandler.addProxyListener(listener2);
 
       var x = new ctor1("one");
+      acceptSet.add(x);
+
       logger.info("x created");
       var X = membrane.convertArgumentToProxy(
         wetHandler,
