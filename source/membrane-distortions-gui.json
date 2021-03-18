@@ -160,8 +160,6 @@
               "wrapArgumentByProxyMapping",
               "convertArgumentToProxy",
               "bindValuesByHandlers",
-              "addFunctionListener",
-              "removeFunctionListener",
               "secured",
               "warnOnce",
               "constants"
@@ -192,8 +190,6 @@
               "wrapArgumentByProxyMapping": "method",
               "convertArgumentToProxy": "method",
               "bindValuesByHandlers": "method",
-              "addFunctionListener": "method",
-              "removeFunctionListener": "method",
               "warnOnce": "method"
             }
           },
@@ -270,8 +266,6 @@
               "ensureMapping",
               "addProxyListener",
               "removeProxyListener",
-              "addFunctionListener",
-              "removeFunctionListener",
               "revokeEverything"
             ],
             "proxyTraps": [
@@ -305,9 +299,7 @@
               "apply": "method",
               "construct": "method",
               "addProxyListener": "method",
-              "removeProxyListener": "method",
-              "addFunctionListener": "method",
-              "removeFunctionListener": "method"
+              "removeProxyListener": "method"
             }
           },
           "instance": {

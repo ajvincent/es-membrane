@@ -384,7 +384,6 @@ window.LoadPanel = {
     // Optional String[] properties of each graph
     [
       "proxyListeners",
-      "functionListeners",
       "comments"
     ].forEach(function(arrayName) {
       if (typeof graph[arrayName] !== "undefined") {

@@ -158,8 +158,6 @@ class Membrane {
 
       "logger": new NWNCDataDescriptor(options.logger || null, false),
 
-      "__functionListeners__": new NWNCDataDescriptor([], false),
-
       "warnOnceSet": new NWNCDataDescriptor(
         (options.logger ? new Set() : null), false
       ),
@@ -610,33 +608,6 @@ class Membrane {
     }, this);
 
     return wrappedDesc;
-  }
-
-  /**
-   * Add a listener for function entry, return and throw operations.
-   *
-   * @param {Function} listener The listener to add.
-   *
-   * @see ObjectGraphHandler.prototype.notifyFunctionListeners for what each
-   * listener will get for its arguments.
-   */
-  addFunctionListener(listener) {
-    if (typeof listener != "function")
-      throw new Error("listener is not a function!");
-    if (!this.__functionListeners__.includes(listener))
-      this.__functionListeners__.push(listener);
-  }
-
-  /**
-   * Add a listener for function entry, return and throw operations.
-   *
-   * @param {Function} listener The listener to remove.
-   */
-  removeFunctionListener(listener) {
-    let index = this.__functionListeners__.indexOf(listener);
-    if (index == -1)
-      throw new Error("listener is not registered!");
-    this.__functionListeners__.splice(index, 1);
   }
 
   /**

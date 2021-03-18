@@ -166,8 +166,6 @@ export default function buildMembrane(___utilities___) {
         "ownsHandler",
         "convertArgumentToProxy",
         "bindValuesByHandlers",
-        "addFunctionListener",
-        "removeFunctionListener",
         "secured",
         "warnOnce",
         "constants"
@@ -257,8 +255,6 @@ export default function buildMembrane(___utilities___) {
         "ensureProxyCylinder",
         "addProxyListener",
         "removeProxyListener",
-        "addFunctionListener",
-        "removeFunctionListener",
         "revokeEverything"
       ],
       "proxyTraps": [
@@ -322,8 +318,6 @@ export default function buildMembrane(___utilities___) {
         Membrane.prototype.ownsHandler,
         Membrane.prototype.convertArgumentToProxy,
         Membrane.prototype.bindValuesByHandlers,
-        Membrane.prototype.addFunctionListener,
-        Membrane.prototype.removeFunctionListener,
         Membrane.prototype.warnOnce,
         ObjectGraphHandler.prototype.ownKeys,
         ObjectGraphHandler.prototype.has,
@@ -340,8 +334,6 @@ export default function buildMembrane(___utilities___) {
         ObjectGraphHandler.prototype.construct,
         ObjectGraphHandler.prototype.addProxyListener,
         ObjectGraphHandler.prototype.removeProxyListener,
-        ObjectGraphHandler.prototype.addFunctionListener,
-        ObjectGraphHandler.prototype.removeFunctionListener,
         DistortionsListener.prototype.addListener,
         DistortionsListener.prototype.removeListener,
         DistortionsListener.prototype.listenOnce,
