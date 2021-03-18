@@ -1,16 +1,6 @@
-/*
-import "../docs/dist/es6-modules/Membrane.js";
-*/
-if (typeof Membrane != "function") {
-  if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get Membrane");
-}
+import Membrane from "../../source/core/Membrane.mjs"
 
 describe("Pass-through filters", function() {
-  "use strict";
   const MUSTCREATE = Object.freeze({ mustCreate: true });
   const p = {};
   function passP(value) {
@@ -259,7 +249,6 @@ describe("Pass-through filters", function() {
     it(
       "allows a value to be wrapped if the filter returns false in the future (don't do this)",
       function() {
-        // XXX ajvincent See above note.
         let count = 0;
         function passP2(value) {
           count++;
