@@ -253,6 +253,7 @@ Object.defineProperty(
  * @property {Object} value                - The original value
  * @property {Proxy} proxy                 - The proxy object from Proxy.revocable()
  * @property {Object} shadowTarget         - The shadow target
+ * @property {Boolean} storeAsValue        - Store a value instead of a proxy/shadow.
  * @property {Boolean} override            - True if the graph should be overridden.
  * @property {Map} localDescriptors        - Property descriptors local to an object graph.
  * @property {Set} deletedLocals           - Names of properties deleted locally.
@@ -288,7 +289,7 @@ class ProxyCylinder {
      * @private
      */
     this.originalValueSet = false;
-  
+
     /**
      * Local flags for string keys determining behavior.
      * @type {?Set}
@@ -388,7 +389,7 @@ class ProxyCylinder {
    */
   getProxy(graphName) {
     let rv = this.getMetadata(graphName);
-    return (graphName === this.originGraph) ? rv.value : rv.proxy;
+    return rv.storeAsValue ? rv.value : rv.proxy;
   }
 
   /**
@@ -411,6 +412,8 @@ class ProxyCylinder {
    * @public
    */
   isShadowTarget(shadowTarget) {
+    if (shadowTarget === undefined)
+      return false;
     const graphs = Array.from(this.proxyDataByGraph.values());
     return graphs.some(
       graph => (graph !== DeadProxyKey) && (graph.shadowTarget === shadowTarget)
@@ -430,6 +433,9 @@ class ProxyCylinder {
     if ((typeof metadata !== "object") || (metadata === null))
       throw new Error("metadata argument must be an object");
 
+    if (typeof metadata.storeAsValue !== "boolean")
+      throw new Error("metadata.storeAsValue must be a boolean");
+
     const override = (typeof metadata.override === "boolean") && metadata.override;
     if (!override && this.hasGraph(graphName))
       throw new Error(`set called for previously defined graph "${graphName}"`);
@@ -443,12 +449,13 @@ class ProxyCylinder {
 
     const isForeignGraph = (graphName !== this.originGraph);
 
-    if (!this.originalValueSet && (override || isForeignGraph))
+    if (!this.originalValueSet && (override || !metadata.storeAsValue))
       throw new Error("original value has not been set");
 
-    if (isForeignGraph) {
-      if (this.proxyDataByGraph.get(this.originGraph) === DeadProxyKey)
-        throw new Error(`dead origin object graph "${this.originGraph}"`);
+    if (isForeignGraph && (this.proxyDataByGraph.get(this.originGraph) === DeadProxyKey))
+      throw new Error(`dead origin object graph "${this.originGraph}"`);
+
+    if (!metadata.storeAsValue) {
       if ("value" in metadata)
         throw new Error("metadata must not include a value");
       if (!metadata.proxy)
@@ -468,7 +475,7 @@ class ProxyCylinder {
     this.setMetadataInternal(graphName, metadata);
 
     if (isForeignGraph) {
-      if (valueType(metadata.proxy) !== "primitive") {
+      if (!metadata.storeAsValue && (valueType(metadata.proxy) !== "primitive")) {
         membrane.cylinderMap.set(metadata.proxy, this);
         membrane.cylinderMap.set(metadata.shadowTarget, this);
       }
@@ -477,7 +484,7 @@ class ProxyCylinder {
       this.originalValueSet = true;
     }
 
-    if (!isForeignGraph &&
+    if (metadata.storeAsValue &&
         !membrane.cylinderMap.has(metadata.value) &&
         (valueType(metadata.value) !== "primitive")) {
       membrane.cylinderMap.set(metadata.value, this);
@@ -548,7 +555,7 @@ class ProxyCylinder {
    */
   getLocalFlag(graphName, flagName) {
     this.getMetadata(graphName); // ensure we're alive
-    if (typeof graphName == "string") {
+    if (typeof graphName === "string") {
       if (!this.localFlags)
         return false;
       let flag = flagName + ":" + graphName;
@@ -575,7 +582,7 @@ class ProxyCylinder {
    */
   setLocalFlag(graphName, flagName, value) {
     this.getMetadata(graphName); // ensure we're alive
-    if (typeof graphName == "string") {
+    if (typeof graphName === "string") {
       if (!this.localFlags)
         this.localFlags = new Set();
 
@@ -683,6 +690,7 @@ class ProxyCylinder {
   }
 
   /**
+   * Append our list of deleted property names to a Set that carries them.
    *
    * @param {Symbol | String} graphName The object graph's name.
    * @param {Set}             set       Storage for a list of names.
@@ -3764,7 +3772,7 @@ class Membrane {
       "logger": new NWNCDataDescriptor(options.logger || null, false),
   
       "__functionListeners__": new NWNCDataDescriptor([], false),
-  
+
       "warnOnceSet": new NWNCDataDescriptor(
         (options.logger ? new Set() : null), false
       ),
@@ -3877,8 +3885,8 @@ class Membrane {
            "Proxy requests must pass in an origin handler");
 
     let parts;
-    if (isOriginal) {
-      parts = { value };
+    if (isOriginal || options.storeAsValue) {
+      parts = { value, storeAsValue: true };
     }
     else {
       const shadowTarget = makeShadowTarget(value);
@@ -3892,7 +3900,8 @@ class Membrane {
 
       parts = {
         proxy: obj.proxy,
-        shadowTarget
+        shadowTarget,
+        storeAsValue: false,
       };
       revoke = obj.revoke;
 
@@ -3914,7 +3923,7 @@ class Membrane {
         if (Reflect.has(options, propName))
           notifyOptions[propName] = options[propName];
       });
-      
+
       ProxyNotify(parts, options.originHandler, true, notifyOptions);
       ProxyNotify(parts, handler, false, notifyOptions);
 

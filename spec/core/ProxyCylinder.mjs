@@ -17,7 +17,7 @@ describe("ProxyCylinder", () => {
   afterEach(() => {
     membrane = null;
     cylinder = null;
-  })
+  });
 
   const flagSymbol = Symbol("generic flag");
 
@@ -105,9 +105,9 @@ describe("ProxyCylinder", () => {
 
   function describeDeadGraphSetters(graphName) {
     it(".setMetadata()", () => {
-      expect(() => cylinder.setMetadata({}, graphName, { value: { dead: true }}))
+      expect(() => cylinder.setMetadata({}, graphName, { value: { dead: true }, storeAsValue: true}))
             .toThrowError(`set called for previously defined graph "${graphName}"`);
-      expect(() => cylinder.setMetadata({}, graphName, { value: { dead: true}, override: true }))
+      expect(() => cylinder.setMetadata({}, graphName, { value: { dead: true}, override: true, storeAsValue: true }))
             .toThrowError(`dead object graph "${graphName}"`);
     });
 
@@ -195,7 +195,7 @@ describe("ProxyCylinder", () => {
       });
 
       it("disallows setting non-origin graph data first", () => {
-        const metadata = {};
+        const metadata = {storeAsValue: false};
         expect(() => cylinder.setMetadata(membrane, "dry", metadata)).toThrowError("original value has not been set");
       });
 
@@ -205,33 +205,49 @@ describe("ProxyCylinder", () => {
         expect(() => cylinder.setMetadata(null, "wet", "wet")).toThrowError("metadata argument must be an object");
       });
 
+      it("requires a boolean storeAsValue property of metadata", () => {
+        expect(() => {
+          cylinder.setMetadata(membrane, "wet", {value: []});
+        }).toThrowError("metadata.storeAsValue must be a boolean");
+        expect(() => {
+          cylinder.setMetadata(membrane, "wet", {proxy: {}, shadowTarget: {}});
+        }).toThrowError("metadata.storeAsValue must be a boolean");
+      });
+
       it("accepts undefined value properties in graph metadata", () => {
-        const metadata = { value: undefined };
+        const metadata = { value: undefined, storeAsValue: true };
         cylinder.setMetadata(membrane, "wet", metadata);
         expect(membrane.cylinderMap.has(metadata.value)).toBe(false);
       });
 
       it("accepts number value properties in graph metadata", () => {
-        const metadata = { value: 3 };
+        const metadata = { value: 3, storeAsValue: true };
         cylinder.setMetadata(membrane, "wet", metadata);
         expect(membrane.cylinderMap.has(metadata.value)).toBe(false);
       });
 
       it("requires a value property on an origin graph", () => {
-        const metadata = {};
+        const metadata = {storeAsValue: true};
         expect(() => cylinder.setMetadata(membrane, "wet", metadata))
               .toThrowError("metadata must include an original value");
       });
 
       it("disallows metadata with a proxy property on an origin graph", () => {
-        const metadata = { value: {}, proxy: {} };
+        const metadata = { value: {}, proxy: {}, storeAsValue: true };
         expect(() => cylinder.setMetadata(membrane, "wet", metadata))
               .toThrowError("metadata must not include a proxy");
       });
+
       it("disallows metadata with a shadow target on an origin graph", () => {
-        const metadata = { value: {}, shadowTarget: {} };
+        const metadata = { value: {}, shadowTarget: {}, storeAsValue: true };
         expect(() => cylinder.setMetadata(membrane, "wet", metadata))
               .toThrowError("metadata must not include a shadow target");
+      });
+
+      it("disallows setting an original proxy", () => {
+        const metadata = { proxy: {}, shadowTarget: {}, storeAsValue: false };
+        expect(() => cylinder.setMetadata(membrane, "wet", metadata))
+              .toThrowError("original value has not been set");
       });
     });
 
@@ -253,7 +269,7 @@ describe("ProxyCylinder", () => {
         cylinderMap: new ProxyCylinderMap(),
       };
 
-      wetParts = { value: { isWet: true } };
+      wetParts = { value: { isWet: true }, storeAsValue: true };
 
       cylinder.setMetadata(membrane, "wet", wetParts);
     });
@@ -290,12 +306,12 @@ describe("ProxyCylinder", () => {
       it("disallows setting on the same graph twice without an override", () => {
         expect(() => cylinder.setMetadata(membrane, "wet", wetParts))
               .toThrowError(`set called for previously defined graph "wet"`);
-        expect(() => cylinder.setMetadata(membrane, "wet", {}))
+        expect(() => cylinder.setMetadata(membrane, "wet", {storeAsValue: true}))
               .toThrowError(`set called for previously defined graph "wet"`);
       });
 
       it("allows setting on the same graph twice with an override", () => {
-        const newParts = { value: { isNew: true }, override: true};
+        const newParts = { value: { isNew: true }, override: true, storeAsValue: true};
         cylinder.setMetadata(membrane, "wet", newParts);
 
         expect(cylinder.hasGraph("wet")).toBe(true);
@@ -321,28 +337,28 @@ describe("ProxyCylinder", () => {
       });
 
       it("disallows invalid graph names", () => {
-        expect(() => cylinder.setMetadata(null, null, {})).toThrowError("graphName is neither a symbol nor a string!");
-        expect(() => cylinder.setMetadata(null, 0,    {})).toThrowError("graphName is neither a symbol nor a string!");
-        expect(() => cylinder.setMetadata(null, {},   {})).toThrowError("graphName is neither a symbol nor a string!");
+        expect(() => cylinder.setMetadata(null, null, {storeAsValue: false})).toThrowError("graphName is neither a symbol nor a string!");
+        expect(() => cylinder.setMetadata(null, 0,    {storeAsValue: false})).toThrowError("graphName is neither a symbol nor a string!");
+        expect(() => cylinder.setMetadata(null, {},   {storeAsValue: false})).toThrowError("graphName is neither a symbol nor a string!");
       });
 
       it("disallows a value property on a non-origin graph", () => {
         membrane = { cylinderMap: new WeakMap };
-        const metadata = { value: {} };
+        const metadata = { value: {}, storeAsValue: false };
         expect(() => cylinder.setMetadata(membrane, "dry", metadata))
               .toThrowError("metadata must not include a value");
       });
 
-      it("disallows metadata with a proxy property on a non-origin graph", () => {
+      it("disallows metadata without a proxy property on a non-origin graph", () => {
         membrane = { cylinderMap: new WeakMap };
-        const metadata = { shadowTarget: {} };
+        const metadata = { shadowTarget: {}, storeAsValue: false };
         expect(() => cylinder.setMetadata(membrane, "dry", metadata))
               .toThrowError("metadata must include a proxy");
       });
 
-      it("disallows metadata with a shadow target on a non-origin graph", () => {
+      it("disallows metadata without a shadow target on a non-origin graph", () => {
         membrane = { cylinderMap: new WeakMap };
-        const metadata = { proxy: {} };
+        const metadata = { proxy: {}, storeAsValue: false };
         expect(() => cylinder.setMetadata(membrane, "dry", metadata))
               .toThrowError("metadata must include a shadow target");
       });
@@ -367,8 +383,12 @@ describe("ProxyCylinder", () => {
         describe("(setters)", () => describeDeadGraphSetters("wet", membrane));
 
         it(".setMetadata with a new object graph", () => {
-          expect(() => cylinder.setMetadata({}, Symbol("hidden"), { value: { dead: true }}))
-                .toThrowError(`dead origin object graph "wet"`);
+          expect(() => cylinder.setMetadata(
+            membrane,
+            Symbol("hidden"),
+            { value: { dead: true }, storeAsValue: true}
+
+          )).toThrowError(`dead origin object graph "wet"`);
         });
       });
     });
@@ -598,6 +618,42 @@ describe("ProxyCylinder", () => {
         expect(cylinder.getTruncateArgList("wet")).toBe(false);
       });
     });
+
+    it("setting a dry value (not a proxy) works", () => {
+      const dryParts = { value: { isDry: true }, storeAsValue: true };
+      cylinder.setMetadata(membrane, "dry", dryParts);
+
+      expect(cylinder.originGraph).toBe("wet");
+      expect(cylinder.getOriginal()).toBe(wetParts.value);
+      expect(cylinder.hasGraph("wet")).toBe(true);
+      expect(cylinder.getProxy("wet")).toBe(wetParts.value);
+      expect(cylinder.getShadowTarget("wet")).toBe(undefined);
+      expect(cylinder.isShadowTarget({})).toBe(false);
+      expect(cylinder.getLocalFlag("wet", "foo")).toBe(false);
+      expect(cylinder.getLocalFlag("wet", flagSymbol)).toBe(false);
+      expect(cylinder.localOwnKeys("wet")).toEqual([]);
+      expect(cylinder.getLocalDescriptor("wet", "towel")).toBe(undefined);
+      expect(cylinder.cachedOwnKeys("wet")).toBe(null);
+      expect(cylinder.wasDeletedLocally("wet", "foo")).toBe(false);
+      expect(cylinder.getOwnKeysFilter("wet")).toBe(null);
+      expect(cylinder.getTruncateArgList("wet")).toBe(false);
+
+      expect(cylinder.hasGraph("dry")).toBe(true);
+      expect(cylinder.getProxy("dry")).toBe(dryParts.value);
+      expect(cylinder.getShadowTarget("dry")).toBe(dryParts.undefined);
+      expect(cylinder.isShadowTarget(dryParts.shadowTarget)).toBe(false);
+      expect(cylinder.getLocalFlag("dry", "foo")).toBe(false);
+      expect(cylinder.getLocalFlag("dry", flagSymbol)).toBe(false);
+      expect(cylinder.localOwnKeys("dry")).toEqual([]);
+      expect(cylinder.getLocalDescriptor("dry", "towel")).toBe(undefined);
+      expect(cylinder.cachedOwnKeys("dry")).toBe(null);
+      expect(cylinder.wasDeletedLocally("dry", "foo")).toBe(false);
+      expect(cylinder.getOwnKeysFilter("dry")).toBe(null);
+      expect(cylinder.getTruncateArgList("dry")).toBe(false);
+
+      expect(membrane.cylinderMap.get(wetParts.value)).toBe(cylinder);
+      expect(membrane.cylinderMap.get(dryParts.value)).toBe(cylinder);
+    });
   });
 
   describe("with wet and dry metadata, and", () => {
@@ -607,13 +663,14 @@ describe("ProxyCylinder", () => {
         cylinderMap: new ProxyCylinderMap(),
       };
 
-      wetParts = { value: { isWet: true } };
+      wetParts = { value: { isWet: true }, storeAsValue: true };
 
       cylinder.setMetadata(membrane, "wet", wetParts);
 
       const shadowTarget = makeShadowTarget(wetParts.value);
       dryParts = Proxy.revocable(shadowTarget, Reflect);
       dryParts.shadowTarget = shadowTarget;
+      dryParts.storeAsValue = false;
 
       cylinder.setMetadata(membrane, "dry", dryParts);
     });
@@ -622,11 +679,11 @@ describe("ProxyCylinder", () => {
       wetParts = null;
       dryParts = null;
     });
-  
+
     /* I could laboriously recreate all the tests that I applied to the wet data to
     the dry data, but most of the public API's rely on getMetadata() or setMetadataInternal(),
     both of which reduce the effects to choose a sub-object specific to an object graph.
-  
+
     So it's pointless.  If we reduced to the wet object graph and everything works for just
     that graph, there's no point duplicating the tests for the dry graph.
 
@@ -661,9 +718,10 @@ describe("ProxyCylinder", () => {
       expect(cylinder.wasDeletedLocally("dry", "foo")).toBe(false);
       expect(cylinder.getOwnKeysFilter("dry")).toBe(null);
       expect(cylinder.getTruncateArgList("dry")).toBe(false);
-  
+
       expect(membrane.cylinderMap.get(wetParts.value)).toBe(cylinder);
       expect(membrane.cylinderMap.get(dryParts.proxy)).toBe(cylinder);
+      expect(membrane.cylinderMap.get(dryParts.shadowTarget)).toBe(cylinder);
     });
 
     it("requires the origin graph remain alive while another graph lives", () => {
