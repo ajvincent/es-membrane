@@ -84,7 +84,7 @@ class Membrane {
       "logger": new NWNCDataDescriptor(options.logger || null, false),
   
       "__functionListeners__": new NWNCDataDescriptor([], false),
-  
+
       "warnOnceSet": new NWNCDataDescriptor(
         (options.logger ? new Set() : null), false
       ),
@@ -197,8 +197,8 @@ class Membrane {
            "Proxy requests must pass in an origin handler");
 
     let parts;
-    if (isOriginal) {
-      parts = { value };
+    if (isOriginal || options.storeAsValue) {
+      parts = { value, storeAsValue: true };
     }
     else {
       const shadowTarget = makeShadowTarget(value);
@@ -212,7 +212,8 @@ class Membrane {
 
       parts = {
         proxy: obj.proxy,
-        shadowTarget
+        shadowTarget,
+        storeAsValue: false,
       };
       revoke = obj.revoke;
 
@@ -234,7 +235,7 @@ class Membrane {
         if (Reflect.has(options, propName))
           notifyOptions[propName] = options[propName];
       });
-      
+
       ProxyNotify(parts, options.originHandler, true, notifyOptions);
       ProxyNotify(parts, handler, false, notifyOptions);
 
