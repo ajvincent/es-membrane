@@ -1,13 +1,6 @@
-if (typeof Membrane != "function") {
-  if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get Membrane");
-}
+import Membrane from "../../source/core/Membrane.mjs"
 
 describe("Binding two values manually", function() {
-  "use strict";
   // I'm not using the mocks here, since the concept is simple.
   const graphNames = {
     A: Symbol("A"),

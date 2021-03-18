@@ -240,19 +240,19 @@ export class ProxyCylinder {
 
     if (!metadata.storeAsValue) {
       if ("value" in metadata)
-        throw new Error("metadata must not include a value");
+        throw new Error("metadata must not include a value for a foreign graph");
       if (!metadata.proxy)
-        throw new Error("metadata must include a proxy");
+        throw new Error("metadata must include a proxy for a foreign graph");
       if (!metadata.shadowTarget)
-        throw new Error("metadata must include a shadow target");
+        throw new Error("metadata must include a shadow target for a foreign graph");
     }
     else {
       if (!("value" in metadata))
-        throw new Error("metadata must include an original value");
+        throw new Error("metadata must include an original value for an origin graph");
       if (metadata.proxy)
-        throw new Error("metadata must not include a proxy");
+        throw new Error("metadata must not include a proxy for an origin graph");
       if (metadata.shadowTarget)
-        throw new Error("metadata must not include a shadow target");
+        throw new Error("metadata must not include a shadow target for an origin graph");
     }
 
     this.setMetadataInternal(graphName, metadata);

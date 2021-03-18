@@ -229,19 +229,19 @@ describe("ProxyCylinder", () => {
       it("requires a value property on an origin graph", () => {
         const metadata = {storeAsValue: true};
         expect(() => cylinder.setMetadata(membrane, "wet", metadata))
-              .toThrowError("metadata must include an original value");
+              .toThrowError("metadata must include an original value for an origin graph");
       });
 
       it("disallows metadata with a proxy property on an origin graph", () => {
         const metadata = { value: {}, proxy: {}, storeAsValue: true };
         expect(() => cylinder.setMetadata(membrane, "wet", metadata))
-              .toThrowError("metadata must not include a proxy");
+              .toThrowError("metadata must not include a proxy for an origin graph");
       });
 
       it("disallows metadata with a shadow target on an origin graph", () => {
         const metadata = { value: {}, shadowTarget: {}, storeAsValue: true };
         expect(() => cylinder.setMetadata(membrane, "wet", metadata))
-              .toThrowError("metadata must not include a shadow target");
+              .toThrowError("metadata must not include a shadow target for an origin graph");
       });
 
       it("disallows setting an original proxy", () => {
@@ -346,21 +346,21 @@ describe("ProxyCylinder", () => {
         membrane = { cylinderMap: new WeakMap };
         const metadata = { value: {}, storeAsValue: false };
         expect(() => cylinder.setMetadata(membrane, "dry", metadata))
-              .toThrowError("metadata must not include a value");
+              .toThrowError("metadata must not include a value for a foreign graph");
       });
 
       it("disallows metadata without a proxy property on a non-origin graph", () => {
         membrane = { cylinderMap: new WeakMap };
         const metadata = { shadowTarget: {}, storeAsValue: false };
         expect(() => cylinder.setMetadata(membrane, "dry", metadata))
-              .toThrowError("metadata must include a proxy");
+              .toThrowError("metadata must include a proxy for a foreign graph");
       });
 
       it("disallows metadata without a shadow target on a non-origin graph", () => {
         membrane = { cylinderMap: new WeakMap };
         const metadata = { proxy: {}, storeAsValue: false };
         expect(() => cylinder.setMetadata(membrane, "dry", metadata))
-              .toThrowError("metadata must include a shadow target");
+              .toThrowError("metadata must include a shadow target for a foreign graph");
       });
     });
 

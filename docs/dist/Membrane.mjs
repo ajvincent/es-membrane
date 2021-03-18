@@ -457,19 +457,19 @@ class ProxyCylinder {
 
     if (!metadata.storeAsValue) {
       if ("value" in metadata)
-        throw new Error("metadata must not include a value");
+        throw new Error("metadata must not include a value for a foreign graph");
       if (!metadata.proxy)
-        throw new Error("metadata must include a proxy");
+        throw new Error("metadata must include a proxy for a foreign graph");
       if (!metadata.shadowTarget)
-        throw new Error("metadata must include a shadow target");
+        throw new Error("metadata must include a shadow target for a foreign graph");
     }
     else {
       if (!("value" in metadata))
-        throw new Error("metadata must include an original value");
+        throw new Error("metadata must include an original value for an origin graph");
       if (metadata.proxy)
-        throw new Error("metadata must not include a proxy");
+        throw new Error("metadata must not include a proxy for an origin graph");
       if (metadata.shadowTarget)
-        throw new Error("metadata must not include a shadow target");
+        throw new Error("metadata must not include a shadow target for an origin graph");
     }
 
     this.setMetadataInternal(graphName, metadata);
@@ -3740,6 +3740,81 @@ function MembraneMayLog() {
   return (typeof this.logger == "object") && Boolean(this.logger);
 }
 
+// bindValuesByHandlers utility
+/**
+ * @typedef BindValuesBag
+ * @property {ObjectGraphHandler} handler
+ * @property {Variant}            value
+ * @property {string}             type
+ * @property {ProxyCylinder?}     cylinder
+ * @property {boolean}            maySet
+ *
+ * @private
+ */
+
+// bindValuesByHandlers utility
+/**
+ * Make a metadata structure for graph-binding.
+ *
+ * @param {Membrane}           membrane The membrane accepting the value.
+ * @param {ObjectGraphHandler} handler  The graph handler.
+ * @param {Variant}            value    The value we are trying to bind.
+ *
+ * @returns {BindValuesBag}
+ * @private
+ * @static
+ *
+ * @note The logic here is convoluted, I admit.  Basically, if we succeed:
+ * handler0 must own value0
+ * handler1 must own value1
+ * the ProxyCylinder instances for value0 and value1 must be the same
+ * there must be no collisions between any properties of the ProxyCylinder
+ *
+ * If we fail, there must be no side-effects.
+ */
+function makeBindValuesBag(membrane, handler, value) {
+  if (!membrane.ownsHandler(handler))
+    throw new Error("bindValuesByHandlers requires two ObjectGraphHandlers from different graphs");
+
+  let rv = {
+    handler: handler,
+    value: value,
+    type: valueType(value),
+  };
+
+  if (rv.type !== "primitive") {
+    rv.cylinder = membrane.cylinderMap.get(value);
+    const graph = rv.handler.graphName;
+    const valid = (!rv.cylinder ||
+                    (rv.cylinder.hasGraph(graph) &&
+                    (rv.cylinder.getProxy(graph) === value)));
+    if (!valid)
+      throw new Error("Value argument does not belong to proposed object graph");
+  }
+
+  return rv;
+}
+
+// bindValuesByHandlers utility
+/**
+ * Determine whether a value may be set for a given graph.
+ *
+ * @param {ProxyCylinder} cylinder
+ * @param {BindValuesBag} bag
+ *
+ * @private
+ * @static
+ */
+function maySetOnGraph(cylinder, bag) {
+  if (cylinder && cylinder.hasGraph(bag.handler.graphName)) {
+    let check = cylinder.getProxy(bag.handler.graphName);
+    if (check !== bag.value)
+      throw new Error("Value argument does not belong to proposed object graph");
+    bag.maySet = false;
+  }
+  else
+    bag.maySet = true;
+}
 
 /* Reference:  http://soft.vub.ac.be/~tvcutsem/invokedynamic/js-membranes
  * Definitions:
@@ -3748,7 +3823,7 @@ function MembraneMayLog() {
 
 class Membrane {
   /**
-   * 
+   *
    * @param {Object} options
    */
   constructor(options = {}) {
@@ -3760,7 +3835,7 @@ class Membrane {
       "showGraphName": new NWNCDataDescriptor(
         Boolean(options.showGraphName), false
       ),
-  
+
       "refactor": new NWNCDataDescriptor(options.refactor || "", false),
 
       "cylinderMap": new NWNCDataDescriptor(new ProxyCylinderMap, false),
@@ -3768,9 +3843,9 @@ class Membrane {
       "revokerMultiMap": new NWNCDataDescriptor(new RevocableMultiMap, false),
   
       handlersByGraphName: new NWNCDataDescriptor({}, false),
-  
+
       "logger": new NWNCDataDescriptor(options.logger || null, false),
-  
+
       "__functionListeners__": new NWNCDataDescriptor([], false),
 
       "warnOnceSet": new NWNCDataDescriptor(
@@ -3803,6 +3878,8 @@ class Membrane {
    * @param {Symbol|String} graph The graph to look for.
    * @param {Variant}       value The key for the ProxyCylinder map.
    *
+   * @public
+   *
    * @returns [
    *    {Boolean} True if the value was found.
    *    {Variant} The value for that graph.
@@ -3825,6 +3902,8 @@ class Membrane {
    *
    * @param {Symbol|String} graph The graph to look for.
    * @param {Variant}       value The key for the ProxyCylinder map.
+   *
+   * @public
    *
    * @returns [
    *    {Boolean} True if the value was found.
@@ -3857,7 +3936,8 @@ class Membrane {
    *
    * Options:
    *   @param {ProxyCylinder} cylinder
-   *   @param {}
+   *   @param {Variant}       shadowTarget
+   *   @param {boolean}       storeAsValue
    *
    * @returns {ProxyCylinder}
    *
@@ -3889,9 +3969,14 @@ class Membrane {
       parts = { value, storeAsValue: true };
     }
     else {
-      const shadowTarget = makeShadowTarget(value);
+      const shadowTarget = "shadowTarget" in options ?
+                           options.shadowTarget :
+                           makeShadowTarget(value);
       let obj, revoke;
-      if (handler instanceof ObjectGraph) {
+      if (("shadowTarget" in options) && (valueType(shadowTarget) === "primitive")) {
+        obj = { proxy: shadowTarget, revoke: () => {}};
+      }
+      else if (handler instanceof ObjectGraph) {
         obj = Proxy.revocable(shadowTarget, handler.masterProxyHandler);
       }
       else {
@@ -3927,7 +4012,7 @@ class Membrane {
       ProxyNotify(parts, options.originHandler, true, notifyOptions);
       ProxyNotify(parts, handler, false, notifyOptions);
 
-      if (!Reflect.isExtensible(value)) {
+      if (!options.storeAsValue && !Reflect.isExtensible(value)) {
         try {
           Reflect.preventExtensions(parts.proxy);
         }
@@ -4017,6 +4102,8 @@ class Membrane {
    *   if graph is the value's origin graph
    *
    * @throws {Error} if failed (this really should never happen)
+   *
+   * @public
    */
   convertArgumentToProxy(originHandler, targetHandler, arg, options = {}) {
     var override = ("override" in options) && (options.override === true);
@@ -4092,92 +4179,32 @@ class Membrane {
    * @param {Object}             value0    The first value to store.
    * @param {ObjectGraphHandler} handler1  The graph handler that should own value1.
    * @param {Variant}            value1    The second value to store.
+   *
+   * @note value0 must already be registered for handler0.
+   *
+   * @public
    */
   bindValuesByHandlers(handler0, value0, handler1, value1) {
-    /** XXX ajvincent The logic here is convoluted, I admit.  Basically, if we
-     * succeed:
-     * handler0 must own value0
-     * handler1 must own value1
-     * the ProxyCylinder instances for value0 and value1 must be the same
-     * there must be no collisions between any properties of the ProxyCylinder
-     *
-     * If we fail, there must be no side-effects.
-     */
-    function bag(h, v) {
-      if (!this.ownsHandler(h))
-        throw new Error("bindValuesByHandlers requires two ObjectGraphHandlers from different graphs");
-      let rv = {
-        handler: h,
-        value: v,
-        type: valueType(v),
-      };
-      if (rv.type !== "primitive") {
-        rv.cylinder = this.cylinderMap.get(v);
-        const graph = rv.handler.graphName;
-        const valid = (!rv.cylinder ||
-                        (rv.cylinder.hasGraph(graph) &&
-                        (rv.cylinder.getProxy(graph) === v)));
-        if (!valid)
-          throw new Error("Value argument does not belong to proposed ObjectGraphHandler");
-      }
-
-      return rv;
-    }
-
-    function checkGraph(bag) {
-      if (cylinder.hasGraph(bag.handler.graphName)) {
-        let check = cylinder.getProxy(bag.handler.graphName);
-        if (check !== bag.value)
-          throw new Error("Value argument does not belong to proposed object graph");
-        bag.maySet = false;
-      }
-      else
-        bag.maySet = true;
-    }
-
-    function applyBag(bag) {
-      if (!bag.maySet)
-        return;
-      let parts = { proxy: bag.value };
-      if (cylinder.originGraph === bag.handler.graphName)
-        parts.value = bag.value;
-      else
-        parts.value = cylinder.getOriginal();
-      cylinder.set(this, bag.handler.graphName, parts);
-    }
-
-    var propBag0 = bag.apply(this, [handler0, value0]);
-    var propBag1 = bag.apply(this, [handler1, value1]);
-    var cylinder = propBag0.cylinder;
+    let propBag0 = makeBindValuesBag(this, handler0, value0);
+    let propBag1 = makeBindValuesBag(this, handler1, value1);
 
     if (propBag0.type === "primitive") {
       if (propBag1.type === "primitive") {
         throw new Error("bindValuesByHandlers requires two non-primitive values");
       }
-
-      cylinder = propBag1.cylinder;
-
-      let temp = propBag0;
-      propBag0 = propBag1;
-      propBag1 = temp;
     }
+
+    let cylinder = propBag0.cylinder || propBag1.cylinder;
 
     if (propBag0.cylinder && propBag1.cylinder) {
       if (propBag0.cylinder !== propBag1.cylinder) {
         // See https://github.com/ajvincent/es-membrane/issues/77 .
-        throw new Error("Linking two ObjectGraphHandlers in this way is not safe.");
+        throw new Error("Linking two object graphs in this way is not safe.");
       }
-    }
-    else if (!propBag0.cylinder) {
-      if (!propBag1.cylinder) {
-        cylinder = new ProxyCylinder(propBag0.handler.graphName);
-      }
-      else
-        cylinder = propBag1.cylinder;
     }
 
-    checkGraph(propBag0);
-    checkGraph(propBag1);
+    maySetOnGraph(cylinder, propBag0);
+    maySetOnGraph(cylinder, propBag1);
 
     if (propBag0.handler.graphName === propBag1.handler.graphName) {
       if (propBag0.value !== propBag1.value)
@@ -4187,24 +4214,43 @@ class Membrane {
       propBag1.maySet = false;
     }
 
-    applyBag.apply(this, [propBag0]);
-    applyBag.apply(this, [propBag1]);
+    if (propBag0.maySet) {
+      const options = {
+        cylinder,
+        storeAsValue: true,
+      };
+
+      if (cylinder && (cylinder.originGraph !== propBag0.handler))
+        options.originHandler = this.handlersByGraphName[cylinder.originGraph];
+
+      cylinder = this.addPartsToCylinder(propBag0.handler, propBag0.value, options);
+    }
+    if (propBag1.maySet) {
+      const options = {
+        cylinder,
+        storeAsValue: true,
+        originHandler: this.handlersByGraphName[cylinder.originGraph]
+      };
+      this.addPartsToCylinder(propBag1.handler, propBag1.value, options);
+    }
 
     // Postconditions
     if (propBag0.type !== "primitive") {
-      let [found, check] = this.getMembraneProxy(propBag0.handler.graphName, propBag0.value);
+      let found, check;
+      [found, check] = this.getMembraneProxy(propBag0.handler.graphName, propBag0.value);
       assert(found, "value0 not found?");
       assert(check === propBag0.value, "value0 not found in handler0 graph name?");
 
       [found, check] = this.getMembraneProxy(propBag1.handler.graphName, propBag0.value);
       assert(found, "value0 not found?");
-      assert(check === propBag1.value, "value0 not found in handler0 graph name?");
+      assert(check === propBag1.value, "value0 not found in handler1 graph name?");
     }
 
     if (propBag1.type !== "primitive") {
-      let [found, check] = this.getMembraneProxy(propBag0.handler.graphName, propBag1.value);
+      let found, check;
+      [found, check] = this.getMembraneProxy(propBag0.handler.graphName, propBag1.value);
       assert(found, "value1 not found?");
-      assert(check === propBag0.value, "value0 not found in handler0 graph name?");
+      assert(check === propBag0.value, "value1 not found in handler0 graph name?");
 
       [found, check] = this.getMembraneProxy(propBag1.handler.graphName, propBag1.value);
       assert(found, "value1 not found?");
