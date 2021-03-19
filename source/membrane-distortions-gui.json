@@ -57,7 +57,6 @@
             "filterOwnKeys": [
               "getRealTarget",
               "createChainHandler",
-              "replaceProxy",
               "storeUnknownAsLocal",
               "requireLocalDelete",
               "filterOwnKeys",
@@ -84,7 +83,6 @@
             "groupDistortions": {
               "getRealTarget": "method",
               "createChainHandler": "method",
-              "replaceProxy": "method",
               "storeUnknownAsLocal": "method",
               "requireLocalDelete": "method",
               "filterOwnKeys": "method",

@@ -8,8 +8,6 @@ import {
 import ProxyNotify from "../ProxyNotify.mjs";
 
 export default function buildMembrane(___utilities___) {
-  "use strict";
-  
   const rvMembrane = new Membrane({
     logger: (___utilities___.logger || null),
     passThroughFilter: (function() {
@@ -78,7 +76,6 @@ export default function buildMembrane(___utilities___) {
       "filterOwnKeys": [
         "getRealTarget",
         "createChainHandler",
-        "replaceProxy",
         "storeUnknownAsLocal",
         "requireLocalDelete",
         "filterOwnKeys",
@@ -301,7 +298,6 @@ export default function buildMembrane(___utilities___) {
       [
         ModifyRulesAPI.prototype.getRealTarget,
         ModifyRulesAPI.prototype.createChainHandler,
-        ModifyRulesAPI.prototype.replaceProxy,
         ModifyRulesAPI.prototype.storeUnknownAsLocal,
         ModifyRulesAPI.prototype.requireLocalDelete,
         ModifyRulesAPI.prototype.filterOwnKeys,

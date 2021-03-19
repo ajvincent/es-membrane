@@ -431,9 +431,7 @@ export default class ObjectGraphHandler {
      * that in several flavors.  It is doable, but NOT safe, to alter the
      * prototype chain in such a way that breaks the perfect mirroring between
      * object graphs.  Thus, this membrane code will never directly support that
-     * as an option.  If you really insist, you should look at either
-     * ModifyRulesAPI.prototype.replaceProxy(), or replacing the referring
-     * membrane proxy in the object graph with its own shadow target.
+     * as an option.
      *
      * XXX ajvincent update this comment after fixing #76 to specify how the
      * user will extract the shadow target.

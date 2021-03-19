@@ -28,15 +28,6 @@
  *     this.proxiedGraphs[graphName].
  *   * Modify the existing ProxyHandler traps in ObjectGraphHandler.prototype
  *     to call the ProxyCylinder methods, in order to implement the new behavior.
- * (3) If the new API must define a new proxy, or more than one:
- *   * Use membrane.modifyRules.createChainHandler to define the ProxyHandler.
- *   * In the ChainHandler's own-property traps, use this.nextHandler[trapName]
- *     or this.baseHandler[trapName] to forward operations to the next or
- *     original traps in the prototype chain, respectively.
- *   * Be minimalistic:  Implement only the traps you explicitly need, and only
- *     to do the specific behavior you need.  Other ProxyHandlers in the
- *     prototype chain should be trusted to handle the behaviors you don't need.
- *   * Use membrane.modifyRules.replaceProxy to apply the new ProxyHandler.
  */
 
 import {
@@ -50,102 +41,9 @@ import DistortionsListener from "./DistortionsListener.mjs";
 
 export default class ModifyRulesAPI {
   constructor(membrane) {
+    // private
     Object.defineProperty(this, "membrane", new NWNCDataDescriptor(membrane, false));
     Object.seal(this);
-  }
-
-  /**
-   * Replace a proxy in the membrane.
-   *
-   * @param oldProxy {Proxy} The proxy to replace.
-   * @param handler  {ProxyHandler} What to base the new proxy on.
-   *
-   * @returns {Proxy} The newly built proxy.
-   * @public
-   *
-   * @deprecated
-   */
-  replaceProxy(oldProxy, handler) {
-    /*
-    if (DogfoodMembrane) {
-      const [found, unwrapped] = DogfoodMembrane.getMembraneValue("internal", handler);
-      if (found)
-        handler = unwrapped;
-    }
-    */
-
-    let baseHandler = handler;
-    {
-      /* These assertions are to make sure the proxy we're replacing is safe to
-       * use in the membrane.
-       */
-
-      /* Ensure it has an appropriate ProxyHandler on its prototype chain.  If
-       * the old proxy is actually the original value, the handler must have
-       * Reflect on its prototype chain.  Otherwise, the handler must have this
-       * on its prototype chain.
-       *
-       * Note that the handler can be Reflect or this, respectively:  that's
-       * perfectly legal, as a way of restoring original behavior for the given
-       * object graph.
-       */
-
-      let accepted = false;
-      if (baseHandler === Reflect) {
-        accepted = true;
-      }
-      else if (baseHandler instanceof ObjectGraphHandler) {
-        let graphName = baseHandler.graphName;
-        let ownedHandler = this.membrane.getHandlerByName(graphName);
-        accepted = ownedHandler === baseHandler;
-      }
-
-      if (!accepted) {
-        throw new Error("handler neither inherits from Reflect or an ObjectGraphHandler in this membrane");
-      }
-    }
-
-    /*
-     * Ensure the proxy actually belongs to the object graph the base handler
-     * represents.
-     */
-    if (!this.membrane.cylinderMap.has(oldProxy)) {
-      throw new Error("This membrane does not own the proxy!");
-    }
-
-    let cylinder = this.membrane.cylinderMap.get(oldProxy), cachedProxy, cachedGraph;
-    if (baseHandler === Reflect) {
-      cachedGraph = cylinder.originGraph;
-    }
-    else {
-      cachedGraph = baseHandler.graphName;
-      if (cachedGraph == cylinder.originGraph)
-        throw new Error("You must replace original values with either Reflect or a ChainHandler inheriting from Reflect");
-    }
-
-    cachedProxy = cylinder.getProxy(cachedGraph);
-    if (cachedProxy != oldProxy)
-      throw new Error("You cannot replace the proxy with a handler from a different object graph!");
-
-    // Finally, do the actual proxy replacement.
-    let original = cylinder.getOriginal(), shadowTarget;
-    if (baseHandler === Reflect) {
-      shadowTarget = original;
-    }
-    else {
-      shadowTarget = cylinder.getShadowTarget(cachedGraph);
-    }
-    let parts = Proxy.revocable(shadowTarget, handler);
-    parts.value = original;
-    parts.override = true;
-    parts.shadowTarget = shadowTarget;
-    //parts.extendedHandler = handler;
-    cylinder.set(this.membrane, cachedGraph, parts);
-    makeRevokeDeleteRefs(parts, cylinder, cachedGraph);
-
-    let gHandler = this.membrane.getHandlerByName(cachedGraph);
-    gHandler.addRevocable(cylinder.originGraph === cachedGraph ? cylinder : parts.revoke);
-    return parts.proxy;
   }
 
   /**
