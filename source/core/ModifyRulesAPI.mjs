@@ -33,10 +33,8 @@
 import {
   NWNCDataDescriptor,
   allTraps,
-  makeRevokeDeleteRefs,
 } from "./sharedUtilities.mjs";
 
-import ObjectGraphHandler from "./ObjectGraphHandler-old.mjs";
 import DistortionsListener from "./DistortionsListener.mjs";
 
 export default class ModifyRulesAPI {
@@ -122,7 +120,7 @@ export default class ModifyRulesAPI {
     }
 
     if ((typeof filter !== "function") && (filter !== null))
-      throw new Error("filterOwnKeys must be a filter function, array or Set!");
+      throw new Error("filter must be a function, array or Set!");
 
     /* Defining a filter after a proxy's shadow target is not extensible
      * guarantees inconsistency.  So we must disallow that possibility.
@@ -194,14 +192,16 @@ export default class ModifyRulesAPI {
    */
   disableTraps(graphName, proxy, trapList) {
     this.assertLocalProxy(graphName, proxy, "disableTraps");
-    if (!Array.isArray(trapList) ||
-        (trapList.some((t) => { return typeof t !== "string"; })))
+    if (!Array.isArray(trapList))
       throw new Error("Trap list must be an array of strings!");
+    trapList.forEach(t => {
+      if (!allTraps.includes(t)) {
+        throw new Error(`Unknown trap name: ${t}`);
+      }
+    });
+
     const cylinder = this.membrane.cylinderMap.get(proxy);
-    trapList.forEach(function(t) {
-      if (allTraps.includes(t))
-        this.setLocalFlag(graphName, `disableTrap(${t})`, true);
-    }, cylinder);
+    trapList.forEach(t => cylinder.setLocalFlag(graphName, `disableTrap(${t})`, true));
   }
 
   createDistortionsListener() {
