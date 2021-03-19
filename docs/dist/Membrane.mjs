@@ -880,7 +880,6 @@ function ProxyNotify(parts, handler, isOrigin, options) {
   const listeners = handler.__proxyListeners__;
   if (listeners.length === 0)
     return;
-  const modifyRules = handler.membrane.modifyRules;
 
   // the actual metadata object for the listener
   var meta = Object.create(options, {
@@ -891,12 +890,12 @@ function ProxyNotify(parts, handler, isOrigin, options) {
      * be protected by the membrane.
      *
      * If you wish to replace the proxy with another Membrane-based proxy,
-     * including a new proxy with a chained proxy handler (see ModifyRulesAPI),
-     * do NOT just call Proxy.revocable and set this property.  Instead, set the
-     * handler property with the new proxy handler, and call .rebuildProxy().
+     * this is no longer supported.
      */
     "proxy": new AccessorDescriptor(
       () => parts.proxy,
+
+      // @deprecated
       (val) => { if (!meta.stopped) parts.proxy = val; }
     ),
 
@@ -924,16 +923,6 @@ function ProxyNotify(parts, handler, isOrigin, options) {
      * A reference to the membrane logger, if there is one.
      */
     "logger": new DataDescriptor(handler.membrane.logger),
-
-    /**
-     * Rebuild the proxy object.
-     */
-    "rebuildProxy": new DataDescriptor(
-      function() {
-        if (!this.stopped)
-          parts.proxy = modifyRules.replaceProxy(parts.proxy, handler);
-      }
-    ),
 
     /**
      * Direct the membrane to use the shadow target instead of the full proxy.
@@ -3007,6 +2996,7 @@ Object.freeze(DistortionsListener.prototype);
 
 class ModifyRulesAPI {
   constructor(membrane) {
+    // private
     Object.defineProperty(this, "membrane", new NWNCDataDescriptor(membrane, false));
     Object.seal(this);
   }

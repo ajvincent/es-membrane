@@ -34,14 +34,6 @@ export default class ProxyMessage {
 
   /**
    * The proxy or value the Membrane will return to the caller.
-   *
-   * @note If you set this property with a non-proxy value, the value will NOT
-   * be protected by the membrane.
-   *
-   * If you wish to replace the proxy with another Membrane-based proxy,
-   * including a new proxy with a chained proxy handler (see ModifyRulesAPI),
-   * do NOT just call Proxy.revocable and set this property.  Instead, set the
-   * handler property with the new proxy handler, and call .rebuildProxy().
    */
   get proxy() {
     const privateObj = PROXYMESSAGE_PRIVATE.get(this);

@@ -673,7 +673,7 @@ xdescribe("Whitelisting object properties", function() {
     defineSealingTests(defineMockOptionsByDistortionsListener.bind(null, true));
   });
   
-  xit(
+  it(
     "and getting a handler from a protected membrane works correctly",
     function() {
       function voidFunc() {}
@@ -738,21 +738,8 @@ xdescribe("Whitelisting object properties", function() {
               "warnOnce"
             ]);
           }
-          else if (!this.mustProxyMethods.has(meta.target))
-          {
-            meta.proxy = meta.target;
-          }
         }
       };
-
-      {
-        let keys = Reflect.ownKeys(Membrane.prototype);
-        keys.forEach(function(propName) {
-          let value = Membrane.prototype[propName];
-          if (typeof value == "function")
-            mbListener.mustProxyMethods.add(value);
-        });
-      }
 
       Object.freeze(mbListener);
       publicAPI.addProxyListener(mbListener.handleProxy.bind(mbListener));
