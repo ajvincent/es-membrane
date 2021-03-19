@@ -16,7 +16,6 @@ import {
 } from "./ProxyNotify.mjs";
 
 import {
-  ChainHandlers,
   ModifyRulesAPI,
 } from "./ModifyRulesAPI.mjs";
 
@@ -382,12 +381,8 @@ class Membrane {
    * @returns {Boolean} True if the handler is one we own.
    */
   ownsHandler(handler) {
-    if (handler instanceof ObjectGraph) {
-      return this.handlersByGraphName[handler.graphName] === handler;
-    }
-    if (ChainHandlers.has(handler))
-      handler = handler.baseHandler;
-    return ((handler instanceof ObjectGraphHandler) &&
+    return (((handler instanceof ObjectGraphHandler) ||
+             (handler instanceof ObjectGraph)) &&
             (this.handlersByGraphName[handler.graphName] === handler));
   }
 

@@ -40,109 +40,18 @@
  */
 
 import {
-  DataDescriptor,
+  NWNCDataDescriptor,
   allTraps,
-  isDataDescriptor,
   makeRevokeDeleteRefs,
 } from "./sharedUtilities.mjs";
 
 import ObjectGraphHandler from "./ObjectGraphHandler-old.mjs";
 import DistortionsListener from "./DistortionsListener.mjs";
 
-export const ChainHandlers = new WeakSet();
-
-// XXX ajvincent These rules are examples of what DogfoodMembrane should set.
-const ChainHandlerProtection = Object.create(Reflect, {
-  /**
-   * Return true if a property should not be deleted or redefined.
-   */
-  "isProtectedName": new DataDescriptor(function(chainHandler, propName) {
-    let rv = ["nextHandler", "baseHandler", "membrane"];
-    let baseHandler = chainHandler.baseHandler;
-    if (baseHandler !== Reflect)
-      rv = rv.concat(Reflect.ownKeys(baseHandler));
-    return rv.includes(propName);
-  }, false, false, false),
-
-  /**
-   * Thou shalt not set the prototype of a ChainHandler.
-   */
-  "setPrototypeOf": new DataDescriptor(function() {
-    return false;
-  }, false, false, false),
-
-  /**
-   * Proxy/handler trap restricting which properties may be deleted.
-   */
-  "deleteProperty": new DataDescriptor(function(chainHandler, propName) {
-    if (this.isProtectedName(chainHandler, propName))
-      return false;
-    return Reflect.deleteProperty(chainHandler, propName);
-  }, false, false, false),
-
-  /**
-   * Proxy/handler trap restricting which properties may be redefined.
-   */
-  "defineProperty": new DataDescriptor(function(chainHandler, propName, desc) {
-    if (this.isProtectedName(chainHandler, propName))
-      return false;
-
-    if (allTraps.includes(propName)) {
-      if (!isDataDescriptor(desc) || (typeof desc.value !== "function"))
-        return false;
-    }
-
-    return Reflect.defineProperty(chainHandler, propName, desc);
-  }, false, false, false)
-});
-
 export class ModifyRulesAPI {
   constructor(membrane) {
-    Object.defineProperty(this, "membrane", new DataDescriptor(
-      membrane, false, false, false
-    ));
+    Object.defineProperty(this, "membrane", new NWNCDataDescriptor(membrane, false));
     Object.seal(this);
-  }
-
-  /**
-   * Create a ProxyHandler inheriting from Reflect or an ObjectGraphHandler.
-   *
-   * @param existingHandler {ProxyHandler} The prototype of the new handler.
-   */
-  createChainHandler(existingHandler) {
-    // Yes, the logic is a little convoluted, but it seems to work this way.
-    let baseHandler = Reflect, description = "Reflect";
-    if (ChainHandlers.has(existingHandler))
-      baseHandler = existingHandler.baseHandler;
-
-    if (existingHandler instanceof ObjectGraphHandler) {
-      if (!this.membrane.ownsHandler(existingHandler)) {
-        // XXX ajvincent Fix this error message!!
-        throw new Error("graphName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
-      }
-
-      baseHandler = this.membrane.getHandlerByName(existingHandler.graphName);
-      description = "our membrane's " + baseHandler.graphName + " ObjectGraphHandler";
-    }
-
-    else if (baseHandler !== Reflect) {
-      // XXX ajvincent Fix this error message!!
-      throw new Error("graphName must be a string or a symbol representing an ObjectGraphName in the Membrane, or null to represent Reflect");
-    }
-
-    if ((baseHandler !== existingHandler) && !ChainHandlers.has(existingHandler)) {
-      throw new Error("Existing handler neither is " + description + " nor inherits from it");
-    }
-
-    var rv = Object.create(existingHandler, {
-      "nextHandler": new DataDescriptor(existingHandler, false, false, false),
-      "baseHandler": new DataDescriptor(baseHandler, false, false, false),
-      "membrane":    new DataDescriptor(this.membrane, false, false, false),
-    });
-
-    rv = new Proxy(rv, ChainHandlerProtection);
-    ChainHandlers.add(rv);
-    return rv;
   }
 
   /**
@@ -152,6 +61,9 @@ export class ModifyRulesAPI {
    * @param handler  {ProxyHandler} What to base the new proxy on.
    *
    * @returns {Proxy} The newly built proxy.
+   * @public
+   *
+   * @deprecated
    */
   replaceProxy(oldProxy, handler) {
     /*
@@ -162,7 +74,7 @@ export class ModifyRulesAPI {
     }
     */
 
-    let baseHandler = ChainHandlers.has(handler) ? handler.baseHandler : handler;
+    let baseHandler = handler;
     {
       /* These assertions are to make sure the proxy we're replacing is safe to
        * use in the membrane.
@@ -290,7 +202,7 @@ export class ModifyRulesAPI {
    *
    * @note Local properties and local delete operations of a proxy are NOT
    * affected by the filters.
-   * 
+   *
    * @param graphName {Symbol|String} The graph name of the object graph handler
    *                                  the proxy uses.
    * @param proxy     {Proxy}    The proxy (or underlying object) needing local
