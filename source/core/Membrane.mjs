@@ -15,9 +15,7 @@ import {
   ProxyNotify,
 } from "./ProxyNotify.mjs";
 
-import {
-  ModifyRulesAPI,
-} from "./ModifyRulesAPI.mjs";
+import ModifyRulesAPI from "./ModifyRulesAPI.mjs";
 
 import ObjectGraphHandler from "./ObjectGraphHandler-old.mjs";
 

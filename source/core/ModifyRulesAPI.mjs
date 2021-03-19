@@ -48,7 +48,7 @@ import {
 import ObjectGraphHandler from "./ObjectGraphHandler-old.mjs";
 import DistortionsListener from "./DistortionsListener.mjs";
 
-export class ModifyRulesAPI {
+export default class ModifyRulesAPI {
   constructor(membrane) {
     Object.defineProperty(this, "membrane", new NWNCDataDescriptor(membrane, false));
     Object.seal(this);
