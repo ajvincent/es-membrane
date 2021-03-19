@@ -63,6 +63,7 @@ export class DataDescriptor {
 
 export class AccessorDescriptor {
   /**
+   * An accessor descriptor.
    *
    * @param {Function} getter
    * @param {Function} [setter]
@@ -120,6 +121,24 @@ export function isAccessorDescriptor(desc) {
   if (!("get" in desc) && !("set" in desc))
     return false;
   return true;
+}
+
+/**
+ * Define a set of properties as non-writable, non-configurable.
+ *
+ * @param {Object}  obj
+ * @param {Object}  propertyBag
+ * @param {boolean} enumerable
+ *
+ * @package
+ */
+export function defineNWNCProperties(obj, propertyBag, enumerable = true) {
+  const properties = {};
+  for (const [key, value] of Object.entries(propertyBag)) {
+    properties[key] = new NWNCDataDescriptor(value, enumerable);
+  }
+
+  Object.defineProperties(obj, properties);
 }
 
 export const allTraps = Object.freeze([

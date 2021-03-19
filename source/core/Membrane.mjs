@@ -5,6 +5,7 @@ import {
   Primordials,
   allTraps,
   assert,
+  defineNWNCProperties,
   isDataDescriptor,
   makeShadowTarget,
   returnFalse,
@@ -140,29 +141,25 @@ class Membrane {
                       options.passThroughFilter :
                       returnFalse;
 
-    Object.defineProperties(this, {
-      "showGraphName": new NWNCDataDescriptor(
-        Boolean(options.showGraphName), false
-      ),
+    defineNWNCProperties(this, {
+      showGraphName: Boolean(options.showGraphName),
 
-      "refactor": new NWNCDataDescriptor(options.refactor || "", false),
+      refactor: options.refactor || "",
 
-      "cylinderMap": new NWNCDataDescriptor(new ProxyCylinderMap, false),
+      cylinderMap: new ProxyCylinderMap,
 
-      "revokerMultiMap": new NWNCDataDescriptor(new RevocableMultiMap, false),
-  
-      handlersByGraphName: new NWNCDataDescriptor({}, false),
+      revokerMultiMap: new RevocableMultiMap,
 
-      "logger": new NWNCDataDescriptor(options.logger || null, false),
+      handlersByGraphName: {},
 
-      "warnOnceSet": new NWNCDataDescriptor(
-        (options.logger ? new Set() : null), false
-      ),
-  
-      "modifyRules": new NWNCDataDescriptor(new ModifyRulesAPI(this)),
-  
-      "passThroughFilter": new NWNCDataDescriptor(passThrough, false)
-    });
+      logger: options.logger || null,
+
+      warnOnceSet: (options.logger ? new Set() : null),
+
+      modifyRules: new ModifyRulesAPI(this),
+
+      passThroughFilter: passThrough,
+    }, false);
   
     /* XXX ajvincent Somehow adding this line breaks not only npm test, but the
        ability to build as well.  The breakage comes in trying to create a mock of

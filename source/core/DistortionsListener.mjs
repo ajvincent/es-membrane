@@ -1,7 +1,7 @@
 import {
-  NWNCDataDescriptor,
   Primordials,
   allTraps,
+  defineNWNCProperties,
 } from "./sharedUtilities.mjs";
 
 /**
@@ -10,29 +10,23 @@ import {
 export default class DistortionsListener {
   constructor(membrane) {
     // private
-    Object.defineProperties(this, {
-      "membrane":
-        new NWNCDataDescriptor(membrane, false),
-      "proxyListener":
-        new NWNCDataDescriptor(this.proxyListener.bind(this), false),
-      "valueAndProtoMap":
-        new NWNCDataDescriptor(new Map(/*
-          object or function.prototype: JSON configuration
-        */), false),
+    defineNWNCProperties(this, {
+      membrane,
+      proxyListener: this.proxyListener.bind(this),
+      valueAndProtoMap: new Map(/*
+        object or function.prototype: JSON configuration
+      */),
 
-      "instanceMap":
-        new NWNCDataDescriptor(new Map(/*
+      instanceMap: new Map(/*
           function: JSON configuration
-        */), false),
+      */),
 
-      "filterToConfigMap":
-        new NWNCDataDescriptor(new Map(/*
-          function returning boolean: JSON configuration
-        */), false),
-    
-      "ignorableValues":
-        new NWNCDataDescriptor(new Set(), false),
-    });
+      filterToConfigMap: new Map(/*
+        function returning boolean: JSON configuration
+      */),
+
+      ignorableValues: new Set(),
+    }, false);
   }
 
   addListener(value, category, config) {

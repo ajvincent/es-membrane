@@ -62,6 +62,7 @@ class DataDescriptor {
 
 class AccessorDescriptor {
   /**
+   * An accessor descriptor.
    *
    * @param {Function} getter
    * @param {Function} [setter]
@@ -119,6 +120,24 @@ function isAccessorDescriptor(desc) {
   if (!("get" in desc) && !("set" in desc))
     return false;
   return true;
+}
+
+/**
+ * Define a set of properties as non-writable, non-configurable.
+ *
+ * @param {Object}  obj
+ * @param {Object}  propertyBag
+ * @param {boolean} enumerable
+ *
+ * @package
+ */
+function defineNWNCProperties(obj, propertyBag, enumerable = true) {
+  const properties = {};
+  for (const [key, value] of Object.entries(propertyBag)) {
+    properties[key] = new NWNCDataDescriptor(value, enumerable);
+  }
+
+  Object.defineProperties(obj, properties);
 }
 
 const allTraps = Object.freeze([
@@ -1075,29 +1094,23 @@ Object.freeze(ProxyNotify.useShadowTarget);
 class DistortionsListener {
   constructor(membrane) {
     // private
-    Object.defineProperties(this, {
-      "membrane":
-        new NWNCDataDescriptor(membrane, false),
-      "proxyListener":
-        new NWNCDataDescriptor(this.proxyListener.bind(this), false),
-      "valueAndProtoMap":
-        new NWNCDataDescriptor(new Map(/*
-          object or function.prototype: JSON configuration
-        */), false),
+    defineNWNCProperties(this, {
+      membrane,
+      proxyListener: this.proxyListener.bind(this),
+      valueAndProtoMap: new Map(/*
+        object or function.prototype: JSON configuration
+      */),
 
-      "instanceMap":
-        new NWNCDataDescriptor(new Map(/*
+      instanceMap: new Map(/*
           function: JSON configuration
-        */), false),
+      */),
 
-      "filterToConfigMap":
-        new NWNCDataDescriptor(new Map(/*
-          function returning boolean: JSON configuration
-        */), false),
-    
-      "ignorableValues":
-        new NWNCDataDescriptor(new Set(), false),
-    });
+      filterToConfigMap: new Map(/*
+        function returning boolean: JSON configuration
+      */),
+
+      ignorableValues: new Set(),
+    }, false);
   }
 
   addListener(value, category, config) {
@@ -1263,37 +1276,7 @@ class DistortionsListener {
 Object.freeze(DistortionsListener);
 Object.freeze(DistortionsListener.prototype);
 
-/**
- * @fileoverview
- *
- * The Membrane implementation represents a perfect mirroring of objects and
- * properties from one object graph to another... until the code creating the
- * membrane invokes methods of membrane.modifyRules.  Then, through either
- * methods on ProxyCylinder or new proxy traps, the membrane will be able to use
- * the full power proxies expose, without carrying the operations over to the
- * object graph which owns a particular "original" value (meaning unwrapped for
- * direct access).
- *
- * For developers modifying this API to add new general-behavior rules, here are
- * the original author's recommendations:
- *
- * (1) Add your public API on ModifyRulesAPI.prototype.
- *   * When it makes sense to do so, the new methods' names and arguments should
- *     resemble methods on Object or Reflect.  (This does not mean
- *     they should have exactly the same names and arguments - only that you
- *     should consider existing standardized methods on standardized globals,
- *     and try to make new methods on ModifyRulesAPI.prototype follow roughly
- *     the same pattern in the new API.)
- * (2) When practical, especially when it affects only one object graph
- *     directly, use ProxyCylinder objects to store properties which determine
- *     the rules, as opposed to new proxy traps.
- *   * Define new methods on ProxyCylinder.prototype for storing or retrieving
- *     the properties.
- *   * Internally, the new methods should store properties on
- *     this.proxiedGraphs[graphName].
- *   * Modify the existing ProxyHandler traps in ObjectGraphHandler.prototype
- *     to call the ProxyCylinder methods, in order to implement the new behavior.
- */
+/** @module source/core/ModifyRulesAPI */
 
 class ModifyRulesAPI {
   constructor(membrane) {
@@ -1504,9 +1487,6 @@ class ObjectGraphHandler {
 
     // private
     Object.defineProperties(this, {
-      "membrane": new NWNCDataDescriptor(membrane, false),
-      "graphName": new NWNCDataDescriptor(graphName, false),
-
       "passThroughFilter": {
         get: () => passThroughFilter,
         set: (val) => {
@@ -1525,28 +1505,27 @@ class ObjectGraphHandler {
         enumerable: true,
         configurable: false
       },
+
+      "__isDead__": new DataDescriptor(false, true, true, true),
     });
 
     // private
-    Object.defineProperties(this, {
-      "boundMethods": new NWNCDataDescriptor(boundMethods, false),
+    defineNWNCProperties(this, {
+      membrane,
+      graphName,
+
+      boundMethods,
 
       /* Temporary until membraneGraphName is defined on Object.prototype through
       * the object graph.
       */
-      "graphNameDescriptor": new NWNCDataDescriptor(
-        new DataDescriptor(graphName), false
-      ),
+      graphNameDescriptor: new DataDescriptor(graphName),
 
       // see .defineLazyGetter, ProxyNotify for details.
-      "proxiesInConstruction": new NWNCDataDescriptor(
-        new WeakMap(/* original value: [callback() {}, ...]*/), false
-      ),
+      proxiesInConstruction: new WeakMap(/* original value: [callback() {}, ...]*/),
 
-      "__isDead__": new DataDescriptor(false, true, true, true),
-
-      "__proxyListeners__": new NWNCDataDescriptor([], false),
-    });
+      __proxyListeners__: [],
+    }, false);
 
     Reflect.preventExtensions(this);
   }
@@ -3174,15 +3153,24 @@ class ObjectGraph {
 
     var passThroughFilter = returnFalse;
 
+    // private
+    defineNWNCProperties(this, {
+      membrane,
+      graphName,
+
+      __isDead__: false,
+    }, true);
+
+    // private
+    defineNWNCProperties(this, {
+      masterProxyHandler: new MembraneProxyHandlers.Master(this),
+
+      __revokeFunctions__: [],
+      __proxyListeners__: [],
+    }, false);
+
     Object.defineProperties(this, {
-      "membrane": new NWNCDataDescriptor(membrane, true),
-      "graphName": new NWNCDataDescriptor(graphName, true),
-
       // private
-      "masterProxyHandler": new NWNCDataDescriptor(
-        new MembraneProxyHandlers.Master(this), false
-      ),
-
       "passThroughFilter": {
         get: () => passThroughFilter,
         set: (val) => {
@@ -3201,15 +3189,6 @@ class ObjectGraph {
         enumerable: true,
         configurable: false
       },
-
-      // private
-      "__revokeFunctions__": new NWNCDataDescriptor([], false),
-
-      // private
-      "__isDead__": new DataDescriptor(false, true, true, true),
-
-      // private
-      "__proxyListeners__": new NWNCDataDescriptor([], false),
     });
   }
 
@@ -3473,29 +3452,25 @@ class Membrane {
                       options.passThroughFilter :
                       returnFalse;
 
-    Object.defineProperties(this, {
-      "showGraphName": new NWNCDataDescriptor(
-        Boolean(options.showGraphName), false
-      ),
+    defineNWNCProperties(this, {
+      showGraphName: Boolean(options.showGraphName),
 
-      "refactor": new NWNCDataDescriptor(options.refactor || "", false),
+      refactor: options.refactor || "",
 
-      "cylinderMap": new NWNCDataDescriptor(new ProxyCylinderMap, false),
+      cylinderMap: new ProxyCylinderMap,
 
-      "revokerMultiMap": new NWNCDataDescriptor(new RevocableMultiMap, false),
-  
-      handlersByGraphName: new NWNCDataDescriptor({}, false),
+      revokerMultiMap: new RevocableMultiMap,
 
-      "logger": new NWNCDataDescriptor(options.logger || null, false),
+      handlersByGraphName: {},
 
-      "warnOnceSet": new NWNCDataDescriptor(
-        (options.logger ? new Set() : null), false
-      ),
-  
-      "modifyRules": new NWNCDataDescriptor(new ModifyRulesAPI(this)),
-  
-      "passThroughFilter": new NWNCDataDescriptor(passThrough, false)
-    });
+      logger: options.logger || null,
+
+      warnOnceSet: (options.logger ? new Set() : null),
+
+      modifyRules: new ModifyRulesAPI(this),
+
+      passThroughFilter: passThrough,
+    }, false);
   
     /* XXX ajvincent Somehow adding this line breaks not only npm test, but the
        ability to build as well.  The breakage comes in trying to create a mock of

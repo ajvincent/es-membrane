@@ -1,3 +1,5 @@
+/** @module source/core/ModifyRulesAPI */
+
 /**
  * @fileoverview
  *

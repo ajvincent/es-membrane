@@ -2,6 +2,7 @@ import {
   DataDescriptor,
   NWNCDataDescriptor,
   assert,
+  defineNWNCProperties,
   getRealTarget,
   isAccessorDescriptor,
   isDataDescriptor,
@@ -49,9 +50,6 @@ export default class ObjectGraphHandler {
 
     // private
     Object.defineProperties(this, {
-      "membrane": new NWNCDataDescriptor(membrane, false),
-      "graphName": new NWNCDataDescriptor(graphName, false),
-
       "passThroughFilter": {
         get: () => passThroughFilter,
         set: (val) => {
@@ -70,28 +68,27 @@ export default class ObjectGraphHandler {
         enumerable: true,
         configurable: false
       },
+
+      "__isDead__": new DataDescriptor(false, true, true, true),
     });
 
     // private
-    Object.defineProperties(this, {
-      "boundMethods": new NWNCDataDescriptor(boundMethods, false),
+    defineNWNCProperties(this, {
+      membrane,
+      graphName,
+
+      boundMethods,
 
       /* Temporary until membraneGraphName is defined on Object.prototype through
       * the object graph.
       */
-      "graphNameDescriptor": new NWNCDataDescriptor(
-        new DataDescriptor(graphName), false
-      ),
+      graphNameDescriptor: new DataDescriptor(graphName),
 
       // see .defineLazyGetter, ProxyNotify for details.
-      "proxiesInConstruction": new NWNCDataDescriptor(
-        new WeakMap(/* original value: [callback() {}, ...]*/), false
-      ),
+      proxiesInConstruction: new WeakMap(/* original value: [callback() {}, ...]*/),
 
-      "__isDead__": new DataDescriptor(false, true, true, true),
-
-      "__proxyListeners__": new NWNCDataDescriptor([], false),
-    });
+      __proxyListeners__: [],
+    }, false);
 
     Reflect.preventExtensions(this);
   }

@@ -1,6 +1,6 @@
 import {
-  DataDescriptor,
   NWNCDataDescriptor,
+  defineNWNCProperties,
   returnFalse,
 } from "./sharedUtilities.mjs";
 
@@ -26,15 +26,24 @@ export default class ObjectGraph {
 
     var passThroughFilter = returnFalse;
 
+    // private
+    defineNWNCProperties(this, {
+      membrane,
+      graphName,
+
+      __isDead__: false,
+    }, true);
+
+    // private
+    defineNWNCProperties(this, {
+      masterProxyHandler: new MembraneProxyHandlers.Master(this),
+
+      __revokeFunctions__: [],
+      __proxyListeners__: [],
+    }, false);
+
     Object.defineProperties(this, {
-      "membrane": new NWNCDataDescriptor(membrane, true),
-      "graphName": new NWNCDataDescriptor(graphName, true),
-
       // private
-      "masterProxyHandler": new NWNCDataDescriptor(
-        new MembraneProxyHandlers.Master(this), false
-      ),
-
       "passThroughFilter": {
         get: () => passThroughFilter,
         set: (val) => {
@@ -53,15 +62,6 @@ export default class ObjectGraph {
         enumerable: true,
         configurable: false
       },
-
-      // private
-      "__revokeFunctions__": new NWNCDataDescriptor([], false),
-
-      // private
-      "__isDead__": new DataDescriptor(false, true, true, true),
-
-      // private
-      "__proxyListeners__": new NWNCDataDescriptor([], false),
     });
   }
 

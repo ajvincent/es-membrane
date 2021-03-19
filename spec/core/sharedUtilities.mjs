@@ -5,6 +5,7 @@ import {
   DeadProxyKey,
   allTraps,
   assert,
+  defineNWNCProperties,
   isAccessorDescriptor,
   isDataDescriptor,
   makeShadowTarget,
@@ -234,6 +235,43 @@ describe("isAccessorDescriptor", () => {
 
   it("returns false for undefined", () => {
     expect(isAccessorDescriptor(undefined)).toBe(false);
+  });
+});
+
+it("defineNWNCProperties defines properties on an object as non-writable, non-configurable", () => {
+  const enumerableBag = {
+    foo: {},
+    bar: 1,
+    baz: true
+  };
+
+  const nonEnumerableBag = {
+    color: "red",
+    speed: 55,
+    wheels: [{}, {}, {}, {}]
+  };
+
+  const obj = {};
+
+  defineNWNCProperties(obj, enumerableBag, true);
+  defineNWNCProperties(obj, nonEnumerableBag, false);
+
+  Reflect.ownKeys(enumerableBag).forEach(key => {
+    const desc = Reflect.getOwnPropertyDescriptor(obj, key);
+    expect(isDataDescriptor(desc)).toBe(true);
+    expect(desc.writable).toBe(false);
+    expect(desc.configurable).toBe(false);
+    expect(desc.enumerable).toBe(true);
+    expect(desc.value).toBe(enumerableBag[key]);
+  });
+
+  Reflect.ownKeys(nonEnumerableBag).forEach(key => {
+    const desc = Reflect.getOwnPropertyDescriptor(obj, key);
+    expect(isDataDescriptor(desc)).toBe(true);
+    expect(desc.writable).toBe(false);
+    expect(desc.configurable).toBe(false);
+    expect(desc.enumerable).toBe(false);
+    expect(desc.value).toBe(nonEnumerableBag[key]);
   });
 });
 
