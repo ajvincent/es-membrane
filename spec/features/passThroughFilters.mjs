@@ -284,17 +284,6 @@ describe("Pass-through filters", function() {
       wetHandler.passThroughFilter = passP;
       expect(wetHandler.mayReplacePassThrough).toBe(false);
 
-      let desc = Reflect.getOwnPropertyDescriptor(
-        wetHandler, "passThroughFilter"
-      );
-      expect(typeof desc).toBe("object");
-      if (!desc)
-        return false;
-      expect(desc.configurable).toBe(false);
-      expect(desc.enumerable).toBe(false);
-      expect("get" in desc).toBe(true);
-      expect("set" in desc).toBe(true);
-
       expect(function() {
         wetHandler.passThroughFilter = oldFilter;
       }).toThrow();

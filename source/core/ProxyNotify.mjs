@@ -23,7 +23,7 @@ import {
  */
 export function ProxyNotify(parts, handler, isOrigin, options = {}) {
   // private variables
-  const listeners = handler.__proxyListeners__;
+  const listeners = handler.getProxyListeners();
   if (listeners.length === 0)
     return;
 
@@ -160,7 +160,6 @@ ProxyNotify.useShadowTarget = function(parts, handler, mode) {
 };
 
 function invokeProxyListeners(listeners, meta) {
-  listeners = listeners.slice(0);
   var index = 0, exn = null, exnFound = false, stopped = false;
 
   Object.defineProperties(meta, {

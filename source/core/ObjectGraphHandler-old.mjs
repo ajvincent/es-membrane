@@ -22,6 +22,11 @@ function AssertIsPropertyKey(propName) {
 }
 
 /**
+ * @type {WeakMap<ObjectGraph, function>}
+ */
+ const passThroughMap = new WeakMap();
+
+/**
  * A proxy handler designed to return only primitives and objects in a given
  * object graph, defined by the graphName.
  *
@@ -46,48 +51,40 @@ export default class ObjectGraphHandler {
     }, this);
     Object.freeze(boundMethods);
 
-    var passThroughFilter = returnFalse;
+    /**
+     * @private
+     * @type {boolean}
+     */
+    this.__isDead__ = false;
 
-    // private
-    Object.defineProperties(this, {
-      "passThroughFilter": {
-        get: () => passThroughFilter,
-        set: (val) => {
-          if (passThroughFilter !== returnFalse)
-            throw new Error("passThroughFilter has been defined once already!");
-          if (typeof val !== "function")
-            throw new Error("passThroughFilter must be a function");
-          passThroughFilter = val;
-        },
-        enumerable: false,
-        configurable: false,
-      },
-
-      "mayReplacePassThrough": {
-        get: () => passThroughFilter === returnFalse,
-        enumerable: true,
-        configurable: false
-      },
-
-      "__isDead__": new DataDescriptor(false, true, true, true),
-    });
-
-    // private
+    /**
+     * @public
+     */
     defineNWNCProperties(this, {
       membrane,
       graphName,
+    });
 
+    defineNWNCProperties(this, {
+      /**
+       * @private
+       */
+      __proxyListeners__: new Set(),
+    });
+
+    /**
+     * @package
+     */
+    defineNWNCProperties(this, {
       boundMethods,
 
-      /* Temporary until membraneGraphName is defined on Object.prototype through
-      * the object graph.
-      */
+      /**
+       * @deprecated
+       */
       graphNameDescriptor: new DataDescriptor(graphName),
 
       // see .defineLazyGetter, ProxyNotify for details.
       proxiesInConstruction: new WeakMap(/* original value: [callback() {}, ...]*/),
-
-      __proxyListeners__: [],
     }, false);
 
     Reflect.preventExtensions(this);
@@ -1190,29 +1187,69 @@ export default class ObjectGraphHandler {
     if (!this.membrane.hasProxyForValue(this.graphName, target))
       this.membrane.addPartsToCylinder(this, target);
   }
-  
+
   /**
    * Add a listener for new proxies.
    *
    * @see ProxyNotify
+   * @public
    */
   addProxyListener(listener) {
     if (typeof listener != "function")
       throw new Error("listener is not a function!");
-    if (!this.__proxyListeners__.includes(listener))
-      this.__proxyListeners__.push(listener);
+    this.__proxyListeners__.add(listener);
   }
 
   /**
    * Remove a listener for new proxies.
    *
    * @see ProxyNotify
+   * @public
    */
   removeProxyListener(listener) {
-    let index = this.__proxyListeners__.indexOf(listener);
-    if (index == -1)
-      throw new Error("listener is not registered!");
-    this.__proxyListeners__.splice(index, 1);
+    if (typeof listener != "function")
+      throw new Error("listener is not a function!");
+    this.__proxyListeners__.remove(listener);
+  }
+
+  /**
+   * Get the currently registered set of proxy listeners.
+   *
+   * @returns {Function[]}
+   * @package
+   */
+  getProxyListeners() {
+    return Array.from(this.__proxyListeners__);
+  }
+
+  /**
+   * @type {function}
+   * @public
+   *
+   */
+  get passThroughFilter() {
+    return passThroughMap.get(this) || returnFalse;
+  }
+
+  /**
+   * @param {function} val
+   *
+   * @public
+   */
+  set passThroughFilter(val) {
+    if (passThroughMap.has(this))
+      throw new Error("passThroughFilter has been defined once already!");
+    if (typeof val !== "function")
+      throw new Error("passThroughFilter must be a function!");
+    passThroughMap.set(this, val);
+  }
+
+  /**
+   * @type {boolean}
+   * @public
+   */
+  get mayReplacePassThrough() {
+    return !passThroughMap.has(this);
   }
 
   /**
@@ -1686,14 +1723,17 @@ export default class ObjectGraphHandler {
 
   /**
    * Revoke the entire object graph.
+   *
+   * @public
    */
   revokeEverything() {
     if (this.__isDead__)
       throw new Error("This membrane handler is dead!");
-    Object.defineProperty(this, "__isDead__", new DataDescriptor(true));
+    Object.defineProperty(this, "__isDead__", new NWNCDataDescriptor(true));
 
     this.membrane.revokerMultiMap.revoke(this);
   }
 }
 
 Object.freeze(ObjectGraphHandler);
+Object.freeze(ObjectGraphHandler.prototype);

@@ -1,7 +1,6 @@
 import {
   DataDescriptor,
   NOT_YET_DETERMINED,
-  NWNCDataDescriptor,
   Primordials,
   allTraps,
   assert,
@@ -21,6 +20,7 @@ import ModifyRulesAPI from "./ModifyRulesAPI.mjs";
 import ObjectGraphHandler from "./ObjectGraphHandler-old.mjs";
 
 import ObjectGraph from "./ObjectGraph.mjs";
+
 import {
   ProxyCylinder,
   ProxyCylinderMap,
@@ -37,18 +37,6 @@ const Constants = {
 
 Object.freeze(Constants.warnings);
 Object.freeze(Constants);
-
-
-/**
- * Helper function to determine if anyone may log.
- * @private
- *
- * @returns {Boolean} True if logging is permitted.
- */
-// This function is here because I can blacklist moduleUtilities during debugging.
-function MembraneMayLog() {
-  return (typeof this.logger == "object") && Boolean(this.logger);
-}
 
 // bindValuesByHandlers utility
 /**
@@ -131,7 +119,7 @@ function maySetOnGraph(cylinder, bag) {
  * Object graph: A collection of values that talk to each other directly.
  */
 
-class Membrane {
+export default class Membrane {
   /**
    *
    * @param {Object} options
@@ -142,22 +130,49 @@ class Membrane {
                       returnFalse;
 
     defineNWNCProperties(this, {
+      /**
+       * @private
+       */
       showGraphName: Boolean(options.showGraphName),
 
+      /**
+       * @private
+       */
       refactor: options.refactor || "",
 
+      /**
+       * @package
+       */
       cylinderMap: new ProxyCylinderMap,
 
+      /**
+       * @package
+       */
       revokerMultiMap: new RevocableMultiMap,
 
+      /**
+       * @private
+       */
       handlersByGraphName: {},
 
+      /**
+       * @package
+       */
       logger: options.logger || null,
 
+      /**
+       * @private
+       */
       warnOnceSet: (options.logger ? new Set() : null),
 
+      /**
+       * @public
+       */
       modifyRules: new ModifyRulesAPI(this),
 
+      /**
+       * @package
+       */
       passThroughFilter: passThrough,
     }, false);
   
@@ -170,6 +185,10 @@ class Membrane {
 
   /**
    * Returns true if we have a proxy for the value.
+   * @param {string | symbol} graph The graph to look for.
+   * @param {Variant}         value The key for the ProxyCylinder map.
+   *
+   * @public
    */
   hasProxyForValue(graph, value) {
     var cylinder = this.cylinderMap.get(value);
@@ -179,8 +198,8 @@ class Membrane {
   /**
    * Get the value associated with a graph name and another known value.
    *
-   * @param {Symbol|String} graph The graph to look for.
-   * @param {Variant}       value The key for the ProxyCylinder map.
+   * @param {string | symbol} graph The graph to look for.
+   * @param {Variant}         value The key for the ProxyCylinder map.
    *
    * @public
    *
@@ -204,8 +223,8 @@ class Membrane {
   /**
    * Get the proxy associated with a graph name and another known value.
    *
-   * @param {Symbol|String} graph The graph to look for.
-   * @param {Variant}       value The key for the ProxyCylinder map.
+   * @param {string | symbol} graphName The graph to look for.
+   * @param {Variant}         value     The key for the ProxyCylinder map.
    *
    * @public
    *
@@ -224,10 +243,10 @@ class Membrane {
    *    {Object}  NOT_YET_DETERMINED
    * ]
    */
-  getMembraneProxy(graph, value) {
+  getMembraneProxy(graphName, value) {
     var cylinder = this.cylinderMap.get(value);
-    if (cylinder && cylinder.hasGraph(graph)) {
-      return [true, cylinder.getProxy(graph)];
+    if (cylinder && cylinder.hasGraph(graphName)) {
+      return [true, cylinder.getProxy(graphName)];
     }
     return [false, NOT_YET_DETERMINED];
   }
@@ -235,8 +254,9 @@ class Membrane {
   /**
    * Assign a value to an object graph.
    *
-   * @param handler {ObjectGraphHandler} A graph handler to bind to the value.
-   * @param value   {Variant} The value to assign.
+   * @param {ObjectGraph | ObjectGraphHandler} graph A graph handler to bind to the value.
+   * @param {Variant}                          value The value to assign.
+   * @param {Object}                           options
    *
    * Options:
    *   @param {ProxyCylinder} cylinder
@@ -247,12 +267,12 @@ class Membrane {
    *
    * @package
    */
-  addPartsToCylinder(handler, value, options = {}) {
-    if (!this.ownsHandler(handler))
+  addPartsToCylinder(graph, value, options = {}) {
+    if (!this.ownsHandler(graph))
       throw new Error("handler is not an ObjectGraphHandler we own!");
     let cylinder = ("cylinder" in options) ? options.cylinder : null;
 
-    const graphName = handler.graphName;
+    const graphName = graph.graphName;
 
     if (!cylinder) {
       if (this.cylinderMap.has(value)) {
@@ -280,11 +300,11 @@ class Membrane {
       if (("shadowTarget" in options) && (valueType(shadowTarget) === "primitive")) {
         obj = { proxy: shadowTarget, revoke: () => {}};
       }
-      else if (handler instanceof ObjectGraph) {
-        obj = Proxy.revocable(shadowTarget, handler.masterProxyHandler);
+      else if (graph instanceof ObjectGraph) {
+        obj = Proxy.revocable(shadowTarget, graph.masterProxyHandler);
       }
       else {
-        obj = Proxy.revocable(shadowTarget, handler);
+        obj = Proxy.revocable(shadowTarget, graph);
       }
 
       parts = {
@@ -296,8 +316,8 @@ class Membrane {
 
       this.revokerMultiMap.set(cylinder, revoke);
       this.revokerMultiMap.set(cylinder, () => cylinder.removeGraph(graphName));
-      this.revokerMultiMap.set(handler, revoke);
-      this.revokerMultiMap.set(handler, () => cylinder.removeGraph(graphName));
+      this.revokerMultiMap.set(graph, revoke);
+      this.revokerMultiMap.set(graph, () => cylinder.removeGraph(graphName));
     }
 
     cylinder.setMetadata(this, graphName, parts);
@@ -306,7 +326,7 @@ class Membrane {
       const notifyOptions = {
         isThis: false,
         originGraph: options.originHandler,
-        targetGraph: handler,
+        targetGraph: graph,
       };
       ["trapName", "callable", "isThis", "argIndex"].forEach(function(propName) {
         if (Reflect.has(options, propName))
@@ -314,7 +334,7 @@ class Membrane {
       });
 
       ProxyNotify(parts, options.originHandler, true, notifyOptions);
-      ProxyNotify(parts, handler, false, notifyOptions);
+      ProxyNotify(parts, graph, false, notifyOptions);
 
       if (!options.storeAsValue && !Reflect.isExtensible(value)) {
         try {
@@ -330,18 +350,20 @@ class Membrane {
   }
 
   /**
+   * Report if a a particular graph name exists in this membrane.
    *
-   * @param {Symbol|String} graph The graph to look for.
+   * @param {string | symbol} graphName The graph to look for.
    *
-   * @returns {Boolean}
+   * @returns {boolean}
+   * @public
    */
-  hasHandlerByGraph(graph) {
+  hasHandlerByGraph(graphName) {
     {
-      let t = typeof graph;
+      let t = typeof graphName;
       if ((t != "string") && (t != "symbol"))
         throw new Error("graph must be a string or a symbol!");
     }
-    return Reflect.ownKeys(this.handlersByGraphName).includes(graph);
+    return Reflect.ownKeys(this.handlersByGraphName).includes(graphName);
   }
 
   /**
@@ -352,6 +374,7 @@ class Membrane {
    * - {Boolean} mustCreate  True if we must create a missing graph handler.
    *
    * @returns {ObjectGraphHandler} The handler for the object graph.
+   * @public
    */
   getHandlerByName(graphName, options) {
     if (typeof options === "boolean")
@@ -373,16 +396,19 @@ class Membrane {
   /**
    * Determine if the handler is a ObjectGraphHandler for this object graph.
    *
+   * @param {ObjectGraph | ObjectGraphHandler} graph
+   *
    * @returns {Boolean} True if the handler is one we own.
+   * @public
    */
-  ownsHandler(handler) {
-    return (((handler instanceof ObjectGraphHandler) ||
-             (handler instanceof ObjectGraph)) &&
-            (this.handlersByGraphName[handler.graphName] === handler));
+  ownsHandler(graph) {
+    return (((graph instanceof ObjectGraphHandler) ||
+             (graph instanceof ObjectGraph)) &&
+            (this.handlersByGraphName[graph.graphName] === graph));
   }
 
   /**
-   *
+   * @public
    */
   passThroughFilter() {
     return false;
@@ -417,7 +443,6 @@ class Membrane {
     if (valueType(arg) === "primitive") {
       return arg;
     }
-
 
     let found, rv;
     [found, rv] = this.getMembraneProxy(
@@ -601,8 +626,9 @@ class Membrane {
   }
 
   /**
-   *
+   * Send a warning to the registered membrane logger, if that warning hasn't been sent yet.
    * @param {string} message
+   * @package
    */
   warnOnce(message) {
     if (this.logger && !this.warnOnceSet.has(message)) {
@@ -610,15 +636,44 @@ class Membrane {
       this.logger.warn(message);
     }
   }
+
+  /**
+   * Helper function to determine if anyone may log.
+   *
+   * @returns {Boolean} True if logging is permitted.
+   * @private
+   */
+  __mayLog__() {
+    return (typeof this.logger == "object") && Boolean(this.logger);
+  }
 }
 
-Reflect.defineProperty(
-  Membrane,
-  "Primordials",
-  new NWNCDataDescriptor(Primordials, true) // this should be visible
+defineNWNCProperties(
+  Membrane, {
+    /**
+     * @public
+     * @static
+     */
+    Primordials
+  },
+  true
 );
 
-Membrane.prototype.allTraps = allTraps;
+defineNWNCProperties(
+  Membrane.prototype,
+  {
+    /**
+     * @public
+     */
+    allTraps,
+
+    /**
+     * @public
+     */
+    constants: Constants
+  },
+  true
+)
 
 /**
  * A flag indicating if internal properties of the Membrane are private.
@@ -627,10 +682,4 @@ Membrane.prototype.allTraps = allTraps;
  */
 Membrane.prototype.secured = false;
 
-Membrane.prototype.__mayLog__ = MembraneMayLog;
-
-Membrane.prototype.constants = Constants;
-
 Object.seal(Membrane);
-
-export default Membrane;

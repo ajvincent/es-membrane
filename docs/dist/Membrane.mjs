@@ -893,7 +893,7 @@ Object.freeze(ProxyCylinderMap);
  */
 function ProxyNotify(parts, handler, isOrigin, options = {}) {
   // private variables
-  const listeners = handler.__proxyListeners__;
+  const listeners = handler.getProxyListeners();
   if (listeners.length === 0)
     return;
 
@@ -1030,7 +1030,6 @@ ProxyNotify.useShadowTarget = function(parts, handler, mode) {
 };
 
 function invokeProxyListeners(listeners, meta) {
-  listeners = listeners.slice(0);
   var index = 0, exn = null, exnFound = false, stopped = false;
 
   Object.defineProperties(meta, {
@@ -1512,6 +1511,11 @@ function AssertIsPropertyKey(propName) {
 }
 
 /**
+ * @type {WeakMap<ObjectGraph, function>}
+ */
+ const passThroughMap = new WeakMap();
+
+/**
  * A proxy handler designed to return only primitives and objects in a given
  * object graph, defined by the graphName.
  *
@@ -1536,48 +1540,40 @@ class ObjectGraphHandler {
     }, this);
     Object.freeze(boundMethods);
 
-    var passThroughFilter = returnFalse;
+    /**
+     * @private
+     * @type {boolean}
+     */
+    this.__isDead__ = false;
 
-    // private
-    Object.defineProperties(this, {
-      "passThroughFilter": {
-        get: () => passThroughFilter,
-        set: (val) => {
-          if (passThroughFilter !== returnFalse)
-            throw new Error("passThroughFilter has been defined once already!");
-          if (typeof val !== "function")
-            throw new Error("passThroughFilter must be a function");
-          passThroughFilter = val;
-        },
-        enumerable: false,
-        configurable: false,
-      },
-
-      "mayReplacePassThrough": {
-        get: () => passThroughFilter === returnFalse,
-        enumerable: true,
-        configurable: false
-      },
-
-      "__isDead__": new DataDescriptor(false, true, true, true),
-    });
-
-    // private
+    /**
+     * @public
+     */
     defineNWNCProperties(this, {
       membrane,
       graphName,
+    });
 
+    defineNWNCProperties(this, {
+      /**
+       * @private
+       */
+      __proxyListeners__: new Set(),
+    });
+
+    /**
+     * @package
+     */
+    defineNWNCProperties(this, {
       boundMethods,
 
-      /* Temporary until membraneGraphName is defined on Object.prototype through
-      * the object graph.
-      */
+      /**
+       * @deprecated
+       */
       graphNameDescriptor: new DataDescriptor(graphName),
 
       // see .defineLazyGetter, ProxyNotify for details.
       proxiesInConstruction: new WeakMap(/* original value: [callback() {}, ...]*/),
-
-      __proxyListeners__: [],
     }, false);
 
     Reflect.preventExtensions(this);
@@ -2680,29 +2676,69 @@ class ObjectGraphHandler {
     if (!this.membrane.hasProxyForValue(this.graphName, target))
       this.membrane.addPartsToCylinder(this, target);
   }
-  
+
   /**
    * Add a listener for new proxies.
    *
    * @see ProxyNotify
+   * @public
    */
   addProxyListener(listener) {
     if (typeof listener != "function")
       throw new Error("listener is not a function!");
-    if (!this.__proxyListeners__.includes(listener))
-      this.__proxyListeners__.push(listener);
+    this.__proxyListeners__.add(listener);
   }
 
   /**
    * Remove a listener for new proxies.
    *
    * @see ProxyNotify
+   * @public
    */
   removeProxyListener(listener) {
-    let index = this.__proxyListeners__.indexOf(listener);
-    if (index == -1)
-      throw new Error("listener is not registered!");
-    this.__proxyListeners__.splice(index, 1);
+    if (typeof listener != "function")
+      throw new Error("listener is not a function!");
+    this.__proxyListeners__.remove(listener);
+  }
+
+  /**
+   * Get the currently registered set of proxy listeners.
+   *
+   * @returns {Function[]}
+   * @package
+   */
+  getProxyListeners() {
+    return Array.from(this.__proxyListeners__);
+  }
+
+  /**
+   * @type {function}
+   * @public
+   *
+   */
+  get passThroughFilter() {
+    return passThroughMap.get(this) || returnFalse;
+  }
+
+  /**
+   * @param {function} val
+   *
+   * @public
+   */
+  set passThroughFilter(val) {
+    if (passThroughMap.has(this))
+      throw new Error("passThroughFilter has been defined once already!");
+    if (typeof val !== "function")
+      throw new Error("passThroughFilter must be a function!");
+    passThroughMap.set(this, val);
+  }
+
+  /**
+   * @type {boolean}
+   * @public
+   */
+  get mayReplacePassThrough() {
+    return !passThroughMap.has(this);
   }
 
   /**
@@ -3176,22 +3212,30 @@ class ObjectGraphHandler {
 
   /**
    * Revoke the entire object graph.
+   *
+   * @public
    */
   revokeEverything() {
     if (this.__isDead__)
       throw new Error("This membrane handler is dead!");
-    Object.defineProperty(this, "__isDead__", new DataDescriptor(true));
+    Object.defineProperty(this, "__isDead__", new NWNCDataDescriptor(true));
 
     this.membrane.revokerMultiMap.revoke(this);
   }
 }
 
 Object.freeze(ObjectGraphHandler);
+Object.freeze(ObjectGraphHandler.prototype);
 
 // temporary
 const MembraneProxyHandlers = {
   Master: function() {}
 };
+
+/**
+ * @type {WeakMap<ObjectGraph, function>}
+ */
+const passThroughMap$1 = new WeakMap();
 
 /**
  * @package
@@ -3203,8 +3247,6 @@ class ObjectGraph {
       if ((t != "string") && (t != "symbol"))
         throw new Error("graph name must be a string or a symbol!");
     }
-
-    var passThroughFilter = returnFalse;
 
     // private
     defineNWNCProperties(this, {
@@ -3219,30 +3261,32 @@ class ObjectGraph {
       masterProxyHandler: new MembraneProxyHandlers.Master(this),
 
       __revokeFunctions__: [],
-      __proxyListeners__: [],
+      __proxyListeners__: new Set,
     }, false);
+  }
 
-    Object.defineProperties(this, {
-      // private
-      "passThroughFilter": {
-        get: () => passThroughFilter,
-        set: (val) => {
-          if (passThroughFilter !== returnFalse)
-            throw new Error("passThroughFilter has been defined once already!");
-          if (typeof val !== "function")
-            throw new Error("passThroughFilter must be a function");
-          passThroughFilter = val;
-        },
-        enumerable: false,
-        configurable: false,
-      },
+  /**
+   * @public
+   */
+  get passThroughFilter() {
+    return passThroughMap$1.get(this) || returnFalse;
+  }
 
-      "mayReplacePassThrough": {
-        get: () => passThroughFilter === returnFalse,
-        enumerable: true,
-        configurable: false
-      },
-    });
+  /**
+   * @param {function} val
+   *
+   * @public
+   */
+  set passThroughFilter(val) {
+    if (passThroughMap$1.has(this))
+      throw new Error("passThroughFilter has been defined once already!");
+    if (typeof val !== "function")
+      throw new Error("passThroughFilter must be a function");
+    passThroughMap$1.set(this, val);
+  }
+
+  get mayReplacePassThrough() {
+    return !passThroughMap$1.has(this);
   }
 
   /**
@@ -3254,6 +3298,8 @@ class ObjectGraph {
    *                     The node to insert.
    * @param {?Object} insertTarget The shadow target to set for a redirect.
    *                     Null if for all shadow targets in general.
+   *
+   * @public
    */
   insertHandler(
     phase, leadNodeName, middleNode, insertTarget = null
@@ -3282,26 +3328,42 @@ class ObjectGraph {
   */
 
   /**
-   * Remove a ProxyCylinder or a Proxy.revoke function from our list.
+   * Add a listener for new proxies.
    *
-   * @private
+   * @see ProxyNotify
+   * @public
    */
-  /*
-  removeRevocable(revoke) {
-    /*
-    let index = this.__revokeFunctions__.indexOf(revoke);
-    if (index == -1) {
-      throw new Error("Unknown revoke function!");
-    }
-    this.__revokeFunctions__.splice(index, 1);
-
-    void(revoke);
-    throw new Error("Not implemented");
+   addProxyListener(listener) {
+    if (typeof listener != "function")
+      throw new Error("listener is not a function!");
+    this.__proxyListeners__.add(listener);
   }
-  */
+
+  /**
+   * Remove a listener for new proxies.
+   *
+   * @see ProxyNotify
+   * @public
+   */
+  removeProxyListener(listener) {
+    if (typeof listener != "function")
+      throw new Error("listener is not a function!");
+    this.__proxyListeners__.remove(listener);
+  }
+
+  /**
+   * Get the currently registered set of proxy listeners.
+   *
+   * @returns {Function[]}
+   * @package
+   */
+  getProxyListeners() {
+    return Array.from(this.__proxyListeners__);
+  }
 
   /**
    * Revoke the entire object graph.
+   * @public
    */
   revokeEverything() {
     if (this.__isDead__)
@@ -3402,18 +3464,6 @@ const Constants = {
 Object.freeze(Constants.warnings);
 Object.freeze(Constants);
 
-
-/**
- * Helper function to determine if anyone may log.
- * @private
- *
- * @returns {Boolean} True if logging is permitted.
- */
-// This function is here because I can blacklist moduleUtilities during debugging.
-function MembraneMayLog() {
-  return (typeof this.logger == "object") && Boolean(this.logger);
-}
-
 // bindValuesByHandlers utility
 /**
  * @typedef BindValuesBag
@@ -3506,22 +3556,49 @@ class Membrane {
                       returnFalse;
 
     defineNWNCProperties(this, {
+      /**
+       * @private
+       */
       showGraphName: Boolean(options.showGraphName),
 
+      /**
+       * @private
+       */
       refactor: options.refactor || "",
 
+      /**
+       * @package
+       */
       cylinderMap: new ProxyCylinderMap,
 
+      /**
+       * @package
+       */
       revokerMultiMap: new RevocableMultiMap,
 
+      /**
+       * @private
+       */
       handlersByGraphName: {},
 
+      /**
+       * @package
+       */
       logger: options.logger || null,
 
+      /**
+       * @private
+       */
       warnOnceSet: (options.logger ? new Set() : null),
 
+      /**
+       * @public
+       */
       modifyRules: new ModifyRulesAPI(this),
 
+      /**
+       * @package
+       */
       passThroughFilter: passThrough,
     }, false);
   
@@ -3534,6 +3611,10 @@ class Membrane {
 
   /**
    * Returns true if we have a proxy for the value.
+   * @param {string | symbol} graph The graph to look for.
+   * @param {Variant}         value The key for the ProxyCylinder map.
+   *
+   * @public
    */
   hasProxyForValue(graph, value) {
     var cylinder = this.cylinderMap.get(value);
@@ -3543,8 +3624,8 @@ class Membrane {
   /**
    * Get the value associated with a graph name and another known value.
    *
-   * @param {Symbol|String} graph The graph to look for.
-   * @param {Variant}       value The key for the ProxyCylinder map.
+   * @param {string | symbol} graph The graph to look for.
+   * @param {Variant}         value The key for the ProxyCylinder map.
    *
    * @public
    *
@@ -3568,8 +3649,8 @@ class Membrane {
   /**
    * Get the proxy associated with a graph name and another known value.
    *
-   * @param {Symbol|String} graph The graph to look for.
-   * @param {Variant}       value The key for the ProxyCylinder map.
+   * @param {string | symbol} graphName The graph to look for.
+   * @param {Variant}         value     The key for the ProxyCylinder map.
    *
    * @public
    *
@@ -3588,10 +3669,10 @@ class Membrane {
    *    {Object}  NOT_YET_DETERMINED
    * ]
    */
-  getMembraneProxy(graph, value) {
+  getMembraneProxy(graphName, value) {
     var cylinder = this.cylinderMap.get(value);
-    if (cylinder && cylinder.hasGraph(graph)) {
-      return [true, cylinder.getProxy(graph)];
+    if (cylinder && cylinder.hasGraph(graphName)) {
+      return [true, cylinder.getProxy(graphName)];
     }
     return [false, NOT_YET_DETERMINED];
   }
@@ -3599,8 +3680,9 @@ class Membrane {
   /**
    * Assign a value to an object graph.
    *
-   * @param handler {ObjectGraphHandler} A graph handler to bind to the value.
-   * @param value   {Variant} The value to assign.
+   * @param {ObjectGraph | ObjectGraphHandler} graph A graph handler to bind to the value.
+   * @param {Variant}                          value The value to assign.
+   * @param {Object}                           options
    *
    * Options:
    *   @param {ProxyCylinder} cylinder
@@ -3611,12 +3693,12 @@ class Membrane {
    *
    * @package
    */
-  addPartsToCylinder(handler, value, options = {}) {
-    if (!this.ownsHandler(handler))
+  addPartsToCylinder(graph, value, options = {}) {
+    if (!this.ownsHandler(graph))
       throw new Error("handler is not an ObjectGraphHandler we own!");
     let cylinder = ("cylinder" in options) ? options.cylinder : null;
 
-    const graphName = handler.graphName;
+    const graphName = graph.graphName;
 
     if (!cylinder) {
       if (this.cylinderMap.has(value)) {
@@ -3644,11 +3726,11 @@ class Membrane {
       if (("shadowTarget" in options) && (valueType(shadowTarget) === "primitive")) {
         obj = { proxy: shadowTarget, revoke: () => {}};
       }
-      else if (handler instanceof ObjectGraph) {
-        obj = Proxy.revocable(shadowTarget, handler.masterProxyHandler);
+      else if (graph instanceof ObjectGraph) {
+        obj = Proxy.revocable(shadowTarget, graph.masterProxyHandler);
       }
       else {
-        obj = Proxy.revocable(shadowTarget, handler);
+        obj = Proxy.revocable(shadowTarget, graph);
       }
 
       parts = {
@@ -3660,8 +3742,8 @@ class Membrane {
 
       this.revokerMultiMap.set(cylinder, revoke);
       this.revokerMultiMap.set(cylinder, () => cylinder.removeGraph(graphName));
-      this.revokerMultiMap.set(handler, revoke);
-      this.revokerMultiMap.set(handler, () => cylinder.removeGraph(graphName));
+      this.revokerMultiMap.set(graph, revoke);
+      this.revokerMultiMap.set(graph, () => cylinder.removeGraph(graphName));
     }
 
     cylinder.setMetadata(this, graphName, parts);
@@ -3670,7 +3752,7 @@ class Membrane {
       const notifyOptions = {
         isThis: false,
         originGraph: options.originHandler,
-        targetGraph: handler,
+        targetGraph: graph,
       };
       ["trapName", "callable", "isThis", "argIndex"].forEach(function(propName) {
         if (Reflect.has(options, propName))
@@ -3678,7 +3760,7 @@ class Membrane {
       });
 
       ProxyNotify(parts, options.originHandler, true, notifyOptions);
-      ProxyNotify(parts, handler, false, notifyOptions);
+      ProxyNotify(parts, graph, false, notifyOptions);
 
       if (!options.storeAsValue && !Reflect.isExtensible(value)) {
         try {
@@ -3694,18 +3776,20 @@ class Membrane {
   }
 
   /**
+   * Report if a a particular graph name exists in this membrane.
    *
-   * @param {Symbol|String} graph The graph to look for.
+   * @param {string | symbol} graphName The graph to look for.
    *
-   * @returns {Boolean}
+   * @returns {boolean}
+   * @public
    */
-  hasHandlerByGraph(graph) {
+  hasHandlerByGraph(graphName) {
     {
-      let t = typeof graph;
+      let t = typeof graphName;
       if ((t != "string") && (t != "symbol"))
         throw new Error("graph must be a string or a symbol!");
     }
-    return Reflect.ownKeys(this.handlersByGraphName).includes(graph);
+    return Reflect.ownKeys(this.handlersByGraphName).includes(graphName);
   }
 
   /**
@@ -3716,6 +3800,7 @@ class Membrane {
    * - {Boolean} mustCreate  True if we must create a missing graph handler.
    *
    * @returns {ObjectGraphHandler} The handler for the object graph.
+   * @public
    */
   getHandlerByName(graphName, options) {
     if (typeof options === "boolean")
@@ -3737,16 +3822,19 @@ class Membrane {
   /**
    * Determine if the handler is a ObjectGraphHandler for this object graph.
    *
+   * @param {ObjectGraph | ObjectGraphHandler} graph
+   *
    * @returns {Boolean} True if the handler is one we own.
+   * @public
    */
-  ownsHandler(handler) {
-    return (((handler instanceof ObjectGraphHandler) ||
-             (handler instanceof ObjectGraph)) &&
-            (this.handlersByGraphName[handler.graphName] === handler));
+  ownsHandler(graph) {
+    return (((graph instanceof ObjectGraphHandler) ||
+             (graph instanceof ObjectGraph)) &&
+            (this.handlersByGraphName[graph.graphName] === graph));
   }
 
   /**
-   *
+   * @public
    */
   passThroughFilter() {
     return false;
@@ -3781,7 +3869,6 @@ class Membrane {
     if (valueType(arg) === "primitive") {
       return arg;
     }
-
 
     let found, rv;
     [found, rv] = this.getMembraneProxy(
@@ -3965,8 +4052,9 @@ class Membrane {
   }
 
   /**
-   *
+   * Send a warning to the registered membrane logger, if that warning hasn't been sent yet.
    * @param {string} message
+   * @package
    */
   warnOnce(message) {
     if (this.logger && !this.warnOnceSet.has(message)) {
@@ -3974,15 +4062,44 @@ class Membrane {
       this.logger.warn(message);
     }
   }
+
+  /**
+   * Helper function to determine if anyone may log.
+   *
+   * @returns {Boolean} True if logging is permitted.
+   * @private
+   */
+  __mayLog__() {
+    return (typeof this.logger == "object") && Boolean(this.logger);
+  }
 }
 
-Reflect.defineProperty(
-  Membrane,
-  "Primordials",
-  new NWNCDataDescriptor(Primordials, true) // this should be visible
+defineNWNCProperties(
+  Membrane, {
+    /**
+     * @public
+     * @static
+     */
+    Primordials
+  },
+  true
 );
 
-Membrane.prototype.allTraps = allTraps;
+defineNWNCProperties(
+  Membrane.prototype,
+  {
+    /**
+     * @public
+     */
+    allTraps,
+
+    /**
+     * @public
+     */
+    constants: Constants
+  },
+  true
+);
 
 /**
  * A flag indicating if internal properties of the Membrane are private.
@@ -3990,10 +4107,6 @@ Membrane.prototype.allTraps = allTraps;
  * @public
  */
 Membrane.prototype.secured = false;
-
-Membrane.prototype.__mayLog__ = MembraneMayLog;
-
-Membrane.prototype.constants = Constants;
 
 Object.seal(Membrane);
 

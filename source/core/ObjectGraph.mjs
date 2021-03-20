@@ -14,6 +14,11 @@ const MembraneProxyHandlers = {
 };
 
 /**
+ * @type {WeakMap<ObjectGraph, function>}
+ */
+const passThroughMap = new WeakMap();
+
+/**
  * @package
  */
 export default class ObjectGraph {
@@ -23,8 +28,6 @@ export default class ObjectGraph {
       if ((t != "string") && (t != "symbol"))
         throw new Error("graph name must be a string or a symbol!");
     }
-
-    var passThroughFilter = returnFalse;
 
     // private
     defineNWNCProperties(this, {
@@ -39,30 +42,32 @@ export default class ObjectGraph {
       masterProxyHandler: new MembraneProxyHandlers.Master(this),
 
       __revokeFunctions__: [],
-      __proxyListeners__: [],
+      __proxyListeners__: new Set,
     }, false);
+  }
 
-    Object.defineProperties(this, {
-      // private
-      "passThroughFilter": {
-        get: () => passThroughFilter,
-        set: (val) => {
-          if (passThroughFilter !== returnFalse)
-            throw new Error("passThroughFilter has been defined once already!");
-          if (typeof val !== "function")
-            throw new Error("passThroughFilter must be a function");
-          passThroughFilter = val;
-        },
-        enumerable: false,
-        configurable: false,
-      },
+  /**
+   * @public
+   */
+  get passThroughFilter() {
+    return passThroughMap.get(this) || returnFalse;
+  }
 
-      "mayReplacePassThrough": {
-        get: () => passThroughFilter === returnFalse,
-        enumerable: true,
-        configurable: false
-      },
-    });
+  /**
+   * @param {function} val
+   *
+   * @public
+   */
+  set passThroughFilter(val) {
+    if (passThroughMap.has(this))
+      throw new Error("passThroughFilter has been defined once already!");
+    if (typeof val !== "function")
+      throw new Error("passThroughFilter must be a function");
+    passThroughMap.set(this, val);
+  }
+
+  get mayReplacePassThrough() {
+    return !passThroughMap.has(this);
   }
 
   /**
@@ -74,6 +79,8 @@ export default class ObjectGraph {
    *                     The node to insert.
    * @param {?Object} insertTarget The shadow target to set for a redirect.
    *                     Null if for all shadow targets in general.
+   *
+   * @public
    */
   insertHandler(
     phase, leadNodeName, middleNode, insertTarget = null
@@ -102,26 +109,42 @@ export default class ObjectGraph {
   */
 
   /**
-   * Remove a ProxyCylinder or a Proxy.revoke function from our list.
+   * Add a listener for new proxies.
    *
-   * @private
+   * @see ProxyNotify
+   * @public
    */
-  /*
-  removeRevocable(revoke) {
-    /*
-    let index = this.__revokeFunctions__.indexOf(revoke);
-    if (index == -1) {
-      throw new Error("Unknown revoke function!");
-    }
-    this.__revokeFunctions__.splice(index, 1);
-
-    void(revoke);
-    throw new Error("Not implemented");
+   addProxyListener(listener) {
+    if (typeof listener != "function")
+      throw new Error("listener is not a function!");
+    this.__proxyListeners__.add(listener);
   }
-  */
+
+  /**
+   * Remove a listener for new proxies.
+   *
+   * @see ProxyNotify
+   * @public
+   */
+  removeProxyListener(listener) {
+    if (typeof listener != "function")
+      throw new Error("listener is not a function!");
+    this.__proxyListeners__.remove(listener);
+  }
+
+  /**
+   * Get the currently registered set of proxy listeners.
+   *
+   * @returns {Function[]}
+   * @package
+   */
+  getProxyListeners() {
+    return Array.from(this.__proxyListeners__);
+  }
 
   /**
    * Revoke the entire object graph.
+   * @public
    */
   revokeEverything() {
     if (this.__isDead__)
