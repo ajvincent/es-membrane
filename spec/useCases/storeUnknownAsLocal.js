@@ -28,6 +28,8 @@ if (typeof MembraneMocks != "function") {
     throw new Error("Unable to run tests: cannot get MembraneMocks");
 }
 
+import ensureProxyCylinder from "../helpers/ensureProxyCylinder.mjs";
+
 {
   it("Use case:  membrane.modifyRules.storeUnknownAsLocal", function() {
     /* XXX ajvincent This is a hack, for a property that shouldn't be in the
@@ -44,7 +46,7 @@ if (typeof MembraneMocks != "function") {
     {
       let parts = MembraneMocks();
       let dryWetMB = parts.membrane;
-      parts.handlers.wet.ensureProxyCylinder(parts.wet.Node.prototype);
+      ensureProxyCylinder(parts.handlers.wet, parts.wet.Node.prototype);
       dryWetMB.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node.prototype);
 
       wetRoot = parts.wet.doc.rootElement;

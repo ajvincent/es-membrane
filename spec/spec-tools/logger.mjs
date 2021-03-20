@@ -1,6 +1,6 @@
 import loggerLib from "../helpers/logger.mjs";
 
-describe("Jasmine mock logger library works", function() {
+describe("Internal mock logger library works", function() {
   const logger = loggerLib.getLogger("test.jasmine.logger");
   var appender;
 

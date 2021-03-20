@@ -1,5 +1,6 @@
 import DAMP from "../helpers/dampSymbol.mjs";
 import MembraneMocks from "../helpers/mocks.mjs";
+import ensureProxyCylinder from "../helpers/ensureProxyCylinder.mjs";
 
 describe("Storing unknown properties locally", function() {
   function fixKeys(keys) {
@@ -858,7 +859,7 @@ describe("Storing unknown properties locally", function() {
 
   describe("when required by the wet object graph, ", function() {
     beforeEach(function() {
-      parts.handlers.wet.ensureProxyCylinder(parts.wet.Node.prototype);
+      ensureProxyCylinder(parts.handlers.wet, parts.wet.Node.prototype);
       membrane.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node.prototype);
       parts.wetIsLocal = true;
     });
@@ -870,7 +871,7 @@ describe("Storing unknown properties locally", function() {
     "when required by both the wet and the dry object graphs, ",
     function() {
       beforeEach(function() {
-        parts.handlers.wet.ensureProxyCylinder(parts.wet.Node.prototype);
+        ensureProxyCylinder(parts.handlers.wet, parts.wet.Node.prototype);
         membrane.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node.prototype);
         membrane.modifyRules.storeUnknownAsLocal("dry", parts.dry.Node.prototype);
         parts.wetIsLocal = true;

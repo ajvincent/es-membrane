@@ -1177,18 +1177,6 @@ export default class ObjectGraphHandler {
   }
 
   /**
-   * Ensure a value has been wrapped in the membrane (and is available for distortions)
-   *
-   * @param target {Object} The value to wrap.
-   *
-   * @package
-   */
-  ensureProxyCylinder(target) {
-    if (!this.membrane.hasProxyForValue(this.graphName, target))
-      this.membrane.addPartsToCylinder(this, target);
-  }
-
-  /**
    * Add a listener for new proxies.
    *
    * @see ProxyNotify

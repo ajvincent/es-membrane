@@ -247,7 +247,6 @@ export default function buildMembrane(___utilities___) {
         "setPrototypeOf",
         "apply",
         "construct",
-        "ensureProxyCylinder",
         "addProxyListener",
         "removeProxyListener",
         "revokeEverything"
