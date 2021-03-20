@@ -36,6 +36,19 @@ import {
   valueType,
 } from "./sharedUtilities.mjs";
 
+function defineSetOnce(map) {
+  map.originalSet = map.set;
+
+  map.set = function(key, value) {
+    if (this.has(key))
+      throw new Error("Value has already been defined!");
+    return this.originalSet(key, value);
+  };
+
+  Object.freeze(map);
+  return map;
+}
+
 /**
  * @typedef DistortionConfiguration
  * @property {string}               formatVersion
@@ -59,17 +72,17 @@ export default class DistortionsListener {
     // private
     defineNWNCProperties(this, {
       membrane,
-      valueAndProtoMap: new Map(/*
+      valueAndProtoMap: defineSetOnce(new WeakMap(/*
         object or function.prototype: JSON configuration
-      */),
+      */)),
 
-      instanceMap: new Map(/*
-          function: JSON configuration
-      */),
+      instanceMap: defineSetOnce(new WeakMap(/*
+        function: JSON configuration
+      */)),
 
-      filterToConfigMap: new Map(/*
+      filterToConfigMap: defineSetOnce(new Map(/*
         function returning boolean: JSON configuration
-      */),
+      */)),
 
       ignorableValues: new Set(),
     }, false);
@@ -113,7 +126,7 @@ export default class DistortionsListener {
   addListener(value, category, config) {
     if ((category === "prototype") || (category === "instance")) {
       if (typeof value !== "function")
-        throw new Error(`The ${category} category requires a function value`);
+        throw new Error(`The ${category} category requires a function value!`);
       value = value.prototype;
     }
 
@@ -125,11 +138,11 @@ export default class DistortionsListener {
       this.instanceMap.set(value, config);
     else if (category === "filter") {
       if (typeof value !== "function")
-        throw new Error("The filter category requires the value be a function!");
+        throw new Error("The filter category requires a function value!");
       this.filterToConfigMap.set(value, config);
     }
     else
-      throw new Error(`Unsupported category ${category} for value`);
+      throw new Error(`Unsupported category '${category}' for value!`);
   }
 
   /**

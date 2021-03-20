@@ -1087,6 +1087,19 @@ Object.freeze(ProxyNotify.useShadowTarget);
 
 /** @module source/core/DistortionsListener  */
 
+function defineSetOnce(map) {
+  map.originalSet = map.set;
+
+  map.set = function(key, value) {
+    if (this.has(key))
+      throw new Error("Value has already been defined!");
+    return this.originalSet(key, value);
+  };
+
+  Object.freeze(map);
+  return map;
+}
+
 /**
  * @typedef DistortionConfiguration
  * @property {string}               formatVersion
@@ -1110,17 +1123,17 @@ class DistortionsListener {
     // private
     defineNWNCProperties(this, {
       membrane,
-      valueAndProtoMap: new Map(/*
+      valueAndProtoMap: defineSetOnce(new WeakMap(/*
         object or function.prototype: JSON configuration
-      */),
+      */)),
 
-      instanceMap: new Map(/*
-          function: JSON configuration
-      */),
+      instanceMap: defineSetOnce(new WeakMap(/*
+        function: JSON configuration
+      */)),
 
-      filterToConfigMap: new Map(/*
+      filterToConfigMap: defineSetOnce(new Map(/*
         function returning boolean: JSON configuration
-      */),
+      */)),
 
       ignorableValues: new Set(),
     }, false);
@@ -1164,7 +1177,7 @@ class DistortionsListener {
   addListener(value, category, config) {
     if ((category === "prototype") || (category === "instance")) {
       if (typeof value !== "function")
-        throw new Error(`The ${category} category requires a function value`);
+        throw new Error(`The ${category} category requires a function value!`);
       value = value.prototype;
     }
 
@@ -1176,11 +1189,30 @@ class DistortionsListener {
       this.instanceMap.set(value, config);
     else if (category === "filter") {
       if (typeof value !== "function")
-        throw new Error("The filter category requires the value be a function!");
+        throw new Error("The filter category requires a function value!");
       this.filterToConfigMap.set(value, config);
     }
     else
-      throw new Error(`Unsupported category ${category} for value`);
+      throw new Error(`Unsupported category '${category}' for value!`);
+  }
+
+  /**
+   * Add a value which may be ignored.
+   *
+   * @param {Object} i The value to ignore.
+   */
+  addIgnorable(i) {
+    if (valueType(i) !== "primitive")
+      this.ignorableValues.add(i);
+  }
+
+  /**
+   * Ignore all primordials (Object, Array, Date, Boolean, etc.)
+   *
+   * @public
+   */
+  ignorePrimordials() {
+    Primordials.forEach(p => this.addIgnorable(p));
   }
 
   /**
@@ -1198,20 +1230,6 @@ class DistortionsListener {
 
     if (handler.mayReplacePassThrough)
       handler.passThroughFilter = value => this.ignorableValues.has(value);
-  }
-
-  addIgnorable(i) {
-    if (valueType(i) !== "primitive")
-      this.ignorableValues.add(i);
-  }
-
-  /**
-   * Ignore all primordials (Object, Array, Date, Boolean, etc.)
-   *
-   * @public
-   */
-  ignorePrimordials() {
-    Primordials.forEach(p => this.addIgnorable(p));
   }
 
   /**

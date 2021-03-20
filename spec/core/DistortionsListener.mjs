@@ -92,8 +92,80 @@ describe("DistortionsListener", () => {
     expect(Reflect.isExtensible(baseConfig)).toBe(true);
   });
 
-  xdescribe(".addListener()", () => {
+  describe(".addListener()", () => {
+    it("throws for calling for the same value and category twice", () => {
+      const config = {};
+      const realTarget = {};
+      listener.addListener(realTarget, "value", config);
+      expect(() => listener.addListener(realTarget, "value", config))
+            .toThrowError("Value has already been defined!");
 
+      expect(() => listener.addListener(realTarget, "value", {}))
+            .toThrowError("Value has already been defined!");
+    });
+
+    it("accepts value, prototype and instance categories for functions as the value", () => {
+      class realTarget {}
+      expect(() => {
+        listener.addListener(realTarget, "value", {});
+        listener.addListener(realTarget, "prototype", {});
+        listener.addListener(realTarget, "instance", {});
+      }).not.toThrow();
+    });
+
+    it("throws for calling with a category of 'prototype' and a non-function value", () => {
+      expect(() => {
+        listener.addListener({}, "prototype", {});
+      }).toThrowError("The prototype category requires a function value!");
+    });
+
+    it("throws for calling for the category 'prototype' and a function, then for the category 'value' and the function's prototype", () => {
+      class realTarget {}
+      listener.addListener(realTarget, "prototype", {});
+      expect(() => {
+        listener.addListener(realTarget.prototype, "value", {});
+      }).toThrowError("Value has already been defined!");
+    });
+
+    it("throws for calling for the category 'value' and a function's prototype, then for the category 'prototype and the function", () => {
+      class realTarget {}
+      listener.addListener(realTarget.prototype, "value", {});
+      expect(() => {
+        listener.addListener(realTarget, "prototype", {});
+      }).toThrowError("Value has already been defined!");
+    });
+
+    it("throws for calling with a category of 'iterable' and repeated values", () => {
+      const value = {};
+      expect(
+        () => listener.addListener([value, value], "iterable", {})
+      ).toThrowError("Value has already been defined!");
+    });
+
+    it("throws for calling with a category of 'instance' and a non-function value", () => {
+      expect(() => {
+        listener.addListener({}, "instance", {});
+      }).toThrowError("The instance category requires a function value!");
+    });
+
+    it("throws for calling with a category of 'filter' and a non-function value", () => {
+      expect(() => {
+        listener.addListener({}, "filter", {});
+      }).toThrowError("The filter category requires a function value!");
+    });
+
+    it("throws for calling for the category 'filter' twice with the same value", () => {
+      listener.addListener(returnFalse, "filter", {});
+      expect(
+        () => listener.addListener(returnFalse, "filter", {})
+      ).toThrowError("Value has already been defined!");
+    });
+
+    it("throws for an unknown category", () => {
+      expect(
+        () => listener.addListener({}, "foo", {})
+      ).toThrowError("Unsupported category 'foo' for value!")
+    });
   });
 
   it(".addIgnorable() marks an object as ignorable", () => {
