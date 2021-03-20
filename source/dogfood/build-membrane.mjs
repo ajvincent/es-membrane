@@ -330,7 +330,6 @@ export default function buildMembrane(___utilities___) {
         ObjectGraphHandler.prototype.removeProxyListener,
         DistortionsListener.prototype.addListener,
         DistortionsListener.prototype.removeListener,
-        DistortionsListener.prototype.listenOnce,
         DistortionsListener.prototype.sampleConfig,
         DistortionsListener.prototype.bindToHandler,
         DistortionsListener.prototype.ignorePrimordials,
@@ -387,7 +386,6 @@ export default function buildMembrane(___utilities___) {
       "filterOwnKeys": [
         "addListener",
         "removeListener",
-        "listenOnce",
         "sampleConfig",
         "bindToHandler",
         "ignorePrimordials",

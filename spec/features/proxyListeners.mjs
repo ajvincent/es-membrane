@@ -37,7 +37,7 @@ describe("An object graph handler's proxy listeners", function() {
       }
       catch (ex) {
         // do nothing, this is not that important to our tests
-      }    
+      }
     };
     ctor1.prototype.label = "ctor1 prototype";
     ctor1.prototype.number = 2;
@@ -59,7 +59,7 @@ describe("An object graph handler's proxy listeners", function() {
    * API that Jasmine spies presents.  Instead, I'll use the logger mocks to
    * record events and their order.
    */
-  
+
   describe("are notified of a proxy before the proxy is returned", function() {
     /* We're not testing API of meta yet.  That'll be a separate test.
     The only reason we test for the proxy is to ensure the proxy is the same for
@@ -68,24 +68,23 @@ describe("An object graph handler's proxy listeners", function() {
 
     var meta0, meta1, meta2;
     function listener0(meta) {
-      if (acceptSet.has(meta.target)) {
+      if (acceptSet.has(meta.realTarget)) {
         meta0 = meta;
         logger.info("listener0");
       }
     }
     function listener1(meta) {
-      if (acceptSet.has(meta.target)) {
+      if (acceptSet.has(meta.realTarget)) {
         meta1 = meta;
         logger.info("listener1");
       }
     }
     function listener2(meta) {
-      if (acceptSet.has(meta.target)) {
+      if (acceptSet.has(meta.realTarget)) {
         meta2 = meta;
         logger.info("listener2");
       }
     }
-
 
     function reset() {
       appender.clear();
@@ -322,7 +321,7 @@ describe("An object graph handler's proxy listeners", function() {
 
     it("by invoking meta.stopIteration();", function() {
       function listener1(meta) {
-        if (!acceptSet.has(meta.target))
+        if (!acceptSet.has(meta.realTarget))
           return;
 
         meta1 = meta;
@@ -333,7 +332,7 @@ describe("An object graph handler's proxy listeners", function() {
       }
 
       function listener2(meta) {
-        if (!acceptSet.has(meta.target))
+        if (!acceptSet.has(meta.realTarget))
           return;
 
         // we should never get here
@@ -377,7 +376,7 @@ describe("An object graph handler's proxy listeners", function() {
     it("by invoking meta.throwException(exn);", function() {
       const dummyExn = {};
       function listener1(meta) {
-        if (!acceptSet.has(meta.target))
+        if (!acceptSet.has(meta.realTarget))
           return;
 
         meta1 = meta;
@@ -388,7 +387,7 @@ describe("An object graph handler's proxy listeners", function() {
       }
 
       function listener2(meta) {
-        if (!acceptSet.has(meta.target))
+        if (!acceptSet.has(meta.realTarget))
           return;
 
         // we should never get here
@@ -430,7 +429,7 @@ describe("An object graph handler's proxy listeners", function() {
     it("but not by accidentally triggering an exception", function() {
       const dummyExn = {};
       function listener1(meta) {
-        if (!acceptSet.has(meta.target))
+        if (!acceptSet.has(meta.realTarget))
           return;
         meta1 = meta;
         logger.info("listener1: stopped = " + meta.stopped);
@@ -438,7 +437,7 @@ describe("An object graph handler's proxy listeners", function() {
       }
 
       function listener2(meta) {
-        if (!acceptSet.has(meta.target))
+        if (!acceptSet.has(meta.realTarget))
           return;
         meta2 = meta;
         logger.info("listener2: stopped = " + meta.stopped);

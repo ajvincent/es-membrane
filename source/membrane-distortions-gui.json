@@ -385,7 +385,6 @@
             "filterOwnKeys": [
               "addListener",
               "removeListener",
-              "listenOnce",
               "sampleConfig",
               "bindToHandler",
               "ignorePrimordials",
@@ -410,7 +409,6 @@
             "groupDistortions": {
               "addListener": "method",
               "removeListener": "method",
-              "listenOnce": "method",
               "sampleConfig": "method",
               "bindToHandler": "method",
               "ignorePrimordials": "method",

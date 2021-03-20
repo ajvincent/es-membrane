@@ -1,3 +1,5 @@
+/** @module source/core/broadcasters/ProxyBroadcaster  */
+
 import ProxyMessage from "./ProxyMessage.mjs";
 
 /**

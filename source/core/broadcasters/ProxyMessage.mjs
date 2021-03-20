@@ -1,5 +1,7 @@
+/** @module source/core/broadcasters/ProxyMessage  */
+
 import {
-  DataDescriptor,
+  defineNWNCProperties,
 } from "../sharedUtilities.mjs";
 
 /**
@@ -12,7 +14,14 @@ const PROXYMESSAGE_PRIVATE = new WeakMap();
  * @package
  */
 export default class ProxyMessage {
-  constructor(proxy, realTarget, graph, isOrigin) {
+  /**
+   * 
+   * @param {Proxy}                            proxy
+   * @param {Object}                           realTarget
+   * @param {ObjectGraph | ObjectGraphHandler} graph
+   * @param {boolean}                          isOriginGraph
+   */
+  constructor(proxy, realTarget, graph, isOriginGraph) {
     const privateObj = {
       stopped: false,
       exnFound: false,
@@ -22,22 +31,21 @@ export default class ProxyMessage {
     };
     PROXYMESSAGE_PRIVATE.set(this, privateObj);
 
-    Reflect.defineProperty(this, "realTarget",    new DataDescriptor(realTarget));
-    Reflect.defineProperty(this, "graph",         new DataDescriptor(graph));
-    Reflect.defineProperty(this, "isOriginGraph", new DataDescriptor(isOrigin));
-    Reflect.defineProperty(this, "logger",        new DataDescriptor(
-      graph.membrane && (typeof graph.membrane.logger !== "undefined") ?
-      graph.membrane.logger :
-      null
-    ));
+    defineNWNCProperties(this, {
+      realTarget,
+      graph,
+      isOriginGraph,
+      logger: (graph.membrane && (typeof graph.membrane.logger !== "undefined") ?
+               graph.membrane.logger :
+               null)
+    }, true);
   }
 
   /**
    * The proxy or value the Membrane will return to the caller.
    */
   get proxy() {
-    const privateObj = PROXYMESSAGE_PRIVATE.get(this);
-    return privateObj.proxy;
+    return PROXYMESSAGE_PRIVATE.get(this).proxy;
   }
 
   /*
@@ -74,3 +82,6 @@ export default class ProxyMessage {
     privateObj.exception = e;
   }
 }
+
+Object.freeze(ProxyMessage);
+Object.freeze(ProxyMessage.prototype);

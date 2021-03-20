@@ -21,10 +21,7 @@ import {
  * @package
  * @deprecated
  */
-export function ProxyNotify(parts, handler, isOrigin, options) {
-  if (typeof options === "undefined")
-    options = {};
-
+export function ProxyNotify(parts, handler, isOrigin, options = {}) {
   // private variables
   const listeners = handler.__proxyListeners__;
   if (listeners.length === 0)
@@ -48,7 +45,7 @@ export function ProxyNotify(parts, handler, isOrigin, options) {
       (val) => { if (!meta.stopped) parts.proxy = val; }
     ),
 
-    /* XXX ajvincent revoke is explicitly NOT exposed, lest a listener call it 
+    /* XXX ajvincent revoke is explicitly NOT exposed, lest a listener call it
      * and cause chaos for any new proxy trying to rely on the existing one.  If
      * you really have a problem, use throwException() below.
      */
@@ -56,14 +53,14 @@ export function ProxyNotify(parts, handler, isOrigin, options) {
     /**
      * The unwrapped object or function we're building the proxy for.
      */
-    "target": new DataDescriptor(getRealTarget(parts.shadowTarget)),
+    "realTarget": new DataDescriptor(getRealTarget(parts.shadowTarget)),
 
     "isOriginGraph": new DataDescriptor(isOrigin),
 
     /**
-     * The proxy handler.  This should be an ObjectGraphHandler.
+     * The object graph.  This should be an ObjectGraph or an ObjectGraphHandler.
      */
-    "handler": new AccessorDescriptor(
+    "graph": new AccessorDescriptor(
       () => handler,
       (val) => { if (!meta.stopped) handler = val; }
     ),

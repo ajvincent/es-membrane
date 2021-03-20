@@ -305,8 +305,8 @@ class Membrane {
     if (!isOriginal) {
       const notifyOptions = {
         isThis: false,
-        originHandler: options.originHandler,
-        targetHandler: handler,
+        originGraph: options.originHandler,
+        targetGraph: handler,
       };
       ["trapName", "callable", "isThis", "argIndex"].forEach(function(propName) {
         if (Reflect.has(options, propName))

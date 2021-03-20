@@ -891,10 +891,7 @@ Object.freeze(ProxyCylinderMap);
  * @package
  * @deprecated
  */
-function ProxyNotify(parts, handler, isOrigin, options) {
-  if (typeof options === "undefined")
-    options = {};
-
+function ProxyNotify(parts, handler, isOrigin, options = {}) {
   // private variables
   const listeners = handler.__proxyListeners__;
   if (listeners.length === 0)
@@ -918,7 +915,7 @@ function ProxyNotify(parts, handler, isOrigin, options) {
       (val) => { if (!meta.stopped) parts.proxy = val; }
     ),
 
-    /* XXX ajvincent revoke is explicitly NOT exposed, lest a listener call it 
+    /* XXX ajvincent revoke is explicitly NOT exposed, lest a listener call it
      * and cause chaos for any new proxy trying to rely on the existing one.  If
      * you really have a problem, use throwException() below.
      */
@@ -926,14 +923,14 @@ function ProxyNotify(parts, handler, isOrigin, options) {
     /**
      * The unwrapped object or function we're building the proxy for.
      */
-    "target": new DataDescriptor(getRealTarget(parts.shadowTarget)),
+    "realTarget": new DataDescriptor(getRealTarget(parts.shadowTarget)),
 
     "isOriginGraph": new DataDescriptor(isOrigin),
 
     /**
-     * The proxy handler.  This should be an ObjectGraphHandler.
+     * The object graph.  This should be an ObjectGraph or an ObjectGraphHandler.
      */
-    "handler": new AccessorDescriptor(
+    "graph": new AccessorDescriptor(
       () => handler,
       (val) => { if (!meta.stopped) handler = val; }
     ),
@@ -1088,15 +1085,31 @@ function invokeProxyListeners(listeners, meta) {
 Object.freeze(ProxyNotify);
 Object.freeze(ProxyNotify.useShadowTarget);
 
+/** @module source/core/DistortionsListener  */
+
 /**
- * @package
+ * @typedef DistortionConfiguration
+ * @property {string}               formatVersion
+ * @property {string}               dataVersion
+ * @property {boolean?}             filterOwnKeys
+ * @property {string[]?}            proxyTraps
+ * @property {boolean?}             storeUnknownAsLocal
+ * @property {boolean?}             requireLocalDelete
+ * @property {boolean?}             useShadowTarget
+ * @property {(number | boolean)?}  truncateArgList
+ */
+
+/**
+ * @public
  */
 class DistortionsListener {
+  /**
+   * @param {Membrane} membrane The owning membrane.
+   */
   constructor(membrane) {
     // private
     defineNWNCProperties(this, {
       membrane,
-      proxyListener: this.proxyListener.bind(this),
       valueAndProtoMap: new Map(/*
         object or function.prototype: JSON configuration
       */),
@@ -1111,51 +1124,18 @@ class DistortionsListener {
 
       ignorableValues: new Set(),
     }, false);
+
+    Object.freeze(this);
   }
 
-  addListener(value, category, config) {
-    if ((category === "prototype") || (category === "instance"))
-      value = value.prototype;
-
-    if ((category === "prototype") || (category === "value"))
-      this.valueAndProtoMap.set(value, config);
-    else if (category === "iterable")
-      Array.from(value).forEach((item) => this.valueAndProtoMap.set(item, config));
-    else if (category === "instance")
-      this.instanceMap.set(value, config);
-    else if ((category === "filter") && (typeof value === "function"))
-      this.filterToConfigMap.set(value, config);
-    else
-      throw new Error(`Unsupported category ${category} for value`);
-  }
-
-  removeListener(value, category) {
-    if ((category === "prototype") || (category === "instance"))
-      value = value.prototype;
-
-    if ((category === "prototype") || (category === "value"))
-      this.valueAndProtoMap.delete(value);
-    else if (category === "iterable")
-      Array.from(value).forEach((item) => this.valueAndProtoMap.delete(item));
-    else if (category === "instance")
-      this.instanceMap.delete(value);
-    else if ((category === "filter") && (typeof value === "function"))
-      this.filterToConfigMap.delete(value);
-    else
-      throw new Error(`Unsupported category ${category} for value`);
-  }
-
-  listenOnce(meta, config) {
-    this.addListener(meta.target, "value", config);
-    try {
-      this.proxyListener(meta);
-    }
-    finally {
-      this.removeListener(meta.target, "value");
-    }
-  }
-
-  sampleConfig(isFunction) {
+  /**
+   * Generate a sample configuration this DistortionsListener supports.
+   *
+   * @param {boolean} isFunction True if the config should be for a function.
+   * @returns {DistortionConfiguration}
+   * @public
+   */
+  sampleConfig(isFunction = false) {
     const rv = {
       formatVersion: "0.8.2",
       dataVersion: "0.1",
@@ -1173,16 +1153,60 @@ class DistortionsListener {
     return rv;
   }
 
+  /**
+   * Add a listener for a value (or in the case of instance or iterable, several values).
+   *
+   * @param {Object} value The base value to listen for.
+   * @param {"value" | "prototype" | "instance" | "iterable" | "filter"} category
+   *        The category of the value to listen for.
+   * @param {DistortionConfiguration} config The configuration.
+   *
+   * @public
+   */
+  addListener(value, category, config) {
+    if ((category === "prototype") || (category === "instance")) {
+      if (typeof value !== "function")
+        throw new Error(`The ${category} category requires a function value`);
+      value = value.prototype;
+    }
+
+    if ((category === "prototype") || (category === "value"))
+      this.valueAndProtoMap.set(value, config);
+    else if (category === "iterable")
+      Array.from(value).forEach((item) => this.valueAndProtoMap.set(item, config));
+    else if (category === "instance")
+      this.instanceMap.set(value, config);
+    else if (category === "filter") {
+      if (typeof value !== "function")
+        throw new Error("The filter category requires the value be a function!");
+      this.filterToConfigMap.set(value, config);
+    }
+    else
+      throw new Error(`Unsupported category ${category} for value`);
+  }
+
+  /**
+   * Attach this to an object graph.
+   *
+   * @param {ObjectGraph | ObjectGraphHandler} handler
+   *
+   * @public
+   */
   bindToHandler(handler) {
     if (!this.membrane.ownsHandler(handler)) {
       throw new Error("Membrane must own the first argument as an object graph handler!");
     }
-    handler.addProxyListener(this.proxyListener);
+    handler.addProxyListener(meta => this.handleProxyMessage(meta));
 
     if (handler.mayReplacePassThrough)
-      handler.passThroughFilter = this.passThroughFilter.bind(this);
+      handler.passThroughFilter = value => this.ignorableValues.has(value);
   }
 
+  /**
+   * Ignore all primordials (Object, Array, Date, Boolean, etc.)
+   *
+   * @public
+   */
   ignorePrimordials() {
     Primordials.forEach(function(p) {
       if (p)
@@ -1191,22 +1215,28 @@ class DistortionsListener {
   }
 
   /**
+   * Find the right DistortionConfiguration for a given real value.
+   *
+   * @param {ProxyMessage} message
    * @private
    */
-  getConfigurationForListener(meta) {
-    let config = this.valueAndProtoMap.get(meta.target);
+  getConfigurationForListener(message) {
+    let config = this.valueAndProtoMap.get(message.realTarget);
+
+    // direct instances of an object
     if (!config) {
-      let proto = Reflect.getPrototypeOf(meta.target);
+      let proto = Reflect.getPrototypeOf(message.realTarget);
       config = this.instanceMap.get(proto);
     }
 
+    // If we don't have a configuration from our value maps, try the filter functions.
     if (!config) {
       let iter, filter;
       iter = this.filterToConfigMap.entries();
       let entry = iter.next();
-      while (!entry.done && !meta.stopped) {
+      while (!entry.done && !message.stopped) {
         filter = entry.value[0];
-        if (filter(meta)) {
+        if (filter(message)) {
           config = entry.value[1];
           break;
         }
@@ -1219,33 +1249,39 @@ class DistortionsListener {
     return config;
   }
 
-  applyConfiguration(config, meta) {
+  /**
+   * Apply the rules of a configuration to a particular proxy
+   * or to all proxies deriving from an original value.
+   * @param {DistortionConfiguration} config
+   * @param {ProxyMessage}            message
+   *
+   * @private
+   */
+  applyConfiguration(config, message) {
     const rules = this.membrane.modifyRules;
-    const graphName = meta.handler.graphName;
-    const modifyTarget = (meta.isOriginGraph) ? meta.target : meta.proxy;
+    const graphName = message.graph.graphName;
+
+    const modifyTarget = (message.isOriginGraph) ? message.realTarget : message.proxy;
+
     if (Array.isArray(config.filterOwnKeys)) {
-      const filterOptions = {
-        // empty, but preserved on separate lines for git blame
-      };
-      if (meta.originHandler)
-        filterOptions.originHandler = meta.originHandler;
-      if (meta.targetHandler)
-        filterOptions.targetHandler = meta.targetHandler;
       rules.filterOwnKeys(
         graphName,
         modifyTarget,
-        config.filterOwnKeys,
-        filterOptions
+        config.filterOwnKeys
       );
     }
 
-    if (!meta.isOriginGraph && !Reflect.isExtensible(meta.target))
-      Reflect.preventExtensions(meta.proxy);
+    // This sets the list of ownKeys, after filtering.
+    if (!message.isOriginGraph && !Reflect.isExtensible(message.realTarget))
+      Reflect.preventExtensions(message.proxy);
 
-    const deadTraps = allTraps.filter(function(key) {
-      return !config.proxyTraps.includes(key);
-    });
-    rules.disableTraps(graphName, modifyTarget, deadTraps);
+    // O(n^2), but n === 13
+    // if we really want to optimize it, we could use a JSON reviver to convert proxyTraps to a Set
+    // or we could wait for Set.prototype.difference(otherSet)...
+    if (Array.isArray(config.proxyTraps)) {
+      const deadTraps = allTraps.filter((key) => !config.proxyTraps.includes(key));
+      rules.disableTraps(graphName, modifyTarget, deadTraps);
+    }
 
     if (config.storeUnknownAsLocal)
       rules.storeUnknownAsLocal(graphName, modifyTarget);
@@ -1258,18 +1294,17 @@ class DistortionsListener {
   }
 
   /**
-   * @private
+   * Apply modifyRulesAPI to the object graph for a given proxy.
+   *
+   * @param {ProxyMessage} message
+   * @public
    */
-  proxyListener(meta) {
-    const config = this.getConfigurationForListener(meta);
-    if (config)
-      this.applyConfiguration(config, meta);
-
-    meta.stopIteration();
-  }
-
-  passThroughFilter(value) {
-    return this.ignorableValues.has(value);
+  handleProxyMessage(message) {
+    const config = this.getConfigurationForListener(message);
+    if (config) {
+      this.applyConfiguration(config, message);
+      message.stopIteration();
+    }
   }
 }
 
@@ -3616,8 +3651,8 @@ class Membrane {
     if (!isOriginal) {
       const notifyOptions = {
         isThis: false,
-        originHandler: options.originHandler,
-        targetHandler: handler,
+        originGraph: options.originHandler,
+        targetGraph: handler,
       };
       ["trapName", "callable", "isThis", "argIndex"].forEach(function(propName) {
         if (Reflect.has(options, propName))

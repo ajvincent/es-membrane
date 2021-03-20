@@ -101,4 +101,14 @@ describe("ProxyMessage", () => {
     expect(message.exceptionFound).toBe(true);
     expect(message.exception).toBe(exception);
   });
+
+  it("can have additional properties", () => {
+    expect(Reflect.defineProperty(message, "foo", {
+      value: true,
+      writable: true,
+      enumerable: true,
+      configurable: true
+    })).toBe(true);
+    expect(message.foo).toBe(true);
+  });
 });
