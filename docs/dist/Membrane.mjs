@@ -1124,8 +1124,6 @@ class DistortionsListener {
 
       ignorableValues: new Set(),
     }, false);
-
-    Object.freeze(this);
   }
 
   /**
@@ -1202,16 +1200,18 @@ class DistortionsListener {
       handler.passThroughFilter = value => this.ignorableValues.has(value);
   }
 
+  addIgnorable(i) {
+    if (valueType(i) !== "primitive")
+      this.ignorableValues.add(i);
+  }
+
   /**
    * Ignore all primordials (Object, Array, Date, Boolean, etc.)
    *
    * @public
    */
   ignorePrimordials() {
-    Primordials.forEach(function(p) {
-      if (p)
-        this.ignorableValues.add(p);
-    }, this);
+    Primordials.forEach(p => this.addIgnorable(p));
   }
 
   /**

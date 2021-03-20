@@ -2,25 +2,26 @@ import DistortionsListener from "../../source/core/DistortionsListener.mjs";
 import ProxyMessage from "../../source/core/broadcasters/ProxyMessage.mjs";
 
 import {
+  NWNCDataDescriptor,
+  Primordials,
   allTraps,
   isDataDescriptor,
+  returnFalse,
 } from "../../source/core/sharedUtilities.mjs";
 
 describe("DistortionsListener", () => {
-  let listener, baseConfig, membrane;
+  let listener, membrane;
   beforeEach(() => {
     membrane = {
       ownsHandler: jasmine.createSpy("ownsHandler"),
       modifyRules: {},
     };
     listener = new DistortionsListener(membrane);
-    baseConfig = listener.sampleConfig();
   });
 
   afterEach(() => {
     membrane = null;
     listener = null;
-    baseConfig = null;
   });
 
   it("class is frozen", () => {
@@ -28,11 +29,9 @@ describe("DistortionsListener", () => {
     expect(Object.isFrozen(DistortionsListener.prototype)).toBe(true);
   });
 
-  it("is frozen", () => {
-    expect(Object.isFrozen(listener)).toBe(true);
-  });
-
   it(".sampleConfig() has some basic properties", () => {
+    let baseConfig = listener.sampleConfig();
+
     // isFunction = false
     expect(typeof baseConfig).toBe("object");
     expect(baseConfig.filterOwnKeys).toBe(false);
@@ -97,14 +96,119 @@ describe("DistortionsListener", () => {
 
   });
 
-  xdescribe(".bindToHandler()", () => {
-    it("", () => {
+  it(".addIgnorable() marks an object as ignorable", () => {
+    membrane.ownsHandler.and.returnValue(true);
+    const handler = {
+      addProxyListener: () => {},
+      mayReplacePassThrough: true,
+      passThroughFilter: returnFalse,
+    };
 
-    });
+    listener.bindToHandler(handler);
+
+    const ignorable = {};
+    listener.addIgnorable(ignorable);
+    listener.addIgnorable(true);
+
+    expect(handler.passThroughFilter(ignorable)).toBe(true);
+    expect(handler.passThroughFilter({})).toBe(false);
+    expect(handler.passThroughFilter(true)).toBe(false);
   });
 
-  xdescribe(".ignorePrimordials()", () => {
+  it(".ignorePrimordials() calls .addIgnorable() once for each primordial", () => {
+    expect(Reflect.defineProperty(
+      listener,
+      "addIgnorable",
+      new NWNCDataDescriptor(jasmine.createSpy("addIgnorable"), true)
+    )).toBe(true);
 
+    listener.ignorePrimordials();
+
+    Primordials.forEach(p => expect(listener.addIgnorable).toHaveBeenCalledWith(p));
+    expect(listener.addIgnorable).toHaveBeenCalledTimes(Primordials.length);
+  });
+
+  describe(".bindToHandler()", () => {
+    it("adds itself as a ProxyListener to an ObjectGraph whose mayReplacePassThrough is false", () => {
+      membrane.ownsHandler.and.returnValue(true);
+
+      const handler = jasmine.createSpyObj(
+        "handler",
+        [ "addProxyListener" ],
+        [ "passThroughFilter", "mayReplacePassThrough" ]
+      );
+      const mayReplace = Reflect.getOwnPropertyDescriptor(handler, "mayReplacePassThrough").get
+      mayReplace.and.returnValue(false);
+
+      expect(Reflect.defineProperty(
+        listener,
+        "handleProxyMessage",
+        new NWNCDataDescriptor(jasmine.createSpy("handleProxyMessage"), true)
+      )).toBe(true);
+
+      listener.bindToHandler(handler);
+      expect(membrane.ownsHandler).toHaveBeenCalledOnceWith(handler);
+      expect(listener.handleProxyMessage).toHaveBeenCalledTimes(0);
+
+      expect(handler.addProxyListener).toHaveBeenCalledTimes(1);
+      if (handler.addProxyListener.calls.count() === 1) {
+        const first = handler.addProxyListener.calls.first();
+        expect(first.args.length).toBe(1);
+        const callback = first.args[0];
+        const message = {};
+        callback(message);
+
+        expect(listener.handleProxyMessage).toHaveBeenCalledOnceWith(message);
+      }
+
+      const passThroughDesc = Reflect.getOwnPropertyDescriptor(handler, "passThroughFilter");
+      expect(passThroughDesc.set).toHaveBeenCalledTimes(0);
+      expect(passThroughDesc.get).toHaveBeenCalledTimes(0);
+    });
+
+    it("adds itself as a ProxyListener to an ObjectGraph whose mayReplacePassThrough is true", () => {
+      membrane.ownsHandler.and.returnValue(true);
+
+      const handler = jasmine.createSpyObj(
+        "handler",
+        [ "addProxyListener" ],
+        [ "passThroughFilter", "mayReplacePassThrough" ]
+      );
+      const mayReplace = Reflect.getOwnPropertyDescriptor(handler, "mayReplacePassThrough").get
+      mayReplace.and.returnValue(true);
+
+      expect(Reflect.defineProperty(
+        listener,
+        "handleProxyMessage",
+        new NWNCDataDescriptor(jasmine.createSpy("handleProxyMessage"), true)
+      )).toBe(true);
+
+      listener.bindToHandler(handler);
+      expect(membrane.ownsHandler).toHaveBeenCalledOnceWith(handler);
+      expect(listener.handleProxyMessage).toHaveBeenCalledTimes(0);
+
+      expect(handler.addProxyListener).toHaveBeenCalledTimes(1);
+      if (handler.addProxyListener.calls.count() === 1) {
+        const first = handler.addProxyListener.calls.first();
+        expect(first.args.length).toBe(1);
+        const callback = first.args[0];
+        const message = {};
+        callback(message);
+
+        expect(listener.handleProxyMessage).toHaveBeenCalledOnceWith(message);
+      }
+
+      const passThroughDesc = Reflect.getOwnPropertyDescriptor(handler, "passThroughFilter");
+      expect(passThroughDesc.set).toHaveBeenCalledTimes(1);
+      expect(passThroughDesc.get).toHaveBeenCalledTimes(0);
+    });
+
+    it("throws when the membrane doesn't own the handler", () => {
+      membrane.ownsHandler.and.returnValue(false);
+      expect(() => {
+        listener.bindToHandler({})
+      }).toThrowError("Membrane must own the first argument as an object graph handler!");
+    });
   });
 
   describe(".handleProxyMessage() with a non-origin graph", () => {
