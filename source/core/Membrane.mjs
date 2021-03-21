@@ -119,6 +119,9 @@ function maySetOnGraph(cylinder, bag) {
  * Object graph: A collection of values that talk to each other directly.
  */
 
+/**
+ * @public
+ */
 export default class Membrane {
   /**
    *
@@ -264,7 +267,6 @@ export default class Membrane {
    *   @param {boolean}       storeAsValue
    *
    * @returns {ProxyCylinder}
-   *
    * @package
    */
   addPartsToCylinder(graph, value, options = {}) {
@@ -409,6 +411,7 @@ export default class Membrane {
 
   /**
    * @public
+   * @note this will be replaced by getters/setters soon
    */
   passThroughFilter() {
     return false;
@@ -664,11 +667,13 @@ defineNWNCProperties(
   {
     /**
      * @public
+     * @deprecated (no longer needed with modules pattern)
      */
     allTraps,
 
     /**
      * @public
+     * @deprecated (no longer needed with modules pattern)
      */
     constants: Constants
   },
