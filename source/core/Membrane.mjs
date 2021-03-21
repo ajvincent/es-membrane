@@ -26,7 +26,7 @@ import {
   ProxyCylinderMap,
 } from "./ProxyCylinder.mjs";
 
-import RevocableMultiMap from "./RevocableMultiMap.mjs";
+import RevocableMultiMap from "./utilities/RevocableMultiMap.mjs";
 
 const Constants = {
   warnings: {

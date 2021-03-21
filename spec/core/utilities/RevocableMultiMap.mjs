@@ -1,8 +1,8 @@
-import RevocableMultiMap from "../../source/core/RevocableMultiMap.mjs";
-import WeakMultiMap from "../../source/core/utilities/WeakMultiMap.mjs";
+import RevocableMultiMap from "../../../source/core/utilities/RevocableMultiMap.mjs";
+import WeakMultiMap from "../../../source/core/utilities/WeakMultiMap.mjs";
 import {
   DeadProxyKey
-} from "../../source/core/utilities/shared.mjs";
+} from "../../../source/core/utilities/shared.mjs";
 
 describe("RevocableMultiMap", () => {
   let map;
