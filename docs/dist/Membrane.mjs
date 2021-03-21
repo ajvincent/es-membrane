@@ -1,4 +1,4 @@
-/** @module source/core/sharedUtilities */
+/** @module source/core/utilities/shared.mjs */
 
 const ShadowKeyMap = new WeakMap();
 
@@ -3371,17 +3371,42 @@ class ObjectGraph {
 Object.freeze(ObjectGraph.prototype);
 Object.freeze(ObjectGraph);
 
-const WeakMap_set$1 = WeakMap.prototype.set;
+/** @module source/core/WeakMultiMap */
 
 /**
  * @package
  */
 class WeakMultiMap extends WeakMap {
-  set(key, value) {
-    if (!this.has(key)) {
-      WeakMap_set$1.apply(this, [key, new Set]);
+  constructor(__setConstructor__ = Set) {
+    super();
+
+    if ((__setConstructor__ === Set) ||
+        (__setConstructor__ === WeakSet) ||
+        (__setConstructor__.prototype === Set) ||
+        (__setConstructor__.prototype === WeakSet) ||
+        (__setConstructor__.prototype instanceof Set) ||
+        (__setConstructor__.prototype instanceof WeakSet)) {
+      defineNWNCProperties(this, {
+        /** @private */
+        __setConstructor__,
+      }, false);
     }
-    this.get(key).add(value);
+    else
+      throw new Error("WeakMultiMap requires a WeakSet or Set for the set constructor!");
+  }
+
+  set(key, value) {
+    const hasKey = this.has(key);
+    if (!this.has(key)) {
+      super.set(key, new this.__setConstructor__);
+    }
+    const subSet = this.get(key);
+    subSet.add(value);
+    if (!subSet.has(value)) {
+      if (!hasKey)
+        super.delete(key);
+      return false;
+    }
     return this;
   }
 
@@ -3391,27 +3416,90 @@ class WeakMultiMap extends WeakMap {
   */
 }
 
-const WeakMultiMap_set = WeakMultiMap.prototype.set;
-const WeakMap_set$2      = WeakMap.prototype.set;
-const WeakMap_delete   = WeakMap.prototype.delete;
+/** @module source/core/utilities/FunctionSet.mjs */
 
-class RevocableMultiMap extends WeakMultiMap {
-  set(key, value) {
+const validThrowModes = [
+  // XXX ajvincent when Node 16 is released, allow aggregate throw mode
+  "immediately", "deferred", "return", "none"
+];
+if (typeof AggregateError === "function")
+  validThrowModes.push("aggregate");
+const validThrowMessage = `valid throw modes are ${JSON.stringify(validThrowModes).replace(/^.(.*).$/, "$1")}!`;
+
+class FunctionSet extends Set {
+  constructor(throwMode = "immediately") {
+    super();
+    if (!validThrowModes.includes(throwMode))
+      throw new Error(validThrowMessage)
+
+    defineNWNCProperties(this, { throwMode }, true);
+  }
+
+  add(value) {
     if (typeof value !== "function")
       return false;
 
+    super.add(value);
+    return true;
+  }
+
+  observe(...args) {
+    let exceptionThrown = false, exception = [];
+    const iterator = (new Set(this)).entries(), results = [];
+
+    for (let [callback] of iterator) {
+      try {
+        results.push(callback(...args));
+      }
+      catch (ex) {
+        if (this.throwMode === "immediately")
+          throw ex;
+        else if ((this.throwMode === "deferred")) {
+          if (!exceptionThrown) {
+            exceptionThrown = true;
+            exception = ex;
+          }
+        }
+        else if (this.throwMode === "aggregate") {
+          exceptionThrown = true;
+          exception.push(ex);
+        }
+        else if (this.throwMode === "return")
+          break;
+      }
+    }
+
+    if (exceptionThrown) {
+      //eslint-disable-next-line no-undef
+      throw this.throwMode === "aggregate" ? new AggregateError(exception) : exception;
+    }
+
+    return results;
+  }
+}
+
+Object.freeze(FunctionSet);
+Object.freeze(FunctionSet.prototype);
+
+const WeakMap_set$1      = WeakMap.prototype.set;
+
+class RevocableMultiMap extends WeakMultiMap {
+  constructor() {
+    super(FunctionSet);
+  }
+
+  set(key, value) {
     if (this.get(key) === DeadProxyKey)
       return false;
 
-    WeakMultiMap_set.apply(this, [key, value]);
-    return true;
+    return Boolean(super.set(key, value));
   }
 
   delete(key) {
     const set = this.get(key);
     if (set === DeadProxyKey)
       return false;
-    return WeakMap_delete.apply(this, [key]);
+    return super.delete(key);
   }
 
   revoke(key) {
@@ -3434,7 +3522,7 @@ class RevocableMultiMap extends WeakMultiMap {
       }
     });
 
-    WeakMap_set$2.apply(this, [key, DeadProxyKey]);
+    WeakMap_set$1.apply(this, [key, DeadProxyKey]);
 
     if (firstErrorSet)
       throw firstError;
