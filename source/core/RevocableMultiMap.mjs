@@ -1,29 +1,28 @@
 import WeakMultiMap from "./WeakMultiMap.mjs";
+import FunctionSet from "./FunctionSet.mjs";
 import {
   DeadProxyKey,
 } from "./sharedUtilities.mjs";
 
-const WeakMultiMap_set = WeakMultiMap.prototype.set;
 const WeakMap_set      = WeakMap.prototype.set;
-const WeakMap_delete   = WeakMap.prototype.delete;
 
 export default class RevocableMultiMap extends WeakMultiMap {
-  set(key, value) {
-    if (typeof value !== "function")
-      return false;
+  constructor() {
+    super(FunctionSet);
+  }
 
+  set(key, value) {
     if (this.get(key) === DeadProxyKey)
       return false;
 
-    WeakMultiMap_set.apply(this, [key, value]);
-    return true;
+    return Boolean(super.set(key, value));
   }
 
   delete(key) {
     const set = this.get(key);
     if (set === DeadProxyKey)
       return false;
-    return WeakMap_delete.apply(this, [key]);
+    return super.delete(key);
   }
 
   revoke(key) {
