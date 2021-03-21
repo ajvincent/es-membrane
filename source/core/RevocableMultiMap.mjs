@@ -2,7 +2,7 @@ import WeakMultiMap from "./WeakMultiMap.mjs";
 import FunctionSet from "./FunctionSet.mjs";
 import {
   DeadProxyKey,
-} from "./sharedUtilities.mjs";
+} from "./utilities/shared.mjs";
 
 const WeakMap_set      = WeakMap.prototype.set;
 

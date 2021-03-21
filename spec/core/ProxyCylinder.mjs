@@ -1,13 +1,13 @@
 import {
   makeShadowTarget,
-} from "../../source/core/sharedUtilities.mjs";
+} from "../../source/core/utilities/shared.mjs";
 
 import {
   ProxyCylinder,
   ProxyCylinderMap,
 } from "../../source/core/ProxyCylinder.mjs";
 
-import { NWNCDataDescriptor } from "../../source/core/sharedUtilities.mjs";
+import { NWNCDataDescriptor } from "../../source/core/utilities/shared.mjs";
 
 describe("ProxyCylinder", () => {
   let cylinder = null, membrane;

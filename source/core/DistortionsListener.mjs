@@ -34,7 +34,7 @@ import {
   allTraps,
   defineNWNCProperties,
   valueType,
-} from "./sharedUtilities.mjs";
+} from "./utilities/shared.mjs";
 
 function defineSetOnce(map) {
   map.originalSet = map.set;

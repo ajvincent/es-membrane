@@ -18,7 +18,7 @@ import {
   DeadProxyKey,
   NWNCDataDescriptor,
   valueType,
-} from "./sharedUtilities.mjs";
+} from "./utilities/shared.mjs";
 
 /**
  * @callback OwnKeysFilter

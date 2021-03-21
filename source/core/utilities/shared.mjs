@@ -1,4 +1,4 @@
-/** @module source/core/sharedUtilities */
+/** @module source/core/utilities/shared.mjs */
 
 const ShadowKeyMap = new WeakMap();
 

@@ -8,7 +8,7 @@ import {
   isDataDescriptor,
   returnFalse,
   valueType,
-} from "./sharedUtilities.mjs";
+} from "./utilities/shared.mjs";
 
 import {
   ProxyCylinder,

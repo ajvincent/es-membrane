@@ -8,7 +8,7 @@ import {
   NWNCDataDescriptor,
   assert,
   getRealTarget,
-} from "../core/sharedUtilities.mjs";
+} from "../core/utilities/shared.mjs";
 
 import {
   LinkedListNode

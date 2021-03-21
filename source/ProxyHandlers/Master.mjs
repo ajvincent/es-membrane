@@ -8,7 +8,7 @@ import UpdateShadow from "./UpdateShadow.mjs";
 
 import {
   allTraps,
-} from "../core/sharedUtilities.mjs";
+} from "../core/utilities/shared.mjs";
 
 class MiddleList extends LinkedListNode {
   constructor(master, name) {

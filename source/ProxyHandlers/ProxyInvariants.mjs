@@ -22,7 +22,7 @@
 import {
   isDataDescriptor,
   isAccessorDescriptor
-} from "../core/sharedUtilities.mjs";
+} from "../core/utilities/shared.mjs";
 
 import { LinkedListNode } from "./LinkedList.mjs";
 

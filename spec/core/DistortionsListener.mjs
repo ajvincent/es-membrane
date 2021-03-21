@@ -7,7 +7,7 @@ import {
   allTraps,
   isDataDescriptor,
   returnFalse,
-} from "../../source/core/sharedUtilities.mjs";
+} from "../../source/core/utilities/shared.mjs";
 
 describe("DistortionsListener", () => {
   let listener, membrane;

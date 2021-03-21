@@ -12,7 +12,7 @@ import {
   getRealTarget,
   returnFalse,
   valueType,
-} from "../../source/core/sharedUtilities.mjs";
+} from "../../../source/core/utilities/shared.mjs";
 
 describe("Shadow targets map to real targets", () => {
   it("for a vanilla object", () => {

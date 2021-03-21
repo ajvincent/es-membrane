@@ -3,7 +3,7 @@ import {
   allTraps,
   getRealTarget,
   makeShadowTarget,
-} from "../../source/core/sharedUtilities.mjs";
+} from "../../source/core/utilities/shared.mjs";
 import MembraneProxyHandlers from "../../source/ProxyHandlers/main.mjs";
 
 

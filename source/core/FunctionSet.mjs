@@ -2,7 +2,7 @@
 
 import {
   defineNWNCProperties
-} from "./sharedUtilities.mjs";
+} from "./utilities/shared.mjs";
 
 const validThrowModes = [
   // XXX ajvincent when Node 16 is released, allow aggregate throw mode

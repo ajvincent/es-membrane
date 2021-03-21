@@ -1,6 +1,6 @@
 import {
   allTraps,
-} from "../../source/core/sharedUtilities.mjs";
+} from "../../source/core/utilities/shared.mjs";
 import MembraneProxyHandlers from "../../source/ProxyHandlers/main.mjs";
 
 describe("MembraneProxyHandlers.Master proxy handler", function() {

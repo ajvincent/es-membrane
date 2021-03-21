@@ -22,7 +22,7 @@
 import {
   DataDescriptor,
   isDataDescriptor
-} from "../../source/core/sharedUtilities.mjs";
+} from "../../source/core/utilities/shared.mjs";
 
 import loggerLib from "../helpers/logger.mjs";
 import DAMP from "../helpers/dampSymbol.mjs";

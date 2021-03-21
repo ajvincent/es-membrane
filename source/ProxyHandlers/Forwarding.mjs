@@ -1,7 +1,7 @@
 import Base from "./Base.mjs";
 import {
   allTraps,
-} from "../core/sharedUtilities.mjs";
+} from "../core/utilities/shared.mjs";
 
 export default class Forwarding extends Base {
   constructor() {

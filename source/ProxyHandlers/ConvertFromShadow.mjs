@@ -10,7 +10,7 @@ import {
   NWNCDataDescriptor,
   allTraps,
   getRealTarget,
-} from "../core/sharedUtilities.mjs";
+} from "../core/utilities/shared.mjs";
 
 /**
  * Build a LinkedListNode for passing real targets to Reflect.

@@ -2,7 +2,7 @@ import {
   AccessorDescriptor,
   DataDescriptor,
   assert,
-} from "../../source/core/sharedUtilities.mjs";
+} from "../../source/core/utilities/shared.mjs";
 
 import Membrane from "../../source/core/Membrane.mjs";
 

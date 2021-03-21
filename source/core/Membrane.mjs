@@ -9,7 +9,7 @@ import {
   makeShadowTarget,
   returnFalse,
   valueType,
-} from "./sharedUtilities.mjs";
+} from "./utilities/shared.mjs";
 
 import {
   ProxyNotify,

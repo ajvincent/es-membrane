@@ -2,7 +2,7 @@ import {
   NWNCDataDescriptor,
   defineNWNCProperties,
   returnFalse,
-} from "./sharedUtilities.mjs";
+} from "./utilities/shared.mjs";
 
 import {
   ProxyCylinder,

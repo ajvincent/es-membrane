@@ -35,7 +35,7 @@
 import {
   NWNCDataDescriptor,
   allTraps,
-} from "./sharedUtilities.mjs";
+} from "./utilities/shared.mjs";
 
 import DistortionsListener from "./DistortionsListener.mjs";
 

@@ -14,7 +14,7 @@ import Forwarding from "./Forwarding.mjs";
 import {
   NWNCDataDescriptor,
   allTraps,
-} from "../core/sharedUtilities.mjs";
+} from "../core/utilities/shared.mjs";
 
 /**
  * An object key to use for pointing to a default next node in the linked list.

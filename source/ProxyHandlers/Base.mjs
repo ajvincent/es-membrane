@@ -1,6 +1,6 @@
 import {
   allTraps,
-} from "../core/sharedUtilities.mjs";
+} from "../core/utilities/shared.mjs";
 
 function NOT_IMPLEMENTED() {
   throw new Error("Not implemented!");

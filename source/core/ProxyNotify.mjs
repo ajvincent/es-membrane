@@ -4,7 +4,7 @@ import {
   assert,
   makeRevokeDeleteRefs,
   getRealTarget,
-} from "./sharedUtilities.mjs";
+} from "./utilities/shared.mjs";
 
 import {
   ProxyCylinder
