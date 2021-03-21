@@ -90,6 +90,44 @@ describe("FunctionSet", () => {
       expect(spy3).toHaveBeenCalledBefore(spy4);
     });
 
+    it("calls all current elements, even if one is removed during the call", () => {
+      spy2.and.callFake(() => {
+        s.delete(spy4);
+        return rv2;
+      });
+      spy3.and.returnValue(rv3);
+      addSpies();
+
+      expect(s.observe(arg0, arg1, arg2)).toEqual([rv1, rv2, rv3, rv4]);
+
+      expect(spy1).toHaveBeenCalledOnceWith(arg0, arg1, arg2);
+      expect(spy2).toHaveBeenCalledOnceWith(arg0, arg1, arg2);
+      expect(spy3).toHaveBeenCalledOnceWith(arg0, arg1, arg2);
+      expect(spy4).toHaveBeenCalledOnceWith(arg0, arg1, arg2);
+      expect(spy1).toHaveBeenCalledBefore(spy2);
+      expect(spy2).toHaveBeenCalledBefore(spy3);
+      expect(spy3).toHaveBeenCalledBefore(spy4);
+    });
+
+    it("calls all current elements, even if one is added during the call", () => {
+      spy2.and.callFake(() => {
+        s.add(spy4);
+        return rv2;
+      });
+      spy3.and.returnValue(rv3);
+      addSpies();
+      s.delete(spy4);
+
+      expect(s.observe(arg0, arg1, arg2)).toEqual([rv1, rv2, rv3]);
+
+      expect(spy1).toHaveBeenCalledOnceWith(arg0, arg1, arg2);
+      expect(spy2).toHaveBeenCalledOnceWith(arg0, arg1, arg2);
+      expect(spy3).toHaveBeenCalledOnceWith(arg0, arg1, arg2);
+      expect(spy4).toHaveBeenCalledTimes(0);
+      expect(spy1).toHaveBeenCalledBefore(spy2);
+      expect(spy2).toHaveBeenCalledBefore(spy3);
+    });
+
     it("in throwMode = 'immediately' calls all functions up to one that throws", () => {
       addSpies();
 

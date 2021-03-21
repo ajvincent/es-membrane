@@ -31,9 +31,9 @@ export default class FunctionSet extends Set {
 
   observe(...args) {
     let exceptionThrown = false, exception = [];
-    const iterator = (new Set(this)).entries(), results = [];
+    const iterator = Array.from(this.values()), results = [];
 
-    for (let [callback] of iterator) {
+    for (let callback of iterator) {
       try {
         results.push(callback(...args));
       }
