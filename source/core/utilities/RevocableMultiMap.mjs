@@ -1,3 +1,5 @@
+/** @module source/core/utilities/RevocableMultiMap.mjs */
+
 import WeakMultiMap from "./WeakMultiMap.mjs";
 import FunctionSet from "./FunctionSet.mjs";
 import {
@@ -8,9 +10,18 @@ const WeakMap_set      = WeakMap.prototype.set;
 
 export default class RevocableMultiMap extends WeakMultiMap {
   constructor() {
-    super(FunctionSet);
+    super(FunctionSet, "deferred");
   }
 
+  /**
+   * Set a revoker function.
+   *
+   * @param {Object} key
+   * @param {Object} value
+   *
+   * @returns {boolean}
+   * @override
+   */
   set(key, value) {
     if (this.get(key) === DeadProxyKey)
       return false;
@@ -18,6 +29,9 @@ export default class RevocableMultiMap extends WeakMultiMap {
     return Boolean(super.set(key, value));
   }
 
+  /**
+   * @override
+   */
   delete(key) {
     const set = this.get(key);
     if (set === DeadProxyKey)
@@ -25,30 +39,21 @@ export default class RevocableMultiMap extends WeakMultiMap {
     return super.delete(key);
   }
 
+  /**
+   * Execute all revokers for a given key.
+   *
+   * @param {Object} key
+   *
+   * @returns {boolean} True if the operation succeeded.
+   * @public
+   */
   revoke(key) {
     const set = this.get(key);
-    if (!(set instanceof Set))
+    if (!(set instanceof FunctionSet))
       return false;
 
-    let firstErrorSet = false, firstError;
-    set.forEach(revoker => {
-      try {
-        revoker();
-      }
-      catch (ex) {
-        if (firstErrorSet) {
-          return;
-        }
-
-        firstErrorSet = true;
-        firstError = ex;
-      }
-    });
-
     WeakMap_set.apply(this, [key, DeadProxyKey]);
-
-    if (firstErrorSet)
-      throw firstError;
+    set.observe();
     return true;
   }
 }

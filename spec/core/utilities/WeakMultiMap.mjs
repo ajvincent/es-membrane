@@ -5,13 +5,20 @@ class SubSet extends Set {}
 class SubSubWeak extends SubWeakSet {}
 class SubSubSet  extends SubSet {}
 
-function constructorTests(ctorName = null, ctor = null) {
+class SetWithArgs extends WeakSet {
+  constructor(...args) {
+    super();
+    this.args = args;
+  }
+}
+
+function constructorTests(ctorName = null, ctor = null, ...args) {
   let map;
 
   describe(`(${ctorName})`, () => {
     if (ctor) {
       beforeEach(() => {
-        map = new WeakMultiMap(ctor);
+        map = new WeakMultiMap(ctor, ...args);
       });
       afterEach(() => {
         map = null;
@@ -35,7 +42,7 @@ function constructorTests(ctorName = null, ctor = null) {
     it("can hold a single value", () => {
       const key = {}, value = {};
       expect(map.set(key, value)).toBe(map);
-  
+
       const container = map.get(key);
       expect(container).toBeInstanceOf(ctor);
       if (container instanceof Set)
@@ -53,7 +60,7 @@ function constructorTests(ctorName = null, ctor = null) {
         expect(container.size).toBe(3);
       values.forEach(value => expect(container.has(value)).toBe(true));
     });
-  
+
     it("can hold multiple keys", () => {
       const keys = [{}, {}], value = {};
       keys.forEach(key => expect(map.set(key, value)).toBe(map));
@@ -68,6 +75,16 @@ function constructorTests(ctorName = null, ctor = null) {
   
       expect(map.get(keys[0])).not.toBe(map.get(keys[1]));
     });
+
+    if (ctor === SetWithArgs) {
+      it("passes the arguments for the set constructor in", () => {
+        const key = {}, value = {};
+        map.set(key, value);
+
+        const container = map.get(key);
+        expect(container.args).toEqual(args);
+      });
+    }
   });
 }
 
@@ -79,6 +96,9 @@ describe("WeakMultiMap", () => {
   constructorTests("SubWeakSet", SubWeakSet);
   constructorTests("SubSubWeak", SubSubWeak);
   constructorTests("SubSubSet", SubSubSet);
+
+  const arg0 = {}, arg1 = {};
+  constructorTests("SetWithArgs", SetWithArgs, arg0, arg1);
 
   it("throws for a non-Set, non-WeakSet constructor", () => {
     expect(() => {

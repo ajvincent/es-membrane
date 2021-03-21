@@ -18,9 +18,18 @@ export default class FunctionSet extends Set {
     if (!validThrowModes.includes(throwMode))
       throw new Error(validThrowMessage)
 
-    defineNWNCProperties(this, { throwMode }, true);
+    defineNWNCProperties(this, {
+      /**
+       * @private
+       */
+      throwMode
+    }, true);
   }
 
+  /**
+   * @returns {boolean}
+   * @override
+   */
   add(value) {
     if (typeof value !== "function")
       return false;
@@ -29,6 +38,14 @@ export default class FunctionSet extends Set {
     return true;
   }
 
+  /**
+   * Call all functions in the set, depending on the throwMode.
+   *
+   * @param {void[]} args The arguments to pass in.
+   * @returns {void[]}
+   *
+   * @public
+   */
   observe(...args) {
     let exceptionThrown = false, exception = [];
     const iterator = Array.from(this.values()), results = [];
