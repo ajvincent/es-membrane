@@ -39,6 +39,9 @@ import {
 
 import DistortionsListener from "./DistortionsListener.mjs";
 
+/**
+ * @public
+ */
 export default class ModifyRulesAPI {
   constructor(membrane) {
     // private

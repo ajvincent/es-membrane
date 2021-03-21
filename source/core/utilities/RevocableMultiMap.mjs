@@ -8,6 +8,9 @@ import {
 
 const WeakMap_set      = WeakMap.prototype.set;
 
+/**
+ * @package
+ */
 export default class RevocableMultiMap extends WeakMultiMap {
   constructor() {
     super(FunctionSet, "deferred");

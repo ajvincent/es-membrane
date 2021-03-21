@@ -12,6 +12,9 @@ if (typeof AggregateError === "function")
   validThrowModes.push("aggregate");
 const validThrowMessage = `valid throw modes are ${JSON.stringify(validThrowModes).replace(/^.(.*).$/, "$1")}!`;
 
+/**
+ * @oackage
+ */
 export default class FunctionSet extends Set {
   constructor(throwMode = "immediately") {
     super();

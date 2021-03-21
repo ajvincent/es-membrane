@@ -14,6 +14,8 @@ import {
   ProxyCylinder,
 } from "./ProxyCylinder.mjs";
 
+import FunctionSet from "./utilities/FunctionSet.mjs";
+
 function AssertIsPropertyKey(propName) {
   var type = typeof propName;
   if ((type !== "string") && (type !== "symbol"))
@@ -22,15 +24,15 @@ function AssertIsPropertyKey(propName) {
 }
 
 /**
- * @type {WeakMap<ObjectGraph, function>}
+ * @type {WeakMap<ObjectGraph, Function>}
  */
- const passThroughMap = new WeakMap();
+const passThroughMap = new WeakMap();
 
 /**
  * A proxy handler designed to return only primitives and objects in a given
  * object graph, defined by the graphName.
  *
- * @package
+ * @public
  */
 export default class ObjectGraphHandler {
   constructor(membrane, graphName) {
@@ -55,7 +57,9 @@ export default class ObjectGraphHandler {
      * @private
      * @type {boolean}
      */
-    this.__isDead__ = false;
+    Reflect.defineProperty(this, "__isDead__", new DataDescriptor(
+      false, true, false, false
+    ));
 
     /**
      * @public
@@ -63,13 +67,13 @@ export default class ObjectGraphHandler {
     defineNWNCProperties(this, {
       membrane,
       graphName,
-    });
+    }, true);
 
     defineNWNCProperties(this, {
       /**
        * @private
        */
-      __proxyListeners__: new Set(),
+      __proxyListeners__: new FunctionSet("deferred"),
     });
 
     /**
@@ -1150,6 +1154,8 @@ export default class ObjectGraphHandler {
    * @private
    */
   validateTrapAndShadowTarget(trapName, shadowTarget) {
+    this.throwIfDead();
+
     const target = getRealTarget(shadowTarget);
     const targetCylinder = this.membrane.cylinderMap.get(target);
     if (!(targetCylinder instanceof ProxyCylinder))
@@ -1183,9 +1189,8 @@ export default class ObjectGraphHandler {
    * @public
    */
   addProxyListener(listener) {
-    if (typeof listener != "function")
-      throw new Error("listener is not a function!");
-    this.__proxyListeners__.add(listener);
+    this.throwIfDead();
+    return this.__proxyListeners__.add(listener);
   }
 
   /**
@@ -1195,9 +1200,8 @@ export default class ObjectGraphHandler {
    * @public
    */
   removeProxyListener(listener) {
-    if (typeof listener != "function")
-      throw new Error("listener is not a function!");
-    this.__proxyListeners__.remove(listener);
+    this.throwIfDead();
+    return this.__proxyListeners__.delete(listener);
   }
 
   /**
@@ -1205,26 +1209,45 @@ export default class ObjectGraphHandler {
    *
    * @returns {Function[]}
    * @package
+   *
+   * @deprecated
    */
   getProxyListeners() {
+    this.throwIfDead();
     return Array.from(this.__proxyListeners__);
   }
 
   /**
+   * Notify the currently registered set of proxy listeners of a message.
+   *
+   * @param {ProxyMessage} message
+   *
+   * @package
+   */
+  notifyProxyListeners(message) {
+    this.throwIfDead();
+    return this.__proxyListeners__.observe(message);
+  }
+
+  /**
+   * A filter for values to pass through unwrapped.
+   *
    * @type {function}
    * @public
-   *
    */
   get passThroughFilter() {
+    this.throwIfDead();
     return passThroughMap.get(this) || returnFalse;
   }
 
   /**
+   * Set the filter filter for values to pass through unwrapped.
    * @param {function} val
    *
    * @public
    */
   set passThroughFilter(val) {
+    this.throwIfDead();
     if (passThroughMap.has(this))
       throw new Error("passThroughFilter has been defined once already!");
     if (typeof val !== "function")
@@ -1237,6 +1260,7 @@ export default class ObjectGraphHandler {
    * @public
    */
   get mayReplacePassThrough() {
+    this.throwIfDead();
     return !passThroughMap.has(this);
   }
 
@@ -1703,10 +1727,13 @@ export default class ObjectGraphHandler {
    * Add a revoker function to our list.
    *
    * @param {Function} revoke The revoker.
+   *
+   * @returns {boolean} if the value was added
    * @package
    */
   addRevocable(revoke) {
-    this.membrane.revokerMultiMap.set(this, revoke);
+    this.throwIfDead();
+    return this.membrane.revokerMultiMap.set(this, revoke);
   }
 
   /**
@@ -1715,11 +1742,25 @@ export default class ObjectGraphHandler {
    * @public
    */
   revokeEverything() {
-    if (this.__isDead__)
-      throw new Error("This membrane handler is dead!");
-    Object.defineProperty(this, "__isDead__", new NWNCDataDescriptor(true));
+    this.throwIfDead();
+    Object.defineProperty(this, "__isDead__", new NWNCDataDescriptor(true, false));
 
     this.membrane.revokerMultiMap.revoke(this);
+  }
+
+  /**
+   * @public
+   */
+  get dead() {
+    return this.__isDead__;
+  }
+
+  /**
+   * @private
+   */
+  throwIfDead() {
+    if (this.__isDead__)
+      throw new Error("This membrane handler is dead!");
   }
 }
 

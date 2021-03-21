@@ -1330,6 +1330,9 @@ Object.freeze(DistortionsListener.prototype);
 
 /** @module source/core/ModifyRulesAPI */
 
+/**
+ * @public
+ */
 class ModifyRulesAPI {
   constructor(membrane) {
     // private
@@ -1503,6 +1506,91 @@ class ModifyRulesAPI {
 }
 Object.seal(ModifyRulesAPI);
 
+/** @module source/core/utilities/FunctionSet.mjs */
+
+const validThrowModes = [
+  // XXX ajvincent when Node 16 is released, allow aggregate throw mode
+  "immediately", "deferred", "return", "none"
+];
+if (typeof AggregateError === "function")
+  validThrowModes.push("aggregate");
+const validThrowMessage = `valid throw modes are ${JSON.stringify(validThrowModes).replace(/^.(.*).$/, "$1")}!`;
+
+/**
+ * @oackage
+ */
+class FunctionSet extends Set {
+  constructor(throwMode = "immediately") {
+    super();
+    if (!validThrowModes.includes(throwMode))
+      throw new Error(validThrowMessage)
+
+    defineNWNCProperties(this, {
+      /**
+       * @private
+       */
+      throwMode
+    }, true);
+  }
+
+  /**
+   * @returns {boolean}
+   * @override
+   */
+  add(value) {
+    if (typeof value !== "function")
+      return false;
+
+    super.add(value);
+    return true;
+  }
+
+  /**
+   * Call all functions in the set, depending on the throwMode.
+   *
+   * @param {void[]} args The arguments to pass in.
+   * @returns {void[]}
+   *
+   * @public
+   */
+  observe(...args) {
+    let exceptionThrown = false, exception = [];
+    const iterator = Array.from(this.values()), results = [];
+
+    for (let callback of iterator) {
+      try {
+        results.push(callback(...args));
+      }
+      catch (ex) {
+        if (this.throwMode === "immediately")
+          throw ex;
+        else if ((this.throwMode === "deferred")) {
+          if (!exceptionThrown) {
+            exceptionThrown = true;
+            exception = ex;
+          }
+        }
+        else if (this.throwMode === "aggregate") {
+          exceptionThrown = true;
+          exception.push(ex);
+        }
+        else if (this.throwMode === "return")
+          break;
+      }
+    }
+
+    if (exceptionThrown) {
+      //eslint-disable-next-line no-undef
+      throw this.throwMode === "aggregate" ? new AggregateError(exception) : exception;
+    }
+
+    return results;
+  }
+}
+
+Object.freeze(FunctionSet);
+Object.freeze(FunctionSet.prototype);
+
 function AssertIsPropertyKey(propName) {
   var type = typeof propName;
   if ((type !== "string") && (type !== "symbol"))
@@ -1511,15 +1599,15 @@ function AssertIsPropertyKey(propName) {
 }
 
 /**
- * @type {WeakMap<ObjectGraph, function>}
+ * @type {WeakMap<ObjectGraph, Function>}
  */
- const passThroughMap = new WeakMap();
+const passThroughMap = new WeakMap();
 
 /**
  * A proxy handler designed to return only primitives and objects in a given
  * object graph, defined by the graphName.
  *
- * @package
+ * @public
  */
 class ObjectGraphHandler {
   constructor(membrane, graphName) {
@@ -1544,7 +1632,9 @@ class ObjectGraphHandler {
      * @private
      * @type {boolean}
      */
-    this.__isDead__ = false;
+    Reflect.defineProperty(this, "__isDead__", new DataDescriptor(
+      false, true, false, false
+    ));
 
     /**
      * @public
@@ -1552,13 +1642,13 @@ class ObjectGraphHandler {
     defineNWNCProperties(this, {
       membrane,
       graphName,
-    });
+    }, true);
 
     defineNWNCProperties(this, {
       /**
        * @private
        */
-      __proxyListeners__: new Set(),
+      __proxyListeners__: new FunctionSet("deferred"),
     });
 
     /**
@@ -2639,6 +2729,8 @@ class ObjectGraphHandler {
    * @private
    */
   validateTrapAndShadowTarget(trapName, shadowTarget) {
+    this.throwIfDead();
+
     const target = getRealTarget(shadowTarget);
     const targetCylinder = this.membrane.cylinderMap.get(target);
     if (!(targetCylinder instanceof ProxyCylinder))
@@ -2672,9 +2764,8 @@ class ObjectGraphHandler {
    * @public
    */
   addProxyListener(listener) {
-    if (typeof listener != "function")
-      throw new Error("listener is not a function!");
-    this.__proxyListeners__.add(listener);
+    this.throwIfDead();
+    return this.__proxyListeners__.add(listener);
   }
 
   /**
@@ -2684,9 +2775,8 @@ class ObjectGraphHandler {
    * @public
    */
   removeProxyListener(listener) {
-    if (typeof listener != "function")
-      throw new Error("listener is not a function!");
-    this.__proxyListeners__.remove(listener);
+    this.throwIfDead();
+    return this.__proxyListeners__.delete(listener);
   }
 
   /**
@@ -2694,26 +2784,45 @@ class ObjectGraphHandler {
    *
    * @returns {Function[]}
    * @package
+   *
+   * @deprecated
    */
   getProxyListeners() {
+    this.throwIfDead();
     return Array.from(this.__proxyListeners__);
   }
 
   /**
+   * Notify the currently registered set of proxy listeners of a message.
+   *
+   * @param {ProxyMessage} message
+   *
+   * @package
+   */
+  notifyProxyListeners(message) {
+    this.throwIfDead();
+    return this.__proxyListeners__.observe(message);
+  }
+
+  /**
+   * A filter for values to pass through unwrapped.
+   *
    * @type {function}
    * @public
-   *
    */
   get passThroughFilter() {
+    this.throwIfDead();
     return passThroughMap.get(this) || returnFalse;
   }
 
   /**
+   * Set the filter filter for values to pass through unwrapped.
    * @param {function} val
    *
    * @public
    */
   set passThroughFilter(val) {
+    this.throwIfDead();
     if (passThroughMap.has(this))
       throw new Error("passThroughFilter has been defined once already!");
     if (typeof val !== "function")
@@ -2726,6 +2835,7 @@ class ObjectGraphHandler {
    * @public
    */
   get mayReplacePassThrough() {
+    this.throwIfDead();
     return !passThroughMap.has(this);
   }
 
@@ -3192,10 +3302,13 @@ class ObjectGraphHandler {
    * Add a revoker function to our list.
    *
    * @param {Function} revoke The revoker.
+   *
+   * @returns {boolean} if the value was added
    * @package
    */
   addRevocable(revoke) {
-    this.membrane.revokerMultiMap.set(this, revoke);
+    this.throwIfDead();
+    return this.membrane.revokerMultiMap.set(this, revoke);
   }
 
   /**
@@ -3204,11 +3317,25 @@ class ObjectGraphHandler {
    * @public
    */
   revokeEverything() {
-    if (this.__isDead__)
-      throw new Error("This membrane handler is dead!");
-    Object.defineProperty(this, "__isDead__", new NWNCDataDescriptor(true));
+    this.throwIfDead();
+    Object.defineProperty(this, "__isDead__", new NWNCDataDescriptor(true, false));
 
     this.membrane.revokerMultiMap.revoke(this);
+  }
+
+  /**
+   * @public
+   */
+  get dead() {
+    return this.__isDead__;
+  }
+
+  /**
+   * @private
+   */
+  throwIfDead() {
+    if (this.__isDead__)
+      throw new Error("This membrane handler is dead!");
   }
 }
 
@@ -3377,7 +3504,7 @@ Object.freeze(ObjectGraph);
  * @package
  */
 class WeakMultiMap extends WeakMap {
-  constructor(__setConstructor__ = Set) {
+  constructor(__setConstructor__ = Set, ...__setArgs__) {
     super();
 
     if ((__setConstructor__ === Set) ||
@@ -3389,19 +3516,29 @@ class WeakMultiMap extends WeakMap {
       defineNWNCProperties(this, {
         /** @private */
         __setConstructor__,
+        __setArgs__,
       }, false);
     }
     else
       throw new Error("WeakMultiMap requires a WeakSet or Set for the set constructor!");
   }
 
+  /**
+   * @param key
+   * @param value
+   *
+   * @returns {WeakMultiMap | false}
+   * @override
+   */
   set(key, value) {
     const hasKey = this.has(key);
     if (!this.has(key)) {
-      super.set(key, new this.__setConstructor__);
+      super.set(key, new this.__setConstructor__(...this.__setArgs__.slice()));
     }
+
     const subSet = this.get(key);
     subSet.add(value);
+
     if (!subSet.has(value)) {
       if (!hasKey)
         super.delete(key);
@@ -3416,78 +3553,27 @@ class WeakMultiMap extends WeakMap {
   */
 }
 
-/** @module source/core/utilities/FunctionSet.mjs */
-
-const validThrowModes = [
-  // XXX ajvincent when Node 16 is released, allow aggregate throw mode
-  "immediately", "deferred", "return", "none"
-];
-if (typeof AggregateError === "function")
-  validThrowModes.push("aggregate");
-const validThrowMessage = `valid throw modes are ${JSON.stringify(validThrowModes).replace(/^.(.*).$/, "$1")}!`;
-
-class FunctionSet extends Set {
-  constructor(throwMode = "immediately") {
-    super();
-    if (!validThrowModes.includes(throwMode))
-      throw new Error(validThrowMessage)
-
-    defineNWNCProperties(this, { throwMode }, true);
-  }
-
-  add(value) {
-    if (typeof value !== "function")
-      return false;
-
-    super.add(value);
-    return true;
-  }
-
-  observe(...args) {
-    let exceptionThrown = false, exception = [];
-    const iterator = (new Set(this)).entries(), results = [];
-
-    for (let [callback] of iterator) {
-      try {
-        results.push(callback(...args));
-      }
-      catch (ex) {
-        if (this.throwMode === "immediately")
-          throw ex;
-        else if ((this.throwMode === "deferred")) {
-          if (!exceptionThrown) {
-            exceptionThrown = true;
-            exception = ex;
-          }
-        }
-        else if (this.throwMode === "aggregate") {
-          exceptionThrown = true;
-          exception.push(ex);
-        }
-        else if (this.throwMode === "return")
-          break;
-      }
-    }
-
-    if (exceptionThrown) {
-      //eslint-disable-next-line no-undef
-      throw this.throwMode === "aggregate" ? new AggregateError(exception) : exception;
-    }
-
-    return results;
-  }
-}
-
-Object.freeze(FunctionSet);
-Object.freeze(FunctionSet.prototype);
+/** @module source/core/utilities/RevocableMultiMap.mjs */
 
 const WeakMap_set$1      = WeakMap.prototype.set;
 
+/**
+ * @package
+ */
 class RevocableMultiMap extends WeakMultiMap {
   constructor() {
-    super(FunctionSet);
+    super(FunctionSet, "deferred");
   }
 
+  /**
+   * Set a revoker function.
+   *
+   * @param {Object} key
+   * @param {Object} value
+   *
+   * @returns {boolean}
+   * @override
+   */
   set(key, value) {
     if (this.get(key) === DeadProxyKey)
       return false;
@@ -3495,6 +3581,9 @@ class RevocableMultiMap extends WeakMultiMap {
     return Boolean(super.set(key, value));
   }
 
+  /**
+   * @override
+   */
   delete(key) {
     const set = this.get(key);
     if (set === DeadProxyKey)
@@ -3502,30 +3591,21 @@ class RevocableMultiMap extends WeakMultiMap {
     return super.delete(key);
   }
 
+  /**
+   * Execute all revokers for a given key.
+   *
+   * @param {Object} key
+   *
+   * @returns {boolean} True if the operation succeeded.
+   * @public
+   */
   revoke(key) {
     const set = this.get(key);
-    if (!(set instanceof Set))
+    if (!(set instanceof FunctionSet))
       return false;
 
-    let firstErrorSet = false, firstError;
-    set.forEach(revoker => {
-      try {
-        revoker();
-      }
-      catch (ex) {
-        if (firstErrorSet) {
-          return;
-        }
-
-        firstErrorSet = true;
-        firstError = ex;
-      }
-    });
-
     WeakMap_set$1.apply(this, [key, DeadProxyKey]);
-
-    if (firstErrorSet)
-      throw firstError;
+    set.observe();
     return true;
   }
 }
