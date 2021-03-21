@@ -1,4 +1,4 @@
-import WeakMultiMap from "./WeakMultiMap.mjs";
+import WeakMultiMap from "./utilities/WeakMultiMap.mjs";
 import FunctionSet from "./utilities/FunctionSet.mjs";
 import {
   DeadProxyKey,

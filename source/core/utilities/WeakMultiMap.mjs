@@ -2,7 +2,7 @@
 
 import {
   defineNWNCProperties
-} from "./utilities/shared.mjs";
+} from "./shared.mjs";
 
 /**
  * @package

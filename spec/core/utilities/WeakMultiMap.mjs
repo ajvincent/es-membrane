@@ -1,4 +1,4 @@
-import WeakMultiMap from "../../source/core/WeakMultiMap.mjs";
+import WeakMultiMap from "../../../source/core/utilities/WeakMultiMap.mjs";
 
 class SubWeakSet extends WeakSet {}
 class SubSet extends Set {}
@@ -31,7 +31,7 @@ function constructorTests(ctorName = null, ctor = null) {
     it("is an instance of WeakMap", () => {
       expect(map).toBeInstanceOf(WeakMap);
     });
-  
+
     it("can hold a single value", () => {
       const key = {}, value = {};
       expect(map.set(key, value)).toBe(map);

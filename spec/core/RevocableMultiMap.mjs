@@ -1,5 +1,5 @@
 import RevocableMultiMap from "../../source/core/RevocableMultiMap.mjs";
-import WeakMultiMap from "../../source/core/WeakMultiMap.mjs";
+import WeakMultiMap from "../../source/core/utilities/WeakMultiMap.mjs";
 import {
   DeadProxyKey
 } from "../../source/core/utilities/shared.mjs";
