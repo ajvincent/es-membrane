@@ -1,4 +1,4 @@
-import FunctionSet from "../../source/core/FunctionSet.mjs"
+import FunctionSet from "../../../source/core/utilities/FunctionSet.mjs"
 
 describe("FunctionSet", () => {
   let s;

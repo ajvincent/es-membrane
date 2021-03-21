@@ -1,8 +1,8 @@
-/** @module source/core/FunctionSet.mjs */
+/** @module source/core/utilities/FunctionSet.mjs */
 
 import {
   defineNWNCProperties
-} from "./utilities/shared.mjs";
+} from "./shared.mjs";
 
 const validThrowModes = [
   // XXX ajvincent when Node 16 is released, allow aggregate throw mode
