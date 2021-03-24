@@ -16,6 +16,10 @@ import {
 
 import FunctionSet from "./utilities/FunctionSet.mjs";
 
+import {
+  FILTERED_KEYS_WITHOUT_LOCAL,
+} from "./utilities/warningStrings.mjs";
+
 function AssertIsPropertyKey(propName) {
   var type = typeof propName;
   if ((type !== "string") && (type !== "symbol"))
@@ -548,7 +552,7 @@ export default class ObjectGraphHandler {
         let originFilter = targetCylinder.getOwnKeysFilter(targetCylinder.originGraph);
         let localFilter  = targetCylinder.getOwnKeysFilter(this.graphName);
         if (originFilter || localFilter)
-          this.membrane.warnOnce(this.membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
+          this.membrane.warnOnce(FILTERED_KEYS_WITHOUT_LOCAL);
         if (originFilter && !originFilter(propName))
           return true;
         if (localFilter && !localFilter(propName))
@@ -655,7 +659,7 @@ export default class ObjectGraphHandler {
         originFilter = targetCylinder.getOwnKeysFilter(targetCylinder.originGraph);
         localFilter  = targetCylinder.getOwnKeysFilter(this.graphName);
         if (originFilter || localFilter)
-          this.membrane.warnOnce(this.membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
+          this.membrane.warnOnce(FILTERED_KEYS_WITHOUT_LOCAL);
       }
 
       if (shouldBeLocal) {

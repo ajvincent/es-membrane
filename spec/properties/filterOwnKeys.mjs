@@ -28,6 +28,10 @@ import loggerLib from "../helpers/logger.mjs";
 import DAMP from "../helpers/dampSymbol.mjs";
 import MembraneMocks from "../helpers/mocks.mjs";
 
+import {
+  FILTERED_KEYS_WITHOUT_LOCAL,
+} from "../../source/core/utilities/warningStrings.mjs";
+
 describe("Filtering own keys", function() {
   /* XXX ajvincent These tests have grown very complex, even for me.
 
@@ -131,9 +135,7 @@ describe("Filtering own keys", function() {
     if (appender.events.length > 0) {
       let event = appender.events[0];
       expect(event.level).toBe("WARN");
-      expect(event.message).toBe(
-        membrane.constants.warnings[wName]
-      );
+      expect(event.message).toBe(wName);
     }
   }
   
@@ -376,9 +378,9 @@ describe("Filtering own keys", function() {
           expect(dryDocument.blacklisted).toBe(undefined);
           expect(wetDocument.blacklisted).toBe(undefined);
 
-          checkAppenderForWarning("FILTERED_KEYS_WITHOUT_LOCAL");
+          checkAppenderForWarning(FILTERED_KEYS_WITHOUT_LOCAL);
         });
-  
+
         it("where desc.configurable is true,", function() {
           desc.configurable = true;
           expect(Reflect.defineProperty(
@@ -387,7 +389,7 @@ describe("Filtering own keys", function() {
           expect(dryDocument.blacklisted).toBe(undefined);
           expect(wetDocument.blacklisted).toBe(undefined);
 
-          checkAppenderForWarning("FILTERED_KEYS_WITHOUT_LOCAL");
+          checkAppenderForWarning(FILTERED_KEYS_WITHOUT_LOCAL);
         });
       }
     );
@@ -488,7 +490,7 @@ describe("Filtering own keys", function() {
         it("when the property was never defined", function() {
           expect(Reflect.deleteProperty(dryDocument, "blacklisted")).toBe(true);
           checkDeleted();
-          checkAppenderForWarning("FILTERED_KEYS_WITHOUT_LOCAL");
+          checkAppenderForWarning(FILTERED_KEYS_WITHOUT_LOCAL);
         });
 
         it(
@@ -505,7 +507,7 @@ describe("Filtering own keys", function() {
             checkDeleted();
 
             if (wasDefined)
-              checkAppenderForWarning("FILTERED_KEYS_WITHOUT_LOCAL");
+              checkAppenderForWarning(FILTERED_KEYS_WITHOUT_LOCAL);
             else
               expect(appender.events.length).toBe(0);
 
@@ -537,7 +539,7 @@ describe("Filtering own keys", function() {
             checkDeleted();
 
             if (wasDefined)
-              checkAppenderForWarning("FILTERED_KEYS_WITHOUT_LOCAL");
+              checkAppenderForWarning(FILTERED_KEYS_WITHOUT_LOCAL);
             else
               expect(appender.events.length).toBe(0);
   

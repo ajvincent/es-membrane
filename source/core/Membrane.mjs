@@ -28,15 +28,6 @@ import {
 
 import RevocableMultiMap from "./utilities/RevocableMultiMap.mjs";
 
-const Constants = {
-  warnings: {
-    FILTERED_KEYS_WITHOUT_LOCAL: "Filtering own keys without allowing local property defines or deletes is dangerous",
-    PROTOTYPE_FILTER_MISSING: "Proxy filter specified to inherit from prototype, but prototype provides no filter",
-  }
-};
-
-Object.freeze(Constants.warnings);
-Object.freeze(Constants);
 
 // bindValuesByHandlers utility
 /**
@@ -657,28 +648,16 @@ defineNWNCProperties(
      * @public
      * @static
      */
-    Primordials
+    Primordials,
+
+    /**
+     * @public
+     * @static
+     */
+    allTraps,
   },
   true
 );
-
-defineNWNCProperties(
-  Membrane.prototype,
-  {
-    /**
-     * @public
-     * @deprecated (no longer needed with modules pattern)
-     */
-    allTraps,
-
-    /**
-     * @public
-     * @deprecated (no longer needed with modules pattern)
-     */
-    constants: Constants
-  },
-  true
-)
 
 /**
  * A flag indicating if internal properties of the Membrane are private.
