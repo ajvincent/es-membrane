@@ -3,6 +3,7 @@ import {
   NWNCDataDescriptor,
   DataDescriptor,
   DeadProxyKey,
+  Primordials,
   allTraps,
   assert,
   defineNWNCProperties,
@@ -293,6 +294,11 @@ it("allTraps is a frozen array describing all traps", () => {
     "apply",
     "construct",
   ]);
+});
+
+it("Primordials is a frozen array", () => {
+  expect(Object.isFrozen(Primordials)).toBe(true);
+  expect(Array.isArray(Primordials)).toBe(true);
 });
 
 it("DeadProxyKey is a symbol", () => {
