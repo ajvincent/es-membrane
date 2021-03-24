@@ -162,8 +162,7 @@ export default function buildMembrane(___utilities___) {
         "convertArgumentToProxy",
         "bindValuesByHandlers",
         "secured",
-        "warnOnce",
-        "constants"
+        "warnOnce"
       ],
       "proxyTraps": [
         "getPrototypeOf",

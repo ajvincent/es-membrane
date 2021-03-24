@@ -159,8 +159,7 @@
               "convertArgumentToProxy",
               "bindValuesByHandlers",
               "secured",
-              "warnOnce",
-              "constants"
+              "warnOnce"
             ],
             "proxyTraps": [
               "getPrototypeOf",
