@@ -1,5 +1,4 @@
 describe("Proxy with filtering on .ownKeys:  ", function() {
-  "use strict";
   var inner, outer, outerRevoke;
   beforeEach(function() {
     inner = {};

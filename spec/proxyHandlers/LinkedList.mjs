@@ -328,7 +328,6 @@ describe("MembraneProxyHandlers.LinkedList node proxy handler", function() {
 });
 
 describe("MembraneProxyHandlers.LinkedList proxy handler", function() {
-  "use strict";
   let handler = null, revoke = null;
   beforeEach(function() {
     handler = new MembraneProxyHandlers.LinkedList(membraneArg, Reflect);

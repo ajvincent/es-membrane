@@ -29,7 +29,6 @@ import DAMP from "../helpers/dampSymbol.mjs";
 import MembraneMocks from "../helpers/mocks.mjs";
 
 describe("Filtering own keys", function() {
-  "use strict";
   /* XXX ajvincent These tests have grown very complex, even for me.
 
   Use DebugConditionsSet from ../helpers/DebugConditionsSet.mjs to set

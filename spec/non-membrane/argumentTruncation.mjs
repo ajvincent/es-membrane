@@ -1,7 +1,6 @@
 describe(
   "A proxy handler's traps are only invoked with the required arguments from the proxy",
   function() {
-    "use strict";
     const unexpected = {};
     const allTraps = {
       "getPrototypeOf": null,

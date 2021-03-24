@@ -90,9 +90,8 @@ it("Array.prototype.splice generates reasonable results with a proxy", function(
 it(
   "Setting a prototype on a proxy to an array doesn't affect directly modifying the array",
   function() {
-    "use strict";
     var x = ["alpha", "beta", "gamma"];
-  
+
     const handler = {};
     const events = [];
     Reflect.ownKeys(Reflect).forEach(function(trap) {

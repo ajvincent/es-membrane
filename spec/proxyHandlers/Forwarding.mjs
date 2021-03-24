@@ -1,7 +1,6 @@
 import MembraneProxyHandlers from "../../source/ProxyHandlers/main.mjs";
 
 describe("MembraneProxyHandlers.Forwarding proxy handler", function() {
-  "use strict";
   let handler = null, shadow = null, mirror = null;
   beforeEach(function() {
     shadow = {};

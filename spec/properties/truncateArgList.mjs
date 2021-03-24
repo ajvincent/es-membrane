@@ -1,8 +1,6 @@
 import MembraneMocks from "../helpers/mocks.mjs";
 
 describe("Truncation of argument lists", function() {
-  "use strict";
-
   var wetDocument, dryDocument, membrane, parts;
   const arg0 = "arg0", arg1 = "arg1", arg2 = "arg2";
 

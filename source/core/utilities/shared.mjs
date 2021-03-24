@@ -18,7 +18,6 @@ export function assert(condition, message) {
  * @returns {Object} A shadow target to minimally emulate the real one.
  */
 export function makeShadowTarget(value) {
-  "use strict";
   var rv;
   if (Array.isArray(value))
     rv = [];

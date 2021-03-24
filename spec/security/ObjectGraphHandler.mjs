@@ -2,17 +2,14 @@ import MembraneMocks from "../helpers/mocks.mjs";
 import ObjectGraphHandler from "../../source/core/ObjectGraphHandler-old.mjs";
 
 describe("Security checks for object graph handlers", function() {
-  "use strict";
-  var membrane, dryHandler;
+  let dryHandler;
   beforeEach(function() {
     let parts = MembraneMocks();
     dryHandler  = parts.handlers.dry;
-    membrane    = parts.membrane;
   });
 
   afterEach(function() {
     dryHandler  = null;
-    membrane    = null;
   });
 
   it("Setting the prototype of ObjectGraphHandler is disallowed", function() {

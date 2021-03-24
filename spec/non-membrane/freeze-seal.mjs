@@ -1,5 +1,4 @@
 describe("Object.freeze() on ordinary objects", function() {
-  "use strict";
   it("works as expected with primitive properties", function() {
     var frozen = Object.freeze({x: 3});
     expect(Reflect.isExtensible(frozen)).toBe(false);
@@ -55,7 +54,6 @@ describe("Object.freeze() on ordinary objects", function() {
 });
 
 describe("Object.freeze() on objects with proxies directly reflecting them", function() {
-  "use strict";
   it("works as expected with primitive properties", function() {
     var frozen = Object.freeze({x: 3});
     var {proxy, revoke} = Proxy.revocable(frozen, {});
@@ -121,7 +119,6 @@ describe("Object.freeze() on objects with proxies directly reflecting them", fun
 });
 
 describe("Object.freeze() on proxies to objects", function() {
-  "use strict";
   it("works as expected with primitive properties", function() {
     var {proxy, revoke} = Proxy.revocable({x: 3}, {});
     var frozen = Object.freeze(proxy);
@@ -186,7 +183,6 @@ describe("Object.freeze() on proxies to objects", function() {
 });
 
 describe("Object.seal() on ordinary objects", function() {
-  "use strict";
   it("works as expected with primitive properties", function() {
     var sealed = Object.seal({x: 3});
     expect(Reflect.isExtensible(sealed)).toBe(false);
@@ -240,7 +236,6 @@ describe("Object.seal() on ordinary objects", function() {
 });
 
 describe("Object.seal() on objects with proxies directly reflecting them", function() {
-  "use strict";
   it("works as expected with primitive properties", function() {
     var sealed = Object.seal({x: 3});
     var {proxy, revoke} = Proxy.revocable(sealed, {});
@@ -305,7 +300,6 @@ describe("Object.seal() on objects with proxies directly reflecting them", funct
 });
 
 describe("Object.seal() on proxies of objects", function() {
-  "use strict";
   it("works as expected with primitive properties", function() {
     var {proxy, revoke} = Proxy.revocable({x: 3}, {});
     var sealed = Object.seal(proxy);

@@ -1,8 +1,6 @@
 describe(
   "A lazy getter can define a property before it is needed", 
   function() {
-    "use strict";
-
     const wetInner = { color: "red" };
     const wetOuter = { getInner: () => wetInner };
     var callCount;

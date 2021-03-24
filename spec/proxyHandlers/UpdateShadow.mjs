@@ -4,8 +4,6 @@ import {
 import MembraneProxyHandlers from "../../source/ProxyHandlers/main.mjs";
 
 describe("MembraneProxyHandlers.UpdateShadow node proxy handler", function() {
-  "use strict";
-
   let list = null,
       target  = null,
       proxy   = null,

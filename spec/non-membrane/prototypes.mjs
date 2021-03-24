@@ -1,8 +1,6 @@
 it(
   "A membrane-like proxy set always returns the same object for a prototype lookup",
   function() {
-    "use strict";
-
     const ShadowKeyMap = new WeakMap();
 
     /**
@@ -15,7 +13,6 @@ it(
      * @private
      */
     function makeShadowTarget(value) {
-      "use strict";
       var rv;
       if (Array.isArray(value))
         rv = [];
