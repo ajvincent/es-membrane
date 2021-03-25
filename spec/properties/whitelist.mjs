@@ -732,7 +732,6 @@ xdescribe("Whitelisting object properties", function() {
           else if (meta.target === Membrane.prototype)
           {
             this.whitelist(meta, [
-              "hasGraphByName",
               "getGraphByName",
               "convertArgumentToProxy",
               "warnOnce"

@@ -3935,23 +3935,6 @@ class Membrane {
   }
 
   /**
-   * Report if a a particular graph name exists in this membrane.
-   *
-   * @param {string | symbol} graphName The graph to look for.
-   *
-   * @returns {boolean}
-   * @public
-   */
-  hasGraphByName(graphName) {
-    {
-      let t = typeof graphName;
-      if ((t !== "string") && (t !== "symbol"))
-        throw new Error("graph must be a string or a symbol!");
-    }
-    return Reflect.ownKeys(this.handlersByGraphName).includes(graphName);
-  }
-
-  /**
    * Get an ObjectGraphHandler object by graph name.  Build it if necessary.
    *
    * @param {Symbol|String} graph   The graph name for the object graph.
@@ -3962,10 +3945,16 @@ class Membrane {
    * @public
    */
   getGraphByName(graphName, options) {
+    {
+      let t = typeof graphName;
+      if ((t !== "string") && (t !== "symbol"))
+        throw new Error("graph must be a string or a symbol!");
+    }
+
     let mustCreate = (typeof options == "object") ?
                      Boolean(options.mustCreate) :
                      false;
-    if (mustCreate && !this.hasGraphByName(graphName)) {
+    if (mustCreate && !Reflect.ownKeys(this.handlersByGraphName).includes(graphName)) {
       let graph = null;
       if (this.refactor === "0.10")
         graph = new ObjectGraph(this, graphName);
