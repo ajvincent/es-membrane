@@ -13,7 +13,7 @@ describe("DistortionsListener", () => {
   let listener, membrane;
   beforeEach(() => {
     membrane = {
-      ownsHandler: jasmine.createSpy("ownsHandler"),
+      ownsGraph: jasmine.createSpy("ownsGraph"),
       modifyRules: {},
     };
     listener = new DistortionsListener(membrane);
@@ -169,7 +169,7 @@ describe("DistortionsListener", () => {
   });
 
   it(".addIgnorable() marks an object as ignorable", () => {
-    membrane.ownsHandler.and.returnValue(true);
+    membrane.ownsGraph.and.returnValue(true);
     const handler = {
       addProxyListener: () => {},
       mayReplacePassThrough: true,
@@ -202,7 +202,7 @@ describe("DistortionsListener", () => {
 
   describe(".bindToHandler()", () => {
     it("adds itself as a ProxyListener to an ObjectGraph whose mayReplacePassThrough is false", () => {
-      membrane.ownsHandler.and.returnValue(true);
+      membrane.ownsGraph.and.returnValue(true);
 
       const handler = jasmine.createSpyObj(
         "handler",
@@ -219,7 +219,7 @@ describe("DistortionsListener", () => {
       )).toBe(true);
 
       listener.bindToHandler(handler);
-      expect(membrane.ownsHandler).toHaveBeenCalledOnceWith(handler);
+      expect(membrane.ownsGraph).toHaveBeenCalledOnceWith(handler);
       expect(listener.handleProxyMessage).toHaveBeenCalledTimes(0);
 
       expect(handler.addProxyListener).toHaveBeenCalledTimes(1);
@@ -239,7 +239,7 @@ describe("DistortionsListener", () => {
     });
 
     it("adds itself as a ProxyListener to an ObjectGraph whose mayReplacePassThrough is true", () => {
-      membrane.ownsHandler.and.returnValue(true);
+      membrane.ownsGraph.and.returnValue(true);
 
       const handler = jasmine.createSpyObj(
         "handler",
@@ -256,7 +256,7 @@ describe("DistortionsListener", () => {
       )).toBe(true);
 
       listener.bindToHandler(handler);
-      expect(membrane.ownsHandler).toHaveBeenCalledOnceWith(handler);
+      expect(membrane.ownsGraph).toHaveBeenCalledOnceWith(handler);
       expect(listener.handleProxyMessage).toHaveBeenCalledTimes(0);
 
       expect(handler.addProxyListener).toHaveBeenCalledTimes(1);
@@ -276,7 +276,7 @@ describe("DistortionsListener", () => {
     });
 
     it("throws when the membrane doesn't own the handler", () => {
-      membrane.ownsHandler.and.returnValue(false);
+      membrane.ownsGraph.and.returnValue(false);
       expect(() => {
         listener.bindToHandler({})
       }).toThrowError("Membrane must own the first argument as an object graph handler!");

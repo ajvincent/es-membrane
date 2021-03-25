@@ -172,7 +172,7 @@ export default class DistortionsListener {
    * @public
    */
   bindToHandler(handler) {
-    if (!this.membrane.ownsHandler(handler)) {
+    if (!this.membrane.ownsGraph(handler)) {
       throw new Error("Membrane must own the first argument as an object graph handler!");
     }
     handler.addProxyListener(meta => this.handleProxyMessage(meta));

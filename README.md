@@ -278,7 +278,7 @@ That's why the throwException() method exists:  to make it clear that you intend
 * The Membrane's prototype methods provide API for getting unique
 ObjectGraph instances:
   * .getGraphByName(graphName, mustCreate = false)
-  * .ownsHandler(handler)
+  * .ownsGraph(handler)
 * The Membrane's prototype also manages access to ProxyMapping instances, which as we stated above match proxies to original values in an one-to-one relationship.
   * .hasProxyForValue(field, value)
   * .buildMapping(field, value, options)

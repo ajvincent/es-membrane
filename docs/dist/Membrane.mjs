@@ -1234,7 +1234,7 @@ class DistortionsListener {
    * @public
    */
   bindToHandler(handler) {
-    if (!this.membrane.ownsHandler(handler)) {
+    if (!this.membrane.ownsGraph(handler)) {
       throw new Error("Membrane must own the first argument as an object graph handler!");
     }
     handler.addProxyListener(meta => this.handleProxyMessage(meta));
@@ -3657,7 +3657,7 @@ class RevocableMultiMap extends WeakMultiMap {
  * If we fail, there must be no side-effects.
  */
 function makeBindValuesBag(membrane, handler, value) {
-  if (!membrane.ownsHandler(handler))
+  if (!membrane.ownsGraph(handler))
     throw new Error("bindValuesByHandlers requires two ObjectGraphHandlers from different graphs");
 
   let rv = {
@@ -3853,7 +3853,7 @@ class Membrane {
    * @package
    */
   addPartsToCylinder(graph, value, options = {}) {
-    if (!this.ownsHandler(graph))
+    if (!this.ownsGraph(graph))
       throw new Error("handler is not an ObjectGraphHandler we own!");
     let cylinder = ("cylinder" in options) ? options.cylinder : null;
 
@@ -3870,7 +3870,7 @@ class Membrane {
     }
 
     const isOriginal = (cylinder.originGraph === graphName);
-    assert(isOriginal || this.ownsHandler(options.originHandler),
+    assert(isOriginal || this.ownsGraph(options.originHandler),
            "Proxy requests must pass in an origin handler");
 
     let parts;
@@ -3962,8 +3962,6 @@ class Membrane {
    * @public
    */
   getGraphByName(graphName, options) {
-    if (typeof options === "boolean")
-      throw new Error("fix me!");
     let mustCreate = (typeof options == "object") ?
                      Boolean(options.mustCreate) :
                      false;
@@ -3986,7 +3984,7 @@ class Membrane {
    * @returns {Boolean} True if the handler is one we own.
    * @public
    */
-  ownsHandler(graph) {
+  ownsGraph(graph) {
     return (((graph instanceof ObjectGraphHandler) ||
              (graph instanceof ObjectGraph)) &&
             (this.handlersByGraphName[graph.graphName] === graph));
@@ -4037,8 +4035,8 @@ class Membrane {
     if (found)
       return rv;
 
-    if (!this.ownsHandler(originHandler) ||
-        !this.ownsHandler(targetHandler) ||
+    if (!this.ownsGraph(originHandler) ||
+        !this.ownsGraph(targetHandler) ||
         (originHandler.graphName === targetHandler.graphName))
       throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
 
