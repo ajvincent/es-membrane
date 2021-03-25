@@ -1,4 +1,24 @@
 import Membrane from "../../source/core/Membrane.mjs";
+import {
+  NOT_YET_DETERMINED,
+  Primordials,
+  allTraps,
+  returnFalse,
+} from "../../source/core/utilities/shared.mjs";
+
+import {
+  ProxyCylinder,
+  ProxyCylinderMap,
+} from "../../source/core/ProxyCylinder.mjs";
+
+import ModifyRulesAPI from "../../source/core/ModifyRulesAPI.mjs";
+
+import RevocableMultiMap from "../../source/core/utilities/RevocableMultiMap.mjs";
+
+import {
+  expectValueDescriptor,
+  expectInstanceDescriptor,
+} from "../helpers/expectDataDescriptor.mjs";
 
 describe("Membrane()", () => {
   let membrane;
@@ -6,40 +26,127 @@ describe("Membrane()", () => {
     membrane = new Membrane();
   });
 
-  /* These tests are going to rely heavily on jasmine.spyOnProperty(),
-     jasmine.spyOn(), and the .and.callThrough() methods of spies.
-
-     We have to intervene in the behaviors of the other objects in the
+  /* We have to intervene in the behaviors of the other objects in the
      membrane a lot to get this unit-tested.
   */
 
-  xdescribe("class", () => {
+  describe("class", () => {
     it("exposes the list of Primordials", () => {
-
+      const desc = Reflect.getOwnPropertyDescriptor(Membrane, "Primordials");
+      expectValueDescriptor(Primordials, false, true, false, desc);
     });
 
     it("exposes the list of allTraps", () => {
+      const desc = Reflect.getOwnPropertyDescriptor(Membrane, "allTraps");
+      expectValueDescriptor(allTraps, false, true, false, desc);
+    });
 
+    it("is sealed", () => {
+      expect(Object.isSealed(Membrane)).toBe(true);
     });
   });
 
-  xdescribe("has all the initial properties:", () => {
+  describe("has all the initial package properties:", () => {
+    it(".cylinderMap instanceof ProxyCylinderMap", () => {
+      const desc = Reflect.getOwnPropertyDescriptor(membrane, "cylinderMap");
+      expectInstanceDescriptor(ProxyCylinderMap, false, false, false, desc);
+    });
 
+    it(".revokerMultiMap instanceof RevocableMultiMap", () => {
+      const desc = Reflect.getOwnPropertyDescriptor(membrane, "revokerMultiMap");
+      expectInstanceDescriptor(RevocableMultiMap, false, false, false, desc);
+    });
+
+    describe(".logger", () => {
+      it(".logger defaults to null", () => {
+        const desc = Reflect.getOwnPropertyDescriptor(membrane, "logger");
+        expectValueDescriptor(null, false, false, false, desc);
+      });
+
+      it("can be whatever we pass in at construction", () => {
+        const logger = {};
+        membrane = new Membrane({logger});
+
+        const desc = Reflect.getOwnPropertyDescriptor(membrane, "logger");
+        expectValueDescriptor(logger, false, false, false, desc);
+      });
+    });
+
+    describe(".passThroughFilter", () => {
+      it("defaults to returnFalse", () => {
+        const desc = Reflect.getOwnPropertyDescriptor(membrane, "passThroughFilter");
+        expectValueDescriptor(returnFalse, false, false, false, desc);
+      });
+
+      it("is returnFalse when the option isn't a function", () => {
+        membrane = new Membrane({passThroughFilter: {}});
+
+        const desc = Reflect.getOwnPropertyDescriptor(membrane, "passThroughFilter");
+        expectValueDescriptor(returnFalse, false, false, false, desc);
+      });
+
+      it("is adopted from the option when the option is a function", () => {
+        const passThroughFilter = () => true;
+        membrane = new Membrane({passThroughFilter});
+
+        const desc = Reflect.getOwnPropertyDescriptor(membrane, "passThroughFilter");
+        expectValueDescriptor(passThroughFilter, false, false, false, desc);
+      });
+    });
   });
 
-  xdescribe(".hasProxyForValue()", () => {
-
+  it("has the initial public property .modifyRules", () => {
+    const desc = Reflect.getOwnPropertyDescriptor(membrane, "modifyRules");
+    expectInstanceDescriptor(ModifyRulesAPI, false, true, false, desc);
   });
 
-  xdescribe(".getMembraneValue()", () => {
+  describe(".hasProxyForValue()", () => {
+    it("returns false for any unknown value", () => {
+      expect(membrane.hasProxyForValue({}, {})).toBe(false);
+    });
 
+    // this happens when we are looking for a value's proxy in another graph
+    it("returns false for a known value but not a known graph", () => {
+      const map = membrane.cylinderMap;
+      const cylinder = new ProxyCylinder;
+      const value = {};
+      map.set(value, cylinder);
+
+      expect(membrane.hasProxyForValue("wet", value)).toBe(false);
+    });
+
+    it("returns false for a known graph with its origin value", () => {
+      const cylinder = new ProxyCylinder("wet");
+      const value = {};
+
+      cylinder.setMetadata(membrane, "wet", {
+        storeAsValue: true,
+        value,
+      });
+
+      expect(membrane.hasProxyForValue("wet", value)).toBe(true);
+    });
   });
 
-  xdescribe(".getMembraneProxy()", () => {
-
+  describe(".getMembraneValue()", () => {
+    it("returns false for any unknown value", () => {
+      expect(membrane.getMembraneValue({}, {})).toEqual([
+        false,
+        NOT_YET_DETERMINED
+      ]);
+    });
   });
 
-  xdescribe(".addPartsToCylinder()", () => {
+  describe(".getMembraneProxy()", () => {
+    it("returns false for any unknown value", () => {
+      expect(membrane.getMembraneProxy({}, {})).toEqual([
+        false,
+        NOT_YET_DETERMINED
+      ]);
+    });
+  });
+
+  xdescribe(".addPartsToCylinder() (package method)", () => {
 
   });
 
@@ -67,11 +174,11 @@ describe("Membrane()", () => {
 
   });
 
-  xdescribe(".wrapDescriptor()", () => {
+  xdescribe(".wrapDescriptor() (package)", () => {
 
   });
 
-  xdescribe(".warnOnce()", ()=> {
+  xdescribe(".warnOnce() (package)", ()=> {
 
   });
 

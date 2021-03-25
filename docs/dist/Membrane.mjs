@@ -1591,6 +1591,8 @@ class FunctionSet extends Set {
 Object.freeze(FunctionSet);
 Object.freeze(FunctionSet.prototype);
 
+const FILTERED_KEYS_WITHOUT_LOCAL = "Filtering own keys without allowing local property defines or deletes is dangerous";
+
 function AssertIsPropertyKey(propName) {
   var type = typeof propName;
   if ((type !== "string") && (type !== "symbol"))
@@ -2123,7 +2125,7 @@ class ObjectGraphHandler {
         let originFilter = targetCylinder.getOwnKeysFilter(targetCylinder.originGraph);
         let localFilter  = targetCylinder.getOwnKeysFilter(this.graphName);
         if (originFilter || localFilter)
-          this.membrane.warnOnce(this.membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
+          this.membrane.warnOnce(FILTERED_KEYS_WITHOUT_LOCAL);
         if (originFilter && !originFilter(propName))
           return true;
         if (localFilter && !localFilter(propName))
@@ -2230,7 +2232,7 @@ class ObjectGraphHandler {
         originFilter = targetCylinder.getOwnKeysFilter(targetCylinder.originGraph);
         localFilter  = targetCylinder.getOwnKeysFilter(this.graphName);
         if (originFilter || localFilter)
-          this.membrane.warnOnce(this.membrane.constants.warnings.FILTERED_KEYS_WITHOUT_LOCAL);
+          this.membrane.warnOnce(FILTERED_KEYS_WITHOUT_LOCAL);
       }
 
       if (shouldBeLocal) {
@@ -3610,16 +3612,6 @@ class RevocableMultiMap extends WeakMultiMap {
   }
 }
 
-const Constants = {
-  warnings: {
-    FILTERED_KEYS_WITHOUT_LOCAL: "Filtering own keys without allowing local property defines or deletes is dangerous",
-    PROTOTYPE_FILTER_MISSING: "Proxy filter specified to inherit from prototype, but prototype provides no filter",
-  }
-};
-
-Object.freeze(Constants.warnings);
-Object.freeze(Constants);
-
 // bindValuesByHandlers utility
 /**
  * @typedef BindValuesBag
@@ -3701,9 +3693,11 @@ function maySetOnGraph(cylinder, bag) {
  * Object graph: A collection of values that talk to each other directly.
  */
 
+/**
+ * @public
+ */
 class Membrane {
   /**
-   *
    * @param {Object} options
    */
   constructor(options = {}) {
@@ -3723,6 +3717,16 @@ class Membrane {
       refactor: options.refactor || "",
 
       /**
+       * @private
+       */
+      handlersByGraphName: {},
+
+      /**
+       * @private
+       */
+      warnOnceSet: (options.logger ? new Set() : null),
+
+      /**
        * @package
        */
       cylinderMap: new ProxyCylinderMap,
@@ -3733,30 +3737,22 @@ class Membrane {
       revokerMultiMap: new RevocableMultiMap,
 
       /**
-       * @private
-       */
-      handlersByGraphName: {},
-
-      /**
        * @package
        */
       logger: options.logger || null,
-
-      /**
-       * @private
-       */
-      warnOnceSet: (options.logger ? new Set() : null),
-
-      /**
-       * @public
-       */
-      modifyRules: new ModifyRulesAPI(this),
 
       /**
        * @package
        */
       passThroughFilter: passThrough,
     }, false);
+
+    defineNWNCProperties(this, {
+      /**
+       * @public
+       */
+       modifyRules: new ModifyRulesAPI(this),
+    }, true);
   
     /* XXX ajvincent Somehow adding this line breaks not only npm test, but the
        ability to build as well.  The breakage comes in trying to create a mock of
@@ -3846,7 +3842,6 @@ class Membrane {
    *   @param {boolean}       storeAsValue
    *
    * @returns {ProxyCylinder}
-   *
    * @package
    */
   addPartsToCylinder(graph, value, options = {}) {
@@ -3991,6 +3986,7 @@ class Membrane {
 
   /**
    * @public
+   * @note this will be replaced by getters/setters soon
    */
   passThroughFilter() {
     return false;
@@ -4236,23 +4232,13 @@ defineNWNCProperties(
      * @public
      * @static
      */
-    Primordials
-  },
-  true
-);
+    Primordials,
 
-defineNWNCProperties(
-  Membrane.prototype,
-  {
     /**
      * @public
+     * @static
      */
     allTraps,
-
-    /**
-     * @public
-     */
-    constants: Constants
   },
   true
 );

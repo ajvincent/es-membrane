@@ -115,7 +115,6 @@ function maySetOnGraph(cylinder, bag) {
  */
 export default class Membrane {
   /**
-   *
    * @param {Object} options
    */
   constructor(options = {}) {
@@ -135,6 +134,16 @@ export default class Membrane {
       refactor: options.refactor || "",
 
       /**
+       * @private
+       */
+      handlersByGraphName: {},
+
+      /**
+       * @private
+       */
+      warnOnceSet: (options.logger ? new Set() : null),
+
+      /**
        * @package
        */
       cylinderMap: new ProxyCylinderMap,
@@ -145,30 +154,22 @@ export default class Membrane {
       revokerMultiMap: new RevocableMultiMap,
 
       /**
-       * @private
-       */
-      handlersByGraphName: {},
-
-      /**
        * @package
        */
       logger: options.logger || null,
-
-      /**
-       * @private
-       */
-      warnOnceSet: (options.logger ? new Set() : null),
-
-      /**
-       * @public
-       */
-      modifyRules: new ModifyRulesAPI(this),
 
       /**
        * @package
        */
       passThroughFilter: passThrough,
     }, false);
+
+    defineNWNCProperties(this, {
+      /**
+       * @public
+       */
+       modifyRules: new ModifyRulesAPI(this),
+    }, true);
   
     /* XXX ajvincent Somehow adding this line breaks not only npm test, but the
        ability to build as well.  The breakage comes in trying to create a mock of
