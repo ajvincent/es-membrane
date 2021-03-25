@@ -11,6 +11,8 @@ import {
 } from "../../source/core/ProxyCylinder.mjs";
 
 import ModifyRulesAPI from "../../source/core/ModifyRulesAPI.mjs";
+import ObjectGraphHandler from "../../source/core/ObjectGraphHandler-old.mjs";
+import ObjectGraph from "../../source/core/ObjectGraph.mjs";
 
 import RevocableMultiMap from "../../source/core/utilities/RevocableMultiMap.mjs";
 
@@ -22,7 +24,7 @@ import {
 describe("Membrane()", () => {
   let membrane;
   beforeEach(() => {
-    membrane = new Membrane();
+    membrane = new Membrane({ refactor: "0.10" });
   });
 
   /* We have to intervene in the behaviors of the other objects in the
@@ -101,7 +103,7 @@ describe("Membrane()", () => {
 
   describe(".hasProxyForValue()", () => {
     it("returns false for any unknown value", () => {
-      expect(membrane.hasProxyForValue({}, {})).toBe(false);
+      expect(membrane.hasProxyForValue("wet", {})).toBe(false);
     });
 
     // this happens when we are looking for a value's proxy in another graph
@@ -111,10 +113,10 @@ describe("Membrane()", () => {
       const value = {};
       map.set(value, cylinder);
 
-      expect(membrane.hasProxyForValue("wet", value)).toBe(false);
+      expect(membrane.hasProxyForValue("dry", value)).toBe(false);
     });
 
-    it("returns false for a known graph with its origin value", () => {
+    it("returns true for a known graph with its origin value", () => {
       const cylinder = membrane.cylinderMap.buildCylinder("wet");
       const value = {};
 
@@ -125,14 +127,84 @@ describe("Membrane()", () => {
 
       expect(membrane.hasProxyForValue("wet", value)).toBe(true);
     });
+
+    it("returns true for all known graphs and the original value, proxies and shadow targets", () => {
+      const cylinder = membrane.cylinderMap.buildCylinder("wet");
+      const value = {};
+
+      cylinder.setMetadata("wet", {
+        storeAsValue: true,
+        value,
+      });
+
+      expect(membrane.hasProxyForValue("wet", value)).toEqual(true);
+
+      const proxy = {}, shadowTarget = {};
+
+      cylinder.setMetadata("dry", {
+        storeAsValue: false,
+        proxy,
+        shadowTarget,
+      });
+
+      for (let graph of ["wet", "dry"]) {
+        for (let key of [proxy, shadowTarget, value]) {
+          expect(membrane.hasProxyForValue(graph, key)).toEqual(true);
+        }
+      }
+    });
   });
 
-  describe(".getMembraneValue()", () => {
-    it("returns false for any unknown value", () => {
-      expect(membrane.getMembraneValue({}, {})).toEqual([
+  describe(".getMembraneValue() (package method)", () => {
+    it("returns [false, NOT_YET_DETERMINED] for any unknown value", () => {
+      expect(membrane.getMembraneValue("wet", {})).toEqual([
         false,
         NOT_YET_DETERMINED
       ]);
+    });
+
+    // this happens when we are looking for a value's proxy in another graph
+    it("returns [false, NOT_YET_DETERMINED] for a known value but not a known graph", () => {
+      const map = membrane.cylinderMap;
+      const cylinder = map.buildCylinder("wet");
+      const value = {};
+      map.set(value, cylinder);
+
+      expect(membrane.getMembraneValue("dry", value)).toEqual([
+        false,
+        NOT_YET_DETERMINED
+      ]);
+    });
+
+    it("returns [true, value] for all known graphs and the original value, proxies and shadow targets", () => {
+      const cylinder = membrane.cylinderMap.buildCylinder("wet");
+      const value = {};
+
+      cylinder.setMetadata("wet", {
+        storeAsValue: true,
+        value,
+      });
+
+      const expected = [
+        true,
+        value
+      ];
+
+      expect(membrane.getMembraneValue("wet", value)).toEqual(expected);
+
+      const proxy = {}, shadowTarget = {};
+
+      cylinder.setMetadata("dry", {
+        storeAsValue: false,
+        proxy,
+        shadowTarget,
+      });
+
+      for (let graph of ["wet", "dry"]) {
+        for (let key of [proxy, shadowTarget, value]) {
+          expect(membrane.getMembraneValue(graph, key)).toEqual(expected);
+        }
+      }
     });
   });
 
@@ -143,26 +215,182 @@ describe("Membrane()", () => {
         NOT_YET_DETERMINED
       ]);
     });
+
+    it("returns [false, NOT_YET_DETERMINED] for a known value but not a known graph", () => {
+      const map = membrane.cylinderMap;
+      const cylinder = map.buildCylinder("wet");
+      const value = {};
+      map.set(value, cylinder);
+
+      expect(membrane.getMembraneProxy("dry", value)).toEqual([
+        false,
+        NOT_YET_DETERMINED
+      ]);
+    });
+
+    it("returns [true, value or proxy] for all known graphs and the original value, proxies and shadow targets", () => {
+      const cylinder = membrane.cylinderMap.buildCylinder("wet");
+      const value = {};
+
+      cylinder.setMetadata("wet", {
+        storeAsValue: true,
+        value,
+      });
+
+      const expectedValue = [
+        true,
+        value
+      ];
+
+      expect(membrane.getMembraneProxy("wet", value)).toEqual(expectedValue);
+
+      const proxy = {}, shadowTarget = {};
+      const expectedProxy = [
+        true,
+        proxy
+      ];
+
+      cylinder.setMetadata("dry", {
+        storeAsValue: false,
+        proxy,
+        shadowTarget,
+      });
+
+      for (let key of [proxy, shadowTarget, value]) {
+        expect(membrane.getMembraneProxy("wet", key)).toEqual(expectedValue);
+        expect(membrane.getMembraneProxy("dry", key)).toEqual(expectedProxy);
+      }
+    });
+  });
+
+  describe(".getGraphByName()", () => {
+    it("returns null for an unknown name", () => {
+      expect(membrane.getGraphByName("wet")).toBe(null);
+    });
+
+    describe("for legacy ObjectGraphHandler", () => {
+      let membrane, handler;
+      beforeEach(() => {
+        membrane = new Membrane({});
+        handler = membrane.getGraphByName("wet", { mustCreate: true });
+      });
+      it("returns an instance of ObjectGraphHandler for a new name and {mustCreate: true}", () => {
+        expect(handler instanceof ObjectGraphHandler).toBe(true);
+        expect(handler.membrane).toBe(membrane);
+        expect(handler.graphName).toBe("wet");
+      });
+
+      it("returns the same ObjectGraphHandler for the same name", () => {
+        let handler2 = membrane.getGraphByName("wet");
+        expect(handler2).toBe(handler);
+
+        handler2 = membrane.getGraphByName("wet", { mustCreate: true });
+        expect(handler2).toBe(handler);
+      });
+
+      it("returns a different ObjectGraphHandler for a different name", () => {
+        let handler2 = membrane.getGraphByName("dry");
+        expect(handler2).toBe(null);
+
+        handler2 = membrane.getGraphByName("dry", { mustCreate: true });
+        expect(handler2).not.toBe(handler);
+
+        expect(handler2 instanceof ObjectGraphHandler).toBe(true);
+        expect(handler2.membrane).toBe(membrane);
+        expect(handler2.graphName).toBe("dry");
+      });
+
+      it("returns an ObjectGraphHandler for a symbol name", () => {
+        const NAME = Symbol("damp");
+        let handler2 = membrane.getGraphByName(NAME);
+        expect(handler2).toBe(null);
+
+        handler2 = membrane.getGraphByName(NAME, { mustCreate: true });
+        expect(handler2).not.toBe(handler);
+
+        expect(handler2 instanceof ObjectGraphHandler).toBe(true);
+        expect(handler2.membrane).toBe(membrane);
+        expect(handler2.graphName).toBe(NAME);
+      });
+
+      it("throws for a non-string, non-symbol name", () => {
+        expect(() => {
+          membrane.getGraphByName(null);
+        }).toThrowError("graphName must be a string or a symbol!");
+
+        expect(() => {
+          membrane.getGraphByName(null, { mustCreate: true });
+        }).toThrowError("graphName must be a string or a symbol!");
+      });
+    });
+
+    describe("for ObjectGraph", () => {
+      let handler;
+      beforeEach(() => {
+        handler = membrane.getGraphByName("wet", { mustCreate: true });
+      });
+
+      it("returns an instance of ObjectGraph for a new name and {mustCreate: true}", () => {
+        expect(handler instanceof ObjectGraph).toBe(true);
+        expect(handler.membrane).toBe(membrane);
+        expect(handler.graphName).toBe("wet");
+      });
+
+      it("returns the same ObjectGraph for the same name", () => {
+        let handler2 = membrane.getGraphByName("wet");
+        expect(handler2).toBe(handler);
+
+        handler2 = membrane.getGraphByName("wet", { mustCreate: true });
+        expect(handler2).toBe(handler);
+      });
+
+      it("returns a different ObjectGraph for a different name", () => {
+        let handler2 = membrane.getGraphByName("dry");
+        expect(handler2).toBe(null);
+
+        handler2 = membrane.getGraphByName("dry", { mustCreate: true });
+        expect(handler2).not.toBe(handler);
+
+        expect(handler2 instanceof ObjectGraph).toBe(true);
+        expect(handler2.membrane).toBe(membrane);
+        expect(handler2.graphName).toBe("dry");
+      });
+
+      it("returns an ObjectGraph for a symbol name", () => {
+        const NAME = Symbol("damp");
+        let handler2 = membrane.getGraphByName(NAME);
+        expect(handler2).toBe(null);
+
+        handler2 = membrane.getGraphByName(NAME, { mustCreate: true });
+        expect(handler2).not.toBe(handler);
+
+        expect(handler2 instanceof ObjectGraph).toBe(true);
+        expect(handler2.membrane).toBe(membrane);
+        expect(handler2.graphName).toBe(NAME);
+      });
+
+      it("throws for a non-string, non-symbol name", () => {
+        expect(() => {
+          membrane.getGraphByName(null);
+        }).toThrowError("graphName must be a string or a symbol!");
+
+        expect(() => {
+          membrane.getGraphByName(null, { mustCreate: true });
+        }).toThrowError("graphName must be a string or a symbol!");
+      });
+    });
+  });
+
+  xdescribe(".ownsGraph()", () => {
+
   });
 
   xdescribe(".addPartsToCylinder() (package method)", () => {
 
   });
 
-  xdescribe(".hasHandlerByGraph()", () => {
-
-  });
-
-  xdescribe(".getHandlerByName()", () => {
-
-  });
-
-  xdescribe(".ownsHandler()", () => {
-
-  });
-
-  xdescribe(".passThroughFilter", () => {
-
+  xit(".passThroughFilter", () => {
+    // Remember to apply ObjectGraphHandler's passThroughFilter changes to Membrane.
   });
 
   xdescribe(".convertArgumentToProxy()", () => {
@@ -181,11 +409,13 @@ describe("Membrane()", () => {
 
   });
 
-  describe("handler's .revokeEverything()", () => {
+  describe("graph's .revokeEverything()", () => {
+    beforeEach(() => membrane = new Membrane({}));
+
     let dryHandler, wetHandler, wetObject, wetProxy, dryObject, dryProxy;
     beforeEach(() => {
-      wetHandler = membrane.getHandlerByName("wet", { mustCreate: true });
-      dryHandler = membrane.getHandlerByName("dry", { mustCreate: true });
+      wetHandler = membrane.getGraphByName("wet", { mustCreate: true });
+      dryHandler = membrane.getGraphByName("dry", { mustCreate: true });
   
       wetObject = { value: true };
       dryProxy = membrane.convertArgumentToProxy(wetHandler, dryHandler, wetObject);
@@ -194,12 +424,10 @@ describe("Membrane()", () => {
       wetProxy = membrane.convertArgumentToProxy(dryHandler, wetHandler, dryObject);
     });
 
-    xit("more unit tests", () => {});
-
     it("allows revoking wet before dry", () => {
       wetHandler.revokeEverything();
       dryHandler.revokeEverything();
-  
+
       expect(() => dryProxy.value).toThrow();
       expect(() => wetProxy.value).toThrow();
     });

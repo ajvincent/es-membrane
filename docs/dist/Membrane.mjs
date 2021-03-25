@@ -3941,19 +3941,17 @@ class Membrane {
    * @param {Object}        options Broken down as follows:
    * - {Boolean} mustCreate  True if we must create a missing graph handler.
    *
-   * @returns {ObjectGraph | ObjectGraphHandler} The handler for the object graph.
+   * @returns {ObjectGraph | ObjectGraphHandler?} The handler for the object graph.
    * @public
    */
-  getGraphByName(graphName, options) {
+  getGraphByName(graphName, options = {}) {
     {
-      let t = typeof graphName;
+      const t = typeof graphName;
       if ((t !== "string") && (t !== "symbol"))
-        throw new Error("graph must be a string or a symbol!");
+        throw new Error("graphName must be a string or a symbol!");
     }
 
-    let mustCreate = (typeof options == "object") ?
-                     Boolean(options.mustCreate) :
-                     false;
+    const mustCreate = (typeof options == "object") && Boolean(options.mustCreate);
     if (mustCreate && !Reflect.ownKeys(this.handlersByGraphName).includes(graphName)) {
       let graph = null;
       if (this.refactor === "0.10")
@@ -3962,7 +3960,7 @@ class Membrane {
         graph = new ObjectGraphHandler(this, graphName);
       this.handlersByGraphName[graphName] = graph;
     }
-    return this.handlersByGraphName[graphName];
+    return this.handlersByGraphName[graphName] || null;
   }
 
   /**
