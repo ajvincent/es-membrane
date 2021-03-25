@@ -5,7 +5,7 @@
  * ProxyHandlers.  The intent is to make sure Proxy invariants are not violated.
  */
 
-import { LinkedListNode } from "./LinkedList.mjs";
+import { LinkedListNode } from "./LinkedList-old.mjs";
 
 /**
  * Build a LinkedListNode for updating shadow targets to match ProxyHandler operations.

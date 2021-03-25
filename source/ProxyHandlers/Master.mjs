@@ -1,7 +1,7 @@
 import {
   LinkedList,
   LinkedListNode
-} from "./LinkedList.mjs";
+} from "./LinkedList-old.mjs";
 
 import ConvertFromShadow from "./ConvertFromShadow.mjs";
 import UpdateShadow from "./UpdateShadow.mjs";

@@ -2,7 +2,7 @@ import {
   allTraps,
   valueType,
 } from "../core/utilities/shared.mjs";
-import { LinkedListNode } from "./LinkedList.mjs";
+import { LinkedListNode } from "./LinkedList-old.mjs";
 
 class InvariantBase extends LinkedListNode {
   validateArgument(arg, argIndex) {

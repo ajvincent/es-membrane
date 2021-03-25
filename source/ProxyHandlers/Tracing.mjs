@@ -6,7 +6,7 @@
  * ProxyHandler, this is useful.
  */
 
-import { LinkedListNode } from "./LinkedList.mjs";
+import { LinkedListNode } from "./LinkedList-old.mjs";
 import {
   DataDescriptor,
   allTraps,

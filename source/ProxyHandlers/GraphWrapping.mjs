@@ -12,7 +12,7 @@ import {
 
 import {
   LinkedListNode
-} from "./LinkedList.mjs";
+} from "./LinkedList-old.mjs";
 
 /**
  * Build a LinkedListNode specifically for tracing entering and exiting a proxy handler.

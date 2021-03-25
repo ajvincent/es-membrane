@@ -24,7 +24,7 @@ import {
   isAccessorDescriptor
 } from "../core/utilities/shared.mjs";
 
-import { LinkedListNode } from "./LinkedList.mjs";
+import { LinkedListNode } from "./LinkedList-old.mjs";
 
 function isGenericDescriptor(desc) {
   if (typeof desc === "undefined")

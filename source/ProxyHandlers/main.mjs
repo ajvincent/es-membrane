@@ -3,7 +3,7 @@ import Forwarding from "./Forwarding.mjs";
 import {
   LinkedList,
   LinkedListNode,
-} from "./LinkedList.mjs";
+} from "./LinkedList-old.mjs";
 import Tracing from "./Tracing.mjs";
 import {
   GraphInvariantIn,

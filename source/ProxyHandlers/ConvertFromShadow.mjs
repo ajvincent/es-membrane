@@ -5,7 +5,7 @@
  * directly applying to Reflect traps.
  */
 
-import { LinkedListNode } from "./LinkedList.mjs";
+import { LinkedListNode } from "./LinkedList-old.mjs";
 import {
   NWNCDataDescriptor,
   allTraps,
