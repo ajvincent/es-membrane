@@ -14,15 +14,10 @@ const MembraneProxyHandlers = {
 };
 
 /**
- * @type {WeakMap<ObjectGraph, function>}
- */
-const passThroughMap = new WeakMap();
-
-/**
  * @package
  */
 export default class ObjectGraph {
-  constructor(membrane, graphName) {
+  constructor(membrane, graphName, passThroughFilter = returnFalse) {
     {
       let t = typeof graphName;
       if ((t != "string") && (t != "symbol"))
@@ -62,36 +57,8 @@ export default class ObjectGraph {
        */
       __proxyListeners__: new Set,
     }, false);
-  }
 
-  /**
-   * @public
-   *
-   * @deprecated, see https://github.com/ajvincent/es-membrane/issues/239
-   */
-  get passThroughFilter() {
-    return passThroughMap.get(this) || returnFalse;
-  }
-
-  /**
-   * @param {function} val
-   *
-   * @public
-   * @deprecated, see https://github.com/ajvincent/es-membrane/issues/239
-   */
-  set passThroughFilter(val) {
-    if (passThroughMap.has(this))
-      throw new Error("passThroughFilter has been defined once already!");
-    if (typeof val !== "function")
-      throw new Error("passThroughFilter must be a function");
-    passThroughMap.set(this, val);
-  }
-
-  /**
-   * @deprecated, see https://github.com/ajvincent/es-membrane/issues/239
-   */
-  get mayReplacePassThrough() {
-    return !passThroughMap.has(this);
+    membrane.passThroughManager.addGraph(this, passThroughFilter);
   }
 
   /**
@@ -138,7 +105,7 @@ export default class ObjectGraph {
    * @see ProxyNotify
    * @public
    */
-   addProxyListener(listener) {
+  addProxyListener(listener) {
     if (typeof listener != "function")
       throw new Error("listener is not a function!");
     this.__proxyListeners__.add(listener);

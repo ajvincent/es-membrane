@@ -27,6 +27,7 @@ import {
 
 import RevocableMultiMap from "./utilities/RevocableMultiMap.mjs";
 
+import PassThroughManager from "./PassThroughManager.mjs";
 
 // bindValuesByHandlers utility
 /**
@@ -160,6 +161,15 @@ export default class Membrane {
       passThroughFilter: (typeof options.passThroughFilter === "function") ?
                          options.passThroughFilter :
                          returnFalse,
+
+      /**
+       * @package
+       */
+      passThroughManager: new PassThroughManager(
+        (typeof options.passThroughFilter === "function") ?
+        options.passThroughFilter :
+        returnFalse
+      ),
     }, false);
 
     defineNWNCProperties(this, {

@@ -78,7 +78,7 @@ export default class ObjectGraphHandler {
        * @private
        */
       __proxyListeners__: new FunctionSet("deferred"),
-    });
+    }, false);
 
     /**
      * @package

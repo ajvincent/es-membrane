@@ -1658,7 +1658,7 @@ class ObjectGraphHandler {
        * @private
        */
       __proxyListeners__: new FunctionSet("deferred"),
-    });
+    }, false);
 
     /**
      * @package
@@ -3357,15 +3357,10 @@ const MembraneProxyHandlers = {
 };
 
 /**
- * @type {WeakMap<ObjectGraph, function>}
- */
-const passThroughMap$1 = new WeakMap();
-
-/**
  * @package
  */
 class ObjectGraph {
-  constructor(membrane, graphName) {
+  constructor(membrane, graphName, passThroughFilter = returnFalse) {
     {
       let t = typeof graphName;
       if ((t != "string") && (t != "symbol"))
@@ -3405,36 +3400,8 @@ class ObjectGraph {
        */
       __proxyListeners__: new Set,
     }, false);
-  }
 
-  /**
-   * @public
-   *
-   * @deprecated, see https://github.com/ajvincent/es-membrane/issues/239
-   */
-  get passThroughFilter() {
-    return passThroughMap$1.get(this) || returnFalse;
-  }
-
-  /**
-   * @param {function} val
-   *
-   * @public
-   * @deprecated, see https://github.com/ajvincent/es-membrane/issues/239
-   */
-  set passThroughFilter(val) {
-    if (passThroughMap$1.has(this))
-      throw new Error("passThroughFilter has been defined once already!");
-    if (typeof val !== "function")
-      throw new Error("passThroughFilter must be a function");
-    passThroughMap$1.set(this, val);
-  }
-
-  /**
-   * @deprecated, see https://github.com/ajvincent/es-membrane/issues/239
-   */
-  get mayReplacePassThrough() {
-    return !passThroughMap$1.has(this);
+    membrane.passThroughManager.addGraph(this, passThroughFilter);
   }
 
   /**
@@ -3481,7 +3448,7 @@ class ObjectGraph {
    * @see ProxyNotify
    * @public
    */
-   addProxyListener(listener) {
+  addProxyListener(listener) {
     if (typeof listener != "function")
       throw new Error("listener is not a function!");
     this.__proxyListeners__.add(listener);
@@ -3643,6 +3610,120 @@ class RevocableMultiMap extends WeakMultiMap {
   }
 }
 
+/**
+ * @package
+ */
+class PassThroughManager {
+  constructor(membranePassThrough) {
+    if (typeof membranePassThrough !== "function")
+      throw new Error("filter must be a function!");
+
+    defineNWNCProperties(this, {
+      /**
+       * @type {Function}
+       * @private
+       */
+      membranePassThrough,
+
+      /**
+       * @type {WeakSet<Object>}
+       * @private
+       */
+      alreadyPassed: new WeakSet,
+
+      /**
+       * @type {WeakSet<Object>}
+       * @private
+       */
+      alreadyRejected: new WeakSet,
+
+      /**
+       * @type {WeakMap<ObjectGraph, Function>}
+       * @private
+       */
+      graphPassThrough: new WeakMap,
+    }, false);
+
+    Object.freeze(this);
+  }
+
+  /**
+   *
+   * @param {ObjectGraph} graph   The object graph.
+   * @param {Function}    filter  The passThrough function.
+   *
+   * @public
+   */
+  addGraph(graph, filter) {
+    if (this.graphPassThrough.has(graph))
+      throw new Error("This graph has already been registered!");
+    if (typeof filter !== "function")
+      throw new Error("filter must be a function!");
+
+    this.graphPassThrough.set(graph, filter);
+  }
+
+  /**
+   *
+   * @param {Object} value
+   * @param {ObjectGraph} originGraph
+   * @param {ObjectGraph} targetGraph
+   *
+   * @returns {boolean}
+   * @public
+   */
+  mayPass(value, originGraph, targetGraph) {
+    if (valueType(value) === "primitive" || this.alreadyPassed.has(value))
+      return true;
+    if (this.alreadyRejected.has(value))
+      return false;
+
+    if (this.membranePassThrough(value) ||
+        (this.graphPassThrough.get(originGraph)(value) &&
+         this.graphPassThrough.get(targetGraph)(value))) {
+      this.alreadyPassed.add(value);
+      return true;
+    }
+
+    this.alreadyRejected.add(value);
+    return false;
+  }
+
+  /**
+   * @param {Object} value
+   * @public
+   */
+  mustPass(value) {
+    this.throwIfKnown(value);
+    this.alreadyPassed.add(value);
+  }
+
+  /**
+   * @param {Object} value
+   * @public
+   */
+  mustBlock(value) {
+    this.throwIfKnown(value);
+    this.alreadyRejected.add(value);
+  }
+
+  /**
+   * @param {Object} value
+   * @private
+   */
+  throwIfKnown(value) {
+    if (valueType(value) === "primitive")
+      throw new Error("Primitives already pass through!");
+    if (this.alreadyPassed.has(value))
+      throw new Error("This value already passes through!");
+    if (this.alreadyRejected.has(value))
+      throw new Error("This value already does not pass through!");
+  }
+}
+
+Object.freeze(PassThroughManager);
+Object.freeze(PassThroughManager.prototype);
+
 // bindValuesByHandlers utility
 /**
  * @typedef BindValuesBag
@@ -3775,6 +3856,15 @@ class Membrane {
       passThroughFilter: (typeof options.passThroughFilter === "function") ?
                          options.passThroughFilter :
                          returnFalse,
+
+      /**
+       * @package
+       */
+      passThroughManager: new PassThroughManager(
+        (typeof options.passThroughFilter === "function") ?
+        options.passThroughFilter :
+        returnFalse
+      ),
     }, false);
 
     defineNWNCProperties(this, {
