@@ -7,7 +7,6 @@ import {
 } from "../../source/core/utilities/shared.mjs";
 
 import {
-  ProxyCylinder,
   ProxyCylinderMap,
 } from "../../source/core/ProxyCylinder.mjs";
 
@@ -108,7 +107,7 @@ describe("Membrane()", () => {
     // this happens when we are looking for a value's proxy in another graph
     it("returns false for a known value but not a known graph", () => {
       const map = membrane.cylinderMap;
-      const cylinder = new ProxyCylinder;
+      const cylinder = map.buildCylinder("wet");
       const value = {};
       map.set(value, cylinder);
 
@@ -116,10 +115,10 @@ describe("Membrane()", () => {
     });
 
     it("returns false for a known graph with its origin value", () => {
-      const cylinder = new ProxyCylinder("wet");
+      const cylinder = membrane.cylinderMap.buildCylinder("wet");
       const value = {};
 
-      cylinder.setMetadata(membrane, "wet", {
+      cylinder.setMetadata("wet", {
         storeAsValue: true,
         value,
       });

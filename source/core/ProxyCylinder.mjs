@@ -16,7 +16,7 @@
 
 import {
   DeadProxyKey,
-  NWNCDataDescriptor,
+  defineNWNCProperties,
   valueType,
 } from "./utilities/shared.mjs";
 
@@ -50,22 +50,34 @@ import {
  */
 export class ProxyCylinder {
   /**
-   * @param {String | Symbol} originGraph The name of the original graph.
+   * @param {String | Symbol}  originGraph The name of the original graph.
+   * @param {ProxyCylinderMap} map         The cylinder map which will own this.
    */
-  constructor(originGraph) {
-    /**
-     * @type {String | Symbol}
-     * @public
-     * @readonly
-     */
-    Reflect.defineProperty(this, "originGraph", new NWNCDataDescriptor(originGraph));
+  constructor(originGraph, map) {
+    defineNWNCProperties(this, {
+      /**
+       * @type {String | Symbol}
+       * @public
+       * @readonly
+       */
+      originGraph,
+    }, true);
 
-    /**
-     * @type {Map<String | Symbol, GraphMetadata>}
-     * @private
-     * @readonly
-     */
-    Reflect.defineProperty(this, "proxyDataByGraph", new NWNCDataDescriptor(new Map()));
+    defineNWNCProperties(this, {
+      /**
+       * @type {Map<String | Symbol, GraphMetadata>}
+       * @private
+       * @readonly
+       */
+      proxyDataByGraph: new Map,
+
+      /**
+       * @type {ProxyCylinderMap}
+       * @private
+       * @readonly
+       */
+      cylinderMap: map,
+    }, false);
 
     /**
      * @type {Boolean}
@@ -206,13 +218,12 @@ export class ProxyCylinder {
   /**
    * Add a value to the cylinder.
    *
-   * @param {Membrane}      membrane  The owning membrane.
    * @param {Symbol|String} graphName The graph name of the object graph.
    * @param {GraphMetadata} metadata  The metadata (proxy, value, shadow, etc.) for the graph.
    *
    * @public
    */
-  setMetadata(membrane, graphName, metadata) {
+  setMetadata(graphName, metadata) {
     if ((typeof metadata !== "object") || (metadata === null))
       throw new Error("metadata argument must be an object");
 
@@ -259,8 +270,8 @@ export class ProxyCylinder {
 
     if (isForeignGraph) {
       if (!metadata.storeAsValue && (valueType(metadata.proxy) !== "primitive")) {
-        membrane.cylinderMap.set(metadata.proxy, this);
-        membrane.cylinderMap.set(metadata.shadowTarget, this);
+        this.cylinderMap.set(metadata.proxy, this);
+        this.cylinderMap.set(metadata.shadowTarget, this);
       }
     }
     else if (!this.originalValueSet) {
@@ -268,9 +279,9 @@ export class ProxyCylinder {
     }
 
     if (metadata.storeAsValue &&
-        !membrane.cylinderMap.has(metadata.value) &&
+        !this.cylinderMap.has(metadata.value) &&
         (valueType(metadata.value) !== "primitive")) {
-      membrane.cylinderMap.set(metadata.value, this);
+      this.cylinderMap.set(metadata.value, this);
     }
   }
 
@@ -302,12 +313,10 @@ export class ProxyCylinder {
 
   /**
    * Remove all membrane proxies this references (without revocation)
-   *
-   * @param {Membrane} membrane The owning membrane.
-   *
+
    * @public
    */
-  clearAllGraphs(membrane) {
+  clearAllGraphs() {
     const names = this.getGraphNames();
     for (let i = (names.length - 1); i >= 0; i--) {
       const graphName = names[i];
@@ -315,11 +324,11 @@ export class ProxyCylinder {
         continue;
       const metadata = this.getMetadata(graphName);
       if (graphName !== this.originGraph) {
-        membrane.cylinderMap.delete(metadata.proxy);
-        membrane.cylinderMap.delete(metadata.shadowTarget);
+        this.cylinderMap.delete(metadata.proxy);
+        this.cylinderMap.delete(metadata.shadowTarget);
       }
       else {
-        membrane.cylinderMap.delete(metadata.value);
+        this.cylinderMap.delete(metadata.value);
       }
     }
 
@@ -619,8 +628,6 @@ export class ProxyCylinder {
 Object.freeze(ProxyCylinder.prototype);
 Object.freeze(ProxyCylinder);
 
-const WeakMap_set = WeakMap.prototype.set;
-
 /**
  * @package
  */
@@ -638,8 +645,13 @@ export class ProxyCylinderMap extends WeakMap {
         throw new Error("ProxyCylinderMap already has a value for this key");
     }
 
-    return WeakMap_set.apply(this, [key, value]);
+    return super.set(key, value);
+  }
+
+  buildCylinder(originGraph) {
+    return new ProxyCylinder(originGraph, this);
   }
 }
 
 Object.freeze(ProxyCylinderMap);
+Object.freeze(ProxyCylinderMap.prototype);

@@ -22,7 +22,6 @@ import ObjectGraphHandler from "./ObjectGraphHandler-old.mjs";
 import ObjectGraph from "./ObjectGraph.mjs";
 
 import {
-  ProxyCylinder,
   ProxyCylinderMap,
 } from "./ProxyCylinder.mjs";
 
@@ -274,7 +273,7 @@ export default class Membrane {
       }
 
       else {
-        cylinder = new ProxyCylinder(graphName);
+        cylinder = this.cylinderMap.buildCylinder(graphName);
       }
     }
 
@@ -314,7 +313,7 @@ export default class Membrane {
       this.revokerMultiMap.set(graph, () => cylinder.removeGraph(graphName));
     }
 
-    cylinder.setMetadata(this, graphName, parts);
+    cylinder.setMetadata(graphName, parts);
 
     if (!isOriginal) {
       const notifyOptions = {
@@ -431,7 +430,7 @@ export default class Membrane {
     if (override) {
       let cylinder = this.cylinderMap.get(arg);
       if (cylinder) {
-        cylinder.clearAllGraphs(this);
+        cylinder.clearAllGraphs();
       }
     }
 
