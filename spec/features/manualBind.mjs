@@ -21,8 +21,8 @@ describe("Binding two values manually", function() {
   var membrane, graphA, graphB, graphC, graphD;
   beforeEach(function() {
     membrane = new Membrane();
-    graphA = membrane.getHandlerByName(graphNames.A, { mustCreate: true });
-    graphB = membrane.getHandlerByName(graphNames.B, { mustCreate: true });
+    graphA = membrane.getGraphByName(graphNames.A, { mustCreate: true });
+    graphB = membrane.getGraphByName(graphNames.B, { mustCreate: true });
   });
   afterEach(function() {
     graphA.revokeEverything();
@@ -100,7 +100,7 @@ describe("Binding two values manually", function() {
   it(
     "when the second value is known to the membrane and the first value is an object",
     function() {
-      graphC = membrane.getHandlerByName(graphNames.C, { mustCreate: true });
+      graphC = membrane.getGraphByName(graphNames.C, { mustCreate: true });
       membrane.bindValuesByHandlers(graphC, values.objC,
                                     graphB, values.objB);
       membrane.bindValuesByHandlers(graphA, values.objA,
@@ -128,7 +128,7 @@ describe("Binding two values manually", function() {
   );
 
   it("to a third object graph holding a proxy", function() {
-    graphC = membrane.getHandlerByName(graphNames.C, { mustCreate: true });
+    graphC = membrane.getGraphByName(graphNames.C, { mustCreate: true });
     let objC = membrane.convertArgumentToProxy(
       graphA,
       graphC,
@@ -217,7 +217,7 @@ describe("Binding two values manually", function() {
   it(
     "fails when an object is passed in for the wrong object graph",
     function() {
-      graphC = membrane.getHandlerByName(graphNames.C, { mustCreate: true });
+      graphC = membrane.getGraphByName(graphNames.C, { mustCreate: true });
       membrane.convertArgumentToProxy(
         graphA,
         graphC,
@@ -248,8 +248,8 @@ describe("Binding two values manually", function() {
   });
 
   it("fails when trying to join two sets of object graphs", function() {
-    graphC = membrane.getHandlerByName(graphNames.C, { mustCreate: true });
-    graphD = membrane.getHandlerByName(graphNames.D, { mustCreate: true });
+    graphC = membrane.getGraphByName(graphNames.C, { mustCreate: true });
+    graphD = membrane.getGraphByName(graphNames.D, { mustCreate: true });
 
     membrane.bindValuesByHandlers(graphA, values.objA,
                                   graphB, values.objB);

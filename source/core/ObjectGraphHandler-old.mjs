@@ -147,7 +147,7 @@ export default class ObjectGraphHandler {
     4. Let parent be ? O.[[GetPrototypeOf]]().
     5. If parent is not null, then
          a. Return ? parent.[[HasProperty]](P).
-    6. Return false. 
+    6. Return false.
     */
 
     // 1. Assert: IsPropertyKey(P) is true.
@@ -446,7 +446,7 @@ export default class ObjectGraphHandler {
       let proxy;
       if (targetCylinder.originGraph !== this.graphName)
         proxy = this.membrane.convertArgumentToProxy(
-          this.membrane.getHandlerByName(targetCylinder.originGraph),
+          this.membrane.getGraphByName(targetCylinder.originGraph),
           this,
           proto
         );
@@ -849,7 +849,7 @@ export default class ObjectGraphHandler {
       // We may be under construction.
       let proto = Object.getPrototypeOf(receiver);
       let protoMap = this.membrane.cylinderMap.get(proto);
-      let pHandler = this.membrane.getHandlerByName(protoMap.originGraph);
+      let pHandler = this.membrane.getGraphByName(protoMap.originGraph);
 
       if (this.membrane.cylinderMap.has(receiver)) {
         /* XXX ajvincent If you're stepping through in a debugger, the debugger
@@ -903,7 +903,7 @@ export default class ObjectGraphHandler {
           // Only now do we convert the value to the target object graph.
           this.membrane.convertArgumentToProxy(
             this,
-            this.membrane.getHandlerByName(receiverMap.originGraph),
+            this.membrane.getGraphByName(receiverMap.originGraph),
             value
           ),
           true
@@ -948,7 +948,7 @@ export default class ObjectGraphHandler {
       // Only now do we convert the value to the target object graph.
       let rvProxy = this.membrane.convertArgumentToProxy(
         this,
-        this.membrane.getHandlerByName(receiverMap.originGraph),
+        this.membrane.getGraphByName(receiverMap.originGraph),
         value
       );
 
@@ -985,7 +985,7 @@ export default class ObjectGraphHandler {
       if (targetCylinder.originGraph !== this.graphName) {
         protoProxy = this.membrane.convertArgumentToProxy(
           this,
-          this.membrane.getHandlerByName(targetCylinder.originGraph),
+          this.membrane.getGraphByName(targetCylinder.originGraph),
           proto
         );
         [found, wrappedProxy] = this.membrane.getMembraneProxy(
@@ -1021,7 +1021,7 @@ export default class ObjectGraphHandler {
     var target = getRealTarget(shadowTarget);
     var _this, args = [];
     let targetCylinder  = this.membrane.cylinderMap.get(target);
-    let argHandler = this.membrane.getHandlerByName(targetCylinder.originGraph);
+    let argHandler = this.membrane.getGraphByName(targetCylinder.originGraph);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -1095,7 +1095,7 @@ export default class ObjectGraphHandler {
     var target = getRealTarget(shadowTarget);
     var args = [];
     let targetCylinder  = this.membrane.cylinderMap.get(target);
-    let argHandler = this.membrane.getHandlerByName(targetCylinder.originGraph);
+    let argHandler = this.membrane.getGraphByName(targetCylinder.originGraph);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -1568,7 +1568,7 @@ export default class ObjectGraphHandler {
           const target = getRealTarget(shadowTarget);
           const targetCylinder = handler.membrane.cylinderMap.get(target);
           if (targetCylinder.originGraph !== handler.graphName) {
-            let originHandler = handler.membrane.getHandlerByName(
+            let originHandler = handler.membrane.getGraphByName(
               targetCylinder.originGraph
             );
             value = handler.membrane.convertArgumentToProxy(

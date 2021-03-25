@@ -20,8 +20,8 @@ describe(
 
     beforeEach(function() {
       membrane = new Membrane();
-      wetHandler = membrane.getHandlerByName("wet", { mustCreate: true });
-      dryHandler = membrane.getHandlerByName("dry", { mustCreate: true });
+      wetHandler = membrane.getGraphByName("wet", { mustCreate: true });
+      dryHandler = membrane.getGraphByName("dry", { mustCreate: true });
       dryVoid = membrane.convertArgumentToProxy(
         wetHandler,
         dryHandler,

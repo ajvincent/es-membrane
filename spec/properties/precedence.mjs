@@ -41,7 +41,7 @@ describe(
       dryDocument  = null;
       wetDocument  = null;
 
-      membrane.getHandlerByName("dry").revokeEverything();
+      membrane.getGraphByName("dry").revokeEverything();
       membrane = null;
       parts    = null;
     });
@@ -151,7 +151,7 @@ describe(
       dryDocument  = null;
       wetDocument  = null;
 
-      membrane.getHandlerByName("dry").revokeEverything();
+      membrane.getGraphByName("dry").revokeEverything();
       membrane = null;
       parts    = null;
     });

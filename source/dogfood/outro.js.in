@@ -3,8 +3,8 @@
 
   DogfoodMembrane.ProxyToMembraneMap = new WeakSet();
 
-  let publicAPI   = DogfoodMembrane.getHandlerByName("public", { mustCreate: true });
-  let internalAPI = DogfoodMembrane.getHandlerByName("internal", { mustCreate: true });
+  let publicAPI   = DogfoodMembrane.getGraphByName("public", { mustCreate: true });
+  let internalAPI = DogfoodMembrane.getGraphByName("internal", { mustCreate: true });
 
   // lockdown of the public API here
   Reflect.defineProperty(

@@ -21,10 +21,10 @@ describe("Generators through a membrane", function() {
       response: { value: true }
     };
 
-    parts.handlers.wet = parts.membrane.getHandlerByName(
+    parts.handlers.wet = parts.membrane.getGraphByName(
       "wet", { mustCreate: true }
     );
-    parts.handlers.dry = parts.membrane.getHandlerByName(
+    parts.handlers.dry = parts.membrane.getGraphByName(
       "dry", { mustCreate: true }
     );
 

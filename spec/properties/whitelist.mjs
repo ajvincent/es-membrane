@@ -694,10 +694,10 @@ xdescribe("Whitelisting object properties", function() {
       };
       const Dogfood = new Membrane({logger: DogfoodLogger});
 
-      const publicAPI   = Dogfood.getHandlerByName(
+      const publicAPI   = Dogfood.getGraphByName(
         "public", { mustCreate: true }
       );
-      const internalAPI = Dogfood.getHandlerByName(
+      const internalAPI = Dogfood.getGraphByName(
         "internal", { mustCreate: true }
       );
 
@@ -732,8 +732,8 @@ xdescribe("Whitelisting object properties", function() {
           else if (meta.target === Membrane.prototype)
           {
             this.whitelist(meta, [
-              "hasHandlerByGraph",
-              "getHandlerByName",
+              "hasGraphByName",
+              "getGraphByName",
               "convertArgumentToProxy",
               "warnOnce"
             ]);
@@ -750,7 +750,7 @@ xdescribe("Whitelisting object properties", function() {
   
       expect(function() {
         const dryWetMB = new DMembrane();
-        dryWetMB.getHandlerByName(
+        dryWetMB.getGraphByName(
           "wet", { mustCreate: true }
         );
       }).not.toThrow();

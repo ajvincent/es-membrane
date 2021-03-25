@@ -1732,7 +1732,7 @@ class ObjectGraphHandler {
     4. Let parent be ? O.[[GetPrototypeOf]]().
     5. If parent is not null, then
          a. Return ? parent.[[HasProperty]](P).
-    6. Return false. 
+    6. Return false.
     */
 
     // 1. Assert: IsPropertyKey(P) is true.
@@ -2031,7 +2031,7 @@ class ObjectGraphHandler {
       let proxy;
       if (targetCylinder.originGraph !== this.graphName)
         proxy = this.membrane.convertArgumentToProxy(
-          this.membrane.getHandlerByName(targetCylinder.originGraph),
+          this.membrane.getGraphByName(targetCylinder.originGraph),
           this,
           proto
         );
@@ -2434,7 +2434,7 @@ class ObjectGraphHandler {
       // We may be under construction.
       let proto = Object.getPrototypeOf(receiver);
       let protoMap = this.membrane.cylinderMap.get(proto);
-      let pHandler = this.membrane.getHandlerByName(protoMap.originGraph);
+      let pHandler = this.membrane.getGraphByName(protoMap.originGraph);
 
       if (this.membrane.cylinderMap.has(receiver)) {
         /* XXX ajvincent If you're stepping through in a debugger, the debugger
@@ -2488,7 +2488,7 @@ class ObjectGraphHandler {
           // Only now do we convert the value to the target object graph.
           this.membrane.convertArgumentToProxy(
             this,
-            this.membrane.getHandlerByName(receiverMap.originGraph),
+            this.membrane.getGraphByName(receiverMap.originGraph),
             value
           ),
           true
@@ -2533,7 +2533,7 @@ class ObjectGraphHandler {
       // Only now do we convert the value to the target object graph.
       let rvProxy = this.membrane.convertArgumentToProxy(
         this,
-        this.membrane.getHandlerByName(receiverMap.originGraph),
+        this.membrane.getGraphByName(receiverMap.originGraph),
         value
       );
 
@@ -2570,7 +2570,7 @@ class ObjectGraphHandler {
       if (targetCylinder.originGraph !== this.graphName) {
         protoProxy = this.membrane.convertArgumentToProxy(
           this,
-          this.membrane.getHandlerByName(targetCylinder.originGraph),
+          this.membrane.getGraphByName(targetCylinder.originGraph),
           proto
         );
         [found, wrappedProxy] = this.membrane.getMembraneProxy(
@@ -2606,7 +2606,7 @@ class ObjectGraphHandler {
     var target = getRealTarget(shadowTarget);
     var _this, args = [];
     let targetCylinder  = this.membrane.cylinderMap.get(target);
-    let argHandler = this.membrane.getHandlerByName(targetCylinder.originGraph);
+    let argHandler = this.membrane.getGraphByName(targetCylinder.originGraph);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -2680,7 +2680,7 @@ class ObjectGraphHandler {
     var target = getRealTarget(shadowTarget);
     var args = [];
     let targetCylinder  = this.membrane.cylinderMap.get(target);
-    let argHandler = this.membrane.getHandlerByName(targetCylinder.originGraph);
+    let argHandler = this.membrane.getGraphByName(targetCylinder.originGraph);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -3153,7 +3153,7 @@ class ObjectGraphHandler {
           const target = getRealTarget(shadowTarget);
           const targetCylinder = handler.membrane.cylinderMap.get(target);
           if (targetCylinder.originGraph !== handler.graphName) {
-            let originHandler = handler.membrane.getHandlerByName(
+            let originHandler = handler.membrane.getGraphByName(
               targetCylinder.originGraph
             );
             value = handler.membrane.convertArgumentToProxy(
@@ -3791,16 +3791,12 @@ class Membrane {
    * @param {string | symbol} graph The graph to look for.
    * @param {Variant}         value The key for the ProxyCylinder map.
    *
-   * @public
+   * @package
    *
    * @returns [
    *    {Boolean} True if the value was found.
    *    {Variant} The value for that graph.
    * ]
-   *
-   * @note This method is not used internally in the membrane, but only by debug
-   * code to assert that we have the right values stored.  Therefore you really
-   * shouldn't use it in Production.
    */
   getMembraneValue(graph, value) {
     var cylinder = this.cylinderMap.get(value);
@@ -3946,10 +3942,10 @@ class Membrane {
    * @returns {boolean}
    * @public
    */
-  hasHandlerByGraph(graphName) {
+  hasGraphByName(graphName) {
     {
       let t = typeof graphName;
-      if ((t != "string") && (t != "symbol"))
+      if ((t !== "string") && (t !== "symbol"))
         throw new Error("graph must be a string or a symbol!");
     }
     return Reflect.ownKeys(this.handlersByGraphName).includes(graphName);
@@ -3962,16 +3958,16 @@ class Membrane {
    * @param {Object}        options Broken down as follows:
    * - {Boolean} mustCreate  True if we must create a missing graph handler.
    *
-   * @returns {ObjectGraphHandler} The handler for the object graph.
+   * @returns {ObjectGraph | ObjectGraphHandler} The handler for the object graph.
    * @public
    */
-  getHandlerByName(graphName, options) {
+  getGraphByName(graphName, options) {
     if (typeof options === "boolean")
       throw new Error("fix me!");
     let mustCreate = (typeof options == "object") ?
                      Boolean(options.mustCreate) :
                      false;
-    if (mustCreate && !this.hasHandlerByGraph(graphName)) {
+    if (mustCreate && !this.hasGraphByName(graphName)) {
       let graph = null;
       if (this.refactor === "0.10")
         graph = new ObjectGraph(this, graphName);
@@ -4199,8 +4195,8 @@ class Membrane {
         return desc;
     }
 
-    var originHandler = this.getHandlerByName(originGraph);
-    var targetHandler = this.getHandlerByName(targetGraph);
+    var originHandler = this.getGraphByName(originGraph);
+    var targetHandler = this.getGraphByName(targetGraph);
 
     ["value", "get", "set"].forEach(function(descProp) {
       if (!keys.includes(descProp))

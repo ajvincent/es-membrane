@@ -195,16 +195,12 @@ export default class Membrane {
    * @param {string | symbol} graph The graph to look for.
    * @param {Variant}         value The key for the ProxyCylinder map.
    *
-   * @public
+   * @package
    *
    * @returns [
    *    {Boolean} True if the value was found.
    *    {Variant} The value for that graph.
    * ]
-   *
-   * @note This method is not used internally in the membrane, but only by debug
-   * code to assert that we have the right values stored.  Therefore you really
-   * shouldn't use it in Production.
    */
   getMembraneValue(graph, value) {
     var cylinder = this.cylinderMap.get(value);
@@ -350,10 +346,10 @@ export default class Membrane {
    * @returns {boolean}
    * @public
    */
-  hasHandlerByGraph(graphName) {
+  hasGraphByName(graphName) {
     {
       let t = typeof graphName;
-      if ((t != "string") && (t != "symbol"))
+      if ((t !== "string") && (t !== "symbol"))
         throw new Error("graph must be a string or a symbol!");
     }
     return Reflect.ownKeys(this.handlersByGraphName).includes(graphName);
@@ -366,16 +362,16 @@ export default class Membrane {
    * @param {Object}        options Broken down as follows:
    * - {Boolean} mustCreate  True if we must create a missing graph handler.
    *
-   * @returns {ObjectGraphHandler} The handler for the object graph.
+   * @returns {ObjectGraph | ObjectGraphHandler} The handler for the object graph.
    * @public
    */
-  getHandlerByName(graphName, options) {
+  getGraphByName(graphName, options) {
     if (typeof options === "boolean")
       throw new Error("fix me!");
     let mustCreate = (typeof options == "object") ?
                      Boolean(options.mustCreate) :
                      false;
-    if (mustCreate && !this.hasHandlerByGraph(graphName)) {
+    if (mustCreate && !this.hasGraphByName(graphName)) {
       let graph = null;
       if (this.refactor === "0.10")
         graph = new ObjectGraph(this, graphName);
@@ -603,8 +599,8 @@ export default class Membrane {
         return desc;
     }
 
-    var originHandler = this.getHandlerByName(originGraph);
-    var targetHandler = this.getHandlerByName(targetGraph);
+    var originHandler = this.getGraphByName(originGraph);
+    var targetHandler = this.getGraphByName(targetGraph);
 
     ["value", "get", "set"].forEach(function(descProp) {
       if (!keys.includes(descProp))

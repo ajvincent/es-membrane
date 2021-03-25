@@ -44,7 +44,7 @@ export default function buildMembrane(___utilities___) {
   });
 
   {
-    const ___graph___ = rvMembrane.getHandlerByName("internal", { mustCreate: true });
+    const ___graph___ = rvMembrane.getGraphByName("internal", { mustCreate: true });
     const ___listener___ = rvMembrane.modifyRules.createDistortionsListener();
     ___listener___.addListener(ModifyRulesAPI, "value", {
       "filterOwnKeys": [
@@ -156,8 +156,8 @@ export default function buildMembrane(___utilities___) {
         "hasProxyForValue",
         "getMembraneValue",
         "getMembraneProxy",
-        "hasHandlerByGraph",
-        "getHandlerByName",
+        "hasGraphByName",
+        "getGraphByName",
         "ownsHandler",
         "convertArgumentToProxy",
         "bindValuesByHandlers",
@@ -305,8 +305,8 @@ export default function buildMembrane(___utilities___) {
         Membrane.prototype.hasProxyForValue,
         Membrane.prototype.getMembraneValue,
         Membrane.prototype.getMembraneProxy,
-        Membrane.prototype.hasHandlerByGraph,
-        Membrane.prototype.getHandlerByName,
+        Membrane.prototype.hasGraphByName,
+        Membrane.prototype.getGraphByName,
         Membrane.prototype.ownsHandler,
         Membrane.prototype.convertArgumentToProxy,
         Membrane.prototype.bindValuesByHandlers,
@@ -431,7 +431,7 @@ export default function buildMembrane(___utilities___) {
   }
 
   {
-    rvMembrane.getHandlerByName("public", { mustCreate: true });
+    rvMembrane.getGraphByName("public", { mustCreate: true });
   }
 
   return rvMembrane;

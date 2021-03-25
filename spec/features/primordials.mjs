@@ -33,8 +33,8 @@ describe("Primordial values", function() {
 
   it("can pass through all object graphs, if requested", function() {
     const membrane = new Membrane({passThroughFilter: passThrough});
-    const wetHandler = membrane.getHandlerByName("wet", MUSTCREATE);
-    const dryHandler = membrane.getHandlerByName("dry", MUSTCREATE);
+    const wetHandler = membrane.getGraphByName("wet", MUSTCREATE);
+    const dryHandler = membrane.getGraphByName("dry", MUSTCREATE);
 
     topValues.forEach(function(p) {
       let wrappedP = membrane.convertArgumentToProxy(wetHandler, dryHandler, p);
@@ -48,8 +48,8 @@ describe("Primordial values", function() {
 
   it("can pass through specific object graphs, if requested", function() {
     const membrane = new Membrane();
-    const wetHandler = membrane.getHandlerByName("wet", MUSTCREATE);
-    const dryHandler = membrane.getHandlerByName("dry", MUSTCREATE);
+    const wetHandler = membrane.getGraphByName("wet", MUSTCREATE);
+    const dryHandler = membrane.getGraphByName("dry", MUSTCREATE);
 
     wetHandler.passThroughFilter = passThrough;
     dryHandler.passThroughFilter = passThrough;
@@ -62,8 +62,8 @@ describe("Primordial values", function() {
 
   xit("are available through DistortionsListener instances", function() {
     const membrane = new Membrane();
-    const wetHandler = membrane.getHandlerByName("wet", MUSTCREATE);
-    const dryHandler = membrane.getHandlerByName("dry", MUSTCREATE);
+    const wetHandler = membrane.getGraphByName("wet", MUSTCREATE);
+    const dryHandler = membrane.getGraphByName("dry", MUSTCREATE);
 
     let wetDL = membrane.modifyRules.createDistortionsListener();
     wetDL.ignorePrimordials();

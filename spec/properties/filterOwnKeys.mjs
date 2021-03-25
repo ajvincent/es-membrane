@@ -111,7 +111,7 @@ describe("Filtering own keys", function() {
     wetDocument  = null;
     dampDocument = null;
 
-    membrane.getHandlerByName("dry").revokeEverything();
+    membrane.getGraphByName("dry").revokeEverything();
     membrane = null;
     parts    = null;
   }

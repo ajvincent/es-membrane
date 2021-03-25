@@ -19,9 +19,9 @@ it(
     {
       const MUSTCREATE = Object.freeze({ mustCreate: true });
       membrane = new Membrane();
-      wetHandler  = membrane.getHandlerByName("wet", MUSTCREATE);
-      dryHandler  = membrane.getHandlerByName("dry", MUSTCREATE);
-      dampHandler = membrane.getHandlerByName("damp", MUSTCREATE);
+      wetHandler  = membrane.getGraphByName("wet", MUSTCREATE);
+      dryHandler  = membrane.getGraphByName("dry", MUSTCREATE);
+      dampHandler = membrane.getGraphByName("damp", MUSTCREATE);
   
       wetSet  = new WeakSet();
       drySet  = membrane.convertArgumentToProxy(wetHandler, dryHandler,  wetSet);

@@ -73,7 +73,7 @@ export default class GraphWrapping extends LinkedListNode {
       let proxy;
       if (cylinder.originGraph !== this.graphName)
         proxy = this.membrane.convertArgumentToProxy(
-          this.membrane.getHandlerByName(cylinder.originGraph),
+          this.membrane.getGraphByName(cylinder.originGraph),
           this.objectGraph,
           proto
         );

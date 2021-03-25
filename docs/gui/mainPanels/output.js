@@ -137,7 +137,7 @@ const OutputPanel = window.OutputPanel = {
         script += `  {\n    `;
         if (graph.distortions.length || c.passThroughCheckbox.checked)
           script += `const ___graph___ = `;
-        script += `rvMembrane.getHandlerByName(${formattedNames[index]}, { mustCreate: true });\n`;
+        script += `rvMembrane.getGraphByName(${formattedNames[index]}, { mustCreate: true });\n`;
 
         if (c.passThroughCheckbox.checked) {
           script += `    ___graph___.passThroughFilter = ${c.getPassThrough(true)};\n`;

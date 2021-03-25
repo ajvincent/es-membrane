@@ -258,7 +258,7 @@ function defineMembrane(Mocks, logger, mockOptions) {
 
   {
     // Establish "wet" view of document.
-    wetHandler = dryWetMB.getHandlerByName("wet", { mustCreate: true });
+    wetHandler = dryWetMB.getGraphByName("wet", { mustCreate: true });
     Mocks.handlers.wet = wetHandler;
     // Mocks.wet is established in wetDocument.js
 
@@ -276,7 +276,7 @@ function defineDryDocument(Mocks, logger, mockOptions) {
   var ElementDry, NodeDry, dryDocument;
   {
     // Establish proxy handler for "dry" mode.
-    let dryHandler = dryWetMB.getHandlerByName("dry", { mustCreate: true });
+    let dryHandler = dryWetMB.getGraphByName("dry", { mustCreate: true });
     Mocks.handlers.dry = dryHandler;
     Mocks.dry = {};
 
@@ -309,7 +309,7 @@ function defineDryDocument(Mocks, logger, mockOptions) {
   }
 
   {
-    let dryHandler = dryWetMB.getHandlerByName("dry");
+    let dryHandler = dryWetMB.getGraphByName("dry");
     dryWetMB.convertArgumentToProxy(wetHandler, dryHandler, ElementWet);
     let found;
     [found, ElementDry] = dryWetMB.getMembraneProxy("dry", ElementWet);
@@ -319,7 +319,7 @@ function defineDryDocument(Mocks, logger, mockOptions) {
   }
 
   {
-    let dryHandler = dryWetMB.getHandlerByName("dry");
+    let dryHandler = dryWetMB.getGraphByName("dry");
     dryWetMB.convertArgumentToProxy(wetHandler, dryHandler, NodeWet);
     let found;
     [found, NodeDry] = dryWetMB.getMembraneProxy("dry", NodeWet);
@@ -330,7 +330,7 @@ function defineDryDocument(Mocks, logger, mockOptions) {
 }
 
 function dampObjectGraph(parts, mockOptions) {
-  parts.handlers[DAMP] = parts.membrane.getHandlerByName(
+  parts.handlers[DAMP] = parts.membrane.getGraphByName(
     DAMP, { mustCreate: true }
   );
 

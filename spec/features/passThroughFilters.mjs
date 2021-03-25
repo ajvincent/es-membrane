@@ -11,8 +11,8 @@ describe("Pass-through filters", function() {
   describe("on the membrane", function() {
     it("do not wrap objects when returning true", function() {
       const membrane = new Membrane({passThroughFilter: passP});
-      const wetHandler = membrane.getHandlerByName("wet", MUSTCREATE);
-      const dryHandler = membrane.getHandlerByName("dry", MUSTCREATE);
+      const wetHandler = membrane.getGraphByName("wet", MUSTCREATE);
+      const dryHandler = membrane.getGraphByName("dry", MUSTCREATE);
 
       let wrappedP = membrane.convertArgumentToProxy(wetHandler, dryHandler, p);
       expect(wrappedP).toBe(p);
@@ -30,7 +30,7 @@ describe("Pass-through filters", function() {
       expect(wrappedP).toBe(p);
 
       // through another graph handler
-      const dampHandler = membrane.getHandlerByName(
+      const dampHandler = membrane.getGraphByName(
         Symbol("damp"), { mustCreate: true }
       );
       wrappedP = membrane.convertArgumentToProxy(wetHandler, dampHandler, p);
@@ -47,8 +47,8 @@ describe("Pass-through filters", function() {
           return false;
         }
       });
-      const wetHandler = membrane.getHandlerByName("wet", MUSTCREATE);
-      const dryHandler = membrane.getHandlerByName("dry", MUSTCREATE);
+      const wetHandler = membrane.getGraphByName("wet", MUSTCREATE);
+      const dryHandler = membrane.getGraphByName("dry", MUSTCREATE);
 
       let proxyToP = membrane.convertArgumentToProxy(wetHandler, dryHandler, p);
       expect(proxyToP).not.toBe(p);
@@ -76,8 +76,8 @@ describe("Pass-through filters", function() {
             return false;
           }
         });
-        const wetHandler = membrane.getHandlerByName("wet", MUSTCREATE);
-        const dryHandler = membrane.getHandlerByName("dry", MUSTCREATE);
+        const wetHandler = membrane.getGraphByName("wet", MUSTCREATE);
+        const dryHandler = membrane.getGraphByName("dry", MUSTCREATE);
 
         let wrappedP = membrane.convertArgumentToProxy(
           wetHandler, dryHandler, p
@@ -101,8 +101,8 @@ describe("Pass-through filters", function() {
       "force wrapping when the membrane filter returns false and there are no graph filters",
       function() {
         const membrane = new Membrane({passThroughFilter: () => false});
-        const wetHandler = membrane.getHandlerByName("wet", MUSTCREATE);
-        const dryHandler = membrane.getHandlerByName("dry", MUSTCREATE);
+        const wetHandler = membrane.getGraphByName("wet", MUSTCREATE);
+        const dryHandler = membrane.getGraphByName("dry", MUSTCREATE);
 
         let proxyToP = membrane.convertArgumentToProxy(wetHandler, dryHandler, p);
         expect(proxyToP).not.toBe(p);
@@ -161,8 +161,8 @@ describe("Pass-through filters", function() {
         }
       });
 
-      const wetHandler = membrane.getHandlerByName("wet", MUSTCREATE);
-      const dryHandler = membrane.getHandlerByName("dry", MUSTCREATE);
+      const wetHandler = membrane.getGraphByName("wet", MUSTCREATE);
+      const dryHandler = membrane.getGraphByName("dry", MUSTCREATE);
       expect(function() {
         membrane.convertArgumentToProxy(wetHandler, dryHandler, {});
       }).toThrow(p);
@@ -173,8 +173,8 @@ describe("Pass-through filters", function() {
     let membrane, wetHandler, dryHandler;
     beforeEach(function() {
       membrane = new Membrane();
-      wetHandler = membrane.getHandlerByName("wet", MUSTCREATE);
-      dryHandler = membrane.getHandlerByName("dry", MUSTCREATE);
+      wetHandler = membrane.getGraphByName("wet", MUSTCREATE);
+      dryHandler = membrane.getGraphByName("dry", MUSTCREATE);
     });
     afterEach(function() {
       membrane = undefined;

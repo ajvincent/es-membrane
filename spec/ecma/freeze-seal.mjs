@@ -38,10 +38,10 @@ function FreezeSealMocks(defineListeners, adjustParts) {
 
   parts.wet.b.instance = 1;
 
-  parts.handlers.wet = parts.membrane.getHandlerByName(
+  parts.handlers.wet = parts.membrane.getGraphByName(
     "wet", { mustCreate: true }
   );
-  parts.handlers.dry = parts.membrane.getHandlerByName(
+  parts.handlers.dry = parts.membrane.getGraphByName(
     "dry", { mustCreate: true }
   );
 

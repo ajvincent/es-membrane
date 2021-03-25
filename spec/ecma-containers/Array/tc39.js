@@ -43,10 +43,10 @@ describe("TC39 demonstrations of Array objects in membranes: ", function() {
     parts.wet.array.push(parts.wet.beta);
     parts.wet.array.push(parts.wet.gamma);
 
-    parts.handlers.wet = parts.membrane.getHandlerByName(
+    parts.handlers.wet = parts.membrane.getGraphByName(
       "wet", { mustCreate: true }
     );
-    parts.handlers.dry = parts.membrane.getHandlerByName(
+    parts.handlers.dry = parts.membrane.getGraphByName(
       "dry", { mustCreate: true }
     );
   });
