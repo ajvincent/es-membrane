@@ -1,5 +1,6 @@
 import {
   AccessorDescriptor,
+  NOT_YET_DETERMINED,
   NWNCDataDescriptor,
   DataDescriptor,
   DeadProxyKey,
@@ -335,4 +336,8 @@ describe("assert", () => {
   it("throws an exception on a failed condition", () => {
     expect(() => assert(false, "foo")).toThrowError("Assertion failure: foo");
   });
+});
+
+it("NOT_YET_DETERMINED is a symbol and thus immutable", () => {
+  expect(typeof NOT_YET_DETERMINED).toBe("symbol");
 });

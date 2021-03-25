@@ -247,12 +247,7 @@ function makeRevokeDeleteRefs(parts, cylinder, graphName) {
   }, true));
 }
 
-const NOT_YET_DETERMINED = {};
-Object.defineProperty(
-  NOT_YET_DETERMINED,
-  "not_yet_determined",
-  new NWNCDataDescriptor(true)
-);
+const NOT_YET_DETERMINED = Symbol("Not yet determined");
 
 /** @module source/core/ProxyCylinder */
 
@@ -3377,25 +3372,45 @@ class ObjectGraph {
         throw new Error("graph name must be a string or a symbol!");
     }
 
-    // private
     defineNWNCProperties(this, {
+      /**
+       * @public
+       */
       membrane,
-      graphName,
 
-      __isDead__: false,
+      /**
+       * @public
+       */
+      graphName,
     }, true);
 
-    // private
     defineNWNCProperties(this, {
+      /**
+       * @private
+       */
+      __isDead__: false,
+
+      /**
+       * @package
+       */
       masterProxyHandler: new MembraneProxyHandlers.Master(this),
 
+      /**
+       * @private
+       */
       __revokeFunctions__: [],
+
+      /**
+       * @private
+       */
       __proxyListeners__: new Set,
     }, false);
   }
 
   /**
    * @public
+   *
+   * @deprecated, see https://github.com/ajvincent/es-membrane/issues/239
    */
   get passThroughFilter() {
     return passThroughMap$1.get(this) || returnFalse;
@@ -3405,6 +3420,7 @@ class ObjectGraph {
    * @param {function} val
    *
    * @public
+   * @deprecated, see https://github.com/ajvincent/es-membrane/issues/239
    */
   set passThroughFilter(val) {
     if (passThroughMap$1.has(this))
@@ -3414,6 +3430,9 @@ class ObjectGraph {
     passThroughMap$1.set(this, val);
   }
 
+  /**
+   * @deprecated, see https://github.com/ajvincent/es-membrane/issues/239
+   */
   get mayReplacePassThrough() {
     return !passThroughMap$1.has(this);
   }
@@ -3713,13 +3732,10 @@ class Membrane {
    * @param {Object} options
    */
   constructor(options = {}) {
-    let passThrough = (typeof options.passThroughFilter === "function") ?
-                      options.passThroughFilter :
-                      returnFalse;
-
     defineNWNCProperties(this, {
       /**
        * @private
+       * @deprecated
        */
       showGraphName: Boolean(options.showGraphName),
 
@@ -3756,7 +3772,9 @@ class Membrane {
       /**
        * @package
        */
-      passThroughFilter: passThrough,
+      passThroughFilter: (typeof options.passThroughFilter === "function") ?
+                         options.passThroughFilter :
+                         returnFalse,
     }, false);
 
     defineNWNCProperties(this, {
@@ -3771,6 +3789,7 @@ class Membrane {
        a dogfood membrane.
     Object.seal(this);
     */
+    Reflect.preventExtensions(this);
   }
 
   /**
@@ -3975,14 +3994,6 @@ class Membrane {
     return (((graph instanceof ObjectGraphHandler) ||
              (graph instanceof ObjectGraph)) &&
             (this.handlersByGraphName[graph.graphName] === graph));
-  }
-
-  /**
-   * @public
-   * @note this will be replaced by getters/setters soon
-   */
-  passThroughFilter() {
-    return false;
   }
 
   /**

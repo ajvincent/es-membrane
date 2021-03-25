@@ -1,18 +1,16 @@
 import Membrane from "../../source/core/Membrane.mjs"
 
+const MUSTCREATE = Object.freeze({ mustCreate: true });
+const topValues = [
+  /* explicitly testing for prototypes passing through */
+  Object.prototype, Function.prototype, Array.prototype,
+  /* testing common primordials as well */
+  Object, Function, Array, Date, Map, Set, WeakMap, WeakSet
+];
+const pSet = new Set(Membrane.Primordials);
+const passThrough = pSet.has.bind(pSet);
+
 describe("Primordial values", function() {
-  const MUSTCREATE = Object.freeze({ mustCreate: true });
-  const topValues = [
-    /* explicitly testing for prototypes passing through */
-    Object.prototype, Function.prototype, Array.prototype,
-    /* testing common primordials as well */
-    Object, Function, Array, Date, Map, Set, WeakMap, WeakSet
-  ];
-  var passThrough;
-  {
-    const pSet = new Set(Membrane.Primordials);
-    passThrough = pSet.has.bind(pSet);
-  }
 
   it("are available on the Membrane as a frozen array", function() {
     expect(Array.isArray(Membrane.Primordials)).toBe(true);

@@ -117,13 +117,10 @@ export default class Membrane {
    * @param {Object} options
    */
   constructor(options = {}) {
-    let passThrough = (typeof options.passThroughFilter === "function") ?
-                      options.passThroughFilter :
-                      returnFalse;
-
     defineNWNCProperties(this, {
       /**
        * @private
+       * @deprecated
        */
       showGraphName: Boolean(options.showGraphName),
 
@@ -160,7 +157,9 @@ export default class Membrane {
       /**
        * @package
        */
-      passThroughFilter: passThrough,
+      passThroughFilter: (typeof options.passThroughFilter === "function") ?
+                         options.passThroughFilter :
+                         returnFalse,
     }, false);
 
     defineNWNCProperties(this, {
@@ -175,6 +174,7 @@ export default class Membrane {
        a dogfood membrane.
     Object.seal(this);
     */
+    Reflect.preventExtensions(this);
   }
 
   /**
@@ -379,14 +379,6 @@ export default class Membrane {
     return (((graph instanceof ObjectGraphHandler) ||
              (graph instanceof ObjectGraph)) &&
             (this.handlersByGraphName[graph.graphName] === graph));
-  }
-
-  /**
-   * @public
-   * @note this will be replaced by getters/setters soon
-   */
-  passThroughFilter() {
-    return false;
   }
 
   /**

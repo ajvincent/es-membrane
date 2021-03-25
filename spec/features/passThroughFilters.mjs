@@ -1,13 +1,14 @@
 import Membrane from "../../source/core/Membrane.mjs"
 
+const MUSTCREATE = Object.freeze({ mustCreate: true });
+const p = {};
+function passP(value) {
+  if (value === p)
+    return true;
+  return false;
+}
+
 describe("Pass-through filters", function() {
-  const MUSTCREATE = Object.freeze({ mustCreate: true });
-  const p = {};
-  function passP(value) {
-    if (value === p)
-      return true;
-    return false;
-  }
   describe("on the membrane", function() {
     it("do not wrap objects when returning true", function() {
       const membrane = new Membrane({passThroughFilter: passP});

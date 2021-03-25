@@ -247,9 +247,4 @@ export function makeRevokeDeleteRefs(parts, cylinder, graphName) {
   }, true));
 }
 
-export const NOT_YET_DETERMINED = {};
-Object.defineProperty(
-  NOT_YET_DETERMINED,
-  "not_yet_determined",
-  new NWNCDataDescriptor(true)
-);
+export const NOT_YET_DETERMINED = Symbol("Not yet determined");

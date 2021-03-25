@@ -29,25 +29,45 @@ export default class ObjectGraph {
         throw new Error("graph name must be a string or a symbol!");
     }
 
-    // private
     defineNWNCProperties(this, {
+      /**
+       * @public
+       */
       membrane,
-      graphName,
 
-      __isDead__: false,
+      /**
+       * @public
+       */
+      graphName,
     }, true);
 
-    // private
     defineNWNCProperties(this, {
+      /**
+       * @private
+       */
+      __isDead__: false,
+
+      /**
+       * @package
+       */
       masterProxyHandler: new MembraneProxyHandlers.Master(this),
 
+      /**
+       * @private
+       */
       __revokeFunctions__: [],
+
+      /**
+       * @private
+       */
       __proxyListeners__: new Set,
     }, false);
   }
 
   /**
    * @public
+   *
+   * @deprecated, see https://github.com/ajvincent/es-membrane/issues/239
    */
   get passThroughFilter() {
     return passThroughMap.get(this) || returnFalse;
@@ -57,6 +77,7 @@ export default class ObjectGraph {
    * @param {function} val
    *
    * @public
+   * @deprecated, see https://github.com/ajvincent/es-membrane/issues/239
    */
   set passThroughFilter(val) {
     if (passThroughMap.has(this))
@@ -66,6 +87,9 @@ export default class ObjectGraph {
     passThroughMap.set(this, val);
   }
 
+  /**
+   * @deprecated, see https://github.com/ajvincent/es-membrane/issues/239
+   */
   get mayReplacePassThrough() {
     return !passThroughMap.has(this);
   }
