@@ -7,15 +7,6 @@
  * operations, as a unit-testable component.
  *
  * @see Tracing.mjs for an example of how to write a LinkedListNode subclass.
- *
- * This file relies on a special trick about proxy handlers, specifically those when the underlying
- * ECMAScript engine executes their traps.  The traps only receive arguments from the engine which
- * the ECMA-262 specification defines.
- *
- * So if we add any new arguments for internal use, say, an array of subsequent ProxyHandlers,
- * and each one calls the next in sequence, and the last is Reflect, we only need to look up on
- * a WeakMap for a shadow target to get the sequence of ProxyHandlers and pass it in.
- *
  */
 
 import Base from "./Base.mjs";
@@ -26,8 +17,10 @@ import {
   getRealTarget,
 } from "../core/utilities/shared.mjs";
 
+import NextHandlerMap from "../core/utilities/NextHandlerMap.mjs";
+
 /**
- * @type WeakMap<(LinkedListHeadNode | ShadowTarget), (LinkedListNode | Reflect)[]>
+ * @type WeakMap<(LinkedListHead | ShadowTarget), (LinkedListNode | Reflect)[]>
  * @private
  */
 const LinkedListMap = new WeakMap();
@@ -41,15 +34,35 @@ const ProxiesCreated = new WeakSet();
 /**
  * @public
  */
-class LinkedListNode extends Base {
+export class LinkedListNode extends Base {
   constructor(objectGraph) {
     super();
     defineNWNCProperties(this, {
       /**
-       * @package
+       * @public
        */
       objectGraph,
+    }, true);
+
+    defineNWNCProperties(this, {
+      /**
+       * @package
+       */
+      nextHandlerMap: new NextHandlerMap,
     }, false);
+  }
+
+  /**
+   *
+   * @param {string} trapName
+   * @param {Object} shadowTarget
+   * @param {void[]} args
+   *
+   * @returns {void}
+   * @public
+   */
+  invokeNextHandler(trapName, shadowTarget, ...args) {
+    return this.nextHandlerMap.invokeNextHandler(trapName, shadowTarget, ...args);
   }
 }
 Object.freeze(LinkedListNode);
@@ -61,70 +74,36 @@ Object.freeze(LinkedListNode.prototype);
  * @note This is deliberately not exported, as I don't want customers to
  * manipulate the head node, which is where proxies start.
  */
-class LinkedListHeadNode extends LinkedListNode {
-  constructor(objectGraph) {
-    super(objectGraph, false);
+class LinkedListHead extends Base {
+  constructor() {
+    super();
     Object.freeze(this);
   }
 }
 allTraps.forEach(trapName => {
   Reflect.defineProperty(
-    LinkedListHeadNode.prototype,
+    LinkedListHead.prototype,
     trapName,
     function(shadowTarget, ...args) {
       let handlerArray = LinkedListMap.get(shadowTarget);
       if (!handlerArray)
         handlerArray = LinkedListMap.get(this);
       handlerArray = handlerArray.slice();
-      args.push(handlerArray);
 
       const nextHandler = handlerArray.shift();
       return nextHandler[trapName](shadowTarget, ...args);
     }
   );
 });
-Object.freeze(LinkedListHeadNode);
-Object.freeze(LinkedListHeadNode.prototype);
-
-export class LinkedListNodeWrapping extends LinkedListNode {
-  constructor(objectGraph, actualHandler) {
-    super(objectGraph);
-    if (!(actualHandler instanceof Base))
-      throw new Error("actualHandler must be a ProxyHandler!");
-
-    defineNWNCProperties(this, { actualHandler }, false);
-
-    this.nextHandler = null;
-  }
-}
-{
-  const traps = allTraps.map(trapName => function(...args) {
-    if (this.nextHandler) {
-      return this.actualHandler[trapName].apply(this, args);
-    }
-
-    const remainingHandlers = args[Reflect[trapName].length];
-    this.nextHandler = remainingHandlers.shift();
-
-    try {
-      return this.actualHandler[trapName].apply(this, args);
-    }
-    finally {
-      this.nextHandler = null;
-    }
-  });
-
-  defineNWNCProperties(LinkedListNodeWrapping.prototype, traps, true);
-}
-Object.freeze(LinkedListNodeWrapping);
-Object.freeze(LinkedListNodeWrapping.prototype);
+Object.freeze(LinkedListHead);
+Object.freeze(LinkedListHead.prototype);
 
 /**
- * @package
+ * @public
  */
 export class LinkedListManager {
   constructor(objectGraph) {
-    const head = new LinkedListHeadNode(objectGraph);
+    const head = new LinkedListHead();
 
     defineNWNCProperties(this, {
       /**
@@ -140,7 +119,7 @@ export class LinkedListManager {
       /**
        * @private
        */
-      denyPrependSet: new Set(),
+      denyPrependSet: new Set([head]),
     }, false);
 
     Object.freeze(this);
@@ -148,9 +127,84 @@ export class LinkedListManager {
   }
 
   /**
+   *
+   * @param {boolean}                       mayInsertBefore
+   * @param {LinkedListNode}                newHandler
+   * @param {Reflect | LinkedListNode}      currentHandler
+   * @param {ShadowTarget | LinkedListHead} shadowTargetOrHead
+   *
    * @public
    */
-  preventInsertBeforeReflect() {
+  insertBefore(mayInsertBefore, newHandler, currentHandler = Reflect, shadowTargetOrHead = this.head) {
+    if (typeof mayInsertBefore !== "boolean")
+      throw new Error("mayInsertBefore must be a boolean!");
+
+    if (!(newHandler instanceof LinkedListNode))
+      throw new Error("newHandler must be a LinkedListNode!");
+
+    if (newHandler.objectGraph !== this.objectGraph)
+      throw new Error("newHandler must share the same object graph as the LinkedListManager!");
+
+    if (this.denyPrependSet.has(currentHandler))
+      throw new Error("No handler may be inserted immediately before the current handler!");
+
+    if (shadowTargetOrHead !== this.head)
+      this.requireShadowTarget(shadowTargetOrHead, true);
+
+    const sequence = LinkedListMap.get(shadowTargetOrHead);
+    if (!sequence)
+      throw new Error("No sequence of LinkedListNode objects recorded for target!  (Call this.cloneSequence() first?)");
+
+    if (Object.isFrozen(sequence))
+      throw new Error("Sequence of LinkedListNode objects is locked!");
+
+    const index = sequence.indexOf(currentHandler);
+    if (index === -1)
+      throw new Error("Current handler not found in sequence of LinkedListNode objects!");
+
+    sequence.splice(index, 0, newHandler);
+    if (!mayInsertBefore)
+      this.denyPrependSet.add(newHandler);
+  }
+
+  /**
+   * 
+   * @param {ProxyHandler} handler
+   * @param {ShadowTarget | LinkedListHead} shadowTargetOrHead
+   *
+   * @returns {boolean}
+   * @public
+   */
+  canInsertBefore(handler, shadowTargetOrHead = this.head) {
+    const sequence = LinkedListMap.get(shadowTargetOrHead);
+    if (!sequence)
+      throw new Error("No sequence of LinkedListNode objects recorded for target!  (Call this.cloneSequence() first?)");
+
+    const index = sequence.indexOf(handler);
+    if (index === -1)
+      throw new Error("Current handler not found in sequence of LinkedListNode objects!");
+
+    return !Object.isFrozen(sequence) && !this.denyPrependSet.has(handler);
+  }
+
+  /**
+   *
+   * @param shadowTargetOrHead
+   *
+   * @returns {LinkedListNode[]}
+   * @public
+   */
+  getSequence(shadowTargetOrHead = this.head) {
+    if (shadowTargetOrHead !== this.head)
+      this.requireShadowTarget(shadowTargetOrHead, true);
+    const sequence = LinkedListMap.get(shadowTargetOrHead);
+    return sequence ? sequence.slice() : null;
+  }
+
+  /**
+   * @public
+   */
+  denyInsertBeforeReflect() {
     this.denyPrependSet.add(Reflect);
   }
 
@@ -180,67 +234,33 @@ export class LinkedListManager {
   lockSequence(shadowTargetOrHead = this.head) {
     if (shadowTargetOrHead !== this.head)
       this.requireShadowTarget(shadowTargetOrHead, true);
-    const sequence = LinkedListMap.get(shadowTargetOrHead);
+    let sequence = LinkedListMap.get(shadowTargetOrHead);
     if (!sequence)
       throw new Error("No sequence exists for this shadow target!");
     Object.freeze(sequence);
-  }
 
-  /**
-   *
-   * @param shadowTargetOrHead
-   *
-   * @returns {LinkedListNode[]}
-   * @public
-   */
-  getSequence(shadowTargetOrHead = this.head) {
-    if (shadowTargetOrHead !== this.head)
-      this.requireShadowTarget(shadowTargetOrHead, true);
-    const sequence = LinkedListMap.get(shadowTargetOrHead);
-    if (!sequence)
-      throw new Error("No sequence exists for this shadow target!");
-    return sequence.slice();
-  }
+    // fill NextHandlerMap
+    sequence = sequence.slice();
+    const cache = new Map();
+    do {
+      const handler = sequence.pop();
+      allTraps.forEach(trapName => {
+        if (handler[trapName] === Base.prototype[trapName]) {
+          return;
+        }
 
-  /**
-   *
-   * @param preventInsertBefore
-   * @param newHandler
-   * @param currentHandler
-   * @param shadowTargetOrHead
-   *
-   * @public
-   */
-  insertBefore(preventInsertBefore, newHandler, currentHandler = Reflect, shadowTargetOrHead = this.head) {
-    if (typeof preventInsertBefore !== "boolean")
-      throw new Error("preventInsertBefore must be a boolean!");
+        const cacheHandler = cache.get(trapName);
+        if (cacheHandler) {
+          NextHandlerMap.get(trapName).set(handler, cacheHandler);
+        }
 
-    if (!(newHandler instanceof LinkedListNodeWrapping))
-      throw new Error("newHandler must be a LinkedListNodeWrapping!");
+        cache.set(trapName, handler);
+      });
+    } while (sequence.length);
 
-    if (newHandler.objectGraph !== this.objectGraph)
-      throw new Error("newHandler must share the same object graph as the LinkedListManager!");
-
-    if (this.denyPrependSet.has(currentHandler))
-      throw new Error("No handler may be inserted immediately before the current handler!");
-
-    if (shadowTargetOrHead !== this.head)
-      this.requireShadowTarget(shadowTargetOrHead, true);
-
-    const sequence = LinkedListMap.get(shadowTargetOrHead);
-    if (!sequence)
-      throw new Error("No sequence of LinkedListNode objects recorded for target!  (Call this.cloneSequence() first?)");
-
-    if (Object.isFrozen(sequence))
-      throw new Error("Sequence of LinkedListNode objects is locked!");
-
-    const index = sequence.indexOf(currentHandler);
-    if (index === -1)
-      throw new Error("Current handler not found in sequence of LinkedListNode objects!");
-
-    sequence.splice(index, 0, newHandler);
-    if (preventInsertBefore)
-      this.denyPrependSet.add(newHandler);
+    allTraps.forEach(trapName => {
+      NextHandlerMap.get(trapName).set(shadowTargetOrHead, cache.get(trapName));
+    });
   }
 
   /**
@@ -256,8 +276,9 @@ export class LinkedListManager {
       throw new Error("You already have a Proxy for this target!");
     ProxiesCreated.add(shadowTarget);
 
-    const sequence = LinkedListMap.get(shadowTarget) || LinkedListMap.get(this.head);
-    Object.freeze(sequence);
+    this.lockSequence(this.head);
+    if (LinkedListMap.has(shadowTarget))
+      this.lockSequence(shadowTarget);
 
     return Proxy.revocable(shadowTarget, this.head);
   }
