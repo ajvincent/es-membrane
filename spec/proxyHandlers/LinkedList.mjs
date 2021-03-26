@@ -1,5 +1,5 @@
 import {
-  LinkedListNode,
+  LinkedListHandler,
   LinkedListManager,
 } from "../../source/ProxyHandlers/LinkedList.mjs";
 
@@ -11,40 +11,44 @@ import {
 
 const objectGraph = {};
 
-describe("LinkedListNode", () => {
-  let node;
+describe("LinkedListHandler", () => {
+  let handler;
   beforeEach(() => {
-    node = new LinkedListNode(objectGraph);
+    handler = new LinkedListHandler(objectGraph);
   });
 
   it("class is frozen", () => {
-    expect(Object.isFrozen(LinkedListNode)).toBe(true);
-    expect(Object.isFrozen(LinkedListNode.prototype)).toBe(true);
+    expect(Object.isFrozen(LinkedListHandler)).toBe(true);
+    expect(Object.isFrozen(LinkedListHandler.prototype)).toBe(true);
+  });
+
+  it("instances are extensible", () => {
+    expect(Reflect.isExtensible(handler)).toBe(true);
   });
 
   xit("is exposed on Membrane", () => {
-    const desc = Reflect.getOwnPropertyDescriptor(Membrane, "LinkedListNode");
-    expectValueDescriptor(LinkedListNode, false, true, false, desc);
+    const desc = Reflect.getOwnPropertyDescriptor(Membrane, "LinkedListHandler");
+    expectValueDescriptor(LinkedListHandler, false, true, false, desc);
   });
 
   it("has the object graph property", () => {
-    const desc = Reflect.getOwnPropertyDescriptor(node, "objectGraph");
+    const desc = Reflect.getOwnPropertyDescriptor(handler, "objectGraph");
     expectValueDescriptor(objectGraph, false, true, false, desc);
   });
 
   it("forwards invokeNextHandler to its NextHandlerMap", () => {
-    const handler = jasmine.createSpyObj("handler", ["ownKeys"]);
+    const nextHandler = jasmine.createSpyObj("handler", ["ownKeys"]);
 
     // allowed because it's a package property
-    node.nextHandlerMap.setDefault("ownKeys", handler);
+    handler.nextHandlerMap.setDefault("ownKeys", nextHandler);
 
     const shadowTarget = {};
     const args = [{}, {}, {}];
     const rv = {};
-    handler.ownKeys.and.returnValue(rv);
+    nextHandler.ownKeys.and.returnValue(rv);
 
-    expect(node.invokeNextHandler("ownKeys", shadowTarget, ...args)).toBe(rv);
-    expect(handler.ownKeys).toHaveBeenCalledOnceWith(shadowTarget, ...args);
+    expect(handler.invokeNextHandler("ownKeys", shadowTarget, ...args)).toBe(rv);
+    expect(nextHandler.ownKeys).toHaveBeenCalledOnceWith(shadowTarget, ...args);
   });
 });
 
@@ -75,8 +79,8 @@ describe("LinkedListManager", () => {
   });
 
   describe(".insertBefore() with no specified shadow target", () => {
-    it("accepts (false, new LinkedListNode()) on the first call", () => {
-      const handler = new LinkedListNode(objectGraph);
+    it("accepts (false, new LinkedListHandler()) on the first call", () => {
+      const handler = new LinkedListHandler(objectGraph);
       expect(() => {
         manager.insertBefore(false, handler);
       }).not.toThrow();
@@ -85,8 +89,8 @@ describe("LinkedListManager", () => {
       expect(manager.canInsertBefore(handler)).toBe(false);
     });
 
-    it("accepts (true, new LinkedListNode()) on the first call", () => {
-      const handler = new LinkedListNode(objectGraph);
+    it("accepts (true, new LinkedListHandler()) on the first call", () => {
+      const handler = new LinkedListHandler(objectGraph);
       expect(() => {
         manager.insertBefore(true, handler);
       }).not.toThrow();
@@ -95,10 +99,10 @@ describe("LinkedListManager", () => {
       expect(manager.canInsertBefore(handler)).toBe(true);
     });
 
-    it("accepts (false, new LinkedListNode()) before Reflect", () => {
-      const handler1 = new LinkedListNode(objectGraph);
+    it("accepts (false, new LinkedListHandler()) before Reflect", () => {
+      const handler1 = new LinkedListHandler(objectGraph);
       manager.insertBefore(false, handler1);
-      const handler2 = new LinkedListNode(objectGraph);
+      const handler2 = new LinkedListHandler(objectGraph);
       expect(() => {
         manager.insertBefore(false, handler2);
       }).not.toThrow();
@@ -107,10 +111,10 @@ describe("LinkedListManager", () => {
       expect(manager.canInsertBefore(handler2)).toBe(false);
     });
 
-    it("accepts (true, new LinkedListNode()) before Reflect", () => {
-      const handler1 = new LinkedListNode(objectGraph);
+    it("accepts (true, new LinkedListHandler()) before Reflect", () => {
+      const handler1 = new LinkedListHandler(objectGraph);
       manager.insertBefore(false, handler1);
-      const handler2 = new LinkedListNode(objectGraph);
+      const handler2 = new LinkedListHandler(objectGraph);
       expect(() => {
         manager.insertBefore(false, handler2);
       }).not.toThrow();
@@ -119,10 +123,10 @@ describe("LinkedListManager", () => {
       expect(manager.canInsertBefore(handler2)).toBe(false);
     });
 
-    it("accepts (false, new LinkedListNode()) before another handler that allows insertBefore", () => {
-      const handler1 = new LinkedListNode(objectGraph);
+    it("accepts (false, new LinkedListHandler()) before another handler that allows insertBefore", () => {
+      const handler1 = new LinkedListHandler(objectGraph);
       manager.insertBefore(true, handler1);
-      const handler2 = new LinkedListNode(objectGraph);
+      const handler2 = new LinkedListHandler(objectGraph);
       expect(() => {
         manager.insertBefore(true, handler2, handler1);
       }).not.toThrow();
@@ -131,10 +135,10 @@ describe("LinkedListManager", () => {
       expect(manager.canInsertBefore(handler2)).toBe(true);
     });
 
-    it("throws on (true, new LinkedListNode()) before another handler that rejects insertBefore", () => {
-      const handler1 = new LinkedListNode(objectGraph);
+    it("throws on (true, new LinkedListHandler()) before another handler that rejects insertBefore", () => {
+      const handler1 = new LinkedListHandler(objectGraph);
       manager.insertBefore(false, handler1);
-      const handler2 = new LinkedListNode(objectGraph);
+      const handler2 = new LinkedListHandler(objectGraph);
       expect(() => {
         manager.insertBefore(false, handler2, handler1);
       }).toThrowError("No handler may be inserted immediately before the current handler!");
@@ -143,7 +147,7 @@ describe("LinkedListManager", () => {
     });
 
     it("throws when mayInsertBefore is not a boolean", () => {
-      const handler = new LinkedListNode(objectGraph);
+      const handler = new LinkedListHandler(objectGraph);
       expect(() => {
         manager.insertBefore(null, handler);
       }).toThrowError("mayInsertBefore must be a boolean!");
@@ -151,16 +155,16 @@ describe("LinkedListManager", () => {
       expect(manager.getSequence()).toEqual([Reflect]);
     });
 
-    it("throws when the handler is not a LinkedListNode", () => {
+    it("throws when the handler is not a LinkedListHandler", () => {
       expect(() => {
         manager.insertBefore(true, {});
-      }).toThrowError("newHandler must be a LinkedListNode!");
+      }).toThrowError("newHandler must be a LinkedListHandler!");
 
       expect(manager.getSequence()).toEqual([Reflect]);
     });
 
     it("throws when the handler has a different object graph", () => {
-      const handler = new LinkedListNode({});
+      const handler = new LinkedListHandler({});
       expect(() => {
         manager.insertBefore(true, handler);
       }).toThrowError("newHandler must share the same object graph as the LinkedListManager!");
@@ -169,10 +173,10 @@ describe("LinkedListManager", () => {
     });
 
     it("throws for an unknown currentHandler", () => {
-      const handler = new LinkedListNode(objectGraph);
+      const handler = new LinkedListHandler(objectGraph);
       expect(() => {
         manager.insertBefore(true, handler, {});
-      }).toThrowError("Current handler not found in sequence of LinkedListNode objects!");
+      }).toThrowError("Current handler not found in sequence of LinkedListHandler objects!");
 
       expect(manager.getSequence()).toEqual([Reflect]);
     });

@@ -3,10 +3,10 @@
  *
  * This implements a LinkedList proxy handler and nodes for the linked list.
  *
- * LinkedListNode objects should form the basis for any real-world proxy
+ * LinkedListHandler objects should form the basis for any real-world proxy
  * operations, as a unit-testable component.
  *
- * @see Tracing.mjs for an example of how to write a LinkedListNode subclass.
+ * @see Tracing.mjs for an example of how to write a LinkedListHandler subclass.
  */
 
 import Base from "./Base.mjs";
@@ -20,21 +20,27 @@ import {
 import NextHandlerMap from "../core/utilities/NextHandlerMap.mjs";
 
 /**
- * @type WeakMap<(LinkedListHead | ShadowTarget), (LinkedListNode | Reflect)[]>
+ * @type WeakMap<(LinkedListHead | ShadowTarget), (LinkedListHandler | Reflect)[]>
  * @private
  */
 const LinkedListMap = new WeakMap();
 
 /**
- * @type WeakSet<ShadowTarget>
+ * @type {WeakSet<ShadowTarget>}
  * @private
  */
 const ProxiesCreated = new WeakSet();
 
 /**
+ * @type {WeakSet<LinkedListHandler>}
+ * @private
+ */
+const LockedSet = new WeakSet();
+
+/**
  * @public
  */
-export class LinkedListNode extends Base {
+export class LinkedListHandler extends Base {
   constructor(objectGraph) {
     super();
     defineNWNCProperties(this, {
@@ -52,6 +58,15 @@ export class LinkedListNode extends Base {
     }, false);
   }
 
+  get lockedForLinkedList() {
+    return LockedSet.has(this);
+  }
+
+  set lockedForLinkedList(val) {
+    if (val)
+      LockedSet.add(this);
+  }
+
   /**
    *
    * @param {string} trapName
@@ -65,8 +80,8 @@ export class LinkedListNode extends Base {
     return this.nextHandlerMap.invokeNextHandler(trapName, shadowTarget, ...args);
   }
 }
-Object.freeze(LinkedListNode);
-Object.freeze(LinkedListNode.prototype);
+Object.freeze(LinkedListHandler);
+Object.freeze(LinkedListHandler.prototype);
 
 /**
  * @private
@@ -99,6 +114,127 @@ Object.freeze(LinkedListHead);
 Object.freeze(LinkedListHead.prototype);
 
 /**
+ * This is a special LinkedListHandler which explicitly names the next handler
+ * for the linked list.  Think of this as a "goto" command.  If you provide
+ * this to a LinkedListManager, it will use this to link from this handler
+ * to the next handler for all shadow targets.
+ *
+ * Each LinkedListHandler handler which the JumpHandler tracks must be in
+ * the LinkedListManager's sequence already, when you insert the JumpHandler
+ * into the manager's sequence, and they must be after the JumpHandler.
+ * This is to prevent loops.
+ *
+ * You definitely should implement traps on instances of JumpHandler.
+ * The defaultNext handler is simply what LinkedListManager will use for
+ * invokeNextHandler().
+ *
+ * @public
+ */
+export class JumpHandler extends LinkedListHandler {
+  constructor(objectGraph, defaultNext) {
+    super(objectGraph);
+
+    if ((defaultNext !== Reflect) && !(defaultNext instanceof LinkedListHandler))
+      throw new Error("handler must be a LinkedListHandler proxy handler or Reflect!");
+
+    defineNWNCProperties(this, {
+      /**
+       * @public
+       */
+      defaultNext,
+    }, false);
+  }
+}
+
+/**
+ * This is a special LinkedListHandler which allows redirecting to other
+ * LinkedListHandler handlers.  If you provide this to a LinkedListManager,
+ * it will use the conditions you provide to link from this handler to
+ * the next handler for a shadow target.
+ *
+ * Each LinkedListHandler handler which the IfThenHandler tracks must be in
+ * the LinkedListManager's sequence already, when you insert the IfThenHandler
+ * into the manager's sequence, and they must be after the IfThenHandler.
+ * This is to prevent loops.
+ *
+ * You definitely should implement traps on instances of IfThenHandler.
+ * The defaultNext handler is simply what LinkedListManager will use for
+ * invokeNextHandler().
+
+* @public
+ */
+export class IfThenHandler extends JumpHandler {
+  /**
+   * @param {ObjectGraph} objectGraph
+   * @param {LinkedListHandler | Reflect} defaultNext
+   */
+  constructor(objectGraph, defaultNext) {
+    super(objectGraph, defaultNext);
+
+    defineNWNCProperties(this, {
+      /**
+       * @type {Map<function, LinkedListHandler>}
+       * @private
+       */
+      conditionToNodeMap: new Map,
+    }, false);
+  }
+
+  /**
+   * @returns {Iterator<LinkedListHandler | Reflect>}
+   * @public
+   */
+  getConditionHandlers() {
+    return this.conditionToNodeMap.values();
+  }
+
+  /**
+   *
+   * @param condition
+   * @param handler
+   *
+   * @public
+   */
+  addCondition(condition, handler) {
+    if (this.lockedForLinkedList)
+      throw new Error("this IfThenNode is locked!");
+    if (typeof condition !== "function")
+      throw new Error("condition must be a function!");
+    if ((handler !== Reflect) && !(handler instanceof LinkedListHandler))
+      throw new Error("handler must be a LinkedListHandler proxy handler or Reflect!");
+    if (this.conditionToNodeMap.has(condition))
+      throw new Error("this IfThenNode already has the given condition");
+
+    this.conditionToNodeMap.set(condition, handler);
+  }
+
+  /**
+   * Determine the right ProxyHandler for a given target.
+   *
+   * @param {Object} shadowTarget
+   *
+   * @returns {LinkedListHandler | Reflect}
+   * @public
+   */
+  getHandlerForTarget(shadowTarget) {
+    if (!this.lockedForLinkedList)
+      throw new Error("this IfThenNode is not locked!");
+
+    for (let [condition, handler] of this.conditionToNodeMap.entries()) {
+      try {
+        if (condition(shadowTarget))
+          return handler;
+      }
+      catch (ex) {
+        // do nothing
+      }
+    }
+
+    return this.defaultNext;
+  }
+}
+
+/**
  * @public
  */
 export class LinkedListManager {
@@ -129,8 +265,8 @@ export class LinkedListManager {
   /**
    *
    * @param {boolean}                       mayInsertBefore
-   * @param {LinkedListNode}                newHandler
-   * @param {Reflect | LinkedListNode}      currentHandler
+   * @param {LinkedListHandler}                newHandler
+   * @param {Reflect | LinkedListHandler}      currentHandler
    * @param {ShadowTarget | LinkedListHead} shadowTargetOrHead
    *
    * @public
@@ -139,8 +275,8 @@ export class LinkedListManager {
     if (typeof mayInsertBefore !== "boolean")
       throw new Error("mayInsertBefore must be a boolean!");
 
-    if (!(newHandler instanceof LinkedListNode))
-      throw new Error("newHandler must be a LinkedListNode!");
+    if (!(newHandler instanceof LinkedListHandler))
+      throw new Error("newHandler must be a LinkedListHandler!");
 
     if (newHandler.objectGraph !== this.objectGraph)
       throw new Error("newHandler must share the same object graph as the LinkedListManager!");
@@ -153,14 +289,14 @@ export class LinkedListManager {
 
     const sequence = LinkedListMap.get(shadowTargetOrHead);
     if (!sequence)
-      throw new Error("No sequence of LinkedListNode objects recorded for target!  (Call this.cloneSequence() first?)");
+      throw new Error("No sequence of LinkedListHandler objects recorded for target!  (Call this.cloneSequence() first?)");
 
     if (Object.isFrozen(sequence))
-      throw new Error("Sequence of LinkedListNode objects is locked!");
+      throw new Error("Sequence of LinkedListHandler objects is locked!");
 
     const index = sequence.indexOf(currentHandler);
     if (index === -1)
-      throw new Error("Current handler not found in sequence of LinkedListNode objects!");
+      throw new Error("Current handler not found in sequence of LinkedListHandler objects!");
 
     sequence.splice(index, 0, newHandler);
     if (!mayInsertBefore)
@@ -178,11 +314,11 @@ export class LinkedListManager {
   canInsertBefore(handler, shadowTargetOrHead = this.head) {
     const sequence = LinkedListMap.get(shadowTargetOrHead);
     if (!sequence)
-      throw new Error("No sequence of LinkedListNode objects recorded for target!  (Call this.cloneSequence() first?)");
+      throw new Error("No sequence of LinkedListHandler objects recorded for target!  (Call this.cloneSequence() first?)");
 
     const index = sequence.indexOf(handler);
     if (index === -1)
-      throw new Error("Current handler not found in sequence of LinkedListNode objects!");
+      throw new Error("Current handler not found in sequence of LinkedListHandler objects!");
 
     return !Object.isFrozen(sequence) && !this.denyPrependSet.has(handler);
   }
@@ -191,7 +327,7 @@ export class LinkedListManager {
    *
    * @param shadowTargetOrHead
    *
-   * @returns {LinkedListNode[]}
+   * @returns {LinkedListHandler[]}
    * @public
    */
   getSequence(shadowTargetOrHead = this.head) {
@@ -212,7 +348,7 @@ export class LinkedListManager {
    *
    * @param shadowTarget
    *
-   * @returns {LinkedListNode[]}
+   * @returns {LinkedListHandler[]}
    * @public
    */
   cloneSequence(shadowTarget) {
