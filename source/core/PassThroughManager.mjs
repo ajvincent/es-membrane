@@ -102,6 +102,15 @@ export default class PassThroughManager {
 
   /**
    * @param {Object} value
+   * @public
+   */
+  forget(value) {
+    this.alreadyPassed.delete(value);
+    this.alreadyRejected.delete(value);
+  }
+
+  /**
+   * @param {Object} value
    * @private
    */
   throwIfKnown(value) {

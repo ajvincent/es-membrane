@@ -297,4 +297,27 @@ describe("PassThroughManager", () => {
       expect(() => manager.mustBlock(key)).toThrowError("This value already does not pass through!");
     });
   });
+
+  it(".forget() means that the manager doesn't know about an object", () => {
+    membraneSpy.and.returnValue(false);
+    wetSpy.and.returnValue(true);
+    drySpy.and.returnValue(true);
+    manager.addGraph(wetGraph, wetSpy);
+    manager.addGraph(dryGraph, drySpy);
+
+    expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(true);
+
+    expect(membraneSpy).toHaveBeenCalledTimes(1);
+    expect(wetSpy).toHaveBeenCalledTimes(1);
+    expect(drySpy).toHaveBeenCalledTimes(1);
+
+    manager.forget(key);
+
+    // repeating to see if we call the filters again
+    expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(true);
+
+    expect(membraneSpy).toHaveBeenCalledTimes(2);
+    expect(wetSpy).toHaveBeenCalledTimes(2);
+    expect(drySpy).toHaveBeenCalledTimes(2);
+  });
 });
