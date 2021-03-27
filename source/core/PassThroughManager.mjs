@@ -58,14 +58,14 @@ export default class PassThroughManager {
 
   /**
    *
-   * @param {Object} value
    * @param {ObjectGraph} originGraph
    * @param {ObjectGraph} targetGraph
+   * @param {Object} value
    *
    * @returns {boolean}
    * @public
    */
-  mayPass(value, originGraph, targetGraph) {
+  mayPass(originGraph, targetGraph, value) {
     if (valueType(value) === "primitive" || this.alreadyPassed.has(value))
       return true;
     if (this.alreadyRejected.has(value))

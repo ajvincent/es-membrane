@@ -93,7 +93,7 @@ describe("PassThroughManager", () => {
     });
 
     it("accepts primitives without calling filters", () => {
-      expect(manager.mayPass(Symbol("foo"), wetGraph, dryGraph)).toBe(true);
+      expect(manager.mayPass(wetGraph, dryGraph, Symbol("foo"))).toBe(true);
 
       expect(membraneSpy).toHaveBeenCalledTimes(0);
       expect(wetSpy).toHaveBeenCalledTimes(0);
@@ -102,7 +102,7 @@ describe("PassThroughManager", () => {
 
     it("accepts must-pass values without calling filters", () => {
       manager.mustPass(key);
-      expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(true);
+      expect(manager.mayPass(wetGraph, dryGraph, key)).toBe(true);
 
       expect(membraneSpy).toHaveBeenCalledTimes(0);
       expect(wetSpy).toHaveBeenCalledTimes(0);
@@ -111,7 +111,7 @@ describe("PassThroughManager", () => {
 
     it("rejects must-block values without calling filters", () => {
       manager.mustBlock(key);
-      expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(false);
+      expect(manager.mayPass(wetGraph, dryGraph, key)).toBe(false);
 
       expect(membraneSpy).toHaveBeenCalledTimes(0);
       expect(wetSpy).toHaveBeenCalledTimes(0);
@@ -121,14 +121,14 @@ describe("PassThroughManager", () => {
     it("accepts values which the membrane filter accepts once", () => {
       membraneSpy.and.returnValue(true);
 
-      expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(true);
+      expect(manager.mayPass(wetGraph, dryGraph, key)).toBe(true);
 
       expect(membraneSpy).toHaveBeenCalledTimes(1);
       expect(wetSpy).toHaveBeenCalledTimes(0);
       expect(drySpy).toHaveBeenCalledTimes(0);
 
       // repeating to see if we call the filters again
-      expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(true);
+      expect(manager.mayPass(wetGraph, dryGraph, key)).toBe(true);
 
       expect(membraneSpy).toHaveBeenCalledTimes(1);
       expect(wetSpy).toHaveBeenCalledTimes(0);
@@ -140,14 +140,14 @@ describe("PassThroughManager", () => {
       wetSpy.and.returnValue(true);
       drySpy.and.returnValue(true);
 
-      expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(true);
+      expect(manager.mayPass(wetGraph, dryGraph, key)).toBe(true);
 
       expect(membraneSpy).toHaveBeenCalledTimes(1);
       expect(wetSpy).toHaveBeenCalledTimes(1);
       expect(drySpy).toHaveBeenCalledTimes(1);
 
       // repeating to see if we call the filters again
-      expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(true);
+      expect(manager.mayPass(wetGraph, dryGraph, key)).toBe(true);
 
       expect(membraneSpy).toHaveBeenCalledTimes(1);
       expect(wetSpy).toHaveBeenCalledTimes(1);
@@ -159,14 +159,14 @@ describe("PassThroughManager", () => {
       wetSpy.and.returnValue(false);
       drySpy.and.returnValue(true);
 
-      expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(false);
+      expect(manager.mayPass(wetGraph, dryGraph, key)).toBe(false);
 
       expect(membraneSpy).toHaveBeenCalledTimes(1);
       expect(wetSpy).toHaveBeenCalledTimes(1);
       expect(drySpy).toHaveBeenCalledTimes(0);
 
       // repeating to see if we call the filters again
-      expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(false);
+      expect(manager.mayPass(wetGraph, dryGraph, key)).toBe(false);
 
       expect(membraneSpy).toHaveBeenCalledTimes(1);
       expect(wetSpy).toHaveBeenCalledTimes(1);
@@ -178,14 +178,14 @@ describe("PassThroughManager", () => {
       wetSpy.and.returnValue(true);
       drySpy.and.returnValue(false);
 
-      expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(false);
+      expect(manager.mayPass(wetGraph, dryGraph, key)).toBe(false);
 
       expect(membraneSpy).toHaveBeenCalledTimes(1);
       expect(wetSpy).toHaveBeenCalledTimes(1);
       expect(drySpy).toHaveBeenCalledTimes(1);
 
       // repeating to see if we call the filters again
-      expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(false);
+      expect(manager.mayPass(wetGraph, dryGraph, key)).toBe(false);
 
       expect(membraneSpy).toHaveBeenCalledTimes(1);
       expect(wetSpy).toHaveBeenCalledTimes(1);
@@ -197,14 +197,14 @@ describe("PassThroughManager", () => {
       wetSpy.and.returnValue(false);
       drySpy.and.returnValue(false);
 
-      expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(false);
+      expect(manager.mayPass(wetGraph, dryGraph, key)).toBe(false);
 
       expect(membraneSpy).toHaveBeenCalledTimes(1);
       expect(wetSpy).toHaveBeenCalledTimes(1);
       expect(drySpy).toHaveBeenCalledTimes(0);
 
       // repeating to see if we call the filters again
-      expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(false);
+      expect(manager.mayPass(wetGraph, dryGraph, key)).toBe(false);
 
       expect(membraneSpy).toHaveBeenCalledTimes(1);
       expect(wetSpy).toHaveBeenCalledTimes(1);
@@ -234,7 +234,7 @@ describe("PassThroughManager", () => {
 
     it("a value that a membrane filter has accepted", () => {
       membraneSpy.and.returnValue(true);
-      manager.mayPass(key, wetGraph, dryGraph);
+      manager.mayPass(wetGraph, dryGraph, key);
       expect(() => manager.mustPass(key)).toThrowError("This value already passes through!");
     });
 
@@ -242,7 +242,7 @@ describe("PassThroughManager", () => {
       membraneSpy.and.returnValue(false);
       wetSpy.and.returnValue(true);
       drySpy.and.returnValue(true);
-      manager.mayPass(key, wetGraph, dryGraph);
+      manager.mayPass(wetGraph, dryGraph, key);
       expect(() => manager.mustPass(key)).toThrowError("This value already passes through!");
     });
 
@@ -250,7 +250,7 @@ describe("PassThroughManager", () => {
       membraneSpy.and.returnValue(false);
       wetSpy.and.returnValue(true);
       drySpy.and.returnValue(false);
-      manager.mayPass(key, wetGraph, dryGraph);
+      manager.mayPass(wetGraph, dryGraph, key);
       expect(() => manager.mustPass(key)).toThrowError("This value already does not pass through!");
     });
   });
@@ -277,7 +277,7 @@ describe("PassThroughManager", () => {
 
     it("a value that a membrane filter has accepted", () => {
       membraneSpy.and.returnValue(true);
-      manager.mayPass(key, wetGraph, dryGraph);
+      manager.mayPass(wetGraph, dryGraph, key);
       expect(() => manager.mustBlock(key)).toThrowError("This value already passes through!");
     });
 
@@ -285,7 +285,7 @@ describe("PassThroughManager", () => {
       membraneSpy.and.returnValue(false);
       wetSpy.and.returnValue(true);
       drySpy.and.returnValue(true);
-      manager.mayPass(key, wetGraph, dryGraph);
+      manager.mayPass(wetGraph, dryGraph, key);
       expect(() => manager.mustBlock(key)).toThrowError("This value already passes through!");
     });
 
@@ -293,7 +293,7 @@ describe("PassThroughManager", () => {
       membraneSpy.and.returnValue(false);
       wetSpy.and.returnValue(true);
       drySpy.and.returnValue(false);
-      manager.mayPass(key, wetGraph, dryGraph);
+      manager.mayPass(wetGraph, dryGraph, key);
       expect(() => manager.mustBlock(key)).toThrowError("This value already does not pass through!");
     });
   });
@@ -305,7 +305,7 @@ describe("PassThroughManager", () => {
     manager.addGraph(wetGraph, wetSpy);
     manager.addGraph(dryGraph, drySpy);
 
-    expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(true);
+    expect(manager.mayPass(wetGraph, dryGraph, key)).toBe(true);
 
     expect(membraneSpy).toHaveBeenCalledTimes(1);
     expect(wetSpy).toHaveBeenCalledTimes(1);
@@ -314,7 +314,7 @@ describe("PassThroughManager", () => {
     manager.forget(key);
 
     // repeating to see if we call the filters again
-    expect(manager.mayPass(key, wetGraph, dryGraph)).toBe(true);
+    expect(manager.mayPass(wetGraph, dryGraph, key)).toBe(true);
 
     expect(membraneSpy).toHaveBeenCalledTimes(2);
     expect(wetSpy).toHaveBeenCalledTimes(2);
