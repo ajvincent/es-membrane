@@ -30,10 +30,8 @@
  */
 
 import {
-  Primordials,
   allTraps,
   defineNWNCProperties,
-  valueType,
 } from "./utilities/shared.mjs";
 
 function defineSetOnce(map) {
@@ -83,8 +81,6 @@ export default class DistortionsListener {
       filterToConfigMap: defineSetOnce(new Map(/*
         function returning boolean: JSON configuration
       */)),
-
-      ignorableValues: new Set(),
     }, false);
   }
 
@@ -146,25 +142,6 @@ export default class DistortionsListener {
   }
 
   /**
-   * Add a value which may be ignored.
-   *
-   * @param {Object} i The value to ignore.
-   */
-  addIgnorable(i) {
-    if (valueType(i) !== "primitive")
-      this.ignorableValues.add(i);
-  }
-
-  /**
-   * Ignore all primordials (Object, Array, Date, Boolean, etc.)
-   *
-   * @public
-   */
-  ignorePrimordials() {
-    Primordials.forEach(p => this.addIgnorable(p));
-  }
-
-  /**
    * Attach this to an object graph.
    *
    * @param {ObjectGraph | ObjectGraphHandler} handler
@@ -176,9 +153,6 @@ export default class DistortionsListener {
       throw new Error("Membrane must own the first argument as an object graph handler!");
     }
     handler.addProxyListener(meta => this.handleProxyMessage(meta));
-
-    if (handler.mayReplacePassThrough)
-      handler.passThroughFilter = value => this.ignorableValues.has(value);
   }
 
   /**

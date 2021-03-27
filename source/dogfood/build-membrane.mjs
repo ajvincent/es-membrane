@@ -183,8 +183,7 @@ export default function buildMembrane(___utilities___) {
 
     ___listener___.addListener(Membrane, "instance", {
       "filterOwnKeys": [
-        "modifyRules",
-        "passThroughFilter"
+        "modifyRules"
       ],
       "proxyTraps": [
         "getPrototypeOf",
@@ -269,9 +268,7 @@ export default function buildMembrane(___utilities___) {
 
     ___listener___.addListener(ObjectGraphHandler, "instance", {
       "filterOwnKeys": [
-        "graphName",
-        "passThroughFilter",
-        "mayReplacePassThrough"
+        "graphName"
       ],
       "proxyTraps": [
         "getPrototypeOf",
@@ -328,7 +325,6 @@ export default function buildMembrane(___utilities___) {
         DistortionsListener.prototype.removeListener,
         DistortionsListener.prototype.sampleConfig,
         DistortionsListener.prototype.bindToHandler,
-        DistortionsListener.prototype.ignorePrimordials,
         DistortionsListener.prototype.applyConfiguration
       ],
       "iterable",
@@ -384,7 +380,6 @@ export default function buildMembrane(___utilities___) {
         "removeListener",
         "sampleConfig",
         "bindToHandler",
-        "ignorePrimordials",
         "applyConfiguration"
       ],
       "proxyTraps": [

@@ -1,7 +1,6 @@
 import ObjectGraphHandler from "../../source/core/ObjectGraphHandler-old.mjs";
 import {
   allTraps,
-  returnFalse,
 } from "../../source/core/utilities/shared.mjs";
 
 /* Writing a full set of unit tests for ObjectGraphHandler is impossible.
@@ -22,7 +21,6 @@ describe("ObjectGraphHandler()", () => {
   beforeEach(() => {
     membrane = {};
     handler = new ObjectGraphHandler(membrane, "wet");
-    void(handler);
   });
 
   it("class is frozen", () => {
@@ -116,40 +114,6 @@ describe("ObjectGraphHandler()", () => {
     });
   });
 
-  describe("pass-through filter", () => {
-    it("starts out always returning false", () => {
-      expect(handler.passThroughFilter).toBe(returnFalse);
-      expect(handler.mayReplacePassThrough).toBe(true);
-    });
-
-    it("can be set once to a function", () => {
-      const callback1 = jasmine.createSpy("callback1");
-
-      handler.passThroughFilter = callback1; // shouldn't throw
-      expect(handler.passThroughFilter).toBe(callback1);
-      expect(handler.mayReplacePassThrough).toBe(false);
-      expect(callback1).toHaveBeenCalledTimes(0);
-
-      const callback2 = jasmine.createSpy("callback2");
-      expect(() => {
-        handler.passThroughFilter = callback2;
-      }).toThrowError("passThroughFilter has been defined once already!");
-      expect(handler.mayReplacePassThrough).toBe(false);
-
-      expect(handler.passThroughFilter).toBe(callback1);
-      expect(callback1).toHaveBeenCalledTimes(0);
-      expect(callback2).toHaveBeenCalledTimes(0);
-    });
-
-    it("cannot be set to a non-function", () => {
-      expect(
-        () => handler.passThroughFilter = {}
-      ).toThrowError("passThroughFilter must be a function!");
-      expect(handler.passThroughFilter).toBe(returnFalse);
-      expect(handler.mayReplacePassThrough).toBe(true);
-    });
-  });
-
   describe("revoker functions", () => {
     /* In the real implementation, membrane.revokerMultiMap is a RevocableMultiMap,
        so this is guaranteed to work via the unit tests for RevocableMultiMap.
@@ -203,9 +167,6 @@ describe("ObjectGraphHandler()", () => {
       publicMethods.forEach(method => {
         expect(() => handler[method]()).toThrowError(DEAD);
       });
-      expect(() => void(handler.passThroughFilter)).toThrowError(DEAD);
-      expect(() => void(handler.passThroughFilter = () => true)).toThrowError(DEAD);
-      expect(() => void(handler.mayReplacePassThrough)).toThrowError(DEAD);
     });
   });
 });

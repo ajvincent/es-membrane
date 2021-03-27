@@ -1,6 +1,5 @@
 import Membrane from "../../source/core/Membrane.mjs"
 
-const MUSTCREATE = Object.freeze({ mustCreate: true });
 const topValues = [
   /* explicitly testing for prototypes passing through */
   Object.prototype, Function.prototype, Array.prototype,
@@ -9,6 +8,9 @@ const topValues = [
 ];
 const pSet = new Set(Membrane.Primordials);
 const passThrough = pSet.has.bind(pSet);
+
+const MUSTCREATE = Object.freeze({ mustCreate: true });
+const CREATE_WITH_PASSTHROUGH = Object.freeze({mustCreate: true, passThroughFilter: passThrough});
 
 describe("Primordial values", function() {
 
@@ -46,11 +48,8 @@ describe("Primordial values", function() {
 
   it("can pass through specific object graphs, if requested", function() {
     const membrane = new Membrane();
-    const wetHandler = membrane.getGraphByName("wet", MUSTCREATE);
-    const dryHandler = membrane.getGraphByName("dry", MUSTCREATE);
-
-    wetHandler.passThroughFilter = passThrough;
-    dryHandler.passThroughFilter = passThrough;
+    const wetHandler = membrane.getGraphByName("wet", CREATE_WITH_PASSTHROUGH);
+    const dryHandler = membrane.getGraphByName("dry", CREATE_WITH_PASSTHROUGH);
 
     topValues.forEach(function(p) {
       let wrappedP = membrane.convertArgumentToProxy(wetHandler, dryHandler, p);

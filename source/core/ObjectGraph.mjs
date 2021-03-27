@@ -1,7 +1,6 @@
 import {
   NWNCDataDescriptor,
   defineNWNCProperties,
-  returnFalse,
 } from "./utilities/shared.mjs";
 
 import {
@@ -17,7 +16,7 @@ const MembraneProxyHandlers = {
  * @package
  */
 export default class ObjectGraph {
-  constructor(membrane, graphName, passThroughFilter = returnFalse) {
+  constructor(membrane, graphName) {
     {
       let t = typeof graphName;
       if ((t != "string") && (t != "symbol"))
@@ -57,8 +56,6 @@ export default class ObjectGraph {
        */
       __proxyListeners__: new Set,
     }, false);
-
-    membrane.passThroughManager.addGraph(this, passThroughFilter);
   }
 
   /**

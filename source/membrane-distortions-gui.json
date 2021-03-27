@@ -190,8 +190,7 @@
           },
           "instance": {
             "filterOwnKeys": [
-              "modifyRules",
-              "passThroughFilter"
+              "modifyRules"
             ],
             "proxyTraps": [
               "getPrototypeOf",
@@ -299,9 +298,7 @@
           },
           "instance": {
             "filterOwnKeys": [
-              "graphName",
-              "passThroughFilter",
-              "mayReplacePassThrough"
+              "graphName"
             ],
             "proxyTraps": [
               "getPrototypeOf",
@@ -384,7 +381,6 @@
               "removeListener",
               "sampleConfig",
               "bindToHandler",
-              "ignorePrimordials",
               "applyConfiguration"
             ],
             "proxyTraps": [
@@ -408,7 +404,6 @@
               "removeListener": "method",
               "sampleConfig": "method",
               "bindToHandler": "method",
-              "ignorePrimordials": "method",
               "applyConfiguration": "method"
             }
           },

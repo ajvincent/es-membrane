@@ -6,7 +6,6 @@ import {
   getRealTarget,
   isAccessorDescriptor,
   isDataDescriptor,
-  returnFalse,
   valueType,
 } from "./utilities/shared.mjs";
 
@@ -26,11 +25,6 @@ function AssertIsPropertyKey(propName) {
     throw new Error("propName is not a symbol or a string!");
   return true;
 }
-
-/**
- * @type {WeakMap<ObjectGraph, Function>}
- */
-const passThroughMap = new WeakMap();
 
 /**
  * A proxy handler designed to return only primitives and objects in a given
@@ -1231,41 +1225,6 @@ export default class ObjectGraphHandler {
   notifyProxyListeners(message) {
     this.throwIfDead();
     return this.__proxyListeners__.observe(message);
-  }
-
-  /**
-   * A filter for values to pass through unwrapped.
-   *
-   * @type {function}
-   * @public
-   */
-  get passThroughFilter() {
-    this.throwIfDead();
-    return passThroughMap.get(this) || returnFalse;
-  }
-
-  /**
-   * Set the filter filter for values to pass through unwrapped.
-   * @param {function} val
-   *
-   * @public
-   */
-  set passThroughFilter(val) {
-    this.throwIfDead();
-    if (passThroughMap.has(this))
-      throw new Error("passThroughFilter has been defined once already!");
-    if (typeof val !== "function")
-      throw new Error("passThroughFilter must be a function!");
-    passThroughMap.set(this, val);
-  }
-
-  /**
-   * @type {boolean}
-   * @public
-   */
-  get mayReplacePassThrough() {
-    this.throwIfDead();
-    return !passThroughMap.has(this);
   }
 
   /**

@@ -3,7 +3,6 @@ import {
   NOT_YET_DETERMINED,
   Primordials,
   allTraps,
-  returnFalse,
 } from "../../source/core/utilities/shared.mjs";
 
 import {
@@ -71,11 +70,6 @@ describe("Membrane()", () => {
         const desc = Reflect.getOwnPropertyDescriptor(membrane, "logger");
         expectValueDescriptor(logger, false, false, false, desc);
       });
-    });
-
-    it(".passThroughFilter", () => {
-      const desc = Reflect.getOwnPropertyDescriptor(membrane, "passThroughFilter");
-      expectValueDescriptor(returnFalse, false, false, false, desc);
     });
   });
 
@@ -379,24 +373,6 @@ describe("Membrane()", () => {
 
   });
 
-  describe(".passThroughFilter()", () => {
-    it("can be set at construction", () => {
-      const passThroughFilter = () => true;
-      membrane = new Membrane({passThroughFilter});
-
-      const desc = Reflect.getOwnPropertyDescriptor(membrane, "passThroughFilter");
-      expectValueDescriptor(passThroughFilter, false, false, false, desc);
-    });
-
-    it("cannot be set to a non-function value", () => {
-      const passThroughFilter = {};
-      membrane = new Membrane({passThroughFilter});
-  
-      const desc = Reflect.getOwnPropertyDescriptor(membrane, "passThroughFilter");
-      expectValueDescriptor(returnFalse, false, false, false, desc);
-    });
-  });
-
   xdescribe(".convertArgumentToProxy()", () => {
 
   });
@@ -668,7 +644,6 @@ describe("Membrane()", () => {
                                       graphA, values.objA);
       }).toThrow();
     });
-
   });
 
   xdescribe(".wrapDescriptor() (package)", () => {

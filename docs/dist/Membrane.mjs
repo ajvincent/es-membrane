@@ -1140,8 +1140,6 @@ class DistortionsListener {
       filterToConfigMap: defineSetOnce(new Map(/*
         function returning boolean: JSON configuration
       */)),
-
-      ignorableValues: new Set(),
     }, false);
   }
 
@@ -1203,25 +1201,6 @@ class DistortionsListener {
   }
 
   /**
-   * Add a value which may be ignored.
-   *
-   * @param {Object} i The value to ignore.
-   */
-  addIgnorable(i) {
-    if (valueType(i) !== "primitive")
-      this.ignorableValues.add(i);
-  }
-
-  /**
-   * Ignore all primordials (Object, Array, Date, Boolean, etc.)
-   *
-   * @public
-   */
-  ignorePrimordials() {
-    Primordials.forEach(p => this.addIgnorable(p));
-  }
-
-  /**
    * Attach this to an object graph.
    *
    * @param {ObjectGraph | ObjectGraphHandler} handler
@@ -1233,9 +1212,6 @@ class DistortionsListener {
       throw new Error("Membrane must own the first argument as an object graph handler!");
     }
     handler.addProxyListener(meta => this.handleProxyMessage(meta));
-
-    if (handler.mayReplacePassThrough)
-      handler.passThroughFilter = value => this.ignorableValues.has(value);
   }
 
   /**
@@ -1606,11 +1582,6 @@ function AssertIsPropertyKey(propName) {
     throw new Error("propName is not a symbol or a string!");
   return true;
 }
-
-/**
- * @type {WeakMap<ObjectGraph, Function>}
- */
-const passThroughMap = new WeakMap();
 
 /**
  * A proxy handler designed to return only primitives and objects in a given
@@ -2814,41 +2785,6 @@ class ObjectGraphHandler {
   }
 
   /**
-   * A filter for values to pass through unwrapped.
-   *
-   * @type {function}
-   * @public
-   */
-  get passThroughFilter() {
-    this.throwIfDead();
-    return passThroughMap.get(this) || returnFalse;
-  }
-
-  /**
-   * Set the filter filter for values to pass through unwrapped.
-   * @param {function} val
-   *
-   * @public
-   */
-  set passThroughFilter(val) {
-    this.throwIfDead();
-    if (passThroughMap.has(this))
-      throw new Error("passThroughFilter has been defined once already!");
-    if (typeof val !== "function")
-      throw new Error("passThroughFilter must be a function!");
-    passThroughMap.set(this, val);
-  }
-
-  /**
-   * @type {boolean}
-   * @public
-   */
-  get mayReplacePassThrough() {
-    this.throwIfDead();
-    return !passThroughMap.has(this);
-  }
-
-  /**
    * Set all properties on a shadow target, including prototype, and seal it.
    *
    * @private
@@ -3360,7 +3296,7 @@ const MembraneProxyHandlers = {
  * @package
  */
 class ObjectGraph {
-  constructor(membrane, graphName, passThroughFilter = returnFalse) {
+  constructor(membrane, graphName) {
     {
       let t = typeof graphName;
       if ((t != "string") && (t != "symbol"))
@@ -3400,8 +3336,6 @@ class ObjectGraph {
        */
       __proxyListeners__: new Set,
     }, false);
-
-    membrane.passThroughManager.addGraph(this, passThroughFilter);
   }
 
   /**
@@ -3665,14 +3599,14 @@ class PassThroughManager {
 
   /**
    *
-   * @param {Object} value
    * @param {ObjectGraph} originGraph
    * @param {ObjectGraph} targetGraph
+   * @param {Object} value
    *
    * @returns {boolean}
    * @public
    */
-  mayPass(value, originGraph, targetGraph) {
+  mayPass(originGraph, targetGraph, value) {
     if (valueType(value) === "primitive" || this.alreadyPassed.has(value))
       return true;
     if (this.alreadyRejected.has(value))
@@ -3732,6 +3666,8 @@ class PassThroughManager {
 
 Object.freeze(PassThroughManager);
 Object.freeze(PassThroughManager.prototype);
+
+/** @module source/core/Membrane.mjs */
 
 // bindValuesByHandlers utility
 /**
@@ -3858,13 +3794,6 @@ class Membrane {
        * @package
        */
       logger: options.logger || null,
-
-      /**
-       * @package
-       */
-      passThroughFilter: (typeof options.passThroughFilter === "function") ?
-                         options.passThroughFilter :
-                         returnFalse,
 
       /**
        * @package
@@ -4077,6 +4006,11 @@ class Membrane {
       else
         graph = new ObjectGraphHandler(this, graphName);
       this.handlersByGraphName[graphName] = graph;
+
+      const passThrough = (typeof options.passThroughFilter === "function") ?
+                          options.passThroughFilter :
+                          returnFalse;
+      this.passThroughManager.addGraph(graph, passThrough);
     }
     return this.handlersByGraphName[graphName] || null;
   }
@@ -4137,10 +4071,8 @@ class Membrane {
         (originHandler.graphName === targetHandler.graphName))
       throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
 
-    if (this.passThroughFilter(arg) ||
-        (originHandler.passThroughFilter(arg) && targetHandler.passThroughFilter(arg))) {
+    if (this.passThroughManager.mayPass(originHandler, targetHandler, arg))
       return arg;
-    }
 
     if (!this.hasProxyForValue(originHandler.graphName, arg)) {
       let cylinder = this.cylinderMap.get(arg);

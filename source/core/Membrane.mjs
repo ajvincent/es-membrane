@@ -1,3 +1,5 @@
+/** @module source/core/Membrane.mjs */
+
 import {
   DataDescriptor,
   NOT_YET_DETERMINED,
@@ -154,13 +156,6 @@ export default class Membrane {
        * @package
        */
       logger: options.logger || null,
-
-      /**
-       * @package
-       */
-      passThroughFilter: (typeof options.passThroughFilter === "function") ?
-                         options.passThroughFilter :
-                         returnFalse,
 
       /**
        * @package
@@ -373,6 +368,11 @@ export default class Membrane {
       else
         graph = new ObjectGraphHandler(this, graphName);
       this.handlersByGraphName[graphName] = graph;
+
+      const passThrough = (typeof options.passThroughFilter === "function") ?
+                          options.passThroughFilter :
+                          returnFalse;
+      this.passThroughManager.addGraph(graph, passThrough);
     }
     return this.handlersByGraphName[graphName] || null;
   }
@@ -433,10 +433,8 @@ export default class Membrane {
         (originHandler.graphName === targetHandler.graphName))
       throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
 
-    if (this.passThroughFilter(arg) ||
-        (originHandler.passThroughFilter(arg) && targetHandler.passThroughFilter(arg))) {
+    if (this.passThroughManager.mayPass(originHandler, targetHandler, arg))
       return arg;
-    }
 
     if (!this.hasProxyForValue(originHandler.graphName, arg)) {
       let cylinder = this.cylinderMap.get(arg);
