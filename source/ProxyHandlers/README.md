@@ -18,10 +18,6 @@ This one simply forwards Proxy trap calls to a "nextHandler" property's matching
 
 ### LinkedList
 
-A ProxyHandler which links several Proxy handlers in a sequence.  I use this mainly for integrating the component Proxy handlers into a single Proxy handler.
-
-### LinkedListNode
-
 The real base class for everything you should realistically do with a Proxy handler.  See source/ProxyHandlers/Tracing.js for a good example on how to write one.
 
 ### Master
