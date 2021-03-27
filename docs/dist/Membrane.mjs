@@ -3771,9 +3771,10 @@ class Membrane {
       refactor: options.refactor || "",
 
       /**
+       * @type {Map<string | symbol, ObjectGraph | ObjectGraphHandler}
        * @private
        */
-      handlersByGraphName: {},
+      handlersByGraphName: new Map,
 
       /**
        * @private
@@ -3999,20 +4000,21 @@ class Membrane {
     }
 
     const mustCreate = (typeof options == "object") && Boolean(options.mustCreate);
-    if (mustCreate && !Reflect.ownKeys(this.handlersByGraphName).includes(graphName)) {
+    if (mustCreate && !this.handlersByGraphName.has(graphName)) {
       let graph = null;
       if (this.refactor === "0.10")
         graph = new ObjectGraph(this, graphName);
       else
         graph = new ObjectGraphHandler(this, graphName);
-      this.handlersByGraphName[graphName] = graph;
+      this.handlersByGraphName.set(graphName, graph);
 
       const passThrough = (typeof options.passThroughFilter === "function") ?
                           options.passThroughFilter :
                           returnFalse;
       this.passThroughManager.addGraph(graph, passThrough);
     }
-    return this.handlersByGraphName[graphName] || null;
+
+    return this.handlersByGraphName.get(graphName) || null;
   }
 
   /**
@@ -4024,9 +4026,7 @@ class Membrane {
    * @public
    */
   ownsGraph(graph) {
-    return (((graph instanceof ObjectGraphHandler) ||
-             (graph instanceof ObjectGraph)) &&
-            (this.handlersByGraphName[graph.graphName] === graph));
+    return this.handlersByGraphName.get(graph.graphName) === graph;
   }
 
   /**
@@ -4159,7 +4159,7 @@ class Membrane {
       };
 
       if (cylinder && (cylinder.originGraph !== propBag0.handler))
-        options.originHandler = this.handlersByGraphName[cylinder.originGraph];
+        options.originHandler = this.handlersByGraphName.get(cylinder.originGraph);
 
       cylinder = this.addPartsToCylinder(propBag0.handler, propBag0.value, options);
     }
@@ -4167,7 +4167,7 @@ class Membrane {
       const options = {
         cylinder,
         storeAsValue: true,
-        originHandler: this.handlersByGraphName[cylinder.originGraph]
+        originHandler: this.handlersByGraphName.get(cylinder.originGraph)
       };
       this.addPartsToCylinder(propBag1.handler, propBag1.value, options);
     }
