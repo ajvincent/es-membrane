@@ -77,8 +77,6 @@ export function ProxyNotify(parts, handler, isOrigin, options = {}) {
      * @param mode {String} One of several values:
      *   - "frozen" means return a frozen shadow target.
      *   - "sealed" means return a sealed shadow target.
-     *   - "prepared" means return a shadow target with lazy getters for all
-     *     available properties and for its prototype.
      */
     "useShadowTarget": new DataDescriptor(
       (mode) => {
@@ -88,9 +86,6 @@ export function ProxyNotify(parts, handler, isOrigin, options = {}) {
   });
 
   const callbacks = [];
-  const inConstruction = handler.proxiesInConstruction;
-  const realTarget = parts.shadowTarget ? getRealTarget(parts.shadowTarget) : parts.value;
-  inConstruction.set(realTarget, callbacks);
 
   try {
     invokeProxyListeners(listeners, meta);
@@ -104,8 +99,6 @@ export function ProxyNotify(parts, handler, isOrigin, options = {}) {
         // do nothing
       }
     });
-
-    inConstruction.delete(realTarget);
   }
 }
 
@@ -116,28 +109,8 @@ ProxyNotify.useShadowTarget = function(parts, handler, mode) {
     Object.freeze(parts.proxy);
   else if (mode === "sealed")
     Object.seal(parts.proxy);
-  else if (mode === "prepared") {
-    // Establish the list of own properties.
-    const keys = Reflect.ownKeys(parts.proxy);
-    keys.forEach(function(key) {
-      handler.defineLazyGetter(parts.value, parts.shadowTarget, key);
-    });
-
-    /* Establish the prototype.  (I tried using a lazy getPrototypeOf,
-     * but testing showed that fails a later test.)
-     */
-    let proto = handler.getPrototypeOf(parts.shadowTarget);
-    Reflect.setPrototypeOf(parts.shadowTarget, proto);
-
-    // Lazy preventExtensions.
-    newHandler.preventExtensions = function(st) {
-      var rv = handler.preventExtensions.apply(handler, [st]);
-      delete newHandler.preventExtensions;
-      return rv;
-    };
-  }
   else {
-    throw new Error("useShadowTarget requires its first argument be 'frozen', 'sealed', or 'prepared'");
+    throw new Error("useShadowTarget requires its first argument be 'frozen', 'sealed'");
   }
 
   this.stopIteration();

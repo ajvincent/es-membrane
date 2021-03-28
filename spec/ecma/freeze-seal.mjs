@@ -8,7 +8,6 @@ import Membrane from "../../source/core/Membrane.mjs";
  * the wet and dry graphs and experiment with freezing and sealing on those.
  */
 
-
 function FreezeSealMocks(defineListeners, adjustParts) {
   function wetA() {}
   wetA.prototype.letter = "A";
@@ -55,7 +54,7 @@ function FreezeSealMocks(defineListeners, adjustParts) {
       parts.wet[k]
     );
   });
-  
+
   adjustParts(parts);
   return parts;
 }
@@ -78,8 +77,25 @@ function freezeSealTests(expectedFrozen, defineListeners, adjustParts) {
     expect(Reflect.isExtensible(parts.wet.b)).toBe(false);
     expect(Reflect.isExtensible(parts.wet.B)).toBe(false);
 
-    expect(Reflect.isExtensible(parts.dry.b)).toBe(false);
-    expect(Reflect.isExtensible(parts.dry.B)).toBe(false);
+    {
+      const is_b_extensible = Reflect.isExtensible(parts.dry.b); // this should set the prototype to a proxy
+      expect(is_b_extensible).toBe(false);
+
+      const wetProto = Reflect.getPrototypeOf(parts.wet.b);
+      const dryProto = Reflect.getPrototypeOf(parts.dry.b);
+      expect(wetProto !== dryProto).toBe(true);
+    }
+
+    {
+      const is_B_Extensible = Reflect.isExtensible(parts.dry.B); // this should set B.prototype to a proxy
+      expect(is_B_Extensible).toBe(false);
+      const wetProto = Reflect.getOwnPropertyDescriptor(parts.wet.B, "prototype");
+      const dryProto = Reflect.getOwnPropertyDescriptor(parts.dry.B, "prototype");
+      expect(dryProto.enumerable).toBe(wetProto.enumerable);
+      expect(dryProto.configurable).toBe(wetProto.configurable);
+      expect(dryProto.writable).toBe(wetProto.writable);
+      expect(dryProto.value !== wetProto.value).toBe(true);
+    }
 
     // undefined property cannot be set
     expect(Reflect.defineProperty(parts.wet.b, "extra", {
@@ -130,7 +146,11 @@ function freezeSealTests(expectedFrozen, defineListeners, adjustParts) {
 
     // setPrototypeOf
     expect(Reflect.getPrototypeOf(parts.wet.b)).toBe(parts.wet.B.prototype);
-    expect(Reflect.getPrototypeOf(parts.dry.b)).toBe(parts.dry.B.prototype);
+    {
+      const proto1 = Reflect.getPrototypeOf(parts.dry.b);
+      const proto2 = parts.dry.B.prototype;
+      expect(proto1 === proto2).toBe(true);
+    }
 
     expect(Reflect.setPrototypeOf(parts.wet.b, parts.wet.A.prototype)).toBe(false);
     expect(Reflect.getPrototypeOf(parts.wet.b)).toBe(parts.wet.B.prototype);

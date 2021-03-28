@@ -131,9 +131,6 @@ export default class ObjectGraphHandler {
        * @deprecated
        */
       graphNameDescriptor: new DataDescriptor(graphName),
-
-      // see .defineLazyGetter, ProxyNotify for details.
-      proxiesInConstruction: new WeakMap(/* original value: [callback() {}, ...]*/),
     }, false);
 
     Reflect.preventExtensions(this);
@@ -418,6 +415,7 @@ export default class ObjectGraphHandler {
         // This is necessary to force desc.value to really be a proxy.
         let configurable = desc.configurable;
         desc.configurable = true;
+
         desc = this.membrane.wrapDescriptor(
           targetCylinder.originGraph, this.graphName, desc
         );
@@ -1295,7 +1293,6 @@ export default class ObjectGraphHandler {
   lockShadowTarget(shadowTarget) {
     const target = getRealTarget(shadowTarget);
     const targetCylinder = this.membrane.cylinderMap.get(target);
-    const _this = targetCylinder.getOriginal();
     const keys = this.setOwnKeys(shadowTarget);
     keys.forEach(function(propName) {
       if (this.membrane.showGraphName && (propName == "membraneGraphName")) {
@@ -1304,11 +1301,22 @@ export default class ObjectGraphHandler {
           shadowTarget, propName, this.graphNameDescriptor
         );
       }
-      else
-        this.defineLazyGetter(_this, shadowTarget, propName);
+      else {
+        let desc = this.getOwnPropertyDescriptor(shadowTarget, propName);
 
-      // We want to trigger the lazy getter so that the property can be sealed.
-      void(Reflect.get(shadowTarget, propName));
+        // This is necessary to force desc.value to really be a proxy.
+        const configurable = desc.configurable;
+        desc.configurable = true;
+
+        desc = this.membrane.wrapDescriptor(
+          targetCylinder.originGraph,
+          this.graphName,
+          desc
+        );
+        desc.configurable = configurable;
+
+        Reflect.defineProperty(shadowTarget, propName, desc);
+      }
     }, this);
 
     // fix the prototype;
@@ -1438,208 +1446,6 @@ export default class ObjectGraphHandler {
       assert(uncheckedResultKeys.size === 0, "all required keys should be applied by now");
     }
     return rv;
-  }
-
-  /**
-   * Define a "lazy" accessor descriptor which replaces itself with a direct
-   * property descriptor when needed.
-   *
-   * @param {Object}          source       The source object holding a property.
-   * @param {Object}          shadowTarget The shadow target for a proxy.
-   * @param {String | Symbol} propName     The name of the property to copy.
-   *
-   * @returns {Boolean} true if the lazy property descriptor was defined.
-   *
-   * @private
-   */
-  defineLazyGetter(source, shadowTarget, propName) {
-    const handler = this;
-
-    let lockState = "none", lockedValue;
-    function setLockedValue(value) {
-      /* XXX ajvincent The intent is to mark this accessor descriptor as one
-       * that can safely be converted to (new DataDescriptor(value)).
-       * Unfortunately, a sealed accessor descriptor has the .configurable
-       * property set to false, so we can never replace this getter in that
-       * scenario with a data descriptor.  ES7 spec sections 7.3.14
-       * (SetIntegrityLevel) and 9.1.6.3 (ValidateAndApplyPropertyDescriptor)
-       * force that upon us.
-       *
-       * I hope that a ECMAScript engine can be written (and a future
-       * specification written) that could detect this unbreakable contract and
-       * internally convert the accessor descriptor to a data descriptor.  That
-       * would be a nice optimization for a "just-in-time" compiler.
-       *
-       * Simply put:  (1) The only setter for lockedValue is setLockedValue.
-       * (2) There are at most only two references to setLockedValue ever, and
-       * that only briefly in a recursive chain of proxy creation operations.
-       * (3) I go out of our way to ensure all references to the enclosed
-       * setLockedValue function go away as soon as possible.  Therefore, (4)
-       * when all references to setLockedValue go away, lockedValue is
-       * effectively a constant.  (5) lockState can only be set to "finalized"
-       * by setLockedState.  (6) the setter for this property has been removed
-       * before then.  Therefore, (7) lazyDesc.get() can return only one
-       * possible value once lockState has become "finalized", and (8) despite
-       * the property descriptor's [[Configurable]] flag being set to false, it
-       * is completely safe to convert the property to a data descriptor.
-       *
-       * Lacking such an automated optimization, it would be nice if a future
-       * ECMAScript standard could define
-       * Object.lockPropertyDescriptor(obj, propName) which could quickly assert
-       * the accessor descriptor really can only generate one value in the
-       * future, and then internally do the data conversion.
-       */
-
-      // This lockState check should be treated as an assertion.
-      if (lockState !== "transient")
-        throw new Error("setLockedValue should be callable exactly once!");
-      lockedValue = value;
-      lockState = "finalized";
-    }
-
-    const lazyDesc = {
-      get: function() {
-        if (lockState === "finalized")
-          return lockedValue;
-        if (lockState === "transient")
-          return handler.membrane.getMembraneProxy(
-            handler.graphName, shadowTarget
-          ).proxy;
-
-        /* When the shadow target is sealed, desc.configurable is not updated.
-         * But the shadow target's properties all get the [[Configurable]] flag
-         * removed.  So an attempt to delete the property will fail, which means
-         * the assert below will throw.
-         * 
-         * The tests required only that an exception be thrown.  However,
-         * asserts are for internal errors, and in theory can be disabled at any
-         * time:  they're not for catching mistakes by the end-user.  That's why
-         * I am deliberately throwing an exception here, before the assert call.
-         */
-        let current = Reflect.getOwnPropertyDescriptor(shadowTarget, propName);
-        if (!current.configurable)
-          throw new Error("lazy getter descriptor is not configurable -- this is fatal");
-
-        handler.validateTrapAndShadowTarget("defineLazyGetter", shadowTarget);
-
-        const target = getRealTarget(shadowTarget);
-        const targetCylinder = handler.membrane.cylinderMap.get(target);
-
-        // sourceDesc is the descriptor we really want
-        let sourceDesc = (
-          targetCylinder.getLocalDescriptor(handler.graphName, propName) ||
-          Reflect.getOwnPropertyDescriptor(source, propName)
-        );
-
-        if ((sourceDesc !== undefined) &&
-            (targetCylinder.originGraph !== handler.graphName)) {
-          let hasUnwrapped = "value" in sourceDesc,
-              unwrapped = sourceDesc.value;
-
-          // This is necessary to force desc.value to be wrapped in the membrane.
-          let configurable = sourceDesc.configurable;
-          sourceDesc.configurable = true;
-          sourceDesc = handler.membrane.wrapDescriptor(
-            targetCylinder.originGraph, handler.graphName, sourceDesc
-          );
-          sourceDesc.configurable = configurable;
-
-          if (hasUnwrapped && handler.proxiesInConstruction.has(unwrapped)) {
-            /* Ah, nuts.  Somewhere in our stack trace, the unwrapped value has
-             * a proxy in this object graph under construction.  That's not
-             * supposed to happen very often, but can happen during a recursive
-             * Object.seal() or Object.freeze() call.  What that means is that
-             * we may not be able to replace the lazy getter (which is an
-             * accessor descriptor) with a data descriptor when external code
-             * looks up the property on the shadow target.
-             */
-            handler.proxiesInConstruction.get(unwrapped).push(setLockedValue);
-            sourceDesc = lazyDesc;
-            delete sourceDesc.set;
-            lockState = "transient";
-          }
-        }
-
-        assert(
-          Reflect.deleteProperty(shadowTarget, propName),
-          "Couldn't delete original descriptor?"
-        );
-        assert(
-          Reflect.defineProperty(this, propName, sourceDesc),
-          "Couldn't redefine shadowTarget with descriptor?"
-        );
-
-        // Finally, run the actual getter.
-        if (sourceDesc === undefined)
-          return undefined;
-        if ("get" in sourceDesc)
-          return sourceDesc.get.apply(this);
-        if ("value" in sourceDesc)
-          return sourceDesc.value;
-        return undefined;
-      },
-
-      set: function(value) {
-        handler.validateTrapAndShadowTarget("defineLazyGetter", shadowTarget);
-
-        if (valueType(value) !== "primitive") {
-          // Maybe we have to wrap the actual descriptor.
-          const target = getRealTarget(shadowTarget);
-          const targetCylinder = handler.membrane.cylinderMap.get(target);
-          if (targetCylinder.originGraph !== handler.graphName) {
-            let originHandler = handler.membrane.getGraphByName(
-              targetCylinder.originGraph
-            );
-            value = handler.membrane.convertArgumentToProxy(
-              originHandler, handler, value
-            );
-          }
-        }
-
-        /* When the shadow target is sealed, desc.configurable is not updated.
-         * But the shadow target's properties all get the [[Configurable]] flag
-         * removed.  So an attempt to delete the property will fail, which means
-         * the assert below will throw.
-         * 
-         * The tests required only that an exception be thrown.  However,
-         * asserts are for internal errors, and in theory can be disabled at any
-         * time:  they're not for catching mistakes by the end-user.  That's why
-         * I am deliberately throwing an exception here, before the assert call.
-         */
-        let current = Reflect.getOwnPropertyDescriptor(shadowTarget, propName);
-        if (!current.configurable)
-          throw new Error("lazy getter descriptor is not configurable -- this is fatal");
-
-        const desc = new DataDescriptor(value, true, current.enumerable, true);
-
-        assert(
-          Reflect.deleteProperty(shadowTarget, propName),
-          "Couldn't delete original descriptor?"
-        );
-        assert(
-          Reflect.defineProperty(this, propName, desc),
-          "Couldn't redefine shadowTarget with descriptor?"
-        );
-
-        return value;
-      },
-
-      enumerable: true,
-      configurable: true,
-    };
-
-    {
-      handler.membrane.addPartsToCylinder(handler, lazyDesc.get);
-      handler.membrane.addPartsToCylinder(handler, lazyDesc.set);
-    }
-
-    {
-      let current = Reflect.getOwnPropertyDescriptor(source, propName);
-      if (current && !current.enumerable)
-        lazyDesc.enumerable = false;
-    }
-
-    return Reflect.defineProperty(shadowTarget, propName, lazyDesc);
   }
 
   /**
