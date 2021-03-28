@@ -12,7 +12,7 @@ Suppose you have the following:
   getProxy(original):
   I. looks for an existing proxy in map and if it doesn't find it:
     A. creates a proxy
-    B. executes a listener which may replace the proxy:
+    B. executes a listener which may modify the proxy:
       1. defines all the keys of the proxy as proxies paralleling original's keys
          by calling getProxy
       2. seals the proxy
@@ -22,6 +22,49 @@ Suppose you have the following:
 In the simple recursive case, this is doomed to infinite recursion:
 getProxy(alpha.next.next) doesn't find anything in the map, even after
 getProxy(alpha) and getProxy(alpha.next) have started (but not finished).
+
+
+*******************************************************************************
+*                                                                             *
+*                               START UPDATE                                  *
+*                                                                             *
+*******************************************************************************
+
+This problem no longer applies to es-membrane, and it should no longer apply to
+your membranes - if you change the order of operations above to the following:
+
+  getProxy(original):
+  I. looks for an existing proxy in map and if it doesn't find it:
+    A. creates a proxy
+  II. returns map.get(original);
+
+When a proxy trap is invoked, fill the proxy's properties:
+  I. executes a listener which may modify the proxy:
+    A. defines all the keys of the proxy as proxies paralleling original's keys
+       by calling getProxy
+    B. seals the proxy
+  II. calls map.set(original, proxy);
+
+By this change, only one proxy's properties can be filled at a time.  So there's
+no reachable cycle to seal.  In the above case, Alpha's properties get filled and
+the Beta proxy gets created, but Beta's properties don't get filled until the
+membrane seals the Alpha proxy.  Beta will sit there happily until a trap triggers,
+at which point its .next property will point to the Alpha proxy - and again, we
+cannot hit a cycle to seal.
+
+Naturally, a change like this can alter the behavior of the membrane in
+significant ways - which is why you have a large battery of tests you throw at the
+membrane to catch these changes...
+
+That said, I'm still keeping this test file around, because frankly it's a very
+subtle difference which caused a lot of complexity in my ProxyHandler code.  The
+implementation of this change, over two commits, removed 400 more lines than it added!
+
+*******************************************************************************
+*                                                                             *
+*                                END UPDATE                                   *
+*                                                                             *
+*******************************************************************************
 
 The first solution I came up with used "lazy getters".  A lazy getter for an
 object's property is an accessor descriptor which tries to replace itself with a
@@ -413,5 +456,52 @@ describe("Sealed cyclic references: ", function() {
       expect(accessorCount).toBe(0);
     }
   );
+
+  it("Returning unpopulated proxies makes a sealed cyclic reference work by only filling in one step of the cycle at a time!", () => {
+    const referenceToObject = new WeakMap();
+    function buildReference(obj) {
+      if (!map.has(obj)) {
+        const reference = {};
+        map.set(obj, reference);
+        referenceToObject.set(reference, obj);
+
+        Reflect.defineProperty(reference, "next", {
+          get() {
+            fillPropertiesAndSeal(this);
+            return this.next;
+          },
+          enumerable: true,
+          configurable: true
+        });
+      }
+
+      return map.get(obj);
+    }
+
+    function fillPropertiesAndSeal(reference) {
+      const obj = referenceToObject.get(reference);
+      const desc = {
+        value: buildReference(obj.next),
+        writable: false,
+        enumerable: true,
+        configurable: false
+      };
+      Reflect.defineProperty(reference, "next", desc);
+      Object.seal(reference);
+    }
+
+    const Alpha = buildReference(alpha);
+    const Beta = Alpha.next;
+    expect(Beta.next).toBe(Alpha);
+
+    expect(Object.isSealed(Alpha)).toBe(true);
+    expect(Object.isSealed(Beta)).toBe(true);
+
+    expect(map.get(alpha)).toBe(Alpha);
+    expect(map.get(beta)).toBe(Beta);
+
+    expect(referenceToObject.get(Alpha)).toBe(alpha);
+    expect(referenceToObject.get(Beta)).toBe(beta);
+  });
 });
 
