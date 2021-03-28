@@ -356,19 +356,21 @@ describe("Storing unknown properties locally", function() {
       "defineProperty called on the wet graph for the same name does not override the dry graph",
       function() {
         const isDryExtensible = Reflect.isExtensible(dryRoot);
-        Reflect.defineProperty(dryRoot, "firstExtra", {
+        const isWetExtensible = Reflect.isExtensible(wetRoot);
+
+        expect(Reflect.defineProperty(dryRoot, "firstExtra", {
           value: 1,
           writable: true,
           enumerable: true,
           configurable: true
-        });
+        })).toBe(isDryExtensible);
 
-        Reflect.defineProperty(dryRoot, "secondExtra", {
+        expect(Reflect.defineProperty(dryRoot, "secondExtra", {
           value: 2,
           writable: true,
           enumerable: true,
           configurable: true
-        });
+        })).toBe(isDryExtensible);
 
         expect(typeof wetRoot.firstExtra).toBe("undefined");
         expect(typeof wetRoot.secondExtra).toBe("undefined");
@@ -376,15 +378,26 @@ describe("Storing unknown properties locally", function() {
         expect(dryRoot.firstExtra).toBe(isDryExtensible ? 1 : undefined);
         expect(dryRoot.secondExtra).toBe(isDryExtensible ? 2 : undefined);
 
-        Reflect.defineProperty(wetRoot, "secondExtra", {
+        // since this is an unproxied value, it should work
+        expect(Reflect.defineProperty(wetRoot, "secondExtra", {
           value: 0,
           writable: true,
           enumerable: true,
           configurable: true
-        });
+        })).toBe(isWetExtensible);
 
-        expect(dryRoot.firstExtra).toBe(isDryExtensible ? 1 : undefined);
-        expect(dryRoot.secondExtra).toBe(isDryExtensible ? 2 : 0);
+        if (isDryExtensible) {
+          expect(dryRoot.firstExtra).toBe(1);
+          expect(dryRoot.secondExtra).toBe(2);
+        }
+        else if (isWetExtensible) {
+          expect(dryRoot.firstExtra).toBe(undefined);
+          expect(dryRoot.secondExtra).toBe(0);
+        }
+        else {
+          expect(dryRoot.firstExtra).toBe(undefined);
+          expect(dryRoot.secondExtra).toBe(undefined);
+        }
 
         let keys = Reflect.ownKeys(dryRoot);
         expect(keys.includes("firstExtra")).toBe(isDryExtensible);
@@ -395,20 +408,25 @@ describe("Storing unknown properties locally", function() {
     it(
       "defineProperty called on the damp graph for the same name does not override the dry graph",
       function() {
+        const isWetExtensible  = Reflect.isExtensible(wetRoot);
         const isDryExtensible  = Reflect.isExtensible(dryRoot);
-        Reflect.defineProperty(dryRoot, "firstExtra", {
+        const isDampExtensible = Reflect.isExtensible(dampRoot);
+
+        expect(isDampExtensible).toBe(isWetExtensible);
+
+        expect(Reflect.defineProperty(dryRoot, "firstExtra", {
           value: 1,
           writable: true,
           enumerable: true,
           configurable: true
-        });
+        })).toBe(isDryExtensible);
 
-        Reflect.defineProperty(dryRoot, "secondExtra", {
+        expect(Reflect.defineProperty(dryRoot, "secondExtra", {
           value: 2,
           writable: true,
           enumerable: true,
           configurable: true
-        });
+        })).toBe(isDryExtensible);
 
         expect(typeof dampRoot.firstExtra).toBe("undefined");
         expect(typeof dampRoot.secondExtra).toBe("undefined");
@@ -416,30 +434,25 @@ describe("Storing unknown properties locally", function() {
         expect(dryRoot.firstExtra).toBe(isDryExtensible ? 1 : undefined);
         expect(dryRoot.secondExtra).toBe(isDryExtensible ? 2 : undefined);
 
-        Reflect.defineProperty(dampRoot, "secondExtra", {
+        expect(Reflect.defineProperty(dampRoot, "secondExtra", {
           value: 0,
           writable: true,
           enumerable: true,
           configurable: true
-        });
+        })).toBe(isDampExtensible);
 
-        expect(dryRoot.firstExtra).toBe(isDryExtensible ? 1: undefined);
-
-        let value;
         if (isDryExtensible) {
-          value = 2;
+          expect(dryRoot.firstExtra).toBe(1);
+          expect(dryRoot.secondExtra).toBe(2);
         }
-        else if (parts.wetIsLocal) {
-          /* This means that all proxies store their values locally:  a change
-           * to dampRoot.secondExtra does not affect wetRoot.secondExtra or
-           * dryRoot.secondExtra.
-           */
-          value = undefined;
+        else if (isDampExtensible && !parts.wetIsLocal) {
+          expect(dryRoot.firstExtra).toBe(undefined);
+          expect(dryRoot.secondExtra).toBe(0);
         }
         else {
-          value = 0;
+          expect(dryRoot.firstExtra).toBe(undefined);
+          expect(dryRoot.secondExtra).toBe(undefined);
         }
-        expect(dryRoot.secondExtra).toBe(value);
 
         let keys = Reflect.ownKeys(dryRoot);
         expect(keys.includes("firstExtra")).toBe(isDryExtensible);
@@ -476,23 +489,39 @@ describe("Storing unknown properties locally", function() {
       function() {
         const isWetExtensible = Reflect.isExtensible(wetRoot);
         const isDryExtensible = Reflect.isExtensible(dryRoot);
-        Reflect.defineProperty(dryRoot, "firstExtra", {
+
+        expect(Reflect.isExtensible(wetRoot)).toBe(isWetExtensible);
+
+        expect(Reflect.defineProperty(dryRoot, "firstExtra", {
           value: 1,
           writable: true,
           enumerable: true,
           configurable: true
-        });
-        Reflect.defineProperty(wetRoot, "firstExtra", {
+        })).toBe(isDryExtensible);
+
+        expect(Reflect.defineProperty(wetRoot, "firstExtra", {
           value: 2,
           writable: true,
           enumerable: true,
           configurable: true
-        });
+        })).toBe(isWetExtensible);
 
         expect(wetRoot.firstExtra).toBe(isWetExtensible ? 2 : undefined);
-        expect(dryRoot.firstExtra).toBe(isDryExtensible ? 1 : 2);
+        if (isDryExtensible) {
+          expect(dryRoot.firstExtra).toBe(1);
+        }
+        else if (isWetExtensible) {
+          expect(dryRoot.firstExtra).toBe(2);
+        }
+        else {
+          expect(dryRoot.firstExtra).toBe(undefined);
+        }
 
-        Reflect.deleteProperty(wetRoot, "firstExtra");
+        // https://tc39.es/ecma262/#sec-ordinarydelete
+        const wetDesc = Reflect.getOwnPropertyDescriptor(wetRoot, "firstExtra");
+        const shouldWetDelete = !wetDesc || wetDesc.configurable;
+        expect(Reflect.deleteProperty(wetRoot, "firstExtra")).toBe(shouldWetDelete);
+
         expect(typeof wetRoot.firstExtra).toBe("undefined");
         expect(dryRoot.firstExtra).toBe(isDryExtensible ? 1 : undefined);
 
@@ -506,38 +535,36 @@ describe("Storing unknown properties locally", function() {
       function() {
         const isDampExtensible = Reflect.isExtensible(dampRoot);
         const isDryExtensible  = Reflect.isExtensible(dryRoot);
-        Reflect.defineProperty(dryRoot, "firstExtra", {
+        expect(Reflect.defineProperty(dryRoot, "firstExtra", {
           value: 1,
           writable: true,
           enumerable: true,
           configurable: true
-        });
-        Reflect.defineProperty(dampRoot, "firstExtra", {
+        })).toBe(isDryExtensible);
+
+        expect(Reflect.defineProperty(dampRoot, "firstExtra", {
           value: 2,
           writable: true,
           enumerable: true,
           configurable: true
-        });
+        })).toBe(isDampExtensible);
 
         expect(dampRoot.firstExtra).toBe(isDampExtensible ? 2 : undefined);
-
-        let value;
         if (isDryExtensible) {
-          value = 1;
+          expect(dryRoot.firstExtra).toBe(1);
         }
-        else if (parts.wetIsLocal) {
-          /* This means that all proxies store their values locally:  a change
-           * to dampRoot.secondExtra does not affect wetRoot.secondExtra or
-           * dryRoot.secondExtra.
-           */
-          value = undefined;
+        else if (isDampExtensible && !parts.wetIsLocal) {
+          expect(dryRoot.firstExtra).toBe(2);
         }
         else {
-          value = 2;
+          expect(dryRoot.firstExtra).toBe(undefined);
         }
-        expect(dryRoot.firstExtra).toBe(value);
 
-        Reflect.deleteProperty(dampRoot, "firstExtra");
+        // https://tc39.es/ecma262/#sec-ordinarydelete
+        const dampDesc = Reflect.getOwnPropertyDescriptor(dampRoot, "firstExtra");
+        const shouldDampDelete = !dampDesc || dampDesc.configurable;
+        expect(Reflect.deleteProperty(dampRoot, "firstExtra")).toBe(shouldDampDelete);
+
         expect(typeof dampRoot.firstExtra).toBe("undefined");
         expect(dryRoot.firstExtra).toBe(isDryExtensible ? 1 : undefined);
 
@@ -750,36 +777,49 @@ describe("Storing unknown properties locally", function() {
     it(
       "deleteProperty followed by .defineProperty is consistent with new properties",
       function() {
+        const isWetExtensible = Reflect.isExtensible(wetRoot);
         const isDryExtensible = Reflect.isExtensible(dryRoot);
         // define the property on the dry graph
-        Reflect.defineProperty(dryRoot, "extra", {
+        expect(Reflect.defineProperty(dryRoot, "extra", {
           value: 1,
           enumerable: true,
           writable: false,
           configurable: true
-        });
+        })).toBe(isDryExtensible);
 
         // delete the property on the dry graph
-        Reflect.deleteProperty(dryRoot, "extra");
+        // https://tc39.es/ecma262/#sec-ordinarydelete
+        {
+          const dryDesc = Reflect.getOwnPropertyDescriptor(dryRoot, "extra");
+          const shouldDryDelete = !dryDesc || dryDesc.configurable;
+          expect(Reflect.deleteProperty(dryRoot, "extra")).toBe(shouldDryDelete);
+        }
 
         // define the property on the dry graph, differently
-        Reflect.defineProperty(dryRoot, "extra", {
+        expect(Reflect.defineProperty(dryRoot, "extra", {
           value: 2,
           enumerable: true,
           writable: false,
           configurable: true
-        });
+        })).toBe(isDryExtensible);
 
         // define the property on the wet graph
-        Reflect.defineProperty(wetRoot, "extra", {
+        expect(Reflect.defineProperty(wetRoot, "extra", {
           value: 15,
           enumerable: true,
           writable: false,
           configurable: true
-        });
+        })).toBe(isWetExtensible);
 
-        // ensure the property on the dry graph takes precedence
-        expect(dryRoot.extra).toBe(isDryExtensible ? 2 : 15);
+        if (isDryExtensible) {
+          expect(dryRoot.extra).toBe(2);
+        }
+        else if (isWetExtensible) {
+          expect(dryRoot.extra).toBe(15);
+        }
+        else {
+          expect(dryRoot.extra).toBe(undefined);
+        }
       }
     );
 
@@ -850,25 +890,25 @@ describe("Storing unknown properties locally", function() {
     });
   }
 
-  describe("when required by the dry object graph, ", function() {
+  describe("when required by the dry object graph,", function() {
     beforeEach(function() {
       membrane.modifyRules.storeUnknownAsLocal("dry", parts.dry.Node.prototype);
     });
     specsWithSealAndFreezeOptions();
   });
 
-  describe("when required by the wet object graph, ", function() {
+  describe("when required by the wet object graph,", function() {
     beforeEach(function() {
       ensureProxyCylinder(parts.handlers.wet, parts.wet.Node.prototype);
       membrane.modifyRules.storeUnknownAsLocal("wet", parts.wet.Node.prototype);
       parts.wetIsLocal = true;
     });
-    
+
     specsWithSealAndFreezeOptions();
   });
 
   describe(
-    "when required by both the wet and the dry object graphs, ",
+    "when required by both the wet and the dry object graphs,",
     function() {
       beforeEach(function() {
         ensureProxyCylinder(parts.handlers.wet, parts.wet.Node.prototype);

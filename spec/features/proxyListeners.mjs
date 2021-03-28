@@ -7,43 +7,64 @@
  */
 import loggerLib from "../helpers/logger.mjs"
 import Membrane from "../../source/core/Membrane.mjs"
+import {
+  NWNCDataDescriptor
+} from "../../source/core/utilities/shared.mjs";
+
+var membrane, wetHandler, dryHandler, appender, ctor1;
+const logger = loggerLib.getLogger("test.membrane.proxylisteners");
+
+function getMessageProp(event) { return event.message; }
+function getMessages() {
+  return this.events.map(getMessageProp);
+}
+
+const acceptSet = new Set();
+
+ctor1 = function(arg1) {
+  try {
+    this.label = "ctor1 instance";
+    this.arg1 = arg1;
+  }
+  catch (ex) {
+    // do nothing, this is not that important to our tests
+  }
+};
+ctor1.prototype.label = "ctor1 prototype";
+ctor1.prototype.number = 2;
+
+const listener0 = jasmine.createSpy("listener0");
+const listener1 = jasmine.createSpy("listener1");
+const listener2 = jasmine.createSpy("listener2");
+const listener3 = jasmine.createSpy("listener3");
+
+function reset() {
+  listener0.calls.reset();
+  listener1.calls.reset();
+  listener2.calls.reset();
+  listener3.calls.reset();
+}
 
 describe("An object graph handler's proxy listeners", function() {
-  var membrane, wetHandler, dryHandler, appender, ctor1;
-  const logger = loggerLib.getLogger("test.membrane.proxylisteners");
-
-  function getMessageProp(event) { return event.message; }
-  function getMessages() {
-    return this.events.map(getMessageProp);
-  }
-
-  const acceptSet = new Set();
-  afterEach(() => acceptSet.clear());
-
   beforeEach(function() {
     membrane = new Membrane({logger: logger});
     wetHandler = membrane.getGraphByName("wet", { mustCreate: true });
     dryHandler = membrane.getGraphByName("dry", { mustCreate: true });
 
+    listener0.and.stub();
+    listener1.and.stub();
+    listener2.and.stub();
+    listener3.and.stub();
+
     appender = new loggerLib.Appender();
     logger.addAppender(appender);
     appender.getMessages = getMessages;
     appender.setThreshold("INFO");
-
-    ctor1 = function(arg1) {
-      try {
-        this.label = "ctor1 instance";
-        this.arg1 = arg1;
-      }
-      catch (ex) {
-        // do nothing, this is not that important to our tests
-      }
-    };
-    ctor1.prototype.label = "ctor1 prototype";
-    ctor1.prototype.number = 2;
   });
 
   afterEach(function() {
+    acceptSet.clear();
+
     logger.removeAppender(appender);
 
     wetHandler.revokeEverything();
@@ -53,6 +74,8 @@ describe("An object graph handler's proxy listeners", function() {
     wetHandler = null;
     dryHandler = null;
     appender = null;
+
+    reset();
   });
 
   /* XXX ajvincent I could use Jasmine spies, but for once, I don't like the
@@ -60,412 +83,286 @@ describe("An object graph handler's proxy listeners", function() {
    * record events and their order.
    */
 
-  describe("are notified of a proxy before the proxy is returned", function() {
+  describe("are notified of a proxy when we invoke some trap of the proxy:", function() {
     /* We're not testing API of meta yet.  That'll be a separate test.
     The only reason we test for the proxy is to ensure the proxy is the same for
     the listeners and the returned value.
     */
 
-    var meta0, meta1, meta2;
-    function listener0(meta) {
-      if (acceptSet.has(meta.realTarget)) {
-        meta0 = meta;
-        logger.info("listener0");
-      }
-    }
-    function listener1(meta) {
-      if (acceptSet.has(meta.realTarget)) {
-        meta1 = meta;
-        logger.info("listener1");
-      }
-    }
-    function listener2(meta) {
-      if (acceptSet.has(meta.realTarget)) {
-        meta2 = meta;
-        logger.info("listener2");
-      }
-    }
-
-    function reset() {
-      appender.clear();
-      meta0 = undefined;
-      meta1 = undefined;
-      meta2 = undefined;
-    }
+    let x, dryX;
 
     beforeEach(function() {
       wetHandler.addProxyListener(listener0);
-      wetHandler.addProxyListener(listener2);
-      dryHandler.addProxyListener(listener1);
+      wetHandler.addProxyListener(listener1);
       dryHandler.addProxyListener(listener2);
-      reset();
-    });
+      dryHandler.addProxyListener(listener3);
 
-    afterEach(reset);
-
-    it("via membrane.convertArgumentToProxy", function() {
-      var x = new ctor1("one");
+      x = new ctor1("one");
       acceptSet.add(x);
 
-      logger.info("x created");
-      var X = membrane.convertArgumentToProxy(
+      dryX = membrane.convertArgumentToProxy(
         wetHandler,
         dryHandler,
         x
       );
-      logger.info("dry(x) created");
-      expect(X.label).toBe("ctor1 instance");
-      expect(X).not.toBe(x);
-
-      let messages = appender.getMessages();
-      expect(messages.length).toBe(6);
-      expect(messages[0]).toBe("x created");
-
-      // origin ObjectGraphHandler's listeners
-      expect(messages[1]).toBe("listener0");
-      expect(messages[2]).toBe("listener2");
-
-      // target ObjectGraphHandler's listeners
-      expect(messages[3]).toBe("listener1");
-      expect(messages[4]).toBe("listener2");
-
-      expect(messages[5]).toBe("dry(x) created");
-
-      expect(meta2).toBe(meta1);
-      expect(typeof meta2).toBe("object");
-      expect(meta0).not.toBe(undefined);
-      expect(meta2.proxy).toBe(X);
     });
 
-    it("via wrapping a non-primitive property", function() {
-      var y = {};
-      var x = new ctor1(y);
-      expect(x.arg1).toBe(y);
-      var X = membrane.convertArgumentToProxy(
+    function expectListenerOrder() {
+      expect(listener0.calls.count()).toBeGreaterThan(0);
+      expect(listener0.calls.first().args.length).toBe(1);
+      const meta0 = listener0.calls.first().args[0];
+
+      expect(listener1.calls.count()).toBe(listener0.calls.count());
+      expect(listener1.calls.first().args.length).toBe(1);
+      const meta1 = listener1.calls.first().args[0];
+      expect(meta1 === meta0).toBe(true);
+
+      expect(listener2.calls.count()).toBeGreaterThan(0);
+      expect(listener2.calls.first().args.length).toBe(1);
+      const meta2 = listener2.calls.first().args[0];
+
+      expect(listener3.calls.count()).toBe(listener2.calls.count());
+      expect(listener3.calls.first().args.length).toBe(1);
+      const meta3 = listener3.calls.first().args[0];
+      expect(meta3 === meta2).toBe(true);
+
+      expect(meta0 !== meta2).toBe(true);
+      expect(meta0.proxy === dryX).toBe(true);
+      expect(meta2.proxy === dryX).toBe(true);
+    }
+
+    function expectListenersNotCalled() {
+      expect(listener0).toHaveBeenCalledTimes(0);
+      expect(listener1).toHaveBeenCalledTimes(0);
+      expect(listener2).toHaveBeenCalledTimes(0);
+      expect(listener3).toHaveBeenCalledTimes(0);
+    }
+
+    it("not via membrane.convertArgumentToProxy", () => {
+      x = new ctor1("one");
+      acceptSet.add(x);
+
+      dryX = membrane.convertArgumentToProxy(
         wetHandler,
         dryHandler,
         x
       );
-      appender.clear();
-      acceptSet.add(x.arg1);
+      expect(dryX !== x).toBe(true);
 
-      logger.info("X.arg1 retrieval start");
-      var Y = X.arg1;
-      logger.info("X.arg1 retrieval end");
-      expect(Y).not.toBe(y);
-
-      let messages = appender.getMessages();
-      expect(messages.length).toBe(6);
-      expect(messages[0]).toBe("X.arg1 retrieval start");
-
-      // origin ObjectGraphHandler's listeners
-      expect(messages[1]).toBe("listener0");
-      expect(messages[2]).toBe("listener2");
-
-      // target ObjectGraphHandler's listeners
-      expect(messages[3]).toBe("listener1");
-      expect(messages[4]).toBe("listener2");
-
-      expect(messages[5]).toBe("X.arg1 retrieval end");
-
-      expect(meta2).toBe(meta1);
-      expect(typeof meta2).toBe("object");
-      expect(meta0).not.toBe(undefined);
-      expect(meta2.proxy).toBe(Y);
+      expectListenersNotCalled();
     });
 
-    it("via wrapping a primitive property", function() {
-      var y = 4;
-      var x = new ctor1(y);
-      expect(x.arg1).toBe(y);
+    function defineTrapTest(trapName, ...extraArgs) {
+      it(trapName, () => {
+        void(Reflect[trapName](dryX, ...extraArgs));
+        expectListenerOrder();
 
-      var X = membrane.convertArgumentToProxy(
+        reset();
+
+        void(Reflect[trapName](dryX, ...extraArgs));
+        expectListenersNotCalled();
+      });
+    }
+
+    defineTrapTest("ownKeys");
+    defineTrapTest("getOwnPropertyDescriptor", "bar");
+    defineTrapTest("has", "bar");
+    defineTrapTest("get", "bar", {});
+    defineTrapTest("getPrototypeOf");
+    defineTrapTest("isExtensible");
+    defineTrapTest("preventExtensions");
+    defineTrapTest("deleteProperty", "bar");
+    defineTrapTest("defineProperty", "bar", new NWNCDataDescriptor(3, true));
+    defineTrapTest("set", "bar", 3, {});
+    defineTrapTest("setPrototypeOf", {});
+
+    it("apply", () => {
+      x = function() {};
+      acceptSet.add(x);
+
+      const arg = {};
+      acceptSet.add(arg);
+
+      dryX = membrane.convertArgumentToProxy(
         wetHandler,
         dryHandler,
         x
       );
       reset();
 
-      logger.info("X.arg1 retrieval start");
-      var Y = X.arg1;
-      logger.info("X.arg1 retrieval end");
-      expect(Y).toBe(y); // because it's a primitive
+      void(dryX(arg));
+      expectListenerOrder();
 
-      let messages = appender.getMessages();
-      expect(messages.length).toBe(2);
-      expect(messages[0]).toBe("X.arg1 retrieval start");
-      expect(messages[1]).toBe("X.arg1 retrieval end");
+      reset();
 
-      expect(meta0).toBe(undefined);
-      expect(meta1).toBe(undefined);
-      expect(meta2).toBe(undefined);
+      void(dryX(arg));
+      expectListenersNotCalled();
     });
 
-    it("via counter-wrapping a non-primitive argument", function() {
-      var cbVal;
-      const Z = { argIndex: 0 }, Z2 = { argIndex: 1 }, rv = { isRV: true };
-      function callback(k) {
-        logger.info("Entering callback");
-        cbVal = k;
-        logger.info("Exiting callback");
-        return rv;
-      }
+    it("construct", () => {
+      x = function() {};
+      acceptSet.add(x);
 
-      var x = new ctor1(callback);
-      expect(x.arg1).toBe(callback);
-      var X = membrane.convertArgumentToProxy(
+      const arg = {};
+      acceptSet.add(arg);
+
+      dryX = membrane.convertArgumentToProxy(
         wetHandler,
         dryHandler,
         x
       );
-
       reset();
-      acceptSet.add(Z);
-      acceptSet.add(Z2);
-      acceptSet.add(rv);
 
-      logger.info("Calling X.arg1 start");
+      void(new dryX(arg));
 
-      var K = X.arg1(Z, Z2);
-      logger.info("Calling X.arg1 end");
-      expect(cbVal).not.toBe(undefined);
-      expect(cbVal).not.toBe(null);
-      expect(typeof cbVal).toBe("object");
-      if (cbVal)
-        expect(cbVal.argIndex).toBe(0);
-
-      let messages = appender.getMessages();
-      expect(messages.length).toBe(16);
-      expect(messages[0]).toBe("Calling X.arg1 start");
-
-      // for argument 0
-      // origin ObjectGraphHandler's listeners
-      expect(messages[1]).toBe("listener1");
-      expect(messages[2]).toBe("listener2");
-      // target ObjectGraphHandler's listeners
-      expect(messages[3]).toBe("listener0");
-      expect(messages[4]).toBe("listener2");
-
-      // for argument 1
-      // origin ObjectGraphHandler's listeners
-      expect(messages[5]).toBe("listener1");
-      expect(messages[6]).toBe("listener2");
-      // target ObjectGraphHandler's listeners
-      expect(messages[7]).toBe("listener0");
-      expect(messages[8]).toBe("listener2");
-
-      // executing the method
-      expect(messages[9]).toBe("Entering callback");
-      expect(messages[10]).toBe("Exiting callback");
-
-      // for return value
-      // origin ObjectGraphHandler's listeners
-      expect(messages[11]).toBe("listener0");
-      expect(messages[12]).toBe("listener2");
-      // target ObjectGraphHandler's listeners
-      expect(messages[13]).toBe("listener1");
-      expect(messages[14]).toBe("listener2");
-
-      expect(messages[15]).toBe("Calling X.arg1 end");
-
-      expect(typeof meta2).toBe("object");
-      expect(K).not.toBe(undefined);
-      expect(K !== null).toBe(true, "expect(K).not.toBe(null)");
-      expect(typeof K).toBe("object");
-      if (K)
-        expect(K.isRV).toBe(true);
-    });
-
-    it("via counter-wrapping a primitive argument", function() {
-      var cbVal;
-      function callback(k) {
-        cbVal = k;
-      }
-
-      var x = new ctor1(callback);
-      expect(x.arg1).toBe(callback);
-      var X = membrane.convertArgumentToProxy(
-        wetHandler,
-        dryHandler,
-        x
-      );
+      expectListenerOrder();
 
       reset();
 
-      const Z = true;
-      acceptSet.add(Z);
-
-      logger.info("Calling X.arg1 start");
-      X.arg1(Z);
-      logger.info("Calling X.arg1 end");
-      expect(cbVal).not.toBe(undefined);
-
-      let messages = appender.getMessages();
-      expect(messages.length).toBe(2);
-      expect(messages[0]).toBe("Calling X.arg1 start");
-      expect(messages[1]).toBe("Calling X.arg1 end");
-
-      expect(meta0).toBe(undefined);
-      expect(meta1).toBe(undefined);
-      expect(meta2).toBe(undefined);
-      expect(cbVal).toBe(true);
+      void(new dryX(arg));
+      expectListenersNotCalled();
     });
   });
 
   describe("can stop iteration to further listeners", function() {
-    var meta1, meta2;
-    beforeEach(function() {
-      meta1 = undefined;
-      meta2 = undefined;
+    let meta1, meta2;
+    beforeEach(() => {
+      meta1 = null;
+      meta2 = null;
     });
 
     it("by invoking meta.stopIteration();", function() {
-      function listener1(meta) {
+      dryHandler.addProxyListener(listener1);
+      dryHandler.addProxyListener(listener2);
+
+      listener1.and.callFake(meta => {
         if (!acceptSet.has(meta.realTarget))
           return;
 
         meta1 = meta;
-        logger.info("listener1: stopped = " + meta.stopped);
-        logger.info("listener1: calling meta.stopIteration();");
         meta.stopIteration();
-        logger.info("listener1: stopped = " + meta.stopped);
-      }
+      });
 
-      function listener2(meta) {
+      listener2.and.callFake(meta => {
         if (!acceptSet.has(meta.realTarget))
           return;
 
-        // we should never get here
         meta2 = meta;
-        logger.info("listener2: stopped = " + meta.stopped);
-        logger.info("listener2: calling meta.stopIteration();");
         meta.stopIteration();
-        logger.info("listener2: stopped = " + meta.stopped);
-      }
+      });
 
-      dryHandler.addProxyListener(listener1);
-      dryHandler.addProxyListener(listener2);
-
-      var x = new ctor1("one");
+      const x = new ctor1("one");
       acceptSet.add(x);
 
-      logger.info("x created");
-      var X = membrane.convertArgumentToProxy(
+      const X = membrane.convertArgumentToProxy(
         wetHandler,
         dryHandler,
         x
       );
-      logger.info("dry(x) created");
-      expect(X.label).toBe("ctor1 instance");
-      expect(X).not.toBe(x);
 
-      let messages = appender.getMessages();
-      expect(messages.length).toBe(5);
-      expect(messages[0]).toBe("x created");
-      expect(messages[1]).toBe("listener1: stopped = false");
-      expect(messages[2]).toBe("listener1: calling meta.stopIteration();");
-      expect(messages[3]).toBe("listener1: stopped = true");
-      expect(messages[4]).toBe("dry(x) created");
+      reset();
 
-      expect(meta2).toBe(undefined);
+      void(Reflect.ownKeys(X));
+
+      expect(listener1).toHaveBeenCalledOnceWith(meta1);
+      expect(listener2).toHaveBeenCalledTimes(0);
+
+      expect(meta1).not.toBe(null);
       expect(typeof meta1).toBe("object");
       expect(meta1.proxy).toBe(X);
       expect(meta1.stopped).toBe(true);
+
+      expect(meta2).toBe(null);
     });
 
     it("by invoking meta.throwException(exn);", function() {
       const dummyExn = {};
-      function listener1(meta) {
+
+      listener1.and.callFake(meta => {
         if (!acceptSet.has(meta.realTarget))
           return;
 
         meta1 = meta;
-        logger.info("listener1: stopped = " + meta.stopped);
-        logger.info("listener1: calling meta.throwException(exn1);");
         meta.throwException(dummyExn);
-        logger.info("listener1: stopped = " + meta.stopped);
-      }
+      });
 
-      function listener2(meta) {
+      listener2.and.callFake(meta => {
         if (!acceptSet.has(meta.realTarget))
           return;
 
-        // we should never get here
         meta2 = meta;
-        logger.info("listener2: stopped = " + meta.stopped);
-        logger.info("listener2: calling meta.stopIteration();");
         meta.stopIteration();
-        logger.info("listener2: stopped = " + meta.stopped);
-      }
+      });
 
       dryHandler.addProxyListener(listener1);
       dryHandler.addProxyListener(listener2);
 
-      var x = new ctor1("one");
-      acceptSet.add(x);
-      logger.info("x created");
-      expect(function() {
-        membrane.convertArgumentToProxy(
-          wetHandler,
-          dryHandler,
-          x
-        );
-      }).toThrow(dummyExn);
-      logger.info("dry(x) threw");
-
-      let messages = appender.getMessages();
-      expect(messages.length).toBe(5);
-      expect(messages[0]).toBe("x created");
-      expect(messages[1]).toBe("listener1: stopped = false");
-      expect(messages[2]).toBe("listener1: calling meta.throwException(exn1);");
-      expect(messages[3]).toBe("listener1: stopped = true");
-      expect(messages[4]).toBe("dry(x) threw");
-
-      expect(meta2).toBe(undefined);
-      expect(typeof meta1).toBe("object");
-      expect(meta1.stopped).toBe(true);
-    });
-
-    it("but not by accidentally triggering an exception", function() {
-      const dummyExn = {};
-      function listener1(meta) {
-        if (!acceptSet.has(meta.realTarget))
-          return;
-        meta1 = meta;
-        logger.info("listener1: stopped = " + meta.stopped);
-        throw dummyExn; // this is supposed to be an accident
-      }
-
-      function listener2(meta) {
-        if (!acceptSet.has(meta.realTarget))
-          return;
-        meta2 = meta;
-        logger.info("listener2: stopped = " + meta.stopped);
-      }
-
-      dryHandler.addProxyListener(listener1);
-      dryHandler.addProxyListener(listener2);
-
-      var x = new ctor1("one");
+      const x = new ctor1("one");
       acceptSet.add(x);
 
-      logger.info("x created");
-      var X = membrane.convertArgumentToProxy(
+      const X = membrane.convertArgumentToProxy(
         wetHandler,
         dryHandler,
         x
       );
-      logger.info("dry(x) created");
-      expect(X.label).toBe("ctor1 instance");
-      expect(X).not.toBe(x);
 
-      let messages = appender.getMessages();
-      expect(messages.length).toBe(5);
-      expect(messages[0]).toBe("x created");
-      expect(messages[1]).toBe("listener1: stopped = false");
-      expect(messages[2]).toBe(dummyExn);
-      expect(messages[3]).toBe("listener2: stopped = false");
-      expect(messages[4]).toBe("dry(x) created");
+      membrane.convertArgumentToProxy(
+        wetHandler,
+        dryHandler,
+        x
+      );
+      reset();
+
+      expect(function() {
+        Reflect.ownKeys(X);
+      }).toThrow(dummyExn);
+
+      expect(listener1).toHaveBeenCalledOnceWith(meta1);
+      expect(listener2).toHaveBeenCalledTimes(0);
+
+      expect(meta1).not.toBe(null);
+      expect(typeof meta1).toBe("object");
+      expect(meta1.proxy).toBe(X);
+      expect(meta1.stopped).toBe(true);
+
+      expect(meta2).toBe(null);
+    });
+
+    it("but not by accidentally triggering an exception", function() {
+      const dummyExn = {};
+
+      listener1.and.callFake(meta => {
+        if (!acceptSet.has(meta.realTarget))
+          return;
+        meta1 = meta;
+        throw dummyExn; // this is supposed to be an accident
+      });
+
+      listener2.and.callFake(meta => {
+        if (!acceptSet.has(meta.realTarget))
+          return;
+
+        meta2 = meta;
+      });
+
+      dryHandler.addProxyListener(listener1);
+      dryHandler.addProxyListener(listener2);
+
+      const x = new ctor1("one");
+      acceptSet.add(x);
+
+      const X = membrane.convertArgumentToProxy(
+        wetHandler,
+        dryHandler,
+        x
+      );
+
+      reset();
+
+      void(Reflect.ownKeys(X));
+
+      expect(listener1).toHaveBeenCalledOnceWith(meta1);
+      expect(listener2).toHaveBeenCalledOnceWith(meta2);
 
       expect(meta2).toBe(meta1);
       expect(typeof meta2).toBe("object");

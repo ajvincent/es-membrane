@@ -189,6 +189,13 @@ describe("Object.seal() on ordinary objects", function() {
     expect(function() {
       sealed.y = 5;
     }).toThrow();
+
+    expect(Reflect.defineProperty(sealed, "y", {
+      value: 5,
+      writable: true,
+      enumerable: true,
+      configurable: true
+    })).toBe(false);
     expect(sealed.y).toBe(undefined);
 
     {
@@ -245,6 +252,12 @@ describe("Object.seal() on objects with proxies directly reflecting them", funct
     expect(function() {
       sealed.y = 5;
     }).toThrow();
+    expect(Reflect.defineProperty(sealed, "y", {
+      value: 5,
+      writable: true,
+      enumerable: true,
+      configurable: true
+    })).toBe(false);
     expect(sealed.y).toBe(undefined);
 
     {
@@ -309,6 +322,12 @@ describe("Object.seal() on proxies of objects", function() {
     expect(function() {
       sealed.y = 5;
     }).toThrow();
+    expect(Reflect.defineProperty(sealed, "y", {
+      value: 5,
+      writable: true,
+      enumerable: true,
+      configurable: true
+    })).toBe(false);
     expect(sealed.y).toBe(undefined);
 
     {

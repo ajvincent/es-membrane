@@ -62,6 +62,7 @@ export function ProxyNotify(parts, handler, isOrigin, options = {}) {
      */
     "graph": new AccessorDescriptor(
       () => handler,
+      // XXX ajvincent a setter here is a bad idea
       (val) => { if (!meta.stopped) handler = val; }
     ),
 

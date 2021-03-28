@@ -13,10 +13,6 @@ import {
   valueType,
 } from "./utilities/shared.mjs";
 
-import {
-  ProxyNotify,
-} from "./ProxyNotify.mjs";
-
 import ModifyRulesAPI from "./ModifyRulesAPI.mjs";
 
 import ObjectGraphHandler from "./ObjectGraphHandler-old.mjs";
@@ -316,31 +312,6 @@ export default class Membrane {
     }
 
     cylinder.setMetadata(graphName, parts);
-
-    if (!isOriginal) {
-      const notifyOptions = {
-        isThis: false,
-        originGraph: options.originHandler,
-        targetGraph: graph,
-      };
-      ["trapName", "callable", "isThis", "argIndex"].forEach(function(propName) {
-        if (Reflect.has(options, propName))
-          notifyOptions[propName] = options[propName];
-      });
-
-      ProxyNotify(parts, options.originHandler, true, notifyOptions);
-      ProxyNotify(parts, graph, false, notifyOptions);
-
-      if (!options.storeAsValue && !Reflect.isExtensible(value)) {
-        try {
-          Reflect.preventExtensions(parts.proxy);
-        }
-        catch (e) {
-          // do nothing
-        }
-      }
-    }
-
     return cylinder;
   }
 

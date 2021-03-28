@@ -55,6 +55,7 @@ export class ProxyCylinder {
    */
   constructor(originGraph, map) {
     defineNWNCProperties(this, {
+      // XXX rename to originGraphName
       /**
        * @type {String | Symbol}
        * @public

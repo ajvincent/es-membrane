@@ -249,6 +249,404 @@ function makeRevokeDeleteRefs(parts, cylinder, graphName) {
 
 const NOT_YET_DETERMINED = Symbol("Not yet determined");
 
+/** @module source/core/DistortionsListener  */
+
+function defineSetOnce(map) {
+  map.originalSet = map.set;
+
+  map.set = function(key, value) {
+    if (this.has(key))
+      throw new Error("Value has already been defined!");
+    return this.originalSet(key, value);
+  };
+
+  Object.freeze(map);
+  return map;
+}
+
+/**
+ * @typedef DistortionConfiguration
+ * @property {string}               formatVersion
+ * @property {string}               dataVersion
+ * @property {boolean?}             filterOwnKeys
+ * @property {string[]?}            proxyTraps
+ * @property {boolean?}             storeUnknownAsLocal
+ * @property {boolean?}             requireLocalDelete
+ * @property {boolean?}             useShadowTarget
+ * @property {(number | boolean)?}  truncateArgList
+ */
+
+/**
+ * @public
+ */
+class DistortionsListener {
+  /**
+   * @param {Membrane} membrane The owning membrane.
+   */
+  constructor(membrane) {
+    // private
+    defineNWNCProperties(this, {
+      membrane,
+      valueAndProtoMap: defineSetOnce(new WeakMap(/*
+        object or function.prototype: JSON configuration
+      */)),
+
+      instanceMap: defineSetOnce(new WeakMap(/*
+        function: JSON configuration
+      */)),
+
+      filterToConfigMap: defineSetOnce(new Map(/*
+        function returning boolean: JSON configuration
+      */)),
+    }, false);
+  }
+
+  /**
+   * Generate a sample configuration this DistortionsListener supports.
+   *
+   * @param {boolean} isFunction True if the config should be for a function.
+   * @returns {DistortionConfiguration}
+   * @public
+   */
+  sampleConfig(isFunction = false) {
+    const rv = {
+      formatVersion: "0.8.2",
+      dataVersion: "0.1",
+
+      filterOwnKeys: false,
+      proxyTraps: allTraps.slice(0),
+      storeUnknownAsLocal: false,
+      requireLocalDelete: false,
+      useShadowTarget: false,
+    };
+
+    if (isFunction) {
+      rv.truncateArgList = false;
+    }
+    return rv;
+  }
+
+  /**
+   * Add a listener for a value (or in the case of instance or iterable, several values).
+   *
+   * @param {Object} value The base value to listen for.
+   * @param {"value" | "prototype" | "instance" | "iterable" | "filter"} category
+   *        The category of the value to listen for.
+   * @param {DistortionConfiguration} config The configuration.
+   *
+   * @public
+   */
+  addListener(value, category, config) {
+    if ((category === "prototype") || (category === "instance")) {
+      if (typeof value !== "function")
+        throw new Error(`The ${category} category requires a function value!`);
+      value = value.prototype;
+    }
+
+    if ((category === "prototype") || (category === "value"))
+      this.valueAndProtoMap.set(value, config);
+    else if (category === "iterable")
+      Array.from(value).forEach((item) => this.valueAndProtoMap.set(item, config));
+    else if (category === "instance")
+      this.instanceMap.set(value, config);
+    else if (category === "filter") {
+      if (typeof value !== "function")
+        throw new Error("The filter category requires a function value!");
+      this.filterToConfigMap.set(value, config);
+    }
+    else
+      throw new Error(`Unsupported category '${category}' for value!`);
+  }
+
+  /**
+   * Attach this to an object graph.
+   *
+   * @param {ObjectGraph | ObjectGraphHandler} handler
+   *
+   * @public
+   */
+  bindToHandler(handler) {
+    if (!this.membrane.ownsGraph(handler)) {
+      throw new Error("Membrane must own the first argument as an object graph handler!");
+    }
+    handler.addProxyListener(meta => this.handleProxyMessage(meta));
+  }
+
+  /**
+   * Find the right DistortionConfiguration for a given real value.
+   *
+   * @param {ProxyMessage} message
+   * @private
+   */
+  getConfigurationForListener(message) {
+    let config = this.valueAndProtoMap.get(message.realTarget);
+
+    // direct instances of an object
+    if (!config) {
+      let proto = Reflect.getPrototypeOf(message.realTarget);
+      config = this.instanceMap.get(proto);
+    }
+
+    // If we don't have a configuration from our value maps, try the filter functions.
+    if (!config) {
+      let iter, filter;
+      iter = this.filterToConfigMap.entries();
+      let entry = iter.next();
+      while (!entry.done && !message.stopped) {
+        filter = entry.value[0];
+        if (filter(message)) {
+          config = entry.value[1];
+          break;
+        }
+        else {
+          entry = iter.next();
+        }
+      }
+    }
+
+    return config;
+  }
+
+  /**
+   * Apply the rules of a configuration to a particular proxy
+   * or to all proxies deriving from an original value.
+   * @param {DistortionConfiguration} config
+   * @param {ProxyMessage}            message
+   *
+   * @private
+   */
+  applyConfiguration(config, message) {
+    const rules = this.membrane.modifyRules;
+    const graphName = message.graph.graphName;
+
+    const modifyTarget = (message.isOriginGraph) ? message.realTarget : message.proxy;
+
+    if (Array.isArray(config.filterOwnKeys)) {
+      rules.filterOwnKeys(
+        graphName,
+        modifyTarget,
+        config.filterOwnKeys
+      );
+    }
+
+    // This sets the list of ownKeys, after filtering.
+    if (!message.isOriginGraph && !Reflect.isExtensible(message.realTarget))
+      Reflect.preventExtensions(message.proxy);
+
+    // O(n^2), but n === 13
+    // if we really want to optimize it, we could use a JSON reviver to convert proxyTraps to a Set
+    // or we could wait for Set.prototype.difference(otherSet)...
+    if (Array.isArray(config.proxyTraps)) {
+      const deadTraps = allTraps.filter((key) => !config.proxyTraps.includes(key));
+      rules.disableTraps(graphName, modifyTarget, deadTraps);
+    }
+
+    if (config.storeUnknownAsLocal)
+      rules.storeUnknownAsLocal(graphName, modifyTarget);
+
+    if (config.requireLocalDelete)
+      rules.requireLocalDelete(graphName, modifyTarget);
+
+    if (("truncateArgList" in config) && (config.truncateArgList !== false))
+      rules.truncateArgList(graphName, modifyTarget, config.truncateArgList);
+  }
+
+  /**
+   * Apply modifyRulesAPI to the object graph for a given proxy.
+   *
+   * @param {ProxyMessage} message
+   * @public
+   */
+  handleProxyMessage(message) {
+    const config = this.getConfigurationForListener(message);
+    if (config) {
+      this.applyConfiguration(config, message);
+      message.stopIteration();
+    }
+  }
+}
+
+Object.freeze(DistortionsListener);
+Object.freeze(DistortionsListener.prototype);
+
+/** @module source/core/ModifyRulesAPI */
+
+/**
+ * @public
+ */
+class ModifyRulesAPI {
+  constructor(membrane) {
+    // private
+    Object.defineProperty(this, "membrane", new NWNCDataDescriptor(membrane, false));
+    Object.seal(this);
+  }
+
+  /**
+   * Ensure that the proxy passed in matches the object graph handler.
+   *
+   * @param graphName  {Symbol|String} The handler's graph name.
+   * @param proxy      {Proxy}  The value to look up.
+   * @param methodName {String} The calling function's name.
+   * 
+   * @private
+   */
+  assertLocalProxy(graphName, proxy, methodName) {
+    let [found, match] = this.membrane.getMembraneProxy(graphName, proxy);
+    if (!found || (proxy !== match)) {
+      throw new Error(methodName + " requires a known proxy!");
+    }
+  }
+
+  /**
+   * Require that new properties be stored via the proxies instead of propagated
+   * through to the underlying object.
+   *
+   * @param graphName {Symbol|String} The graph name of the object graph handler
+   *                                  the proxy uses.
+   * @param proxy     {Proxy}  The proxy (or underlying object) needing local
+   *                           property protection.
+   */
+  storeUnknownAsLocal(graphName, proxy) {
+    this.assertLocalProxy(graphName, proxy, "storeUnknownAsLocal");
+
+    let cylinder = this.membrane.cylinderMap.get(proxy);
+    cylinder.setLocalFlag(graphName, "storeUnknownAsLocal", true);
+  }
+
+  /**
+   * Require that properties be deleted only on the proxy instead of propagated
+   * through to the underlying object.
+   *
+   * @param graphName {Symbol|String} The graph name of the object graph handler
+   *                                  the proxy uses.
+   * @param proxy     {Proxy}  The proxy (or underlying object) needing local
+   *                           property protection.
+   */
+  requireLocalDelete(graphName, proxy) {
+    this.assertLocalProxy(graphName, proxy, "requireLocalDelete");
+
+    let cylinder = this.membrane.cylinderMap.get(proxy);
+    cylinder.setLocalFlag(graphName, "requireLocalDelete", true);
+  }
+
+  /**
+   * Apply a filter to the original list of own property names from an
+   * underlying object.
+   *
+   * @note Local properties and local delete operations of a proxy are NOT
+   * affected by the filters.
+   *
+   * @param graphName {Symbol|String} The graph name of the object graph handler
+   *                                  the proxy uses.
+   * @param proxy     {Proxy}    The proxy (or underlying object) needing local
+   *                             property protection.
+   * @param filter    {Function} The filtering function.  (May be an Array or
+   *                             a Set, which becomes a whitelist filter.)
+   * @see Array.prototype.filter.
+   */
+  filterOwnKeys(graphName, proxy, filter) {
+    this.assertLocalProxy(graphName, proxy, "filterOwnKeys");
+
+    if (Array.isArray(filter)) {
+      filter = new Set(filter);
+    }
+
+    if (filter instanceof Set) {
+      const s = filter;
+      filter = (key) => s.has(key);
+    }
+
+    if ((typeof filter !== "function") && (filter !== null))
+      throw new Error("filter must be a function, array or Set!");
+
+    /* Defining a filter after a proxy's shadow target is not extensible
+     * guarantees inconsistency.  So we must disallow that possibility.
+     *
+     * Note that if the proxy becomes not extensible after setting a filter,
+     * that's all right.  When the proxy becomes not extensible, it then sets
+     * all the proxies of the shadow target before making the shadow target not
+     * extensible.
+     */
+    let cylinder = this.membrane.cylinderMap.get(proxy);
+    let graphsToCheck;
+    if (cylinder.originGraph === graphName)
+    {
+      graphsToCheck = Array.from(cylinder.proxyDataByGraph.keys());
+      graphsToCheck.splice(graphsToCheck.indexOf(graphName), 1);
+    }
+    else
+      graphsToCheck = [ graphName ];
+
+    let allowed = graphsToCheck.every(function(f) {
+      let s = cylinder.getShadowTarget(f);
+      return Reflect.isExtensible(s);
+    });
+
+    if (allowed)
+      cylinder.setOwnKeysFilter(graphName, filter);
+    else
+      throw new Error("filterOwnKeys cannot apply to a non-extensible proxy");
+  }
+
+  /**
+   * Assign the number of arguments to truncate a method's argument list to.
+   *
+   * @param graphName {Symbol|String} The graph name of the object graph handler
+   *                                  the proxy uses.
+   * @param proxy     {Proxy(Function)} The method needing argument truncation.
+   * @param value     {Boolean|Number}
+   *   - if true, limit to a function's arity.
+   *   - if false, do not limit at all.
+   *   - if a non-negative integer, limit to that number.
+   */
+  truncateArgList(graphName, proxy, value) {
+    this.assertLocalProxy(graphName, proxy, "truncateArgList");
+    if (typeof proxy !== "function")
+      throw new Error("proxy must be a function!");
+    {
+      const type = typeof value;
+      if (type === "number") {
+        if (!Number.isInteger(value) || (value < 0)) {
+          throw new Error("value must be a non-negative integer or a boolean!");
+        }
+      }
+      else if (type !== "boolean") {
+        throw new Error("value must be a non-negative integer or a boolean!");
+      }
+    }
+
+    let cylinder = this.membrane.cylinderMap.get(proxy);
+    cylinder.setTruncateArgList(graphName, value);
+  }
+
+  /**
+   * Disable traps for a given proxy.
+   *
+   * @param graphName {String}   The name of the object graph the proxy is part
+   *                             of.
+   * @param proxy     {Proxy}    The proxy to affect.
+   * @param trapList  {String[]} A list of proxy (Reflect) traps to disable.
+   */
+  disableTraps(graphName, proxy, trapList) {
+    this.assertLocalProxy(graphName, proxy, "disableTraps");
+    if (!Array.isArray(trapList))
+      throw new Error("Trap list must be an array of strings!");
+    trapList.forEach(t => {
+      if (!allTraps.includes(t)) {
+        throw new Error(`Unknown trap name: ${t}`);
+      }
+    });
+
+    const cylinder = this.membrane.cylinderMap.get(proxy);
+    trapList.forEach(t => cylinder.setLocalFlag(graphName, `disableTrap(${t})`, true));
+  }
+
+  createDistortionsListener() {
+    return new DistortionsListener(this.membrane);
+  }
+}
+Object.seal(ModifyRulesAPI);
+
 /** @module source/core/ProxyCylinder */
 
 /**
@@ -286,6 +684,7 @@ class ProxyCylinder {
    */
   constructor(originGraph, map) {
     defineNWNCProperties(this, {
+      // XXX rename to originGraphName
       /**
        * @type {String | Symbol}
        * @public
@@ -939,6 +1338,7 @@ function ProxyNotify(parts, handler, isOrigin, options = {}) {
      */
     "graph": new AccessorDescriptor(
       () => handler,
+      // XXX ajvincent a setter here is a bad idea
       (val) => { if (!meta.stopped) handler = val; }
     ),
 
@@ -1091,404 +1491,6 @@ function invokeProxyListeners(listeners, meta) {
 Object.freeze(ProxyNotify);
 Object.freeze(ProxyNotify.useShadowTarget);
 
-/** @module source/core/DistortionsListener  */
-
-function defineSetOnce(map) {
-  map.originalSet = map.set;
-
-  map.set = function(key, value) {
-    if (this.has(key))
-      throw new Error("Value has already been defined!");
-    return this.originalSet(key, value);
-  };
-
-  Object.freeze(map);
-  return map;
-}
-
-/**
- * @typedef DistortionConfiguration
- * @property {string}               formatVersion
- * @property {string}               dataVersion
- * @property {boolean?}             filterOwnKeys
- * @property {string[]?}            proxyTraps
- * @property {boolean?}             storeUnknownAsLocal
- * @property {boolean?}             requireLocalDelete
- * @property {boolean?}             useShadowTarget
- * @property {(number | boolean)?}  truncateArgList
- */
-
-/**
- * @public
- */
-class DistortionsListener {
-  /**
-   * @param {Membrane} membrane The owning membrane.
-   */
-  constructor(membrane) {
-    // private
-    defineNWNCProperties(this, {
-      membrane,
-      valueAndProtoMap: defineSetOnce(new WeakMap(/*
-        object or function.prototype: JSON configuration
-      */)),
-
-      instanceMap: defineSetOnce(new WeakMap(/*
-        function: JSON configuration
-      */)),
-
-      filterToConfigMap: defineSetOnce(new Map(/*
-        function returning boolean: JSON configuration
-      */)),
-    }, false);
-  }
-
-  /**
-   * Generate a sample configuration this DistortionsListener supports.
-   *
-   * @param {boolean} isFunction True if the config should be for a function.
-   * @returns {DistortionConfiguration}
-   * @public
-   */
-  sampleConfig(isFunction = false) {
-    const rv = {
-      formatVersion: "0.8.2",
-      dataVersion: "0.1",
-
-      filterOwnKeys: false,
-      proxyTraps: allTraps.slice(0),
-      storeUnknownAsLocal: false,
-      requireLocalDelete: false,
-      useShadowTarget: false,
-    };
-
-    if (isFunction) {
-      rv.truncateArgList = false;
-    }
-    return rv;
-  }
-
-  /**
-   * Add a listener for a value (or in the case of instance or iterable, several values).
-   *
-   * @param {Object} value The base value to listen for.
-   * @param {"value" | "prototype" | "instance" | "iterable" | "filter"} category
-   *        The category of the value to listen for.
-   * @param {DistortionConfiguration} config The configuration.
-   *
-   * @public
-   */
-  addListener(value, category, config) {
-    if ((category === "prototype") || (category === "instance")) {
-      if (typeof value !== "function")
-        throw new Error(`The ${category} category requires a function value!`);
-      value = value.prototype;
-    }
-
-    if ((category === "prototype") || (category === "value"))
-      this.valueAndProtoMap.set(value, config);
-    else if (category === "iterable")
-      Array.from(value).forEach((item) => this.valueAndProtoMap.set(item, config));
-    else if (category === "instance")
-      this.instanceMap.set(value, config);
-    else if (category === "filter") {
-      if (typeof value !== "function")
-        throw new Error("The filter category requires a function value!");
-      this.filterToConfigMap.set(value, config);
-    }
-    else
-      throw new Error(`Unsupported category '${category}' for value!`);
-  }
-
-  /**
-   * Attach this to an object graph.
-   *
-   * @param {ObjectGraph | ObjectGraphHandler} handler
-   *
-   * @public
-   */
-  bindToHandler(handler) {
-    if (!this.membrane.ownsGraph(handler)) {
-      throw new Error("Membrane must own the first argument as an object graph handler!");
-    }
-    handler.addProxyListener(meta => this.handleProxyMessage(meta));
-  }
-
-  /**
-   * Find the right DistortionConfiguration for a given real value.
-   *
-   * @param {ProxyMessage} message
-   * @private
-   */
-  getConfigurationForListener(message) {
-    let config = this.valueAndProtoMap.get(message.realTarget);
-
-    // direct instances of an object
-    if (!config) {
-      let proto = Reflect.getPrototypeOf(message.realTarget);
-      config = this.instanceMap.get(proto);
-    }
-
-    // If we don't have a configuration from our value maps, try the filter functions.
-    if (!config) {
-      let iter, filter;
-      iter = this.filterToConfigMap.entries();
-      let entry = iter.next();
-      while (!entry.done && !message.stopped) {
-        filter = entry.value[0];
-        if (filter(message)) {
-          config = entry.value[1];
-          break;
-        }
-        else {
-          entry = iter.next();
-        }
-      }
-    }
-
-    return config;
-  }
-
-  /**
-   * Apply the rules of a configuration to a particular proxy
-   * or to all proxies deriving from an original value.
-   * @param {DistortionConfiguration} config
-   * @param {ProxyMessage}            message
-   *
-   * @private
-   */
-  applyConfiguration(config, message) {
-    const rules = this.membrane.modifyRules;
-    const graphName = message.graph.graphName;
-
-    const modifyTarget = (message.isOriginGraph) ? message.realTarget : message.proxy;
-
-    if (Array.isArray(config.filterOwnKeys)) {
-      rules.filterOwnKeys(
-        graphName,
-        modifyTarget,
-        config.filterOwnKeys
-      );
-    }
-
-    // This sets the list of ownKeys, after filtering.
-    if (!message.isOriginGraph && !Reflect.isExtensible(message.realTarget))
-      Reflect.preventExtensions(message.proxy);
-
-    // O(n^2), but n === 13
-    // if we really want to optimize it, we could use a JSON reviver to convert proxyTraps to a Set
-    // or we could wait for Set.prototype.difference(otherSet)...
-    if (Array.isArray(config.proxyTraps)) {
-      const deadTraps = allTraps.filter((key) => !config.proxyTraps.includes(key));
-      rules.disableTraps(graphName, modifyTarget, deadTraps);
-    }
-
-    if (config.storeUnknownAsLocal)
-      rules.storeUnknownAsLocal(graphName, modifyTarget);
-
-    if (config.requireLocalDelete)
-      rules.requireLocalDelete(graphName, modifyTarget);
-
-    if (("truncateArgList" in config) && (config.truncateArgList !== false))
-      rules.truncateArgList(graphName, modifyTarget, config.truncateArgList);
-  }
-
-  /**
-   * Apply modifyRulesAPI to the object graph for a given proxy.
-   *
-   * @param {ProxyMessage} message
-   * @public
-   */
-  handleProxyMessage(message) {
-    const config = this.getConfigurationForListener(message);
-    if (config) {
-      this.applyConfiguration(config, message);
-      message.stopIteration();
-    }
-  }
-}
-
-Object.freeze(DistortionsListener);
-Object.freeze(DistortionsListener.prototype);
-
-/** @module source/core/ModifyRulesAPI */
-
-/**
- * @public
- */
-class ModifyRulesAPI {
-  constructor(membrane) {
-    // private
-    Object.defineProperty(this, "membrane", new NWNCDataDescriptor(membrane, false));
-    Object.seal(this);
-  }
-
-  /**
-   * Ensure that the proxy passed in matches the object graph handler.
-   *
-   * @param graphName  {Symbol|String} The handler's graph name.
-   * @param proxy      {Proxy}  The value to look up.
-   * @param methodName {String} The calling function's name.
-   * 
-   * @private
-   */
-  assertLocalProxy(graphName, proxy, methodName) {
-    let [found, match] = this.membrane.getMembraneProxy(graphName, proxy);
-    if (!found || (proxy !== match)) {
-      throw new Error(methodName + " requires a known proxy!");
-    }
-  }
-
-  /**
-   * Require that new properties be stored via the proxies instead of propagated
-   * through to the underlying object.
-   *
-   * @param graphName {Symbol|String} The graph name of the object graph handler
-   *                                  the proxy uses.
-   * @param proxy     {Proxy}  The proxy (or underlying object) needing local
-   *                           property protection.
-   */
-  storeUnknownAsLocal(graphName, proxy) {
-    this.assertLocalProxy(graphName, proxy, "storeUnknownAsLocal");
-
-    let cylinder = this.membrane.cylinderMap.get(proxy);
-    cylinder.setLocalFlag(graphName, "storeUnknownAsLocal", true);
-  }
-
-  /**
-   * Require that properties be deleted only on the proxy instead of propagated
-   * through to the underlying object.
-   *
-   * @param graphName {Symbol|String} The graph name of the object graph handler
-   *                                  the proxy uses.
-   * @param proxy     {Proxy}  The proxy (or underlying object) needing local
-   *                           property protection.
-   */
-  requireLocalDelete(graphName, proxy) {
-    this.assertLocalProxy(graphName, proxy, "requireLocalDelete");
-
-    let cylinder = this.membrane.cylinderMap.get(proxy);
-    cylinder.setLocalFlag(graphName, "requireLocalDelete", true);
-  }
-
-  /**
-   * Apply a filter to the original list of own property names from an
-   * underlying object.
-   *
-   * @note Local properties and local delete operations of a proxy are NOT
-   * affected by the filters.
-   *
-   * @param graphName {Symbol|String} The graph name of the object graph handler
-   *                                  the proxy uses.
-   * @param proxy     {Proxy}    The proxy (or underlying object) needing local
-   *                             property protection.
-   * @param filter    {Function} The filtering function.  (May be an Array or
-   *                             a Set, which becomes a whitelist filter.)
-   * @see Array.prototype.filter.
-   */
-  filterOwnKeys(graphName, proxy, filter) {
-    this.assertLocalProxy(graphName, proxy, "filterOwnKeys");
-
-    if (Array.isArray(filter)) {
-      filter = new Set(filter);
-    }
-
-    if (filter instanceof Set) {
-      const s = filter;
-      filter = (key) => s.has(key);
-    }
-
-    if ((typeof filter !== "function") && (filter !== null))
-      throw new Error("filter must be a function, array or Set!");
-
-    /* Defining a filter after a proxy's shadow target is not extensible
-     * guarantees inconsistency.  So we must disallow that possibility.
-     *
-     * Note that if the proxy becomes not extensible after setting a filter,
-     * that's all right.  When the proxy becomes not extensible, it then sets
-     * all the proxies of the shadow target before making the shadow target not
-     * extensible.
-     */
-    let cylinder = this.membrane.cylinderMap.get(proxy);
-    let graphsToCheck;
-    if (cylinder.originGraph === graphName)
-    {
-      graphsToCheck = Array.from(cylinder.proxyDataByGraph.keys());
-      graphsToCheck.splice(graphsToCheck.indexOf(graphName), 1);
-    }
-    else
-      graphsToCheck = [ graphName ];
-
-    let allowed = graphsToCheck.every(function(f) {
-      let s = cylinder.getShadowTarget(f);
-      return Reflect.isExtensible(s);
-    });
-
-    if (allowed)
-      cylinder.setOwnKeysFilter(graphName, filter);
-    else
-      throw new Error("filterOwnKeys cannot apply to a non-extensible proxy");
-  }
-
-  /**
-   * Assign the number of arguments to truncate a method's argument list to.
-   *
-   * @param graphName {Symbol|String} The graph name of the object graph handler
-   *                                  the proxy uses.
-   * @param proxy     {Proxy(Function)} The method needing argument truncation.
-   * @param value     {Boolean|Number}
-   *   - if true, limit to a function's arity.
-   *   - if false, do not limit at all.
-   *   - if a non-negative integer, limit to that number.
-   */
-  truncateArgList(graphName, proxy, value) {
-    this.assertLocalProxy(graphName, proxy, "truncateArgList");
-    if (typeof proxy !== "function")
-      throw new Error("proxy must be a function!");
-    {
-      const type = typeof value;
-      if (type === "number") {
-        if (!Number.isInteger(value) || (value < 0)) {
-          throw new Error("value must be a non-negative integer or a boolean!");
-        }
-      }
-      else if (type !== "boolean") {
-        throw new Error("value must be a non-negative integer or a boolean!");
-      }
-    }
-
-    let cylinder = this.membrane.cylinderMap.get(proxy);
-    cylinder.setTruncateArgList(graphName, value);
-  }
-
-  /**
-   * Disable traps for a given proxy.
-   *
-   * @param graphName {String}   The name of the object graph the proxy is part
-   *                             of.
-   * @param proxy     {Proxy}    The proxy to affect.
-   * @param trapList  {String[]} A list of proxy (Reflect) traps to disable.
-   */
-  disableTraps(graphName, proxy, trapList) {
-    this.assertLocalProxy(graphName, proxy, "disableTraps");
-    if (!Array.isArray(trapList))
-      throw new Error("Trap list must be an array of strings!");
-    trapList.forEach(t => {
-      if (!allTraps.includes(t)) {
-        throw new Error(`Unknown trap name: ${t}`);
-      }
-    });
-
-    const cylinder = this.membrane.cylinderMap.get(proxy);
-    trapList.forEach(t => cylinder.setLocalFlag(graphName, `disableTrap(${t})`, true));
-  }
-
-  createDistortionsListener() {
-    return new DistortionsListener(this.membrane);
-  }
-}
-Object.seal(ModifyRulesAPI);
-
 /** @module source/core/utilities/FunctionSet.mjs */
 
 const validThrowModes = [
@@ -1584,6 +1586,49 @@ function AssertIsPropertyKey(propName) {
 }
 
 /**
+ * A set of shadow targets which have had some operations performed on them.
+ *
+ * @type {WeakSet<ShadowTarget>}
+ * @private
+ */
+const ProxyAccessedSet = new WeakSet();
+
+/**
+ *
+ * @param {ObjectGraph} objectGraph
+ * @param {ShadowTarget} shadowTarget
+ */
+ProxyAccessedSet.maybeBroadcast = function(objectGraph, shadowTarget) {
+  if (this.has(shadowTarget))
+    return;
+
+  this.add(shadowTarget);
+
+  const cylinder = objectGraph.membrane.cylinderMap.get(shadowTarget);
+
+  const notifyOptions = {
+    isThis: false,
+    originGraph: objectGraph.membrane.getGraphByName(cylinder.originGraph),
+    targetGraph: objectGraph,
+  };
+
+  const parts = cylinder.getMetadata(objectGraph.graphName);
+
+  ProxyNotify(parts, notifyOptions.originGraph, true, notifyOptions);
+  ProxyNotify(parts, objectGraph, false, notifyOptions);
+
+  if (!Reflect.isExtensible(getRealTarget(shadowTarget))) {
+    try {
+      Reflect.preventExtensions(parts.proxy);
+    }
+    catch (e) {
+      // do nothing
+    }
+  }
+};
+Object.freeze(ProxyAccessedSet);
+
+/**
  * A proxy handler designed to return only primitives and objects in a given
  * object graph, defined by the graphName.
  *
@@ -1662,6 +1707,7 @@ class ObjectGraphHandler {
   // ProxyHandler
   ownKeys(shadowTarget) {
     this.validateTrapAndShadowTarget("ownKeys", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
     if (!Reflect.isExtensible(shadowTarget))
       return Reflect.ownKeys(shadowTarget);
 
@@ -1687,6 +1733,7 @@ class ObjectGraphHandler {
   // ProxyHandler
   has(shadowTarget, propName) {
     this.validateTrapAndShadowTarget("has", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     /*
@@ -1727,6 +1774,7 @@ class ObjectGraphHandler {
   // ProxyHandler
   get(shadowTarget, propName, receiver) {
     this.validateTrapAndShadowTarget("get", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var desc, target, found, rv;
     target = getRealTarget(shadowTarget);
@@ -1867,6 +1915,7 @@ class ObjectGraphHandler {
   // ProxyHandler
   getOwnPropertyDescriptor(shadowTarget, propName) {
     this.validateTrapAndShadowTarget("getOwnPropertyDescriptor", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -1961,6 +2010,7 @@ class ObjectGraphHandler {
   // ProxyHandler
   getPrototypeOf(shadowTarget) {
     this.validateTrapAndShadowTarget("getPrototypeOf", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     /* Prototype objects are special in JavaScript, but with proxies there is a
      * major drawback.  If the prototype property of a function is
@@ -2022,6 +2072,7 @@ class ObjectGraphHandler {
   // ProxyHandler
   isExtensible(shadowTarget) {
     this.validateTrapAndShadowTarget("isExtensible", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     if (!Reflect.isExtensible(shadowTarget))
       return false;
@@ -2045,6 +2096,7 @@ class ObjectGraphHandler {
   // ProxyHandler
   preventExtensions(shadowTarget) {
     this.validateTrapAndShadowTarget("preventExtensions", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     var targetCylinder = this.membrane.cylinderMap.get(target);
@@ -2067,6 +2119,7 @@ class ObjectGraphHandler {
   // ProxyHandler
   deleteProperty(shadowTarget, propName) {
     this.validateTrapAndShadowTarget("deleteProperty", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     const mayLog = this.membrane.__mayLog__();
@@ -2162,6 +2215,7 @@ class ObjectGraphHandler {
    */
   defineProperty(shadowTarget, propName, desc, shouldBeLocal) {
     this.validateTrapAndShadowTarget("defineProperty", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     /* Regarding the funny indentation:  With long names such as defineProperty,
@@ -2278,6 +2332,7 @@ class ObjectGraphHandler {
   // ProxyHandler
   set(shadowTarget, propName, value, receiver) {
     this.validateTrapAndShadowTarget("set", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -2526,6 +2581,7 @@ class ObjectGraphHandler {
   // ProxyHandler
   setPrototypeOf(shadowTarget, proto) {
     this.validateTrapAndShadowTarget("setPrototypeOf", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     try {
@@ -2568,6 +2624,7 @@ class ObjectGraphHandler {
   // ProxyHandler
   apply(shadowTarget, thisArg, argumentsList) {
     this.validateTrapAndShadowTarget("apply", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     var _this, args = [];
@@ -2642,6 +2699,7 @@ class ObjectGraphHandler {
   // ProxyHandler
   construct(shadowTarget, argumentsList, ctorTarget) {
     this.validateTrapAndShadowTarget("construct", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     var args = [];
@@ -3954,31 +4012,6 @@ class Membrane {
     }
 
     cylinder.setMetadata(graphName, parts);
-
-    if (!isOriginal) {
-      const notifyOptions = {
-        isThis: false,
-        originGraph: options.originHandler,
-        targetGraph: graph,
-      };
-      ["trapName", "callable", "isThis", "argIndex"].forEach(function(propName) {
-        if (Reflect.has(options, propName))
-          notifyOptions[propName] = options[propName];
-      });
-
-      ProxyNotify(parts, options.originHandler, true, notifyOptions);
-      ProxyNotify(parts, graph, false, notifyOptions);
-
-      if (!options.storeAsValue && !Reflect.isExtensible(value)) {
-        try {
-          Reflect.preventExtensions(parts.proxy);
-        }
-        catch (e) {
-          // do nothing
-        }
-      }
-    }
-
     return cylinder;
   }
 

@@ -13,6 +13,10 @@ import {
   ProxyCylinder,
 } from "./ProxyCylinder.mjs";
 
+import {
+  ProxyNotify,
+} from "./ProxyNotify.mjs";
+
 import FunctionSet from "./utilities/FunctionSet.mjs";
 
 import {
@@ -25,6 +29,49 @@ function AssertIsPropertyKey(propName) {
     throw new Error("propName is not a symbol or a string!");
   return true;
 }
+
+/**
+ * A set of shadow targets which have had some operations performed on them.
+ *
+ * @type {WeakSet<ShadowTarget>}
+ * @private
+ */
+const ProxyAccessedSet = new WeakSet();
+
+/**
+ *
+ * @param {ObjectGraph} objectGraph
+ * @param {ShadowTarget} shadowTarget
+ */
+ProxyAccessedSet.maybeBroadcast = function(objectGraph, shadowTarget) {
+  if (this.has(shadowTarget))
+    return;
+
+  this.add(shadowTarget);
+
+  const cylinder = objectGraph.membrane.cylinderMap.get(shadowTarget);
+
+  const notifyOptions = {
+    isThis: false,
+    originGraph: objectGraph.membrane.getGraphByName(cylinder.originGraph),
+    targetGraph: objectGraph,
+  };
+
+  const parts = cylinder.getMetadata(objectGraph.graphName);
+
+  ProxyNotify(parts, notifyOptions.originGraph, true, notifyOptions);
+  ProxyNotify(parts, objectGraph, false, notifyOptions);
+
+  if (!Reflect.isExtensible(getRealTarget(shadowTarget))) {
+    try {
+      Reflect.preventExtensions(parts.proxy);
+    }
+    catch (e) {
+      // do nothing
+    }
+  }
+};
+Object.freeze(ProxyAccessedSet);
 
 /**
  * A proxy handler designed to return only primitives and objects in a given
@@ -105,6 +152,7 @@ export default class ObjectGraphHandler {
   // ProxyHandler
   ownKeys(shadowTarget) {
     this.validateTrapAndShadowTarget("ownKeys", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
     if (!Reflect.isExtensible(shadowTarget))
       return Reflect.ownKeys(shadowTarget);
 
@@ -130,6 +178,7 @@ export default class ObjectGraphHandler {
   // ProxyHandler
   has(shadowTarget, propName) {
     this.validateTrapAndShadowTarget("has", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     /*
@@ -170,6 +219,7 @@ export default class ObjectGraphHandler {
   // ProxyHandler
   get(shadowTarget, propName, receiver) {
     this.validateTrapAndShadowTarget("get", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var desc, target, found, rv;
     target = getRealTarget(shadowTarget);
@@ -310,6 +360,7 @@ export default class ObjectGraphHandler {
   // ProxyHandler
   getOwnPropertyDescriptor(shadowTarget, propName) {
     this.validateTrapAndShadowTarget("getOwnPropertyDescriptor", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -404,6 +455,7 @@ export default class ObjectGraphHandler {
   // ProxyHandler
   getPrototypeOf(shadowTarget) {
     this.validateTrapAndShadowTarget("getPrototypeOf", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     /* Prototype objects are special in JavaScript, but with proxies there is a
      * major drawback.  If the prototype property of a function is
@@ -465,6 +517,7 @@ export default class ObjectGraphHandler {
   // ProxyHandler
   isExtensible(shadowTarget) {
     this.validateTrapAndShadowTarget("isExtensible", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     if (!Reflect.isExtensible(shadowTarget))
       return false;
@@ -488,6 +541,7 @@ export default class ObjectGraphHandler {
   // ProxyHandler
   preventExtensions(shadowTarget) {
     this.validateTrapAndShadowTarget("preventExtensions", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     var targetCylinder = this.membrane.cylinderMap.get(target);
@@ -510,6 +564,7 @@ export default class ObjectGraphHandler {
   // ProxyHandler
   deleteProperty(shadowTarget, propName) {
     this.validateTrapAndShadowTarget("deleteProperty", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     const mayLog = this.membrane.__mayLog__();
@@ -605,6 +660,7 @@ export default class ObjectGraphHandler {
    */
   defineProperty(shadowTarget, propName, desc, shouldBeLocal) {
     this.validateTrapAndShadowTarget("defineProperty", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     /* Regarding the funny indentation:  With long names such as defineProperty,
@@ -721,6 +777,7 @@ export default class ObjectGraphHandler {
   // ProxyHandler
   set(shadowTarget, propName, value, receiver) {
     this.validateTrapAndShadowTarget("set", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     const mayLog = this.membrane.__mayLog__();
     if (mayLog) {
@@ -969,6 +1026,7 @@ export default class ObjectGraphHandler {
   // ProxyHandler
   setPrototypeOf(shadowTarget, proto) {
     this.validateTrapAndShadowTarget("setPrototypeOf", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     try {
@@ -1011,6 +1069,7 @@ export default class ObjectGraphHandler {
   // ProxyHandler
   apply(shadowTarget, thisArg, argumentsList) {
     this.validateTrapAndShadowTarget("apply", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     var _this, args = [];
@@ -1085,6 +1144,7 @@ export default class ObjectGraphHandler {
   // ProxyHandler
   construct(shadowTarget, argumentsList, ctorTarget) {
     this.validateTrapAndShadowTarget("construct", shadowTarget);
+    ProxyAccessedSet.maybeBroadcast(this, shadowTarget);
 
     var target = getRealTarget(shadowTarget);
     var args = [];
