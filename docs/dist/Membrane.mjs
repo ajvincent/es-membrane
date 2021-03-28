@@ -3763,9 +3763,7 @@ class Membrane {
       parts = { value, storeAsValue: true };
     }
     else {
-      const shadowTarget = "shadowTarget" in options ?
-                           options.shadowTarget :
-                           makeShadowTarget(value);
+      const shadowTarget = makeShadowTarget(value);
       let obj, revoke;
       if (("shadowTarget" in options) && (valueType(shadowTarget) === "primitive")) {
         obj = { proxy: shadowTarget, revoke: () => {}};

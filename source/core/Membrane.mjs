@@ -252,7 +252,6 @@ export default class Membrane {
    *
    * Options:
    *   @param {ProxyCylinder} cylinder
-   *   @param {Variant}       shadowTarget
    *   @param {boolean}       storeAsValue
    *
    * @returns {ProxyCylinder}
@@ -284,9 +283,7 @@ export default class Membrane {
       parts = { value, storeAsValue: true };
     }
     else {
-      const shadowTarget = "shadowTarget" in options ?
-                           options.shadowTarget :
-                           makeShadowTarget(value);
+      const shadowTarget = makeShadowTarget(value);
       let obj, revoke;
       if (("shadowTarget" in options) && (valueType(shadowTarget) === "primitive")) {
         obj = { proxy: shadowTarget, revoke: () => {}};
