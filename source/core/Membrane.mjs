@@ -76,7 +76,7 @@ function makeBindValuesBag(membrane, handler, value) {
                     (rv.cylinder.hasGraph(graph) &&
                     (rv.cylinder.getProxy(graph) === value)));
     if (!valid)
-      throw new Error("Value argument does not belong to proposed object graph");
+      throw new Error("Value argument does not belong to proposed object graph!");
   }
 
   return rv;
@@ -96,7 +96,7 @@ function maySetOnGraph(cylinder, bag) {
   if (cylinder && cylinder.hasGraph(bag.handler.graphName)) {
     let check = cylinder.getProxy(bag.handler.graphName);
     if (check !== bag.value)
-      throw new Error("Value argument does not belong to proposed object graph");
+      throw new Error("Value argument does not belong to proposed object graph!");
     bag.maySet = false;
   }
   else
@@ -456,10 +456,8 @@ export default class Membrane {
     let propBag0 = makeBindValuesBag(this, handler0, value0);
     let propBag1 = makeBindValuesBag(this, handler1, value1);
 
-    if (propBag0.type === "primitive") {
-      if (propBag1.type === "primitive") {
-        throw new Error("bindValuesByHandlers requires two non-primitive values");
-      }
+    if ((propBag0.type === "primitive") || (propBag1.type === "primitive")) {
+      throw new Error("bindValuesByHandlers requires two non-primitive values!");
     }
 
     let cylinder = propBag0.cylinder || propBag1.cylinder;
@@ -467,7 +465,7 @@ export default class Membrane {
     if (propBag0.cylinder && propBag1.cylinder) {
       if (propBag0.cylinder !== propBag1.cylinder) {
         // See https://github.com/ajvincent/es-membrane/issues/77 .
-        throw new Error("Linking two object graphs in this way is not safe.");
+        throw new Error("Linking two object graphs in this way is not safe!");
       }
     }
 
@@ -503,7 +501,7 @@ export default class Membrane {
     }
 
     // Postconditions
-    if (propBag0.type !== "primitive") {
+    {
       let found, check;
       [found, check] = this.getMembraneProxy(propBag0.handler.graphName, propBag0.value);
       assert(found, "value0 not found?");
@@ -514,7 +512,7 @@ export default class Membrane {
       assert(check === propBag1.value, "value0 not found in handler1 graph name?");
     }
 
-    if (propBag1.type !== "primitive") {
+    {
       let found, check;
       [found, check] = this.getMembraneProxy(propBag0.handler.graphName, propBag1.value);
       assert(found, "value1 not found?");
@@ -535,7 +533,6 @@ export default class Membrane {
     if (!desc)
       return desc;
 
-    // XXX ajvincent This optimization may need to go away for wrapping primitives.
     if (isDataDescriptor(desc) && (valueType(desc.value) === "primitive"))
       return desc;
 
@@ -552,15 +549,12 @@ export default class Membrane {
         return desc;
     }
 
-    var originHandler = this.getGraphByName(originGraph);
-    var targetHandler = this.getGraphByName(targetGraph);
-
     ["value", "get", "set"].forEach(function(descProp) {
       if (!keys.includes(descProp))
         return;
       wrappedDesc[descProp] = this.convertArgumentToProxy(
-        originHandler,
-        targetHandler,
+        originGraph,
+        targetGraph,
         desc[descProp]
       );
     }, this);
@@ -615,4 +609,5 @@ defineNWNCProperties(
  */
 Membrane.prototype.secured = false;
 
-Object.seal(Membrane);
+Object.freeze(Membrane);
+Object.freeze(Membrane.prototype);

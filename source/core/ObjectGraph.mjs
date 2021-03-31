@@ -1,4 +1,5 @@
 import {
+  DataDescriptor,
   NWNCDataDescriptor,
   defineNWNCProperties,
 } from "./utilities/shared.mjs";
@@ -37,11 +38,6 @@ export default class ObjectGraph {
 
     defineNWNCProperties(this, {
       /**
-       * @private
-       */
-      __isDead__: false,
-
-      /**
        * @package
        */
       masterProxyHandler: new MembraneProxyHandlers.Master(this),
@@ -56,6 +52,8 @@ export default class ObjectGraph {
        */
       __proxyListeners__: new Set,
     }, false);
+
+    Reflect.defineProperty(this, "__isDead__", new DataDescriptor(false, true, false, false));
   }
 
   /**

@@ -1,5 +1,7 @@
 import Membrane from "../../source/core/Membrane.mjs";
 import {
+  DataDescriptor,
+  AccessorDescriptor,
   NOT_YET_DETERMINED,
   Primordials,
   allTraps,
@@ -20,15 +22,13 @@ import {
   expectInstanceDescriptor,
 } from "../helpers/expectDataDescriptor.mjs";
 
+import loggerLib from "../helpers/logger.mjs";
+
 describe("Membrane()", () => {
   let membrane;
   beforeEach(() => {
     membrane = new Membrane({ refactor: "0.10" });
   });
-
-  /* We have to intervene in the behaviors of the other objects in the
-     membrane a lot to get this unit-tested.
-  */
 
   describe("class", () => {
     it("exposes the list of Primordials", () => {
@@ -41,12 +41,13 @@ describe("Membrane()", () => {
       expectValueDescriptor(allTraps, false, true, false, desc);
     });
 
-    it("is sealed", () => {
-      expect(Object.isSealed(Membrane)).toBe(true);
+    it("is frozen", () => {
+      expect(Object.isFrozen(Membrane)).toBe(true);
+      expect(Object.isFrozen(Membrane.prototype)).toBe(true);
     });
   });
 
-  describe("has all the initial package properties:", () => {
+  describe("instance", () => {
     it(".cylinderMap instanceof ProxyCylinderMap", () => {
       const desc = Reflect.getOwnPropertyDescriptor(membrane, "cylinderMap");
       expectInstanceDescriptor(ProxyCylinderMap, false, false, false, desc);
@@ -369,17 +370,105 @@ describe("Membrane()", () => {
     });
   });
 
-  xdescribe(".convertArgumentToProxy()", () => {
+  describe(".convertArgumentToProxy()", () => {
+    let wetGraph, dryGraph;
+    let proxy, value;
 
+    beforeEach(() => {
+      value = {};
+      wetGraph = membrane.getGraphByName("wet", { mustCreate: true });
+      dryGraph = membrane.getGraphByName("dry", { mustCreate: true });
+    });
+
+    afterEach(() => {
+      wetGraph = null;
+      dryGraph = null;
+      proxy = null;
+    });
+
+    // Jasmine's toEqual matcher interferes with the tests.
+
+    function expectValueAndProxy() {
+      let data;
+      for (let key of [value, proxy])
+      {
+        data = membrane.getMembraneValue("wet", key);
+        expect(data[0]).toBe(true);
+        expect(data[1]).toBe(value);
+
+        data = membrane.getMembraneValue("dry", key);
+        expect(data[0]).toBe(true);
+        expect(data[1]).toBe(value);
+
+        data = membrane.getMembraneProxy("wet", key);
+        expect(data[0]).toBe(true);
+        expect(data[1]).toBe(value);
+
+        data = membrane.getMembraneProxy("dry", key);
+        expect(data[0]).toBe(true);
+        expect(data[1]).toBe(proxy);
+      }
+
+      expect(typeof proxy).toBe(typeof value);
+      expect(Array.isArray(proxy)).toBe(Array.isArray(value));
+    }
+
+    it("creates a proxy from a raw object", () => {
+      proxy = membrane.convertArgumentToProxy(wetGraph, dryGraph, value);
+      expectValueAndProxy();
+    });
+
+    it("creates a proxy from an array", () => {
+      value = [];
+      proxy = membrane.convertArgumentToProxy(wetGraph, dryGraph, value);
+
+      expectValueAndProxy();
+    });
+
+    it("creates a proxy from a function", () => {
+      value = function() {};
+      proxy = membrane.convertArgumentToProxy(wetGraph, dryGraph, value);
+
+      expectValueAndProxy();
+    });
+
+    it("passes through a primitive unchanged", () => {
+      value = Symbol("foo");
+      expect(membrane.convertArgumentToProxy(wetGraph, dryGraph, value)).toBe(value);
+
+      expect(membrane.getMembraneValue("wet", value)[0]).toBe(false);
+      expect(membrane.getMembraneValue("dry", value)[0]).toBe(false);
+    });
+
+    it("returns the same value and proxy every time", () => {
+      proxy = membrane.convertArgumentToProxy(wetGraph, dryGraph, value);
+      expect(membrane.convertArgumentToProxy(wetGraph, dryGraph, value) === proxy).toBe(true);
+    });
+
+    it("allows overriding the proxy setting at runtime", () => {
+      let proxy2 = membrane.convertArgumentToProxy(wetGraph, dryGraph, value);
+      proxy = membrane.convertArgumentToProxy(wetGraph, dryGraph, value, {override: true});
+      expect(proxy === proxy2).toBe(false);
+
+      expectValueAndProxy();
+    })
+  });
+
+  it(".convertArgumentToProxy() honors the pass-through manager", () => {
+    const value = {};
+    const passThroughFilter = key => key === value;
+    membrane = new Membrane({ refactor: "0.10", passThroughFilter });
+
+    const wetGraph = membrane.getGraphByName("wet", { mustCreate: true });
+    const dryGraph = membrane.getGraphByName("dry", { mustCreate: true });
+
+    expect(membrane.convertArgumentToProxy(wetGraph, dryGraph, value)).toBe(value);
+
+    expect(membrane.getMembraneValue("wet", value)[0]).toBe(false);
+    expect(membrane.getMembraneValue("dry", value)[0]).toBe(false);
   });
 
   describe(".bindValuesByHandlers()", () => {
-    beforeEach(() => {
-      membrane = new Membrane({});
-    });
-
-    xit("for ObjectGraph", () => {});
-
     // I'm not using the mocks here, since the concept is simple.
     const graphNames = {
       A: Symbol("A"),
@@ -402,6 +491,7 @@ describe("Membrane()", () => {
       graphA = membrane.getGraphByName(graphNames.A, { mustCreate: true });
       graphB = membrane.getGraphByName(graphNames.B, { mustCreate: true });
     });
+
     afterEach(function() {
       graphA.revokeEverything();
       graphA = null;
@@ -421,9 +511,8 @@ describe("Membrane()", () => {
       membrane = null;
     });
 
-    it("when both values are objects unknown to the membrane", function() {
-      membrane.bindValuesByHandlers(graphA, values.objA,
-                                    graphB, values.objB);
+    it("accepts when both values are objects unknown to the membrane", function() {
+      membrane.bindValuesByHandlers(graphA, values.objA, graphB, values.objB);
       let check = membrane.convertArgumentToProxy(graphB, graphA, values.objB);
       expect(check).toBe(values.objA);
 
@@ -431,9 +520,8 @@ describe("Membrane()", () => {
       expect(check).toBe(values.objB);
     });
 
-    it("when the same value is passed in for both object graphs", function() {
-      membrane.bindValuesByHandlers(graphA, values.objA,
-                                    graphB, values.objA);
+    it("accepts when the same value is passed in for both object graphs", function() {
+      membrane.bindValuesByHandlers(graphA, values.objA, graphB, values.objA);
       let check = membrane.convertArgumentToProxy(graphB, graphA, values.objA);
       expect(check).toBe(values.objA);
 
@@ -442,26 +530,32 @@ describe("Membrane()", () => {
     });
 
     it(
-      "when the first value is an object unknown to the membrane, and the second value is a primitive",
+      "throws when the first value is an object unknown to the membrane, and the second value is a primitive",
       function() {
-        membrane.bindValuesByHandlers(graphA, values.objA,
-                                      graphB, values.str);
-        let check = membrane.convertArgumentToProxy(graphA, graphB, values.objA);
-        expect(check).toBe(values.str);
+        expect(() => {
+          membrane.bindValuesByHandlers(graphA, values.objA, graphB, values.str);
+        }).toThrowError("bindValuesByHandlers requires two non-primitive values!");
       }
     );
 
     it(
-      "when the first value is a primitive, and the second value is an object unknown to the membrane",
+      "throws when the first value is a primitive, and the second value is an object unknown to the membrane",
       function() {
-        membrane.bindValuesByHandlers(graphB, values.str,
-                                      graphA, values.objA);
-        let check = membrane.convertArgumentToProxy(graphA, graphB, values.objA);
-        expect(check).toBe(values.str);
+        expect(() => {
+          membrane.bindValuesByHandlers(graphB, values.str, graphA, values.objA);
+        }).toThrowError("bindValuesByHandlers requires two non-primitive values!");
       }
     );
 
-    it("when both values are known in the correct graph locations", function() {
+    it("throws when both values are primitive", function() {
+      expect(function() {
+        membrane.bindValuesByHandlers(graphA, values.strA, graphB, "Goodbye");
+      }).toThrowError("bindValuesByHandlers requires two non-primitive values!");
+
+      // we can't look up primitives in the membrane.
+    });
+
+    it("accepts when both values are known in the correct graph locations", function() {
       membrane.bindValuesByHandlers(graphA, values.objA,
                                     graphB, values.objB);
 
@@ -476,7 +570,7 @@ describe("Membrane()", () => {
     });
 
     it(
-      "when the second value is known to the membrane and the first value is an object",
+      "accepts when the second value is known to the membrane and the first value is an object",
       function() {
         graphC = membrane.getGraphByName(graphNames.C, { mustCreate: true });
         membrane.bindValuesByHandlers(graphC, values.objC,
@@ -505,7 +599,7 @@ describe("Membrane()", () => {
       }
     );
 
-    it("to a third object graph holding a proxy", function() {
+    it("binds to a third object graph holding a proxy", function() {
       graphC = membrane.getGraphByName(graphNames.C, { mustCreate: true });
       let objC = membrane.convertArgumentToProxy(
         graphA,
@@ -531,22 +625,27 @@ describe("Membrane()", () => {
       expect(check).toBe(objC);
     });
 
-    it("when both values are objects in the membrane works", function() {
+    it("binds to a third object graph holding a raw value", function() {
+      graphC = membrane.getGraphByName(graphNames.C, { mustCreate: true });
+
       membrane.bindValuesByHandlers(graphA, values.objA,
                                     graphB, values.objB);
 
-      // checking for a no-op
-      membrane.bindValuesByHandlers(graphA, values.objA,
-                                    graphB, values.objB);
-      let check = membrane.convertArgumentToProxy(graphB, graphA, values.objB);
-      expect(check).toBe(values.objA);
+      membrane.bindValuesByHandlers(graphA, values.objA, graphC, values.objC);
 
-      check = membrane.convertArgumentToProxy(graphA, graphB, check);
+      // ensure graph B and graph C are linked properly
+      let check;
+      let proxy = membrane.convertArgumentToProxy(graphA, graphC, values.objA);
+      expect(proxy).toBe(values.objC);
+      check = membrane.convertArgumentToProxy(graphC, graphB, proxy);
       expect(check).toBe(values.objB);
+
+      check = membrane.convertArgumentToProxy(graphB, graphC, proxy);
+      expect(check).toBe(values.objC);
     });
 
     it(
-      "fails when an object is already defined in the first graph",
+      "throws when a bound object is already defined in the first graph",
       function() {
         membrane.convertArgumentToProxy(
           graphA,
@@ -555,9 +654,8 @@ describe("Membrane()", () => {
         );
 
         expect(function() {
-          membrane.bindValuesByHandlers(graphA, values.objA,
-                                        graphB, values.objB);
-        }).toThrow();
+          membrane.bindValuesByHandlers(graphA, values.objA, graphB, values.objB);
+        }).toThrowError("Value argument does not belong to proposed object graph!");
 
         // Ensure values.objB is not in the membrane.
         Reflect.ownKeys(graphNames).forEach(function(k) {
@@ -569,7 +667,7 @@ describe("Membrane()", () => {
     );
 
     it(
-      "fails when an object is already defined in the second graph",
+      "throws when a bound object is already defined in the second graph",
       function() {
         membrane.convertArgumentToProxy(
           graphA,
@@ -581,7 +679,7 @@ describe("Membrane()", () => {
         expect(function() {
           membrane.bindValuesByHandlers(graphB, values.objB,
                                         graphA, values.objA);
-        }).toThrow();
+        }).toThrowError("Value argument does not belong to proposed object graph!");
 
         // Ensure values.objB is not in the membrane.
         Reflect.ownKeys(graphNames).forEach(function(k) {
@@ -593,7 +691,7 @@ describe("Membrane()", () => {
     );
 
     it(
-      "fails when an object is passed in for the wrong object graph",
+      "throws when an object is passed in for the wrong object graph",
       function() {
         graphC = membrane.getGraphByName(graphNames.C, { mustCreate: true });
         membrane.convertArgumentToProxy(
@@ -605,7 +703,7 @@ describe("Membrane()", () => {
         expect(function() {
           membrane.bindValuesByHandlers(graphC, values.objA,
                                         graphB, values.objB);
-        }).toThrow();
+        }).toThrowError("Value argument does not belong to proposed object graph!");
 
         // Ensure values.objB is not in the membrane.
         Reflect.ownKeys(graphNames).forEach(function(k) {
@@ -616,16 +714,7 @@ describe("Membrane()", () => {
       }
     );
 
-    it("fails when both values are primitive", function() {
-      expect(function() {
-        membrane.bindValuesByHandlers(graphA, values.strA,
-                                      graphB, "Goodbye");
-      }).toThrow();
-
-      // we can't look up primitives in the membrane.
-    });
-
-    it("fails when trying to join two sets of object graphs", function() {
+    it("throws when trying to join two sets of object graphs", function() {
       graphC = membrane.getGraphByName(graphNames.C, { mustCreate: true });
       graphD = membrane.getGraphByName(graphNames.D, { mustCreate: true });
 
@@ -638,44 +727,145 @@ describe("Membrane()", () => {
       expect(function() {
         membrane.bindValuesByHandlers(graphC, values.objC,
                                       graphA, values.objA);
-      }).toThrow();
+      }).toThrowError("Linking two object graphs in this way is not safe!");
     });
   });
 
-  xdescribe(".wrapDescriptor() (package)", () => {
+  describe(".wrapDescriptor() (package)", () => {
+    let wetGraph, dryGraph;
+    beforeEach(() => {
+      wetGraph = membrane.getGraphByName("wet", { mustCreate: true });
+      dryGraph = membrane.getGraphByName("dry", { mustCreate: true });
+    });
+    afterEach(() => {
+      wetGraph = null;
+      dryGraph = null;
+    });
 
+    it("returns undefined when it receives undefined", () => {
+      expect(membrane.wrapDescriptor(wetGraph, dryGraph, undefined)).toBe(undefined);
+    });
+
+    it("returns an equal data descriptor for a primitive value", () => {
+      const desc = new DataDescriptor(Symbol("foo"), false, true, true);
+      expect(membrane.wrapDescriptor(wetGraph, dryGraph, desc)).toEqual(desc);
+    });
+
+    it("returns a data descriptor with a value from convertArgumentToProxy() for a non-primitive value", () => {
+      const value = {};
+      const desc = new DataDescriptor(value, true, false, true);
+      const proxy = membrane.convertArgumentToProxy(wetGraph, dryGraph, value);
+
+      const wrappedDesc = membrane.wrapDescriptor(wetGraph, dryGraph, desc);
+      expect(wrappedDesc.value === proxy).toBe(true);
+      expect(wrappedDesc.writable).toBe(desc.writable);
+      expect(wrappedDesc.enumerable).toBe(desc.enumerable);
+      expect(wrappedDesc.configurable).toBe(desc.configurable);
+
+      const expectedKeys = Reflect.ownKeys(desc);
+      const keys = Reflect.ownKeys(wrappedDesc);
+
+      expectedKeys.sort();
+      keys.sort();
+
+      expect(keys).toEqual(expectedKeys);
+    });
+
+    it("returns an accessor descriptor with proxies for getters and setters", () => {
+      const getValue = function() {}, setValue = function() {};
+
+      const getProxy = membrane.convertArgumentToProxy(wetGraph, dryGraph, getValue);
+      const setProxy = membrane.convertArgumentToProxy(wetGraph, dryGraph, setValue);
+      const desc = new AccessorDescriptor(getValue, setValue, false, true);
+
+      const wrappedDesc = membrane.wrapDescriptor(wetGraph, dryGraph, desc);
+      expect(wrappedDesc.get === getProxy).toBe(true);
+      expect(wrappedDesc.set === setProxy).toBe(true);
+      expect(wrappedDesc.enumerable).toBe(desc.enumerable);
+      expect(wrappedDesc.configurable).toBe(desc.configurable);
+
+      const expectedKeys = Reflect.ownKeys(desc);
+      const keys = Reflect.ownKeys(wrappedDesc);
+
+      expectedKeys.sort();
+      keys.sort();
+
+      expect(keys).toEqual(expectedKeys);
+    });
   });
 
-  xdescribe(".warnOnce() (package)", ()=> {
+  describe(".warnOnce() (package)", ()=> {
+    it("does nothing when there is no logger", () => {
+      expect(() => membrane.warnOnce("foo")).not.toThrow();
+    });
 
+    it("warns only for the first time it sees a message", () => {
+      const logger = loggerLib.getLogger("test.jasmine.logger");
+      const appender = new loggerLib.Appender();
+      logger.addAppender(appender);
+
+      const membrane = new Membrane({ refactor: "0.10", logger });
+
+      const message = "hello world";
+      membrane.warnOnce(message);
+
+      expect(appender.events).toEqual([
+        {
+          level: "WARN",
+          message
+        }
+      ]);
+
+      membrane.warnOnce(message);
+
+      expect(appender.events).toEqual([
+        {
+          level: "WARN",
+          message
+        }
+      ]);
+
+      membrane.warnOnce("goodbye");
+
+      expect(appender.events).toEqual([
+        {
+          level: "WARN",
+          message,
+        },
+        {
+          level: "WARN",
+          message: "goodbye",
+        }
+      ]);
+    });
   });
 
   describe("graph's .revokeEverything()", () => {
     beforeEach(() => membrane = new Membrane({}));
 
-    let dryHandler, wetHandler, wetObject, wetProxy, dryObject, dryProxy;
+    let dryGraph, wetGraph, wetObject, wetProxy, dryObject, dryProxy;
     beforeEach(() => {
-      wetHandler = membrane.getGraphByName("wet", { mustCreate: true });
-      dryHandler = membrane.getGraphByName("dry", { mustCreate: true });
+      wetGraph = membrane.getGraphByName("wet", { mustCreate: true });
+      dryGraph = membrane.getGraphByName("dry", { mustCreate: true });
   
       wetObject = { value: true };
-      dryProxy = membrane.convertArgumentToProxy(wetHandler, dryHandler, wetObject);
+      dryProxy = membrane.convertArgumentToProxy(wetGraph, dryGraph, wetObject);
   
       dryObject = { value: false };
-      wetProxy = membrane.convertArgumentToProxy(dryHandler, wetHandler, dryObject);
+      wetProxy = membrane.convertArgumentToProxy(dryGraph, wetGraph, dryObject);
     });
 
     it("allows revoking wet before dry", () => {
-      wetHandler.revokeEverything();
-      dryHandler.revokeEverything();
+      wetGraph.revokeEverything();
+      dryGraph.revokeEverything();
 
       expect(() => dryProxy.value).toThrow();
       expect(() => wetProxy.value).toThrow();
     });
   
     it("allows revoking dry before wet", () => {
-      dryHandler.revokeEverything();
-      wetHandler.revokeEverything();
+      dryGraph.revokeEverything();
+      wetGraph.revokeEverything();
   
       expect(() => dryProxy.value).toThrow();
       expect(() => wetProxy.value).toThrow();

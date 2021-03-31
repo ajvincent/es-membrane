@@ -417,7 +417,9 @@ export default class ObjectGraphHandler {
         desc.configurable = true;
 
         desc = this.membrane.wrapDescriptor(
-          targetCylinder.originGraph, this.graphName, desc
+          this.membrane.getGraphByName(targetCylinder.originGraph),
+          this,
+          desc
         );
         desc.configurable = configurable;
       }
@@ -748,8 +750,8 @@ export default class ObjectGraphHandler {
 
       if (desc !== undefined) {
         desc = this.membrane.wrapDescriptor(
-          this.graphName,
-          targetCylinder.originGraph,
+          this,
+          this.membrane.getGraphByName(targetCylinder.originGraph),
           desc
         );
       }
@@ -1315,8 +1317,8 @@ export default class ObjectGraphHandler {
         desc.configurable = true;
 
         desc = this.membrane.wrapDescriptor(
-          targetCylinder.originGraph,
-          this.graphName,
+          this.membrane.getGraphByName(targetCylinder.originGraph),
+          this,
           desc
         );
         desc.configurable = configurable;

@@ -1945,7 +1945,9 @@ class ObjectGraphHandler {
         desc.configurable = true;
 
         desc = this.membrane.wrapDescriptor(
-          targetCylinder.originGraph, this.graphName, desc
+          this.membrane.getGraphByName(targetCylinder.originGraph),
+          this,
+          desc
         );
         desc.configurable = configurable;
       }
@@ -2276,8 +2278,8 @@ class ObjectGraphHandler {
 
       if (desc !== undefined) {
         desc = this.membrane.wrapDescriptor(
-          this.graphName,
-          targetCylinder.originGraph,
+          this,
+          this.membrane.getGraphByName(targetCylinder.originGraph),
           desc
         );
       }
@@ -2807,8 +2809,8 @@ class ObjectGraphHandler {
         desc.configurable = true;
 
         desc = this.membrane.wrapDescriptor(
-          targetCylinder.originGraph,
-          this.graphName,
+          this.membrane.getGraphByName(targetCylinder.originGraph),
+          this,
           desc
         );
         desc.configurable = configurable;
@@ -3124,11 +3126,6 @@ class ObjectGraph {
 
     defineNWNCProperties(this, {
       /**
-       * @private
-       */
-      __isDead__: false,
-
-      /**
        * @package
        */
       masterProxyHandler: new MembraneProxyHandlers.Master(this),
@@ -3143,6 +3140,8 @@ class ObjectGraph {
        */
       __proxyListeners__: new Set,
     }, false);
+
+    Reflect.defineProperty(this, "__isDead__", new DataDescriptor(false, true, false, false));
   }
 
   /**
@@ -3525,7 +3524,7 @@ function makeBindValuesBag(membrane, handler, value) {
                     (rv.cylinder.hasGraph(graph) &&
                     (rv.cylinder.getProxy(graph) === value)));
     if (!valid)
-      throw new Error("Value argument does not belong to proposed object graph");
+      throw new Error("Value argument does not belong to proposed object graph!");
   }
 
   return rv;
@@ -3545,7 +3544,7 @@ function maySetOnGraph(cylinder, bag) {
   if (cylinder && cylinder.hasGraph(bag.handler.graphName)) {
     let check = cylinder.getProxy(bag.handler.graphName);
     if (check !== bag.value)
-      throw new Error("Value argument does not belong to proposed object graph");
+      throw new Error("Value argument does not belong to proposed object graph!");
     bag.maySet = false;
   }
   else
@@ -3905,10 +3904,8 @@ class Membrane {
     let propBag0 = makeBindValuesBag(this, handler0, value0);
     let propBag1 = makeBindValuesBag(this, handler1, value1);
 
-    if (propBag0.type === "primitive") {
-      if (propBag1.type === "primitive") {
-        throw new Error("bindValuesByHandlers requires two non-primitive values");
-      }
+    if ((propBag0.type === "primitive") || (propBag1.type === "primitive")) {
+      throw new Error("bindValuesByHandlers requires two non-primitive values!");
     }
 
     let cylinder = propBag0.cylinder || propBag1.cylinder;
@@ -3916,7 +3913,7 @@ class Membrane {
     if (propBag0.cylinder && propBag1.cylinder) {
       if (propBag0.cylinder !== propBag1.cylinder) {
         // See https://github.com/ajvincent/es-membrane/issues/77 .
-        throw new Error("Linking two object graphs in this way is not safe.");
+        throw new Error("Linking two object graphs in this way is not safe!");
       }
     }
 
@@ -3952,7 +3949,7 @@ class Membrane {
     }
 
     // Postconditions
-    if (propBag0.type !== "primitive") {
+    {
       let found, check;
       [found, check] = this.getMembraneProxy(propBag0.handler.graphName, propBag0.value);
       assert(found, "value0 not found?");
@@ -3963,7 +3960,7 @@ class Membrane {
       assert(check === propBag1.value, "value0 not found in handler1 graph name?");
     }
 
-    if (propBag1.type !== "primitive") {
+    {
       let found, check;
       [found, check] = this.getMembraneProxy(propBag0.handler.graphName, propBag1.value);
       assert(found, "value1 not found?");
@@ -3984,7 +3981,6 @@ class Membrane {
     if (!desc)
       return desc;
 
-    // XXX ajvincent This optimization may need to go away for wrapping primitives.
     if (isDataDescriptor(desc) && (valueType(desc.value) === "primitive"))
       return desc;
 
@@ -4001,15 +3997,12 @@ class Membrane {
         return desc;
     }
 
-    var originHandler = this.getGraphByName(originGraph);
-    var targetHandler = this.getGraphByName(targetGraph);
-
     ["value", "get", "set"].forEach(function(descProp) {
       if (!keys.includes(descProp))
         return;
       wrappedDesc[descProp] = this.convertArgumentToProxy(
-        originHandler,
-        targetHandler,
+        originGraph,
+        targetGraph,
         desc[descProp]
       );
     }, this);
@@ -4064,6 +4057,7 @@ defineNWNCProperties(
  */
 Membrane.prototype.secured = false;
 
-Object.seal(Membrane);
+Object.freeze(Membrane);
+Object.freeze(Membrane.prototype);
 
 export default Membrane;
