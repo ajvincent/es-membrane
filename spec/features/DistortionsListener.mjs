@@ -1,14 +1,4 @@
-/*
-import "../docs/dist/es6-modules/Membrane.js";
-*/
-
-if (typeof Membrane != "function") {
-  if (typeof require == "function") {
-    var { Membrane } = require("../../docs/dist/node/es-membrane.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get Membrane");
-}
+import Membrane from "../../source/core/Membrane.mjs";
 
 describe("DistortionsListener", function() {
   var parts;
@@ -70,18 +60,6 @@ describe("DistortionsListener", function() {
         parts.dry.A.fontSize = "12px";
       }).toThrow();
       expect("fontSize" in parts.wet.A).toBe(false);
-
-      parts.wet.B = function() {};
-      parts.wet.B.color = "blue";
-      parts.distortions.addListener(parts.wet.B, "value", parts.config);
-      parts.distortions.removeListener(parts.wet.B, "value");
-      parts.updateKeys();
-
-      expect(parts.dry.B.color).toBe("blue");
-      expect(function() {
-        parts.dry.B.fontSize = "12px";
-      }).not.toThrow();
-      expect("fontSize" in parts.wet.B).toBe(true);
     });
 
     it("for a function's prototype", function() {
@@ -97,51 +75,6 @@ describe("DistortionsListener", function() {
           parts.dry.A.prototype.fontSize = "12px";
         }).toThrow();
         expect("fontSize" in parts.wet.A.prototype).toBe(false);
-      }
-
-      {
-        parts.wet.B = function() {};
-        parts.wet.B.prototype.color = "blue";
-        parts.distortions.addListener(parts.wet.B, "prototype", parts.config);
-        parts.distortions.removeListener(parts.wet.B, "prototype");
-        parts.updateKeys();
-
-        expect(parts.dry.B.prototype.color).toBe("blue");
-        expect(function() {
-          parts.dry.B.prototype.fontSize = "12px";
-        }).not.toThrow();
-        expect("fontSize" in parts.wet.B.prototype).toBe(true);
-      }
-
-      // This is about using "value" versus "prototype" in the second argument.
-      {
-        parts.wet.C = function() {};
-        parts.wet.C.prototype.color = "green";
-        parts.distortions.addListener(
-          parts.wet.C.prototype, "value", parts.config
-        );
-        parts.distortions.removeListener(parts.wet.C, "prototype");
-        parts.updateKeys();
-
-        expect(parts.dry.C.prototype.color).toBe("green");
-        expect(function() {
-          parts.dry.C.prototype.fontSize = "12px";
-        }).not.toThrow();
-        expect("fontSize" in parts.wet.C.prototype).toBe(true);
-      }
-
-      {
-        parts.wet.D = function() {};
-        parts.wet.D.prototype.color = "yellow";
-        parts.distortions.addListener(parts.wet.D, "prototype", parts.config);
-        parts.distortions.removeListener(parts.wet.D.prototype, "value");
-        parts.updateKeys();
-
-        expect(parts.dry.D.prototype.color).toBe("yellow");
-        expect(function() {
-          parts.dry.D.prototype.fontSize = "12px";
-        }).not.toThrow();
-        expect("fontSize" in parts.wet.D.prototype).toBe(true);
       }
     });
 
@@ -161,17 +94,6 @@ describe("DistortionsListener", function() {
           parts.dry.a.fontSize = "12px";
         }).toThrow();
         expect("fontSize" in parts.wet.a).toBe(false);
-
-        parts.distortions.removeListener(parts.wet.A, "instance");
-        parts.wet.b = new parts.wet.A();
-        parts.wet.b.fontFamily = "Times New Roman";
-        parts.updateKeys();
-
-        expect(parts.dry.b.color).toBe("red");
-        expect(function() {
-          parts.dry.b.fontSize = "12px";
-        }).not.toThrow();
-        expect("fontSize" in parts.wet.b).toBe(true);
       }
     });
 
@@ -199,34 +121,7 @@ describe("DistortionsListener", function() {
         parts.dry.A.fontSize = "12px";
       }).toThrow();
       expect("fontSize" in parts.wet.A).toBe(false);
-
-      parts.wet.B = B;
-      parts.wet.C = C;
-      parts.distortions.removeListener([B, C], "iterable");
-      parts.updateKeys();
-
-      expect(parts.dry.B.color).toBe("blue");
-      expect(function() {
-        parts.dry.B.fontSize = "12px";
-      }).not.toThrow();
-      expect("fontSize" in parts.wet.B).toBe(true);
-
-      expect(parts.dry.C.color).toBe("green");
-      expect(function() {
-        parts.dry.C.fontSize = "12px";
-      }).not.toThrow();
-      expect("fontSize" in parts.wet.C).toBe(true);
-      
-      parts.wet.D = D;
-      parts.distortions.removeListener(D, "value");
-      parts.updateKeys();
-
-      expect(parts.dry.D.color).toBe("yellow");
-      expect(function() {
-        parts.dry.D.fontSize = "12px";
-      }).not.toThrow();
-      expect("fontSize" in parts.wet.D).toBe(true);
-    });
+   });
 
     it("for a filterable list of values", function() {
       parts.wet.A = function() {};
@@ -237,7 +132,7 @@ describe("DistortionsListener", function() {
 
       const items = new Set([parts.wet.A, B]);
       const filter = function(meta) {
-        return items.has(meta.target);
+        return items.has(meta.realTarget);
       };
 
       parts.distortions.addListener(
