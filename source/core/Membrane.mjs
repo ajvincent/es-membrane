@@ -377,8 +377,12 @@ export default class Membrane {
    * @public
    */
   convertArgumentToProxy(originHandler, targetHandler, arg, options = {}) {
-    var override = ("override" in options) && (options.override === true);
-    if (override) {
+    if (!this.ownsGraph(originHandler) ||
+        !this.ownsGraph(targetHandler) ||
+        (originHandler.graphName === targetHandler.graphName))
+      throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
+
+    if (("override" in options) && (options.override === true)) {
       let cylinder = this.cylinderMap.get(arg);
       if (cylinder) {
         cylinder.clearAllGraphs();
@@ -396,10 +400,12 @@ export default class Membrane {
     if (found)
       return rv;
 
-    if (!this.ownsGraph(originHandler) ||
-        !this.ownsGraph(targetHandler) ||
-        (originHandler.graphName === targetHandler.graphName))
-      throw new Error("convertArgumentToProxy requires two different ObjectGraphHandlers in the Membrane instance");
+    // Require original values past this point
+    {
+      let cylinder = this.cylinderMap.get(arg);
+      if (cylinder)
+        arg = cylinder.getOriginal();
+    }
 
     if (this.passThroughManager.mayPass(originHandler, targetHandler, arg))
       return arg;

@@ -9,14 +9,14 @@ it(
       membrane = new Membrane();
       wetHandler  = membrane.getGraphByName("wet", MUSTCREATE);
       dryHandler  = membrane.getGraphByName("dry", MUSTCREATE);
-      dampHandler = membrane.getGraphByName("dry", MUSTCREATE);
+      dampHandler = membrane.getGraphByName("damp", MUSTCREATE);
   
       wetMap  = new Map();
       dryMap  = membrane.convertArgumentToProxy(wetHandler, dryHandler,  wetMap);
       // we rarely create proxies this way in our tests, so this'll be useful
       dampMap = membrane.convertArgumentToProxy(dryHandler, dampHandler, dryMap);
     }
-  
+
     function expectSize(s) {
       expect(wetMap.size ).toBe(s);
       expect(dryMap.size ).toBe(s);

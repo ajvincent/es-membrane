@@ -1,20 +1,8 @@
-/*
-import "../docs/dist/es6-modules/Membrane.js";
-import "../docs/dist/es6-modules/MembraneMocks.js";
-*/
-if (typeof Membrane != "function") {
-  if (typeof require == "function") {
-    var { Membrane } = require("../../../docs/dist/node/es-membrane.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get Membrane");
-}
+import Membrane from "../../../source/core/Membrane.mjs";
 
 it(
   "Set instances by default in a membrane work like they do without a membrane",
   function() {
-    "use strict";
-  
     let membrane, wetHandler, dryHandler, dampHandler, wetSet, drySet, dampSet;
     {
       const MUSTCREATE = Object.freeze({ mustCreate: true });
@@ -50,13 +38,13 @@ it(
         let foundValue = 0, foundKey = 0, foundAll = 0, thisArg = { isThis: true };
         set.forEach(function(v, k, s) {
           expect(this).toBe(thisArg);
-          expect(s).toBe(s);
+          expect(s === set).toBe(true);
 
-          if (v == value)
+          if (v === value)
             foundValue++;
-          if (k == value)
+          if (k === value)
             foundKey++;
-          if ((v == value) && (k == value))
+          if ((v === value) && (k === value))
             foundAll++;
         }, thisArg);
         expect(foundValue).toBe(shouldHave ? 1 : 0);

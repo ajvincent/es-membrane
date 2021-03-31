@@ -375,7 +375,7 @@ describe("Membrane()", () => {
     let proxy, value;
 
     beforeEach(() => {
-      value = {};
+      value = { size: 3 };
       wetGraph = membrane.getGraphByName("wet", { mustCreate: true });
       dryGraph = membrane.getGraphByName("dry", { mustCreate: true });
     });
@@ -451,7 +451,52 @@ describe("Membrane()", () => {
       expect(proxy === proxy2).toBe(false);
 
       expectValueAndProxy();
-    })
+    });
+
+    it("can convert from the proxy to an original value", () => {
+      proxy = membrane.convertArgumentToProxy(wetGraph, dryGraph, value);
+
+      expect(membrane.convertArgumentToProxy(dryGraph, wetGraph, proxy)).toBe(value);
+    });
+
+    describe("across more than two object graphs", () => {
+      let dampGraph;
+      beforeEach(() => {
+        membrane = new Membrane();
+        wetGraph = membrane.getGraphByName("wet", { mustCreate: true });
+        dryGraph = membrane.getGraphByName("dry", { mustCreate: true });
+        dampGraph = membrane.getGraphByName("damp", { mustCreate: true });
+      });
+
+      afterEach(() => {
+        dampGraph = null;
+      });
+
+      it("converts seamlessly from the origin graph to any graph", () => {
+        const dryProxy = membrane.convertArgumentToProxy(wetGraph, dryGraph, value);
+        const dampProxy = membrane.convertArgumentToProxy(wetGraph, dampGraph, value);
+        expect(dryProxy === dampProxy).toBe(false);
+
+        expect(dryProxy.size).toBe(3);
+        expect(dampProxy.size).toBe(3);
+
+        expect(membrane.convertArgumentToProxy(dryGraph,  wetGraph, dryProxy)).toBe(value);
+        expect(membrane.convertArgumentToProxy(dampGraph, wetGraph, dampProxy)).toBe(value);
+      });
+
+      it("converts seamlessly from a non-origin graph to any other non-origin graph", () => {
+        const dryProxy  = membrane.convertArgumentToProxy(wetGraph, dryGraph,  value);
+        expect(dryProxy.size).toBe(3);
+
+        const dampProxy = membrane.convertArgumentToProxy(dryGraph, dampGraph, dryProxy);
+        expect(dryProxy === dampProxy).toBe(false);
+
+        expect(dampProxy.size).toBe(3);
+
+        expect(membrane.convertArgumentToProxy(dryGraph,  wetGraph, dryProxy)).toBe(value);
+        expect(membrane.convertArgumentToProxy(dampGraph, wetGraph, dampProxy)).toBe(value);
+      });
+    });
   });
 
   it(".convertArgumentToProxy() honors the pass-through manager", () => {
