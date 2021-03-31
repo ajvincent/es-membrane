@@ -783,6 +783,7 @@ export default class ObjectGraphHandler {
     }
     let target = getRealTarget(shadowTarget);
 
+    {
     /*
     http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-set-p-v-receiver
 
@@ -816,6 +817,7 @@ export default class ObjectGraphHandler {
     8. Perform ? Call(setter, Receiver, « V »).
     9. Return true. 
     */
+    }
 
     /* Optimization:  Recursively calling this.set() is a pain in the neck,
      * especially for the stack trace.  So let's use a do...while loop to reset
@@ -988,8 +990,12 @@ export default class ObjectGraphHandler {
     if (typeof setter === "undefined")
       return false;
 
-    if (!this.membrane.hasProxyForValue(this.graphName, setter))
-      this.membrane.addPartsToCylinder(this, setter);
+    const originGraph = this.membrane.getGraphByName(receiverMap.originGraph);
+    this.membrane.convertArgumentToProxy(
+      originGraph,
+      this,
+      setter
+    );
 
     // 8. Perform ? Call(setter, Receiver, « V »).
 
@@ -1003,7 +1009,7 @@ export default class ObjectGraphHandler {
 
       const shadow = this.getShadowTarget(setter);
       if (shadow)
-        this.apply(this.getShadowTarget(setter), receiver, [ rvProxy ]);
+        this.apply(shadow, receiver, [ rvProxy ]);
       else
         Reflect.apply(setter, receiver, [ rvProxy ]);
 

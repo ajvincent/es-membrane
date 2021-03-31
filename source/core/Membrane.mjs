@@ -255,7 +255,7 @@ export default class Membrane {
    *   @param {boolean}       storeAsValue
    *
    * @returns {ProxyCylinder}
-   * @package
+   * @private
    */
   addPartsToCylinder(graph, value, options = {}) {
     if (!this.ownsGraph(graph))

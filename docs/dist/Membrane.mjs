@@ -2311,40 +2311,6 @@ class ObjectGraphHandler {
     }
     let target = getRealTarget(shadowTarget);
 
-    /*
-    http://www.ecma-international.org/ecma-262/7.0/#sec-ordinary-object-internal-methods-and-internal-slots-set-p-v-receiver
-
-    1. Assert: IsPropertyKey(P) is true.
-    2. Let ownDesc be ? O.[[GetOwnProperty]](P).
-    3. If ownDesc is undefined, then
-        a. Let parent be ? O.[[GetPrototypeOf]]().
-        b. If parent is not null, then
-            i.   Return ? parent.[[Set]](P, V, Receiver).
-        c. Else,
-            i.   Let ownDesc be the PropertyDescriptor{
-                   [[Value]]: undefined,
-                   [[Writable]]: true,
-                   [[Enumerable]]: true,
-                   [[Configurable]]: true
-                 }.
-    4. If IsDataDescriptor(ownDesc) is true, then
-        a. If ownDesc.[[Writable]] is false, return false.
-        b. If Type(Receiver) is not Object, return false.
-        c. Let existingDescriptor be ? Receiver.[[GetOwnProperty]](P).
-        d. If existingDescriptor is not undefined, then
-            i.   If IsAccessorDescriptor(existingDescriptor) is true, return false.
-            ii.  If existingDescriptor.[[Writable]] is false, return false.
-            iii. Let valueDesc be the PropertyDescriptor{[[Value]]: V}.
-            iv.  Return ? Receiver.[[DefineOwnProperty]](P, valueDesc).
-        e. Else Receiver does not currently have a property P,
-            i.   Return ? CreateDataProperty(Receiver, P, V).
-    5. Assert: IsAccessorDescriptor(ownDesc) is true.
-    6. Let setter be ownDesc.[[Set]].
-    7. If setter is undefined, return false.
-    8. Perform ? Call(setter, Receiver, « V »).
-    9. Return true. 
-    */
-
     /* Optimization:  Recursively calling this.set() is a pain in the neck,
      * especially for the stack trace.  So let's use a do...while loop to reset
      * only the entry arguments we need (specifically, shadowTarget, target).
@@ -2516,8 +2482,12 @@ class ObjectGraphHandler {
     if (typeof setter === "undefined")
       return false;
 
-    if (!this.membrane.hasProxyForValue(this.graphName, setter))
-      this.membrane.addPartsToCylinder(this, setter);
+    const originGraph = this.membrane.getGraphByName(receiverMap.originGraph);
+    this.membrane.convertArgumentToProxy(
+      originGraph,
+      this,
+      setter
+    );
 
     // 8. Perform ? Call(setter, Receiver, « V »).
 
@@ -2531,7 +2501,7 @@ class ObjectGraphHandler {
 
       const shadow = this.getShadowTarget(setter);
       if (shadow)
-        this.apply(this.getShadowTarget(setter), receiver, [ rvProxy ]);
+        this.apply(shadow, receiver, [ rvProxy ]);
       else
         Reflect.apply(setter, receiver, [ rvProxy ]);
 
@@ -3731,11 +3701,10 @@ class Membrane {
    *
    * Options:
    *   @param {ProxyCylinder} cylinder
-   *   @param {Variant}       shadowTarget
    *   @param {boolean}       storeAsValue
    *
    * @returns {ProxyCylinder}
-   * @package
+   * @private
    */
   addPartsToCylinder(graph, value, options = {}) {
     if (!this.ownsGraph(graph))

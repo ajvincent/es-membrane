@@ -1,6 +1,5 @@
 import DAMP from "../helpers/dampSymbol.mjs";
 import MembraneMocks from "../helpers/mocks.mjs";
-import ensureProxyCylinder from "../helpers/ensureProxyCylinder.mjs";
 
 describe("Deleting properties locally", function() {
   // Customize this for whatever variables you need.
@@ -387,7 +386,11 @@ describe("Deleting properties locally", function() {
 
   describe("when required by the wet object graph,", function() {
     beforeEach(function() {
-      ensureProxyCylinder(parts.handlers.wet, parts.wet.Node.prototype);
+      membrane.convertArgumentToProxy(
+        parts.handlers.wet,
+        parts.handlers.dry,
+        parts.wet.Node.prototype
+      );
       membrane.modifyRules.requireLocalDelete("wet", parts.wet.Node.prototype);
     });
     
@@ -398,7 +401,11 @@ describe("Deleting properties locally", function() {
     "when required by both the wet and the dry object graphs,",
     function() {
       beforeEach(function() {
-        ensureProxyCylinder(parts.handlers.wet, parts.wet.Node.prototype);
+        membrane.convertArgumentToProxy(
+          parts.handlers.wet,
+          parts.handlers.dry,
+          parts.wet.Node.prototype
+        );
         membrane.modifyRules.requireLocalDelete("wet", parts.wet.Node.prototype);
         membrane.modifyRules.requireLocalDelete("dry", parts.dry.Node.prototype);
       });

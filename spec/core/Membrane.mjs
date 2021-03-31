@@ -369,10 +369,6 @@ describe("Membrane()", () => {
     });
   });
 
-  xdescribe(".addPartsToCylinder() (package method)", () => {
-
-  });
-
   xdescribe(".convertArgumentToProxy()", () => {
 
   });
