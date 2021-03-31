@@ -1,20 +1,8 @@
-/*
-import "../docs/dist/es6-modules/Membrane.js";
-import "../docs/dist/es6-modules/MembraneMocks.js";
-*/
-if (typeof Membrane != "function") {
-  if (typeof require == "function") {
-    var { Membrane } = require("../../../docs/dist/node/es-membrane.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get Membrane");
-}
+import Membrane from "../../../source/core/Membrane.mjs";
 
 it(
   "Map instances by default in a membrane work like they do without a membrane",
   function() {
-    "use strict";
-  
     let membrane, wetHandler, dryHandler, dampHandler, wetMap, dryMap, dampMap;
     {
       const MUSTCREATE = Object.freeze({ mustCreate: true });
@@ -55,13 +43,13 @@ it(
         let foundValue = 0, foundKey = 0, foundAll = 0, thisArg = { isThis: true };
         map.forEach(function(v, k, m) {
           expect(this).toBe(thisArg);
-          expect(m).toBe(map);
+          expect(m === map).toBe(true);
 
-          if (v == value)
+          if (v === value)
             foundValue++;
-          if (k == key)
+          if (k === key)
             foundKey++;
-          if ((v == value) && (k == key))
+          if ((v === value) && (k === key))
             foundAll++;
         }, thisArg);
         expect(foundValue).toBe(shouldHave ? 1 : 0);
