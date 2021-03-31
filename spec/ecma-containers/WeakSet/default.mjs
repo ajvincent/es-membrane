@@ -1,32 +1,17 @@
-/*
-import "../docs/dist/es6-modules/Membrane.js";
-import "../docs/dist/es6-modules/MembraneMocks.js";
-*/
-if (typeof Membrane != "function") {
-  if (typeof require == "function") {
-    var { Membrane } = require("../../../docs/dist/node/es-membrane.js");
-  }
-  else
-    throw new Error("Unable to run tests: cannot get Membrane");
-}
+import Membrane from "../../../source/core/Membrane.mjs";
 
 it(
-  "Set instances by default in a membrane work like they do without a membrane",
+  "WeakSet instances by default in a membrane work like they do without a membrane",
   function() {
-    "use strict";
-  
-    let membrane, wetHandler, dryHandler, dampHandler, wetSet, drySet, dampSet;
+    let membrane, wetHandler, dryHandler, wetSet, drySet;
     {
       const MUSTCREATE = Object.freeze({ mustCreate: true });
       membrane = new Membrane();
       wetHandler  = membrane.getGraphByName("wet", MUSTCREATE);
       dryHandler  = membrane.getGraphByName("dry", MUSTCREATE);
-      dampHandler = membrane.getGraphByName("damp", MUSTCREATE);
-  
+
       wetSet  = new WeakSet();
       drySet  = membrane.convertArgumentToProxy(wetHandler, dryHandler,  wetSet);
-      // we rarely create proxies this way in our tests, so this'll be useful
-      dampSet = membrane.convertArgumentToProxy(dryHandler, dampHandler, drySet);
     }
   
     function checkSet(set, values, shouldHave = true) {
