@@ -801,7 +801,7 @@ class ProxyCylinder {
    * @public
    */
   hasGraph(graphName) {
-    return this.getGraphNames().includes(graphName);
+    return this.proxyDataByGraph.has(graphName);
   }
 
   /**
