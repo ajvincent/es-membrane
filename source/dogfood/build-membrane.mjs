@@ -244,8 +244,8 @@ export default function buildMembrane(___utilities___) {
         "setPrototypeOf",
         "apply",
         "construct",
-        "addProxyListener",
-        "removeProxyListener",
+        "addProxyInitListener",
+        "removeProxyInitListener",
         "revokeEverything"
       ],
       "proxyTraps": [
@@ -319,8 +319,8 @@ export default function buildMembrane(___utilities___) {
         ObjectGraphHandler.prototype.setPrototypeOf,
         ObjectGraphHandler.prototype.apply,
         ObjectGraphHandler.prototype.construct,
-        ObjectGraphHandler.prototype.addProxyListener,
-        ObjectGraphHandler.prototype.removeProxyListener,
+        ObjectGraphHandler.prototype.addProxyInitListener,
+        ObjectGraphHandler.prototype.removeProxyInitListener,
         DistortionsListener.prototype.addListener,
         DistortionsListener.prototype.removeListener,
         DistortionsListener.prototype.sampleConfig,

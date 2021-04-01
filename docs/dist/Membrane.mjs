@@ -369,13 +369,13 @@ class DistortionsListener {
     if (!this.membrane.ownsGraph(handler)) {
       throw new Error("Membrane must own the first argument as an object graph handler!");
     }
-    handler.addProxyListener(meta => this.handleProxyMessage(meta));
+    handler.addProxyInitListener(meta => this.handleProxyInitMessage(meta));
   }
 
   /**
    * Find the right DistortionConfiguration for a given real value.
    *
-   * @param {ProxyMessage} message
+   * @param {ProxyInitMessage} message
    * @private
    */
   getConfigurationForListener(message) {
@@ -411,7 +411,7 @@ class DistortionsListener {
    * Apply the rules of a configuration to a particular proxy
    * or to all proxies deriving from an original value.
    * @param {DistortionConfiguration} config
-   * @param {ProxyMessage}            message
+   * @param {ProxyInitMessage}        message
    *
    * @private
    */
@@ -454,10 +454,10 @@ class DistortionsListener {
   /**
    * Apply modifyRulesAPI to the object graph for a given proxy.
    *
-   * @param {ProxyMessage} message
+   * @param {ProxyInitMessage} message
    * @public
    */
-  handleProxyMessage(message) {
+  handleProxyInitMessage(message) {
     const config = this.getConfigurationForListener(message);
     if (config) {
       this.applyConfiguration(config, message);
@@ -2744,7 +2744,7 @@ class ObjectGraphHandler {
    * @see ProxyNotify
    * @public
    */
-  addProxyListener(listener) {
+  addProxyInitListener(listener) {
     this.throwIfDead();
     return this.__proxyListeners__.add(listener);
   }
@@ -2755,7 +2755,7 @@ class ObjectGraphHandler {
    * @see ProxyNotify
    * @public
    */
-  removeProxyListener(listener) {
+  removeProxyInitListener(listener) {
     this.throwIfDead();
     return this.__proxyListeners__.delete(listener);
   }
@@ -2776,7 +2776,7 @@ class ObjectGraphHandler {
   /**
    * Notify the currently registered set of proxy listeners of a message.
    *
-   * @param {ProxyMessage} message
+   * @param {ProxyInitMessage} message
    *
    * @package
    */
@@ -3188,7 +3188,7 @@ class ObjectGraph {
    * @see ProxyNotify
    * @public
    */
-  addProxyListener(listener) {
+  addProxyInitListener(listener) {
     if (typeof listener != "function")
       throw new Error("listener is not a function!");
     this.__proxyListeners__.add(listener);
@@ -3200,7 +3200,7 @@ class ObjectGraph {
    * @see ProxyNotify
    * @public
    */
-  removeProxyListener(listener) {
+  removeProxyInitListener(listener) {
     if (typeof listener != "function")
       throw new Error("listener is not a function!");
     this.__proxyListeners__.remove(listener);

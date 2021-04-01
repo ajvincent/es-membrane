@@ -100,7 +100,7 @@ export default class ObjectGraph {
    * @see ProxyNotify
    * @public
    */
-  addProxyListener(listener) {
+  addProxyInitListener(listener) {
     if (typeof listener != "function")
       throw new Error("listener is not a function!");
     this.__proxyListeners__.add(listener);
@@ -112,7 +112,7 @@ export default class ObjectGraph {
    * @see ProxyNotify
    * @public
    */
-  removeProxyListener(listener) {
+  removeProxyInitListener(listener) {
     if (typeof listener != "function")
       throw new Error("listener is not a function!");
     this.__proxyListeners__.remove(listener);

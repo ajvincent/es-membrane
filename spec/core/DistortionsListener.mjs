@@ -1,5 +1,5 @@
 import DistortionsListener from "../../source/core/DistortionsListener.mjs";
-import ProxyMessage from "../../source/core/broadcasters/ProxyMessage.mjs";
+import ProxyInitMessage from "../../source/core/broadcasters/ProxyInitMessage.mjs";
 
 import {
   NWNCDataDescriptor,
@@ -173,28 +173,28 @@ describe("DistortionsListener", () => {
 
       const handler = jasmine.createSpyObj(
         "handler",
-        [ "addProxyListener" ]
+        [ "addProxyInitListener" ]
       );
 
       expect(Reflect.defineProperty(
         listener,
-        "handleProxyMessage",
-        new NWNCDataDescriptor(jasmine.createSpy("handleProxyMessage"), true)
+        "handleProxyInitMessage",
+        new NWNCDataDescriptor(jasmine.createSpy("handleProxyInitMessage"), true)
       )).toBe(true);
 
       listener.bindToHandler(handler);
       expect(membrane.ownsGraph).toHaveBeenCalledOnceWith(handler);
-      expect(listener.handleProxyMessage).toHaveBeenCalledTimes(0);
+      expect(listener.handleProxyInitMessage).toHaveBeenCalledTimes(0);
 
-      expect(handler.addProxyListener).toHaveBeenCalledTimes(1);
-      if (handler.addProxyListener.calls.count() === 1) {
-        const first = handler.addProxyListener.calls.first();
+      expect(handler.addProxyInitListener).toHaveBeenCalledTimes(1);
+      if (handler.addProxyInitListener.calls.count() === 1) {
+        const first = handler.addProxyInitListener.calls.first();
         expect(first.args.length).toBe(1);
         const callback = first.args[0];
         const message = {};
         callback(message);
 
-        expect(listener.handleProxyMessage).toHaveBeenCalledOnceWith(message);
+        expect(listener.handleProxyInitMessage).toHaveBeenCalledOnceWith(message);
       }
     });
 
@@ -206,7 +206,7 @@ describe("DistortionsListener", () => {
     });
   });
 
-  describe(".handleProxyMessage() with a non-origin graph", () => {
+  describe(".handleProxyInitMessage() with a non-origin graph", () => {
     let realTarget, proxy, graph, message;
     beforeEach(() => {
       realTarget = {};
@@ -214,7 +214,7 @@ describe("DistortionsListener", () => {
       graph = {
         graphName: "dry",
       };
-      message = new ProxyMessage(proxy, realTarget, graph, false);
+      message = new ProxyInitMessage(proxy, realTarget, graph, false);
     });
 
     // applyConfiguration tests
@@ -226,7 +226,7 @@ describe("DistortionsListener", () => {
       membrane.modifyRules.filterOwnKeys = jasmine.createSpy("filterOwnKeys");
 
       listener.addListener(realTarget, "value", config);
-      listener.handleProxyMessage(message);
+      listener.handleProxyInitMessage(message);
 
       expect(membrane.modifyRules.filterOwnKeys).toHaveBeenCalledOnceWith(
         "dry", proxy, config.filterOwnKeys
@@ -241,7 +241,7 @@ describe("DistortionsListener", () => {
       Reflect.preventExtensions(realTarget);
 
       listener.addListener(realTarget, "value", config);
-      listener.handleProxyMessage(message);
+      listener.handleProxyInitMessage(message);
 
       expect(Reflect.isExtensible(proxy)).toBe(false);
     });
@@ -254,7 +254,7 @@ describe("DistortionsListener", () => {
       membrane.modifyRules.disableTraps = jasmine.createSpy("disableTraps");
 
       listener.addListener(realTarget, "value", config);
-      listener.handleProxyMessage(message);
+      listener.handleProxyInitMessage(message);
 
       expect(membrane.modifyRules.disableTraps).toHaveBeenCalledTimes(1);
       const calls = membrane.modifyRules.disableTraps.calls;
@@ -272,7 +272,7 @@ describe("DistortionsListener", () => {
       membrane.modifyRules.storeUnknownAsLocal = jasmine.createSpy("storeUnknownAsLocal");
 
       listener.addListener(realTarget, "value", config);
-      listener.handleProxyMessage(message);
+      listener.handleProxyInitMessage(message);
 
       expect(membrane.modifyRules.storeUnknownAsLocal).toHaveBeenCalledOnceWith(
         "dry", proxy
@@ -286,7 +286,7 @@ describe("DistortionsListener", () => {
       membrane.modifyRules.requireLocalDelete = jasmine.createSpy("requireLocalDelete");
 
       listener.addListener(realTarget, "value", config);
-      listener.handleProxyMessage(message);
+      listener.handleProxyInitMessage(message);
 
       expect(membrane.modifyRules.requireLocalDelete).toHaveBeenCalledOnceWith(
         "dry", proxy
@@ -297,7 +297,7 @@ describe("DistortionsListener", () => {
       beforeEach(() => {
         proxy = () => {};
         realTarget = () => {};
-        message = new ProxyMessage(proxy, realTarget, graph, false);
+        message = new ProxyInitMessage(proxy, realTarget, graph, false);
 
         membrane.modifyRules.truncateArgList = jasmine.createSpy("truncateArgList");
       });
@@ -308,7 +308,7 @@ describe("DistortionsListener", () => {
         };
 
         listener.addListener(realTarget, "value", config);
-        listener.handleProxyMessage(message);
+        listener.handleProxyInitMessage(message);
 
         expect(membrane.modifyRules.truncateArgList).toHaveBeenCalledOnceWith(
           "dry", proxy, true
@@ -321,7 +321,7 @@ describe("DistortionsListener", () => {
         };
 
         listener.addListener(realTarget, "value", config);
-        listener.handleProxyMessage(message);
+        listener.handleProxyInitMessage(message);
 
         expect(membrane.modifyRules.truncateArgList).toHaveBeenCalledOnceWith(
           "dry", proxy, 4
@@ -334,7 +334,7 @@ describe("DistortionsListener", () => {
         };
 
         listener.addListener(realTarget, "value", config);
-        listener.handleProxyMessage(message);
+        listener.handleProxyInitMessage(message);
 
         expect(membrane.modifyRules.truncateArgList).toHaveBeenCalledTimes(0);
       });
@@ -353,7 +353,7 @@ describe("DistortionsListener", () => {
       Reflect.preventExtensions(realTarget);
 
       listener.addListener(targetSubclass, "prototype", config);
-      listener.handleProxyMessage(message);
+      listener.handleProxyInitMessage(message);
 
       expect(Reflect.isExtensible(proxy)).toBe(false);
     });
@@ -367,12 +367,12 @@ describe("DistortionsListener", () => {
       const proxyInstance = new proxy();
       const targetInstance = new realTarget();
 
-      message = new ProxyMessage(proxyInstance, targetInstance, graph, false);
+      message = new ProxyInitMessage(proxyInstance, targetInstance, graph, false);
 
       Reflect.preventExtensions(targetInstance);
 
       listener.addListener(realTarget, "instance", config);
-      listener.handleProxyMessage(message);
+      listener.handleProxyInitMessage(message);
 
       expect(Reflect.isExtensible(proxyInstance)).toBe(false);
     });
@@ -392,12 +392,12 @@ describe("DistortionsListener", () => {
       const proxyInstance = new proxySubclass();
       const targetInstance = new targetSubclass();
 
-      message = new ProxyMessage(proxyInstance, targetInstance, graph, false);
+      message = new ProxyInitMessage(proxyInstance, targetInstance, graph, false);
 
       Reflect.preventExtensions(targetInstance);
 
       listener.addListener(realTarget, "instance", config);
-      listener.handleProxyMessage(message);
+      listener.handleProxyInitMessage(message);
 
       expect(Reflect.isExtensible(proxyInstance)).toBe(true);
     });
@@ -408,7 +408,7 @@ describe("DistortionsListener", () => {
       Reflect.preventExtensions(realTarget);
 
       listener.addListener([{}, realTarget, {}], "iterable", config);
-      listener.handleProxyMessage(message);
+      listener.handleProxyInitMessage(message);
 
       expect(Reflect.isExtensible(proxy)).toBe(false);
     });
@@ -423,21 +423,21 @@ describe("DistortionsListener", () => {
         "filter",
         config
       );
-      listener.handleProxyMessage(message);
+      listener.handleProxyInitMessage(message);
 
       expect(Reflect.isExtensible(proxy)).toBe(false);
     });
   });
 
   // modifyTarget is different, but that's all
-  it(".handleProxyMessage() with an origin graph uses the realTarget (not the proxy) for modifyRules calls", () => {
+  it(".handleProxyInitMessage() with an origin graph uses the realTarget (not the proxy) for modifyRules calls", () => {
     let realTarget, proxy, graph, message;
     realTarget = {};
     proxy = {};
     graph = {
       graphName: "dry",
     };
-    message = new ProxyMessage(proxy, realTarget, graph, true);
+    message = new ProxyInitMessage(proxy, realTarget, graph, true);
 
     const config = {
       filterOwnKeys: [ "foo" ],
@@ -446,7 +446,7 @@ describe("DistortionsListener", () => {
     membrane.modifyRules.filterOwnKeys = jasmine.createSpy("filterOwnKeys");
 
     listener.addListener(realTarget, "value", config);
-    listener.handleProxyMessage(message);
+    listener.handleProxyInitMessage(message);
 
     expect(membrane.modifyRules.filterOwnKeys).toHaveBeenCalledOnceWith(
       "dry", realTarget, config.filterOwnKeys

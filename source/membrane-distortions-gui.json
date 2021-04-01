@@ -258,8 +258,8 @@
               "apply",
               "construct",
               "ensureMapping",
-              "addProxyListener",
-              "removeProxyListener",
+              "addProxyInitListener",
+              "removeProxyInitListener",
               "revokeEverything"
             ],
             "proxyTraps": [
@@ -292,8 +292,8 @@
               "setPrototypeOf": "method",
               "apply": "method",
               "construct": "method",
-              "addProxyListener": "method",
-              "removeProxyListener": "method"
+              "addProxyInitListener": "method",
+              "removeProxyInitListener": "method"
             }
           },
           "instance": {

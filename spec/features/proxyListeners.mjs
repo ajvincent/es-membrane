@@ -92,10 +92,10 @@ describe("An object graph handler's proxy listeners", function() {
     let x, dryX;
 
     beforeEach(function() {
-      wetHandler.addProxyListener(listener0);
-      wetHandler.addProxyListener(listener1);
-      dryHandler.addProxyListener(listener2);
-      dryHandler.addProxyListener(listener3);
+      wetHandler.addProxyInitListener(listener0);
+      wetHandler.addProxyInitListener(listener1);
+      dryHandler.addProxyInitListener(listener2);
+      dryHandler.addProxyInitListener(listener3);
 
       x = new ctor1("one");
       acceptSet.add(x);
@@ -232,8 +232,8 @@ describe("An object graph handler's proxy listeners", function() {
     });
 
     it("by invoking meta.stopIteration();", function() {
-      dryHandler.addProxyListener(listener1);
-      dryHandler.addProxyListener(listener2);
+      dryHandler.addProxyInitListener(listener1);
+      dryHandler.addProxyInitListener(listener2);
 
       listener1.and.callFake(meta => {
         if (!acceptSet.has(meta.realTarget))
@@ -294,8 +294,8 @@ describe("An object graph handler's proxy listeners", function() {
         meta.stopIteration();
       });
 
-      dryHandler.addProxyListener(listener1);
-      dryHandler.addProxyListener(listener2);
+      dryHandler.addProxyInitListener(listener1);
+      dryHandler.addProxyInitListener(listener2);
 
       const x = new ctor1("one");
       acceptSet.add(x);
@@ -345,8 +345,8 @@ describe("An object graph handler's proxy listeners", function() {
         meta2 = meta;
       });
 
-      dryHandler.addProxyListener(listener1);
-      dryHandler.addProxyListener(listener2);
+      dryHandler.addProxyInitListener(listener1);
+      dryHandler.addProxyInitListener(listener2);
 
       const x = new ctor1("one");
       acceptSet.add(x);

@@ -1,6 +1,6 @@
 /** @module source/core/broadcasters/ProxyBroadcaster  */
 
-import ProxyMessage from "./ProxyMessage.mjs";
+import ProxyInitMessage from "./ProxyInitMessage.mjs";
 
 /**
  * @package
@@ -14,7 +14,7 @@ export default class ProxyBroadcaster extends Set {
   broadcast(proxy, realTarget, isOrigin) {
     if (this.size === 0)
       return;
-    const message = new ProxyMessage(proxy, realTarget, this.graph, isOrigin);
+    const message = new ProxyInitMessage(proxy, realTarget, this.graph, isOrigin);
     const listeners = Array.from(this);
 
     listeners.every(listener => {

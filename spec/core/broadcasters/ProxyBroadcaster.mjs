@@ -1,4 +1,4 @@
-import ProxyMessage from "../../../source/core/broadcasters/ProxyMessage.mjs";
+import ProxyInitMessage from "../../../source/core/broadcasters/ProxyInitMessage.mjs";
 import ProxyBroadcaster from "../../../source/core/broadcasters/ProxyBroadcaster.mjs";
 
 describe("ProxyBroadcaster", () => {
@@ -53,7 +53,7 @@ describe("ProxyBroadcaster", () => {
       const args0 = listener0.calls.first().args;
       expect(args0.length).toBe(1);
       const message = args0[0];
-      expect(message instanceof ProxyMessage).toBe(true);
+      expect(message instanceof ProxyInitMessage).toBe(true);
 
       expect(listener1).toHaveBeenCalledOnceWith(message);
       expect(listener2).toHaveBeenCalledOnceWith(message);
@@ -84,7 +84,7 @@ describe("ProxyBroadcaster", () => {
       const args0 = listener0.calls.first().args;
       expect(args0.length).toBe(1);
       const message = args0[0];
-      expect(message instanceof ProxyMessage).toBe(true);
+      expect(message instanceof ProxyInitMessage).toBe(true);
 
       expect(listener1).toHaveBeenCalledOnceWith(message);
 
@@ -115,7 +115,7 @@ describe("ProxyBroadcaster", () => {
       const args0 = listener0.calls.first().args;
       expect(args0.length).toBe(1);
       const message = args0[0];
-      expect(message instanceof ProxyMessage).toBe(true);
+      expect(message instanceof ProxyInitMessage).toBe(true);
 
       expect(listener1).toHaveBeenCalledOnceWith(message);
       expect(listener2).toHaveBeenCalledOnceWith(message);
@@ -146,7 +146,7 @@ describe("ProxyBroadcaster", () => {
       const args0 = listener0.calls.first().args;
       expect(args0.length).toBe(1);
       const message = args0[0];
-      expect(message instanceof ProxyMessage).toBe(true);
+      expect(message instanceof ProxyInitMessage).toBe(true);
 
       expect(listener1).toHaveBeenCalledOnceWith(message);
 
@@ -182,7 +182,7 @@ describe("ProxyBroadcaster", () => {
       const args0 = listener0.calls.first().args;
       expect(args0.length).toBe(1);
       const message = args0[0];
-      expect(message instanceof ProxyMessage).toBe(true);
+      expect(message instanceof ProxyInitMessage).toBe(true);
 
       expect(listener1).toHaveBeenCalledOnceWith(message);
       expect(listener2).toHaveBeenCalledOnceWith(message);
@@ -221,7 +221,7 @@ describe("ProxyBroadcaster", () => {
       const args0 = listener0.calls.first().args;
       expect(args0.length).toBe(1);
       const message = args0[0];
-      expect(message instanceof ProxyMessage).toBe(true);
+      expect(message instanceof ProxyInitMessage).toBe(true);
 
       expect(listener1).toHaveBeenCalledOnceWith(message);
       expect(listener2).toHaveBeenCalledOnceWith(message);

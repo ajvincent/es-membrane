@@ -1252,7 +1252,7 @@ export default class ObjectGraphHandler {
    * @see ProxyNotify
    * @public
    */
-  addProxyListener(listener) {
+  addProxyInitListener(listener) {
     this.throwIfDead();
     return this.__proxyListeners__.add(listener);
   }
@@ -1263,7 +1263,7 @@ export default class ObjectGraphHandler {
    * @see ProxyNotify
    * @public
    */
-  removeProxyListener(listener) {
+  removeProxyInitListener(listener) {
     this.throwIfDead();
     return this.__proxyListeners__.delete(listener);
   }
@@ -1284,7 +1284,7 @@ export default class ObjectGraphHandler {
   /**
    * Notify the currently registered set of proxy listeners of a message.
    *
-   * @param {ProxyMessage} message
+   * @param {ProxyInitMessage} message
    *
    * @package
    */

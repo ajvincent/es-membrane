@@ -79,17 +79,17 @@ describe("ObjectGraphHandler()", () => {
 
     it("tracks a listener accurately", () => {
       const callback1 = jasmine.createSpy("callback1");
-      handler.addProxyListener(callback1);
+      handler.addProxyInitListener(callback1);
       expect(handler.getProxyListeners()).toEqual([callback1]);
 
       const callback2 = jasmine.createSpy("callback2");
-      handler.addProxyListener(callback2);
+      handler.addProxyInitListener(callback2);
       expect(handler.getProxyListeners()).toEqual([callback1, callback2]);
 
-      handler.addProxyListener(callback2);
+      handler.addProxyInitListener(callback2);
       expect(handler.getProxyListeners()).toEqual([callback1, callback2]);
 
-      handler.removeProxyListener(callback1);
+      handler.removeProxyInitListener(callback1);
       expect(handler.getProxyListeners()).toEqual([callback2]);
 
       expect(callback1).toHaveBeenCalledTimes(0);
@@ -98,11 +98,11 @@ describe("ObjectGraphHandler()", () => {
 
     it("notifies listeners in order", () => {
       const callback1 = jasmine.createSpy("callback1");
-      handler.addProxyListener(callback1);
+      handler.addProxyInitListener(callback1);
       callback1.and.returnValue(1);
 
       const callback2 = jasmine.createSpy("callback2");
-      handler.addProxyListener(callback2);
+      handler.addProxyInitListener(callback2);
       callback2.and.returnValue(2);
 
       const message = {};
@@ -157,8 +157,8 @@ describe("ObjectGraphHandler()", () => {
       // throwIfDead() tests
       const DEAD = "This membrane handler is dead!";
       const publicMethods = allTraps.concat([
-        "addProxyListener",
-        "removeProxyListener",
+        "addProxyInitListener",
+        "removeProxyInitListener",
         "getProxyListeners",
         "notifyProxyListeners",
         "addRevocable",

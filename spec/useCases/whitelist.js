@@ -151,9 +151,9 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
           }
         }).bind(this);
 
-        handler.addProxyListener(listener);
+        handler.addProxyInitListener(listener);
 
-        handler.addProxyListener(secondWetListener);
+        handler.addProxyInitListener(secondWetListener);
       },
 
       dryHandlerCreated: function(handler/*, Mocks */) {
@@ -195,9 +195,9 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
           }
         }).bind(this);
 
-        handler.addProxyListener(listener);
+        handler.addProxyInitListener(listener);
 
-        handler.addProxyListener(secondDryListener);
+        handler.addProxyInitListener(secondDryListener);
       },
     };
     mockOptions.dampHandlerCreated = mockOptions.dryHandlerCreated;
@@ -283,7 +283,7 @@ describe("Use case:  The membrane can be used to safely whitelist properties", f
     function secondDryListener(meta) {
       // dry and damp handler secondary listener
       if (meta.handler.graphName === DAMP) {
-        meta.handler.removeProxyListener(secondDryListener);
+        meta.handler.removeProxyInitListener(secondDryListener);
         return;
       }
 

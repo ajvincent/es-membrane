@@ -4,7 +4,7 @@
  * else must be hidden as private.  By filtering the list of own keys, a
  * developer can hide private properties so that the end-user never sees them.
  *
- * This testcase should be rewritten when we support membrane.addProxyListener.
+ * This testcase should be rewritten when we support membrane.addProxyInitListener.
 */
 
 if (typeof MembraneMocks != "function") {

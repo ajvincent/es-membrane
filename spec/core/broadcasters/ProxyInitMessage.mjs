@@ -1,11 +1,11 @@
-import ProxyMessage from "../../../source/core/broadcasters/ProxyMessage.mjs";
+import ProxyInitMessage from "../../../source/core/broadcasters/ProxyInitMessage.mjs";
 
-describe("ProxyMessage", () => {
+describe("ProxyInitMessage", () => {
   let message;
 
   const proxy = {}, realTarget = {}, graph = {}, exception = {};
   beforeEach(() => {
-    message = new ProxyMessage(proxy, realTarget, graph, true);
+    message = new ProxyInitMessage(proxy, realTarget, graph, true);
   });
 
   afterEach(() => {
@@ -23,7 +23,7 @@ describe("ProxyMessage", () => {
   });
 
   it("() initializes cleanly with a foreign graph", () => {
-    message = new ProxyMessage(proxy, realTarget, graph, false);
+    message = new ProxyInitMessage(proxy, realTarget, graph, false);
     expect(message.proxy).toBe(proxy);
     expect(message.realTarget).toBe(realTarget);
     expect(message.graph).toBe(graph);

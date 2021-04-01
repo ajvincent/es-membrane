@@ -170,7 +170,7 @@ This library has a HTML-based configuration tool (source at docs/gui) which allo
   * If options.logger is defined, it is presumed to be a [log4javascript](http://log4javascript.org/)-compatible logger object for the membrane to use.
 3. Ask for an ObjectGraphHandler from the membrane, by a name as a string.  This will be where "your" objects live.
 4. Ask for another ObjectGraphHandler from the membrane, by a different object graph name.  This will be where "their" objects live.
-5. (Optional) Use the .addProxyListener() method of the ObjectGraphHandler, to add listeners for the creation of new proxies.
+5. (Optional) Use the .addProxyInitListener() method of the ObjectGraphHandler, to add listeners for the creation of new proxies.
 6. Add a "top-level" object to "your" ObjectGraphHandler instance.
 7. Ask the membrane to get a proxy for the original object from "their" object graph, based on the graph name.
 8. (Optional) Use the membrane's modifyRules object to customize default behaviors of individual proxies.
@@ -247,8 +247,8 @@ The .modifyRules object has several public methods:
 When the membrane creates a new proxy and is about to return it to a caller, there is one chance to change the rules for that proxy before the caller ever sees it.  This is through the proxy listener API.
 
 Each object graph handler has two methods:
-* .addProxyListener(callback):  Add a function to the sequence of proxy listeners.
-* .removeProxyListener(callback):  Remove the function from the sequence of proxy listeners.
+* .addProxyInitListener(callback):  Add a function to the sequence of proxy listeners.
+* .removeProxyInitListener(callback):  Remove the function from the sequence of proxy listeners.
 
 The callbacks are executed in the order they were added, with a single object argument.  This "meta" object has several methods and properties:
 * get stopped():  True if iteration to the remaining proxy listeners is canceled.

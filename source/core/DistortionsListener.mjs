@@ -18,8 +18,8 @@
  *   - "filter":    Treat the value as a filter functions for other values to apply a configuration to.
  *
  * While a listener is active via .addListener(), when a proxy is ready for distortions,
- * handleProxyMessage() fires for the proxy's shadow target as part of a ProxyMessage.  This
- * results in two major steps:
+ * handleInitProxyMessage() fires for the proxy's shadow target as part of a ProxyMessage.
+ * This results in two major steps:
  *   - getConfigurationForListener() looks up the right configuration, based on a matching
  *     value, prototype or instance
  *   - applyConfiguration() uses the configuration to apply distortions via the ModifyRulesAPI.
@@ -152,13 +152,13 @@ export default class DistortionsListener {
     if (!this.membrane.ownsGraph(handler)) {
       throw new Error("Membrane must own the first argument as an object graph handler!");
     }
-    handler.addProxyListener(meta => this.handleProxyMessage(meta));
+    handler.addProxyInitListener(meta => this.handleProxyInitMessage(meta));
   }
 
   /**
    * Find the right DistortionConfiguration for a given real value.
    *
-   * @param {ProxyMessage} message
+   * @param {ProxyInitMessage} message
    * @private
    */
   getConfigurationForListener(message) {
@@ -194,7 +194,7 @@ export default class DistortionsListener {
    * Apply the rules of a configuration to a particular proxy
    * or to all proxies deriving from an original value.
    * @param {DistortionConfiguration} config
-   * @param {ProxyMessage}            message
+   * @param {ProxyInitMessage}        message
    *
    * @private
    */
@@ -237,10 +237,10 @@ export default class DistortionsListener {
   /**
    * Apply modifyRulesAPI to the object graph for a given proxy.
    *
-   * @param {ProxyMessage} message
+   * @param {ProxyInitMessage} message
    * @public
    */
-  handleProxyMessage(message) {
+  handleProxyInitMessage(message) {
     const config = this.getConfigurationForListener(message);
     if (config) {
       this.applyConfiguration(config, message);

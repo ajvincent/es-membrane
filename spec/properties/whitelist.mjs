@@ -123,7 +123,7 @@ xdescribe("Whitelisting object properties", function() {
             meta.throwException(ex);
           }
         }).bind(this);
-        handler.addProxyListener(listener);
+        handler.addProxyInitListener(listener);
         */
 
         // In the new world order, we have to intercept the call trap and add proxy listeners for its arguments.
@@ -176,7 +176,7 @@ xdescribe("Whitelisting object properties", function() {
           }
         }).bind(this);
 
-        handler.addProxyListener(listener);
+        handler.addProxyInitListener(listener);
       },
     };
 
@@ -730,7 +730,7 @@ xdescribe("Whitelisting object properties", function() {
       };
 
       Object.freeze(mbListener);
-      publicAPI.addProxyListener(mbListener.handleProxy.bind(mbListener));
+      publicAPI.addProxyInitListener(mbListener.handleProxy.bind(mbListener));
 
       const DMembrane = Dogfood.convertArgumentToProxy(
         internalAPI, publicAPI, Membrane

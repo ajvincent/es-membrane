@@ -93,7 +93,7 @@ describe("TC39 demonstrations of Array objects in membranes: ", function() {
   it(
     "A natural call to .splice operates on the native graph, but doesn't respect storeUnknownAsLocal",
     function() {
-      parts.handlers.dry.addProxyListener(function(meta) {
+      parts.handlers.dry.addProxyInitListener(function(meta) {
         if (meta.target === parts.wet.array)
         {
           try {
@@ -136,7 +136,7 @@ describe("TC39 demonstrations of Array objects in membranes: ", function() {
     function() {
       let appender;
 
-      parts.handlers.dry.addProxyListener(function(meta) {
+      parts.handlers.dry.addProxyInitListener(function(meta) {
         if (meta.target !== parts.wet.array)
           return;
         try {
