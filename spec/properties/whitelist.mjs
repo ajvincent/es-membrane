@@ -1,17 +1,7 @@
 import Membrane from "../../source/core/Membrane.mjs";
 import MembraneMocks from "../helpers/mocks.mjs";
 
-import DebugConditionsSet from "../helpers/DebugConditionsSet.mjs";
-
-const DEBUG_CONDITIONS = new DebugConditionsSet([
-  "two object graphs",
-  "unsealed objects",
-  "applies similarly",
-]);
-
 xdescribe("Whitelisting object properties", function() {
-  beforeEach(() => DEBUG_CONDITIONS.reset());
-
   var wetDocument, dryDocument;
 
   function HEAT() { return "handleEventAtTarget stub"; }
@@ -88,9 +78,9 @@ xdescribe("Whitelisting object properties", function() {
       checkEvent: null,
 
       whitelist: function(meta, filter, graphName = "wet") {
-        dryWetMB.modifyRules.storeUnknownAsLocal(graphName, meta.target);
-        dryWetMB.modifyRules.requireLocalDelete(graphName, meta.target);
-        dryWetMB.modifyRules.filterOwnKeys(graphName, meta.target, filter);
+        dryWetMB.modifyRules.storeUnknownAsLocal(graphName, meta.proxy);
+        dryWetMB.modifyRules.requireLocalDelete(graphName, meta.proxy);
+        dryWetMB.modifyRules.filterOwnKeys(graphName, meta.proxy, filter);
         meta.stopIteration();
       },
 
@@ -113,16 +103,17 @@ xdescribe("Whitelisting object properties", function() {
          * This is a proxy listener for protecting the listener argument of
          * EventTargetWet.prototype.addEventListener().
          */
+        /*
         const listener = (function(meta) {
           if ((meta.callable !== EventListenerProto.addEventListener) ||
               (meta.trapName !== "apply") ||
               (meta.argIndex !== 1))
             return;
 
-          if (typeof meta.target == "function")
+          if (typeof meta.realTarget == "function")
             return;
 
-          if ((typeof meta.target != "object") || (meta.target === null))
+          if ((typeof meta.realTarget != "object") || (meta.realTarget === null))
             meta.throwException(new Error(".addEventListener requires listener be an object or a function!"));
 
           try {
@@ -133,6 +124,11 @@ xdescribe("Whitelisting object properties", function() {
           }
         }).bind(this);
         handler.addProxyListener(listener);
+        */
+
+        // In the new world order, we have to intercept the call trap and add proxy listeners for its arguments.
+        // This is why we need function listeners.
+        throw new Error("not yet implemented");
       },
 
       dryHandlerCreated: function(handler/*, Mocks */) {
@@ -142,39 +138,39 @@ xdescribe("Whitelisting object properties", function() {
          * would like, but for a manual test, it works well enough.
          */
         var listener = (function(meta) {
-          if (meta.target === parts.wet.doc) {
+          if (meta.realTarget === parts.wet.doc) {
             // parts.dry.doc will be meta.proxy.
             this.whitelist(meta, nameFilters.doc);
             return;
           }
-          if (meta.target instanceof parts.wet.Element) {
+          if (meta.realTarget instanceof parts.wet.Element) {
             // parts.dry.Element will be meta.proxy or in the prototype chain.
             this.whitelist(meta, nameFilters.element);
             return;
           }
 
-          if (meta.target instanceof parts.wet.Node) {
+          if (meta.realTarget instanceof parts.wet.Node) {
             // parts.dry.Node will be meta.proxy.
             this.whitelist(meta, nameFilters.node);
             return;
           }
 
-          if (meta.target === parts.wet.Element) {
+          if (meta.realTarget === parts.wet.Element) {
             this.whitelist(meta, nameFilters.proto.element);
             return;
           }
 
-          if (meta.target === parts.wet.Node) {
+          if (meta.realTarget === parts.wet.Node) {
             this.whitelist(meta, nameFilters.proto.node);
             return;
           }
 
-          if (meta.target === parts.wet.Node.prototype) {
+          if (meta.realTarget === parts.wet.Node.prototype) {
             this.whitelist(meta, nameFilters.proto.node);
             return;
           }
 
-          if (meta.target === EventListenerProto) {
+          if (meta.realTarget === EventListenerProto) {
             this.whitelist(meta, nameFilters.target);
             return;
           }
@@ -186,7 +182,7 @@ xdescribe("Whitelisting object properties", function() {
 
     return mockOptions;
   }
-  
+
   function defineMockOptionsByDistortionsListener(mainIsWet = false) {
     var parts, dryWetMB, EventListenerProto;
 
@@ -228,10 +224,10 @@ xdescribe("Whitelisting object properties", function() {
               (meta.argIndex !== 1))
             return false;
 
-          if (typeof meta.target == "function")
+          if (typeof meta.realTarget == "function")
             return false;
 
-          if ((typeof meta.target != "object") || (meta.target === null)) {
+          if ((typeof meta.realTarget != "object") || (meta.realTarget === null)) {
             meta.throwException(new Error(".addEventListener requires listener be an object or a function!"));
             return false;
           }
@@ -306,7 +302,7 @@ xdescribe("Whitelisting object properties", function() {
       mockOptions = null;
     });
 
-    it("exposes listed values.", function() {
+    xit("exposes listed values.", function() {
       let descWet = Reflect.getOwnPropertyDescriptor(wetDocument, "nodeName");
       let descDry = Reflect.getOwnPropertyDescriptor(dryDocument, "nodeName");
       expect(typeof descWet).not.toBe(undefined);
@@ -317,7 +313,7 @@ xdescribe("Whitelisting object properties", function() {
       }
     });
 
-    it("hides unlisted values.", function() {
+    xit("hides unlisted values.", function() {
       let descWet = Reflect.getOwnPropertyDescriptor(wetDocument, "handleEventAtTarget");
       expect(descWet).not.toBe(undefined);
       expect(typeof descWet.value).toBe("function");
@@ -325,7 +321,7 @@ xdescribe("Whitelisting object properties", function() {
       expect(descDry).toBe(undefined);
     });
 
-    it(
+    xit(
       "and redefining a not-whitelisted property on the wet document has no effect on the dry document.",
       function() {
         let descWet = Reflect.getOwnPropertyDescriptor(
@@ -350,7 +346,7 @@ xdescribe("Whitelisting object properties", function() {
       }
     );
 
-    it(
+    xit(
       "and defining a not-whitelisted property on the dry document has no effect on the wet document.",
       function () {
         var oldDescWet = Reflect.getOwnPropertyDescriptor(wetDocument, "handleEventAtTarget");
@@ -379,7 +375,7 @@ xdescribe("Whitelisting object properties", function() {
       }
     );
 
-    it(
+    xit(
       "and deleting a not-whitelisted property on the dry document has no effect on the wet document.",
       function() {
         var oldDescWet = Reflect.getOwnPropertyDescriptor(wetDocument, "handleEventAtTarget");
@@ -404,7 +400,7 @@ xdescribe("Whitelisting object properties", function() {
       }
     );
 
-    it(
+    xit(
       "and defining a new property on the dry document has no effect on the wet document.",
       function() {
         const isDryExtensible = Reflect.isExtensible(dryDocument);
@@ -429,7 +425,7 @@ xdescribe("Whitelisting object properties", function() {
       }
     );
 
-    it(
+    xit(
       "and deleting a new property on the dry document has no effect on the wet document.",
       function() {
         Reflect.defineProperty(dryDocument, "extra", {
@@ -449,7 +445,7 @@ xdescribe("Whitelisting object properties", function() {
       }
     );
 
-    it(
+    xit(
       "and defining a new property on the wet document has no effect on the dry document.",
       function() {
         const isWetExtensible = Reflect.isExtensible(wetDocument);
@@ -474,7 +470,7 @@ xdescribe("Whitelisting object properties", function() {
       }
     );
 
-    it(
+    xit(
       "and deleting a new property on the wet document has no effect on the dry document.",
       function() {
         Reflect.defineProperty(wetDocument, "extra", {
@@ -495,8 +491,7 @@ xdescribe("Whitelisting object properties", function() {
       }
     );
 
-    it("applies similarly to inherited names.", function() {
-      DEBUG_CONDITIONS.found("applies similarly");
+    xit("applies similarly to inherited names.", function() {
       // Whitelisting applies similarly to inherited names.
       let dryRoot = dryDocument.rootElement;
       expect(dryRoot).not.toBe(wetDocument.rootElement);
@@ -567,6 +562,7 @@ xdescribe("Whitelisting object properties", function() {
         let handlers = this.__events__.slice(0);
         let length = handlers.length;
         let desired = null;
+
         for (let i = 0; i < length; i++) {
           let h = handlers[i];
           if (h.type !== event.type)
@@ -623,36 +619,30 @@ xdescribe("Whitelisting object properties", function() {
   function defineSealingTests(mockDefine) {
     describe("on unsealed objects", function() {
       defineWhitelistTests(mockDefine);
-
-      beforeEach(() => {
-        DEBUG_CONDITIONS.found("unsealed objects");
-      });
     });
 
-    describe("on sealed dry objects", function() {
+    xdescribe("on sealed dry objects", function() {
       defineWhitelistTests(mockDefine);
       beforeEach(function() {
         Object.seal(dryDocument);
-
-        DEBUG_CONDITIONS.found("sealed dry objects");
       });
     });
 
-    describe("on sealed wet objects", function() {
+    xdescribe("on sealed wet objects", function() {
       defineWhitelistTests(mockDefine);
       beforeEach(function() {
         Object.seal(wetDocument);
       });
     });
 
-    describe("on frozen dry objects", function() {
+    xdescribe("on frozen dry objects", function() {
       defineWhitelistTests(mockDefine);
       beforeEach(function() {
         Object.freeze(dryDocument);
       });
     });
 
-    describe("on frozen wet objects", function() {
+    xdescribe("on frozen wet objects", function() {
       defineWhitelistTests(mockDefine);
       beforeEach(function() {
         Object.freeze(wetDocument);
@@ -664,16 +654,15 @@ xdescribe("Whitelisting object properties", function() {
     defineSealingTests(defineManualMockOptions);
   });
 
-  describe("automatically using distortions listeners on two object graphs", function() {
+  xdescribe("automatically using distortions listeners on two object graphs", function() {
     defineSealingTests(defineMockOptionsByDistortionsListener.bind(null, false));
-    beforeEach(() => DEBUG_CONDITIONS.found("two object graphs"));
   });
 
-  describe("automatically using distortions listeners on one object graph", function() {
+  xdescribe("automatically using distortions listeners on one object graph", function() {
     defineSealingTests(defineMockOptionsByDistortionsListener.bind(null, true));
   });
-  
-  it(
+
+  xit(
     "and getting a handler from a protected membrane works correctly",
     function() {
       function voidFunc() {}
@@ -706,30 +695,30 @@ xdescribe("Whitelisting object properties", function() {
         mustProxyMethods: new Set(),
 
         whitelist: function(meta, names, graphName = "internal") {
-          if (typeof meta.target === "function")
+          if (typeof meta.realTarget === "function")
           {
             names = names.concat(["prototype", "length", "name"]);
           }
 
           names = new Set(names);
-          Dogfood.modifyRules.storeUnknownAsLocal(graphName, meta.target);
-          Dogfood.modifyRules.requireLocalDelete(graphName, meta.target);
+          Dogfood.modifyRules.storeUnknownAsLocal(graphName, meta.realTarget);
+          Dogfood.modifyRules.requireLocalDelete(graphName, meta.realTarget);
           Dogfood.modifyRules.filterOwnKeys(
-            graphName, meta.target, names.has.bind(names)
+            graphName, meta.realTarget, names.has.bind(names)
           );
           meta.stopIteration();
         },
 
         handleProxy: function(meta) {
-          if (meta.target instanceof Membrane)
+          if (meta.realTarget instanceof Membrane)
           {
             this.whitelist(meta, ["modifyRules", "logger"]);
           }
-          else if (meta.target === Membrane)
+          else if (meta.realTarget === Membrane)
           {
             this.whitelist(meta, []);
           }
-          else if (meta.target === Membrane.prototype)
+          else if (meta.realTarget === Membrane.prototype)
           {
             this.whitelist(meta, [
               "getGraphByName",
