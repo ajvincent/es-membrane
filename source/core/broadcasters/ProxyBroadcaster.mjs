@@ -1,44 +1,51 @@
 /** @module source/core/broadcasters/ProxyBroadcaster  */
 
+import FunctionSet from "../utilities/FunctionSet.mjs";
 import ProxyInitMessage from "./ProxyInitMessage.mjs";
 
 /**
  * @package
  */
-export default class ProxyBroadcaster extends Set {
+export default class ProxyBroadcaster extends FunctionSet {
   constructor(graph) {
-    super();
+    super(
+      (graph.membrane && (typeof graph.membrane.logger !== "undefined") ?
+      e => {
+        try {
+          graph.membrane.logger.error(e)
+        }
+        catch (ex) {
+          // do nothing
+          void(ex);
+        }
+      } :
+      "none")
+    );
     this.graph = graph;
+  }
+
+  /**
+   * @returns {boolean}
+   * @override
+   */
+  add(listener) {
+    if (typeof listener !== "function")
+      return false;
+
+    super.add(message => {
+      if (!message.stopped)
+        listener(message);
+    });
+
+    return true;
   }
 
   broadcast(proxy, realTarget, isOrigin) {
     if (this.size === 0)
       return;
     const message = new ProxyInitMessage(proxy, realTarget, this.graph, isOrigin);
-    const listeners = Array.from(this);
 
-    listeners.every(listener => {
-      try {
-        listener(message);
-      }
-      catch (e) {
-        if (message.logger) {
-          /* We don't want an accidental exception to break the iteration.
-          That's why the throwException() method exists:  a deliberate call means
-          yes, we really want that exception to propagate outward... which is
-          still nasty when you consider what a membrane is for.
-          */
-          try {
-            message.logger.error(e);
-          }
-          catch (f) {
-            // really do nothing, there's no point
-          }
-        }
-      }
-
-      return !message.stopped;
-    });
+    this.observe(message);
 
     if (message.exceptionFound)
       throw message.exception;

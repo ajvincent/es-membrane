@@ -1472,15 +1472,25 @@ const validThrowModes = [
 ];
 if (typeof AggregateError === "function")
   validThrowModes.push("aggregate");
-const validThrowMessage = `valid throw modes are ${JSON.stringify(validThrowModes).replace(/^.(.*).$/, "$1")}!`;
+const validThrowMessage = `valid throw modes are functions and ${JSON.stringify(validThrowModes).replace(/^.(.*).$/, "$1")}!`;
 
 /**
- * @oackage
+ * @package
  */
 class FunctionSet extends Set {
+  /**
+   * @param {
+   *   Function |
+   *   "immediately" |
+   *   "deferred" |
+   *   "return" |
+   *   "none" |
+   *   "aggregate"
+   * } throwMode The mode of operations for handling exceptions.
+   */
   constructor(throwMode = "immediately") {
     super();
-    if (!validThrowModes.includes(throwMode))
+    if ((typeof throwMode !== "function") && !validThrowModes.includes(throwMode))
       throw new Error(validThrowMessage)
 
     defineNWNCProperties(this, {
@@ -1520,7 +1530,9 @@ class FunctionSet extends Set {
         results.push(callback(...args));
       }
       catch (ex) {
-        if (this.throwMode === "immediately")
+        if (typeof this.throwMode === "function")
+          this.throwMode(ex);
+        else if (this.throwMode === "immediately")
           throw ex;
         else if ((this.throwMode === "deferred")) {
           if (!exceptionThrown) {

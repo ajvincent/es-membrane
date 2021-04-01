@@ -200,5 +200,26 @@ describe("FunctionSet", () => {
       expect(spy4).toHaveBeenCalledOnceWith(arg0, arg1, arg2);
       expect(spy1).toHaveBeenCalledBefore(spy2);
     });
+
+    it("with a function for a throw mode, calls the function for each error", () => {
+      const errorSpy = jasmine.createSpy("errorSpy");
+
+      s = new FunctionSet(errorSpy);
+      addSpies();
+
+      expect(s.observe(arg0, arg1, arg2)).toEqual([rv1, rv4]);
+
+      expect(errorSpy).toHaveBeenCalledTimes(2);
+      expect(errorSpy).toHaveBeenCalledWith(exception2);
+      expect(errorSpy).toHaveBeenCalledWith(exception3);
+
+      expect(spy1).toHaveBeenCalledOnceWith(arg0, arg1, arg2);
+      expect(spy2).toHaveBeenCalledOnceWith(arg0, arg1, arg2);
+      expect(spy3).toHaveBeenCalledOnceWith(arg0, arg1, arg2);
+      expect(spy4).toHaveBeenCalledOnceWith(arg0, arg1, arg2);
+      expect(spy1).toHaveBeenCalledBefore(spy2);
+      expect(spy2).toHaveBeenCalledBefore(spy3);
+      expect(spy3).toHaveBeenCalledBefore(spy4);
+    });
   });
 });
