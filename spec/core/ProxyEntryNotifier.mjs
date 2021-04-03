@@ -184,12 +184,13 @@ describe("ProxyEntryNotifier", () => {
       notifier.notify(wetGraph, dryGraph, dryEntryTarget, "apply", 12, dryProxy);
     }
 
-    function expectMessage(message, entryTarget, trapName, proxyTarget) {
+    function expectMessage(message, entryTarget, trapName, proxyTarget, getOrSet = null) {
       expect(Reflect.ownKeys(message)).toEqual([
         "entryTarget",
         "trapName",
         "entryPoint",
-        "proxyTarget"
+        "proxyTarget",
+        "getOrSet",
       ]);
 
       expectValueDescriptor(
@@ -203,6 +204,9 @@ describe("ProxyEntryNotifier", () => {
       );
       expectValueDescriptor(
         proxyTarget, false, true, false, Reflect.getOwnPropertyDescriptor(message, "proxyTarget")
+      );
+      expectValueDescriptor(
+        getOrSet, false, true, false, Reflect.getOwnPropertyDescriptor(message, "getOrSet")
       );
 
       expect(Object.isFrozen(message)).toBe(true);
@@ -243,6 +247,20 @@ describe("ProxyEntryNotifier", () => {
 
         const message = args[0];
         expectMessage(message, wetEntryTarget, "apply", wetProxy);
+      });
+
+      it("notifies the wet observer with context data for a getter or setter", () => {
+        notifier.notify(wetGraph, dryGraph, dryEntryTarget, "apply", 12, dryProxy, "get");
+
+        expect(entryCylinder.getProxy).toHaveBeenCalledOnceWith("wet");
+        expect(proxyCylinder.getProxy).toHaveBeenCalledOnceWith("wet");
+
+        expect(wetObserver).toHaveBeenCalledTimes(1);
+        const args = wetObserver.calls.first().args;
+        expect(args.length).toBe(1);
+
+        const message = args[0];
+        expectMessage(message, wetEntryTarget, "apply", wetProxy, "get");
       });
 
       it("does not call the observer with a different source graph", () => {

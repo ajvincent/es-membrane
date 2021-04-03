@@ -29,10 +29,12 @@ class ProxyEntryMessage {
   /**
    * @param {Proxy | Object}   entryTarget An object about to receive the proxyTarget as a property or argument.
    * @param {string}           trapName    The name of the trap.
-   * @param {number | string?} entryPoint  A property name, or an argument index for a function call.  Null if not applicable.
+   * @param {number | string | symbol?}
+   *                           entryPoint  A property name, or an argument index for a function call.  Null if not applicable.
    * @param {Proxy | Object}   proxyTarget The proxy target to use for the modify rules API, or a DistortionsListener.
+   * @param {"get" | "set"?}   getOrSet    A flag indicating a getter or setter.
    */
-  constructor(entryTarget, trapName, entryPoint, proxyTarget) {
+  constructor(entryTarget, trapName, entryPoint, proxyTarget, getOrSet) {
     defineNWNCProperties(this, {
       /** @public, @readonly */
       entryTarget,
@@ -44,7 +46,10 @@ class ProxyEntryMessage {
       entryPoint,
 
       /** @public, @readonly */
-      proxyTarget
+      proxyTarget,
+
+      /** @public, @readonly */
+      getOrSet,
     }, true);
 
     Object.freeze(this);
@@ -127,12 +132,14 @@ export default class ProxyEntryNotifier {
    * @param {ObjectGraph}      targetGraph The object graph of the proxy.
    * @param {Proxy | Object}   entryObject An object about to receive the proxyTarget as a property or argument.
    * @param {string}           trapName    The name of the trap.
-   * @param {number | string?} entryPoint  A property name, or an argument index for a function call.  Null if not applicable.
+   * @param {number | string | symbol?}
+   *                           entryPoint  A property name, or an argument index for a function call.  Null if not applicable.
    * @param {Proxy}            proxy       The proxy to use for the modify rules API, or a DistortionsListener.
+   * @param {"get" | "set"?}   getOrSet    A flag indicating a getter or setter.
    *
    * @package
    */
-  notify(sourceGraph, targetGraph, entryObject, trapName, entryPoint, proxy) {
+  notify(sourceGraph, targetGraph, entryObject, trapName, entryPoint, proxy, getOrSet = null) {
     const graphMap = this.__rootMap__.get(trapName);
     if (!graphMap)
       return;
@@ -145,8 +152,8 @@ export default class ProxyEntryNotifier {
     if (!proxyCylinder)
       return;
 
-    this.__notifyGraph__(graphMap, sourceGraph, entryCylinder, trapName, entryPoint, proxyCylinder);
-    this.__notifyGraph__(graphMap, targetGraph, entryCylinder, trapName, entryPoint, proxyCylinder);
+    this.__notifyGraph__(graphMap, sourceGraph, entryCylinder, trapName, entryPoint, proxyCylinder, getOrSet);
+    this.__notifyGraph__(graphMap, targetGraph, entryCylinder, trapName, entryPoint, proxyCylinder, getOrSet);
   }
 
   /**
@@ -155,12 +162,14 @@ export default class ProxyEntryNotifier {
    * @param {ObjectGraph}      graph         An object graph we register the observer for.
    * @param {ProxyCylinder}    entryCylinder The cylinder owning the entry target.
    * @param {string}           trapName      The name of the trap.
-   * @param {number | string?} entryPoint    A property name, or an argument index for a function call.  Null if not applicable.
+   * @param {number | string | symbol?}
+   *                           entryPoint  A property name, or an argument index for a function call.  Null if not applicable.
    * @param {ProxyCylinder}    proxyCylinder The cylinder owning the proxy target we want to observe.
+   * @param {"get" | "set"?}   getOrSet    A flag indicating a getter or setter.
    *
    * @private
    */
-  __notifyGraph__(graphMap, graph, entryCylinder, trapName, entryPoint, proxyCylinder) {
+  __notifyGraph__(graphMap, graph, entryCylinder, trapName, entryPoint, proxyCylinder, getOrSet) {
     const entryMap = graphMap.get(graph);
     if (!entryMap)
       return;
@@ -175,7 +184,8 @@ export default class ProxyEntryNotifier {
       entryTarget,
       trapName,
       entryPoint,
-      proxyCylinder.getProxy(graph.graphName)
+      proxyCylinder.getProxy(graph.graphName),
+      getOrSet
     );
 
     try {
