@@ -27,6 +27,8 @@ import RevocableMultiMap from "./utilities/RevocableMultiMap.mjs";
 
 import PassThroughManager from "./PassThroughManager.mjs";
 
+import ProxyEntryNotifier from "./ProxyEntryNotifier.mjs";
+
 // bindValuesByHandlers utility
 /**
  * @typedef BindValuesBag
@@ -125,37 +127,44 @@ export default class Membrane {
 
       /**
        * @private
+       * @readonly
        */
       refactor: options.refactor || "",
 
       /**
        * @type {Map<string | symbol, ObjectGraph | ObjectGraphHandler}
        * @private
+       * @readonly
        */
       handlersByGraphName: new Map,
 
       /**
        * @private
+       * @readonly
        */
       warnOnceSet: (options.logger ? new Set() : null),
 
       /**
        * @package
+       * @readonly
        */
       cylinderMap: new ProxyCylinderMap,
 
       /**
        * @package
+       * @readonly
        */
       revokerMultiMap: new RevocableMultiMap,
 
       /**
        * @package
+       * @readonly
        */
       logger: options.logger || null,
 
       /**
        * @package
+       * @readonly
        */
       passThroughManager: new PassThroughManager(
         (typeof options.passThroughFilter === "function") ?
@@ -167,8 +176,15 @@ export default class Membrane {
     defineNWNCProperties(this, {
       /**
        * @public
+       * @readonly
        */
-       modifyRules: new ModifyRulesAPI(this),
+      modifyRules: new ModifyRulesAPI(this),
+
+      /**
+       * @public
+       * @readonly
+       */
+      proxyEntryNotifier: new ProxyEntryNotifier(this.cylinderMap),
     }, true);
   
     /* XXX ajvincent Somehow adding this line breaks not only npm test, but the

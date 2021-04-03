@@ -14,6 +14,7 @@ import {
 import ModifyRulesAPI from "../../source/core/ModifyRulesAPI.mjs";
 import ObjectGraphHandler from "../../source/core/ObjectGraphHandler-old.mjs";
 import ObjectGraph from "../../source/core/ObjectGraph.mjs";
+import ProxyEntryNotifier from "../../source/core/ProxyEntryNotifier.mjs";
 
 import RevocableMultiMap from "../../source/core/utilities/RevocableMultiMap.mjs";
 
@@ -58,6 +59,16 @@ describe("Membrane()", () => {
       expectInstanceDescriptor(RevocableMultiMap, false, false, false, desc);
     });
 
+    it(".modifyRules instanceof ModifyRulesAPI", () => {
+      const desc = Reflect.getOwnPropertyDescriptor(membrane, "modifyRules");
+      expectInstanceDescriptor(ModifyRulesAPI, false, true, false, desc);
+    });
+
+    it(".proxyEntryNotifier instanceof ProxyEntryNotifier", () => {
+      const desc = Reflect.getOwnPropertyDescriptor(membrane, "proxyEntryNotifier");
+      expectInstanceDescriptor(ProxyEntryNotifier, false, true, false, desc);
+    });
+
     describe(".logger", () => {
       it(".logger defaults to null", () => {
         const desc = Reflect.getOwnPropertyDescriptor(membrane, "logger");
@@ -72,11 +83,6 @@ describe("Membrane()", () => {
         expectValueDescriptor(logger, false, false, false, desc);
       });
     });
-  });
-
-  it("has the initial public property .modifyRules", () => {
-    const desc = Reflect.getOwnPropertyDescriptor(membrane, "modifyRules");
-    expectInstanceDescriptor(ModifyRulesAPI, false, true, false, desc);
   });
 
   describe(".hasProxyForValue()", () => {
