@@ -167,6 +167,7 @@ describe("ProxyEntryNotifier", () => {
       graphName: "dry",
     };
     const dryObserver = jasmine.createSpy("observer");
+    const dryEntryShadow = {};
     const dryEntryTarget = {};
     const dryProxy = {};
 
@@ -181,7 +182,7 @@ describe("ProxyEntryNotifier", () => {
     }
 
     function sendNotify() {
-      notifier.notify(wetGraph, dryGraph, dryEntryTarget, "apply", 12, dryProxy);
+      notifier.notify(wetGraph, dryGraph, dryEntryShadow, "apply", 12, dryProxy);
     }
 
     function expectMessage(message, entryTarget, trapName, proxyTarget, getOrSet = null) {
@@ -226,6 +227,7 @@ describe("ProxyEntryNotifier", () => {
       dryObserver.calls.reset();
 
       cylinderMap.set(dryEntryTarget, entryCylinder);
+      cylinderMap.set(dryEntryShadow, entryCylinder);
       cylinderMap.set(dryProxy,       proxyCylinder);
 
       entryCylinder.getProxy.calls.reset();
@@ -312,7 +314,7 @@ describe("ProxyEntryNotifier", () => {
       expect(args.length).toBe(1);
 
       const message = args[0];
-      expectMessage(message, dryEntryTarget, "apply", dryProxy);
+      expectMessage(message, dryEntryShadow, "apply", dryProxy);
     });
 
     it("with both the wet and dry observers installed", () => {
