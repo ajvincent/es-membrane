@@ -203,7 +203,7 @@ export default class Membrane {
    * @public
    */
   hasProxyForValue(graph, value) {
-    var cylinder = this.cylinderMap.get(value);
+    const cylinder = this.cylinderMap.get(value);
     return Boolean(cylinder) && cylinder.hasGraph(graph);
   }
 
@@ -252,7 +252,7 @@ export default class Membrane {
    * ]
    */
   getMembraneProxy(graphName, value) {
-    var cylinder = this.cylinderMap.get(value);
+    const cylinder = this.cylinderMap.get(value);
     if (cylinder && cylinder.hasGraph(graphName)) {
       return [true, cylinder.getProxy(graphName)];
     }
