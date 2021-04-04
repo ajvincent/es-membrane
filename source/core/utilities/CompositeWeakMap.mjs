@@ -1,5 +1,5 @@
 /**
- * @module source/core/utilities/WeakKeyHash.mjs
+ * @module source/core/utilities/CompositeWeakMap.mjs
  *
  * @fileoverview
  * This is really a diagnostic tool, emulating the CompositeKey concept.
@@ -16,9 +16,11 @@ import {
 /**
  * @package
  */
-class WeakCompositeKey extends WeakSet {
+export class CompositeWeakKey extends WeakSet {
   constructor(keys, hash) {
-    super(keys);
+    super();
+    for (let key of keys)
+      super.add(key);
 
     defineNWNCProperties(this, { hash }, true);
     Object.freeze(this);
@@ -34,13 +36,13 @@ class WeakCompositeKey extends WeakSet {
     return false;
   }
 }
-Object.freeze(WeakCompositeKey);
-Object.freeze(WeakCompositeKey.prototype);
+Object.freeze(CompositeWeakKey);
+Object.freeze(CompositeWeakKey.prototype);
 
 /**
  * @package
  */
-export default class WeakKeyHash {
+export class CompositeWeakMap {
   /**
    * @param {string[]} __keys__ The keys to require.
    */
@@ -125,7 +127,7 @@ export default class WeakKeyHash {
    *
    * @param {Object<key, Object>} weakDictionary A dictionary of values to hold weakly.
    * @param {boolean}             buildIfMissing True if we should build a new step for each key.
-   * @returns {WeakCompositeKey?}
+   * @returns {CompositeWeakKey?}
    */
   getKey(weakDictionary, buildIfMissing = false) {
     const hash = this.__buildHash__(weakDictionary);
@@ -142,7 +144,7 @@ export default class WeakKeyHash {
       if (!current.has(value) && buildIfMissing) {
         current.set(
           value,
-          keys.length > 0 ? new WeakMap : new WeakCompositeKey(values, JSON.stringify(hash))
+          keys.length > 0 ? new WeakMap : new CompositeWeakKey(values, JSON.stringify(hash))
         );
       }
 
@@ -153,5 +155,5 @@ export default class WeakKeyHash {
     return current;
   }
 }
-Object.freeze(WeakKeyHash);
-Object.freeze(WeakKeyHash.prototype);
+Object.freeze(CompositeWeakMap);
+Object.freeze(CompositeWeakMap.prototype);
