@@ -1,7 +1,7 @@
 import {
   CompositeWeakKey,
   CompositeWeakMap,
-} from "../../../source/core/utilities/CompositeWeakMap.mjs";
+} from "../../../source/core/utilities/CompositeKeyMaps.mjs";
 
 const value0 = {}, value1 = {}, value2 = {}, value3 = {};
 
