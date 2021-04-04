@@ -170,6 +170,9 @@ export default class ProxyEntryNotifier {
    * @private
    */
   __notifyGraph__(graphMap, graph, entryCylinder, trapName, entryPoint, proxyCylinder, getOrSet) {
+    if (proxyCylinder.originGraph === graph.graphName)
+      return;
+
     const entryMap = graphMap.get(graph);
     if (!entryMap)
       return;

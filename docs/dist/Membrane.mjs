@@ -2653,16 +2653,20 @@ class ObjectGraphHandler {
       this.membrane.logger.debug("apply wrapping return value");
     }
 
-    if (targetCylinder.originGraph !== this.graphName)
+    if (targetCylinder.originGraph !== this.graphName) {
       rv = this.membrane.convertArgumentToProxy(
         argHandler,
         this,
         rv
       );
+    }
+
+    this.maybeNotifyEntryTrap(shadowTarget, "apply", "return", rv);
 
     if (mayLog) {
       this.membrane.logger.debug("apply exiting");
     }
+
     return rv;
   }
 
@@ -2715,7 +2719,7 @@ class ObjectGraphHandler {
       ctorTarget
     );
 
-    this.maybeNotifyEntryArgs(shadowTarget, "construct", ctorTarget, args);
+    this.maybeNotifyEntryArgs(shadowTarget, "construct", ctor, args);
     let rv = Reflect.construct(target, args, ctor);
 
     rv = this.membrane.convertArgumentToProxy(
@@ -2724,9 +2728,12 @@ class ObjectGraphHandler {
       rv
     );
 
+    this.maybeNotifyEntryTrap(shadowTarget, "construct", "return", rv);
+
     if (mayLog) {
       this.membrane.logger.debug("construct exiting");
     }
+
     return rv;
   }
 
@@ -3749,6 +3756,9 @@ class ProxyEntryNotifier {
    * @private
    */
   __notifyGraph__(graphMap, graph, entryCylinder, trapName, entryPoint, proxyCylinder, getOrSet) {
+    if (proxyCylinder.originGraph === graph.graphName)
+      return;
+
     const entryMap = graphMap.get(graph);
     if (!entryMap)
       return;
