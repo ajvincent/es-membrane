@@ -1,0 +1,8 @@
+{
+  "spec_files": [
+    "_*/spec/**/*.mjs",
+    "!_*/spec/support/**/*.mjs"
+  ],
+  "stopSpecOnExpectationFailure": false,
+  "random": false
+}
