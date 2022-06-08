@@ -1,3 +1,5 @@
 node_modules/
 docs/dist/staging/
 **/.DS_Store
+_*/ts-stdout.txt
+_*/tsconfig.json

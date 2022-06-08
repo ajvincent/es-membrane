@@ -1,10 +1,9 @@
-import url from "url";
 import path from "path";
 import fs from "fs/promises";
 import { openSync } from "fs";
 import { fork } from "child_process";
 import { Deferred } from "./PromiseTypes.mjs";
-const projectRoot = url.fileURLToPath(new URL("../..", import.meta.url));
+const projectRoot = path.resolve();
 const TSC = path.resolve(projectRoot, "node_modules/typescript/bin/tsc");
 const InvokeTSC = {
     withConfigurationFile: async function (pathToConfig, pathToStdOut = "") {

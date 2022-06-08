@@ -5,6 +5,7 @@
   "main": "docs/dist/node/es-membrane.js",
   "scripts": {
     "debug": "node ./_01_build/source/main.mjs debug",
+    "build": "node ./_01_build/source/main.mjs stages",
     "test": "node ./_01_build/source/main.mjs test"
   },
   "repository": {

@@ -6,7 +6,7 @@ import { fork } from "child_process";
 
 import { Deferred } from "./PromiseTypes.mjs";
 
-const projectRoot = url.fileURLToPath(new URL("../..", import.meta.url));
+const projectRoot = path.resolve();
 const TSC = path.resolve(projectRoot, "node_modules/typescript/bin/tsc");
 
 const InvokeTSC =
