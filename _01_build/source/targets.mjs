@@ -104,6 +104,7 @@ class DirStage {
 }
 { // test
     const target = BPSet.get("test");
+    target.addSubtarget("stages");
     target.addTask(() => runModule("./node_modules/jasmine/bin/jasmine.js", [], []));
 }
 { // debug
