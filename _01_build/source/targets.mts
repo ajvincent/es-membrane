@@ -1,5 +1,5 @@
 import { BuildPromiseSet } from "./utilities/BuildPromise.mjs";
-import { Deferred } from "./utilities/PromiseTypes.mjs";
+import { Deferred, PromiseAllParallel } from "./utilities/PromiseTypes.mjs";
 import InvokeTSC from "./utilities/InvokeTSC.mjs";
 import readDirsDeep from "./utilities/readDirsDeep.mjs";
 
@@ -41,8 +41,32 @@ class DirStage {
     const subtarget = BPSet.get(dir);
     DirStage.#subtasks.forEach(subtask => subtarget.addSubtarget(dir + ":" + subtask));
 
+    BPSet.get("clean").addSubtarget(dir + ":clean");
+
+    BPSet.get(dir + ":clean").addTask(async () => await this.#clean());
     BPSet.get(dir + ":tsc").addTask(async () => await this.#runTSC());
     BPSet.get(dir + ":build").addTask(async () => await this.#runBuild());
+  }
+
+  async #clean() : Promise<void>
+  {
+    if ("_01_build" === path.basename(this.#dir))
+      return;
+    let { files } = await readDirsDeep(this.#dir);
+    files = files.filter(f => /(?<!\.d)\.mts$/.test(f));
+    if (files.length === 0)
+      return;
+
+    files = files.flatMap(f => {
+      return [
+        f.replace(".mts", ".mjs"),
+        f.replace(".mts", ".mjs.map"),
+        f.replace(".mts", ".d.mts"),
+      ];
+    });
+    files.sort();
+
+    await PromiseAllParallel(files, f => fs.rm(f, { force: true}));
   }
 
   async #runTSC() : Promise<void>
@@ -81,7 +105,7 @@ class DirStage {
     await buildNext(this.#allDirs);
   }
 
-  static readonly #subtasks = ["tsc", "build"];
+  static readonly #subtasks = ["clean", "tsc", "build"];
 
   static buildTask(dir: string, allDirs: string[]) : DirStage
   {
@@ -92,7 +116,13 @@ class DirStage {
   }
 }
 
-{ // (stages)
+{ // clean
+  void(BPSet.get("clean"));
+  const stages = BPSet.get("stages");
+  stages.addSubtarget("clean");
+}
+
+{ // stages
   const target = BPSet.get("stages");
   let dirEntries = await fs.readdir(path.resolve(), { encoding: "utf-8", withFileTypes: true });
   dirEntries = dirEntries.filter(entry => {
