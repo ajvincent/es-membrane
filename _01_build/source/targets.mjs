@@ -38,19 +38,18 @@ class DirStage {
         BPSet.get(dir + ":build").addTask(async () => await this.#runBuild());
     }
     async #clean() {
-        if ("_01_build" === path.basename(this.#dir))
-            return;
+        const isBuildDir = this.#dir.includes("/_01_build");
         let { files } = await readDirsDeep(this.#dir);
         files = files.filter(f => /(?<!\.d)\.mts$/.test(f));
         if (files.length === 0)
             return;
         files = files.flatMap(f => {
             return [
-                f.replace(".mts", ".mjs"),
+                !isBuildDir ? f.replace(".mts", ".mjs") : "",
                 f.replace(".mts", ".mjs.map"),
                 f.replace(".mts", ".d.mts"),
             ];
-        });
+        }).filter(Boolean);
         files.sort();
         await PromiseAllParallel(files, f => fs.rm(f, { force: true }));
     }

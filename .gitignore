@@ -3,3 +3,8 @@ docs/dist/staging/
 **/.DS_Store
 _*/ts-stdout.txt
 _*/tsconfig.json
+
+_*/**/*.mjs
+!_01_build/source/**.mjs
+_*/**/*.mjs.map
+_*/**/*.d.mts
