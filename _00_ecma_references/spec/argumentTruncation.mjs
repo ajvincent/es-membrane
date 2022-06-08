@@ -1,7 +1,8 @@
+// This file cannot be written as TypeScript, because it explicitly checks for invalid arguments.
+
 describe(
   "A proxy handler's traps are only invoked with the required arguments from the proxy",
   function() {
-    "use strict";
     const handler = {}, unexpected = {};
     {
       const allTraps = {
