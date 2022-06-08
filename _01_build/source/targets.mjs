@@ -40,7 +40,7 @@ class DirStage {
         files = files.filter(f => /(?<!\.d)\.mts$/.test(f));
         if (files.length === 0)
             return;
-        const result = await InvokeTSC.withCustomConfiguration(path.join(this.#dir, "tsconfig.json"), true, (config) => {
+        const result = await InvokeTSC.withCustomConfiguration(path.join(this.#dir, "tsconfig.json"), false, (config) => {
             config.files = files;
             config.extends = "@tsconfig/node16/tsconfig.json";
         }, path.resolve(this.#dir, "ts-stdout.txt"));

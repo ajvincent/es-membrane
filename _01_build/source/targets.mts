@@ -54,7 +54,7 @@ class DirStage {
 
     const result = await InvokeTSC.withCustomConfiguration(
       path.join(this.#dir, "tsconfig.json"),
-      true,
+      false,
       (config) => {
         config.files = files;
         config.extends = "@tsconfig/node16/tsconfig.json";
