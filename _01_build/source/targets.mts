@@ -104,7 +104,7 @@ class DirStage {
   const dirs = dirEntries.map(ent => ent.name);
   dirs.sort();
 
-  dirs.forEach(dir => DirStage.buildTask(dir, dirs));
+  dirs.forEach((dir, index) => DirStage.buildTask(dir, dirs.slice(index + 1)));
 }
 
 { // test
