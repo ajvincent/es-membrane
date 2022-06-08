@@ -58,7 +58,7 @@ class DirStage {
 
     files = files.flatMap(f => {
       return [
-        !isBuildDir ? f.replace(".mts", ".mjs") : "",
+        !isBuildDir || f.includes("/_01_build/spec/") ? f.replace(".mts", ".mjs") : "",
         f.replace(".mts", ".mjs.map"),
         f.replace(".mts", ".d.mts"),
       ];
