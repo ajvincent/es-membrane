@@ -6,7 +6,7 @@ type NextTargetAndHandler<T extends object> = {
   nextHandler: Required<ProxyHandler<T>>;
 }
 
-export default class HeadHandler<T extends object> implements Required<ProxyHandler<T>>
+export default class ShadowHeadHandler<T extends object> implements Required<ProxyHandler<T>>
 {
   readonly #shadowHandler: ShadowProxyHandler<T>;
   readonly #currentGraph: ObjectGraphStub<T>;
@@ -93,7 +93,7 @@ export default class HeadHandler<T extends object> implements Required<ProxyHand
   ) : unknown
   {
     const { nextTarget, nextHandler } = this.#nextTargetAndHandler(shadowTarget);
-    const [nextReceiver] = this.#targetGraph.convertArguments([receiver]);
+    const [nextReceiver] = this.#targetGraph.convertArguments(receiver);
 
     const result = this.#shadowHandler.get(
       shadowTarget, p, receiver, nextTarget, nextHandler, nextReceiver

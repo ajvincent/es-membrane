@@ -1,29 +1,16 @@
-import { DefaultMap } from "../../../_01_build/source/utilities/DefaultMap.mjs";
-
-export default class SpyProxyHandler<T extends object> implements Required<ProxyHandler<T>>
+import SpyBase from "./SpyBase.mjs";
+export default class SpyProxyHandler<T extends object>
+extends SpyBase implements Required<ProxyHandler<T>>
 {
-  #spies: DefaultMap<string | symbol, jasmine.Spy> = new DefaultMap;
-
   constructor()
   {
+    super();
     Reflect.ownKeys(Reflect).forEach(key => this.getSpy(key));
   }
 
-  getSpy(name: string | symbol) : jasmine.Spy
-  {
-    return this.#spies.getDefault(name, () => jasmine.createSpy());
-  }
-
   expectSpiesClearExcept(...names: (string | symbol)[]) {
-    const nonEmptyNames: (string | symbol)[] = [];
-    this.#spies.forEach((spy, foundName) => {
-      if (!names.includes(foundName) && (spy.calls.count() > 0))
-        nonEmptyNames.push(foundName);
-    });
-
-    expect(nonEmptyNames).toEqual([]);
-    expect(this.#spies.size).toBe(Reflect.ownKeys(Reflect).length);
-    names.forEach(name => expect(this.#spies.has(name)).toBe(true));
+    super.expectSpiesClearExcept(...names);
+    expect(this.spyMap.size).toBe(Reflect.ownKeys(Reflect).length);
   }
 
   apply(target: T, thisArg: unknown, argArray: unknown[]) : unknown

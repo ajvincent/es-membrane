@@ -1,4 +1,3 @@
-import exp from "constants";
 import TailHandler from "../source/TailHandler.mjs";
 import SpyProxyHandler from "./fixtures/SpyProxyHandler.mjs";
 
@@ -6,9 +5,6 @@ describe("TailHandler forwards to ProxyHandler for the trap", () => {
   function idObject(id: string) {
     return Object.freeze({id});
   }
-
-  let tail: TailHandler<object>;
-  let spyHandler: SpyProxyHandler<object>;
 
   const shadowTarget = idObject("shadowTarget");
   const nextTarget = idObject("nextTarget");
@@ -48,6 +44,8 @@ describe("TailHandler forwards to ProxyHandler for the trap", () => {
 
   class GenericOther {}
 
+  let tail: TailHandler<object>;
+  let spyHandler: SpyProxyHandler<object>;
   beforeEach(() => {
     tail = new TailHandler;
     spyHandler = new SpyProxyHandler;
