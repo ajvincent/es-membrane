@@ -49,10 +49,10 @@ type ShadowProxyHandler<T extends object> =
         shadowTarget: T,
         p: string | symbol,
         receiver: unknown,
-        
+
         nextTarget: T,
         nextHandler: Required<ProxyHandler<T>>,
-        
+
         nextReceiver: unknown
     ): unknown;
 
@@ -74,7 +74,7 @@ type ShadowProxyHandler<T extends object> =
     has(
         shadowTarget: T,
         p: string | symbol,
-        
+
         nextTarget: T,
         nextHandler: Required<ProxyHandler<T>>
     ): boolean;
@@ -95,7 +95,7 @@ type ShadowProxyHandler<T extends object> =
 
     preventExtensions(
         shadowTarget: T,
-        
+
         nextTarget: T,
         nextHandler: Required<ProxyHandler<T>>
     ): boolean;
