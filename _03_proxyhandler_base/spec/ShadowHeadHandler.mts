@@ -1,4 +1,3 @@
-import exp from "constants";
 import ShadowHeadHandler from "../source/ShadowHeadHandler.mjs";
 import SpyObjectGraph from "./fixtures/SpyObjectGraph.mjs";
 import SpyProxyHandler from "./fixtures/SpyProxyHandler.mjs";
