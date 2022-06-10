@@ -8,7 +8,8 @@
     "debug": "node ./_01_build/source/main.mjs debug",
     "eslint": "node ./_01_build/source/main.mjs eslint",
     "build": "node ./_01_build/source/main.mjs stages",
-    "test": "node ./_01_build/source/main.mjs test"
+    "test": "node ./_01_build/source/main.mjs test",
+    "all": "node ./_01_build/source/main.mjs clean stages test eslint"
   },
   "repository": {
     "type": "git",

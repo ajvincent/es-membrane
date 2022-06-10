@@ -148,7 +148,6 @@ class DirStage {
         return files.some(f => f.endsWith(".mts")) ? stageDir : "";
     });
     args.push(...dirs.filter(Boolean));
-    console.log("./node_modules/eslint/bin/eslint.js", ...args);
     target.addTask(async () => {
         await runModule("./node_modules/eslint/bin/eslint.js", args);
     });
