@@ -73,12 +73,12 @@ Object.freeze(DataDescriptor.prototype);
 export class AccessorDescriptor<T>
 {
   get: () => T;
-  set: (value: T) => boolean;
+  set: (value: T) => void;
   enumerable;
   configurable;
   constructor(
     getter: () => T,
-    setter: (value: T) => boolean,
+    setter: (value: T) => void,
     enumerable = true,
     configurable = true
   )
