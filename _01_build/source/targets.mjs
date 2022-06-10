@@ -101,7 +101,7 @@ class DirStage {
         let { files: tsFiles } = await readDirsDeep(buildDir);
         tsFiles = tsFiles.filter(f => /(?<!\.d)\.mts$/.test(f));
         if (tsFiles.length > 0) {
-            const result = await InvokeTSC.withCustomConfiguration(path.join(this.#dir, "tsconfig.json"), false, (config) => {
+            const result = await InvokeTSC.withCustomConfiguration(path.join(buildDir, "tsconfig.json"), false, (config) => {
                 config.files = tsFiles;
                 config.extends = "@tsconfig/node16/tsconfig.json";
             }, path.resolve(buildDir, "ts-stdout.txt"));

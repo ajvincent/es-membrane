@@ -140,7 +140,7 @@ class DirStage
 
     if (tsFiles.length > 0) {
       const result = await InvokeTSC.withCustomConfiguration(
-        path.join(this.#dir, "tsconfig.json"),
+        path.join(buildDir, "tsconfig.json"),
         false,
         (config) => {
           config.files = tsFiles;
