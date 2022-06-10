@@ -100,7 +100,12 @@ class DirStage
   async #runTSC() : Promise<void>
   {
     let { files } = await readDirsDeep(this.#dir);
-    files = files.filter(f => /(?<!\.d)\.mts$/.test(f));
+    const buildDir = path.join(this.#dir, "build");
+
+    files = files.filter(f => {
+      return /(?<!\.d)\.mts$/.test(f) && !f.startsWith(buildDir)
+    });
+
     if (files.length === 0)
       return;
 
@@ -119,7 +124,8 @@ class DirStage
 
   async #runBuild() : Promise<void>
   {
-    const pathToModule = path.resolve(this.#dir, "build", "support.mjs");
+    const buildDir = path.resolve(this.#dir, "build");
+    const pathToModule = path.resolve(buildDir, "support.mjs");
     try {
       await fs.access(pathToModule);
     }
@@ -129,11 +135,28 @@ class DirStage
       return;
     }
 
+    let { files: tsFiles } = await readDirsDeep(buildDir);
+    tsFiles = tsFiles.filter(f => /(?<!\.d)\.mts$/.test(f));
+
+    if (tsFiles.length > 0) {
+      const result = await InvokeTSC.withCustomConfiguration(
+        path.join(this.#dir, "tsconfig.json"),
+        false,
+        (config) => {
+          config.files = tsFiles;
+          config.extends = "@tsconfig/node16/tsconfig.json";
+        },
+        path.resolve(buildDir, "ts-stdout.txt")
+      );
+      if (result !== 0)
+        throw new Error("runTSC failed with code " + result);
+    }
+
     const buildNext = (await import(pathToModule)).default;
     await buildNext(this.#allDirs);
   }
 
-  static readonly #subtasks = ["clean", "tsc", "build"];
+  static readonly #subtasks = ["clean", "build", "tsc"];
 
   static buildTask(dir: string, allDirs: string[]) : DirStage
   {
