@@ -1,0 +1,27 @@
+{
+  "env": {
+    "es2022": true,
+    "jasmine": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "**/*.mjs"
+      ]
+    }
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "jasmine"
+  ],
+  "rules": {
+    "no-unused-private-class-members": "error"
+  }
+}

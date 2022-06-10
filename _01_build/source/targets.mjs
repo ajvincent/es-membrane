@@ -5,6 +5,26 @@ import readDirsDeep from "./utilities/readDirsDeep.mjs";
 import fs from "fs/promises";
 import path from "path";
 import { fork } from 'child_process';
+let stageDirs;
+{
+    const root = path.resolve();
+    let dirEntries = await fs.readdir(root, { encoding: "utf-8", withFileTypes: true });
+    dirEntries = dirEntries.filter(entry => {
+        if (!entry.isDirectory())
+            return false;
+        if (!/^_\d+_/.test(entry.name))
+            return false;
+        return true;
+    });
+    stageDirs = dirEntries.map(ent => ent.name);
+    stageDirs.sort();
+    stageDirs = await PromiseAllParallel(stageDirs, async (leaf) => {
+        const fullPath = path.join(root, leaf);
+        const entries = await fs.readdir(fullPath);
+        return entries.length > 0 ? leaf : "";
+    });
+    stageDirs = stageDirs.filter(Boolean);
+}
 /**
  * Run a specific submodule.
  *
@@ -21,7 +41,7 @@ function runModule(pathToModule, moduleArgs = [], extraNodeArgs = []) {
         silent: false
     });
     child.on('exit', code => code ? d.reject(code) : d.resolve());
-    return d;
+    return d.promise;
 }
 const BPSet = new BuildPromiseSet(true);
 class DirStage {
@@ -91,25 +111,48 @@ class DirStage {
     stages.addSubtarget("clean");
 }
 { // stages
-    const target = BPSet.get("stages");
-    let dirEntries = await fs.readdir(path.resolve(), { encoding: "utf-8", withFileTypes: true });
-    dirEntries = dirEntries.filter(entry => {
-        if (!entry.isDirectory())
-            return false;
-        return /^_\d+\_/.test(entry.name);
-    });
-    const dirs = dirEntries.map(ent => ent.name);
-    dirs.sort();
-    dirs.forEach((dir, index) => DirStage.buildTask(dir, dirs.slice(index + 1)));
+    BPSet.get("stages");
+    stageDirs.forEach((dir, index) => DirStage.buildTask(dir, stageDirs.slice(0, index)));
 }
 { // test
     const target = BPSet.get("test");
     target.addSubtarget("stages");
-    target.addTask(() => runModule("./node_modules/jasmine/bin/jasmine.js", [], []));
+    target.addTask(async () => await runModule("./node_modules/jasmine/bin/jasmine.js", [], []));
 }
 { // debug
     const target = BPSet.get("debug");
-    target.addTask(() => runModule("./node_modules/jasmine/bin/jasmine.js", [], ["--inspect-brk"]));
+    target.addTask(async () => await runModule("./node_modules/jasmine/bin/jasmine.js", [], ["--inspect-brk"]));
+}
+{ // eslint
+    const target = BPSet.get("eslint");
+    target.description = "eslint support";
+    const args = [
+        "--max-warnings=0"
+    ];
+    const dirs = await PromiseAllParallel(stageDirs, async (stageDir) => {
+        const { files } = await readDirsDeep(path.resolve(stageDir));
+        return files.some(f => f.endsWith(".mjs")) ? stageDir : "";
+    });
+    args.push(...dirs.filter(Boolean));
+    target.addTask(async () => await runModule("./node_modules/eslint/bin/eslint.js", args));
+}
+{ // typescript:eslint
+    const jsTarget = BPSet.get("eslint");
+    jsTarget.addSubtarget("typescript:eslint");
+    const target = BPSet.get("typescript:eslint");
+    const args = [
+        "-c", "./.eslintrc-typescript.json",
+        "--max-warnings=0",
+    ];
+    const dirs = await PromiseAllParallel(stageDirs, async (stageDir) => {
+        const { files } = await readDirsDeep(path.resolve(stageDir));
+        return files.some(f => f.endsWith(".mts")) ? stageDir : "";
+    });
+    args.push(...dirs.filter(Boolean));
+    console.log("./node_modules/eslint/bin/eslint.js", ...args);
+    target.addTask(async () => {
+        await runModule("./node_modules/eslint/bin/eslint.js", args);
+    });
 }
 BPSet.markReady();
 export default BPSet;
