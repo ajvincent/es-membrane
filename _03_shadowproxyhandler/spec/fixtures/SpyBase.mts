@@ -9,7 +9,8 @@ export default class SpyBase
     return this.spyMap.getDefault(name, () => jasmine.createSpy());
   }
 
-  expectSpiesClearExcept(...names: (string | symbol)[]) {
+  expectSpiesClearExcept(...names: (string | symbol)[]) : void
+  {
     const nonEmptyNames: (string | symbol)[] = [];
     this.spyMap.forEach((spy, foundName) => {
       if (!names.includes(foundName) && (spy.calls.count() > 0))

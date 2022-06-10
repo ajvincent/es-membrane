@@ -63,7 +63,7 @@ export class BuildPromise
   }
 
   /** @type {string} */
-  #description: string = "";
+  #description = "";
 
   /** @type {string} */
   get description(): string
@@ -122,7 +122,7 @@ export class BuildPromise
   /** @type {string[]} */
   get deepTargets(): string[]
   {
-    let targets = this.#subtargets.slice();
+    const targets = this.#subtargets.slice();
     for (let i = 0; i < targets.length; i++) {
       targets.push(...this.#ownerSet.get(targets[i]).deepTargets);
     }

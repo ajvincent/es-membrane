@@ -23,7 +23,8 @@ describe("_03_proxyhandler_base integration test for the trap", () => {
   let tail: TailHandler<object>;
   let spyHandler: SpyProxyHandler<object>;
 
-  function idObject(id: string) {
+  function idObject(id: string) : object
+  {
     return Object.freeze({id});
   }
 

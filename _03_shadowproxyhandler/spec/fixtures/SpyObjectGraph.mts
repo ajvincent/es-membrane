@@ -20,7 +20,8 @@ extends SpyBase implements ObjectGraphStub<T>
     this.getSpy("getHandlerForTarget").and.returnValue(this.nextHandler);
   }
 
-  expectSpiesClearExcept(...names: (string | symbol)[]) {
+  expectSpiesClearExcept(...names: (string | symbol)[]) : void
+  {
     super.expectSpiesClearExcept(...names);
     expect(Array.from(this.spyMap.keys())).toEqual([
       "getNextTargetForShadow",

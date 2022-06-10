@@ -50,7 +50,7 @@ describe("BuildPromise.mts: ", () => {
       bpSet.markClosed();
       expect(bpSet.status).toBe("closed");
 
-      () => bpSet.markReady()
+      bpSet.markReady();
       expect(bpSet.status).toBe("closed");
     });
   });
@@ -167,7 +167,7 @@ describe("BuildPromise.mts: ", () => {
 
     describe(".addTask()", () => {
       it("will add a task without invoking it", () => {
-        let spy = jasmine.createSpy();
+        const spy = jasmine.createSpy();
         foo.addTask(spy);
         expect(spy).toHaveBeenCalledTimes(0);
 
@@ -175,10 +175,10 @@ describe("BuildPromise.mts: ", () => {
       });
 
       it("can add multiple tasks", () => {
-        let spy1 = jasmine.createSpy();
+        const spy1 = jasmine.createSpy();
         foo.addTask(spy1);
 
-        let spy2 = jasmine.createSpy();
+        const spy2 = jasmine.createSpy();
         foo.addTask(spy2);
 
         expect(spy1).toHaveBeenCalledTimes(0);
@@ -188,7 +188,7 @@ describe("BuildPromise.mts: ", () => {
       });
 
       it("will throw if bpSet.markReady() has been called", () => {
-        let spy = jasmine.createSpy();
+        const spy = jasmine.createSpy();
         bpSet.markReady();
         expect(
           () => foo.addTask(spy)
@@ -196,7 +196,7 @@ describe("BuildPromise.mts: ", () => {
       });
 
       it("will throw if bpSet.markClosed() has been called", () => {
-        let spy = jasmine.createSpy();
+        const spy = jasmine.createSpy();
         bpSet.markClosed();
         expect(
           () => foo.addTask(spy)
@@ -258,7 +258,7 @@ describe("BuildPromise.mts: ", () => {
     beforeEach(() => main = bpSet.main);
 
     it("will add a task without invoking it", () => {
-      let spy = jasmine.createSpy();
+      const spy = jasmine.createSpy();
       main.addTask(spy);
       expect(spy).toHaveBeenCalledTimes(0);
 
@@ -266,10 +266,10 @@ describe("BuildPromise.mts: ", () => {
     });
 
     it("can add multiple tasks", () => {
-      let spy1 = jasmine.createSpy();
+      const spy1 = jasmine.createSpy();
       main.addTask(spy1);
 
-      let spy2 = jasmine.createSpy();
+      const spy2 = jasmine.createSpy();
       main.addTask(spy2);
 
       expect(spy1).toHaveBeenCalledTimes(0);
@@ -279,7 +279,7 @@ describe("BuildPromise.mts: ", () => {
     });
 
     it("will throw if bpSet.markReady() has been called", () => {
-      let spy = jasmine.createSpy();
+      const spy = jasmine.createSpy();
       bpSet.markReady();
       expect(
         () => main.addTask(spy)
@@ -287,7 +287,7 @@ describe("BuildPromise.mts: ", () => {
     });
 
     it("will throw if bpSet.markClosed() has been called", () => {
-      let spy = jasmine.createSpy();
+      const spy = jasmine.createSpy();
       bpSet.markClosed();
       expect(
         () => main.addTask(spy)

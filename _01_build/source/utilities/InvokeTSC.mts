@@ -1,4 +1,3 @@
-import url from "url";
 import path from "path";
 import fs from "fs/promises";
 import { openSync } from "fs";

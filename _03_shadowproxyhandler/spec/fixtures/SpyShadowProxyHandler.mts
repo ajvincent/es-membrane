@@ -9,7 +9,8 @@ export default class SpyShadowProxyHandler<T extends object> extends SpyBase imp
     Reflect.ownKeys(Reflect).forEach(key => this.getSpy(key));
   }
 
-  expectSpiesClearExcept(...names: (string | symbol)[]) {
+  expectSpiesClearExcept(...names: (string | symbol)[]) : void
+  {
     super.expectSpiesClearExcept(...names);
     expect(this.spyMap.size).toBe(Reflect.ownKeys(Reflect).length);
   }

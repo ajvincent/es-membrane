@@ -11,7 +11,8 @@ describe("ShadowHeadHandler forwards to ShadowProxyHandler for the trap", () => 
 
   const spyHandler = new SpyProxyHandler;
 
-  function idObject(id: string) {
+  function idObject(id: string) : object
+  {
     return Object.freeze({id});
   }
 
@@ -22,9 +23,6 @@ describe("ShadowHeadHandler forwards to ShadowProxyHandler for the trap", () => 
 
   const nextThisArg = idObject("nextThisArg");
   const nextArgArray = [idObject("nextArg0"), idObject("nextArg1")];
-
-  const newTarget = idObject("newTarget");
-  const nextNewTarget = idObject("nextNewTarget");
 
   const propDescFirst: PropertyDescriptor = {
     value: idObject("propDescFirst"),
@@ -67,7 +65,8 @@ describe("ShadowHeadHandler forwards to ShadowProxyHandler for the trap", () => 
     targetGraph.getSpy("getHandlerForTarget").and.returnValue(spyHandler);
   });
 
-  function spotCheckTargetGraph(...extraNames: string[]) {
+  function spotCheckTargetGraph(...extraNames: string[]) : void
+  {
     targetGraph.expectSpiesClearExcept("getNextTargetForShadow", "getHandlerForTarget", ...extraNames);
     expect(targetGraph.getSpy("getNextTargetForShadow")).toHaveBeenCalledOnceWith(
       shadowTarget

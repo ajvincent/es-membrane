@@ -86,7 +86,7 @@ export class BuildPromise {
     }
     /** @type {string[]} */
     get deepTargets() {
-        let targets = this.#subtargets.slice();
+        const targets = this.#subtargets.slice();
         for (let i = 0; i < targets.length; i++) {
             targets.push(...this.#ownerSet.get(targets[i]).deepTargets);
         }

@@ -8,7 +8,8 @@ extends SpyBase implements Required<ProxyHandler<T>>
     Reflect.ownKeys(Reflect).forEach(key => this.getSpy(key));
   }
 
-  expectSpiesClearExcept(...names: (string | symbol)[]) {
+  expectSpiesClearExcept(...names: (string | symbol)[]) : void
+  {
     super.expectSpiesClearExcept(...names);
     expect(this.spyMap.size).toBe(Reflect.ownKeys(Reflect).length);
   }
@@ -18,7 +19,7 @@ extends SpyBase implements Required<ProxyHandler<T>>
     return this.getSpy("apply")(target, thisArg, argArray);
   }
 
-  construct(target: T, argArray: any[], newTarget: Function): object
+  construct(target: T, argArray: unknown[], newTarget: Function): object
   {
     return this.getSpy("construct")(target, argArray, newTarget);
   }
@@ -72,7 +73,7 @@ extends SpyBase implements Required<ProxyHandler<T>>
     return this.getSpy("set")(target, p, value, receiver);
   }
 
-  setPrototypeOf(target: T, proto: object | null)
+  setPrototypeOf(target: T, proto: object | null) : boolean
   {
     return this.getSpy("setPrototypeOf")(target, proto);
   }
