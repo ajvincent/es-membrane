@@ -7,33 +7,23 @@ export class BuildPromise
 {
   #ownerSet: Readonly<BuildPromiseSet>;
 
-  /** @type {string[]} @constant */
   #subtargets: string[] = [];
 
-  /** @type {Function[]} @constant */
   #tasks: (() => void)[] = [];
 
   #runPromise: Readonly<SingletonPromise<void>>;
 
-  /** @constant */
   target: string;
 
   #setStatus: setStatusCallback;
 
-  /**
-   * @callback setStatusCallback
-   * @param {string} value
-   * @returns {void}
-   */
-
-  /** @type {boolean} @constant */
   #writeToConsole: Readonly<boolean>;
 
   /**
-   * @param {BuildPromiseSet}   ownerSet       The set owning this.
-   * @param {setStatusCallback} setStatus      Friend-like access to the owner set's #status property.
-   * @param {string}            target         The build target.
-   * @param {boolean}           writeToConsole True if we should write to the console.
+   * @param ownerSet       - The set owning this.
+   * @param setStatus      - Friend-like access to the owner set's #status property.
+   * @param target         - The build target.
+   * @param writeToConsole - True if we should write to the console.
    */
   constructor(
     ownerSet: BuildPromiseSet,
@@ -62,10 +52,8 @@ export class BuildPromise
     this.#writeToConsole = writeToConsole;
   }
 
-  /** @type {string} */
   #description = "";
 
-  /** @type {string} */
   get description(): string
   {
     return this.#description;
@@ -79,9 +67,6 @@ export class BuildPromise
     this.#description = value;
   }
 
-  /**
-   * @param {Function} callback The task.
-   */
   addTask(callback: (() => void)): void
   {
     if (this.#ownerSet.status !== "not started")
@@ -89,9 +74,6 @@ export class BuildPromise
     this.#tasks.push(callback);
   }
 
-  /**
-   * @param {string} target The subtarget.
-   */
   addSubtarget(target: string): void
   {
     if (target === "main")
@@ -119,7 +101,6 @@ export class BuildPromise
     this.#subtargets.push(target);
   }
 
-  /** @type {string[]} */
   get deepTargets(): string[]
   {
     const targets = this.#subtargets.slice();
@@ -209,15 +190,12 @@ export class BuildPromiseSet {
     return this.#status;
   }
 
-  /** @type {Map<string, BuildPromise>} @constant */
   #map: DefaultMap<string, BuildPromise> = new DefaultMap;
 
-  /** @type {BuildPromise} @constant */
   main: Readonly<BuildPromise>;
 
   #setStatusCallback: setStatusCallback;
 
-  /** @type {boolean} @constant */
   #writeToConsole;
 
   constructor(writeToConsole = false)
@@ -230,8 +208,8 @@ export class BuildPromiseSet {
   }
 
   /**
-   * @param {string} targetName The target name.
-   * @returns {BuildPromise} The build promise.
+   * @param targetName - The target name.
+   * @returns The build promise.
    */
   get(targetName: string) : BuildPromise
   {

@@ -45,11 +45,11 @@ export class SingletonPromise {
 /**
  * Evaluate a callback asynchronously for every element of an array, sequentially.
  *
- * @param {*[]} elementArray The array of objects to pass into the callback.
- * @param {Function} callback The callback function.
- * @returns {Promise<*[]>} Resolved if the sequence passes.
- * @see {Promise.all}
- * @see {Array.prototype.reduce}
+ * @param elementArray - The array of objects to pass into the callback.
+ * @param callback     - The callback function.
+ * @returns Resolved if the sequence passes.
+ * @see Promise.all
+ * @see Array.prototype.reduce
  */
 export async function PromiseAllSequence(elementArray, callback) {
     return await elementArray.reduce(async (previousPromise, element) => {
@@ -61,11 +61,11 @@ export async function PromiseAllSequence(elementArray, callback) {
 /**
  * Evaluate a callback asynchronously for every element of an array, in parallel.
  *
- * @param {*[]} elementArray The array of objects to pass into the callback.
- * @param {Function} callback The callback function.
- * @returns {Promise<*[]>} Resolved if the sequence passes.
- * @see {Promise.all}
- * @see {Array.prototype.map}
+ * @param elementArray - The array of objects to pass into the callback.
+ * @param callback     - The callback function.
+ * @returns Resolved if the sequence passes.
+ * @see Promise.all
+ * @see Array.prototype.map
  */
 export async function PromiseAllParallel(elementArray, callback) {
     return Promise.all(elementArray.map(element => callback(element)));

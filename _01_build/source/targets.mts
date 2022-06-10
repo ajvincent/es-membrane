@@ -34,10 +34,9 @@ let stageDirs: string[];
 /**
  * Run a specific submodule.
  *
- * @param {string}   pathToModule  The module to run.
- * @param {string[]} moduleArgs    Arguments we pass into the module.
- * @param {string[]} extraNodeArgs Arguments we pass to node.
- * @returns {Promise<void>}
+ * @param pathToModule  - The module to run.
+ * @param moduleArgs    - Arguments we pass into the module.
+ * @param extraNodeArgs - Arguments we pass to node.
  * @see /build/tools/generateCollectionTools.mjs
  */
 function runModule(

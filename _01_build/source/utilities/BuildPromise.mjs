@@ -2,26 +2,17 @@ import { SingletonPromise } from "./PromiseTypes.mjs";
 import { DefaultMap } from "./DefaultMap.mjs";
 export class BuildPromise {
     #ownerSet;
-    /** @type {string[]} @constant */
     #subtargets = [];
-    /** @type {Function[]} @constant */
     #tasks = [];
     #runPromise;
-    /** @constant */
     target;
     #setStatus;
-    /**
-     * @callback setStatusCallback
-     * @param {string} value
-     * @returns {void}
-     */
-    /** @type {boolean} @constant */
     #writeToConsole;
     /**
-     * @param {BuildPromiseSet}   ownerSet       The set owning this.
-     * @param {setStatusCallback} setStatus      Friend-like access to the owner set's #status property.
-     * @param {string}            target         The build target.
-     * @param {boolean}           writeToConsole True if we should write to the console.
+     * @param ownerSet       - The set owning this.
+     * @param setStatus      - Friend-like access to the owner set's #status property.
+     * @param target         - The build target.
+     * @param writeToConsole - True if we should write to the console.
      */
     constructor(ownerSet, setStatus, target, writeToConsole) {
         this.#ownerSet = ownerSet;
@@ -40,9 +31,7 @@ export class BuildPromise {
         this.#runPromise = new SingletonPromise(async () => this.#run());
         this.#writeToConsole = writeToConsole;
     }
-    /** @type {string} */
     #description = "";
-    /** @type {string} */
     get description() {
         return this.#description;
     }
@@ -53,17 +42,11 @@ export class BuildPromise {
             throw new Error("Build step has started");
         this.#description = value;
     }
-    /**
-     * @param {Function} callback The task.
-     */
     addTask(callback) {
         if (this.#ownerSet.status !== "not started")
             throw new Error("Build step has started");
         this.#tasks.push(callback);
     }
-    /**
-     * @param {string} target The subtarget.
-     */
     addSubtarget(target) {
         if (target === "main")
             throw new Error("Cannot include main target");
@@ -84,7 +67,6 @@ export class BuildPromise {
             throw new Error(`"${target}" already has a dependency on "${this.target}"`);
         this.#subtargets.push(target);
     }
-    /** @type {string[]} */
     get deepTargets() {
         const targets = this.#subtargets.slice();
         for (let i = 0; i < targets.length; i++) {
@@ -155,12 +137,9 @@ export class BuildPromiseSet {
     get status() {
         return this.#status;
     }
-    /** @type {Map<string, BuildPromise>} @constant */
     #map = new DefaultMap;
-    /** @type {BuildPromise} @constant */
     main;
     #setStatusCallback;
-    /** @type {boolean} @constant */
     #writeToConsole;
     constructor(writeToConsole = false) {
         this.#setStatusCallback = (value) => {
@@ -170,8 +149,8 @@ export class BuildPromiseSet {
         this.main = this.get("main");
     }
     /**
-     * @param {string} targetName The target name.
-     * @returns {BuildPromise} The build promise.
+     * @param targetName - The target name.
+     * @returns The build promise.
      */
     get(targetName) {
         return this.#map.getDefault(targetName, () => this.#createPromise(targetName));

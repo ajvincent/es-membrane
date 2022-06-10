@@ -29,6 +29,7 @@
   },
   "plugins": [
     "@typescript-eslint",
+    "eslint-plugin-tsdoc",
     "jasmine"
   ],
   "root": true,
@@ -41,6 +42,7 @@
         }
       }
     ],
-    "@typescript-eslint/explicit-function-return-type": ["error"]
+    "@typescript-eslint/explicit-function-return-type": ["error"],
+    "tsdoc/syntax": "warn"
   }
 }
