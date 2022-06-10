@@ -1,3 +1,4 @@
+import type { propertyKey } from "../../_02_membrane_utilities/source/publicUtilities.mjs";
 import type { ShadowProxyHandler } from "./ShadowProxyHandler.mjs";
 import type { ObjectGraphStub } from "./ObjectGraphStub.mjs";
 
@@ -65,7 +66,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
 
   defineProperty(
     shadowTarget: T,
-    p: string | symbol,
+    p: propertyKey,
     attributes: PropertyDescriptor
   ) : boolean
   {
@@ -79,7 +80,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
 
   deleteProperty(
     shadowTarget: T,
-    p: string | symbol
+    p: propertyKey
   ) : boolean
   {
     const { nextTarget, nextHandler } = this.#nextTargetAndHandler(shadowTarget);
@@ -88,7 +89,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
 
   get(
     shadowTarget: T,
-    p: string | symbol,
+    p: propertyKey,
     receiver: unknown
   ) : unknown
   {
@@ -104,7 +105,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
 
   getOwnPropertyDescriptor(
     shadowTarget: T,
-    p: string | symbol
+    p: propertyKey
   ) : PropertyDescriptor | undefined
   {
     const { nextTarget, nextHandler } = this.#nextTargetAndHandler(shadowTarget);
@@ -129,7 +130,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
 
   has(
     shadowTarget: T,
-    p: string | symbol
+    p: propertyKey
   ) : boolean
   {
     const { nextTarget, nextHandler } = this.#nextTargetAndHandler(shadowTarget);
@@ -144,7 +145,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
     return this.#shadowHandler.isExtensible(shadowTarget, nextTarget, nextHandler);
   }
 
-  ownKeys(shadowTarget: T) : ArrayLike<string | symbol>
+  ownKeys(shadowTarget: T) : ArrayLike<propertyKey>
   {
     const { nextTarget, nextHandler } = this.#nextTargetAndHandler(shadowTarget);
     return this.#shadowHandler.ownKeys(shadowTarget, nextTarget, nextHandler);
@@ -160,7 +161,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
 
   set(
     shadowTarget: T,
-    p: string | symbol,
+    p: propertyKey,
     value: unknown,
     receiver: unknown
   ) : boolean

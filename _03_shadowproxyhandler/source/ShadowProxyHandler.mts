@@ -1,4 +1,8 @@
-const ReflectHandler: Required<ProxyHandler<object>> = Reflect;
+import type { propertyKey } from "../../_02_membrane_utilities/source/publicUtilities.mjs";
+
+/*
+void(Reflect as Required<ProxyHandler<object>>);
+*/
 
 type ShadowProxyHandler<T extends object> =
 {
@@ -28,7 +32,7 @@ type ShadowProxyHandler<T extends object> =
 
     defineProperty(
         shadowTarget: T,
-        p: string | symbol,
+        p: propertyKey,
         attributes: PropertyDescriptor,
 
         nextTarget: T,
@@ -39,7 +43,7 @@ type ShadowProxyHandler<T extends object> =
 
     deleteProperty(
         shadowTarget: T,
-        p: string | symbol,
+        p: propertyKey,
 
         nextTarget: T,
         nextHandler: Required<ProxyHandler<T>>
@@ -47,7 +51,7 @@ type ShadowProxyHandler<T extends object> =
 
     get(
         shadowTarget: T,
-        p: string | symbol,
+        p: propertyKey,
         receiver: unknown,
 
         nextTarget: T,
@@ -58,7 +62,7 @@ type ShadowProxyHandler<T extends object> =
 
     getOwnPropertyDescriptor(
         shadowTarget: T,
-        p: string | symbol,
+        p: propertyKey,
 
         nextTarget: T,
         nextHandler: Required<ProxyHandler<T>>
@@ -73,7 +77,7 @@ type ShadowProxyHandler<T extends object> =
 
     has(
         shadowTarget: T,
-        p: string | symbol,
+        p: propertyKey,
 
         nextTarget: T,
         nextHandler: Required<ProxyHandler<T>>
@@ -91,7 +95,7 @@ type ShadowProxyHandler<T extends object> =
 
         nextTarget: T,
         nextHandler: Required<ProxyHandler<T>>
-    ): ArrayLike<string | symbol>;
+    ): ArrayLike<propertyKey>;
 
     preventExtensions(
         shadowTarget: T,
@@ -102,7 +106,7 @@ type ShadowProxyHandler<T extends object> =
 
     set(
         shadowTarget: T,
-        p: string | symbol,
+        p: propertyKey,
         value: unknown,
         receiver: unknown,
 
@@ -124,4 +128,4 @@ type ShadowProxyHandler<T extends object> =
     ): boolean;
 }
 
-export { ShadowProxyHandler, ReflectHandler };
+export { ShadowProxyHandler };

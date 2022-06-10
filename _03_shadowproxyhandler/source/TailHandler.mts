@@ -1,3 +1,4 @@
+import type { propertyKey } from "../../_02_membrane_utilities/source/publicUtilities.mjs";
 import type { ShadowProxyHandler } from "./ShadowProxyHandler.mjs";
 
 export default class TailHandler<T extends object> implements ShadowProxyHandler<T>
@@ -40,7 +41,7 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
 
     defineProperty(
         shadowTarget: T,
-        p: string | symbol,
+        p: propertyKey,
         attributes: PropertyDescriptor,
         
         nextTarget: T,
@@ -56,7 +57,7 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
 
     deleteProperty(
         shadowTarget: T,
-        p: string | symbol,
+        p: propertyKey,
         
         nextTarget: T,
         nextHandler: Required<ProxyHandler<T>>
@@ -68,7 +69,7 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
 
     get(
         shadowTarget: T,
-        p: string | symbol,
+        p: propertyKey,
         receiver: unknown,
 
         nextTarget: T,
@@ -83,7 +84,7 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
 
     getOwnPropertyDescriptor(
         shadowTarget: T,
-        p: string | symbol,
+        p: propertyKey,
 
         nextTarget: T,
         nextHandler: Required<ProxyHandler<T>>
@@ -106,7 +107,7 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
 
     has(
         shadowTarget: T,
-        p: string | symbol,
+        p: propertyKey,
 
         nextTarget: T,
         nextHandler: Required<ProxyHandler<T>>
@@ -132,7 +133,7 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
 
         nextTarget: T,
         nextHandler: Required<ProxyHandler<T>>
-    ) : ArrayLike<string | symbol>
+    ) : ArrayLike<propertyKey>
     {
         void(shadowTarget);
         return nextHandler.ownKeys(nextTarget);
@@ -151,7 +152,7 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
 
     set(
         shadowTarget: T,
-        p: string | symbol,
+        p: propertyKey,
         value: unknown,
         receiver: unknown,
 
