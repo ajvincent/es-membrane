@@ -6,126 +6,126 @@ void(Reflect as Required<ProxyHandler<object>>);
 
 type ShadowProxyHandler<T extends object> =
 {
-    apply(
-        shadowTarget: T,
-        thisArg: unknown,
-        argArray: unknown[],
+  apply(
+    shadowTarget: T,
+    thisArg: unknown,
+    argArray: unknown[],
 
-        nextTarget: T,
-        nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: T,
+    nextHandler: Required<ProxyHandler<T>>,
 
-        nextThisArg: unknown,
-        nextArgArray: unknown[]
-    ): unknown;
+    nextThisArg: unknown,
+    nextArgArray: unknown[]
+  ): unknown;
 
-    construct(
-        shadowTarget: T,
-        argArray: unknown[],
-        newTarget: Function,
+  construct(
+    shadowTarget: T,
+    argArray: unknown[],
+    newTarget: Function,
 
-        nextTarget: T,
-        nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: T,
+    nextHandler: Required<ProxyHandler<T>>,
 
-        nextArgArray: unknown[],
-        nextNewTarget: Function
-    ): object;
+    nextArgArray: unknown[],
+    nextNewTarget: Function
+  ): object;
 
-    defineProperty(
-        shadowTarget: T,
-        p: propertyKey,
-        attributes: PropertyDescriptor,
+  defineProperty(
+    shadowTarget: T,
+    p: propertyKey,
+    attributes: PropertyDescriptor,
 
-        nextTarget: T,
-        nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: T,
+    nextHandler: Required<ProxyHandler<T>>,
 
-        nextAttributes: PropertyDescriptor
-    ): boolean;
+    nextAttributes: PropertyDescriptor
+  ): boolean;
 
-    deleteProperty(
-        shadowTarget: T,
-        p: propertyKey,
+  deleteProperty(
+    shadowTarget: T,
+    p: propertyKey,
 
-        nextTarget: T,
-        nextHandler: Required<ProxyHandler<T>>
-    ): boolean;
+    nextTarget: T,
+    nextHandler: Required<ProxyHandler<T>>
+  ): boolean;
 
-    get(
-        shadowTarget: T,
-        p: propertyKey,
-        receiver: unknown,
+  get(
+    shadowTarget: T,
+    p: propertyKey,
+    receiver: unknown,
 
-        nextTarget: T,
-        nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: T,
+    nextHandler: Required<ProxyHandler<T>>,
 
-        nextReceiver: unknown
-    ): unknown;
+    nextReceiver: unknown
+  ): unknown;
 
-    getOwnPropertyDescriptor(
-        shadowTarget: T,
-        p: propertyKey,
+  getOwnPropertyDescriptor(
+    shadowTarget: T,
+    p: propertyKey,
 
-        nextTarget: T,
-        nextHandler: Required<ProxyHandler<T>>
-    ): PropertyDescriptor | undefined;
+    nextTarget: T,
+    nextHandler: Required<ProxyHandler<T>>
+  ): PropertyDescriptor | undefined;
 
-    getPrototypeOf(
-        shadowTarget: T,
+  getPrototypeOf(
+    shadowTarget: T,
 
-        nextTarget: T,
-        nextHandler: Required<ProxyHandler<T>>
-    ): object | null;
+    nextTarget: T,
+    nextHandler: Required<ProxyHandler<T>>
+  ): object | null;
 
-    has(
-        shadowTarget: T,
-        p: propertyKey,
+  has(
+    shadowTarget: T,
+    p: propertyKey,
 
-        nextTarget: T,
-        nextHandler: Required<ProxyHandler<T>>
-    ): boolean;
+    nextTarget: T,
+    nextHandler: Required<ProxyHandler<T>>
+  ): boolean;
 
-    isExtensible(
-        shadowTarget: T,
+  isExtensible(
+    shadowTarget: T,
 
-        nextTarget: T,
-        nextHandler: Required<ProxyHandler<T>>
-    ): boolean;
+    nextTarget: T,
+    nextHandler: Required<ProxyHandler<T>>
+  ): boolean;
 
-    ownKeys(
-        shadowTarget: T,
+  ownKeys(
+    shadowTarget: T,
 
-        nextTarget: T,
-        nextHandler: Required<ProxyHandler<T>>
-    ): ArrayLike<propertyKey>;
+    nextTarget: T,
+    nextHandler: Required<ProxyHandler<T>>
+  ): ArrayLike<propertyKey>;
 
-    preventExtensions(
-        shadowTarget: T,
+  preventExtensions(
+    shadowTarget: T,
 
-        nextTarget: T,
-        nextHandler: Required<ProxyHandler<T>>
-    ): boolean;
+    nextTarget: T,
+    nextHandler: Required<ProxyHandler<T>>
+  ): boolean;
 
-    set(
-        shadowTarget: T,
-        p: propertyKey,
-        value: unknown,
-        receiver: unknown,
+  set(
+    shadowTarget: T,
+    p: propertyKey,
+    value: unknown,
+    receiver: unknown,
 
-        nextTarget: T,
-        nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: T,
+    nextHandler: Required<ProxyHandler<T>>,
 
-        nextValue: unknown,
-        nextReceiver: unknown
-    ): boolean;
+    nextValue: unknown,
+    nextReceiver: unknown
+  ): boolean;
 
-    setPrototypeOf(
-        shadowTarget: T,
-        proto: object | null,
+  setPrototypeOf(
+    shadowTarget: T,
+    proto: object | null,
 
-        nextTarget: T,
-        nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: T,
+    nextHandler: Required<ProxyHandler<T>>,
 
-        nextProto: object | null
-    ): boolean;
+    nextProto: object | null
+  ): boolean;
 }
 
 export { ShadowProxyHandler };
