@@ -4,7 +4,7 @@ import type {
 
 import type {
   NumberStringType
-} from "../spec/fixtures/NumberStringType.mjs";
+} from "./fixtures/NumberStringType.mjs";
 
 import {
   NST_CONTINUE,
