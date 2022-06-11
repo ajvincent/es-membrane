@@ -31,7 +31,9 @@ export type ComponentPassThroughClass<ClassType extends object> = {
     ClassType[Property];
 }
 
-export type ComponentPassThroughMap<ClassType extends object> = Map<string, ComponentPassThroughClass<ClassType>>;
+export type ComponentPassThroughMap<
+  ClassType extends object
+> = Map<string | symbol, ComponentPassThroughClass<ClassType>>;
 
 // #region class implementing PassThroughType
 
@@ -40,14 +42,14 @@ export class PassThroughArgument<MethodType extends AnyFunction> implements Pass
   modifiedArguments: Parameters<MethodType>;
   [PassThroughSymbol] = true;
 
-  #initialTarget: string;
-  #callbackMap: Map<string, MaybePassThrough<MethodType>>;
+  #initialTarget: string | symbol;
+  #callbackMap: Map<string | symbol, MaybePassThrough<MethodType>>;
 
-  #visitedTargets: Set<string> = new Set;
+  #visitedTargets: Set<string | symbol> = new Set;
 
   constructor(
-    initialTarget: string,
-    callbacks: [string, MaybePassThrough<MethodType>][],
+    initialTarget: string | symbol,
+    callbacks: [string | symbol, MaybePassThrough<MethodType>][],
     initialArguments: Parameters<MethodType>
   )
   {
@@ -60,15 +62,15 @@ export class PassThroughArgument<MethodType extends AnyFunction> implements Pass
     this.modifiedArguments = initialArguments;
   }
 
-  callTarget(key: string) : ReturnOrPassThroughType<MethodType>
+  callTarget(key: string | symbol) : ReturnOrPassThroughType<MethodType>
   {
     if (this.#visitedTargets.has(key))
-      throw new Error(`Visited target "${key}"!`)
+      throw new Error(`Visited target "${String(key)}"!`)
     this.#visitedTargets.add(key);
 
     const target = this.#callbackMap.get(key);
     if (!target)
-      throw new Error(`Missing target "${key}"!`);
+      throw new Error(`Missing target "${String(key)}"!`);
     return target(this, ...this.modifiedArguments);
   }
 

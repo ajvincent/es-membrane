@@ -17,7 +17,7 @@ import type {
 } from "../../spec/fixtures/NumberStringType.mjs";
 
 export function NumberStringType_ClassesUnderTest (
-  initialTarget: string,
+  initialTarget: string | symbol,
   passThroughMap: ComponentPassThroughMap<NumberStringType>
 ) : NumberStringType
 {
@@ -32,7 +32,7 @@ export function NumberStringType_ClassesUnderTest (
       type __maybePassThroughType__ = MaybePassThrough<__targetMethodType__>;
       type __returnOrPassThroughType__ = ReturnOrPassThroughType<__targetMethodType__>;
 
-      const __keyAndCallbackArray__: [string, __maybePassThroughType__][] = [];
+      const __keyAndCallbackArray__: [string | symbol, __maybePassThroughType__][] = [];
 
       passThroughMap.forEach((component, key) => {
         const __method__ = Reflect.get(component, __methodName__) as __maybePassThroughType__;
@@ -76,9 +76,13 @@ export function NumberStringType_ClassesUnderTest (
 }
 
 export class NumberStringType_Driver implements ComponentPassThroughClass<NumberStringType> {
-  #subkeys: ReadonlyArray<string>;
+  #subkeys: ReadonlyArray<string | symbol>;
   readonly #map: ComponentPassThroughMap<NumberStringType>;
-  constructor(key: string, subkeys: string[], map: ComponentPassThroughMap<NumberStringType>)
+  constructor(
+    key: string | symbol,
+    subkeys: (string | symbol)[],
+    map: ComponentPassThroughMap<NumberStringType>
+  )
   {
     this.#subkeys = subkeys;
     this.#map = map;
@@ -95,7 +99,7 @@ export class NumberStringType_Driver implements ComponentPassThroughClass<Number
     for (const key of this.#subkeys)
     {
       if (!this.#map.has(key))
-        throw new Error(`No component pass through for key "${key}"!`);
+        throw new Error(`No component pass through for key "${String(key)}"!`);
     }
 
     let result: ReturnOrPassThroughType<__targetMethodType__> = __previousResults__;
@@ -136,8 +140,14 @@ export class NumberStringType_Driver implements ComponentPassThroughClass<Number
     );
   }
 
-  static build(key: string, subkeys: string[], map: ComponentPassThroughMap<NumberStringType>) : void
+  static build(
+    symbolKey: string,
+    subkeys: (string | symbol)[],
+    map: ComponentPassThroughMap<NumberStringType>
+  ) : symbol
   {
+    const key = Symbol(symbolKey)
     void(new NumberStringType_Driver(key, subkeys, map))
+    return key;
   }
 }

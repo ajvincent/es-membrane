@@ -23,16 +23,12 @@ it("DirectDriver mockup returns a sane value", () => {
   NST_COMPONENT_MAP.set("result", NST_RESULT);
   NST_COMPONENT_MAP.set("throw", NST_THROW);
   
-  NumberStringType_Driver.build(
+  const key = NumberStringType_Driver.build(
     "driver",
     ["continue", "result", "throw"],
     NST_COMPONENT_MAP
   );
   
-  const TestClass = NumberStringType_ClassesUnderTest(
-    "driver",
-    NST_COMPONENT_MAP
-  );
-
+  const TestClass = NumberStringType_ClassesUnderTest(key, NST_COMPONENT_MAP);
   expect(TestClass.repeatForward("foo", 3)).toBe("foofoofoo");
 });
