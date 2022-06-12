@@ -1,4 +1,4 @@
-import { DefaultMap } from "../../../_01_build/source/utilities/DefaultMap.mjs";
+import { DefaultMap } from "../../../build/source/utilities/DefaultMap.mjs";
 
 export default class SpyBase
 {

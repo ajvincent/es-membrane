@@ -1,5 +1,10 @@
 {
   "spec_files": [
+    "build/spec/**/*.mjs",
+    "!build/spec/fixtures/**/*.mjs",
+    "!build/spec/generated/**/*.mjs",
+    "!build/spec/support/**/*.mjs",
+
     "_*/spec/**/*.mjs",
     "!_*/spec/fixtures/**/*.mjs",
     "!_*/spec/generated/**/*.mjs",
