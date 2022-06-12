@@ -1,7 +1,8 @@
 import { BuildPromiseSet } from "./utilities/BuildPromise.mjs";
-import { Deferred, PromiseAllParallel } from "./utilities/PromiseTypes.mjs";
+import { Deferred, PromiseAllParallel, PromiseAllSequence } from "./utilities/PromiseTypes.mjs";
 import InvokeTSC from "./utilities/InvokeTSC.mjs";
 import readDirsDeep from "./utilities/readDirsDeep.mjs";
+import tempDirWithCleanup from "./utilities/tempDirWithCleanup.mjs";
 
 import fs from "fs/promises";
 import path from "path";
@@ -173,8 +174,51 @@ class DirStage
   stages.addSubtarget("clean");
 }
 
+{ // 01_build:rebuild
+  const copyFilesRecursively = async function(src: string, dest: string) : Promise<void>
+  {
+    const items = await readDirsDeep(src);
+    await PromiseAllSequence(items.dirs, async dir => {
+      dir = dir.replace(src, dest);
+      await fs.mkdir(dir, { recursive: true });
+    });
+
+    await PromiseAllSequence(items.files, async srcFile => {
+      const destFile = srcFile.replace(src, dest);
+      await fs.copyFile(srcFile, destFile);
+    });
+  }
+
+  const outerRebuild = BPSet.get("_01_build:rebuild");
+  const innerRebuild = BPSet.get("_01_build:build");
+  const innerTSC     = BPSet.get("_01_build:tsc");
+
+  outerRebuild.addTask(async () => {
+    const temp = await tempDirWithCleanup();
+    await copyFilesRecursively(path.resolve("_01_build"), temp.tempDir);
+
+    try {
+      await innerRebuild.run();
+      await innerTSC.run();
+    }
+    catch (ex) {
+      await fs.copyFile(path.resolve("_01_build", "ts-stdout.txt"), path.resolve(temp.tempDir, "ts-stdout.txt"));
+      await fs.copyFile(path.resolve("_01_build", "tsconfig.json"), path.resolve(temp.tempDir, "tsconfig.json"));
+
+      await copyFilesRecursively(temp.tempDir, path.resolve("_01_build"));
+
+      throw ex;
+    }
+    finally {
+      temp.resolve(true);
+      await temp.promise;
+    }
+  });
+}
+
 { // stages
-  BPSet.get("stages");
+  const stages = BPSet.get("stages");
+  stages.addSubtarget("_01_build:rebuild");
   stageDirs.forEach((dir, index) => DirStage.buildTask(dir, stageDirs.slice(0, index)));
 }
 
