@@ -5,9 +5,11 @@ _*/**/ts-stdout.txt
 _*/**/tsconfig.json
 
 _*/**/*.mjs
-!_01_build/source/**/*.mjs
 _*/**/*.mjs.map
 _*/**/*.d.mts
 
 build/**/*.mjs.map
 build/**/*.d.mts
+build/**/tsconfig.json
+build/tsconfig.json
+build/**/ts-stdout.txt

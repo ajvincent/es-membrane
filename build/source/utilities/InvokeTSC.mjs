@@ -50,6 +50,7 @@ const InvokeTSC = {
                 "lib": ["es2021"],
                 "module": "es2022",
                 "target": "es2022",
+                "moduleResolution": "node16",
                 "sourceMap": true,
                 "declaration": true,
             },
