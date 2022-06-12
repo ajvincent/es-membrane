@@ -58,14 +58,14 @@ class DirStage {
         BPSet.get(dir + ":build").addTask(async () => await this.#runBuild());
     }
     async #clean() {
-        const isBuildDir = this.#dir.includes("/_01_build");
+        const isBuildDir = this.#dir.includes("/build");
         let { files } = await readDirsDeep(this.#dir);
         files = files.filter(f => /(?<!\.d)\.mts$/.test(f));
         if (files.length === 0)
             return;
         files = files.flatMap(f => {
             return [
-                !isBuildDir || f.includes("/_01_build/spec/") ? f.replace(".mts", ".mjs") : "",
+                !isBuildDir || f.includes("/build/spec/") ? f.replace(".mts", ".mjs") : "",
                 f.replace(".mts", ".mjs.map"),
                 f.replace(".mts", ".d.mts"),
             ];
@@ -136,20 +136,20 @@ class DirStage {
             await fs.copyFile(srcFile, destFile);
         });
     };
-    const outerRebuild = BPSet.get("_01_build:rebuild");
-    const innerRebuild = BPSet.get("_01_build:build");
-    const innerTSC = BPSet.get("_01_build:tsc");
+    const outerRebuild = BPSet.get("build:rebuild");
+    const innerRebuild = BPSet.get("build:build");
+    const innerTSC = BPSet.get("build:tsc");
     outerRebuild.addTask(async () => {
         const temp = await tempDirWithCleanup();
-        await copyFilesRecursively(path.resolve("_01_build"), temp.tempDir);
+        await copyFilesRecursively(path.resolve("build"), temp.tempDir);
         try {
             await innerRebuild.run();
             await innerTSC.run();
         }
         catch (ex) {
-            await fs.copyFile(path.resolve("_01_build", "ts-stdout.txt"), path.resolve(temp.tempDir, "ts-stdout.txt"));
-            await fs.copyFile(path.resolve("_01_build", "tsconfig.json"), path.resolve(temp.tempDir, "tsconfig.json"));
-            await copyFilesRecursively(temp.tempDir, path.resolve("_01_build"));
+            await fs.copyFile(path.resolve("build", "ts-stdout.txt"), path.resolve(temp.tempDir, "ts-stdout.txt"));
+            await fs.copyFile(path.resolve("build", "tsconfig.json"), path.resolve(temp.tempDir, "tsconfig.json"));
+            await copyFilesRecursively(temp.tempDir, path.resolve("build"));
             throw ex;
         }
         finally {
@@ -160,7 +160,7 @@ class DirStage {
 }
 { // stages
     const stages = BPSet.get("stages");
-    stages.addSubtarget("_01_build:rebuild");
+    stages.addSubtarget("build:rebuild");
     stageDirs.forEach((dir, index) => DirStage.buildTask(dir, stageDirs.slice(0, index)));
 }
 { // test

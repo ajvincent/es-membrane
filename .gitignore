@@ -8,3 +8,6 @@ _*/**/*.mjs
 !_01_build/source/**/*.mjs
 _*/**/*.mjs.map
 _*/**/*.d.mts
+
+build/**/*.mjs.map
+build/**/*.d.mts
