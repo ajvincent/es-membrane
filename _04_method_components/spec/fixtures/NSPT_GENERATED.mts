@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyFunction = (...args: any[]) => any;
+import type { AnyFunction } from "../../source/AnyFunction.mjs";
 
 import type {
   PassThroughType,
@@ -9,8 +8,9 @@ import type {
   ComponentPassThroughMap,
 } from "../../source/PassThroughSupport.mjs";
 import {
-  PassThroughArgument,
-} from "../../source/PassThroughSupport.mjs";
+  ForwardTo_Base,
+  INVOKE_SYMBOL,
+} from "../../source/GenerateTypedPassThrough.mjs";
 
 import type {
   NumberStringType
@@ -21,55 +21,39 @@ export function NumberStringType_ClassesUnderTest (
   passThroughMap: ComponentPassThroughMap<NumberStringType>
 ) : NumberStringType
 {
-  class NumberString_ForwardTo implements NumberStringType
+  class NumberString_ForwardTo extends ForwardTo_Base implements NumberStringType
   {
-    #invoke<__targetMethodType__ extends AnyFunction>(
-      __methodName__: string,
-      __args__: Parameters<__targetMethodType__>
-    ): ReturnType<__targetMethodType__>
-    {
-      type __passThroughType__ = PassThroughType<__targetMethodType__>;
-      type __maybePassThroughType__ = MaybePassThrough<__targetMethodType__>;
-      type __returnOrPassThroughType__ = ReturnOrPassThroughType<__targetMethodType__>;
-
-      const __keyAndCallbackArray__: [string | symbol, __maybePassThroughType__][] = [];
-
-      passThroughMap.forEach((component, key) => {
-        const __method__ = Reflect.get(component, __methodName__) as __maybePassThroughType__;
-        const __callback__ = (
-          __passThrough__: __passThroughType__,
-          ...__args__: Parameters<__targetMethodType__>
-        ): __returnOrPassThroughType__ =>
-        {
-          return __method__.apply(component, [__passThrough__, ...__args__]);
-        };
-        __keyAndCallbackArray__.push([key, __callback__]);
-      });
-
-      if (!passThroughMap.has(initialTarget)) {
-        throw new Error("No initial target?");
-      }
-
-      const __passThrough__ = new PassThroughArgument<__targetMethodType__>(
-        initialTarget, __keyAndCallbackArray__, __args__
-      )
-
-      return __passThrough__.run();
-    }
-
     repeatBack(
       ...__args__: Parameters<NumberStringType["repeatBack"]>
     ): ReturnType<NumberStringType["repeatBack"]>
     {
-      return this.#invoke<NumberStringType["repeatBack"]>("repeatBack", __args__);
+      return this[INVOKE_SYMBOL]<
+        NumberStringType["repeatBack"],
+        NumberStringType
+      >
+      (
+        initialTarget,
+        passThroughMap,
+        "repeatBack",
+         __args__
+      );
     }
 
     repeatForward(
       ...__args__: Parameters<NumberStringType["repeatForward"]>
     ): ReturnType<NumberStringType["repeatForward"]>
     {
-      return this.#invoke<NumberStringType["repeatForward"]>("repeatForward", __args__);
-    }
+      return this[INVOKE_SYMBOL]<
+        NumberStringType["repeatForward"],
+        NumberStringType
+      >
+      (
+        initialTarget,
+        passThroughMap,
+          "repeatForward",
+          __args__
+        );
+      }
   }
 
   return new NumberString_ForwardTo;
