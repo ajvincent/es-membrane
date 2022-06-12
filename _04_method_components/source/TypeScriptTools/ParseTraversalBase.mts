@@ -91,10 +91,9 @@ export class ParseTraversalBase
     }
   }
 
-  unsupportedNode(kind: string, node: TypeScript.Node) : boolean
+  unsupportedNode(kind: string, node: TypeScript.Node) : void
   {
     console.warn("Unsupported node kind: ", kind, node);
-    return false;
   }
   // #endregion traversal support
 }
