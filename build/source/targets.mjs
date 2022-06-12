@@ -1,11 +1,11 @@
 import { BuildPromiseSet } from "./utilities/BuildPromise.mjs";
-import { Deferred, PromiseAllParallel, PromiseAllSequence } from "./utilities/PromiseTypes.mjs";
+import { PromiseAllParallel, PromiseAllSequence } from "./utilities/PromiseTypes.mjs";
+import { runModule } from "./utilities/runModule.mjs";
 import InvokeTSC from "./utilities/InvokeTSC.mjs";
 import readDirsDeep from "./utilities/readDirsDeep.mjs";
 import tempDirWithCleanup from "./utilities/tempDirWithCleanup.mjs";
 import fs from "fs/promises";
 import path from "path";
-import { fork } from 'child_process';
 let stageDirs;
 {
     const root = path.resolve();
@@ -26,23 +26,6 @@ let stageDirs;
     });
     stageDirs = stageDirs.filter(Boolean);
 }
-/**
- * Run a specific submodule.
- *
- * @param pathToModule  - The module to run.
- * @param moduleArgs    - Arguments we pass into the module.
- * @param extraNodeArgs - Arguments we pass to node.
- * @see /build/tools/generateCollectionTools.mjs
- */
-function runModule(pathToModule, moduleArgs = [], extraNodeArgs = []) {
-    const d = new Deferred;
-    const child = fork(pathToModule, moduleArgs, {
-        execArgv: process.execArgv.concat("--expose-gc", ...extraNodeArgs),
-        silent: false
-    });
-    child.on('exit', code => code ? d.reject(code) : d.resolve());
-    return d.promise;
-}
 const BPSet = new BuildPromiseSet(true);
 class DirStage {
     #dir;
@@ -50,12 +33,13 @@ class DirStage {
     constructor(dir, allDirs) {
         this.#dir = path.resolve(dir);
         this.#allDirs = allDirs;
-        const subtarget = BPSet.get(dir);
-        DirStage.#subtasks.forEach(subtask => subtarget.addSubtarget(dir + ":" + subtask));
-        BPSet.get("clean").addSubtarget(dir + ":clean");
         BPSet.get(dir + ":clean").addTask(async () => await this.#clean());
         BPSet.get(dir + ":tsc").addTask(async () => await this.#runTSC());
         BPSet.get(dir + ":build").addTask(async () => await this.#runBuild());
+    }
+    addSubtargets(dir) {
+        const subtarget = BPSet.get(dir);
+        DirStage.#subtasks.forEach(subtask => subtarget.addSubtarget(dir + ":" + subtask));
     }
     async #clean() {
         const isBuildDir = this.#dir.includes("/build");
@@ -116,7 +100,10 @@ class DirStage {
     static buildTask(dir, allDirs) {
         const target = BPSet.get("stages");
         target.addSubtarget(dir);
-        return new DirStage(dir, allDirs);
+        const stage = new DirStage(dir, allDirs);
+        stage.addSubtargets(dir);
+        BPSet.get("clean").addSubtarget(dir + ":clean");
+        return stage;
     }
 }
 { // clean
@@ -124,7 +111,7 @@ class DirStage {
     const stages = BPSet.get("stages");
     stages.addSubtarget("clean");
 }
-{ // 01_build:rebuild
+{ // build:rebuild
     const copyFilesRecursively = async function (src, dest) {
         const items = await readDirsDeep(src);
         await PromiseAllSequence(items.dirs, async (dir) => {
@@ -137,12 +124,16 @@ class DirStage {
         });
     };
     const outerRebuild = BPSet.get("build:rebuild");
-    const innerRebuild = BPSet.get("build:build");
-    const innerTSC = BPSet.get("build:tsc");
+    const fullDir = path.resolve("build");
+    void (new DirStage(fullDir, []));
+    const innerClean = BPSet.get(fullDir + ":clean");
+    const innerRebuild = BPSet.get(fullDir + ":build");
+    const innerTSC = BPSet.get(fullDir + ":tsc");
     outerRebuild.addTask(async () => {
         const temp = await tempDirWithCleanup();
         await copyFilesRecursively(path.resolve("build"), temp.tempDir);
         try {
+            await innerClean.run();
             await innerRebuild.run();
             await innerTSC.run();
         }
@@ -159,8 +150,7 @@ class DirStage {
     });
 }
 { // stages
-    const stages = BPSet.get("stages");
-    stages.addSubtarget("build:rebuild");
+    void (BPSet.get("stages"));
     stageDirs.forEach((dir, index) => DirStage.buildTask(dir, stageDirs.slice(0, index)));
 }
 { // test
@@ -178,7 +168,9 @@ class DirStage {
     const args = [
         "--max-warnings=0"
     ];
-    const dirs = await PromiseAllParallel(stageDirs, async (stageDir) => {
+    let dirs = stageDirs.slice();
+    dirs.push(path.resolve("build"));
+    dirs = await PromiseAllParallel(dirs, async (stageDir) => {
         const { files } = await readDirsDeep(path.resolve(stageDir));
         return files.some(f => f.endsWith(".mjs")) ? stageDir : "";
     });

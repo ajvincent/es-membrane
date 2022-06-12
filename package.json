@@ -4,12 +4,12 @@
   "description": "An ECMAScript implementation of a Membrane, allowing users to dynamically hide, override, or extend objects in JavaScript with controlled effects on the original objects.",
   "main": "docs/dist/node/es-membrane.js",
   "scripts": {
-    "clean": "node ./build/source/main.mjs clean",
-    "debug": "node ./build/source/main.mjs debug",
-    "eslint": "node ./build/source/main.mjs eslint",
-    "build": "node ./build/source/main.mjs stages",
-    "test": "node ./build/source/main.mjs test",
-    "all": "node ./build/source/main.mjs clean stages test eslint"
+    "clean": "node ./build/source/mainWithBuild.mjs clean",
+    "debug": "node ./build/source/mainWithBuild.mjs debug",
+    "eslint": "node ./build/source/mainWithBuild.mjs eslint",
+    "build": "node ./build/source/mainWithBuild.mjs stages",
+    "test": "node ./build/source/mainWithBuild.mjs test",
+    "all": "node ./build/source/mainWithBuild.mjs clean stages test eslint"
   },
   "repository": {
     "type": "git",
