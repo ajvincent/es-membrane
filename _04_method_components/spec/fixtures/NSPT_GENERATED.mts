@@ -1,14 +1,13 @@
-import type { AnyFunction } from "../../source/AnyFunction.mjs";
-
 import type {
   PassThroughType,
   ReturnOrPassThroughType,
-  MaybePassThrough,
   ComponentPassThroughClass,
   ComponentPassThroughMap,
 } from "../../source/PassThroughSupport.mjs";
+
 import {
   ForwardTo_Base,
+  MultiDriver_Base,
   INVOKE_SYMBOL,
 } from "../../source/GenerateTypedPassThrough.mjs";
 
@@ -59,45 +58,19 @@ export function NumberStringType_ClassesUnderTest (
   return new NumberString_ForwardTo;
 }
 
-export class NumberStringType_Driver implements ComponentPassThroughClass<NumberStringType> {
-  #subkeys: ReadonlyArray<string | symbol>;
-  readonly #map: ComponentPassThroughMap<NumberStringType>;
-  constructor(
-    key: string | symbol,
+export class NumberStringType_Driver
+       extends MultiDriver_Base<NumberStringType>
+       implements ComponentPassThroughClass<NumberStringType>
+{
+  static build(
+    symbolKey: string,
     subkeys: (string | symbol)[],
     map: ComponentPassThroughMap<NumberStringType>
-  )
+  ) : symbol
   {
-    this.#subkeys = subkeys;
-    this.#map = map;
-
-    map.set(key, this);
-  }
-
-  #invoke<__targetMethodType__ extends AnyFunction>(
-    __methodName__: string,
-    __previousResults__: PassThroughType<__targetMethodType__>,
-    __args__: Parameters<__targetMethodType__>
-  ): ReturnOrPassThroughType<__targetMethodType__>
-  {
-    for (const key of this.#subkeys)
-    {
-      if (!this.#map.has(key))
-        throw new Error(`No component pass through for key "${String(key)}"!`);
-    }
-
-    let result: ReturnOrPassThroughType<__targetMethodType__> = __previousResults__;
-    for (const key of this.#subkeys)
-    {
-      const entry = this.#map.get(key) as ComponentPassThroughClass<__targetMethodType__>;
-
-      const callback = Reflect.get(entry, __methodName__) as MaybePassThrough<__targetMethodType__>;
-      result = callback(__previousResults__, ...__args__);
-      if (result !== __previousResults__)
-        break;
-    }
-
-    return result;
+    const key = Symbol(symbolKey);
+    void(new NumberStringType_Driver(key, subkeys, map));
+    return key;
   }
 
   repeatBack(
@@ -105,7 +78,7 @@ export class NumberStringType_Driver implements ComponentPassThroughClass<Number
     ...__args__: Parameters<NumberStringType["repeatBack"]>
   ): ReturnOrPassThroughType<NumberStringType["repeatBack"]>
   {
-    return this.#invoke<NumberStringType["repeatBack"]>(
+    return this[INVOKE_SYMBOL]<NumberStringType["repeatBack"]>(
       "repeatBack",
       __previousResults__,
       __args__
@@ -117,21 +90,10 @@ export class NumberStringType_Driver implements ComponentPassThroughClass<Number
     ...__args__: Parameters<NumberStringType["repeatForward"]>
   ): string | PassThroughType<NumberStringType["repeatForward"]>
   {
-    return this.#invoke<NumberStringType["repeatForward"]>(
+    return this[INVOKE_SYMBOL]<NumberStringType["repeatForward"]>(
       "repeatForward",
       __previousResults__,
       __args__
     );
-  }
-
-  static build(
-    symbolKey: string,
-    subkeys: (string | symbol)[],
-    map: ComponentPassThroughMap<NumberStringType>
-  ) : symbol
-  {
-    const key = Symbol(symbolKey)
-    void(new NumberStringType_Driver(key, subkeys, map))
-    return key;
   }
 }

@@ -14,6 +14,7 @@ import type {
   PassThroughType,
   ReturnOrPassThroughType,
   MaybePassThrough,
+  ComponentPassThroughClass,
   ComponentPassThroughMap,
 } from "./PassThroughSupport.mjs";
 import {
@@ -61,6 +62,51 @@ export class ForwardTo_Base {
     return __passThrough__.run();
   }
 }
+
+export class MultiDriver_Base<ClassType extends object>
+{
+  #subkeys: ReadonlyArray<string | symbol>;
+  readonly #map: ComponentPassThroughMap<ClassType>;
+  constructor(
+    key: string | symbol,
+    subkeys: (string | symbol)[],
+    map: ComponentPassThroughMap<ClassType>
+  )
+  {
+    this.#subkeys = subkeys;
+    this.#map = map;
+
+    map.set(key, this as unknown as ComponentPassThroughClass<ClassType>)
+  }
+
+  protected [INVOKE_SYMBOL]<__targetMethodType__ extends AnyFunction>
+  (
+    __methodName__: string,
+    __previousResults__: PassThroughType<__targetMethodType__>,
+    __args__: Parameters<__targetMethodType__>
+  ): ReturnOrPassThroughType<__targetMethodType__>
+  {
+    for (const key of this.#subkeys)
+    {
+      if (!this.#map.has(key))
+        throw new Error(`No component pass through for key "${String(key)}"!`);
+    }
+
+    let result: ReturnOrPassThroughType<__targetMethodType__> = __previousResults__;
+    for (const key of this.#subkeys)
+    {
+      const entry = this.#map.get(key) as ComponentPassThroughClass<ClassType>;
+
+      const callback = Reflect.get(entry, __methodName__) as MaybePassThrough<__targetMethodType__>;
+      result = callback(__previousResults__, ...__args__);
+      if (result !== __previousResults__)
+        break;
+    }
+
+    return result;
+  }
+}
+
 export async function GenerateTypedPassThrough(
 
 ) : Promise<void>
