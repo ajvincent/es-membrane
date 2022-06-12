@@ -1,0 +1,120 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyFunction = (...args: any[]) => any;
+
+import type {
+  PassThroughType,
+  ReturnOrPassThroughType,
+  MaybePassThrough,
+  ComponentPassThroughClass,
+  ComponentPassThroughMap,
+} from "__PATH_TO_SUPPORT__/PassThroughSupport.mjs";
+import {
+  PassThroughArgument,
+} from "__PATH_TO_SUPPORT__/PassThroughSupport.mjs";
+
+import type {
+  __TYPE_NAME__
+} from "__PATH_TO_TYPE__/__TYPE_NAME__.mjs";
+
+export function __TYPE_NAME___ClassesUnderTest (
+  initialTarget: string | symbol,
+  passThroughMap: ComponentPassThroughMap<__TYPE_NAME__>
+) : __TYPE_NAME__
+{
+  class __TYPE_NAME___ForwardTo implements __TYPE_NAME__
+  {
+    #invoke<__targetMethodType__ extends AnyFunction>
+    (
+      __methodName__: string,
+      __args__: Parameters<__targetMethodType__>
+    ): ReturnType<__targetMethodType__>
+    {
+      type __passThroughType__ = PassThroughType<__targetMethodType__>;
+      type __maybePassThroughType__ = MaybePassThrough<__targetMethodType__>;
+      type __returnOrPassThroughType__ = ReturnOrPassThroughType<__targetMethodType__>;
+
+      const __keyAndCallbackArray__: [string | symbol, __maybePassThroughType__][] = [];
+
+      passThroughMap.forEach((component, key) => {
+        const __method__ = Reflect.get(component, __methodName__) as __maybePassThroughType__;
+        const __callback__ = (
+          __passThrough__: __passThroughType__,
+          ...__args__: Parameters<__targetMethodType__>
+        ): __returnOrPassThroughType__ =>
+        {
+          return __method__.apply(component, [__passThrough__, ...__args__]);
+        };
+        __keyAndCallbackArray__.push([key, __callback__]);
+      });
+
+      if (!passThroughMap.has(initialTarget)) {
+        throw new Error("No initial target?");
+      }
+
+      const __passThrough__ = new PassThroughArgument<__targetMethodType__>(
+        initialTarget, __keyAndCallbackArray__, __args__
+      )
+
+      return __passThrough__.run();
+    }
+
+    __FORWARD_TO_METHODS__
+  }
+
+  return new __TYPE_NAME___ForwardTo;
+}
+
+export class __TYPE_NAME___Driver implements ComponentPassThroughClass<__TYPE_NAME__> {
+  #subkeys: ReadonlyArray<string | symbol>;
+  readonly #map: ComponentPassThroughMap<__TYPE_NAME__>;
+  constructor(
+    key: string | symbol,
+    subkeys: (string | symbol)[],
+    map: ComponentPassThroughMap<__TYPE_NAME__>
+  )
+  {
+    this.#subkeys = subkeys;
+    this.#map = map;
+
+    map.set(key, this);
+  }
+
+  #invoke<__targetMethodType__ extends AnyFunction>(
+    __methodName__: string,
+    __previousResults__: PassThroughType<__targetMethodType__>,
+    __args__: Parameters<__targetMethodType__>
+  ): ReturnOrPassThroughType<__targetMethodType__>
+  {
+    for (const key of this.#subkeys)
+    {
+      if (!this.#map.has(key))
+        throw new Error(`No component pass through for key "${String(key)}"!`);
+    }
+
+    let result: ReturnOrPassThroughType<__targetMethodType__> = __previousResults__;
+    for (const key of this.#subkeys)
+    {
+      const entry = this.#map.get(key) as ComponentPassThroughClass<__targetMethodType__>;
+
+      const callback = Reflect.get(entry, __methodName__) as MaybePassThrough<__targetMethodType__>;
+      result = callback(__previousResults__, ...__args__);
+      if (result !== __previousResults__)
+        break;
+    }
+
+    return result;
+  }
+
+  __DRIVER_METHODS__
+
+  static build(
+    symbolKey: string,
+    subkeys: (string | symbol)[],
+    map: ComponentPassThroughMap<__TYPE_NAME__>
+  ) : symbol
+  {
+    const key = Symbol(symbolKey)
+    void(new __TYPE_NAME___Driver(key, subkeys, map))
+    return key;
+  }
+}
