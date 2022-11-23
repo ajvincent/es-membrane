@@ -5,10 +5,11 @@
   "main": "docs/dist/node/es-membrane.js",
   "scripts": {
     "clean": "node ./build/source/mainWithBuild.mjs clean",
-    "debug": "node ./build/source/mainWithBuild.mjs debug",
-    "eslint": "node ./build/source/mainWithBuild.mjs eslint",
     "build": "node ./build/source/mainWithBuild.mjs stages",
     "test": "node ./build/source/mainWithBuild.mjs test",
+    "eslint": "node ./build/source/mainWithBuild.mjs eslint",
+    "debug": "node ./build/source/mainWithBuild.mjs debug",
+    "build-debug": "node --inspect-brk ./build/source/main.mjs clean stages",
     "all": "node ./build/source/mainWithBuild.mjs clean stages test eslint"
   },
   "repository": {
