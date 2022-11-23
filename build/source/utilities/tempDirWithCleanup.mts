@@ -2,8 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import os from "os";
 
-import { Deferred } from "./PromiseTypes.mjs";
-import type { PromiseResolver } from "./PromiseTypes.mjs";
+import { Deferred, PromiseResolver } from "./PromiseTypes.mjs";
 
 export abstract class TemporaryDirWithPromise
 {
@@ -27,12 +26,11 @@ export default async function tempDirWithCleanup() : Promise<TemporaryDirWithPro
 {
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "es-membrane-"));
   const d = new Deferred;
-  let { promise } = d;
-  promise = promise.then(() => fs.rm(tempDir, { recursive: true }));
+  d.promise = d.promise.then(() => fs.rm(tempDir, { recursive: true }));
 
   return {
     tempDir,
     resolve: d.resolve,
-    promise,
+    promise: d.promise,
   };
 }

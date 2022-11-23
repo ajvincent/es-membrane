@@ -21,12 +21,11 @@ void (TemporaryDirWithPromise);
 export default async function tempDirWithCleanup() {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "es-membrane-"));
     const d = new Deferred;
-    let { promise } = d;
-    promise = promise.then(() => fs.rm(tempDir, { recursive: true }));
+    d.promise = d.promise.then(() => fs.rm(tempDir, { recursive: true }));
     return {
         tempDir,
         resolve: d.resolve,
-        promise,
+        promise: d.promise,
     };
 }
 //# sourceMappingURL=tempDirWithCleanup.mjs.map

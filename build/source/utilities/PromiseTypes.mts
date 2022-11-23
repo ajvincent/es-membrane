@@ -1,3 +1,5 @@
+import { setTimeout } from "timers/promises";
+
 export type PromiseResolver<T> = (value: T | PromiseLike<T>) => unknown;
 export type PromiseRejecter = (reason?: unknown) => unknown;
 
@@ -29,13 +31,10 @@ export class Deferred<T>
   }
 }
 
-export class TimeoutPromise<T> extends Deferred<T>
+export async function TimeoutPromise(delay = 5000) : Promise<never>
 {
-  constructor(limit = 5000)
-  {
-    super();
-    setTimeout(() => this.reject("Time limit expired"), limit);
-  }
+  await setTimeout(delay);
+  throw new Error("Time limit expired");
 }
 
 export class SingletonPromise<T> {

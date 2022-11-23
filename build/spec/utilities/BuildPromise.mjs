@@ -87,6 +87,11 @@ describe("BuildPromise.mts: ", () => {
                 expect(() => foo.addSubtarget("bar")).toThrowError("bar is already a subtarget of foo");
                 expect(foo.deepTargets).toEqual(["bar"]);
             });
+            it(`called with "bar" after having "bar" as a post-subtarget throws`, () => {
+                foo.addPostSubtarget("bar");
+                expect(() => foo.addSubtarget("bar")).toThrowError("bar is already a post-subtarget of foo");
+                expect(foo.deepTargets).toEqual(["bar"]);
+            });
             it(`called with "main" throws`, () => {
                 expect(() => foo.addSubtarget("main")).toThrowError("Cannot include main target");
             });
@@ -104,6 +109,61 @@ describe("BuildPromise.mts: ", () => {
                 bar.addSubtarget("wop");
                 wop.addSubtarget("foo");
                 expect(() => foo.addSubtarget("bar")).toThrowError(`"bar" already has a dependency on "foo"`);
+            });
+        });
+        describe(`.addPostSubtarget()`, () => {
+            it(`called with "bar" once adds a subtarget`, () => {
+                expect(() => foo.addPostSubtarget("bar")).not.toThrow();
+                expect(foo.deepTargets).toEqual(["bar"]);
+            });
+            it(`called with "bar" before calling bpSet.get("bar").addSubtarget("wop") shows two deep targets`, () => {
+                foo.addPostSubtarget("bar");
+                const bar = bpSet.get("bar");
+                bar.addSubtarget("wop");
+                expect(foo.deepTargets).toEqual(["bar", "wop"]);
+            });
+            it(`called with "bar" after calling bpSet.get("bar").addSubtarget("wop") shows two deep targets`, () => {
+                const bar = bpSet.get("bar");
+                bar.addSubtarget("wop");
+                foo.addPostSubtarget("bar");
+                expect(foo.deepTargets).toEqual(["bar", "wop"]);
+            });
+            it("called with two subtargets pointing to a shared third target lists the third target once", () => {
+                const bar = bpSet.get("bar");
+                bar.addPostSubtarget("shared");
+                const wop = bpSet.get("wop");
+                wop.addPostSubtarget("shared");
+                foo.addSubtarget("bar");
+                foo.addSubtarget("wop");
+                expect(foo.deepTargets).toEqual(["bar", "wop", "shared"]);
+            });
+            it(`called with "bar" twice throws`, () => {
+                foo.addPostSubtarget("bar");
+                expect(() => foo.addPostSubtarget("bar")).toThrowError("bar is already a post-subtarget of foo");
+                expect(foo.deepTargets).toEqual(["bar"]);
+            });
+            it(`called with "bar" after having "bar" as a subtarget throws`, () => {
+                foo.addSubtarget("bar");
+                expect(() => foo.addPostSubtarget("bar")).toThrowError("bar is already a subtarget of foo");
+                expect(foo.deepTargets).toEqual(["bar"]);
+            });
+            it(`called with "main" throws`, () => {
+                expect(() => foo.addPostSubtarget("main")).toThrowError("Cannot include main target");
+            });
+            it(`called with "foo" throws`, () => {
+                expect(() => foo.addPostSubtarget("foo")).toThrowError("Cannot include this as its own subtarget");
+            });
+            it(`called with "bar" after the set's "bar" promise has "foo" as a dependency throws`, () => {
+                const bar = bpSet.get("bar");
+                bar.addPostSubtarget("foo");
+                expect(() => foo.addPostSubtarget("bar")).toThrowError(`"bar" already has a dependency on "foo"`);
+            });
+            it("called with a three-deep cycle throws", () => {
+                const bar = bpSet.get("bar");
+                const wop = bpSet.get("wop");
+                bar.addPostSubtarget("wop");
+                wop.addPostSubtarget("foo");
+                expect(() => foo.addPostSubtarget("bar")).toThrowError(`"bar" already has a dependency on "foo"`);
             });
         });
         describe(".addTask()", () => {
@@ -159,6 +219,21 @@ describe("BuildPromise.mts: ", () => {
                 expect(main.deepTargets).toEqual([]);
             });
         });
+        describe(".addPostSubtarget()", () => {
+            it("cannot be called until we call bpSet.markReady()", () => {
+                expect(() => main.addPostSubtarget("foo")).toThrowError("Cannot attach targets to main target until we are ready (call BuildPromiseSet.markReady())");
+                bpSet.get("foo");
+                bpSet.markReady();
+                expect(() => main.addPostSubtarget("foo")).not.toThrow();
+                expect(main.deepTargets).toEqual(["foo"]);
+            });
+            it("throws with an unknown target", () => {
+                expect(() => main.addPostSubtarget("foo")).toThrowError("Cannot attach targets to main target until we are ready (call BuildPromiseSet.markReady())");
+                bpSet.markReady();
+                expect(() => main.addPostSubtarget("foo")).toThrowError(`Cannot add an undefined target "foo" to main!`);
+                expect(main.deepTargets).toEqual([]);
+            });
+        });
     });
     describe("Without starting, BuildPromiseSet.main.addTask()", () => {
         let main;
@@ -204,19 +279,22 @@ describe("BuildPromise.mts: ", () => {
             await expectAsync(main.run()).toBeResolved();
         });
         it("runs a full tree of successful tasks, once", async () => {
-            const task1 = createSpyPromise(true, {}), task2 = createSpyPromise(true, {}), task3 = createSpyPromise(true, {}), task4 = createSpyPromise(true, {}), task5 = createSpyPromise(true, {}), task6 = createSpyPromise(true, {});
+            const task1 = createSpyPromise(true, {}), task2 = createSpyPromise(true, {}), task3 = createSpyPromise(true, {}), task4 = createSpyPromise(true, {}), task5 = createSpyPromise(true, {}), task6 = createSpyPromise(true, {}), task7 = createSpyPromise(true, {});
             const alpha = bpSet.get("alpha");
             const beta = bpSet.get("beta");
             const gamma = bpSet.get("gamma");
             const delta = bpSet.get("delta");
+            const epsilon = bpSet.get("epsilon");
             gamma.addTask(task1);
             alpha.addSubtarget("gamma");
             alpha.addTask(task2);
             alpha.addTask(task3);
-            delta.addTask(task4);
+            epsilon.addTask(task4);
+            alpha.addPostSubtarget("epsilon");
             delta.addTask(task5);
+            delta.addTask(task6);
             beta.addSubtarget("delta");
-            beta.addTask(task6);
+            beta.addTask(task7);
             bpSet.markReady();
             bpSet.main.addSubtarget("alpha");
             bpSet.main.addSubtarget("beta");
@@ -227,11 +305,13 @@ describe("BuildPromise.mts: ", () => {
             expect(task4).toHaveBeenCalledOnceWith();
             expect(task5).toHaveBeenCalledOnceWith();
             expect(task6).toHaveBeenCalledOnceWith();
+            expect(task7).toHaveBeenCalledOnceWith();
             expect(task1).toHaveBeenCalledBefore(task2);
             expect(task2).toHaveBeenCalledBefore(task3);
             expect(task3).toHaveBeenCalledBefore(task4);
             expect(task4).toHaveBeenCalledBefore(task5);
             expect(task5).toHaveBeenCalledBefore(task6);
+            expect(task6).toHaveBeenCalledBefore(task7);
             expect(bpSet.status).toBe("completed");
             await expectAsync(bpSet.main.run()).toBeResolved();
             expect(task1).toHaveBeenCalledOnceWith();
@@ -240,23 +320,27 @@ describe("BuildPromise.mts: ", () => {
             expect(task4).toHaveBeenCalledOnceWith();
             expect(task5).toHaveBeenCalledOnceWith();
             expect(task6).toHaveBeenCalledOnceWith();
+            expect(task7).toHaveBeenCalledOnceWith();
             expect(bpSet.status).toBe("completed");
         });
         it("runs a full tree of tasks, until there is a failure", async () => {
             const errObject = {};
-            const task1 = createSpyPromise(true, {}), task2 = createSpyPromise(true, {}), task3 = createSpyPromise(false, errObject), task4 = createSpyPromise(true, {}), task5 = createSpyPromise(true, {}), task6 = createSpyPromise(true, {});
+            const task1 = createSpyPromise(true, {}), task2 = createSpyPromise(true, {}), task3 = createSpyPromise(false, errObject), task4 = createSpyPromise(true, {}), task5 = createSpyPromise(true, {}), task6 = createSpyPromise(true, {}), task7 = createSpyPromise(true, {});
             const alpha = bpSet.get("alpha");
             const beta = bpSet.get("beta");
             const gamma = bpSet.get("gamma");
             const delta = bpSet.get("delta");
+            const epsilon = bpSet.get("epsilon");
             gamma.addTask(task1);
             alpha.addSubtarget("gamma");
             alpha.addTask(task2);
             alpha.addTask(task3);
-            delta.addTask(task4);
+            epsilon.addTask(task4);
+            alpha.addPostSubtarget("epsilon");
             delta.addTask(task5);
+            delta.addTask(task6);
             beta.addSubtarget("delta");
-            beta.addTask(task6);
+            beta.addTask(task7);
             bpSet.markReady();
             bpSet.main.addSubtarget("alpha");
             bpSet.main.addSubtarget("beta");
@@ -267,6 +351,7 @@ describe("BuildPromise.mts: ", () => {
             expect(task4).toHaveBeenCalledTimes(0);
             expect(task5).toHaveBeenCalledTimes(0);
             expect(task6).toHaveBeenCalledTimes(0);
+            expect(task7).toHaveBeenCalledTimes(0);
             expect(task1).toHaveBeenCalledBefore(task2);
             expect(task2).toHaveBeenCalledBefore(task3);
             expect(bpSet.status).toBe("errored");
@@ -277,8 +362,7 @@ describe("BuildPromise.mts: ", () => {
             expect(task4).toHaveBeenCalledTimes(0);
             expect(task5).toHaveBeenCalledTimes(0);
             expect(task6).toHaveBeenCalledTimes(0);
-            expect(task1).toHaveBeenCalledBefore(task2);
-            expect(task2).toHaveBeenCalledBefore(task3);
+            expect(task7).toHaveBeenCalledTimes(0);
             expect(bpSet.status).toBe("errored");
         });
     });

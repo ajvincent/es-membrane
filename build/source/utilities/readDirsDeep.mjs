@@ -4,10 +4,10 @@ import path from "path";
  * Search recursively for directories and files, optionally filtering the directories.
  *
  * @param root   - The root directory to walk.
- * @param filter - A callback for subdirectories:  returns true if we should not walk its contents.
+ * @param filter - A callback for subdirectories:  returns false if we should not walk its contents.
  * @returns The results of the search.
  */
-export default async function readDirsDeep(root, filter = (() => false)) {
+export default async function readDirsDeep(root, filter = (() => true)) {
     const dirs = [path.normalize(root)], files = [];
     for (let i = 0; i < dirs.length; i++) {
         const currentDir = dirs[i];
@@ -18,7 +18,7 @@ export default async function readDirsDeep(root, filter = (() => false)) {
             }
             else if (entry.isDirectory()) {
                 const fullPath = path.join(currentDir, entry.name);
-                if (!filter(fullPath))
+                if (filter(fullPath))
                     dirs.push(fullPath);
             }
         });

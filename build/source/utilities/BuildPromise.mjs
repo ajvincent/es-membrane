@@ -3,6 +3,7 @@ import { DefaultMap } from "./DefaultMap.mjs";
 export class BuildPromise {
     #ownerSet;
     #subtargets = [];
+    #postSubtargets = [];
     #tasks = [];
     #runPromise;
     target;
@@ -48,12 +49,22 @@ export class BuildPromise {
         this.#tasks.push(callback);
     }
     addSubtarget(target) {
+        this.#validateAddSubtarget(target);
+        this.#subtargets.push(target);
+    }
+    addPostSubtarget(target) {
+        this.#validateAddSubtarget(target);
+        this.#postSubtargets.push(target);
+    }
+    #validateAddSubtarget(target) {
         if (target === "main")
             throw new Error("Cannot include main target");
         if (target === this.target)
             throw new Error("Cannot include this as its own subtarget");
         if (this.#subtargets.includes(target))
             throw new Error(`${target} is already a subtarget of ${this.target}`);
+        if (this.#postSubtargets.includes(target))
+            throw new Error(`${target} is already a post-subtarget of ${this.target}`);
         if (this === this.#ownerSet.main) {
             if (this.#ownerSet.status !== "ready")
                 throw new Error("Cannot attach targets to main target until we are ready (call BuildPromiseSet.markReady())");
@@ -65,10 +76,9 @@ export class BuildPromise {
         }
         else if (this.#ownerSet.get(target).deepTargets.includes(this.target))
             throw new Error(`"${target}" already has a dependency on "${this.target}"`);
-        this.#subtargets.push(target);
     }
     get deepTargets() {
-        const targets = this.#subtargets.slice();
+        const targets = this.#subtargets.concat(this.#postSubtargets);
         for (let i = 0; i < targets.length; i++) {
             targets.push(...this.#ownerSet.get(targets[i]).deepTargets);
         }
@@ -108,6 +118,19 @@ export class BuildPromise {
                 if (!task)
                     throw new Error("assertion: unreachable");
                 await task();
+            }
+            catch (ex) {
+                this.#setStatus("errored");
+                throw ex;
+            }
+        }
+        const postSubTargets = this.#postSubtargets.map(st => this.#ownerSet.get(st));
+        while (postSubTargets.length) {
+            const subtarget = postSubTargets.shift();
+            try {
+                if (!subtarget)
+                    throw new Error("assertion: unreachable");
+                await subtarget.run();
             }
             catch (ex) {
                 this.#setStatus("errored");

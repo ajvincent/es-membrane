@@ -15,7 +15,7 @@ let stageDirs: string[];
   dirEntries = dirEntries.filter(entry => {
     if (!entry.isDirectory())
       return false;
-    if (!/^_\d+_/.test(entry.name))
+    if (!/^_\d\d*[a-z]?_/.test(entry.name))
       return false;
     return true;
   });
@@ -37,15 +37,14 @@ const BPSet = new BuildPromiseSet(true);
 class DirStage
 {
   #dir: string;
-  #allDirs: string[];
-  constructor(dir: string, allDirs: string[])
+  constructor(dir: string)
   {
     this.#dir = path.resolve(dir);
-    this.#allDirs = allDirs;
 
     BPSet.get(dir + ":clean").addTask(async () => await this.#clean());
-    BPSet.get(dir + ":tsc").addTask(async () => await this.#runTSC());
     BPSet.get(dir + ":build").addTask(async () => await this.#runBuild());
+    BPSet.get(dir + ":tsc").addTask(async () => await this.#runTSC());
+    BPSet.get(dir + ":spec-build").addTask(async () => await this.#specBuild());
   }
 
   addSubtargets(dir: string) {
@@ -56,37 +55,94 @@ class DirStage
   async #clean() : Promise<void>
   {
     const isBuildDir = this.#dir.includes("/build");
-    let { files } = await readDirsDeep(this.#dir);
-    files = files.filter(f => /(?<!\.d)\.mts$/.test(f));
-    if (files.length === 0)
+    const { files } = await readDirsDeep(this.#dir);
+
+    let generatedFiles = files.filter(f => /(?<!\.d)\.mts$/.test(f));
+    if (generatedFiles.length === 0)
       return;
 
-    files = files.flatMap(f => {
+    generatedFiles = generatedFiles.flatMap(f => {
       return [
         !isBuildDir || f.includes("/build/spec/") ? f.replace(".mts", ".mjs") : "",
         f.replace(".mts", ".mjs.map"),
         f.replace(".mts", ".d.mts"),
       ];
     }).filter(Boolean);
-    files.sort();
 
-    await PromiseAllParallel(files, f => fs.rm(f, { force: true}));
+    generatedFiles.push(...files.filter(f => {
+      const leafName = path.basename(f);
+      return (leafName === "ts-stdout.txt") || (leafName === "tsconfig.json");
+    }));
+
+    generatedFiles.sort();
+
+    await PromiseAllParallel(generatedFiles, f => fs.rm(f, { force: true}));
+
+    let found = false;
+    const generatedDir = path.resolve(this.#dir, "generated");
+    try {
+      await fs.access(generatedDir);
+      found = true;
+    }
+    catch {
+      // do nothing
+    }
+    if (found)
+      await fs.rm(generatedDir, { recursive: true });
+
+    found = false;
+    const specGeneratedDir = path.resolve(this.#dir, "spec-generated");
+
+    try {
+      await fs.access(specGeneratedDir);
+      found = true;
+    }
+    catch {
+      // do nothing
+    }
+    if (found)
+      await fs.rm(specGeneratedDir, { recursive: true });
   }
 
   async #runTSC() : Promise<void>
   {
-    let { files } = await readDirsDeep(this.#dir);
-    const buildDir = path.join(this.#dir, "build");
+    let excludeSpecBuild = true;
+    {
+      const pathToMTS = path.resolve(this.#dir, "spec-build", "support.mts");
+
+      try {
+        await fs.access(pathToMTS);
+        excludeSpecBuild = false;
+      }
+      catch (ex) {
+        // do nothing
+        void(ex);
+      }
+    }
+
+    const excludedDirs = new Set(["build", "spec-generated"]);
+    if (excludeSpecBuild)
+      excludedDirs.add("spec-build");
+    let { files } = await readDirsDeep(this.#dir, localDir => !excludedDirs.has(path.basename(localDir)));
 
     files = files.filter(f => {
-      return /(?<!\.d)\.mts$/.test(f) && !f.startsWith(buildDir)
+      return /(?<!\.d)\.mts$/.test(f);
     });
 
     if (files.length === 0)
       return;
+    await this.#invokeTSCWithFiles(
+      files, path.join(this.#dir, "tsconfig.json")
+    );
+  }
 
+  async #invokeTSCWithFiles(
+    files: string[],
+    tsconfigPath: string
+  ) : Promise<void>
+  {
     const result = await InvokeTSC.withCustomConfiguration(
-      path.join(this.#dir, "tsconfig.json"),
+      tsconfigPath,
       false,
       (config) => {
         config.files = files;
@@ -102,8 +158,10 @@ class DirStage
   {
     const buildDir = path.resolve(this.#dir, "build");
     const pathToModule = path.resolve(buildDir, "support.mjs");
+    const pathToMTS = path.resolve(buildDir, "support.mts");
+
     try {
-      await fs.access(pathToModule);
+      await fs.access(pathToMTS);
     }
     catch (ex) {
       // do nothing
@@ -111,35 +169,67 @@ class DirStage
       return;
     }
 
-    let { files: tsFiles } = await readDirsDeep(buildDir);
-    tsFiles = tsFiles.filter(f => /(?<!\.d)\.mts$/.test(f));
+    console.log("Compiling build:");
+    {
+      let { files: tsFiles } = await readDirsDeep(buildDir);
+      tsFiles = tsFiles.filter(f => /(?<!\.d)\.mts$/.test(f));
 
-    if (tsFiles.length > 0) {
-      const result = await InvokeTSC.withCustomConfiguration(
-        path.join(buildDir, "tsconfig.json"),
-        false,
-        (config) => {
-          config.files = tsFiles;
-          config.extends = "@tsconfig/node16/tsconfig.json";
-        },
-        path.resolve(buildDir, "ts-stdout.txt")
-      );
-      if (result !== 0)
-        throw new Error("runTSC failed with code " + result);
+      if (tsFiles.length > 0) {
+        await this.#invokeTSCWithFiles(
+          tsFiles,
+          path.join(this.#dir, "build", "tsconfig.json")
+        );
+      }
     }
 
-    const buildNext = (await import(pathToModule)).default;
-    await buildNext(this.#allDirs);
+    console.log("Executing build:");
+    const buildNext = (await import(pathToModule)).default as () => Promise<void>;
+    await buildNext();
   }
 
-  static readonly #subtasks = ["clean", "build", "tsc"];
+  async #specBuild() : Promise<void>
+  {
+    const buildDir = path.resolve(this.#dir, "spec-build");
+    const pathToModule = path.resolve(buildDir, "support.mjs");
+    const pathToMTS = path.resolve(buildDir, "support.mts");
 
-  static buildTask(dir: string, allDirs: string[]) : DirStage
+    try {
+      await fs.access(pathToMTS);
+    }
+    catch (ex) {
+      // do nothing
+      void(ex);
+      return;
+    }
+
+    console.log("Creating spec-generated:");
+    const generatedDir = path.resolve(this.#dir, "spec-generated");
+    await fs.mkdir(generatedDir, { recursive: true });
+
+    const supportModule = (await import(pathToModule)).default as () => Promise<void>;
+    await supportModule();
+
+    console.log("Compiling spec-generated:");
+    {
+      let { files: tsFiles } = await readDirsDeep(generatedDir);
+      tsFiles = tsFiles.filter(f => /(?<!\.d)\.mts$/.test(f));
+
+      if (tsFiles.length > 0) {
+        await this.#invokeTSCWithFiles(
+          tsFiles, path.join(this.#dir, "spec-generated", "tsconfig.json")
+        );
+      }
+    }
+  }
+
+  static readonly #subtasks = ["clean", "build", "tsc", "spec-build"];
+
+  static buildTask(dir: string) : DirStage
   {
     const target = BPSet.get("stages");
     target.addSubtarget(dir);
 
-    const stage = new DirStage(dir, allDirs);
+    const stage = new DirStage(dir);
     stage.addSubtargets(dir);
     BPSet.get("clean").addSubtarget(dir + ":clean");
 
@@ -170,7 +260,7 @@ class DirStage
 
   const outerRebuild = BPSet.get("build:rebuild");
   const fullDir = path.resolve("build");
-  void(new DirStage(fullDir, []));
+  void(new DirStage(fullDir));
 
   const innerClean   = BPSet.get(fullDir + ":clean");
   const innerRebuild = BPSet.get(fullDir + ":build");
@@ -202,9 +292,7 @@ class DirStage
 
 { // stages
   void(BPSet.get("stages"));
-  stageDirs.forEach(
-    (dir, index) => DirStage.buildTask(dir, stageDirs.slice(0, index))
-  );
+  stageDirs.forEach(dir => DirStage.buildTask(dir));
 }
 
 { // test
@@ -217,6 +305,29 @@ class DirStage
   const target = BPSet.get("debug");
   target.addTask(async () => await runModule("./node_modules/jasmine/bin/jasmine.js", [], ["--inspect-brk"]));
 }
+
+/*
+We're damned if we do and damned if we don't with this code:
+
+try {
+  // do something
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+catch (ex: any) {
+  // do something else
+}
+
+The fix?
+
+try {
+  // do something
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+catch (ex: unknown) {
+  if ((ex as Error).message === "foo")
+    // do something else
+}
+*/
 
 { // eslint
   const target = BPSet.get("eslint");

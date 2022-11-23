@@ -1,3 +1,4 @@
+import { setTimeout } from "timers/promises";
 /*
 TypeScript apparently doesn't recognize arrow functions in constructors.
   this.promise = new Promise((res, rej) => {
@@ -22,11 +23,9 @@ export class Deferred {
         });
     }
 }
-export class TimeoutPromise extends Deferred {
-    constructor(limit = 5000) {
-        super();
-        setTimeout(() => this.reject("Time limit expired"), limit);
-    }
+export async function TimeoutPromise(delay = 5000) {
+    await setTimeout(delay);
+    throw new Error("Time limit expired");
 }
 export class SingletonPromise {
     #resolve;

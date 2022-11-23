@@ -8,6 +8,7 @@ export class BuildPromise
   #ownerSet: Readonly<BuildPromiseSet>;
 
   #subtargets: string[] = [];
+  #postSubtargets: string[] = [];
 
   #tasks: (() => void)[] = [];
 
@@ -76,6 +77,18 @@ export class BuildPromise
 
   addSubtarget(target: string): void
   {
+    this.#validateAddSubtarget(target);
+    this.#subtargets.push(target);
+  }
+
+  addPostSubtarget(target: string) : void
+  {
+    this.#validateAddSubtarget(target);
+    this.#postSubtargets.push(target);
+  }
+
+  #validateAddSubtarget(target: string) : void
+  {
     if (target === "main")
       throw new Error("Cannot include main target");
 
@@ -84,6 +97,8 @@ export class BuildPromise
 
     if (this.#subtargets.includes(target))
       throw new Error(`${target} is already a subtarget of ${this.target}`);
+    if (this.#postSubtargets.includes(target))
+      throw new Error(`${target} is already a post-subtarget of ${this.target}`);
 
     if (this === this.#ownerSet.main)
     {
@@ -97,13 +112,11 @@ export class BuildPromise
     }
     else if (this.#ownerSet.get(target).deepTargets.includes(this.target))
       throw new Error(`"${target}" already has a dependency on "${this.target}"`);
-
-    this.#subtargets.push(target);
   }
 
   get deepTargets(): string[]
   {
-    const targets = this.#subtargets.slice();
+    const targets = this.#subtargets.concat(this.#postSubtargets);
     for (let i = 0; i < targets.length; i++) {
       targets.push(...this.#ownerSet.get(targets[i]).deepTargets);
     }
@@ -150,6 +163,20 @@ export class BuildPromise
         if (!task)
           throw new Error("assertion: unreachable");
         await task();
+      }
+      catch (ex) {
+        this.#setStatus("errored");
+        throw ex;
+      }
+    }
+
+    const postSubTargets = this.#postSubtargets.map(st => this.#ownerSet.get(st));
+    while (postSubTargets.length) {
+      const subtarget = postSubTargets.shift();
+      try {
+        if (!subtarget)
+          throw new Error("assertion: unreachable");
+        await subtarget.run();
       }
       catch (ex) {
         this.#setStatus("errored");
