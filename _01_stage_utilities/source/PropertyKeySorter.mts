@@ -11,7 +11,7 @@ export default class PropertyKeySorter
     this.#symbolMap.getDefault(key, this.#currentSize);
   }
 
-  #currentSize = () => this.#symbolMap.size + 1;
+  #currentSize: () => number = () => this.#symbolMap.size + 1;
 
   sort(keys: propertyKey[]) : void
   {
@@ -34,11 +34,9 @@ export default class PropertyKeySorter
     {
       if (tB === "string")
       {
-        a = a as string;
-        b = b as string;
-        if (a < b)
+        if ((a as string) < (b as string))
           return -1;
-        if (a > b)
+        if ((a as string) > (b as string))
           return +1;
 
         return 0;
