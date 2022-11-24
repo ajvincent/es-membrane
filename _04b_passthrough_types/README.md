@@ -266,17 +266,23 @@ The JSON format defines components.  Decorators (via [our decorators namespace c
     "keys": {
       "mainComponent": {
         "type": "component",
-        "file": "MainComponent.mjs"
+        "file": "MainComponent.mjs",
+        "role": "body",
+        "setReturn": "must"
       },
 
       "logEntry": {
         "type": "component",
-        "file": "LoggingComponent.mjs"
+        "file": "LoggingComponent.mjs",
+        "role": "precondition",
+        "setReturn": "never"
       },
 
       "logLeave": {
         "type": "component",
-        "file": "LoggingComponent.mjs"
+        "file": "LoggingComponent.mjs",
+        "role": "postcondition",
+        "setReturn": "never"
       },
 
       "main": {
