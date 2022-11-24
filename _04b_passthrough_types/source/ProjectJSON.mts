@@ -28,8 +28,10 @@ export type SequenceKeysData = {
   readonly "subkeys": ReadonlyArray<string>
 };
 
+export type ComponentOrSequence = PassiveComponentData | BodyComponentData | SequenceKeysData;
+
 export type KeysAsProperties = {
-  readonly [key: string]: PassiveComponentData | BodyComponentData | SequenceKeysData;
+  readonly [key: string]: ComponentOrSequence;
 };
 
 type ComponentGeneratorData = {
