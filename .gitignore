@@ -1,6 +1,9 @@
 node_modules/
 docs/dist/staging/
 **/.DS_Store
+_*/generated
+_*/fixtures/generated
+_*/spec-generated
 _*/**/ts-stdout.txt
 _*/**/tsconfig.json
 
@@ -13,3 +16,7 @@ build/**/*.d.mts
 build/**/tsconfig.json
 build/tsconfig.json
 build/**/ts-stdout.txt
+build/generated
+build/spec-generated
+
+playground/
