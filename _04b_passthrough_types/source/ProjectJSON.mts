@@ -29,7 +29,7 @@ export type SequenceKeysData = {
 };
 
 export type KeysAsProperties = {
-  readonly [key: string]: PassiveComponentData | BodyComponentData | SequenceKeysData
+  readonly [key: string]: PassiveComponentData | BodyComponentData | SequenceKeysData;
 };
 
 type ComponentGeneratorData = {
@@ -322,5 +322,33 @@ function StaticValidatorOne(data: BuildData) : true
   if (data.startComponent && !keys.has(data.startComponent))
     throw new Error(`Start component name "${data.startComponent}" does not have a component or sequence!`);
 
+  // Are the components in a sequence in the proper role order?
+  {
+    let currentState = "precondition", currentOrder: number = StageMap.get(currentState) as number;
+    sequences.forEach((sequence, key) => {
+      sequence.subkeys.forEach((subkey => {
+        const component = components.get(subkey) as PassiveComponentData | BodyComponentData;
+        const nextState = component.role;
+        const nextOrder = StageMap.get(nextState) as number;
+
+        if (nextOrder < currentOrder) {
+          throw new Error(`In sequence key "${key}", components with role ${nextState} must precede components with role ${currentState}!`);
+        }
+
+        currentState = component.role;
+        currentOrder = nextOrder;
+      }));
+    });
+  }
+
   return true;
 }
+
+const StageMap: ReadonlyMap<string, number> = new Map([
+  ["precondition", 0],
+  ["checkArguments", 1],
+  ["bodyAssert", 2],
+  ["body", 2],
+  ["checkReturn", 3],
+  ["postcondition", 4]
+]);
