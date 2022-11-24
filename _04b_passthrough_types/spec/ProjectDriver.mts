@@ -27,7 +27,7 @@ describe("Project Driver creates an EntryClass which", () => {
   beforeAll(async () => {
     EntryClass = await getModuleDefault<Entry_BaseType<NumberStringType>>("EntryClass.mjs");
 
-    SpyClass = await getModuleDefault<PassThroughClassWithSpy>("../PassThrough_JasmineSpy.mjs");
+    SpyClass = await getModuleDefault<PassThroughClassWithSpy>("PassThrough_JasmineSpy.mjs");
 
     ComponentMap = await getModulePart<
       InstanceToComponentMap_Type<NumberStringType, NumberStringType>

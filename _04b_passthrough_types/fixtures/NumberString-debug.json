@@ -1,0 +1,71 @@
+[
+  {
+    "schemaDate": 20221027,
+
+    "keys": {
+      "precondition": {
+        "type": "component",
+        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy.mjs",
+        "role": "precondition",
+        "setReturn": "never"
+      },
+
+      "checkArguments": {
+        "type": "component",
+        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy.mjs",
+        "role": "checkArguments",
+        "setReturn": "never"
+      },
+
+      "bodyAssert": {
+        "type": "component",
+        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy.mjs",
+        "role": "bodyAssert",
+        "setReturn": "never"
+      },
+
+      "checkReturn": {
+        "type": "component",
+        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy.mjs",
+        "role": "checkReturn",
+        "setReturn": "never"
+      },
+
+      "postcondition": {
+        "type": "component",
+        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy.mjs",
+        "role": "postcondition",
+        "setReturn": "never"
+      },
+
+      "body": {
+        "type": "component",
+        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy.mjs",
+        "role": "body",
+        "setReturn": "must"
+      },
+
+      "main": {
+        "type": "sequence",
+        "subkeys": [
+          "precondition",
+          "checkArguments",
+          "bodyAssert",
+          "body",
+          "checkReturn",
+          "postcondition"
+        ]
+      }
+    },
+
+    "startComponent": "main",
+
+    "componentGenerator": {
+      "sourceTypeLocation": "NumberStringType.mts",
+      "sourceTypeAlias": "NumberStringType",
+      "targetDirLocation": "../spec-generated/project/generated-debug",
+      "baseClassName": "NumberStringClass",
+      "entryTypeAlias": "NumberStringType"
+    }
+  }
+]

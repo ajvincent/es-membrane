@@ -109,7 +109,7 @@ describe("InstanceToComponentMap", () => {
     );
   });
 
-  it("override lets you copy keys in a sequence when one of the subkeys is not copied", () => {
+  it(".override() lets you copy keys in a sequence when one of the subkeys is not copied", () => {
     map.addDefaultComponent("continue", NST_CONTINUE);
     map.addDefaultComponent("result", NST_THROW);
 

@@ -6,14 +6,16 @@ import ts from "ts-morph";
 import {
   StaticValidator,
   BuildData,
-  PassiveComponentData,
+  ComponentOrSequence,
   BodyComponentData,
   SequenceKeysData,
+  PassiveComponentData,
 } from "./ProjectJSON.mjs";
 import ComponentClassGenerator from "./ComponentClassGenerator.mjs";
 
 export default async function ProjectDriver(
-  pathToProjectJSON: string
+  pathToProjectJSON: string,
+  buildOptimized = false
 ) : Promise<ts.Project[]>
 {
   let configs: ReadonlyArray<BuildData>;
@@ -25,13 +27,14 @@ export default async function ProjectDriver(
   }
 
   return Promise.all(configs.map(
-    buildData => OneProjectDriver(pathToProjectJSON, buildData)
+    buildData => OneProjectDriver(pathToProjectJSON, buildData, buildOptimized)
   ));
 }
 
 async function OneProjectDriver(
   pathToProjectJSON: string,
-  config: BuildData
+  config: BuildData,
+  buildOptimized: boolean
 ) : Promise<ts.Project>
 {
   const baseDir = path.dirname(pathToProjectJSON);
@@ -76,26 +79,11 @@ async function OneProjectDriver(
 
   await generator.run();
 
-  // Build the component map's keys.
-  const entries: [string, SequenceKeysData | PassiveComponentData | BodyComponentData][] = Object.entries(config.keys).map(
-    ([key, componentOrSequence]) => {
-      if (componentOrSequence.type === "sequence") {
-        return [key, componentOrSequence];
-      }
-
-      let componentPath = relPath(componentOrSequence.file);
-      componentPath = path.relative(targetDir, componentPath);
-      if (!componentPath.startsWith("."))
-        componentPath = "./" + componentPath;
-
-      const component: BodyComponentData = {
-        type: "component",
-        file: componentPath,
-        "setReturn": "may",
-        "role": "body"
-      };
-      return [key, component];
-    }
+  const entries = getProjectKeys(
+    Object.entries(config.keys),
+    buildOptimized,
+    targetDir,
+    relPath
   );
   await generator.addKeys(Object.fromEntries(entries));
 
@@ -103,4 +91,58 @@ async function OneProjectDriver(
     await generator.setStartComponent(config.startComponent);
 
   return project;
+}
+
+type ComponentData = Exclude<ComponentOrSequence, SequenceKeysData>;
+const DebugRoles: ReadonlySet<ComponentData["role"]> = new Set([ "precondition", "bodyAssert", "postcondition"]);
+
+function getProjectKeys(
+  entries: [string, ComponentOrSequence][],
+  buildOptimized: boolean,
+  targetDir: string,
+  relPath: (...parts: string[]) => string,
+) : [string, ComponentOrSequence][]
+{
+  const componentEntries = entries.filter(
+    ([key, data]) => { void(key); return data.type === "component"; }
+  ) as [string, ComponentData][];
+
+  const debugComponentMap = new Map(componentEntries.filter(
+    ([key, data]) => { void(key); return DebugRoles.has(data.role); }
+  ));
+
+  const keyEntries: [string, ComponentOrSequence][] = componentEntries.map(([key, componentData]) => {
+    let componentPath = relPath(componentData.file);
+    componentPath = path.relative(targetDir, componentPath);
+    if (!componentPath.startsWith("."))
+      componentPath = "./" + componentPath;
+
+    const component: BodyComponentData | PassiveComponentData = {
+      ...componentData,
+      file: componentPath,
+    };
+
+    return [key, component];
+  });
+
+  let sequenceEntries = entries.filter(
+    ([key, data]) => { void(key); return data.type === "sequence"; }
+  ) as [string, SequenceKeysData][];
+
+  if (buildOptimized) {
+    const debugEntries = sequenceEntries;
+    sequenceEntries = [];
+    debugEntries.forEach(([key, data]) => {
+      const optimizedSubkeys = data.subkeys.filter(subkey => !debugComponentMap.has(subkey));
+      sequenceEntries.push(
+        [key, {
+          ...data,
+          subkeys: optimizedSubkeys
+        }]
+      );
+    });
+  }
+
+  keyEntries.push(...sequenceEntries);
+  return keyEntries;
 }

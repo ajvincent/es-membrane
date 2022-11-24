@@ -13,7 +13,9 @@ export default async function() : Promise<void>
 {
   await Promise.all([
     buildComponentClasses(),
-    buildProjectDirectory(),
+    buildProjectDirectory("base"),
+    buildProjectDirectory("debug"),
+    buildProjectDirectory("optimized"),
   ]);
 }
 
@@ -51,16 +53,15 @@ async function buildComponentClasses() : Promise<void>
 
   await generator.run();
 
-  await createJasmineSpyClass(generatedDir, ".");
+  await createJasmineSpyClass(generatedDir);
 }
 
 async function createJasmineSpyClass(
   generatedDir: ts.Directory,
-  targetDir: string
 ) : Promise<void>
 {
   const NI_File = generatedDir.getSourceFileOrThrow("PassThrough_NotImplemented.mts");
-  const SpyClassFile = NI_File.copy(path.join(targetDir, "PassThrough_JasmineSpy.mts"));
+  const SpyClassFile = NI_File.copy(path.join(".", "PassThrough_JasmineSpy.mts"));
 
   const SpyClass = SpyClassFile.getClassOrThrow("NumberStringClass_PassThroughNI");
   SpyClass.rename("NumberStringClass_JasmineSpy");
@@ -90,16 +91,6 @@ async function createJasmineSpyClass(
     );`);
   });
 
-  if (targetDir === "..") {
-    const importStatements = SpyClassFile.getImportDeclarations();
-    importStatements.forEach(stmt => {
-      const specifier = stmt.getModuleSpecifier();
-      let text = specifier.getText();
-      text = text.replace(/"$/, `.mjs"`);
-      specifier.replaceWithText(text);
-    });
-  }
-
   SpyClassFile.formatText({
     ensureNewLineAtEndOfFile: true,
     placeOpenBraceOnNewLineForFunctions: true,
@@ -109,15 +100,16 @@ async function createJasmineSpyClass(
   await SpyClassFile.save();
 }
 
-async function buildProjectDirectory() : Promise<void>
+async function buildProjectDirectory(tail: string) : Promise<void>
 {
   const project = (await ProjectDriver(
-    path.join(parentDir, "fixtures/NumberString-project.json")
+    path.join(parentDir, `fixtures/NumberString-${tail}.json`),
+    tail === "optimized"
   ))[0];
 
   await createJasmineSpyClass(
     project.getDirectoryOrThrow(
-      path.join(parentDir, "spec-generated/project/generated-base")
-    ), ".."
+      path.join(parentDir, "spec-generated/project/generated-" + tail)
+    )
   );
 }
