@@ -12,11 +12,11 @@ describe("Project Driver creates an EntryClass which", () => {
     new() : U
   }>
   {
-    return (await import("../spec-generated/project/generated/" + leafName)).default;
+    return (await import("../spec-generated/project/generated-base/" + leafName)).default;
   }
 
   async function getModulePart<U>(leafName: string, property: string) : Promise<U> {
-    return (await import("../spec-generated/project/generated/" + leafName))[property] as U;
+    return (await import("../spec-generated/project/generated-base/" + leafName))[property] as U;
   }
 
   let EntryClass: new () => NumberStringType;

@@ -5,14 +5,14 @@
     "keys": {
       "NotImplemented": {
         "type": "component",
-        "file": "../spec-generated/project/generated/PassThrough_NotImplemented.mjs",
+        "file": "../spec-generated/project/generated-base/PassThrough_NotImplemented.mjs",
         "role": "body",
         "setReturn": "never"
       },
 
       "Continue": {
         "type": "component",
-        "file": "../spec-generated/project/generated/PassThrough_Continue.mjs",
+        "file": "../spec-generated/project/generated-base/PassThrough_Continue.mjs",
         "role": "body",
         "setReturn": "never"
       },
@@ -35,7 +35,7 @@
     "componentGenerator": {
       "sourceTypeLocation": "NumberStringType.mts",
       "sourceTypeAlias": "NumberStringType",
-      "targetDirLocation": "../spec-generated/project/generated",
+      "targetDirLocation": "../spec-generated/project/generated-base",
       "baseClassName": "NumberStringClass",
       "entryTypeAlias": "NumberStringType"
     }

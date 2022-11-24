@@ -117,7 +117,7 @@ async function buildProjectDirectory() : Promise<void>
 
   await createJasmineSpyClass(
     project.getDirectoryOrThrow(
-      path.join(parentDir, "spec-generated/project/generated")
+      path.join(parentDir, "spec-generated/project/generated-base")
     ), ".."
   );
 }

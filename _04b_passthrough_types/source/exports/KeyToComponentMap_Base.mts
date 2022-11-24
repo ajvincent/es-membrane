@@ -25,6 +25,7 @@ export type InstanceToComponentMap_Type<PublicClassType extends object, ThisClas
    * @internal
    */
   getMapForInstance(instance: PublicClassType): ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>;
+
   /**
    * Get a component.
    *
@@ -35,6 +36,7 @@ export type InstanceToComponentMap_Type<PublicClassType extends object, ThisClas
    * @internal
    */
   getComponent(instance: PublicClassType, componentKey: PropertyKey): ComponentPassThroughClass<PublicClassType, ThisClassType>;
+
   /**
    * Add a default component by key name.
    *
@@ -42,6 +44,7 @@ export type InstanceToComponentMap_Type<PublicClassType extends object, ThisClas
    * @param component - The component.
    */
   addDefaultComponent(key: PropertyKey, component: ComponentPassThroughClass<PublicClassType, ThisClassType>): void;
+
   /**
    * Get a sequence for a known top key.
    * @param instance - The instance to get a component for.
@@ -50,21 +53,25 @@ export type InstanceToComponentMap_Type<PublicClassType extends object, ThisClas
    * @internal
    */
   getSequence(instance: PublicClassType, topKey: PropertyKey): PropertyKey[];
+
   /**
    * Add a default sequence.
    * @param topKey  - The key defining the sequence.
    * @param subKeys - The keys of the sequence.
    */
   addDefaultSequence(topKey: PropertyKey, subKeys: PropertyKey[]): void;
+
   /**
    * A list of known component and sequence keys for the default map.
    */
   get defaultKeys(): PropertyKey[];
+
   /**
    * The start component key.  Required before creating a base instance.
    */
   get defaultStart(): PropertyKey | undefined;
   set defaultStart(key: PropertyKey | undefined);
+
   /**
    * Return a new KeyToComponentMap inheriting components from the default map.
    * @param instance      - The instance to form the override for.
@@ -72,6 +79,7 @@ export type InstanceToComponentMap_Type<PublicClassType extends object, ThisClas
    * @returns
    */
   override(instance: PublicClassType, componentKeys: PropertyKey[]): KeyToComponentMap<PublicClassType, ThisClassType>;
+
   /**
    * Build a pass-through argument for a method.
    *
@@ -84,7 +92,13 @@ export type InstanceToComponentMap_Type<PublicClassType extends object, ThisClas
    * @internal
    * @see Entry_Base.prototype[INVOKE_SYMBOL]
    */
-  buildPassThrough<MethodType extends AnyFunction>(instance: ThisClassType, methodName: PropertyKey, initialArguments: Parameters<MethodType>): PassThroughType<PublicClassType, MethodType, ThisClassType>;
+  buildPassThrough<
+    MethodType extends AnyFunction
+  >(
+    instance: ThisClassType,
+    methodName: PropertyKey,
+    initialArguments: Parameters<MethodType>
+  ): PassThroughType<PublicClassType, MethodType, ThisClassType>;
 }
 
 /**
