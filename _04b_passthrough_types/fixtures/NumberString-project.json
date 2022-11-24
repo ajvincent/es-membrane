@@ -1,0 +1,43 @@
+[
+  {
+    "schemaDate": 20221027,
+
+    "keys": {
+      "NotImplemented": {
+        "type": "component",
+        "file": "../spec-generated/project/generated/PassThrough_NotImplemented.mjs",
+        "role": "body",
+        "setReturn": "never"
+      },
+
+      "Continue": {
+        "type": "component",
+        "file": "../spec-generated/project/generated/PassThrough_Continue.mjs",
+        "role": "body",
+        "setReturn": "never"
+      },
+
+      "_Spy": {
+        "type": "component",
+        "file": "../spec-generated/project/PassThrough_JasmineSpy.mjs",
+        "role": "body",
+        "setReturn": "may"
+      },
+
+      "ContinueToSpy": {
+        "type": "sequence",
+        "subkeys": ["Continue", "_Spy"]
+      }
+    },
+
+    "startComponent": "_Spy",
+
+    "componentGenerator": {
+      "sourceTypeLocation": "NumberStringType.mts",
+      "sourceTypeAlias": "NumberStringType",
+      "targetDirLocation": "../spec-generated/project/generated",
+      "baseClassName": "NumberStringClass",
+      "entryTypeAlias": "NumberStringType"
+    }
+  }
+]
