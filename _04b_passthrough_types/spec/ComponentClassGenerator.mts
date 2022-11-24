@@ -3,21 +3,21 @@ import type { ComponentPassThroughClass } from "../source/exports/PassThroughSup
 import type { InstanceToComponentMap_Type } from "../source/exports/KeyToComponentMap_Base.mjs";
 import type { Entry_BaseType } from "../source/exports/Common.mjs";
 
+import {
+  getModuleDefaultClass,
+  getModulePart,
+  ModuleSourceDirectory
+} from "../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+
 type PassThroughClassType = ComponentPassThroughClass<NumberStringType, NumberStringType>;
 type PassThroughClassWithSpy = PassThroughClassType & { spy: jasmine.Spy };
 
 describe("Component class generator", () => {
   // Required because a completely resolved URI at build time doesn't exist.
-  async function getModuleDefault<U>(leafName: string) : Promise<{
-    new() : U
-  }>
-  {
-    return (await import("../spec-generated/component-classes/" + leafName)).default;
-  }
-
-  async function getModulePart<U>(leafName: string, property: string) : Promise<U> {
-    return (await import("../spec-generated/component-classes/" + leafName))[property] as U;
-  }
+  const moduleSource: ModuleSourceDirectory = {
+    importMeta: import.meta,
+    pathToDirectory: "../../spec-generated/component-classes"
+  };
 
   let BaseClass: new () => NumberStringType;
   let SpyClass: new () => PassThroughClassWithSpy;
@@ -27,15 +27,15 @@ describe("Component class generator", () => {
   let ThrowClass: new () => PassThroughClassType;
 
   beforeAll(async () => {
-    BaseClass = await getModuleDefault<NumberStringType>("BaseClass.mjs");
-    SpyClass = await getModuleDefault<PassThroughClassWithSpy>("PassThrough_JasmineSpy.mjs");
-    EntryClass = await getModuleDefault<Entry_BaseType<NumberStringType>>("EntryClass.mjs");
-    ContinueClass = await getModuleDefault<PassThroughClassType>("PassThrough_Continue.mjs");
-    ThrowClass = await getModuleDefault<PassThroughClassType>("PassThrough_NotImplemented.mjs");
+    BaseClass = await getModuleDefaultClass<NumberStringType>(moduleSource, "BaseClass.mjs");
+    SpyClass = await getModuleDefaultClass<PassThroughClassWithSpy>(moduleSource, "PassThrough_JasmineSpy.mjs");
+    EntryClass = await getModuleDefaultClass<Entry_BaseType<NumberStringType>>(moduleSource, "EntryClass.mjs");
+    ContinueClass = await getModuleDefaultClass<PassThroughClassType>(moduleSource, "PassThrough_Continue.mjs");
+    ThrowClass = await getModuleDefaultClass<PassThroughClassType>(moduleSource, "PassThrough_NotImplemented.mjs");
 
     ComponentMap = await getModulePart<
       InstanceToComponentMap_Type<NumberStringType, NumberStringType>
-    >("PassThroughClassType.mjs", "ComponentMap");
+    >(moduleSource, "PassThroughClassType.mjs", "ComponentMap");
   });
 
   it("creates the base 'not-yet implemented' class", () => {

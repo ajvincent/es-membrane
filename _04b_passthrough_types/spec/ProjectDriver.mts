@@ -3,21 +3,20 @@ import type { ComponentPassThroughClass } from "../source/exports/PassThroughSup
 import type { InstanceToComponentMap_Type } from "../source/exports/KeyToComponentMap_Base.mjs";
 import type { Entry_BaseType } from "../source/exports/Common.mjs";
 
+import {
+  getModuleDefaultClass,
+  getModulePart,
+  ModuleSourceDirectory
+} from "../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+
 type PassThroughClassType = ComponentPassThroughClass<NumberStringType, NumberStringType>;
 type PassThroughClassWithSpy = PassThroughClassType & { spy: jasmine.Spy };
 
 describe("Project Driver creates an EntryClass which", () => {
-  // Required because a completely resolved URI at build time doesn't exist.
-  async function getModuleDefault<U>(leafName: string) : Promise<{
-    new() : U
-  }>
-  {
-    return (await import("../spec-generated/project/generated-base/" + leafName)).default;
-  }
-
-  async function getModulePart<U>(leafName: string, property: string) : Promise<U> {
-    return (await import("../spec-generated/project/generated-base/" + leafName))[property] as U;
-  }
+  const moduleSource: ModuleSourceDirectory = {
+    importMeta: import.meta,
+    pathToDirectory: "../../spec-generated/project/generated-base"
+  };
 
   let EntryClass: new () => NumberStringType;
   let ComponentMap: InstanceToComponentMap_Type<NumberStringType, NumberStringType>;
@@ -25,13 +24,12 @@ describe("Project Driver creates an EntryClass which", () => {
   let spy: jasmine.Spy;
 
   beforeAll(async () => {
-    EntryClass = await getModuleDefault<Entry_BaseType<NumberStringType>>("EntryClass.mjs");
-
-    SpyClass = await getModuleDefault<PassThroughClassWithSpy>("PassThrough_JasmineSpy.mjs");
+    EntryClass = await getModuleDefaultClass<Entry_BaseType<NumberStringType>>(moduleSource, "EntryClass.mjs");
+    SpyClass = await getModuleDefaultClass<PassThroughClassWithSpy>(moduleSource, "PassThrough_JasmineSpy.mjs");
 
     ComponentMap = await getModulePart<
       InstanceToComponentMap_Type<NumberStringType, NumberStringType>
-    >("PassThroughClassType.mjs", "ComponentMap");
+    >(moduleSource, "PassThroughClassType.mjs", "ComponentMap");
   });
 
   let entry: NumberStringType;
@@ -75,30 +73,22 @@ describe("Project Driver creates an EntryClass which", () => {
 });
 
 describe("Project Driver with optimized creates an EntryClass with three key components:", () => {
-  // Required because a completely resolved URI at build time doesn't exist.
-  async function getModuleDefault<U>(leafName: string) : Promise<{
-    new() : U
-  }>
-  {
-    return (await import("../spec-generated/project/generated-optimized/" + leafName)).default;
-  }
-
-  async function getModulePart<U>(leafName: string, property: string) : Promise<U> {
-    return (await import("../spec-generated/project/generated-optimized/" + leafName))[property] as U;
-  }
+  const moduleSource: ModuleSourceDirectory = {
+    importMeta: import.meta,
+    pathToDirectory: "../../spec-generated/project/generated-optimized"
+  };
 
   let EntryClass: new () => NumberStringType;
   let ComponentMap: InstanceToComponentMap_Type<NumberStringType, NumberStringType>;
   let SpyClass: new () => PassThroughClassWithSpy;
 
   beforeAll(async () => {
-    EntryClass = await getModuleDefault<Entry_BaseType<NumberStringType>>("EntryClass.mjs");
-
-    SpyClass = await getModuleDefault<PassThroughClassWithSpy>("PassThrough_JasmineSpy.mjs");
+    EntryClass = await getModuleDefaultClass<Entry_BaseType<NumberStringType>>(moduleSource, "EntryClass.mjs");
+    SpyClass = await getModuleDefaultClass<PassThroughClassWithSpy>(moduleSource, "PassThrough_JasmineSpy.mjs");
 
     ComponentMap = await getModulePart<
       InstanceToComponentMap_Type<NumberStringType, NumberStringType>
-    >("PassThroughClassType.mjs", "ComponentMap");
+    >(moduleSource, "PassThroughClassType.mjs", "ComponentMap");
   });
 
   it("three components will run", () => {

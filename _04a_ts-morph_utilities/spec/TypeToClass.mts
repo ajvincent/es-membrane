@@ -14,17 +14,19 @@ import {
   NumberStringAndSymbol,
 } from "../fixtures/TypePatterns.mjs";
 
+import {
+  getModuleDefaultClass,
+  ModuleSourceDirectory
+} from "../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+
 describe("TypeToClass supports", () => {
-  // Required because a completely resolved URI at build time doesn't exist.
-  async function getModuleDefault<T extends unknown[], U>(leafName: string) : Promise<{
-    new(__args__?: T) : U
-  }>
-  {
-    return (await import("../spec-generated/" + leafName)).default;
-  }
+  const moduleSource: ModuleSourceDirectory = {
+    importMeta: import.meta,
+    pathToDirectory: "../../spec-generated"
+  };
 
   it("type alias to literal", async () => {
-    const NSTC = await getModuleDefault<[], NumberStringType>("NumberStringTypeClass.mjs");
+    const NSTC = await getModuleDefaultClass<NumberStringType>(moduleSource, "NumberStringTypeClass.mjs");
     expect(Reflect.ownKeys(NSTC.prototype)).toEqual([
       "constructor",
       "repeatForward",
@@ -39,10 +41,10 @@ describe("TypeToClass supports", () => {
     expect(
       () => instance.repeatBack(3, "foo")
     ).toThrowError("not yet implemented");
-  });
+  }, 1000 * 60 * 60);
 
   it("interface split across two declarations", async () => {
-    const NSTC = await getModuleDefault<[], NumberStringType>("NumberStringInterfaceClass.mjs");
+    const NSTC = await getModuleDefaultClass<NumberStringType>(moduleSource, "NumberStringInterfaceClass.mjs");
     expect(Reflect.ownKeys(NSTC.prototype)).toEqual([
       "constructor",
       "repeatForward",
@@ -60,7 +62,7 @@ describe("TypeToClass supports", () => {
   });
 
   it(`properties of a type as "not implemented" getter`, async () => {
-    const TypedClass = await getModuleDefault<[], IsTypedNST>("IsTypedNST.mjs");
+    const TypedClass = await getModuleDefaultClass<IsTypedNST>(moduleSource, "IsTypedNST.mjs");
     expect(Reflect.ownKeys(TypedClass.prototype)).toEqual([
       "constructor",
       "type",
@@ -73,7 +75,7 @@ describe("TypeToClass supports", () => {
   });
 
   it(`multiple types on implementation`, async () => {
-    const TypedClass = await getModuleDefault<[], NumberStringAndType>("NumberStringWithTypeClass.mjs");
+    const TypedClass = await getModuleDefaultClass<NumberStringAndType>(moduleSource, "NumberStringWithTypeClass.mjs");
     expect(Reflect.ownKeys(TypedClass.prototype)).toEqual([
       "constructor",
       "repeatForward",
@@ -97,9 +99,9 @@ describe("TypeToClass supports", () => {
   });
 
   it("partial type implementation", async () => {
-    const NSTC = await getModuleDefault<
-      [], Pick<NumberStringType, "repeatForward">
-    >("NumberStringPartial.mjs");
+    const NSTC = await getModuleDefaultClass<
+      Pick<NumberStringType, "repeatForward">
+    >(moduleSource, "NumberStringPartial.mjs");
 
     expect(Reflect.ownKeys(NSTC.prototype)).toEqual([
       "constructor",
@@ -113,7 +115,7 @@ describe("TypeToClass supports", () => {
   });
 
   it("imported & re-exported type", async () => {
-    const NSTC = await getModuleDefault<[], NumberStringType>("StringNumberTypeClass.mjs");
+    const NSTC = await getModuleDefaultClass<NumberStringType>(moduleSource, "StringNumberTypeClass.mjs");
     expect(Reflect.ownKeys(NSTC.prototype)).toEqual([
       "constructor",
       "repeatForward",
@@ -131,7 +133,7 @@ describe("TypeToClass supports", () => {
   });
 
   it(`properties of a type which the constructor defines`, async () => {
-    const TypedClass = await getModuleDefault<[], IsTypedNST>("IsTypedNSTWithConstructor.mjs");
+    const TypedClass = await getModuleDefaultClass<IsTypedNST>(moduleSource, "IsTypedNSTWithConstructor.mjs");
     expect(Reflect.ownKeys(TypedClass.prototype)).toEqual([
       "constructor",
     ]);
@@ -144,7 +146,7 @@ describe("TypeToClass supports", () => {
   });
 
   it(`intersection of a referenced type`, async () => {
-    const TypedClass = await getModuleDefault<[], NumberStringAndType>("NumberStringAndTypeClass.mjs");
+    const TypedClass = await getModuleDefaultClass<NumberStringAndType>(moduleSource, "NumberStringAndTypeClass.mjs");
     expect(Reflect.ownKeys(TypedClass.prototype)).toEqual([
       "constructor",
       "repeatForward",
@@ -168,7 +170,7 @@ describe("TypeToClass supports", () => {
   });
 
   it(`extended interfaces`, async () => {
-    const TypedClass = await getModuleDefault<[], NumberStringFoo>("FooExtendsNumberString.mjs");
+    const TypedClass = await getModuleDefaultClass<NumberStringFoo>(moduleSource, "FooExtendsNumberString.mjs");
     expect(Reflect.ownKeys(TypedClass.prototype)).toEqual([
       "constructor",
       "repeatFoo",
@@ -192,7 +194,7 @@ describe("TypeToClass supports", () => {
   });
 
   it("never key in type", async () => {
-    const NSTC = await getModuleDefault<[], NumberStringAndIllegal>("NumberStringAndIllegal.mjs");
+    const NSTC = await getModuleDefaultClass<NumberStringAndIllegal>(moduleSource, "NumberStringAndIllegal.mjs");
     expect(Reflect.ownKeys(NSTC.prototype)).toEqual([
       "constructor",
       "repeatForward",
@@ -215,7 +217,7 @@ describe("TypeToClass supports", () => {
   });
 
   it("union in arguments of a method", async () => {
-    const NSTC = await getModuleDefault<[], UnionArgument>("UnionArgumentClass.mjs");
+    const NSTC = await getModuleDefaultClass<UnionArgument>(moduleSource, "UnionArgumentClass.mjs");
     expect(Reflect.ownKeys(NSTC.prototype)).toEqual([
       "constructor",
       "doSomething"
@@ -228,7 +230,7 @@ describe("TypeToClass supports", () => {
   });
 
   it("parameterized type", async () => {
-    const NSTC = await getModuleDefault<[], NumberStringExcludesBar>("NumberStringExcludesBarClass.mjs");
+    const NSTC = await getModuleDefaultClass<NumberStringExcludesBar>(moduleSource, "NumberStringExcludesBarClass.mjs");
     expect(Reflect.ownKeys(NSTC.prototype)).toEqual([
       "constructor",
       "repeatForward",
@@ -246,7 +248,7 @@ describe("TypeToClass supports", () => {
   });
 
   it("mapped type", async () => {
-    const NSTC = await getModuleDefault<[], NST_Keys>("NST_Keys_Class.mjs");
+    const NSTC = await getModuleDefaultClass<NST_Keys>(moduleSource, "NST_Keys_Class.mjs");
     expect(Reflect.ownKeys(NSTC.prototype)).toEqual([
       "constructor",
       "repeatForward",
@@ -264,9 +266,9 @@ describe("TypeToClass supports", () => {
   });
 
   it("conditional type", async () => {
-    const NumberStringClass = await getModuleDefault<
-      [], NumberStringConditional
-    >("NumberStringConditionalClass.mjs");
+    const NumberStringClass = await getModuleDefaultClass<
+      NumberStringConditional
+    >(moduleSource, "NumberStringConditionalClass.mjs");
 
     expect(Reflect.ownKeys(NumberStringClass.prototype)).toEqual([
       "constructor",
@@ -285,7 +287,7 @@ describe("TypeToClass supports", () => {
   });
 
   it("symbol key in type", async () => {
-    const NSTC = await getModuleDefault<[], NumberStringAndSymbol>("NumberStringAndSymbolClass.mjs");
+    const NSTC = await getModuleDefaultClass<NumberStringAndSymbol>(moduleSource, "NumberStringAndSymbolClass.mjs");
     expect(Reflect.ownKeys(NSTC.prototype)).toEqual([
       "constructor",
       "repeatForward",
@@ -308,9 +310,9 @@ describe("TypeToClass supports", () => {
   });
 
   it("custom statements in methods, and extra class fields", async () => {
-    const NSTC = await getModuleDefault<
-      [], NumberStringType & { spy: jasmine.Spy }
-    >("JasmineSpyClass.mjs");
+    const NSTC = await getModuleDefaultClass<
+      NumberStringType & { spy: jasmine.Spy }
+    >(moduleSource, "JasmineSpyClass.mjs");
 
     const instance = new NSTC;
     expect(instance.repeatForward("foo", 3)).toBe("foofoofoo");
