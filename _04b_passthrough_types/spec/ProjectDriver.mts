@@ -73,3 +73,65 @@ describe("Project Driver creates an EntryClass which", () => {
     expect(entry.repeatForward("foo", 3)).toBe("wop");
   });
 });
+
+describe("Project Driver with optimized creates an EntryClass with three key components:", () => {
+  // Required because a completely resolved URI at build time doesn't exist.
+  async function getModuleDefault<U>(leafName: string) : Promise<{
+    new() : U
+  }>
+  {
+    return (await import("../spec-generated/project/generated-optimized/" + leafName)).default;
+  }
+
+  async function getModulePart<U>(leafName: string, property: string) : Promise<U> {
+    return (await import("../spec-generated/project/generated-optimized/" + leafName))[property] as U;
+  }
+
+  let EntryClass: new () => NumberStringType;
+  let ComponentMap: InstanceToComponentMap_Type<NumberStringType, NumberStringType>;
+  let SpyClass: new () => PassThroughClassWithSpy;
+
+  beforeAll(async () => {
+    EntryClass = await getModuleDefault<Entry_BaseType<NumberStringType>>("EntryClass.mjs");
+
+    SpyClass = await getModuleDefault<PassThroughClassWithSpy>("PassThrough_JasmineSpy.mjs");
+
+    ComponentMap = await getModulePart<
+      InstanceToComponentMap_Type<NumberStringType, NumberStringType>
+    >("PassThroughClassType.mjs", "ComponentMap");
+  });
+
+  it("three components will run", () => {
+    expect(ComponentMap.defaultStart).toBe("main");
+    {
+      const keys = new Set(ComponentMap.defaultKeys);
+      expect(keys.has("main")).toBe(true);
+      expect(keys.has("body")).toBe(true);
+      expect(keys.has("checkArguments")).toBe(true);
+      expect(keys.has("checkReturn")).toBe(true);
+      expect(keys.size).toBeGreaterThanOrEqual(4);
+    }
+
+    const instance = new EntryClass;
+
+    const subkeys: ReadonlyArray<string> = [
+      "checkArguments",
+      "body",
+      "checkReturn"
+    ];
+
+    {
+      const sequence = ComponentMap.getSequence(instance, "main");
+      expect(sequence).toEqual(subkeys);
+    }
+
+    subkeys.forEach(subkey => {
+      const component = ComponentMap.getComponent(instance, subkey);
+      expect(component).toBeInstanceOf(SpyClass);
+    });
+
+    /*
+    instance.repeatForward("foo", 3);
+    */
+  });
+});
