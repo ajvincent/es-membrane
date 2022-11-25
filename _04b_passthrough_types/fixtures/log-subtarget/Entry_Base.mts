@@ -4,7 +4,7 @@ import {
   // types
   AnyFunction,
   PropertyKey,
-} from "../../source/exports/Common.mjs";
+} from "../../source/exports/internal/Common.mjs";
 
 import type { ReadonlyKeyToComponentMap } from "../../source/exports/KeyToComponentMap_Base.mjs";
 

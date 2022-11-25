@@ -246,7 +246,6 @@ This will generate several files.
   - `PassThrough_NotImplemented.mts` as a base class for component classes.  Use this when you _want_ to throw for methods you haven't implemented.
 - For internal use:
   - `Common.mts` for shared TypeScript types.
-  - `Entry_Base.mts`, which is the base class for `EntryClass.mts`, to actually create the `PassThroughType` and invoke the starting component's matching method.
   - `PassThroughClassType.mts` defines several types and the `ComponentMap`, which loads the component classes.  
   - `PassThroughSupport.mts` defines the generic types for component classes.
 

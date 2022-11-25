@@ -9,7 +9,7 @@ import {
 import type {
   NumberStringType
 } from "../../fixtures/NumberStringType.mjs";
-import { PassThroughType } from "../../source/exports/PassThroughSupport.mjs";
+import { PassThroughType } from "../../source/exports/internal/PassThroughSupport.mjs";
 
 const stubType0: NumberStringType =
 {

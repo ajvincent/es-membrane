@@ -1,7 +1,7 @@
 import type {
   PassThroughType,
   ComponentPassThroughClass,
-} from "../../source/exports/PassThroughSupport.mjs";
+} from "../../source/exports/internal/PassThroughSupport.mjs";
 
 import type {
   NumberStringType

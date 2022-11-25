@@ -1,6 +1,6 @@
 import {
   INVOKE_SYMBOL,
-} from "../../source/exports/Common.mjs";
+} from "../../source/exports/internal/Common.mjs";
 
 import Entry_Base from "./Entry_Base.mjs";
 

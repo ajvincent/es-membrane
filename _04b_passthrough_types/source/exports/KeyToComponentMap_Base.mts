@@ -1,14 +1,14 @@
 import {
   AnyFunction,
   PropertyKey
-} from "./Common.mjs";
+} from "./internal/Common.mjs";
 
 import {
   ComponentPassThroughClass,
   PassThroughSymbol,
   PassThroughType,
   MaybePassThrough,
-} from "./PassThroughSupport.mjs";
+} from "./internal/PassThroughSupport.mjs";
 
 export type InstanceToComponentMap_Type<PublicClassType extends object, ThisClassType extends PublicClassType> =
 {

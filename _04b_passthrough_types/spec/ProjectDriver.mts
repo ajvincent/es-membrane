@@ -1,7 +1,7 @@
 import type { NumberStringType } from "../fixtures/NumberStringType.mjs";
-import type { ComponentPassThroughClass } from "../source/exports/PassThroughSupport.mjs";
+import type { ComponentPassThroughClass } from "../source/exports/internal/PassThroughSupport.mjs";
 import type { InstanceToComponentMap_Type } from "../source/exports/KeyToComponentMap_Base.mjs";
-import type { Entry_BaseType } from "../source/exports/Common.mjs";
+import type { Entry_BaseType } from "../source/exports/internal/Common.mjs";
 
 import {
   getModuleDefaultClass,
@@ -29,7 +29,7 @@ describe("Project Driver creates an EntryClass which", () => {
 
     ComponentMap = await getModulePart<
       InstanceToComponentMap_Type<NumberStringType, NumberStringType>
-    >(moduleSource, "PassThroughClassType.mjs", "ComponentMap");
+    >(moduleSource, "internal/PassThroughClassType.mjs", "ComponentMap");
   });
 
   let entry: NumberStringType;
@@ -94,7 +94,7 @@ describe("Project Driver with optimized creates an EntryClass with three key com
 
     ComponentMap = await getModulePart<
       InstanceToComponentMap_Type<NumberStringType, NumberStringType>
-    >(moduleSource, "PassThroughClassType.mjs", "ComponentMap");
+    >(moduleSource, "internal/PassThroughClassType.mjs", "ComponentMap");
   });
 
   it("three components will run", () => {
