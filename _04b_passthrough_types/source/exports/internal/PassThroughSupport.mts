@@ -43,7 +43,12 @@ export type PassThroughType<
   // We can replace the arguments from one step to the next, using modifiedArguments.
   modifiedArguments: Parameters<MethodType>;
 
-  // This allows us to call another method with the modifiedArguments.
+  /**
+   * This allows us to call another method with the modifiedArguments.
+   *
+   * Think twice about using this in a Production environment.  Support for this will just
+   * complicate the final target code.
+   */
   callTarget(key: PropertyKey) : void;
 
   /**
@@ -55,11 +60,23 @@ export type PassThroughType<
    * Set the return value.  Write this as `return setReturnValue(...);`.
    *
    * @param value - The value to return.  Only callable once.
+   *
+   * @privateRemarks
+   *
+   * It is very tempting to extract this method into a new type specific to
+   * body components.  After all, only body components can return a value, per
+   * the schema.
+   *
+   * Don't do it.  At build time, the ProjectDriver doesn't scan any of the
+   * referenced components against the JSON schema's definition of a component.
+   * Doing so would prematurely complicate the implementation, when another
+   * stage of pass-through support, the integration, is better suited to that
+   * detection.  Run-time integration tests will have to suffice for now.
    */
   setReturnValue(value: ReturnType<MethodType>) : void;
 
   readonly entryPoint: ThisClassType;
-}
+};
 
 // #endregion PassThroughType type
 
@@ -99,4 +116,4 @@ export type ComponentPassThroughClass<
   [Property in keyof PublicClassType]: PublicClassType[Property] extends AnyFunction ?
     MaybePassThrough<PublicClassType, PublicClassType[Property], ThisClassType> :
     PublicClassType[Property];
-}
+};
