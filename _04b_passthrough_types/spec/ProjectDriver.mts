@@ -25,7 +25,7 @@ describe("Project Driver creates an EntryClass which", () => {
 
   beforeAll(async () => {
     EntryClass = await getModuleDefaultClass<Entry_BaseType<NumberStringType>>(moduleSource, "EntryClass.mjs");
-    SpyClass = await getModuleDefaultClass<PassThroughClassWithSpy>(moduleSource, "PassThrough_JasmineSpy.mjs");
+    SpyClass = await getModuleDefaultClass<PassThroughClassWithSpy>(moduleSource, "PassThrough_JasmineSpy_WithReturn.mjs");
 
     ComponentMap = await getModulePart<
       InstanceToComponentMap_Type<NumberStringType, NumberStringType>
@@ -80,11 +80,17 @@ describe("Project Driver with optimized creates an EntryClass with three key com
 
   let EntryClass: new () => NumberStringType;
   let ComponentMap: InstanceToComponentMap_Type<NumberStringType, NumberStringType>;
-  let SpyClass: new () => PassThroughClassWithSpy;
+  let SpyNoReturnClass: new () => PassThroughClassWithSpy;
+  let SpyWithReturnClass: new () => PassThroughClassWithSpy;
 
   beforeAll(async () => {
     EntryClass = await getModuleDefaultClass<Entry_BaseType<NumberStringType>>(moduleSource, "EntryClass.mjs");
-    SpyClass = await getModuleDefaultClass<PassThroughClassWithSpy>(moduleSource, "PassThrough_JasmineSpy.mjs");
+    SpyNoReturnClass = await getModuleDefaultClass<PassThroughClassWithSpy>(
+      moduleSource, "PassThrough_JasmineSpy_NoReturn.mjs"
+    );
+    SpyWithReturnClass = await getModuleDefaultClass<PassThroughClassWithSpy>(
+      moduleSource, "PassThrough_JasmineSpy_WithReturn.mjs"
+    );
 
     ComponentMap = await getModulePart<
       InstanceToComponentMap_Type<NumberStringType, NumberStringType>
@@ -115,10 +121,20 @@ describe("Project Driver with optimized creates an EntryClass with three key com
       expect(sequence).toEqual(subkeys);
     }
 
-    subkeys.forEach(subkey => {
-      const component = ComponentMap.getComponent(instance, subkey);
-      expect(component).toBeInstanceOf(SpyClass);
-    });
+    {
+      const component = ComponentMap.getComponent(instance, "checkArguments");
+      expect(component).toBeInstanceOf(SpyNoReturnClass);
+    }
+
+    {
+      const component = ComponentMap.getComponent(instance, "body");
+      expect(component).toBeInstanceOf(SpyWithReturnClass);
+    }
+
+    {
+      const component = ComponentMap.getComponent(instance, "checkReturn");
+      expect(component).toBeInstanceOf(SpyNoReturnClass);
+    }
 
     /*
     instance.repeatForward("foo", 3);

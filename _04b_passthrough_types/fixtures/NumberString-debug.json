@@ -5,42 +5,42 @@
     "keys": {
       "precondition": {
         "type": "component",
-        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy.mjs",
+        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy_NoReturn.mjs",
         "role": "precondition",
         "setReturn": "never"
       },
 
       "checkArguments": {
         "type": "component",
-        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy.mjs",
+        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy_NoReturn.mjs",
         "role": "checkArguments",
         "setReturn": "never"
       },
 
       "bodyAssert": {
         "type": "component",
-        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy.mjs",
+        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy_NoReturn.mjs",
         "role": "bodyAssert",
         "setReturn": "never"
       },
 
       "checkReturn": {
         "type": "component",
-        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy.mjs",
+        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy_NoReturn.mjs",
         "role": "checkReturn",
         "setReturn": "never"
       },
 
       "postcondition": {
         "type": "component",
-        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy.mjs",
+        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy_NoReturn.mjs",
         "role": "postcondition",
         "setReturn": "never"
       },
 
       "body": {
         "type": "component",
-        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy.mjs",
+        "file": "../spec-generated/project/generated-debug/PassThrough_JasmineSpy_WithReturn.mjs",
         "role": "body",
         "setReturn": "must"
       },

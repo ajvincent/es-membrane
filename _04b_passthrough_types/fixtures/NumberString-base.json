@@ -19,7 +19,7 @@
 
       "_Spy": {
         "type": "component",
-        "file": "../spec-generated/project/generated-base/PassThrough_JasmineSpy.mjs",
+        "file": "../spec-generated/project/generated-base/PassThrough_JasmineSpy_WithReturn.mjs",
         "role": "body",
         "setReturn": "may"
       },

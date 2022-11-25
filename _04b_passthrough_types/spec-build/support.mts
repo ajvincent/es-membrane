@@ -58,10 +58,12 @@ async function buildComponentClasses() : Promise<void>
 
 async function createJasmineSpyClass(
   generatedDir: ts.Directory,
+  leafName = "PassThrough_JasmineSpy.mts",
+  doNotReturn = false
 ) : Promise<void>
 {
   const NI_File = generatedDir.getSourceFileOrThrow("PassThrough_NotImplemented.mts");
-  const SpyClassFile = NI_File.copy(path.join(".", "PassThrough_JasmineSpy.mts"));
+  const SpyClassFile = NI_File.copy(path.join(".", leafName));
 
   const SpyClass = SpyClassFile.getClassOrThrow("NumberStringClass_PassThroughNI");
   SpyClass.rename("NumberStringClass_JasmineSpy");
@@ -86,9 +88,13 @@ async function createJasmineSpyClass(
 
     const throwLine = method.getStatementByKindOrThrow(ts.SyntaxKind.ThrowStatement);
     method.removeStatement(throwLine.getChildIndex());
-    method.addStatements(`__passThrough__.setReturnValue(
-      this.spy("${name}", __passThrough__, s, n) as ReturnType<NumberStringType["${name}"]>
-    );`);
+    method.addStatements(doNotReturn ?
+      `this.spy("${name}", __passThrough__, s, n)`
+      :
+      `__passThrough__.setReturnValue(
+        this.spy("${name}", __passThrough__, s, n) as ReturnType<NumberStringType["${name}"]>
+      );`
+    );
   });
 
   SpyClassFile.formatText({
@@ -110,6 +116,16 @@ async function buildProjectDirectory(tail: string) : Promise<void>
   await createJasmineSpyClass(
     project.getDirectoryOrThrow(
       path.join(parentDir, "spec-generated/project/generated-" + tail)
-    )
+    ),
+    "PassThrough_JasmineSpy_WithReturn.mts",
+    false
+  );
+
+  await createJasmineSpyClass(
+    project.getDirectoryOrThrow(
+      path.join(parentDir, "spec-generated/project/generated-" + tail)
+    ),
+    "PassThrough_JasmineSpy_NoReturn.mts",
+    true
   );
 }
