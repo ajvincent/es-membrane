@@ -326,19 +326,33 @@ function StaticValidatorOne(data: BuildData) : true
 
   // Are the components in a sequence in the proper role order?
   {
-    let currentState = "precondition", currentOrder: number = StageMap.get(currentState) as number;
+    type validRoles = PassiveComponentData["role"] | BodyComponentData["role"];
+    let currentState: validRoles = "precondition", currentOrder: number = StageMap.get(currentState) as number;
     sequences.forEach((sequence, key) => {
+      let mustReturnFound = false;
       sequence.subkeys.forEach((subkey => {
         const component = components.get(subkey) as PassiveComponentData | BodyComponentData;
-        const nextState = component.role;
+        const nextState : validRoles = component.role;
         const nextOrder = StageMap.get(nextState) as number;
 
         if (nextOrder < currentOrder) {
           throw new Error(`In sequence key "${key}", components with role ${nextState} must precede components with role ${currentState}!`);
         }
 
+        if (mustReturnFound && (
+            (component.role === "body") || (component.role === "bodyAssert")
+        ))
+        {
+          throw new Error(`In sequence key "${key}", body components with setReturn "must" must be the last body components!`);
+        }
+
         currentState = component.role;
         currentOrder = nextOrder;
+
+        // Disallow body components after a setReturn: must case.
+        if ((component.role === "body") && (component.setReturn === "must")) {
+          mustReturnFound = true;
+        }
       }));
     });
   }

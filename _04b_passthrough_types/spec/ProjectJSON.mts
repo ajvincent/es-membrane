@@ -500,5 +500,39 @@ describe("ProjectJSON: StaticValidator", () => {
           expectation.toThrowError(`In sequence key "main", components with role ${secondKey} must precede components with role ${firstKey}!`);
       });
     }
+
+    describe("(body with setReturn: must) may never precede another", () => {
+      beforeEach(() => {
+        const foo = (rawData.keys as KeysAsProperties).foo as BodyComponentData;
+        foo.role = "body";
+        foo.setReturn = "must";
+      });
+
+      (["must", "may", "never"] as (BodyComponentData | PassiveComponentData)["setReturn"][]).forEach(setReturn => {
+        it(`(body with setReturn: ${setReturn}) element`, () => {
+          const bar  = (rawData.keys as KeysAsProperties).bar as BodyComponentData;
+          bar.role = "body";
+          bar.setReturn = setReturn;
+
+          expect(
+            () => StaticValidator([rawData])
+          ).toThrowError(
+            `In sequence key "main", body components with setReturn "must" must be the last body components!`
+          );
+        });
+      });
+
+      it(`(bodyAssert with setReturn: never) element`, () => {
+        const bar  = (rawData.keys as KeysAsProperties).bar as PassiveComponentData;
+        bar.role = "bodyAssert";
+        bar.setReturn = "never";
+
+        expect(
+          () => StaticValidator([rawData])
+        ).toThrowError(
+          `In sequence key "main", body components with setReturn "must" must be the last body components!`
+        );
+      });
+    });
   });
 });

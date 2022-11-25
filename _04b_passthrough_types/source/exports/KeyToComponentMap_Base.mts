@@ -477,6 +477,7 @@ class KeyToComponentMap<
   {
     if (key === undefined)
       throw new Error("Start component must be a non-empty string or a symbol!");
+
     KeyToComponentMap.#validateKey(key);
 
     if (this.#startComponent)
