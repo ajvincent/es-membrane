@@ -121,23 +121,43 @@ describe("Project Driver with optimized creates an EntryClass with three key com
       expect(sequence).toEqual(subkeys);
     }
 
+    const spies: jasmine.Spy[] = [];
+
     {
       const component = ComponentMap.getComponent(instance, "checkArguments");
       expect(component).toBeInstanceOf(SpyNoReturnClass);
+      spies.push((component as PassThroughClassWithSpy).spy);
     }
 
     {
       const component = ComponentMap.getComponent(instance, "body");
       expect(component).toBeInstanceOf(SpyWithReturnClass);
+      spies.push((component as PassThroughClassWithSpy).spy);
     }
 
     {
       const component = ComponentMap.getComponent(instance, "checkReturn");
       expect(component).toBeInstanceOf(SpyNoReturnClass);
+      spies.push((component as PassThroughClassWithSpy).spy);
     }
 
-    /*
-    instance.repeatForward("foo", 3);
-    */
+    spies.forEach(spy => { spy.calls.reset(); spy.and.stub() });
+    spies[1].and.returnValue("returnValue");
+    const result = instance.repeatForward("foo", 3);
+
+    expect(result).toBe("returnValue");
+    spies.forEach(spy => {
+      const args = spy.calls.argsFor(0);
+      expect(args[0]).toBe("repeatForward");
+      //expect(args[1]).toBe(passThrough);
+      expect(args[1].entryPoint).toBe(instance);
+      expect(args[2]).toBe("foo");
+      expect(args[3]).toBe(3);
+      expect(args.length).toBe(4);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    spies.forEach(spy => { spy.calls.reset(); spy.and.stub() });
   });
 });
