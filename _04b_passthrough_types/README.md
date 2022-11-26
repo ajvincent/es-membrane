@@ -1,5 +1,11 @@
 # Pass-through components
 
+## Introduction
+
+To enable class metaprogramming by components, this subproject provides tools to generate base classes for components.  With a JSON file you provide specifying the class components you want to use, this subproject also creates an `EntryClass.mts` file which _should_ behave like your final target class.
+
+See [our examples as test code](examples) for illustrations.
+
 ## Concepts as types
 
 Consider again our base type:
@@ -76,6 +82,9 @@ export type PassThroughType<
    */
   setReturnValue(value: ReturnType<MethodType>) : void;
 
+  /**
+   * The entry class's instance which triggered all this work.  This is for recursive calls.
+   */
   readonly entryPoint: ThisClassType;
 }
 

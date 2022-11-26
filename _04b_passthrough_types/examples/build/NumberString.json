@@ -15,10 +15,22 @@
         "file": "../generated/PassThrough_Continue.mjs",
         "role": "body",
         "setReturn": "never"
+      },
+
+      "MainBody": {
+        "type": "component",
+        "file": "../source/MainBody.mjs",
+        "role": "body",
+        "setReturn": "must"
+      },
+
+      "main": {
+        "type": "sequence",
+        "subkeys": ["Continue", "MainBody"]
       }
     },
 
-    "startComponent": "NotImplemented",
+    "startComponent": "main",
 
     "componentGenerator": {
       "sourceTypeLocation": "NumberStringType.mts",
