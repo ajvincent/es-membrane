@@ -1,4 +1,4 @@
-import { ObjectGraphStub } from "../../source/ObjectGraphStub.mjs";
+import { ObjectGraphStub } from "../source/ObjectGraphStub.mjs";
 import SpyBase from "./SpyBase.mjs";
 import SpyProxyHandler from "./SpyProxyHandler.mjs";
 

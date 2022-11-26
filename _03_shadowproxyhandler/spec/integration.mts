@@ -1,8 +1,8 @@
 import ShadowHeadHandler from "../source/ShadowHeadHandler.mjs";
 import TailHandler from "../source/TailHandler.mjs";
 
-import SpyObjectGraph from "./fixtures/SpyObjectGraph.mjs";
-import SpyProxyHandler from "./fixtures/SpyProxyHandler.mjs";
+import SpyObjectGraph from "../fixtures/SpyObjectGraph.mjs"
+import SpyProxyHandler from "../fixtures/SpyProxyHandler.mjs";
 
 describe("_03_proxyhandler_base integration test for the trap", () => {
   /* I want to simulate what I expect initial behavior to be.  So the goal here

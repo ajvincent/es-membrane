@@ -1,5 +1,5 @@
 import TailHandler from "../source/TailHandler.mjs";
-import SpyProxyHandler from "./fixtures/SpyProxyHandler.mjs";
+import SpyProxyHandler from "../fixtures/SpyProxyHandler.mjs";
 
 describe("TailHandler forwards to ProxyHandler for the trap", () => {
   function idObject(id: string) : object

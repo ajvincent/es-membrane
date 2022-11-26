@@ -1,7 +1,7 @@
 import ShadowHeadHandler from "../source/ShadowHeadHandler.mjs";
-import SpyObjectGraph from "./fixtures/SpyObjectGraph.mjs";
-import SpyProxyHandler from "./fixtures/SpyProxyHandler.mjs";
-import SpyShadowProxyHandler from "./fixtures/SpyShadowProxyHandler.mjs";
+import SpyObjectGraph from "../fixtures/SpyObjectGraph.mjs";
+import SpyProxyHandler from "../fixtures/SpyProxyHandler.mjs";
+import SpyShadowProxyHandler from "../fixtures/SpyShadowProxyHandler.mjs";
 
 describe("ShadowHeadHandler forwards to ShadowProxyHandler for the trap", () => {
   let currentGraph: SpyObjectGraph<object>,

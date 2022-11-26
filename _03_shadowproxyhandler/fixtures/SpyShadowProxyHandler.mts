@@ -1,4 +1,4 @@
-import { ShadowProxyHandler } from "../../source/ShadowProxyHandler.mjs";
+import { ShadowProxyHandler } from "../source/ShadowProxyHandler.mjs";
 import SpyBase from "./SpyBase.mjs";
 
 export default class SpyShadowProxyHandler<T extends object> extends SpyBase implements ShadowProxyHandler<T>

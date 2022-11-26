@@ -4,7 +4,7 @@ import type { propertyKey } from "../../_02_membrane_utilities/source/publicUtil
 void(Reflect as Required<ProxyHandler<object>>);
 */
 
-type ShadowProxyHandler<T extends object> =
+export type ShadowProxyHandler<T extends object> =
 {
   apply(
     shadowTarget: T,
@@ -127,5 +127,3 @@ type ShadowProxyHandler<T extends object> =
     nextProto: object | null
   ): boolean;
 }
-
-export { ShadowProxyHandler };
