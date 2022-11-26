@@ -5,7 +5,8 @@ import ComponentMap from "./generated/PassThroughClassType.mjs";
 import type { ComponentMapOverride } from "./generated/KeyToComponentMap_Base.mjs";
 import type { NumberStringType } from "./build/NumberStringType.mjs";
 
-export default function() {
+export default function() : void
+{
   // straight-forward use
   {
     const target = new NumberStringClass;
