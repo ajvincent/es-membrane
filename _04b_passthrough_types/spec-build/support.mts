@@ -51,9 +51,11 @@ async function buildComponentClasses() : Promise<void>
     "NumberStringType",
   );
 
-  await generator.run();
+  await generator.start();
 
   await createJasmineSpyClass(generatedDir);
+
+  await generator.finalize();
 }
 
 async function createJasmineSpyClass(

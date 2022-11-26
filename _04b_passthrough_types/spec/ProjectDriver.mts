@@ -1,6 +1,9 @@
 import type { NumberStringType } from "../fixtures/NumberStringType.mjs";
 import type { ComponentPassThroughClass } from "../source/exports/internal/PassThroughSupport.mjs";
-import type { InstanceToComponentMap_Type } from "../source/exports/KeyToComponentMap_Base.mjs";
+import type {
+  InstanceToComponentMap_Type,
+  ComponentMapOverride,
+} from "../source/exports/KeyToComponentMap_Base.mjs";
 import type { Entry_BaseType } from "../source/exports/internal/Common.mjs";
 
 import {
@@ -29,7 +32,7 @@ describe("Project Driver creates an EntryClass which", () => {
 
     ComponentMap = await getModulePart<
       InstanceToComponentMap_Type<NumberStringType, NumberStringType>
-    >(moduleSource, "internal/PassThroughClassType.mjs", "ComponentMap");
+    >(moduleSource, "internal/PassThroughClassType.mjs", "default");
   });
 
   let entry: NumberStringType;
@@ -51,22 +54,39 @@ describe("Project Driver creates an EntryClass which", () => {
   it("we can override components for a particular instance to a specific sequence", () => {
     spy.and.returnValue("bar");
 
-    const map = ComponentMap.override(entry, ["_Spy", "Continue", "ContinueToSpy"]);
-    map.startComponent = "ContinueToSpy";
+    {
+      const config: ComponentMapOverride<NumberStringType, NumberStringType> = {
+        components: new Map([]),
+        sequences: new Map([
+          ["ContinueToSpy", ["_Spy", "Continue"]]
+        ]),
+        startComponent: "ContinueToSpy",
+      };
+      ComponentMap.override(entry, config);
+    }
+
     expect(entry.repeatForward("foo", 3)).toBe("bar");
   });
 
   it("we can insert components into", () => {
     spy.and.returnValue("bar");
 
-    const map = ComponentMap.override(entry, ["Continue"]);
 
     const secondSpy = new SpyClass;
     secondSpy.spy.and.returnValue("wop");
 
-    map.addComponent("Spy2", secondSpy);
-    map.addSequence("ContinueToSpy", ["Continue", "Spy2"]);
-    map.startComponent = "ContinueToSpy";
+    {
+      const config: ComponentMapOverride<NumberStringType, NumberStringType> = {
+        components: new Map([
+          ["Spy2", secondSpy]
+        ]),
+        sequences: new Map([
+          ["ContinueToSpy", ["Continue", "Spy2"]]
+        ]),
+        startComponent: "ContinueToSpy",
+      };
+      ComponentMap.override(entry, config);
+    }
 
     expect(entry.repeatForward("foo", 3)).toBe("wop");
   });
@@ -94,7 +114,7 @@ describe("Project Driver with optimized creates an EntryClass with three key com
 
     ComponentMap = await getModulePart<
       InstanceToComponentMap_Type<NumberStringType, NumberStringType>
-    >(moduleSource, "internal/PassThroughClassType.mjs", "ComponentMap");
+    >(moduleSource, "internal/PassThroughClassType.mjs", "default");
   });
 
   it("three components will run", () => {

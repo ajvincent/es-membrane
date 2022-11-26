@@ -25,20 +25,6 @@ const stubType0: NumberStringType =
   }
 };
 
-const stubType1: NumberStringType =
-{
-  repeatForward(s, n) {
-    void(s);
-    void(n);
-    throw new Error("not implemented");
-  },
-  repeatBack(n, s) {
-    void(s);
-    void(n);
-    throw new Error("not implemented");
-  }
-};
-
 describe("InstanceToComponentMap", () => {
   let map: InstanceToComponentMap<NumberStringType, NumberStringType>;
   beforeEach(() => map = new InstanceToComponentMap);
@@ -68,25 +54,6 @@ describe("InstanceToComponentMap", () => {
     expect(map.getComponent(stubType0, "result")).toBe(NST_RESULT);
   });
 
-  it(".override() hides components except for those we defined", () => {
-    map.addDefaultComponent("continue", NST_CONTINUE);
-    map.addDefaultComponent("result", NST_THROW);
-
-    const submap = map.override(stubType1, ["continue"]);
-    expect(Array.from(submap.keys)).toEqual(["continue"]);
-    expect(submap.getComponent("continue")).toBe(NST_CONTINUE);
-
-    submap.addComponent("result", NST_RESULT);
-    expect(Array.from(submap.keys)).toEqual(["continue", "result"]);
-    expect(submap.getComponent("result")).toBe(NST_RESULT);
-
-    expect(map.getComponent(stubType0, "continue")).toBe(NST_CONTINUE);
-    expect(map.getComponent(stubType0, "result")).toBe(NST_THROW);
-
-    expect(map.getComponent(stubType1, "continue")).toBe(NST_CONTINUE);
-    expect(map.getComponent(stubType1, "result")).toBe(NST_RESULT);
-  });
-
   it("allows setting a start component after the component is defined", () => {
     expect(map.defaultStart).toBe(undefined);
 
@@ -107,19 +74,6 @@ describe("InstanceToComponentMap", () => {
     expect(map.defaultKeys).toEqual(
       ["continue", "result", "continueAndResult"]
     );
-  });
-
-  it(".override() lets you copy keys in a sequence when one of the subkeys is not copied", () => {
-    map.addDefaultComponent("continue", NST_CONTINUE);
-    map.addDefaultComponent("result", NST_THROW);
-
-    map.addDefaultSequence("continueAndResult", ["continue", "result"]);
-
-    const submap = map.override(stubType1, ["continue", "continueAndResult"]);
-    expect(Array.from(submap.keys)).toEqual(["continue", "continueAndResult"]);
-    expect(submap.getComponent("continue")).toBe(NST_CONTINUE);
-
-    expect(submap.getSequence("continueAndResult")).toEqual(["continue", "result"]);
   });
 
   function passThrough() : PassThroughType<NumberStringType, NumberStringType["repeatForward"], NumberStringType>

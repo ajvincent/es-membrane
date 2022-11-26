@@ -29,6 +29,7 @@ export default class ComponentClassGenerator
 
   #completedInitialRun = false;
   #hasStartComponent = false;
+  #hasFinalized = false;
 
   /**
    * @param sourceFile      - The source file containing the type alias.
@@ -53,9 +54,10 @@ export default class ComponentClassGenerator
     this.#entryTypeAlias = entryTypeAlias
   }
 
-  #runPromise = new SingletonPromise(() => this.#run());
+  #runPromise = new SingletonPromise(() => this.#start());
+  #finalizePromise = new SingletonPromise(() => this.#finalize());
 
-  async run(): Promise<void>
+  async start(): Promise<void>
   {
     await this.#runPromise.run();
   }
@@ -70,6 +72,8 @@ export default class ComponentClassGenerator
   {
     if (!this.#completedInitialRun)
       throw new Error("Call `await this.run();` first!");
+    if (this.#hasFinalized)
+      throw new Error("This component class generator has finalized!");
 
     const passThroughTypeFile = this.#internalDir.getSourceFileOrThrow("PassThroughClassType.mts");
 
@@ -79,7 +83,7 @@ export default class ComponentClassGenerator
     Object.entries(keys).forEach(([key, componentOrSequence]) => {
       if (componentOrSequence.type === "sequence") {
         defineComponentMapLines.push(`
-ComponentMap.addDefaultSequence("${key}", ${JSON.stringify(componentOrSequence.subkeys)});
+ComponentMapInternal.addDefaultSequence("${key}", ${JSON.stringify(componentOrSequence.subkeys)});
         `.trim());
         return;
       }
@@ -88,7 +92,7 @@ ComponentMap.addDefaultSequence("${key}", ${JSON.stringify(componentOrSequence.s
 import ${key}_Class from "${path.normalize(path.join("..", componentOrSequence.file))}";
       `.trim());
       defineComponentMapLines.push(`
-ComponentMap.addDefaultComponent("${key}", new ${key}_Class);
+ComponentMapInternal.addDefaultComponent("${key}", new ${key}_Class);
       `.trim());
     });
 
@@ -108,19 +112,30 @@ ComponentMap.addDefaultComponent("${key}", new ${key}_Class);
   {
     if (!this.#completedInitialRun)
       throw new Error("Call `await this.run();` first!");
+    if (this.#hasFinalized)
+      throw new Error("This component class generator has finalized!");
     if (this.#hasStartComponent)
       throw new Error("You have already called this.setStartComponent()!");
     this.#hasStartComponent = true;
 
     const passThroughTypeFile = this.#internalDir.getSourceFileOrThrow("PassThroughClassType.mts");
     passThroughTypeFile.addStatements(`
-      ComponentMap.defaultStart = "${startComponent}";
+      ComponentMapInternal.defaultStart = "${startComponent}";
     `.trim());
 
     await passThroughTypeFile.save();
   }
 
-  async #run() : Promise<void>
+  get hasFinalized() : boolean
+  {
+    return this.#hasFinalized;
+  }
+
+  async finalize() : Promise<void> {
+    await this.#finalizePromise.run();
+  }
+
+  async #start() : Promise<void>
   {
     await fs.mkdir(path.join(this.#targetDir.getPath(), "internal"));
 
@@ -194,7 +209,7 @@ export type PassThroughArgumentType<MethodType extends AnyFunction> = PassThroug
   this.#entryTypeAlias
 }>;
 
-export const ComponentMap = new InstanceToComponentMap<${
+const ComponentMapInternal = new InstanceToComponentMap<${
   this.#sourceTypeAlias
 }, ${
   this.#entryTypeAlias
@@ -317,7 +332,32 @@ export const ComponentMap = new InstanceToComponentMap<${
       entryClass.addMember(invokeSymbolMethod);
     }
 
+    entryClassFile.addImportDeclaration({
+      defaultImport: "ComponentMap",
+      moduleSpecifier: "./internal/PassThroughClassType.mjs"
+    });
+
     entryClassFile.fixMissingImports();
     await entryClassFile.save();
+  }
+
+  async #finalize() : Promise<void>
+  {
+    this.#hasFinalized = true;
+
+    const passThroughTypeFile = this.#internalDir.getSourceFileOrThrow("PassThroughClassType.mts");
+    passThroughTypeFile.addStatements(
+`
+const ComponentMap: InstanceToComponentMap_Type<${
+  this.#sourceTypeAlias
+}, ${
+  this.#entryTypeAlias
+}> = ComponentMapInternal;
+export default ComponentMap;
+`.trim()
+    );
+
+    passThroughTypeFile.fixMissingImports();
+    await passThroughTypeFile.save();
   }
 }

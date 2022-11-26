@@ -77,7 +77,7 @@ async function OneProjectDriver(
     generatorData.entryTypeAlias
   );
 
-  await generator.run();
+  await generator.start();
 
   const entries = getProjectKeys(
     Object.entries(config.keys),
@@ -90,6 +90,7 @@ async function OneProjectDriver(
   if (config.startComponent)
     await generator.setStartComponent(config.startComponent);
 
+  await generator.finalize();
   return project;
 }
 

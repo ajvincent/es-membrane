@@ -1,6 +1,11 @@
+/* https://nodejs.org/api/packages.html#imports
+   This is an internal build tool, so it's all right to use a private import.
+ */
+import { DefaultWeakMap } from "#stageUtilities/DefaultMap.mjs";
+
 import {
   AnyFunction,
-  PropertyKey
+  PropertyKey,
 } from "./internal/Common.mjs";
 
 import {
@@ -10,21 +15,42 @@ import {
   MaybePassThrough,
 } from "./internal/PassThroughSupport.mjs";
 
-export type InstanceToComponentMap_Type<PublicClassType extends object, ThisClassType extends PublicClassType> =
+export type ComponentMapOverride<PublicClassType extends object, ThisClassType extends PublicClassType> =
+{
+  readonly startComponent: PropertyKey;
+  readonly components: ReadonlyMap<
+    PropertyKey,
+    ComponentPassThroughClass<PublicClassType, ThisClassType>
+  >;
+  readonly sequences: ReadonlyMap<PropertyKey, PropertyKey[]>;
+};
+
+export interface InstanceToComponentMap_Type<
+  PublicClassType extends object,
+  ThisClassType extends PublicClassType
+>
 {
   /**
-   * @deprecated Use getMapForInstance() below.
-   * @internal
+   * A list of known component and sequence keys for the default map.
    */
-  get defaultKeyMap(): ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>;
+  get defaultKeys(): PropertyKey[];
 
   /**
-   * Get a component map.
-   * @param instance - The instance to get the map for.
-   * @returns the component map.
-   * @internal
+   * The start component key.  Required before creating a base instance.
    */
-  getMapForInstance(instance: PublicClassType): ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>;
+  get defaultStart(): PropertyKey | undefined;
+
+  /**
+   * Override the components and sequences for a given instance.
+   * @param instance - The instance we wish to override components for.
+   * @param configuration - The configuration of override components and sequences.
+   */
+  override(
+    instance: PublicClassType,
+    configuration: ComponentMapOverride<PublicClassType, ThisClassType>
+  ) : void;
+
+  // #region internal API
 
   /**
    * Get a component.
@@ -37,48 +63,22 @@ export type InstanceToComponentMap_Type<PublicClassType extends object, ThisClas
    */
   getComponent(instance: PublicClassType, componentKey: PropertyKey): ComponentPassThroughClass<PublicClassType, ThisClassType>;
 
-  /**
-   * Add a default component by key name.
-   *
-   * @param key       - The key for the component.
-   * @param component - The component.
-   */
-  addDefaultComponent(key: PropertyKey, component: ComponentPassThroughClass<PublicClassType, ThisClassType>): void;
-
-  /**
-   * Get a sequence for a known top key.
-   * @param instance - The instance to get a component for.
-   * @param topKey   - The top key to look up.
-   * @returns The sequence, or an empty array if there is no sequence.
-   * @internal
-   */
+   /**
+    * Get a sequence for a known top key.
+    * @param instance - The instance to get a component for.
+    * @param topKey   - The top key to look up.
+    * @returns The sequence, or an empty array if there is no sequence.
+    * @internal
+    */
   getSequence(instance: PublicClassType, topKey: PropertyKey): PropertyKey[];
 
   /**
-   * Add a default sequence.
-   * @param topKey  - The key defining the sequence.
-   * @param subKeys - The keys of the sequence.
+   * Get a component map.
+   * @param instance - The instance to get the map for.
+   * @returns the component map.
+   * @internal
    */
-  addDefaultSequence(topKey: PropertyKey, subKeys: PropertyKey[]): void;
-
-  /**
-   * A list of known component and sequence keys for the default map.
-   */
-  get defaultKeys(): PropertyKey[];
-
-  /**
-   * The start component key.  Required before creating a base instance.
-   */
-  get defaultStart(): PropertyKey | undefined;
-  set defaultStart(key: PropertyKey | undefined);
-
-  /**
-   * Return a new KeyToComponentMap inheriting components from the default map.
-   * @param instance      - The instance to form the override for.
-   * @param componentKeys - The keys of the components to inherit.
-   * @returns
-   */
-  override(instance: PublicClassType, componentKeys: PropertyKey[]): KeyToComponentMap<PublicClassType, ThisClassType>;
+  getMapForInstance(instance: PublicClassType): ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>;
 
   /**
    * Build a pass-through argument for a method.
@@ -99,6 +99,42 @@ export type InstanceToComponentMap_Type<PublicClassType extends object, ThisClas
     methodName: PropertyKey,
     initialArguments: Parameters<MethodType>
   ): PassThroughType<PublicClassType, MethodType, ThisClassType>;
+
+  // #endregion internal API
+}
+
+export interface InstanceToComponentMap_TypeDefault<
+  PublicClassType extends object, ThisClassType extends PublicClassType
+> extends InstanceToComponentMap_Type<PublicClassType, ThisClassType>
+{
+  /**
+   * @deprecated Use getMapForInstance() below.
+   * @internal
+   */
+  get defaultKeyMap(): ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>;
+
+  /**
+   * Add a default component by key name.
+   *
+   * @param key       - The key for the component.
+   * @param component - The component.
+   */
+  addDefaultComponent(
+    key: PropertyKey,
+    component: ComponentPassThroughClass<PublicClassType, ThisClassType>
+  ): void;
+
+  /**
+   * Add a default sequence.
+   * @param topKey  - The key defining the sequence.
+   * @param subKeys - The keys of the sequence.
+   */
+  addDefaultSequence(topKey: PropertyKey, subKeys: PropertyKey[]): void;
+
+  /**
+   * The start component key.  Required before creating a base instance.
+   */
+  set defaultStart(key: PropertyKey | undefined);
 }
 
 /**
@@ -113,10 +149,15 @@ export type InstanceToComponentMap_Type<PublicClassType extends object, ThisClas
 export default class InstanceToComponentMap<
   PublicClassType extends object,
   ThisClassType extends PublicClassType
-> implements InstanceToComponentMap_Type<PublicClassType, ThisClassType>
+> implements InstanceToComponentMap_TypeDefault<PublicClassType, ThisClassType>
 {
-  readonly #overrideMap = new WeakMap<PublicClassType, KeyToComponentMap<PublicClassType, ThisClassType>>;
+  readonly #overrideMap = new WeakMap<PublicClassType, ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>>;
   readonly #default = new KeyToComponentMap<PublicClassType, ThisClassType>;
+
+  readonly #overrideContextToComponentMap = new DefaultWeakMap<
+    ComponentMapOverride<PublicClassType, ThisClassType>,
+    ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>
+  >;
 
   constructor()
   {
@@ -229,30 +270,63 @@ export default class InstanceToComponentMap<
   }
 
   /**
-   * Return a new KeyToComponentMap inheriting components from the default map.
-   * @param instance      - The instance to form the override for.
-   * @param componentKeys - The keys of the components to inherit.
-   * @returns
+   * Override the components and sequences for a given instance.
+   * @param instance - The instance we wish to override components for.
+   * @param configuration - The configuration of override components and sequences.
    */
   override(
     instance: PublicClassType,
-    componentKeys: PropertyKey[]
-  ) : KeyToComponentMap<PublicClassType, ThisClassType>
+    configuration: ComponentMapOverride<PublicClassType, ThisClassType>
+  ) : void
   {
     if (this.#overrideMap.has(instance))
       throw new Error("Override already exists for the instance!");
 
-    const map = new KeyToComponentMap<PublicClassType, ThisClassType>;
-
-    componentKeys.forEach(key => {
-      const sequence = this.#default.getSequence(key);
-      if (sequence.length)
-        map.addSequence(key, sequence);
-      else
-        map.addComponent(key, this.#default.getComponent(key));
-    });
+    const map = this.#overrideContextToComponentMap.getDefault(
+      configuration,
+      () => this.#buildOverrideMap(configuration)
+    );
 
     this.#overrideMap.set(instance, map);
+  }
+
+  #buildOverrideMap(
+    configuration: ComponentMapOverride<PublicClassType, ThisClassType>
+  ) : ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>
+  {
+    const map = new KeyToComponentMap<PublicClassType, ThisClassType>;
+
+    {
+      const defaultComponentKeys = new Set(this.#default.keys.filter(
+        key => this.#default.getSequence(key).length === 0
+      ));
+
+      configuration.components.forEach((value, key) => {
+        map.addComponent(key, value);
+        defaultComponentKeys.delete(key);
+      });
+
+      defaultComponentKeys.forEach(key => {
+        map.addComponent(key, this.#default.getComponent(key));
+      });
+    }
+
+    {
+      const defaultSequenceKeys = new Set(this.#default.keys.filter(
+        key => this.#default.getSequence(key).length > 0
+      ));
+
+      configuration.sequences.forEach((subkeys, key) => {
+        map.addSequence(key, subkeys);
+        defaultSequenceKeys.delete(key);
+      });
+
+      defaultSequenceKeys.forEach(key => {
+        map.addSequence(key, this.#default.getSequence(key));
+      });
+    }
+
+    map.startComponent = configuration.startComponent;
     return map;
   }
 
