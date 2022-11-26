@@ -2,7 +2,7 @@ import type { NumberStringType } from "../build/NumberStringType.mjs";
 import type {
   PassThroughClassType,
   PassThroughArgumentType
-} from "../generated/internal/PassThroughClassType.mjs";
+} from "../generated/PassThroughClassType.mjs";
 
 export default class MainBody
   implements PassThroughClassType

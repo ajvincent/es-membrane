@@ -24,7 +24,6 @@ export default class ComponentClassGenerator
   readonly #entryTypeAlias: string;
 
   readonly #targetDir: ts.Directory;
-  readonly #internalDir: ts.Directory;
   readonly #baseClassName: string;
 
   #completedInitialRun = false;
@@ -50,7 +49,6 @@ export default class ComponentClassGenerator
     this.#sourceTypeAlias = sourceTypeAlias;
     this.#baseClassName = baseClassName;
     this.#targetDir = targetDir;
-    this.#internalDir = targetDir.createDirectory("internal");
     this.#entryTypeAlias = entryTypeAlias
   }
 
@@ -75,7 +73,7 @@ export default class ComponentClassGenerator
     if (this.#hasFinalized)
       throw new Error("This component class generator has finalized!");
 
-    const passThroughTypeFile = this.#internalDir.getSourceFileOrThrow("PassThroughClassType.mts");
+    const passThroughTypeFile = this.#targetDir.getSourceFileOrThrow("PassThroughClassType.mts");
 
     const importStatements: string[] = [];
     const defineComponentMapLines: string[] = [];
@@ -89,7 +87,7 @@ ComponentMapInternal.addDefaultSequence("${key}", ${JSON.stringify(componentOrSe
       }
 
       importStatements.push(`
-import ${key}_Class from "${path.normalize(path.join("..", componentOrSequence.file))}";
+import ${key}_Class from "${componentOrSequence.file}";
       `.trim());
       defineComponentMapLines.push(`
 ComponentMapInternal.addDefaultComponent("${key}", new ${key}_Class);
@@ -118,7 +116,7 @@ ComponentMapInternal.addDefaultComponent("${key}", new ${key}_Class);
       throw new Error("You have already called this.setStartComponent()!");
     this.#hasStartComponent = true;
 
-    const passThroughTypeFile = this.#internalDir.getSourceFileOrThrow("PassThroughClassType.mts");
+    const passThroughTypeFile = this.#targetDir.getSourceFileOrThrow("PassThroughClassType.mts");
     passThroughTypeFile.addStatements(`
       ComponentMapInternal.defaultStart = "${startComponent}";
     `.trim());
@@ -195,7 +193,7 @@ ComponentMapInternal.addDefaultComponent("${key}", new ${key}_Class);
    */
   async #createPassThroughType() : Promise<void>
   {
-    const passThroughTypeFile = this.#internalDir.createSourceFile("PassThroughClassType.mts");
+    const passThroughTypeFile = this.#targetDir.createSourceFile("PassThroughClassType.mts");
     passThroughTypeFile.addStatements(`
 export type PassThroughClassType = ComponentPassThroughClass<${
   this.#sourceTypeAlias
@@ -334,7 +332,7 @@ const ComponentMapInternal = new InstanceToComponentMap<${
 
     entryClassFile.addImportDeclaration({
       defaultImport: "ComponentMap",
-      moduleSpecifier: "./internal/PassThroughClassType.mjs"
+      moduleSpecifier: "./PassThroughClassType.mjs"
     });
 
     entryClassFile.fixMissingImports();
@@ -345,7 +343,7 @@ const ComponentMapInternal = new InstanceToComponentMap<${
   {
     this.#hasFinalized = true;
 
-    const passThroughTypeFile = this.#internalDir.getSourceFileOrThrow("PassThroughClassType.mts");
+    const passThroughTypeFile = this.#targetDir.getSourceFileOrThrow("PassThroughClassType.mts");
     passThroughTypeFile.addStatements(
 `
 const ComponentMap: InstanceToComponentMap_Type<${

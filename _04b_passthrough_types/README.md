@@ -253,9 +253,9 @@ This will generate several files.
   - `EntryClass.mts` implementing your original type (in examples above, `NumberStringType`) to directly invoke a component class's equivalent method.  I recommend subclassing this for additional properties.
   - `PassThrough_Continue.mts` as a base class for component classes.  Use this when you want to allow methods to not be implemented.
   - `PassThrough_NotImplemented.mts` as a base class for component classes.  Use this when you _want_ to throw for methods you haven't implemented.
+  - `PassThroughClassType.mts` defines several types and the `ComponentMap`, which loads the component classes.
 - For internal use:
   - `Common.mts` for shared TypeScript types.
-  - `PassThroughClassType.mts` defines several types and the `ComponentMap`, which loads the component classes.  
   - `PassThroughSupport.mts` defines the generic types for component classes.
 
 ## Tying components together

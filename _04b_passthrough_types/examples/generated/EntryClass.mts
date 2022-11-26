@@ -3,7 +3,7 @@
 */
 import { NumberStringType } from "../build/NumberStringType.mjs";
 import { AnyFunction } from "./internal/Common.mjs";
-import ComponentMap from "./internal/PassThroughClassType.mjs";
+import ComponentMap from "./PassThroughClassType.mjs";
 
 export default class NumberStringClass implements NumberStringType {
     repeatForward(s: string, n: number) : string

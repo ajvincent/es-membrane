@@ -32,7 +32,7 @@ describe("Project Driver creates an EntryClass which", () => {
 
     ComponentMap = await getModulePart<
       InstanceToComponentMap_Type<NumberStringType, NumberStringType>
-    >(moduleSource, "internal/PassThroughClassType.mjs", "default");
+    >(moduleSource, "PassThroughClassType.mjs", "default");
   });
 
   let entry: NumberStringType;
@@ -114,7 +114,7 @@ describe("Project Driver with optimized creates an EntryClass with three key com
 
     ComponentMap = await getModulePart<
       InstanceToComponentMap_Type<NumberStringType, NumberStringType>
-    >(moduleSource, "internal/PassThroughClassType.mjs", "default");
+    >(moduleSource, "PassThroughClassType.mjs", "default");
   });
 
   it("three components will run", () => {

@@ -2,7 +2,7 @@
    Instead, edit the types this file imports.
 */
 import { NumberStringType } from "../build/NumberStringType.mjs";
-import { PassThroughClassType, PassThroughArgumentType } from "./internal/PassThroughClassType.mjs";
+import { PassThroughClassType, PassThroughArgumentType } from "./PassThroughClassType.mjs";
 
 export default class NumberStringClass_PassThroughContinue implements PassThroughClassType
 {

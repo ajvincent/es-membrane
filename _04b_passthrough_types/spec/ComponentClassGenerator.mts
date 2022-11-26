@@ -38,7 +38,7 @@ describe("Component class generator", () => {
 
     ComponentMap = await getModulePart<
       InstanceToComponentMap_TypeDefault<NumberStringType, NumberStringType>
-    >(moduleSource, "internal/PassThroughClassType.mjs", "default");
+    >(moduleSource, "PassThroughClassType.mjs", "default");
   });
 
   it("creates the base 'not-yet implemented' class", () => {

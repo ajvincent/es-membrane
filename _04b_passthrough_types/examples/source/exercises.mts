@@ -1,7 +1,7 @@
 import NumberStringClass from "../generated/EntryClass.mjs";
 
 import ForwardingSpy from "./ForwardingSpy.mjs";
-import ComponentMap from "../generated/internal/PassThroughClassType.mjs";
+import ComponentMap from "../generated/PassThroughClassType.mjs";
 import type { ComponentMapOverride } from "../generated/KeyToComponentMap_Base.mjs";
 import type { NumberStringType } from "../build/NumberStringType.mjs";
 
