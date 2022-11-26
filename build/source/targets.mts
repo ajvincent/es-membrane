@@ -45,7 +45,7 @@ class DirStage
     BPSet.get(dir + ":build").addTask(async () => await this.#runBuild());
     BPSet.get(dir + ":tsc").addTask(async () => await this.#runTSC());
     BPSet.get(dir + ":spec-build").addTask(async () => await this.#specBuild());
-    BPSet.get(dir + ":examples").addTask(async () => await this.#examplesBuild());
+    BPSet.get(dir + ":examples-build").addTask(async () => await this.#examplesBuild());
   }
 
   addSubtargets(dir: string) {
@@ -275,7 +275,7 @@ class DirStage
     "build",
     "tsc",
     "spec-build",
-    "examples"
+    "examples-build",
   ];
 
   static buildTask(dir: string) : DirStage
@@ -426,6 +426,28 @@ catch (ex: unknown) {
       await runModule("./node_modules/eslint/bin/eslint.js", args);
     }
   );
+}
+
+{ // examples
+  const target = BPSet.get("examples");
+
+  await PromiseAllSequence(stageDirs, async (stageDir) => {
+    target.addTask(async () => {
+      const pathToModule = path.resolve(stageDir, "examples/run.mjs");
+      try {
+        await fs.access(pathToModule);
+      }
+      catch (ex) {
+        // do nothing
+        void(ex);
+        return;
+      }
+
+      console.log(`${stageDir}/examples/run.mjs`);
+      const exampleModule = (await import(pathToModule)).default as () => Promise<void>;
+      await exampleModule();
+    });
+  });
 }
 
 BPSet.markReady();

@@ -20,5 +20,5 @@ const DoubleArrayPromise = await getModuleDefaultClassWithArgs<
 );
 
 const doubleArray = new DoubleArrayPromise(100);
-console.log(await doubleArray.run());
-// [ 0, 2, 4, 6, ... 196, 198]
+
+export { doubleArray };

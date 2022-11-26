@@ -9,7 +9,8 @@
     "eslint": "node ./build/source/mainWithBuild.mjs eslint",
     "debug": "node ./build/source/mainWithBuild.mjs debug",
     "build-debug": "node --inspect-brk ./build/source/main.mjs clean stages",
-    "all": "node ./build/source/mainWithBuild.mjs clean stages test eslint"
+    "all": "node ./build/source/mainWithBuild.mjs clean stages test eslint",
+    "examples": "node ./build/source/mainWithBuild.mjs examples"
   },
   "repository": {
     "type": "git",
