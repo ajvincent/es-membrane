@@ -1,0 +1,31 @@
+[
+  {
+    "schemaDate": 20221027,
+
+    "keys": {
+      "NotImplemented": {
+        "type": "component",
+        "file": "../generated/PassThrough_NotImplemented.mjs",
+        "role": "body",
+        "setReturn": "never"
+      },
+
+      "Continue": {
+        "type": "component",
+        "file": "../generated/PassThrough_Continue.mjs",
+        "role": "body",
+        "setReturn": "never"
+      }
+    },
+
+    "startComponent": "NotImplemented",
+
+    "componentGenerator": {
+      "sourceTypeLocation": "NumberStringType.mts",
+      "sourceTypeAlias": "NumberStringType",
+      "targetDirLocation": "../generated",
+      "baseClassName": "NumberStringClass",
+      "entryTypeAlias": "NumberStringType"
+    }
+  }
+]
