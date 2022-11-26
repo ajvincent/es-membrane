@@ -15,7 +15,17 @@ import {
   MaybePassThrough,
 } from "./internal/PassThroughSupport.mjs";
 
-export type ComponentMapOverride<PublicClassType extends object, ThisClassType extends PublicClassType> =
+// #region Global ComponentMap
+
+/**
+ * Components and sequences to override in the default settings.
+ * @see InstanceToComponentMap_Type.override()
+ * @public
+ */
+export type ComponentMapOverride<
+  PublicClassType extends object,
+  ThisClassType extends PublicClassType
+> =
 {
   readonly startComponent: PropertyKey;
   readonly components: ReadonlyMap<
@@ -25,6 +35,11 @@ export type ComponentMapOverride<PublicClassType extends object, ThisClassType e
   readonly sequences: ReadonlyMap<PropertyKey, PropertyKey[]>;
 };
 
+/**
+ * This is your primary interface for accessing components and sequences, and
+ * overriding them via the override() method.  Defaults are set at build time.
+ * @public
+ */
 export interface InstanceToComponentMap_Type<
   PublicClassType extends object,
   ThisClassType extends PublicClassType
@@ -48,7 +63,10 @@ export interface InstanceToComponentMap_Type<
    * @returns The component.
    * @throws if there is no component for the key.
    */
-  getComponent(instance: PublicClassType, componentKey: PropertyKey): ComponentPassThroughClass<PublicClassType, ThisClassType>;
+  getComponent(
+    instance: PublicClassType,
+    componentKey: PropertyKey
+  ): ComponentPassThroughClass<PublicClassType, ThisClassType>;
 
   /**
    * Get a sequence for a known top key.  This can be useful in inserting spies into a sequence.
@@ -56,8 +74,12 @@ export interface InstanceToComponentMap_Type<
    * @param instance - The instance to get a component for.
    * @param topKey   - The top key to look up.
    * @returns The sequence, or an empty array if there is no sequence.
+   * @public
    */
-  getSequence(instance: PublicClassType, topKey: PropertyKey): PropertyKey[];
+  getSequence(
+    instance: PublicClassType,
+    topKey: PropertyKey
+  ): PropertyKey[];
 
   /**
    * Override the components and sequences for a given instance.
@@ -73,29 +95,26 @@ export interface InstanceToComponentMap_Type<
     configuration: ComponentMapOverride<PublicClassType, ThisClassType>
   ) : void;
 
-  // #region internal API
-
   /**
    * Get a component map.
    * @param instance - The instance to get the map for.
    * @returns the component map.
    * @internal
    */
-  getMapForInstance(instance: PublicClassType): ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>;
-
-  // #endregion internal API
+  getMapForInstance(
+    instance: PublicClassType
+  ): ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>;
 }
 
+/**
+ * This interface is for creating the default component map in
+ * internal/PassThroughClassType.mts.
+ * @internal
+ */
 export interface InstanceToComponentMap_TypeDefault<
   PublicClassType extends object, ThisClassType extends PublicClassType
 > extends InstanceToComponentMap_Type<PublicClassType, ThisClassType>
 {
-  /**
-   * @deprecated Use getMapForInstance() below.
-   * @internal
-   */
-  get defaultKeyMap(): ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>;
-
   /**
    * Add a default component by key name.
    *
@@ -128,20 +147,14 @@ export interface InstanceToComponentMap_TypeDefault<
  * This also exposes an `override()` method to replace the default
  * components map with a custom map for testing purposes (i.e. inserting a stub
  * for Jasmine spies) on a very specific Entry_Base instance.
+ *
+ * @sealed
  */
 export default class InstanceToComponentMap<
   PublicClassType extends object,
   ThisClassType extends PublicClassType
 > implements InstanceToComponentMap_TypeDefault<PublicClassType, ThisClassType>
 {
-  readonly #overrideMap = new WeakMap<PublicClassType, ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>>;
-  readonly #default = new KeyToComponentMap<PublicClassType, ThisClassType>;
-
-  readonly #overrideContextToComponentMap = new DefaultWeakMap<
-    ComponentMapOverride<PublicClassType, ThisClassType>,
-    ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>
-  >;
-
   constructor()
   {
     if (new.target !== InstanceToComponentMap)
@@ -150,13 +163,25 @@ export default class InstanceToComponentMap<
   }
 
   /**
-   * @deprecated Use getMapForInstance() below.
-   * @internal
+   * Override components for each instance.
    */
-  get defaultKeyMap() : ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>
-  {
-    return this.#default;
-  }
+  readonly #overrideMap = new WeakMap<
+    PublicClassType,
+    ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>
+  >;
+
+  /**
+   * Default components for each instance.
+   */
+  readonly #default = new KeyToComponentMap<PublicClassType, ThisClassType>;
+
+  /**
+   * Convenience map for reusing the same overrides on several instances.
+   */
+  readonly #overrideContextToComponentMap = new DefaultWeakMap<
+    ComponentMapOverride<PublicClassType, ThisClassType>,
+    ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>
+  >;
 
   /**
    * Get a component map.
@@ -178,7 +203,6 @@ export default class InstanceToComponentMap<
    * @param componentKey  - The key for the component.
    * @returns The component.
    * @throws if there is no component for the key.
-   * @internal
    */
   getComponent(
     instance: PublicClassType,
@@ -208,7 +232,6 @@ export default class InstanceToComponentMap<
    * @param instance - The instance to get a component for.
    * @param topKey   - The top key to look up.
    * @returns The sequence, or an empty array if there is no sequence.
-   * @internal
    */
   getSequence(
     instance: PublicClassType,
@@ -273,12 +296,18 @@ export default class InstanceToComponentMap<
     this.#overrideMap.set(instance, map);
   }
 
+  /**
+   * Build an override component map for a given configuration.
+   * @param configuration - the components, sequences, and start component to use.
+   * @returns the override map.
+   */
   #buildOverrideMap(
     configuration: ComponentMapOverride<PublicClassType, ThisClassType>
   ) : ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>
   {
     const map = new KeyToComponentMap<PublicClassType, ThisClassType>;
 
+    // Pick up components, starting with the overrides.
     {
       const defaultComponentKeys = new Set(this.#default.keys.filter(
         key => this.#default.getSequence(key).length === 0
@@ -294,6 +323,7 @@ export default class InstanceToComponentMap<
       });
     }
 
+    // Pick up sequences, starting with the overrides.
     {
       const defaultSequenceKeys = new Set(this.#default.keys.filter(
         key => this.#default.getSequence(key).length > 0
@@ -316,12 +346,17 @@ export default class InstanceToComponentMap<
 Object.freeze(InstanceToComponentMap);
 Object.freeze(InstanceToComponentMap.prototype);
 
+// #endregion Global ComponentMap
+
+// #region KeyToComponentMap: Internal API for mapping keys to components and sequences.
 /**
  * This is the real workhorse:  mapping from a key either to a component instance
  * matching the API of the pass-through-augmented class, or to a sequence of existing
  * keys.
+ *
+ * @internal
  */
-export interface ReadonlyKeyToComponentMap<
+interface ReadonlyKeyToComponentMap<
   PublicClassType extends object,
   ThisClassType extends PublicClassType
 >
@@ -332,7 +367,6 @@ export interface ReadonlyKeyToComponentMap<
    * @param key - The key for the component.
    * @returns The component.
    * @throws if there is no component for the key.
-   * @internal
    */
   getComponent(
     key: PropertyKey
@@ -342,7 +376,6 @@ export interface ReadonlyKeyToComponentMap<
    * Get a sequence for a known top key.
    * @param topKey   - The top key to look up.
    * @returns The sequence, or an empty array if there is no sequence.
-   * @internal
    */
   getSequence(
     topKey: PropertyKey
@@ -366,7 +399,6 @@ export interface ReadonlyKeyToComponentMap<
    * @param initialArguments - The initial arguments of the method.
    * @returns The pass-through argument.
    *
-   * @internal
    * @see Entry_Base.prototype[INVOKE_SYMBOL]
    */
   buildPassThrough<
@@ -379,6 +411,10 @@ export interface ReadonlyKeyToComponentMap<
   ) : PassThroughType<PublicClassType, MethodType, ThisClassType>;
 }
 
+/**
+ * @internal
+ * @sealed
+ */
 class KeyToComponentMap<
   PublicClassType extends object,
   ThisClassType extends PublicClassType
@@ -394,10 +430,6 @@ class KeyToComponentMap<
       throw new Error("key cannot be an empty string!");
   }
 
-  #startComponent?: PropertyKey;
-  readonly #componentMap = new Map<PropertyKey, ComponentPassThroughClass<PublicClassType, ThisClassType>>;
-  readonly #sequenceMap = new Map<PropertyKey, PropertyKey[]>;
-
   constructor()
   {
     if (new.target !== KeyToComponentMap)
@@ -405,13 +437,19 @@ class KeyToComponentMap<
     Object.freeze(this);
   }
 
+  #startComponent?: PropertyKey;
+  readonly #componentMap = new Map<
+    PropertyKey,
+    ComponentPassThroughClass<PublicClassType, ThisClassType>
+  >;
+  readonly #sequenceMap = new Map<PropertyKey, PropertyKey[]>;
+
   /**
    * Get a component.
    *
    * @param key - The key for the component.
    * @returns The component.
    * @throws if there is no component for the key.
-   * @internal
    */
   getComponent(
     key: PropertyKey
@@ -445,7 +483,6 @@ class KeyToComponentMap<
    * Get a sequence for a known top key.
    * @param topKey   - The top key to look up.
    * @returns The sequence, or an empty array if there is no sequence.
-   * @internal
    */
   getSequence(
     topKey: PropertyKey
@@ -529,7 +566,6 @@ class KeyToComponentMap<
    * @param initialArguments - The initial arguments of the method.
    * @returns The pass-through argument.
    *
-   * @internal
    * @see Entry_Base.prototype[INVOKE_SYMBOL]
    */
   buildPassThrough<
@@ -541,16 +577,27 @@ class KeyToComponentMap<
     initialArguments: Parameters<MethodType>
   ) : PassThroughType<PublicClassType, MethodType, ThisClassType>
   {
-    return new PassThroughArgument<PublicClassType, MethodType, ThisClassType>(this, entryPoint, methodName, initialArguments);
+    return new PassThroughArgument<
+      PublicClassType, MethodType, ThisClassType
+    >(this, entryPoint, methodName, initialArguments);
   }
 }
 Object.freeze(KeyToComponentMap);
 Object.freeze(KeyToComponentMap.prototype);
 
+// #endregion KeyToComponentMap: Internal API for mapping keys to components and sequences.
+
+// #region PassThroughArgument
+
 /**
  * This class defines the flow-control system.  It provides:
  * - modifiedArguments, which follows the shape of the original method
  * - callTarget() for calling other component classes with the modifiedArguments.
+ * - getReturnValue() for the current return value, if it has been set.
+ * - setReturnValue() for setting the return value
+ * - entryPoint for going back to the starting instance.
+ *
+ * @public
  */
 class PassThroughArgument<
   PublicClassType extends object,
@@ -602,6 +649,10 @@ class PassThroughArgument<
 
   /**
    * Call the method of a particular component (or sequence of components).
+   *
+   * Think twice about using this in a Production environment.  Support for
+   * this will just complicate the final target code.
+   *
    * @param componentKey - The key of the component in this.#componentMap.
    * @returns whatever the component returns.
    * @public
@@ -631,6 +682,7 @@ class PassThroughArgument<
 
   /**
    * Get the return value, if it's available.
+   * @public
    */
   getReturnValue(): [false, undefined] | [true, ReturnType<MethodType>]
   {
@@ -643,6 +695,7 @@ class PassThroughArgument<
    * Set the return value.
    *
    * @param value - The value to return.  Only callable once.
+   * @public
    */
   setReturnValue(value: ReturnType<MethodType>): void
   {
@@ -654,3 +707,5 @@ class PassThroughArgument<
 }
 Object.freeze(PassThroughArgument);
 Object.freeze(PassThroughArgument.prototype);
+
+// #endregion PassThroughArgument

@@ -46,8 +46,8 @@ export type PassThroughType<
   /**
    * This allows us to call another method with the modifiedArguments.
    *
-   * Think twice about using this in a Production environment.  Support for this will just
-   * complicate the final target code.
+   * Think twice about using this in a Production environment.  Support for
+   * this will just complicate the final target code.
    */
   callTarget(key: PropertyKey) : void;
 
@@ -75,6 +75,9 @@ export type PassThroughType<
    */
   setReturnValue(value: ReturnType<MethodType>) : void;
 
+  /**
+   * The entry class's instance which triggered all this work.  This is for recursive calls.
+   */
   readonly entryPoint: ThisClassType;
 };
 
