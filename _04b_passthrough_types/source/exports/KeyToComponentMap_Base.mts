@@ -41,19 +41,6 @@ export interface InstanceToComponentMap_Type<
   get defaultStart(): PropertyKey | undefined;
 
   /**
-   * Override the components and sequences for a given instance.
-   * This overlays the configuration's components, sequences and start component over
-   * the existing defaults..
-   *
-   * @param instance - The instance we wish to override components for.
-   * @param configuration - The configuration of override components and sequences.
-   */
-  override(
-    instance: PublicClassType,
-    configuration: ComponentMapOverride<PublicClassType, ThisClassType>
-  ) : void;
-
-  /**
    * Get a component.  This can be useful for replacing a component with a spy on the component
    *
    * @param instance      - The instance to get a component for.
@@ -63,14 +50,28 @@ export interface InstanceToComponentMap_Type<
    */
   getComponent(instance: PublicClassType, componentKey: PropertyKey): ComponentPassThroughClass<PublicClassType, ThisClassType>;
 
-   /**
-    * Get a sequence for a known top key.  This can be useful in inserting spies into a sequence.
-    *
-    * @param instance - The instance to get a component for.
-    * @param topKey   - The top key to look up.
-    * @returns The sequence, or an empty array if there is no sequence.
-    */
+  /**
+   * Get a sequence for a known top key.  This can be useful in inserting spies into a sequence.
+   *
+   * @param instance - The instance to get a component for.
+   * @param topKey   - The top key to look up.
+   * @returns The sequence, or an empty array if there is no sequence.
+   */
   getSequence(instance: PublicClassType, topKey: PropertyKey): PropertyKey[];
+
+  /**
+   * Override the components and sequences for a given instance.
+   * This overlays the configuration's components, sequences and start
+   * component over the existing defaults.  Existing components and sequences
+   * you don't override are still available.
+   *
+   * @param instance - The instance we wish to override components for.
+   * @param configuration - The configuration of override components and sequences.
+   */
+  override(
+    instance: PublicClassType,
+    configuration: ComponentMapOverride<PublicClassType, ThisClassType>
+  ) : void;
 
   // #region internal API
 
@@ -81,26 +82,6 @@ export interface InstanceToComponentMap_Type<
    * @internal
    */
   getMapForInstance(instance: PublicClassType): ReadonlyKeyToComponentMap<PublicClassType, ThisClassType>;
-
-  /**
-   * Build a pass-through argument for a method.
-   *
-   * @typeParam MethodType - The type of the non-augmented method.
-   * @param instance         - The instance to get a component for.
-   * @param methodName       - The name of the method to invoke.
-   * @param initialArguments - The initial arguments of the method.
-   * @returns The pass-through argument.
-   *
-   * @internal
-   * @see Entry_Base.prototype[INVOKE_SYMBOL]
-   */
-  buildPassThrough<
-    MethodType extends AnyFunction
-  >(
-    instance: ThisClassType,
-    methodName: PropertyKey,
-    initialArguments: Parameters<MethodType>
-  ): PassThroughType<PublicClassType, MethodType, ThisClassType>;
 
   // #endregion internal API
 }
@@ -330,31 +311,6 @@ export default class InstanceToComponentMap<
 
     map.startComponent = configuration.startComponent;
     return map;
-  }
-
-  /**
-   * Build a pass-through argument for a method.
-   *
-   * @typeParam MethodType - The type of the non-augmented method.
-   * @param instance         - The instance to get a component for.
-   * @param methodName       - The name of the method to invoke.
-   * @param initialArguments - The initial arguments of the method.
-   * @returns The pass-through argument.
-   *
-   * @internal
-   * @see Entry_Base.prototype[INVOKE_SYMBOL]
-   */
-  buildPassThrough<
-    MethodType extends AnyFunction
-  >
-  (
-    instance: ThisClassType,
-    methodName: PropertyKey,
-    initialArguments: Parameters<MethodType>
-  ) : PassThroughType<PublicClassType, MethodType, ThisClassType>
-  {
-    const submap = this.#overrideMap.get(instance) ?? this.#default;
-    return submap.buildPassThrough(instance, methodName, initialArguments);
   }
 }
 Object.freeze(InstanceToComponentMap);

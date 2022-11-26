@@ -78,7 +78,8 @@ describe("InstanceToComponentMap", () => {
 
   function passThrough() : PassThroughType<NumberStringType, NumberStringType["repeatForward"], NumberStringType>
   {
-    return map.buildPassThrough<NumberStringType["repeatForward"]>(
+    const submap = map.getMapForInstance(stubType0);
+    return submap.buildPassThrough<NumberStringType["repeatForward"]>(
       stubType0,
       "repeatForward",
       ["foo", 3]

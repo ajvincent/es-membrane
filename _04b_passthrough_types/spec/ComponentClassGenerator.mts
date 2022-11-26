@@ -91,7 +91,8 @@ describe("Component class generator", () => {
       ComponentMap.override(instance, config);
     }
 
-    const passThrough = ComponentMap.buildPassThrough<
+    const submap = ComponentMap.getMapForInstance(instance);
+    const passThrough = submap.buildPassThrough<
       NumberStringType["repeatForward"]
     >(instance, "repeatForward", ["foo", 3]);
 
