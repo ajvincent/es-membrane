@@ -42,6 +42,9 @@ export interface InstanceToComponentMap_Type<
 
   /**
    * Override the components and sequences for a given instance.
+   * This overlays the configuration's components, sequences and start component over
+   * the existing defaults..
+   *
    * @param instance - The instance we wish to override components for.
    * @param configuration - The configuration of override components and sequences.
    */
@@ -50,27 +53,26 @@ export interface InstanceToComponentMap_Type<
     configuration: ComponentMapOverride<PublicClassType, ThisClassType>
   ) : void;
 
-  // #region internal API
-
   /**
-   * Get a component.
+   * Get a component.  This can be useful for replacing a component with a spy on the component
    *
    * @param instance      - The instance to get a component for.
    * @param componentKey  - The key for the component.
    * @returns The component.
    * @throws if there is no component for the key.
-   * @internal
    */
   getComponent(instance: PublicClassType, componentKey: PropertyKey): ComponentPassThroughClass<PublicClassType, ThisClassType>;
 
    /**
-    * Get a sequence for a known top key.
+    * Get a sequence for a known top key.  This can be useful in inserting spies into a sequence.
+    *
     * @param instance - The instance to get a component for.
     * @param topKey   - The top key to look up.
     * @returns The sequence, or an empty array if there is no sequence.
-    * @internal
     */
   getSequence(instance: PublicClassType, topKey: PropertyKey): PropertyKey[];
+
+  // #region internal API
 
   /**
    * Get a component map.
