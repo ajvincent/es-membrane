@@ -188,13 +188,15 @@ class DirStage {
                 console.log("Compiling examples/build:");
                 const rootDir = path.dirname(pathToMTS);
                 await this.#invokeTSCWithDirFilter(rootDir, path.join(rootDir, "tsconfig.json"));
+                const generatedDir = path.join(examplesDir, "generated");
+                await fs.rm(generatedDir, { recursive: true });
                 console.log("Executing examples/build/support.mjs:");
                 const supportModule = (await import(pathToModule)).default;
                 await supportModule();
             }
         }
         console.log("Compiling examples (except for build):");
-        await this.#invokeTSCWithDirFilter(examplesDir, path.join(examplesDir, "tsconfig.json"), localDir => path.basename(localDir) !== "examples");
+        await this.#invokeTSCWithDirFilter(examplesDir, path.join(examplesDir, "tsconfig.json"), localDir => path.basename(localDir) !== "build");
     }
     static #subtasks = [
         "clean",
