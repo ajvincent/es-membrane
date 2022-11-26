@@ -10,16 +10,31 @@ export type ModuleSourceDirectory = {
   pathToDirectory: string;
 };
  
- /**
-  * @typeParam T - the type of the class's return value.
-  * @param source - the source metadata.
-  * @param leafName - the module filename.
-  * @returns the default export.
-  */
-export async function getModuleDefaultClass<T>(
+/**
+ * @typeParam U - the type of the class's return value.
+ * @param source - the source metadata.
+ * @param leafName - the module filename.
+ * @returns the default export.
+ */
+export async function getModuleDefaultClass<U>(
   source: ModuleSourceDirectory,
   leafName: string
-) : Promise<{ new() : T }>
+) : Promise<{ new() : U }>
+{
+  return (await import(pathToModule(source, leafName))).default;
+}
+
+/**
+ * @typeParam T - the arguments to pass in.
+ * @typeParam U - the type of the class's return value.
+ * @param source - the source metadata.
+ * @param leafName - the module filename.
+ * @returns the default export.
+ */
+export async function getModuleDefaultClassWithArgs<T extends unknown[], U>(
+  source: ModuleSourceDirectory,
+  leafName: string
+) : Promise<{ new(...args: T) : U }>
 {
   return (await import(pathToModule(source, leafName))).default;
 }
