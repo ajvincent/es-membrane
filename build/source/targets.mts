@@ -254,7 +254,7 @@ class DirStage
         await this.#invokeTSCWithDirFilter(rootDir, path.join(rootDir, "tsconfig.json"));
 
         const generatedDir = path.join(examplesDir, "generated");
-        await fs.rm(generatedDir, { recursive: true });
+        await fs.rm(generatedDir, { recursive: true, force: true });
 
         console.log("Executing examples/build/support.mjs:");
         const supportModule = (await import(pathToModule)).default as () => Promise<void>;
