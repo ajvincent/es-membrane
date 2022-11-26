@@ -35,7 +35,7 @@ export const PROXYHANDLER_TRAPS = Object.freeze([
 /**
  * {@link https://tc39.es/ecma262/#sec-property-descriptor-specification-type}
  */
-export class DataDescriptor<T>
+export class DataDescriptor<T> implements PropertyDescriptor
 {
   value: T;
   writable: boolean;
@@ -70,7 +70,7 @@ Object.freeze(DataDescriptor.prototype);
 /**
  * {@link https://tc39.es/ecma262/#sec-property-descriptor-specification-type}
  */
-export class AccessorDescriptor<T>
+export class AccessorDescriptor<T> implements PropertyDescriptor
 {
   get: () => T;
   set: (value: T) => void;
