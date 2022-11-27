@@ -41,7 +41,7 @@ describe("TypeToClass supports", () => {
     expect(
       () => instance.repeatBack(3, "foo")
     ).toThrowError("not yet implemented");
-  }, 1000 * 60 * 60);
+  });
 
   it("interface split across two declarations", async () => {
     const NSTC = await getModuleDefaultClass<NumberStringType>(moduleSource, "NumberStringInterfaceClass.mjs");
