@@ -45,8 +45,8 @@ describe("TailHandler forwards to ProxyHandler for the trap", () => {
 
   class GenericOther {}
 
-  let tail: TailHandler<object>;
-  let spyHandler: SpyProxyHandler<object>;
+  let tail: TailHandler;
+  let spyHandler: SpyProxyHandler;
   beforeEach(() => {
     tail = new TailHandler;
     spyHandler = new SpyProxyHandler;

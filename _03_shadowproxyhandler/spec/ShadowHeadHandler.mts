@@ -4,10 +4,10 @@ import SpyProxyHandler from "../fixtures/SpyProxyHandler.mjs";
 import SpyShadowProxyHandler from "../fixtures/SpyShadowProxyHandler.mjs";
 
 describe("ShadowHeadHandler forwards to ShadowProxyHandler for the trap", () => {
-  let currentGraph: SpyObjectGraph<object>,
-      targetGraph: SpyObjectGraph<object>,
-      shadowHandler: SpyShadowProxyHandler<object>,
-      head: ShadowHeadHandler<object>;
+  let currentGraph: SpyObjectGraph,
+      targetGraph: SpyObjectGraph,
+      shadowHandler: SpyShadowProxyHandler,
+      head: ShadowHeadHandler;
 
   const spyHandler = new SpyProxyHandler;
 
@@ -67,7 +67,11 @@ describe("ShadowHeadHandler forwards to ShadowProxyHandler for the trap", () => 
 
   function spotCheckTargetGraph(...extraNames: string[]) : void
   {
-    targetGraph.expectSpiesClearExcept("getNextTargetForShadow", "getHandlerForTarget", ...extraNames);
+    targetGraph.expectSpiesClearExcept(
+      "getNextTargetForShadow",
+      "getHandlerForTarget",
+      ...extraNames
+    );
     expect(targetGraph.getSpy("getNextTargetForShadow")).toHaveBeenCalledOnceWith(
       shadowTarget
     );

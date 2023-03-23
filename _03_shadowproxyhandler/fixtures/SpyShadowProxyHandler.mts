@@ -1,10 +1,14 @@
-import { ShadowProxyHandler } from "../source/ShadowProxyHandler.mjs";
+import type {
+  ShadowProxyHandler,
+  RequiredHandler,
+} from "../source/ShadowProxyHandler.mjs";
+
 import SpyBase from "./SpyBase.mjs";
 
 export default
-class SpyShadowProxyHandler<T extends object>
+class SpyShadowProxyHandler
 extends SpyBase
-implements ShadowProxyHandler<T>
+implements ShadowProxyHandler
 {
   constructor()
   {
@@ -19,12 +23,12 @@ implements ShadowProxyHandler<T>
   }
 
   apply(
-    shadowTarget: T,
+    shadowTarget: object,
     thisArg: unknown,
     argArray: unknown[],
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
 
     nextThisArg: unknown,
     nextArgArray: unknown[]
@@ -36,12 +40,12 @@ implements ShadowProxyHandler<T>
   }
 
   construct(
-    shadowTarget: T,
+    shadowTarget: object,
     argArray: unknown[],
     newTarget: Function,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
 
     nextArgArray: unknown[],
     nextNewTarget: Function
@@ -53,12 +57,12 @@ implements ShadowProxyHandler<T>
   }
 
   defineProperty(
-    shadowTarget: T,
+    shadowTarget: object,
     p: string | symbol,
     attributes: PropertyDescriptor,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
 
     nextAttributes: PropertyDescriptor
   ): boolean
@@ -69,11 +73,11 @@ implements ShadowProxyHandler<T>
   }
 
   deleteProperty(
-    shadowTarget: T,
+    shadowTarget: object,
     p: string | symbol,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): boolean
   {
     return this.getSpy("deleteProperty")(
@@ -82,12 +86,12 @@ implements ShadowProxyHandler<T>
   }
 
   get(
-    shadowTarget: T,
+    shadowTarget: object,
     p: string | symbol,
     receiver: unknown,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
 
     nextReceiver: unknown
   ): unknown
@@ -98,11 +102,11 @@ implements ShadowProxyHandler<T>
   }
 
   getOwnPropertyDescriptor(
-    shadowTarget: T,
+    shadowTarget: object,
     p: string | symbol,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): PropertyDescriptor | undefined
   {
     return this.getSpy("getOwnPropertyDescriptor")(
@@ -111,10 +115,10 @@ implements ShadowProxyHandler<T>
   }
 
   getPrototypeOf(
-    shadowTarget: T,
+    shadowTarget: object,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): object | null
   {
     return this.getSpy("getPrototypeOf")(
@@ -123,11 +127,11 @@ implements ShadowProxyHandler<T>
   }
 
   has(
-    shadowTarget: T,
+    shadowTarget: object,
     p: string | symbol,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): boolean
   {
     return this.getSpy("has")(
@@ -136,10 +140,10 @@ implements ShadowProxyHandler<T>
   }
 
   isExtensible(
-    shadowTarget: T,
+    shadowTarget: object,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): boolean
   {
     return this.getSpy("isExtensible")(
@@ -148,10 +152,10 @@ implements ShadowProxyHandler<T>
   }
 
   ownKeys(
-    shadowTarget: T,
+    shadowTarget: object,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): ArrayLike<string | symbol>
   {
     return this.getSpy("ownKeys")(
@@ -160,10 +164,10 @@ implements ShadowProxyHandler<T>
   }
 
   preventExtensions(
-    shadowTarget: T,
+    shadowTarget: object,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): boolean
   {
     return this.getSpy("preventExtensions")(
@@ -172,13 +176,13 @@ implements ShadowProxyHandler<T>
   }
 
   set(
-    shadowTarget: T,
+    shadowTarget: object,
     p: string | symbol,
     value: unknown,
     receiver: unknown,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
 
     nextValue: unknown,
     nextReceiver: unknown
@@ -190,11 +194,11 @@ implements ShadowProxyHandler<T>
   }
 
   setPrototypeOf(
-    shadowTarget: T,
+    shadowTarget: object,
     proto: object | null,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
 
     nextProto: object | null
   ): boolean

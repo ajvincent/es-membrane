@@ -4,133 +4,128 @@ import type { propertyKey } from "../../_02_membrane_utilities/source/publicUtil
 void(Reflect as Required<ProxyHandler<object>>);
 */
 
-export type ShadowProxyHandler<T extends object> =
+export type RequiredHandler = Required<ProxyHandler<object>>;
+
+export type ShadowProxyHandler=
 {
   apply(
-    shadowTarget: T,
+    shadowTarget: object,
     thisArg: unknown,
     argArray: unknown[],
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
 
     nextThisArg: unknown,
     nextArgArray: unknown[]
   ): unknown;
 
   construct(
-    shadowTarget: T,
+    shadowTarget: object,
     argArray: unknown[],
     newTarget: Function,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
 
     nextArgArray: unknown[],
     nextNewTarget: Function
   ): object;
 
   defineProperty(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
     attributes: PropertyDescriptor,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
 
     nextAttributes: PropertyDescriptor
   ): boolean;
 
   deleteProperty(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): boolean;
 
   get(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
     receiver: unknown,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
 
     nextReceiver: unknown
   ): unknown;
 
   getOwnPropertyDescriptor(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): PropertyDescriptor | undefined;
 
   getPrototypeOf(
-    shadowTarget: T,
+    shadowTarget: object,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): object | null;
 
   has(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): boolean;
 
   isExtensible(
-    shadowTarget: T,
+    shadowTarget: object,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): boolean;
 
   ownKeys(
-    shadowTarget: T,
+    shadowTarget: object,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): ArrayLike<propertyKey>;
 
   preventExtensions(
-    shadowTarget: T,
+    shadowTarget: object,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): boolean;
 
   set(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
     value: unknown,
     receiver: unknown,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
 
     nextValue: unknown,
     nextReceiver: unknown
   ): boolean;
 
   setPrototypeOf(
-    shadowTarget: T,
+    shadowTarget: object,
     proto: object | null,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
 
     nextProto: object | null
   ): boolean;
-}
-
-/** This is for aspect-oriented programming via decorators.
- *  I need a type which conveniently returns void on every method.
- */
-export type ShadowProxyHandlerAspect<T extends object> = {
-  [key in keyof ShadowProxyHandler<T>]: ((...args: Parameters<ShadowProxyHandler<T>[key]>) => void)
 }

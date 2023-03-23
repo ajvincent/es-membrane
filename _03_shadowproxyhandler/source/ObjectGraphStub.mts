@@ -1,9 +1,11 @@
 /* This API may change depending on needs from future components. */
 
-interface ObjectGraphStub<T extends object>
+import type { RequiredHandler } from "./ShadowProxyHandler.mjs";
+
+interface ObjectGraphStub
 {
-  getNextTargetForShadow(shadowTarget: T) : T;
-  getHandlerForTarget(target: T) : Required<ProxyHandler<T>>;
+  getNextTargetForShadow(shadowTarget: object) : object;
+  getHandlerForTarget(target: object) : RequiredHandler;
   convertArguments(...args: unknown[]) : unknown[];
   convertDescriptor(descriptor: PropertyDescriptor): PropertyDescriptor;
 }

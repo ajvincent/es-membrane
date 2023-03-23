@@ -2,10 +2,10 @@ import { ObjectGraphStub } from "../source/ObjectGraphStub.mjs";
 import SpyBase from "./SpyBase.mjs";
 import SpyProxyHandler from "./SpyProxyHandler.mjs";
 
-export default class SpyObjectGraph<T extends object>
-extends SpyBase implements ObjectGraphStub<T>
+export default class SpyObjectGraph
+extends SpyBase implements ObjectGraphStub
 {
-  readonly nextHandler: SpyProxyHandler<T> = new SpyProxyHandler;
+  readonly nextHandler = new SpyProxyHandler;
 
   constructor()
   {
@@ -31,14 +31,14 @@ extends SpyBase implements ObjectGraphStub<T>
     ]);
   }
 
-  getNextTargetForShadow(shadowTarget: T): T
+  getNextTargetForShadow(shadowTarget: object): object
   {
-    return this.getSpy("getNextTargetForShadow")(shadowTarget) as T;
+    return this.getSpy("getNextTargetForShadow")(shadowTarget) as object;
   }
 
-  getHandlerForTarget(target: T): Required<ProxyHandler<T>>
+  getHandlerForTarget(target: object): Required<ProxyHandler<object>>
   {
-    return this.getSpy("getHandlerForTarget")(target) as Required<ProxyHandler<T>>;
+    return this.getSpy("getHandlerForTarget")(target) as Required<ProxyHandler<object>>;
   }
 
   convertArguments(...args: unknown[]): unknown[]

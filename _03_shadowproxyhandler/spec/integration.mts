@@ -18,10 +18,10 @@ describe("_03_proxyhandler_base integration test for the trap", () => {
   instead.  So this integration test is really important.
   */
 
-  let head: ShadowHeadHandler<object>;
-  let mirrorGraph: SpyObjectGraph<object>;
-  let tail: TailHandler<object>;
-  let spyHandler: SpyProxyHandler<object>;
+  let head: ShadowHeadHandler;
+  let mirrorGraph: SpyObjectGraph;
+  let tail: TailHandler;
+  let spyHandler: SpyProxyHandler;
 
   function idObject(id: string) : object
   {
@@ -51,9 +51,9 @@ describe("_03_proxyhandler_base integration test for the trap", () => {
   }
   const generic = new GenericFunction;
 
-  class MirrorGraph extends SpyObjectGraph<object>
+  class MirrorGraph extends SpyObjectGraph
   {
-    constructor(tail: TailHandler<object>, finalHandler: SpyProxyHandler<object>) {
+    constructor(tail: TailHandler, finalHandler: SpyProxyHandler) {
       super();
 
       this.getSpy("getNextTargetForShadow").and.returnValue(nextTarget);

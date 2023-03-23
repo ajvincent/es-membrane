@@ -1,15 +1,19 @@
 import type { propertyKey } from "../../_02_membrane_utilities/source/publicUtilities.mjs";
-import type { ShadowProxyHandler } from "./ShadowProxyHandler.mjs";
+import type {
+  ShadowProxyHandler,
+  RequiredHandler,
+} from "./ShadowProxyHandler.mjs";
 
-export default class TailHandler<T extends object> implements ShadowProxyHandler<T>
+
+export default class TailHandler implements ShadowProxyHandler
 {
   apply(
-    shadowTarget: T,
+    shadowTarget: object,
     thisArg: unknown,
     argArray: unknown[],
     
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
     
     nextThisArg: unknown,
     nextArgArray: unknown[]
@@ -22,12 +26,12 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
   }
 
   construct(
-    shadowTarget: T,
+    shadowTarget: object,
     argArray: unknown[],
     newTarget: Function,
     
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
 
     nextArgArray: unknown[],
     nextNewTarget: Function
@@ -40,12 +44,12 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
   }
 
   defineProperty(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
     attributes: PropertyDescriptor,
     
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
     
     nextAttributes: PropertyDescriptor
   ): boolean
@@ -56,11 +60,11 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
   }
 
   deleteProperty(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
     
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): boolean
   {
     void(shadowTarget);
@@ -68,12 +72,12 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
   }
 
   get(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
     receiver: unknown,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
     nextReceiver: unknown
   ): unknown
   {
@@ -83,11 +87,11 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
   }
 
   getOwnPropertyDescriptor(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): PropertyDescriptor | undefined
   {
     void(shadowTarget);
@@ -95,10 +99,10 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
   }
 
   getPrototypeOf(
-    shadowTarget: T,
+    shadowTarget: object,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): object | null
   {
     void(shadowTarget);
@@ -106,11 +110,11 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
   }
 
   has(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): boolean
   {
     void(shadowTarget);
@@ -118,10 +122,10 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
   }
 
   isExtensible(
-    shadowTarget: T,
+    shadowTarget: object,
     
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): boolean
   {
     void(shadowTarget);
@@ -129,10 +133,10 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
   }
 
   ownKeys(
-    shadowTarget: T,
+    shadowTarget: object,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ) : ArrayLike<propertyKey>
   {
     void(shadowTarget);
@@ -140,10 +144,10 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
   }
 
   preventExtensions(
-    shadowTarget: T,
+    shadowTarget: object,
     
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>
+    nextTarget: object,
+    nextHandler: RequiredHandler
   ): boolean
   {
     void(shadowTarget);
@@ -151,13 +155,13 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
   }
 
   set(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
     value: unknown,
     receiver: unknown,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
 
     nextValue: unknown,
     nextReceiver: unknown
@@ -170,11 +174,11 @@ export default class TailHandler<T extends object> implements ShadowProxyHandler
   }
 
   setPrototypeOf(
-    shadowTarget: T,
+    shadowTarget: object,
     proto: object | null,
 
-    nextTarget: T,
-    nextHandler: Required<ProxyHandler<T>>,
+    nextTarget: object,
+    nextHandler: RequiredHandler,
     
     nextProto: object | null
   ): boolean

@@ -1,22 +1,25 @@
 import type { propertyKey } from "../../_02_membrane_utilities/source/publicUtilities.mjs";
-import type { ShadowProxyHandler } from "./ShadowProxyHandler.mjs";
+import type {
+  ShadowProxyHandler,
+  RequiredHandler,
+} from "./ShadowProxyHandler.mjs";
 import type { ObjectGraphStub } from "./ObjectGraphStub.mjs";
 
-type NextTargetAndHandler<T extends object> = {
-  nextTarget: T,
-  nextHandler: Required<ProxyHandler<T>>;
+type NextTargetAndHandler = {
+  nextTarget: object,
+  nextHandler: RequiredHandler;
 }
 
-export default class ShadowHeadHandler<T extends object> implements Required<ProxyHandler<T>>
+export default class ShadowHeadHandler implements RequiredHandler
 {
-  readonly #shadowHandler: ShadowProxyHandler<T>;
-  readonly #currentGraph: ObjectGraphStub<T>;
-  readonly #targetGraph: ObjectGraphStub<T>;
+  readonly #shadowHandler: ShadowProxyHandler;
+  readonly #currentGraph: ObjectGraphStub;
+  readonly #targetGraph: ObjectGraphStub;
 
   constructor(
-    shadowHandler: ShadowProxyHandler<T>,
-    currentGraph: ObjectGraphStub<T>,
-    targetGraph: ObjectGraphStub<T>
+    shadowHandler: ShadowProxyHandler,
+    currentGraph: ObjectGraphStub,
+    targetGraph: ObjectGraphStub,
   )
   {
     this.#shadowHandler = shadowHandler;
@@ -24,7 +27,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
     this.#targetGraph = targetGraph;
   }
 
-  #nextTargetAndHandler(shadowTarget: T) : NextTargetAndHandler<T>
+  #nextTargetAndHandler(shadowTarget: object) : NextTargetAndHandler
   {
     const nextTarget  = this.#targetGraph.getNextTargetForShadow(shadowTarget);
     const nextHandler = this.#targetGraph.getHandlerForTarget(nextTarget);
@@ -34,7 +37,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
 
   apply
   (
-    shadowTarget: T,
+    shadowTarget: object,
     thisArg: unknown,
     argArray: unknown[]
   ) : unknown
@@ -45,12 +48,13 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
     const result = this.#shadowHandler.apply(
       shadowTarget, thisArg, argArray, nextTarget, nextHandler, nextThisArg, nextArgArray
     );
+
     return this.#currentGraph.convertArguments(result)[0];
   }
 
   construct
   (
-    shadowTarget: T,
+    shadowTarget: object,
     argArray: unknown[],
     newTarget: Function
   ) : object
@@ -65,7 +69,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
   }
 
   defineProperty(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
     attributes: PropertyDescriptor
   ) : boolean
@@ -79,7 +83,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
   }
 
   deleteProperty(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey
   ) : boolean
   {
@@ -88,7 +92,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
   }
 
   get(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
     receiver: unknown
   ) : unknown
@@ -104,7 +108,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
   }
 
   getOwnPropertyDescriptor(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey
   ) : PropertyDescriptor | undefined
   {
@@ -117,7 +121,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
   }
 
   getPrototypeOf(
-    shadowTarget: T
+    shadowTarget: object,
   ) : object | null
   {
     const { nextTarget, nextHandler } = this.#nextTargetAndHandler(shadowTarget);
@@ -129,7 +133,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
   }
 
   has(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey
   ) : boolean
   {
@@ -138,21 +142,21 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
   }
 
   isExtensible(
-    shadowTarget: T,
+    shadowTarget: object,
   ) : boolean
   {
     const { nextTarget, nextHandler } = this.#nextTargetAndHandler(shadowTarget);
     return this.#shadowHandler.isExtensible(shadowTarget, nextTarget, nextHandler);
   }
 
-  ownKeys(shadowTarget: T) : ArrayLike<propertyKey>
+  ownKeys(shadowTarget: object) : ArrayLike<propertyKey>
   {
     const { nextTarget, nextHandler } = this.#nextTargetAndHandler(shadowTarget);
     return this.#shadowHandler.ownKeys(shadowTarget, nextTarget, nextHandler);
   }
 
   preventExtensions(
-    shadowTarget: T,
+    shadowTarget: object,
   ) : boolean
   {
     const { nextTarget, nextHandler } = this.#nextTargetAndHandler(shadowTarget);
@@ -160,7 +164,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
   }
 
   set(
-    shadowTarget: T,
+    shadowTarget: object,
     p: propertyKey,
     value: unknown,
     receiver: unknown
@@ -175,7 +179,7 @@ export default class ShadowHeadHandler<T extends object> implements Required<Pro
   }
 
   setPrototypeOf(
-    shadowTarget: T,
+    shadowTarget: object,
     proto: object | null
   ) : boolean
   {
