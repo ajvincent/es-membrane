@@ -8,6 +8,10 @@ graph to another.
 
 This is the purpose of the `ShadowProxyHandler<T>` type, which carries these additional arguments.
 
+`ShadowProxyHandlerAspect<T>` rewrites the `ShadowProxyHandler<T>` type, so every trap returns void.
+This will be useful for aspect-oriented programming, where each aspect class implements one part of
+the membrane (usually preconditions, postconditions, class invariants, etc.)
+
 `ShadowHeadHandler` converts from `Required<ProxyHandler<T>>` to `ShadowProxyHandler<T>`, with the
 assistance of two `ObjectGraphStub` instances to (maybe) convert arguments from one object graph to
 another.

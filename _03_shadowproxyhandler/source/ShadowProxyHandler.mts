@@ -127,3 +127,10 @@ export type ShadowProxyHandler<T extends object> =
     nextProto: object | null
   ): boolean;
 }
+
+/** This is for aspect-oriented programming via decorators.
+ *  I need a type which conveniently returns void on every method.
+ */
+export type ShadowProxyHandlerAspect<T extends object> = {
+  [key in keyof ShadowProxyHandler<T>]: ((...args: Parameters<ShadowProxyHandler<T>[key]>) => void)
+}
