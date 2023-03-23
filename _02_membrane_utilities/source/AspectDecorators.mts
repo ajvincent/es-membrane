@@ -66,6 +66,8 @@ type FileWithExport = ModuleSourceDirectory & {
   readonly exportName: string;
 }
 
+const thisSourcePath = url.fileURLToPath(import.meta.url);
+
 /**
  * This is a quick & dirty class generator for aspect-oriented programming.
  *
@@ -88,53 +90,20 @@ export async function buildAspectClassRaw(
   const absTypeSourcePath  = getAbsolutePath(typeFile);
   const absClassSourcePath = getAbsolutePath(classFile);
 
-  const thisSourcePath = url.fileURLToPath(import.meta.url);
-
-  const argEntries = Object.entries(argDictionary);
-
-  const methodsSource = argEntries.map(([key, args]) => {
-    const argNames = `[${args.map(param => param[0]).join(", ")}]`;
-    const argList = args.map(param => param.join(": "));
-    return "  " + `
-${key}(${argList.join(", ")}): ReturnType<${typeFile.exportName}["${key}"]>
-  {
-    const __aspects__ = this[ASPECTS_KEY];
-
-${buildAspectTryBlock(
-  "classInvariant",
-  key,
-  argNames,
-  "class invariant failed on enter"
-)}
-    const __rv__ = super.${key}.apply(this, ${argNames});
-
-${buildAspectTryBlock(
-  "classInvariant",
-  key,
-  argNames,
-  "classInvariant failed on leave"
-)}
-    return __rv__;
-  }`.trim();
-  }).join("\n\n");
+  const methodsSource = Object.entries(argDictionary).map(
+    ([key, args]) => buildAspectsMethod(typeFile.exportName, key, args)
+  ).join("\n\n");
 
   const fileContents = `
-/* This file is generated.  Do not edit. */
+${buildPreamble(
+  typeFile.exportName,
+  classFile.exportName,
+  absTargetPath,
+  absTypeSourcePath,
+  absClassSourcePath
+)}
 
-import {
-  ASPECTS_KEY,
-  type AspectsDictionary,
-  AspectError,
-} from "${
-  path.relative(path.dirname(absTargetPath), thisSourcePath)
-}";
-
-import type { ${typeFile.exportName} } from "${
-  path.relative(path.dirname(absTargetPath), absTypeSourcePath)
-}";
-import ${classFile.exportName} from "${
-  path.relative(path.dirname(absTargetPath), absClassSourcePath)
-}";
+// #region aspect-oriented driver class
 
 abstract class ${targetClassName}Abstract extends ${classFile.exportName}
 {
@@ -142,6 +111,16 @@ abstract class ${targetClassName}Abstract extends ${classFile.exportName}
 
 ${methodsSource}
 }
+
+export class ${targetClassName}_AspectBase implements VoidMethodsOnly<${typeFile.exportName}>
+{${Object.entries(argDictionary).map(([key]) => {
+    return `
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  ${key}() : void {}
+`;
+}).join("")}}
+
+// #endregion aspect-oriented driver class
 
 export abstract class ${targetClassName}Debug extends ${targetClassName}Abstract {}
 
@@ -159,6 +138,84 @@ function getAbsolutePath(context: FileWithExport) : string
     context.pathToDirectory,
     context.leafName
   ));
+}
+
+/**
+ * @param typeName - the exported type name
+ * @param className - the exported base class name.
+ * @param absTargetPath - the absolute location of the target class file.
+ * @param absTypeSourcePath - the absolute location of the type module.
+ * @param absClassSourcePath - the absolute location of the base class module.
+ * @returns the preamble source.
+ */
+function buildPreamble(
+  typeName: string,
+  className: string,
+  absTargetPath: string,
+  absTypeSourcePath: string,
+  absClassSourcePath: string,
+) : string
+{
+  return `
+/* This file is generated.  Do not edit. */
+
+// #region preamble
+import {
+  ASPECTS_KEY,
+  type AspectsDictionary,
+  AspectError,
+  type VoidMethodsOnly,
+} from "${
+  path.relative(path.dirname(absTargetPath), thisSourcePath)
+}";
+
+import type { ${typeName} } from "${
+  path.relative(path.dirname(absTargetPath), absTypeSourcePath)
+}";
+import ${className} from "${
+  path.relative(path.dirname(absTargetPath), absClassSourcePath)
+}";
+// #endregion preamble
+  `.trim();
+}
+
+/**
+ * 
+ * @param typeName - the type name to use.
+ * @param fieldName - the method name.
+ * @param args - the arguments with types.
+ * @returns the aspect method's source code.
+ */
+function buildAspectsMethod(
+  typeName: string,
+  fieldName: string,
+  args: readonly ArgParameter[]
+) : string
+{
+  const argNames = `[${args.map(param => param[0]).join(", ")}]`;
+  const argList = args.map(param => param.join(": "));
+  return "  " + `
+  ${fieldName}(${argList.join(", ")}): ReturnType<${typeName}["${fieldName}"]>
+  {
+    const __aspects__ = this[ASPECTS_KEY];
+
+${buildAspectTryBlock(
+  "classInvariant",
+  fieldName,
+  argNames,
+  "class invariant failed on enter"
+  )}
+    const __rv__ = super.${fieldName}.apply(this, ${argNames});
+
+${buildAspectTryBlock(
+  "classInvariant",
+  fieldName,
+  argNames,
+  "class invariant failed on leave"
+  )}
+    return __rv__;
+  }
+  `.trim();
 }
 
 /**
