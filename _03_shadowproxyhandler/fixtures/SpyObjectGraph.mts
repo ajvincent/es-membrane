@@ -33,21 +33,21 @@ extends SpyBase implements ObjectGraphStub<T>
 
   getNextTargetForShadow(shadowTarget: T): T
   {
-    return this.getSpy("getNextTargetForShadow")(shadowTarget);
+    return this.getSpy("getNextTargetForShadow")(shadowTarget) as T;
   }
 
   getHandlerForTarget(target: T): Required<ProxyHandler<T>>
   {
-    return this.getSpy("getHandlerForTarget")(target);
+    return this.getSpy("getHandlerForTarget")(target) as Required<ProxyHandler<T>>;
   }
 
   convertArguments(...args: unknown[]): unknown[]
   {
-    return this.getSpy("convertArguments")(...args);
+    return this.getSpy("convertArguments")(...args) as unknown[];
   }
 
   convertDescriptor(descriptor: PropertyDescriptor): PropertyDescriptor
   {
-    return this.getSpy("convertDescriptor")(descriptor);
+    return this.getSpy("convertDescriptor")(descriptor) as PropertyDescriptor;
   }
 }

@@ -112,12 +112,10 @@ class DirStage {
         });
         if (files.length === 0)
             return;
-        const result = await InvokeTSC.withCustomConfiguration(tsconfigPath, false, (config) => {
+        await InvokeTSC.withCustomConfiguration(tsconfigPath, false, (config) => {
             config.files = files;
-            config.extends = "@tsconfig/node16/tsconfig.json";
+            config.extends = "@tsconfig/node18/tsconfig.json";
         }, path.resolve(this.#dir, "ts-stdout.txt"));
-        if (result !== 0)
-            throw new Error("runTSC failed with code " + result);
     }
     async #runBuild() {
         const buildDir = path.resolve(this.#dir, "build");
@@ -134,8 +132,7 @@ class DirStage {
         console.log("Compiling build:");
         await this.#invokeTSCWithDirFilter(buildDir, path.join(buildDir, "tsconfig.json"));
         console.log("Executing build:");
-        const buildNext = (await import(pathToModule)).default;
-        await buildNext();
+        await importAndRun(pathToModule);
     }
     async #specBuild() {
         const buildDir = path.resolve(this.#dir, "spec-build");
@@ -152,8 +149,7 @@ class DirStage {
         console.log("Creating spec-generated:");
         const generatedDir = path.resolve(this.#dir, "spec-generated");
         await fs.mkdir(generatedDir, { recursive: true });
-        const supportModule = (await import(pathToModule)).default;
-        await supportModule();
+        await importAndRun(pathToModule);
         console.log("Compiling spec-generated:");
         await this.#invokeTSCWithDirFilter(generatedDir, path.join(this.#dir, "spec-generated", "tsconfig.json"));
     }
@@ -191,8 +187,7 @@ class DirStage {
                 const generatedDir = path.join(examplesDir, "generated");
                 await fs.rm(generatedDir, { recursive: true, force: true });
                 console.log("Executing examples/build/support.mjs:");
-                const supportModule = (await import(pathToModule)).default;
-                await supportModule();
+                await importAndRun(pathToModule);
             }
         }
         console.log("Compiling examples (except for build):");
@@ -294,25 +289,8 @@ catch (ex: unknown) {
 */
 { // eslint
     const target = BPSet.get("eslint");
-    target.description = "eslint support";
     const args = [
-        "--max-warnings=0"
-    ];
-    let dirs = stageDirs.slice();
-    dirs.push(path.resolve("build"));
-    dirs = await PromiseAllParallel(dirs, async (stageDir) => {
-        const { files } = await readDirsDeep(path.resolve(stageDir));
-        return files.some(f => f.endsWith(".mjs")) ? stageDir : "";
-    });
-    args.push(...dirs.filter(Boolean));
-    target.addTask(async () => await runModule("./node_modules/eslint/bin/eslint.js", args));
-}
-{ // typescript:eslint
-    const jsTarget = BPSet.get("eslint");
-    jsTarget.addSubtarget("typescript:eslint");
-    const target = BPSet.get("typescript:eslint");
-    const args = [
-        "-c", "./.eslintrc-typescript.json",
+        "-c", "./.eslintrc.json",
         "--max-warnings=0",
     ];
     const dirs = await PromiseAllParallel(stageDirs, async (stageDir) => {
@@ -326,7 +304,7 @@ catch (ex: unknown) {
 }
 { // examples
     const target = BPSet.get("examples");
-    await PromiseAllSequence(stageDirs, async (stageDir) => {
+    stageDirs.forEach((stageDir) => {
         target.addTask(async () => {
             const pathToModule = path.resolve(stageDir, "examples/run.mjs");
             try {
@@ -338,10 +316,13 @@ catch (ex: unknown) {
                 return;
             }
             console.log(`${stageDir}/examples/run.mjs`);
-            const exampleModule = (await import(pathToModule)).default;
-            await exampleModule();
+            await importAndRun(pathToModule);
         });
     });
+}
+async function importAndRun(pathToModule) {
+    const module = (await import(pathToModule)).default;
+    await module();
 }
 BPSet.markReady();
 export default BPSet;

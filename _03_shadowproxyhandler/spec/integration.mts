@@ -58,8 +58,8 @@ describe("_03_proxyhandler_base integration test for the trap", () => {
 
       this.getSpy("getNextTargetForShadow").and.returnValue(nextTarget);
       this.getSpy("getHandlerForTarget").and.returnValue(finalHandler);
-      this.getSpy("convertArguments").and.callFake((...args) => args);
-      this.getSpy("convertDescriptor").and.callFake((descriptor) => descriptor);
+      this.getSpy("convertArguments").and.callFake((...args: unknown[]) => args);
+      this.getSpy("convertDescriptor").and.callFake((descriptor: unknown) => descriptor);
     }
   }
 

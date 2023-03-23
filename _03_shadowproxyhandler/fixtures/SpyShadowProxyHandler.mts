@@ -1,7 +1,10 @@
 import { ShadowProxyHandler } from "../source/ShadowProxyHandler.mjs";
 import SpyBase from "./SpyBase.mjs";
 
-export default class SpyShadowProxyHandler<T extends object> extends SpyBase implements ShadowProxyHandler<T>
+export default
+class SpyShadowProxyHandler<T extends object>
+extends SpyBase
+implements ShadowProxyHandler<T>
 {
   constructor()
   {
@@ -27,7 +30,9 @@ export default class SpyShadowProxyHandler<T extends object> extends SpyBase imp
     nextArgArray: unknown[]
   ): unknown
   {
-    return this.getSpy("apply")(shadowTarget, thisArg, argArray, nextTarget, nextHandler, nextThisArg, nextArgArray);
+    return this.getSpy("apply")(
+      shadowTarget, thisArg, argArray, nextTarget, nextHandler, nextThisArg, nextArgArray
+    );
   }
 
   construct(
@@ -42,7 +47,9 @@ export default class SpyShadowProxyHandler<T extends object> extends SpyBase imp
     nextNewTarget: Function
   ): object
   {
-    return this.getSpy("construct")(shadowTarget, argArray, newTarget, nextTarget, nextHandler, nextArgArray, nextNewTarget);
+    return this.getSpy("construct")(
+      shadowTarget, argArray, newTarget, nextTarget, nextHandler, nextArgArray, nextNewTarget
+    ) as object;
   }
 
   defineProperty(
@@ -56,7 +63,9 @@ export default class SpyShadowProxyHandler<T extends object> extends SpyBase imp
     nextAttributes: PropertyDescriptor
   ): boolean
   {
-    return this.getSpy("defineProperty")(shadowTarget, p, attributes, nextTarget, nextHandler, nextAttributes);
+    return this.getSpy("defineProperty")(
+      shadowTarget, p, attributes, nextTarget, nextHandler, nextAttributes
+    ) as boolean;
   }
 
   deleteProperty(
@@ -67,7 +76,9 @@ export default class SpyShadowProxyHandler<T extends object> extends SpyBase imp
     nextHandler: Required<ProxyHandler<T>>
   ): boolean
   {
-    return this.getSpy("deleteProperty")(shadowTarget, p, nextTarget, nextHandler);
+    return this.getSpy("deleteProperty")(
+      shadowTarget, p, nextTarget, nextHandler
+    ) as boolean;
   }
 
   get(
@@ -81,7 +92,9 @@ export default class SpyShadowProxyHandler<T extends object> extends SpyBase imp
     nextReceiver: unknown
   ): unknown
   {
-    return this.getSpy("get")(shadowTarget, p, receiver, nextTarget, nextHandler, nextReceiver);
+    return this.getSpy("get")(
+      shadowTarget, p, receiver, nextTarget, nextHandler, nextReceiver
+    );
   }
 
   getOwnPropertyDescriptor(
@@ -92,7 +105,9 @@ export default class SpyShadowProxyHandler<T extends object> extends SpyBase imp
     nextHandler: Required<ProxyHandler<T>>
   ): PropertyDescriptor | undefined
   {
-    return this.getSpy("getOwnPropertyDescriptor")(shadowTarget, p, nextTarget, nextHandler);
+    return this.getSpy("getOwnPropertyDescriptor")(
+      shadowTarget, p, nextTarget, nextHandler
+    ) as PropertyDescriptor | undefined;
   }
 
   getPrototypeOf(
@@ -102,7 +117,9 @@ export default class SpyShadowProxyHandler<T extends object> extends SpyBase imp
     nextHandler: Required<ProxyHandler<T>>
   ): object | null
   {
-    return this.getSpy("getPrototypeOf")(shadowTarget, nextTarget, nextHandler);
+    return this.getSpy("getPrototypeOf")(
+      shadowTarget, nextTarget, nextHandler
+    ) as object | null;
   }
 
   has(
@@ -113,7 +130,9 @@ export default class SpyShadowProxyHandler<T extends object> extends SpyBase imp
     nextHandler: Required<ProxyHandler<T>>
   ): boolean
   {
-    return this.getSpy("has")(shadowTarget, p, nextTarget, nextHandler);
+    return this.getSpy("has")(
+      shadowTarget, p, nextTarget, nextHandler
+    ) as boolean;
   }
 
   isExtensible(
@@ -123,7 +142,9 @@ export default class SpyShadowProxyHandler<T extends object> extends SpyBase imp
     nextHandler: Required<ProxyHandler<T>>
   ): boolean
   {
-    return this.getSpy("isExtensible")(shadowTarget, nextTarget, nextHandler);
+    return this.getSpy("isExtensible")(
+      shadowTarget, nextTarget, nextHandler
+    ) as boolean;
   }
 
   ownKeys(
@@ -133,7 +154,9 @@ export default class SpyShadowProxyHandler<T extends object> extends SpyBase imp
     nextHandler: Required<ProxyHandler<T>>
   ): ArrayLike<string | symbol>
   {
-    return this.getSpy("ownKeys")(shadowTarget, nextTarget, nextHandler);
+    return this.getSpy("ownKeys")(
+      shadowTarget, nextTarget, nextHandler
+    ) as ArrayLike<string | symbol>;
   }
 
   preventExtensions(
@@ -143,7 +166,9 @@ export default class SpyShadowProxyHandler<T extends object> extends SpyBase imp
     nextHandler: Required<ProxyHandler<T>>
   ): boolean
   {
-    return this.getSpy("preventExtensions")(shadowTarget, nextTarget, nextHandler);
+    return this.getSpy("preventExtensions")(
+      shadowTarget, nextTarget, nextHandler
+    ) as boolean;
   }
 
   set(
@@ -159,7 +184,9 @@ export default class SpyShadowProxyHandler<T extends object> extends SpyBase imp
     nextReceiver: unknown
   ): boolean
   {
-    return this.getSpy("set")(shadowTarget, p, value, receiver, nextTarget, nextHandler, nextValue, nextReceiver);
+    return this.getSpy("set")(
+      shadowTarget, p, value, receiver, nextTarget, nextHandler, nextValue, nextReceiver
+    ) as boolean;
   }
 
   setPrototypeOf(
@@ -172,6 +199,8 @@ export default class SpyShadowProxyHandler<T extends object> extends SpyBase imp
     nextProto: object | null
   ): boolean
   {
-    return this.getSpy("setPrototypeOf")(shadowTarget, proto, nextTarget, nextHandler, nextProto);
+    return this.getSpy("setPrototypeOf")(
+      shadowTarget, proto, nextTarget, nextHandler, nextProto
+    ) as boolean;
   }
 }

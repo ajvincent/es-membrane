@@ -26,7 +26,7 @@
     "#stageUtilities/*": "./_01_stage_utilities/source/*"
   },
   "devDependencies": {
-    "@tsconfig/node16": "^1.0.3",
+    "@tsconfig/node18": "^1.0.1",
     "@types/jasmine": "^4.3.0",
     "@types/node": "^18.15.5",
     "@typescript-eslint/eslint-plugin": "^5.56.0",

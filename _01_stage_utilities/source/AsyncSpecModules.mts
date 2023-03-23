@@ -19,9 +19,15 @@ export type ModuleSourceDirectory = {
 export async function getModuleDefaultClass<U>(
   source: ModuleSourceDirectory,
   leafName: string
-) : Promise<{ new() : U }>
+) : Promise<{
+  new() : U,
+  prototype: object
+}>
 {
-  return (await import(pathToModule(source, leafName))).default;
+  const module = (
+    await import(pathToModule(source, leafName))
+  ) as { default: new() => U };
+  return module.default;
 }
 
 /**
@@ -34,28 +40,41 @@ export async function getModuleDefaultClass<U>(
 export async function getModuleDefaultClassWithArgs<T extends unknown[], U>(
   source: ModuleSourceDirectory,
   leafName: string
-) : Promise<{ new(...args: T) : U }>
+) : Promise<{
+  new(...args: T) : U,
+  prototype: object
+}>
 {
-  return (await import(pathToModule(source, leafName))).default;
+  const module = (
+    await import(pathToModule(source, leafName))
+  ) as { default: new(...args: T) => U };
+  return module.default;
 }
 
-  /**
-  * @typeParam T - the type of the module's part.
-  * @param source - the source metadata.
-  * @param leafName - the module filename.
-  * @param property - the exported part to pick up.
-  * @returns the default export.
-  */
-export async function getModulePart<T>(
+/**
+ * @typeParam Key - the exported part to pick up.
+ * @typeParam T - the type of the module's part.
+ * @param source - the source metadata.
+ * @param leafName - the module filename.
+ * @param property - the exported part to pick up.
+ * @returns the exported property.
+ */
+export async function getModulePart<Key extends string, T>(
   source: ModuleSourceDirectory,
   leafName: string,
-  property: string
+  property: Key,
 ) : Promise<T>
 {
-  return (await import(pathToModule(source, leafName)))[property] as T;
+  const module = (
+    await import(pathToModule(source, leafName))
+  ) as { [key in Key]: T }
+  return module[property] as T;
 }
  
-function pathToModule(source: ModuleSourceDirectory, leafName: string) : string
+function pathToModule(
+  source: ModuleSourceDirectory,
+  leafName: string,
+) : string
 {
   return path.resolve(
     url.fileURLToPath(source.importMeta.url),

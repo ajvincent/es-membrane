@@ -1,27 +1,51 @@
 {
   "env": {
-    "es2022": true,
+    "es2021": true,
     "jasmine": true,
     "node": true
   },
   "extends": [
-    "eslint:recommended"
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking"
   ],
+
+  "ignorePatterns": [
+    "**/*.mjs",
+    "**/*.d.mts"
+  ],
+
   "overrides": [
     {
       "files": [
-        "**/*.mjs"
+        "**/*.mts"
       ]
     }
   ],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2022,
-    "sourceType": "module"
+    "sourceType": "module",
+    "tsconfigRootDir": ".",
+    "project": ["./tsconfig.json"]
   },
   "plugins": [
+    "@typescript-eslint",
+    "eslint-plugin-tsdoc",
     "jasmine"
   ],
+  "root": true,
   "rules": {
-    "no-unused-private-class-members": "error"
+    "@typescript-eslint/ban-types": [
+      "error",
+      {
+        "types": {
+          "Function": false
+        }
+      }
+    ],
+    "@typescript-eslint/explicit-function-return-type": ["error"],
+    "tsdoc/syntax": "warn"
   }
 }

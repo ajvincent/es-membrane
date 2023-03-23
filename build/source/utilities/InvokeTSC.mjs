@@ -2,7 +2,6 @@ import path from "path";
 import fs from "fs/promises";
 import { openSync } from "fs";
 import { fork } from "child_process";
-import { Deferred } from "./PromiseTypes.mjs";
 const projectRoot = path.resolve();
 const TSC = path.resolve(projectRoot, "node_modules/typescript/bin/tsc");
 const InvokeTSC = {
@@ -12,24 +11,25 @@ const InvokeTSC = {
         if (pathToStdOut) {
             stdout = openSync(path.resolve(projectRoot, pathToStdOut), "w");
         }
-        const deferred = new Deferred();
         const args = [
             "--project", pathToConfig
         ];
         const child = fork(TSC, args, {
             stdio: ["ignore", stdout, "inherit", "ipc"]
         });
-        const err = new Error(`Failed on "${TSC} ${args.join(" ")}"`);
-        child.on("exit", async (code) => {
-            if (code) {
-                console.warn(await fs.readFile(pathToStdOut, { encoding: "utf-8" }));
-                err.message += " with code " + code;
-                deferred.reject(err);
-            }
-            else
-                deferred.resolve(code);
+        const p = new Promise((resolve, reject) => {
+            child.on("exit", (code) => {
+                code ? reject(code) : resolve();
+            });
         });
-        return await deferred.promise;
+        try {
+            await p;
+        }
+        catch (code) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            console.warn(await fs.readFile(pathToStdOut, { encoding: "utf-8" }));
+            throw new Error(`Failed on "${TSC} ${args.join(" ")}" with code ${code}`);
+        }
     },
     withCustomConfiguration: async function (configLocation, removeConfigAfter, 
     // eslint-disable-next-line
@@ -38,11 +38,10 @@ const InvokeTSC = {
         modifier(config);
         configLocation = path.resolve(projectRoot, configLocation);
         await fs.writeFile(configLocation, JSON.stringify(config, null, 2) + "\n", { "encoding": "utf-8" });
-        const result = await this.withConfigurationFile(configLocation, pathToStdOut);
+        await this.withConfigurationFile(configLocation, pathToStdOut);
         if (removeConfigAfter) {
             await fs.rm(configLocation);
         }
-        return result;
     },
     // eslint-disable-next-line
     defaultConfiguration: function () {
@@ -51,7 +50,7 @@ const InvokeTSC = {
                 "lib": ["es2022"],
                 "module": "es2022",
                 "target": "es2022",
-                "moduleResolution": "node16",
+                "moduleResolution": "node",
                 "sourceMap": true,
                 "declaration": true,
                 /*

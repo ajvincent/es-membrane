@@ -48,7 +48,8 @@ class DirStage
     BPSet.get(dir + ":examples-build").addTask(async () => await this.#examplesBuild());
   }
 
-  addSubtargets(dir: string) {
+  addSubtargets(dir: string) : void
+  {
     const subtarget = BPSet.get(dir);
     DirStage.#subtasks.forEach(subtask => subtarget.addSubtarget(dir + ":" + subtask));
   }
@@ -150,17 +151,18 @@ class DirStage
     if (files.length === 0)
       return;
 
-    const result = await InvokeTSC.withCustomConfiguration(
+    await InvokeTSC.withCustomConfiguration(
       tsconfigPath,
       false,
-      (config) => {
+      (config: {
+        files?: string[],
+        extends?: string
+      }) => {
         config.files = files;
-        config.extends = "@tsconfig/node16/tsconfig.json";
+        config.extends = "@tsconfig/node18/tsconfig.json";
       },
       path.resolve(this.#dir, "ts-stdout.txt")
     );
-    if (result !== 0)
-      throw new Error("runTSC failed with code " + result);
   }
 
   async #runBuild() : Promise<void>
@@ -184,8 +186,7 @@ class DirStage
     );
 
     console.log("Executing build:");
-    const buildNext = (await import(pathToModule)).default as () => Promise<void>;
-    await buildNext();
+    await importAndRun(pathToModule);
   }
 
   async #specBuild() : Promise<void>
@@ -207,8 +208,7 @@ class DirStage
     const generatedDir = path.resolve(this.#dir, "spec-generated");
     await fs.mkdir(generatedDir, { recursive: true });
 
-    const supportModule = (await import(pathToModule)).default as () => Promise<void>;
-    await supportModule();
+    await importAndRun(pathToModule);
 
     console.log("Compiling spec-generated:");
     await this.#invokeTSCWithDirFilter(
@@ -257,8 +257,7 @@ class DirStage
         await fs.rm(generatedDir, { recursive: true, force: true });
 
         console.log("Executing examples/build/support.mjs:");
-        const supportModule = (await import(pathToModule)).default as () => Promise<void>;
-        await supportModule();
+        await importAndRun(pathToModule);
       }
     }
 
@@ -385,33 +384,9 @@ catch (ex: unknown) {
 
 { // eslint
   const target = BPSet.get("eslint");
-  target.description = "eslint support";
-  const args = [
-    "--max-warnings=0"
-  ];
-
-  let dirs = stageDirs.slice();
-  dirs.push(path.resolve("build"));
-
-  dirs = await PromiseAllParallel(dirs, async (stageDir) => {
-    const { files } = await readDirsDeep(path.resolve(stageDir));
-    return files.some(f => f.endsWith(".mjs")) ? stageDir : ""
-  });
-  args.push(...dirs.filter(Boolean));
-
-  target.addTask(
-    async () => await runModule("./node_modules/eslint/bin/eslint.js", args)
-  );
-}
-
-{ // typescript:eslint
-  const jsTarget = BPSet.get("eslint");
-  jsTarget.addSubtarget("typescript:eslint");
-
-  const target = BPSet.get("typescript:eslint");
 
   const args = [
-    "-c", "./.eslintrc-typescript.json",
+    "-c", "./.eslintrc.json",
     "--max-warnings=0",
   ];
 
@@ -431,7 +406,7 @@ catch (ex: unknown) {
 { // examples
   const target = BPSet.get("examples");
 
-  await PromiseAllSequence(stageDirs, async (stageDir) => {
+  stageDirs.forEach((stageDir) => {
     target.addTask(async () => {
       const pathToModule = path.resolve(stageDir, "examples/run.mjs");
       try {
@@ -444,10 +419,17 @@ catch (ex: unknown) {
       }
 
       console.log(`${stageDir}/examples/run.mjs`);
-      const exampleModule = (await import(pathToModule)).default as () => Promise<void>;
-      await exampleModule();
+      await importAndRun(pathToModule);
     });
   });
+}
+
+async function importAndRun(pathToModule: string) : Promise<void>
+{
+  const module = (
+    await import(pathToModule) as { default : () => Promise<void> }
+  ).default as () => Promise<void>;
+  await module();
 }
 
 BPSet.markReady();

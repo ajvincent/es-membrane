@@ -10,7 +10,7 @@ export class BuildPromise
   #subtargets: string[] = [];
   #postSubtargets: string[] = [];
 
-  #tasks: (() => void)[] = [];
+  #tasks: (() => Promise<void>)[] = [];
 
   #runPromise: Readonly<SingletonPromise<void>>;
 
@@ -68,7 +68,7 @@ export class BuildPromise
     this.#description = value;
   }
 
-  addTask(callback: (() => void)): void
+  addTask(callback: (() => Promise<void>)): void
   {
     if (this.#ownerSet.status !== "not started")
       throw new Error("Build step has started");
