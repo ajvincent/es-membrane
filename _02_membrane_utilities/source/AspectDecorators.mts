@@ -83,12 +83,12 @@ export async function buildAspectClassRaw(
   argDictionary: {
     [key: string] : ReadonlyArray<ArgParameter>
   },
-  targetClassName: string,
-  absTargetPath: string,
+  targetFile: FileWithExport,
 ) : Promise<void>
 {
   const absTypeSourcePath  = getAbsolutePath(typeFile);
   const absClassSourcePath = getAbsolutePath(classFile);
+  const absTargetPath = getAbsolutePath(targetFile);
 
   const methodsSource = Object.entries(argDictionary).map(
     ([key, args]) => buildAspectsMethod(typeFile.exportName, key, args)
@@ -105,14 +105,14 @@ ${buildPreamble(
 
 // #region aspect-oriented driver class
 
-abstract class ${targetClassName}Abstract extends ${classFile.exportName}
+abstract class ${targetFile.exportName}Abstract extends ${classFile.exportName}
 {
   protected abstract [ASPECTS_KEY]: AspectsDictionary<${typeFile.exportName}>;
 
 ${methodsSource}
 }
 
-export class ${targetClassName}_AspectBase implements VoidMethodsOnly<${typeFile.exportName}>
+export class ${targetFile.exportName}_AspectBase implements VoidMethodsOnly<${typeFile.exportName}>
 {${Object.entries(argDictionary).map(([key]) => {
     return `
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -122,9 +122,9 @@ export class ${targetClassName}_AspectBase implements VoidMethodsOnly<${typeFile
 
 // #endregion aspect-oriented driver class
 
-export abstract class ${targetClassName}Debug extends ${targetClassName}Abstract {}
+export abstract class ${targetFile.exportName}Debug extends ${targetFile.exportName}Abstract {}
 
-export abstract class ${targetClassName} extends ${targetClassName}Abstract {}
+export abstract class ${targetFile.exportName} extends ${targetFile.exportName}Abstract {}
   `.trim() + "\n";
 
   await fs.writeFile(absTargetPath, fileContents, { encoding: "utf-8" });

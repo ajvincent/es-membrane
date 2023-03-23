@@ -1,6 +1,12 @@
 import { DefaultMap } from "../../_01_stage_utilities/source/DefaultMap.mjs";
 
-export default class SpyBase
+export interface SpyBaseInterface {
+  readonly spyMap: DefaultMap<string | symbol, jasmine.Spy>;
+  getSpy(name: string | symbol) : jasmine.Spy;
+  expectSpiesClearExcept(...names: (string | symbol)[]) : void;
+}
+
+export default class SpyBase implements SpyBaseInterface
 {
   readonly spyMap: DefaultMap<string | symbol, jasmine.Spy> = new DefaultMap;
 

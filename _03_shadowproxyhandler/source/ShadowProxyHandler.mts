@@ -6,7 +6,7 @@ void(Reflect as Required<ProxyHandler<object>>);
 
 export type RequiredHandler = Required<ProxyHandler<object>>;
 
-export type ShadowProxyHandler=
+export type ShadowProxyHandler =
 {
   apply(
     shadowTarget: object,

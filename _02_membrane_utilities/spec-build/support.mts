@@ -1,8 +1,5 @@
 import { buildAspectClassRaw } from "../source/AspectDecorators.mjs";
 
-import path from "path";
-import url from "url";
-
 export default async function runModule() : Promise<void>
 {
   await buildAspectClassRaw(
@@ -29,10 +26,11 @@ export default async function runModule() : Promise<void>
         ["s", "string"],
       ],
     },
-    "NumberStringAspectClass",
-    path.normalize(path.join(
-      url.fileURLToPath(import.meta.url),
-      "../../spec-generated/NumberStringAspectClass.mts"
-    ))
+    {
+      exportName: "NumberStringAspectClass",
+      importMeta: import.meta,
+      pathToDirectory: "../../spec-generated",
+      leafName: "NumberStringAspectClass.mts"
+    }
   );
 }
