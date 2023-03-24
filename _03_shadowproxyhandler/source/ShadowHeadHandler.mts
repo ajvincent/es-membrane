@@ -10,6 +10,12 @@ type NextTargetAndHandler = {
   nextHandler: RequiredHandler;
 }
 
+/**
+ * @remarks
+ * `ShadowHeadHandler` converts from `Required<ProxyHandler<T>>` to `ShadowProxyHandler<T>`, with the
+ * assistance of two `ObjectGraphStub` instances to (maybe) convert arguments from one object graph to
+ * another.
+ */
 export default class ShadowHeadHandler implements RequiredHandler
 {
   readonly #shadowHandler: ShadowProxyHandler;

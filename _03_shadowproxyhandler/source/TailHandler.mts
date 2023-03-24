@@ -4,7 +4,12 @@ import type {
   RequiredHandler,
 } from "./ShadowProxyHandler.mjs";
 
-
+/**
+ * @remarks
+ * `TailHandler` converts from `ShadowProxyHandler<T>` to `Required<ProxyHandler<T>>` by invoking the
+ * `nextHandler` argument with the `nextTarget` and `nextArgArray`, `nextThisArg`, `nextDescriptor`,
+ * etc. arguments.
+ */
 export default class TailHandler implements ShadowProxyHandler
 {
   apply(
