@@ -27,6 +27,13 @@ export default async function runModule() : Promise<void>
       ],
     },
     {
+      importMeta: import.meta,
+      pathToDirectory: "../../fixtures/aspects"
+    },
+    {
+      classInvariant: ["Spy", "Spy"]
+    },
+    {
       exportName: "NumberStringAspectClass",
       importMeta: import.meta,
       pathToDirectory: "../../spec-generated",

@@ -7,7 +7,6 @@ import type { NumberStringType } from "../fixtures/NumberStringType.mjs";
 import { SpyBaseInterface } from "../fixtures/SpyBase.mjs";
 import type { VoidMethodsOnly } from "../source/AspectDecorators.mjs";
 
-
 describe("Aspect decorators", () => {
   const moduleSource: ModuleSourceDirectory = {
     importMeta: import.meta,

@@ -45,10 +45,9 @@ export type AspectsDictionary<T extends MethodsOnlyInternal> = {
 export const ASPECTS_KEY = Symbol("Aspects key");
 
 /** For building out the aspects we're applying. */
-export class
-Aspects<T extends MethodsOnlyInternal> implements AspectsDictionary<T>
-{
-  classInvariant = [];
+type AspectBuilder<T extends MethodsOnlyInternal> = new () => VoidMethodsOnly<T>;
+export type AspectConstructorsDictionary<T extends MethodsOnlyInternal> = {
+  [key in keyof AspectsDictionary<T>]: ReadonlyArray<AspectBuilder<T>>;
 }
 
 export class AspectError extends Error {
@@ -56,6 +55,59 @@ export class AspectError extends Error {
 }
 
 // #endregion aspect types and helper classes
+
+// #region build aspects dictionary
+
+
+type AspectKeyDictionary<T extends MethodsOnlyInternal> = {
+  [key in keyof AspectsDictionary<T>]: ReadonlyArray<string>
+};
+
+async function writeAspectsDictionary<T extends MethodsOnlyInternal>(
+  typeFile: FileWithExport,
+  absTargetPath: string,
+  aspectsDir: ModuleSourceDirectory,
+  useAspects: AspectKeyDictionary<T>,
+) : Promise<string>
+{
+  const pathToAspects = getAbsolutePath({...aspectsDir, leafName: "", exportName: ""});
+  const files = new Set(await fs.readdir(
+    pathToAspects, { encoding: "utf-8" }
+  ));
+
+  const dicts: {
+    [key in keyof AspectsDictionary<T>]: Set<string>
+  } = {
+    classInvariant: new Set
+  };
+
+  const imports = new Map<string, string>;
+  useAspects.classInvariant.forEach(leaf => {
+    if (!files.has(leaf + ".mts"))
+      return;
+    imports.set(leaf, path.join(pathToAspects, leaf + ".mjs"));
+    dicts.classInvariant.add(leaf);
+  });
+
+  let rv = "";
+  imports.forEach((pathToFile, leaf) => {
+    rv += `import ${leaf} from "${getRelativePath(absTargetPath, pathToFile)}";\n`;
+  });
+  rv += "\n";
+
+  rv += `
+export const ASPECT_BUILDERS: AspectConstructorsDictionary<${typeFile.exportName}> = {
+  classInvariant: [
+    ${useAspects.classInvariant.join(",\n    ")}
+  ],
+};
+  `.trim() + "\n\n";
+
+  return rv;
+}
+
+// #endregion build aspects dictionary
+
 
 // #region aspect class generation
 
@@ -74,15 +126,17 @@ const thisSourcePath = url.fileURLToPath(import.meta.url);
  * @param typeFile - the type file location and export name.
  * @param classFile - the base class file location and export name.
  * @param argDictionary - methodName: [[argName: argType]]
- * @param targetClassName - the class name we try to generate.
- * @param absTargetPath - where to write the target class file.
+ * @param targetFile - the target class file location and export name.
  */
-export async function buildAspectClassRaw(
+export async function buildAspectClassRaw<T extends MethodsOnlyInternal>
+(
   typeFile: FileWithExport,
   classFile: FileWithExport,
   argDictionary: {
     [key: string] : ReadonlyArray<ArgParameter>
   },
+  aspectsDir: ModuleSourceDirectory,
+  useAspects: AspectKeyDictionary<T>,
   targetFile: FileWithExport,
 ) : Promise<void>
 {
@@ -94,6 +148,13 @@ export async function buildAspectClassRaw(
     ([key, args]) => buildAspectsMethod(typeFile.exportName, key, args)
   ).join("\n\n");
 
+  const aspectBuilders = await writeAspectsDictionary<T>(
+    typeFile,
+    absTargetPath,
+    aspectsDir,
+    useAspects,
+  );
+
   const fileContents = `
 ${buildPreamble(
   typeFile.exportName,
@@ -103,9 +164,11 @@ ${buildPreamble(
   absClassSourcePath
 )}
 
+${aspectBuilders}
+
 // #region aspect-oriented driver class
 
-abstract class ${targetFile.exportName}Abstract extends ${classFile.exportName}
+export abstract class ${targetFile.exportName}Abstract extends ${classFile.exportName}
 {
   protected abstract [ASPECTS_KEY]: AspectsDictionary<${typeFile.exportName}>;
 
@@ -121,10 +184,6 @@ export class ${targetFile.exportName}_AspectBase implements VoidMethodsOnly<${ty
 }).join("")}}
 
 // #endregion aspect-oriented driver class
-
-export abstract class ${targetFile.exportName}Debug extends ${targetFile.exportName}Abstract {}
-
-export abstract class ${targetFile.exportName} extends ${targetFile.exportName}Abstract {}
   `.trim() + "\n";
 
   await fs.writeFile(absTargetPath, fileContents, { encoding: "utf-8" });
@@ -165,18 +224,27 @@ import {
   type AspectsDictionary,
   AspectError,
   type VoidMethodsOnly,
+  type AspectConstructorsDictionary,
 } from "${
-  path.relative(path.dirname(absTargetPath), thisSourcePath)
+  getRelativePath(absTargetPath, thisSourcePath)
 }";
 
 import type { ${typeName} } from "${
-  path.relative(path.dirname(absTargetPath), absTypeSourcePath)
+  getRelativePath(absTargetPath, absTypeSourcePath)
 }";
 import ${className} from "${
-  path.relative(path.dirname(absTargetPath), absClassSourcePath)
+  getRelativePath(absTargetPath, absClassSourcePath)
 }";
 // #endregion preamble
   `.trim();
+}
+
+function getRelativePath(
+  absTargetPath: string,
+  pathToImport: string
+) : string
+{
+  return path.relative(path.dirname(absTargetPath), pathToImport);
 }
 
 /**
