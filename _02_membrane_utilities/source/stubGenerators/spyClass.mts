@@ -5,12 +5,10 @@ import type {
   ReadonlyDeep,
 } from "type-fest";
 
-import {
+import BaseStub, {
   type MethodDictionary,
   type MethodStructure,
 } from "./base.mjs";
-
-import VoidClassStub from "./voidClass.mjs";
 
 const stageDir = path.normalize(path.join(
   url.fileURLToPath(import.meta.url), "../../.."
@@ -22,7 +20,7 @@ const SpyBasePath = path.join(
 );
 
 export default
-class SpyClassStub extends VoidClassStub
+class SpyClassStub extends BaseStub
 {
   constructor(
     pathToFile: string,
@@ -65,7 +63,6 @@ class SpyClassStub extends VoidClassStub
     structure: MethodStructure,
   ): void
   {
-    super.buildMethodBody(methodName, structure);
     this.classWriter.writeLine(
       `this.#spyClass.getSpy("${methodName}")(${structure.args.map(arg => arg.key).join(", ")});`
     );
