@@ -4,7 +4,7 @@ import {
 } from "../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 import { DefaultMap } from "../../_01_stage_utilities/source/DefaultMap.mjs";
 import type { NumberStringType } from "../fixtures/NumberStringType.mjs";
-import { SpyBaseInterface } from "../fixtures/SpyBase.mjs";
+import { SpyBaseInterface } from "../../_01_stage_utilities/source/SpyBase.mjs";
 import type { VoidMethodsOnly } from "../source/AspectDecorators.mjs";
 
 describe("Aspect decorators", () => {

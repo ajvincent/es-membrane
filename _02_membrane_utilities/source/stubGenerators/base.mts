@@ -122,6 +122,7 @@ abstract class BaseStub
   readonly #className: string;
   readonly #extendsAndImplements: string;
   readonly #methods: ReadonlyDeep<MethodDictionary>;
+  readonly #interrupts: ReadonlySet<string>;
 
   /** This handles imports inside the module. */
   readonly #preambleWriter = new CodeBlockWriter(BaseStub.#writerOptions);
@@ -135,12 +136,14 @@ abstract class BaseStub
    * @param className - the class name to use.
    * @param extendsAndImplements - the "extends" and "implements" clauses.
    * @param methods - the dictionary of method structures.
+   * @param interrupts - method names to call this.methodTrap() for.  Includes the special "(all)" name.
    */
   constructor(
     pathToFile: string,
     className: string,
     extendsAndImplements: string,
     methods: ReadonlyDeep<MethodDictionary>,
+    interrupts: ReadonlyArray<string> = [],
   )
   {
     if (!path.isAbsolute(pathToFile))
@@ -149,6 +152,7 @@ abstract class BaseStub
     this.#className = className;
     this.#extendsAndImplements = extendsAndImplements;
     this.#methods = methods;
+    this.#interrupts = new Set(interrupts);
   }
 
   // #region import management
@@ -254,14 +258,50 @@ abstract class BaseStub
 
     const methods = Object.entries(this.#methods);
     this.classWriter.block(() => {
+      this.#maybeInterrupt("(all)", true);
+
       methods.forEach(([methodName, signature], index, methodsArray) => {
+        this.#maybeInterrupt(methodName, true);
+
         this.#buildMethod(methodName, signature);
         if (index < methodsArray.length - 1) {
           this.classWriter.newLine();
           this.classWriter.newLine();
         }
+
+        this.#maybeInterrupt(methodName, false);
       });
+
+      this.#maybeInterrupt("(all)", false);
     });
+  }
+
+  /**
+   * If we hit a defined interrupt, call this.methodTrap().
+   * @param methodName - the method name, or "(all)" for all methods.
+   * @param isBefore - true if this trap fires before the method definition, false for after.
+   */
+  #maybeInterrupt(
+    methodName: string,
+    isBefore: boolean,
+  ) : void
+  {
+    if (this.#interrupts.has(methodName))
+      this.methodTrap(methodName, isBefore);
+  }
+
+  /**
+   * Allow subclasses of this to insert other class fields.
+   * @param methodName - the method name, or "(all)" for all methods.
+   * @param isBefore - true if this trap fires before the method definition, false for after.
+   */
+  protected methodTrap(
+    methodName: string,
+    isBefore: boolean,
+  ) : void
+  {
+    void(methodName);
+    void(isBefore);
   }
 
   /**

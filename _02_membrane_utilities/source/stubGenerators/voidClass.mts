@@ -15,12 +15,13 @@ class VoidClassStub extends BaseStub
     className: string,
     extendsAndImplements: string,
     methods: ReadonlyDeep<MethodDictionary>,
+    interrupts: ReadonlyArray<string> = []
   )
   {
     if (!/\bVoidMethodsOnly</.test(extendsAndImplements)) {
       throw new Error("You must implement VoidMethodsOnly<T>!");
     }
-    super(pathToFile, className, extendsAndImplements, methods);
+    super(pathToFile, className, extendsAndImplements, methods, interrupts);
   }
 
   protected buildMethodBody(
