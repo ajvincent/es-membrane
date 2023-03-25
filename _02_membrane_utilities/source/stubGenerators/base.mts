@@ -7,11 +7,9 @@ import type {
   ReadonlyDeep,
 } from "type-fest";
 
-/** @see {@link https://github.com/dsherret/code-block-writer/issues/42#issuecomment-1483618103} */
-import CBW_ from "code-block-writer";
 import CodeBlockWriter, {
-  type CodeBlockWriterOptions,
-} from "../../../_01_stage_utilities/source/CodeBlockWriter.mjs";
+  type Options as CodeBlockWriterOptions
+} from "code-block-writer";
 
 import {
   DefaultMap,
@@ -80,7 +78,7 @@ abstract class BaseStub
    * @see {@link https://github.com/dsherret/code-block-writer/issues/44}
    */
   static pairedWrite(
-    writer: CBW_,
+    writer: CodeBlockWriter,
     startToken: string,
     endToken: string,
     newLine: boolean,
