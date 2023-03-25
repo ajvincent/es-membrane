@@ -41,7 +41,7 @@ export type MethodDictionary = {
  * A base class for quickly generating class stubs.
  */
 export default
-abstract class SourceContentsBase
+abstract class BaseStub
 {
   // #region static fields
   static readonly #writerOptions: Partial<CodeBlockWriterOptions> = Object.freeze({
@@ -124,10 +124,10 @@ abstract class SourceContentsBase
   readonly #methods: ReadonlyDeep<MethodDictionary>;
 
   /** This handles imports inside the module. */
-  readonly #preambleWriter = new CodeBlockWriter(SourceContentsBase.#writerOptions);
+  readonly #preambleWriter = new CodeBlockWriter(BaseStub.#writerOptions);
 
   /** This handles the actual class generation code. */
-  protected readonly classWriter = new CodeBlockWriter(SourceContentsBase.#writerOptions);
+  protected readonly classWriter = new CodeBlockWriter(BaseStub.#writerOptions);
   // #endregion basic tools and configurations
 
   /**
@@ -191,7 +191,7 @@ abstract class SourceContentsBase
     this.#blockImports.forEach((value, location) => locations.add(location));
 
     this.#preambleWriter.writeLine(`/* This file is generated.  Do not edit. */`);
-    SourceContentsBase.pairedWrite(
+    BaseStub.pairedWrite(
       this.#preambleWriter,
       "// #region preamble",
       "// #endregion preamble",

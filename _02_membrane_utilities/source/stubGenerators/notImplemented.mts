@@ -1,9 +1,9 @@
-import SourceContentsBase, {
+import BaseStub, {
   type MethodStructure,
 } from "./base.mjs";
 
 export default
-class NotImplementedContents extends SourceContentsBase
+class NotImplementedStub extends BaseStub
 {
   protected buildMethodBody(
     methodName: string,
