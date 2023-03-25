@@ -2,7 +2,7 @@ import type {
   SetReturnType,
 } from "type-fest";
 
-import { CONTINUE } from "./componentSymbols.mjs";
+import { CONTINUE } from "./aspectSymbols.mjs";
 
 type MethodsOnlyInternal = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
