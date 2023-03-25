@@ -1,5 +1,5 @@
 import { ObjectGraphStub } from "../source/ObjectGraphStub.mjs";
-import SpyBase from "./SpyBase.mjs";
+import SpyBase from "../../_01_stage_utilities/source/SpyBase.mjs";
 import SpyProxyHandler from "./SpyProxyHandler.mjs";
 
 export default class SpyObjectGraph

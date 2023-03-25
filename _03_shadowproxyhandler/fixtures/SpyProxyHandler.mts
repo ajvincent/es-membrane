@@ -1,4 +1,4 @@
-import SpyBase from "./SpyBase.mjs";
+import SpyBase from "../../_01_stage_utilities/source/SpyBase.mjs";
 
 import type {
   RequiredHandler,
