@@ -3,6 +3,7 @@ docs/dist/staging/
 **/.DS_Store
 _*/generated
 _*/fixtures/generated
+_*/spec-build/playground
 _*/spec-generated
 _*/**/ts-stdout.txt
 _*/**/tsconfig.json

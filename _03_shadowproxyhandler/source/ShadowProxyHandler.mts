@@ -7,7 +7,7 @@ void(Reflect as Required<ProxyHandler<object>>);
 export type RequiredHandler = Required<ProxyHandler<object>>;
 
 /** @see {@link https://github.com/microsoft/TypeScript/blob/main/src/lib/es2015.proxy.d.ts} */
-export type ShadowProxyHandler =
+export interface ShadowProxyHandler
 {
   /**
    * A trap method for a function call.

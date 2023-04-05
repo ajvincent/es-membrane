@@ -53,6 +53,7 @@ abstract class BaseStub
    * @returns the new method dictionary.
    */
   static cloneDictionary(
+    this: void,
     source: MethodDictionary,
     callback: (fieldName: string, signature: MethodStructure) => void,
   ) : MethodDictionary

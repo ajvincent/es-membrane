@@ -94,15 +94,15 @@ export async function getModuleClassWithArgs<Key extends string, T extends unkno
   ) as { [key in Key]: new(...args: T) => U };
   return module[property];
 }
- 
-function pathToModule(
+
+export function pathToModule(
   source: ModuleSourceDirectory,
   leafName: string,
 ) : string
 {
-  return path.resolve(
+  return path.normalize(path.resolve(
     url.fileURLToPath(source.importMeta.url),
     source.pathToDirectory,
     leafName
-  );
+  ));
 }
