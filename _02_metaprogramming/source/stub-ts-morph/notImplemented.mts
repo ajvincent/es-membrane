@@ -5,6 +5,7 @@ import type {
 } from "ts-morph";
 
 import BaseStub from "./base.mjs";
+import addPublicTypeImport from "./addPublicTypeImport.mjs";
 
 export default
 class NotImplementedStub extends BaseStub
@@ -46,8 +47,16 @@ class NotImplementedStub extends BaseStub
     isBefore: boolean,
   ) : void
   {
-    if (!this.#notImplementedOnly || !isBefore || !methodStructure)
+    if (!this.#notImplementedOnly || !isBefore)
       return;
+
+    if (!methodStructure) {
+      addPublicTypeImport(
+        this, "NotImplementedOnly.mjs", "NotImplementedOnly"
+      );
+      return;
+    }
+
     methodStructure.returnType = "never";
   }
 

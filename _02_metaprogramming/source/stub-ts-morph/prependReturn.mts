@@ -3,17 +3,8 @@ import type {
   MethodSignatureStructure,
 } from "ts-morph";
 
-import {
-  type ModuleSourceDirectory,
-  pathToModule
-} from "../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
-
-const publicTypesDir: ModuleSourceDirectory = {
-  importMeta: import.meta,
-  pathToDirectory: "../../aspects/public-types"
-};
-
 import BaseStub from "./base.mjs";
+import addPublicTypeImport from "./addPublicTypeImport.mjs";
 
 export default
 class PrependReturnStub extends BaseStub
@@ -32,10 +23,8 @@ class PrependReturnStub extends BaseStub
       return;
 
     if (!methodStructure) {
-      this.addImport(
-        pathToModule(publicTypesDir, "MethodsPrependReturn.mjs"),
-        "type MethodsPrependReturn",
-        false
+      addPublicTypeImport(
+        this, "MethodsPrependReturn.mjs", "MethodsPrependReturn"
       );
       return;
     }

@@ -64,12 +64,6 @@ async function build_NST_Never() : Promise<void>
     false
   );
 
-  classWriter.addImport(
-    pathToModule(stageDir, "source/aspects/public-types/NotImplementedOnly.mjs"),
-    "type NotImplementedOnly",
-    false
-  );
-
   classWriter.buildClass();
   await classWriter.write();
 }
@@ -89,12 +83,6 @@ async function build_NST_Void() : Promise<void>
     false
   );
 
-  classWriter.addImport(
-    pathToModule(stageDir, "source/aspects/public-types/VoidMethodsOnly.mjs"),
-    "type VoidMethodsOnly",
-    false
-  );
-
   classWriter.buildClass();
   await classWriter.write();
 }
@@ -111,12 +99,6 @@ async function build_NST_Spy() : Promise<void>
   classWriter.addImport(
     pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
     "type NumberStringType",
-    false
-  );
-
-  classWriter.addImport(
-    pathToModule(stageDir, "source/aspects/public-types/VoidMethodsOnly.mjs"),
-    "type VoidMethodsOnly",
     false
   );
 

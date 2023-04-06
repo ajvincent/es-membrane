@@ -4,6 +4,7 @@ import type {
 } from "ts-morph";
 
 import BaseStub from "./base.mjs";
+import addPublicTypeImport from "./addPublicTypeImport.mjs";
 
 export default
 class VoidClassStub extends BaseStub
@@ -18,8 +19,14 @@ class VoidClassStub extends BaseStub
     isBefore: boolean,
   ) : void
   {
-    if (!isBefore || !methodStructure)
+    if (!isBefore)
       return;
+
+    if (!methodStructure) {
+      addPublicTypeImport(this, "VoidMethodsOnly.mjs", "VoidMethodsOnly");
+      return;
+    }
+
     methodStructure.returnType = "void";
   }
 

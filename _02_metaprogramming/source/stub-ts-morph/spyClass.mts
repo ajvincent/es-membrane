@@ -8,13 +8,15 @@ import {
   pathToModule
 } from "../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 
+import addPublicTypeImport from "./addPublicTypeImport.mjs";
+
 const projectDir: ModuleSourceDirectory = {
   importMeta: import.meta,
   pathToDirectory: "../../../.."
 };
 const SpyBasePath = pathToModule(
   projectDir, "_01_stage_utilities/source/SpyBase.mjs"
-)
+);
 
 import BaseStub from "./base.mjs";
 
@@ -36,6 +38,8 @@ class SpyClassStub extends BaseStub
 
     if (!methodStructure) {
       this.addImport(SpyBasePath, "SpyBase", true);
+
+      addPublicTypeImport(this, "VoidMethodsOnly.mjs", "VoidMethodsOnly");
 
       this.classWriter.writeLine(
         `readonly #spyClass = new SpyBase;`
