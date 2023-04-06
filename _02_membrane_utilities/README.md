@@ -47,3 +47,58 @@ Ideally, I'd produce code using a small set of decorators:
 3. Decorators need to do some sanity checks:
    1. Does the component class match the claimed type?
    2. Are we modifying the aspect map, or wrapping the original class multiple times?
+
+### Approach: 2023-04-05
+
+A better approach might be to break this up into smaller pieces.
+
+I have to weld a standard `ProxyHandler` ("outer"), a transition interface like `ShadowProxyHandler` ("middle") and a standard `ProxyHandler` ("inner") together in such a way that code runs in the following order:
+
+1. Outer entry condition for a method
+2. Transition entry condition for the method
+3. Inner method
+4. Transition exit condition for the method with a prepended return value argument
+5. Outer exit condition for the method, with a prepended return value argument
+
+The transition methods have argument types which follow this pattern: [...original argument types, ...middle argument types, ...original argument types].
+
+Outer, transition and inner are _composites_ of aspect-oriented types: the aspect decorators, etc. work on the same type.  For proxy handling, the innermost of the "outer" components should be a `ShadowHeadHandler` to convert into the outermost "transition" component.  Likewise, the innermost of the "transition" components should be a `TailHandler` to convert into the outermost "inner" component.
+
+Then, for each of the composites, I can define `@nestedClass(beforeComponent | null, afterComponent | null, debug: boolean)`.
+
+Pseudo-code:
+
+```typescript
+type BaseMethod<Arguments extends any[], Result extends any> = (...args: Arguments) => Result;
+
+type TransitionMethod<
+  BaseArguments extends any[],
+  MiddleArguments extends any[],
+  Result
+> = (...args: [...BaseArguments, ...MiddleArguments, ...BaseArguments]) => Result;
+
+type TransitionInterface<Interface extends object, MiddleArguments extends any[]> = {
+  [key in keyof Interface]:
+    Interface[key] extends BaseMethod<any[], any> ?
+    TransitionMethod<Parameters<Interface[key]>, MiddleArguments, ReturnType<Interface[key]>> :
+    Interface[key]
+};
+```
+
+Ultimately, this will mean a file structure like this:
+
+- source
+  - types
+    - NumberStringType.mts
+  - generated
+    - (stub classes)
+  - components
+    - outer
+      - decorated.mts
+    - transition
+      - decorated.mts
+    - inner
+      - decorated.mts
+    - stitch.mts
+- source-build
+  - support.mts
