@@ -10,7 +10,7 @@ import getTS_SourceFile from "../../_01_stage_utilities/source/getTS_SourceFile.
 import { buildAspectClassRaw } from "../source/AspectDecorators.mjs";
 
 import NotImplementedStub from "../source/stub-ts-morph/notImplemented.mjs";
-import VoidClassStub from "../source/stubGenerators/voidClass.mjs";
+import VoidClassStub from "../source/stub-ts-morph/voidClass.mjs";
 import SpyClassStub from "../source/stubGenerators/spyClass.mjs";
 import {
   NST_Methods,
@@ -125,32 +125,21 @@ async function build_NST_Never() : Promise<void>
 
 async function build_NST_Void() : Promise<void>
 {
-  const methods = VoidClassStub.cloneDictionary(
-    NST_Methods,
-    (fieldName, signature) => {
-      signature.returnType = "void";
-    }
-  );
-
-  const stageDir = path.normalize(path.join(
-    url.fileURLToPath(import.meta.url), "../.."
-  ));
-
   const classWriter = new VoidClassStub(
-    path.join(stageDir, "spec-generated/NST_Void.mts"),
-    "NumberStringClass_Void",
-    "implements VoidMethodsOnly<NumberStringType>",
-    methods,
+    sourceFile,
+    "NumberStringType",
+    pathToModule(stageDir, "spec-generated/NST_Void.mts"),
+    "NumberStringClass_NotImplemented",
   );
 
   classWriter.addImport(
-    path.join(stageDir, "fixtures/NumberStringType.mjs"),
+    pathToModule(stageDir, "fixtures/NumberStringType.mjs"),
     "type NumberStringType",
     false
   );
 
   classWriter.addImport(
-    path.join(stageDir, "source/methodsOnly.mjs"),
+    pathToModule(stageDir, "source/methodsOnly.mjs"),
     "type VoidMethodsOnly",
     false
   );
