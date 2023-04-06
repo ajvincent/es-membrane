@@ -1,5 +1,4 @@
 import type {
-  SourceFile,
   OptionalKind,
   MethodSignatureStructure,
 } from "ts-morph";
@@ -10,26 +9,23 @@ import addPublicTypeImport from "./addPublicTypeImport.mjs";
 export default
 class NotImplementedStub extends BaseStub
 {
-  /**
-   * @param sourceFile - the source file containing the interface or type alias.
-   * @param interfaceOrAliasName - the name of the interface or type alias
-   * @param pathToClassFile - the absolute path to the class file.
-   * @param className - the class name to use.
-   * @param notImplementedOnly - true if I will insert `NotImplementedOnly<>` around the interface or alias.
-   */
-  constructor(
-    sourceFile: SourceFile,
-    interfaceOrAliasName: string,
-    pathToClassFile: string,
-    className: string,
-    notImplementedOnly: boolean
-  )
+  #notImplementedOnly = false;
+  #notImplementedSet = false;
+
+  setNotImplementedOnly(useNever: boolean) : void
   {
-    super(sourceFile, interfaceOrAliasName, pathToClassFile, className);
-    this.#notImplementedOnly = notImplementedOnly;
+    if (this.#notImplementedSet)
+      throw new Error("You've called setNotImplementedOnly already");
+    this.#notImplementedSet = true;
+    this.#notImplementedOnly = useNever;
   }
 
-  #notImplementedOnly: boolean;
+  buildClass() : void
+  {
+    if (!this.#notImplementedSet)
+      throw new Error("Call this.setNotImplementedOnly()");
+    super.buildClass();
+  }
 
   protected getExtendsAndImplements(): string
   {

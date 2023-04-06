@@ -35,8 +35,8 @@ async function build_NST_NI() : Promise<void>
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/common/NST_NotImplemented.mts"),
     "NumberStringClass_NotImplemented",
-    false
   );
+  classWriter.setNotImplementedOnly(false);
 
   classWriter.addImport(
     pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
@@ -55,8 +55,8 @@ async function build_NST_Never() : Promise<void>
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/common/NST_Never.mts"),
     "NumberStringClass_Never",
-    true
   );
+  classWriter.setNotImplementedOnly(true);
 
   classWriter.addImport(
     pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
