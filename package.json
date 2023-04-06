@@ -22,9 +22,6 @@
     "url": "https://github.com/ajvincent/es-membrane/issues"
   },
   "homepage": "https://github.com/ajvincent/es-membrane#readme",
-  "imports": {
-    "#stageUtilities/*": "./_01_stage_utilities/source/*"
-  },
   "devDependencies": {
     "@tsconfig/node18": "^1.0.1",
     "@types/jasmine": "^4.3.0",
