@@ -1,4 +1,4 @@
-import type { propertyKey } from "../../_02_membrane_utilities/source/publicUtilities.mjs";
+import type { propertyKey } from "./publicUtilities.mjs";
 import type {
   ShadowProxyHandler,
   RequiredHandler,

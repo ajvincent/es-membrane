@@ -4,7 +4,7 @@ import {
 } from "../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 import getTS_SourceFile from "../../_01_stage_utilities/source/getTS_SourceFile.mjs";
 
-import { buildAspectClassRaw } from "../source/AspectDecorators.mjs";
+import { buildAspectClassRaw } from "../source/draft-20230323/AspectDecorators.mjs";
 
 import NotImplementedStub from "../source/stub-ts-morph/notImplemented.mjs";
 import VoidClassStub from "../source/stub-ts-morph/voidClass.mjs";
@@ -15,7 +15,7 @@ const stageDir: ModuleSourceDirectory = {
   pathToDirectory: "../.."
 }
 
-const sourceFile = getTS_SourceFile(stageDir, "fixtures/NumberStringType.mts");
+const sourceFile = getTS_SourceFile(stageDir, "fixtures/types/NumberStringType.mts");
 
 export default
 async function runModule() : Promise<void>
@@ -35,13 +35,13 @@ async function buildRawClass() : Promise<void>
     {
       exportName: "NumberStringType",
       importMeta: import.meta,
-      pathToDirectory: "../../fixtures",
+      pathToDirectory: "../../fixtures/types",
       leafName: "NumberStringType.mjs"
     },
     {
       exportName: "NumberStringClass",
       importMeta: import.meta,
-      pathToDirectory: "../../fixtures",
+      pathToDirectory: "../../fixtures/components/shared",
       leafName: "NumberStringClass.mjs"
     },
     {
@@ -82,7 +82,7 @@ async function build_NST_NI() : Promise<void>
   );
 
   classWriter.addImport(
-    pathToModule(stageDir, "fixtures/NumberStringType.mjs"),
+    pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
     "type NumberStringType",
     false
   );
@@ -102,13 +102,13 @@ async function build_NST_Never() : Promise<void>
   );
 
   classWriter.addImport(
-    pathToModule(stageDir, "fixtures/NumberStringType.mjs"),
+    pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
     "type NumberStringType",
     false
   );
 
   classWriter.addImport(
-    pathToModule(stageDir, "source/methodsOnly.mjs"),
+    pathToModule(stageDir, "source/aspects/public-types/NotImplementedOnly.mjs"),
     "type NotImplementedOnly",
     false
   );
@@ -127,13 +127,13 @@ async function build_NST_Void() : Promise<void>
   );
 
   classWriter.addImport(
-    pathToModule(stageDir, "fixtures/NumberStringType.mjs"),
+    pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
     "type NumberStringType",
     false
   );
 
   classWriter.addImport(
-    pathToModule(stageDir, "source/methodsOnly.mjs"),
+    pathToModule(stageDir, "source/aspects/public-types/VoidMethodsOnly.mjs"),
     "type VoidMethodsOnly",
     false
   );
@@ -152,13 +152,13 @@ async function build_NST_Spy() : Promise<void>
   );
 
   classWriter.addImport(
-    pathToModule(stageDir, "fixtures/NumberStringType.mjs"),
+    pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
     "type NumberStringType",
     false
   );
 
   classWriter.addImport(
-    pathToModule(stageDir, "source/methodsOnly.mjs"),
+    pathToModule(stageDir, "source/aspects/public-types/VoidMethodsOnly.mjs"),
     "type VoidMethodsOnly",
     false
   );

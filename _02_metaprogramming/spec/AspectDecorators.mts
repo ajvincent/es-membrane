@@ -3,9 +3,9 @@ import {
   type ModuleSourceDirectory,
 } from "../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 import { DefaultMap } from "../../_01_stage_utilities/source/DefaultMap.mjs";
-import type { NumberStringType } from "../fixtures/NumberStringType.mjs";
+import type { NumberStringType } from "../fixtures/types/NumberStringType.mjs";
 import { SpyBaseInterface } from "../../_01_stage_utilities/source/SpyBase.mjs";
-import type { VoidMethodsOnly } from "../source/AspectDecorators.mjs";
+import type { VoidMethodsOnly } from "../source/draft-20230323/AspectDecorators.mjs";
 
 describe("Aspect decorators", () => {
   const moduleSource: ModuleSourceDirectory = {

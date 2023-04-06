@@ -1,3 +1,5 @@
+// This may already be dead code.  Still working out the details.
+
 import path from "path";
 import url from "url";
 import fs from "fs/promises";
@@ -5,13 +7,13 @@ import fs from "fs/promises";
 import {
   type ModuleSourceDirectory,
   getModulePart,
-} from "../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 
 import {
   PromiseAllParallel
-} from "../../_01_stage_utilities/source/PromiseTypes.mjs";
+} from "../../../_01_stage_utilities/source/PromiseTypes.mjs";
 
-import { ASPECT_TYPE } from "./aspectSymbols.mjs";
+import { ASPECT_TYPE } from "../aspects/shared-symbols.mjs";
 
 type AspectKnownType = (
   "debug" | // VoidMethodsOnly

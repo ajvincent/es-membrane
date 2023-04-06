@@ -1,10 +1,4 @@
-# Membrane utilities
-
-## Public utilities
-
-The file [`publicUtilities.mts`](source/publicUtilities.mts) represents some fairly low-level common utilities (`returnTrue`, `DataDescriptor`, etc.).
-
-## Metaprogramming
+# Metaprogramming
 
 I'm still figuring this out.
 
