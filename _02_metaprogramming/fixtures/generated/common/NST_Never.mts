@@ -3,10 +3,10 @@
 
 import {
   type NumberStringType,
-} from "../types/NumberStringType.mjs";
+} from "../../types/NumberStringType.mjs";
 import {
   type NotImplementedOnly,
-} from "../../source/aspects/public-types/NotImplementedOnly.mjs";
+} from "../../../source/aspects/public-types/NotImplementedOnly.mjs";
 
 // #endregion preamble
 

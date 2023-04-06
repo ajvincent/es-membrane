@@ -1,13 +1,13 @@
 /* This file is generated.  Do not edit. */
 // #region preamble
 
-import SpyBase from "../../../_01_stage_utilities/source/SpyBase.mjs";
+import SpyBase from "../../../../_01_stage_utilities/source/SpyBase.mjs";
 import {
   type NumberStringType,
-} from "../types/NumberStringType.mjs";
+} from "../../types/NumberStringType.mjs";
 import {
   type VoidMethodsOnly,
-} from "../../source/aspects/public-types/VoidMethodsOnly.mjs";
+} from "../../../source/aspects/public-types/VoidMethodsOnly.mjs";
 
 // #endregion preamble
 

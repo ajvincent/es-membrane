@@ -14,4 +14,3 @@ export type MethodReturnRewrite<T, R, Extends extends boolean> = T extends Metho
     >
   } :
   never;
-

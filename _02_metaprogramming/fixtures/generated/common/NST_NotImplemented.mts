@@ -3,7 +3,7 @@
 
 import {
   type NumberStringType,
-} from "../types/NumberStringType.mjs";
+} from "../../types/NumberStringType.mjs";
 
 // #endregion preamble
 

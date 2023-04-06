@@ -380,6 +380,7 @@ abstract class BaseStub
       this.classWriter.toString(),
     ].join("\n\n") + "\n";
 
+    await fs.mkdir(path.dirname(this.#pathToClassFile), { recursive: true });
     await fs.writeFile(this.#pathToClassFile, contents, { "encoding": "utf-8"});
   }
 
