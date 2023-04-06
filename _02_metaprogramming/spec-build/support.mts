@@ -4,8 +4,6 @@ import {
 } from "../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 import getTS_SourceFile from "../../_01_stage_utilities/source/getTS_SourceFile.mjs";
 
-import { buildAspectClassRaw } from "../source/draft-20230323/AspectDecorators.mjs";
-
 import NotImplementedStub from "../source/stub-ts-morph/notImplemented.mjs";
 import VoidClassStub from "../source/stub-ts-morph/voidClass.mjs";
 import SpyClassStub from "../source/stub-ts-morph/spyClass.mjs";
@@ -22,55 +20,12 @@ export default
 async function runModule() : Promise<void>
 {
   await Promise.all([
-    buildRawClass(),
     build_NST_NI(),
     build_NST_Never(),
     build_NST_Void(),
     build_NST_Spy(),
     build_NST_PrependReturn(),
   ]);
-}
-
-async function buildRawClass() : Promise<void>
-{
-  await buildAspectClassRaw(
-    {
-      exportName: "NumberStringType",
-      importMeta: import.meta,
-      pathToDirectory: "../../fixtures/types",
-      leafName: "NumberStringType.mjs"
-    },
-    {
-      exportName: "NumberStringClass",
-      importMeta: import.meta,
-      pathToDirectory: "../../fixtures/components/shared",
-      leafName: "NumberStringClass.mjs"
-    },
-    {
-      "repeatForward": [
-        ["s", "string"],
-        ["n", "number"],
-      ],
-
-      "repeatBack": [
-        ["n", "number"],
-        ["s", "string"],
-      ],
-    },
-    {
-      importMeta: import.meta,
-      pathToDirectory: "../../fixtures/aspects"
-    },
-    {
-      classInvariant: ["Spy", "Spy"]
-    },
-    {
-      exportName: "NumberStringAspectClass",
-      importMeta: import.meta,
-      pathToDirectory: "../../spec-generated",
-      leafName: "NumberStringAspectClass.mts"
-    }
-  );
 }
 
 async function build_NST_NI() : Promise<void>

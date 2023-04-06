@@ -10,7 +10,7 @@ import {
 
 // #endregion preamble
 
-export default class NumberStringClass_NotImplemented
+export default class NumberStringClass_Void
 implements VoidMethodsOnly<NumberStringType>
 {
   repeatForward(
