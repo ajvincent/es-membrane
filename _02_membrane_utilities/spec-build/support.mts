@@ -1,14 +1,27 @@
 import path from "path";
 import url from "url";
 
+import {
+  type ModuleSourceDirectory,
+  pathToModule
+} from "../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+import getTS_SourceFile from "../../_01_stage_utilities/source/getTS_SourceFile.mjs";
+
 import { buildAspectClassRaw } from "../source/AspectDecorators.mjs";
 
-import NotImplementedStub from "../source/stubGenerators/notImplemented.mjs";
+import NotImplementedStub from "../source/stub-ts-morph/notImplemented.mjs";
 import VoidClassStub from "../source/stubGenerators/voidClass.mjs";
 import SpyClassStub from "../source/stubGenerators/spyClass.mjs";
 import {
   NST_Methods,
 } from "../fixtures/NumberStringType.mjs";
+
+const stageDir: ModuleSourceDirectory = {
+  importMeta: import.meta,
+  pathToDirectory: "../.."
+}
+
+const sourceFile = getTS_SourceFile(stageDir, "fixtures/NumberStringType.mts");
 
 export default
 async function runModule() : Promise<void>
@@ -66,19 +79,16 @@ async function buildRawClass() : Promise<void>
 
 async function build_NST_NI() : Promise<void>
 {
-  const stageDir = path.normalize(path.join(
-    url.fileURLToPath(import.meta.url), "../.."
-  ));
-
   const classWriter = new NotImplementedStub(
-    path.join(stageDir, "spec-generated/NST_NotImplemented.mts"),
+    sourceFile,
+    "NumberStringType",
+    pathToModule(stageDir, "spec-generated/NST_NotImplemented.mts"),
     "NumberStringClass_NotImplemented",
-    "implements NumberStringType",
-    NST_Methods,
+    false
   );
 
   classWriter.addImport(
-    path.join(stageDir, "fixtures/NumberStringType.mjs"),
+    pathToModule(stageDir, "fixtures/NumberStringType.mjs"),
     "type NumberStringType",
     false
   );
@@ -89,32 +99,22 @@ async function build_NST_NI() : Promise<void>
 
 async function build_NST_Never() : Promise<void>
 {
-  const methods = NotImplementedStub.cloneDictionary(
-    NST_Methods,
-    (fieldName, signature) => {
-      signature.returnType = "never";
-    }
-  );
-
-  const stageDir = path.normalize(path.join(
-    url.fileURLToPath(import.meta.url), "../.."
-  ));
-
   const classWriter = new NotImplementedStub(
-    path.join(stageDir, "spec-generated/NST_Never.mts"),
+    sourceFile,
+    "NumberStringType",
+    pathToModule(stageDir, "spec-generated/NST_Never.mts"),
     "NumberStringClass_Never",
-    "implements NotImplementedOnly<NumberStringType>",
-    methods,
+    true
   );
 
   classWriter.addImport(
-    path.join(stageDir, "fixtures/NumberStringType.mjs"),
+    pathToModule(stageDir, "fixtures/NumberStringType.mjs"),
     "type NumberStringType",
     false
   );
 
   classWriter.addImport(
-    path.join(stageDir, "source/methodsOnly.mjs"),
+    pathToModule(stageDir, "source/methodsOnly.mjs"),
     "type NotImplementedOnly",
     false
   );
