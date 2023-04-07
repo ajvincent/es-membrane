@@ -1,20 +1,20 @@
 import {
   type ModuleSourceDirectory,
   getModuleDefaultClass,
-} from "../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
-  VoidMethodsOnly
-} from "../../source/aspects/public-types/VoidMethodsOnly.mjs";
+  VoidMethodsOnly,
+} from "../../../source/aspects/export-types.mjs";
 
 import type {
   NumberStringType
-} from "../../fixtures/types/NumberStringType.mjs";
+} from "../../../fixtures/types/NumberStringType.mjs";
 
 it("stub-ts-morph: voidClass with 'void' return types returns undefined", async () => {
   const generatedDir: ModuleSourceDirectory = {
     importMeta: import.meta,
-    pathToDirectory: "../../../spec-generated/"
+    pathToDirectory: "../../../../spec-generated/"
   };
 
   const NST_Void = await getModuleDefaultClass<VoidMethodsOnly<NumberStringType>>(

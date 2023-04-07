@@ -6,17 +6,17 @@ import type {
 import {
   type ModuleSourceDirectory,
   pathToModule
-} from "../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 
 import addPublicTypeImport from "./addPublicTypeImport.mjs";
 
 import BaseStub, {
   type ExtendsAndImplements
-} from "./base.mjs";
+} from "./baseStub.mjs";
 
 const projectDir: ModuleSourceDirectory = {
   importMeta: import.meta,
-  pathToDirectory: "../../../.."
+  pathToDirectory: "../../../../.."
 };
 const SpyBasePath = pathToModule(
   projectDir, "_01_stage_utilities/source/SpyBase.mjs"

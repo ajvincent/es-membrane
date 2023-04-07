@@ -4,10 +4,7 @@ import {
 } from "../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 import getTS_SourceFile from "../../_01_stage_utilities/source/getTS_SourceFile.mjs";
 
-import NotImplementedStub from "../source/stub-ts-morph/notImplemented.mjs";
-import VoidClassStub from "../source/stub-ts-morph/voidClass.mjs";
-import SpyClassStub from "../source/stub-ts-morph/spyClass.mjs";
-import PrependReturnStub from "../source/stub-ts-morph/prependReturn.mjs";
+import StubMap from "../source/stub-generators/exports.mjs";
 
 const stageDir: ModuleSourceDirectory = {
   importMeta: import.meta,
@@ -30,7 +27,7 @@ async function runModule() : Promise<void>
 
 async function build_NST_NI() : Promise<void>
 {
-  const classWriter = new NotImplementedStub(
+  const classWriter = new StubMap.NotImplemented(
     sourceFile,
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/common/NST_NotImplemented.mts"),
@@ -50,7 +47,7 @@ async function build_NST_NI() : Promise<void>
 
 async function build_NST_Never() : Promise<void>
 {
-  const classWriter = new NotImplementedStub(
+  const classWriter = new StubMap.NotImplemented(
     sourceFile,
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/common/NST_Never.mts"),
@@ -70,7 +67,7 @@ async function build_NST_Never() : Promise<void>
 
 async function build_NST_Void() : Promise<void>
 {
-  const classWriter = new VoidClassStub(
+  const classWriter = new StubMap.VoidClass(
     sourceFile,
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/common/NST_Void.mts"),
@@ -89,7 +86,7 @@ async function build_NST_Void() : Promise<void>
 
 async function build_NST_Spy() : Promise<void>
 {
-  const classWriter = new SpyClassStub(
+  const classWriter = new StubMap.SpyClass(
     sourceFile,
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/common/NST_Spy.mts"),
@@ -108,7 +105,7 @@ async function build_NST_Spy() : Promise<void>
 
 async function build_NST_PrependReturn() : Promise<void>
 {
-  const classWriter = new PrependReturnStub(
+  const classWriter = new StubMap.PrependReturn(
     sourceFile,
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/common/NST_PrependReturn.mts"),

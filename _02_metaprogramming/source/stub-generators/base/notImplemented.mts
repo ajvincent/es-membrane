@@ -5,7 +5,7 @@ import type {
 
 import BaseStub, {
   type ExtendsAndImplements
-} from "./base.mjs";
+} from "./baseStub.mjs";
 import addPublicTypeImport from "./addPublicTypeImport.mjs";
 
 export default
