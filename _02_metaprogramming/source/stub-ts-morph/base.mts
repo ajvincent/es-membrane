@@ -35,8 +35,7 @@ export type ExtendsAndImplements = {
 /**
  * A base class for quickly generating class stubs.
  */
-export default
-abstract class BaseStub
+export default class BaseStub
 {
   // #region static fields
   static readonly #writerOptions: Partial<CodeBlockWriterOptions> = Object.freeze({
@@ -111,7 +110,10 @@ abstract class BaseStub
   // #endregion basic tools and configurations
 
   /** Get the "extends" and "implements" fields for the class. */
-  protected abstract getExtendsAndImplements() : ExtendsAndImplements;
+  protected getExtendsAndImplements() : ExtendsAndImplements
+  {
+    throw new Error("not implemented on BaseStub");
+  }
 
   /**
    * @param sourceFile - the source file containing the interface or type alias.
@@ -126,6 +128,9 @@ abstract class BaseStub
     className: string,
   )
   {
+    if (new.target === BaseStub)
+      throw new Error("You must subclass BaseStub!");
+
     if (!path.isAbsolute(pathToClassFile))
       throw new Error("pathToClassFile must be absolute");
 
@@ -368,9 +373,13 @@ abstract class BaseStub
    * Build the body of a class method.
    * @param structure - the method structure.
    */
-  protected abstract buildMethodBody(
+  protected buildMethodBody(
     structure: OptionalKind<MethodSignatureStructure>
-  ) : void;
+  ) : void
+  {
+    void(structure);
+    throw new Error("not implemented on BaseStub");
+  }
 
   // #endregion class building
 
