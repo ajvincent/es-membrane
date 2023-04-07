@@ -10,6 +10,10 @@ import {
 
 import addPublicTypeImport from "./addPublicTypeImport.mjs";
 
+import BaseStub, {
+  type ExtendsAndImplements
+} from "./base.mjs";
+
 const projectDir: ModuleSourceDirectory = {
   importMeta: import.meta,
   pathToDirectory: "../../../.."
@@ -18,14 +22,15 @@ const SpyBasePath = pathToModule(
   projectDir, "_01_stage_utilities/source/SpyBase.mjs"
 );
 
-import BaseStub from "./base.mjs";
-
 export default
 class SpyClassStub extends BaseStub
 {
-  protected getExtendsAndImplements(): string
+  protected getExtendsAndImplements(): ExtendsAndImplements
   {
-    return `implements VoidMethodsOnly<${this.interfaceOrAliasName}>`;
+    return {
+      extends: [],
+      implements: [`VoidMethodsOnly<${this.interfaceOrAliasName}>`],
+    };
   }
 
   protected methodTrap(

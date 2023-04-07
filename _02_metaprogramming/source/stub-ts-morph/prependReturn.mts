@@ -3,15 +3,23 @@ import type {
   MethodSignatureStructure,
 } from "ts-morph";
 
-import BaseStub from "./base.mjs";
+import BaseStub, {
+  type ExtendsAndImplements
+} from "./base.mjs";
 import addPublicTypeImport from "./addPublicTypeImport.mjs";
 
 export default
 class PrependReturnStub extends BaseStub
 {
-  protected getExtendsAndImplements(): string
+
+  protected getExtendsAndImplements(): ExtendsAndImplements
   {
-    return `implements MethodsPrependReturn<${this.interfaceOrAliasName}>`;
+    return {
+      extends: [],
+      implements: [
+        `MethodsPrependReturn<${this.interfaceOrAliasName}>`
+      ],
+    };
   }
 
   protected methodTrap(

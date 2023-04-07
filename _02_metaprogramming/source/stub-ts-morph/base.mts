@@ -27,6 +27,11 @@ import {
 
 type StructureWithMethods = Pick<InterfaceDeclarationStructure, "methods">;
 
+export type ExtendsAndImplements = {
+  readonly extends: ReadonlyArray<string>,
+  readonly implements: ReadonlyArray<string>,
+};
+
 /**
  * A base class for quickly generating class stubs.
  */
@@ -106,7 +111,7 @@ abstract class BaseStub
   // #endregion basic tools and configurations
 
   /** Get the "extends" and "implements" fields for the class. */
-  protected abstract getExtendsAndImplements() : string;
+  protected abstract getExtendsAndImplements() : ExtendsAndImplements;
 
   /**
    * @param sourceFile - the source file containing the interface or type alias.
@@ -239,7 +244,16 @@ abstract class BaseStub
     this.#buildCalled = true;
 
     this.classWriter.writeLine(`export default class ${this.#className}`);
-    this.classWriter.writeLine(this.getExtendsAndImplements());
+
+    const {
+      extends: _extends,
+      implements: _implements
+    } = this.getExtendsAndImplements();
+
+    if (_extends.length)
+      this.classWriter.writeLine("extends " + _extends.join(", "));
+    if (_implements.length)
+      this.classWriter.writeLine("implements " + _implements.join(", "));
 
     const methods = this.#getTypeMethods();
 

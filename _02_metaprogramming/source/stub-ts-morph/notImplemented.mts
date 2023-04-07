@@ -3,7 +3,9 @@ import type {
   MethodSignatureStructure,
 } from "ts-morph";
 
-import BaseStub from "./base.mjs";
+import BaseStub, {
+  type ExtendsAndImplements
+} from "./base.mjs";
 import addPublicTypeImport from "./addPublicTypeImport.mjs";
 
 export default
@@ -27,15 +29,14 @@ class NotImplementedStub extends BaseStub
     super.buildClass();
   }
 
-  protected getExtendsAndImplements(): string
+  protected getExtendsAndImplements(): ExtendsAndImplements
   {
-    return `implements ${
-      this.#notImplementedOnly ? "NotImplementedOnly<" : ""
-    }${
-      this.interfaceOrAliasName
-    }${
-      this.#notImplementedOnly ? ">" : ""
-    }`;
+    return {
+      extends: [],
+      implements: [
+        this.#notImplementedOnly ? `NotImplementedOnly<${this.interfaceOrAliasName}>` : this.interfaceOrAliasName
+      ],
+    };
   }
 
   protected methodTrap(

@@ -3,15 +3,20 @@ import type {
   MethodSignatureStructure,
 } from "ts-morph";
 
-import BaseStub from "./base.mjs";
+import BaseStub, {
+  type ExtendsAndImplements
+} from "./base.mjs";
 import addPublicTypeImport from "./addPublicTypeImport.mjs";
 
 export default
 class VoidClassStub extends BaseStub
 {
-  protected getExtendsAndImplements(): string
+  protected getExtendsAndImplements(): ExtendsAndImplements
   {
-    return `implements VoidMethodsOnly<${this.interfaceOrAliasName}>`;
+    return {
+      extends: [],
+      implements: [`VoidMethodsOnly<${this.interfaceOrAliasName}>`],
+    };
   }
 
   protected methodTrap(
