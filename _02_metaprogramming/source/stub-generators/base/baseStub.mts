@@ -8,21 +8,23 @@ import {
   Node,
   InterfaceDeclaration,
   type TypeAliasDeclaration,
-  type MethodSignatureStructure,
-  OptionalKind,
-  ParameterDeclarationStructure,
   type InterfaceDeclarationStructure,
 } from "ts-morph";
 
 import CodeBlockWriter from "code-block-writer";
 
+import {
+  DefaultMap,
+} from "../../../../_01_stage_utilities/source/DefaultMap.mjs";
+
 import extractType, {
   writerOptions
 } from "./extractType.mjs";
 
-import {
-  DefaultMap,
-} from "../../../../_01_stage_utilities/source/DefaultMap.mjs";
+import type {
+  TS_Method,
+  TS_Parameter,
+} from "./private-types.mjs";
 
 // #endregion preamble
 
@@ -279,7 +281,7 @@ export default class BaseStub
   }
 
   /** Get the methods of the type or interface. */
-  #getTypeMethods(): ReadonlyArray<OptionalKind<MethodSignatureStructure>>
+  #getTypeMethods(): ReadonlyArray<TS_Method>
   {
     let structure: StructureWithMethods;
 
@@ -312,7 +314,7 @@ export default class BaseStub
    * @param isBefore - true if this trap fires before the method definition, false for after.
    */
   protected methodTrap(
-    methodStructure: OptionalKind<MethodSignatureStructure> | null,
+    methodStructure: TS_Method | null,
     isBefore: boolean,
   ) : void
   {
@@ -326,7 +328,7 @@ export default class BaseStub
    * @param isBefore - true if this trap fires before the method definition, false for after.
    */
   #buildMethod(
-    method: OptionalKind<MethodSignatureStructure>
+    method: TS_Method
   ) : void
   {
     BaseStub.pairedWrite(this.classWriter, method.name + "(", ")", false, true, () => {
@@ -346,7 +348,7 @@ export default class BaseStub
 
   /** Build the markup for a single parameter. */
   #writeParameter(
-    param: OptionalKind<ParameterDeclarationStructure>
+    param: TS_Parameter
   ): void
   {
     this.classWriter.write(param.name);
@@ -363,7 +365,7 @@ export default class BaseStub
    * @param structure - the method structure.
    */
   protected buildMethodBody(
-    structure: OptionalKind<MethodSignatureStructure>
+    structure: TS_Method
   ) : void
   {
     void(structure);
@@ -389,11 +391,23 @@ export default class BaseStub
 
     const contents = [
       this.#preambleWriter.toString(),
+      this.writeBeforeClass().trim(),
       this.classWriter.toString(),
-    ].join("\n\n") + "\n";
+      this.writeAfterClass().trim(),
+    ].filter(Boolean).join("\n\n") + "\n";
 
     await fs.mkdir(path.dirname(this.#pathToClassFile), { recursive: true });
     await fs.writeFile(this.#pathToClassFile, contents, { "encoding": "utf-8"});
+  }
+
+  protected writeBeforeClass() : string
+  {
+    return "";
+  }
+
+  protected writeAfterClass() : string
+  {
+    return "";
   }
 
   // #endregion writing to the file system

@@ -1,8 +1,3 @@
-import type {
-  OptionalKind,
-  MethodSignatureStructure,
-} from "ts-morph";
-
 import BaseStub, {
   type ExtendsAndImplements
 } from "./baseStub.mjs";
@@ -15,6 +10,10 @@ import {
   NOT_DEFINED,
   type MaybeDefined,
 } from "../../../../_01_stage_utilities/source/maybeDefined.mjs";
+
+import type {
+  TS_Method
+} from "./private-types.mjs";
 
 type NI_Setting = {
   useNever: boolean
@@ -52,7 +51,7 @@ class NotImplementedStub extends BaseStub
   }
 
   protected methodTrap(
-    methodStructure: OptionalKind<MethodSignatureStructure> | null,
+    methodStructure: TS_Method | null,
     isBefore: boolean,
   ) : void
   {
@@ -72,11 +71,11 @@ class NotImplementedStub extends BaseStub
   }
 
   protected buildMethodBody(
-    structure: OptionalKind<MethodSignatureStructure>
+    methodStructure: TS_Method
   ): void
   {
-    if (structure.parameters) {
-      structure.parameters.forEach(
+    if (methodStructure.parameters) {
+      methodStructure.parameters.forEach(
         param => this.classWriter.writeLine(`void(${param.name});`)
       );
     }

@@ -1,7 +1,4 @@
 import type {
-  MethodSignatureStructure,
-  OptionalKind,
-  ParameterDeclarationStructure,
   WriterFunction
 } from "ts-morph";
 
@@ -20,20 +17,26 @@ import {
 
 import extractType from "../base/extractType.mjs";
 
-type MiddleParameters = OptionalKind<ParameterDeclarationStructure>[];
-type ParamRenamer = (this: void, name: string) => string;
+import type {
+  TS_Method,
+  TS_Parameter,
+} from "../base/private-types.mjs";
+
+import type {
+  ParamRenamer,
+} from "./paramRenamer.mjs";
 
 export default class TransitionsStub extends BaseStub
 {
   #extraParams: MaybeDefined<{
-    middleParameters: MiddleParameters,
-    tailParamRenamer: ParamRenamer,
+    middleParameters: ReadonlyArray<TS_Parameter>;
+    tailParamRenamer: ParamRenamer;
     middleParamTypes: string;
   }> = NOT_DEFINED;
 
   defineExtraParams(
-    middleParameters: MiddleParameters,
-    tailParamRenamer: ParamRenamer
+    middleParameters: ReadonlyArray<TS_Parameter>,
+    tailParamRenamer: ParamRenamer,
   ) : void
   {
     if (!isNotDefined(this.#extraParams))
@@ -54,13 +57,13 @@ export default class TransitionsStub extends BaseStub
   }
 
   #buildMethodBody: MaybeDefined<
-    (structure: OptionalKind<MethodSignatureStructure>) => void
+    (methodStructure: TS_Method) => void
   > = NOT_DEFINED;
 
   defineBuildMethodBody(
     builder: (
       this: TransitionsStub,
-      structure: OptionalKind<MethodSignatureStructure>
+      methodStructure: TS_Method,
     ) => void
   ) : void
   {
@@ -94,7 +97,7 @@ export default class TransitionsStub extends BaseStub
   }
 
   protected methodTrap(
-    methodStructure: OptionalKind<MethodSignatureStructure> | null,
+    methodStructure: TS_Method | null,
     isBefore: boolean
   ) : void
   {
@@ -116,28 +119,28 @@ export default class TransitionsStub extends BaseStub
         this, "TransitionInterface.mjs", "TransitionInterface"
       );
     }
-
-    return super.methodTrap(methodStructure, isBefore);
   }
 
   #mapParameter(
-    param: OptionalKind<ParameterDeclarationStructure>
-  ) : OptionalKind<ParameterDeclarationStructure>
+    param: TS_Parameter
+  ) : TS_Parameter
   {
     if (isNotDefined(this.#extraParams))
       throw new Error("unreachable");
+
+    const name = this.#extraParams.tailParamRenamer(param.name);
     return {
       ...param,
-      name: this.#extraParams.tailParamRenamer(param.name),
+      name
     };
   }
 
   protected buildMethodBody(
-    structure: OptionalKind<MethodSignatureStructure>
+    methodStructure: TS_Method,
   ): void
   {
     if (isNotDefined(this.#buildMethodBody))
       throw new Error("unreachable");
-    return this.#buildMethodBody.apply(this, [structure]);
+    return this.#buildMethodBody.apply(this, [methodStructure]);
   }
 }

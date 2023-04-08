@@ -1,12 +1,12 @@
-import type {
-  OptionalKind,
-  MethodSignatureStructure,
-} from "ts-morph";
-
 import BaseStub, {
   type ExtendsAndImplements
 } from "./baseStub.mjs";
+
 import addPublicTypeImport from "./addPublicTypeImport.mjs";
+
+import type {
+  TS_Method
+} from "./private-types.mjs";
 
 export default
 class PrependReturnStub extends BaseStub
@@ -22,7 +22,7 @@ class PrependReturnStub extends BaseStub
   }
 
   protected methodTrap(
-    methodStructure: OptionalKind<MethodSignatureStructure> | null,
+    methodStructure: TS_Method | null,
     isBefore: boolean,
   ) : void
   {
@@ -45,10 +45,10 @@ class PrependReturnStub extends BaseStub
   }
 
   protected buildMethodBody(
-    structure: OptionalKind<MethodSignatureStructure>
+    methodStructure: TS_Method
   ): void
   {
-    structure.parameters?.forEach(
+    methodStructure.parameters?.forEach(
       param => this.classWriter.writeLine(`void(${param.name});`)
     );
   }

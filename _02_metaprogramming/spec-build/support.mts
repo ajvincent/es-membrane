@@ -6,6 +6,10 @@ import getTS_SourceFile from "../../_01_stage_utilities/source/getTS_SourceFile.
 
 import StubMap from "../source/stub-generators/exports.mjs";
 import TransitionsStub from "../source/stub-generators/transitions/baseStub.mjs";
+import TransitionsEntryStub, {
+  type MiddleParamBuilder as TransitionsEntryMidBuilder,
+  type TailParamBuilder as TransitionsEntryTailBuilder,
+} from "../source/stub-generators/transitions/EntryClass.mjs";
 
 const stageDir: ModuleSourceDirectory = {
   importMeta: import.meta,
@@ -26,6 +30,8 @@ async function runModule() : Promise<void>
 
     build_NST_Transition(),
   ]);
+
+  await build_NST_TransitionEntry();
 }
 
 async function build_NST_NI() : Promise<void>
@@ -145,7 +151,7 @@ async function build_NST_Transition() : Promise<void>
         type: "() => Promise<void>",
       }
     ],
-    (name) => name + "_tail"
+    (name) => name + "_tail",
   );
 
   classWriter.addImport(
@@ -162,6 +168,80 @@ async function build_NST_Transition() : Promise<void>
 
       this.classWriter.writeLine(`return s_tail.repeat(n_tail);`)
     }
+  );
+
+  classWriter.buildClass();
+  await classWriter.write();
+}
+
+async function build_NST_TransitionEntry() : Promise<void>
+{
+  const classWriter = new StubMap.TransitionsEntryStub(
+    sourceFile,
+    "NumberStringType",
+    pathToModule(stageDir, "spec-generated/components/transition/NST_Entry.mts"),
+    "NumberStringClass_TransitionsEntry",
+  );
+
+  const midBuilder: TransitionsEntryMidBuilder = function(
+    this: TransitionsEntryStub, methodStructure, structure,
+  ) : void
+  {
+    void(methodStructure);
+
+    if (structure.name === "m1") {
+      this.classWriter.writeLine(`const m1 = false;`);
+      return;
+    }
+
+    if (structure.name === "m2") {
+      this.classWriter.writeLine(`const m2: () => Promise<void> = () => Promise.resolve();`);
+      return;
+    }
+
+    throw new Error("structure name mismatch: " + structure.name);
+  };
+
+  const tailBuilder: TransitionsEntryTailBuilder = function(
+    this: TransitionsEntryStub, methodStructure, structure, newParameterName,
+  )
+  {
+    void(methodStructure);
+    void(structure);
+    if (newParameterName === "n_tail") {
+      this.classWriter.writeLine(`const n_tail = n + 1;`);
+      return;
+    }
+
+    if (newParameterName === "s_tail") {
+      this.classWriter.writeLine(`const s_tail = s + "_tail";`);
+      return;
+    }
+
+    throw new Error("new parameter name mismatch: " + newParameterName);
+  }
+
+  classWriter.defineExtraParams(
+    [
+      {
+        name: "m1",
+        type: "boolean"
+      },
+      {
+        name: "m2",
+        type: "() => Promise<void>",
+      }
+    ],
+    "NST_MiddleParameters",
+    midBuilder,
+    (name) => name + "_tail",
+    tailBuilder
+  );
+
+  classWriter.addImport(
+    pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
+    "type NumberStringType",
+    false
   );
 
   classWriter.buildClass();

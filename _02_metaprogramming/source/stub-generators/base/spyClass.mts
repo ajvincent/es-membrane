@@ -1,8 +1,3 @@
-import type {
-  OptionalKind,
-  MethodSignatureStructure,
-} from "ts-morph";
-
 import {
   type ModuleSourceDirectory,
   pathToModule
@@ -13,6 +8,10 @@ import addPublicTypeImport from "./addPublicTypeImport.mjs";
 import BaseStub, {
   type ExtendsAndImplements
 } from "./baseStub.mjs";
+
+import type {
+  TS_Method
+} from "./private-types.mjs";
 
 const projectDir: ModuleSourceDirectory = {
   importMeta: import.meta,
@@ -34,7 +33,7 @@ class SpyClassStub extends BaseStub
   }
 
   protected methodTrap(
-    methodStructure: OptionalKind<MethodSignatureStructure> | null,
+    methodStructure: TS_Method | null,
     isBefore: boolean,
   ) : void
   {
@@ -57,7 +56,7 @@ class SpyClassStub extends BaseStub
   }
 
   protected buildMethodBody(
-    structure: OptionalKind<MethodSignatureStructure>
+    structure: TS_Method
   ): void
   {
     const paramsStr = structure.parameters?.map(

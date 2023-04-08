@@ -6,6 +6,7 @@ import SpyClassStub from "./base/spyClass.mjs";
 import VoidClassStub from "./base/voidClass.mjs";
 
 import TransitionsStub from "./transitions/baseStub.mjs";
+import TransitionsEntryStub from "./transitions/EntryClass.mjs";
 
 const StubMap = Object.freeze({
   "NotImplemented": NotImplementedStub,
@@ -13,6 +14,7 @@ const StubMap = Object.freeze({
   "SpyClass": SpyClassStub,
   "VoidClass": VoidClassStub,
   "TransitionsStub": TransitionsStub,
+  "TransitionsEntryStub": TransitionsEntryStub
 });
 
 export default StubMap;
