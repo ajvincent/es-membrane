@@ -8,33 +8,45 @@ import BaseStub, {
 } from "./baseStub.mjs";
 import addPublicTypeImport from "./addPublicTypeImport.mjs";
 
+import {
+  assertDefined,
+  isNotDefined,
+  markDefined,
+  NotDefined,
+  type MaybeDefined,
+} from "../../../../_01_stage_utilities/source/maybeDefined.mjs";
+
+type NI_Setting = {
+  useNever: boolean
+};
+
 export default
 class NotImplementedStub extends BaseStub
 {
-  #notImplementedOnly = false;
-  #notImplementedSet = false;
+  #notImplementedSetting: MaybeDefined<NI_Setting> = NotDefined;
 
   setNotImplementedOnly(useNever: boolean) : void
   {
-    if (this.#notImplementedSet)
+    if (!isNotDefined(this.#notImplementedSetting))
       throw new Error("You've called setNotImplementedOnly already");
-    this.#notImplementedSet = true;
-    this.#notImplementedOnly = useNever;
+    this.#notImplementedSetting = markDefined({useNever});
   }
 
   buildClass() : void
   {
-    if (!this.#notImplementedSet)
-      throw new Error("Call this.setNotImplementedOnly()");
+    assertDefined(this.#notImplementedSetting);
     super.buildClass();
   }
 
   protected getExtendsAndImplements(): ExtendsAndImplements
   {
+    if (isNotDefined(this.#notImplementedSetting))
+      throw new Error("assertion failure")
+
     return {
       extends: [],
       implements: [
-        this.#notImplementedOnly ? `NotImplementedOnly<${this.interfaceOrAliasName}>` : this.interfaceOrAliasName
+        this.#notImplementedSetting.useNever ? `NotImplementedOnly<${this.interfaceOrAliasName}>` : this.interfaceOrAliasName
       ],
     };
   }
@@ -44,7 +56,9 @@ class NotImplementedStub extends BaseStub
     isBefore: boolean,
   ) : void
   {
-    if (!this.#notImplementedOnly || !isBefore)
+    if (isNotDefined(this.#notImplementedSetting))
+      throw new Error("assertion failure");
+    if (!this.#notImplementedSetting.useNever || !isBefore)
       return;
 
     if (!methodStructure) {

@@ -11,7 +11,6 @@ import addPublicTypeImport from "./addPublicTypeImport.mjs";
 export default
 class PrependReturnStub extends BaseStub
 {
-
   protected getExtendsAndImplements(): ExtendsAndImplements
   {
     return {
