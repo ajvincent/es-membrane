@@ -12,7 +12,7 @@ import {
   assertDefined,
   isNotDefined,
   markDefined,
-  NotDefined,
+  NOT_DEFINED,
   type MaybeDefined,
 } from "../../../../_01_stage_utilities/source/maybeDefined.mjs";
 
@@ -23,7 +23,7 @@ type NI_Setting = {
 export default
 class NotImplementedStub extends BaseStub
 {
-  #notImplementedSetting: MaybeDefined<NI_Setting> = NotDefined;
+  #notImplementedSetting: MaybeDefined<NI_Setting> = NOT_DEFINED;
 
   setNotImplementedOnly(useNever: boolean) : void
   {

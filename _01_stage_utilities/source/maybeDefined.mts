@@ -27,4 +27,4 @@ export function isNotDefined<T>(arg: MaybeDefined<T>): arg is NotDefinedType
   return !arg[DEFINED];
 }
 
-export const NotDefined: MaybeDefined<never> = Object.freeze({ [DEFINED]: false });
+export const NOT_DEFINED: MaybeDefined<never> = Object.freeze({ [DEFINED]: false });

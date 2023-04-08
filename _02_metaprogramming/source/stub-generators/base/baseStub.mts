@@ -11,13 +11,14 @@ import {
   type MethodSignatureStructure,
   OptionalKind,
   ParameterDeclarationStructure,
-  WriterFunction,
   type InterfaceDeclarationStructure,
 } from "ts-morph";
 
-import CodeBlockWriter, {
-  type Options as CodeBlockWriterOptions
-} from "code-block-writer";
+import CodeBlockWriter from "code-block-writer";
+
+import extractType, {
+  writerOptions
+} from "./extractType.mjs";
 
 import {
   DefaultMap,
@@ -38,10 +39,6 @@ export type ExtendsAndImplements = {
 export default class BaseStub
 {
   // #region static fields
-  static readonly #writerOptions: Partial<CodeBlockWriterOptions> = Object.freeze({
-    indentNumberOfSpaces: 2
-  });
-
   /**
    * Write a start token, invoke a block, and write the end token, in that order.
    * @param writer - the code block writer.
@@ -100,10 +97,10 @@ export default class BaseStub
   readonly #blockImports = new DefaultMap<string, Set<string>>;
 
   /** This handles imports inside the module. */
-  readonly #preambleWriter = new CodeBlockWriter(BaseStub.#writerOptions);
+  readonly #preambleWriter = new CodeBlockWriter(writerOptions);
 
   /** This handles the actual class generation code. */
-  protected readonly classWriter = new CodeBlockWriter(BaseStub.#writerOptions);
+  protected readonly classWriter = new CodeBlockWriter(writerOptions);
 
   protected readonly interfaceOrAliasName: string;
 
@@ -338,7 +335,10 @@ export default class BaseStub
         this.classWriter.newLineIfLastNot();
       }
     });
-    this.#writeType(method.returnType);
+    if (method.returnType) {
+      this.classWriter.write(": ");
+      extractType(method.returnType, false, this.classWriter);
+    }
     this.classWriter.newLineIfLastNot();
 
     this.classWriter.block(() => this.buildMethodBody(method));
@@ -350,23 +350,12 @@ export default class BaseStub
   ): void
   {
     this.classWriter.write(param.name);
-    this.#writeType(param.type);
+    if (param.type) {
+      this.classWriter.write(": ");
+      extractType(param.type, false, this.classWriter);
+    }
     this.classWriter.write(",");
     this.classWriter.newLineIfLastNot();
-  }
-
-  /** Write a parameter or return type, if we have it. */
-  #writeType(
-    type: string | WriterFunction | undefined
-  ) : void
-  {
-    if (!type)
-      return;
-    this.classWriter.write(": ");
-    if (typeof type === "string")
-      this.classWriter.write(type);
-    else
-      type(this.classWriter);
   }
 
   /**
