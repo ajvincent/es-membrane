@@ -5,31 +5,27 @@ import type {
 export type DecoratedClass<
   AddedStatic extends object,
   AddedPrototype extends object,
-  Base,
+  Base extends Class<Prototype, Arguments>,
   Prototype extends object,
   Arguments extends unknown[] = unknown[],
-> = Base extends Class<Prototype, Arguments> ?
-  (
-    Class<Prototype & AddedPrototype, Arguments> &
-    Omit<Base, "prototype"> &
-    AddedStatic
-  ) :
-  never;
+> = (
+  Class<Prototype & AddedPrototype, Arguments> &
+  Omit<Base, "prototype"> &
+  AddedStatic
+);
 
 export type SubclassDecorator<
   AddedStatic extends object,
   AddedPrototype extends object,
-  Base,
+  Base extends Class<Prototype, Arguments>,
   Prototype extends object,
   Arguments extends unknown[] = unknown[],
-> = Base extends Class<Prototype, Arguments> ?
-  (
-    value: Base,
-    { kind, name }: ClassDecoratorContext
-  ) => DecoratedClass<
-    AddedStatic, AddedPrototype, Base, Prototype, Arguments
-  > :
-  never;
+> = (
+  value: Base,
+  { kind, name }: ClassDecoratorContext
+) => DecoratedClass<
+  AddedStatic, AddedPrototype, Base, Prototype, Arguments
+>;
 
 export default function markDecorated<
   AddedStatic extends object,
