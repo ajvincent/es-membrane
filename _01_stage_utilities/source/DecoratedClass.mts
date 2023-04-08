@@ -3,8 +3,8 @@ import type {
 } from "type-fest";
 
 export type DecoratedClass<
-  AddedStatic extends object | never,
-  AddedPrototype extends object | never,
+  AddedStatic extends object,
+  AddedPrototype extends object,
   Base,
   Prototype extends object,
   Arguments extends unknown[] = unknown[],
@@ -17,8 +17,8 @@ export type DecoratedClass<
   never;
 
 export type SubclassDecorator<
-  AddedStatic extends object | never,
-  AddedPrototype extends object | never,
+  AddedStatic extends object,
+  AddedPrototype extends object,
   Base,
   Prototype extends object,
   Arguments extends unknown[] = unknown[],
@@ -32,8 +32,8 @@ export type SubclassDecorator<
   never;
 
 export default function markDecorated<
-  AddedStatic extends object | never,
-  AddedInterface extends object | never,
+  AddedStatic extends object,
+  AddedInterface extends object,
   Base extends Class<Prototype, Arguments>,
   Prototype extends object,
   Arguments extends unknown[] = unknown[],
