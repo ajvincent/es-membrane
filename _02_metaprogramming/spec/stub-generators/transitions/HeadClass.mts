@@ -28,7 +28,7 @@ it("stub-ts-morph: transition entry stub correctly inserts new arguments", async
     [NST_TransitionsInterface], NumberStringType
   >
   (
-    generatedDir, "components/transition/NST_Entry.mjs"
+    generatedDir, "components/transition/NST_Head.mjs"
   );
 
   expect(Reflect.ownKeys(NST_TransitionsEntry.prototype)).toEqual([
