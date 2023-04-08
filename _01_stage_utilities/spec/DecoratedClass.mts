@@ -1,4 +1,7 @@
-import markDecorated from "../source/DecoratedClass.mjs";
+import markDecorated, {
+  DecoratedClass,
+  type SubclassDecorator
+} from "../source/DecoratedClass.mjs";
 
 // #region base class and interfaces
 
@@ -8,6 +11,31 @@ interface StaticY {
 interface XP {
   x: number;
   get p() : number;
+}
+
+const addStaticFooAndHasZ: SubclassDecorator<
+  StaticFoo,
+  hasZ,
+  typeof BaseClass,
+  XP,
+  [x: number]
+> = function(
+  this: void,
+  value: typeof BaseClass,
+  { kind, name }: ClassDecoratorContext,
+): DecoratedClass<StaticFoo, hasZ, typeof BaseClass, XP, [x: number]>
+{
+  if (kind === "class") {
+    void(name);
+    const derived = class extends value implements hasZ {
+      static readonly foo = "hi";
+      readonly z = 7;
+    }
+    void(derived as typeof BaseClass & StaticY & StaticFoo);
+    return derived;
+  }
+
+  throw new Error("unexpected");
 }
 
 @addStaticFooAndHasZ
@@ -36,24 +64,6 @@ interface StaticFoo {
 }
 interface hasZ {
   readonly z: number;
-}
-
-function addStaticFooAndHasZ(
-  value: typeof BaseClass,
-  { kind, name }: ClassDecoratorContext
-): typeof BaseClass
-{
-  if (kind === "class") {
-    void(name);
-    const derived = class extends value implements hasZ {
-      static readonly foo = "hi";
-      readonly z = 7;
-    }
-    void(derived as typeof BaseClass & StaticY & StaticFoo);
-    return derived;
-  }
-
-  throw new Error("unexpected");
 }
 
 // #endregion derived class and interfaces
