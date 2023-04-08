@@ -41,7 +41,7 @@ interface hasZ {
 function addStaticFooAndHasZ(
   value: typeof BaseClass,
   { kind, name }: ClassDecoratorContext
-): typeof BaseClass
+): typeof BaseClass & StaticFoo & { prototype: hasZ }
 {
   if (kind === "class") {
     void(name);
@@ -55,6 +55,7 @@ function addStaticFooAndHasZ(
 
   throw new Error("unexpected");
 }
+void(addStaticFooAndHasZ as ClassDecorator);
 
 // #endregion derived class and interfaces
 
