@@ -3,7 +3,7 @@ import { TransitionInterface } from "../../../source/aspects/public-types/Transi
 
 type NST_MiddleParameters = [boolean, () => Promise<void>];
 
-export default class NumberStringClass_TransitionsEntry
+export default class NumberStringClass_Transitions_Head
 implements NumberStringType
 {
   readonly #nextHandler: TransitionInterface<NumberStringType, NST_MiddleParameters>;

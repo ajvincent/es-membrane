@@ -9,7 +9,7 @@ import TransitionsStub from "../source/stub-generators/transitions/baseStub.mjs"
 import TransitionsEntryStub, {
   type MiddleParamBuilder as TransitionsEntryMidBuilder,
   type TailParamBuilder as TransitionsEntryTailBuilder,
-} from "../source/stub-generators/transitions/EntryClass.mjs";
+} from "../source/stub-generators/transitions/HeadClass.mjs";
 
 const stageDir: ModuleSourceDirectory = {
   importMeta: import.meta,
@@ -27,11 +27,10 @@ async function runModule() : Promise<void>
     build_NST_Void(),
     build_NST_Spy(),
     build_NST_PrependReturn(),
-
     build_NST_Transition(),
+    build_NST_Transition_Head(),
+    build_NST_Transition_Tail(),
   ]);
-
-  await build_NST_TransitionEntry();
 }
 
 async function build_NST_NI() : Promise<void>
@@ -174,13 +173,13 @@ async function build_NST_Transition() : Promise<void>
   await classWriter.write();
 }
 
-async function build_NST_TransitionEntry() : Promise<void>
+async function build_NST_Transition_Head() : Promise<void>
 {
-  const classWriter = new StubMap.TransitionsEntryStub(
+  const classWriter = new StubMap.TransitionsHeadStub(
     sourceFile,
     "NumberStringType",
-    pathToModule(stageDir, "spec-generated/components/transition/NST_Entry.mts"),
-    "NumberStringClass_TransitionsEntry",
+    pathToModule(stageDir, "spec-generated/components/transition/NST_Head.mts"),
+    "NumberStringClass_Transitions_Head",
   );
 
   const midBuilder: TransitionsEntryMidBuilder = function(
@@ -236,6 +235,39 @@ async function build_NST_TransitionEntry() : Promise<void>
     midBuilder,
     (name) => name + "_tail",
     tailBuilder
+  );
+
+  classWriter.addImport(
+    pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
+    "type NumberStringType",
+    false
+  );
+
+  classWriter.buildClass();
+  await classWriter.write();
+}
+
+async function build_NST_Transition_Tail() : Promise<void>
+{
+  const classWriter = new StubMap.TransitionsTailStub(
+    sourceFile,
+    "NumberStringType",
+    pathToModule(stageDir, "spec-generated/components/transition/NST_Tail.mts"),
+    "NumberStringClass_Transitions_Tail",
+  );
+
+  classWriter.defineExtraParams(
+    [
+      {
+        name: "m1",
+        type: "boolean"
+      },
+      {
+        name: "m2",
+        type: "() => Promise<void>",
+      }
+    ],
+    (name) => name + "_tail",
   );
 
   classWriter.addImport(
