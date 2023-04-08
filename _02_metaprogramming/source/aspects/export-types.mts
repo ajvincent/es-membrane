@@ -8,6 +8,9 @@ import type {
   MethodReturnRewrite
 } from "./public-types/MethodReturnRewrite.mjs";
 import type {
+  TransitionInterface
+} from "./public-types/TransitionInterface.mjs";
+import type {
   VoidMethodsOnly
 } from "./public-types/VoidMethodsOnly.mjs";
 
@@ -15,5 +18,6 @@ export type {
   NotImplementedOnly,
   MethodsPrependReturn,
   MethodReturnRewrite,
+  TransitionInterface,
   VoidMethodsOnly,
 }
