@@ -30,6 +30,11 @@ export class RequiredInitializers
     this.#requiredInitializers.add(key);
   }
 
+  has(key: string) : boolean
+  {
+    return this.#requiredInitializers.has(key);
+  }
+
   resolve(key: string) : void {
     if (!this.#requiredInitializers.has(key))
       throw new Error("unknown or already resolved initializer key: " + key);

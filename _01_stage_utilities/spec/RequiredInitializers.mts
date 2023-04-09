@@ -11,11 +11,14 @@ it("RequiredInitializers provides a one-way path to ensuring flags are set, then
 
   const initializer = new RequiredInitializers;
 
+  expect(initializer.has("one")).toBe(false);
+
   expect(
     () => initializer.check()
   ).toThrowError(message("ready", "checkFired", "initial"));
 
   initializer.add("one");
+  expect(initializer.has("one")).toBe(true);
   expect(
     () => initializer.check()
   ).toThrowError(message("ready", "checkFired", "adding"));
@@ -34,6 +37,7 @@ it("RequiredInitializers provides a one-way path to ensuring flags are set, then
   expect(initializer.getState()).toBe("adding");
 
   initializer.resolve("one");
+  expect(initializer.has("one")).toBe(false);
   expect(initializer.getState()).toBe("resolving");
   expect(
     () => initializer.check()
