@@ -2,7 +2,7 @@ import MixinBase from "./MixinBase.mjs";
 
 export type RequiredState = "initial" | "adding" | "resolving" | "ready" | "checkFired";
 
-export class RequiredInitializers
+class RequiredInitializers
 {
   // #region private
   #requiredInitializers = new Set<string>;
@@ -52,7 +52,7 @@ export class RequiredInitializers
   }
 }
 
-export class MixinRequiredInitializers extends MixinBase
+export default class MixinRequiredInitializers extends MixinBase
 {
   protected readonly initializerFlags = new RequiredInitializers;
 }
