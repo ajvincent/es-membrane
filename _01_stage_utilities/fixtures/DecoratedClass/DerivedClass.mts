@@ -19,13 +19,12 @@ const addStaticFooAndHasZ: SubclassDecorator<
   StaticFoo,
   hasZ,
   typeof BaseClassFixture,
-  BaseClassFixtureInstance,
-  [x: number]
+  BaseClassFixtureInstance
 > = function(
   this: void,
   value: typeof BaseClassFixture,
   { kind, name }: ClassDecoratorContext,
-): DecoratedClass<StaticFoo, hasZ, typeof BaseClassFixture, BaseClassFixtureInstance, [x: number]>
+): DecoratedClass<StaticFoo, hasZ, typeof BaseClassFixture, BaseClassFixtureInstance>
 {
   if (kind === "class") {
     void(name);
@@ -44,8 +43,7 @@ const DerivedFixtureClass = markDecorated<
   StaticFoo,
   hasZ,
   typeof BaseClassFixture,
-  BaseClassFixtureInstance,
-  [x: number]
+  BaseClassFixtureInstance
 >
 (
   @addStaticFooAndHasZ
