@@ -1,8 +1,15 @@
 import MixinBase from "./MixinBase.mjs";
 
 export type RequiredState = "initial" | "adding" | "resolving" | "ready" | "checkFired";
+export interface RequiredInitializersInterface {
+  getState() : RequiredState;
+  add(key: string): void;
+  has(key: string) : boolean;
+  resolve(key: string): void;
+  check(): void;
+}
 
-class RequiredInitializers
+class RequiredInitializers implements RequiredInitializersInterface
 {
   // #region private
   #requiredInitializers = new Set<string>;
@@ -35,7 +42,8 @@ class RequiredInitializers
     return this.#requiredInitializers.has(key);
   }
 
-  resolve(key: string) : void {
+  resolve(key: string) : void
+  {
     if (!this.#requiredInitializers.has(key))
       throw new Error("unknown or already resolved initializer key: " + key);
 

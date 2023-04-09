@@ -1,15 +1,21 @@
 import MixinRequiredInitializers, {
-  type RequiredState
+  type RequiredState,
+  type RequiredInitializersInterface
 } from "../source/RequiredInitializers.mjs";
 
 it("RequiredInitializers provides a one-way path to ensuring flags are set, then cleared, then empty", () => {
-  function message(allowedPrevious: RequiredState, assertCurrent: RequiredState, currentState: RequiredState) : string
+  function message(
+    allowedPrevious: RequiredState,
+    assertCurrent: RequiredState,
+    currentState: RequiredState
+  ) : string
   {
     return `RequiredInitializers state mismatch: expected ${allowedPrevious} or ${assertCurrent}, found ${currentState}`;
   }
 
-  class InitializersTest extends MixinRequiredInitializers {
-    get initializer() : typeof MixinRequiredInitializers.prototype["initializerFlags"]
+  class InitializersTest extends MixinRequiredInitializers
+  {
+    get initializer() : RequiredInitializersInterface
     {
       return this.initializerFlags;
     }
