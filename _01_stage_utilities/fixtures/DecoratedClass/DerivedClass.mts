@@ -7,13 +7,10 @@ import BaseClassFixture, {
   type BaseClassFixtureInstance,
 } from "./BaseClass.mjs";
 
-
-interface StaticFoo {
-  readonly foo: string;
-}
-interface hasZ {
-  readonly z: number;
-}
+import type {
+  StaticFoo,
+  hasZ
+} from "./DerivedInterfaces.mjs";
 
 const addStaticFooAndHasZ: SubclassDecorator<
   StaticFoo,
