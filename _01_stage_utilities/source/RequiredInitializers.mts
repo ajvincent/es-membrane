@@ -1,5 +1,3 @@
-import MixinBase from "./MixinBase.mjs";
-
 export type RequiredState = "initial" | "adding" | "resolving" | "ready" | "checkFired";
 export interface RequiredInitializersInterface {
   getState() : RequiredState;
@@ -9,7 +7,8 @@ export interface RequiredInitializersInterface {
   check(): void;
 }
 
-class RequiredInitializers implements RequiredInitializersInterface
+/** @internal */
+export default class RequiredInitializers implements RequiredInitializersInterface
 {
   // #region private
   #requiredInitializers = new Set<string>;
@@ -59,9 +58,3 @@ class RequiredInitializers implements RequiredInitializersInterface
     this.#setState("ready", "checkFired");
   }
 }
-
-export default class MixinRequiredInitializers extends MixinBase
-{
-  protected readonly initializerFlags = new RequiredInitializers;
-}
-Object.freeze(MixinRequiredInitializers.prototype);
