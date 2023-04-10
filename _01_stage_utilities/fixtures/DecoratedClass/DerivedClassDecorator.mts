@@ -1,5 +1,8 @@
+import type {
+  MergeClass
+} from "../../source/MergeClass.mjs";
+
 import {
-  DecoratedClass,
   type SubclassDecorator
 } from "../../source/DecoratedClass.mjs";
 
@@ -21,7 +24,8 @@ export const addStaticFooAndHasZ: SubclassDecorator<
   this: void,
   value: typeof BaseClassFixture,
   { kind, name }: ClassDecoratorContext,
-): DecoratedClass<StaticFoo, hasZ, typeof BaseClassFixture, BaseClassFixtureInstance>
+) :
+  MergeClass<StaticFoo, hasZ, typeof BaseClassFixture, BaseClassFixtureInstance>
 {
   if (kind === "class") {
     void(name);
