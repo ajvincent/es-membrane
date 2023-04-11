@@ -1,3 +1,5 @@
+import type { Class, Constructor } from "type-fest";
+
 import RequiredInitializers from "./RequiredInitializers.mjs";
 
 /**
@@ -19,7 +21,8 @@ import RequiredInitializers from "./RequiredInitializers.mjs";
  * provide some state saying "Yes, we called specific methods of the class to do what a constructor
  * normally would do."
  */
-export default class MixinBase {
+
+export default class MixinBase implements MixinInterface {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   constructor(...args: any[])
   {
@@ -29,3 +32,13 @@ export default class MixinBase {
   protected readonly requiredInitializers = new RequiredInitializers;
 }
 Object.freeze(MixinBase.prototype);
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface MixinInterface {
+}
+
+export type MixinClass<AddedStatic, AddedInstance, BaseClass extends Class<unknown>, Arguments extends unknown[] = ConstructorParameters<BaseClass>> = (
+	Constructor<InstanceType<BaseClass> & AddedInstance, Arguments> &
+	Omit<BaseClass, 'prototype'> &
+	AddedStatic
+);

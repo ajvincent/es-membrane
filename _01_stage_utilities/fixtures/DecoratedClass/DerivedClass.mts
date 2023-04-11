@@ -1,8 +1,6 @@
 import markDecorated from "../../source/DecoratedClass.mjs";
 
-import BaseClassFixture, {
-  type BaseClassFixtureInstance,
-} from "./BaseClass.mjs";
+import BaseClassFixture from "./BaseClass.mjs";
 
 import type {
   StaticFoo,
@@ -14,8 +12,7 @@ import { addStaticFooAndHasZ } from "./DerivedClassDecorator.mjs"
 const DerivedFixtureClass = markDecorated<
   StaticFoo,
   hasZ,
-  typeof BaseClassFixture,
-  BaseClassFixtureInstance
+  typeof BaseClassFixture
 >
 (
   @addStaticFooAndHasZ

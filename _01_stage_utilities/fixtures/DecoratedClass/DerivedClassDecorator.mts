@@ -1,14 +1,12 @@
 import type {
-  MergeClass
-} from "../../source/MergeClass.mjs";
+  MixinClass
+} from "../../source/MixinClass.mjs";
 
 import {
   type SubclassDecorator
 } from "../../source/DecoratedClass.mjs";
 
-import BaseClassFixture, {
-  type BaseClassFixtureInstance,
-} from "./BaseClass.mjs";
+import BaseClassFixture from "./BaseClass.mjs";
 
 import type {
   StaticFoo,
@@ -18,14 +16,13 @@ import type {
 export const addStaticFooAndHasZ: SubclassDecorator<
   StaticFoo,
   hasZ,
-  typeof BaseClassFixture,
-  BaseClassFixtureInstance
+  typeof BaseClassFixture
 > = function(
   this: void,
   value: typeof BaseClassFixture,
   { kind, name }: ClassDecoratorContext,
 ) :
-  MergeClass<StaticFoo, hasZ, typeof BaseClassFixture, BaseClassFixtureInstance>
+  MixinClass<StaticFoo, hasZ, typeof BaseClassFixture>
 {
   if (kind === "class") {
     void(name);

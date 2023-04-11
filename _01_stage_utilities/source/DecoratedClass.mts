@@ -3,32 +3,30 @@ import type {
 } from "type-fest";
 
 import type {
-  MergeClass
-} from "./MergeClass.mjs";
+  MixinClass
+} from "./MixinClass.mjs";
 
 export type SubclassDecorator<
   AddedStatic extends object,
   AddedPrototype extends object,
-  Base extends Class<Prototype>,
-  Prototype extends object,
+  Base extends Class<object>,
 > = (
   value: Base,
   context: ClassDecoratorContext,
-) => MergeClass<
-  AddedStatic, AddedPrototype, Base, Prototype
+) => MixinClass<
+  AddedStatic, AddedPrototype, Base
 >;
 
 export default function markDecorated<
   AddedStatic extends object,
   AddedInterface extends object,
-  Base extends Class<Prototype>,
-  Prototype extends object,
+  Base extends Class<object>,
 >
 (
   c: Base
-) : MergeClass<AddedStatic, AddedInterface, Base, Prototype>
+) : MixinClass<AddedStatic, AddedInterface, Base>
 {
-  return c as unknown as MergeClass<
-    AddedStatic, AddedInterface, Base, Prototype
+  return c as unknown as MixinClass<
+    AddedStatic, AddedInterface, Base
   >;
 }
