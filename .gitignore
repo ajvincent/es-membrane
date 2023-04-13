@@ -10,6 +10,7 @@ _*/**/tsconfig.json
 _*/**/*.mjs
 _*/**/*.mjs.map
 _*/**/*.d.mts
+!_*/types/**/*.d.mts
 
 build/**/*.mjs.map
 build/**/*.d.mts
