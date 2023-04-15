@@ -15,8 +15,8 @@ import MixinBase from "../MixinBase.mjs";
 /**
  * A convenience decorator type for subclass mixins.
  *
- * @internal - this depends on MixinBase, which is internal to es-membrane.
  * @typeParam Added - the static and instance fields to require.
+ * @internal - this depends on MixinBase, which is internal to es-membrane.
  */
 export type SubclassDecorator<
   Added extends StaticAndInstance
@@ -27,8 +27,8 @@ export type SubclassDecorator<
 
 /**
  * A type to assert a tuple of decorators matches a tuple of class field interfaces.
- * @internal - this depends on MixinBase, which is internal to es-membrane.
  * @typeParam Interfaces - the class field interfaces.
+ * @internal - this depends on MixinBase, which is internal to es-membrane.
  */
 export type SubclassDecoratorSequence<
   Interfaces extends ReadonlyArray<StaticAndInstance>
