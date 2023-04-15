@@ -1,7 +1,10 @@
 import type {
-  StaticAndInstance,
-  SubclassDecorator,
-} from "../source/MultiMixinBuilder.mjs";
+  StaticAndInstance
+} from "../source/types/StaticAndInstance.mjs";
+
+import type {
+  SubclassDecorator
+} from "../source/types/SubclassDecorator.mjs";
 
 interface XVector extends StaticAndInstance {
   staticFields: {
