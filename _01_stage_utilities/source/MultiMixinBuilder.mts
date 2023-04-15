@@ -1,12 +1,22 @@
 import type {
-  Class,
-  Constructor,
   TupleToUnion,
   UnionToIntersection,
   Simplify,
 } from "type-fest";
 
-import RequiredInitializers from "./RequiredInitializers.mjs";
+import type {
+  MixinClass
+} from "./types/MixinClass.mjs";
+
+import type {
+  StaticAndInstance
+} from "./types/StaticAndInstance.mjs";
+
+import MixinBase from "./MixinBase.mjs";
+
+import type {
+  SubclassDecoratorSequence,
+} from "./types/SubclassDecorator.mjs";
 
 /**
  * @remarks
@@ -33,33 +43,6 @@ import RequiredInitializers from "./RequiredInitializers.mjs";
  * normally would do."
  */
 
-export class MixinBase {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-  constructor(...args: any[])
-  {
-    // do nothing
-  }
-
-  protected readonly requiredInitializers = new RequiredInitializers;
-}
-Object.freeze(MixinBase.prototype);
-
-export type MixinClass<
-  AddedStatic,
-  AddedInstance,
-  BaseClass extends Class<unknown>,
-  Arguments extends unknown[] = ConstructorParameters<BaseClass>
-> = (
-	Constructor<InstanceType<BaseClass> & AddedInstance, Arguments> &
-	Omit<BaseClass, 'prototype'> &
-	AddedStatic
-);
-
-export interface StaticAndInstance {
-  readonly staticFields: object;
-  readonly instanceFields: object;
-}
-
 type ExtractFields<
   Interfaces extends ReadonlyArray<StaticAndInstance>,
   Field extends keyof StaticAndInstance
@@ -74,17 +57,6 @@ export type MultiMixinClass<
   ExtractFields<Interfaces, "instanceFields">,
   typeof MixinBase
 >;
-
-export type SubclassDecorator<
-  Added extends StaticAndInstance
-> = (
-  baseClass: typeof MixinBase,
-  context: ClassDecoratorContext,
-) => MixinClass<Added["staticFields"], Added["instanceFields"], typeof MixinBase>;
-
-type SubclassDecoratorSequence<
-  Interfaces extends ReadonlyArray<StaticAndInstance>
-> = { [key in keyof Interfaces]: SubclassDecorator<Interfaces[key]> };
 
 function OneMixinBuilder<
   Interfaces extends ReadonlyArray<StaticAndInstance>
