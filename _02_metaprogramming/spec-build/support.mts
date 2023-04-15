@@ -16,7 +16,7 @@ const stageDir: ModuleSourceDirectory = {
   pathToDirectory: "../.."
 }
 
-const sourceFile = getTS_SourceFile(stageDir, "fixtures/types/NumberStringType.mts");
+const sourceFile = getTS_SourceFile(stageDir, "fixtures/types/NumberStringType.d.mts");
 
 export default
 async function runModule() : Promise<void>
