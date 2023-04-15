@@ -19,30 +19,11 @@ import type {
 } from "./types/SubclassDecorator.mjs";
 
 /**
- * @remarks
- * You may be wondering, "why do we need a mixin base class which does nothing?"
+ * Build an intersection of either the static interfaces or the instance interfaces from a sequence.
  *
- * The answer is "because the TypeScript compiler is really annoying about mixins."
- *
- * Specifically, if a base class of a mixin has a constructor which isn't (...args: any[]),
- * you can't use it to build a generic or typed subclass mixin.  TypeScript throws these (ts2545)
- * errors at you:
- *
- * "mixin class must have a constructor with a single rest parameter of type 'any[]'"
- *
- * This doesn't happen when it's a concrete subclass.  For this reason, no subclass of MixinBase,
- * except final classes, may implement a constructor.
- *
- * Even with this, you can't declare your base class extends a parameterized type:
- *
- * function templatedSecondClass&lt;Base extends typeof RestAnyClass&gt;( baseClass: Base )
- * // Type 'CustomMixinClass & RestAnyClass' is not assignable to type 'InstanceType<Base>'.ts(2322)
- *
- * Yes, this is a big pain in the butt.  The `requiredInitializers` field is a workaround to
- * provide some state saying "Yes, we called specific methods of the class to do what a constructor
- * normally would do."
+ * @typeParam Interfaces - the sequence of static and instance interfaces.
+ * @typeParam Field - the field to extract.
  */
-
 type ExtractFields<
   Interfaces extends ReadonlyArray<StaticAndInstance>,
   Field extends keyof StaticAndInstance
@@ -50,7 +31,13 @@ type ExtractFields<
   { [key in keyof Interfaces]: Interfaces[key][Field] }
 >>>;
 
-export type MultiMixinClass<
+/**
+ * Build an intersection type of a sequence of static and instance interfaces, and the MixinBase class.
+ *
+ * @typeParam Interfaces - the sequence of static and instance interfaces.
+ * @internal - this depends on MixinBase, which is internal to es-membrane.
+ */
+type MultiMixinClass<
   Interfaces extends ReadonlyArray<StaticAndInstance>,
 > = MixinClass<
   ExtractFields<Interfaces, "staticFields">,
@@ -58,7 +45,17 @@ export type MultiMixinClass<
   typeof MixinBase
 >;
 
-function OneMixinBuilder<
+/**
+ * Apply decorators to build the mixin class.
+ *
+ * @typeParam Interfaces - the sequence of static and instance interfaces.
+ * @param decorators - a sequence which creates and returns subclasses of MixinBase.  This must match the ordering of Interfaces.
+ * @param baseClass - always `MixinBase`.
+ * @param context - the class decorator context to forward to each decorator.
+ *
+ * @internal - this depends on MixinBase, which is internal to es-membrane.
+ */
+function applyAllDecorators<
   Interfaces extends ReadonlyArray<StaticAndInstance>
 >
 (
@@ -75,6 +72,14 @@ function OneMixinBuilder<
   return _mixedClass as MultiMixinClass<Interfaces>;
 }
 
+/**
+ * Return a ClassDecorator to execute mixin decorators.
+ *
+ * @typeParam Interfaces - the sequence of static and instance interfaces.
+ * @param decorators - a sequence which creates and returns subclasses of MixinBase.  This must match the ordering of Interfaces.
+ *
+ * @internal - this depends on MixinBase, which is internal to es-membrane.
+ */
 function MixinBuilderInternal<
   Interfaces extends ReadonlyArray<StaticAndInstance>
 >
@@ -82,26 +87,39 @@ function MixinBuilderInternal<
   decorators: SubclassDecoratorSequence<Interfaces>
 ) : (_class: typeof MixinBase, context: ClassDecoratorContext) => MultiMixinClass<Interfaces>
 {
-  return function runMultiDecorators(
+  return function(
     _class: typeof MixinBase,
     context: ClassDecoratorContext
-  ) {
-    return OneMixinBuilder(decorators, _class, context);
+  )
+  {
+    return applyAllDecorators(decorators, _class, context);
   }
 }
 
-export default function MultiMixinBuilder<
+/**
+ * Build a mixin class inheriting from `MixinBase`.
+ *
+ * @typeParam Interfaces - the sequence of static and instance interfaces.
+ * @param decorators - a sequence which creates and returns subclasses of MixinBase.  This must match the ordering of Interfaces.
+ *
+ * @internal - this depends on MixinBase, which is internal to es-membrane.
+ */
+function MultiMixinBuilder<
   Interfaces extends ReadonlyArray<StaticAndInstance>
 >
 (
   decorators: SubclassDecoratorSequence<Interfaces>
 ) : MultiMixinClass<Interfaces>
 {
-  const mixinClass = (
+  return (
     @MixinBuilderInternal<Interfaces>(decorators)
     class extends MixinBase {
 
     }
   ) as MultiMixinClass<Interfaces>;
-  return mixinClass;
 }
+
+export default MultiMixinBuilder;
+export {
+  type MultiMixinClass
+};
