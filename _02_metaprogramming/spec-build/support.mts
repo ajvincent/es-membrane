@@ -27,6 +27,7 @@ async function runModule() : Promise<void>
     build_NST_Void(),
     build_NST_Spy(),
     build_NST_PrependReturn(),
+    build_NST_PrependReturnNI(),
     build_NST_Transition(),
     build_NST_Transition_Head(),
     build_NST_Transition_Tail(),
@@ -124,6 +125,28 @@ async function build_NST_PrependReturn() : Promise<void>
     pathToModule(stageDir, "spec-generated/components/common/NST_PrependReturn.mts"),
     "NumberStringClass_PrependReturn",
   );
+
+  classWriter.addImport(
+    pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
+    "type NumberStringType",
+    false
+  );
+
+  classWriter.buildClass();
+  await classWriter.write();
+}
+
+async function build_NST_PrependReturnNI() : Promise<void>
+{
+  const classWriter = new StubMap.PrependReturnNI;
+  classWriter.configureStub(
+    sourceFile,
+    "NumberStringType",
+    pathToModule(stageDir, "spec-generated/components/common/NST_PrependReturnNI.mts"),
+    "NumberStringClass_PrependReturnNI",
+  );
+
+  classWriter.setNotImplementedOnly(false);
 
   classWriter.addImport(
     pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),

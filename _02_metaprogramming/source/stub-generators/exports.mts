@@ -2,6 +2,7 @@
 
 import NotImplementedStub from "./base/notImplemented.mjs";
 import PrependReturnStub from "./base/prependReturn.mjs";
+import PrependReturnNIStub from "./base/prependReturnNI.mjs";
 import SpyClassStub from "./base/spyClass.mjs";
 import VoidClassStub from "./base/voidClass.mjs";
 
@@ -12,6 +13,7 @@ import TransitionsTailStub from "./transitions/TailClass.mjs";
 const StubMap = Object.freeze({
   "NotImplemented": NotImplementedStub,
   "PrependReturn": PrependReturnStub,
+  "PrependReturnNI": PrependReturnNIStub,
   "SpyClass": SpyClassStub,
   "VoidClass": VoidClassStub,
   "TransitionsStub": TransitionsStub,

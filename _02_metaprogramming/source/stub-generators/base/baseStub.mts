@@ -9,6 +9,8 @@ import {
   InterfaceDeclaration,
   TypeAliasDeclaration,
   type InterfaceDeclarationStructure,
+  OptionalKind,
+  ParameterDeclarationStructure,
 } from "ts-morph";
 
 import CodeBlockWriter from "code-block-writer";
@@ -40,7 +42,7 @@ export type ExtendsAndImplements = {
 /**
  * A base class for quickly generating class stubs.
  */
-export default class BaseStub extends MixinBase
+export default class ConfigureStub extends MixinBase
 {
   // #region static fields
   /**
@@ -115,12 +117,15 @@ export default class BaseStub extends MixinBase
   /** Get the "extends" and "implements" fields for the class. */
   protected getExtendsAndImplements() : ExtendsAndImplements
   {
-    throw new Error("not implemented on BaseStub");
+    return {
+      extends: [],
+      implements: [ this.interfaceOrAliasName ],
+    };
   }
 
   constructor(...args: unknown[]) {
     super(...args);
-    this.requiredInitializers.add(BaseStub.#INIT_KEY);
+    this.requiredInitializers.add(ConfigureStub.#INIT_KEY);
   }
 
   /**
@@ -136,7 +141,7 @@ export default class BaseStub extends MixinBase
     className: string,
   ) : void
   {
-    this.requiredInitializers.mayResolve(BaseStub.#INIT_KEY);
+    this.requiredInitializers.mayResolve(ConfigureStub.#INIT_KEY);
 
     if (!path.isAbsolute(pathToClassFile))
       throw new Error("pathToClassFile must be absolute");
@@ -155,7 +160,7 @@ export default class BaseStub extends MixinBase
 
     this.interfaceOrAliasName = interfaceOrAliasName;
 
-    this.requiredInitializers.resolve(BaseStub.#INIT_KEY);
+    this.requiredInitializers.resolve(ConfigureStub.#INIT_KEY);
   }
 
   // #region import management
@@ -202,7 +207,7 @@ export default class BaseStub extends MixinBase
     }
 
     this.#preambleWriter.writeLine(`/* This file is generated.  Do not edit. */`);
-    BaseStub.pairedWrite(
+    ConfigureStub.pairedWrite(
       this.#preambleWriter,
       "// #region preamble",
       "// #endregion preamble",
@@ -348,7 +353,7 @@ export default class BaseStub extends MixinBase
     method: TS_Method
   ) : void
   {
-    BaseStub.pairedWrite(this.classWriter, method.name + "(", ")", false, true, () => {
+    ConfigureStub.pairedWrite(this.classWriter, method.name + "(", ")", false, true, () => {
       if (method.parameters) {
         method.parameters.forEach(param => this.#writeParameter(param));
         this.classWriter.newLineIfLastNot();
@@ -360,7 +365,8 @@ export default class BaseStub extends MixinBase
     }
     this.classWriter.newLineIfLastNot();
 
-    this.classWriter.block(() => this.buildMethodBody(method));
+    const remainingArgs = new Set(method.parameters || []);
+    this.classWriter.block(() => this.buildMethodBody(method, remainingArgs));
   }
 
   /** Build the markup for a single parameter. */
@@ -382,11 +388,22 @@ export default class BaseStub extends MixinBase
    * @param structure - the method structure.
    */
   protected buildMethodBody(
-    structure: TS_Method
+    structure: TS_Method,
+    remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>,
   ) : void
   {
     void(structure);
-    throw new Error("not implemented on BaseStub");
+    void(remainingArgs);
+  }
+
+  protected voidArguments(
+    remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>
+  ) : void
+  {
+    remainingArgs.forEach(
+      param => this.classWriter.writeLine(`void(${param.name});`)
+    );
+    remainingArgs.clear();
   }
 
   // #endregion class building
