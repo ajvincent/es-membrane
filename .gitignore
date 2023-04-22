@@ -10,9 +10,9 @@ _*/**/tsconfig.json
 _*/**/*.mjs
 _*/**/*.mjs.map
 _*/**/*.d.mts
-!_*/fixtures/types/**/*.d.mts
-!_*/source/types/**/*.d.mts
-!_*/spec/types/**/*.d.mts
+!_*/fixtures/**/types/**/*.d.mts
+!_*/source/**/types/**/*.d.mts
+!_*/spec/**/types/**/*.d.mts
 
 build/**/*.mjs.map
 build/**/*.d.mts
