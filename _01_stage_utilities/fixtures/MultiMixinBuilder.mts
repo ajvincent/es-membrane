@@ -1,3 +1,4 @@
+import MixinBase from "../source/MixinBase.mjs";
 import type {
   StaticAndInstance
 } from "../source/types/StaticAndInstance.mjs";
@@ -25,7 +26,7 @@ interface YVector extends StaticAndInstance {
   }
 }
 
-const Mixin_XVector: SubclassDecorator<XVector, false> = function(
+const Mixin_XVector: SubclassDecorator<typeof MixinBase, XVector, false> = function(
   this: void,
   _class,
   context
@@ -39,6 +40,10 @@ const Mixin_XVector: SubclassDecorator<XVector, false> = function(
     static xCoord = 12;
     #xLength = 0;
 
+    constructor(...args: unknown[]) {
+      super(...args);
+    }
+
     get xLength(): number {
       return this.#xLength;
     }
@@ -49,7 +54,7 @@ const Mixin_XVector: SubclassDecorator<XVector, false> = function(
   }
 }
 
-const Mixin_YVector: SubclassDecorator<YVector, false> = function(
+const Mixin_YVector: SubclassDecorator<typeof MixinBase, YVector, false> = function(
   this: void,
   _class
 )

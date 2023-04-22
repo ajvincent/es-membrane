@@ -17,6 +17,7 @@ import MixinBase from "./MixinBase.mjs";
 import type {
   SubclassDecoratorSequence,
 } from "./types/SubclassDecorator.mjs";
+import { ClassDecoratorFunction } from "./types/ClassDecoratorTypes.mjs";
 
 /**
  * Build an intersection of either the static interfaces or the instance interfaces from a sequence.
@@ -39,10 +40,11 @@ type ExtractFields<
  */
 type MultiMixinClass<
   Interfaces extends ReadonlyArray<StaticAndInstance>,
+  Base extends typeof MixinBase,
 > = MixinClass<
   ExtractFields<Interfaces, "staticFields">,
   ExtractFields<Interfaces, "instanceFields">,
-  typeof MixinBase
+  Base
 >;
 
 /**
@@ -56,20 +58,21 @@ type MultiMixinClass<
  * @internal - this depends on MixinBase, which is internal to es-membrane.
  */
 function applyAllDecorators<
-  Interfaces extends ReadonlyArray<StaticAndInstance>
+  Interfaces extends ReadonlyArray<StaticAndInstance>,
+  Base extends typeof MixinBase,
 >
 (
-  decorators: SubclassDecoratorSequence<Interfaces, false>,
-  baseClass: typeof MixinBase,
+  this: void,
+  decorators: SubclassDecoratorSequence<Base, Interfaces, false>,
+  baseClass: Base,
   context: ClassDecoratorContext,
-) : MultiMixinClass<Interfaces>
+) : MultiMixinClass<Interfaces, Base>
 {
-  const _mixedClass = decorators.reduce(
-    (_class, decorator) => {
-      return decorator(_class, context);
-    }, baseClass
-  );
-  return _mixedClass as MultiMixinClass<Interfaces>;
+  let _class = baseClass;
+  for (let i = 0; i < decorators.length; i++) {
+    _class = decorators[i](_class, context) as Base;
+  }
+  return _class as MultiMixinClass<Interfaces, Base>;
 }
 
 /**
@@ -81,16 +84,18 @@ function applyAllDecorators<
  * @internal - this depends on MixinBase, which is internal to es-membrane.
  */
 function MixinBuilderInternal<
-  Interfaces extends ReadonlyArray<StaticAndInstance>
+  Interfaces extends ReadonlyArray<StaticAndInstance>,
+  Base extends typeof MixinBase,
 >
 (
-  decorators: SubclassDecoratorSequence<Interfaces, false>
-) : (_class: typeof MixinBase, context: ClassDecoratorContext) => MultiMixinClass<Interfaces>
+  decorators: SubclassDecoratorSequence<Base, Interfaces, false>
+) : (_class: Base, context: ClassDecoratorContext) => MultiMixinClass<Interfaces, Base>
 {
   return function(
-    _class: typeof MixinBase,
+    this: void,
+    _class: Base,
     context: ClassDecoratorContext
-  )
+  ) : MultiMixinClass<Interfaces, Base>
   {
     return applyAllDecorators(decorators, _class, context);
   }
@@ -105,18 +110,21 @@ function MixinBuilderInternal<
  * @internal - this depends on MixinBase, which is internal to es-membrane.
  */
 function MultiMixinBuilder<
-  Interfaces extends ReadonlyArray<StaticAndInstance>
+  Interfaces extends ReadonlyArray<StaticAndInstance>,
+  Base extends typeof MixinBase,
 >
 (
-  decorators: SubclassDecoratorSequence<Interfaces, false>
-) : MultiMixinClass<Interfaces>
+  decorators: SubclassDecoratorSequence<Base, Interfaces, false>,
+  baseClass: Base,
+) : MultiMixinClass<Interfaces, Base>
 {
-  return (
-    @MixinBuilderInternal<Interfaces>(decorators)
-    class extends MixinBase {
 
+  const decoratorFunction = MixinBuilderInternal<Interfaces, Base>(decorators) as unknown as ClassDecoratorFunction<Base, true, false>;
+  return (
+    @decoratorFunction
+    class extends baseClass {
     }
-  ) as MultiMixinClass<Interfaces>;
+  ) as MultiMixinClass<Interfaces, Base>;
 }
 
 export default MultiMixinBuilder;

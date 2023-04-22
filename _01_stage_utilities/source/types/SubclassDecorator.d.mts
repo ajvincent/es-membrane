@@ -20,10 +20,11 @@ import MixinBase from "../MixinBase.mjs";
  * @internal - this depends on MixinBase, which is internal to es-membrane.
  */
 export type SubclassDecorator<
+  Base extends typeof MixinBase,
   Added extends StaticAndInstance,
   Arguments extends any[] | false
 > = ClassDecoratorFunction<
-  typeof MixinBase,
+  Base,
   MixinClass<Added["staticFields"], Added["instanceFields"], typeof MixinBase>,
   Arguments
 >;
@@ -34,6 +35,7 @@ export type SubclassDecorator<
  * @internal - this depends on MixinBase, which is internal to es-membrane.
  */
 export type SubclassDecoratorSequence<
+  Base extends typeof MixinBase,
   Interfaces extends ReadonlyArray<StaticAndInstance>,
   Arguments extends any[] | false
-> = { [key in keyof Interfaces]: SubclassDecorator<Interfaces[key], Arguments> };
+> = { [key in keyof Interfaces]: SubclassDecorator<Base, Interfaces[key], Arguments> };

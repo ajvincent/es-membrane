@@ -24,6 +24,7 @@ export type ClassDecoratorFunction<
     context: ClassDecoratorContext,
   ) => (
     ReturnsModified extends BaseClassType ? ReturnsModified :
-    ReturnsModified extends true ? BaseClassType : void
+    ReturnsModified extends true ? BaseClassType :
+    void
   )
 );
