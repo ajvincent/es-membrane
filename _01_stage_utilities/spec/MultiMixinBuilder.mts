@@ -92,4 +92,46 @@ describe("MultiMixinBuilder can generate mixins of several classes", () => {
 
     expect(foundState).toBe("initial");
   });
+
+  it("from MixinBase, with protected and public methods", () => {
+    class XMixedinClass extends MultiMixinBuilder<
+      [XVector], typeof MixinBase
+    >(
+      [ Mixin_XVector ], MixinBase
+    )
+    {
+      #protectedCalled = false;
+      get protectedCalled(): boolean {
+        return this.#protectedCalled;
+      }
+
+      protected markCalledInternal(): void {
+        this.#protectedCalled = true;
+      }
+    }
+
+    const VectorMixinClass = (
+      class extends MultiMixinBuilder<[YVector], typeof XMixedinClass>([
+        Mixin_YVector
+      ], XMixedinClass)
+      {
+        // empty on purpose
+
+        public markCalled(): void {
+          this.markCalledInternal();
+        }
+      }
+    );
+
+    expect(VectorMixinClass.xCoord).toBe(12);
+    expect(VectorMixinClass.yCoord).toBe(7);
+
+    const firstVector = new VectorMixinClass;
+    expect(firstVector.xLength).toBe(0);
+    expect(firstVector.yLength).toBe(4);
+
+    expect(firstVector.protectedCalled).toBe(false);
+    firstVector.markCalled();
+    expect(firstVector.protectedCalled).toBe(true);
+  });
 });
