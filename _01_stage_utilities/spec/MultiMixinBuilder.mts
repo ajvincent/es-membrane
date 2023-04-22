@@ -115,8 +115,6 @@ describe("MultiMixinBuilder can generate mixins of several classes", () => {
         Mixin_YVector
       ], XMixedinClass)
       {
-        // empty on purpose
-
         public markCalled(): void {
           this.markCalledInternal();
         }

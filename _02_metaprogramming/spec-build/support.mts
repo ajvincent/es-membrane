@@ -35,7 +35,8 @@ async function runModule() : Promise<void>
 
 async function build_NST_NI() : Promise<void>
 {
-  const classWriter = new StubMap.NotImplemented(
+  const classWriter = new StubMap.NotImplemented;
+  classWriter.configureStub(
     sourceFile,
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/common/NST_NotImplemented.mts"),
@@ -55,7 +56,8 @@ async function build_NST_NI() : Promise<void>
 
 async function build_NST_Never() : Promise<void>
 {
-  const classWriter = new StubMap.NotImplemented(
+  const classWriter = new StubMap.NotImplemented;
+  classWriter.configureStub(
     sourceFile,
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/common/NST_Never.mts"),
@@ -75,7 +77,8 @@ async function build_NST_Never() : Promise<void>
 
 async function build_NST_Void() : Promise<void>
 {
-  const classWriter = new StubMap.VoidClass(
+  const classWriter = new StubMap.VoidClass;
+  classWriter.configureStub(
     sourceFile,
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/common/NST_Void.mts"),
@@ -94,7 +97,8 @@ async function build_NST_Void() : Promise<void>
 
 async function build_NST_Spy() : Promise<void>
 {
-  const classWriter = new StubMap.SpyClass(
+  const classWriter = new StubMap.SpyClass;
+  classWriter.configureStub(
     sourceFile,
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/common/NST_Spy.mts"),
@@ -113,7 +117,8 @@ async function build_NST_Spy() : Promise<void>
 
 async function build_NST_PrependReturn() : Promise<void>
 {
-  const classWriter = new StubMap.PrependReturn(
+  const classWriter = new StubMap.PrependReturn;
+  classWriter.configureStub(
     sourceFile,
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/common/NST_PrependReturn.mts"),
@@ -132,7 +137,8 @@ async function build_NST_PrependReturn() : Promise<void>
 
 async function build_NST_Transition() : Promise<void>
 {
-  const classWriter = new StubMap.TransitionsStub(
+  const classWriter = new StubMap.TransitionsStub;
+  classWriter.configureStub(
     sourceFile,
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/transition/NST_Base.mts"),
@@ -175,7 +181,8 @@ async function build_NST_Transition() : Promise<void>
 
 async function build_NST_Transition_Head() : Promise<void>
 {
-  const classWriter = new StubMap.TransitionsHeadStub(
+  const classWriter = new StubMap.TransitionsHeadStub;
+  classWriter.configureStub(
     sourceFile,
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/transition/NST_Head.mts"),
@@ -249,7 +256,8 @@ async function build_NST_Transition_Head() : Promise<void>
 
 async function build_NST_Transition_Tail() : Promise<void>
 {
-  const classWriter = new StubMap.TransitionsTailStub(
+  const classWriter = new StubMap.TransitionsTailStub
+  classWriter.configureStub(
     sourceFile,
     "NumberStringType",
     pathToModule(stageDir, "spec-generated/components/transition/NST_Tail.mts"),

@@ -7,7 +7,7 @@ import {
   SourceFile,
   Node,
   InterfaceDeclaration,
-  type TypeAliasDeclaration,
+  TypeAliasDeclaration,
   type InterfaceDeclarationStructure,
 } from "ts-morph";
 
@@ -16,6 +16,8 @@ import CodeBlockWriter from "code-block-writer";
 import {
   DefaultMap,
 } from "../../../../_01_stage_utilities/source/DefaultMap.mjs";
+
+import MixinBase from "../../../../_01_stage_utilities/source/MixinBase.mjs";
 
 import extractType, {
   writerOptions
@@ -38,7 +40,7 @@ export type ExtendsAndImplements = {
 /**
  * A base class for quickly generating class stubs.
  */
-export default class BaseStub
+export default class BaseStub extends MixinBase
 {
   // #region static fields
   /**
@@ -74,16 +76,18 @@ export default class BaseStub
     writer.write(endToken);
   }
 
+  static readonly #INIT_KEY = "configureStub";
+
   // #endregion static fields;
 
   // #region basic tools and configurations
 
-  readonly #interfaceOrAlias: InterfaceDeclaration | TypeAliasDeclaration;
+  #interfaceOrAlias: InterfaceDeclaration | TypeAliasDeclaration | null = null;
 
   /** The absolute path to the class file. */
-  readonly #pathToClassFile: string;
+  #pathToClassFile = "(not yet defined)";
 
-  readonly #className: string;
+  #className = "(not yet defined)";
 
   // imports to define in the module.
   /**
@@ -104,7 +108,7 @@ export default class BaseStub
   /** This handles the actual class generation code. */
   protected readonly classWriter = new CodeBlockWriter(writerOptions);
 
-  protected readonly interfaceOrAliasName: string;
+  protected interfaceOrAliasName = "(not yet defined)";
 
   // #endregion basic tools and configurations
 
@@ -114,21 +118,25 @@ export default class BaseStub
     throw new Error("not implemented on BaseStub");
   }
 
+  constructor(...args: unknown[]) {
+    super(...args);
+    this.requiredInitializers.add(BaseStub.#INIT_KEY);
+  }
+
   /**
    * @param sourceFile - the source file containing the interface or type alias.
    * @param interfaceOrAliasName - the name of the interface or type alias
    * @param pathToClassFile - the absolute path to the class file.
    * @param className - the class name to use.
    */
-  constructor(
+  configureStub(
     sourceFile: SourceFile,
     interfaceOrAliasName: string,
     pathToClassFile: string,
     className: string,
-  )
+  ) : void
   {
-    if (new.target === BaseStub)
-      throw new Error("You must subclass BaseStub!");
+    this.requiredInitializers.mayResolve(BaseStub.#INIT_KEY);
 
     if (!path.isAbsolute(pathToClassFile))
       throw new Error("pathToClassFile must be absolute");
@@ -146,6 +154,8 @@ export default class BaseStub
     this.#className = className;
 
     this.interfaceOrAliasName = interfaceOrAliasName;
+
+    this.requiredInitializers.resolve(BaseStub.#INIT_KEY);
   }
 
   // #region import management
@@ -163,6 +173,8 @@ export default class BaseStub
     isDefault: boolean,
   ) : void
   {
+    this.requiredInitializers.check();
+
     if (!path.isAbsolute(pathToModule))
       throw new Error("pathToModule must be absolute");
 
@@ -242,6 +254,8 @@ export default class BaseStub
   /** Build the class into the class writer. (But don't write it to the file system.) */
   buildClass() : void
   {
+    this.requiredInitializers.check();
+
     if (this.#buildCalled) {
       throw new Error(`Build has been called for file ${this.#pathToClassFile}`);
     }
@@ -291,7 +305,7 @@ export default class BaseStub
         throw new Error("assertion failure: we should have methods");
       structure = s as StructureWithMethods;
     }
-    else {
+    else if (this.#interfaceOrAlias instanceof TypeAliasDeclaration) {
       const literal = this.#interfaceOrAlias.getTypeNodeOrThrow();
       if (!Node.hasStructure(literal))
         throw new Error("assertion failure: not type-element membered");
@@ -300,6 +314,9 @@ export default class BaseStub
         throw new Error("assertion failure, expected type-element-membered");
       }
       structure = s;
+    }
+    else {
+      throw new Error("unreachable");
     }
 
     if (!structure.methods) {
@@ -381,6 +398,8 @@ export default class BaseStub
   /** Write the class module to the file system! */
   async write() : Promise<void>
   {
+    this.requiredInitializers.check();
+
     if (!this.#buildCalled)
       throw new Error(`File ${this.#pathToClassFile} has not been built!`);
     if (this.#writeCalled)
