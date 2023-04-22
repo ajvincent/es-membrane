@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
-  ClassDecoratorReplaces
+  ClassDecoratorFunction
 } from "./ClassDecoratorTypes.mjs";
 
 import type {
@@ -19,10 +20,12 @@ import MixinBase from "../MixinBase.mjs";
  * @internal - this depends on MixinBase, which is internal to es-membrane.
  */
 export type SubclassDecorator<
-  Added extends StaticAndInstance
-> = ClassDecoratorReplaces<
+  Added extends StaticAndInstance,
+  Arguments extends any[] | false
+> = ClassDecoratorFunction<
   typeof MixinBase,
-  MixinClass<Added["staticFields"], Added["instanceFields"], typeof MixinBase>
+  MixinClass<Added["staticFields"], Added["instanceFields"], typeof MixinBase>,
+  Arguments
 >;
 
 /**
@@ -31,5 +34,6 @@ export type SubclassDecorator<
  * @internal - this depends on MixinBase, which is internal to es-membrane.
  */
 export type SubclassDecoratorSequence<
-  Interfaces extends ReadonlyArray<StaticAndInstance>
-> = { [key in keyof Interfaces]: SubclassDecorator<Interfaces[key]> };
+  Interfaces extends ReadonlyArray<StaticAndInstance>,
+  Arguments extends any[] | false
+> = { [key in keyof Interfaces]: SubclassDecorator<Interfaces[key], Arguments> };

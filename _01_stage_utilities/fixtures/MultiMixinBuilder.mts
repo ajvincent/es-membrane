@@ -25,7 +25,7 @@ interface YVector extends StaticAndInstance {
   }
 }
 
-const Mixin_XVector: SubclassDecorator<XVector> = function(
+const Mixin_XVector: SubclassDecorator<XVector, false> = function(
   this: void,
   _class,
   context
@@ -49,7 +49,7 @@ const Mixin_XVector: SubclassDecorator<XVector> = function(
   }
 }
 
-const Mixin_YVector: SubclassDecorator<YVector> = function(
+const Mixin_YVector: SubclassDecorator<YVector, false> = function(
   this: void,
   _class
 )

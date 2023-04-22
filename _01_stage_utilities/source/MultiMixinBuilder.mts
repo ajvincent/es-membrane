@@ -59,7 +59,7 @@ function applyAllDecorators<
   Interfaces extends ReadonlyArray<StaticAndInstance>
 >
 (
-  decorators: SubclassDecoratorSequence<Interfaces>,
+  decorators: SubclassDecoratorSequence<Interfaces, false>,
   baseClass: typeof MixinBase,
   context: ClassDecoratorContext,
 ) : MultiMixinClass<Interfaces>
@@ -84,7 +84,7 @@ function MixinBuilderInternal<
   Interfaces extends ReadonlyArray<StaticAndInstance>
 >
 (
-  decorators: SubclassDecoratorSequence<Interfaces>
+  decorators: SubclassDecoratorSequence<Interfaces, false>
 ) : (_class: typeof MixinBase, context: ClassDecoratorContext) => MultiMixinClass<Interfaces>
 {
   return function(
@@ -108,7 +108,7 @@ function MultiMixinBuilder<
   Interfaces extends ReadonlyArray<StaticAndInstance>
 >
 (
-  decorators: SubclassDecoratorSequence<Interfaces>
+  decorators: SubclassDecoratorSequence<Interfaces, false>
 ) : MultiMixinClass<Interfaces>
 {
   return (
