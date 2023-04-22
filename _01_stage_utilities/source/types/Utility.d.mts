@@ -14,6 +14,8 @@ export type Any<T extends boolean[]> = T extends false[] ? false : true;
 // #endregion booleans
 
 export type DoesExtend<Left, Right> = Left extends Right ? true : false;
+export type LeftExtendsRight<Left, Right> = Left extends Right ? Left : never;
+export type RightExtendsLeft<Left, Right> = Right extends Left ? Right : never;
 
 // #region arrays shifts
 export type ShiftArrayElement<Elements extends ReadonlyArray<T>, T = unknown> =

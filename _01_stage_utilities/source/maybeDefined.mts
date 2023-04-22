@@ -1,11 +1,11 @@
 const DEFINED = Symbol("defined?");
 type NotDefinedType = { [DEFINED]: false };
 
-type Defined<T> = { [DEFINED]: true } & T;
+type Defined<T extends object> = { [DEFINED]: true } & T;
 
-export type MaybeDefined<T> = NotDefinedType | Defined<T>;
+export type MaybeDefined<T extends object> = NotDefinedType | Defined<T>;
 
-export function markDefined<T>(
+export function markDefined<T extends object>(
   arg: T
 ) : Defined<T>
 {
@@ -13,18 +13,27 @@ export function markDefined<T>(
   return arg as Defined<T>;
 }
 
-export function assertDefined<T>(
+export function assertDefined<T extends object>(
   arg: MaybeDefined<T>
-): arg is Defined<T>
+): Defined<T>
 {
   if (!arg[DEFINED])
     throw new Error("assertDefined failure");
-  return true;
+  return arg;
 }
 
-export function isNotDefined<T>(arg: MaybeDefined<T>): arg is NotDefinedType
+export function assertNotDefined<T extends object>(
+  arg: MaybeDefined<T>
+): void
+{
+  if (arg[DEFINED]) {
+    throw new Error("assertNotDefined failure");
+  }
+}
+
+export function isNotDefined<T extends object>(arg: MaybeDefined<T>): arg is NotDefinedType
 {
   return !arg[DEFINED];
 }
 
-export const NOT_DEFINED: MaybeDefined<never> = Object.freeze({ [DEFINED]: false });
+export const NOT_DEFINED: NotDefinedType = Object.freeze({ [DEFINED]: false });

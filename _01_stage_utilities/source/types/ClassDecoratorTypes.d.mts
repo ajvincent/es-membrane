@@ -16,7 +16,7 @@ export type ClassDecoratorFunction<
   BaseClassType extends Class<unknown>,
   ReturnsModified extends boolean | BaseClassType,
   Arguments extends any[] | false
-> =
+> = (
   Arguments extends any[] ?
   (...args: Arguments) => ClassDecoratorFunction<BaseClassType, ReturnsModified, false> :
   (
@@ -25,4 +25,5 @@ export type ClassDecoratorFunction<
   ) => (
     ReturnsModified extends BaseClassType ? ReturnsModified :
     ReturnsModified extends true ? BaseClassType : void
-  );
+  )
+);

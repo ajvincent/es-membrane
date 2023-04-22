@@ -41,10 +41,14 @@ export default class RequiredInitializers implements RequiredInitializersInterfa
     return this.#requiredInitializers.has(key);
   }
 
-  resolve(key: string) : void
-  {
+  mayResolve(key: string) : void {
     if (!this.#requiredInitializers.has(key))
       throw new Error("unknown or already resolved initializer key: " + key);
+  }
+
+  resolve(key: string) : void
+  {
+    this.mayResolve(key);
 
     this.#setState("adding", "resolving");
     this.#requiredInitializers.delete(key);
