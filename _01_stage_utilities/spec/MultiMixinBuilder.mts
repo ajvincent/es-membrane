@@ -10,6 +10,8 @@ import {
   Mixin_XVector,
   Mixin_YVector,
   type VectorInterfaces,
+  MarkCalledBase,
+  type MarkCalledFields,
 } from "../fixtures/MultiMixinBuilder.mjs";
 import { RequiredState } from "../source/RequiredInitializers.mjs";
 
@@ -73,15 +75,16 @@ describe("MultiMixinBuilder can generate mixins of several classes", () => {
       Mixin_XVector
     ], MixinBase);
 
-    const VectorMixinClass = (
-      @checkRequiredInitializers
-      class extends MultiMixinBuilder<[YVector], typeof XMixedinClass>([
-        Mixin_YVector
-      ], XMixedinClass)
-      {
-        // empty on purpose
-      }
-    );
+    const VectorMixinClassPartial = (class extends MultiMixinBuilder<[YVector], typeof MixinBase>([
+      Mixin_YVector
+    ], XMixedinClass)
+    {
+      // empty on purpose
+    }) as MultiMixinClass<VectorInterfaces, typeof XMixedinClass>;
+
+
+    @checkRequiredInitializers
+    class VectorMixinClass extends VectorMixinClassPartial {}
 
     expect(VectorMixinClass.xCoord).toBe(12);
     expect(VectorMixinClass.yCoord).toBe(7);
@@ -93,33 +96,25 @@ describe("MultiMixinBuilder can generate mixins of several classes", () => {
     expect(foundState).toBe("initial");
   });
 
-  it("from MixinBase, with protected and public methods", () => {
-    class XMixedinClass extends MultiMixinBuilder<
-      [XVector], typeof MixinBase
-    >(
-      [ Mixin_XVector ], MixinBase
-    )
-    {
-      #protectedCalled = false;
-      get protectedCalled(): boolean {
-        return this.#protectedCalled;
-      }
-
-      protected markCalledInternal(): void {
-        this.#protectedCalled = true;
-      }
-    }
+  it("from MixinBase, with protected and public methods (and some very ugly code)", () => {
+    type MarkCalledMethods = MarkCalledFields["instanceFields"];
 
     const VectorMixinClass = (
-      class extends MultiMixinBuilder<[YVector], typeof XMixedinClass>([
-        Mixin_YVector
-      ], XMixedinClass)
+      class VectorMixinClass
+
+      extends MultiMixinBuilder<VectorInterfaces, typeof MixinBase>([
+        Mixin_XVector, Mixin_YVector
+      ], MarkCalledBase)
+
+      implements MarkCalledMethods
+
       {
-        public markCalled(): void {
+        public markCalled(this: MarkCalledBase): void {
           this.markCalledInternal();
         }
       }
-    );
+
+    ) as MultiMixinClass<[...VectorInterfaces, MarkCalledFields], typeof MarkCalledBase>;
 
     expect(VectorMixinClass.xCoord).toBe(12);
     expect(VectorMixinClass.yCoord).toBe(7);

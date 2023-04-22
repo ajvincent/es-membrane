@@ -25,7 +25,7 @@ export type SubclassDecorator<
   Arguments extends any[] | false
 > = ClassDecoratorFunction<
   Base,
-  MixinClass<Added["staticFields"], Added["instanceFields"], typeof MixinBase>,
+  MixinClass<Added["staticFields"], Added["instanceFields"], Base>,
   Arguments
 >;
 

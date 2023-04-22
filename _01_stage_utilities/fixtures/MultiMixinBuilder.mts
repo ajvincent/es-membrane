@@ -67,10 +67,30 @@ const Mixin_YVector: SubclassDecorator<typeof MixinBase, YVector, false> = funct
 
 type VectorInterfaces = [XVector, YVector];
 
+class MarkCalledBase extends MixinBase {
+  #protectedCalled = false;
+  get protectedCalled(): boolean {
+    return this.#protectedCalled;
+  }
+
+  protected markCalledInternal(): void {
+    this.#protectedCalled = true;
+  }
+}
+
+interface MarkCalledFields {
+  staticFields: object,
+  instanceFields: {
+    markCalled(this: MarkCalledBase): void;
+  }
+}
+
 export {
   XVector,
   YVector,
   Mixin_XVector,
   Mixin_YVector,
   type VectorInterfaces,
+  MarkCalledBase,
+  MarkCalledFields,
 };

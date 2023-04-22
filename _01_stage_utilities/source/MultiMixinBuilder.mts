@@ -118,8 +118,10 @@ function MultiMixinBuilder<
   baseClass: Base,
 ) : MultiMixinClass<Interfaces, Base>
 {
+  const decoratorFunction = MixinBuilderInternal<
+    Interfaces, Base
+  >(decorators) as unknown as ClassDecoratorFunction<Base, true, false>;
 
-  const decoratorFunction = MixinBuilderInternal<Interfaces, Base>(decorators) as unknown as ClassDecoratorFunction<Base, true, false>;
   return (
     @decoratorFunction
     class extends baseClass {
