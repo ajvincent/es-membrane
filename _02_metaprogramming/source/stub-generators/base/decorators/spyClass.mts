@@ -19,7 +19,7 @@ import type {
 
 import type {
   TS_Method
-} from "../private-types.mjs";
+} from "../types/private-types.mjs";
 
 import addPublicTypeImport from "../addPublicTypeImport.mjs";
 import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";

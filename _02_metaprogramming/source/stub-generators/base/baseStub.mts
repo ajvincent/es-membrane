@@ -28,7 +28,7 @@ import extractType, {
 import type {
   TS_Method,
   TS_Parameter,
-} from "./private-types.mjs";
+} from "./types/private-types.mjs";
 
 // #endregion preamble
 

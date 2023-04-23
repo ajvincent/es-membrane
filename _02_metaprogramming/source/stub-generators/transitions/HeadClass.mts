@@ -31,7 +31,7 @@ import extractType, {
 import type {
   TS_Method,
   TS_Parameter,
-} from "../base/private-types.mjs";
+} from "../base/types/private-types.mjs";
 
 import type {
   ParamRenamer,
