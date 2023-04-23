@@ -5,7 +5,7 @@ import {
 
 import type {
   VoidMethodsOnly,
-} from "../../../source/aspects/export-types.mjs";
+} from "../../../source/aspects/types/export-types.mjs";
 
 import type {
   NumberStringType

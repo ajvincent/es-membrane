@@ -4,7 +4,7 @@ import type {
 
 import type {
   MethodsOnlyInternal
-} from "../private-types/MethodsOnlyInternal.mjs";
+} from "./MethodsOnlyInternal.mjs";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PrependReturn<M extends ((this: object, ...args: any[]) => any)> = (

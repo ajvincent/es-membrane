@@ -1,5 +1,5 @@
 import type { NumberStringType } from "../../types/NumberStringType.mjs";
-import { TransitionInterface } from "../../../source/aspects/public-types/TransitionInterface.mjs";
+import { TransitionInterface } from "../../../source/aspects/types/TransitionInterface.mjs";
 
 type NST_MiddleParameters = [boolean, () => Promise<void>];
 

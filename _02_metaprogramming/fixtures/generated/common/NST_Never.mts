@@ -6,7 +6,7 @@ import {
 } from "../../types/NumberStringType.mjs";
 import {
   type NotImplementedOnly,
-} from "../../../source/aspects/public-types/NotImplementedOnly.mjs";
+} from "../../../source/aspects/types/NotImplementedOnly.mjs";
 
 // #endregion preamble
 

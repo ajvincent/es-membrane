@@ -1,18 +1,18 @@
 import type {
   NotImplementedOnly
-} from "./public-types/NotImplementedOnly.mjs";
+} from "./NotImplementedOnly.mjs";
 import type {
   MethodsPrependReturn
-} from "./public-types/MethodsPrependReturn.mjs";
+} from "./MethodsPrependReturn.mjs";
 import type {
   MethodReturnRewrite
-} from "./public-types/MethodReturnRewrite.mjs";
+} from "./MethodReturnRewrite.mjs";
 import type {
   TransitionInterface
-} from "./public-types/TransitionInterface.mjs";
+} from "./TransitionInterface.mjs";
 import type {
   VoidMethodsOnly
-} from "./public-types/VoidMethodsOnly.mjs";
+} from "./VoidMethodsOnly.mjs";
 
 export type {
   NotImplementedOnly,

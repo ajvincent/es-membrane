@@ -1,6 +1,6 @@
 import type {
   MethodsOnlyInternal
-} from "../private-types/MethodsOnlyInternal.mjs";
+} from "./MethodsOnlyInternal.mjs";
 
 type TransitionMethod<
   BaseArguments extends unknown[],

@@ -6,7 +6,7 @@ import {
 
 import type {
   TransitionInterface,
-} from "../../../source/aspects/export-types.mjs";
+} from "../../../source/aspects/types/export-types.mjs";
 
 import type {
   NumberStringType

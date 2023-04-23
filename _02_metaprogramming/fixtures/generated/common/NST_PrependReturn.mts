@@ -6,7 +6,7 @@ import {
 } from "../../types/NumberStringType.mjs";
 import {
   type MethodsPrependReturn,
-} from "../../../source/aspects/public-types/MethodsPrependReturn.mjs";
+} from "../../../source/aspects/types/MethodsPrependReturn.mjs";
 
 // #endregion preamble
 

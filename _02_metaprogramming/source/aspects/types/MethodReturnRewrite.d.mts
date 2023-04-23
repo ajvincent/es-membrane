@@ -4,7 +4,7 @@ import type {
 
 import type {
   MethodsOnlyInternal
-} from "../private-types/MethodsOnlyInternal.mjs";
+} from "./MethodsOnlyInternal.mjs";
 
 export type MethodReturnRewrite<T, R, Extends extends boolean> = T extends MethodsOnlyInternal ?
   {
