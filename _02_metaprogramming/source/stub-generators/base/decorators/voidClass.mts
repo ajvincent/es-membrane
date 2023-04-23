@@ -21,15 +21,16 @@ import type {
 } from "../private-types.mjs";
 
 import addPublicTypeImport from "../addPublicTypeImport.mjs";
+import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 
 // #endregion preamble
 
-export type PrependReturnFields = RightExtendsLeft<StaticAndInstance, {
+export type VoidClassFields = RightExtendsLeft<StaticAndInstance, {
   staticFields: object,
   instanceFields: object,
 }>;
 
-const PrependReturnDecorator: ConfigureStubDecorator<PrependReturnFields> = function(
+const VoidClassDecorator: ConfigureStubDecorator<VoidClassFields> = function(
   this: void,
   baseClass
 )
@@ -40,34 +41,37 @@ const PrependReturnDecorator: ConfigureStubDecorator<PrependReturnFields> = func
       const inner = super.getExtendsAndImplements();
       return {
         extends: inner.extends,
-        implements: inner.implements.map(value => `MethodsPrependReturn<${value}>`),
+        implements: inner.implements.map(value => `VoidMethodsOnly<${value}>`),
       };
     }
-  
+
     protected methodTrap(
       methodStructure: TS_Method | null,
       isBefore: boolean,
     ) : void
     {
       super.methodTrap(methodStructure, isBefore);
-
       if (!isBefore)
         return;
 
       if (!methodStructure) {
-        addPublicTypeImport(
-          this, "MethodsPrependReturn.mjs", "MethodsPrependReturn"
-        );
+        addPublicTypeImport(this, "VoidMethodsOnly.mjs", "VoidMethodsOnly");
         return;
       }
 
-      methodStructure.parameters ||= [];
-      methodStructure.parameters.unshift({
-        name: "__rv__",
-        type: methodStructure.returnType,
-      });
+      methodStructure.returnType = "void";
+    }
+
+
+    protected buildMethodBody(
+      methodStructure: TS_Method,
+      remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>,
+    ): void
+    {
+      this.voidArguments(remainingArgs);
+      super.buildMethodBody(methodStructure, remainingArgs);
     }
   }
 }
 
-export default PrependReturnDecorator;
+export default VoidClassDecorator;

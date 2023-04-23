@@ -1,46 +1,14 @@
-import BaseStub, {
-  type ExtendsAndImplements
-} from "./baseStub.mjs";
+import MultiMixinBuilder from "../../../../_01_stage_utilities/source/MultiMixinBuilder.mjs";
 
-import addPublicTypeImport from "./addPublicTypeImport.mjs";
+import ConfigureStub from "./baseStub.mjs";
 
-import type {
-  TS_Method
-} from "./private-types.mjs";
+import VoidClassDecorator, {
+  type VoidClassFields
+} from "./decorators/voidClass.mjs";
 
-export default
-class VoidClassStub extends BaseStub
-{
-  protected getExtendsAndImplements(): ExtendsAndImplements
-  {
-    return {
-      extends: [],
-      implements: [`VoidMethodsOnly<${this.interfaceOrAliasName}>`],
-    };
-  }
+const VoidClassStub = MultiMixinBuilder<[VoidClassFields], typeof ConfigureStub>
+(
+  [VoidClassDecorator], ConfigureStub
+);
 
-  protected methodTrap(
-    methodStructure: TS_Method | null,
-    isBefore: boolean,
-  ) : void
-  {
-    if (!isBefore)
-      return;
-
-    if (!methodStructure) {
-      addPublicTypeImport(this, "VoidMethodsOnly.mjs", "VoidMethodsOnly");
-      return;
-    }
-
-    methodStructure.returnType = "void";
-  }
-
-  protected buildMethodBody(
-    methodStructure: TS_Method
-  ): void
-  {
-    methodStructure.parameters?.forEach(
-      param => this.classWriter.writeLine(`void(${param.name});`)
-    );
-  }
-}
+export default VoidClassStub;
