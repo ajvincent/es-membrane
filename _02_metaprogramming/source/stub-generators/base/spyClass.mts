@@ -1,69 +1,18 @@
-import {
-  type ModuleSourceDirectory,
-  pathToModule
-} from "../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+import MultiMixinBuilder from "../../../../_01_stage_utilities/source/MultiMixinBuilder.mjs";
 
-import addPublicTypeImport from "./addPublicTypeImport.mjs";
+import ConfigureStub from "./baseStub.mjs";
 
-import BaseStub, {
-  type ExtendsAndImplements
-} from "./baseStub.mjs";
+import SpyClassDecorator, {
+  type SpyClassFields
+} from "./decorators/spyClass.mjs";
 
-import type {
-  TS_Method
-} from "./private-types.mjs";
+import VoidClassDecorator, {
+  type VoidClassFields
+} from "./decorators/voidClass.mjs";
 
-const projectDir: ModuleSourceDirectory = {
-  importMeta: import.meta,
-  pathToDirectory: "../../../../.."
-};
-const SpyBasePath = pathToModule(
-  projectDir, "_01_stage_utilities/source/SpyBase.mjs"
+const SpyClassStub = MultiMixinBuilder<[SpyClassFields, VoidClassFields], typeof ConfigureStub>
+(
+  [SpyClassDecorator, VoidClassDecorator], ConfigureStub
 );
 
-export default
-class SpyClassStub extends BaseStub
-{
-  protected getExtendsAndImplements(): ExtendsAndImplements
-  {
-    return {
-      extends: [],
-      implements: [`VoidMethodsOnly<${this.interfaceOrAliasName}>`],
-    };
-  }
-
-  protected methodTrap(
-    methodStructure: TS_Method | null,
-    isBefore: boolean,
-  ) : void
-  {
-    if (!isBefore)
-      return;
-
-    if (!methodStructure) {
-      this.addImport(SpyBasePath, "SpyBase", true);
-
-      addPublicTypeImport(this, "VoidMethodsOnly.mjs", "VoidMethodsOnly");
-
-      this.classWriter.writeLine(
-        `readonly #spyClass = new SpyBase;`
-      );
-      this.classWriter.newLine();
-      return;
-    }
-
-    methodStructure.returnType = "void";
-  }
-
-  protected buildMethodBody(
-    structure: TS_Method
-  ): void
-  {
-    const paramsStr = structure.parameters?.map(
-      param  => param.name
-    ).join(", ") ?? "";
-    this.classWriter.writeLine(
-      `this.#spyClass.getSpy("${structure.name}")(${paramsStr});`
-    );
-  }
-}
+export default SpyClassStub;
