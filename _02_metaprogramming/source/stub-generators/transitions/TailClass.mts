@@ -6,7 +6,7 @@ import BaseStub, {
   type ExtendsAndImplements,
 } from "../base/baseStub.mjs";
 
-import addPublicTypeImport from "../base/addPublicTypeImport.mjs";
+import addPublicTypeImport from "../base/utilities/addPublicTypeImport.mjs";
 
 import {
   isNotDefined,
@@ -15,7 +15,7 @@ import {
   type MaybeDefined,
 } from "../../../../_01_stage_utilities/source/maybeDefined.mjs";
 
-import extractType from "../base/extractType.mjs";
+import extractType from "../base/utilities/extractType.mjs";
 
 import type {
   TS_Method,

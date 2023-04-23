@@ -17,7 +17,7 @@ import {
   type MaybeDefined,
 } from "../../../../_01_stage_utilities/source/maybeDefined.mjs";
 
-import addPublicTypeImport from "../base/addPublicTypeImport.mjs";
+import addPublicTypeImport from "../base/utilities/addPublicTypeImport.mjs";
 
 import BaseStub, {
   type ExtendsAndImplements,
@@ -26,7 +26,7 @@ import BaseStub, {
 
 import extractType, {
   writerOptions
-} from "../base/extractType.mjs";
+} from "../base/utilities/extractType.mjs";
 
 import type {
   TS_Method,

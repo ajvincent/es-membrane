@@ -20,7 +20,7 @@ import type {
   TS_Method
 } from "../types/private-types.mjs";
 
-import addPublicTypeImport from "../addPublicTypeImport.mjs";
+import addPublicTypeImport from "../utilities/addPublicTypeImport.mjs";
 
 // #endregion preamble
 

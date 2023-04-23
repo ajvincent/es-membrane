@@ -23,7 +23,7 @@ import MixinBase from "../../../../_01_stage_utilities/source/MixinBase.mjs";
 
 import extractType, {
   writerOptions
-} from "./extractType.mjs";
+} from "./utilities/extractType.mjs";
 
 import type {
   TS_Method,

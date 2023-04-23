@@ -1,13 +1,13 @@
 import {
   type ModuleSourceDirectory,
   pathToModule
-} from "../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "../../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 
-import BaseStub from "./baseStub.mjs";
+import BaseStub from "../baseStub.mjs";
 
 const aspectTypesSource: ModuleSourceDirectory = {
   importMeta: import.meta,
-  pathToDirectory: "../../../aspects/types"
+  pathToDirectory: "../../../../aspects/types"
 };
 
 export default function addPublicTypeImport(
