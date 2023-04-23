@@ -24,7 +24,7 @@ import type {
 
 import type {
   ParamRenamer,
-} from "./paramRenamer.mjs";
+} from "./types/paramRenamer.mjs";
 
 export default class TransitionsTailStub extends BaseStub
 {

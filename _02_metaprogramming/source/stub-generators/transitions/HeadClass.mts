@@ -35,7 +35,7 @@ import type {
 
 import type {
   ParamRenamer,
-} from "./paramRenamer.mjs";
+} from "./types/paramRenamer.mjs";
 
 // #endregion preamble
 
