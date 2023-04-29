@@ -6,10 +6,12 @@ import getTS_SourceFile from "../../_01_stage_utilities/source/getTS_SourceFile.
 import ConfigureStub from "../source/stub-generators/base/baseStub.mjs";
 
 import StubMap from "../source/stub-generators/exports.mjs";
-import TransitionsEntryStub, {
+
+import {
   type MiddleParamBuilder as TransitionsEntryMidBuilder,
   type TailParamBuilder as TransitionsEntryTailBuilder,
-} from "../source/stub-generators/transitions/HeadClass.mjs";
+} from "../source/stub-generators/transitions/decorators/headCall.mjs";
+
 
 const stageDir: ModuleSourceDirectory = {
   importMeta: import.meta,
@@ -213,7 +215,7 @@ async function build_NST_Transition_Head() : Promise<void>
   );
 
   const midBuilder: TransitionsEntryMidBuilder = function(
-    this: TransitionsEntryStub, methodStructure, structure,
+    this: ConfigureStub, methodStructure, structure,
   ) : void
   {
     void(methodStructure);
@@ -232,7 +234,7 @@ async function build_NST_Transition_Head() : Promise<void>
   };
 
   const tailBuilder: TransitionsEntryTailBuilder = function(
-    this: TransitionsEntryStub, methodStructure, structure, newParameterName,
+    this: ConfigureStub, methodStructure, structure, newParameterName,
   )
   {
     void(methodStructure);
