@@ -3,9 +3,9 @@ import {
   pathToModule
 } from "../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 import getTS_SourceFile from "../../_01_stage_utilities/source/getTS_SourceFile.mjs";
+import ConfigureStub from "../source/stub-generators/base/baseStub.mjs";
 
 import StubMap from "../source/stub-generators/exports.mjs";
-import TransitionsStub from "../source/stub-generators/transitions/baseStub.mjs";
 import TransitionsEntryStub, {
   type MiddleParamBuilder as TransitionsEntryMidBuilder,
   type TailParamBuilder as TransitionsEntryTailBuilder,
@@ -182,20 +182,20 @@ async function build_NST_Transition() : Promise<void>
     (name) => name + "_tail",
   );
 
-  classWriter.addImport(
-    pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
-    "type NumberStringType",
-    false
-  );
-
   classWriter.defineBuildMethodBody(
-    function (this: TransitionsStub, structure): void {
+    function (this: ConfigureStub, structure): void {
       structure.parameters?.forEach(
         param => this.classWriter.writeLine(`void(${param.name});`)
       );
 
       this.classWriter.writeLine(`return s_tail.repeat(n_tail);`)
     }
+  );
+
+  classWriter.addImport(
+    pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
+    "type NumberStringType",
+    false
   );
 
   classWriter.buildClass();
