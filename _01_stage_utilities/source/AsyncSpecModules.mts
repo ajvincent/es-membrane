@@ -9,7 +9,7 @@ export type ModuleSourceDirectory = {
   importMeta: ImportMeta;
   pathToDirectory: string;
 };
- 
+
 /**
  * @typeParam U - the type of the class's return value.
  * @param source - the source metadata.

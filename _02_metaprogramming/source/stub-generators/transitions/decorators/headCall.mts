@@ -44,15 +44,18 @@ import addPublicTypeImport from "../../base/utilities/addPublicTypeImport.mjs";
 import type {
   ParamRenamer
 } from "../types/paramRenamer.mjs";
+import ConfigureStub from "../../base/baseStub.mjs";
 
 // #endregion preamble
 
 export type MiddleParamBuilder = (
+  this: ConfigureStub,
   methodStructure: ReadonlyDeep<TS_Method>,
   structure: ReadonlyDeep<TS_Parameter>,
 ) => void;
 
-export type TailParamBuilder =(
+export type TailParamBuilder = (
+  this: ConfigureStub,
   methodStructure: ReadonlyDeep<TS_Method>,
   structure: ReadonlyDeep<TS_Parameter>,
   newParameterName: string,
@@ -201,7 +204,8 @@ const TransitionsHeadCallDecorator: ConfigureStubDecorator<HeadCallFields> = fun
     }
 
     protected buildMethodBody(
-      methodStructure: TS_Method
+      methodStructure: TS_Method,
+      remainingArgs: Set<TS_Parameter>,
     ) : void
     {
       const {
@@ -240,6 +244,8 @@ const TransitionsHeadCallDecorator: ConfigureStubDecorator<HeadCallFields> = fun
           ].join(", "))
         }
       );
+
+      remainingArgs.clear();
     }
   }
 }

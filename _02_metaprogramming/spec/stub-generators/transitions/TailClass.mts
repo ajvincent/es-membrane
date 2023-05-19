@@ -21,7 +21,7 @@ it("stub-ts-morph: transitions tail stub correctly forwards to the next handler"
   const NST_Transitions_Tail = await getModuleDefaultClassWithArgs<
     [NumberStringType], TransitionInterface<NumberStringType, [boolean, () => Promise<void>]>
   >(
-    generatedDir, "components/transition/NST_Tail.mjs"
+    generatedDir, "components/TransitionsTail.mjs"
   );
 
   expect(Reflect.ownKeys(NST_Transitions_Tail.prototype)).toEqual([

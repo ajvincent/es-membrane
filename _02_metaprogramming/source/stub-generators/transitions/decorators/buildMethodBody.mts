@@ -21,7 +21,7 @@ import type {
 } from "../../base/types/ConfigureStubDecorator.mjs"
 
 import type {
-  TS_Method,
+  TS_Method, TS_Parameter,
 } from "../../base/types/private-types.mjs";
 
 // #endregion preamble
@@ -32,6 +32,7 @@ export type BuildMethodBodyFields = RightExtendsLeft<StaticAndInstance, {
     defineBuildMethodBody(
       builder: (
         methodStructure: TS_Method,
+        remainingArgs: Set<TS_Parameter>,
       ) => void
     ) : void;
   }
@@ -51,12 +52,13 @@ const BuildMethodBodyDecorator: ConfigureStubDecorator<BuildMethodBodyFields> = 
     }
 
     #buildMethodBody: MaybeDefined<
-      (methodStructure: TS_Method) => void
+      (methodStructure: TS_Method, remainingArgs: Set<TS_Parameter>) => void
     > = NOT_DEFINED;
 
     defineBuildMethodBody(
       builder: (
         methodStructure: TS_Method,
+        remainingArgs: Set<TS_Parameter>,
       ) => void
     ) : void {
       this.requiredInitializers.mayResolve(TransitionsBase.#INIT_BUILD_METHOD_KEY);
@@ -69,10 +71,11 @@ const BuildMethodBodyDecorator: ConfigureStubDecorator<BuildMethodBodyFields> = 
 
     protected buildMethodBody(
       methodStructure: TS_Method,
+      remainingArgs: Set<TS_Parameter>,
     ): void
     {
       const builder = assertDefined(this.#buildMethodBody);
-      return builder.apply(this, [methodStructure]);
+      return builder.apply(this, [methodStructure, remainingArgs]);
     }
   }
 }
