@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
   ClassDecoratorFunction
-} from "./ClassDecoratorTypes.mjs";
+} from "./ClassDecoratorFunction.mjs";
 
 import type {
   MixinClass

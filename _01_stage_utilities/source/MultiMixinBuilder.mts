@@ -1,12 +1,4 @@
-import type {
-  TupleToUnion,
-  UnionToIntersection,
-  Simplify,
-} from "type-fest";
-
-import type {
-  MixinClass
-} from "./types/MixinClass.mjs";
+// #region preamble
 
 import type {
   StaticAndInstance
@@ -17,35 +9,15 @@ import MixinBase from "./MixinBase.mjs";
 import type {
   SubclassDecoratorSequence,
 } from "./types/SubclassDecorator.mjs";
-import { ClassDecoratorFunction } from "./types/ClassDecoratorTypes.mjs";
+import type {
+  ClassDecoratorFunction
+} from "./types/ClassDecoratorFunction.mjs";
 
-/**
- * Build an intersection of either the static interfaces or the instance interfaces from a sequence.
- *
- * @typeParam Interfaces - the sequence of static and instance interfaces.
- * @typeParam Field - the field to extract.
- */
-type ExtractFields<
-  Interfaces extends ReadonlyArray<StaticAndInstance>,
-  Field extends keyof StaticAndInstance
-> = Simplify<UnionToIntersection<TupleToUnion<
-  { [key in keyof Interfaces]: Interfaces[key][Field] }
->>>;
+import type {
+  MultiMixinClass
+} from "./types/MultiMixinClass.mjs";
 
-/**
- * Build an intersection type of a sequence of static and instance interfaces, and the MixinBase class.
- *
- * @typeParam Interfaces - the sequence of static and instance interfaces.
- * @internal - this depends on MixinBase, which is internal to es-membrane.
- */
-type MultiMixinClass<
-  Interfaces extends ReadonlyArray<StaticAndInstance>,
-  Base extends typeof MixinBase,
-> = MixinClass<
-  ExtractFields<Interfaces, "staticFields">,
-  ExtractFields<Interfaces, "instanceFields">,
-  Base
->;
+// #endregion preamble
 
 /**
  * Apply decorators to build the mixin class.

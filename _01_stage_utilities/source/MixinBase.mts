@@ -1,6 +1,5 @@
 import RequiredInitializers from "./RequiredInitializers.mjs";
 
-
 /**
  * @remarks
  * You may be wondering, "why do we need a mixin base class which does nothing?"
