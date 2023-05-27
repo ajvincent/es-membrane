@@ -9,7 +9,7 @@ import type {
 } from "./MethodReturnRewrite.mjs";
 import type {
   TransitionInterface
-} from "./TransitionInterface.mjs";
+} from "../../transitions/types/TransitionInterface.mjs";
 import type {
   VoidMethodsOnly
 } from "./VoidMethodsOnly.mjs";

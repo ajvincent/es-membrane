@@ -20,7 +20,7 @@ import type {
   TS_Method
 } from "../types/private-types.mjs";
 
-import addPublicTypeImport from "../utilities/addPublicTypeImport.mjs";
+import addBaseTypeImport from "../utilities/addBaseTypeImport.mjs";
 import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 
 // #endregion preamble
@@ -77,7 +77,7 @@ const NotImplementedDecorator: ConfigureStubDecorator<NotImplementedFields> = fu
         return;
 
       if (!methodStructure) {
-        addPublicTypeImport(
+        addBaseTypeImport(
           this, "NotImplementedOnly.mjs", "NotImplementedOnly"
         );
         return;

@@ -20,7 +20,7 @@ import type {
   TS_Method
 } from "../types/private-types.mjs";
 
-import addPublicTypeImport from "../utilities/addPublicTypeImport.mjs";
+import addBaseTypeImport from "../utilities/addBaseTypeImport.mjs";
 import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 
 // #endregion preamble
@@ -55,7 +55,7 @@ const VoidClassDecorator: ConfigureStubDecorator<VoidClassFields> = function(
         return;
 
       if (!methodStructure) {
-        addPublicTypeImport(this, "VoidMethodsOnly.mjs", "VoidMethodsOnly");
+        addBaseTypeImport(this, "VoidMethodsOnly.mjs", "VoidMethodsOnly");
         return;
       }
 

@@ -20,7 +20,7 @@ import type {
   TS_Method
 } from "../types/private-types.mjs";
 
-import addPublicTypeImport from "../utilities/addPublicTypeImport.mjs";
+import addBaseTypeImport from "../utilities/addBaseTypeImport.mjs";
 
 // #endregion preamble
 
@@ -55,7 +55,7 @@ const PrependReturnDecorator: ConfigureStubDecorator<PrependReturnFields> = func
         return;
 
       if (!methodStructure) {
-        addPublicTypeImport(
+        addBaseTypeImport(
           this, "MethodsPrependReturn.mjs", "MethodsPrependReturn"
         );
         return;

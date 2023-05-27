@@ -7,7 +7,7 @@ import {
 } from "../../types/NumberStringType.mjs";
 import {
   type VoidMethodsOnly,
-} from "../../../source/aspects/types/VoidMethodsOnly.mjs";
+} from "../../../source/stub-generators/base/types/VoidMethodsOnly.mjs";
 
 // #endregion preamble
 

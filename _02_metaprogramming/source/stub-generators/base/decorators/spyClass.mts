@@ -21,7 +21,7 @@ import type {
   TS_Method
 } from "../types/private-types.mjs";
 
-import addPublicTypeImport from "../utilities/addPublicTypeImport.mjs";
+import addBaseTypeImport from "../utilities/addBaseTypeImport.mjs";
 import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 
 // #endregion preamble
@@ -58,7 +58,7 @@ const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields> = function(
       if (!methodStructure) {
         this.addImport(SpyBasePath, "SpyBase", true);
 
-        addPublicTypeImport(this, "VoidMethodsOnly.mjs", "VoidMethodsOnly");
+        addBaseTypeImport(this, "VoidMethodsOnly.mjs", "VoidMethodsOnly");
 
         this.classWriter.writeLine(
           `readonly #spyClass = new SpyBase;`

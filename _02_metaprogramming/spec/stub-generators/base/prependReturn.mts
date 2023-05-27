@@ -5,7 +5,7 @@ import {
 
 import type {
   MethodsPrependReturn,
-} from "../../../source/aspects/types/export-types.mjs";
+} from "../../../source/stub-generators/base/types/export-types.mjs";
 
 import type {
   NumberStringType

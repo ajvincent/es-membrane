@@ -35,7 +35,7 @@ import type {
   TS_Parameter,
 } from "../../base/types/private-types.mjs";
 
-import addPublicTypeImport from "../../base/utilities/addPublicTypeImport.mjs";
+import addTransitionTypeImport from "../utilities/addTransitionTypeImport.mjs";
 
 import type {
   ParamRenamer
@@ -117,7 +117,7 @@ const DefineExtraParamsShortDecorator: ConfigureStubDecorator<DefineExtraParamsS
         return;
 
       if (!methodStructure) {
-        addPublicTypeImport(
+        addTransitionTypeImport(
           this, "TransitionInterface.mjs", "TransitionInterface"
         );
       }

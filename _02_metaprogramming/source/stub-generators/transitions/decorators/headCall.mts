@@ -39,7 +39,7 @@ import type {
   TS_Parameter,
 } from "../../base/types/private-types.mjs";
 
-import addPublicTypeImport from "../../base/utilities/addPublicTypeImport.mjs";
+import addTransitionTypeImport from "../utilities/addTransitionTypeImport.mjs";
 
 import type {
   ParamRenamer
@@ -141,7 +141,7 @@ const TransitionsHeadCallDecorator: ConfigureStubDecorator<HeadCallFields> = fun
 
       const extraParams = assertDefined(this.#extraParams);
 
-      addPublicTypeImport(
+      addTransitionTypeImport(
         this, "TransitionInterface.mjs", "TransitionInterface"
       );
   
