@@ -56,7 +56,7 @@ export default class ConfigureStub extends MixinBase
    *
    * @see {@link https://github.com/dsherret/code-block-writer/issues/44}
    */
-  static pairedWrite(
+  protected static pairedWrite(
     this: void,
     writer: CodeBlockWriter,
     startToken: string,
