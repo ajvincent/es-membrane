@@ -1,98 +1,64 @@
-# Metaprogramming
+# Stub class generation (or "metaprogramming, part 2")
 
-I'm still figuring this out.
+To support the [aspect weaving](../_03_aspect_weaving/README.md) infrastructure for this project, I need to take an existing interface, containing only concrete methods, and modify it:
 
-Membranes can be complicated beasts, with many moving parts in each of the thirteen proxy traps.  Unit-testing then becomes impossible, unless:
+- Sometimes I'll change the return type.
+- Sometimes I'll insert extra arguments at the beginning of each method.  
+- I will also want "transition types", with methods having arguments of this form:
+  1. The original arguments.
+  2. Inserted "middle" arguments, such as a modified "this" argument.
+  3. Copies of the original argument _types_, to later call through the original API.
 
-1. I create smaller components which do one thing well
-1. I weave them together at run-time
-1. I figure out some way to generate integrated classes from them.
+I admit the motivation for transition types isn't clear here.  Think of these as mapping the original arguments of a function, including `this`, to a matching API on a different object.  In the `Proxy` trap-handler case, it's mapping from one object graph (where `this` is a `ProxyHandler`) to another (where `this` is most likely `Reflect`, or occasionally another `ProxyHandler`).  The target object graph may need to be an argument in the transition type.  The remapped trap arguments definitely need to be arguments in the transition type, after the source graph trap's arguments.
 
-This isn't easy.  I tried building [cross-stitch](https://github.com/ajvincent/cross-stitch) to solve this problem, but it turned out to be _far_ more expensive, time-wise and complexity-wise, than I can afford.
+I'm pretty sure this will be very handy later on.
 
-Thanks to the arrival of [ECMAScript decorators](https://github.com/tc39/proposal-decorators) in [TypeScript 5.0](https://devblogs.microsoft.com/typescript/announcing-typescript-5-0/), I can establish a code model for [aspect-oriented programming](https://en.wikipedia.org/wiki/Aspect-oriented_programming).  With tools such as [ts-morph](https://ts-morph.com), I can use the source code to replace the decorators with code they reference.
+TypeScript supports [creating types from existing types](https://www.typescriptlang.org/docs/handbook/2/types-from-types.html), so that's no problem.  That said, I also expect to need _stub classes_ implementing these derived types.  That's a _huge_ problem.
 
-Ideally, I'd produce code using a small set of decorators:
+This subproject exists to solve the stub classes problem, at least for the es-membrane project.
 
-- `@classInvariants(keys: ReadonlyArray<string>)`, for invariants which must hold before and after public API access
-- `@preconditions(keys: ReadonlyArray<string>)`, for debug-only precondition components
-- `@postconditions(keys: ReadonlyArray<string>)`, for debug-only postcondition components
-- `@checkArguments(keys: ReadonlyArray<string>)`, for argument validation beyond syntax checking
-- `@checkReturn(keys: ReadonlyArray<string>)`, for ensuring the return value is correct
-- `@bodySequence(keys: ReadonlyArray<string>)`, for function body blocks in sequence (including debug assertions)
-  - the base class should be all "not implemented" traps.
+## Leveraging [ts-morph](https://ts-morph.com) and [code-block-writer](https://github.com/dsherret/code-block-writer)
 
-### Internal details
+I use ts-morph as input, providing an existing TypeScript [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree) from an existing type.  (In my tests, I use an example, [NumberStringType](./fixtures/types/NumberStringType.d.mts)).  For output, I use several instances of code-block-writer to nicely format the source code I generate.
 
-1. Types will require rewriting [the basic ShadowProxyHandler type](../_03_shadowproxyhandler/source/ShadowProxyHandler.mts):
-   1. Converting the return type to `void` for all but the body sequence aspects
-   2. Modifying the return type for "body sequence" to allow a `CONTINUE` "on to the next component" symbol.
-   3. Including a symbol-keyed static property for the type of rewriting we're doing.
-   4. Supporting the `SELF` symbol in the body sequence.
-   5. Core code should provide wrappers for invoking type-modified components.
-2. I have to write tools to generate the run-time weaving code.
-   1. This will require some "aspect map", to store the aspects we must run and in what order.
-   2. Each trap needs its own implementation, as TypeScript fights back on using a shared method and `Function.prototype.apply`.
-   3. Component classes must be in a direct subdirectory named "components".
-   4. An additional ESLint rule for "no return" in a non-body component.
-   5. Two classes deriving from the "not-implemented" base class: one for debug, one for optimized.
-   6. Void-return base class for components to inherit from.
-   7. Reuse the "body sequence" type (allowing returning the `CONTINUE` value) on the "not-implemented" base class.
-3. Decorators need to do some sanity checks:
-   1. Does the component class match the claimed type?
-   2. Are we modifying the aspect map, or wrapping the original class multiple times?
+In the middle is [ConfigureStub](./source/base/baseStub.mts).  It provides a very simple API:
 
-### Approach: 2023-04-05
+1. `configureStub` defines fundamental settings, like a constructor.
+2. `addImport` defines module imports.
+3. `buildClass()` invokes several protected methods to construct the exported class's source.
+4. `write()` commits the final file to the file system.
 
-A better approach might be to break this up into smaller pieces.
+Users of this class must subclass it.  There are several protected fields for subclasses to use:
 
-I have to weld a standard `ProxyHandler` ("outer"), a transition interface like `ShadowProxyHandler` ("middle") and a standard `ProxyHandler` ("inner") together in such a way that code runs in the following order:
+- `static pairedWrite()`, a helper for `CodeBlockWriter` instances.
+- `classWriter` for directly writing class source code, if necessary.
+- `getExtendsAndImplements()`, for the `extends` and `implements` clauses.
+- `methodTrap()`, for modifying method arguments and return types, or inserting code into a class between methods
+- `buildMethodBody()`, for filling the body of a method
+- `voidArguments()`, for writing `void(foo);` statements
+- `writeBeforeClass()`, to provide code before the class but after the module imports
+- `writeAfterClass()`, to provide code after the class (example: `Object.seal(MyClass.prototype);`)
 
-1. Outer entry condition for a method
-2. Transition entry condition for the method
-3. Inner method
-4. Transition exit condition for the method with a prepended return value argument
-5. Outer exit condition for the method, with a prepended return value argument
+## Using decorators for ordered [method overrides](https://www.typescriptlang.org/docs/handbook/2/classes.html#overriding-methods)
 
-The transition methods have argument types which follow this pattern: [...original argument types, ...middle argument types, ...original argument types].
+As I establish in the [previous stage](../_01_stage_utilities/README.md), I can use decorators to create mixin classes.  Each decorator has a specific task for creating a stub class.  At the base functionality level:
 
-Outer, transition and inner are _composites_ of aspect-oriented types: the aspect decorators, etc. work on the same type.  For proxy handling, the innermost of the "outer" components should be a `ShadowHeadHandler` to convert into the outermost "transition" component.  Likewise, the innermost of the "transition" components should be a `TailHandler` to convert into the outermost "inner" component.
+- [voidClass](./source/base/decorators/voidClass.mts) calls `voidArguments()` for remaining arguments, and converts the return type of each method to `void`.
+- [prependReturn](./source/base/decorators/prependReturn.mts) inserts an argument at the start of each method's argument list, matching the return type.
+- [notImplemented](./source//base/decorators/notImplemented.mts) gives you a class where every method throws a `"Not implemented yet!"` exception.
+- [spyClass](./source/base/decorators/spyClass.mts) provides API's for accessing Jasmine spies.
 
-Then, for each of the composites, I can define `@nestedClass(beforeComponent | null, afterComponent | null, debug: boolean)`.
+For the "transition types" I mentioned at the start of this article, I have four special-purpose subclass decorators:
 
-Pseudo-code:
+- [defineExtraParamsShort](./source/transitions/decorators/defineExtraParamsShort.mts) manages the insertion of extra middle and "copy-to-tail" parameters into each method.
+- [buildMethodBody](./source/transitions/decorators/buildMethodBody.mts) delegates filling out the body of a method to the user.  (Basically, exposing the protected `buildMethodBody()` method to the user via a callback.)
+- [headCall](./source/transitions/decorators/headCall.mts) defines a class to convert from a non-transition class to a transition class.
+- [tailCall](./source/transitions/decorators/tailCall.mts) defines a class to invoke a non-transition class's traps with the remapped arguments of the transition type.
 
-```typescript
-type BaseMethod<Arguments extends any[], Result extends any> = (...args: Arguments) => Result;
+I can fine-tune the stub class generation by specifying the ordering of decorators.  Each decorator will create a subclass which could call base class methods for `methodTrap()` and `buildMethodBody()`.
 
-type TransitionMethod<
-  BaseArguments extends any[],
-  MiddleArguments extends any[],
-  Result
-> = (...args: [...BaseArguments, ...MiddleArguments, ...BaseArguments]) => Result;
+## Building a consistent set of stub classes
 
-type TransitionInterface<Interface extends object, MiddleArguments extends any[]> = {
-  [key in keyof Interface]:
-    Interface[key] extends BaseMethod<any[], any> ?
-    TransitionMethod<Parameters<Interface[key]>, MiddleArguments, ReturnType<Interface[key]>> :
-    Interface[key]
-};
-```
+The [full-set.mts](./source/full-set.mts) module takes all the mixin classes and invokes them with common arguments.  This means one module drives the creation of several stub classes, from a common base type, and where each class fulfills an unique support role.  Most of the stub classes will be base classes.
 
-Ultimately, this will mean a file structure like this:
-
-- source
-  - types
-    - NumberStringType.mts
-  - generated
-    - (stub classes)
-  - components
-    - outer
-      - decorated.mts
-    - transition
-      - decorated.mts
-    - inner
-      - decorated.mts
-    - stitch.mts
-- source-build
-  - support.mts
+You can find the mixin definitions in [source/base](source/base) and [source/transitions](source/transitions).

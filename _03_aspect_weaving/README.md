@@ -22,9 +22,9 @@ Ideally, I'd produce code using a small set of decorators:
 - `@bodySequence(keys: ReadonlyArray<string>)`, for function body blocks in sequence (including debug assertions)
   - the base class should be all "not implemented" traps.
 
-### Internal details
+## Internal details
 
-1. Types will require rewriting [the basic ShadowProxyHandler type](../_03_shadowproxyhandler/source/ShadowProxyHandler.mts):
+1. Types will require rewriting [the basic ShadowProxyHandler type](../_04_shadowproxyhandler/source/ShadowProxyHandler.mts):
    1. Converting the return type to `void` for all but the body sequence aspects
    2. Modifying the return type for "body sequence" to allow a `CONTINUE` "on to the next component" symbol.
    3. Including a symbol-keyed static property for the type of rewriting we're doing.
