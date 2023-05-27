@@ -7,7 +7,7 @@ import ConfigureStub from "../source/stub-generators/base/baseStub.mjs";
 
 import StubClassSet, {
   type StubClassSetConfiguration
-} from "../source/stub-generators/full-set.mjs";
+} from "../source/full-set.mjs";
 
 const stageDir: ModuleSourceDirectory = {
   importMeta: import.meta,
