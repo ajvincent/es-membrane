@@ -1,16 +1,16 @@
 import {
   type ModuleSourceDirectory,
   getModuleDefaultClass,
-} from "../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
   NumberStringType
-} from "../../../fixtures/types/NumberStringType.mjs";
+} from "../../fixtures/types/NumberStringType.mjs";
 
 describe("stub-ts-morph: notImplemented", () => {
   const generatedDir: ModuleSourceDirectory = {
     importMeta: import.meta,
-    pathToDirectory: "../../../../spec-generated/"
+    pathToDirectory: "../../../spec-generated/"
   };
 
   it("with default return types throws for all methods", async () => {

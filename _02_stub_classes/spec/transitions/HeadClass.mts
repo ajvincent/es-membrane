@@ -2,20 +2,20 @@ import {
   type ModuleSourceDirectory,
   getModuleDefaultClass,
   getModuleDefaultClassWithArgs,
-} from "../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
   TransitionInterface,
-} from "../../../source/stub-generators/base/types/export-types.mjs";
+} from "../../source/stub-generators/base/types/export-types.mjs";
 
 import type {
   NumberStringType
-} from "../../../fixtures/types/NumberStringType.mjs";
+} from "../../fixtures/types/NumberStringType.mjs";
 
 it("stub-ts-morph: transition entry stub correctly inserts new arguments", async () => {
   const generatedDir: ModuleSourceDirectory = {
     importMeta: import.meta,
-    pathToDirectory: "../../../../spec-generated/"
+    pathToDirectory: "../../../spec-generated/"
   };
 
   type NST_TransitionsInterface = TransitionInterface<NumberStringType, [boolean, () => Promise<void>]>;

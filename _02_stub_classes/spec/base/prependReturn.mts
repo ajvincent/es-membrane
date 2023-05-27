@@ -1,20 +1,20 @@
 import {
   type ModuleSourceDirectory,
   getModuleDefaultClass,
-} from "../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
   MethodsPrependReturn,
-} from "../../../source/stub-generators/base/types/export-types.mjs";
+} from "../../source/stub-generators/base/types/export-types.mjs";
 
 import type {
   NumberStringType
-} from "../../../fixtures/types/NumberStringType.mjs";
+} from "../../fixtures/types/NumberStringType.mjs";
 
 it("stub-ts-morph: PrependReturnClass with prepended return arguments returns undefined", async () => {
   const generatedDir: ModuleSourceDirectory = {
     importMeta: import.meta,
-    pathToDirectory: "../../../../spec-generated/"
+    pathToDirectory: "../../../spec-generated/"
   };
 
   const NST_PrependReturn = await getModuleDefaultClass<

@@ -1,21 +1,21 @@
 import {
   type ModuleSourceDirectory,
   getModuleDefaultClassWithArgs,
-} from "../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
   TransitionInterface,
-} from "../../../source/stub-generators/base/types/export-types.mjs";
+} from "../../source/stub-generators/base/types/export-types.mjs";
 
 import type {
   NumberStringType
-} from "../../../fixtures/types/NumberStringType.mjs";
-import NumberStringClass from "../../../fixtures/components/shared/NumberStringClass.mjs";
+} from "../../fixtures/types/NumberStringType.mjs";
+import NumberStringClass from "../../fixtures/components/shared/NumberStringClass.mjs";
 
 it("stub-ts-morph: transitions tail stub correctly forwards to the next handler", async () => {
   const generatedDir: ModuleSourceDirectory = {
     importMeta: import.meta,
-    pathToDirectory: "../../../../spec-generated/"
+    pathToDirectory: "../../../spec-generated/"
   };
 
   const NST_Transitions_Tail = await getModuleDefaultClassWithArgs<
