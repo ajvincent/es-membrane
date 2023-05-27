@@ -2,16 +2,16 @@
 
 import type {
   RightExtendsLeft
-} from "../../../../../_01_stage_utilities/source/types/Utility.mjs";
+} from "../../../../_01_stage_utilities/source/types/Utility.mjs";
 
 import type {
   StaticAndInstance
-} from "../../../../../_01_stage_utilities/source/types/StaticAndInstance.mjs";
+} from "../../../../_01_stage_utilities/source/types/StaticAndInstance.mjs";
 
 import {
   type ModuleSourceDirectory,
   pathToModule
-} from "../../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
   ConfigureStubDecorator
@@ -28,7 +28,7 @@ import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 
 const projectDir: ModuleSourceDirectory = {
   importMeta: import.meta,
-  pathToDirectory: "../../../../../.."
+  pathToDirectory: "../../../../.."
 };
 const SpyBasePath = pathToModule(
   projectDir, "_01_stage_utilities/source/SpyBase.mjs"

@@ -2,11 +2,11 @@
 
 import type {
   RightExtendsLeft
-} from "../../../../../_01_stage_utilities/source/types/Utility.mjs";
+} from "../../../../_01_stage_utilities/source/types/Utility.mjs";
 
 import type {
   StaticAndInstance
-} from "../../../../../_01_stage_utilities/source/types/StaticAndInstance.mjs";
+} from "../../../../_01_stage_utilities/source/types/StaticAndInstance.mjs";
 
 import {
   markDefined,
@@ -14,7 +14,7 @@ import {
   type MaybeDefined,
   assertDefined,
   assertNotDefined,
-} from "../../../../../_01_stage_utilities/source/maybeDefined.mjs";
+} from "../../../../_01_stage_utilities/source/maybeDefined.mjs";
 
 import type {
   ConfigureStubDecorator

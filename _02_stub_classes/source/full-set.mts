@@ -3,20 +3,20 @@ import path from "path";
 import { SourceFile } from "ts-morph";
 
 import { SingletonPromise, PromiseAllParallel } from "../../_01_stage_utilities/source/PromiseTypes.mjs";
-import ConfigureStub from "./stub-generators/base/baseStub.mjs";
+import ConfigureStub from "./base/baseStub.mjs";
 import StubMap from "./exports.mjs";
 
 import type {
   TS_Method,
   TS_Parameter
-} from "./stub-generators/base/types/private-types.mjs";
+} from "./base/types/private-types.mjs";
 import type {
   ParamRenamer
-} from "./stub-generators/transitions/types/paramRenamer.mjs";
+} from "./transitions/types/paramRenamer.mjs";
 import {
   type MiddleParamBuilder as TransitionsEntryMidBuilder,
   type TailParamBuilder as TransitionsEntryTailBuilder,
-} from "./stub-generators/transitions/decorators/headCall.mjs";
+} from "./transitions/decorators/headCall.mjs";
 
 export type StubClassSetConfiguration = Readonly<{
   sourceFile: SourceFile,

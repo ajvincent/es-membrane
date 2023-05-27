@@ -1,5 +1,5 @@
 import type { NumberStringType } from "../../types/NumberStringType.mjs";
-import { TransitionInterface } from "../../../source/stub-generators/transitions/types/TransitionInterface.mjs";
+import { TransitionInterface } from "../../../source/transitions/types/TransitionInterface.mjs";
 
 export default class NumberStringClass_Transitions_Tail
 implements TransitionInterface<NumberStringType, [boolean, () => Promise<void>]>

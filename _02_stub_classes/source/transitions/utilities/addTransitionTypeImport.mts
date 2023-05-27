@@ -1,16 +1,16 @@
 import {
   type ModuleSourceDirectory,
   pathToModule
-} from "../../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
 
-import BaseStub from "../baseStub.mjs";
+import BaseStub from "../../base/baseStub.mjs"
 
 const aspectTypesSource: ModuleSourceDirectory = {
   importMeta: import.meta,
   pathToDirectory: "../../types"
 };
 
-export default function addBaseTypeImport(
+export default function addTransitionTypeImport(
   stubGenerator: BaseStub,
   typeFile: string,
   typeToImport: string

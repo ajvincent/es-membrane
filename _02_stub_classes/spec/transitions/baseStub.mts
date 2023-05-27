@@ -5,7 +5,7 @@ import {
 
 import type {
   TransitionInterface,
-} from "../../source/stub-generators/base/types/export-types.mjs";
+} from "../../source/base/types/export-types.mjs";
 
 import type {
   NumberStringType
