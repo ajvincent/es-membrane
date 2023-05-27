@@ -15,7 +15,7 @@ describe("stub-ts-morph: notImplemented", () => {
 
   it("with default return types throws for all methods", async () => {
     const NST_NotImplemented = await getModuleDefaultClass<NumberStringType>(
-      generatedDir, "components/NotImplemented.mjs"
+      generatedDir, "NotImplemented.mjs"
     );
 
     expect(Reflect.ownKeys(NST_NotImplemented.prototype)).toEqual([

@@ -22,7 +22,7 @@ async function runModule() : Promise<void>
   const config: StubClassSetConfiguration = {
     sourceFile,
     interfaceOrAliasName: "NumberStringType",
-    destinationDir: pathToModule(stageDir, "spec-generated/components"),
+    destinationDir: pathToModule(stageDir, "spec-generated"),
     className: "NumberStringClass",
     pathToTypeFile: pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
     importString: "type NumberStringType",

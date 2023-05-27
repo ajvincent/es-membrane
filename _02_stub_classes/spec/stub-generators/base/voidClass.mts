@@ -18,7 +18,7 @@ it("stub-ts-morph: voidClass with 'void' return types returns undefined", async 
   };
 
   const NST_Void = await getModuleDefaultClass<VoidMethodsOnly<NumberStringType>>(
-    generatedDir, "components/VoidClass.mjs"
+    generatedDir, "VoidClass.mjs"
   );
 
   expect(Reflect.ownKeys(NST_Void.prototype)).toEqual([
