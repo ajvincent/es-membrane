@@ -42,7 +42,7 @@ class DirStage
     this.#dir = path.resolve(dir);
 
     BPSet.get(dir + ":clean").addTask(async () => await this.#clean());
-    BPSet.get(dir + ":build").addTask(async () => await this.#runBuild());
+    BPSet.get(dir + ":build").addTask(async () => await this.#beforeSourceBuild());
     BPSet.get(dir + ":tsc").addTask(async () => await this.#runTSC());
     BPSet.get(dir + ":spec-build").addTask(async () => await this.#specBuild());
     BPSet.get(dir + ":examples-build").addTask(async () => await this.#examplesBuild());
@@ -165,7 +165,7 @@ class DirStage
     );
   }
 
-  async #runBuild() : Promise<void>
+  async #beforeSourceBuild() : Promise<void>
   {
     const buildDir = path.resolve(this.#dir, "build");
     const pathToModule = path.resolve(buildDir, "support.mjs");

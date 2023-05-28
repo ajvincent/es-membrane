@@ -106,7 +106,8 @@ const InvokeTSC = {
 
         "baseUrl": ".",
         "paths": {
-          "#stage_utilities/*": ["./_01_stage_utilities/*"]
+          "#stage_utilities/*": ["./_01_stage_utilities/*"],
+          "#stub_classes/*": ["./_02_stub_classes/*"]
         }
 
         /*

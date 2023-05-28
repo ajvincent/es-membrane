@@ -40,6 +40,7 @@
     "typescript": "^5.0.2"
   },
   "imports": {
-    "#stage_utilities/*": "./_01_stage_utilities/*"
+    "#stage_utilities/*": "./_01_stage_utilities/*",
+    "#stub_classes/*": "./_02_stub_classes/*"
   }
 }
