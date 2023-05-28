@@ -5,9 +5,9 @@ import {
 
 import {
   ModuleSourceDirectory,
-} from "../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "#stage_utilities/source/AsyncSpecModules.mjs";
 
-import getTS_SourceFile from "../../../../_01_stage_utilities/source/getTS_SourceFile.mjs";
+import getTS_SourceFile from "#stage_utilities/source/getTS_SourceFile.mjs";
 
 export default function dumpStructure(
   startDir: ModuleSourceDirectory,

@@ -1,4 +1,4 @@
-import MultiMixinBuilder from "../../../_01_stage_utilities/source/MultiMixinBuilder.mjs";
+import MultiMixinBuilder from "#stage_utilities/source/MultiMixinBuilder.mjs";
 
 import DefineExtraParamsShortDecorator, {
   type DefineExtraParamsShortFields

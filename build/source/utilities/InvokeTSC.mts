@@ -8,11 +8,21 @@ const TSC = path.resolve(projectRoot, "node_modules/typescript/bin/tsc");
 
 type TSCConfig = {
   files?: string[],
-  extends?: string
+  extends?: string,
+  compilerOptions: {
+    lib: ReadonlyArray<string>,
+    module: string,
+    target: string,
+    moduleResolution: string,
+    sourceMap: boolean,
+    declaration: boolean,
+    baseUrl: string,
+    paths: object,
+  }
 };
 
-const InvokeTSC =
-{
+const InvokeTSC = {
+  /** @internal  */
   withConfigurationFile: async function(
     pathToConfig: string,
     pathToStdOut = ""
@@ -64,7 +74,9 @@ const InvokeTSC =
     const config = InvokeTSC.defaultConfiguration();
     modifier(config);
 
-    configLocation = path.resolve(projectRoot, configLocation);
+    configLocation = path.normalize(path.resolve(projectRoot, configLocation));
+    config.compilerOptions.baseUrl = path.relative(path.dirname(configLocation), projectRoot);
+
     await fs.writeFile(
       configLocation,
       JSON.stringify(config, null, 2) + "\n",
@@ -81,7 +93,7 @@ const InvokeTSC =
   },
 
   // eslint-disable-next-line
-  defaultConfiguration: function() : object
+  defaultConfiguration: function() : TSCConfig
   {
     return {
       "compilerOptions": {
@@ -91,6 +103,11 @@ const InvokeTSC =
         "moduleResolution": "node",
         "sourceMap": true,
         "declaration": true,
+
+        "baseUrl": ".",
+        "paths": {
+          "#stage_utilities/*": ["./_01_stage_utilities/*"]
+        }
 
         /*
         "experimentalDecorators": true,

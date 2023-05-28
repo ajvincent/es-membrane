@@ -1,7 +1,7 @@
 import {
   type ModuleSourceDirectory,
   pathToModule
-} from "../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "#stage_utilities/source/AsyncSpecModules.mjs";
 
 import BaseStub from "../baseStub.mjs";
 

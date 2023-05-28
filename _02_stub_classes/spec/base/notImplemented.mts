@@ -1,7 +1,7 @@
 import {
   type ModuleSourceDirectory,
   getModuleDefaultClass,
-} from "../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "#stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
   NumberStringType

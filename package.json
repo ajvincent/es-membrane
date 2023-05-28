@@ -38,5 +38,8 @@
     "ts-morph": "^18.0.0",
     "type-fest": "^3.7.0",
     "typescript": "^5.0.2"
+  },
+  "imports": {
+    "#stage_utilities/*": "./_01_stage_utilities/*"
   }
 }

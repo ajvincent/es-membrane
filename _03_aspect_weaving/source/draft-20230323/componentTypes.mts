@@ -7,11 +7,11 @@ import fs from "fs/promises";
 import {
   type ModuleSourceDirectory,
   getModulePart,
-} from "../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "#stage_utilities/source/AsyncSpecModules.mjs";
 
 import {
   PromiseAllParallel
-} from "../../../_01_stage_utilities/source/PromiseTypes.mjs";
+} from "#stage_utilities/source/PromiseTypes.mjs";
 
 import { ASPECT_TYPE } from "../aspects/shared-symbols.mjs";
 

@@ -5,7 +5,12 @@
     "target": "esnext",
     "moduleResolution": "node",
     "sourceMap": true,
-    "declaration": true
+    "declaration": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "#stage_utilities/*": ["./_01_stage_utilities/*"]
+    }
   },
 
   "exclude": [

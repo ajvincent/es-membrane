@@ -1,8 +1,8 @@
 import {
   type ModuleSourceDirectory,
   pathToModule
-} from "../../_01_stage_utilities/source/AsyncSpecModules.mjs";
-import getTS_SourceFile from "../../_01_stage_utilities/source/getTS_SourceFile.mjs";
+} from "#stage_utilities/source/AsyncSpecModules.mjs";
+import getTS_SourceFile from "#stage_utilities/source/getTS_SourceFile.mjs";
 import ConfigureStub from "../source/base/baseStub.mjs";
 
 import StubClassSet, {

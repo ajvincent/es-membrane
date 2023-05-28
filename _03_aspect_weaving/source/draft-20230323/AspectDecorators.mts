@@ -10,7 +10,7 @@ import type {
 
 import type {
   ModuleSourceDirectory,
-} from "../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "#stage_utilities/source/AsyncSpecModules.mjs";
 
 // #region methods-only types
 

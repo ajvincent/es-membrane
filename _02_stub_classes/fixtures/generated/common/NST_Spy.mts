@@ -1,7 +1,7 @@
 /* This file is generated.  Do not edit. */
 // #region preamble
 
-import SpyBase from "../../../../_01_stage_utilities/source/SpyBase.mjs";
+import SpyBase from "#stage_utilities/source/SpyBase.mjs";
 import {
   type NumberStringType,
 } from "../../types/NumberStringType.mjs";

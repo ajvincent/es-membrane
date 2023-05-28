@@ -2,7 +2,7 @@ import path from "path";
 
 import { SourceFile } from "ts-morph";
 
-import { SingletonPromise, PromiseAllParallel } from "../../_01_stage_utilities/source/PromiseTypes.mjs";
+import { SingletonPromise, PromiseAllParallel } from "#stage_utilities/source/PromiseTypes.mjs";
 import ConfigureStub from "./base/baseStub.mjs";
 import StubMap from "./exports.mjs";
 

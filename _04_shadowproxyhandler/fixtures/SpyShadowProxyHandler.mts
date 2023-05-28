@@ -3,7 +3,7 @@ import type {
   RequiredHandler,
 } from "../source/ShadowProxyHandler.mjs";
 
-import SpyBase from "../../_01_stage_utilities/source/SpyBase.mjs";
+import SpyBase from "#stage_utilities/source/SpyBase.mjs";
 
 export default
 class SpyShadowProxyHandler

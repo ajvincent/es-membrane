@@ -17,9 +17,9 @@ import CodeBlockWriter from "code-block-writer";
 
 import {
   DefaultMap,
-} from "../../../_01_stage_utilities/source/DefaultMap.mjs";
+} from "#stage_utilities/source/DefaultMap.mjs";
 
-import MixinBase from "../../../_01_stage_utilities/source/MixinBase.mjs";
+import MixinBase from "#stage_utilities/source/MixinBase.mjs";
 
 import extractType, {
   writerOptions

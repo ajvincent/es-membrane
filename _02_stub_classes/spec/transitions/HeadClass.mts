@@ -2,7 +2,7 @@ import {
   type ModuleSourceDirectory,
   getModuleDefaultClass,
   getModuleDefaultClassWithArgs,
-} from "../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "#stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
   TransitionInterface,

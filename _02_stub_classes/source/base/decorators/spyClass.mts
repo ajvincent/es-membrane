@@ -2,16 +2,16 @@
 
 import type {
   RightExtendsLeft
-} from "../../../../_01_stage_utilities/source/types/Utility.mjs";
+} from "#stage_utilities/source/types/Utility.mjs";
 
 import type {
   StaticAndInstance
-} from "../../../../_01_stage_utilities/source/types/StaticAndInstance.mjs";
+} from "#stage_utilities/source/types/StaticAndInstance.mjs";
 
 import {
   type ModuleSourceDirectory,
   pathToModule
-} from "../../../../_01_stage_utilities/source/AsyncSpecModules.mjs";
+} from "#stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
   ConfigureStubDecorator

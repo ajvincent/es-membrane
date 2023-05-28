@@ -5,6 +5,7 @@ import { fork } from "child_process";
 const projectRoot = path.resolve();
 const TSC = path.resolve(projectRoot, "node_modules/typescript/bin/tsc");
 const InvokeTSC = {
+    /** @internal  */
     withConfigurationFile: async function (pathToConfig, pathToStdOut = "") {
         pathToConfig = path.resolve(projectRoot, pathToConfig);
         let stdout = "inherit";
@@ -36,7 +37,8 @@ const InvokeTSC = {
     modifier, pathToStdOut = "") {
         const config = InvokeTSC.defaultConfiguration();
         modifier(config);
-        configLocation = path.resolve(projectRoot, configLocation);
+        configLocation = path.normalize(path.resolve(projectRoot, configLocation));
+        config.compilerOptions.baseUrl = path.relative(path.dirname(configLocation), projectRoot);
         await fs.writeFile(configLocation, JSON.stringify(config, null, 2) + "\n", { "encoding": "utf-8" });
         await this.withConfigurationFile(configLocation, pathToStdOut);
         if (removeConfigAfter) {
@@ -53,6 +55,10 @@ const InvokeTSC = {
                 "moduleResolution": "node",
                 "sourceMap": true,
                 "declaration": true,
+                "baseUrl": ".",
+                "paths": {
+                    "#stage_utilities/*": ["./_01_stage_utilities/*"]
+                }
                 /*
                 "experimentalDecorators": true,
                 "emitDecoratorMetadata": true,
