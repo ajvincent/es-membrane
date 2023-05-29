@@ -35,7 +35,7 @@ import type {
 type StructureWithMethods = Pick<InterfaceDeclarationStructure, "methods">;
 
 export type ExtendsAndImplements = {
-  readonly extends: ReadonlyArray<string>,
+  readonly extends: string,
   readonly implements: ReadonlyArray<string>,
 };
 
@@ -118,7 +118,7 @@ export default class ConfigureStub extends MixinBase
   protected getExtendsAndImplements() : ExtendsAndImplements
   {
     return {
-      extends: [],
+      extends: "",
       implements: [ this.interfaceOrAliasName ],
     };
   }
@@ -282,7 +282,7 @@ export default class ConfigureStub extends MixinBase
     } = this.getExtendsAndImplements();
 
     if (_extends.length)
-      this.classWriter.writeLine("extends " + _extends.join(", "));
+      this.classWriter.writeLine("extends " + _extends);
     if (_implements.length)
       this.classWriter.writeLine("implements " + _implements.join(", "));
 
