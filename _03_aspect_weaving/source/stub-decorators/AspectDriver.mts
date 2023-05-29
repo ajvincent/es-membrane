@@ -30,9 +30,10 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
   return class AspectDriver extends baseClass {
     protected getExtendsAndImplements(): ExtendsAndImplements {
       const extendsAndImplements = super.getExtendsAndImplements();
+
       return {
-        extends: extendsAndImplements.extends,
-        implements: extendsAndImplements.implements.map(_implements => `WrapWithInnerTargetKey<${_implements}>`),
+        extends: `AspectsDictionaryBase<${extendsAndImplements.implements.join(" & ")}>`,
+        implements: extendsAndImplements.implements,
       };
     }
 
@@ -44,8 +45,7 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
       super.methodTrap(methodStructure, isBefore);
 
       if (isBefore && !methodStructure) {
-        this.#defineAspectsBuilder();
-        this.#defineInnerTargetSetter();
+        this.#addBaseImports();
         this.#writeRegion(true);
       }
 
@@ -56,48 +56,22 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
       }
     }
 
-    #defineAspectsBuilder(): void {
+    #addBaseImports(): void {
       this.addImport(
-        "#aspect_weaving/source/types/AspectsDictionary.mjs",
-        `type AspectsDictionary`,
-        false
-      );
-
-      this.classWriter.writeLine(`static #aspectsBuilder(): AspectsDictionary<${this.interfaceOrAliasName}> `);
-      this.classWriter.block(() => {
-        this.classWriter.write("return ");
-        this.classWriter.block(() => {
-          this.classWriter.write("classInvariant: [],");
-        });
-      });
-      this.classWriter.newLine();
-      this.classWriter.newLine();
-    }
-
-    #defineInnerTargetSetter(): void {
-      this.addImport(
-        "#aspect_weaving/source/innerTargetSymbol.mjs",
-        "INNER_TARGET_KEY",
+        "#aspect_weaving/source/AspectsDictionaryBase.mjs",
+        "AspectsDictionaryBase",
         true
       );
       this.addImport(
-        "#aspect_weaving/source/innerTargetSymbol.mjs",
-        "type WrapWithInnerTargetKey",
+        "#aspect_weaving/source/AspectsDictionaryBase.mjs",
+        "ASPECTS_KEY",
         false
       );
-
-      this.classWriter.writeLine(`#innerTarget: ${this.interfaceOrAliasName} = this;`);
-      this.classWriter.writeLine(`readonly #aspects: AspectsDictionary<${this.interfaceOrAliasName}> = ${this.getClassName()}.#aspectsBuilder();`);
-      this.classWriter.newLine();
-
-      this.classWriter.write(`[INNER_TARGET_KEY](innerTarget: ${this.interfaceOrAliasName}): void`);
-      this.classWriter.block(() => {
-        this.classWriter.writeLine(`this.#innerTarget = innerTarget;`);
-        //this.classWriter.writeLine(`this.#aspects = ${this.getClassName()}.#aspectsBuilder();`);
-      });
-
-      this.classWriter.newLine();
-      this.classWriter.newLine();
+      this.addImport(
+        "#aspect_weaving/source/AspectsDictionaryBase.mjs",
+        "INNER_TARGET_KEY",
+        false
+      );
     }
 
     protected buildMethodBody(
@@ -108,9 +82,10 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
       remainingArgs.clear();
       const params = structure.parameters ?? [];
 
+      this.classWriter.writeLine(`const __innerTarget__ = this[INNER_TARGET_KEY];`);
       this.#writeInvariants(structure);
 
-      this.classWriter.writeLine(`const __rv__ = this.#innerTarget.${
+      this.classWriter.writeLine(`const __rv__ = __innerTarget__.${
         structure.name
       }(${
         params.map(param => param.name).join(", ")
@@ -124,10 +99,10 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
     #writeInvariants(structure: TS_Method): void {
       const params = structure.parameters ?? [];
 
-      this.classWriter.write(`for (let i = 0; i < this.#aspects.classInvariant.length; i++) `);
+      this.classWriter.write(`for (let i = 0; i < this[ASPECTS_KEY].classInvariants.length; i++)`);
       this.classWriter.block(() => {
-        this.classWriter.writeLine(`const __invariant__ = this.#aspects.classInvariant[i];`);
-        this.classWriter.writeLine(`__invariant__.${structure.name}.call(this.#innerTarget, ${
+        this.classWriter.writeLine(`const __invariant__ = this[ASPECTS_KEY].classInvariants[i];`);
+        this.classWriter.writeLine(`__invariant__.${structure.name}.call(__innerTarget__, ${
           params.map(param => param.name).join(", ")
         });`)
       });

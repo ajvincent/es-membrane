@@ -8,9 +8,11 @@ import type {
 } from "../fixtures/types/NumberStringType.mjs";
 
 import NumberStringClass from "../fixtures/components/shared/NumberStringClass.mjs";
-import INNER_TARGET_KEY, {
-  type WrapWithInnerTargetKey,
-} from "#aspect_weaving/source/innerTargetSymbol.mjs";
+
+import {
+  INNER_TARGET_SETTER
+} from "../source/AspectsDictionaryBase.mjs";
+
 
 it("Aspect weaving: an empty aspect driver still works", async () => {
   const generatedDir: ModuleSourceDirectory = {
@@ -18,7 +20,7 @@ it("Aspect weaving: an empty aspect driver still works", async () => {
     pathToDirectory: "../../spec-generated/"
   };
 
-  const NST_Aspect = await getModuleDefaultClass<WrapWithInnerTargetKey<NumberStringType>>(
+  const NST_Aspect = await getModuleDefaultClass<NumberStringType>(
     generatedDir, "empty/AspectDriver.mjs"
   );
 
@@ -26,13 +28,14 @@ it("Aspect weaving: an empty aspect driver still works", async () => {
     "constructor",
     "repeatForward",
     "repeatBack",
-    INNER_TARGET_KEY,
   ]);
 
   const nst_base = new NumberStringClass;
 
   const nst = new NST_Aspect;
-  nst[INNER_TARGET_KEY](nst_base);
+  (nst as unknown as {
+    [INNER_TARGET_SETTER](innerTarget: NumberStringType): void
+  })[INNER_TARGET_SETTER](nst_base);
 
   expect(nst.repeatForward("foo", 3)).toBe("foofoofoo");
   expect(nst.repeatBack(3, "foo")).toBe("foofoofoo");
