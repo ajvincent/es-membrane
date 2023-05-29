@@ -7,13 +7,6 @@ import type {
   NumberStringType
 } from "../fixtures/types/NumberStringType.mjs";
 
-import NumberStringClass from "../fixtures/components/shared/NumberStringClass.mjs";
-
-import {
-  INNER_TARGET_SETTER
-} from "../source/AspectsDictionaryBase.mjs";
-
-
 it("Aspect weaving: an empty aspect driver still works", async () => {
   const generatedDir: ModuleSourceDirectory = {
     importMeta: import.meta,
@@ -30,12 +23,7 @@ it("Aspect weaving: an empty aspect driver still works", async () => {
     "repeatBack",
   ]);
 
-  const nst_base = new NumberStringClass;
-
   const nst = new NST_Aspect;
-  (nst as unknown as {
-    [INNER_TARGET_SETTER](innerTarget: NumberStringType): void
-  })[INNER_TARGET_SETTER](nst_base);
 
   expect(nst.repeatForward("foo", 3)).toBe("foofoofoo");
   expect(nst.repeatBack(3, "foo")).toBe("foofoofoo");

@@ -16,6 +16,8 @@ const stageDir: ModuleSourceDirectory = {
 const sourceFile = getTS_SourceFile(stageDir, "fixtures/types/NumberStringType.d.mts");
 const generatedDir = pathToModule(stageDir, "spec-generated");
 
+const classFile = pathToModule(stageDir, "fixtures/components/shared/NumberStringClass.mjs");
+
 export default async function runModule() : Promise<void>
 {
   await Promise.all([
@@ -29,6 +31,7 @@ async function buildEmptyAspects() : Promise<void>
     sourceFile,
     "NumberStringType",
     path.join(generatedDir, "empty"),
+    classFile,
     "NumberStringClass",
   );
 }

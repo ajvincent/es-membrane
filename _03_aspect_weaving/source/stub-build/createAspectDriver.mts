@@ -8,6 +8,7 @@ async function createAspectDriver(
   sourceFile: SourceFile,
   interfaceOrAliasName: string,
   destinationDir: string,
+  pathToBaseClassFile: string,
   className: string,
 ) : Promise<void>
 {
@@ -18,6 +19,9 @@ async function createAspectDriver(
     path.resolve(destinationDir, "AspectDriver.mts"),
     className + "_AspectDriver"
   );
+
+  generator.defineDefaultBaseClass(className);
+  generator.addImport(pathToBaseClassFile, className, true);
 
   generator.addImport(
     sourceFile.getFilePath().replace(/(?:\.d)?\.(m?)ts/, ".$1js"),

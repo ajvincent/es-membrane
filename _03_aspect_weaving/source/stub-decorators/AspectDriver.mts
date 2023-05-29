@@ -19,7 +19,11 @@ import { ExtendsAndImplements } from "#stub_classes/source/base/baseStub.mjs";
 
 export type AspectDriverFields = RightExtendsLeft<StaticAndInstance, {
   staticFields: object,
-  instanceFields: object,
+  instanceFields: {
+    defineDefaultBaseClass(
+      className: string
+    ): void;
+  },
 }>;
 
 const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = function(
@@ -28,11 +32,30 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
 )
 {
   return class AspectDriver extends baseClass {
+    static readonly #INIT_BASE_CLASS_KEY = "(base class defined)";
+
+    #baseClassName = "";
+
+    constructor(...args: unknown[]) {
+      super(...args);
+      this.requiredInitializers.add(AspectDriver.#INIT_BASE_CLASS_KEY);
+    }
+
+    public defineDefaultBaseClass(
+      className: string
+    ): void {
+      this.requiredInitializers.mayResolve(AspectDriver.#INIT_BASE_CLASS_KEY);
+
+      this.#baseClassName = className;
+
+      this.requiredInitializers.resolve(AspectDriver.#INIT_BASE_CLASS_KEY);
+    }
+
     protected getExtendsAndImplements(): ExtendsAndImplements {
       const extendsAndImplements = super.getExtendsAndImplements();
 
       return {
-        extends: `AspectsDictionaryBase<${extendsAndImplements.implements.join(" & ")}>`,
+        extends: this.#baseClassName,
         implements: extendsAndImplements.implements,
       };
     }
@@ -46,6 +69,7 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
 
       if (isBefore && !methodStructure) {
         this.#addBaseImports();
+        this.#addAspectsDictionary();
         this.#writeRegion(true);
       }
 
@@ -58,20 +82,20 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
 
     #addBaseImports(): void {
       this.addImport(
-        "#aspect_weaving/source/AspectsDictionaryBase.mjs",
-        "AspectsDictionaryBase",
+        "#aspect_weaving/source/AspectsDictionary.mjs",
+        "AspectsDictionary",
         true
       );
       this.addImport(
-        "#aspect_weaving/source/AspectsDictionaryBase.mjs",
+        "#aspect_weaving/source/AspectsDictionary.mjs",
         "ASPECTS_KEY",
         false
       );
-      this.addImport(
-        "#aspect_weaving/source/AspectsDictionaryBase.mjs",
-        "INNER_TARGET_KEY",
-        false
-      );
+    }
+
+    #addAspectsDictionary(): void {
+      this.classWriter.writeLine(`static readonly [ASPECTS_KEY] = new AspectsDictionary<NumberStringType>;`);
+      this.classWriter.newLine();
     }
 
     protected buildMethodBody(
@@ -82,10 +106,9 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
       remainingArgs.clear();
       const params = structure.parameters ?? [];
 
-      this.classWriter.writeLine(`const __innerTarget__ = this[INNER_TARGET_KEY];`);
       this.#writeInvariants(structure);
 
-      this.classWriter.writeLine(`const __rv__ = __innerTarget__.${
+      this.classWriter.writeLine(`const __rv__ = super.${
         structure.name
       }(${
         params.map(param => param.name).join(", ")
@@ -99,10 +122,10 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
     #writeInvariants(structure: TS_Method): void {
       const params = structure.parameters ?? [];
 
-      this.classWriter.write(`for (let i = 0; i < this[ASPECTS_KEY].classInvariants.length; i++)`);
+      this.classWriter.write(`for (let i = 0; i < ${this.getClassName()}[ASPECTS_KEY].classInvariants.length; i++)`);
       this.classWriter.block(() => {
-        this.classWriter.writeLine(`const __invariant__ = this[ASPECTS_KEY].classInvariants[i];`);
-        this.classWriter.writeLine(`__invariant__.${structure.name}.call(__innerTarget__, ${
+        this.classWriter.writeLine(`const __invariant__ = ${this.getClassName()}[ASPECTS_KEY].classInvariants[i];`);
+        this.classWriter.writeLine(`__invariant__.${structure.name}.call(this, ${
           params.map(param => param.name).join(", ")
         });`)
       });
@@ -111,7 +134,7 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
     }
 
     #writeRegion(atStart: boolean): void {
-      this.classWriter.writeLine(`//#${atStart ? "" : "end"}region generated stubs`);
+      this.classWriter.writeLine(`//#${atStart ? "" : "end"}region aspect stubs`);
       this.classWriter.newLine();
     }
   }
