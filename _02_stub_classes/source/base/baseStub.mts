@@ -188,7 +188,7 @@ export default class ConfigureStub extends MixinBase
   {
     this.requiredInitializers.check();
 
-    if (!path.isAbsolute(pathToModule))
+    if (!pathToModule.startsWith("#") && !path.isAbsolute(pathToModule))
       throw new Error("pathToModule must be absolute");
 
     if (this.#writeCalled)
@@ -254,7 +254,7 @@ export default class ConfigureStub extends MixinBase
       });
     }
     this.#preambleWriter.write(` from "${
-      path.relative(path.dirname(this.#pathToClassFile), importLocation)
+      importLocation.startsWith("#") ? importLocation : path.relative(path.dirname(this.#pathToClassFile), importLocation)
     }";`);
     this.#preambleWriter.newLine();
   }

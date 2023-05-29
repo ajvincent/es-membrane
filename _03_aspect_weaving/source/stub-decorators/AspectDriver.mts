@@ -1,10 +1,5 @@
 // #region preamble
 
-import {
-  type ModuleSourceDirectory,
-  pathToModule
-} from "#stage_utilities/source/AsyncSpecModules.mjs";
-
 import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
@@ -18,21 +13,9 @@ import type {
   TS_Method,
 } from "#stub_classes/source/base/types/export-types.mjs";
 import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
-
-/*
-import type {
-  ExtendsAndImplements
-} from "#stub_classes/source/base/baseStub.mjs";
-
-import ConfigureStub from "#stub_classes/source/base/baseStub.mjs";
-*/
+import { ExtendsAndImplements } from "#stub_classes/source/base/baseStub.mjs";
 
 // #endregion preamble
-
-const aspectTypesSource: ModuleSourceDirectory = {
-  importMeta: import.meta,
-  pathToDirectory: "../../types",
-};
 
 export type AspectDriverFields = RightExtendsLeft<StaticAndInstance, {
   staticFields: object,
@@ -45,6 +28,14 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
 )
 {
   return class AspectDriver extends baseClass {
+    protected getExtendsAndImplements(): ExtendsAndImplements {
+      const extendsAndImplements = super.getExtendsAndImplements();
+      return {
+        extends: extendsAndImplements.extends,
+        implements: extendsAndImplements.implements.map(_implements => `WrapWithInnerTargetKey<${_implements}>`),
+      };
+    }
+
     protected methodTrap(
       methodStructure: TS_Method | null,
       isBefore: boolean
@@ -54,13 +45,20 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
 
       if (isBefore && !methodStructure) {
         this.#defineAspectsBuilder();
-        this.#defineConstructor();
+        this.#defineInnerTargetSetter();
+        this.#writeRegion(true);
+      }
+
+      if (!isBefore && !methodStructure) {
+        this.classWriter.newLine();
+        this.classWriter.newLine();
+        this.#writeRegion(false);
       }
     }
 
     #defineAspectsBuilder(): void {
       this.addImport(
-        pathToModule(aspectTypesSource, "AspectsDictionary.mjs"),
+        "#aspect_weaving/source/types/AspectsDictionary.mjs",
         `type AspectsDictionary`,
         false
       );
@@ -76,15 +74,26 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
       this.classWriter.newLine();
     }
 
-    #defineConstructor(): void {
-      this.classWriter.writeLine(`readonly #innerTarget: ${this.interfaceOrAliasName};`);
-      this.classWriter.writeLine(`readonly #aspects: AspectsDictionary<${this.interfaceOrAliasName}>;`);
+    #defineInnerTargetSetter(): void {
+      this.addImport(
+        "#aspect_weaving/source/innerTargetSymbol.mjs",
+        "INNER_TARGET_KEY",
+        true
+      );
+      this.addImport(
+        "#aspect_weaving/source/innerTargetSymbol.mjs",
+        "type WrapWithInnerTargetKey",
+        false
+      );
+
+      this.classWriter.writeLine(`#innerTarget: ${this.interfaceOrAliasName} = this;`);
+      this.classWriter.writeLine(`readonly #aspects: AspectsDictionary<${this.interfaceOrAliasName}> = ${this.getClassName()}.#aspectsBuilder();`);
       this.classWriter.newLine();
 
-      this.classWriter.write(`constructor(innerTarget: ${this.interfaceOrAliasName})`);
+      this.classWriter.write(`[INNER_TARGET_KEY](innerTarget: ${this.interfaceOrAliasName}): void`);
       this.classWriter.block(() => {
         this.classWriter.writeLine(`this.#innerTarget = innerTarget;`);
-        this.classWriter.writeLine(`this.#aspects = ${this.getClassName()}.#aspectsBuilder();`);
+        //this.classWriter.writeLine(`this.#aspects = ${this.getClassName()}.#aspectsBuilder();`);
       });
 
       this.classWriter.newLine();
@@ -118,11 +127,16 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
       this.classWriter.write(`for (let i = 0; i < this.#aspects.classInvariant.length; i++) `);
       this.classWriter.block(() => {
         this.classWriter.writeLine(`const __invariant__ = this.#aspects.classInvariant[i];`);
-        this.classWriter.writeLine(`__invariant__.${structure.name}.call(this, ${
+        this.classWriter.writeLine(`__invariant__.${structure.name}.call(this.#innerTarget, ${
           params.map(param => param.name).join(", ")
-        })`)
+        });`)
       });
       this.classWriter.newLine();
+      this.classWriter.newLine();
+    }
+
+    #writeRegion(atStart: boolean): void {
+      this.classWriter.writeLine(`//#${atStart ? "" : "end"}region generated stubs`);
       this.classWriter.newLine();
     }
   }

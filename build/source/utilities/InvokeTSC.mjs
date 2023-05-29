@@ -58,8 +58,9 @@ const InvokeTSC = {
                 "baseUrl": ".",
                 "paths": {
                     "#stage_utilities/*": ["./_01_stage_utilities/*"],
-                    "#stub_classes/*": ["./_02_stub_classes/*"]
-                }
+                    "#stub_classes/*": ["./_02_stub_classes/*"],
+                    "#aspect_weaving/*": ["./_03_aspect_weaving/*"],
+                },
                 /*
                 "experimentalDecorators": true,
                 "emitDecoratorMetadata": true,
