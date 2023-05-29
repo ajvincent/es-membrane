@@ -65,7 +65,7 @@ const NotImplementedDecorator: ConfigureStubDecorator<NotImplementedFields> = fu
         ),
       };
     }
-  
+
     protected methodTrap(
       methodStructure: TS_Method | null,
       isBefore: boolean,

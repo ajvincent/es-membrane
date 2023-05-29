@@ -163,6 +163,14 @@ export default class ConfigureStub extends MixinBase
     this.requiredInitializers.resolve(ConfigureStub.#INIT_KEY);
   }
 
+  protected getClassName(): string {
+    if (this.requiredInitializers.has(ConfigureStub.#INIT_KEY)) {
+      throw new Error("Invoke this.configureStub() first!");
+    }
+
+    return this.#className;
+  }
+
   // #region import management
 
   /**

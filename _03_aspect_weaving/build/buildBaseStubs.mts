@@ -1,27 +1,20 @@
 import fs from "fs/promises";
 
-import {
-  type ModuleSourceDirectory,
-  pathToModule,
-} from "#stage_utilities/source/AsyncSpecModules.mjs";
-import getTS_SourceFile from "#stage_utilities/source/getTS_SourceFile.mjs";
 import ConfigureStub from "#stub_classes/source/base/baseStub.mjs";
 
 import StubClassSet, {
   type StubClassSetConfiguration
 } from "#stub_classes/source/full-set.mjs";
 
-const stageDir: ModuleSourceDirectory = {
-  importMeta: import.meta,
-  pathToDirectory: "../.."
-};
-
-const sourceFile = getTS_SourceFile(stageDir, "fixtures/types/NumberStringType.d.mts");
+import {
+  sourceFile,
+  destinationDir,
+  pathToTypeFile,
+} from "./constants.mjs";
 
 export default
-async function buildStubs() : Promise<void>
+async function buildBaseStubs() : Promise<void>
 {
-  const destinationDir = pathToModule(stageDir, "fixtures/generated/stubs");
   let found = false;
 
   try {
@@ -39,7 +32,7 @@ async function buildStubs() : Promise<void>
     interfaceOrAliasName: "NumberStringType",
     destinationDir,
     className: "NumberStringClass",
-    pathToTypeFile: pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
+    pathToTypeFile,
     importString: "type NumberStringType",
     isDefaultImport: false,
 

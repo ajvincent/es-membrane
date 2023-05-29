@@ -1,4 +1,4 @@
-import type { MethodsOnly } from "../../../source/draft-20230323/AspectDecorators.mjs";
+import type { MethodsOnly } from "#stub_classes/source/base/types/MethodsOnly.mjs";
 import type { NumberStringType } from "../../types/NumberStringType.mjs";
 
 export default

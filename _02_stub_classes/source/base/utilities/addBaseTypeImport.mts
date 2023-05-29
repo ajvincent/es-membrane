@@ -5,7 +5,7 @@ import {
 
 import BaseStub from "../baseStub.mjs";
 
-const aspectTypesSource: ModuleSourceDirectory = {
+const baseTypesSource: ModuleSourceDirectory = {
   importMeta: import.meta,
   pathToDirectory: "../../types"
 };
@@ -17,7 +17,7 @@ export default function addBaseTypeImport(
 ) : void
 {
   stubGenerator.addImport(
-    pathToModule(aspectTypesSource, typeFile),
+    pathToModule(baseTypesSource, typeFile),
     `type ${typeToImport}`,
     false
   );
