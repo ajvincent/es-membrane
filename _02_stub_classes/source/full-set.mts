@@ -50,6 +50,7 @@ export default class StubClassSet {
   {
     this.#build_NI(config);
     this.#build_void(config);
+    this.#build_wrapthisinner(config);
     this.#build_spy(config);
     this.#build_prepend_return(config);
     this.#build_prepend_return_ni(config);
@@ -83,6 +84,14 @@ export default class StubClassSet {
     const generator = new StubMap.VoidClass;
     this.#stubArray.push(generator);
     this.#initStub(generator, config, "VoidClass.mts", "_Void");
+  }
+
+  #build_wrapthisinner(
+    config: StubClassSetConfiguration,
+  ): void {
+    const generator = new StubMap.WrapThisInner;
+    this.#stubArray.push(generator);
+    this.#initStub(generator, config, "WrapThisInner.mts", "_WrapThisInner");
   }
 
   #build_spy(

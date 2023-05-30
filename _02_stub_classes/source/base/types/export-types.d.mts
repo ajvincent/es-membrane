@@ -17,6 +17,9 @@ import type {
   VoidMethodsOnly
 } from "./VoidMethodsOnly.mjs";
 import type {
+  WrapThisAndParameters
+} from "./WrapThisAndParameters.mjs";
+import type {
   TS_Method
 } from "./private-types.mjs";
 import type {
@@ -30,6 +33,7 @@ export type {
   MethodReturnRewrite,
   TransitionInterface,
   VoidMethodsOnly,
+  WrapThisAndParameters,
   TS_Method,
   ConfigureStubDecorator,
 }
