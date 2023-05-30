@@ -12,7 +12,9 @@ import type {
   WrapThisAndParameters
 } from "#stub_classes/source/base/types/export-types.mjs";
 
-export const ASPECTS_KEY = Symbol("aspects");
+import {
+  ASPECTS_KEY
+} from "./symbol-keys.mjs";
 
 export type ClassWithAspects<T extends MethodsOnlyInternal> = Class<T> & {
   readonly [ASPECTS_KEY]: AspectsDictionary<T>;

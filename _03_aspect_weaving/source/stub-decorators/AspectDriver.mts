@@ -87,7 +87,7 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
         true
       );
       this.addImport(
-        "#aspect_weaving/source/AspectsDictionary.mjs",
+        "#aspect_weaving/source/symbol-keys.mjs",
         "ASPECTS_KEY",
         false
       );

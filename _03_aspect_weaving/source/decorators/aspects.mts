@@ -11,9 +11,12 @@ import type {
 } from "#stub_classes/source/base/types/export-types.mjs";
 
 import {
-  ASPECTS_KEY,
   ClassWithAspects,
 } from "../AspectsDictionary.mjs";
+
+import {
+  ASPECTS_KEY
+} from "../symbol-keys.mjs";
 
 interface AspectDecoratorsInterface<T extends MethodsOnlyInternal> {
   classInvariants: ClassDecoratorFunction<
