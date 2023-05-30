@@ -106,6 +106,7 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
       remainingArgs.clear();
       const params = structure.parameters ?? [];
 
+      this.classWriter.writeLine(`const __aspects__ = ${this.getClassName()}[ASPECTS_KEY];`);
       this.#writeInvariants(structure);
 
       this.classWriter.writeLine(`const __rv__ = super.${
@@ -122,12 +123,12 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
     #writeInvariants(structure: TS_Method): void {
       const params = structure.parameters ?? [];
 
-      this.classWriter.write(`for (let i = 0; i < ${this.getClassName()}[ASPECTS_KEY].classInvariants.length; i++)`);
+      this.classWriter.write(`for (let i = 0; i < __aspects__.classInvariants.length; i++)`);
       this.classWriter.block(() => {
-        this.classWriter.writeLine(`const __invariant__ = ${this.getClassName()}[ASPECTS_KEY].classInvariants[i];`);
-        this.classWriter.writeLine(`__invariant__.${structure.name}.call(this, ${
+        this.classWriter.writeLine(`const __invariant__ = __aspects__.classInvariants[i];`);
+        this.classWriter.writeLine(`__invariant__.${structure.name}(this, [${
           params.map(param => param.name).join(", ")
-        });`)
+        }]);`)
       });
       this.classWriter.newLine();
       this.classWriter.newLine();

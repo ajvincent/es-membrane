@@ -9,7 +9,7 @@ import type {
 } from "#stub_classes/source/base/types/MethodsOnlyInternal.mjs";
 
 import type {
-  VoidMethodsOnly
+  WrapThisAndParameters
 } from "#stub_classes/source/base/types/export-types.mjs";
 
 export const ASPECTS_KEY = Symbol("aspects");
@@ -30,5 +30,5 @@ So now I need to do some redesigning.  Aspect-oriented programming is hard.
 */
 export default
 class AspectsDictionary<T extends MethodsOnlyInternal> {
-  readonly classInvariants: PushableArray<VoidMethodsOnly<T>> = [];
+  readonly classInvariants: PushableArray<WrapThisAndParameters<T>> = [];
 }

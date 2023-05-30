@@ -171,6 +171,14 @@ export default class ConfigureStub extends MixinBase
     return this.#className;
   }
 
+  protected getPathToClassFile(): string {
+    if (this.requiredInitializers.has(ConfigureStub.#INIT_KEY)) {
+      throw new Error("Invoke this.configureStub() first!");
+    }
+
+    return this.#pathToClassFile;
+  }
+
   // #region import management
 
   /**
@@ -253,9 +261,19 @@ export default class ConfigureStub extends MixinBase
         blockImports.forEach(i => this.#preambleWriter.writeLine(i + ","))
       });
     }
-    this.#preambleWriter.write(` from "${
-      importLocation.startsWith("#") ? importLocation : path.relative(path.dirname(this.#pathToClassFile), importLocation)
-    }";`);
+
+    if (!importLocation.startsWith("#")) {
+      const startDir = path.dirname(this.#pathToClassFile);
+      const pathToImport = path.relative(startDir, importLocation);
+      if (importLocation.startsWith(startDir)) {
+        importLocation = "./" + pathToImport;
+      }
+      else {
+        importLocation = pathToImport;
+      }
+    }
+
+    this.#preambleWriter.write(` from "${importLocation}";`);
     this.#preambleWriter.newLine();
   }
 

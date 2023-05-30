@@ -74,8 +74,6 @@ const WrapThisInnerDecorator: ConfigureStubDecorator<WrapThisInnerFields> = func
           }]`
         }
       ];
-
-      methodStructure.returnType = "void";
     }
 
     static #serializeParam(param: TS_Parameter): string {

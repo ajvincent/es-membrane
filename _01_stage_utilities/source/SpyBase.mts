@@ -8,8 +8,6 @@ export interface SpyBaseInterface {
 
 export default class SpyBase implements SpyBaseInterface
 {
-  // static queuedSpies() : ReadonlyArray<SpyBase>
-
   readonly spyMap: DefaultMap<string | symbol, jasmine.Spy> = new DefaultMap;
 
   getSpy(name: string | symbol) : jasmine.Spy

@@ -1,4 +1,6 @@
 // #region preamble
+import path from "path";
+import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 
 import type {
   RightExtendsLeft
@@ -21,8 +23,7 @@ import type {
   TS_Method
 } from "../types/private-types.mjs";
 
-import addBaseTypeImport from "../utilities/addBaseTypeImport.mjs";
-import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
+import { ExtendsAndImplements } from "../baseStub.mjs";
 
 // #endregion preamble
 
@@ -45,6 +46,13 @@ const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields> = function(
 )
 {
   return class extends baseClass {
+    protected getExtendsAndImplements(): ExtendsAndImplements {
+      return {
+        extends: this.getClassName() + "_WrapThisInner",
+        implements: super.getExtendsAndImplements().implements,
+      }
+    }
+
     protected methodTrap(
       methodStructure: TS_Method | null,
       isBefore: boolean,
@@ -56,12 +64,15 @@ const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields> = function(
         return;
 
       if (!methodStructure) {
+        this.addImport("#stub_classes/source/symbol-keys.mjs", "SPY_BASE", false);
         this.addImport(SpyBasePath, "SpyBase", true);
+        const pathToClassFile = this.getPathToClassFile();
+        const pathToWrapThisClass = path.normalize(path.join(pathToClassFile, "../WrapThisInner.mjs"));
 
-        addBaseTypeImport(this, "VoidMethodsOnly.mjs", "VoidMethodsOnly");
+        this.addImport(pathToWrapThisClass, this.getClassName() + "_WrapThisInner", true);
 
         this.classWriter.writeLine(
-          `readonly #spyClass = new SpyBase;`
+          `readonly [SPY_BASE] = new SpyBase;`
         );
         this.classWriter.newLine();
         return;
@@ -78,7 +89,7 @@ const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields> = function(
       ).join(", ") ?? "";
 
       this.classWriter.writeLine(
-        `this.#spyClass.getSpy("${structure.name}")(${paramsStr});`
+        `this[SPY_BASE].getSpy("${structure.name}")(${paramsStr});`
       );
       remainingArgs.clear();
 

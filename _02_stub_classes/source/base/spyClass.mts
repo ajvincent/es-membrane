@@ -6,13 +6,17 @@ import SpyClassDecorator, {
   type SpyClassFields
 } from "./decorators/spyClass.mjs";
 
+import WrapThisInnerDecorator, {
+  type WrapThisInnerFields
+} from "./decorators/wrapThisInner.mjs";
+
 import VoidClassDecorator, {
   type VoidClassFields
 } from "./decorators/voidClass.mjs";
 
-const SpyClassStub = MultiMixinBuilder<[SpyClassFields, VoidClassFields], typeof ConfigureStub>
+const SpyClassStub = MultiMixinBuilder<[SpyClassFields, WrapThisInnerFields, VoidClassFields], typeof ConfigureStub>
 (
-  [SpyClassDecorator, VoidClassDecorator], ConfigureStub
+  [SpyClassDecorator, WrapThisInnerDecorator, VoidClassDecorator], ConfigureStub
 );
 
 export default SpyClassStub;

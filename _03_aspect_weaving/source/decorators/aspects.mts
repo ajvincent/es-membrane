@@ -7,7 +7,7 @@ import type {
 } from "#stub_classes/source/base/types/MethodsOnlyInternal.mjs";
 
 import type {
-  VoidMethodsOnly
+  WrapThisAndParameters
 } from "#stub_classes/source/base/types/export-types.mjs";
 
 import {
@@ -17,7 +17,7 @@ import {
 
 interface AspectDecoratorsInterface<T extends MethodsOnlyInternal> {
   classInvariants: ClassDecoratorFunction<
-    ClassWithAspects<T>, false, [invariant: VoidMethodsOnly<T>]
+    ClassWithAspects<T>, false, [invariant: WrapThisAndParameters<T>]
   >;
 }
 
@@ -27,7 +27,7 @@ implements AspectDecoratorsInterface<T>
 {
   classInvariants(
     this: void,
-    invariant: VoidMethodsOnly<T>
+    invariant: WrapThisAndParameters<T>
   ): ClassDecoratorFunction<ClassWithAspects<T>, false, false>
   {
     return function(baseClass, context): void {

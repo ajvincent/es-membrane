@@ -15,7 +15,11 @@ import AspectDecorators from "#aspect_weaving/source/decorators/aspects.mjs";
 
 import NumberStringClass_Spy from "#aspect_weaving/fixtures/generated/stubs/Spy.mjs";
 
-xdescribe("Aspect weaving: supports class invariants", () => {
+import {
+  SPY_BASE,
+} from "#stub_classes/source/symbol-keys.mjs";
+
+describe("Aspect weaving: supports class invariants", () => {
   let NST_Aspect: ClassWithAspects<NumberStringType>;
   beforeAll(async () => {
     const generatedDir: ModuleSourceDirectory = {
@@ -38,6 +42,13 @@ xdescribe("Aspect weaving: supports class invariants", () => {
 
     const nst = new NST_SpyClass;
     expect(nst.repeatForward("foo", 3)).toBe("foofoofoo");
+
+    const spyBase = spyObject[SPY_BASE];
+    spyBase.expectSpiesClearExcept("repeatForward");
+
+    const repeatForwardSpy = spyBase.getSpy("repeatForward");
+    expect(repeatForwardSpy).toHaveBeenCalledTimes(2);
+    expect(repeatForwardSpy.calls.argsFor(0)).toEqual([nst, ["foo", 3]]);
+    expect(repeatForwardSpy.calls.argsFor(1)).toEqual([nst, ["foo", 3]]);
   });
 });
-
