@@ -113,7 +113,7 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
         structure.name
       }(${
         params.map(param => param.name).join(", ")
-      })`);
+      });`);
       this.classWriter.newLine();
 
       this.#writeInvariants(structure);
