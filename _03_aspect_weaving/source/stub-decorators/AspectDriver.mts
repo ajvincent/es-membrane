@@ -60,6 +60,15 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
       };
     }
 
+    protected insertAdditionalMethods(existingMethods: ReadonlyArray<TS_Method>): ReadonlyArray<TS_Method> {
+      return super.insertAdditionalMethods(existingMethods).flatMap(method => {
+        return [method, {
+          ...method,
+          name: "#" + method.name
+        }];
+      });
+    }
+
     protected methodTrap(
       methodStructure: TS_Method | null,
       isBefore: boolean
@@ -103,13 +112,26 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
       remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>
     ): void
     {
+      if (structure.name.startsWith("#")) {
+        this.#buildPrivateMethod(structure, remainingArgs);
+      }
+      else {
+        this.#buildPublicMethod(structure, remainingArgs);
+      }
+    }
+
+    #buildPublicMethod(
+      structure: TS_Method,
+      remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>
+    ): void
+    {
       remainingArgs.clear();
       const params = structure.parameters ?? [];
 
       this.classWriter.writeLine(`const __aspects__ = ${this.getClassName()}[ASPECTS_KEY];`);
       this.#writeInvariants(structure);
 
-      this.classWriter.writeLine(`const __rv__ = super.${
+      this.classWriter.writeLine(`const __rv__ = this.#${
         structure.name
       }(${
         params.map(param => param.name).join(", ")
@@ -118,6 +140,21 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = functi
 
       this.#writeInvariants(structure);
       this.classWriter.writeLine(`return __rv__;`);
+    }
+
+    #buildPrivateMethod(
+      structure: TS_Method,
+      remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>
+    ): void
+    {
+      remainingArgs.clear();
+      const params = structure.parameters ?? [];
+
+      this.classWriter.writeLine(`return super.${
+        structure.name.substring(1)
+      }(${
+        params.map(param => param.name).join(", ")
+      });`);
     }
 
     #writeInvariants(structure: TS_Method): void {

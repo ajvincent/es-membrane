@@ -353,7 +353,27 @@ export default class ConfigureStub extends MixinBase
     if (!structure.methods) {
       throw new Error("no methods to write?");
     }
-    return structure.methods;
+
+    const methodList = this.insertAdditionalMethods(structure.methods.slice());
+    const methodSet = new Set(methodList);
+    structure.methods.forEach(method => {
+      if (!methodSet.has(method))
+        throw new Error("You can't remove any methods in getAdditionalMethods!  Missing " + method.name);
+    });
+
+    return methodList;
+  }
+
+  /**
+   * Get a list of method signatures, including every existing one, to create.  Useful for private methods.
+   * @param existingMethods -
+   * @returns the new method ordering.
+   */
+  protected insertAdditionalMethods(
+    existingMethods: ReadonlyArray<TS_Method>
+  ): ReadonlyArray<TS_Method>
+  {
+    return existingMethods;
   }
 
   /**

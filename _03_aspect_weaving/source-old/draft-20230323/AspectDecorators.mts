@@ -60,7 +60,6 @@ export class AspectError extends Error {
 
 // #region build aspects dictionary
 
-
 type AspectKeyDictionary<T extends MethodsOnlyInternal> = {
   [key in keyof AspectsDictionary<T>]: ReadonlyArray<string>
 };
@@ -109,7 +108,6 @@ export const ASPECT_BUILDERS: AspectConstructorsDictionary<${typeFile.exportName
 }
 
 // #endregion build aspects dictionary
-
 
 // #region aspect class generation
 
