@@ -46,10 +46,10 @@ const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields, false> = functio
 )
 {
   return class extends baseClass {
-    protected getExtendsAndImplements(): ExtendsAndImplements {
+    protected getExtendsAndImplementsTrap(context: Map<symbol, unknown>): ExtendsAndImplements {
       return {
         extends: this.getClassName() + "_WrapThisInner",
-        implements: super.getExtendsAndImplements().implements,
+        implements: super.getExtendsAndImplementsTrap(context).implements,
       }
     }
 
@@ -79,7 +79,7 @@ const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields, false> = functio
       }
     }
 
-    protected buildMethodBody(
+    protected buildMethodBodyTrap(
       structure: TS_Method,
       remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>,
     ): void
@@ -93,7 +93,7 @@ const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields, false> = functio
       );
       remainingArgs.clear();
 
-      super.buildMethodBody(structure, remainingArgs);
+      super.buildMethodBodyTrap(structure, remainingArgs);
     }
   }
 }

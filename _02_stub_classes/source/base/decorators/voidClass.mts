@@ -36,9 +36,9 @@ const VoidClassDecorator: ConfigureStubDecorator<VoidClassFields, false> = funct
 )
 {
   return class extends baseClass {
-    protected getExtendsAndImplements(): ExtendsAndImplements
+    protected getExtendsAndImplementsTrap(context: Map<symbol, unknown>): ExtendsAndImplements
     {
-      const inner = super.getExtendsAndImplements();
+      const inner = super.getExtendsAndImplementsTrap(context);
       return {
         extends: inner.extends,
         implements: inner.implements.map(value => `VoidMethodsOnly<${value}>`),
@@ -63,13 +63,13 @@ const VoidClassDecorator: ConfigureStubDecorator<VoidClassFields, false> = funct
     }
 
 
-    protected buildMethodBody(
+    protected buildMethodBodyTrap(
       methodStructure: TS_Method,
       remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>,
     ): void
     {
       this.voidArguments(remainingArgs);
-      super.buildMethodBody(methodStructure, remainingArgs);
+      super.buildMethodBodyTrap(methodStructure, remainingArgs);
     }
   }
 }

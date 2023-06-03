@@ -162,7 +162,8 @@ const TransitionsHeadCallDecorator: ConfigureStubDecorator<HeadCallFields, false
       middleParamsTypeAliasName: string
     ) : void
     {
-      const { implements: _implements } = this.getExtendsAndImplements();
+      const context = new Map<symbol, unknown>;
+      const { implements: _implements } = this.getExtendsAndImplementsTrap(context);
       if (_implements.length !== 1) {
         throw new Error("No support yet for multiple-implements, fix me!!");
       }
@@ -199,11 +200,11 @@ const TransitionsHeadCallDecorator: ConfigureStubDecorator<HeadCallFields, false
       this.classWriter.newLine();
     }
 
-    protected writeBeforeClass(): string {
+    protected writeBeforeClassTrap(): string {
       return this.#beforeClassWriter.toString();
     }
 
-    protected buildMethodBody(
+    protected buildMethodBodyTrap(
       methodStructure: TS_Method,
       remainingArgs: Set<TS_Parameter>,
     ) : void

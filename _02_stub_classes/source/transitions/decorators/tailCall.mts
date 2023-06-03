@@ -78,7 +78,7 @@ const TransitionsTailCallDecorator: ConfigureStubDecorator<TailCallFields, false
       this.classWriter.newLine();
     }
 
-    protected buildMethodBody(
+    protected buildMethodBodyTrap(
       methodStructure: TS_Method,
       remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>,
     ): void

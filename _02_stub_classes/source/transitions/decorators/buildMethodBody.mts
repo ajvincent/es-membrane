@@ -69,7 +69,7 @@ const BuildMethodBodyDecorator: ConfigureStubDecorator<BuildMethodBodyFields, fa
       this.requiredInitializers.resolve(TransitionsBase.#INIT_BUILD_METHOD_KEY);
     }
 
-    protected buildMethodBody(
+    protected buildMethodBodyTrap(
       methodStructure: TS_Method,
       remainingArgs: Set<TS_Parameter>,
     ): void

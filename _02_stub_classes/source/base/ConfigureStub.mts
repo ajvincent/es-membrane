@@ -114,15 +114,6 @@ export default class ConfigureStub extends MixinBase
 
   // #endregion basic tools and configurations
 
-  /** Get the "extends" and "implements" fields for the class. */
-  protected getExtendsAndImplements() : ExtendsAndImplements
-  {
-    return {
-      extends: "",
-      implements: [ this.interfaceOrAliasName ],
-    };
-  }
-
   constructor(...args: unknown[]) {
     super(...args);
     this.requiredInitializers.add(ConfigureStub.#INIT_KEY);
@@ -294,10 +285,11 @@ export default class ConfigureStub extends MixinBase
 
     this.classWriter.writeLine(`export default class ${this.#className}`);
 
+    const context = new Map<symbol, unknown>;
     const {
       extends: _extends,
       implements: _implements
-    } = this.getExtendsAndImplements();
+    } = this.getExtendsAndImplementsTrap(context);
 
     if (_extends.length)
       this.classWriter.writeLine("extends " + _extends);
@@ -323,6 +315,16 @@ export default class ConfigureStub extends MixinBase
 
       this.methodTrap(null, false);
     });
+  }
+
+  /** Get the "extends" and "implements" fields for the class.*/
+  protected getExtendsAndImplementsTrap(context: Map<symbol, unknown>) : ExtendsAndImplements
+  {
+    void(context);
+    return {
+      extends: "",
+      implements: [ this.interfaceOrAliasName ],
+    };
   }
 
   /** Get the methods of the type or interface. */
@@ -354,7 +356,7 @@ export default class ConfigureStub extends MixinBase
       throw new Error("no methods to write?");
     }
 
-    const methodList = this.insertAdditionalMethods(structure.methods.slice());
+    const methodList = this.insertAdditionalMethodsTrap(structure.methods.slice());
     const methodSet = new Set(methodList);
     structure.methods.forEach(method => {
       if (!methodSet.has(method))
@@ -369,7 +371,7 @@ export default class ConfigureStub extends MixinBase
    * @param existingMethods -
    * @returns the new method ordering.
    */
-  protected insertAdditionalMethods(
+  protected insertAdditionalMethodsTrap(
     existingMethods: ReadonlyArray<TS_Method>
   ): ReadonlyArray<TS_Method>
   {
@@ -412,7 +414,7 @@ export default class ConfigureStub extends MixinBase
     this.classWriter.newLineIfLastNot();
 
     const remainingArgs = new Set(method.parameters || []);
-    this.classWriter.block(() => this.buildMethodBody(method, remainingArgs));
+    this.classWriter.block(() => this.buildMethodBodyTrap(method, remainingArgs));
   }
 
   /** Build the markup for a single parameter. */
@@ -433,7 +435,7 @@ export default class ConfigureStub extends MixinBase
    * Build the body of a class method.
    * @param structure - the method structure.
    */
-  protected buildMethodBody(
+  protected buildMethodBodyTrap(
     structure: TS_Method,
     remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>,
   ) : void
@@ -473,21 +475,21 @@ export default class ConfigureStub extends MixinBase
 
     const contents = [
       this.#preambleWriter.toString(),
-      this.writeBeforeClass().trim(),
+      this.writeBeforeClassTrap().trim(),
       this.classWriter.toString(),
-      this.writeAfterClass().trim(),
+      this.writeAfterClassTrap().trim(),
     ].filter(Boolean).join("\n\n") + "\n";
 
     await fs.mkdir(path.dirname(this.#pathToClassFile), { recursive: true });
     await fs.writeFile(this.#pathToClassFile, contents, { "encoding": "utf-8"});
   }
 
-  protected writeBeforeClass() : string
+  protected writeBeforeClassTrap() : string
   {
     return "";
   }
 
-  protected writeAfterClass() : string
+  protected writeAfterClassTrap() : string
   {
     return "";
   }

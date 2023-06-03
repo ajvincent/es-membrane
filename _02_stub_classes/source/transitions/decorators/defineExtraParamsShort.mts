@@ -95,9 +95,9 @@ const DefineExtraParamsShortDecorator: ConfigureStubDecorator<DefineExtraParamsS
       this.requiredInitializers.resolve(TransitionsBase.#INIT_EXTRA_PARAMS_KEY);
     }
 
-    protected getExtendsAndImplements(): ExtendsAndImplements {
+    protected getExtendsAndImplementsTrap(context: Map<symbol, unknown>): ExtendsAndImplements {
       const extraParams = assertDefined(this.#extraParams);
-      const inner = super.getExtendsAndImplements();
+      const inner = super.getExtendsAndImplementsTrap(context);
   
       return {
         extends: inner.extends,

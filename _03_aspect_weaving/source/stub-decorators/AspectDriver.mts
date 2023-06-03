@@ -51,8 +51,8 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       this.requiredInitializers.resolve(AspectDriver.#INIT_BASE_CLASS_KEY);
     }
 
-    protected getExtendsAndImplements(): ExtendsAndImplements {
-      const extendsAndImplements = super.getExtendsAndImplements();
+    protected getExtendsAndImplementsTrap(context: Map<symbol, unknown>): ExtendsAndImplements {
+      const extendsAndImplements = super.getExtendsAndImplementsTrap(context);
 
       return {
         extends: this.#baseClassName,
@@ -60,8 +60,8 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       };
     }
 
-    protected insertAdditionalMethods(existingMethods: ReadonlyArray<TS_Method>): ReadonlyArray<TS_Method> {
-      return super.insertAdditionalMethods(existingMethods).flatMap(method => {
+    protected insertAdditionalMethodsTrap(existingMethods: ReadonlyArray<TS_Method>): ReadonlyArray<TS_Method> {
+      return super.insertAdditionalMethodsTrap(existingMethods).flatMap(method => {
         return [method, {
           ...method,
           name: "#" + method.name
@@ -107,7 +107,7 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       this.classWriter.newLine();
     }
 
-    protected buildMethodBody(
+    protected buildMethodBodyTrap(
       structure: TS_Method,
       remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>
     ): void

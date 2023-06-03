@@ -38,9 +38,9 @@ const WrapThisInnerDecorator: ConfigureStubDecorator<WrapThisInnerFields, false>
 )
 {
   return class WrapThisAndParameters extends baseClass {
-    protected getExtendsAndImplements(): ExtendsAndImplements
+    protected getExtendsAndImplementsTrap(context: Map<symbol, unknown>): ExtendsAndImplements
     {
-      const inner = super.getExtendsAndImplements();
+      const inner = super.getExtendsAndImplementsTrap(context);
       return {
         extends: inner.extends,
         implements: inner.implements.map(value => `WrapThisAndParameters<${value}>`),

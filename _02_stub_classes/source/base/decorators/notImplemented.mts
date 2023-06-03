@@ -54,9 +54,9 @@ const NotImplementedDecorator: ConfigureStubDecorator<NotImplementedFields, fals
       this.requiredInitializers.resolve(NotImplemented.#INIT_KEY);
     }
 
-    protected getExtendsAndImplements(): ExtendsAndImplements
+    protected getExtendsAndImplementsTrap(context: Map<symbol, unknown>): ExtendsAndImplements
     {
-      const inner = super.getExtendsAndImplements();
+      const inner = super.getExtendsAndImplementsTrap(context);
 
       return {
         extends: inner.extends,
@@ -86,13 +86,13 @@ const NotImplementedDecorator: ConfigureStubDecorator<NotImplementedFields, fals
       methodStructure.returnType = "never";
     }
   
-    protected buildMethodBody(
+    protected buildMethodBodyTrap(
       methodStructure: TS_Method,
       remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>,
     ): void
     {
       this.voidArguments(remainingArgs);
-      super.buildMethodBody(methodStructure, remainingArgs);
+      super.buildMethodBodyTrap(methodStructure, remainingArgs);
 
       this.classWriter.writeLine(`throw new Error("not yet implemented");`);
     }
