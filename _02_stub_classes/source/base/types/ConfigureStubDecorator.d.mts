@@ -6,7 +6,7 @@ import type {
   SubclassDecorator,
 } from "#stage_utilities/source/types/SubclassDecorator.mjs";
 
-import ConfigureStub from "../baseStub.mjs";
+import ConfigureStub from "../ConfigureStub.mjs";
 
 export type ConfigureStubDecorator<Added extends StaticAndInstance> =
   SubclassDecorator<typeof ConfigureStub, Added, false>;

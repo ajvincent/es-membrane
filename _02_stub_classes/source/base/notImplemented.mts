@@ -4,7 +4,7 @@ import NotImplementedDecorator, {
   type NotImplementedFields
 } from "./decorators/notImplemented.mjs";
 
-import ConfigureStub from "./baseStub.mjs";
+import ConfigureStub from "./ConfigureStub.mjs";
 
 const NotImplementedStub = MultiMixinBuilder<[NotImplementedFields], typeof ConfigureStub>(
   [NotImplementedDecorator], ConfigureStub

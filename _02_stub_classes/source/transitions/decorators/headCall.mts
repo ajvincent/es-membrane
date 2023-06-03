@@ -44,7 +44,7 @@ import addTransitionTypeImport from "../utilities/addTransitionTypeImport.mjs";
 import type {
   ParamRenamer
 } from "../types/paramRenamer.mjs";
-import ConfigureStub from "../../base/baseStub.mjs";
+import ConfigureStub from "../../base/ConfigureStub.mjs";
 
 // #endregion preamble
 

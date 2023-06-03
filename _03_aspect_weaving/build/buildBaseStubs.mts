@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 
-import ConfigureStub from "#stub_classes/source/base/baseStub.mjs";
+import ConfigureStub from "#stub_classes/source/base/ConfigureStub.mjs";
 
 import StubClassSet, {
   type StubClassSetConfiguration

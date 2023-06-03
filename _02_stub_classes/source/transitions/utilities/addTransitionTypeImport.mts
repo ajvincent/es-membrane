@@ -3,7 +3,7 @@ import {
   pathToModule
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 
-import BaseStub from "../../base/baseStub.mjs"
+import BaseStub from "../../base/ConfigureStub.mjs"
 
 const aspectTypesSource: ModuleSourceDirectory = {
   importMeta: import.meta,

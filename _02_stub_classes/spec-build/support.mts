@@ -3,7 +3,7 @@ import {
   pathToModule
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 import getTS_SourceFile from "#stage_utilities/source/getTS_SourceFile.mjs";
-import ConfigureStub from "../source/base/baseStub.mjs";
+import ConfigureStub from "../source/base/ConfigureStub.mjs";
 
 import StubClassSet, {
   type StubClassSetConfiguration

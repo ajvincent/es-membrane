@@ -13,7 +13,7 @@ import type {
   TS_Method,
 } from "#stub_classes/source/base/types/export-types.mjs";
 import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
-import { ExtendsAndImplements } from "#stub_classes/source/base/baseStub.mjs";
+import { ExtendsAndImplements } from "#stub_classes/source/base/ConfigureStub.mjs";
 
 // #endregion preamble
 

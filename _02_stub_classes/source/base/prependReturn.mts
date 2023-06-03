@@ -1,6 +1,6 @@
 import MultiMixinBuilder from "#stage_utilities/source/MultiMixinBuilder.mjs";
 
-import ConfigureStub from "./baseStub.mjs";
+import ConfigureStub from "./ConfigureStub.mjs";
 
 import PrependReturnDecorator, {
   type PrependReturnFields

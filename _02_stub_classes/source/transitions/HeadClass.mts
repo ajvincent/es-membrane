@@ -4,7 +4,7 @@ import TransitionsHeadCallDecorator, {
   type HeadCallFields
 } from "./decorators/headCall.mjs";
 
-import ConfigureStub from "../base/baseStub.mjs";
+import ConfigureStub from "../base/ConfigureStub.mjs";
 
 const TransitionsHeadStub = MultiMixinBuilder<[HeadCallFields], typeof ConfigureStub>(
   [TransitionsHeadCallDecorator], ConfigureStub

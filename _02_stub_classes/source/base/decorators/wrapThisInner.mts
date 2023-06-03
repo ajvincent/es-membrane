@@ -14,7 +14,7 @@ import type {
 
 import type {
   ExtendsAndImplements
-} from "../baseStub.mjs";
+} from "../ConfigureStub.mjs";
 
 import extractType from "../utilities/extractType.mjs"
 

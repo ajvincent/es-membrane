@@ -28,7 +28,7 @@ import type {
 
 import type {
   ExtendsAndImplements
-} from "../../base/baseStub.mjs";
+} from "../../base/ConfigureStub.mjs";
 
 import type {
   TS_Method,

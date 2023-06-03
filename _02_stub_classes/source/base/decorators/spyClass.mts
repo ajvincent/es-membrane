@@ -23,7 +23,7 @@ import type {
   TS_Method
 } from "../types/private-types.mjs";
 
-import { ExtendsAndImplements } from "../baseStub.mjs";
+import { ExtendsAndImplements } from "../ConfigureStub.mjs";
 
 // #endregion preamble
 
