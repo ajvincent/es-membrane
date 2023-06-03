@@ -28,7 +28,7 @@ export type TailCallFields = RightExtendsLeft<StaticAndInstance, {
   instanceFields: object,
 }>;
 
-const TransitionsTailCallDecorator: ConfigureStubDecorator<TailCallFields> = function(
+const TransitionsTailCallDecorator: ConfigureStubDecorator<TailCallFields, false> = function(
   this: void,
   baseClass
 )

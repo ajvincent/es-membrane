@@ -29,7 +29,7 @@ export type PrependReturnFields = RightExtendsLeft<StaticAndInstance, {
   instanceFields: object,
 }>;
 
-const PrependReturnDecorator: ConfigureStubDecorator<PrependReturnFields> = function(
+const PrependReturnDecorator: ConfigureStubDecorator<PrependReturnFields, false> = function(
   this: void,
   baseClass
 )

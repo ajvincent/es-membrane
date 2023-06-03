@@ -30,7 +30,7 @@ export type VoidClassFields = RightExtendsLeft<StaticAndInstance, {
   instanceFields: object,
 }>;
 
-const VoidClassDecorator: ConfigureStubDecorator<VoidClassFields> = function(
+const VoidClassDecorator: ConfigureStubDecorator<VoidClassFields, false> = function(
   this: void,
   baseClass
 )

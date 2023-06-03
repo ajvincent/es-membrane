@@ -32,7 +32,7 @@ export type WrapThisInnerFields = RightExtendsLeft<StaticAndInstance, {
   instanceFields: object;
 }>;
 
-const WrapThisInnerDecorator: ConfigureStubDecorator<WrapThisInnerFields> = function(
+const WrapThisInnerDecorator: ConfigureStubDecorator<WrapThisInnerFields, false> = function(
   this: void,
   baseClass
 )

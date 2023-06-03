@@ -26,7 +26,7 @@ export type AspectDriverFields = RightExtendsLeft<StaticAndInstance, {
   },
 }>;
 
-const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields> = function(
+const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> = function(
   this: void,
   baseClass
 )

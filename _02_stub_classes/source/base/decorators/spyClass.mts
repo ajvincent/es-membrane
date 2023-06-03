@@ -40,7 +40,7 @@ export type SpyClassFields = RightExtendsLeft<StaticAndInstance, {
   instanceFields: object,
 }>;
 
-const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields> = function(
+const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields, false> = function(
   this: void,
   baseClass
 )

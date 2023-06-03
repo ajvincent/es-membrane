@@ -8,5 +8,7 @@ import type {
 
 import ConfigureStub from "../ConfigureStub.mjs";
 
-export type ConfigureStubDecorator<Added extends StaticAndInstance> =
-  SubclassDecorator<typeof ConfigureStub, Added, false>;
+export type ConfigureStubDecorator<
+  Added extends StaticAndInstance,
+  Arguments extends any[] | false
+> = SubclassDecorator<typeof ConfigureStub, Added, Arguments>;

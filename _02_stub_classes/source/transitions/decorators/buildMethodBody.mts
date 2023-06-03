@@ -38,7 +38,7 @@ export type BuildMethodBodyFields = RightExtendsLeft<StaticAndInstance, {
   }
 }>;
 
-const BuildMethodBodyDecorator: ConfigureStubDecorator<BuildMethodBodyFields> = function(
+const BuildMethodBodyDecorator: ConfigureStubDecorator<BuildMethodBodyFields, false> = function(
   this: void,
   baseClass
 )

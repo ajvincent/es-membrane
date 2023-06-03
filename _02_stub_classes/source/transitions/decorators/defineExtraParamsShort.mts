@@ -53,7 +53,7 @@ export type DefineExtraParamsShortFields = RightExtendsLeft<StaticAndInstance, {
   }
 }>;
 
-const DefineExtraParamsShortDecorator: ConfigureStubDecorator<DefineExtraParamsShortFields> = function(
+const DefineExtraParamsShortDecorator: ConfigureStubDecorator<DefineExtraParamsShortFields, false> = function(
   this: void,
   baseClass
 ) {

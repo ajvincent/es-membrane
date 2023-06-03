@@ -32,7 +32,7 @@ export type NotImplementedFields = RightExtendsLeft<StaticAndInstance, {
   },
 }>
 
-const NotImplementedDecorator: ConfigureStubDecorator<NotImplementedFields> = function(
+const NotImplementedDecorator: ConfigureStubDecorator<NotImplementedFields, false> = function(
   this: void,
   baseClass
 )

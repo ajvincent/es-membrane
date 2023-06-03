@@ -74,7 +74,7 @@ export type HeadCallFields = RightExtendsLeft<StaticAndInstance, {
   }
 }>;
 
-const TransitionsHeadCallDecorator: ConfigureStubDecorator<HeadCallFields> = function(
+const TransitionsHeadCallDecorator: ConfigureStubDecorator<HeadCallFields, false> = function(
   this: void,
   baseClass
 )
