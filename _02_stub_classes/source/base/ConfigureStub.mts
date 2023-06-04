@@ -317,7 +317,11 @@ export default class ConfigureStub extends MixinBase
     });
   }
 
-  /** Get the "extends" and "implements" fields for the class.*/
+  /**
+   * Get the "extends" and "implements" fields for the class.
+   *
+   * @param context - for subclass decorators invoked more than once, which wish to consolidate operations.
+   */
   protected getExtendsAndImplementsTrap(context: Map<symbol, unknown>) : ExtendsAndImplements
   {
     void(context);
@@ -368,7 +372,7 @@ export default class ConfigureStub extends MixinBase
 
   /**
    * Get a list of method signatures, including every existing one, to create.  Useful for private methods.
-   * @param existingMethods -
+   * @param existingMethods - the methods I retrieved from the interface or type alias.
    * @returns the new method ordering.
    */
   protected insertAdditionalMethodsTrap(
@@ -434,6 +438,7 @@ export default class ConfigureStub extends MixinBase
   /**
    * Build the body of a class method.
    * @param structure - the method structure.
+   * @param remainingArgs - arguments we haven't used yet.
    */
   protected buildMethodBodyTrap(
     structure: TS_Method,
@@ -444,6 +449,10 @@ export default class ConfigureStub extends MixinBase
     void(remainingArgs);
   }
 
+  /**
+   * Write `void(argName);` lines for each remaining argument.
+   * @param remainingArgs - arguments we haven't used yet.
+   */
   protected voidArguments(
     remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>
   ) : void
