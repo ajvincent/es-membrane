@@ -2,7 +2,10 @@ import type {
   NumberStringType
 } from "../fixtures/types/NumberStringType.mjs";
 
-import AspectDecorators from "#aspect_weaving/source/decorators/aspects.mjs";
+import {
+  AspectDecorators
+} from "#aspect_weaving/source/generated/AspectsDictionary.mjs";
+
 import NumberStringClass_Spy from "#aspect_weaving/fixtures/generated/stubs/Spy.mjs";
 
 import {

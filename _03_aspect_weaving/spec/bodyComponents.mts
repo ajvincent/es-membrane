@@ -10,6 +10,7 @@ import type {
 import NumberStringClass_PlusOneCopy from "../fixtures/bodyComponents/plusOne.mjs";
 
 import {
+  AspectDecorators,
   type ClassWithAspects,
 } from "#aspect_weaving/source/generated/AspectsDictionary.mjs";
 
@@ -17,7 +18,6 @@ import {
   type IndeterminateClass
 } from "#aspect_weaving/source/stubs/decorators/IndeterminateReturn.mjs";
 
-import AspectDecorators from "#aspect_weaving/source/decorators/aspects.mjs";
 import buildAspectOverrideClass from "./support/buildAspectOverrideClass.mjs";
 
 type NST_Indeterminate_Type = IndeterminateClass<NumberStringType>;

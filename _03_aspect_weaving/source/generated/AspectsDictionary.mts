@@ -13,6 +13,10 @@ import type {
 } from "#stage_utilities/source/types/Utility.mjs";
 
 import type {
+  ClassDecoratorFunction
+} from "#stage_utilities/source/types/ClassDecoratorFunction.mjs";
+
+import type {
   MethodsOnlyInternal
 } from "#stub_classes/source/base/types/MethodsOnlyInternal.mjs";
 
@@ -35,19 +39,19 @@ export type AspectBuilderField<Type extends MethodsOnlyInternal> = {
   [ASPECTS_BUILDER]: AspectsBuilder<Type>
 };
 
-export type ClassWithAspects<T extends MethodsOnlyInternal> = Class<T> & AspectBuilderField<T>;
+export type ClassWithAspects<Type extends MethodsOnlyInternal> = Class<Type> & AspectBuilderField<Type>;
 
-export class AspectsDictionary<T extends MethodsOnlyInternal> {
-  readonly classInvariants: PushableArray<VoidMethodsOnly<WrapThisAndParameters<T>>> = [];
-  readonly bodyComponents: PushableArray<IndeterminateClass<T>> = [];
+export class AspectsDictionary<Type extends MethodsOnlyInternal> {
+  readonly classInvariants: PushableArray<VoidMethodsOnly<WrapThisAndParameters<Type>>> = [];
+  readonly bodyComponents: PushableArray<IndeterminateClass<Type>> = [];
 
 }
 
-export class AspectsBuilder<T extends MethodsOnlyInternal> {
-  readonly classInvariants: PushableArray<(thisObj: T) => VoidMethodsOnly<WrapThisAndParameters<T>>> = [];
-  readonly bodyComponents: PushableArray<(thisObj: T) => IndeterminateClass<T>> = [];
+export class AspectsBuilder<Type extends MethodsOnlyInternal> {
+  readonly classInvariants: PushableArray<(thisObj: Type) => VoidMethodsOnly<WrapThisAndParameters<Type>>> = [];
+  readonly bodyComponents: PushableArray<(thisObj: Type) => IndeterminateClass<Type>> = [];
 
-  constructor(baseBuilder: AspectsBuilder<T> | null) {
+  constructor(baseBuilder: AspectsBuilder<Type> | null) {
     if (baseBuilder) {
       this.classInvariants.push(...baseBuilder.classInvariants);
       this.bodyComponents.push(...baseBuilder.bodyComponents);
@@ -75,6 +79,42 @@ export function buildAspectDictionary<
   });
 
   return __dictionary__;
+}
+
+interface AspectDecoratorsInterface<Type extends MethodsOnlyInternal> {
+  classInvariants: ClassDecoratorFunction<
+    ClassWithAspects<Type>, false, [callback: (thisObj: Type) => VoidMethodsOnly<WrapThisAndParameters<Type>>]
+  >;
+  bodyComponents: ClassDecoratorFunction<
+    ClassWithAspects<Type>, false, [callback: (thisObj: Type) => IndeterminateClass<Type>]
+  >;
+
+}
+
+export class AspectDecorators<Type extends MethodsOnlyInternal>
+implements AspectDecoratorsInterface<Type>
+{
+  classInvariants(
+    this: void,
+    callback: (thisObj: Type) => VoidMethodsOnly<WrapThisAndParameters<Type>>
+  ): ClassDecoratorFunction<ClassWithAspects<Type>, false, false>
+  {
+    return function(baseClass, context): void {
+      void(context);
+      baseClass[ASPECTS_BUILDER].classInvariants.push(callback);
+    }
+  }
+  bodyComponents(
+    this: void,
+    callback: (thisObj: Type) => IndeterminateClass<Type>
+  ): ClassDecoratorFunction<ClassWithAspects<Type>, false, false>
+  {
+    return function(baseClass, context): void {
+      void(context);
+      baseClass[ASPECTS_BUILDER].bodyComponents.push(callback);
+    }
+  }
+
 }
 
 export const AspectsBuilderKeys: ReadonlyArray<string> = [

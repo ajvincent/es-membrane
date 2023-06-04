@@ -6,6 +6,10 @@ import type {
 } from "#stage_utilities/source/types/Utility.mjs";
 
 import type {
+  ClassDecoratorFunction
+} from "#stage_utilities/source/types/ClassDecoratorFunction.mjs";
+
+import type {
   MethodsOnlyInternal
 } from "#stub_classes/source/base/types/MethodsOnlyInternal.mjs";
 
@@ -28,15 +32,15 @@ export type AspectBuilderField<Type extends MethodsOnlyInternal> = {
   [ASPECTS_BUILDER]: AspectsBuilder<Type>
 };
 
-export type ClassWithAspects<T extends MethodsOnlyInternal> = Class<T> & AspectBuilderField<T>;
+export type ClassWithAspects<Type extends MethodsOnlyInternal> = Class<Type> & AspectBuilderField<Type>;
 
-export class AspectsDictionary<T extends MethodsOnlyInternal> {
+export class AspectsDictionary<Type extends MethodsOnlyInternal> {
 //@ASPECTS_DICTIONARY_FIELDS
 }
 
-export class AspectsBuilder<T extends MethodsOnlyInternal> {
+export class AspectsBuilder<Type extends MethodsOnlyInternal> {
 //@ASPECTS_BUILDER_FIELDS
-  constructor(baseBuilder: AspectsBuilder<T> | null) {
+  constructor(baseBuilder: AspectsBuilder<Type> | null) {
     if (baseBuilder) {
 //@ASPECTS_BUILDER_CONSTRUCTOR
     }
@@ -56,6 +60,16 @@ export function buildAspectDictionary<
 
 //@ASPECTS_BUILDER_FOREACH
   return __dictionary__;
+}
+
+interface AspectDecoratorsInterface<Type extends MethodsOnlyInternal> {
+//@ASPECTS_DECORATORS_INTERFACE
+}
+
+export class AspectDecorators<Type extends MethodsOnlyInternal>
+implements AspectDecoratorsInterface<Type>
+{
+//@ASPECTS_DECORATORS_CLASS
 }
 
 export const AspectsBuilderKeys: ReadonlyArray<string> = [
