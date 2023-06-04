@@ -13,7 +13,7 @@ import {
 
 import {
   ASPECTS_BUILDER,
-} from "#aspect_weaving/source/symbol-keys.mjs";
+} from "#aspect_weaving/source/stubs/symbol-keys.mjs";
 
 import buildAspectOverrideClass from "./support/buildAspectOverrideClass.mjs";
 

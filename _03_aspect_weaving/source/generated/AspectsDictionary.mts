@@ -27,7 +27,7 @@ import type {
 
 import {
   ASPECTS_BUILDER,
-} from "../symbol-keys.mjs";
+} from "../stubs/symbol-keys.mjs";
 
 import type {
   IndeterminateClass

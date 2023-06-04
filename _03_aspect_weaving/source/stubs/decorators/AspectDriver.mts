@@ -117,19 +117,19 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       );
 
       this.addImport(
-        "#aspect_weaving/source/symbol-keys.mjs",
+        "#aspect_weaving/source/stubs/symbol-keys.mjs",
         "ASPECTS_BUILDER",
         false
       );
 
       this.addImport(
-        "#aspect_weaving/source/symbol-keys.mjs",
+        "#aspect_weaving/source/stubs/symbol-keys.mjs",
         "ASPECTS_DICTIONARY",
         false
       );
 
       this.addImport(
-        "#aspect_weaving/source/symbol-keys.mjs",
+        "#aspect_weaving/source/stubs/symbol-keys.mjs",
         "INDETERMINATE",
         false
       );

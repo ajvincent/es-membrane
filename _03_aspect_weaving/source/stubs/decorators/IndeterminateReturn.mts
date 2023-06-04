@@ -33,7 +33,8 @@ import type {
 
 import {
   INDETERMINATE,
-} from "#aspect_weaving/source/symbol-keys.mjs";
+} from "../symbol-keys.mjs";
+
 // #endregion preamble
 
 export type IndeterminateClass<T extends MethodsOnlyInternal> = MethodReturnRewrite<T, typeof INDETERMINATE, true>;
