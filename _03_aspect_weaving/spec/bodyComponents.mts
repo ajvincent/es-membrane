@@ -15,7 +15,7 @@ import {
 
 import {
   type IndeterminateClass
-} from "#aspect_weaving/source/stub-decorators/IndeterminateReturn.mjs";
+} from "#aspect_weaving/source/stubs/decorators/IndeterminateReturn.mjs";
 
 import AspectDecorators from "#aspect_weaving/source/decorators/aspects.mjs";
 import buildAspectOverrideClass from "./support/buildAspectOverrideClass.mjs";

@@ -17,7 +17,7 @@ import {
 
 import type {
   IndeterminateClass
-} from "../stub-decorators/IndeterminateReturn.mjs";
+} from "../stubs/decorators/IndeterminateReturn.mjs";
 
 import {
   ASPECTS_BUILDER

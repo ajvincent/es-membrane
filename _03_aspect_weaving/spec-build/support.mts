@@ -6,8 +6,8 @@ import {
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 import getTS_SourceFile from "#stage_utilities/source/getTS_SourceFile.mjs";
 
-import createAspectDriver from "../source/stub-build/createAspectDriver.mjs";
-import createInderminateReturn from "#aspect_weaving/source/stub-build/createIndeterminateReturn.mjs";
+import createAspectDriver from "../source/stubs/classBuilders/createAspectDriver.mjs";
+import createInderminateReturn from "#aspect_weaving/source/stubs/classBuilders/createIndeterminateReturn.mjs";
 
 const stageDir: ModuleSourceDirectory = {
   importMeta: import.meta,
@@ -43,7 +43,6 @@ async function buildIndeterminateReturn(): Promise<void> {
     sourceFile,
     "NumberStringType",
     path.join(generatedDir, "empty"),
-    classFile,
     "NumberStringClass",
   );
 }

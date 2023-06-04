@@ -1,7 +1,7 @@
 import path from "path";
 import { SourceFile } from "ts-morph";
 
-import AspectDriverStub from "./AspectDriverStub.mjs";
+import AspectDriverStub from "../mixins/AspectDriverStub.mjs";
 
 export default
 async function createAspectDriver(

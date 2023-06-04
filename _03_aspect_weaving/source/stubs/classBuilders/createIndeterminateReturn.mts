@@ -1,14 +1,13 @@
 import path from "path";
 import { SourceFile } from "ts-morph";
 
-import IndeterminateReturnStub from "./IndeterminateReturnStub.mjs";
+import IndeterminateReturnStub from "../mixins/IndeterminateReturnStub.mjs";
 
 export default
 async function createInderminateReturn(
   sourceFile: SourceFile,
   interfaceOrAliasName: string,
   destinationDir: string,
-  pathToBaseClassFile: string,
   className: string,
 ) : Promise<void>
 {

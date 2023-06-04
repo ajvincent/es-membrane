@@ -2,7 +2,7 @@ import MultiMixinBuilder from "#stage_utilities/source/MultiMixinBuilder.mjs";
 
 import IndeterminateReturnDecorator, {
   type IndeterminateReturnFields
-} from "../stub-decorators/IndeterminateReturn.mjs";
+} from "../decorators/IndeterminateReturn.mjs";
 
 import ConfigureStub from "#stub_classes/source/base/ConfigureStub.mjs";
 
