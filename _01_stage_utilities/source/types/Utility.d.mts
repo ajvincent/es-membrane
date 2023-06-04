@@ -1,6 +1,6 @@
 /* Just some utilities I may use some day. */
 
-import type {Class, Simplify} from "type-fest";
+import type {Class} from "type-fest";
 
 // #region booleans
 export type And<Left extends boolean, Right extends boolean> = Left extends true ? Right extends true ? true : false : false;
@@ -42,7 +42,7 @@ export type Tail<Elements extends ReadonlyArray<T>, T = unknown> =
 
 export type IndexUnion<T extends ReadonlyArray<unknown>> = Exclude<keyof T, keyof unknown[]>;
 
-export type PushableArray<T> = Simplify<ReadonlyArray<T> & Pick<T[], "push">>;
+export type PushableArray<T> = ReadonlyArray<T> & Pick<T[], "push">;
 // #endregion arrays
 
 export type CtorParamsAndArgs<
