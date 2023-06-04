@@ -7,20 +7,28 @@ import type {
 } from "#stub_classes/source/base/types/MethodsOnlyInternal.mjs";
 
 import type {
+  VoidMethodsOnly,
   WrapThisAndParameters
 } from "#stub_classes/source/base/types/export-types.mjs";
 
 import {
   ClassWithAspects,
-} from "../AspectsDictionary.mjs";
+} from "../generated/AspectsDictionary.mjs";
+
+import type {
+  IndeterminateClass
+} from "../stub-decorators/IndeterminateReturn.mjs";
 
 import {
-  ASPECTS_KEY
+  ASPECTS_BUILDER
 } from "../symbol-keys.mjs";
 
 interface AspectDecoratorsInterface<T extends MethodsOnlyInternal> {
   classInvariants: ClassDecoratorFunction<
-    ClassWithAspects<T>, false, [invariant: WrapThisAndParameters<T>]
+    ClassWithAspects<T>, false, [invariant: (thisObj: T) => VoidMethodsOnly<WrapThisAndParameters<T>>]
+  >;
+  bodyComponents: ClassDecoratorFunction<
+    ClassWithAspects<T>, false, [component: (thisObj: T) => IndeterminateClass<T>]
   >;
 }
 
@@ -30,12 +38,23 @@ implements AspectDecoratorsInterface<T>
 {
   classInvariants(
     this: void,
-    invariant: WrapThisAndParameters<T>
+    invariant: (thisObj: T) => VoidMethodsOnly<WrapThisAndParameters<T>>
   ): ClassDecoratorFunction<ClassWithAspects<T>, false, false>
   {
     return function(baseClass, context): void {
       void(context);
-      baseClass[ASPECTS_KEY].classInvariants.push(invariant);
+      baseClass[ASPECTS_BUILDER].classInvariants.push(invariant);
+    }
+  }
+
+  bodyComponents(
+    this: void,
+    component: (thisObj: T) => IndeterminateClass<T>
+  ): ClassDecoratorFunction<ClassWithAspects<T>, false, false>
+  {
+    return function(baseClass, context): void {
+      void(context);
+      baseClass[ASPECTS_BUILDER].bodyComponents.push(component);
     }
   }
 }

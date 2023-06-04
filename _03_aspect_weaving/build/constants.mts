@@ -5,7 +5,7 @@ import {
 
 import getTS_SourceFile from "#stage_utilities/source/getTS_SourceFile.mjs";
 
-const stageDir: ModuleSourceDirectory = {
+export const stageDir: ModuleSourceDirectory = {
   importMeta: import.meta,
   pathToDirectory: "../.."
 };

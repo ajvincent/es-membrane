@@ -1,0 +1,63 @@
+// #region preamble
+import type { Class } from "type-fest";
+
+import type {
+  PushableArray
+} from "#stage_utilities/source/types/Utility.mjs";
+
+import type {
+  MethodsOnlyInternal
+} from "#stub_classes/source/base/types/MethodsOnlyInternal.mjs";
+
+import type {
+  VoidMethodsOnly,
+  WrapThisAndParameters,
+} from "#stub_classes/source/base/types/export-types.mjs";
+
+import {
+  ASPECTS_BUILDER,
+} from "../symbol-keys.mjs";
+
+import type {
+  IndeterminateClass
+} from "../stub-decorators/IndeterminateReturn.mjs";
+
+// #endregion preamble
+
+export type AspectBuilderField<Type extends MethodsOnlyInternal> = {
+  [ASPECTS_BUILDER]: AspectsBuilder<Type>
+};
+
+export type ClassWithAspects<T extends MethodsOnlyInternal> = Class<T> & AspectBuilderField<T>;
+
+export class AspectsDictionary<T extends MethodsOnlyInternal> {
+//@ASPECTS_DICTIONARY_FIELDS
+}
+
+export class AspectsBuilder<T extends MethodsOnlyInternal> {
+//@ASPECTS_BUILDER_FIELDS
+  constructor(baseBuilder: AspectsBuilder<T> | null) {
+    if (baseBuilder) {
+//@ASPECTS_BUILDER_CONSTRUCTOR
+    }
+  }
+}
+
+export function buildAspectDictionary<
+  Type extends MethodsOnlyInternal,
+  Class extends Type & AspectBuilderField<Type>
+>
+(
+  __instance__: Class
+) : AspectsDictionary<Type>
+{
+  const __dictionary__ = new AspectsDictionary<Type>;
+  const __builder__: AspectsBuilder<Type> = __instance__[ASPECTS_BUILDER];
+
+//@ASPECTS_BUILDER_FOREACH
+  return __dictionary__;
+}
+
+export const AspectsBuilderKeys: ReadonlyArray<string> = [
+//@ASPECTS_BUILDER_KEYS
+];

@@ -7,6 +7,7 @@ import {
 import getTS_SourceFile from "#stage_utilities/source/getTS_SourceFile.mjs";
 
 import createAspectDriver from "../source/stub-build/createAspectDriver.mjs";
+import createInderminateReturn from "#aspect_weaving/source/stub-build/createIndeterminateReturn.mjs";
 
 const stageDir: ModuleSourceDirectory = {
   importMeta: import.meta,
@@ -22,12 +23,23 @@ export default async function runModule() : Promise<void>
 {
   await Promise.all([
     buildEmptyAspects(),
+    buildIndeterminateReturn(),
   ]);
 }
 
 async function buildEmptyAspects() : Promise<void>
 {
   await createAspectDriver(
+    sourceFile,
+    "NumberStringType",
+    path.join(generatedDir, "empty"),
+    classFile,
+    "NumberStringClass",
+  );
+}
+
+async function buildIndeterminateReturn(): Promise<void> {
+  await createInderminateReturn(
     sourceFile,
     "NumberStringType",
     path.join(generatedDir, "empty"),
