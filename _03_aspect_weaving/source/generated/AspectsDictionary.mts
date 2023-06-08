@@ -41,7 +41,7 @@ export type AspectBuilderField<Type extends MethodsOnlyInternal> = {
 };
 
 export type ClassWithAspects<Type extends MethodsOnlyInternal> = (
-  Class<Type & AspectBuilderField<Type>> &
+  Class<Type & AspectBuilderField<Type>, [Type]> &
   {
     [ASPECTS_BUILDER]: AspectsBuilder<Type>;
   }
@@ -68,20 +68,21 @@ export class AspectsBuilder<Type extends MethodsOnlyInternal> {
 
 export function buildAspectDictionary<
   Type extends MethodsOnlyInternal,
-  Class extends Type & AspectBuilderField<Type>
+  AspectInstance extends Type & AspectBuilderField<Type>
 >
 (
-  __instance__: Class
+  __wrapped__: Type,
+  __instance__: AspectInstance
 ) : AspectsDictionary<Type>
 {
   const __dictionary__ = new AspectsDictionary<Type>;
   const __builder__: AspectsBuilder<Type> = __instance__[ASPECTS_BUILDER];
 
   __builder__.classInvariants.forEach(__subBuilder__ => {
-    __dictionary__.classInvariants.push(new __subBuilder__(__instance__));
+    __dictionary__.classInvariants.push(new __subBuilder__(__wrapped__));
   });
   __builder__.bodyComponents.forEach(__subBuilder__ => {
-    __dictionary__.bodyComponents.push(new __subBuilder__(__instance__));
+    __dictionary__.bodyComponents.push(new __subBuilder__(__wrapped__));
   });
 
   return __dictionary__;

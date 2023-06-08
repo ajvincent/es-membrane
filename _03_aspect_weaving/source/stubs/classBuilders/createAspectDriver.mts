@@ -20,9 +20,6 @@ async function createAspectDriver(
     className + "_AspectDriver"
   );
 
-  generator.defineDefaultBaseClass(className);
-  generator.addImport(pathToBaseClassFile, className, true);
-
   generator.addImport(
     sourceFile.getFilePath().replace(/(?:\.d)?\.(m?)ts/, ".$1js"),
     "type " + interfaceOrAliasName,

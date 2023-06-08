@@ -79,7 +79,7 @@ function replaceBuilderConstructorFields(this: void, fieldName: string) : string
 function replaceBuilderForEach(this: void, fieldName: string) : string {
   return [
     `  __builder__.${fieldName}.forEach(__subBuilder__ => {`,
-    `    __dictionary__.${fieldName}.push(new __subBuilder__(__instance__));`,
+    `    __dictionary__.${fieldName}.push(new __subBuilder__(__wrapped__));`,
     `  });`,
     ""
   ].join("\n");

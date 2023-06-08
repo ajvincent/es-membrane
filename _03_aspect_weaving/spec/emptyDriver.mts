@@ -7,6 +7,8 @@ import type {
   NumberStringType
 } from "../fixtures/types/NumberStringType.mjs";
 
+import NumberStringClass from "#aspect_weaving/fixtures/components/shared/NumberStringClass.mjs";
+
 import {
   type ClassWithAspects,
 } from "#aspect_weaving/source/generated/AspectsDictionary.mjs";
@@ -39,7 +41,9 @@ it("Aspect weaving: an empty aspect driver still works", async () => {
   class NST_Empty extends NST_Aspect_Override {
   }
 
-  const nst = new NST_Empty;
+  const nstWrapped = new NumberStringClass;
+
+  const nst = new NST_Empty(nstWrapped);
 
   expect(nst.repeatForward("foo", 3)).toBe("foofoofoo");
   expect(nst.repeatBack(3, "foo")).toBe("foofoofoo");

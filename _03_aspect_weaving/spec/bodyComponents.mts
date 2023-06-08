@@ -1,6 +1,6 @@
 import {
   type ModuleSourceDirectory,
-  getModuleDefaultClass,
+  getModuleDefaultClassWithArgs,
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
@@ -35,7 +35,10 @@ describe("Aspect weaving: supports body components", () => {
       pathToDirectory: "../../spec-generated/"
     };
 
-    NST_Indeterminate = (await getModuleDefaultClass<NST_Indeterminate_Type>(
+    NST_Indeterminate = (await getModuleDefaultClassWithArgs<
+      [NumberStringType], unknown
+    >
+    (
       generatedDir, "empty/IndeterminateReturn.mjs"
     )) as ClassWithAspects<NST_Indeterminate_Type>;
   });

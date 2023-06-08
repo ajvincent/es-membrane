@@ -13,7 +13,6 @@ import type {
   TS_Method,
 } from "#stub_classes/source/base/types/export-types.mjs";
 import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
-import { ExtendsAndImplements } from "#stub_classes/source/base/ConfigureStub.mjs";
 
 // #endregion preamble
 
@@ -34,30 +33,8 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
   return class AspectDriver extends baseClass {
     static readonly #INIT_BASE_CLASS_KEY = "(base class defined)";
 
-    #baseClassName = "";
-
     constructor(...args: unknown[]) {
       super(...args);
-      this.requiredInitializers.add(AspectDriver.#INIT_BASE_CLASS_KEY);
-    }
-
-    public defineDefaultBaseClass(
-      className: string
-    ): void {
-      this.requiredInitializers.mayResolve(AspectDriver.#INIT_BASE_CLASS_KEY);
-
-      this.#baseClassName = className;
-
-      this.requiredInitializers.resolve(AspectDriver.#INIT_BASE_CLASS_KEY);
-    }
-
-    protected getExtendsAndImplementsTrap(context: Map<symbol, unknown>): ExtendsAndImplements {
-      const extendsAndImplements = super.getExtendsAndImplementsTrap(context);
-
-      return {
-        extends: this.#baseClassName,
-        implements: extendsAndImplements.implements,
-      };
     }
 
     protected insertAdditionalMethodsTrap(existingMethods: ReadonlyArray<TS_Method>): ReadonlyArray<TS_Method> {
@@ -81,6 +58,7 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       if (isBefore && !methodStructure) {
         this.#addBaseImports();
         this.#addAspectsDictionary();
+        this.#addConstructor();
         this.#writeRegion(true);
       }
 
@@ -133,6 +111,12 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
         "INDETERMINATE",
         false
       );
+
+      this.addImport(
+        "#aspect_weaving/source/stubs/symbol-keys.mjs",
+        "WRAPPED_FOR_ASPECTS",
+        false
+      );
     }
 
     #addAspectsDictionary(): void {
@@ -150,16 +134,28 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       this.classWriter.newLine();
 
       this.classWriter.writeLine(
-        `public readonly [ASPECTS_DICTIONARY]: AspectsDictionary<${this.interfaceOrAliasName}> = buildAspectDictionary<`
+        `public readonly [ASPECTS_DICTIONARY]: AspectsDictionary<${this.interfaceOrAliasName}>;`
       );
-      this.classWriter.indent(() => {
-        this.classWriter.writeLine(this.interfaceOrAliasName + ",");
-        this.classWriter.writeLine(`
-          ${this.getClassName()} & AspectBuilderField<${this.interfaceOrAliasName}>
-        `.trim());
+
+      this.classWriter.writeLine(
+        `private readonly [WRAPPED_FOR_ASPECTS]: ${this.interfaceOrAliasName};`
+      );
+    }
+
+    #addConstructor(): void {
+      this.classWriter.write(`constructor(wrapped: ${this.interfaceOrAliasName}) `);
+      this.classWriter.block(() => {
+        this.classWriter.writeLine(`this[WRAPPED_FOR_ASPECTS] = wrapped;`);
+        this.classWriter.writeLine(`this[ASPECTS_DICTIONARY] = buildAspectDictionary<`);
+        this.classWriter.indent(() => {
+          this.classWriter.writeLine(this.interfaceOrAliasName + ",");
+          this.classWriter.writeLine(`
+            ${this.getClassName()} & AspectBuilderField<${this.interfaceOrAliasName}>
+          `.trim());
+        });
+        this.classWriter.writeLine(">");
+        this.classWriter.writeLine("(wrapped, this);")
       });
-      this.classWriter.writeLine(">");
-      this.classWriter.writeLine("(this);")
     }
 
     #writeRegion(atStart: boolean): void {
@@ -214,7 +210,7 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       });
       this.classWriter.newLine();
 
-      this.classWriter.writeLine(`return super.${superName}(${
+      this.classWriter.writeLine(`return this[WRAPPED_FOR_ASPECTS].${superName}(${
         params.map(param => param.name).join(", ")
       });`);
     }
