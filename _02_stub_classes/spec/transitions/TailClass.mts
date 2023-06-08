@@ -24,7 +24,7 @@ it("stub-ts-morph: transitions tail stub correctly forwards to the next handler"
     generatedDir, "TransitionsTail.mjs"
   );
 
-  expect(Reflect.ownKeys(NST_Transitions_Tail.prototype)).toEqual([
+  expect(Reflect.ownKeys(NST_Transitions_Tail.prototype as NumberStringType)).toEqual([
     "constructor",
     "repeatForward",
     "repeatBack"

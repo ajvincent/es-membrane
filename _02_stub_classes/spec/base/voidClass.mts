@@ -21,7 +21,7 @@ it("stub-ts-morph: voidClass with 'void' return types returns undefined", async 
     generatedDir, "VoidClass.mjs"
   );
 
-  expect(Reflect.ownKeys(NST_Void.prototype)).toEqual([
+  expect(Reflect.ownKeys(NST_Void.prototype as NumberStringType)).toEqual([
     "constructor",
     "repeatForward",
     "repeatBack"

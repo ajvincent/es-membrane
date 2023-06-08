@@ -18,7 +18,7 @@ describe("stub-ts-morph: notImplemented", () => {
       generatedDir, "NotImplemented.mjs"
     );
 
-    expect(Reflect.ownKeys(NST_NotImplemented.prototype)).toEqual([
+    expect(Reflect.ownKeys(NST_NotImplemented.prototype as NumberStringType)).toEqual([
       "constructor",
       "repeatForward",
       "repeatBack"

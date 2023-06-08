@@ -5,6 +5,10 @@
 import path from "path";
 import url from "url";
 
+import type {
+  Class
+} from "type-fest";
+
 export type ModuleSourceDirectory = {
   importMeta: ImportMeta;
   pathToDirectory: string;
@@ -19,14 +23,11 @@ export type ModuleSourceDirectory = {
 export async function getModuleDefaultClass<U>(
   source: ModuleSourceDirectory,
   leafName: string
-) : Promise<{
-  new() : U,
-  prototype: object
-}>
+) : Promise<Class<U>>
 {
   const module = (
     await import(pathToModule(source, leafName))
-  ) as { default: new() => U };
+  ) as { default: Class<U> };
   return module.default;
 }
 
@@ -40,14 +41,11 @@ export async function getModuleDefaultClass<U>(
 export async function getModuleDefaultClassWithArgs<T extends unknown[], U>(
   source: ModuleSourceDirectory,
   leafName: string
-) : Promise<{
-  new(...args: T) : U,
-  prototype: object
-}>
+) : Promise<Class<U, T>>
 {
   const module = (
     await import(pathToModule(source, leafName))
-  ) as { default: new(...args: T) => U };
+  ) as { default: Class<U, T> };
   return module.default;
 }
 
@@ -84,14 +82,11 @@ export async function getModuleClassWithArgs<Key extends string, T extends unkno
   source: ModuleSourceDirectory,
   leafName: string,
   property: Key,
-) : Promise<{
-  new(...args: T) : U,
-  prototype: U
-}>
+) : Promise<Class<U, T>>
 {
   const module = (
     await import(pathToModule(source, leafName))
-  ) as { [key in Key]: new(...args: T) => U };
+  ) as { [key in Key]: Class<U, T> };
   return module[property];
 }
 

@@ -31,7 +31,7 @@ it("stub-ts-morph: transition entry stub correctly inserts new arguments", async
     generatedDir, "TransitionsHead.mjs"
   );
 
-  expect(Reflect.ownKeys(NST_TransitionsEntry.prototype)).toEqual([
+  expect(Reflect.ownKeys(NST_TransitionsEntry.prototype as NumberStringType)).toEqual([
     "constructor",
     "repeatForward",
     "repeatBack"

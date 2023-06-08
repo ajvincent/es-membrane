@@ -24,7 +24,7 @@ it("stub-ts-morph: PrependReturnClass with prepended return arguments returns un
     generatedDir, "PrependReturn.mjs"
   );
 
-  expect(Reflect.ownKeys(NST_PrependReturn.prototype)).toEqual([
+  expect(Reflect.ownKeys(NST_PrependReturn.prototype as NumberStringType)).toEqual([
     "constructor",
     "repeatForward",
     "repeatBack"

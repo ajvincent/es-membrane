@@ -23,7 +23,7 @@ it("stub-ts-morph: transition stub correctly inserts new arguments", async () =>
     generatedDir, "TransitionsMiddle.mjs"
   );
 
-  expect(Reflect.ownKeys(NST_Transitions.prototype)).toEqual([
+  expect(Reflect.ownKeys(NST_Transitions.prototype as NumberStringType)).toEqual([
     "constructor",
     "repeatForward",
     "repeatBack"
