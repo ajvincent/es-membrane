@@ -4,6 +4,10 @@ import {
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
+  PrototypeOf
+} from "#stage_utilities/source/types/Utility.mjs";
+
+import type {
   NumberStringType
 } from "../../fixtures/types/NumberStringType.mjs";
 
@@ -18,7 +22,7 @@ describe("stub-ts-morph: notImplemented", () => {
       generatedDir, "NotImplemented.mjs"
     );
 
-    expect(Reflect.ownKeys(NST_NotImplemented.prototype as NumberStringType)).toEqual([
+    expect(Reflect.ownKeys(NST_NotImplemented.prototype as PrototypeOf<typeof NST_NotImplemented>)).toEqual([
       "constructor",
       "repeatForward",
       "repeatBack"

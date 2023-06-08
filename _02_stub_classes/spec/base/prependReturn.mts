@@ -4,6 +4,10 @@ import {
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
+  PrototypeOf
+} from "#stage_utilities/source/types/Utility.mjs";
+
+import type {
   MethodsPrependReturn,
 } from "../../source/base/types/export-types.mjs";
 
@@ -24,7 +28,7 @@ it("stub-ts-morph: PrependReturnClass with prepended return arguments returns un
     generatedDir, "PrependReturn.mjs"
   );
 
-  expect(Reflect.ownKeys(NST_PrependReturn.prototype as NumberStringType)).toEqual([
+  expect(Reflect.ownKeys(NST_PrependReturn.prototype as PrototypeOf<typeof NST_PrependReturn>)).toEqual([
     "constructor",
     "repeatForward",
     "repeatBack"

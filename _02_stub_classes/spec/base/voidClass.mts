@@ -4,6 +4,10 @@ import {
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
+  PrototypeOf
+} from "#stage_utilities/source/types/Utility.mjs";
+
+import type {
   VoidMethodsOnly,
 } from "../../source/base/types/export-types.mjs";
 
@@ -21,7 +25,7 @@ it("stub-ts-morph: voidClass with 'void' return types returns undefined", async 
     generatedDir, "VoidClass.mjs"
   );
 
-  expect(Reflect.ownKeys(NST_Void.prototype as NumberStringType)).toEqual([
+  expect(Reflect.ownKeys(NST_Void.prototype as PrototypeOf<typeof NST_Void>)).toEqual([
     "constructor",
     "repeatForward",
     "repeatBack"

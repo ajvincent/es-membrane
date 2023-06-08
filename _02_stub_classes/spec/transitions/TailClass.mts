@@ -4,6 +4,10 @@ import {
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
+  PrototypeOf
+} from "#stage_utilities/source/types/Utility.mjs";
+
+import type {
   TransitionInterface,
 } from "../../source/base/types/export-types.mjs";
 
@@ -24,7 +28,7 @@ it("stub-ts-morph: transitions tail stub correctly forwards to the next handler"
     generatedDir, "TransitionsTail.mjs"
   );
 
-  expect(Reflect.ownKeys(NST_Transitions_Tail.prototype as NumberStringType)).toEqual([
+  expect(Reflect.ownKeys(NST_Transitions_Tail.prototype as PrototypeOf<typeof NST_Transitions_Tail>)).toEqual([
     "constructor",
     "repeatForward",
     "repeatBack"

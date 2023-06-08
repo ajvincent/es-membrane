@@ -4,6 +4,10 @@ import {
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 
 import type {
+  PrototypeOf
+} from "#stage_utilities/source/types/Utility.mjs";
+
+import type {
   TransitionInterface,
 } from "../../source/base/types/export-types.mjs";
 
@@ -23,7 +27,7 @@ it("stub-ts-morph: transition stub correctly inserts new arguments", async () =>
     generatedDir, "TransitionsMiddle.mjs"
   );
 
-  expect(Reflect.ownKeys(NST_Transitions.prototype as NumberStringType)).toEqual([
+  expect(Reflect.ownKeys(NST_Transitions.prototype as PrototypeOf<typeof NST_Transitions>)).toEqual([
     "constructor",
     "repeatForward",
     "repeatBack"

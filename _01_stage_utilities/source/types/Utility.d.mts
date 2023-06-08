@@ -48,3 +48,5 @@ export type PushableArray<T> = ReadonlyArray<T> & Pick<T[], "push">;
 export type CtorParamsAndArgs<
   X extends Class<object>
 > = { args: ConstructorParameters<X>, creates: InstanceType<X> };
+
+export type PrototypeOf<T extends Class<unknown>> = { prototype: InstanceType<T> };
