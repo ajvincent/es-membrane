@@ -1,5 +1,4 @@
 // #region preamble
-import path from "path";
 import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 
 import type {
@@ -10,11 +9,6 @@ import type {
   StaticAndInstance
 } from "#stage_utilities/source/types/StaticAndInstance.mjs";
 
-import {
-  type ModuleSourceDirectory,
-  pathToModule
-} from "#stage_utilities/source/AsyncSpecModules.mjs";
-
 import type {
   ConfigureStubDecorator
 } from "../types/ConfigureStubDecorator.mjs";
@@ -22,18 +16,10 @@ import type {
 import type {
   TS_Method
 } from "../types/private-types.mjs";
-
 import { ExtendsAndImplements } from "../ConfigureStub.mjs";
 
 // #endregion preamble
 
-const projectDir: ModuleSourceDirectory = {
-  importMeta: import.meta,
-  pathToDirectory: "../../../../.."
-};
-const SpyBasePath = pathToModule(
-  projectDir, "_01_stage_utilities/source/SpyBase.mjs"
-);
 
 export type SpyClassFields = RightExtendsLeft<StaticAndInstance, {
   staticFields: object,
@@ -47,10 +33,11 @@ const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields, false> = functio
 {
   return class extends baseClass {
     protected getExtendsAndImplementsTrap(context: Map<symbol, unknown>): ExtendsAndImplements {
+      const __rv__ = super.getExtendsAndImplementsTrap(context);
       return {
-        extends: this.getClassName() + "_WrapThisInner",
-        implements: super.getExtendsAndImplementsTrap(context).implements,
-      }
+        ...__rv__,
+        implements: __rv__.implements.concat("HasSpy")
+      };
     }
 
     protected methodTrap(
@@ -65,11 +52,8 @@ const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields, false> = functio
 
       if (!methodStructure) {
         this.addImport("#stub_classes/source/symbol-keys.mjs", "SPY_BASE", false);
-        this.addImport(SpyBasePath, "SpyBase", true);
-        const pathToClassFile = this.getPathToClassFile();
-        const pathToWrapThisClass = path.normalize(path.join(pathToClassFile, "../WrapThisInner.mjs"));
-
-        this.addImport(pathToWrapThisClass, this.getClassName() + "_WrapThisInner", true);
+        this.addImport("#stage_utilities/source/SpyBase.mjs", "SpyBase", true);
+        this.addImport("#stub_classes/source/base/spyClass.mjs", "type HasSpy", false);
 
         this.classWriter.writeLine(
           `readonly [SPY_BASE] = new SpyBase;`
@@ -89,7 +73,7 @@ const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields, false> = functio
       ).join(", ") ?? "";
 
       this.classWriter.writeLine(
-        `this[SPY_BASE].getSpy("${structure.name}")(${paramsStr});`
+        `this[SPY_BASE].getSpy("${structure.name}")(this.#wrapped, ${paramsStr});`
       );
       remainingArgs.clear();
 

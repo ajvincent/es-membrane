@@ -22,11 +22,11 @@ import type {
 
 import type {
   VoidMethodsOnly,
-  WrapThisAndParameters,
 } from "#stub_classes/source/base/types/export-types.mjs";
 
 import {
   ASPECTS_BUILDER,
+  ASPECTS_DICTIONARY,
 } from "../stubs/symbol-keys.mjs";
 
 import type {
@@ -36,20 +36,26 @@ import type {
 // #endregion preamble
 
 export type AspectBuilderField<Type extends MethodsOnlyInternal> = {
-  [ASPECTS_BUILDER]: AspectsBuilder<Type>
+  [ASPECTS_DICTIONARY]: AspectsDictionary<Type>;
+  get [ASPECTS_BUILDER](): AspectsBuilder<Type>;
 };
 
-export type ClassWithAspects<Type extends MethodsOnlyInternal> = Class<Type> & AspectBuilderField<Type>;
+export type ClassWithAspects<Type extends MethodsOnlyInternal> = (
+  Class<Type & AspectBuilderField<Type>> &
+  {
+    [ASPECTS_BUILDER]: AspectsBuilder<Type>;
+  }
+);
 
 export class AspectsDictionary<Type extends MethodsOnlyInternal> {
-  readonly classInvariants: PushableArray<VoidMethodsOnly<WrapThisAndParameters<Type>>> = [];
+  readonly classInvariants: PushableArray<VoidMethodsOnly<Type>> = [];
   readonly bodyComponents: PushableArray<IndeterminateClass<Type>> = [];
 
 }
 
 export class AspectsBuilder<Type extends MethodsOnlyInternal> {
-  readonly classInvariants: PushableArray<(thisObj: Type) => VoidMethodsOnly<WrapThisAndParameters<Type>>> = [];
-  readonly bodyComponents: PushableArray<(thisObj: Type) => IndeterminateClass<Type>> = [];
+  readonly classInvariants: PushableArray<new (thisObj: Type) => VoidMethodsOnly<Type>> = [];
+  readonly bodyComponents: PushableArray<new (thisObj: Type) => IndeterminateClass<Type>> = [];
 
   constructor(baseBuilder: AspectsBuilder<Type> | null) {
     if (baseBuilder) {
@@ -72,10 +78,10 @@ export function buildAspectDictionary<
   const __builder__: AspectsBuilder<Type> = __instance__[ASPECTS_BUILDER];
 
   __builder__.classInvariants.forEach(__subBuilder__ => {
-    __dictionary__.classInvariants.push(__subBuilder__(__instance__));
+    __dictionary__.classInvariants.push(new __subBuilder__(__instance__));
   });
   __builder__.bodyComponents.forEach(__subBuilder__ => {
-    __dictionary__.bodyComponents.push(__subBuilder__(__instance__));
+    __dictionary__.bodyComponents.push(new __subBuilder__(__instance__));
   });
 
   return __dictionary__;
@@ -83,10 +89,10 @@ export function buildAspectDictionary<
 
 interface AspectDecoratorsInterface<Type extends MethodsOnlyInternal> {
   classInvariants: ClassDecoratorFunction<
-    ClassWithAspects<Type>, false, [callback: (thisObj: Type) => VoidMethodsOnly<WrapThisAndParameters<Type>>]
+    ClassWithAspects<Type>, false, [callback: new (thisObj: Type) => VoidMethodsOnly<Type>]
   >;
   bodyComponents: ClassDecoratorFunction<
-    ClassWithAspects<Type>, false, [callback: (thisObj: Type) => IndeterminateClass<Type>]
+    ClassWithAspects<Type>, false, [callback: new (thisObj: Type) => IndeterminateClass<Type>]
   >;
 
 }
@@ -96,7 +102,7 @@ implements AspectDecoratorsInterface<Type>
 {
   classInvariants(
     this: void,
-    callback: (thisObj: Type) => VoidMethodsOnly<WrapThisAndParameters<Type>>
+    callback: Class<VoidMethodsOnly<Type>, [Type]>
   ): ClassDecoratorFunction<ClassWithAspects<Type>, false, false>
   {
     return function(baseClass, context): void {
@@ -106,7 +112,7 @@ implements AspectDecoratorsInterface<Type>
   }
   bodyComponents(
     this: void,
-    callback: (thisObj: Type) => IndeterminateClass<Type>
+    callback: Class<IndeterminateClass<Type>, [Type]>
   ): ClassDecoratorFunction<ClassWithAspects<Type>, false, false>
   {
     return function(baseClass, context): void {

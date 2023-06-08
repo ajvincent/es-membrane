@@ -1,46 +1,46 @@
 /* This file is generated.  Do not edit. */
 // #region preamble
 
-import SpyBase from "../../../../_01_stage_utilities/source/SpyBase.mjs";
-import NumberStringClass_Spy_WrapThisInner from "./WrapThisInner.mjs";
+import SpyBase from "#stage_utilities/source/SpyBase.mjs";
 import {
   type NumberStringType,
 } from "../../types/NumberStringType.mjs";
 import {
+  type VoidMethodsOnly,
+} from "../../../../_02_stub_classes/source/base/types/VoidMethodsOnly.mjs";
+import {
   SPY_BASE,
 } from "#stub_classes/source/symbol-keys.mjs";
 import {
-  type WrapThisAndParameters,
-} from "../../../../_02_stub_classes/source/base/types/WrapThisAndParameters.mjs";
-import {
-  type VoidMethodsOnly,
-} from "../../../../_02_stub_classes/source/base/types/VoidMethodsOnly.mjs";
+  type HasSpy,
+} from "#stub_classes/source/base/spyClass.mjs";
 
 // #endregion preamble
 
 export default class NumberStringClass_Spy
-extends NumberStringClass_Spy_WrapThisInner
-implements VoidMethodsOnly<WrapThisAndParameters<NumberStringType>>
+implements VoidMethodsOnly<NumberStringType>, HasSpy
 {
   readonly [SPY_BASE] = new SpyBase;
 
+  readonly #wrapped: NumberStringType
+
+  constructor(wrapped: NumberStringType) {
+    this.#wrapped = wrapped;
+  }
+
   repeatForward(
-    thisObj: NumberStringType,
-    parameters: [s: string, n: number],
+    s: string,
+    n: number,
   ): void
   {
-    void(thisObj);
-    void(parameters);
-    this[SPY_BASE].getSpy("repeatForward")(thisObj, parameters);
+    this[SPY_BASE].getSpy("repeatForward")(this.#wrapped, s, n);
   }
 
   repeatBack(
-    thisObj: NumberStringType,
-    parameters: [n: number, s: string],
+    n: number,
+    s: string,
   ): void
   {
-    void(thisObj);
-    void(parameters);
-    this[SPY_BASE].getSpy("repeatBack")(thisObj, parameters);
+    this[SPY_BASE].getSpy("repeatBack")(this.#wrapped, n, s);
   }
 }

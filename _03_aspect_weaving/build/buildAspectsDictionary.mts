@@ -5,7 +5,7 @@ import { pathToModule } from "#stage_utilities/source/AsyncSpecModules.mjs";
 import { stageDir } from "./constants.mjs";
 
 const fieldToArgTypes: ReadonlyMap<string, string> = new Map([
-  ["classInvariants", "VoidMethodsOnly<WrapThisAndParameters<Type>>"],
+  ["classInvariants", "VoidMethodsOnly<Type>"],
   ["bodyComponents", "IndeterminateClass<Type>"],
 ]);
 
@@ -69,7 +69,7 @@ function replaceDictionaryFields(this: void, fieldName: string, type: string): s
 }
 
 function replaceBuilderFields(this: void, fieldName: string, type: string) : string {
-  return `  readonly ${fieldName}: PushableArray<(thisObj: Type) => ${type}> = [];\n`;
+  return `  readonly ${fieldName}: PushableArray<new (thisObj: Type) => ${type}> = [];\n`;
 }
 
 function replaceBuilderConstructorFields(this: void, fieldName: string) : string {
@@ -79,7 +79,7 @@ function replaceBuilderConstructorFields(this: void, fieldName: string) : string
 function replaceBuilderForEach(this: void, fieldName: string) : string {
   return [
     `  __builder__.${fieldName}.forEach(__subBuilder__ => {`,
-    `    __dictionary__.${fieldName}.push(__subBuilder__(__instance__));`,
+    `    __dictionary__.${fieldName}.push(new __subBuilder__(__instance__));`,
     `  });`,
     ""
   ].join("\n");
@@ -92,7 +92,7 @@ function replaceBuilderKeys(this: void, fieldName: string) : string {
 function replaceDecoratorsInterface(this: void, fieldName: string, type: string): string {
   return [
     `  ${fieldName}: ClassDecoratorFunction<`,
-    `    ClassWithAspects<Type>, false, [callback: (thisObj: Type) => ${type}]`,
+    `    ClassWithAspects<Type>, false, [callback: new (thisObj: Type) => ${type}]`,
     `  >;`,
     ""
   ].join("\n");
@@ -102,7 +102,7 @@ function replaceDecoratorsClass(this: void, fieldName: string, type: string): st
   return [
     `  ${fieldName}(`,
     `    this: void,`,
-    `    callback: (thisObj: Type) => ${type}`,
+    `    callback: Class<${type}, [Type]>`,
     `  ): ClassDecoratorFunction<ClassWithAspects<Type>, false, false>`,
     `  {`,
     `    return function(baseClass, context): void {`,

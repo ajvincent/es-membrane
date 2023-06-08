@@ -15,11 +15,11 @@ import type {
 
 import type {
   VoidMethodsOnly,
-  WrapThisAndParameters,
 } from "#stub_classes/source/base/types/export-types.mjs";
 
 import {
   ASPECTS_BUILDER,
+  ASPECTS_DICTIONARY,
 } from "../stubs/symbol-keys.mjs";
 
 import type {
@@ -29,10 +29,16 @@ import type {
 // #endregion preamble
 
 export type AspectBuilderField<Type extends MethodsOnlyInternal> = {
-  [ASPECTS_BUILDER]: AspectsBuilder<Type>
+  [ASPECTS_DICTIONARY]: AspectsDictionary<Type>;
+  get [ASPECTS_BUILDER](): AspectsBuilder<Type>;
 };
 
-export type ClassWithAspects<Type extends MethodsOnlyInternal> = Class<Type> & AspectBuilderField<Type>;
+export type ClassWithAspects<Type extends MethodsOnlyInternal> = (
+  Class<Type & AspectBuilderField<Type>> &
+  {
+    [ASPECTS_BUILDER]: AspectsBuilder<Type>;
+  }
+);
 
 export class AspectsDictionary<Type extends MethodsOnlyInternal> {
 //@ASPECTS_DICTIONARY_FIELDS

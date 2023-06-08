@@ -150,7 +150,7 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       this.classWriter.newLine();
 
       this.classWriter.writeLine(
-        `private readonly [ASPECTS_DICTIONARY]: AspectsDictionary<${this.interfaceOrAliasName}> = buildAspectDictionary<`
+        `public readonly [ASPECTS_DICTIONARY]: AspectsDictionary<${this.interfaceOrAliasName}> = buildAspectDictionary<`
       );
       this.classWriter.indent(() => {
         this.classWriter.writeLine(this.interfaceOrAliasName + ",");
@@ -204,9 +204,9 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       this.classWriter.write(`for (let i = 0; i < __aspects__.bodyComponents.length; i++)`);
       this.classWriter.block(() => {
         this.classWriter.writeLine(`const __bodyComponent__ = __aspects__.bodyComponents[i];`);
-        this.classWriter.writeLine(`const __rv__ = __bodyComponent__.${superName}.apply(this, [${
+        this.classWriter.writeLine(`const __rv__ = __bodyComponent__.${superName}(${
           params.map(param => param.name).join(", ")
-        }]);`);
+        });`);
         this.classWriter.write(`if (__rv__ !== INDETERMINATE)`);
         this.classWriter.block(() => {
           this.classWriter.writeLine("return __rv__;");
@@ -252,9 +252,9 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       this.classWriter.write(`for (let i = 0; i < __aspects__.classInvariants.length; i++)`);
       this.classWriter.block(() => {
         this.classWriter.writeLine(`const __invariant__ = __aspects__.classInvariants[i];`);
-        this.classWriter.writeLine(`__invariant__.${structure.name}(this, [${
+        this.classWriter.writeLine(`__invariant__.${structure.name}(${
           params.map(param => param.name).join(", ")
-        }]);`);
+        });`);
       });
       this.classWriter.newLine();
       this.classWriter.newLine();

@@ -5,7 +5,6 @@ import PrependReturnStub from "./base/prependReturn.mjs";
 import PrependReturnNIStub from "./base/prependReturnNI.mjs";
 import SpyClassStub from "./base/spyClass.mjs";
 import VoidClassStub from "./base/voidClass.mjs";
-import WrapThisInnerStub from "./base/wrapThis-inner.mjs";
 
 import TransitionsStub from "./transitions/baseStub.mjs";
 import TransitionsHeadStub from "./transitions/HeadClass.mjs";
@@ -17,7 +16,6 @@ const StubMap = Object.freeze({
   "PrependReturnNI": PrependReturnNIStub,
   "SpyClass": SpyClassStub,
   "VoidClass": VoidClassStub,
-  "WrapThisInner": WrapThisInnerStub,
   "TransitionsStub": TransitionsStub,
   "TransitionsHeadStub": TransitionsHeadStub,
   "TransitionsTailStub": TransitionsTailStub,

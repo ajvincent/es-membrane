@@ -7,6 +7,8 @@ import type {
   NumberStringType
 } from "../fixtures/types/NumberStringType.mjs";
 
+import NumberStringClass from "#aspect_weaving/fixtures/components/shared/NumberStringClass.mjs";
+
 import NumberStringClass_PlusOneCopy from "../fixtures/bodyComponents/plusOne.mjs";
 
 import {
@@ -42,22 +44,22 @@ describe("Aspect weaving: supports body components", () => {
     it("with a component returning INDETERMINATE", () => {
       const NST_Aspect_Override = buildAspectOverrideClass();
 
-      @bodyComponents(() => new NST_Indeterminate)
+      @bodyComponents(NST_Indeterminate)
       class NST_PassThrough extends NST_Aspect_Override {
       }
 
-      const nst = new NST_PassThrough;
+      const nst = new NST_PassThrough(new NumberStringClass);
       expect(nst.repeatForward("foo", 3)).toBe("foofoofoo");
     });
 
     it("with a component returning a value", () => {
       const NST_Aspect_Override = buildAspectOverrideClass();
 
-      @bodyComponents(() => new NumberStringClass_PlusOneCopy)
+      @bodyComponents(NumberStringClass_PlusOneCopy)
       class NST_PlusOne extends NST_Aspect_Override {
       }
 
-      const nst = new NST_PlusOne;
+      const nst = new NST_PlusOne(new NumberStringClass);
       expect(nst.repeatForward("foo", 2)).toBe("foofoofoo");
     });
   });
