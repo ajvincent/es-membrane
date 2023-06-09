@@ -1,4 +1,5 @@
 import MixinBase from "../source/MixinBase.mjs";
+
 import type {
   StaticAndInstance
 } from "../source/types/StaticAndInstance.mjs";

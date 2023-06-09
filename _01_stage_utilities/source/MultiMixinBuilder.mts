@@ -1,10 +1,11 @@
 // #region preamble
+import type {
+  Class
+} from "type-fest";
 
 import type {
   StaticAndInstance
 } from "./types/StaticAndInstance.mjs";
-
-import MixinBase from "./MixinBase.mjs";
 
 import type {
   SubclassDecoratorSequence,
@@ -26,12 +27,10 @@ import type {
  * @param decorators - a sequence which creates and returns subclasses of MixinBase.  This must match the ordering of Interfaces.
  * @param baseClass - always `MixinBase`.
  * @param context - the class decorator context to forward to each decorator.
- *
- * @internal - this depends on MixinBase, which is internal to es-membrane.
  */
 function applyAllDecorators<
   Interfaces extends ReadonlyArray<StaticAndInstance>,
-  Base extends typeof MixinBase,
+  Base extends Class<object>,
 >
 (
   this: void,
@@ -52,12 +51,10 @@ function applyAllDecorators<
  *
  * @typeParam Interfaces - the sequence of static and instance interfaces.
  * @param decorators - a sequence which creates and returns subclasses of MixinBase.  This must match the ordering of Interfaces.
- *
- * @internal - this depends on MixinBase, which is internal to es-membrane.
  */
 function MixinBuilderInternal<
   Interfaces extends ReadonlyArray<StaticAndInstance>,
-  Base extends typeof MixinBase,
+  Base extends Class<object>,
 >
 (
   decorators: SubclassDecoratorSequence<Base, Interfaces, false>
@@ -78,12 +75,10 @@ function MixinBuilderInternal<
  *
  * @typeParam Interfaces - the sequence of static and instance interfaces.
  * @param decorators - a sequence which creates and returns subclasses of MixinBase.  This must match the ordering of Interfaces.
- *
- * @internal - this depends on MixinBase, which is internal to es-membrane.
  */
 function MultiMixinBuilder<
   Interfaces extends ReadonlyArray<StaticAndInstance>,
-  Base extends typeof MixinBase,
+  Base extends Class<object>,
 >
 (
   decorators: SubclassDecoratorSequence<Base, Interfaces, false>,
@@ -96,9 +91,9 @@ function MultiMixinBuilder<
 
   return (
     @decoratorFunction
-    class extends baseClass {
+      class extends baseClass {
     }
-  ) as MultiMixinClass<Interfaces, Base>;
+  ) as unknown as MultiMixinClass<Interfaces, Base>;
 }
 
 export default MultiMixinBuilder;

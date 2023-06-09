@@ -1,4 +1,5 @@
 import type {
+  Class,
   TupleToUnion,
   UnionToIntersection,
   Simplify,
@@ -11,8 +12,6 @@ import type {
 import type {
   StaticAndInstance
 } from "./StaticAndInstance.mjs";
-
-import MixinBase from "../MixinBase.mjs";
 
 /**
  * Build an intersection of either the static interfaces or the instance interfaces from a sequence.
@@ -28,14 +27,13 @@ type ExtractFields<
 >>>;
 
 /**
- * Build an intersection type of a sequence of static and instance interfaces, and the MixinBase class.
+ * Build an intersection type of a sequence of static and instance interfaces, and an underlying class.
  *
  * @typeParam Interfaces - the sequence of static and instance interfaces.
- * @internal - this depends on MixinBase, which is internal to es-membrane.
  */
 export type MultiMixinClass<
   Interfaces extends ReadonlyArray<StaticAndInstance>,
-  Base extends typeof MixinBase,
+  Base extends Class<object>,
 > = MixinClass<
   ExtractFields<Interfaces, "staticFields">,
   ExtractFields<Interfaces, "instanceFields">,
