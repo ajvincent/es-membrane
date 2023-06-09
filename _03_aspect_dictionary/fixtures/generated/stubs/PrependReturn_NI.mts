@@ -6,7 +6,7 @@ import {
 } from "../../types/NumberStringType.mjs";
 import {
   type MethodsPrependReturn,
-} from "../../../../_02_stub_classes/source/base/types/MethodsPrependReturn.mjs";
+} from "#stub_classes/source/base/types/MethodsPrependReturn.mjs";
 
 // #endregion preamble
 

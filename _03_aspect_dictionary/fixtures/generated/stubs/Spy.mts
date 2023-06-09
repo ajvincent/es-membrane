@@ -7,7 +7,7 @@ import {
 } from "../../types/NumberStringType.mjs";
 import {
   type VoidMethodsOnly,
-} from "../../../../_02_stub_classes/source/base/types/VoidMethodsOnly.mjs";
+} from "#stub_classes/source/base/types/VoidMethodsOnly.mjs";
 import {
   SPY_BASE,
 } from "#stub_classes/source/symbol-keys.mjs";

@@ -6,7 +6,7 @@ import {
 } from "../../types/NumberStringType.mjs";
 import {
   type TransitionInterface,
-} from "../../../../_02_stub_classes/source/transitions/types/TransitionInterface.mjs";
+} from "#stub_classes/source/transitions/types/TransitionInterface.mjs";
 
 // #endregion preamble
 

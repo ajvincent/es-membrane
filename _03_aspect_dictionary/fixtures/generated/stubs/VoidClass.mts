@@ -6,7 +6,7 @@ import {
 } from "../../types/NumberStringType.mjs";
 import {
   type VoidMethodsOnly,
-} from "../../../../_02_stub_classes/source/base/types/VoidMethodsOnly.mjs";
+} from "#stub_classes/source/base/types/VoidMethodsOnly.mjs";
 
 // #endregion preamble
 

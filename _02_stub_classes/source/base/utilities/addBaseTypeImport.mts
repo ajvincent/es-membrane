@@ -1,14 +1,4 @@
-import {
-  type ModuleSourceDirectory,
-  pathToModule
-} from "#stage_utilities/source/AsyncSpecModules.mjs";
-
 import BaseStub from "../ConfigureStub.mjs";
-
-const baseTypesSource: ModuleSourceDirectory = {
-  importMeta: import.meta,
-  pathToDirectory: "../../types"
-};
 
 export default function addBaseTypeImport(
   stubGenerator: BaseStub,
@@ -17,7 +7,7 @@ export default function addBaseTypeImport(
 ) : void
 {
   stubGenerator.addImport(
-    pathToModule(baseTypesSource, typeFile),
+    "#stub_classes/source/base/types/" + typeFile,
     `type ${typeToImport}`,
     false
   );

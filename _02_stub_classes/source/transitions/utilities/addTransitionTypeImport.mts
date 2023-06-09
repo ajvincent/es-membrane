@@ -1,14 +1,4 @@
-import {
-  type ModuleSourceDirectory,
-  pathToModule
-} from "#stage_utilities/source/AsyncSpecModules.mjs";
-
 import BaseStub from "../../base/ConfigureStub.mjs"
-
-const aspectTypesSource: ModuleSourceDirectory = {
-  importMeta: import.meta,
-  pathToDirectory: "../../types"
-};
 
 export default function addTransitionTypeImport(
   stubGenerator: BaseStub,
@@ -17,7 +7,7 @@ export default function addTransitionTypeImport(
 ) : void
 {
   stubGenerator.addImport(
-    pathToModule(aspectTypesSource, typeFile),
+    "#stub_classes/source/transitions/types/" + typeFile,
     `type ${typeToImport}`,
     false
   );
