@@ -1,4 +1,5 @@
 // #region preamble
+import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
 
 import type {
   WriterFunction
@@ -68,7 +69,7 @@ const DefineExtraParamsShortDecorator: ConfigureStubDecorator<DefineExtraParamsS
 
     constructor(...args: unknown[]) {
       super(...args);
-      this.requiredInitializers.add(TransitionsBase.#INIT_EXTRA_PARAMS_KEY);
+      getRequiredInitializers(this).add(TransitionsBase.#INIT_EXTRA_PARAMS_KEY);
     }
 
     defineExtraParams(
@@ -76,7 +77,7 @@ const DefineExtraParamsShortDecorator: ConfigureStubDecorator<DefineExtraParamsS
       tailParamRenamer: ParamRenamer,
     ) : void
     {
-      this.requiredInitializers.mayResolve(TransitionsBase.#INIT_EXTRA_PARAMS_KEY);
+      getRequiredInitializers(this).mayResolve(TransitionsBase.#INIT_EXTRA_PARAMS_KEY);
       assertNotDefined(this.#extraParams);
 
       middleParameters.forEach((param, index) => {
@@ -92,7 +93,7 @@ const DefineExtraParamsShortDecorator: ConfigureStubDecorator<DefineExtraParamsS
         ).join(", "),
       });
 
-      this.requiredInitializers.resolve(TransitionsBase.#INIT_EXTRA_PARAMS_KEY);
+      getRequiredInitializers(this).resolve(TransitionsBase.#INIT_EXTRA_PARAMS_KEY);
     }
 
     protected getExtendsAndImplementsTrap(context: Map<symbol, unknown>): ExtendsAndImplements {

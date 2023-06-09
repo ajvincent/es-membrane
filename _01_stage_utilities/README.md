@@ -41,10 +41,10 @@ How do I use these types?
 ### Rules to follow
 
 - Subclass constructors _must_ have arguments `unknown[]`, to allow further subclassing.
-- Subclass constructors _may_ call `this.requiredInitializers.add(key)` to define a key.
-- Subclass methods _must_ resolve required keys they are responsible for via `this.requiredInitializers.resolve(key)`, and _may_ check for a previously resolved key with `this.requiredInitializers.mayResolve(key)`.
+- Subclass constructors _may_ call `getRequiredInitializers(this).add(key)` to define a key.
+- Subclass methods _must_ resolve required keys they are responsible for via `getRequiredInitializers(this).resolve(key)`, and _may_ check for a previously resolved key with `getRequiredInitializers(this).mayResolve(key)`.
   - This is how methods emulate the behavior a constructor normally imposes.
-- Subclass methods _may_ ensure all required keys are resolved with the `this.requiredInitializers.check()` call.
+- Subclass methods _may_ ensure all required keys are resolved with the `getRequiredInitializers(this).check()` call.
 - The ordering of decorators in `MultiMixinBuilder` determines the chain of derived-to-base classes.
 
 ## Internal build tools

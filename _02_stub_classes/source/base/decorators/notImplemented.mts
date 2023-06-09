@@ -1,4 +1,5 @@
 // #region preamble
+import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
 
 import type {
   RightExtendsLeft
@@ -44,14 +45,14 @@ const NotImplementedDecorator: ConfigureStubDecorator<NotImplementedFields, fals
 
     constructor(...args: unknown[]) {
       super(...args);
-      this.requiredInitializers.add(NotImplemented.#INIT_KEY);
+      getRequiredInitializers(this).add(NotImplemented.#INIT_KEY);
     }
 
     setNotImplementedOnly(useNever: boolean) : void
     {
-      this.requiredInitializers.mayResolve(NotImplemented.#INIT_KEY);
+      getRequiredInitializers(this).mayResolve(NotImplemented.#INIT_KEY);
       this.#useNever = useNever;
-      this.requiredInitializers.resolve(NotImplemented.#INIT_KEY);
+      getRequiredInitializers(this).resolve(NotImplemented.#INIT_KEY);
     }
 
     protected getExtendsAndImplementsTrap(context: Map<symbol, unknown>): ExtendsAndImplements

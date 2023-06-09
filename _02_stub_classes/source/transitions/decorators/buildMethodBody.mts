@@ -1,4 +1,5 @@
 // #region preamble
+import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
 
 import type {
   RightExtendsLeft
@@ -48,7 +49,7 @@ const BuildMethodBodyDecorator: ConfigureStubDecorator<BuildMethodBodyFields, fa
 
     constructor(...args: unknown[]) {
       super(...args);
-      this.requiredInitializers.add(TransitionsBase.#INIT_BUILD_METHOD_KEY);
+      getRequiredInitializers(this).add(TransitionsBase.#INIT_BUILD_METHOD_KEY);
     }
 
     #buildMethodBody: MaybeDefined<
@@ -61,12 +62,12 @@ const BuildMethodBodyDecorator: ConfigureStubDecorator<BuildMethodBodyFields, fa
         remainingArgs: Set<TS_Parameter>,
       ) => void
     ) : void {
-      this.requiredInitializers.mayResolve(TransitionsBase.#INIT_BUILD_METHOD_KEY);
+      getRequiredInitializers(this).mayResolve(TransitionsBase.#INIT_BUILD_METHOD_KEY);
 
       assertNotDefined(this.#buildMethodBody);
       this.#buildMethodBody = markDefined(builder);
 
-      this.requiredInitializers.resolve(TransitionsBase.#INIT_BUILD_METHOD_KEY);
+      getRequiredInitializers(this).resolve(TransitionsBase.#INIT_BUILD_METHOD_KEY);
     }
 
     protected buildMethodBodyTrap(

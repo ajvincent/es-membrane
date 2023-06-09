@@ -1,3 +1,5 @@
+import getRequiredInitializers from "../source/RequiredInitializers.mjs";
+
 import MultiMixinBuilder, {
   type MultiMixinClass,
 } from "../source/MultiMixinBuilder.mjs";
@@ -30,7 +32,7 @@ describe("MultiMixinBuilder can generate mixins of several classes", () => {
       return class extends baseClass {
         constructor(...args: unknown[]) {
           super(...args);
-          foundState = this.requiredInitializers.getState();
+          foundState = getRequiredInitializers(this).getState();
         }
       }
     }
@@ -66,7 +68,7 @@ describe("MultiMixinBuilder can generate mixins of several classes", () => {
       return class extends baseClass {
         constructor(...args: unknown[]) {
           super(...args);
-          foundState = this.requiredInitializers.getState();
+          foundState = getRequiredInitializers(this).getState();
         }
       }
     }

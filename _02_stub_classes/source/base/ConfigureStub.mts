@@ -19,6 +19,8 @@ import {
   DefaultMap,
 } from "#stage_utilities/source/DefaultMap.mjs";
 
+import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
+
 import MixinBase from "#stage_utilities/source/MixinBase.mjs";
 
 import extractType, {
@@ -116,7 +118,7 @@ export default class ConfigureStub extends MixinBase
 
   constructor(...args: unknown[]) {
     super(...args);
-    this.requiredInitializers.add(ConfigureStub.#INIT_KEY);
+    getRequiredInitializers(this).add(ConfigureStub.#INIT_KEY);
   }
 
   /**
@@ -132,7 +134,7 @@ export default class ConfigureStub extends MixinBase
     className: string,
   ) : void
   {
-    this.requiredInitializers.mayResolve(ConfigureStub.#INIT_KEY);
+    getRequiredInitializers(this).mayResolve(ConfigureStub.#INIT_KEY);
 
     if (!path.isAbsolute(pathToClassFile))
       throw new Error("pathToClassFile must be absolute");
@@ -151,11 +153,11 @@ export default class ConfigureStub extends MixinBase
 
     this.interfaceOrAliasName = interfaceOrAliasName;
 
-    this.requiredInitializers.resolve(ConfigureStub.#INIT_KEY);
+    getRequiredInitializers(this).resolve(ConfigureStub.#INIT_KEY);
   }
 
   protected getClassName(): string {
-    if (this.requiredInitializers.has(ConfigureStub.#INIT_KEY)) {
+    if (getRequiredInitializers(this).has(ConfigureStub.#INIT_KEY)) {
       throw new Error("Invoke this.configureStub() first!");
     }
 
@@ -163,7 +165,7 @@ export default class ConfigureStub extends MixinBase
   }
 
   protected getPathToClassFile(): string {
-    if (this.requiredInitializers.has(ConfigureStub.#INIT_KEY)) {
+    if (getRequiredInitializers(this).has(ConfigureStub.#INIT_KEY)) {
       throw new Error("Invoke this.configureStub() first!");
     }
 
@@ -185,7 +187,7 @@ export default class ConfigureStub extends MixinBase
     isDefault: boolean,
   ) : void
   {
-    this.requiredInitializers.check();
+    getRequiredInitializers(this).check();
 
     if (!pathToModule.startsWith("#") && !path.isAbsolute(pathToModule))
       throw new Error("pathToModule must be absolute");
@@ -276,7 +278,7 @@ export default class ConfigureStub extends MixinBase
   /** Build the class into the class writer. (But don't write it to the file system.) */
   buildClass() : void
   {
-    this.requiredInitializers.check();
+    getRequiredInitializers(this).check();
 
     if (this.#buildCalled) {
       throw new Error(`Build has been called for file ${this.#pathToClassFile}`);
@@ -472,7 +474,7 @@ export default class ConfigureStub extends MixinBase
   /** Write the class module to the file system! */
   async write() : Promise<void>
   {
-    this.requiredInitializers.check();
+    getRequiredInitializers(this).check();
 
     if (!this.#buildCalled)
       throw new Error(`File ${this.#pathToClassFile} has not been built!`);
