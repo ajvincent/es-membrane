@@ -1,5 +1,3 @@
-import getRequiredInitializers from "./RequiredInitializers.mjs";
-
 /**
  * @remarks
  * You may be wondering, "why do we need a mixin base class which does nothing?"
@@ -20,7 +18,7 @@ import getRequiredInitializers from "./RequiredInitializers.mjs";
  * function templatedSecondClass&lt;Base extends typeof RestAnyClass&gt;( baseClass: Base )
  * // Type 'CustomMixinClass & RestAnyClass' is not assignable to type 'InstanceType<Base>'.ts(2322)
  *
- * Yes, this is a big pain in the butt.  The `requiredInitializers` field is a workaround to
+ * Yes, this is a big pain in the butt.  The `getRequiredInitializers()` function is a workaround to
  * provide some state saying "Yes, we called specific methods of the class to do what a constructor
  * normally would do."
  *
@@ -32,7 +30,5 @@ export default class MixinBase {
   {
     // do nothing
   }
-
-  protected readonly requiredInitializers = getRequiredInitializers(this);
 }
 Object.freeze(MixinBase.prototype);
