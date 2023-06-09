@@ -71,49 +71,49 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
 
     #addBaseImports(): void {
       this.addImport(
-        "#aspect_weaving/source/generated/AspectsDictionary.mjs",
+        "#aspect_dictionary/source/generated/AspectsDictionary.mjs",
         "AspectsDictionary",
         false
       );
 
       this.addImport(
-        "#aspect_weaving/source/generated/AspectsDictionary.mjs",
+        "#aspect_dictionary/source/generated/AspectsDictionary.mjs",
         "AspectsBuilder",
         false
       );
 
       this.addImport(
-        "#aspect_weaving/source/generated/AspectsDictionary.mjs",
+        "#aspect_dictionary/source/generated/AspectsDictionary.mjs",
         "type AspectBuilderField",
         false
       )
 
       this.addImport(
-        "#aspect_weaving/source/generated/AspectsDictionary.mjs",
+        "#aspect_dictionary/source/generated/AspectsDictionary.mjs",
         "buildAspectDictionary",
         false
       );
 
       this.addImport(
-        "#aspect_weaving/source/stubs/symbol-keys.mjs",
+        "#aspect_dictionary/source/stubs/symbol-keys.mjs",
         "ASPECTS_BUILDER",
         false
       );
 
       this.addImport(
-        "#aspect_weaving/source/stubs/symbol-keys.mjs",
+        "#aspect_dictionary/source/stubs/symbol-keys.mjs",
         "ASPECTS_DICTIONARY",
         false
       );
 
       this.addImport(
-        "#aspect_weaving/source/stubs/symbol-keys.mjs",
+        "#aspect_dictionary/source/stubs/symbol-keys.mjs",
         "INDETERMINATE",
         false
       );
 
       this.addImport(
-        "#aspect_weaving/source/stubs/symbol-keys.mjs",
+        "#aspect_dictionary/source/stubs/symbol-keys.mjs",
         "WRAPPED_FOR_ASPECTS",
         false
       );

@@ -2,17 +2,17 @@ import type {
   NumberStringType
 } from "../fixtures/types/NumberStringType.mjs";
 
-import NumberStringClass from "#aspect_weaving/fixtures/components/shared/NumberStringClass.mjs";
+import NumberStringClass from "#aspect_dictionary/fixtures/components/shared/NumberStringClass.mjs";
 
 import {
   AspectDecorators
-} from "#aspect_weaving/source/generated/AspectsDictionary.mjs";
+} from "#aspect_dictionary/source/generated/AspectsDictionary.mjs";
 
-import NumberStringClass_Spy from "#aspect_weaving/fixtures/generated/stubs/Spy.mjs";
+import NumberStringClass_Spy from "#aspect_dictionary/fixtures/generated/stubs/Spy.mjs";
 
 import {
   ASPECTS_DICTIONARY
-} from "#aspect_weaving/source/stubs/symbol-keys.mjs";
+} from "#aspect_dictionary/source/stubs/symbol-keys.mjs";
 
 import type {
   HasSpy

@@ -7,18 +7,18 @@ import type {
   NumberStringType
 } from "../fixtures/types/NumberStringType.mjs";
 
-import NumberStringClass from "#aspect_weaving/fixtures/components/shared/NumberStringClass.mjs";
+import NumberStringClass from "#aspect_dictionary/fixtures/components/shared/NumberStringClass.mjs";
 
 import NumberStringClass_PlusOneCopy from "../fixtures/bodyComponents/plusOne.mjs";
 
 import {
   AspectDecorators,
   type ClassWithAspects,
-} from "#aspect_weaving/source/generated/AspectsDictionary.mjs";
+} from "#aspect_dictionary/source/generated/AspectsDictionary.mjs";
 
 import {
   type IndeterminateClass
-} from "#aspect_weaving/source/stubs/decorators/IndeterminateReturn.mjs";
+} from "#aspect_dictionary/source/stubs/decorators/IndeterminateReturn.mjs";
 
 import buildAspectOverrideClass from "./support/buildAspectOverrideClass.mjs";
 

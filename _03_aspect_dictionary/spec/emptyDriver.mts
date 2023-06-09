@@ -7,15 +7,15 @@ import type {
   NumberStringType
 } from "../fixtures/types/NumberStringType.mjs";
 
-import NumberStringClass from "#aspect_weaving/fixtures/components/shared/NumberStringClass.mjs";
+import NumberStringClass from "#aspect_dictionary/fixtures/components/shared/NumberStringClass.mjs";
 
 import {
   type ClassWithAspects,
-} from "#aspect_weaving/source/generated/AspectsDictionary.mjs";
+} from "#aspect_dictionary/source/generated/AspectsDictionary.mjs";
 
 import {
   ASPECTS_BUILDER,
-} from "#aspect_weaving/source/stubs/symbol-keys.mjs";
+} from "#aspect_dictionary/source/stubs/symbol-keys.mjs";
 
 import buildAspectOverrideClass from "./support/buildAspectOverrideClass.mjs";
 

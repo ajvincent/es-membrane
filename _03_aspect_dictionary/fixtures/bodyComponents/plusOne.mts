@@ -6,7 +6,7 @@ import {
 import {
   INDETERMINATE,
   type IndeterminateClass
-} from "#aspect_weaving/source/stubs/decorators/IndeterminateReturn.mjs";
+} from "#aspect_dictionary/source/stubs/decorators/IndeterminateReturn.mjs";
 
 // #endregion preamble
 

@@ -1,5 +1,5 @@
-import { ClassWithAspects, AspectsBuilder } from "#aspect_weaving/source/generated/AspectsDictionary.mjs";
-import { ASPECTS_BUILDER } from "#aspect_weaving/source/stubs/symbol-keys.mjs";
+import { ClassWithAspects, AspectsBuilder } from "#aspect_dictionary/source/generated/AspectsDictionary.mjs";
+import { ASPECTS_BUILDER } from "#aspect_dictionary/source/stubs/symbol-keys.mjs";
 import { ModuleSourceDirectory, getModuleDefaultClass } from "#stage_utilities/source/AsyncSpecModules.mjs";
 import { NumberStringType } from "#stub_classes/fixtures/types/NumberStringType.mjs";
 

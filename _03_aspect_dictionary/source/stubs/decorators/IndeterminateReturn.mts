@@ -76,13 +76,13 @@ const IndeterminateReturnDecorator: ConfigureStubDecorator<IndeterminateReturnFi
 
       if (!methodStructure) {
         this.addImport(
-          "#aspect_weaving/source/stubs/decorators/IndeterminateReturn.mjs",
+          "#aspect_dictionary/source/stubs/decorators/IndeterminateReturn.mjs",
           "INDETERMINATE",
           false
         );
 
         this.addImport(
-          "#aspect_weaving/source/stubs/decorators/IndeterminateReturn.mjs",
+          "#aspect_dictionary/source/stubs/decorators/IndeterminateReturn.mjs",
           "type IndeterminateClass",
           false
         );

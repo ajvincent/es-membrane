@@ -108,7 +108,7 @@ const InvokeTSC = {
         "paths": {
           "#stage_utilities/*": ["./_01_stage_utilities/*"],
           "#stub_classes/*": ["./_02_stub_classes/*"],
-          "#aspect_weaving/*": ["./_03_aspect_weaving/*"],
+          "#aspect_dictionary/*": ["./_03_aspect_dictionary/*"],
         },
 
         /*

@@ -7,7 +7,7 @@ import {
 import getTS_SourceFile from "#stage_utilities/source/getTS_SourceFile.mjs";
 
 import createAspectDriver from "../source/stubs/classBuilders/createAspectDriver.mjs";
-import createInderminateReturn from "#aspect_weaving/source/stubs/classBuilders/createIndeterminateReturn.mjs";
+import createInderminateReturn from "#aspect_dictionary/source/stubs/classBuilders/createIndeterminateReturn.mjs";
 
 const stageDir: ModuleSourceDirectory = {
   importMeta: import.meta,
