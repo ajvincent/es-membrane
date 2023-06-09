@@ -1,4 +1,4 @@
-import RequiredInitializers, {
+import getRequiredInitializers, {
   type RequiredState
 } from "../source/RequiredInitializers.mjs";
 
@@ -12,7 +12,7 @@ it("RequiredInitializers provide a one-way path to ensuring flags are set, then 
     return `RequiredInitializers state mismatch: expected ${allowedPrevious} or ${assertCurrent}, found ${currentState}`;
   }
 
-  const initializer = new RequiredInitializers;
+  const initializer = getRequiredInitializers({});
 
   expect(initializer.has("one")).toBe(false);
 

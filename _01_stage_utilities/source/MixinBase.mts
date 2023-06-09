@@ -1,4 +1,4 @@
-import RequiredInitializers from "./RequiredInitializers.mjs";
+import getRequiredInitializers from "./RequiredInitializers.mjs";
 
 /**
  * @remarks
@@ -33,6 +33,6 @@ export default class MixinBase {
     // do nothing
   }
 
-  protected readonly requiredInitializers = new RequiredInitializers;
+  protected readonly requiredInitializers = getRequiredInitializers(this);
 }
 Object.freeze(MixinBase.prototype);
