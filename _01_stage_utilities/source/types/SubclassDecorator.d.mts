@@ -12,7 +12,8 @@ import type {
 } from "./MixinClass.mjs";
 
 import type {
-  StaticAndInstance
+  StaticAndInstance,
+  StaticAndInstanceNoCtor,
 } from "./StaticAndInstance.mjs";
 
 /**
@@ -24,11 +25,14 @@ export type SubclassDecorator<
   Base extends Class<object>,
   Added extends StaticAndInstance,
   Arguments extends any[] | false
-> = ClassDecoratorFunction<
-  Base,
-  MixinClass<Added["staticFields"], Added["instanceFields"], Base>,
-  Arguments
->;
+> = (
+  StaticAndInstanceNoCtor<Added> extends never ? never :
+  ClassDecoratorFunction<
+    Base,
+    MixinClass<Added["staticFields"], Added["instanceFields"], Base>,
+    Arguments
+  >
+);
 
 /**
  * A type to assert a tuple of decorators matches a tuple of class field interfaces.
