@@ -1,5 +1,3 @@
-import type { Constructor } from "type-fest";
-
 /**
  * An utility type for declaring mixin class static and instance fields.
  *
@@ -13,7 +11,3 @@ export interface StaticAndInstance {
   /** The instance fields of the class. */
   readonly instanceFields: object;
 }
-
-export type StaticAndInstanceNoCtor<T extends StaticAndInstance> = (
-  T["staticFields"] extends Constructor<unknown> ? never : T
-);
