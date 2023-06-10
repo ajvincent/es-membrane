@@ -41,8 +41,6 @@ export type Tail<Elements extends ReadonlyArray<T>, T = unknown> =
   HasTail<Elements> extends true ? ShiftArrayElement<Elements, T>["tail"] : never;
 
 export type IndexUnion<T extends ReadonlyArray<unknown>> = Exclude<keyof T, keyof unknown[]>;
-
-export type PushableArray<T> = ReadonlyArray<T> & Pick<T[], "push">;
 // #endregion arrays
 
 export type CtorParamsAndArgs<

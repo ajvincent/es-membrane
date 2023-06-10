@@ -1,9 +1,6 @@
 // #region preamble
 import type { Class } from "type-fest";
 
-import type {
-  PushableArray
-} from "#stage_utilities/source/types/Utility.mjs";
 
 import type {
   ClassDecoratorFunction
@@ -25,6 +22,9 @@ import {
 import type {
   IndeterminateClass
 } from "../stubs/decorators/IndeterminateReturn.mjs";
+
+export type PushableArray<T> = ReadonlyArray<T> & Pick<T[], "push">;
+export type UnshiftableArray<T> = ReadonlyArray<T> & Pick<T[], "push" | "unshift">;
 
 // #endregion preamble
 

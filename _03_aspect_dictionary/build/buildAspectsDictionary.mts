@@ -69,7 +69,7 @@ function replaceDictionaryFields(this: void, fieldName: string, type: string): s
 }
 
 function replaceBuilderFields(this: void, fieldName: string, type: string) : string {
-  return `  readonly ${fieldName}: PushableArray<new (thisObj: Type) => ${type}> = [];\n`;
+  return `  readonly ${fieldName}: UnshiftableArray<(new (thisObj: Type) => ${type})> = [];\n`;
 }
 
 function replaceBuilderConstructorFields(this: void, fieldName: string) : string {
@@ -107,7 +107,7 @@ function replaceDecoratorsClass(this: void, fieldName: string, type: string): st
     `  {`,
     `    return function(baseClass, context): void {`,
     `      void(context);`,
-    `      baseClass[ASPECTS_BUILDER].${fieldName}.push(callback);`,
+    `      baseClass[ASPECTS_BUILDER].${fieldName}.unshift(callback);`,
     `    }`,
     `  }`,
     ""

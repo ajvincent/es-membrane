@@ -8,9 +8,6 @@
 // #region preamble
 import type { Class } from "type-fest";
 
-import type {
-  PushableArray
-} from "#stage_utilities/source/types/Utility.mjs";
 
 import type {
   ClassDecoratorFunction
@@ -33,6 +30,9 @@ import type {
   IndeterminateClass
 } from "../stubs/decorators/IndeterminateReturn.mjs";
 
+export type PushableArray<T> = ReadonlyArray<T> & Pick<T[], "push">;
+export type UnshiftableArray<T> = ReadonlyArray<T> & Pick<T[], "push" | "unshift">;
+
 // #endregion preamble
 
 export type AspectBuilderField<Type extends MethodsOnlyInternal> = {
@@ -54,8 +54,8 @@ export class AspectsDictionary<Type extends MethodsOnlyInternal> {
 }
 
 export class AspectsBuilder<Type extends MethodsOnlyInternal> {
-  readonly classInvariants: PushableArray<new (thisObj: Type) => VoidMethodsOnly<Type>> = [];
-  readonly bodyComponents: PushableArray<new (thisObj: Type) => IndeterminateClass<Type>> = [];
+  readonly classInvariants: UnshiftableArray<(new (thisObj: Type) => VoidMethodsOnly<Type>)> = [];
+  readonly bodyComponents: UnshiftableArray<(new (thisObj: Type) => IndeterminateClass<Type>)> = [];
 
   constructor(baseBuilder: AspectsBuilder<Type> | null) {
     if (baseBuilder) {
@@ -108,7 +108,7 @@ implements AspectDecoratorsInterface<Type>
   {
     return function(baseClass, context): void {
       void(context);
-      baseClass[ASPECTS_BUILDER].classInvariants.push(callback);
+      baseClass[ASPECTS_BUILDER].classInvariants.unshift(callback);
     }
   }
   bodyComponents(
@@ -118,7 +118,7 @@ implements AspectDecoratorsInterface<Type>
   {
     return function(baseClass, context): void {
       void(context);
-      baseClass[ASPECTS_BUILDER].bodyComponents.push(callback);
+      baseClass[ASPECTS_BUILDER].bodyComponents.unshift(callback);
     }
   }
 
