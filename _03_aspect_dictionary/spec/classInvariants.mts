@@ -7,6 +7,10 @@ import {
   getModuleDefaultClassWithArgs,
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 
+import type {
+  NumberStringType
+} from "../fixtures/types/NumberStringType.mjs";
+
 import NumberStringClass from "#aspect_dictionary/fixtures/components/shared/NumberStringClass.mjs";
 
 import {
@@ -25,10 +29,6 @@ import {
 } from "#stub_classes/source/symbol-keys.mjs";
 
 import SpyBase from "#stage_utilities/source/SpyBase.mjs";
-
-import type {
-  NumberStringType
-} from "../fixtures/types/NumberStringType.mjs";
 
 describe("Aspect weaving: supports class invariants", () => {
   const { classInvariants } = getAspectDecorators<NumberStringType>();
