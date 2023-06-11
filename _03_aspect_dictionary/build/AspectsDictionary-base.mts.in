@@ -1,6 +1,9 @@
 // #region preamble
 import type { Class } from "type-fest";
 
+import {
+  DefaultWeakMap
+} from "#stage_utilities/source/DefaultMap.mjs"
 
 import type {
   ClassDecoratorFunction
@@ -14,38 +17,20 @@ import type {
   VoidMethodsOnly,
 } from "#stub_classes/source/base/types/export-types.mjs";
 
-import {
-  ASPECTS_BUILDER,
-  ASPECTS_DICTIONARY,
-} from "../stubs/symbol-keys.mjs";
-
 import type {
   IndeterminateClass
-} from "../stubs/decorators/IndeterminateReturn.mjs";
+} from "../../source/stubs/decorators/IndeterminateReturn.mjs";
 
-export type PushableArray<T> = ReadonlyArray<T> & Pick<T[], "push">;
-export type UnshiftableArray<T> = ReadonlyArray<T> & Pick<T[], "push" | "unshift">;
+type PushableArray<T> = ReadonlyArray<T> & Pick<T[], "push">;
+type UnshiftableArray<T> = ReadonlyArray<T> & Pick<T[], "push" | "unshift">;
 
 // #endregion preamble
 
-export type AspectBuilderField<Type extends MethodsOnlyInternal> = {
-  [ASPECTS_DICTIONARY]: AspectsDictionary<Type>;
-  get [ASPECTS_BUILDER](): AspectsBuilder<Type>;
-};
+// #region AspectsBuilder
 
-export type ClassWithAspects<Type extends MethodsOnlyInternal> = (
-  Class<Type & AspectBuilderField<Type>, [Type]> &
-  {
-    [ASPECTS_BUILDER]: AspectsBuilder<Type>;
-  }
-);
-
-export class AspectsDictionary<Type extends MethodsOnlyInternal> {
-//@ASPECTS_DICTIONARY_FIELDS
-}
-
-export class AspectsBuilder<Type extends MethodsOnlyInternal> {
+class AspectsBuilder<Type extends MethodsOnlyInternal> {
 //@ASPECTS_BUILDER_FIELDS
+
   constructor(baseBuilder: AspectsBuilder<Type> | null) {
     if (baseBuilder) {
 //@ASPECTS_BUILDER_CONSTRUCTOR
@@ -53,31 +38,101 @@ export class AspectsBuilder<Type extends MethodsOnlyInternal> {
   }
 }
 
-export function buildAspectDictionary<
-  Type extends MethodsOnlyInternal,
-  AspectInstance extends Type & AspectBuilderField<Type>
+const PrototypeToAspectBuilderMap = new DefaultWeakMap<
+  MethodsOnlyInternal, // prototype of the class
+  AspectsBuilder<MethodsOnlyInternal>
+>;
+
+export function getAspectBuilderForClass<Type extends MethodsOnlyInternal>(
+  _class: Class<Type>
+): AspectsBuilder<Type>
+{
+  return PrototypeToAspectBuilderMap.getDefault(
+    _class.prototype as Type,
+    (): AspectsBuilder<MethodsOnlyInternal> => {
+      const proto = Reflect.getPrototypeOf(_class.prototype as Type) as Type;
+
+      const baseBuilder: AspectsBuilder<MethodsOnlyInternal> | null =
+        PrototypeToAspectBuilderMap.get(proto) ?? null;
+
+      return new AspectsBuilder<MethodsOnlyInternal>(baseBuilder);
+    }
+  ) as AspectsBuilder<Type>;
+}
+
+// #endregion AspectsBuilder
+
+// #region AspectsDictionary
+
+export class AspectsDictionary<Type extends MethodsOnlyInternal>
+{
+//@ASPECTS_DICTIONARY_CLASS_FIELDS
+}
+
+const InstanceToAspectDictionaryMap = new WeakMap<
+  MethodsOnlyInternal,
+  AspectsDictionary<MethodsOnlyInternal>
+>;
+
+export function buildAspectDictionaryForDriver<
+  Type extends MethodsOnlyInternal
 >
 (
+  __driver__: Type,
   __wrapped__: Type,
-  __instance__: AspectInstance
-) : AspectsDictionary<Type>
+): AspectsDictionary<Type>
 {
+  const __proto__ = Reflect.getPrototypeOf(__driver__) as Type & { constructor: Class<Type>}
+  const __builder__: AspectsBuilder<Type> = getAspectBuilderForClass<Type>(
+    __proto__.constructor
+  );
+
   const __dictionary__ = new AspectsDictionary<Type>;
-  const __builder__: AspectsBuilder<Type> = __instance__[ASPECTS_BUILDER];
 
 //@ASPECTS_BUILDER_FOREACH
+
+  InstanceToAspectDictionaryMap.set(__driver__, __dictionary__);
   return __dictionary__;
 }
+
+export function getAspectDictionaryForDriver<
+  Type extends MethodsOnlyInternal
+>
+(
+  __driver__: Type,
+): AspectsDictionary<Type>
+{
+  const __dictionary__ = InstanceToAspectDictionaryMap.get(__driver__);
+  if (!__dictionary__) {
+    throw new Error("Unknown driver for aspect dictionary!");
+  }
+  return __dictionary__;
+}
+
+// #endregion AspectsDictionary
+
+// #region Aspect decorators
 
 interface AspectDecoratorsInterface<Type extends MethodsOnlyInternal> {
 //@ASPECTS_DECORATORS_INTERFACE
 }
 
-export class AspectDecorators<Type extends MethodsOnlyInternal>
+class AspectDecoratorsClass<Type extends MethodsOnlyInternal>
 implements AspectDecoratorsInterface<Type>
 {
 //@ASPECTS_DECORATORS_CLASS
 }
+
+const AspectDecorators = new AspectDecoratorsClass<MethodsOnlyInternal>;
+
+export function getAspectDecorators<
+  Type extends MethodsOnlyInternal
+>(): AspectDecoratorsClass<Type>
+{
+  return AspectDecorators as AspectDecoratorsClass<Type>;
+}
+
+// #endregion Aspect decorators
 
 export const AspectsBuilderKeys: ReadonlyArray<string> = [
 //@ASPECTS_BUILDER_KEYS

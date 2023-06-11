@@ -1,18 +1,20 @@
 import type {
-  NumberStringType
-} from "../fixtures/types/NumberStringType.mjs";
+  Class
+} from "type-fest";
+
+import {
+  type ModuleSourceDirectory,
+  getModuleDefaultClassWithArgs,
+} from "#stage_utilities/source/AsyncSpecModules.mjs";
 
 import NumberStringClass from "#aspect_dictionary/fixtures/components/shared/NumberStringClass.mjs";
 
 import {
-  AspectDecorators
+  getAspectDecorators,
+  getAspectDictionaryForDriver,
 } from "#aspect_dictionary/source/generated/AspectsDictionary.mjs";
 
 import NumberStringClass_Spy from "#aspect_dictionary/fixtures/generated/stubs/Spy.mjs";
-
-import {
-  ASPECTS_DICTIONARY
-} from "#aspect_dictionary/source/stubs/symbol-keys.mjs";
 
 import type {
   HasSpy
@@ -22,20 +24,33 @@ import {
   SPY_BASE,
 } from "#stub_classes/source/symbol-keys.mjs";
 
-import buildAspectOverrideClass from "./support/buildAspectOverrideClass.mjs";
-
 import SpyBase from "#stage_utilities/source/SpyBase.mjs";
 
+import type {
+  NumberStringType
+} from "../fixtures/types/NumberStringType.mjs";
+
 describe("Aspect weaving: supports class invariants", () => {
-  const { classInvariants } = new AspectDecorators<NumberStringType>;
+  const { classInvariants } = getAspectDecorators<NumberStringType>();
+
+  let NST_Aspect: Class<NumberStringType>;
+
+  beforeAll(async () => {
+    const generatedDir: ModuleSourceDirectory = {
+      importMeta: import.meta,
+      pathToDirectory: "../../spec-generated/"
+    };
+
+    NST_Aspect = await getModuleDefaultClassWithArgs<[NumberStringType], NumberStringType>(
+      generatedDir, "empty/AspectDriver.mjs"
+    );
+  });
 
   it("in driver", () => {
-    const NST_Aspect_Override = buildAspectOverrideClass();
-
     @classInvariants(NumberStringClass_Spy)
-    class NST_SpyClass extends NST_Aspect_Override {
+    class NST_SpyClass extends NST_Aspect {
       getSpyAspect(this: NST_SpyClass): SpyBase {
-        const dict = this[ASPECTS_DICTIONARY];
+        const dict = getAspectDictionaryForDriver<NumberStringType>(this);
         const spyOwner = dict.classInvariants[0] as unknown as HasSpy;
         return spyOwner[SPY_BASE];
       }
@@ -44,6 +59,7 @@ describe("Aspect weaving: supports class invariants", () => {
     const nstBase = new NumberStringClass;
 
     const nst = new NST_SpyClass(nstBase);
+
     expect(nst.repeatForward("foo", 3)).toBe("foofoofoo");
 
     const spyBase = nst.getSpyAspect();

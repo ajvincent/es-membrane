@@ -38,13 +38,13 @@ async function buildAspectsDictionarySource(): Promise<void> {
   );
 
   source = replaceSources(source, [
-    { commentLine: "//@ASPECTS_DICTIONARY_FIELDS", callback: replaceDictionaryFields },
     { commentLine: "//@ASPECTS_BUILDER_FIELDS", callback: replaceBuilderFields },
     { commentLine: "//@ASPECTS_BUILDER_CONSTRUCTOR", callback: replaceBuilderConstructorFields },
+    { commentLine: "//@ASPECTS_DICTIONARY_CLASS_FIELDS", callback: replaceDictionaryClassFields },
     { commentLine: "//@ASPECTS_BUILDER_FOREACH", callback: replaceBuilderForEach },
-    { commentLine: "//@ASPECTS_BUILDER_KEYS", callback: replaceBuilderKeys },
     { commentLine: "//@ASPECTS_DECORATORS_INTERFACE", callback: replaceDecoratorsInterface },
     { commentLine: "//@ASPECTS_DECORATORS_CLASS", callback: replaceDecoratorsClass },
+    { commentLine: "//@ASPECTS_BUILDER_KEYS", callback: replaceBuilderKeys },
   ]);
 
   await fs.mkdir(path.dirname(destinationFile), { recursive: true });
@@ -64,7 +64,7 @@ function replaceSources(source: string, builders: ReadonlyArray<{
   return source;
 }
 
-function replaceDictionaryFields(this: void, fieldName: string, type: string): string {
+function replaceDictionaryClassFields(this: void, fieldName: string, type: string): string {
   return `  readonly ${fieldName}: PushableArray<${type}> = [];\n`;
 }
 
@@ -92,7 +92,7 @@ function replaceBuilderKeys(this: void, fieldName: string) : string {
 function replaceDecoratorsInterface(this: void, fieldName: string, type: string): string {
   return [
     `  ${fieldName}: ClassDecoratorFunction<`,
-    `    ClassWithAspects<Type>, false, [callback: new (thisObj: Type) => ${type}]`,
+    `    Class<Type>, false, [callback: new (thisObj: Type) => ${type}]`,
     `  >;`,
     ""
   ].join("\n");
@@ -103,11 +103,12 @@ function replaceDecoratorsClass(this: void, fieldName: string, type: string): st
     `  ${fieldName}(`,
     `    this: void,`,
     `    callback: Class<${type}, [Type]>`,
-    `  ): ClassDecoratorFunction<ClassWithAspects<Type>, false, false>`,
+    `  ): ClassDecoratorFunction<Class<Type>, false, false>`,
     `  {`,
     `    return function(baseClass, context): void {`,
     `      void(context);`,
-    `      baseClass[ASPECTS_BUILDER].${fieldName}.unshift(callback);`,
+    `      const builder = getAspectBuilderForClass<Type>(baseClass);`,
+    `      builder.${fieldName}.unshift(callback);`,
     `    }`,
     `  }`,
     ""

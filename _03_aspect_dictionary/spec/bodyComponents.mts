@@ -1,5 +1,10 @@
+import type {
+  Class
+} from "type-fest";
+
 import {
   type ModuleSourceDirectory,
+  getModuleDefaultClass,
   getModuleDefaultClassWithArgs,
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 
@@ -12,22 +17,20 @@ import NumberStringClass from "#aspect_dictionary/fixtures/components/shared/Num
 import NumberStringClass_PlusOneCopy from "../fixtures/bodyComponents/plusOne.mjs";
 
 import {
-  AspectDecorators,
-  type ClassWithAspects,
+  getAspectDecorators,
 } from "#aspect_dictionary/source/generated/AspectsDictionary.mjs";
 
 import {
   type IndeterminateClass
 } from "#aspect_dictionary/source/stubs/decorators/IndeterminateReturn.mjs";
 
-import buildAspectOverrideClass from "./support/buildAspectOverrideClass.mjs";
-
 type NST_Indeterminate_Type = IndeterminateClass<NumberStringType>;
 
 describe("Aspect weaving: supports body components", () => {
-  const { bodyComponents } = new AspectDecorators<NumberStringType>;
+  const { bodyComponents } = getAspectDecorators<NumberStringType>();
 
-  let NST_Indeterminate: ClassWithAspects<NST_Indeterminate_Type>;
+  let NST_Indeterminate: Class<NST_Indeterminate_Type>;
+  let NST_Aspect: Class<NumberStringType>;
 
   beforeAll(async () => {
     const generatedDir: ModuleSourceDirectory = {
@@ -35,20 +38,22 @@ describe("Aspect weaving: supports body components", () => {
       pathToDirectory: "../../spec-generated/"
     };
 
-    NST_Indeterminate = (await getModuleDefaultClassWithArgs<
-      [NumberStringType], unknown
+    NST_Indeterminate = (await getModuleDefaultClass<
+      NST_Indeterminate_Type
     >
     (
       generatedDir, "empty/IndeterminateReturn.mjs"
-    )) as ClassWithAspects<NST_Indeterminate_Type>;
+    ));
+
+    NST_Aspect = await getModuleDefaultClassWithArgs<[NumberStringType], NumberStringType>(
+      generatedDir, "empty/AspectDriver.mjs"
+    );
   });
 
   describe("in driver", () => {
     it("with a component returning INDETERMINATE", () => {
-      const NST_Aspect_Override = buildAspectOverrideClass();
-
       @bodyComponents(NST_Indeterminate)
-      class NST_PassThrough extends NST_Aspect_Override {
+      class NST_PassThrough extends NST_Aspect {
       }
 
       const nst = new NST_PassThrough(new NumberStringClass);
@@ -56,10 +61,8 @@ describe("Aspect weaving: supports body components", () => {
     });
 
     it("with a component returning a value", () => {
-      const NST_Aspect_Override = buildAspectOverrideClass();
-
       @bodyComponents(NumberStringClass_PlusOneCopy)
-      class NST_PlusOne extends NST_Aspect_Override {
+      class NST_PlusOne extends NST_Aspect {
       }
 
       const nst = new NST_PlusOne(new NumberStringClass);
