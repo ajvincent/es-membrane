@@ -16,12 +16,12 @@ import type {
   TS_Method, TS_Parameter
 } from "#stub_classes/source/base/types/private-types.mjs";
 
-import type { ExtendsAndImplements } from "#stub_classes/source/base/ConfigureStub.mjs";
-
-import extractType from "#stub_classes/source/base/utilities/extractType.mjs";
+import type {
+  ExtendsAndImplements
+} from "#stub_classes/source/base/ConfigureStub.mjs";
 
 import addBaseTypeImport from "#stub_classes/source/base/utilities/addBaseTypeImport.mjs";
-
+import serializeParameter from "#stub_classes/source/base/utilities/serializeParameter.mjs";
 
 // #endregion preamble
 
@@ -40,14 +40,6 @@ const PrependArgumentsDecorator: ConfigureStubDecorator<
   return function(this: void, baseClass)
   {
     const PREPEND_ARGUMENTS = Symbol("prepend arguments");
-
-    function serializeParam(param: TS_Parameter): string {
-      let rv = param.name;
-      const typeData = param.type ? extractType(param.type, true) : undefined;
-      if (typeData)
-        rv += ": " + typeData;
-      return rv;
-    }
 
     return class extends baseClass {
       #isOwner = false;
@@ -70,7 +62,7 @@ const PrependArgumentsDecorator: ConfigureStubDecorator<
         if (!foundPrependArguments)
           return _extendsAndImplements;
 
-        const prepended = prependedArgs.map(serializeParam).join(", ");
+        const prepended = prependedArgs.map(serializeParameter).join(", ");
 
         return {
           extends: _extendsAndImplements.extends,
