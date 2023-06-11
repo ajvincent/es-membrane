@@ -2,7 +2,7 @@ node_modules/
 docs/dist/staging/
 **/.DS_Store
 _*/generated
-_*/spec-build/playground
+_*/**/playground
 _*/spec-generated
 _*/**/ts-stdout.txt
 _*/**/tsconfig.json
