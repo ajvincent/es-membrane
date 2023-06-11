@@ -10,6 +10,7 @@ async function createAspectDriver(
   destinationDir: string,
   pathToBaseClassFile: string,
   className: string,
+  isDefaultImport: boolean,
 ) : Promise<void>
 {
   const generator = new AspectDriverStub;
@@ -18,6 +19,12 @@ async function createAspectDriver(
     interfaceOrAliasName,
     path.resolve(destinationDir, "AspectDriver.mts"),
     className + "_AspectDriver"
+  );
+
+  generator.defineDefaultBaseClass(
+    pathToBaseClassFile,
+    className,
+    isDefaultImport
   );
 
   generator.addImport(

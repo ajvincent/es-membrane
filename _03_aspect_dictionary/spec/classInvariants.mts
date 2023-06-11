@@ -41,7 +41,7 @@ describe("Aspect weaving: supports class invariants", () => {
       pathToDirectory: "../../spec-generated/"
     };
 
-    NST_Aspect = await getModuleDefaultClassWithArgs<[NumberStringType], NumberStringType>(
+    NST_Aspect = await getModuleDefaultClassWithArgs<[], NumberStringType>(
       generatedDir, "empty/AspectDriver.mjs"
     );
   });
@@ -49,16 +49,14 @@ describe("Aspect weaving: supports class invariants", () => {
   it("in driver", () => {
     @classInvariants(NumberStringClass_Spy)
     class NST_SpyClass extends NST_Aspect {
-      getSpyAspect(this: NST_SpyClass): SpyBase {
+      getSpyAspect(): SpyBase {
         const dict = getAspectDictionaryForDriver<NumberStringType>(this);
         const spyOwner = dict.classInvariants[0] as unknown as HasSpy;
         return spyOwner[SPY_BASE];
       }
     }
 
-    const nstBase = new NumberStringClass;
-
-    const nst = new NST_SpyClass(nstBase);
+    const nst = new NST_SpyClass();
 
     expect(nst.repeatForward("foo", 3)).toBe("foofoofoo");
 
@@ -67,7 +65,13 @@ describe("Aspect weaving: supports class invariants", () => {
 
     const repeatForwardSpy = spyBase.getSpy("repeatForward");
     expect(repeatForwardSpy).toHaveBeenCalledTimes(2);
-    expect(repeatForwardSpy.calls.argsFor(0)).toEqual([nstBase, "foo", 3]);
-    expect(repeatForwardSpy.calls.argsFor(1)).toEqual([nstBase, "foo", 3]);
+
+    const firstCalls = repeatForwardSpy.calls.argsFor(0);
+    expect(firstCalls.length).toBe(3);
+    expect(firstCalls[0]).toBeInstanceOf(NumberStringClass);
+    expect(firstCalls[1]).toBe("foo");
+    expect(firstCalls[2]).toBe(3);
+
+    expect(repeatForwardSpy.calls.argsFor(1)).toEqual(firstCalls);
   });
 });

@@ -35,6 +35,7 @@ async function buildEmptyAspects() : Promise<void>
     path.join(generatedDir, "empty"),
     classFile,
     "NumberStringClass",
+    true
   );
 }
 

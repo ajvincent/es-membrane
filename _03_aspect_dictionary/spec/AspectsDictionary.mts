@@ -56,7 +56,7 @@ describe("AspectsDictionary", () => {
       pathToDirectory: "../../spec-generated/"
     };
 
-    NST_Aspect = await getModuleDefaultClassWithArgs<[NumberStringType], NumberStringType>(
+    NST_Aspect = await getModuleDefaultClassWithArgs<[], NumberStringType>(
       generatedDir, "empty/AspectDriver.mjs"
     );
   });

@@ -1,5 +1,7 @@
 // #region preamble
 
+import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
+
 import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
@@ -20,7 +22,9 @@ export type AspectDriverFields = RightExtendsLeft<StaticAndInstance, {
   staticFields: object,
   instanceFields: {
     defineDefaultBaseClass(
-      className: string
+      pathToBaseClassFile: string,
+      baseClassName: string,
+      isDefaultImport: boolean,
     ): void;
   },
 }>;
@@ -33,8 +37,26 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
   return class AspectDriver extends baseClass {
     static readonly #INIT_BASE_CLASS_KEY = "(base class defined)";
 
+    #pathToBaseClassFile = "";
+    #baseClassName = "";
+    #isDefaultImportForBaseClass = false;
+
     constructor(...args: unknown[]) {
       super(...args);
+      getRequiredInitializers(this).add(AspectDriver.#INIT_BASE_CLASS_KEY);
+    }
+
+    defineDefaultBaseClass(
+      pathToBaseClassFile: string,
+      baseClassName: string,
+      isDefaultImport: boolean,
+    ): void
+    {
+      getRequiredInitializers(this).mayResolve(AspectDriver.#INIT_BASE_CLASS_KEY);
+      this.#pathToBaseClassFile = pathToBaseClassFile;
+      this.#baseClassName = baseClassName;
+      this.#isDefaultImportForBaseClass = isDefaultImport;
+      getRequiredInitializers(this).resolve(AspectDriver.#INIT_BASE_CLASS_KEY);
     }
 
     protected insertAdditionalMethodsTrap(existingMethods: ReadonlyArray<TS_Method>): ReadonlyArray<TS_Method> {
@@ -70,6 +92,12 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
 
     #addBaseImports(): void {
       this.addImport(
+        this.#pathToBaseClassFile,
+        this.#baseClassName,
+        this.#isDefaultImportForBaseClass
+      );
+
+      this.addImport(
         "#aspect_dictionary/source/generated/AspectsDictionary.mjs",
         "getAspectBuilderForClass",
         false
@@ -95,6 +123,9 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
     }
 
     #addConstructor(): void {
+      this.classWriter.writeLine(
+        `static readonly #__baseClass__ = ${this.#baseClassName};`
+      );
 
       this.classWriter.writeLine(
         `readonly #__target__: ${this.interfaceOrAliasName};`
@@ -104,10 +135,10 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       )
       this.classWriter.newLine();
 
-      this.classWriter.write(`constructor(wrapped: ${this.interfaceOrAliasName}) `);
+      this.classWriter.write(`constructor(...params: ConstructorParameters<typeof ${this.#baseClassName}>) `);
       this.classWriter.block(() => {
-        this.classWriter.writeLine(`this.#__target__ = wrapped;`);
-        this.classWriter.write(`this.#__aspects__ = buildAspectDictionaryForDriver<${this.interfaceOrAliasName}>(this, wrapped);`);
+        this.classWriter.writeLine(`this.#__target__ = new NumberStringClass_AspectDriver.#__baseClass__(...params);`);
+        this.classWriter.write(`this.#__aspects__ = buildAspectDictionaryForDriver<${this.interfaceOrAliasName}>(this, this.#__target__);`);
       });
     }
 
