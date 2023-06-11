@@ -53,6 +53,14 @@ const PrototypeToAspectBuilderMap = new DefaultWeakMap<
   AspectsBuilder<MethodsOnlyInternal>
 >;
 
+/** @internal */
+export function hasAspectBuilderForClass<Type extends MethodsOnlyInternal>(
+  _class: Class<Type>
+): boolean {
+  return PrototypeToAspectBuilderMap.has(_class.prototype as Type);
+}
+
+/** @internal */
 export function getAspectBuilderForClass<Type extends MethodsOnlyInternal>(
   _class: Class<Type>
 ): AspectsBuilder<Type>
@@ -74,6 +82,7 @@ export function getAspectBuilderForClass<Type extends MethodsOnlyInternal>(
 
 // #region AspectsDictionary
 
+/** @internal */
 export class AspectsDictionary<Type extends MethodsOnlyInternal>
 {
   readonly classInvariants: PushableArray<VoidMethodsOnly<Type>> = [];
@@ -86,6 +95,7 @@ const InstanceToAspectDictionaryMap = new WeakMap<
   AspectsDictionary<MethodsOnlyInternal>
 >;
 
+/** @internal */
 export function buildAspectDictionaryForDriver<
   Type extends MethodsOnlyInternal
 >
@@ -94,6 +104,10 @@ export function buildAspectDictionaryForDriver<
   __wrapped__: Type,
 ): AspectsDictionary<Type>
 {
+  if (InstanceToAspectDictionaryMap.has(__driver__)) {
+    throw new Error("Aspect dictionary for driver already exists!");
+  }
+
   const __proto__ = Reflect.getPrototypeOf(__driver__) as Type & { constructor: Class<Type>}
   const __builder__: AspectsBuilder<Type> = getAspectBuilderForClass<Type>(
     __proto__.constructor
@@ -113,6 +127,7 @@ export function buildAspectDictionaryForDriver<
   return __dictionary__;
 }
 
+/** @internal */
 export function getAspectDictionaryForDriver<
   Type extends MethodsOnlyInternal
 >

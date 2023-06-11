@@ -9,6 +9,10 @@ import type {
 
 import NumberStringClass from "#aspect_dictionary/fixtures/components/shared/NumberStringClass.mjs";
 
+import {
+  hasAspectBuilderForClass,
+} from "#aspect_dictionary/source/generated/AspectsDictionary.mjs";
+
 it("Aspect weaving: an empty aspect driver still works", async () => {
   const generatedDir: ModuleSourceDirectory = {
     importMeta: import.meta,
@@ -18,6 +22,8 @@ it("Aspect weaving: an empty aspect driver still works", async () => {
   const NST_Aspect = await getModuleDefaultClass<NumberStringType>(
     generatedDir, "empty/AspectDriver.mjs"
   );
+
+  expect(hasAspectBuilderForClass<NumberStringType>(NST_Aspect)).toBe(true);
 
   expect(Reflect.ownKeys(NST_Aspect.prototype as object)).toEqual([
     "constructor",

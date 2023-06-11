@@ -71,6 +71,12 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
     #addBaseImports(): void {
       this.addImport(
         "#aspect_dictionary/source/generated/AspectsDictionary.mjs",
+        "getAspectBuilderForClass",
+        false
+      );
+
+      this.addImport(
+        "#aspect_dictionary/source/generated/AspectsDictionary.mjs",
         "buildAspectDictionaryForDriver",
         false
       );
@@ -201,6 +207,11 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       this.classWriter.newLine();
     }
     //#endregion buildMethodBodyTrap and supporting methods
+
+    protected writeAfterClassTrap() : string
+    {
+      return `getAspectBuilderForClass<${this.interfaceOrAliasName}>(${this.getClassName()});\n`;
+    }
   }
 }
 
