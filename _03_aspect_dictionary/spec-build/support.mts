@@ -6,7 +6,9 @@ import {
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 import getTS_SourceFile from "#stage_utilities/source/getTS_SourceFile.mjs";
 
-import createAspectDriver from "../source/stubs/classBuilders/createAspectDriver.mjs";
+import createAspectDriver, {
+  type CreateAspectDriverConfig
+} from "../source/stubs/classBuilders/createAspectDriver.mjs";
 import createInderminateReturn from "#aspect_dictionary/source/stubs/classBuilders/createIndeterminateReturn.mjs";
 
 const stageDir: ModuleSourceDirectory = {
@@ -29,14 +31,16 @@ export default async function runModule() : Promise<void>
 
 async function buildEmptyAspects() : Promise<void>
 {
-  await createAspectDriver(
+  const config: CreateAspectDriverConfig = {
     sourceFile,
-    "NumberStringType",
-    path.join(generatedDir, "empty"),
-    classFile,
-    "NumberStringClass",
-    true
-  );
+    interfaceOrAliasName: "NumberStringType",
+    destinationDir: path.join(generatedDir, "empty"),
+    pathToBaseClassFile: classFile,
+    className: "NumberStringClass",
+    isDefaultImport: true
+  };
+
+  await createAspectDriver(config);
 }
 
 async function buildIndeterminateReturn(): Promise<void> {

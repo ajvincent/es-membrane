@@ -3,16 +3,29 @@ import { SourceFile } from "ts-morph";
 
 import AspectDriverStub from "../mixins/AspectDriverStub.mjs";
 
-export default
-async function createAspectDriver(
+export type CreateAspectDriverConfig = {
   sourceFile: SourceFile,
   interfaceOrAliasName: string,
   destinationDir: string,
   pathToBaseClassFile: string,
   className: string,
   isDefaultImport: boolean,
+};
+
+export default
+async function createAspectDriver(
+  configuration: CreateAspectDriverConfig
 ) : Promise<void>
 {
+  const {
+    sourceFile,
+    interfaceOrAliasName,
+    destinationDir,
+    pathToBaseClassFile,
+    className,
+    isDefaultImport,
+  } = configuration;
+
   const generator = new AspectDriverStub;
   generator.configureStub(
     sourceFile,
