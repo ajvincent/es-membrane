@@ -1,3 +1,12 @@
+import type {
+  Class
+} from "type-fest";
+
+import {
+  type ModuleSourceDirectory,
+  getModuleDefaultClassWithArgs,
+} from "#stage_utilities/source/AsyncSpecModules.mjs";
+
 import NumberStringClass from "#aspect_dictionary/fixtures/components/shared/NumberStringClass.mjs";
 import type {
   NumberStringType
@@ -38,6 +47,19 @@ describe("AspectsDictionary", () => {
 
   const finalBuilder = getAspectBuilderForClass<NumberStringType>(NST_Final);
   finalBuilder.classInvariants.push(SpySubclassThree);
+
+  let NST_Aspect: Class<NumberStringType>;
+
+  beforeAll(async () => {
+    const generatedDir: ModuleSourceDirectory = {
+      importMeta: import.meta,
+      pathToDirectory: "../../spec-generated/"
+    };
+
+    NST_Aspect = await getModuleDefaultClassWithArgs<[NumberStringType], NumberStringType>(
+      generatedDir, "empty/AspectDriver.mjs"
+    );
+  });
   // #endregion beforeAll
 
   it("getAspectBuilderForClass() inserts constructors in the right order", () => {
@@ -102,22 +124,65 @@ describe("AspectsDictionary", () => {
   it("getAspectDecorators<Type> gets a collection of aspect decorators", () => {
     const { classInvariants } = getAspectDecorators<NumberStringType>();
 
-    @classInvariants(SpySubclassOne)
     @classInvariants(SpySubclassTwo)
+    @classInvariants(SpySubclassThree)
     class NST_Decorated extends NST_Base {
     }
 
     const decoratedBuilder = getAspectBuilderForClass<NumberStringType>(NST_Decorated);
     expect(decoratedBuilder.classInvariants).toEqual([
-      SpySubclassOne,
       SpySubclassTwo,
+      SpySubclassThree,
     ]);
 
     const decorated = new NST_Decorated;
     const aspects = buildAspectDictionaryForDriver<NumberStringType>(decorated, new NumberStringClass);
 
     expect(aspects.classInvariants.length).toBe(2);
-    expect(aspects.classInvariants[0]).toBeInstanceOf(SpySubclassOne);
-    expect(aspects.classInvariants[1]).toBeInstanceOf(SpySubclassTwo);
+    expect(aspects.classInvariants[0]).toBeInstanceOf(SpySubclassTwo);
+    expect(aspects.classInvariants[1]).toBeInstanceOf(SpySubclassThree);
+
+    @classInvariants(SpySubclassOne)
+    class NST_Subclassed extends NST_Decorated {
+    }
+
+    const subclassedBuilder = getAspectBuilderForClass<NumberStringType>(NST_Subclassed);
+    expect(subclassedBuilder.classInvariants).toEqual([
+      SpySubclassOne,
+      SpySubclassTwo,
+      SpySubclassThree,
+    ]);
+  });
+
+  it("getAspectDecorators<Type> with an AspectDriver installs the requested decorators", () => {
+    const { classInvariants } = getAspectDecorators<NumberStringType>();
+
+    @classInvariants(SpySubclassTwo)
+    @classInvariants(SpySubclassThree)
+    class NST_Decorated extends NST_Aspect {
+    }
+
+    const decorated = new NST_Decorated;
+    {
+      const aspects = getAspectDictionaryForDriver(decorated);
+
+      expect(aspects.classInvariants.length).toBe(2);
+      expect(aspects.classInvariants[0]).toBeInstanceOf(SpySubclassTwo);
+      expect(aspects.classInvariants[1]).toBeInstanceOf(SpySubclassThree);
+    }
+
+    @classInvariants(SpySubclassOne)
+    class NST_Subclassed extends NST_Decorated {
+    }
+
+    const subclassed = new NST_Subclassed;
+    {
+      const aspects = getAspectDictionaryForDriver(subclassed);
+
+      expect(aspects.classInvariants.length).toBe(3);
+      expect(aspects.classInvariants[0]).toBeInstanceOf(SpySubclassOne);
+      expect(aspects.classInvariants[1]).toBeInstanceOf(SpySubclassTwo);
+      expect(aspects.classInvariants[2]).toBeInstanceOf(SpySubclassThree);
+    }
   });
 });
