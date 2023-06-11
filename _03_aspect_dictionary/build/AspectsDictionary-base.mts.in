@@ -30,7 +30,6 @@ type UnshiftableArray<T> = ReadonlyArray<T> & Pick<T[], "push" | "unshift">;
 
 class AspectsBuilder<Type extends MethodsOnlyInternal> {
 //@ASPECTS_BUILDER_FIELDS
-
   constructor(baseBuilder: AspectsBuilder<Type> | null) {
     if (baseBuilder) {
 //@ASPECTS_BUILDER_CONSTRUCTOR

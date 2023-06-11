@@ -58,35 +58,34 @@ function replaceSources(source: string, builders: ReadonlyArray<{
 {
   builders.forEach(builder => {
     let newSource = "";
-    fieldToArgTypes.forEach((type, fieldName) => newSource += builder.callback(fieldName, type));
+    fieldToArgTypes.forEach((type, fieldName) => newSource += builder.callback(fieldName, type) + "\n");
     source = source.replace(builder.commentLine, newSource);
   });
   return source;
 }
 
 function replaceDictionaryClassFields(this: void, fieldName: string, type: string): string {
-  return `  readonly ${fieldName}: PushableArray<${type}> = [];\n`;
+  return `  readonly ${fieldName}: PushableArray<${type}> = [];`;
 }
 
 function replaceBuilderFields(this: void, fieldName: string, type: string) : string {
-  return `  readonly ${fieldName}: UnshiftableArray<(new (thisObj: Type) => ${type})> = [];\n`;
+  return `  readonly ${fieldName}: UnshiftableArray<(new (thisObj: Type) => ${type})> = [];`;
 }
 
 function replaceBuilderConstructorFields(this: void, fieldName: string) : string {
-  return `      this.${fieldName}.push(...baseBuilder.${fieldName});\n`;
+  return `      this.${fieldName}.push(...baseBuilder.${fieldName});`;
 }
 
 function replaceBuilderForEach(this: void, fieldName: string) : string {
   return [
     `  __builder__.${fieldName}.forEach(__subBuilder__ => {`,
     `    __dictionary__.${fieldName}.push(new __subBuilder__(__wrapped__));`,
-    `  });`,
-    ""
+    `  });`
   ].join("\n");
 }
 
 function replaceBuilderKeys(this: void, fieldName: string) : string {
-  return `  "${fieldName}",\n`;
+  return `  "${fieldName}",`;
 }
 
 function replaceDecoratorsInterface(this: void, fieldName: string, type: string): string {
@@ -94,8 +93,7 @@ function replaceDecoratorsInterface(this: void, fieldName: string, type: string)
     `  ${fieldName}: ClassDecoratorFunction<`,
     `    Class<Type>, false, [callback: new (thisObj: Type) => ${type}]`,
     `  >;`,
-    ""
-  ].join("\n");
+  ].join("\n") + "\n";
 }
 
 function replaceDecoratorsClass(this: void, fieldName: string, type: string): string {
@@ -111,6 +109,5 @@ function replaceDecoratorsClass(this: void, fieldName: string, type: string): st
     `      builder.${fieldName}.unshift(callback);`,
     `    }`,
     `  }`,
-    ""
-  ].join("\n");
+  ].join("\n") + "\n";
 }

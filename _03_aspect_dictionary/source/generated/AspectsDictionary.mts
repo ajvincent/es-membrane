@@ -39,7 +39,6 @@ class AspectsBuilder<Type extends MethodsOnlyInternal> {
   readonly classInvariants: UnshiftableArray<(new (thisObj: Type) => VoidMethodsOnly<Type>)> = [];
   readonly bodyComponents: UnshiftableArray<(new (thisObj: Type) => IndeterminateClass<Type>)> = [];
 
-
   constructor(baseBuilder: AspectsBuilder<Type> | null) {
     if (baseBuilder) {
       this.classInvariants.push(...baseBuilder.classInvariants);
@@ -136,9 +135,11 @@ interface AspectDecoratorsInterface<Type extends MethodsOnlyInternal> {
   classInvariants: ClassDecoratorFunction<
     Class<Type>, false, [callback: new (thisObj: Type) => VoidMethodsOnly<Type>]
   >;
+
   bodyComponents: ClassDecoratorFunction<
     Class<Type>, false, [callback: new (thisObj: Type) => IndeterminateClass<Type>]
   >;
+
 
 }
 
@@ -156,6 +157,7 @@ implements AspectDecoratorsInterface<Type>
       builder.classInvariants.unshift(callback);
     }
   }
+
   bodyComponents(
     this: void,
     callback: Class<IndeterminateClass<Type>, [Type]>
@@ -167,6 +169,7 @@ implements AspectDecoratorsInterface<Type>
       builder.bodyComponents.unshift(callback);
     }
   }
+
 
 }
 
