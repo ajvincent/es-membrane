@@ -1,7 +1,4 @@
 import type {
-  MethodsOnly
-} from "./MethodsOnly.mjs";
-import type {
   NotImplementedOnly
 } from "./NotImplementedOnly.mjs";
 import type {
@@ -24,7 +21,6 @@ import type {
 } from "./ConfigureStubDecorator.mjs";
 
 export type {
-  MethodsOnly,
   NotImplementedOnly,
   MethodsPrependReturn,
   MethodReturnRewrite,

@@ -1,8 +1,7 @@
-import type { MethodsOnly } from "#stub_classes/source/base/types/MethodsOnly.mjs";
 import type { NumberStringType } from "../../types/NumberStringType.mjs";
 
 export default
-class NumberStringClass implements MethodsOnly<NumberStringType>
+class NumberStringClass implements NumberStringType
 {
   repeatForward(
     s: string,
