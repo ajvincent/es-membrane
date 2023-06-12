@@ -9,7 +9,7 @@ import StubMap from "./exports.mjs";
 import type {
   TS_Method,
   TS_Parameter
-} from "./base/types/private-types.mjs";
+} from "./base/types/export-types.mjs";
 import type {
   ParamRenamer
 } from "./transitions/types/paramRenamer.mjs";

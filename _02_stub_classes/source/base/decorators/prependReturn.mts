@@ -18,7 +18,7 @@ import type {
 
 import type {
   TS_Method
-} from "../types/private-types.mjs";
+} from "../types/export-types.mjs";
 
 import addBaseTypeImport from "../utilities/addBaseTypeImport.mjs";
 

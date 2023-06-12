@@ -1,4 +1,13 @@
 import type {
+  OptionalKind,
+  MethodSignatureStructure,
+  ParameterDeclarationStructure
+} from "ts-morph";
+
+type TS_Method = OptionalKind<MethodSignatureStructure>;
+type TS_Parameter = OptionalKind<ParameterDeclarationStructure>;
+
+import type {
   NotImplementedOnly
 } from "./NotImplementedOnly.mjs";
 import type {
@@ -14,9 +23,6 @@ import type {
   VoidMethodsOnly
 } from "./VoidMethodsOnly.mjs";
 import type {
-  TS_Method
-} from "./private-types.mjs";
-import type {
   ConfigureStubDecorator
 } from "./ConfigureStubDecorator.mjs";
 
@@ -27,5 +33,6 @@ export type {
   TransitionInterface,
   VoidMethodsOnly,
   TS_Method,
+  TS_Parameter,
   ConfigureStubDecorator,
 }

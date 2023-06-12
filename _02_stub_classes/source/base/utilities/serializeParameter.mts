@@ -1,4 +1,4 @@
-import { TS_Parameter } from "../types/private-types.mjs";
+import { TS_Parameter } from "../types/export-types.mjs";
 import extractType from "./extractType.mjs";
 
 export default function serializeParameter(param: TS_Parameter): string {
