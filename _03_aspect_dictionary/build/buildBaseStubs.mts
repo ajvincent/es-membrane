@@ -4,7 +4,7 @@ import ConfigureStub from "#stub_classes/source/base/ConfigureStub.mjs";
 
 import StubClassSet, {
   type StubClassSetConfiguration
-} from "#stub_classes/source/full-set.mjs";
+} from "#stub_classes/source/StubClassSet.mjs";
 
 import {
   sourceFile,

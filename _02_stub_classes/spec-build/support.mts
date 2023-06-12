@@ -7,7 +7,7 @@ import ConfigureStub from "../source/base/ConfigureStub.mjs";
 
 import StubClassSet, {
   type StubClassSetConfiguration
-} from "../source/full-set.mjs";
+} from "../source/StubClassSet.mjs";
 
 const stageDir: ModuleSourceDirectory = {
   importMeta: import.meta,
