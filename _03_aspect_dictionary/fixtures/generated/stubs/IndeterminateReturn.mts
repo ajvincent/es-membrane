@@ -9,7 +9,7 @@ import {
 } from "#stub_classes/source/symbol-keys.mjs";
 import {
   type IndeterminateClass,
-} from "#stub_classes/source/base/types/IndeterminateClass.mjs";
+} from "#stub_classes/source/base/types/export-types.mjs";
 
 // #endregion preamble
 

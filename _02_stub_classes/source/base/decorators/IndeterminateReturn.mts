@@ -66,7 +66,7 @@ const IndeterminateReturnDecorator: ConfigureStubDecorator<IndeterminateReturnFi
         );
 
         this.addImport(
-          "#stub_classes/source/base/types/IndeterminateClass.mjs",
+          "#stub_classes/source/base/types/export-types.mjs",
           "type IndeterminateClass",
           false
         );

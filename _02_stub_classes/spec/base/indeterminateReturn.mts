@@ -13,7 +13,7 @@ import {
 
 import {
   type IndeterminateClass,
-} from "#stub_classes/source/base/types/IndeterminateClass.mjs";
+} from "#stub_classes/source/base/types/export-types.mjs";
 
 type NST_Indeterminate_Type = IndeterminateClass<NumberStringType>;
 

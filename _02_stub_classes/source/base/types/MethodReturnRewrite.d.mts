@@ -3,10 +3,10 @@ import type {
 } from "type-fest";
 
 import type {
-  MethodsOnlyInternal
-} from "./MethodsOnlyInternal.mjs";
+  MethodsOnly
+} from "./MethodsOnly.mjs";
 
-export type MethodReturnRewrite<T, R, Extends extends boolean> = T extends MethodsOnlyInternal ?
+export type MethodReturnRewrite<T, R, Extends extends boolean> = T extends MethodsOnly ?
   {
     [key in keyof T]: SetReturnType<
       T[key],

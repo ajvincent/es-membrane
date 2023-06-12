@@ -17,16 +17,10 @@ import type {
 } from "#stage_utilities/source/types/ClassDecoratorFunction.mjs";
 
 import type {
-  MethodsOnlyInternal
-} from "#stub_classes/source/base/types/MethodsOnlyInternal.mjs";
-
-import type {
+  IndeterminateClass,
+  MethodsOnly,
   VoidMethodsOnly,
 } from "#stub_classes/source/base/types/export-types.mjs";
-
-import type {
-  IndeterminateClass
-} from "#stub_classes/source/base/types/IndeterminateClass.mjs";
 
 type PushableArray<T> = ReadonlyArray<T> & Pick<T[], "push">;
 type UnshiftableArray<T> = ReadonlyArray<T> & Pick<T[], "push" | "unshift">;
@@ -35,7 +29,7 @@ type UnshiftableArray<T> = ReadonlyArray<T> & Pick<T[], "push" | "unshift">;
 
 // #region AspectsBuilder
 
-class AspectsBuilder<Type extends MethodsOnlyInternal> {
+class AspectsBuilder<Type extends MethodsOnly> {
   readonly classInvariants: UnshiftableArray<(new (thisObj: Type) => VoidMethodsOnly<Type>)> = [];
   readonly bodyComponents: UnshiftableArray<(new (thisObj: Type) => IndeterminateClass<Type>)> = [];
 
@@ -49,31 +43,31 @@ class AspectsBuilder<Type extends MethodsOnlyInternal> {
 }
 
 const PrototypeToAspectBuilderMap = new DefaultWeakMap<
-  MethodsOnlyInternal, // prototype of the class
-  AspectsBuilder<MethodsOnlyInternal>
+  MethodsOnly, // prototype of the class
+  AspectsBuilder<MethodsOnly>
 >;
 
 /** @internal */
-export function hasAspectBuilderForClass<Type extends MethodsOnlyInternal>(
+export function hasAspectBuilderForClass<Type extends MethodsOnly>(
   _class: Class<Type>
 ): boolean {
   return PrototypeToAspectBuilderMap.has(_class.prototype as Type);
 }
 
 /** @internal */
-export function getAspectBuilderForClass<Type extends MethodsOnlyInternal>(
+export function getAspectBuilderForClass<Type extends MethodsOnly>(
   _class: Class<Type>
 ): AspectsBuilder<Type>
 {
   return PrototypeToAspectBuilderMap.getDefault(
     _class.prototype as Type,
-    (): AspectsBuilder<MethodsOnlyInternal> => {
+    (): AspectsBuilder<MethodsOnly> => {
       const proto = Reflect.getPrototypeOf(_class.prototype as Type) as Type;
 
-      const baseBuilder: AspectsBuilder<MethodsOnlyInternal> | null =
+      const baseBuilder: AspectsBuilder<MethodsOnly> | null =
         PrototypeToAspectBuilderMap.get(proto) ?? null;
 
-      return new AspectsBuilder<MethodsOnlyInternal>(baseBuilder);
+      return new AspectsBuilder<MethodsOnly>(baseBuilder);
     }
   ) as AspectsBuilder<Type>;
 }
@@ -83,7 +77,7 @@ export function getAspectBuilderForClass<Type extends MethodsOnlyInternal>(
 // #region AspectsDictionary
 
 /** @internal */
-export class AspectsDictionary<Type extends MethodsOnlyInternal>
+export class AspectsDictionary<Type extends MethodsOnly>
 {
   readonly classInvariants: PushableArray<VoidMethodsOnly<Type>> = [];
   readonly bodyComponents: PushableArray<IndeterminateClass<Type>> = [];
@@ -91,13 +85,13 @@ export class AspectsDictionary<Type extends MethodsOnlyInternal>
 }
 
 const InstanceToAspectDictionaryMap = new WeakMap<
-  MethodsOnlyInternal,
-  AspectsDictionary<MethodsOnlyInternal>
+  MethodsOnly,
+  AspectsDictionary<MethodsOnly>
 >;
 
 /** @internal */
 export function buildAspectDictionaryForDriver<
-  Type extends MethodsOnlyInternal
+  Type extends MethodsOnly
 >
 (
   __driver__: Type,
@@ -129,7 +123,7 @@ export function buildAspectDictionaryForDriver<
 
 /** @internal */
 export function getAspectDictionaryForDriver<
-  Type extends MethodsOnlyInternal
+  Type extends MethodsOnly
 >
 (
   __driver__: Type,
@@ -146,7 +140,7 @@ export function getAspectDictionaryForDriver<
 
 // #region Aspect decorators
 
-interface AspectDecoratorsInterface<Type extends MethodsOnlyInternal> {
+interface AspectDecoratorsInterface<Type extends MethodsOnly> {
   classInvariants: ClassDecoratorFunction<
     Class<Type>, false, [callback: new (thisObj: Type) => VoidMethodsOnly<Type>]
   >;
@@ -158,7 +152,7 @@ interface AspectDecoratorsInterface<Type extends MethodsOnlyInternal> {
 
 }
 
-class AspectDecoratorsClass<Type extends MethodsOnlyInternal>
+class AspectDecoratorsClass<Type extends MethodsOnly>
 implements AspectDecoratorsInterface<Type>
 {
   classInvariants(
@@ -188,10 +182,10 @@ implements AspectDecoratorsInterface<Type>
 
 }
 
-const AspectDecorators = new AspectDecoratorsClass<MethodsOnlyInternal>;
+const AspectDecorators = new AspectDecoratorsClass<MethodsOnly>;
 
 export function getAspectDecorators<
-  Type extends MethodsOnlyInternal
+  Type extends MethodsOnly
 >(): AspectDecoratorsClass<Type>
 {
   return AspectDecorators as AspectDecoratorsClass<Type>;

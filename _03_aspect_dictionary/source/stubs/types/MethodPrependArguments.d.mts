@@ -1,6 +1,6 @@
 import type {
-  MethodsOnlyInternal
-} from "#stub_classes/source/base/types/MethodsOnlyInternal.mjs";
+  MethodsOnly
+} from "#stub_classes/source/base/types/export-types.mjs";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PrependArguments<M extends ((this: object, ...args: any[]) => any), Arguments extends unknown[]> = (
@@ -11,6 +11,6 @@ type PrependArguments<M extends ((this: object, ...args: any[]) => any), Argumen
 /**
  * @internal - this is untested code!
  */
-export type MethodsPrependArguments<T, Arguments> = T extends MethodsOnlyInternal ? {
+export type MethodsPrependArguments<T, Arguments> = T extends MethodsOnly ? {
   [key in keyof T]: PrependArguments<T[key], Arguments>
 } : never;

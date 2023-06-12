@@ -8,6 +8,13 @@ type TS_Method = OptionalKind<MethodSignatureStructure>;
 type TS_Parameter = OptionalKind<ParameterDeclarationStructure>;
 
 import type {
+  MethodsOnly
+} from "./MethodsOnly.mjs";
+import type {
+  IndeterminateClass
+} from "./IndeterminateClass.mjs";
+
+import type {
   NotImplementedOnly
 } from "./NotImplementedOnly.mjs";
 import type {
@@ -27,6 +34,8 @@ import type {
 } from "./ConfigureStubDecorator.mjs";
 
 export type {
+  MethodsOnly,
+  IndeterminateClass,
   NotImplementedOnly,
   MethodsPrependReturn,
   MethodReturnRewrite,
