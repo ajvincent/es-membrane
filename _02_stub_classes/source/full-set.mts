@@ -24,8 +24,6 @@ export type StubClassSetConfiguration = Readonly<{
   destinationDir: string,
   className: string,
   pathToTypeFile: string,
-  importString: string,
-  isDefaultImport: boolean,
 
   middleParameters: ReadonlyArray<TS_Parameter>;
   tailParamRenamer: ParamRenamer;
@@ -41,7 +39,8 @@ export type StubClassSetConfiguration = Readonly<{
   }>;
 }>
 
-export default class StubClassSet {
+export default class StubClassSet
+{
   #stubArray: ConfigureStub[] = [];
 
   constructor(
@@ -156,10 +155,11 @@ export default class StubClassSet {
       path.resolve(config.destinationDir, classFileName),
       config.className + classSpecificName
     );
+
     generator.addImport(
       config.pathToTypeFile,
-      config.importString,
-      config.isDefaultImport,
+      "type " + config.interfaceOrAliasName,
+      false,
     );
 
     generator.buildClass();

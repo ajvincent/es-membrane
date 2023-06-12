@@ -33,8 +33,6 @@ async function buildBaseStubs() : Promise<void>
     destinationDir,
     className: "NumberStringClass",
     pathToTypeFile,
-    importString: "type NumberStringType",
-    isDefaultImport: false,
 
     middleParameters: [
       {

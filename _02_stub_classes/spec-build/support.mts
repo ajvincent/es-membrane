@@ -25,8 +25,6 @@ async function runModule() : Promise<void>
     destinationDir: pathToModule(stageDir, "spec-generated"),
     className: "NumberStringClass",
     pathToTypeFile: pathToModule(stageDir, "fixtures/types/NumberStringType.mjs"),
-    importString: "type NumberStringType",
-    isDefaultImport: false,
 
     middleParameters: [
       {
