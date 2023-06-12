@@ -47,4 +47,11 @@ export type CtorParamsAndArgs<
   X extends Class<object>
 > = { args: ConstructorParameters<X>, creates: InstanceType<X> };
 
+export type ClassWithPrototype<
+  Prototype, Arguments extends unknown[] = unknown[]
+> = {
+  prototype: Prototype;
+  new(...arguments_: Arguments): Prototype;
+};
+
 export type PrototypeOf<T extends Class<unknown>> = { prototype: InstanceType<T> };

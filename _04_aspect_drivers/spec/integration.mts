@@ -18,20 +18,20 @@ import {
   SPY_BASE,
 } from "#stub_classes/source/symbol-keys.mjs";
 
-import NumberStringClass from "#aspect_dictionary/fixtures/components/shared/NumberStringClass.mjs";
+import NumberStringClass from "#aspect_drivers/fixtures/components/shared/NumberStringClass.mjs";
 
 import {
   getAspectDecorators,
   getAspectDictionaryForDriver,
-} from "#aspect_dictionary/source/generated/AspectsDictionary.mjs";
+} from "#aspect_drivers/source/generated/AspectsDictionary.mjs";
 
-import NumberStringClass_Spy from "#aspect_dictionary/fixtures/generated/stubs/Spy.mjs";
+import NumberStringClass_Spy from "#aspect_drivers/source/generated/stubs/Spy.mjs";
 
 import type {
   NumberStringType
 } from "../fixtures/types/NumberStringType.mjs";
 
-import NumberStringClass_IndeterminateReturn from "../fixtures/generated/stubs/IndeterminateReturn.mjs";
+import NumberStringClass_IndeterminateReturn from "../source/generated/stubs/IndeterminateReturn.mjs";
 import NumberStringClass_PlusOneCopy from "../fixtures/bodyComponents/plusOne.mjs";
 // #endregion preamble
 

@@ -1,17 +1,27 @@
 import fs from "fs/promises";
 import path from "path";
 
-import { pathToModule } from "#stage_utilities/source/AsyncSpecModules.mjs";
-import { stageDir } from "./constants.mjs";
+import {
+  ModuleSourceDirectory,
+  pathToModule
+} from "#stage_utilities/source/AsyncSpecModules.mjs";
 
 const fieldToArgTypes: ReadonlyMap<string, string> = new Map([
   ["classInvariants", "VoidMethodsOnly<Type>"],
   ["bodyComponents", "IndeterminateClass<Type>"],
 ]);
 
+const stageDir: ModuleSourceDirectory = {
+  importMeta: import.meta,
+  pathToDirectory: "../.."
+};
+
 export default
-async function buildAspectsDictionarySource(): Promise<void> {
-  const destinationFile = pathToModule(stageDir, "source/generated/AspectsDictionary.mts");
+async function buildAspectsDictionary(
+  targetDir: ModuleSourceDirectory
+): Promise<void>
+{
+  const destinationFile = pathToModule(targetDir, "AspectsDictionary.mts");
   let found = false;
 
   try {
@@ -28,13 +38,13 @@ async function buildAspectsDictionarySource(): Promise<void> {
 /**
  * @remarks
  * This file is generated.  Do not edit.
- * @see {@link "../../build/Aspects-Dictionary-base.mts.in"}
- * @see {@link "../../build/buildAspectsDictionary.mts"}
+ * @see {@link "/_03_aspect_dictionary/source/Aspects-Dictionary-base.mts.in"}
+ * @see {@link "/_03_aspect_dictionary/source/buildAspectsDictionary.mts"}
  */
 `.trim() + "\n\n";
 
   source += await fs.readFile(
-    pathToModule(stageDir, "build/AspectsDictionary-base.mts.in"), { encoding: "utf-8" }
+    pathToModule(stageDir, "source/AspectsDictionary-base.mts.in"), { encoding: "utf-8" }
   );
 
   source = replaceSources(source, [

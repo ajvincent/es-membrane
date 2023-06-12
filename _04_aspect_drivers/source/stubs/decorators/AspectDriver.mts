@@ -104,19 +104,19 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       );
 
       this.addImport(
-        "#aspect_dictionary/source/generated/AspectsDictionary.mjs",
+        "#aspect_drivers/source/generated/AspectsDictionary.mjs",
         "getAspectBuilderForClass",
         false
       );
 
       this.addImport(
-        "#aspect_dictionary/source/generated/AspectsDictionary.mjs",
+        "#aspect_drivers/source/generated/AspectsDictionary.mjs",
         "buildAspectDictionaryForDriver",
         false
       );
 
       this.addImport(
-        "#aspect_dictionary/source/generated/AspectsDictionary.mjs",
+        "#aspect_drivers/source/generated/AspectsDictionary.mjs",
         "AspectsDictionary",
         false
       );

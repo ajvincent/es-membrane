@@ -9,7 +9,7 @@ import type {
 
 import {
   hasAspectBuilderForClass,
-} from "#aspect_dictionary/source/generated/AspectsDictionary.mjs";
+} from "#aspect_drivers/source/generated/AspectsDictionary.mjs";
 
 it("Aspect weaving: an empty aspect driver still works", async () => {
   const generatedDir: ModuleSourceDirectory = {

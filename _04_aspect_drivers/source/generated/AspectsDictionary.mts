@@ -1,8 +1,8 @@
 /**
  * @remarks
  * This file is generated.  Do not edit.
- * @see {@link "../../build/Aspects-Dictionary-base.mts.in"}
- * @see {@link "../../build/buildAspectsDictionary.mts"}
+ * @see {@link "/_03_aspect_dictionary/source/Aspects-Dictionary-base.mts.in"}
+ * @see {@link "/_03_aspect_dictionary/source/buildAspectsDictionary.mts"}
  */
 
 // #region preamble

@@ -109,12 +109,8 @@ const InvokeTSC = {
           "#stage_utilities/*": ["./_01_stage_utilities/*"],
           "#stub_classes/*": ["./_02_stub_classes/*"],
           "#aspect_dictionary/*": ["./_03_aspect_dictionary/*"],
+          "#aspect_drivers/*": ["./_04_aspect_drivers/*"],
         },
-
-        /*
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        */
       },
     }
   }
