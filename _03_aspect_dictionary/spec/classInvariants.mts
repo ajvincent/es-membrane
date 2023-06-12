@@ -22,7 +22,7 @@ import NumberStringClass_Spy from "#aspect_dictionary/fixtures/generated/stubs/S
 
 import type {
   HasSpy
-} from "#stub_classes/source/base/spyClass.mjs";
+} from "#stub_classes/source/base/mixins/spyClass.mjs";
 
 import {
   SPY_BASE,

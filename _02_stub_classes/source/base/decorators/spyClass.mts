@@ -53,7 +53,7 @@ const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields, false> = functio
       if (!methodStructure) {
         this.addImport("#stub_classes/source/symbol-keys.mjs", "SPY_BASE", false);
         this.addImport("#stage_utilities/source/SpyBase.mjs", "SpyBase", true);
-        this.addImport("#stub_classes/source/base/spyClass.mjs", "type HasSpy", false);
+        this.addImport("#stub_classes/source/base/mixins/spyClass.mjs", "type HasSpy", false);
 
         this.classWriter.writeLine(
           `readonly [SPY_BASE] = new SpyBase;`

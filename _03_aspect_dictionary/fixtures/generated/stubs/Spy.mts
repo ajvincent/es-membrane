@@ -13,7 +13,7 @@ import {
 } from "#stub_classes/source/symbol-keys.mjs";
 import {
   type HasSpy,
-} from "#stub_classes/source/base/spyClass.mjs";
+} from "#stub_classes/source/base/mixins/spyClass.mjs";
 
 // #endregion preamble
 
