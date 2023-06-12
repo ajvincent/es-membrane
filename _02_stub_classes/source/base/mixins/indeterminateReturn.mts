@@ -4,7 +4,7 @@ import IndeterminateReturnDecorator, {
   type IndeterminateReturnFields
 } from "../decorators/IndeterminateReturn.mjs";
 
-import ConfigureStub from "#stub_classes/source/base/ConfigureStub.mjs";
+import ConfigureStub from "../ConfigureStub.mjs";
 
 const IndeterminateReturnStub = MultiMixinBuilder<[IndeterminateReturnFields], typeof ConfigureStub>(
   [IndeterminateReturnDecorator], ConfigureStub

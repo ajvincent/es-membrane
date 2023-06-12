@@ -1,20 +1,19 @@
+/* This file is generated.  Do not edit. */
 // #region preamble
 
 import {
   type NumberStringType,
-} from "../types/NumberStringType.mjs";
-
+} from "../../types/NumberStringType.mjs";
 import {
-  INDETERMINATE
+  INDETERMINATE,
 } from "#stub_classes/source/symbol-keys.mjs";
-
-import type {
-  IndeterminateClass,
+import {
+  type IndeterminateClass,
 } from "#stub_classes/source/base/types/IndeterminateClass.mjs";
 
 // #endregion preamble
 
-export default class NumberStringClass_PlusOneCopy
+export default class NumberStringClass_IndeterminateReturn
 implements IndeterminateClass<NumberStringType>
 {
   repeatForward(
@@ -22,7 +21,9 @@ implements IndeterminateClass<NumberStringType>
     n: number,
   ): string | typeof INDETERMINATE
   {
-    return s.repeat(n + 1);
+    void(s);
+    void(n);
+    return INDETERMINATE;
   }
 
   repeatBack(
@@ -30,6 +31,8 @@ implements IndeterminateClass<NumberStringType>
     s: string,
   ): string | typeof INDETERMINATE
   {
-    return s.repeat(n + 1);
+    void(n);
+    void(s);
+    return INDETERMINATE;
   }
 }

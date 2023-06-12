@@ -19,7 +19,7 @@ import type {
 
 import type {
   IndeterminateClass
-} from "../../source/stubs/decorators/IndeterminateReturn.mjs";
+} from "#stub_classes/source/base/types/IndeterminateClass.mjs";
 
 type PushableArray<T> = ReadonlyArray<T> & Pick<T[], "push">;
 type UnshiftableArray<T> = ReadonlyArray<T> & Pick<T[], "push" | "unshift">;

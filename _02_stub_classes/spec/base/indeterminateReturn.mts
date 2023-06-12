@@ -5,19 +5,22 @@ import {
 
 import {
   type NumberStringType,
-} from "#aspect_dictionary/fixtures/types/NumberStringType.mjs";
+} from "#stub_classes/fixtures/types/NumberStringType.mjs";
 
 import {
-  INDETERMINATE,
+  INDETERMINATE
+} from "#stub_classes/source/symbol-keys.mjs";
+
+import {
   type IndeterminateClass,
-} from "#aspect_dictionary/source/stubs/decorators/IndeterminateReturn.mjs";
+} from "#stub_classes/source/base/types/IndeterminateClass.mjs";
 
 type NST_Indeterminate_Type = IndeterminateClass<NumberStringType>;
 
 it("Indeterminate return class returns a symbol, INDETERMINATE, for every method", async () => {
   const generatedDir: ModuleSourceDirectory = {
     importMeta: import.meta,
-    pathToDirectory: "../../spec-generated/"
+    pathToDirectory: "../../../spec-generated/"
   };
 
   const NST_Indeterminate = (await getModuleDefaultClass<

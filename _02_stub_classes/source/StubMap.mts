@@ -1,5 +1,6 @@
 // This file _should_ be generated, but it's not worth it.
 
+import IndeterminateReturnStub from "./base/mixins/indeterminateReturn.mjs";
 import NotImplementedStub from "./base/mixins/notImplemented.mjs";
 import PrependReturnStub from "./base/mixins/prependReturn.mjs";
 import PrependReturnNIStub from "./base/mixins/prependReturnNI.mjs";
@@ -11,6 +12,7 @@ import TransitionsHeadStub from "./transitions/mixins/HeadClass.mjs";
 import TransitionsTailStub from "./transitions/mixins/TailClass.mjs";
 
 const StubMap = Object.freeze({
+  "IndeterminateReturn": IndeterminateReturnStub,
   "NotImplemented": NotImplementedStub,
   "PrependReturn": PrependReturnStub,
   "PrependReturnNI": PrependReturnNIStub,

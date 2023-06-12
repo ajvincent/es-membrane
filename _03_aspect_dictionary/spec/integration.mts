@@ -5,13 +5,18 @@ import type {
 
 import {
   type ModuleSourceDirectory,
-  getModuleDefaultClass,
   getModuleDefaultClassWithArgs,
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 
+import SpyBase from "#stage_utilities/source/SpyBase.mjs";
+
 import type {
-  NumberStringType
-} from "../fixtures/types/NumberStringType.mjs";
+  HasSpy
+} from "#stub_classes/source/base/mixins/spyClass.mjs";
+
+import {
+  SPY_BASE,
+} from "#stub_classes/source/symbol-keys.mjs";
 
 import NumberStringClass from "#aspect_dictionary/fixtures/components/shared/NumberStringClass.mjs";
 
@@ -23,20 +28,11 @@ import {
 import NumberStringClass_Spy from "#aspect_dictionary/fixtures/generated/stubs/Spy.mjs";
 
 import type {
-  HasSpy
-} from "#stub_classes/source/base/mixins/spyClass.mjs";
+  NumberStringType
+} from "../fixtures/types/NumberStringType.mjs";
 
-import {
-  SPY_BASE,
-} from "#stub_classes/source/symbol-keys.mjs";
-
-import SpyBase from "#stage_utilities/source/SpyBase.mjs";
+import NumberStringClass_IndeterminateReturn from "../fixtures/generated/stubs/IndeterminateReturn.mjs";
 import NumberStringClass_PlusOneCopy from "../fixtures/bodyComponents/plusOne.mjs";
-
-import {
-  type IndeterminateClass,
-} from "#aspect_dictionary/source/stubs/decorators/IndeterminateReturn.mjs";
-
 // #endregion preamble
 
 it(
@@ -51,14 +47,6 @@ it(
     const NST_Aspect = await getModuleDefaultClassWithArgs<[], NumberStringType>(
       generatedDir, "AspectDriver.mjs"
     );
-
-    type NST_Indeterminate_Type = IndeterminateClass<NumberStringType>;
-    const NST_Indeterminate = (await getModuleDefaultClass<
-      NST_Indeterminate_Type
-    >
-    (
-      generatedDir, "IndeterminateReturn.mjs"
-    ));
 
     class SpySubclassOne extends NumberStringClass_Spy {
     }
@@ -87,7 +75,7 @@ it(
 
     @classInvariants(SpySubclassTwo)
     @classInvariants(SpySubclassThree)
-    @bodyComponents(NST_Indeterminate)
+    @bodyComponents(NumberStringClass_IndeterminateReturn)
     @bodyComponents(NumberStringClass_PlusOneCopy)
     class ReleaseNST extends NST_Aspect {
     }

@@ -4,30 +4,24 @@ import type {
 
 import {
   type ModuleSourceDirectory,
-  getModuleDefaultClass,
   getModuleDefaultClassWithArgs,
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 
-import type {
-  NumberStringType
-} from "../fixtures/types/NumberStringType.mjs";
-
-import NumberStringClass_PlusOneCopy from "../fixtures/bodyComponents/plusOne.mjs";
 
 import {
   getAspectDecorators,
 } from "#aspect_dictionary/source/generated/AspectsDictionary.mjs";
 
-import {
-  type IndeterminateClass
-} from "#aspect_dictionary/source/stubs/decorators/IndeterminateReturn.mjs";
+import type {
+  NumberStringType
+} from "../fixtures/types/NumberStringType.mjs";
 
-type NST_Indeterminate_Type = IndeterminateClass<NumberStringType>;
+import NumberStringClass_IndeterminateReturn from "../fixtures/generated/stubs/IndeterminateReturn.mjs";
+import NumberStringClass_PlusOneCopy from "../fixtures/bodyComponents/plusOne.mjs";
 
 describe("Aspect weaving: supports body components", () => {
   const { bodyComponents } = getAspectDecorators<NumberStringType>();
 
-  let NST_Indeterminate: Class<NST_Indeterminate_Type>;
   let NST_Aspect: Class<NumberStringType>;
 
   beforeAll(async () => {
@@ -36,13 +30,6 @@ describe("Aspect weaving: supports body components", () => {
       pathToDirectory: "../../spec-generated/"
     };
 
-    NST_Indeterminate = (await getModuleDefaultClass<
-      NST_Indeterminate_Type
-    >
-    (
-      generatedDir, "IndeterminateReturn.mjs"
-    ));
-
     NST_Aspect = await getModuleDefaultClassWithArgs<[], NumberStringType>(
       generatedDir, "AspectDriver.mjs"
     );
@@ -50,7 +37,7 @@ describe("Aspect weaving: supports body components", () => {
 
   describe("in driver", () => {
     it("with a component returning INDETERMINATE", () => {
-      @bodyComponents(NST_Indeterminate)
+      @bodyComponents(NumberStringClass_IndeterminateReturn)
       class NST_PassThrough extends NST_Aspect {
       }
 

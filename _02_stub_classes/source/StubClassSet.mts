@@ -53,6 +53,7 @@ export default class StubClassSet
     this.#build_spy(config);
     this.#build_prepend_return(config);
     this.#build_prepend_return_ni(config);
+    this.#build_indeterminate_return(config);
     this.#build_transitions_head(config);
     this.#build_transitions_middle(config);
     this.#build_transitions_tail(config);
@@ -108,6 +109,14 @@ export default class StubClassSet
     generator.setNotImplementedOnly(false);
     this.#stubArray.push(generator);
     this.#initStub(generator, config, "PrependReturn_NI.mts", "_PrependReturn_NI");
+  }
+
+  #build_indeterminate_return(
+    config: StubClassSetConfiguration
+  ): void {
+    const generator = new StubMap.IndeterminateReturn;
+    this.#stubArray.push(generator);
+    this.#initStub(generator, config, "IndeterminateReturn.mts", "_IndeterminateReturn");
   }
 
   #build_transitions_head(

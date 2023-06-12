@@ -98,6 +98,12 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       );
 
       this.addImport(
+        "#stub_classes/source/symbol-keys.mjs",
+        "INDETERMINATE",
+        false
+      );
+
+      this.addImport(
         "#aspect_dictionary/source/generated/AspectsDictionary.mjs",
         "getAspectBuilderForClass",
         false
@@ -112,12 +118,6 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
       this.addImport(
         "#aspect_dictionary/source/generated/AspectsDictionary.mjs",
         "AspectsDictionary",
-        false
-      );
-
-      this.addImport(
-        "#aspect_dictionary/source/stubs/symbol-keys.mjs",
-        "INDETERMINATE",
         false
       );
     }

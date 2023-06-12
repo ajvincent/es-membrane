@@ -16,31 +16,15 @@ import type {
 import type {
   ConfigureStubDecorator,
   TS_Method,
-} from "#stub_classes/source/base/types/export-types.mjs";
+} from "../types/export-types.mjs";
 
 import {
   ExtendsAndImplements
-} from "#stub_classes/source/base/ConfigureStub.mjs";
-import extractType from "#stub_classes/source/base/utilities/extractType.mjs";
+} from "../ConfigureStub.mjs";
 
-import type {
-  MethodReturnRewrite,
-} from "#stub_classes/source/base/types/export-types.mjs";
-
-import type {
-  MethodsOnlyInternal
-} from "#stub_classes/source/base/types/MethodsOnlyInternal.mjs";
-
-import {
-  INDETERMINATE,
-} from "../symbol-keys.mjs";
+import extractType from "../utilities/extractType.mjs";
 
 // #endregion preamble
-
-export type IndeterminateClass<T extends MethodsOnlyInternal> = MethodReturnRewrite<T, typeof INDETERMINATE, true>;
-export {
-  INDETERMINATE
-};
 
 export type IndeterminateReturnFields = RightExtendsLeft<StaticAndInstance, {
   staticFields: object,
@@ -76,13 +60,13 @@ const IndeterminateReturnDecorator: ConfigureStubDecorator<IndeterminateReturnFi
 
       if (!methodStructure) {
         this.addImport(
-          "#aspect_dictionary/source/stubs/decorators/IndeterminateReturn.mjs",
+          "#stub_classes/source/symbol-keys.mjs",
           "INDETERMINATE",
           false
         );
 
         this.addImport(
-          "#aspect_dictionary/source/stubs/decorators/IndeterminateReturn.mjs",
+          "#stub_classes/source/base/types/IndeterminateClass.mjs",
           "type IndeterminateClass",
           false
         );
