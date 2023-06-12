@@ -14,7 +14,7 @@ import type {
 
 import type {
   TS_Method, TS_Parameter
-} from "#stub_classes/source/base/types/export-types.mjs";
+} from "#stub_classes/source/types/export-types.mjs";
 
 import type {
   ExtendsAndImplements

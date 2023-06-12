@@ -16,7 +16,7 @@ import type {
 import type {
   ConfigureStubDecorator,
   TS_Method,
-} from "../types/export-types.mjs";
+} from "../../types/export-types.mjs";
 
 import {
   ExtendsAndImplements
@@ -66,7 +66,7 @@ const IndeterminateReturnDecorator: ConfigureStubDecorator<IndeterminateReturnFi
         );
 
         this.addImport(
-          "#stub_classes/source/base/types/export-types.mjs",
+          "#stub_classes/source/types/export-types.mjs",
           "type IndeterminateClass",
           false
         );

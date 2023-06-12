@@ -30,7 +30,7 @@ import extractType, {
 import type {
   TS_Method,
   TS_Parameter,
-} from "./types/export-types.mjs";
+} from "../types/export-types.mjs";
 
 // #endregion preamble
 

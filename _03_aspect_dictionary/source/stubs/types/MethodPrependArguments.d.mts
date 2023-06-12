@@ -1,6 +1,6 @@
 import type {
   MethodsOnly
-} from "#stub_classes/source/base/types/export-types.mjs";
+} from "#stub_classes/source/types/export-types.mjs";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PrependArguments<M extends ((this: object, ...args: any[]) => any), Arguments extends unknown[]> = (

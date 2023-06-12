@@ -9,7 +9,7 @@ import type {
 
 import type {
   VoidMethodsOnly,
-} from "../../source/base/types/export-types.mjs";
+} from "../../source/types/export-types.mjs";
 
 import type {
   NumberStringType

@@ -20,7 +20,7 @@ import type {
   IndeterminateClass,
   MethodsOnly,
   VoidMethodsOnly,
-} from "#stub_classes/source/base/types/export-types.mjs";
+} from "#stub_classes/source/types/export-types.mjs";
 
 type PushableArray<T> = ReadonlyArray<T> & Pick<T[], "push">;
 type UnshiftableArray<T> = ReadonlyArray<T> & Pick<T[], "push" | "unshift">;

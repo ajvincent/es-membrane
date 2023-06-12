@@ -9,29 +9,29 @@ type TS_Parameter = OptionalKind<ParameterDeclarationStructure>;
 
 import type {
   MethodsOnly
-} from "./MethodsOnly.mjs";
+} from "../base/types/MethodsOnly.mjs";
 import type {
   IndeterminateClass
-} from "./IndeterminateClass.mjs";
+} from "../base/types/IndeterminateClass.mjs";
 
 import type {
   NotImplementedOnly
-} from "./NotImplementedOnly.mjs";
+} from "../base/types/NotImplementedOnly.mjs";
 import type {
   MethodsPrependReturn
-} from "./MethodsPrependReturn.mjs";
+} from "../base/types/MethodsPrependReturn.mjs";
 import type {
   MethodReturnRewrite
-} from "./MethodReturnRewrite.mjs";
+} from "../base/types/MethodReturnRewrite.mjs";
 import type {
   TransitionInterface
-} from "../../transitions/types/TransitionInterface.mjs";
+} from "../transitions/types/TransitionInterface.mjs";
 import type {
   VoidMethodsOnly
-} from "./VoidMethodsOnly.mjs";
+} from "../base/types/VoidMethodsOnly.mjs";
 import type {
   ConfigureStubDecorator
-} from "./ConfigureStubDecorator.mjs";
+} from "../base/types/ConfigureStubDecorator.mjs";
 
 export type {
   MethodsOnly,

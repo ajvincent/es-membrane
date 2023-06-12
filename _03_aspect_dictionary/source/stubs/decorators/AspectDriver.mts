@@ -13,7 +13,7 @@ import type {
 import type {
   ConfigureStubDecorator,
   TS_Method,
-} from "#stub_classes/source/base/types/export-types.mjs";
+} from "#stub_classes/source/types/export-types.mjs";
 import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 
 // #endregion preamble

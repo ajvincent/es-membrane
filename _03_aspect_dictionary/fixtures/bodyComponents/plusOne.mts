@@ -10,7 +10,7 @@ import {
 
 import type {
   IndeterminateClass,
-} from "#stub_classes/source/base/types/export-types.mjs";
+} from "#stub_classes/source/types/export-types.mjs";
 
 // #endregion preamble
 

@@ -19,7 +19,7 @@ import type {
 
 import type {
   TS_Method,
-} from "../../base/types/export-types.mjs";
+} from "../../types/export-types.mjs";
 
 // #endregion preamble
 

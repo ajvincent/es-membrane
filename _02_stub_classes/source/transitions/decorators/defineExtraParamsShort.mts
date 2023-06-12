@@ -34,7 +34,7 @@ import type {
 import type {
   TS_Method,
   TS_Parameter,
-} from "../../base/types/export-types.mjs";
+} from "../../types/export-types.mjs";
 
 import addTransitionTypeImport from "../utilities/addTransitionTypeImport.mjs";
 

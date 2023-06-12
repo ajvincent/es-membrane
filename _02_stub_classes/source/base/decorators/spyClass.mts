@@ -15,7 +15,7 @@ import type {
 
 import type {
   TS_Method
-} from "../types/export-types.mjs";
+} from "../../types/export-types.mjs";
 import { ExtendsAndImplements } from "../ConfigureStub.mjs";
 
 // #endregion preamble

@@ -18,7 +18,7 @@ import type {
 
 import type {
   TS_Method
-} from "../types/export-types.mjs";
+} from "../../types/export-types.mjs";
 
 import addBaseTypeImport from "../utilities/addBaseTypeImport.mjs";
 import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
