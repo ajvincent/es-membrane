@@ -42,7 +42,7 @@ describe("Aspect weaving: supports class invariants", () => {
     };
 
     NST_Aspect = await getModuleDefaultClassWithArgs<[], NumberStringType>(
-      generatedDir, "empty/AspectDriver.mjs"
+      generatedDir, "AspectDriver.mjs"
     );
   });
 

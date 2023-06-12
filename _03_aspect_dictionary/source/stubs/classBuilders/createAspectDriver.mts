@@ -10,6 +10,7 @@ export type CreateAspectDriverConfig = {
   pathToBaseClassFile: string,
   className: string,
   isDefaultImport: boolean,
+  moduleName?: string,
 };
 
 export default
@@ -24,13 +25,14 @@ async function createAspectDriver(
     pathToBaseClassFile,
     className,
     isDefaultImport,
+    moduleName = "AspectDriver.mts",
   } = configuration;
 
   const generator = new AspectDriverStub;
   generator.configureStub(
     sourceFile,
     interfaceOrAliasName,
-    path.resolve(destinationDir, "AspectDriver.mts"),
+    path.resolve(destinationDir, moduleName),
     className + "_AspectDriver"
   );
 

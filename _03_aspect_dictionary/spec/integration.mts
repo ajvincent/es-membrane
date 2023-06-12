@@ -49,7 +49,7 @@ it(
     };
 
     const NST_Aspect = await getModuleDefaultClassWithArgs<[], NumberStringType>(
-      generatedDir, "empty/AspectDriver.mjs"
+      generatedDir, "AspectDriver.mjs"
     );
 
     type NST_Indeterminate_Type = IndeterminateClass<NumberStringType>;
@@ -57,7 +57,7 @@ it(
       NST_Indeterminate_Type
     >
     (
-      generatedDir, "empty/IndeterminateReturn.mjs"
+      generatedDir, "IndeterminateReturn.mjs"
     ));
 
     class SpySubclassOne extends NumberStringClass_Spy {

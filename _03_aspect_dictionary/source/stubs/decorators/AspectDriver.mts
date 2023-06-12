@@ -137,7 +137,7 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
 
       this.classWriter.write(`constructor(...params: ConstructorParameters<typeof ${this.#baseClassName}>) `);
       this.classWriter.block(() => {
-        this.classWriter.writeLine(`this.#__target__ = new NumberStringClass_AspectDriver.#__baseClass__(...params);`);
+        this.classWriter.writeLine(`this.#__target__ = new ${this.getClassName()}.#__baseClass__(...params);`);
         this.classWriter.write(`this.#__aspects__ = buildAspectDictionaryForDriver<${this.interfaceOrAliasName}>(this, this.#__target__);`);
       });
     }

@@ -40,11 +40,11 @@ describe("Aspect weaving: supports body components", () => {
       NST_Indeterminate_Type
     >
     (
-      generatedDir, "empty/IndeterminateReturn.mjs"
+      generatedDir, "IndeterminateReturn.mjs"
     ));
 
     NST_Aspect = await getModuleDefaultClassWithArgs<[], NumberStringType>(
-      generatedDir, "empty/AspectDriver.mjs"
+      generatedDir, "AspectDriver.mjs"
     );
   });
 

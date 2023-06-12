@@ -18,7 +18,7 @@ it("Aspect weaving: an empty aspect driver still works", async () => {
   };
 
   const NST_Aspect = await getModuleDefaultClass<NumberStringType>(
-    generatedDir, "empty/AspectDriver.mjs"
+    generatedDir, "AspectDriver.mjs"
   );
 
   expect(hasAspectBuilderForClass<NumberStringType>(NST_Aspect)).toBe(true);

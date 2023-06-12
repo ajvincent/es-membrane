@@ -1,5 +1,3 @@
-import path from "path";
-
 import {
   type ModuleSourceDirectory,
   pathToModule
@@ -19,8 +17,6 @@ const stageDir: ModuleSourceDirectory = {
 const sourceFile = getTS_SourceFile(stageDir, "fixtures/types/NumberStringType.d.mts");
 const generatedDir = pathToModule(stageDir, "spec-generated");
 
-const classFile = pathToModule(stageDir, "fixtures/components/shared/NumberStringClass.mjs");
-
 export default async function runModule() : Promise<void>
 {
   await Promise.all([
@@ -34,8 +30,10 @@ async function buildEmptyAspects() : Promise<void>
   const config: CreateAspectDriverConfig = {
     sourceFile,
     interfaceOrAliasName: "NumberStringType",
-    destinationDir: path.join(generatedDir, "empty"),
-    pathToBaseClassFile: classFile,
+    destinationDir: generatedDir,
+    pathToBaseClassFile: pathToModule(
+      stageDir, "fixtures/components/shared/NumberStringClass.mjs"
+    ),
     className: "NumberStringClass",
     isDefaultImport: true
   };
@@ -44,10 +42,10 @@ async function buildEmptyAspects() : Promise<void>
 }
 
 async function buildIndeterminateReturn(): Promise<void> {
-  await createInderminateReturn(
+  await createInderminateReturn({
     sourceFile,
-    "NumberStringType",
-    path.join(generatedDir, "empty"),
-    "NumberStringClass",
-  );
+    interfaceOrAliasName: "NumberStringType",
+    destinationDir: generatedDir,
+    className: "NumberStringClass",
+  });
 }

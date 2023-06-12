@@ -24,7 +24,7 @@ it("Indeterminate return class returns a symbol, INDETERMINATE, for every method
     NST_Indeterminate_Type
   >
   (
-    generatedDir, "empty/IndeterminateReturn.mjs"
+    generatedDir, "IndeterminateReturn.mjs"
   ));
 
   const nst = new NST_Indeterminate;
