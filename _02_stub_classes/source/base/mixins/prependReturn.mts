@@ -10,8 +10,8 @@ import VoidClassDecorator, {
   type VoidClassFields
 } from "../decorators/voidClass.mjs";
 
-const PrependReturnStub = MultiMixinBuilder<[VoidClassFields, PrependReturnFields], typeof ConfigureStub>(
-  [VoidClassDecorator, PrependReturnDecorator], ConfigureStub
+const PrependReturnStub = MultiMixinBuilder<[PrependReturnFields, VoidClassFields], typeof ConfigureStub>(
+  [PrependReturnDecorator, VoidClassDecorator], ConfigureStub
 );
 
 export default PrependReturnStub;

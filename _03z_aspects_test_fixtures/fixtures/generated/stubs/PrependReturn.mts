@@ -5,19 +5,19 @@ import {
   type NumberStringType,
 } from "../../types/NumberStringType.mjs";
 import {
-  type VoidMethodsOnly,
-} from "#stub_classes/source/base/types/VoidMethodsOnly.mjs";
-import {
   type MethodsPrependReturn,
 } from "#stub_classes/source/base/types/MethodsPrependReturn.mjs";
+import {
+  type VoidMethodsOnly,
+} from "#stub_classes/source/base/types/VoidMethodsOnly.mjs";
 
 // #endregion preamble
 
 export default class NumberStringClass_PrependReturn
-implements MethodsPrependReturn<VoidMethodsOnly<NumberStringType>>
+implements VoidMethodsOnly<MethodsPrependReturn<NumberStringType>>
 {
   repeatForward(
-    __rv__: void,
+    __rv__: string,
     s: string,
     n: number,
   ): void
@@ -28,7 +28,7 @@ implements MethodsPrependReturn<VoidMethodsOnly<NumberStringType>>
   }
 
   repeatBack(
-    __rv__: void,
+    __rv__: string,
     n: number,
     s: string,
   ): void
