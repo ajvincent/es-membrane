@@ -1,9 +1,9 @@
-import NumberStringClass from "#aspects/dictionary/fixtures/components/shared/NumberStringClass.mjs";
+import NumberStringClass from "#aspects/test-fixtures/fixtures/components/shared/NumberStringClass.mjs";
 import type {
   NumberStringType
-} from "#aspects/dictionary/fixtures/types/NumberStringType.mjs";
+} from "#aspects/test-fixtures/fixtures/types/NumberStringType.mjs";
 
-import NumberStringClass_Spy from "#aspects/dictionary/fixtures/generated/stubs/Spy.mjs";
+import NumberStringClass_Spy from "#aspects/test-fixtures/fixtures/generated/stubs/Spy.mjs";
 
 import {
   getAspectBuilderForClass,

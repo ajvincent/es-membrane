@@ -13,7 +13,12 @@ const stageDir: ModuleSourceDirectory = {
   pathToDirectory: "../.."
 }
 
-const sourceFile = getTS_SourceFile(stageDir, "fixtures/types/NumberStringType.d.mts");
+const fixturesDir: ModuleSourceDirectory = {
+  importMeta: import.meta,
+  pathToDirectory: "../../../_03z_aspects_test_fixtures"
+};
+
+const sourceFile = getTS_SourceFile(fixturesDir, "fixtures/types/NumberStringType.d.mts");
 const generatedDir = pathToModule(stageDir, "spec-generated");
 
 export default async function runModule() : Promise<void>
@@ -30,7 +35,7 @@ async function buildEmptyAspects() : Promise<void>
     interfaceOrAliasName: "NumberStringType",
     destinationDir: generatedDir,
     pathToBaseClassFile: pathToModule(
-      stageDir, "fixtures/components/shared/NumberStringClass.mjs"
+      fixturesDir, "fixtures/components/shared/NumberStringClass.mjs"
     ),
     className: "NumberStringClass",
     isDefaultImport: true

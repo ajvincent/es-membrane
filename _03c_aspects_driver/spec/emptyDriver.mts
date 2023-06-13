@@ -5,7 +5,7 @@ import {
 
 import type {
   NumberStringType
-} from "../fixtures/types/NumberStringType.mjs";
+} from "#aspects/test-fixtures/fixtures/types/NumberStringType.mjs";
 
 import {
   hasAspectBuilderForClass,

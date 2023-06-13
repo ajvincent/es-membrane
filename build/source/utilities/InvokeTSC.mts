@@ -111,6 +111,7 @@ const InvokeTSC = {
           "#aspects/dictionary_build/*": ["./_03a_aspects_dictionary_build/*"],
           "#aspects/dictionary/*": ["./_03b_aspects_dictionary/*"],
           "#aspects/driver/*": ["./_03c_aspects_driver/*"],
+          "#aspects/test-fixtures/*": ["./_03z_aspects_test_fixtures/*"],
         },
       },
     }

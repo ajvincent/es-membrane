@@ -9,9 +9,9 @@ import {
 
 import type {
   NumberStringType
-} from "#aspects/driver/fixtures/types/NumberStringType.mjs";
+} from "#aspects/test-fixtures/fixtures/types/NumberStringType.mjs";
 
-import NumberStringClass_Spy from "#aspects/driver/fixtures/generated/stubs/Spy.mjs";
+import NumberStringClass_Spy from "#aspects/test-fixtures/fixtures/generated/stubs/Spy.mjs";
 
 import {
   getAspectDictionaryForDriver,

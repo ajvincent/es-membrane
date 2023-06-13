@@ -9,16 +9,16 @@ import {
 
 import type {
   NumberStringType
-} from "../fixtures/types/NumberStringType.mjs";
+} from "#aspects/test-fixtures/fixtures/types/NumberStringType.mjs";
 
-import NumberStringClass from "#aspects/driver/fixtures/components/shared/NumberStringClass.mjs";
+import NumberStringClass from "#aspects/test-fixtures/fixtures/components/shared/NumberStringClass.mjs";
 
 import {
   getAspectDecorators,
   getAspectDictionaryForDriver,
 } from "#aspects/dictionary/source/generated/AspectsDictionary.mjs";
 
-import NumberStringClass_Spy from "#aspects/driver/fixtures/generated/stubs/Spy.mjs";
+import NumberStringClass_Spy from "#aspects/test-fixtures/fixtures/generated/stubs/Spy.mjs";
 
 import type {
   HasSpy
