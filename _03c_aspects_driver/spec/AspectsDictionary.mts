@@ -16,7 +16,7 @@ import NumberStringClass_Spy from "#aspects/driver/source/generated/stubs/Spy.mj
 import {
   getAspectDictionaryForDriver,
   getAspectDecorators,
-} from "#aspects/driver/source/generated/AspectsDictionary.mjs";
+} from "#aspects/dictionary/source/generated/AspectsDictionary.mjs";
 
 describe("AspectsDictionary", () => {
   // #region beforeAll

@@ -1,10 +1,3 @@
-/**
- * @remarks
- * This file is generated.  Do not edit.
- * @see {@link "/_03b_aspects_dictionary/source/Aspects-Dictionary-base.mts.in"}
- * @see {@link "/_03b_aspects_dictionary/source/buildAspectsDictionary.mts"}
- */
-
 // #region preamble
 import type { Class } from "type-fest";
 
@@ -30,14 +23,10 @@ type UnshiftableArray<T> = ReadonlyArray<T> & Pick<T[], "push" | "unshift">;
 // #region AspectsBuilder
 
 class AspectsBuilder<Type extends MethodsOnly> {
-  readonly classInvariants: UnshiftableArray<(new (thisObj: Type) => VoidMethodsOnly<Type>)> = [];
-  readonly bodyComponents: UnshiftableArray<(new (thisObj: Type) => IndeterminateClass<Type>)> = [];
-
+//@ASPECTS_BUILDER_FIELDS
   constructor(baseBuilder: AspectsBuilder<Type> | null) {
     if (baseBuilder) {
-      this.classInvariants.push(...baseBuilder.classInvariants);
-      this.bodyComponents.push(...baseBuilder.bodyComponents);
-
+//@ASPECTS_BUILDER_CONSTRUCTOR
     }
   }
 }
@@ -79,9 +68,7 @@ export function getAspectBuilderForClass<Type extends MethodsOnly>(
 /** @internal */
 export class AspectsDictionary<Type extends MethodsOnly>
 {
-  readonly classInvariants: PushableArray<VoidMethodsOnly<Type>> = [];
-  readonly bodyComponents: PushableArray<IndeterminateClass<Type>> = [];
-
+//@ASPECTS_DICTIONARY_CLASS_FIELDS
 }
 
 const InstanceToAspectDictionaryMap = new WeakMap<
@@ -109,13 +96,7 @@ export function buildAspectDictionaryForDriver<
 
   const __dictionary__ = new AspectsDictionary<Type>;
 
-  __builder__.classInvariants.forEach(__subBuilder__ => {
-    __dictionary__.classInvariants.push(new __subBuilder__(__wrapped__));
-  });
-  __builder__.bodyComponents.forEach(__subBuilder__ => {
-    __dictionary__.bodyComponents.push(new __subBuilder__(__wrapped__));
-  });
-
+//@ASPECTS_BUILDER_FOREACH
 
   InstanceToAspectDictionaryMap.set(__driver__, __dictionary__);
   return __dictionary__;
@@ -141,45 +122,13 @@ export function getAspectDictionaryForDriver<
 // #region Aspect decorators
 
 interface AspectDecoratorsInterface<Type extends MethodsOnly> {
-  classInvariants: ClassDecoratorFunction<
-    Class<Type>, false, [callback: new (thisObj: Type) => VoidMethodsOnly<Type>]
-  >;
-
-  bodyComponents: ClassDecoratorFunction<
-    Class<Type>, false, [callback: new (thisObj: Type) => IndeterminateClass<Type>]
-  >;
-
-
+//@ASPECTS_DECORATORS_INTERFACE
 }
 
 class AspectDecoratorsClass<Type extends MethodsOnly>
 implements AspectDecoratorsInterface<Type>
 {
-  classInvariants(
-    this: void,
-    callback: Class<VoidMethodsOnly<Type>, [Type]>
-  ): ClassDecoratorFunction<Class<Type>, false, false>
-  {
-    return function(baseClass, context): void {
-      void(context);
-      const builder = getAspectBuilderForClass<Type>(baseClass);
-      builder.classInvariants.unshift(callback);
-    }
-  }
-
-  bodyComponents(
-    this: void,
-    callback: Class<IndeterminateClass<Type>, [Type]>
-  ): ClassDecoratorFunction<Class<Type>, false, false>
-  {
-    return function(baseClass, context): void {
-      void(context);
-      const builder = getAspectBuilderForClass<Type>(baseClass);
-      builder.bodyComponents.unshift(callback);
-    }
-  }
-
-
+//@ASPECTS_DECORATORS_CLASS
 }
 
 const AspectDecorators = new AspectDecoratorsClass<MethodsOnly>;
@@ -194,7 +143,5 @@ export function getAspectDecorators<
 // #endregion Aspect decorators
 
 export const AspectsBuilderKeys: ReadonlyArray<string> = [
-  "classInvariants",
-  "bodyComponents",
-
+//@ASPECTS_BUILDER_KEYS
 ];

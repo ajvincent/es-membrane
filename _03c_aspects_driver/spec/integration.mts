@@ -23,7 +23,7 @@ import NumberStringClass from "#aspects/driver/fixtures/components/shared/Number
 import {
   getAspectDecorators,
   getAspectDictionaryForDriver,
-} from "#aspects/driver/source/generated/AspectsDictionary.mjs";
+} from "#aspects/dictionary/source/generated/AspectsDictionary.mjs";
 
 import NumberStringClass_Spy from "#aspects/driver/source/generated/stubs/Spy.mjs";
 
