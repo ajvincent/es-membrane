@@ -19,7 +19,7 @@ const fixturesDir: ModuleSourceDirectory = {
 };
 
 const sourceFile = getTS_SourceFile(fixturesDir, "fixtures/types/NumberStringType.d.mts");
-const generatedDir = pathToModule(stageDir, "spec-generated");
+const generatedDir = pathToModule(stageDir, "fixtures/generated");
 
 export default async function runModule() : Promise<void>
 {
