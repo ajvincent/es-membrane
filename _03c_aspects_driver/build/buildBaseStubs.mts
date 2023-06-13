@@ -12,11 +12,11 @@ import StubClassSet, {
 
 import {
   sourceFile,
-  generatedDir,
+  fixturesDir,
   pathToTypeFile,
 } from "./constants.mjs";
 
-const destinationDir = pathToModule(generatedDir, "stubs");
+const destinationDir = pathToModule(fixturesDir, "stubs");
 
 export default
 async function buildBaseStubs() : Promise<void>

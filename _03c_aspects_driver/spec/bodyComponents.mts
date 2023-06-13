@@ -16,7 +16,7 @@ import type {
   NumberStringType
 } from "../fixtures/types/NumberStringType.mjs";
 
-import NumberStringClass_IndeterminateReturn from "../source/generated/stubs/IndeterminateReturn.mjs";
+import NumberStringClass_IndeterminateReturn from "../fixtures/generated/stubs/IndeterminateReturn.mjs";
 import NumberStringClass_PlusOneCopy from "../fixtures/bodyComponents/plusOne.mjs";
 
 describe("Aspect weaving: supports body components", () => {

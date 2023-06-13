@@ -11,7 +11,7 @@ import type {
   NumberStringType
 } from "#aspects/driver/fixtures/types/NumberStringType.mjs";
 
-import NumberStringClass_Spy from "#aspects/driver/source/generated/stubs/Spy.mjs";
+import NumberStringClass_Spy from "#aspects/driver/fixtures/generated/stubs/Spy.mjs";
 
 import {
   getAspectDictionaryForDriver,

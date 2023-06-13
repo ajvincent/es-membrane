@@ -25,13 +25,13 @@ import {
   getAspectDictionaryForDriver,
 } from "#aspects/dictionary/source/generated/AspectsDictionary.mjs";
 
-import NumberStringClass_Spy from "#aspects/driver/source/generated/stubs/Spy.mjs";
+import NumberStringClass_Spy from "#aspects/driver/fixtures/generated/stubs/Spy.mjs";
 
 import type {
   NumberStringType
 } from "../fixtures/types/NumberStringType.mjs";
 
-import NumberStringClass_IndeterminateReturn from "../source/generated/stubs/IndeterminateReturn.mjs";
+import NumberStringClass_IndeterminateReturn from "#aspects/driver/fixtures/generated/stubs/IndeterminateReturn.mjs";
 import NumberStringClass_PlusOneCopy from "../fixtures/bodyComponents/plusOne.mjs";
 // #endregion preamble
 

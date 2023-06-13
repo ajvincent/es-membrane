@@ -9,9 +9,9 @@ export const stageDir: ModuleSourceDirectory = {
   importMeta: import.meta,
   pathToDirectory: "../.."
 };
-const generatedDir: ModuleSourceDirectory = {
+const fixturesDir: ModuleSourceDirectory = {
   importMeta: import.meta,
-  pathToDirectory: "../../source/generated"
+  pathToDirectory: "../../fixtures/generated"
 };
 
 const sourceFile = getTS_SourceFile(stageDir, "fixtures/types/NumberStringType.d.mts");
@@ -19,6 +19,6 @@ const pathToTypeFile = pathToModule(stageDir, "fixtures/types/NumberStringType.m
 
 export {
   sourceFile,
-  generatedDir,
+  fixturesDir,
   pathToTypeFile,
 };

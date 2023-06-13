@@ -3,38 +3,37 @@
 
 import {
   type NumberStringType,
-} from "../../../fixtures/types/NumberStringType.mjs";
-import {
-  type VoidMethodsOnly,
-} from "#stub_classes/source/base/types/VoidMethodsOnly.mjs";
+} from "../../types/NumberStringType.mjs";
 import {
   type MethodsPrependReturn,
 } from "#stub_classes/source/base/types/MethodsPrependReturn.mjs";
 
 // #endregion preamble
 
-export default class NumberStringClass_PrependReturn
-implements MethodsPrependReturn<VoidMethodsOnly<NumberStringType>>
+export default class NumberStringClass_PrependReturn_NI
+implements MethodsPrependReturn<NumberStringType>
 {
   repeatForward(
-    __rv__: void,
+    __rv__: string,
     s: string,
     n: number,
-  ): void
+  ): string
   {
     void(__rv__);
     void(s);
     void(n);
+    throw new Error("not yet implemented");
   }
 
   repeatBack(
-    __rv__: void,
+    __rv__: string,
     n: number,
     s: string,
-  ): void
+  ): string
   {
     void(__rv__);
     void(n);
     void(s);
+    throw new Error("not yet implemented");
   }
 }

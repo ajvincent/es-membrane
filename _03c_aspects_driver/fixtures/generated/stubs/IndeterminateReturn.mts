@@ -3,7 +3,7 @@
 
 import {
   type NumberStringType,
-} from "../../../fixtures/types/NumberStringType.mjs";
+} from "../../types/NumberStringType.mjs";
 import {
   INDETERMINATE,
 } from "#stub_classes/source/symbol-keys.mjs";

@@ -4,7 +4,7 @@
 import SpyBase from "#stage_utilities/source/SpyBase.mjs";
 import {
   type NumberStringType,
-} from "../../../fixtures/types/NumberStringType.mjs";
+} from "../../types/NumberStringType.mjs";
 import {
   type VoidMethodsOnly,
 } from "#stub_classes/source/base/types/VoidMethodsOnly.mjs";

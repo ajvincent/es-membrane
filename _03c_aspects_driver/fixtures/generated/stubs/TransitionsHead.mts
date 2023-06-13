@@ -3,7 +3,7 @@
 
 import {
   type NumberStringType,
-} from "../../../fixtures/types/NumberStringType.mjs";
+} from "../../types/NumberStringType.mjs";
 import {
   type TransitionInterface,
 } from "#stub_classes/source/transitions/types/TransitionInterface.mjs";

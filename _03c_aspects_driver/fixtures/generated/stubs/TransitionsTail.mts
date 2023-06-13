@@ -3,16 +3,25 @@
 
 import {
   type NumberStringType,
-} from "../../../fixtures/types/NumberStringType.mjs";
+} from "../../types/NumberStringType.mjs";
 import {
   type TransitionInterface,
 } from "#stub_classes/source/transitions/types/TransitionInterface.mjs";
 
 // #endregion preamble
 
-export default class NumberStringClass_Transitions_Middle
+export default class NumberStringClass_Transitions_Tail
 implements TransitionInterface<NumberStringType, [boolean, () => Promise<void>]>
 {
+  readonly #nextHandler: NumberStringType;
+
+  constructor(
+    nextHandler: NumberStringType,
+  )
+  {
+    this.#nextHandler = nextHandler;
+  }
+
   repeatForward(
     s: string,
     n: number,
@@ -26,9 +35,7 @@ implements TransitionInterface<NumberStringType, [boolean, () => Promise<void>]>
     void(n);
     void(m1);
     void(m2);
-    void(s_tail);
-    void(n_tail);
-    return s_tail.repeat(n_tail);
+    return this.#nextHandler.repeatForward(s_tail, n_tail);
   }
 
   repeatBack(
@@ -44,8 +51,6 @@ implements TransitionInterface<NumberStringType, [boolean, () => Promise<void>]>
     void(s);
     void(m1);
     void(m2);
-    void(n_tail);
-    void(s_tail);
-    return s_tail.repeat(n_tail);
+    return this.#nextHandler.repeatBack(n_tail, s_tail);
   }
 }

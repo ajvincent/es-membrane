@@ -3,30 +3,31 @@
 
 import {
   type NumberStringType,
-} from "../../../fixtures/types/NumberStringType.mjs";
+} from "../../types/NumberStringType.mjs";
+import {
+  type VoidMethodsOnly,
+} from "#stub_classes/source/base/types/VoidMethodsOnly.mjs";
 
 // #endregion preamble
 
-export default class NumberStringClass_NotImplemented
-implements NumberStringType
+export default class NumberStringClass_Void
+implements VoidMethodsOnly<NumberStringType>
 {
   repeatForward(
     s: string,
     n: number,
-  ): string
+  ): void
   {
     void(s);
     void(n);
-    throw new Error("not yet implemented");
   }
 
   repeatBack(
     n: number,
     s: string,
-  ): string
+  ): void
   {
     void(n);
     void(s);
-    throw new Error("not yet implemented");
   }
 }
