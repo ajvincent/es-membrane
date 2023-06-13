@@ -18,14 +18,14 @@ import {
   SPY_BASE,
 } from "#stub_classes/source/symbol-keys.mjs";
 
-import NumberStringClass from "#aspect_drivers/fixtures/components/shared/NumberStringClass.mjs";
+import NumberStringClass from "#aspects/driver/fixtures/components/shared/NumberStringClass.mjs";
 
 import {
   getAspectDecorators,
   getAspectDictionaryForDriver,
-} from "#aspect_drivers/source/generated/AspectsDictionary.mjs";
+} from "#aspects/driver/source/generated/AspectsDictionary.mjs";
 
-import NumberStringClass_Spy from "#aspect_drivers/source/generated/stubs/Spy.mjs";
+import NumberStringClass_Spy from "#aspects/driver/source/generated/stubs/Spy.mjs";
 
 import type {
   NumberStringType

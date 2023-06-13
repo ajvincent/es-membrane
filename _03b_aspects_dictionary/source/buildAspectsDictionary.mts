@@ -38,8 +38,8 @@ async function buildAspectsDictionary(
 /**
  * @remarks
  * This file is generated.  Do not edit.
- * @see {@link "/_03_aspect_dictionary/source/Aspects-Dictionary-base.mts.in"}
- * @see {@link "/_03_aspect_dictionary/source/buildAspectsDictionary.mts"}
+ * @see {@link "/_03b_aspects_dictionary/source/Aspects-Dictionary-base.mts.in"}
+ * @see {@link "/_03b_aspects_dictionary/source/buildAspectsDictionary.mts"}
  */
 `.trim() + "\n\n";
 

@@ -8,10 +8,10 @@ import {
   getModulePart,
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 
-import NumberStringClass from "#aspect_dictionary/fixtures/components/shared/NumberStringClass.mjs";
+import NumberStringClass from "#aspects/dictionary/fixtures/components/shared/NumberStringClass.mjs";
 import type {
   NumberStringType
-} from "#aspect_dictionary/fixtures/types/NumberStringType.mjs";
+} from "#aspects/dictionary/fixtures/types/NumberStringType.mjs";
 
 import type {
   AspectBuilderGetter,
@@ -20,7 +20,7 @@ import type {
   AspectDecoratorsGetter
 } from "./types/AspectsDictionary-internal.mjs";
 
-import NumberStringClass_Spy from "#aspect_dictionary/fixtures/generated/stubs/Spy.mjs";
+import NumberStringClass_Spy from "#aspects/dictionary/fixtures/generated/stubs/Spy.mjs";
 
 describe("AspectsDictionary", () => {
   // #region beforeAll

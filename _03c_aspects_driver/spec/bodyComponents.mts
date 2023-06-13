@@ -10,7 +10,7 @@ import {
 
 import {
   getAspectDecorators,
-} from "#aspect_drivers/source/generated/AspectsDictionary.mjs";
+} from "#aspects/driver/source/generated/AspectsDictionary.mjs";
 
 import type {
   NumberStringType

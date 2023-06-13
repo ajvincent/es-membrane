@@ -9,14 +9,14 @@ import {
 
 import type {
   NumberStringType
-} from "#aspect_drivers/fixtures/types/NumberStringType.mjs";
+} from "#aspects/driver/fixtures/types/NumberStringType.mjs";
 
-import NumberStringClass_Spy from "#aspect_drivers/source/generated/stubs/Spy.mjs";
+import NumberStringClass_Spy from "#aspects/driver/source/generated/stubs/Spy.mjs";
 
 import {
   getAspectDictionaryForDriver,
   getAspectDecorators,
-} from "#aspect_drivers/source/generated/AspectsDictionary.mjs";
+} from "#aspects/driver/source/generated/AspectsDictionary.mjs";
 
 describe("AspectsDictionary", () => {
   // #region beforeAll

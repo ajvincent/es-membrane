@@ -1,5 +1,5 @@
 import buildBaseStubs from "./buildBaseStubs.mjs";
-import buildAspectsDictionary from "#aspect_dictionary/source/buildAspectsDictionary.mjs";
+import buildAspectsDictionary from "#aspects/dictionary/source/buildAspectsDictionary.mjs";
 
 import {
   generatedDir,

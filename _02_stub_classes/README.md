@@ -1,6 +1,6 @@
 # Stub class generation (or "metaprogramming, part 2")
 
-To support the [aspect weaving](../_03_aspect_dictionary/README.md) infrastructure for this project, I need to take an existing interface, containing only concrete methods, and modify it:
+To support the [aspect weaving](../_03b_aspects_dictionary/README.md) infrastructure for this project, I need to take an existing interface, containing only concrete methods, and modify it:
 
 - Sometimes I'll change the return type.
 - Sometimes I'll insert extra arguments at the beginning of each method.  
