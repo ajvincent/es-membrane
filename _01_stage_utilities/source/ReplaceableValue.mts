@@ -1,30 +1,35 @@
-export type ReplaceableValueType<Replaceable extends object, Context> = {
+export type ReplaceableValueType<Replaceable extends object, UserContext> = {
   source: Replaceable,
-  context: Context
+  userContext: UserContext
 };
 
-export default class ReplaceableValue<Replaceable extends object, Context>
+export default class ReplaceableValue<Replaceable extends object, UserContext>
 {
-  readonly #contextMap = new WeakMap<Replaceable, Context>;
+  readonly #contextMap = new WeakMap<Replaceable, UserContext>;
   readonly #replacedMap = new WeakMap<Replaceable, Replaceable>;
+
+  readonly #generator: () => ReplaceableValueType<Replaceable, UserContext>;
+
+  constructor(generator: () => ReplaceableValueType<Replaceable, UserContext>) {
+    this.#generator = generator;
+  }
 
   public get(
     source: Replaceable,
-    generator: () => ReplaceableValueType<Replaceable, Context>
-  ): ReplaceableValueType<Replaceable, Context>
+  ): ReplaceableValueType<Replaceable, UserContext>
   {
     source = this.#replacedMap.get(source) ?? source;
 
     if (this.#contextMap.has(source)) {
       return {
         source,
-        context: this.#contextMap.get(source) as Context,
+        userContext: this.#contextMap.get(source) as UserContext,
       };
     }
 
-    const result = generator();
+    const result = this.#generator();
     this.#replacedMap.set(source, result.source);
-    this.#contextMap.set(result.source, result.context);
+    this.#contextMap.set(result.source, result.userContext);
     return result;
   }
 }
