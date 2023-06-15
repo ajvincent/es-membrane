@@ -1,6 +1,4 @@
 // #region preamble
-import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
-
 import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
@@ -14,9 +12,13 @@ import type {
 } from "../types/ConfigureStubDecorator.mjs";
 
 import type {
-  TS_Method
+  TS_Method,
+  TS_Parameter,
 } from "../../types/export-types.mjs";
-import { ExtendsAndImplements } from "../ConfigureStub.mjs";
+
+import type {
+  ExtendsAndImplements
+} from "../ConfigureStub.mjs";
 
 // #endregion preamble
 
@@ -65,7 +67,7 @@ const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields, false> = functio
 
     protected buildMethodBodyTrap(
       structure: TS_Method,
-      remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>,
+      remainingArgs: Set<TS_Parameter>,
     ): void
     {
       const paramsStr = structure.parameters?.map(

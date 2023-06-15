@@ -30,7 +30,10 @@ import extractType, {
 import type {
   TS_Method,
   TS_Parameter,
+  TS_TypeParameter,
 } from "../types/export-types.mjs";
+
+import serializeParameter from "./utilities/serializeParameter.mjs";
 
 // #endregion preamble
 
@@ -108,6 +111,13 @@ export default class ConfigureStub extends MixinBase
 
   /** This handles imports inside the module. */
   readonly #preambleWriter = new CodeBlockWriter(writerOptions);
+
+  #wrapInFunctionParameters?: {
+    typeParameters: ReadonlyArray<TS_TypeParameter>,
+    parameters: ReadonlyArray<TS_Parameter>,
+    functionName: string,
+    beforeClassTrap: (classWriter: CodeBlockWriter) => void,
+  } = undefined;
 
   /** This handles the actual class generation code. */
   protected readonly classWriter = new CodeBlockWriter(writerOptions);
@@ -207,6 +217,29 @@ export default class ConfigureStub extends MixinBase
     }
   }
 
+  wrapInFunction(
+    typeParameters: ReadonlyArray<TS_TypeParameter>,
+    parameters: ReadonlyArray<TS_Parameter>,
+    functionName: string,
+    beforeClassTrap: (classWriter: CodeBlockWriter) => void,
+  ) : void
+  {
+    if (this.#buildCalled) {
+      throw new Error(`Build has been called for file ${this.#pathToClassFile}`);
+    }
+
+    if (this.#wrapInFunctionParameters) {
+      throw new Error("You have already called wrapInFunction()!");
+    }
+
+    this.#wrapInFunctionParameters = {
+      typeParameters,
+      parameters,
+      functionName,
+      beforeClassTrap,
+    };
+  }
+
   /** Write the preamble (module imports). */
   #writePreamble() : void
   {
@@ -227,6 +260,11 @@ export default class ConfigureStub extends MixinBase
         for (const location of locations.values()) {
           this.#writeImportBlock(location)
         }
+
+        if (this.#wrapInFunctionParameters) {
+          this.#preambleWriter.writeLine(`import { Class } from "type-fest";`);
+        }
+
         this.#preambleWriter.blankLine();
       }
     );
@@ -285,7 +323,83 @@ export default class ConfigureStub extends MixinBase
     }
     this.#buildCalled = true;
 
-    this.classWriter.writeLine(`export default class ${this.#className}`);
+    this.classWriter.write("export default ");
+
+    if (this.#wrapInFunctionParameters) {
+      this.#writeWrapperFunction();
+    }
+    else {
+      this.#buildClassInsideWrapFunction();
+    }
+  }
+
+  #writeWrapperFunction(): void {
+    if (!this.#wrapInFunctionParameters) {
+      throw new Error("unreachable, assertion failure");
+    }
+
+    this.classWriter.write(`function ${this.#wrapInFunctionParameters.functionName}`);
+    this.classWriter.newLine();
+
+    if (this.#wrapInFunctionParameters.typeParameters.length) {
+      ConfigureStub.pairedWrite(
+        this.classWriter, "<", ">", true, true, () => this.#writeWrapFunctionTypeParameters()
+      );
+      this.classWriter.newLine();
+    }
+
+    ConfigureStub.pairedWrite(
+      this.classWriter, "(", ")", true, true, () => this.#writeWrapFunctionParameters()
+    );
+
+    ConfigureStub.pairedWrite(
+      this.classWriter, ": Class<", ">", true, true, () => {
+        const { implements: _implements } = this.getExtendsAndImplementsTrap(new Map);
+        this.classWriter.write(_implements.join(" & "));
+      }
+    );
+    this.classWriter.newLine();
+
+    this.classWriter.block(() => {
+      if (!this.#wrapInFunctionParameters) {
+        throw new Error("unreachable, assertion failure");
+      }
+      this.#wrapInFunctionParameters.beforeClassTrap(this.classWriter);
+      this.classWriter.write("return ");
+      this.#buildClassInsideWrapFunction();
+    });
+  }
+
+  #writeWrapFunctionTypeParameters(): void {
+    if (this.#wrapInFunctionParameters) {
+      this.#wrapInFunctionParameters.typeParameters.forEach(
+        (typeParameter, index, array) => this.#writeTypeParameter(typeParameter, index === array.length - 1)
+      )
+    }
+  }
+
+  #writeTypeParameter(typeParameter: TS_TypeParameter, isLast: boolean): void {
+    let serialized: string = typeParameter.name;
+    if (typeParameter.constraint) {
+      serialized += " extends " + (extractType(typeParameter.constraint, true) as string);
+    }
+    if (!isLast)
+      serialized += ", ";
+    this.classWriter.write(serialized);
+  }
+
+  #writeWrapFunctionParameters(): void {
+    if (this.#wrapInFunctionParameters) {
+      this.classWriter.write(
+        this.#wrapInFunctionParameters.parameters.map(serializeParameter).join(", ")
+      );
+    }
+  }
+
+  #buildClassInsideWrapFunction(): void
+  {
+    this.classWriter.write(`class ${this.#className}`);
+    this.classWriter.newLine();
 
     const context = new Map<symbol, unknown>;
     const {
@@ -486,21 +600,21 @@ export default class ConfigureStub extends MixinBase
 
     const contents = [
       this.#preambleWriter.toString(),
-      this.writeBeforeClassTrap().trim(),
+      this.writeBeforeExportTrap().trim(),
       this.classWriter.toString(),
-      this.writeAfterClassTrap().trim(),
+      this.writeAfterExportTrap().trim(),
     ].filter(Boolean).join("\n\n") + "\n";
 
     await fs.mkdir(path.dirname(this.#pathToClassFile), { recursive: true });
     await fs.writeFile(this.#pathToClassFile, contents, { "encoding": "utf-8"});
   }
 
-  protected writeBeforeClassTrap() : string
+  protected writeBeforeExportTrap() : string
   {
     return "";
   }
 
-  protected writeAfterClassTrap() : string
+  protected writeAfterExportTrap() : string
   {
     return "";
   }

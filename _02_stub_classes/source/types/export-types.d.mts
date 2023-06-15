@@ -1,11 +1,13 @@
 import type {
   OptionalKind,
   MethodSignatureStructure,
-  ParameterDeclarationStructure
+  ParameterDeclarationStructure,
+  TypeParameterDeclarationStructure,
 } from "ts-morph";
 
 type TS_Method = OptionalKind<MethodSignatureStructure>;
 type TS_Parameter = OptionalKind<ParameterDeclarationStructure>;
+type TS_TypeParameter = OptionalKind<TypeParameterDeclarationStructure>;
 
 import type {
   MethodsOnly
@@ -43,5 +45,6 @@ export type {
   VoidMethodsOnly,
   TS_Method,
   TS_Parameter,
+  TS_TypeParameter,
   ConfigureStubDecorator,
 }

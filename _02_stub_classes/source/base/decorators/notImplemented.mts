@@ -18,11 +18,11 @@ import type {
 } from "../ConfigureStub.mjs";
 
 import type {
-  TS_Method
+  TS_Method,
+  TS_Parameter,
 } from "../../types/export-types.mjs";
 
 import addBaseTypeImport from "../utilities/addBaseTypeImport.mjs";
-import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 
 // #endregion preamble
 
@@ -89,7 +89,7 @@ const NotImplementedDecorator: ConfigureStubDecorator<NotImplementedFields, fals
   
     protected buildMethodBodyTrap(
       methodStructure: TS_Method,
-      remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>,
+      remainingArgs: Set<TS_Parameter>,
     ): void
     {
       this.voidArguments(remainingArgs);

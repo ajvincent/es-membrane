@@ -239,7 +239,7 @@ const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> =
     }
     //#endregion buildMethodBodyTrap and supporting methods
 
-    protected writeAfterClassTrap() : string
+    protected writeAfterExportTrap() : string
     {
       return `getAspectBuilderForClass<${this.interfaceOrAliasName}>(${this.getClassName()});\n`;
     }

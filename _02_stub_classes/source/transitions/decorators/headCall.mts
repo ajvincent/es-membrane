@@ -201,7 +201,7 @@ const TransitionsHeadCallDecorator: ConfigureStubDecorator<HeadCallFields, false
       this.classWriter.newLine();
     }
 
-    protected writeBeforeClassTrap(): string {
+    protected writeBeforeExportTrap(): string {
       return this.#beforeClassWriter.toString();
     }
 
