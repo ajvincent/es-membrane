@@ -37,9 +37,12 @@ import {
 
 // #region stub setup
 
-type HelloWorldFields = RightExtendsLeft<StaticAndInstance, {
+declare const HelloWorldKey: unique symbol;
+
+type HelloWorldFields = RightExtendsLeft<StaticAndInstance<typeof HelloWorldKey>, {
   staticFields: object,
   instanceFields: object,
+  symbolKey: typeof HelloWorldKey,
 }>;
 
 const HelloWorldDecorator: ConfigureStubDecorator<HelloWorldFields, false> = function(

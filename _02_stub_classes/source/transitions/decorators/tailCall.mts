@@ -23,9 +23,12 @@ import type {
 
 // #endregion preamble
 
-export type TailCallFields = RightExtendsLeft<StaticAndInstance, {
+declare const TailCallKey: unique symbol;
+
+export type TailCallFields = RightExtendsLeft<StaticAndInstance<typeof TailCallKey>, {
   staticFields: object,
   instanceFields: object,
+  symbolKey: typeof TailCallKey,
 }>;
 
 const TransitionsTailCallDecorator: ConfigureStubDecorator<TailCallFields, false> = function(

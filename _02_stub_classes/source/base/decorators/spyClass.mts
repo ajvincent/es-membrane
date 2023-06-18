@@ -22,10 +22,12 @@ import type {
 
 // #endregion preamble
 
+declare const SpyClassKey: unique symbol;
 
-export type SpyClassFields = RightExtendsLeft<StaticAndInstance, {
+export type SpyClassFields = RightExtendsLeft<StaticAndInstance<typeof SpyClassKey>, {
   staticFields: object,
   instanceFields: object,
+  symbolKey: typeof SpyClassKey
 }>;
 
 const SpyClassDecorator: ConfigureStubDecorator<SpyClassFields, false> = function(

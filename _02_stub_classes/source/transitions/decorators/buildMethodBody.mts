@@ -27,7 +27,9 @@ import type {
 
 // #endregion preamble
 
-export type BuildMethodBodyFields = RightExtendsLeft<StaticAndInstance, {
+declare const BuildMethodBodyKey: unique symbol;
+
+export type BuildMethodBodyFields = RightExtendsLeft<StaticAndInstance<typeof BuildMethodBodyKey>, {
   staticFields: object,
   instanceFields: {
     defineBuildMethodBody(
@@ -36,7 +38,8 @@ export type BuildMethodBodyFields = RightExtendsLeft<StaticAndInstance, {
         remainingArgs: Set<TS_Parameter>,
       ) => void
     ) : void;
-  }
+  },
+  symbolKey: typeof BuildMethodBodyKey,
 }>;
 
 const BuildMethodBodyDecorator: ConfigureStubDecorator<BuildMethodBodyFields, false> = function(

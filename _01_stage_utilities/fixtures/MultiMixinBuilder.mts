@@ -8,7 +8,9 @@ import type {
   SubclassDecorator
 } from "../source/types/SubclassDecorator.mjs";
 
-interface XVector extends StaticAndInstance {
+declare const XVectorKey: unique symbol;
+
+interface XVector extends StaticAndInstance<typeof XVectorKey> {
   staticFields: {
     xCoord: number;
   }
@@ -16,15 +18,19 @@ interface XVector extends StaticAndInstance {
     get xLength(): number;
     set xLength(value: number);
   }
+  symbolKey: typeof XVectorKey;
 }
 
-interface YVector extends StaticAndInstance {
+declare const YVectorKey: unique symbol;
+
+interface YVector extends StaticAndInstance<typeof YVectorKey> {
   staticFields: {
     yCoord: number;
   }
   instanceFields: {
     yLength: number;
   }
+  symbolKey: typeof YVectorKey;
 }
 
 const Mixin_XVector: SubclassDecorator<typeof MixinBase, XVector, false> = function(
@@ -79,11 +85,14 @@ class MarkCalledBase extends MixinBase {
   }
 }
 
+const MarkCalledKey = Symbol("mark called");
+
 interface MarkCalledFields {
   staticFields: object,
   instanceFields: {
     markCalled(this: MarkCalledBase): void;
-  }
+  },
+  symbolKey: typeof MarkCalledKey
 }
 
 export {

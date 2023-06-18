@@ -17,9 +17,12 @@ import type {
 
 // #endregion preamble
 
-export type WrapTypeInCtorFields = RightExtendsLeft<StaticAndInstance, {
+declare const WrapTypeKey: unique symbol;
+
+export type WrapTypeInCtorFields = RightExtendsLeft<StaticAndInstance<typeof WrapTypeKey>, {
   staticFields: object,
-  instanceFields: object
+  instanceFields: object,
+  symbolKey: typeof WrapTypeKey,
 }>;
 
 const WrapTypeInCtorDecorator: ConfigureStubDecorator<WrapTypeInCtorFields, false> = function(

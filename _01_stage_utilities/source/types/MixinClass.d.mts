@@ -1,4 +1,8 @@
-import type {Class, Constructor} from 'type-fest';
+import { Constructor } from "type-fest";
+import type {
+	Class,
+	//Constructor
+} from "./Class.mjs";
 
 /**
 A type for mixin classes, particularly useful when applying [ECMAScript decorators](https://www.typescriptlang.org/docs/handbook/mixins.html#decorators-and-mixins-4881).
@@ -8,9 +12,15 @@ A type for mixin classes, particularly useful when applying [ECMAScript decorato
 @typeParam BaseClass - the type of your base class.
 @typeParam Arguments - arguments for your constructor.
  */
-export type MixinClass<AddedStatic, AddedInstance, BaseClass extends Class<unknown>, Arguments extends unknown[] = ConstructorParameters<BaseClass>> = (
-	Constructor<InstanceType<BaseClass> & AddedInstance, Arguments> &
-	Omit<BaseClass, 'prototype'> &
+export type MixinClass<
+  AddedStatic extends object,
+	AddedInstance extends object,
+	BaseClass extends Class<object>,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	Arguments extends unknown[] = ConstructorParameters<BaseClass>
+> = (
+	Class<InstanceType<BaseClass> & AddedInstance, Arguments> &
+	Omit<BaseClass, Constructor<typeof BaseClass, ConstructorParameters<BaseClass>>> &
 	AddedStatic
 );
 
@@ -58,12 +68,11 @@ const SecondClass = buildSecondClass<"isMiddle" | "isMedian", true>("isMedian", 
 
 How it works:
 
-Constructor<InstanceType<BaseClass> & AddedInstance, Arguments>
-This builds a new constructor with a new prototype, mixing the results of calling `new BaseClass` with AddedInstance.
-It also provides a "prototype" property, which conflicts with BaseClass["prototype"].
+Class<InstanceType<BaseClass> & AddedInstance, Arguments>
+This builds a new class with a new prototype, mixing the results of calling `new BaseClass` with AddedInstance.
 
-Omit<BaseClass, 'prototype'>
-This takes care of the conflict.
+Omit<BaseClass, Constructor<typeof BaseClass, ConstructorParameters<BaseClass>>>
+This imports static fields and excludes the constructor from the base class.
 
 AddedStatic
 This adds the static class fields.

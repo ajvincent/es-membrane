@@ -1,7 +1,7 @@
 // #region preamble
 import type {
   Class
-} from "type-fest";
+} from "./types/Class.mjs";
 
 import type {
   StaticAndInstance
@@ -29,7 +29,7 @@ import type {
  * @param context - the class decorator context to forward to each decorator.
  */
 function applyAllDecorators<
-  Interfaces extends ReadonlyArray<StaticAndInstance>,
+  Interfaces extends ReadonlyArray<StaticAndInstance<symbol>>,
   Base extends Class<object>,
 >
 (
@@ -53,7 +53,7 @@ function applyAllDecorators<
  * @param decorators - a sequence which creates and returns subclasses of MixinBase.  This must match the ordering of Interfaces.
  */
 function MixinBuilderInternal<
-  Interfaces extends ReadonlyArray<StaticAndInstance>,
+  Interfaces extends ReadonlyArray<StaticAndInstance<symbol>>,
   Base extends Class<object>,
 >
 (
@@ -77,7 +77,7 @@ function MixinBuilderInternal<
  * @param decorators - a sequence which creates and returns subclasses of MixinBase.  This must match the ordering of Interfaces.
  */
 function MultiMixinBuilder<
-  Interfaces extends ReadonlyArray<StaticAndInstance>,
+  Interfaces extends ReadonlyArray<StaticAndInstance<symbol>>,
   Base extends Class<object>,
 >
 (

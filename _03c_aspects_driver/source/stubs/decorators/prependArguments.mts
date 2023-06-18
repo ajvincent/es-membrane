@@ -25,9 +25,12 @@ import serializeParameter from "#stub_classes/source/base/utilities/serializePar
 
 // #endregion preamble
 
-export type PrependArgumentsFields = RightExtendsLeft<StaticAndInstance, {
+declare const PrependArgumentsKey: unique symbol;
+
+export type PrependArgumentsFields = RightExtendsLeft<StaticAndInstance<typeof PrependArgumentsKey>, {
   staticFields: object,
   instanceFields: object,
+  symbolKey: typeof PrependArgumentsKey,
 }>;
 
 /**

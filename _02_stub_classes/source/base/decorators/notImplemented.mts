@@ -26,11 +26,14 @@ import addBaseTypeImport from "../utilities/addBaseTypeImport.mjs";
 
 // #endregion preamble
 
-export type NotImplementedFields = RightExtendsLeft<StaticAndInstance, {
+declare const NotImplementedKey: unique symbol;
+
+export type NotImplementedFields = RightExtendsLeft<StaticAndInstance<typeof NotImplementedKey>, {
   staticFields: object,
   instanceFields: {
     setNotImplementedOnly(useNever: boolean) : void;
   },
+  symbolKey: typeof NotImplementedKey
 }>
 
 const NotImplementedDecorator: ConfigureStubDecorator<NotImplementedFields, false> = function(

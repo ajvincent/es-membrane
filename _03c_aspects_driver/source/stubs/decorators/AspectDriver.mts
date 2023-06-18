@@ -18,7 +18,9 @@ import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 
 // #endregion preamble
 
-export type AspectDriverFields = RightExtendsLeft<StaticAndInstance, {
+declare const AspectDriverKey: unique symbol;
+
+export type AspectDriverFields = RightExtendsLeft<StaticAndInstance<typeof AspectDriverKey>, {
   staticFields: object,
   instanceFields: {
     defineDefaultBaseClass(
@@ -27,6 +29,7 @@ export type AspectDriverFields = RightExtendsLeft<StaticAndInstance, {
       isDefaultImport: boolean,
     ): void;
   },
+  symbolKey: typeof AspectDriverKey,
 }>;
 
 const AspectDriverDecorator: ConfigureStubDecorator<AspectDriverFields, false> = function(

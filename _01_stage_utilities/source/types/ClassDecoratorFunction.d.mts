@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { Class } from "type-fest"
+import type { Class } from "./Class.mjs";
 
 /**
  * A class decorator which does returns a class to replace the class it receives.
@@ -13,7 +13,7 @@ import type { Class } from "type-fest"
  * @see {@link https://github.com/tc39/proposal-decorators#classes}
  */
 export type ClassDecoratorFunction<
-  BaseClassType extends Class<unknown>,
+  BaseClassType extends Class<object>,
   ReturnsModified extends boolean | BaseClassType,
   Arguments extends any[] | false
 > = (

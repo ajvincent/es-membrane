@@ -15,6 +15,7 @@ import {
   MarkCalledBase,
   type MarkCalledFields,
 } from "../fixtures/MultiMixinBuilder.mjs";
+
 import { RequiredState } from "../source/RequiredInitializers.mjs";
 
 describe("MultiMixinBuilder can generate mixins of several classes", () => {
@@ -101,14 +102,12 @@ describe("MultiMixinBuilder can generate mixins of several classes", () => {
   it("from MixinBase, with protected and public methods (and some very ugly code)", () => {
     type MarkCalledMethods = MarkCalledFields["instanceFields"];
 
+    const VectorMixinClassBase = MultiMixinBuilder<VectorInterfaces, typeof MixinBase>([
+      Mixin_XVector, Mixin_YVector
+    ], MarkCalledBase);
+
     const VectorMixinClass = (
-      class VectorMixinClass
-
-      extends MultiMixinBuilder<VectorInterfaces, typeof MixinBase>([
-        Mixin_XVector, Mixin_YVector
-      ], MarkCalledBase)
-
-      implements MarkCalledMethods
+      class VectorMixinClass extends VectorMixinClassBase implements MarkCalledMethods
 
       {
         public markCalled(this: MarkCalledBase): void {

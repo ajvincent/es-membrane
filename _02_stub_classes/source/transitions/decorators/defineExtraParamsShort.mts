@@ -44,14 +44,17 @@ import type {
 
 // #endregion preamble
 
-export type DefineExtraParamsShortFields = RightExtendsLeft<StaticAndInstance, {
+declare const DefineParamsKey: unique symbol;
+
+export type DefineExtraParamsShortFields = RightExtendsLeft<StaticAndInstance<typeof DefineParamsKey>, {
   staticFields: object,
   instanceFields: {
     defineExtraParams(
       middleParameters: ReadonlyArray<TS_Parameter>,
       tailParamRenamer: ParamRenamer,
     ) : void;
-  }
+  },
+  symbolKey: typeof DefineParamsKey,
 }>;
 
 const DefineExtraParamsShortDecorator: ConfigureStubDecorator<DefineExtraParamsShortFields, false> = function(

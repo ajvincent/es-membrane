@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
   Class,
-} from "type-fest";
+} from "./Class.mjs";
 
 import type {
   ClassDecoratorFunction
@@ -12,7 +12,8 @@ import type {
 } from "./MixinClass.mjs";
 
 import type {
-  StaticAndInstance
+  StaticAndInstance,
+  StaticAndInstanceArray,
 } from "./StaticAndInstance.mjs";
 
 /**
@@ -22,7 +23,7 @@ import type {
  */
 export type SubclassDecorator<
   Base extends Class<object>,
-  Added extends StaticAndInstance,
+  Added extends StaticAndInstance<symbol>,
   Arguments extends any[] | false
 > = ClassDecoratorFunction<
   Base,
@@ -36,6 +37,8 @@ export type SubclassDecorator<
  */
 export type SubclassDecoratorSequence<
   Base extends Class<object>,
-  Interfaces extends ReadonlyArray<StaticAndInstance>,
+  Interfaces extends ReadonlyArray<StaticAndInstance<symbol>>,
   Arguments extends any[] | false
-> = { [key in keyof Interfaces]: SubclassDecorator<Base, Interfaces[key], Arguments> };
+> =
+  StaticAndInstanceArray<Interfaces> extends never ? never :
+  { [key in keyof Interfaces]: SubclassDecorator<Base, Interfaces[key], Arguments> };

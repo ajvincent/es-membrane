@@ -62,7 +62,9 @@ export type TailParamBuilder = (
   newParameterName: string,
 ) => void;
 
-export type HeadCallFields = RightExtendsLeft<StaticAndInstance, {
+declare const HeadCallKey: unique symbol;
+
+export type HeadCallFields = RightExtendsLeft<StaticAndInstance<typeof HeadCallKey>, {
   staticFields: object,
   instanceFields: {
     defineExtraParams(
@@ -72,7 +74,8 @@ export type HeadCallFields = RightExtendsLeft<StaticAndInstance, {
       tailParamRenamer: ParamRenamer,
       tailParamBuilder: TailParamBuilder,
     ) : void;
-  }
+  },
+  symbolKey: typeof HeadCallKey,
 }>;
 
 const TransitionsHeadCallDecorator: ConfigureStubDecorator<HeadCallFields, false> = function(

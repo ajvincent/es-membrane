@@ -1,16 +1,20 @@
 import type {
-  Class,
   TupleToUnion,
   UnionToIntersection,
   Simplify,
 } from "type-fest";
 
 import type {
-  MixinClass
+  Class,
+} from "./Class.mjs";
+
+import type {
+  MixinClass,
 } from "./MixinClass.mjs";
 
 import type {
-  StaticAndInstance
+  StaticAndInstance,
+  StaticAndInstanceArray,
 } from "./StaticAndInstance.mjs";
 
 /**
@@ -34,8 +38,11 @@ type ExtractFields<
 export type MultiMixinClass<
   Interfaces extends ReadonlyArray<StaticAndInstance>,
   Base extends Class<object>,
-> = MixinClass<
-  ExtractFields<Interfaces, "staticFields">,
-  ExtractFields<Interfaces, "instanceFields">,
-  Base
->;
+> =
+  StaticAndInstanceArray<Interfaces> extends never ? never :
+  MixinClass<
+    ExtractFields<Interfaces, "staticFields">,
+    ExtractFields<Interfaces, "instanceFields">,
+    Base
+  >
+;

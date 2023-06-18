@@ -25,9 +25,12 @@ import { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 
 // #endregion preamble
 
-export type VoidClassFields = RightExtendsLeft<StaticAndInstance, {
+declare const VoidClassKey: unique symbol;
+
+export type VoidClassFields = RightExtendsLeft<StaticAndInstance<typeof VoidClassKey>, {
   staticFields: object,
   instanceFields: object,
+  symbolKey: typeof VoidClassKey
 }>;
 
 const VoidClassDecorator: ConfigureStubDecorator<VoidClassFields, false> = function(

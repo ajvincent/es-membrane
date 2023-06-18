@@ -26,9 +26,12 @@ import extractType from "../utilities/extractType.mjs";
 
 // #endregion preamble
 
-export type IndeterminateReturnFields = RightExtendsLeft<StaticAndInstance, {
+declare const IndeterminateReturnKey: unique symbol;
+
+export type IndeterminateReturnFields = RightExtendsLeft<StaticAndInstance<typeof IndeterminateReturnKey>, {
   staticFields: object,
-  instanceFields: object
+  instanceFields: object,
+  symbolKey: typeof IndeterminateReturnKey
 }>;
 
 const IndeterminateReturnDecorator: ConfigureStubDecorator<IndeterminateReturnFields, false> = function(

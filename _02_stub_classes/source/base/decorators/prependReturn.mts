@@ -24,9 +24,12 @@ import addBaseTypeImport from "../utilities/addBaseTypeImport.mjs";
 
 // #endregion preamble
 
-export type PrependReturnFields = RightExtendsLeft<StaticAndInstance, {
+declare const PrependReturnKey: unique symbol;
+
+export type PrependReturnFields = RightExtendsLeft<StaticAndInstance<typeof PrependReturnKey>, {
   staticFields: object,
   instanceFields: object,
+  symbolKey: typeof PrependReturnKey
 }>;
 
 const PrependReturnDecorator: ConfigureStubDecorator<PrependReturnFields, false> = function(
