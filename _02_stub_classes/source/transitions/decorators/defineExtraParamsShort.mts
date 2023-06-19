@@ -13,8 +13,6 @@ import type {
   StaticAndInstance
 } from "#stage_utilities/source/types/StaticAndInstance.mjs";
 
-import extractType from "../../base/utilities/extractType.mjs";
-
 import {
   markDefined,
   NOT_DEFINED,
@@ -22,6 +20,8 @@ import {
   assertDefined,
   assertNotDefined,
 } from "#stage_utilities/source/maybeDefined.mjs";
+
+import extractType from "../../base/utilities/extractType.mjs";
 
 import type {
   ConfigureStubDecorator
@@ -36,11 +36,11 @@ import type {
   TS_Parameter,
 } from "../../types/export-types.mjs";
 
-import addTransitionTypeImport from "../utilities/addTransitionTypeImport.mjs";
-
 import type {
   ParamRenamer
 } from "../types/paramRenamer.mjs";
+
+import addTransitionTypeImport from "../utilities/addTransitionTypeImport.mjs";
 
 // #endregion preamble
 

@@ -10,7 +10,11 @@ import BuildMethodBodyDecorator, {
 
 import ConfigureStub from "../../base/ConfigureStub.mjs";
 
-const TransitionsBaseStub = MultiMixinBuilder<[DefineExtraParamsShortFields, BuildMethodBodyFields], typeof ConfigureStub>(
+const TransitionsBaseStub = MultiMixinBuilder<
+  [DefineExtraParamsShortFields, BuildMethodBodyFields],
+  typeof ConfigureStub
+>
+(
   [DefineExtraParamsShortDecorator, BuildMethodBodyDecorator], ConfigureStub
 );
 

@@ -10,7 +10,11 @@ import TransitionsTailCallDecorator, {
 
 import ConfigureStub from "../../base/ConfigureStub.mjs";
 
-const TransitionsTailStub = MultiMixinBuilder<[DefineExtraParamsShortFields, TailCallFields], typeof ConfigureStub>(
+const TransitionsTailStub = MultiMixinBuilder<
+  [DefineExtraParamsShortFields, TailCallFields],
+  typeof ConfigureStub
+>
+(
   [DefineExtraParamsShortDecorator, TransitionsTailCallDecorator], ConfigureStub
 );
 

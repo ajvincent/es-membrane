@@ -40,11 +40,6 @@ const WrapTypeInCtorDecorator: ConfigureStubDecorator<WrapTypeInCtorFields, fals
       if (methodStructure || !isBefore)
         return;
 
-      /*
-      this.classWriter.writeLine(
-        `static readonly [SPY_BASE] = new WeakMap<${this.getClassName()}, ${this.interfaceOrAliasName}>;`
-      );
-      */
       this.classWriter.writeLine(`readonly #wrapped: ${this.interfaceOrAliasName}`);
       this.classWriter.newLine();
 

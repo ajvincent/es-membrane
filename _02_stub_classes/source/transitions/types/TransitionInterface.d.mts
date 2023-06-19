@@ -5,7 +5,7 @@ import type {
 type TransitionMethod<
   BaseArguments extends unknown[],
   MiddleArguments extends unknown[],
-  Result
+  Result,
 > = (...args: [
   ...BaseArguments,
   ...MiddleArguments,
@@ -14,7 +14,7 @@ type TransitionMethod<
 
 export type TransitionInterface<
   Interface extends MethodsOnly,
-  MiddleArguments extends unknown[]
+  MiddleArguments extends unknown[],
 > = {
   [key in keyof Interface]: TransitionMethod<
     Parameters<Interface[key]>,
