@@ -10,7 +10,10 @@ export default class ReplaceableValue<Replaceable extends object, UserContext>
 
   readonly #generator: () => ReplaceableValueType<Replaceable, UserContext>;
 
-  constructor(generator: () => ReplaceableValueType<Replaceable, UserContext>) {
+  constructor(
+    generator: () => ReplaceableValueType<Replaceable, UserContext>
+  )
+  {
     this.#generator = generator;
   }
 
