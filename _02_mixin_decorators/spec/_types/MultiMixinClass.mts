@@ -12,7 +12,7 @@ import type {
 
 import type {
   RightExtendsLeft
-} from "../../source/types/Utility.mjs";
+} from "#stage_utilities/source/types/Utility.mjs";
 
 // #endregion test fixtures
 

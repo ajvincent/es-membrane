@@ -1,4 +1,8 @@
 import type {
+  RightExtendsLeft
+} from "#stage_utilities/source/types/Utility.mjs";
+
+import type {
   SubclassDecorator
 } from "#mixin_decorators/source/types/SubclassDecorator.mjs";
 
@@ -9,10 +13,6 @@ import type {
 import type {
   StaticAndInstance
 } from "#mixin_decorators/source/types/StaticAndInstance.mjs";
-
-import type {
-  RightExtendsLeft
-} from "#mixin_decorators/source/types/Utility.mjs";
 
 import {
   MultiMixinClass
