@@ -1,22 +1,22 @@
 import type {
   SubclassDecorator
-} from "#stage_utilities/source/types/SubclassDecorator.mjs";
+} from "#mixin_decorators/source/types/SubclassDecorator.mjs";
 
 import type {
   Class
-} from "#stage_utilities/source/types/Class.mjs";
+} from "#mixin_decorators/source/types/Class.mjs";
 
 import type {
   StaticAndInstance
-} from "#stage_utilities/source/types/StaticAndInstance.mjs";
+} from "#mixin_decorators/source/types/StaticAndInstance.mjs";
 
 import type {
   RightExtendsLeft
-} from "#stage_utilities/source/types/Utility.mjs";
+} from "#mixin_decorators/source/types/Utility.mjs";
 
 import {
   MultiMixinClass
-} from "#stage_utilities/source/types/MultiMixinClass.mjs"
+} from "#mixin_decorators/source/types/MultiMixinClass.mjs"
 
 import NumberStringClass from "#aspects/test-fixtures/fixtures/components/NumberStringClass.mjs";
 import type {

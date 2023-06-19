@@ -1,4 +1,4 @@
-import getRequiredInitializers from "../source/RequiredInitializers.mjs";
+import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
 
 import MultiMixinBuilder, {
   type MultiMixinClass,
@@ -16,7 +16,7 @@ import {
   type MarkCalledFields,
 } from "../fixtures/MultiMixinBuilder.mjs";
 
-import { RequiredState } from "../source/RequiredInitializers.mjs";
+import { RequiredState } from "#stage_utilities/source/RequiredInitializers.mjs";
 
 describe("MultiMixinBuilder can generate mixins of several classes", () => {
   type MixinFixture = MultiMixinClass<VectorInterfaces, typeof MixinBase>;
