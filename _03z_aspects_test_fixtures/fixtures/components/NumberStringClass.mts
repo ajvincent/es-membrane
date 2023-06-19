@@ -1,4 +1,4 @@
-import type { NumberStringType } from "../../types/NumberStringType.mjs";
+import type { NumberStringType } from "../types/NumberStringType.mjs";
 
 export default
 class NumberStringClass implements NumberStringType

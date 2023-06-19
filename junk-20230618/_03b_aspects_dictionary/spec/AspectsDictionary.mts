@@ -1,4 +1,4 @@
-import NumberStringClass from "#aspects/test-fixtures/fixtures/components/shared/NumberStringClass.mjs";
+import NumberStringClass from "#aspects/test-fixtures/fixtures/components/NumberStringClass.mjs";
 import type {
   NumberStringType
 } from "#aspects/test-fixtures/fixtures/types/NumberStringType.mjs";
