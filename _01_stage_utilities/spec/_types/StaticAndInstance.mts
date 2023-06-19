@@ -1,6 +1,6 @@
 import type {
   StaticAndInstance,
-  StaticAndInstanceArray
+  StaticAndInstanceArray,
 } from "../../source/types/StaticAndInstance.mjs";
 
 describe("StaticAndInstance", () => {
@@ -41,8 +41,15 @@ describe("StaticAndInstance", () => {
   it("StaticAndInstance objects are unique", () => {
     const arrayOne: StaticAndInstanceArray<[typeof first, typeof second]> = [first, second];
     const arrayTwo: StaticAndInstanceArray<[typeof second, typeof first]> = [second, first];
-  
+
     expect<StaticAndInstance<symbol>>(arrayOne).not.toEqual(arrayTwo);
+  });
+
+  it("StaticAndInstanceArray uses symbol keys to enforce the proper order", () => {
+    // @ts-expect-error elements in the wrong order result in a failure.
+    const arrayTwo: StaticAndInstanceArray<[typeof second, typeof first]> = [first, second];
+
+    expect<StaticAndInstance<symbol>>(arrayTwo).toBeTruthy();
   });
 
   it("StaticAndInstanceArray types only allow unique symbol keys", () => {
