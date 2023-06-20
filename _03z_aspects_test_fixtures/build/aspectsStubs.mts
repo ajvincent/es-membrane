@@ -34,6 +34,7 @@ async function buildAspectsStubs() : Promise<void>
     destinationDir,
     className: "NumberStringClass",
     pathToTypeFile,
+    isTypeFilePackage: true,
 
     /*
     middleParameters: [

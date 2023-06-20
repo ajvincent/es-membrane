@@ -100,6 +100,7 @@ export default class StubClassSet
       config.pathToTypeFile,
       "type " + config.interfaceOrAliasName,
       false,
+      config.isTypeFilePackage,
     );
 
     generator.buildClass();

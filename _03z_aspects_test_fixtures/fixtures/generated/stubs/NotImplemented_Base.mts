@@ -3,7 +3,7 @@
 
 import {
   type NumberStringType,
-} from "../../types/NumberStringType.mjs";
+} from "#aspects/test-fixtures/fixtures/types/NumberStringType.mjs";
 
 // #endregion preamble
 

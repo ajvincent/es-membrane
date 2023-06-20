@@ -9,6 +9,7 @@ export default function addAspectTypeImport(
   stubGenerator.addImport(
     "#aspects/stubs/source/types/" + typeFile,
     `type ${typeToImport}`,
-    false
+    false,
+    true
   );
 }

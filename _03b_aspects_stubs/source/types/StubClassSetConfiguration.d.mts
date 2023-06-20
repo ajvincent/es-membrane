@@ -22,6 +22,7 @@ export type StubClassSetConfiguration = Readonly<{
   destinationDir: string,
   className: string,
   pathToTypeFile: string,
+  isTypeFilePackage: boolean,
 
   /*
   middleParameters: ReadonlyArray<TS_Parameter>;

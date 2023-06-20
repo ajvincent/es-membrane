@@ -100,16 +100,19 @@ export default class AspectsStubBase extends MixinBase
 
   // imports to define in the module.
   /**
-   * key: absolute file path
+   * key: absolute file path or package path
    * value: default import name
    */
   readonly #defaultImports = new Map<string, string>;
 
   /**
-   * key: absolute file path
+   * key: absolute file path or package path
    * value: import names
    */
   readonly #blockImports = new DefaultMap<string, Set<string>>;
+
+  /** Package paths for #defaultInports and #blockImports */
+  readonly #packagePaths = new Set<string>;
 
   /** This handles imports inside the module. */
   readonly #preambleWriter = new CodeBlockWriter(writerOptions);
@@ -210,11 +213,12 @@ export default class AspectsStubBase extends MixinBase
     pathToModule: string,
     importString: string,
     isDefault: boolean,
+    isPackageImport: boolean
   ) : void
   {
     getRequiredInitializers(this).check();
 
-    if (!pathToModule.startsWith("#") && !path.isAbsolute(pathToModule))
+    if (!isPackageImport && !path.isAbsolute(pathToModule))
       throw new Error("pathToModule must be absolute");
 
     if (this.#writeCalled)
@@ -230,6 +234,9 @@ export default class AspectsStubBase extends MixinBase
       const s = this.#blockImports.getDefault(pathToModule, () => new Set);
       s.add(importString);
     }
+
+    if (isPackageImport)
+      this.#packagePaths.add(pathToModule);
   }
 
   /**
@@ -315,7 +322,7 @@ export default class AspectsStubBase extends MixinBase
       });
     }
 
-    if (!importLocation.startsWith("#")) {
+    if (!this.#packagePaths.has(importLocation)) {
       const startDir = path.dirname(this.#pathToClassFile);
       const pathToImport = path.relative(startDir, importLocation);
       if (importLocation.startsWith(startDir)) {
