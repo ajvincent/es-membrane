@@ -1,3 +1,4 @@
+// #region preamble
 import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
@@ -22,6 +23,7 @@ import NumberStringClass from "#aspects/test-fixtures/fixtures/components/Number
 import type {
   NumberStringType
 } from "#aspects/test-fixtures/fixtures/types/NumberStringType.mjs";
+// #endregion preamble
 
 declare const ClassInvariantKey: unique symbol;
 

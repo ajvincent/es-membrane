@@ -1,21 +1,22 @@
 import fs from "fs/promises";
+import path from "path";
 
-import ConfigureStub from "#stub_classes/source/base/ConfigureStub.mjs";
-
-import StubClassSet, {
-  type StubClassSetConfiguration
-} from "#stub_classes/source/StubClassSet.mjs";
+import StubClassSet from "#aspects/stubs/source/StubClassSet.mjs";
+import type {
+  StubClassSetConfiguration
+} from "#aspects/stubs/source/types/StubClassSetConfiguration.mjs";
 
 import {
   sourceFile,
-  destinationDir,
+  generatedDir,
   pathToTypeFile,
 } from "./constants.mjs";
 
 export default
-async function buildBaseStubs() : Promise<void>
+async function buildAspectsStubs() : Promise<void>
 {
   let found = false;
+  const destinationDir = path.join(generatedDir, "stubs");
 
   try {
     await fs.access(destinationDir);
@@ -34,6 +35,7 @@ async function buildBaseStubs() : Promise<void>
     className: "NumberStringClass",
     pathToTypeFile,
 
+    /*
     middleParameters: [
       {
         name: "m1",
@@ -54,17 +56,17 @@ async function buildBaseStubs() : Promise<void>
       ) : void
       {
         void(methodStructure);
-    
+
         if (structure.name === "m1") {
           this.classWriter.writeLine(`const m1 = false;`);
           return;
         }
-    
+
         if (structure.name === "m2") {
           this.classWriter.writeLine(`const m2: () => Promise<void> = () => Promise.resolve();`);
           return;
         }
-    
+
         throw new Error("structure name mismatch: " + structure.name);
       },
       tailBuilder: function(
@@ -77,12 +79,12 @@ async function buildBaseStubs() : Promise<void>
           this.classWriter.writeLine(`const n_tail = n + 1;`);
           return;
         }
-    
+
         if (newParameterName === "s_tail") {
           this.classWriter.writeLine(`const s_tail = s + "_tail";`);
           return;
         }
-    
+
         throw new Error("new parameter name mismatch: " + newParameterName);
       }
     },
@@ -92,7 +94,8 @@ async function buildBaseStubs() : Promise<void>
         this.voidArguments(remainingArgs);
         this.classWriter.writeLine(`return s_tail.repeat(n_tail);`)
       }
-    }
+    },
+    */
   };
   const classSet = new StubClassSet(config);
   await classSet.run();

@@ -12,11 +12,11 @@ export const stageDir: ModuleSourceDirectory = {
 
 const sourceFile = getTS_SourceFile(stageDir, "fixtures/types/NumberStringType.d.mts");
 
-const destinationDir = pathToModule(stageDir, "fixtures/generated/stubs");
+const generatedDir = pathToModule(stageDir, "fixtures/generated");
 const pathToTypeFile = pathToModule(stageDir, "fixtures/types/NumberStringType.mjs");
 
 export {
   sourceFile,
-  destinationDir,
+  generatedDir,
   pathToTypeFile,
 };

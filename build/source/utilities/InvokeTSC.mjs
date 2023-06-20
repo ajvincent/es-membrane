@@ -59,6 +59,7 @@ const InvokeTSC = {
                 "paths": {
                     "#stage_utilities/*": ["./_01_stage_utilities/*"],
                     "#mixin_decorators/*": ["./_02_mixin_decorators/*"],
+                    "#aspects/stubs/*": ["./_03b_aspects_stubs/*"],
                     "#aspects/test-fixtures/*": ["./_03z_aspects_test_fixtures/*"],
                 },
             },
