@@ -1,15 +1,14 @@
 import { SourceFile } from "ts-morph";
 
-/*
 import type {
-  TS_Method,
+  //TS_Method,
   TS_Parameter
-} from "./types/export-types.mjs";
+} from "./ts-morph-native.mjs";
 
 import type {
   ParamRenamer
-} from "./transitions/types/paramRenamer.mjs";
-
+} from "./paramRenamer.mjs";
+/*
 import {
   type MiddleParamBuilder as TransitionsEntryMidBuilder,
   type TailParamBuilder as TransitionsEntryTailBuilder,
@@ -24,10 +23,14 @@ export type StubClassSetConfiguration = Readonly<{
   pathToTypeFile: string,
   isTypeFilePackage: boolean,
 
-  /*
   middleParameters: ReadonlyArray<TS_Parameter>;
-  tailParamRenamer: ParamRenamer;
 
+  transitionsTail: {
+    paramRenamer: ParamRenamer,
+    classArgumentTypes: string,
+  },
+
+  /*
   transitionsHead: Readonly<{
     midParamsTypeAlias: string;
     midBuilder: TransitionsEntryMidBuilder,

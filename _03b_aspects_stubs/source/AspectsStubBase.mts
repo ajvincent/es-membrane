@@ -290,10 +290,6 @@ export default class AspectsStubBase extends MixinBase
           this.#writeImportBlock(location)
         }
 
-        if (this.#wrapInFunctionParameters) {
-          this.#preambleWriter.writeLine(`import { Class } from "#mixin-decorators/source/types/Class.mjs";`);
-        }
-
         this.#preambleWriter.blankLine();
       }
     );
@@ -367,6 +363,13 @@ export default class AspectsStubBase extends MixinBase
     if (!this.#wrapInFunctionParameters) {
       throw new Error("unreachable, assertion failure");
     }
+
+    this.addImport(
+      "#mixin_decorators/source/types/Class.mjs",
+      "type Class",
+      false,
+      true
+    );
 
     this.classWriter.write(`function ${this.#wrapInFunctionParameters.functionName}`);
     this.classWriter.newLine();

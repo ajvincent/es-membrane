@@ -36,7 +36,6 @@ async function buildAspectsStubs() : Promise<void>
     pathToTypeFile,
     isTypeFilePackage: true,
 
-    /*
     middleParameters: [
       {
         name: "m1",
@@ -48,7 +47,11 @@ async function buildAspectsStubs() : Promise<void>
       }
     ],
 
-    tailParamRenamer: (name) => name + "_tail",
+    transitionsTail: {
+      paramRenamer: (name: string) => name + "_tail",
+      classArgumentTypes: "[]",
+    },
+    /*
 
     transitionsHead: {
       midParamsTypeAlias: "NST_MiddleParameters",

@@ -25,8 +25,8 @@ export default class StubClassSet
     /*
     this.#build_transitions_head(config);
     this.#build_transitions_middle(config);
-    this.#build_transitions_tail(config);
     */
+    this.#build_transitions_tail(config);
   }
 
   #runPromise = new SingletonPromise(() => this.#run());
@@ -44,7 +44,22 @@ export default class StubClassSet
   ): void {
     const generator = new StubMap.NotImplementedBase;
     this.#stubArray.push(generator);
-    this.#initStub(generator, config, "NotImplemented_Base.mts", "_NotImplemented_Base");
+
+    generator.configureStub(
+      config.sourceFile,
+      config.interfaceOrAliasName,
+      path.resolve(config.destinationDir, "NotImplemented_Base.mts"),
+      config.className + "_NotImplemented_Base"
+    );
+
+    generator.addImport(
+      config.pathToTypeFile,
+      "type " + config.interfaceOrAliasName,
+      false,
+      config.isTypeFilePackage,
+    );
+
+    generator.buildClass();
   }
 
   /*
@@ -73,29 +88,21 @@ export default class StubClassSet
     this.#initStub(generator, config, "TransitionsMiddle.mts", "_Transitions_Middle");
   }
 
-  #build_transitions_tail(
-    config: StubClassSetConfiguration
-    generator.defineExtraParams(config.middleParameters, config.tailParamRenamer);
-  ): void {
-    const generator = new StubMap.TransitionsTailStub;
-    this.#stubArray.push(generator);
-    this.#initStub(generator, config, "TransitionsTail.mts", "_Transitions_Tail");
-  }
   */
 
-  #initStub(
-    generator: AspectsStubBase,
-    config: StubClassSetConfiguration,
-    classFileName: string,
-    classSpecificName: string,
+  #build_transitions_tail(
+    config: StubClassSetConfiguration
   ): void {
+    const generator = new StubMap.TransitionsTail;
+    generator.defineExtraParams(config.middleParameters, config.transitionsTail.paramRenamer);
+    this.#stubArray.push(generator);
     generator.configureStub(
       config.sourceFile,
       config.interfaceOrAliasName,
-      path.resolve(config.destinationDir, classFileName),
-      config.className + classSpecificName
+      path.resolve(config.destinationDir, "TransitionsTail.mts"),
+      config.className + "_Transitions_Tail"
     );
-
+    generator.wrapInClass(config.transitionsTail.classArgumentTypes);
     generator.addImport(
       config.pathToTypeFile,
       "type " + config.interfaceOrAliasName,
