@@ -24,8 +24,8 @@ export default class StubClassSet
     this.#build_NI_Base(config);
     /*
     this.#build_transitions_head(config);
-    this.#build_transitions_middle(config);
     */
+    this.#build_transitions_not_implemented(config);
     this.#build_transitions_tail(config);
   }
 
@@ -43,23 +43,15 @@ export default class StubClassSet
     config: StubClassSetConfiguration
   ): void {
     const generator = new StubMap.NotImplementedBase;
-    this.#stubArray.push(generator);
 
-    generator.configureStub(
-      config.sourceFile,
-      config.interfaceOrAliasName,
-      path.resolve(config.destinationDir, "NotImplemented_Base.mts"),
-      config.className + "_NotImplemented_Base"
+    this.#configure_stub(
+      generator,
+      config,
+      "NotImplemented_Base.mts",
+      "_NotImplemented_Base",
     );
 
-    generator.addImport(
-      config.pathToTypeFile,
-      "type " + config.interfaceOrAliasName,
-      false,
-      config.isTypeFilePackage,
-    );
-
-    generator.buildClass();
+    this.#finalize_stub(generator, config);
   }
 
   /*
@@ -77,32 +69,62 @@ export default class StubClassSet
     this.#stubArray.push(generator);
     this.#initStub(generator, config, "TransitionsHead.mts", "_Transitions_Head");
   }
+  */
 
-  #build_transitions_middle(
+  #build_transitions_not_implemented(
     config: StubClassSetConfiguration
   ): void {
-    const generator = new StubMap.TransitionsStub;
-    generator.defineExtraParams(config.middleParameters, config.tailParamRenamer);
-    generator.defineBuildMethodBody(config.transitionsMiddle.buildMethodBody);
-    this.#stubArray.push(generator);
-    this.#initStub(generator, config, "TransitionsMiddle.mts", "_Transitions_Middle");
-  }
+    const generator = new StubMap.Transitions_NotImplemented;
 
-  */
+    this.#configure_stub(
+      generator,
+      config,
+      "Transitions_NotImplemented.mts",
+      "_Transitions_NI",
+    );
+
+    generator.defineExtraParams(config.middleParameters, config.transitionsTail.paramRenamer);
+
+    this.#finalize_stub(generator, config);
+  }
 
   #build_transitions_tail(
     config: StubClassSetConfiguration
   ): void {
     const generator = new StubMap.TransitionsTail;
     generator.defineExtraParams(config.middleParameters, config.transitionsTail.paramRenamer);
-    this.#stubArray.push(generator);
+
+    this.#configure_stub(
+      generator,
+      config,
+      "TransitionsTail.mts",
+      "_Transitions_Tail",
+    );
+    generator.wrapInClass(config.transitionsTail.classArgumentTypes);
+
+    this.#finalize_stub(generator, config);
+  }
+
+  #configure_stub(
+    generator: AspectsStubBase,
+    config: StubClassSetConfiguration,
+    targetFileName: string,
+    classSuffix: string,
+  ): void {
     generator.configureStub(
       config.sourceFile,
       config.interfaceOrAliasName,
-      path.resolve(config.destinationDir, "TransitionsTail.mts"),
-      config.className + "_Transitions_Tail"
+      path.resolve(config.destinationDir, targetFileName),
+      config.className + classSuffix
     );
-    generator.wrapInClass(config.transitionsTail.classArgumentTypes);
+  }
+
+  #finalize_stub(
+    generator: AspectsStubBase,
+    config: StubClassSetConfiguration
+  ): void {
+    this.#stubArray.push(generator);
+
     generator.addImport(
       config.pathToTypeFile,
       "type " + config.interfaceOrAliasName,
