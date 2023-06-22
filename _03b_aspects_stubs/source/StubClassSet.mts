@@ -22,9 +22,7 @@ export default class StubClassSet
   )
   {
     this.#build_NI_Base(config);
-    /*
     this.#build_transitions_head(config);
-    */
     this.#build_transitions_not_implemented(config);
     this.#build_transitions_tail(config);
   }
@@ -54,22 +52,24 @@ export default class StubClassSet
     this.#finalize_stub(generator, config);
   }
 
-  /*
   #build_transitions_head(
     config: StubClassSetConfiguration
   ): void {
-    const generator = new StubMap.TransitionsHeadStub;
+    const generator = new StubMap.TransitionsHead;
+    this.#configure_stub(generator, config, "TransitionsHead.mts", "_Transitions_Head");
+
     generator.defineExtraParams(
       config.middleParameters,
       config.transitionsHead.midParamsTypeAlias,
       config.transitionsHead.midBuilder,
-      config.tailParamRenamer,
+      config.transitionsTail.paramRenamer,
       config.transitionsHead.tailBuilder
     );
-    this.#stubArray.push(generator);
-    this.#initStub(generator, config, "TransitionsHead.mts", "_Transitions_Head");
+
+    generator.wrapInClass(config.transitionsTail.classArgumentTypes);
+
+    this.#finalize_stub(generator, config);
   }
-  */
 
   #build_transitions_not_implemented(
     config: StubClassSetConfiguration

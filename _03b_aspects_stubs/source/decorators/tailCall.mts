@@ -44,7 +44,7 @@ const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields, false> 
 )
 {
   return class TransitionsTail extends baseClass {
-    static readonly #WRAP_CLASS_KEY = "(wrap class)";
+    static readonly #WRAP_CLASS_KEY = "(wrap class, tail)";
 
     constructor(...args: unknown[]) {
       super(...args);
@@ -96,7 +96,7 @@ const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields, false> 
   readonly #nextHandler: ${this.interfaceOrAliasName};
       `.trim());
       this.classWriter.newLine();
-  
+
       TransitionsTail.pairedWrite(
         this.classWriter,
         "constructor(",
@@ -109,7 +109,7 @@ const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields, false> 
           `.trim())
         }
       );
-  
+
       this.classWriter.newLine();
       this.classWriter.block(() => {
         this.classWriter.writeLine("this.#nextHandler = new BaseClass(...parameters);");

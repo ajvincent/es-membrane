@@ -12,6 +12,17 @@ import {
   pathToTypeFile,
 } from "./constants.mjs";
 
+import AspectsStubBase from "#aspects/stubs/source/AspectsStubBase.mjs";
+
+import type {
+  ReadonlyDeep
+} from "type-fest";
+
+import type {
+  TS_Method,
+  TS_Parameter
+} from "#aspects/stubs/source/types/ts-morph-native.mjs";
+
 export default
 async function buildAspectsStubs() : Promise<void>
 {
@@ -51,12 +62,13 @@ async function buildAspectsStubs() : Promise<void>
       paramRenamer: (name: string) => name + "_tail",
       classArgumentTypes: "[]",
     },
-    /*
 
     transitionsHead: {
       midParamsTypeAlias: "NST_MiddleParameters",
       midBuilder: function(
-        this: ConfigureStub, methodStructure, structure,
+        this: AspectsStubBase,
+        methodStructure: ReadonlyDeep<TS_Method>,
+        structure: ReadonlyDeep<TS_Parameter>,
       ) : void
       {
         void(methodStructure);
@@ -74,7 +86,10 @@ async function buildAspectsStubs() : Promise<void>
         throw new Error("structure name mismatch: " + structure.name);
       },
       tailBuilder: function(
-        this: ConfigureStub, methodStructure, structure, newParameterName,
+        this: AspectsStubBase,
+        methodStructure: ReadonlyDeep<TS_Method>,
+        structure: ReadonlyDeep<TS_Parameter>,
+        newParameterName: string,
       )
       {
         void(methodStructure);
@@ -92,14 +107,6 @@ async function buildAspectsStubs() : Promise<void>
         throw new Error("new parameter name mismatch: " + newParameterName);
       }
     },
-
-    transitionsMiddle: {
-      buildMethodBody: function (this: ConfigureStub, structure, remainingArgs): void {
-        this.voidArguments(remainingArgs);
-        this.classWriter.writeLine(`return s_tail.repeat(n_tail);`)
-      }
-    },
-    */
   };
   const classSet = new StubClassSet(config);
   await classSet.run();

@@ -102,7 +102,7 @@ const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsSho
     protected getExtendsAndImplementsTrap(context: Map<symbol, unknown>): ExtendsAndImplements {
       const extraParams = assertDefined(this.#extraParams);
       const inner = super.getExtendsAndImplementsTrap(context);
-  
+
       return {
         extends: inner.extends,
         implements: inner.implements.map(

@@ -8,12 +8,11 @@ import type {
 import type {
   ParamRenamer
 } from "./paramRenamer.mjs";
-/*
+
 import {
   type MiddleParamBuilder as TransitionsEntryMidBuilder,
   type TailParamBuilder as TransitionsEntryTailBuilder,
-} from "./transitions/decorators/headCall.mjs";
-*/
+} from "../types/paramBuilders.mjs";
 
 export type StubClassSetConfiguration = Readonly<{
   sourceFile: SourceFile,
@@ -30,15 +29,9 @@ export type StubClassSetConfiguration = Readonly<{
     classArgumentTypes: string,
   },
 
-  /*
   transitionsHead: Readonly<{
     midParamsTypeAlias: string;
     midBuilder: TransitionsEntryMidBuilder,
     tailBuilder: TransitionsEntryTailBuilder,
   }>;
-
-  transitionsMiddle: Readonly<{
-    buildMethodBody(this: ConfigureStub, structure: TS_Method, remainingArgs: Set<TS_Parameter>): void;
-  }>;
-  */
 }>;
