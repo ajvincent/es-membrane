@@ -3,20 +3,23 @@
 export type ClassMethodDecoratorReturn<
   This extends object,
   Key extends keyof This,
-> = (
-  this: ThisParameterType<This[Key]>,
-  ...args: Parameters<This[Key]>
-) => ReturnType<This[Key]>;
+> =
+  This[Key] extends (...args: any[]) => any ?
+  (
+    this: This,
+    ...args: Parameters<This[Key]>
+  ) => ReturnType<This[Key]> :
+  never;
 
 export type ClassMethodDecorator<
   This extends object,
   Key extends keyof This,
   ReturnsModified extends boolean,
-  Arguments extends any[] | false
-> = This[Key] extends Function ?
+  Arguments extends any[] | false,
+> = This[Key] extends (...args: any[]) => any ?
   (
     Arguments extends any[] ?
-    (...args: Arguments) => ClassMethodDecorator<This, Key, false> :
+    (...args: Arguments) => ClassMethodDecorator<This, Key, ReturnsModified, false> :
 
     (
       this: void,
