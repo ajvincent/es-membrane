@@ -45,18 +45,10 @@ const Mixin_XVector: SubclassDecorator<typeof MixinBase, XVector, false> = funct
 
   return class extends _class {
     static xCoord = 12;
-    #xLength = 0;
+    xLength = 0;
 
     constructor(...args: unknown[]) {
       super(...args);
-    }
-
-    get xLength(): number {
-      return this.#xLength;
-    }
-
-    set xLength(value: number) {
-      this.#xLength = value;
     }
   }
 }

@@ -57,6 +57,28 @@ describe("MultiMixinBuilder can generate mixins of several classes", () => {
     expect(foundState).toBe("initial");
   });
 
+  it("in the right order", () => {
+    class MixedClass extends MultiMixinBuilder<VectorInterfaces, typeof MixinBase>([
+      Mixin_XVector, Mixin_YVector
+    ], MixinBase)
+    {
+      // empty on purpose
+    }
+
+    @Mixin_XVector
+    @Mixin_YVector
+    class DecoratedClass extends MixinBase {
+
+    }
+
+    const mixedInstance = new MixedClass;
+    const decoratedInstance = new DecoratedClass;
+
+    const mixedKeys = Reflect.ownKeys(mixedInstance);
+    const decoratedKeys = Reflect.ownKeys(decoratedInstance);
+    expect(mixedKeys).toEqual(decoratedKeys);
+  });
+
   it("from MixinBase, via another mixin", () => {
     let foundState: RequiredState | undefined;
 

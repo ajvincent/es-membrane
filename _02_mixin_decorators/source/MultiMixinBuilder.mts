@@ -40,7 +40,7 @@ function applyAllDecorators<
 ) : MultiMixinClass<Interfaces, Base>
 {
   let _class = baseClass;
-  for (let i = 0; i < decorators.length; i++) {
+  for (let i = decorators.length - 1; i >= 0; i--) {
     _class = decorators[i](_class, context) as Base;
   }
   return _class as MultiMixinClass<Interfaces, Base>;
