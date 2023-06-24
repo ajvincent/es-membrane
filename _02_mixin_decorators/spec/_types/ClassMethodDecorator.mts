@@ -22,11 +22,7 @@ describe("ClassMethodDecorator is compatible with ECMAScript decorators", () => 
       void(context);
       noArgsCalled = true;
     }
-    {
-      // type-checking test
-      const foo: ClassMethodDecorator<NumberStringType, "repeatForward", false, false> = forward;
-      void(foo);
-    }
+    forward satisfies ClassMethodDecorator<NumberStringType, "repeatForward", false, false>;
 
     function back(
       higherScopeBoolean: boolean,
@@ -38,16 +34,7 @@ describe("ClassMethodDecorator is compatible with ECMAScript decorators", () => 
         withArgsCalled = higherScopeBoolean;
       }
     }
-    {
-      // type-checking test
-      const foo: ClassMethodDecorator<
-        NumberStringType,
-        "repeatBack",
-        false,
-        [boolean]
-      > = back;
-      void(foo);
-    }
+    back satisfies ClassMethodDecorator<NumberStringType, "repeatBack", false, [boolean]>;
 
     class NST extends NumberStringClass {
       @forward
@@ -80,11 +67,7 @@ describe("ClassMethodDecorator is compatible with ECMAScript decorators", () => 
         return method(s, n + 1);
       }
     }
-    {
-      // type-checking test
-      const foo: ClassMethodDecorator<NumberStringType, "repeatForward", true, false> = forward;
-      void(foo);
-    }
+    forward satisfies ClassMethodDecorator<NumberStringType, "repeatForward", true, false>;
 
     function back(
       offset: number
@@ -97,16 +80,7 @@ describe("ClassMethodDecorator is compatible with ECMAScript decorators", () => 
         }
       }
     }
-    {
-      // type-checking test
-      const foo: ClassMethodDecorator<
-        NumberStringType,
-        "repeatBack",
-        true,
-        [number]
-      > = back;
-      void(foo);
-    }
+    back satisfies ClassMethodDecorator<NumberStringType, "repeatBack", true, [number]>;
 
     class NST extends NumberStringClass {
       @forward
