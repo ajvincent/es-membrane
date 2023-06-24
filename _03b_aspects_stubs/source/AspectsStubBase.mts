@@ -216,7 +216,7 @@ export default class AspectsStubBase extends MixinBase
     isPackageImport: boolean
   ) : void
   {
-    getRequiredInitializers(this).check();
+    //getRequiredInitializers(this).check();
 
     if (!isPackageImport && !path.isAbsolute(pathToModule))
       throw new Error("pathToModule must be absolute");
