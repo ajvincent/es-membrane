@@ -28,7 +28,7 @@ export type NotImplementedFields = RightExtendsLeft<StaticAndInstance<typeof Not
   symbolKey: typeof NotImplementedKey
 }>
 
-const NotImplementedDecorator: AspectsStubDecorator<NotImplementedFields, false> = function(
+const NotImplementedDecorator: AspectsStubDecorator<NotImplementedFields> = function NotImplementedDecorator(
   this: void,
   baseClass
 )

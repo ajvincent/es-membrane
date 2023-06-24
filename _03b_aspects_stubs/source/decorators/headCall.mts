@@ -70,7 +70,7 @@ export type HeadCallFields = RightExtendsLeft<StaticAndInstance<typeof HeadCallK
   symbolKey: typeof HeadCallKey,
 }>;
 
-const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields, false> = function(
+const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = function(
   this: void,
   baseClass
 )
@@ -119,7 +119,7 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields, false> 
         }],
         "TransitionsHeadClass",
         (classWriter: CodeBlockWriter) => { void(classWriter) },
-      )
+      );
 
       getRequiredInitializers(this).resolve(TransitionsHead.#WRAP_CLASS_KEY);
     }
@@ -255,7 +255,7 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields, false> 
         ]);
         return newName;
       }) ?? [];
-  
+
       TransitionsHead.pairedWrite(
         this.classWriter,
         `return this.#nextHandler.${methodStructure.name}(`,

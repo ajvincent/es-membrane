@@ -38,7 +38,7 @@ export type TailCallFields = RightExtendsLeft<StaticAndInstance<typeof TailCallK
   symbolKey: typeof TailCallKey,
 }>;
 
-const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields, false> = function(
+const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields> = function(
   this: void,
   baseClass
 )
