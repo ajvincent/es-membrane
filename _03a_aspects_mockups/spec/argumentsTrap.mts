@@ -7,10 +7,10 @@ import type {
   ClassMethodDecorator
 } from "#mixin_decorators/source/types/ClassMethodDecorator.mjs";
 
-import NumberStringClass from "#aspects/test-fixtures/fixtures/components/NumberStringClass.mjs";
+import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 import type {
   NumberStringType
-} from "#aspects/test-fixtures/fixtures/types/NumberStringType.mjs";
+} from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 // #endregion preamble
 
 it("Aspects mockup: a trap for arguments before the function runs", () => {

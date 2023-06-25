@@ -2,10 +2,10 @@ import type {
   ClassDecoratorFunction
 } from "../../source/types/ClassDecoratorFunction.mjs";
 
-import NumberStringClass from "../../fixtures/NumberStringClass.mjs";
+import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 import type {
   NumberStringType
-} from "../../fixtures/types/NumberStringType.mjs";
+} from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
 import type { Class } from "../../source/types/Class.mjs";
 

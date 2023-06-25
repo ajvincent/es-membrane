@@ -10,10 +10,10 @@ export const stageDir: ModuleSourceDirectory = {
   pathToDirectory: "../.."
 };
 
-const sourceFile = getTS_SourceFile(stageDir, "fixtures/types/NumberStringType.d.mts");
+const sourceFile = getTS_SourceFile(stageDir, "../_01_stage_utilities/fixtures/types/NumberStringType.d.mts");
 
 const generatedDir = pathToModule(stageDir, "fixtures/generated");
-const pathToTypeFile = "#aspects/test-fixtures/fixtures/types/NumberStringType.mjs";
+const pathToTypeFile = "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
 export {
   sourceFile,

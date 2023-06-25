@@ -1,5 +1,5 @@
 import MethodDecoratedClass from "#aspects/test-fixtures/fixtures/generated/stubs/SpyMethodDecorated.mjs";
-import NumberStringClass from "#aspects/test-fixtures/fixtures/components/NumberStringClass.mjs";
+import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 
 it("MethodDecoratorsOfClass applies decorators from a configuration to build a class", () => {
   const NST_Class = MethodDecoratedClass(NumberStringClass);

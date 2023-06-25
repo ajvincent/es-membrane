@@ -19,10 +19,10 @@ import {
   MultiMixinClass
 } from "#mixin_decorators/source/types/MultiMixinClass.mjs"
 
-import NumberStringClass from "#aspects/test-fixtures/fixtures/components/NumberStringClass.mjs";
+import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 import type {
   NumberStringType
-} from "#aspects/test-fixtures/fixtures/types/NumberStringType.mjs";
+} from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 // #endregion preamble
 
 declare const ClassInvariantKey: unique symbol;

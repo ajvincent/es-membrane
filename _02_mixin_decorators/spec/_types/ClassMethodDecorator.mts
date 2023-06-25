@@ -2,10 +2,10 @@ import type {
   ClassMethodDecorator
 } from "../../source/types/ClassMethodDecorator.mjs";
 
-import NumberStringClass from "../../fixtures/NumberStringClass.mjs";
+import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 import type {
   NumberStringType
-} from "../../fixtures/types/NumberStringType.mjs";
+} from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
 describe("ClassMethodDecorator is compatible with ECMAScript decorators", () => {
   it("returning void", () => {

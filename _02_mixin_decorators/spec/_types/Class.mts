@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 
-import { NumberStringType } from "../../fixtures/types/NumberStringType.mjs";
-import NumberStringClass from "../../fixtures/NumberStringClass.mjs";
+import { NumberStringType } from "#stage_utilities/fixtures/types/NumberStringType.mjs";
+import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 
 import type { Class } from "../../source/types/Class.mjs";
 

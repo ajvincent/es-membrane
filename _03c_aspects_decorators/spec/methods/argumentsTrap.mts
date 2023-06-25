@@ -1,9 +1,9 @@
 import argumentsTrap from "#aspects/decorators/source/methods/argumentsTrap.mjs";
 
-import NumberStringClass from "#aspects/test-fixtures/fixtures/components/NumberStringClass.mjs";
+import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 import type {
   NumberStringType
-} from "#aspects/test-fixtures/fixtures/types/NumberStringType.mjs";
+} from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
 it("argumentsTrap decorator lets us assert certain values", () => {
   const forwardSpy = jasmine.createSpy();

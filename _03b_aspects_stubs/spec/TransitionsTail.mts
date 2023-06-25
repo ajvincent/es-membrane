@@ -17,7 +17,7 @@ import type {
 } from "#aspects/test-fixtures/fixtures/types/NumberStringType.mjs";
 */
 
-import NumberStringClass from "#aspects/test-fixtures/fixtures/components/NumberStringClass.mjs";
+import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 
 import TransitionsTailClass from "#aspects/test-fixtures/fixtures/generated/stubs/TransitionsTail.mjs";
 
