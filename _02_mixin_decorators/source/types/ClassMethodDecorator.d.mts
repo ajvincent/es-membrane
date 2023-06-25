@@ -9,9 +9,7 @@ export type ClassMethodDecorator<
   Key extends keyof This,
   ReturnsModified extends boolean,
   Arguments extends any[] | false,
-> =
-This[Key] extends (this: This, ...args: any[]) => any ?
-(
+> = (
   Arguments extends any[] ?
   (...args: Arguments) => ClassMethodDecorator<This, Key, ReturnsModified, false> :
 
@@ -23,4 +21,4 @@ This[Key] extends (this: This, ...args: any[]) => any ?
     true extends ReturnsModified ? This[Key] :
     void
   )
-) : never;
+);
