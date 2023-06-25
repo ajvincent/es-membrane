@@ -14,9 +14,7 @@
   "ignorePatterns": [
     "**/*.mjs",
     "**/*.d.mts",
-    "!_*/fixtures/types/**/*.d.mts",
-    "!_*/source/types/**/*.d.mts",
-    "!_*/spec/types/**/*.d.mts"
+    "!_*/**/types/**/*.d.mts"
   ],
 
   "overrides": [
