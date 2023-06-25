@@ -1,6 +1,5 @@
 import type {
-  ClassMethodDecorator,
-  ClassMethodDecoratorReturn
+  ClassMethodDecorator
 } from "../../source/types/ClassMethodDecorator.mjs";
 
 import NumberStringClass from "../../fixtures/NumberStringClass.mjs";
@@ -60,7 +59,7 @@ describe("ClassMethodDecorator is compatible with ECMAScript decorators", () => 
     function forward(
       method: NumberStringType["repeatForward"],
       context: ClassMethodDecoratorContext<NumberStringType, NumberStringType["repeatForward"]>
-    ): ClassMethodDecoratorReturn<NumberStringType, "repeatForward">
+    ): NumberStringType["repeatForward"]
     {
       void(context);
       return function(s: string, n: number): string {
@@ -73,7 +72,7 @@ describe("ClassMethodDecorator is compatible with ECMAScript decorators", () => 
       offset: number
     ): ClassMethodDecorator<NumberStringType, "repeatBack", true, false>
     {
-      return function(method, context): ClassMethodDecoratorReturn<NumberStringType, "repeatBack"> {
+      return function(method, context): NumberStringType["repeatBack"] {
         void(context);
         return function(n: number, s: string): string {
           return method(n + offset, s);

@@ -4,8 +4,7 @@ import type {
 } from "type-fest";
 
 import type {
-  ClassMethodDecorator,
-  ClassMethodDecoratorReturn
+  ClassMethodDecorator
 } from "#mixin_decorators/source/types/ClassMethodDecorator.mjs";
 
 import NumberStringClass from "#aspects/test-fixtures/fixtures/components/NumberStringClass.mjs";
@@ -24,7 +23,7 @@ it("Aspects mockup: a trap for arguments before the function runs", () => {
     return function(
       method: NumberStringType["repeatForward"],
       context: ClassMethodDecoratorContext<NumberStringType, NumberStringType["repeatForward"]>
-    ): ClassMethodDecoratorReturn<NumberStringType, "repeatForward">
+    ): NumberStringType["repeatForward"]
     {
       void(context);
       return function(...parameters: Parameters<NumberStringType["repeatForward"]>) {

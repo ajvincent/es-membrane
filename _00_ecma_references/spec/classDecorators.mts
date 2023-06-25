@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type Class<T extends object, Arguments extends unknown[] = any[]> = {
+type Class<T extends object, Arguments extends unknown[] = any[]> = {
   prototype: T;
   new(...parameters: Arguments): T
 };
-
-export type Constructor<T, Arguments extends unknown[] = any[]> = { new(...parameters: Arguments): T };
-
 
 /**
  * A class decorator which does returns a class to replace the class it receives.
