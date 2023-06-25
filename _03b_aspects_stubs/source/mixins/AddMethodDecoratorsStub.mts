@@ -2,10 +2,18 @@ import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import AspectsStubBase from "../AspectsStubBase.mjs";
 
 import AddMethodDecorators_Decorator, {
-  type MethodDecoratorsFields
+  type MethodDecoratorsFields,
 } from "../decorators/methodDecorators.mjs";
 
-const AddMethodDecoratorsStub = MultiMixinBuilder<[MethodDecoratorsFields<object>], typeof AspectsStubBase>(
+import type {
+  MethodsOnlyType
+} from "../types/MethodsOnlyType.mjs";
+
+const AddMethodDecoratorsStub = MultiMixinBuilder<
+  [MethodDecoratorsFields<MethodsOnlyType>],
+  typeof AspectsStubBase
+>
+(
   [AddMethodDecorators_Decorator], AspectsStubBase
 );
 

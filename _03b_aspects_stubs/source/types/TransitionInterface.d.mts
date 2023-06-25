@@ -1,6 +1,6 @@
 import type {
-  MethodsOnly
-} from "./MethodsOnly.mjs";
+  MethodsOnlyType
+} from "./MethodsOnlyType.mjs";
 
 type TransitionMethod<
   BaseArguments extends unknown[],
@@ -13,13 +13,12 @@ type TransitionMethod<
 ]) => Result;
 
 export type TransitionInterface<
-  Interface extends object,
+  Interface extends MethodsOnlyType,
   MiddleArguments extends unknown[],
-> = MethodsOnly<Interface> extends never ? never :
-  {
-    [key in keyof Interface]: TransitionMethod<
-      Parameters<Interface[key]>,
-      MiddleArguments,
-      ReturnType<Interface[key]>
-    >
-  };
+> = {
+  [key in keyof Interface]: TransitionMethod<
+    Parameters<Interface[key]>,
+    MiddleArguments,
+    ReturnType<Interface[key]>
+  >
+};

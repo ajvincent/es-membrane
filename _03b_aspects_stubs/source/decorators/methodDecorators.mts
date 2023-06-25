@@ -1,4 +1,8 @@
 // #region preamble
+import {
+  CodeBlockWriter,
+} from "ts-morph";
+
 import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
 
 import {
@@ -17,10 +21,17 @@ import type {
   StaticAndInstance
 } from "#mixin_decorators/source/types/StaticAndInstance.mjs";
 
+import {
+  ExtendsAndImplements,
+} from "../AspectsStubBase.mjs";
+
 import type {
   AspectsStubDecorator,
 } from "../types/AspectsStubDecorator.mjs";
 
+import type {
+  MethodsOnlyType
+} from "../types/MethodsOnlyType.mjs";
 
 import type {
   TS_Method,
@@ -29,18 +40,14 @@ import type {
 
 import type {
   MethodDecoratorsOfClass,
-  MethodDecoratorDescription
+  MethodDecoratorDescription,
 } from "../types/MethodDecoratorsOfClass.mjs";
-import {
-  CodeBlockWriter,
-} from "ts-morph";
-import { ExtendsAndImplements } from "../AspectsStubBase.mjs";
 
 // #endregion preamble
 
 declare const MethodDecoratorsKey: unique symbol;
 
-export type MethodDecoratorsFields<Type extends object> = RightExtendsLeft<
+export type MethodDecoratorsFields<Type extends MethodsOnlyType> = RightExtendsLeft<
   StaticAndInstance<typeof MethodDecoratorsKey>,
   {
     staticFields: object,
@@ -55,7 +62,7 @@ export type MethodDecoratorsFields<Type extends object> = RightExtendsLeft<
   }
 >;
 
-const AddMethodDecorators_Decorator: AspectsStubDecorator<MethodDecoratorsFields<object>> = function(
+const AddMethodDecorators_Decorator: AspectsStubDecorator<MethodDecoratorsFields<MethodsOnlyType>> = function(
   this: void,
   baseClass
 )
@@ -64,14 +71,14 @@ const AddMethodDecorators_Decorator: AspectsStubDecorator<MethodDecoratorsFields
   {
     static readonly #INIT_ADD_METHODS_KEY = "(add method decorators)";
 
-    #methodDecorators: MaybeDefined<MethodDecoratorsOfClass<object>> = NOT_DEFINED;
+    #methodDecorators: MaybeDefined<MethodDecoratorsOfClass<MethodsOnlyType>> = NOT_DEFINED;
 
     constructor(...args: unknown[]) {
       super(...args);
       getRequiredInitializers(this).add(AddMethodDecorators.#INIT_ADD_METHODS_KEY);
     }
 
-    defineMethodDecorators<Type extends object>(
+    defineMethodDecorators<Type extends MethodsOnlyType>(
       methodDecorators: MethodDecoratorsOfClass<Type>,
       outerClassName = "MethodDecoratedClass",
       beforeClassTrap: ((classWriter: CodeBlockWriter) => void) = (
