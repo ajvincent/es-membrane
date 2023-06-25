@@ -60,6 +60,7 @@ const InvokeTSC = {
                     "#stage_utilities/*": ["./_01_stage_utilities/*"],
                     "#mixin_decorators/*": ["./_02_mixin_decorators/*"],
                     "#aspects/stubs/*": ["./_03b_aspects_stubs/*"],
+                    "#aspects/decorators/*": ["./_03c_aspects_decorators/*"],
                     "#aspects/test-fixtures/*": ["./_03z_aspects_test_fixtures/*"],
                 },
             },
