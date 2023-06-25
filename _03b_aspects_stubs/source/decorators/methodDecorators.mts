@@ -18,6 +18,10 @@ import type {
 } from "#stage_utilities/source/types/Utility.mjs";
 
 import type {
+  MethodsOnlyType
+} from "#mixin_decorators/source/types/MethodsOnlyType.mjs";
+
+import type {
   StaticAndInstance
 } from "#mixin_decorators/source/types/StaticAndInstance.mjs";
 
@@ -28,10 +32,6 @@ import {
 import type {
   AspectsStubDecorator,
 } from "../types/AspectsStubDecorator.mjs";
-
-import type {
-  MethodsOnlyType
-} from "../types/MethodsOnlyType.mjs";
 
 import type {
   TS_Method,
