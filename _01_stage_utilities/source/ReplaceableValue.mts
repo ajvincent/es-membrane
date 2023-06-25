@@ -1,24 +1,37 @@
-export type ReplaceableValueType<Replaceable extends object, UserContext> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Class<T extends object, Arguments extends unknown[] = any[]> = {
+  prototype: T;
+  new(...parameters: Arguments): T
+};
+
+export type ReplaceableValueType<
+  Replaceable extends object,
+  UserContext extends object
+> = {
   source: Replaceable,
   userContext: UserContext
 };
 
-export default class ReplaceableValue<Replaceable extends object, UserContext>
+export default class ReplaceableValue<
+  Replaceable extends object,
+  UserContext extends object,
+>
 {
   readonly #contextMap = new WeakMap<Replaceable, UserContext>;
   readonly #replacedMap = new WeakMap<Replaceable, Replaceable>;
 
-  readonly #generator: () => ReplaceableValueType<Replaceable, UserContext>;
+  readonly #contextGenerator: Class<UserContext, []>;
 
   constructor(
-    generator: () => ReplaceableValueType<Replaceable, UserContext>
+    contextGenerator: Class<UserContext, []>
   )
   {
-    this.#generator = generator;
+    this.#contextGenerator = contextGenerator;
   }
 
-  public get(
+  public getDefault(
     source: Replaceable,
+    replacer: (source: Replaceable) => Replaceable
   ): ReplaceableValueType<Replaceable, UserContext>
   {
     source = this.#replacedMap.get(source) ?? source;
@@ -30,9 +43,32 @@ export default class ReplaceableValue<Replaceable extends object, UserContext>
       };
     }
 
-    const result = this.#generator();
-    this.#replacedMap.set(source, result.source);
-    this.#contextMap.set(result.source, result.userContext);
-    return result;
+    const userContext = new this.#contextGenerator();
+    const newSource = replacer(source);
+    this.#replacedMap.set(source, newSource);
+    this.#contextMap.set(newSource, userContext);
+    return {
+      source: newSource,
+      userContext
+    }
+  }
+
+  public get(
+    source: Replaceable
+  ): ReplaceableValueType<Replaceable, UserContext>
+  {
+    source = this.#replacedMap.get(source) ?? source;
+    const userContext = this.#contextMap.get(source);
+    if (!userContext)
+      throw new Error("no replacement defined!");
+    return { source, userContext };
+  }
+
+  public has(
+    source: Replaceable
+  ): boolean
+  {
+    source = this.#replacedMap.get(source) ?? source;
+    return this.#contextMap.has(source);
   }
 }
