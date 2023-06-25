@@ -1,11 +1,13 @@
-import argumentsTrap from "#aspects/decorators/source/methods/argumentsTrap.mjs";
-
 import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 import type {
   NumberStringType
 } from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
+import NST_Aspects from "#aspects/decorators/fixtures/AspectsDecorators.mjs";
+
 it("argumentsTrap decorator lets us assert certain values", () => {
+  const { argumentsTrap } = NST_Aspects;
+
   const forwardSpy = jasmine.createSpy();
 
   function callForwardSpy(
@@ -19,7 +21,7 @@ it("argumentsTrap decorator lets us assert certain values", () => {
   }
 
   class NST_Class extends NumberStringClass {
-    @argumentsTrap<NumberStringType, "repeatForward">(callForwardSpy)
+    @argumentsTrap<"repeatForward">(callForwardSpy)
     repeatForward(s: string, n: number): string {
       return super.repeatForward(s, n);
     }

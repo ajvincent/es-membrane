@@ -20,22 +20,22 @@ import type {
 import getReplacementMethodAndAspects from "./replacementMethod.mjs";
 
 export default function argumentsTrap<
-  Type extends MethodsOnlyType,
-  Key extends keyof Type,
+  This extends MethodsOnlyType,
+  Key extends keyof This,
 >
 (
-  trapMethod: SetReturnType<Type[Key], void>
-): ClassMethodDecorator<Type, Key, true, false>
+  trapMethod: SetReturnType<This[Key], void>
+): ClassMethodDecorator<This, Key, true, false>
 {
   return function(
-    method: Type[Key],
-    context: ClassMethodDecoratorContext<Type, Type[Key]>
-  ): Type[Key]
+    method: This[Key],
+    context: ClassMethodDecoratorContext<This, This[Key]>
+  ): This[Key]
   {
     void(context);
     const replacement = getReplacementMethodAndAspects(method);
     replacement.userContext.argumentTraps.push(trapMethod);
-    return replacement.source as Type[Key];
+    return replacement.source as This[Key];
   }
 }
 
