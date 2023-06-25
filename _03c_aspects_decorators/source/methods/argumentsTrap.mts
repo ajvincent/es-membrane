@@ -4,8 +4,8 @@ import type {
 } from "type-fest";
 
 import type {
-  ClassMethodDecorator
-} from "#mixin_decorators/source/types/ClassMethodDecorator.mjs";
+  ClassMethodDecoratorFunction
+} from "#mixin_decorators/source/types/ClassMethodDecoratorFunction.mjs";
 
 import type {
   MethodsOnlyType
@@ -25,7 +25,7 @@ export default function argumentsTrap<
 >
 (
   trapMethod: SetReturnType<This[Key], void>
-): ClassMethodDecorator<This, Key, true, false>
+): ClassMethodDecoratorFunction<This, Key, true, false>
 {
   return function(
     method: This[Key],
@@ -39,6 +39,6 @@ export default function argumentsTrap<
   }
 }
 
-argumentsTrap satisfies ClassMethodDecorator<
+argumentsTrap satisfies ClassMethodDecoratorFunction<
   MethodsOnlyType, keyof MethodsOnlyType, true, [SetReturnType<GenericFunction, void>]
 >;

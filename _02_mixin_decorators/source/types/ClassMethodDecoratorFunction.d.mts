@@ -4,14 +4,14 @@ import type {
   MethodsOnlyType
 } from "./MethodsOnlyType.d.mts";
 
-export type ClassMethodDecorator<
+export type ClassMethodDecoratorFunction<
   This extends MethodsOnlyType,
   Key extends keyof This,
   ReturnsModified extends boolean,
   Arguments extends any[] | false,
 > = (
   Arguments extends any[] ?
-  (...args: Arguments) => ClassMethodDecorator<This, Key, ReturnsModified, false> :
+  (...args: Arguments) => ClassMethodDecoratorFunction<This, Key, ReturnsModified, false> :
 
   (
     this: void,

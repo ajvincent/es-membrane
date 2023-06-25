@@ -4,8 +4,8 @@ import type {
 } from "type-fest";
 
 import type {
-  ClassMethodDecorator
-} from "#mixin_decorators/source/types/ClassMethodDecorator.mjs";
+  ClassMethodDecoratorFunction
+} from "#mixin_decorators/source/types/ClassMethodDecoratorFunction.mjs";
 
 import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 import type {
@@ -18,7 +18,7 @@ it("Aspects mockup: a trap for arguments before the function runs", () => {
 
   function argumentsTrap(
     callback: ReturnForwardAssert
-  ): ClassMethodDecorator<NumberStringType, "repeatForward", true, false>
+  ): ClassMethodDecoratorFunction<NumberStringType, "repeatForward", true, false>
   {
     return function(
       method: NumberStringType["repeatForward"],
@@ -32,7 +32,7 @@ it("Aspects mockup: a trap for arguments before the function runs", () => {
       }
     }
   }
-  argumentsTrap satisfies ClassMethodDecorator<
+  argumentsTrap satisfies ClassMethodDecoratorFunction<
     NumberStringType, "repeatForward", true, [ callback: ReturnForwardAssert, ]
   >;
 

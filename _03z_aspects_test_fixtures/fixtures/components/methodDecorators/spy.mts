@@ -1,6 +1,6 @@
 import type {
-  ClassMethodDecorator
-} from "#mixin_decorators/source/types/ClassMethodDecorator.mjs";
+  ClassMethodDecoratorFunction
+} from "#mixin_decorators/source/types/ClassMethodDecoratorFunction.mjs";
 
 import type {
   NumberStringType
@@ -8,7 +8,7 @@ import type {
 
 type SpyWithDecorator<Key extends keyof NumberStringType> = {
   events: unknown[][],
-  spyDecorator: ClassMethodDecorator<NumberStringType, Key, true, false>,
+  spyDecorator: ClassMethodDecoratorFunction<NumberStringType, Key, true, false>,
 };
 
 export function createSpyDecoratorForward(): SpyWithDecorator<"repeatForward">
@@ -26,7 +26,7 @@ export function createSpyDecoratorForward(): SpyWithDecorator<"repeatForward">
     }
   }
 
-  spyDecorator satisfies ClassMethodDecorator<
+  spyDecorator satisfies ClassMethodDecoratorFunction<
     NumberStringType, "repeatForward", true, false
   >;
 
@@ -48,7 +48,7 @@ export function createSpyDecoratorBack(): SpyWithDecorator<"repeatBack">
     }
   }
 
-  spyDecorator satisfies ClassMethodDecorator<
+  spyDecorator satisfies ClassMethodDecoratorFunction<
     NumberStringType, "repeatBack", true, false
   >;
 
