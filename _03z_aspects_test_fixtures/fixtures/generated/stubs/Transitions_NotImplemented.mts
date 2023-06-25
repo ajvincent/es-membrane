@@ -11,7 +11,7 @@ import {
 // #endregion preamble
 
 export default class NumberStringClass_Transitions_NI
-implements TransitionInterface<NumberStringType, [boolean, () => Promise<void>]>
+implements TransitionInterface<true, NumberStringType, [boolean, () => Promise<void>]>
 {
   repeatForward(
     s: string,

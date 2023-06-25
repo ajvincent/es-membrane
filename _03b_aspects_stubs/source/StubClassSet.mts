@@ -59,6 +59,7 @@ export default class StubClassSet
     this.#configure_stub(generator, config, "TransitionsHead.mts", "_Transitions_Head");
 
     generator.defineExtraParams(
+      true,
       config.middleParameters,
       config.transitionsHead.midParamsTypeAlias,
       config.transitionsHead.midBuilder,
@@ -83,7 +84,11 @@ export default class StubClassSet
       "_Transitions_NI",
     );
 
-    generator.defineExtraParams(config.middleParameters, config.transitionsTail.paramRenamer);
+    generator.defineExtraParams(
+      true,
+      config.middleParameters,
+      config.transitionsTail.paramRenamer
+    );
 
     this.#finalize_stub(generator, config);
   }
@@ -92,7 +97,11 @@ export default class StubClassSet
     config: StubClassSetConfiguration
   ): void {
     const generator = new StubMap.TransitionsTail;
-    generator.defineExtraParams(config.middleParameters, config.transitionsTail.paramRenamer);
+    generator.defineExtraParams(
+      true,
+      config.middleParameters,
+      config.transitionsTail.paramRenamer
+    );
 
     this.#configure_stub(
       generator,

@@ -17,11 +17,11 @@ export default function TransitionsTailClass
 (
   BaseClass: Class<NumberStringType, []>
 ): Class<
-  TransitionInterface<NumberStringType, [boolean, () => Promise<void>]>
+  TransitionInterface<true, NumberStringType, [boolean, () => Promise<void>]>
 >
 {
   return class NumberStringClass_Transitions_Tail
-  implements TransitionInterface<NumberStringType, [boolean, () => Promise<void>]>
+  implements TransitionInterface<true, NumberStringType, [boolean, () => Promise<void>]>
   {
     readonly #nextHandler: NumberStringType;
 

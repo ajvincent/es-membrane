@@ -50,6 +50,7 @@ export type DefineExtraParamsShortFields = RightExtendsLeft<StaticAndInstance<ty
   staticFields: object,
   instanceFields: {
     defineExtraParams(
+      includeHeadParameters: boolean,
       middleParameters: ReadonlyArray<TS_Parameter>,
       tailParamRenamer: ParamRenamer,
     ) : void;
@@ -65,6 +66,7 @@ const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsSho
     static readonly #INIT_EXTRA_PARAMS_KEY = "(extra parameters in subclass)";
 
     #extraParams: MaybeDefined<{
+      includeHeadParameters: boolean;
       middleParameters: ReadonlyArray<TS_Parameter>;
       tailParamRenamer: ParamRenamer;
       middleParamTypes: string;
@@ -76,6 +78,7 @@ const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsSho
     }
 
     defineExtraParams(
+      includeHeadParameters: boolean,
       middleParameters: ReadonlyArray<TS_Parameter>,
       tailParamRenamer: ParamRenamer,
     ) : void
@@ -87,8 +90,9 @@ const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsSho
         if (!param.type)
           throw new Error("Missing parameter type at index " + String(index));
       });
-  
+
       this.#extraParams = markDefined({
+        includeHeadParameters,
         middleParameters,
         tailParamRenamer,
         middleParamTypes: middleParameters.map(
@@ -106,8 +110,10 @@ const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsSho
       return {
         extends: inner.extends,
         implements: inner.implements.map(
-          typeName => `TransitionInterface<${typeName}, [${extraParams.middleParamTypes}]>`
-        )
+          typeName => `TransitionInterface<${
+            extraParams.includeHeadParameters.toString()
+          }, ${typeName}, [${extraParams.middleParamTypes}]>`
+        ),
       };
     }
 
@@ -128,10 +134,23 @@ const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsSho
       else {
         const extraParams = assertDefined(this.#extraParams);
         methodStructure.parameters ||= [];
-        methodStructure.parameters.push(
-          ...extraParams.middleParameters,
-          ...methodStructure.parameters.map(param => this.#mapParameter(param))
-        );
+        if (extraParams.includeHeadParameters) {
+          if (methodStructure.parameters.length) {
+            const lastHeadParameter = methodStructure.parameters.at(-1);
+            if (lastHeadParameter?.isRestParameter)
+              throw new Error("includeHeadParameters does not work with rest parameters, method: " + methodStructure.name);
+          }
+
+          methodStructure.parameters.push(
+            ...extraParams.middleParameters,
+            ...methodStructure.parameters.map(param => this.#mapParameter(param))
+          );
+        }
+        else {
+          methodStructure.parameters.unshift(
+            ...extraParams.middleParameters
+          );
+        }
       }
     }
 

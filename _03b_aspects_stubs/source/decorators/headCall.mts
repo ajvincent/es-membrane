@@ -60,6 +60,7 @@ export type HeadCallFields = RightExtendsLeft<StaticAndInstance<typeof HeadCallK
     ): void;
 
     defineExtraParams(
+      includeHeadParameters: boolean,
       middleParameters: ReadonlyArray<TS_Parameter>,
       middleParamsTypeAliasName: string,
       middleParamBuilder: MiddleParamBuilder,
@@ -80,6 +81,7 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
     static readonly #WRAP_CLASS_KEY = "(wrap class, head)";
 
     #extraParams: MaybeDefined<Readonly<{
+      includeHeadParameters: boolean;
       middleParameters: ReadonlyArray<TS_Parameter>;
       middleParamsTypeAliasName: string;
       middleParameterNames: ReadonlyArray<string>;
@@ -106,6 +108,8 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
       const extraParams = assertDefined(this.#extraParams);
 
       const baseInstanceType = `TransitionInterface<${
+        extraParams.includeHeadParameters.toString()
+      }, ${
         this.interfaceOrAliasName
       }, ${extraParams.middleParamsTypeAliasName}>`;
 
@@ -125,6 +129,7 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
     }
 
     defineExtraParams(
+      includeHeadParameters: boolean,
       middleParameters: ReadonlyArray<TS_Parameter>,
       middleParamsTypeAliasName: string,
       middleParamBuilder: MiddleParamBuilder,
@@ -141,6 +146,7 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
       });
   
       this.#extraParams = markDefined({
+        includeHeadParameters,
         middleParameters,
         middleParamsTypeAliasName,
         middleParameterNames: middleParameters.map(param => param.name),
@@ -193,7 +199,10 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
         throw new Error("No support yet for multiple-implements, fix me!!");
       }
 
+      const extraParams = assertDefined(this.#extraParams);
       const transitionType = `TransitionInterface<${
+        extraParams.includeHeadParameters.toString()
+      }, ${
         _implements[0]
       }, ${
         middleParamsTypeAliasName
@@ -235,6 +244,7 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
     ) : void
     {
       const {
+        includeHeadParameters,
         middleParamBuilder,
         middleParameters,
         middleParameterNames,
@@ -247,14 +257,17 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
       );
   
       const headParameterNames = methodStructure.parameters?.map(param => param.name) ?? []
-  
-      const tailParameterNames = methodStructure.parameters?.map(param => {
-        const newName = tailParamRenamer(param.name);
-        tailParamBuilder.apply(this, [
-          methodStructure, param, newName
-        ]);
-        return newName;
-      }) ?? [];
+
+      let tailParameterNames: string[] = [];
+      if (includeHeadParameters) {
+        tailParameterNames = methodStructure.parameters?.map(param => {
+          const newName = tailParamRenamer(param.name);
+          tailParamBuilder.apply(this, [
+            methodStructure, param, newName
+          ]);
+          return newName;
+        }) ?? [];
+      }
 
       TransitionsHead.pairedWrite(
         this.classWriter,
@@ -263,11 +276,19 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
         true,
         true,
         () => {
-          this.classWriter.write([
-            ...headParameterNames,
-            ...middleParameterNames,
-            ...tailParameterNames,
-          ].join(", "))
+          if (includeHeadParameters) {
+            this.classWriter.write([
+              ...headParameterNames,
+              ...middleParameterNames,
+              ...tailParameterNames,
+            ].join(", "))
+          }
+          else {
+            this.classWriter.write([
+              ...middleParameterNames,
+              ...headParameterNames
+            ].join(", "))
+          }
         }
       );
 

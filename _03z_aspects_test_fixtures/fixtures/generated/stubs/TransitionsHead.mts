@@ -17,7 +17,7 @@ type NST_MiddleParameters = [boolean, () => Promise<void>];
 
 export default function TransitionsHeadClass
 (
-  BaseClass: Class<TransitionInterface<NumberStringType, NST_MiddleParameters>, []>
+  BaseClass: Class<TransitionInterface<true, NumberStringType, NST_MiddleParameters>, []>
 ): Class<
   NumberStringType
 >
@@ -25,7 +25,7 @@ export default function TransitionsHeadClass
   return class NumberStringClass_Transitions_Head
   implements NumberStringType
   {
-    readonly #nextHandler: TransitionInterface<NumberStringType, NST_MiddleParameters>;
+    readonly #nextHandler: TransitionInterface<true, NumberStringType, NST_MiddleParameters>;
 
     constructor(
       ...parameters: ConstructorParameters<typeof BaseClass>
