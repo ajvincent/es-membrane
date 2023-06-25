@@ -12,7 +12,7 @@ export type ReplaceableValueType<
   userContext: UserContext
 };
 
-export default class ReplaceableValue<
+export default class ReplaceableValueMap<
   Replaceable extends object,
   UserContext extends object,
 >

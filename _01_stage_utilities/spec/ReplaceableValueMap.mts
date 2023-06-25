@@ -1,10 +1,10 @@
-import ReplaceableValue from "#stage_utilities/source/ReplaceableValue.mjs";
+import ReplaceableValueMap from "#stage_utilities/source/ReplaceableValueMap.mjs";
 
-it("ReplaceableValue provides a matching replacement for each value it receives", () => {
+it("ReplaceableValueMap provides a matching replacement for each value it receives", () => {
   class Foo {}
   class Bar {}
 
-  const replacer = new ReplaceableValue<Foo, Bar>(Bar);
+  const replacer = new ReplaceableValueMap<Foo, Bar>(Bar);
   const fooOriginal_0 = new Foo;
 
   expect<boolean>(replacer.has(fooOriginal_0)).toBe(false);
