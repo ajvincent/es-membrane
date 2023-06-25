@@ -24,15 +24,23 @@ import type {
   PushableArray
 } from "../types/PushableArray.mjs";
 
+import type {
+  PrependArgumentsMethod,
+} from "../types/PrependArguments.mjs";
+
 // #endregion preamble
 
-class MethodAspectsDictionary<
+export class MethodAspectsDictionary<
   This extends MethodsOnlyType,
   Key extends keyof This,
 > implements MethodAspects<This, Key>
 {
   readonly argumentTraps: PushableArray<
     SetReturnType<Method<This, Key>, void>
+  > = [];
+
+  readonly returnTraps: PushableArray<
+    SetReturnType<PrependArgumentsMethod<This, Key, true, []>, void>
   > = [];
 }
 
@@ -53,12 +61,17 @@ function GenericAspectFunction(
     ...parameters: Parameters<typeof method>
   ): ReturnType<typeof method>
   {
-    const { userContext: aspectContext, } = ReplaceableMethodsMap.get(method);
+    const { userContext: aspectContext } = ReplaceableMethodsMap.get(method);
 
     aspectContext.argumentTraps.forEach(trap => trap.apply(this, parameters));
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const rv: ReturnType<typeof method> = method.apply(this, parameters);
+
+    aspectContext.returnTraps.forEach(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      trap => trap.call(this, rv, ...parameters)
+    );
     return rv;
   }
 }

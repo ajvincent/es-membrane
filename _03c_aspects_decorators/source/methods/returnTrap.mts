@@ -11,22 +11,26 @@ import type {
   MethodsOnlyType
 } from "#mixin_decorators/source/types/MethodsOnlyType.mjs";
 
-import type {
-  GenericFunction
-} from "../types/GenericFunction.mjs";
-
 import getReplacementMethodAndAspects, {
   type MethodAspectsDictionary
 } from "./replacementMethod.mjs";
 
+import type {
+  GenericFunction
+} from "../types/GenericFunction.mjs";
+
+import type {
+  PrependArgumentsMethod
+} from "../types/PrependArguments.mjs";
+
 // #endregion preamble
 
-export default function argumentsTrap<
+export default function returnTrap<
   This extends MethodsOnlyType,
-  Key extends keyof This,
+  Key extends keyof This
 >
 (
-  trapMethod: SetReturnType<This[Key], void>
+  trapMethod: SetReturnType<PrependArgumentsMethod<This, Key, true, []>, void>
 ): ClassMethodDecoratorFunction<This, Key, true, false>
 {
   return function(
@@ -36,12 +40,14 @@ export default function argumentsTrap<
   {
     void(context);
     const replacement = getReplacementMethodAndAspects(method);
-    const { argumentTraps } = replacement.userContext as MethodAspectsDictionary<This, Key>;
-    argumentTraps.push(trapMethod);
+    const { returnTraps } = replacement.userContext as MethodAspectsDictionary<This, Key>;
+    returnTraps.push(trapMethod);
     return replacement.source as This[Key];
   }
 }
 
-argumentsTrap satisfies ClassMethodDecoratorFunction<
-  MethodsOnlyType, keyof MethodsOnlyType, true, [SetReturnType<GenericFunction, void>]
+returnTrap satisfies ClassMethodDecoratorFunction<
+  MethodsOnlyType, keyof MethodsOnlyType, true, [
+    SetReturnType<GenericFunction, void>
+  ]
 >;

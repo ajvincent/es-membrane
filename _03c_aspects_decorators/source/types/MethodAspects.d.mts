@@ -10,6 +10,10 @@ import type {
   PushableArray
 } from "./PushableArray.mjs";
 
+import type {
+  PrependArgumentsMethod
+} from "./PrependArguments.d.mts";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Method<
   This extends MethodsOnlyType,
@@ -22,4 +26,8 @@ export interface MethodAspects<
 >
 {
   readonly argumentTraps: PushableArray<SetReturnType<Method<This, Key>, void>>;
+
+  readonly returnTraps: PushableArray<
+    SetReturnType<PrependArgumentsMethod<This, Key, true, []>, void>
+  >;
 }
