@@ -9,8 +9,6 @@ import {
   InterfaceDeclaration,
   TypeAliasDeclaration,
   type InterfaceDeclarationStructure,
-  OptionalKind,
-  ParameterDeclarationStructure,
 } from "ts-morph";
 
 import CodeBlockWriter from "code-block-writer";
@@ -596,7 +594,7 @@ export default class AspectsStubBase extends MixinBase
    */
   protected buildMethodBodyTrap(
     structure: TS_Method,
-    remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>,
+    remainingArgs: Set<TS_Parameter>,
   ) : void
   {
     void(structure);
@@ -608,7 +606,7 @@ export default class AspectsStubBase extends MixinBase
    * @param remainingArgs - arguments we haven't used yet.
    */
   protected voidArguments(
-    remainingArgs: Set<OptionalKind<ParameterDeclarationStructure>>
+    remainingArgs: Set<TS_Parameter>
   ) : void
   {
     remainingArgs.forEach(

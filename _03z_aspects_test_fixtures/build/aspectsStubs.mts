@@ -1,4 +1,4 @@
-import fs from "fs/promises";
+// #region preamble
 import path from "path";
 
 import StubClassSet from "#aspects/stubs/source/StubClassSet.mjs";
@@ -23,21 +23,12 @@ import type {
   TS_Parameter
 } from "#aspects/stubs/source/types/ts-morph-native.mjs";
 
+// #endregion preamble
+
 export default
 async function buildAspectsStubs() : Promise<void>
 {
-  let found = false;
   const destinationDir = path.join(generatedDir, "stubs");
-
-  try {
-    await fs.access(destinationDir);
-    found = true;
-  }
-  catch {
-    // do nothing
-  }
-  if (found)
-    await fs.rm(destinationDir, { recursive: true });
 
   const config: StubClassSetConfiguration = {
     sourceFile,
