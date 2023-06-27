@@ -7,8 +7,8 @@ import type {
 } from "#aspects/stubs/source/types/MethodsOnlyType.mjs";
 
 import type {
-  PushableArray
-} from "./PushableArray.mjs";
+  UnshiftableArray
+} from "./UnshiftableArray.mjs";
 
 import type {
   PrependArgumentsMethod
@@ -25,9 +25,9 @@ export interface MethodAspects<
   Key extends keyof This,
 >
 {
-  readonly argumentTraps: PushableArray<SetReturnType<Method<This, Key>, void>>;
+  readonly argumentTraps: UnshiftableArray<SetReturnType<Method<This, Key>, void>>;
 
-  readonly returnTraps: PushableArray<
+  readonly returnTraps: UnshiftableArray<
     SetReturnType<PrependArgumentsMethod<This, Key, true, []>, void>
   >;
 }

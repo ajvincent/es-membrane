@@ -37,7 +37,7 @@ export default function argumentsTrap<
     void(context);
     const replacement = getReplacementMethodAndAspects(method);
     const { argumentTraps } = replacement.userContext as MethodAspectsDictionary<This, Key>;
-    argumentTraps.push(trapMethod);
+    argumentTraps.unshift(trapMethod);
     return replacement.source as This[Key];
   }
 }

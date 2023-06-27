@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // #region preamble
@@ -21,12 +23,18 @@ import type {
 } from "../types/MethodAspects.mjs";
 
 import type {
-  PushableArray
-} from "../types/PushableArray.mjs";
+  UnshiftableArray
+} from "../types/UnshiftableArray.mjs";
 
 import type {
   PrependArgumentsMethod,
 } from "../types/PrependArguments.mjs";
+
+import type {
+  PrependedIndeterminate
+} from "./bodyTrap.mjs";
+
+import { INDETERMINATE } from "../symbol-keys.mjs";
 
 // #endregion preamble
 
@@ -35,11 +43,15 @@ export class MethodAspectsDictionary<
   Key extends keyof This,
 > implements MethodAspects<This, Key>
 {
-  readonly argumentTraps: PushableArray<
+  readonly argumentTraps: UnshiftableArray<
     SetReturnType<Method<This, Key>, void>
   > = [];
 
-  readonly returnTraps: PushableArray<
+  readonly bodyTraps: UnshiftableArray<
+    PrependedIndeterminate<This, Key, object>
+  > = [];
+
+  readonly returnTraps: UnshiftableArray<
     SetReturnType<PrependArgumentsMethod<This, Key, true, []>, void>
   > = [];
 }
@@ -49,7 +61,7 @@ const ReplaceableMethodsMap = new ReplaceableValueMap<
   MethodAspectsDictionary<MethodsOnlyType, keyof MethodsOnlyType>
 >
 (
-  MethodAspectsDictionary<MethodsOnlyType, keyof MethodsOnlyType>
+  MethodAspectsDictionary
 );
 
 function GenericAspectFunction(
@@ -65,11 +77,26 @@ function GenericAspectFunction(
 
     aspectContext.argumentTraps.forEach(trap => trap.apply(this, parameters));
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const rv: ReturnType<typeof method> = method.apply(this, parameters);
+    type ReturnOrIndeterminate = ReturnType<typeof method> | typeof INDETERMINATE;
+    let rv: ReturnType<typeof method>, rvSet = false;
+    const sharedArguments = {};
+    for (let i = 0; i < aspectContext.bodyTraps.length; i++) {
+      const trap = aspectContext.bodyTraps[i];
+      const maybeRv: ReturnOrIndeterminate = trap.call(
+        this, sharedArguments, ...parameters
+      );
+
+      if (maybeRv !== INDETERMINATE) {
+        rv = maybeRv;
+        rvSet = true;
+        break;
+      }
+    }
+    if (!rvSet) {
+      rv = method.apply(this, parameters);
+    }
 
     aspectContext.returnTraps.forEach(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       trap => trap.call(this, rv, ...parameters)
     );
     return rv;

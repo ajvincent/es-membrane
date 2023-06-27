@@ -25,12 +25,26 @@ import type {
 
 // #endregion preamble
 
-export default function returnTrap<
+import { INDETERMINATE } from "../symbol-keys.mjs";
+
+export type GenericFunctionWithIndeterminate<Method extends GenericFunction> =
+  SetReturnType<Method, ReturnType<Method> | typeof INDETERMINATE>;
+
+export type PrependedIndeterminate<
   This extends MethodsOnlyType,
-  Key extends keyof This
+  Key extends keyof This,
+  SharedVariables extends object
+> = GenericFunctionWithIndeterminate<PrependArgumentsMethod<
+  This, Key, false, [SharedVariables]
+>>;
+
+export default function bodyTrap<
+  This extends MethodsOnlyType,
+  Key extends keyof This,
+  SharedVariables extends object
 >
 (
-  trapMethod: SetReturnType<PrependArgumentsMethod<This, Key, true, []>, void>
+  trapMethod: PrependedIndeterminate<This, Key, SharedVariables>
 ): ClassMethodDecoratorFunction<This, Key, true, false>
 {
   return function(
@@ -40,14 +54,14 @@ export default function returnTrap<
   {
     void(context);
     const replacement = getReplacementMethodAndAspects(method);
-    const { returnTraps } = replacement.userContext as MethodAspectsDictionary<This, Key>;
-    returnTraps.unshift(trapMethod);
+    const { bodyTraps } = replacement.userContext as MethodAspectsDictionary<This, Key>;
+    bodyTraps.unshift(trapMethod as PrependedIndeterminate<This, Key, object>);
     return replacement.source as This[Key];
   }
 }
 
-returnTrap satisfies ClassMethodDecoratorFunction<
+bodyTrap satisfies ClassMethodDecoratorFunction<
   MethodsOnlyType, keyof MethodsOnlyType, true, [
-    SetReturnType<GenericFunction, void>
+    PrependedIndeterminate<MethodsOnlyType, keyof MethodsOnlyType, object>
   ]
 >;
