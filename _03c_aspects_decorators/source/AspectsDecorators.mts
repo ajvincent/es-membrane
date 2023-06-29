@@ -36,10 +36,7 @@ export default class AspectsDecorators<
     return argumentsTrap<This, Key>(trapMethod);
   }
 
-  bodyTrap<
-    Key extends keyof This,
-  >
-  (
+  bodyTrap<Key extends keyof This>(
     this: void,
     trapMethod: PrependedIndeterminate<This, Key, BodyTrapTypes[Key]>
   ): ClassMethodDecoratorFunction<This, Key, true, false>
