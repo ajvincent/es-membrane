@@ -7,6 +7,11 @@ import type {
 } from "#aspects/stubs/source/types/MethodsOnlyType.mjs";
 
 import type {
+  BodyTrapTypesBase,
+  PrependedIndeterminate,
+} from "./BodyTrapTypesBase.mjs";
+
+import type {
   UnshiftableArray
 } from "./UnshiftableArray.mjs";
 
@@ -26,6 +31,10 @@ export interface MethodAspects<
 >
 {
   readonly argumentTraps: UnshiftableArray<SetReturnType<Method<This, Key>, void>>;
+
+  readonly bodyTraps: UnshiftableArray<
+    PrependedIndeterminate<This, Key, BodyTrapTypesBase<This>[Key]>
+  >;
 
   readonly returnTraps: UnshiftableArray<
     SetReturnType<PrependArgumentsMethod<This, Key, true, []>, void>

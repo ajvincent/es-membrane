@@ -32,7 +32,7 @@ import type {
 
 import type {
   PrependedIndeterminate
-} from "./bodyTrap.mjs";
+} from "../types/BodyTrapTypesBase.mjs";
 
 import type {
   BodyTrapTypesBase

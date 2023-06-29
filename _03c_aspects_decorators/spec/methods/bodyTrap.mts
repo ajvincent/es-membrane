@@ -13,7 +13,7 @@ import {
 
 import type {
   PrependedIndeterminate
-} from "#aspects/decorators/source/methods/bodyTrap.mjs";
+} from "#aspects/decorators/source/types/BodyTrapTypesBase.mjs";
 
 describe("bodyTrap decorator lets us", () => {
   type RepeatForwardLocal = PrependedIndeterminate<

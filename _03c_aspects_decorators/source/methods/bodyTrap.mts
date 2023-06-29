@@ -1,7 +1,4 @@
 // #region preamble
-import type {
-  SetReturnType
-} from "type-fest";
 
 import type {
   ClassMethodDecoratorFunction
@@ -16,31 +13,14 @@ import getReplacementMethodAndAspects, {
 } from "./replacementMethod.mjs";
 
 import type {
-  GenericFunction
-} from "../types/GenericFunction.mjs";
-
-import type {
-  PrependArgumentsMethod
-} from "../types/PrependArguments.mjs";
-
-import type {
   BodyTrapTypesBase
 } from "../types/BodyTrapTypesBase.mjs";
 
 // #endregion preamble
 
-import { INDETERMINATE } from "../symbol-keys.mjs";
-
-export type GenericFunctionWithIndeterminate<Method extends GenericFunction> =
-  SetReturnType<Method, ReturnType<Method> | typeof INDETERMINATE>;
-
-export type PrependedIndeterminate<
-  This extends MethodsOnlyType,
-  Key extends keyof This,
-  SharedVariables extends BodyTrapTypesBase<This>[Key]
-> = GenericFunctionWithIndeterminate<PrependArgumentsMethod<
-  This, Key, false, [SharedVariables]
->>;
+import type {
+  PrependedIndeterminate
+} from "../types/BodyTrapTypesBase.mjs";
 
 export default function bodyTrap<
   This extends MethodsOnlyType,

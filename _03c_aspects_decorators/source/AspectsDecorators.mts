@@ -15,13 +15,12 @@ import type {
 } from "./types/PrependArguments.mjs";
 
 import argumentsTrap from "./methods/argumentsTrap.mjs";
-import bodyTrap, {
-  type PrependedIndeterminate
-} from "./methods/bodyTrap.mjs";
+import bodyTrap from "./methods/bodyTrap.mjs";
 import returnTrap from "./methods/returnTrap.mjs";
 
 import type {
-  BodyTrapTypesBase
+  BodyTrapTypesBase,
+  PrependedIndeterminate,
 } from "./types/BodyTrapTypesBase.mjs";
 
 export default class AspectsDecorators<
