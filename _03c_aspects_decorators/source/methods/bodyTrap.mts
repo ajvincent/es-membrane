@@ -23,6 +23,10 @@ import type {
   PrependArgumentsMethod
 } from "../types/PrependArguments.mjs";
 
+import type {
+  BodyTrapTypesBase
+} from "../types/BodyTrapTypesBase.mjs";
+
 // #endregion preamble
 
 import { INDETERMINATE } from "../symbol-keys.mjs";
@@ -33,7 +37,7 @@ export type GenericFunctionWithIndeterminate<Method extends GenericFunction> =
 export type PrependedIndeterminate<
   This extends MethodsOnlyType,
   Key extends keyof This,
-  SharedVariables extends object
+  SharedVariables extends BodyTrapTypesBase<This>[Key]
 > = GenericFunctionWithIndeterminate<PrependArgumentsMethod<
   This, Key, false, [SharedVariables]
 >>;
@@ -41,7 +45,7 @@ export type PrependedIndeterminate<
 export default function bodyTrap<
   This extends MethodsOnlyType,
   Key extends keyof This,
-  SharedVariables extends object
+  SharedVariables extends BodyTrapTypesBase<This>[Key]
 >
 (
   trapMethod: PrependedIndeterminate<This, Key, SharedVariables>

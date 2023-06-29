@@ -34,6 +34,10 @@ import type {
   PrependedIndeterminate
 } from "./bodyTrap.mjs";
 
+import type {
+  BodyTrapTypesBase
+} from "../types/BodyTrapTypesBase.mjs";
+
 import { INDETERMINATE } from "../symbol-keys.mjs";
 
 // #endregion preamble
@@ -48,7 +52,7 @@ export class MethodAspectsDictionary<
   > = [];
 
   readonly bodyTraps: UnshiftableArray<
-    PrependedIndeterminate<This, Key, object>
+    PrependedIndeterminate<This, Key, BodyTrapTypesBase<This>[Key]>
   > = [];
 
   readonly returnTraps: UnshiftableArray<

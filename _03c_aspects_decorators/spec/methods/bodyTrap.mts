@@ -3,19 +3,24 @@ import type {
   NumberStringType
 } from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
-import NST_Aspects from "#aspects/decorators/fixtures/AspectsDecorators.mjs";
-import { INDETERMINATE } from "#aspects/decorators/source/symbol-keys.mjs";
+import NST_Aspects, {
+  type BodyTrapTypes
+} from "#aspects/decorators/fixtures/AspectsDecorators.mjs";
+
+import {
+  INDETERMINATE
+} from "#aspects/decorators/source/symbol-keys.mjs";
 
 import type {
   PrependedIndeterminate
 } from "#aspects/decorators/source/methods/bodyTrap.mjs";
 
 describe("bodyTrap decorator lets us", () => {
-  type LocalVariables = {
-    bar: number;
-  }
-
-  type RepeatForwardLocal = PrependedIndeterminate<NumberStringType, "repeatForward", LocalVariables>;
+  type RepeatForwardLocal = PrependedIndeterminate<
+    NumberStringType,
+    "repeatForward",
+    BodyTrapTypes["repeatForward"]
+  >;
 
   const { bodyTrap } = NST_Aspects;
 
@@ -25,7 +30,7 @@ describe("bodyTrap decorator lets us", () => {
 
     function setBar(
       this: NumberStringType,
-      __variables__: LocalVariables,
+      __variables__: BodyTrapTypes["repeatForward"],
       ...parameters: Parameters<NumberStringType["repeatForward"]>
     ): typeof INDETERMINATE
     {
@@ -37,7 +42,7 @@ describe("bodyTrap decorator lets us", () => {
   
     function getBar(
       this: NumberStringType,
-      __variables__: LocalVariables,
+      __variables__: BodyTrapTypes["repeatForward"],
       ...parameters: Parameters<NumberStringType["repeatForward"]>
     ): typeof INDETERMINATE
     {
@@ -48,8 +53,8 @@ describe("bodyTrap decorator lets us", () => {
     getBar satisfies RepeatForwardLocal;
 
     class NST_Class extends NumberStringClass {
-      @bodyTrap<"repeatForward", LocalVariables>(setBar)
-      @bodyTrap<"repeatForward", LocalVariables>(getBar)
+      @bodyTrap<"repeatForward">(setBar)
+      @bodyTrap<"repeatForward">(getBar)
       repeatForward(s: string, n: number): string {
         void(s);
         void(n);
@@ -65,7 +70,7 @@ describe("bodyTrap decorator lets us", () => {
   it("return a value", () => {
     function setBar(
       this: NumberStringType,
-      __variables__: LocalVariables,
+      __variables__: BodyTrapTypes["repeatForward"],
       ...parameters: Parameters<NumberStringType["repeatForward"]>
     ): typeof INDETERMINATE
     {
@@ -77,7 +82,7 @@ describe("bodyTrap decorator lets us", () => {
 
     function exitEarly(
       this: NumberStringType,
-      __variables__: LocalVariables,
+      __variables__: BodyTrapTypes["repeatForward"],
       s: string,
       n: number,
     ): ReturnType<NumberStringType["repeatForward"]>
@@ -88,8 +93,8 @@ describe("bodyTrap decorator lets us", () => {
     exitEarly satisfies RepeatForwardLocal;
 
     class NST_Class extends NumberStringClass {
-      @bodyTrap<"repeatForward", LocalVariables>(setBar)
-      @bodyTrap<"repeatForward", LocalVariables>(exitEarly)
+      @bodyTrap<"repeatForward">(setBar)
+      @bodyTrap<"repeatForward">(exitEarly)
       repeatForward(s: string, n: number): string {
         void(s);
         void(n);

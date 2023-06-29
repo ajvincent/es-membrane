@@ -20,8 +20,13 @@ import bodyTrap, {
 } from "./methods/bodyTrap.mjs";
 import returnTrap from "./methods/returnTrap.mjs";
 
+import type {
+  BodyTrapTypesBase
+} from "./types/BodyTrapTypesBase.mjs";
+
 export default class AspectsDecorators<
-  This extends MethodsOnlyType
+  This extends MethodsOnlyType,
+  BodyTrapTypes extends BodyTrapTypesBase<This>,
 >
 {
   argumentsTrap<Key extends keyof This>(
@@ -34,14 +39,13 @@ export default class AspectsDecorators<
 
   bodyTrap<
     Key extends keyof This,
-    SharedVariables extends object
   >
   (
     this: void,
-    trapMethod: PrependedIndeterminate<This, Key, SharedVariables>
+    trapMethod: PrependedIndeterminate<This, Key, BodyTrapTypes[Key]>
   ): ClassMethodDecoratorFunction<This, Key, true, false>
   {
-    return bodyTrap<This, Key, SharedVariables>(trapMethod);
+    return bodyTrap<This, Key, BodyTrapTypes[Key]>(trapMethod);
   }
 
   returnTrap<Key extends keyof This>(
