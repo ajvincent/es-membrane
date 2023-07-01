@@ -2,6 +2,7 @@
  * These are utilities for asynchronously importing modules which may not exist until after the build completes.
  */
 
+import fs from "fs/promises";
 import path from "path";
 import url from "url";
 
@@ -103,13 +104,35 @@ export async function getModuleClassWithArgs<Key extends string, T extends unkno
   return module[property];
 }
 
+const SubpathImportStart: [string, string][] = [];
+{
+  const packageFile = await fs.readFile(process.env.npm_package_json as string, {encoding: "utf-8"});
+  const packageJSON = JSON.parse(packageFile) as { imports: Record<string, string> };
+  for (const [key, value] of Object.entries(packageJSON.imports)) {
+    SubpathImportStart.push([key.replace(/\/\*$/, ""), value.replace(/\/\*$/, "")]);
+  }
+}
+
 export function pathToModule(
   source: ModuleSourceDirectory,
   leafName: string,
 ) : string
 {
-  if ("isAbsolutePath" in source)
-    return path.join(source.pathToDirectory, leafName);
+  if ("isAbsolutePath" in source) {
+    let pathToModuleFile = path.join(source.pathToDirectory, leafName);
+    if (pathToModuleFile.startsWith("#")) {
+      for (const [key, value] of SubpathImportStart) {
+        if (pathToModuleFile.startsWith(key)) {
+          pathToModuleFile = pathToModuleFile.replace(key, value);
+          return path.normalize(path.resolve(
+            path.dirname(process.env.npm_package_json as string),
+            pathToModuleFile
+          ));
+        }
+      }
+    }
+    return pathToModuleFile;
+  }
 
   return path.normalize(path.resolve(
     url.fileURLToPath(source.importMeta.url),

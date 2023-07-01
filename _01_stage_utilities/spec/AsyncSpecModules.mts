@@ -33,7 +33,7 @@ describe("AsyncSpecModules", () => {
         pathToDirectory: "#stage_utilities/spec",
         isAbsolutePath: true
       }, "AsyncSpecModules.mjs")
-    ).toBe("#stage_utilities/spec/AsyncSpecModules.mjs");
+    ).toBe(fileURLToPath(import.meta.url));
   });
 
   it("getModuleDefaultClass retrieves an exported module", async () => {
