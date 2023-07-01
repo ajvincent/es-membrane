@@ -10,7 +10,8 @@ TypeScript 5.0 introduces us to [ECMAScript decorators](https://github.com/tc39/
 1. Without depending on `StaticAndInstance`, we need a type to define how a mix-in class joins the base class and its subclass's static and instance fields.  [`MixinClass`](./source/types/MixinClass.d.mts) is a little convoluted, but works well.
 1. Combining `MixinBase` (below) with `StaticAndInstance` and `ClassDecoratorFunction` offers a [`SubclassDecorator`](./source/types/SubclassDecorator.d.mts) type.  An array of `StaticAndInstance` types gives rise to a `SubclassDecoratorSequence` type in the same file.
 1. [MultiMixinClass](./source/types/MultiMixinClass.d.mts) defines a `MixinClass` type from an array of `StaticAndInstance` objects.
-1. For method decorators, I have added [`ClassMethodDecorator`](./source//types/ClassMethodDecorator.d.mts).
+1. For method decorators, I have added [`ClassMethodDecorator`](./source/types/ClassMethodDecorator.d.mts).
+1. [MethodsOnlyType](./source/types/MethodsOnlyType.d.mts) is for types which I expect have only methods.  It's not the Right Way to do things, but for now it will suffice.
 
 How do I use these types?
 
