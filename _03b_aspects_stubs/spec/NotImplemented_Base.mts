@@ -1,7 +1,25 @@
-import NST_NotImplemented_Base from "#aspects/test-fixtures/fixtures/generated/stubs/NotImplemented_Base.mjs";
+import {
+  ModuleSourceDirectory,
+  getModuleDefaultClass,
+} from "#stage_utilities/source/AsyncSpecModules.mjs";
+import type {
+  NumberStringType
+} from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
 describe("stub-ts-morph: notImplemented", () => {
-  it("with default return types throws for all methods", () => {
+  const stageDir: ModuleSourceDirectory = {
+    pathToDirectory: "#aspects/stubs/spec-generated",
+    isAbsolutePath: true
+  };
+
+  it("with default return types throws for all methods", async () => {
+    const NST_NotImplemented_Base = await getModuleDefaultClass<
+      NumberStringType
+    >
+    (
+      stageDir, "stubs/NotImplemented_Base.mjs"
+    );
+
     expect(Reflect.ownKeys(NST_NotImplemented_Base.prototype)).toEqual([
       "constructor",
       "repeatForward",

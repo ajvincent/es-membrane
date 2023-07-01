@@ -1,7 +1,35 @@
-import MethodDecoratedClass from "#aspects/test-fixtures/fixtures/generated/stubs/SpyMethodDecorated.mjs";
+import {
+  type ModuleSourceDirectory,
+  getModulePart,
+} from "#stage_utilities/source/AsyncSpecModules.mjs";
+
+import {
+  type Class,
+} from "#mixin_decorators/source/types/Class.mjs";
+
+import type {
+  NumberStringType
+} from "#stage_utilities/fixtures/types/NumberStringType.mjs";
+
 import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 
-it("MethodDecoratorsOfClass applies decorators from a configuration to build a class", () => {
+it("MethodDecoratorsOfClass applies decorators from a configuration to build a class", async () => {
+  const generatedDir: ModuleSourceDirectory = {
+    isAbsolutePath: true,
+    pathToDirectory: "#aspects/stubs/spec-generated"
+  };
+
+  type SpyDecoratedClass_Type = (
+    BaseClass: Class<NumberStringType>
+  ) => Class<NumberStringType>;
+
+  const MethodDecoratedClass = await getModulePart<"default", SpyDecoratedClass_Type>
+  (
+    generatedDir,
+    "stubs/SpyMethodDecorated.mjs",
+    "default"
+  );
+
   const NST_Class = MethodDecoratedClass(NumberStringClass);
   const nst = new NST_Class;
 

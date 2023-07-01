@@ -15,7 +15,7 @@ const sourceFile = getTS_SourceFile({
   pathToDirectory: "#stage_utilities"
 }, "fixtures/types/NumberStringType.d.mts");
 
-const generatedDir = pathToModule(stageDir, "fixtures/generated");
+const generatedDir = pathToModule(stageDir, "spec-generated");
 const pathToTypeFile = "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
 export {

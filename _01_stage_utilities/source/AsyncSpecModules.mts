@@ -6,9 +6,11 @@ import fs from "fs/promises";
 import path from "path";
 import url from "url";
 
-import type {
-  Class
-} from "type-fest";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Class<T extends object, Arguments extends unknown[] = any[]> = {
+  prototype: T;
+  new(...parameters: Arguments): T
+};
 
 interface PathToDirectory {
   pathToDirectory: string;
@@ -34,9 +36,9 @@ export type ModuleSourceDirectory = (
  * @param leafName - the module filename.
  * @returns the default export.
  */
-export async function getModuleDefaultClass<U>(
+export async function getModuleDefaultClass<U extends object>(
   source: ModuleSourceDirectory,
-  leafName: string
+  leafName: string,
 ) : Promise<Class<U>>
 {
   const module = (
@@ -52,9 +54,13 @@ export async function getModuleDefaultClass<U>(
  * @param leafName - the module filename.
  * @returns the default export.
  */
-export async function getModuleDefaultClassWithArgs<T extends unknown[], U>(
+export async function getModuleDefaultClassWithArgs<
+  T extends unknown[],
+  U extends object,
+>
+(
   source: ModuleSourceDirectory,
-  leafName: string
+  leafName: string,
 ) : Promise<Class<U, T>>
 {
   const module = (
@@ -92,7 +98,12 @@ export async function getModulePart<Key extends string, T>(
  * @param property - the exported part to pick up.
  * @returns the default export.
  */
-export async function getModuleClassWithArgs<Key extends string, T extends unknown[], U>(
+export async function getModuleClassWithArgs<
+  Key extends string,
+  T extends unknown[],
+  U extends object,
+>
+(
   source: ModuleSourceDirectory,
   leafName: string,
   property: Key,
@@ -126,7 +137,7 @@ export function pathToModule(
           pathToModuleFile = pathToModuleFile.replace(key, value);
           return path.normalize(path.resolve(
             path.dirname(process.env.npm_package_json as string),
-            pathToModuleFile
+            pathToModuleFile,
           ));
         }
       }

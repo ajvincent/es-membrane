@@ -1,39 +1,40 @@
-/*
 import {
   type ModuleSourceDirectory,
-  getModuleDefaultClassWithArgs,
+  getModulePart,
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 
-import type {
-  PrototypeOf
-} from "#stage_utilities/source/types/Utility.mjs";
-
-import type {
-  TransitionInterface,
-} from "../source/types/TransitionInterface.mjs";
+import {
+  type Class,
+} from "#mixin_decorators/source/types/Class.mjs";
 
 import type {
   NumberStringType
-} from "#aspects/test-fixtures/fixtures/types/NumberStringType.mjs";
-*/
+} from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
 import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 
-import TransitionsTailClass from "#aspects/test-fixtures/fixtures/generated/stubs/TransitionsTail.mjs";
+import {
+  type TransitionInterface,
+} from "#aspects/stubs/source/types/TransitionInterface.mjs";
 
-it("stub-ts-morph: transitions tail stub correctly forwards to the next handler", () => {
-  /*
+it("stub-ts-morph: transitions tail stub correctly forwards to the next handler", async () => {
   const generatedDir: ModuleSourceDirectory = {
-    importMeta: import.meta,
-    pathToDirectory: "../../../_03z_aspects_test_fixtures/fixtures/generated/stubs"
+    isAbsolutePath: true,
+    pathToDirectory: "#aspects/stubs/spec-generated"
   };
-  const NST_Transitions_Tail = await getModulePart<
-    [], TransitionInterface<NumberStringType, [boolean, () => Promise<void>]>
-  >
+
+  type TransitionsTail_Type = (
+    BaseClass: Class<NumberStringType, []>
+  ) => Class<
+    TransitionInterface<true, NumberStringType, [boolean, () => Promise<void>]>
+  >;
+
+  const TransitionsTailClass = await getModulePart<"default", TransitionsTail_Type>
   (
-    generatedDir, "default", "TransitionsTail.mjs"
+    generatedDir,
+    "stubs/TransitionsTail.mjs",
+    "default"
   );
-  */
 
   const NST_Transitions_Tail = TransitionsTailClass(NumberStringClass);
 
