@@ -38,6 +38,15 @@ import type {
   BodyTrapTypesBase
 } from "../types/BodyTrapTypesBase.mjs";
 
+import type {
+  PreconditionWithContext,
+  PostconditionWithContext,
+} from "../types/PrePostConditionsContext.mjs";
+
+import {
+  PrePostConditionsContext,
+} from "./prePostCondition.mjs";
+
 import { INDETERMINATE } from "../symbol-keys.mjs";
 
 // #endregion preamble
@@ -47,6 +56,10 @@ export class MethodAspectsDictionary<
   Key extends keyof This,
 > implements MethodAspects<This, Key>
 {
+  readonly preconditionTraps: UnshiftableArray<
+    PreconditionWithContext<This, Key, unknown>
+  > = [];
+
   readonly argumentTraps: UnshiftableArray<
     SetReturnType<Method<This, Key>, void>
   > = [];
@@ -57,6 +70,10 @@ export class MethodAspectsDictionary<
 
   readonly returnTraps: UnshiftableArray<
     SetReturnType<PrependArgumentsMethod<This, Key, true, []>, void>
+  > = [];
+
+  readonly postconditionTraps: UnshiftableArray<
+    PostconditionWithContext<This, Key, unknown>
   > = [];
 }
 
@@ -78,6 +95,19 @@ function GenericAspectFunction(
   ): ReturnType<typeof method>
   {
     const { userContext: aspectContext } = ReplaceableMethodsMap.get(method);
+    const conditionsContextMap = new WeakMap<
+      PostconditionWithContext<MethodsOnlyType, keyof MethodsOnlyType, unknown>,
+      PrePostConditionsContext<unknown>
+    >;
+
+    for (let i = aspectContext.postconditionTraps.length - 1; i >= 0; i--) {
+      const context = new PrePostConditionsContext<unknown>;
+      const postcondition = aspectContext.postconditionTraps[i];
+      conditionsContextMap.set(postcondition, context);
+
+      const precondition = aspectContext.preconditionTraps[i];
+      precondition.apply(this, [context, ...parameters]);
+    }
 
     aspectContext.argumentTraps.forEach(trap => trap.apply(this, parameters));
 
@@ -103,6 +133,12 @@ function GenericAspectFunction(
     aspectContext.returnTraps.forEach(
       trap => trap.call(this, rv, ...parameters)
     );
+
+    aspectContext.postconditionTraps.forEach(trap => {
+      const context = conditionsContextMap.get(trap) as PrePostConditionsContext<unknown>;
+      trap.apply(this, [context, rv, ...parameters]);
+    });
+
     return rv;
   }
 }
