@@ -9,10 +9,23 @@ import type {
   Class
 } from "type-fest";
 
-export type ModuleSourceDirectory = {
-  importMeta: ImportMeta;
+interface PathToDirectory {
   pathToDirectory: string;
-};
+}
+
+interface PathWithImportMeta extends PathToDirectory {
+  importMeta: ImportMeta;
+}
+
+interface PathToAbsoluteDirectory extends PathToDirectory {
+  isAbsolutePath: true;
+}
+
+export type ModuleSourceDirectory = (
+  PathWithImportMeta |
+  PathToAbsoluteDirectory |
+  never
+);
 
 /**
  * @typeParam U - the type of the class's return value.
@@ -95,6 +108,9 @@ export function pathToModule(
   leafName: string,
 ) : string
 {
+  if ("isAbsolutePath" in source)
+    return path.join(source.pathToDirectory, leafName);
+
   return path.normalize(path.resolve(
     url.fileURLToPath(source.importMeta.url),
     source.pathToDirectory,
