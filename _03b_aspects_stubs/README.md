@@ -45,21 +45,21 @@ Users of this class must subclass it.  There are several protected fields for su
 
 As I establish in the [previous stage](../_02_mixin_decorators/README.md), I can use decorators to create mixin classes.  Each decorator has a specific task for creating a stub class.  At the base functionality level:
 
-- [notImplemented](./source/decorators/notImplemented.mts) gives you a class where every method throws a `"Not implemented yet!"` exception.
-- [classInvariants](./source/decorators/classInvariants.mts) enforces class invariants.
-- [methodDecorators](./source/decorators/methodDecorators.mts) allows for creating a stub class with decorators on individual methods.  Each method calls the super-class's equivalent method for the return value.  This is more experimental than a "known need".
+- [`notImplemented`](./source/decorators/notImplemented.mts) gives you a class where every method throws a `"Not implemented yet!"` exception.
+- [`classInvariants`](./source/decorators/classInvariants.mts) enforces class invariants.
+- [`methodDecorators`](./source/decorators/methodDecorators.mts) allows for creating a stub class with decorators on individual methods.  Each method calls the super-class's equivalent method for the return value.  This is more experimental than a "known need".
 
 For the "transition types" I mentioned at the start of this article, I have three special-purpose subclass decorators:
 
-- [defineExtraParamsShort](./source/decorators/defineExtraParamsShort.mts) manages the insertion of extra middle and "copy-to-tail" parameters into each method.
-- [headCall](./source/decorators/headCall.mts) defines a class to convert from a non-transition class to a transition class.
-- [tailCall](./source/decorators/tailCall.mts) defines a class to invoke a non-transition class's traps with the remapped arguments of the transition type.
+- [`defineExtraParamsShort`](./source/decorators/defineExtraParamsShort.mts) manages the insertion of extra middle and "copy-to-tail" parameters into each method.
+- [`headCall`](./source/decorators/headCall.mts) defines a class to convert from a non-transition class to a transition class.
+- [`tailCall`](./source/decorators/tailCall.mts) defines a class to invoke a non-transition class's traps with the remapped arguments of the transition type.
 
 ## Mixins
 
 I can fine-tune the stub class generation by specifying the ordering of decorators.  Each decorator will create a subclass which could call base class methods for `methodTrap()` and `buildMethodBodyTrap()`.
 
-The [mixins](./source/mixins) directory creates the stub-building classes, which I then collect into [StubMap](./source/StubMap.mts).  To build a complete set from a common configuration, I provide [StubClassSet](./source/StubClassSet.mts).
+The [mixins](./source/mixins) directory creates the stub-building classes, which I then collect into [`StubMap`](./source/StubMap.mts).  To build a complete set from a common configuration, I provide [`StubClassSet`](./source/StubClassSet.mts).
 
 Individual mixin stub generators correspond to specific decorators:
 
@@ -69,9 +69,9 @@ Individual mixin stub generators correspond to specific decorators:
 
 ## Internal utilities
 
-- [aspectTypeImport](./source/utilities/aspectTypeImport.mts) provides a fast stubs-type import method.
-- [extractType](./source/utilities/extractType.mts) converts a ts-morph `string | WriterFunction` type into a string, and potentially feeds it to a `CodeBlockWriter`.
-- [serializeParameter](./source/utilities/serializeParameter.mts) stringifes a ts-morph parameter.
+- [`aspectTypeImport`](./source/utilities/aspectTypeImport.mts) provides a fast stubs-type import method.
+- [`extractType`](./source/utilities/extractType.mts) converts a ts-morph `string | WriterFunction` type into a string, and potentially feeds it to a `CodeBlockWriter`.
+- [`serializeParameter`](./source/utilities/serializeParameter.mts) stringifes a ts-morph parameter.
 
 ## Internal types
 

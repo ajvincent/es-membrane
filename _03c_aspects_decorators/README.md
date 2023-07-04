@@ -96,7 +96,7 @@ The debugging class above is simply asserting whatever the production class does
 
 ### Type definitions
 
-- [BodyTrapTypesBase](./source/types/BodyTrapTypesBase.d.mts) determine the shape of body trap functions.
-- [MethodAspects](./source/types/MethodAspects.d.mts) determines the shape of method traps, pre- and post-conditions.
-- [PrependArguments](./source/types/PrependArguments.d.mts) is for rewriting interfaces so methods have additional arguments.
-- [PrePostConditionsContext](./source/types/PrePostConditionsContext.d.mts) defines pre-condition and post-condition method trap signatures.
+- [`BodyTrapTypesBase`](./source/types/BodyTrapTypesBase.d.mts) determine the shape of body trap functions.
+- [`MethodAspects`](./source/types/MethodAspects.d.mts) determines the shape of method traps, pre- and post-conditions.
+- [`PrependArguments`](./source/types/PrependArguments.d.mts) is for rewriting interfaces so methods have additional arguments.
+- [`PrePostConditionsContext`](./source/types/PrePostConditionsContext.d.mts) defines pre-condition and post-condition method trap signatures.
