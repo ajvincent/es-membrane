@@ -84,3 +84,14 @@ Individual mixin stub generators correspond to specific decorators:
   - [`paramBuilders`](./source/types/paramBuilders.d.mts) is for "transition head" classes to build middle and tail parameters.
   - [`paramRenamer`](./source/types/paramRenamer.d.mts) is for creating a new tail parameter of the same type as a known head parameter.
   - [`TransitionInterface`](./source/types/TransitionInterface.d.mts) defines the type for "middle" and "tail" classes.
+
+## Checklist for adding something new
+
+- [ ] Add appropriate types in the [types](./source/types/) directory.
+- [ ] Add single-purpose decorators in the [decorators](./source/decorators/) directory.
+- [ ] Add mixin stubs using the decorators in the [mixins](./source/mixins/) directory.
+- [ ] Add the mix-ins to [the stub map](./source/StubMap.mts).
+- [ ] Update the [stub class set configuration](./source/types/StubClassSetConfiguration.d.mts) and add a builder to [the stub class set](./source/StubClassSet.mts).
+- [ ] Add a new test in [spec](./spec/) using [`AsyncSpecModules`](../_01_stage_utilities/source/AsyncSpecModules.mts) to import generated code from `spec-generated`.
+- [ ] Documentation in this README file.
+- [ ] Code documentation using [`tsdoc`](https://tsdoc.org/) format.

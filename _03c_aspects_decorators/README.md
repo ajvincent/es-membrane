@@ -100,3 +100,16 @@ The debugging class above is simply asserting whatever the production class does
 - [`MethodAspects`](./source/types/MethodAspects.d.mts) determines the shape of method traps, pre- and post-conditions.
 - [`PrependArguments`](./source/types/PrependArguments.d.mts) is for rewriting interfaces so methods have additional arguments.
 - [`PrePostConditionsContext`](./source/types/PrePostConditionsContext.d.mts) defines pre-condition and post-condition method trap signatures.
+
+## Checklist for adding something new
+
+- [ ] Update [`MethodAspects.d.mts`](./source/types/MethodAspects.d.mts) for whatever new method aspects array you need.  
+  - [ ] Use `UnshiftableArray` as the base for all arrays:  decorators install from right-to-left, so the traps run left-to-right.
+- [ ] Update [`replacementMethod.d.mts`](./source/methods/replacementMethod.mts) to match.
+- [ ] Implement your decorator in [classes](./source/classes) or [methods](./source/methods).
+  - [ ] `This extends MethodsOnlyType,`
+  - [ ] For methods, `Key extends keyof This,`
+- [ ] Add a method to [`AspectDecorators.mts`](./source/AspectsDecorators.mts) with the same name, but using the shared type parameters.
+- [ ] Add a new test in [spec](./spec/) using [`AsyncSpecModules`](../_01_stage_utilities/source/AsyncSpecModules.mts) to import generated code from `spec-generated`.
+- [ ] Documentation in this README file.
+- [ ] Code documentation using [`tsdoc`](https://tsdoc.org/) format.
