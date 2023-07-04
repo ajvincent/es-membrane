@@ -31,7 +31,6 @@ import type {
   AspectsStubDecorator
 } from "../types/AspectsStubDecorator.mjs";
 
-
 import type {
   TS_Method,
   TS_Parameter,
@@ -41,24 +40,30 @@ import type {
   ParamRenamer
 } from "../types/paramRenamer.mjs";
 
-import aspectTypeImport from "../utilities/aspectTypeImport.mjs";
-
-// #endregion preamble
-
 import type {
   MiddleParamBuilder,
   TailParamBuilder
 } from "../types/paramBuilders.mjs";
+
+import aspectTypeImport from "../utilities/aspectTypeImport.mjs";
+
+// #endregion preamble
 
 declare const HeadCallKey: unique symbol;
 
 export type HeadCallFields = RightExtendsLeft<StaticAndInstance<typeof HeadCallKey>, {
   staticFields: object,
   instanceFields: {
-    wrapInClass(
-      classArguments: string
-    ): void;
-
+    /**
+     * Define extra parameters for each method of the stub class.
+     *
+     * @param includeHeadParameters - True to include original arguments before middle parameters.
+     * @param middleParameters - parameter definitions which aren't necessarily based on the original arguments.
+     * @param middleParamsTypeAliasName - A type alias name to use for the middle parameter types.
+     * @param middleParamBuilder - A function to define middle parameters.
+     * @param tailParamRenamer - A simple function to give us a new name for a wrapped original argument.
+     * @param tailParamBuilder - A function to define tail parameters.
+     */
     defineExtraParams(
       includeHeadParameters: boolean,
       middleParameters: ReadonlyArray<TS_Parameter>,
@@ -66,11 +71,32 @@ export type HeadCallFields = RightExtendsLeft<StaticAndInstance<typeof HeadCallK
       middleParamBuilder: MiddleParamBuilder,
       tailParamRenamer: ParamRenamer,
       tailParamBuilder: TailParamBuilder,
-    ) : void;
+    ): void;
+
+    /**
+     * Wrap the class in a function, taking a base class and an invariants array for all instances.
+     *
+     * Call this.defineExtraParams() first.
+     *
+     * @param classArguments - constructor argument types for the class.
+     */
+    wrapClass(
+      classArguments: string
+    ): void;
   },
   symbolKey: typeof HeadCallKey,
 }>;
 
+/**
+ * @remarks
+ *
+ * "Head" transition classes need to define middle and tail parameters, for passing to a "middle" transition class.
+ * Because these parameters do not exist initially, this code must generate them, and requires more configuration
+ * settings from the developer.
+ *
+ * Also, the stubs require a "next handler", a "middle" transition class with the additional parameters on each method,
+ * to forward calls to.
+ */
 const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = function(
   this: void,
   baseClass
@@ -81,16 +107,35 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
     static readonly #WRAP_CLASS_KEY = "(wrap class, head)";
 
     #extraParams: MaybeDefined<Readonly<{
+      /**
+       * True if the pattern is (original arguments, middle parameters, wrapped original arguments).
+       * False for (middle parameters, original arguments.)
+       */
       includeHeadParameters: boolean;
+
+      /** parameter definitions which aren't necessarily based on the original arguments. */
       middleParameters: ReadonlyArray<TS_Parameter>;
+
+      /** A type alias name to use for the middle parameter types. */
       middleParamsTypeAliasName: string;
+
+      /** Extracted names from the array of parameters. */
       middleParameterNames: ReadonlyArray<string>;
+
+      /** A function to define middle parameters. */
       middleParamBuilder: MiddleParamBuilder;
+
+      /** A simple function to give us a new name for a wrapped original argument. */
       tailParamRenamer: ParamRenamer;
+
+      /** A function to define tail parameters. */
       tailParamBuilder: TailParamBuilder;
+
+      /** Extracted serialization of the middle parameter type definitions. */
       middleParamTypes: string;
     }>> = NOT_DEFINED;
 
+    /** A writer for the transitions type alias. */
     readonly #beforeClassWriter = new CodeBlockWriter(writerOptions);
 
     constructor(...args: unknown[]) {
@@ -99,39 +144,17 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
       getRequiredInitializers(this).add(TransitionsHead.#WRAP_CLASS_KEY);
     }
 
-    wrapInClass(
-      classArguments: string
-    ): void
-    {
-      getRequiredInitializers(this).mayResolve(TransitionsHead.#WRAP_CLASS_KEY);
-
-      const extraParams = assertDefined(this.#extraParams);
-
-      const baseInstanceType = `TransitionInterface<${
-        extraParams.includeHeadParameters.toString()
-      }, ${
-        this.interfaceOrAliasName
-      }, ${extraParams.middleParamsTypeAliasName}>`;
-
-      this.wrapInFunction(
-        [],
-        [{
-          name: "BaseClass",
-          type: `Class<${baseInstanceType}${
-            classArguments ? ", " + classArguments : ""
-          }>`,
-        }],
-        "TransitionsHeadClass",
-        (classWriter: CodeBlockWriter) => { void(classWriter) },
-        (classWriter: CodeBlockWriter, originalWriter: WriterFunction) => {
-          originalWriter(classWriter);
-        },
-      );
-
-      getRequiredInitializers(this).resolve(TransitionsHead.#WRAP_CLASS_KEY);
-    }
-
-    defineExtraParams(
+    /**
+     * Define extra parameters for each method of the stub class.
+     *
+     * @param includeHeadParameters - True to include original arguments before middle parameters.
+     * @param middleParameters - parameter definitions which aren't necessarily based on the original arguments.
+     * @param middleParamsTypeAliasName - A type alias name to use for the middle parameter types.
+     * @param middleParamBuilder - A function to define middle parameters.
+     * @param tailParamRenamer - A simple function to give us a new name for a wrapped original argument.
+     * @param tailParamBuilder - A function to define tail parameters.
+     */
+    public defineExtraParams(
       includeHeadParameters: boolean,
       middleParameters: ReadonlyArray<TS_Parameter>,
       middleParamsTypeAliasName: string,
@@ -164,6 +187,42 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
       getRequiredInitializers(this).resolve(TransitionsHead.#INIT_EXTRA_PARAMS_KEY);
     }
 
+    /**
+     * Wrap the class in a function, taking a base class and an invariants array for all instances.
+     *
+     * Call this.defineExtraParams() first.
+     *
+     * @param classArguments - constructor argument types for the class.
+     */
+    public wrapClass(
+      classArguments: string
+    ): void
+    {
+      getRequiredInitializers(this).mayResolve(TransitionsHead.#WRAP_CLASS_KEY);
+
+      const extraParams = assertDefined(this.#extraParams);
+
+      const baseInstanceType = `TransitionInterface<${
+        extraParams.includeHeadParameters.toString()
+      }, ${
+        this.interfaceOrAliasName
+      }, ${extraParams.middleParamsTypeAliasName}>`;
+
+      this.wrapInFunction(
+        [],
+        [{
+          name: "BaseClass",
+          type: `Class<${baseInstanceType}${
+            classArguments ? ", " + classArguments : ""
+          }>`,
+        }],
+        "TransitionsHeadClass",
+        (classWriter: CodeBlockWriter) => { void(classWriter) },
+      );
+
+      getRequiredInitializers(this).resolve(TransitionsHead.#WRAP_CLASS_KEY);
+    }
+
     protected methodTrap(
       methodStructure: TS_Method | null,
       isBefore: boolean
@@ -187,14 +246,13 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
         }];`
       );
   
-      this.#writeHandlerAndConstructor(
-        extraParams.middleParamsTypeAliasName
-      );
+      this.#writeHandlerAndConstructor();
     }
 
-    #writeHandlerAndConstructor(
-      middleParamsTypeAliasName: string
-    ) : void
+    /**
+     * Build the `#nextHandler` field, and the constructor which populates it.
+     */
+    #writeHandlerAndConstructor() : void
     {
       const context = new Map<symbol, unknown>;
       const { implements: _implements } = this.getExtendsAndImplementsTrap(context);
@@ -208,7 +266,7 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
       }, ${
         _implements[0]
       }, ${
-        middleParamsTypeAliasName
+        extraParams.middleParamsTypeAliasName
       }>`;
 
       this.classWriter.writeLine(`
@@ -255,21 +313,23 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
         tailParamBuilder
       } = assertDefined(this.#extraParams);
 
+      // We need to delegate creating the middle parameters.
       middleParameters.forEach(
         param => middleParamBuilder.apply(this, [methodStructure, param])
       );
-  
+
       const headParameterNames = methodStructure.parameters?.map(param => param.name) ?? []
 
       let tailParameterNames: string[] = [];
-      if (includeHeadParameters) {
-        tailParameterNames = methodStructure.parameters?.map(param => {
+      if (includeHeadParameters && methodStructure.parameters) {
+        // Ask the tail parameter builder to write new variables.
+        tailParameterNames = methodStructure.parameters.map(param => {
           const newName = tailParamRenamer(param.name);
           tailParamBuilder.apply(this, [
             methodStructure, param, newName
           ]);
           return newName;
-        }) ?? [];
+        });
       }
 
       TransitionsHead.pairedWrite(
@@ -284,13 +344,13 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
               ...headParameterNames,
               ...middleParameterNames,
               ...tailParameterNames,
-            ].join(", "))
+            ].join(", "));
           }
           else {
             this.classWriter.write([
               ...middleParameterNames,
               ...headParameterNames
-            ].join(", "))
+            ].join(", "));
           }
         }
       );

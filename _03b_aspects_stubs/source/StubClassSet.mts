@@ -1,3 +1,4 @@
+// #region preamble
 import path from "path";
 
 import {
@@ -12,7 +13,11 @@ import type {
 import AspectsStubBase from "./AspectsStubBase.mjs";
 
 import StubMap from "./StubMap.mjs";
+// #endregion preamble
 
+/**
+ * This class builds a set of stubs from a single base type (and some detailed configuration!).
+ */
 export default class StubClassSet
 {
   #stubArray: AspectsStubBase[] = [];
@@ -38,6 +43,7 @@ export default class StubClassSet
     await PromiseAllParallel(this.#stubArray, stub => stub.write());
   }
 
+  /** "not implemented" */
   #build_NI_Base(
     config: StubClassSetConfiguration
   ): void {
@@ -53,6 +59,10 @@ export default class StubClassSet
     this.#finalize_stub(generator, config);
   }
 
+  /**
+   * "transitions head"
+   * @experimental
+   */
   #build_transitions_head(
     config: StubClassSetConfiguration
   ): void {
@@ -68,11 +78,15 @@ export default class StubClassSet
       config.transitionsHead.tailBuilder
     );
 
-    generator.wrapInClass(config.transitionsTail.classArgumentTypes);
+    generator.wrapClass(config.transitionsTail.classArgumentTypes);
 
     this.#finalize_stub(generator, config);
   }
 
+  /**
+   * "transitions middle, not implemented"
+   * @experimental
+   */
   #build_transitions_not_implemented(
     config: StubClassSetConfiguration
   ): void {
@@ -94,6 +108,10 @@ export default class StubClassSet
     this.#finalize_stub(generator, config);
   }
 
+  /**
+   * "transitions tail"
+   * @experimental
+   */
   #build_transitions_tail(
     config: StubClassSetConfiguration
   ): void {
@@ -110,21 +128,29 @@ export default class StubClassSet
       "TransitionsTail.mts",
       "_Transitions_Tail",
     );
-    generator.wrapInClass(config.transitionsTail.classArgumentTypes);
+    generator.wrapClass(config.transitionsTail.classArgumentTypes);
 
     this.#finalize_stub(generator, config);
   }
 
+  /** "class invariants" */
   #build_class_invariants_wrapper(
     config: StubClassSetConfiguration
   ): void
   {
     const generator = new StubMap.ClassInvariantsWrapper;
     this.#configure_stub(generator, config, "ClassInvariantsWrapper.mts", "_ClassInvariants");
-    generator.wrapInClass("");
+    generator.wrapClass();
     this.#finalize_stub(generator, config);
   }
 
+  /**
+   * Set the basic configuration for a stub generator.  Only the basics, and not writing the file.
+   * @param generator - the stub generator
+   * @param config - the common configuration.
+   * @param targetFileName - where under the destination directory this module is going.
+   * @param classSuffix - a module-specific suffix for each class module.
+   */
   #configure_stub(
     generator: AspectsStubBase,
     config: StubClassSetConfiguration,
@@ -139,6 +165,11 @@ export default class StubClassSet
     );
   }
 
+  /**
+   * Build the class and schedule it for writing.
+   * @param generator - the stub generator
+   * @param config - the common configuration.
+   */
   #finalize_stub(
     generator: AspectsStubBase,
     config: StubClassSetConfiguration

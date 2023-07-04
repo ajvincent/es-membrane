@@ -49,6 +49,13 @@ declare const DefineParamsKey: unique symbol;
 export type DefineExtraParamsShortFields = RightExtendsLeft<StaticAndInstance<typeof DefineParamsKey>, {
   staticFields: object,
   instanceFields: {
+    /**
+     * Define extra parameters for each method of the stub class.
+     *
+     * @param includeHeadParameters - True to include original arguments before middle parameters.
+     * @param middleParameters - parameter definitions which aren't necessarily based on the original arguments.
+     * @param tailParamRenamer - A simple function to give us a new name for a wrapped original argument.
+     */
     defineExtraParams(
       includeHeadParameters: boolean,
       middleParameters: ReadonlyArray<TS_Parameter>,
@@ -58,6 +65,12 @@ export type DefineExtraParamsShortFields = RightExtendsLeft<StaticAndInstance<ty
   symbolKey: typeof DefineParamsKey,
 }>;
 
+/**
+ * @remarks
+ *
+ * "Middle" and "tail" classes need definitions for extra parameters.  This class takes care of that,
+ * defining them for the method signatures.  The additional arguments, therefore, we assume exist.
+ */
 const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsShortFields> = function(
   this: void,
   baseClass
@@ -66,9 +79,19 @@ const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsSho
     static readonly #INIT_EXTRA_PARAMS_KEY = "(extra parameters in subclass)";
 
     #extraParams: MaybeDefined<{
+      /**
+       * True if the pattern is (original arguments, middle parameters, wrapped original arguments).
+       * False for (middle parameters, original arguments.)
+       */
       includeHeadParameters: boolean;
+
+      /** parameter definitions which aren't necessarily based on the original arguments. */
       middleParameters: ReadonlyArray<TS_Parameter>;
+
+      /** A simple function to give us a new name for a wrapped original argument. */
       tailParamRenamer: ParamRenamer;
+
+      /** Extracted serialization of the middle parameter type definitions. */
       middleParamTypes: string;
     }> = NOT_DEFINED;
 
@@ -77,7 +100,14 @@ const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsSho
       getRequiredInitializers(this).add(TransitionsBase.#INIT_EXTRA_PARAMS_KEY);
     }
 
-    defineExtraParams(
+    /**
+     * Define extra parameters for each method of the stub class.
+     *
+     * @param includeHeadParameters - True to include original arguments before middle parameters.
+     * @param middleParameters - parameter definitions which aren't necessarily based on the original arguments.
+     * @param tailParamRenamer - A simple function to give us a new name for a wrapped original argument.
+     */
+    public defineExtraParams(
       includeHeadParameters: boolean,
       middleParameters: ReadonlyArray<TS_Parameter>,
       tailParamRenamer: ParamRenamer,
@@ -134,6 +164,7 @@ const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsSho
       else {
         const extraParams = assertDefined(this.#extraParams);
         methodStructure.parameters ||= [];
+
         if (extraParams.includeHeadParameters) {
           if (methodStructure.parameters.length) {
             const lastHeadParameter = methodStructure.parameters.at(-1);
@@ -154,6 +185,11 @@ const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsSho
       }
     }
 
+    /**
+     * Create a copy of an existing parameter.
+     * @param param - the original parameter.
+     * @returns the newly named parameter.
+     */
     #mapParameter(
       param: TS_Parameter
     ) : TS_Parameter

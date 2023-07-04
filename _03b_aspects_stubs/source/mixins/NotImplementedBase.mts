@@ -6,7 +6,11 @@ import NotImplementedDecorator, {
 
 import AspectsStubBase from "../AspectsStubBase.mjs";
 
-const NotImplementedBaseStub = MultiMixinBuilder<[NotImplementedFields], typeof AspectsStubBase>(
+const NotImplementedBaseStub = MultiMixinBuilder<
+  [NotImplementedFields],
+  typeof AspectsStubBase
+>
+(
   [NotImplementedDecorator], AspectsStubBase
 );
 

@@ -28,6 +28,11 @@ export type NotImplementedFields = RightExtendsLeft<StaticAndInstance<typeof Not
   symbolKey: typeof NotImplementedKey
 }>
 
+/**
+ * @remarks
+ *
+ * Your most basic class stub possible: every method throws an error.
+ */
 const NotImplementedDecorator: AspectsStubDecorator<NotImplementedFields> = function NotImplementedDecorator(
   this: void,
   baseClass

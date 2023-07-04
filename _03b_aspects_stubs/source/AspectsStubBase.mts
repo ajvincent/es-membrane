@@ -9,7 +9,6 @@ import {
   InterfaceDeclaration,
   TypeAliasDeclaration,
   type InterfaceDeclarationStructure,
-  WriterFunction,
 } from "ts-morph";
 
 import CodeBlockWriter from "code-block-writer";
@@ -19,8 +18,6 @@ import {
 } from "#stage_utilities/source/DefaultMap.mjs";
 
 import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
-
-import MixinBase from "#mixin_decorators/source/MixinBase.mjs";
 
 import extractType, {
   writerOptions
@@ -43,10 +40,8 @@ export type ExtendsAndImplements = {
   readonly implements: ReadonlyArray<string>,
 };
 
-/**
- * A base class for quickly generating class stubs.
- */
-export default class AspectsStubBase extends MixinBase
+/** A base class for quickly generating class stubs. */
+export default class AspectsStubBase
 {
   // #region static fields
   /**
@@ -124,7 +119,6 @@ export default class AspectsStubBase extends MixinBase
     parameters: ReadonlyArray<TS_Parameter>,
     functionName: string,
     beforeClassTrap: (classWriter: CodeBlockWriter) => void,
-    modifyReturnType: (classWriter: CodeBlockWriter, originalWriter: WriterFunction) => void,
   } = undefined;
 
   /** This handles the actual class generation code. */
@@ -137,9 +131,9 @@ export default class AspectsStubBase extends MixinBase
 
   // #region basic class information
 
-  /** Initialize the class.  The super() call may be unnecessary - try to remove MixinBase? */
-  constructor(...args: unknown[]) {
-    super(...args);
+  constructor(...args: unknown[])
+  {
+    void(args);
     getRequiredInitializers(this).add(AspectsStubBase.#INIT_KEY);
   }
 
@@ -147,7 +141,7 @@ export default class AspectsStubBase extends MixinBase
    * Common configuration settings for all aspect stubs.
    *
    * @param sourceFile - the source file containing the interface or type alias.
-   * @param interfaceOrAliasName - the name of the interface or type alias
+   * @param interfaceOrAliasName - the name of the interface or type alias.
    * @param pathToClassFile - the absolute path to the class file.
    * @param className - the class name to use.
    */
@@ -208,6 +202,7 @@ export default class AspectsStubBase extends MixinBase
    * @param pathToModule - the absolute path to the module.
    * @param importString - the value to import, including `type` prefix if desirable.
    * @param isDefault - true if this is a default import.
+   * @param isPackageImport - true if this is an absolute path or pacakge import.
    */
   addImport(
     pathToModule: string,
@@ -251,7 +246,6 @@ export default class AspectsStubBase extends MixinBase
     parameters: ReadonlyArray<TS_Parameter>,
     functionName: string,
     beforeClassTrap: (classWriter: CodeBlockWriter) => void,
-    modifyReturnType: (classWrtier: CodeBlockWriter, originalWriter: WriterFunction) => void,
   ) : void
   {
     if (this.#buildCalled) {
@@ -267,7 +261,6 @@ export default class AspectsStubBase extends MixinBase
       parameters,
       functionName,
       beforeClassTrap,
-      modifyReturnType,
     };
   }
 
@@ -387,16 +380,12 @@ export default class AspectsStubBase extends MixinBase
       this.classWriter, "(", "): ", true, true, () => this.#writeWrapFunctionParameters()
     );
 
-    this.#wrapInFunctionParameters.modifyReturnType(
-      this.classWriter, (classWriter => {
-        AspectsStubBase.pairedWrite(
-          classWriter, "Class<", ">", true, true, () => {
-            const { implements: _implements } = this.getExtendsAndImplementsTrap(new Map);
-            classWriter.write(_implements.join(" & "))
-          }
-        );
+    AspectsStubBase.pairedWrite(
+      this.classWriter, "Class<", ">", true, true, () => {
+        const { implements: _implements } = this.getExtendsAndImplementsTrap(new Map);
+        this.classWriter.write(_implements.join(" & "))
       }
-    ));
+    );
     this.classWriter.newLine();
 
     this.classWriter.block(() => {
@@ -653,11 +642,13 @@ export default class AspectsStubBase extends MixinBase
     await fs.writeFile(this.#pathToClassFile, contents, { "encoding": "utf-8"});
   }
 
+  /** Get code to write before the `export default` line. */
   protected writeBeforeExportTrap() : string
   {
     return "";
   }
 
+  /** Get code to write after the default export. */
   protected writeAfterExportTrap() : string
   {
     return "";

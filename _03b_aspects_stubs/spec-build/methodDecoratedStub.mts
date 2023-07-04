@@ -80,15 +80,17 @@ async function buildMethodDecoratedStub() : Promise<void>
       },
     ],
     methods: {
-      repeatForward: {
+      repeatForward: [{
         decoratorName: "spyForward.spyDecorator",
+        typeParameters: null,
         parameters: null,
-      },
+      }],
 
-      repeatBack: {
+      repeatBack: [{
         decoratorName: "spyBack.spyDecorator",
+        typeParameters: null,
         parameters: null,
-      },
+      }],
     },
   };
 

@@ -1,7 +1,6 @@
 // #region preamble
 import {
   CodeBlockWriter,
-  WriterFunction,
 } from "ts-morph";
 
 import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
@@ -34,13 +33,23 @@ declare const TailCallKey: unique symbol;
 export type TailCallFields = RightExtendsLeft<StaticAndInstance<typeof TailCallKey>, {
   staticFields: object,
   instanceFields: {
-    wrapInClass(
-      classArguments: string
+    /**
+     * Wrap the class in a function, taking a base class and an invariants array for all instances.
+     * @param classArguments - constructor argument types for the class.
+     */
+    wrapClass(
+      classArguments: string,
     ): void;
   },
   symbolKey: typeof TailCallKey,
 }>;
 
+/**
+ * @remarks
+ *
+ * "Tail" transition classes have head, middle and tail parameters, but forward each method call
+ * to a "next handler" instance, with just the tail parameters.  We ignore the head and middle parameters.
+ */
 const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields> = function(
   this: void,
   baseClass
@@ -54,8 +63,12 @@ const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields> = funct
       getRequiredInitializers(this).add(TransitionsTail.#WRAP_CLASS_KEY);
     }
 
-    wrapInClass(
-      classArguments: string
+    /**
+     * Wrap the class in a function, taking a base class and an invariants array for all instances.
+     * @param classArguments - constructor argument types for the class.
+     */
+    public wrapClass(
+      classArguments: string,
     ): void
     {
       getRequiredInitializers(this).mayResolve(TransitionsTail.#WRAP_CLASS_KEY);
@@ -72,14 +85,12 @@ const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields> = funct
         }],
         "TransitionsTailClass",
         (classWriter: CodeBlockWriter) => { void(classWriter) },
-        (classWriter: CodeBlockWriter, originalWriter: WriterFunction) => {
-          originalWriter(classWriter);
-        },
       )
 
       getRequiredInitializers(this).resolve(TransitionsTail.#WRAP_CLASS_KEY);
     }
 
+    /** The number of head parameters we have.  Also, the number of _tail_ parameters. */
     #headParameterCount = 0;
 
     protected methodTrap(
@@ -96,6 +107,9 @@ const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields> = funct
       super.methodTrap(methodStructure, isBefore);
     }
 
+    /**
+     * Build the `#nextHandler` field, and the constructor which populates it.
+     */
     #writeHandlerAndConstructor() : void
     {
       this.classWriter.writeLine(`

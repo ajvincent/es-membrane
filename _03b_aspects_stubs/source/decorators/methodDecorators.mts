@@ -1,7 +1,6 @@
 // #region preamble
 import {
   CodeBlockWriter,
-  WriterFunction,
 } from "ts-morph";
 
 import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
@@ -37,12 +36,14 @@ import type {
 import type {
   TS_Method,
   TS_Parameter,
+  TS_TypeParameter,
 } from "../types/ts-morph-native.mjs";
 
 import type {
   MethodDecoratorsOfClass,
   MethodDecoratorDescription,
 } from "../types/MethodDecoratorsOfClass.mjs";
+import extractType from "../utilities/extractType.mjs";
 
 // #endregion preamble
 
@@ -53,6 +54,13 @@ export type MethodDecoratorsFields<Type extends MethodsOnlyType> = RightExtendsL
   {
     staticFields: object,
     instanceFields: {
+      /**
+       * Define the decorators to use for the stub class's methods.
+       * @typeParam Type - the base type we're stubbing out.
+       * @param methodDecorators - the description of the decorators to apply.
+       * @param outerClassName - the name of the class-wrapping function.
+       * @param beforeClassTrap - a callback to run before I write any of the class code.
+       */
       defineMethodDecorators(
         methodDecorators: MethodDecoratorsOfClass<Type>,
         outerClassName: string,
@@ -63,7 +71,14 @@ export type MethodDecoratorsFields<Type extends MethodsOnlyType> = RightExtendsL
   }
 >;
 
-const AddMethodDecorators_Decorator: AspectsStubDecorator<MethodDecoratorsFields<MethodsOnlyType>> = function(
+/**
+ * @remarks
+ *
+ * This is for building a stub class when we know the decorators to apply to each method,
+ */
+const AddMethodDecorators_Decorator: AspectsStubDecorator<
+  MethodDecoratorsFields<MethodsOnlyType>
+> = function(
   this: void,
   baseClass
 )
@@ -72,6 +87,7 @@ const AddMethodDecorators_Decorator: AspectsStubDecorator<MethodDecoratorsFields
   {
     static readonly #INIT_ADD_METHODS_KEY = "(add method decorators)";
 
+    /** The decorators definition. */
     #methodDecorators: MaybeDefined<MethodDecoratorsOfClass<MethodsOnlyType>> = NOT_DEFINED;
 
     constructor(...args: unknown[]) {
@@ -79,7 +95,17 @@ const AddMethodDecorators_Decorator: AspectsStubDecorator<MethodDecoratorsFields
       getRequiredInitializers(this).add(AddMethodDecorators.#INIT_ADD_METHODS_KEY);
     }
 
-    defineMethodDecorators<Type extends MethodsOnlyType>(
+    /**
+     * Define the decorators to use for the stub class's methods.
+     * @typeParam Type - the base type we're stubbing out.
+     * @param methodDecorators - the description of the decorators to apply.
+     * @param outerClassName - the name of the class-wrapping function.
+     * @param beforeClassTrap - a callback to run before I write any of the class code.
+     */
+    public defineMethodDecorators<
+      Type extends MethodsOnlyType
+    >
+    (
       methodDecorators: MethodDecoratorsOfClass<Type>,
       outerClassName = "MethodDecoratedClass",
       beforeClassTrap: ((classWriter: CodeBlockWriter) => void) = (
@@ -104,9 +130,6 @@ const AddMethodDecorators_Decorator: AspectsStubDecorator<MethodDecoratorsFields
         }],
         outerClassName,
         beforeClassTrap,
-        (classWriter: CodeBlockWriter, originalWriter: WriterFunction) => {
-          originalWriter(classWriter);
-        },
       );
 
       getRequiredInitializers(this).resolve(AddMethodDecorators.#INIT_ADD_METHODS_KEY);
@@ -130,16 +153,49 @@ const AddMethodDecorators_Decorator: AspectsStubDecorator<MethodDecoratorsFields
     {
       const decorators = assertDefined(this.#methodDecorators);
       if (isBefore && methodStructure && (methodStructure.name in decorators.methods)) {
-        const description = Reflect.get(
-          decorators.methods, methodStructure.name
-        ) as MethodDecoratorDescription;
-
-        this.classWriter.write("@" + description.decoratorName);
-        if (description.parameters)
-          this.classWriter.write(`(${this.#parameterNames(description.parameters)})`);
-        this.classWriter.newLine();
+        const descriptionArray = decorators.methods[methodStructure.name];
+        descriptionArray.forEach(description => this.#writeDecorator(description));
       }
       return super.methodTrap(methodStructure, isBefore);
+    }
+
+    /**
+     * Write a single decorator for a method.
+     * @param description - the metadata about the decorator.
+     */
+    #writeDecorator(
+      description: MethodDecoratorDescription
+    ): void {
+      this.classWriter.write("@" + description.decoratorName);
+
+      if (description.typeParameters) {
+        this.classWriter.write(`<${
+          description.typeParameters.map(
+            typeParam => this.#writeTypeParameterForDecorator(typeParam)
+          ).join(", ")
+        }>`);
+      }
+
+      if (description.parameters)
+        this.classWriter.write(`(${this.#parameterNames(description.parameters)})`);
+
+      this.classWriter.newLine();
+    }
+
+    /**
+     * Write one type parameter for a decorator.
+     * @param typeParam - the type parameter.
+     * @returns the serialization of the parameter.
+     */
+    #writeTypeParameterForDecorator(
+      typeParam: TS_TypeParameter
+    ): string
+    {
+      let rv = typeParam.name;
+      if (typeParam.constraint) {
+        rv += " extends " + (extractType(typeParam.constraint, true) as string)
+      }
+      return rv;
     }
 
     protected buildMethodBodyTrap(
@@ -155,7 +211,15 @@ const AddMethodDecorators_Decorator: AspectsStubDecorator<MethodDecoratorsFields
       );
     }
 
-    #parameterNames(parameters: ReadonlyArray<TS_Parameter> | undefined | null): string {
+    /**
+     * Serialize the parameter names.
+     * @param parameters - the parameter array.
+     * @returns the serialization of the parameter names.
+     */
+    #parameterNames(
+      parameters: ReadonlyArray<TS_Parameter> | undefined | null
+    ): string
+    {
       return parameters?.map(parameter => parameter.name).join(", ") || "";
     }
   }

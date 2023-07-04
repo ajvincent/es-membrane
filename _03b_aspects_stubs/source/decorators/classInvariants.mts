@@ -1,7 +1,6 @@
 // #region preamble
 import {
   CodeBlockWriter,
-  WriterFunction
 } from "ts-morph";
 
 import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
@@ -34,13 +33,20 @@ declare const ClassInvariantsSymbolKey: unique symbol;
 export type ClassInvariantsFields = RightExtendsLeft<StaticAndInstance<typeof ClassInvariantsSymbolKey>, {
   staticFields: object,
   instanceFields: {
-    wrapInClass(
-      classArguments: string
-    ): void;
+    /** Wrap the class in a function, taking a base class and an invariants array for all instances. */
+    wrapClass(): void;
   },
   symbolKey: typeof ClassInvariantsSymbolKey,
 }>;
 
+/**
+ * @remarks
+ *
+ * This sets up a stub class for running invariant functions on every instance of a class.  The
+ * base class we're running invariants for, and the array of invariants, comes from outside the module.
+ * The wrapper class treats the invariants array as read-only.  A `@classInvariant()` decorator should
+ * prepend to the invariants array.
+ */
 const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = function(
   this: void,
   baseClass
@@ -54,9 +60,8 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
       getRequiredInitializers(this).add(ClassInvariants.#WRAP_CLASS_KEY);
     }
 
-    wrapInClass(
-      classArguments: string
-    ): void
+    /** Wrap the class in a function, taking a base class and an invariants array for all instances. */
+    public wrapClass(): void
     {
       getRequiredInitializers(this).mayResolve(ClassInvariants.#WRAP_CLASS_KEY);
 
@@ -72,9 +77,7 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
         [
           {
             name: "baseClass",
-            type: `Class<${this.interfaceOrAliasName}${
-              classArguments ? ", " + classArguments : ""
-            }>`,
+            type: `Class<${this.interfaceOrAliasName}>`,
           },
 
           {
@@ -84,9 +87,6 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
         ],
         "ClassInvariantsWrapper",
         (classWriter: CodeBlockWriter) => { void(classWriter) },
-        (classWriter: CodeBlockWriter, originalWriter: WriterFunction) => {
-          originalWriter(classWriter);
-        },
       );
 
       getRequiredInitializers(this).resolve(ClassInvariants.#WRAP_CLASS_KEY);
@@ -125,7 +125,6 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
       super.methodTrap(methodStructure, isBefore);
       if (!isBefore || methodStructure)
         return;
-
 
       this.classWriter.writeLine(
         `static readonly #invariantsArray: ReadonlyArray<(this: ${this.interfaceOrAliasName}) => void> = invariantsArray;`
