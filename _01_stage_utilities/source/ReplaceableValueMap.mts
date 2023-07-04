@@ -1,9 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Class<T extends object, Arguments extends unknown[] = any[]> = {
-  prototype: T;
-  new(...parameters: Arguments): T
-};
-
 export type ReplaceableValueType<
   Replaceable extends object,
   UserContext extends object
@@ -20,10 +14,10 @@ export default class ReplaceableValueMap<
   readonly #contextMap = new WeakMap<Replaceable, UserContext>;
   readonly #replacedMap = new WeakMap<Replaceable, Replaceable>;
 
-  readonly #contextGenerator: Class<UserContext, []>;
+  readonly #contextGenerator: () => UserContext;
 
   constructor(
-    contextGenerator: Class<UserContext, []>
+    contextGenerator: () => UserContext
   )
   {
     this.#contextGenerator = contextGenerator;
@@ -31,7 +25,7 @@ export default class ReplaceableValueMap<
 
   public getDefault(
     source: Replaceable,
-    replacer: (source: Replaceable) => Replaceable
+    replacer: (source: Replaceable, userContext: UserContext) => Replaceable
   ): ReplaceableValueType<Replaceable, UserContext>
   {
     source = this.#replacedMap.get(source) ?? source;
@@ -43,8 +37,8 @@ export default class ReplaceableValueMap<
       };
     }
 
-    const userContext = new this.#contextGenerator();
-    const newSource = replacer(source);
+    const userContext = this.#contextGenerator();
+    const newSource = replacer(source, userContext);
     this.#replacedMap.set(source, newSource);
     this.#contextMap.set(newSource, userContext);
     return {

@@ -12,7 +12,7 @@ This directory is an infrastructure grab-bag:  it provides common classes to sup
 - [PropertyKeySorter](./source/PropertyKeySorter.mts) is a simple utility for sorting:
   1. strings by JavaScript's default sort ordering,
   2. symbols in the order the PropertyKeySorter sees them.
-- [ReplaceableValue](./source/ReplaceableValue.mts) lets you define a value you want to subsitute for another, and a shared object for that replaced value to use.  This is useful for decorators which replace and/or extend the original value repeatedly.
+- [ReplaceableValue](./source/ReplaceableValue.mts) lets you define a value you want to subsitute for another, and a shared object for that replaced value to use.  This is useful for decorators which want to have a _single_ replacement for an original value (i.e. the same class decorator run more than once won't subclass more than once).
 - [RequiredInitializers](./source/RequiredInitializers.mts) is a very simple state machine for defining and resolving prerequisites, when you can't use constructors.  [See mix-in decorators](../_02_mixin_decorators/README.md).
 - [`maybeDefined.mts`](./source/maybeDefined.mts) provides some utilities for making sure we've filled in some fields.  This may not have been my best idea... but it works.
 - [types/Utility.d.mts](./source/types/Utility.d.mts) provides utility types, many of which I don't use but I thought I might need.

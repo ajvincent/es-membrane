@@ -82,7 +82,7 @@ const ReplaceableMethodsMap = new ReplaceableValueMap<
   MethodAspectsDictionary<MethodsOnlyType, keyof MethodsOnlyType>
 >
 (
-  MethodAspectsDictionary
+  () => new MethodAspectsDictionary
 );
 
 function GenericAspectFunction(
