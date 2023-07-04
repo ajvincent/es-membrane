@@ -12,6 +12,8 @@ import type {
   BodyTrapTypesBase
 } from "#aspects/decorators/source/types/BodyTrapTypesBase.mjs";
 
+import ClassInvariantsWrapper from "./ClassInvariantsWrapper.mjs";
+
 export type BodyTrapTypes = RightExtendsLeft<BodyTrapTypesBase<NumberStringType>, {
   repeatForward: {
     bar: number;
@@ -20,5 +22,5 @@ export type BodyTrapTypes = RightExtendsLeft<BodyTrapTypesBase<NumberStringType>
   repeatBack: object,
 }>;
 
-const NST_Aspects = new AspectsDecorators<NumberStringType, BodyTrapTypes>;
+const NST_Aspects = new AspectsDecorators<NumberStringType, BodyTrapTypes>(ClassInvariantsWrapper);
 export default NST_Aspects;

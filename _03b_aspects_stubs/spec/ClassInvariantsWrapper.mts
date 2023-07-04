@@ -17,10 +17,6 @@ import type {
 
 import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 
-import {
-  CLASS_INVARIANTS,
-} from "#aspects/stubs/source/symbol-keys.mjs";
-
 it("ClassInvariantsWrapper ", async () => {
   const generatedDir: ModuleSourceDirectory = {
     isAbsolutePath: true,
@@ -28,10 +24,9 @@ it("ClassInvariantsWrapper ", async () => {
   };
 
   type ClassInvariantsWrapper_Type = (
-    BaseClass: Class<NumberStringType>
-  ) => Class<NumberStringType> & {
-    readonly [CLASS_INVARIANTS]: UnshiftableArray<(this: NumberStringType) => void>
-  }
+    baseClass: Class<NumberStringType>,
+    invariantsArray: UnshiftableArray<(this: NumberStringType) => void>
+  ) => Class<NumberStringType>;
 
   const ClassInvariantsWrapper = await getModulePart<"default", ClassInvariantsWrapper_Type>
   (
@@ -40,13 +35,15 @@ it("ClassInvariantsWrapper ", async () => {
     "default",
   );
 
-  const NST_Class = ClassInvariantsWrapper(NumberStringClass);
+  const invariantsArray: UnshiftableArray<(this: NumberStringType) => void> = [];
+
+  const NST_Class = ClassInvariantsWrapper(NumberStringClass, invariantsArray);
   const nst = new NST_Class;
 
   expect<string>(nst.repeatBack(3, "foo")).toBe("foofoofoo");
 
   const spy = jasmine.createSpy();
-  NST_Class[CLASS_INVARIANTS].unshift(spy);
+  invariantsArray.unshift(spy);
 
   expect<string>(nst.repeatBack(3, "foo")).toBe("foofoofoo");
   expect(spy).toHaveBeenCalledTimes(2);

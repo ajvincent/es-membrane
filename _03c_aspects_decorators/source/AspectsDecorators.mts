@@ -3,6 +3,14 @@ import type {
 } from "type-fest";
 
 import type {
+  Class
+} from "#mixin_decorators/source/types/Class.mjs";
+
+import type {
+  ClassDecoratorFunction
+} from "#mixin_decorators/source/types/ClassDecoratorFunction.mjs";
+
+import type {
   ClassMethodDecoratorFunction
 } from "#mixin_decorators/source/types/ClassMethodDecoratorFunction.mjs";
 
@@ -13,6 +21,10 @@ import type {
 import type {
   PrependArgumentsMethod
 } from "./types/PrependArguments.mjs";
+
+import classInvariant, {
+  type InvariantWrapper,
+} from "./classes/classInvariant.mjs";
 
 import argumentsTrap from "./methods/argumentsTrap.mjs";
 import bodyTrap from "./methods/bodyTrap.mjs";
@@ -40,6 +52,19 @@ export default class AspectsDecorators<
   BodyTrapTypes extends BodyTrapTypesBase<This>,
 >
 {
+  readonly #invariantWrapper: InvariantWrapper<This>;
+  constructor(invariantWrapper: InvariantWrapper<This>) {
+    this.#invariantWrapper = invariantWrapper;
+    this.classInvariant = this.classInvariant.bind(this);
+  }
+
+  classInvariant(
+    invariant: (this: This) => void,
+  ): ClassDecoratorFunction<Class<This>, true, false>
+  {
+    return classInvariant<This>(this.#invariantWrapper, invariant as (this: MethodsOnlyType) => void);
+  }
+
   argumentsTrap<Key extends keyof This>(
     this: void,
     trapMethod: SetReturnType<This[Key], void>

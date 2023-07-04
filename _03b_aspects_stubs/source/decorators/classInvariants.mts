@@ -60,21 +60,32 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
     {
       getRequiredInitializers(this).mayResolve(ClassInvariants.#WRAP_CLASS_KEY);
 
+      this.addImport(
+        "#stage_utilities/source/types/Utility.mjs",
+        "type UnshiftableArray",
+        false,
+        true,
+      );
+
       this.wrapInFunction(
         [],
         [
           {
-            name: "BaseClass",
+            name: "baseClass",
             type: `Class<${this.interfaceOrAliasName}${
               classArguments ? ", " + classArguments : ""
             }>`,
           },
+
+          {
+            name: "invariantsArray",
+            type: `UnshiftableArray<(this: ${this.interfaceOrAliasName}) => void>`,
+          }
         ],
         "ClassInvariantsWrapper",
         (classWriter: CodeBlockWriter) => { void(classWriter) },
         (classWriter: CodeBlockWriter, originalWriter: WriterFunction) => {
           originalWriter(classWriter);
-          classWriter.write(` & { readonly [CLASS_INVARIANTS]: UnshiftableArray<(this: ${this.interfaceOrAliasName}) => void> }`)
         },
       );
 
@@ -86,7 +97,7 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
     ): ExtendsAndImplements
     {
       return {
-        extends: "BaseClass",
+        extends: "baseClass",
         implements: super.getExtendsAndImplementsTrap(context).implements
       };
     }
@@ -115,22 +126,9 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
       if (!isBefore || methodStructure)
         return;
 
-      this.addImport(
-        "#aspects/stubs/source/symbol-keys.mjs",
-        "CLASS_INVARIANTS",
-        false,
-        true,
-      );
-
-      this.addImport(
-        "#stage_utilities/source/types/Utility.mjs",
-        "type UnshiftableArray",
-        false,
-        true,
-      );
 
       this.classWriter.writeLine(
-        `static readonly [CLASS_INVARIANTS]: UnshiftableArray<(this: ${this.interfaceOrAliasName}) => void> = [];`
+        `static readonly #invariantsArray: ReadonlyArray<(this: ${this.interfaceOrAliasName}) => void> = invariantsArray;`
       );
       this.classWriter.newLine();
     }
@@ -143,18 +141,18 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
       remainingArgs.clear();
       if (methodStructure.name === "#runInvariants") {
         this.classWriter.writeLine(
-          `${this.getClassName()}[CLASS_INVARIANTS].forEach(invariant => invariant.apply(this));`
+          `${this.getClassName()}.#invariantsArray.forEach(invariant => invariant.apply(this));`
         );
         return;
       }
 
-      this.classWriter.writeLine(`this.#runInvariants()`);
+      this.classWriter.writeLine(`this.#runInvariants();`);
       this.classWriter.writeLine(`const __rv__ = super.${
         methodStructure.name
       }(${
         (methodStructure.parameters ?? []).map(param => param.name).join(", ")
       });`);
-      this.classWriter.writeLine(`this.#runInvariants()`);
+      this.classWriter.writeLine(`this.#runInvariants();`);
       this.classWriter.writeLine(`return __rv__;`);
     }
   }
