@@ -1,6 +1,7 @@
 // #region preamble
 import {
   CodeBlockWriter,
+  WriterFunction,
 } from "ts-morph";
 
 import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
@@ -103,6 +104,9 @@ const AddMethodDecorators_Decorator: AspectsStubDecorator<MethodDecoratorsFields
         }],
         outerClassName,
         beforeClassTrap,
+        (classWriter: CodeBlockWriter, originalWriter: WriterFunction) => {
+          originalWriter(classWriter);
+        },
       );
 
       getRequiredInitializers(this).resolve(AddMethodDecorators.#INIT_ADD_METHODS_KEY);

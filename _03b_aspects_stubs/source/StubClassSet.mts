@@ -25,6 +25,7 @@ export default class StubClassSet
     this.#build_transitions_head(config);
     this.#build_transitions_not_implemented(config);
     this.#build_transitions_tail(config);
+    this.#build_class_invariants_wrapper(config);
   }
 
   #runPromise = new SingletonPromise(() => this.#run());
@@ -111,6 +112,16 @@ export default class StubClassSet
     );
     generator.wrapInClass(config.transitionsTail.classArgumentTypes);
 
+    this.#finalize_stub(generator, config);
+  }
+
+  #build_class_invariants_wrapper(
+    config: StubClassSetConfiguration
+  ): void
+  {
+    const generator = new StubMap.ClassInvariantsWrapper;
+    this.#configure_stub(generator, config, "ClassInvariantsWrapper.mts", "_ClassInvariants");
+    generator.wrapInClass("");
     this.#finalize_stub(generator, config);
   }
 

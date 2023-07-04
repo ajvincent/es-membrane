@@ -9,6 +9,7 @@ import {
   InterfaceDeclaration,
   TypeAliasDeclaration,
   type InterfaceDeclarationStructure,
+  WriterFunction,
 } from "ts-morph";
 
 import CodeBlockWriter from "code-block-writer";
@@ -123,6 +124,7 @@ export default class AspectsStubBase extends MixinBase
     parameters: ReadonlyArray<TS_Parameter>,
     functionName: string,
     beforeClassTrap: (classWriter: CodeBlockWriter) => void,
+    modifyReturnType: (classWriter: CodeBlockWriter, originalWriter: WriterFunction) => void,
   } = undefined;
 
   /** This handles the actual class generation code. */
@@ -249,6 +251,7 @@ export default class AspectsStubBase extends MixinBase
     parameters: ReadonlyArray<TS_Parameter>,
     functionName: string,
     beforeClassTrap: (classWriter: CodeBlockWriter) => void,
+    modifyReturnType: (classWrtier: CodeBlockWriter, originalWriter: WriterFunction) => void,
   ) : void
   {
     if (this.#buildCalled) {
@@ -264,6 +267,7 @@ export default class AspectsStubBase extends MixinBase
       parameters,
       functionName,
       beforeClassTrap,
+      modifyReturnType,
     };
   }
 
@@ -380,15 +384,19 @@ export default class AspectsStubBase extends MixinBase
     }
 
     AspectsStubBase.pairedWrite(
-      this.classWriter, "(", ")", true, true, () => this.#writeWrapFunctionParameters()
+      this.classWriter, "(", "): ", true, true, () => this.#writeWrapFunctionParameters()
     );
 
-    AspectsStubBase.pairedWrite(
-      this.classWriter, ": Class<", ">", true, true, () => {
-        const { implements: _implements } = this.getExtendsAndImplementsTrap(new Map);
-        this.classWriter.write(_implements.join(" & "));
+    this.#wrapInFunctionParameters.modifyReturnType(
+      this.classWriter, (classWriter => {
+        AspectsStubBase.pairedWrite(
+          classWriter, "Class<", ">", true, true, () => {
+            const { implements: _implements } = this.getExtendsAndImplementsTrap(new Map);
+            classWriter.write(_implements.join(" & "))
+          }
+        );
       }
-    );
+    ));
     this.classWriter.newLine();
 
     this.classWriter.block(() => {

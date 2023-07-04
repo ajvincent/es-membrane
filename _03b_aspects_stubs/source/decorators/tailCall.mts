@@ -1,5 +1,8 @@
 // #region preamble
-import { CodeBlockWriter } from "ts-morph";
+import {
+  CodeBlockWriter,
+  WriterFunction,
+} from "ts-morph";
 
 import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
 
@@ -69,6 +72,9 @@ const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields> = funct
         }],
         "TransitionsTailClass",
         (classWriter: CodeBlockWriter) => { void(classWriter) },
+        (classWriter: CodeBlockWriter, originalWriter: WriterFunction) => {
+          originalWriter(classWriter);
+        },
       )
 
       getRequiredInitializers(this).resolve(TransitionsTail.#WRAP_CLASS_KEY);

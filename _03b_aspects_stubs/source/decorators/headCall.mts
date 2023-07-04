@@ -1,11 +1,11 @@
 // #region preamble
-import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
-
 import type {
   WriterFunction
 } from "ts-morph";
 
 import CodeBlockWriter from "code-block-writer";
+
+import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
 
 import type {
   RightExtendsLeft
@@ -123,6 +123,9 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
         }],
         "TransitionsHeadClass",
         (classWriter: CodeBlockWriter) => { void(classWriter) },
+        (classWriter: CodeBlockWriter, originalWriter: WriterFunction) => {
+          originalWriter(classWriter);
+        },
       );
 
       getRequiredInitializers(this).resolve(TransitionsHead.#WRAP_CLASS_KEY);
