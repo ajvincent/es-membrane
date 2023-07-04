@@ -33,5 +33,3 @@ How do I use these types?
   - This is how methods emulate the behavior a constructor normally imposes.
 - Subclass methods _may_ ensure all required keys are resolved with the `getRequiredInitializers(this).check()` call.
 - The ordering of decorators in `MultiMixinBuilder` determines the chain of derived-to-base classes.
-  - Class decorators apply from bottom to top, so the classes they return apply from top to bottom.
-  - Method decorators apply from top to bottom.
