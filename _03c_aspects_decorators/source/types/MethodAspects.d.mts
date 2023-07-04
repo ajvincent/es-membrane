@@ -3,6 +3,10 @@ import type {
 } from "type-fest";
 
 import type {
+  UnshiftableArray,
+} from "#stage_utilities/source/types/Utility.mjs";
+
+import type {
   MethodsOnlyType
 } from "#aspects/stubs/source/types/MethodsOnlyType.mjs";
 
@@ -10,10 +14,6 @@ import type {
   BodyTrapTypesBase,
   PrependedIndeterminate,
 } from "./BodyTrapTypesBase.mjs";
-
-import type {
-  UnshiftableArray
-} from "./UnshiftableArray.mjs";
 
 import type {
   PrependArgumentsMethod

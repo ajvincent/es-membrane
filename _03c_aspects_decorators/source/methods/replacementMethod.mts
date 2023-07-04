@@ -7,6 +7,10 @@ import type {
   SetReturnType
 } from "type-fest";
 
+import type {
+  UnshiftableArray,
+} from "#stage_utilities/source/types/Utility.mjs";
+
 import ReplaceableValueMap from "#stage_utilities/source/ReplaceableValueMap.mjs";
 
 import type {
@@ -21,10 +25,6 @@ import type {
   Method,
   MethodAspects,
 } from "../types/MethodAspects.mjs";
-
-import type {
-  UnshiftableArray
-} from "../types/UnshiftableArray.mjs";
 
 import type {
   PrependArgumentsMethod,

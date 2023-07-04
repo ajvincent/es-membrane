@@ -41,17 +41,11 @@ export type Tail<Elements extends ReadonlyArray<T>, T = unknown> =
   HasTail<Elements> extends true ? ShiftArrayElement<Elements, T>["tail"] : never;
 
 export type IndexUnion<T extends ReadonlyArray<unknown>> = Exclude<keyof T, keyof unknown[]>;
+
+export type UnshiftableArray<T> = ReadonlyArray<T> & Pick<T[], "unshift">;
+
 // #endregion arrays
 
 export type CtorParamsAndArgs<
   X extends Class<object>
 > = { args: ConstructorParameters<X>, creates: InstanceType<X> };
-
-export type ClassWithPrototype<
-  Prototype, Arguments extends unknown[] = unknown[]
-> = {
-  prototype: Prototype;
-  new(...arguments_: Arguments): Prototype;
-};
-
-export type PrototypeOf<T extends Class<unknown>> = { prototype: InstanceType<T> };
