@@ -20,6 +20,7 @@ export interface PostconditionContext<T> {
   get(): T;
 }
 
+/** `(this: This, { set(context: ConditionsContext) }, ...parameters) => void` */
 export type PreconditionWithContext<
   This extends MethodsOnlyType,
   Key extends keyof This,
@@ -29,6 +30,7 @@ export type PreconditionWithContext<
   void
 >;
 
+/** `(this: This, { get(): ConditionsContext }, __rv__: ReturnType<This[Key]>, ...parameters) => void` */
 export type PostconditionWithContext<
   This extends MethodsOnlyType,
   Key extends keyof This,
@@ -38,11 +40,13 @@ export type PostconditionWithContext<
   void
 >;
 
+/** `(this: This, ...parameters) => void` */
 export type PreconditionWithoutContext<
   This extends MethodsOnlyType,
   Key extends keyof This
 > = SetReturnType<This[Key], void>;
 
+/** `(this: This, __rv__: ReturnType<This[Key]>, ...parameters) => void` */
 export type PostconditionWithoutContext<
   This extends MethodsOnlyType,
   Key extends keyof This

@@ -8,7 +8,7 @@ import type {
 
 import type {
   MethodsOnlyType
-} from "#aspects/stubs/source/types/MethodsOnlyType.mjs";
+} from "#mixin_decorators/source/types/MethodsOnlyType.mjs";
 
 import type {
   BodyTrapTypesBase,

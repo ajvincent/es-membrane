@@ -9,7 +9,7 @@ export type PrependArgumentsMethod<
   InsertedArguments extends unknown[],
 > =
 (
-  this: ThisParameterType<This[Key]>,
+  this: Type,
   ...args: [
     ...InsertedArguments,
     ...(true extends IncludeReturnType ? [ReturnType<Type[Key]>] : []),

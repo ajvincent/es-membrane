@@ -20,6 +20,15 @@ import type {
 // #endregion preamble
 
 export type Invariant = (this: MethodsOnlyType) => void;
+
+/**
+ * A class wrapper for invariants.
+ * @typeParam Type - the base type we're working with.
+ * @param baseClass - the original class (or a replaced class from this function, if we've already done so)
+ * @param invariantArray - the array of invariants.
+ *
+ * @returns a replacement class which will invoke all invariants for all methods.
+ */
 export type InvariantWrapper<Type extends MethodsOnlyType> = (
   baseClass: Class<Type>,
   invariantArray: UnshiftableArray<Invariant>
@@ -33,6 +42,17 @@ const ReplaceableClassesMap = new ReplaceableValueMap<
   () => []
 );
 
+/**
+ * A class decorator for adding a class invariant.
+ * @typeParam Type - the base type we're working with.
+ * @param wrapper - a callback to wrap the original class, if we need it.
+ * @param invariant - the invariant to add.
+ *
+ * @internal
+ * @remarks
+ *
+ * Import AspectsDecorators instead of this file directly.
+ */
 export default function classInvariant<Type extends MethodsOnlyType>
 (
   wrapper: InvariantWrapper<Type>,

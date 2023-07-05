@@ -15,12 +15,21 @@ import type {
   GenericFunction
 } from "../types/GenericFunction.mjs";
 
-import getReplacementMethodAndAspects, {
-  type MethodAspectsDictionary
-} from "./replacementMethod.mjs";
+import getReplacementMethodAndAspects from "./replacementMethod.mjs";
 
 // #endregion preamble
 
+/**
+ * A class method decorator for working with arguments before the body of a function.
+ * @typeParam This - the base type we're working with.
+ * @typeParam Key - the method name.
+ * @param trapMethod - the argument trap to add.
+ *
+ * @internal
+ * @remarks
+ *
+ * Import AspectsDecorators instead of this file directly.
+ */
 export default function argumentsTrap<
   This extends MethodsOnlyType,
   Key extends keyof This,
@@ -35,8 +44,8 @@ export default function argumentsTrap<
   ): This[Key]
   {
     void(context);
-    const replacement = getReplacementMethodAndAspects(method);
-    const { argumentTraps } = replacement.userContext as MethodAspectsDictionary<This, Key>;
+    const replacement = getReplacementMethodAndAspects<This, Key>(method);
+    const { argumentTraps } = replacement.userContext;
     argumentTraps.unshift(trapMethod);
     return replacement.source as This[Key];
   }

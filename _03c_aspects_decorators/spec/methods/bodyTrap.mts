@@ -39,7 +39,7 @@ describe("bodyTrap decorator lets us", () => {
       return INDETERMINATE;
     }
     setBar satisfies RepeatForwardLocal;
-  
+
     function getBar(
       this: NumberStringType,
       __variables__: BodyTrapTypes["repeatForward"],

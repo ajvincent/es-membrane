@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 // #region preamble
 import type {
@@ -11,15 +9,11 @@ import type {
   UnshiftableArray,
 } from "#stage_utilities/source/types/Utility.mjs";
 
-import ReplaceableValueMap from "#stage_utilities/source/ReplaceableValueMap.mjs";
+import ReplaceableValueMap, { ReplaceableValueType } from "#stage_utilities/source/ReplaceableValueMap.mjs";
 
 import type {
   MethodsOnlyType
 } from "#mixin_decorators/source/types/MethodsOnlyType.mjs";
-
-import type {
-  GenericFunction
-} from "../types/GenericFunction.mjs";
 
 import type {
   Method,
@@ -51,6 +45,12 @@ import { INDETERMINATE } from "../symbol-keys.mjs";
 
 // #endregion preamble
 
+/**
+ * Storage for aspects we install via class method decorators.
+ * @typeParam This - the base type we're working with.
+ * @typeParam Key - the method name.
+ * @internal
+ */
 export class MethodAspectsDictionary<
   This extends MethodsOnlyType,
   Key extends keyof This,
@@ -77,77 +77,114 @@ export class MethodAspectsDictionary<
   > = [];
 }
 
+/**
+ * A map of original methods to replacement methods
+ * @internal
+ * @remarks
+ * This is how we collapse multiple method decorators which could replace the method, with only one replacement.
+ */
 const ReplaceableMethodsMap = new ReplaceableValueMap<
   Method<MethodsOnlyType, keyof MethodsOnlyType>,
   MethodAspectsDictionary<MethodsOnlyType, keyof MethodsOnlyType>
 >
 (
-  () => new MethodAspectsDictionary
+  () => new MethodAspectsDictionary<MethodsOnlyType, keyof MethodsOnlyType>
 );
 
-function GenericAspectFunction(
-  method: GenericFunction
-): typeof method
+/**
+ * Drive aspects from class method decorators, including calling the original function.
+ * @typeParam This - the base type we're working with.
+ * @typeParam Key - the method name.
+ * @param method - the method we're running aspects for.
+ * @internal
+ */
+function GenericAspectFunction<
+  This extends MethodsOnlyType,
+  Key extends keyof This
+>
+(
+  method: Method<This, Key>
+): Method<This, Key>
 {
-  return function newMethod(
-    this: ThisParameterType<typeof method>,
-    ...parameters: Parameters<typeof method>
-  ): ReturnType<typeof method>
+  function newMethod(
+    this: This,
+    ...parameters: Parameters<Method<This, Key>>
+  ): ReturnType<Method<This, Key>>
   {
-    const { userContext: aspectContext } = ReplaceableMethodsMap.get(method);
+    const { userContext: aspectsDictionary } = ReplaceableMethodsMap.get(method);
     const conditionsContextMap = new WeakMap<
       PostconditionWithContext<MethodsOnlyType, keyof MethodsOnlyType, unknown>,
       PrePostConditionsContext<unknown>
     >;
 
-    for (let i = aspectContext.postconditionTraps.length - 1; i >= 0; i--) {
+    // preconditions
+    for (let i = aspectsDictionary.postconditionTraps.length - 1; i >= 0; i--) {
       const context = new PrePostConditionsContext<unknown>;
-      const postcondition = aspectContext.postconditionTraps[i];
+      const postcondition = aspectsDictionary.postconditionTraps[i];
       conditionsContextMap.set(postcondition, context);
 
-      const precondition = aspectContext.preconditionTraps[i];
+      const precondition = aspectsDictionary.preconditionTraps[i];
       precondition.apply(this, [context, ...parameters]);
     }
 
-    aspectContext.argumentTraps.forEach(trap => trap.apply(this, parameters));
+    // argument traps
+    aspectsDictionary.argumentTraps.forEach(trap => trap.apply(this, parameters));
 
-    type ReturnOrIndeterminate = ReturnType<typeof method> | typeof INDETERMINATE;
-    let rv: ReturnType<typeof method>, rvSet = false;
+    // body traps
+    type ReturnOrIndeterminate = ReturnType<Method<This, Key>> | typeof INDETERMINATE;
+
+    let rv: ReturnOrIndeterminate = INDETERMINATE;
     const sharedArguments = {};
-    for (let i = 0; i < aspectContext.bodyTraps.length; i++) {
-      const trap = aspectContext.bodyTraps[i];
-      const maybeRv: ReturnOrIndeterminate = trap.call(
+    for (let i = 0; (i < aspectsDictionary.bodyTraps.length) && (rv === INDETERMINATE); i++) {
+      const trap = aspectsDictionary.bodyTraps[i];
+      rv = trap.call(
         this, sharedArguments, ...parameters
       );
-
-      if (maybeRv !== INDETERMINATE) {
-        rv = maybeRv;
-        rvSet = true;
-        break;
-      }
     }
-    if (!rvSet) {
+    if (rv === INDETERMINATE) {
       rv = method.apply(this, parameters);
     }
+    if (rv === INDETERMINATE) {
+      throw new Error("unreachable");
+    }
 
-    aspectContext.returnTraps.forEach(
+    // return traps
+    aspectsDictionary.returnTraps.forEach(
       trap => trap.call(this, rv, ...parameters)
     );
 
-    aspectContext.postconditionTraps.forEach(trap => {
+    // postcondition traps
+    aspectsDictionary.postconditionTraps.forEach(trap => {
       const context = conditionsContextMap.get(trap) as PrePostConditionsContext<unknown>;
       trap.apply(this, [context, rv, ...parameters]);
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return rv;
   }
+
+  return newMethod as Method<This, Key>;
 }
 
-export default function getReplacementMethodAndAspects(
-  method: GenericFunction
-): ReturnType<typeof ReplaceableMethodsMap["getDefault"]>
+/**
+ * Get a replacement method, and aspects dictionary for the same, relating to a decorated method.
+ * @typeParam This - the base type we're working with.
+ * @typeParam Key - the method name.
+ * @param method - the method to wrap.
+ */
+export default function getReplacementMethodAndAspects<
+  This extends MethodsOnlyType,
+  Key extends keyof This
+>
+(
+  method: Method<This, Key>
+): ReplaceableValueType<Method<This, Key>, MethodAspectsDictionary<This, Key>>
 {
-  return ReplaceableMethodsMap.getDefault(
-    method, oldMethod => GenericAspectFunction(oldMethod)
+  const map = ReplaceableMethodsMap as unknown as ReplaceableValueMap<
+    Method<This, Key>,
+    MethodAspectsDictionary<This, Key>
+  >;
+  return map.getDefault(
+    method, oldMethod => GenericAspectFunction<This, Key>(oldMethod)
   );
 }
