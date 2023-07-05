@@ -21,16 +21,16 @@ import type {
 } from "../types/MethodAspects.mjs";
 
 import type {
-  PrependArgumentsMethod,
-} from "../types/PrependArguments.mjs";
-
-import type {
   PrependedIndeterminate
 } from "../types/BodyTrapTypesBase.mjs";
 
 import type {
   BodyTrapTypesBase
 } from "../types/BodyTrapTypesBase.mjs";
+
+import type {
+  ReturnTrapMayOverride
+} from "../types/ReturnTrap.mjs";
 
 import type {
   PreconditionWithContext,
@@ -41,7 +41,7 @@ import {
   PrePostConditionsContext,
 } from "./prePostCondition.mjs";
 
-import { INDETERMINATE } from "../symbol-keys.mjs";
+import { INDETERMINATE, RETURN_NOT_REPLACED } from "../symbol-keys.mjs";
 
 // #endregion preamble
 
@@ -69,7 +69,7 @@ export class MethodAspectsDictionary<
   > = [];
 
   readonly returnTraps: UnshiftableArray<
-    SetReturnType<PrependArgumentsMethod<This, Key, true, []>, void>
+    ReturnTrapMayOverride<This, Key>
   > = [];
 
   readonly postconditionTraps: UnshiftableArray<
@@ -149,9 +149,21 @@ function GenericAspectFunction<
     }
 
     // return traps
-    aspectsDictionary.returnTraps.forEach(
-      trap => trap.call(this, rv, ...parameters)
-    );
+    type ReturnOrReplace = ReturnType<This[Key]> | typeof RETURN_NOT_REPLACED;
+    for (let i = 0; i < aspectsDictionary.returnTraps.length; i++) {
+      const trap = aspectsDictionary.returnTraps[i];
+      const maybeReplaceRV: ReturnOrReplace = trap.call<
+        This,
+        [ReturnType<This[Key]>, ...Parameters<Method<This, Key>>],
+        ReturnType<This[Key]> | typeof RETURN_NOT_REPLACED
+      >(this, rv as ReturnType<This[Key]>, ...parameters);
+      if (maybeReplaceRV !== RETURN_NOT_REPLACED)
+        rv = maybeReplaceRV;
+    }
+
+    if (rv === INDETERMINATE) {
+      throw new Error("unreachable");
+    }
 
     // postcondition traps
     aspectsDictionary.postconditionTraps.forEach(trap => {

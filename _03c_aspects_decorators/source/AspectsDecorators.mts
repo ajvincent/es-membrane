@@ -20,10 +20,6 @@ import type {
   MethodsOnlyType
 } from "#mixin_decorators/source/types/MethodsOnlyType.mjs";
 
-import type {
-  PrependArgumentsMethod
-} from "./types/PrependArguments.mjs";
-
 import classInvariant, {
   type InvariantWrapper,
 } from "./classes/classInvariant.mjs";
@@ -48,6 +44,10 @@ import type {
   BodyTrapTypesBase,
   PrependedIndeterminate,
 } from "./types/BodyTrapTypesBase.mjs";
+
+import type {
+  ReturnTrapMayOverride,
+} from "./types/ReturnTrap.mjs";
 
 // #endregion preamble
 
@@ -125,7 +125,7 @@ export default class AspectsDecorators<
    */
   returnTrap<Key extends keyof This>(
     this: void,
-    trapMethod: SetReturnType<PrependArgumentsMethod<This, Key, true, []>, void>
+    trapMethod: ReturnTrapMayOverride<This, Key>
   ): ClassMethodDecoratorFunction<This, Key, true, false>
   {
     return returnTrap<This, Key>(trapMethod);

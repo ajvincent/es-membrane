@@ -26,7 +26,9 @@ const { argumentsTrap } = NST_Aspects;
 - [`argumentsTrap`](./source/methods/argumentsTrap.mts) lets you examine arguments of a function before actually executing it.
 - [`bodyTrap`](./source/methods/bodyTrap.mts) is for the function's body, allowing early returns (and traps to decide they won't return early, via an [`INDETERMINATE` return symbol](./source/symbol-keys.mts).)
   - For variables to share between traps (and ultimately be present in the final code), there's also a prepended argument with a type, as a property of `BodyTrapTypes`, which we define the shape of in the `AspectsDecorator` construction.  I don't have good examples here, but the [test files](./spec/methods/bodyTrap.mts) demonstrate this.
-- [`returnTrap`](./source/methods/returnTrap.mts) is for after the function's main body, allowing modifying arguments and the return value as necessary.  (This will be useful for updating [shadow targets on proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) after we know the return value.)
+- [`returnTrap`](./source/methods/returnTrap.mts) is for after the function's main body, allowing modifying arguments and the return value as necessary.  
+  - This will be useful for updating [shadow targets on proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) after we know the return value.
+  - Most of the time, return traps should return the [`RETURN_NOT_REPLACED`](./source/symbol-keys.mts) symbol.  This signals we do not intend to replace the return value in that trap.  This does not prevent developers from altering fields of the return value.  Returning anything _else_ replaces the return value entirely.
 
 ## Debug-only code
 

@@ -1,7 +1,4 @@
 // #region preamble
-import type {
-  SetReturnType
-} from "type-fest";
 
 import type {
   ClassMethodDecoratorFunction
@@ -14,12 +11,8 @@ import type {
 import getReplacementMethodAndAspects from "./replacementMethod.mjs";
 
 import type {
-  GenericFunction
-} from "../types/GenericFunction.mjs";
-
-import type {
-  PrependArgumentsMethod
-} from "../types/PrependArguments.mjs";
+  ReturnTrapMayOverride
+} from "../types/ReturnTrap.mjs";
 
 // #endregion preamble
 
@@ -39,7 +32,7 @@ export default function returnTrap<
   Key extends keyof This
 >
 (
-  trapMethod: SetReturnType<PrependArgumentsMethod<This, Key, true, []>, void>
+  trapMethod: ReturnTrapMayOverride<This, Key>,
 ): ClassMethodDecoratorFunction<This, Key, true, false>
 {
   return function(
@@ -57,6 +50,6 @@ export default function returnTrap<
 
 returnTrap satisfies ClassMethodDecoratorFunction<
   MethodsOnlyType, keyof MethodsOnlyType, true, [
-    SetReturnType<GenericFunction, void>
+    ReturnType<MethodsOnlyType[keyof MethodsOnlyType]>
   ]
 >;
