@@ -14,7 +14,7 @@ import type {
 
 import ClassInvariantsWrapper from "./ClassInvariantsWrapper.mjs";
 
-export type BodyTrapTypes = RightExtendsLeft<SharedVariablesDictionary<NumberStringType>, {
+export type SharedVariablesMap = RightExtendsLeft<SharedVariablesDictionary<NumberStringType>, {
   repeatForward: {
     bar: number;
   },
@@ -22,5 +22,5 @@ export type BodyTrapTypes = RightExtendsLeft<SharedVariablesDictionary<NumberStr
   repeatBack: object,
 }>;
 
-const NST_Aspects = new AspectsDecorators<NumberStringType, BodyTrapTypes>(ClassInvariantsWrapper);
+const NST_Aspects = new AspectsDecorators<NumberStringType, SharedVariablesMap>(ClassInvariantsWrapper);
 export default NST_Aspects;

@@ -4,7 +4,7 @@ import type {
 } from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
 import NST_Aspects, {
-  type BodyTrapTypes
+  type SharedVariablesMap
 } from "#aspects/decorators/fixtures/AspectsDecorators.mjs";
 
 import {
@@ -19,7 +19,7 @@ describe("bodyTrap decorator lets us", () => {
   type RepeatForwardLocal = PrependedIndeterminate<
     NumberStringType,
     "repeatForward",
-    BodyTrapTypes["repeatForward"]
+    SharedVariablesMap["repeatForward"]
   >;
 
   const { bodyTrap } = NST_Aspects;
@@ -30,7 +30,7 @@ describe("bodyTrap decorator lets us", () => {
 
     function setBar(
       this: NumberStringType,
-      __variables__: BodyTrapTypes["repeatForward"],
+      __variables__: SharedVariablesMap["repeatForward"],
       ...parameters: Parameters<NumberStringType["repeatForward"]>
     ): typeof INDETERMINATE
     {
@@ -42,7 +42,7 @@ describe("bodyTrap decorator lets us", () => {
 
     function getBar(
       this: NumberStringType,
-      __variables__: BodyTrapTypes["repeatForward"],
+      __variables__: SharedVariablesMap["repeatForward"],
       ...parameters: Parameters<NumberStringType["repeatForward"]>
     ): typeof INDETERMINATE
     {
@@ -70,7 +70,7 @@ describe("bodyTrap decorator lets us", () => {
   it("return a value", () => {
     function setBar(
       this: NumberStringType,
-      __variables__: BodyTrapTypes["repeatForward"],
+      __variables__: SharedVariablesMap["repeatForward"],
       ...parameters: Parameters<NumberStringType["repeatForward"]>
     ): typeof INDETERMINATE
     {
@@ -82,7 +82,7 @@ describe("bodyTrap decorator lets us", () => {
 
     function exitEarly(
       this: NumberStringType,
-      __variables__: BodyTrapTypes["repeatForward"],
+      __variables__: SharedVariablesMap["repeatForward"],
       s: string,
       n: number,
     ): ReturnType<NumberStringType["repeatForward"]>

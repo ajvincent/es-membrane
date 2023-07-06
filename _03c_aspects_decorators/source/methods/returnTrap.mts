@@ -13,6 +13,7 @@ import getReplacementMethodAndAspects from "./replacementMethod.mjs";
 import type {
   ReturnTrapMayOverride
 } from "../types/ReturnTrap.mjs";
+import { SharedVariablesDictionary } from "../types/SharedVariablesDictionary.mjs";
 
 // #endregion preamble
 
@@ -29,10 +30,11 @@ import type {
  */
 export default function returnTrap<
   This extends MethodsOnlyType,
-  Key extends keyof This
+  Key extends keyof This,
+  SharedVariables extends SharedVariablesDictionary<This>[Key]
 >
 (
-  trapMethod: ReturnTrapMayOverride<This, Key>,
+  trapMethod: ReturnTrapMayOverride<This, Key, SharedVariables>,
 ): ClassMethodDecoratorFunction<This, Key, true, false>
 {
   return function(
@@ -41,7 +43,7 @@ export default function returnTrap<
   ): This[Key]
   {
     void(context);
-    const replacement = getReplacementMethodAndAspects<This, Key>(method);
+    const replacement = getReplacementMethodAndAspects<This, Key, SharedVariables>(method);
     const { returnTraps } = replacement.userContext;
     returnTraps.unshift(trapMethod);
     return replacement.source as This[Key];

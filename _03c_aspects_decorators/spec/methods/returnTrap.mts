@@ -16,10 +16,12 @@ it("returnTrap decorator lets us assert certain return values", () => {
 
   function returnForwardSpy(
     this: NumberStringType,
+    context: object,
     __rv__: string,
     ...parameters: Parameters<NumberStringType["repeatForward"]>
   ): typeof RETURN_NOT_REPLACED
   {
+    void(context);
     forwardSpy(this, __rv__, ...parameters);
     if (__rv__ === "")
       throw new Error("result is empty");
@@ -47,10 +49,12 @@ it("returnTrap decorator lets us return a different value", () => {
 
   function returnBird(
     this: NumberStringType,
+    context: object,
     __rv__: string,
     ...parameters: Parameters<NumberStringType["repeatForward"]>
   ): string
   {
+    void(context);
     void(__rv__);
     void(parameters);
     return "bird";

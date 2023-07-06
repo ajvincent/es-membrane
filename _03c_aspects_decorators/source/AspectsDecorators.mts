@@ -1,10 +1,6 @@
 // #region preamble
 
 import type {
-  SetReturnType,
-} from "type-fest";
-
-import type {
   Class
 } from "#mixin_decorators/source/types/Class.mjs";
 
@@ -24,9 +20,6 @@ import classInvariant, {
   type InvariantWrapper,
 } from "./classes/classInvariant.mjs";
 
-import argumentsTrap from "./methods/argumentsTrap.mjs";
-import bodyTrap from "./methods/bodyTrap.mjs";
-import returnTrap from "./methods/returnTrap.mjs";
 import {
   prePostCondition,
   preCondition,
@@ -45,9 +38,17 @@ import type {
   PrependedIndeterminate,
 } from "./types/SharedVariablesDictionary.mjs";
 
-import type {
-  ReturnTrapMayOverride,
+import {
+  type ArgumentsTrap,
+} from "./types/ArgumentsTrap.mjs";
+import argumentsTrap from "./methods/argumentsTrap.mjs";
+
+import bodyTrap from "./methods/bodyTrap.mjs";
+
+import {
+  type ReturnTrapMayOverride,
 } from "./types/ReturnTrap.mjs";
+import returnTrap from "./methods/returnTrap.mjs";
 
 // #endregion preamble
 
@@ -57,7 +58,7 @@ import type {
  */
 export default class AspectsDecorators<
   This extends MethodsOnlyType,
-  BodyTrapTypes extends SharedVariablesDictionary<This>,
+  SharedVariablesMap extends SharedVariablesDictionary<This>,
 >
 {
   /** a class-invariant wrapper stub from aspects/decorators. */
@@ -97,10 +98,10 @@ export default class AspectsDecorators<
    */
   argumentsTrap<Key extends keyof This>(
     this: void,
-    trapMethod: SetReturnType<This[Key], void>
+    trapMethod: ArgumentsTrap<This, Key, SharedVariablesMap[Key]>
   ): ClassMethodDecoratorFunction<This, Key, true, false>
   {
-    return argumentsTrap<This, Key>(trapMethod);
+    return argumentsTrap<This, Key, SharedVariablesMap[Key]>(trapMethod);
   }
 
   /**
@@ -111,10 +112,10 @@ export default class AspectsDecorators<
    */
   bodyTrap<Key extends keyof This>(
     this: void,
-    trapMethod: PrependedIndeterminate<This, Key, BodyTrapTypes[Key]>
+    trapMethod: PrependedIndeterminate<This, Key, SharedVariablesMap[Key]>
   ): ClassMethodDecoratorFunction<This, Key, true, false>
   {
-    return bodyTrap<This, Key, BodyTrapTypes[Key]>(trapMethod);
+    return bodyTrap<This, Key, SharedVariablesMap[Key]>(trapMethod);
   }
 
   /**
@@ -125,10 +126,10 @@ export default class AspectsDecorators<
    */
   returnTrap<Key extends keyof This>(
     this: void,
-    trapMethod: ReturnTrapMayOverride<This, Key>
+    trapMethod: ReturnTrapMayOverride<This, Key, SharedVariablesMap[Key]>
   ): ClassMethodDecoratorFunction<This, Key, true, false>
   {
-    return returnTrap<This, Key>(trapMethod);
+    return returnTrap<This, Key, SharedVariablesMap[Key]>(trapMethod);
   }
 
   /**

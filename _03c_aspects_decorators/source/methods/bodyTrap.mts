@@ -47,7 +47,7 @@ export default function bodyTrap<
   ): This[Key]
   {
     void(context);
-    const replacement = getReplacementMethodAndAspects<This, Key>(method);
+    const replacement = getReplacementMethodAndAspects<This, Key, SharedVariables>(method);
     const { bodyTraps } = replacement.userContext;
     bodyTraps.unshift(trapMethod as PrependedIndeterminate<This, Key, object>);
     return replacement.source as This[Key];

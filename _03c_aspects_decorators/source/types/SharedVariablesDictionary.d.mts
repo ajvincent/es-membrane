@@ -21,7 +21,9 @@ import { INDETERMINATE } from "../symbol-keys.mjs";
  */
 export type SharedVariablesDictionary<
   This extends MethodsOnlyType
-> = Record<keyof This, object>;
+> = {
+  [key in keyof This]: object
+};
 
 export type GenericFunctionWithIndeterminate<Method extends GenericFunction> =
   SetReturnType<Method, ReturnType<Method> | typeof INDETERMINATE>;

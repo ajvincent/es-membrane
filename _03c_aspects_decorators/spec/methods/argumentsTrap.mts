@@ -12,9 +12,11 @@ it("argumentsTrap decorator lets us assert certain values", () => {
 
   function callForwardSpy(
     this: NumberStringType,
+    context: object,
     ...parameters: Parameters<NumberStringType["repeatForward"]>
   ): void
   {
+    void(context);
     forwardSpy(this, ...parameters);
     if (parameters[1] < 0)
       throw new Error("negative numbers don't work");

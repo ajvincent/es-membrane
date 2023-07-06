@@ -2,10 +2,6 @@
 
 // #region preamble
 import type {
-  SetReturnType
-} from "type-fest";
-
-import type {
   UnshiftableArray,
 } from "#stage_utilities/source/types/Utility.mjs";
 
@@ -42,6 +38,7 @@ import {
 } from "./prePostCondition.mjs";
 
 import { INDETERMINATE, RETURN_NOT_REPLACED } from "../symbol-keys.mjs";
+import { ArgumentsTrap } from "../types/ArgumentsTrap.mjs";
 
 // #endregion preamble
 
@@ -54,22 +51,23 @@ import { INDETERMINATE, RETURN_NOT_REPLACED } from "../symbol-keys.mjs";
 export class MethodAspectsDictionary<
   This extends MethodsOnlyType,
   Key extends keyof This,
-> implements MethodAspects<This, Key>
+  SharedVariables extends SharedVariablesDictionary<This>[Key]
+> implements MethodAspects<This, Key, SharedVariables>
 {
   readonly preconditionTraps: UnshiftableArray<
     PreconditionWithContext<This, Key, unknown>
   > = [];
 
   readonly argumentTraps: UnshiftableArray<
-    SetReturnType<Method<This, Key>, void>
+    ArgumentsTrap<This, Key, SharedVariables>
   > = [];
 
   readonly bodyTraps: UnshiftableArray<
-    PrependedIndeterminate<This, Key, SharedVariablesDictionary<This>[Key]>
+    PrependedIndeterminate<This, Key, SharedVariables>
   > = [];
 
   readonly returnTraps: UnshiftableArray<
-    ReturnTrapMayOverride<This, Key>
+    ReturnTrapMayOverride<This, Key, SharedVariables>
   > = [];
 
   readonly postconditionTraps: UnshiftableArray<
@@ -85,10 +83,18 @@ export class MethodAspectsDictionary<
  */
 const ReplaceableMethodsMap = new ReplaceableValueMap<
   Method<MethodsOnlyType, keyof MethodsOnlyType>,
-  MethodAspectsDictionary<MethodsOnlyType, keyof MethodsOnlyType>
+  MethodAspectsDictionary<
+    MethodsOnlyType,
+    keyof MethodsOnlyType,
+    SharedVariablesDictionary<MethodsOnlyType>[keyof MethodsOnlyType]
+  >
 >
 (
-  () => new MethodAspectsDictionary<MethodsOnlyType, keyof MethodsOnlyType>
+  () => new MethodAspectsDictionary<
+    MethodsOnlyType,
+    keyof MethodsOnlyType,
+    SharedVariablesDictionary<MethodsOnlyType>[keyof MethodsOnlyType]
+  >
 );
 
 /**
@@ -100,7 +106,8 @@ const ReplaceableMethodsMap = new ReplaceableValueMap<
  */
 function GenericAspectFunction<
   This extends MethodsOnlyType,
-  Key extends keyof This
+  Key extends keyof This,
+  SharedVariables extends SharedVariablesDictionary<This>[Key]
 >
 (
   method: Method<This, Key>
@@ -127,18 +134,19 @@ function GenericAspectFunction<
       precondition.apply(this, [context, ...parameters]);
     }
 
+    const sharedVariables = {};
+
     // argument traps
-    aspectsDictionary.argumentTraps.forEach(trap => trap.apply(this, parameters));
+    aspectsDictionary.argumentTraps.forEach(trap => trap.call(this, sharedVariables, ...parameters));
 
     // body traps
     type ReturnOrIndeterminate = ReturnType<Method<This, Key>> | typeof INDETERMINATE;
 
     let rv: ReturnOrIndeterminate = INDETERMINATE;
-    const sharedArguments = {};
     for (let i = 0; (i < aspectsDictionary.bodyTraps.length) && (rv === INDETERMINATE); i++) {
       const trap = aspectsDictionary.bodyTraps[i];
       rv = trap.call(
-        this, sharedArguments, ...parameters
+        this, sharedVariables, ...parameters
       );
     }
     if (rv === INDETERMINATE) {
@@ -154,9 +162,9 @@ function GenericAspectFunction<
       const trap = aspectsDictionary.returnTraps[i];
       const maybeReplaceRV: ReturnOrReplace = trap.call<
         This,
-        [ReturnType<This[Key]>, ...Parameters<Method<This, Key>>],
+        [SharedVariables, ReturnType<This[Key]>, ...Parameters<Method<This, Key>>],
         ReturnType<This[Key]> | typeof RETURN_NOT_REPLACED
-      >(this, rv as ReturnType<This[Key]>, ...parameters);
+      >(this, sharedVariables as SharedVariables, rv as ReturnType<This[Key]>, ...parameters);
       if (maybeReplaceRV !== RETURN_NOT_REPLACED)
         rv = maybeReplaceRV;
     }
@@ -186,17 +194,18 @@ function GenericAspectFunction<
  */
 export default function getReplacementMethodAndAspects<
   This extends MethodsOnlyType,
-  Key extends keyof This
+  Key extends keyof This,
+  SharedVariables extends SharedVariablesDictionary<This>[Key]
 >
 (
   method: Method<This, Key>
-): ReplaceableValueType<Method<This, Key>, MethodAspectsDictionary<This, Key>>
+): ReplaceableValueType<Method<This, Key>, MethodAspectsDictionary<This, Key, SharedVariables>>
 {
   const map = ReplaceableMethodsMap as unknown as ReplaceableValueMap<
     Method<This, Key>,
-    MethodAspectsDictionary<This, Key>
+    MethodAspectsDictionary<This, Key, SharedVariables>
   >;
   return map.getDefault(
-    method, oldMethod => GenericAspectFunction<This, Key>(oldMethod)
+    method, oldMethod => GenericAspectFunction<This, Key, SharedVariables>(oldMethod)
   );
 }
