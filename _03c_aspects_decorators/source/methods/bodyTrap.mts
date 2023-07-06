@@ -11,14 +11,14 @@ import type {
 import getReplacementMethodAndAspects from "./replacementMethod.mjs";
 
 import type {
-  BodyTrapTypesBase
-} from "../types/BodyTrapTypesBase.mjs";
+  SharedVariablesDictionary
+} from "../types/SharedVariablesDictionary.mjs";
 
 // #endregion preamble
 
 import type {
   PrependedIndeterminate
-} from "../types/BodyTrapTypesBase.mjs";
+} from "../types/SharedVariablesDictionary.mjs";
 
 /**
  * A class method decorator which returns a resolved value in place of the original value, or INDETERMINATE to fall through.
@@ -35,7 +35,7 @@ import type {
 export default function bodyTrap<
   This extends MethodsOnlyType,
   Key extends keyof This,
-  SharedVariables extends BodyTrapTypesBase<This>[Key]
+  SharedVariables extends SharedVariablesDictionary<This>[Key]
 >
 (
   trapMethod: PrependedIndeterminate<This, Key, SharedVariables>

@@ -22,11 +22,11 @@ import type {
 
 import type {
   PrependedIndeterminate
-} from "../types/BodyTrapTypesBase.mjs";
+} from "../types/SharedVariablesDictionary.mjs";
 
 import type {
-  BodyTrapTypesBase
-} from "../types/BodyTrapTypesBase.mjs";
+  SharedVariablesDictionary
+} from "../types/SharedVariablesDictionary.mjs";
 
 import type {
   ReturnTrapMayOverride
@@ -65,7 +65,7 @@ export class MethodAspectsDictionary<
   > = [];
 
   readonly bodyTraps: UnshiftableArray<
-    PrependedIndeterminate<This, Key, BodyTrapTypesBase<This>[Key]>
+    PrependedIndeterminate<This, Key, SharedVariablesDictionary<This>[Key]>
   > = [];
 
   readonly returnTraps: UnshiftableArray<

@@ -4,7 +4,11 @@ import type {
 
 import type {
   MethodsOnlyType
-} from "#aspects/stubs/source/types/MethodsOnlyType.mjs";
+} from "#mixin_decorators/source/types/MethodsOnlyType.mjs";
+
+import type {
+  GenericFunction
+} from "./GenericFunction.mjs";
 
 import type {
   PrependArgumentsMethod
@@ -15,7 +19,7 @@ import { INDETERMINATE } from "../symbol-keys.mjs";
 /**
  * @typeParam This - the base type we're working with.
  */
-export type BodyTrapTypesBase<
+export type SharedVariablesDictionary<
   This extends MethodsOnlyType
 > = Record<keyof This, object>;
 
@@ -31,7 +35,7 @@ export type GenericFunctionWithIndeterminate<Method extends GenericFunction> =
 export type PrependedIndeterminate<
   This extends MethodsOnlyType,
   Key extends keyof This,
-  SharedVariables extends BodyTrapTypesBase<This>[Key]
+  SharedVariables extends SharedVariablesDictionary<This>[Key]
 > = GenericFunctionWithIndeterminate<PrependArgumentsMethod<
   This, Key, false, [SharedVariables]
 >>;

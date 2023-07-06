@@ -11,9 +11,9 @@ import type {
 } from "#mixin_decorators/source/types/MethodsOnlyType.mjs";
 
 import type {
-  BodyTrapTypesBase,
+  SharedVariablesDictionary,
   PrependedIndeterminate,
-} from "./BodyTrapTypesBase.mjs";
+} from "./SharedVariablesDictionary.mjs";
 
 import type {
   PrependArgumentsMethod
@@ -42,7 +42,7 @@ export interface MethodAspects<
   readonly argumentTraps: UnshiftableArray<SetReturnType<Method<This, Key>, void>>;
 
   readonly bodyTraps: UnshiftableArray<
-    PrependedIndeterminate<This, Key, BodyTrapTypesBase<This>[Key]>
+    PrependedIndeterminate<This, Key, SharedVariablesDictionary<This>[Key]>
   >;
 
   readonly returnTraps: UnshiftableArray<

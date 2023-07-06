@@ -9,12 +9,12 @@ import type {
 import AspectsDecorators from "#aspects/decorators/source/AspectsDecorators.mjs";
 
 import type {
-  BodyTrapTypesBase
-} from "#aspects/decorators/source/types/BodyTrapTypesBase.mjs";
+  SharedVariablesDictionary
+} from "#aspects/decorators/source/types/SharedVariablesDictionary.mjs";
 
 import ClassInvariantsWrapper from "./ClassInvariantsWrapper.mjs";
 
-export type BodyTrapTypes = RightExtendsLeft<BodyTrapTypesBase<NumberStringType>, {
+export type BodyTrapTypes = RightExtendsLeft<SharedVariablesDictionary<NumberStringType>, {
   repeatForward: {
     bar: number;
   },

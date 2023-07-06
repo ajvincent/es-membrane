@@ -41,9 +41,9 @@ import type {
 } from "./types/PrePostConditionsContext.mjs";
 
 import type {
-  BodyTrapTypesBase,
+  SharedVariablesDictionary,
   PrependedIndeterminate,
-} from "./types/BodyTrapTypesBase.mjs";
+} from "./types/SharedVariablesDictionary.mjs";
 
 import type {
   ReturnTrapMayOverride,
@@ -57,7 +57,7 @@ import type {
  */
 export default class AspectsDecorators<
   This extends MethodsOnlyType,
-  BodyTrapTypes extends BodyTrapTypesBase<This>,
+  BodyTrapTypes extends SharedVariablesDictionary<This>,
 >
 {
   /** a class-invariant wrapper stub from aspects/decorators. */
