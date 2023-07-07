@@ -42,6 +42,7 @@ export type Tail<Elements extends ReadonlyArray<T>, T = unknown> =
 
 export type IndexUnion<T extends ReadonlyArray<unknown>> = Exclude<keyof T, keyof unknown[]>;
 
+export type PushableArray<T> = ReadonlyArray<T> & Pick<T[], "push">;
 export type UnshiftableArray<T> = ReadonlyArray<T> & Pick<T[], "unshift">;
 
 // #endregion arrays
