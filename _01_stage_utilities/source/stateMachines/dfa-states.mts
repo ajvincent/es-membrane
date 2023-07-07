@@ -1,3 +1,4 @@
+/** Technically this isn't a generic DFA.  The set of states is also the alphabet. */
 export default class StateMachine_DFA<State extends string> {
   #currentState: State;
   #acceptStates: ReadonlySet<State>;

@@ -54,6 +54,7 @@ export default function argumentsTrap<
   {
     void(context);
     const replacement = getReplacementMethodAndAspects<This, Key, SharedVariables>(method);
+    replacement.userContext.stateMachine.setNextState("argumentsTrap");
     const { argumentTraps } = replacement.userContext;
     argumentTraps.unshift(trapMethod);
     return replacement.source as This[Key];

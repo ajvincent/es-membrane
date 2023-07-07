@@ -1,4 +1,4 @@
-import StateMachine_DFA from "../../source/stateMachines/dfa.mjs";
+import StateMachine_DFA from "../../source/stateMachines/dfa-states.mjs";
 
 describe("StateMachine_DFA", () => {
   type State = "one" | "two" | "three";

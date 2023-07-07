@@ -40,6 +40,8 @@ import {
 import { INDETERMINATE, RETURN_NOT_REPLACED } from "../symbol-keys.mjs";
 import { ArgumentsTrap } from "../types/ArgumentsTrap.mjs";
 
+import buildMethodStates from "./stateMachine.mjs";
+
 // #endregion preamble
 
 /**
@@ -73,6 +75,8 @@ export class MethodAspectsDictionary<
   readonly postconditionTraps: UnshiftableArray<
     PostconditionWithContext<This, Key, unknown>
   > = [];
+
+  readonly stateMachine = buildMethodStates();
 }
 
 /**

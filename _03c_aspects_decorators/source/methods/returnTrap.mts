@@ -44,6 +44,7 @@ export default function returnTrap<
   {
     void(context);
     const replacement = getReplacementMethodAndAspects<This, Key, SharedVariables>(method);
+    replacement.userContext.stateMachine.setNextState("returnTrap");
     const { returnTraps } = replacement.userContext;
     returnTraps.unshift(trapMethod);
     return replacement.source as This[Key];

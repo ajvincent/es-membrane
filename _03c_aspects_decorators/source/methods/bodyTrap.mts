@@ -48,6 +48,7 @@ export default function bodyTrap<
   {
     void(context);
     const replacement = getReplacementMethodAndAspects<This, Key, SharedVariables>(method);
+    replacement.userContext.stateMachine.setNextState("bodyTrap");
     const { bodyTraps } = replacement.userContext;
     bodyTraps.unshift(trapMethod as PrependedIndeterminate<This, Key, object>);
     return replacement.source as This[Key];

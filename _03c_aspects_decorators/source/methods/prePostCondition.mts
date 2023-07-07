@@ -77,6 +77,7 @@ export function prePostCondition<
   {
     void(context);
     const replacement = getReplacementMethodAndAspects(method);
+    replacement.userContext.stateMachine.setNextState("prePostCondition");
     replacement.userContext.preconditionTraps.unshift(
       preTrapMethod
     );
