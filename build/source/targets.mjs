@@ -259,11 +259,11 @@ class DirStage {
 { // test
     const target = BPSet.get("test");
     target.addSubtarget("stages");
-    target.addTask(async () => await runModule("./node_modules/jasmine/bin/jasmine.js", [], []));
+    target.addTask(async () => await runModule("./node_modules/jasmine/bin/jasmine.js", [], ["--expose-gc",]));
 }
 { // debug
     const target = BPSet.get("debug");
-    target.addTask(async () => await runModule("./node_modules/jasmine/bin/jasmine.js", [], ["--inspect-brk"]));
+    target.addTask(async () => await runModule("./node_modules/jasmine/bin/jasmine.js", [], ["--expose-gc", "--inspect-brk",]));
 }
 /*
 We're damned if we do and damned if we don't with this code:

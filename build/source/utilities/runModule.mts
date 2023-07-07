@@ -7,7 +7,6 @@ import { fork } from 'child_process';
  * @param pathToModule  - The module to run.
  * @param moduleArgs    - Arguments we pass into the module.
  * @param extraNodeArgs - Arguments we pass to node.
- * @see /build/tools/generateCollectionTools.mjs
  */
 export function runModule(
   pathToModule: string,
