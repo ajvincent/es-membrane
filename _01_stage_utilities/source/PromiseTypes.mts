@@ -92,3 +92,26 @@ export async function PromiseAllParallel<E, V>(
 {
   return Promise.all(elementArray.map(element => callback(element)));
 }
+
+/**
+ * Convert a dictionary of promises into a promise of a dictionary.
+ * @param promiseDictionary - the dictionary of promisess
+ */
+export async function PromiseDictionary<
+  T extends { [key: string | symbol]: unknown }
+>
+(
+  promiseDictionary: { [key in keyof T]: Promise<T[key]> }
+): Promise<T>
+{
+  const promiseEntriesArray: Promise<[keyof T, T[keyof T]]>[] = [];
+  for (const key of Reflect.ownKeys(promiseDictionary)) {
+    promiseEntriesArray.push(Promise.all([
+      Promise.resolve(key),
+      promiseDictionary[key]
+    ]));
+  }
+
+  const entriesArray = await Promise.all(promiseEntriesArray);
+  return Object.fromEntries(entriesArray) as T;
+}
