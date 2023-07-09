@@ -1,4 +1,9 @@
 // #region preamble
+
+import type {
+  AssertInterface
+} from "#stage_utilities/source/SharedAssertSet.mjs";
+
 import type {
   MethodsOnlyType
 } from "#mixin_decorators/source/types/MethodsOnlyType.mjs";
@@ -115,7 +120,7 @@ function wrapPrecondition<
 ): PreconditionWithContext<This, Key, never>
 {
   return function(
-    this: This,
+    this: This & AssertInterface,
     conditionContext: PreconditionContext<never>,
     ...parameters: Parameters<This[Key]>
   ): void
@@ -142,7 +147,7 @@ function wrapPostcondition<
 ): PostconditionWithContext<This, Key, never>
 {
   return function(
-    this: This,
+    this: This & AssertInterface,
     conditionContext: PostconditionContext<never>,
     rv: ReturnType<This[Key]>,
     ...parameters: Parameters<This[Key]>
@@ -161,7 +166,7 @@ function voidPrecondition<
   Key extends keyof This,
 >
 (
-  this: This,
+  this: This & AssertInterface,
   context: PreconditionContext<never>,
   ...parameters: Parameters<This[Key]>
 ): void
@@ -181,7 +186,7 @@ function voidPostcondition<
   Key extends keyof This,
 >
 (
-  this: This,
+  this: This & AssertInterface,
   context: PostconditionContext<never>,
   returnValue: ReturnType<This[Key]>,
   ...parameters: Parameters<This[Key]>

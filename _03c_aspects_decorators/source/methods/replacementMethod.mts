@@ -5,6 +5,10 @@ import type {
   UnshiftableArray,
 } from "#stage_utilities/source/types/Utility.mjs";
 
+import type {
+  AssertInterface
+} from "#stage_utilities/source/SharedAssertSet.mjs";
+
 import ReplaceableValueMap, { ReplaceableValueType } from "#stage_utilities/source/ReplaceableValueMap.mjs";
 
 import type {
@@ -118,7 +122,7 @@ function GenericAspectFunction<
 ): Method<This, Key>
 {
   function newMethod(
-    this: This,
+    this: This & AssertInterface,
     ...parameters: Parameters<Method<This, Key>>
   ): ReturnType<Method<This, Key>>
   {
@@ -165,7 +169,7 @@ function GenericAspectFunction<
     for (let i = 0; i < aspectsDictionary.returnTraps.length; i++) {
       const trap = aspectsDictionary.returnTraps[i];
       const maybeReplaceRV: ReturnOrReplace = trap.call<
-        This,
+        This & AssertInterface,
         [SharedVariables, ReturnType<This[Key]>, ...Parameters<Method<This, Key>>],
         ReturnType<This[Key]> | typeof RETURN_NOT_REPLACED
       >(this, sharedVariables as SharedVariables, rv as ReturnType<This[Key]>, ...parameters);

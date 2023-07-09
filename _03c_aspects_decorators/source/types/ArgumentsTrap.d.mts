@@ -3,6 +3,10 @@ import type {
 } from "type-fest";
 
 import type {
+  AssertInterface
+} from "#stage_utilities/source/SharedAssertSet.mjs";
+
+import type {
   PrependArgumentsMethod,
 } from "./PrependArguments.mjs";
 
@@ -16,6 +20,6 @@ export type ArgumentsTrap<
   Key extends keyof This,
   SharedVariables extends SharedVariablesDictionary<This>[Key]
 > = SetReturnType<
-  PrependArgumentsMethod<This, Key, false, [SharedVariables]>,
+  PrependArgumentsMethod<This & AssertInterface, Key, false, [SharedVariables]>,
   void
 >;

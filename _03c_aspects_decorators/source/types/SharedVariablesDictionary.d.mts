@@ -3,6 +3,11 @@ import type {
 } from "type-fest";
 
 import type {
+  AssertInterface
+} from "#stage_utilities/source/SharedAssertSet.mjs";
+
+
+import type {
   MethodsOnlyType
 } from "#mixin_decorators/source/types/MethodsOnlyType.mjs";
 
@@ -39,5 +44,5 @@ export type PrependedIndeterminate<
   Key extends keyof This,
   SharedVariables extends SharedVariablesDictionary<This>[Key]
 > = GenericFunctionWithIndeterminate<PrependArgumentsMethod<
-  This, Key, false, [SharedVariables]
+  This & AssertInterface, Key, false, [SharedVariables]
 >>;

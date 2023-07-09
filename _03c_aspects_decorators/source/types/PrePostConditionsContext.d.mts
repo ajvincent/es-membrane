@@ -4,6 +4,10 @@ import type {
 } from "type-fest";
 
 import type {
+  AssertInterface
+} from "#stage_utilities/source/SharedAssertSet.mjs";
+
+import type {
   MethodsOnlyType
 } from "#mixin_decorators/source/types/MethodsOnlyType.mjs";
 
@@ -26,7 +30,7 @@ export type PreconditionWithContext<
   Key extends keyof This,
   Context,
 > = SetReturnType<
-  PrependArgumentsMethod<This, Key, false, [PreconditionContext<Context>]>,
+  PrependArgumentsMethod<This & AssertInterface , Key, false, [PreconditionContext<Context>]>,
   void
 >;
 
@@ -36,7 +40,7 @@ export type PostconditionWithContext<
   Key extends keyof This,
   Context,
 > = SetReturnType<
-  PrependArgumentsMethod<This, Key, true, [PostconditionContext<Context>]>,
+  PrependArgumentsMethod<This & AssertInterface, Key, true, [PostconditionContext<Context>]>,
   void
 >;
 
@@ -44,13 +48,16 @@ export type PostconditionWithContext<
 export type PreconditionWithoutContext<
   This extends MethodsOnlyType,
   Key extends keyof This
-> = SetReturnType<This[Key], void>;
+> = SetReturnType<
+  PrependArgumentsMethod<This & AssertInterface, Key, false, []>,
+  void
+>;
 
 /** `(this: This, __rv__: ReturnType<This[Key]>, ...parameters) => void` */
 export type PostconditionWithoutContext<
   This extends MethodsOnlyType,
   Key extends keyof This
 > = SetReturnType<
-  PrependArgumentsMethod<This, Key, true, []>,
+  PrependArgumentsMethod<This & AssertInterface, Key, true, []>,
   void
 >;

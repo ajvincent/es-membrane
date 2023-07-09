@@ -1,8 +1,10 @@
-import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
-
 import type {
   NumberStringType
 } from "#stage_utilities/fixtures/types/NumberStringType.mjs";
+
+import type {
+  AssertInterface
+} from "#stage_utilities/source/SharedAssertSet.mjs";
 
 import NST_Aspects, {
   type SharedVariablesMap,
@@ -17,6 +19,9 @@ import {
   PreconditionContext,
   PostconditionContext,
 } from "#aspects/decorators/source/types/PrePostConditionsContext.mjs";
+
+import NumberStringClass from "#aspects/decorators/fixtures/NumberStringClassAssert.mjs";
+
 
 it("Multiple aspect decorators can apply to a class, in the right order", () => {
   const {
@@ -94,42 +99,37 @@ it("Multiple aspect decorators can apply to a class, in the right order", () => 
   }
 
   function forwardPreconditionNoContext(
-    this: NumberStringType,
+    this: NumberStringType & AssertInterface,
     s: string,
     n: number,
   ): void {
-    if (n < 0) {
-      throw new Error("precondition error");
-    }
+    this.assert(n >= 0, "precondition error");
     void(s);
   }
 
   function forwardPostconditionNoContext(
-    this: NumberStringType,
+    this: NumberStringType & AssertInterface,
     returnValue: ReturnType<NumberStringType["repeatForward"]>,
     ...parameters: Parameters<NumberStringType["repeatForward"]>
   ): void
   {
     void(parameters);
-    if (returnValue === "")
-      throw new Error("postcondition error");
+    this.assert(returnValue !== "", "postcondition error");
   }
 
   function forwardPreconditionWithContext(
-    this: NumberStringType,
+    this: NumberStringType & AssertInterface,
     contextSetter: PreconditionContext<boolean>,
     s: string,
     n: number,
   ): void {
-    if (n < 0) {
-      throw new Error("precondition error");
-    }
+    this.assert(n >= 0, "precondition error");
     void(s);
     contextSetter.set(true);
   }
 
   function forwardPostconditionWithContext(
-    this: NumberStringType,
+    this: NumberStringType & AssertInterface,
     contextGetter: PostconditionContext<boolean>,
     returnValue: ReturnType<NumberStringType["repeatForward"]>,
     ...parameters: Parameters<NumberStringType["repeatForward"]>
@@ -137,8 +137,7 @@ it("Multiple aspect decorators can apply to a class, in the right order", () => 
   {
     void(parameters);
     void(contextGetter.get());
-    if (returnValue === "")
-      throw new Error("postcondition error");
+    this.assert(returnValue !== "", "postcondition error");
   }
   // #endregion a whole bunch of aspects
 

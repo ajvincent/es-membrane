@@ -1,4 +1,3 @@
-import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 import type {
   NumberStringType
 } from "#stage_utilities/fixtures/types/NumberStringType.mjs";
@@ -6,6 +5,8 @@ import type {
 import NST_Aspects, {
   type SharedVariablesMap
 } from "#aspects/decorators/fixtures/AspectsDecorators.mjs";
+
+import NumberStringClass from "#aspects/decorators/fixtures/NumberStringClassAssert.mjs";
 
 import {
   INDETERMINATE

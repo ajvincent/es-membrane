@@ -1,4 +1,7 @@
-import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
+import type {
+  AssertInterface
+} from "#stage_utilities/source/SharedAssertSet.mjs";
+
 import type {
   NumberStringType
 } from "#stage_utilities/fixtures/types/NumberStringType.mjs";
@@ -8,6 +11,8 @@ import {
 } from "#aspects/decorators/source/symbol-keys.mjs";
 
 import NST_Aspects from "#aspects/decorators/fixtures/AspectsDecorators.mjs";
+import NumberStringClass from "#aspects/decorators/fixtures/NumberStringClassAssert.mjs";
+
 
 it("returnTrap decorator lets us assert certain return values", () => {
   const { returnTrap } = NST_Aspects;
@@ -15,7 +20,7 @@ it("returnTrap decorator lets us assert certain return values", () => {
   const forwardSpy = jasmine.createSpy();
 
   function returnForwardSpy(
-    this: NumberStringType,
+    this: NumberStringType & AssertInterface,
     context: object,
     __rv__: string,
     ...parameters: Parameters<NumberStringType["repeatForward"]>
