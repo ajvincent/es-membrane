@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import SharedAssertSet, {
   SharedAssertionError,
-  type SharedAssertionObserver,
 } from "#stage_utilities/source/SharedAssertSet.mjs";
+
+import type {
+  SharedAssertionObserver
+} from "#stage_utilities/source/types/assert.mjs";
 
 it("SharedAssertSet propagates assertion failures across several observers", () => {
   const assertSet = new SharedAssertSet;

@@ -2,7 +2,7 @@
 
 import type {
   AssertInterface
-} from "#stage_utilities/source/SharedAssertSet.mjs";
+} from "#stage_utilities/source/types/assert.mjs";
 
 import type {
   MethodsOnlyType

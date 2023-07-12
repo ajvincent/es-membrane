@@ -7,7 +7,7 @@ import type {
 
 import type {
   AssertInterface
-} from "#stage_utilities/source/SharedAssertSet.mjs";
+} from "#stage_utilities/source/types/assert.mjs";
 
 import ReplaceableValueMap, { ReplaceableValueType } from "#stage_utilities/source/ReplaceableValueMap.mjs";
 

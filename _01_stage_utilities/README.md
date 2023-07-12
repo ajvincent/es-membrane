@@ -16,6 +16,7 @@ This directory is an infrastructure grab-bag:  it provides common classes to sup
 - [ReplaceableValueMap](./source/ReplaceableValueMap.mts) lets you define a value you want to subsitute for another, and a shared object for that replaced value to use.  This is useful for decorators which want to have a _single_ replacement for an original value (i.e. the same class decorator run more than once won't subclass more than once).
 - [WeakRefSet](./source/WeakRefSet.mts) is basically a `Set<WeakRef<T>>`: it stores weak references and allows you to retrieve them later.
 - [SharedAssertSet](./source/SharedAssertSet.mts): assertion failures in one object, notifying other objects of the failure so all of them can shut down.  Membranes have several proxy handlers which the user should never see, so an assertion failure in one proxy handler can terminate an entire membrane.
+  - [types/assert.d.mts](./source/types/assert.d.mts) defines common assertion interfaces and types.
 - [RequiredInitializers](./source/RequiredInitializers.mts) is a very simple state machine for defining and resolving prerequisites, when you can't use constructors.  [See mix-in decorators](../_02_mixin_decorators/README.md).
 - [`maybeDefined.mts`](./source/maybeDefined.mts) provides some utilities for making sure we've filled in some fields.  This may not have been my best idea... but it works.
 - [types/Utility.d.mts](./source/types/Utility.d.mts) provides utility types, many of which I don't use but I thought I might need.

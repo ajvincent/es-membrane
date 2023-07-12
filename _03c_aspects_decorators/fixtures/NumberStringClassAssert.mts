@@ -2,7 +2,7 @@ import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 
 import type {
   AssertInterface
-} from "#stage_utilities/source/SharedAssertSet.mjs";
+} from "#stage_utilities/source/types/assert.mjs";
 
 export default class NumberStringClassAssert
 extends NumberStringClass
