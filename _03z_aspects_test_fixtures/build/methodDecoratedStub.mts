@@ -43,7 +43,7 @@ async function buildMethodDecoratedStub() : Promise<void>
 {
   const destinationDir = path.join(generatedDir, "stubs");
   class builderClass extends StubMap.AddMethodDecorators {
-    protected methodTrap(
+    protected methodDeclarationTrap(
       methodStructure: TS_Method | null,
       isBefore: boolean
     ): void
@@ -54,7 +54,7 @@ async function buildMethodDecoratedStub() : Promise<void>
         this.classWriter.newLine();
       }
 
-      return super.methodTrap(methodStructure, isBefore);
+      return super.methodDeclarationTrap(methodStructure, isBefore);
     }
   }
   const builder = new builderClass;

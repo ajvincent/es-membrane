@@ -446,10 +446,10 @@ export default class AspectsStubBase
 
     // write each method, with method traps before all methods, before and after each method, and after all methods.
     this.classWriter.block(() => {
-      this.methodTrap(null, true);
+      this.methodDeclarationTrap(null, true);
 
       methods.forEach((methodStructure, index) => {
-        this.methodTrap(methodStructure, true);
+        this.methodDeclarationTrap(methodStructure, true);
 
         this.#buildMethod(methodStructure);
         if (index < methods.length - 1) {
@@ -457,10 +457,10 @@ export default class AspectsStubBase
           this.classWriter.newLine();
         }
 
-        this.methodTrap(methodStructure, false);
+        this.methodDeclarationTrap(methodStructure, false);
       })
 
-      this.methodTrap(null, false);
+      this.methodDeclarationTrap(null, false);
     });
   }
 
@@ -535,7 +535,7 @@ export default class AspectsStubBase
    * @param methodStructure - the structure for the method, or null if at the start or beginning of the class.
    * @param isBefore - true if this trap fires before the method definition, false for after.
    */
-  protected methodTrap(
+  protected methodDeclarationTrap(
     methodStructure: TS_Method | null,
     isBefore: boolean,
   ) : void

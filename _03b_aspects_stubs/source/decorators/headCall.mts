@@ -223,12 +223,12 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
       getRequiredInitializers(this).resolve(TransitionsHead.#WRAP_CLASS_KEY);
     }
 
-    protected methodTrap(
+    protected methodDeclarationTrap(
       methodStructure: TS_Method | null,
       isBefore: boolean
     ): void
     {
-      super.methodTrap(methodStructure, isBefore);
+      super.methodDeclarationTrap(methodStructure, isBefore);
       if (!isBefore || methodStructure)
         return;
 

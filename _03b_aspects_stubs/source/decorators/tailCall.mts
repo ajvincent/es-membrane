@@ -93,7 +93,7 @@ const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields> = funct
     /** The number of head parameters we have.  Also, the number of _tail_ parameters. */
     #headParameterCount = 0;
 
-    protected methodTrap(
+    protected methodDeclarationTrap(
       methodStructure: TS_Method | null,
       isBefore: boolean
     ): void {
@@ -104,7 +104,7 @@ const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields> = funct
         this.#writeHandlerAndConstructor();
       }
 
-      super.methodTrap(methodStructure, isBefore);
+      super.methodDeclarationTrap(methodStructure, isBefore);
     }
 
     /**

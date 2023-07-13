@@ -146,7 +146,7 @@ const AddMethodDecorators_Decorator: AspectsStubDecorator<
       }
     }
 
-    protected methodTrap(
+    protected methodDeclarationTrap(
       methodStructure: TS_Method | null,
       isBefore: boolean
     ): void
@@ -156,7 +156,7 @@ const AddMethodDecorators_Decorator: AspectsStubDecorator<
         const descriptionArray = decorators.methods[methodStructure.name];
         descriptionArray.forEach(description => this.#writeDecorator(description));
       }
-      return super.methodTrap(methodStructure, isBefore);
+      return super.methodDeclarationTrap(methodStructure, isBefore);
     }
 
     /**

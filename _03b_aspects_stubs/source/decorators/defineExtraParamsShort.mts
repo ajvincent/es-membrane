@@ -147,11 +147,11 @@ const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsSho
       };
     }
 
-    protected methodTrap(
+    protected methodDeclarationTrap(
       methodStructure: TS_Method | null,
       isBefore: boolean
     ): void {
-      super.methodTrap(methodStructure, isBefore);
+      super.methodDeclarationTrap(methodStructure, isBefore);
 
       if (!isBefore)
         return;

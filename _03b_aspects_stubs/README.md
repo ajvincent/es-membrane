@@ -35,7 +35,7 @@ Users of this class must subclass it.  There are several protected fields for su
 - `classWriter` for directly writing class source code, if necessary.
 - `insertAdditionalMethodsTrap()` for adding new methods to build.
 - `getExtendsAndImplementsTrap()`, for the `extends` and `implements` clauses.
-- `methodTrap()`, for modifying method arguments and return types, or inserting code into a class between methods
+- `methodDeclarationTrap()`, for modifying method arguments and return types, or inserting code into a class between methods
 - `buildMethodBodyTrap()`, for filling the body of a method
 - `voidArguments()`, for writing `void(foo);` statements
 - `writeBeforeExportTrap()`, to provide code before the class but after the module imports
@@ -57,7 +57,7 @@ For the "transition types" I mentioned at the start of this article, I have thre
 
 ## Mixins
 
-I can fine-tune the stub class generation by specifying the ordering of decorators.  Each decorator will create a subclass which could call base class methods for `methodTrap()` and `buildMethodBodyTrap()`.
+I can fine-tune the stub class generation by specifying the ordering of decorators.  Each decorator will create a subclass which could call base class methods for `methodDelcarationTrap()` and `buildMethodBodyTrap()`.
 
 The [mixins](./source/mixins) directory creates the stub-building classes, which I then collect into [`StubMap`](./source/StubMap.mts).  To build a complete set from a common configuration, I provide [`StubClassSet`](./source/StubClassSet.mts).
 
