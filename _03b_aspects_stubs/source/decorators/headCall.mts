@@ -245,7 +245,7 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
           extraParams.middleParamTypes
         }];`
       );
-  
+
       this.#writeHandlerAndConstructor();
     }
 
@@ -274,26 +274,14 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
       `.trim());
       this.classWriter.newLine();
 
-      TransitionsHead.pairedWrite(
-        this.classWriter,
-        "constructor(",
-        ")",
-        false,
-        true,
-        () => {
-          this.classWriter.writeLine(`
-  ...parameters: ConstructorParameters<typeof BaseClass>
-          `.trim())
+      this.addConstructorWriter({
+        parameters: [],
+        writer: (writer: CodeBlockWriter) => {
+          writer.writeLine("this.#nextHandler = new BaseClass(...parameters);");
         }
-      );
-
-      this.classWriter.newLine();
-      this.classWriter.block(() => {
-        this.classWriter.writeLine("this.#nextHandler = new BaseClass(...parameters);");
-      });
-      this.classWriter.newLine();
-      this.classWriter.newLine();
+      }, "BaseClass");
     }
+
 
     protected writeBeforeExportTrap(): string {
       return this.#beforeClassWriter.toString();

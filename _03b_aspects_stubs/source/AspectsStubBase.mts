@@ -9,6 +9,7 @@ import {
   InterfaceDeclaration,
   TypeAliasDeclaration,
   type InterfaceDeclarationStructure,
+  WriterFunction,
 } from "ts-morph";
 
 import CodeBlockWriter from "code-block-writer";
@@ -39,6 +40,13 @@ export type ExtendsAndImplements = {
   readonly extends: string,
   readonly implements: ReadonlyArray<string>,
 };
+
+export type ConstructorParamsAndStatements = {
+  /** The parameters to insert. */
+  parameters: ReadonlyArray<TS_Parameter>,
+  /** The statements writer. */
+  writer: WriterFunction
+}
 
 /** A base class for quickly generating class stubs. */
 export default class AspectsStubBase
@@ -120,6 +128,9 @@ export default class AspectsStubBase
     functionName: string,
     beforeClassTrap: (classWriter: CodeBlockWriter) => void,
   } = undefined;
+
+  #constructorParametersAndWriters?: ConstructorParamsAndStatements[];
+  #manualBaseClass = "";
 
   /** This handles the actual class generation code. */
   protected readonly classWriter = new CodeBlockWriter(writerOptions);
@@ -232,6 +243,21 @@ export default class AspectsStubBase
 
     if (isPackageImport)
       this.#packagePaths.add(pathToModule);
+  }
+
+  /**
+   * @param paramsAndWriter - the new parameters and statements writer.
+   * @param manualBaseClass - the base class for `...parameters`, if necessary.
+   */
+  addConstructorWriter(
+    paramsAndWriter: ConstructorParamsAndStatements,
+    manualBaseClass: string,
+  ): void
+  {
+    this.#constructorParametersAndWriters ||= [];
+    this.#constructorParametersAndWriters.push(paramsAndWriter);
+    if (manualBaseClass && !this.#manualBaseClass)
+      this.#manualBaseClass = manualBaseClass;
   }
 
   /**
@@ -436,7 +462,7 @@ export default class AspectsStubBase
       implements: _implements
     } = this.getExtendsAndImplementsTrap(context);
 
-    if (_extends.length)
+    if (_extends)
       this.classWriter.writeLine("extends " + _extends);
     if (_implements.length)
       this.classWriter.writeLine("implements " + _implements.join(", "));
@@ -447,6 +473,10 @@ export default class AspectsStubBase
     // write each method, with method traps before all methods, before and after each method, and after all methods.
     this.classWriter.block(() => {
       this.methodDeclarationTrap(null, true);
+
+      if (this.#constructorParametersAndWriters) {
+        this.#buildConstructor(_extends);
+      }
 
       methods.forEach((methodStructure, index) => {
         this.methodDeclarationTrap(methodStructure, true);
@@ -542,6 +572,35 @@ export default class AspectsStubBase
   {
     void(methodStructure);
     void(isBefore);
+  }
+
+  #buildConstructor(_extends: string): void
+  {
+    if (!this.#constructorParametersAndWriters)
+      throw new Error("not reachable");
+
+    const allParameters: ReadonlyArray<TS_Parameter> = this.#constructorParametersAndWriters.flatMap(paramsAndWriter => paramsAndWriter.parameters)
+    const writers: ReadonlyArray<WriterFunction> = this.#constructorParametersAndWriters.flatMap(paramsAndWriter => paramsAndWriter.writer);
+
+    AspectsStubBase.pairedWrite(this.classWriter, "constructor(", ")", false, true, () => {
+      allParameters.forEach(param => this.#writeParameter(param));
+      if (_extends || this.#manualBaseClass) {
+        this.classWriter.write(`...parameters: ConstructorParameters<typeof ${
+          _extends || this.#manualBaseClass
+        }>`);
+      }
+    });
+    this.classWriter.newLineIfLastNot();
+
+    this.classWriter.block(() => {
+      if (_extends) {
+        this.classWriter.writeLine(`super(...parameters);`);
+      }
+
+      writers.forEach(writer => writer(this.classWriter));
+    });
+    this.classWriter.newLineIfLastNot();
+    this.classWriter.newLine();
   }
 
   /**

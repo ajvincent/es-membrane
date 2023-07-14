@@ -117,25 +117,12 @@ const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields> = funct
       `.trim());
       this.classWriter.newLine();
 
-      TransitionsTail.pairedWrite(
-        this.classWriter,
-        "constructor(",
-        ")",
-        false,
-        true,
-        () => {
-          this.classWriter.writeLine(`
-  ...parameters: ConstructorParameters<typeof BaseClass>
-          `.trim())
+      this.addConstructorWriter({
+        parameters: [],
+        writer: (writer: CodeBlockWriter) => {
+          writer.writeLine("this.#nextHandler = new BaseClass(...parameters);");
         }
-      );
-
-      this.classWriter.newLine();
-      this.classWriter.block(() => {
-        this.classWriter.writeLine("this.#nextHandler = new BaseClass(...parameters);");
-      });
-      this.classWriter.newLine();
-      this.classWriter.newLine();
+      }, "BaseClass");
     }
 
     protected buildMethodBodyTrap(
