@@ -25,9 +25,10 @@ In the middle is [AspectsStubBase](./source/base/baseStub.mts).  It provides a v
 2. `getClassName()` tells you (more specifically, [subclass decorators](../_02_mixin_decorators/) of the stub base) what the current class name is.
 3. `getPathToClassFile()` reports where the aspects stub will create the class file.
 4. `addImport()` defines module imports.
-5. `wrapInFunction()` allows you to wrap the generated class in a function.  (My use case is passing in a class which the generated class will be a sub-class of.)
-6. `buildClass()` invokes several protected methods to construct the exported class's source.
-7. `write()` commits the final file to the file system.
+5. `addConstructorWriter()` allows defining specific parameters and statements for a constructor on the class.
+6. `wrapInFunction()` allows you to wrap the generated class in a function.  (My use case is passing in a class which the generated class will be a sub-class of.)
+7. `buildClass()` invokes several protected methods to construct the exported class's source.
+8. `write()` commits the final file to the file system.
 
 Users of this class must subclass it.  There are several protected fields for subclasses to use:
 
