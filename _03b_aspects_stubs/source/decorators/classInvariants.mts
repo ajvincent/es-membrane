@@ -145,14 +145,16 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
         return;
       }
 
-      this.classWriter.writeLine(`this.#runInvariants();`);
-      this.classWriter.writeLine(`const __rv__ = super.${
-        methodStructure.name
-      }(${
-        (methodStructure.parameters ?? []).map(param => param.name).join(", ")
-      });`);
-      this.classWriter.writeLine(`this.#runInvariants();`);
-      this.classWriter.writeLine(`return __rv__;`);
+      if (this.getOriginalStructures().has(methodStructure.name)) {
+        this.classWriter.writeLine(`this.#runInvariants();`);
+        this.classWriter.writeLine(`const __rv__ = super.${
+          methodStructure.name
+        }(${
+          (methodStructure.parameters ?? []).map(param => param.name).join(", ")
+        });`);
+        this.classWriter.writeLine(`this.#runInvariants();`);
+        this.classWriter.writeLine(`return __rv__;`);
+      }
     }
   }
 }

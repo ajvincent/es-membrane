@@ -7,6 +7,8 @@ import type {
   UnshiftableArray
 } from "#stage_utilities/source/types/Utility.mjs";
 
+import SharedAssertSet from "#stage_utilities/source/SharedAssertSet.mjs";
+
 import {
   type Class,
 } from "#mixin_decorators/source/types/Class.mjs";
@@ -16,8 +18,10 @@ import type {
 } from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
 import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
+import { SharedAssertionObserver } from "#stage_utilities/playground/Foo.mjs";
+import { AssertInterface } from "#stage_utilities/source/types/assert.mjs";
 
-it("ClassInvariantsWrapper ", async () => {
+describe("ClassInvariantsWrapper", () => {
   const generatedDir: ModuleSourceDirectory = {
     isAbsolutePath: true,
     pathToDirectory: "#aspects/stubs/spec-generated"
@@ -26,37 +30,87 @@ it("ClassInvariantsWrapper ", async () => {
   type ClassInvariantsWrapper_Type = (
     baseClass: Class<NumberStringType>,
     invariantsArray: UnshiftableArray<(this: NumberStringType) => void>
-  ) => Class<NumberStringType>;
+  ) => Class<NumberStringType, [SharedAssertSet, ...unknown[]]>;
 
-  const ClassInvariantsWrapper = await getModulePart<"default", ClassInvariantsWrapper_Type>
-  (
-    generatedDir,
-    "stubs/ClassInvariantsWrapper.mjs",
-    "default",
-  );
+  let ClassInvariantsWrapper: ClassInvariantsWrapper_Type;
+  beforeAll(async () => {
+    ClassInvariantsWrapper = await getModulePart<"default", ClassInvariantsWrapper_Type>
+    (
+      generatedDir,
+      "stubs/ClassInvariantsWrapper.mjs",
+      "default",
+    );
+  });
 
-  const invariantsArray: UnshiftableArray<(this: NumberStringType) => void> = [];
+  it("invariants work", () => {
+    const invariantsArray: UnshiftableArray<(this: NumberStringType) => void> = [];
+    const NST_Class = ClassInvariantsWrapper(NumberStringClass, invariantsArray);
 
-  const NST_Class = ClassInvariantsWrapper(NumberStringClass, invariantsArray);
-  const nst = new NST_Class;
+    const sharedAsserts = new SharedAssertSet;
+    const nst = new NST_Class(sharedAsserts);
 
-  expect<string>(nst.repeatBack(3, "foo")).toBe("foofoofoo");
+    expect<string>(nst.repeatBack(3, "foo")).toBe("foofoofoo");
 
-  const spy = jasmine.createSpy();
-  invariantsArray.unshift(spy);
+    const spy = jasmine.createSpy();
+    invariantsArray.unshift(spy);
 
-  expect<string>(nst.repeatBack(3, "foo")).toBe("foofoofoo");
-  expect(spy).toHaveBeenCalledTimes(2);
-  expect(spy.calls.argsFor(0)).toEqual([]);
-  expect(spy.calls.thisFor(0)).toBe(nst);
-  expect(spy.calls.argsFor(1)).toEqual([]);
-  expect(spy.calls.thisFor(1)).toBe(nst);
+    expect<string>(nst.repeatBack(3, "foo")).toBe("foofoofoo");
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy.calls.argsFor(0)).toEqual([]);
+    expect(spy.calls.thisFor(0)).toBe(nst);
+    expect(spy.calls.argsFor(1)).toEqual([]);
+    expect(spy.calls.thisFor(1)).toBe(nst);
 
-  spy.calls.reset();
-  spy.and.throwError("abort");
+    spy.calls.reset();
+    spy.and.throwError("abort");
 
-  expect(
-    () => nst.repeatForward("foo", 3)
-  ).toThrowError("abort");
-  expect(spy).toHaveBeenCalledTimes(1);
+    expect(
+      () => nst.repeatForward("foo", 3)
+    ).toThrowError("abort");
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it("direct assert failures kill an instance", () => {
+    const invariantsArray: UnshiftableArray<(this: NumberStringType) => void> = [];
+    const NST_Class = ClassInvariantsWrapper(NumberStringClass, invariantsArray);
+
+    const sharedAsserts = new SharedAssertSet;
+    const nst = new NST_Class(sharedAsserts);
+
+    expect(() => {
+      (nst as unknown as AssertInterface).assert(false, "whoops");
+    }).toThrowError();
+
+    expect(() => {
+      nst.repeatForward("foo", 3);
+    }).toThrowError();
+  });
+
+  it("indirect assert failures kill an instance", () => {
+    const invariantsArray: UnshiftableArray<(this: NumberStringType) => void> = [];
+    const NST_Class = ClassInvariantsWrapper(NumberStringClass, invariantsArray);
+
+    const sharedAsserts = new SharedAssertSet;
+    const nst = new NST_Class(sharedAsserts);
+
+    const otherAssert: SharedAssertionObserver<object> = {
+      observeAssertFailed: function (this: object, forSelf: boolean): void {
+        void(forSelf);
+      },
+      assert: function (this: object, condition: boolean, message: string): void {
+        void(condition);
+        void(message);
+        throw new Error("Function not implemented.");
+      }
+    };
+    sharedAsserts.buildShared(otherAssert);
+
+    expect(() => {
+      otherAssert.assert(false, "whoops");
+    }).toThrowError();
+
+    expect(() => {
+      nst.repeatForward("foo", 3);
+    }).toThrowError();
+  });
 });

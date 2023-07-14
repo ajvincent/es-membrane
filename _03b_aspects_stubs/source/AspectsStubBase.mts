@@ -31,6 +31,7 @@ import type {
 } from "./types/ts-morph-native.mjs";
 
 import serializeParameter from "./utilities/serializeParameter.mjs";
+import { ReadonlyDeep } from "type-fest";
 
 // #endregion preamble
 
@@ -131,6 +132,8 @@ export default class AspectsStubBase
 
   #constructorParametersAndWriters?: ConstructorParamsAndStatements[];
   #manualBaseClass = "";
+
+  #originalMethodStructures: Map<string, ReadonlyDeep<TS_Method>> = new Map;
 
   /** This handles the actual class generation code. */
   protected readonly classWriter = new CodeBlockWriter(writerOptions);
@@ -518,6 +521,8 @@ export default class AspectsStubBase
       if (!("methods" in s))
         throw new Error("assertion failure: we should have methods");
       structure = s;
+
+      this.#buildOriginalStructures(this.#interfaceOrAlias.getStructure().methods || []);
     }
     else if (this.#interfaceOrAlias instanceof TypeAliasDeclaration) {
       const literal = this.#interfaceOrAlias.getTypeNodeOrThrow();
@@ -528,6 +533,8 @@ export default class AspectsStubBase
         throw new Error("assertion failure, expected type-element-membered");
       }
       structure = s;
+
+      this.#buildOriginalStructures((literal.getStructure() as StructureWithMethods).methods || []);
     }
     else {
       throw new Error("unreachable");
@@ -548,6 +555,13 @@ export default class AspectsStubBase
     return methodList;
   }
 
+  #buildOriginalStructures(methods: ReadonlyArray<TS_Method>): void
+  {
+    methods.forEach(method => {
+      this.#originalMethodStructures.set(method.name, method);
+    });
+  }
+
   /**
    * Get a list of method signatures, including every existing one, to create.  Useful for private methods.
    * @param existingMethods - the methods I retrieved from the interface or type alias.
@@ -558,6 +572,14 @@ export default class AspectsStubBase
   ): ReadonlyArray<TS_Method>
   {
     return existingMethods;
+  }
+
+  /**
+   * @returns a map of original type method structures.
+   */
+  protected getOriginalStructures(): ReadonlyMap<string, ReadonlyDeep<TS_Method>>
+  {
+    return this.#originalMethodStructures;
   }
 
   /**
@@ -594,6 +616,7 @@ export default class AspectsStubBase
 
     this.classWriter.block(() => {
       if (_extends) {
+        this.classWriter.writeLine(`//eslint-disable-next-line @typescript-eslint/no-unsafe-argument`);
         this.classWriter.writeLine(`super(...parameters);`);
       }
 

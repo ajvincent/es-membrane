@@ -34,6 +34,7 @@ Users of this class must subclass it.  There are several protected fields for su
 
 - `static pairedWrite()`, a helper for `CodeBlockWriter` instances.
 - `classWriter` for directly writing class source code, if necessary.
+- `getOriginalMethods()` provides a map of original type methods.
 - `insertAdditionalMethodsTrap()` for adding new methods to build.
 - `getExtendsAndImplementsTrap()`, for the `extends` and `implements` clauses.
 - `methodDeclarationTrap()`, for modifying method arguments and return types, or inserting code into a class between methods
@@ -48,6 +49,7 @@ As I establish in the [previous stage](../_02_mixin_decorators/README.md), I can
 
 - [`notImplemented`](./source/decorators/notImplemented.mts) gives you a class where every method throws a `"Not implemented yet!"` exception.
 - [`classInvariants`](./source/decorators/classInvariants.mts) enforces class invariants.
+- [`implementSharedAssert`](./source/decorators/implementSharedAssert.mts) adds support for [shared assertions](../_01_stage_utilities/source/SharedAssertSet.mts).
 - [`methodDecorators`](./source/decorators/methodDecorators.mts) allows for creating a stub class with decorators on individual methods.  Each method calls the super-class's equivalent method for the return value.  This is more experimental than a "known need".
 
 For the "transition types" I mentioned at the start of this article, I have three special-purpose subclass decorators:
