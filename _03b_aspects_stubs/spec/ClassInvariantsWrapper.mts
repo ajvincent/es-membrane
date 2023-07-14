@@ -18,7 +18,7 @@ import type {
 } from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
 import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
-import { SharedAssertionObserver } from "#stage_utilities/playground/Foo.mjs";
+import { SharedAssertionObserver } from "#stage_utilities/source/types/assert.mjs";
 import { AssertInterface } from "#stage_utilities/source/types/assert.mjs";
 
 describe("ClassInvariantsWrapper", () => {
@@ -93,7 +93,7 @@ describe("ClassInvariantsWrapper", () => {
     const sharedAsserts = new SharedAssertSet;
     const nst = new NST_Class(sharedAsserts);
 
-    const otherAssert: SharedAssertionObserver<object> = {
+    const otherAssert: SharedAssertionObserver = {
       observeAssertFailed: function (this: object, forSelf: boolean): void {
         void(forSelf);
       },
