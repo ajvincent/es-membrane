@@ -10,6 +10,5 @@
     "!_*/spec/generated/**/*.mjs",
     "!_*/spec/support/**/*.mjs"
   ],
-  "stopSpecOnExpectationFailure": false,
-  "random": false
+  "stopSpecOnExpectationFailure": false
 }

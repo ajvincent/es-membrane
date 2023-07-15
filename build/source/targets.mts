@@ -352,14 +352,27 @@ class DirStage
   const target = BPSet.get("test");
   target.addSubtarget("stages");
   target.addTask(async () => await runModule(
-    "./node_modules/jasmine/bin/jasmine.js", [], ["--expose-gc", ]
+    "./node_modules/jasmine/bin/jasmine.js",
+    [
+      "--parallel=auto",
+    ],
+    [
+      "--expose-gc",
+    ]
   ));
 }
 
 { // debug
   const target = BPSet.get("debug");
   target.addTask(async () => await runModule(
-    "./node_modules/jasmine/bin/jasmine.js", [], ["--expose-gc", "--inspect-brk",]
+    "./node_modules/jasmine/bin/jasmine.js",
+    [
+
+    ],
+    [
+      "--expose-gc",
+      "--inspect-brk",
+    ]
   ));
 }
 
