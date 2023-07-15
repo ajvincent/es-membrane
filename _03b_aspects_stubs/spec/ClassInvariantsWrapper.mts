@@ -7,6 +7,10 @@ import type {
   UnshiftableArray
 } from "#stage_utilities/source/types/Utility.mjs";
 
+import type {
+  SharedAssertionObserver,
+} from "#stage_utilities/source/types/assert.mjs";
+
 import SharedAssertSet from "#stage_utilities/source/SharedAssertSet.mjs";
 
 import {
@@ -18,8 +22,6 @@ import type {
 } from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
 import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
-import { SharedAssertionObserver } from "#stage_utilities/source/types/assert.mjs";
-import { AssertInterface } from "#stage_utilities/source/types/assert.mjs";
 
 describe("ClassInvariantsWrapper", () => {
   const generatedDir: ModuleSourceDirectory = {
@@ -30,7 +32,7 @@ describe("ClassInvariantsWrapper", () => {
   type ClassInvariantsWrapper_Type = (
     baseClass: Class<NumberStringType>,
     invariantsArray: UnshiftableArray<(this: NumberStringType) => void>
-  ) => Class<NumberStringType, [SharedAssertSet, ...unknown[]]>;
+  ) => Class<NumberStringType & SharedAssertionObserver, [SharedAssertSet, ...unknown[]]>;
 
   let ClassInvariantsWrapper: ClassInvariantsWrapper_Type;
   beforeAll(async () => {
@@ -78,7 +80,7 @@ describe("ClassInvariantsWrapper", () => {
     const nst = new NST_Class(sharedAsserts);
 
     expect(() => {
-      (nst as unknown as AssertInterface).assert(false, "whoops");
+      nst.assert(false, "whoops");
     }).toThrowError();
 
     expect(() => {
