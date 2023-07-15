@@ -5,8 +5,7 @@ type MethodDecoratorState = (
   "argumentsTrap" |
   "bodyTrap" |
   "returnTrap" |
-  "prePostCondition" |
-  never
+  "prePostCondition"
 );
 
 const MethodDecoratorAcceptStates: ReadonlySet<MethodDecoratorState> = new Set<MethodDecoratorState>([

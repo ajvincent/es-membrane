@@ -26,8 +26,7 @@ interface PathToAbsoluteDirectory extends PathToDirectory {
 
 export type ModuleSourceDirectory = (
   PathWithImportMeta |
-  PathToAbsoluteDirectory |
-  never
+  PathToAbsoluteDirectory
 );
 
 /**
