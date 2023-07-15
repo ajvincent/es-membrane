@@ -37,7 +37,7 @@
     "jasmine": "^5.0.2",
     "ts-morph": "^18.0.0",
     "type-fest": "^3.13.0",
-    "typescript": "^5.0.2"
+    "typescript": "^5.1.6"
   },
   "imports": {
     "#stage_utilities/*": "./_01_stage_utilities/*",
