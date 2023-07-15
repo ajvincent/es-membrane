@@ -46,7 +46,7 @@ export type ConstructorParamsAndStatements = {
   /** The parameters to insert. */
   parameters: readonly TS_Parameter[],
   /** The statements writer. */
-  writer: WriterFunction
+  writerFunction: WriterFunction
 }
 
 /** A base class for quickly generating class stubs. */
@@ -602,7 +602,7 @@ export default class AspectsStubBase
       throw new Error("not reachable");
 
     const allParameters: readonly TS_Parameter[] = this.#constructorParametersAndWriters.flatMap(paramsAndWriter => paramsAndWriter.parameters)
-    const writers: readonly WriterFunction[] = this.#constructorParametersAndWriters.flatMap(paramsAndWriter => paramsAndWriter.writer);
+    const writers: readonly WriterFunction[] = this.#constructorParametersAndWriters.flatMap(paramsAndWriter => paramsAndWriter.writerFunction);
 
     AspectsStubBase.pairedWrite(this.classWriter, "constructor(", ")", false, true, () => {
       allParameters.forEach(param => this.#writeParameter(param));

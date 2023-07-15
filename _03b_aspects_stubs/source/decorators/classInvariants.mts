@@ -22,8 +22,8 @@ import type {
   TS_Parameter,
 } from "../types/ts-morph-native.mjs";
 
-import type {
-  ExtendsAndImplements,
+import AspectsStubBase, {
+  type ExtendsAndImplements,
 } from "../AspectsStubBase.mjs";
 
 // #endregion preamble
@@ -96,9 +96,10 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
       context: Map<symbol, unknown>
     ): ExtendsAndImplements
     {
+      const rv = super.getExtendsAndImplementsTrap(context);
       return {
         extends: "baseClass",
-        implements: super.getExtendsAndImplementsTrap(context).implements
+        implements: rv.implements.concat("SharedAssertionObserver")
       };
     }
 
@@ -113,7 +114,26 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
           parameters: [],
           returnType: "void",
         },
-        ...existingMethods
+
+        {
+          name: "#abortIfAssertFailed",
+          parameters: [],
+          returnType: "void",
+        },
+
+        {
+          name: "observeAssertFailed",
+          parameters: [
+            {
+              name: "forSelf",
+              type: "boolean",
+            },
+          ],
+
+          returnType: "void",
+        },
+
+        ...super.insertAdditionalMethodsTrap(existingMethods),
       ];
     }
 
@@ -122,6 +142,10 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
       isBefore: boolean
     ): void
     {
+      if (!isBefore && (methodStructure?.name === "observeAssertFailed")) {
+        return;
+      }
+
       super.methodDeclarationTrap(methodStructure, isBefore);
       if (!isBefore || methodStructure)
         return;
@@ -130,6 +154,81 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
         `static readonly #invariantsArray: readonly ((this: ${this.interfaceOrAliasName}) => void)[] = invariantsArray;`
       );
       this.classWriter.newLine();
+
+      this.classWriter.writeLine(`#assertFailed = false;`);
+      this.#defineAssertAccessors();
+      this.#addAssertImports();
+
+      this.addConstructorWriter({
+        parameters: [
+          {
+            name: "__sharedAssert__",
+            type: "SharedAssertSet",
+          }
+        ],
+        writerFunction: (writer: CodeBlockWriter) => {
+          writer.writeLine(`__sharedAssert__.buildShared(this);`);
+        }
+      }, "");
+    }
+
+    #defineAssertAccessors(): void {
+      this.classWriter.write(`get assert(): AssertFunction `);
+      this.classWriter.block(() => {
+        this.classWriter.writeLine("return unsharedAssert;");
+      });
+      this.classWriter.newLine();
+
+      this.classWriter.write(`set assert(newAssert: AssertFunction) `);
+      this.classWriter.block(() => {
+        AspectsStubBase.pairedWrite(
+          this.classWriter,
+          `Reflect.defineProperty(this, "assert", `,
+          `);`,
+          false,
+          true,
+          () => {
+            this.classWriter.block(() => {
+              this.classWriter.writeLine(`value: newAssert,`);
+              this.classWriter.writeLine(`writable: false,`);
+              this.classWriter.writeLine(`enumerable: true,`);
+              this.classWriter.writeLine(`configurable: false`);
+            });
+          }
+        );
+      });
+      this.classWriter.newLine();
+      this.classWriter.newLine();
+    }
+
+    #addAssertImports(): void {
+      this.addImport(
+        "#stage_utilities/source/SharedAssertSet.mjs",
+        "SharedAssertSet",
+        true,
+        true
+      );
+
+      this.addImport(
+        "#stage_utilities/source/SharedAssertSet.mjs",
+        "unsharedAssert",
+        false,
+        true
+      );
+
+      this.addImport(
+        "#stage_utilities/source/types/assert.mjs",
+        "type AssertFunction",
+        false,
+        true
+      );
+
+      this.addImport(
+        "#stage_utilities/source/types/assert.mjs",
+        "type SharedAssertionObserver",
+        false,
+        true
+      );
     }
 
     protected buildMethodBodyTrap(
@@ -137,15 +236,23 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
       remainingArgs: Set<TS_Parameter>,
     ) : void
     {
-      remainingArgs.clear();
       if (methodStructure.name === "#runInvariants") {
-        this.classWriter.writeLine(
-          `${this.getClassName()}.#invariantsArray.forEach(invariant => invariant.apply(this));`
-        );
+        return this.#build_runInvariants();
+      }
+
+      if (methodStructure.name === "#abortIfAssertFailed") {
+        return this.#build_abortIfAssertFailed();
+      }
+
+      if (methodStructure.name === "observeAssertFailed") {
+        this.voidArguments(remainingArgs);
+        this.classWriter.writeLine(`this.#assertFailed = true;`);
         return;
       }
 
+      remainingArgs.clear();
       if (this.getOriginalStructures().has(methodStructure.name)) {
+        this.classWriter.writeLine(`this.#abortIfAssertFailed();`);
         this.classWriter.writeLine(`this.#runInvariants();`);
         this.classWriter.writeLine(`const __rv__ = super.${
           methodStructure.name
@@ -155,6 +262,21 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
         this.classWriter.writeLine(`this.#runInvariants();`);
         this.classWriter.writeLine(`return __rv__;`);
       }
+    }
+
+    #build_runInvariants(): void {
+      this.classWriter.writeLine(
+        `${this.getClassName()}.#invariantsArray.forEach(invariant => invariant.apply(this));`
+      );
+    }
+
+    #build_abortIfAssertFailed(): void {
+      this.classWriter.write(`if (this.#assertFailed) `);
+      this.classWriter.block(() => {
+        this.classWriter.writeLine(
+          `throw new Error("An assertion has already failed.  This object is dead.");`
+        );
+      });
     }
   }
 }

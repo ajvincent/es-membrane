@@ -119,7 +119,7 @@ const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields> = funct
 
       this.addConstructorWriter({
         parameters: [],
-        writer: (writer: CodeBlockWriter) => {
+        writerFunction: (writer: CodeBlockWriter) => {
           writer.writeLine("this.#nextHandler = new BaseClass(...parameters);");
         }
       }, "BaseClass");

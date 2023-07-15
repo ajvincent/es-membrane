@@ -272,7 +272,7 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
 
       this.addConstructorWriter({
         parameters: [],
-        writer: (writer: CodeBlockWriter) => {
+        writerFunction: (writer: CodeBlockWriter) => {
           writer.writeLine("this.#nextHandler = new BaseClass(...parameters);");
         }
       }, "BaseClass");
