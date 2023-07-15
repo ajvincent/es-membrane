@@ -389,7 +389,7 @@ export default class AspectsStubBase
     }
 
     this.addImport(
-      "#mixin_decorators/source/types/Class.mjs",
+      "type-fest",
       "type Class",
       false,
       true

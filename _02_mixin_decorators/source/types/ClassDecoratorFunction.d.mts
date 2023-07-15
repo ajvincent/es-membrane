@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { Class } from "./Class.mjs";
+import type {
+  Class
+} from "type-fest";
 
 /**
  * A class decorator which does returns a class to replace the class it receives.

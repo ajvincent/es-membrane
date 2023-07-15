@@ -1,4 +1,8 @@
 import {
+  type Class,
+} from "type-fest";
+
+import {
   type ModuleSourceDirectory,
   getModulePart,
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
@@ -12,10 +16,6 @@ import type {
 } from "#stage_utilities/source/types/assert.mjs";
 
 import SharedAssertSet from "#stage_utilities/source/SharedAssertSet.mjs";
-
-import {
-  type Class,
-} from "#mixin_decorators/source/types/Class.mjs";
 
 import type {
   NumberStringType

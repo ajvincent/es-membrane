@@ -1,8 +1,7 @@
-import { Constructor } from "type-fest";
 import type {
 	Class,
-	//Constructor
-} from "./Class.mjs";
+	Constructor,
+} from "type-fest";
 
 /**
 A type for mixin classes, particularly useful when applying [ECMAScript decorators](https://www.typescriptlang.org/docs/handbook/mixins.html#decorators-and-mixins-4881).

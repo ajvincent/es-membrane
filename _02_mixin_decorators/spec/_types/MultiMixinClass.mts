@@ -1,6 +1,6 @@
 import type {
   Class
-} from "../../source/types/Class.mjs";
+} from "type-fest";
 
 import type {
   MultiMixinClass

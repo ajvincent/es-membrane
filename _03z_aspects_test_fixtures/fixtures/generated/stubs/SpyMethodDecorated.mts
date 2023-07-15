@@ -10,7 +10,7 @@ import {
 } from "../../components/methodDecorators/spy.mjs";
 import {
   type Class,
-} from "#mixin_decorators/source/types/Class.mjs";
+} from "type-fest";
 
 // #endregion preamble
 

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
-  Class,
-} from "./Class.mjs";
+  Class
+} from "type-fest";
 
 import type {
   ClassDecoratorFunction

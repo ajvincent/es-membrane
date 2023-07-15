@@ -6,7 +6,7 @@ import {
 } from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 import {
   type Class,
-} from "#mixin_decorators/source/types/Class.mjs";
+} from "type-fest";
 import {
   type TransitionInterface,
 } from "#aspects/stubs/source/types/TransitionInterface.mjs";

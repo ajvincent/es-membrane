@@ -1,14 +1,14 @@
 import {
+  type Class,
+} from "type-fest";
+
+import {
   type ModuleSourceDirectory,
   getModulePart,
 } from "#stage_utilities/source/AsyncSpecModules.mjs";
 
-import {
-  type Class,
-} from "#mixin_decorators/source/types/Class.mjs";
-
 import type {
-  NumberStringType
+  NumberStringType,
 } from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
 import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";

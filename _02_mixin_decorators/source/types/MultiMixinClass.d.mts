@@ -1,12 +1,9 @@
 import type {
+  Class,
   TupleToUnion,
   UnionToIntersection,
   Simplify,
 } from "type-fest";
-
-import type {
-  Class,
-} from "./Class.mjs";
 
 import type {
   MixinClass,

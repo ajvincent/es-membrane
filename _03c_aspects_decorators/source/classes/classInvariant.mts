@@ -1,4 +1,9 @@
 // #region preamble
+
+import type {
+  Class
+} from "type-fest";
+
 import type {
   UnshiftableArray,
 } from "#stage_utilities/source/types/Utility.mjs";
@@ -6,15 +11,11 @@ import type {
 import ReplaceableValueMap from "#stage_utilities/source/ReplaceableValueMap.mjs";
 
 import type {
-  Class
-} from "#mixin_decorators/source/types/Class.mjs";
-
-import type {
-  ClassDecoratorFunction
+  ClassDecoratorFunction,
 } from "#mixin_decorators/source/types/ClassDecoratorFunction.mjs";
 
 import type {
-  MethodsOnlyType
+  MethodsOnlyType,
 } from "#mixin_decorators/source/types/MethodsOnlyType.mjs";
 
 // #endregion preamble

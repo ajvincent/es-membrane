@@ -2,7 +2,7 @@
 
 import type {
   Class
-} from "#mixin_decorators/source/types/Class.mjs";
+} from "type-fest";
 
 import type {
   ClassDecoratorFunction

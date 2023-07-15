@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/unbound-method */
+import type {
+  Class
+} from "type-fest";
 
-import { NumberStringType } from "#stage_utilities/fixtures/types/NumberStringType.mjs";
+import type {
+  NumberStringType,
+} from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
-
-import type { Class } from "../../source/types/Class.mjs";
 
 it("Class type works", () => {
   const NST_Class: Class<NumberStringType> = NumberStringClass;

@@ -1,4 +1,6 @@
-import type { TupleToUnion } from "type-fest";
+import type {
+  TupleToUnion,
+} from "type-fest";
 
 /**
  * An utility type for declaring mixin class static and instance fields.

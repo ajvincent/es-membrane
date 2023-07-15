@@ -1,15 +1,20 @@
 // #region preamble
 import type {
+  Class
+} from "type-fest";
+
+import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
+
+import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
+import type {
+  NumberStringType,
+} from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 
 import type {
   SubclassDecorator
 } from "#mixin_decorators/source/types/SubclassDecorator.mjs";
-
-import type {
-  Class
-} from "#mixin_decorators/source/types/Class.mjs";
 
 import type {
   StaticAndInstance
@@ -19,10 +24,6 @@ import {
   MultiMixinClass
 } from "#mixin_decorators/source/types/MultiMixinClass.mjs"
 
-import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
-import type {
-  NumberStringType
-} from "#stage_utilities/fixtures/types/NumberStringType.mjs";
 // #endregion preamble
 
 declare const ClassInvariantKey: unique symbol;
