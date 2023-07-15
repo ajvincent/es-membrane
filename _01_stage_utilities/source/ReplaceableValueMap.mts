@@ -33,7 +33,7 @@ export default class ReplaceableValueMap<
     if (this.#contextMap.has(source)) {
       return {
         source,
-        userContext: this.#contextMap.get(source) as UserContext,
+        userContext: this.#contextMap.get(source)!,
       };
     }
 

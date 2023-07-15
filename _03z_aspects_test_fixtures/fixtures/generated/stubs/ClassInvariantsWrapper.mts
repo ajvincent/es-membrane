@@ -31,7 +31,7 @@ export default function ClassInvariantsWrapper
   extends baseClass
   implements NumberStringType, SharedAssertionObserver
   {
-    static readonly #invariantsArray: ReadonlyArray<(this: NumberStringType) => void> = invariantsArray;
+    static readonly #invariantsArray: readonly ((this: NumberStringType) => void)[] = invariantsArray;
 
     #assertFailed = false;
     get assert(): AssertFunction {

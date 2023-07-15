@@ -116,7 +116,7 @@ export async function getModuleClassWithArgs<
 
 const SubpathImportStart: [string, string][] = [];
 {
-  const packageFile = await fs.readFile(process.env.npm_package_json as string, {encoding: "utf-8"});
+  const packageFile = await fs.readFile(process.env.npm_package_json!, {encoding: "utf-8"});
   const packageJSON = JSON.parse(packageFile) as { imports: Record<string, string> };
   for (const [key, value] of Object.entries(packageJSON.imports)) {
     SubpathImportStart.push([key.replace(/\/\*$/, ""), value.replace(/\/\*$/, "")]);
@@ -135,7 +135,7 @@ export function pathToModule(
         if (pathToModuleFile.startsWith(key)) {
           pathToModuleFile = pathToModuleFile.replace(key, value);
           return path.normalize(path.resolve(
-            path.dirname(process.env.npm_package_json as string),
+            path.dirname(process.env.npm_package_json!),
             pathToModuleFile,
           ));
         }

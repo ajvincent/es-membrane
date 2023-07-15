@@ -34,7 +34,7 @@ export type StubClassSetConfiguration = Readonly<{
   isTypeFilePackage: boolean,
 
   /** parameter definitions which aren't necessarily based on the original arguments. */
-  middleParameters: ReadonlyArray<TS_Parameter>,
+  middleParameters: readonly TS_Parameter[],
 
   /** "Tail" class stub specific settings.  */
   transitionsTail: {

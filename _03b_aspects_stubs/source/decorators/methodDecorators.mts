@@ -193,7 +193,7 @@ const AddMethodDecorators_Decorator: AspectsStubDecorator<
     {
       let rv = typeParam.name;
       if (typeParam.constraint) {
-        rv += " extends " + (extractType(typeParam.constraint, true) as string)
+        rv += " extends " + (extractType(typeParam.constraint, true)!)
       }
       return rv;
     }
@@ -217,10 +217,10 @@ const AddMethodDecorators_Decorator: AspectsStubDecorator<
      * @returns the serialization of the parameter names.
      */
     #parameterNames(
-      parameters: ReadonlyArray<TS_Parameter> | undefined | null
+      parameters: readonly TS_Parameter[] | undefined | null
     ): string
     {
-      return parameters?.map(parameter => parameter.name).join(", ") || "";
+      return parameters?.map(parameter => parameter.name).join(", ") ?? "";
     }
   }
 }

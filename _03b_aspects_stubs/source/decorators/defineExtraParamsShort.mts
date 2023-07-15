@@ -2,10 +2,6 @@
 import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
 
 import type {
-  WriterFunction
-} from "ts-morph";
-
-import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
 
@@ -58,7 +54,7 @@ export type DefineExtraParamsShortFields = RightExtendsLeft<StaticAndInstance<ty
      */
     defineExtraParams(
       includeHeadParameters: boolean,
-      middleParameters: ReadonlyArray<TS_Parameter>,
+      middleParameters: readonly TS_Parameter[],
       tailParamRenamer: ParamRenamer,
     ) : void;
   },
@@ -86,7 +82,7 @@ const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsSho
       includeHeadParameters: boolean;
 
       /** parameter definitions which aren't necessarily based on the original arguments. */
-      middleParameters: ReadonlyArray<TS_Parameter>;
+      middleParameters: readonly TS_Parameter[];
 
       /** A simple function to give us a new name for a wrapped original argument. */
       tailParamRenamer: ParamRenamer;
@@ -109,7 +105,7 @@ const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsSho
      */
     public defineExtraParams(
       includeHeadParameters: boolean,
-      middleParameters: ReadonlyArray<TS_Parameter>,
+      middleParameters: readonly TS_Parameter[],
       tailParamRenamer: ParamRenamer,
     ) : void
     {
@@ -126,7 +122,7 @@ const DefineExtraParamsShortDecorator: AspectsStubDecorator<DefineExtraParamsSho
         middleParameters,
         tailParamRenamer,
         middleParamTypes: middleParameters.map(
-          param => extractType(param.type as string | WriterFunction, true)
+          param => extractType(param.type!, true)
         ).join(", "),
       });
 

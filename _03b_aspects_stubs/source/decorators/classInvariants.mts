@@ -103,8 +103,8 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
     }
 
     protected insertAdditionalMethodsTrap(
-      existingMethods: ReadonlyArray<TS_Method>
-    ): ReadonlyArray<TS_Method>
+      existingMethods: readonly TS_Method[]
+    ): readonly TS_Method[]
     {
       return [
         {
@@ -127,7 +127,7 @@ const ClassInvariantsDecorator: AspectsStubDecorator<ClassInvariantsFields> = fu
         return;
 
       this.classWriter.writeLine(
-        `static readonly #invariantsArray: ReadonlyArray<(this: ${this.interfaceOrAliasName}) => void> = invariantsArray;`
+        `static readonly #invariantsArray: readonly ((this: ${this.interfaceOrAliasName}) => void)[] = invariantsArray;`
       );
       this.classWriter.newLine();
     }

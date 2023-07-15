@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-type Class<T extends object, Arguments extends unknown[] = any[]> = {
-  prototype: T;
-  new(...parameters: Arguments): T
-};
+import type {
+  Class,
+} from "type-fest";
 
 /**
  * A class decorator which does returns a class to replace the class it receives.
@@ -18,8 +16,10 @@ type Class<T extends object, Arguments extends unknown[] = any[]> = {
 type ClassDecoratorFunction<
   BaseClassType extends Class<object>,
   ReturnsModified extends boolean | BaseClassType,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Arguments extends any[] | false
 > = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Arguments extends any[] ?
   (...args: Arguments) => ClassDecoratorFunction<BaseClassType, ReturnsModified, false> :
   (

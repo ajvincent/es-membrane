@@ -144,10 +144,10 @@ it("Generic method decorators are possible", () => {
   const events: [object, string | number | symbol, ...unknown[]][] = [];
 
   function spyDecoratorBase<
-    This extends {
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      [key: string | number | symbol]: (this: This, ...args: any[]) => any
-    },
+    This extends Record<
+      string | number | symbol,
+      (this: This, ...args: any[]) => any
+    >,
     Key extends keyof This
   >
   (
@@ -176,10 +176,10 @@ it("Generic method decorators are possible", () => {
   }
   
   function spyDecorator<
-    This extends {
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      [key: string | number | symbol]: (this: This, ...args: any[]) => any
-    },
+    This extends Record<
+      string | number | symbol,
+      (this: This, ...args: any[]) => any
+    >,
     Key extends keyof This,
   >
   (

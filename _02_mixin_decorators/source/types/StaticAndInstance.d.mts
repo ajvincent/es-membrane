@@ -22,7 +22,7 @@ export interface StaticAndInstance<UniqueSymbol extends symbol> {
 // #region StaticAndInstanceArray helpers
 
 type HeadSymbol<
-  Elements extends ReadonlyArray<symbol>
+  Elements extends readonly symbol[]
 > = Elements extends [
   infer Head,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -30,35 +30,35 @@ type HeadSymbol<
 ] ? Head : never;
 
 type TailSymbols<
-  Elements extends ReadonlyArray<symbol>
+  Elements extends readonly symbol[]
 > = Elements extends [
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   infer Head,
   ...infer Tail
 ] ? Tail : never;
 type TailSymbolsAsArray<
-  Elements extends ReadonlyArray<symbol>
+  Elements extends readonly symbol[]
 > = Elements extends [
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   infer Head,
-  ...infer Tail extends ReadonlyArray<symbol>
+  ...infer Tail extends readonly symbol[]
 ] ? Tail : never;
 
-type FirstSymbolAppearsTwice<Elements extends ReadonlyArray<symbol>> =
+type FirstSymbolAppearsTwice<Elements extends readonly symbol[]> =
   HeadSymbol<Elements> extends TupleToUnion<TailSymbols<Elements>> ? true : false;
 
-type IsUniqueSymbolArray<Elements extends ReadonlyArray<symbol>> =
+type IsUniqueSymbolArray<Elements extends readonly symbol[]> =
   Elements extends [] ? true :
   FirstSymbolAppearsTwice<Elements> extends true ? false :
   IsUniqueSymbolArray<TailSymbolsAsArray<Elements>>;
 
 type SymbolKeyArray<
-  Elements extends ReadonlyArray<StaticAndInstance<symbol>>
+  Elements extends readonly StaticAndInstance<symbol>[]
 > = {
   [key in keyof Elements]: Elements[key]["symbolKey"];
 }
 // #endregion StaticAndInstanceArray helpers
 
 export type StaticAndInstanceArray<
-  Elements extends ReadonlyArray<StaticAndInstance<symbol>>
+  Elements extends readonly StaticAndInstance<symbol>[]
 > = IsUniqueSymbolArray<SymbolKeyArray<Elements>> extends true ? Elements : never;

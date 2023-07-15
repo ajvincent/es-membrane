@@ -22,11 +22,11 @@ import type {
  */
 export type MethodDecoratorDescription = {
   readonly decoratorName: string,
-  readonly typeParameters: ReadonlyArray<TS_TypeParameter> | null,
-  readonly parameters: ReadonlyArray<TS_Parameter> | null,
+  readonly typeParameters: readonly TS_TypeParameter[] | null,
+  readonly parameters: readonly TS_Parameter[] | null,
 };
 
 export type MethodDecoratorsOfClass<Type extends MethodsOnlyType> = {
-  readonly importsToAdd: ReadonlyArray<AddImport>,
-  readonly methods: Record<keyof Type, ReadonlyArray<MethodDecoratorDescription>>;
+  readonly importsToAdd: readonly AddImport[],
+  readonly methods: Record<keyof Type, readonly MethodDecoratorDescription[]>;
 };

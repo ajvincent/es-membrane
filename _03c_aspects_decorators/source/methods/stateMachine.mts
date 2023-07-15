@@ -15,7 +15,7 @@ const MethodDecoratorAcceptStates: ReadonlySet<MethodDecoratorState> = new Set<M
   "returnTrap",
 ]);
 
-const MethodDecoratorStateTransitions: ReadonlyArray<[MethodDecoratorState, MethodDecoratorState]> = [
+const MethodDecoratorStateTransitions: readonly [MethodDecoratorState, MethodDecoratorState][] = [
   ["initial", "returnTrap"],
   ["initial", "bodyTrap"],
   ["initial", "argumentsTrap"],

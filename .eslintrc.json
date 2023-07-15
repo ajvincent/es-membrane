@@ -8,7 +8,8 @@
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+    "plugin:@typescript-eslint/recommended-type-checked",
+    "plugin:@typescript-eslint/stylistic-type-checked"
   ],
 
   "ignorePatterns": [
@@ -29,7 +30,7 @@
     "ecmaVersion": 2022,
     "sourceType": "module",
     "tsconfigRootDir": ".",
-    "project": ["./tsconfig.json"]
+    "project": true
   },
   "plugins": [
     "@typescript-eslint",
@@ -46,6 +47,7 @@
         }
       }
     ],
+    "@typescript-eslint/consistent-type-definitions": "off",
     "@typescript-eslint/explicit-function-return-type": ["error"],
     "tsdoc/syntax": "warn"
   }

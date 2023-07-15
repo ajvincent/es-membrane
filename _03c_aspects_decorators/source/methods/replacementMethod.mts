@@ -166,13 +166,23 @@ function GenericAspectFunction<
 
     // return traps
     type ReturnOrReplace = ReturnType<This[Key]> | typeof RETURN_NOT_REPLACED;
-    for (let i = 0; i < aspectsDictionary.returnTraps.length; i++) {
-      const trap = aspectsDictionary.returnTraps[i];
+    for (const trap of aspectsDictionary.returnTraps) {
       const maybeReplaceRV: ReturnOrReplace = trap.call<
         This & AssertInterface,
-        [SharedVariables, ReturnType<This[Key]>, ...Parameters<Method<This, Key>>],
+        [
+          SharedVariables,
+          ReturnType<This[Key]>,
+          ...Parameters<Method<This, Key>>
+        ],
         ReturnType<This[Key]> | typeof RETURN_NOT_REPLACED
-      >(this, sharedVariables as SharedVariables, rv as ReturnType<This[Key]>, ...parameters);
+      >
+      (
+        this,
+        sharedVariables as SharedVariables,
+        rv as ReturnType<This[Key]>,
+        ...parameters
+      );
+
       if (maybeReplaceRV !== RETURN_NOT_REPLACED)
         rv = maybeReplaceRV;
     }
@@ -183,7 +193,7 @@ function GenericAspectFunction<
 
     // postcondition traps
     aspectsDictionary.postconditionTraps.forEach(trap => {
-      const context = conditionsContextMap.get(trap) as PrePostConditionsContext<unknown>;
+      const context = conditionsContextMap.get(trap)!;
       trap.apply(this, [context, rv, ...parameters]);
     });
 

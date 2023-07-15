@@ -37,7 +37,7 @@ export type SubclassDecorator<
  */
 export type SubclassDecoratorSequence<
   Base extends Class<object>,
-  Interfaces extends ReadonlyArray<StaticAndInstance<symbol>>,
+  Interfaces extends readonly StaticAndInstance<symbol>[],
   Arguments extends any[] | false
 > =
   StaticAndInstanceArray<Interfaces> extends never ? never :

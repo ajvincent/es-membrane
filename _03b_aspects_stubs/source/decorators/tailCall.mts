@@ -132,7 +132,7 @@ const TransitionsTailCallDecorator: AspectsStubDecorator<TailCallFields> = funct
     {
       const tailParams = methodStructure.parameters?.slice(
         -this.#headParameterCount
-      ) || [];
+      ) ?? [];
 
       tailParams.forEach(param => remainingArgs.delete(param));
       this.voidArguments(remainingArgs);

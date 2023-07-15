@@ -6,13 +6,11 @@ import type {
   ClassDecoratorFunction
 } from "../types/ClassDecoratorFunction.mjs";
 
-type ClassDecoratorSequence<BaseClassType extends Class<object>> = ReadonlyArray<
-  ClassDecoratorFunction<
-    BaseClassType,
-    boolean | BaseClassType,
-    false
-  >
->;
+type ClassDecoratorSequence<BaseClassType extends Class<object>> = readonly ClassDecoratorFunction<
+  BaseClassType,
+  boolean | BaseClassType,
+  false
+>[];
 
 function ClassDecoratorSequenceInternal<
   BaseClassType extends Class<object>

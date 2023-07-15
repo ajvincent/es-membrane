@@ -39,12 +39,12 @@ type StructureWithMethods = Pick<InterfaceDeclarationStructure, "methods">;
 
 export type ExtendsAndImplements = {
   readonly extends: string,
-  readonly implements: ReadonlyArray<string>,
+  readonly implements: readonly string[],
 };
 
 export type ConstructorParamsAndStatements = {
   /** The parameters to insert. */
-  parameters: ReadonlyArray<TS_Parameter>,
+  parameters: readonly TS_Parameter[],
   /** The statements writer. */
   writer: WriterFunction
 }
@@ -124,8 +124,8 @@ export default class AspectsStubBase
    * Metadata for enclosing the generated class in a function, where the user can pass in configuration parameters such as the base class.
    */
   #wrapInFunctionParameters?: {
-    typeParameters: ReadonlyArray<TS_TypeParameter>,
-    parameters: ReadonlyArray<TS_Parameter>,
+    typeParameters: readonly TS_TypeParameter[],
+    parameters: readonly TS_Parameter[],
     functionName: string,
     beforeClassTrap: (classWriter: CodeBlockWriter) => void,
   } = undefined;
@@ -133,7 +133,7 @@ export default class AspectsStubBase
   #constructorParametersAndWriters?: ConstructorParamsAndStatements[];
   #manualBaseClass = "";
 
-  #originalMethodStructures: Map<string, ReadonlyDeep<TS_Method>> = new Map;
+  #originalMethodStructures = new Map<string, ReadonlyDeep<TS_Method>>();
 
   /** This handles the actual class generation code. */
   protected readonly classWriter = new CodeBlockWriter(writerOptions);
@@ -271,8 +271,8 @@ export default class AspectsStubBase
    * @param beforeClassTrap - a callback to execute before I write any of the class code.
    */
   wrapInFunction(
-    typeParameters: ReadonlyArray<TS_TypeParameter>,
-    parameters: ReadonlyArray<TS_Parameter>,
+    typeParameters: readonly TS_TypeParameter[],
+    parameters: readonly TS_Parameter[],
     functionName: string,
     beforeClassTrap: (classWriter: CodeBlockWriter) => void,
   ) : void
@@ -326,7 +326,7 @@ export default class AspectsStubBase
   #writeImportBlock(importLocation: string) : void
   {
     const defaultImport = this.#defaultImports.get(importLocation) ?? "";
-    const blockImports: string[] = Array.from(this.#blockImports.get(importLocation) || []);
+    const blockImports: string[] = Array.from(this.#blockImports.get(importLocation) ?? []);
 
     this.#defaultImports.delete(importLocation);
     this.#blockImports.delete(importLocation);
@@ -438,7 +438,7 @@ export default class AspectsStubBase
   #writeTypeParameter(typeParameter: TS_TypeParameter, isLast: boolean): void {
     let serialized: string = typeParameter.name;
     if (typeParameter.constraint) {
-      serialized += " extends " + (extractType(typeParameter.constraint, true) as string);
+      serialized += " extends " + (extractType(typeParameter.constraint, true)!);
     }
     if (!isLast)
       serialized += ", ";
@@ -471,7 +471,7 @@ export default class AspectsStubBase
       this.classWriter.writeLine("implements " + _implements.join(", "));
 
     // The final list of methods.
-    const methods: ReadonlyArray<TS_Method> = this.#getTypeMethods();
+    const methods: readonly TS_Method[] = this.#getTypeMethods();
 
     // write each method, with method traps before all methods, before and after each method, and after all methods.
     this.classWriter.block(() => {
@@ -512,7 +512,7 @@ export default class AspectsStubBase
   }
 
   /** Get the methods of the type or interface to implement, including from the user for additional methods. */
-  #getTypeMethods(): ReadonlyArray<TS_Method>
+  #getTypeMethods(): readonly TS_Method[]
   {
     let structure: StructureWithMethods;
 
@@ -522,7 +522,7 @@ export default class AspectsStubBase
         throw new Error("assertion failure: we should have methods");
       structure = s;
 
-      this.#buildOriginalStructures(this.#interfaceOrAlias.getStructure().methods || []);
+      this.#buildOriginalStructures(this.#interfaceOrAlias.getStructure().methods ?? []);
     }
     else if (this.#interfaceOrAlias instanceof TypeAliasDeclaration) {
       const literal = this.#interfaceOrAlias.getTypeNodeOrThrow();
@@ -534,7 +534,7 @@ export default class AspectsStubBase
       }
       structure = s;
 
-      this.#buildOriginalStructures((literal.getStructure() as StructureWithMethods).methods || []);
+      this.#buildOriginalStructures((literal.getStructure() as StructureWithMethods).methods ?? []);
     }
     else {
       throw new Error("unreachable");
@@ -555,7 +555,7 @@ export default class AspectsStubBase
     return methodList;
   }
 
-  #buildOriginalStructures(methods: ReadonlyArray<TS_Method>): void
+  #buildOriginalStructures(methods: readonly TS_Method[]): void
   {
     methods.forEach(method => {
       this.#originalMethodStructures.set(method.name, method);
@@ -568,8 +568,8 @@ export default class AspectsStubBase
    * @returns the new method ordering.
    */
   protected insertAdditionalMethodsTrap(
-    existingMethods: ReadonlyArray<TS_Method>
-  ): ReadonlyArray<TS_Method>
+    existingMethods: readonly TS_Method[]
+  ): readonly TS_Method[]
   {
     return existingMethods;
   }
@@ -601,8 +601,8 @@ export default class AspectsStubBase
     if (!this.#constructorParametersAndWriters)
       throw new Error("not reachable");
 
-    const allParameters: ReadonlyArray<TS_Parameter> = this.#constructorParametersAndWriters.flatMap(paramsAndWriter => paramsAndWriter.parameters)
-    const writers: ReadonlyArray<WriterFunction> = this.#constructorParametersAndWriters.flatMap(paramsAndWriter => paramsAndWriter.writer);
+    const allParameters: readonly TS_Parameter[] = this.#constructorParametersAndWriters.flatMap(paramsAndWriter => paramsAndWriter.parameters)
+    const writers: readonly WriterFunction[] = this.#constructorParametersAndWriters.flatMap(paramsAndWriter => paramsAndWriter.writer);
 
     AspectsStubBase.pairedWrite(this.classWriter, "constructor(", ")", false, true, () => {
       allParameters.forEach(param => this.#writeParameter(param));
@@ -648,7 +648,7 @@ export default class AspectsStubBase
     }
     this.classWriter.newLineIfLastNot();
 
-    const remainingArgs = new Set(method.parameters || []);
+    const remainingArgs = new Set(method.parameters ?? []);
     this.classWriter.block(() => this.buildMethodBodyTrap(method, remainingArgs));
   }
 

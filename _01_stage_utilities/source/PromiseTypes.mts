@@ -98,7 +98,7 @@ export async function PromiseAllParallel<E, V>(
  * @param promiseDictionary - the dictionary of promisess
  */
 export async function PromiseDictionary<
-  T extends { [key: string | symbol]: unknown }
+  T extends Record<string | symbol, unknown>
 >
 (
   promiseDictionary: { [key in keyof T]: Promise<T[key]> }

@@ -8,7 +8,7 @@ export interface SpyBaseInterface {
 
 export default class SpyBase implements SpyBaseInterface
 {
-  readonly spyMap: DefaultMap<string | symbol, jasmine.Spy> = new DefaultMap;
+  readonly spyMap = new DefaultMap<string | symbol, jasmine.Spy>();
 
   getSpy(name: string | symbol) : jasmine.Spy
   {

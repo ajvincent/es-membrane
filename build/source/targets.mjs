@@ -309,6 +309,22 @@ catch (ex: unknown) {
         await runModule("./node_modules/eslint/bin/eslint.js", args);
     });
 }
+{ // eslint-fix
+    const target = BPSet.get("eslint-fix");
+    const args = [
+        "-c", "./.eslintrc.json",
+        "--max-warnings=0",
+        "--fix",
+    ];
+    const dirs = await PromiseAllParallel(stageDirs, async (stageDir) => {
+        const { files } = await readDirsDeep(path.resolve(stageDir));
+        return files.some(f => f.endsWith(".mts")) ? stageDir : "";
+    });
+    args.push(...dirs.filter(Boolean));
+    target.addTask(async () => {
+        await runModule("./node_modules/eslint/bin/eslint.js", args);
+    });
+}
 { // examples
     const target = BPSet.get("examples");
     stageDirs.forEach((stageDir) => {

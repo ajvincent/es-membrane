@@ -57,7 +57,7 @@ export default class SharedAssertSet
   }
 
   /** @internal */
-  getAssertFailures(): ReadonlyArray<SharedAssertionError>
+  getAssertFailures(): readonly SharedAssertionError[]
   {
     return this.#assertFailures;
   }
@@ -103,7 +103,7 @@ class SharedAssert
     return Boolean(this.#ownAssertFailures.length);
   }
 
-  getOwnFailures(): ReadonlyArray<SharedAssertionError>
+  getOwnFailures(): readonly SharedAssertionError[]
   {
     return this.#ownAssertFailures;
   }
@@ -113,7 +113,7 @@ class SharedAssert
     return this.#set.hasAssertFailures();
   }
 
-  getSharedFailures(): ReadonlyArray<SharedAssertionError>
+  getSharedFailures(): readonly SharedAssertionError[]
   {
     return this.#set.getAssertFailures();
   }

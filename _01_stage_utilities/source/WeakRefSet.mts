@@ -45,10 +45,10 @@ interface WeakRefSetInterface<T extends object> extends WeakRefSetInternalInterf
 class WeakRefSetInternal<T extends object>
 implements WeakRefSetInternalInterface<T>
 {
-  readonly #valueToRef: WeakMap<T, WeakRef<T>> = new WeakMap;
+  readonly #valueToRef = new WeakMap<T, WeakRef<T>>();
   readonly #references = new Set<WeakRef<T>>;
 
-  #finalizer: FinalizationRegistry<WeakRef<T>> = new FinalizationRegistry(
+  #finalizer = new FinalizationRegistry<WeakRef<T>>(
     ref => this.#references.delete(ref)
   );
 

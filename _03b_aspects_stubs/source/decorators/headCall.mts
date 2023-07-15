@@ -1,8 +1,4 @@
 // #region preamble
-import type {
-  WriterFunction
-} from "ts-morph";
-
 import CodeBlockWriter from "code-block-writer";
 
 import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
@@ -66,7 +62,7 @@ export type HeadCallFields = RightExtendsLeft<StaticAndInstance<typeof HeadCallK
      */
     defineExtraParams(
       includeHeadParameters: boolean,
-      middleParameters: ReadonlyArray<TS_Parameter>,
+      middleParameters: readonly TS_Parameter[],
       middleParamsTypeAliasName: string,
       middleParamBuilder: MiddleParamBuilder,
       tailParamRenamer: ParamRenamer,
@@ -114,13 +110,13 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
       includeHeadParameters: boolean;
 
       /** parameter definitions which aren't necessarily based on the original arguments. */
-      middleParameters: ReadonlyArray<TS_Parameter>;
+      middleParameters: readonly TS_Parameter[];
 
       /** A type alias name to use for the middle parameter types. */
       middleParamsTypeAliasName: string;
 
       /** Extracted names from the array of parameters. */
-      middleParameterNames: ReadonlyArray<string>;
+      middleParameterNames: readonly string[];
 
       /** A function to define middle parameters. */
       middleParamBuilder: MiddleParamBuilder;
@@ -156,7 +152,7 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
      */
     public defineExtraParams(
       includeHeadParameters: boolean,
-      middleParameters: ReadonlyArray<TS_Parameter>,
+      middleParameters: readonly TS_Parameter[],
       middleParamsTypeAliasName: string,
       middleParamBuilder: MiddleParamBuilder,
       tailParamRenamer: ParamRenamer,
@@ -180,7 +176,7 @@ const TransitionsHeadCallDecorator: AspectsStubDecorator<HeadCallFields> = funct
         tailParamRenamer,
         tailParamBuilder,
         middleParamTypes: middleParameters.map(
-          param => extractType(param.type as string | WriterFunction, true)
+          param => extractType(param.type!, true)
         ).join(", "),
       });
 

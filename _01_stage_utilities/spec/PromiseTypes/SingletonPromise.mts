@@ -7,7 +7,7 @@ describe("PromiseTypes.SingletonPromise", () => {
     const expected = {};
     const spy = jasmine.createSpy();
     spy.and.returnValue(Promise.resolve(expected));
-    const x: SingletonPromise<object> = new SingletonPromise(spy);
+    const x = new SingletonPromise<object>(spy);
 
     await expectAsync(x.run()).toBeResolvedTo(expected);
     expect(spy).toHaveBeenCalledTimes(1);
@@ -20,7 +20,7 @@ describe("PromiseTypes.SingletonPromise", () => {
     const expected = {};
     const spy = jasmine.createSpy();
     spy.and.returnValue(Promise.reject(expected));
-    const x: SingletonPromise<object> = new SingletonPromise(spy);
+    const x = new SingletonPromise<object>(spy);
 
     await expectAsync(x.run()).toBeRejectedWith(expected);
     expect(spy).toHaveBeenCalledTimes(1);

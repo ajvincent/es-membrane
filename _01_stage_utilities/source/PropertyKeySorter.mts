@@ -4,7 +4,7 @@ import { DefaultMap } from "./DefaultMap.mjs";
 
 export default class PropertyKeySorter
 {
-  readonly #symbolMap: DefaultMap<symbol, number> = new DefaultMap;
+  readonly #symbolMap = new DefaultMap<symbol, number>;
 
   addSymbol(key: symbol) : void
   {

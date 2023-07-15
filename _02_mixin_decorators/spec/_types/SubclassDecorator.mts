@@ -144,7 +144,7 @@ describe("Subclass decorators: ", () => {
       }
     }
 
-    type DecoratorSequence<Interfaces extends ReadonlyArray<StaticAndInstance<symbol>>> =
+    type DecoratorSequence<Interfaces extends readonly StaticAndInstance<symbol>[]> =
       SubclassDecoratorSequence<typeof FirstClass, Interfaces, false>;
 
     expect<

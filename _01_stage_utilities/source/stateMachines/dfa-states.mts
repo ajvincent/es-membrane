@@ -12,7 +12,7 @@ export default class StateMachine_DFA<State extends string> {
   constructor(
     startState: State,
     acceptStates: ReadonlySet<State>,
-    transitions: ReadonlyArray<[State, State]>
+    transitions: readonly [State, State][]
   )
   {
     this.#currentState = startState;
