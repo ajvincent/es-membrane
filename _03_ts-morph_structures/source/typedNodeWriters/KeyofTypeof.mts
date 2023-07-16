@@ -1,4 +1,6 @@
-import { TypedNodeWriter } from "../../types/ts-morph-typednodewriter.mjs";
+import type {
+  TypedNodeWriter
+} from "../types/ts-morph-typednodewriter.mjs";
 import ChildrenWriter from "./ChildrenWriter.mjs";
 
 export default class KeyofTypeofWriter extends ChildrenWriter

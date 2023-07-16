@@ -6,7 +6,7 @@ import type {
 import ChildrenWriter from "./ChildrenWriter.mjs";
 import type {
   TypedNodeWriter
-} from "../../types/ts-morph-typednodewriter.mjs";
+} from "../types/ts-morph-typednodewriter.mjs";
 
 export default abstract class ObjectTypedWriter extends ChildrenWriter
 {

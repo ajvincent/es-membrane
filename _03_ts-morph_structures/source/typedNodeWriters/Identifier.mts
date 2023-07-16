@@ -2,7 +2,7 @@ import CodeBlockWriter from "code-block-writer";
 
 import type {
   TypedNodeWriter
-} from "../../types/ts-morph-typednodewriter.mjs";
+} from "../types/ts-morph-typednodewriter.mjs";
 import { WriterFunction } from "ts-morph";
 
 export default class IdentifierWriter implements TypedNodeWriter
