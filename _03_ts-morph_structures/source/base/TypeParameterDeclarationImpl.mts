@@ -5,12 +5,14 @@ import type {
 
 import {
   StructureKind,
+  TypeParameterDeclarationStructure,
   type TypeParameterVariance,
 } from "ts-morph";
 
 import {
   stringOrWriterFunctionArray,
 } from "./utilities.mjs";
+import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 export default class TypeParameterDeclarationImpl implements TS_TypeParameter
 {
@@ -46,3 +48,4 @@ export default class TypeParameterDeclarationImpl implements TS_TypeParameter
     return clone;
   }
 }
+TypeParameterDeclarationImpl satisfies CloneableStructure<TypeParameterDeclarationStructure>;

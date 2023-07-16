@@ -1,7 +1,8 @@
 import {
   type OptionalKind,
   type JSDocStructure,
-  StructureKind
+  StructureKind,
+  MethodSignatureStructure
 } from "ts-morph";
 
 import type {
@@ -17,6 +18,7 @@ import {
 
 import ParameterDeclarationImpl from "./ParameterDeclarationImpl.mjs";
 import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
+import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 export default class MethodSignatureImpl implements TS_Method
 {
@@ -63,3 +65,4 @@ export default class MethodSignatureImpl implements TS_Method
     return clone;
   }
 }
+MethodSignatureImpl satisfies CloneableStructure<MethodSignatureStructure>;

@@ -24,6 +24,7 @@ import {
 import MethodDeclarationImpl from "./MethodDeclarationImpl.mjs";
 import DecoratorImpl from "./DecoratorImpl.mjs";
 import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
+import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 export default class ClassDeclarationImpl implements ClassDeclarationStructure
 {
@@ -106,3 +107,4 @@ export default class ClassDeclarationImpl implements ClassDeclarationStructure
     return classImpl;
   }
 }
+ClassDeclarationImpl satisfies CloneableStructure<ClassDeclarationStructure>;

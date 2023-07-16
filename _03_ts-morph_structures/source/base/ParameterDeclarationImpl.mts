@@ -1,4 +1,4 @@
-import { OptionalKind, Scope, StructureKind } from "ts-morph";
+import { OptionalKind, ParameterDeclarationStructure, Scope, StructureKind } from "ts-morph";
 import {
   TS_Parameter,
   stringOrWriterFunction
@@ -9,6 +9,7 @@ import {
 } from "./utilities.mjs";
 
 import DecoratorImpl from "./DecoratorImpl.mjs";
+import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 export default class ParameterDeclarationImpl implements TS_Parameter
 {
@@ -59,3 +60,4 @@ export default class ParameterDeclarationImpl implements TS_Parameter
     return newParameter;
   }
 }
+ParameterDeclarationImpl satisfies CloneableStructure<ParameterDeclarationStructure>;

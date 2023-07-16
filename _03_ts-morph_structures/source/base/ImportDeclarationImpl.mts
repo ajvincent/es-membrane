@@ -14,6 +14,7 @@ import {
   stringOrWriterFunctionArray
 } from "./utilities.mjs";
 import ImportSpecifierImpl from "./ImportSpecifierImpl.mjs";
+import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 export default class ImportDeclarationImpl implements ImportDeclarationStructure
 {
@@ -68,3 +69,4 @@ export default class ImportDeclarationImpl implements ImportDeclarationStructure
     return clone;
   }
 }
+ImportDeclarationImpl satisfies CloneableStructure<ImportDeclarationStructure>;

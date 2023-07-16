@@ -11,6 +11,7 @@ import {
 import {
   stringOrWriterFunctionArray
 } from "./utilities.mjs";
+import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 export default class DecoratorImpl implements OptionalKind<DecoratorStructure>
 {
@@ -42,3 +43,4 @@ export default class DecoratorImpl implements OptionalKind<DecoratorStructure>
     return newDecorator;
   }
 }
+DecoratorImpl satisfies CloneableStructure<DecoratorStructure>;
