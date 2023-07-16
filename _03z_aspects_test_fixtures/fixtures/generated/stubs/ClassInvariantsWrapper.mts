@@ -58,6 +58,12 @@ export default function ClassInvariantsWrapper
       __sharedAssert__.buildShared(this);
     }
 
+    #runInvariants(
+    ): void
+    {
+      NumberStringClass_ClassInvariants.#invariantsArray.forEach(invariant => invariant.apply(this));
+    }
+
     #abortIfAssertFailed(
     ): void
     {
@@ -72,12 +78,6 @@ export default function ClassInvariantsWrapper
     {
       void(forSelf);
       this.#assertFailed = true;
-    }
-
-    #runInvariants(
-    ): void
-    {
-      NumberStringClass_ClassInvariants.#invariantsArray.forEach(invariant => invariant.apply(this));
     }
 
     repeatForward(
