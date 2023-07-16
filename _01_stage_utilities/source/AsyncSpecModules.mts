@@ -6,6 +6,12 @@ import fs from "fs/promises";
 import path from "path";
 import url from "url";
 
+const projectDir = path.normalize(path.resolve(
+  url.fileURLToPath(import.meta.url),
+  "../../.."
+));
+const pathToPackageJSON = path.join(projectDir, "package.json");
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Class<T extends object, Arguments extends unknown[] = any[]> = {
   prototype: T;
@@ -116,7 +122,7 @@ export async function getModuleClassWithArgs<
 
 const SubpathImportStart: [string, string][] = [];
 {
-  const packageFile = await fs.readFile(process.env.npm_package_json!, {encoding: "utf-8"});
+  const packageFile = await fs.readFile(pathToPackageJSON, {encoding: "utf-8"});
   const packageJSON = JSON.parse(packageFile) as { imports: Record<string, string> };
   for (const [key, value] of Object.entries(packageJSON.imports)) {
     SubpathImportStart.push([key.replace(/\/\*$/, ""), value.replace(/\/\*$/, "")]);
@@ -135,7 +141,7 @@ export function pathToModule(
         if (pathToModuleFile.startsWith(key)) {
           pathToModuleFile = pathToModuleFile.replace(key, value);
           return path.normalize(path.resolve(
-            path.dirname(process.env.npm_package_json!),
+            projectDir,
             pathToModuleFile,
           ));
         }
