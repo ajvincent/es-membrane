@@ -4,7 +4,7 @@ import TailHandler from "../source/TailHandler.mjs";
 import SpyObjectGraph from "../fixtures/SpyObjectGraph.mjs"
 import SpyProxyHandler from "../fixtures/SpyProxyHandler.mjs";
 
-describe("_03_proxyhandler_base integration test for the trap", () => {
+describe("_04_proxyhandler_base integration test for the trap", () => {
   /* I want to simulate what I expect initial behavior to be.  So the goal here
   is for only nextTarget to be different, and all other arguments to the SpyProxyHandler
   be the same.
