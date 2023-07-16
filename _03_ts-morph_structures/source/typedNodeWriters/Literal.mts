@@ -7,17 +7,17 @@ import type {
   TypedNodeWriter
 } from "../types/ts-morph-typednodewriter.mjs";
 
-export default class StringWriter implements TypedNodeWriter
+export default class LiteralWriter implements TypedNodeWriter
 {
-  public contents: string;
-  constructor(contents: string)
+  public literal: string;
+  constructor(literal: string)
   {
-    this.contents = contents;
+    this.literal = literal;
   }
 
   #writerFunction(writer: CodeBlockWriter): void
   {
-    writer.quote(this.contents);
+    writer.write(this.literal);
   }
 
   readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);

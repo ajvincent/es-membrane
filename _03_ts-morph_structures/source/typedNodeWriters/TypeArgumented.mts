@@ -2,9 +2,10 @@ import type {
   TypedNodeWriter
 } from "../types/ts-morph-typednodewriter.mjs";
 
-import ObjectTypedWriter from "./ObjectTyped.mjs";
+import ObjectPrefixedWriter from "./ObjectPrefixed.mjs";
 
-export default class TypeArgumented extends ObjectTypedWriter {
+export default class TypeArgumentedWriter extends ObjectPrefixedWriter
+{
   public objectType: TypedNodeWriter;
   public readonly prefix = "<";
   public readonly postfix = ">";

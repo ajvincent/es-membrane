@@ -10,7 +10,8 @@ export default class ParenthesesWriter extends ChildrenWriter
   public readonly joinCharacters = "";
   public readonly children: [TypedNodeWriter];
 
-  constructor(childWriter: TypedNodeWriter) {
+  constructor(childWriter: TypedNodeWriter)
+  {
     super();
     this.children = [childWriter];
   }

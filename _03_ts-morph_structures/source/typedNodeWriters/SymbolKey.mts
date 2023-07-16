@@ -5,16 +5,19 @@ import type {
 } from "../types/ts-morph-typednodewriter.mjs";
 import { WriterFunction } from "ts-morph";
 
-export default class IdentifierWriter implements TypedNodeWriter
+export default class SymbolKeyWriter implements TypedNodeWriter
 {
-  public identifier: string;
-  constructor(id: string) {
-    this.identifier = id;
+  public literal: string;
+  constructor(literal: string)
+  {
+    this.literal = literal;
   }
 
   #writerFunction(writer: CodeBlockWriter): void
   {
-    writer.write(this.identifier);
+    writer.write("[");
+    writer.write(this.literal);
+    writer.write("]");
   }
 
   readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);

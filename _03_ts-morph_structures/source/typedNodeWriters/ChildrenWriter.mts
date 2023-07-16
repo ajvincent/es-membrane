@@ -1,19 +1,19 @@
-import CodeBlockWriter from "code-block-writer";
-
+import type {
+  WriterFunction,
+  CodeBlockWriter,
+} from "ts-morph";
 import type {
   TypedNodeWriter
 } from "../types/ts-morph-typednodewriter.mjs";
-import { WriterFunction } from "ts-morph";
 
 export default abstract class ChildrenWriter implements TypedNodeWriter
 {
   public readonly children: TypedNodeWriter[] = [];
-  public readonly abstract prefix: string | ChildrenWriter;
-  public readonly abstract postfix: string | ChildrenWriter;
-  public readonly abstract joinCharacters: string | ChildrenWriter;
+  public readonly abstract prefix: string | TypedNodeWriter;
+  public readonly abstract postfix: string | TypedNodeWriter;
+  public readonly abstract joinCharacters: string | TypedNodeWriter;
 
-  #writerFunction(writer: CodeBlockWriter): void
-  {
+  protected writeChildren(writer: CodeBlockWriter): void {
     ChildrenWriter.feedWriter(writer, this.prefix);
 
     const lastChildIndex = this.children.length - 1;
@@ -27,7 +27,11 @@ export default abstract class ChildrenWriter implements TypedNodeWriter
     ChildrenWriter.feedWriter(writer, this.postfix);
   }
 
-  protected static feedWriter(writer: CodeBlockWriter, contents: string | ChildrenWriter): void {
+  protected static feedWriter(
+    writer: CodeBlockWriter,
+    contents: string | TypedNodeWriter
+  ): void
+  {
     if (typeof contents === "string") {
       writer.write(contents);
     }
@@ -36,5 +40,5 @@ export default abstract class ChildrenWriter implements TypedNodeWriter
     }
   }
 
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
+  readonly writerFunction: WriterFunction = this.writeChildren.bind(this);
 }
