@@ -20,17 +20,27 @@ export type LiteralTypedStructure = Simplify<TypedStructureWithPrimitive<TypeStr
 export type StringTypedStructure = Simplify<TypedStructureWithPrimitive<TypeStructureKind.String>>;
 export type SymbolKeyTypedStructure = Simplify<TypedStructureWithPrimitive<TypeStructureKind.SymbolKey>>;
 
-interface TypedStructureWithElements<
+export interface TypedStructureWithElements<
   Kind extends TypeStructureKind
 > extends KindedTypeStructure<Kind>
 {
   elements: TypeStructure[];
 }
 
+interface TypedStructureReadonly {
+  isReadonly: boolean;
+}
+
 export type UnionTypedStructure = Simplify<TypedStructureWithElements<TypeStructureKind.Union>>;
 export type IntersectionTypedStructure = Simplify<TypedStructureWithElements<TypeStructureKind.Intersection>>;
-export type TupleTypedStructure = Simplify<TypedStructureWithElements<TypeStructureKind.Tuple>>;
-export type ArrayTypedStructure = Simplify<TypedStructureWithElements<TypeStructureKind.Array>>;
+export type TupleTypedStructure = Simplify<
+  TypedStructureWithElements<TypeStructureKind.Tuple> &
+  TypedStructureReadonly
+>;
+export type ArrayTypedStructure = Simplify<
+  TypedStructureWithElements<TypeStructureKind.Array> &
+  TypedStructureReadonly
+>;
 
 interface TypedStructureWithObjectType {
   objectType: TypeStructure;

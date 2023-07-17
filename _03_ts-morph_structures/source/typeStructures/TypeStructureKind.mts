@@ -22,5 +22,5 @@ export interface KindedTypeStructure<
   TKind extends TypeStructureKind
 > extends TypedNodeWriter
 {
-  kind: TKind;
+  readonly kind: TKind;
 }
