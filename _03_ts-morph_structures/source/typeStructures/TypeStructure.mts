@@ -1,9 +1,13 @@
 import type {
+  Simplify
+} from "type-fest";
+
+import type {
   KindedTypeStructure,
   TypeStructureKind,
 } from "./TypeStructureKind.mjs";
 
-export type WriterTypedStructure = KindedTypeStructure<TypeStructureKind.Writer>;
+export type WriterTypedStructure = Simplify<KindedTypeStructure<TypeStructureKind.Writer>>;
 
 interface TypedStructureWithPrimitive<
   Kind extends TypeStructureKind
@@ -12,9 +16,9 @@ interface TypedStructureWithPrimitive<
   stringValue: string;
 }
 
-export type LiteralTypedStructure = TypedStructureWithPrimitive<TypeStructureKind.Literal>;
-export type StringTypedStructure = TypedStructureWithPrimitive<TypeStructureKind.String>;
-export type SymbolKeyTypedStructure = TypedStructureWithPrimitive<TypeStructureKind.SymbolKey>;
+export type LiteralTypedStructure = Simplify<TypedStructureWithPrimitive<TypeStructureKind.Literal>>;
+export type StringTypedStructure = Simplify<TypedStructureWithPrimitive<TypeStructureKind.String>>;
+export type SymbolKeyTypedStructure = Simplify<TypedStructureWithPrimitive<TypeStructureKind.SymbolKey>>;
 
 interface TypedStructureWithElements<
   Kind extends TypeStructureKind
@@ -23,35 +27,48 @@ interface TypedStructureWithElements<
   elements: TypeStructure[];
 }
 
-export type UnionTypedStructure = TypedStructureWithElements<TypeStructureKind.Union>;
-export type IntersectionTypedStructure = TypedStructureWithElements<TypeStructureKind.Intersection>;
-export type TupleTypedStructure = TypedStructureWithElements<TypeStructureKind.Tuple>;
-export type ArrayTypedStructure = TypedStructureWithElements<TypeStructureKind.Array>;
+export type UnionTypedStructure = Simplify<TypedStructureWithElements<TypeStructureKind.Union>>;
+export type IntersectionTypedStructure = Simplify<TypedStructureWithElements<TypeStructureKind.Intersection>>;
+export type TupleTypedStructure = Simplify<TypedStructureWithElements<TypeStructureKind.Tuple>>;
+export type ArrayTypedStructure = Simplify<TypedStructureWithElements<TypeStructureKind.Array>>;
 
-interface TypedStructureWithObjectType<
-  Kind extends TypeStructureKind
-> extends TypedStructureWithElements<Kind>
-{
+interface TypedStructureWithObjectType {
   objectType: TypeStructure;
 }
 
-export type IndexedAccessTypedStructure = TypedStructureWithObjectType<TypeStructureKind.IndexedAccess>;
-export type TypeArgumentedTypedStructure = TypedStructureWithObjectType<TypeStructureKind.TypeArgumented>;
+export type IndexedAccessTypedStructure = Simplify<
+  KindedTypeStructure<TypeStructureKind.IndexedAccess> &
+  TypedStructureWithObjectType &
+  {
+    indexType: TypeStructure;
+  }
+>;
+
+export type TypeArgumentedTypedStructure = Simplify<
+  TypedStructureWithElements<TypeStructureKind.TypeArgumented> &
+  TypedStructureWithObjectType
+>;
 
 type KeyofTypeofTuple = [true, false] | [false, true] | [true, true];
 
-export interface KeyOfTypeofTypedStructure extends KindedTypeStructure<TypeStructureKind.KeyOfTypeof> {
-  keyOfAndTypeOf: KeyofTypeofTuple;
-  ofTypeStructure: TypeStructure;
-}
+export type KeyOfTypeofTypedStructure = Simplify<
+  KindedTypeStructure<TypeStructureKind.KeyOfTypeof> &
+  {
+    keyOfAndTypeOf: KeyofTypeofTuple;
+    ofTypeStructure: TypeStructure;
+  }
+>;
 
-export interface FunctionTypedStructure extends KindedTypeStructure<TypeStructureKind.Function> {
-  isConstructor: boolean;
-  //typeArguments: TypeArgumentedTypedStructure[];
-  parameters: [LiteralTypedStructure, TypeStructure][];
-  restParameter: [LiteralTypedStructure, TypeStructure] | undefined;
-  returnType: TypeStructure;
-}
+export type FunctionTypedStructure = Simplify<
+  KindedTypeStructure<TypeStructureKind.Function> &
+  {
+    isConstructor: boolean;
+    //typeArguments: TypeArgumentedTypedStructure[];
+    parameters: [LiteralTypedStructure, TypeStructure][];
+    restParameter: [LiteralTypedStructure, TypeStructure] | undefined;
+    returnType: TypeStructure;
+  }
+>;
 
 /**
  * @remarks
