@@ -7,6 +7,10 @@ import type {
   Structure,
 } from "ts-morph"
 
-export type CloneableStructure<Base extends Structure> = Class<Base> & {
+import type {
+  TypeStructure
+} from "../typeStructures/TypeStructure.mjs";
+
+export type CloneableStructure<Base extends Structure | TypeStructure> = Class<Base> & {
   clone(other: OptionalKind<Base>): Base
 };
