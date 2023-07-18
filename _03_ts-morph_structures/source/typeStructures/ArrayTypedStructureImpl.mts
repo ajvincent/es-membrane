@@ -15,9 +15,26 @@ import {
   registerCallbackForTypeStructure
 } from "./callbackToTypeStructureRegistry.mjs";
 
+import cloneableClassesMap from "./cloneableClassesMap.mjs";
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+
 export default class ArrayTypedStructureImpl
 implements ArrayTypedStructure
 {
+  static clone(
+    other: ArrayTypedStructure
+  ): ArrayTypedStructureImpl
+  {
+    return new ArrayTypedStructureImpl(
+      other.isReadonly,
+      cloneableClassesMap.get(other.kind)!.clone(other),
+      other.length
+    );
+  }
+
+
   isReadonly: boolean;
   objectType: TypeStructure;
   length: number;
@@ -54,3 +71,4 @@ implements ArrayTypedStructure
 
   readonly writerFunction = this.#writerFunction.bind(this);
 }
+ArrayTypedStructureImpl satisfies CloneableStructure<ArrayTypedStructure>;

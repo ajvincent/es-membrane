@@ -17,10 +17,28 @@ import {
 
 import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
 
+import cloneableClassesMap from "./cloneableClassesMap.mjs";
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+
 export default class TypeArgumentedTypedStructureImpl
 extends ElementsTypedStructureAbstract
 implements TypeArgumentedTypedStructure
 {
+  static clone(
+    other: TypeArgumentedTypedStructure
+  ): TypeArgumentedTypedStructureImpl
+  {
+    const rv = new TypeArgumentedTypedStructureImpl(
+      cloneableClassesMap.get(other.kind)!.clone(other)
+    );
+    rv.elements = other.elements.map(
+      typeStructure => cloneableClassesMap.get(typeStructure.kind)!.clone(typeStructure)
+    );
+    return rv;
+  }
+
   public readonly prefix = "<";
   public readonly postfix = ">";
   public readonly joinCharacters = ", ";
@@ -44,3 +62,4 @@ implements TypeArgumentedTypedStructure
     super.writeTypeStructures(writer);
   }
 }
+TypeArgumentedTypedStructureImpl satisfies CloneableStructure<TypeArgumentedTypedStructure>;

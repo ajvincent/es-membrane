@@ -16,10 +16,28 @@ import {
   registerCallbackForTypeStructure
 } from "./callbackToTypeStructureRegistry.mjs";
 
+import cloneableClassesMap from "./cloneableClassesMap.mjs";
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+
 export default class TupleTypedStructureImpl
 extends ElementsTypedStructureAbstract
 implements TupleTypedStructure
 {
+  static clone(
+    other: TupleTypedStructure
+  ): TupleTypedStructureImpl
+  {
+    const rv = new TupleTypedStructureImpl(
+      other.isReadonly
+    );
+    rv.elements = other.elements.map(
+      typeStructure => cloneableClassesMap.get(typeStructure.kind)!.clone(typeStructure)
+    );
+    return rv;
+  }
+
   readonly kind: TypeStructureKind.Tuple = TypeStructureKind.Tuple;
   isReadonly: boolean;
 
@@ -43,3 +61,4 @@ implements TupleTypedStructure
     return super.writeTypeStructures(writer);
   }
 }
+TupleTypedStructureImpl satisfies CloneableStructure<TupleTypedStructure>;

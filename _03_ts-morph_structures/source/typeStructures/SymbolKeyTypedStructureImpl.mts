@@ -14,9 +14,17 @@ import {
 import {
   registerCallbackForTypeStructure
 } from "./callbackToTypeStructureRegistry.mjs";
+import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 export default class SymbolKeyTypedStructureImpl implements SymbolKeyTypedStructure
 {
+  static clone(
+    other: SymbolKeyTypedStructure
+  ): SymbolKeyTypedStructureImpl
+  {
+    return new SymbolKeyTypedStructureImpl(other.stringValue);
+  }
+
   readonly kind: TypeStructureKind.SymbolKey = TypeStructureKind.SymbolKey;
 
   public stringValue: string;
@@ -35,3 +43,4 @@ export default class SymbolKeyTypedStructureImpl implements SymbolKeyTypedStruct
 
   readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
+SymbolKeyTypedStructureImpl satisfies CloneableStructure<SymbolKeyTypedStructure>;

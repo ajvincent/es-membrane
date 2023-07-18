@@ -17,6 +17,13 @@ import {
 export default class WriterTypedStructureImpl
 implements WriterTypedStructure
 {
+  static clone(
+    other: WriterTypedStructure
+  ): WriterTypedStructureImpl
+  {
+    return new WriterTypedStructureImpl(other.writerFunction);
+  }
+
   readonly kind: TypeStructureKind.Writer = TypeStructureKind.Writer;
   readonly writerFunction: WriterFunction;
 

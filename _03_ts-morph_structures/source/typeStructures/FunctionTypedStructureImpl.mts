@@ -17,6 +17,12 @@ import {
   registerCallbackForTypeStructure
 } from "./callbackToTypeStructureRegistry.mjs";
 
+import cloneableClassesMap from "./cloneableClassesMap.mjs";
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+import LiteralTypedStructureImpl from "./LiteralTypedStructureImpl.mjs";
+
 export interface FunctionTypeContext {
   //typeArguments: TypeParameterDeclarationImpl[]
   isConstructor: boolean,
@@ -27,6 +33,29 @@ export interface FunctionTypeContext {
 
 export default class FunctionTypedStructureImpl implements FunctionTypedStructure
 {
+  static clone(
+    other: FunctionTypedStructure
+  ): FunctionTypedStructureImpl
+  {
+    return new FunctionTypedStructureImpl({
+      isConstructor: other.isConstructor,
+      parameters: other.parameters.map(param => this.#cloneKeyAndType(...param)),
+      restParameter: (other.restParameter ? this.#cloneKeyAndType(...other.restParameter) : undefined),
+      returnType: cloneableClassesMap.get(other.returnType.kind)!.clone(other.returnType)
+    });
+  }
+
+  static #cloneKeyAndType(
+    key: LiteralTypedStructure,
+    value: TypeStructure
+  ): [LiteralTypedStructure, TypeStructure]
+  {
+    return [
+      LiteralTypedStructureImpl.clone(key),
+      cloneableClassesMap.get(value.kind)!.clone(value)
+    ]
+  }
+
   readonly kind: TypeStructureKind.Function = TypeStructureKind.Function;
 
   isConstructor: boolean;
@@ -138,3 +167,4 @@ class OneParameterWriter
 
   readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
+FunctionTypedStructureImpl satisfies CloneableStructure<FunctionTypedStructure>;

@@ -12,5 +12,5 @@ import type {
 } from "../typeStructures/TypeStructure.mjs";
 
 export type CloneableStructure<Base extends Structure | TypeStructure> = Class<Base> & {
-  clone(other: OptionalKind<Base>): Base
+  clone(other: OptionalKind<Base> | Base): Base
 };

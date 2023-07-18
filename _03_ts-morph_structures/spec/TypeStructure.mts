@@ -4,15 +4,15 @@ import {
 } from "ts-morph";
 
 import ArrayTypedStructureImpl from "../source/typeStructures/ArrayTypedStructureImpl.mjs";
-import FunctionTypedStructureImpl from "#ts-morph_structures/source/typeStructures/FunctionTypedStructureImpl.mjs";
+import FunctionTypedStructureImpl from "../source/typeStructures/FunctionTypedStructureImpl.mjs";
 import IndexedAccessTypedStructureImpl from "../source/typeStructures/IndexedAccessTypedStructureImpl.mjs";
 import IntersectionTypedStructureImpl from "../source/typeStructures/IntersectionTypedStructureImpl.mjs";
-import KeyOfTypeofTypedStructureImpl from "#ts-morph_structures/source/typeStructures/KeyofTypeofTypedStructureImpl.mjs";
+import KeyOfTypeofTypedStructureImpl from "../source/typeStructures/KeyofTypeofTypedStructureImpl.mjs";
 import LiteralTypedStructureImpl from "../source/typeStructures/LiteralTypedStructureImpl.mjs";
 import StringTypedStructureImpl from "../source/typeStructures/StringTypedStructureImpl.mjs";
 import SymbolKeyTypedStructureImpl from "../source/typeStructures/SymbolKeyTypedStructureImpl.mjs";
 import TupleTypedStructureImpl from "../source/typeStructures/TupleTypedStructureImpl.mjs";
-import TypeArgumentedTypedStructureImpl from "#ts-morph_structures/source/typeStructures/TypeArgumentedTypedStructureImpl.mjs";
+import TypeArgumentedTypedStructureImpl from "../source/typeStructures/TypeArgumentedTypedStructureImpl.mjs";
 import UnionTypedStructureImpl from "../source/typeStructures/UnionTypedStructureImpl.mjs";
 import WriterTypedStructureImpl from "../source/typeStructures/WriterTypedStructureImpl.mjs";
 
@@ -206,6 +206,22 @@ describe("TypeStructure for ts-morph: ", () => {
 
       typedWriter.writerFunction(writer);
       expect<string>(writer.toString()).toBe(`(foo: NumberStringType, bar: boolean, ...args: object[]) => string`);
+    });
+
+    it("is cloneable", () => {
+      typedWriter = new FunctionTypedStructureImpl({
+        isConstructor: true,
+        parameters: [
+          [fooTyped, nstTyped],
+          [new LiteralTypedStructureImpl("bar"), new LiteralTypedStructureImpl("boolean")]
+        ],
+        restParameter: [new LiteralTypedStructureImpl("args"), new LiteralTypedStructureImpl("object[]")],
+        returnType: new LiteralTypedStructureImpl("string"),
+      });
+
+      expect(
+        () => FunctionTypedStructureImpl.clone(typedWriter)
+      ).not.toBe(typedWriter);
     });
   });
 });

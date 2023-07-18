@@ -14,9 +14,17 @@ import {
 import {
   registerCallbackForTypeStructure
 } from "./callbackToTypeStructureRegistry.mjs";
+import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 export default class StringTypedStructureImpl implements StringTypedStructure
 {
+  static clone(
+    other: StringTypedStructure
+  ): StringTypedStructure
+  {
+    return new StringTypedStructureImpl(other.stringValue);
+  }
+
   readonly kind: TypeStructureKind.String = TypeStructureKind.String;
 
   public stringValue: string;
@@ -33,3 +41,4 @@ export default class StringTypedStructureImpl implements StringTypedStructure
 
   readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
+StringTypedStructureImpl satisfies CloneableStructure<StringTypedStructure>;

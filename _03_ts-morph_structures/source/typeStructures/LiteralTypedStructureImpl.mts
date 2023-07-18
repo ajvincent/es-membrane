@@ -15,8 +15,19 @@ import {
   registerCallbackForTypeStructure
 } from "./callbackToTypeStructureRegistry.mjs";
 
+import {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+
 export default class LiteralTypedStructureImpl implements LiteralTypedStructure
 {
+  static clone(
+    other: LiteralTypedStructure
+  ): LiteralTypedStructureImpl
+  {
+    return new LiteralTypedStructureImpl(other.stringValue);
+  }
+
   readonly kind: TypeStructureKind.Literal = TypeStructureKind.Literal;
 
   public stringValue: string;
@@ -33,3 +44,4 @@ export default class LiteralTypedStructureImpl implements LiteralTypedStructure
 
   readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
+LiteralTypedStructureImpl satisfies CloneableStructure<LiteralTypedStructure>;
