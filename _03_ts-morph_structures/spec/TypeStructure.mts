@@ -3,6 +3,7 @@ import {
   type CodeBlockWriterOptions,
 } from "ts-morph";
 
+import ArrayTypedStructureImpl from "#ts-morph_structures/source/typeStructures/ArrayTypedStructureImpl.mjs";
 import IntersectionTypedStructureImpl from "../source/typeStructures/IntersectionTypedStructureImpl.mjs";
 import LiteralTypedStructureImpl from "../source/typeStructures/LiteralTypedStructureImpl.mjs";
 import StringTypedStructureImpl from "../source/typeStructures/StringTypedStructureImpl.mjs";
@@ -85,12 +86,40 @@ describe("TypeStructure for ts-morph: ", () => {
     expect(typedWriter.kind).toBe(TypeStructureKind.Intersection);
   });
 
-  it("TupleTypedStructureImpl", () => {
+  it("TupleTypedStructureImpl with readonly = true", () => {
     const typedWriter = new TupleTypedStructureImpl(true);
+    typedWriter.elements.push(fooTyped, nstTyped);
+
+    typedWriter.writerFunction(writer);
+    expect<string>(writer.toString()).toBe(`readonly [foo, NumberStringType]`);
+    expect(typedWriter.kind).toBe(TypeStructureKind.Tuple);
+  });
+
+  it("TupleTypedStructureImpl with readonly = false", () => {
+    const typedWriter = new TupleTypedStructureImpl(false);
     typedWriter.elements.push(fooTyped, nstTyped);
 
     typedWriter.writerFunction(writer);
     expect<string>(writer.toString()).toBe(`[foo, NumberStringType]`);
     expect(typedWriter.kind).toBe(TypeStructureKind.Tuple);
+  });
+
+
+  it("ArrayWriter with a positive length", () => {
+    typedWriter = new ArrayTypedStructureImpl(false, fooTyped, 2);
+    typedWriter.writerFunction(writer);
+    expect<string>(writer.toString()).toBe("foo[2]");
+  });
+
+  it("ArrayWriter with a zero length", () => {
+    typedWriter = new ArrayTypedStructureImpl(false, fooTyped, 0);
+    typedWriter.writerFunction(writer);
+    expect<string>(writer.toString()).toBe("foo[]");
+  });
+
+  it("ArrayWriter with isReadonly set to true", () => {
+    typedWriter = new ArrayTypedStructureImpl(true, fooTyped, 0);
+    typedWriter.writerFunction(writer);
+    expect<string>(writer.toString()).toBe("readonly foo[]");
   });
 });

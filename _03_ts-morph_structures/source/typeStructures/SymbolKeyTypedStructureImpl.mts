@@ -11,6 +11,10 @@ import {
   TypeStructureKind,
 } from "./TypeStructureKind.mjs";
 
+import {
+  registerCallbackForTypeStructure
+} from "./callbackToTypeStructureRegistry.mjs";
+
 export default class SymbolKeyTypedStructureImpl implements SymbolKeyTypedStructure
 {
   readonly kind: TypeStructureKind.SymbolKey = TypeStructureKind.SymbolKey;
@@ -19,6 +23,7 @@ export default class SymbolKeyTypedStructureImpl implements SymbolKeyTypedStruct
   constructor(literal: string)
   {
     this.stringValue = literal;
+    registerCallbackForTypeStructure(this);
   }
 
   #writerFunction(writer: CodeBlockWriter): void

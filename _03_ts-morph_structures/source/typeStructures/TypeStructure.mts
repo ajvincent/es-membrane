@@ -16,9 +16,15 @@ interface TypedStructureWithPrimitive<
   stringValue: string;
 }
 
-export type LiteralTypedStructure = Simplify<TypedStructureWithPrimitive<TypeStructureKind.Literal>>;
-export type StringTypedStructure = Simplify<TypedStructureWithPrimitive<TypeStructureKind.String>>;
-export type SymbolKeyTypedStructure = Simplify<TypedStructureWithPrimitive<TypeStructureKind.SymbolKey>>;
+export type LiteralTypedStructure = Simplify<
+  TypedStructureWithPrimitive<TypeStructureKind.Literal>
+>;
+export type StringTypedStructure = Simplify<
+  TypedStructureWithPrimitive<TypeStructureKind.String>
+>;
+export type SymbolKeyTypedStructure = Simplify<
+  TypedStructureWithPrimitive<TypeStructureKind.SymbolKey>
+>;
 
 export interface TypedStructureWithElements<
   Kind extends TypeStructureKind
@@ -31,20 +37,29 @@ interface TypedStructureReadonly {
   isReadonly: boolean;
 }
 
-export type UnionTypedStructure = Simplify<TypedStructureWithElements<TypeStructureKind.Union>>;
-export type IntersectionTypedStructure = Simplify<TypedStructureWithElements<TypeStructureKind.Intersection>>;
-export type TupleTypedStructure = Simplify<
-  TypedStructureWithElements<TypeStructureKind.Tuple> &
-  TypedStructureReadonly
->;
-export type ArrayTypedStructure = Simplify<
-  TypedStructureWithElements<TypeStructureKind.Array> &
-  TypedStructureReadonly
->;
-
 interface TypedStructureWithObjectType {
   objectType: TypeStructure;
 }
+
+export type UnionTypedStructure = Simplify<
+  TypedStructureWithElements<TypeStructureKind.Union>
+>;
+export type IntersectionTypedStructure = Simplify<
+  TypedStructureWithElements<TypeStructureKind.Intersection>
+>;
+export type TupleTypedStructure = Simplify<
+  TypedStructureReadonly &
+  TypedStructureWithElements<TypeStructureKind.Tuple>
+>;
+
+export type ArrayTypedStructure = Simplify<
+  KindedTypeStructure<TypeStructureKind.Array> &
+  TypedStructureReadonly &
+  TypedStructureWithObjectType &
+  {
+    length: number;
+  }
+>;
 
 export type IndexedAccessTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.IndexedAccess> &
@@ -55,8 +70,8 @@ export type IndexedAccessTypedStructure = Simplify<
 >;
 
 export type TypeArgumentedTypedStructure = Simplify<
-  TypedStructureWithElements<TypeStructureKind.TypeArgumented> &
-  TypedStructureWithObjectType
+  TypedStructureWithObjectType &
+  TypedStructureWithElements<TypeStructureKind.TypeArgumented>
 >;
 
 type KeyofTypeofTuple = [true, false] | [false, true] | [true, true];

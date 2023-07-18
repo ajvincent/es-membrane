@@ -11,6 +11,10 @@ import {
   TypeStructureKind,
 } from "./TypeStructureKind.mjs";
 
+import {
+  registerCallbackForTypeStructure
+} from "./callbackToTypeStructureRegistry.mjs";
+
 export default class StringTypedStructureImpl implements StringTypedStructure
 {
   readonly kind: TypeStructureKind.String = TypeStructureKind.String;
@@ -19,6 +23,7 @@ export default class StringTypedStructureImpl implements StringTypedStructure
   constructor(literal: string)
   {
     this.stringValue = literal;
+    registerCallbackForTypeStructure(this);
   }
 
   #writerFunction(writer: CodeBlockWriter): void

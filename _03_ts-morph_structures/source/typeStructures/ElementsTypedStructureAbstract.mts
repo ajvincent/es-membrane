@@ -12,21 +12,24 @@ export default abstract class ElementsTypedStructureAbstract
   public readonly abstract postfix: string | TypeStructure;
   public readonly abstract joinCharacters: string | TypeStructure;
 
-  protected writeChildren(writer: CodeBlockWriter): void {
-    ElementsTypedStructureAbstract.#feedWriter(writer, this.prefix);
+  protected writeTypeStructures(
+    writer: CodeBlockWriter
+  ): void
+  {
+    ElementsTypedStructureAbstract.feedWriter(writer, this.prefix);
 
     const lastChildIndex = this.elements.length - 1;
     this.elements.forEach((typedStructure, index) => {
       typedStructure.writerFunction(writer);
       if (index < lastChildIndex) {
-        ElementsTypedStructureAbstract.#feedWriter(writer, this.joinCharacters);
+        ElementsTypedStructureAbstract.feedWriter(writer, this.joinCharacters);
       }
     });
 
-    ElementsTypedStructureAbstract.#feedWriter(writer, this.postfix);
+    ElementsTypedStructureAbstract.feedWriter(writer, this.postfix);
   }
 
-  static #feedWriter(
+  static feedWriter(
     writer: CodeBlockWriter,
     contents: string | TypeStructure
   ): void
@@ -39,5 +42,5 @@ export default abstract class ElementsTypedStructureAbstract
     }
   }
 
-  readonly writerFunction: WriterFunction = this.writeChildren.bind(this);
+  readonly writerFunction: WriterFunction = this.writeTypeStructures.bind(this);
 }

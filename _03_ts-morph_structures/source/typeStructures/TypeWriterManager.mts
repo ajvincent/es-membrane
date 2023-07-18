@@ -3,9 +3,22 @@ import type {
   TypedNodeStructure,
   WriterFunction,
 } from "ts-morph";
-import { TypedNodeTypeStructure } from "./TypedNodeTypeStructure.mjs";
-import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
-import { TypeStructure } from "./TypeStructure.mjs";
+
+import {
+  TypedNodeTypeStructure
+} from "./TypedNodeTypeStructure.mjs";
+
+import {
+  stringOrWriterFunction
+} from "../types/ts-morph-native.mjs";
+
+import {
+  TypeStructure
+} from "./TypeStructure.mjs";
+
+import {
+  getTypeStructureForCallback
+} from "./callbackToTypeStructureRegistry.mjs";
 
 function literalWriter(value: string): WriterFunction {
   return function(writer: CodeBlockWriter): void {
@@ -36,7 +49,13 @@ implements TypedNodeStructure, TypedNodeTypeStructure
       this.#typeWriterFunctionOrStructure = literalWriter(value);
       return;
     }
-    this.#typeWriterFunctionOrStructure = value;
+
+    if (typeof value === "function") {
+      this.#typeWriterFunctionOrStructure = getTypeStructureForCallback(value) ?? value;
+      return;
+    }
+
+    this.#typeWriterFunctionOrStructure = undefined;
   }
 
   get typeStructure(): TypeStructure | undefined
