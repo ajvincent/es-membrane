@@ -52,5 +52,5 @@ implements ArrayTypedStructure
     );
   }
 
-  writerFunction = this.#writerFunction.bind(this);
+  readonly writerFunction = this.#writerFunction.bind(this);
 }

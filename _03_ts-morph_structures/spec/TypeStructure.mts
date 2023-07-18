@@ -3,12 +3,16 @@ import {
   type CodeBlockWriterOptions,
 } from "ts-morph";
 
-import ArrayTypedStructureImpl from "#ts-morph_structures/source/typeStructures/ArrayTypedStructureImpl.mjs";
+import ArrayTypedStructureImpl from "../source/typeStructures/ArrayTypedStructureImpl.mjs";
+import FunctionTypedStructureImpl from "#ts-morph_structures/source/typeStructures/FunctionTypedStructureImpl.mjs";
+import IndexedAccessTypedStructureImpl from "../source/typeStructures/IndexedAccessTypedStructureImpl.mjs";
 import IntersectionTypedStructureImpl from "../source/typeStructures/IntersectionTypedStructureImpl.mjs";
+import KeyOfTypeofTypedStructureImpl from "#ts-morph_structures/source/typeStructures/KeyofTypeofTypedStructureImpl.mjs";
 import LiteralTypedStructureImpl from "../source/typeStructures/LiteralTypedStructureImpl.mjs";
 import StringTypedStructureImpl from "../source/typeStructures/StringTypedStructureImpl.mjs";
 import SymbolKeyTypedStructureImpl from "../source/typeStructures/SymbolKeyTypedStructureImpl.mjs";
 import TupleTypedStructureImpl from "../source/typeStructures/TupleTypedStructureImpl.mjs";
+import TypeArgumentedTypedStructureImpl from "#ts-morph_structures/source/typeStructures/TypeArgumentedTypedStructureImpl.mjs";
 import UnionTypedStructureImpl from "../source/typeStructures/UnionTypedStructureImpl.mjs";
 import WriterTypedStructureImpl from "../source/typeStructures/WriterTypedStructureImpl.mjs";
 
@@ -104,7 +108,6 @@ describe("TypeStructure for ts-morph: ", () => {
     expect(typedWriter.kind).toBe(TypeStructureKind.Tuple);
   });
 
-
   it("ArrayWriter with a positive length", () => {
     typedWriter = new ArrayTypedStructureImpl(false, fooTyped, 2);
     typedWriter.writerFunction(writer);
@@ -121,5 +124,88 @@ describe("TypeStructure for ts-morph: ", () => {
     typedWriter = new ArrayTypedStructureImpl(true, fooTyped, 0);
     typedWriter.writerFunction(writer);
     expect<string>(writer.toString()).toBe("readonly foo[]");
+  });
+
+  it("IndexedAccessWriter", () => {
+    typedWriter = new IndexedAccessTypedStructureImpl(fooTyped, stringBarTyped);
+    typedWriter.writerFunction(writer);
+    expect<string>(writer.toString()).toBe(`foo["bar"]`);
+  });
+
+  it("TypeArgumentedWriter", () => {
+    const typedWriter = new TypeArgumentedTypedStructureImpl(fooTyped);
+    typedWriter.elements.push(stringBarTyped, nstTyped);
+    typedWriter.writerFunction(writer);
+    expect<string>(writer.toString()).toBe(`foo<"bar", NumberStringType>`);
+  });
+
+
+  it("KeyofTypeofWriter with keyof = true, typeof = false", () => {
+    typedWriter = new KeyOfTypeofTypedStructureImpl([true, false], nstTyped);
+
+    typedWriter.writerFunction(writer);
+    expect<string>(writer.toString()).toBe("keyof NumberStringType");
+  });
+
+  it("KeyofTypeofWriter with keyof = false, typeof = true", () => {
+    typedWriter = new KeyOfTypeofTypedStructureImpl([false, true], nstTyped);
+
+    typedWriter.writerFunction(writer);
+    expect<string>(writer.toString()).toBe("typeof NumberStringType");
+  });
+
+  it("KeyofTypeofWriter with keyof = true, typeof = true", () => {
+    typedWriter = new KeyOfTypeofTypedStructureImpl([true, true], nstTyped);
+
+    typedWriter.writerFunction(writer);
+    expect<string>(writer.toString()).toBe("keyof typeof NumberStringType");
+  });
+
+  describe("FunctionTypeWriter", () => {
+    let typedWriter: FunctionTypedStructureImpl;
+    it("with an ordinary function", () => {
+      typedWriter = new FunctionTypedStructureImpl({
+        isConstructor: false,
+        parameters: [
+          [fooTyped, nstTyped],
+          [new LiteralTypedStructureImpl("bar"), new LiteralTypedStructureImpl("boolean")]
+        ],
+        restParameter: undefined,
+        returnType: new LiteralTypedStructureImpl("string"),
+      });
+
+      typedWriter.writerFunction(writer);
+      expect<string>(writer.toString()).toBe(`(foo: NumberStringType, bar: boolean) => string`);
+    });
+
+    it("as a constructor", () => {
+      typedWriter = new FunctionTypedStructureImpl({
+        isConstructor: true,
+        parameters: [
+          [fooTyped, nstTyped],
+          [new LiteralTypedStructureImpl("bar"), new LiteralTypedStructureImpl("boolean")]
+        ],
+        restParameter: undefined,
+        returnType: new LiteralTypedStructureImpl("string"),
+      });
+
+      typedWriter.writerFunction(writer);
+      expect<string>(writer.toString()).toBe(`new (foo: NumberStringType, bar: boolean) => string`);
+    });
+
+    it("with a rest parameter", () => {
+      typedWriter = new FunctionTypedStructureImpl({
+        isConstructor: false,
+        parameters: [
+          [fooTyped, nstTyped],
+          [new LiteralTypedStructureImpl("bar"), new LiteralTypedStructureImpl("boolean")]
+        ],
+        restParameter: [new LiteralTypedStructureImpl("args"), new LiteralTypedStructureImpl("object[]")],
+        returnType: new LiteralTypedStructureImpl("string"),
+      });
+
+      typedWriter.writerFunction(writer);
+      expect<string>(writer.toString()).toBe(`(foo: NumberStringType, bar: boolean, ...args: object[]) => string`);
+    });
   });
 });

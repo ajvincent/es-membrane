@@ -14,9 +14,11 @@ import {
   registerCallbackForTypeStructure
 } from "./callbackToTypeStructureRegistry.mjs";
 
-export default class WriterTypedStructureImpl implements WriterTypedStructure {
+export default class WriterTypedStructureImpl
+implements WriterTypedStructure
+{
   readonly kind: TypeStructureKind.Writer = TypeStructureKind.Writer;
-  writerFunction: WriterFunction;
+  readonly writerFunction: WriterFunction;
 
   constructor(writer: WriterFunction) {
     this.writerFunction = writer;

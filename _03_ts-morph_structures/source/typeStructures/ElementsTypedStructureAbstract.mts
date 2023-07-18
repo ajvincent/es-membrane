@@ -8,9 +8,9 @@ import { TypeStructure } from "./TypeStructure.mjs";
 export default abstract class ElementsTypedStructureAbstract
 {
   elements: TypeStructure[] = [];
-  public readonly abstract prefix: string | TypeStructure;
-  public readonly abstract postfix: string | TypeStructure;
-  public readonly abstract joinCharacters: string | TypeStructure;
+  public readonly abstract prefix: string;
+  public readonly abstract postfix: string;
+  public readonly abstract joinCharacters: string;
 
   protected writeTypeStructures(
     writer: CodeBlockWriter
