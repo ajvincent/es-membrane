@@ -1,5 +1,4 @@
 import type {
-  CodeBlockWriter,
   TypedNodeStructure,
   WriterFunction,
 } from "ts-morph";
@@ -20,25 +19,19 @@ import {
   getTypeStructureForCallback
 } from "./callbackToTypeStructureRegistry.mjs";
 
-function literalWriter(value: string): WriterFunction {
-  return function(writer: CodeBlockWriter): void {
-    writer.write(value);
-  }
-}
-
 export default class TypeWriterManager
 implements TypedNodeStructure, TypedNodeTypeStructure
 {
-  #typeWriterFunctionOrStructure: WriterFunction | TypeStructure | undefined;
+  #typeOrStructure: string | WriterFunction | TypeStructure | undefined = undefined;
 
-  get type(): WriterFunction | undefined
+  get type(): string | WriterFunction | undefined
   {
-    if (typeof this.#typeWriterFunctionOrStructure === "function")
-      return this.#typeWriterFunctionOrStructure;
+    if ((typeof this.#typeOrStructure === "string") ||
+        (typeof this.#typeOrStructure === "function") ||
+        (typeof this.#typeOrStructure === "undefined"))
+      return this.#typeOrStructure;
 
-    if (this.#typeWriterFunctionOrStructure) {
-      return this.#typeWriterFunctionOrStructure.writerFunction;
-    }
+    return this.#typeOrStructure.writerFunction;
   }
 
   set type(
@@ -46,27 +39,29 @@ implements TypedNodeStructure, TypedNodeTypeStructure
   )
   {
     if (typeof value === "string") {
-      this.#typeWriterFunctionOrStructure = literalWriter(value);
+      this.#typeOrStructure = value;
       return;
     }
 
     if (typeof value === "function") {
-      this.#typeWriterFunctionOrStructure = getTypeStructureForCallback(value) ?? value;
+      this.#typeOrStructure = getTypeStructureForCallback(value) ?? value;
       return;
     }
 
-    this.#typeWriterFunctionOrStructure = undefined;
+    this.#typeOrStructure = undefined;
   }
 
   get typeStructure(): TypeStructure | undefined
   {
-    if (typeof this.#typeWriterFunctionOrStructure === "function")
+    if ((typeof this.#typeOrStructure === "string") ||
+        (typeof this.#typeOrStructure === "function") ||
+        (typeof this.#typeOrStructure === "undefined"))
       return undefined;
-    return this.#typeWriterFunctionOrStructure;
+    return this.#typeOrStructure;
   }
 
   set typeStructure(value: TypeStructure | undefined)
   {
-    this.#typeWriterFunctionOrStructure = value;
+    this.#typeOrStructure = value;
   }
 }
