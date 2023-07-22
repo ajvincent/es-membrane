@@ -11,12 +11,15 @@ import {
 import DecoratorImpl from "./DecoratorImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
-export default class ParameterDeclarationImpl implements TS_Parameter
+import TypeWriterManager from "./TypeWriterManager.mjs";
+
+export default class ParameterDeclarationImpl
+extends TypeWriterManager
+implements TS_Parameter
 {
   leadingTrivia: stringOrWriterFunction[] = [];
   trailingTrivia: stringOrWriterFunction[] = [];
   name: string;
-  type: stringOrWriterFunction | undefined = undefined;
   isReadonly = false;
   decorators: OptionalKind<DecoratorImpl>[] = [];
   hasQuestionToken = false;
@@ -30,6 +33,7 @@ export default class ParameterDeclarationImpl implements TS_Parameter
     name: string
   )
   {
+    super();
     this.name = name;
   }
 

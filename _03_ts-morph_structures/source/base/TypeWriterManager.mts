@@ -5,7 +5,7 @@ import type {
 
 import {
   TypedNodeTypeStructure
-} from "./TypedNodeTypeStructure.mjs";
+} from "../typeStructures/TypedNodeTypeStructure.mjs";
 
 import {
   stringOrWriterFunction
@@ -13,11 +13,11 @@ import {
 
 import {
   TypeStructure
-} from "./TypeStructure.mjs";
+} from "../typeStructures/TypeStructure.mjs";
 
 import {
   getTypeStructureForCallback
-} from "./callbackToTypeStructureRegistry.mjs";
+} from "../typeStructures/callbackToTypeStructureRegistry.mjs";
 
 export default class TypeWriterManager
 implements TypedNodeStructure, TypedNodeTypeStructure

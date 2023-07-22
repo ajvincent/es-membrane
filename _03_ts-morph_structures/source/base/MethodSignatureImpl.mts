@@ -20,7 +20,11 @@ import ParameterDeclarationImpl from "./ParameterDeclarationImpl.mjs";
 import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
-export default class MethodSignatureImpl implements TS_Method
+import ReturnTypeWriterManager from "./ReturnTypeWriterManager.mjs";
+
+export default class MethodSignatureImpl
+extends ReturnTypeWriterManager
+implements TS_Method
 {
   leadingTrivia: stringOrWriterFunction[] = [];
   trailingTrivia: stringOrWriterFunction[] = [];
@@ -28,11 +32,11 @@ export default class MethodSignatureImpl implements TS_Method
   hasQuestionToken = false;
   docs: (string | OptionalKind<JSDocStructure>)[] = [];
   parameters: ParameterDeclarationImpl[] = [];
-  returnType: stringOrWriterFunction | undefined = undefined;
   typeParameters: (TypeParameterDeclarationImpl | string)[] = [];
   readonly kind: StructureKind.MethodSignature = StructureKind.MethodSignature;
 
   constructor(name: string) {
+    super();
     this.name = name;
   }
 

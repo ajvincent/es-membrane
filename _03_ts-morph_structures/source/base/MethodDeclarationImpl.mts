@@ -24,7 +24,11 @@ import ParameterDeclarationImpl from "./ParameterDeclarationImpl.mjs";
 import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
-export default class MethodDeclarationImpl implements MethodDeclarationStructure
+import ReturnTypeWriterManager from "./ReturnTypeWriterManager.mjs";
+
+export default class MethodDeclarationImpl
+extends ReturnTypeWriterManager
+implements MethodDeclarationStructure
 {
   leadingTrivia: stringOrWriterFunction[] = [];
   trailingTrivia: stringOrWriterFunction[] = [];
@@ -38,7 +42,6 @@ export default class MethodDeclarationImpl implements MethodDeclarationStructure
   isAsync = false;
   isGenerator = false;
   parameters: ParameterDeclarationImpl[] = [];
-  returnType: stringOrWriterFunction | undefined = undefined;
   typeParameters: (string | TypeParameterDeclarationImpl)[] = [];
   docs: (string | OptionalKind<JSDocStructure>)[] = [];
   statements: (stringOrWriterFunction | StatementStructures)[] = [];
@@ -46,6 +49,7 @@ export default class MethodDeclarationImpl implements MethodDeclarationStructure
   hasOverrideKeyword = false;
 
   constructor(name: string) {
+    super();
     this.name = name;
   }
 
