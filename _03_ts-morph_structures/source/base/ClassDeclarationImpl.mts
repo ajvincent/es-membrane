@@ -6,7 +6,6 @@ import {
   ConstructorDeclarationStructure,
   GetAccessorDeclarationStructure,
   MethodDeclarationStructure,
-  PropertyDeclarationStructure,
   SetAccessorDeclarationStructure,
   MethodSignatureStructure,
 } from "ts-morph";
@@ -25,6 +24,7 @@ import DecoratorImpl from "./DecoratorImpl.mjs";
 import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 import JSDocImpl from "./JSDocImpl.mjs";
+import PropertyDeclarationImpl from "./PropertyDeclarationImpl.mjs";
 
 export default class ClassDeclarationImpl implements ClassDeclarationStructure
 {
@@ -33,7 +33,7 @@ export default class ClassDeclarationImpl implements ClassDeclarationStructure
   trailingTrivia: stringOrWriterFunction[] = [];
   extends: stringOrWriterFunction | undefined = undefined;
   ctors: OptionalKind<ConstructorDeclarationStructure>[] | undefined = undefined;
-  properties: OptionalKind<PropertyDeclarationStructure>[] | undefined = undefined;
+  properties: PropertyDeclarationImpl[] = [];
   getAccessors: OptionalKind<GetAccessorDeclarationStructure>[] | undefined = undefined;
   setAccessors: OptionalKind<SetAccessorDeclarationStructure>[] | undefined = undefined;
   methods: MethodDeclarationImpl[] = [];
@@ -61,7 +61,7 @@ export default class ClassDeclarationImpl implements ClassDeclarationStructure
       clone.ctors = other.ctors.slice();
     }
     if (other.properties) {
-      clone.properties = other.properties.slice();
+      clone.properties = other.properties.map(prop => PropertyDeclarationImpl.clone(prop));
     }
     if (other.getAccessors) {
       clone.getAccessors = other.getAccessors.slice();
@@ -90,7 +90,7 @@ export default class ClassDeclarationImpl implements ClassDeclarationStructure
         if (typeof doc === "string")
           return doc;
         return JSDocImpl.clone(doc);
-      })
+      });
     }
     clone.isAbstract = other.isAbstract ?? false;
     clone.hasDeclareKeyword = other.hasDeclareKeyword ?? false;
