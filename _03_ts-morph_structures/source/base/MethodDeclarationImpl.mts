@@ -3,7 +3,6 @@ import {
   type MethodDeclarationStructure,
   StructureKind,
   DecoratorStructure,
-  JSDocStructure,
   MethodDeclarationOverloadStructure,
   Scope,
   StatementStructures,
@@ -25,6 +24,7 @@ import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 import ReturnTypeWriterManager from "./ReturnTypeWriterManager.mjs";
+import JSDocImpl from "./JSDocImpl.mjs";
 
 export default class MethodDeclarationImpl
 extends ReturnTypeWriterManager
@@ -43,7 +43,7 @@ implements MethodDeclarationStructure
   isGenerator = false;
   parameters: ParameterDeclarationImpl[] = [];
   typeParameters: (string | TypeParameterDeclarationImpl)[] = [];
-  docs: (string | OptionalKind<JSDocStructure>)[] = [];
+  docs: (string | JSDocImpl)[] = [];
   statements: (stringOrWriterFunction | StatementStructures)[] = [];
   hasQuestionToken = false;
   hasOverrideKeyword = false;
@@ -98,7 +98,14 @@ implements MethodDeclarationStructure
     clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
 
     clone.hasQuestionToken = other.hasQuestionToken ?? false;
-    clone.docs = other.docs?.slice() ?? [];
+
+    if (Array.isArray(other.docs)) {
+      clone.docs = other.docs.map(doc => {
+        if (typeof doc === "string")
+          return doc;
+        return JSDocImpl.clone(doc);
+      });
+    }
 
     clone.parameters = cloneArrayOrUndefined<
       TS_Parameter,

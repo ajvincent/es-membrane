@@ -1,6 +1,5 @@
 import {
   AssertEntryStructure,
-  ImportSpecifierStructure,
   OptionalKind,
   StructureKind,
   type ImportDeclarationStructure
@@ -23,7 +22,7 @@ export default class ImportDeclarationImpl implements ImportDeclarationStructure
   isTypeOnly = false;
   defaultImport: string | undefined = undefined;
   namespaceImport: string | undefined = undefined;
-  namedImports: (stringOrWriterFunction | ImportSpecifierStructure)[] = [];
+  namedImports: (stringOrWriterFunction | ImportSpecifierImpl)[] = [];
   moduleSpecifier: string;
   assertElements: OptionalKind<AssertEntryStructure>[] = [];
   readonly kind: StructureKind.ImportDeclaration = StructureKind.ImportDeclaration;

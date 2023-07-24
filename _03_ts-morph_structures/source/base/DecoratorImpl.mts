@@ -13,7 +13,7 @@ import {
 } from "./utilities.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
-export default class DecoratorImpl implements OptionalKind<DecoratorStructure>
+export default class DecoratorImpl implements DecoratorStructure
 {
   leadingTrivia: stringOrWriterFunction[] = [];
   trailingTrivia: stringOrWriterFunction[] = [];

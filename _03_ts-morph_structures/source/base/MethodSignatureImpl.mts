@@ -1,6 +1,4 @@
 import {
-  type OptionalKind,
-  type JSDocStructure,
   StructureKind,
   MethodSignatureStructure
 } from "ts-morph";
@@ -21,6 +19,7 @@ import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 import ReturnTypeWriterManager from "./ReturnTypeWriterManager.mjs";
+import JSDocImpl from "./JSDocImpl.mjs";
 
 export default class MethodSignatureImpl
 extends ReturnTypeWriterManager
@@ -30,7 +29,7 @@ implements TS_Method
   trailingTrivia: stringOrWriterFunction[] = [];
   name: string;
   hasQuestionToken = false;
-  docs: (string | OptionalKind<JSDocStructure>)[] = [];
+  docs: (string | JSDocImpl)[] = [];
   parameters: ParameterDeclarationImpl[] = [];
   typeParameters: (TypeParameterDeclarationImpl | string)[] = [];
   readonly kind: StructureKind.MethodSignature = StructureKind.MethodSignature;
@@ -49,7 +48,14 @@ implements TS_Method
     clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
     clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
     clone.hasQuestionToken = other.hasQuestionToken ?? false;
-    clone.docs = other.docs?.slice() ?? [];
+
+    if (Array.isArray(other.docs)) {
+      clone.docs = other.docs.map(doc => {
+        if (typeof doc === "string")
+          return doc;
+        return JSDocImpl.clone(doc);
+      })
+    }
 
     clone.parameters = cloneArrayOrUndefined<
       TS_Parameter,

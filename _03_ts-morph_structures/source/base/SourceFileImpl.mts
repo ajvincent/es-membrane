@@ -8,7 +8,8 @@ import type {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 
-export default class SourceFileImpl implements SourceFileStructure {
+export default class SourceFileImpl implements SourceFileStructure
+{
   leadingTrivia: stringOrWriterFunction[] = [];
   trailingTrivia: stringOrWriterFunction[] = [];
   readonly kind: StructureKind.SourceFile = StructureKind.SourceFile;

@@ -3,7 +3,6 @@ import {
   type ClassDeclarationStructure,
   StructureKind,
   DecoratorStructure,
-  JSDocStructure,
   ConstructorDeclarationStructure,
   GetAccessorDeclarationStructure,
   MethodDeclarationStructure,
@@ -25,6 +24,7 @@ import MethodDeclarationImpl from "./MethodDeclarationImpl.mjs";
 import DecoratorImpl from "./DecoratorImpl.mjs";
 import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
+import JSDocImpl from "./JSDocImpl.mjs";
 
 export default class ClassDeclarationImpl implements ClassDeclarationStructure
 {
@@ -40,7 +40,7 @@ export default class ClassDeclarationImpl implements ClassDeclarationStructure
   implements: stringOrWriterFunction[] = [];
   decorators: DecoratorImpl[] = [];
   typeParameters: (string | TypeParameterDeclarationImpl)[] = [];
-  docs: (string | OptionalKind<JSDocStructure>)[] = [];
+  docs: (string | JSDocImpl)[] = [];
   isAbstract = false;
   readonly kind: StructureKind.Class = StructureKind.Class;
   hasDeclareKeyword = false;
@@ -85,7 +85,13 @@ export default class ClassDeclarationImpl implements ClassDeclarationStructure
         return TypeParameterDeclarationImpl.clone(typeParam);
       });
     }
-    clone.docs = other.docs?.slice() ?? [];
+    if (Array.isArray(other.docs)) {
+      clone.docs = other.docs.map(doc => {
+        if (typeof doc === "string")
+          return doc;
+        return JSDocImpl.clone(doc);
+      })
+    }
     clone.isAbstract = other.isAbstract ?? false;
     clone.hasDeclareKeyword = other.hasDeclareKeyword ?? false;
     clone.isExported = other.isExported ?? false;
