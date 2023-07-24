@@ -16,6 +16,7 @@ import type {
 
 import {
   cloneArrayOrUndefined,
+  statementsArray,
   stringOrWriterFunctionArray
 } from "./utilities.mjs";
 import DecoratorImpl from "./DecoratorImpl.mjs";
@@ -69,14 +70,7 @@ implements MethodDeclarationStructure
     clone.scope = other.scope;
     clone.isAsync = other.isAsync ?? false;
     clone.isGenerator = other.isGenerator ?? false;
-
-    if (Array.isArray(other.statements)) {
-      clone.statements = other.statements.slice();
-    }
-    else if (other.statements) {
-      clone.statements = [other.statements];
-    }
-
+    clone.statements = statementsArray(other);
     clone.hasOverrideKeyword = other.hasOverrideKeyword ?? false;
 
     return clone;
