@@ -1,10 +1,15 @@
 import {
+  CallSignatureDeclarationStructure,
+  ConstructSignatureDeclarationStructure,
+  IndexSignatureDeclarationStructure,
   InterfaceDeclarationStructure,
   OptionalKind,
+  PropertySignatureStructure,
   StructureKind,
 } from "ts-morph";
 
 import {
+  TS_Method,
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 
@@ -12,7 +17,7 @@ import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
 import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
-import { stringOrWriterFunctionArray } from "./utilities.mjs";
+import { cloneArrayOrUndefined, stringOrWriterFunctionArray } from "./utilities.mjs";
 import MethodSignatureImpl from "./MethodSignatureImpl.mjs";
 import JSDocImpl from "./JSDocImpl.mjs";
 import CallSignatureDeclarationImpl from "./CallSignatureDeclarationImpl.mjs";
@@ -55,41 +60,27 @@ implements InterfaceDeclarationStructure
     declaration.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
     declaration.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
     declaration.extends = stringOrWriterFunctionArray(other.extends);
-    if (other.typeParameters) {
-      declaration.typeParameters = other.typeParameters.map(typeParam => {
-        if (typeof typeParam === "string")
-          return typeParam;
-        return TypeParameterDeclarationImpl.clone(typeParam);
-      })
-    }
-
-    if (other.docs) {
-      declaration.docs = other.docs.map(doc => {
-        if (typeof doc === "string")
-          return doc;
-        return JSDocImpl.clone(doc);
-      })
-    }
-
+    declaration.typeParameters = TypeParameterDeclarationImpl.cloneArray(other);
+    declaration.docs = JSDocImpl.cloneArray(other);
     declaration.hasDeclareKeyword = other.hasDeclareKeyword ?? false;
     declaration.isExported = other.isExported ?? false;
     declaration.isDefaultExport = other.isDefaultExport ?? false;
 
-    if (other.callSignatures) {
-      declaration.callSignatures = other.callSignatures.map(signature => CallSignatureDeclarationImpl.clone(signature));
-    }
-    if (other.constructSignatures) {
-      declaration.constructSignatures = other.constructSignatures.map(signature => ConstructSignatureDeclarationImpl.clone(signature));
-    }
-    if (other.indexSignatures) {
-      declaration.indexSignatures = other.indexSignatures.map(signature => IndexSignatureDeclarationImpl.clone(signature));
-    }
-    if (other.methods) {
-      declaration.methods = other.methods.map(method => MethodSignatureImpl.clone(method));
-    }
-    if (other.properties) {
-      declaration.properties = other.properties.map(prop => PropertySignatureImpl.clone(prop));
-    }
+    declaration.callSignatures = cloneArrayOrUndefined<OptionalKind<CallSignatureDeclarationStructure>, typeof CallSignatureDeclarationImpl>(
+      other.callSignatures, CallSignatureDeclarationImpl
+    );
+    declaration.constructSignatures = cloneArrayOrUndefined<OptionalKind<ConstructSignatureDeclarationStructure>, typeof ConstructSignatureDeclarationImpl>(
+      other.constructSignatures, ConstructSignatureDeclarationImpl
+    );
+    declaration.indexSignatures = cloneArrayOrUndefined<OptionalKind<IndexSignatureDeclarationStructure>, typeof IndexSignatureDeclarationImpl>(
+      other.indexSignatures, IndexSignatureDeclarationImpl
+    );
+    declaration.methods = cloneArrayOrUndefined<TS_Method, typeof MethodSignatureImpl>(
+      other.methods, MethodSignatureImpl
+    );
+    declaration.properties = cloneArrayOrUndefined<OptionalKind<PropertySignatureStructure>, typeof PropertySignatureImpl>(
+      other.properties, PropertySignatureImpl
+    );
 
     return declaration;
   }

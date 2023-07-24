@@ -16,6 +16,7 @@ import {
 import TypeWriterManager from "./TypeWriterManager.mjs";
 import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
 import { stringOrWriterFunctionArray } from "./utilities.mjs";
+import JSDocImpl from "./JSDocImpl.mjs";
 
 export default class TypeAliasDeclarationImpl
 extends TypeWriterManager
@@ -39,17 +40,8 @@ implements TypeAliasDeclarationStructure
 
     clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
     clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
-
-    if (Array.isArray(other.typeParameters)) {
-      clone.typeParameters = other.typeParameters.map(typeParam => {
-        if (typeof typeParam === "string")
-          return typeParam;
-        return TypeParameterDeclarationImpl.clone(typeParam);
-      });
-    }
-
-    clone.docs = other.docs?.slice() ?? [];
-
+    clone.typeParameters = TypeParameterDeclarationImpl.cloneArray(other);
+    clone.docs = JSDocImpl.cloneArray(other);
     clone.hasDeclareKeyword = other.hasDeclareKeyword;
     clone.isExported = other.isExported;
     clone.isDefaultExport = other.isDefaultExport;

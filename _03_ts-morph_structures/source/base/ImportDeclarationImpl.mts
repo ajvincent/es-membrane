@@ -46,10 +46,7 @@ export default class ImportDeclarationImpl implements ImportDeclarationStructure
     clone.defaultImport = other.defaultImport;
     clone.namespaceImport = other.namespaceImport;
 
-    // XXX ajvincent come back here for ImportSpecifierSpecificStructure
     if (Array.isArray(other.namedImports)) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      console.warn("ImportSpecifierSpecificStructure");
       other.namedImports.forEach(namedImport => {
         if ((typeof namedImport === "string") || (typeof namedImport === "function"))
           clone.namedImports.push(namedImport);

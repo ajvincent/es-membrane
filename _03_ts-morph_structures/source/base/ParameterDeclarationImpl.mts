@@ -1,10 +1,11 @@
-import { OptionalKind, ParameterDeclarationStructure, Scope, StructureKind } from "ts-morph";
+import { DecoratorStructure, OptionalKind, ParameterDeclarationStructure, Scope, StructureKind } from "ts-morph";
 import {
   TS_Parameter,
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 
 import {
+  cloneArrayOrUndefined,
   stringOrWriterFunctionArray,
 } from "./utilities.mjs";
 
@@ -48,12 +49,9 @@ implements TS_Parameter
     newParameter.type = other.type;
     newParameter.isReadonly = other.isReadonly ?? false;
 
-    if (Array.isArray(other.decorators)) {
-      newParameter.decorators = other.decorators.map(decorator => DecoratorImpl.clone(decorator));
-    }
-    else {
-      newParameter.decorators = [];
-    }
+    newParameter.decorators = cloneArrayOrUndefined<OptionalKind<DecoratorStructure>, typeof DecoratorImpl>(
+      other.decorators, DecoratorImpl
+    );
 
     newParameter.hasQuestionToken = other.hasQuestionToken ?? false;
     newParameter.scope = other.scope;

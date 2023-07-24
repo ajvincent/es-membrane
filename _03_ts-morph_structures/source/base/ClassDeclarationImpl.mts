@@ -8,6 +8,7 @@ import {
   MethodDeclarationStructure,
   SetAccessorDeclarationStructure,
   MethodSignatureStructure,
+  PropertyDeclarationStructure,
 } from "ts-morph";
 
 import type {
@@ -60,9 +61,9 @@ export default class ClassDeclarationImpl implements ClassDeclarationStructure
     if (other.ctors) {
       clone.ctors = other.ctors.slice();
     }
-    if (other.properties) {
-      clone.properties = other.properties.map(prop => PropertyDeclarationImpl.clone(prop));
-    }
+    clone.properties = cloneArrayOrUndefined<OptionalKind<PropertyDeclarationStructure>, typeof PropertyDeclarationImpl>(
+      other.properties, PropertyDeclarationImpl
+    );
     if (other.getAccessors) {
       clone.getAccessors = other.getAccessors.slice();
     }
@@ -72,26 +73,13 @@ export default class ClassDeclarationImpl implements ClassDeclarationStructure
     clone.methods = cloneArrayOrUndefined<OptionalKind<MethodDeclarationStructure>, typeof MethodDeclarationImpl>(
       other.methods, MethodDeclarationImpl
     );
-    if (Array.isArray(other.implements)) {
-      clone.implements = other.implements?.slice() ?? [];
-    }
+    clone.implements = stringOrWriterFunctionArray(other.implements);
     clone.decorators = cloneArrayOrUndefined<OptionalKind<DecoratorStructure>, typeof DecoratorImpl>(
       other.decorators, DecoratorImpl
     );
-    if (Array.isArray(other.typeParameters)) {
-      clone.typeParameters = other.typeParameters.map(typeParam => {
-        if (typeof typeParam === "string")
-          return typeParam;
-        return TypeParameterDeclarationImpl.clone(typeParam);
-      });
-    }
-    if (Array.isArray(other.docs)) {
-      clone.docs = other.docs.map(doc => {
-        if (typeof doc === "string")
-          return doc;
-        return JSDocImpl.clone(doc);
-      });
-    }
+    clone.typeParameters = TypeParameterDeclarationImpl.cloneArray(other);
+    clone.docs = JSDocImpl.cloneArray(other);
+
     clone.isAbstract = other.isAbstract ?? false;
     clone.hasDeclareKeyword = other.hasDeclareKeyword ?? false;
     clone.isExported = other.isExported ?? false;

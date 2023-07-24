@@ -1,6 +1,7 @@
 import {
   JSDocStructure,
   JSDocTagStructure,
+  JSDocableNodeStructure,
   OptionalKind,
   StructureKind,
 } from "ts-morph";
@@ -33,5 +34,19 @@ implements JSDocStructure
 
     return doc;
   }
+
+  public static cloneArray(
+    other: JSDocableNodeStructure
+  ): (string | JSDocImpl)[]
+  {
+    if (!other.docs)
+      return [];
+    return other.docs.map(doc => {
+      if (typeof doc === "string")
+        return doc;
+      return JSDocImpl.clone(doc);
+    });
+  }
 }
+
 JSDocImpl satisfies CloneableStructure<JSDocStructure>;

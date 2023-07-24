@@ -1,4 +1,5 @@
 import {
+  DecoratorStructure,
   OptionalKind,
   PropertyDeclarationStructure,
   Scope,
@@ -12,7 +13,7 @@ import {
 import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
-import { stringOrWriterFunctionArray } from "./utilities.mjs";
+import { cloneArrayOrUndefined, stringOrWriterFunctionArray } from "./utilities.mjs";
 import TypeWriterManager from "./TypeWriterManager.mjs";
 import JSDocImpl from "./JSDocImpl.mjs";
 import DecoratorImpl from "./DecoratorImpl.mjs";
@@ -58,19 +59,13 @@ implements PropertyDeclarationStructure
     declaration.isStatic = other.isStatic ?? false;
     declaration.scope = other.scope;
 
-    if (Array.isArray(other.docs)) {
-      declaration.docs = other.docs.map(doc => {
-        if (typeof doc === "string")
-          return doc;
-        return JSDocImpl.clone(doc);
-      });
-    }
+    declaration.docs = JSDocImpl.cloneArray(other);
     declaration.isReadonly = other.isReadonly ?? false;
     declaration.initializer = other.initializer;
 
-    if (Array.isArray(other.decorators)) {
-      declaration.decorators = other.decorators.map(dec => DecoratorImpl.clone(dec));
-    }
+    declaration.decorators = cloneArrayOrUndefined<OptionalKind<DecoratorStructure>, typeof DecoratorImpl>(
+      other.decorators, DecoratorImpl
+    );
     declaration.isAbstract = other.isAbstract ?? false;
     declaration.hasDeclareKeyword = other.hasDeclareKeyword ?? false;
     declaration.hasOverrideKeyword = other.hasOverrideKeyword ?? false;

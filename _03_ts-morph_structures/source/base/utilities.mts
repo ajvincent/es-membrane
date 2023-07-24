@@ -2,16 +2,12 @@ import {
   Class
 } from "type-fest";
 
-import type {
-  NamedNodeStructure
-} from "ts-morph";
-
 import {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 
 export type StructureCloner<
-  SourceType extends NamedNodeStructure,
+  SourceType extends object,
   TargetClass extends Class<SourceType, [string]>
 > = TargetClass & {
   clone(other: SourceType): InstanceType<TargetClass>;
@@ -29,7 +25,7 @@ export function stringOrWriterFunctionArray(
 }
 
 export function cloneArrayOrUndefined<
-  SourceType extends NamedNodeStructure,
+  SourceType extends object,
   TargetClass extends Class<SourceType, [string]>
 >
 (

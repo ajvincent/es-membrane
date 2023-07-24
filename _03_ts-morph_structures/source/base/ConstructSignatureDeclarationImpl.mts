@@ -8,8 +8,8 @@ import JSDocImpl from "./JSDocImpl.mjs";
 import ParameterDeclarationImpl from "./ParameterDeclarationImpl.mjs";
 import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
 import ReturnTypeWriterManager from "./ReturnTypeWriterManager.mjs";
-import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
-import { stringOrWriterFunctionArray } from "./utilities.mjs";
+import { TS_Parameter, stringOrWriterFunction } from "../types/ts-morph-native.mjs";
+import { cloneArrayOrUndefined, stringOrWriterFunctionArray } from "./utilities.mjs";
 
 export default class ConstructSignatureDeclarationImpl
 extends ReturnTypeWriterManager
@@ -30,23 +30,11 @@ implements ConstructSignatureDeclarationStructure
 
     declaration.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
     declaration.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
-    if (Array.isArray(other.docs)) {
-      declaration.docs = other.docs.map(doc => {
-        if (typeof doc === "string")
-          return doc;
-        return JSDocImpl.clone(doc);
-      });
-    }
-    if (other.parameters) {
-      declaration.parameters = other.parameters.map(param => ParameterDeclarationImpl.clone(param));
-    }
-    if (other.typeParameters) {
-      declaration.typeParameters = other.typeParameters.map(typeParam => {
-        if (typeof typeParam === "string")
-          return typeParam;
-        return TypeParameterDeclarationImpl.clone(typeParam);
-      });
-    }
+    declaration.docs = JSDocImpl.cloneArray(other);
+    declaration.parameters = cloneArrayOrUndefined<TS_Parameter, typeof ParameterDeclarationImpl>(
+      other.parameters, ParameterDeclarationImpl
+    );
+    declaration.typeParameters = TypeParameterDeclarationImpl.cloneArray(other);
     declaration.returnType = other.returnType;
 
     return declaration;

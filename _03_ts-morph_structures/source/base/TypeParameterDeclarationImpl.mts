@@ -6,6 +6,7 @@ import type {
 import {
   StructureKind,
   TypeParameterDeclarationStructure,
+  TypeParameteredNodeStructure,
   type TypeParameterVariance,
 } from "ts-morph";
 
@@ -47,5 +48,20 @@ export default class TypeParameterDeclarationImpl implements TS_TypeParameter
 
     return clone;
   }
+
+  public static cloneArray(
+    other: TypeParameteredNodeStructure
+  ): (string | TypeParameterDeclarationImpl)[]
+  {
+    if (!other.typeParameters)
+      return [];
+
+    return other.typeParameters.map(typeParam => {
+      if (typeof typeParam === "string")
+        return typeParam;
+      return TypeParameterDeclarationImpl.clone(typeParam);
+    });
+  }
+
 }
 TypeParameterDeclarationImpl satisfies CloneableStructure<TypeParameterDeclarationStructure>;

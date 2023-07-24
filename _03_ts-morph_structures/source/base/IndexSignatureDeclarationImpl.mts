@@ -30,13 +30,7 @@ implements IndexSignatureDeclarationStructure
 
     declaration.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
     declaration.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
-    if (Array.isArray(other.docs)) {
-      declaration.docs = other.docs.map(doc => {
-        if (typeof doc === "string")
-          return doc;
-        return JSDocImpl.clone(doc);
-      });
-    }
+    declaration.docs = JSDocImpl.cloneArray(other);
     declaration.keyName = other.keyName;
     declaration.keyType = other.keyType;
     declaration.isReadonly = other.isReadonly ?? false;

@@ -44,13 +44,7 @@ implements PropertySignatureStructure
     signature.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
 
     signature.hasQuestionToken = other.hasQuestionToken ?? false;
-    if (Array.isArray(other.docs)) {
-      signature.docs = other.docs.map(doc => {
-        if (typeof doc === "string")
-          return doc;
-        return JSDocImpl.clone(doc);
-      });
-    }
+    signature.docs = JSDocImpl.cloneArray(other);
     signature.isReadonly = other.isReadonly ?? false;
     signature.initializer = other.initializer;
 

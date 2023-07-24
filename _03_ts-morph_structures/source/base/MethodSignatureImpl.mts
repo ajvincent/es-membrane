@@ -48,14 +48,7 @@ implements TS_Method
     clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
     clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
     clone.hasQuestionToken = other.hasQuestionToken ?? false;
-
-    if (Array.isArray(other.docs)) {
-      clone.docs = other.docs.map(doc => {
-        if (typeof doc === "string")
-          return doc;
-        return JSDocImpl.clone(doc);
-      })
-    }
+    clone.docs = JSDocImpl.cloneArray(other);
 
     clone.parameters = cloneArrayOrUndefined<
       TS_Parameter,
@@ -63,15 +56,7 @@ implements TS_Method
     >(other.parameters, ParameterDeclarationImpl);
 
     clone.returnType = other.returnType;
-
-    if (other.typeParameters) {
-      clone.typeParameters = other.typeParameters.map(typeParam => {
-        if (typeof typeParam === "string")
-          return typeParam;
-        return TypeParameterDeclarationImpl.clone(typeParam);
-      });
-    }
-
+    clone.typeParameters = TypeParameterDeclarationImpl.cloneArray(other);
     return clone;
   }
 }
