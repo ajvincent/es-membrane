@@ -1,5 +1,6 @@
+
 import {
-  type ImportSpecifierStructure,
+  type ExportSpecifierStructure,
   type OptionalKind,
   StructureKind,
 } from "ts-morph";
@@ -13,24 +14,24 @@ import {
 } from "./utilities.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
-export default class ImportSpecifierImpl implements ImportSpecifierStructure
+export default class ExportSpecifierImpl implements ExportSpecifierStructure
 {
   leadingTrivia: stringOrWriterFunction[] = [];
   trailingTrivia: stringOrWriterFunction[] = [];
   name: string;
-  isTypeOnly = false;
   alias: string | undefined;
-  kind: StructureKind.ImportSpecifier = StructureKind.ImportSpecifier;
+  isTypeOnly = false;
+  readonly kind: StructureKind.ExportSpecifier = StructureKind.ExportSpecifier;
 
   constructor(name: string) {
     this.name = name;
   }
 
   public static clone(
-    other: OptionalKind<ImportSpecifierStructure>
-  ): ImportSpecifierImpl
+    other: OptionalKind<ExportSpecifierStructure>
+  ): ExportSpecifierImpl
   {
-    const clone = new ImportSpecifierImpl(other.name);
+    const clone = new ExportSpecifierImpl(other.name);
 
     clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
     clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
@@ -40,4 +41,4 @@ export default class ImportSpecifierImpl implements ImportSpecifierStructure
     return clone;
   }
 }
-ImportSpecifierImpl satisfies CloneableStructure<ImportSpecifierStructure>;
+ExportSpecifierImpl satisfies CloneableStructure<ExportSpecifierStructure>;

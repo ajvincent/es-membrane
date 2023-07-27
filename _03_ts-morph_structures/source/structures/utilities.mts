@@ -33,7 +33,7 @@ export function stringOrWriterFunctionArray(
 
 export function cloneArrayOrUndefined<
   SourceType extends object,
-  TargetClass extends Class<SourceType, [string]>
+  TargetClass extends Class<SourceType>
 >
 (
   elements: SourceType[] | undefined,

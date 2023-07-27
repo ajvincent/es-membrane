@@ -1,11 +1,14 @@
 // #region Structure implementations
 
+export { default as AssertEntryImpl } from "./source/structures/AssertEntryImpl.mjs";
 export { default as CallSignatureDeclarationImpl } from "./source/structures/IndexSignatureDeclarationImpl.mjs";
 export { default as ClassDeclarationImpl } from "./source/structures/ClassDeclarationImpl.mjs";
 export { default as ConstructorDeclarationImpl }  from "./source/structures/ConstructorDeclarationImpl.mjs";
 export { default as ConstructorDeclarationOverloadImpl } from "./source/structures/ConstructorDeclarationOverloadImpl.mjs";
 export { default as ConstructSignatureDeclarationImpl } from "./source/structures/ConstructSignatureDeclarationImpl.mjs";
 export { default as DecoratorImpl }  from "./source/structures/DecoratorImpl.mjs";
+export { default as ExportDeclarationImpl } from "./source/structures/ExportDeclarationImpl.mjs";
+export { default as ExportSpecifierImpl } from "./source/structures/ExportSpecifierImpl.mjs";
 export { default as GetAccessorDeclarationImpl } from "./source/structures/GetAccessorDeclarationImpl.mjs";
 export { default as ImportDeclarationImpl } from "./source/structures/ImportDeclarationImpl.mjs";
 export { default as ImportSpecifierImpl } from "./source/structures/ImportSpecifierImpl.mjs";

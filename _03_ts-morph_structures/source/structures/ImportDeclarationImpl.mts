@@ -1,5 +1,4 @@
 import {
-  AssertEntryStructure,
   OptionalKind,
   StructureKind,
   type ImportDeclarationStructure
@@ -16,6 +15,7 @@ import ImportSpecifierImpl from "./ImportSpecifierImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 import cloneableStatementsMap from "./cloneableStatements.mjs";
+import AssertEntryImpl from "./AssertEntryImpl.mjs";
 
 export default class ImportDeclarationImpl implements ImportDeclarationStructure
 {
@@ -26,7 +26,7 @@ export default class ImportDeclarationImpl implements ImportDeclarationStructure
   namespaceImport: string | undefined = undefined;
   namedImports: (stringOrWriterFunction | ImportSpecifierImpl)[] = [];
   moduleSpecifier: string;
-  assertElements: OptionalKind<AssertEntryStructure>[] = [];
+  assertElements: AssertEntryImpl[] = [];
   readonly kind: StructureKind.ImportDeclaration = StructureKind.ImportDeclaration;
 
   constructor(
@@ -61,7 +61,7 @@ export default class ImportDeclarationImpl implements ImportDeclarationStructure
     }
 
     if (other.assertElements) {
-      clone.assertElements = other.assertElements.slice();
+      clone.assertElements = other.assertElements.map(element => AssertEntryImpl.clone(element));
     }
 
     return clone;
