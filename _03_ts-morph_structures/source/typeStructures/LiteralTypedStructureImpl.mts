@@ -19,6 +19,8 @@ import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
 
+import cloneableClassesMap from "./cloneableClassesMap.mjs";
+
 export default class LiteralTypedStructureImpl implements LiteralTypedStructure
 {
   static clone(
@@ -45,3 +47,5 @@ export default class LiteralTypedStructureImpl implements LiteralTypedStructure
   readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 LiteralTypedStructureImpl satisfies CloneableStructure<LiteralTypedStructure>;
+
+cloneableClassesMap.set(TypeStructureKind.Literal, LiteralTypedStructureImpl);

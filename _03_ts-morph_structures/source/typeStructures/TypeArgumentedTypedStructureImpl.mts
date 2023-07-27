@@ -63,3 +63,5 @@ implements TypeArgumentedTypedStructure
   }
 }
 TypeArgumentedTypedStructureImpl satisfies CloneableStructure<TypeArgumentedTypedStructure>;
+
+cloneableClassesMap.set(TypeStructureKind.TypeArgumented, TypeArgumentedTypedStructureImpl);

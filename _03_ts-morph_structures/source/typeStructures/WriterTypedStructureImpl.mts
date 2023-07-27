@@ -14,6 +14,8 @@ import {
   registerCallbackForTypeStructure
 } from "./callbackToTypeStructureRegistry.mjs";
 
+import cloneableClassesMap from "./cloneableClassesMap.mjs";
+
 export default class WriterTypedStructureImpl
 implements WriterTypedStructure
 {
@@ -32,3 +34,5 @@ implements WriterTypedStructure
     registerCallbackForTypeStructure(this);
   }
 }
+
+cloneableClassesMap.set(TypeStructureKind.Writer, WriterTypedStructureImpl);

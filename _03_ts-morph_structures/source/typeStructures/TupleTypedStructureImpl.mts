@@ -62,3 +62,5 @@ implements TupleTypedStructure
   }
 }
 TupleTypedStructureImpl satisfies CloneableStructure<TupleTypedStructure>;
+
+cloneableClassesMap.set(TypeStructureKind.Tuple, TupleTypedStructureImpl);

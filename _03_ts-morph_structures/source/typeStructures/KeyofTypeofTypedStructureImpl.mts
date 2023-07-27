@@ -62,3 +62,5 @@ implements KeyOfTypeofTypedStructure
   readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 KeyOfTypeofTypedStructureImpl satisfies CloneableStructure<KeyOfTypeofTypedStructure>;
+
+cloneableClassesMap.set(TypeStructureKind.KeyOfTypeof, KeyOfTypeofTypedStructureImpl);

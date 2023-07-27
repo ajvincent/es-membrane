@@ -44,3 +44,5 @@ implements IntersectionTypedStructure
   }
 }
 IntersectionTypedStructureImpl satisfies CloneableStructure<IntersectionTypedStructure>;
+
+cloneableClassesMap.set(TypeStructureKind.Intersection, IntersectionTypedStructureImpl);

@@ -58,3 +58,5 @@ implements IndexedAccessTypedStructure
   readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 IndexedAccessTypedStructureImpl satisfies CloneableStructure<IndexedAccessTypedStructure>;
+
+cloneableClassesMap.set(TypeStructureKind.IndexedAccess, IndexedAccessTypedStructureImpl);

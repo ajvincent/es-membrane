@@ -44,3 +44,5 @@ implements UnionTypedStructure
   }
 }
 UnionTypedStructureImpl satisfies CloneableStructure<UnionTypedStructure>;
+
+cloneableClassesMap.set(TypeStructureKind.Union, UnionTypedStructureImpl);

@@ -18,6 +18,8 @@ import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
 import { stringOrWriterFunctionArray } from "./utilities.mjs";
 import JSDocImpl from "./JSDocImpl.mjs";
 
+import cloneableStatementsMap from "./cloneableStatements.mjs";
+
 export default class TypeAliasDeclarationImpl
 extends TypeWriterManager
 implements TypeAliasDeclarationStructure
@@ -63,3 +65,5 @@ implements TypeAliasDeclarationStructure
   }
 }
 TypeAliasDeclarationImpl satisfies CloneableStructure<TypeAliasDeclarationStructure>;
+
+cloneableStatementsMap.set(StructureKind.TypeAlias, TypeAliasDeclarationImpl);

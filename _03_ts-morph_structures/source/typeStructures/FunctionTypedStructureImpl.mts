@@ -122,3 +122,5 @@ export default class FunctionTypedStructureImpl implements FunctionTypedStructur
 }
 
 FunctionTypedStructureImpl satisfies CloneableStructure<FunctionTypedStructure>;
+
+cloneableClassesMap.set(TypeStructureKind.Function, FunctionTypedStructureImpl);

@@ -16,6 +16,8 @@ import {
 } from "./callbackToTypeStructureRegistry.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
+import cloneableClassesMap from "./cloneableClassesMap.mjs";
+
 export default class StringTypedStructureImpl implements StringTypedStructure
 {
   static clone(
@@ -42,3 +44,5 @@ export default class StringTypedStructureImpl implements StringTypedStructure
   readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 StringTypedStructureImpl satisfies CloneableStructure<StringTypedStructure>;
+
+cloneableClassesMap.set(TypeStructureKind.String, StringTypedStructureImpl);

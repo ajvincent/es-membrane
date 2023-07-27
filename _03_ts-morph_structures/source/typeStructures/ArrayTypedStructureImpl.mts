@@ -71,3 +71,5 @@ implements ArrayTypedStructure
   readonly writerFunction = this.#writerFunction.bind(this);
 }
 ArrayTypedStructureImpl satisfies CloneableStructure<ArrayTypedStructure>;
+
+cloneableClassesMap.set(TypeStructureKind.Array, ArrayTypedStructureImpl);

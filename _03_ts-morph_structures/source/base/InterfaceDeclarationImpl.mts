@@ -24,6 +24,7 @@ import CallSignatureDeclarationImpl from "./CallSignatureDeclarationImpl.mjs";
 import ConstructSignatureDeclarationImpl from "./ConstructSignatureDeclarationImpl.mjs";
 import IndexSignatureDeclarationImpl from "./IndexSignatureDeclarationImpl.mjs";
 import PropertySignatureImpl from "./PropertySignatureImpl.mjs";
+import cloneableStatementsMap from "./cloneableStatements.mjs";
 
 export default class InterfaceDeclarationImpl
 implements InterfaceDeclarationStructure
@@ -86,3 +87,5 @@ implements InterfaceDeclarationStructure
   }
 }
 InterfaceDeclarationImpl satisfies CloneableStructure<InterfaceDeclarationStructure>;
+
+cloneableStatementsMap.set(StructureKind.Interface, InterfaceDeclarationImpl);

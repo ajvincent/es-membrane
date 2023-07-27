@@ -30,6 +30,8 @@ import GetAccessorDeclarationImpl from "./GetAccessorDeclarationImpl.mjs";
 import SetAccessorDeclarationImpl from "./SetAccessorDeclarationImpl.mjs";
 import ConstructorDeclarationImpl from "./ConstructorDeclarationImpl.mjs";
 
+import cloneableStatementsMap from "./cloneableStatements.mjs";
+
 export default class ClassDeclarationImpl implements ClassDeclarationStructure
 {
   name: string | undefined = undefined;
@@ -105,3 +107,5 @@ export default class ClassDeclarationImpl implements ClassDeclarationStructure
   }
 }
 ClassDeclarationImpl satisfies CloneableStructure<ClassDeclarationStructure>;
+
+cloneableStatementsMap.set(StructureKind.Class, ClassDeclarationImpl);

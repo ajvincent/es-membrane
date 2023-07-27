@@ -16,6 +16,8 @@ import {
 } from "./callbackToTypeStructureRegistry.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
+import cloneableClassesMap from "./cloneableClassesMap.mjs";
+
 export default class SymbolKeyTypedStructureImpl implements SymbolKeyTypedStructure
 {
   static clone(
@@ -44,3 +46,5 @@ export default class SymbolKeyTypedStructureImpl implements SymbolKeyTypedStruct
   readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 SymbolKeyTypedStructureImpl satisfies CloneableStructure<SymbolKeyTypedStructure>;
+
+cloneableClassesMap.set(TypeStructureKind.SymbolKey, SymbolKeyTypedStructureImpl);

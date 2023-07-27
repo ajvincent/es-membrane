@@ -15,6 +15,8 @@ import {
 import ImportSpecifierImpl from "./ImportSpecifierImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
+import cloneableStatementsMap from "./cloneableStatements.mjs";
+
 export default class ImportDeclarationImpl implements ImportDeclarationStructure
 {
   leadingTrivia: stringOrWriterFunction[] = [];
@@ -66,3 +68,5 @@ export default class ImportDeclarationImpl implements ImportDeclarationStructure
   }
 }
 ImportDeclarationImpl satisfies CloneableStructure<ImportDeclarationStructure>;
+
+cloneableStatementsMap.set(StructureKind.ImportDeclaration, ImportDeclarationImpl);
