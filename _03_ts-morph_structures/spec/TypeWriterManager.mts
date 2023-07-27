@@ -3,7 +3,9 @@ import type {
   WriterFunction
 } from "ts-morph";
 import TypeWriterManager from "../source/base/TypeWriterManager.mjs";
-import LiteralTypedStructureImpl from "#ts-morph_structures/source/typeStructures/LiteralTypedStructureImpl.mjs";
+import {
+  LiteralTypedStructureImpl,
+} from "#ts-morph_structures/exports.mjs";
 
 describe("TypeWriterManager with", () => {
   let manager: TypeWriterManager;

@@ -25,7 +25,6 @@ import type {
 } from "../types/CloneableStructure.mjs";
 import ParameterTypedStructureImpl from "./ParameterTypedStructureImpl.mjs";
 
-
 export default class FunctionTypedStructureImpl implements FunctionTypedStructure
 {
   static clone(

@@ -3,28 +3,24 @@ import {
   type CodeBlockWriterOptions,
 } from "ts-morph";
 
-import ArrayTypedStructureImpl from "../source/typeStructures/ArrayTypedStructureImpl.mjs";
-import FunctionTypedStructureImpl from "../source/typeStructures/FunctionTypedStructureImpl.mjs";
-import IndexedAccessTypedStructureImpl from "../source/typeStructures/IndexedAccessTypedStructureImpl.mjs";
-import IntersectionTypedStructureImpl from "../source/typeStructures/IntersectionTypedStructureImpl.mjs";
-import KeyOfTypeofTypedStructureImpl from "../source/typeStructures/KeyofTypeofTypedStructureImpl.mjs";
-import LiteralTypedStructureImpl from "../source/typeStructures/LiteralTypedStructureImpl.mjs";
-import StringTypedStructureImpl from "../source/typeStructures/StringTypedStructureImpl.mjs";
-import SymbolKeyTypedStructureImpl from "../source/typeStructures/SymbolKeyTypedStructureImpl.mjs";
-import TupleTypedStructureImpl from "../source/typeStructures/TupleTypedStructureImpl.mjs";
-import TypeArgumentedTypedStructureImpl from "../source/typeStructures/TypeArgumentedTypedStructureImpl.mjs";
-import UnionTypedStructureImpl from "../source/typeStructures/UnionTypedStructureImpl.mjs";
-import WriterTypedStructureImpl from "../source/typeStructures/WriterTypedStructureImpl.mjs";
-
 import {
+  ArrayTypedStructureImpl,
+  FunctionTypedStructureImpl,
   FunctionWriterStyle,
-  type TypeStructure,
-} from "../source/typeStructures/TypeStructure.mjs";
-
-import {
-  TypeStructureKind
-} from "../source/typeStructures/TypeStructureKind.mjs";
-import ParameterTypedStructureImpl from "#ts-morph_structures/source/typeStructures/ParameterTypedStructureImpl.mjs";
+  IndexedAccessTypedStructureImpl,
+  IntersectionTypedStructureImpl,
+  KeyOfTypeofTypedStructureImpl,
+  LiteralTypedStructureImpl,
+  ParameterTypedStructureImpl,
+  StringTypedStructureImpl,
+  SymbolKeyTypedStructureImpl,
+  TupleTypedStructureImpl,
+  TypeArgumentedTypedStructureImpl,
+  TypeStructure,
+  TypeStructureKind,
+  UnionTypedStructureImpl,
+  WriterTypedStructureImpl,
+} from "#ts-morph_structures/exports.mjs";
 
 describe("TypeStructure for ts-morph: ", () => {
   const writerOptions: Partial<CodeBlockWriterOptions> = Object.freeze({

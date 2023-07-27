@@ -1,6 +1,8 @@
-import ClassDeclarationImpl from "../../source/base/ClassDeclarationImpl.mjs";
-import MethodSignatureImpl from "../../source/base/MethodSignatureImpl.mjs";
-import ParameterDeclarationImpl from "../../source/base/ParameterDeclarationImpl.mjs";
+import {
+  ClassDeclarationImpl,
+  ParameterDeclarationImpl,
+  MethodSignatureImpl,
+} from "#ts-morph_structures/exports.mjs";
 
 describe("base/ClassDeclarationImpl", () => {
   it("can create method declarations from method signatures", () => {
