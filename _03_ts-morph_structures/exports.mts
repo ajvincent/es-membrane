@@ -1,27 +1,27 @@
 // #region Structure implementations
 
-export { default as CallSignatureDeclarationImpl } from "./source/base/IndexSignatureDeclarationImpl.mjs";
-export { default as ClassDeclarationImpl } from "./source/base/ClassDeclarationImpl.mjs";
-export { default as ConstructorDeclarationImpl }  from "./source/base/ConstructorDeclarationImpl.mjs";
-export { default as ConstructorDeclarationOverloadImpl } from "./source/base/ConstructorDeclarationOverloadImpl.mjs";
-export { default as ConstructSignatureDeclarationImpl } from "./source/base/ConstructSignatureDeclarationImpl.mjs";
-export { default as DecoratorImpl }  from "./source/base/DecoratorImpl.mjs";
-export { default as GetAccessorDeclarationImpl } from "./source/base/GetAccessorDeclarationImpl.mjs";
-export { default as ImportDeclarationImpl } from "./source/base/ImportDeclarationImpl.mjs";
-export { default as ImportSpecifierImpl } from "./source/base/ImportSpecifierImpl.mjs";
-export { default as IndexSignatureDeclarationImpl } from "./source/base/IndexSignatureDeclarationImpl.mjs";
-export { default as InterfaceDeclarationImpl } from "./source/base/InterfaceDeclarationImpl.mjs";
-export { default as JSDocImpl } from "./source/base/JSDocImpl.mjs";
-export { default as JSDocTagImpl } from "./source/base/JSDocTagImpl.mjs";
-export { default as MethodDeclarationImpl } from "./source/base/MethodDeclarationImpl.mjs";
-export { default as MethodSignatureImpl } from "./source/base/MethodSignatureImpl.mjs";
-export { default as ParameterDeclarationImpl } from "./source/base/ParameterDeclarationImpl.mjs";
-export { default as PropertyDeclarationImpl } from "./source/base/PropertyDeclarationImpl.mjs";
-export { default as PropertySignatureImpl } from "./source/base/PropertySignatureImpl.mjs";
-export { default as SetAccessorDeclarationImpl } from "./source/base/SetAccessorDeclarationImpl.mjs";
-export { default as SourceFileImpl } from "./source/base/SourceFileImpl.mjs";
-export { default as TypeAliasDeclarationImpl } from "./source/base/TypeAliasDeclarationImpl.mjs";
-export { default as TypeParameterDeclarationImpl } from "./source/base/TypeParameterDeclarationImpl.mjs";
+export { default as CallSignatureDeclarationImpl } from "./source/structures/IndexSignatureDeclarationImpl.mjs";
+export { default as ClassDeclarationImpl } from "./source/structures/ClassDeclarationImpl.mjs";
+export { default as ConstructorDeclarationImpl }  from "./source/structures/ConstructorDeclarationImpl.mjs";
+export { default as ConstructorDeclarationOverloadImpl } from "./source/structures/ConstructorDeclarationOverloadImpl.mjs";
+export { default as ConstructSignatureDeclarationImpl } from "./source/structures/ConstructSignatureDeclarationImpl.mjs";
+export { default as DecoratorImpl }  from "./source/structures/DecoratorImpl.mjs";
+export { default as GetAccessorDeclarationImpl } from "./source/structures/GetAccessorDeclarationImpl.mjs";
+export { default as ImportDeclarationImpl } from "./source/structures/ImportDeclarationImpl.mjs";
+export { default as ImportSpecifierImpl } from "./source/structures/ImportSpecifierImpl.mjs";
+export { default as IndexSignatureDeclarationImpl } from "./source/structures/IndexSignatureDeclarationImpl.mjs";
+export { default as InterfaceDeclarationImpl } from "./source/structures/InterfaceDeclarationImpl.mjs";
+export { default as JSDocImpl } from "./source/structures/JSDocImpl.mjs";
+export { default as JSDocTagImpl } from "./source/structures/JSDocTagImpl.mjs";
+export { default as MethodDeclarationImpl } from "./source/structures/MethodDeclarationImpl.mjs";
+export { default as MethodSignatureImpl } from "./source/structures/MethodSignatureImpl.mjs";
+export { default as ParameterDeclarationImpl } from "./source/structures/ParameterDeclarationImpl.mjs";
+export { default as PropertyDeclarationImpl } from "./source/structures/PropertyDeclarationImpl.mjs";
+export { default as PropertySignatureImpl } from "./source/structures/PropertySignatureImpl.mjs";
+export { default as SetAccessorDeclarationImpl } from "./source/structures/SetAccessorDeclarationImpl.mjs";
+export { default as SourceFileImpl } from "./source/structures/SourceFileImpl.mjs";
+export { default as TypeAliasDeclarationImpl } from "./source/structures/TypeAliasDeclarationImpl.mjs";
+export { default as TypeParameterDeclarationImpl } from "./source/structures/TypeParameterDeclarationImpl.mjs";
 
 // #endregion Structure implementations
 
