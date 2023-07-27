@@ -3,9 +3,11 @@ import type {
   WriterFunction,
 } from "ts-morph";
 
-import type {
+import {
+  FunctionTypeContext,
   FunctionTypedStructure,
-  LiteralTypedStructure,
+  FunctionWriterStyle,
+  ParameterTypedStructure,
   TypeStructure
 } from "./TypeStructure.mjs";
 
@@ -21,15 +23,8 @@ import cloneableClassesMap from "./cloneableClassesMap.mjs";
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
-import LiteralTypedStructureImpl from "./LiteralTypedStructureImpl.mjs";
+import ParameterTypedStructureImpl from "./ParameterTypedStructureImpl.mjs";
 
-export interface FunctionTypeContext {
-  //typeArguments: TypeParameterDeclarationImpl[]
-  isConstructor: boolean,
-  parameters: [LiteralTypedStructure, TypeStructure][];
-  restParameter: [LiteralTypedStructure, TypeStructure] | undefined;
-  returnType: TypeStructure;
-}
 
 export default class FunctionTypedStructureImpl implements FunctionTypedStructure
 {
@@ -38,133 +33,92 @@ export default class FunctionTypedStructureImpl implements FunctionTypedStructur
   ): FunctionTypedStructureImpl
   {
     return new FunctionTypedStructureImpl({
+      name: other.name,
       isConstructor: other.isConstructor,
-      parameters: other.parameters.map(param => this.#cloneKeyAndType(...param)),
-      restParameter: (other.restParameter ? this.#cloneKeyAndType(...other.restParameter) : undefined),
-      returnType: cloneableClassesMap.get(other.returnType.kind)!.clone(other.returnType)
+      parameters: other.parameters.map(param => ParameterTypedStructureImpl.clone(param)),
+      restParameter: (other.restParameter ? ParameterTypedStructureImpl.clone(other.restParameter) : undefined),
+      returnType: cloneableClassesMap.get(other.returnType.kind)!.clone(other.returnType),
+      writerStyle: other.writerStyle,
     });
-  }
-
-  static #cloneKeyAndType(
-    key: LiteralTypedStructure,
-    value: TypeStructure
-  ): [LiteralTypedStructure, TypeStructure]
-  {
-    return [
-      LiteralTypedStructureImpl.clone(key),
-      cloneableClassesMap.get(value.kind)!.clone(value)
-    ]
   }
 
   readonly kind: TypeStructureKind.Function = TypeStructureKind.Function;
 
+  name: string;
   isConstructor: boolean;
-  parameters: [LiteralTypedStructure, TypeStructure][];
-  restParameter: [LiteralTypedStructure, TypeStructure] | undefined;
+  parameters: ParameterTypedStructure[];
+  restParameter: ParameterTypedStructure | undefined;
   returnType: TypeStructure;
+  writerStyle: FunctionWriterStyle = FunctionWriterStyle.Arrow;
 
   constructor(
     context: FunctionTypeContext
-    )
+  )
   {
+    this.name = context.name ?? "";
     this.isConstructor = context.isConstructor;
     this.parameters = context.parameters.slice();
     this.restParameter = context.restParameter;
     this.returnType = context.returnType;
+    this.writerStyle = context.writerStyle;
 
     registerCallbackForTypeStructure(this);
   }
 
   #writerFunction(writer: CodeBlockWriter): void
   {
-
-    /*
-    let typesWriter: TypeArgumentsWriter | undefined;
-    if (this.typeArguments) {
-      typesWriter = new TypeArgumentsWriter(this.typeArguments);
+    if (this.writerStyle === FunctionWriterStyle.GetAccessor) {
+      writer.write("get ");
+      if (this.name)
+        writer.write(this.name);
     }
-    */
-
-    const argumentsWriter = new AllParametersWriter(this.parameters.map(
-      ([literal, typeWriter]) => new OneParameterWriter(literal, typeWriter, false)
-    ));
-
-    if (this.restParameter) {
-      argumentsWriter.elements.push(new OneParameterWriter(...this.restParameter, true));
+    else if (this.writerStyle === FunctionWriterStyle.SetAccessor) {
+      writer.write("set ");
+      if (this.name)
+        writer.write(this.name);
     }
-
-    if (this.isConstructor)
+    else if (this.writerStyle === FunctionWriterStyle.Method) {
+      if (this.name)
+        writer.write(this.name);
+    }
+    else if (this.isConstructor)
       writer.write("new ");
 
     /*
-    if (typesWriter)
+    if (this.typeArguments) {
+      let typesWriter: TypeArgumentsWriter = new TypeArgumentsWriter(this.typeArguments);
       typesWriter.writerFunction(writer);
+    }
     */
-    argumentsWriter.writerFunction(writer);
-    writer.write(" => ");
+    writer.write("(");
 
-    this.returnType.writerFunction(writer);
-  }
-
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
-}
-
-class AllParametersWriter
-{
-  public readonly prefix = "(";
-  public readonly postfix = ")";
-  public readonly joinCharacters = ", ";
-
-  elements: OneParameterWriter[];
-
-  constructor(typeStructures: OneParameterWriter[])
-  {
-    this.elements = typeStructures;
-  }
-
-
-  #writerFunction(writer: CodeBlockWriter): void
-  {
-    writer.write(this.prefix);
-
-    const lastChildIndex = this.elements.length - 1;
-    this.elements.forEach((typedStructure, index) => {
-      typedStructure.writerFunction(writer);
-      if (index < lastChildIndex) {
-        writer.write(this.joinCharacters);
-      }
+    this.parameters.forEach((param, index) => {
+      param.writerFunction(writer);
+      if ((index < this.parameters.length - 1) || this.restParameter)
+        writer.write(", ");
     });
 
-    writer.write(this.postfix);
-  }
-
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
-}
-
-class OneParameterWriter
-{
-  #literal: LiteralTypedStructure;
-  #type: TypeStructure
-  #isRestParameter: boolean;
-  constructor(
-    literal: LiteralTypedStructure,
-    type: TypeStructure,
-    isRestParameter: boolean
-  )
-  {
-    this.#literal = literal;
-    this.#type = type;
-    this.#isRestParameter = isRestParameter;
-  }
-
-  #writerFunction(writer: CodeBlockWriter): void {
-    if (this.#isRestParameter)
+    if (this.restParameter) {
       writer.write("...");
-    this.#literal.writerFunction(writer);
-    writer.write(": ");
-    this.#type.writerFunction(writer);
+      this.restParameter.writerFunction(writer);
+    }
+    writer.write(")");
+
+    switch (this.writerStyle) {
+      case FunctionWriterStyle.Arrow:
+        writer.write(" => ");
+        this.returnType.writerFunction(writer);
+        break;
+
+      case FunctionWriterStyle.GetAccessor:
+      case FunctionWriterStyle.Method:
+        writer.write(": ");
+        this.returnType.writerFunction(writer);
+        break;
+    }
   }
 
   readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
+
 FunctionTypedStructureImpl satisfies CloneableStructure<FunctionTypedStructure>;

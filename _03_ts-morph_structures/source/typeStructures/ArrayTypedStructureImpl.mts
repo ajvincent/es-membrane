@@ -34,7 +34,6 @@ implements ArrayTypedStructure
     );
   }
 
-
   isReadonly: boolean;
   objectType: TypeStructure;
   length: number;

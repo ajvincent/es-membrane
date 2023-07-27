@@ -16,6 +16,7 @@ export enum TypeStructureKind {
   KeyOfTypeof,
   Function,
   ObjectLiteral, /* reserved, but probably never used */
+  Parameter,
 }
 
 export interface KindedTypeStructure<

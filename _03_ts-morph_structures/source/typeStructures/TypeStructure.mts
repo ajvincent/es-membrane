@@ -84,14 +84,32 @@ export type KeyOfTypeofTypedStructure = Simplify<
   }
 >;
 
+export enum FunctionWriterStyle {
+  Arrow = "Arrow",
+  Method = "Method",
+  GetAccessor = "GetAccessor",
+  SetAccessor = "SetAccessor",
+}
+
+export interface FunctionTypeContext {
+  //typeArguments: TypeParameterDeclarationImpl[]
+  name?: string;
+  isConstructor: boolean,
+  parameters: ParameterTypedStructure[];
+  restParameter: ParameterTypedStructure | undefined;
+  returnType: TypeStructure;
+  writerStyle: FunctionWriterStyle
+}
+
 export type FunctionTypedStructure = Simplify<
-  KindedTypeStructure<TypeStructureKind.Function> &
+  KindedTypeStructure<TypeStructureKind.Function> & FunctionTypeContext
+>;
+
+export type ParameterTypedStructure = Simplify<
+  KindedTypeStructure<TypeStructureKind.Parameter> &
   {
-    isConstructor: boolean;
-    //typeArguments: TypeArgumentedTypedStructure[];
-    parameters: [LiteralTypedStructure, TypeStructure][];
-    restParameter: [LiteralTypedStructure, TypeStructure] | undefined;
-    returnType: TypeStructure;
+    name: LiteralTypedStructure;
+    typeStructure: TypeStructure;
   }
 >;
 

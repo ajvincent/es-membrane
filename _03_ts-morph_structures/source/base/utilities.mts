@@ -3,9 +3,15 @@ import {
 } from "type-fest";
 
 import {
+  StatementStructures,
+  StatementedNodeStructure
+} from "ts-morph";
+
+import {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
-import { StatementStructures, StatementedNodeStructure } from "ts-morph";
+
+import cloneableStatementsMap from "./cloneableStatements.mjs";
 
 export type StructureCloner<
   SourceType extends object,
@@ -43,8 +49,22 @@ export function statementsArray(
 {
   if (!value.statements)
     return [];
+
   if (Array.isArray(value.statements)) {
-    return value.statements.slice();
+    return value.statements.map(cloneStatement);
   }
-  return [value.statements];
+  return [cloneStatement(value.statements)];
+}
+
+function cloneStatement(
+  value: stringOrWriterFunction | StatementStructures
+): stringOrWriterFunction | StatementStructures
+{
+  if (typeof value === "object") {
+    const cloneableClass = cloneableStatementsMap.get(value.kind);
+    if (cloneableClass)
+      return cloneableClass.clone(value);
+  }
+
+  return value;
 }

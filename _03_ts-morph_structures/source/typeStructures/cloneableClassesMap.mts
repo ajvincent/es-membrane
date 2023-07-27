@@ -2,7 +2,6 @@ import type {
   Class,
 } from "type-fest";
 
-
 import {
   TypeStructure,
 } from "./TypeStructure.mjs";

@@ -16,13 +16,15 @@ import TypeArgumentedTypedStructureImpl from "../source/typeStructures/TypeArgum
 import UnionTypedStructureImpl from "../source/typeStructures/UnionTypedStructureImpl.mjs";
 import WriterTypedStructureImpl from "../source/typeStructures/WriterTypedStructureImpl.mjs";
 
-import type {
-  TypeStructure,
+import {
+  FunctionWriterStyle,
+  type TypeStructure,
 } from "../source/typeStructures/TypeStructure.mjs";
 
 import {
   TypeStructureKind
 } from "../source/typeStructures/TypeStructureKind.mjs";
+import ParameterTypedStructureImpl from "#ts-morph_structures/source/typeStructures/ParameterTypedStructureImpl.mjs";
 
 describe("TypeStructure for ts-morph: ", () => {
   const writerOptions: Partial<CodeBlockWriterOptions> = Object.freeze({
@@ -165,10 +167,11 @@ describe("TypeStructure for ts-morph: ", () => {
     let typedWriter: FunctionTypedStructureImpl;
     it("with an ordinary function", () => {
       typedWriter = new FunctionTypedStructureImpl({
+        writerStyle: FunctionWriterStyle.Arrow,
         isConstructor: false,
         parameters: [
-          [fooTyped, nstTyped],
-          [new LiteralTypedStructureImpl("bar"), new LiteralTypedStructureImpl("boolean")]
+          new ParameterTypedStructureImpl(fooTyped, nstTyped),
+          new ParameterTypedStructureImpl("bar", new LiteralTypedStructureImpl("boolean"))
         ],
         restParameter: undefined,
         returnType: new LiteralTypedStructureImpl("string"),
@@ -180,10 +183,11 @@ describe("TypeStructure for ts-morph: ", () => {
 
     it("as a constructor", () => {
       typedWriter = new FunctionTypedStructureImpl({
+        writerStyle: FunctionWriterStyle.Arrow,
         isConstructor: true,
         parameters: [
-          [fooTyped, nstTyped],
-          [new LiteralTypedStructureImpl("bar"), new LiteralTypedStructureImpl("boolean")]
+          new ParameterTypedStructureImpl(fooTyped, nstTyped),
+          new ParameterTypedStructureImpl("bar", new LiteralTypedStructureImpl("boolean"))
         ],
         restParameter: undefined,
         returnType: new LiteralTypedStructureImpl("string"),
@@ -193,14 +197,65 @@ describe("TypeStructure for ts-morph: ", () => {
       expect<string>(writer.toString()).toBe(`new (foo: NumberStringType, bar: boolean) => string`);
     });
 
-    it("with a rest parameter", () => {
+    it("as a method", () => {
       typedWriter = new FunctionTypedStructureImpl({
+        name: "doSomething",
+        writerStyle: FunctionWriterStyle.Method,
         isConstructor: false,
         parameters: [
-          [fooTyped, nstTyped],
-          [new LiteralTypedStructureImpl("bar"), new LiteralTypedStructureImpl("boolean")]
+          new ParameterTypedStructureImpl(fooTyped, nstTyped),
+          new ParameterTypedStructureImpl("bar", new LiteralTypedStructureImpl("boolean"))
         ],
-        restParameter: [new LiteralTypedStructureImpl("args"), new LiteralTypedStructureImpl("object[]")],
+        restParameter: undefined,
+        returnType: new LiteralTypedStructureImpl("string"),
+      });
+
+      typedWriter.writerFunction(writer);
+      expect<string>(writer.toString()).toBe(`doSomething(foo: NumberStringType, bar: boolean): string`);
+    });
+
+    it("as a get accessor", () => {
+      typedWriter = new FunctionTypedStructureImpl({
+        name: "doSomething",
+        writerStyle: FunctionWriterStyle.GetAccessor,
+        isConstructor: false,
+        parameters: [
+          new ParameterTypedStructureImpl(fooTyped, nstTyped),
+          new ParameterTypedStructureImpl("bar", new LiteralTypedStructureImpl("boolean"))
+        ],
+        restParameter: undefined,
+        returnType: new LiteralTypedStructureImpl("string"),
+      });
+
+      typedWriter.writerFunction(writer);
+      expect<string>(writer.toString()).toBe(`get doSomething(foo: NumberStringType, bar: boolean): string`);
+    });
+
+    it("as a set accessor", () => {
+      typedWriter = new FunctionTypedStructureImpl({
+        name: "doSomething",
+        writerStyle: FunctionWriterStyle.SetAccessor,
+        isConstructor: false,
+        parameters: [
+          new ParameterTypedStructureImpl("value", new LiteralTypedStructureImpl("boolean"))
+        ],
+        restParameter: undefined,
+        returnType: new LiteralTypedStructureImpl("string"),
+      });
+
+      typedWriter.writerFunction(writer);
+      expect<string>(writer.toString()).toBe(`set doSomething(value: boolean)`);
+    });
+
+    it("with a rest parameter", () => {
+      typedWriter = new FunctionTypedStructureImpl({
+        writerStyle: FunctionWriterStyle.Arrow,
+        isConstructor: false,
+        parameters: [
+          new ParameterTypedStructureImpl(fooTyped, nstTyped),
+          new ParameterTypedStructureImpl("bar", new LiteralTypedStructureImpl("boolean"))
+        ],
+        restParameter: new ParameterTypedStructureImpl("args", new LiteralTypedStructureImpl("object[]")),
         returnType: new LiteralTypedStructureImpl("string"),
       });
 
@@ -210,12 +265,13 @@ describe("TypeStructure for ts-morph: ", () => {
 
     it("is cloneable", () => {
       typedWriter = new FunctionTypedStructureImpl({
+        writerStyle: FunctionWriterStyle.Arrow,
         isConstructor: true,
         parameters: [
-          [fooTyped, nstTyped],
-          [new LiteralTypedStructureImpl("bar"), new LiteralTypedStructureImpl("boolean")]
+          new ParameterTypedStructureImpl(fooTyped, nstTyped),
+          new ParameterTypedStructureImpl("bar", new LiteralTypedStructureImpl("boolean"))
         ],
-        restParameter: [new LiteralTypedStructureImpl("args"), new LiteralTypedStructureImpl("object[]")],
+        restParameter: new ParameterTypedStructureImpl("args", new LiteralTypedStructureImpl("object[]")),
         returnType: new LiteralTypedStructureImpl("string"),
       });
 
