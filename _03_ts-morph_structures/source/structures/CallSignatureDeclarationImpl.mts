@@ -1,44 +1,67 @@
 import {
   CallSignatureDeclarationStructure,
   OptionalKind,
-  ParameterDeclarationStructure,
   StructureKind,
 } from "ts-morph";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
-import JSDocImpl from "./JSDocImpl.mjs";
-import ParameterDeclarationImpl from "./ParameterDeclarationImpl.mjs";
-import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
-import ReturnTypeWriterManager from "./ReturnTypeWriterManager.mjs";
-import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
-import { cloneArrayOrUndefined, stringOrWriterFunctionArray } from "./utilities.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
+
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import JSDocableNode, {
+  type JSDocableNodeStructureFields
+} from "../decorators/JSDocableNode.mjs";
+import ParameteredNode, {
+  type ParameteredNodeStructureFields
+} from "../decorators/ParameteredNode.mjs";
+import TypeParameteredNode, {
+  type TypeParameteredNodeStructureFields
+} from "../decorators/TypeParameteredNode.mjs";
+import ReturnTypedNode, {
+  type ReturnTypedNodeStructureFields
+} from "../decorators/ReturnTypedNode.mjs";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+
+const CallSignatureDeclarationBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.CallSignature>,
+    JSDocableNodeStructureFields,
+    ParameteredNodeStructureFields,
+    TypeParameteredNodeStructureFields,
+    ReturnTypedNodeStructureFields,
+  ], typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.CallSignature>(StructureKind.CallSignature),
+    JSDocableNode,
+    ParameteredNode,
+    TypeParameteredNode,
+    ReturnTypedNode,
+  ],
+  StructureBase
+);
 
 export default class CallSignatureDeclarationImpl
-extends ReturnTypeWriterManager
+extends CallSignatureDeclarationBase
 implements CallSignatureDeclarationStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
-  readonly kind: StructureKind.CallSignature = StructureKind.CallSignature;
-  docs: (string | JSDocImpl)[] = [];
-  parameters: ParameterDeclarationImpl[] = [];
-  typeParameters: (TypeParameterDeclarationImpl | string)[] = [];
-
   public static clone(
     other: OptionalKind<CallSignatureDeclarationStructure>
   ): CallSignatureDeclarationImpl
   {
     const declaration = new CallSignatureDeclarationImpl;
 
-    declaration.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    declaration.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
-    declaration.docs = JSDocImpl.cloneArray(other);
-    declaration.parameters = cloneArrayOrUndefined<
-      OptionalKind<ParameterDeclarationStructure>, typeof ParameterDeclarationImpl
-    >(other.parameters, ParameterDeclarationImpl);
-    declaration.typeParameters = TypeParameterDeclarationImpl.cloneArray(other);
-    declaration.returnType = other.returnType;
+    CallSignatureDeclarationBase.cloneTrivia(other, declaration);
+    CallSignatureDeclarationBase.cloneJSDocs(other, declaration);
+    CallSignatureDeclarationBase.cloneParameters(other, declaration);
+    CallSignatureDeclarationBase.cloneTypeParameters(other, declaration);
+    CallSignatureDeclarationBase.cloneReturnType(other, declaration);
 
     return declaration;
   }
 }
+
 CallSignatureDeclarationImpl satisfies CloneableStructure<CallSignatureDeclarationStructure>;

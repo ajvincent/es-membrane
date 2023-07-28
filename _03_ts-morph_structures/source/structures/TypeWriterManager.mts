@@ -18,8 +18,10 @@ import {
 import {
   getTypeStructureForCallback
 } from "../typeStructures/callbackToTypeStructureRegistry.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
 
 export default class TypeWriterManager
+extends StructureBase
 implements TypedNodeStructure, TypedNodeTypeStructure
 {
   #typeOrStructure: string | WriterFunction | TypeStructure | undefined = undefined;

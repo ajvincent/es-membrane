@@ -1,12 +1,13 @@
 import type {
-  TypedNodeStructure
+  WriterFunction,
 } from "ts-morph";
 
 import type {
   TypeStructure
 } from "./TypeStructure.mjs";
 
-export interface TypedNodeTypeStructure extends TypedNodeStructure
+export interface TypedNodeTypeStructure
 {
   typeStructure: TypeStructure | undefined;
+  type: string | WriterFunction | undefined;
 }

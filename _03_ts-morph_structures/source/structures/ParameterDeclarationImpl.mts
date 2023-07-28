@@ -6,13 +6,13 @@ import {
 
 import {
   cloneArrayOrUndefined,
-  stringOrWriterFunctionArray,
 } from "./utilities.mjs";
 
 import DecoratorImpl from "./DecoratorImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 import TypeWriterManager from "./TypeWriterManager.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
 
 export default class ParameterDeclarationImpl
 extends TypeWriterManager
@@ -22,7 +22,7 @@ implements TS_Parameter
   trailingTrivia: stringOrWriterFunction[] = [];
   name: string;
   isReadonly = false;
-  decorators: OptionalKind<DecoratorImpl>[] = [];
+  decorators: DecoratorImpl[] = [];
   hasQuestionToken = false;
   scope: Scope | undefined = undefined;
   initializer: stringOrWriterFunction | undefined = undefined;
@@ -44,8 +44,8 @@ implements TS_Parameter
   {
     const newParameter = new ParameterDeclarationImpl(other.name);
 
-    newParameter.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    newParameter.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
+    StructureBase.cloneTrivia(other, newParameter);
+
     newParameter.type = other.type;
     newParameter.isReadonly = other.isReadonly ?? false;
 

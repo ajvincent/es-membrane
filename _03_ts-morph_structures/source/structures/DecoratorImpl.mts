@@ -12,11 +12,12 @@ import {
   stringOrWriterFunctionArray
 } from "./utilities.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
 
-export default class DecoratorImpl implements DecoratorStructure
+export default class DecoratorImpl
+extends StructureBase
+implements DecoratorStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
   name: string;
   arguments: stringOrWriterFunction[] = [];
   typeArguments: string[] = [];
@@ -26,6 +27,7 @@ export default class DecoratorImpl implements DecoratorStructure
     name: string
   )
   {
+    super();
     this.name = name;
   }
 
@@ -35,8 +37,7 @@ export default class DecoratorImpl implements DecoratorStructure
   {
     const newDecorator = new DecoratorImpl(other.name);
 
-    newDecorator.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    newDecorator.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
+    StructureBase.cloneTrivia(other, newDecorator);
     newDecorator.arguments = stringOrWriterFunctionArray(other.arguments);
     newDecorator.typeArguments = other.typeArguments?.slice() ?? [];
 

@@ -4,16 +4,13 @@ import {
   StructureKind,
 } from "ts-morph";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
-import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
-import {
-  stringOrWriterFunctionArray
-} from "./utilities.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
 
-export default class AssertEntryImpl implements AssertEntryStructure
+export default class AssertEntryImpl
+extends StructureBase
+implements AssertEntryStructure
 {
   readonly kind: StructureKind.AssertEntry = StructureKind.AssertEntry;
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
   name: string;
   value: string;
 
@@ -22,6 +19,7 @@ export default class AssertEntryImpl implements AssertEntryStructure
     value: string
   )
   {
+    super();
     this.name = name;
     this.value = value;
   }
@@ -31,8 +29,7 @@ export default class AssertEntryImpl implements AssertEntryStructure
   ): AssertEntryImpl
   {
     const clone = new AssertEntryImpl(other.name, other.value);
-    clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
+    StructureBase.cloneTrivia(other, clone);
     return clone;
   }
 }

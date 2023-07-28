@@ -7,11 +7,12 @@ import {
 import type {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
 
-export default class SourceFileImpl implements SourceFileStructure
+export default class SourceFileImpl
+extends StructureBase
+implements SourceFileStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
   readonly kind: StructureKind.SourceFile = StructureKind.SourceFile;
   statements: (stringOrWriterFunction | StatementStructures)[] = [];
 }
