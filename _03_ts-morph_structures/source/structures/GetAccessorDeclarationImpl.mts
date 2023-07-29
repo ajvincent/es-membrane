@@ -97,7 +97,7 @@ implements GetAccessorDeclarationStructure
     GetAccessorDeclarationBase.cloneDecoratable(other, clone);
     GetAccessorDeclarationBase.cloneJSDocable(other, clone);
     GetAccessorDeclarationBase.cloneParametered(other, clone);
-    GetAccessorDeclarationBase.cloneReturnType(other, clone);
+    GetAccessorDeclarationBase.cloneReturnTyped(other, clone);
     GetAccessorDeclarationBase.cloneScoped(other, clone);
     GetAccessorDeclarationBase.cloneStaticable(other, clone);
     GetAccessorDeclarationBase.cloneStatemented(other, clone);

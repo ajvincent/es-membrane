@@ -58,7 +58,7 @@ implements CallSignatureDeclarationStructure
     CallSignatureDeclarationBase.cloneJSDocable(other, declaration);
     CallSignatureDeclarationBase.cloneParametered(other, declaration);
     CallSignatureDeclarationBase.cloneTypeParametered(other, declaration);
-    CallSignatureDeclarationBase.cloneReturnType(other, declaration);
+    CallSignatureDeclarationBase.cloneReturnTyped(other, declaration);
 
     return declaration;
   }

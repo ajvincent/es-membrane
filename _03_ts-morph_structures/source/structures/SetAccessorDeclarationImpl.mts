@@ -1,37 +1,85 @@
 import {
-  DecoratorStructure,
   OptionalKind,
-  Scope,
   SetAccessorDeclarationStructure,
-  StatementStructures,
   StructureKind,
 } from "ts-morph";
-import ReturnTypeWriterManager from "./ReturnTypeWriterManager.mjs";
+
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
-import { TS_Parameter, stringOrWriterFunction } from "../types/ts-morph-native.mjs";
-import DecoratorImpl from "./DecoratorImpl.mjs";
-import JSDocImpl from "./JSDocImpl.mjs";
-import ParameterDeclarationImpl from "./ParameterDeclarationImpl.mjs";
-import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
-import { stringOrWriterFunctionArray, cloneArrayOrUndefined, statementsArray } from "./utilities.mjs";
+
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import AbstractableNode, {
+  type AbstractableNodeStructureFields
+} from "../decorators/AbstractableNode.mjs";
+import DecoratableNode, {
+  type DecoratableNodeStructureFields
+} from "../decorators/DecoratableNode.mjs";
+import JSDocableNode, {
+  type JSDocableNodeStructureFields
+} from "../decorators/JSDocableNode.mjs";
+import NamedNode, {
+  type NamedNodeStructureFields
+} from "../decorators/NamedNode.mjs";
+import ParameteredNode, {
+  type ParameteredNodeStructureFields,
+} from "../decorators/ParameteredNode.mjs";
+import StaticableNode, {
+  type StaticableNodeStructureFields
+} from "../decorators/StaticableNode.mjs";
+import ReturnTypedNode, {
+  type ReturnTypedNodeStructureFields,
+} from "../decorators/ReturnTypedNode.mjs";
+import ScopedNode, {
+  type ScopedNodeStructureFields
+} from "../decorators/ScopedNode.mjs";
+import StatementedNode, {
+  type StatementedNodeStructureFields
+} from "../decorators/StatementedNode.mjs";
+import TypeParameteredNode, {
+  type TypeParameteredNodeStructureFields,
+} from "../decorators/TypeParameteredNode.mjs";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
+
+const SetAccessorDeclarationBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.SetAccessor>,
+    AbstractableNodeStructureFields,
+    DecoratableNodeStructureFields,
+    JSDocableNodeStructureFields,
+    NamedNodeStructureFields,
+    ParameteredNodeStructureFields,
+    ReturnTypedNodeStructureFields,
+    ScopedNodeStructureFields,
+    StaticableNodeStructureFields,
+    StatementedNodeStructureFields,
+    TypeParameteredNodeStructureFields
+  ],
+  typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.SetAccessor>(StructureKind.SetAccessor),
+    AbstractableNode,
+    DecoratableNode,
+    JSDocableNode,
+    NamedNode,
+    ParameteredNode,
+    ReturnTypedNode,
+    ScopedNode,
+    StaticableNode,
+    StatementedNode,
+    TypeParameteredNode,
+  ],
+  StructureBase
+)
 
 export default class SetAccessorDeclarationImpl
-extends ReturnTypeWriterManager
+extends SetAccessorDeclarationBase
 implements SetAccessorDeclarationStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
-  readonly kind: StructureKind.SetAccessor = StructureKind.SetAccessor;
-  name: string;
-  isStatic = false;
-  decorators: DecoratorImpl[] = [];
-  isAbstract = false;
-  scope: Scope | undefined;
-  parameters: ParameterDeclarationImpl[] = [];
-  typeParameters: (string | TypeParameterDeclarationImpl)[] = [];
-  docs: (string | JSDocImpl)[] = [];
-  statements: (stringOrWriterFunction | StatementStructures)[] = [];
-
   constructor(
     name: string
   )
@@ -46,21 +94,16 @@ implements SetAccessorDeclarationStructure
   {
     const clone = new SetAccessorDeclarationImpl(other.name);
 
-    clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
-    clone.isStatic = other.isStatic ?? false;
-    clone.decorators = cloneArrayOrUndefined<OptionalKind<DecoratorStructure>, typeof DecoratorImpl>(
-      other.decorators, DecoratorImpl
-    );
-    clone.isAbstract = other.isAbstract ?? false;
-    clone.scope = other.scope;
-    clone.parameters = cloneArrayOrUndefined<
-      TS_Parameter,
-      typeof ParameterDeclarationImpl
-    >(other.parameters, ParameterDeclarationImpl);
-    clone.typeParameters = TypeParameterDeclarationImpl.cloneArray(other);
-    clone.docs = JSDocImpl.cloneArray(other);
-    clone.statements = statementsArray(other);
+    SetAccessorDeclarationBase.cloneTrivia(other, clone);
+    SetAccessorDeclarationBase.cloneAbstractable(other, clone);
+    SetAccessorDeclarationBase.cloneDecoratable(other, clone);
+    SetAccessorDeclarationBase.cloneJSDocable(other, clone);
+    SetAccessorDeclarationBase.cloneParametered(other, clone);
+    SetAccessorDeclarationBase.cloneReturnTyped(other, clone);
+    SetAccessorDeclarationBase.cloneScoped(other, clone);
+    SetAccessorDeclarationBase.cloneStaticable(other, clone);
+    SetAccessorDeclarationBase.cloneStatemented(other, clone);
+    SetAccessorDeclarationBase.cloneTypeParametered(other, clone);
 
     return clone;
   }

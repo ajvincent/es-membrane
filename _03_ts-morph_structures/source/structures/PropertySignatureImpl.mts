@@ -11,22 +11,62 @@ import {
 import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
-import { stringOrWriterFunctionArray } from "./utilities.mjs";
-import TypeWriterManager from "./TypeWriterManager.mjs";
-import JSDocImpl from "./JSDocImpl.mjs";
+
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import InitializerExpressionableNode, {
+  type InitializerExpressionableNodeStructureFields
+} from "../decorators/InitializerExpressionableNode.mjs";
+import JSDocableNode, {
+  type JSDocableNodeStructureFields
+} from "../decorators/JSDocableNode.mjs";
+import NamedNode, {
+  type NamedNodeStructureFields
+} from "../decorators/NamedNode.mjs";
+import QuestionTokenableNode, {
+  type QuestionTokenableNodeStructureFields
+} from "../decorators/QuestionTokenableNode.mjs";
+import ReadonlyableNode, {
+  type ReadonlyableNodeStructureFields
+} from "../decorators/ReadonlyableNode.mjs";
+import TypedNode, {
+  type TypedNodeStructureFields
+} from "../decorators/TypedNode.mjs";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
+
+const PropertySignatureBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.PropertySignature>,
+    InitializerExpressionableNodeStructureFields,
+    JSDocableNodeStructureFields,
+    NamedNodeStructureFields,
+    QuestionTokenableNodeStructureFields,
+    ReadonlyableNodeStructureFields,
+    TypedNodeStructureFields,
+  ],
+  typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.PropertySignature>(StructureKind.PropertySignature),
+    InitializerExpressionableNode,
+    JSDocableNode,
+    NamedNode,
+    QuestionTokenableNode,
+    ReadonlyableNode,
+    TypedNode,
+  ],
+  StructureBase
+)
 
 export default class PropertySignatureImpl
-extends TypeWriterManager
+extends PropertySignatureBase
 implements PropertySignatureStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
-  readonly kind: StructureKind.PropertySignature = StructureKind.PropertySignature
-  name: string;
-  hasQuestionToken = false;
-  docs: (string | JSDocImpl)[] = [];
-  isReadonly = false;
-  initializer: stringOrWriterFunction | undefined;
+  initializer: stringOrWriterFunction | undefined = undefined;
 
   constructor(name: string)
   {
@@ -38,18 +78,16 @@ implements PropertySignatureStructure
     other: OptionalKind<PropertySignatureStructure>
   ): PropertySignatureImpl
   {
-    const signature = new PropertySignatureImpl(other.name);
+    const clone = new PropertySignatureImpl(other.name);
 
-    signature.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    signature.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
+    PropertySignatureBase.cloneTrivia(other, clone);
+    PropertySignatureBase.cloneInitializerExpressionable(other, clone);
+    PropertySignatureBase.cloneJSDocable(other, clone);
+    PropertySignatureBase.cloneQuestionTokenable(other, clone);
+    PropertySignatureBase.cloneReadonlyable(other, clone);
+    PropertySignatureBase.cloneTyped(other, clone);
 
-    signature.hasQuestionToken = other.hasQuestionToken ?? false;
-    signature.docs = JSDocImpl.cloneArray(other);
-    signature.isReadonly = other.isReadonly ?? false;
-    signature.initializer = other.initializer;
-
-    return signature;
+    return clone;
   }
 }
 PropertySignatureImpl satisfies CloneableStructure<PropertySignatureStructure>;
-

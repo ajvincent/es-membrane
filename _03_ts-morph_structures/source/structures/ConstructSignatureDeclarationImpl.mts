@@ -57,7 +57,7 @@ implements ConstructSignatureDeclarationStructure
     ConstructSignatureDeclarationBase.cloneTrivia(other, clone);
     ConstructSignatureDeclarationBase.cloneJSDocable(other, clone);
     ConstructSignatureDeclarationBase.cloneParametered(other, clone);
-    ConstructSignatureDeclarationBase.cloneReturnType(other, clone);
+    ConstructSignatureDeclarationBase.cloneReturnTyped(other, clone);
     ConstructSignatureDeclarationBase.cloneTypeParametered(other, clone);
 
     return clone;

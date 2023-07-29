@@ -35,7 +35,7 @@ export type TypedNodeStructureFields = RightExtendsLeft<
   StaticAndInstance<typeof TypedNodeStructureKey>,
   {
     staticFields: {
-      cloneType(
+      cloneTyped(
         source: TypedNodeStructure,
         target: TypedNodeTypeStructure,
       ): void;
@@ -84,7 +84,7 @@ export default function TypedNode(
       this.#typeWriterManager.typeStructure = value;
     }
 
-    static cloneType(
+    static cloneTyped(
       source: TypedNodeStructure,
       target: TypedNodeTypeStructure
     ): void

@@ -1,43 +1,105 @@
 import {
-  DecoratorStructure,
   OptionalKind,
   PropertyDeclarationStructure,
-  Scope,
+  PropertySignatureStructure,
   StructureKind,
 } from "ts-morph";
 
 import {
-  stringOrWriterFunction
-} from "../types/ts-morph-native.mjs";
-
-import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
-import { cloneArrayOrUndefined, stringOrWriterFunctionArray } from "./utilities.mjs";
-import TypeWriterManager from "./TypeWriterManager.mjs";
-import JSDocImpl from "./JSDocImpl.mjs";
-import DecoratorImpl from "./DecoratorImpl.mjs";
+
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import AbstractableNode, {
+  type AbstractableNodeStructureFields
+} from "../decorators/AbstractableNode.mjs";
+import AmbientableNode, {
+  type AmbientableNodeStructureFields
+} from "../decorators/AmbientableNode.mjs";
+import DecoratableNode, {
+  type DecoratableNodeStructureFields
+} from "../decorators/DecoratableNode.mjs";
+import ExclamationTokenableNode, {
+  type ExclamationTokenableNodeStructureFields
+} from "../decorators/ExclamationTokenableNode.mjs";
+import InitializerExpressionableNode, {
+  type InitializerExpressionableNodeStructureFields
+} from "../decorators/InitializerExpressionableNode.mjs";
+import JSDocableNode, {
+  type JSDocableNodeStructureFields
+} from "../decorators/JSDocableNode.mjs";
+import NamedNode, {
+  type NamedNodeStructureFields
+} from "../decorators/NamedNode.mjs";
+import OverrideableNode, {
+  type OverrideableNodeStructureFields
+} from "../decorators/OverrideableNode.mjs";
+import QuestionTokenableNode, {
+  type QuestionTokenableNodeStructureFields
+} from "../decorators/QuestionTokenableNode.mjs";
+import ReadonlyableNode, {
+  type ReadonlyableNodeStructureFields
+} from "../decorators/ReadonlyableNode.mjs";
+import ScopedNode, {
+  type ScopedNodeStructureFields
+} from "../decorators/ScopedNode.mjs";
+import StaticableNode, {
+  type StaticableNodeStructureFields
+} from "../decorators/StaticableNode.mjs";
+import TypedNode, {
+  type TypedNodeStructureFields
+} from "../decorators/TypedNode.mjs";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
+
+const PropertyDeclarationBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.Property>,
+    AbstractableNodeStructureFields,
+    AmbientableNodeStructureFields,
+    DecoratableNodeStructureFields,
+    ExclamationTokenableNodeStructureFields,
+    InitializerExpressionableNodeStructureFields,
+    JSDocableNodeStructureFields,
+    NamedNodeStructureFields,
+    OverrideableNodeStructureFields,
+    QuestionTokenableNodeStructureFields,
+    ReadonlyableNodeStructureFields,
+    ScopedNodeStructureFields,
+    StaticableNodeStructureFields,
+    TypedNodeStructureFields,
+  ],
+  typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.Property>(StructureKind.Property),
+    AbstractableNode,
+    AmbientableNode,
+    DecoratableNode,
+    ExclamationTokenableNode,
+    InitializerExpressionableNode,
+    JSDocableNode,
+    NamedNode,
+    OverrideableNode,
+    QuestionTokenableNode,
+    ReadonlyableNode,
+    ScopedNode,
+    StaticableNode,
+    TypedNode,
+  ],
+  StructureBase
+);
 
 export default class PropertyDeclarationImpl
-extends TypeWriterManager
+extends PropertyDeclarationBase
 implements PropertyDeclarationStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
   readonly kind: StructureKind.Property = StructureKind.Property
   hasAccessorKeyword = false;
-  name: string;
-  hasQuestionToken = false;
-  hasExclamationToken = false;
-  isStatic = false;
-  scope: Scope | undefined = undefined;
-  docs: (string | JSDocImpl)[] = [];
-  isReadonly = false;
-  initializer: stringOrWriterFunction | undefined;
-  decorators: DecoratorImpl[] = [];
-  isAbstract = false;
-  hasDeclareKeyword = false;
-  hasOverrideKeyword = false;
 
   constructor(name: string)
   {
@@ -49,29 +111,41 @@ implements PropertyDeclarationStructure
     other: OptionalKind<PropertyDeclarationStructure>
   ): PropertyDeclarationImpl
   {
-    const declaration = new PropertyDeclarationImpl(other.name);
+    const clone = new PropertyDeclarationImpl(other.name);
 
-    declaration.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    declaration.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
-    declaration.hasAccessorKeyword = other.hasAccessorKeyword ?? false;
-    declaration.hasQuestionToken = other.hasQuestionToken ?? false;
-    declaration.hasExclamationToken = other.hasExclamationToken ?? false;
-    declaration.isStatic = other.isStatic ?? false;
-    declaration.scope = other.scope;
+    clone.hasAccessorKeyword = other.hasAccessorKeyword ?? false;
 
-    declaration.docs = JSDocImpl.cloneArray(other);
-    declaration.isReadonly = other.isReadonly ?? false;
-    declaration.initializer = other.initializer;
+    PropertyDeclarationBase.cloneTrivia(other, clone);
+    PropertyDeclarationBase.cloneAbstractable(other, clone);
+    PropertyDeclarationBase.cloneAmbientable(other, clone);
+    PropertyDeclarationBase.cloneDecoratable(other, clone);
+    PropertyDeclarationBase.cloneExclamationTokenable(other, clone);
+    PropertyDeclarationBase.cloneInitializerExpressionable(other, clone);
+    PropertyDeclarationBase.cloneJSDocable(other, clone);
+    PropertyDeclarationBase.cloneOverrideable(other, clone);
+    PropertyDeclarationBase.cloneQuestionTokenable(other, clone);
+    PropertyDeclarationBase.cloneReadonlyable(other, clone);
+    PropertyDeclarationBase.cloneScoped(other, clone);
+    PropertyDeclarationBase.cloneStaticable(other, clone);
+    PropertyDeclarationBase.cloneTyped(other, clone);
 
-    declaration.decorators = cloneArrayOrUndefined<OptionalKind<DecoratorStructure>, typeof DecoratorImpl>(
-      other.decorators, DecoratorImpl
-    );
-    declaration.isAbstract = other.isAbstract ?? false;
-    declaration.hasDeclareKeyword = other.hasDeclareKeyword ?? false;
-    declaration.hasOverrideKeyword = other.hasOverrideKeyword ?? false;
+    return clone;
+  }
 
-    return declaration;
+  public static fromSignature(
+    signature: OptionalKind<PropertySignatureStructure>
+  ): PropertyDeclarationImpl
+  {
+    const clone = new PropertyDeclarationImpl(signature.name);
+
+    PropertyDeclarationBase.cloneTrivia(signature, clone);
+    PropertyDeclarationBase.cloneInitializerExpressionable(signature, clone);
+    PropertyDeclarationBase.cloneJSDocable(signature, clone);
+    PropertyDeclarationBase.cloneQuestionTokenable(signature, clone);
+    PropertyDeclarationBase.cloneReadonlyable(signature, clone);
+    PropertyDeclarationBase.cloneTyped(signature, clone);
+
+    return clone;
   }
 }
 PropertyDeclarationImpl satisfies CloneableStructure<PropertyDeclarationStructure>;
-

@@ -15,4 +15,3 @@ export default class StructureBase {
     target.trailingTrivia = stringOrWriterFunctionArray(source.trailingTrivia);
   }
 }
-

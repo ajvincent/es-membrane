@@ -37,7 +37,7 @@ export type ReturnTypedNodeStructureFields = RightExtendsLeft<
   StaticAndInstance<typeof ReturnTypedNodeStructureKey>,
   {
     staticFields: {
-      cloneReturnType(
+      cloneReturnTyped(
         source: ReturnTypedNodeStructure,
         target: ReturnTypedNodeTypeStructure,
       ): void;
@@ -86,7 +86,7 @@ export default function ReturnTypedNode(
       this.#typeWriterManager.typeStructure = value;
     }
 
-    static cloneReturnType(
+    static cloneReturnTyped(
       source: ReturnTypedNodeStructure,
       target: ReturnTypedNodeTypeStructure
     ): void

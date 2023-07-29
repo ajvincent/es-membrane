@@ -63,7 +63,7 @@ implements ConstructorDeclarationOverloadStructure
     ConstructorDeclarationOverloadBase.cloneTrivia(other, clone);
     ConstructorDeclarationOverloadBase.cloneJSDocable(other, clone);
     ConstructorDeclarationOverloadBase.cloneParametered(other, clone);
-    ConstructorDeclarationOverloadBase.cloneReturnType(other, clone);
+    ConstructorDeclarationOverloadBase.cloneReturnTyped(other, clone);
     ConstructorDeclarationOverloadBase.cloneScoped(other, clone);
     ConstructorDeclarationOverloadBase.cloneTypeParametered(other, clone);
 

@@ -73,7 +73,7 @@ implements ConstructorDeclarationStructure
     ConstructorDeclarationBase.cloneTrivia(other, clone);
     ConstructorDeclarationBase.cloneJSDocable(other, clone);
     ConstructorDeclarationBase.cloneParametered(other, clone);
-    ConstructorDeclarationBase.cloneReturnType(other, clone);
+    ConstructorDeclarationBase.cloneReturnTyped(other, clone);
     ConstructorDeclarationBase.cloneScoped(other, clone);
     ConstructorDeclarationBase.cloneStatemented(other, clone);
     ConstructorDeclarationBase.cloneTypeParametered(other, clone);

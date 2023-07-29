@@ -27,7 +27,7 @@ it("ts-morph structure decorators: ReturnTypedNode", () => {
 
   {
     const target = new Foo;
-    Foo.cloneReturnType({}, target);
+    Foo.cloneReturnTyped({}, target);
     expect(target.returnType).toBe(undefined);
     expect(target.returnTypeStructure).toBe(undefined);
   }

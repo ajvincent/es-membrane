@@ -1,34 +1,77 @@
-import { DecoratorStructure, OptionalKind, ParameterDeclarationStructure, Scope, StructureKind } from "ts-morph";
 import {
-  TS_Parameter,
-  stringOrWriterFunction
-} from "../types/ts-morph-native.mjs";
+  OptionalKind,
+  ParameterDeclarationStructure,
+  StructureKind
+} from "ts-morph";
 
-import {
-  cloneArrayOrUndefined,
-} from "./utilities.mjs";
-
-import DecoratorImpl from "./DecoratorImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
-import TypeWriterManager from "./TypeWriterManager.mjs";
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import DecoratableNode, {
+  type DecoratableNodeStructureFields,
+} from "../decorators/DecoratableNode.mjs";
+import InitializerExpressionableNode, {
+  type InitializerExpressionableNodeStructureFields
+} from "../decorators/InitializerExpressionableNode.mjs";
+import NamedNode, {
+  type NamedNodeStructureFields
+} from "../decorators/NamedNode.mjs";
+import OverrideableNode, {
+  type OverrideableNodeStructureFields
+} from "../decorators/OverrideableNode.mjs";
+import QuestionTokenableNode, {
+  type QuestionTokenableNodeStructureFields
+} from "../decorators/QuestionTokenableNode.mjs";
+import ReadonlyableNode, {
+  type ReadonlyableNodeStructureFields
+} from "../decorators/ReadonlyableNode.mjs";
+import ScopedNode, {
+  type ScopedNodeStructureFields
+} from "../decorators/ScopedNode.mjs";
+import TypedNode, {
+  type TypedNodeStructureFields
+} from "../decorators/TypedNode.mjs";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 
+const ParameterDeclarationBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.Parameter>,
+    DecoratableNodeStructureFields,
+    InitializerExpressionableNodeStructureFields,
+    NamedNodeStructureFields,
+    OverrideableNodeStructureFields,
+    QuestionTokenableNodeStructureFields,
+    ReadonlyableNodeStructureFields,
+    ScopedNodeStructureFields,
+    TypedNodeStructureFields,
+  ],
+  typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.Parameter>(StructureKind.Parameter),
+    DecoratableNode,
+    InitializerExpressionableNode,
+    NamedNode,
+    OverrideableNode,
+    QuestionTokenableNode,
+    ReadonlyableNode,
+    ScopedNode,
+    TypedNode,
+  ],
+  StructureBase
+);
+
 export default class ParameterDeclarationImpl
-extends TypeWriterManager
-implements TS_Parameter
+extends ParameterDeclarationBase
+implements ParameterDeclarationStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
-  name: string;
-  isReadonly = false;
-  decorators: DecoratorImpl[] = [];
-  hasQuestionToken = false;
-  scope: Scope | undefined = undefined;
-  initializer: stringOrWriterFunction | undefined = undefined;
-  isRestParameter = false;
-  hasOverrideKeyword = false;
   readonly kind: StructureKind.Parameter = StructureKind.Parameter;
+  isRestParameter = false;
 
   constructor(
     name: string
@@ -39,27 +82,23 @@ implements TS_Parameter
   }
 
   public static clone(
-    other: TS_Parameter
+    other: OptionalKind<ParameterDeclarationStructure>
   ): ParameterDeclarationImpl
   {
-    const newParameter = new ParameterDeclarationImpl(other.name);
+    const clone = new ParameterDeclarationImpl(other.name);
 
-    StructureBase.cloneTrivia(other, newParameter);
+    clone.isRestParameter = other.isRestParameter ?? false;
 
-    newParameter.type = other.type;
-    newParameter.isReadonly = other.isReadonly ?? false;
+    ParameterDeclarationBase.cloneTrivia(other, clone);
+    ParameterDeclarationBase.cloneDecoratable(other, clone);
+    ParameterDeclarationBase.cloneInitializerExpressionable(other, clone);
+    ParameterDeclarationBase.cloneOverrideable(other, clone);
+    ParameterDeclarationBase.cloneQuestionTokenable(other, clone);
+    ParameterDeclarationBase.cloneReadonlyable(other, clone);
+    ParameterDeclarationBase.cloneScoped(other, clone);
+    ParameterDeclarationBase.cloneTyped(other, clone);
 
-    newParameter.decorators = cloneArrayOrUndefined<OptionalKind<DecoratorStructure>, typeof DecoratorImpl>(
-      other.decorators, DecoratorImpl
-    );
-
-    newParameter.hasQuestionToken = other.hasQuestionToken ?? false;
-    newParameter.scope = other.scope;
-    newParameter.initializer = other.initializer;
-    newParameter.isRestParameter = other.isRestParameter ?? false;
-    newParameter.hasOverrideKeyword = other.hasOverrideKeyword ?? false;
-
-    return newParameter;
+    return clone;
   }
 }
 ParameterDeclarationImpl satisfies CloneableStructure<ParameterDeclarationStructure>;

@@ -27,7 +27,7 @@ it("ts-morph structure decorators: TypedNode", () => {
 
   {
     const target = new Foo;
-    Foo.cloneType({}, target);
+    Foo.cloneTyped({}, target);
     expect(target.type).toBe(undefined);
     expect(target.typeStructure).toBe(undefined);
   }

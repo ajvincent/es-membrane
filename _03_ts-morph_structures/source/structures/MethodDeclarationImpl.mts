@@ -3,11 +3,8 @@ import {
   type MethodDeclarationStructure,
   StructureKind,
   type MethodDeclarationOverloadStructure,
+  MethodSignatureStructure,
 } from "ts-morph";
-
-import type {
-  TS_Method,
-} from "../types/ts-morph-native.mjs";
 
 import {
   cloneArrayOrUndefined,
@@ -136,7 +133,7 @@ implements MethodDeclarationStructure
     MethodDeclarationBase.cloneOverrideable(other, clone);
     MethodDeclarationBase.cloneParametered(other, clone);
     MethodDeclarationBase.cloneQuestionTokenable(other, clone);
-    MethodDeclarationBase.cloneReturnType(other, clone);
+    MethodDeclarationBase.cloneReturnTyped(other, clone);
     MethodDeclarationBase.cloneScoped(other, clone);
     MethodDeclarationBase.cloneStaticable(other, clone);
     MethodDeclarationBase.cloneStatemented(other, clone);
@@ -146,7 +143,7 @@ implements MethodDeclarationStructure
   }
 
   public static fromSignature(
-    signature: TS_Method
+    signature: OptionalKind<MethodSignatureStructure>
   ): MethodDeclarationImpl
   {
     const clone = new MethodDeclarationImpl(signature.name);
@@ -155,7 +152,7 @@ implements MethodDeclarationStructure
     MethodDeclarationBase.cloneJSDocable(signature, clone);
     MethodDeclarationBase.cloneParametered(signature, clone);
     MethodDeclarationBase.cloneQuestionTokenable(signature, clone);
-    MethodDeclarationBase.cloneReturnType(signature, clone);
+    MethodDeclarationBase.cloneReturnTyped(signature, clone);
     MethodDeclarationBase.cloneTypeParametered(signature, clone);
 
     return clone;

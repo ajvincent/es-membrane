@@ -58,7 +58,7 @@ implements IndexSignatureDeclarationStructure
     IndexSignatureDeclarationBase.cloneTrivia(other, clone);
     IndexSignatureDeclarationBase.cloneJSDocable(other, clone);
     IndexSignatureDeclarationBase.cloneReadonlyable(other, clone);
-    IndexSignatureDeclarationBase.cloneReturnType(other, clone);
+    IndexSignatureDeclarationBase.cloneReturnTyped(other, clone);
 
     return clone;
   }

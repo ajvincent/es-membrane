@@ -99,7 +99,7 @@ implements MethodDeclarationOverloadStructure
     MethodDeclarationOverloadBase.cloneOverrideable(other, clone);
     MethodDeclarationOverloadBase.cloneParametered(other, clone);
     MethodDeclarationOverloadBase.cloneQuestionTokenable(other, clone);
-    MethodDeclarationOverloadBase.cloneReturnType(other, clone);
+    MethodDeclarationOverloadBase.cloneReturnTyped(other, clone);
     MethodDeclarationOverloadBase.cloneScoped(other, clone);
     MethodDeclarationOverloadBase.cloneStaticable(other, clone);
     MethodDeclarationOverloadBase.cloneTypeParametered(other, clone);
