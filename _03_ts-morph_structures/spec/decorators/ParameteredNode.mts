@@ -22,7 +22,7 @@ it("ts-morph structure decorators: ParameterdNode", () => {
   const target = new Foo;
   expect(target.parameters).toEqual([]);
 
-  Foo.cloneParameters({}, target);
+  Foo.cloneParametered({}, target);
   expect(target.parameters).toEqual([]);
 
   const parameter = new ParameterDeclarationImpl("foo");
@@ -30,7 +30,7 @@ it("ts-morph structure decorators: ParameterdNode", () => {
   parameter.type = "boolean";
   parameter.initializer = "false";
 
-  Foo.cloneParameters({
+  Foo.cloneParametered({
     parameters: [ parameter ]
   }, target);
 

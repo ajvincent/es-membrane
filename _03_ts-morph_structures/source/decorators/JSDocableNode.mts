@@ -28,7 +28,7 @@ export type JSDocableNodeStructureFields = RightExtendsLeft<
   StaticAndInstance<typeof JSDocableNodeStructureKey>,
   {
     staticFields: {
-      cloneJSDocs(
+      cloneJSDocable(
         source: JSDocableNodeStructure,
         target: JSDocsArrayOwner
       ): void;
@@ -55,7 +55,7 @@ export default function JSDocableNode(
   return class extends baseClass {
     docs: (string | JSDocImpl)[] = [];
 
-    static cloneJSDocs(
+    static cloneJSDocable(
       source: JSDocableNodeStructure,
       target: JSDocsArrayOwner
     ): void
@@ -64,6 +64,7 @@ export default function JSDocableNode(
     }
   }
 }
+
 JSDocableNode satisfies SubclassDecorator<
   typeof StructureBase,
   JSDocableNodeStructureFields,

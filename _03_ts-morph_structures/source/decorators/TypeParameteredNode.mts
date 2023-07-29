@@ -28,7 +28,7 @@ export type TypeParameteredNodeStructureFields = RightExtendsLeft<
   StaticAndInstance<typeof TypeParameteredNodeStructureKey>,
   {
     staticFields: {
-      cloneTypeParameters(
+      cloneTypeParametered(
         source: TypeParameteredNodeStructure,
         target: TypeParametersArrayOwner
       ): void;
@@ -56,7 +56,7 @@ export default function TypeParameteredNode(
   return class extends baseClass {
     typeParameters: TypeParameterDeclarationImpl[] = [];
 
-    static cloneTypeParameters(
+    static cloneTypeParametered(
       source: TypeParameteredNodeStructure,
       target: TypeParametersArrayOwner
     ): void

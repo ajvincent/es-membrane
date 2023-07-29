@@ -23,7 +23,7 @@ it("ts-morph structure decorators: TypeParameterdNode", () => {
 
   const decl = new TypeParameterDeclarationImpl("NumberStringType");
 
-  Foo.cloneTypeParameters({
+  Foo.cloneTypeParametered({
     typeParameters: [
       "boolean",
       decl

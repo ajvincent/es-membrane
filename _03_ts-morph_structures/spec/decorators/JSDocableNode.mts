@@ -22,15 +22,15 @@ it("ts-morph structure decorators: JSDocableNode", () => {
   const target = new Foo;
   expect(target.docs).toEqual([]);
 
-  Foo.cloneJSDocs({}, target);
+  Foo.cloneJSDocable({}, target);
   expect(target.docs).toEqual([]);
 
-  Foo.cloneJSDocs({
+  Foo.cloneJSDocable({
     docs: []
   }, target);
   expect(target.docs).toEqual([]);
 
-  Foo.cloneJSDocs({
+  Foo.cloneJSDocable({
     docs: ["hello"]
   }, target);
   expect(target.docs).toEqual(["hello"]);
@@ -41,7 +41,7 @@ it("ts-morph structure decorators: JSDocableNode", () => {
   docImpl.trailingTrivia = ["goodbye"];
   docImpl.tags.push(new JSDocTagImpl("tag"));
 
-  Foo.cloneJSDocs({
+  Foo.cloneJSDocable({
     docs: [docImpl]
   }, target);
 

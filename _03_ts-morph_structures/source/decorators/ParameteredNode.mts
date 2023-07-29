@@ -31,7 +31,7 @@ export type ParameteredNodeStructureFields = RightExtendsLeft<
   StaticAndInstance<typeof ParameteredNodeStructureKey>,
   {
     staticFields: {
-      cloneParameters(
+      cloneParametered(
         source: ParameteredNodeStructure,
         target: ParametersArrayOwner
       ): void;
@@ -58,7 +58,7 @@ export default function ParameteredNode(
   return class extends baseClass {
     parameters: ParameterDeclarationImpl[] = [];
 
-    static cloneParameters(
+    static cloneParametered(
       source: ParameteredNodeStructure,
       target: ParametersArrayOwner
     ): void

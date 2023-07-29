@@ -2,7 +2,6 @@ import {
   type OptionalKind,
   type ClassDeclarationStructure,
   StructureKind,
-  DecoratorStructure,
   ConstructorDeclarationStructure,
   GetAccessorDeclarationStructure,
   MethodDeclarationStructure,
@@ -21,22 +20,72 @@ import {
   stringOrWriterFunctionArray
 } from "./utilities.mjs";
 import MethodDeclarationImpl from "./MethodDeclarationImpl.mjs";
-import DecoratorImpl from "./DecoratorImpl.mjs";
-import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
-import JSDocImpl from "./JSDocImpl.mjs";
 import PropertyDeclarationImpl from "./PropertyDeclarationImpl.mjs";
 import GetAccessorDeclarationImpl from "./GetAccessorDeclarationImpl.mjs";
 import SetAccessorDeclarationImpl from "./SetAccessorDeclarationImpl.mjs";
 import ConstructorDeclarationImpl from "./ConstructorDeclarationImpl.mjs";
 
 import cloneableStatementsMap from "./cloneableStatements.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
 
-export default class ClassDeclarationImpl implements ClassDeclarationStructure
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import AbstractableNode, {
+  type AbstractableNodeStructureFields
+} from "../decorators/AbstractableNode.mjs";
+import AmbientableNode, {
+  type AmbientableNodeStructureFields
+} from "../decorators/AmbientableNode.mjs";
+import DecoratableNode, {
+  type DecoratableNodeStructureFields
+} from "../decorators/DecoratableNode.mjs";
+import ExportableNode, {
+  type ExportableNodeStructureFields
+} from "../decorators/ExportableNode.mjs";
+import JSDocableNode, {
+  type JSDocableNodeStructureFields
+} from "../decorators/JSDocableNode.mjs";
+import NameableNode, {
+  type NameableNodeStructureFields
+} from "../decorators/NameableNode.mjs";
+import TypeParameteredNode, {
+  type TypeParameteredNodeStructureFields
+} from "../decorators/TypeParameteredNode.mjs";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+
+const ClassDeclarationBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.Class>,
+    AbstractableNodeStructureFields,
+    AmbientableNodeStructureFields,
+    DecoratableNodeStructureFields,
+    ExportableNodeStructureFields,
+    NameableNodeStructureFields,
+    JSDocableNodeStructureFields,
+    TypeParameteredNodeStructureFields,
+  ], typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.Class>(StructureKind.Class),
+    AbstractableNode,
+    AmbientableNode,
+    DecoratableNode,
+    ExportableNode,
+    NameableNode,
+    JSDocableNode,
+    TypeParameteredNode
+  ],
+  StructureBase
+);
+
+export default class ClassDeclarationImpl
+extends ClassDeclarationBase
+implements ClassDeclarationStructure
 {
-  name: string | undefined = undefined;
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
   extends: stringOrWriterFunction | undefined = undefined;
   ctors: ConstructorDeclarationImpl[] = [];
   properties: PropertyDeclarationImpl[] = [];
@@ -44,14 +93,8 @@ export default class ClassDeclarationImpl implements ClassDeclarationStructure
   setAccessors: SetAccessorDeclarationImpl[] = [];
   methods: MethodDeclarationImpl[] = [];
   implements: stringOrWriterFunction[] = [];
-  decorators: DecoratorImpl[] = [];
-  typeParameters: (string | TypeParameterDeclarationImpl)[] = [];
-  docs: (string | JSDocImpl)[] = [];
-  isAbstract = false;
   readonly kind: StructureKind.Class = StructureKind.Class;
   hasDeclareKeyword = false;
-  isExported = false;
-  isDefaultExport = false;
 
   public static clone(
     other: OptionalKind<ClassDeclarationStructure>
@@ -59,9 +102,6 @@ export default class ClassDeclarationImpl implements ClassDeclarationStructure
   {
     const clone = new ClassDeclarationImpl;
 
-    clone.name = other.name;
-    clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
     clone.extends = other.extends;
     clone.ctors = cloneArrayOrUndefined<OptionalKind<ConstructorDeclarationStructure>, typeof ConstructorDeclarationImpl>(
       other.ctors, ConstructorDeclarationImpl
@@ -79,16 +119,15 @@ export default class ClassDeclarationImpl implements ClassDeclarationStructure
       other.methods, MethodDeclarationImpl
     );
     clone.implements = stringOrWriterFunctionArray(other.implements);
-    clone.decorators = cloneArrayOrUndefined<OptionalKind<DecoratorStructure>, typeof DecoratorImpl>(
-      other.decorators, DecoratorImpl
-    );
-    clone.typeParameters = TypeParameterDeclarationImpl.cloneArray(other);
-    clone.docs = JSDocImpl.cloneArray(other);
 
-    clone.isAbstract = other.isAbstract ?? false;
-    clone.hasDeclareKeyword = other.hasDeclareKeyword ?? false;
-    clone.isExported = other.isExported ?? false;
-    clone.isDefaultExport = other.isDefaultExport ?? false;
+    ClassDeclarationBase.cloneTrivia(other, clone);
+    ClassDeclarationBase.cloneAbstractable(other, clone);
+    ClassDeclarationBase.cloneAmbientable(other, clone);
+    ClassDeclarationBase.cloneDecoratable(other, clone);
+    ClassDeclarationBase.cloneExportable(other, clone);
+    ClassDeclarationBase.cloneJSDocable(other, clone);
+    ClassDeclarationBase.cloneNameable(other, clone);
+    ClassDeclarationBase.cloneTypeParametered(other, clone);
 
     return clone;
   }

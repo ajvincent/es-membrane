@@ -55,9 +55,9 @@ implements CallSignatureDeclarationStructure
     const declaration = new CallSignatureDeclarationImpl;
 
     CallSignatureDeclarationBase.cloneTrivia(other, declaration);
-    CallSignatureDeclarationBase.cloneJSDocs(other, declaration);
-    CallSignatureDeclarationBase.cloneParameters(other, declaration);
-    CallSignatureDeclarationBase.cloneTypeParameters(other, declaration);
+    CallSignatureDeclarationBase.cloneJSDocable(other, declaration);
+    CallSignatureDeclarationBase.cloneParametered(other, declaration);
+    CallSignatureDeclarationBase.cloneTypeParametered(other, declaration);
     CallSignatureDeclarationBase.cloneReturnType(other, declaration);
 
     return declaration;
