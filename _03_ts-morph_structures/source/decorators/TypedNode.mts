@@ -3,7 +3,7 @@ import type {
   WriterFunction,
 } from "ts-morph";
 
-import TypeWriterManager from "../structures/TypeWriterManager.mjs";
+import TypeWriterManager from "./TypeWriterManager.mjs";
 
 import {
   TypeStructure

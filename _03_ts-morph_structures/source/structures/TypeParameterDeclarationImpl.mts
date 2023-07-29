@@ -10,12 +10,12 @@ import {
   type TypeParameterVariance,
 } from "ts-morph";
 
-import {
-  stringOrWriterFunctionArray,
-} from "./utilities.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
 
-export default class TypeParameterDeclarationImpl implements TS_TypeParameter
+export default class TypeParameterDeclarationImpl
+extends StructureBase
+implements TS_TypeParameter
 {
   leadingTrivia: stringOrWriterFunction[] = [];
   trailingTrivia: stringOrWriterFunction[] = [];
@@ -30,6 +30,7 @@ export default class TypeParameterDeclarationImpl implements TS_TypeParameter
     name: string
   )
   {
+    super();
     this.name = name;
   }
 
@@ -39,8 +40,8 @@ export default class TypeParameterDeclarationImpl implements TS_TypeParameter
   {
     const clone = new TypeParameterDeclarationImpl(other.name);
 
-    clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
+    StructureBase.cloneTrivia(other, clone);
+
     clone.isConst = other.isConst ?? false;
     clone.constraint = other.constraint;
     clone.default = other.default;

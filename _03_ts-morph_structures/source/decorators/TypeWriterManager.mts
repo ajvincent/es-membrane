@@ -18,7 +18,7 @@ import {
 import {
   getTypeStructureForCallback
 } from "../typeStructures/callbackToTypeStructureRegistry.mjs";
-import StructureBase from "../decorators/StructureBase.mjs";
+import StructureBase from "./StructureBase.mjs";
 
 export default class TypeWriterManager
 extends StructureBase

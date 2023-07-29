@@ -2,7 +2,7 @@ import type {
   CodeBlockWriter,
   WriterFunction
 } from "ts-morph";
-import TypeWriterManager from "../source/structures/TypeWriterManager.mjs";
+import TypeWriterManager from "../../source/decorators/TypeWriterManager.mjs";
 import {
   LiteralTypedStructureImpl,
 } from "#ts-morph_structures/exports.mjs";

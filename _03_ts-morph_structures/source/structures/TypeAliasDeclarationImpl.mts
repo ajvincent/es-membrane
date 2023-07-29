@@ -1,5 +1,4 @@
 import {
-  JSDocStructure,
   OptionalKind,
   StructureKind,
   TypeAliasDeclarationStructure,
@@ -7,50 +6,65 @@ import {
 } from "ts-morph";
 
 import {
-  stringOrWriterFunction
-} from "../types/ts-morph-native.mjs";
-
-import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
-import TypeWriterManager from "./TypeWriterManager.mjs";
-import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
-import { stringOrWriterFunctionArray } from "./utilities.mjs";
-import JSDocImpl from "./JSDocImpl.mjs";
 
 import cloneableStatementsMap from "./cloneableStatements.mjs";
 
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import AmbientableNode, {
+  type AmbientableNodeStructureFields
+} from "../decorators/AmbientableNode.mjs";
+import ExportableNode, {
+  type ExportableNodeStructureFields
+} from "../decorators/ExportableNode.mjs";
+import NamedNode, {
+  type NamedNodeStructureFields
+} from "../decorators/NamedNode.mjs";
+import JSDocableNode, {
+  type JSDocableNodeStructureFields
+} from "../decorators/JSDocableNode.mjs";
+import TypeParameteredNode, {
+  type TypeParameteredNodeStructureFields
+} from "../decorators/TypeParameteredNode.mjs";
+import TypedNode, {
+  type TypedNodeStructureFields
+} from "../decorators/TypedNode.mjs";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
+
+const TypeAliasDeclarationBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.TypeAlias>,
+    AmbientableNodeStructureFields,
+    ExportableNodeStructureFields,
+    JSDocableNodeStructureFields,
+    NamedNodeStructureFields,
+    TypedNodeStructureFields,
+    TypeParameteredNodeStructureFields,
+  ],
+  typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.TypeAlias>(StructureKind.TypeAlias),
+    AmbientableNode,
+    ExportableNode,
+    JSDocableNode,
+    NamedNode,
+    TypedNode,
+    TypeParameteredNode,
+  ],
+  StructureBase
+);
+
 export default class TypeAliasDeclarationImpl
-extends TypeWriterManager
+extends TypeAliasDeclarationBase
 implements TypeAliasDeclarationStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
-  readonly kind: StructureKind.TypeAlias = StructureKind.TypeAlias;
-  name: string;
-  typeParameters: (string | TypeParameterDeclarationImpl)[] = [];
-  docs: (string | OptionalKind<JSDocStructure>)[] = [];
-  hasDeclareKeyword: boolean | undefined = undefined;
-  isExported: boolean | undefined = undefined;
-  isDefaultExport: boolean | undefined = undefined;
-
-  public static clone(
-    other: OptionalKind<TypeAliasDeclarationStructure>
-  ): TypeAliasDeclarationImpl
-  {
-    const clone = new TypeAliasDeclarationImpl(other.name);
-
-    clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
-    clone.typeParameters = TypeParameterDeclarationImpl.cloneArray(other);
-    clone.docs = JSDocImpl.cloneArray(other);
-    clone.hasDeclareKeyword = other.hasDeclareKeyword;
-    clone.isExported = other.isExported;
-    clone.isDefaultExport = other.isDefaultExport;
-
-    return clone;
-  }
-
   constructor(
     name: string
   )
@@ -62,6 +76,22 @@ implements TypeAliasDeclarationStructure
   get type(): string | WriterFunction
   {
     return super.type ?? "";
+  }
+
+  public static clone(
+    other: OptionalKind<TypeAliasDeclarationStructure>
+  ): TypeAliasDeclarationImpl
+  {
+    const clone = new TypeAliasDeclarationImpl(other.name);
+
+    TypeAliasDeclarationBase.cloneTrivia(other, clone);
+    TypeAliasDeclarationBase.cloneAmbientable(other, clone);
+    TypeAliasDeclarationBase.cloneExportable(other, clone);
+    TypeAliasDeclarationBase.cloneJSDocable(other, clone);
+    TypeAliasDeclarationBase.cloneTyped(other, clone);
+    TypeAliasDeclarationBase.cloneTypeParametered(other, clone);
+
+    return clone;
   }
 }
 TypeAliasDeclarationImpl satisfies CloneableStructure<TypeAliasDeclarationStructure>;
