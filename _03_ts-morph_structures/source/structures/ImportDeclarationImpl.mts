@@ -8,31 +8,30 @@ import type {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 
-import {
-  stringOrWriterFunctionArray
-} from "./utilities.mjs";
 import ImportSpecifierImpl from "./ImportSpecifierImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 import cloneableStatementsMap from "./cloneableStatements.mjs";
 import AssertEntryImpl from "./AssertEntryImpl.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
 
-export default class ImportDeclarationImpl implements ImportDeclarationStructure
+export default class ImportDeclarationImpl
+extends StructureBase
+implements ImportDeclarationStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
+  readonly kind: StructureKind.ImportDeclaration = StructureKind.ImportDeclaration;
   isTypeOnly = false;
   defaultImport: string | undefined = undefined;
   namespaceImport: string | undefined = undefined;
   namedImports: (stringOrWriterFunction | ImportSpecifierImpl)[] = [];
   moduleSpecifier: string;
   assertElements: AssertEntryImpl[] = [];
-  readonly kind: StructureKind.ImportDeclaration = StructureKind.ImportDeclaration;
 
   constructor(
     moduleSpecifier: string
   )
   {
+    super();
     this.moduleSpecifier = moduleSpecifier;
   }
 
@@ -42,8 +41,7 @@ export default class ImportDeclarationImpl implements ImportDeclarationStructure
   {
     const clone = new ImportDeclarationImpl(other.moduleSpecifier);
 
-    clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
+    StructureBase.cloneTrivia(other, clone);
     clone.isTypeOnly = other.isTypeOnly ?? false;
     clone.defaultImport = other.defaultImport;
     clone.namespaceImport = other.namespaceImport;

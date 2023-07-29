@@ -28,14 +28,11 @@ export type ExportableNodeStructureFields = RightExtendsLeft<
     staticFields: {
       cloneExportable(
         source: ExportableNodeStructure,
-        target: ExportableNodeStructure
+        target: Required<ExportableNodeStructure>
       ): void;
     },
 
-    instanceFields: {
-      isExported: boolean;
-      isDefaultExport: boolean;
-    },
+    instanceFields: Required<ExportableNodeStructure>,
 
     symbolKey: typeof ExportableNodeStructureKey
   }
@@ -57,7 +54,7 @@ export default function ExportableNode(
 
     static cloneExportable(
       source: ExportableNodeStructure,
-      target: ExportableNodeStructure
+      target: Required<ExportableNodeStructure>
     ): void
     {
       target.isDefaultExport = source.isDefaultExport ?? false;

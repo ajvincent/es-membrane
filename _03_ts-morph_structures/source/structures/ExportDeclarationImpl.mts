@@ -7,19 +7,17 @@ import type {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 
-import {
-  stringOrWriterFunctionArray
-} from "./utilities.mjs";
 import ExportSpecifierImpl from "./ExportSpecifierImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 import cloneableStatementsMap from "./cloneableStatements.mjs";
 import AssertEntryImpl from "./AssertEntryImpl.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
 
-export default class ExportDeclarationImpl implements ExportDeclarationStructure
+export default class ExportDeclarationImpl
+extends StructureBase
+implements ExportDeclarationStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
   isTypeOnly = false;
   namespaceExport: string | undefined = undefined;
   namedExports: (stringOrWriterFunction | ExportSpecifierImpl)[] = [];
@@ -33,8 +31,7 @@ export default class ExportDeclarationImpl implements ExportDeclarationStructure
   {
     const clone = new ExportDeclarationImpl;
 
-    clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
+    StructureBase.cloneTrivia(other, clone);
     clone.isTypeOnly = other.isTypeOnly ?? false;
     clone.namespaceExport = other.namespaceExport;
 

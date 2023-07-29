@@ -28,15 +28,13 @@ export type AmbientableNodeStructureFields = RightExtendsLeft<
     staticFields: {
       cloneAmbientable(
         source: AmbientableNodeStructure,
-        target: AmbientableNodeStructure,
+        target: Required<AmbientableNodeStructure>,
       ): void;
-    },
+    };
 
-    instanceFields: {
-      hasDeclareKeyword: boolean
-    },
+    instanceFields: Required<AmbientableNodeStructure>;
 
-    symbolKey: typeof AmbientableNodeStructureKey
+    symbolKey: typeof AmbientableNodeStructureKey;
   }
 >;
 
@@ -56,7 +54,7 @@ export default function AmbientableNode(
 
     static cloneAmbientable(
       source: AmbientableNodeStructure,
-      target: AmbientableNodeStructure
+      target: Required<AmbientableNodeStructure>
     ): void
     {
       target.hasDeclareKeyword = source.hasDeclareKeyword ?? false;

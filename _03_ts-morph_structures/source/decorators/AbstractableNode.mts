@@ -28,13 +28,11 @@ export type AbstractableNodeStructureFields = RightExtendsLeft<
     staticFields: {
       cloneAbstractable(
         source: AbstractableNodeStructure,
-        target: AbstractableNodeStructure,
+        target: Required<AbstractableNodeStructure>,
       ): void;
     },
 
-    instanceFields: {
-      isAbstract: boolean
-    },
+    instanceFields: Required<AbstractableNodeStructure>,
 
     symbolKey: typeof AbstractableNodeStructureKey
   }
@@ -55,7 +53,7 @@ export default function AbstractableNode(
 
     static cloneAbstractable(
       source: AbstractableNodeStructure,
-      target: AbstractableNodeStructure
+      target: Required<AbstractableNodeStructure>
     ): void
     {
       target.isAbstract = source.isAbstract ?? false;

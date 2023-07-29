@@ -4,25 +4,20 @@ import {
   StructureKind,
 } from "ts-morph";
 
-import type {
-  stringOrWriterFunction
-} from "../types/ts-morph-native.mjs";
-
-import {
-  stringOrWriterFunctionArray
-} from "./utilities.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
 
-export default class ImportSpecifierImpl implements ImportSpecifierStructure
+export default class ImportSpecifierImpl
+extends StructureBase
+implements ImportSpecifierStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
+  readonly kind: StructureKind.ImportSpecifier = StructureKind.ImportSpecifier;
   name: string;
   isTypeOnly = false;
   alias: string | undefined;
-  kind: StructureKind.ImportSpecifier = StructureKind.ImportSpecifier;
 
   constructor(name: string) {
+    super();
     this.name = name;
   }
 
@@ -32,8 +27,7 @@ export default class ImportSpecifierImpl implements ImportSpecifierStructure
   {
     const clone = new ImportSpecifierImpl(other.name);
 
-    clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
+    StructureBase.cloneTrivia(other, clone);
     clone.isTypeOnly = other.isTypeOnly ?? false;
     clone.alias = other.alias;
 

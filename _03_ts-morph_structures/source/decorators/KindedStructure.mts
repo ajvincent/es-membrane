@@ -22,11 +22,14 @@ import { MixinClass } from "#mixin_decorators/source/types/MixinClass.mjs";
 
 declare const KindedStructureKey: unique symbol;
 
-export type KindedStructureFields<TKind extends StructureKind> = RightExtendsLeft<StaticAndInstance<typeof KindedStructureKey>, {
-  staticFields: object,
-  instanceFields: KindedStructure<TKind>,
-  symbolKey: typeof KindedStructureKey
-}>;
+export type KindedStructureFields<TKind extends StructureKind> = RightExtendsLeft<
+  StaticAndInstance<typeof KindedStructureKey>,
+  {
+    staticFields: object;
+    instanceFields: KindedStructure<TKind>;
+    symbolKey: typeof KindedStructureKey;
+  }
+>;
 
 function KindedStructure<TKind extends StructureKind>(
   kind: TKind

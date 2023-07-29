@@ -37,9 +37,7 @@ export type ParameteredNodeStructureFields = RightExtendsLeft<
       ): void;
     },
 
-    instanceFields: {
-      parameters: ParameterDeclarationImpl[]
-    },
+    instanceFields: ParametersArrayOwner,
 
     symbolKey: typeof ParameteredNodeStructureKey;
   }

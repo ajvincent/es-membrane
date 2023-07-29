@@ -20,6 +20,7 @@ import StructureBase from "./StructureBase.mjs";
 import {
   MixinClass
 } from "#mixin_decorators/source/types/MixinClass.mjs";
+
 import DecoratorImpl from "../structures/DecoratorImpl.mjs";
 import {
   cloneArrayOrUndefined

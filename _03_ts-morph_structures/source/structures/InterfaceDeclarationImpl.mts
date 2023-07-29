@@ -1,54 +1,83 @@
 import {
-  CallSignatureDeclarationStructure,
-  ConstructSignatureDeclarationStructure,
-  IndexSignatureDeclarationStructure,
   InterfaceDeclarationStructure,
   OptionalKind,
-  PropertySignatureStructure,
   StructureKind,
 } from "ts-morph";
 
 import {
-  TS_Method,
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 
 import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
-import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
-import { cloneArrayOrUndefined, stringOrWriterFunctionArray } from "./utilities.mjs";
-import MethodSignatureImpl from "./MethodSignatureImpl.mjs";
-import JSDocImpl from "./JSDocImpl.mjs";
-import CallSignatureDeclarationImpl from "./CallSignatureDeclarationImpl.mjs";
-import ConstructSignatureDeclarationImpl from "./ConstructSignatureDeclarationImpl.mjs";
-import IndexSignatureDeclarationImpl from "./IndexSignatureDeclarationImpl.mjs";
-import PropertySignatureImpl from "./PropertySignatureImpl.mjs";
+import {
+  stringOrWriterFunctionArray
+} from "./utilities.mjs";
 import cloneableStatementsMap from "./cloneableStatements.mjs";
 
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import AmbientableNode, {
+  type AmbientableNodeStructureFields
+} from "../decorators/AmbientableNode.mjs";
+import ExportableNode, {
+  type ExportableNodeStructureFields
+} from "../decorators/ExportableNode.mjs";
+import NamedNode, {
+  type NamedNodeStructureFields
+} from "../decorators/NamedNode.mjs";
+import JSDocableNode, {
+  type JSDocableNodeStructureFields
+} from "../decorators/JSDocableNode.mjs";
+import TypeElementMemberedNode, {
+  type TypeElementMemberedNodeStructureFields
+} from "../decorators/TypeElementMemberedNode.mjs";
+import TypeParameteredNode, {
+  type TypeParameteredNodeStructureFields
+} from "../decorators/TypeParameteredNode.mjs";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
+
+const InterfaceDeclarationBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.Interface>,
+    AmbientableNodeStructureFields,
+    ExportableNodeStructureFields,
+    JSDocableNodeStructureFields,
+    NamedNodeStructureFields,
+    TypeElementMemberedNodeStructureFields,
+    TypeParameteredNodeStructureFields,
+  ],
+  typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.Interface>(StructureKind.Interface),
+    AmbientableNode,
+    ExportableNode,
+    JSDocableNode,
+    NamedNode,
+    TypeElementMemberedNode,
+    TypeParameteredNode,
+  ],
+  StructureBase
+);
+
 export default class InterfaceDeclarationImpl
+extends InterfaceDeclarationBase
 implements InterfaceDeclarationStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
   name: string;
-  readonly kind: StructureKind.Interface = StructureKind.Interface;
   extends: stringOrWriterFunction[] = [];
-  typeParameters: (string | TypeParameterDeclarationImpl)[] = [];
-  docs: (string | JSDocImpl)[] = [];
-  hasDeclareKeyword = false;
-  isExported = false;
-  isDefaultExport = false;
-  callSignatures: CallSignatureDeclarationImpl[] = [];
-  constructSignatures: ConstructSignatureDeclarationImpl[] = [];
-  indexSignatures: IndexSignatureDeclarationImpl[] = [];
-  methods: MethodSignatureImpl[] = [];
-  properties: PropertySignatureImpl[] = [];
 
   constructor(
     name: string
   )
   {
+    super();
     this.name = name;
   }
 
@@ -56,34 +85,17 @@ implements InterfaceDeclarationStructure
     other: OptionalKind<InterfaceDeclarationStructure>
   ): InterfaceDeclarationImpl
   {
-    const declaration = new InterfaceDeclarationImpl(other.name);
+    const clone = new InterfaceDeclarationImpl(other.name);
+    clone.extends = stringOrWriterFunctionArray(other.extends);
 
-    declaration.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    declaration.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
-    declaration.extends = stringOrWriterFunctionArray(other.extends);
-    declaration.typeParameters = TypeParameterDeclarationImpl.cloneArray(other);
-    declaration.docs = JSDocImpl.cloneArray(other);
-    declaration.hasDeclareKeyword = other.hasDeclareKeyword ?? false;
-    declaration.isExported = other.isExported ?? false;
-    declaration.isDefaultExport = other.isDefaultExport ?? false;
+    InterfaceDeclarationBase.cloneTrivia(other, clone);
+    InterfaceDeclarationBase.cloneAmbientable(other, clone);
+    InterfaceDeclarationBase.cloneExportable(other, clone);
+    InterfaceDeclarationBase.cloneJSDocable(other, clone);
+    InterfaceDeclarationBase.cloneTypeElementMembered(other, clone);
+    InterfaceDeclarationBase.cloneTypeParametered(other, clone);
 
-    declaration.callSignatures = cloneArrayOrUndefined<OptionalKind<CallSignatureDeclarationStructure>, typeof CallSignatureDeclarationImpl>(
-      other.callSignatures, CallSignatureDeclarationImpl
-    );
-    declaration.constructSignatures = cloneArrayOrUndefined<OptionalKind<ConstructSignatureDeclarationStructure>, typeof ConstructSignatureDeclarationImpl>(
-      other.constructSignatures, ConstructSignatureDeclarationImpl
-    );
-    declaration.indexSignatures = cloneArrayOrUndefined<OptionalKind<IndexSignatureDeclarationStructure>, typeof IndexSignatureDeclarationImpl>(
-      other.indexSignatures, IndexSignatureDeclarationImpl
-    );
-    declaration.methods = cloneArrayOrUndefined<TS_Method, typeof MethodSignatureImpl>(
-      other.methods, MethodSignatureImpl
-    );
-    declaration.properties = cloneArrayOrUndefined<OptionalKind<PropertySignatureStructure>, typeof PropertySignatureImpl>(
-      other.properties, PropertySignatureImpl
-    );
-
-    return declaration;
+    return clone;
   }
 }
 InterfaceDeclarationImpl satisfies CloneableStructure<InterfaceDeclarationStructure>;

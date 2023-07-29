@@ -4,40 +4,63 @@ import {
   StructureKind,
 } from "ts-morph";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
-import JSDocImpl from "./JSDocImpl.mjs";
-import ReturnTypeWriterManager from "./ReturnTypeWriterManager.mjs";
-import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
-import { stringOrWriterFunctionArray } from "./utilities.mjs";
 
-export default class CallSignatureDeclarationImpl
-extends ReturnTypeWriterManager
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
+
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import JSDocableNode, {
+  type JSDocableNodeStructureFields
+} from "../decorators/JSDocableNode.mjs";
+import ReadonlyableNode, {
+  type ReadonlyableNodeStructureFields
+} from "../decorators/ReadonlyableNode.mjs";
+import ReturnTypedNode, {
+  type ReturnTypedNodeStructureFields,
+} from "../decorators/ReturnTypedNode.mjs";
+
+const IndexSignatureDeclarationBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.IndexSignature>,
+    JSDocableNodeStructureFields,
+    ReadonlyableNodeStructureFields,
+    ReturnTypedNodeStructureFields,
+  ], typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.IndexSignature>(StructureKind.IndexSignature),
+    JSDocableNode,
+    ReadonlyableNode,
+    ReturnTypedNode,
+  ],
+  StructureBase
+);
+
+export default class IndexSignatureDeclarationImpl
+extends IndexSignatureDeclarationBase
 implements IndexSignatureDeclarationStructure
 {
-  readonly kind: StructureKind.IndexSignature = StructureKind.IndexSignature;
-
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
   keyName: string | undefined;
   keyType: string | undefined;
-  docs: (string | JSDocImpl)[] = [];
-  isReadonly = false;
 
   public static clone(
     other: OptionalKind<IndexSignatureDeclarationStructure>
-  ): CallSignatureDeclarationImpl
+  ): IndexSignatureDeclarationImpl
   {
-    const declaration = new CallSignatureDeclarationImpl;
+    const clone = new IndexSignatureDeclarationImpl;
 
-    declaration.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    declaration.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
-    declaration.docs = JSDocImpl.cloneArray(other);
-    declaration.keyName = other.keyName;
-    declaration.keyType = other.keyType;
-    declaration.isReadonly = other.isReadonly ?? false;
+    clone.keyName = other.keyName;
+    clone.keyType = other.keyType;
 
-    declaration.returnType = other.returnType;
+    IndexSignatureDeclarationBase.cloneTrivia(other, clone);
+    IndexSignatureDeclarationBase.cloneJSDocable(other, clone);
+    IndexSignatureDeclarationBase.cloneReadonlyable(other, clone);
+    IndexSignatureDeclarationBase.cloneReturnType(other, clone);
 
-    return declaration;
+    return clone;
   }
 }
-CallSignatureDeclarationImpl satisfies CloneableStructure<IndexSignatureDeclarationStructure>;
+IndexSignatureDeclarationImpl satisfies CloneableStructure<IndexSignatureDeclarationStructure>;
