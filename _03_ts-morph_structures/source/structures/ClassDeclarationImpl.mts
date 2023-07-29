@@ -27,7 +27,6 @@ import SetAccessorDeclarationImpl from "./SetAccessorDeclarationImpl.mjs";
 import ConstructorDeclarationImpl from "./ConstructorDeclarationImpl.mjs";
 
 import cloneableStatementsMap from "./cloneableStatements.mjs";
-import StructureBase from "../decorators/StructureBase.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -55,6 +54,7 @@ import TypeParameteredNode, {
 } from "../decorators/TypeParameteredNode.mjs";
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
 
 const ClassDeclarationBase = MultiMixinBuilder<
   [

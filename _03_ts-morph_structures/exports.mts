@@ -9,8 +9,11 @@ export { default as ConstructSignatureDeclarationImpl } from "./source/structure
 export { default as DecoratorImpl }  from "./source/structures/DecoratorImpl.mjs";
 export { default as EnumDeclarationImpl } from "./source/structures/EnumDeclarationImpl.mjs";
 export { default as EnumMemberImpl } from "./source/structures/EnumMemberImpl.mjs";
+export { default as ExportAssignmentImpl } from "./source/structures/ExportAssignmentImpl.mjs";
 export { default as ExportDeclarationImpl } from "./source/structures/ExportDeclarationImpl.mjs";
 export { default as ExportSpecifierImpl } from "./source/structures/ExportSpecifierImpl.mjs";
+export { default as FunctionDeclarationImpl } from "./source/structures/FunctionDeclarationImpl.mjs";
+export { default as FunctionDeclarationOverloadImpl } from "./source/structures/FunctionDeclarationOverloadImpl.mjs";
 export { default as GetAccessorDeclarationImpl } from "./source/structures/GetAccessorDeclarationImpl.mjs";
 export { default as ImportDeclarationImpl } from "./source/structures/ImportDeclarationImpl.mjs";
 export { default as ImportSpecifierImpl } from "./source/structures/ImportSpecifierImpl.mjs";
@@ -19,7 +22,9 @@ export { default as InterfaceDeclarationImpl } from "./source/structures/Interfa
 export { default as JSDocImpl } from "./source/structures/JSDocImpl.mjs";
 export { default as JSDocTagImpl } from "./source/structures/JSDocTagImpl.mjs";
 export { default as MethodDeclarationImpl } from "./source/structures/MethodDeclarationImpl.mjs";
+export { default as MethodDeclarationOverloadImpl } from "./source/structures/MethodDeclarationOverloadImpl.mjs";
 export { default as MethodSignatureImpl } from "./source/structures/MethodSignatureImpl.mjs";
+export { default as ModuleDeclarationImpl } from "./source/structures/ModuleDeclarationImpl.mjs";
 export { default as ParameterDeclarationImpl } from "./source/structures/ParameterDeclarationImpl.mjs";
 export { default as PropertyDeclarationImpl } from "./source/structures/PropertyDeclarationImpl.mjs";
 export { default as PropertySignatureImpl } from "./source/structures/PropertySignatureImpl.mjs";
@@ -27,6 +32,8 @@ export { default as SetAccessorDeclarationImpl } from "./source/structures/SetAc
 export { default as SourceFileImpl } from "./source/structures/SourceFileImpl.mjs";
 export { default as TypeAliasDeclarationImpl } from "./source/structures/TypeAliasDeclarationImpl.mjs";
 export { default as TypeParameterDeclarationImpl } from "./source/structures/TypeParameterDeclarationImpl.mjs";
+export { default as VariableDeclarationImpl } from "./source/structures/VariableDeclarationImpl.mjs";
+export { default as VariableStatementImpl } from "./source/structures/VariableStatementImpl.mjs";
 
 // #endregion Structure implementations
 
