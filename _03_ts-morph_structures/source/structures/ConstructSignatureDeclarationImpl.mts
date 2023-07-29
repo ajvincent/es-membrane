@@ -4,40 +4,64 @@ import {
   StructureKind,
 } from "ts-morph";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
-import JSDocImpl from "./JSDocImpl.mjs";
-import ParameterDeclarationImpl from "./ParameterDeclarationImpl.mjs";
-import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
-import ReturnTypeWriterManager from "./ReturnTypeWriterManager.mjs";
-import { TS_Parameter, stringOrWriterFunction } from "../types/ts-morph-native.mjs";
-import { cloneArrayOrUndefined, stringOrWriterFunctionArray } from "./utilities.mjs";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
+
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import JSDocableNode, {
+  type JSDocableNodeStructureFields
+} from "../decorators/JSDocableNode.mjs";
+import ParameteredNode, {
+  type ParameteredNodeStructureFields
+} from "../decorators/ParameteredNode.mjs";
+import ReturnTypedNode, {
+  type ReturnTypedNodeStructureFields
+} from "../decorators/ReturnTypedNode.mjs";
+import TypeParameteredNode, {
+  type TypeParameteredNodeStructureFields
+} from "../decorators/TypeParameteredNode.mjs";
+
+const ConstructSignatureDeclarationBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.ConstructSignature>,
+    JSDocableNodeStructureFields,
+    ParameteredNodeStructureFields,
+    ReturnTypedNodeStructureFields,
+    TypeParameteredNodeStructureFields,
+  ], typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.ConstructSignature>(StructureKind.ConstructSignature),
+    JSDocableNode,
+    ParameteredNode,
+    ReturnTypedNode,
+    TypeParameteredNode,
+  ],
+  StructureBase
+);
 
 export default class ConstructSignatureDeclarationImpl
-extends ReturnTypeWriterManager
+extends ConstructSignatureDeclarationBase
 implements ConstructSignatureDeclarationStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
-  readonly kind: StructureKind.ConstructSignature = StructureKind.ConstructSignature;
-  docs: (string | JSDocImpl)[] = [];
-  parameters: ParameterDeclarationImpl[] = [];
-  typeParameters: (TypeParameterDeclarationImpl | string)[] = [];
-
   public static clone(
     other: OptionalKind<ConstructSignatureDeclarationStructure>
   ): ConstructSignatureDeclarationImpl
   {
-    const declaration = new ConstructSignatureDeclarationImpl;
+    const clone = new ConstructSignatureDeclarationImpl;
 
-    declaration.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    declaration.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
-    declaration.docs = JSDocImpl.cloneArray(other);
-    declaration.parameters = cloneArrayOrUndefined<TS_Parameter, typeof ParameterDeclarationImpl>(
-      other.parameters, ParameterDeclarationImpl
-    );
-    declaration.typeParameters = TypeParameterDeclarationImpl.cloneArray(other);
-    declaration.returnType = other.returnType;
+    ConstructSignatureDeclarationBase.cloneTrivia(other, clone);
+    ConstructSignatureDeclarationBase.cloneJSDocable(other, clone);
+    ConstructSignatureDeclarationBase.cloneParametered(other, clone);
+    ConstructSignatureDeclarationBase.cloneReturnType(other, clone);
+    ConstructSignatureDeclarationBase.cloneTypeParametered(other, clone);
 
-    return declaration;
+    return clone;
   }
 }
+
 ConstructSignatureDeclarationImpl satisfies CloneableStructure<ConstructSignatureDeclarationStructure>;

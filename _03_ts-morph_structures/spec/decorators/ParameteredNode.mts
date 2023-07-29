@@ -10,7 +10,7 @@ import {
 } from "#ts-morph_structures/exports.mjs";
 import { Scope } from "ts-morph";
 
-it("ts-morph structure decorators: ParameterdNode", () => {
+it("ts-morph structure decorators: ParameteredNode", () => {
   const Foo = MultiMixinBuilder<[
     ParameteredNodeStructureFields
   ], typeof StructureBase>

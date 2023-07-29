@@ -4,7 +4,9 @@ import {
 
 import {
   StatementStructures,
-  StatementedNodeStructure
+  StatementedNodeStructure,
+  CodeBlockWriter,
+  type CodeBlockWriterOptions
 } from "ts-morph";
 
 import {
@@ -67,4 +69,13 @@ function cloneStatement(
   }
 
   return value;
+}
+
+const writerOptions: Partial<CodeBlockWriterOptions> = Object.freeze({
+  indentNumberOfSpaces: 2
+});
+
+export function createCodeBlockWriter(): CodeBlockWriter
+{
+  return new CodeBlockWriter(writerOptions);
 }

@@ -54,3 +54,7 @@ export { default as UnionTypedStructureImpl } from "./source/typeStructures/Unio
 export { default as WriterTypedStructureImpl } from "./source/typeStructures/WriterTypedStructureImpl.mjs";
 
 // #endregion TypeStructure implementations
+
+export {
+  createCodeBlockWriter
+} from "./source/structures/utilities.mjs";

@@ -12,16 +12,37 @@ import {
   stringOrWriterFunctionArray
 } from "./utilities.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import NamedNode, {
+  type NamedNodeStructureFields
+} from "../decorators/NamedNode.mjs";
+
+const DecoratorBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.Decorator>,
+    NamedNodeStructureFields,
+  ], typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.Decorator>(StructureKind.Decorator),
+    NamedNode,
+  ],
+  StructureBase
+)
+
 export default class DecoratorImpl
-extends StructureBase
+extends DecoratorBase
 implements DecoratorStructure
 {
-  name: string;
   arguments: stringOrWriterFunction[] = [];
   typeArguments: string[] = [];
-  readonly kind: StructureKind.Decorator = StructureKind.Decorator;
 
   constructor(
     name: string
@@ -35,13 +56,14 @@ implements DecoratorStructure
     other: OptionalKind<DecoratorStructure>
   ): DecoratorImpl
   {
-    const newDecorator = new DecoratorImpl(other.name);
+    const clone = new DecoratorImpl(other.name);
 
-    StructureBase.cloneTrivia(other, newDecorator);
-    newDecorator.arguments = stringOrWriterFunctionArray(other.arguments);
-    newDecorator.typeArguments = other.typeArguments?.slice() ?? [];
+    DecoratorBase.cloneTrivia(other, clone);
+    DecoratorBase.cloneNamed(other, clone);
+    clone.arguments = stringOrWriterFunctionArray(other.arguments);
+    clone.typeArguments = other.typeArguments?.slice() ?? [];
 
-    return newDecorator;
+    return clone;
   }
 }
 DecoratorImpl satisfies CloneableStructure<DecoratorStructure>;

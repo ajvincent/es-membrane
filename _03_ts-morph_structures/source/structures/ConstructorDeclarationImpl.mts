@@ -2,32 +2,67 @@ import {
   ConstructorDeclarationOverloadStructure,
   ConstructorDeclarationStructure,
   OptionalKind,
-  Scope,
-  StatementStructures,
   StructureKind,
 } from "ts-morph";
-import ReturnTypeWriterManager from "./ReturnTypeWriterManager.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
-import ParameterDeclarationImpl from "./ParameterDeclarationImpl.mjs";
-import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
-import { TS_Parameter, stringOrWriterFunction } from "../types/ts-morph-native.mjs";
-import JSDocImpl from "./JSDocImpl.mjs";
-import { cloneArrayOrUndefined, statementsArray, stringOrWriterFunctionArray } from "./utilities.mjs";
+import { cloneArrayOrUndefined } from "./utilities.mjs";
 import ConstructorDeclarationOverloadImpl from "./ConstructorDeclarationOverloadImpl.mjs";
 
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
+
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import JSDocableNode, {
+  type JSDocableNodeStructureFields
+} from "../decorators/JSDocableNode.mjs";
+import ParameteredNode, {
+  type ParameteredNodeStructureFields
+} from "../decorators/ParameteredNode.mjs";
+import ReturnTypedNode, {
+  type ReturnTypedNodeStructureFields
+} from "../decorators/ReturnTypedNode.mjs";
+import ScopedNode, {
+  type ScopedNodeStructureFields
+} from "../decorators/ScopedNode.mjs";
+import StatementedNode, {
+  type StatementedNodeStructureFields
+} from "../decorators/StatementedNode.mjs";
+import TypeParameteredNode, {
+  type TypeParameteredNodeStructureFields
+} from "../decorators/TypeParameteredNode.mjs";
+
+const ConstructorDeclarationBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.Constructor>,
+    JSDocableNodeStructureFields,
+    ParameteredNodeStructureFields,
+    ReturnTypedNodeStructureFields,
+    ScopedNodeStructureFields,
+    StatementedNodeStructureFields,
+    TypeParameteredNodeStructureFields,
+  ], typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.Constructor>(StructureKind.Constructor),
+    JSDocableNode,
+    ParameteredNode,
+    ReturnTypedNode,
+    ScopedNode,
+    StatementedNode,
+    TypeParameteredNode,
+  ],
+  StructureBase
+);
+
 export default class ConstructorDeclarationImpl
-extends ReturnTypeWriterManager
+extends ConstructorDeclarationBase
 implements ConstructorDeclarationStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
   overloads: ConstructorDeclarationOverloadImpl[] = [];
   readonly kind: StructureKind.Constructor = StructureKind.Constructor;
-  scope: Scope | undefined;
-  parameters: ParameterDeclarationImpl[] = [];
-  typeParameters: (string | TypeParameterDeclarationImpl)[] = [];
-  docs: (string | JSDocImpl)[] = [];
-  statements: (stringOrWriterFunction | StatementStructures)[] | undefined;
 
   public static clone(
     other: OptionalKind<ConstructorDeclarationStructure>
@@ -35,8 +70,14 @@ implements ConstructorDeclarationStructure
   {
     const clone = new ConstructorDeclarationImpl;
 
-    clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
+    ConstructorDeclarationBase.cloneTrivia(other, clone);
+    ConstructorDeclarationBase.cloneJSDocable(other, clone);
+    ConstructorDeclarationBase.cloneParametered(other, clone);
+    ConstructorDeclarationBase.cloneReturnType(other, clone);
+    ConstructorDeclarationBase.cloneScoped(other, clone);
+    ConstructorDeclarationBase.cloneStatemented(other, clone);
+    ConstructorDeclarationBase.cloneTypeParametered(other, clone);
+
     clone.overloads = cloneArrayOrUndefined<
       OptionalKind<ConstructorDeclarationOverloadStructure>,
       typeof ConstructorDeclarationOverloadImpl
@@ -44,14 +85,6 @@ implements ConstructorDeclarationStructure
     (
       other.overloads, ConstructorDeclarationOverloadImpl
     );
-    clone.scope = other.scope;
-    clone.parameters = cloneArrayOrUndefined<
-      TS_Parameter,
-      typeof ParameterDeclarationImpl
-    >(other.parameters, ParameterDeclarationImpl);
-    clone.typeParameters = TypeParameterDeclarationImpl.cloneArray(other);
-    clone.docs = JSDocImpl.cloneArray(other);
-    clone.statements = statementsArray(other);
 
     return clone;
   }

@@ -2,30 +2,88 @@ import {
   StructureKind,
   EnumMemberStructure,
 } from "ts-morph";
-
-import type {
-  stringOrWriterFunction
-} from "../types/ts-morph-native.mjs";
-
-import {
-  stringOrWriterFunctionArray
-} from "./utilities.mjs";
-
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
-import JSDocImpl from "./JSDocImpl.mjs";
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
 
-export default class EnumMemberImpl implements EnumMemberStructure
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import InitializerExpressionableNode, {
+  type InitializerExpressionableNodeStructureFields
+} from "../decorators/InitializerExpressionableNode.mjs";
+import JSDocableNode, {
+  type JSDocableNodeStructureFields
+} from "../decorators/JSDocableNode.mjs";
+import NamedNode, {
+   NamedNodeStructureFields
+} from "../decorators/NamedNode.mjs";
+import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
+
+import {
+  createCodeBlockWriter
+} from "./utilities.mjs";
+
+const EnumMemberBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.EnumMember>,
+    InitializerExpressionableNodeStructureFields,
+    JSDocableNodeStructureFields,
+    NamedNodeStructureFields
+  ], typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.EnumMember>(StructureKind.EnumMember),
+    InitializerExpressionableNode,
+    JSDocableNode,
+    NamedNode,
+  ],
+  StructureBase
+)
+
+export default class EnumMemberImpl
+extends EnumMemberBase
+implements EnumMemberStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
-  value: string | number | undefined = undefined;
-  readonly kind: StructureKind.EnumMember = StructureKind.EnumMember;
-  name: string;
-  docs: (string | JSDocImpl)[] = [];
-  initializer: stringOrWriterFunction | undefined;
+  #valueOrInitializer: stringOrWriterFunction | number | undefined = undefined;
 
-  constructor(name: string) {
+  get initializer(): stringOrWriterFunction | undefined
+  {
+    if (typeof this.#valueOrInitializer === "number")
+      return this.#valueOrInitializer.toString();
+    return this.#valueOrInitializer;
+  }
+
+  set initializer(
+    value: stringOrWriterFunction | undefined
+  )
+  {
+    this.#valueOrInitializer = value;
+  }
+
+  get value(): string | number | undefined
+  {
+    if (typeof this.#valueOrInitializer === "function") {
+      const codeWriter = createCodeBlockWriter();
+      this.#valueOrInitializer(codeWriter);
+      return codeWriter.toString();
+    }
+
+    return this.#valueOrInitializer;
+  }
+
+  set value(
+    value: string | number | undefined
+  )
+  {
+    this.#valueOrInitializer = value;
+  }
+
+  constructor(name: string)
+  {
+    super();
     this.name = name;
   }
 
@@ -35,11 +93,10 @@ export default class EnumMemberImpl implements EnumMemberStructure
   {
     const clone = new EnumMemberImpl(other.name);
 
-    clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
-    clone.value = other.value;
-    clone.docs = JSDocImpl.cloneArray(other);
-    clone.initializer = other.initializer;
+    EnumMemberBase.cloneTrivia(other, clone);
+    EnumMemberBase.cloneInitializerExpressionable(other, clone);
+    EnumMemberBase.cloneJSDocable(other, clone);
+    EnumMemberBase.cloneNamed(other, clone);
 
     return clone;
   }

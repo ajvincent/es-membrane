@@ -50,7 +50,8 @@ export default function AmbientableNode(
 >
 {
   void(context);
-  return class extends baseClass {
+  return class extends baseClass
+  {
     hasDeclareKeyword = false;
 
     static cloneAmbientable(
