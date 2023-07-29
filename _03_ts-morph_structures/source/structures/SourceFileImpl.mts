@@ -1,18 +1,52 @@
 import {
   type SourceFileStructure,
-  type StatementStructures,
   StructureKind,
 } from "ts-morph";
 
-import type {
-  stringOrWriterFunction
-} from "../types/ts-morph-native.mjs";
+
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import StatementedNode, {
+  type StatementedNodeStructureFields
+} from "../decorators/StatementedNode.mjs";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
+import {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+
+const SourceFileBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.SourceFile>,
+    StatementedNodeStructureFields
+  ],
+  typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.SourceFile>(StructureKind.SourceFile),
+    StatementedNode
+  ],
+  StructureBase
+);
 
 export default class SourceFileImpl
-extends StructureBase
+extends SourceFileBase
 implements SourceFileStructure
 {
-  readonly kind: StructureKind.SourceFile = StructureKind.SourceFile;
-  statements: (stringOrWriterFunction | StatementStructures)[] = [];
+  public static clone(
+    other: SourceFileStructure
+  ): SourceFileImpl
+  {
+    const clone = new SourceFileImpl;
+
+    SourceFileBase.cloneTrivia(other, clone);
+    SourceFileBase.cloneStatemented(other, clone);
+
+    return clone;
+  }
 }
+
+SourceFileImpl satisfies CloneableStructure<SourceFileStructure>;
