@@ -2,52 +2,113 @@ import {
   type OptionalKind,
   type MethodDeclarationStructure,
   StructureKind,
-  DecoratorStructure,
-  MethodDeclarationOverloadStructure,
-  Scope,
-  StatementStructures,
+  type MethodDeclarationOverloadStructure,
 } from "ts-morph";
 
 import type {
   TS_Method,
-  TS_Parameter,
-  stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 
 import {
   cloneArrayOrUndefined,
-  statementsArray,
-  stringOrWriterFunctionArray
 } from "./utilities.mjs";
-import DecoratorImpl from "./DecoratorImpl.mjs";
-import ParameterDeclarationImpl from "./ParameterDeclarationImpl.mjs";
-import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
-import ReturnTypeWriterManager from "./ReturnTypeWriterManager.mjs";
-import JSDocImpl from "./JSDocImpl.mjs";
+import KindedStructure, {
+  type KindedStructureFields
+} from "../decorators/KindedStructure.mjs";
+import AbstractableNode, {
+  type AbstractableNodeStructureFields
+} from "../decorators/AbstractableNode.mjs";
+import AsyncableNode, {
+  type AsyncableNodeStructureFields
+} from "../decorators/AsyncableNode.mjs";
+import DecoratableNode, {
+  type DecoratableNodeStructureFields
+} from "../decorators/DecoratableNode.mjs";
+import GeneratorableNode, {
+  type GeneratorableNodeStructureFields
+} from "../decorators/GeneratorableNode.mjs";
+import JSDocableNode, {
+  type JSDocableNodeStructureFields
+} from "../decorators/JSDocableNode.mjs";
+import NamedNode, {
+  type NamedNodeStructureFields
+} from "../decorators/NamedNode.mjs";
+import OverrideableNode, {
+  type OverrideableNodeStructureFields
+} from "../decorators/OverrideableNode.mjs";
+import ParameteredNode, {
+  type ParameteredNodeStructureFields
+} from "../decorators/ParameteredNode.mjs";
+import QuestionTokenableNode, {
+  type QuestionTokenableNodeStructureFields
+} from "../decorators/QuestionTokenableNode.mjs";
+import ReturnTypedNode, {
+  type ReturnTypedNodeStructureFields
+} from "../decorators/ReturnTypedNode.mjs";
+import ScopedNode, {
+  type ScopedNodeStructureFields
+} from "../decorators/ScopedNode.mjs";
+import StaticableNode, {
+  type StaticableNodeStructureFields
+} from "../decorators/StaticableNode.mjs";
+import StatementedNode, {
+  type StatementedNodeStructureFields
+} from "../decorators/StatementedNode.mjs";
+import TypeParameteredNode, {
+  type TypeParameteredNodeStructureFields
+} from "../decorators/TypeParameteredNode.mjs";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
+import MethodDeclarationOverloadImpl from "./MethodDeclarationOverloadImpl.mjs";
+
+const MethodDeclarationBase = MultiMixinBuilder<
+  [
+    KindedStructureFields<StructureKind.Method>,
+    AbstractableNodeStructureFields,
+    AsyncableNodeStructureFields,
+    DecoratableNodeStructureFields,
+    GeneratorableNodeStructureFields,
+    JSDocableNodeStructureFields,
+    NamedNodeStructureFields,
+    OverrideableNodeStructureFields,
+    ParameteredNodeStructureFields,
+    QuestionTokenableNodeStructureFields,
+    ReturnTypedNodeStructureFields,
+    ScopedNodeStructureFields,
+    StaticableNodeStructureFields,
+    StatementedNodeStructureFields,
+    TypeParameteredNodeStructureFields,
+  ], typeof StructureBase
+>
+(
+  [
+    KindedStructure<StructureKind.Method>(StructureKind.Method),
+    AbstractableNode,
+    AsyncableNode,
+    DecoratableNode,
+    GeneratorableNode,
+    JSDocableNode,
+    NamedNode,
+    OverrideableNode,
+    ParameteredNode,
+    QuestionTokenableNode,
+    ReturnTypedNode,
+    ScopedNode,
+    StaticableNode,
+    StatementedNode,
+    TypeParameteredNode,
+  ],
+  StructureBase
+);
 
 export default class MethodDeclarationImpl
-extends ReturnTypeWriterManager
+extends MethodDeclarationBase
 implements MethodDeclarationStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
-  overloads: OptionalKind<MethodDeclarationOverloadStructure>[] = [];
-  readonly kind: StructureKind.Method = StructureKind.Method;
-  name: string;
-  isStatic = false;
-  decorators: DecoratorImpl[] = [];
-  isAbstract = false;
-  scope: Scope | undefined = undefined;
-  isAsync = false;
-  isGenerator = false;
-  parameters: ParameterDeclarationImpl[] = [];
-  typeParameters: (string | TypeParameterDeclarationImpl)[] = [];
-  docs: (string | JSDocImpl)[] = [];
-  statements: (stringOrWriterFunction | StatementStructures)[] = [];
-  hasQuestionToken = false;
-  hasOverrideKeyword = false;
+  overloads: MethodDeclarationOverloadStructure[] = [];
 
   constructor(name: string) {
     super();
@@ -58,20 +119,28 @@ implements MethodDeclarationStructure
     other: OptionalKind<MethodDeclarationStructure>
   ): MethodDeclarationImpl
   {
-    const clone = this.#cloneDeclarationOrSignature(other);
+    const clone = new MethodDeclarationImpl(other.name);
 
-    clone.overloads = other.overloads?.slice() ?? [];
-    clone.isStatic = other.isStatic ?? false;
-    clone.decorators = cloneArrayOrUndefined<
-      OptionalKind<DecoratorStructure>,
-      typeof DecoratorImpl
-    >(other.decorators,  DecoratorImpl);
-    clone.isAbstract = other.isAbstract ?? false;
-    clone.scope = other.scope;
-    clone.isAsync = other.isAsync ?? false;
-    clone.isGenerator = other.isGenerator ?? false;
-    clone.statements = statementsArray(other);
-    clone.hasOverrideKeyword = other.hasOverrideKeyword ?? false;
+    clone.overloads = cloneArrayOrUndefined<
+      OptionalKind<MethodDeclarationOverloadStructure>,
+      typeof MethodDeclarationOverloadImpl
+    >(other.overloads, MethodDeclarationOverloadImpl);
+
+    MethodDeclarationBase.cloneTrivia(other, clone);
+    MethodDeclarationBase.cloneAbstractable(other, clone);
+    MethodDeclarationBase.cloneAsyncable(other, clone);
+    MethodDeclarationBase.cloneDecoratable(other, clone);
+    MethodDeclarationBase.cloneGeneratorable(other, clone);
+    MethodDeclarationBase.cloneJSDocable(other, clone);
+    MethodDeclarationBase.cloneNamed(other, clone);
+    MethodDeclarationBase.cloneOverrideable(other, clone);
+    MethodDeclarationBase.cloneParametered(other, clone);
+    MethodDeclarationBase.cloneQuestionTokenable(other, clone);
+    MethodDeclarationBase.cloneReturnType(other, clone);
+    MethodDeclarationBase.cloneScoped(other, clone);
+    MethodDeclarationBase.cloneStaticable(other, clone);
+    MethodDeclarationBase.cloneStatemented(other, clone);
+    MethodDeclarationBase.cloneTypeParametered(other, clone);
 
     return clone;
   }
@@ -80,24 +149,14 @@ implements MethodDeclarationStructure
     signature: TS_Method
   ): MethodDeclarationImpl
   {
-    return this.#cloneDeclarationOrSignature(signature);
-  }
+    const clone = new MethodDeclarationImpl(signature.name);
 
-  static #cloneDeclarationOrSignature(
-    other: OptionalKind<MethodDeclarationStructure> | TS_Method
-  ): MethodDeclarationImpl {
-    const clone = new MethodDeclarationImpl(other.name);
-
-    clone.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    clone.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
-    clone.hasQuestionToken = other.hasQuestionToken ?? false;
-    clone.docs = JSDocImpl.cloneArray(other);
-    clone.parameters = cloneArrayOrUndefined<
-      TS_Parameter,
-      typeof ParameterDeclarationImpl
-    >(other.parameters, ParameterDeclarationImpl);
-    clone.returnType = other.returnType;
-    clone.typeParameters = TypeParameterDeclarationImpl.cloneArray(other);
+    MethodDeclarationBase.cloneTrivia(signature, clone);
+    MethodDeclarationBase.cloneJSDocable(signature, clone);
+    MethodDeclarationBase.cloneParametered(signature, clone);
+    MethodDeclarationBase.cloneQuestionTokenable(signature, clone);
+    MethodDeclarationBase.cloneReturnType(signature, clone);
+    MethodDeclarationBase.cloneTypeParametered(signature, clone);
 
     return clone;
   }

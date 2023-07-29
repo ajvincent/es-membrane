@@ -8,14 +8,13 @@ import {
 
 import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
-import { stringOrWriterFunctionArray } from "./utilities.mjs";
 import JSDocTagImpl from "./JSDocTagImpl.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
 
 export default class JSDocImpl
+extends StructureBase
 implements JSDocStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
   description: stringOrWriterFunction | undefined = undefined;
   tags: JSDocTagStructure[] = [];
   readonly kind: StructureKind.JSDoc = StructureKind.JSDoc;
@@ -24,15 +23,15 @@ implements JSDocStructure
     other: OptionalKind<JSDocStructure>
   ): JSDocImpl
   {
-    const doc = new JSDocImpl;
-    doc.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    doc.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
-    doc.description = other.description;
+    const clone = new JSDocImpl;
+    clone.description = other.description;
     if (other.tags) {
-      doc.tags = other.tags.map(tag => JSDocTagImpl.clone(tag));
+      clone.tags = other.tags.map(tag => JSDocTagImpl.clone(tag));
     }
 
-    return doc;
+    StructureBase.cloneTrivia(other, clone);
+
+    return clone;
   }
 
   public static cloneArray(

@@ -6,19 +6,19 @@ import {
 
 import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
-import { stringOrWriterFunctionArray } from "./utilities.mjs";
+import StructureBase from "../decorators/StructureBase.mjs";
 
 export default class JSDocTagImpl
+extends StructureBase
 implements JSDocTagStructure
 {
   readonly kind: StructureKind.JSDocTag = StructureKind.JSDocTag;
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
   tagName: string;
   text: stringOrWriterFunction | undefined;
 
   constructor(tagName: string)
   {
+    super();
     this.tagName = tagName;
   }
 
@@ -26,13 +26,12 @@ implements JSDocTagStructure
     other: OptionalKind<JSDocTagStructure>
   ): JSDocTagImpl
   {
-    const tag = new JSDocTagImpl(other.tagName);
+    const clone = new JSDocTagImpl(other.tagName);
+    clone.text = other.text;
 
-    tag.leadingTrivia = stringOrWriterFunctionArray(other.leadingTrivia);
-    tag.trailingTrivia = stringOrWriterFunctionArray(other.trailingTrivia);
-    tag.text = other.text;
+    StructureBase.cloneTrivia(other, clone);
 
-    return tag;
+    return clone;
   }
 }
 JSDocTagImpl satisfies CloneableStructure<JSDocTagStructure>;
