@@ -9,11 +9,13 @@ import {
   StringTypedStructureImpl,
   UnionTypedStructureImpl,
   type TypeStructure,
+  PrefixUnaryOperator,
   IntersectionTypedStructureImpl,
   TupleTypedStructureImpl,
-  TypeArgumentedTypedStructureImpl
+  TypeArgumentedTypedStructureImpl,
+  PrefixOperatorsTypedStructureImpl,
+  ParenthesesTypedStructureImpl
 } from "../../exports.mjs"
-
 
 import {
   TypeStructureWithElements
@@ -57,6 +59,37 @@ export default function convertTypeNode(
   if (Node.isStringLiteral(typeNode)) {
     return new StringTypedStructureImpl(typeNode.getLiteralText());
   }
+  if (Node.isParenthesizedTypeNode(typeNode)) {
+    const childStructure = convertTypeNode(typeNode.getTypeNode());
+    if (!childStructure)
+      return null;
+    return new ParenthesesTypedStructureImpl(childStructure);
+  }
+
+  if (Node.isTypeQuery(typeNode)) {
+    const structure = new LiteralTypedStructureImpl(typeNode.getExprName().getText());
+    return prependPrefixOperator("typeof", structure);
+  }
+
+  if (Node.isTypeOperatorTypeNode(typeNode)) {
+    const structure = convertTypeNode(typeNode.getTypeNode());
+    if (!structure)
+      return null;
+    switch (typeNode.getOperator()) {
+      case SyntaxKind.ReadonlyKeyword:
+        return prependPrefixOperator("readonly", structure);
+
+      case SyntaxKind.KeyOfKeyword:
+        return prependPrefixOperator("keyof", structure);
+
+      case SyntaxKind.UniqueKeyword:
+        return prependPrefixOperator("unique", structure);
+
+      // no other possibilities
+      default:
+        return null;
+    }
+  }
 
   {
     let childTypeNodes: TypeNode[] = [],
@@ -71,7 +104,7 @@ export default function convertTypeNode(
       childTypeNodes = typeNode.getTypeNodes();
     }
     else if (Node.isTupleTypeNode(typeNode)) {
-      parentStructure = new TupleTypedStructureImpl(false);
+      parentStructure = new TupleTypedStructureImpl;
       childTypeNodes = typeNode.getElements();
     }
     else if (Node.isTypeReference(typeNode)) {
@@ -106,4 +139,19 @@ function convertChildTypes(
 
     return false;
   });
+}
+
+function prependPrefixOperator(
+  operator: PrefixUnaryOperator,
+  typeStructure: TypeStructure
+): PrefixOperatorsTypedStructureImpl
+{
+  if (typeStructure instanceof PrefixOperatorsTypedStructureImpl) {
+    typeStructure.operators.unshift(operator);
+    return typeStructure;
+  }
+
+  return new PrefixOperatorsTypedStructureImpl(
+    [operator], typeStructure
+  );
 }

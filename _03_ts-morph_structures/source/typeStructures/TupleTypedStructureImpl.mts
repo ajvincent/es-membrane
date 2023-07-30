@@ -1,7 +1,3 @@
-import {
-  CodeBlockWriter
-} from "ts-morph";
-
 import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
 
 import {
@@ -29,9 +25,7 @@ implements TupleTypedStructure
     other: TupleTypedStructure
   ): TupleTypedStructureImpl
   {
-    const rv = new TupleTypedStructureImpl(
-      other.isReadonly
-    );
+    const rv = new TupleTypedStructureImpl;
     rv.elements = other.elements.map(
       typeStructure => cloneableClassesMap.get(typeStructure.kind)!.clone(typeStructure)
     );
@@ -39,26 +33,15 @@ implements TupleTypedStructure
   }
 
   readonly kind: TypeStructureKind.Tuple = TypeStructureKind.Tuple;
-  isReadonly: boolean;
 
   public readonly prefix = "[";
   public readonly postfix = "]";
   public readonly joinCharacters = ", ";
 
-  constructor(isReadonly: boolean)
+  constructor()
   {
     super();
-    this.isReadonly = isReadonly;
     registerCallbackForTypeStructure(this);
-  }
-
-  protected writeTypeStructures(
-    writer: CodeBlockWriter
-  ): void
-  {
-    if (this.isReadonly)
-      writer.write("readonly ");
-    return super.writeTypeStructures(writer);
   }
 }
 TupleTypedStructureImpl satisfies CloneableStructure<TupleTypedStructure>;

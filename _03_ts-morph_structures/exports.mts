@@ -50,9 +50,10 @@ export { default as ArrayTypedStructureImpl } from "./source/typeStructures/Arra
 export { default as FunctionTypedStructureImpl } from "./source/typeStructures/FunctionTypedStructureImpl.mjs";
 export { default as IndexedAccessTypedStructureImpl } from "./source/typeStructures/IndexedAccessTypedStructureImpl.mjs";
 export { default as IntersectionTypedStructureImpl } from "./source/typeStructures/IntersectionTypedStructureImpl.mjs"
-export { default as KeyOfTypeofTypedStructureImpl } from "./source/typeStructures/KeyofTypeofTypedStructureImpl.mjs";
 export { default as LiteralTypedStructureImpl } from "./source/typeStructures/LiteralTypedStructureImpl.mjs";
 export { default as ParameterTypedStructureImpl } from "./source/typeStructures/ParameterTypedStructureImpl.mjs";
+export { default as ParenthesesTypedStructureImpl } from "./source/typeStructures/ParenthesesTypedStructureImpl.mjs";
+export { default as PrefixOperatorsTypedStructureImpl } from "./source/typeStructures/PrefixOperatorsTypedStructureImpl.mjs";
 export { default as StringTypedStructureImpl } from "./source/typeStructures/StringTypedStructureImpl.mjs";
 export { default as SymbolKeyTypedStructureImpl } from "./source/typeStructures/SymbolKeyTypedStructureImpl.mjs";
 export { default as TupleTypedStructureImpl } from "./source/typeStructures/TupleTypedStructureImpl.mjs";

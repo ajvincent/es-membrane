@@ -9,9 +9,10 @@ import {
   FunctionWriterStyle,
   IndexedAccessTypedStructureImpl,
   IntersectionTypedStructureImpl,
-  KeyOfTypeofTypedStructureImpl,
   LiteralTypedStructureImpl,
   ParameterTypedStructureImpl,
+  ParenthesesTypedStructureImpl,
+  PrefixOperatorsTypedStructureImpl,
   StringTypedStructureImpl,
   SymbolKeyTypedStructureImpl,
   TupleTypedStructureImpl,
@@ -68,6 +69,28 @@ describe("TypeStructure for ts-morph: ", () => {
     expect(typedWriter.kind).toBe(TypeStructureKind.SymbolKey);
   });
 
+  it("ParenthesesTypedStructureImpl", () => {
+    typedWriter = new ParenthesesTypedStructureImpl(
+      new LiteralTypedStructureImpl("true")
+    );
+    typedWriter.writerFunction(writer);
+
+    expect<string>(writer.toString()).toBe("(true)");
+
+    expect(typedWriter.kind).toBe(TypeStructureKind.Parentheses);
+  });
+
+  it("PrefixOperatorsTypedStructureImpl", () => {
+    typedWriter = new PrefixOperatorsTypedStructureImpl(
+      ["typeof", "readonly"],
+      new LiteralTypedStructureImpl("NumberStringType")
+    );
+    typedWriter.writerFunction(writer);
+
+    expect<string>(writer.toString()).toBe("typeof readonly NumberStringType");
+    expect(typedWriter.kind).toBe(TypeStructureKind.PrefixOperators);
+  });
+
   it("UnionTypedStructureImpl", () => {
     const typedWriter = new UnionTypedStructureImpl;
     typedWriter.elements.push(fooTyped);
@@ -88,17 +111,8 @@ describe("TypeStructure for ts-morph: ", () => {
     expect(typedWriter.kind).toBe(TypeStructureKind.Intersection);
   });
 
-  it("TupleTypedStructureImpl with readonly = true", () => {
-    const typedWriter = new TupleTypedStructureImpl(true);
-    typedWriter.elements.push(fooTyped, nstTyped);
-
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe(`readonly [foo, NumberStringType]`);
-    expect(typedWriter.kind).toBe(TypeStructureKind.Tuple);
-  });
-
-  it("TupleTypedStructureImpl with readonly = false", () => {
-    const typedWriter = new TupleTypedStructureImpl(false);
+  it("TupleTypedStructureImpl", () => {
+    const typedWriter = new TupleTypedStructureImpl;
     typedWriter.elements.push(fooTyped, nstTyped);
 
     typedWriter.writerFunction(writer);
@@ -106,22 +120,10 @@ describe("TypeStructure for ts-morph: ", () => {
     expect(typedWriter.kind).toBe(TypeStructureKind.Tuple);
   });
 
-  it("ArrayWriter with a positive length", () => {
-    typedWriter = new ArrayTypedStructureImpl(false, fooTyped, 2);
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe("foo[2]");
-  });
-
-  it("ArrayWriter with a zero length", () => {
-    typedWriter = new ArrayTypedStructureImpl(false, fooTyped, 0);
+  it("ArrayWriter", () => {
+    typedWriter = new ArrayTypedStructureImpl(fooTyped);
     typedWriter.writerFunction(writer);
     expect<string>(writer.toString()).toBe("foo[]");
-  });
-
-  it("ArrayWriter with isReadonly set to true", () => {
-    typedWriter = new ArrayTypedStructureImpl(true, fooTyped, 0);
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe("readonly foo[]");
   });
 
   it("IndexedAccessWriter", () => {
@@ -137,32 +139,11 @@ describe("TypeStructure for ts-morph: ", () => {
     expect<string>(writer.toString()).toBe(`foo<"bar", NumberStringType>`);
   });
 
-
-  it("KeyofTypeofWriter with keyof = true, typeof = false", () => {
-    typedWriter = new KeyOfTypeofTypedStructureImpl([true, false], nstTyped);
-
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe("keyof NumberStringType");
-  });
-
-  it("KeyofTypeofWriter with keyof = false, typeof = true", () => {
-    typedWriter = new KeyOfTypeofTypedStructureImpl([false, true], nstTyped);
-
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe("typeof NumberStringType");
-  });
-
-  it("KeyofTypeofWriter with keyof = true, typeof = true", () => {
-    typedWriter = new KeyOfTypeofTypedStructureImpl([true, true], nstTyped);
-
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe("keyof typeof NumberStringType");
-  });
-
   describe("FunctionTypeWriter", () => {
     let typedWriter: FunctionTypedStructureImpl;
     it("with an ordinary function", () => {
       typedWriter = new FunctionTypedStructureImpl({
+        name: undefined,
         writerStyle: FunctionWriterStyle.Arrow,
         isConstructor: false,
         parameters: [
@@ -179,6 +160,7 @@ describe("TypeStructure for ts-morph: ", () => {
 
     it("as a constructor", () => {
       typedWriter = new FunctionTypedStructureImpl({
+        name: undefined,
         writerStyle: FunctionWriterStyle.Arrow,
         isConstructor: true,
         parameters: [
@@ -245,6 +227,7 @@ describe("TypeStructure for ts-morph: ", () => {
 
     it("with a rest parameter", () => {
       typedWriter = new FunctionTypedStructureImpl({
+        name: undefined,
         writerStyle: FunctionWriterStyle.Arrow,
         isConstructor: false,
         parameters: [
@@ -261,6 +244,7 @@ describe("TypeStructure for ts-morph: ", () => {
 
     it("is cloneable", () => {
       typedWriter = new FunctionTypedStructureImpl({
+        name: undefined,
         writerStyle: FunctionWriterStyle.Arrow,
         isConstructor: true,
         parameters: [

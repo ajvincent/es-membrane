@@ -4,6 +4,8 @@ import convertTypeNode from "#ts-morph_structures/source/bootstrap/convertTypeNo
 import {
   IntersectionTypedStructureImpl,
   LiteralTypedStructureImpl,
+  ParenthesesTypedStructureImpl,
+  PrefixOperatorsTypedStructureImpl,
   StringTypedStructureImpl,
   TupleTypedStructureImpl,
   TypeArgumentedTypedStructureImpl,
@@ -146,6 +148,16 @@ const A: string;
       expect(structure.stringValue).toBe("foo");
   });
 
+  it(`(foo), meaning parentheses type`, () => {
+    setTypeStructure("(true)");
+    expect(structure).toBeInstanceOf(ParenthesesTypedStructureImpl);
+    if (!(structure instanceof ParenthesesTypedStructureImpl))
+      return;
+    expect(structure.childType).toBeInstanceOf(LiteralTypedStructureImpl);
+    if (structure.childType instanceof LiteralTypedStructureImpl)
+      expect(structure.childType.stringValue).toBe("true");
+  });
+
   it(`NumberStringType (identifier)`, () => {
     setTypeStructure(`NumberStringType`);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
@@ -201,5 +213,16 @@ const A: string;
       expect(structure.elements[1]).toBeInstanceOf(StringTypedStructureImpl);
       expect((structure.elements[1] as StringTypedStructureImpl).stringValue).toBe("repeatForward");
     }
+  });
+
+  it("keyof typeof NumberStringClass", () => {
+    setTypeStructure(`keyof typeof NumberStringClass`);
+    expect(structure).toBeInstanceOf(PrefixOperatorsTypedStructureImpl);
+    if (!(structure instanceof PrefixOperatorsTypedStructureImpl))
+      return;
+    expect(structure.operators).toEqual(["keyof", "typeof"]);
+    expect(structure.childType).toBeInstanceOf(LiteralTypedStructureImpl);
+    if (structure.childType instanceof LiteralTypedStructureImpl)
+      expect(structure.childType.stringValue).toBe("NumberStringClass");
   });
 });

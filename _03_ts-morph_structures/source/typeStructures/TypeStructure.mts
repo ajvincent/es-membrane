@@ -16,6 +16,32 @@ interface TypedStructureWithPrimitive<
   stringValue: string;
 }
 
+interface TypeStructureWithOneChild {
+  childType: TypeStructure;
+}
+
+export type PrefixUnaryOperator = (
+  "readonly" |
+  "unique" |
+  "keyof" |
+  "typeof"
+);
+
+interface TypedStructureWithObjectType {
+  objectType: TypeStructure;
+}
+
+interface TypedStructureWithElements<
+  Kind extends TypeStructureKind
+> extends KindedTypeStructure<Kind>
+{
+  elements: TypeStructure[];
+}
+
+interface PrefixUnaryOperatorOwner {
+  operators: PrefixUnaryOperator[];
+}
+
 export type LiteralTypedStructure = Simplify<
   TypedStructureWithPrimitive<TypeStructureKind.Literal>
 >;
@@ -26,20 +52,16 @@ export type SymbolKeyTypedStructure = Simplify<
   TypedStructureWithPrimitive<TypeStructureKind.SymbolKey>
 >;
 
-export interface TypedStructureWithElements<
-  Kind extends TypeStructureKind
-> extends KindedTypeStructure<Kind>
-{
-  elements: TypeStructure[];
-}
+export type ParenthesesTypedStructure = Simplify<
+  KindedTypeStructure<TypeStructureKind.Parentheses> &
+  TypeStructureWithOneChild
+>;
 
-interface TypedStructureReadonly {
-  isReadonly: boolean;
-}
-
-interface TypedStructureWithObjectType {
-  objectType: TypeStructure;
-}
+export type PrefixOperatorsTypedStructure = Simplify<
+  KindedTypeStructure<TypeStructureKind.PrefixOperators> &
+  TypeStructureWithOneChild &
+  PrefixUnaryOperatorOwner
+>;
 
 export type UnionTypedStructure = Simplify<
   TypedStructureWithElements<TypeStructureKind.Union>
@@ -48,40 +70,39 @@ export type IntersectionTypedStructure = Simplify<
   TypedStructureWithElements<TypeStructureKind.Intersection>
 >;
 export type TupleTypedStructure = Simplify<
-  TypedStructureReadonly &
   TypedStructureWithElements<TypeStructureKind.Tuple>
 >;
 
 export type ArrayTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.Array> &
-  TypedStructureReadonly &
-  TypedStructureWithObjectType &
-  {
-    length: number;
-  }
+  TypedStructureWithObjectType
 >;
+
+export interface ConditionalTypeStructureParts {
+  checkType: TypeStructure;
+  extendsType: TypeStructure;
+  trueType: TypeStructure;
+  falseType: TypeStructure;
+}
+
+export type ConditionalTypedStructure = Simplify<
+  KindedTypeStructure<TypeStructureKind.Conditional> &
+  ConditionalTypeStructureParts
+>;
+
+interface IndexedAccessType {
+  indexType: TypeStructure;
+}
 
 export type IndexedAccessTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.IndexedAccess> &
   TypedStructureWithObjectType &
-  {
-    indexType: TypeStructure;
-  }
+  IndexedAccessType
 >;
 
 export type TypeArgumentedTypedStructure = Simplify<
   TypedStructureWithObjectType &
   TypedStructureWithElements<TypeStructureKind.TypeArgumented>
->;
-
-type KeyofTypeofTuple = [true, false] | [false, true] | [true, true];
-
-export type KeyOfTypeofTypedStructure = Simplify<
-  KindedTypeStructure<TypeStructureKind.KeyOfTypeof> &
-  {
-    keyOfAndTypeOf: KeyofTypeofTuple;
-    ofTypeStructure: TypeStructure;
-  }
 >;
 
 export enum FunctionWriterStyle {
@@ -93,7 +114,7 @@ export enum FunctionWriterStyle {
 
 export interface FunctionTypeContext {
   //typeArguments: TypeParameterDeclarationImpl[]
-  name?: string;
+  name: string | undefined;
   isConstructor: boolean,
   parameters: ParameterTypedStructure[];
   restParameter: ParameterTypedStructure | undefined;
@@ -102,15 +123,18 @@ export interface FunctionTypeContext {
 }
 
 export type FunctionTypedStructure = Simplify<
-  KindedTypeStructure<TypeStructureKind.Function> & FunctionTypeContext
+  KindedTypeStructure<TypeStructureKind.Function> &
+  FunctionTypeContext
 >;
+
+interface ParameterTypeStructureFields {
+  name: LiteralTypedStructure;
+  typeStructure: TypeStructure;
+}
 
 export type ParameterTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.Parameter> &
-  {
-    name: LiteralTypedStructure;
-    typeStructure: TypeStructure;
-  }
+  ParameterTypeStructureFields
 >;
 
 /**
@@ -137,12 +161,14 @@ export type TypeStructure = (
   LiteralTypedStructure |
   StringTypedStructure |
   SymbolKeyTypedStructure |
+  ParenthesesTypedStructure |
+  PrefixOperatorsTypedStructure |
   UnionTypedStructure |
   IntersectionTypedStructure |
   TupleTypedStructure |
   ArrayTypedStructure |
+  ConditionalTypedStructure |
   IndexedAccessTypedStructure |
   TypeArgumentedTypedStructure |
-  KeyOfTypeofTypedStructure |
   FunctionTypedStructure
 );

@@ -7,16 +7,18 @@ export enum TypeStructureKind {
   Literal,
   String,
   SymbolKey,
+  Parentheses,
+  PrefixOperators,
   Union,
   Intersection,
   Tuple,
   Array,
+  Conditional,
   IndexedAccess,
   TypeArgumented,
-  KeyOfTypeof,
   Function,
-  ObjectLiteral, /* reserved, but probably never used */
   Parameter,
+  ObjectLiteral, /* reserved, but probably never used */
 }
 
 export interface KindedTypeStructure<
