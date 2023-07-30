@@ -8,6 +8,7 @@ import {
   FunctionTypeNode,
   TypeParameterDeclaration,
   ParameterDeclaration,
+  ConstructorTypeNode,
 } from "ts-morph"
 
 import {
@@ -110,7 +111,7 @@ export default function convertTypeNode(
     return convertConditionalTypeNode(typeNode);
   }
 
-  if (Node.isFunctionTypeNode(typeNode)) {
+  if (Node.isFunctionTypeNode(typeNode) || Node.isConstructorTypeNode(typeNode)) {
     return convertFunctionTypeNode(typeNode);
   }
 
@@ -234,10 +235,18 @@ function convertConditionalTypeNode(
 }
 
 function convertFunctionTypeNode(
-  typeNode: FunctionTypeNode
+  typeNode: FunctionTypeNode | ConstructorTypeNode
 ): FunctionTypedStructureImpl | null
 {
-  const typeParameterNodes: readonly TypeParameterDeclaration[] = typeNode.getTypeParameters();
+  let typeParameterNodes: readonly TypeParameterDeclaration[] = [];
+  try {
+    // https://github.com/dsherret/ts-morph/issues/1434
+    typeParameterNodes = (typeNode as Pick<FunctionTypeNode, "getTypeParameters">).getTypeParameters();
+  }
+  catch (ex) {
+    typeParameterNodes = typeNode.getChildrenOfKind(SyntaxKind.TypeParameter);
+  }
+
   const typeParameterStructures = typeParameterNodes.map(
     declaration => TypeParameterDeclarationImpl.clone(declaration.getStructure())
   );
@@ -262,7 +271,7 @@ function convertFunctionTypeNode(
 
   const functionContext: FunctionTypeContext = {
     name: undefined,
-    isConstructor: false,
+    isConstructor: typeNode instanceof ConstructorTypeNode,
     typeParameters: typeParameterStructures,
     parameters: parameterStructures,
     restParameter,
