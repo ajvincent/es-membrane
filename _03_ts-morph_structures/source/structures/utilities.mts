@@ -79,3 +79,25 @@ export function createCodeBlockWriter(): CodeBlockWriter
 {
   return new CodeBlockWriter(writerOptions);
 }
+
+export function pairedWrite(
+  this: void,
+  writer: CodeBlockWriter,
+  startToken: string,
+  endToken: string,
+  newLine: boolean,
+  indent: boolean,
+  block: () => void
+) : void
+{
+  writer.write(startToken);
+  if (newLine)
+    writer.newLine();
+  if (indent)
+    writer.indent(block);
+  else
+    block();
+  if (newLine)
+    writer.newLine();
+  writer.write(endToken);
+}

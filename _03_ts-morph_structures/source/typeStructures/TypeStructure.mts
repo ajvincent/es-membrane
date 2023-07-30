@@ -6,6 +6,7 @@ import type {
   KindedTypeStructure,
   TypeStructureKind,
 } from "./TypeStructureKind.mjs";
+import TypeParameterDeclarationImpl from "../structures/TypeParameterDeclarationImpl.mjs";
 
 export type WriterTypedStructure = Simplify<KindedTypeStructure<TypeStructureKind.Writer>>;
 
@@ -113,9 +114,9 @@ export enum FunctionWriterStyle {
 }
 
 export interface FunctionTypeContext {
-  //typeArguments: TypeParameterDeclarationImpl[]
   name: string | undefined;
   isConstructor: boolean,
+  typeParameters: TypeParameterDeclarationImpl[];
   parameters: ParameterTypedStructure[];
   restParameter: ParameterTypedStructure | undefined;
   returnType: TypeStructure;

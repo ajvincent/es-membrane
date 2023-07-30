@@ -1,9 +1,10 @@
 import type {
-  TS_TypeParameter,
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 
 import {
+  CodeBlockWriter,
+  OptionalKind,
   StructureKind,
   TypeParameterDeclarationStructure,
   TypeParameteredNodeStructure,
@@ -13,15 +14,62 @@ import {
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 
+import TypeWriterManager from "../decorators/TypeWriterManager.mjs";
+import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
+import cloneableClassesMap from "../typeStructures/cloneableClassesMap.mjs";
+
 export default class TypeParameterDeclarationImpl
 extends StructureBase
-implements TS_TypeParameter
+implements TypeParameterDeclarationStructure
 {
-  leadingTrivia: stringOrWriterFunction[] = [];
-  trailingTrivia: stringOrWriterFunction[] = [];
+  readonly #constraintManager = new TypeWriterManager;
+  readonly #defaultManager = new TypeWriterManager;
+
+  get constraint(): stringOrWriterFunction | undefined
+  {
+    return this.#constraintManager.type;
+  }
+  set constraint(
+    type: stringOrWriterFunction | undefined
+  )
+  {
+    this.#constraintManager.type = type;
+  }
+
+  get constraintStructure(): TypeStructure | undefined
+  {
+    return this.#constraintManager.typeStructure
+  }
+  set constraintStructure(
+    structure: TypeStructure | undefined
+  )
+  {
+    this.#constraintManager.typeStructure = structure;
+  }
+
+  get default(): stringOrWriterFunction | undefined
+  {
+    return this.#defaultManager.type;
+  }
+  set default(
+    type: stringOrWriterFunction | undefined
+  )
+  {
+    this.#defaultManager.type = type;
+  }
+
+  get defaultStructure(): TypeStructure | undefined
+  {
+    return this.#defaultManager.typeStructure;
+  }
+  set defaultStructure(
+    structure: TypeStructure | undefined
+  )
+  {
+    this.#defaultManager.typeStructure = structure;
+  }
+
   isConst = false;
-  constraint: stringOrWriterFunction | undefined = undefined;
-  default: stringOrWriterFunction | undefined = undefined;
   variance: TypeParameterVariance | undefined = undefined;
   name: string;
   readonly kind: StructureKind.TypeParameter = StructureKind.TypeParameter;
@@ -34,8 +82,39 @@ implements TS_TypeParameter
     this.name = name;
   }
 
+  writerFunction(
+    writer: CodeBlockWriter
+  ): void
+  {
+    writer.write(this.name);
+
+    const constraint = this.constraint;
+    if (constraint) {
+      writer.write(" extends ");
+      if (typeof constraint === "string") {
+        writer.write(constraint);
+      }
+      else {
+        constraint(writer);
+      }
+
+      const _default = this.default;
+      if (_default) {
+        writer.write(" = ");
+        if (typeof _default === "string") {
+          writer.write(_default);
+        }
+        else {
+          _default(writer);
+        }
+      }
+    }
+
+    // isConst, variance not supported yet... need examples to test against
+  }
+
   public static clone(
-    other: TS_TypeParameter
+    other: OptionalKind<TypeParameterDeclarationStructure>
   ): TypeParameterDeclarationImpl
   {
     const clone = new TypeParameterDeclarationImpl(other.name);
@@ -43,9 +122,25 @@ implements TS_TypeParameter
     StructureBase.cloneTrivia(other, clone);
 
     clone.isConst = other.isConst ?? false;
-    clone.constraint = other.constraint;
-    clone.default = other.default;
     clone.variance = other.variance;
+
+    if ((other instanceof TypeParameterDeclarationImpl) && other.constraintStructure) {
+      clone.constraintStructure = cloneableClassesMap.get(
+        other.constraintStructure.kind
+      )!.clone(other.constraintStructure);
+    }
+    else {
+      clone.constraint = other.constraint;
+    }
+
+    if ((other instanceof TypeParameterDeclarationImpl) && other.defaultStructure) {
+      clone.defaultStructure = cloneableClassesMap.get(
+        other.defaultStructure.kind
+      )!.clone(other.defaultStructure);
+    }
+    else {
+      clone.default = other.default;
+    }
 
     return clone;
   }
