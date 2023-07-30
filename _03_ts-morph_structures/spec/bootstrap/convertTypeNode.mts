@@ -2,7 +2,9 @@ import ts from "ts-morph";
 
 import convertTypeNode from "#ts-morph_structures/source/bootstrap/convertTypeNode.mjs";
 import {
+  ArrayTypedStructureImpl,
   ConditionalTypedStructureImpl,
+  IndexedAccessTypedStructureImpl,
   IntersectionTypedStructureImpl,
   LiteralTypedStructureImpl,
   ParenthesesTypedStructureImpl,
@@ -41,11 +43,13 @@ const A: string;
   afterEach(() => structure = null);
 
   function setTypeStructure(
-    rawType: string
+    rawType: string,
+    console: Pick<Console, "log"> | null = null
   ): void
   {
     declaration.setType(rawType);
     const typeNode = declaration.getTypeNodeOrThrow();
+    void(console);
     structure = convertTypeNode(typeNode);
   }
 
@@ -190,7 +194,7 @@ const A: string;
     }
   });
 
-  it("tuple of string and number", () => {
+  it("[string, number]", () => {
     setTypeStructure("[string, number]");
     expect(structure).toBeInstanceOf(TupleTypedStructureImpl);
     if (structure instanceof TupleTypedStructureImpl) {
@@ -200,6 +204,15 @@ const A: string;
       expect(structure.elements[1]).toBeInstanceOf(LiteralTypedStructureImpl);
       expect((structure.elements[1] as LiteralTypedStructureImpl).stringValue).toBe("number");
     }
+  });
+
+  it("string[]", () => {
+    setTypeStructure("string[]");
+    expect(structure).toBeInstanceOf(ArrayTypedStructureImpl);
+    if (!(structure instanceof ArrayTypedStructureImpl))
+      return;
+    expect(structure.objectType).toBeInstanceOf(LiteralTypedStructureImpl);
+    expect((structure.objectType as LiteralTypedStructureImpl).stringValue).toBe("string");
   });
 
   it(`Pick<NumberStringType, "repeatForward">`, () => {
@@ -227,6 +240,41 @@ const A: string;
       expect(structure.childType.stringValue).toBe("NumberStringClass");
   });
 
+  it("readonly string[]", () => {
+    setTypeStructure(`readonly string[]`);
+
+    expect(structure).toBeInstanceOf(PrefixOperatorsTypedStructureImpl);
+    if (!(structure instanceof PrefixOperatorsTypedStructureImpl))
+      return;
+    expect(structure.operators).toEqual(["readonly"]);
+
+    const childStructure = structure.childType;
+    expect(childStructure).toBeInstanceOf(ArrayTypedStructureImpl);
+    if (childStructure instanceof ArrayTypedStructureImpl) {
+      expect(childStructure.objectType).toBeInstanceOf(LiteralTypedStructureImpl);
+      expect((childStructure.objectType as LiteralTypedStructureImpl).stringValue).toBe("string");
+    }
+  });
+
+  it("readonly [string, number]", () => {
+    setTypeStructure("readonly [string, number]");
+
+    expect(structure).toBeInstanceOf(PrefixOperatorsTypedStructureImpl);
+    if (!(structure instanceof PrefixOperatorsTypedStructureImpl))
+      return;
+    expect(structure.operators).toEqual(["readonly"]);
+
+    const childStructure = structure.childType;
+    expect(childStructure).toBeInstanceOf(TupleTypedStructureImpl);
+    if (childStructure instanceof TupleTypedStructureImpl) {
+      expect(childStructure.elements.length).toBe(2);
+      expect(childStructure.elements[0]).toBeInstanceOf(LiteralTypedStructureImpl);
+      expect((childStructure.elements[0] as LiteralTypedStructureImpl).stringValue).toBe("string");
+      expect(childStructure.elements[1]).toBeInstanceOf(LiteralTypedStructureImpl);
+      expect((childStructure.elements[1] as LiteralTypedStructureImpl).stringValue).toBe("number");
+    }
+  });
+
   it("true extends ReturnsModified ? BaseClassType : void", () => {
     setTypeStructure("true extends ReturnsModified ? BaseClassType : void");
     expect(structure).toBeInstanceOf(ConditionalTypedStructureImpl);
@@ -243,5 +291,21 @@ const A: string;
     expect(
       types.map(type => (type as LiteralTypedStructureImpl).stringValue)
     ).toEqual(["true", "ReturnsModified", "BaseClassType", "void"]);
+  });
+
+  it(`NumberStringType["repeatForward"]`, () => {
+    setTypeStructure(`NumberStringType["repeatForward"]`);
+    expect(structure).toBeInstanceOf(IndexedAccessTypedStructureImpl);
+    if (!(structure instanceof IndexedAccessTypedStructureImpl))
+      return;
+    expect(structure.objectType).toBeInstanceOf(LiteralTypedStructureImpl);
+    expect(
+      (structure.objectType as LiteralTypedStructureImpl).stringValue
+    ).toBe("NumberStringType");
+
+    expect(structure.indexType).toBeInstanceOf(StringTypedStructureImpl);
+    expect(
+      (structure.indexType as StringTypedStructureImpl).stringValue
+    ).toBe("repeatForward");
   });
 });

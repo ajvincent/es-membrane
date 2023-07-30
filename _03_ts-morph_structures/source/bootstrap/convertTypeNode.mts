@@ -18,7 +18,9 @@ import {
   TypeArgumentedTypedStructureImpl,
   PrefixOperatorsTypedStructureImpl,
   ParenthesesTypedStructureImpl,
-  ConditionalTypedStructureImpl
+  ConditionalTypedStructureImpl,
+  ArrayTypedStructureImpl,
+  IndexedAccessTypedStructureImpl
 } from "../../exports.mjs"
 
 import {
@@ -66,6 +68,25 @@ export default function convertTypeNode(
     if (!childStructure)
       return null;
     return new ParenthesesTypedStructureImpl(childStructure);
+  }
+
+  if (Node.isArrayTypeNode(typeNode)) {
+    const childStructure = convertTypeNode(typeNode.getElementTypeNode());
+    if (!childStructure)
+      return null;
+    return new ArrayTypedStructureImpl(childStructure);
+  }
+
+  if (Node.isIndexedAccessTypeNode(typeNode)) {
+    const objectType = convertTypeNode(typeNode.getObjectTypeNode());
+    if (!objectType)
+      return null;
+
+    const indexType = convertTypeNode(typeNode.getIndexTypeNode());
+    if (!indexType)
+      return null;
+
+    return new IndexedAccessTypedStructureImpl(objectType, indexType);
   }
 
   if (Node.isTypeQuery(typeNode)) {
@@ -171,7 +192,6 @@ function convertAndAppendChildTypes(
     return false;
   });
 }
-
 
 function convertConditionalTypeNode(
   condition: ConditionalTypeNode
