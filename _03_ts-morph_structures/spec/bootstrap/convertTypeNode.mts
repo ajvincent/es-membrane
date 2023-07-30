@@ -2,6 +2,7 @@ import ts from "ts-morph";
 
 import convertTypeNode from "#ts-morph_structures/source/bootstrap/convertTypeNode.mjs";
 import {
+  ConditionalTypedStructureImpl,
   IntersectionTypedStructureImpl,
   LiteralTypedStructureImpl,
   ParenthesesTypedStructureImpl,
@@ -224,5 +225,23 @@ const A: string;
     expect(structure.childType).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure.childType instanceof LiteralTypedStructureImpl)
       expect(structure.childType.stringValue).toBe("NumberStringClass");
+  });
+
+  it("true extends ReturnsModified ? BaseClassType : void", () => {
+    setTypeStructure("true extends ReturnsModified ? BaseClassType : void");
+    expect(structure).toBeInstanceOf(ConditionalTypedStructureImpl);
+    if (!(structure instanceof ConditionalTypedStructureImpl))
+      return;
+
+    const { checkType, extendsType, trueType, falseType } = structure;
+    const types = [ checkType, extendsType, trueType, falseType ];
+    const areAllLiterals = types.every(childType => childType instanceof LiteralTypedStructureImpl);
+    expect(areAllLiterals).toBe(true);
+    if (!areAllLiterals)
+      return;
+
+    expect(
+      types.map(type => (type as LiteralTypedStructureImpl).stringValue)
+    ).toEqual(["true", "ReturnsModified", "BaseClassType", "void"]);
   });
 });

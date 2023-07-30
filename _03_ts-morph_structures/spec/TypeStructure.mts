@@ -5,6 +5,7 @@ import {
 
 import {
   ArrayTypedStructureImpl,
+  ConditionalTypedStructureImpl,
   FunctionTypedStructureImpl,
   FunctionWriterStyle,
   IndexedAccessTypedStructureImpl,
@@ -120,26 +121,53 @@ describe("TypeStructure for ts-morph: ", () => {
     expect(typedWriter.kind).toBe(TypeStructureKind.Tuple);
   });
 
-  it("ArrayWriter", () => {
+  it("ArrayTypedStructureImpl", () => {
     typedWriter = new ArrayTypedStructureImpl(fooTyped);
     typedWriter.writerFunction(writer);
     expect<string>(writer.toString()).toBe("foo[]");
+
+    expect(typedWriter.kind).toBe(TypeStructureKind.Array);
   });
 
-  it("IndexedAccessWriter", () => {
+  it("ConditionalTypedStructureImpl", () => {
+    const checkType = new LiteralTypedStructureImpl("true");
+    const extendsType = new LiteralTypedStructureImpl("ReturnsModified");
+    const trueType = new LiteralTypedStructureImpl("BaseClassType");
+    const falseType = new LiteralTypedStructureImpl("void");
+
+    typedWriter = new ConditionalTypedStructureImpl({
+      checkType,
+      extendsType,
+      trueType,
+      falseType,
+    });
+
+    typedWriter.writerFunction(writer);
+    expect<string>(writer.toString()).toBe(
+      "true extends ReturnsModified ? BaseClassType : void"
+    );
+
+    expect(typedWriter.kind).toBe(TypeStructureKind.Conditional);
+  });
+
+  it("IndexedAccessTypedStructureImpl", () => {
     typedWriter = new IndexedAccessTypedStructureImpl(fooTyped, stringBarTyped);
     typedWriter.writerFunction(writer);
     expect<string>(writer.toString()).toBe(`foo["bar"]`);
+
+    expect(typedWriter.kind).toBe(TypeStructureKind.IndexedAccess);
   });
 
-  it("TypeArgumentedWriter", () => {
+  it("TypeArgumentedTypeStructureImpl", () => {
     const typedWriter = new TypeArgumentedTypedStructureImpl(fooTyped);
     typedWriter.elements.push(stringBarTyped, nstTyped);
     typedWriter.writerFunction(writer);
     expect<string>(writer.toString()).toBe(`foo<"bar", NumberStringType>`);
+
+    expect(typedWriter.kind).toBe(TypeStructureKind.TypeArgumented);
   });
 
-  describe("FunctionTypeWriter", () => {
+  describe("FunctionTypedStructureImpl", () => {
     let typedWriter: FunctionTypedStructureImpl;
     it("with an ordinary function", () => {
       typedWriter = new FunctionTypedStructureImpl({
@@ -156,6 +184,9 @@ describe("TypeStructure for ts-morph: ", () => {
 
       typedWriter.writerFunction(writer);
       expect<string>(writer.toString()).toBe(`(foo: NumberStringType, bar: boolean) => string`);
+
+      expect(typedWriter.kind).toBe(TypeStructureKind.Function);
+      expect(typedWriter.parameters[0].kind).toBe(TypeStructureKind.Parameter);
     });
 
     it("as a constructor", () => {

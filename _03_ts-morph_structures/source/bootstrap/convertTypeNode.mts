@@ -2,6 +2,9 @@ import {
   Node,
   TypeNode,
   SyntaxKind,
+  ConditionalTypeNode,
+  EntityName,
+  TypeOperatorTypeNode,
 } from "ts-morph"
 
 import {
@@ -14,7 +17,8 @@ import {
   TupleTypedStructureImpl,
   TypeArgumentedTypedStructureImpl,
   PrefixOperatorsTypedStructureImpl,
-  ParenthesesTypedStructureImpl
+  ParenthesesTypedStructureImpl,
+  ConditionalTypedStructureImpl
 } from "../../exports.mjs"
 
 import {
@@ -46,11 +50,9 @@ export default function convertTypeNode(
   }
   const kind: SyntaxKind = typeNode.getKind();
 
-  {
-    const keyword = LiteralKeywords.get(kind);
-    if (keyword) {
-      return new LiteralTypedStructureImpl(keyword);
-    }
+  const keyword = LiteralKeywords.get(kind);
+  if (keyword) {
+    return new LiteralTypedStructureImpl(keyword);
   }
 
   if (Node.isNumericLiteral(typeNode)) {
@@ -67,78 +69,76 @@ export default function convertTypeNode(
   }
 
   if (Node.isTypeQuery(typeNode)) {
-    const structure = new LiteralTypedStructureImpl(typeNode.getExprName().getText());
+    const structure = buildLiteralForEntityName(typeNode.getExprName());
     return prependPrefixOperator("typeof", structure);
   }
 
   if (Node.isTypeOperatorTypeNode(typeNode)) {
-    const structure = convertTypeNode(typeNode.getTypeNode());
-    if (!structure)
-      return null;
-    switch (typeNode.getOperator()) {
-      case SyntaxKind.ReadonlyKeyword:
-        return prependPrefixOperator("readonly", structure);
-
-      case SyntaxKind.KeyOfKeyword:
-        return prependPrefixOperator("keyof", structure);
-
-      case SyntaxKind.UniqueKeyword:
-        return prependPrefixOperator("unique", structure);
-
-      // no other possibilities
-      default:
-        return null;
-    }
+    return convertTypeOperatorNode(typeNode);
   }
 
-  {
-    let childTypeNodes: TypeNode[] = [],
-        parentStructure: TypeStructure & TypeStructureWithElements | undefined = undefined;
-    if (Node.isUnionTypeNode(typeNode))
-    {
-      parentStructure = new UnionTypedStructureImpl;
-      childTypeNodes = typeNode.getTypeNodes();
-    }
-    else if (Node.isIntersectionTypeNode(typeNode)) {
-      parentStructure = new IntersectionTypedStructureImpl;
-      childTypeNodes = typeNode.getTypeNodes();
-    }
-    else if (Node.isTupleTypeNode(typeNode)) {
-      parentStructure = new TupleTypedStructureImpl;
-      childTypeNodes = typeNode.getElements();
-    }
-    else if (Node.isTypeReference(typeNode)) {
-      childTypeNodes = typeNode.getTypeArguments();
-      const objectType = new LiteralTypedStructureImpl(typeNode.getTypeName().getText());
-      if (childTypeNodes.length === 0)
-        return objectType;
-      parentStructure = new TypeArgumentedTypedStructureImpl(objectType);
-    }
-
-    if (parentStructure) {
-      if (convertChildTypes(childTypeNodes, parentStructure))
-        return parentStructure;
-      return null;
-    }
+  if (Node.isConditionalTypeNode(typeNode)) {
+    return convertConditionalTypeNode(typeNode);
   }
+
+  let childTypeNodes: TypeNode[] = [],
+      parentStructure: (TypeStructure & TypeStructureWithElements) | undefined = undefined;
+  if (Node.isUnionTypeNode(typeNode)) {
+    parentStructure = new UnionTypedStructureImpl;
+    childTypeNodes = typeNode.getTypeNodes();
+  }
+  else if (Node.isIntersectionTypeNode(typeNode)) {
+    parentStructure = new IntersectionTypedStructureImpl;
+    childTypeNodes = typeNode.getTypeNodes();
+  }
+  else if (Node.isTupleTypeNode(typeNode)) {
+    parentStructure = new TupleTypedStructureImpl;
+    childTypeNodes = typeNode.getElements();
+  }
+  else if (Node.isTypeReference(typeNode)) {
+    const objectType = buildLiteralForEntityName(typeNode.getTypeName());
+
+    childTypeNodes = typeNode.getTypeArguments();
+    if (childTypeNodes.length === 0)
+      return objectType;
+
+    parentStructure = new TypeArgumentedTypedStructureImpl(objectType);
+  }
+
+  if (parentStructure && convertAndAppendChildTypes(childTypeNodes, parentStructure))
+    return parentStructure;
 
   return null;
 }
 
-function convertChildTypes(
-  childTypeNodes: readonly TypeNode[],
-  parentTypeStructure: TypeStructureWithElements
-): boolean
+function buildLiteralForEntityName(
+  entity: EntityName
+): LiteralTypedStructureImpl
 {
-  return childTypeNodes.every(typeNode => {
-    const childStructure = convertTypeNode(typeNode);
-    if (childStructure) {
-      parentTypeStructure.elements.push(childStructure);
-      return true;
-    }
+  return new LiteralTypedStructureImpl(entity.getText());
+}
 
-    return false;
-  });
+function convertTypeOperatorNode(
+  typeNode: TypeOperatorTypeNode
+): PrefixOperatorsTypedStructureImpl | null
+{
+  const structure = convertTypeNode(typeNode.getTypeNode());
+  if (!structure)
+    return null;
+  switch (typeNode.getOperator()) {
+    case SyntaxKind.ReadonlyKeyword:
+      return prependPrefixOperator("readonly", structure);
+
+    case SyntaxKind.KeyOfKeyword:
+      return prependPrefixOperator("keyof", structure);
+
+    case SyntaxKind.UniqueKeyword:
+      return prependPrefixOperator("unique", structure);
+
+    // no other possibilities
+    default:
+      return null;
+  }
 }
 
 function prependPrefixOperator(
@@ -154,4 +154,49 @@ function prependPrefixOperator(
   return new PrefixOperatorsTypedStructureImpl(
     [operator], typeStructure
   );
+}
+
+function convertAndAppendChildTypes(
+  childTypeNodes: readonly TypeNode[],
+  parentTypeStructure: TypeStructureWithElements
+): boolean
+{
+  return childTypeNodes.every(typeNode => {
+    const childStructure = convertTypeNode(typeNode);
+    if (childStructure) {
+      parentTypeStructure.elements.push(childStructure);
+      return true;
+    }
+
+    return false;
+  });
+}
+
+
+function convertConditionalTypeNode(
+  condition: ConditionalTypeNode
+): ConditionalTypedStructureImpl | null
+{
+  const checkType: TypeStructure | null = convertTypeNode(condition.getCheckType());
+  if (!checkType)
+    return null;
+
+  const extendsType: TypeStructure | null = convertTypeNode(condition.getExtendsType());
+  if (!extendsType)
+    return null;
+
+  const trueType: TypeStructure | null = convertTypeNode(condition.getTrueType());
+  if (!trueType)
+    return null;
+
+  const falseType: TypeStructure | null = convertTypeNode(condition.getFalseType());
+  if (!falseType)
+    return null;
+
+  return new ConditionalTypedStructureImpl({
+    checkType,
+    extendsType,
+    trueType,
+    falseType
+  });
 }

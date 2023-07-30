@@ -47,6 +47,7 @@ export {
 } from "./source/typeStructures/TypeStructureKind.mjs";
 
 export { default as ArrayTypedStructureImpl } from "./source/typeStructures/ArrayTypedStructureImpl.mjs";
+export { default as ConditionalTypedStructureImpl } from "./source/typeStructures/ConditionalTypedStructureImpl.mjs";
 export { default as FunctionTypedStructureImpl } from "./source/typeStructures/FunctionTypedStructureImpl.mjs";
 export { default as IndexedAccessTypedStructureImpl } from "./source/typeStructures/IndexedAccessTypedStructureImpl.mjs";
 export { default as IntersectionTypedStructureImpl } from "./source/typeStructures/IntersectionTypedStructureImpl.mjs"
