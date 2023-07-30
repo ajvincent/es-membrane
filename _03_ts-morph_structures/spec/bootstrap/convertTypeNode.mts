@@ -4,6 +4,8 @@ import convertTypeNode from "#ts-morph_structures/source/bootstrap/convertTypeNo
 import {
   ArrayTypedStructureImpl,
   ConditionalTypedStructureImpl,
+  FunctionTypedStructureImpl,
+  FunctionWriterStyle,
   IndexedAccessTypedStructureImpl,
   IntersectionTypedStructureImpl,
   LiteralTypedStructureImpl,
@@ -308,4 +310,55 @@ const A: string;
       (structure.indexType as StringTypedStructureImpl).stringValue
     ).toBe("repeatForward");
   });
+
+  it(
+    `<StringType extends string, NumberType extends number = 1>(s: StringType, n) => boolean`,
+    () => {
+      setTypeStructure(
+        `<StringType extends string, NumberType extends number = 1>(s: StringType, n) => boolean`
+      );
+      expect(structure).toBeInstanceOf(FunctionTypedStructureImpl);
+      if (!(structure instanceof FunctionTypedStructureImpl))
+        return;
+
+      expect(structure.name).toBe("");
+      expect(structure.isConstructor).toBe(false);
+
+      expect(structure.typeParameters.length).toBe(2);
+      {
+        const typeParam = structure.typeParameters[0];
+        expect(typeParam.name).toBe("StringType");
+        expect(typeParam.constraint).toBe("string");
+        expect(typeParam.default).toBe(undefined);
+      }
+
+      {
+        const typeParam = structure.typeParameters[1];
+        expect(typeParam.name).toBe("NumberType");
+        expect(typeParam.constraint).toBe("number");
+        expect(typeParam.default).toBe("1");
+      }
+
+      expect(structure.parameters.length).toBe(2);
+      {
+        const param = structure.parameters[0];
+        expect(param.name.stringValue).toBe("s");
+        expect(param.typeStructure).toBeInstanceOf(LiteralTypedStructureImpl);
+        expect((param.typeStructure as LiteralTypedStructureImpl).stringValue).toBe("StringType");
+      }
+      {
+        const param = structure.parameters[1];
+        expect(param.name.stringValue).toBe("n");
+        expect(param.typeStructure).toBe(undefined);
+      }
+
+      expect(structure.restParameter).toBe(undefined);
+      expect(structure.returnType).not.toBe(undefined);
+      if (structure.returnType) {
+        expect((structure.returnType as LiteralTypedStructureImpl).stringValue).toBe("boolean");
+      }
+
+      expect(structure.writerStyle).toBe(FunctionWriterStyle.Arrow);
+    }
+  );
 });

@@ -41,7 +41,7 @@ implements FunctionTypedStructure
       typeParameters: other.typeParameters,
       parameters: other.parameters.map(param => ParameterTypedStructureImpl.clone(param)),
       restParameter: (other.restParameter ? ParameterTypedStructureImpl.clone(other.restParameter) : undefined),
-      returnType: cloneableClassesMap.get(other.returnType.kind)!.clone(other.returnType),
+      returnType: other.returnType ? cloneableClassesMap.get(other.returnType.kind)!.clone(other.returnType) : undefined,
       writerStyle: other.writerStyle,
     });
   }
@@ -53,7 +53,7 @@ implements FunctionTypedStructure
   typeParameters: TypeParameterDeclarationImpl[];
   parameters: ParameterTypedStructure[];
   restParameter: ParameterTypedStructure | undefined;
-  returnType: TypeStructure;
+  returnType: TypeStructure | undefined;
   writerStyle: FunctionWriterStyle = FunctionWriterStyle.Arrow;
 
   constructor(
@@ -113,17 +113,19 @@ implements FunctionTypedStructure
       }
     });
 
-    switch (this.writerStyle) {
-      case FunctionWriterStyle.Arrow:
-        writer.write(" => ");
-        this.returnType.writerFunction(writer);
-        break;
+    if (this.returnType) {
+      switch (this.writerStyle) {
+        case FunctionWriterStyle.Arrow:
+          writer.write(" => ");
+          this.returnType.writerFunction(writer);
+          break;
 
-      case FunctionWriterStyle.GetAccessor:
-      case FunctionWriterStyle.Method:
-        writer.write(": ");
-        this.returnType.writerFunction(writer);
-        break;
+        case FunctionWriterStyle.GetAccessor:
+        case FunctionWriterStyle.Method:
+          writer.write(": ");
+          this.returnType.writerFunction(writer);
+          break;
+      }
     }
   }
 

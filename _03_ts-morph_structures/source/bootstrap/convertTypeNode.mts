@@ -5,6 +5,9 @@ import {
   ConditionalTypeNode,
   EntityName,
   TypeOperatorTypeNode,
+  FunctionTypeNode,
+  TypeParameterDeclaration,
+  ParameterDeclaration,
 } from "ts-morph"
 
 import {
@@ -20,7 +23,12 @@ import {
   ParenthesesTypedStructureImpl,
   ConditionalTypedStructureImpl,
   ArrayTypedStructureImpl,
-  IndexedAccessTypedStructureImpl
+  IndexedAccessTypedStructureImpl,
+  FunctionTypedStructureImpl,
+  TypeParameterDeclarationImpl,
+  ParameterTypedStructureImpl,
+  FunctionTypeContext,
+  FunctionWriterStyle
 } from "../../exports.mjs"
 
 import {
@@ -102,6 +110,10 @@ export default function convertTypeNode(
     return convertConditionalTypeNode(typeNode);
   }
 
+  if (Node.isFunctionTypeNode(typeNode)) {
+    return convertFunctionTypeNode(typeNode);
+  }
+
   let childTypeNodes: TypeNode[] = [],
       parentStructure: (TypeStructure & TypeStructureWithElements) | undefined = undefined;
   if (Node.isUnionTypeNode(typeNode)) {
@@ -126,7 +138,7 @@ export default function convertTypeNode(
     parentStructure = new TypeArgumentedTypedStructureImpl(objectType);
   }
 
-  if (parentStructure && convertAndAppendChildTypes(childTypeNodes, parentStructure))
+  if (parentStructure && convertAndAppendChildTypes(childTypeNodes, parentStructure.elements))
     return parentStructure;
 
   return null;
@@ -179,13 +191,13 @@ function prependPrefixOperator(
 
 function convertAndAppendChildTypes(
   childTypeNodes: readonly TypeNode[],
-  parentTypeStructure: TypeStructureWithElements
+  elements: TypeStructure[]
 ): boolean
 {
   return childTypeNodes.every(typeNode => {
     const childStructure = convertTypeNode(typeNode);
     if (childStructure) {
-      parentTypeStructure.elements.push(childStructure);
+      elements.push(childStructure);
       return true;
     }
 
@@ -219,4 +231,56 @@ function convertConditionalTypeNode(
     trueType,
     falseType
   });
+}
+
+function convertFunctionTypeNode(
+  typeNode: FunctionTypeNode
+): FunctionTypedStructureImpl | null
+{
+  const typeParameterNodes: readonly TypeParameterDeclaration[] = typeNode.getTypeParameters();
+  const typeParameterStructures = typeParameterNodes.map(
+    declaration => TypeParameterDeclarationImpl.clone(declaration.getStructure())
+  );
+
+  let restParameter: ParameterTypedStructureImpl | undefined = undefined;
+  const parameterNodes: ParameterDeclaration[] = typeNode.getParameters().slice();
+  if (parameterNodes.length) {
+    const lastParameter = parameterNodes[parameterNodes.length - 1];
+    if (lastParameter.isRestParameter()) {
+      parameterNodes.pop();
+      restParameter = convertParameterTypeNode(lastParameter);
+    }
+  }
+
+  const parameterStructures: ParameterTypedStructureImpl[] = parameterNodes.map(convertParameterTypeNode);
+
+  const returnTypeNode = typeNode.getReturnTypeNode();
+  let returnTypeStructure: TypeStructure | undefined = undefined;
+  if (returnTypeNode) {
+    returnTypeStructure = convertTypeNode(returnTypeNode) ?? undefined;
+  }
+
+  const functionContext: FunctionTypeContext = {
+    name: undefined,
+    isConstructor: false,
+    typeParameters: typeParameterStructures,
+    parameters: parameterStructures,
+    restParameter,
+    returnType: returnTypeStructure,
+    writerStyle: FunctionWriterStyle.Arrow,
+  }
+
+  return new FunctionTypedStructureImpl(functionContext);
+}
+
+function convertParameterTypeNode(
+  node: ParameterDeclaration
+): ParameterTypedStructureImpl
+{
+  const paramTypeNode = node.getTypeNode();
+  let paramTypeStructure: TypeStructure | null = null;
+  if (paramTypeNode) {
+    paramTypeStructure = convertTypeNode(paramTypeNode);
+  }
+  return new ParameterTypedStructureImpl(node.getName(), paramTypeStructure ?? undefined);
 }

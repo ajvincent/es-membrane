@@ -119,7 +119,7 @@ export interface FunctionTypeContext {
   typeParameters: TypeParameterDeclarationImpl[];
   parameters: ParameterTypedStructure[];
   restParameter: ParameterTypedStructure | undefined;
-  returnType: TypeStructure;
+  returnType: TypeStructure | undefined;
   writerStyle: FunctionWriterStyle
 }
 
@@ -130,7 +130,7 @@ export type FunctionTypedStructure = Simplify<
 
 interface ParameterTypeStructureFields {
   name: LiteralTypedStructure;
-  typeStructure: TypeStructure;
+  typeStructure: TypeStructure | undefined
 }
 
 export type ParameterTypedStructure = Simplify<

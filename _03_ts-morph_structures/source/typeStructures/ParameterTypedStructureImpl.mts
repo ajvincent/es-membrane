@@ -20,11 +20,11 @@ implements ParameterTypedStructure
 {
   readonly kind: TypeStructureKind.Parameter = TypeStructureKind.Parameter;
   name: LiteralTypedStructure;
-  typeStructure: TypeStructure;
+  typeStructure: TypeStructure | undefined;
 
   constructor(
     name: string | LiteralTypedStructure,
-    typeStructure: TypeStructure
+    typeStructure: TypeStructure | undefined
   )
   {
     if (typeof name === "string") {
@@ -41,8 +41,10 @@ implements ParameterTypedStructure
   ): void
   {
     this.name.writerFunction(writer);
-    writer.write(": ");
-    this.typeStructure.writerFunction(writer);
+    if (this.typeStructure) {
+      writer.write(": ");
+      this.typeStructure.writerFunction(writer);
+    }
   }
 
   readonly writerFunction = this.#writerFunction.bind(this);
@@ -51,7 +53,9 @@ implements ParameterTypedStructure
     other: ParameterTypedStructure
   ): ParameterTypedStructureImpl
   {
-    const typeClone: TypeStructure = cloneableClassesMap.get(other.typeStructure.kind)!.clone(other.typeStructure);
+    let typeClone: TypeStructure | undefined;
+    if (other.typeStructure)
+      typeClone = cloneableClassesMap.get(other.typeStructure.kind)!.clone(other.typeStructure);
     const clone = new ParameterTypedStructureImpl(other.name.stringValue, typeClone);
     return clone;
   }
