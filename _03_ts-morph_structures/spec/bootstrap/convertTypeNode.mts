@@ -1,7 +1,15 @@
 import ts from "ts-morph";
 
 import convertTypeNode from "#ts-morph_structures/source/bootstrap/convertTypeNode.mjs";
-import { LiteralTypedStructureImpl, StringTypedStructureImpl, TypeStructure } from "#ts-morph_structures/exports.mjs";
+import {
+  IntersectionTypedStructureImpl,
+  LiteralTypedStructureImpl,
+  StringTypedStructureImpl,
+  TupleTypedStructureImpl,
+  TypeArgumentedTypedStructureImpl,
+  TypeStructure,
+  UnionTypedStructureImpl
+} from "#ts-morph_structures/exports.mjs";
 
 describe("convertTypeNode generates correct type structures, with type", () => {
   let declaration: ts.VariableDeclaration;
@@ -136,5 +144,62 @@ const A: string;
     expect(structure).toBeInstanceOf(StringTypedStructureImpl)
     if (structure instanceof StringTypedStructureImpl)
       expect(structure.stringValue).toBe("foo");
+  });
+
+  it(`NumberStringType (identifier)`, () => {
+    setTypeStructure(`NumberStringType`);
+    expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
+    if (structure instanceof LiteralTypedStructureImpl)
+      expect(structure.stringValue).toBe("NumberStringType");
+  });
+
+  it("union of string and number", () => {
+    setTypeStructure("string | number");
+    expect(structure).toBeInstanceOf(UnionTypedStructureImpl);
+    if (structure instanceof UnionTypedStructureImpl) {
+      expect(structure.elements.length).toBe(2);
+      expect(structure.elements[0]).toBeInstanceOf(LiteralTypedStructureImpl);
+      expect((structure.elements[0] as LiteralTypedStructureImpl).stringValue).toBe("string");
+      expect(structure.elements[1]).toBeInstanceOf(LiteralTypedStructureImpl);
+      expect((structure.elements[1] as LiteralTypedStructureImpl).stringValue).toBe("number");
+    }
+  });
+
+  it("intersection of string and number", () => {
+    setTypeStructure("string & number");
+    expect(structure).toBeInstanceOf(IntersectionTypedStructureImpl);
+    if (structure instanceof IntersectionTypedStructureImpl) {
+      expect(structure.elements.length).toBe(2);
+      expect(structure.elements[0]).toBeInstanceOf(LiteralTypedStructureImpl);
+      expect((structure.elements[0] as LiteralTypedStructureImpl).stringValue).toBe("string");
+      expect(structure.elements[1]).toBeInstanceOf(LiteralTypedStructureImpl);
+      expect((structure.elements[1] as LiteralTypedStructureImpl).stringValue).toBe("number");
+    }
+  });
+
+  it("tuple of string and number", () => {
+    setTypeStructure("[string, number]");
+    expect(structure).toBeInstanceOf(TupleTypedStructureImpl);
+    if (structure instanceof TupleTypedStructureImpl) {
+      expect(structure.elements.length).toBe(2);
+      expect(structure.elements[0]).toBeInstanceOf(LiteralTypedStructureImpl);
+      expect((structure.elements[0] as LiteralTypedStructureImpl).stringValue).toBe("string");
+      expect(structure.elements[1]).toBeInstanceOf(LiteralTypedStructureImpl);
+      expect((structure.elements[1] as LiteralTypedStructureImpl).stringValue).toBe("number");
+    }
+  });
+
+  it(`Pick<NumberStringType, "repeatForward">`, () => {
+    setTypeStructure(`Pick<NumberStringType, "repeatForward">`);
+    expect(structure).toBeInstanceOf(TypeArgumentedTypedStructureImpl);
+    if (structure instanceof TypeArgumentedTypedStructureImpl) {
+      expect(structure.objectType).toBeInstanceOf(LiteralTypedStructureImpl);
+      expect((structure.objectType as LiteralTypedStructureImpl).stringValue).toBe("Pick");
+      expect(structure.elements.length).toBe(2);
+      expect(structure.elements[0]).toBeInstanceOf(LiteralTypedStructureImpl);
+      expect((structure.elements[0] as LiteralTypedStructureImpl).stringValue).toBe("NumberStringType");
+      expect(structure.elements[1]).toBeInstanceOf(StringTypedStructureImpl);
+      expect((structure.elements[1] as StringTypedStructureImpl).stringValue).toBe("repeatForward");
+    }
   });
 });

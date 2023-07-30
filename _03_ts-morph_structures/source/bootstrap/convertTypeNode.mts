@@ -1,60 +1,109 @@
 import {
-  FalseLiteral,
-  LiteralExpression,
-  LiteralTypeNode,
-  NumericLiteral,
-  StringLiteral,
-  TrueLiteral,
-  TypeFlags,
+  Node,
   TypeNode,
+  SyntaxKind,
 } from "ts-morph"
 
 import {
   LiteralTypedStructureImpl,
   StringTypedStructureImpl,
-  type TypeStructure
+  UnionTypedStructureImpl,
+  type TypeStructure,
+  IntersectionTypedStructureImpl,
+  TupleTypedStructureImpl,
+  TypeArgumentedTypedStructureImpl
 } from "../../exports.mjs"
+
+
+import {
+  TypeStructureWithElements
+} from "../typeStructures/ElementsTypedStructureAbstract.mjs";
+
+const LiteralKeywords: ReadonlyMap<SyntaxKind, string> = new Map([
+  [SyntaxKind.AnyKeyword, "any"],
+  [SyntaxKind.BooleanKeyword, "boolean"],
+  [SyntaxKind.FalseKeyword, "false"],
+  [SyntaxKind.NeverKeyword, "never"],
+  [SyntaxKind.NumberKeyword, "number"],
+  [SyntaxKind.NullKeyword, "null"],
+  [SyntaxKind.ObjectKeyword, "object"],
+  [SyntaxKind.StringKeyword, "string"],
+  [SyntaxKind.SymbolKeyword, "symbol"],
+  [SyntaxKind.TrueKeyword, "true"],
+  [SyntaxKind.UndefinedKeyword, "undefined"],
+  [SyntaxKind.UnknownKeyword, "unknown"],
+  [SyntaxKind.VoidKeyword, "void"],
+]);
 
 export default function convertTypeNode(
   typeNode: TypeNode
 ): TypeStructure | null
 {
-  const type = typeNode.getType();
-  const flags = type.getFlags();
-  if (type.isAny())
-    return new LiteralTypedStructureImpl("any");
-  if (type.isNever())
-    return new LiteralTypedStructureImpl("never");
-  if (type.isBoolean())
-    return new LiteralTypedStructureImpl("boolean");
-  if (type.isString())
-    return new LiteralTypedStructureImpl("string");
-  if (type.isNumber())
-    return new LiteralTypedStructureImpl("number");
-  if (type.isUnknown())
-    return new LiteralTypedStructureImpl("unknown");
-  if (type.isNull())
-    return new LiteralTypedStructureImpl("null");
-  if (type.isUndefined())
-    return new LiteralTypedStructureImpl("undefined");
-  if (type.isVoid())
-    return new LiteralTypedStructureImpl("void");
-  if (type.isLiteral()) {
-    const literal = (typeNode as LiteralTypeNode).getLiteral()
-    if (literal instanceof TrueLiteral)
-      return new LiteralTypedStructureImpl("true");
-    if (literal instanceof FalseLiteral)
-      return new LiteralTypedStructureImpl("false");
-    if (literal instanceof StringLiteral)
-      return new StringTypedStructureImpl(literal.getLiteralText());
-    if (literal instanceof LiteralExpression)
-      return new LiteralTypedStructureImpl(literal.getLiteralText());
-    if (literal instanceof NumericLiteral)
-      return new LiteralTypedStructureImpl(literal.getLiteralText());
+  if (Node.isLiteralTypeNode(typeNode)) {
+    typeNode = typeNode.getFirstChildOrThrow()
+  }
+  const kind: SyntaxKind = typeNode.getKind();
+
+  {
+    const keyword = LiteralKeywords.get(kind);
+    if (keyword) {
+      return new LiteralTypedStructureImpl(keyword);
+    }
   }
 
-  if (flags & TypeFlags.ESSymbol)
-    return new LiteralTypedStructureImpl("symbol");
+  if (Node.isNumericLiteral(typeNode)) {
+    return new LiteralTypedStructureImpl(typeNode.getLiteralText());
+  }
+  if (Node.isStringLiteral(typeNode)) {
+    return new StringTypedStructureImpl(typeNode.getLiteralText());
+  }
+
+  {
+    let childTypeNodes: TypeNode[] = [],
+        parentStructure: TypeStructure & TypeStructureWithElements | undefined = undefined;
+    if (Node.isUnionTypeNode(typeNode))
+    {
+      parentStructure = new UnionTypedStructureImpl;
+      childTypeNodes = typeNode.getTypeNodes();
+    }
+    else if (Node.isIntersectionTypeNode(typeNode)) {
+      parentStructure = new IntersectionTypedStructureImpl;
+      childTypeNodes = typeNode.getTypeNodes();
+    }
+    else if (Node.isTupleTypeNode(typeNode)) {
+      parentStructure = new TupleTypedStructureImpl(false);
+      childTypeNodes = typeNode.getElements();
+    }
+    else if (Node.isTypeReference(typeNode)) {
+      childTypeNodes = typeNode.getTypeArguments();
+      const objectType = new LiteralTypedStructureImpl(typeNode.getTypeName().getText());
+      if (childTypeNodes.length === 0)
+        return objectType;
+      parentStructure = new TypeArgumentedTypedStructureImpl(objectType);
+    }
+
+    if (parentStructure) {
+      if (convertChildTypes(childTypeNodes, parentStructure))
+        return parentStructure;
+      return null;
+    }
+  }
 
   return null;
+}
+
+function convertChildTypes(
+  childTypeNodes: readonly TypeNode[],
+  parentTypeStructure: TypeStructureWithElements
+): boolean
+{
+  return childTypeNodes.every(typeNode => {
+    const childStructure = convertTypeNode(typeNode);
+    if (childStructure) {
+      parentTypeStructure.elements.push(childStructure);
+      return true;
+    }
+
+    return false;
+  });
 }

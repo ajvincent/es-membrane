@@ -5,7 +5,12 @@ import type {
 
 import { TypeStructure } from "./TypeStructure.mjs";
 
+export interface TypeStructureWithElements {
+  elements: TypeStructure[];
+}
+
 export default abstract class ElementsTypedStructureAbstract
+implements TypeStructureWithElements
 {
   elements: TypeStructure[] = [];
   public readonly abstract prefix: string;
