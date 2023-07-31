@@ -52,8 +52,25 @@ const LiteralKeywords: ReadonlyMap<SyntaxKind, string> = new Map([
   [SyntaxKind.VoidKeyword, "void"],
 ]);
 
+let conversionFailCallback: ((message: string) => void) | undefined = undefined;
+
 export default function convertTypeNode(
-  typeNode: TypeNode
+  typeNode: TypeNode,
+  _console: ((message: string) => void) | undefined = undefined
+): TypeStructure | null
+{
+  conversionFailCallback = _console;
+  try {
+    return convertTypeNodeInternal(typeNode);
+  }
+  finally {
+    conversionFailCallback = undefined;
+  }
+}
+
+/** @internal */
+export function convertTypeNodeInternal(
+  typeNode: TypeNode,
 ): TypeStructure | null
 {
   if (Node.isLiteralTypeNode(typeNode)) {
@@ -73,25 +90,25 @@ export default function convertTypeNode(
     return new StringTypedStructureImpl(typeNode.getLiteralText());
   }
   if (Node.isParenthesizedTypeNode(typeNode)) {
-    const childStructure = convertTypeNode(typeNode.getTypeNode());
+    const childStructure = convertTypeNodeInternal(typeNode.getTypeNode());
     if (!childStructure)
       return null;
     return new ParenthesesTypedStructureImpl(childStructure);
   }
 
   if (Node.isArrayTypeNode(typeNode)) {
-    const childStructure = convertTypeNode(typeNode.getElementTypeNode());
+    const childStructure = convertTypeNodeInternal(typeNode.getElementTypeNode());
     if (!childStructure)
       return null;
     return new ArrayTypedStructureImpl(childStructure);
   }
 
   if (Node.isIndexedAccessTypeNode(typeNode)) {
-    const objectType = convertTypeNode(typeNode.getObjectTypeNode());
+    const objectType = convertTypeNodeInternal(typeNode.getObjectTypeNode());
     if (!objectType)
       return null;
 
-    const indexType = convertTypeNode(typeNode.getIndexTypeNode());
+    const indexType = convertTypeNodeInternal(typeNode.getIndexTypeNode());
     if (!indexType)
       return null;
 
@@ -142,6 +159,13 @@ export default function convertTypeNode(
   if (parentStructure && convertAndAppendChildTypes(childTypeNodes, parentStructure.elements))
     return parentStructure;
 
+  if (conversionFailCallback) {
+    const pos = typeNode.getPos();
+    const { line, column } = typeNode.getSourceFile().getLineAndColumnAtPos(pos);
+    conversionFailCallback(
+      `unsupported type node "${typeNode.getKindName()}" at line ${line}, column ${column}`
+    );
+  }
   return null;
 }
 
@@ -156,7 +180,7 @@ function convertTypeOperatorNode(
   typeNode: TypeOperatorTypeNode
 ): PrefixOperatorsTypedStructureImpl | null
 {
-  const structure = convertTypeNode(typeNode.getTypeNode());
+  const structure = convertTypeNodeInternal(typeNode.getTypeNode());
   if (!structure)
     return null;
   switch (typeNode.getOperator()) {
@@ -196,7 +220,7 @@ function convertAndAppendChildTypes(
 ): boolean
 {
   return childTypeNodes.every(typeNode => {
-    const childStructure = convertTypeNode(typeNode);
+    const childStructure = convertTypeNodeInternal(typeNode);
     if (childStructure) {
       elements.push(childStructure);
       return true;
@@ -210,19 +234,19 @@ function convertConditionalTypeNode(
   condition: ConditionalTypeNode
 ): ConditionalTypedStructureImpl | null
 {
-  const checkType: TypeStructure | null = convertTypeNode(condition.getCheckType());
+  const checkType: TypeStructure | null = convertTypeNodeInternal(condition.getCheckType());
   if (!checkType)
     return null;
 
-  const extendsType: TypeStructure | null = convertTypeNode(condition.getExtendsType());
+  const extendsType: TypeStructure | null = convertTypeNodeInternal(condition.getExtendsType());
   if (!extendsType)
     return null;
 
-  const trueType: TypeStructure | null = convertTypeNode(condition.getTrueType());
+  const trueType: TypeStructure | null = convertTypeNodeInternal(condition.getTrueType());
   if (!trueType)
     return null;
 
-  const falseType: TypeStructure | null = convertTypeNode(condition.getFalseType());
+  const falseType: TypeStructure | null = convertTypeNodeInternal(condition.getFalseType());
   if (!falseType)
     return null;
 
@@ -266,7 +290,7 @@ function convertFunctionTypeNode(
   const returnTypeNode = typeNode.getReturnTypeNode();
   let returnTypeStructure: TypeStructure | undefined = undefined;
   if (returnTypeNode) {
-    returnTypeStructure = convertTypeNode(returnTypeNode) ?? undefined;
+    returnTypeStructure = convertTypeNodeInternal(returnTypeNode) ?? undefined;
   }
 
   const functionContext: FunctionTypeContext = {
@@ -289,7 +313,7 @@ function convertParameterTypeNode(
   const paramTypeNode = node.getTypeNode();
   let paramTypeStructure: TypeStructure | null = null;
   if (paramTypeNode) {
-    paramTypeStructure = convertTypeNode(paramTypeNode);
+    paramTypeStructure = convertTypeNodeInternal(paramTypeNode);
   }
   return new ParameterTypedStructureImpl(node.getName(), paramTypeStructure ?? undefined);
 }

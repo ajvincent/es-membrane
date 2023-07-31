@@ -46,13 +46,12 @@ const A: string;
 
   function setTypeStructure(
     rawType: string,
-    console: Pick<Console, "log"> | null = null
+    console?: ((message: string) => void) | undefined
   ): void
   {
     declaration.setType(rawType);
     const typeNode = declaration.getTypeNodeOrThrow();
-    void(console);
-    structure = convertTypeNode(typeNode);
+    structure = convertTypeNode(typeNode, console);
   }
 
   it("any", () => {
@@ -412,4 +411,18 @@ const A: string;
       expect(structure.writerStyle).toBe(FunctionWriterStyle.Arrow);
     }
   );
+
+  it(`{ foo: true } (object literal)`, () => {
+    let failMessage: string | undefined;
+    const failCallback = (message: string): void => {
+      failMessage = message
+    };
+
+    setTypeStructure(`{ foo: true }`, failCallback);
+    expect(structure).toBe(null);
+
+    expect<string>(
+      failMessage as unknown as string
+    ).toBe(`unsupported type node "TypeLiteral" at line 2, column 9`);
+  });
 });
