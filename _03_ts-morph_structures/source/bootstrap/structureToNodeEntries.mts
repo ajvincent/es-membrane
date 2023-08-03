@@ -31,11 +31,11 @@ export default class StructureAndNodeData
   readonly structureToNode = new Map<Structures, Node>;
 
   readonly #hashToStructureMap = new Map<string, Structures>;
-  readonly #structureToHash = new WeakMap<Structures, string>;
-  readonly #structureToParent = new WeakMap<Structures, Structures>;
+  readonly #structureToHash = new Map<Structures, string>;
+  readonly #structureToParent = new Map<Structures, Structures>;
 
   readonly #nodeSetsByHash = new DefaultMap<string, Node[]>;
-  readonly #nodeToHash = new WeakMap<Node, string>;
+  readonly #nodeToHash = new Map<Node, string>;
 
   constructor(
     sourceFile: SourceFile
@@ -50,7 +50,10 @@ export default class StructureAndNodeData
     this.unusedStructures.forEach(value => this.#mapStructureToNodes(value));
 
     this.#hashToStructureMap.clear();
+    this.#structureToHash.clear();
+    this.#structureToParent.clear();
     this.#nodeSetsByHash.clear();
+    this.#nodeToHash.clear();
   }
 
   #collectDescendantStructures(
@@ -97,6 +100,11 @@ export default class StructureAndNodeData
 
       case SyntaxKind.FunctionDeclaration:
         this.#collectJSDocableNodes(node.asKindOrThrow(SyntaxKind.FunctionDeclaration), hash);
+        break;
+
+      case SyntaxKind.MethodSignature:
+        this.#collectJSDocableNodes(node.asKindOrThrow(SyntaxKind.MethodSignature), hash);
+        break;
     }
 
     node.forEachChild(child => this.#collectDescendantNodes(child, hash));
@@ -123,18 +131,6 @@ export default class StructureAndNodeData
   }
 
   #mapStructureToNodes(
-    structure: Structures
-  ): void
-  {
-    /*
-    switch (structure.kind) {
-    }
-    */
-
-    return this.#mapStructureToNodes_default(structure);
-  }
-
-  #mapStructureToNodes_default(
     structure: Structures
   ): void
   {
@@ -208,7 +204,13 @@ export default class StructureAndNodeData
       parentHash = this.#nodeToHash.get(parentNode)!;
     }
 
-    let hash: string = parentHash + "/" + SyntaxKind[StructureKindToSyntaxKindMap.get(structure.kind)!];
+    let localKind = SyntaxKind[StructureKindToSyntaxKindMap.get(structure.kind)!];
+    if (localKind === "JSDocComment")
+      localKind = "JSDoc";
+    if (localKind === "FirstStatement")
+      localKind = "VariableStatement";
+
+    let hash: string = parentHash + "/" + localKind;
     if ("name" in structure)
       hash += ":" + structure.name?.toString();
     return hash;
@@ -225,6 +227,7 @@ export default class StructureAndNodeData
         Node.isNameable(node) ||
         Node.isPropertyNamed(node) ||
         Node.isBindingNamed(node) ||
+        Node.isImportSpecifier(node) ||
         false
       )
       {
