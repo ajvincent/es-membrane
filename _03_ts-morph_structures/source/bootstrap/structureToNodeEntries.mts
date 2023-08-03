@@ -1,48 +1,122 @@
 import {
   SourceFile,
-  Structure,
   Structures,
   Node,
   forEachStructureChild,
-  SyntaxKind
+  SyntaxKind,
+  StructureKind
 } from "ts-morph";
+
+import { DefaultMap } from "#stage_utilities/source/DefaultMap.mjs";
 
 import StructureKindToSyntaxKindMap from "../generated/structureToSyntax.mjs";
 const knownSyntaxKinds = new Set<SyntaxKind>(StructureKindToSyntaxKindMap.values());
 
 export default function buildStructureToNodeEntries(
   sourceFile: SourceFile
-): [Structure[], Node[]]
+): StructureAndNodeData
 {
   const sourceStructure = sourceFile.getStructure();
+  const data = new StructureAndNodeData;
 
-  const structuresArray: Structures[] = [];
-  collectDescendantStructures(structuresArray, sourceStructure);
+  collectDescendantStructures(data, sourceStructure);
+  collectDescendantNodes(data, sourceFile);
 
-  let nodesArray: Node[] = [];
-  collectDescendantNodes(nodesArray, sourceFile);
-  nodesArray = nodesArray.filter(node => knownSyntaxKinds.has(node.getKind()));
+  data.unusedStructures.forEach((value: Structures) => {
+    const structureHash = hashStructure(value);
+    const nodeHash = createNodeHashFromStructure(value);
+    const candidateStructures = data.structureSetsByHash.get(structureHash);
 
-  return [structuresArray, nodesArray];
+    if (!candidateStructures || candidateStructures[0] !== value) {
+      return;
+    }
+
+    const candidateNodes = data.nodeSetsByHash.get(nodeHash);
+    if (!candidateNodes || candidateNodes.length === 0) {
+      return;
+    }
+
+    candidateStructures.shift();
+    const node = candidateNodes.shift()!;
+    data.structureToNode.set(value, node);
+    data.unusedStructures.delete(value);
+    data.unusedNodes.delete(node);
+  });
+
+  return data;
+}
+
+class StructureAndNodeData {
+  readonly unusedStructures = new Set<Structures>();
+  readonly unusedNodes = new Set<Node>();
+
+  readonly structureSetsByHash = new DefaultMap<string, Structures[]>;
+  readonly nodeSetsByHash = new DefaultMap<string, Node[]>;
+
+  readonly structureToNode = new Map<Structures, Node>;
 }
 
 function collectDescendantStructures(
-  structureArray: Structures[],
+  data: StructureAndNodeData,
   currentStructure: Structures
 ): void
 {
-  structureArray.push(currentStructure);
+  if (currentStructure.kind !== StructureKind.JSDocTag) {
+    const hash = hashStructure(currentStructure);
+    const structureSet = data.structureSetsByHash.getDefault(hash, () => []);
+    structureSet.push(currentStructure);
+    data.unusedStructures.add(currentStructure);
+  }
+
   forEachStructureChild(
     currentStructure,
-    (child: Structures): void => collectDescendantStructures(structureArray, child)
+    (child: Structures): void => collectDescendantStructures(data, child)
   );
 }
 
 function collectDescendantNodes(
-  nodeArray: Node[],
+  data: StructureAndNodeData,
   currentNode: Node
 ): void
 {
-  nodeArray.push(currentNode);
-  currentNode.forEachChild(childNode => collectDescendantNodes(nodeArray, childNode));
+  if (knownSyntaxKinds.has(currentNode.getKind())) {
+    const hash = hashNode(currentNode);
+    const nodeSet = data.nodeSetsByHash.getDefault(hash, () => []);
+    nodeSet.push(currentNode);
+    data.unusedNodes.add(currentNode);
+  }
+
+  currentNode.forEachChild(childNode => collectDescendantNodes(data, childNode));
+}
+
+function hashStructure(
+  structure: Structures
+): string {
+  let rv: string = structure.kind.toString();
+  if ("name" in structure) {
+    rv += ":" + structure.name?.toString();
+  }
+  return rv;
+}
+
+function createNodeHashFromStructure(
+  structure: Structures
+): string
+{
+  let rv: string = StructureKindToSyntaxKindMap.get(structure.kind)!.toString();
+  if ("name" in structure)
+    rv += ":" + structure.name?.toString();
+  return rv;
+}
+
+function hashNode(
+  node: Node
+): string {
+  let rv: string = node.getKind().toString();
+  if (Node.isNamed(node) || Node.isNameable(node)) {
+    const name = node.getName();
+    if (name)
+      rv += ":" + name;
+  }
+  return rv;
 }
