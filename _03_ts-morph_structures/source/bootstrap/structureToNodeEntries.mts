@@ -5,7 +5,9 @@ import {
   forEachStructureChild,
   SyntaxKind,
   StructureKind,
-  ClassDeclaration
+  ClassDeclaration,
+  JSDocableNode,
+  JSDoc
 } from "ts-morph";
 
 import { DefaultMap } from "#stage_utilities/source/DefaultMap.mjs";
@@ -22,6 +24,8 @@ export default class StructureAndNodeData
     return hash + "#" + count;
   }
 
+  readonly #sourceFile: SourceFile;
+
   readonly unusedStructures = new Set<Structures>();
   readonly unusedNodes = new Set<Node>();
   readonly structureToNode = new Map<Structures, Node>;
@@ -37,6 +41,8 @@ export default class StructureAndNodeData
     sourceFile: SourceFile
   )
   {
+    this.#sourceFile = sourceFile;
+
     const sourceStructure = sourceFile.getStructure();
     this.#collectDescendantStructures(sourceStructure, "");
     this.#collectDescendantNodes(sourceFile, "");
@@ -86,7 +92,11 @@ export default class StructureAndNodeData
     switch (kind) {
       case SyntaxKind.ClassDeclaration:
         this.#collectClassFields(node.asKindOrThrow(SyntaxKind.ClassDeclaration), hash);
+        this.#collectJSDocableNodes(node.asKindOrThrow(SyntaxKind.ClassDeclaration), hash);
         break;
+
+      case SyntaxKind.FunctionDeclaration:
+        this.#collectJSDocableNodes(node.asKindOrThrow(SyntaxKind.FunctionDeclaration), hash);
     }
 
     node.forEachChild(child => this.#collectDescendantNodes(child, hash));
@@ -100,6 +110,15 @@ export default class StructureAndNodeData
     const childNodes: Node[] = [
       ...node.getProperties(),
     ];
+    childNodes.forEach(child => this.#collectDescendantNodes(child, hash));
+  }
+
+  #collectJSDocableNodes(
+    node: JSDocableNode,
+    hash: string
+  ): void
+  {
+    const childNodes: JSDoc[] = node.getJsDocs();
     childNodes.forEach(child => this.#collectDescendantNodes(child, hash));
   }
 
@@ -145,7 +164,14 @@ export default class StructureAndNodeData
 
     const candidateNodes = this.#nodeSetsByHash.get(nodeHash);
     if (!candidateNodes || candidateNodes.length === 0) {
-      throw new Error("Expected candidate node to exist, structureHash = " + structureHash + ", nodeHash = " + nodeHash);
+      throw new Error(
+        `Expected candidate node to exist, structureHash = "${
+          structureHash
+        }", nodeHash = "${
+          nodeHash
+        }", parent at ${
+          JSON.stringify(this.#sourceFile.getLineAndColumnAtPos(parentNode!.getPos()))
+        }`);
     }
 
     const node = candidateNodes.shift()!;
@@ -194,7 +220,14 @@ export default class StructureAndNodeData
     let hash = this.#nodeToHash.get(node) ?? "";
     if (!hash) {
       hash = node.getKindName().toString();
-      if (Node.isNamed(node) || Node.isNameable(node) || Node.isPropertyNamed(node)) {
+      if (
+        Node.isNamed(node) ||
+        Node.isNameable(node) ||
+        Node.isPropertyNamed(node) ||
+        Node.isBindingNamed(node) ||
+        false
+      )
+      {
         const name = node.getName();
         if (name)
           hash += ":" + name;
