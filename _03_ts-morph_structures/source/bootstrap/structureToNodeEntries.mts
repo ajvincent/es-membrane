@@ -7,7 +7,7 @@ import {
   StructureKind,
   ClassDeclaration,
   JSDocableNode,
-  JSDoc
+  JSDoc,
 } from "ts-morph";
 
 import { DefaultMap } from "#stage_utilities/source/DefaultMap.mjs";
@@ -42,10 +42,10 @@ export default class StructureAndNodeData
   )
   {
     this.#sourceFile = sourceFile;
+    this.#collectDescendantNodes(sourceFile, "");
 
     const sourceStructure = sourceFile.getStructure();
     this.#collectDescendantStructures(sourceStructure, "");
-    this.#collectDescendantNodes(sourceFile, "");
 
     this.unusedStructures.forEach(value => this.#mapStructureToNodes(value));
 
@@ -56,31 +56,20 @@ export default class StructureAndNodeData
     this.#nodeToHash.clear();
   }
 
-  #collectDescendantStructures(
-    structure: Structures,
-    hash: string,
-  ): void
-  {
-    if (structure.kind === StructureKind.JSDocTag)
-      return;
-
-    hash += "/" + this.#hashStructure(structure);
-    this.#structureToHash.set(structure, hash);
-
-    this.#hashToStructureMap.set(hash, structure);
-    this.unusedStructures.add(structure);
-
-    forEachStructureChild(structure, child => {
-      this.#structureToParent.set(child, structure);
-      this.#collectDescendantStructures(child, hash);
-    });
-  }
-
   readonly #collectDescendantNodes = (
     node: Node,
     hash: string,
   ): void =>
   {
+    if ((Node.isStatement(node)) && (
+      Node.isFunctionDeclaration(node.getParent()) ||
+      false
+    )) {
+      // ts-morph's .getStructures() wil return most statements as strings, since the AST has no structures for most statements.
+      // So I'm not going to add a `statementStructures` property at this time... just bail out.
+      return;
+    }
+
     const kind: SyntaxKind = node.getKind();
     if (knownSyntaxKinds.has(kind)) {
       hash += "/" + this.#hashNode(node);
@@ -108,6 +97,26 @@ export default class StructureAndNodeData
     }
 
     node.forEachChild(child => this.#collectDescendantNodes(child, hash));
+  }
+
+  #collectDescendantStructures(
+    structure: Structures,
+    hash: string,
+  ): void
+  {
+    if (structure.kind === StructureKind.JSDocTag)
+      return;
+
+    hash += "/" + this.#hashStructure(structure);
+    this.#structureToHash.set(structure, hash);
+
+    this.#hashToStructureMap.set(hash, structure);
+    this.unusedStructures.add(structure);
+
+    forEachStructureChild(structure, child => {
+      this.#structureToParent.set(child, structure);
+      this.#collectDescendantStructures(child, hash);
+    });
   }
 
   #collectClassFields(
