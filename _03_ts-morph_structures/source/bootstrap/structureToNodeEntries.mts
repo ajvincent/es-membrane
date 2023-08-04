@@ -228,6 +228,7 @@ export default class StructureAndNodeData
         Node.isPropertyNamed(node) ||
         Node.isBindingNamed(node) ||
         Node.isImportSpecifier(node) ||
+        Node.isExportSpecifier(node) ||
         false
       )
       {
