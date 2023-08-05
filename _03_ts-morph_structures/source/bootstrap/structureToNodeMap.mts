@@ -7,6 +7,7 @@ import {
   ClassDeclaration,
   JSDocableNode,
   JSDoc,
+  FunctionDeclarationOverloadStructure,
 } from "ts-morph";
 
 import { DefaultMap } from "#stage_utilities/source/DefaultMap.mjs";
@@ -126,9 +127,23 @@ class StructureAndNodeData
     this.#unusedStructures.add(structure);
 
     forEachStructureChild(structure, child => {
+      if (child.kind === StructureKind.FunctionOverload)
+        return;
       this.#structureToParent.set(child, structure);
       this.#collectDescendantStructures(child, hash);
     });
+
+    if (structure.kind === StructureKind.Function) {
+      if (structure.overloads?.length) {
+        structure.overloads.forEach(child => {
+          const overloadStructure = child as FunctionDeclarationOverloadStructure;
+          overloadStructure.kind = StructureKind.FunctionOverload;
+
+          this.#structureToParent.set(overloadStructure, structure);
+          this.#collectDescendantStructures(overloadStructure, hash);
+        });
+      }
+    }
   }
 
   #collectClassFields(
@@ -268,6 +283,7 @@ class StructureAndNodeData
         Node.isImportSpecifier(node) ||
         Node.isExportSpecifier(node) ||
         Node.isDecorator(node) ||
+        Node.isModuleDeclaration(node) ||
         false
       )
       {

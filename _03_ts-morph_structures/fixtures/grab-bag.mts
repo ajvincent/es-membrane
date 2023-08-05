@@ -9,6 +9,19 @@ enum NumberString {
   three,
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface HasConstructSignature {
+
+  // eslint-disable-next-line @typescript-eslint/no-misused-new, @typescript-eslint/prefer-function-type
+  new (x: number): HasConstructSignature
+}
+
+// eslint-disable-next-line @typescript-eslint/prefer-namespace-keyword, @typescript-eslint/no-namespace
+module ThisIsAModule {
+  export const x = 3;
+}
+void(ThisIsAModule);
+
 class Bar implements Omit<Foo, keyof Foo> {
   static one: number;
   static two: string;
@@ -45,4 +58,13 @@ class Bar implements Omit<Foo, keyof Foo> {
 }
 void(Bar.one);
 
-export { NumberString };
+function foo(x: number, y: string): void
+function foo(x: number): void
+{
+  void(x);
+}
+
+export {
+  NumberString,
+  foo
+};
