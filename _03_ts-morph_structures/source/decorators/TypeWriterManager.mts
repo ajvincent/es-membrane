@@ -20,6 +20,8 @@ import {
 } from "../typeStructures/callbackToTypeStructureRegistry.mjs";
 import StructureBase from "./StructureBase.mjs";
 
+import cloneableClassesMap from "../typeStructures/cloneableClassesMap.mjs";
+
 export default class TypeWriterManager
 extends StructureBase
 implements TypedNodeStructure, TypedNodeTypeStructure
@@ -65,5 +67,22 @@ implements TypedNodeStructure, TypedNodeTypeStructure
   set typeStructure(value: TypeStructure | undefined)
   {
     this.#typeOrStructure = value;
+  }
+
+  static cloneType(
+    type: stringOrWriterFunction | undefined
+  ): stringOrWriterFunction | undefined
+  {
+    if (typeof type !== "function")
+      return type;
+
+    const typeStructure = getTypeStructureForCallback(type);
+    if (!typeStructure)
+      return type;
+
+    return cloneableClassesMap
+      .get(typeStructure.kind)!
+      .clone(typeStructure)
+      .writerFunction;
   }
 }

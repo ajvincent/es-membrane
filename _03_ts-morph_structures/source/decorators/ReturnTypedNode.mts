@@ -91,7 +91,7 @@ export default function ReturnTypedNode(
       target: ReturnTypedNodeTypeStructure
     ): void
     {
-      target.returnType = source.returnType;
+      target.returnType = TypeWriterManager.cloneType(source.returnType);
     }
   }
 }

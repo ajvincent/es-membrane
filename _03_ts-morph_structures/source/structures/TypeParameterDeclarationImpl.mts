@@ -16,7 +16,6 @@ import StructureBase from "../decorators/StructureBase.mjs";
 
 import TypeWriterManager from "../decorators/TypeWriterManager.mjs";
 import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
-import cloneableClassesMap from "../typeStructures/cloneableClassesMap.mjs";
 
 export default class TypeParameterDeclarationImpl
 extends StructureBase
@@ -124,23 +123,8 @@ implements TypeParameterDeclarationStructure
     clone.isConst = other.isConst ?? false;
     clone.variance = other.variance;
 
-    if ((other instanceof TypeParameterDeclarationImpl) && other.constraintStructure) {
-      clone.constraintStructure = cloneableClassesMap.get(
-        other.constraintStructure.kind
-      )!.clone(other.constraintStructure);
-    }
-    else {
-      clone.constraint = other.constraint;
-    }
-
-    if ((other instanceof TypeParameterDeclarationImpl) && other.defaultStructure) {
-      clone.defaultStructure = cloneableClassesMap.get(
-        other.defaultStructure.kind
-      )!.clone(other.defaultStructure);
-    }
-    else {
-      clone.default = other.default;
-    }
+    clone.constraint = TypeWriterManager.cloneType(other.constraint);
+    clone.default = TypeWriterManager.cloneType(other.default);
 
     return clone;
   }

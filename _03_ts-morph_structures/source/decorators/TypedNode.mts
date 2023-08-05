@@ -89,7 +89,7 @@ export default function TypedNode(
       target: TypedNodeTypeStructure
     ): void
     {
-      target.type = source.type;
+      target.type = TypeWriterManager.cloneType(source.type);
     }
   }
 }
