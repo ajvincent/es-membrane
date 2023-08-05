@@ -32,7 +32,7 @@ type ClassDecoratorFunction<
   )
 );
 
-type ClassEvent = {
+interface ClassEvent {
   eventType: "decoratorApplied" | "initializerCallback" | "construction";
   item: "A" | "B" | "C";
   decoratorItems?: ClassEvent["item"][];

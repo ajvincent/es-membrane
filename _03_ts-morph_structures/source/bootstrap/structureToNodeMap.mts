@@ -39,7 +39,7 @@ class StructureAndNodeData
   readonly #structureToHash = new Map<Structures, string>;
   readonly #structureToParent = new Map<Structures, Structures>;
 
-  readonly #nodeSetsByHash = new DefaultMap<string, Node[]>;
+  readonly #nodeSetsByHash = new DefaultMap<string, Set<Node>>;
   readonly #nodeToHash = new Map<Node, string>;
 
   #hashCounter = new DefaultMap<string, number>;
@@ -85,39 +85,27 @@ class StructureAndNodeData
     hash: string,
   ): void =>
   {
-    if ((Node.isStatement(node)) && (
-      Node.isFunctionLikeDeclaration(node.getParent()) ||
-      false
-    )) {
-      // ts-morph's .getStructures() wil return most statements as strings, since the AST has no structures for most statements.
-      // So I'm not going to add a `statementStructures` property at this time... just bail out.
-      return;
-    }
-
     const kind: SyntaxKind = node.getKind();
     if (knownSyntaxKinds.has(kind)) {
       hash += "/" + this.#hashNode(node);
       this.#nodeToHash.set(node, hash);
 
-      const nodeSet = this.#nodeSetsByHash.getDefault(hash, () => []);
-      nodeSet.push(node);
+      const nodeSet = this.#nodeSetsByHash.getDefault(hash, () => new Set);
+      nodeSet.add(node);
       this.#unusedNodes.add(node);
       this.#nodeToHash.set(node, hash);
     }
 
+    if (Node.isJSDocable(node)) {
+      this.#collectJSDocableNodes(node, hash);
+    }
+
     switch (kind) {
-      case SyntaxKind.ClassDeclaration:
-        this.#collectClassFields(node.asKindOrThrow(SyntaxKind.ClassDeclaration), hash);
-        this.#collectJSDocableNodes(node.asKindOrThrow(SyntaxKind.ClassDeclaration), hash);
+      case SyntaxKind.ClassDeclaration: {
+        const nodeAsClass = node.asKindOrThrow(SyntaxKind.ClassDeclaration);
+        this.#collectClassFields(nodeAsClass, hash);
         break;
-
-      case SyntaxKind.FunctionDeclaration:
-        this.#collectJSDocableNodes(node.asKindOrThrow(SyntaxKind.FunctionDeclaration), hash);
-        break;
-
-      case SyntaxKind.MethodSignature:
-        this.#collectJSDocableNodes(node.asKindOrThrow(SyntaxKind.MethodSignature), hash);
-        break;
+      }
     }
 
     node.forEachChild(child => this.#collectDescendantNodes(child, hash));
@@ -192,7 +180,7 @@ class StructureAndNodeData
     void(parentNodeHash);
 
     const candidateNodes = this.#nodeSetsByHash.get(nodeHash);
-    if (!candidateNodes || candidateNodes.length === 0) {
+    if (!candidateNodes || candidateNodes.size === 0) {
       const sourceFile = this.#rootNode!.getSourceFile();
       let parentMsg = "";
       if (parentNode) {
@@ -208,11 +196,14 @@ class StructureAndNodeData
         }"${parentMsg}`);
     }
 
-    const node = candidateNodes.shift()!;
-    this.structureToNodeMap.set(structure, node);
-    this.#hashToStructureMap.delete(structureHash);
-    this.#unusedStructures.delete(structure);
-    this.#unusedNodes.delete(node);
+    for (const node of candidateNodes) {
+      this.structureToNodeMap.set(structure, node);
+      this.#hashToStructureMap.delete(structureHash);
+      this.#unusedStructures.delete(structure);
+      this.#unusedNodes.delete(node);
+      candidateNodes.delete(node);
+      break;
+    }
   }
 
   #hashStructure(
@@ -252,6 +243,10 @@ class StructureAndNodeData
     if (localKind === "FirstStatement")
       localKind = "VariableStatement";
 
+    if (StructureKind[structure.kind].endsWith("Overload")) {
+      localKind = "overload";
+    }
+
     let hash: string = parentHash + "/" + localKind;
     if ("name" in structure)
       hash += ":" + structure.name?.toString();
@@ -264,6 +259,7 @@ class StructureAndNodeData
     let hash = this.#nodeToHash.get(node) ?? "";
     if (!hash) {
       hash = node.getKindName().toString();
+
       if (
         Node.isNamed(node) ||
         Node.isNameable(node) ||
@@ -271,12 +267,29 @@ class StructureAndNodeData
         Node.isBindingNamed(node) ||
         Node.isImportSpecifier(node) ||
         Node.isExportSpecifier(node) ||
+        Node.isDecorator(node) ||
         false
       )
       {
         const name = node.getName();
         if (name)
           hash += ":" + name;
+      }
+
+      /* TypeScript has every overloadable as sibling nodes, and instances of the same class.
+       * ConstructorDeclaration (overload 1),
+       * ConstructorDeclaration (overload 2),
+       * ConstructorDeclaration (not an overload)
+       *
+       * ts-morph structures have the overloads as child structures of the non-overload structure.
+       * ConstructorDeclarationStructure (not an overload)
+       *   ConstructorDeclarationOverloadStructure (overload 1)
+       *   ConstructorDeclarationOverloadStructure (overload 2)
+       *
+       * The hashes have to reflect this pattern.
+       */
+      if (hash && Node.isOverloadable(node) && node.isOverload()) {
+        hash += "/overload";
       }
     }
 
