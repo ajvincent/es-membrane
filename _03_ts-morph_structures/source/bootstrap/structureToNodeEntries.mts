@@ -1,5 +1,4 @@
 import {
-  SourceFile,
   Structures,
   Node,
   forEachStructureChild,
@@ -15,20 +14,26 @@ import { DefaultMap } from "#stage_utilities/source/DefaultMap.mjs";
 import StructureKindToSyntaxKindMap from "../generated/structureToSyntax.mjs";
 const knownSyntaxKinds = new Set<SyntaxKind>(StructureKindToSyntaxKindMap.values());
 
-export default class StructureAndNodeData
+export type NodeWithStructures = Node & {
+  getStructure(): Structures;
+};
+
+export default function structureToNodeMap(
+  nodeWithStructures: NodeWithStructures,
+): Map<Structures, Node>
 {
-  static #hashCounter = new DefaultMap<string, number>;
-  static #appendCounterPostfix(hash: string): string {
-    const count = this.#hashCounter.getDefault(hash, () => 0) + 1;
-    this.#hashCounter.set(hash, count);
-    return hash + "#" + count;
-  }
+  return (new StructureAndNodeData(nodeWithStructures)).structureToNodeMap;
+}
 
-  readonly #sourceFile: SourceFile;
+class StructureAndNodeData
+{
+  readonly structureToNodeMap = new Map<Structures, Node>;
 
-  readonly unusedStructures = new Set<Structures>();
-  readonly unusedNodes = new Set<Node>();
-  readonly structureToNode = new Map<Structures, Node>;
+  #rootNode: NodeWithStructures | null;
+  #rootStructure: Structures | null = null;
+
+  readonly #unusedStructures = new Set<Structures>();
+  readonly #unusedNodes = new Set<Node>();
 
   readonly #hashToStructureMap = new Map<string, Structures>;
   readonly #structureToHash = new Map<Structures, string>;
@@ -37,23 +42,42 @@ export default class StructureAndNodeData
   readonly #nodeSetsByHash = new DefaultMap<string, Node[]>;
   readonly #nodeToHash = new Map<Node, string>;
 
+  #hashCounter = new DefaultMap<string, number>;
+  #appendCounterPostfix(hash: string): string {
+    const count = this.#hashCounter.getDefault(hash, () => 0) + 1;
+    this.#hashCounter.set(hash, count);
+    return hash + "#" + count;
+  }
+
   constructor(
-    sourceFile: SourceFile
+    nodeWithStructures: NodeWithStructures
   )
   {
-    this.#sourceFile = sourceFile;
-    this.#collectDescendantNodes(sourceFile, "");
+    this.#rootNode = nodeWithStructures;
+    this.#collectDescendantNodes(this.#rootNode, "");
 
-    const sourceStructure = sourceFile.getStructure();
-    this.#collectDescendantStructures(sourceStructure, "");
+    this.#rootStructure = this.#rootNode.getStructure();
+    this.#collectDescendantStructures(this.#rootStructure, "");
 
-    this.unusedStructures.forEach(value => this.#mapStructureToNodes(value));
+    this.#unusedStructures.forEach(value => this.#mapStructureToNodes(value));
+    if (this.#unusedStructures.size > 0) {
+      throw new Error("assert failure, we should've resolved every structure");
+    }
 
+    this.#cleanup();
+  }
+
+  #cleanup(): void {
+    this.#rootNode = null;
+    this.#rootStructure = null;
+    this.#unusedNodes.clear();
+    this.#unusedStructures.clear();
     this.#hashToStructureMap.clear();
     this.#structureToHash.clear();
     this.#structureToParent.clear();
     this.#nodeSetsByHash.clear();
     this.#nodeToHash.clear();
+    this.#hashCounter.clear();
   }
 
   readonly #collectDescendantNodes = (
@@ -62,7 +86,7 @@ export default class StructureAndNodeData
   ): void =>
   {
     if ((Node.isStatement(node)) && (
-      Node.isFunctionDeclaration(node.getParent()) ||
+      Node.isFunctionLikeDeclaration(node.getParent()) ||
       false
     )) {
       // ts-morph's .getStructures() wil return most statements as strings, since the AST has no structures for most statements.
@@ -77,7 +101,7 @@ export default class StructureAndNodeData
 
       const nodeSet = this.#nodeSetsByHash.getDefault(hash, () => []);
       nodeSet.push(node);
-      this.unusedNodes.add(node);
+      this.#unusedNodes.add(node);
       this.#nodeToHash.set(node, hash);
     }
 
@@ -111,7 +135,7 @@ export default class StructureAndNodeData
     this.#structureToHash.set(structure, hash);
 
     this.#hashToStructureMap.set(hash, structure);
-    this.unusedStructures.add(structure);
+    this.#unusedStructures.add(structure);
 
     forEachStructureChild(structure, child => {
       this.#structureToParent.set(child, structure);
@@ -149,13 +173,13 @@ export default class StructureAndNodeData
     let parentStructure: Structures | null = null;
     let parentNode: Node | null = null;
     let parentNodeHash = "";
-    if (structure.kind !== StructureKind.SourceFile) {
+    if (structure !== this.#rootStructure) {
       parentStructure = this.#structureToParent.get(structure)!;
       if (!parentStructure) {
         throw new Error("assert failure, no parent structure");
       }
 
-      parentNode = this.structureToNode.get(parentStructure) ?? null;
+      parentNode = this.structureToNodeMap.get(parentStructure) ?? null;
       if (!parentNode)
         throw new Error("assert failure, parent node not found");
 
@@ -169,21 +193,26 @@ export default class StructureAndNodeData
 
     const candidateNodes = this.#nodeSetsByHash.get(nodeHash);
     if (!candidateNodes || candidateNodes.length === 0) {
+      const sourceFile = this.#rootNode!.getSourceFile();
+      let parentMsg = "";
+      if (parentNode) {
+        parentMsg = `, parent at ${
+          JSON.stringify(sourceFile.getLineAndColumnAtPos(parentNode.getPos()))
+        }`
+      }
       throw new Error(
         `Expected candidate node to exist, structureHash = "${
           structureHash
         }", nodeHash = "${
           nodeHash
-        }", parent at ${
-          JSON.stringify(this.#sourceFile.getLineAndColumnAtPos(parentNode!.getPos()))
-        }`);
+        }"${parentMsg}`);
     }
 
     const node = candidateNodes.shift()!;
-    this.structureToNode.set(structure, node);
+    this.structureToNodeMap.set(structure, node);
     this.#hashToStructureMap.delete(structureHash);
-    this.unusedStructures.delete(structure);
-    this.unusedNodes.delete(node);
+    this.#unusedStructures.delete(structure);
+    this.#unusedNodes.delete(node);
   }
 
   #hashStructure(
@@ -196,7 +225,7 @@ export default class StructureAndNodeData
       if ("name" in structure) {
         hash += ":" + structure.name?.toString();
       }
-      hash = StructureAndNodeData.#appendCounterPostfix(hash);
+      hash = this.#appendCounterPostfix(hash);
     }
 
     return hash;
@@ -207,10 +236,14 @@ export default class StructureAndNodeData
   ): string
   {
     let parentHash = "";
-    if (structure.kind !== StructureKind.SourceFile) {
+    if (structure !== this.#rootStructure) {
       const parentStructure = this.#structureToParent.get(structure)!;
-      const parentNode = this.structureToNode.get(parentStructure)!;
-      parentHash = this.#nodeToHash.get(parentNode)!;
+      const parentNode = this.structureToNodeMap.get(parentStructure)!;
+      const parentHashTemp = this.#nodeToHash.get(parentNode);
+      if (parentHashTemp === undefined) {
+        throw new Error("assert failure, no parent hash");
+      }
+      parentHash = parentHashTemp;
     }
 
     let localKind = SyntaxKind[StructureKindToSyntaxKindMap.get(structure.kind)!];
@@ -245,8 +278,6 @@ export default class StructureAndNodeData
         if (name)
           hash += ":" + name;
       }
-
-      //hash = StructureAndNodeData.#appendCounterPostfix(hash);
     }
 
     return hash;
