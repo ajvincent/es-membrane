@@ -52,4 +52,7 @@ it("ts-morph structure decorators: StatementedNode", () => {
   expect(target.statements).toEqual(
     ["void(foo);\n", voidBarWriter, exportDecl]
   );
+  expect(target.statements[1]).toBe(voidBarWriter);
+  expect(target.statements[2]).not.toBe(exportDecl);
+  expect(target.statements[2]).toBeInstanceOf(ExportDeclarationImpl);
 });
