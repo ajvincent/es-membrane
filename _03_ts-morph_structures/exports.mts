@@ -35,6 +35,8 @@ export { default as TypeParameterDeclarationImpl } from "./source/structures/Typ
 export { default as VariableDeclarationImpl } from "./source/structures/VariableDeclarationImpl.mjs";
 export { default as VariableStatementImpl } from "./source/structures/VariableStatementImpl.mjs";
 
+export { default as StructuresClassesMap } from "./source/structures/StructuresClassesMap.mjs";
+
 // #endregion Structure implementations
 
 // #region TypeStructure implementations
@@ -61,6 +63,8 @@ export { default as TupleTypedStructureImpl } from "./source/typeStructures/Tupl
 export { default as TypeArgumentedTypedStructureImpl } from "./source/typeStructures/TypeArgumentedTypedStructureImpl.mjs";
 export { default as UnionTypedStructureImpl } from "./source/typeStructures/UnionTypedStructureImpl.mjs";
 export { default as WriterTypedStructureImpl } from "./source/typeStructures/WriterTypedStructureImpl.mjs";
+
+export { default as TypeStructureClassesMap } from "./source/typeStructures/TypeStructureClassesMap.mjs";
 
 // #endregion TypeStructure implementations
 
