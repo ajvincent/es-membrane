@@ -57,6 +57,8 @@ import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
+import createImplementsArrayProxy from "../utilities/ImplementsArrayProxy.mjs";
+
 const ClassDeclarationBase = MultiMixinBuilder<
   [
     KindedStructureFields<StructureKind.Class>,
@@ -87,15 +89,23 @@ export default class ClassDeclarationImpl
 extends ClassDeclarationBase
 implements ClassDeclarationStructure
 {
+  #implements: stringOrWriterFunction[] = createImplementsArrayProxy([]);
+
   extends: stringOrWriterFunction | undefined = undefined;
   ctors: ConstructorDeclarationImpl[] = [];
   properties: PropertyDeclarationImpl[] = [];
   getAccessors: GetAccessorDeclarationImpl[] = [];
   setAccessors: SetAccessorDeclarationImpl[] = [];
   methods: MethodDeclarationImpl[] = [];
-  implements: stringOrWriterFunction[] = [];
   readonly kind: StructureKind.Class = StructureKind.Class;
   hasDeclareKeyword = false;
+
+  get implements(): stringOrWriterFunction[] {
+    return this.#implements;
+  }
+  set implements(value: stringOrWriterFunction[]) {
+    this.#implements = createImplementsArrayProxy(value);
+  }
 
   public static clone(
     other: OptionalKind<ClassDeclarationStructure>
