@@ -5,6 +5,8 @@ import {
 } from "ts-morph";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
+
 
 export default class AssertEntryImpl
 extends StructureBase
@@ -34,3 +36,5 @@ implements AssertEntryStructure
   }
 }
 AssertEntryImpl satisfies CloneableStructure<AssertEntryStructure>;
+
+StructuresClassesMap.set(StructureKind.AssertEntry, AssertEntryImpl);

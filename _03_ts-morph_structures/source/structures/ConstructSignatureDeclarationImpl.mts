@@ -23,6 +23,7 @@ import ReturnTypedNode, {
 import TypeParameteredNode, {
   type TypeParameteredNodeStructureFields
 } from "../decorators/TypeParameteredNode.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const ConstructSignatureDeclarationBase = MultiMixinBuilder<
   [
@@ -65,3 +66,5 @@ implements ConstructSignatureDeclarationStructure
 }
 
 ConstructSignatureDeclarationImpl satisfies CloneableStructure<ConstructSignatureDeclarationStructure>;
+
+StructuresClassesMap.set(StructureKind.ConstructSignature, ConstructSignatureDeclarationImpl);

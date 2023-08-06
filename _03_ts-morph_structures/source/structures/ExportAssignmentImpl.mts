@@ -18,6 +18,7 @@ import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
 import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const ExportAssignmentBase = MultiMixinBuilder<
   [
@@ -64,3 +65,4 @@ implements Required<ExportAssignmentStructure>
 ExportAssignmentImpl satisfies CloneableStructure<ExportAssignmentStructure>;
 
 StatementClassesMap.set(StructureKind.ExportAssignment, ExportAssignmentImpl);
+StructuresClassesMap.set(StructureKind.ExportAssignment, ExportAssignmentImpl);

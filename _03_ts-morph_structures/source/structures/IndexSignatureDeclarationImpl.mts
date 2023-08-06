@@ -20,6 +20,7 @@ import ReadonlyableNode, {
 import ReturnTypedNode, {
   type ReturnTypedNodeStructureFields,
 } from "../decorators/ReturnTypedNode.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const IndexSignatureDeclarationBase = MultiMixinBuilder<
   [
@@ -64,3 +65,5 @@ implements IndexSignatureDeclarationStructure
   }
 }
 IndexSignatureDeclarationImpl satisfies CloneableStructure<IndexSignatureDeclarationStructure>;
+
+StructuresClassesMap.set(StructureKind.IndexSignature, IndexSignatureDeclarationImpl);

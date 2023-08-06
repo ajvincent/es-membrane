@@ -25,6 +25,7 @@ import StructureBase from "../decorators/StructureBase.mjs";
 import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const VariableDeclarationBase = MultiMixinBuilder<
   [
@@ -75,3 +76,5 @@ implements VariableDeclarationStructure
 }
 
 VariableDeclarationImpl satisfies CloneableStructure<VariableDeclarationStructure>;
+
+StructuresClassesMap.set(StructureKind.VariableDeclaration, VariableDeclarationImpl);

@@ -30,6 +30,7 @@ import StructureBase from "../decorators/StructureBase.mjs";
 import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const ModuleDeclarationBase = MultiMixinBuilder<
   [
@@ -88,3 +89,4 @@ implements ModuleDeclarationStructure
 ModuleDeclarationImpl satisfies CloneableStructure<ModuleDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.Module, ModuleDeclarationImpl);
+StructuresClassesMap.set(StructureKind.Module, ModuleDeclarationImpl);

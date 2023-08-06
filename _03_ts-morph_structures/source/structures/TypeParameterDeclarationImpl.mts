@@ -16,6 +16,7 @@ import StructureBase from "../decorators/StructureBase.mjs";
 
 import TypeWriterManager from "../decorators/TypeWriterManager.mjs";
 import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 export default class TypeParameterDeclarationImpl
 extends StructureBase
@@ -145,3 +146,5 @@ implements TypeParameterDeclarationStructure
 
 }
 TypeParameterDeclarationImpl satisfies CloneableStructure<TypeParameterDeclarationStructure>;
+
+StructuresClassesMap.set(StructureKind.TypeParameter, TypeParameterDeclarationImpl);

@@ -45,6 +45,7 @@ import StructureBase from "../decorators/StructureBase.mjs";
 import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const MethodDeclarationOverloadBase = MultiMixinBuilder<
   [
@@ -81,7 +82,7 @@ const MethodDeclarationOverloadBase = MultiMixinBuilder<
   StructureBase
 );
 
-class MethodDeclarationOverloadImpl
+export default class MethodDeclarationOverloadImpl
 extends MethodDeclarationOverloadBase
 implements MethodDeclarationOverloadStructure
 {
@@ -110,4 +111,4 @@ implements MethodDeclarationOverloadStructure
 
 MethodDeclarationOverloadImpl satisfies CloneableStructure<MethodDeclarationOverloadStructure>;
 
-export default MethodDeclarationOverloadImpl;
+StructuresClassesMap.set(StructureKind.MethodOverload, MethodDeclarationOverloadImpl);

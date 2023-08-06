@@ -31,6 +31,7 @@ import JSDocableNode, {
 import NamedNode, {
   type NamedNodeStructureFields
 } from "../decorators/NamedNode.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const EnumDeclarationBase = MultiMixinBuilder<
   [
@@ -89,3 +90,4 @@ implements EnumDeclarationStructure
 EnumDeclarationImpl satisfies CloneableStructure<EnumDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.Enum, EnumDeclarationImpl);
+StructuresClassesMap.set(StructureKind.Enum, EnumDeclarationImpl);

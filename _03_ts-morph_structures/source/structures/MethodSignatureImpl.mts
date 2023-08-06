@@ -30,6 +30,7 @@ import TypeParameteredNode, {
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const MethodSignatureBase = MultiMixinBuilder<
   [
@@ -82,3 +83,5 @@ implements MethodSignatureStructure
   }
 }
 MethodSignatureImpl satisfies CloneableStructure<MethodSignatureStructure>;
+
+StructuresClassesMap.set(StructureKind.MethodSignature, MethodSignatureImpl);

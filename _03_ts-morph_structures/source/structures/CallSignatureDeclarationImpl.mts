@@ -23,6 +23,7 @@ import ReturnTypedNode, {
 } from "../decorators/ReturnTypedNode.mjs";
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const CallSignatureDeclarationBase = MultiMixinBuilder<
   [
@@ -65,3 +66,5 @@ implements CallSignatureDeclarationStructure
 }
 
 CallSignatureDeclarationImpl satisfies CloneableStructure<CallSignatureDeclarationStructure>;
+
+StructuresClassesMap.set(StructureKind.CallSignature, CallSignatureDeclarationImpl);

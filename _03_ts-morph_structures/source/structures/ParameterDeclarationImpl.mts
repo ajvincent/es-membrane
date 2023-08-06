@@ -36,6 +36,7 @@ import TypedNode, {
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const ParameterDeclarationBase = MultiMixinBuilder<
   [
@@ -102,3 +103,5 @@ implements ParameterDeclarationStructure
   }
 }
 ParameterDeclarationImpl satisfies CloneableStructure<ParameterDeclarationStructure>;
+
+StructuresClassesMap.set(StructureKind.Parameter, ParameterDeclarationImpl);

@@ -6,6 +6,7 @@ import {
 
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 export default class ImportSpecifierImpl
 extends StructureBase
@@ -35,3 +36,5 @@ implements ImportSpecifierStructure
   }
 }
 ImportSpecifierImpl satisfies CloneableStructure<ImportSpecifierStructure>;
+
+StructuresClassesMap.set(StructureKind.ImportSpecifier, ImportSpecifierImpl);

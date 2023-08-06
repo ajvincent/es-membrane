@@ -49,6 +49,7 @@ import StructureBase from "../decorators/StructureBase.mjs";
 import FunctionDeclarationOverloadImpl from "./FunctionDeclarationOverloadImpl.mjs";
 
 import StatementClassesMap from "./StatementClassesMap.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 
 const FunctionDeclarationBase = MultiMixinBuilder<
@@ -123,3 +124,4 @@ implements FunctionDeclarationStructure
 FunctionDeclarationImpl satisfies CloneableStructure<FunctionDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.Function, FunctionDeclarationImpl);
+StructuresClassesMap.set(StructureKind.Function, FunctionDeclarationImpl);

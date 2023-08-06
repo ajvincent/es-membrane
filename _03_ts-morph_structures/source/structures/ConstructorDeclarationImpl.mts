@@ -32,6 +32,7 @@ import StatementedNode, {
 import TypeParameteredNode, {
   type TypeParameteredNodeStructureFields
 } from "../decorators/TypeParameteredNode.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const ConstructorDeclarationBase = MultiMixinBuilder<
   [
@@ -90,3 +91,5 @@ implements ConstructorDeclarationStructure
   }
 }
 ConstructorDeclarationImpl satisfies CloneableStructure<ConstructorDeclarationStructure>;
+
+StructuresClassesMap.set(StructureKind.Constructor, ConstructorDeclarationImpl);

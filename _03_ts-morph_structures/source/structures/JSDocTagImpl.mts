@@ -7,6 +7,7 @@ import {
 import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 export default class JSDocTagImpl
 extends StructureBase
@@ -35,3 +36,5 @@ implements JSDocTagStructure
   }
 }
 JSDocTagImpl satisfies CloneableStructure<JSDocTagStructure>;
+
+StructuresClassesMap.set(StructureKind.JSDocTag, JSDocTagImpl);

@@ -24,6 +24,7 @@ import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
 import {
   createCodeBlockWriter
 } from "./utilities.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const EnumMemberBase = MultiMixinBuilder<
   [
@@ -102,3 +103,5 @@ implements EnumMemberStructure
   }
 }
 EnumMemberImpl satisfies CloneableStructure<EnumMemberStructure>;
+
+StructuresClassesMap.set(StructureKind.EnumMember, EnumMemberImpl);

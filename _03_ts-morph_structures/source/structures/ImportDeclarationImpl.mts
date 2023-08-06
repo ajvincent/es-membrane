@@ -14,6 +14,7 @@ import { CloneableStructure } from "../types/CloneableStructure.mjs";
 import StatementClassesMap from "./StatementClassesMap.mjs";
 import AssertEntryImpl from "./AssertEntryImpl.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 export default class ImportDeclarationImpl
 extends StructureBase
@@ -68,3 +69,4 @@ implements ImportDeclarationStructure
 ImportDeclarationImpl satisfies CloneableStructure<ImportDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.ImportDeclaration, ImportDeclarationImpl);
+StructuresClassesMap.set(StructureKind.ImportDeclaration, ImportDeclarationImpl);

@@ -16,6 +16,7 @@ import StructureBase from "../decorators/StructureBase.mjs";
 import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const SourceFileBase = MultiMixinBuilder<
   [
@@ -50,3 +51,5 @@ implements SourceFileStructure
 }
 
 SourceFileImpl satisfies CloneableStructure<SourceFileStructure>;
+
+StructuresClassesMap.set(StructureKind.SourceFile, SourceFileImpl);

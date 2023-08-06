@@ -40,6 +40,7 @@ import TypeParameteredNode, {
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const InterfaceDeclarationBase = MultiMixinBuilder<
   [
@@ -101,3 +102,4 @@ implements InterfaceDeclarationStructure
 InterfaceDeclarationImpl satisfies CloneableStructure<InterfaceDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.Interface, InterfaceDeclarationImpl);
+StructuresClassesMap.set(StructureKind.Interface, InterfaceDeclarationImpl);

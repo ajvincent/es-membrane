@@ -60,6 +60,7 @@ import TypeParameteredNode, {
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 import MethodDeclarationOverloadImpl from "./MethodDeclarationOverloadImpl.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const MethodDeclarationBase = MultiMixinBuilder<
   [
@@ -159,3 +160,5 @@ implements MethodDeclarationStructure
   }
 }
 MethodDeclarationImpl satisfies CloneableStructure<MethodDeclarationStructure>;
+
+StructuresClassesMap.set(StructureKind.Method, MethodDeclarationImpl);

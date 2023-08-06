@@ -36,6 +36,7 @@ import TypedNode, {
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const PropertySignatureBase = MultiMixinBuilder<
   [
@@ -91,3 +92,5 @@ implements PropertySignatureStructure
   }
 }
 PropertySignatureImpl satisfies CloneableStructure<PropertySignatureStructure>;
+
+StructuresClassesMap.set(StructureKind.PropertySignature, PropertySignatureImpl);

@@ -35,6 +35,7 @@ import TypedNode, {
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const TypeAliasDeclarationBase = MultiMixinBuilder<
   [
@@ -78,6 +79,10 @@ implements TypeAliasDeclarationStructure
     return super.type ?? "";
   }
 
+  set type(value: string | WriterFunction) {
+    super.type = value;
+  }
+
   public static clone(
     other: OptionalKind<TypeAliasDeclarationStructure>
   ): TypeAliasDeclarationImpl
@@ -97,3 +102,4 @@ implements TypeAliasDeclarationStructure
 TypeAliasDeclarationImpl satisfies CloneableStructure<TypeAliasDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.TypeAlias, TypeAliasDeclarationImpl);
+StructuresClassesMap.set(StructureKind.TypeAlias, TypeAliasDeclarationImpl);

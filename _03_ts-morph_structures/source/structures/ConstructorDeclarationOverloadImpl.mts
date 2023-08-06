@@ -26,6 +26,7 @@ import ScopedNode, {
 import TypeParameteredNode, {
   type TypeParameteredNodeStructureFields
 } from "../decorators/TypeParameteredNode.mjs";
+import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const ConstructorDeclarationOverloadBase = MultiMixinBuilder<
   [
@@ -71,3 +72,5 @@ implements ConstructorDeclarationOverloadStructure
   }
 }
 ConstructorDeclarationOverloadImpl satisfies CloneableStructure<ConstructorDeclarationOverloadStructure>;
+
+StructuresClassesMap.set(StructureKind.ConstructorOverload, ConstructorDeclarationOverloadImpl);
