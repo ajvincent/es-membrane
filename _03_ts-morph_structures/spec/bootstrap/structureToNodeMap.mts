@@ -25,6 +25,9 @@ import {
 import StructureKindToSyntaxKindMap from "../../source/generated/structureToSyntax.mjs";
 import structureToNodeMap from "#ts-morph_structures/source/bootstrap/structureToNodeMap.mjs";
 
+import {
+  MethodSignatureImpl,
+} from "#ts-morph_structures/exports.mjs";
 
 async function getSupportedKindSet(): Promise<Set<StructureKind>> {
   const stageDir: ModuleSourceDirectory = {
@@ -49,16 +52,16 @@ async function getSupportedKindSet(): Promise<Set<StructureKind>> {
 
   return new Set(KindList);
 }
-const remainingKeys = await getSupportedKindSet();
+const remainingKeysBase = await getSupportedKindSet();
 
 // no syntax kind for this, so unsupported
-remainingKeys.delete(StructureKind.JSDocTag);
+remainingKeysBase.delete(StructureKind.JSDocTag);
 
 // apparently requires module: esnext, and I can't compile my main code with this
-remainingKeys.delete(StructureKind.AssertEntry);
+remainingKeysBase.delete(StructureKind.AssertEntry);
 
 // `export = 5;`, unsupported with ECMAScript modules
-remainingKeys.delete(StructureKind.ExportAssignment);
+remainingKeysBase.delete(StructureKind.ExportAssignment);
 
 const TSC_CONFIG: ProjectOptions = {
   "compilerOptions": {
@@ -80,14 +83,18 @@ const fixturesDir: ModuleSourceDirectory = {
 };
 
 it("structureToNodeMap returns an accurate Map<Structure, Node>", () => {
+  const remainingKeys = new Set(remainingKeysBase);
   function checkMap(
     pathToModuleFile: string
   ): void
   {
-    const sourceFile = project.addSourceFileAtPath(pathToModule(fixturesDir, pathToModuleFile));
+    pathToModuleFile = pathToModule(fixturesDir, pathToModuleFile);
+    project.addSourceFileAtPath(pathToModuleFile);
+    const sourceFile = project.getSourceFileOrThrow(pathToModuleFile);
+
     let map: ReadonlyMap<Structures, Node>;
     try {
-      map = structureToNodeMap(sourceFile);
+      map = structureToNodeMap(sourceFile, false);
     }
     catch (ex) {
       console.log(pathToModuleFile);
@@ -119,4 +126,54 @@ it("structureToNodeMap returns an accurate Map<Structure, Node>", () => {
   remainingKinds.sort();
 
   expect(remainingKinds).toEqual([]);
+});
+
+it("structureToNodeMap can use the type-aware structures", () => {
+  function checkMap(
+    pathToModuleFile: string
+  ): ReadonlyMap<Structures, Node>
+  {
+    pathToModuleFile = pathToModule(fixturesDir, pathToModuleFile);
+    project.addSourceFileAtPath(pathToModuleFile);
+    const sourceFile = project.getSourceFileOrThrow(pathToModuleFile);
+
+    try {
+      return structureToNodeMap(sourceFile, true);
+    }
+    catch (ex) {
+      console.log(pathToModuleFile);
+      throw ex;
+    }
+  }
+
+  checkMap("ecma_references/classDecorators.mts");
+  checkMap("stage_utilities/assert.mts");
+  checkMap("stage_utilities/DefaultMap.mts");
+  checkMap("stage_utilities/PromiseTypes.mts");
+  checkMap("stage_utilities/PropertyKeySorter.mts");
+  checkMap("grab-bag.mts");
+
+  const structureMap = checkMap("stage_utilities/WeakRefSet.mts");
+  const liveElementsSignature = Array.from(structureMap.keys()).find(
+    structure => structure.kind === StructureKind.MethodSignature && structure.name === "liveElements"
+  );
+
+  expect(liveElementsSignature).toBeInstanceOf(MethodSignatureImpl);
+  if (!(liveElementsSignature instanceof MethodSignatureImpl))
+    return;
+
+  /*
+  const { returnTypeStructure } = liveElementsSignature;
+  expect(returnTypeStructure).toBeInstanceOf(TypeArgumentedTypedStructureImpl);
+  if (!(returnTypeStructure instanceof TypeArgumentedTypedStructureImpl))
+    return;
+  expect(returnTypeStructure.objectType).toEqual(
+    new LiteralTypedStructureImpl("IterableIterator")
+  );
+  expect(returnTypeStructure.elements).toEqual([
+    new LiteralTypedStructureImpl("T"),
+  ]);
+  */
+
+  expect(liveElementsSignature.returnType).toBe("IterableIterator<T>");
 });

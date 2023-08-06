@@ -12,6 +12,10 @@ import {
 } from "ts-morph";
 
 import StructureKindToSyntaxKindMap from "../generated/structureToSyntax.mjs";
+
+import {
+  StructuresClassesMap
+} from "../../exports.mjs"
 // #endregion preamble
 
 const knownSyntaxKinds = new Set<SyntaxKind>(StructureKindToSyntaxKindMap.values());
@@ -27,9 +31,13 @@ export interface NodeWithStructures extends Node {
  */
 export default function structureToNodeMap(
   nodeWithStructures: NodeWithStructures,
+  useTypeAwareStructures: boolean,
 ): Map<Structures, Node>
 {
-  return (new StructureAndNodeData(nodeWithStructures)).structureToNodeMap;
+  return (new StructureAndNodeData(
+    nodeWithStructures,
+    useTypeAwareStructures
+  )).structureToNodeMap;
 }
 
 /**
@@ -83,13 +91,17 @@ class StructureAndNodeData
   }
 
   constructor(
-    nodeWithStructures: NodeWithStructures
+    nodeWithStructures: NodeWithStructures,
+    useTypeAwareStructures: boolean
   )
   {
     this.#rootNode = nodeWithStructures;
     this.#collectDescendantNodes(this.#rootNode, "");
 
     this.#rootStructure = this.#rootNode.getStructure();
+    if (useTypeAwareStructures)
+      this.#rootStructure = StructuresClassesMap.get(this.#rootStructure.kind)!.clone(this.#rootStructure);
+
     this.#collectDescendantStructures(this.#rootStructure, "");
 
     this.#unusedStructures.forEach(value => this.#mapStructureToNode(value));
