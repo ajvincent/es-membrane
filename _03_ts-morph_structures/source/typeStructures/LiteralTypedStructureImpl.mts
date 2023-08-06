@@ -19,7 +19,7 @@ import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
 
-import cloneableClassesMap from "./cloneableClassesMap.mjs";
+import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
 
 export default class LiteralTypedStructureImpl implements LiteralTypedStructure
 {
@@ -48,4 +48,4 @@ export default class LiteralTypedStructureImpl implements LiteralTypedStructure
 }
 LiteralTypedStructureImpl satisfies CloneableStructure<LiteralTypedStructure>;
 
-cloneableClassesMap.set(TypeStructureKind.Literal, LiteralTypedStructureImpl);
+TypeStructureClassesMap.set(TypeStructureKind.Literal, LiteralTypedStructureImpl);

@@ -20,7 +20,7 @@ import {
 } from "../typeStructures/callbackToTypeStructureRegistry.mjs";
 import StructureBase from "./StructureBase.mjs";
 
-import cloneableClassesMap from "../typeStructures/cloneableClassesMap.mjs";
+import TypeStructureClassesMap from "../typeStructures/TypeStructureClassesMap.mjs";
 
 export default class TypeWriterManager
 extends StructureBase
@@ -80,7 +80,7 @@ implements TypedNodeStructure, TypedNodeTypeStructure
     if (!typeStructure)
       return type;
 
-    return cloneableClassesMap
+    return TypeStructureClassesMap
       .get(typeStructure.kind)!
       .clone(typeStructure)
       .writerFunction;

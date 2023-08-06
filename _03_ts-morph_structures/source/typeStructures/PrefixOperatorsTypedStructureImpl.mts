@@ -21,7 +21,7 @@ import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
 
-import cloneableClassesMap from "./cloneableClassesMap.mjs";
+import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
 
 export default class PrefixOperatorsTypedStructureImpl
 implements PrefixOperatorsTypedStructure
@@ -32,7 +32,7 @@ implements PrefixOperatorsTypedStructure
   {
     return new PrefixOperatorsTypedStructureImpl(
       other.operators,
-      cloneableClassesMap.get(other.childType.kind)!.clone(other.childType)
+      TypeStructureClassesMap.get(other.childType.kind)!.clone(other.childType)
     );
   }
 
@@ -64,4 +64,4 @@ implements PrefixOperatorsTypedStructure
 }
 PrefixOperatorsTypedStructureImpl satisfies CloneableStructure<PrefixOperatorsTypedStructure>;
 
-cloneableClassesMap.set(TypeStructureKind.PrefixOperators, PrefixOperatorsTypedStructureImpl);
+TypeStructureClassesMap.set(TypeStructureKind.PrefixOperators, PrefixOperatorsTypedStructureImpl);

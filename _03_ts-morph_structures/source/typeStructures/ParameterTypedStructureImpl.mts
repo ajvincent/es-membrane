@@ -12,7 +12,7 @@ import {
   TypeStructureKind,
 } from "./TypeStructureKind.mjs";
 
-import cloneableClassesMap from "./cloneableClassesMap.mjs";
+import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
 import LiteralTypedStructureImpl from "./LiteralTypedStructureImpl.mjs";
 
 export default class ParameterTypedStructureImpl
@@ -55,7 +55,7 @@ implements ParameterTypedStructure
   {
     let typeClone: TypeStructure | undefined;
     if (other.typeStructure)
-      typeClone = cloneableClassesMap.get(other.typeStructure.kind)!.clone(other.typeStructure);
+      typeClone = TypeStructureClassesMap.get(other.typeStructure.kind)!.clone(other.typeStructure);
     const clone = new ParameterTypedStructureImpl(other.name.stringValue, typeClone);
     return clone;
   }

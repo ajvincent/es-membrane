@@ -17,7 +17,7 @@ import {
 
 import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
 
-import cloneableClassesMap from "./cloneableClassesMap.mjs";
+import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
@@ -31,10 +31,10 @@ implements TypeArgumentedTypedStructure
   ): TypeArgumentedTypedStructureImpl
   {
     const rv = new TypeArgumentedTypedStructureImpl(
-      cloneableClassesMap.get(other.kind)!.clone(other)
+      TypeStructureClassesMap.get(other.kind)!.clone(other)
     );
     rv.elements = other.elements.map(
-      typeStructure => cloneableClassesMap.get(typeStructure.kind)!.clone(typeStructure)
+      typeStructure => TypeStructureClassesMap.get(typeStructure.kind)!.clone(typeStructure)
     );
     return rv;
   }
@@ -64,4 +64,4 @@ implements TypeArgumentedTypedStructure
 }
 TypeArgumentedTypedStructureImpl satisfies CloneableStructure<TypeArgumentedTypedStructure>;
 
-cloneableClassesMap.set(TypeStructureKind.TypeArgumented, TypeArgumentedTypedStructureImpl);
+TypeStructureClassesMap.set(TypeStructureKind.TypeArgumented, TypeArgumentedTypedStructureImpl);

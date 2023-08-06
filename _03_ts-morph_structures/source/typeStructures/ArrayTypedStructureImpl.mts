@@ -15,7 +15,7 @@ import {
   registerCallbackForTypeStructure
 } from "./callbackToTypeStructureRegistry.mjs";
 
-import cloneableClassesMap from "./cloneableClassesMap.mjs";
+import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
@@ -28,7 +28,7 @@ implements ArrayTypedStructure
   ): ArrayTypedStructureImpl
   {
     return new ArrayTypedStructureImpl(
-      cloneableClassesMap.get(other.kind)!.clone(other),
+      TypeStructureClassesMap.get(other.kind)!.clone(other),
     );
   }
 
@@ -56,4 +56,4 @@ implements ArrayTypedStructure
 }
 ArrayTypedStructureImpl satisfies CloneableStructure<ArrayTypedStructure>;
 
-cloneableClassesMap.set(TypeStructureKind.Array, ArrayTypedStructureImpl);
+TypeStructureClassesMap.set(TypeStructureKind.Array, ArrayTypedStructureImpl);

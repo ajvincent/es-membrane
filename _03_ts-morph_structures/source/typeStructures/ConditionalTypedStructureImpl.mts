@@ -21,7 +21,7 @@ import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
 
-import cloneableClassesMap from "./cloneableClassesMap.mjs";
+import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
 
 import LiteralTypedStructureImpl from "./LiteralTypedStructureImpl.mjs";
 
@@ -35,7 +35,7 @@ implements ConditionalTypedStructure
 
   static #clonePart(childType: TypeStructure): TypeStructure
   {
-    return cloneableClassesMap.get(childType.kind)!.clone(childType);
+    return TypeStructureClassesMap.get(childType.kind)!.clone(childType);
   }
 
   public static clone(
@@ -85,4 +85,4 @@ implements ConditionalTypedStructure
 }
 ConditionalTypedStructureImpl satisfies CloneableStructure<ConditionalTypedStructure>;
 
-cloneableClassesMap.set(TypeStructureKind.Conditional, ConditionalTypedStructureImpl);
+TypeStructureClassesMap.set(TypeStructureKind.Conditional, ConditionalTypedStructureImpl);

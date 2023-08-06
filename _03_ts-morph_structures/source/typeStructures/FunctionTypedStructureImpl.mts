@@ -15,7 +15,7 @@ import {
   registerCallbackForTypeStructure
 } from "./callbackToTypeStructureRegistry.mjs";
 
-import cloneableClassesMap from "./cloneableClassesMap.mjs";
+import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
@@ -41,7 +41,7 @@ implements FunctionTypedStructure
       typeParameters: other.typeParameters,
       parameters: other.parameters.map(param => ParameterTypedStructureImpl.clone(param)),
       restParameter: (other.restParameter ? ParameterTypedStructureImpl.clone(other.restParameter) : undefined),
-      returnType: other.returnType ? cloneableClassesMap.get(other.returnType.kind)!.clone(other.returnType) : undefined,
+      returnType: other.returnType ? TypeStructureClassesMap.get(other.returnType.kind)!.clone(other.returnType) : undefined,
       writerStyle: other.writerStyle,
     });
   }
@@ -134,4 +134,4 @@ implements FunctionTypedStructure
 
 FunctionTypedStructureImpl satisfies CloneableStructure<FunctionTypedStructure>;
 
-cloneableClassesMap.set(TypeStructureKind.Function, FunctionTypedStructureImpl);
+TypeStructureClassesMap.set(TypeStructureKind.Function, FunctionTypedStructureImpl);

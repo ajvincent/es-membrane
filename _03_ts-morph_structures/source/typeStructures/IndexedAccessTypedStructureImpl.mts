@@ -16,7 +16,7 @@ import {
   registerCallbackForTypeStructure
 } from "./callbackToTypeStructureRegistry.mjs";
 
-import cloneableClassesMap from "./cloneableClassesMap.mjs";
+import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
@@ -30,8 +30,8 @@ implements IndexedAccessTypedStructure
   ): IndexedAccessTypedStructureImpl
   {
     return new IndexedAccessTypedStructureImpl(
-      cloneableClassesMap.get(other.objectType.kind)!.clone(other.objectType),
-      cloneableClassesMap.get(other.indexType.kind)!.clone(other.indexType)
+      TypeStructureClassesMap.get(other.objectType.kind)!.clone(other.objectType),
+      TypeStructureClassesMap.get(other.indexType.kind)!.clone(other.indexType)
     )
   }
 
@@ -59,4 +59,4 @@ implements IndexedAccessTypedStructure
 }
 IndexedAccessTypedStructureImpl satisfies CloneableStructure<IndexedAccessTypedStructure>;
 
-cloneableClassesMap.set(TypeStructureKind.IndexedAccess, IndexedAccessTypedStructureImpl);
+TypeStructureClassesMap.set(TypeStructureKind.IndexedAccess, IndexedAccessTypedStructureImpl);

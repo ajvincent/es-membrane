@@ -20,7 +20,7 @@ import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
 
-import cloneableClassesMap from "./cloneableClassesMap.mjs";
+import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
 
 export default class ParenthesesTypedStructureImpl
 implements ParenthesesTypedStructure
@@ -30,7 +30,7 @@ implements ParenthesesTypedStructure
   ): ParenthesesTypedStructureImpl
   {
     return new ParenthesesTypedStructureImpl(
-      cloneableClassesMap.get(other.childType.kind)!.clone(other.childType)
+      TypeStructureClassesMap.get(other.childType.kind)!.clone(other.childType)
     );
   }
 
@@ -55,4 +55,4 @@ implements ParenthesesTypedStructure
 }
 ParenthesesTypedStructureImpl satisfies CloneableStructure<ParenthesesTypedStructure>;
 
-cloneableClassesMap.set(TypeStructureKind.Parentheses, ParenthesesTypedStructureImpl);
+TypeStructureClassesMap.set(TypeStructureKind.Parentheses, ParenthesesTypedStructureImpl);

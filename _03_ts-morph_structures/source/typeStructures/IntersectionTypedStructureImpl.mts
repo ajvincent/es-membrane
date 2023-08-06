@@ -12,7 +12,7 @@ import {
   registerCallbackForTypeStructure
 } from "./callbackToTypeStructureRegistry.mjs";
 
-import cloneableClassesMap from "./cloneableClassesMap.mjs";
+import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
@@ -27,7 +27,7 @@ implements IntersectionTypedStructure
   {
     const rv = new IntersectionTypedStructureImpl();
     rv.elements = other.elements.map(
-      typeStructure => cloneableClassesMap.get(typeStructure.kind)!.clone(typeStructure)
+      typeStructure => TypeStructureClassesMap.get(typeStructure.kind)!.clone(typeStructure)
     );
     return rv;
   }
@@ -45,4 +45,4 @@ implements IntersectionTypedStructure
 }
 IntersectionTypedStructureImpl satisfies CloneableStructure<IntersectionTypedStructure>;
 
-cloneableClassesMap.set(TypeStructureKind.Intersection, IntersectionTypedStructureImpl);
+TypeStructureClassesMap.set(TypeStructureKind.Intersection, IntersectionTypedStructureImpl);

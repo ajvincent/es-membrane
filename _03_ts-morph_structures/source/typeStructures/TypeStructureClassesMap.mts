@@ -15,9 +15,9 @@ import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
 
-const cloneableClassesMap = new Map<
+const TypeStructureClassesMap = new Map<
   TypeStructureKind,
   CloneableStructure<TypeStructure> & Class<KindedTypeStructure<TypeStructureKind>>
 >;
 
-export default cloneableClassesMap;
+export default TypeStructureClassesMap;
