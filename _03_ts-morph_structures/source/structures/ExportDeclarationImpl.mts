@@ -10,7 +10,7 @@ import type {
 import ExportSpecifierImpl from "./ExportSpecifierImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
-import cloneableStatementsMap from "./cloneableStatements.mjs";
+import StatementClassesMap from "./StatementClassesMap.mjs";
 import AssertEntryImpl from "./AssertEntryImpl.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 
@@ -59,4 +59,4 @@ implements ExportDeclarationStructure
 }
 ExportDeclarationImpl satisfies CloneableStructure<ExportDeclarationStructure>;
 
-cloneableStatementsMap.set(StructureKind.ExportDeclaration, ExportDeclarationImpl);
+StatementClassesMap.set(StructureKind.ExportDeclaration, ExportDeclarationImpl);

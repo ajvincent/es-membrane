@@ -9,7 +9,7 @@ import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
 
-import cloneableStatementsMap from "./cloneableStatements.mjs";
+import StatementClassesMap from "./StatementClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -96,4 +96,4 @@ implements TypeAliasDeclarationStructure
 }
 TypeAliasDeclarationImpl satisfies CloneableStructure<TypeAliasDeclarationStructure>;
 
-cloneableStatementsMap.set(StructureKind.TypeAlias, TypeAliasDeclarationImpl);
+StatementClassesMap.set(StructureKind.TypeAlias, TypeAliasDeclarationImpl);

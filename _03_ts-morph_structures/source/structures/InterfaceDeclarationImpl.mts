@@ -14,7 +14,7 @@ import {
 import {
   stringOrWriterFunctionArray
 } from "./utilities.mjs";
-import cloneableStatementsMap from "./cloneableStatements.mjs";
+import StatementClassesMap from "./StatementClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -100,4 +100,4 @@ implements InterfaceDeclarationStructure
 }
 InterfaceDeclarationImpl satisfies CloneableStructure<InterfaceDeclarationStructure>;
 
-cloneableStatementsMap.set(StructureKind.Interface, InterfaceDeclarationImpl);
+StatementClassesMap.set(StructureKind.Interface, InterfaceDeclarationImpl);

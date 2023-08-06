@@ -12,9 +12,9 @@ import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
 
-const cloneableStatementsMap = new Map<
+const StatementClassesMap = new Map<
   StructureKind,
   CloneableStructure<StatementStructures> & Class<KindedStructure<StructureKind>>
 >;
 
-export default cloneableStatementsMap;
+export default StatementClassesMap;

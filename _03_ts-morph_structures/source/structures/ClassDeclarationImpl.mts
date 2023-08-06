@@ -26,7 +26,7 @@ import GetAccessorDeclarationImpl from "./GetAccessorDeclarationImpl.mjs";
 import SetAccessorDeclarationImpl from "./SetAccessorDeclarationImpl.mjs";
 import ConstructorDeclarationImpl from "./ConstructorDeclarationImpl.mjs";
 
-import cloneableStatementsMap from "./cloneableStatements.mjs";
+import StatementClassesMap from "./StatementClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -147,4 +147,4 @@ implements ClassDeclarationStructure
 }
 ClassDeclarationImpl satisfies CloneableStructure<ClassDeclarationStructure>;
 
-cloneableStatementsMap.set(StructureKind.Class, ClassDeclarationImpl);
+StatementClassesMap.set(StructureKind.Class, ClassDeclarationImpl);

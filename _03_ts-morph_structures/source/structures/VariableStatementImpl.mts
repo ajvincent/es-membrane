@@ -6,7 +6,7 @@ import {
   VariableStatementStructure
 } from "ts-morph";
 
-import cloneableStatementsMap from "./cloneableStatements.mjs";
+import StatementClassesMap from "./StatementClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -81,4 +81,4 @@ implements VariableStatementStructure
 }
 VariableStatementImpl satisfies CloneableStructure<VariableStatementStructure>;
 
-cloneableStatementsMap.set(StructureKind.VariableStatement, VariableStatementImpl);
+StatementClassesMap.set(StructureKind.VariableStatement, VariableStatementImpl);

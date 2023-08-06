@@ -10,7 +10,7 @@ import {
 } from "./utilities.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
-import cloneableStatementsMap from "./cloneableStatements.mjs";
+import StatementClassesMap from "./StatementClassesMap.mjs";
 import EnumMemberImpl from "./EnumMemberImpl.mjs";
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
@@ -88,4 +88,4 @@ implements EnumDeclarationStructure
 }
 EnumDeclarationImpl satisfies CloneableStructure<EnumDeclarationStructure>;
 
-cloneableStatementsMap.set(StructureKind.Enum, EnumDeclarationImpl);
+StatementClassesMap.set(StructureKind.Enum, EnumDeclarationImpl);

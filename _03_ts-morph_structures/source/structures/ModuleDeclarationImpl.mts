@@ -4,7 +4,7 @@ import {
   StructureKind
 } from "ts-morph";
 
-import cloneableStatementsMap from "./cloneableStatements.mjs";
+import StatementClassesMap from "./StatementClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -87,4 +87,4 @@ implements ModuleDeclarationStructure
 
 ModuleDeclarationImpl satisfies CloneableStructure<ModuleDeclarationStructure>;
 
-cloneableStatementsMap.set(StructureKind.Module, ModuleDeclarationImpl);
+StatementClassesMap.set(StructureKind.Module, ModuleDeclarationImpl);

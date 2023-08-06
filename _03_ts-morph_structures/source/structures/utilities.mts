@@ -13,7 +13,7 @@ import {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 
-import cloneableStatementsMap from "./cloneableStatements.mjs";
+import StatementClassesMap from "./StatementClassesMap.mjs";
 
 export type StructureCloner<
   SourceType extends object,
@@ -63,7 +63,7 @@ function cloneStatement(
 ): stringOrWriterFunction | StatementStructures
 {
   if (typeof value === "object") {
-    const cloneableClass = cloneableStatementsMap.get(value.kind);
+    const cloneableClass = StatementClassesMap.get(value.kind);
     if (cloneableClass)
       return cloneableClass.clone(value);
   }

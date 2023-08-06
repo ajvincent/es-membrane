@@ -3,7 +3,7 @@ import {
   StructureKind,
 }from "ts-morph";
 
-import cloneableStatementsMap from "./cloneableStatements.mjs";
+import StatementClassesMap from "./StatementClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -63,4 +63,4 @@ implements Required<ExportAssignmentStructure>
 }
 ExportAssignmentImpl satisfies CloneableStructure<ExportAssignmentStructure>;
 
-cloneableStatementsMap.set(StructureKind.ExportAssignment, ExportAssignmentImpl);
+StatementClassesMap.set(StructureKind.ExportAssignment, ExportAssignmentImpl);
