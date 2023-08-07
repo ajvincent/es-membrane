@@ -57,7 +57,11 @@ import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
-import createImplementsArrayProxy from "../utilities/ImplementsArrayProxy.mjs";
+import createImplementsArrayProxy, {
+  getManagerArrayForTypeArray
+} from "../utilities/ImplementsArrayProxy.mjs";
+import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
+import { getTypeStructureForCallback } from "../typeStructures/callbackToTypeStructureRegistry.mjs";
 
 const ClassDeclarationBase = MultiMixinBuilder<
   [
@@ -91,13 +95,14 @@ implements ClassDeclarationStructure
 {
   #implements: stringOrWriterFunction[] = createImplementsArrayProxy([]);
 
+  readonly kind: StructureKind.Class = StructureKind.Class;
+
   extends: stringOrWriterFunction | undefined = undefined;
   ctors: ConstructorDeclarationImpl[] = [];
   properties: PropertyDeclarationImpl[] = [];
   getAccessors: GetAccessorDeclarationImpl[] = [];
   setAccessors: SetAccessorDeclarationImpl[] = [];
   methods: MethodDeclarationImpl[] = [];
-  readonly kind: StructureKind.Class = StructureKind.Class;
   hasDeclareKeyword = false;
 
   get implements(): stringOrWriterFunction[] {
@@ -105,6 +110,95 @@ implements ClassDeclarationStructure
   }
   set implements(value: stringOrWriterFunction[]) {
     this.#implements = createImplementsArrayProxy(value);
+  }
+
+  // Implementing the implements[] proxy was a huge pain.
+  // I'm really sure I don't want to do that, yet, for type structures.
+
+  get implementsStructures(): TypeStructure[]
+  {
+    throw new Error("implementsStructures not implemented");
+  }
+  set implementsStructures(
+    structures: TypeStructure[]
+  )
+  {
+    throw new Error("implementsStructures not implemented");
+  }
+
+  getImplementsStructureAt(
+    index: number
+  ): TypeStructure | undefined
+  {
+    const writer = this.#implements[index];
+    return typeof writer === "function" ? getTypeStructureForCallback(writer) : undefined;
+  }
+
+  getImplementsStructuresDetached(): (TypeStructure | undefined)[]
+  {
+    const typeManagerArray = getManagerArrayForTypeArray(this.#implements);
+    return typeManagerArray.map(manager => manager.typeStructure);
+  }
+
+  appendImplementsStructures(
+    ...newStructures: TypeStructure[]
+  ): void
+  {
+    const writerSequence = newStructures.map(structure => structure.writerFunction);
+    this.#implements.push(...writerSequence);
+  }
+
+  setImplementsStructureAt(
+    index: number,
+    structure: TypeStructure
+  ): void
+  {
+    this.#implements[index] = structure.writerFunction;
+  }
+
+  deleteImplementsStructureAt(
+    index: number
+  ): boolean
+  {
+    const writer = this.#implements[index];
+    if (typeof writer !== "function")
+      return false;
+
+    const structure = getTypeStructureForCallback(writer);
+    if (!structure)
+      return false;
+
+    this.#implements.splice(index, 1);
+    return true;
+  }
+
+  spliceImplementsStructures(
+    start: number,
+    deleteCount: number,
+    ...newStructures: TypeStructure[]
+  ): TypeStructure[]
+  {
+    const structureArray: TypeStructure[] = [];
+    const typeManagerArray = getManagerArrayForTypeArray(this.#implements);
+
+    const errors: Error[] = [];
+
+    for (let i = start; i < start + deleteCount; i++) {
+      const structure = typeManagerArray[i].typeStructure;
+      if (!structure)
+        errors.push(new Error(`no structure at index ${i}, this is unsafe`));
+      else if (errors.length === 0)
+        structureArray.push(structure);
+    }
+
+    if (errors.length > 0) {
+      throw new AggregateError(errors);
+    }
+
+    const writerSequence = newStructures.map(structure => structure.writerFunction);
+    this.#implements.splice(start, deleteCount, ...writerSequence);
+
+    return structureArray;
   }
 
   public static clone(

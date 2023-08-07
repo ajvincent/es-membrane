@@ -46,14 +46,14 @@ function getManagerArrayForTypeArray(
   array = proxyToTargetArrayMap.get(array) ?? array;
 
   if (!writerArrayToManagerArray.has(array)) {
-    const internalArray: TypeWriterManager[] = array.map(createManagerForType);
+    const internalArray: TypeWriterManager[] = array.map(getOrCreateManagerForType);
     writerArrayToManagerArray.set(array, internalArray);
   }
 
   return writerArrayToManagerArray.get(array)!;
 }
 
-function createManagerForType(
+function getOrCreateManagerForType(
   value: stringOrWriterFunction
 ): TypeWriterManager {
   const manager: TypeWriterManager = new TypeWriterManager;
@@ -279,7 +279,7 @@ extends Array<stringOrWriterFunction>
     ...items: stringOrWriterFunction[]
   ): number
   {
-    const managers = items.map(createManagerForType);
+    const managers = items.map(getOrCreateManagerForType);
     getManagerArrayForTypeArray(this).push(...managers);
     return super.push(...items);
   }
@@ -314,7 +314,7 @@ extends Array<stringOrWriterFunction>
     ...items: stringOrWriterFunction[]
   ): number
   {
-    const managerArray = items.map(createManagerForType);
+    const managerArray = items.map(getOrCreateManagerForType);
     getManagerArrayForTypeArray(this).unshift(...managerArray);
     return super.unshift(...items);
   }
@@ -325,7 +325,7 @@ extends Array<stringOrWriterFunction>
     end?: number | undefined
   ): this
   {
-    const manager = createManagerForType(value);
+    const manager = getOrCreateManagerForType(value);
     getManagerArrayForTypeArray(this).fill(manager, start, end);
 
     return super.fill(value, start, end);
