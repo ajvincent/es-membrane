@@ -59,7 +59,7 @@ import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 import createImplementsArrayProxy, {
   getManagerArrayForTypeArray
-} from "../utilities/ImplementsArrayProxy.mjs";
+} from "../array-utilities/ImplementsArrayProxy.mjs";
 import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
 import { getTypeStructureForCallback } from "../typeStructures/callbackToTypeStructureRegistry.mjs";
 
