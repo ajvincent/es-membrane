@@ -108,9 +108,10 @@ implements ClassDeclarationStructure
   get implements(): stringOrWriterFunction[] {
     return this.#implements;
   }
-  set implements(value: stringOrWriterFunction[]) {
-    this.#implements = createImplementsArrayProxy(value);
-  }
+  /* Why not a setter?  It's not necessarily safe to do so.  With a setter, either:
+    1. we hand ownership over the elements to someone else, without being able to track updates, or
+    2. the array the caller passes in is not the array we have: they update it and the update doesn't stick.
+  */
 
   // Implementing the implements[] proxy was a huge pain.
   // I'm really sure I don't want to do that, yet, for type structures.
@@ -223,7 +224,8 @@ implements ClassDeclarationStructure
     clone.methods = cloneArrayOrUndefined<OptionalKind<MethodDeclarationStructure>, typeof MethodDeclarationImpl>(
       other.methods, MethodDeclarationImpl
     );
-    clone.implements = stringOrWriterFunctionArray(other.implements);
+
+    clone.implements.splice(0, clone.implements.length, ...stringOrWriterFunctionArray(other.implements));
 
     ClassDeclarationBase.cloneTrivia(other, clone);
     ClassDeclarationBase.cloneAbstractable(other, clone);
