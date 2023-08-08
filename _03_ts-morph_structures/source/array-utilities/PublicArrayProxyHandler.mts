@@ -86,7 +86,7 @@ interface BackingPublicContext<
   >;
 }
 
-export class InternalArrayProxyHandler<
+export class PublicArrayProxyHandler<
   BackingType extends object,
   PublicType extends object,
 >
@@ -231,7 +231,7 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<BackingType, Publi
     const context = this.#context.arrayOneToOneMap.get(shadowTargetArray)!;
 
     const numericIndex = property !== "length" ?
-      InternalArrayProxyHandler.getNumericIndex(property) : 1;
+      PublicArrayProxyHandler.getNumericIndex(property) : 1;
 
     if (isNaN(numericIndex) && property !== "length")
       return false;
@@ -264,7 +264,7 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<BackingType, Publi
     property: string | symbol
   ): boolean
   {
-    const numericIndex = InternalArrayProxyHandler.getNumericIndex(property);
+    const numericIndex = PublicArrayProxyHandler.getNumericIndex(property);
     if (isNaN(numericIndex))
       return false;
 
@@ -288,7 +288,7 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<BackingType, Publi
   {
     void(receiver);
 
-    const numericIndex = InternalArrayProxyHandler.getNumericIndex(property);
+    const numericIndex = PublicArrayProxyHandler.getNumericIndex(property);
     if (!isNaN(numericIndex)) {
       return this.getOwnPropertyDescriptor(shadowTargetArray, property)?.value;
     }
@@ -347,7 +347,7 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<BackingType, Publi
     property: string | symbol
   ): PropertyDescriptor | undefined
   {
-    const numericIndex = InternalArrayProxyHandler.getNumericIndex(property);
+    const numericIndex = PublicArrayProxyHandler.getNumericIndex(property);
     if (isNaN(numericIndex))
       return undefined;
 
@@ -382,7 +382,7 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<BackingType, Publi
     property: string | symbol
   ): boolean
   {
-    const numericIndex = InternalArrayProxyHandler.getNumericIndex(property);
+    const numericIndex = PublicArrayProxyHandler.getNumericIndex(property);
     if (!isNaN(numericIndex)) {
       shadowTargetArray.refreshFromBackingArray();
 
@@ -479,7 +479,7 @@ class PublicTypeArrayShadowWrapper<
   PublicType extends object
 > extends Array<PublicType>
 {
-  readonly #proxyHandler: InternalArrayProxyHandler<BackingType, PublicType>
+  readonly #proxyHandler: PublicArrayProxyHandler<BackingType, PublicType>
   readonly #backingArray: BackingType[];
 
   #updateSymbolTracking: UpdateSymbolTracking | undefined;
@@ -487,7 +487,7 @@ class PublicTypeArrayShadowWrapper<
   #lastUpdateSymbol = Symbol();
 
   constructor(
-    proxyHandler: InternalArrayProxyHandler<BackingType, PublicType>,
+    proxyHandler: PublicArrayProxyHandler<BackingType, PublicType>,
     items: Pick<
       BackingAndPublicArrayDictionaryIfc<BackingType, PublicType>,
       "backingArray" | "wrappedPublicArray"
@@ -521,12 +521,13 @@ class PublicTypeArrayShadowWrapper<
     this.#lastUpdateSymbol = this.#updateSymbolTracking.lastUpdateSymbol;
   }
 
-  #markUpdated(): void
+  #markUpdated<ReturnedType>(returnValue: ReturnedType): ReturnedType
   {
     if (!this.#updateSymbolTracking) {
       throw new Error("We should be tracking now");
     }
     this.#lastUpdateSymbol = this.#updateSymbolTracking.markUpdated();
+    return returnValue;
   }
 
   readonly #getPublicValue = (backingValue: BackingType): PublicType =>
@@ -551,16 +552,14 @@ class PublicTypeArrayShadowWrapper<
 
   pop(): PublicType | undefined {
     this.refreshFromBackingArray();
-    return super.pop();
+    return this.#markUpdated<PublicType | undefined>(super.pop());
   }
 
   push(...publicItems: PublicType[]): number {
     this.refreshFromBackingArray();
     const backingItems = publicItems.map(this.#getBackingValue);
     this.#backingArray.push(...backingItems);
-    const count = super.push(...publicItems);
-    this.#markUpdated();
-    return count;
+    return this.#markUpdated<number>(super.push(...publicItems));
   }
 
   concat(
@@ -582,7 +581,7 @@ class PublicTypeArrayShadowWrapper<
 
   reverse(): PublicType[] {
     this.refreshFromBackingArray();
-    return super.reverse();
+    return this.#markUpdated<PublicType[]>(super.reverse());
   }
 
   shift(): PublicType | undefined
@@ -591,11 +590,8 @@ class PublicTypeArrayShadowWrapper<
     if (this.length === 0)
       return undefined;
 
-    const rv = super.shift();
     this.#backingArray.shift();
-    this.#markUpdated();
-
-    return rv;
+    return this.#markUpdated<PublicType | undefined>(super.shift());
   }
 
   slice(
@@ -609,12 +605,40 @@ class PublicTypeArrayShadowWrapper<
 
   sort(
     compareFn?: (
-      (a: PublicType, b: PublicType) => number) | undefined
-    ): this
+      (a: PublicType, b: PublicType) => number
+    ) | undefined,
+  ): this
   {
+    if (!compareFn)
+      throw new Error("unable to sort objects without a comparator");
+
+    const map = new WeakMap<BackingType, PublicType>(
+      this.#backingArray.map(backingValue => [backingValue, this.#getPublicValue(backingValue)])
+    );
+
+    this.#backingArray.sort(
+      this.#sortBound.bind(this, map, compareFn)
+    );
+
+    // Force a refresh.
+    this.#lastUpdateSymbol = Symbol();
     this.refreshFromBackingArray();
-    throw new Error("Function not implemented.");
+    return this.#markUpdated<this>(this);
   }
+
+  #sortBound(
+    map: WeakMap<BackingType, PublicType>,
+    compareFn: (a: PublicType, b: PublicType) => number,
+    backingValueA: BackingType,
+    backingValueB: BackingType,
+  ): number
+  {
+    return compareFn(
+      map.get(backingValueA)!,
+      map.get(backingValueB)!,
+    );
+  }
+
   splice(start: number, deleteCount?: number | undefined): PublicType[] {
     this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
