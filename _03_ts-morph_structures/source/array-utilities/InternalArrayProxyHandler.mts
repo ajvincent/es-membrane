@@ -1,29 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-interface PrivateAndPublicDictionary<
-  PrivateType extends object,
-  PublicType extends object,
->
-{
-  readonly privateValue: PrivateType;
-  readonly publicValue: PublicType;
-}
+import NotImplementedProxyHandler from "./NotImplementedHandler.mjs";
+import type {
+  ArrayWithoutIndices,
+  DataDescriptor,
+  PrivateAndPublicDictionary,
+  UpdateSymbolTracking,
+} from "./types/export-types.mjs";
 
 interface PrivateAndPublicArrayDictionaryIfc<
   PrivateType extends object,
   PublicType extends object,
 >
 {
-  readonly privateArray: PrivateType[];
+  privateArray: PrivateType[];
   readonly wrappedPublicArray: PublicType[];
   readonly shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>;
   readonly proxyArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>;
   revoke(): void;
-}
-
-interface UpdateSymbolTracking {
-  markUpdated(): symbol;
-  get lastUpdateSymbol(): symbol;
 }
 
 class PrivateAndPublicArrayDictionary<
@@ -75,8 +69,6 @@ interface PrivatePublicContextBase<
 {
   readonly buildPublic: (privateValue: PrivateType) => PublicType,
   readonly buildPrivate: (publicValue: PublicType) => PrivateType,
-  readonly isPublicValue: (value: unknown) => value is PublicType,
-  readonly isPrivateValue: (value: unknown) => value is PrivateType,
 }
 
 interface PrivatePublicContext<
@@ -94,14 +86,11 @@ interface PrivatePublicContext<
   >;
 }
 
-type ArrayWithoutIndices = Omit<object[], number>;
-
-type DataDescriptor = Omit<PropertyDescriptor, "get" | "set"> & Pick<Required<PropertyDescriptor>, "value">;
-
 export class InternalArrayProxyHandler<
   PrivateType extends object,
   PublicType extends object,
 >
+extends NotImplementedProxyHandler
 implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, PublicType>>>
 {
   static getNumericIndex(
@@ -119,12 +108,13 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
   // #region proxy management
 
   readonly #context: PrivatePublicContext<PrivateType, PublicType>;
-  readonly #methodHandler: ArrayMethodProxyHandler<PrivateType, PublicType>;
+  //readonly #methodHandler: ArrayMethodProxyHandler<PrivateType, PublicType>;
 
   constructor(
     baseContext: PrivatePublicContextBase<PrivateType, PublicType>,
   )
   {
+    super()
     this.#context = {
       ...baseContext,
 
@@ -132,7 +122,7 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
       arrayOneToOneMap: new WeakMap,
     };
 
-    this.#methodHandler = new ArrayMethodProxyHandler<PrivateType, PublicType>(this.#context);
+    //this.#methodHandler = new ArrayMethodProxyHandler<PrivateType, PublicType>;
   }
 
   getProxy(
@@ -168,7 +158,9 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
     const {
       proxy: proxyArray,
       revoke
-    } = Proxy.revocable(shadowTargetArray, this);
+    } = Proxy.revocable<
+      PublicTypeArrayShadowWrapper<PrivateType, PublicType>
+    >(shadowTargetArray, this);
 
     const arrayDictionary = new PrivateAndPublicArrayDictionary<PrivateType, PublicType>(
       {
@@ -229,30 +221,6 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
   // #endregion proxy management
 
   // #region ProxyHandler
-
-  apply(
-    shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>,
-    thisArg: any,
-    argArray: any[]
-  ): never
-  {
-    void(shadowTargetArray);
-    void(thisArg);
-    void(argArray);
-    throw new Error("Method not implemented.");
-  }
-
-  construct(
-    shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>,
-    argArray: any[],
-    newTarget: Function
-  ): never
-  {
-    void(shadowTargetArray);
-    void(argArray);
-    void(newTarget);
-    throw new Error("Method not implemented.");
-  }
 
   defineProperty(
     shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>,
@@ -353,17 +321,20 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
 
     if (!shadowDesc) {
       const { proxyArray } = this.#context.arrayOneToOneMap.get(shadowTargetArray)!;
+      const shadowMethod = shadowTargetArray[property].bind(proxyArray);
 
+      /*
       const proxyMethod = new Proxy(
-        shadowTargetArray[property].bind(proxyArray),
+        shadowMethod,
         this.#methodHandler
       );
+      */
 
       shadowDesc = {
         configurable: false,
         enumerable: true,
         writable: false,
-        value: proxyMethod,
+        value: shadowMethod /* proxyMethod */,
       };
       Reflect.defineProperty(shadowTargetArray, property, shadowDesc);
     }
@@ -487,146 +458,6 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
 
   // #endregion ProxyHandler
 }
-
-class ArrayMethodProxyHandler<
-  PrivateType extends object,
-  PublicType extends object,
->
-implements Required<ProxyHandler<CallableFunction>>
-{
-  readonly #context: PrivatePublicContext<PrivateType, PublicType>;
-
-  constructor(
-    context: PrivatePublicContext<PrivateType, PublicType>,
-  )
-  {
-    this.#context = context;
-  }
-
-  apply(
-    target: CallableFunction,
-    thisArg: PublicTypeArrayShadowWrapper<PrivateType, PublicType>,
-    argArray: any[],
-  ): any
-  {
-    return Reflect.apply(target, thisArg, argArray);
-  }
-
-  // #region not-implemented
-  construct(
-    target: CallableFunction,
-    argArray: any[],
-    newTarget: Function
-  ): never
-  {
-    void(target);
-    void(argArray);
-    void(newTarget);
-    throw new Error("Method not implemented.");
-  }
-  defineProperty(
-    target: CallableFunction,
-    property: string | symbol,
-    attributes: PropertyDescriptor
-  ): never
-  {
-    void(target);
-    void(property);
-    void(attributes);
-    throw new Error("Method not implemented.");
-  }
-  deleteProperty(
-    target: CallableFunction,
-    p: string | symbol
-  ): never
-  {
-    void(target);
-    void(p);
-    throw new Error("Method not implemented.");
-  }
-  get(
-    target: CallableFunction,
-    p: string | symbol,
-    receiver: any
-  ): never
-  {
-    void(target);
-    void(p);
-    void(receiver);
-    throw new Error("Method not implemented.");
-  }
-  getOwnPropertyDescriptor(
-    target: CallableFunction,
-    p: string | symbol
-  ): never
-  {
-    void(target);
-    void(p);
-    throw new Error("Method not implemented.");
-  }
-  getPrototypeOf(
-    target: CallableFunction
-  ): never
-  {
-    void(target);
-    throw new Error("Method not implemented.");
-  }
-  has(
-    target: CallableFunction,
-    p: string | symbol
-  ): never
-  {
-    void(target);
-    void(p);
-    throw new Error("Method not implemented.");
-  }
-  isExtensible(
-    target: CallableFunction
-  ): never
-  {
-    void(target);
-    throw new Error("Method not implemented.");
-  }
-  ownKeys(
-    target: CallableFunction
-  ): never
-  {
-    void(target);
-    throw new Error("Method not implemented.");
-  }
-  preventExtensions(
-    target: CallableFunction
-  ): never
-  {
-    void(target);
-    throw new Error("Method not implemented.");
-  }
-  set(
-    target: CallableFunction,
-    p: string | symbol,
-    newValue: any,
-    receiver: any
-  ): never
-  {
-    void(target);
-    void(p);
-    void(newValue);
-    void(receiver);
-    throw new Error("Method not implemented.");
-  }
-  setPrototypeOf(
-    target: CallableFunction,
-    v: object | null
-  ): never
-  {
-    void(target);
-    void(v);
-    throw new Error("Method not implemented.");
-  }
-  // #endregion not implemented
-}
-void(ArrayMethodProxyHandler);
-
 /*
 
 

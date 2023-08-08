@@ -2,7 +2,7 @@ import createImplementsArrayProxy, {
   ImplementsArrayHandler,
   getManagerArrayForTypeArray,
   getTypeFromManager,
-} from "#ts-morph_structures/source/utilities/ImplementsArrayProxy.mjs";
+} from "#ts-morph_structures/source/array-utilities/ImplementsArrayProxy.mjs";
 
 import type {
   stringOrWriterFunction
