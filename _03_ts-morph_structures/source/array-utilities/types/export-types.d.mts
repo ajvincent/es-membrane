@@ -5,11 +5,11 @@ export type {
   DataDescriptor
 } from "./DataDescriptor.mjs";
 export type {
-  PrivatePublicContext,
-  //PrivatePublicContextWithMaps,
-  //PrivateAndPublicArrayDictionary,
-  PrivateAndPublicDictionary,
-} from "./PrivateAndPublicDictionaries.mjs";
+  BackingPublicContext,
+  //BackingPublicContextWithMaps,
+  //BackingAndPublicArrayDictionary,
+  BackingAndPublicDictionary,
+} from "./BackingAndPublicDictionaries.mjs";
 export type {
   PublicTypeUpdateableArray,
 } from "./PublicTypeUpdateableArray.mjs";

@@ -4,44 +4,44 @@ import NotImplementedProxyHandler from "./NotImplementedHandler.mjs";
 import type {
   ArrayWithoutIndices,
   DataDescriptor,
-  PrivateAndPublicDictionary,
+  BackingAndPublicDictionary,
   UpdateSymbolTracking,
 } from "./types/export-types.mjs";
 
-interface PrivateAndPublicArrayDictionaryIfc<
-  PrivateType extends object,
+interface BackingAndPublicArrayDictionaryIfc<
+  BackingType extends object,
   PublicType extends object,
 >
 {
-  privateArray: PrivateType[];
+  backingArray: BackingType[];
   readonly wrappedPublicArray: PublicType[];
-  readonly shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>;
-  readonly proxyArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>;
+  readonly shadowTargetArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>;
+  readonly proxyArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>;
   revoke(): void;
 }
 
-class PrivateAndPublicArrayDictionary<
-  PrivateType extends object,
+class BackingAndPublicArrayDictionary<
+  BackingType extends object,
   PublicType extends object,
 >
-implements PrivateAndPublicArrayDictionaryIfc<PrivateType, PublicType>, UpdateSymbolTracking
+implements BackingAndPublicArrayDictionaryIfc<BackingType, PublicType>, UpdateSymbolTracking
 {
-  readonly privateArray: PrivateType[];
+  readonly backingArray: BackingType[];
   readonly wrappedPublicArray: PublicType[];
-  readonly shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>;
-  readonly proxyArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>;
+  readonly shadowTargetArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>;
+  readonly proxyArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>;
   readonly revoke: () => void;
   #lastUpdateSymbol: symbol;
 
   constructor(
     dictionary: Omit<
-      PrivateAndPublicArrayDictionaryIfc<PrivateType, PublicType>,
+      BackingAndPublicArrayDictionaryIfc<BackingType, PublicType>,
       "markUpdated" | "lastUpdateSymbol"
     >,
     updateSymbol: symbol
   )
   {
-    this.privateArray = dictionary.privateArray;
+    this.backingArray = dictionary.backingArray;
     this.wrappedPublicArray = dictionary.wrappedPublicArray;
     this.shadowTargetArray = dictionary.shadowTargetArray;
     this.proxyArray = dictionary.proxyArray;
@@ -62,36 +62,36 @@ implements PrivateAndPublicArrayDictionaryIfc<PrivateType, PublicType>, UpdateSy
   }
 }
 
-interface PrivatePublicContextBase<
-  PrivateType extends object,
+interface BackingPublicContextBase<
+  BackingType extends object,
   PublicType extends object,
 >
 {
-  readonly buildPublic: (privateValue: PrivateType) => PublicType,
-  readonly buildPrivate: (publicValue: PublicType) => PrivateType,
+  readonly buildPublic: (backingValue: BackingType) => PublicType,
+  readonly buildBacking: (publicValue: PublicType) => BackingType,
 }
 
-interface PrivatePublicContext<
-  PrivateType extends object,
+interface BackingPublicContext<
+  BackingType extends object,
   PublicType extends object,
-> extends PrivatePublicContextBase<PrivateType, PublicType>
+> extends BackingPublicContextBase<BackingType, PublicType>
 {
   readonly objectOneToOneMap: WeakMap<
-    PrivateType | PublicType,
-    PrivateAndPublicDictionary<PrivateType, PublicType>
+    BackingType | PublicType,
+    BackingAndPublicDictionary<BackingType, PublicType>
   >;
   readonly arrayOneToOneMap: WeakMap<
-    PublicType[] | PrivateType[],
-    PrivateAndPublicArrayDictionaryIfc<PrivateType, PublicType> & UpdateSymbolTracking
+    PublicType[] | BackingType[],
+    BackingAndPublicArrayDictionaryIfc<BackingType, PublicType> & UpdateSymbolTracking
   >;
 }
 
 export class InternalArrayProxyHandler<
-  PrivateType extends object,
+  BackingType extends object,
   PublicType extends object,
 >
 extends NotImplementedProxyHandler
-implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, PublicType>>>
+implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<BackingType, PublicType>>>
 {
   static getNumericIndex(
     p: string | symbol
@@ -107,11 +107,11 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
 
   // #region proxy management
 
-  readonly #context: PrivatePublicContext<PrivateType, PublicType>;
-  //readonly #methodHandler: ArrayMethodProxyHandler<PrivateType, PublicType>;
+  readonly #context: BackingPublicContext<BackingType, PublicType>;
+  //readonly #methodHandler: ArrayMethodProxyHandler<BackingType, PublicType>;
 
   constructor(
-    baseContext: PrivatePublicContextBase<PrivateType, PublicType>,
+    baseContext: BackingPublicContextBase<BackingType, PublicType>,
   )
   {
     super()
@@ -122,34 +122,34 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
       arrayOneToOneMap: new WeakMap,
     };
 
-    //this.#methodHandler = new ArrayMethodProxyHandler<PrivateType, PublicType>;
+    //this.#methodHandler = new ArrayMethodProxyHandler<BackingType, PublicType>;
   }
 
   getProxy(
-    privateValues: PrivateType[]
-  ): PublicTypeArrayShadowWrapper<PrivateType, PublicType>
+    backingValues: BackingType[]
+  ): PublicTypeArrayShadowWrapper<BackingType, PublicType>
   {
-    return this.#context.arrayOneToOneMap.get(privateValues)?.proxyArray ??
-      this.#createArrayProxy(privateValues);
+    return this.#context.arrayOneToOneMap.get(backingValues)?.proxyArray ??
+      this.#createArrayProxy(backingValues);
   }
 
   revokeProxy(
-    values: PublicType[] | PrivateType[]
+    values: PublicType[] | BackingType[]
   ): void
   {
     this.#context.arrayOneToOneMap.get(values)?.revoke();
   }
 
   #createArrayProxy(
-    privateArray: PrivateType[]
-  ): PublicTypeArrayShadowWrapper<PrivateType, PublicType>
+    backingArray: BackingType[]
+  ): PublicTypeArrayShadowWrapper<BackingType, PublicType>
   {
-    const wrappedPublicArray = privateArray.map(privateValue => this.requirePublic(privateValue));
+    const wrappedPublicArray = backingArray.map(backingValue => this.requirePublic(backingValue));
 
-    const shadowTargetArray = new PublicTypeArrayShadowWrapper<PrivateType, PublicType>(
+    const shadowTargetArray = new PublicTypeArrayShadowWrapper<BackingType, PublicType>(
       this,
       {
-        privateArray,
+        backingArray,
         wrappedPublicArray,
       }
     );
@@ -159,12 +159,12 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
       proxy: proxyArray,
       revoke
     } = Proxy.revocable<
-      PublicTypeArrayShadowWrapper<PrivateType, PublicType>
+      PublicTypeArrayShadowWrapper<BackingType, PublicType>
     >(shadowTargetArray, this);
 
-    const arrayDictionary = new PrivateAndPublicArrayDictionary<PrivateType, PublicType>(
+    const arrayDictionary = new BackingAndPublicArrayDictionary<BackingType, PublicType>(
       {
-        privateArray,
+        backingArray,
         wrappedPublicArray,
         shadowTargetArray,
         proxyArray,
@@ -173,7 +173,7 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
       Symbol()
     );
 
-    this.#context.arrayOneToOneMap.set(privateArray, arrayDictionary);
+    this.#context.arrayOneToOneMap.set(backingArray, arrayDictionary);
     this.#context.arrayOneToOneMap.set(wrappedPublicArray, arrayDictionary);
     this.#context.arrayOneToOneMap.set(shadowTargetArray, arrayDictionary);
     this.#context.arrayOneToOneMap.set(proxyArray, arrayDictionary);
@@ -181,41 +181,41 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
     return proxyArray;
   }
 
-  requirePublic(privateValue: PrivateType): PublicType
+  requirePublic(backingValue: BackingType): PublicType
   {
-    if (!this.#context.objectOneToOneMap.has(privateValue)) {
-      const publicValue = this.#context.buildPublic(privateValue)
-      const privateAndPublic: PrivateAndPublicDictionary<PrivateType, PublicType> = {
-        privateValue,
+    if (!this.#context.objectOneToOneMap.has(backingValue)) {
+      const publicValue = this.#context.buildPublic(backingValue)
+      const backingAndPublic: BackingAndPublicDictionary<BackingType, PublicType> = {
+        backingValue,
         publicValue
       };
 
-      this.#context.objectOneToOneMap.set(privateValue, privateAndPublic);
-      this.#context.objectOneToOneMap.set(publicValue, privateAndPublic);
+      this.#context.objectOneToOneMap.set(backingValue, backingAndPublic);
+      this.#context.objectOneToOneMap.set(publicValue, backingAndPublic);
 
       return publicValue;
     }
 
-    return this.#context.objectOneToOneMap.get(privateValue)!.publicValue;
+    return this.#context.objectOneToOneMap.get(backingValue)!.publicValue;
   }
 
-  requirePrivate(publicValue: PublicType): PrivateType
+  requireBacking(publicValue: PublicType): BackingType
   {
     if (!this.#context.objectOneToOneMap.has(publicValue)) {
-      const privateValue = this.#context.buildPrivate(publicValue);
+      const backingValue = this.#context.buildBacking(publicValue);
 
-      const privateAndPublic: PrivateAndPublicDictionary<PrivateType, PublicType> = {
-        privateValue,
+      const backingAndPublic: BackingAndPublicDictionary<BackingType, PublicType> = {
+        backingValue,
         publicValue
       };
 
-      this.#context.objectOneToOneMap.set(privateValue, privateAndPublic);
-      this.#context.objectOneToOneMap.set(publicValue, privateAndPublic);
+      this.#context.objectOneToOneMap.set(backingValue, backingAndPublic);
+      this.#context.objectOneToOneMap.set(publicValue, backingAndPublic);
 
-      return privateValue;
+      return backingValue;
     }
 
-    return this.#context.objectOneToOneMap.get(publicValue)!.privateValue;
+    return this.#context.objectOneToOneMap.get(publicValue)!.backingValue;
   }
 
   // #endregion proxy management
@@ -223,7 +223,7 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
   // #region ProxyHandler
 
   defineProperty(
-    shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>,
+    shadowTargetArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>,
     property: string | symbol,
     publicDesc: PropertyDescriptor
   ): boolean
@@ -239,19 +239,19 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
     if (publicDesc.get ?? publicDesc.set)
       return false;
 
-    let value: undefined | number | PrivateType = undefined;
+    let value: undefined | number | BackingType = undefined;
     if (property === "length")
       value = publicDesc.value as number;
     else if (publicDesc.value !== undefined) {
-      value = this.requirePrivate(publicDesc.value as PublicType);
+      value = this.requireBacking(publicDesc.value as PublicType);
     }
 
-    const privateDesc: DataDescriptor = {
+    const backingDesc: DataDescriptor = {
       ...publicDesc,
       value
     };
 
-    const rv = Reflect.defineProperty(context.privateArray, property, privateDesc);
+    const rv = Reflect.defineProperty(context.backingArray, property, backingDesc);
     if (rv) {
       context.markUpdated();
     }
@@ -260,7 +260,7 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
   }
 
   deleteProperty(
-    shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>,
+    shadowTargetArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>,
     property: string | symbol
   ): boolean
   {
@@ -268,20 +268,20 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
     if (isNaN(numericIndex))
       return false;
 
-    const { privateArray } = this.#context.arrayOneToOneMap.get(shadowTargetArray)!;
+    const { backingArray } = this.#context.arrayOneToOneMap.get(shadowTargetArray)!;
 
     const rv = (
-      Reflect.deleteProperty(privateArray, property) &&
+      Reflect.deleteProperty(backingArray, property) &&
       Reflect.deleteProperty(shadowTargetArray, property)
     );
     if (rv) {
-      shadowTargetArray.refreshFromPrivateArray();
+      shadowTargetArray.refreshFromBackingArray();
     }
     return rv;
   }
 
   get(
-    shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>,
+    shadowTargetArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>,
     property: string | symbol,
     receiver: any
   ): any
@@ -298,7 +298,7 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
 
     const propertyName = property as keyof ArrayWithoutIndices;
     if (propertyName === "length") {
-      shadowTargetArray.refreshFromPrivateArray();
+      shadowTargetArray.refreshFromBackingArray();
       return shadowTargetArray.length;
     }
 
@@ -311,7 +311,7 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
   }
 
   #bindMethod(
-    shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>,
+    shadowTargetArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>,
     property: keyof Omit<object[], number | typeof Symbol.unscopables | "length">
   ): DataDescriptor
   {
@@ -343,7 +343,7 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
   }
 
   getOwnPropertyDescriptor(
-    shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>,
+    shadowTargetArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>,
     property: string | symbol
   ): PropertyDescriptor | undefined
   {
@@ -351,18 +351,18 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
     if (isNaN(numericIndex))
       return undefined;
 
-    shadowTargetArray.refreshFromPrivateArray();
+    shadowTargetArray.refreshFromBackingArray();
 
-    const { privateArray } = this.#context.arrayOneToOneMap.get(shadowTargetArray)!;
-    const privateDesc = Reflect.getOwnPropertyDescriptor(
-      privateArray, property
+    const { backingArray } = this.#context.arrayOneToOneMap.get(shadowTargetArray)!;
+    const backingDesc = Reflect.getOwnPropertyDescriptor(
+      backingArray, property
     ) as DataDescriptor | undefined;
-    if (!privateDesc)
+    if (!backingDesc)
       return undefined;
 
     const shadowDesc = {
-      ...privateDesc,
-      value: this.requirePublic(privateDesc.value as PrivateType)
+      ...backingDesc,
+      value: this.requirePublic(backingDesc.value as BackingType)
     };
     if (!Reflect.defineProperty(shadowTargetArray, property, shadowDesc))
       return undefined;
@@ -371,31 +371,31 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
   }
 
   getPrototypeOf(
-    shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>
+    shadowTargetArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>
   ): object | null
   {
     return Reflect.getPrototypeOf(shadowTargetArray);
   }
 
   has(
-    shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>,
+    shadowTargetArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>,
     property: string | symbol
   ): boolean
   {
     const numericIndex = InternalArrayProxyHandler.getNumericIndex(property);
     if (!isNaN(numericIndex)) {
-      shadowTargetArray.refreshFromPrivateArray();
+      shadowTargetArray.refreshFromBackingArray();
 
-      const { privateArray } = this.#context.arrayOneToOneMap.get(shadowTargetArray)!;
-      const result = Reflect.has(privateArray, property);
+      const { backingArray } = this.#context.arrayOneToOneMap.get(shadowTargetArray)!;
+      const result = Reflect.has(backingArray, property);
       if (result) {
-        const privateDesc = Reflect.getOwnPropertyDescriptor(
-          privateArray, property
+        const backingDesc = Reflect.getOwnPropertyDescriptor(
+          backingArray, property
         ) as DataDescriptor;
 
         const publicDesc = {
-          ...privateDesc,
-          value: this.requirePublic(privateDesc.value as PrivateType)
+          ...backingDesc,
+          value: this.requirePublic(backingDesc.value as BackingType)
         };
 
         return Reflect.defineProperty(shadowTargetArray, property, publicDesc);
@@ -408,22 +408,22 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
   }
 
   isExtensible(
-    shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>
+    shadowTargetArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>
   ): boolean
   {
     return Reflect.isExtensible(shadowTargetArray);
   }
 
   ownKeys(
-    shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>
+    shadowTargetArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>
   ): ArrayLike<string | symbol>
   {
-    const { privateArray } = this.#context.arrayOneToOneMap.get(shadowTargetArray)!;
-    return Reflect.ownKeys(privateArray);
+    const { backingArray } = this.#context.arrayOneToOneMap.get(shadowTargetArray)!;
+    return Reflect.ownKeys(backingArray);
   }
 
   preventExtensions(
-    shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>
+    shadowTargetArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>
   ): boolean
   {
     void(shadowTargetArray);
@@ -431,7 +431,7 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
   }
 
   set(
-    shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>,
+    shadowTargetArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>,
     propertyName: string | symbol,
     newValue: any,
     receiver: any
@@ -447,7 +447,7 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
   }
 
   setPrototypeOf(
-    shadowTargetArray: PublicTypeArrayShadowWrapper<PrivateType, PublicType>,
+    shadowTargetArray: PublicTypeArrayShadowWrapper<BackingType, PublicType>,
     newPrototype: object | null
   ): boolean
   {
@@ -475,28 +475,28 @@ implements Required<ProxyHandler<PublicTypeArrayShadowWrapper<PrivateType, Publi
 
 
 class PublicTypeArrayShadowWrapper<
-  PrivateType extends object,
+  BackingType extends object,
   PublicType extends object
 > extends Array<PublicType>
 {
-  readonly #proxyHandler: InternalArrayProxyHandler<PrivateType, PublicType>
-  readonly #privateArray: PrivateType[];
+  readonly #proxyHandler: InternalArrayProxyHandler<BackingType, PublicType>
+  readonly #backingArray: BackingType[];
 
   #updateSymbolTracking: UpdateSymbolTracking | undefined;
 
   #lastUpdateSymbol = Symbol();
 
   constructor(
-    proxyHandler: InternalArrayProxyHandler<PrivateType, PublicType>,
+    proxyHandler: InternalArrayProxyHandler<BackingType, PublicType>,
     items: Pick<
-      PrivateAndPublicArrayDictionaryIfc<PrivateType, PublicType>,
-      "privateArray" | "wrappedPublicArray"
+      BackingAndPublicArrayDictionaryIfc<BackingType, PublicType>,
+      "backingArray" | "wrappedPublicArray"
     >
   )
   {
     super(...items.wrappedPublicArray);
     this.#proxyHandler = proxyHandler;
-    this.#privateArray = items.privateArray;
+    this.#backingArray = items.backingArray;
   }
 
   set symbolTracker(
@@ -509,7 +509,7 @@ class PublicTypeArrayShadowWrapper<
     this.#lastUpdateSymbol = tracking.lastUpdateSymbol;
   }
 
-  refreshFromPrivateArray(): void
+  refreshFromBackingArray(): void
   {
     if (!this.#updateSymbolTracking) {
       throw new Error("We should be tracking now");
@@ -517,7 +517,7 @@ class PublicTypeArrayShadowWrapper<
     if (this.#lastUpdateSymbol === this.#updateSymbolTracking.lastUpdateSymbol)
       return;
 
-    Array.prototype.splice.call(this, 0, this.length, ...this.#privateArray.map(this.#getPublicValue))
+    Array.prototype.splice.call(this, 0, this.length, ...this.#backingArray.map(this.#getPublicValue))
     this.#lastUpdateSymbol = this.#updateSymbolTracking.lastUpdateSymbol;
   }
 
@@ -529,14 +529,14 @@ class PublicTypeArrayShadowWrapper<
     this.#lastUpdateSymbol = this.#updateSymbolTracking.markUpdated();
   }
 
-  readonly #getPublicValue = (privateValue: PrivateType): PublicType =>
+  readonly #getPublicValue = (backingValue: BackingType): PublicType =>
   {
-    return this.#proxyHandler.requirePublic(privateValue);
+    return this.#proxyHandler.requirePublic(backingValue);
   }
 
-  readonly #getPrivateValue = (publicValue: PublicType): PrivateType =>
+  readonly #getBackingValue = (publicValue: PublicType): BackingType =>
   {
-    return this.#proxyHandler.requirePrivate(publicValue);
+    return this.#proxyHandler.requireBacking(publicValue);
   }
 
   [Symbol.iterator](): IterableIterator<PublicType>
@@ -545,19 +545,19 @@ class PublicTypeArrayShadowWrapper<
   }
 
   get length(): number {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     return super.length;
   }
 
   pop(): PublicType | undefined {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     return super.pop();
   }
 
   push(...publicItems: PublicType[]): number {
-    this.refreshFromPrivateArray();
-    const privateItems = publicItems.map(this.#getPrivateValue);
-    this.#privateArray.push(...privateItems);
+    this.refreshFromBackingArray();
+    const backingItems = publicItems.map(this.#getBackingValue);
+    this.#backingArray.push(...backingItems);
     const count = super.push(...publicItems);
     this.#markUpdated();
     return count;
@@ -565,34 +565,34 @@ class PublicTypeArrayShadowWrapper<
 
   concat(
     ...items: ConcatArray<PublicType>[]
-  ): PublicTypeArrayShadowWrapper<PrivateType, PublicType>
+  ): PublicTypeArrayShadowWrapper<BackingType, PublicType>
   {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     const publicItems: PublicType[] = super.concat(...items);
 
-    const newPrivateArray: PrivateType[] = publicItems.map(this.#getPrivateValue);
-    return this.#proxyHandler.getProxy(newPrivateArray);
+    const newBackingArray: BackingType[] = publicItems.map(this.#getBackingValue);
+    return this.#proxyHandler.getProxy(newBackingArray);
   }
 
   join(separator?: string | undefined): string
   {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     return super.join(separator);
   }
 
   reverse(): PublicType[] {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     return super.reverse();
   }
 
   shift(): PublicType | undefined
   {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     if (this.length === 0)
       return undefined;
 
     const rv = super.shift();
-    this.#privateArray.shift();
+    this.#backingArray.shift();
     this.#markUpdated();
 
     return rv;
@@ -601,10 +601,10 @@ class PublicTypeArrayShadowWrapper<
   slice(
     start?: number | undefined,
     end?: number | undefined
-  ): PublicTypeArrayShadowWrapper<PrivateType, PublicType>
+  ): PublicTypeArrayShadowWrapper<BackingType, PublicType>
   {
-    const newPrivateArray: PrivateType[] = this.#privateArray.slice(start, end);
-    return this.#proxyHandler.getProxy(newPrivateArray);
+    const newBackingArray: BackingType[] = this.#backingArray.slice(start, end);
+    return this.#proxyHandler.getProxy(newBackingArray);
   }
 
   sort(
@@ -612,99 +612,99 @@ class PublicTypeArrayShadowWrapper<
       (a: PublicType, b: PublicType) => number) | undefined
     ): this
   {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   splice(start: number, deleteCount?: number | undefined): PublicType[] {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   unshift(...items: PublicType[]): number {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   indexOf(searchElement: PublicType, fromIndex?: number | undefined): number {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   lastIndexOf(searchElement: PublicType, fromIndex?: number | undefined): number {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   every<S extends PublicType>(predicate: (value: PublicType, index: number, array: PublicType[]) => value is S, thisArg?: any): this is S[];
   every(predicate: (value: PublicType, index: number, array: PublicType[]) => unknown, thisArg?: any): boolean;
   every(predicate: unknown, thisArg?: unknown): boolean {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented")
   }
   some(predicate: (value: PublicType, index: number, array: PublicType[]) => boolean, thisArg?: PublicType): boolean {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   forEach(callbackfn: (value: PublicType, index: number, array: PublicType[]) => void, thisArg?: PublicType): void {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   map<U>(callbackfn: (value: PublicType, index: number, array: PublicType[]) => U, thisArg?: PublicType): U[] {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   filter(predicate: (value: PublicType, index: number, array: PublicType[]) => unknown, thisArg?: any): PublicType[];
   filter(predicate: unknown, thisArg?: unknown): PublicType[] {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented");
   }
   reduce(callbackfn: (previousValue: PublicType, currentValue: PublicType, currentIndex: number, array: PublicType[]) => PublicType): PublicType;
   reduce(callbackfn: (previousValue: PublicType, currentValue: PublicType, currentIndex: number, array: PublicType[]) => PublicType, initialValue: PublicType): PublicType;
   reduce<U>(callbackfn: (previousValue: U, currentValue: PublicType, currentIndex: number, array: PublicType[]) => U, initialValue: U): U;
   reduce(callbackfn: unknown, initialValue?: unknown): PublicType {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   reduceRight(callbackfn: (previousValue: PublicType, currentValue: PublicType, currentIndex: number, array: PublicType[]) => PublicType): PublicType;
   reduceRight(callbackfn: (previousValue: PublicType, currentValue: PublicType, currentIndex: number, array: PublicType[]) => PublicType, initialValue: PublicType): PublicType;
   reduceRight<U>(callbackfn: (previousValue: U, currentValue: PublicType, currentIndex: number, array: PublicType[]) => U, initialValue: U): U;
   reduceRight(callbackfn: unknown, initialValue?: unknown): PublicType {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
 
   find<S extends PublicType>(predicate: (value: PublicType, index: number, obj: PublicType[]) => value is S, thisArg?: any): S | undefined;
   find(predicate: (value: PublicType, index: number, obj: PublicType[]) => unknown, thisArg?: any): PublicType | undefined;
   find(predicate: unknown, thisArg?: unknown): PublicType | undefined {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("not yet implemented");
   }
   findIndex(predicate: (value: PublicType, index: number, obj: PublicType[]) => unknown, thisArg?: any): number {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("not yet implemented");
   }
   fill(value: PublicType, start?: number | undefined, end?: number | undefined): this {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   copyWithin(target: number, start?: number | undefined, end?: number | undefined): this {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   entries(): IterableIterator<[number, PublicType]> {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   keys(): IterableIterator<number> {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   values(): IterableIterator<PublicType> {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   includes(searchElement: PublicType, fromIndex?: number | undefined): boolean {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   flatMap<U, This = PublicType>(callback: (this: This, value: PublicType, index: number, array: PublicType[]) => U | readonly U[], thisArg?: This | undefined): U[] {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   flat<A, D extends number = 1>(this: A, depth?: D | undefined): FlatArray<A, D>[] {
@@ -712,15 +712,15 @@ class PublicTypeArrayShadowWrapper<
     throw new Error("Function not implemented");
   }
   at(index: number): PublicType | undefined {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   findLast<S>(predicate: (value: PublicType, index: number, array: PublicType[]) => boolean, thisArg?: PublicType): S | undefined {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
   findLastIndex(predicate: (value: PublicType, index: number, array: PublicType[]) => boolean, thisArg?: PublicType): number {
-    this.refreshFromPrivateArray();
+    this.refreshFromBackingArray();
     throw new Error("Function not implemented.");
   }
 }

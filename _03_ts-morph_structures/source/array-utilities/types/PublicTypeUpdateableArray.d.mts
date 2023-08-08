@@ -9,5 +9,5 @@ extends Array<PublicType>
     tracking: UpdateSymbolTracking
   );
 
-  refreshFromPrivateArray(): void;
+  refreshFromBackingArray(): void;
 }
