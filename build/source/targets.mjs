@@ -108,7 +108,7 @@ class DirStage {
     async #invokeTSCWithDirFilter(rootDir, tsconfigPath, filter) {
         let { files } = await readDirsDeep(rootDir, filter);
         files = files.filter(f => {
-            return /(?<!\.d)\.mts$/.test(f);
+            return /(?<!\.d)\.mts$/.test(f) || /types\/.*\.mts$/.test(f);
         });
         if (files.length === 0)
             return;
