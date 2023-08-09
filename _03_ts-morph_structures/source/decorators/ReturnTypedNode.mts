@@ -80,7 +80,7 @@ export default function ReturnTypedNode(
     }
   
     set returnTypeStructure(
-      value: TypeStructure | undefined
+      value: TypeStructure
     )
     {
       this.#typeWriterManager.typeStructure = value;

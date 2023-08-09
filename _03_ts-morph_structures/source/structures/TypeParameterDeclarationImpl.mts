@@ -41,7 +41,7 @@ implements TypeParameterDeclarationStructure
     return this.#constraintManager.typeStructure
   }
   set constraintStructure(
-    structure: TypeStructure | undefined
+    structure: TypeStructure
   )
   {
     this.#constraintManager.typeStructure = structure;
@@ -63,7 +63,7 @@ implements TypeParameterDeclarationStructure
     return this.#defaultManager.typeStructure;
   }
   set defaultStructure(
-    structure: TypeStructure | undefined
+    structure: TypeStructure
   )
   {
     this.#defaultManager.typeStructure = structure;

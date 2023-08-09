@@ -64,7 +64,7 @@ implements TypedNodeStructure, TypedNodeTypeStructure
     return this.#typeOrStructure;
   }
 
-  set typeStructure(value: TypeStructure | undefined)
+  set typeStructure(value: TypeStructure)
   {
     this.#typeOrStructure = value;
   }

@@ -78,7 +78,7 @@ export default function TypedNode(
     }
   
     set typeStructure(
-      value: TypeStructure | undefined
+      value: TypeStructure
     )
     {
       this.#typeWriterManager.typeStructure = value;
