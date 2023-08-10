@@ -4,3 +4,5 @@ When walking the tree for converting type nodes to type structures, remember spe
 
 - TypedNode: type
 - TypeParameterDeclarationImpl: constraint, default
+- ImplementsClauseableNodeStructure: implements
+-

@@ -36,6 +36,10 @@ import {
   TypeStructureWithElements
 } from "../typeStructures/ElementsTypedStructureAbstract.mjs";
 
+import {
+  TypeNodeToTypeStructure
+} from "../types/TypeNodeToTypeStructure.mjs";
+
 const LiteralKeywords: ReadonlyMap<SyntaxKind, string> = new Map([
   [SyntaxKind.AnyKeyword, "any"],
   [SyntaxKind.BooleanKeyword, "boolean"],
@@ -67,6 +71,7 @@ export default function convertTypeNode(
     conversionFailCallback = undefined;
   }
 }
+convertTypeNode satisfies TypeNodeToTypeStructure;
 
 /** @internal */
 export function convertTypeNodeInternal(
