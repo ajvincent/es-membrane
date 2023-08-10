@@ -17,8 +17,8 @@ import type {
 
 import {
   cloneArrayOrUndefined,
-  stringOrWriterFunctionArray
 } from "./utilities.mjs";
+
 import MethodDeclarationImpl from "./MethodDeclarationImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 import PropertyDeclarationImpl from "./PropertyDeclarationImpl.mjs";
@@ -57,11 +57,8 @@ import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
-import createImplementsArrayProxy, {
-  getManagerArrayForTypeArray
-} from "../array-utilities/ImplementsArrayProxy.mjs";
-import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
-import { getTypeStructureForCallback } from "../typeStructures/callbackToTypeStructureRegistry.mjs";
+import ReadonlyArrayProxyHandler from "../array-utilities/ReadonlyArrayProxyHandler.mjs";
+import TypeWriterSet from "../array-utilities/TypeWriterSet.mjs";
 
 const ClassDeclarationBase = MultiMixinBuilder<
   [
@@ -93,7 +90,16 @@ export default class ClassDeclarationImpl
 extends ClassDeclarationBase
 implements ClassDeclarationStructure
 {
-  #implements: stringOrWriterFunction[] = createImplementsArrayProxy([]);
+  static readonly #implementsArrayReadonlyHandler = new ReadonlyArrayProxyHandler(
+    "The implements array is read-only.  Please use this.implementsSet to set strings, writer functions, and type structures."
+  );
+
+  readonly #implementsShadowArray: stringOrWriterFunction[] = [];
+  readonly #implementsProxyArray = new Proxy<stringOrWriterFunction[]>(
+    this.#implementsShadowArray,
+    ClassDeclarationImpl.#implementsArrayReadonlyHandler
+  );
+  readonly #implementsSet = new TypeWriterSet(this.#implementsShadowArray);
 
   readonly kind: StructureKind.Class = StructureKind.Class;
 
@@ -106,100 +112,15 @@ implements ClassDeclarationStructure
   hasDeclareKeyword = false;
 
   get implements(): stringOrWriterFunction[] {
-    return this.#implements;
+    return this.#implementsProxyArray;
   }
   /* Why not a setter?  It's not necessarily safe to do so.  With a setter, either:
     1. we hand ownership over the elements to someone else, without being able to track updates, or
     2. the array the caller passes in is not the array we have: they update it and the update doesn't stick.
   */
 
-  // Implementing the implements[] proxy was a huge pain.
-  // I'm really sure I don't want to do that, yet, for type structures.
-
-  get implementsStructures(): TypeStructure[]
-  {
-    throw new Error("implementsStructures not implemented");
-  }
-  set implementsStructures(
-    structures: TypeStructure[]
-  )
-  {
-    throw new Error("implementsStructures not implemented");
-  }
-
-  getImplementsStructureAt(
-    index: number
-  ): TypeStructure | undefined
-  {
-    const writer = this.#implements[index];
-    return typeof writer === "function" ? getTypeStructureForCallback(writer) : undefined;
-  }
-
-  getImplementsStructuresDetached(): (TypeStructure | undefined)[]
-  {
-    const typeManagerArray = getManagerArrayForTypeArray(this.#implements);
-    return typeManagerArray.map(manager => manager.typeStructure);
-  }
-
-  appendImplementsStructures(
-    ...newStructures: TypeStructure[]
-  ): void
-  {
-    const writerSequence = newStructures.map(structure => structure.writerFunction);
-    this.#implements.push(...writerSequence);
-  }
-
-  setImplementsStructureAt(
-    index: number,
-    structure: TypeStructure
-  ): void
-  {
-    this.#implements[index] = structure.writerFunction;
-  }
-
-  deleteImplementsStructureAt(
-    index: number
-  ): boolean
-  {
-    const writer = this.#implements[index];
-    if (typeof writer !== "function")
-      return false;
-
-    const structure = getTypeStructureForCallback(writer);
-    if (!structure)
-      return false;
-
-    this.#implements.splice(index, 1);
-    return true;
-  }
-
-  spliceImplementsStructures(
-    start: number,
-    deleteCount: number,
-    ...newStructures: TypeStructure[]
-  ): TypeStructure[]
-  {
-    const structureArray: TypeStructure[] = [];
-    const typeManagerArray = getManagerArrayForTypeArray(this.#implements);
-
-    const errors: Error[] = [];
-
-    for (let i = start; i < start + deleteCount; i++) {
-      const structure = typeManagerArray[i].typeStructure;
-      if (!structure)
-        errors.push(new Error(`no structure at index ${i}, this is unsafe`));
-      else if (errors.length === 0)
-        structureArray.push(structure);
-    }
-
-    if (errors.length > 0) {
-      throw new AggregateError(errors);
-    }
-
-    const writerSequence = newStructures.map(structure => structure.writerFunction);
-    this.#implements.splice(start, deleteCount, ...writerSequence);
-
-    return structureArray;
+  get implementsSet(): TypeWriterSet {
+    return this.#implementsSet;
   }
 
   public static clone(
@@ -225,7 +146,14 @@ implements ClassDeclarationStructure
       other.methods, MethodDeclarationImpl
     );
 
-    clone.implements.splice(0, clone.implements.length, ...stringOrWriterFunctionArray(other.implements));
+    if (typeof other.implements === "function") {
+      clone.implementsSet.add(other.implements);
+    }
+    else if (Array.isArray(other.implements)) {
+      other.implements.forEach((implementsValue: stringOrWriterFunction) => {
+        clone.implementsSet.add(implementsValue);
+      })
+    }
 
     ClassDeclarationBase.cloneTrivia(other, clone);
     ClassDeclarationBase.cloneAbstractable(other, clone);
