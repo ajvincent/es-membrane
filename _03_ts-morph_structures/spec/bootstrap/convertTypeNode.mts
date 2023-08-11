@@ -1,4 +1,13 @@
-import ts from "ts-morph";
+import {
+  ModuleKind,
+  ModuleResolutionKind,
+  Project,
+  ProjectOptions,
+  ScriptTarget,
+  TypeLiteralNode,
+  TypeNode,
+  VariableDeclaration,
+} from "ts-morph";
 
 import convertTypeNode from "#ts-morph_structures/source/bootstrap/convertTypeNode.mjs";
 import {
@@ -17,36 +26,52 @@ import {
   TypeStructure,
   UnionTypedStructureImpl
 } from "#ts-morph_structures/exports.mjs";
+import { TypeNodeToTypeStructureConsole } from "#ts-morph_structures/source/types/TypeNodeToTypeStructure.mjs";
 
 describe("convertTypeNode generates correct type structures, with type", () => {
-  let declaration: ts.VariableDeclaration;
+  let declaration: VariableDeclaration;
   let structure: TypeStructure | null;
 
+  let failMessage: string | undefined;
+  let failNode: TypeNode | null;
+  function failCallback(message: string, typeNode: TypeNode): void {
+    failMessage = message;
+    failNode = typeNode;
+  }
+  failCallback satisfies TypeNodeToTypeStructureConsole;
+
   beforeAll(() => {
-    const TSC_CONFIG: ts.ProjectOptions = {
+    failMessage = undefined;
+    failNode = null;
+
+    const TSC_CONFIG: ProjectOptions = {
       "compilerOptions": {
         "lib": ["es2022"],
-        "module": ts.ModuleKind.ESNext,
-        "target": ts.ScriptTarget.ESNext,
-        "moduleResolution": ts.ModuleResolutionKind.NodeNext,
+        "module": ModuleKind.ESNext,
+        "target": ScriptTarget.ESNext,
+        "moduleResolution": ModuleResolutionKind.NodeNext,
       },
       skipAddingFilesFromTsConfig: true,
       useInMemoryFileSystem: true,
     };
 
-    const project = new ts.Project(TSC_CONFIG);
+    const project = new Project(TSC_CONFIG);
     const sourceFile = project.createSourceFile("file.ts", `
 const refSymbol = Symbol("reference symbol");
 const A: string;
     `.trim() + "\n");
     declaration = sourceFile.getVariableDeclarationOrThrow("A");
   });
+  beforeEach(() => {
+    failMessage = undefined;
+    failNode = null;
+  });
 
   afterEach(() => structure = null);
 
   function setTypeStructure(
     rawType: string,
-    console?: ((message: string) => void) | undefined
+    console: TypeNodeToTypeStructureConsole
   ): void
   {
     declaration.setType(rawType);
@@ -55,124 +80,161 @@ const A: string;
   }
 
   it("any", () => {
-    setTypeStructure("any");
+    setTypeStructure("any", failCallback);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl) {
       expect(structure.stringValue).toBe("any");
     }
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("never", () => {
-    setTypeStructure("never");
+    setTypeStructure("never", failCallback);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl) {
       expect(structure.stringValue).toBe("never");
     }
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("string", () => {
-    setTypeStructure("string");
+    setTypeStructure("string", failCallback);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl)
       expect(structure.stringValue).toBe("string");
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("boolean", () => {
-    setTypeStructure("boolean");
+    setTypeStructure("boolean", failCallback);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl)
       expect(structure.stringValue).toBe("boolean");
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("number", () => {
-    setTypeStructure("number");
+    setTypeStructure("number", failCallback);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl)
       expect(structure.stringValue).toBe("number");
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("symbol", () => {
-    setTypeStructure("symbol");
+    setTypeStructure("symbol", failCallback);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl)
       expect(structure.stringValue).toBe("symbol");
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("true", () => {
-    setTypeStructure("true");
+    setTypeStructure("true", failCallback);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl)
       expect(structure.stringValue).toBe("true");
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("false", () => {
-    setTypeStructure("false");
+    setTypeStructure("false", failCallback);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl)
       expect(structure.stringValue).toBe("false");
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("unknown", () => {
-    setTypeStructure("unknown");
+    setTypeStructure("unknown", failCallback);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl)
       expect(structure.stringValue).toBe("unknown");
+
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("null", () => {
-    setTypeStructure("null");
+    setTypeStructure("null", failCallback);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl)
       expect(structure.stringValue).toBe("null");
+
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("undefined", () => {
-    setTypeStructure("undefined");
+    setTypeStructure("undefined", failCallback);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl)
       expect(structure.stringValue).toBe("undefined");
+
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("void", () => {
-    setTypeStructure("void");
+    setTypeStructure("void", failCallback);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl)
       expect(structure.stringValue).toBe("void");
+
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("12.5", () => {
-    setTypeStructure("12.5");
+    setTypeStructure("12.5", failCallback);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl)
       expect(structure.stringValue).toBe("12.5");
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("string literal 'foo'", () => {
-    setTypeStructure(`"foo"`);
+    setTypeStructure(`"foo"`, failCallback);
     expect(structure).toBeInstanceOf(StringTypedStructureImpl)
     if (structure instanceof StringTypedStructureImpl)
       expect(structure.stringValue).toBe("foo");
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it(`(foo), meaning parentheses type`, () => {
-    setTypeStructure("(true)");
+    setTypeStructure("(true)", failCallback);
     expect(structure).toBeInstanceOf(ParenthesesTypedStructureImpl);
     if (!(structure instanceof ParenthesesTypedStructureImpl))
       return;
     expect(structure.childType).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure.childType instanceof LiteralTypedStructureImpl)
       expect(structure.childType.stringValue).toBe("true");
+
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it(`NumberStringType (identifier)`, () => {
-    setTypeStructure(`NumberStringType`);
+    setTypeStructure(`NumberStringType`, failCallback);
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl)
       expect(structure.stringValue).toBe("NumberStringType");
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("union of string and number", () => {
-    setTypeStructure("string | number");
+    setTypeStructure("string | number", failCallback);
     expect(structure).toBeInstanceOf(UnionTypedStructureImpl);
     if (structure instanceof UnionTypedStructureImpl) {
       expect(structure.elements.length).toBe(2);
@@ -181,10 +243,12 @@ const A: string;
       expect(structure.elements[1]).toBeInstanceOf(LiteralTypedStructureImpl);
       expect((structure.elements[1] as LiteralTypedStructureImpl).stringValue).toBe("number");
     }
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("intersection of string and number", () => {
-    setTypeStructure("string & number");
+    setTypeStructure("string & number", failCallback);
     expect(structure).toBeInstanceOf(IntersectionTypedStructureImpl);
     if (structure instanceof IntersectionTypedStructureImpl) {
       expect(structure.elements.length).toBe(2);
@@ -193,10 +257,12 @@ const A: string;
       expect(structure.elements[1]).toBeInstanceOf(LiteralTypedStructureImpl);
       expect((structure.elements[1] as LiteralTypedStructureImpl).stringValue).toBe("number");
     }
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("[string, number]", () => {
-    setTypeStructure("[string, number]");
+    setTypeStructure("[string, number]", failCallback);
     expect(structure).toBeInstanceOf(TupleTypedStructureImpl);
     if (structure instanceof TupleTypedStructureImpl) {
       expect(structure.elements.length).toBe(2);
@@ -205,19 +271,23 @@ const A: string;
       expect(structure.elements[1]).toBeInstanceOf(LiteralTypedStructureImpl);
       expect((structure.elements[1] as LiteralTypedStructureImpl).stringValue).toBe("number");
     }
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("string[]", () => {
-    setTypeStructure("string[]");
+    setTypeStructure("string[]", failCallback);
     expect(structure).toBeInstanceOf(ArrayTypedStructureImpl);
     if (!(structure instanceof ArrayTypedStructureImpl))
       return;
     expect(structure.objectType).toBeInstanceOf(LiteralTypedStructureImpl);
     expect((structure.objectType as LiteralTypedStructureImpl).stringValue).toBe("string");
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it(`Pick<NumberStringType, "repeatForward">`, () => {
-    setTypeStructure(`Pick<NumberStringType, "repeatForward">`);
+    setTypeStructure(`Pick<NumberStringType, "repeatForward">`, failCallback);
     expect(structure).toBeInstanceOf(TypeArgumentedTypedStructureImpl);
     if (structure instanceof TypeArgumentedTypedStructureImpl) {
       expect(structure.objectType).toBeInstanceOf(LiteralTypedStructureImpl);
@@ -228,10 +298,12 @@ const A: string;
       expect(structure.elements[1]).toBeInstanceOf(StringTypedStructureImpl);
       expect((structure.elements[1] as StringTypedStructureImpl).stringValue).toBe("repeatForward");
     }
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("keyof typeof NumberStringClass", () => {
-    setTypeStructure(`keyof typeof NumberStringClass`);
+    setTypeStructure(`keyof typeof NumberStringClass`, failCallback);
     expect(structure).toBeInstanceOf(PrefixOperatorsTypedStructureImpl);
     if (!(structure instanceof PrefixOperatorsTypedStructureImpl))
       return;
@@ -239,10 +311,12 @@ const A: string;
     expect(structure.childType).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure.childType instanceof LiteralTypedStructureImpl)
       expect(structure.childType.stringValue).toBe("NumberStringClass");
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("readonly string[]", () => {
-    setTypeStructure(`readonly string[]`);
+    setTypeStructure(`readonly string[]`, failCallback);
 
     expect(structure).toBeInstanceOf(PrefixOperatorsTypedStructureImpl);
     if (!(structure instanceof PrefixOperatorsTypedStructureImpl))
@@ -255,10 +329,12 @@ const A: string;
       expect(childStructure.objectType).toBeInstanceOf(LiteralTypedStructureImpl);
       expect((childStructure.objectType as LiteralTypedStructureImpl).stringValue).toBe("string");
     }
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("readonly [string, number]", () => {
-    setTypeStructure("readonly [string, number]");
+    setTypeStructure("readonly [string, number]", failCallback);
 
     expect(structure).toBeInstanceOf(PrefixOperatorsTypedStructureImpl);
     if (!(structure instanceof PrefixOperatorsTypedStructureImpl))
@@ -274,10 +350,12 @@ const A: string;
       expect(childStructure.elements[1]).toBeInstanceOf(LiteralTypedStructureImpl);
       expect((childStructure.elements[1] as LiteralTypedStructureImpl).stringValue).toBe("number");
     }
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it("true extends ReturnsModified ? BaseClassType : void", () => {
-    setTypeStructure("true extends ReturnsModified ? BaseClassType : void");
+    setTypeStructure("true extends ReturnsModified ? BaseClassType : void", failCallback);
     expect(structure).toBeInstanceOf(ConditionalTypedStructureImpl);
     if (!(structure instanceof ConditionalTypedStructureImpl))
       return;
@@ -292,10 +370,12 @@ const A: string;
     expect(
       types.map(type => (type as LiteralTypedStructureImpl).stringValue)
     ).toEqual(["true", "ReturnsModified", "BaseClassType", "void"]);
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it(`NumberStringType["repeatForward"]`, () => {
-    setTypeStructure(`NumberStringType["repeatForward"]`);
+    setTypeStructure(`NumberStringType["repeatForward"]`, failCallback);
     expect(structure).toBeInstanceOf(IndexedAccessTypedStructureImpl);
     if (!(structure instanceof IndexedAccessTypedStructureImpl))
       return;
@@ -308,13 +388,16 @@ const A: string;
     expect(
       (structure.indexType as StringTypedStructureImpl).stringValue
     ).toBe("repeatForward");
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 
   it(
     `<StringType extends string, NumberType extends number = 1>(s: StringType, n) => boolean`,
     () => {
       setTypeStructure(
-        `<StringType extends string, NumberType extends number = 1>(s: StringType, n) => boolean`
+        `<StringType extends string, NumberType extends number = 1>(s: StringType, n) => boolean`,
+        failCallback
       );
       expect(structure).toBeInstanceOf(FunctionTypedStructureImpl);
       if (!(structure instanceof FunctionTypedStructureImpl))
@@ -358,6 +441,8 @@ const A: string;
       }
 
       expect(structure.writerStyle).toBe(FunctionWriterStyle.Arrow);
+      expect(failMessage).toBe(undefined);
+      expect(failNode).toBe(null);
     }
   );
 
@@ -365,7 +450,8 @@ const A: string;
     `new <StringType extends string, NumberType extends number = 1>(s: StringType, n) => boolean`,
     () => {
       setTypeStructure(
-        `new <StringType extends string, NumberType extends number = 1>(s: StringType, n) => boolean`
+        `new <StringType extends string, NumberType extends number = 1>(s: StringType, n) => boolean`,
+        failCallback
       );
       expect(structure).toBeInstanceOf(FunctionTypedStructureImpl);
       if (!(structure instanceof FunctionTypedStructureImpl))
@@ -409,20 +495,18 @@ const A: string;
       }
 
       expect(structure.writerStyle).toBe(FunctionWriterStyle.Arrow);
+      expect(failMessage).toBe(undefined);
+      expect(failNode).toBe(null);
     }
   );
 
   it(`{ foo: true } (object literal)`, () => {
-    let failMessage: string | undefined;
-    const failCallback = (message: string): void => {
-      failMessage = message
-    };
-
     setTypeStructure(`{ foo: true }`, failCallback);
     expect(structure).toBe(null);
 
     expect<string>(
       failMessage as unknown as string
     ).toBe(`unsupported type node "TypeLiteral" at line 2, column 9`);
+    expect(failNode).toBeInstanceOf(TypeLiteralNode);
   });
 });

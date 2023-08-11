@@ -17,10 +17,13 @@ import StructureBase from "../decorators/StructureBase.mjs";
 import TypeWriterManager from "../decorators/TypeWriterManager.mjs";
 import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
 import StructuresClassesMap from "./StructuresClassesMap.mjs";
+import type {
+  TypeParameterWithTypeStructures
+} from "../typeStructures/TypedNodeTypeStructure.mjs";
 
 export default class TypeParameterDeclarationImpl
 extends StructureBase
-implements TypeParameterDeclarationStructure
+implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
 {
   readonly #constraintManager = new TypeWriterManager;
   readonly #defaultManager = new TypeWriterManager;

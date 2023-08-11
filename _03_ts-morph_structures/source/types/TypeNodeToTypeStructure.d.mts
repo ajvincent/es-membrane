@@ -6,7 +6,11 @@ import type {
   TypeStructure
 } from "../typeStructures/TypeStructure.mjs";
 
+export type TypeNodeToTypeStructureConsole = (
+  message: string, failingTypeNode: TypeNode
+) => void
+
 export type TypeNodeToTypeStructure = (
   typeNode: TypeNode,
-  _console: ((message: string) => void) | undefined = undefined
+  _console: TypeNodeToTypeStructureConsole
 ) => TypeStructure | null;

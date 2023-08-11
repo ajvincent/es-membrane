@@ -1,146 +1,181 @@
+// #region preamble
+
 import {
   Node,
+  StructureKind,
   Structures,
   TypeNode,
 } from "ts-morph";
 
 import {
-  TypeNodeToTypeStructure
+  TypeNodeToTypeStructure, TypeNodeToTypeStructureConsole,
 } from "../types/TypeNodeToTypeStructure.mjs";
 
 import StructureBase from "../decorators/StructureBase.mjs";
 
 import {
-  CallSignatureDeclarationImpl,
   ClassDeclarationImpl,
-  ConstructSignatureDeclarationImpl,
-  ConstructorDeclarationImpl,
-  ConstructorDeclarationOverloadImpl,
-  FunctionDeclarationImpl,
-  FunctionDeclarationOverloadImpl,
-  GetAccessorDeclarationImpl,
-  IndexSignatureDeclarationImpl,
-  MethodDeclarationImpl,
-  MethodDeclarationOverloadImpl,
-  MethodSignatureImpl,
-  ParameterDeclarationImpl,
-  PropertyDeclarationImpl,
-  PropertySignatureImpl,
-  SetAccessorDeclarationImpl,
-  TypeAliasDeclarationImpl,
-  TypeParameterDeclarationImpl,
+  ReturnTypedNodeTypeStructure,
+  TypeParameterWithTypeStructures,
   TypeStructure,
-  VariableDeclarationImpl,
+  TypedNodeTypeStructure,
 } from "../../exports.mjs";
 
+// #endregion preamble
+
+export interface BuildTypesForStructureFailures {
+  message: string,
+  typeNode: TypeNode
+}
+
+/**
+ * Build type structures for structures with types.
+ * @param structureMap - the map of structures to original nodes.
+ * @param userConsole - a callback for conversion failures.
+ * @param converter - a callback to convert a type node to a type structure.
+ * @returns the messages and nodes where conversion fails.
+ */
 export default function buildTypesForStructures(
   structureMap: ReadonlyMap<Structures, Node>,
-  userConsole: Parameters<TypeNodeToTypeStructure>[1],
+  userConsole: (message: string, failingTypeNode: TypeNode) => void,
   converter: TypeNodeToTypeStructure
-): void
+): BuildTypesForStructureFailures[]
 {
+  const failures: BuildTypesForStructureFailures[] = [];
+
+  function consoleTrap(message: string, failingTypeNode: TypeNode): void {
+    userConsole(message, failingTypeNode);
+    failures.push({message, typeNode: failingTypeNode});
+  }
+
   for (const [structure, node] of structureMap) {
     if (!(structure instanceof StructureBase)) {
       throw new Error("Cannot convert a structure which is not type-structure-aware");
     }
 
-    if (
-      (structure instanceof ParameterDeclarationImpl) ||
-      (structure instanceof PropertyDeclarationImpl) ||
-      (structure instanceof PropertySignatureImpl) ||
-      (structure instanceof TypeAliasDeclarationImpl) ||
-      (structure instanceof VariableDeclarationImpl) ||
-      false
-    )
-    {
-      if (!Node.isTyped(node)) {
-        throw new Error("assertion failure, we should have a typed node");
-      }
-      runConversion(
-        node.getTypeNode(),
-        userConsole,
-        converter,
-        typeStructure => structure.typeStructure = typeStructure
-      );
-    }
+    switch (structure.kind) {
+      case StructureKind.Parameter:
+      case StructureKind.Property:
+      case StructureKind.PropertySignature:
+      case StructureKind.TypeAlias:
+      case StructureKind.VariableDeclaration:
+      {
+        if (!Node.isTyped(node)) {
+          throw new Error("assertion failure, we should have a typed node");
+        }
+        runConversion(
+          node.getTypeNode(),
+          consoleTrap,
+          converter,
+          typeStructure => (
+            structure as unknown as TypedNodeTypeStructure
+          ).typeStructure = typeStructure
+        );
 
-    if (
-      (structure instanceof CallSignatureDeclarationImpl) ||
-      (structure instanceof ConstructorDeclarationImpl) ||
-      (structure instanceof ConstructorDeclarationOverloadImpl) ||
-      (structure instanceof ConstructSignatureDeclarationImpl) ||
-      (structure instanceof FunctionDeclarationImpl) ||
-      (structure instanceof FunctionDeclarationOverloadImpl) ||
-      (structure instanceof GetAccessorDeclarationImpl) ||
-      (structure instanceof IndexSignatureDeclarationImpl) ||
-      (structure instanceof MethodDeclarationImpl) ||
-      (structure instanceof MethodDeclarationOverloadImpl) ||
-      (structure instanceof MethodSignatureImpl) ||
-      (structure instanceof SetAccessorDeclarationImpl) ||
-      false
-    )
-    {
-      if (!Node.isReturnTyped(node)) {
-        throw new Error("assertion failure, we should have a return-typed node");
-      }
-      runConversion(
-        node.getReturnTypeNode(),
-        userConsole,
-        converter,
-        typeStructure => structure.returnTypeStructure = typeStructure
-      );
-    }
-
-    if (structure instanceof TypeParameterDeclarationImpl) {
-      if (!Node.isTypeParameterDeclaration(node)) {
-        throw new Error("assertion failure, we should have a type parameter declaration");
+        break;
       }
 
-      runConversion(
-        node.getConstraint(),
-        userConsole,
-        converter,
-        typeStructure => structure.constraintStructure = typeStructure
-      );
+      case StructureKind.CallSignature:
+      case StructureKind.Constructor:
+      case StructureKind.ConstructorOverload:
+      case StructureKind.ConstructSignature:
+      case StructureKind.Function:
+      case StructureKind.FunctionOverload:
+      case StructureKind.GetAccessor:
+      case StructureKind.IndexSignature:
+      case StructureKind.Method:
+      case StructureKind.MethodOverload:
+      case StructureKind.MethodSignature:
+      case StructureKind.SetAccessor:
+      {
+        if (!Node.isReturnTyped(node)) {
+          throw new Error("assertion failure, we should have a return-typed node");
+        }
+        runConversion(
+          node.getReturnTypeNode(),
+          consoleTrap,
+          converter,
+          typeStructure => (
+            structure as unknown as ReturnTypedNodeTypeStructure
+          ).returnTypeStructure = typeStructure
+        );
+        break;
+      }
 
-      runConversion(
-        node.getDefault(),
-        userConsole,
-        converter,
-        typeStructure => structure.defaultStructure = typeStructure
-      );
-    }
+      case StructureKind.TypeParameter:
+      {
+        if (!Node.isTypeParameterDeclaration(node)) {
+          throw new Error("assertion failure, we should have a type parameter declaration");
+        }
+        runConversion(
+          node.getConstraint(),
+          consoleTrap,
+          converter,
+          typeStructure => (
+            structure as unknown as TypeParameterWithTypeStructures
+          ).constraintStructure = typeStructure
+        );
 
-    if (structure instanceof ClassDeclarationImpl) {
-      if (!Node.isClassDeclaration(node))
-        throw new Error("assertion failure, we should have a class declaration");
+        runConversion(
+          node.getDefault(),
+          consoleTrap,
+          converter,
+          typeStructure => (
+            structure as unknown as TypeParameterWithTypeStructures
+          ).defaultStructure = typeStructure
+        );
 
-      throw new Error("work in progress");
-      /*
-      node.getImplements().forEach(implementsNode => {
+        break;
+      }
 
-      });
-      runConversion(
-        node.getImplements(),
-        userConsole,
-        converter,
-        typeStructure => structure.implements = typeStructure
-      );
-      */
+      case StructureKind.Class:
+      {
+        if (!Node.isClassDeclaration(node))
+          throw new Error("assertion failure, we should have a class declaration");
+        if (!(structure instanceof ClassDeclarationImpl)) {
+          throw new Error("assertion failure, we should have a ClassDeclarationImpl");
+        }
+
+        const _implementsArray: TypeStructure[] = [];
+        const implementsTypeNodes: TypeNode[] = node.getImplements();
+        implementsTypeNodes.forEach(implementsTypeNode => {
+          runConversion(
+            implementsTypeNode,
+            consoleTrap,
+            converter,
+            typeStructure => _implementsArray.push(typeStructure)
+          );
+        });
+
+        structure.implementsSet.replaceFromArray(_implementsArray);
+        break;
+      }
     }
   }
+
+  return failures;
 }
 
+/**
+ * Attempt to convert one type node to a type structure.
+ * @param typeNode - the type node.  May be undefined, in which case this is a no-op.
+ * @param consoleTrap - a callback for conversion failures.
+ * @param converter - a callback to convert a type node to a type structure.
+ * @param callback - internal callback to use the returned type structure.
+ * @returns
+ *
+ * @internal
+ */
 function runConversion(
   typeNode: TypeNode | undefined,
-  userConsole: Parameters<TypeNodeToTypeStructure>[1],
+  consoleTrap: TypeNodeToTypeStructureConsole,
   converter: TypeNodeToTypeStructure,
   callback: (typeStructure: TypeStructure) => void
 ): void
 {
   if (!typeNode)
     return;
-  const typeStructure = converter(typeNode, userConsole);
+  const typeStructure = converter(typeNode, consoleTrap);
   if (typeStructure)
     callback(typeStructure);
 }

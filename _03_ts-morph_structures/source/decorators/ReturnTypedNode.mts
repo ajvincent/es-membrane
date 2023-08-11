@@ -24,14 +24,11 @@ import type {
 } from "#mixin_decorators/source/types/SubclassDecorator.mjs";
 
 import { MixinClass } from "#mixin_decorators/source/types/MixinClass.mjs";
+import type {
+  ReturnTypedNodeTypeStructure,
+} from "../typeStructures/TypedNodeTypeStructure.mjs";
 
 declare const ReturnTypedNodeStructureKey: unique symbol;
-
-export interface ReturnTypedNodeTypeStructure
-{
-  returnTypeStructure: TypeStructure | undefined;
-  returnType: string | WriterFunction | undefined;
-}
 
 export type ReturnTypedNodeStructureFields = RightExtendsLeft<
   StaticAndInstance<typeof ReturnTypedNodeStructureKey>,

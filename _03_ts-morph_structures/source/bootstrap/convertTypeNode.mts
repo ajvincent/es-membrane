@@ -37,7 +37,8 @@ import {
 } from "../typeStructures/ElementsTypedStructureAbstract.mjs";
 
 import {
-  TypeNodeToTypeStructure
+  TypeNodeToTypeStructure,
+  TypeNodeToTypeStructureConsole,
 } from "../types/TypeNodeToTypeStructure.mjs";
 
 const LiteralKeywords: ReadonlyMap<SyntaxKind, string> = new Map([
@@ -56,11 +57,11 @@ const LiteralKeywords: ReadonlyMap<SyntaxKind, string> = new Map([
   [SyntaxKind.VoidKeyword, "void"],
 ]);
 
-let conversionFailCallback: ((message: string) => void) | undefined = undefined;
+let conversionFailCallback: TypeNodeToTypeStructureConsole | undefined = undefined;
 
 export default function convertTypeNode(
   typeNode: TypeNode,
-  _console: ((message: string) => void) | undefined = undefined
+  _console: TypeNodeToTypeStructureConsole,
 ): TypeStructure | null
 {
   conversionFailCallback = _console;
@@ -168,7 +169,8 @@ export function convertTypeNodeInternal(
     const pos = typeNode.getPos();
     const { line, column } = typeNode.getSourceFile().getLineAndColumnAtPos(pos);
     conversionFailCallback(
-      `unsupported type node "${typeNode.getKindName()}" at line ${line}, column ${column}`
+      `unsupported type node "${typeNode.getKindName()}" at line ${line}, column ${column}`,
+      typeNode
     );
   }
   return null;
@@ -276,6 +278,7 @@ function convertFunctionTypeNode(
     typeParameterNodes = typeNode.getChildrenOfKind(SyntaxKind.TypeParameter);
   }
 
+  // Am I missing mapping these to type structures?  Probably, because of the getStructure() call.
   const typeParameterStructures = typeParameterNodes.map(
     declaration => TypeParameterDeclarationImpl.clone(declaration.getStructure())
   );

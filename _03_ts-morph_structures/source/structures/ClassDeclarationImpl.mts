@@ -59,6 +59,9 @@ import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 import ReadonlyArrayProxyHandler from "../array-utilities/ReadonlyArrayProxyHandler.mjs";
 import TypeWriterSet from "../array-utilities/TypeWriterSet.mjs";
+import type {
+  ClassDeclarationWithImplementsTypeStructures
+} from "../typeStructures/TypedNodeTypeStructure.mjs";
 
 const ClassDeclarationBase = MultiMixinBuilder<
   [
@@ -88,7 +91,7 @@ const ClassDeclarationBase = MultiMixinBuilder<
 
 export default class ClassDeclarationImpl
 extends ClassDeclarationBase
-implements ClassDeclarationStructure
+implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructures
 {
   static readonly #implementsArrayReadonlyHandler = new ReadonlyArrayProxyHandler(
     "The implements array is read-only.  Please use this.implementsSet to set strings, writer functions, and type structures."

@@ -39,7 +39,7 @@ extends Set<stringOrWriterFunction | TypeStructure>
       if (typeof value === "function") {
         value = TypeWriterSet.#getTypeWriterIfAvailable(value) ?? value;
       }
-      super.add(value)
+      super.add(value);
     });
   }
 
@@ -81,5 +81,11 @@ extends Set<stringOrWriterFunction | TypeStructure>
     this.#backingArray.splice(this.#backingArray.indexOf(backingValue), 1);
 
     return super.delete(value);
+  }
+
+  replaceFromArray(array: (stringOrWriterFunction | TypeStructure)[]): void {
+    this.#backingArray.length = 0;
+    super.clear();
+    array.forEach(value => this.add(value));
   }
 }

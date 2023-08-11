@@ -41,7 +41,11 @@ export { default as StructuresClassesMap } from "./source/structures/StructuresC
 
 // #region TypeStructure implementations
 
-export type { TypedNodeTypeStructure } from "./source/typeStructures/TypedNodeTypeStructure.mjs";
+export type {
+  ReturnTypedNodeTypeStructure,
+  TypedNodeTypeStructure,
+  TypeParameterWithTypeStructures,
+} from "./source/typeStructures/TypedNodeTypeStructure.mjs";
 export * from "./source/typeStructures/TypeStructure.mjs";
 export {
   TypeStructureKind,
