@@ -18,11 +18,13 @@ import type {
 } from "../types/TypeNodeToTypeStructure.mjs";
 // #endregion preamble
 
-interface RootStructureWithConvertFailures {
+export interface RootStructureWithConvertFailures {
   rootStructure: Structures;
   rootNode: NodeWithStructures;
   failures: readonly BuildTypesForStructureFailures[];
 }
+
+export type { TypeNodeToTypeStructureConsole };
 
 export default function getTypeAugmentedStructure(
   rootNode: NodeWithStructures,

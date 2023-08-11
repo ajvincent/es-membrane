@@ -1,3 +1,10 @@
+
+export {
+  default as getTypeAugmentedStructure,
+  RootStructureWithConvertFailures,
+  TypeNodeToTypeStructureConsole,
+} from "./source/bootstrap/getTypeAugmentedStructure.mjs";
+
 // #region Structure implementations
 
 export { default as AssertEntryImpl } from "./source/structures/AssertEntryImpl.mjs";
