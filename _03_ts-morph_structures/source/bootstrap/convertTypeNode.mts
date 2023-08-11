@@ -1,3 +1,5 @@
+// #region preamble
+
 import {
   Node,
   TypeNode,
@@ -40,6 +42,8 @@ import {
   TypeNodeToTypeStructure,
   TypeNodeToTypeStructureConsole,
 } from "../types/TypeNodeToTypeStructure.mjs";
+
+// #endregion preamble
 
 const LiteralKeywords: ReadonlyMap<SyntaxKind, string> = new Map([
   [SyntaxKind.AnyKeyword, "any"],
