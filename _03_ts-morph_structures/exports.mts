@@ -57,7 +57,7 @@ export * from "./source/typeStructures/TypeStructure.mjs";
 export {
   TypeStructureKind,
   KindedTypeStructure
-} from "./source/typeStructures/TypeStructureKind.mjs";
+} from "./source/base/TypeStructureKind.mjs";
 
 export { default as ArrayTypedStructureImpl } from "./source/typeStructures/ArrayTypedStructureImpl.mjs";
 export { default as ConditionalTypedStructureImpl } from "./source/typeStructures/ConditionalTypedStructureImpl.mjs";

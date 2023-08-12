@@ -10,7 +10,7 @@ import type {
 
 import {
   TypeStructureKind,
-} from "./TypeStructureKind.mjs";
+} from "../base/TypeStructureKind.mjs";
 
 import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 import LiteralTypedStructureImpl from "./LiteralTypedStructureImpl.mjs";

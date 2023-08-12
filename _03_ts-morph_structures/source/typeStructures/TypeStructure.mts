@@ -5,7 +5,7 @@ import type {
 import type {
   KindedTypeStructure,
   TypeStructureKind,
-} from "./TypeStructureKind.mjs";
+} from "../base/TypeStructureKind.mjs";
 import TypeParameterDeclarationImpl from "../structures/TypeParameterDeclarationImpl.mjs";
 
 export type WriterTypedStructure = Simplify<KindedTypeStructure<TypeStructureKind.Writer>>;

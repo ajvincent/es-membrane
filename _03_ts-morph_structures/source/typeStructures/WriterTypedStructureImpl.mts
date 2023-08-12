@@ -8,7 +8,7 @@ import type {
 
 import {
   TypeStructureKind,
-} from "./TypeStructureKind.mjs";
+} from "../base/TypeStructureKind.mjs";
 
 import {
   registerCallbackForTypeStructure

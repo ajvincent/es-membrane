@@ -9,7 +9,7 @@ import {
 import {
   KindedTypeStructure,
   TypeStructureKind
-} from "../typeStructures/TypeStructureKind.mjs";
+} from "./TypeStructureKind.mjs";
 
 import {
   CloneableStructure
