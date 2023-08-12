@@ -105,9 +105,9 @@ export type IndexedAccessTypedStructure = Simplify<
 >;
 
 interface MappedType {
-  name: TypeStructure | undefined;
   readonlyToken: "+readonly" | "-readonly" | "readonly" | undefined;
   parameter: TypeParameterDeclarationImpl;
+  asName: TypeStructure | undefined;
   questionToken: "+?" | "-?" | "?" | undefined;
   type: TypeStructure;
 }

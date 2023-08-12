@@ -31,16 +31,9 @@ implements MappedTypeTypedStructure
 {
   readonly kind: TypeStructureKind.Mapped = TypeStructureKind.Mapped;
 
-  /*
-  name: TypeStructure | undefined = undefined;
-  */
-  get name(): TypeStructure | undefined {
-    // I don't know how to serialize the name for a MappedTypeNode.
-    return undefined;
-  }
-
   readonlyToken: "+readonly" | "-readonly" | "readonly" | undefined;
   parameter: TypeParameterDeclarationImpl;
+  asName: TypeStructure | undefined = undefined;
   questionToken: "+?" | "-?" | "?" | undefined;
   type: TypeStructure;
 
@@ -67,6 +60,11 @@ implements MappedTypeTypedStructure
 
       this.parameter.writerFunction(writer, TypeParameterConstraintMode.in);
 
+      if (this.asName) {
+        writer.write(" as " );
+        this.asName.writerFunction(writer);
+      }
+
       writer.write("]");
       if (this.questionToken) {
         writer.write(this.questionToken);
@@ -87,13 +85,13 @@ implements MappedTypeTypedStructure
   {
     const clone = new MappedTypeTypedStructureImpl(
       TypeParameterDeclarationImpl.clone(other.parameter),
-      TypeStructureClassesMap.get(other.kind)!.clone(other),
+      TypeStructureClassesMap.get(other.type.kind)!.clone(other.type),
     );
 
-    if (other.name) {
-      const name = TypeStructureClassesMap.get(other.name.kind)!.clone(other.name);
-      void(name);
+    if (other.asName) {
+      clone.asName = TypeStructureClassesMap.get(other.asName.kind)!.clone(other.asName);
     }
+
     clone.readonlyToken = other.readonlyToken;
     clone.questionToken = other.questionToken;
 
