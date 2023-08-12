@@ -10,7 +10,7 @@ import {
 } from "../base/utilities.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
-import StatementClassesMap from "./StatementClassesMap.mjs";
+import StatementClassesMap from "../base/StatementClassesMap.mjs";
 import EnumMemberImpl from "./EnumMemberImpl.mjs";
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";

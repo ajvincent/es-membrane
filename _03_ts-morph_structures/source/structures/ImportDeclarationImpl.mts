@@ -11,7 +11,7 @@ import type {
 import ImportSpecifierImpl from "./ImportSpecifierImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
-import StatementClassesMap from "./StatementClassesMap.mjs";
+import StatementClassesMap from "../base/StatementClassesMap.mjs";
 import AssertEntryImpl from "./AssertEntryImpl.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 import StructuresClassesMap from "./StructuresClassesMap.mjs";

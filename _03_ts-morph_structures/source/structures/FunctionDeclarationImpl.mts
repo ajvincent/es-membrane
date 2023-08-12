@@ -48,7 +48,7 @@ import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 import FunctionDeclarationOverloadImpl from "./FunctionDeclarationOverloadImpl.mjs";
 
-import StatementClassesMap from "./StatementClassesMap.mjs";
+import StatementClassesMap from "../base/StatementClassesMap.mjs";
 import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 

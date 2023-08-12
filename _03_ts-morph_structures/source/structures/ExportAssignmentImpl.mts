@@ -3,7 +3,7 @@ import {
   StructureKind,
 }from "ts-morph";
 
-import StatementClassesMap from "./StatementClassesMap.mjs";
+import StatementClassesMap from "../base/StatementClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields

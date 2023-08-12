@@ -1,4 +1,4 @@
-import StatementClassesMap from "#ts-morph_structures/source/structures/StatementClassesMap.mjs";
+import StatementClassesMap from "#ts-morph_structures/source/base/StatementClassesMap.mjs";
 
 import {
   ClassDeclarationImpl,

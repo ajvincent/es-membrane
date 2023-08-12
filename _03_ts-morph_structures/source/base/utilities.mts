@@ -13,7 +13,7 @@ import {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 
-import StatementClassesMap from "../structures/StatementClassesMap.mjs";
+import StatementClassesMap from "./StatementClassesMap.mjs";
 
 export type StructureCloner<
   SourceType extends object,

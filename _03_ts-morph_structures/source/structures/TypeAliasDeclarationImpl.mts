@@ -9,7 +9,7 @@ import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
 
-import StatementClassesMap from "./StatementClassesMap.mjs";
+import StatementClassesMap from "../base/StatementClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields

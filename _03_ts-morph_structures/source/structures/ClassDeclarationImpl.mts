@@ -28,7 +28,7 @@ import GetAccessorDeclarationImpl from "./GetAccessorDeclarationImpl.mjs";
 import SetAccessorDeclarationImpl from "./SetAccessorDeclarationImpl.mjs";
 import ConstructorDeclarationImpl from "./ConstructorDeclarationImpl.mjs";
 
-import StatementClassesMap from "./StatementClassesMap.mjs";
+import StatementClassesMap from "../base/StatementClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
