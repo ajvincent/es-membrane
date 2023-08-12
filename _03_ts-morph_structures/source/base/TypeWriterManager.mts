@@ -17,7 +17,7 @@ import {
 
 import {
   getTypeStructureForCallback
-} from "../typeStructures/callbackToTypeStructureRegistry.mjs";
+} from "./callbackToTypeStructureRegistry.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 
 import TypeStructureClassesMap from "../typeStructures/TypeStructureClassesMap.mjs";

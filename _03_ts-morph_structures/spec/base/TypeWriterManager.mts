@@ -11,7 +11,7 @@ import {
 
 import {
   getTypeStructureForCallback
-} from "#ts-morph_structures/source/typeStructures/callbackToTypeStructureRegistry.mjs";
+} from "#ts-morph_structures/source/base/callbackToTypeStructureRegistry.mjs";
 
 describe("TypeWriterManager with", () => {
   let manager: TypeWriterManager;

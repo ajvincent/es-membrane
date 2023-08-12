@@ -1,6 +1,6 @@
 import { WriterFunction } from "ts-morph";
 import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
-import { getTypeStructureForCallback } from "../typeStructures/callbackToTypeStructureRegistry.mjs";
+import { getTypeStructureForCallback } from "./callbackToTypeStructureRegistry.mjs";
 import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
 
 /**

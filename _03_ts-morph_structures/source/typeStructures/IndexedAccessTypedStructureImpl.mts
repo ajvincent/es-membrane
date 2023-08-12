@@ -14,7 +14,7 @@ import {
 
 import {
   registerCallbackForTypeStructure
-} from "./callbackToTypeStructureRegistry.mjs";
+} from "../base/callbackToTypeStructureRegistry.mjs";
 
 import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
 import type {

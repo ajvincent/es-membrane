@@ -4,7 +4,7 @@ import type {
 
 import type {
   TypeStructure
-} from "./TypeStructure.mjs";
+} from "../typeStructures/TypeStructure.mjs";
 
 const callbackToTypeStructureImpl = new WeakMap<WriterFunction, TypeStructure>;
 

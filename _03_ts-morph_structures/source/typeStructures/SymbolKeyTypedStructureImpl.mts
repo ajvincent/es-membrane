@@ -13,7 +13,7 @@ import {
 
 import {
   registerCallbackForTypeStructure
-} from "./callbackToTypeStructureRegistry.mjs";
+} from "../base/callbackToTypeStructureRegistry.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
