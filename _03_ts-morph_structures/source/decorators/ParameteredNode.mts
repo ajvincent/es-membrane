@@ -19,7 +19,7 @@ import type {
 import StructureBase from "./StructureBase.mjs";
 import { MixinClass } from "#mixin_decorators/source/types/MixinClass.mjs";
 import ParameterDeclarationImpl from "../structures/ParameterDeclarationImpl.mjs";
-import { cloneArrayOrUndefined } from "../structures/utilities.mjs";
+import { cloneArrayOrUndefined } from "../base/utilities.mjs";
 
 declare const ParameteredNodeStructureKey: unique symbol;
 

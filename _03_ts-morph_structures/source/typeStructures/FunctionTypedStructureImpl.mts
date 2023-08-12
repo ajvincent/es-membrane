@@ -26,7 +26,7 @@ import {
 } from "../../exports.mjs";
 import {
   pairedWrite
-} from "../structures/utilities.mjs";
+} from "../base/utilities.mjs";
 
 export default class FunctionTypedStructureImpl
 implements FunctionTypedStructure

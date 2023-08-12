@@ -10,7 +10,7 @@ import {
 
 import {
   stringOrWriterFunctionArray
-} from "./utilities.mjs";
+} from "../base/utilities.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";

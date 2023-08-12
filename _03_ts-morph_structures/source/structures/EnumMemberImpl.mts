@@ -23,7 +23,7 @@ import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
 
 import {
   createCodeBlockWriter
-} from "./utilities.mjs";
+} from "../base/utilities.mjs";
 import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const EnumMemberBase = MultiMixinBuilder<

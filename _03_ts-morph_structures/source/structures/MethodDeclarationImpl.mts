@@ -8,7 +8,7 @@ import {
 
 import {
   cloneArrayOrUndefined,
-} from "./utilities.mjs";
+} from "../base/utilities.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 import KindedStructure, {

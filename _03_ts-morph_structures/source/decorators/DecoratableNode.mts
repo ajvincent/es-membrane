@@ -24,7 +24,7 @@ import {
 import DecoratorImpl from "../structures/DecoratorImpl.mjs";
 import {
   cloneArrayOrUndefined
-} from "../structures/utilities.mjs";
+} from "../base/utilities.mjs";
 
 declare const DecoratableNodeStructureKey: unique symbol;
 

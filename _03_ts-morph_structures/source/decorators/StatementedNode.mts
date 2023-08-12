@@ -24,7 +24,7 @@ import type {
 import {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
-import { statementsArray } from "../structures/utilities.mjs";
+import { statementsArray } from "../base/utilities.mjs";
 
 declare const StatementedNodeStructureKey: unique symbol;
 

@@ -28,7 +28,7 @@ import {
 } from "../types/CloneableStructure.mjs";
 
 import VariableDeclarationImpl from "./VariableDeclarationImpl.mjs";
-import { cloneArrayOrUndefined } from "./utilities.mjs";
+import { cloneArrayOrUndefined } from "../base/utilities.mjs";
 import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 const VariableStatementBase = MultiMixinBuilder<

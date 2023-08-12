@@ -5,7 +5,7 @@ import {
   StructureKind,
 } from "ts-morph";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
-import { cloneArrayOrUndefined } from "./utilities.mjs";
+import { cloneArrayOrUndefined } from "../base/utilities.mjs";
 import ConstructorDeclarationOverloadImpl from "./ConstructorDeclarationOverloadImpl.mjs";
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";

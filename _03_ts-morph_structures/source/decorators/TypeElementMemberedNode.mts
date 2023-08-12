@@ -31,7 +31,7 @@ import MethodSignatureImpl from "../structures/MethodSignatureImpl.mjs";
 import PropertySignatureImpl from "../structures/PropertySignatureImpl.mjs";
 import {
   cloneArrayOrUndefined
-} from "../structures/utilities.mjs";
+} from "../base/utilities.mjs";
 
 declare const TypeElementMemberedNodeStructureKey: unique symbol;
 

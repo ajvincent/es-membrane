@@ -1,6 +1,6 @@
 import { stringOrWriterFunction } from "#ts-morph_structures/source/types/ts-morph-native.mjs";
 import { Structure } from "ts-morph";
-import { stringOrWriterFunctionArray } from "../structures/utilities.mjs";
+import { stringOrWriterFunctionArray } from "../base/utilities.mjs";
 
 export default class StructureBase {
   leadingTrivia: stringOrWriterFunction[] = [];

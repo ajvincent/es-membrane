@@ -19,7 +19,7 @@ import type {
 
 import {
   cloneArrayOrUndefined,
-} from "./utilities.mjs";
+} from "../base/utilities.mjs";
 
 import MethodDeclarationImpl from "./MethodDeclarationImpl.mjs";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";

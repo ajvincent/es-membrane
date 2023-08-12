@@ -81,4 +81,4 @@ export { default as TypeStructureClassesMap } from "./source/typeStructures/Type
 
 export {
   createCodeBlockWriter
-} from "./source/structures/utilities.mjs";
+} from "./source/base/utilities.mjs";
