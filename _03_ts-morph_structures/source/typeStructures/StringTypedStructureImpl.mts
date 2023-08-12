@@ -14,7 +14,10 @@ import {
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
-import { CloneableStructure } from "../types/CloneableStructure.mjs";
+
+import {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
 
 import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 
@@ -29,7 +32,7 @@ export default class StringTypedStructureImpl implements StringTypedStructure
 
   readonly kind: TypeStructureKind.String = TypeStructureKind.String;
 
-  public stringValue: string;
+  public readonly stringValue: string;
   constructor(literal: string)
   {
     this.stringValue = literal;

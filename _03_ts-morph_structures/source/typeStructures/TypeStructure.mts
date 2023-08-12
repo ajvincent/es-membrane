@@ -14,7 +14,7 @@ interface TypedStructureWithPrimitive<
   Kind extends TypeStructureKind
 > extends KindedTypeStructure<Kind>
 {
-  stringValue: string;
+  readonly stringValue: string;
 }
 
 interface TypeStructureWithOneChild {

@@ -6,7 +6,8 @@ import ReturnTypedNode, {
 } from "#ts-morph_structures/source/decorators/ReturnTypedNode.mjs";
 
 import {
-  LiteralTypedStructureImpl
+  LiteralTypedStructureImpl,
+  StringTypedStructureImpl,
 } from "#ts-morph_structures/exports.mjs";
 import { WriterFunction } from "ts-morph";
 
@@ -18,6 +19,8 @@ it("ts-morph structure decorators: ReturnTypedNode", () => {
     [ReturnTypedNode],
     StructureBase
   );
+
+  const stringTypeStructure = new StringTypedStructureImpl("NumberStringType");
 
   {
     const target = new Foo;
@@ -36,14 +39,14 @@ it("ts-morph structure decorators: ReturnTypedNode", () => {
     const target = new Foo;
     target.returnType = "boolean";
     expect(target.returnType).toBe("boolean");
-    expect(target.returnTypeStructure).toBe(undefined);
+    expect(target.returnTypeStructure).toBeInstanceOf(LiteralTypedStructureImpl);
+    expect((target.returnTypeStructure as LiteralTypedStructureImpl)?.stringValue).toBe("boolean");
   }
 
   {
     const target = new Foo;
-    const literal = new LiteralTypedStructureImpl("boolean");
-    target.returnTypeStructure = literal;
-    expect<WriterFunction>(target.returnType as WriterFunction).toBe(literal.writerFunction);
-    expect(target.returnTypeStructure).toBe(literal);
+    target.returnTypeStructure = stringTypeStructure;
+    expect<WriterFunction>(target.returnType as WriterFunction).toBe(stringTypeStructure.writerFunction);
+    expect(target.returnTypeStructure).toBe(stringTypeStructure);
   }
 });

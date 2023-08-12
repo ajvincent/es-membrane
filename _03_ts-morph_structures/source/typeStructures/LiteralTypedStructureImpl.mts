@@ -32,7 +32,7 @@ export default class LiteralTypedStructureImpl implements LiteralTypedStructure
 
   readonly kind: TypeStructureKind.Literal = TypeStructureKind.Literal;
 
-  public stringValue: string;
+  public readonly stringValue: string;
   constructor(literal: string)
   {
     this.stringValue = literal;

@@ -6,7 +6,8 @@ import TypedNode, {
 } from "#ts-morph_structures/source/decorators/TypedNode.mjs";
 
 import {
-  LiteralTypedStructureImpl
+  LiteralTypedStructureImpl,
+  StringTypedStructureImpl,
 } from "#ts-morph_structures/exports.mjs";
 import { WriterFunction } from "ts-morph";
 
@@ -18,6 +19,8 @@ it("ts-morph structure decorators: TypedNode", () => {
     [TypedNode],
     StructureBase
   );
+
+  const stringTypeStructure = new StringTypedStructureImpl("NumberStringType");
 
   {
     const target = new Foo;
@@ -36,14 +39,14 @@ it("ts-morph structure decorators: TypedNode", () => {
     const target = new Foo;
     target.type = "boolean";
     expect(target.type).toBe("boolean");
-    expect(target.typeStructure).toBe(undefined);
+    expect(target.typeStructure).toBeInstanceOf(LiteralTypedStructureImpl);
+    expect((target.typeStructure as LiteralTypedStructureImpl)?.stringValue).toBe("boolean");
   }
 
   {
     const target = new Foo;
-    const literal = new LiteralTypedStructureImpl("boolean");
-    target.typeStructure = literal;
-    expect<WriterFunction>(target.type as WriterFunction).toBe(literal.writerFunction);
-    expect(target.typeStructure).toBe(literal);
+    target.typeStructure = stringTypeStructure;
+    expect<WriterFunction>(target.type as WriterFunction).toBe(stringTypeStructure.writerFunction);
+    expect(target.typeStructure).toBe(stringTypeStructure);
   }
 });

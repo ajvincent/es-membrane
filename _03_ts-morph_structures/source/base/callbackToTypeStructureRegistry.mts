@@ -21,3 +21,9 @@ export function getTypeStructureForCallback(
 {
   return callbackToTypeStructureImpl.get(callback);
 }
+
+export function deregisterCallbackForTypeStructure(
+  structure: TypeStructure
+): void {
+  callbackToTypeStructureImpl.delete(structure.writerFunction);
+}
