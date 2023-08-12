@@ -1,8 +1,4 @@
 import type {
-  WriterFunction,
-} from "ts-morph";
-
-import type {
   TypeStructure
 } from "./TypeStructure.mjs";
 
@@ -15,7 +11,7 @@ import type {
 export interface TypedNodeTypeStructure
 {
   typeStructure: TypeStructure | undefined;
-  type: string | WriterFunction | undefined;
+  type: stringOrWriterFunction | undefined;
 }
 
 export interface ReturnTypedNodeTypeStructure
