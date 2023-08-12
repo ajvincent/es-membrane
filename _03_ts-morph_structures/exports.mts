@@ -52,7 +52,7 @@ export type {
   ReturnTypedNodeTypeStructure,
   TypedNodeTypeStructure,
   TypeParameterWithTypeStructures,
-} from "./source/typeStructures/TypedNodeTypeStructure.mjs";
+} from "./source/typeStructures/TypeAndTypeStructureInterfaces.mjs";
 export * from "./source/typeStructures/TypeStructure.mjs";
 export {
   TypeStructureKind,

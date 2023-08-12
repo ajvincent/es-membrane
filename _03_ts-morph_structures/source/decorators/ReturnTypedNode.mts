@@ -26,7 +26,7 @@ import type {
 import { MixinClass } from "#mixin_decorators/source/types/MixinClass.mjs";
 import type {
   ReturnTypedNodeTypeStructure,
-} from "../typeStructures/TypedNodeTypeStructure.mjs";
+} from "../typeStructures/TypeAndTypeStructureInterfaces.mjs";
 
 declare const ReturnTypedNodeStructureKey: unique symbol;
 

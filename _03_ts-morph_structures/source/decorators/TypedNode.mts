@@ -29,7 +29,7 @@ declare const TypedNodeStructureKey: unique symbol;
 
 import {
   TypedNodeTypeStructure
-} from "../typeStructures/TypedNodeTypeStructure.mjs";
+} from "../typeStructures/TypeAndTypeStructureInterfaces.mjs";
 
 export type TypedNodeStructureFields = RightExtendsLeft<
   StaticAndInstance<typeof TypedNodeStructureKey>,

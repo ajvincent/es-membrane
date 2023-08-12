@@ -63,7 +63,7 @@ import ReadonlyArrayProxyHandler from "../array-utilities/ReadonlyArrayProxyHand
 import TypeWriterSet from "../base/TypeWriterSet.mjs";
 import type {
   ClassDeclarationWithImplementsTypeStructures
-} from "../typeStructures/TypedNodeTypeStructure.mjs";
+} from "../typeStructures/TypeAndTypeStructureInterfaces.mjs";
 
 import TypeWriterManager from "../base/TypeWriterManager.mjs";
 import { TypeStructure } from "../typeStructures/TypeStructure.mjs";

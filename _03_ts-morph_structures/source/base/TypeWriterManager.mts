@@ -5,7 +5,7 @@ import type {
 
 import {
   TypedNodeTypeStructure
-} from "../typeStructures/TypedNodeTypeStructure.mjs";
+} from "../typeStructures/TypeAndTypeStructureInterfaces.mjs";
 
 import {
   stringOrWriterFunction

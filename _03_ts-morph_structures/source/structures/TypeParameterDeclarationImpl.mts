@@ -19,7 +19,7 @@ import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 import type {
   TypeParameterWithTypeStructures
-} from "../typeStructures/TypedNodeTypeStructure.mjs";
+} from "../typeStructures/TypeAndTypeStructureInterfaces.mjs";
 
 export default class TypeParameterDeclarationImpl
 extends StructureBase
