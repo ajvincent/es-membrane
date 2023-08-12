@@ -12,7 +12,7 @@ import {
   TypeStructureKind,
 } from "./TypeStructureKind.mjs";
 
-import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 import LiteralTypedStructureImpl from "./LiteralTypedStructureImpl.mjs";
 
 export default class ParameterTypedStructureImpl

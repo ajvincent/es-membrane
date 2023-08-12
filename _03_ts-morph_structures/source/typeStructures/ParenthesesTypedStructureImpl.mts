@@ -20,7 +20,7 @@ import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
 
-import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 
 export default class ParenthesesTypedStructureImpl
 implements ParenthesesTypedStructure

@@ -20,7 +20,7 @@ import {
 } from "./callbackToTypeStructureRegistry.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 
-import TypeStructureClassesMap from "../typeStructures/TypeStructureClassesMap.mjs";
+import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
 
 export default class TypeWriterManager
 extends StructureBase

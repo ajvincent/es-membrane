@@ -21,7 +21,7 @@ import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
 
-import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 
 import LiteralTypedStructureImpl from "./LiteralTypedStructureImpl.mjs";
 

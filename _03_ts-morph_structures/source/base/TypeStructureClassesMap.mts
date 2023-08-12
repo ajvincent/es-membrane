@@ -4,12 +4,12 @@ import type {
 
 import {
   TypeStructure,
-} from "./TypeStructure.mjs";
+} from "../typeStructures/TypeStructure.mjs";
 
 import {
   KindedTypeStructure,
   TypeStructureKind
-} from "./TypeStructureKind.mjs";
+} from "../typeStructures/TypeStructureKind.mjs";
 
 import {
   CloneableStructure

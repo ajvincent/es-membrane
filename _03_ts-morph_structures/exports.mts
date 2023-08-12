@@ -75,7 +75,7 @@ export { default as TypeArgumentedTypedStructureImpl } from "./source/typeStruct
 export { default as UnionTypedStructureImpl } from "./source/typeStructures/UnionTypedStructureImpl.mjs";
 export { default as WriterTypedStructureImpl } from "./source/typeStructures/WriterTypedStructureImpl.mjs";
 
-export { default as TypeStructureClassesMap } from "./source/typeStructures/TypeStructureClassesMap.mjs";
+export { default as TypeStructureClassesMap } from "./source/base/TypeStructureClassesMap.mjs";
 
 // #endregion TypeStructure implementations
 

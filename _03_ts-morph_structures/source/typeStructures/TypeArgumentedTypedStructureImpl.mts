@@ -17,7 +17,7 @@ import {
 
 import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
 
-import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
