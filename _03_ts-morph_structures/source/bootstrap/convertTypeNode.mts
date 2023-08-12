@@ -165,6 +165,16 @@ export function convertTypeNodeInternal(
 
     parentStructure = new TypeArgumentedTypedStructureImpl(objectType);
   }
+  else if (Node.isExpressionWithTypeArguments(typeNode)) {
+    const expression = typeNode.getExpression();
+    const objectType = new LiteralTypedStructureImpl(expression.getText());
+
+    childTypeNodes = typeNode.getTypeArguments();
+    if (childTypeNodes.length === 0)
+      return objectType;
+
+    parentStructure = new TypeArgumentedTypedStructureImpl(objectType);
+  }
 
   if (parentStructure && convertAndAppendChildTypes(childTypeNodes, parentStructure.elements))
     return parentStructure;

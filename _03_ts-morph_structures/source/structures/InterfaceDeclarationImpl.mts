@@ -1,3 +1,5 @@
+// #region preamble
+
 import {
   InterfaceDeclarationStructure,
   OptionalKind,
@@ -11,9 +13,6 @@ import {
 import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
-import {
-  stringOrWriterFunctionArray
-} from "./utilities.mjs";
 import StatementClassesMap from "./StatementClassesMap.mjs";
 
 import KindedStructure, {
@@ -41,6 +40,10 @@ import TypeParameteredNode, {
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 import StructuresClassesMap from "./StructuresClassesMap.mjs";
+import TypeWriterSet from "../array-utilities/TypeWriterSet.mjs";
+import ReadonlyArrayProxyHandler from "../array-utilities/ReadonlyArrayProxyHandler.mjs";
+
+// #endregion preamble
 
 const InterfaceDeclarationBase = MultiMixinBuilder<
   [
@@ -71,8 +74,18 @@ export default class InterfaceDeclarationImpl
 extends InterfaceDeclarationBase
 implements InterfaceDeclarationStructure
 {
+  static readonly #extendsArrayReadonlyHandler = new ReadonlyArrayProxyHandler(
+    "The extends array is read-only.  Please use this.extendsSet to set strings, writer functions, and type structures."
+  );
+
+  readonly #extendsShadowArray: stringOrWriterFunction[] = [];
+  readonly #extendsProxyArray = new Proxy<stringOrWriterFunction[]>(
+    this.#extendsShadowArray,
+    InterfaceDeclarationImpl.#extendsArrayReadonlyHandler
+  );
+  readonly #extendsSet = new TypeWriterSet(this.#extendsShadowArray);
+
   name: string;
-  extends: stringOrWriterFunction[] = [];
 
   constructor(
     name: string
@@ -82,12 +95,32 @@ implements InterfaceDeclarationStructure
     this.name = name;
   }
 
+  get extends(): stringOrWriterFunction[] {
+    return this.#extendsProxyArray;
+  }
+  /* Why not a setter?  It's not necessarily safe to do so.  With a setter, either:
+    1. we hand ownership over the elements to someone else, without being able to track updates, or
+    2. the array the caller passes in is not the array we have: they update it and the update doesn't stick.
+  */
+
+  get extendsSet(): TypeWriterSet {
+    return this.#extendsSet;
+  }
+
   public static clone(
     other: OptionalKind<InterfaceDeclarationStructure>
   ): InterfaceDeclarationImpl
   {
     const clone = new InterfaceDeclarationImpl(other.name);
-    clone.extends = stringOrWriterFunctionArray(other.extends);
+
+    if (typeof other.extends === "function") {
+      clone.extendsSet.add(other.extends);
+    }
+    else if (Array.isArray(other.extends)) {
+      other.extends.forEach((extendsValue: stringOrWriterFunction) => {
+        clone.extendsSet.add(extendsValue)
+      });
+    }
 
     InterfaceDeclarationBase.cloneTrivia(other, clone);
     InterfaceDeclarationBase.cloneAmbientable(other, clone);

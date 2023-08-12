@@ -1,3 +1,5 @@
+// #region preamble
+
 import {
   type OptionalKind,
   type ClassDeclarationStructure,
@@ -63,6 +65,11 @@ import type {
   ClassDeclarationWithImplementsTypeStructures
 } from "../typeStructures/TypedNodeTypeStructure.mjs";
 
+import TypeWriterManager from "../decorators/TypeWriterManager.mjs";
+import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
+
+// #endregion preamble
+
 const ClassDeclarationBase = MultiMixinBuilder<
   [
     KindedStructureFields<StructureKind.Class>,
@@ -97,6 +104,8 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
     "The implements array is read-only.  Please use this.implementsSet to set strings, writer functions, and type structures."
   );
 
+  readonly #extendsTypeManager = new TypeWriterManager();
+
   readonly #implementsShadowArray: stringOrWriterFunction[] = [];
   readonly #implementsProxyArray = new Proxy<stringOrWriterFunction[]>(
     this.#implementsShadowArray,
@@ -106,7 +115,30 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
 
   readonly kind: StructureKind.Class = StructureKind.Class;
 
-  extends: stringOrWriterFunction | undefined = undefined;
+  get extends(): stringOrWriterFunction | undefined
+  {
+    return this.#extendsTypeManager.type;
+  }
+
+  set extends(
+    value: stringOrWriterFunction | undefined
+  )
+  {
+    this.#extendsTypeManager.type = value;
+  }
+
+  get extendsStructure(): TypeStructure | undefined
+  {
+    return this.#extendsTypeManager.typeStructure;
+  }
+
+  set extendsStructure(
+    value: TypeStructure
+  )
+  {
+    this.#extendsTypeManager.typeStructure = value;
+  }
+
   ctors: ConstructorDeclarationImpl[] = [];
   properties: PropertyDeclarationImpl[] = [];
   getAccessors: GetAccessorDeclarationImpl[] = [];
@@ -132,7 +164,6 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
   {
     const clone = new ClassDeclarationImpl;
 
-    clone.extends = other.extends;
     clone.ctors = cloneArrayOrUndefined<OptionalKind<ConstructorDeclarationStructure>, typeof ConstructorDeclarationImpl>(
       other.ctors, ConstructorDeclarationImpl
     )
@@ -149,13 +180,15 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
       other.methods, MethodDeclarationImpl
     );
 
+    clone.extends = TypeWriterManager.cloneType(other.extends);
+
     if (typeof other.implements === "function") {
       clone.implementsSet.add(other.implements);
     }
     else if (Array.isArray(other.implements)) {
       other.implements.forEach((implementsValue: stringOrWriterFunction) => {
         clone.implementsSet.add(implementsValue);
-      })
+      });
     }
 
     ClassDeclarationBase.cloneTrivia(other, clone);

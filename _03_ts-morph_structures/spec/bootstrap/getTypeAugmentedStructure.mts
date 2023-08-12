@@ -14,6 +14,7 @@ import {
   getTypeAugmentedStructure,
   LiteralTypedStructureImpl,
   MethodDeclarationImpl,
+  TypeArgumentedTypedStructureImpl,
   TypeNodeToTypeStructureConsole,
   TypeParameterDeclarationImpl,
 } from "#ts-morph_structures/exports.mjs";
@@ -67,7 +68,14 @@ it("getTypeAugmentedStructure gets structures having type structures for types",
     }
   }
 
-  expect(rootStructure.extends).toEqual("WeakMap<K, V>");
+  const { extendsStructure } = rootStructure;
+
+  expect(extendsStructure).toBeInstanceOf(TypeArgumentedTypedStructureImpl);
+  if (extendsStructure instanceof TypeArgumentedTypedStructureImpl) {
+    expect((extendsStructure.objectType as LiteralTypedStructureImpl)?.stringValue).toBe("WeakMap");
+    expect((extendsStructure.elements[0] as LiteralTypedStructureImpl)?.stringValue).toBe("K");
+    expect((extendsStructure.elements[1] as LiteralTypedStructureImpl)?.stringValue).toBe("V");
+  }
 
   expect(rootStructure.methods.length).toBe(1);
 

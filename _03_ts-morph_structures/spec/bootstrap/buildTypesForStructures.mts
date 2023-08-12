@@ -1,6 +1,16 @@
-import { ClassDeclarationImpl, FunctionDeclarationImpl, LiteralTypedStructureImpl, TypeParameterDeclarationImpl, VariableDeclarationImpl } from "#ts-morph_structures/exports.mjs";
+import {
+  ClassDeclarationImpl,
+  FunctionDeclarationImpl,
+  InterfaceDeclarationImpl,
+  LiteralTypedStructureImpl,
+  TypeParameterDeclarationImpl,
+  VariableDeclarationImpl
+} from "#ts-morph_structures/exports.mjs";
+
 import buildTypesForStructures from "#ts-morph_structures/source/bootstrap/buildTypesForStructures.mjs";
-import { TypeNodeToTypeStructureConsole } from "#ts-morph_structures/source/types/TypeNodeToTypeStructure.mjs";
+import type {
+  TypeNodeToTypeStructureConsole
+} from "#ts-morph_structures/source/types/TypeNodeToTypeStructure.mjs";
 import {
   ModuleKind,
   ModuleResolutionKind,
@@ -161,9 +171,10 @@ describe("buildTypesForStructures applies a type node converter for each structu
     expect(failures).toEqual([]);
   });
 
-  it("having an .implements array", () => {
+  it("having an .implements array and an extends type", () => {
     sourceFile.addClass({
       name: "NumberStringClass",
+      extends: "BaseClass",
       implements: [
         "NumberStringType",
         "Foo"
@@ -178,16 +189,21 @@ describe("buildTypesForStructures applies a type node converter for each structu
       [structure, NumberStringClass]
     ]);
 
+    const BaseClass = new LiteralTypedStructureImpl("BaseClass");
     const NS_Type = new LiteralTypedStructureImpl("NumberStringType");
     const Foo = new LiteralTypedStructureImpl("Foo");
 
     const failures = buildTypesForStructures(map, failCallback, (typeNode, failCallback) => {
       if (!Node.isExpressionWithTypeArguments(typeNode)) {
-        failCallback("Not an implements node?", typeNode);
+        failCallback("Not an extends or implements node?", typeNode);
         return null;
       }
 
       const text = typeNode.getText();
+
+      if (text === "BaseClass")
+        return BaseClass;
+
       if (text === "NumberStringType")
         return NS_Type;
 
@@ -198,9 +214,59 @@ describe("buildTypesForStructures applies a type node converter for each structu
       return null;
     });
 
+    expect(structure.extendsStructure).toBe(BaseClass);
+
     expect(structure.implementsSet.size).toBe(2);
     expect(structure.implementsSet.has(NS_Type)).toBe(true);
     expect(structure.implementsSet.has(Foo)).toBe(true);
+
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
+    expect(failures).toEqual([]);
+  });
+
+  it("having an .extends array", () => {
+    sourceFile.addInterface({
+      name: "NumberStringExtendedClass",
+      extends: [
+        "NumberStringClass",
+        "Foo"
+      ],
+    });
+
+    const NumberStringClass = sourceFile.getInterfaceOrThrow("NumberStringExtendedClass");
+    const structureOriginal = NumberStringClass.getStructure();
+    const structure = InterfaceDeclarationImpl.clone(structureOriginal);
+
+    const map = new Map<Structures, Node>([
+      [structure, NumberStringClass]
+    ]);
+
+    const NS_Type = new LiteralTypedStructureImpl("NumberStringClass");
+    const Foo = new LiteralTypedStructureImpl("Foo");
+
+    const failures = buildTypesForStructures(map, failCallback, (typeNode, failCallback) => {
+      if (!Node.isExpressionWithTypeArguments(typeNode)) {
+        failCallback("Not an extends or implements node?", typeNode);
+        return null;
+      }
+
+      const text = typeNode.getText();
+
+      if (text === "NumberStringClass")
+        return NS_Type;
+
+      if (text === "Foo")
+        return Foo;
+
+      failCallback("uh oh", typeNode);
+      return null;
+    });
+
+    expect(structure.extendsSet.size).toBe(2);
+    expect(structure.extendsSet.has(NS_Type)).toBe(true);
+    expect(structure.extendsSet.has(Foo)).toBe(true);
+
     expect(failMessage).toBe(undefined);
     expect(failNode).toBe(null);
     expect(failures).toEqual([]);

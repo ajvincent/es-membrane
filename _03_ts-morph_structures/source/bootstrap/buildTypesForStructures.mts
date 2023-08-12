@@ -15,6 +15,7 @@ import StructureBase from "../decorators/StructureBase.mjs";
 
 import {
   ClassDeclarationImpl,
+  InterfaceDeclarationImpl,
   ReturnTypedNodeTypeStructure,
   TypeParameterWithTypeStructures,
   TypeStructure,
@@ -136,6 +137,15 @@ export default function buildTypesForStructures(
           throw new Error("assertion failure, we should have a ClassDeclarationImpl");
         }
 
+        runConversion(
+          node.getExtends(),
+          consoleTrap,
+          converter,
+          typeStructure => {
+            structure.extendsStructure = typeStructure
+          }
+        );
+
         const _implementsArray: TypeStructure[] = [];
         const implementsTypeNodes: TypeNode[] = node.getImplements();
         implementsTypeNodes.forEach(implementsTypeNode => {
@@ -148,6 +158,31 @@ export default function buildTypesForStructures(
         });
 
         structure.implementsSet.replaceFromArray(_implementsArray);
+        break;
+      }
+
+      case StructureKind.Interface:
+      {
+        if (!Node.isInterfaceDeclaration(node)) {
+          throw new Error("assertion failure, we should have an interface declaration");
+        }
+
+        if (!(structure instanceof InterfaceDeclarationImpl)) {
+          throw new Error("assertion failure, we should have an InterfaceDeclarationImpl");
+        }
+
+        const _extendsArray: TypeStructure[] = [];
+        const extendsTypeNodes: TypeNode[] = node.getExtends();
+        extendsTypeNodes.forEach(extendsTypeNode => {
+          runConversion(
+            extendsTypeNode,
+            consoleTrap,
+            converter,
+            typeStructure => _extendsArray.push(typeStructure)
+          )
+        });
+
+        structure.extendsSet.replaceFromArray(_extendsArray);
         break;
       }
     }
