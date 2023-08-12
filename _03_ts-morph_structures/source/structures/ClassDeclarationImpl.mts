@@ -65,7 +65,7 @@ import type {
   ClassDeclarationWithImplementsTypeStructures
 } from "../typeStructures/TypedNodeTypeStructure.mjs";
 
-import TypeWriterManager from "../decorators/TypeWriterManager.mjs";
+import TypeWriterManager from "../base/TypeWriterManager.mjs";
 import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
 
 // #endregion preamble

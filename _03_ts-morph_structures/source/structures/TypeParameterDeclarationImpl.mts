@@ -14,7 +14,7 @@ import {
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 
-import TypeWriterManager from "../decorators/TypeWriterManager.mjs";
+import TypeWriterManager from "../base/TypeWriterManager.mjs";
 import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
 import StructuresClassesMap from "./StructuresClassesMap.mjs";
 import type {

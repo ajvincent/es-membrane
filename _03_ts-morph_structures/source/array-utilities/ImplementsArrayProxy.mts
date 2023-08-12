@@ -4,7 +4,7 @@ import {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 
-import TypeWriterManager from "../decorators/TypeWriterManager.mjs";
+import TypeWriterManager from "../base/TypeWriterManager.mjs";
 
 /**
  * @param array - the values to create a proxy for.
