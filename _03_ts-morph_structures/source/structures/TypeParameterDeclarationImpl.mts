@@ -21,6 +21,11 @@ import type {
   TypeParameterWithTypeStructures
 } from "../typeStructures/TypeAndTypeStructureInterfaces.mjs";
 
+export enum TypeParameterConstraintMode {
+  extends = "extends",
+  in = "in",
+}
+
 export default class TypeParameterDeclarationImpl
 extends StructureBase
 implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
@@ -86,34 +91,66 @@ implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
   }
 
   writerFunction(
-    writer: CodeBlockWriter
+    writer: CodeBlockWriter,
+    constraintMode: TypeParameterConstraintMode,
   ): void
   {
     writer.write(this.name);
 
-    const constraint = this.constraint;
-    if (constraint) {
-      writer.write(" extends ");
-      if (typeof constraint === "string") {
-        writer.write(constraint);
-      }
-      else {
-        constraint(writer);
-      }
-
-      const _default = this.default;
-      if (_default) {
-        writer.write(" = ");
-        if (typeof _default === "string") {
-          writer.write(_default);
-        }
-        else {
-          _default(writer);
-        }
-      }
+    switch (constraintMode) {
+      case TypeParameterConstraintMode.extends:
+        this.#writeConstraintExtends(writer);
+        break;
+      case TypeParameterConstraintMode.in:
+        this.#writeConstraintIn(writer);
     }
 
     // isConst, variance not supported yet... need examples to test against
+  }
+
+  #writeConstraintExtends(
+    writer: CodeBlockWriter
+  ): void
+  {
+    const constraint = this.constraint;
+    if (typeof constraint === "undefined")
+      return;
+
+    writer.write(" extends ");
+    if (typeof constraint === "string") {
+      writer.write(constraint);
+    }
+    else {
+      constraint(writer);
+    }
+
+    const _default = this.default;
+    if (_default) {
+      writer.write(" = ");
+      if (typeof _default === "string") {
+        writer.write(_default);
+      }
+      else {
+        _default(writer);
+      }
+    }
+  }
+
+  #writeConstraintIn(
+    writer: CodeBlockWriter
+  ): void
+  {
+    const constraint = this.constraint;
+    if (typeof constraint === "undefined")
+      return;
+
+    writer.write(" in ");
+    if (typeof constraint === "string") {
+      writer.write(constraint);
+    }
+    else {
+      constraint(writer);
+    }
   }
 
   public static clone(

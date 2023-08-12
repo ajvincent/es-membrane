@@ -6,7 +6,10 @@ import type {
   KindedTypeStructure,
   TypeStructureKind,
 } from "../base/TypeStructureKind.mjs";
-import TypeParameterDeclarationImpl from "../structures/TypeParameterDeclarationImpl.mjs";
+
+import {
+  TypeParameterDeclarationImpl,
+} from "../../exports.mjs";
 
 export type WriterTypedStructure = Simplify<KindedTypeStructure<TypeStructureKind.Writer>>;
 
@@ -101,6 +104,19 @@ export type IndexedAccessTypedStructure = Simplify<
   IndexedAccessType
 >;
 
+interface MappedType {
+  name: TypeStructure | undefined;
+  readonlyToken: "+readonly" | "-readonly" | "readonly" | undefined;
+  parameter: TypeParameterDeclarationImpl;
+  questionToken: "+?" | "-?" | "?" | undefined;
+  type: TypeStructure;
+}
+
+export type MappedTypeTypedStructure = Simplify<
+  KindedTypeStructure<TypeStructureKind.Mapped> &
+  MappedType
+>;
+
 export type TypeArgumentedTypedStructure = Simplify<
   TypedStructureWithObjectType &
   TypedStructureWithElements<TypeStructureKind.TypeArgumented>
@@ -170,6 +186,7 @@ export type TypeStructure = (
   ArrayTypedStructure |
   ConditionalTypedStructure |
   IndexedAccessTypedStructure |
+  MappedTypeTypedStructure |
   TypeArgumentedTypedStructure |
   FunctionTypedStructure
 );

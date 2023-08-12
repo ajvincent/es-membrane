@@ -15,6 +15,7 @@ export enum TypeStructureKind {
   Array,
   Conditional,
   IndexedAccess,
+  Mapped,
   TypeArgumented,
   Function,
   Parameter,

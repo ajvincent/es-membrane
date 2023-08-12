@@ -65,6 +65,7 @@ export default function TypeParameteredNode(
     }
   }
 }
+
 TypeParameteredNode satisfies SubclassDecorator<
   typeof StructureBase,
   TypeParameteredNodeStructureFields,

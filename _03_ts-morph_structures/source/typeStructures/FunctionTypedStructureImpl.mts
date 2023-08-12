@@ -28,6 +28,10 @@ import {
   pairedWrite
 } from "../base/utilities.mjs";
 
+import {
+  TypeParameterConstraintMode
+} from "../structures/TypeParameterDeclarationImpl.mjs";
+
 export default class FunctionTypedStructureImpl
 implements FunctionTypedStructure
 {
@@ -93,7 +97,7 @@ implements FunctionTypedStructure
     if (this.typeParameters.length) {
       pairedWrite(writer, "<", ">", false, false, () => {
         this.typeParameters.forEach((typeParam, index) => {
-          typeParam.writerFunction(writer);
+          typeParam.writerFunction(writer, TypeParameterConstraintMode.extends);
           if (index < this.typeParameters.length - 1)
             writer.write(", ");
         });

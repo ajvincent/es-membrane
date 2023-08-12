@@ -65,6 +65,7 @@ export { default as FunctionTypedStructureImpl } from "./source/typeStructures/F
 export { default as IndexedAccessTypedStructureImpl } from "./source/typeStructures/IndexedAccessTypedStructureImpl.mjs";
 export { default as IntersectionTypedStructureImpl } from "./source/typeStructures/IntersectionTypedStructureImpl.mjs"
 export { default as LiteralTypedStructureImpl } from "./source/typeStructures/LiteralTypedStructureImpl.mjs";
+export { default as MappedTypeTypedStructureImpl } from "./source/typeStructures/MappedTypeTypedStructureImpl.mjs";
 export { default as ParameterTypedStructureImpl } from "./source/typeStructures/ParameterTypedStructureImpl.mjs";
 export { default as ParenthesesTypedStructureImpl } from "./source/typeStructures/ParenthesesTypedStructureImpl.mjs";
 export { default as PrefixOperatorsTypedStructureImpl } from "./source/typeStructures/PrefixOperatorsTypedStructureImpl.mjs";

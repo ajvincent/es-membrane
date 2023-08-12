@@ -11,6 +11,7 @@ import {
   IndexedAccessTypedStructureImpl,
   IntersectionTypedStructureImpl,
   LiteralTypedStructureImpl,
+  MappedTypeTypedStructureImpl,
   ParameterTypedStructureImpl,
   ParenthesesTypedStructureImpl,
   PrefixOperatorsTypedStructureImpl,
@@ -157,6 +158,25 @@ describe("TypeStructure for ts-morph: ", () => {
     expect<string>(writer.toString()).toBe(`foo["bar"]`);
 
     expect(typedWriter.kind).toBe(TypeStructureKind.IndexedAccess);
+  });
+
+  it("MappedTypeTypedStructureImpl", () => {
+    const keyofTypeStructure = new PrefixOperatorsTypedStructureImpl(
+      ["keyof"], nstTyped
+    );
+
+    const keyTypeStructure = new TypeParameterDeclarationImpl("key");
+    keyTypeStructure.constraintStructure = keyofTypeStructure;
+
+    typedWriter = new MappedTypeTypedStructureImpl(
+      keyTypeStructure,
+      new LiteralTypedStructureImpl("string"),
+    );
+    typedWriter.writerFunction(writer);
+
+    expect<string>(writer.toString()).toBe(`{\n  [key in keyof NumberStringType]: string;\n}`);
+
+    expect(typedWriter.kind).toBe(TypeStructureKind.Mapped);
   });
 
   it("TypeArgumentedTypeStructureImpl", () => {
