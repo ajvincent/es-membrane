@@ -60,7 +60,7 @@ import StructureBase from "../decorators/StructureBase.mjs";
 import StructuresClassesMap from "./StructuresClassesMap.mjs";
 
 import ReadonlyArrayProxyHandler from "../array-utilities/ReadonlyArrayProxyHandler.mjs";
-import TypeWriterSet from "../array-utilities/TypeWriterSet.mjs";
+import TypeWriterSet from "../base/TypeWriterSet.mjs";
 import type {
   ClassDeclarationWithImplementsTypeStructures
 } from "../typeStructures/TypedNodeTypeStructure.mjs";

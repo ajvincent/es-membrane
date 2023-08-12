@@ -40,7 +40,7 @@ import TypeParameteredNode, {
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 import StructuresClassesMap from "./StructuresClassesMap.mjs";
-import TypeWriterSet from "../array-utilities/TypeWriterSet.mjs";
+import TypeWriterSet from "../base/TypeWriterSet.mjs";
 import ReadonlyArrayProxyHandler from "../array-utilities/ReadonlyArrayProxyHandler.mjs";
 
 // #endregion preamble

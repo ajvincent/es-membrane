@@ -1,4 +1,4 @@
-import TypeWriterSet from "#ts-morph_structures/source/array-utilities/TypeWriterSet.mjs";
+import TypeWriterSet from "#ts-morph_structures/source/base/TypeWriterSet.mjs";
 import { stringOrWriterFunction } from "#ts-morph_structures/source/types/ts-morph-native.mjs";
 import { CodeBlockWriter } from "ts-morph";
 import { LiteralTypedStructureImpl } from "#ts-morph_structures/exports.mjs";

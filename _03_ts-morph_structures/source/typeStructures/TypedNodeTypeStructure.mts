@@ -6,7 +6,7 @@ import type {
   TypeStructure
 } from "./TypeStructure.mjs";
 
-import TypeWriterSet from "../array-utilities/TypeWriterSet.mjs";
+import TypeWriterSet from "../base/TypeWriterSet.mjs";
 
 import type {
   stringOrWriterFunction
