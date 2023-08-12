@@ -60,7 +60,7 @@ import TypeParameteredNode, {
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
 import MethodDeclarationOverloadImpl from "./MethodDeclarationOverloadImpl.mjs";
-import StructuresClassesMap from "./StructuresClassesMap.mjs";
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 const MethodDeclarationBase = MultiMixinBuilder<
   [

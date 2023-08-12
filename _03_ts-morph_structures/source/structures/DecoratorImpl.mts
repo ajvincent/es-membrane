@@ -22,7 +22,7 @@ import KindedStructure, {
 import NamedNode, {
   type NamedNodeStructureFields
 } from "../decorators/NamedNode.mjs";
-import StructuresClassesMap from "./StructuresClassesMap.mjs";
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 const DecoratorBase = MultiMixinBuilder<
   [

@@ -16,7 +16,7 @@ import StructureBase from "../decorators/StructureBase.mjs";
 
 import TypeWriterManager from "../base/TypeWriterManager.mjs";
 import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
-import StructuresClassesMap from "./StructuresClassesMap.mjs";
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 import type {
   TypeParameterWithTypeStructures
 } from "../typeStructures/TypedNodeTypeStructure.mjs";

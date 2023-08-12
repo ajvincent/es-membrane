@@ -29,7 +29,7 @@ import {
 
 import VariableDeclarationImpl from "./VariableDeclarationImpl.mjs";
 import { cloneArrayOrUndefined } from "../base/utilities.mjs";
-import StructuresClassesMap from "./StructuresClassesMap.mjs";
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 const VariableStatementBase = MultiMixinBuilder<
   [

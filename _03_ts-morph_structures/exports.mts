@@ -42,7 +42,7 @@ export { default as TypeParameterDeclarationImpl } from "./source/structures/Typ
 export { default as VariableDeclarationImpl } from "./source/structures/VariableDeclarationImpl.mjs";
 export { default as VariableStatementImpl } from "./source/structures/VariableStatementImpl.mjs";
 
-export { default as StructuresClassesMap } from "./source/structures/StructuresClassesMap.mjs";
+export { default as StructuresClassesMap } from "./source/base/StructuresClassesMap.mjs";
 
 // #endregion Structure implementations
 

@@ -32,7 +32,7 @@ import StatementedNode, {
 import TypeParameteredNode, {
   type TypeParameteredNodeStructureFields
 } from "../decorators/TypeParameteredNode.mjs";
-import StructuresClassesMap from "./StructuresClassesMap.mjs";
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 const ConstructorDeclarationBase = MultiMixinBuilder<
   [

@@ -13,7 +13,7 @@ import { CloneableStructure } from "../types/CloneableStructure.mjs";
 import StatementClassesMap from "../base/StatementClassesMap.mjs";
 import AssertEntryImpl from "./AssertEntryImpl.mjs";
 import StructureBase from "../decorators/StructureBase.mjs";
-import StructuresClassesMap from "./StructuresClassesMap.mjs";
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 export default class ExportDeclarationImpl
 extends StructureBase

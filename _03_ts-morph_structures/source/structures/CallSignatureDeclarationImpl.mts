@@ -23,7 +23,7 @@ import ReturnTypedNode, {
 } from "../decorators/ReturnTypedNode.mjs";
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
-import StructuresClassesMap from "./StructuresClassesMap.mjs";
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 const CallSignatureDeclarationBase = MultiMixinBuilder<
   [

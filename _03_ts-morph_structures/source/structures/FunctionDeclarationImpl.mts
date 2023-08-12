@@ -49,7 +49,7 @@ import StructureBase from "../decorators/StructureBase.mjs";
 import FunctionDeclarationOverloadImpl from "./FunctionDeclarationOverloadImpl.mjs";
 
 import StatementClassesMap from "../base/StatementClassesMap.mjs";
-import StructuresClassesMap from "./StructuresClassesMap.mjs";
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 
 const FunctionDeclarationBase = MultiMixinBuilder<

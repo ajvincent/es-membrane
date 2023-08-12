@@ -20,7 +20,7 @@ import ReadonlyableNode, {
 import ReturnTypedNode, {
   type ReturnTypedNodeStructureFields,
 } from "../decorators/ReturnTypedNode.mjs";
-import StructuresClassesMap from "./StructuresClassesMap.mjs";
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 const IndexSignatureDeclarationBase = MultiMixinBuilder<
   [
