@@ -83,9 +83,6 @@ implements TypedNodeStructure, TypedNodeTypeStructure
     if (typeStructure.kind === TypeStructureKind.Literal)
       return typeStructure.stringValue;
 
-    return TypeStructureClassesMap
-      .get(typeStructure.kind)!
-      .clone(typeStructure)
-      .writerFunction;
+    return TypeStructureClassesMap.clone(typeStructure).writerFunction;
   }
 }
