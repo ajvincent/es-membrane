@@ -43,6 +43,11 @@ export { default as VariableStatementImpl } from "./source/structures/VariableSt
 
 export { default as StructuresClassesMap } from "./source/base/StructuresClassesMap.mjs";
 
+export type {
+  MethodDeclarationAppendContext,
+  MethodDeclarationEnableFlags,
+} from "./source/structures/MethodDeclarationImpl.mjs";
+
 // #endregion Structure implementations
 
 // #region TypeStructure implementations

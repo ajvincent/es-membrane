@@ -4,12 +4,20 @@ import {
   StructureKind,
   type MethodDeclarationOverloadStructure,
   MethodSignatureStructure,
+  Scope,
 } from "ts-morph";
+
+import type {
+  AppendableStructure,
+} from "../types/AppendableStructure.mjs";
 
 import {
   cloneArrayOrUndefined,
 } from "../base/utilities.mjs";
-import { CloneableStructure } from "../types/CloneableStructure.mjs";
+
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -61,6 +69,34 @@ import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../base/StructureBase.mjs";
 import MethodDeclarationOverloadImpl from "./MethodDeclarationOverloadImpl.mjs";
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+import { TypeStructures } from "../typeStructures/TypeStructures.mjs";
+import DecoratorImpl from "./DecoratorImpl.mjs";
+import ParameterDeclarationImpl from "./ParameterDeclarationImpl.mjs";
+import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
+import JSDocImpl from "./JSDocImpl.mjs";
+import { BooleanFlagsStructure } from "../types/BooleanFlagsStructure.mjs";
+
+export type MethodDeclarationEnableFlags = (
+  "hasOverrideKeyword" |
+  "hasQuestionToken" |
+  "isAbstract" |
+  "isAsync" |
+  "isGenerator" |
+  "isStatic"
+);
+
+export type MethodDeclarationAppendContext = (
+  {
+    returnType: TypeStructures
+  } |
+  (
+    JSDocImpl |
+    DecoratorImpl |
+    MethodDeclarationOverloadImpl |
+    TypeParameterDeclarationImpl |
+    ParameterDeclarationImpl
+  )[]
+);
 
 const MethodDeclarationBase = MultiMixinBuilder<
   [
@@ -104,13 +140,66 @@ const MethodDeclarationBase = MultiMixinBuilder<
 
 export default class MethodDeclarationImpl
 extends MethodDeclarationBase
-implements MethodDeclarationStructure
+implements
+  MethodDeclarationStructure,
+  BooleanFlagsStructure<MethodDeclarationEnableFlags>,
+  AppendableStructure<MethodDeclarationAppendContext>
 {
-  overloads: MethodDeclarationOverloadStructure[] = [];
+  overloads: MethodDeclarationOverloadImpl[] = [];
 
-  constructor(name: string) {
+  constructor(
+    name: string,
+  )
+  {
     super();
     this.name = name;
+  }
+
+  public setScope(
+    scope: Scope | undefined
+  ): this
+  {
+    this.scope = scope;
+    return this;
+  }
+
+  enableFlags(
+    flags: MethodDeclarationEnableFlags[]
+  ): this
+  {
+    for (const flag of flags) {
+      this[flag] = true;
+    }
+
+    return this;
+  }
+
+  appendStructures(
+    structuresContext: MethodDeclarationAppendContext
+  ): this
+  {
+    if (!Array.isArray(structuresContext)) {
+      this.returnTypeStructure = structuresContext.returnType;
+      return this;
+    }
+
+    for (const structure of structuresContext) {
+      switch (structure.kind) {
+        case StructureKind.Decorator:
+          this.decorators.push(structure);
+          continue;
+        case StructureKind.JSDoc:
+          this.docs.push(structure);
+          continue;
+        case StructureKind.TypeParameter:
+          this.typeParameters.push(structure);
+          continue;
+        case StructureKind.Parameter:
+          this.parameters.push(structure);
+      }
+    }
+
+    return this;
   }
 
   public static clone(

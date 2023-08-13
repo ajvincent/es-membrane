@@ -7,8 +7,10 @@ import type {
 } from "../typeStructures/TypeStructures.mjs";
 
 export type AppendContextBase = (
+  Structures |
+  TypeStructures |
   readonly (Structures | TypeStructures)[] |
-  Record<string, readonly (Structures | TypeStructures)[]>
+  Partial<Record<string, AppendContextBase>>
 );
 
 export interface AppendableStructure<
