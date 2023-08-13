@@ -30,7 +30,7 @@ implements ParenthesesTypedStructure
   ): ParenthesesTypedStructureImpl
   {
     return new ParenthesesTypedStructureImpl(
-      TypeStructureClassesMap.get(other.childType.kind)!.clone(other.childType)
+      TypeStructureClassesMap.clone(other.childType)
     );
   }
 

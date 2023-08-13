@@ -84,11 +84,11 @@ implements MappedTypeTypedStructure
     );
 
     if (other.asName) {
-      clone.asName = TypeStructureClassesMap.get(other.asName.kind)!.clone(other.asName);
+      clone.asName = TypeStructureClassesMap.clone(other.asName);
     }
 
     if (other.type) {
-      clone.type = TypeStructureClassesMap.get(other.type.kind)!.clone(other.type);
+      clone.type = TypeStructureClassesMap.clone(other.type);
     }
 
     clone.readonlyToken = other.readonlyToken;

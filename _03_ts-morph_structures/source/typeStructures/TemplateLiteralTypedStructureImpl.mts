@@ -31,12 +31,7 @@ implements TemplateLiteralTypedStructure
     elements: (string | TypeStructures)[] = []
   )
   {
-    this.elements = elements.map(element => {
-      if (typeof element === "string")
-        return element;
-      return TypeStructureClassesMap.get(element.kind)!.clone(element);
-    });
-
+    this.elements = elements;
     registerCallbackForTypeStructure(this);
   }
 
@@ -61,7 +56,12 @@ implements TemplateLiteralTypedStructure
     other: TemplateLiteralTypedStructure
   ): TemplateLiteralTypedStructureImpl
   {
-    return new TemplateLiteralTypedStructureImpl(other.elements);
+    const elements = other.elements.map(element => {
+      if (typeof element === "string")
+        return element;
+      return TypeStructureClassesMap.clone(element);
+    });
+    return new TemplateLiteralTypedStructureImpl(elements);
   }
 }
 

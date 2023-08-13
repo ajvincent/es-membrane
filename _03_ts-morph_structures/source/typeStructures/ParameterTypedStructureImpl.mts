@@ -55,7 +55,8 @@ implements ParameterTypedStructure
   {
     let typeClone: TypeStructures | undefined;
     if (other.typeStructure)
-      typeClone = TypeStructureClassesMap.get(other.typeStructure.kind)!.clone(other.typeStructure);
+      typeClone = TypeStructureClassesMap.clone(other.typeStructure);
+
     const clone = new ParameterTypedStructureImpl(other.name.stringValue, typeClone);
     return clone;
   }

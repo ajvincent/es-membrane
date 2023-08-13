@@ -30,8 +30,8 @@ implements IndexedAccessTypedStructure
   ): IndexedAccessTypedStructureImpl
   {
     return new IndexedAccessTypedStructureImpl(
-      TypeStructureClassesMap.get(other.objectType.kind)!.clone(other.objectType),
-      TypeStructureClassesMap.get(other.indexType.kind)!.clone(other.indexType)
+      TypeStructureClassesMap.clone(other.objectType),
+      TypeStructureClassesMap.clone(other.indexType)
     )
   }
 

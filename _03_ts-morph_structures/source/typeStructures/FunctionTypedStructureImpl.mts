@@ -45,7 +45,7 @@ implements FunctionTypedStructure
       typeParameters: other.typeParameters,
       parameters: other.parameters.map(param => ParameterTypedStructureImpl.clone(param)),
       restParameter: (other.restParameter ? ParameterTypedStructureImpl.clone(other.restParameter) : undefined),
-      returnType: other.returnType ? TypeStructureClassesMap.get(other.returnType.kind)!.clone(other.returnType) : undefined,
+      returnType: other.returnType ? TypeStructureClassesMap.clone(other.returnType) : undefined,
       writerStyle: other.writerStyle,
     });
   }

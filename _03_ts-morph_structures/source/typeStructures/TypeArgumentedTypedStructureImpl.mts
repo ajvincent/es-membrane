@@ -31,10 +31,8 @@ implements TypeArgumentedTypedStructure
   ): TypeArgumentedTypedStructureImpl
   {
     return new TypeArgumentedTypedStructureImpl(
-      TypeStructureClassesMap.get(other.kind)!.clone(other),
-      other.elements.map(
-        typeStructure => TypeStructureClassesMap.get(typeStructure.kind)!.clone(typeStructure)
-      ),
+      TypeStructureClassesMap.clone(other.objectType),
+      TypeStructureClassesMap.cloneArray(other.elements),
     );
   }
 

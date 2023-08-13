@@ -28,7 +28,7 @@ implements ArrayTypedStructure
   ): ArrayTypedStructureImpl
   {
     return new ArrayTypedStructureImpl(
-      TypeStructureClassesMap.get(other.kind)!.clone(other),
+      TypeStructureClassesMap.clone(other),
     );
   }
 

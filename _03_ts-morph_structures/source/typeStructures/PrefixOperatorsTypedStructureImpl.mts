@@ -32,7 +32,7 @@ implements PrefixOperatorsTypedStructure
   {
     return new PrefixOperatorsTypedStructureImpl(
       other.operators,
-      TypeStructureClassesMap.get(other.childType.kind)!.clone(other.childType)
+      TypeStructureClassesMap.clone(other.childType)
     );
   }
 

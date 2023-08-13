@@ -26,9 +26,7 @@ implements TupleTypedStructure
   ): TupleTypedStructureImpl
   {
     return new TupleTypedStructureImpl(
-      other.elements.map(
-        typeStructure => TypeStructureClassesMap.get(typeStructure.kind)!.clone(typeStructure)
-      )
+      TypeStructureClassesMap.cloneArray(other.elements)
     );
   }
 

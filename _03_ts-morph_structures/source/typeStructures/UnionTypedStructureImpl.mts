@@ -27,9 +27,7 @@ implements UnionTypedStructure
   ): UnionTypedStructure
   {
     return new UnionTypedStructureImpl(
-      other.elements.map(
-        typeStructure => TypeStructureClassesMap.get(typeStructure.kind)!.clone(typeStructure)
-      )
+      TypeStructureClassesMap.cloneArray(other.elements)
     );
   }
 

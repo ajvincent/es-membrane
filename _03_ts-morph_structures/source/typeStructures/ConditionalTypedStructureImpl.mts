@@ -35,7 +35,7 @@ implements ConditionalTypedStructure
 
   static #clonePart(childType: TypeStructures): TypeStructures
   {
-    return TypeStructureClassesMap.get(childType.kind)!.clone(childType);
+    return TypeStructureClassesMap.clone(childType);
   }
 
   public static clone(
