@@ -3,9 +3,13 @@ import type {
   WriterFunction,
 } from "ts-morph";
 
-import type {
-  MappedTypeTypedStructure, TypeStructure
-} from "./TypeStructure.mjs";
+import {
+  MappedTypeTypedStructure,
+  TypeParameterDeclarationImpl,
+  TypeStructure,
+  TypeStructureClassesMap,
+  TypeStructureKind,
+} from "../../exports.mjs";
 
 import {
   registerCallbackForTypeStructure
@@ -14,13 +18,6 @@ import {
 import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
-
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
-
-import {
-  TypeParameterDeclarationImpl,
-  TypeStructureKind,
-} from "../../exports.mjs";
 
 import {
   TypeParameterConstraintMode
@@ -35,16 +32,13 @@ implements MappedTypeTypedStructure
   parameter: TypeParameterDeclarationImpl;
   asName: TypeStructure | undefined = undefined;
   questionToken: "+?" | "-?" | "?" | undefined;
-  type: TypeStructure;
+  type: TypeStructure | undefined;
 
   constructor(
     parameter: TypeParameterDeclarationImpl,
-    type: TypeStructure
   )
   {
     this.parameter = parameter;
-    this.type = type;
-
     registerCallbackForTypeStructure(this);
   }
 
@@ -69,9 +63,11 @@ implements MappedTypeTypedStructure
       if (this.questionToken) {
         writer.write(this.questionToken);
       }
-      writer.write(": ");
 
-      this.type.writerFunction(writer);
+      if (this.type) {
+        writer.write(": ");
+        this.type.writerFunction(writer);
+      }
 
       writer.write(";");
     });
@@ -85,11 +81,14 @@ implements MappedTypeTypedStructure
   {
     const clone = new MappedTypeTypedStructureImpl(
       TypeParameterDeclarationImpl.clone(other.parameter),
-      TypeStructureClassesMap.get(other.type.kind)!.clone(other.type),
     );
 
     if (other.asName) {
       clone.asName = TypeStructureClassesMap.get(other.asName.kind)!.clone(other.asName);
+    }
+
+    if (other.type) {
+      clone.type = TypeStructureClassesMap.get(other.type.kind)!.clone(other.type);
     }
 
     clone.readonlyToken = other.readonlyToken;
@@ -98,5 +97,6 @@ implements MappedTypeTypedStructure
     return clone;
   }
 }
+
 MappedTypeTypedStructureImpl satisfies CloneableStructure<MappedTypeTypedStructure>;
 TypeStructureClassesMap.set(TypeStructureKind.Mapped, MappedTypeTypedStructureImpl);

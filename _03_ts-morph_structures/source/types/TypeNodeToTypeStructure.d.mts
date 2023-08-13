@@ -18,5 +18,5 @@ export type TypeNodeToTypeStructureConsole = (
 export type TypeNodeToTypeStructure = (
   typeNode: TypeNode,
   _console: TypeNodeToTypeStructureConsole,
-  subStructureResolver: (node: NodeWithStructures) => Structures
+  subStructureResolver: (node: NodeWithStructures) => Structures,
 ) => TypeStructure | null;

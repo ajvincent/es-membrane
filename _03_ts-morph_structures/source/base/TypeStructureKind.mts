@@ -19,7 +19,8 @@ export enum TypeStructureKind {
   TypeArgumented,
   Function,
   Parameter,
-  ObjectLiteral, /* reserved, but probably never used */
+  TemplateLiteral,
+  ObjectLiteral,
 }
 
 export interface KindedTypeStructure<

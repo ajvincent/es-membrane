@@ -3,6 +3,10 @@ import type {
 } from "type-fest";
 
 import type {
+  TypeElementMemberedNodeStructure
+} from "ts-morph"
+
+import type {
   KindedTypeStructure,
   TypeStructureKind,
 } from "../base/TypeStructureKind.mjs";
@@ -109,7 +113,7 @@ interface MappedType {
   parameter: TypeParameterDeclarationImpl;
   asName: TypeStructure | undefined;
   questionToken: "+?" | "-?" | "?" | undefined;
-  type: TypeStructure;
+  type: TypeStructure | undefined;
 }
 
 export type MappedTypeTypedStructure = Simplify<
@@ -154,25 +158,20 @@ export type ParameterTypedStructure = Simplify<
   ParameterTypeStructureFields
 >;
 
-/**
- * @remarks
- *
- * I have explicitly excluded object literal typed structures (`{ foo(): void; }`, etc.),
- * They're basically `Partial<InterfaceDeclarationStructure>` objects, but serializing them
- * will be painful.
- *
- * The best idea I have is to create an in-memory source file containing exactly one interface,
- * strip out the opening and closing lines, and feed the other lines to the requesting
- * `CodeBlockWriter` object.  That's a lot of work for ts-morph, especially when a savvy
- * developer would just create an interface declaration or type alias in the same file.
- *
- * Inline object literals may convey meaning quickly (`Class<Base> & { staticMethod(): void }`),
- * but they're really not worth it when we could just as easily write
- * `Simplify<Class<Base> & StaticMethods>`.
- *
- * If this ever moves upstream into ts-morph, it would be a lot easier to implement
- * `ObjectLiteralTypedStructure` there.
- */
+interface TemplateLiteralTypedStructureFields {
+  elements: (string | TypeStructure)[];
+}
+
+export type TemplateLiteralTypedStructure = Simplify<
+  KindedTypeStructure<TypeStructureKind.TemplateLiteral> &
+  TemplateLiteralTypedStructureFields
+>;
+
+export type ObjectLiteralTypedStructure = Simplify<
+  KindedTypeStructure<TypeStructureKind.ObjectLiteral> &
+  TypeElementMemberedNodeStructure
+>;
+
 export type TypeStructure = (
   WriterTypedStructure |
   LiteralTypedStructure |
@@ -188,5 +187,7 @@ export type TypeStructure = (
   IndexedAccessTypedStructure |
   MappedTypeTypedStructure |
   TypeArgumentedTypedStructure |
-  FunctionTypedStructure
+  FunctionTypedStructure |
+  TemplateLiteralTypedStructure |
+  ObjectLiteralTypedStructure
 );

@@ -4,7 +4,6 @@ import {
   Project,
   ProjectOptions,
   ScriptTarget,
-  TypeLiteralNode,
   TypeNode,
   VariableDeclaration,
 } from "ts-morph";
@@ -18,13 +17,17 @@ import {
   IndexedAccessTypedStructureImpl,
   IntersectionTypedStructureImpl,
   LiteralTypedStructureImpl,
+  MappedTypeTypedStructureImpl,
+  ObjectLiteralTypedStructureImpl,
   ParenthesesTypedStructureImpl,
   PrefixOperatorsTypedStructureImpl,
   StringTypedStructureImpl,
+  TemplateLiteralTypedStructureImpl,
   TupleTypedStructureImpl,
   TypeArgumentedTypedStructureImpl,
   TypeStructure,
-  UnionTypedStructureImpl
+  UnionTypedStructureImpl,
+  createCodeBlockWriter
 } from "#ts-morph_structures/exports.mjs";
 import { TypeNodeToTypeStructureConsole } from "#ts-morph_structures/source/types/TypeNodeToTypeStructure.mjs";
 
@@ -392,6 +395,31 @@ const A: string;
     expect(failNode).toBe(null);
   });
 
+  it('{ [key in "one" | "two" as `${key}Index`]: boolean; } (mapped type)', () => {
+    setTypeStructure('{ -readonly [key in "one" | "two" as `${key}Index`]+?: boolean; }', failCallback);
+    expect(structure).toBeInstanceOf(MappedTypeTypedStructureImpl);
+    if (!(structure instanceof MappedTypeTypedStructureImpl))
+      return;
+
+    expect(structure.readonlyToken).toBe("-readonly");
+
+    expect(structure.parameter?.name).toBe("key");
+    expect(structure.parameter?.constraint).toBe(`"one" | "two"`);
+
+    const nameWriter = createCodeBlockWriter();
+    if (structure.asName) {
+      structure.asName.writerFunction(nameWriter);
+    }
+    expect<string>(nameWriter.toString()).toBe('`${key}Index`');
+
+    expect(structure.questionToken).toBe("+?");
+
+    expect((structure.type as LiteralTypedStructureImpl)?.stringValue).toBe("boolean");
+
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
+  });
+
   it(
     `<StringType extends string, NumberType extends number = 1>(s: StringType, n) => boolean`,
     () => {
@@ -500,13 +528,67 @@ const A: string;
     }
   );
 
+  it('`one${"A" | "B"}two${"C" | "D"}three${"E" | "F"}` (template literal)', () => {
+    setTypeStructure('`one${"A" | "B"}two${"C" | "D"}three${"E" | "F"}`', failCallback);
+    expect(structure).toBeInstanceOf(TemplateLiteralTypedStructureImpl);
+    if (!(structure instanceof TemplateLiteralTypedStructureImpl))
+      return;
+
+    expect(structure.elements.length).toBe(6);
+    expect(structure.elements[0]).toBe("one");
+
+    expect(structure.elements[1]).toBeInstanceOf(UnionTypedStructureImpl);
+    if (structure.elements[1] instanceof UnionTypedStructureImpl) {
+      const unionElements = structure.elements[1].elements;
+      expect(unionElements.length).toBe(2);
+      expect((unionElements[0] as StringTypedStructureImpl)?.stringValue).toBe("A");
+      expect((unionElements[1] as StringTypedStructureImpl)?.stringValue).toBe("B");
+    }
+
+    expect(structure.elements[2]).toBe("two");
+
+    expect(structure.elements[3]).toBeInstanceOf(UnionTypedStructureImpl);
+    if (structure.elements[3] instanceof UnionTypedStructureImpl) {
+      const unionElements = structure.elements[3].elements;
+      expect(unionElements.length).toBe(2);
+      expect((unionElements[0] as StringTypedStructureImpl)?.stringValue).toBe("C");
+      expect((unionElements[1] as StringTypedStructureImpl)?.stringValue).toBe("D");
+    }
+
+    expect(structure.elements[4]).toBe("three");
+
+    expect(structure.elements[5]).toBeInstanceOf(UnionTypedStructureImpl);
+    if (structure.elements[5] instanceof UnionTypedStructureImpl) {
+      const unionElements = structure.elements[5].elements;
+      expect(unionElements.length).toBe(2);
+      expect((unionElements[0] as StringTypedStructureImpl)?.stringValue).toBe("E");
+      expect((unionElements[1] as StringTypedStructureImpl)?.stringValue).toBe("F");
+    }
+
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
+  });
+
   it(`{ foo: true } (object literal)`, () => {
     setTypeStructure(`{ foo: true }`, failCallback);
-    expect(structure).toBe(null);
+    expect(structure).toBeInstanceOf(ObjectLiteralTypedStructureImpl);
 
-    expect<string>(
-      failMessage as unknown as string
-    ).toBe(`unsupported type node "TypeLiteral" at line 2, column 9`);
-    expect(failNode).toBeInstanceOf(TypeLiteralNode);
+    if (!(structure instanceof ObjectLiteralTypedStructureImpl))
+      return;
+    expect(structure.callSignatures.length).toBe(0);
+    expect(structure.constructSignatures.length).toBe(0);
+    expect(structure.indexSignatures.length).toBe(0);
+    expect(structure.methods.length).toBe(0);
+    expect(structure.properties.length).toBe(1);
+
+    const propertyStructure = structure.properties[0];
+    if (!propertyStructure)
+      return;
+
+    expect(propertyStructure.name).toBe("foo");
+    expect(propertyStructure.type).toBe("true");
+
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
   });
 });

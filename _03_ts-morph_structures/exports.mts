@@ -1,4 +1,3 @@
-
 export {
   default as getTypeAugmentedStructure,
   RootStructureWithConvertFailures,
@@ -66,11 +65,13 @@ export { default as IndexedAccessTypedStructureImpl } from "./source/typeStructu
 export { default as IntersectionTypedStructureImpl } from "./source/typeStructures/IntersectionTypedStructureImpl.mjs"
 export { default as LiteralTypedStructureImpl } from "./source/typeStructures/LiteralTypedStructureImpl.mjs";
 export { default as MappedTypeTypedStructureImpl } from "./source/typeStructures/MappedTypeTypedStructureImpl.mjs";
+export { default as ObjectLiteralTypedStructureImpl } from "./source/typeStructures/ObjectLiteralTypedStructureImpl.mjs";
 export { default as ParameterTypedStructureImpl } from "./source/typeStructures/ParameterTypedStructureImpl.mjs";
 export { default as ParenthesesTypedStructureImpl } from "./source/typeStructures/ParenthesesTypedStructureImpl.mjs";
 export { default as PrefixOperatorsTypedStructureImpl } from "./source/typeStructures/PrefixOperatorsTypedStructureImpl.mjs";
 export { default as StringTypedStructureImpl } from "./source/typeStructures/StringTypedStructureImpl.mjs";
 export { default as SymbolKeyTypedStructureImpl } from "./source/typeStructures/SymbolKeyTypedStructureImpl.mjs";
+export { default as TemplateLiteralTypedStructureImpl } from "./source/typeStructures/TemplateLiteralTypedStructureImpl.mjs";
 export { default as TupleTypedStructureImpl } from "./source/typeStructures/TupleTypedStructureImpl.mjs";
 export { default as TypeArgumentedTypedStructureImpl } from "./source/typeStructures/TypeArgumentedTypedStructureImpl.mjs";
 export { default as UnionTypedStructureImpl } from "./source/typeStructures/UnionTypedStructureImpl.mjs";

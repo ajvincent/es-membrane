@@ -85,10 +85,10 @@ const fixturesDir: ModuleSourceDirectory = {
 it("structureToNodeMap returns an accurate Map<Structure, Node>", () => {
   const remainingKeys = new Set(remainingKeysBase);
   function checkMap(
-    pathToModuleFile: string
+    relativePathToModuleFile: string
   ): void
   {
-    pathToModuleFile = pathToModule(fixturesDir, pathToModuleFile);
+    const pathToModuleFile = pathToModule(fixturesDir, relativePathToModuleFile);
     project.addSourceFileAtPath(pathToModuleFile);
     const sourceFile = project.getSourceFileOrThrow(pathToModuleFile);
 
@@ -101,7 +101,7 @@ it("structureToNodeMap returns an accurate Map<Structure, Node>", () => {
       throw ex;
     }
     map.forEach((node, structure) => {
-      expect(Node.hasStructure(node)).toBe(true);
+      expect(Node.hasStructure(node)).withContext(relativePathToModuleFile).toBe(true);
       if (Node.hasStructure(node)) {
         expect<Structures>(node.getStructure()).withContext(
           `at ${pathToModuleFile}#${sourceFile.getLineAndColumnAtPos(node.getPos()).line}`
@@ -112,6 +112,7 @@ it("structureToNodeMap returns an accurate Map<Structure, Node>", () => {
   }
 
   checkMap("ecma_references/classDecorators.mts");
+  checkMap("ecma_references/NumberStringClass.mts");
   checkMap("stage_utilities/assert.mts");
   checkMap("stage_utilities/DefaultMap.mts");
   checkMap("stage_utilities/PromiseTypes.mts");
@@ -125,7 +126,7 @@ it("structureToNodeMap returns an accurate Map<Structure, Node>", () => {
   remainingKinds = remainingKinds.filter(kind => !kind.startsWith("Jsx"));
   remainingKinds.sort();
 
-  expect(remainingKinds).toEqual([]);
+  expect(remainingKinds).withContext("unexamined kinds").toEqual([]);
 });
 
 it("structureToNodeMap can use the type-aware structures", () => {

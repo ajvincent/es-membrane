@@ -1,6 +1,5 @@
 import {
   CodeBlockWriter,
-  type CodeBlockWriterOptions,
 } from "ts-morph";
 
 import {
@@ -12,27 +11,29 @@ import {
   IntersectionTypedStructureImpl,
   LiteralTypedStructureImpl,
   MappedTypeTypedStructureImpl,
+  ObjectLiteralTypedStructureImpl,
   ParameterTypedStructureImpl,
   ParenthesesTypedStructureImpl,
   PrefixOperatorsTypedStructureImpl,
   StringTypedStructureImpl,
   SymbolKeyTypedStructureImpl,
+  TemplateLiteralTypedStructureImpl,
   TupleTypedStructureImpl,
   TypeArgumentedTypedStructureImpl,
   TypeParameterDeclarationImpl,
-  TypeStructure,
   TypeStructureKind,
   UnionTypedStructureImpl,
   WriterTypedStructureImpl,
+
+  createCodeBlockWriter,
+
+  MethodSignatureImpl,
+  ParameterDeclarationImpl,
 } from "#ts-morph_structures/exports.mjs";
 
 describe("TypeStructure for ts-morph: ", () => {
-  const writerOptions: Partial<CodeBlockWriterOptions> = Object.freeze({
-    indentNumberOfSpaces: 2
-  });
-
-  let writer: CodeBlockWriter = new CodeBlockWriter(writerOptions);
-  beforeEach(() => writer = new CodeBlockWriter(writerOptions));
+  let writer: CodeBlockWriter = createCodeBlockWriter()
+  beforeEach(() => writer = createCodeBlockWriter());
 
   const fooTyped = new LiteralTypedStructureImpl("foo");
   const nstTyped = new LiteralTypedStructureImpl("NumberStringType");
@@ -40,10 +41,8 @@ describe("TypeStructure for ts-morph: ", () => {
 
   const stringBarTyped = new StringTypedStructureImpl("bar");
 
-  let typedWriter: TypeStructure;
-
   it("WriterTypedStructureImpl", () => {
-    typedWriter = new WriterTypedStructureImpl(
+    const typedWriter = new WriterTypedStructureImpl(
       (writer: CodeBlockWriter) => writer.write("hi mom")
     );
 
@@ -65,7 +64,7 @@ describe("TypeStructure for ts-morph: ", () => {
   });
 
   it("SymbolKeyTypedStructureImpl", () => {
-    typedWriter = new SymbolKeyTypedStructureImpl("foo");
+    const typedWriter = new SymbolKeyTypedStructureImpl("foo");
     typedWriter.writerFunction(writer);
     expect<string>(writer.toString()).toBe("[foo]");
 
@@ -73,7 +72,7 @@ describe("TypeStructure for ts-morph: ", () => {
   });
 
   it("ParenthesesTypedStructureImpl", () => {
-    typedWriter = new ParenthesesTypedStructureImpl(
+    const typedWriter = new ParenthesesTypedStructureImpl(
       new LiteralTypedStructureImpl("true")
     );
     typedWriter.writerFunction(writer);
@@ -84,7 +83,7 @@ describe("TypeStructure for ts-morph: ", () => {
   });
 
   it("PrefixOperatorsTypedStructureImpl", () => {
-    typedWriter = new PrefixOperatorsTypedStructureImpl(
+    const typedWriter = new PrefixOperatorsTypedStructureImpl(
       ["typeof", "readonly"],
       new LiteralTypedStructureImpl("NumberStringType")
     );
@@ -124,7 +123,7 @@ describe("TypeStructure for ts-morph: ", () => {
   });
 
   it("ArrayTypedStructureImpl", () => {
-    typedWriter = new ArrayTypedStructureImpl(fooTyped);
+    const typedWriter = new ArrayTypedStructureImpl(fooTyped);
     typedWriter.writerFunction(writer);
     expect<string>(writer.toString()).toBe("foo[]");
 
@@ -137,7 +136,7 @@ describe("TypeStructure for ts-morph: ", () => {
     const trueType = new LiteralTypedStructureImpl("BaseClassType");
     const falseType = new LiteralTypedStructureImpl("void");
 
-    typedWriter = new ConditionalTypedStructureImpl({
+    const typedWriter = new ConditionalTypedStructureImpl({
       checkType,
       extendsType,
       trueType,
@@ -153,7 +152,7 @@ describe("TypeStructure for ts-morph: ", () => {
   });
 
   it("IndexedAccessTypedStructureImpl", () => {
-    typedWriter = new IndexedAccessTypedStructureImpl(fooTyped, stringBarTyped);
+    const typedWriter = new IndexedAccessTypedStructureImpl(fooTyped, stringBarTyped);
     typedWriter.writerFunction(writer);
     expect<string>(writer.toString()).toBe(`foo["bar"]`);
 
@@ -168,10 +167,10 @@ describe("TypeStructure for ts-morph: ", () => {
     const keyTypeStructure = new TypeParameterDeclarationImpl("key");
     keyTypeStructure.constraintStructure = keyofTypeStructure;
 
-    typedWriter = new MappedTypeTypedStructureImpl(
+    const typedWriter = new MappedTypeTypedStructureImpl(
       keyTypeStructure,
-      new LiteralTypedStructureImpl("string"),
     );
+    typedWriter.type = new LiteralTypedStructureImpl("string");
     typedWriter.writerFunction(writer);
 
     expect<string>(writer.toString()).toBe(`{\n  [key in keyof NumberStringType]: string;\n}`);
@@ -179,7 +178,7 @@ describe("TypeStructure for ts-morph: ", () => {
     expect(typedWriter.kind).toBe(TypeStructureKind.Mapped);
   });
 
-  it("TypeArgumentedTypeStructureImpl", () => {
+  it("TypeArgumentedTypedStructureImpl", () => {
     const typedWriter = new TypeArgumentedTypedStructureImpl(fooTyped);
     typedWriter.elements.push(stringBarTyped, nstTyped);
     typedWriter.writerFunction(writer);
@@ -352,5 +351,40 @@ describe("TypeStructure for ts-morph: ", () => {
         () => FunctionTypedStructureImpl.clone(typedWriter)
       ).not.toBe(typedWriter);
     });
+  });
+
+  it("TemplateLiteralTypedStructureImpl", () => {
+    const AB = new UnionTypedStructureImpl;
+    AB.elements = [new StringTypedStructureImpl("A"), new StringTypedStructureImpl("B")];
+
+    const CD = new UnionTypedStructureImpl;
+    CD.elements = [new StringTypedStructureImpl("C"), new StringTypedStructureImpl("D")];
+
+    const typedWriter = new TemplateLiteralTypedStructureImpl([
+      "one", AB, "two", CD, "three"
+    ]);
+
+    typedWriter.writerFunction(writer);
+    expect<string>(writer.toString()).toBe('`one${"A" | "B"}two${"C" | "D"}three`');
+
+    expect(typedWriter.kind).toBe(TypeStructureKind.TemplateLiteral);
+  });
+
+  it("ObjectLiteralTypedStructureImpl", () => {
+    const typedWriter = new ObjectLiteralTypedStructureImpl;
+
+    const fooMethod = new MethodSignatureImpl("foo");
+    typedWriter.methods.push(fooMethod);
+
+    const param = new ParameterDeclarationImpl("firstArg");
+    fooMethod.parameters.push(param);
+    param.type = "string";
+
+    fooMethod.returnTypeStructure = new LiteralTypedStructureImpl("void");
+
+    typedWriter.writerFunction(writer);
+    expect<string>(writer.toString()).toBe(`{\n  foo(firstArg: string): void;\n}`);
+
+    expect(typedWriter.kind).toBe(TypeStructureKind.ObjectLiteral);
   });
 });

@@ -68,3 +68,9 @@ export {
   NumberString,
   foo
 };
+
+export type MappedTypeExample = {
+  [key in "one" | "two"]: boolean;
+}
+
+export type TemplateLiteralExample = `one${"A" | "B"}two${"C" | "D"}three${"E" | "F"}`;
