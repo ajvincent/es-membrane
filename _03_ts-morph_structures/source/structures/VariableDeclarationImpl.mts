@@ -21,7 +21,7 @@ import TypedNode, {
 } from "../decorators/TypedNode.mjs";
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
-import StructureBase from "../decorators/StructureBase.mjs";
+import StructureBase from "../base/StructureBase.mjs";
 import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";

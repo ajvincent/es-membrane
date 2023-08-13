@@ -14,7 +14,7 @@ import type {
   SubclassDecorator
 } from "#mixin_decorators/source/types/SubclassDecorator.mjs";
 
-import StructureBase from "./StructureBase.mjs";
+import StructureBase from "../base/StructureBase.mjs";
 
 import type {
   MixinClass

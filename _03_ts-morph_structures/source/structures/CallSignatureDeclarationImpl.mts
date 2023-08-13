@@ -4,7 +4,7 @@ import {
   StructureKind,
 } from "ts-morph";
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
-import StructureBase from "../decorators/StructureBase.mjs";
+import StructureBase from "../base/StructureBase.mjs";
 
 import KindedStructure, {
   type KindedStructureFields

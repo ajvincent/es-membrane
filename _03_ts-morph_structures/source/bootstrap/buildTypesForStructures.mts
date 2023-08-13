@@ -11,7 +11,7 @@ import {
   TypeNodeToTypeStructure, TypeNodeToTypeStructureConsole,
 } from "../types/TypeNodeToTypeStructure.mjs";
 
-import StructureBase from "../decorators/StructureBase.mjs";
+import StructureBase from "../base/StructureBase.mjs";
 
 import {
   ClassDeclarationImpl,

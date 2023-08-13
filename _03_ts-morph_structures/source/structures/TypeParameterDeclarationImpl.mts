@@ -12,7 +12,7 @@ import {
 } from "ts-morph";
 
 import { CloneableStructure } from "../types/CloneableStructure.mjs";
-import StructureBase from "../decorators/StructureBase.mjs";
+import StructureBase from "../base/StructureBase.mjs";
 
 import TypeWriterManager from "../base/TypeWriterManager.mjs";
 import { TypeStructure } from "../typeStructures/TypeStructure.mjs";

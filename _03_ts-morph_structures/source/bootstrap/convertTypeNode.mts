@@ -59,7 +59,7 @@ import {
 import type {
   NodeWithStructures
 } from "./structureToNodeMap.mjs";
-import StructureBase from "../decorators/StructureBase.mjs";
+import StructureBase from "../base/StructureBase.mjs";
 
 // #endregion preamble
 

@@ -3,7 +3,7 @@ import {
 } from "ts-morph";
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
-import StructureBase from "#ts-morph_structures/source/decorators/StructureBase.mjs";
+import StructureBase from "#ts-morph_structures/source/base/StructureBase.mjs";
 
 import TypeElementMemberedNode, {
   type TypeElementMemberedNodeStructureFields

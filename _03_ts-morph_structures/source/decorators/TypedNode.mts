@@ -9,7 +9,7 @@ import {
   TypeStructure
 } from "../typeStructures/TypeStructure.mjs";
 
-import StructureBase from "./StructureBase.mjs";
+import StructureBase from "../base/StructureBase.mjs";
 
 import type {
   RightExtendsLeft

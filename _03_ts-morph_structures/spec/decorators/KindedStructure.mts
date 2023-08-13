@@ -7,7 +7,7 @@ import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import KindedStructure, {
   type KindedStructureFields
 } from "#ts-morph_structures/source/decorators/KindedStructure.mjs";
-import StructureBase from "#ts-morph_structures/source/decorators/StructureBase.mjs";
+import StructureBase from "#ts-morph_structures/source/base/StructureBase.mjs";
 
 it("ts-morph structure decorators: KindedStructure", () => {
   const Foo = MultiMixinBuilder<[
