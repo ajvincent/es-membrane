@@ -6,6 +6,7 @@ import {
   MethodSignatureStructure,
   OptionalKind,
   PropertySignatureStructure,
+  StructureKind,
   Writers,
 } from "ts-morph";
 
@@ -14,6 +15,7 @@ import {
   ConstructSignatureDeclarationImpl,
   IndexSignatureDeclarationImpl,
   MethodSignatureImpl,
+  type ObjectLiteralAppendables,
   type ObjectLiteralTypedStructure,
   PropertySignatureImpl,
   TypeStructureKind,
@@ -43,8 +45,46 @@ implements ObjectLiteralTypedStructure
   readonly methods: MethodSignatureImpl[] = [];
   readonly properties: PropertySignatureImpl[] = [];
 
-  constructor() {
+  constructor(members: ObjectLiteralAppendables = []) {
+    this.appendStructures(members);
     registerCallbackForTypeStructure(this);
+  }
+
+  appendStructures(
+    structuresContext: ObjectLiteralAppendables
+  ): this
+  {
+    if (!Array.isArray(structuresContext)) {
+      structuresContext = [
+        ...structuresContext?.callSignatures ?? [],
+        ...structuresContext?.constructSignatures ?? [],
+        ...structuresContext?.indexSignatures ?? [],
+        ...structuresContext?.methods ?? [],
+        ...structuresContext?.properties ?? [],
+      ];
+    }
+
+    structuresContext.forEach(structure => {
+      switch (structure.kind) {
+        case StructureKind.CallSignature:
+          this.callSignatures.push(structure);
+          return;
+        case StructureKind.ConstructSignature:
+          this.constructSignatures.push(structure);
+          return;
+        case StructureKind.IndexSignature:
+          this.indexSignatures.push(structure);
+          return;
+        case StructureKind.MethodSignature:
+          this.methods.push(structure);
+          return;
+        case StructureKind.PropertySignature:
+          this.properties.push(structure);
+          return;
+      }
+    });
+
+    return this;
   }
 
   writerFunction(

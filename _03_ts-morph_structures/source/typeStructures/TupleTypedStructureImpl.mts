@@ -1,7 +1,7 @@
 import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
 
 import {
-  TupleTypedStructure
+  TupleTypedStructure, TypeStructures
 } from "./TypeStructures.mjs";
 
 import {
@@ -25,11 +25,11 @@ implements TupleTypedStructure
     other: TupleTypedStructure
   ): TupleTypedStructureImpl
   {
-    const rv = new TupleTypedStructureImpl;
-    rv.elements = other.elements.map(
-      typeStructure => TypeStructureClassesMap.get(typeStructure.kind)!.clone(typeStructure)
+    return new TupleTypedStructureImpl(
+      other.elements.map(
+        typeStructure => TypeStructureClassesMap.get(typeStructure.kind)!.clone(typeStructure)
+      )
     );
-    return rv;
   }
 
   readonly kind: TypeStructureKind.Tuple = TypeStructureKind.Tuple;
@@ -38,10 +38,21 @@ implements TupleTypedStructure
   public readonly postfix = "]";
   public readonly joinCharacters = ", ";
 
-  constructor()
+  constructor(
+    elements: TypeStructures[] = [],
+  )
   {
     super();
+    this.appendStructures(elements);
     registerCallbackForTypeStructure(this);
+  }
+
+  appendStructures(
+    structuresContext: TypeStructures[]
+  ): this
+  {
+    this.elements.push(...structuresContext);
+    return this;
   }
 }
 TupleTypedStructureImpl satisfies CloneableStructure<TupleTypedStructure>;

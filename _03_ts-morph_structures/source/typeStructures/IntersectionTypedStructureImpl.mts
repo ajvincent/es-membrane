@@ -1,5 +1,5 @@
 import type {
-  IntersectionTypedStructure
+  IntersectionTypedStructure, TypeStructures
 } from "./TypeStructures.mjs";
 
 import {
@@ -25,11 +25,11 @@ implements IntersectionTypedStructure
     other: IntersectionTypedStructure
   ): IntersectionTypedStructureImpl
   {
-    const rv = new IntersectionTypedStructureImpl();
-    rv.elements = other.elements.map(
-      typeStructure => TypeStructureClassesMap.get(typeStructure.kind)!.clone(typeStructure)
+    return new IntersectionTypedStructureImpl(
+      other.elements.map(
+        typeStructure => TypeStructureClassesMap.get(typeStructure.kind)!.clone(typeStructure)
+      )
     );
-    return rv;
   }
 
   public readonly kind: TypeStructureKind.Intersection = TypeStructureKind.Intersection;
@@ -38,9 +38,21 @@ implements IntersectionTypedStructure
   public readonly postfix = "";
   public readonly joinCharacters = " & ";
 
-  constructor() {
+  constructor(
+    elements: TypeStructures[] = [],
+  )
+  {
     super();
+    this.appendStructures(elements);
     registerCallbackForTypeStructure(this);
+  }
+
+  appendStructures(
+    structuresContext: TypeStructures[]
+  ): this
+  {
+    this.elements.push(...structuresContext);
+    return this;
   }
 }
 IntersectionTypedStructureImpl satisfies CloneableStructure<IntersectionTypedStructure>;

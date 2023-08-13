@@ -1,4 +1,5 @@
 import type {
+  TypeStructures,
   UnionTypedStructure
 } from "./TypeStructures.mjs";
 
@@ -25,11 +26,11 @@ implements UnionTypedStructure
     other: UnionTypedStructure
   ): UnionTypedStructure
   {
-    const rv = new UnionTypedStructureImpl();
-    rv.elements = other.elements.map(
-      typeStructure => TypeStructureClassesMap.get(typeStructure.kind)!.clone(typeStructure)
+    return new UnionTypedStructureImpl(
+      other.elements.map(
+        typeStructure => TypeStructureClassesMap.get(typeStructure.kind)!.clone(typeStructure)
+      )
     );
-    return rv;
   }
 
   public readonly kind: TypeStructureKind.Union = TypeStructureKind.Union;
@@ -38,9 +39,21 @@ implements UnionTypedStructure
   public readonly postfix = "";
   public readonly joinCharacters = " | ";
 
-  constructor() {
+  constructor(
+    elements: TypeStructures[] = []
+  )
+  {
     super();
+    this.appendStructures(elements);
     registerCallbackForTypeStructure(this);
+  }
+
+  appendStructures(
+    structuresContext: TypeStructures[]
+  ): this
+  {
+    this.elements.push(...structuresContext);
+    return this;
   }
 }
 UnionTypedStructureImpl satisfies CloneableStructure<UnionTypedStructure>;

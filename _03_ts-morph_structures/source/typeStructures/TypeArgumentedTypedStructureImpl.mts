@@ -30,13 +30,12 @@ implements TypeArgumentedTypedStructure
     other: TypeArgumentedTypedStructure
   ): TypeArgumentedTypedStructureImpl
   {
-    const rv = new TypeArgumentedTypedStructureImpl(
-      TypeStructureClassesMap.get(other.kind)!.clone(other)
+    return new TypeArgumentedTypedStructureImpl(
+      TypeStructureClassesMap.get(other.kind)!.clone(other),
+      other.elements.map(
+        typeStructure => TypeStructureClassesMap.get(typeStructure.kind)!.clone(typeStructure)
+      ),
     );
-    rv.elements = other.elements.map(
-      typeStructure => TypeStructureClassesMap.get(typeStructure.kind)!.clone(typeStructure)
-    );
-    return rv;
   }
 
   public readonly prefix = "<";
@@ -46,12 +45,24 @@ implements TypeArgumentedTypedStructure
 
   objectType: TypeStructures;
 
-  constructor(objectType: TypeStructures)
+  constructor(
+    objectType: TypeStructures,
+    elements: TypeStructures[] = []
+  )
   {
     super();
     this.objectType = objectType;
+    this.appendStructures(elements);
 
     registerCallbackForTypeStructure(this);
+  }
+
+  appendStructures(
+    structuresContext: TypeStructures[]
+  ): this
+  {
+    this.elements.push(...structuresContext);
+    return this;
   }
 
   protected writeTypeStructures(

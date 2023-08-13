@@ -11,7 +11,16 @@ import type {
   TypeStructureKind,
 } from "../base/TypeStructureKind.mjs";
 
+import type {
+  AppendableStructure
+} from "../types/AppendableStructure.mjs";
+
 import {
+  CallSignatureDeclarationImpl,
+  ConstructSignatureDeclarationImpl,
+  IndexSignatureDeclarationImpl,
+  MethodSignatureImpl,
+  PropertySignatureImpl,
   TypeParameterDeclarationImpl,
 } from "../../exports.mjs";
 
@@ -72,13 +81,16 @@ export type PrefixOperatorsTypedStructure = Simplify<
 >;
 
 export type UnionTypedStructure = Simplify<
-  TypedStructureWithElements<TypeStructureKind.Union>
+  TypedStructureWithElements<TypeStructureKind.Union> &
+  AppendableStructure<TypeStructures[]>
 >;
 export type IntersectionTypedStructure = Simplify<
-  TypedStructureWithElements<TypeStructureKind.Intersection>
+  TypedStructureWithElements<TypeStructureKind.Intersection> &
+  AppendableStructure<TypeStructures[]>
 >;
 export type TupleTypedStructure = Simplify<
-  TypedStructureWithElements<TypeStructureKind.Tuple>
+  TypedStructureWithElements<TypeStructureKind.Tuple> &
+  AppendableStructure<TypeStructures[]>
 >;
 
 export type ArrayTypedStructure = Simplify<
@@ -123,7 +135,8 @@ export type MappedTypeTypedStructure = Simplify<
 
 export type TypeArgumentedTypedStructure = Simplify<
   TypedStructureWithObjectType &
-  TypedStructureWithElements<TypeStructureKind.TypeArgumented>
+  TypedStructureWithElements<TypeStructureKind.TypeArgumented> &
+  AppendableStructure<TypeStructures[]>
 >;
 
 export enum FunctionWriterStyle {
@@ -136,6 +149,7 @@ export enum FunctionWriterStyle {
 export interface FunctionTypeContext {
   name: string | undefined;
   isConstructor: boolean,
+  // useful for constraintStructure, defaultStructure
   typeParameters: TypeParameterDeclarationImpl[];
   parameters: ParameterTypedStructure[];
   restParameter: ParameterTypedStructure | undefined;
@@ -167,9 +181,27 @@ export type TemplateLiteralTypedStructure = Simplify<
   TemplateLiteralTypedStructureFields
 >;
 
+export type ObjectLiteralAppendables = (
+  (
+    CallSignatureDeclarationImpl |
+    ConstructSignatureDeclarationImpl |
+    IndexSignatureDeclarationImpl |
+    MethodSignatureImpl |
+    PropertySignatureImpl
+  )[] |
+  {
+    callSignatures?: CallSignatureDeclarationImpl[],
+    constructSignatures?: ConstructSignatureDeclarationImpl[],
+    indexSignatures?: IndexSignatureDeclarationImpl[],
+    methods?: MethodSignatureImpl[],
+    properties?: PropertySignatureImpl[],
+  }
+);
+
 export type ObjectLiteralTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.ObjectLiteral> &
-  TypeElementMemberedNodeStructure
+  TypeElementMemberedNodeStructure &
+  AppendableStructure<ObjectLiteralAppendables>
 >;
 
 export type TypeStructures = (
