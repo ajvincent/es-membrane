@@ -76,7 +76,7 @@ const A: string;
   {
     declaration.setType(rawType);
     const typeNode = declaration.getTypeNodeOrThrow();
-    structure = convertTypeNode(typeNode, console);
+    structure = convertTypeNode(typeNode, console, node => node.getStructure());
   }
 
   it("any", () => {

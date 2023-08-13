@@ -8,6 +8,7 @@ import {
 } from "#ts-morph_structures/exports.mjs";
 
 import buildTypesForStructures from "#ts-morph_structures/source/bootstrap/buildTypesForStructures.mjs";
+import { NodeWithStructures } from "#ts-morph_structures/source/bootstrap/structureToNodeMap.mjs";
 import type {
   TypeNodeToTypeStructureConsole
 } from "#ts-morph_structures/source/types/TypeNodeToTypeStructure.mjs";
@@ -75,12 +76,17 @@ describe("buildTypesForStructures applies a type node converter for each structu
 
     const literal = new LiteralTypedStructureImpl("string");
 
-    const failures = buildTypesForStructures(map, failCallback, (typeNode, failCallback) => {
-      if (typeNode === variableWithType.getTypeNode())
-        return literal;
-      failCallback("uh oh", typeNode);
-      return null;
-    });
+    const failures = buildTypesForStructures(
+      map,
+      failCallback,
+      (node: NodeWithStructures) => node.getStructure(),
+      (typeNode, failCallback) => {
+        if (typeNode === variableWithType.getTypeNode())
+          return literal;
+        failCallback("uh oh", typeNode);
+        return null;
+      }
+    );
 
     expect(structure.typeStructure).toBe(literal);
     expect(failMessage).toBe(undefined);
@@ -117,12 +123,17 @@ describe("buildTypesForStructures applies a type node converter for each structu
 
     const literal = new LiteralTypedStructureImpl("boolean");
 
-    const failures = buildTypesForStructures(map, failCallback, (typeNode, failCallback) => {
-      if (typeNode === foo.getReturnTypeNodeOrThrow())
-        return literal;
-      failCallback("uh oh", typeNode);
-      return null;
-    });
+    const failures = buildTypesForStructures(
+      map,
+      failCallback,
+      (node: NodeWithStructures) => node.getStructure(),
+      (typeNode, failCallback) => {
+        if (typeNode === foo.getReturnTypeNodeOrThrow())
+          return literal;
+        failCallback("uh oh", typeNode);
+        return null;
+      }
+    );
 
     expect(structure.returnTypeStructure).toBe(literal);
     expect(failMessage).toBe(undefined);
@@ -155,14 +166,19 @@ describe("buildTypesForStructures applies a type node converter for each structu
     const numberLiteral = new LiteralTypedStructureImpl("number");
     const oneLiteral = new LiteralTypedStructureImpl("one");
 
-    const failures = buildTypesForStructures(map, failCallback, (typeNode, failCallback) => {
-      if (typeNode === NumberTypeNode.getConstraintOrThrow())
-        return numberLiteral;
-      if (typeNode === NumberTypeNode.getDefaultOrThrow())
-        return oneLiteral;
-      failCallback("uh oh", typeNode);
-      return null;
-    });
+    const failures = buildTypesForStructures(
+      map,
+      failCallback,
+      (node: NodeWithStructures) => node.getStructure(),
+      (typeNode, failCallback) => {
+        if (typeNode === NumberTypeNode.getConstraintOrThrow())
+          return numberLiteral;
+        if (typeNode === NumberTypeNode.getDefaultOrThrow())
+          return oneLiteral;
+        failCallback("uh oh", typeNode);
+        return null;
+      }
+    );
 
     expect(structure.constraintStructure).toBe(numberLiteral);
     expect(structure.defaultStructure).toBe(oneLiteral);
@@ -193,26 +209,31 @@ describe("buildTypesForStructures applies a type node converter for each structu
     const NS_Type = new LiteralTypedStructureImpl("NumberStringType");
     const Foo = new LiteralTypedStructureImpl("Foo");
 
-    const failures = buildTypesForStructures(map, failCallback, (typeNode, failCallback) => {
-      if (!Node.isExpressionWithTypeArguments(typeNode)) {
-        failCallback("Not an extends or implements node?", typeNode);
+    const failures = buildTypesForStructures(
+      map,
+      failCallback,
+      (node: NodeWithStructures) => node.getStructure(),
+      (typeNode, failCallback) => {
+        if (!Node.isExpressionWithTypeArguments(typeNode)) {
+          failCallback("Not an extends or implements node?", typeNode);
+          return null;
+        }
+
+        const text = typeNode.getText();
+
+        if (text === "BaseClass")
+          return BaseClass;
+
+        if (text === "NumberStringType")
+          return NS_Type;
+
+        if (text === "Foo")
+          return Foo;
+
+        failCallback("uh oh", typeNode);
         return null;
       }
-
-      const text = typeNode.getText();
-
-      if (text === "BaseClass")
-        return BaseClass;
-
-      if (text === "NumberStringType")
-        return NS_Type;
-
-      if (text === "Foo")
-        return Foo;
-
-      failCallback("uh oh", typeNode);
-      return null;
-    });
+    );
 
     expect(structure.extendsStructure).toBe(BaseClass);
 
@@ -245,23 +266,28 @@ describe("buildTypesForStructures applies a type node converter for each structu
     const NS_Type = new LiteralTypedStructureImpl("NumberStringClass");
     const Foo = new LiteralTypedStructureImpl("Foo");
 
-    const failures = buildTypesForStructures(map, failCallback, (typeNode, failCallback) => {
-      if (!Node.isExpressionWithTypeArguments(typeNode)) {
-        failCallback("Not an extends or implements node?", typeNode);
+    const failures = buildTypesForStructures(
+      map,
+      failCallback,
+      (node: NodeWithStructures) => node.getStructure(),
+      (typeNode, failCallback) => {
+        if (!Node.isExpressionWithTypeArguments(typeNode)) {
+          failCallback("Not an extends or implements node?", typeNode);
+          return null;
+        }
+
+        const text = typeNode.getText();
+
+        if (text === "NumberStringClass")
+          return NS_Type;
+
+        if (text === "Foo")
+          return Foo;
+
+        failCallback("uh oh", typeNode);
         return null;
       }
-
-      const text = typeNode.getText();
-
-      if (text === "NumberStringClass")
-        return NS_Type;
-
-      if (text === "Foo")
-        return Foo;
-
-      failCallback("uh oh", typeNode);
-      return null;
-    });
+    );
 
     expect(structure.extendsSet.size).toBe(2);
     expect(structure.extendsSet.has(NS_Type)).toBe(true);
@@ -286,10 +312,15 @@ describe("buildTypesForStructures applies a type node converter for each structu
       [structure, variableWithType]
     ]);
 
-    const failures = buildTypesForStructures(map, failCallback, (typeNode, failCallback) => {
-      failCallback("uh oh", typeNode);
-      return null;
-    });
+    const failures = buildTypesForStructures(
+      map,
+      failCallback,
+      (node: NodeWithStructures) => node.getStructure(),
+      (typeNode, failCallback) => {
+        failCallback("uh oh", typeNode);
+        return null;
+      }
+    );
 
     expect(structure.typeStructure).toBe(undefined);
     expect(structure.type).toBe(undefined);
@@ -318,29 +349,34 @@ describe("buildTypesForStructures applies a type node converter for each structu
 
     const NS_Type = new LiteralTypedStructureImpl("NumberStringType");
 
-    const failures = buildTypesForStructures(map, failCallback, (typeNode, failCallback) => {
-      if (!Node.isExpressionWithTypeArguments(typeNode)) {
-        failCallback("Not an implements node?", typeNode);
+    const failures = buildTypesForStructures(
+      map,
+      failCallback,
+      (node: NodeWithStructures) => node.getStructure(),
+      (typeNode, failCallback) => {
+        if (!Node.isExpressionWithTypeArguments(typeNode)) {
+          failCallback("Not an implements node?", typeNode);
+          return null;
+        }
+
+        const text = typeNode.getText();
+        if (text === "NumberStringType")
+          return NS_Type;
+
+        if (text === "Foo") {
+          failCallback("fail: Foo", typeNode);
+          return null;
+        }
+
+        if (text === "Bar") {
+          failCallback("fail: Bar", typeNode);
+          return null;
+        }
+
+        failCallback("uh oh", typeNode);
         return null;
       }
-
-      const text = typeNode.getText();
-      if (text === "NumberStringType")
-        return NS_Type;
-
-      if (text === "Foo") {
-        failCallback("fail: Foo", typeNode);
-        return null;
-      }
-
-      if (text === "Bar") {
-        failCallback("fail: Bar", typeNode);
-        return null;
-      }
-
-      failCallback("uh oh", typeNode);
-      return null;
-    });
+    );
 
     expect(structure.implementsSet.size).toBe(1);
     expect(structure.implementsSet.has(NS_Type)).toBe(true);

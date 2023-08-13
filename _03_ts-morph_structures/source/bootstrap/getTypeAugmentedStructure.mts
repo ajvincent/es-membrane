@@ -46,7 +46,16 @@ export default function getTypeAugmentedStructure(
     throw new Error("assertion failure, we should have a root structure");
   }
 
-  const failures = buildTypesForStructures(map, userConsole, convertTypeNode);
+  const failures = buildTypesForStructures(
+    map,
+    userConsole,
+    nodeWithStructure => {
+      const subStructureResults = getTypeAugmentedStructure(nodeWithStructure, userConsole);
+      failures.push(...subStructureResults.failures);
+      return subStructureResults.rootStructure;
+    },
+    convertTypeNode
+  );
 
   return {
     rootStructure,

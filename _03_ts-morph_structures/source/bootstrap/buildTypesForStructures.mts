@@ -21,6 +21,7 @@ import {
   TypeStructure,
   TypedNodeTypeStructure,
 } from "../../exports.mjs";
+import { NodeWithStructures } from "./structureToNodeMap.mjs";
 
 // #endregion preamble
 
@@ -39,6 +40,7 @@ export interface BuildTypesForStructureFailures {
 export default function buildTypesForStructures(
   structureMap: ReadonlyMap<Structures, Node>,
   userConsole: (message: string, failingTypeNode: TypeNode) => void,
+  subStructureResolver: (node: NodeWithStructures) => Structures,
   converter: TypeNodeToTypeStructure
 ): BuildTypesForStructureFailures[]
 {
@@ -67,6 +69,7 @@ export default function buildTypesForStructures(
         runConversion(
           node.getTypeNode(),
           consoleTrap,
+          subStructureResolver,
           converter,
           typeStructure => (
             structure as unknown as TypedNodeTypeStructure
@@ -95,6 +98,7 @@ export default function buildTypesForStructures(
         runConversion(
           node.getReturnTypeNode(),
           consoleTrap,
+          subStructureResolver,
           converter,
           typeStructure => (
             structure as unknown as ReturnTypedNodeTypeStructure
@@ -111,6 +115,7 @@ export default function buildTypesForStructures(
         runConversion(
           node.getConstraint(),
           consoleTrap,
+          subStructureResolver,
           converter,
           typeStructure => (
             structure as unknown as TypeParameterWithTypeStructures
@@ -120,6 +125,7 @@ export default function buildTypesForStructures(
         runConversion(
           node.getDefault(),
           consoleTrap,
+          subStructureResolver,
           converter,
           typeStructure => (
             structure as unknown as TypeParameterWithTypeStructures
@@ -140,6 +146,7 @@ export default function buildTypesForStructures(
         runConversion(
           node.getExtends(),
           consoleTrap,
+          subStructureResolver,
           converter,
           typeStructure => {
             structure.extendsStructure = typeStructure
@@ -152,6 +159,7 @@ export default function buildTypesForStructures(
           runConversion(
             implementsTypeNode,
             consoleTrap,
+            subStructureResolver,
             converter,
             typeStructure => _implementsArray.push(typeStructure)
           );
@@ -177,6 +185,7 @@ export default function buildTypesForStructures(
           runConversion(
             extendsTypeNode,
             consoleTrap,
+            subStructureResolver,
             converter,
             typeStructure => _extendsArray.push(typeStructure)
           )
@@ -204,13 +213,14 @@ export default function buildTypesForStructures(
 function runConversion(
   typeNode: TypeNode | undefined,
   consoleTrap: TypeNodeToTypeStructureConsole,
+  subStructureResolver: (node: NodeWithStructures) => Structures,
   converter: TypeNodeToTypeStructure,
   callback: (typeStructure: TypeStructure) => void
 ): void
 {
   if (!typeNode)
     return;
-  const typeStructure = converter(typeNode, consoleTrap);
+  const typeStructure = converter(typeNode, consoleTrap, subStructureResolver);
   if (typeStructure)
     callback(typeStructure);
 }
