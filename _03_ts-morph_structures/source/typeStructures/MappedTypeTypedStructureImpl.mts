@@ -6,7 +6,7 @@ import type {
 import {
   MappedTypeTypedStructure,
   TypeParameterDeclarationImpl,
-  TypeStructure,
+  TypeStructures,
   TypeStructureClassesMap,
   TypeStructureKind,
 } from "../../exports.mjs";
@@ -30,9 +30,9 @@ implements MappedTypeTypedStructure
 
   readonlyToken: "+readonly" | "-readonly" | "readonly" | undefined;
   parameter: TypeParameterDeclarationImpl;
-  asName: TypeStructure | undefined = undefined;
+  asName: TypeStructures | undefined = undefined;
   questionToken: "+?" | "-?" | "?" | undefined;
-  type: TypeStructure | undefined;
+  type: TypeStructures | undefined;
 
   constructor(
     parameter: TypeParameterDeclarationImpl,

@@ -36,7 +36,7 @@ import {
   TupleTypedStructureImpl,
   TypeArgumentedTypedStructureImpl,
   TypeParameterDeclarationImpl,
-  type TypeStructure,
+  type TypeStructures,
   UnionTypedStructureImpl,
   TemplateLiteralTypedStructureImpl,
   ObjectLiteralTypedStructureImpl,
@@ -83,7 +83,7 @@ export default function convertTypeNode(
   typeNode: TypeNode,
   conversionFailCallback: TypeNodeToTypeStructureConsole,
   subStructureResolver: (node: NodeWithStructures) => Structures,
-): TypeStructure | null
+): TypeStructures | null
 {
   if (Node.isLiteralTypeNode(typeNode)) {
     typeNode = typeNode.getFirstChildOrThrow()
@@ -173,7 +173,7 @@ export default function convertTypeNode(
   }
 
   let childTypeNodes: TypeNode[] = [],
-      parentStructure: (TypeStructure & TypeStructureWithElements) | undefined = undefined;
+      parentStructure: (TypeStructures & TypeStructureWithElements) | undefined = undefined;
   if (Node.isUnionTypeNode(typeNode)) {
     parentStructure = new UnionTypedStructureImpl;
     childTypeNodes = typeNode.getTypeNodes();
@@ -261,7 +261,7 @@ function convertTypeOperatorNode(
 
 function prependPrefixOperator(
   operator: PrefixUnaryOperator,
-  typeStructure: TypeStructure
+  typeStructure: TypeStructures
 ): PrefixOperatorsTypedStructureImpl
 {
   if (typeStructure instanceof PrefixOperatorsTypedStructureImpl) {
@@ -276,7 +276,7 @@ function prependPrefixOperator(
 
 function convertAndAppendChildTypes(
   childTypeNodes: readonly TypeNode[],
-  elements: TypeStructure[],
+  elements: TypeStructures[],
   conversionFailCallback: TypeNodeToTypeStructureConsole,
   subStructureResolver: (node: NodeWithStructures) => Structures,
 ): boolean
@@ -298,25 +298,25 @@ function convertConditionalTypeNode(
   subStructureResolver: (node: NodeWithStructures) => Structures,
 ): ConditionalTypedStructureImpl | null
 {
-  const checkType: TypeStructure | null = convertTypeNode(
+  const checkType: TypeStructures | null = convertTypeNode(
     condition.getCheckType(), conversionFailCallback, subStructureResolver,
   );
   if (!checkType)
     return null;
 
-  const extendsType: TypeStructure | null = convertTypeNode(
+  const extendsType: TypeStructures | null = convertTypeNode(
     condition.getExtendsType(), conversionFailCallback, subStructureResolver
   );
   if (!extendsType)
     return null;
 
-  const trueType: TypeStructure | null = convertTypeNode(
+  const trueType: TypeStructures | null = convertTypeNode(
     condition.getTrueType(), conversionFailCallback, subStructureResolver
   );
   if (!trueType)
     return null;
 
-  const falseType: TypeStructure | null = convertTypeNode(
+  const falseType: TypeStructures | null = convertTypeNode(
     condition.getFalseType(), conversionFailCallback, subStructureResolver
   );
   if (!falseType)
@@ -370,7 +370,7 @@ function convertFunctionTypeNode(
   );
 
   const returnTypeNode = typeNode.getReturnTypeNode();
-  let returnTypeStructure: TypeStructure | undefined = undefined;
+  let returnTypeStructure: TypeStructures | undefined = undefined;
   if (returnTypeNode) {
     returnTypeStructure = convertTypeNode(returnTypeNode, conversionFailCallback, subStructureResolver) ?? undefined;
   }
@@ -410,7 +410,7 @@ function convertParameterTypeNode(
 ): ParameterTypedStructureImpl
 {
   const paramTypeNode = node.getTypeNode();
-  let paramTypeStructure: TypeStructure | null = null;
+  let paramTypeStructure: TypeStructures | null = null;
   if (paramTypeNode) {
     paramTypeStructure = convertTypeNode(
       paramTypeNode, conversionFailCallback, subStructureResolver
@@ -441,7 +441,7 @@ function convertMappedTypeNode(
   const mappedStructure = new MappedTypeTypedStructureImpl(parameterStructure);
 
   {
-    let nameStructure: TypeStructure | undefined = undefined;
+    let nameStructure: TypeStructures | undefined = undefined;
     const nameTypeNode = mappedTypeNode.getNameTypeNode();
     if (nameTypeNode) {
       nameStructure = convertTypeNode(nameTypeNode, conversionFailCallback, subStructureResolver) ?? undefined;
@@ -452,7 +452,7 @@ function convertMappedTypeNode(
   }
 
   {
-    let typeStructure: TypeStructure | undefined = undefined;
+    let typeStructure: TypeStructures | undefined = undefined;
     const typeNode = mappedTypeNode.getTypeNode();
     if (typeNode) {
       typeStructure = convertTypeNode(typeNode, conversionFailCallback, subStructureResolver) ?? undefined;
@@ -494,7 +494,7 @@ function convertTemplateLiteralTypeNode(
   subStructureResolver: (node: NodeWithStructures) => Structures,
 ): TemplateLiteralTypedStructureImpl | null
 {
-  const elements: (string | TypeStructure)[] = [];
+  const elements: (string | TypeStructures)[] = [];
   {
     const headText = templateNode.getHead().getLiteralText();
     if (headText)

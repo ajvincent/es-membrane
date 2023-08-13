@@ -1,6 +1,6 @@
 import type {
   UnionTypedStructure
-} from "./TypeStructure.mjs";
+} from "./TypeStructures.mjs";
 
 import {
   TypeStructureKind,

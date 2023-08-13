@@ -66,7 +66,7 @@ import type {
 } from "../typeStructures/TypeAndTypeStructureInterfaces.mjs";
 
 import TypeWriterManager from "../base/TypeWriterManager.mjs";
-import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
+import { TypeStructures } from "../typeStructures/TypeStructures.mjs";
 
 // #endregion preamble
 
@@ -127,13 +127,13 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
     this.#extendsTypeManager.type = value;
   }
 
-  get extendsStructure(): TypeStructure | undefined
+  get extendsStructure(): TypeStructures | undefined
   {
     return this.#extendsTypeManager.typeStructure;
   }
 
   set extendsStructure(
-    value: TypeStructure
+    value: TypeStructures
   )
   {
     this.#extendsTypeManager.typeStructure = value;

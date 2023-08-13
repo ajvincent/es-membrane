@@ -8,8 +8,8 @@ import {
   FunctionTypedStructure,
   FunctionWriterStyle,
   ParameterTypedStructure,
-  TypeStructure
-} from "./TypeStructure.mjs";
+  TypeStructures
+} from "./TypeStructures.mjs";
 
 import {
   registerCallbackForTypeStructure
@@ -57,7 +57,7 @@ implements FunctionTypedStructure
   typeParameters: TypeParameterDeclarationImpl[];
   parameters: ParameterTypedStructure[];
   restParameter: ParameterTypedStructure | undefined;
-  returnType: TypeStructure | undefined;
+  returnType: TypeStructures | undefined;
   writerStyle: FunctionWriterStyle = FunctionWriterStyle.Arrow;
 
   constructor(

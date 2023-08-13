@@ -1,5 +1,5 @@
 import { WriterFunction } from "ts-morph";
-import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
+import { TypeStructures } from "../typeStructures/TypeStructures.mjs";
 import { getTypeStructureForCallback } from "./callbackToTypeStructureRegistry.mjs";
 import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
 
@@ -9,10 +9,10 @@ import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
  * where direct array access is troublesome.
  */
 export default class TypeWriterSet
-extends Set<stringOrWriterFunction | TypeStructure>
+extends Set<stringOrWriterFunction | TypeStructures>
 {
   static #getStringOrWriterFunction(
-    value: stringOrWriterFunction | TypeStructure
+    value: stringOrWriterFunction | TypeStructures
   ): stringOrWriterFunction
   {
     if ((typeof value === "string") || (typeof value === "function"))
@@ -22,7 +22,7 @@ extends Set<stringOrWriterFunction | TypeStructure>
 
   static #getTypeWriterIfAvailable(
     value: WriterFunction
-  ): WriterFunction | TypeStructure
+  ): WriterFunction | TypeStructures
   {
     return getTypeStructureForCallback(value) ?? value;
   }
@@ -35,7 +35,7 @@ extends Set<stringOrWriterFunction | TypeStructure>
   constructor(backingArray: stringOrWriterFunction[]) {
     super();
     this.#backingArray = backingArray;
-    backingArray.forEach((value: stringOrWriterFunction | TypeStructure) => {
+    backingArray.forEach((value: stringOrWriterFunction | TypeStructures) => {
       if (typeof value === "function") {
         value = TypeWriterSet.#getTypeWriterIfAvailable(value) ?? value;
       }
@@ -43,7 +43,7 @@ extends Set<stringOrWriterFunction | TypeStructure>
     });
   }
 
-  add(value: stringOrWriterFunction | TypeStructure): this
+  add(value: stringOrWriterFunction | TypeStructures): this
   {
     if (typeof value === "function") {
       value = TypeWriterSet.#getTypeWriterIfAvailable(value);
@@ -61,7 +61,7 @@ extends Set<stringOrWriterFunction | TypeStructure>
     return super.clear();
   }
 
-  has(value: stringOrWriterFunction | TypeStructure): boolean {
+  has(value: stringOrWriterFunction | TypeStructures): boolean {
     if (typeof value === "function") {
       value = TypeWriterSet.#getTypeWriterIfAvailable(value);
     }
@@ -69,7 +69,7 @@ extends Set<stringOrWriterFunction | TypeStructure>
     return super.has(value);
   }
 
-  delete(value: stringOrWriterFunction | TypeStructure): boolean {
+  delete(value: stringOrWriterFunction | TypeStructures): boolean {
     if (typeof value === "function") {
       value = TypeWriterSet.#getTypeWriterIfAvailable(value);
     }
@@ -83,7 +83,7 @@ extends Set<stringOrWriterFunction | TypeStructure>
     return super.delete(value);
   }
 
-  replaceFromArray(array: (stringOrWriterFunction | TypeStructure)[]): void {
+  replaceFromArray(array: (stringOrWriterFunction | TypeStructures)[]): void {
     this.#backingArray.length = 0;
     super.clear();
     array.forEach(value => this.add(value));

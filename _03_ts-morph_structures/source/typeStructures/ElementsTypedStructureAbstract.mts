@@ -3,16 +3,16 @@ import type {
   WriterFunction,
 } from "ts-morph";
 
-import { TypeStructure } from "./TypeStructure.mjs";
+import { TypeStructures } from "./TypeStructures.mjs";
 
 export interface TypeStructureWithElements {
-  elements: TypeStructure[];
+  elements: TypeStructures[];
 }
 
 export default abstract class ElementsTypedStructureAbstract
 implements TypeStructureWithElements
 {
-  elements: TypeStructure[] = [];
+  elements: TypeStructures[] = [];
   public readonly abstract prefix: string;
   public readonly abstract postfix: string;
   public readonly abstract joinCharacters: string;
@@ -36,7 +36,7 @@ implements TypeStructureWithElements
 
   static feedWriter(
     writer: CodeBlockWriter,
-    contents: string | TypeStructure
+    contents: string | TypeStructures
   ): void
   {
     if (typeof contents === "string") {

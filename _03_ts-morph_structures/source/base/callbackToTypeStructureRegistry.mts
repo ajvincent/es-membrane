@@ -3,13 +3,13 @@ import type {
 } from "ts-morph";
 
 import type {
-  TypeStructure
-} from "../typeStructures/TypeStructure.mjs";
+  TypeStructures
+} from "../typeStructures/TypeStructures.mjs";
 
-const callbackToTypeStructureImpl = new WeakMap<WriterFunction, TypeStructure>;
+const callbackToTypeStructureImpl = new WeakMap<WriterFunction, TypeStructures>;
 
 export function registerCallbackForTypeStructure(
-  structure: TypeStructure
+  structure: TypeStructures
 ): void
 {
   callbackToTypeStructureImpl.set(structure.writerFunction, structure);
@@ -17,13 +17,13 @@ export function registerCallbackForTypeStructure(
 
 export function getTypeStructureForCallback(
   callback: WriterFunction
-): TypeStructure | undefined
+): TypeStructures | undefined
 {
   return callbackToTypeStructureImpl.get(callback);
 }
 
 export function deregisterCallbackForTypeStructure(
-  structure: TypeStructure
+  structure: TypeStructures
 ): void {
   callbackToTypeStructureImpl.delete(structure.writerFunction);
 }

@@ -5,8 +5,8 @@ import {
 
 import type {
   IndexedAccessTypedStructure,
-  TypeStructure,
-} from "./TypeStructure.mjs";
+  TypeStructures,
+} from "./TypeStructures.mjs";
 
 import {
   TypeStructureKind
@@ -36,10 +36,10 @@ implements IndexedAccessTypedStructure
   }
 
   readonly kind: TypeStructureKind.IndexedAccess = TypeStructureKind.IndexedAccess;
-  objectType: TypeStructure;
-  indexType: TypeStructure;
+  objectType: TypeStructures;
+  indexType: TypeStructures;
 
-  constructor(objectType: TypeStructure, indexType: TypeStructure)
+  constructor(objectType: TypeStructures, indexType: TypeStructures)
   {
     this.objectType = objectType;
     this.indexType = indexType;

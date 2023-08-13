@@ -4,7 +4,7 @@ import type {
 
 import {
   TemplateLiteralTypedStructure,
-  TypeStructure,
+  TypeStructures,
   TypeStructureClassesMap,
   TypeStructureKind,
 } from "../../exports.mjs";
@@ -25,10 +25,10 @@ export default class TemplateLiteralTypedStructureImpl
 implements TemplateLiteralTypedStructure
 {
   readonly kind: TypeStructureKind.TemplateLiteral = TypeStructureKind.TemplateLiteral;
-  elements: (string | TypeStructure)[];
+  elements: (string | TypeStructures)[];
 
   constructor(
-    elements: (string | TypeStructure)[] = []
+    elements: (string | TypeStructures)[] = []
   )
   {
     this.elements = elements.slice();

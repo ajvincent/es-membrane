@@ -8,9 +8,9 @@ import type {
 } from "ts-morph"
 
 import type {
-  TypeStructure
-} from "../typeStructures/TypeStructure.mjs";
+  TypeStructures
+} from "../typeStructures/TypeStructures.mjs";
 
-export type CloneableStructure<Base extends Structure | TypeStructure> = Class<Base> & {
+export type CloneableStructure<Base extends Structure | TypeStructures> = Class<Base> & {
   clone(other: OptionalKind<Base> | Base): Base
 };

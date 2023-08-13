@@ -12,8 +12,8 @@ import {
 } from "../types/ts-morph-native.mjs";
 
 import {
-  TypeStructure
-} from "../typeStructures/TypeStructure.mjs";
+  TypeStructures
+} from "../typeStructures/TypeStructures.mjs";
 
 import {
   getTypeStructureForCallback,
@@ -30,7 +30,7 @@ export default class TypeWriterManager
 extends StructureBase
 implements TypedNodeStructure, TypedNodeTypeStructure
 {
-  typeStructure: TypeStructure | undefined = undefined;
+  typeStructure: TypeStructures | undefined = undefined;
 
   get type(): string | WriterFunction | undefined
   {

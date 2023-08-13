@@ -5,7 +5,7 @@ import type {
 
 import type {
   StringTypedStructure
-} from "./TypeStructure.mjs";
+} from "./TypeStructures.mjs";
 
 import {
   TypeStructureKind,

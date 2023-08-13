@@ -4,7 +4,7 @@ import type {
 
 import type {
   WriterTypedStructure
-} from "./TypeStructure.mjs";
+} from "./TypeStructures.mjs";
 
 import {
   TypeStructureKind,

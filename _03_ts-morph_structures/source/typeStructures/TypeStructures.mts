@@ -25,7 +25,7 @@ interface TypedStructureWithPrimitive<
 }
 
 interface TypeStructureWithOneChild {
-  childType: TypeStructure;
+  childType: TypeStructures;
 }
 
 export type PrefixUnaryOperator = (
@@ -36,14 +36,14 @@ export type PrefixUnaryOperator = (
 );
 
 interface TypedStructureWithObjectType {
-  objectType: TypeStructure;
+  objectType: TypeStructures;
 }
 
 interface TypedStructureWithElements<
   Kind extends TypeStructureKind
 > extends KindedTypeStructure<Kind>
 {
-  elements: TypeStructure[];
+  elements: TypeStructures[];
 }
 
 interface PrefixUnaryOperatorOwner {
@@ -87,10 +87,10 @@ export type ArrayTypedStructure = Simplify<
 >;
 
 export interface ConditionalTypeStructureParts {
-  checkType: TypeStructure;
-  extendsType: TypeStructure;
-  trueType: TypeStructure;
-  falseType: TypeStructure;
+  checkType: TypeStructures;
+  extendsType: TypeStructures;
+  trueType: TypeStructures;
+  falseType: TypeStructures;
 }
 
 export type ConditionalTypedStructure = Simplify<
@@ -99,7 +99,7 @@ export type ConditionalTypedStructure = Simplify<
 >;
 
 interface IndexedAccessType {
-  indexType: TypeStructure;
+  indexType: TypeStructures;
 }
 
 export type IndexedAccessTypedStructure = Simplify<
@@ -111,9 +111,9 @@ export type IndexedAccessTypedStructure = Simplify<
 interface MappedType {
   readonlyToken: "+readonly" | "-readonly" | "readonly" | undefined;
   parameter: TypeParameterDeclarationImpl;
-  asName: TypeStructure | undefined;
+  asName: TypeStructures | undefined;
   questionToken: "+?" | "-?" | "?" | undefined;
-  type: TypeStructure | undefined;
+  type: TypeStructures | undefined;
 }
 
 export type MappedTypeTypedStructure = Simplify<
@@ -139,7 +139,7 @@ export interface FunctionTypeContext {
   typeParameters: TypeParameterDeclarationImpl[];
   parameters: ParameterTypedStructure[];
   restParameter: ParameterTypedStructure | undefined;
-  returnType: TypeStructure | undefined;
+  returnType: TypeStructures | undefined;
   writerStyle: FunctionWriterStyle
 }
 
@@ -150,7 +150,7 @@ export type FunctionTypedStructure = Simplify<
 
 interface ParameterTypeStructureFields {
   name: LiteralTypedStructure;
-  typeStructure: TypeStructure | undefined
+  typeStructure: TypeStructures | undefined
 }
 
 export type ParameterTypedStructure = Simplify<
@@ -159,7 +159,7 @@ export type ParameterTypedStructure = Simplify<
 >;
 
 interface TemplateLiteralTypedStructureFields {
-  elements: (string | TypeStructure)[];
+  elements: (string | TypeStructures)[];
 }
 
 export type TemplateLiteralTypedStructure = Simplify<
@@ -172,7 +172,7 @@ export type ObjectLiteralTypedStructure = Simplify<
   TypeElementMemberedNodeStructure
 >;
 
-export type TypeStructure = (
+export type TypeStructures = (
   WriterTypedStructure |
   LiteralTypedStructure |
   StringTypedStructure |

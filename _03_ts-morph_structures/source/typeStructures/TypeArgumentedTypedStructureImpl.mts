@@ -4,8 +4,8 @@ import {
 
 import type {
   TypeArgumentedTypedStructure,
-  TypeStructure,
-} from "./TypeStructure.mjs";
+  TypeStructures,
+} from "./TypeStructures.mjs";
 
 import {
   TypeStructureKind
@@ -44,9 +44,9 @@ implements TypeArgumentedTypedStructure
   public readonly joinCharacters = ", ";
   readonly kind: TypeStructureKind.TypeArgumented = TypeStructureKind.TypeArgumented;
 
-  objectType: TypeStructure;
+  objectType: TypeStructures;
 
-  constructor(objectType: TypeStructure)
+  constructor(objectType: TypeStructures)
   {
     super();
     this.objectType = objectType;

@@ -1,6 +1,6 @@
 import type {
-  TypeStructure
-} from "./TypeStructure.mjs";
+  TypeStructures
+} from "./TypeStructures.mjs";
 
 import TypeWriterSet from "../base/TypeWriterSet.mjs";
 
@@ -10,22 +10,22 @@ import type {
 
 export interface TypedNodeTypeStructure
 {
-  typeStructure: TypeStructure | undefined;
+  typeStructure: TypeStructures | undefined;
   type: stringOrWriterFunction | undefined;
 }
 
 export interface ReturnTypedNodeTypeStructure
 {
-  returnTypeStructure: TypeStructure | undefined;
+  returnTypeStructure: TypeStructures | undefined;
   returnType: stringOrWriterFunction | undefined;
 }
 
 export interface TypeParameterWithTypeStructures
 {
-  constraintStructure: TypeStructure | undefined;
+  constraintStructure: TypeStructures | undefined;
   constraint: stringOrWriterFunction | undefined;
 
-  defaultStructure: TypeStructure | undefined;
+  defaultStructure: TypeStructures | undefined;
   default: stringOrWriterFunction | undefined;
 }
 

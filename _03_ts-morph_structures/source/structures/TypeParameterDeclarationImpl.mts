@@ -15,7 +15,7 @@ import { CloneableStructure } from "../types/CloneableStructure.mjs";
 import StructureBase from "../base/StructureBase.mjs";
 
 import TypeWriterManager from "../base/TypeWriterManager.mjs";
-import { TypeStructure } from "../typeStructures/TypeStructure.mjs";
+import { TypeStructures } from "../typeStructures/TypeStructures.mjs";
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 import type {
   TypeParameterWithTypeStructures
@@ -44,12 +44,12 @@ implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
     this.#constraintManager.type = type;
   }
 
-  get constraintStructure(): TypeStructure | undefined
+  get constraintStructure(): TypeStructures | undefined
   {
     return this.#constraintManager.typeStructure
   }
   set constraintStructure(
-    structure: TypeStructure
+    structure: TypeStructures
   )
   {
     this.#constraintManager.typeStructure = structure;
@@ -66,12 +66,12 @@ implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
     this.#defaultManager.type = type;
   }
 
-  get defaultStructure(): TypeStructure | undefined
+  get defaultStructure(): TypeStructures | undefined
   {
     return this.#defaultManager.typeStructure;
   }
   set defaultStructure(
-    structure: TypeStructure
+    structure: TypeStructures
   )
   {
     this.#defaultManager.typeStructure = structure;

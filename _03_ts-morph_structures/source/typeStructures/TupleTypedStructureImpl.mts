@@ -2,7 +2,7 @@ import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs
 
 import {
   TupleTypedStructure
-} from "./TypeStructure.mjs";
+} from "./TypeStructures.mjs";
 
 import {
   TypeStructureKind

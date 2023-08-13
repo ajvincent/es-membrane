@@ -6,8 +6,8 @@ import type {
 import type {
   PrefixOperatorsTypedStructure,
   PrefixUnaryOperator,
-  TypeStructure,
-} from "./TypeStructure.mjs";
+  TypeStructures,
+} from "./TypeStructures.mjs";
 
 import {
   TypeStructureKind,
@@ -39,11 +39,11 @@ implements PrefixOperatorsTypedStructure
   readonly kind: TypeStructureKind.PrefixOperators = TypeStructureKind.PrefixOperators;
 
   operators: PrefixUnaryOperator[];
-  childType: TypeStructure;
+  childType: TypeStructures;
 
   constructor(
     operators: readonly PrefixUnaryOperator[],
-    childType: TypeStructure
+    childType: TypeStructures
   )
   {
     this.operators = operators.slice();

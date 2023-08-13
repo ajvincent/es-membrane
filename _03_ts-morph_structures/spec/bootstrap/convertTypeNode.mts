@@ -25,7 +25,7 @@ import {
   TemplateLiteralTypedStructureImpl,
   TupleTypedStructureImpl,
   TypeArgumentedTypedStructureImpl,
-  TypeStructure,
+  TypeStructures,
   UnionTypedStructureImpl,
   createCodeBlockWriter
 } from "#ts-morph_structures/exports.mjs";
@@ -33,7 +33,7 @@ import { TypeNodeToTypeStructureConsole } from "#ts-morph_structures/source/type
 
 describe("convertTypeNode generates correct type structures, with type", () => {
   let declaration: VariableDeclaration;
-  let structure: TypeStructure | null;
+  let structure: TypeStructures | null;
 
   let failMessage: string | undefined;
   let failNode: TypeNode | null;

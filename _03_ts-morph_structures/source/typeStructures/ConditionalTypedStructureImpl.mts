@@ -6,8 +6,8 @@ import type {
 import type {
   ConditionalTypeStructureParts,
   ConditionalTypedStructure,
-  TypeStructure,
-} from "./TypeStructure.mjs";
+  TypeStructures,
+} from "./TypeStructures.mjs";
 
 import {
   TypeStructureKind,
@@ -33,7 +33,7 @@ implements ConditionalTypedStructure
     return new LiteralTypedStructureImpl("never");
   }
 
-  static #clonePart(childType: TypeStructure): TypeStructure
+  static #clonePart(childType: TypeStructures): TypeStructures
   {
     return TypeStructureClassesMap.get(childType.kind)!.clone(childType);
   }
@@ -53,10 +53,10 @@ implements ConditionalTypedStructure
   }
 
   readonly kind: TypeStructureKind.Conditional = TypeStructureKind.Conditional;
-  checkType: TypeStructure;
-  extendsType: TypeStructure;
-  trueType: TypeStructure;
-  falseType: TypeStructure;
+  checkType: TypeStructures;
+  extendsType: TypeStructures;
+  trueType: TypeStructures;
+  falseType: TypeStructures;
 
   constructor(
     conditionalParts: Partial<ConditionalTypeStructureParts>

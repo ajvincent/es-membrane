@@ -5,7 +5,7 @@ import type {
 
 import type {
   LiteralTypedStructure
-} from "./TypeStructure.mjs";
+} from "./TypeStructures.mjs";
 
 import {
   TypeStructureKind,

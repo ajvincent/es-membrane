@@ -4,8 +4,8 @@ import {
 
 import type {
   ArrayTypedStructure,
-  TypeStructure,
-} from "./TypeStructure.mjs";
+  TypeStructures,
+} from "./TypeStructures.mjs";
 
 import {
   TypeStructureKind
@@ -32,11 +32,11 @@ implements ArrayTypedStructure
     );
   }
 
-  objectType: TypeStructure;
+  objectType: TypeStructures;
   readonly kind: TypeStructureKind.Array = TypeStructureKind.Array;
 
   constructor(
-    objectType: TypeStructure,
+    objectType: TypeStructures,
   )
   {
     this.objectType = objectType;

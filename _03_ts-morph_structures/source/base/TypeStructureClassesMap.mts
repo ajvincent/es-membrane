@@ -3,8 +3,8 @@ import type {
 } from "type-fest";
 
 import {
-  TypeStructure,
-} from "../typeStructures/TypeStructure.mjs";
+  TypeStructures,
+} from "../typeStructures/TypeStructures.mjs";
 
 import {
   KindedTypeStructure,
@@ -17,7 +17,7 @@ import {
 
 const TypeStructureClassesMap = new Map<
   TypeStructureKind,
-  CloneableStructure<TypeStructure> & Class<KindedTypeStructure<TypeStructureKind>>
+  CloneableStructure<TypeStructures> & Class<KindedTypeStructure<TypeStructureKind>>
 >;
 
 export default TypeStructureClassesMap;

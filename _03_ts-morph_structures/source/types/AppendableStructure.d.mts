@@ -3,12 +3,12 @@ import type {
 } from "ts-morph";
 
 import type {
-  TypeStructure
-} from "../typeStructures/TypeStructure.mjs";
+  TypeStructures
+} from "../typeStructures/TypeStructures.mjs";
 
 export type AppendContextBase = (
-  readonly (Structures | TypeStructure)[] |
-  Record<string, readonly (Structures | TypeStructure)[]>
+  readonly (Structures | TypeStructures)[] |
+  Record<string, readonly (Structures | TypeStructures)[]>
 );
 
 export interface AppendableStructure<

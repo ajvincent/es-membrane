@@ -5,8 +5,8 @@ import type {
 import type {
   ParameterTypedStructure,
   LiteralTypedStructure,
-  TypeStructure
-} from "./TypeStructure.mjs";
+  TypeStructures
+} from "./TypeStructures.mjs";
 
 import {
   TypeStructureKind,
@@ -20,11 +20,11 @@ implements ParameterTypedStructure
 {
   readonly kind: TypeStructureKind.Parameter = TypeStructureKind.Parameter;
   name: LiteralTypedStructure;
-  typeStructure: TypeStructure | undefined;
+  typeStructure: TypeStructures | undefined;
 
   constructor(
     name: string | LiteralTypedStructure,
-    typeStructure: TypeStructure | undefined
+    typeStructure: TypeStructures | undefined
   )
   {
     if (typeof name === "string") {
@@ -53,7 +53,7 @@ implements ParameterTypedStructure
     other: ParameterTypedStructure
   ): ParameterTypedStructureImpl
   {
-    let typeClone: TypeStructure | undefined;
+    let typeClone: TypeStructures | undefined;
     if (other.typeStructure)
       typeClone = TypeStructureClassesMap.get(other.typeStructure.kind)!.clone(other.typeStructure);
     const clone = new ParameterTypedStructureImpl(other.name.stringValue, typeClone);

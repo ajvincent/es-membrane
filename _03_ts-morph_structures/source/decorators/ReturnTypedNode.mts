@@ -6,8 +6,8 @@ import type {
 import TypeWriterManager from "../base/TypeWriterManager.mjs";
 
 import {
-  TypeStructure
-} from "../typeStructures/TypeStructure.mjs";
+  TypeStructures
+} from "../typeStructures/TypeStructures.mjs";
 
 import StructureBase from "../base/StructureBase.mjs";
 
@@ -71,13 +71,13 @@ export default function ReturnTypedNode(
       this.#typeWriterManager.type = value;
     }
   
-    get returnTypeStructure(): TypeStructure | undefined
+    get returnTypeStructure(): TypeStructures | undefined
     {
       return this.#typeWriterManager.typeStructure;
     }
   
     set returnTypeStructure(
-      value: TypeStructure
+      value: TypeStructures
     )
     {
       this.#typeWriterManager.typeStructure = value;

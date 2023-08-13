@@ -4,8 +4,8 @@ import type {
 } from "ts-morph";
 
 import type {
-  TypeStructure
-} from "../typeStructures/TypeStructure.mjs";
+  TypeStructures
+} from "../typeStructures/TypeStructures.mjs";
 
 import type {
   NodeWithStructures
@@ -19,4 +19,4 @@ export type TypeNodeToTypeStructure = (
   typeNode: TypeNode,
   _console: TypeNodeToTypeStructureConsole,
   subStructureResolver: (node: NodeWithStructures) => Structures,
-) => TypeStructure | null;
+) => TypeStructures | null;

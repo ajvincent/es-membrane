@@ -10,7 +10,7 @@ import type {
 } from '#ts-morph_structures/source/types/ts-morph-native.mjs';
 import {
   LiteralTypedStructureImpl,
-  TypeStructure,
+  TypeStructures,
 } from '#ts-morph_structures/exports.mjs';
 
 it("ts-morph structures: implements array and set, integration test", () => {
@@ -30,7 +30,7 @@ it("ts-morph structures: implements array and set, integration test", () => {
       return this.#implementsArrayProxy;
     }
 
-    get implementsAsSet(): Set<stringOrWriterFunction | TypeStructure> {
+    get implementsAsSet(): Set<stringOrWriterFunction | TypeStructures> {
       return this.#implementsArrayAsSet;
     }
   }

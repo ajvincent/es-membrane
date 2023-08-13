@@ -18,7 +18,7 @@ import {
   InterfaceDeclarationImpl,
   ReturnTypedNodeTypeStructure,
   TypeParameterWithTypeStructures,
-  TypeStructure,
+  TypeStructures,
   TypedNodeTypeStructure,
 } from "../../exports.mjs";
 import { NodeWithStructures } from "./structureToNodeMap.mjs";
@@ -153,7 +153,7 @@ export default function buildTypesForStructures(
           }
         );
 
-        const _implementsArray: TypeStructure[] = [];
+        const _implementsArray: TypeStructures[] = [];
         const implementsTypeNodes: TypeNode[] = node.getImplements();
         implementsTypeNodes.forEach(implementsTypeNode => {
           runConversion(
@@ -179,7 +179,7 @@ export default function buildTypesForStructures(
           throw new Error("assertion failure, we should have an InterfaceDeclarationImpl");
         }
 
-        const _extendsArray: TypeStructure[] = [];
+        const _extendsArray: TypeStructures[] = [];
         const extendsTypeNodes: TypeNode[] = node.getExtends();
         extendsTypeNodes.forEach(extendsTypeNode => {
           runConversion(
@@ -215,7 +215,7 @@ function runConversion(
   consoleTrap: TypeNodeToTypeStructureConsole,
   subStructureResolver: (node: NodeWithStructures) => Structures,
   converter: TypeNodeToTypeStructure,
-  callback: (typeStructure: TypeStructure) => void
+  callback: (typeStructure: TypeStructures) => void
 ): void
 {
   if (!typeNode)

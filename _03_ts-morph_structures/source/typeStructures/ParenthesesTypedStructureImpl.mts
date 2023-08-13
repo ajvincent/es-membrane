@@ -5,8 +5,8 @@ import type {
 
 import type {
   ParenthesesTypedStructure,
-  TypeStructure,
-} from "./TypeStructure.mjs";
+  TypeStructures,
+} from "./TypeStructures.mjs";
 
 import {
   TypeStructureKind,
@@ -35,9 +35,9 @@ implements ParenthesesTypedStructure
   }
 
   readonly kind: TypeStructureKind.Parentheses = TypeStructureKind.Parentheses;
-  childType: TypeStructure;
+  childType: TypeStructures;
 
-  constructor(childType: TypeStructure)
+  constructor(childType: TypeStructures)
   {
     this.childType = childType;
 
