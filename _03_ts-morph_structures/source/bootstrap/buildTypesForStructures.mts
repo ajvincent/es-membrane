@@ -35,6 +35,7 @@ export interface BuildTypesForStructureFailures {
  * Build type structures for structures with types.
  * @param structureMap - the map of structures to original nodes.
  * @param userConsole - a callback for conversion failures.
+ * @param subStructureResolver - when we discover a node with its own structures to investigate.
  * @param converter - a callback to convert a type node to a type structure.
  * @returns the messages and nodes where conversion fails.
  *
@@ -210,6 +211,7 @@ export default function buildTypesForStructures(
  * Attempt to convert one type node to a type structure.
  * @param typeNode - the type node.  May be undefined, in which case this is a no-op.
  * @param consoleTrap - a callback for conversion failures.
+ * @param subStructureResolver - when we discover a node with its own structures to investigate.
  * @param converter - a callback to convert a type node to a type structure.
  * @param callback - internal callback to use the returned type structure.
  * @returns
