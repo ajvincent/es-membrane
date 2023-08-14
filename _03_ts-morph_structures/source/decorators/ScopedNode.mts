@@ -1,12 +1,16 @@
+// #region preamble
 import type {
   Scope,
   ScopedNodeStructure
 } from "ts-morph";
 
-
 import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
+
+import type {
+  MixinClass
+} from "#mixin_decorators/source/types/MixinClass.mjs";
 
 import type {
   StaticAndInstance
@@ -17,10 +21,7 @@ import type {
 } from "#mixin_decorators/source/types/SubclassDecorator.mjs";
 
 import StructureBase from "../base/StructureBase.mjs";
-
-import type {
-  MixinClass
-} from "#mixin_decorators/source/types/MixinClass.mjs";
+// #endregion preamble
 
 declare const ScopedNodeStructureKey: unique symbol;
 

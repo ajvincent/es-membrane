@@ -1,19 +1,16 @@
+// #region preamble
 import type {
   TypedNodeStructure,
   WriterFunction,
 } from "ts-morph";
 
-import TypeWriterManager from "../base/TypeWriterManager.mjs";
-
-import {
-  TypeStructures
-} from "../typeStructures/TypeStructures.mjs";
-
-import StructureBase from "../base/StructureBase.mjs";
-
 import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
+
+import {
+  MixinClass
+} from "#mixin_decorators/source/types/MixinClass.mjs";
 
 import type {
   StaticAndInstance
@@ -23,7 +20,14 @@ import type {
   SubclassDecorator
 } from "#mixin_decorators/source/types/SubclassDecorator.mjs";
 
-import { MixinClass } from "#mixin_decorators/source/types/MixinClass.mjs";
+import TypeWriterManager from "../base/TypeWriterManager.mjs";
+
+import StructureBase from "../base/StructureBase.mjs";
+
+import {
+  TypeStructures
+} from "../typeStructures/TypeStructures.mjs";
+// #endregion preamble
 
 declare const TypedNodeStructureKey: unique symbol;
 

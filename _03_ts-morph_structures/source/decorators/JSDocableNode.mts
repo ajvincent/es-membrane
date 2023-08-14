@@ -1,3 +1,4 @@
+// #region preamble
 import {
   JSDocableNodeStructure,
 } from "ts-morph"
@@ -5,6 +6,10 @@ import {
 import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
+
+import type {
+  MixinClass
+} from "#mixin_decorators/source/types/MixinClass.mjs";
 
 import type {
   StaticAndInstance
@@ -15,8 +20,8 @@ import type {
 } from "#mixin_decorators/source/types/SubclassDecorator.mjs";
 
 import StructureBase from "../base/StructureBase.mjs";
-import { MixinClass } from "#mixin_decorators/source/types/MixinClass.mjs";
 import JSDocImpl from "../structures/JSDocImpl.mjs";
+// #endregion preamble
 
 declare const JSDocableNodeStructureKey: unique symbol;
 

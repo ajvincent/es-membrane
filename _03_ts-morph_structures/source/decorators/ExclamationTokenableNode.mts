@@ -1,3 +1,4 @@
+// #region preamble
 import type {
   ExclamationTokenableNodeStructure
 } from "ts-morph";
@@ -19,6 +20,7 @@ import StructureBase from "../base/StructureBase.mjs";
 import type {
   MixinClass
 } from "#mixin_decorators/source/types/MixinClass.mjs";
+// #endregion preamble
 
 declare const ExclamationTokenableNodeStructureKey: unique symbol;
 

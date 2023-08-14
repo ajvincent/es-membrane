@@ -1,3 +1,4 @@
+// #region preamble
 import type {
   OptionalKind,
   DecoratableNodeStructure,
@@ -25,6 +26,7 @@ import DecoratorImpl from "../structures/DecoratorImpl.mjs";
 import {
   cloneArrayOrUndefined
 } from "../base/utilities.mjs";
+// #endregion preamble
 
 declare const DecoratableNodeStructureKey: unique symbol;
 

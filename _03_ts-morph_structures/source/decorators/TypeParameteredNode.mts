@@ -1,3 +1,4 @@
+// #region preamble
 import {
   TypeParameteredNodeStructure
 } from "ts-morph";
@@ -5,6 +6,10 @@ import {
 import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
+
+import {
+  MixinClass
+} from "#mixin_decorators/source/types/MixinClass.mjs";
 
 import type {
   StaticAndInstance
@@ -14,9 +19,12 @@ import type {
   SubclassDecorator
 } from "#mixin_decorators/source/types/SubclassDecorator.mjs";
 
+import {
+  TypeParameterDeclarationImpl
+}from "../../exports.mjs";
+
 import StructureBase from "../base/StructureBase.mjs";
-import { MixinClass } from "#mixin_decorators/source/types/MixinClass.mjs";
-import TypeParameterDeclarationImpl from "../structures/TypeParameterDeclarationImpl.mjs";
+// #endregion preamble
 
 declare const TypeParameteredNodeStructureKey: unique symbol;
 

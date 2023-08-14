@@ -1,3 +1,4 @@
+// #region preamble
 import type {
   StatementStructures,
   StatementedNodeStructure
@@ -8,6 +9,10 @@ import type {
 } from "#stage_utilities/source/types/Utility.mjs";
 
 import type {
+  MixinClass
+} from "#mixin_decorators/source/types/MixinClass.mjs";
+
+import type {
   StaticAndInstance
 } from "#mixin_decorators/source/types/StaticAndInstance.mjs";
 
@@ -16,15 +21,14 @@ import type {
 } from "#mixin_decorators/source/types/SubclassDecorator.mjs";
 
 import StructureBase from "../base/StructureBase.mjs";
-
-import type {
-  MixinClass
-} from "#mixin_decorators/source/types/MixinClass.mjs";
+import {
+  statementsArray
+} from "../base/utilities.mjs";
 
 import {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
-import { statementsArray } from "../base/utilities.mjs";
+// #endregion preamble
 
 declare const StatementedNodeStructureKey: unique symbol;
 

@@ -1,3 +1,4 @@
+// #region preamble
 import type {
   InitializerExpressionableNodeStructure
 } from "ts-morph";
@@ -7,19 +8,22 @@ import type {
 } from "#stage_utilities/source/types/Utility.mjs";
 
 import type {
+  MixinClass
+} from "#mixin_decorators/source/types/MixinClass.mjs";
+
+import type {
   StaticAndInstance
 } from "#mixin_decorators/source/types/StaticAndInstance.mjs";
 
 import type {
   SubclassDecorator
 } from "#mixin_decorators/source/types/SubclassDecorator.mjs";
-
 import StructureBase from "../base/StructureBase.mjs";
 
 import type {
-  MixinClass
-} from "#mixin_decorators/source/types/MixinClass.mjs";
-import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
+  stringOrWriterFunction
+} from "../types/ts-morph-native.mjs";
+// #endregion preamble
 
 declare const InitializerExpressionableNodeStructureKey: unique symbol;
 
