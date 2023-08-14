@@ -15,13 +15,23 @@ import {
 
 import StatementClassesMap from "./StatementClassesMap.mjs";
 
+/**
+ * A class with a static clone method, for creating new instances of a target class.
+ */
 export type StructureCloner<
   SourceType extends object,
-  TargetClass extends Class<SourceType, [string]>
+  TargetClass extends Class<SourceType>
 > = TargetClass & {
+  /**
+   * Create a new instance derived from an existing value.
+   * @param other - the value to clone.
+   */
   clone(other: SourceType): InstanceType<TargetClass>;
 };
 
+/**
+ * Coerce the value to an array of strings and writers.
+ */
 export function stringOrWriterFunctionArray(
   value: stringOrWriterFunction | stringOrWriterFunction[] | undefined
 ): stringOrWriterFunction[]
@@ -33,6 +43,12 @@ export function stringOrWriterFunctionArray(
   return [value];
 }
 
+/**
+ * Clone an array of objects, or return an empty array if the original value is undefined.
+ * @param elements - the values to clone.
+ * @param cloner - the class which will provide the new instances.
+ * @returns the cloned objects.
+ */
 export function cloneArrayOrUndefined<
   SourceType extends object,
   TargetClass extends Class<SourceType>
@@ -80,6 +96,17 @@ export function createCodeBlockWriter(): CodeBlockWriter
   return new CodeBlockWriter(writerOptions);
 }
 
+/**
+ * Write a start token, invoke a block, and write the end token, in that order.
+ * @param writer - the code block writer.
+ * @param startToken - the start token.
+ * @param endToken - the end token.
+ * @param newLine - true if we should call `.newLine()` after the start and before the end.
+ * @param indent - true if we should indent the block statements.
+ * @param block - the callback to execute for the block statements.
+ *
+ * @see {@link https://github.com/dsherret/code-block-writer/issues/44}
+ */
 export function pairedWrite(
   this: void,
   writer: CodeBlockWriter,

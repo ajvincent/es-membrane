@@ -4,9 +4,12 @@ import { getTypeStructureForCallback } from "./callbackToTypeStructureRegistry.m
 import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
 
 /**
- * This supports setting "implements" types for arrays behind read-only array
+ * This supports setting "implements" and "extends" types for arrays behind read-only array
  * proxies.  The goal is to manage type structures and writer functions in one place,
- * where direct array access is troublesome.
+ * where direct array access is troublesome (particularly, "write access").
+ *
+ * In particular, if the user passes in a writer function belonging to a registered type structure,
+ * this uses the type structure instead as the argument.
  */
 export default class TypeWriterSet
 extends Set<stringOrWriterFunction | TypeStructures>
@@ -37,7 +40,7 @@ extends Set<stringOrWriterFunction | TypeStructures>
     this.#backingArray = backingArray;
     backingArray.forEach((value: stringOrWriterFunction | TypeStructures) => {
       if (typeof value === "function") {
-        value = TypeWriterSet.#getTypeWriterIfAvailable(value) ?? value;
+        value = TypeWriterSet.#getTypeWriterIfAvailable(value);
       }
       super.add(value);
     });
@@ -83,6 +86,10 @@ extends Set<stringOrWriterFunction | TypeStructures>
     return super.delete(value);
   }
 
+  /**
+   * Replace all the types this set managers with those from another array.
+   * @param array - the types to add.
+   */
   replaceFromArray(array: (stringOrWriterFunction | TypeStructures)[]): void {
     this.#backingArray.length = 0;
     super.clear();

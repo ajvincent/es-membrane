@@ -1,3 +1,4 @@
+//#region preamble
 import type {
   TypedNodeStructure,
   WriterFunction,
@@ -25,7 +26,17 @@ import TypeStructureClassesMap from "./TypeStructureClassesMap.mjs";
 import { TypeStructureKind } from "./TypeStructureKind.mjs";
 import LiteralTypedStructureImpl from "../typeStructures/LiteralTypedStructureImpl.mjs";
 import WriterTypedStructureImpl from "../typeStructures/WriterTypedStructureImpl.mjs";
+// #endregion preamble
 
+/**
+ * This provides an API for converting between a type (`string | WriterFunction`) and a `TypeStructure`.
+ *
+ * For any class providing a type (return type, constraint, extends, etc.), you can have an instance of
+ * `TypeWriterManager` as a private class field, and provide getters and setters for type and typeStructure
+ * referring to the private TypeWriterManager.
+ *
+ * See `../decorators/TypedNode.mts` for an example.
+ */
 export default class TypeWriterManager
 extends StructureBase
 implements TypedNodeStructure, TypedNodeTypeStructure
@@ -69,6 +80,14 @@ implements TypedNodeStructure, TypedNodeTypeStructure
     this.typeStructure = undefined;
   }
 
+  /**
+   * Create a clone of an existing type, if it belongs to a type structure.
+   *
+   * If the underlying type structure exists, this will register the clone's type structure
+   * for later retrieval.
+   * @param type - the type to clone.
+   * @returns the cloned type, or the original type if the type is not cloneable.
+   */
   static cloneType(
     type: stringOrWriterFunction | undefined
   ): stringOrWriterFunction | undefined

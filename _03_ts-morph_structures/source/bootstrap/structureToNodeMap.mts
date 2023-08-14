@@ -54,7 +54,7 @@ export default function structureToNodeMap(
  * 3. From each structure, I compute an equivalent node hash.  Then I look up the hash in `#nodeSetsByHash`
  *    and pull the first node from the resulting set, as a match.
  *
- * That said, this code is quite fragile.  There are nuances to structure and node traversals which I
+ * That said, this code is fragile.  There are nuances to structure and node traversals which I
  * have had to find via debugging, and I only have my tests to make sure it is correct.  Changes to either
  * TypeScript or ts-morph could break this easily.
  *

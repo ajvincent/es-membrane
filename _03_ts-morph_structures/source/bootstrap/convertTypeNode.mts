@@ -79,6 +79,13 @@ const LiteralKeywords: ReadonlyMap<SyntaxKind, string> = new Map([
   [SyntaxKind.VoidKeyword, "void"],
 ]);
 
+/**
+ * Convert, via recursion into descendants, a type structure for a type node.  Upon a failure, log it and return null.
+ * @param typeNode - the type node.
+ * @param conversionFailCallback - a callback to notify for conversion failures.
+ * @param subStructureResolver - when we discover a node with its own structures to investigate.
+ * @returns the composite type structure, or null for a failure.
+ */
 export default function convertTypeNode(
   typeNode: TypeNode,
   conversionFailCallback: TypeNodeToTypeStructureConsole,
@@ -172,6 +179,7 @@ export default function convertTypeNode(
     return convertTypeLiteralNode(typeNode, conversionFailCallback, subStructureResolver);
   }
 
+  // Type nodes with generic type node children, based on a type.
   let childTypeNodes: TypeNode[] = [],
       parentStructure: (TypeStructures & TypeStructureWithElements) | undefined = undefined;
   if (Node.isUnionTypeNode(typeNode)) {
@@ -243,6 +251,7 @@ function convertTypeOperatorNode(
   );
   if (!structure)
     return null;
+
   switch (typeNode.getOperator()) {
     case SyntaxKind.ReadonlyKeyword:
       return prependPrefixOperator("readonly", structure);
@@ -354,19 +363,20 @@ function convertFunctionTypeNode(
   }
 
   let restParameter: ParameterTypedStructureImpl | undefined = undefined;
+
   const parameterNodes: ParameterDeclaration[] = typeNode.getParameters().slice();
   if (parameterNodes.length) {
     const lastParameter = parameterNodes[parameterNodes.length - 1];
     if (lastParameter.isRestParameter()) {
       parameterNodes.pop();
-      restParameter = convertParameterTypeNode(
+      restParameter = convertParameterNodeTypeNode(
         lastParameter, conversionFailCallback, subStructureResolver
       );
     }
   }
 
   const parameterStructures: ParameterTypedStructureImpl[] = parameterNodes.map(
-    parameterNode => convertParameterTypeNode(parameterNode, conversionFailCallback, subStructureResolver)
+    parameterNode => convertParameterNodeTypeNode(parameterNode, conversionFailCallback, subStructureResolver)
   );
 
   const returnTypeNode = typeNode.getReturnTypeNode();
@@ -403,7 +413,7 @@ function convertTypeParameterNode(
   return TypeParameterDeclarationImpl.clone(subStructure);
 }
 
-function convertParameterTypeNode(
+function convertParameterNodeTypeNode(
   node: ParameterDeclaration,
   conversionFailCallback: TypeNodeToTypeStructureConsole,
   subStructureResolver: (node: NodeWithStructures) => Structures,

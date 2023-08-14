@@ -5,8 +5,8 @@
 /**
  * @remarks
  *
- * This file is specifically for catching new fields of arrays when they appear in the ECMAScript language.
- * When this file fails to compile, it means something needs updating in `InternalArrayProxyHandler.mts`.
+ * This file is specifically for catching new methods of arrays when they appear in the ECMAScript language.
+ * When this file fails to compile, it means `ReadonlyArrayProxyHandler.#safeMembers` may need updating.
  */
 const ArrayNotImplementedCanary: Omit<Array<unknown>, number> = {
   [Symbol.iterator]: function (): IterableIterator<unknown> {

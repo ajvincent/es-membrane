@@ -26,6 +26,12 @@ export interface RootStructureWithConvertFailures {
 
 export type { TypeNodeToTypeStructureConsole };
 
+/**
+ * Get a structure for a node, with type structures installed throughout its descendants.
+ * @param rootNode - The node to start from.
+ * @param userConsole - a callback for conversion failures.
+ * @returns the root structure, the root node, and any failures during recursion.
+ */
 export default function getTypeAugmentedStructure(
   rootNode: NodeWithStructures,
   userConsole: TypeNodeToTypeStructureConsole,

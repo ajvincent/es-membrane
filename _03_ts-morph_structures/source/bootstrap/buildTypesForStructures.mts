@@ -25,6 +25,7 @@ import { NodeWithStructures } from "./structureToNodeMap.mjs";
 
 // #endregion preamble
 
+/** A string message and a type node. */
 export interface BuildTypesForStructureFailures {
   message: string,
   typeNode: TypeNode
@@ -36,6 +37,11 @@ export interface BuildTypesForStructureFailures {
  * @param userConsole - a callback for conversion failures.
  * @param converter - a callback to convert a type node to a type structure.
  * @returns the messages and nodes where conversion fails.
+ *
+ * This is really a routing mechanism.  For each node, it determines which type
+ * nodes we need to create type structures for, then passes them off to the
+ * converter to generate the type structure.  Finally, it assigns the resulting
+ * type structure to the appropriate structure field.
  */
 export default function buildTypesForStructures(
   structureMap: ReadonlyMap<Structures, Node>,
