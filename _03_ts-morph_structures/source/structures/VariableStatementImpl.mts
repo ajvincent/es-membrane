@@ -1,12 +1,27 @@
+// #region preamble
 import {
-  OptionalKind,
+  type OptionalKind,
   StructureKind,
-  VariableDeclarationKind,
-  VariableDeclarationStructure,
-  VariableStatementStructure
+  type VariableDeclarationKind,
+  type VariableDeclarationStructure,
+  type VariableStatementStructure
 } from "ts-morph";
 
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+
+import {
+  VariableDeclarationImpl,
+} from "../../exports.mjs";
+
 import StatementClassesMap from "../base/StatementClassesMap.mjs";
+
+import StructureBase from "../base/StructureBase.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+
+import {
+  cloneArrayOrUndefined
+} from "../base/utilities.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -21,15 +36,10 @@ import JSDocableNode, {
   type JSDocableNodeStructureFields
 } from "../decorators/JSDocableNode.mjs";
 
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
-import StructureBase from "../base/StructureBase.mjs";
-import {
+import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
-
-import VariableDeclarationImpl from "./VariableDeclarationImpl.mjs";
-import { cloneArrayOrUndefined } from "../base/utilities.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+// #endregion preamble
 
 const VariableStatementBase = MultiMixinBuilder<
   [

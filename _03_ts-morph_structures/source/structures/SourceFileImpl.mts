@@ -1,8 +1,14 @@
+// #region preamble
 import {
   type SourceFileStructure,
   StructureKind,
 } from "ts-morph";
 
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+
+import StructureBase from "../base/StructureBase.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -11,12 +17,10 @@ import StatementedNode, {
   type StatementedNodeStructureFields
 } from "../decorators/StatementedNode.mjs";
 
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
-import StructureBase from "../base/StructureBase.mjs";
-import {
-  CloneableStructure
+import type {
+  CloneableStructure,
 } from "../types/CloneableStructure.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+// #endregion preamble
 
 const SourceFileBase = MultiMixinBuilder<
   [

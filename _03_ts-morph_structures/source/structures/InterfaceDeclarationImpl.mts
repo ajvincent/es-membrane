@@ -1,19 +1,21 @@
 // #region preamble
-
 import {
-  InterfaceDeclarationStructure,
-  OptionalKind,
+  type InterfaceDeclarationStructure,
+  type OptionalKind,
   StructureKind,
 } from "ts-morph";
 
-import {
-  stringOrWriterFunction
-} from "../types/ts-morph-native.mjs";
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 
-import {
-  CloneableStructure
-} from "../types/CloneableStructure.mjs";
+import ReadonlyArrayProxyHandler from "../array-utilities/ReadonlyArrayProxyHandler.mjs";
+
+import StructureBase from "../base/StructureBase.mjs";
+
 import StatementClassesMap from "../base/StatementClassesMap.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+
+import TypeWriterSet from "../base/TypeWriterSet.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -37,12 +39,13 @@ import TypeParameteredNode, {
   type TypeParameteredNodeStructureFields
 } from "../decorators/TypeParameteredNode.mjs";
 
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
-import StructureBase from "../base/StructureBase.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
-import TypeWriterSet from "../base/TypeWriterSet.mjs";
-import ReadonlyArrayProxyHandler from "../array-utilities/ReadonlyArrayProxyHandler.mjs";
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
 
+import {
+  stringOrWriterFunction
+} from "../types/ts-morph-native.mjs";
 // #endregion preamble
 
 const InterfaceDeclarationBase = MultiMixinBuilder<

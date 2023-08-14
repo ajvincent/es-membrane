@@ -1,20 +1,19 @@
+// #region preamble
 import {
-  OptionalKind,
-  DecoratorStructure,
+  type DecoratorStructure,
+  type OptionalKind,
   StructureKind,
 } from "ts-morph";
 
-import {
-  stringOrWriterFunction
-} from "../types/ts-morph-native.mjs";
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+
+import StructureBase from "../base/StructureBase.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 import {
   stringOrWriterFunctionArray
 } from "../base/utilities.mjs";
-import { CloneableStructure } from "../types/CloneableStructure.mjs";
-
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
-import StructureBase from "../base/StructureBase.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -22,7 +21,15 @@ import KindedStructure, {
 import NamedNode, {
   type NamedNodeStructureFields
 } from "../decorators/NamedNode.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+
+import type {
+  stringOrWriterFunction
+} from "../types/ts-morph-native.mjs";
+
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
 const DecoratorBase = MultiMixinBuilder<
   [
@@ -61,6 +68,7 @@ implements DecoratorStructure
 
     DecoratorBase.cloneTrivia(other, clone);
     DecoratorBase.cloneNamed(other, clone);
+
     clone.arguments = stringOrWriterFunctionArray(other.arguments);
     clone.typeArguments = other.typeArguments?.slice() ?? [];
 

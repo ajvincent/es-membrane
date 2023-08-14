@@ -1,13 +1,16 @@
+// #region preamble
 import {
-  OptionalKind,
-  PropertyDeclarationStructure,
-  PropertySignatureStructure,
+  type OptionalKind,
+  type PropertyDeclarationStructure,
+  type PropertySignatureStructure,
   StructureKind,
 } from "ts-morph";
 
-import {
-  CloneableStructure
-} from "../types/CloneableStructure.mjs";
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+
+import StructureBase from "../base/StructureBase.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -52,9 +55,10 @@ import TypedNode, {
   type TypedNodeStructureFields
 } from "../decorators/TypedNode.mjs";
 
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
-import StructureBase from "../base/StructureBase.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+import {
+  CloneableStructure,
+} from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
 const PropertyDeclarationBase = MultiMixinBuilder<
   [

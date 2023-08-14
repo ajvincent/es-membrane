@@ -1,10 +1,15 @@
+// #region preamble
 import {
-  OptionalKind,
-  SetAccessorDeclarationStructure,
+  type OptionalKind,
+  type SetAccessorDeclarationStructure,
   StructureKind,
 } from "ts-morph";
 
-import { CloneableStructure } from "../types/CloneableStructure.mjs";
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+
+import StructureBase from "../base/StructureBase.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -40,9 +45,10 @@ import TypeParameteredNode, {
   type TypeParameteredNodeStructureFields,
 } from "../decorators/TypeParameteredNode.mjs";
 
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
-import StructureBase from "../base/StructureBase.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+import type {
+  CloneableStructure,
+} from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
 const SetAccessorDeclarationBase = MultiMixinBuilder<
   [

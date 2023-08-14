@@ -1,25 +1,35 @@
-import type {
-  stringOrWriterFunction
-} from "../types/ts-morph-native.mjs";
-
+// #region preamble
 import {
   CodeBlockWriter,
-  OptionalKind,
+  type OptionalKind,
   StructureKind,
-  TypeParameterDeclarationStructure,
-  TypeParameteredNodeStructure,
+  type TypeParameterDeclarationStructure,
   type TypeParameterVariance,
+  type TypeParameteredNodeStructure,
 } from "ts-morph";
 
-import { CloneableStructure } from "../types/CloneableStructure.mjs";
 import StructureBase from "../base/StructureBase.mjs";
 
-import TypeWriterManager from "../base/TypeWriterManager.mjs";
-import { TypeStructures } from "../typeStructures/TypeStructures.mjs";
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+
+import TypeWriterManager from "../base/TypeWriterManager.mjs";
+
 import type {
   TypeParameterWithTypeStructures
 } from "../typeStructures/TypeAndTypeStructureInterfaces.mjs";
+
+import type {
+  TypeStructures
+} from "../typeStructures/TypeStructures.mjs";
+
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+
+import type {
+  stringOrWriterFunction
+} from "../types/ts-morph-native.mjs";
+// #endregion preamble
 
 export enum TypeParameterConstraintMode {
   extends = "extends",

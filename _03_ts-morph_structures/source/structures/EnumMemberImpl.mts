@@ -1,11 +1,18 @@
+// #region preamble
 import {
+  type EnumMemberStructure,
   StructureKind,
-  EnumMemberStructure,
 } from "ts-morph";
-import { CloneableStructure } from "../types/CloneableStructure.mjs";
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+
 import StructureBase from "../base/StructureBase.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+
+import {
+  createCodeBlockWriter
+} from "../base/utilities.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -19,12 +26,15 @@ import JSDocableNode, {
 import NamedNode, {
    NamedNodeStructureFields
 } from "../decorators/NamedNode.mjs";
-import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
 
-import {
-  createCodeBlockWriter
-} from "../base/utilities.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+
+import type {
+  stringOrWriterFunction
+} from "../types/ts-morph-native.mjs";
+// #endregion preamble
 
 const EnumMemberBase = MultiMixinBuilder<
   [

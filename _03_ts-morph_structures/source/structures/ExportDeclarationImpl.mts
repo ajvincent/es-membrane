@@ -1,30 +1,40 @@
+// #region preamble
 import {
-  StructureKind,
   type ExportDeclarationStructure,
+  StructureKind,
 } from "ts-morph";
+
+import {
+  AssertEntryImpl,
+  ExportSpecifierImpl,
+} from "../../exports.mjs";
+
+import StatementClassesMap from "../base/StatementClassesMap.mjs";
+
+import StructureBase from "../base/StructureBase.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
 
 import type {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
-
-import ExportSpecifierImpl from "./ExportSpecifierImpl.mjs";
-import { CloneableStructure } from "../types/CloneableStructure.mjs";
-
-import StatementClassesMap from "../base/StatementClassesMap.mjs";
-import AssertEntryImpl from "./AssertEntryImpl.mjs";
-import StructureBase from "../base/StructureBase.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+// #endregion preamble
 
 export default class ExportDeclarationImpl
 extends StructureBase
 implements ExportDeclarationStructure
 {
+  readonly kind: StructureKind.ExportDeclaration = StructureKind.ExportDeclaration;
+
   isTypeOnly = false;
   namespaceExport: string | undefined = undefined;
   namedExports: (stringOrWriterFunction | ExportSpecifierImpl)[] = [];
   moduleSpecifier: string | undefined = undefined;
   assertElements?: AssertEntryImpl[] = [];
-  readonly kind: StructureKind.ExportDeclaration = StructureKind.ExportDeclaration;
 
   public static clone(
     other: ExportDeclarationStructure

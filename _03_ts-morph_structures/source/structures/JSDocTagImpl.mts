@@ -1,13 +1,22 @@
+// #region preamble
 import {
-  JSDocTagStructure,
-  OptionalKind,
+  type JSDocTagStructure,
+  type OptionalKind,
   StructureKind,
 } from "ts-morph";
 
-import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
-import { CloneableStructure } from "../types/CloneableStructure.mjs";
 import StructureBase from "../base/StructureBase.mjs";
+
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+
+import type {
+  stringOrWriterFunction
+} from "../types/ts-morph-native.mjs";
+// #endregion preamble
 
 export default class JSDocTagImpl
 extends StructureBase

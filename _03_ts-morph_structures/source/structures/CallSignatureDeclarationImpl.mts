@@ -1,10 +1,14 @@
+// #region preamble
 import {
-  CallSignatureDeclarationStructure,
-  OptionalKind,
+  type CallSignatureDeclarationStructure,
+  type OptionalKind,
   StructureKind,
 } from "ts-morph";
-import { CloneableStructure } from "../types/CloneableStructure.mjs";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+
 import StructureBase from "../base/StructureBase.mjs";
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -22,8 +26,10 @@ import ReturnTypedNode, {
   type ReturnTypedNodeStructureFields
 } from "../decorators/ReturnTypedNode.mjs";
 
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+import {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
 const CallSignatureDeclarationBase = MultiMixinBuilder<
   [

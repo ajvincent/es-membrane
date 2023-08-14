@@ -1,20 +1,29 @@
+// #region preamble
 import {
-  OptionalKind,
+  type ImportDeclarationStructure,
+  type OptionalKind,
   StructureKind,
-  type ImportDeclarationStructure
 } from "ts-morph";
+
+import {
+  AssertEntryImpl,
+  ImportSpecifierImpl,
+} from "../../exports.mjs";
+
+import StructureBase from "../base/StructureBase.mjs";
+
+import StatementClassesMap from "../base/StatementClassesMap.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 import type {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 
-import ImportSpecifierImpl from "./ImportSpecifierImpl.mjs";
-import { CloneableStructure } from "../types/CloneableStructure.mjs";
-
-import StatementClassesMap from "../base/StatementClassesMap.mjs";
-import AssertEntryImpl from "./AssertEntryImpl.mjs";
-import StructureBase from "../base/StructureBase.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
 export default class ImportDeclarationImpl
 extends StructureBase
@@ -43,6 +52,7 @@ implements ImportDeclarationStructure
     const clone = new ImportDeclarationImpl(other.moduleSpecifier);
 
     StructureBase.cloneTrivia(other, clone);
+
     clone.isTypeOnly = other.isTypeOnly ?? false;
     clone.defaultImport = other.defaultImport;
     clone.namespaceImport = other.namespaceImport;

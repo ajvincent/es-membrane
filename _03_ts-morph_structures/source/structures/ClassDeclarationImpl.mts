@@ -1,32 +1,40 @@
 // #region preamble
-
 import {
-  type OptionalKind,
   type ClassDeclarationStructure,
+  type ConstructorDeclarationStructure,
+  type GetAccessorDeclarationStructure,
+  type MethodDeclarationStructure,
+  type OptionalKind,
+  type PropertyDeclarationStructure,
   StructureKind,
-  ConstructorDeclarationStructure,
-  GetAccessorDeclarationStructure,
-  MethodDeclarationStructure,
-  SetAccessorDeclarationStructure,
-  PropertyDeclarationStructure,
+  type SetAccessorDeclarationStructure,
 } from "ts-morph";
 
-import type {
-  stringOrWriterFunction
-} from "../types/ts-morph-native.mjs";
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+
+import {
+  ConstructorDeclarationImpl,
+  GetAccessorDeclarationImpl,
+  MethodDeclarationImpl,
+  PropertyDeclarationImpl,
+  SetAccessorDeclarationImpl,
+} from "../../exports.mjs";
+
+import ReadonlyArrayProxyHandler from "../array-utilities/ReadonlyArrayProxyHandler.mjs";
+
+import StatementClassesMap from "../base/StatementClassesMap.mjs";
+
+import StructureBase from "../base/StructureBase.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+
+import TypeWriterManager from "../base/TypeWriterManager.mjs";
+
+import TypeWriterSet from "../base/TypeWriterSet.mjs";
 
 import {
   cloneArrayOrUndefined,
 } from "../base/utilities.mjs";
-
-import MethodDeclarationImpl from "./MethodDeclarationImpl.mjs";
-import { CloneableStructure } from "../types/CloneableStructure.mjs";
-import PropertyDeclarationImpl from "./PropertyDeclarationImpl.mjs";
-import GetAccessorDeclarationImpl from "./GetAccessorDeclarationImpl.mjs";
-import SetAccessorDeclarationImpl from "./SetAccessorDeclarationImpl.mjs";
-import ConstructorDeclarationImpl from "./ConstructorDeclarationImpl.mjs";
-
-import StatementClassesMap from "../base/StatementClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -53,19 +61,21 @@ import TypeParameteredNode, {
   type TypeParameteredNodeStructureFields
 } from "../decorators/TypeParameteredNode.mjs";
 
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
-import StructureBase from "../base/StructureBase.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+import type {
+  stringOrWriterFunction
+} from "../types/ts-morph-native.mjs";
 
-import ReadonlyArrayProxyHandler from "../array-utilities/ReadonlyArrayProxyHandler.mjs";
-import TypeWriterSet from "../base/TypeWriterSet.mjs";
+import {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+
 import type {
   ClassDeclarationWithImplementsTypeStructures
 } from "../typeStructures/TypeAndTypeStructureInterfaces.mjs";
 
-import TypeWriterManager from "../base/TypeWriterManager.mjs";
-import { TypeStructures } from "../typeStructures/TypeStructures.mjs";
-
+import {
+  TypeStructures
+} from "../typeStructures/TypeStructures.mjs";
 // #endregion preamble
 
 const ClassDeclarationBase = MultiMixinBuilder<

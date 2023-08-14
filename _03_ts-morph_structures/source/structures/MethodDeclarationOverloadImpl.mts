@@ -1,7 +1,14 @@
+// #region preamble
 import {
   type MethodDeclarationOverloadStructure,
   StructureKind
 }from "ts-morph";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+
+import StructureBase from "../base/StructureBase.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -40,12 +47,10 @@ import TypeParameteredNode, {
   type TypeParameteredNodeStructureFields
 } from "../decorators/TypeParameteredNode.mjs";
 
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
-import StructureBase from "../base/StructureBase.mjs";
-import {
+import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+// #endregion preamble
 
 const MethodDeclarationOverloadBase = MultiMixinBuilder<
   [

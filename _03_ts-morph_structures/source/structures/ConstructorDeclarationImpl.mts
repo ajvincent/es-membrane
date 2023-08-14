@@ -1,15 +1,24 @@
+// #region preamble
 import {
-  ConstructorDeclarationOverloadStructure,
-  ConstructorDeclarationStructure,
-  OptionalKind,
+  type ConstructorDeclarationOverloadStructure,
+  type ConstructorDeclarationStructure,
+  type OptionalKind,
   StructureKind,
 } from "ts-morph";
-import { CloneableStructure } from "../types/CloneableStructure.mjs";
-import { cloneArrayOrUndefined } from "../base/utilities.mjs";
-import ConstructorDeclarationOverloadImpl from "./ConstructorDeclarationOverloadImpl.mjs";
+
+import {
+  ConstructorDeclarationOverloadImpl,
+} from "../../exports.mjs";
+
+import {
+  cloneArrayOrUndefined
+} from "../base/utilities.mjs";
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+
 import StructureBase from "../base/StructureBase.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -32,7 +41,11 @@ import StatementedNode, {
 import TypeParameteredNode, {
   type TypeParameteredNodeStructureFields
 } from "../decorators/TypeParameteredNode.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+
+import {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
 const ConstructorDeclarationBase = MultiMixinBuilder<
   [

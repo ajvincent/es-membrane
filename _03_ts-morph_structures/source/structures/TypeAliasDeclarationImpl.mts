@@ -1,17 +1,18 @@
+// #region preamble
 import {
-  OptionalKind,
+  type OptionalKind,
   StructureKind,
-  TypeAliasDeclarationStructure,
-  WriterFunction,
+  type TypeAliasDeclarationStructure,
+  type WriterFunction,
 } from "ts-morph";
 
 import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 
-import {
-  CloneableStructure
-} from "../types/CloneableStructure.mjs";
-
 import StatementClassesMap from "../base/StatementClassesMap.mjs";
+
+import StructureBase from "../base/StructureBase.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -35,8 +36,10 @@ import TypedNode, {
   type TypedNodeStructureFields
 } from "../decorators/TypedNode.mjs";
 
-import StructureBase from "../base/StructureBase.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+import type {
+  CloneableStructure,
+} from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
 const TypeAliasDeclarationBase = MultiMixinBuilder<
   [

@@ -1,23 +1,31 @@
+// #region preamble
 import {
-  type OptionalKind,
   type MethodDeclarationStructure,
-  StructureKind,
   type MethodDeclarationOverloadStructure,
-  MethodSignatureStructure,
+  type MethodSignatureStructure,
+  type OptionalKind,
   Scope,
+  StructureKind,
 } from "ts-morph";
 
-import type {
-  AppendableStructure,
-} from "../types/AppendableStructure.mjs";
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+
+import {
+  DecoratorImpl,
+  JSDocImpl,
+  MethodDeclarationOverloadImpl,
+  ParameterDeclarationImpl,
+  TypeParameterDeclarationImpl,
+  TypeStructures,
+} from "../../exports.mjs";
+
+import StructureBase from "../base/StructureBase.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 import {
   cloneArrayOrUndefined,
 } from "../base/utilities.mjs";
-
-import type {
-  CloneableStructure
-} from "../types/CloneableStructure.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -65,16 +73,18 @@ import TypeParameteredNode, {
   type TypeParameteredNodeStructureFields
 } from "../decorators/TypeParameteredNode.mjs";
 
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
-import StructureBase from "../base/StructureBase.mjs";
-import MethodDeclarationOverloadImpl from "./MethodDeclarationOverloadImpl.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
-import { TypeStructures } from "../typeStructures/TypeStructures.mjs";
-import DecoratorImpl from "./DecoratorImpl.mjs";
-import ParameterDeclarationImpl from "./ParameterDeclarationImpl.mjs";
-import TypeParameterDeclarationImpl from "./TypeParameterDeclarationImpl.mjs";
-import JSDocImpl from "./JSDocImpl.mjs";
-import { BooleanFlagsStructure } from "../types/BooleanFlagsStructure.mjs";
+import type {
+  AppendableStructure,
+} from "../types/AppendableStructure.mjs";
+
+import type {
+  BooleanFlagsStructure
+} from "../types/BooleanFlagsStructure.mjs";
+
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
 export type MethodDeclarationEnableFlags = (
   "hasOverrideKeyword" |

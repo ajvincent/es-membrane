@@ -1,13 +1,17 @@
-
+// #region preamble
 import {
   type ExportSpecifierStructure,
   type OptionalKind,
   StructureKind,
 } from "ts-morph";
 
-import { CloneableStructure } from "../types/CloneableStructure.mjs";
 import StructureBase from "../base/StructureBase.mjs";
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
 export default class ExportSpecifierImpl
 extends StructureBase

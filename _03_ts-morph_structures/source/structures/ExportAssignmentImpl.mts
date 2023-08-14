@@ -1,9 +1,16 @@
+// #region preamble
 import {
-  ExportAssignmentStructure,
+  type ExportAssignmentStructure,
   StructureKind,
-}from "ts-morph";
+} from "ts-morph";
+
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 
 import StatementClassesMap from "../base/StatementClassesMap.mjs";
+
+import StructureBase from "../base/StructureBase.mjs";
+
+import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -12,13 +19,14 @@ import JSDocableNode, {
   type JSDocableNodeStructureFields
 } from "../decorators/JSDocableNode.mjs";
 
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
-import StructureBase from "../base/StructureBase.mjs";
-import {
+import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
-import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
-import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+
+import type {
+  stringOrWriterFunction
+} from "../types/ts-morph-native.mjs";
+// #endregion preamble
 
 const ExportAssignmentBase = MultiMixinBuilder<
   [
