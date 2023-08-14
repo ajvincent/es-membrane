@@ -26,7 +26,7 @@ implements ImportDeclarationStructure
   namespaceImport: string | undefined = undefined;
   namedImports: (stringOrWriterFunction | ImportSpecifierImpl)[] = [];
   moduleSpecifier: string;
-  assertElements: AssertEntryImpl[] = [];
+  assertElements: AssertEntryImpl[] | undefined = undefined;
 
   constructor(
     moduleSpecifier: string

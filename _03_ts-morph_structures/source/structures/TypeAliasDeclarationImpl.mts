@@ -5,6 +5,8 @@ import {
   WriterFunction,
 } from "ts-morph";
 
+import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+
 import {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
@@ -33,7 +35,6 @@ import TypedNode, {
   type TypedNodeStructureFields
 } from "../decorators/TypedNode.mjs";
 
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 import StructureBase from "../base/StructureBase.mjs";
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 

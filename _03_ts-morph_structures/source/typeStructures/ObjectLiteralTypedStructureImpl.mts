@@ -87,12 +87,14 @@ implements ObjectLiteralTypedStructure
     return this;
   }
 
-  writerFunction(
+  #writerFunction(
     writer: CodeBlockWriter
   ): void
   {
     Writers.objectType(this)(writer);
   }
+
+  readonly writerFunction = this.#writerFunction.bind(this);
 
   static clone(
     other: ObjectLiteralTypedStructure

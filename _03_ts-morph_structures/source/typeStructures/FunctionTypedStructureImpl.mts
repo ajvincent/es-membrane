@@ -61,16 +61,16 @@ implements FunctionTypedStructure
   writerStyle: FunctionWriterStyle = FunctionWriterStyle.Arrow;
 
   constructor(
-    context: FunctionTypeContext
+    context: Partial<FunctionTypeContext>
   )
   {
     this.name = context.name ?? "";
-    this.isConstructor = context.isConstructor;
-    this.typeParameters = context.typeParameters.slice();
-    this.parameters = context.parameters.slice();
+    this.isConstructor = context.isConstructor ?? false
+    this.typeParameters = context.typeParameters?.slice() ?? []
+    this.parameters = context.parameters?.slice() ?? [];
     this.restParameter = context.restParameter;
     this.returnType = context.returnType;
-    this.writerStyle = context.writerStyle;
+    this.writerStyle = context.writerStyle ??  FunctionWriterStyle.Arrow;
 
     registerCallbackForTypeStructure(this);
   }

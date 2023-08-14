@@ -1,5 +1,5 @@
 import type {
-  CodeBlockWriter,
+  CodeBlockWriter, WriterFunction,
 } from "ts-morph";
 
 import {
@@ -35,7 +35,7 @@ implements TemplateLiteralTypedStructure
     registerCallbackForTypeStructure(this);
   }
 
-  writerFunction(
+  #writerFunction(
     writer: CodeBlockWriter
   ): void
   {
@@ -51,6 +51,8 @@ implements TemplateLiteralTypedStructure
       });
     });
   }
+
+  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   static clone(
     other: TemplateLiteralTypedStructure

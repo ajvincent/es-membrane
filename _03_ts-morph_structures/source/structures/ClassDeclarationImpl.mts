@@ -8,12 +8,10 @@ import {
   GetAccessorDeclarationStructure,
   MethodDeclarationStructure,
   SetAccessorDeclarationStructure,
-  MethodSignatureStructure,
   PropertyDeclarationStructure,
 } from "ts-morph";
 
 import type {
-  TS_Method,
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 
@@ -201,19 +199,6 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
     ClassDeclarationBase.cloneTypeParametered(other, clone);
 
     return clone;
-  }
-
-  public static fromMethodsOnly(
-    methods: readonly OptionalKind<MethodSignatureStructure>[]
-  ): ClassDeclarationImpl
-  {
-    const classImpl = new ClassDeclarationImpl;
-
-    classImpl.methods = methods.map(
-      (methodSignature: TS_Method) => MethodDeclarationImpl.fromSignature(methodSignature)
-    );
-
-    return classImpl;
   }
 }
 ClassDeclarationImpl satisfies CloneableStructure<ClassDeclarationStructure>;

@@ -1,7 +1,7 @@
-export type NumberStringType = {
+export interface NumberStringType {
   repeatForward(s: string, n: number): string;
   repeatBack(n: number, s: string): string;
-};
+}
 
 export default class NumberStringClass
 {
