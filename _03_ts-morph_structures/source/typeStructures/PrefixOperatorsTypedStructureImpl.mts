@@ -1,3 +1,4 @@
+// #region preamble
 import type {
   CodeBlockWriter,
   WriterFunction,
@@ -9,6 +10,8 @@ import type {
   TypeStructures,
 } from "./TypeStructures.mjs";
 
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
+
 import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.mjs";
@@ -17,12 +20,12 @@ import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
-import {
+import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
-
+/** (`keyof` | `typeof` | `readonly` | `unique`)[] (child type) */
 export default class PrefixOperatorsTypedStructureImpl
 implements PrefixOperatorsTypedStructure
 {

@@ -43,6 +43,10 @@ export { default as VariableStatementImpl } from "./source/structures/VariableSt
 
 export { default as StructuresClassesMap } from "./source/base/StructuresClassesMap.mjs";
 
+export {
+  TypeParameterConstraintMode
+} from "./source/structures/TypeParameterDeclarationImpl.mjs";
+
 export type {
   MethodDeclarationAppendContext,
   MethodDeclarationEnableFlags,

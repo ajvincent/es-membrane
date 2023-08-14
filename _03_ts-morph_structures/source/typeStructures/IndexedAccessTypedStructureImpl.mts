@@ -21,7 +21,13 @@ import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
 
-
+/**
+ * `Foo["index"]`
+ *
+ * @see `ArrayTypedStructureImpl` for `boolean[]`
+ * @see `MappedTypeTypedStructureImpl` for `{ [key in keyof Foo]: boolean}`
+ * @see `ObjectLiteralTypedStructureImpl` for `{ [key: string]: boolean }`
+ */
 export default class IndexedAccessTypedStructureImpl
 implements IndexedAccessTypedStructure
 {

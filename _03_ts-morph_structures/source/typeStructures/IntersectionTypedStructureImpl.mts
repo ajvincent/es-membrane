@@ -1,22 +1,27 @@
+// #region preamble
+import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
+
 import type {
-  IntersectionTypedStructure, TypeStructures
+  IntersectionTypedStructure,
+  TypeStructures
 } from "./TypeStructures.mjs";
+
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 
 import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.mjs";
 
-import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
-
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
+/** Foo & Bar & ... */
 export default class IntersectionTypedStructureImpl
 extends ElementsTypedStructureAbstract
 implements IntersectionTypedStructure

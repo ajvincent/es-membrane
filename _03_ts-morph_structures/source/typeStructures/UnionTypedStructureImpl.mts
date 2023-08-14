@@ -1,3 +1,8 @@
+// #region preamble
+import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
+
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
+
 import type {
   TypeStructures,
   UnionTypedStructure
@@ -7,17 +12,16 @@ import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.mjs";
 
-import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
-
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+// #endregion
 
+/** Foo | Bar | ... */
 export default class UnionTypedStructureImpl
 extends ElementsTypedStructureAbstract
 implements UnionTypedStructure

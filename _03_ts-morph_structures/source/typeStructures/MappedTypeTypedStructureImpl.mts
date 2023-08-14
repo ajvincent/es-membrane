@@ -1,12 +1,13 @@
+// #region preamble
 import type {
   CodeBlockWriter,
   WriterFunction,
 } from "ts-morph";
 
 import {
-  MappedTypeTypedStructure,
+  type MappedTypeTypedStructure,
   TypeParameterDeclarationImpl,
-  TypeStructures,
+  type TypeStructures,
   TypeStructureClassesMap,
   TypeStructureKind,
 } from "../../exports.mjs";
@@ -16,13 +17,20 @@ import {
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
 import {
-  CloneableStructure
-} from "../types/CloneableStructure.mjs";
-
-import {
   TypeParameterConstraintMode
 } from "../structures/TypeParameterDeclarationImpl.mjs";
 
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+// #endregion preamble
+
+/**
+ * `{ readonly [key in keyof Foo]: boolean }`
+ *
+ * @see `IndexedAccessTypedStructureImpl` for `Foo["index"]`
+ * @see `ObjectLiteralTypedStructureImpl` for `{ [key: string]: boolean }`
+ */
 export default class MappedTypeTypedStructureImpl
 implements MappedTypeTypedStructure
 {

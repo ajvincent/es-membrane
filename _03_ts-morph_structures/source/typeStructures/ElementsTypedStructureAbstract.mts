@@ -3,12 +3,15 @@ import type {
   WriterFunction,
 } from "ts-morph";
 
-import { TypeStructures } from "./TypeStructures.mjs";
+import type {
+  TypeStructures
+} from "./TypeStructures.mjs";
 
 export interface TypeStructureWithElements {
   elements: TypeStructures[];
 }
 
+/** prefix + elements[0] + joinCharacters + elements[1] + ... + elements[n] + postfix */
 export default abstract class ElementsTypedStructureAbstract
 implements TypeStructureWithElements
 {

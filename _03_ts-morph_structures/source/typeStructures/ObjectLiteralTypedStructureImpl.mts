@@ -1,3 +1,4 @@
+// #region preamble
 import {
   CallSignatureDeclarationStructure,
   CodeBlockWriter,
@@ -27,13 +28,27 @@ import {
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
 import {
-  CloneableStructure
-} from "../types/CloneableStructure.mjs";
-
-import {
   cloneArrayOrUndefined
 } from "../base/utilities.mjs";
 
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+// #endregion preamble
+
+/**
+ * ```typescript
+ * {
+ *    (callSignatureArgument) => string;
+ *    new (constructSignatureArgument) => ClassName;
+ *    [indexSignatureKey: string]: boolean;
+ *    property: number;
+ *    method(): void;
+ * }
+ * ```
+ *
+ * @see `MappedTypeTypedStructureImpl` for `{ readonly [key in keyof Foo]: boolean }`
+ */
 export default class ObjectLiteralTypedStructureImpl
 implements ObjectLiteralTypedStructure
 {

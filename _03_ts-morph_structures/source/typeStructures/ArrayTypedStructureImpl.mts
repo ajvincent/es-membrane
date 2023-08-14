@@ -1,5 +1,6 @@
+// #region preamble
 import {
-  CodeBlockWriter
+  CodeBlockWriter,
 } from "ts-morph";
 
 import type {
@@ -8,18 +9,26 @@ import type {
 } from "./TypeStructures.mjs";
 
 import {
-  TypeStructureKind
-} from "../base/TypeStructureKind.mjs";
-
-import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
 import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
+
+import {
+  TypeStructureKind
+} from "../base/TypeStructureKind.mjs";
+
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
+/**
+ * `boolean[]`
+ *
+ * @see `IndexedAccessTypedStructureImpl` for `Foo["index"]`
+ * @see `TupleTypedStructureImpl` for `[number, boolean]`
+ */
 export default class ArrayTypedStructureImpl
 implements ArrayTypedStructure
 {

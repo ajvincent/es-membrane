@@ -1,13 +1,20 @@
+// #region preamble
 import type {
   CodeBlockWriter,
   WriterFunction,
 } from "ts-morph";
+
+import {
+  LiteralTypedStructureImpl
+} from "../../exports.mjs";
 
 import type {
   ConditionalTypeStructureParts,
   ConditionalTypedStructure,
   TypeStructures,
 } from "./TypeStructures.mjs";
+
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 
 import {
   TypeStructureKind,
@@ -17,14 +24,12 @@ import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
-import {
+import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
-
-import LiteralTypedStructureImpl from "./LiteralTypedStructureImpl.mjs";
-
+/** `checkType` extends `extendsType` ? `trueType` : `falseType` */
 export default class ConditionalTypedStructureImpl
 implements ConditionalTypedStructure
 {

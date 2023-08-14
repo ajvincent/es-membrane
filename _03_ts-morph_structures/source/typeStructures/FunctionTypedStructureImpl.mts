@@ -1,37 +1,40 @@
+// #region preamble
 import type {
   CodeBlockWriter,
   WriterFunction,
 } from "ts-morph";
 
 import {
-  FunctionTypeContext,
-  FunctionTypedStructure,
+  type FunctionTypeContext,
+  type FunctionTypedStructure,
   FunctionWriterStyle,
-  ParameterTypedStructure,
-  TypeStructures
+  type ParameterTypedStructure,
+  type TypeStructures
 } from "./TypeStructures.mjs";
 
 import {
-  registerCallbackForTypeStructure
-} from "../base/callbackToTypeStructureRegistry.mjs";
-
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
-import type {
-  CloneableStructure
-} from "../types/CloneableStructure.mjs";
-import {
   ParameterTypedStructureImpl,
+  TypeParameterConstraintMode,
   TypeParameterDeclarationImpl,
   TypeStructureKind,
 } from "../../exports.mjs";
+
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
+
 import {
-  pairedWrite
+  registerCallbackForTypeStructure,
+} from "../base/callbackToTypeStructureRegistry.mjs";
+
+import {
+  pairedWrite,
 } from "../base/utilities.mjs";
 
-import {
-  TypeParameterConstraintMode
-} from "../structures/TypeParameterDeclarationImpl.mjs";
+import type {
+  CloneableStructure
+} from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
+/** ("new" | "get" | "set" | "") name<typeParameters>(parameters, ...restParameter) ("=\>" | ":" ) returnType */
 export default class FunctionTypedStructureImpl
 implements FunctionTypedStructure
 {

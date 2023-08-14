@@ -1,13 +1,19 @@
+// #region preamble
 import type {
-  CodeBlockWriter, WriterFunction,
+  CodeBlockWriter,
+  WriterFunction,
 } from "ts-morph";
 
 import {
-  TemplateLiteralTypedStructure,
-  TypeStructures,
+  type TemplateLiteralTypedStructure,
+  type TypeStructures,
   TypeStructureClassesMap,
   TypeStructureKind,
 } from "../../exports.mjs";
+
+import {
+  pairedWrite
+} from "../base/utilities.mjs";
 
 import {
   registerCallbackForTypeStructure
@@ -16,11 +22,9 @@ import {
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+// #endregion
 
-import {
-  pairedWrite
-} from "../base/utilities.mjs";
-
+/** `one${"A" | "B"}two${"C" | "D"}three` */
 export default class TemplateLiteralTypedStructureImpl
 implements TemplateLiteralTypedStructure
 {

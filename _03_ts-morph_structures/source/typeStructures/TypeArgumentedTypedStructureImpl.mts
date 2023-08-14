@@ -1,6 +1,9 @@
+// #region preamble
 import {
   CodeBlockWriter
 } from "ts-morph";
+
+import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
 
 import type {
   TypeArgumentedTypedStructure,
@@ -11,17 +14,24 @@ import {
   TypeStructureKind
 } from "../base/TypeStructureKind.mjs";
 
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
+
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
-import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
-
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
+/**
+ * `Pick<NumberStringType, "repeatForward">`
+ *
+ * This resolves type parameters, as opposed to defining them.
+ *
+ * @see `TypeParameterDeclarationImpl` for `Type<Foo extends object>`
+ */
 export default class TypeArgumentedTypedStructureImpl
 extends ElementsTypedStructureAbstract
 implements TypeArgumentedTypedStructure

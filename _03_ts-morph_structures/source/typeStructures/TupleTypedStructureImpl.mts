@@ -1,8 +1,12 @@
+// #region preamble
 import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
 
-import {
-  TupleTypedStructure, TypeStructures
+import type {
+  TupleTypedStructure,
+  TypeStructures
 } from "./TypeStructures.mjs";
+
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 
 import {
   TypeStructureKind
@@ -12,11 +16,17 @@ import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
+/**
+ * `[number, boolean]`
+ *
+ * @see `ArrayTypedStructureImpl` for `boolean[]`
+ * @see `IndexedAccessTypedStructureImpl` for `Foo["index"]`
+ */
 export default class TupleTypedStructureImpl
 extends ElementsTypedStructureAbstract
 implements TupleTypedStructure

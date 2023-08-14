@@ -1,7 +1,10 @@
+// #region preamble
 import type {
   CodeBlockWriter,
   WriterFunction,
 } from "ts-morph";
+
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 
 import type {
   LiteralTypedStructure
@@ -15,12 +18,12 @@ import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
-import {
+import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+// #region preamble
 
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
-
+/** Literals (boolean, number, string, void, etc.), without quotes, brackets, or anything else around them.  Leaf nodes. */
 export default class LiteralTypedStructureImpl implements LiteralTypedStructure
 {
   static clone(

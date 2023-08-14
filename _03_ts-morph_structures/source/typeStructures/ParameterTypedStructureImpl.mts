@@ -1,6 +1,11 @@
+// #region preamble
 import type {
   CodeBlockWriter,
 } from "ts-morph";
+
+import {
+  LiteralTypedStructureImpl
+} from "../../exports.mjs";
 
 import type {
   ParameterTypedStructure,
@@ -8,13 +13,14 @@ import type {
   TypeStructures
 } from "./TypeStructures.mjs";
 
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
+
 import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.mjs";
+// #endregion
 
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
-import LiteralTypedStructureImpl from "./LiteralTypedStructureImpl.mjs";
-
+/** Just a parameter name and type for a `FunctionTypedStructureImpl`. */
 export default class ParameterTypedStructureImpl
 implements ParameterTypedStructure
 {

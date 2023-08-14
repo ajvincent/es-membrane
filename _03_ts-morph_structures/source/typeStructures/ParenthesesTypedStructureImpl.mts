@@ -1,3 +1,4 @@
+// #region preamble
 import type {
   CodeBlockWriter,
   WriterFunction,
@@ -12,16 +13,18 @@ import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.mjs";
 
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
+
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
-import {
+import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
-
+/** Wrap the child type in parentheses. */
 export default class ParenthesesTypedStructureImpl
 implements ParenthesesTypedStructure
 {

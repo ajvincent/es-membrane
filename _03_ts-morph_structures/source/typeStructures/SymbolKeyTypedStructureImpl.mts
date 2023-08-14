@@ -1,3 +1,4 @@
+// #region preamble
 import type {
   CodeBlockWriter,
   WriterFunction,
@@ -7,6 +8,8 @@ import type {
   SymbolKeyTypedStructure
 } from "./TypeStructures.mjs";
 
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
+
 import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.mjs";
@@ -15,12 +18,12 @@ import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
-import {
+import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
-
+/** Symbol keys (`[MySymbol]`), enclosed in square brackets. Leaf nodes.*/
 export default class SymbolKeyTypedStructureImpl implements SymbolKeyTypedStructure
 {
   static clone(
