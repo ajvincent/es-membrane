@@ -1,5 +1,7 @@
 # Overall design for developers
 
+## Philosophy of this design
+
 ## Decorators for existing structures
 
 ## Base utilities
