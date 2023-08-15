@@ -79,14 +79,14 @@ Similarly, the type structure classes end in `TypedStructureImpl`, and you can i
 | [ArrayTypedStructureImpl](./source/typeStructures/ArrayTypedStructureImpl.mts) | `string[]` | objectType |
 | [TupleTypedStructureImpl](./source/typeStructures/TupleTypedStructureImpl.mts) | `[string, number]` | elements |
 | [IndexedAccessStructureImpl](./source/typeStructures/IndexedAccessTypedStructureImpl.mts) | `NumberStringType["repeatForward"]` | objectType, indexType |
-| [UnionTypedStructureImpl](./source/typeStructures/UnionTypedStructureImpl.mts) | `"one" | "two" | "three"` | elements |
+| [UnionTypedStructureImpl](./source/typeStructures/UnionTypedStructureImpl.mts) | "one" &#x7c; "two" &#x7c; "three" | elements |
 | [IntersectionTypedStructureImpl](./source/typeStructures/IntersectionTypedStructureImpl.mts) | `Foo & Bar` | elements |
 | [TypeArgumentedTypedStructureImpl](./source/typeStructures/TypeArgumentedTypedStructureImpl.mts) | `Pick<Array, "slice">` | objectType, elements |
-| [ConditionalTypedStructureImpl](./source/typeStructures/ConditionalTypedStructureImpl.mts) | `foo extends true ? string | never` | checkType, extendsType, trueType, falseType |
+| [ConditionalTypedStructureImpl](./source/typeStructures/ConditionalTypedStructureImpl.mts) | `foo extends true ? string : never` | checkType, extendsType, trueType, falseType |
 | [MappedTypeTypedStructureImpl](./source/typeStructures/MappedTypeTypedStructureImpl.mts) | `{ readonly [key in keyof Foo]: boolean }` | parameter, type |
-| [FunctionTypedStructureImpl](./source/typeStructures/FunctionTypedStructureImpl.mts) | `("new" | "get" | "set" | "") name<typeParameters>(parameters, ...restParameter) ("=>" | ":" ) returnType` | name, typeParameters, parameters, restParameter, returnType, writerStyle |
+| [FunctionTypedStructureImpl](./source/typeStructures/FunctionTypedStructureImpl.mts) | `("new" or "get" or "set" or "") name&lt;typeParameters&gt;(parameters, ...restParameter) ("=>" or ":" ) returnType` | name, typeParameters, parameters, restParameter, returnType, writerStyle |
 | [ParameterTypedStructureImpl](./source/typeStructures/ParameterTypedStructureImpl.mts) | `foo: boolean` | name, typeStructure |
-| [TemplateLiteralTypedStructure](./source/typeStructures/TemplateLiteralTypedStructureImpl.mts) | &#x60;`one${"A" | "B"}two${"C" | "D"}three`&#x60; | elements |
+| [TemplateLiteralTypedStructure](./source/typeStructures/TemplateLiteralTypedStructureImpl.mts) | &#x60;`one${"A"}two${"C"}three`&#x60; | elements |
 | [ObjectLiteralTypedStructureImpl](./source/typeStructures/ObjectLiteralTypedStructureImpl.mts) | See below | callSignatures, constructSignatures, indexSignatures, methods, properties |
 
 ### Object literals
