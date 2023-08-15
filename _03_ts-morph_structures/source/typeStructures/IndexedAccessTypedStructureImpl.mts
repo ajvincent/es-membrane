@@ -1,3 +1,4 @@
+// #region preamble
 import {
   CodeBlockWriter,
   WriterFunction,
@@ -12,14 +13,16 @@ import {
   TypeStructureKind
 } from "../base/TypeStructureKind.mjs";
 
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
+
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+// #endregion preamble
 
 /**
  * `Foo["index"]`
