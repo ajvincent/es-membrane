@@ -28,7 +28,7 @@ import StructureBase from "../base/StructureBase.mjs";
 
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
-import TypeWriterManager from "../base/TypeWriterManager.mjs";
+import TypeAccessors from "../base/TypeAccessors.mjs";
 
 import TypeWriterSet from "../base/TypeWriterSet.mjs";
 
@@ -112,7 +112,7 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
     "The implements array is read-only.  Please use this.implementsSet to set strings, writer functions, and type structures."
   );
 
-  readonly #extendsTypeManager = new TypeWriterManager();
+  readonly #extendsTypeManager = new TypeAccessors();
 
   readonly #implementsShadowArray: stringOrWriterFunction[] = [];
   readonly #implementsProxyArray = new Proxy<stringOrWriterFunction[]>(
@@ -188,7 +188,7 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
       other.methods, MethodDeclarationImpl
     );
 
-    clone.extends = TypeWriterManager.cloneType(other.extends);
+    clone.extends = TypeAccessors.cloneType(other.extends);
 
     if (typeof other.implements === "function") {
       clone.implementsSet.add(other.implements);

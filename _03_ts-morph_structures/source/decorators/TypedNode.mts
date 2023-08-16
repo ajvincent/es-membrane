@@ -20,7 +20,7 @@ import type {
   SubclassDecorator
 } from "#mixin_decorators/source/types/SubclassDecorator.mjs";
 
-import TypeWriterManager from "../base/TypeWriterManager.mjs";
+import TypeAccessors from "../base/TypeAccessors.mjs";
 
 import StructureBase from "../base/StructureBase.mjs";
 
@@ -62,7 +62,7 @@ export default function TypedNode(
 {
   void(context);
   return class extends baseClass {
-    readonly #typeWriterManager = new TypeWriterManager;
+    readonly #typeWriterManager = new TypeAccessors;
 
     get type(): string | WriterFunction | undefined
     {
@@ -93,7 +93,7 @@ export default function TypedNode(
       target: TypedNodeTypeStructure
     ): void
     {
-      target.type = TypeWriterManager.cloneType(source.type);
+      target.type = TypeAccessors.cloneType(source.type);
     }
   }
 }

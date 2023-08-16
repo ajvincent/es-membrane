@@ -3,7 +3,7 @@ import {
   WriterFunction
 } from "ts-morph";
 
-import TypeWriterManager from "../../source/base/TypeWriterManager.mjs";
+import TypeAccessors from "../../source/base/TypeAccessors.mjs";
 
 import {
   LiteralTypedStructureImpl,
@@ -15,9 +15,9 @@ import {
   getTypeStructureForCallback
 } from "#ts-morph_structures/source/base/callbackToTypeStructureRegistry.mjs";
 
-describe("TypeWriterManager with", () => {
-  let manager: TypeWriterManager;
-  beforeEach(() => manager = new TypeWriterManager);
+describe("TypeAccessors with", () => {
+  let manager: TypeAccessors;
+  beforeEach(() => manager = new TypeAccessors);
 
   const literalTypeStructure = new LiteralTypedStructureImpl("NumberStringType");
   const stringTypeStructure = new StringTypedStructureImpl("NumberStringType");
@@ -27,7 +27,7 @@ describe("TypeWriterManager with", () => {
     expect(manager.type).toBe(undefined);
     expect(manager.typeStructure).toBe(undefined);
 
-    const clone = TypeWriterManager.cloneType(manager.type);
+    const clone = TypeAccessors.cloneType(manager.type);
     expect(clone).toBe(manager.type);
   });
 
@@ -39,7 +39,7 @@ describe("TypeWriterManager with", () => {
       (manager.typeStructure as LiteralTypedStructureImpl)?.stringValue
     ).toBe("NumberStringType");
 
-    const clone = TypeWriterManager.cloneType(manager.type);
+    const clone = TypeAccessors.cloneType(manager.type);
     expect(clone).toBe(manager.type);
   });
 
@@ -53,7 +53,7 @@ describe("TypeWriterManager with", () => {
       (manager.typeStructure as WriterTypedStructureImpl)?.writerFunction
     ).toBe(callback);
 
-    const clone = TypeWriterManager.cloneType(manager.type);
+    const clone = TypeAccessors.cloneType(manager.type);
     expect(clone).toBe(manager.type);
   });
 
@@ -63,7 +63,7 @@ describe("TypeWriterManager with", () => {
     expect(manager.type).toBe(stringTypeStructure.writerFunction);
     expect(manager.typeStructure).toBe(stringTypeStructure);
 
-    const clone = TypeWriterManager.cloneType(manager.type);
+    const clone = TypeAccessors.cloneType(manager.type);
     expect(typeof clone).toBe("function");
 
     if (typeof clone === "function") {
@@ -80,7 +80,7 @@ describe("TypeWriterManager with", () => {
     expect(manager.type).toBe("NumberStringType");
     expect(manager.typeStructure).toBe(literalTypeStructure);
 
-    const clone = TypeWriterManager.cloneType(manager.type);
+    const clone = TypeAccessors.cloneType(manager.type);
     expect(clone).toBe(manager.type);
   });
 
@@ -90,7 +90,7 @@ describe("TypeWriterManager with", () => {
     expect(manager.type).toBe(writerTypeStructure.writerFunction);
     expect(manager.typeStructure).toBe(writerTypeStructure);
 
-    const clone = TypeWriterManager.cloneType(manager.type);
+    const clone = TypeAccessors.cloneType(manager.type);
     expect(clone).toBe(manager.type);
   });
 });

@@ -12,7 +12,7 @@ import StructureBase from "../base/StructureBase.mjs";
 
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
-import TypeWriterManager from "../base/TypeWriterManager.mjs";
+import TypeAccessors from "../base/TypeAccessors.mjs";
 
 import type {
   TypeParameterWithTypeStructures
@@ -40,8 +40,8 @@ export default class TypeParameterDeclarationImpl
 extends StructureBase
 implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
 {
-  readonly #constraintManager = new TypeWriterManager;
-  readonly #defaultManager = new TypeWriterManager;
+  readonly #constraintManager = new TypeAccessors;
+  readonly #defaultManager = new TypeAccessors;
 
   get constraint(): stringOrWriterFunction | undefined
   {
@@ -174,8 +174,8 @@ implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
     clone.isConst = other.isConst ?? false;
     clone.variance = other.variance;
 
-    clone.constraint = TypeWriterManager.cloneType(other.constraint);
-    clone.default = TypeWriterManager.cloneType(other.default);
+    clone.constraint = TypeAccessors.cloneType(other.constraint);
+    clone.default = TypeAccessors.cloneType(other.default);
 
     return clone;
   }
