@@ -1,14 +1,14 @@
-import TypeWriterSet from "#ts-morph_structures/source/base/TypeWriterSet.mjs";
+import TypeStructureSet from "#ts-morph_structures/source/base/TypeStructureSet.mjs";
 import { stringOrWriterFunction } from "#ts-morph_structures/source/types/ts-morph-native.mjs";
 import { CodeBlockWriter } from "ts-morph";
 import { LiteralTypedStructureImpl } from "#ts-morph_structures/exports.mjs";
 
-describe("TypeWriterSet", () => {
+describe("TypeStructureSet", () => {
   let backingArray: stringOrWriterFunction[];
-  let writerSet: TypeWriterSet;
+  let writerSet: TypeStructureSet;
   beforeEach(() => {
     backingArray = [];
-    writerSet = new TypeWriterSet(backingArray);
+    writerSet = new TypeStructureSet(backingArray);
   });
 
   it("starts out empty", () => {
@@ -149,7 +149,7 @@ describe("TypeWriterSet", () => {
     const literalString = new LiteralTypedStructureImpl("string");
     backingArray.push("boolean", writerOne, literalString.writerFunction);
 
-    writerSet = new TypeWriterSet(backingArray);
+    writerSet = new TypeStructureSet(backingArray);
     expect(writerSet.size).toBe(3);
     expect(Array.from(writerSet)).toEqual([
       "boolean", writerOne, literalString
@@ -169,7 +169,7 @@ describe("TypeWriterSet", () => {
     const literalString = new LiteralTypedStructureImpl("string");
     backingArray.push("boolean", writerOne, literalString.writerFunction);
 
-    writerSet = new TypeWriterSet(backingArray);
+    writerSet = new TypeStructureSet(backingArray);
 
     writerSet.clear();
     expect(backingArray).toEqual([]);

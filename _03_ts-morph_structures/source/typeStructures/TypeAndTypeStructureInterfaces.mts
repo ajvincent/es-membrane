@@ -2,7 +2,7 @@ import type {
   TypeStructures
 } from "./TypeStructures.mjs";
 
-import TypeWriterSet from "../base/TypeWriterSet.mjs";
+import TypeStructureSet from "../base/TypeStructureSet.mjs";
 
 import type {
   stringOrWriterFunction
@@ -31,6 +31,12 @@ export interface TypeParameterWithTypeStructures
 
 export interface ClassDeclarationWithImplementsTypeStructures
 {
-  implementsSet: TypeWriterSet;
+  implementsSet: TypeStructureSet;
   implements: stringOrWriterFunction[];
+}
+
+export interface InterfaceDeclarationWithExtendsTypeStructures
+{
+  extendsSet: TypeStructureSet;
+  extends: stringOrWriterFunction[];
 }

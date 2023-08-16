@@ -11,7 +11,7 @@ import { stringOrWriterFunction } from "../types/ts-morph-native.mjs";
  * In particular, if the user passes in a writer function belonging to a registered type structure,
  * this uses the type structure instead as the argument.
  */
-export default class TypeWriterSet
+export default class TypeStructureSet
 extends Set<stringOrWriterFunction | TypeStructures>
 {
   static #getStringOrWriterFunction(
@@ -40,7 +40,7 @@ extends Set<stringOrWriterFunction | TypeStructures>
     this.#backingArray = backingArray;
     backingArray.forEach((value: stringOrWriterFunction | TypeStructures) => {
       if (typeof value === "function") {
-        value = TypeWriterSet.#getTypeWriterIfAvailable(value);
+        value = TypeStructureSet.#getTypeWriterIfAvailable(value);
       }
       super.add(value);
     });
@@ -49,11 +49,11 @@ extends Set<stringOrWriterFunction | TypeStructures>
   add(value: stringOrWriterFunction | TypeStructures): this
   {
     if (typeof value === "function") {
-      value = TypeWriterSet.#getTypeWriterIfAvailable(value);
+      value = TypeStructureSet.#getTypeWriterIfAvailable(value);
     }
 
     if (!super.has(value)) {
-      this.#backingArray.push(TypeWriterSet.#getStringOrWriterFunction(value));
+      this.#backingArray.push(TypeStructureSet.#getStringOrWriterFunction(value));
     }
 
     return super.add(value);
@@ -66,7 +66,7 @@ extends Set<stringOrWriterFunction | TypeStructures>
 
   has(value: stringOrWriterFunction | TypeStructures): boolean {
     if (typeof value === "function") {
-      value = TypeWriterSet.#getTypeWriterIfAvailable(value);
+      value = TypeStructureSet.#getTypeWriterIfAvailable(value);
     }
 
     return super.has(value);
@@ -74,13 +74,13 @@ extends Set<stringOrWriterFunction | TypeStructures>
 
   delete(value: stringOrWriterFunction | TypeStructures): boolean {
     if (typeof value === "function") {
-      value = TypeWriterSet.#getTypeWriterIfAvailable(value);
+      value = TypeStructureSet.#getTypeWriterIfAvailable(value);
     }
 
     if (!super.has(value))
       return false;
 
-    const backingValue = TypeWriterSet.#getStringOrWriterFunction(value);
+    const backingValue = TypeStructureSet.#getStringOrWriterFunction(value);
     this.#backingArray.splice(this.#backingArray.indexOf(backingValue), 1);
 
     return super.delete(value);

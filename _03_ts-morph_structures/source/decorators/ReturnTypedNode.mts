@@ -22,7 +22,7 @@ import type {
 
 import StructureBase from "../base/StructureBase.mjs";
 
-import TypeWriterManager from "../base/TypeWriterManager.mjs";
+import TypeAccessors from "../base/TypeAccessors.mjs";
 
 import {
   TypeStructures
@@ -62,7 +62,7 @@ export default function ReturnTypedNode(
 {
   void(context);
   return class extends baseClass {
-    readonly #typeWriterManager = new TypeWriterManager;
+    readonly #typeWriterManager = new TypeAccessors;
 
     get returnType(): string | WriterFunction | undefined
     {
@@ -93,7 +93,7 @@ export default function ReturnTypedNode(
       target: ReturnTypedNodeTypeStructure
     ): void
     {
-      target.returnType = TypeWriterManager.cloneType(source.returnType);
+      target.returnType = TypeAccessors.cloneType(source.returnType);
     }
   }
 }

@@ -28,9 +28,9 @@ import StructureBase from "../base/StructureBase.mjs";
 
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
-import TypeWriterManager from "../base/TypeWriterManager.mjs";
+import TypeAccessors from "../base/TypeAccessors.mjs";
 
-import TypeWriterSet from "../base/TypeWriterSet.mjs";
+import TypeStructureSet from "../base/TypeStructureSet.mjs";
 
 import {
   cloneArrayOrUndefined,
@@ -112,14 +112,14 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
     "The implements array is read-only.  Please use this.implementsSet to set strings, writer functions, and type structures."
   );
 
-  readonly #extendsTypeManager = new TypeWriterManager();
+  readonly #extendsTypeManager = new TypeAccessors();
 
   readonly #implementsShadowArray: stringOrWriterFunction[] = [];
   readonly #implementsProxyArray = new Proxy<stringOrWriterFunction[]>(
     this.#implementsShadowArray,
     ClassDeclarationImpl.#implementsArrayReadonlyHandler
   );
-  readonly #implementsSet = new TypeWriterSet(this.#implementsShadowArray);
+  readonly #implementsSet = new TypeStructureSet(this.#implementsShadowArray);
 
   readonly kind: StructureKind.Class = StructureKind.Class;
 
@@ -162,7 +162,7 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
     2. the array the caller passes in is not the array we have: they update it and the update doesn't stick.
   */
 
-  get implementsSet(): TypeWriterSet {
+  get implementsSet(): TypeStructureSet {
     return this.#implementsSet;
   }
 
@@ -188,7 +188,7 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
       other.methods, MethodDeclarationImpl
     );
 
-    clone.extends = TypeWriterManager.cloneType(other.extends);
+    clone.extends = TypeAccessors.cloneType(other.extends);
 
     if (typeof other.implements === "function") {
       clone.implementsSet.add(other.implements);

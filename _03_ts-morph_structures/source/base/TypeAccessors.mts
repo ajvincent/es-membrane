@@ -32,12 +32,12 @@ import WriterTypedStructureImpl from "../typeStructures/WriterTypedStructureImpl
  * This provides an API for converting between a type (`string | WriterFunction`) and a `TypeStructure`.
  *
  * For any class providing a type (return type, constraint, extends, etc.), you can have an instance of
- * `TypeWriterManager` as a private class field, and provide getters and setters for type and typeStructure
- * referring to the private TypeWriterManager.
+ * `TypeAccessors` as a private class field, and provide getters and setters for type and typeStructure
+ * referring to the private TypeAccessors.
  *
  * See `../decorators/TypedNode.mts` for an example.
  */
-export default class TypeWriterManager
+export default class TypeAccessors
 extends StructureBase
 implements TypedNodeStructure, TypedNodeTypeStructure
 {
