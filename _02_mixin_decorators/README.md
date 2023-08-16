@@ -4,7 +4,6 @@ TypeScript 5.0 introduces us to [ECMAScript decorators](https://github.com/tc39/
 
 ## Type definitions
 
-1. The `Class` type from `type-fest` is deficient, and I have a fix on the way.  In the meantime, [I've forked `Class` with a corrected type definition.](./source/types/Class.d.mts)
 1. A class decorator type which is aware of the new context argument.  [TypeScript 5.0's built-in `ClassDecorator` type won't work.](https://github.com/microsoft/TypeScript/issues/53790).  [`ClassDecoratorFunction`](./source/types/ClassDecoratorFunction.d.mts) fills the bill.
 1. Classes have [static fields](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/static), which means a special type to define the static and instance fields of a subclass.  [`StaticAndInstance`](./source/types/StaticAndInstance.d.mts) defines this.
 1. Without depending on `StaticAndInstance`, we need a type to define how a mix-in class joins the base class and its subclass's static and instance fields.  [`MixinClass`](./source/types/MixinClass.d.mts) is a little convoluted, but works well.
