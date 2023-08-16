@@ -15,7 +15,7 @@ import StatementClassesMap from "../base/StatementClassesMap.mjs";
 
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
-import TypeWriterSet from "../base/TypeWriterSet.mjs";
+import TypeStructureSet from "../base/TypeStructureSet.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -46,6 +46,7 @@ import type {
 import {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
+import { InterfaceDeclarationWithExtendsTypeStructures } from "../typeStructures/TypeAndTypeStructureInterfaces.mjs";
 // #endregion preamble
 
 const InterfaceDeclarationBase = MultiMixinBuilder<
@@ -75,7 +76,7 @@ const InterfaceDeclarationBase = MultiMixinBuilder<
 
 export default class InterfaceDeclarationImpl
 extends InterfaceDeclarationBase
-implements InterfaceDeclarationStructure
+implements InterfaceDeclarationStructure, InterfaceDeclarationWithExtendsTypeStructures
 {
   static readonly #extendsArrayReadonlyHandler = new ReadonlyArrayProxyHandler(
     "The extends array is read-only.  Please use this.extendsSet to set strings, writer functions, and type structures."
@@ -86,7 +87,7 @@ implements InterfaceDeclarationStructure
     this.#extendsShadowArray,
     InterfaceDeclarationImpl.#extendsArrayReadonlyHandler
   );
-  readonly #extendsSet = new TypeWriterSet(this.#extendsShadowArray);
+  readonly #extendsSet = new TypeStructureSet(this.#extendsShadowArray);
 
   name: string;
 
@@ -106,7 +107,7 @@ implements InterfaceDeclarationStructure
     2. the array the caller passes in is not the array we have: they update it and the update doesn't stick.
   */
 
-  get extendsSet(): TypeWriterSet {
+  get extendsSet(): TypeStructureSet {
     return this.#extendsSet;
   }
 

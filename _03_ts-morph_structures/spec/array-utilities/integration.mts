@@ -3,7 +3,7 @@ import type {
   ImplementsClauseableNodeStructure
 } from 'ts-morph'
 
-import TypeWriterSet from "#ts-morph_structures/source/base/TypeWriterSet.mjs";
+import TypeStructureSet from "#ts-morph_structures/source/base/TypeStructureSet.mjs";
 import ReadonlyArrayProxyHandler from "#ts-morph_structures/source/array-utilities/ReadonlyArrayProxyHandler.mjs";
 import type {
   stringOrWriterFunction
@@ -24,7 +24,7 @@ it("ts-morph structures: implements array and set, integration test", () => {
       this.#implementsArray,
       ImplementsArrayOwner.#implementsArrayProxyHandler,
     );
-    readonly #implementsArrayAsSet = new TypeWriterSet(this.#implementsArray);
+    readonly #implementsArrayAsSet = new TypeStructureSet(this.#implementsArray);
 
     get implements(): stringOrWriterFunction[] {
       return this.#implementsArrayProxy;

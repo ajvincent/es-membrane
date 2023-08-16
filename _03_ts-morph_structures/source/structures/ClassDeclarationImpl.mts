@@ -30,7 +30,7 @@ import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
 import TypeAccessors from "../base/TypeAccessors.mjs";
 
-import TypeWriterSet from "../base/TypeWriterSet.mjs";
+import TypeStructureSet from "../base/TypeStructureSet.mjs";
 
 import {
   cloneArrayOrUndefined,
@@ -119,7 +119,7 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
     this.#implementsShadowArray,
     ClassDeclarationImpl.#implementsArrayReadonlyHandler
   );
-  readonly #implementsSet = new TypeWriterSet(this.#implementsShadowArray);
+  readonly #implementsSet = new TypeStructureSet(this.#implementsShadowArray);
 
   readonly kind: StructureKind.Class = StructureKind.Class;
 
@@ -162,7 +162,7 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
     2. the array the caller passes in is not the array we have: they update it and the update doesn't stick.
   */
 
-  get implementsSet(): TypeWriterSet {
+  get implementsSet(): TypeStructureSet {
     return this.#implementsSet;
   }
 
