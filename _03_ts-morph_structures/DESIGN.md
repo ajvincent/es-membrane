@@ -249,10 +249,10 @@ First I have to match [ts-morph structures to ts-morph nodes](./source/bootstrap
 1. Get the structure from the root node, then clone it using the structure classes map.
 1. Walk the tree of structures to collect all of them in a `Set<Structures>`.
 1. For each element of the structures set,
-  a. Create a hash of the node the structure represents.
-  a. Look up that hash in the map of node sets above.
-  a. If there is a match, extract the node from the set and add the `[structure, node]` tuple to a `Map<Structures, Node>`.
-  a. Otherwise, throw an exception, because there should always be a 1:1 relationship between a structure and its node (until someone modifies one or the other, that is).
+   1. Create a hash of the node the structure represents.
+   1. Look up that hash in the map of node sets above.
+   1. If there is a match, extract the node from the set and add the `[structure, node]` tuple to a `Map<Structures, Node>`.
+   1. Otherwise, throw an exception, because there should always be a 1:1 relationship between a structure and its node (until someone modifies one or the other, that is).
 1. Return the map of structures to nodes.  The first key of the map should be the root structure.
 
 There are nuances to both node trees and structure trees which make this a specialized task.  There is a fair bit of trial-and-error in developing this.  The module tracks debugging information (structure hashes, parent hashes of structure and node, node-to-hash maps, etc.), for the occasions when it fails.
