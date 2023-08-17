@@ -14,7 +14,7 @@ Type structures are instances of classes, representing type nodes in the TypeScr
 
 - `LiteralTypedStructure`, representing literal values (boolean, string, null, object, void, etc.) and identifiers (Foo, NumberStringType, etc.), which I print as-is.
 - `StringTypedStructure`, which represents strings in double quotes.
-- `SymbolKeyTypedStrucutre`, which represents [ECMAScript symbols](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol), and prints them in square brackets.
+- `SymbolKeyTypedStructure`, which represents [ECMAScript symbols](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol), and prints them in square brackets.
 - `WriterFunctionTypedStructure`, for wrapping writer functions, if we get them.  (These are rare.)
 
 The first three of these have a read-only `stringValue` property.  Their constructors take a single string as the string value.
