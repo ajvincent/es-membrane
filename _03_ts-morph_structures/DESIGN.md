@@ -308,16 +308,110 @@ The `buildTypesForStructures()` function handles a null return from `convertType
 
 ## What does this project export?
 
+- `getTypeAugmentedStructures()`
+  - `type RootStructureWithConvertFailures`
+  - `type TypedNodeToTypeStructureConsole`
+- All structure classes
+  - `TypeParameterConstraintMode` for a rule on printing type parameters (`foo extends object` versus `key in type`)
+- Factory support types for `MethodDeclarationImpl`
+  - `MethodDeclarationEnableFlags`
+  - `MethodDeclarationAppendContext`
+- Structure classes maps (structures, statements, type structures) for cloning support
+- All type structure classes
+  - `TypeStructureKind`
+  - `type KindedTypeStructure`
+- `createCodeBlockWriter()`
+
 ## The Future
 
 ### Porting to `ts-morph` upstream?
 
+This is the most desirable outcome: adding these structure and type structure classes directly into the ts-morph project.  Bootstrapping is less efficient than having ts-morph just provide the type-augmented structures directly... and it would be easier to catch and fix bugs in one project rather than two.
+
+If this is not acceptable, then as I stated in [the README file](./README.md), I would like to publish this as a separate npm project with a more unique name... after I am more confident that it works correctly.  (See "More tests, please" below.)
+
 ### Factory constructors and methods
+
+I started building this out for `MethodDeclarationImpl`.  I think it's still a very good idea, just not as urgent as getting a working set of structure classes.
 
 ### Write access to type array proxies
 
+When my es-membrane library is more mature, I might bring forward the write-access methods of arrays.  I haven't decided yet, and I won't until I have reached that point.
+
 ### More tests, please
+
+My testing plan right now is "use it, and when it breaks, fix it and write tests for what broke."  
+
+Of course, I would prefer explicit tests of every structure class.  Normally, I'd write those tests up front.  I didn't this time, because (a) these classes do compile against the ts-morph structure interfaces, and (b) most of the time, the structure fields are dumb objects, not needing any special treatment.  
+
+Augmenting structures with type structures, and cloning structures, was really the only part where I'm adding intelligence.  [The type structures _do_ have unit tests](./spec/TypeStructure.mts).  
+
+### What's not in the future plan?
+
+- All statements as structures.  Statements typically appear as `(string | WriterFunction | StatementStructures)[] | string | WriterFunction`.  Statements can be as simple as `const x = true;` or a really complicated `for` loop with child statements.  Unlike the type arrays, ordering matters, so replacing this with a simple `Set` won't work.  Type arrays are complicated enough, and not that user-friendly.  A complete statement structures set and support for a generic statements array would be an order of magnitude worse.
+  - Likewise, "all nodes as structures".  I'm not doing that.  The maintenance alone as TypeScript evolves...
+- Printing methods for structures in general.  The ts-morph project already supports that.  To do so here would be to duplicate work.
+  - Printing methods for type structures are an exception to this, because this is _not_ duplicating features ts-morph already has.
+
+### Checklist for creating a new class decorator
+
+- [ ] Import `RightExtendsLeft`, `StaticAndInstance`, `SubclassDecorator`, `StructureBase`, and `MixinDecorator`
+- [ ] `declare const YourStructureKey: unique symbol;` (this is to ensure decorators appear in the right order)
+- [ ] `export type YourStructureFields = RightExtendsLeft<StaticAndInstance<YourStructureKey>, {}>`;
+  - [ ] `staticFields` for static class fields
+  - [ ] `instanceFields` for class instance fields
+  - [ ] `symbolKey: typeof YourStructureKey`
+- [ ] `export default function YourDecoratorNode`
+  - [ ] Follow the pattern of existing decorators, including especially `satisfies SubclassDecorator<...>`
+- [ ] Write whatever tests and/or documentation you feel is appropriate
 
 ### Checklist for adding a new structure class
 
+- [ ] Import what you need:
+  - [ ] from ts-morph: `StructureKind`, `type OptionalKind`, your structure type
+  - [ ] `MultiMixinBuilder`
+  - [ ] existing structure and type structure class dependencies from `exports.mjs`
+  - [ ] `StructureClassesMap`, `CloneableStructure` for cloneable classes support
+  - [ ] Decorators and their structure fields type
+- [ ] Define a mixin class using `MultiMixinBuilder`
+- [ ] Implement your structure class as extending the mixin class
+  - [ ] `readonly kind: StructureKind<Foo> = StructureKind<Foo>;`
+  - [ ] References to other structures should be instances of existing structure classes
+  - [ ] References to types should have matching type structure references, and have a private `TypeAccessors` or `TypeStructureSet` backing them
+  - [ ] Export your structure class as the default export.
+  - [ ] Implement `public static clone`
+    - [ ] The source parameter should be of type `OptionalKind<StructureKind.Foo>`
+    - [ ] Use `StructureClassesMap.clone()` and your decorators' `cloneFoo(source, target)` functions where practical
+  - [ ] Add a `satisfies` constraint for your class for the static clone method:  `ClassDeclarationImpl satisfies CloneableStructure<ClassDeclarationStructure>;` for example
+  - [ ] Add your class to the `StructureClassesMap`, with the key being your `StructureKind`.
+  - [ ] Add your class as an export from `exports.mts`
+  - [ ] Write whatever tests and/or documentation you feel is appropriate
+
 ### Checklist for adding a new type structure class
+
+- In [source/base/TypeStructureKind.mts](./source/base/TypeStructureKind.mts), append a new enum member of `TypeStructureKind`
+- In [TypeStructures.mts](./source/typeStructures/TypeStructures.mts), define the type alias your type structure class will implement
+  - Include `KindedStructure<TypeStructureKind.YourNewType>`
+  - Wrap the alias's type in the `Simplify` type, to make it easier to read when someone hovers over it in an IDE
+  - Append your new type to `TypeStructures`
+- Import what you need:
+  - from ts-morph: `CodeBlockWriter`
+  - from `TypeStructures`, your new structure's type alias, and `TypeStructures`
+  - `TypeStructureKind` from `TypeStructureKind.mjs`
+  - `registerCallbackForTypeStructure` from `callbackToTypeStructureRegistry`
+  - `TypeStructureClassesMap`, `CloneableStructure` for cloneable classes support
+- Implement your type structure class.
+  - `implements YourTypeStructureTypeAlias`
+  - `readonly kind: TypeStructureKind<Foo> = TypeStructureKind<Foo>`
+  - `constructor()` must call `registerCallbackForTypeStructure(this)`
+  - References to other type structures should be instances of existing type structure classes
+  - References to regular structures should be instances of existing structure classes
+  - `#writerFunction(writer: CodeBlockWriter): void`
+  - `readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);`
+  - Implement `public static clone()`
+    - The source parameter should be of the same type as your type alias
+    - [ ] Use `TypeStructureClassesMap.clone()` and your decorators' `cloneFoo(source, target)` functions where practical
+  - [ ] Add a `satisfies` constraint for your class for the static clone method:  `ConditionalTypedStructureImpl satisfies CloneableStructure<ConditionalTypedStructure>;` for example
+  - [ ] Add your class to the `TypeStructureClassesMap`, with your key being your `TypeStructureKind`
+  - [ ] Add your class as an export from `exports.mts`
+  - [ ] Write whatever tests and/or documentation you feel is appropriate
