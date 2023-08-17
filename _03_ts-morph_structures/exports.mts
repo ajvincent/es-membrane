@@ -1,7 +1,7 @@
 export {
   default as getTypeAugmentedStructure,
-  RootStructureWithConvertFailures,
-  TypeNodeToTypeStructureConsole,
+  type RootStructureWithConvertFailures,
+  type TypeNodeToTypeStructureConsole,
 } from "./source/bootstrap/getTypeAugmentedStructure.mjs";
 
 // #region Structure implementations
@@ -59,6 +59,8 @@ export type {
 export * from "./source/typeStructures/TypeStructures.mjs";
 
 export type {
+  ClassDeclarationWithImplementsTypeStructures,
+  InterfaceDeclarationWithExtendsTypeStructures,
   ReturnTypedNodeTypeStructure,
   TypedNodeTypeStructure,
   TypeParameterWithTypeStructures,
@@ -66,7 +68,7 @@ export type {
 
 export {
   TypeStructureKind,
-  KindedTypeStructure
+  type KindedTypeStructure,
 } from "./source/base/TypeStructureKind.mjs";
 
 export { default as ArrayTypedStructureImpl } from "./source/typeStructures/ArrayTypedStructureImpl.mjs";
