@@ -415,3 +415,5 @@ Augmenting structures with type structures, and cloning structures, was really t
   - [ ] Add your class to the `TypeStructureClassesMap`, with your key being your `TypeStructureKind`
   - [ ] Add your class as an export from `exports.mts`
   - [ ] Write whatever tests and/or documentation you feel is appropriate
+- Update [convertTypeNode.mts](./source/bootstrap/convertTypeNode.mts) and its corresponding [test file](./spec/bootstrap/convertTypeNode.mts) for the new structure and its matching type node.
+- Update the [README.md](./README.md) file for the new type structure.

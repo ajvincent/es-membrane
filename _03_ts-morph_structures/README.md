@@ -48,7 +48,7 @@ Depending on community feedback, I may publish an independent package on `npmjs.
   - Each type structure has a `WriterFunction` for feeding into `ts-morph`
 - Failures to create type structures fall back gracefully to the original type strings or writer functions
 - Type structures matching one-to-one with type fields on all structures
-  - For arrays of types, there's `TypeWriterSet`: `ClassDeclarationStructure::implementsSet`, `InterfaceDeclarationStructure::extendsSet`
+  - For arrays of types, there's `TypeStructureSet`: `ClassDeclarationStructure::implementsSet`, `InterfaceDeclarationStructure::extendsSet`
 - Arrays for structure fields where arrays are an option in the structure interface (so less guessing)
 
 ## Generating structures from existing code
@@ -86,8 +86,9 @@ Similarly, the type structure classes end in `TypedStructureImpl`, and you can i
 | [MappedTypeTypedStructureImpl](./source/typeStructures/MappedTypeTypedStructureImpl.mts) | `{ readonly [key in keyof Foo]: boolean }` | parameter, type |
 | [FunctionTypedStructureImpl](./source/typeStructures/FunctionTypedStructureImpl.mts) | `("new" or "get" or "set" or "") name&lt;typeParameters&gt;(parameters, ...restParameter) ("=>" or ":" ) returnType` | name, typeParameters, parameters, restParameter, returnType, writerStyle |
 | [ParameterTypedStructureImpl](./source/typeStructures/ParameterTypedStructureImpl.mts) | `foo: boolean` | name, typeStructure |
-| [TemplateLiteralTypedStructure](./source/typeStructures/TemplateLiteralTypedStructureImpl.mts) | &#x60;`one${"A"}two${"C"}three`&#x60; | elements |
+| [TemplateLiteralTypedStructureImpl](./source/typeStructures/TemplateLiteralTypedStructureImpl.mts) | &#x60;`one${"A"}two${"C"}three`&#x60; | elements |
 | [ObjectLiteralTypedStructureImpl](./source/typeStructures/ObjectLiteralTypedStructureImpl.mts) | See below | callSignatures, constructSignatures, indexSignatures, methods, properties |
+| [InferTypedStructureImpl](./source/typeStructures/InferTypedStructureImpl.mts) | `Elements extends [infer Head, ...infer Tail]` | typeParameter |
 
 ### Object literals
 
