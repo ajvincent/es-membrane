@@ -591,4 +591,30 @@ const A: string;
     expect(failMessage).toBe(undefined);
     expect(failNode).toBe(null);
   });
+
+  it("...infer Type", () => {
+    setTypeStructure(
+      `Elements extends readonly symbol[] ? Elements extends [ infer Head, ...infer Tail] ? Head : never : never`,
+      failCallback
+    );
+
+    expect(structure).toBeInstanceOf(ConditionalTypedStructureImpl);
+    if (!(structure instanceof ConditionalTypedStructureImpl))
+      return;
+
+    structure = structure.trueType;
+    expect(structure).toBeInstanceOf(ConditionalTypedStructureImpl);
+    if (!(structure instanceof ConditionalTypedStructureImpl))
+      return;
+
+    structure = structure.extendsType;
+    expect(structure).toBeInstanceOf(TupleTypedStructureImpl);
+    if (!(structure instanceof TupleTypedStructureImpl))
+      return;
+
+    structure = structure.elements[1];
+
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
+  });
 });

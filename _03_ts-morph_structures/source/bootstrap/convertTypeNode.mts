@@ -46,6 +46,7 @@ import {
   IndexSignatureDeclarationImpl,
   MethodSignatureImpl,
   PropertySignatureImpl,
+  InferTypedStructureImpl,
 } from "../../exports.mjs"
 
 import {
@@ -93,7 +94,7 @@ export default function convertTypeNode(
 ): TypeStructures | null
 {
   if (Node.isLiteralTypeNode(typeNode)) {
-    typeNode = typeNode.getFirstChildOrThrow()
+    typeNode = typeNode.getFirstChildOrThrow();
   }
   const kind: SyntaxKind = typeNode.getKind();
 
@@ -153,6 +154,27 @@ export default function convertTypeNode(
   if (Node.isTypeQuery(typeNode)) {
     const structure = buildLiteralForEntityName(typeNode.getExprName());
     return prependPrefixOperator("typeof", structure);
+  }
+
+  // Node.isRestTypeNode(typeNode)
+  if (typeNode.getKind() === SyntaxKind.RestType) {
+    const structure = convertTypeNode(
+      typeNode.getLastChildOrThrow(),
+      conversionFailCallback,
+      subStructureResolver
+    );
+    if (!structure)
+      return null;
+    return prependPrefixOperator("...", structure);
+  }
+
+  if (Node.isInferTypeNode(typeNode)) {
+    const declaration = typeNode.getTypeParameter();
+    const subStructure = convertTypeParameterNode(declaration, subStructureResolver);
+    if (!subStructure)
+      return null;
+
+    return new InferTypedStructureImpl(subStructure);
   }
 
   if (Node.isTypeOperatorTypeNode(typeNode)) {

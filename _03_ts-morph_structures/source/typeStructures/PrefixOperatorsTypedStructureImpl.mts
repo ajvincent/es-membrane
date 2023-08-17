@@ -58,7 +58,7 @@ implements PrefixOperatorsTypedStructure
   #writerFunction(writer: CodeBlockWriter): void
   {
     if (this.operators.length) {
-      writer.write(this.operators.map(op => op + " ").join(""));
+      writer.write(this.operators.map(op => op === "..." ? op : op + " ").join(""));
     }
     this.childType.writerFunction(writer);
   }

@@ -100,7 +100,7 @@ implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
     this.name = name;
   }
 
-  writerFunction(
+  constraintWriter(
     writer: CodeBlockWriter,
     constraintMode: TypeParameterConstraintMode,
   ): void

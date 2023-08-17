@@ -38,6 +38,7 @@ interface TypeStructureWithOneChild {
 }
 
 export type PrefixUnaryOperator = (
+  "..." |
   "readonly" |
   "unique" |
   "keyof" |
@@ -204,6 +205,15 @@ export type ObjectLiteralTypedStructure = Simplify<
   AppendableStructure<ObjectLiteralAppendables>
 >;
 
+export interface InferTypedStructureFields {
+  typeParameter: TypeParameterDeclarationImpl;
+}
+
+export type InferTypedStructure = Simplify<
+  KindedTypeStructure<TypeStructureKind.Infer> &
+  InferTypedStructureFields
+>;
+
 export type TypeStructures = (
   WriterTypedStructure |
   LiteralTypedStructure |
@@ -221,5 +231,6 @@ export type TypeStructures = (
   TypeArgumentedTypedStructure |
   FunctionTypedStructure |
   TemplateLiteralTypedStructure |
-  ObjectLiteralTypedStructure
+  ObjectLiteralTypedStructure |
+  InferTypedStructure
 );

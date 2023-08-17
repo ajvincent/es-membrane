@@ -60,7 +60,7 @@ implements MappedTypeTypedStructure
       }
       writer.write("[");
 
-      this.parameter.writerFunction(writer, TypeParameterConstraintMode.in);
+      this.parameter.constraintWriter(writer, TypeParameterConstraintMode.in);
 
       if (this.asName) {
         writer.write(" as " );

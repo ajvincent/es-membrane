@@ -100,7 +100,7 @@ implements FunctionTypedStructure
     if (this.typeParameters.length) {
       pairedWrite(writer, "<", ">", false, false, () => {
         this.typeParameters.forEach((typeParam, index) => {
-          typeParam.writerFunction(writer, TypeParameterConstraintMode.extends);
+          typeParam.constraintWriter(writer, TypeParameterConstraintMode.extends);
           if (index < this.typeParameters.length - 1)
             writer.write(", ");
         });
