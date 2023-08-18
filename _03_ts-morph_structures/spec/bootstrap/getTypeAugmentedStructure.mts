@@ -73,8 +73,8 @@ it("getTypeAugmentedStructure gets structures having type structures for types",
   expect(extendsStructure).toBeInstanceOf(TypeArgumentedTypedStructureImpl);
   if (extendsStructure instanceof TypeArgumentedTypedStructureImpl) {
     expect((extendsStructure.objectType as LiteralTypedStructureImpl)?.stringValue).toBe("WeakMap");
-    expect((extendsStructure.elements[0] as LiteralTypedStructureImpl)?.stringValue).toBe("K");
-    expect((extendsStructure.elements[1] as LiteralTypedStructureImpl)?.stringValue).toBe("V");
+    expect((extendsStructure.childTypes[0] as LiteralTypedStructureImpl)?.stringValue).toBe("K");
+    expect((extendsStructure.childTypes[1] as LiteralTypedStructureImpl)?.stringValue).toBe("V");
   }
 
   expect(rootStructure.methods.length).toBe(1);

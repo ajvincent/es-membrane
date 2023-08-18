@@ -50,7 +50,7 @@ implements InferTypedStructure
     this.typeParameter.constraintWriter(writer, TypeParameterConstraintMode.extends);
   }
 
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
+  writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   public static clone(
     other: InferTypedStructure

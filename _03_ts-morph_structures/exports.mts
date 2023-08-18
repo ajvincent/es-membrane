@@ -93,6 +93,12 @@ export { default as WriterTypedStructureImpl } from "./source/typeStructures/Wri
 
 export { default as TypeStructureClassesMap } from "./source/base/TypeStructureClassesMap.mjs";
 
+export {
+  TypePrinterSettingsBase,
+  type TypePrinterSettings,
+  type TypePrinterSettingsInternal,
+} from "./source/base/TypePrinter.mjs";
+
 // #endregion TypeStructure implementations
 
 export {

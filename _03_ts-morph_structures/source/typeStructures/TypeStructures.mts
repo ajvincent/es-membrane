@@ -21,6 +21,8 @@ import {
   IndexSignatureDeclarationImpl,
   MethodSignatureImpl,
   PropertySignatureImpl,
+  type TypePrinterSettings,
+  type TypePrinterSettingsBase,
   TypeParameterDeclarationImpl,
 } from "../../exports.mjs";
 
@@ -33,8 +35,11 @@ interface TypedStructureWithPrimitive<
   readonly stringValue: string;
 }
 
-interface TypeStructureWithOneChild {
-  childType: TypeStructures;
+interface TypeStructureWithOneChild<
+  Kind extends TypeStructureKind
+> extends TypedStructureWithChildren<Kind>
+{
+  childTypes: [TypeStructures]
 }
 
 export type PrefixUnaryOperator = (
@@ -49,11 +54,18 @@ interface TypedStructureWithObjectType {
   objectType: TypeStructures;
 }
 
-interface TypedStructureWithElements<
+export interface TypedStructureWithChildren<
   Kind extends TypeStructureKind
 > extends KindedTypeStructure<Kind>
 {
-  elements: TypeStructures[];
+  childTypes: TypeStructures[];
+}
+
+interface TypeStructureWithOneChild<
+  Kind extends TypeStructureKind
+> extends TypedStructureWithChildren<Kind>
+{
+  childTypes: [TypeStructures];
 }
 
 interface PrefixUnaryOperatorOwner {
@@ -71,26 +83,28 @@ export type SymbolKeyTypedStructure = Simplify<
 >;
 
 export type ParenthesesTypedStructure = Simplify<
-  KindedTypeStructure<TypeStructureKind.Parentheses> &
-  TypeStructureWithOneChild
+  TypeStructureWithOneChild<TypeStructureKind.Parentheses> &
+  TypePrinterSettings
 >;
 
 export type PrefixOperatorsTypedStructure = Simplify<
-  KindedTypeStructure<TypeStructureKind.PrefixOperators> &
-  TypeStructureWithOneChild &
+  TypeStructureWithOneChild<TypeStructureKind.PrefixOperators> &
   PrefixUnaryOperatorOwner
 >;
 
 export type UnionTypedStructure = Simplify<
-  TypedStructureWithElements<TypeStructureKind.Union> &
+  TypedStructureWithChildren<TypeStructureKind.Union> &
+  TypePrinterSettings &
   AppendableStructure<TypeStructures[]>
 >;
 export type IntersectionTypedStructure = Simplify<
-  TypedStructureWithElements<TypeStructureKind.Intersection> &
+  TypedStructureWithChildren<TypeStructureKind.Intersection> &
+  TypePrinterSettings &
   AppendableStructure<TypeStructures[]>
 >;
 export type TupleTypedStructure = Simplify<
-  TypedStructureWithElements<TypeStructureKind.Tuple> &
+  TypedStructureWithChildren<TypeStructureKind.Tuple> &
+  TypePrinterSettings &
   AppendableStructure<TypeStructures[]>
 >;
 
@@ -118,6 +132,7 @@ interface IndexedAccessType {
 export type IndexedAccessTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.IndexedAccess> &
   TypedStructureWithObjectType &
+  TypePrinterSettings &
   IndexedAccessType
 >;
 
@@ -136,7 +151,8 @@ export type MappedTypeTypedStructure = Simplify<
 
 export type TypeArgumentedTypedStructure = Simplify<
   TypedStructureWithObjectType &
-  TypedStructureWithElements<TypeStructureKind.TypeArgumented> &
+  TypedStructureWithChildren<TypeStructureKind.TypeArgumented> &
+  TypePrinterSettings &
   AppendableStructure<TypeStructures[]>
 >;
 
@@ -155,7 +171,10 @@ export interface FunctionTypeContext {
   parameters: ParameterTypedStructure[];
   restParameter: ParameterTypedStructure | undefined;
   returnType: TypeStructures | undefined;
-  writerStyle: FunctionWriterStyle
+  writerStyle: FunctionWriterStyle,
+
+  typeParameterPrinterSettings: TypePrinterSettingsBase,
+  parameterPrinterSettings: TypePrinterSettingsBase,
 }
 
 export type FunctionTypedStructure = Simplify<
@@ -174,11 +193,12 @@ export type ParameterTypedStructure = Simplify<
 >;
 
 interface TemplateLiteralTypedStructureFields {
-  elements: (string | TypeStructures)[];
+  childTypes: (string | TypeStructures)[];
 }
 
 export type TemplateLiteralTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.TemplateLiteral> &
+  TypePrinterSettings &
   TemplateLiteralTypedStructureFields
 >;
 
@@ -230,6 +250,7 @@ export type TypeStructures = (
   MappedTypeTypedStructure |
   TypeArgumentedTypedStructure |
   FunctionTypedStructure |
+  ParameterTypedStructure |
   TemplateLiteralTypedStructure |
   ObjectLiteralTypedStructure |
   InferTypedStructure

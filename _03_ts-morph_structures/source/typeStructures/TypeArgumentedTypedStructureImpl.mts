@@ -1,9 +1,7 @@
 // #region preamble
 import {
-  CodeBlockWriter
+  CodeBlockWriter, WriterFunction
 } from "ts-morph";
-
-import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
 
 import type {
   TypeArgumentedTypedStructure,
@@ -23,6 +21,7 @@ import {
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+import { TypePrinter, TypePrinterSettingsBase } from "../base/TypePrinter.mjs";
 // #endregion preamble
 
 /**
@@ -33,7 +32,6 @@ import type {
  * @see `TypeParameterDeclarationImpl` for `Type<Foo extends object>`
  */
 export default class TypeArgumentedTypedStructureImpl
-extends ElementsTypedStructureAbstract
 implements TypeArgumentedTypedStructure
 {
   static clone(
@@ -42,25 +40,23 @@ implements TypeArgumentedTypedStructure
   {
     return new TypeArgumentedTypedStructureImpl(
       TypeStructureClassesMap.clone(other.objectType),
-      TypeStructureClassesMap.cloneArray(other.elements),
+      TypeStructureClassesMap.cloneArray(other.childTypes),
     );
   }
 
-  public readonly prefix = "<";
-  public readonly postfix = ">";
-  public readonly joinCharacters = ", ";
   readonly kind: TypeStructureKind.TypeArgumented = TypeStructureKind.TypeArgumented;
 
   objectType: TypeStructures;
+  childTypes: TypeStructures[] = [];
+  readonly printSettings = new TypePrinterSettingsBase;
 
   constructor(
     objectType: TypeStructures,
-    elements: TypeStructures[] = []
+    childTypes: TypeStructures[] = []
   )
   {
-    super();
     this.objectType = objectType;
-    this.appendStructures(elements);
+    this.appendStructures(childTypes);
 
     registerCallbackForTypeStructure(this);
   }
@@ -69,17 +65,25 @@ implements TypeArgumentedTypedStructure
     structuresContext: TypeStructures[]
   ): this
   {
-    this.elements.push(...structuresContext);
+    this.childTypes.push(...structuresContext);
     return this;
   }
 
-  protected writeTypeStructures(
+  #writerFunction(
     writer: CodeBlockWriter
   ): void
   {
-    this.objectType.writerFunction(writer);
-    super.writeTypeStructures(writer);
+    TypePrinter(writer, {
+      ...this.printSettings,
+      objectType: this.objectType,
+      childTypes: this.childTypes,
+      startToken: "<",
+      joinChildrenToken: ", ",
+      endToken: ">",
+    });
   }
+
+  writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 TypeArgumentedTypedStructureImpl satisfies CloneableStructure<TypeArgumentedTypedStructure>;
 

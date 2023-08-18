@@ -1,6 +1,4 @@
 // #region preamble
-import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
-
 import type {
   TupleTypedStructure,
   TypeStructures
@@ -19,6 +17,8 @@ import {
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+import { TypePrinter, TypePrinterSettingsBase } from "../base/TypePrinter.mjs";
+import { CodeBlockWriter, WriterFunction } from "ts-morph";
 // #endregion preamble
 
 /**
@@ -28,7 +28,6 @@ import type {
  * @see `IndexedAccessTypedStructureImpl` for `Foo["index"]`
  */
 export default class TupleTypedStructureImpl
-extends ElementsTypedStructureAbstract
 implements TupleTypedStructure
 {
   static clone(
@@ -36,22 +35,19 @@ implements TupleTypedStructure
   ): TupleTypedStructureImpl
   {
     return new TupleTypedStructureImpl(
-      TypeStructureClassesMap.cloneArray(other.elements)
+      TypeStructureClassesMap.cloneArray(other.childTypes)
     );
   }
 
   readonly kind: TypeStructureKind.Tuple = TypeStructureKind.Tuple;
-
-  public readonly prefix = "[";
-  public readonly postfix = "]";
-  public readonly joinCharacters = ", ";
+  childTypes: TypeStructures[] = [];
+  readonly printSettings = new TypePrinterSettingsBase;
 
   constructor(
-    elements: TypeStructures[] = [],
+    childTypes: TypeStructures[] = [],
   )
   {
-    super();
-    this.appendStructures(elements);
+    this.appendStructures(childTypes);
     registerCallbackForTypeStructure(this);
   }
 
@@ -59,9 +55,22 @@ implements TupleTypedStructure
     structuresContext: TypeStructures[]
   ): this
   {
-    this.elements.push(...structuresContext);
+    this.childTypes.push(...structuresContext);
     return this;
   }
+
+  #writerFunction(writer: CodeBlockWriter): void {
+    TypePrinter(writer, {
+      ...this.printSettings,
+      objectType: null,
+      childTypes: this.childTypes,
+      startToken: "[",
+      joinChildrenToken: ", ",
+      endToken: "]",
+    });
+  }
+
+  writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 TupleTypedStructureImpl satisfies CloneableStructure<TupleTypedStructure>;
 

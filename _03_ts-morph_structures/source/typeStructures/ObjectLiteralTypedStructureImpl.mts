@@ -109,7 +109,7 @@ implements ObjectLiteralTypedStructure
     Writers.objectType(this)(writer);
   }
 
-  readonly writerFunction = this.#writerFunction.bind(this);
+  writerFunction = this.#writerFunction.bind(this);
 
   static clone(
     other: ObjectLiteralTypedStructure

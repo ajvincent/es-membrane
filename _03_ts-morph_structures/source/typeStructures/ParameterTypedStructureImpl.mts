@@ -18,6 +18,7 @@ import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.mjs";
+import { CloneableStructure } from "../types/CloneableStructure.mjs";
 // #endregion
 
 /** Just a parameter name and type for a `FunctionTypedStructureImpl`. */
@@ -53,7 +54,7 @@ implements ParameterTypedStructure
     }
   }
 
-  readonly writerFunction = this.#writerFunction.bind(this);
+  writerFunction = this.#writerFunction.bind(this);
 
   public static clone(
     other: ParameterTypedStructure
@@ -67,3 +68,6 @@ implements ParameterTypedStructure
     return clone;
   }
 }
+ParameterTypedStructureImpl satisfies CloneableStructure<ParameterTypedStructure>;
+
+TypeStructureClassesMap.set(TypeStructureKind.Parameter, ParameterTypedStructureImpl);

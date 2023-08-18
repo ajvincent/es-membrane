@@ -50,6 +50,7 @@ Depending on community feedback, I may publish an independent package on `npmjs.
 - Type structures matching one-to-one with type fields on all structures
   - For arrays of types, there's `TypeStructureSet`: `ClassDeclarationStructure::implementsSet`, `InterfaceDeclarationStructure::extendsSet`
 - Arrays for structure fields where arrays are an option in the structure interface (so less guessing)
+- Whitespace formatting for types
 
 ## Generating structures from existing code
 
@@ -66,6 +67,29 @@ Each structure class matches the structure interface name: `s/Structure$/Impl/g`
 
 Similarly, the type structure classes end in `TypedStructureImpl`, and you can import them from `#ts-morph-structures/exports.mjs`.  There is also a `TypeStructureKind` enum available for the new type structures.
 
+## Whitespace formatting for types
+
+Most type structures support a `printSettings` field, which is a `TypePrinterSettingsBase` instance:
+
+```typescript
+export class TypePrinterSettingsBase {
+  indentChildren = false;
+  newLinesAroundChildren = false;
+  oneLinePerChild = false;
+}
+```
+
+- `indentChildren` means wrap child nodes in a `CodeBlockWriter`'s `.indent()` call
+- `newLinesAroundChildren` means the children as a whole have a preceding and a following new line
+- `oneLinePerChild` means each child has its own line
+
+`FunctionTypedStructureImpl` is a special case:
+
+```typescript
+  readonly typeParameterPrinterSettings = new TypePrinterSettingsBase;
+  readonly parameterPrinterSettings = new TypePrinterSettingsBase;
+```
+
 ## Table of type structure classes
 
 | Class name | Examples | Key properties |
@@ -74,19 +98,19 @@ Similarly, the type structure classes end in `TypedStructureImpl`, and you can i
 | [StringTypedStructureImpl](./source/typeStructures/StringTypedStructureImpl.mts)  | `"Hello World"` | stringValue |
 | [SymbolKeyTypedStructureImpl](./source/typeStructures/SymbolKeyTypedStructureImpl.mts) | `{ [YourSymbol]: boolean; }` | stringValue |
 | [WriterTypedStructureImpl](./source/typeStructures/WriterTypedStructureImpl.mts) | Wrapper for `(writer: CodeBlockWriter) => void` | writerFunction |
-| [ParenthesesTypedStructureImpl](./source/typeStructures/ParenthesesTypedStructureImpl.mts) | `(string)` | childType |
-| [PrefixOperatorsTypedStructureImpl](./source/typeStructures/PrefixOperatorsTypedStructureImpl.mts) | `keyof typeof MyClass` | operators, childType |
+| [ParenthesesTypedStructureImpl](./source/typeStructures/ParenthesesTypedStructureImpl.mts) | `(string)` | childTypes (only one) |
+| [PrefixOperatorsTypedStructureImpl](./source/typeStructures/PrefixOperatorsTypedStructureImpl.mts) | `keyof typeof MyClass` | operators, childTypes (only one) |
 | [ArrayTypedStructureImpl](./source/typeStructures/ArrayTypedStructureImpl.mts) | `string[]` | objectType |
-| [TupleTypedStructureImpl](./source/typeStructures/TupleTypedStructureImpl.mts) | `[string, number]` | elements |
+| [TupleTypedStructureImpl](./source/typeStructures/TupleTypedStructureImpl.mts) | `[string, number]` | childTypes |
 | [IndexedAccessStructureImpl](./source/typeStructures/IndexedAccessTypedStructureImpl.mts) | `NumberStringType["repeatForward"]` | objectType, indexType |
-| [UnionTypedStructureImpl](./source/typeStructures/UnionTypedStructureImpl.mts) | "one" &#x7c; "two" &#x7c; "three" | elements |
-| [IntersectionTypedStructureImpl](./source/typeStructures/IntersectionTypedStructureImpl.mts) | `Foo & Bar` | elements |
-| [TypeArgumentedTypedStructureImpl](./source/typeStructures/TypeArgumentedTypedStructureImpl.mts) | `Pick<Array, "slice">` | objectType, elements |
+| [UnionTypedStructureImpl](./source/typeStructures/UnionTypedStructureImpl.mts) | "one" &#x7c; "two" &#x7c; "three" | childTypes |
+| [IntersectionTypedStructureImpl](./source/typeStructures/IntersectionTypedStructureImpl.mts) | `Foo & Bar` | childTypes |
+| [TypeArgumentedTypedStructureImpl](./source/typeStructures/TypeArgumentedTypedStructureImpl.mts) | `Pick<Array, "slice">` | objectType, childTypes |
 | [ConditionalTypedStructureImpl](./source/typeStructures/ConditionalTypedStructureImpl.mts) | `foo extends true ? string : never` | checkType, extendsType, trueType, falseType |
 | [MappedTypeTypedStructureImpl](./source/typeStructures/MappedTypeTypedStructureImpl.mts) | `{ readonly [key in keyof Foo]: boolean }` | parameter, type |
 | [FunctionTypedStructureImpl](./source/typeStructures/FunctionTypedStructureImpl.mts) | `("new" or "get" or "set" or "") name&lt;typeParameters&gt;(parameters, ...restParameter) ("=>" or ":" ) returnType` | name, typeParameters, parameters, restParameter, returnType, writerStyle |
 | [ParameterTypedStructureImpl](./source/typeStructures/ParameterTypedStructureImpl.mts) | `foo: boolean` | name, typeStructure |
-| [TemplateLiteralTypedStructureImpl](./source/typeStructures/TemplateLiteralTypedStructureImpl.mts) | &#x60;`one${"A"}two${"C"}three`&#x60; | elements |
+| [TemplateLiteralTypedStructureImpl](./source/typeStructures/TemplateLiteralTypedStructureImpl.mts) | &#x60;`one${"A"}two${"C"}three`&#x60; | childTypes |
 | [ObjectLiteralTypedStructureImpl](./source/typeStructures/ObjectLiteralTypedStructureImpl.mts) | See below | callSignatures, constructSignatures, indexSignatures, methods, properties |
 | [InferTypedStructureImpl](./source/typeStructures/InferTypedStructureImpl.mts) | `Elements extends [infer Head, ...infer Tail]` | typeParameter |
 

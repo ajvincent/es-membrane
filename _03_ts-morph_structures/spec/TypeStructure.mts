@@ -95,8 +95,8 @@ describe("TypeStructure for ts-morph: ", () => {
 
   it("UnionTypedStructureImpl", () => {
     const typedWriter = new UnionTypedStructureImpl;
-    typedWriter.elements.push(fooTyped);
-    typedWriter.elements.push(nstTyped);
+    typedWriter.childTypes.push(fooTyped);
+    typedWriter.childTypes.push(nstTyped);
 
     typedWriter.writerFunction(writer);
     expect<string>(writer.toString()).toBe(`foo | NumberStringType`);
@@ -105,8 +105,8 @@ describe("TypeStructure for ts-morph: ", () => {
 
   it("IntersectionTypedStructureImpl", () => {
     const typedWriter = new IntersectionTypedStructureImpl;
-    typedWriter.elements.push(fooTyped);
-    typedWriter.elements.push(nstTyped);
+    typedWriter.childTypes.push(fooTyped);
+    typedWriter.childTypes.push(nstTyped);
 
     typedWriter.writerFunction(writer);
     expect<string>(writer.toString()).toBe(`foo & NumberStringType`);
@@ -115,7 +115,7 @@ describe("TypeStructure for ts-morph: ", () => {
 
   it("TupleTypedStructureImpl", () => {
     const typedWriter = new TupleTypedStructureImpl;
-    typedWriter.elements.push(fooTyped, nstTyped);
+    typedWriter.childTypes.push(fooTyped, nstTyped);
 
     typedWriter.writerFunction(writer);
     expect<string>(writer.toString()).toBe(`[foo, NumberStringType]`);
@@ -180,7 +180,7 @@ describe("TypeStructure for ts-morph: ", () => {
 
   it("TypeArgumentedTypedStructureImpl", () => {
     const typedWriter = new TypeArgumentedTypedStructureImpl(fooTyped);
-    typedWriter.elements.push(stringBarTyped, nstTyped);
+    typedWriter.childTypes.push(stringBarTyped, nstTyped);
     typedWriter.writerFunction(writer);
     expect<string>(writer.toString()).toBe(`foo<"bar", NumberStringType>`);
 
@@ -355,10 +355,10 @@ describe("TypeStructure for ts-morph: ", () => {
 
   it("TemplateLiteralTypedStructureImpl", () => {
     const AB = new UnionTypedStructureImpl;
-    AB.elements = [new StringTypedStructureImpl("A"), new StringTypedStructureImpl("B")];
+    AB.childTypes = [new StringTypedStructureImpl("A"), new StringTypedStructureImpl("B")];
 
     const CD = new UnionTypedStructureImpl;
-    CD.elements = [new StringTypedStructureImpl("C"), new StringTypedStructureImpl("D")];
+    CD.childTypes = [new StringTypedStructureImpl("C"), new StringTypedStructureImpl("D")];
 
     const typedWriter = new TemplateLiteralTypedStructureImpl([
       "one", AB, "two", CD, "three"

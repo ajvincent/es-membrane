@@ -81,7 +81,7 @@ implements MappedTypeTypedStructure
     });
   }
 
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
+  writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   static clone(
     other: MappedTypeTypedStructure

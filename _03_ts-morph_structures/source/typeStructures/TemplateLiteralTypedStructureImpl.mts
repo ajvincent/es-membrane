@@ -9,6 +9,7 @@ import {
   type TypeStructures,
   TypeStructureClassesMap,
   TypeStructureKind,
+  TypePrinterSettingsBase,
 } from "../../exports.mjs";
 
 import {
@@ -29,13 +30,15 @@ export default class TemplateLiteralTypedStructureImpl
 implements TemplateLiteralTypedStructure
 {
   readonly kind: TypeStructureKind.TemplateLiteral = TypeStructureKind.TemplateLiteral;
-  elements: (string | TypeStructures)[];
+  childTypes: (string | TypeStructures)[];
+
+  readonly printSettings = new TypePrinterSettingsBase;
 
   constructor(
-    elements: (string | TypeStructures)[] = []
+    childTypes: (string | TypeStructures)[] = []
   )
   {
-    this.elements = elements;
+    this.childTypes = childTypes;
     registerCallbackForTypeStructure(this);
   }
 
@@ -44,7 +47,7 @@ implements TemplateLiteralTypedStructure
   ): void
   {
     pairedWrite(writer, "`", "`", false, false, () => {
-      this.elements.forEach(element => {
+      this.childTypes.forEach(element => {
         if (typeof element === "string")
           writer.write(element);
         else {
@@ -56,18 +59,18 @@ implements TemplateLiteralTypedStructure
     });
   }
 
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
+  writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   static clone(
     other: TemplateLiteralTypedStructure
   ): TemplateLiteralTypedStructureImpl
   {
-    const elements = other.elements.map(element => {
-      if (typeof element === "string")
-        return element;
-      return TypeStructureClassesMap.clone(element);
+    const childTypes: (string | TypeStructures)[] = other.childTypes.map(child => {
+      if (typeof child === "string")
+        return child;
+      return TypeStructureClassesMap.clone(child);
     });
-    return new TemplateLiteralTypedStructureImpl(elements);
+    return new TemplateLiteralTypedStructureImpl(childTypes);
   }
 }
 

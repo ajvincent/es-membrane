@@ -47,11 +47,8 @@ import {
   MethodSignatureImpl,
   PropertySignatureImpl,
   InferTypedStructureImpl,
+  TypePrinterSettingsBase,
 } from "../../exports.mjs"
-
-import {
-  TypeStructureWithElements
-} from "../typeStructures/ElementsTypedStructureAbstract.mjs";
 
 import {
   TypeNodeToTypeStructureConsole,
@@ -203,7 +200,13 @@ export default function convertTypeNode(
 
   // Type nodes with generic type node children, based on a type.
   let childTypeNodes: TypeNode[] = [],
-      parentStructure: (TypeStructures & TypeStructureWithElements) | undefined = undefined;
+      parentStructure: (
+        UnionTypedStructureImpl |
+        IntersectionTypedStructureImpl |
+        TupleTypedStructureImpl |
+        TypeArgumentedTypedStructureImpl |
+        undefined
+      ) = undefined;
   if (Node.isUnionTypeNode(typeNode)) {
     parentStructure = new UnionTypedStructureImpl;
     childTypeNodes = typeNode.getTypeNodes();
@@ -239,7 +242,7 @@ export default function convertTypeNode(
   if (parentStructure) {
     const success = convertAndAppendChildTypes(
       childTypeNodes,
-      parentStructure.elements,
+      parentStructure.childTypes,
       conversionFailCallback,
       subStructureResolver,
     );
@@ -415,6 +418,9 @@ function convertFunctionTypeNode(
     restParameter,
     returnType: returnTypeStructure,
     writerStyle: FunctionWriterStyle.Arrow,
+
+    typeParameterPrinterSettings: new TypePrinterSettingsBase,
+    parameterPrinterSettings: new TypePrinterSettingsBase,
   }
 
   return new FunctionTypedStructureImpl(functionContext);

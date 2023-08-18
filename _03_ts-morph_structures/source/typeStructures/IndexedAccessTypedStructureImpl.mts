@@ -22,6 +22,7 @@ import {
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+import { TypePrinter, TypePrinterSettingsBase } from "../base/TypePrinter.mjs";
 // #endregion preamble
 
 /**
@@ -55,16 +56,21 @@ implements IndexedAccessTypedStructure
 
     registerCallbackForTypeStructure(this);
   }
+  readonly printSettings = new TypePrinterSettingsBase;
 
   #writerFunction(writer: CodeBlockWriter): void
   {
-    this.objectType.writerFunction(writer);
-    writer.write("[");
-    this.indexType.writerFunction(writer);
-    writer.write("]");
+    TypePrinter(writer, {
+      ...this.printSettings,
+      objectType: this.objectType,
+      startToken: "[",
+      joinChildrenToken: "",
+      childTypes: [this.indexType],
+      endToken: "]",
+    });
   }
 
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
+  writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 IndexedAccessTypedStructureImpl satisfies CloneableStructure<IndexedAccessTypedStructure>;
 

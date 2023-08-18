@@ -1,6 +1,4 @@
 // #region preamble
-import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
-
 import type {
   IntersectionTypedStructure,
   TypeStructures
@@ -19,11 +17,12 @@ import {
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+import { TypePrinter, TypePrinterSettingsBase } from "../base/TypePrinter.mjs";
+import { CodeBlockWriter, WriterFunction } from "ts-morph";
 // #endregion preamble
 
 /** Foo & Bar & ... */
 export default class IntersectionTypedStructureImpl
-extends ElementsTypedStructureAbstract
 implements IntersectionTypedStructure
 {
   static clone(
@@ -31,22 +30,20 @@ implements IntersectionTypedStructure
   ): IntersectionTypedStructureImpl
   {
     return new IntersectionTypedStructureImpl(
-      TypeStructureClassesMap.cloneArray(other.elements)
+      TypeStructureClassesMap.cloneArray(other.childTypes)
     );
   }
 
   public readonly kind: TypeStructureKind.Intersection = TypeStructureKind.Intersection;
 
-  public readonly prefix = "";
-  public readonly postfix = "";
-  public readonly joinCharacters = " & ";
+  childTypes: TypeStructures[] = [];
+  readonly printSettings = new TypePrinterSettingsBase;
 
   constructor(
-    elements: TypeStructures[] = [],
+    childTypes: TypeStructures[] = [],
   )
   {
-    super();
-    this.appendStructures(elements);
+    this.appendStructures(childTypes);
     registerCallbackForTypeStructure(this);
   }
 
@@ -54,9 +51,22 @@ implements IntersectionTypedStructure
     structuresContext: TypeStructures[]
   ): this
   {
-    this.elements.push(...structuresContext);
+    this.childTypes.push(...structuresContext);
     return this;
   }
+
+  #writerFunction(writer: CodeBlockWriter): void {
+    TypePrinter(writer, {
+      ...this.printSettings,
+      objectType: null,
+      childTypes: this.childTypes,
+      startToken: "",
+      joinChildrenToken: " & ",
+      endToken: "",
+    });
+  }
+
+  writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 IntersectionTypedStructureImpl satisfies CloneableStructure<IntersectionTypedStructure>;
 

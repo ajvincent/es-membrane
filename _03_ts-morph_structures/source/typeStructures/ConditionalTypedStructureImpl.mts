@@ -86,7 +86,7 @@ implements ConditionalTypedStructure
     this.falseType.writerFunction(writer);
   }
 
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
+  writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 ConditionalTypedStructureImpl satisfies CloneableStructure<ConditionalTypedStructure>;
 

@@ -3,5 +3,5 @@ import type {
 } from "ts-morph";
 
 export interface TypedNodeWriter {
-  readonly writerFunction: WriterFunction
+  writerFunction: WriterFunction
 }

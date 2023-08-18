@@ -22,6 +22,7 @@ import {
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+import { TypePrinter, TypePrinterSettingsBase } from "../base/TypePrinter.mjs";
 // #endregion preamble
 
 /** Wrap the child type in parentheses. */
@@ -33,28 +34,38 @@ implements ParenthesesTypedStructure
   ): ParenthesesTypedStructureImpl
   {
     return new ParenthesesTypedStructureImpl(
-      TypeStructureClassesMap.clone(other.childType)
+      TypeStructureClassesMap.clone(other.childTypes[0])
     );
   }
 
   readonly kind: TypeStructureKind.Parentheses = TypeStructureKind.Parentheses;
-  childType: TypeStructures;
+  childTypes: [TypeStructures];
 
   constructor(childType: TypeStructures)
   {
-    this.childType = childType;
+    this.childTypes = [childType];
 
     registerCallbackForTypeStructure(this);
   }
 
+  readonly printSettings = new TypePrinterSettingsBase;
+
   #writerFunction(writer: CodeBlockWriter): void
   {
-    writer.write("(");
-    this.childType.writerFunction(writer);
-    writer.write(")");
+    TypePrinter(
+      writer,
+      {
+        ...this.printSettings,
+        objectType: null,
+        startToken: "(",
+        childTypes: this.childTypes,
+        joinChildrenToken: "",
+        endToken: ")",
+      }
+    );
   }
 
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
+  writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 ParenthesesTypedStructureImpl satisfies CloneableStructure<ParenthesesTypedStructure>;
 

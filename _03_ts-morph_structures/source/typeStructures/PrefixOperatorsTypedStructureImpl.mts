@@ -35,14 +35,14 @@ implements PrefixOperatorsTypedStructure
   {
     return new PrefixOperatorsTypedStructureImpl(
       other.operators,
-      TypeStructureClassesMap.clone(other.childType)
+      TypeStructureClassesMap.clone(other.childTypes[0])
     );
   }
 
   readonly kind: TypeStructureKind.PrefixOperators = TypeStructureKind.PrefixOperators;
 
   operators: PrefixUnaryOperator[];
-  childType: TypeStructures;
+  childTypes: [TypeStructures];
 
   constructor(
     operators: readonly PrefixUnaryOperator[],
@@ -50,7 +50,7 @@ implements PrefixOperatorsTypedStructure
   )
   {
     this.operators = operators.slice();
-    this.childType = childType;
+    this.childTypes = [childType];
 
     registerCallbackForTypeStructure(this);
   }
@@ -60,10 +60,10 @@ implements PrefixOperatorsTypedStructure
     if (this.operators.length) {
       writer.write(this.operators.map(op => op === "..." ? op : op + " ").join(""));
     }
-    this.childType.writerFunction(writer);
+    this.childTypes[0].writerFunction(writer);
   }
 
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
+  writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 PrefixOperatorsTypedStructureImpl satisfies CloneableStructure<PrefixOperatorsTypedStructure>;
 

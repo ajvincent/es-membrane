@@ -61,7 +61,7 @@ implements ArrayTypedStructure
     writer.write(`[]`);
   }
 
-  readonly writerFunction = this.#writerFunction.bind(this);
+  writerFunction = this.#writerFunction.bind(this);
 }
 ArrayTypedStructureImpl satisfies CloneableStructure<ArrayTypedStructure>;
 

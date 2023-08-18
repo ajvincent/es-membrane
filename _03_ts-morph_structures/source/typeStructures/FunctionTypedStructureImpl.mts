@@ -14,8 +14,10 @@ import {
 
 import {
   ParameterTypedStructureImpl,
+  PrefixOperatorsTypedStructureImpl,
   TypeParameterConstraintMode,
   TypeParameterDeclarationImpl,
+  TypePrinterSettingsBase,
   TypeStructureKind,
 } from "../../exports.mjs";
 
@@ -32,6 +34,7 @@ import {
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
+import { TypePrinter } from "../base/TypePrinter.mjs";
 // #endregion preamble
 
 /** ("new" | "get" | "set" | "") name<typeParameters>(parameters, ...restParameter) ("=\>" | ":" ) returnType */
@@ -78,6 +81,9 @@ implements FunctionTypedStructure
     registerCallbackForTypeStructure(this);
   }
 
+  readonly typeParameterPrinterSettings = new TypePrinterSettingsBase;
+  readonly parameterPrinterSettings = new TypePrinterSettingsBase;
+
   #writerFunction(writer: CodeBlockWriter): void
   {
     if (this.writerStyle === FunctionWriterStyle.GetAccessor) {
@@ -98,26 +104,47 @@ implements FunctionTypedStructure
       writer.write("new ");
 
     if (this.typeParameters.length) {
-      pairedWrite(writer, "<", ">", false, false, () => {
-        this.typeParameters.forEach((typeParam, index) => {
-          typeParam.constraintWriter(writer, TypeParameterConstraintMode.extends);
-          if (index < this.typeParameters.length - 1)
-            writer.write(", ");
-        });
-      });
+      pairedWrite(
+        writer,
+        "<",
+        ">",
+        this.typeParameterPrinterSettings.newLinesAroundChildren,
+        this.typeParameterPrinterSettings.indentChildren,
+        () => {
+          const lastChild = this.typeParameters[this.typeParameters.length - 1];
+
+          for (const typeParam of this.typeParameters) {
+            typeParam.constraintWriter(writer, TypeParameterConstraintMode.extends);
+
+            if (typeParam === lastChild) {
+              continue;
+            }
+
+            if (this.typeParameterPrinterSettings.oneLinePerChild) {
+              writer.write(",");
+              writer.newLine();
+            }
+            else {
+              writer.write(", ");
+            }
+          }
+        }
+      );
     }
 
-    pairedWrite(writer, "(", ")", false, false, () => {
-      this.parameters.forEach((param, index) => {
-        param.writerFunction(writer);
-        if ((index < this.parameters.length - 1) || this.restParameter)
-          writer.write(", ");
-      });
-  
-      if (this.restParameter) {
-        writer.write("...");
-        this.restParameter.writerFunction(writer);
-      }
+    const childTypes: TypeStructures[] = this.parameters.slice();
+    if (this.restParameter) {
+      const restPrefix = new PrefixOperatorsTypedStructureImpl(["..."], this.restParameter);
+      childTypes.push(restPrefix);
+    }
+
+    TypePrinter(writer, {
+      ...this.parameterPrinterSettings,
+      objectType: null,
+      childTypes,
+      startToken: "(",
+      joinChildrenToken: ", ",
+      endToken: ")",
     });
 
     if (this.returnType) {
@@ -136,7 +163,7 @@ implements FunctionTypedStructure
     }
   }
 
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
+  writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 
 FunctionTypedStructureImpl satisfies CloneableStructure<FunctionTypedStructure>;

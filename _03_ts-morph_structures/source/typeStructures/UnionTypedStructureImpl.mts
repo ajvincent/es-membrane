@@ -1,5 +1,12 @@
 // #region preamble
-import ElementsTypedStructureAbstract from "./ElementsTypedStructureAbstract.mjs";
+import type {
+  CodeBlockWriter,
+  WriterFunction
+} from "ts-morph";
+
+import {
+  TypePrinter, TypePrinterSettingsBase
+} from "../base/TypePrinter.mjs";
 
 import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 
@@ -23,7 +30,6 @@ import type {
 
 /** Foo | Bar | ... */
 export default class UnionTypedStructureImpl
-extends ElementsTypedStructureAbstract
 implements UnionTypedStructure
 {
   static clone(
@@ -31,22 +37,19 @@ implements UnionTypedStructure
   ): UnionTypedStructure
   {
     return new UnionTypedStructureImpl(
-      TypeStructureClassesMap.cloneArray(other.elements)
+      TypeStructureClassesMap.cloneArray(other.childTypes)
     );
   }
 
   public readonly kind: TypeStructureKind.Union = TypeStructureKind.Union;
-
-  public readonly prefix = "";
-  public readonly postfix = "";
-  public readonly joinCharacters = " | ";
+  childTypes: TypeStructures[] = [];
+  readonly printSettings = new TypePrinterSettingsBase;
 
   constructor(
-    elements: TypeStructures[] = []
+    childTypes: TypeStructures[] = []
   )
   {
-    super();
-    this.appendStructures(elements);
+    this.appendStructures(childTypes);
     registerCallbackForTypeStructure(this);
   }
 
@@ -54,9 +57,23 @@ implements UnionTypedStructure
     structuresContext: TypeStructures[]
   ): this
   {
-    this.elements.push(...structuresContext);
+    this.childTypes.push(...structuresContext);
     return this;
   }
+
+
+  #writerFunction(writer: CodeBlockWriter): void {
+    TypePrinter(writer, {
+      ...this.printSettings,
+      objectType: null,
+      childTypes: this.childTypes,
+      startToken: "",
+      joinChildrenToken: " | ",
+      endToken: "",
+    });
+  }
+
+  writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 UnionTypedStructureImpl satisfies CloneableStructure<UnionTypedStructure>;
 
