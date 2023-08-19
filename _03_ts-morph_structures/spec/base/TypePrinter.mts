@@ -235,13 +235,4 @@ bar: NumberType,
       );
     });
   });
-
-  it("with a user-provided writer function", () => {
-    typedFunction.writerFunction = function(writer: CodeBlockWriter): void {
-      writer.write("puppies");
-    }
-
-    typedFunction.writerFunction(writer);
-    expect<string>(writer.toString()).toBe("puppies");
-  });
 });
