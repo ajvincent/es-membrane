@@ -1,4 +1,9 @@
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import MultiMixinBuilder from "mixin-decorators";
+
+import {
+  StructureKind
+} from "ts-morph";
+
 import StructureBase from "#ts-morph_structures/source/base/StructureBase.mjs";
 
 import DecoratableNode, {
@@ -8,7 +13,6 @@ import DecoratableNode, {
 import {
   DecoratorImpl
 } from "#ts-morph_structures/exports.mjs";
-import { StructureKind } from "ts-morph";
 
 it("ts-morph structure decorators: DecoratableNode", () => {
   const Foo = MultiMixinBuilder<[

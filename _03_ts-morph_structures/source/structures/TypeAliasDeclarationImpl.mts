@@ -1,12 +1,12 @@
 // #region preamble
+import MultiMixinBuilder from "mixin-decorators";
+
 import {
   type OptionalKind,
   StructureKind,
   type TypeAliasDeclarationStructure,
   type WriterFunction,
 } from "ts-morph";
-
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 
 import StatementClassesMap from "../base/StatementClassesMap.mjs";
 

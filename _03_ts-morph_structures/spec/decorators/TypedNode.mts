@@ -1,4 +1,9 @@
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import MultiMixinBuilder from "mixin-decorators";
+
+import type {
+  WriterFunction,
+} from "ts-morph";
+
 import StructureBase from "#ts-morph_structures/source/base/StructureBase.mjs";
 
 import TypedNode, {
@@ -9,7 +14,6 @@ import {
   LiteralTypedStructureImpl,
   StringTypedStructureImpl,
 } from "#ts-morph_structures/exports.mjs";
-import { WriterFunction } from "ts-morph";
 
 it("ts-morph structure decorators: TypedNode", () => {
   const Foo = MultiMixinBuilder<[

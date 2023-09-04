@@ -1,8 +1,8 @@
+import MultiMixinBuilder from "mixin-decorators";
+
 import {
   StructureKind
 } from "ts-morph";
-
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 
 import KindedStructure, {
   type KindedStructureFields

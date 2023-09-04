@@ -1,12 +1,12 @@
 // #region preamble
+import MultiMixinBuilder from "mixin-decorators";
+
 import {
   type OptionalKind,
   type PropertyDeclarationStructure,
   type PropertySignatureStructure,
   StructureKind,
 } from "ts-morph";
-
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 
 import StructureBase from "../base/StructureBase.mjs";
 

@@ -1,4 +1,10 @@
 // #region preamble
+import type {
+  MixinClass,
+  StaticAndInstance,
+  SubclassDecorator,
+} from "mixin-decorators";
+
 import {
   TypeParameteredNodeStructure
 } from "ts-morph";
@@ -6,18 +12,6 @@ import {
 import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
-
-import {
-  MixinClass
-} from "#mixin_decorators/source/types/MixinClass.mjs";
-
-import type {
-  StaticAndInstance
-} from "#mixin_decorators/source/types/StaticAndInstance.mjs";
-
-import type {
-  SubclassDecorator
-} from "#mixin_decorators/source/types/SubclassDecorator.mjs";
 
 import {
   TypeParameterDeclarationImpl
@@ -75,7 +69,7 @@ export default function TypeParameteredNode(
 }
 
 TypeParameteredNode satisfies SubclassDecorator<
-  typeof StructureBase,
   TypeParameteredNodeStructureFields,
+  typeof StructureBase,
   false
 >;

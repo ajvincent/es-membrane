@@ -1,5 +1,11 @@
 // #region preamble
 import type {
+  MixinClass,
+  StaticAndInstance,
+  SubclassDecorator,
+} from "mixin-decorators";
+
+import type {
   GeneratorableNodeStructure
 } from "ts-morph";
 
@@ -7,19 +13,8 @@ import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
 
-import type {
-  StaticAndInstance
-} from "#mixin_decorators/source/types/StaticAndInstance.mjs";
-
-import type {
-  SubclassDecorator
-} from "#mixin_decorators/source/types/SubclassDecorator.mjs";
-
 import StructureBase from "../base/StructureBase.mjs";
 
-import type {
-  MixinClass
-} from "#mixin_decorators/source/types/MixinClass.mjs";
 // #endregion preamble
 
 declare const GeneratorableNodeStructureKey: unique symbol;
@@ -64,7 +59,7 @@ export default function GeneratorableNode(
 }
 
 GeneratorableNode satisfies SubclassDecorator<
-  typeof StructureBase,
   GeneratorableNodeStructureFields,
+  typeof StructureBase,
   false
 >;

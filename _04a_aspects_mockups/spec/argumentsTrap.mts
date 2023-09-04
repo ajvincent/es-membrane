@@ -5,7 +5,7 @@ import type {
 
 import type {
   ClassMethodDecoratorFunction
-} from "#mixin_decorators/source/types/ClassMethodDecoratorFunction.mjs";
+} from "#stage_utilities/source/types/ClassMethodDecoratorFunction.mjs";
 
 import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 import type {

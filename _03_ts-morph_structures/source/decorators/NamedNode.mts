@@ -1,23 +1,17 @@
 // #region preamble
 import type {
+  MixinClass,
+  StaticAndInstance,
+  SubclassDecorator,
+} from "mixin-decorators";
+
+import type {
   NamedNodeStructure
 } from "ts-morph";
 
 import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
-
-import type {
-  MixinClass
-} from "#mixin_decorators/source/types/MixinClass.mjs";
-
-import type {
-  StaticAndInstance
-} from "#mixin_decorators/source/types/StaticAndInstance.mjs";
-
-import type {
-  SubclassDecorator
-} from "#mixin_decorators/source/types/SubclassDecorator.mjs";
 
 import StructureBase from "../base/StructureBase.mjs";
 // #endregion preamble
@@ -64,7 +58,7 @@ export default function NamedNode(
 }
 
 NamedNode satisfies SubclassDecorator<
-  typeof StructureBase,
   NamedNodeStructureFields,
+  typeof StructureBase,
   false
 >;

@@ -1,4 +1,6 @@
 // #region preamble
+import MultiMixinBuilder from "mixin-decorators";
+
 import {
   type OptionalKind,
   StructureKind,
@@ -6,8 +8,6 @@ import {
   type VariableDeclarationStructure,
   type VariableStatementStructure
 } from "ts-morph";
-
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 
 import {
   VariableDeclarationImpl,

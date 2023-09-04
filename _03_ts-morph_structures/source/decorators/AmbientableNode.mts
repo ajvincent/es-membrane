@@ -1,5 +1,11 @@
 // #region preamble
 import type {
+  MixinClass,
+  SubclassDecorator,
+  StaticAndInstance
+} from "mixin-decorators";
+
+import type {
   AmbientableNodeStructure
 } from "ts-morph";
 
@@ -7,19 +13,8 @@ import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
 
-import type {
-  StaticAndInstance
-} from "#mixin_decorators/source/types/StaticAndInstance.mjs";
-
-import type {
-  SubclassDecorator
-} from "#mixin_decorators/source/types/SubclassDecorator.mjs";
-
 import StructureBase from "../base/StructureBase.mjs";
 
-import type {
-  MixinClass
-} from "#mixin_decorators/source/types/MixinClass.mjs";
 // #endregion preamble
 
 declare const AmbientableNodeStructureKey: unique symbol;
@@ -65,7 +60,7 @@ export default function AmbientableNode(
 }
 
 AmbientableNode satisfies SubclassDecorator<
-  typeof StructureBase,
   AmbientableNodeStructureFields,
+  typeof StructureBase,
   false
 >;

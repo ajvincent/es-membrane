@@ -1,4 +1,6 @@
 // #region preamble
+import MultiMixinBuilder from "mixin-decorators";
+
 import {
   type ConstructorDeclarationOverloadStructure,
   type ConstructorDeclarationStructure,
@@ -13,8 +15,6 @@ import {
 import {
   cloneArrayOrUndefined
 } from "../base/utilities.mjs";
-
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 
 import StructureBase from "../base/StructureBase.mjs";
 

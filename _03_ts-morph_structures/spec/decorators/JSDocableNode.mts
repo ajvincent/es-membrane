@@ -1,4 +1,5 @@
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import MultiMixinBuilder from "mixin-decorators";
+
 import StructureBase from "#ts-morph_structures/source/base/StructureBase.mjs";
 
 import JSDocableNode, {

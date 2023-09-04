@@ -1,5 +1,11 @@
 // #region preamble
 import type {
+  MixinClass,
+  StaticAndInstance,
+  SubclassDecorator,
+} from "mixin-decorators";
+
+import type {
   OptionalKind,
   DecoratableNodeStructure,
   DecoratorStructure,
@@ -9,18 +15,7 @@ import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
 
-import type {
-  StaticAndInstance
-} from "#mixin_decorators/source/types/StaticAndInstance.mjs";
-
-import type {
-  SubclassDecorator
-} from "#mixin_decorators/source/types/SubclassDecorator.mjs";
-
 import StructureBase from "../base/StructureBase.mjs";
-import {
-  MixinClass
-} from "#mixin_decorators/source/types/MixinClass.mjs";
 
 import DecoratorImpl from "../structures/DecoratorImpl.mjs";
 import {
@@ -80,7 +75,7 @@ export default function DecoratableNode(
 }
 
 DecoratableNode satisfies SubclassDecorator<
-  typeof StructureBase,
   DecoratableNodeStructureFields,
+  typeof StructureBase,
   false
 >;

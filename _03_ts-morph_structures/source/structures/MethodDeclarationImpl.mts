@@ -1,4 +1,6 @@
 // #region preamble
+import MultiMixinBuilder from "mixin-decorators";
+
 import {
   type MethodDeclarationStructure,
   type MethodDeclarationOverloadStructure,
@@ -7,8 +9,6 @@ import {
   Scope,
   StructureKind,
 } from "ts-morph";
-
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 
 import {
   DecoratorImpl,

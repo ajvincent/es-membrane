@@ -1,4 +1,10 @@
 // #region preamble
+import type {
+  MixinClass,
+  StaticAndInstance,
+  SubclassDecorator,
+} from "mixin-decorators";
+
 import {
   OptionalKind,
   ParameterDeclarationStructure,
@@ -8,18 +14,6 @@ import {
 import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
-
-import {
-  MixinClass
-} from "#mixin_decorators/source/types/MixinClass.mjs";
-
-import type {
-  StaticAndInstance
-} from "#mixin_decorators/source/types/StaticAndInstance.mjs";
-
-import type {
-  SubclassDecorator
-} from "#mixin_decorators/source/types/SubclassDecorator.mjs";
 
 import StructureBase from "../base/StructureBase.mjs";
 
@@ -79,7 +73,7 @@ export default function ParameteredNode(
   }
 }
 ParameteredNode satisfies SubclassDecorator<
-  typeof StructureBase,
   ParameteredNodeStructureFields,
+  typeof StructureBase,
   false
 >;

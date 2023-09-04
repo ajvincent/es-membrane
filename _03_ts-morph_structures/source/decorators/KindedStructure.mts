@@ -1,4 +1,10 @@
 // #region preamble
+import type {
+  MixinClass,
+  StaticAndInstance,
+  SubclassDecorator,
+} from "mixin-decorators";
+
 import {
   KindedStructure,
   StructureKind
@@ -8,16 +14,7 @@ import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
 
-import type {
-  StaticAndInstance
-} from "#mixin_decorators/source/types/StaticAndInstance.mjs";
-
-import type {
-  SubclassDecorator
-} from "#mixin_decorators/source/types/SubclassDecorator.mjs";
-
 import StructureBase from "../base/StructureBase.mjs";
-import { MixinClass } from "#mixin_decorators/source/types/MixinClass.mjs";
 // #endregion preamble
 
 declare const KindedStructureKey: unique symbol;
@@ -33,7 +30,7 @@ export type KindedStructureFields<TKind extends StructureKind> = RightExtendsLef
 
 function KindedStructure<TKind extends StructureKind>(
   kind: TKind
-): SubclassDecorator<typeof StructureBase, KindedStructureFields<TKind>, false>
+): SubclassDecorator<KindedStructureFields<TKind>, typeof StructureBase, false>
 {
   return function (
     baseClass: typeof StructureBase,
@@ -51,7 +48,7 @@ function KindedStructure<TKind extends StructureKind>(
   }
 }
 KindedStructure satisfies SubclassDecorator<
-  typeof StructureBase, KindedStructureFields<StructureKind>, [StructureKind]
+  KindedStructureFields<StructureKind>, typeof StructureBase, [StructureKind]
 >;
 
 export default KindedStructure;

@@ -1,11 +1,11 @@
 // #region preamble
+import MultiMixinBuilder from "mixin-decorators";
+
 import {
   ModuleDeclarationKind,
   type ModuleDeclarationStructure,
   StructureKind,
 } from "ts-morph";
-
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
 
 import StatementClassesMap from "../base/StatementClassesMap.mjs";
 

@@ -1,4 +1,10 @@
 // #region preamble
+import type {
+  MixinClass,
+  StaticAndInstance,
+  SubclassDecorator,
+} from "mixin-decorators";
+
 import {
   JSDocableNodeStructure,
 } from "ts-morph"
@@ -6,18 +12,6 @@ import {
 import type {
   RightExtendsLeft
 } from "#stage_utilities/source/types/Utility.mjs";
-
-import type {
-  MixinClass
-} from "#mixin_decorators/source/types/MixinClass.mjs";
-
-import type {
-  StaticAndInstance
-} from "#mixin_decorators/source/types/StaticAndInstance.mjs";
-
-import type {
-  SubclassDecorator
-} from "#mixin_decorators/source/types/SubclassDecorator.mjs";
 
 import StructureBase from "../base/StructureBase.mjs";
 import JSDocImpl from "../structures/JSDocImpl.mjs";
@@ -71,7 +65,7 @@ export default function JSDocableNode(
 }
 
 JSDocableNode satisfies SubclassDecorator<
-  typeof StructureBase,
   JSDocableNodeStructureFields,
+  typeof StructureBase,
   false
 >;

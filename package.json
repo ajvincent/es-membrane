@@ -35,13 +35,13 @@
     "eslint-plugin-json": "^3.1.0",
     "eslint-plugin-tsdoc": "^0.2.17",
     "jasmine": "^5.0.2",
+    "mixin-decorators": "^1.0.0",
     "ts-morph": "^19.0.0",
     "type-fest": "^3.13.0",
     "typescript": "^5.1.6"
   },
   "imports": {
     "#stage_utilities/*": "./_01_stage_utilities/*",
-    "#mixin_decorators/*": "./_02_mixin_decorators/*",
     "#ts-morph_structures/*": "./_03_ts-morph_structures/*",
     "#aspects/stubs/*": "./_04b_aspects_stubs/*",
     "#aspects/decorators/*": "./_04c_aspects_decorators/*",

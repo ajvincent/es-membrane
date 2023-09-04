@@ -1,4 +1,9 @@
-import MultiMixinBuilder from "#mixin_decorators/source/MultiMixinBuilder.mjs";
+import MultiMixinBuilder from "mixin-decorators";
+
+import {
+  Scope,
+} from "ts-morph";
+
 import StructureBase from "#ts-morph_structures/source/base/StructureBase.mjs";
 
 import ParameteredNode, {
@@ -8,7 +13,6 @@ import ParameteredNode, {
 import {
   ParameterDeclarationImpl
 } from "#ts-morph_structures/exports.mjs";
-import { Scope } from "ts-morph";
 
 it("ts-morph structure decorators: ParameteredNode", () => {
   const Foo = MultiMixinBuilder<[

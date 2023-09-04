@@ -1,5 +1,11 @@
 // #region preamble
 import type {
+  MultiMixinClass,
+  StaticAndInstance,
+  SubclassDecorator,
+} from "mixin-decorators";
+
+import type {
   Class
 } from "type-fest";
 
@@ -11,18 +17,6 @@ import NumberStringClass from "#stage_utilities/fixtures/NumberStringClass.mjs";
 import type {
   NumberStringType,
 } from "#stage_utilities/fixtures/types/NumberStringType.mjs";
-
-import type {
-  SubclassDecorator
-} from "#mixin_decorators/source/types/SubclassDecorator.mjs";
-
-import type {
-  StaticAndInstance
-} from "#mixin_decorators/source/types/StaticAndInstance.mjs";
-
-import {
-  MultiMixinClass
-} from "#mixin_decorators/source/types/MultiMixinClass.mjs"
 
 // #endregion preamble
 
@@ -50,12 +44,12 @@ it("Aspects mockups: Class Invariants", () => {
   }>;
 
   const classInvariant: SubclassDecorator<
-    Class<NST_Interface>,
     ClassInvariantFields,
+    Class<NST_Interface>,
     [(this: NST_Interface) => void]
   > = function(
     invariant: (this: NST_Interface) => void
-  ): SubclassDecorator<Class<NST_Interface>, ClassInvariantFields, false>
+  ): SubclassDecorator<ClassInvariantFields, Class<NST_Interface>, false>
   {
     return function(
       baseClass: Class<NST_Interface>,
