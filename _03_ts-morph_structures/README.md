@@ -55,7 +55,7 @@ Depending on community feedback, I may publish an independent package on `npmjs.
 ## Generating structures from existing code
 
 ```typescript
-import { getTypeAugmentedStructure } from "#ts-morph-structures/exports.mts"
+import { getTypeAugmentedStructure } from "#ts-morph_structures/exports.mts";
 const { rootStructure, failures } = getTypeAugmentedStructure(nodeWithGetStructures);
 ```
 

@@ -15,6 +15,7 @@ import StructureBase from "../base/StructureBase.mjs";
 
 import {
   ClassDeclarationImpl,
+  IndexSignatureDeclarationImpl,
   InterfaceDeclarationImpl,
   ReturnTypedNodeTypeStructure,
   TypeParameterWithTypeStructures,
@@ -86,6 +87,24 @@ export default function buildTypesForStructures(
         break;
       }
 
+      case StructureKind.IndexSignature:
+      {
+        if (!Node.isIndexSignatureDeclaration(node)) {
+          throw new Error("assertion failure, we should have an index signature node");
+        }
+
+        runConversion(
+          node.getKeyTypeNode(),
+          consoleTrap,
+          subStructureResolver,
+          converter,
+          typeStructure => (
+            structure as unknown as IndexSignatureDeclarationImpl
+          ).keyTypeStructure = typeStructure
+        );
+        // fall through to returnTypeStructure builder
+      }
+
       case StructureKind.CallSignature:
       case StructureKind.Constructor:
       case StructureKind.ConstructorOverload:
@@ -93,7 +112,6 @@ export default function buildTypesForStructures(
       case StructureKind.Function:
       case StructureKind.FunctionOverload:
       case StructureKind.GetAccessor:
-      case StructureKind.IndexSignature:
       case StructureKind.Method:
       case StructureKind.MethodOverload:
       case StructureKind.MethodSignature:

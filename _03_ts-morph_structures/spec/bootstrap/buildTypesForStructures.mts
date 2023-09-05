@@ -1,6 +1,7 @@
 import {
   ClassDeclarationImpl,
   FunctionDeclarationImpl,
+  IndexSignatureDeclarationImpl,
   InterfaceDeclarationImpl,
   LiteralTypedStructureImpl,
   TypeParameterDeclarationImpl,
@@ -13,6 +14,7 @@ import type {
   TypeNodeToTypeStructureConsole
 } from "#ts-morph_structures/source/types/TypeNodeToTypeStructure.mjs";
 import {
+  IndexSignatureDeclaration,
   ModuleKind,
   ModuleResolutionKind,
   Node,
@@ -183,6 +185,53 @@ describe("buildTypesForStructures applies a type node converter for each structu
     expect(structure.constraintStructure).toBe(numberLiteral);
     expect(structure.defaultStructure).toBe(oneLiteral);
     expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
+    expect(failures).toEqual([]);
+  });
+
+  it("having a keyType field (index signature)", () => {
+    sourceFile.addInterface({
+      name: "Foo",
+      indexSignatures: [
+        {
+          keyName: "key",
+          keyType: "string",
+          returnType: "boolean",
+        },
+      ],
+    });
+
+    const FooInterface = sourceFile.getInterfaceOrThrow("Foo");
+    const keyIndex: IndexSignatureDeclaration = FooInterface.getIndexSignatureOrThrow(member => Boolean(member));
+
+    const structureOriginal = keyIndex.getStructure();
+    const structure = IndexSignatureDeclarationImpl.clone(structureOriginal);
+
+    const map = new Map<Structures, Node>([
+      [structure, keyIndex]
+    ]);
+
+    const StringType = new LiteralTypedStructureImpl("string");
+    const BooleanType = new LiteralTypedStructureImpl("boolean");
+
+    const failures = buildTypesForStructures(
+      map,
+      failCallback,
+      (node: NodeWithStructures) => node.getStructure(),
+      (typeNode, failCallback) => {
+        if (typeNode === keyIndex.getReturnTypeNode())
+          return BooleanType;
+        if (typeNode === keyIndex.getKeyTypeNode())
+          return StringType;
+
+        failCallback("Not a key type or return type node?", typeNode);
+        return null;
+      }
+    );
+
+    expect(structure.keyName).toBe("key");
+    expect(structure.keyTypeStructure).toBe(StringType);
+    expect(structure.returnTypeStructure).toBe(BooleanType);
     expect(failNode).toBe(null);
     expect(failures).toEqual([]);
   });

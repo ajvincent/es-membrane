@@ -47,6 +47,10 @@ export {
   TypeParameterConstraintMode
 } from "./source/structures/TypeParameterDeclarationImpl.mjs";
 
+export {
+  TypeElementMemberedOwner
+} from "./source/decorators/TypeElementMemberedNode.mjs";
+
 export type {
   MethodDeclarationAppendContext,
   MethodDeclarationEnableFlags,
@@ -102,5 +106,6 @@ export {
 // #endregion TypeStructure implementations
 
 export {
-  createCodeBlockWriter
+  createCodeBlockWriter,
+  pairedWrite,
 } from "./source/base/utilities.mjs";

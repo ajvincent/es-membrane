@@ -7,9 +7,16 @@ import {
   StructureKind,
 } from "ts-morph";
 
+import {
+  type TypeStructures,
+  createCodeBlockWriter,
+} from "#ts-morph_structures/exports.mjs";
+
 import StructureBase from "../base/StructureBase.mjs";
 
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
+
+import TypeAccessors from "../base/TypeAccessors.mjs";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -51,8 +58,30 @@ export default class IndexSignatureDeclarationImpl
 extends IndexSignatureDeclarationBase
 implements IndexSignatureDeclarationStructure
 {
+  readonly #keyTypeAccessors = new TypeAccessors;
+
   keyName: string | undefined;
-  keyType: string | undefined;
+  get keyType(): string | undefined {
+    const { type } = this.#keyTypeAccessors;
+    if (typeof type === "function") {
+      const writer = createCodeBlockWriter();
+      type(writer);
+      return writer.toString();
+    }
+
+    return type;
+  }
+
+  set keyType(value: string | undefined) {
+    this.#keyTypeAccessors.type = value;
+  }
+
+  get keyTypeStructure(): TypeStructures | undefined {
+    return this.#keyTypeAccessors.typeStructure;
+  }
+  set keyTypeStructure(value: TypeStructures | undefined) {
+    this.#keyTypeAccessors.typeStructure = value;
+  }
 
   public static clone(
     other: OptionalKind<IndexSignatureDeclarationStructure>
@@ -61,7 +90,10 @@ implements IndexSignatureDeclarationStructure
     const clone = new IndexSignatureDeclarationImpl;
 
     clone.keyName = other.keyName;
-    clone.keyType = other.keyType;
+    if ((other as IndexSignatureDeclarationImpl).keyTypeStructure)
+      clone.keyTypeStructure = (other as IndexSignatureDeclarationImpl).keyTypeStructure;
+    else
+      clone.keyType = other.keyType;
 
     IndexSignatureDeclarationBase.cloneTrivia(other, clone);
     IndexSignatureDeclarationBase.cloneJSDocable(other, clone);
