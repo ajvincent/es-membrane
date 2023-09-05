@@ -52,16 +52,18 @@ export default function getTypeAugmentedStructure(
     throw new Error("assertion failure, we should have a root structure");
   }
 
+  const subFailures: BuildTypesForStructureFailures[] = [];
+
   const failures = buildTypesForStructures(
     map,
     userConsole,
     nodeWithStructure => {
       const subStructureResults = getTypeAugmentedStructure(nodeWithStructure, userConsole);
-      failures.push(...subStructureResults.failures);
+      subFailures.push(...subStructureResults.failures);
       return subStructureResults.rootStructure;
     },
     convertTypeNode
-  );
+  ).concat(subFailures);
 
   return {
     rootStructure,
