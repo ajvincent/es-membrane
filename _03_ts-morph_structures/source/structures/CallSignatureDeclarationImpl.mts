@@ -7,6 +7,11 @@ import {
   StructureKind,
 } from "ts-morph";
 
+import {
+  TypeStructureClassesMap,
+  type TypeStructures,
+} from "#ts-morph_structures/exports.mjs";
+
 import StructureBase from "../base/StructureBase.mjs";
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
 
@@ -68,6 +73,38 @@ implements CallSignatureDeclarationStructure
     CallSignatureDeclarationBase.cloneReturnTyped(other, declaration);
 
     return declaration;
+  }
+
+  /** @internal */
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    void(filter);
+    void(replacement);
+
+    this.parameters.forEach(param => {
+      if (!param.typeStructure)
+        return;
+      if (filter(param.typeStructure))
+        param.typeStructure = TypeStructureClassesMap.clone(replacement);
+      else
+        param.typeStructure.replaceDescendantTypes(filter, replacement);
+    });
+
+    this.typeParameters.forEach(typeParam => {
+      if (typeof typeParam === "string")
+        return;
+      typeParam.replaceDescendantTypes(filter, replacement);
+    });
+
+    if (this.returnTypeStructure) {
+      if (filter(this.returnTypeStructure))
+        this.returnTypeStructure = TypeStructureClassesMap.clone(replacement);
+      else
+        this.returnTypeStructure.replaceDescendantTypes(filter, replacement);
+    }
   }
 }
 

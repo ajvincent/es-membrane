@@ -16,6 +16,8 @@ import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
+import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStructures.mjs";
+
 import {
   TypeParameterConstraintMode
 } from "../structures/TypeParameterDeclarationImpl.mjs";
@@ -48,6 +50,22 @@ implements MappedTypeTypedStructure
   {
     this.parameter = parameter;
     registerCallbackForTypeStructure(this);
+  }
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    if (this.asName) {
+      replaceDescendantTypeStructures(this, "asName", filter, replacement);
+    }
+
+    if (this.type) {
+      replaceDescendantTypeStructures(this, "type", filter, replacement);
+    }
+
+    this.parameter.replaceDescendantTypes(filter, replacement);
   }
 
   #writerFunction(

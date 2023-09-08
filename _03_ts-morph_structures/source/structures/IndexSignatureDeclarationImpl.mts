@@ -8,8 +8,9 @@ import {
 } from "ts-morph";
 
 import {
-  type TypeStructures,
   createCodeBlockWriter,
+  TypeStructureClassesMap,
+  type TypeStructures,
 } from "#ts-morph_structures/exports.mjs";
 
 import StructureBase from "../base/StructureBase.mjs";
@@ -81,6 +82,20 @@ implements IndexSignatureDeclarationStructure
   }
   set keyTypeStructure(value: TypeStructures | undefined) {
     this.#keyTypeAccessors.typeStructure = value;
+  }
+
+  /** @internal */
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    if (!this.keyTypeStructure)
+      return;
+    if (filter(this.keyTypeStructure))
+      this.keyTypeStructure = TypeStructureClassesMap.clone(replacement);
+    else
+      this.keyTypeStructure.replaceDescendantTypes(filter, replacement);
   }
 
   public static clone(

@@ -27,6 +27,8 @@ import {
   registerCallbackForTypeStructure,
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
+import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStructures.mjs";
+
 import {
   pairedWrite,
 } from "../base/utilities.mjs";
@@ -83,6 +85,28 @@ implements FunctionTypedStructure
 
   readonly typeParameterPrinterSettings = new TypePrinterSettingsBase;
   readonly parameterPrinterSettings = new TypePrinterSettingsBase;
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    this.typeParameters.forEach(typeParam => typeParam.replaceDescendantTypes(filter, replacement));
+
+    if (replacement.kind === TypeStructureKind.Parameter) {
+      for (let i = 0; i < this.parameters.length; i++) {
+        replaceDescendantTypeStructures(this.parameters, i, filter, replacement);
+      }
+
+      if (this.restParameter) {
+        replaceDescendantTypeStructures(this, "restParameter", filter, replacement);
+      }
+    }
+
+    if (this.returnType) {
+      replaceDescendantTypeStructures(this, "returnType", filter, replacement);
+    }
+  }
 
   #writerFunction(writer: CodeBlockWriter): void
   {

@@ -6,6 +6,7 @@ import type {
 
 import type {
   InferTypedStructure,
+  TypeStructures,
 } from "./TypeStructures.mjs";
 
 import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
@@ -42,6 +43,14 @@ implements InferTypedStructure
   {
     this.typeParameter = typeParameter;
     registerCallbackForTypeStructure(this);
+  }
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    this.typeParameter.replaceDescendantTypes(filter, replacement);
   }
 
   #writerFunction(writer: CodeBlockWriter): void

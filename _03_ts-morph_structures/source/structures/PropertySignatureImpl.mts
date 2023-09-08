@@ -7,6 +7,11 @@ import {
   StructureKind,
 } from "ts-morph";
 
+import {
+  TypeStructureClassesMap,
+  type TypeStructures,
+} from "#ts-morph_structures/exports.mjs";
+
 import StructureBase from "../base/StructureBase.mjs";
 
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
@@ -93,6 +98,20 @@ implements PropertySignatureStructure
     PropertySignatureBase.cloneTyped(other, clone);
 
     return clone;
+  }
+
+  /** @internal */
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    if (this.typeStructure) {
+      if (filter(this.typeStructure))
+        this.typeStructure = TypeStructureClassesMap.clone(replacement);
+      else
+        this.typeStructure.replaceDescendantTypes(filter, replacement);
+    }
   }
 }
 PropertySignatureImpl satisfies CloneableStructure<PropertySignatureStructure>;

@@ -4,6 +4,7 @@ import type {
 } from "ts-morph";
 
 import type {
+  TypeStructures,
   WriterTypedStructure
 } from "./TypeStructures.mjs";
 
@@ -35,6 +36,15 @@ implements WriterTypedStructure
   constructor(writer: WriterFunction) {
     this.writerFunction = writer;
     registerCallbackForTypeStructure(this);
+  }
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    void(filter);
+    void(replacement);
   }
 }
 

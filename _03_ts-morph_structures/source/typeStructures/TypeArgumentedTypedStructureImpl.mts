@@ -9,6 +9,11 @@ import type {
 } from "./TypeStructures.mjs";
 
 import {
+  TypePrinter,
+  TypePrinterSettingsBase,
+} from "../base/TypePrinter.mjs";
+
+import {
   TypeStructureKind
 } from "../base/TypeStructureKind.mjs";
 
@@ -18,10 +23,11 @@ import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
+import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStructures.mjs";
+
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
-import { TypePrinter, TypePrinterSettingsBase } from "../base/TypePrinter.mjs";
 // #endregion preamble
 
 /**
@@ -61,7 +67,19 @@ implements TypeArgumentedTypedStructure
     registerCallbackForTypeStructure(this);
   }
 
-  appendStructures(
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    replaceDescendantTypeStructures(this, "objectType", filter, replacement);
+
+    for (let i = 0; i < this.childTypes.length; i++) {
+      replaceDescendantTypeStructures(this.childTypes, i, filter, replacement);
+    }
+  }
+
+  public appendStructures(
     structuresContext: TypeStructures[]
   ): this
   {

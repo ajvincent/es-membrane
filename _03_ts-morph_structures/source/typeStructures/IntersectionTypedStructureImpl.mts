@@ -1,4 +1,14 @@
 // #region preamble
+import {
+  CodeBlockWriter,
+  WriterFunction,
+} from "ts-morph";
+
+import {
+  TypePrinter,
+  TypePrinterSettingsBase,
+} from "../base/TypePrinter.mjs";
+
 import type {
   IntersectionTypedStructure,
   TypeStructures
@@ -14,11 +24,11 @@ import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
+import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStructures.mjs";
+
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
-import { TypePrinter, TypePrinterSettingsBase } from "../base/TypePrinter.mjs";
-import { CodeBlockWriter, WriterFunction } from "ts-morph";
 // #endregion preamble
 
 /** Foo & Bar & ... */
@@ -45,6 +55,16 @@ implements IntersectionTypedStructure
   {
     this.appendStructures(childTypes);
     registerCallbackForTypeStructure(this);
+  }
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    for (let i = 0; i < this.childTypes.length; i++) {
+      replaceDescendantTypeStructures(this.childTypes, i, filter, replacement);
+    }
   }
 
   appendStructures(

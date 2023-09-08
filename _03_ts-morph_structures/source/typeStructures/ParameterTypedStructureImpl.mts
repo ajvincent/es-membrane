@@ -18,7 +18,12 @@ import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.mjs";
-import { CloneableStructure } from "../types/CloneableStructure.mjs";
+
+import type {
+  CloneableStructure,
+} from "../types/CloneableStructure.mjs";
+
+import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStructures.mjs";
 // #endregion
 
 /** Just a parameter name and type for a `FunctionTypedStructureImpl`. */
@@ -41,6 +46,16 @@ implements ParameterTypedStructure
       this.name = name;
     }
     this.typeStructure = typeStructure;
+  }
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    if (this.typeStructure) {
+      replaceDescendantTypeStructures(this, "typeStructure", filter, replacement);
+    }
   }
 
   #writerFunction(

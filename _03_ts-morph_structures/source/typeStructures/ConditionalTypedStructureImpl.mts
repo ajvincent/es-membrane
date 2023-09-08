@@ -24,6 +24,8 @@ import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
+import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStructures.mjs";
+
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
@@ -73,6 +75,17 @@ implements ConditionalTypedStructure
     this.falseType = conditionalParts.falseType ?? ConditionalTypedStructureImpl.#buildNever();
 
     registerCallbackForTypeStructure(this);
+  }
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    replaceDescendantTypeStructures(this, "checkType", filter, replacement);
+    replaceDescendantTypeStructures(this, "extendsType", filter, replacement);
+    replaceDescendantTypeStructures(this, "trueType", filter, replacement);
+    replaceDescendantTypeStructures(this, "falseType", filter, replacement);
   }
 
   #writerFunction(writer: CodeBlockWriter): void

@@ -8,6 +8,11 @@ import {
   type TypeParameteredNodeStructure,
 } from "ts-morph";
 
+import {
+  TypeStructureClassesMap,
+  type TypeStructures,
+} from "#ts-morph_structures/exports.mjs";
+
 import StructureBase from "../base/StructureBase.mjs";
 
 import StructuresClassesMap from "../base/StructuresClassesMap.mjs";
@@ -17,10 +22,6 @@ import TypeAccessors from "../base/TypeAccessors.mjs";
 import type {
   TypeParameterWithTypeStructures
 } from "../typeStructures/TypeAndTypeStructureInterfaces.mjs";
-
-import type {
-  TypeStructures
-} from "../typeStructures/TypeStructures.mjs";
 
 import type {
   CloneableStructure
@@ -56,7 +57,7 @@ implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
 
   get constraintStructure(): TypeStructures | undefined
   {
-    return this.#constraintManager.typeStructure
+    return this.#constraintManager.typeStructure;
   }
   set constraintStructure(
     structure: TypeStructures
@@ -98,6 +99,26 @@ implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
   {
     super();
     this.name = name;
+  }
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    if (this.constraintStructure) {
+      if (filter(this.constraintStructure))
+        this.constraintStructure = TypeStructureClassesMap.clone(replacement);
+      else
+        this.constraintStructure.replaceDescendantTypes(filter, replacement);
+    }
+
+    if (this.defaultStructure) {
+      if (filter(this.defaultStructure))
+        this.defaultStructure = TypeStructureClassesMap.clone(replacement);
+      else
+        this.defaultStructure.replaceDescendantTypes(filter, replacement);
+    }
   }
 
   constraintWriter(

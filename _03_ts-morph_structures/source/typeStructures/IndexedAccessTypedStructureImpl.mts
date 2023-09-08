@@ -4,6 +4,11 @@ import {
   WriterFunction,
 } from "ts-morph";
 
+import {
+  TypePrinter,
+  TypePrinterSettingsBase,
+} from "../base/TypePrinter.mjs";
+
 import type {
   IndexedAccessTypedStructure,
   TypeStructures,
@@ -19,10 +24,12 @@ import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
+import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStructures.mjs";
+
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
-import { TypePrinter, TypePrinterSettingsBase } from "../base/TypePrinter.mjs";
+
 // #endregion preamble
 
 /**
@@ -57,6 +64,15 @@ implements IndexedAccessTypedStructure
     registerCallbackForTypeStructure(this);
   }
   readonly printSettings = new TypePrinterSettingsBase;
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    replaceDescendantTypeStructures(this, "objectType", filter, replacement);
+    replaceDescendantTypeStructures(this, "indexType", filter, replacement);
+  }
 
   #writerFunction(writer: CodeBlockWriter): void
   {

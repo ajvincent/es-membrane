@@ -18,6 +18,8 @@ import {
   TypeStructureKind
 } from "../base/TypeStructureKind.mjs";
 
+import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStructures.mjs";
+
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
@@ -51,6 +53,14 @@ implements ArrayTypedStructure
     this.objectType = objectType;
 
     registerCallbackForTypeStructure(this);
+  }
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    replaceDescendantTypeStructures(this, "objectType", filter, replacement);
   }
 
   #writerFunction(

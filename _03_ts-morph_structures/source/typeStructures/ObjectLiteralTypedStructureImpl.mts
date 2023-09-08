@@ -21,6 +21,7 @@ import {
   PropertySignatureImpl,
   TypeStructureKind,
   TypeStructureClassesMap,
+  TypeStructures,
 } from "../../exports.mjs"
 
 import {
@@ -63,6 +64,18 @@ implements ObjectLiteralTypedStructure
   constructor(members: ObjectLiteralAppendables = []) {
     this.appendStructures(members);
     registerCallbackForTypeStructure(this);
+  }
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    this.callSignatures.forEach(signature => signature.replaceDescendantTypes(filter, replacement));
+    this.constructSignatures.forEach(signature => signature.replaceDescendantTypes(filter, replacement));
+    this.indexSignatures.forEach(signature => signature.replaceDescendantTypes(filter, replacement));
+    this.methods.forEach(signature => signature.replaceDescendantTypes(filter, replacement));
+    this.properties.forEach(signature => signature.replaceDescendantTypes(filter, replacement));
   }
 
   appendStructures(

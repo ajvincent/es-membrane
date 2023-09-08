@@ -7,7 +7,8 @@ import type {
 import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
 
 import type {
-  LiteralTypedStructure
+  LiteralTypedStructure,
+  TypeStructures,
 } from "./TypeStructures.mjs";
 
 import {
@@ -40,6 +41,15 @@ export default class LiteralTypedStructureImpl implements LiteralTypedStructure
   {
     this.stringValue = literal;
     registerCallbackForTypeStructure(this);
+  }
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    void(filter);
+    void(replacement);
   }
 
   #writerFunction(writer: CodeBlockWriter): void

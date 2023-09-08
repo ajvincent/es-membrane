@@ -20,6 +20,8 @@ import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
 
+import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStructures.mjs";
+
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.mjs";
@@ -53,6 +55,14 @@ implements PrefixOperatorsTypedStructure
     this.childTypes = [childType];
 
     registerCallbackForTypeStructure(this);
+  }
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    replaceDescendantTypeStructures(this.childTypes, 0, filter, replacement);
   }
 
   #writerFunction(writer: CodeBlockWriter): void

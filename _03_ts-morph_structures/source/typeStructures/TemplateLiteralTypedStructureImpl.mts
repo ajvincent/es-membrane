@@ -13,12 +13,14 @@ import {
 } from "../../exports.mjs";
 
 import {
-  pairedWrite
-} from "../base/utilities.mjs";
-
-import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.mjs";
+
+import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStructures.mjs";
+
+import {
+  pairedWrite,
+} from "../base/utilities.mjs";
 
 import type {
   CloneableStructure
@@ -40,6 +42,18 @@ implements TemplateLiteralTypedStructure
   {
     this.childTypes = childTypes;
     registerCallbackForTypeStructure(this);
+  }
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    for (let i = 0; i < this.childTypes.length; i++) {
+      if (typeof this.childTypes[i] === "string")
+        continue;
+      replaceDescendantTypeStructures(this.childTypes as TypeStructures[], i, filter, replacement);
+    }
   }
 
   #writerFunction(

@@ -5,7 +5,8 @@ import type {
 } from "ts-morph";
 
 import type {
-  StringTypedStructure
+  StringTypedStructure,
+  TypeStructures,
 } from "./TypeStructures.mjs";
 
 import TypeStructureClassesMap from "../base/TypeStructureClassesMap.mjs";
@@ -40,6 +41,15 @@ export default class StringTypedStructureImpl implements StringTypedStructure
   {
     this.stringValue = literal;
     registerCallbackForTypeStructure(this);
+  }
+
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    void(filter);
+    void(replacement);
   }
 
   #writerFunction(writer: CodeBlockWriter): void
