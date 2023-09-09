@@ -1,14 +1,19 @@
 import {
   ConditionalTypedStructureImpl,
+  FunctionTypedStructureImpl,
+  InterfaceDeclarationImpl,
   LiteralTypedStructureImpl,
+  ObjectLiteralTypedStructureImpl,
+  ParameterTypedStructureImpl,
   SymbolKeyTypedStructureImpl,
   TupleTypedStructureImpl,
   TypeStructureKind,
   TypeStructures,
-  /*
   TypeParameterDeclarationImpl,
-  */
   UnionTypedStructureImpl,
+  MethodSignatureImpl,
+  ParameterDeclarationImpl,
+  PropertySignatureImpl,
 } from "#ts-morph_structures/exports.mjs";
 
 describe("replaceDescendantTypes", () => {
@@ -67,15 +72,85 @@ describe("replaceDescendantTypes", () => {
     expectFooClone(unionType.childTypes[2]);
   });
 
-  xit("works with function types through to type parameters", () => {
-    // not yet written
+  it("works with function types through to type parameters", () => {
+    const FirstTypeParam = new TypeParameterDeclarationImpl("FirstParam");
+    FirstTypeParam.constraintStructure = SymbolKeyTypedStructureImpl.clone(BarBaseLiteral);
+
+    const FirstParam = new ParameterTypedStructureImpl("firstParam", SymbolKeyTypedStructureImpl.clone(BarBaseLiteral));
+    const SecondParam = new ParameterTypedStructureImpl("secondParam", new LiteralTypedStructureImpl("FirstParam"));
+
+    const functionType = new FunctionTypedStructureImpl({
+      name: "clone",
+      typeParameters: [
+        FirstTypeParam
+      ],
+      parameters: [
+        FirstParam,
+        SecondParam,
+      ],
+      returnType: SymbolKeyTypedStructureImpl.clone(BarBaseLiteral)
+    });
+
+    functionType.replaceDescendantTypes(filterBar, FooBaseLiteral);
+
+    expectFooClone(functionType.typeParameters[0].constraintStructure!);
+    expectFooClone(functionType.parameters[0].typeStructure!);
+    expectFooClone(functionType.returnType!);
   });
 
-  xit("passes through an object literal type to descendant type structures", () => {
-    // not yet written
+  it("passes through an object literal type to descendant type structures", () => {
+    const firstMethod = new MethodSignatureImpl("firstMethod");
+
+    const FirstTypeParam = new TypeParameterDeclarationImpl("Target");
+    FirstTypeParam.constraintStructure = SymbolKeyTypedStructureImpl.clone(BarBaseLiteral);
+    firstMethod.typeParameters.push(FirstTypeParam);
+
+    const firstParam = new ParameterDeclarationImpl("firstParam");
+    firstParam.typeStructure = SymbolKeyTypedStructureImpl.clone(BarBaseLiteral);
+    firstMethod.parameters.push(firstParam);
+
+    const prop = new PropertySignatureImpl("foo");
+    prop.typeStructure = SymbolKeyTypedStructureImpl.clone(BarBaseLiteral);
+
+    const objectLiteral = new ObjectLiteralTypedStructureImpl({
+      methods: [
+        firstMethod,
+      ],
+      properties: [
+        prop,
+      ],
+    });
+
+    objectLiteral.replaceDescendantTypes(filterBar, FooBaseLiteral);
+    expectFooClone(FirstTypeParam.constraintStructure);
+    expectFooClone(firstParam.typeStructure);
+    expectFooClone(prop.typeStructure);
   });
 
-  xit("works with an interface declaration (presumably cloned) for purposes of resolving a type parameter", () => {
-    // not yet written
+  it("works with an interface declaration (presumably cloned) for purposes of resolving a type parameter", () => {
+    const firstMethod = new MethodSignatureImpl("firstMethod");
+
+    const FirstTypeParam = new TypeParameterDeclarationImpl("Target");
+    FirstTypeParam.constraintStructure = SymbolKeyTypedStructureImpl.clone(BarBaseLiteral);
+    firstMethod.typeParameters.push(FirstTypeParam);
+
+    const firstParam = new ParameterDeclarationImpl("firstParam");
+    firstParam.typeStructure = SymbolKeyTypedStructureImpl.clone(BarBaseLiteral);
+    firstMethod.parameters.push(firstParam);
+
+    const prop = new PropertySignatureImpl("foo");
+    prop.typeStructure = SymbolKeyTypedStructureImpl.clone(BarBaseLiteral);
+
+    const interfaceDecl = new InterfaceDeclarationImpl("TestInterface");
+    interfaceDecl.methods.push(firstMethod);
+    interfaceDecl.properties.push(prop);
+
+    interfaceDecl.typeParameters.push(TypeParameterDeclarationImpl.clone(FirstTypeParam));
+
+    interfaceDecl.replaceDescendantTypes(filterBar, FooBaseLiteral);
+    expectFooClone((interfaceDecl.typeParameters[0] as TypeParameterDeclarationImpl).constraintStructure!);
+    expectFooClone(FirstTypeParam.constraintStructure);
+    expectFooClone(firstParam.typeStructure);
+    expectFooClone(prop.typeStructure);
   });
 });

@@ -47,6 +47,7 @@ import {
   stringOrWriterFunction
 } from "../types/ts-morph-native.mjs";
 import { InterfaceDeclarationWithExtendsTypeStructures } from "../typeStructures/TypeAndTypeStructureInterfaces.mjs";
+import { TypeStructures } from "#ts-morph_structures/exports.mjs";
 // #endregion preamble
 
 const InterfaceDeclarationBase = MultiMixinBuilder<
@@ -109,6 +110,25 @@ implements InterfaceDeclarationStructure, InterfaceDeclarationWithExtendsTypeStr
 
   get extendsSet(): TypeStructureSet {
     return this.#extendsSet;
+  }
+
+  /** @internal */
+  public replaceDescendantTypes(
+    filter: (typeStructure: TypeStructures) => boolean,
+    replacement: TypeStructures
+  ): void
+  {
+    this.typeParameters.forEach(typeParam => {
+      if (typeof typeParam === "string")
+        return;
+      typeParam.replaceDescendantTypes(filter, replacement);
+    });
+
+    this.callSignatures.forEach(signature => signature.replaceDescendantTypes(filter, replacement));
+    this.constructSignatures.forEach(signature => signature.replaceDescendantTypes(filter, replacement));
+    this.indexSignatures.forEach(signature => signature.replaceDescendantTypes(filter, replacement));
+    this.methods.forEach(signature => signature.replaceDescendantTypes(filter, replacement));
+    this.properties.forEach(signature => signature.replaceDescendantTypes(filter, replacement));
   }
 
   public static clone(

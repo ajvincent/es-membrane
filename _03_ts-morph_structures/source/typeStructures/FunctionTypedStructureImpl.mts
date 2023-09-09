@@ -93,14 +93,12 @@ implements FunctionTypedStructure
   {
     this.typeParameters.forEach(typeParam => typeParam.replaceDescendantTypes(filter, replacement));
 
-    if (replacement.kind === TypeStructureKind.Parameter) {
-      for (let i = 0; i < this.parameters.length; i++) {
-        replaceDescendantTypeStructures(this.parameters, i, filter, replacement);
-      }
+    for (let i = 0; i < this.parameters.length; i++) {
+      replaceDescendantTypeStructures(this.parameters, i, filter, replacement);
+    }
 
-      if (this.restParameter) {
-        replaceDescendantTypeStructures(this, "restParameter", filter, replacement);
-      }
+    if (this.restParameter) {
+      replaceDescendantTypeStructures(this, "restParameter", filter, replacement);
     }
 
     if (this.returnType) {
