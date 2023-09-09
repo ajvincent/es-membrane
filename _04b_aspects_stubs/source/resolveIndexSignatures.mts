@@ -10,7 +10,6 @@ import {
   ParameterDeclarationImpl,
   ParameterTypedStructure,
   PropertySignatureImpl,
-  TypeParameterDeclarationImpl,
   TypeStructureClassesMap,
   TypeStructureKind,
 } from "#ts-morph_structures/exports.mjs";
@@ -32,12 +31,12 @@ export default function resolveIndexSignatures(
   indexSignatures.forEach(signature => {
     const names = nameResolver(signature);
 
-    if (signature.returnTypeStructure?.kind === TypeStructureKind.Function) {
+    if ((signature.returnTypeStructure?.kind === TypeStructureKind.Function) && !signature.isReadonly) {
       const baseMethodSignature = new MethodSignatureImpl("");
       const { returnTypeStructure } = signature;
 
       returnTypeStructure.typeParameters.forEach(typeParam => {
-        baseMethodSignature.typeParameters.push(TypeParameterDeclarationImpl.clone(typeParam));
+        baseMethodSignature.typeParameters.push(typeParam);
       });
       returnTypeStructure.parameters.forEach(param => {
         baseMethodSignature.parameters.push(convertParameterFromTypeToImpl(param));

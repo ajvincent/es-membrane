@@ -77,7 +77,7 @@ describe("getTypeElementMemberedOwner()", () => {
   });
 
   it("with a type alias to a type other than an object literal, with a helper passed in", () => {
-    const NumberStringTypeFile = getTS_SourceFile(
+    const NST_ConditionalFile = getTS_SourceFile(
       {
         pathToDirectory: "#aspects/stubs/fixtures",
         isAbsolutePath: true,
@@ -87,7 +87,7 @@ describe("getTypeElementMemberedOwner()", () => {
 
     expect(() => {
       getTypeElementMemberedOwner(
-        NumberStringTypeFile,
+        NST_ConditionalFile,
         "NumberStringType",
         (message, failingTypeNode) => {
           void(message);
@@ -100,7 +100,7 @@ describe("getTypeElementMemberedOwner()", () => {
     );
 
     const NST = getTypeElementMemberedOwner(
-      NumberStringTypeFile,
+      NST_ConditionalFile,
       "NumberStringType",
       (message, failingTypeNode) => {
         void(message);
