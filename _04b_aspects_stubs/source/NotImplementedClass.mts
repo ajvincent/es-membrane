@@ -12,21 +12,18 @@ import {
 
 import {
   ClassDeclarationImpl,
-  GetAccessorDeclarationImpl,
   ImportDeclarationImpl,
   ImportSpecifierImpl,
-  LiteralTypedStructureImpl,
-  ParameterDeclarationImpl,
-  SetAccessorDeclarationImpl,
   SourceFileImpl,
 } from "#ts-morph_structures/exports.mjs";
 
 import ClassStubBuilder from "./ClassStubBuilder.mjs";
+import propertyToAccessors from "./propertyToAccessors.mjs";
 //#endregion preamble
 
 export default async function NotImplementedStub(
   pathToSourceFile: string,
-  isAbsoluteSourcePath: boolean,
+  isFinalSourcePath: boolean,
   stubBuilder: ClassStubBuilder,
   stubClass: ClassDeclarationImpl,
   destinationDirectory: ModuleSourceDirectory,
@@ -47,30 +44,22 @@ export default async function NotImplementedStub(
   });
 
   const properties = stubClass.properties.splice(0, Infinity);
-  properties.forEach(prop => {
-    const getter = new GetAccessorDeclarationImpl(prop.name);
-    getter.returnTypeStructure = new LiteralTypedStructureImpl("never");
-    getter.statements.push(`throw new Error("not implemented");`);
-    stubClass.getAccessors.push(getter);
-
-    if (prop.isReadonly) {
-      return;
-    }
-
-    const setter = new SetAccessorDeclarationImpl(prop.name);
-    const setterParameter = new ParameterDeclarationImpl("value");
-    if (prop.typeStructure)
-      setterParameter.typeStructure = prop.typeStructure;
-    setter.parameters.push(setterParameter);
-    setter.statements.push("void(value);");
-    setter.statements.push(`throw new Error("not implemented");`);
-    stubClass.setAccessors.push(setter);
-  });
+  properties.forEach(prop => propertyToAccessors(
+    stubClass,
+    prop,
+    [
+      `throw new Error("not implemented");`,
+    ],
+    [
+      "void(value);",
+      `throw new Error("not implemented");`
+    ]
+  ));
 
   const pathToTargetFile = pathToModule(destinationDirectory, destinationPath);
 
   const importDecl = new ImportDeclarationImpl(
-    isAbsoluteSourcePath ? pathToSourceFile : path.relative(pathToTargetFile, pathToSourceFile)
+    isFinalSourcePath ? pathToSourceFile : path.relative(pathToTargetFile, pathToSourceFile)
   );
   importDecl.namedImports.push(
     new ImportSpecifierImpl(stubBuilder.interfaceOrAliasName)
