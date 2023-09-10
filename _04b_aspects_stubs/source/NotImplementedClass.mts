@@ -18,6 +18,7 @@ import {
   LiteralTypedStructureImpl,
   ParameterDeclarationImpl,
   SetAccessorDeclarationImpl,
+  SourceFileImpl,
 } from "#ts-morph_structures/exports.mjs";
 
 import ClassStubBuilder from "./ClassStubBuilder.mjs";
@@ -76,12 +77,13 @@ export default async function NotImplementedStub(
   );
   importDecl.isTypeOnly = true;
 
-  const targetFile: SourceFile = stubBuilder.sourceFile.getProject().createSourceFile(
-    pathToTargetFile
-  );
+  const targetFileDecl = new SourceFileImpl;
+  targetFileDecl.leadingTrivia.push("// This file is generated.  Do not edit.");
+  targetFileDecl.statements.push(importDecl, stubClass);
 
-  targetFile.addImportDeclaration(importDecl);
-  targetFile.addClass(stubClass);
+  const targetFile: SourceFile = stubBuilder.sourceFile.getProject().createSourceFile(
+    pathToTargetFile, targetFileDecl
+  );
   targetFile.fixMissingImports();
 
   await targetFile.save();
