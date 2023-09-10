@@ -71,9 +71,9 @@ export default class ClassStubBuilder
     (this: void, alias: TypeAliasDeclarationImpl) => ObjectLiteralTypedStructureImpl
   );
 
-  readonly #className: string;
-  readonly #sourceFile: SourceFile;
-  readonly #interfaceOrAliasName: string;
+  readonly className: string;
+  readonly sourceFile: SourceFile;
+  readonly interfaceOrAliasName: string;
 
   /**
    * @param sourceFile - the source file containing the interface or type alias.
@@ -86,9 +86,9 @@ export default class ClassStubBuilder
     className: string,
   )
   {
-    this.#sourceFile = sourceFile;
-    this.#interfaceOrAliasName = interfaceOrAliasName;
-    this.#className = className;
+    this.sourceFile = sourceFile;
+    this.interfaceOrAliasName = interfaceOrAliasName;
+    this.className = className;
   }
 
   /** Build the class declaration. */
@@ -105,14 +105,14 @@ export default class ClassStubBuilder
   #getInterfaceOrTypeAlias(): InterfaceOrTypeAlias
   {
     let interfaceOrAliasStructure: InterfaceOrTypeAlias;
-    const interfaceNode = this.#sourceFile.getInterface(this.#interfaceOrAliasName);
+    const interfaceNode = this.sourceFile.getInterface(this.interfaceOrAliasName);
     if (interfaceNode) {
       interfaceOrAliasStructure = getTypeAugmentedStructure(
         interfaceNode, this.#userConsole.bind(this)
       ).rootStructure as InterfaceDeclarationImpl;
     }
     else {
-      const aliasNode = this.#sourceFile.getTypeAliasOrThrow(this.#interfaceOrAliasName);
+      const aliasNode = this.sourceFile.getTypeAliasOrThrow(this.interfaceOrAliasName);
 
       interfaceOrAliasStructure = getTypeAugmentedStructure(
         aliasNode, this.#userConsole.bind(this)
@@ -217,14 +217,14 @@ export default class ClassStubBuilder
   ): ClassDeclarationImpl
   {
     const classDecl = new ClassDeclarationImpl;
-    classDecl.name = this.#className;
+    classDecl.name = this.className;
     classDecl.typeParameters.push(...this.classTypeParameters.map(
       typeParameter => TypeParameterDeclarationImpl.clone(typeParameter)
     ));
 
     let implementsType: (
       LiteralTypedStructureImpl | TypeArgumentedTypedStructureImpl
-    ) = new LiteralTypedStructureImpl(this.#interfaceOrAliasName);
+    ) = new LiteralTypedStructureImpl(this.interfaceOrAliasName);
 
     if (this.typeArguments.length) {
       implementsType = new TypeArgumentedTypedStructureImpl(implementsType, this.typeArguments.slice());
