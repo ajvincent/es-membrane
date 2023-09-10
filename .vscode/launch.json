@@ -7,7 +7,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "Run Jasmine tests",
       "skipFiles": [
         "<node_internals>/**"
       ],
