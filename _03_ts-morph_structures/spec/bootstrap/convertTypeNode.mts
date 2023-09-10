@@ -25,6 +25,7 @@ import {
   TemplateLiteralTypedStructureImpl,
   TupleTypedStructureImpl,
   TypeArgumentedTypedStructureImpl,
+  TypeStructureKind,
   TypeStructures,
   UnionTypedStructureImpl,
   createCodeBlockWriter
@@ -563,6 +564,30 @@ const A: string;
       expect(unionElements.length).toBe(2);
       expect((unionElements[0] as StringTypedStructureImpl)?.stringValue).toBe("E");
       expect((unionElements[1] as StringTypedStructureImpl)?.stringValue).toBe("F");
+    }
+
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
+  });
+
+  it('`${string}${Postfix}` (template literal)', () => {
+    setTypeStructure('`${string}${Postfix}`', failCallback);
+    expect(structure).toBeInstanceOf(TemplateLiteralTypedStructureImpl);
+    if (!(structure instanceof TemplateLiteralTypedStructureImpl))
+      return;
+
+    expect(structure.childTypes.length).toBe(2);
+    const [ stringLiteral, postfixLiteral ] = structure.childTypes;
+    expect(typeof stringLiteral).toBe("object");
+    if (typeof stringLiteral === "object") {
+      expect(stringLiteral.kind).toBe(TypeStructureKind.Literal);
+      expect((stringLiteral as LiteralTypedStructureImpl).stringValue).toBe("string");
+    }
+
+    expect(typeof postfixLiteral).toBe("object");
+    if (typeof postfixLiteral === "object") {
+      expect(postfixLiteral.kind).toBe(TypeStructureKind.Literal);
+      expect((postfixLiteral as LiteralTypedStructureImpl).stringValue).toBe("Postfix");
     }
 
     expect(failMessage).toBe(undefined);
