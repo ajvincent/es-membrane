@@ -154,7 +154,7 @@ export default function convertTypeNode(
   }
 
   // Node.isRestTypeNode(typeNode)
-  if (typeNode.getKind() === SyntaxKind.RestType) {
+  if (kind === SyntaxKind.RestType) {
     const structure = convertTypeNode(
       typeNode.getLastChildOrThrow(),
       conversionFailCallback,
@@ -550,13 +550,6 @@ function convertTemplateLiteralTypeNode(
     }
 
     const [grandchildTypeNode, middleOrTailNode] = childTypeNode.getChildren();
-    if (!Node.isTypeNode(grandchildTypeNode)) {
-      return reportConversionFailure(
-        "unsupported template middle or tail type node",
-        grandchildTypeNode, childTypeNode, conversionFailCallback
-      );
-    }
-
     if (!Node.isLiteralLike(middleOrTailNode)) {
       return reportConversionFailure(
         "unsupported template middle or tail literal node",
@@ -564,7 +557,25 @@ function convertTemplateLiteralTypeNode(
       );
     }
 
-    const grandchildStructure = convertTypeNode(grandchildTypeNode, conversionFailCallback, subStructureResolver);
+    let grandchildStructure: TypeStructures | null;
+    if (Node.isTypeNode(grandchildTypeNode)) {
+      grandchildStructure = convertTypeNode(grandchildTypeNode, conversionFailCallback, subStructureResolver);
+    }
+    else {
+      const kind: SyntaxKind = grandchildTypeNode.getKind();
+
+      const keyword = LiteralKeywords.get(kind);
+      if (keyword) {
+        grandchildStructure = new LiteralTypedStructureImpl(keyword);
+      }
+      else {
+        return reportConversionFailure(
+          "unsupported template middle or tail type node",
+          grandchildTypeNode, childTypeNode, conversionFailCallback
+        );
+      }
+    }
+
     if (!grandchildStructure)
       return null;
     elements.push(grandchildStructure);
