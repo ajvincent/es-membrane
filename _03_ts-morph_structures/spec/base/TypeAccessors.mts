@@ -3,7 +3,7 @@ import {
   WriterFunction
 } from "ts-morph";
 
-import TypeAccessors from "../../source/base/TypeAccessors.mjs";
+import TypeAccessors from "#ts-morph_structures/source/base/TypeAccessors.mjs";
 
 import {
   LiteralTypedStructureImpl,

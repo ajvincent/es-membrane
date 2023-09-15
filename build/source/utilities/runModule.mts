@@ -14,7 +14,7 @@ export function runModule(
   extraNodeArgs: string[] = []
 ) : Promise<void>
 {
-  const d: Deferred<void> = new Deferred;
+  const d = new Deferred<void>;
 
   const child = fork(pathToModule, moduleArgs, {
     execArgv: process.execArgv.concat(...extraNodeArgs),

@@ -9,8 +9,7 @@ import path from "path";
  */
 export default async function readDirsDeep(root, filter = (() => true)) {
     const dirs = [path.normalize(root)], files = [];
-    for (let i = 0; i < dirs.length; i++) {
-        const currentDir = dirs[i];
+    for (const currentDir of dirs) {
         const entries = await fs.readdir(currentDir, { encoding: "utf-8", withFileTypes: true });
         entries.forEach(entry => {
             if (entry.isFile()) {

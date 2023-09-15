@@ -20,8 +20,7 @@ export default async function readDirsDeep(
 {
   const dirs = [path.normalize(root)], files: string[] = [];
 
-  for (let i = 0; i < dirs.length; i++) {
-    const currentDir = dirs[i];
+  for (const currentDir of dirs) {
     const entries = await fs.readdir(currentDir, { encoding: "utf-8", withFileTypes: true});
 
     entries.forEach(entry => {
