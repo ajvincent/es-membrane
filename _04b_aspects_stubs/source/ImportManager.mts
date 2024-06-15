@@ -31,7 +31,7 @@ export default class ImportManager {
     if (this.#knownSpecifiers.has(nameToImport))
       throw new Error("this import is already known.");
 
-    let importDecl = this.#declarationsMap.get(this.targetFilePath);
+    let importDecl = this.#declarationsMap.get(pathToSourceFile);
     if (!importDecl) {
       importDecl = new ImportDeclarationImpl(pathToSourceFile);
       this.#declarationsMap.set(pathToSourceFile, importDecl);
