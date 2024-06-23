@@ -17,14 +17,13 @@
     "@tsconfig/node18": "^18.2.4",
     "@types/jasmine": "^5.1.4",
     "@types/node": "^18.19.34",
-    "code-block-writer": "^13.0.1",
     "jasmine": "^5.1.0",
     "mixin-decorators": "^1.0.1",
-    "ts-morph": "^22.0.0",
-    "ts-morph-structures": "^1.0.1",
+    "ts-morph": "^23.0.0",
+    "ts-morph-structures": "^1.1.0",
     "tslib": "^2.6.3",
-    "type-fest": "^3.13.1",
-    "typescript": "^5.4.5"
+    "type-fest": "^4.20.1",
+    "typescript": "^5.5.2"
   },
   "imports": {
     "#stage_utilities/*": "./_01_stage_utilities/*",
