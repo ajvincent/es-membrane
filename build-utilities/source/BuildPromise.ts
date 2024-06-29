@@ -1,5 +1,5 @@
-import { SingletonPromise } from "./PromiseTypes.js";
-import { DefaultMap } from "./DefaultMap.js";
+import { SingletonPromise } from "../internal/PromiseTypes.js";
+import { DefaultMap } from "../internal/DefaultMap.js";
 
 type setStatusCallback = (value: string) => void
 

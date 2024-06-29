@@ -4,18 +4,19 @@ import runJasmine from "#build-utilities/source/runJasmine.js";
 
 const BPSet = new BuildPromiseSet;
 
-{ // jasmine
-  const target = BPSet.get("jasmine");
+// #region utilities
+{ // utilities:jasmine
+  const target = BPSet.get("build-utilities:jasmine");
 
   target.addTask(async () => {
-    console.log("starting jasmine");
+    console.log("starting build-utilities:jasmine");
     await runJasmine("./spec/support/jasmine.json", "build");
   });
 }
 
 `
-{ // eslint
-  const target = BPSet.get("eslint");
+{ // utilities:eslint
+  const target = BPSet.get("build-utilities:eslint");
 
   const args = [
     "-c", "../.eslintrc.json",
@@ -26,16 +27,16 @@ const BPSet = new BuildPromiseSet;
   args.push("../build.ts");
 
   target.addTask(async () => {
-    console.log("starting eslint");
+    console.log("starting build-utilities:eslint");
     await runModule("../node_modules/eslint/bin/eslint.js", args);
   });
 }
 `;
 
 BPSet.markReady();
-BPSet.main.addSubtarget("jasmine");
+BPSet.main.addSubtarget("build-utilities:jasmine");
 /*
-BPSet.main.addSubtarget("eslint");
+BPSet.main.addSubtarget("build-utilities:eslint");
 */
 
 await BPSet.main.run();

@@ -5,7 +5,7 @@ import { runModule } from "./runModule.js";
 import {
   type ModuleSourceDirectory,
   pathToModule,
-} from "./AsyncSpecModules.js";
+} from "../internal/AsyncSpecModules.js";
 
 const projectDir: ModuleSourceDirectory = {
   importMeta: import.meta,

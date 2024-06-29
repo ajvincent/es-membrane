@@ -2,7 +2,7 @@ import path from "path";
 import { spawn } from "child_process";
 import { env } from "process";
 
-import { Deferred } from "./PromiseTypes.js";
+import { Deferred } from "../internal/PromiseTypes.js";
 
 export default async function recursiveBuild(
   dirname: string,

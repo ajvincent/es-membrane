@@ -25,14 +25,14 @@ const stageDir: ModuleSourceDirectory = {
 describe("AsyncSpecModules", () => {
   it("pathToModule provides resolved paths", () => {
     expect(
-      pathToModule(stageDir, "spec/AsyncSpecModules.mjs")
+      pathToModule(stageDir, "spec/AsyncSpecModules.mts")
     ).toBe(fileURLToPath(import.meta.url));
 
     expect(
       pathToModule({
         pathToDirectory: "#stage_utilities/spec",
         isAbsolutePath: true
-      }, "AsyncSpecModules.mjs")
+      }, "AsyncSpecModules.mts")
     ).toBe(fileURLToPath(import.meta.url));
   });
 

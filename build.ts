@@ -2,8 +2,8 @@
 import { env } from "process";
 */
 
-import { BuildPromiseSet } from "#utilities/source/BuildPromise.js";
-import recursiveBuild from "#utilities/source/recursiveBuild.js";
+import { BuildPromiseSet } from "#build-utilities/source/BuildPromise.js";
+import recursiveBuild from "#build-utilities/source/recursiveBuild.js";
 
 const BPSet = new BuildPromiseSet;
 
@@ -24,8 +24,9 @@ function buildDirectory(dir: string): () => Promise<void> {
 }
 
 addStageDirs([
-  "utilities",
+  "build-utilities",
   "_00_ecma_references",
+  "_01_stage_utilities",
 ]);
 
 BPSet.markReady();

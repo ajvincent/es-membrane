@@ -1,8 +1,8 @@
 import path from "node:path";
 import { spawn } from 'child_process';
 
-import { Deferred } from "./PromiseTypes.js";
-import { projectDir } from "./AsyncSpecModules.js";
+import { Deferred } from "../internal/PromiseTypes.js";
+import { projectDir } from "../internal/AsyncSpecModules.js";
 
 /**
  * Run a specific submodule.
