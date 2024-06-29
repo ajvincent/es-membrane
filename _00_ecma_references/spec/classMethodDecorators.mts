@@ -6,7 +6,6 @@ import type {
 
 import NumberStringClass from "../fixtures/NumberStringClass.mjs";
 
-
 type ClassMethodDecorator<
   This extends object,
   Key extends keyof This,
@@ -87,6 +86,7 @@ it("Method decorators apply from bottom to top, so the returned method runs from
   }
 
   class DecoratedClass implements FooInstance {
+    // if this compilation files, check your tsconfig.json: compilerOptions.target cannot be "ESNext"
     @logEvent("A")
     @logEvent("B")
     foo(): void {

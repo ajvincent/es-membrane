@@ -34,8 +34,8 @@ export function runModule(
     path.join(projectDir, "register-hooks.js"),
 
     "--expose-gc",
+    pathToModule,
     ...moduleArgs,
-    pathToModule
   ];
 
   const child = spawn(
@@ -43,7 +43,9 @@ export function runModule(
     nodeJSArgs,
     {
       stdio: ["ignore", "inherit", "inherit", "ipc"],
+      /*
       cwd: path.join(process.cwd(), path.dirname(pathToModule))
+      */
     }
   );
   child.on('exit', code => code ? d.reject(code) : d.resolve());
