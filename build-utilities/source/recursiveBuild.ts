@@ -1,42 +1,18 @@
 import path from "path";
-import { spawn } from "child_process";
-import { env } from "process";
-
-import { Deferred } from "../internal/PromiseTypes.js";
+import { chdir, cwd } from 'node:process';
 
 export default async function recursiveBuild(
-  dirname: string,
+  dirName: string,
   relativePathToModule: string,
 ): Promise<void>
 {
-  const d = new Deferred<void>;
-
-  //FIXME: use tsimp
-
-  const nodeJSArgs = [
-    /*
-    "../node_modules/ts-node/dist/bin-esm.js",
-    */
-    "--import",
-    "../register-hooks.js",
-
-    "--expose-gc",
-    relativePathToModule
-  ];
-
-  if (dirname === env.TSMS_DEBUG) {
-    nodeJSArgs.unshift("--inspect-brk");
+  const popDir: string = cwd();
+  try {
+    const pushDir = path.resolve(popDir, dirName);
+    chdir(pushDir);
+    await import(path.resolve(pushDir, relativePathToModule));
   }
-
-  const child = spawn(
-    "node",
-    nodeJSArgs,
-    {
-      stdio: ["ignore", "inherit", "inherit", "ipc"],
-      cwd: path.join(process.cwd(), dirname)
-    }
-  );
-  child.on('exit', code => code ? d.reject(code) : d.resolve());
-
-  return d.promise;
+  finally {
+    chdir(popDir);
+  }
 }

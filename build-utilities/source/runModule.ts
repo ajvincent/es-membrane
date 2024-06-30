@@ -1,9 +1,3 @@
-import path from "node:path";
-import { spawn } from 'child_process';
-
-import { Deferred } from "../internal/PromiseTypes.js";
-import { projectDir } from "../internal/AsyncSpecModules.js";
-
 /**
  * Run a specific submodule.
  *
@@ -17,6 +11,23 @@ export function runModule(
   extraNodeArgs: string[] = []
 ) : Promise<void>
 {
+  return Promise.reject(new Error("disabled, can you do this some other way?"));
+}
+
+/*
+import path from "node:path";
+import { spawn } from 'child_process';
+
+import { Deferred } from "../internal/PromiseTypes.js";
+import { projectDir } from "../internal/AsyncSpecModules.js";
+
+export function runModule(
+  pathToModule: string,
+  moduleArgs: string[] = [],
+  extraNodeArgs: string[] = []
+) : Promise<void>
+{
+  return Promise.reject(new Error("disabled, can you do this some other way?"));
   const d = new Deferred<void>;
 
   const env = {
@@ -54,12 +65,10 @@ export function runModule(
     nodeJSArgs,
     {
       stdio: ["ignore", "inherit", "inherit", "ipc"],
-      /*
-      cwd: path.join(process.cwd(), path.dirname(pathToModule))
-      */
     }
   );
   child.on('exit', code => code ? d.reject(code) : d.resolve());
 
   return d.promise;
 }
+*/
