@@ -1,0 +1,7 @@
+{
+  "spec_files": [
+    "./spec/**/*.mjs",
+    "./spec/**/*.mts"
+  ],
+  "stopSpecOnExpectationFailure": false
+}

@@ -4,10 +4,10 @@
 
 import fs from "fs/promises";
 import path from "path";
-import {fileURLToPath, pathToFileURL, } from "url";
+import url from "url";
 
-const projectDir = path.normalize(path.resolve(
-  fileURLToPath(import.meta.url),
+export const projectDir = path.normalize(path.resolve(
+  url.fileURLToPath(import.meta.url),
   "../../.."
 ));
 const pathToPackageJSON = path.join(projectDir, "package.json");
@@ -22,11 +22,11 @@ interface PathToDirectory {
   pathToDirectory: string;
 }
 
-interface PathWithImportMeta extends PathToDirectory {
+export interface PathWithImportMeta extends PathToDirectory {
   importMeta: ImportMeta;
 }
 
-interface PathToAbsoluteDirectory extends PathToDirectory {
+export interface PathToAbsoluteDirectory extends PathToDirectory {
   isAbsolutePath: true;
 }
 
@@ -46,12 +46,8 @@ export async function getModuleDefaultClass<U extends object>(
   leafName: string,
 ) : Promise<Class<U>>
 {
-  let fullPath: string = pathToModule(source, leafName);
-  if (fullPath.startsWith("/")) {
-    fullPath = pathToFileURL(fullPath).href;
-  }
   const module = (
-    await import(fullPath)
+    await import(pathToModule(source, leafName))
   ) as { default: Class<U> };
   return module.default;
 }
@@ -72,12 +68,8 @@ export async function getModuleDefaultClassWithArgs<
   leafName: string,
 ) : Promise<Class<U, T>>
 {
-  let fullPath: string = pathToModule(source, leafName);
-  if (fullPath.startsWith("/")) {
-    fullPath = pathToFileURL(fullPath).href;
-  }
   const module = (
-    await import(fullPath)
+    await import(pathToModule(source, leafName))
   ) as { default: Class<U, T> };
   return module.default;
 }
@@ -96,12 +88,8 @@ export async function getModulePart<Key extends string, T>(
   property: Key,
 ) : Promise<T>
 {
-  let fullPath: string = pathToModule(source, leafName);
-  if (fullPath.startsWith("/")) {
-    fullPath = pathToFileURL(fullPath).href;
-  }
   const module = (
-    await import(fullPath)
+    await import(pathToModule(source, leafName))
   ) as { [key in Key]: T }
   return module[property] as T;
 }
@@ -126,12 +114,8 @@ export async function getModuleClassWithArgs<
   property: Key,
 ) : Promise<Class<U, T>>
 {
-  let fullPath: string = pathToModule(source, leafName);
-  if (fullPath.startsWith("/")) {
-    fullPath = pathToFileURL(fullPath).href;
-  }
   const module = (
-    await import(fullPath)
+    await import(pathToModule(source, leafName))
   ) as { [key in Key]: Class<U, T> };
   return module[property];
 }
@@ -167,7 +151,7 @@ export function pathToModule(
   }
 
   return path.normalize(path.resolve(
-    fileURLToPath(source.importMeta.url),
+    url.fileURLToPath(source.importMeta.url),
     source.pathToDirectory,
     leafName
   ));

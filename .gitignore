@@ -22,4 +22,13 @@ build/**/ts-stdout.txt
 build/generated
 build/spec-generated
 
+old-build/**/*.mjs.map
+old-build/**/*.d.mts
+old-build/**/tsconfig.json
+old-build/tsconfig.json
+old-build/**/ts-stdout.txt
+old-build/generated
+old-build/spec-generated
+
 playground/
+**/.tsimp

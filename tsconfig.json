@@ -1,19 +1,20 @@
 {
   "compilerOptions": {
     "lib": ["ESNext"],
-    "module": "es2022",
-    "target": "esnext",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "target": "ES2022",
+    "moduleResolution": "NodeNext",
+    "strict": true,
     "sourceMap": true,
     "declaration": true,
 
     "baseUrl": ".",
     "paths": {
       "#stage_utilities/*": ["./_01_stage_utilities/*"],
-      "#ts-morph_structures/*": ["./_03_ts-morph_structures/*"],
       "#aspects/stubs/*": ["./_04b_aspects_stubs/*"],
       "#aspects/decorators/*": ["./_04c_aspects_decorators/*"],
-      "#aspects/test-fixtures/*": ["./_04z_aspects_test_fixtures/*"]
+      "#aspects/test-fixtures/*": ["./_04z_aspects_test_fixtures/*"],
+      "#build-utilities/*": ["./build-utilities/*"]
     }
   },
 
@@ -21,5 +22,5 @@
     "spec/**"
   ],
 
-  "extends": "@tsconfig/node18/tsconfig.json"
+  "extends": "@tsconfig/node20/tsconfig.json"
 }

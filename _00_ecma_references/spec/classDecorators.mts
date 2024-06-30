@@ -82,6 +82,7 @@ it("Class decorators apply from bottom to top, so classes may construct from top
     }
   }
 
+  // if this compilation files, check your tsconfig.json: compilerOptions.target cannot be "ESNext"
   @logEvent("A")
   @logEvent("B")
   class DecoratedClass {

@@ -1,17 +1,14 @@
 {
   "name": "es-membrane",
+  "type": "module",
   "version": "0.11.0",
   "description": "An ECMAScript implementation of a Membrane, allowing users to dynamically hide, override, or extend objects in JavaScript with controlled effects on the original objects.",
+  "engines": {
+    "node": ">=20.15"
+  },
   "scripts": {
-    "clean": "node ./build/source/mainWithBuild.mjs clean",
-    "build": "node ./build/source/mainWithBuild.mjs stages",
-    "test": "node ./build/source/mainWithBuild.mjs test",
-    "eslint": "node ./build/source/mainWithBuild.mjs eslint",
-    "eslint-fix": "node ./build/source/mainWithBuild.mjs eslint-fix",
-    "debug": "node ./build/source/mainWithBuild.mjs debug",
-    "build-debug": "node --inspect-brk ./build/source/main.mjs clean stages",
-    "all": "node ./build/source/mainWithBuild.mjs clean stages test eslint",
-    "examples": "node ./build/source/mainWithBuild.mjs examples"
+    "build-old": "node --expose-gc --import ./register-hooks.js ./build.ts",
+    "build": "node --expose-gc --import=tsimp/import --import ./build-utilities/loader-hooks/subpath/registration.js ./build.ts"
   },
   "repository": {
     "type": "git",
@@ -24,29 +21,24 @@
   },
   "homepage": "https://github.com/ajvincent/es-membrane#readme",
   "devDependencies": {
-    "@tsconfig/node18": "^1.0.3",
-    "@types/jasmine": "^4.3.5",
-    "@types/node": "^18.16.19",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "code-block-writer": "^12.0.0",
-    "eslint": "^8.45.0",
-    "eslint-import-resolver-typescript": "^3.6.0",
-    "eslint-plugin-import": "^2.28.1",
-    "eslint-plugin-jasmine": "^4.1.3",
-    "eslint-plugin-json": "^3.1.0",
-    "eslint-plugin-tsdoc": "^0.2.17",
-    "jasmine": "^5.0.2",
-    "mixin-decorators": "^1.0.0",
-    "ts-morph": "^19.0.0",
-    "type-fest": "^3.13.0",
-    "typescript": "^5.1.6"
+    "@tsconfig/node20": "^20.1.4",
+    "@types/jasmine": "^5.1.4",
+    "@types/node": "^18.19.34",
+    "jasmine": "^5.1.0",
+    "mixin-decorators": "^1.0.1",
+    "ts-morph": "^23.0.0",
+    "ts-morph-structures": "^1.1.0",
+    "ts-node": "^10.9.2",
+    "tsimp": "^2.0.11",
+    "tslib": "^2.6.3",
+    "type-fest": "^4.20.1",
+    "typescript": "^5.5.2"
   },
   "imports": {
     "#stage_utilities/*": "./_01_stage_utilities/*",
-    "#ts-morph_structures/*": "./_03_ts-morph_structures/*",
     "#aspects/stubs/*": "./_04b_aspects_stubs/*",
     "#aspects/decorators/*": "./_04c_aspects_decorators/*",
-    "#aspects/test-fixtures/*": "./_04z_aspects_test_fixtures/*"
+    "#aspects/test-fixtures/*": "./_04z_aspects_test_fixtures/*",
+    "#build-utilities/*": "./build-utilities/*"
   }
 }
