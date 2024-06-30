@@ -124,7 +124,7 @@ class SharedAssert
    *
    * @throws `SharedAssertionError` on an assertion failure.
    */
-  public assert(condition: boolean, message: string): void
+  public assert(condition: boolean, message: string): asserts condition is true
   {
     if (condition)
       return;
