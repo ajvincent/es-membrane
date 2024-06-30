@@ -8,7 +8,8 @@
   },
   "scripts": {
     "build-old": "node --expose-gc --import ./register-hooks.js ./build.ts",
-    "build": "node --expose-gc --import=tsimp/import --import ./build-utilities/loader-hooks/subpath/registration.js ./build.ts"
+    "build": "node --expose-gc --import=tsimp/import --import ./build-utilities/loader-hooks/subpath/registration.js ./build.ts",
+    "tsimp-clean": "tsimp --clear"
   },
   "repository": {
     "type": "git",

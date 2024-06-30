@@ -1,7 +1,3 @@
-/*
-import { env } from "process";
-*/
-
 import { BuildPromiseSet } from "#build-utilities/source/BuildPromise.js";
 import recursiveBuild from "#build-utilities/source/recursiveBuild.js";
 
@@ -27,6 +23,7 @@ addStageDirs([
   "build-utilities",
   "_00_ecma_references",
   "_01_stage_utilities",
+  "_02a_aspects_mockups",
 ]);
 
 BPSet.markReady();
