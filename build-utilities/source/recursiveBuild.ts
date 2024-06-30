@@ -11,6 +11,8 @@ export default async function recursiveBuild(
 {
   const d = new Deferred<void>;
 
+  //FIXME: use tsimp
+
   const nodeJSArgs = [
     /*
     "../node_modules/ts-node/dist/bin-esm.js",

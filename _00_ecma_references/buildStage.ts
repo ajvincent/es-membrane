@@ -8,8 +8,9 @@ const BPSet = new BuildPromiseSet;
   const target = BPSet.get("jasmine");
 
   target.addTask(async () => {
-    console.log("starting jasmine");
+    console.log("beginning _00_ecma_references:jasmine");
     await runJasmine("./spec/support/jasmine.json", "build");
+    console.log("completed _00_ecma_references:jasmine");
   });
 }
 

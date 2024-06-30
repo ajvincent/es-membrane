@@ -9,8 +9,9 @@ const BPSet = new BuildPromiseSet;
   const target = BPSet.get("build-utilities:jasmine");
 
   target.addTask(async () => {
-    console.log("starting build-utilities:jasmine");
+    console.log("beginning build-utilities:jasmine");
     await runJasmine("./spec/support/jasmine.json", "build-utilities");
+    console.log("completed build-utilities:jasmine");
   });
 }
 

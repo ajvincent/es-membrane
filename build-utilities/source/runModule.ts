@@ -30,13 +30,16 @@ export function runModule(
   const moduleHookImports = [
     //"./build-utilities/loader-hooks/debug/registration.js?hookName=one",
     "./register-hooks.js",
-    //"tsimp/import",
+    //"./node_modules/tsimp/dist/esm/hooks/import.mjs",
     //"./build-utilities/loader-hooks/debug/registration.js?hookName=two",
+    //"./build-utilities/loader-hooks/subpath/registration.js",
+    //"./build-utilities/loader-hooks/debug/registration.js?hookName=three",
   ];
 
   for (const registrar of moduleHookImports) {
     extraNodeArgs.push("--import", path.resolve(projectDir, registrar));
   }
+  extraNodeArgs.push("--trace-uncaught");
 
   const nodeJSArgs = [
     ...extraNodeArgs,
