@@ -7,7 +7,8 @@
     "node": ">=20.15"
   },
   "scripts": {
-    "build": "node --expose-gc --import ./register-hooks.js ./build.ts"
+    "build": "node --expose-gc --import ./register-hooks.js ./build.ts",
+    "build-new": "node --expose-gc --import=tsimp/import ./build.ts"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
     "ts-morph": "^23.0.0",
     "ts-morph-structures": "^1.1.0",
     "ts-node": "^10.9.2",
+    "tsimp": "^2.0.11",
     "tslib": "^2.6.3",
     "type-fest": "^4.20.1",
     "typescript": "^5.5.2"

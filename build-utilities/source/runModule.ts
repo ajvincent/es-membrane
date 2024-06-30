@@ -25,13 +25,21 @@ export function runModule(
   }
   env.NODE_OPTIONS += extraNodeArgs.join(" ");
 
+  extraNodeArgs = extraNodeArgs.slice();
+
+  const moduleHookImports = [
+    //"./build-utilities/loader-hooks/debug/registration.js?hookName=one",
+    "./register-hooks.js",
+    //"tsimp/import",
+    //"./build-utilities/loader-hooks/debug/registration.js?hookName=two",
+  ];
+
+  for (const registrar of moduleHookImports) {
+    extraNodeArgs.push("--import", path.resolve(projectDir, registrar));
+  }
+
   const nodeJSArgs = [
-    /*
-    "../node_modules/ts-node/dist/bin-esm.js",
-    */
     ...extraNodeArgs,
-    "--import",
-    path.join(projectDir, "register-hooks.js"),
 
     "--expose-gc",
     pathToModule,

@@ -20,7 +20,7 @@ export default async function runJasmine(
 ): Promise<void>
 {
   const nodeJSArgs: string[] = [];
-  if (triggerDebugFlag === env.TSMS_DEBUG) {
+  if (triggerDebugFlag === env.ESM_DEBUG) {
     nodeJSArgs.push("--inspect-brk");
   }
 
