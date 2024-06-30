@@ -7,8 +7,8 @@
     "node": ">=20.15"
   },
   "scripts": {
-    "build": "node --expose-gc --import ./register-hooks.js ./build.ts",
-    "build-new": "node --expose-gc --import=tsimp/import ./build.ts"
+    "build-old": "node --expose-gc --import ./register-hooks.js ./build.ts",
+    "build": "node --expose-gc --import=tsimp/import --import ./build-utilities/loader-hooks/subpath/registration.js ./build.ts"
   },
   "repository": {
     "type": "git",

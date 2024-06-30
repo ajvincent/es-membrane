@@ -4,10 +4,10 @@
 
 import fs from "fs/promises";
 import path from "path";
-import url from "url";
+import {fileURLToPath, pathToFileURL, } from "url";
 
 const projectDir = path.normalize(path.resolve(
-  url.fileURLToPath(import.meta.url),
+  fileURLToPath(import.meta.url),
   "../../.."
 ));
 const pathToPackageJSON = path.join(projectDir, "package.json");
@@ -46,8 +46,12 @@ export async function getModuleDefaultClass<U extends object>(
   leafName: string,
 ) : Promise<Class<U>>
 {
+  let fullPath: string = pathToModule(source, leafName);
+  if (fullPath.startsWith("/")) {
+    fullPath = pathToFileURL(fullPath).href;
+  }
   const module = (
-    await import(pathToModule(source, leafName))
+    await import(fullPath)
   ) as { default: Class<U> };
   return module.default;
 }
@@ -68,8 +72,12 @@ export async function getModuleDefaultClassWithArgs<
   leafName: string,
 ) : Promise<Class<U, T>>
 {
+  let fullPath: string = pathToModule(source, leafName);
+  if (fullPath.startsWith("/")) {
+    fullPath = pathToFileURL(fullPath).href;
+  }
   const module = (
-    await import(pathToModule(source, leafName))
+    await import(fullPath)
   ) as { default: Class<U, T> };
   return module.default;
 }
@@ -88,8 +96,12 @@ export async function getModulePart<Key extends string, T>(
   property: Key,
 ) : Promise<T>
 {
+  let fullPath: string = pathToModule(source, leafName);
+  if (fullPath.startsWith("/")) {
+    fullPath = pathToFileURL(fullPath).href;
+  }
   const module = (
-    await import(pathToModule(source, leafName))
+    await import(fullPath)
   ) as { [key in Key]: T }
   return module[property] as T;
 }
@@ -114,8 +126,12 @@ export async function getModuleClassWithArgs<
   property: Key,
 ) : Promise<Class<U, T>>
 {
+  let fullPath: string = pathToModule(source, leafName);
+  if (fullPath.startsWith("/")) {
+    fullPath = pathToFileURL(fullPath).href;
+  }
   const module = (
-    await import(pathToModule(source, leafName))
+    await import(fullPath)
   ) as { [key in Key]: Class<U, T> };
   return module[property];
 }
@@ -151,7 +167,7 @@ export function pathToModule(
   }
 
   return path.normalize(path.resolve(
-    url.fileURLToPath(source.importMeta.url),
+    fileURLToPath(source.importMeta.url),
     source.pathToDirectory,
     leafName
   ));
