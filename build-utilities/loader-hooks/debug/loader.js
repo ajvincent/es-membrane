@@ -5,7 +5,6 @@ const { searchParams } = new URL(import.meta.url);
 const hookName = searchParams.get("hookName");
 const includesFileMatch = searchParams.get("includesFileMatch");
 
-
 export async function initialize() {
 }
 
