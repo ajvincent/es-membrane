@@ -1,26 +1,10 @@
 node_modules/
-docs/dist/staging/
 **/.DS_Store
 _*/generated
 _*/**/playground
 _*/spec-generated
 _*/**/ts-stdout.txt
 _*/**/tsconfig.json
-
-_*/**/*.mjs
-_*/**/*.mjs.map
-_*/**/*.d.mts
-!_*/fixtures/**/types/**/*.d.mts
-!_*/source/**/types/**/*.d.mts
-!_*/spec/**/types/**/*.d.mts
-
-build/**/*.mjs.map
-build/**/*.d.mts
-build/**/tsconfig.json
-build/tsconfig.json
-build/**/ts-stdout.txt
-build/generated
-build/spec-generated
 
 old-build/**/*.mjs.map
 old-build/**/*.d.mts
@@ -31,4 +15,4 @@ old-build/generated
 old-build/spec-generated
 
 playground/
-**/.tsimp
+.tsimp

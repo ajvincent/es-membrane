@@ -11,7 +11,7 @@ import {
   pathToModule,
 } from "./AsyncSpecModules.mjs";
 
-const TSC_CONFIG = {
+const project = new Project({
   "compilerOptions": {
     "lib": ["es2022"],
     "module": ModuleKind.ESNext,
@@ -21,7 +21,7 @@ const TSC_CONFIG = {
     "declaration": true,
   },
   skipAddingFilesFromTsConfig: true,
-};
+});
 
 export default function getTS_SourceFile(
   startDir: ModuleSourceDirectory,
@@ -29,7 +29,6 @@ export default function getTS_SourceFile(
 ) : SourceFile
 {
   const pathToSourceFile = pathToModule(startDir, sourceLocation);
-  const project = new Project(TSC_CONFIG);
   project.addSourceFileAtPath(pathToSourceFile);
   project.resolveSourceFileDependencies();
 
