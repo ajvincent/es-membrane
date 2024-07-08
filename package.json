@@ -28,7 +28,7 @@
     "jasmine": "^5.1.0",
     "mixin-decorators": "^1.0.1",
     "ts-morph": "^23.0.0",
-    "ts-morph-structures": "^1.1.0",
+    "ts-morph-structures": "^1.1.1",
     "ts-node": "^10.9.2",
     "tsimp": "^2.0.11",
     "tslib": "^2.6.3",
