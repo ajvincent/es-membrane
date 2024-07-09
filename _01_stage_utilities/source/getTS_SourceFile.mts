@@ -4,6 +4,7 @@ import {
   Project,
   ScriptTarget,
   SourceFile,
+  SourceFileStructure,
 } from "ts-morph";
 
 import {
@@ -33,4 +34,19 @@ export default function getTS_SourceFile(
   project.resolveSourceFileDependencies();
 
   return project.getSourceFileOrThrow(pathToSourceFile);
+}
+
+export function addSeveralSourceFiles(
+  absolutePaths: string[]
+): readonly SourceFile[]
+{
+  return project.addSourceFilesAtPaths(absolutePaths);
+}
+
+export async function createSourceFileFromStructure(
+  absolutePath: string,
+  sourceStructure: SourceFileStructure
+): Promise<void> {
+  const sourceFile: SourceFile = project.createSourceFile(absolutePath, sourceStructure);
+  return sourceFile.save();
 }

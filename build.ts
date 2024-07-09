@@ -24,6 +24,7 @@ addStageDirs([
   "_00_ecma_references",
   "_01_stage_utilities",
   "_02a_aspects_mockups",
+  "_02b_aspects_stub_builders",
 ]);
 
 BPSet.markReady();
