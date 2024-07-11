@@ -32,30 +32,16 @@ import {
 } from "./constants.js";
 
 import getProxyHandlerInterface from "./getInterfaces/proxy.js";
-import getReflectInterface from "./getInterfaces/Reflect.js";
 
 export default async function forwardToReflect(): Promise<void> {
+  const pathToForwardModule = path.join(stageDir, "generated/ForwardToReflect.ts");
+
   const proxyInterface: InterfaceDeclarationImpl = getProxyHandlerInterface();
-  /*
-  const reflectInterface: InterfaceDeclarationImpl = getReflectInterface();
-  */
+  for (const method of proxyInterface.methods) {
+    method.hasQuestionToken = false;
+  }
 
   const typeMembers = TypeMembersMap.fromMemberedObject(proxyInterface);
-  /*
-  {
-    const reflectMembers = TypeMembersMap.fromMemberedObject(reflectInterface);
-    const applyMethod = reflectMembers.getAsKind(
-      StructureKind.MethodSignature, "apply"
-    )!;
-
-    const constructMethod = reflectMembers.getAsKind(
-      StructureKind.MethodSignature, "apply"
-    )!;
-    typeMembers.addMembers([applyMethod, constructMethod]);
-    //console.log(JSON.stringify(applyMethod, null, 2));
-  }
-  */
-
   const classBuilder = new MemberedTypeToClass();
   classBuilder.importFromTypeMembersMap(false, typeMembers);
   classBuilder.scopeCallback = {
@@ -76,8 +62,21 @@ export default async function forwardToReflect(): Promise<void> {
 
     getTailStatements: function (key: MemberedStatementsKey): readonly stringWriterOrStatementImpl[] {
       assert.equal(key.groupType?.kind, StructureKind.MethodSignature, "expected a method");
+      const methodArguments: string[] = []
+      for (const param of key.groupType.parameters) {
+        let arg: string = param.name;
+        if (arg === "target") {
+          if (key.statementGroupKey === "apply") {
+            arg += " as CallableFunction";
+          } else if (key.statementGroupKey === "construct") {
+            arg += " as NewableFunction";
+          }
+        }
+        methodArguments.push(arg);
+      }
+
       return [
-        `return Reflect.${key.statementGroupKey}(${key.groupType.parameters.map(param => param.name).join(", ")});`
+        `return Reflect.${key.statementGroupKey}(${methodArguments.join(", ")});`
       ];
     }
   };
@@ -104,10 +103,12 @@ export default async function forwardToReflect(): Promise<void> {
   classMembers.moveMembersToClass(classDecl);
 
   const sourceStructure = new SourceFileImpl();
-  sourceStructure.statements.push(classDecl);
+  sourceStructure.statements.push(
+    classDecl
+  );
 
   await createSourceFileFromStructure(
-    path.join(stageDir, "generated/ForwardToReflect.ts"),
+    pathToForwardModule,
     sourceStructure
   );
 }
