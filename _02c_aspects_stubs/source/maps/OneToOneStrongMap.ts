@@ -1,12 +1,20 @@
 import WeakStrongMap from "./WeakStrongMap.js";
 
-class OneToOneStrongMap<
+class InternalKey {
+  doNotCallMe(): never {
+    throw new Error("don't call me");
+  }
+}
+Object.freeze(InternalKey);
+Object.freeze(InternalKey.prototype);
+
+export default class OneToOneStrongMap<
   StrongKeyType,
   ValueType extends object
 >
 {
-  readonly #baseMap = new WeakStrongMap<object, StrongKeyType, ValueType>();
-  readonly #weakValueToInternalKeyMap: WeakMap<ValueType, object> = new WeakMap;
+  readonly #baseMap = new WeakStrongMap<InternalKey, StrongKeyType, ValueType>();
+  readonly #weakValueToInternalKeyMap: WeakMap<ValueType, InternalKey> = new WeakMap;
 
   /**
    * Bind two sets of keys and values together.
@@ -23,31 +31,31 @@ class OneToOneStrongMap<
     value_2: ValueType
   ) : void
   {
-    let weakKey = this.#weakValueToInternalKeyMap.get(value_1);
-    const __otherWeakKey__ = this.#weakValueToInternalKeyMap.get(value_2);
-    if (!weakKey) {
-      weakKey = __otherWeakKey__ || {};
+    let internalKey = this.#weakValueToInternalKeyMap.get(value_1);
+    const __otherInternalKey__ = this.#weakValueToInternalKeyMap.get(value_2);
+    if (!internalKey) {
+      internalKey = __otherInternalKey__ || new InternalKey;
     }
-    else if (__otherWeakKey__ && (__otherWeakKey__ !== weakKey)) {
+    else if (__otherInternalKey__ && (__otherInternalKey__ !== internalKey)) {
       throw new Error("value_1 and value_2 are already in different one-to-one mappings!");
     }
 
-    const __hasKeySet1__  = this.#baseMap.has(weakKey, strongKey_1);
-    const __hasKeySet2__  = this.#baseMap.has(weakKey, strongKey_2);
+    const __hasKeySet1__  = this.#baseMap.has(internalKey, strongKey_1);
+    const __hasKeySet2__  = this.#baseMap.has(internalKey, strongKey_2);
 
-    if (__hasKeySet1__ && (this.#baseMap.get(weakKey, strongKey_1) !== value_1))
+    if (__hasKeySet1__ && (this.#baseMap.get(internalKey, strongKey_1) !== value_1))
       throw new Error("value_1 mismatch!");
-    if (__hasKeySet2__ && (this.#baseMap.get(weakKey, strongKey_2) !== value_2))
+    if (__hasKeySet2__ && (this.#baseMap.get(internalKey, strongKey_2) !== value_2))
       throw new Error("value_2 mismatch!");
 
-    this.#weakValueToInternalKeyMap.set(value_1, weakKey);
-    this.#weakValueToInternalKeyMap.set(value_2, weakKey);
+    this.#weakValueToInternalKeyMap.set(value_1, internalKey);
+    this.#weakValueToInternalKeyMap.set(value_2, internalKey);
 
     if (!__hasKeySet1__)
-      this.#baseMap.set(weakKey, strongKey_1, value_1);
+      this.#baseMap.set(internalKey, strongKey_1, value_1);
 
     if (!__hasKeySet2__)
-      this.#baseMap.set(weakKey, strongKey_2, value_2);
+      this.#baseMap.set(internalKey, strongKey_2, value_2);
   }
 
   /**
@@ -144,5 +152,3 @@ export type ReadonlyOneToOneStrongMap<
     OneToOneStrongMap<StrongKeyType, ValueType>,
     "get" | "has" | "hasIdentity"
   >
-
-export default OneToOneStrongMap;
