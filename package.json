@@ -11,6 +11,7 @@
   },
   "scripts": {
     "build": "node --expose-gc --import ./register-hooks.js ./build.ts",
+    "debug": "node --inspect-brk --expose-gc --import ./register-hooks.js ./build.ts",
     "build-tsimp": "node --expose-gc --import=tsimp/import --import ./build-utilities/loader-hooks/subpath/registration.js ./build.ts",
     "tsimp-clean": "tsimp --clear"
   },
