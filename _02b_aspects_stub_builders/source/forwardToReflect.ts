@@ -31,15 +31,12 @@ import {
   stageDir
 } from "./constants.js";
 
-import getProxyHandlerInterface from "./getInterfaces/proxy.js";
+import getRequiredProxyHandlerInterface from "./getInterfaces/requiredProxy.js";
 
 export default async function forwardToReflect(): Promise<void> {
   const pathToForwardModule = path.join(stageDir, "generated/ForwardToReflect.ts");
 
-  const proxyInterface: InterfaceDeclarationImpl = getProxyHandlerInterface();
-  for (const method of proxyInterface.methods) {
-    method.hasQuestionToken = false;
-  }
+  const proxyInterface: InterfaceDeclarationImpl = getRequiredProxyHandlerInterface();
 
   const typeMembers = TypeMembersMap.fromMemberedObject(proxyInterface);
   const classBuilder = new MemberedTypeToClass();
@@ -104,6 +101,7 @@ export default async function forwardToReflect(): Promise<void> {
 
   const sourceStructure = new SourceFileImpl();
   sourceStructure.statements.push(
+    "// This file is generated.  Do not edit.",
     classDecl
   );
 
