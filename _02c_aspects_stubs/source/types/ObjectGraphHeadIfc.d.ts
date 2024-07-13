@@ -1,6 +1,14 @@
+export interface ProxyMetadata {
+  readonly shadowTarget: object,
+  readonly proxy: object;
+}
+
 export interface ObjectGraphHeadIfc extends Required<ProxyHandler<object>> {
   /** The unique graph key. */
   readonly objectGraphKey: string | symbol;
+
+  /** An unique key to use for shadow targets. */
+  readonly shadowTargetKey: symbol;
 
   /**
    * Build a new proxy which uses this as its proxy handler.
@@ -8,7 +16,7 @@ export interface ObjectGraphHeadIfc extends Required<ProxyHandler<object>> {
    *
    * @returns the new proxy.
    */
-  createNewProxy<T extends object>(realTarget: T): T;
+  createNewProxy(realTarget: object): ProxyMetadata;
 
   /** Revoke all proxies this object graph owns. */
   revokeAllProxies(): void;

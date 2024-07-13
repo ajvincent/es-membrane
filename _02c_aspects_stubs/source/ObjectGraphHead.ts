@@ -1,24 +1,97 @@
+import WeakRefSet from "#stage_utilities/source/WeakRefSet.mjs";
+
 import ForwardToReflect from "./generated/ForwardToReflect.js";
+
+import OneToOneStrongMap from "./maps/OneToOneStrongMap.js";
+
 import type {
-  ObjectGraphHeadIfc
+  ObjectGraphHeadIfc,
+  ProxyMetadata,
 } from "./types/ObjectGraphHeadIfc.js";
 
 export default
-class ObjectGraphHead
-extends ForwardToReflect<object> implements ObjectGraphHeadIfc
+class ObjectGraphHead extends ForwardToReflect implements ObjectGraphHeadIfc
 {
-  readonly objectGraphKey: string | symbol;
+  /**
+   * Define a shadow target, so we can manipulate the proxy independently of the
+   * original target.
+   *
+   * @param value - The original target.
+   *
+   * @returns A shadow target to minimally emulate the real one.
+   */
+  static #makeShadowTarget(value: object): object {
+    let rv: object;
+    if (Array.isArray(value))
+      rv = [];
+    else if (typeof value == "object")
+      rv = {};
+    else if (typeof value == "function")
+      rv = function() {};
+    else
+      throw new Error("Unknown value for makeShadowTarget");
+    return rv;
+  }
 
-  constructor(objectGraphKey: string | symbol) {
+  static readonly #realTargetKey = Symbol("(real target)");
+
+  readonly objectGraphKey: string | symbol;
+  readonly shadowTargetKey: symbol;
+
+  readonly #revokersRefSet = new WeakRefSet<() => void>;
+
+  // This is a special map, which I do _not_ want to put other membrane-specific properties into.  It's just for tracking revokers.
+  #proxyToRevokeMap = new WeakMap<object, () => void>;
+  #revoked = false;
+  #targetsOneToOneMap = new OneToOneStrongMap<string | symbol, object>;
+
+  public constructor(
+    objectGraphKey: string | symbol
+  )
+  {
     super();
     this.objectGraphKey = objectGraphKey;
+    this.shadowTargetKey = Symbol(
+      typeof objectGraphKey === "string" ? `(shadow:${objectGraphKey})` : "(shadow)"
+    );
   }
 
-  createNewProxy<T extends object>(realTarget: T): T {
-    throw new Error("Method not implemented.");
+  public createNewProxy(
+    realTarget: object
+  ): ProxyMetadata
+  {
+    if (this.#revoked)
+      throw new Error("This object graph has been revoked");
+    const shadowTarget: object = ObjectGraphHead.#makeShadowTarget(realTarget);
+    const { proxy, revoke } = Proxy.revocable<object>(shadowTarget, this);
+    this.#revokersRefSet.addReference(revoke);
+
+    this.#proxyToRevokeMap.set(proxy, revoke);
+
+    this.#targetsOneToOneMap.bindOneToOne(
+      this.objectGraphKey, proxy, this.shadowTargetKey, shadowTarget
+    );
+    this.#targetsOneToOneMap.bindOneToOne(
+      this.objectGraphKey, proxy, ObjectGraphHead.#realTargetKey, realTarget
+    );
+
+    return { shadowTarget, proxy };
   }
 
-  revokeAllProxies(): void {
-    throw new Error("Method not implemented.");
+  public revokeAllProxies(): void
+  {
+    if (this.#revoked)
+      throw new Error("This object graph has been revoked");
+
+    this.#revoked = true;
+
+    for (const revoker of this.#revokersRefSet.liveElements()) {
+      revoker();
+    }
+    this.#revokersRefSet.clearReferences();
+
+    // force a clearing
+    this.#proxyToRevokeMap = new WeakMap;
+    this.#targetsOneToOneMap = new OneToOneStrongMap;
   }
 }

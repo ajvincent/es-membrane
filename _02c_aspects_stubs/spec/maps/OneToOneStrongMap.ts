@@ -114,7 +114,7 @@ describe("CodeGenerator(OneToOneStrongMap.mjs)", () => {
 
     it("strongly as the first key with an external hold on the first value", async () => {
       await expectAsync(holdsArgument(
-        10, 10, (key: object): void => map.bindOneToOne(key, externalKey, {}, {})
+        10, 10, (key: object): void => map.bindOneToOne(key, externalValue, {}, {})
       )).toBeResolvedTo(true);
     });
 
@@ -127,7 +127,7 @@ describe("CodeGenerator(OneToOneStrongMap.mjs)", () => {
 
     it("strongly as the first key with an external hold on the second value", async () => {
       await expectAsync(holdsArgument(
-        10, 10, (key: object): void => map.bindOneToOne(key, {}, {}, externalKey)
+        10, 10, (key: object): void => map.bindOneToOne(key, {}, {}, externalValue)
       )).toBeResolvedTo(true);
     });
 
@@ -155,7 +155,7 @@ describe("CodeGenerator(OneToOneStrongMap.mjs)", () => {
 
     it("strongly as the first value with an external hold on the second value", async () => {
       await expectAsync(holdsArgument(
-        10, 10, (key: object): void => map.bindOneToOne({}, key, {}, externalKey)
+        10, 10, (key: object): void => map.bindOneToOne({}, key, {}, externalValue)
       )).toBeResolvedTo(true);
     });
 
@@ -168,7 +168,7 @@ describe("CodeGenerator(OneToOneStrongMap.mjs)", () => {
 
     it("strongly as the second key with an external hold on the first value", async () => {
       await expectAsync(holdsArgument(
-        10, 10, (key: object): void => map.bindOneToOne({}, externalKey, key, {})
+        10, 10, (key: object): void => map.bindOneToOne({}, externalValue, key, {})
       )).toBeResolvedTo(true);
     });
 
@@ -194,7 +194,7 @@ describe("CodeGenerator(OneToOneStrongMap.mjs)", () => {
 
     it("strongly as the second value with an external hold on the first value", async () => {
       await expectAsync(holdsArgument(
-        10, 10, (key: object): void => map.bindOneToOne({}, externalKey, {}, key)
+        10, 10, (value: object): void => map.bindOneToOne({}, externalValue, {}, value)
       )).toBeResolvedTo(true);
     });
 

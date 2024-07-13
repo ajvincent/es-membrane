@@ -37,6 +37,10 @@ export default async function forwardToReflect(): Promise<void> {
   const pathToForwardModule = path.join(stageDir, "generated/ForwardToReflect.ts");
 
   const proxyInterface: InterfaceDeclarationImpl = getRequiredProxyHandlerInterface();
+  proxyInterface.methods.forEach(method => {
+    const targetParam = method.parameters[0]!;
+    targetParam.typeStructure = LiteralTypeStructureImpl.get("object");
+  });
 
   const typeMembers = TypeMembersMap.fromMemberedObject(proxyInterface);
   const classBuilder = new MemberedTypeToClass();
@@ -85,18 +89,17 @@ export default async function forwardToReflect(): Promise<void> {
   classDecl.name = "ForwardToReflect";
   classDecl.isDefaultExport = true;
 
-  {
-    const typeParam = new TypeParameterDeclarationImpl("T");
-    typeParam.constraintStructure = LiteralTypeStructureImpl.get("object");
-    classDecl.typeParameters.push(typeParam);
-  }
   classDecl.implementsSet.add(new TypeArgumentedTypeStructureImpl(
-    LiteralTypeStructureImpl.get(proxyInterface.name),
+    LiteralTypeStructureImpl.get("Required"),
     [
-      LiteralTypeStructureImpl.get("T")
+      new TypeArgumentedTypeStructureImpl(
+        LiteralTypeStructureImpl.get(proxyInterface.name),
+        [
+          LiteralTypeStructureImpl.get("object")
+        ]
+      )
     ]
   ));
-
   classMembers.moveMembersToClass(classDecl);
 
   const sourceStructure = new SourceFileImpl();
