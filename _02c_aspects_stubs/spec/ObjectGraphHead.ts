@@ -1,23 +1,23 @@
 import ObjectGraphHead from "../source/ObjectGraphHead.js";
 
 it("ObjectGraphHead creates revocable proxies", () => {
-  const head = new ObjectGraphHead("head");
-  expect(head.objectGraphKey).toBe("head");
+  const head = new ObjectGraphHead("red");
+  expect(head.objectGraphKey).toBe("red");
 
   const {
     shadowTarget: shadowObject,
     proxy: proxyObject
-  } = head.createNewProxy({});
+  } = head.createNewProxy({}, "blue");
 
   const {
     shadowTarget: shadowArray,
     proxy: proxyArray
-  } = head.createNewProxy([]);
+  } = head.createNewProxy([], "blue");
 
   const {
     shadowTarget: shadowFunction,
     proxy: proxyFunction
-  } = head.createNewProxy((): void => {})
+  } = head.createNewProxy((): void => {}, "blue");
 
   expect(typeof shadowObject).toBe("object");
   expect(typeof proxyObject).toBe("object");
@@ -38,14 +38,17 @@ it("ObjectGraphHead creates revocable proxies", () => {
   expect(Reflect.getOwnPropertyDescriptor(shadowFunction, unknownKey)).toBeUndefined();
   expect(Reflect.getOwnPropertyDescriptor(proxyFunction, unknownKey)).toBeUndefined();
 
+  expect(head.isRevoked).toBe(false);
+
   head.revokeAllProxies();
+  expect(head.isRevoked).toBe(true);
 
   expect(() => Reflect.getOwnPropertyDescriptor(proxyObject, unknownKey)).toThrowError();
   expect(() => Reflect.getOwnPropertyDescriptor(proxyArray, unknownKey)).toThrowError();
   expect(() => Reflect.getOwnPropertyDescriptor(proxyFunction, unknownKey)).toThrowError();
 
   expect(
-    () => head.createNewProxy({})
+    () => head.createNewProxy({}, "blue")
   ).toThrowError("This object graph has been revoked");
 
   expect(

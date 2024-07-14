@@ -45,6 +45,8 @@ class ObjectGraphHead extends ForwardToReflect implements ObjectGraphHeadIfc
   #revoked = false;
   #targetsOneToOneMap = new OneToOneStrongMap<string | symbol, object>;
 
+  #realTargetToOriginGraph = new WeakMap<object, string | symbol>;
+
   public constructor(
     objectGraphKey: string | symbol
   )
@@ -56,16 +58,25 @@ class ObjectGraphHead extends ForwardToReflect implements ObjectGraphHeadIfc
     );
   }
 
+  public get isRevoked(): boolean {
+    return this.#revoked;
+  }
+
   public createNewProxy(
-    realTarget: object
+    realTarget: object,
+    realTargetGraphKey: string | symbol
   ): ProxyMetadata
   {
     if (this.#revoked)
       throw new Error("This object graph has been revoked");
-    const shadowTarget: object = ObjectGraphHead.#makeShadowTarget(realTarget);
-    const { proxy, revoke } = Proxy.revocable<object>(shadowTarget, this);
-    this.#revokersRefSet.addReference(revoke);
 
+    const shadowTarget: object = ObjectGraphHead.#makeShadowTarget(realTarget);
+    const {
+      proxy,
+      revoke
+    } = Proxy.revocable<object>(shadowTarget, this);
+
+    this.#revokersRefSet.addReference(revoke);
     this.#proxyToRevokeMap.set(proxy, revoke);
 
     this.#targetsOneToOneMap.bindOneToOne(
@@ -75,7 +86,12 @@ class ObjectGraphHead extends ForwardToReflect implements ObjectGraphHeadIfc
       this.objectGraphKey, proxy, ObjectGraphHead.#realTargetKey, realTarget
     );
 
-    return { shadowTarget, proxy };
+    this.#realTargetToOriginGraph.set(realTarget, realTargetGraphKey);
+
+    return {
+      shadowTarget,
+      proxy,
+    };
   }
 
   public revokeAllProxies(): void
@@ -93,5 +109,6 @@ class ObjectGraphHead extends ForwardToReflect implements ObjectGraphHeadIfc
     // force a clearing
     this.#proxyToRevokeMap = new WeakMap;
     this.#targetsOneToOneMap = new OneToOneStrongMap;
+    this.#realTargetToOriginGraph = new WeakMap;
   }
 }
