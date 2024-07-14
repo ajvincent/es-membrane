@@ -239,6 +239,7 @@ function getStatementsForProxyHandlerTrap(
     statements.push(descriptorStatement);
 
   // call the ProxyHandler trap!!
+  /*
   statements.push(
     buildConstStatement(
       `result`,
@@ -267,6 +268,17 @@ function getStatementsForProxyHandlerTrap(
       }
     );
   }
+  */
+  statements.push(
+    `return this.#graphHandlerIfc.${key.statementGroupKey}(${
+      [
+        ...argumentNames,
+        "nextHandler",
+        "realTarget",
+        ...nextArgumentNames,
+      ].join(", ")
+    });`
+  )
 
   return statements;
 }
@@ -350,6 +362,7 @@ function insertConversionMembers(
     ]);
   }
 
+  /*
   // protected abstract getValueInGraph<ValueType>(value: ValueType): ValueType;
   const getValueInGraph = new MethodDeclarationImpl(false, "getValueInGraph");
   {
@@ -378,6 +391,7 @@ function insertConversionMembers(
 
     getDescriptorInGraph.returnTypeStructure = valueParam.typeStructure;
   }
+  */
 
   // #getCommonConversions(target: object): CommonConversions
   const CommonConversionsMethod = new MethodDeclarationImpl(false, "#getCommonConversions");
@@ -420,8 +434,10 @@ function insertConversionMembers(
   classDecl.methods.unshift(
     getRealTargetForShadowTarget,
     getTargetGraphKeyForRealTarget,
+    /*
     getValueInGraph,
     getDescriptorInGraph,
+    */
     CommonConversionsMethod,
   );
 }
