@@ -6,23 +6,23 @@ import type {
 
 export interface MembraneIfc
 {
-  convertArray(
-    targetGraph: string | symbol,
-    values: unknown[]
-  ) : unknown[];
+  convertArray<ValueTypes extends unknown[]>(
+    targetGraphKey: string | symbol,
+    values: ValueTypes
+  ) : ValueTypes;
 
   convertDescriptor(
-    targetGraph: string | symbol,
+    targetGraphKey: string | symbol,
     descriptor: PropertyDescriptor
   ): PropertyDescriptor;
 
   /**
-   * This often returns `Reflect`.
+   * This returns `Reflect`. or in rare cases, an `ObjectGraphHead`.
    * @param targetGraph
-   * @param target
+   * @param target - the real target from the
    */
   getHandlerForTarget(
-    targetGraph: string | symbol,
+    targetGraphKey: string | symbol,
     target: object
   ): RequiredProxyHandler
 }
