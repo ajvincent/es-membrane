@@ -11,9 +11,8 @@
     "baseUrl": ".",
     "paths": {
       "#stage_utilities/*": ["./_01_stage_utilities/*"],
-      "#aspects/stubs/*": ["./_02c_aspects_stubs/*"],
-      "#aspects/decorators/*": ["./_04c_aspects_decorators/*"],
-      "#aspects/test-fixtures/*": ["./_04z_aspects_test_fixtures/*"],
+      "#code_generation/*": ["./_02_code_generation/*"],
+      "#objectgraph_handlers/*": ["./_03_objectgraph_handlers/*"],
       "#build-utilities/*": ["./build-utilities/*"]
     }
   },

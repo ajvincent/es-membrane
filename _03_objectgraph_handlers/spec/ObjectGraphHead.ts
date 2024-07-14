@@ -1,4 +1,4 @@
-import ObjectGraphHead from "../source/ObjectGraphHead.js";
+import ObjectGraphHead from "#objectgraph_handlers/source/ObjectGraphHead.js";
 
 it("ObjectGraphHead creates revocable proxies", () => {
   const head = new ObjectGraphHead("red");

@@ -1,6 +1,6 @@
 import holdsArgument from "#stage_utilities/source/gc/holdsArgument.mjs";
 
-import WeakStrongMap from "#aspects/stubs/source/maps/WeakStrongMap.js";
+import WeakStrongMap from "#objectgraph_handlers/source/maps/WeakStrongMap.js";
 
 describe("CodeGenerator(WeakStrongMap.mjs),", () => {
   let testMap: WeakStrongMap<object, unknown, unknown>, refMap = new Map;

@@ -11,7 +11,7 @@ const BPSet = new BuildPromiseSet;
 {  // copyGenerated
   const target = BPSet.get("copyGenerated");
   target.addTask(async () => {
-    console.log("starting _02c_aspects_stubs: copy generated stubs");
+    console.log("starting _03_objectgraph_handlers: copy generated stubs");
     await copyGenerated();
   });
 }
@@ -20,8 +20,8 @@ const BPSet = new BuildPromiseSet;
   const target = BPSet.get("test");
 
   target.addTask(async () => {
-    console.log("starting _02c_aspects_stubs: jasmine");
-    await runJasmine("./spec/support/jasmine.json", "aspects_stubs");
+    console.log("starting _03_objectgraph_handlers: jasmine");
+    await runJasmine("./spec/support/jasmine.json", "objectgraph_handlers");
   });
 }
 

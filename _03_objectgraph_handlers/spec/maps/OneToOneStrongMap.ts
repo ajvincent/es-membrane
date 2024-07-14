@@ -1,6 +1,6 @@
 import holdsArgument from "#stage_utilities/source/gc/holdsArgument.mjs";
 
-import OneToOneStrongMap from "#aspects/stubs/source/maps/OneToOneStrongMap.js";
+import OneToOneStrongMap from "#objectgraph_handlers/source/maps/OneToOneStrongMap.js";
 
 describe("CodeGenerator(OneToOneStrongMap.mjs)", () => {
   let map: OneToOneStrongMap<unknown, object>;
