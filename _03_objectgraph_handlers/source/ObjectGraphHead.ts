@@ -1,8 +1,15 @@
 import WeakRefSet from "#stage_utilities/source/WeakRefSet.mjs";
+import ConvertingHeadProxyHandler from "./generated/ConvertingHeadProxyHandler.js";
 
-import ForwardToReflect from "./generated/ForwardToReflect.js";
+import type {
+  ObjectGraphHandlerIfc
+} from "./generated/types/ObjectGraphHandlerIfc.js";
 
 import OneToOneStrongMap from "./maps/OneToOneStrongMap.js";
+
+import type {
+  MembraneIfc
+} from "./types/MembraneIfc.js";
 
 import type {
   ObjectGraphHeadIfc,
@@ -10,7 +17,7 @@ import type {
 } from "./types/ObjectGraphHeadIfc.js";
 
 export default
-class ObjectGraphHead extends ForwardToReflect implements ObjectGraphHeadIfc
+class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphHeadIfc
 {
   /**
    * Define a shadow target, so we can manipulate the proxy independently of the
@@ -48,10 +55,12 @@ class ObjectGraphHead extends ForwardToReflect implements ObjectGraphHeadIfc
   #realTargetToOriginGraph = new WeakMap<object, string | symbol>;
 
   public constructor(
+    membraneIfc: MembraneIfc,
+    graphHandlerIfc: ObjectGraphHandlerIfc,
     objectGraphKey: string | symbol
   )
   {
-    super();
+    super(membraneIfc, graphHandlerIfc);
     this.objectGraphKey = objectGraphKey;
     this.shadowTargetKey = Symbol(
       typeof objectGraphKey === "string" ? `(shadow:${objectGraphKey})` : "(shadow)"
@@ -110,5 +119,22 @@ class ObjectGraphHead extends ForwardToReflect implements ObjectGraphHeadIfc
     this.#proxyToRevokeMap = new WeakMap;
     this.#targetsOneToOneMap = new OneToOneStrongMap;
     this.#realTargetToOriginGraph = new WeakMap;
+  }
+
+  protected getRealTargetForShadowTarget(
+    shadowTarget: object
+  ): object
+  {
+    return this.#targetsOneToOneMap.get(
+      shadowTarget,
+      ObjectGraphHead.#realTargetKey
+    )!;
+  }
+
+  protected getTargetGraphKeyForRealTarget(
+    realTarget: object
+  ): string | symbol
+  {
+    return this.#realTargetToOriginGraph.get(realTarget)!;
   }
 }

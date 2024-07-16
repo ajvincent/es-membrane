@@ -1,7 +1,26 @@
 import ObjectGraphHead from "#objectgraph_handlers/source/ObjectGraphHead.js";
+import { MembraneIfc } from "#objectgraph_handlers/source/types/MembraneIfc.js";
+import { RequiredProxyHandler } from "#objectgraph_handlers/source/types/RequiredProxyHandler.js";
+
+import ObjectGraphTailHandler from "#objectgraph_handlers/source/generated/ObjectGraphTailHandler.js";
+import { ObjectGraphHandlerIfc } from "#objectgraph_handlers/source/generated/types/ObjectGraphHandlerIfc.js";
 
 it("ObjectGraphHead creates revocable proxies", () => {
-  const head = new ObjectGraphHead("red");
+  const mockMembrane: MembraneIfc = {
+    convertArray: function <ValueTypes extends unknown[]>(targetGraphKey: string | symbol, values: ValueTypes): ValueTypes {
+      return values.slice() as ValueTypes;
+    },
+    convertDescriptor: function (targetGraphKey: string | symbol, descriptor: PropertyDescriptor): PropertyDescriptor {
+      throw new Error("Function not implemented.");
+    },
+    getHandlerForTarget: function (targetGraphKey: string | symbol, target: object): RequiredProxyHandler {
+      return Reflect;
+    }
+  };
+
+  const graphHandler: ObjectGraphHandlerIfc = new ObjectGraphTailHandler;
+
+  const head = new ObjectGraphHead(mockMembrane, graphHandler, "red");
   expect(head.objectGraphKey).toBe("red");
 
   const {
