@@ -7,7 +7,7 @@ export interface ObjectGraphHandlerIfc {
    * @param target The original callable object which is being proxied.
    */
   apply(
-    target: object,
+    shadowTarget: object,
     thisArg: any,
     argArray: any[],
     nextHandler: RequiredProxyHandler,
@@ -21,7 +21,7 @@ export interface ObjectGraphHandlerIfc {
    * @param newTarget The constructor that was originally called.
    */
   construct(
-    target: object,
+    shadowTarget: object,
     argArray: any[],
     newTarget: Function,
     nextHandler: RequiredProxyHandler,
@@ -35,7 +35,7 @@ export interface ObjectGraphHandlerIfc {
    * @returns A `Boolean` indicating whether or not the property has been defined.
    */
   defineProperty(
-    target: object,
+    shadowTarget: object,
     property: string | symbol,
     attributes: PropertyDescriptor,
     nextHandler: RequiredProxyHandler,
@@ -50,7 +50,7 @@ export interface ObjectGraphHandlerIfc {
    * @returns A `Boolean` indicating whether or not the property was deleted.
    */
   deleteProperty(
-    target: object,
+    shadowTarget: object,
     p: string | symbol,
     nextHandler: RequiredProxyHandler,
     nextTarget: object,
@@ -63,7 +63,7 @@ export interface ObjectGraphHandlerIfc {
    * @param receiver The proxy or an object that inherits from the proxy.
    */
   get(
-    target: object,
+    shadowTarget: object,
     p: string | symbol,
     receiver: any,
     nextHandler: RequiredProxyHandler,
@@ -77,7 +77,7 @@ export interface ObjectGraphHandlerIfc {
    * @param p The name of the property whose description should be retrieved.
    */
   getOwnPropertyDescriptor(
-    target: object,
+    shadowTarget: object,
     p: string | symbol,
     nextHandler: RequiredProxyHandler,
     nextTarget: object,
@@ -88,7 +88,7 @@ export interface ObjectGraphHandlerIfc {
    * @param target The original object which is being proxied.
    */
   getPrototypeOf(
-    target: object,
+    shadowTarget: object,
     nextHandler: RequiredProxyHandler,
     nextTarget: object,
   ): object | null;
@@ -98,7 +98,7 @@ export interface ObjectGraphHandlerIfc {
    * @param p The name or `Symbol` of the property to check for existence.
    */
   has(
-    target: object,
+    shadowTarget: object,
     p: string | symbol,
     nextHandler: RequiredProxyHandler,
     nextTarget: object,
@@ -109,7 +109,7 @@ export interface ObjectGraphHandlerIfc {
    * @param target The original object which is being proxied.
    */
   isExtensible(
-    target: object,
+    shadowTarget: object,
     nextHandler: RequiredProxyHandler,
     nextTarget: object,
   ): boolean;
@@ -118,7 +118,7 @@ export interface ObjectGraphHandlerIfc {
    * @param target The original object which is being proxied.
    */
   ownKeys(
-    target: object,
+    shadowTarget: object,
     nextHandler: RequiredProxyHandler,
     nextTarget: object,
   ): ArrayLike<string | symbol>;
@@ -127,7 +127,7 @@ export interface ObjectGraphHandlerIfc {
    * @param target The original object which is being proxied.
    */
   preventExtensions(
-    target: object,
+    shadowTarget: object,
     nextHandler: RequiredProxyHandler,
     nextTarget: object,
   ): boolean;
@@ -139,7 +139,7 @@ export interface ObjectGraphHandlerIfc {
    * @returns A `Boolean` indicating whether or not the property was set.
    */
   set(
-    target: object,
+    shadowTarget: object,
     p: string | symbol,
     newValue: any,
     receiver: any,
@@ -155,7 +155,7 @@ export interface ObjectGraphHandlerIfc {
    * @param newPrototype The object's new prototype or `null`.
    */
   setPrototypeOf(
-    target: object,
+    shadowTarget: object,
     v: object | null,
     nextHandler: RequiredProxyHandler,
     nextTarget: object,

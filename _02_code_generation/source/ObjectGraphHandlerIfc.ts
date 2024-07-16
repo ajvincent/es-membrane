@@ -63,6 +63,8 @@ async function createObjectGraphHandlerIfc(): Promise<InterfaceDeclarationImpl>
     method.parameters.push(
       ParameterDeclarationImpl.clone(NextHandlerParam), ...addedParameters
     );
+
+    method.parameters[0]!.name = "shadowTarget";
   });
 
   const sourceStructure = new SourceFileImpl();

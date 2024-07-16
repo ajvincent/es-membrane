@@ -9,7 +9,7 @@ type CommonConversions = {
 };
 
 export default abstract class ConvertingHeadProxyHandler
-  implements Required<ProxyHandler<object>>
+  implements RequiredProxyHandler
 {
   #membraneIfc: MembraneIfc;
   #graphHandlerIfc: ObjectGraphHandlerIfc;
@@ -41,14 +41,18 @@ export default abstract class ConvertingHeadProxyHandler
    * A trap method for a function call.
    * @param target The original callable object which is being proxied.
    */
-  public apply(target: object, thisArg: any, argArray: any[]): any {
+  public apply(shadowTarget: object, thisArg: any, argArray: any[]): any {
     const { realTarget, graphKey, nextHandler } =
-      this.#getCommonConversions(target);
-    const [nextThisArg, nextArgArray] = this.#membraneIfc.convertArray<
-      [any, any[]]
-    >(graphKey, [thisArg, argArray]);
+      this.#getCommonConversions(shadowTarget);
+    const [nextThisArg] = this.#membraneIfc.convertArray<[any]>(graphKey, [
+      thisArg,
+    ]);
+    const nextArgArray: any[] = this.#membraneIfc.convertArray<any[]>(
+      graphKey,
+      argArray,
+    );
     return this.#graphHandlerIfc.apply(
-      target,
+      shadowTarget,
       thisArg,
       argArray,
       nextHandler,
@@ -64,17 +68,22 @@ export default abstract class ConvertingHeadProxyHandler
    * @param newTarget The constructor that was originally called.
    */
   public construct(
-    target: object,
+    shadowTarget: object,
     argArray: any[],
     newTarget: Function,
   ): object {
     const { realTarget, graphKey, nextHandler } =
-      this.#getCommonConversions(target);
-    const [nextArgArray, nextNewTarget] = this.#membraneIfc.convertArray<
-      [any[], Function]
-    >(graphKey, [argArray, newTarget]);
+      this.#getCommonConversions(shadowTarget);
+    const [nextNewTarget] = this.#membraneIfc.convertArray<[Function]>(
+      graphKey,
+      [newTarget],
+    );
+    const nextArgArray: any[] = this.#membraneIfc.convertArray<any[]>(
+      graphKey,
+      argArray,
+    );
     return this.#graphHandlerIfc.construct(
-      target,
+      shadowTarget,
       argArray,
       newTarget,
       nextHandler,
@@ -90,12 +99,12 @@ export default abstract class ConvertingHeadProxyHandler
    * @returns A `Boolean` indicating whether or not the property has been defined.
    */
   public defineProperty(
-    target: object,
+    shadowTarget: object,
     property: string | symbol,
     attributes: PropertyDescriptor,
   ): boolean {
     const { realTarget, graphKey, nextHandler } =
-      this.#getCommonConversions(target);
+      this.#getCommonConversions(shadowTarget);
     const [nextProperty] = this.#membraneIfc.convertArray<[string | symbol]>(
       graphKey,
       [property],
@@ -103,7 +112,7 @@ export default abstract class ConvertingHeadProxyHandler
     const nextAttributes: PropertyDescriptor =
       this.#membraneIfc.convertDescriptor(graphKey, attributes);
     return this.#graphHandlerIfc.defineProperty(
-      target,
+      shadowTarget,
       property,
       attributes,
       nextHandler,
@@ -119,15 +128,15 @@ export default abstract class ConvertingHeadProxyHandler
    * @param p The name or `Symbol` of the property to delete.
    * @returns A `Boolean` indicating whether or not the property was deleted.
    */
-  public deleteProperty(target: object, p: string | symbol): boolean {
+  public deleteProperty(shadowTarget: object, p: string | symbol): boolean {
     const { realTarget, graphKey, nextHandler } =
-      this.#getCommonConversions(target);
+      this.#getCommonConversions(shadowTarget);
     const [nextP] = this.#membraneIfc.convertArray<[string | symbol]>(
       graphKey,
       [p],
     );
     return this.#graphHandlerIfc.deleteProperty(
-      target,
+      shadowTarget,
       p,
       nextHandler,
       realTarget,
@@ -141,14 +150,14 @@ export default abstract class ConvertingHeadProxyHandler
    * @param p The name or `Symbol` of the property to get.
    * @param receiver The proxy or an object that inherits from the proxy.
    */
-  public get(target: object, p: string | symbol, receiver: any): any {
+  public get(shadowTarget: object, p: string | symbol, receiver: any): any {
     const { realTarget, graphKey, nextHandler } =
-      this.#getCommonConversions(target);
+      this.#getCommonConversions(shadowTarget);
     const [nextP, nextReceiver] = this.#membraneIfc.convertArray<
       [string | symbol, any]
     >(graphKey, [p, receiver]);
     return this.#graphHandlerIfc.get(
-      target,
+      shadowTarget,
       p,
       receiver,
       nextHandler,
@@ -164,17 +173,17 @@ export default abstract class ConvertingHeadProxyHandler
    * @param p The name of the property whose description should be retrieved.
    */
   public getOwnPropertyDescriptor(
-    target: object,
+    shadowTarget: object,
     p: string | symbol,
   ): PropertyDescriptor | undefined {
     const { realTarget, graphKey, nextHandler } =
-      this.#getCommonConversions(target);
+      this.#getCommonConversions(shadowTarget);
     const [nextP] = this.#membraneIfc.convertArray<[string | symbol]>(
       graphKey,
       [p],
     );
     return this.#graphHandlerIfc.getOwnPropertyDescriptor(
-      target,
+      shadowTarget,
       p,
       nextHandler,
       realTarget,
@@ -186,11 +195,11 @@ export default abstract class ConvertingHeadProxyHandler
    * A trap for the `[[GetPrototypeOf]]` internal method.
    * @param target The original object which is being proxied.
    */
-  public getPrototypeOf(target: object): object | null {
+  public getPrototypeOf(shadowTarget: object): object | null {
     const { realTarget, graphKey, nextHandler } =
-      this.#getCommonConversions(target);
+      this.#getCommonConversions(shadowTarget);
     return this.#graphHandlerIfc.getPrototypeOf(
-      target,
+      shadowTarget,
       nextHandler,
       realTarget,
     );
@@ -201,45 +210,55 @@ export default abstract class ConvertingHeadProxyHandler
    * @param target The original object which is being proxied.
    * @param p The name or `Symbol` of the property to check for existence.
    */
-  public has(target: object, p: string | symbol): boolean {
+  public has(shadowTarget: object, p: string | symbol): boolean {
     const { realTarget, graphKey, nextHandler } =
-      this.#getCommonConversions(target);
+      this.#getCommonConversions(shadowTarget);
     const [nextP] = this.#membraneIfc.convertArray<[string | symbol]>(
       graphKey,
       [p],
     );
-    return this.#graphHandlerIfc.has(target, p, nextHandler, realTarget, nextP);
+    return this.#graphHandlerIfc.has(
+      shadowTarget,
+      p,
+      nextHandler,
+      realTarget,
+      nextP,
+    );
   }
 
   /**
    * A trap for `Object.isExtensible()`.
    * @param target The original object which is being proxied.
    */
-  public isExtensible(target: object): boolean {
+  public isExtensible(shadowTarget: object): boolean {
     const { realTarget, graphKey, nextHandler } =
-      this.#getCommonConversions(target);
-    return this.#graphHandlerIfc.isExtensible(target, nextHandler, realTarget);
+      this.#getCommonConversions(shadowTarget);
+    return this.#graphHandlerIfc.isExtensible(
+      shadowTarget,
+      nextHandler,
+      realTarget,
+    );
   }
 
   /**
    * A trap for `Reflect.ownKeys()`.
    * @param target The original object which is being proxied.
    */
-  public ownKeys(target: object): ArrayLike<string | symbol> {
+  public ownKeys(shadowTarget: object): ArrayLike<string | symbol> {
     const { realTarget, graphKey, nextHandler } =
-      this.#getCommonConversions(target);
-    return this.#graphHandlerIfc.ownKeys(target, nextHandler, realTarget);
+      this.#getCommonConversions(shadowTarget);
+    return this.#graphHandlerIfc.ownKeys(shadowTarget, nextHandler, realTarget);
   }
 
   /**
    * A trap for `Object.preventExtensions()`.
    * @param target The original object which is being proxied.
    */
-  public preventExtensions(target: object): boolean {
+  public preventExtensions(shadowTarget: object): boolean {
     const { realTarget, graphKey, nextHandler } =
-      this.#getCommonConversions(target);
+      this.#getCommonConversions(shadowTarget);
     return this.#graphHandlerIfc.preventExtensions(
-      target,
+      shadowTarget,
       nextHandler,
       realTarget,
     );
@@ -253,18 +272,18 @@ export default abstract class ConvertingHeadProxyHandler
    * @returns A `Boolean` indicating whether or not the property was set.
    */
   public set(
-    target: object,
+    shadowTarget: object,
     p: string | symbol,
     newValue: any,
     receiver: any,
   ): boolean {
     const { realTarget, graphKey, nextHandler } =
-      this.#getCommonConversions(target);
+      this.#getCommonConversions(shadowTarget);
     const [nextP, nextNewValue, nextReceiver] = this.#membraneIfc.convertArray<
       [string | symbol, any, any]
     >(graphKey, [p, newValue, receiver]);
     return this.#graphHandlerIfc.set(
-      target,
+      shadowTarget,
       p,
       newValue,
       receiver,
@@ -281,14 +300,14 @@ export default abstract class ConvertingHeadProxyHandler
    * @param target The original object which is being proxied.
    * @param newPrototype The object's new prototype or `null`.
    */
-  public setPrototypeOf(target: object, v: object | null): boolean {
+  public setPrototypeOf(shadowTarget: object, v: object | null): boolean {
     const { realTarget, graphKey, nextHandler } =
-      this.#getCommonConversions(target);
+      this.#getCommonConversions(shadowTarget);
     const [nextV] = this.#membraneIfc.convertArray<[object | null]>(graphKey, [
       v,
     ]);
     return this.#graphHandlerIfc.setPrototypeOf(
-      target,
+      shadowTarget,
       v,
       nextHandler,
       realTarget,

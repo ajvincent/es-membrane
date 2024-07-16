@@ -1,9 +1,13 @@
+import type {
+  RequiredProxyHandler
+} from "./RequiredProxyHandler.js";
+
 export interface ProxyMetadata {
   readonly shadowTarget: object,
   readonly proxy: object;
 }
 
-export interface ObjectGraphHeadIfc extends Required<ProxyHandler<object>> {
+export interface ObjectGraphHeadIfc extends RequiredProxyHandler {
   /** The unique graph key. */
   readonly objectGraphKey: string | symbol;
 

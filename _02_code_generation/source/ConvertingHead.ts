@@ -46,6 +46,7 @@ import {
   UnionTypeStructureImpl,
   VariableDeclarationImpl,
   VariableStatementImpl,
+  type stringOrWriterFunction,
   type stringWriterOrStatementImpl,
 } from "ts-morph-structures";
 
@@ -74,6 +75,10 @@ async function createConvertingHeadProxyHandler(): Promise<void>
   const importManager = buildImportManager();
   const CommonConversions = buildCommonConversionsAlias();
 
+  proxyInterface.methods.forEach(method => {
+    method.parameters[0]!.name = "shadowTarget";
+  })
+
   const classDecl: ClassDeclarationImpl = buildHandlerClass(
     proxyInterface,
     getStatementsForProxyHandlerTrap
@@ -83,17 +88,7 @@ async function createConvertingHeadProxyHandler(): Promise<void>
   classDecl.isAbstract = true;
   classDecl.isDefaultExport = true;
 
-  classDecl.implementsSet.add(new TypeArgumentedTypeStructureImpl(
-    LiteralTypeStructureImpl.get("Required"),
-    [
-      new TypeArgumentedTypeStructureImpl(
-        LiteralTypeStructureImpl.get(proxyInterface.name),
-        [
-          LiteralTypeStructureImpl.get("object")
-        ]
-      )
-    ]
-  ));
+  classDecl.implementsSet.add(LiteralTypeStructureImpl.get("RequiredProxyHandler"));
 
   insertConversionMembers(classDecl);
 
@@ -188,7 +183,7 @@ function getStatementsForProxyHandlerTrap(
 
   // setting up common values
   const statements: stringWriterOrStatementImpl[] = [
-    `const { realTarget, graphKey, nextHandler } = this.#getCommonConversions(target);`
+    `const { realTarget, graphKey, nextHandler } = this.#getCommonConversions(shadowTarget);`
   ];
 
   const argumentNames: string[] = [];
@@ -196,6 +191,7 @@ function getStatementsForProxyHandlerTrap(
 
   // convert the remaining parameters
   let descriptorStatement: VariableStatementImpl | undefined;
+  let argArrayStatement: VariableStatementImpl | undefined;
   const sourceConvertNames: string[] = [];
   const nextHandlerConvertNames: string[] = [];
 
@@ -204,8 +200,22 @@ function getStatementsForProxyHandlerTrap(
   for (const param of key.groupType.parameters) {
     argumentNames.push(param.name);
 
-    if (param.name === "target")
+    if (param.name === "shadowTarget")
       continue;
+
+    if (param.name === "argArray") {
+      argArrayStatement = buildConstStatement(
+        "nextArgArray",
+        param.typeStructure!,
+        (writer: CodeBlockWriter): void => {
+          writer.write(`this.#membraneIfc.convertArray<`);
+          param.typeStructure!.writerFunction(writer);
+          writer.write(`>(graphKey, argArray)`);
+        }
+      );
+      nextArgumentNames.push("nextArgArray");
+      continue;
+    }
 
     const nextArgumentName = `next${(param.name[0].toUpperCase() + param.name.substring(1))}`;
     nextArgumentNames.push(nextArgumentName);
@@ -234,6 +244,9 @@ function getStatementsForProxyHandlerTrap(
       writer.write(`>(graphKey, [${sourceConvertNames.join(", ")}]);`);
     });
   }
+
+  if (argArrayStatement)
+    statements.push(argArrayStatement);
 
   if (descriptorStatement)
     statements.push(descriptorStatement);
@@ -287,7 +300,7 @@ function getStatementsForProxyHandlerTrap(
 function buildConstStatement(
   variableName: string,
   typeStructure: TypeStructures,
-  initializer: string,
+  initializer: stringOrWriterFunction,
 ): VariableStatementImpl
 {
   const statement = new VariableStatementImpl();

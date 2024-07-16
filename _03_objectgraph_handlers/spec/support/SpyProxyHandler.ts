@@ -22,66 +22,66 @@ extends SpyBase implements RequiredProxyHandler
 
   apply(target: object, thisArg: unknown, argArray: unknown[]) : unknown
   {
-    return this.getSpy("apply")(target, thisArg, argArray);
+    return this.getSpy("apply").apply(this, Array.from(arguments));
   }
 
   construct(target: object, argArray: unknown[], newTarget: Function): object
   {
-    return this.getSpy("construct")(target, argArray, newTarget) as object;
+    return this.getSpy("construct").apply(this, Array.from(arguments)) as object;
   }
 
   defineProperty(target: object, p: string | symbol, attributes: PropertyDescriptor): boolean
   {
-    return this.getSpy("defineProperty")(target, p, attributes) as boolean;
+    return this.getSpy("defineProperty").apply(this, Array.from(arguments)) as boolean;
   }
 
   deleteProperty(target: object, p: string | symbol) : boolean
   {
-    return this.getSpy("deleteProperty")(target, p) as boolean;
+    return this.getSpy("deleteProperty").apply(this, Array.from(arguments)) as boolean;
   }
 
   get(target: object, p: string | symbol, receiver: unknown) : unknown
   {
-    return this.getSpy("get")(target, p, receiver);
+    return this.getSpy("get").apply(this, Array.from(arguments));
   }
 
   getOwnPropertyDescriptor(target: object, p: string | symbol) : PropertyDescriptor | undefined
   {
-    return this.getSpy("getOwnPropertyDescriptor")(target, p) as PropertyDescriptor | undefined;
+    return this.getSpy("getOwnPropertyDescriptor").apply(this, Array.from(arguments)) as PropertyDescriptor | undefined;
   }
 
   getPrototypeOf(target: object) : object | null
   {
-    return this.getSpy("getPrototypeOf")(target) as object | null;
+    return this.getSpy("getPrototypeOf").apply(this, Array.from(arguments)) as object | null;
   }
 
   has(target: object, p: string | symbol) : boolean
   {
-    return this.getSpy("has")(target, p) as boolean;
+    return this.getSpy("has").apply(this, Array.from(arguments)) as boolean;
   }
 
   isExtensible(target: object): boolean
   {
-    return this.getSpy("isExtensible")(target) as boolean;
+    return this.getSpy("isExtensible").apply(this, Array.from(arguments)) as boolean;
   }
 
   ownKeys(target: object): ArrayLike<string | symbol>
   {
-    return this.getSpy("ownKeys")(target) as ArrayLike<string | symbol>;
+    return this.getSpy("ownKeys").apply(this, Array.from(arguments)) as ArrayLike<string | symbol>;
   }
 
   preventExtensions(target: object) : boolean
   {
-    return this.getSpy("preventExtensions")(target) as boolean;
+    return this.getSpy("preventExtensions").apply(this, Array.from(arguments)) as boolean;
   }
 
   set(target: object, p: string | symbol, value: unknown, receiver: unknown) : boolean
   {
-    return this.getSpy("set")(target, p, value, receiver) as boolean;
+    return this.getSpy("set").apply(this, Array.from(arguments)) as boolean;
   }
 
   setPrototypeOf(target: object, proto: object | null) : boolean
   {
-    return this.getSpy("setPrototypeOf")(target, proto) as boolean;
+    return this.getSpy("setPrototypeOf").apply(this, Array.from(arguments)) as boolean;
   }
 }
