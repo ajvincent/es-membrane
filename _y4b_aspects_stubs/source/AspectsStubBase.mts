@@ -16,7 +16,7 @@ import CodeBlockWriter from "code-block-writer";
 
 import {
   DefaultMap,
-} from "#stage_utilities/source/DefaultMap.mjs";
+} from "#stage_utilities/source/collections/DefaultMap.js";
 
 import getRequiredInitializers from "#stage_utilities/source/RequiredInitializers.mjs";
 

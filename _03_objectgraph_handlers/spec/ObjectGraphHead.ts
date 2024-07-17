@@ -14,7 +14,7 @@ import type {
   ObjectGraphHandlerIfc
 } from "#objectgraph_handlers/source/generated/types/ObjectGraphHandlerIfc.js";
 
-import OneToOneStrongMap from "#objectgraph_handlers/source/maps/OneToOneStrongMap.js";
+import OneToOneStrongMap from "#stage_utilities/source/collections/OneToOneStrongMap.js";
 
 it("ObjectGraphHead creates revocable proxies", () => {
   const mockMembrane: MembraneIfc = {

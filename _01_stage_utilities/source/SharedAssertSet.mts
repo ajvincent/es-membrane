@@ -2,7 +2,7 @@ import type {
   PushableArray
 } from "./types/Utility.mjs";
 
-import WeakRefSet from "./WeakRefSet.mjs";
+import WeakRefSet from "./collections/WeakRefSet.js";
 
 import type {
   AssertFunction,

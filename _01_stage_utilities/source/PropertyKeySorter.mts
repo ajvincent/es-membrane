@@ -1,6 +1,6 @@
 export type propertyKey = string | symbol;
 
-import { DefaultMap } from "./DefaultMap.mjs";
+import { DefaultMap } from "./collections/DefaultMap.js";
 
 export default class PropertyKeySorter
 {

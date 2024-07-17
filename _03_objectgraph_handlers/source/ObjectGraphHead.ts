@@ -1,11 +1,11 @@
-import WeakRefSet from "#stage_utilities/source/WeakRefSet.mjs";
+import WeakRefSet from "#stage_utilities/source/collections/WeakRefSet.js";
 import ConvertingHeadProxyHandler from "./generated/ConvertingHeadProxyHandler.js";
 
 import type {
   ObjectGraphHandlerIfc
 } from "./generated/types/ObjectGraphHandlerIfc.js";
 
-import OneToOneStrongMap from "./maps/OneToOneStrongMap.js";
+import OneToOneStrongMap from "../../_01_stage_utilities/source/collections/OneToOneStrongMap.js";
 
 import type {
   MembraneIfc
@@ -68,9 +68,6 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
   }
 
   public getValueInGraph<T>(sourceValue: T, sourceGraphKey: string | symbol): T {
-    if (this.objectGraphKey === sourceGraphKey)
-      return sourceValue;
-
     switch (typeof sourceValue) {
       case "boolean":
       case "bigint":
@@ -87,6 +84,9 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
     }
 
     // TODO: primordials (Object, Array, etc.) and their prototypes
+
+    if (this.objectGraphKey === sourceGraphKey)
+      return sourceValue;
 
     // sourceValue is an object
     let value: object | undefined = this.#targetsOneToOneMap.get(sourceValue as object, this.objectGraphKey);

@@ -1,6 +1,6 @@
 import {
   DefaultWeakMap
-} from "./DefaultMap.mjs";
+} from "./collections/DefaultMap.js";
 
 export type RequiredState = "initial" | "adding" | "resolving" | "ready" | "checkFired";
 export interface RequiredInitializersInterface {

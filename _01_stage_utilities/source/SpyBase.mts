@@ -1,4 +1,4 @@
-import { DefaultMap } from "./DefaultMap.mjs";
+import { DefaultMap } from "./collections/DefaultMap.js";
 
 export interface SpyBaseInterface {
   readonly spyMap: DefaultMap<string | symbol, jasmine.Spy>;

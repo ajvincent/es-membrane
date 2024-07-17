@@ -1,4 +1,4 @@
-import WeakRefSet from "#stage_utilities/source/WeakRefSet.mjs";
+import WeakRefSet from "#stage_utilities/source/collections/WeakRefSet.js";
 import holdsReturn from "#stage_utilities/source/gc/holdsReturn.mjs";
 
 describe("WeakRefSet", () => {
