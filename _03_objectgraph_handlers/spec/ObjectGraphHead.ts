@@ -1,9 +1,20 @@
 import ObjectGraphHead from "#objectgraph_handlers/source/ObjectGraphHead.js";
-import { MembraneIfc } from "#objectgraph_handlers/source/types/MembraneIfc.js";
-import { RequiredProxyHandler } from "#objectgraph_handlers/source/types/RequiredProxyHandler.js";
+
+import type {
+  MembraneIfc
+} from "#objectgraph_handlers/source/types/MembraneIfc.js";
+
+import type {
+  RequiredProxyHandler
+} from "#objectgraph_handlers/source/types/RequiredProxyHandler.js";
 
 import ObjectGraphTailHandler from "#objectgraph_handlers/source/generated/ObjectGraphTailHandler.js";
-import { ObjectGraphHandlerIfc } from "#objectgraph_handlers/source/generated/types/ObjectGraphHandlerIfc.js";
+
+import type {
+  ObjectGraphHandlerIfc
+} from "#objectgraph_handlers/source/generated/types/ObjectGraphHandlerIfc.js";
+
+import OneToOneStrongMap from "#objectgraph_handlers/source/maps/OneToOneStrongMap.js";
 
 it("ObjectGraphHead creates revocable proxies", () => {
   const mockMembrane: MembraneIfc = {
@@ -20,41 +31,24 @@ it("ObjectGraphHead creates revocable proxies", () => {
 
   const graphHandler: ObjectGraphHandlerIfc = new ObjectGraphTailHandler;
 
-  const head = new ObjectGraphHead(mockMembrane, graphHandler, "red");
+  const map = new OneToOneStrongMap<string | symbol, object>;
+
+  const head = new ObjectGraphHead(mockMembrane, graphHandler, map, "red");
   expect(head.objectGraphKey).toBe("red");
 
-  const {
-    shadowTarget: shadowObject,
-    proxy: proxyObject
-  } = head.createNewProxy({}, "blue");
+  const proxyObject = head.getValueInGraph<object>({}, "blue") as object;
+  const proxyArray = head.getValueInGraph<unknown[]>([], "blue");
+  const proxyFunction = head.getValueInGraph<() => void>((): void => {}, "blue");
 
-  const {
-    shadowTarget: shadowArray,
-    proxy: proxyArray
-  } = head.createNewProxy([], "blue");
-
-  const {
-    shadowTarget: shadowFunction,
-    proxy: proxyFunction
-  } = head.createNewProxy((): void => {}, "blue");
-
-  expect(typeof shadowObject).toBe("object");
   expect(typeof proxyObject).toBe("object");
-  expect(Array.isArray(shadowObject)).toBe(false);
   expect(Array.isArray(proxyObject)).toBe(false);
-
-  expect(Array.isArray(shadowArray)).toBe(true);
   expect(Array.isArray(proxyArray)).toBe(true);
 
-  expect(typeof shadowFunction).toBe("function");
   expect(typeof proxyFunction).toBe("function");
 
   const unknownKey = Symbol("unknown key");
-  expect(Reflect.getOwnPropertyDescriptor(shadowObject, unknownKey)).toBeUndefined();
   expect(Reflect.getOwnPropertyDescriptor(proxyObject, unknownKey)).toBeUndefined();
-  expect(Reflect.getOwnPropertyDescriptor(shadowArray, unknownKey)).toBeUndefined();
   expect(Reflect.getOwnPropertyDescriptor(proxyArray, unknownKey)).toBeUndefined();
-  expect(Reflect.getOwnPropertyDescriptor(shadowFunction, unknownKey)).toBeUndefined();
   expect(Reflect.getOwnPropertyDescriptor(proxyFunction, unknownKey)).toBeUndefined();
 
   expect(head.isRevoked).toBe(false);
@@ -67,7 +61,7 @@ it("ObjectGraphHead creates revocable proxies", () => {
   expect(() => Reflect.getOwnPropertyDescriptor(proxyFunction, unknownKey)).toThrowError();
 
   expect(
-    () => head.createNewProxy({}, "blue")
+    () => head.getValueInGraph({}, "blue")
   ).toThrowError("This object graph has been revoked");
 
   expect(

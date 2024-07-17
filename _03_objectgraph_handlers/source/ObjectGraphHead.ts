@@ -13,7 +13,6 @@ import type {
 
 import type {
   ObjectGraphHeadIfc,
-  ProxyMetadata,
 } from "./types/ObjectGraphHeadIfc.js";
 
 export default
@@ -27,54 +26,80 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
    *
    * @returns A shadow target to minimally emulate the real one.
    */
-  static #makeShadowTarget(value: object): object {
+  static #makeShadowTarget<T extends object>(value: T): T {
     let rv: object;
     if (Array.isArray(value))
       rv = [];
-    else if (typeof value == "object")
+    else if (typeof value === "object")
       rv = {};
-    else if (typeof value == "function")
+    else if (typeof value === "function")
       rv = function() {};
     else
       throw new Error("Unknown value for makeShadowTarget");
-    return rv;
+    return rv as T;
   }
 
-  static readonly #realTargetKey = Symbol("(real target)");
-
   readonly objectGraphKey: string | symbol;
-  readonly shadowTargetKey: symbol;
-
   readonly #revokersRefSet = new WeakRefSet<() => void>;
 
   // This is a special map, which I do _not_ want to put other membrane-specific properties into.  It's just for tracking revokers.
   #proxyToRevokeMap = new WeakMap<object, () => void>;
-  #revoked = false;
-  #targetsOneToOneMap = new OneToOneStrongMap<string | symbol, object>;
 
+  #revoked = false;
+
+  #targetsOneToOneMap: OneToOneStrongMap<string | symbol, object>;
+  #shadowTargetToRealTargetMap = new WeakMap<object, object>;
   #realTargetToOriginGraph = new WeakMap<object, string | symbol>;
 
   public constructor(
     membraneIfc: MembraneIfc,
     graphHandlerIfc: ObjectGraphHandlerIfc,
+    objectsOneToOneMap: OneToOneStrongMap<string | symbol, object>,
     objectGraphKey: string | symbol
   )
   {
     super(membraneIfc, graphHandlerIfc);
+    this.#targetsOneToOneMap = objectsOneToOneMap;
     this.objectGraphKey = objectGraphKey;
-    this.shadowTargetKey = Symbol(
-      typeof objectGraphKey === "string" ? `(shadow:${objectGraphKey})` : "(shadow)"
-    );
   }
 
   public get isRevoked(): boolean {
     return this.#revoked;
   }
 
-  public createNewProxy(
+  public getValueInGraph<T>(sourceValue: T, sourceGraphKey: string | symbol): T {
+    if (this.objectGraphKey === sourceGraphKey)
+      return sourceValue;
+
+    switch (typeof sourceValue) {
+      case "boolean":
+      case "bigint":
+      case "number":
+      case "string":
+      case "symbol":
+      case "undefined":
+        //TODO: wrap in a compartment?
+        return sourceValue;
+
+      case "object":
+        if (sourceValue === null)
+          return sourceValue;
+    }
+
+    // TODO: primordials (Object, Array, etc.) and their prototypes
+
+    // sourceValue is an object
+    let value: object | undefined = this.#targetsOneToOneMap.get(sourceValue as object, this.objectGraphKey);
+    if (value === undefined) {
+      value = this.#createNewProxy(sourceValue as object, sourceGraphKey);
+    }
+    return value as T;
+  }
+
+  #createNewProxy(
     realTarget: object,
     realTargetGraphKey: string | symbol
-  ): ProxyMetadata
+  ): object
   {
     if (this.#revoked)
       throw new Error("This object graph has been revoked");
@@ -88,19 +113,14 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
     this.#revokersRefSet.addReference(revoke);
     this.#proxyToRevokeMap.set(proxy, revoke);
 
+    this.#shadowTargetToRealTargetMap.set(shadowTarget, realTarget);
     this.#targetsOneToOneMap.bindOneToOne(
-      this.objectGraphKey, proxy, this.shadowTargetKey, shadowTarget
-    );
-    this.#targetsOneToOneMap.bindOneToOne(
-      this.objectGraphKey, proxy, ObjectGraphHead.#realTargetKey, realTarget
+      this.objectGraphKey, proxy, realTargetGraphKey, realTarget
     );
 
     this.#realTargetToOriginGraph.set(realTarget, realTargetGraphKey);
 
-    return {
-      shadowTarget,
-      proxy,
-    };
+    return proxy;
   }
 
   public revokeAllProxies(): void
@@ -117,18 +137,17 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
 
     // force a clearing
     this.#proxyToRevokeMap = new WeakMap;
-    this.#targetsOneToOneMap = new OneToOneStrongMap;
+
+    this.#shadowTargetToRealTargetMap = new WeakMap;
     this.#realTargetToOriginGraph = new WeakMap;
+    this.#targetsOneToOneMap = new OneToOneStrongMap;
   }
 
   protected getRealTargetForShadowTarget(
     shadowTarget: object
   ): object
   {
-    return this.#targetsOneToOneMap.get(
-      shadowTarget,
-      ObjectGraphHead.#realTargetKey
-    )!;
+    return this.#shadowTargetToRealTargetMap.get(shadowTarget)!;
   }
 
   protected getTargetGraphKeyForRealTarget(
