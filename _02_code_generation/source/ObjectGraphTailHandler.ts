@@ -1,7 +1,7 @@
 /**
  * @remarks
- * `ObjectGraphTailHandler` converts from `ObjectGraphHandler<T>` to `Required<ProxyHandler<T>>` by invoking the
- * `nextHandler` argument with the `nextTarget` and `nextArgArray`, `nextThisArg`, `nextDescriptor`,
+ * `ObjectGraphTailHandler` converts from `ObjectGraphHandler<T>` to `Required<ProxyHandler<T>>` by invoking
+ * `Reflect` with the `nextTarget` and `nextArgArray`, `nextThisArg`, `nextDescriptor`,
  * etc. arguments.
  */
 
@@ -9,23 +9,15 @@ import assert from "node:assert/strict";
 import path from "path";
 
 import {
-  Scope,
   StructureKind,
 } from "ts-morph";
 
 import {
   ClassDeclarationImpl,
-  ClassMembersMap,
-  type ClassStatementsGetter,
-  ClassSupportsStatementsFlags,
-  type ClassTailStatementsGetter,
   InterfaceDeclarationImpl,
   LiteralTypeStructureImpl,
   SourceFileImpl,
-  MemberedTypeToClass,
   MemberedStatementsKey,
-  TypeArgumentedTypeStructureImpl,
-  TypeMembersMap,
   stringWriterOrStatementImpl,
   ImportManager,
 } from "ts-morph-structures";
@@ -62,16 +54,6 @@ async function createObjectGraphTailHandler(
     ],
   });
 
-  importManager.addImports({
-    pathToImportedModule: path.join(stageDir, "types/RequiredProxyHandler.d.ts"),
-    isPackageImport: false,
-    isDefaultImport: false,
-    isTypeOnly: true,
-    importNames: [
-      "RequiredProxyHandler"
-    ]
-  });
-
   const classDecl: ClassDeclarationImpl = buildHandlerClass(
     handlerInterface,
     function(
@@ -80,26 +62,32 @@ async function createObjectGraphTailHandler(
       assert.equal(key.groupType?.kind, StructureKind.MethodSignature, "expected a method");
 
       let statements: stringWriterOrStatementImpl[] = [];
-      let foundNextHandler = false;
+      let foundNextTarget = false;
 
       const acceptedParameterNames: string[] = [];
       const voidParameterNames: string[] = [];
       for (const param of key.groupType.parameters) {
-        if (param.name === "nextHandler") {
-          foundNextHandler = true;
-          continue;
+        let arg: string = param.name;
+        if (param.name === "nextTarget") {
+          foundNextTarget = true;
+
+          if (key.statementGroupKey === "apply") {
+            arg += " as CallableFunction";
+          } else if (key.statementGroupKey === "construct") {
+            arg += " as NewableFunction";
+          }
         }
 
-        if (foundNextHandler) {
-          acceptedParameterNames.push(param.name);
+        if (foundNextTarget) {
+          acceptedParameterNames.push(arg);
         } else {
-          voidParameterNames.push(param.name);
+          voidParameterNames.push(arg);
         }
       }
 
       return [
         ...voidParameterNames.map(paramName => `void(${paramName});`),
-        `return nextHandler.${key.groupType.name}(${acceptedParameterNames.join(", ")});`
+        `return Reflect.${key.groupType.name}(${acceptedParameterNames.join(", ")});`
       ];
 
       return statements;

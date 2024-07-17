@@ -8,10 +8,6 @@ import type {
   MembraneIfc,
 } from "#objectgraph_handlers/source/types/MembraneIfc.js";
 
-import type {
-  RequiredProxyHandler,
-} from "#objectgraph_handlers/source/types/RequiredProxyHandler.js";
-
 import SpyProxyHandler from "./support/SpyProxyHandler.js";
 
 class LocalHead extends ConvertingHeadProxyHandler {
@@ -38,28 +34,15 @@ class LocalHead extends ConvertingHeadProxyHandler {
 }
 
 class MockMembrane implements MembraneIfc {
-  #nextHandler: RequiredProxyHandler;
-
-  constructor(
-    nextHandler: RequiredProxyHandler
-  )
-  {
-    this.#nextHandler = nextHandler;
-  }
-
   convertArray<ValueTypes extends unknown[]>(targetGraphKey: string | symbol, values: ValueTypes): ValueTypes {
     throw new Error("Method not implemented.");
   }
   convertDescriptor(targetGraphKey: string | symbol, descriptor: PropertyDescriptor): PropertyDescriptor {
     throw new Error("Method not implemented.");
   }
-  getHandlerForTarget(targetGraphKey: string | symbol, target: object): RequiredProxyHandler {
-    return this.#nextHandler;
-  }
 }
 
 describe("Converting-head proxy handler works for the trap", () => {
-  let nextHandler: SpyProxyHandler;
   let membrane: MockMembrane;
   let spyObjectGraphHandler: SpyProxyHandler;
   let shadowTarget: () => void;
@@ -71,8 +54,7 @@ describe("Converting-head proxy handler works for the trap", () => {
     shadowTarget = () => { return undefined; };
     expectedRealTarget = () => { return undefined; };
 
-    nextHandler = new SpyProxyHandler;
-    membrane = new MockMembrane(nextHandler);
+    membrane = new MockMembrane();
 
     spyObjectGraphHandler = new SpyProxyHandler;
     headHandler = new LocalHead(
@@ -105,7 +87,6 @@ describe("Converting-head proxy handler works for the trap", () => {
       shadowTarget,
       thisArg,
       argArray,
-      nextHandler,
       expectedRealTarget,
       nextThisArg,
       nextArgArray,
@@ -134,7 +115,6 @@ describe("Converting-head proxy handler works for the trap", () => {
       shadowTarget,
       argArray,
       newTarget,
-      nextHandler,
       expectedRealTarget,
       nextArgArray,
       nextNewTarget
@@ -175,7 +155,6 @@ describe("Converting-head proxy handler works for the trap", () => {
       shadowTarget,
       property,
       attributes,
-      nextHandler,
       expectedRealTarget,
       nextProperty,
       nextAttributes,
@@ -199,7 +178,6 @@ describe("Converting-head proxy handler works for the trap", () => {
     expect(spyObjectGraphHandler.getSpy("deleteProperty")).toHaveBeenCalledOnceWith(
       shadowTarget,
       property,
-      nextHandler,
       expectedRealTarget,
       nextProperty
     );
@@ -227,7 +205,6 @@ describe("Converting-head proxy handler works for the trap", () => {
       shadowTarget,
       property,
       receiver,
-      nextHandler,
       expectedRealTarget,
       nextProperty,
       nextReceiver
@@ -258,7 +235,6 @@ describe("Converting-head proxy handler works for the trap", () => {
     expect(spyObjectGraphHandler.getSpy("getOwnPropertyDescriptor")).toHaveBeenCalledOnceWith(
       shadowTarget,
       property,
-      nextHandler,
       expectedRealTarget,
       nextProperty,
     );
@@ -275,7 +251,6 @@ describe("Converting-head proxy handler works for the trap", () => {
     spyObjectGraphHandler.expectSpiesClearExcept("getPrototypeOf");
     expect(spyObjectGraphHandler.getSpy("getPrototypeOf")).toHaveBeenCalledOnceWith(
       shadowTarget,
-      nextHandler,
       expectedRealTarget
     );
   });
@@ -298,7 +273,6 @@ describe("Converting-head proxy handler works for the trap", () => {
     expect(spyObjectGraphHandler.getSpy("has")).toHaveBeenCalledOnceWith(
       shadowTarget,
       property,
-      nextHandler,
       expectedRealTarget,
       nextProperty,
     );
@@ -315,7 +289,6 @@ describe("Converting-head proxy handler works for the trap", () => {
     spyObjectGraphHandler.expectSpiesClearExcept("isExtensible");
     expect(spyObjectGraphHandler.getSpy("isExtensible")).toHaveBeenCalledOnceWith(
       shadowTarget,
-      nextHandler,
       expectedRealTarget,
     );
   });
@@ -331,7 +304,6 @@ describe("Converting-head proxy handler works for the trap", () => {
     spyObjectGraphHandler.expectSpiesClearExcept("ownKeys");
     expect(spyObjectGraphHandler.getSpy("ownKeys")).toHaveBeenCalledOnceWith(
       shadowTarget,
-      nextHandler,
       expectedRealTarget,
     );
   });
@@ -347,7 +319,6 @@ describe("Converting-head proxy handler works for the trap", () => {
     spyObjectGraphHandler.expectSpiesClearExcept("preventExtensions");
     expect(spyObjectGraphHandler.getSpy("preventExtensions")).toHaveBeenCalledOnceWith(
       shadowTarget,
-      nextHandler,
       expectedRealTarget,
     );
   });
@@ -376,7 +347,6 @@ describe("Converting-head proxy handler works for the trap", () => {
       property,
       newValue,
       receiver,
-      nextHandler,
       expectedRealTarget,
       nextProperty,
       nextNewValue,
@@ -402,7 +372,6 @@ describe("Converting-head proxy handler works for the trap", () => {
     expect(spyObjectGraphHandler.getSpy("setPrototypeOf")).toHaveBeenCalledOnceWith(
       shadowTarget,
       proto,
-      nextHandler,
       expectedRealTarget,
       nextProto
     );

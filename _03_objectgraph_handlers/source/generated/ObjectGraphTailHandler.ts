@@ -1,5 +1,4 @@
 // This file is generated.  Do not edit.
-import type { RequiredProxyHandler } from "../types/RequiredProxyHandler.js";
 import type { ObjectGraphHandlerIfc } from "./types/ObjectGraphHandlerIfc.js";
 
 export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
@@ -11,7 +10,6 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     shadowTarget: object,
     thisArg: any,
     argArray: any[],
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextThisArg: any,
     nextArgArray: any[],
@@ -19,7 +17,11 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     void shadowTarget;
     void thisArg;
     void argArray;
-    return nextHandler.apply(nextTarget, nextThisArg, nextArgArray);
+    return Reflect.apply(
+      nextTarget as CallableFunction,
+      nextThisArg,
+      nextArgArray,
+    );
   }
 
   /**
@@ -31,7 +33,6 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     shadowTarget: object,
     argArray: any[],
     newTarget: Function,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextArgArray: any[],
     nextNewTarget: Function,
@@ -39,7 +40,11 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     void shadowTarget;
     void argArray;
     void newTarget;
-    return nextHandler.construct(nextTarget, nextArgArray, nextNewTarget);
+    return Reflect.construct(
+      nextTarget as NewableFunction,
+      nextArgArray,
+      nextNewTarget,
+    );
   }
 
   /**
@@ -51,7 +56,6 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     shadowTarget: object,
     property: string | symbol,
     attributes: PropertyDescriptor,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextProperty: string | symbol,
     nextAttributes: PropertyDescriptor,
@@ -59,7 +63,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     void shadowTarget;
     void property;
     void attributes;
-    return nextHandler.defineProperty(nextTarget, nextProperty, nextAttributes);
+    return Reflect.defineProperty(nextTarget, nextProperty, nextAttributes);
   }
 
   /**
@@ -71,13 +75,12 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
   public deleteProperty(
     shadowTarget: object,
     p: string | symbol,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextP: string | symbol,
   ): boolean {
     void shadowTarget;
     void p;
-    return nextHandler.deleteProperty(nextTarget, nextP);
+    return Reflect.deleteProperty(nextTarget, nextP);
   }
 
   /**
@@ -90,7 +93,6 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     shadowTarget: object,
     p: string | symbol,
     receiver: any,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextP: string | symbol,
     nextReceiver: any,
@@ -98,7 +100,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     void shadowTarget;
     void p;
     void receiver;
-    return nextHandler.get(nextTarget, nextP, nextReceiver);
+    return Reflect.get(nextTarget, nextP, nextReceiver);
   }
 
   /**
@@ -109,13 +111,12 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
   public getOwnPropertyDescriptor(
     shadowTarget: object,
     p: string | symbol,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextP: string | symbol,
   ): PropertyDescriptor | undefined {
     void shadowTarget;
     void p;
-    return nextHandler.getOwnPropertyDescriptor(nextTarget, nextP);
+    return Reflect.getOwnPropertyDescriptor(nextTarget, nextP);
   }
 
   /**
@@ -124,11 +125,10 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
    */
   public getPrototypeOf(
     shadowTarget: object,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
   ): object | null {
     void shadowTarget;
-    return nextHandler.getPrototypeOf(nextTarget);
+    return Reflect.getPrototypeOf(nextTarget);
   }
 
   /**
@@ -139,26 +139,21 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
   public has(
     shadowTarget: object,
     p: string | symbol,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextP: string | symbol,
   ): boolean {
     void shadowTarget;
     void p;
-    return nextHandler.has(nextTarget, nextP);
+    return Reflect.has(nextTarget, nextP);
   }
 
   /**
    * A trap for `Object.isExtensible()`.
    * @param target The original object which is being proxied.
    */
-  public isExtensible(
-    shadowTarget: object,
-    nextHandler: RequiredProxyHandler,
-    nextTarget: object,
-  ): boolean {
+  public isExtensible(shadowTarget: object, nextTarget: object): boolean {
     void shadowTarget;
-    return nextHandler.isExtensible(nextTarget);
+    return Reflect.isExtensible(nextTarget);
   }
 
   /**
@@ -167,24 +162,19 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
    */
   public ownKeys(
     shadowTarget: object,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
   ): ArrayLike<string | symbol> {
     void shadowTarget;
-    return nextHandler.ownKeys(nextTarget);
+    return Reflect.ownKeys(nextTarget);
   }
 
   /**
    * A trap for `Object.preventExtensions()`.
    * @param target The original object which is being proxied.
    */
-  public preventExtensions(
-    shadowTarget: object,
-    nextHandler: RequiredProxyHandler,
-    nextTarget: object,
-  ): boolean {
+  public preventExtensions(shadowTarget: object, nextTarget: object): boolean {
     void shadowTarget;
-    return nextHandler.preventExtensions(nextTarget);
+    return Reflect.preventExtensions(nextTarget);
   }
 
   /**
@@ -199,7 +189,6 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     p: string | symbol,
     newValue: any,
     receiver: any,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextP: string | symbol,
     nextNewValue: any,
@@ -209,7 +198,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     void p;
     void newValue;
     void receiver;
-    return nextHandler.set(nextTarget, nextP, nextNewValue, nextReceiver);
+    return Reflect.set(nextTarget, nextP, nextNewValue, nextReceiver);
   }
 
   /**
@@ -220,12 +209,11 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
   public setPrototypeOf(
     shadowTarget: object,
     v: object | null,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextV: object | null,
   ): boolean {
     void shadowTarget;
     void v;
-    return nextHandler.setPrototypeOf(nextTarget, nextV);
+    return Reflect.setPrototypeOf(nextTarget, nextV);
   }
 }

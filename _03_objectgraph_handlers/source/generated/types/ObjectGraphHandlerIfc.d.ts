@@ -10,7 +10,6 @@ export interface ObjectGraphHandlerIfc {
     shadowTarget: object,
     thisArg: any,
     argArray: any[],
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextThisArg: any,
     nextArgArray: any[],
@@ -24,7 +23,6 @@ export interface ObjectGraphHandlerIfc {
     shadowTarget: object,
     argArray: any[],
     newTarget: Function,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextArgArray: any[],
     nextNewTarget: Function,
@@ -38,7 +36,6 @@ export interface ObjectGraphHandlerIfc {
     shadowTarget: object,
     property: string | symbol,
     attributes: PropertyDescriptor,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextProperty: string | symbol,
     nextAttributes: PropertyDescriptor,
@@ -52,7 +49,6 @@ export interface ObjectGraphHandlerIfc {
   deleteProperty(
     shadowTarget: object,
     p: string | symbol,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextP: string | symbol,
   ): boolean;
@@ -66,7 +62,6 @@ export interface ObjectGraphHandlerIfc {
     shadowTarget: object,
     p: string | symbol,
     receiver: any,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextP: string | symbol,
     nextReceiver: any,
@@ -79,7 +74,6 @@ export interface ObjectGraphHandlerIfc {
   getOwnPropertyDescriptor(
     shadowTarget: object,
     p: string | symbol,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextP: string | symbol,
   ): PropertyDescriptor | undefined;
@@ -87,11 +81,7 @@ export interface ObjectGraphHandlerIfc {
    * A trap for the `[[GetPrototypeOf]]` internal method.
    * @param target The original object which is being proxied.
    */
-  getPrototypeOf(
-    shadowTarget: object,
-    nextHandler: RequiredProxyHandler,
-    nextTarget: object,
-  ): object | null;
+  getPrototypeOf(shadowTarget: object, nextTarget: object): object | null;
   /**
    * A trap for the `in` operator.
    * @param target The original object which is being proxied.
@@ -100,7 +90,6 @@ export interface ObjectGraphHandlerIfc {
   has(
     shadowTarget: object,
     p: string | symbol,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextP: string | symbol,
   ): boolean;
@@ -108,29 +97,17 @@ export interface ObjectGraphHandlerIfc {
    * A trap for `Object.isExtensible()`.
    * @param target The original object which is being proxied.
    */
-  isExtensible(
-    shadowTarget: object,
-    nextHandler: RequiredProxyHandler,
-    nextTarget: object,
-  ): boolean;
+  isExtensible(shadowTarget: object, nextTarget: object): boolean;
   /**
    * A trap for `Reflect.ownKeys()`.
    * @param target The original object which is being proxied.
    */
-  ownKeys(
-    shadowTarget: object,
-    nextHandler: RequiredProxyHandler,
-    nextTarget: object,
-  ): ArrayLike<string | symbol>;
+  ownKeys(shadowTarget: object, nextTarget: object): ArrayLike<string | symbol>;
   /**
    * A trap for `Object.preventExtensions()`.
    * @param target The original object which is being proxied.
    */
-  preventExtensions(
-    shadowTarget: object,
-    nextHandler: RequiredProxyHandler,
-    nextTarget: object,
-  ): boolean;
+  preventExtensions(shadowTarget: object, nextTarget: object): boolean;
   /**
    * A trap for setting a property value.
    * @param target The original object which is being proxied.
@@ -143,7 +120,6 @@ export interface ObjectGraphHandlerIfc {
     p: string | symbol,
     newValue: any,
     receiver: any,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextP: string | symbol,
     nextNewValue: any,
@@ -157,7 +133,6 @@ export interface ObjectGraphHandlerIfc {
   setPrototypeOf(
     shadowTarget: object,
     v: object | null,
-    nextHandler: RequiredProxyHandler,
     nextTarget: object,
     nextV: object | null,
   ): boolean;

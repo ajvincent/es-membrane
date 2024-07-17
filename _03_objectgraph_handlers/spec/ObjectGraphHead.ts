@@ -24,9 +24,6 @@ it("ObjectGraphHead creates revocable proxies", () => {
     convertDescriptor: function (targetGraphKey: string | symbol, descriptor: PropertyDescriptor): PropertyDescriptor {
       throw new Error("Function not implemented.");
     },
-    getHandlerForTarget: function (targetGraphKey: string | symbol, target: object): RequiredProxyHandler {
-      return Reflect;
-    }
   };
 
   const graphHandler: ObjectGraphHandlerIfc = new ObjectGraphTailHandler;

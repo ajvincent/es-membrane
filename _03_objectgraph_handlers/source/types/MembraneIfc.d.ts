@@ -15,14 +15,4 @@ export interface MembraneIfc
     targetGraphKey: string | symbol,
     descriptor: PropertyDescriptor
   ): PropertyDescriptor;
-
-  /**
-   * This returns `Reflect`. or in rare cases, an `ObjectGraphHead`.
-   * @param targetGraph
-   * @param target - the real target from the
-   */
-  getHandlerForTarget(
-    targetGraphKey: string | symbol,
-    target: object
-  ): RequiredProxyHandler
 }

@@ -1,7 +1,6 @@
 /*
 This needs to take the Required<ProxyHandler<object>> and create a modified interface with additional parameters.
 
-- nextHandler: RequiredProxyHandler
 - nextTarget: object
 - next* parameters
 
@@ -45,9 +44,6 @@ async function createObjectGraphHandlerIfc(): Promise<InterfaceDeclarationImpl>
     ]
   });
 
-  const NextHandlerParam = new ParameterDeclarationImpl("nextHandler");
-  NextHandlerParam.typeStructure = LiteralTypeStructureImpl.get("RequiredProxyHandler");
-
   const ObjectGraphHandlerIfc: InterfaceDeclarationImpl = getRequiredProxyHandlerInterface();
   ObjectGraphHandlerIfc.name = "ObjectGraphHandlerIfc";
   ObjectGraphHandlerIfc.isExported = true;
@@ -60,9 +56,7 @@ async function createObjectGraphHandlerIfc(): Promise<InterfaceDeclarationImpl>
       return param;
     });
 
-    method.parameters.push(
-      ParameterDeclarationImpl.clone(NextHandlerParam), ...addedParameters
-    );
+    method.parameters.push(...addedParameters);
 
     method.parameters[0]!.name = "shadowTarget";
   });

@@ -152,7 +152,7 @@ function buildImportManager(): ImportManager
   return importManager;
 }
 
-/** `type CommonConversions = { realTarget: object, graphKey: string | symbol; nextHandler: RequiredProxyHandler };` */
+/** `type CommonConversions = { realTarget: object, graphKey: string | symbol; };` */
 function buildCommonConversionsAlias(): TypeAliasDeclarationImpl
 {
   const CommonMemberedType = new MemberedObjectTypeStructureImpl;
@@ -167,10 +167,7 @@ function buildCommonConversionsAlias(): TypeAliasDeclarationImpl
     LiteralTypeStructureImpl.get("symbol"),
   ]);
 
-  const nextHandler = new PropertySignatureImpl("nextHandler");
-  nextHandler.typeStructure = LiteralTypeStructureImpl.get("RequiredProxyHandler");
-
-  CommonMemberedType.properties.push(realTarget, graphKey, nextHandler);
+  CommonMemberedType.properties.push(realTarget, graphKey);
 
   return CommonConversions;
 }
@@ -183,7 +180,7 @@ function getStatementsForProxyHandlerTrap(
 
   // setting up common values
   const statements: stringWriterOrStatementImpl[] = [
-    `const { realTarget, graphKey, nextHandler } = this.#getCommonConversions(shadowTarget);`
+    `const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);`
   ];
 
   const argumentNames: string[] = [];
@@ -193,7 +190,7 @@ function getStatementsForProxyHandlerTrap(
   let descriptorStatement: VariableStatementImpl | undefined;
   let argArrayStatement: VariableStatementImpl | undefined;
   const sourceConvertNames: string[] = [];
-  const nextHandlerConvertNames: string[] = [];
+  const ReflectConvertNames: string[] = [];
 
   const tupleType = new TupleTypeStructureImpl;
 
@@ -228,7 +225,7 @@ function getStatementsForProxyHandlerTrap(
       );
     } else {
       sourceConvertNames.push(param.name);
-      nextHandlerConvertNames.push(nextArgumentName);
+      ReflectConvertNames.push(nextArgumentName);
       tupleType.childTypes.push(param.typeStructure!);
     }
   };
@@ -237,7 +234,7 @@ function getStatementsForProxyHandlerTrap(
     statements.push((writer: CodeBlockWriter): void => {
       writer.write(
         `const [${
-          nextHandlerConvertNames.join(", ")
+          ReflectConvertNames.join(", ")
         }] = this.#membraneIfc.convertArray<`
       );
       tupleType.writerFunction(writer);
@@ -260,7 +257,6 @@ function getStatementsForProxyHandlerTrap(
       `this.#graphHandlerIfc.${key.statementGroupKey}(${
         [
           ...argumentNames,
-          "nextHandler",
           "realTarget",
           ...nextArgumentNames,
         ].join(", ")
@@ -286,7 +282,6 @@ function getStatementsForProxyHandlerTrap(
     `return this.#graphHandlerIfc.${key.statementGroupKey}(${
       [
         ...argumentNames,
-        "nextHandler",
         "realTarget",
         ...nextArgumentNames,
       ].join(", ")
@@ -429,13 +424,8 @@ function insertConversionMembers(
         ]),
         `this.getTargetGraphKeyForRealTarget(realTarget)`
       ),
-      buildConstStatement(
-        "nextHandler",
-        LiteralTypeStructureImpl.get("RequiredProxyHandler"),
-        `this.#membraneIfc.getHandlerForTarget(graphKey, realTarget)`
-      ),
 
-      `return { realTarget, graphKey, nextHandler };`,
+      `return { realTarget, graphKey, };`,
     );
   }
 
