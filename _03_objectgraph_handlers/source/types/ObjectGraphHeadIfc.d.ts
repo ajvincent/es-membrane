@@ -15,6 +15,8 @@ export interface ObjectGraphHeadIfc extends RequiredProxyHandler {
 
   getValueInGraph(realTarget: unknown, realTargetGraphKey: string | symbol): unknown;
 
-  /** Revoke all proxies this object graph owns. */
-  revokeAllProxies(): void;
+  /** Revoke all proxies for a given object graph. */
+  revokeAllProxiesForGraph(
+    graphKey: string | symbol
+  ): void;
 }

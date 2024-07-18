@@ -34,7 +34,7 @@ it("ObjectGraphHead creates revocable proxies", () => {
   expect(head.objectGraphKey).toBe("red");
 
   const proxyObject = head.getValueInGraph<object>({}, "blue") as object;
-  const proxyArray = head.getValueInGraph<unknown[]>([], "blue");
+  const proxyArray = head.getValueInGraph<unknown[]>([], "green");
   const proxyFunction = head.getValueInGraph<() => void>((): void => {}, "blue");
 
   expect(typeof proxyObject).toBe("object");
@@ -50,7 +50,14 @@ it("ObjectGraphHead creates revocable proxies", () => {
 
   expect(head.isRevoked).toBe(false);
 
-  head.revokeAllProxies();
+  head.revokeAllProxiesForGraph("blue");
+  expect(head.isRevoked).toBe(false);
+
+  expect(() => Reflect.getOwnPropertyDescriptor(proxyObject, unknownKey)).toThrowError();
+  expect(() => Reflect.getOwnPropertyDescriptor(proxyArray, unknownKey)).not.toThrowError(); // "green"
+  expect(() => Reflect.getOwnPropertyDescriptor(proxyFunction, unknownKey)).toThrowError();
+
+  head.revokeAllProxiesForGraph(head.objectGraphKey);
   expect(head.isRevoked).toBe(true);
 
   expect(() => Reflect.getOwnPropertyDescriptor(proxyObject, unknownKey)).toThrowError();
@@ -62,6 +69,6 @@ it("ObjectGraphHead creates revocable proxies", () => {
   ).toThrowError("This object graph has been revoked");
 
   expect(
-    () => head.revokeAllProxies()
+    () => head.revokeAllProxiesForGraph(head.objectGraphKey)
   ).toThrowError("This object graph has been revoked");
 });

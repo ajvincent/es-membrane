@@ -1,4 +1,3 @@
-import WeakRefSet from "#stage_utilities/source/collections/WeakRefSet.js";
 import ConvertingHeadProxyHandler from "./generated/ConvertingHeadProxyHandler.js";
 
 import type {
@@ -14,6 +13,8 @@ import type {
 import type {
   ObjectGraphHeadIfc,
 } from "./types/ObjectGraphHeadIfc.js";
+
+import RevokerManagement from "./RevokerManagement.js";
 
 export default
 class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphHeadIfc
@@ -40,10 +41,8 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
   }
 
   readonly objectGraphKey: string | symbol;
-  readonly #revokersRefSet = new WeakRefSet<() => void>;
 
-  // This is a special map, which I do _not_ want to put other membrane-specific properties into.  It's just for tracking revokers.
-  #proxyToRevokeMap = new WeakMap<object, () => void>;
+  #revokerManagement?: RevokerManagement;
 
   #revoked = false;
 
@@ -60,7 +59,9 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
   {
     super(membraneIfc, graphHandlerIfc);
     this.#targetsOneToOneMap = objectsOneToOneMap;
+
     this.objectGraphKey = objectGraphKey;
+    this.#revokerManagement = new RevokerManagement(objectGraphKey);
   }
 
   public get isRevoked(): boolean {
@@ -110,8 +111,7 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
       revoke
     } = Proxy.revocable<object>(shadowTarget, this);
 
-    this.#revokersRefSet.addReference(revoke);
-    this.#proxyToRevokeMap.set(proxy, revoke);
+    this.#revokerManagement!.addRevoker(proxy, revoke, realTargetGraphKey);
 
     this.#shadowTargetToRealTargetMap.set(shadowTarget, realTarget);
     this.#targetsOneToOneMap.bindOneToOne(
@@ -123,24 +123,23 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
     return proxy;
   }
 
-  public revokeAllProxies(): void
+  public revokeAllProxiesForGraph(
+    graphKey: string | symbol
+  ): void
   {
     if (this.#revoked)
       throw new Error("This object graph has been revoked");
 
-    this.#revoked = true;
+    this.#revokerManagement!.revokeSet(graphKey);
 
-    for (const revoker of this.#revokersRefSet.liveElements()) {
-      revoker();
+    if (graphKey === this.objectGraphKey) {
+      this.#revoked = true;
+
+      this.#shadowTargetToRealTargetMap = new WeakMap;
+      this.#realTargetToOriginGraph = new WeakMap;
+      this.#targetsOneToOneMap = new OneToOneStrongMap;
+      this.#revokerManagement = undefined;
     }
-    this.#revokersRefSet.clearReferences();
-
-    // force a clearing
-    this.#proxyToRevokeMap = new WeakMap;
-
-    this.#shadowTargetToRealTargetMap = new WeakMap;
-    this.#realTargetToOriginGraph = new WeakMap;
-    this.#targetsOneToOneMap = new OneToOneStrongMap;
   }
 
   protected getRealTargetForShadowTarget(
