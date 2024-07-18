@@ -51,6 +51,7 @@ export default abstract class ConvertingHeadProxyHandler
       shadowTarget,
       thisArg,
       argArray,
+      graphKey,
       realTarget,
       nextThisArg,
       nextArgArray,
@@ -80,6 +81,7 @@ export default abstract class ConvertingHeadProxyHandler
       shadowTarget,
       argArray,
       newTarget,
+      graphKey,
       realTarget,
       nextArgArray,
       nextNewTarget,
@@ -107,6 +109,7 @@ export default abstract class ConvertingHeadProxyHandler
       shadowTarget,
       property,
       attributes,
+      graphKey,
       realTarget,
       nextProperty,
       nextAttributes,
@@ -128,6 +131,7 @@ export default abstract class ConvertingHeadProxyHandler
     return this.#graphHandlerIfc.deleteProperty(
       shadowTarget,
       p,
+      graphKey,
       realTarget,
       nextP,
     );
@@ -148,6 +152,7 @@ export default abstract class ConvertingHeadProxyHandler
       shadowTarget,
       p,
       receiver,
+      graphKey,
       realTarget,
       nextP,
       nextReceiver,
@@ -171,6 +176,7 @@ export default abstract class ConvertingHeadProxyHandler
     return this.#graphHandlerIfc.getOwnPropertyDescriptor(
       shadowTarget,
       p,
+      graphKey,
       realTarget,
       nextP,
     );
@@ -182,7 +188,11 @@ export default abstract class ConvertingHeadProxyHandler
    */
   public getPrototypeOf(shadowTarget: object): object | null {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    return this.#graphHandlerIfc.getPrototypeOf(shadowTarget, realTarget);
+    return this.#graphHandlerIfc.getPrototypeOf(
+      shadowTarget,
+      graphKey,
+      realTarget,
+    );
   }
 
   /**
@@ -196,7 +206,13 @@ export default abstract class ConvertingHeadProxyHandler
       graphKey,
       [p],
     );
-    return this.#graphHandlerIfc.has(shadowTarget, p, realTarget, nextP);
+    return this.#graphHandlerIfc.has(
+      shadowTarget,
+      p,
+      graphKey,
+      realTarget,
+      nextP,
+    );
   }
 
   /**
@@ -205,7 +221,11 @@ export default abstract class ConvertingHeadProxyHandler
    */
   public isExtensible(shadowTarget: object): boolean {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    return this.#graphHandlerIfc.isExtensible(shadowTarget, realTarget);
+    return this.#graphHandlerIfc.isExtensible(
+      shadowTarget,
+      graphKey,
+      realTarget,
+    );
   }
 
   /**
@@ -214,7 +234,7 @@ export default abstract class ConvertingHeadProxyHandler
    */
   public ownKeys(shadowTarget: object): ArrayLike<string | symbol> {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    return this.#graphHandlerIfc.ownKeys(shadowTarget, realTarget);
+    return this.#graphHandlerIfc.ownKeys(shadowTarget, graphKey, realTarget);
   }
 
   /**
@@ -223,7 +243,11 @@ export default abstract class ConvertingHeadProxyHandler
    */
   public preventExtensions(shadowTarget: object): boolean {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    return this.#graphHandlerIfc.preventExtensions(shadowTarget, realTarget);
+    return this.#graphHandlerIfc.preventExtensions(
+      shadowTarget,
+      graphKey,
+      realTarget,
+    );
   }
 
   /**
@@ -248,6 +272,7 @@ export default abstract class ConvertingHeadProxyHandler
       p,
       newValue,
       receiver,
+      graphKey,
       realTarget,
       nextP,
       nextNewValue,
@@ -268,6 +293,7 @@ export default abstract class ConvertingHeadProxyHandler
     return this.#graphHandlerIfc.setPrototypeOf(
       shadowTarget,
       v,
+      graphKey,
       realTarget,
       nextV,
     );

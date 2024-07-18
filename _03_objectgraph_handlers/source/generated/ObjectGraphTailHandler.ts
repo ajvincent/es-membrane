@@ -19,6 +19,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     shadowTarget: object,
     thisArg: any,
     argArray: any[],
+    nextGraphKey: string | symbol,
     nextTarget: object,
     nextThisArg: any,
     nextArgArray: any[],
@@ -26,6 +27,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     void shadowTarget;
     void thisArg;
     void argArray;
+    void nextGraphKey;
     return Reflect.apply(
       nextTarget as CallableFunction,
       nextThisArg,
@@ -42,6 +44,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     shadowTarget: object,
     argArray: any[],
     newTarget: Function,
+    nextGraphKey: string | symbol,
     nextTarget: object,
     nextArgArray: any[],
     nextNewTarget: Function,
@@ -49,6 +52,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     void shadowTarget;
     void argArray;
     void newTarget;
+    void nextGraphKey;
     return Reflect.construct(
       nextTarget as NewableFunction,
       nextArgArray,
@@ -65,6 +69,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     shadowTarget: object,
     property: string | symbol,
     attributes: PropertyDescriptor,
+    nextGraphKey: string | symbol,
     nextTarget: object,
     nextProperty: string | symbol,
     nextAttributes: PropertyDescriptor,
@@ -72,6 +77,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     void shadowTarget;
     void property;
     void attributes;
+    void nextGraphKey;
     return Reflect.defineProperty(nextTarget, nextProperty, nextAttributes);
   }
 
@@ -84,11 +90,13 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
   public deleteProperty(
     shadowTarget: object,
     p: string | symbol,
+    nextGraphKey: string | symbol,
     nextTarget: object,
     nextP: string | symbol,
   ): boolean {
     void shadowTarget;
     void p;
+    void nextGraphKey;
     return Reflect.deleteProperty(nextTarget, nextP);
   }
 
@@ -102,6 +110,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     shadowTarget: object,
     p: string | symbol,
     receiver: any,
+    nextGraphKey: string | symbol,
     nextTarget: object,
     nextP: string | symbol,
     nextReceiver: any,
@@ -109,6 +118,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     void shadowTarget;
     void p;
     void receiver;
+    void nextGraphKey;
     return Reflect.get(nextTarget, nextP, nextReceiver);
   }
 
@@ -120,11 +130,13 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
   public getOwnPropertyDescriptor(
     shadowTarget: object,
     p: string | symbol,
+    nextGraphKey: string | symbol,
     nextTarget: object,
     nextP: string | symbol,
   ): PropertyDescriptor | undefined {
     void shadowTarget;
     void p;
+    void nextGraphKey;
     return Reflect.getOwnPropertyDescriptor(nextTarget, nextP);
   }
 
@@ -134,9 +146,11 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
    */
   public getPrototypeOf(
     shadowTarget: object,
+    nextGraphKey: string | symbol,
     nextTarget: object,
   ): object | null {
     void shadowTarget;
+    void nextGraphKey;
     return Reflect.getPrototypeOf(nextTarget);
   }
 
@@ -148,11 +162,13 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
   public has(
     shadowTarget: object,
     p: string | symbol,
+    nextGraphKey: string | symbol,
     nextTarget: object,
     nextP: string | symbol,
   ): boolean {
     void shadowTarget;
     void p;
+    void nextGraphKey;
     return Reflect.has(nextTarget, nextP);
   }
 
@@ -160,8 +176,13 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
    * A trap for `Object.isExtensible()`.
    * @param target The original object which is being proxied.
    */
-  public isExtensible(shadowTarget: object, nextTarget: object): boolean {
+  public isExtensible(
+    shadowTarget: object,
+    nextGraphKey: string | symbol,
+    nextTarget: object,
+  ): boolean {
     void shadowTarget;
+    void nextGraphKey;
     return Reflect.isExtensible(nextTarget);
   }
 
@@ -171,9 +192,11 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
    */
   public ownKeys(
     shadowTarget: object,
+    nextGraphKey: string | symbol,
     nextTarget: object,
   ): ArrayLike<string | symbol> {
     void shadowTarget;
+    void nextGraphKey;
     return Reflect.ownKeys(nextTarget);
   }
 
@@ -181,8 +204,13 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
    * A trap for `Object.preventExtensions()`.
    * @param target The original object which is being proxied.
    */
-  public preventExtensions(shadowTarget: object, nextTarget: object): boolean {
+  public preventExtensions(
+    shadowTarget: object,
+    nextGraphKey: string | symbol,
+    nextTarget: object,
+  ): boolean {
     void shadowTarget;
+    void nextGraphKey;
     return Reflect.preventExtensions(nextTarget);
   }
 
@@ -198,6 +226,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     p: string | symbol,
     newValue: any,
     receiver: any,
+    nextGraphKey: string | symbol,
     nextTarget: object,
     nextP: string | symbol,
     nextNewValue: any,
@@ -207,6 +236,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
     void p;
     void newValue;
     void receiver;
+    void nextGraphKey;
     return Reflect.set(nextTarget, nextP, nextNewValue, nextReceiver);
   }
 
@@ -218,11 +248,13 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc {
   public setPrototypeOf(
     shadowTarget: object,
     v: object | null,
+    nextGraphKey: string | symbol,
     nextTarget: object,
     nextV: object | null,
   ): boolean {
     void shadowTarget;
     void v;
+    void nextGraphKey;
     return Reflect.setPrototypeOf(nextTarget, nextV);
   }
 }

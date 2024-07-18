@@ -280,6 +280,7 @@ function getStatementsForProxyHandlerTrap(
     `return this.#graphHandlerIfc.${key.statementGroupKey}(${
       [
         ...argumentNames,
+        "graphKey",
         "realTarget",
         ...nextArgumentNames,
       ].join(", ")

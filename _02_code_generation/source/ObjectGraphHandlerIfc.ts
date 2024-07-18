@@ -12,7 +12,6 @@ import path from "path";
 import {
   ImportManager,
   type InterfaceDeclarationImpl,
-  LiteralTypeStructureImpl,
   type MethodSignatureImpl,
   ParameterDeclarationImpl,
   SourceFileImpl,
@@ -27,6 +26,8 @@ import {
 } from "./constants.js";
 
 import getRequiredProxyHandlerInterface from "./getInterfaces/requiredProxy.js";
+
+import UnionStringOrSymbol from "./UnionStringOrSymbol.js";
 
 export const pathToInterfaceModule = path.join(stageDir, "generated/types/ObjectGraphHandlerIfc.d.ts");
 
@@ -49,6 +50,9 @@ async function createObjectGraphHandlerIfc(): Promise<InterfaceDeclarationImpl>
   ObjectGraphHandlerIfc.isExported = true;
   ObjectGraphHandlerIfc.typeParameters.splice(0, ObjectGraphHandlerIfc.typeParameters.length);
 
+  const nextGraphKeyParam = new ParameterDeclarationImpl("nextGraphKey");
+  nextGraphKeyParam.typeStructure = UnionStringOrSymbol;
+
   ObjectGraphHandlerIfc.methods.forEach((method: MethodSignatureImpl): void => {
     const addedParameters = method.parameters.map(param => {
       param = ParameterDeclarationImpl.clone(param);
@@ -56,7 +60,9 @@ async function createObjectGraphHandlerIfc(): Promise<InterfaceDeclarationImpl>
       return param;
     });
 
-    method.parameters.push(...addedParameters);
+    method.parameters.push(
+      ParameterDeclarationImpl.clone(nextGraphKeyParam), ...addedParameters
+    );
 
     method.parameters[0]!.name = "shadowTarget";
   });

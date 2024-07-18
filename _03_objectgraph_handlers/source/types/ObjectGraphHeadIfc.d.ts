@@ -7,7 +7,7 @@ export interface ProxyMetadata {
   readonly proxy: object;
 }
 
-export interface ObjectGraphHeadIfc extends RequiredProxyHandler {
+export interface ObjectGraphHeadIfc {
   /** The unique graph key. */
   readonly objectGraphKey: string | symbol;
 
