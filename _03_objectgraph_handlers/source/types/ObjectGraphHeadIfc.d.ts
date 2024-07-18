@@ -13,7 +13,17 @@ export interface ObjectGraphHeadIfc extends RequiredProxyHandler {
 
   get isRevoked(): boolean;
 
-  getValueInGraph(realTarget: unknown, realTargetGraphKey: string | symbol): unknown;
+  /**
+   * 
+   * @param valueInSourceGraph - The value to wrap
+   * @param sourceGraphKey - the object graph key where the value came from.
+   *
+   * @returns the value or proxy in _this_ object graph.
+   */
+  getValueInGraph(
+    valueInSourceGraph: unknown,
+    sourceGraphKey: string | symbol
+  ): unknown;
 
   /** Revoke all proxies for a given object graph. */
   revokeAllProxiesForGraph(

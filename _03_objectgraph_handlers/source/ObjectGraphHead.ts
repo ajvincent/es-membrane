@@ -68,8 +68,8 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
     return this.#revoked;
   }
 
-  public getValueInGraph<T>(sourceValue: T, sourceGraphKey: string | symbol): T {
-    switch (typeof sourceValue) {
+  public getValueInGraph<T>(valueInSourceGraph: T, sourceGraphKey: string | symbol): T {
+    switch (typeof valueInSourceGraph) {
       case "boolean":
       case "bigint":
       case "number":
@@ -77,48 +77,50 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
       case "symbol":
       case "undefined":
         //TODO: wrap in a compartment?
-        return sourceValue;
+        return valueInSourceGraph;
 
       case "object":
-        if (sourceValue === null)
-          return sourceValue;
+        if (valueInSourceGraph === null)
+          return valueInSourceGraph;
     }
 
     // TODO: primordials (Object, Array, etc.) and their prototypes
 
-    if (this.objectGraphKey === sourceGraphKey)
-      return sourceValue;
-
     // sourceValue is an object
-    let value: object | undefined = this.#targetsOneToOneMap.get(sourceValue as object, this.objectGraphKey);
+    const objectInSourceGraph = valueInSourceGraph as object;
+    let value: object | undefined = this.#targetsOneToOneMap.get(objectInSourceGraph, this.objectGraphKey);
     if (value === undefined) {
-      value = this.#createNewProxy(sourceValue as object, sourceGraphKey);
+      if (sourceGraphKey === this.objectGraphKey)
+        value = objectInSourceGraph;
+      else
+        value = this.#createNewProxy(objectInSourceGraph, sourceGraphKey);
     }
+
     return value as T;
   }
 
   #createNewProxy(
-    realTarget: object,
-    realTargetGraphKey: string | symbol
+    objectInSourceGraph: object,
+    sourceGraphKey: string | symbol
   ): object
   {
     if (this.#revoked)
       throw new Error("This object graph has been revoked");
 
-    const shadowTarget: object = ObjectGraphHead.#makeShadowTarget(realTarget);
+    const shadowTarget: object = ObjectGraphHead.#makeShadowTarget(objectInSourceGraph);
     const {
       proxy,
       revoke
     } = Proxy.revocable<object>(shadowTarget, this);
 
-    this.#revokerManagement!.addRevoker(proxy, revoke, realTargetGraphKey);
+    this.#revokerManagement!.addRevoker(proxy, revoke, sourceGraphKey);
 
-    this.#shadowTargetToRealTargetMap.set(shadowTarget, realTarget);
+    this.#shadowTargetToRealTargetMap.set(shadowTarget, objectInSourceGraph);
     this.#targetsOneToOneMap.bindOneToOne(
-      this.objectGraphKey, proxy, realTargetGraphKey, realTarget
+      this.objectGraphKey, proxy, sourceGraphKey, objectInSourceGraph
     );
 
-    this.#realTargetToOriginGraph.set(realTarget, realTargetGraphKey);
+    this.#realTargetToOriginGraph.set(objectInSourceGraph, sourceGraphKey);
 
     return proxy;
   }
