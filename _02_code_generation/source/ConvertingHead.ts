@@ -64,6 +64,7 @@ import buildHandlerClass from "./buildHandlerClass.js";
 import {
   pathToInterfaceModule
 } from "./ObjectGraphHandlerIfc.js";
+import UnionStringOrSymbol from "./UnionStringOrSymbol.js";
 // #endregion preamble
 
 const pathToConvertingHeadModule = path.join(stageDir, "generated/ConvertingHeadProxyHandler.ts");
@@ -162,10 +163,7 @@ function buildCommonConversionsAlias(): TypeAliasDeclarationImpl
   realTarget.typeStructure = LiteralTypeStructureImpl.get("object");
 
   const graphKey = new PropertySignatureImpl("graphKey");
-  graphKey.typeStructure = new UnionTypeStructureImpl([
-    LiteralTypeStructureImpl.get("string"),
-    LiteralTypeStructureImpl.get("symbol"),
-  ]);
+  graphKey.typeStructure = UnionStringOrSymbol;
 
   CommonMemberedType.properties.push(realTarget, graphKey);
 
@@ -364,10 +362,7 @@ function insertConversionMembers(
     realTarget.typeStructure = LiteralTypeStructureImpl.get("object");
     getTargetGraphKeyForRealTarget.parameters.push(realTarget);
 
-    getTargetGraphKeyForRealTarget.returnTypeStructure = new UnionTypeStructureImpl([
-      LiteralTypeStructureImpl.get("string"),
-      LiteralTypeStructureImpl.get("symbol"),
-    ]);
+    getTargetGraphKeyForRealTarget.returnTypeStructure = UnionStringOrSymbol;
   }
 
   /*
@@ -418,10 +413,7 @@ function insertConversionMembers(
       ),
       buildConstStatement(
         "graphKey",
-        new UnionTypeStructureImpl([
-          LiteralTypeStructureImpl.get("string"),
-          LiteralTypeStructureImpl.get("symbol"),
-        ]),
+        UnionStringOrSymbol,
         `this.getTargetGraphKeyForRealTarget(realTarget)`
       ),
 

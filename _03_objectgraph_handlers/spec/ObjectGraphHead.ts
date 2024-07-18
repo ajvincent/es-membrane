@@ -23,10 +23,10 @@ it("ObjectGraphHead maintains references to proxies or underlying values in the 
   };
 
   const map = new OneToOneStrongMap<string | symbol, object>;
-  const redTailHandler = new ObjectGraphTailHandler;
+  const redTailHandler = new ObjectGraphTailHandler(mockMembrane, "red");
   const redHeadHandler = new ObjectGraphHead(mockMembrane, redTailHandler, map, "red");
 
-  const blueTailHandler = new ObjectGraphTailHandler;
+  const blueTailHandler = new ObjectGraphTailHandler(mockMembrane, "blue");
   const blueHeadHandler = new ObjectGraphHead(mockMembrane, blueTailHandler, map, "blue");
 
   const redObject = {};
@@ -69,7 +69,7 @@ it("ObjectGraphHead maintains references to proxies or underlying values in the 
   expect(map.get(blueArray, "blue")).withContext(`(blueArray, "blue")`).toBe(blueArray);
 
   // Scalablity to multiple object graphs
-  const greenTailHandler = new ObjectGraphTailHandler;
+  const greenTailHandler = new ObjectGraphTailHandler(mockMembrane, "green");
   const greenHeadHandler = new ObjectGraphHead(mockMembrane, greenTailHandler, map, "green");
 
   const greenObject = greenHeadHandler.getValueInGraph(blueObject, "blue");
@@ -111,7 +111,7 @@ it("ObjectGraphHead creates revocable proxies", () => {
     },
   };
 
-  const graphHandler: ObjectGraphHandlerIfc = new ObjectGraphTailHandler;
+  const graphHandler: ObjectGraphHandlerIfc = new ObjectGraphTailHandler(mockMembrane, "mock");
 
   const map = new OneToOneStrongMap<string | symbol, object>;
 

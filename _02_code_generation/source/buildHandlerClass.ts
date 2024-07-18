@@ -20,6 +20,7 @@ export default function buildHandlerClass(
   getTailStatements: (
     key: MemberedStatementsKey
   ) => readonly stringWriterOrStatementImpl[],
+  augmenter?: (classBuilder: MemberedTypeToClass) => void
 ): ClassDeclarationImpl
 {
   const typeMembers = TypeMembersMap.fromMemberedObject(ifc);
@@ -44,11 +45,22 @@ export default function buildHandlerClass(
     getTailStatements
   };
 
-  classBuilder.addStatementGetters(1, [mirrorReflectStatements]);
+  classBuilder.addStatementGetters(
+    ClassBuilder_Priorities.ProxyTraps, [mirrorReflectStatements]
+  );
+
+  if (augmenter) {
+    augmenter(classBuilder);
+  }
 
   const classMembers: ClassMembersMap = classBuilder.buildClassMembersMap();
 
   const classDecl = new ClassDeclarationImpl();
   classMembers.moveMembersToClass(classDecl);
   return classDecl;
+}
+
+export enum ClassBuilder_Priorities {
+  Initialization = 1,
+  ProxyTraps = 20,
 }
