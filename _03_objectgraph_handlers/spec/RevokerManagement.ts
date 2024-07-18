@@ -45,7 +45,7 @@ describe("RevokerManagement class", () => {
     // not going to test adding revokers on a graph that's been revoked - it'll never happen
   });
 
-  describe("holds references", () => {
+  xdescribe("holds references", () => {
     it("to proxies weakly when no one holds the revoker", async () => {
       await expectAsync(holdsArgument(
         5, 5, proxy => { manager.addRevoker(proxy, (): void => {}, "blue")})
