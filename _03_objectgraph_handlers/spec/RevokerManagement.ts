@@ -52,10 +52,10 @@ describe("RevokerManagement class", () => {
       ).toBeResolvedTo(false);
     });
 
-    it("to references weakly when no one holds the proxy", async () => {
+    it("to revokers weakly when no one holds the proxy", async () => {
       const revokerToKeyMap = new WeakMap<() => void, object>
       await expectAsync(holdsArgument(
-        5, 5, revokerKey => {
+        5, 10, revokerKey => {
           const revoker = (): void => {};
           revokerToKeyMap.set(revoker, revokerKey);
           manager.addRevoker({}, revoker, "green");
@@ -74,12 +74,12 @@ describe("RevokerManagement class", () => {
       ).toBeResolvedTo(true);
     });
 
-    it("to references strongly when something holds the proxy", async () => {
+    it("to revokers strongly when something holds the proxy", async () => {
       const revokerToKeyMap = new WeakMap<() => void, object>
       const proxies: object[] = [];
 
       await expectAsync(holdsArgument(
-        5, 5, revokerKey => {
+        5, 10, revokerKey => {
           const revoker = (): void => {};
           revokerToKeyMap.set(revoker, revokerKey);
 
