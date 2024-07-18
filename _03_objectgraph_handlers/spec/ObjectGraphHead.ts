@@ -90,6 +90,15 @@ it("ObjectGraphHead maintains references to proxies or underlying values in the 
   expect(redHeadHandler.getValueInGraph(redObject, "red")).withContext("red identity").toBe(redObject);
   expect(blueHeadHandler.getValueInGraph(blueObject, "blue")).withContext("blue identity").toBe(blueObject);
   expect(greenHeadHandler.getValueInGraph(greenObject, "green")).withContext("green identity").toBe(greenObject);
+
+  // special case: proxy to a proxy
+  const greenArray = greenHeadHandler.getValueInGraph(redArray, "red");
+
+  expect(redHeadHandler.getValueInGraph(greenArray, "green")).toBe(redArray);
+  expect(blueHeadHandler.getValueInGraph(greenArray, "green")).toBe(blueArray);
+
+  expect(greenHeadHandler.getValueInGraph(redArray, "red")).toBe(greenArray);
+  expect(greenHeadHandler.getValueInGraph(blueArray, "blue")).toBe(greenArray);
 });
 
 it("ObjectGraphHead creates revocable proxies", () => {
