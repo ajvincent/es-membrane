@@ -12,12 +12,13 @@ import type {
 
 import type {
   ObjectGraphHeadIfc,
+  ObjectGraphConversionIfc
 } from "./types/ObjectGraphHeadIfc.js";
 
 import RevokerManagement from "./RevokerManagement.js";
 
 export default
-class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphHeadIfc
+class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
 {
   /**
    * Define a shadow target, so we can manipulate the proxy independently of the
@@ -42,13 +43,13 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
 
   readonly objectGraphKey: string | symbol;
 
-  #revokerManagement?: RevokerManagement;
-
   #revoked = false;
 
-  #targetsOneToOneMap: OneToOneStrongMap<string | symbol, object>;
-  #shadowTargetToRealTargetMap = new WeakMap<object, object>;
-  #realTargetToOriginGraph = new WeakMap<object, string | symbol>;
+  #convertingHeadProxyHandler?: ConvertingHeadProxyHandler;
+  #targetsOneToOneMap?: OneToOneStrongMap<string | symbol, object>;
+  #shadowTargetToRealTargetMap? = new WeakMap<object, object>;
+  #realTargetToOriginGraph? = new WeakMap<object, string | symbol>;
+  #revokerManagement?: RevokerManagement;
 
   public constructor(
     membraneIfc: MembraneIfc,
@@ -57,11 +58,14 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
     objectGraphKey: string | symbol
   )
   {
-    super(membraneIfc, graphHandlerIfc);
     this.#targetsOneToOneMap = objectsOneToOneMap;
 
     this.objectGraphKey = objectGraphKey;
     this.#revokerManagement = new RevokerManagement(objectGraphKey);
+
+    this.#convertingHeadProxyHandler = new ConvertingHeadProxyHandler(
+      membraneIfc, graphHandlerIfc, this
+    );
   }
 
   public get isRevoked(): boolean {
@@ -69,6 +73,9 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
   }
 
   public getValueInGraph<T>(valueInSourceGraph: T, sourceGraphKey: string | symbol): T {
+    if (this.#revoked)
+      throw new Error("This object graph has been revoked");
+
     switch (typeof valueInSourceGraph) {
       case "boolean":
       case "bigint":
@@ -76,7 +83,7 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
       case "string":
       case "symbol":
       case "undefined":
-        //TODO: wrap in a compartment?
+        //TODO: wrap in a compartment?  If so, consider updating #makeShadowTarget to be non-static
         return valueInSourceGraph;
 
       case "object":
@@ -88,7 +95,7 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
 
     // sourceValue is an object
     const objectInSourceGraph = valueInSourceGraph as object;
-    let value: object | undefined = this.#targetsOneToOneMap.get(objectInSourceGraph, this.objectGraphKey);
+    let value: object | undefined = this.#targetsOneToOneMap!.get(objectInSourceGraph, this.objectGraphKey);
     if (value === undefined) {
       if (sourceGraphKey === this.objectGraphKey)
         value = objectInSourceGraph;
@@ -104,23 +111,20 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
     sourceGraphKey: string | symbol
   ): object
   {
-    if (this.#revoked)
-      throw new Error("This object graph has been revoked");
-
     const shadowTarget: object = ObjectGraphHead.#makeShadowTarget(objectInSourceGraph);
     const {
       proxy,
       revoke
-    } = Proxy.revocable<object>(shadowTarget, this);
+    } = Proxy.revocable<object>(shadowTarget, this.#convertingHeadProxyHandler!);
 
     this.#revokerManagement!.addRevoker(proxy, revoke, sourceGraphKey);
 
-    this.#shadowTargetToRealTargetMap.set(shadowTarget, objectInSourceGraph);
-    this.#targetsOneToOneMap.bindOneToOne(
+    this.#shadowTargetToRealTargetMap!.set(shadowTarget, objectInSourceGraph);
+    this.#targetsOneToOneMap!.bindOneToOne(
       this.objectGraphKey, proxy, sourceGraphKey, objectInSourceGraph
     );
 
-    this.#realTargetToOriginGraph.set(objectInSourceGraph, sourceGraphKey);
+    this.#realTargetToOriginGraph!.set(objectInSourceGraph, sourceGraphKey);
 
     return proxy;
   }
@@ -137,24 +141,29 @@ class ObjectGraphHead extends ConvertingHeadProxyHandler implements ObjectGraphH
     if (graphKey === this.objectGraphKey) {
       this.#revoked = true;
 
-      this.#shadowTargetToRealTargetMap = new WeakMap;
-      this.#realTargetToOriginGraph = new WeakMap;
-      this.#targetsOneToOneMap = new OneToOneStrongMap;
+      this.#shadowTargetToRealTargetMap = undefined;
+      this.#realTargetToOriginGraph = undefined;
+      this.#targetsOneToOneMap = undefined;
       this.#revokerManagement = undefined;
+      this.#convertingHeadProxyHandler = undefined;
     }
   }
 
-  protected getRealTargetForShadowTarget(
+  public getRealTargetForShadowTarget(
     shadowTarget: object
   ): object
   {
-    return this.#shadowTargetToRealTargetMap.get(shadowTarget)!;
+    if (this.#revoked)
+      throw new Error("This object graph has been revoked");
+    return this.#shadowTargetToRealTargetMap!.get(shadowTarget)!;
   }
 
-  protected getTargetGraphKeyForRealTarget(
+  public getTargetGraphKeyForRealTarget(
     realTarget: object
   ): string | symbol
   {
-    return this.#realTargetToOriginGraph.get(realTarget)!;
+    if (this.#revoked)
+      throw new Error("This object graph has been revoked");
+    return this.#realTargetToOriginGraph!.get(realTarget)!;
   }
 }

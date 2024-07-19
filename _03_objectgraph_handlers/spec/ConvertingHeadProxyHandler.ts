@@ -10,17 +10,14 @@ import type {
 
 import SpyProxyHandler from "./support/SpyProxyHandler.js";
 
-class LocalHead extends ConvertingHeadProxyHandler {
+class LocalHead {
   readonly #expectedRealTarget: () => void;
   targetGraph?: string | symbol
 
   constructor(
-    membraneIfc: MembraneIfc,
-    objectGraphIfc: ObjectGraphHandlerIfc,
     expectedRealTarget: () => void
   )
   {
-    super(membraneIfc, objectGraphIfc);
     this.#expectedRealTarget = expectedRealTarget;
   }
 
@@ -48,7 +45,8 @@ describe("Converting-head proxy handler works for the trap", () => {
   let shadowTarget: () => void;
   let expectedRealTarget: () => void;
 
-  let headHandler: LocalHead;
+  let headHandler: ConvertingHeadProxyHandler;
+  let graphHead: LocalHead;
 
   beforeEach(() => {
     shadowTarget = () => { return undefined; };
@@ -57,15 +55,12 @@ describe("Converting-head proxy handler works for the trap", () => {
     membrane = new MockMembrane();
 
     spyObjectGraphHandler = new SpyProxyHandler;
-    headHandler = new LocalHead(
-      membrane,
-      spyObjectGraphHandler,
-      expectedRealTarget
-    );
+    graphHead = new LocalHead(expectedRealTarget);
+    headHandler = new ConvertingHeadProxyHandler(membrane, spyObjectGraphHandler, graphHead);
   });
 
   it(`"apply"`, () => {
-    headHandler.targetGraph = ("apply test");
+    graphHead.targetGraph = ("apply test");
 
     const nextThisArg = { nextThisArg: true };
     const nextArgArray = [{ argName: "three" }, { argName: "four"}];
@@ -87,7 +82,7 @@ describe("Converting-head proxy handler works for the trap", () => {
       shadowTarget,
       thisArg,
       argArray,
-      headHandler.targetGraph,
+      graphHead.targetGraph,
       expectedRealTarget,
       nextThisArg,
       nextArgArray,
@@ -95,7 +90,7 @@ describe("Converting-head proxy handler works for the trap", () => {
   });
 
   it(`"construct"`, () => {
-    headHandler.targetGraph = ("construct test");
+    graphHead.targetGraph = ("construct test");
 
     const nextArgArray = [{ argName: "three" }, { argName: "four"}];
     const nextNewTarget = { nextNewTarget: true };
@@ -116,7 +111,7 @@ describe("Converting-head proxy handler works for the trap", () => {
       shadowTarget,
       argArray,
       newTarget,
-      headHandler.targetGraph,
+      graphHead.targetGraph,
       expectedRealTarget,
       nextArgArray,
       nextNewTarget
@@ -124,7 +119,7 @@ describe("Converting-head proxy handler works for the trap", () => {
   });
 
   it(`"defineProperty"`, () => {
-    headHandler.targetGraph = ("defineProperty test");
+    graphHead.targetGraph = ("defineProperty test");
 
     const property = Symbol("property");
     const attributes: PropertyDescriptor = {
@@ -157,7 +152,7 @@ describe("Converting-head proxy handler works for the trap", () => {
       shadowTarget,
       property,
       attributes,
-      headHandler.targetGraph,
+      graphHead.targetGraph,
       expectedRealTarget,
       nextProperty,
       nextAttributes,
@@ -165,7 +160,7 @@ describe("Converting-head proxy handler works for the trap", () => {
   });
 
   it(`"deleteProperty"`, () => {
-    headHandler.targetGraph = ("deleteProperty test");
+    graphHead.targetGraph = ("deleteProperty test");
     const property = Symbol("property");
     const nextProperty = Symbol("next property");
 
@@ -181,14 +176,14 @@ describe("Converting-head proxy handler works for the trap", () => {
     expect(spyObjectGraphHandler.getSpy("deleteProperty")).toHaveBeenCalledOnceWith(
       shadowTarget,
       property,
-      headHandler.targetGraph,
+      graphHead.targetGraph,
       expectedRealTarget,
       nextProperty
     );
   });
 
   it(`"get"`, () => {
-    headHandler.targetGraph = ("get test");
+    graphHead.targetGraph = ("get test");
     const property = Symbol("property");
     const receiver = { receiver: true };
 
@@ -209,7 +204,7 @@ describe("Converting-head proxy handler works for the trap", () => {
       shadowTarget,
       property,
       receiver,
-      headHandler.targetGraph,
+      graphHead.targetGraph,
       expectedRealTarget,
       nextProperty,
       nextReceiver
@@ -217,7 +212,7 @@ describe("Converting-head proxy handler works for the trap", () => {
   });
 
   it(`"getOwnPropertyDescriptor"`, () => {
-    headHandler.targetGraph = ("getOwnPropertyDescriptor test");
+    graphHead.targetGraph = ("getOwnPropertyDescriptor test");
 
     const property = Symbol("property");
     const attributes: PropertyDescriptor = {
@@ -240,14 +235,14 @@ describe("Converting-head proxy handler works for the trap", () => {
     expect(spyObjectGraphHandler.getSpy("getOwnPropertyDescriptor")).toHaveBeenCalledOnceWith(
       shadowTarget,
       property,
-      headHandler.targetGraph,
+      graphHead.targetGraph,
       expectedRealTarget,
       nextProperty,
     );
   });
 
   it(`"getPrototypeOf"`, () => {
-    headHandler.targetGraph = ("getPrototypeOf test");
+    graphHead.targetGraph = ("getPrototypeOf test");
 
     const proto = { isPrototype: true };
     spyObjectGraphHandler.getSpy("getPrototypeOf").and.returnValue(proto);
@@ -257,13 +252,13 @@ describe("Converting-head proxy handler works for the trap", () => {
     spyObjectGraphHandler.expectSpiesClearExcept("getPrototypeOf");
     expect(spyObjectGraphHandler.getSpy("getPrototypeOf")).toHaveBeenCalledOnceWith(
       shadowTarget,
-      headHandler.targetGraph,
+      graphHead.targetGraph,
       expectedRealTarget
     );
   });
 
   it(`"has"`, () => {
-    headHandler.targetGraph = ("has test");
+    graphHead.targetGraph = ("has test");
     const property = Symbol("property");
     const nextProperty = Symbol("next property");
 
@@ -280,14 +275,14 @@ describe("Converting-head proxy handler works for the trap", () => {
     expect(spyObjectGraphHandler.getSpy("has")).toHaveBeenCalledOnceWith(
       shadowTarget,
       property,
-      headHandler.targetGraph,
+      graphHead.targetGraph,
       expectedRealTarget,
       nextProperty,
     );
   });
 
   it(`"isExtensible"`, () => {
-    headHandler.targetGraph = ("isExtensible test");
+    graphHead.targetGraph = ("isExtensible test");
 
     const result = false;
     spyObjectGraphHandler.getSpy("isExtensible").and.returnValue(result);
@@ -297,13 +292,13 @@ describe("Converting-head proxy handler works for the trap", () => {
     spyObjectGraphHandler.expectSpiesClearExcept("isExtensible");
     expect(spyObjectGraphHandler.getSpy("isExtensible")).toHaveBeenCalledOnceWith(
       shadowTarget,
-      headHandler.targetGraph,
+      graphHead.targetGraph,
       expectedRealTarget,
     );
   });
 
   it(`"ownKeys"`, () => {
-    headHandler.targetGraph = ("ownKeys test");
+    graphHead.targetGraph = ("ownKeys test");
 
     const result = [ "one", "two", "three" ];
     spyObjectGraphHandler.getSpy("ownKeys").and.returnValue(result);
@@ -313,13 +308,13 @@ describe("Converting-head proxy handler works for the trap", () => {
     spyObjectGraphHandler.expectSpiesClearExcept("ownKeys");
     expect(spyObjectGraphHandler.getSpy("ownKeys")).toHaveBeenCalledOnceWith(
       shadowTarget,
-      headHandler.targetGraph,
+      graphHead.targetGraph,
       expectedRealTarget,
     );
   });
 
   it(`"preventExtensions"`, () => {
-    headHandler.targetGraph = ("preventExtensions test");
+    graphHead.targetGraph = ("preventExtensions test");
 
     const result = true;
     spyObjectGraphHandler.getSpy("preventExtensions").and.returnValue(result);
@@ -329,13 +324,13 @@ describe("Converting-head proxy handler works for the trap", () => {
     spyObjectGraphHandler.expectSpiesClearExcept("preventExtensions");
     expect(spyObjectGraphHandler.getSpy("preventExtensions")).toHaveBeenCalledOnceWith(
       shadowTarget,
-      headHandler.targetGraph,
+      graphHead.targetGraph,
       expectedRealTarget,
     );
   });
 
   it(`"set"`, () => {
-    headHandler.targetGraph = ("set test");
+    graphHead.targetGraph = ("set test");
     const property = Symbol("property");
     const newValue = { newValue: true };
     const receiver = { receiver: true };
@@ -358,7 +353,7 @@ describe("Converting-head proxy handler works for the trap", () => {
       property,
       newValue,
       receiver,
-      headHandler.targetGraph,
+      graphHead.targetGraph,
       expectedRealTarget,
       nextProperty,
       nextNewValue,
@@ -367,7 +362,7 @@ describe("Converting-head proxy handler works for the trap", () => {
   });
 
   it(`"setPrototypeOf"`, () => {
-    headHandler.targetGraph = ("setPrototypeOf test");
+    graphHead.targetGraph = ("setPrototypeOf test");
 
     const proto = { isPrototype: true };
     const nextProto = { isNextPrototype: true };
@@ -384,7 +379,7 @@ describe("Converting-head proxy handler works for the trap", () => {
     expect(spyObjectGraphHandler.getSpy("setPrototypeOf")).toHaveBeenCalledOnceWith(
       shadowTarget,
       proto,
-      headHandler.targetGraph,
+      graphHead.targetGraph,
       expectedRealTarget,
       nextProto
     );

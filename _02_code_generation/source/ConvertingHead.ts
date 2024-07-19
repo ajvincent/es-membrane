@@ -83,7 +83,6 @@ async function createConvertingHeadProxyHandler(): Promise<void>
   );
 
   classDecl.name = "ConvertingHeadProxyHandler";
-  classDecl.isAbstract = true;
   classDecl.isDefaultExport = true;
 
   classDecl.implementsSet.add(LiteralTypeStructureImpl.get("RequiredProxyHandler"));
@@ -118,22 +117,22 @@ function buildImportManager(): ImportManager
   });
 
   importManager.addImports({
+    pathToImportedModule: path.join(stageDir, "types/ObjectGraphHeadIfc.d.ts"),
+    isPackageImport: false,
+    isDefaultImport: false,
+    isTypeOnly: true,
+    importNames: [
+      "ObjectGraphConversionIfc"
+    ]
+  });
+
+  importManager.addImports({
     pathToImportedModule: path.join(stageDir, "types/RequiredProxyHandler.d.ts"),
     isPackageImport: false,
     isDefaultImport: false,
     isTypeOnly: true,
     importNames: [
       "RequiredProxyHandler"
-    ]
-  });
-
-  importManager.addImports({
-    pathToImportedModule: path.join(stageDir, "types/MembraneIfc.d.ts"),
-    isPackageImport: false,
-    isDefaultImport: false,
-    isTypeOnly: true,
-    importNames: [
-      "MembraneIfc"
     ]
   });
 
@@ -298,6 +297,7 @@ function insertConversionMembers(
   // #membraneIfc
   const MembraneIfc = new PropertyDeclarationImpl(false, "#membraneIfc");
   {
+    MembraneIfc.isReadonly = true;
     MembraneIfc.typeStructure = LiteralTypeStructureImpl.get("MembraneIfc");
 
     const ctorParam = new ParameterDeclarationImpl("membraneIfc");
@@ -310,6 +310,7 @@ function insertConversionMembers(
   // #graphHandlerIfc
   const ObjectGraphHandlerIfc = new PropertyDeclarationImpl(false, "#graphHandlerIfc");
   {
+    ObjectGraphHandlerIfc.isReadonly = true;
     ObjectGraphHandlerIfc.typeStructure = LiteralTypeStructureImpl.get("ObjectGraphHandlerIfc");
 
     const ctorParam = new ParameterDeclarationImpl("graphHandlerIfc");
@@ -319,62 +320,18 @@ function insertConversionMembers(
     ctor.statements.push(`this.#graphHandlerIfc = graphHandlerIfc;`);
   }
 
-  // protected abstract getRealTargetForShadowTarget(shadowTarget: object): object;
-  const getRealTargetForShadowTarget = new MethodDeclarationImpl(false, "getRealTargetForShadowTarget");
+  // #graphHeadIfc
+  const ObjectGraphConversionIfc = new PropertyDeclarationImpl(false, "#graphConversionIfc");
   {
-    getRealTargetForShadowTarget.scope = Scope.Protected;
-    getRealTargetForShadowTarget.isAbstract = true;
+    ObjectGraphConversionIfc.isReadonly = true;
+    ObjectGraphConversionIfc.typeStructure = LiteralTypeStructureImpl.get("ObjectGraphConversionIfc");
 
-    const shadowTarget = new ParameterDeclarationImpl("shadowTarget");
-    shadowTarget.typeStructure = LiteralTypeStructureImpl.get("object");
-    getRealTargetForShadowTarget.parameters.push(shadowTarget);
+    const ctorParam = new ParameterDeclarationImpl("graphConversionIfc");
+    ctorParam.typeStructure = ObjectGraphConversionIfc.typeStructure;
+    ctor.parameters.push(ctorParam);
 
-    getRealTargetForShadowTarget.returnTypeStructure = shadowTarget.typeStructure;
+    ctor.statements.push(`this.#graphConversionIfc = graphConversionIfc`);
   }
-
-  // protected abstract getTargetGraphKeyForRealTarget(realTarget: object): string | symbol;
-  const getTargetGraphKeyForRealTarget = new MethodDeclarationImpl(false, "getTargetGraphKeyForRealTarget");
-  {
-    getTargetGraphKeyForRealTarget.scope = Scope.Protected;
-    getTargetGraphKeyForRealTarget.isAbstract = true;
-
-    const realTarget = new ParameterDeclarationImpl("realTarget");
-    realTarget.typeStructure = LiteralTypeStructureImpl.get("object");
-    getTargetGraphKeyForRealTarget.parameters.push(realTarget);
-
-    getTargetGraphKeyForRealTarget.returnTypeStructure = UnionStringOrSymbol;
-  }
-
-  /*
-  // protected abstract getValueInGraph<ValueType>(value: ValueType): ValueType;
-  const getValueInGraph = new MethodDeclarationImpl(false, "getValueInGraph");
-  {
-    getValueInGraph.scope = Scope.Protected;
-    getValueInGraph.isAbstract = true;
-
-    const ValueType = new TypeParameterDeclarationImpl("ValueType");
-    getValueInGraph.typeParameters.push(ValueType);
-
-    const valueParam = new ParameterDeclarationImpl("value");
-    valueParam.typeStructure = LiteralTypeStructureImpl.get("ValueType");
-    getValueInGraph.parameters.push(valueParam);
-
-    getValueInGraph.returnTypeStructure = valueParam.typeStructure;
-  }
-
-  // protected abstract getDescriptorInGraph(desc: PropertyDescriptor): PropertyDescriptor;
-  const getDescriptorInGraph = new MethodDeclarationImpl(false, "getDescriptorInGraph");
-  {
-    getDescriptorInGraph.scope = Scope.Protected;
-    getDescriptorInGraph.isAbstract = true;
-
-    const valueParam = new ParameterDeclarationImpl("desc");
-    valueParam.typeStructure = LiteralTypeStructureImpl.get("PropertyDescriptor");
-    getDescriptorInGraph.parameters.push(valueParam);
-
-    getDescriptorInGraph.returnTypeStructure = valueParam.typeStructure;
-  }
-  */
 
   // #getCommonConversions(target: object): CommonConversions
   const CommonConversionsMethod = new MethodDeclarationImpl(false, "#getCommonConversions");
@@ -389,12 +346,12 @@ function insertConversionMembers(
       buildConstStatement(
         "realTarget",
         LiteralTypeStructureImpl.get("object"),
-        `this.getRealTargetForShadowTarget(target)`
+        `this.#graphConversionIfc.getRealTargetForShadowTarget(target)`
       ),
       buildConstStatement(
         "graphKey",
         UnionStringOrSymbol,
-        `this.getTargetGraphKeyForRealTarget(realTarget)`
+        `this.#graphConversionIfc.getTargetGraphKeyForRealTarget(realTarget)`
       ),
 
       `return { realTarget, graphKey, };`,
@@ -403,16 +360,11 @@ function insertConversionMembers(
 
   classDecl.properties.unshift(
     MembraneIfc,
-    ObjectGraphHandlerIfc
+    ObjectGraphHandlerIfc,
+    ObjectGraphConversionIfc,
   );
 
   classDecl.methods.unshift(
-    getRealTargetForShadowTarget,
-    getTargetGraphKeyForRealTarget,
-    /*
-    getValueInGraph,
-    getDescriptorInGraph,
-    */
     CommonConversionsMethod,
   );
 }

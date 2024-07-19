@@ -1,5 +1,6 @@
 // This file is generated.  Do not edit.
 import type { MembraneIfc } from "../types/MembraneIfc.js";
+import type { ObjectGraphConversionIfc } from "../types/ObjectGraphHeadIfc.js";
 import type { RequiredProxyHandler } from "../types/RequiredProxyHandler.js";
 import type { ObjectGraphHandlerIfc } from "./types/ObjectGraphHandlerIfc.js";
 type CommonConversions = {
@@ -7,30 +8,28 @@ type CommonConversions = {
   graphKey: string | symbol;
 };
 
-export default abstract class ConvertingHeadProxyHandler
+export default class ConvertingHeadProxyHandler
   implements RequiredProxyHandler
 {
-  #membraneIfc: MembraneIfc;
-  #graphHandlerIfc: ObjectGraphHandlerIfc;
+  readonly #membraneIfc: MembraneIfc;
+  readonly #graphHandlerIfc: ObjectGraphHandlerIfc;
+  readonly #graphConversionIfc: ObjectGraphConversionIfc;
 
   constructor(
     membraneIfc: MembraneIfc,
     graphHandlerIfc: ObjectGraphHandlerIfc,
+    graphConversionIfc: ObjectGraphConversionIfc,
   ) {
     this.#membraneIfc = membraneIfc;
     this.#graphHandlerIfc = graphHandlerIfc;
+    this.#graphConversionIfc = graphConversionIfc;
   }
 
-  protected abstract getRealTargetForShadowTarget(shadowTarget: object): object;
-
-  protected abstract getTargetGraphKeyForRealTarget(
-    realTarget: object,
-  ): string | symbol;
-
   #getCommonConversions(target: object): CommonConversions {
-    const realTarget: object = this.getRealTargetForShadowTarget(target);
+    const realTarget: object =
+      this.#graphConversionIfc.getRealTargetForShadowTarget(target);
     const graphKey: string | symbol =
-      this.getTargetGraphKeyForRealTarget(realTarget);
+      this.#graphConversionIfc.getTargetGraphKeyForRealTarget(realTarget);
     return { realTarget, graphKey };
   }
 

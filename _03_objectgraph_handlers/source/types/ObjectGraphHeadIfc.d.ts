@@ -1,12 +1,4 @@
-import type {
-  RequiredProxyHandler
-} from "./RequiredProxyHandler.js";
-
-export interface ProxyMetadata {
-  readonly shadowTarget: object,
-  readonly proxy: object;
-}
-
+/** This interface is for membrane use. */
 export interface ObjectGraphHeadIfc {
   /** The unique graph key. */
   readonly objectGraphKey: string | symbol;
@@ -29,4 +21,15 @@ export interface ObjectGraphHeadIfc {
   revokeAllProxiesForGraph(
     graphKey: string | symbol
   ): void;
+}
+
+/** This interface is for proxy handler use. */
+export interface ObjectGraphConversionIfc {
+  getRealTargetForShadowTarget(
+    shadowTarget: object
+  ): object;
+
+  getTargetGraphKeyForRealTarget(
+    realTarget: object,
+  ): string | symbol;
 }
