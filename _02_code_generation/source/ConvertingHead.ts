@@ -22,7 +22,6 @@ import {
   type CodeBlockWriter,
   Scope,
   StructureKind,
-  VariableDeclarationKind,
 } from "ts-morph";
 
 import {
@@ -40,13 +39,7 @@ import {
   SourceFileImpl,
   TupleTypeStructureImpl,
   TypeAliasDeclarationImpl,
-  TypeArgumentedTypeStructureImpl,
-  TypeParameterDeclarationImpl,
-  type TypeStructures,
-  UnionTypeStructureImpl,
-  VariableDeclarationImpl,
   VariableStatementImpl,
-  type stringOrWriterFunction,
   type stringWriterOrStatementImpl,
 } from "ts-morph-structures";
 
@@ -64,7 +57,11 @@ import buildHandlerClass from "./buildHandlerClass.js";
 import {
   pathToInterfaceModule
 } from "./ObjectGraphHandlerIfc.js";
+
 import UnionStringOrSymbol from "./UnionStringOrSymbol.js";
+
+import buildConstStatement from "./utilities/buildConstStatement.js";
+
 // #endregion preamble
 
 const pathToConvertingHeadModule = path.join(stageDir, "generated/ConvertingHeadProxyHandler.ts");
@@ -198,9 +195,12 @@ function getStatementsForProxyHandlerTrap(
     if (param.name === "shadowTarget")
       continue;
 
+    const nextArgumentName = `next${(param.name[0].toUpperCase() + param.name.substring(1))}`;
+    nextArgumentNames.push(nextArgumentName);
+
     if (param.name === "argArray") {
       argArrayStatement = buildConstStatement(
-        "nextArgArray",
+        nextArgumentName,
         param.typeStructure!,
         (writer: CodeBlockWriter): void => {
           writer.write(`this.#membraneIfc.convertArray<`);
@@ -208,24 +208,21 @@ function getStatementsForProxyHandlerTrap(
           writer.write(`>(graphKey, argArray)`);
         }
       );
-      nextArgumentNames.push("nextArgArray");
       continue;
     }
 
-    const nextArgumentName = `next${(param.name[0].toUpperCase() + param.name.substring(1))}`;
-    nextArgumentNames.push(nextArgumentName);
-
-    if (param.typeStructure === LiteralTypeStructureImpl.get("PropertyDescriptor")) {
+    if (param.name === "attributes") {
       descriptorStatement = buildConstStatement(
         nextArgumentName,
-        param.typeStructure,
-        `this.#membraneIfc.convertDescriptor(graphKey, ${param.name})`
+        param.typeStructure!,
+        `this.#membraneIfc.convertDescriptor(graphKey, ${param.name})!`
       );
-    } else {
-      sourceConvertNames.push(param.name);
-      ReflectConvertNames.push(nextArgumentName);
-      tupleType.childTypes.push(param.typeStructure!);
+      continue;
     }
+
+    sourceConvertNames.push(param.name);
+    ReflectConvertNames.push(nextArgumentName);
+    tupleType.childTypes.push(param.typeStructure!);
   };
 
   if (sourceConvertNames.length) {
@@ -288,24 +285,6 @@ function getStatementsForProxyHandlerTrap(
   )
 
   return statements;
-}
-
-/** `const ${variableName}: ${typeStructure} = ${initializer};` */
-function buildConstStatement(
-  variableName: string,
-  typeStructure: TypeStructures,
-  initializer: stringOrWriterFunction,
-): VariableStatementImpl
-{
-  const statement = new VariableStatementImpl();
-  statement.declarationKind = VariableDeclarationKind.Const;
-
-  const declaration = new VariableDeclarationImpl(variableName);
-  declaration.typeStructure = typeStructure;
-  declaration.initializer = initializer;
-
-  statement.declarations.push(declaration);
-  return statement;
 }
 
 /** Insert API's for the proxy traps to call. */

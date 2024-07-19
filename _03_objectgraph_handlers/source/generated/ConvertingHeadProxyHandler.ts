@@ -104,7 +104,7 @@ export default abstract class ConvertingHeadProxyHandler
       [property],
     );
     const nextAttributes: PropertyDescriptor =
-      this.#membraneIfc.convertDescriptor(graphKey, attributes);
+      this.#membraneIfc.convertDescriptor(graphKey, attributes)!;
     return this.#graphHandlerIfc.defineProperty(
       shadowTarget,
       property,

@@ -13,6 +13,6 @@ export interface MembraneIfc
 
   convertDescriptor(
     targetGraphKey: string | symbol,
-    descriptor: PropertyDescriptor
-  ): PropertyDescriptor;
+    descriptor: PropertyDescriptor | undefined,
+  ): PropertyDescriptor | undefined;
 }

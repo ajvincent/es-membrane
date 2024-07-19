@@ -17,6 +17,7 @@ import forwardToReflect from "./source/forwardToReflect.js";
 import createObjectGraphHandlerIfc from "./source/ObjectGraphHandlerIfc.js";
 import createObjectGraphTailHandler from "./source/ObjectGraphTailHandler.js";
 import createConvertingHeadProxyHandler from "./source/ConvertingHead.js";
+import createWrapReturnValues from "./source/mirroring/wrapReturnValues.js";
 
 const BPSet = new BuildPromiseSet;
 
@@ -54,10 +55,19 @@ BPSet.get("ConvertingHeadProxyHandler").addTask(async () => {
   console.log("completed _02_code_generation:ConvertingHeadProxyHandler");
 });
 
+BPSet.get("WrapReturnValues").addSubtarget("ObjectGraphHandlerIfc");
+BPSet.get("WrapReturnValues").addSubtarget("ObjectGraphTailHandler");
+BPSet.get("WrapReturnValues").addTask(async () => {
+  console.log("starting _02_code_generation:WrapReturnValues");
+  await createWrapReturnValues(ObjectGraphHandlerIfc);
+  console.log("completed _02_code_generation:WrapReturnValues");
+});
+
 BPSet.get("build files").addSubtarget("forwardToReflect");
 BPSet.get("build files").addSubtarget("ObjectGraphHandlerIfc");
 BPSet.get("build files").addSubtarget("ObjectGraphTailHandler");
 BPSet.get("build files").addSubtarget("ConvertingHeadProxyHandler");
+BPSet.get("build files").addSubtarget("WrapReturnValues");
 
 BPSet.markReady();
 BPSet.main.addSubtarget("clean");

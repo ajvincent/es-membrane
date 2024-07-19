@@ -49,13 +49,13 @@ import {
 import UnionStringOrSymbol from "./UnionStringOrSymbol.js";
 //#endregion preamble
 
+export const pathToTailHandlerModule = path.join(stageDir, "generated/ObjectGraphTailHandler.ts");
+
 export default
 async function createObjectGraphTailHandler(
   handlerInterface: InterfaceDeclarationImpl
 ): Promise<void>
 {
-  const pathToTailHandlerModule = path.join(stageDir, "generated/ObjectGraphTailHandler.ts");
-
   const importManager = new ImportManager(pathToTailHandlerModule);
   importManager.addImports({
     pathToImportedModule: pathToInterfaceModule,
