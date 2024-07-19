@@ -72,6 +72,18 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     return this.#revoked;
   }
 
+  public getArrayInGraph<
+    ValueTypes extends unknown[]
+  >
+  (
+    valuesInSourceGraph: ValueTypes,
+    sourceGraphKey: string | symbol
+  ): ValueTypes
+  {
+    //TODO: wrap in a compartment?
+    return valuesInSourceGraph.map(value => this.getValueInGraph(value, sourceGraphKey)) as ValueTypes;
+  }
+
   public getValueInGraph<T>(valueInSourceGraph: T, sourceGraphKey: string | symbol): T {
     if (this.#revoked)
       throw new Error("This object graph has been revoked");

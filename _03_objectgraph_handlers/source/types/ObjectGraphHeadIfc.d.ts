@@ -6,7 +6,14 @@ export interface ObjectGraphHeadIfc {
   get isRevoked(): boolean;
 
   /**
-   * 
+   * This method exists to return an array of proxies, not a proxy to an array of values.
+   */
+  getArrayInGraph(
+    valuesInSourceGraph: unknown[],
+    sourceGraphKey: string | symbol
+  ): unknown[];
+
+  /**
    * @param valueInSourceGraph - The value to wrap
    * @param sourceGraphKey - the object graph key where the value came from.
    *
