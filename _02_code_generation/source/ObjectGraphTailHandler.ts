@@ -28,6 +28,8 @@ import {
   ParameterDeclarationImpl,
   PropertySignatureImpl,
   type stringWriterOrStatementImpl,
+  PropertyDeclarationImpl,
+  MethodDeclarationImpl,
 } from "ts-morph-structures";
 
 import {
@@ -56,6 +58,33 @@ async function createObjectGraphTailHandler(
   handlerInterface: InterfaceDeclarationImpl
 ): Promise<void>
 {
+  const importManager = buildImportManager();
+
+  const classDecl: ClassDeclarationImpl = buildHandlerClass(
+    handlerInterface, buildProxyHandlerTrap, applyInitialization
+  );
+
+  classDecl.name = "ObjectGraphTailHandler";
+  classDecl.isDefaultExport = true;
+  classDecl.implementsSet.add(LiteralTypeStructureImpl.get("ObjectGraphHandlerIfc"));
+
+  addValueCallbacks(importManager, classDecl);
+
+  const sourceStructure = new SourceFileImpl();
+  sourceStructure.statements.push(
+    "// This file is generated.  Do not edit.",
+    ...importManager.getDeclarations(),
+    classDecl,
+  );
+
+  await createSourceFileFromStructure(
+    pathToTailHandlerModule,
+    sourceStructure
+  );
+}
+
+function buildImportManager(): ImportManager
+{
   const importManager = new ImportManager(pathToTailHandlerModule);
   importManager.addImports({
     pathToImportedModule: pathToInterfaceModule,
@@ -77,26 +106,7 @@ async function createObjectGraphTailHandler(
     ]
   });
 
-  const classDecl: ClassDeclarationImpl = buildHandlerClass(
-    handlerInterface, buildProxyHandlerTrap, applyInitialization
-  );
-
-  classDecl.name = "ObjectGraphTailHandler";
-  classDecl.isDefaultExport = true;
-
-  classDecl.implementsSet.add(LiteralTypeStructureImpl.get("ObjectGraphHandlerIfc"));
-
-  const sourceStructure = new SourceFileImpl();
-  sourceStructure.statements.push(
-    "// This file is generated.  Do not edit.",
-    ...importManager.getDeclarations(),
-    classDecl,
-  );
-
-  await createSourceFileFromStructure(
-    pathToTailHandlerModule,
-    sourceStructure
-  );
+  return importManager;
 }
 
 function buildProxyHandlerTrap(
@@ -203,4 +213,44 @@ function applyInitialization(
   classBuilder.addStatementGetters(
     ClassBuilder_Priorities.Initialization, [ctorStatements]
   );
+}
+
+function addValueCallbacks(
+  importManager: ImportManager,
+  classDecl: ClassDeclarationImpl
+): void
+{
+  importManager.addImports({
+    pathToImportedModule: path.join(stageDir, "types/ObjectGraphHeadIfc.d.ts"),
+    isPackageImport: false,
+    isDefaultImport: false,
+    isTypeOnly: true,
+    importNames: [
+      "ObjectGraphValuesIfc",
+      "ObjectGraphValueCallbacksIfc",
+    ]
+  });
+
+  classDecl.implementsSet.add(LiteralTypeStructureImpl.get("ObjectGraphValueCallbacksIfc"));
+
+  const thisGraphValues = new PropertyDeclarationImpl(false, "thisGraphValues");
+  thisGraphValues.scope = Scope.Protected;
+  thisGraphValues.hasQuestionToken = true;
+  thisGraphValues.typeStructure = LiteralTypeStructureImpl.get("ObjectGraphValuesIfc");
+
+  classDecl.properties.push(thisGraphValues);
+
+  const setThisGraphValues = new MethodDeclarationImpl(false, "setThisGraphValues");
+  setThisGraphValues.scope = Scope.Public;
+  const setThisParam = new ParameterDeclarationImpl("thisGraphValues");
+  setThisParam.typeStructure = thisGraphValues.typeStructure;
+  setThisGraphValues.parameters.push(setThisParam);
+  setThisGraphValues.returnTypeStructure = LiteralTypeStructureImpl.get("void");
+
+  setThisGraphValues.statements.push(
+    `if (this.thisGraphValues) throw new Error("The thisGraphValues interface already exists!");`,
+    `this.thisGraphValues = thisGraphValues;`
+  );
+
+  classDecl.methods.unshift(setThisGraphValues);
 }

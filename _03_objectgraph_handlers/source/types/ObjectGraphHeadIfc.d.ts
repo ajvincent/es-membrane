@@ -1,10 +1,28 @@
 /** This interface is for membrane use. */
-export interface ObjectGraphHeadIfc {
+export interface ObjectGraphHeadIfc extends ObjectGraphValuesIfc {
   /** The unique graph key. */
   readonly objectGraphKey: string | symbol;
 
   get isRevoked(): boolean;
 
+  /** Revoke all proxies for a given object graph. */
+  revokeAllProxiesForGraph(
+    graphKey: string | symbol
+  ): void;
+}
+
+/** This interface is for proxy handler use. */
+export interface ObjectGraphConversionIfc extends ObjectGraphValuesIfc {
+  getRealTargetForShadowTarget(
+    shadowTarget: object
+  ): object;
+
+  getTargetGraphKeyForRealTarget(
+    realTarget: object,
+  ): string | symbol;
+}
+
+export interface ObjectGraphValuesIfc {
   /**
    * This method exists to return an array of proxies, not a proxy to an array of values.
    */
@@ -12,6 +30,17 @@ export interface ObjectGraphHeadIfc {
     valuesInSourceGraph: unknown[],
     sourceGraphKey: string | symbol
   ): unknown[];
+
+  /**
+   * @param descriptorInSourceGraph - the descriptor to wrap.
+   * @param sourceGraphKey - the object graph key where the value came from.
+   *
+   * @returns the property descriptor for _this_ object graph.
+   */
+  getDescriptorInGraph(
+    descriptorInSourceGraph: PropertyDescriptor | undefined,
+    sourceGraphKey: string | symbol
+  ): PropertyDescriptor | undefined;
 
   /**
    * @param valueInSourceGraph - The value to wrap
@@ -23,20 +52,8 @@ export interface ObjectGraphHeadIfc {
     valueInSourceGraph: unknown,
     sourceGraphKey: string | symbol
   ): unknown;
-
-  /** Revoke all proxies for a given object graph. */
-  revokeAllProxiesForGraph(
-    graphKey: string | symbol
-  ): void;
 }
 
-/** This interface is for proxy handler use. */
-export interface ObjectGraphConversionIfc {
-  getRealTargetForShadowTarget(
-    shadowTarget: object
-  ): object;
-
-  getTargetGraphKeyForRealTarget(
-    realTarget: object,
-  ): string | symbol;
+export interface ObjectGraphValueCallbacksIfc {
+  setThisGraphValues(thisGraphValues: ObjectGraphValuesIfc): void;
 }

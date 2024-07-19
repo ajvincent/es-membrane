@@ -1,16 +1,16 @@
 import ConvertingHeadProxyHandler from "#objectgraph_handlers/source/generated/ConvertingHeadProxyHandler.js";
 
 import type {
-  ObjectGraphHandlerIfc
-} from "#objectgraph_handlers/source/generated/types/ObjectGraphHandlerIfc.js";
-
-import type {
   MembraneIfc,
 } from "#objectgraph_handlers/source/types/MembraneIfc.js";
 
+import type {
+  ObjectGraphConversionIfc
+} from "#objectgraph_handlers/source/types/ObjectGraphHeadIfc.js";
+
 import SpyProxyHandler from "./support/SpyProxyHandler.js";
 
-class LocalHead {
+class LocalHead implements ObjectGraphConversionIfc {
   readonly #expectedRealTarget: () => void;
   targetGraph?: string | symbol
 
@@ -19,6 +19,29 @@ class LocalHead {
   )
   {
     this.#expectedRealTarget = expectedRealTarget;
+  }
+  public getArrayInGraph(
+    valuesInSourceGraph: unknown[],
+    sourceGraphKey: string | symbol
+  ): unknown[]
+  {
+    throw new Error("Method not implemented.");
+  }
+
+  getDescriptorInGraph(
+    descriptorInSourceGraph: PropertyDescriptor | undefined,
+    sourceGraphKey: string | symbol
+  ): PropertyDescriptor | undefined
+  {
+    throw new Error("Method not implemented.");
+  }
+
+  public getValueInGraph(
+    valueInSourceGraph: unknown,
+    sourceGraphKey: string | symbol
+  ): unknown
+  {
+    throw new Error("Method not implemented.");
   }
 
   public getRealTargetForShadowTarget(shadowTarget: object): object {

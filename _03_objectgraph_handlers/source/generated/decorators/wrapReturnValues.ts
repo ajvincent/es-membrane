@@ -28,7 +28,7 @@ export default function WrapReturnValues(
         nextThisArg,
         nextArgArray,
       );
-      return this.membrane.convertArray<[any]>(this.thisGraphKey, [result])[0];
+      return this.thisGraphValues!.getValueInGraph(result, nextGraphKey) as any;
     }
 
     /**
@@ -54,9 +54,10 @@ export default function WrapReturnValues(
         nextArgArray,
         nextNewTarget,
       );
-      return this.membrane.convertArray<[object]>(this.thisGraphKey, [
+      return this.thisGraphValues!.getValueInGraph(
         result,
-      ])[0];
+        nextGraphKey,
+      ) as object;
     }
 
     /**
@@ -82,9 +83,10 @@ export default function WrapReturnValues(
         nextProperty,
         nextAttributes,
       );
-      return this.membrane.convertArray<[boolean]>(this.thisGraphKey, [
+      return this.thisGraphValues!.getValueInGraph(
         result,
-      ])[0];
+        nextGraphKey,
+      ) as boolean;
     }
 
     /**
@@ -107,9 +109,10 @@ export default function WrapReturnValues(
         nextTarget,
         nextP,
       );
-      return this.membrane.convertArray<[boolean]>(this.thisGraphKey, [
+      return this.thisGraphValues!.getValueInGraph(
         result,
-      ])[0];
+        nextGraphKey,
+      ) as boolean;
     }
 
     /**
@@ -136,7 +139,7 @@ export default function WrapReturnValues(
         nextP,
         nextReceiver,
       );
-      return this.membrane.convertArray<[any]>(this.thisGraphKey, [result])[0];
+      return this.thisGraphValues!.getValueInGraph(result, nextGraphKey) as any;
     }
 
     /**
@@ -159,7 +162,7 @@ export default function WrapReturnValues(
           nextTarget,
           nextP,
         );
-      return this.membrane.convertDescriptor(this.thisGraphKey, result);
+      return this.thisGraphValues!.getDescriptorInGraph(result, nextGraphKey);
     }
 
     /**
@@ -176,9 +179,9 @@ export default function WrapReturnValues(
         nextGraphKey,
         nextTarget,
       );
-      return this.membrane.convertArray<[object | null]>(this.thisGraphKey, [
-        result,
-      ])[0];
+      return this.thisGraphValues!.getValueInGraph(result, nextGraphKey) as
+        | object
+        | null;
     }
 
     /**
@@ -200,9 +203,10 @@ export default function WrapReturnValues(
         nextTarget,
         nextP,
       );
-      return this.membrane.convertArray<[boolean]>(this.thisGraphKey, [
+      return this.thisGraphValues!.getValueInGraph(
         result,
-      ])[0];
+        nextGraphKey,
+      ) as boolean;
     }
 
     /**
@@ -219,9 +223,10 @@ export default function WrapReturnValues(
         nextGraphKey,
         nextTarget,
       );
-      return this.membrane.convertArray<[boolean]>(this.thisGraphKey, [
+      return this.thisGraphValues!.getValueInGraph(
         result,
-      ])[0];
+        nextGraphKey,
+      ) as boolean;
     }
 
     /**
@@ -238,10 +243,10 @@ export default function WrapReturnValues(
         nextGraphKey,
         nextTarget,
       );
-      return this.membrane.convertArray<(string | symbol)[]>(
-        this.thisGraphKey,
+      return this.thisGraphValues!.getArrayInGraph(
         Array.from(result),
-      );
+        nextGraphKey,
+      ) as ArrayLike<string | symbol>;
     }
 
     /**
@@ -258,9 +263,10 @@ export default function WrapReturnValues(
         nextGraphKey,
         nextTarget,
       );
-      return this.membrane.convertArray<[boolean]>(this.thisGraphKey, [
+      return this.thisGraphValues!.getValueInGraph(
         result,
-      ])[0];
+        nextGraphKey,
+      ) as boolean;
     }
 
     /**
@@ -292,9 +298,10 @@ export default function WrapReturnValues(
         nextNewValue,
         nextReceiver,
       );
-      return this.membrane.convertArray<[boolean]>(this.thisGraphKey, [
+      return this.thisGraphValues!.getValueInGraph(
         result,
-      ])[0];
+        nextGraphKey,
+      ) as boolean;
     }
 
     /**
@@ -316,9 +323,10 @@ export default function WrapReturnValues(
         nextTarget,
         nextV,
       );
-      return this.membrane.convertArray<[boolean]>(this.thisGraphKey, [
+      return this.thisGraphValues!.getValueInGraph(
         result,
-      ])[0];
+        nextGraphKey,
+      ) as boolean;
     }
   }
 

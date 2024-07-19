@@ -12,7 +12,8 @@ import type {
 
 import type {
   ObjectGraphHeadIfc,
-  ObjectGraphConversionIfc
+  ObjectGraphConversionIfc,
+  ObjectGraphValueCallbacksIfc,
 } from "./types/ObjectGraphHeadIfc.js";
 
 import RevokerManagement from "./RevokerManagement.js";
@@ -41,6 +42,15 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     return rv as T;
   }
 
+  static readonly #propertyDescriptorKeys: (keyof PropertyDescriptor)[] = [
+    "configurable",
+    "enumerable",
+    "value",
+    "writable",
+    "get",
+    "set",
+  ];
+
   readonly objectGraphKey: string | symbol;
 
   #revoked = false;
@@ -53,7 +63,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
 
   public constructor(
     membraneIfc: MembraneIfc,
-    graphHandlerIfc: ObjectGraphHandlerIfc,
+    graphHandlerIfc: ObjectGraphHandlerIfc & ObjectGraphValueCallbacksIfc,
     objectsOneToOneMap: OneToOneStrongMap<string | symbol, object>,
     objectGraphKey: string | symbol
   )
@@ -62,6 +72,8 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
 
     this.objectGraphKey = objectGraphKey;
     this.#revokerManagement = new RevokerManagement(objectGraphKey);
+
+    graphHandlerIfc.setThisGraphValues(this);
 
     this.#convertingHeadProxyHandler = new ConvertingHeadProxyHandler(
       membraneIfc, graphHandlerIfc, this
@@ -82,6 +94,29 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
   {
     //TODO: wrap in a compartment?
     return valuesInSourceGraph.map(value => this.getValueInGraph(value, sourceGraphKey)) as ValueTypes;
+  }
+
+  public getDescriptorInGraph(
+    descriptorInSourceGraph: PropertyDescriptor | undefined,
+    sourceGraphKey: string | symbol
+  ): PropertyDescriptor | undefined
+  {
+    if (typeof descriptorInSourceGraph === "undefined") {
+      return this.getValueInGraph<undefined>(descriptorInSourceGraph, sourceGraphKey);
+    }
+
+    //TODO: wrap in a compartment?
+    const graphDescriptor: PropertyDescriptor = {};
+
+    for (const key of ObjectGraphHead.#propertyDescriptorKeys) {
+      if (Reflect.has(descriptorInSourceGraph, key) === false)
+        continue;
+      graphDescriptor[key] = this.getValueInGraph(
+        descriptorInSourceGraph[key], sourceGraphKey
+      );
+    }
+
+    return graphDescriptor;
   }
 
   public getValueInGraph<T>(valueInSourceGraph: T, sourceGraphKey: string | symbol): T {

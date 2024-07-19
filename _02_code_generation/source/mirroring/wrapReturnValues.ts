@@ -118,20 +118,21 @@ function buildProxyHandlerTrap(
     ),
 
     (writer: CodeBlockWriter): void => {
-      writer.write(`return this.membrane.`);
-
-      if (trap.name === "ownKeys") {
-          writer.write(`convertArray<(string | symbol)[]>(this.thisGraphKey, Array.from(result));`);
-          return;
-      }
+      writer.write(`return this.thisGraphValues!.`);
       if (trap.name === "getOwnPropertyDescriptor") {
-        writer.write(`convertDescriptor(this.thisGraphKey, result);`)
+        writer.write(`getDescriptorInGraph(result, nextGraphKey);`)
         return;
       }
 
-      writer.write(`convertArray<[`);
+      if (trap.name === "ownKeys") {
+        writer.write(`getArrayInGraph(Array.from(result), nextGraphKey)`)
+      }
+      else {
+        writer.write(`getValueInGraph(result, nextGraphKey)`)
+      }
+      writer.write(` as `);
       trap.returnTypeStructure!.writerFunction(writer);
-      writer.write(`]>(this.thisGraphKey, [result])[0];`);
+      writer.write(";");
     }
   ];
 }

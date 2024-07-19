@@ -12,6 +12,10 @@ import type {
 
 import OneToOneStrongMap from "#stage_utilities/source/collections/OneToOneStrongMap.js";
 
+import type {
+  ObjectGraphValueCallbacksIfc
+} from "#objectgraph_handlers/source/types/ObjectGraphHeadIfc.js";
+
 it("ObjectGraphHead maintains references to proxies or underlying values in the right graph", () => {
   const mockMembrane: MembraneIfc = {
     convertArray: function <ValueTypes extends unknown[]>(targetGraphKey: string | symbol, values: ValueTypes): ValueTypes {
@@ -111,7 +115,9 @@ it("ObjectGraphHead creates revocable proxies", () => {
     },
   };
 
-  const graphHandler: ObjectGraphHandlerIfc = new ObjectGraphTailHandler(mockMembrane, "mock");
+  const graphHandler: (
+    ObjectGraphHandlerIfc & ObjectGraphValueCallbacksIfc
+  ) = new ObjectGraphTailHandler(mockMembrane, "mock");
 
   const map = new OneToOneStrongMap<string | symbol, object>;
 
