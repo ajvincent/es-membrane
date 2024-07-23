@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import SharedAssertSet, {
   SharedAssertionError,
+  sharedAssert,
 } from "#stage_utilities/source/SharedAssertSet.mjs";
 
 import type {
@@ -10,9 +11,9 @@ import type {
 it("SharedAssertSet propagates assertion failures across several observers", () => {
   const assertSet = new SharedAssertSet;
 
-  const firstAssertSpy = jasmine.createSpyObj<SharedAssertionObserver>("first", ["observeAssertFailed", "assert"]);
-  const secondAssertSpy = jasmine.createSpyObj<SharedAssertionObserver>("second", ["observeAssertFailed", "assert"]);
-  const thirdAssertSpy = jasmine.createSpyObj<SharedAssertionObserver>("third", ["observeAssertFailed", "assert"]);
+  const firstAssertSpy = jasmine.createSpyObj<SharedAssertionObserver>("first", ["observeAssertFailed"]);
+  const secondAssertSpy = jasmine.createSpyObj<SharedAssertionObserver>("second", ["observeAssertFailed"]);
+  const thirdAssertSpy = jasmine.createSpyObj<SharedAssertionObserver>("third", ["observeAssertFailed"]);
 
   const firstSharedAssert = assertSet.buildShared(firstAssertSpy);
   const secondSharedAssert = assertSet.buildShared(secondAssertSpy);
@@ -26,7 +27,7 @@ it("SharedAssertSet propagates assertion failures across several observers", () 
 
   // when an assert passes, do nothing
 
-  thirdAssertSpy.assert(true, "everything is awesome");
+  sharedAssert(true, "everything is awesome", thirdSharedAssert);
 
   expect(firstSharedAssert.getOwnFailures()).toEqual([]);
   expect(firstSharedAssert.getSharedFailures()).toEqual([]);
@@ -52,7 +53,7 @@ it("SharedAssertSet propagates assertion failures across several observers", () 
   let exception: SharedAssertionError | undefined;
   {
     try {
-      secondAssertSpy.assert(false, "Houston, we have a problem");
+      sharedAssert(false, "Houston, we have a problem", secondSharedAssert);
     }
     catch (ex) {
       if (ex instanceof SharedAssertionError)

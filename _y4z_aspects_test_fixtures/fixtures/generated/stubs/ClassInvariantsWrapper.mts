@@ -14,7 +14,7 @@ import {
   type Class,
 } from "type-fest";
 import {
-  type AssertFunction,
+  type SharedAssertFunction,
   type SharedAssertionObserver,
 } from "#stage_utilities/source/types/assert.mjs";
 
@@ -34,10 +34,12 @@ export default function ClassInvariantsWrapper
     static readonly #invariantsArray: readonly ((this: NumberStringType) => void)[] = invariantsArray;
 
     #assertFailed = false;
-    get assert(): AssertFunction {
+    get assert(): SharedAssertFunction {
       return unsharedAssert;
     }
-    set assert(newAssert: AssertFunction) {
+
+    // this won't work anymore, due to assertion functions never being allowable as members of a class (ts2775, ts2776).
+    set assert(newAssert: SharedAssertFunction) {
       Reflect.defineProperty(this, "assert", 
         {
           value: newAssert,

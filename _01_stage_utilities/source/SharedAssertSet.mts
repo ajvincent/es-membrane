@@ -5,13 +5,13 @@ import type {
 import WeakRefSet from "./collections/WeakRefSet.js";
 
 import type {
-  AssertFunction,
+  SharedAssertFunction,
   SharedAssertionObserver,
 } from "./types/assert.mjs"
 
 export default class SharedAssertSet
 {
-  readonly #sharedAsserts = new WeakRefSet<SharedAssert>;
+  readonly #sharedAsserts = new WeakRefSet<SharedAssertTracker>;
   readonly #addFailureBound = this.#addFailure.bind(this);
   readonly #assertFailures: PushableArray<SharedAssertionError> = [];
 
@@ -20,18 +20,28 @@ export default class SharedAssertSet
    * @param error - the assertion failure we're about to throw for.
    */
   #addFailure(
-    sourceOfError: SharedAssert,
+    sourceOfError: SharedAssertTracker,
     error: SharedAssertionError
   ): void
   {
     this.#assertFailures.push(error);
 
-    sourceOfError.observer.observeAssertFailed(true);
+    try {
+      sourceOfError.observer.observeAssertFailed(true);
+    }
+    catch (ex) {
+      // do nothing
+    }
     for (const sharedAssert of this.#sharedAsserts.liveElements()) {
       if (sharedAssert === sourceOfError)
         continue;
 
-      sharedAssert.observer.observeAssertFailed(false);
+      try {
+        sharedAssert.observer.observeAssertFailed(false);
+      }
+      catch (ex) {
+        // do nothing
+      }
     }
   }
 
@@ -40,12 +50,12 @@ export default class SharedAssertSet
    */
   buildShared(
     observer: SharedAssertionObserver
-  ): SharedAssert
+  ): SharedAssertTracker
   {
     if (this.hasAssertFailures())
       throw new Error("This shared assert set already has failures.  Why create another?");
 
-    const rv = new SharedAssert(this, this.#addFailureBound, observer);
+    const rv = new SharedAssertTracker(this, this.#addFailureBound, observer);
     this.#sharedAsserts.addReference(rv);
     return rv;
   }
@@ -64,19 +74,19 @@ export default class SharedAssertSet
 }
 
 /** Your main interface for tracking all assertions. */
-class SharedAssert
+export class SharedAssertTracker
 {
   readonly #set: SharedAssertSet;
   readonly #ownAssertFailures: PushableArray<SharedAssertionError> = [];
 
   /** callback to notify the shared assert set of a failure. */
   readonly #addFailureToSet: (
-    sourceOfError: SharedAssert,
+    sourceOfError: SharedAssertTracker,
     error: SharedAssertionError
   ) => void;
 
 
-  readonly observer: SharedAssertionObserver
+  readonly observer: SharedAssertionObserver;
 
   /**
 
@@ -88,14 +98,13 @@ class SharedAssert
    */
   constructor(
     assertSet: SharedAssertSet,
-    addFailureToSet: (sourceOfError: SharedAssert, error: SharedAssertionError) => void,
+    addFailureToSet: (sourceOfError: SharedAssertTracker, error: SharedAssertionError) => void,
     observer: SharedAssertionObserver
   )
   {
     this.#set = assertSet;
     this.#addFailureToSet = addFailureToSet;
     this.observer = observer;
-    this.observer.assert = this.assert.bind(this);
   }
 
   hasOwnFailures(): boolean
@@ -124,11 +133,8 @@ class SharedAssert
    *
    * @throws `SharedAssertionError` on an assertion failure.
    */
-  public assert(condition: boolean, message: string): asserts condition is true
+  public reportFailure(message: string): never
   {
-    if (condition)
-      return;
-
     const error = new SharedAssertionError(message, this.observer);
     this.#ownAssertFailures.push(error);
     this.#addFailureToSet(this, error);
@@ -136,9 +142,6 @@ class SharedAssert
     throw error;
   }
 }
-
-// eslint-disable-next-line @typescript-eslint/unbound-method
-SharedAssert.prototype.assert satisfies AssertFunction;
 
 export class SharedAssertionError extends Error
 {
@@ -165,9 +168,21 @@ export class SharedAssertionError extends Error
 export function unsharedAssert(
   condition: boolean,
   message: string
-): void
+): asserts condition
 {
   if (!condition)
     throw new Error(message);
 }
-unsharedAssert satisfies AssertFunction;
+unsharedAssert satisfies SharedAssertFunction;
+
+export function sharedAssert(
+  condition: boolean,
+  message: string,
+  owner: SharedAssertTracker
+): asserts condition
+{
+  if (condition)
+    return;
+
+  owner.reportFailure(message);
+}
