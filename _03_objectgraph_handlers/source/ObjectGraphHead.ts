@@ -51,16 +51,25 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     "set",
   ];
 
+  // ObjectGraphHeadIfc
   readonly objectGraphKey: string | symbol;
 
   #revoked = false;
 
+  // these are writable to allow for clearing the references upon revocation.
   #convertingHeadProxyHandler?: ConvertingHeadProxyHandler;
   #targetsOneToOneMap?: OneToOneStrongMap<string | symbol, object>;
   #shadowTargetToRealTargetMap? = new WeakMap<object, object>;
   #realTargetToOriginGraph? = new WeakMap<object, string | symbol>;
   #revokerManagement?: RevokerManagement;
 
+  /**
+   * The bridge between an object graph proxy handler and the membrane.
+   * @param membraneIfc - the membrane
+   * @param graphHandlerIfc - the extended object graph proxy handler.
+   * @param objectsOneToOneMap - the one-to-one mapping to use for objects to object graph keys.
+   * @param objectGraphKey - our object graph key.
+   */
   public constructor(
     membraneIfc: MembraneIfc,
     graphHandlerIfc: ObjectGraphHandlerIfc & ObjectGraphValueCallbacksIfc,
@@ -80,10 +89,12 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     );
   }
 
+  // ObjectGraphHeadIfc
   public get isRevoked(): boolean {
     return this.#revoked;
   }
 
+  // ObjectGraphValuesIfc
   public getArrayInGraph<
     ValueTypes extends unknown[]
   >
@@ -96,6 +107,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     return valuesInSourceGraph.map(value => this.getValueInGraph(value, sourceGraphKey)) as ValueTypes;
   }
 
+  // ObjectGraphValuesIfc
   public getDescriptorInGraph(
     descriptorInSourceGraph: PropertyDescriptor | undefined,
     sourceGraphKey: string | symbol
@@ -119,7 +131,12 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     return graphDescriptor;
   }
 
-  public getValueInGraph<T>(valueInSourceGraph: T, sourceGraphKey: string | symbol): T {
+  // ObjectGraphValuesIfc
+  public getValueInGraph<T>(
+    valueInSourceGraph: T,
+    sourceGraphKey: string | symbol
+  ): T
+  {
     if (this.#revoked)
       throw new Error("This object graph has been revoked");
 
@@ -143,14 +160,27 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     if (value === undefined) {
       if (sourceGraphKey === this.objectGraphKey)
         value = objectInSourceGraph;
-      else
+      else {
         value = this.getIntrinsicInGraph(objectInSourceGraph, sourceGraphKey) ??
           this.#createNewProxy(objectInSourceGraph, sourceGraphKey);
+
+        this.#targetsOneToOneMap!.bindOneToOne(
+          this.objectGraphKey, value, sourceGraphKey, objectInSourceGraph
+        );
+      }
     }
 
     return value as T;
   }
 
+  /**
+   * This is a subclass hook for getting a primitive value in this object graph (realm / compartment).
+   * @param valueInSourceGraph - the primitive value in the source graph
+   * @returns a matching primitive in this object graph.
+   * @remarks
+   *
+   * This part I haven't explored yet, but SES-shim might be a good place to look.
+   */
   protected getPrimitiveInGraph<
     T extends boolean | bigint | number | null | string | symbol | undefined
   >(valueInSourceGraph: T): T
@@ -159,9 +189,21 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     return valueInSourceGraph;
   }
 
+  /**
+   * This is a subclass hook for wrapping intrinsics (Object, Array, Date, etc.) and their prototypes.
+   * @param valueInSourceGraph - the value in a foreign source graph.
+   * @param sourceGraphKey - the source graph the value comes from.
+   *
+   * @remarks
+   *
+   * This part I haven't explored yet, but SES-shim might be a good place to look.
+   */
   protected getIntrinsicInGraph<
     T extends object
-  >(valueInSourceGraph: T, sourceGraphKey: string | symbol): T | undefined
+  >(
+    valueInSourceGraph: T,
+    sourceGraphKey: string | symbol
+  ): T | undefined
   {
     // TODO: intrinsics (Object, Array, etc.) and their prototypes
     return undefined;
@@ -181,15 +223,12 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     this.#revokerManagement!.addRevoker(proxy, revoke, sourceGraphKey);
 
     this.#shadowTargetToRealTargetMap!.set(shadowTarget, objectInSourceGraph);
-    this.#targetsOneToOneMap!.bindOneToOne(
-      this.objectGraphKey, proxy, sourceGraphKey, objectInSourceGraph
-    );
-
     this.#realTargetToOriginGraph!.set(objectInSourceGraph, sourceGraphKey);
 
     return proxy;
   }
 
+  // ObjectGraphHeadIfc
   public revokeAllProxiesForGraph(
     graphKey: string | symbol
   ): void
@@ -210,6 +249,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     }
   }
 
+  // ObjectGraphConversionIfc
   public getRealTargetForShadowTarget(
     shadowTarget: object
   ): object
@@ -219,6 +259,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     return this.#shadowTargetToRealTargetMap!.get(shadowTarget)!;
   }
 
+  // ObjectGraphConversionIfc
   public getTargetGraphKeyForRealTarget(
     realTarget: object
   ): string | symbol

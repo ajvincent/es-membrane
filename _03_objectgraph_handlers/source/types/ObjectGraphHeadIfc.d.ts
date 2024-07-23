@@ -13,10 +13,20 @@ export interface ObjectGraphHeadIfc extends ObjectGraphValuesIfc {
 
 /** This interface is for proxy handler use. */
 export interface ObjectGraphConversionIfc extends ObjectGraphValuesIfc {
+  /**
+   * Get the real target matching a shadow target.
+   * @param shadowTarget - the shadow target I created a proxy from.
+   * @internal
+   */
   getRealTargetForShadowTarget(
     shadowTarget: object
   ): object;
 
+  /**
+   * Get the object graph key a real target belongs to.
+   * @param realTarget - the real target
+   * @internal
+   */
   getTargetGraphKeyForRealTarget(
     realTarget: object,
   ): string | symbol;
@@ -55,5 +65,12 @@ export interface ObjectGraphValuesIfc {
 }
 
 export interface ObjectGraphValueCallbacksIfc {
-  setThisGraphValues(thisGraphValues: ObjectGraphValuesIfc): void;
+  /**
+   * A callbacks interface for the object graph proxy handlers.
+   * @param thisGraphValues - the object graph head.
+   * @internal
+   */
+  setThisGraphValues(
+    thisGraphValues: ObjectGraphValuesIfc
+  ): void;
 }
