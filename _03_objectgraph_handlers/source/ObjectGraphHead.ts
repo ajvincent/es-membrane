@@ -130,15 +130,12 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
       case "string":
       case "symbol":
       case "undefined":
-        //TODO: wrap in a compartment?  If so, consider updating #makeShadowTarget to be non-static
-        return valueInSourceGraph;
+        return this.getPrimitiveInGraph(valueInSourceGraph);
 
       case "object":
         if (valueInSourceGraph === null)
-          return valueInSourceGraph;
+          return this.getPrimitiveInGraph(valueInSourceGraph);
     }
-
-    // TODO: primordials (Object, Array, etc.) and their prototypes
 
     // sourceValue is an object
     const objectInSourceGraph = valueInSourceGraph as object;
@@ -147,10 +144,27 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
       if (sourceGraphKey === this.objectGraphKey)
         value = objectInSourceGraph;
       else
-        value = this.#createNewProxy(objectInSourceGraph, sourceGraphKey);
+        value = this.getIntrinsicInGraph(objectInSourceGraph, sourceGraphKey) ??
+          this.#createNewProxy(objectInSourceGraph, sourceGraphKey);
     }
 
     return value as T;
+  }
+
+  protected getPrimitiveInGraph<
+    T extends boolean | bigint | number | null | string | symbol | undefined
+  >(valueInSourceGraph: T): T
+  {
+    //TODO: wrap in a compartment?  If so, consider updating #makeShadowTarget to be non-static
+    return valueInSourceGraph;
+  }
+
+  protected getIntrinsicInGraph<
+    T extends object
+  >(valueInSourceGraph: T, sourceGraphKey: string | symbol): T | undefined
+  {
+    // TODO: intrinsics (Object, Array, etc.) and their prototypes
+    return undefined;
   }
 
   #createNewProxy(
