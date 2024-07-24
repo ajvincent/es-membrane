@@ -97,12 +97,12 @@ function buildImportManager(): ImportManager
   });
 
   importManager.addImports({
-    pathToImportedModule: path.join(stageDir, "types/MembraneIfc.d.ts"),
+    pathToImportedModule: path.join(stageDir, "types/MembraneBaseIfc.d.ts"),
     isPackageImport: false,
     isDefaultImport: false,
     isTypeOnly: true,
     importNames: [
-      "MembraneIfc"
+      "MembraneBaseIfc"
     ]
   });
 
@@ -153,7 +153,7 @@ function applyInitialization(
 {
   const membrane = new PropertySignatureImpl("membrane");
   {
-    membrane.typeStructure = LiteralTypeStructureImpl.get("MembraneIfc");
+    membrane.typeStructure = LiteralTypeStructureImpl.get("MembraneBaseIfc");
     membrane.isReadonly = true;
     classBuilder.addTypeMember(false, membrane);
 

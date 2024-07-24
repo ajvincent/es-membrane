@@ -1,5 +1,5 @@
 // This file is generated.  Do not edit.
-import type { MembraneIfc } from "../types/MembraneIfc.js";
+import type { MembraneBaseIfc } from "../types/MembraneBaseIfc.js";
 import type {
   ObjectGraphValueCallbacksIfc,
   ObjectGraphValuesIfc,
@@ -9,11 +9,11 @@ import type { ObjectGraphHandlerIfc } from "./types/ObjectGraphHandlerIfc.js";
 export default class ObjectGraphTailHandler
   implements ObjectGraphHandlerIfc, ObjectGraphValueCallbacksIfc
 {
-  protected readonly membrane: MembraneIfc;
+  protected readonly membrane: MembraneBaseIfc;
   protected readonly thisGraphKey: string | symbol;
   protected thisGraphValues?: ObjectGraphValuesIfc;
 
-  constructor(membrane: MembraneIfc, thisGraphKey: string | symbol) {
+  constructor(membrane: MembraneBaseIfc, thisGraphKey: string | symbol) {
     this.membrane = membrane;
     this.thisGraphKey = thisGraphKey;
   }

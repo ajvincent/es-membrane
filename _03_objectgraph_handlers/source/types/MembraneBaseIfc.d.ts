@@ -4,7 +4,7 @@ import type {
   RequiredProxyHandler
 } from "./RequiredProxyHandler.js";
 
-export interface MembraneIfc
+export interface MembraneBaseIfc
 {
   convertArray<ValueTypes extends unknown[]>(
     targetGraphKey: string | symbol,
