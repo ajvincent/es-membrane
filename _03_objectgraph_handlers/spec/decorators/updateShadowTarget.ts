@@ -28,6 +28,12 @@ describe("UpdateShadowTarget works", () => {
   });
 
   describe("as a direct class decorator on the trap", () => {
+    xdescribe(`"isExtensible"`, () => {
+      it("(not supported yet)", () => {
+        expect(false).toBe(true);
+      });
+    });
+
     describe(`"ownKeys"`, () => {
       it("with no keys on the next target", () => {
         const result = spyObjectGraphHandler.ownKeys(shadowTarget, nextGraphKey, nextTarget);
@@ -72,6 +78,12 @@ describe("UpdateShadowTarget works", () => {
 
         expect(Reflect.ownKeys(shadowTarget)).toEqual(["foo"]);
         expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")!.value).toBe("foo");
+      });
+    });
+
+    xdescribe(`"preventExtensions"`, () => {
+      it("(not supported yet)", () => {
+        expect(false).toBe(true);
       });
     });
   });

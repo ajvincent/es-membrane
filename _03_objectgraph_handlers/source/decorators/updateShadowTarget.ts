@@ -18,6 +18,27 @@ export default function UpdateShadowTarget(
       configurable: true,
     });
 
+    public isExtensible(
+      shadowTarget: object,
+      nextGraphKey: string | symbol,
+      nextTarget: object
+    ): boolean
+    {
+      if (Reflect.isExtensible(shadowTarget) === false) {
+        return false;
+      }
+
+      const result: boolean = super.isExtensible(shadowTarget, nextGraphKey, nextTarget);
+      if (result === false) {
+        this.#lockShadowTarget(shadowTarget, nextGraphKey, nextTarget);
+      }
+
+      return result;
+    }
+
+    /**
+     * @see {@link https://262.ecma-international.org/#sec-proxy-object-internal-methods-and-internal-slots-ownpropertykeys | ECMA-262, 15th edition, June 2024: Proxy\[\[OwnKeyPropertyKeys\]\]}
+     */
     public ownKeys(
       shadowTarget: object,
       nextGraphKey: string | symbol,
@@ -53,6 +74,40 @@ export default function UpdateShadowTarget(
       }
 
       return result;
+    }
+
+    public preventExtensions(
+      shadowTarget: object,
+      nextGraphKey: string | symbol,
+      nextTarget: object
+    ): boolean
+    {
+      if (Reflect.isExtensible(shadowTarget) === false) {
+        return false;
+      }
+
+      const result = super.preventExtensions(shadowTarget, nextGraphKey, nextTarget);
+      if (result) {
+        this.#lockShadowTarget(shadowTarget, nextGraphKey, nextTarget);
+      }
+      return result;
+    }
+
+    #lockShadowTarget(
+      shadowTarget: object,
+      nextGraphKey: string | symbol,
+      nextTarget: object
+    ): void
+    {
+      const keys: (string | symbol)[] = this.ownKeys(shadowTarget, nextGraphKey, nextTarget);
+      keys.forEach(key => {
+        // this will update the properties for us
+        this.getOwnPropertyDescriptor(shadowTarget, key, nextGraphKey, nextTarget, key);
+      });
+
+      void(this.getPrototypeOf(shadowTarget, nextGraphKey, nextTarget));
+
+      Reflect.preventExtensions(shadowTarget);
     }
   }
   return UpdateShadowTarget;
