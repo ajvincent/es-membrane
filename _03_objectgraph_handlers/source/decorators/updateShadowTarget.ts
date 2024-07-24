@@ -31,11 +31,25 @@ export default function UpdateShadowTarget(
 
       const returnedKeys = new Set<string | symbol>(result);
       const shadowKeys = new Set<string | symbol>(Reflect.ownKeys(shadowTarget));
+
+      /* ECMAScript 2024
       for (const unwantedKey of shadowKeys.difference(returnedKeys)) {
         Reflect.deleteProperty(shadowTarget, unwantedKey);
       }
       for (const discoveredKey of returnedKeys.difference(shadowKeys)) {
         Reflect.defineProperty(shadowTarget, discoveredKey, UpdateShadowTarget.#undefinedDescriptor);
+      }
+      */
+
+      for (const key of shadowKeys) {
+        if (returnedKeys.has(key))
+          continue;
+        Reflect.deleteProperty(shadowTarget, key);
+      }
+      for (const key of returnedKeys) {
+        if (shadowKeys.has(key))
+          continue;
+        Reflect.defineProperty(shadowTarget, key, UpdateShadowTarget.#undefinedDescriptor);
       }
 
       return result;
