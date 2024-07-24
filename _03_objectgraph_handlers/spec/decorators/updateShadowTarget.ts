@@ -42,12 +42,13 @@ describe("UpdateShadowTarget works", () => {
         expect(result).toEqual(["foo", "bar"]);
 
         expect(Reflect.ownKeys(shadowTarget)).toEqual(["foo", "bar"]);
-        expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")?.value).toBe(undefined);
-        expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "bar")?.value).toBe(undefined);
+        expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")!.value).toBe(undefined);
+        expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "bar")!.value).toBe(undefined);
       });
 
       it("with keys to remove on the next target", () => {
         Reflect.defineProperty(shadowTarget, "foo", new DataDescriptor("foo", true, true, true));
+        Reflect.defineProperty(shadowTarget, "bar", new DataDescriptor("bar", true, true, true));
         Reflect.defineProperty(nextTarget, "bar", new DataDescriptor("bar", true, true, true));
         Reflect.defineProperty(nextTarget, "wop", new DataDescriptor("wop", true, true, true));
 
@@ -55,8 +56,22 @@ describe("UpdateShadowTarget works", () => {
         expect(result).toEqual(["bar", "wop"]);
 
         expect(Reflect.ownKeys(shadowTarget)).toEqual(["bar", "wop"]);
-        expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "bar")?.value).toBe(undefined);
-        expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "wop")?.value).toBe(undefined);
+        expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "bar")!.value).toBe("bar");
+        expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "wop")!.value).toBe(undefined);
+      });
+
+      it("with isExtensible returning false", () => {
+        Reflect.defineProperty(shadowTarget, "foo", new DataDescriptor("foo", true, true, true));
+        Reflect.defineProperty(nextTarget, "bar", new DataDescriptor("bar", true, true, true));
+        Reflect.defineProperty(nextTarget, "wop", new DataDescriptor("wop", true, true, true));
+
+        Reflect.preventExtensions(shadowTarget);
+
+        const result = spyObjectGraphHandler.ownKeys(shadowTarget, nextGraphKey, nextTarget);
+        expect(result).toEqual(["foo"]);
+
+        expect(Reflect.ownKeys(shadowTarget)).toEqual(["foo"]);
+        expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")!.value).toBe("foo");
       });
     });
   });
