@@ -25,6 +25,7 @@ addStageDirs([
   "_01_stage_utilities",
   "_02_code_generation",
   "_03_objectgraph_handlers",
+  "_04_mirror_membranes",
 ]);
 
 BPSet.markReady();
