@@ -125,7 +125,7 @@ function buildProxyHandlerTrap(
       }
 
       if (trap.name === "ownKeys") {
-        writer.write(`getArrayInGraph(Array.from(result), nextGraphKey)`)
+        writer.write(`getArrayInGraph(result, nextGraphKey)`)
       }
       else {
         writer.write(`getValueInGraph(result, nextGraphKey)`)

@@ -237,16 +237,16 @@ export default function WrapReturnValues(
       shadowTarget: object,
       nextGraphKey: string | symbol,
       nextTarget: object,
-    ): ArrayLike<string | symbol> {
-      const result: ArrayLike<string | symbol> = super.ownKeys(
+    ): (string | symbol)[] {
+      const result: (string | symbol)[] = super.ownKeys(
         shadowTarget,
         nextGraphKey,
         nextTarget,
       );
-      return this.thisGraphValues!.getArrayInGraph(
-        Array.from(result),
-        nextGraphKey,
-      ) as ArrayLike<string | symbol>;
+      return this.thisGraphValues!.getArrayInGraph(result, nextGraphKey) as (
+        | string
+        | symbol
+      )[];
     }
 
     /**

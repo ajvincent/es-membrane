@@ -231,7 +231,7 @@ export default class ConvertingHeadProxyHandler
    * A trap for `Reflect.ownKeys()`.
    * @param target The original object which is being proxied.
    */
-  public ownKeys(shadowTarget: object): ArrayLike<string | symbol> {
+  public ownKeys(shadowTarget: object): (string | symbol)[] {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
     return this.#graphHandlerIfc.ownKeys(shadowTarget, graphKey, realTarget);
   }

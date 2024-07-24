@@ -121,7 +121,7 @@ export interface ObjectGraphHandlerIfc {
     shadowTarget: object,
     nextGraphKey: string | symbol,
     nextTarget: object,
-  ): ArrayLike<string | symbol>;
+  ): (string | symbol)[];
   /**
    * A trap for `Object.preventExtensions()`.
    * @param target The original object which is being proxied.

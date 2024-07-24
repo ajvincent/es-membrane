@@ -36,10 +36,10 @@ export interface ObjectGraphValuesIfc {
   /**
    * This method exists to return an array of proxies, not a proxy to an array of values.
    */
-  getArrayInGraph(
-    valuesInSourceGraph: unknown[],
+  getArrayInGraph<Elements extends unknown[] = unknown[]>(
+    valuesInSourceGraph: Elements,
     sourceGraphKey: string | symbol
-  ): unknown[];
+  ): Elements;
 
   /**
    * @param descriptorInSourceGraph - the descriptor to wrap.

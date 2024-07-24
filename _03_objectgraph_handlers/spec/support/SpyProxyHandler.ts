@@ -65,9 +65,9 @@ extends SpyBase implements RequiredProxyHandler
     return this.getSpy("isExtensible").apply(this, Array.from(arguments)) as boolean;
   }
 
-  ownKeys(target: object): ArrayLike<string | symbol>
+  ownKeys(target: object): (string | symbol)[]
   {
-    return this.getSpy("ownKeys").apply(this, Array.from(arguments)) as ArrayLike<string | symbol>;
+    return this.getSpy("ownKeys").apply(this, Array.from(arguments)) as (string | symbol)[];
   }
 
   preventExtensions(target: object) : boolean

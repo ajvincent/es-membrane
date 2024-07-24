@@ -207,7 +207,7 @@ export default class ObjectGraphTailHandler
     shadowTarget: object,
     nextGraphKey: string | symbol,
     nextTarget: object,
-  ): ArrayLike<string | symbol> {
+  ): (string | symbol)[] {
     void shadowTarget;
     void nextGraphKey;
     return Reflect.ownKeys(nextTarget);

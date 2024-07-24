@@ -20,10 +20,11 @@ class LocalHead implements ObjectGraphConversionIfc {
   {
     this.#expectedRealTarget = expectedRealTarget;
   }
-  public getArrayInGraph(
-    valuesInSourceGraph: unknown[],
+
+  getArrayInGraph<Elements extends unknown[] = unknown[]>(
+    valuesInSourceGraph: Elements,
     sourceGraphKey: string | symbol
-  ): unknown[]
+  ): Elements
   {
     throw new Error("Method not implemented.");
   }
