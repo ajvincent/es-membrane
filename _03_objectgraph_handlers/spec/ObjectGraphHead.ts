@@ -24,6 +24,10 @@ it("ObjectGraphHead maintains references to proxies or underlying values in the 
     convertDescriptor: function (targetGraphKey: string | symbol, descriptor: PropertyDescriptor): PropertyDescriptor {
       throw new Error("Function not implemented.");
     },
+
+    notifyAssertionFailed(targetGraphKey: string | symbol): void {
+      throw new Error("Method not implemented.");
+    },
   };
 
   const map = new OneToOneStrongMap<string | symbol, object>;
@@ -112,6 +116,9 @@ it("ObjectGraphHead creates revocable proxies", () => {
     },
     convertDescriptor: function (targetGraphKey: string | symbol, descriptor: PropertyDescriptor): PropertyDescriptor {
       throw new Error("Function not implemented.");
+    },
+    notifyAssertionFailed(targetGraphKey: string | symbol): void {
+      throw new Error("Method not implemented.");
     },
   };
 

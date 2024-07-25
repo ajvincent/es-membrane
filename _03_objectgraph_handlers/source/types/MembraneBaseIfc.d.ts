@@ -15,4 +15,8 @@ export interface MembraneBaseIfc
     targetGraphKey: string | symbol,
     descriptor: PropertyDescriptor | undefined,
   ): PropertyDescriptor | undefined;
+
+  notifyAssertionFailed(
+    targetGraphKey: string | symbol,
+  ): void;
 }

@@ -61,6 +61,9 @@ class MockMembrane implements MembraneBaseIfc {
   convertDescriptor(targetGraphKey: string | symbol, descriptor: PropertyDescriptor): PropertyDescriptor {
     throw new Error("Method not implemented.");
   }
+  notifyAssertionFailed(targetGraphKey: string | symbol): void {
+    throw new Error("Method not implemented.");
+  }
 }
 
 describe("Converting-head proxy handler works for the trap", () => {
