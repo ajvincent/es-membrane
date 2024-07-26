@@ -3,8 +3,6 @@ export interface ObjectGraphHeadIfc extends ObjectGraphValuesIfc {
   /** The unique graph key. */
   readonly objectGraphKey: string | symbol;
 
-  get isRevoked(): boolean;
-
   /** Revoke all proxies for a given object graph. */
   revokeAllProxiesForGraph(
     graphKey: string | symbol
@@ -62,6 +60,8 @@ export interface ObjectGraphValuesIfc {
     valueInSourceGraph: unknown,
     sourceGraphKey: string | symbol
   ): unknown;
+
+  get isRevoked(): boolean;
 }
 
 export interface ObjectGraphValueCallbacksIfc {

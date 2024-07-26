@@ -1,5 +1,5 @@
-function createAlwaysRevokedProxy(): object {
-  const { proxy, revoke } = Proxy.revocable(() => null, Reflect);
+function createAlwaysRevokedProxy(): () => null {
+  const { proxy, revoke } = Proxy.revocable<() => null>(() => null, Reflect);
   revoke();
   return proxy;
 }

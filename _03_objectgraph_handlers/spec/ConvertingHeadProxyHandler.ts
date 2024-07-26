@@ -21,6 +21,10 @@ class LocalHead implements ObjectGraphConversionIfc {
     this.#expectedRealTarget = expectedRealTarget;
   }
 
+  get isRevoked() {
+    return false;
+  }
+
   getArrayInGraph<Elements extends unknown[] = unknown[]>(
     valuesInSourceGraph: Elements,
     sourceGraphKey: string | symbol
