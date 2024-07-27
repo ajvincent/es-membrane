@@ -1,13 +1,13 @@
 /* this generates a Required<ProxyHandler<object>> class which:
-(1) owns a reference to MembraneIfc, and a reference to a ShadowProxyHandler
-(2) calls methods of MembraneIfc to convert target, arguments and descriptors
-(3) calls methods of MembraneIfc to get the next ProxyHandler, or Reflect
+(1) owns a reference to MembraneBaseIfc, and a reference to a ShadowProxyHandler
+(2) calls methods of MembraneBaseIfc to convert target, arguments and descriptors
+(3) calls methods of MembraneBaseIfc to get the next ProxyHandler, or Reflect
 (4) forwards to the same trap on the graph handler
 (5) takes the response and wraps it for returning
 
 Requirements:
 
-- #membraneIfc: MembraneIfc;
+- #membraneIfc: MembraneBaseIfc;
 - #graphHandlerIfc: ObjectGraphHandlerIfc;
 - protected abstract getValueInGraph(value: object): object;
 - protected abstract getDescriptorInGraph(desc: PropertyDescriptor): object;
@@ -137,12 +137,12 @@ function buildImportManager(): ImportManager
   });
 
   importManager.addImports({
-    pathToImportedModule: path.join(stageDir, "types/MembraneIfc.d.ts"),
+    pathToImportedModule: path.join(stageDir, "types/MembraneBaseIfc.d.ts"),
     isPackageImport: false,
     isDefaultImport: false,
     isTypeOnly: true,
     importNames: [
-      "MembraneIfc"
+      "MembraneBaseIfc"
     ]
   });
 
@@ -295,13 +295,13 @@ function insertConversionMembers(
   classDecl.ctors.push(ctor);
 
   // #membraneIfc
-  const MembraneIfc = new PropertyDeclarationImpl(false, "#membraneIfc");
+  const MembraneBaseIfc = new PropertyDeclarationImpl(false, "#membraneIfc");
   {
-    MembraneIfc.isReadonly = true;
-    MembraneIfc.typeStructure = LiteralTypeStructureImpl.get("MembraneIfc");
+    MembraneBaseIfc.isReadonly = true;
+    MembraneBaseIfc.typeStructure = LiteralTypeStructureImpl.get("MembraneBaseIfc");
 
     const ctorParam = new ParameterDeclarationImpl("membraneIfc");
-    ctorParam.typeStructure = MembraneIfc.typeStructure;
+    ctorParam.typeStructure = MembraneBaseIfc.typeStructure;
     ctor.parameters.push(ctorParam);
 
     ctor.statements.push(`this.#membraneIfc = membraneIfc;`);
@@ -359,7 +359,7 @@ function insertConversionMembers(
   }
 
   classDecl.properties.unshift(
-    MembraneIfc,
+    MembraneBaseIfc,
     ObjectGraphHandlerIfc,
     ObjectGraphConversionIfc,
   );

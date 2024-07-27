@@ -98,7 +98,7 @@ export default class ForwardToReflect
    * A trap for `Reflect.ownKeys()`.
    * @param target The original object which is being proxied.
    */
-  public ownKeys(target: object): ArrayLike<string | symbol> {
+  public ownKeys(target: object): (string | symbol)[] {
     return Reflect.ownKeys(target);
   }
 

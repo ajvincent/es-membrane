@@ -3,8 +3,6 @@ export interface ObjectGraphHeadIfc extends ObjectGraphValuesIfc {
   /** The unique graph key. */
   readonly objectGraphKey: string | symbol;
 
-  get isRevoked(): boolean;
-
   /** Revoke all proxies for a given object graph. */
   revokeAllProxiesForGraph(
     graphKey: string | symbol
@@ -13,10 +11,20 @@ export interface ObjectGraphHeadIfc extends ObjectGraphValuesIfc {
 
 /** This interface is for proxy handler use. */
 export interface ObjectGraphConversionIfc extends ObjectGraphValuesIfc {
+  /**
+   * Get the real target matching a shadow target.
+   * @param shadowTarget - the shadow target I created a proxy from.
+   * @internal
+   */
   getRealTargetForShadowTarget(
     shadowTarget: object
   ): object;
 
+  /**
+   * Get the object graph key a real target belongs to.
+   * @param realTarget - the real target
+   * @internal
+   */
   getTargetGraphKeyForRealTarget(
     realTarget: object,
   ): string | symbol;
@@ -26,10 +34,10 @@ export interface ObjectGraphValuesIfc {
   /**
    * This method exists to return an array of proxies, not a proxy to an array of values.
    */
-  getArrayInGraph(
-    valuesInSourceGraph: unknown[],
+  getArrayInGraph<Elements extends unknown[] = unknown[]>(
+    valuesInSourceGraph: Elements,
     sourceGraphKey: string | symbol
-  ): unknown[];
+  ): Elements;
 
   /**
    * @param descriptorInSourceGraph - the descriptor to wrap.
@@ -52,8 +60,17 @@ export interface ObjectGraphValuesIfc {
     valueInSourceGraph: unknown,
     sourceGraphKey: string | symbol
   ): unknown;
+
+  get isRevoked(): boolean;
 }
 
 export interface ObjectGraphValueCallbacksIfc {
-  setThisGraphValues(thisGraphValues: ObjectGraphValuesIfc): void;
+  /**
+   * A callbacks interface for the object graph proxy handlers.
+   * @param thisGraphValues - the object graph head.
+   * @internal
+   */
+  setThisGraphValues(
+    thisGraphValues: ObjectGraphValuesIfc
+  ): void;
 }

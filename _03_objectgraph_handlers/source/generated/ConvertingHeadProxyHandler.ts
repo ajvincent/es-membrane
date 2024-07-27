@@ -1,5 +1,5 @@
 // This file is generated.  Do not edit.
-import type { MembraneIfc } from "../types/MembraneIfc.js";
+import type { MembraneBaseIfc } from "../types/MembraneBaseIfc.js";
 import type { ObjectGraphConversionIfc } from "../types/ObjectGraphHeadIfc.js";
 import type { RequiredProxyHandler } from "../types/RequiredProxyHandler.js";
 import type { ObjectGraphHandlerIfc } from "./types/ObjectGraphHandlerIfc.js";
@@ -11,12 +11,12 @@ type CommonConversions = {
 export default class ConvertingHeadProxyHandler
   implements RequiredProxyHandler
 {
-  readonly #membraneIfc: MembraneIfc;
+  readonly #membraneIfc: MembraneBaseIfc;
   readonly #graphHandlerIfc: ObjectGraphHandlerIfc;
   readonly #graphConversionIfc: ObjectGraphConversionIfc;
 
   constructor(
-    membraneIfc: MembraneIfc,
+    membraneIfc: MembraneBaseIfc,
     graphHandlerIfc: ObjectGraphHandlerIfc,
     graphConversionIfc: ObjectGraphConversionIfc,
   ) {
@@ -231,7 +231,7 @@ export default class ConvertingHeadProxyHandler
    * A trap for `Reflect.ownKeys()`.
    * @param target The original object which is being proxied.
    */
-  public ownKeys(shadowTarget: object): ArrayLike<string | symbol> {
+  public ownKeys(shadowTarget: object): (string | symbol)[] {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
     return this.#graphHandlerIfc.ownKeys(shadowTarget, graphKey, realTarget);
   }

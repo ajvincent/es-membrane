@@ -1,11 +1,12 @@
+import AlwaysRevokedProxy from "../../AlwaysRevokedProxy.js";
 import type { ClassDecoratorFunction } from "../../types/ClassDecoratorFunction.js";
 import ObjectGraphTailHandler from "../ObjectGraphTailHandler.js";
 
-export default function WrapReturnValues(
+export default function RevokedInFlight(
   baseClass: typeof ObjectGraphTailHandler,
   context: ClassDecoratorContext,
 ): typeof ObjectGraphTailHandler {
-  class WrapReturnValues extends baseClass {
+  class RevokedInFlight extends baseClass {
     /**
      * A trap method for a function call.
      * @param target The original callable object which is being proxied.
@@ -19,16 +20,20 @@ export default function WrapReturnValues(
       nextThisArg: any,
       nextArgArray: any[],
     ): any {
-      const result: any = super.apply(
-        shadowTarget,
-        thisArg,
-        argArray,
-        nextGraphKey,
-        nextTarget,
-        nextThisArg,
-        nextArgArray,
-      );
-      return this.thisGraphValues!.getValueInGraph(result, nextGraphKey) as any;
+      try {
+        return super.apply(
+          shadowTarget,
+          thisArg,
+          argArray,
+          nextGraphKey,
+          nextTarget,
+          nextThisArg,
+          nextArgArray,
+        );
+      } finally {
+        if (this.thisGraphValues!.isRevoked)
+          return Reflect.apply(AlwaysRevokedProxy, thisArg, argArray);
+      }
     }
 
     /**
@@ -45,19 +50,20 @@ export default function WrapReturnValues(
       nextArgArray: any[],
       nextNewTarget: Function,
     ): object {
-      const result: object = super.construct(
-        shadowTarget,
-        argArray,
-        newTarget,
-        nextGraphKey,
-        nextTarget,
-        nextArgArray,
-        nextNewTarget,
-      );
-      return this.thisGraphValues!.getValueInGraph(
-        result,
-        nextGraphKey,
-      ) as object;
+      try {
+        return super.construct(
+          shadowTarget,
+          argArray,
+          newTarget,
+          nextGraphKey,
+          nextTarget,
+          nextArgArray,
+          nextNewTarget,
+        );
+      } finally {
+        if (this.thisGraphValues!.isRevoked)
+          return Reflect.construct(AlwaysRevokedProxy, argArray, newTarget);
+      }
     }
 
     /**
@@ -74,19 +80,24 @@ export default function WrapReturnValues(
       nextProperty: string | symbol,
       nextAttributes: PropertyDescriptor,
     ): boolean {
-      const result: boolean = super.defineProperty(
-        shadowTarget,
-        property,
-        attributes,
-        nextGraphKey,
-        nextTarget,
-        nextProperty,
-        nextAttributes,
-      );
-      return this.thisGraphValues!.getValueInGraph(
-        result,
-        nextGraphKey,
-      ) as boolean;
+      try {
+        return super.defineProperty(
+          shadowTarget,
+          property,
+          attributes,
+          nextGraphKey,
+          nextTarget,
+          nextProperty,
+          nextAttributes,
+        );
+      } finally {
+        if (this.thisGraphValues!.isRevoked)
+          return Reflect.defineProperty(
+            AlwaysRevokedProxy,
+            property,
+            attributes,
+          );
+      }
     }
 
     /**
@@ -102,17 +113,18 @@ export default function WrapReturnValues(
       nextTarget: object,
       nextP: string | symbol,
     ): boolean {
-      const result: boolean = super.deleteProperty(
-        shadowTarget,
-        p,
-        nextGraphKey,
-        nextTarget,
-        nextP,
-      );
-      return this.thisGraphValues!.getValueInGraph(
-        result,
-        nextGraphKey,
-      ) as boolean;
+      try {
+        return super.deleteProperty(
+          shadowTarget,
+          p,
+          nextGraphKey,
+          nextTarget,
+          nextP,
+        );
+      } finally {
+        if (this.thisGraphValues!.isRevoked)
+          return Reflect.deleteProperty(AlwaysRevokedProxy, p);
+      }
     }
 
     /**
@@ -130,16 +142,20 @@ export default function WrapReturnValues(
       nextP: string | symbol,
       nextReceiver: any,
     ): any {
-      const result: any = super.get(
-        shadowTarget,
-        p,
-        receiver,
-        nextGraphKey,
-        nextTarget,
-        nextP,
-        nextReceiver,
-      );
-      return this.thisGraphValues!.getValueInGraph(result, nextGraphKey) as any;
+      try {
+        return super.get(
+          shadowTarget,
+          p,
+          receiver,
+          nextGraphKey,
+          nextTarget,
+          nextP,
+          nextReceiver,
+        );
+      } finally {
+        if (this.thisGraphValues!.isRevoked)
+          return Reflect.get(AlwaysRevokedProxy, p, receiver);
+      }
     }
 
     /**
@@ -154,15 +170,18 @@ export default function WrapReturnValues(
       nextTarget: object,
       nextP: string | symbol,
     ): PropertyDescriptor | undefined {
-      const result: PropertyDescriptor | undefined =
-        super.getOwnPropertyDescriptor(
+      try {
+        return super.getOwnPropertyDescriptor(
           shadowTarget,
           p,
           nextGraphKey,
           nextTarget,
           nextP,
         );
-      return this.thisGraphValues!.getDescriptorInGraph(result, nextGraphKey);
+      } finally {
+        if (this.thisGraphValues!.isRevoked)
+          return Reflect.getOwnPropertyDescriptor(AlwaysRevokedProxy, p);
+      }
     }
 
     /**
@@ -174,14 +193,12 @@ export default function WrapReturnValues(
       nextGraphKey: string | symbol,
       nextTarget: object,
     ): object | null {
-      const result: object | null = super.getPrototypeOf(
-        shadowTarget,
-        nextGraphKey,
-        nextTarget,
-      );
-      return this.thisGraphValues!.getValueInGraph(result, nextGraphKey) as
-        | object
-        | null;
+      try {
+        return super.getPrototypeOf(shadowTarget, nextGraphKey, nextTarget);
+      } finally {
+        if (this.thisGraphValues!.isRevoked)
+          return Reflect.getPrototypeOf(AlwaysRevokedProxy);
+      }
     }
 
     /**
@@ -196,17 +213,12 @@ export default function WrapReturnValues(
       nextTarget: object,
       nextP: string | symbol,
     ): boolean {
-      const result: boolean = super.has(
-        shadowTarget,
-        p,
-        nextGraphKey,
-        nextTarget,
-        nextP,
-      );
-      return this.thisGraphValues!.getValueInGraph(
-        result,
-        nextGraphKey,
-      ) as boolean;
+      try {
+        return super.has(shadowTarget, p, nextGraphKey, nextTarget, nextP);
+      } finally {
+        if (this.thisGraphValues!.isRevoked)
+          return Reflect.has(AlwaysRevokedProxy, p);
+      }
     }
 
     /**
@@ -218,15 +230,12 @@ export default function WrapReturnValues(
       nextGraphKey: string | symbol,
       nextTarget: object,
     ): boolean {
-      const result: boolean = super.isExtensible(
-        shadowTarget,
-        nextGraphKey,
-        nextTarget,
-      );
-      return this.thisGraphValues!.getValueInGraph(
-        result,
-        nextGraphKey,
-      ) as boolean;
+      try {
+        return super.isExtensible(shadowTarget, nextGraphKey, nextTarget);
+      } finally {
+        if (this.thisGraphValues!.isRevoked)
+          return Reflect.isExtensible(AlwaysRevokedProxy);
+      }
     }
 
     /**
@@ -238,15 +247,12 @@ export default function WrapReturnValues(
       nextGraphKey: string | symbol,
       nextTarget: object,
     ): (string | symbol)[] {
-      const result: (string | symbol)[] = super.ownKeys(
-        shadowTarget,
-        nextGraphKey,
-        nextTarget,
-      );
-      return this.thisGraphValues!.getArrayInGraph(result, nextGraphKey) as (
-        | string
-        | symbol
-      )[];
+      try {
+        return super.ownKeys(shadowTarget, nextGraphKey, nextTarget);
+      } finally {
+        if (this.thisGraphValues!.isRevoked)
+          return Reflect.ownKeys(AlwaysRevokedProxy);
+      }
     }
 
     /**
@@ -258,15 +264,12 @@ export default function WrapReturnValues(
       nextGraphKey: string | symbol,
       nextTarget: object,
     ): boolean {
-      const result: boolean = super.preventExtensions(
-        shadowTarget,
-        nextGraphKey,
-        nextTarget,
-      );
-      return this.thisGraphValues!.getValueInGraph(
-        result,
-        nextGraphKey,
-      ) as boolean;
+      try {
+        return super.preventExtensions(shadowTarget, nextGraphKey, nextTarget);
+      } finally {
+        if (this.thisGraphValues!.isRevoked)
+          return Reflect.preventExtensions(AlwaysRevokedProxy);
+      }
     }
 
     /**
@@ -287,21 +290,22 @@ export default function WrapReturnValues(
       nextNewValue: any,
       nextReceiver: any,
     ): boolean {
-      const result: boolean = super.set(
-        shadowTarget,
-        p,
-        newValue,
-        receiver,
-        nextGraphKey,
-        nextTarget,
-        nextP,
-        nextNewValue,
-        nextReceiver,
-      );
-      return this.thisGraphValues!.getValueInGraph(
-        result,
-        nextGraphKey,
-      ) as boolean;
+      try {
+        return super.set(
+          shadowTarget,
+          p,
+          newValue,
+          receiver,
+          nextGraphKey,
+          nextTarget,
+          nextP,
+          nextNewValue,
+          nextReceiver,
+        );
+      } finally {
+        if (this.thisGraphValues!.isRevoked)
+          return Reflect.set(AlwaysRevokedProxy, p, newValue, receiver);
+      }
     }
 
     /**
@@ -316,24 +320,25 @@ export default function WrapReturnValues(
       nextTarget: object,
       nextV: object | null,
     ): boolean {
-      const result: boolean = super.setPrototypeOf(
-        shadowTarget,
-        v,
-        nextGraphKey,
-        nextTarget,
-        nextV,
-      );
-      return this.thisGraphValues!.getValueInGraph(
-        result,
-        nextGraphKey,
-      ) as boolean;
+      try {
+        return super.setPrototypeOf(
+          shadowTarget,
+          v,
+          nextGraphKey,
+          nextTarget,
+          nextV,
+        );
+      } finally {
+        if (this.thisGraphValues!.isRevoked)
+          return Reflect.setPrototypeOf(AlwaysRevokedProxy, v);
+      }
     }
   }
 
-  return WrapReturnValues;
+  return RevokedInFlight;
 }
 
-WrapReturnValues satisfies ClassDecoratorFunction<
+RevokedInFlight satisfies ClassDecoratorFunction<
   typeof ObjectGraphTailHandler,
   true,
   false

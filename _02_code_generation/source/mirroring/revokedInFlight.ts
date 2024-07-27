@@ -11,9 +11,10 @@ import {
   ClassDeclarationImpl,
   ImportManager,
   InterfaceDeclarationImpl,
+  MemberedStatementsKey,
   LiteralTypeStructureImpl,
   SourceFileImpl,
-  MemberedStatementsKey,
+  TypeMembersMap,
   type stringWriterOrStatementImpl,
 } from "ts-morph-structures";
 
@@ -31,24 +32,27 @@ import {
   pathToTailHandlerModule,
 } from "../ObjectGraphTailHandler.js";
 
-import buildConstStatement from "../utilities/buildConstStatement.js";
-
 import buildTailDecoratorFunction, {
   tailSatisfiesStatement
 } from "../utilities/tailDecoratorFunction.js";
 
+import getRequiredProxyHandlerInterface from "../getInterfaces/requiredProxy.js";
+
 //#endregion preamble
 
+const RequiredProxyHandlerMembers = TypeMembersMap.fromMemberedObject(getRequiredProxyHandlerInterface());
+
+/** `try { runTrap() } catch (ex) {} */
 export default
-async function createWrapReturnValues(
+async function createRevokedInFlight(
   handlerInterface: InterfaceDeclarationImpl
 ): Promise<void>
 {
-  const pathToReturnValuesModule = path.join(stageDir, "generated/decorators/wrapReturnValues.ts");
-  const importManager = buildImportManager(pathToReturnValuesModule);
+  const pathToRevokedInFlight = path.join(stageDir, "generated/decorators/revokedInFlight.ts");
+  const importManager = buildImportManager(pathToRevokedInFlight);
 
   const decoratorFunction = buildTailDecoratorFunction();
-  decoratorFunction.name = "WrapReturnValues";
+  decoratorFunction.name = "RevokedInFlight";
 
   const classDecl: ClassDeclarationImpl = buildHandlerClass(
     handlerInterface, buildProxyHandlerTrap
@@ -69,7 +73,7 @@ async function createWrapReturnValues(
   );
 
   await createSourceFileFromStructure(
-    pathToReturnValuesModule,
+    pathToRevokedInFlight,
     sourceStructure
   );
 }
@@ -100,6 +104,16 @@ function buildImportManager(
     ]
   });
 
+  importManager.addImports({
+    pathToImportedModule: path.join(stageDir, "AlwaysRevokedProxy.ts"),
+    isPackageImport: false,
+    isDefaultImport: true,
+    isTypeOnly: false,
+    importNames: [
+      "AlwaysRevokedProxy",
+    ]
+  });
+
   return importManager;
 }
 
@@ -110,29 +124,22 @@ function buildProxyHandlerTrap(
   assert.equal(key.groupType?.kind, StructureKind.MethodSignature, "expected a method");
   const trap = key.groupType;
 
+  const originalTrap = RequiredProxyHandlerMembers.getAsKind(StructureKind.MethodSignature, trap.name)!;
+  const argsAfterFirst = originalTrap.parameters.map(param => param.name).slice(1).join(", ");
   return [
-    buildConstStatement(
-      "result",
-      key.groupType.returnTypeStructure!,
-      `super.${key.groupType.name}(${key.groupType.parameters.map(param => param.name).join(", ")})`
-    ),
-
     (writer: CodeBlockWriter): void => {
-      writer.write(`return this.thisGraphValues!.`);
-      if (trap.name === "getOwnPropertyDescriptor") {
-        writer.write(`getDescriptorInGraph(result, nextGraphKey);`)
-        return;
-      }
-
-      if (trap.name === "ownKeys") {
-        writer.write(`getArrayInGraph(result, nextGraphKey)`)
-      }
-      else {
-        writer.write(`getValueInGraph(result, nextGraphKey)`)
-      }
-      writer.write(` as `);
-      trap.returnTypeStructure!.writerFunction(writer);
-      writer.write(";");
+      writer.write("try ");
+      writer.block(() => {
+        writer.write(`return super.${trap.name}(shadowTarget, ${
+          trap.parameters.map(param => param.name).slice(1).join(", ")
+        });`);
+      });
+      writer.write("finally ");
+      writer.block(() => {
+        writer.write(`
+          if (this.thisGraphValues!.isRevoked) return Reflect.${trap.name}(AlwaysRevokedProxy, ${argsAfterFirst});`
+        );
+      });
     }
   ];
 }

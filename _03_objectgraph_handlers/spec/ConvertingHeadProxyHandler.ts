@@ -1,8 +1,8 @@
 import ConvertingHeadProxyHandler from "#objectgraph_handlers/source/generated/ConvertingHeadProxyHandler.js";
 
 import type {
-  MembraneIfc,
-} from "#objectgraph_handlers/source/types/MembraneIfc.js";
+  MembraneBaseIfc,
+} from "#objectgraph_handlers/source/types/MembraneBaseIfc.js";
 
 import type {
   ObjectGraphConversionIfc
@@ -20,10 +20,15 @@ class LocalHead implements ObjectGraphConversionIfc {
   {
     this.#expectedRealTarget = expectedRealTarget;
   }
-  public getArrayInGraph(
-    valuesInSourceGraph: unknown[],
+
+  get isRevoked() {
+    return false;
+  }
+
+  getArrayInGraph<Elements extends unknown[] = unknown[]>(
+    valuesInSourceGraph: Elements,
     sourceGraphKey: string | symbol
-  ): unknown[]
+  ): Elements
   {
     throw new Error("Method not implemented.");
   }
@@ -53,11 +58,14 @@ class LocalHead implements ObjectGraphConversionIfc {
   }
 }
 
-class MockMembrane implements MembraneIfc {
+class MockMembrane implements MembraneBaseIfc {
   convertArray<ValueTypes extends unknown[]>(targetGraphKey: string | symbol, values: ValueTypes): ValueTypes {
     throw new Error("Method not implemented.");
   }
   convertDescriptor(targetGraphKey: string | symbol, descriptor: PropertyDescriptor): PropertyDescriptor {
+    throw new Error("Method not implemented.");
+  }
+  notifyAssertionFailed(targetGraphKey: string | symbol): void {
     throw new Error("Method not implemented.");
   }
 }
