@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 
 import {
-  parseAndGenerateServices,
+  parse,
   TSESTree,
 } from '@typescript-eslint/typescript-estree';
 
@@ -22,9 +22,6 @@ import organizeClassMembers, {
   type AST_ClassMembers
 } from "./organizeClassMembers.js";
 
-interface StrongReference {
-  pathsToObjects: readonly string[];
-}
 
 export interface ParameterLocation {
   pathToTypeScriptFile: string;
@@ -36,7 +33,7 @@ export interface ParameterLocation {
 export default
 async function holdsArgument(
   argumentLocation: ParameterLocation
-): Promise<readonly StrongReference[]>
+): Promise<void>
 {
   const {
     className, methodName, paramName
@@ -45,10 +42,7 @@ async function holdsArgument(
   const pathToTypeScriptFile = path.resolve(projectDir, argumentLocation.pathToTypeScriptFile);
   const tsSource = await fs.readFile(pathToTypeScriptFile, { encoding: "utf-8" });
 
-  const {
-    ast,
-    services
-  } = parseAndGenerateServices(tsSource, { loc: true, range: true });
+  const ast = parse(tsSource, { loc: true, range: true });
 
   const classAST: TSESTree.ClassDeclaration | undefined = findClassInAST(ast, className);
   if (classAST === undefined) {
@@ -91,6 +85,10 @@ async function holdsArgument(
   ).map(
     ref => ref.identifier as TSESTree.Identifier
   );
+
+  matchingIdentifiers.forEach(identifier => {
+    void(identifier.parent);
+  })
 
   throw new Error("not yet implemented");
 }

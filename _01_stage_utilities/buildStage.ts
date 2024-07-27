@@ -1,8 +1,18 @@
 import { BuildPromiseSet } from "#build-utilities/source/BuildPromise.js";
-import { runModule } from "#build-utilities/source/runModule.js";
+import saveBuiltinClassReferences from "./source/ast-tools/builtin-classes.js";
 import runJasmine from "#build-utilities/source/runJasmine.js";
 
 const BPSet = new BuildPromiseSet;
+
+{ // builtin-classes
+  const target = BPSet.get("built-in classes");
+
+  target.addTask(async () => {
+    console.log("beginning _01_stage_utilities:built-in classes");
+    await saveBuiltinClassReferences();
+    console.log("completed _01_stage_utilities:built-in classes");
+  });
+}
 
 { // jasmine
   const target = BPSet.get("jasmine");
@@ -34,6 +44,7 @@ const BPSet = new BuildPromiseSet;
 `;
 
 BPSet.markReady();
+BPSet.main.addSubtarget("built-in classes");
 BPSet.main.addSubtarget("jasmine");
 /*
 BPSet.main.addSubtarget("eslint");
