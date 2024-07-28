@@ -1,12 +1,3 @@
-/*
-import * as SourceClasses from "./SourceClass.js"
-import * as IdentifierClasses from "./IdentifierOwners.js";
-void(SourceClasses);
-void(IdentifierClasses);
-
-export default Promise.resolve();
-*/
-
 import {
   PromiseAllParallel,
   SingletonPromise,
