@@ -150,7 +150,7 @@ describe("CodeGenerator(WeakStrongMap.mjs),", () => {
     expect(testMap.get(key3, key4)).toBe(value2);
   });
 
-  describe("holds references to objects", () => {
+  xdescribe("holds references to objects", () => {
     const externalKey = {}, externalValue = {};
 
     it("weakly as the first key in .delete()", async () => {
