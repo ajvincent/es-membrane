@@ -89,7 +89,7 @@ export class IdentifierReference extends JSONRevivedType<"IdentifierReference">
 }
 
 /** A JSON-serializable object describing where we keep references to an identifier. */
-export class IdentifierOwners extends JSONRevivedType<"IdentifierOwners">
+export class IdentifierOwners extends JSONRevivedType<"IdentifierOwners" | "CallbackOwners">
 {
   static readonly ThisIdentifier = "this";
   static readonly ThisIndex = -2;
@@ -97,12 +97,11 @@ export class IdentifierOwners extends JSONRevivedType<"IdentifierOwners">
   static readonly ReturnIdentifier = "(return value)";
   static readonly ReturnIndex = -1;
 
+  readonly jsonType: "IdentifierOwners" | "CallbackOwners" = "IdentifierOwners";
   identifier: string = "";
   argIndex: number = NaN;
 
   readonly references: IdentifierReference[] = [];
-
-  readonly jsonType = "IdentifierOwners";
 
   adoptFromJSON(
     other: IdentifierOwners
@@ -116,7 +115,27 @@ export class IdentifierOwners extends JSONRevivedType<"IdentifierOwners">
   }
 }
 
+export class CallbackIdentifierOwners extends IdentifierOwners
+{
+  readonly jsonType = "CallbackOwners";
+  readonly thisParameter: IdentifierOwners;
+  readonly parameters: IdentifierOwners[] = [];
+  readonly returnValue: IdentifierOwners;
+
+  constructor() {
+    super();
+    this.thisParameter = new IdentifierOwners;
+    this.thisParameter.identifier = IdentifierOwners.ThisIdentifier;
+    this.thisParameter.argIndex = IdentifierOwners.ThisIndex;
+
+    this.returnValue = new IdentifierOwners;
+    this.returnValue.identifier = IdentifierOwners.ReturnIdentifier;
+    this.returnValue.argIndex = IdentifierOwners.ReturnIndex;
+  }
+}
+
 registerJSONTypeClasses(
+  CallbackIdentifierOwners,
   IdentifierReference,
   IdentifierOwners,
 );

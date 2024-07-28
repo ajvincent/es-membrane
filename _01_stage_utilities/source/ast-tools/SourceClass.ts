@@ -12,8 +12,9 @@ export class SourceClassReferences extends JSONRevivedType<"SourceClassReference
 {
   readonly jsonType = "SourceClassReferences";
   fileLocation: string = "";
+  ctor?: SourceClassConstructor;
 
-  /** key: property name, value: class name */
+  /** key: property name, value: class field */
   readonly properties: Record<string, SourceClassProperty> = {};
   readonly methods: Record<string, SourceClassMethod> = {};
 
@@ -22,6 +23,8 @@ export class SourceClassReferences extends JSONRevivedType<"SourceClassReference
   ): this
   {
     this.fileLocation = other.fileLocation;
+    this.ctor = other.ctor;
+
     for (const [key, value] of Object.entries(other.properties)) {
       this.properties[key] = value;
     }
@@ -34,26 +37,39 @@ export class SourceClassReferences extends JSONRevivedType<"SourceClassReference
   }
 }
 
-export class SourceClassProperty {
+export class SourceClassConstructor extends JSONRevivedType<"SourceClassConstructor"> {
+  readonly jsonType = "SourceClassConstructor";
+  adoptFromJSON(
+    other: SourceClassConstructor
+  ): this
+  {
+    this.parameters = other.parameters;
+    return this;
+  }
+
+  parameters: IdentifierOwners[] = [];
+}
+
+export class SourceClassProperty extends JSONRevivedType<"SourceClassProperty"> {
   readonly jsonType = "SourceClassProperty";
   adoptFromJSON(other: SourceClassProperty): this {
     return this;
   }
 }
 
-export class SourceClassMethod {
+export class SourceClassMethod extends JSONRevivedType<"SourceClassMethod"> {
+  readonly jsonType = "SourceClassMethod";
   adoptFromJSON(other: SourceClassMethod): this {
     this.parameters = other.parameters;
     this.returnValue = other.returnValue;
     return this;
   }
 
-  readonly jsonType = "SourceClassMethod";
   parameters: IdentifierOwners[] = [];
-
   returnValue: IdentifierOwners;
 
   constructor() {
+    super();
     this.returnValue = new IdentifierOwners;
     this.returnValue.argIndex = IdentifierOwners.ReturnIndex;
   }
@@ -61,6 +77,7 @@ export class SourceClassMethod {
 
 registerJSONTypeClasses(
   SourceClassReferences,
+  SourceClassConstructor,
   SourceClassProperty,
   SourceClassMethod,
 );

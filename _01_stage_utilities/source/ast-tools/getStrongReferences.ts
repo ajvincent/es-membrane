@@ -22,6 +22,7 @@ import organizeClassMembers, {
   type AST_ClassMembers
 } from "./organizeClassMembers.js";
 
+import { loadSourceReferences } from "./loadReferences.js";
 
 export interface ParameterLocation {
   pathToTypeScriptFile: string;
@@ -102,9 +103,12 @@ await holdsArgument(
 );
 */
 
+void(holdsArgument);
+/*
 await holdsArgument({
   pathToTypeScriptFile: "_03_objectgraph_handlers/source/RevokerManagement.ts",
   className: "RevokerManagement",
   methodName: "addRevoker",
   paramName: "owner"
 });
+*/
