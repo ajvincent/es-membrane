@@ -27,9 +27,8 @@ export default function defineMap(
     sourceClass.methods["delete"] = deleteOwners;
 
     const keyParam = new IdentifierOwners;
-    deleteOwners.parameters.push(keyParam);
+    deleteOwners.variables["key"] = keyParam;
 
-    keyParam.identifier = "key";
     keyParam.argIndex = 0;
   }
 
@@ -39,9 +38,8 @@ export default function defineMap(
     sourceClass.methods["get"] = getOwners;
 
     const keyParam = new IdentifierOwners;
-    getOwners.parameters.push(keyParam);
+    getOwners.variables["key"] = keyParam;
 
-    keyParam.identifier = "key";
     keyParam.argIndex = 0;
   }
 
@@ -51,9 +49,8 @@ export default function defineMap(
     sourceClass.methods["has"] = hasOwners;
 
     const keyParam = new IdentifierOwners;
-    hasOwners.parameters.push(keyParam);
+    hasOwners.variables["key"] = keyParam;
 
-    keyParam.identifier = "key";
     keyParam.argIndex = 0;
   }
 
@@ -63,13 +60,11 @@ export default function defineMap(
     sourceClass.methods["set"] = setOwners;
 
     const keyParam = new IdentifierOwners;
-    setOwners.parameters.push(keyParam);
-    keyParam.identifier = "key";
+    setOwners.variables["key"] = keyParam;
     keyParam.argIndex = 0;
 
     const valueParam = new IdentifierOwners;
-    setOwners.parameters.push(valueParam);
-    valueParam.identifier = "value";
+    setOwners.variables["value"] = valueParam;
     valueParam.argIndex = 1;
 
     // this holds key strongly
@@ -84,7 +79,7 @@ export default function defineMap(
     {
       const ref = new IdentifierReference;
       ref.holdType = HOLD_TYPE.Strong;
-      ref.identifierSequence.push(keyParam.identifier);
+      ref.identifierSequence.push("key");
       valueParam.references.push(ref);
     }
   }

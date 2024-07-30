@@ -1,3 +1,4 @@
+import assert from "node:assert";
 import {
   HOLD_TYPE,
   IdentifierOwners,
@@ -30,7 +31,7 @@ export default function hasStrongParameterReference(
   if (!method)
     throw new Error(`method "${methodName}" not found in source class ${className}`);
 
-  const parameter: IdentifierOwners | undefined = method.parameters.find(param => param.identifier === parameterName);
+  const parameter: IdentifierOwners | undefined = method.variables[parameterName];
   if (!parameter)
     throw new Error(`${className}::${method} has no parameter "${parameterName}"`);
 
@@ -38,14 +39,34 @@ export default function hasStrongParameterReference(
 
   const indeterminates: Error[] = [];
   for (const reference of parameter.references) {
-    if (reference.holdType === HOLD_TYPE.Strong)
-      foundStrong = true;
-    else if (reference.holdType === HOLD_TYPE.Indeterminate)
+    if (reference.holdType === HOLD_TYPE.Weak)
+      continue;
+    if (reference.holdType === HOLD_TYPE.Indeterminate) {
       indeterminates.push(new Error(
         `indeterminate reference: ${reference.identifierSequence.join("::")}@${
           reference.statementLocation?.start.line
         }`
       ));
+      continue;
+    }
+
+    if (reference.identifierSequence.length > 1) {
+      indeterminates.push(new Error(
+        `unsupported identifier sequence: ${reference.identifierSequence.join("::")}@${
+          reference.statementLocation?.start.line
+        }`
+      ));
+      continue;
+    }
+
+    assert.notEqual(reference.identifierSequence.length, 0, "we need some identifier to look up");
+    const otherIdentifier = reference.identifierSequence[0];
+    if (otherIdentifier === "this")
+      foundStrong = true;
+
+    else if (otherIdentifier in method.variables) {
+      foundStrong ||= hasStrongParameterReference({ className, methodName, parameterName: otherIdentifier });
+    }
   }
 
   if (indeterminates.length) {

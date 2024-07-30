@@ -22,7 +22,7 @@ describe("hasStrongReference works", () => {
       ).toBe(false);
     });
 
-    xit("set(value)", () => {
+    it("set(value)", () => {
       expect(
         hasStrongParameterReference({
           className: "WeakMap",
@@ -30,6 +30,28 @@ describe("hasStrongReference works", () => {
           parameterName: "value"
         })
       ).toBe(false);
+    });
+  });
+
+  describe("on Map::", () => {
+    it("set(key)", () => {
+      expect(
+        hasStrongParameterReference({
+          className: "Map",
+          methodName: "set",
+          parameterName: "key"
+        })
+      ).toBe(true);
+    });
+
+    it("set(value)", () => {
+      expect(
+        hasStrongParameterReference({
+          className: "Map",
+          methodName: "set",
+          parameterName: "value"
+        })
+      ).toBe(true);
     });
   });
 });

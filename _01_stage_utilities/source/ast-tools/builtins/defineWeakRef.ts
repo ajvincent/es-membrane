@@ -28,8 +28,7 @@ export default function defineWeakRef(
     sourceClass.ctor = ctor;
 
     const valueParam = new IdentifierOwners;
-    ctor.parameters.push(valueParam);
-    valueParam.identifier = "value";
+    ctor.variables["value"] = valueParam;
     valueParam.argIndex = 0;
 
     // this holds value weakly
@@ -43,11 +42,5 @@ export default function defineWeakRef(
   {
     const derefMethod = new SourceClassMethod;
     sourceClass.methods["deref"] = derefMethod;
-
-    // this holds return value weakly
-    const ref = new IdentifierReference;
-    ref.identifierSequence.push("this");
-    ref.holdType = HOLD_TYPE.Weak;
-    derefMethod.returnValue.references.push(ref);
   }
 }

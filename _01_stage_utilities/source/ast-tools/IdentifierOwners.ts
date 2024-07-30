@@ -98,7 +98,6 @@ export class IdentifierOwners extends JSONRevivedType<"IdentifierOwners" | "Call
   static readonly ReturnIndex = -1;
 
   readonly jsonType: "IdentifierOwners" | "CallbackOwners" = "IdentifierOwners";
-  identifier: string = "";
   argIndex: number = NaN;
 
   readonly references: IdentifierReference[] = [];
@@ -107,7 +106,6 @@ export class IdentifierOwners extends JSONRevivedType<"IdentifierOwners" | "Call
     other: IdentifierOwners
   ): this
   {
-    this.identifier = other.identifier;
     this.argIndex = other.argIndex;
     this.references.push(...other.references);
 
@@ -125,11 +123,9 @@ export class CallbackIdentifierOwners extends IdentifierOwners
   constructor() {
     super();
     this.thisParameter = new IdentifierOwners;
-    this.thisParameter.identifier = IdentifierOwners.ThisIdentifier;
     this.thisParameter.argIndex = IdentifierOwners.ThisIndex;
 
     this.returnValue = new IdentifierOwners;
-    this.returnValue.identifier = IdentifierOwners.ReturnIdentifier;
     this.returnValue.argIndex = IdentifierOwners.ReturnIndex;
   }
 }

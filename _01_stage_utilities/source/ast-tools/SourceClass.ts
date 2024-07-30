@@ -43,11 +43,11 @@ export class SourceClassConstructor extends JSONRevivedType<"SourceClassConstruc
     other: SourceClassConstructor
   ): this
   {
-    this.parameters = other.parameters;
+    this.variables = other.variables;
     return this;
   }
 
-  parameters: IdentifierOwners[] = [];
+  variables: Record<string, IdentifierOwners> = {};
 }
 
 export class SourceClassProperty extends JSONRevivedType<"SourceClassProperty"> {
@@ -60,19 +60,11 @@ export class SourceClassProperty extends JSONRevivedType<"SourceClassProperty"> 
 export class SourceClassMethod extends JSONRevivedType<"SourceClassMethod"> {
   readonly jsonType = "SourceClassMethod";
   adoptFromJSON(other: SourceClassMethod): this {
-    this.parameters = other.parameters;
-    this.returnValue = other.returnValue;
+    this.variables = other.variables;
     return this;
   }
 
-  parameters: IdentifierOwners[] = [];
-  returnValue: IdentifierOwners;
-
-  constructor() {
-    super();
-    this.returnValue = new IdentifierOwners;
-    this.returnValue.argIndex = IdentifierOwners.ReturnIndex;
-  }
+  variables: Record<string, IdentifierOwners> = {};
 }
 
 registerJSONTypeClasses(
