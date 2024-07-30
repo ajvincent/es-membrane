@@ -1,8 +1,8 @@
 import {
   loadSourceDirReferences
-} from "#stage_utilities/source/ast-tools/loadReferences.js";
+} from "#stage_utilities/source/gc-static-analysis/loadReferences.js";
 
-import hasStrongParameterReference from "#stage_utilities/source/ast-tools/hasStrongReference.js";
+import hasStrongParameterReference from "#stage_utilities/source/gc-static-analysis/hasStrongReference.js";
 
 describe("hasStrongReference works", () => {
   beforeAll(async () => {

@@ -71,7 +71,7 @@ export async function loadSourceDirReferences(
 ): Promise<void>
 {
   await Promise.all([
-    loadSourceReferences("_01_stage_utilities/source/ast-tools/builtin-classes.json"),
+    loadSourceReferences("_01_stage_utilities/source/gc-static-analysis/builtin-classes.json"),
     PromiseAllParallel<string, void>(sourceDirs, sourceDir => {
       return loadSourceReferences(path.join(sourceDir, "class-references.json"));
     })

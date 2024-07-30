@@ -6,6 +6,7 @@ _*/spec-generated
 _*/**/ts-stdout.txt
 _*/**/tsconfig.json
 _*/class-references.json
+_*/**/class-references.json
 
 old-build/**/*.mjs.map
 old-build/**/*.d.mts

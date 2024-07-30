@@ -1,5 +1,5 @@
 import { BuildPromiseSet } from "#build-utilities/source/BuildPromise.js";
-import saveBuiltinClassReferences from "./source/ast-tools/builtin-classes.js";
+import saveBuiltinClassReferences from "./source/gc-static-analysis/builtin-classes.js";
 import runJasmine from "#build-utilities/source/runJasmine.js";
 
 const BPSet = new BuildPromiseSet;
