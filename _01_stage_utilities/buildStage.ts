@@ -1,6 +1,7 @@
 import { BuildPromiseSet } from "#build-utilities/source/BuildPromise.js";
 import saveBuiltinClassReferences from "./source/gc-static-analysis/builtin-classes.js";
 import runJasmine from "#build-utilities/source/runJasmine.js";
+import createReferencesJSON from "./source/gc-static-analysis/createReferencesJSON.js";
 
 const BPSet = new BuildPromiseSet;
 
@@ -11,6 +12,16 @@ const BPSet = new BuildPromiseSet;
     console.log("beginning _01_stage_utilities:built-in classes");
     await saveBuiltinClassReferences();
     console.log("completed _01_stage_utilities:built-in classes");
+  });
+}
+
+{ // collections references
+  const target = BPSet.get("collections references");
+  target.addTask(async () => {
+    console.log("beginning _01_stage_utilities:collections references");
+    debugger;
+    await createReferencesJSON("_01_stage_utilities/source/collections");
+    console.log("completed _01_stage_utilities:collections references");
   });
 }
 
@@ -45,6 +56,7 @@ const BPSet = new BuildPromiseSet;
 
 BPSet.markReady();
 BPSet.main.addSubtarget("built-in classes");
+BPSet.main.addSubtarget("collections references");
 BPSet.main.addSubtarget("jasmine");
 /*
 BPSet.main.addSubtarget("eslint");

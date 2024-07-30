@@ -10,8 +10,6 @@
     "node": ">=18.19"
   },
   "scripts": {
-    "ast-test": "node --import ./register-hooks.js ./_01_stage_utilities/source/ast-tools/getStrongReferences.ts",
-    "ast-debug": "node --inspect-brk --import ./register-hooks.js ./_01_stage_utilities/source/ast-tools/getStrongReferences.ts",
     "build": "node --expose-gc --import ./register-hooks.js ./build.ts",
     "debug": "node --inspect-brk --expose-gc --import ./register-hooks.js ./build.ts",
     "build-tsimp": "node --expose-gc --import=tsimp/import --import ./build-utilities/loader-hooks/subpath/registration.js ./build.ts",
