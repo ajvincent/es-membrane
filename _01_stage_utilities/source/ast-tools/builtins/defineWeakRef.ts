@@ -6,13 +6,13 @@ import {
   IdentifierOwners,
   IdentifierReference,
   HOLD_TYPE,
-} from "../IdentifierOwners.js";
+} from "../JSONClasses/IdentifierOwners.js";
 
 import {
-  SourceClassReferences,
   SourceClassConstructor,
+  SourceClassReferences,
   SourceClassMethod,
-} from "../SourceClass.js";
+} from "../JSONClasses/SourceClass.js";
 
 export default function defineWeakRef(
   map: Map<string, SourceClassReferences>

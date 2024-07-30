@@ -2,7 +2,7 @@ import assert from "node:assert";
 import {
   HOLD_TYPE,
   IdentifierOwners,
-} from "./IdentifierOwners.js";
+} from "./JSONClasses/IdentifierOwners.js";
 
 import {
   SourceClassMap
@@ -11,7 +11,7 @@ import {
 import {
   SourceClassMethod,
   SourceClassReferences,
-} from "./SourceClass.js";
+} from "./JSONClasses/SourceClass.js";
 
 export interface ParameterLocation {
   className: string;

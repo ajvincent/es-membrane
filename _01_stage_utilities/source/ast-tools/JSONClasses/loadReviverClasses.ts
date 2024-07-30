@@ -1,7 +1,7 @@
 import {
   PromiseAllParallel,
   SingletonPromise,
-} from "../PromiseTypes.mjs";
+} from "../../PromiseTypes.mjs";
 
 export default new SingletonPromise(async (): Promise<void> => {
   const jsonClassFiles = [

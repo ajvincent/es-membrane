@@ -6,12 +6,12 @@ import {
   IdentifierOwners,
   IdentifierReference,
   HOLD_TYPE,
-} from "../IdentifierOwners.js";
+} from "../JSONClasses/IdentifierOwners.js";
 
 import {
   SourceClassReferences,
   SourceClassMethod,
-} from "../SourceClass.js";
+} from "../JSONClasses/SourceClass.js";
 
 export default function defineMap(
   map: Map<string, SourceClassReferences>

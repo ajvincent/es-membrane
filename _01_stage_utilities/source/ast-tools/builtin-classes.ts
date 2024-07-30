@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   SourceClassReferences,
-} from "./SourceClass.js";
+} from "./JSONClasses/SourceClass.js";
 
 import defineWeakMap from "./builtins/defineWeakMap.js";
 import defineMap from "./builtins/defineMap.js";

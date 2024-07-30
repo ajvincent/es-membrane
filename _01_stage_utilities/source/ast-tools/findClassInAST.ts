@@ -1,8 +1,6 @@
 import { TSESTree } from "@typescript-eslint/typescript-estree";
 
-
 import * as Acorn from "acorn";
-
 import * as AcornWalkers from "acorn-walk";
 
 export default function findClassInAST(

@@ -6,7 +6,7 @@ import {
 import {
   JSONRevivedType,
   registerJSONTypeClasses,
-} from "./ReviverClassesMap.js" ;
+} from "./ReviverClassesMap.js";
 
 export class SourceClassReferences extends JSONRevivedType<"SourceClassReferences">
 {

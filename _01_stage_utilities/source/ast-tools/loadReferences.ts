@@ -1,5 +1,5 @@
-import path from "node:path";
 import fs from "node:fs/promises";
+import path from "node:path";
 
 import {
   projectDir,
@@ -11,13 +11,13 @@ import {
 
 import {
   SourceClassReferences
-} from "./SourceClass.js";
+} from "./JSONClasses/SourceClass.js";
 
 import {
   ReviverClassesMap,
-} from "./ReviverClassesMap.js";
+} from "./JSONClasses/ReviverClassesMap.js";
 
-import loadReviverClasses from "./loadReviverClasses.js";
+import loadReviverClasses from "./JSONClasses/loadReviverClasses.js";
 
 function reviveReferences(
   this: void,
