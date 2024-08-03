@@ -23,7 +23,7 @@ async function saveBuiltinClassReferences(): Promise<void>
   let saveLocation = path.normalize(path.resolve(fileURLToPath(import.meta.url), "../builtin-classes.json"));
   await fs.writeFile(
     saveLocation,
-    JSON.stringify(sourceClassRecords, null, 2),
+    JSON.stringify(sourceClassRecords, null, 2) + "\n",
     {
       encoding: "utf-8"
     }

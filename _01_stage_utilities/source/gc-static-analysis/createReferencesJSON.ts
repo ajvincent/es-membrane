@@ -45,7 +45,7 @@ async function createReferencesJSON(
 
   await fs.writeFile(
     path.join(projectDir, pathToDirectory, "class-references.json"),
-    JSON.stringify(sourceClassRecords, null, 2),
+    JSON.stringify(sourceClassRecords, null, 2) + "\n",
     { "encoding": "utf-8" }
   );
 }
