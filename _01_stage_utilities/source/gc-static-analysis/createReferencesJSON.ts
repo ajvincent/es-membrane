@@ -1,3 +1,4 @@
+//#region preamble
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -19,11 +20,21 @@ import type {
   TSESTree
 } from "@typescript-eslint/typescript-estree";
 
+import {
+  projectDir
+} from "../AsyncSpecModules.mjs";
+
 import organizeClassMembers, {
   type AST_ClassMembers
 } from "./ast-tools/organizeClassMembers.js";
+
 import buildMethodReferences from "./ast-tools/buildMethodReferences.js";
-import { projectDir } from "../AsyncSpecModules.mjs";
+
+import {
+  findSuperClass
+} from "./ast-tools/findClassInAST.js";
+
+//#endregion preamble
 
 export default
 async function createReferencesJSON(
@@ -62,6 +73,9 @@ async function defineClassesForFile(
     sourceClassRecords[tsESTree_Class.id.name] = sourceClass;
 
     sourceClass.fileLocation = pathToTypeScriptFile;
+    if (tsESTree_Class.superClass) {
+      sourceClass.extendsClass = findSuperClass(tsESTree_Class);
+    }
 
     const members: AST_ClassMembers = organizeClassMembers(tsESTree_Class);
     for (const [methodName, tsESTree_Method] of members.MethodDefinitions) {

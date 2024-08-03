@@ -12,6 +12,7 @@ export class SourceClassReferences extends JSONRevivedType<"SourceClassReference
 {
   readonly jsonType = "SourceClassReferences";
   fileLocation: string = "";
+  extendsClass?: string;
   ctor?: SourceClassConstructor;
 
   /** key: property name, value: class field */
@@ -23,6 +24,7 @@ export class SourceClassReferences extends JSONRevivedType<"SourceClassReference
   ): this
   {
     this.fileLocation = other.fileLocation;
+    this.extendsClass = other.extendsClass;
     this.ctor = other.ctor;
 
     for (const [key, value] of Object.entries(other.properties)) {

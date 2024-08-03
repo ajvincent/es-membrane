@@ -3,15 +3,16 @@ import { TSESTree } from "@typescript-eslint/typescript-estree";
 import * as Acorn from "acorn";
 import * as AcornWalkers from "acorn-walk";
 
+// type.startsWith("TS") is a good test for TypeScript-unique types
+const findNodeBase: AcornWalkers.RecursiveVisitors<any> = {
+  ...AcornWalkers.base
+};
+
 export default function findClassInAST(
   ast: TSESTree.Program,
   className: string,
 ): TSESTree.ClassDeclaration | undefined
 {
-// type.startsWith("TS") is a good test for TypeScript-unique types
-  const findNodeBase: AcornWalkers.RecursiveVisitors<any> = {
-    ...AcornWalkers.base
-  };
   for (const key in TSESTree.AST_NODE_TYPES) {
     if (key.startsWith("TS"))
       (findNodeBase as Record<string, any>)[key] = () => {};
@@ -30,4 +31,21 @@ export default function findClassInAST(
   )?.node as TSESTree.ClassDeclaration | undefined;
 
   return classAST;
+}
+
+export function findSuperClass(
+  classAST: TSESTree.ClassDeclaration
+): string | undefined
+{
+  const identifier = AcornWalkers.findNodeAt<Acorn.Identifier>(
+    classAST as unknown as Acorn.ClassDeclaration,
+    undefined,
+    undefined,
+    (nodeType: string, node: Acorn.Node): boolean => {
+      return nodeType === "Identifier"
+    },
+    findNodeBase
+  )?.node as Acorn.Identifier | undefined;
+
+  return identifier?.name;
 }
