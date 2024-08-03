@@ -17,7 +17,8 @@ describe("hasStrongReference works", () => {
         hasStrongParameterReference({
           className: "WeakMap",
           methodName: "set",
-          parameterName: "key"
+          parameterName: "key",
+          externalReferences: [],
         })
       ).toBe(false);
     });
@@ -27,9 +28,21 @@ describe("hasStrongReference works", () => {
         hasStrongParameterReference({
           className: "WeakMap",
           methodName: "set",
-          parameterName: "value"
+          parameterName: "value",
+          externalReferences: [],
         })
       ).toBe(false);
+    });
+
+    it("set(value) with external reference to key", () => {
+      expect(
+        hasStrongParameterReference({
+          className: "WeakMap",
+          methodName: "set",
+          parameterName: "value",
+          externalReferences: ["key"],
+        })
+      ).toBe(true);
     });
   });
 
@@ -39,7 +52,8 @@ describe("hasStrongReference works", () => {
         hasStrongParameterReference({
           className: "Map",
           methodName: "set",
-          parameterName: "key"
+          parameterName: "key",
+          externalReferences: [],
         })
       ).toBe(true);
     });
@@ -49,7 +63,8 @@ describe("hasStrongReference works", () => {
         hasStrongParameterReference({
           className: "Map",
           methodName: "set",
-          parameterName: "value"
+          parameterName: "value",
+          externalReferences: [],
         })
       ).toBe(true);
     });

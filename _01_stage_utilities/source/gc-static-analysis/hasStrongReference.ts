@@ -17,10 +17,16 @@ export interface ParameterLocation {
   className: string;
   methodName: string;
   parameterName: string;
+  externalReferences: string[];
 }
 
 export default function hasStrongParameterReference(
-  { className, methodName, parameterName }: ParameterLocation,
+  {
+    className,
+    methodName,
+    parameterName,
+    externalReferences,
+  }: ParameterLocation,
 ): boolean
 {
   const sourceClass: SourceClassReferences | undefined = SourceClassMap.get(className);
@@ -39,6 +45,11 @@ export default function hasStrongParameterReference(
 
   const indeterminates: Error[] = [];
   for (const reference of parameter.references) {
+    if (reference.identifierSequence.length === 1 && externalReferences.includes(reference.identifierSequence[0])) {
+      foundStrong = true;
+      continue;
+    }
+
     if (reference.holdType === HOLD_TYPE.Weak)
       continue;
     if (reference.holdType === HOLD_TYPE.Indeterminate) {
@@ -65,7 +76,12 @@ export default function hasStrongParameterReference(
       foundStrong = true;
 
     else if (otherIdentifier in method.variables) {
-      foundStrong ||= hasStrongParameterReference({ className, methodName, parameterName: otherIdentifier });
+      foundStrong ||= hasStrongParameterReference({
+        className,
+        methodName,
+        parameterName: otherIdentifier,
+        externalReferences
+      });
     }
   }
 
