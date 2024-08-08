@@ -16,9 +16,15 @@ import {
 
 import extractClassesForProgram from "./ast-tools/extractClassesForProgram.js";
 
-import type {
-  TSESTree
-} from "@typescript-eslint/typescript-estree";
+import {
+  analyze,
+  type ScopeManager,
+} from '@typescript-eslint/scope-manager';
+
+import {
+  parse,
+  type TSESTree,
+} from '@typescript-eslint/typescript-estree';
 
 import {
   projectDir
@@ -33,6 +39,8 @@ import buildMethodReferences from "./ast-tools/buildMethodReferences.js";
 import {
   findSuperClass
 } from "./ast-tools/findClassInAST.js";
+
+import parseSourceFile from "./ast-tools/parseSourceFile.js";
 
 //#endregion preamble
 
@@ -66,7 +74,13 @@ async function defineClassesForFile(
   sourceClassRecords: Record<string, SourceClassReferences>
 ): Promise<void>
 {
-  const classList: TSESTree.ClassDeclaration[] = await extractClassesForProgram(pathToTypeScriptFile);
+  const program: TSESTree.Program = await parseSourceFile(pathToTypeScriptFile);
+  const moduleScope: ScopeManager = analyze(program, {
+    sourceType: "module"
+  });
+
+  const classList: TSESTree.ClassDeclarationWithName[] = extractClassesForProgram(program);
+
   for (const tsESTree_Class of classList) {
     assert(tsESTree_Class.id, "no id?");
     const sourceClass = new SourceClassReferences;
@@ -81,7 +95,7 @@ async function defineClassesForFile(
     for (const [methodName, tsESTree_Method] of members.MethodDefinitions) {
       const sourceMethod = new SourceClassMethod;
       sourceClass.methods[methodName] = sourceMethod;
-      buildMethodReferences(sourceMethod, tsESTree_Method);
+      buildMethodReferences(sourceMethod, tsESTree_Method, moduleScope);
     }
   }
 }

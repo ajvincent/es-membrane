@@ -15,14 +15,12 @@ import {
 
 import {
   projectDir
-} from "../AsyncSpecModules.mjs";
+} from "../../AsyncSpecModules.mjs";
 
 import findClassInAST from "./findClassInAST.js";
 import organizeClassMembers, {
   type AST_ClassMembers
 } from "./organizeClassMembers.js";
-
-import { loadSourceReferences } from "./loadReferences.js";
 
 export interface ParameterLocation {
   pathToTypeScriptFile: string;

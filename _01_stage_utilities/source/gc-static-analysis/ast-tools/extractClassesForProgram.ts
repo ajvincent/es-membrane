@@ -1,7 +1,4 @@
-import fs from "node:fs/promises";
-
 import {
-  parse,
   TSESTree,
 } from '@typescript-eslint/typescript-estree';
 
@@ -17,16 +14,11 @@ for (const key in TSESTree.AST_NODE_TYPES) {
     (IgnoreTSNodes_Base as Record<string, any>)[key] = () => {};
 }
 
-export default
-async function extractClassesForProgram(
-  pathToTypeScriptFile: string,
-  /*ast: TSESTree.Program */
-): Promise<TSESTree.ClassDeclaration[]>
+export default function extractClassesForProgram(
+  ast: TSESTree.Program,
+): TSESTree.ClassDeclarationWithName[]
 {
-  const tsSource = await fs.readFile(pathToTypeScriptFile, { encoding: "utf-8" });
-
-  const ast = parse(tsSource, { loc: true, range: true });
-  const classList: TSESTree.ClassDeclaration[] = [];
+  const classList: TSESTree.ClassDeclarationWithName[] = [];
 
   AcornWalkers.simple(ast as unknown as Acorn.Program, {
     ClassDeclaration: function(node: Acorn.ClassDeclaration | Acorn.AnonymousClassDeclaration): void {
