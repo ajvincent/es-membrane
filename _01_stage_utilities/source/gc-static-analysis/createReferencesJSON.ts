@@ -36,10 +36,6 @@ import organizeClassMembers, {
 
 import buildMethodReferences from "./ast-tools/buildMethodReferences.js";
 
-import {
-  findSuperClass
-} from "./ast-tools/findClassInAST.js";
-
 import parseSourceFile from "./ast-tools/parseSourceFile.js";
 
 //#endregion preamble
@@ -88,7 +84,7 @@ async function defineClassesForFile(
 
     sourceClass.fileLocation = pathToTypeScriptFile;
     if (tsESTree_Class.superClass) {
-      sourceClass.extendsClass = findSuperClass(tsESTree_Class);
+      sourceClass.extendsClass = (tsESTree_Class.superClass as TSESTree.Identifier).name;
     }
 
     const members: AST_ClassMembers = organizeClassMembers(tsESTree_Class);
