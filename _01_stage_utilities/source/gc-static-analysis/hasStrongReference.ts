@@ -34,8 +34,18 @@ export default function hasStrongParameterReference(
     throw new Error(`source class "${className}" not found`);
 
   const method: SourceClassMethod | undefined = sourceClass.methods[methodName];
-  if (!method)
+  if (!method) {
+    if (sourceClass.extendsClass) {
+      return hasStrongParameterReference({
+        className: sourceClass.extendsClass,
+        methodName,
+        parameterName,
+        externalReferences
+      });
+    }
+
     throw new Error(`method "${methodName}" not found in source class ${className}`);
+  }
 
   const parameter: IdentifierOwners | undefined = method.variables[parameterName];
   if (!parameter)
