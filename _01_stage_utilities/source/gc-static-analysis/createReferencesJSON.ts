@@ -11,7 +11,8 @@ import {
 } from "./JSONClasses/SourceClass.js";
 
 import {
-  PromiseAllParallel
+  PromiseAllParallel,
+  PromiseAllSequence
 } from "../PromiseTypes.mjs";
 
 import extractClassesForProgram from "./ast-tools/extractClassesForProgram.js";
@@ -22,7 +23,6 @@ import {
 } from '@typescript-eslint/scope-manager';
 
 import {
-  parse,
   type TSESTree,
 } from '@typescript-eslint/typescript-estree';
 
@@ -50,7 +50,7 @@ async function createReferencesJSON(
   let { files } = await readDirsDeep(path.join(projectDir, pathToDirectory));
   files = files.filter(f => path.extname(f) === ".ts" || path.extname(f) === ".mts");
 
-  await PromiseAllParallel(files, f => defineClassesForFile(f, sourceClassRecords));
+  await PromiseAllSequence(files, f => defineClassesForFile(f, sourceClassRecords));
 
   {
     const entries = Object.entries(sourceClassRecords);
@@ -70,6 +70,7 @@ async function defineClassesForFile(
   sourceClassRecords: Record<string, SourceClassReferences>
 ): Promise<void>
 {
+  const localFilePath = path.relative(projectDir, pathToTypeScriptFile);
   const program: TSESTree.Program = await parseSourceFile(pathToTypeScriptFile);
   const moduleScope: ScopeManager = analyze(program, {
     sourceType: "module"
@@ -91,7 +92,7 @@ async function defineClassesForFile(
     for (const [methodName, tsESTree_Method] of members.MethodDefinitions) {
       const sourceMethod = new SourceClassMethod;
       sourceClass.methods[methodName] = sourceMethod;
-      buildMethodReferences(sourceMethod, tsESTree_Method, moduleScope);
+      buildMethodReferences(localFilePath, sourceMethod, tsESTree_Method, moduleScope);
     }
   }
 }

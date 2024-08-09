@@ -19,7 +19,6 @@ const BPSet = new BuildPromiseSet;
   const target = BPSet.get("collections references");
   target.addTask(async () => {
     console.log("beginning _01_stage_utilities:collections references");
-    debugger;
     await createReferencesJSON("_01_stage_utilities/source/collections");
     console.log("completed _01_stage_utilities:collections references");
   });

@@ -16,6 +16,7 @@ import {
 import { IdentifierOwners } from "../JSONClasses/IdentifierOwners.js";
 
 export default function buildMethodReferences(
+  localFilePath: string,
   sourceMethod: SourceClassMethod,
   tsESTree_Method: TSESTree.MethodDefinition,
   moduleScope: ScopeManager,
@@ -41,15 +42,17 @@ export default function buildMethodReferences(
     );
 
     matchingIdentifiers.forEach(identifier => {
-      addReference(owners, identifier);
+      addReference(localFilePath, owners, identifier);
     });
   }
 }
 
 function addReference(
+  localFilePath: string,
   owners: IdentifierOwners,
   identifier: TSESTree.Identifier
 ): void
 {
-  void(identifier.parent);
+  console.log(`${localFilePath}@${identifier.loc.start.line}:${identifier.loc.start.column}, ${identifier.name} in ${identifier.parent.type}`);
+  //void(identifier.parent);
 }
