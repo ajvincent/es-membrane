@@ -9,7 +9,6 @@ export default function extractClassesForProgram(
 {
   const classList: TSESTree.ClassDeclarationWithName[] = [];
 
-  // setParentPointers: true will pay off later in finding where nodes have references.
   simpleTraverse(ast, {
     visitors: {
       ClassDeclaration: function(node) {
@@ -18,7 +17,7 @@ export default function extractClassesForProgram(
         }
       }
     }
-  }, true);
+  }, false);
 
   return classList;
 }

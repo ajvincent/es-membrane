@@ -17,6 +17,10 @@ import {
   IdentifierOwners
 } from "../JSONClasses/IdentifierOwners.js";
 
+import {
+  NodeToParentMap
+} from "./NodeToParentMap.js";
+
 export default function buildMethodReferences(
   localFilePath: string,
   sourceMethod: SourceClassMethod,
@@ -56,14 +60,15 @@ function addReference(
 ): void
 {
   let success = false;
-  switch (identifier.parent.type) {
+  const parent = NodeToParentMap.get(identifier)!;
+  switch (parent.type) {
     case "CallExpression":
-      success = addCallReferenceExpression(localFilePath, owners, identifier, identifier.parent);
+      success = addCallReferenceExpression(localFilePath, owners, identifier, parent);
       break;
   }
 
   if (success === false) {
-    console.log(`${localFilePath}@${identifier.loc.start.line}:${identifier.loc.start.column}, ${identifier.name} in ${identifier.parent.type}`);
+    console.log(`${localFilePath}@${identifier.loc.start.line}:${identifier.loc.start.column}, ${identifier.name} in ${parent.type}`);
   }
 }
 
@@ -94,7 +99,7 @@ function addCallReferenceExpression(
     } is argument ${
       argIndex
     } in ${
-      identifier.parent.type
+      callExpresson.type
     }`);
     return true;
   }

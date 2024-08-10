@@ -65,7 +65,6 @@ export class IdentifierReference extends JSONRevivedType<"IdentifierReference">
   {
     this.holdType = other.holdType;
     this.identifierSequence = other.identifierSequence;
-    this.location = other.location;
     this.statementLocation = other.statementLocation;
 
     return this;
@@ -75,16 +74,6 @@ export class IdentifierReference extends JSONRevivedType<"IdentifierReference">
 
   holdType: HOLD_TYPE = HOLD_TYPE.Indeterminate;
   identifierSequence: string[] = [];
-  location: TSESTree.SourceLocation = {
-    start: {
-      line: 0,
-      column: 0,
-    },
-    end: {
-      line: 0,
-      column: 0
-    }
-  }
   statementLocation?: TSESTree.SourceLocation;
 }
 

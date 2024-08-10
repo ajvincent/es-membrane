@@ -1,6 +1,5 @@
 import {
   IdentifierOwners,
-  IdentifierReference,
 } from "./IdentifierOwners.js";
 
 import {
@@ -11,7 +10,6 @@ import {
 export class SourceClassReferences extends JSONRevivedType<"SourceClassReferences">
 {
   readonly jsonType = "SourceClassReferences";
-  fileLocation: string = "";
   extendsClass?: string;
   ctor?: SourceClassConstructor;
 
@@ -23,7 +21,6 @@ export class SourceClassReferences extends JSONRevivedType<"SourceClassReference
     other: SourceClassReferences
   ): this
   {
-    this.fileLocation = other.fileLocation;
     this.extendsClass = other.extendsClass;
     this.ctor = other.ctor;
 

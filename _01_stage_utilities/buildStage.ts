@@ -1,7 +1,11 @@
-import { BuildPromiseSet } from "#build-utilities/source/BuildPromise.js";
-import saveBuiltinClassReferences from "./source/gc-static-analysis/builtin-classes.js";
+import {
+  BuildPromiseSet
+} from "#build-utilities/source/BuildPromise.js";
+
 import runJasmine from "#build-utilities/source/runJasmine.js";
-import createReferencesJSON from "./source/gc-static-analysis/createReferencesJSON.js";
+
+import getBuiltinClassReferences from "./source/gc-static-analysis/builtin-classes.js";
+import createSourcesAndClasses from "./source/gc-static-analysis/createSourcesAndClasses.js";
 
 const BPSet = new BuildPromiseSet;
 
@@ -10,7 +14,7 @@ const BPSet = new BuildPromiseSet;
 
   target.addTask(async () => {
     console.log("beginning _01_stage_utilities:built-in classes");
-    await saveBuiltinClassReferences();
+    await getBuiltinClassReferences(true);
     console.log("completed _01_stage_utilities:built-in classes");
   });
 }
@@ -19,7 +23,7 @@ const BPSet = new BuildPromiseSet;
   const target = BPSet.get("collections references");
   target.addTask(async () => {
     console.log("beginning _01_stage_utilities:collections references");
-    await createReferencesJSON("_01_stage_utilities/source/collections");
+    await createSourcesAndClasses("_01_stage_utilities/source/collections", true);
     console.log("completed _01_stage_utilities:collections references");
   });
 }

@@ -1,8 +1,4 @@
 import {
-  builtinLocation,
-} from "../builtin-classes.js";
-
-import {
   IdentifierOwners,
   IdentifierReference,
   HOLD_TYPE,
@@ -18,7 +14,6 @@ export default function defineMap(
 ): void
 {
   const sourceClass = new SourceClassReferences;
-  sourceClass.fileLocation = builtinLocation;
   map.set("Map", sourceClass);
 
   // delete

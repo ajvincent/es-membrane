@@ -1,8 +1,4 @@
 import {
-  builtinLocation
-} from "../builtin-classes.js";
-
-import {
   IdentifierOwners,
   IdentifierReference,
   HOLD_TYPE,
@@ -20,7 +16,6 @@ export default function defineWeakRef(
 {
   const sourceClass = new SourceClassReferences;
   map.set("WeakRef", sourceClass);
-  sourceClass.fileLocation = builtinLocation;
 
   // constructor
   {

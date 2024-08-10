@@ -1,14 +1,14 @@
+import assert from "node:assert/strict";
+
 import {
   TSESTree,
   simpleTraverse,
 } from "@typescript-eslint/typescript-estree";
 
-import assert from "node:assert/strict";
-
 export default function findClassInAST(
   ast: TSESTree.Program,
   className: string,
-): TSESTree.ClassDeclaration | undefined
+): TSESTree.ClassDeclarationWithName | undefined
 {
   let classAST: TSESTree.ClassDeclarationWithName | undefined;
   simpleTraverse(ast, {
