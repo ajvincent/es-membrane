@@ -13,7 +13,9 @@ import {
   type SourceClassMethod,
 } from "../JSONClasses/SourceClass.js";
 
-import { IdentifierOwners } from "../JSONClasses/IdentifierOwners.js";
+import {
+  IdentifierOwners
+} from "../JSONClasses/IdentifierOwners.js";
 
 export default function buildMethodReferences(
   localFilePath: string,
@@ -53,6 +55,49 @@ function addReference(
   identifier: TSESTree.Identifier
 ): void
 {
-  console.log(`${localFilePath}@${identifier.loc.start.line}:${identifier.loc.start.column}, ${identifier.name} in ${identifier.parent.type}`);
-  //void(identifier.parent);
+  let success = false;
+  switch (identifier.parent.type) {
+    case "CallExpression":
+      success = addCallReferenceExpression(localFilePath, owners, identifier, identifier.parent);
+      break;
+  }
+
+  if (success === false) {
+    console.log(`${localFilePath}@${identifier.loc.start.line}:${identifier.loc.start.column}, ${identifier.name} in ${identifier.parent.type}`);
+  }
+}
+
+function addCallReferenceExpression(
+  localFilePath: string,
+  owners: IdentifierOwners,
+  identifier: TSESTree.Identifier,
+  callExpresson: TSESTree.CallExpression
+): boolean
+{
+  void(localFilePath);
+
+  if (identifier === callExpresson.callee) {
+    // identifier can't be held by the class this way
+    return true;
+  }
+
+  let argIndex = callExpresson.arguments.indexOf(identifier);
+  if (argIndex >= 0) {
+    console.log(`${
+      localFilePath
+    }@${
+      identifier.loc.start.line
+    }:${
+      identifier.loc.start.column
+    }, ${
+      identifier.name
+    } is argument ${
+      argIndex
+    } in ${
+      identifier.parent.type
+    }`);
+    return true;
+  }
+
+  return false;
 }

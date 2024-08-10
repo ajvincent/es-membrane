@@ -89,7 +89,7 @@ export class IdentifierReference extends JSONRevivedType<"IdentifierReference">
 }
 
 /** A JSON-serializable object describing where we keep references to an identifier. */
-export class IdentifierOwners extends JSONRevivedType<"IdentifierOwners" | "CallbackOwners">
+export class IdentifierOwners extends JSONRevivedType<"IdentifierOwners" | "CallbackIdentifierOwners">
 {
   static readonly ThisIdentifier = "this";
   static readonly ThisIndex = -2;
@@ -97,7 +97,7 @@ export class IdentifierOwners extends JSONRevivedType<"IdentifierOwners" | "Call
   static readonly ReturnIdentifier = "(return value)";
   static readonly ReturnIndex = -1;
 
-  readonly jsonType: "IdentifierOwners" | "CallbackOwners" = "IdentifierOwners";
+  readonly jsonType: "IdentifierOwners" | "CallbackIdentifierOwners" = "IdentifierOwners";
   argIndex: number = NaN;
 
   readonly references: IdentifierReference[] = [];
@@ -112,13 +112,13 @@ export class IdentifierOwners extends JSONRevivedType<"IdentifierOwners" | "Call
     return this;
   }
 }
-
+/*
 export class CallbackIdentifierOwners extends IdentifierOwners
 {
-  readonly jsonType = "CallbackOwners";
-  readonly thisParameter: IdentifierOwners;
+  readonly jsonType = "CallbackIdentifierOwners";
+  thisParameter: IdentifierOwners;
   readonly parameters: IdentifierOwners[] = [];
-  readonly returnValue: IdentifierOwners;
+  returnValue: IdentifierOwners;
 
   constructor() {
     super();
@@ -128,10 +128,28 @@ export class CallbackIdentifierOwners extends IdentifierOwners
     this.returnValue = new IdentifierOwners;
     this.returnValue.argIndex = IdentifierOwners.ReturnIndex;
   }
+
+  adoptFromJSON(
+    other: IdentifierOwners
+  ): this
+  {
+    super.adoptFromJSON(other);
+    if (other.jsonType === "CallbackIdentifierOwners") {
+      const otherCallback = other as CallbackIdentifierOwners;
+      this.thisParameter = otherCallback.thisParameter;
+      this.parameters.push(...otherCallback.parameters);
+      this.returnValue = otherCallback.returnValue;
+    }
+
+    return this;
+  }
 }
+*/
 
 registerJSONTypeClasses(
+  /*
   CallbackIdentifierOwners,
+  */
   IdentifierReference,
   IdentifierOwners,
 );
