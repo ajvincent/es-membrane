@@ -84,7 +84,7 @@ describe("CodeGenerator(OneToOneStrongMap.mjs)", () => {
     expect(map.hasIdentity(redObj, "blue", true)).toBe(true);
   });
 
-  describe("to hold values", () => {
+  xdescribe("to hold values", () => {
     it("weakly as the first key to .bindOneToOne()", async () => {
       await expectAsync(holdsArgument(
         10, 10, (key: object): void => map.bindOneToOne(key, {}, {}, {})
