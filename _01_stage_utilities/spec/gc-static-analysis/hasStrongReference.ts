@@ -98,6 +98,17 @@ describe("hasStrongReference works", () => {
         })
       ).toBeResolvedTo(true);
     });
+
+    xit("getDefault(key)", async () => {
+      await expectAsync(
+        hasStrongParameterReference({
+          className: "DefaultWeakMap",
+          methodName: "getDefault",
+          parameterName: "key",
+          externalReferences: []
+        })
+      ).toBeRejected();
+    });
   });
 
   describe("on DefaultMap::", () => {
