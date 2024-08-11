@@ -1,5 +1,4 @@
 import WeakRefSet from "#stage_utilities/source/collections/WeakRefSet.js";
-import holdsReturn from "#stage_utilities/source/gc/holdsReturn.mjs";
 
 describe("WeakRefSet", () => {
   let refSet: WeakRefSet<object>;
@@ -32,9 +31,5 @@ describe("WeakRefSet", () => {
     refSet.clearReferences();
     elements = new Set<object>(refSet.liveElements());
     expect(elements.size).toBe(0);
-  });
-
-  xit("holds references to objects weakly", async () => {
-    await expectAsync(holdsReturn(10, 10, addValue)).toBeResolvedTo(false);
   });
 });
