@@ -3,17 +3,20 @@ import {
 } from '@typescript-eslint/typescript-estree';
 
 export interface AST_ClassMembers {
-  PropertyDefinitions: Map<string, TSESTree.PropertyDefinition>,
-  GetterDefinitions: Map<string, TSESTree.MethodDefinition>,
-  SetterDefinitions: Map<string, TSESTree.MethodDefinition>,
-  MethodDefinitions: Map<string, TSESTree.MethodDefinition>,
+  PropertyDefinitions: Map<string | symbol, TSESTree.PropertyDefinition>,
+  GetterDefinitions: Map<string | symbol, TSESTree.MethodDefinition>,
+  SetterDefinitions: Map<string | symbol, TSESTree.MethodDefinition>,
+  MethodDefinitions: Map<string | symbol, TSESTree.MethodDefinition>,
   ConstructorDefinition?: TSESTree.MethodDefinition,
-  StaticBlocks: Set<TSESTree.StaticBlock>
+  StaticBlocks: Set<TSESTree.StaticBlock>,
+
+  superMethod: WeakMap<TSESTree.MethodDefinition, TSESTree.MethodDefinition>,
+  superProperty: WeakMap<TSESTree.PropertyDefinition, TSESTree.PropertyDefinition>,
 };
 
 export default function organizeClassMembers(
   classAST: TSESTree.ClassDeclaration
-): AST_ClassMembers
+): Promise<AST_ClassMembers>
 {
   const members: AST_ClassMembers = {
     PropertyDefinitions: new Map,
@@ -21,7 +24,10 @@ export default function organizeClassMembers(
     SetterDefinitions: new Map,
     MethodDefinitions: new Map,
     ConstructorDefinition: undefined,
-    StaticBlocks: new Set
+    StaticBlocks: new Set,
+
+    superMethod: new WeakMap,
+    superProperty: new WeakMap,
   }
 
   for (const member of classAST.body.body) {
@@ -46,5 +52,5 @@ export default function organizeClassMembers(
     }
   }
 
-  return members;
+  return Promise.resolve(members);
 }

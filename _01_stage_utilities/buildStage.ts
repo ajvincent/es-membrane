@@ -4,7 +4,6 @@ import {
 
 import runJasmine from "#build-utilities/source/runJasmine.js";
 
-import getBuiltinClassReferences from "./source/gc-static-analysis/builtin-classes.js";
 import createSourcesAndClasses from "./source/gc-static-analysis/createSourcesAndClasses.js";
 
 const BPSet = new BuildPromiseSet;
@@ -14,7 +13,7 @@ const BPSet = new BuildPromiseSet;
 
   target.addTask(async () => {
     console.log("beginning _01_stage_utilities:built-in classes");
-    await getBuiltinClassReferences(true);
+    await createSourcesAndClasses("_01_stage_utilities/source/gc-static-analysis/builtins", true, true);
     console.log("completed _01_stage_utilities:built-in classes");
   });
 }

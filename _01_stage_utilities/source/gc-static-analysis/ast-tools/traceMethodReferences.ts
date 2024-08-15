@@ -16,8 +16,6 @@ import type {
   Variable,
 } from "@typescript-eslint/scope-manager";
 
-import getBuiltinClassReferences from "../builtin-classes.js";
-
 import {
   ParameterLocation,
 } from "../types/ParameterLocation.js";
@@ -36,10 +34,6 @@ import getDefinedClassAST from "./getDefinedClassAST.js";
 import organizeClassMembers from "./organizeClassMembers.js";
 
 //#endregion preamble
-
-const BuiltInReferencesMapPromise = new SingletonPromise(
-  () => getBuiltinClassReferences(false)
-);
 
 export const ModuleScopeMap = new WeakMap<TSESTree.Program, ScopeManager>;
 
@@ -134,21 +128,13 @@ async function traceCallReference(
 
       //TODO: make this a generic function
       let nextMethodName: string = callExpression.callee.property.name;
-      const builtIns = await BuiltInReferencesMapPromise.run();
-      const builtinClass = builtIns[className];
-      if (builtinClass) {
 
-      } else {
-        throw new Error("not yet supported: calling a defined class's method (mapping)");
+      throw new Error("not yet supported: calling a defined class's method (mapping)");
         /*
         let nextClass: TSESTree.ClassDeclarationWithName = getDefinedClassAST(className);
         let nextMethod: TSESTree.MethodDefinition | undefined = organizeClassMembers(nextClass).MethodDefinitions.get(nextMethodName);
         assert(nextMethod, "deal with superclass calls");
         */
-      }
-
-
-
     }
   }
   debugger;

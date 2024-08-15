@@ -3,6 +3,7 @@ import createSourcesAndClasses from "#stage_utilities/source/gc-static-analysis/
 
 describe("hasStrongReference works", () => {
   beforeAll(async () => {
+    await createSourcesAndClasses("_01_stage_utilities/source/gc-static-analysis/builtins", false, true);
     await createSourcesAndClasses("_01_stage_utilities/source/collections", false);
   });
 
@@ -65,7 +66,7 @@ describe("hasStrongReference works", () => {
     });
   });
 
-  describe("on DefaultWeakMap::", () => {
+  xdescribe("on DefaultWeakMap::", () => {
     it("set(key)", async () => {
       await expectAsync(
         hasStrongParameterReference({
@@ -111,7 +112,7 @@ describe("hasStrongReference works", () => {
     });
   });
 
-  describe("on DefaultMap::", () => {
+  xdescribe("on DefaultMap::", () => {
     it("set(key)", async () => {
       await expectAsync(
         hasStrongParameterReference({

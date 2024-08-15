@@ -1,30 +1,21 @@
 //#region preamble
+import assert from "node:assert/strict";
+
 import {
   TSESTree,
 } from "@typescript-eslint/typescript-estree";
 
-import type {
-  ReadonlyDeep,
-} from "type-fest";
-
 import {
   Deferred,
-  SingletonPromise,
 } from "../PromiseTypes.mjs";
 
-import type {
-  SourceClassReferences,
-} from "./JSONClasses/SourceClass.js";
+import getDefinedClassAST from "./ast-tools/getDefinedClassAST.js";
 
 import organizeClassMembers, {
   type AST_ClassMembers
 } from "./ast-tools/organizeClassMembers.js";
 
 import traceMethodReferences from "./ast-tools/traceMethodReferences.js";
-
-import getBuiltinClassReferences, {
-  hasStrongParameterReference_builtin
-} from "./builtin-classes.js";
 
 import type {
   ParameterLocation
@@ -33,12 +24,7 @@ import type {
 import type {
   ParameterReferenceRecursive
 } from "./types/ParameterReferenceRecursive.js";
-import getDefinedClassAST from "./ast-tools/getDefinedClassAST.js";
 //#endregion preamble
-
-const BuiltInReferencesMapPromise = new SingletonPromise(
-  () => getBuiltinClassReferences(false)
-);
 
 function hashParameterLocation(
   {
@@ -85,28 +71,58 @@ async function hasStrongParameterReferenceInternal(
   deferred = new Deferred<boolean>;
   parameterReferenceMap.set(hash, deferred);
 
-  const BuiltInReferencesMap = await BuiltInReferencesMapPromise.run();
   const {
     className,
     methodName,
+    parameterName,
+    externalReferences,
   } = parameterLocation;
 
-  if (className in BuiltInReferencesMap) {
-    const classData: ReadonlyDeep<SourceClassReferences> = BuiltInReferencesMap[className];
+  const tsESTree_Class = getDefinedClassAST(className);
+  const members: AST_ClassMembers = await organizeClassMembers(tsESTree_Class);
+  const method = members.MethodDefinitions.get(methodName);
+  assert(method, "no method " + methodName);
 
-    hasStrongParameterReference_builtin(
-      classData,
-      parameterReferenceMap,
-      hasStrongParameterReferenceInternal,
-      parameterLocation
-    ).then(deferred.resolve).catch(deferred.reject);
+  let isStrongReference: boolean | undefined;
+  for (const dec of method.decorators) {
+    let gcDecoratorResult: string | GCDecoratorResult = getGCDecoratorArguments(dec, parameterName);
 
+    if (typeof gcDecoratorResult === "string") {
+      if (externalReferences.includes(gcDecoratorResult)) {
+        isStrongReference = true;
+      }
+
+      else {
+        isStrongReference = await hasStrongParameterReferenceInternal(
+          parameterReferenceMap, {
+            ...parameterLocation,
+            parameterName: gcDecoratorResult
+          }
+        );
+      }
+    }
+    else {
+      switch (gcDecoratorResult) {
+        case GCDecoratorResult.NotAGCDecorator:
+        case GCDecoratorResult.NoEffect:
+          continue;
+        case GCDecoratorResult.HoldsStrong:
+          isStrongReference = true;
+          break;
+        case GCDecoratorResult.HoldsWeak:
+        case GCDecoratorResult.Clears:
+            isStrongReference = false;
+          break;
+      }
+    }
+  }
+
+  if (typeof isStrongReference === "boolean") {
+    deferred.resolve(isStrongReference);
     return deferred.promise;
   }
 
-  const tsESTree_Class = getDefinedClassAST(className);
-  const members: AST_ClassMembers = organizeClassMembers(tsESTree_Class);
-  const method = members.MethodDefinitions.get(methodName);
+  /*
 
   if (method) {
     traceMethodReferences(
@@ -135,8 +151,83 @@ async function hasStrongParameterReferenceInternal(
 
     return deferred.promise;
   }
+  */
 
   deferred.reject(new Error(`no method found for ${className}::${methodName}`));
   return deferred.promise;
 }
 hasStrongParameterReferenceInternal satisfies ParameterReferenceRecursive;
+
+enum GCDecoratorResult {
+  NotAGCDecorator,
+  NoEffect,
+  HoldsStrong,
+  HoldsWeak,
+  Clears,
+}
+
+function getGCDecoratorArguments(
+  dec: TSESTree.Decorator,
+  paramName: string
+): string | GCDecoratorResult
+{
+  switch (dec.expression.type) {
+    case "Identifier":
+      if (dec.expression.name === "noReferences")
+        return GCDecoratorResult.NoEffect;
+      if (dec.expression.name === "clearsAllReferences")
+        return GCDecoratorResult.Clears;
+      break;
+
+    case "CallExpression":
+      assert.equal(dec.expression.callee.type, "Identifier", "expected an identifier for a decorator call expression");
+      if (dec.expression.callee.name === "clearsReference") {
+        assert.equal(dec.expression.arguments.length, 1);
+        assert.equal(dec.expression.arguments[0].type, "Literal");
+        assert(typeof dec.expression.arguments[0].value === "string");
+
+        return paramName === dec.expression.arguments[0].value ? GCDecoratorResult.Clears : GCDecoratorResult.NoEffect;
+      }
+
+      if (dec.expression.callee.name === "holdsReference") {
+        assert.equal(dec.expression.arguments.length, 3);
+        assert.equal(dec.expression.arguments[0].type, "Literal");
+        assert.equal(dec.expression.arguments[1].type, "Literal");
+        assert.equal(dec.expression.arguments[2].type, "Literal");
+        assert(typeof dec.expression.arguments[0].value === "string");
+        assert(typeof dec.expression.arguments[1].value === "string");
+        assert(typeof dec.expression.arguments[2].value === "boolean");
+
+        if (dec.expression.arguments[1].value !== paramName)
+          return GCDecoratorResult.NoEffect;
+
+        if (dec.expression.arguments[2].value === false)
+          return GCDecoratorResult.HoldsWeak;
+
+        if (dec.expression.arguments[0].value === "this")
+          return GCDecoratorResult.HoldsStrong;
+
+        return dec.expression.arguments[0].value;
+      }
+
+      if (dec.expression.callee.name === "ctorHoldsReference") {
+        assert.equal(dec.expression.arguments.length, 2);
+        assert.equal(dec.expression.arguments[0].type, "Literal");
+        assert.equal(dec.expression.arguments[1].type, "Literal");
+        assert(typeof dec.expression.arguments[0].value === "string");
+        assert(typeof dec.expression.arguments[1].value === "boolean");
+
+        if (dec.expression.arguments[0].value !== paramName) {
+          return GCDecoratorResult.NoEffect;
+        }
+
+        if (dec.expression.arguments[1].value)
+          return GCDecoratorResult.HoldsStrong;
+
+        return GCDecoratorResult.HoldsWeak;
+      }
+      break;
+  }
+
+  return GCDecoratorResult.NotAGCDecorator;
+}

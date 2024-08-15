@@ -21,6 +21,10 @@ import {
   DefaultMap
 } from "../collections/DefaultMap.js";
 
+import {
+  addNodesToMap,
+} from "./ast-tools/NodeToParentMap.js";
+
 import extractClassesForProgram from "./ast-tools/extractClassesForProgram.js";
 
 import parseSourceFile from "./ast-tools/parseSourceFile.js";
@@ -41,12 +45,13 @@ export const PathToSourcesAndClassesMap = new DefaultMap<string, Promise<Sources
 export default
 async function createSourcesAndClasses(
   pathToDirectory: string,
-  saveFile: boolean
+  saveFile: boolean,
+  isBuiltIns?: true
 ): Promise<SourcesAndClasses>
 {
   const sourcesAndClasses = await PathToSourcesAndClassesMap.getDefault(
     pathToDirectory,
-    () => createSourcesAndClassesInternal(pathToDirectory)
+    () => createSourcesAndClassesInternal(pathToDirectory, isBuiltIns)
   );
 
   if (saveFile) {
@@ -62,6 +67,7 @@ async function createSourcesAndClasses(
 
 async function createSourcesAndClassesInternal(
   pathToDirectory: string,
+  isBuiltIns?: true,
 ): Promise<SourcesAndClasses>
 {
   const sourcesAndClasses: SourcesAndClasses = {
@@ -72,7 +78,7 @@ async function createSourcesAndClassesInternal(
   let { files } = await readDirsDeep(path.join(projectDir, pathToDirectory));
   files = files.filter(f => path.extname(f) === ".ts" || path.extname(f) === ".mts");
 
-  await PromiseAllParallel(files, f => defineClassesForFile(f, sourcesAndClasses));
+  await PromiseAllParallel(files, f => defineClassesForFile(f, sourcesAndClasses, isBuiltIns));
 
   {
     const entries = Object.entries(sourcesAndClasses.classToFile);
@@ -93,6 +99,7 @@ async function createSourcesAndClassesInternal(
 async function defineClassesForFile(
   pathToTypeScriptFile: string,
   sourcesAndClasses: SourcesAndClasses,
+  isBuiltIns?: true
 ): Promise<void>
 {
   const { classToFile, programs } = sourcesAndClasses;
@@ -100,33 +107,11 @@ async function defineClassesForFile(
   const program: TSESTree.Program = await parseSourceFile(pathToTypeScriptFile);
   programs[localFilePath] = program;
 
-  /*
   addNodesToMap(program);
-
-  const moduleScope: ScopeManager = analyze(program, {
-    sourceType: "module"
-  });
-  */
-
-  const classList: TSESTree.ClassDeclarationWithName[] = extractClassesForProgram(program);
+  const classList: TSESTree.ClassDeclarationWithName[] = extractClassesForProgram(program, isBuiltIns);
 
   for (const tsESTree_Class of classList) {
     assert(tsESTree_Class.id, "no id?");
     classToFile[tsESTree_Class.id.name] = localFilePath;
-    /*
-    const sourceClass = new SourceClassReferences;
-
-    sourceClass.fileLocation = pathToTypeScriptFile;
-    if (tsESTree_Class.superClass) {
-      sourceClass.extendsClass = (tsESTree_Class.superClass as TSESTree.Identifier).name;
-    }
-
-    const members: AST_ClassMembers = organizeClassMembers(tsESTree_Class);
-    for (const [methodName, tsESTree_Method] of members.MethodDefinitions) {
-      const sourceMethod = new SourceClassMethod;
-      sourceClass.methods[methodName] = sourceMethod;
-      buildMethodReferences(localFilePath, sourceMethod, tsESTree_Method, moduleScope);
-    }
-    */
   }
 }
