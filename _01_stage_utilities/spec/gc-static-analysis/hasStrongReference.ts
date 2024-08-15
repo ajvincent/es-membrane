@@ -66,7 +66,7 @@ describe("hasStrongReference works", () => {
     });
   });
 
-  xdescribe("on DefaultWeakMap::", () => {
+  describe("on DefaultWeakMap::", () => {
     it("set(key)", async () => {
       await expectAsync(
         hasStrongParameterReference({
@@ -112,7 +112,7 @@ describe("hasStrongReference works", () => {
     });
   });
 
-  xdescribe("on DefaultMap::", () => {
+  describe("on DefaultMap::", () => {
     it("set(key)", async () => {
       await expectAsync(
         hasStrongParameterReference({

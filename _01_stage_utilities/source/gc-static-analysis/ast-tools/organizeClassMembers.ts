@@ -1,6 +1,13 @@
+import assert from "node:assert/strict";
+
 import {
   TSESTree,
 } from '@typescript-eslint/typescript-estree';
+
+import {
+  DefaultMap
+} from '#stage_utilities/source/collections/DefaultMap.js';
+import getDefinedClassAST from './getDefinedClassAST.js';
 
 export interface AST_ClassMembers {
   PropertyDefinitions: Map<string | symbol, TSESTree.PropertyDefinition>,
@@ -10,11 +17,24 @@ export interface AST_ClassMembers {
   ConstructorDefinition?: TSESTree.MethodDefinition,
   StaticBlocks: Set<TSESTree.StaticBlock>,
 
-  superMethod: WeakMap<TSESTree.MethodDefinition, TSESTree.MethodDefinition>,
-  superProperty: WeakMap<TSESTree.PropertyDefinition, TSESTree.PropertyDefinition>,
+  superMethod: Map<TSESTree.MethodDefinition, TSESTree.MethodDefinition>,
+  superProperty: Map<TSESTree.PropertyDefinition, TSESTree.PropertyDefinition>,
 };
 
-export default function organizeClassMembers(
+const extendsClassDependencies = new DefaultMap<string, Promise<AST_ClassMembers>>;
+
+export default
+function organizeClassMembers(
+  classAST: TSESTree.ClassDeclarationWithName
+): Promise<AST_ClassMembers>
+{
+  return extendsClassDependencies.getDefault(
+    classAST.id.name,
+    () => organizeClassMembers_Internal(classAST)
+  );
+}
+
+async function organizeClassMembers_Internal(
   classAST: TSESTree.ClassDeclaration
 ): Promise<AST_ClassMembers>
 {
@@ -26,8 +46,8 @@ export default function organizeClassMembers(
     ConstructorDefinition: undefined,
     StaticBlocks: new Set,
 
-    superMethod: new WeakMap,
-    superProperty: new WeakMap,
+    superMethod: new Map,
+    superProperty: new Map,
   }
 
   for (const member of classAST.body.body) {
@@ -52,5 +72,33 @@ export default function organizeClassMembers(
     }
   }
 
-  return Promise.resolve(members);
+  if (classAST.superClass) {
+    assert(classAST.superClass.type === "Identifier");
+    const superMembers: AST_ClassMembers = await organizeClassMembers(
+      getDefinedClassAST(classAST.superClass.name)
+    );
+
+    superMembers.MethodDefinitions.forEach(superMethod => {
+      let name = (superMethod.key as TSESTree.Identifier).name;
+      const selfMethod = members.MethodDefinitions.get(name);
+      if (selfMethod) {
+        members.superMethod.set(selfMethod, superMethod);
+      }
+      else {
+        members.MethodDefinitions.set(name, superMethod);
+      }
+    });
+
+    superMembers.PropertyDefinitions.forEach(superProperty => {
+      let name = (superProperty.key as TSESTree.Identifier).name;
+      const selfProperty = members.PropertyDefinitions.get(name);
+      if (selfProperty) {
+        members.superProperty.set(selfProperty, superProperty);
+      } else {
+        members.PropertyDefinitions.set(name, superProperty);
+      }
+    });
+  }
+
+  return members;
 }
