@@ -1,14 +1,14 @@
 //#region preamble
 import assert from "node:assert";
 
-import {
-  Deferred,
-  SingletonPromise,
-} from "#build-utilities/internal/PromiseTypes.js";
-
 import type {
   TSESTree,
 } from "@typescript-eslint/typescript-estree";
+
+import {
+  Deferred,
+  PromiseAllParallel
+} from "#stage_utilities/source/PromiseTypes.mjs";
 
 import type {
   Scope,
@@ -24,6 +24,8 @@ import {
   ParameterReferenceRecursive,
 } from "../types/ParameterReferenceRecursive.js";
 
+import ASTNodeError from "./ASTNodeError.js";
+
 import {
   NodeToParentMap,
   NodeToProgramMap,
@@ -31,7 +33,9 @@ import {
 
 import getDefinedClassAST from "./getDefinedClassAST.js";
 
-import organizeClassMembers from "./organizeClassMembers.js";
+import organizeClassMembers, {
+  AST_ClassMembers,
+} from "./organizeClassMembers.js";
 
 //#endregion preamble
 
@@ -41,6 +45,7 @@ export default
 async function traceMethodReferences(
   tsESTree_Method: TSESTree.MethodDefinition,
   parameterReferenceMap: Map<string, Deferred<boolean>>,
+  thisClassName: string,
   referenceRecursive: ParameterReferenceRecursive,
   parameterLocation: ParameterLocation,
 ): Promise<boolean>
@@ -67,11 +72,23 @@ async function traceMethodReferences(
     const parent = NodeToParentMap.get(identifier)!;
     switch (parent.type) {
       case "CallExpression":
-        const result = await traceCallReference(identifier, parent, parameterReferenceMap, referenceRecursive, parameterLocation);
+        const result: boolean = await traceCallReference(
+          identifier, parent, parameterReferenceMap, thisClassName, referenceRecursive, parameterLocation
+        );
         if (result)
           return true;
+        break;
+
+      case "UnaryExpression":
+        switch (parent.operator) {
+          case "void":
+            return false;
+          default:
+            throw new ASTNodeError(`unsupported unary operator: ${parent.operator}`, identifier);
+        }
+
       default:
-        throw new Error(`type ${parent.type} not yet supported`);
+        throw new ASTNodeError(`unsupported parent expression type: ${parent.type}`, identifier);
     }
   }
 
@@ -95,6 +112,7 @@ async function traceCallReference(
   identifier: TSESTree.Identifier,
   callExpression: TSESTree.CallExpression,
   parameterReferenceMap: Map<string, Deferred<boolean>>,
+  thisClassName: string,
   referenceRecursive: ParameterReferenceRecursive,
   parameterLocation: ParameterLocation,
 ): Promise<boolean>
@@ -107,18 +125,12 @@ async function traceCallReference(
   let argIndex = callExpression.arguments.indexOf(identifier);
   assert(argIndex >= 0, `argument "${identifier.name} must be in the call expression"`);
 
-  const {
-    className,
-    externalReferences
-  } = parameterLocation;
-
   if (callExpression.callee.type === "MemberExpression") {
     if ((callExpression.callee.object.type === "ThisExpression") && (callExpression.callee.property.type === "Identifier")) {
       // yay, we can map to an existing method on this
 
       /* But this introduces more complexity.
-      - what class is the method defined on?
-      - map the identifier to an existing argument
+      - map the identifier to existing arguments
       - map external references to existing arguments
       ... _then_ we can call referenceRecursive
 
@@ -127,17 +139,74 @@ async function traceCallReference(
       */
 
       //TODO: make this a generic function
-      let nextMethodName: string = callExpression.callee.property.name;
+      const nextMethodName: string = callExpression.callee.property.name;
 
-      throw new Error("not yet supported: calling a defined class's method (mapping)");
-        /*
-        let nextClass: TSESTree.ClassDeclarationWithName = getDefinedClassAST(className);
-        let nextMethod: TSESTree.MethodDefinition | undefined = organizeClassMembers(nextClass).MethodDefinitions.get(nextMethodName);
-        assert(nextMethod, "deal with superclass calls");
-        */
+      let targetMethod: TSESTree.MethodDefinition | undefined;
+      let targetClassName: string = thisClassName;
+      do {
+        let nextClass: TSESTree.ClassDeclarationWithName = getDefinedClassAST(targetClassName);
+        const nextClassMembers: AST_ClassMembers = await organizeClassMembers(nextClass);
+        targetMethod = nextClassMembers.MethodDefinitions.get(nextMethodName);
+        if (!targetMethod) {
+          assert(nextClassMembers.superClass);
+          targetClassName = nextClassMembers.superClass;
+        }
+      } while (!targetMethod);
+
+      const mappedExternalsArray: string[] = mapCallArgumentsToMethodArguments(
+        callExpression,
+        targetMethod,
+        new Set(parameterLocation.externalReferences)
+      );
+      const mappedParameterSpots: string[] = mapCallArgumentsToMethodArguments(
+        callExpression,
+        targetMethod,
+        new Set([parameterLocation.parameterName])
+      );
+
+      const promiseSeries: boolean[] = await PromiseAllParallel<string, boolean>(
+        mappedParameterSpots, (parameterName => {
+          return referenceRecursive(parameterReferenceMap, thisClassName, {
+            className: thisClassName,
+            methodName: nextMethodName,
+            parameterName,
+            externalReferences: mappedExternalsArray
+          });
+        })
+      );
+
+      return promiseSeries.some(result => result);
     }
   }
-  debugger;
-  throw new Error("unsupported call expression type: " + callExpression.callee.type);
+  throw new ASTNodeError(`unsupported call expression type: ${callExpression.callee.type}`, callExpression);
 }
 
+function mapCallArgumentsToMethodArguments(
+  callExpression: TSESTree.CallExpression,
+  method: TSESTree.MethodDefinition,
+  parameterNames: Set<string>
+): string[]
+{
+  if (parameterNames.size === 0)
+    return [];
+
+  const argumentMap: Map<number, string> = new Map(method.value.params.map((param, index) => {
+    assert(param.type === "Identifier");
+    return [index, param.name];
+  }));
+  const foundIndexes = new Set<number>;
+
+  callExpression.arguments.forEach((callParam, callIndex) => {
+    assert(callParam.type === "Identifier");
+    if (parameterNames.has(callParam.name))
+      foundIndexes.add(callIndex);
+  });
+
+  const argumentIndices: number[] = Array.from(foundIndexes);
+  argumentIndices.sort();
+
+  const methodParams: string[] = [];
+  for (const argIndex of argumentIndices)
+    methodParams.push(argumentMap.get(argIndex)!);
+  return methodParams;
+}

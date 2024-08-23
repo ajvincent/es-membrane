@@ -100,7 +100,7 @@ describe("hasStrongReference works", () => {
       ).toBeResolvedTo(true);
     });
 
-    xit("getDefault(key)", async () => {
+    it("getDefault(key)", async () => {
       await expectAsync(
         hasStrongParameterReference({
           className: "DefaultWeakMap",
@@ -108,7 +108,7 @@ describe("hasStrongReference works", () => {
           parameterName: "key",
           externalReferences: []
         })
-      ).toBeRejected();
+      ).toBeResolvedTo(false);
     });
   });
 

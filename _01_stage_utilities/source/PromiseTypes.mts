@@ -64,12 +64,12 @@ export class SingletonPromise<T> {
  * @see Promise.all
  * @see Array.prototype.reduce
  */
-export async function PromiseAllSequence<E, V>(
+export function PromiseAllSequence<E, V>(
   elementArray: E[],
   callback: (value: E) => Promise<V>
 ) : Promise<V[]>
 {
-  return await elementArray.reduce(async (previousPromise: Promise<V[]>, element: E) => {
+  return elementArray.reduce(async (previousPromise: Promise<V[]>, element: E) => {
     const items = await previousPromise;
     items.push(await callback(element));
     return items;
@@ -85,7 +85,7 @@ export async function PromiseAllSequence<E, V>(
  * @see Promise.all
  * @see Array.prototype.map
  */
-export async function PromiseAllParallel<E, V>(
+export function PromiseAllParallel<E, V>(
   elementArray: E[],
   callback: (value: E) => Promise<V>
 ) : Promise<V[]>

@@ -49,11 +49,12 @@ function hasStrongParameterReference(
 ): Promise<boolean>
 {
   const parameterReferenceMap = new Map<string, Deferred<boolean>>;
-  return hasStrongParameterReferenceInternal(parameterReferenceMap, parameterLocation);
+  return hasStrongParameterReferenceInternal(parameterReferenceMap, parameterLocation.className, parameterLocation);
 }
 
 async function hasStrongParameterReferenceInternal(
   parameterReferenceMap: Map<string, Deferred<boolean>>,
+  thisClassName: string,
   parameterLocation: ParameterLocation,
 ): Promise<boolean>
 {
@@ -81,6 +82,18 @@ async function hasStrongParameterReferenceInternal(
   const tsESTree_Class = getDefinedClassAST(className);
   const members: AST_ClassMembers = await organizeClassMembers(tsESTree_Class);
   const method = members.MethodDefinitions.get(methodName);
+
+  if (!method && members.superClass) {
+    return hasStrongParameterReferenceInternal(
+      parameterReferenceMap,
+      thisClassName,
+      {
+        ...parameterLocation,
+        className: members.superClass
+      }
+    );
+  }
+
   assert(method, "no method " + methodName);
 
   let isStrongReference: boolean | undefined;
@@ -94,7 +107,9 @@ async function hasStrongParameterReferenceInternal(
 
       else {
         isStrongReference = await hasStrongParameterReferenceInternal(
-          parameterReferenceMap, {
+          parameterReferenceMap,
+          thisClassName,
+          {
             ...parameterLocation,
             parameterName: gcDecoratorResult
           }
@@ -111,7 +126,7 @@ async function hasStrongParameterReferenceInternal(
           break;
         case GCDecoratorResult.HoldsWeak:
         case GCDecoratorResult.Clears:
-            isStrongReference = false;
+          isStrongReference = false;
           break;
       }
     }
@@ -119,41 +134,17 @@ async function hasStrongParameterReferenceInternal(
 
   if (typeof isStrongReference === "boolean") {
     deferred.resolve(isStrongReference);
-    return deferred.promise;
   }
-
-  /*
-
-  if (method) {
+  else {
     traceMethodReferences(
       method,
       parameterReferenceMap,
+      thisClassName,
       hasStrongParameterReferenceInternal,
       parameterLocation
     ).then(deferred.resolve).catch(deferred.reject);
-    return deferred.promise;
   }
 
-  if (tsESTree_Class.superClass) {
-    const baseClassName: string = (tsESTree_Class.superClass as TSESTree.Identifier).name;
-
-    hasStrongParameterReferenceInternal(
-      parameterReferenceMap,
-      {
-        ...parameterLocation,
-        className: baseClassName,
-      },
-    )
-    .then(deferred.resolve)
-    .catch((): void => {
-      deferred.reject(new Error(`superclass call failed for ${baseClassName}::${methodName}`));
-    });
-
-    return deferred.promise;
-  }
-  */
-
-  deferred.reject(new Error(`no method found for ${className}::${methodName}`));
   return deferred.promise;
 }
 hasStrongParameterReferenceInternal satisfies ParameterReferenceRecursive;
