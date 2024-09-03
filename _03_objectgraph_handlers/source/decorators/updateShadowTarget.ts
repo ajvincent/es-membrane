@@ -153,7 +153,7 @@ export default function UpdateShadowTarget(
     ): boolean
     {
       if (Reflect.isExtensible(shadowTarget) === false) {
-        return false;
+        return true;
       }
 
       const result = super.preventExtensions(shadowTarget, nextGraphKey, nextTarget);
