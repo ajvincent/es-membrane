@@ -1,7 +1,7 @@
-import { MembraneBaseIfc } from "#objectgraph_handlers/source/types/MembraneBaseIfc.js";
+import { MembraneInternalIfc } from "#objectgraph_handlers/source/types/MembraneInternalIfc.js";
 
 export default
-class MirrorMembrane implements MembraneBaseIfc
+class MirrorMembrane implements MembraneInternalIfc
 {
   convertArray<
     ValueTypes extends unknown[]

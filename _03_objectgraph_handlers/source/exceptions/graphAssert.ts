@@ -1,13 +1,13 @@
 import type {
-  MembraneBaseIfc
-} from "../types/MembraneBaseIfc.js";
+  MembraneInternalIfc
+} from "../types/MembraneInternalIfc.js";
 
 import MembraneInternalError from "./MembraneInternalError.js";
 
 export default function graphAssert(
   condition: boolean,
   message: string,
-  membraneIfc: MembraneBaseIfc,
+  membraneIfc: MembraneInternalIfc,
   graphName: string | symbol,
 ): asserts condition is true
 {

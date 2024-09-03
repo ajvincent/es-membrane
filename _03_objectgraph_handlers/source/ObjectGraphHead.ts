@@ -7,8 +7,8 @@ import type {
 import OneToOneStrongMap from "../../_01_stage_utilities/source/collections/OneToOneStrongMap.js";
 
 import type {
-  MembraneBaseIfc
-} from "./types/MembraneBaseIfc.js";
+  MembraneInternalIfc
+} from "./types/MembraneInternalIfc.js";
 
 import type {
   ObjectGraphHeadIfc,
@@ -71,7 +71,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
    * @param objectGraphKey - our object graph key.
    */
   public constructor(
-    membraneIfc: MembraneBaseIfc,
+    membraneIfc: MembraneInternalIfc,
     graphHandlerIfc: ObjectGraphHandlerIfc & ObjectGraphValueCallbacksIfc,
     objectsOneToOneMap: OneToOneStrongMap<string | symbol, object>,
     objectGraphKey: string | symbol

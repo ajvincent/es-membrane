@@ -1,8 +1,8 @@
 import ObjectGraphHead from "#objectgraph_handlers/source/ObjectGraphHead.js";
 
 import type {
-  MembraneBaseIfc
-} from "#objectgraph_handlers/source/types/MembraneBaseIfc.js";
+  MembraneInternalIfc
+} from "#objectgraph_handlers/source/types/MembraneInternalIfc.js";
 
 import ObjectGraphTailHandler from "#objectgraph_handlers/source/generated/ObjectGraphTailHandler.js";
 
@@ -22,7 +22,7 @@ import type {
 } from "#objectgraph_handlers/source/types/ObjectGraphHeadIfc.js";
 
 describe("ObjectGraphHead", () => {
-  const mockMembrane: MembraneBaseIfc = {
+  const mockMembrane: MembraneInternalIfc = {
     convertArray: function <ValueTypes extends unknown[]>(targetGraphKey: string | symbol, values: ValueTypes): ValueTypes {
       return values.slice() as ValueTypes;
     },
@@ -41,7 +41,7 @@ describe("ObjectGraphHead", () => {
   });
 
   it("::getValueInGraph() maintains references to proxies or underlying values in the right graph", () => {
-    const mockMembrane: MembraneBaseIfc = {
+    const mockMembrane: MembraneInternalIfc = {
       convertArray: function <ValueTypes extends unknown[]>(targetGraphKey: string | symbol, values: ValueTypes): ValueTypes {
         return values.slice() as ValueTypes;
       },
@@ -134,7 +134,7 @@ describe("ObjectGraphHead", () => {
   });
   
   it("::revokeAllProxiesForGraph() actually revokes proxies", () => {
-    const mockMembrane: MembraneBaseIfc = {
+    const mockMembrane: MembraneInternalIfc = {
       convertArray: function <ValueTypes extends unknown[]>(targetGraphKey: string | symbol, values: ValueTypes): ValueTypes {
         return values.slice() as ValueTypes;
       },

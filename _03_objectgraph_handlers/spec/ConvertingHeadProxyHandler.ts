@@ -1,8 +1,8 @@
 import ConvertingHeadProxyHandler from "#objectgraph_handlers/source/generated/ConvertingHeadProxyHandler.js";
 
 import type {
-  MembraneBaseIfc,
-} from "#objectgraph_handlers/source/types/MembraneBaseIfc.js";
+  MembraneInternalIfc,
+} from "#objectgraph_handlers/source/types/MembraneInternalIfc.js";
 
 import type {
   ObjectGraphConversionIfc
@@ -58,7 +58,7 @@ class LocalHead implements ObjectGraphConversionIfc {
   }
 }
 
-class MockMembrane implements MembraneBaseIfc {
+class MockMembrane implements MembraneInternalIfc {
   convertArray<ValueTypes extends unknown[]>(targetGraphKey: string | symbol, values: ValueTypes): ValueTypes {
     throw new Error("Method not implemented.");
   }

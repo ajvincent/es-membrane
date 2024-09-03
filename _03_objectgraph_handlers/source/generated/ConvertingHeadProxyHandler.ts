@@ -1,5 +1,5 @@
 // This file is generated.  Do not edit.
-import type { MembraneBaseIfc } from "../types/MembraneBaseIfc.js";
+import type { MembraneInternalIfc } from "../types/MembraneInternalIfc.js";
 import type { ObjectGraphConversionIfc } from "../types/ObjectGraphHeadIfc.js";
 import type { RequiredProxyHandler } from "../types/RequiredProxyHandler.js";
 import type { ObjectGraphHandlerIfc } from "./types/ObjectGraphHandlerIfc.js";
@@ -11,12 +11,12 @@ type CommonConversions = {
 export default class ConvertingHeadProxyHandler
   implements RequiredProxyHandler
 {
-  readonly #membraneIfc: MembraneBaseIfc;
+  readonly #membraneIfc: MembraneInternalIfc;
   readonly #graphHandlerIfc: ObjectGraphHandlerIfc;
   readonly #graphConversionIfc: ObjectGraphConversionIfc;
 
   constructor(
-    membraneIfc: MembraneBaseIfc,
+    membraneIfc: MembraneInternalIfc,
     graphHandlerIfc: ObjectGraphHandlerIfc,
     graphConversionIfc: ObjectGraphConversionIfc,
   ) {
