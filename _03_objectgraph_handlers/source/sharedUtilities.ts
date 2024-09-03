@@ -9,6 +9,18 @@ export function NOT_IMPLEMENTED(): never {
   throw new Error("Not implemented!");
 }
 
+export function valueType(
+  value: unknown
+): "object" | "function" | "primitive"
+{
+  if (value === null)
+    return "primitive";
+  const type = typeof value;
+  if ((type != "function") && (type != "object"))
+    return "primitive";
+  return type;
+}
+
 /**
  * We don't need to worry about property descriptors being from a different realm.
  * (Though we may need to worry about which realm's Reflect we use.)

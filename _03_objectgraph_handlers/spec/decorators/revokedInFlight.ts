@@ -33,6 +33,9 @@ it("Revoked in-flight proxies throw the revocation error", () => {
     },
     get isRevoked() {
       return true;
+    },
+    isKnownProxy: function(value) {
+      return false;
     }
   }
   spyObjectGraphHandler.setThisGraphValues(mockGraphValues);

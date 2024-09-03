@@ -49,6 +49,10 @@ class LocalHead implements ObjectGraphConversionIfc {
     throw new Error("Method not implemented.");
   }
 
+  public isKnownProxy(value: object): boolean {
+    throw new Error("Method not implemented.");
+  }
+
   public getRealTargetForShadowTarget(shadowTarget: object): object {
     return this.#expectedRealTarget;
   }

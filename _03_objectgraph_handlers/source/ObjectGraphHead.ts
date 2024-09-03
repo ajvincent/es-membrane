@@ -62,6 +62,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
   #shadowTargetToRealTargetMap? = new WeakMap<object, object>;
   #realTargetToOriginGraph? = new WeakMap<object, string | symbol>;
   #revokerManagement?: RevokerManagement;
+  #weakProxySet? = new WeakSet<object>;
 
   /**
    * The bridge between an object graph proxy handler and the membrane.
@@ -225,7 +226,17 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     this.#shadowTargetToRealTargetMap!.set(shadowTarget, objectInSourceGraph);
     this.#realTargetToOriginGraph!.set(objectInSourceGraph, sourceGraphKey);
 
+    this.#weakProxySet!.add(proxy);
+
     return proxy;
+  }
+
+  // ObjectGraphValuesIfc
+  isKnownProxy(
+    value: object
+  ): boolean
+  {
+    return this.#weakProxySet!.has(value);
   }
 
   // ObjectGraphHeadIfc
@@ -246,6 +257,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
       this.#targetsOneToOneMap = undefined;
       this.#revokerManagement = undefined;
       this.#convertingHeadProxyHandler = undefined;
+      this.#weakProxySet = undefined;
     }
   }
 

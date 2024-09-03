@@ -9,6 +9,7 @@ export default function UpdateShadowTarget(
   context: ClassDecoratorContext
 ): typeof ObjectGraphTailHandler
 {
+  void(context);
   class UpdateShadowTarget extends baseClass
   {
     static #undefinedDescriptor = Object.freeze({
@@ -17,6 +18,75 @@ export default function UpdateShadowTarget(
       enumerable: false,
       configurable: true,
     });
+
+    // apply and construct traps do not need to modify the shadow target.
+
+    public defineProperty(
+      shadowTarget: object,
+      property: string | symbol,
+      attributes: PropertyDescriptor,
+      nextGraphKey: string | symbol,
+      nextTarget: object,
+      nextProperty: string | symbol,
+      nextAttributes: PropertyDescriptor
+    ): boolean
+    {
+      let result: boolean = super.defineProperty(
+        shadowTarget, property, attributes, nextGraphKey, nextTarget, nextProperty, nextAttributes
+      );
+      if (result)
+        result = Reflect.defineProperty(shadowTarget, property, attributes);
+      return result;
+    }
+
+    public deleteProperty(
+      shadowTarget: object,
+      p: string | symbol,
+      nextGraphKey: string | symbol,
+      nextTarget: object,
+      nextP: string | symbol
+    ): boolean
+    {
+      let result: boolean = super.deleteProperty(
+        shadowTarget, p, nextGraphKey, nextTarget, nextP
+      );
+      if (result)
+        result = Reflect.deleteProperty(shadowTarget, p);
+      return result;
+    }
+
+    // get is a recursive operation, per https://262.ecma-international.org/#sec-ordinaryget
+
+    public getOwnPropertyDescriptor(
+      shadowTarget: object,
+      p: string | symbol,
+      nextGraphKey: string | symbol,
+      nextTarget: object,
+      nextP: string | symbol
+    ): PropertyDescriptor | undefined
+    {
+      // The theory here is "trust the JavaScript engine to do the right thing".
+      const desc = super.getOwnPropertyDescriptor(shadowTarget, p, nextGraphKey, nextTarget, nextP);
+      if (desc)
+        Reflect.defineProperty(shadowTarget, p, desc);
+      else
+        Reflect.deleteProperty(shadowTarget, p);
+
+      return Reflect.getOwnPropertyDescriptor(shadowTarget, p);
+    }
+
+    public getPrototypeOf(
+      shadowTarget: object,
+      nextGraphKey: string | symbol,
+      nextTarget: object
+    ): object | null
+    {
+      const proto = super.getPrototypeOf(shadowTarget, nextGraphKey, nextTarget);
+      Reflect.setPrototypeOf(shadowTarget, proto);
+      return Reflect.getPrototypeOf(shadowTarget);
+    }
+
+    // has is a recursive operation, per https://262.ecma-international.org/#sec-ordinaryhasproperty
 
     public isExtensible(
       shadowTarget: object,
@@ -87,9 +157,27 @@ export default function UpdateShadowTarget(
       }
 
       const result = super.preventExtensions(shadowTarget, nextGraphKey, nextTarget);
-      if (result) {
+      if (result)
         this.#lockShadowTarget(shadowTarget, nextGraphKey, nextTarget);
-      }
+
+      return result;
+    }
+
+    // set is a recursive operation, and thus covered elsewhere
+
+    public setPrototypeOf(
+      shadowTarget: object,
+      v: object | null,
+      nextGraphKey: string | symbol,
+      nextTarget: object,
+      nextV: object | null
+    ): boolean
+    {
+      let result: boolean = super.setPrototypeOf(
+        shadowTarget, v, nextGraphKey, nextTarget, nextV
+      );
+      if (result)
+        result = Reflect.setPrototypeOf(shadowTarget, v);
       return result;
     }
 
@@ -110,6 +198,7 @@ export default function UpdateShadowTarget(
       Reflect.preventExtensions(shadowTarget);
     }
   }
+
   return UpdateShadowTarget;
 }
 UpdateShadowTarget satisfies ClassDecoratorFunction<

@@ -62,6 +62,13 @@ export interface ObjectGraphValuesIfc {
   ): unknown;
 
   get isRevoked(): boolean;
+
+  /**
+   * @returns true if the value is a proxy I own.
+   */
+  isKnownProxy(
+    value: object
+  ): boolean;
 }
 
 export interface ObjectGraphValueCallbacksIfc {

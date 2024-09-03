@@ -5,8 +5,9 @@ import type {
 } from "#objectgraph_handlers/source/generated/types/ObjectGraphHandlerIfc.js";
 
 import ObjectGraphTailHandler from "#objectgraph_handlers/source/generated/ObjectGraphTailHandler.js";
-import { DataDescriptor } from "#objectgraph_handlers/source/sharedUtilities.js";
-
+import {
+  DataDescriptor
+} from "#objectgraph_handlers/source/sharedUtilities.js";
 
 describe("UpdateShadowTarget works", () => {
   let spyObjectGraphHandler: ObjectGraphHandlerIfc;
