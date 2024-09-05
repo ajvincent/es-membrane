@@ -105,15 +105,22 @@ export default function InheritedPropertyTraps(
           if (existingDescriptor.writable === false)
             return false;
 
-          const valueDesc = { value: newValue };
+          // This difference from CreateDataProperty is intentional, per the ECMAScript specification.
+          // writable, configurable, enumerable will be picked up from the existing descriptor.
+          const valueDesc: PropertyDescriptor = { value: newValue };
+          const nextValueDesc: PropertyDescriptor = { value: nextNewValue };
 
+          // XXX remove me
           graphAssert(
             this.thisGraphValues!.isKnownProxy(receiver),
             "expected a proxy receiver",
             this.membrane,
             this.thisGraphKey
           );
-          return Reflect.defineProperty(receiver, p, valueDesc);
+
+          return super.defineProperty(
+            receiver, p, valueDesc, nextGraphKey, nextReceiver, nextP, nextValueDesc
+          );
         }
 
         // "Assert: Receiver does not currently have a property P."
@@ -128,15 +135,20 @@ export default function InheritedPropertyTraps(
         */
 
         // CreateDataProperty
-        let newDesc = new DataDescriptor(newValue, true, true, true);
+        const newDesc: PropertyDescriptor = new DataDescriptor(newValue, true, true, true);
+        const nextNewDesc: PropertyDescriptor = new DataDescriptor(nextNewValue, true, true, true);
 
+        // XXX remove me
         graphAssert(
           this.thisGraphValues!.isKnownProxy(receiver),
           "expected a proxy receiver",
           this.membrane,
           this.thisGraphKey
         );
-        return Reflect.defineProperty(receiver, p, newDesc);
+
+        return super.defineProperty(
+          receiver, p, newDesc, nextGraphKey, nextReceiver, nextP, nextNewDesc
+        );
       }
 
       graphAssert(

@@ -81,3 +81,15 @@ it("Reflect.getOwnPropertyDescriptor() returns a full descriptor", () => {
     }
   ).toThrow();
 });
+
+it("Reflect.getOwnPropertyDescriptor() returns unique objects each time", () => {
+  const x = {};
+  Reflect.defineProperty(x, "foo", { value: "foo" });
+
+  function getFoo(): PropertyDescriptor | undefined {
+    return Reflect.getOwnPropertyDescriptor(x, "foo");
+  }
+
+  expect(getFoo()).toEqual(getFoo());
+  expect(getFoo()).not.toBe(getFoo());
+});
