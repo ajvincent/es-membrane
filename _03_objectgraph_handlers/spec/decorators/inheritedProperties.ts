@@ -304,9 +304,13 @@ describe("Inherited property traps", () => {
       });
 
       it("for a local writable, configurable property", () => {
-        Reflect.defineProperty(
-          nextTarget, "foo", new DataDescriptor("incorrect", true, false, true)
-        );
+        const originalDesc = {
+          value: "original",
+          writable: true,
+          enumerable: false,
+          configurable: true
+        };
+        Reflect.defineProperty(nextTarget, "foo", originalDesc);
 
         const result: boolean = spyObjectGraphHandler.set(
           shadowTarget, "foo", shadowFoo.value, shadowReceiver, nextGraphKey,
@@ -341,40 +345,143 @@ describe("Inherited property traps", () => {
         ).withContext("nextProto:foo").toBeUndefined();
       });
 
-      xit("for a local non-writable, configurable property", () => {
-        expect(false).toBeTrue();
-      });
-
-      xit("for a local writable, non-configurable property", () => {
-        expect(false).toBeTrue();
-      });
-
-      xit("for a local non-writable, non-configurable property", () => {
-        expect(false).toBeTrue();
-      });
-
-      // don't really know what this is going to do
-      xit("for an inherited writable, configurable property", () => {
-        const inheritedDesc: PropertyDescriptor = {
-          value: "inherited",
-          writable: true,
+      it("for a local non-writable, configurable property", () => {
+        const originalDesc = {
+          value: "original",
+          writable: false,
           enumerable: true,
-          configurable: true,
-        }
-        Reflect.defineProperty(shadowProto, "foo", inheritedDesc);
+          configurable: true
+        };
+        Reflect.defineProperty(
+          nextTarget, "foo", originalDesc
+        );
 
         const result: boolean = spyObjectGraphHandler.set(
-          shadowProto, "foo", shadowFoo, shadowTarget, nextGraphKey,
-          nextProto, "foo", nextFoo, shadowTarget
+          shadowTarget, "foo", shadowFoo.value, shadowReceiver, nextGraphKey,
+          nextTarget, "foo", nextFoo.value, nextReceiver
+        );
+
+        expect(result).toBeFalse();
+
+        expect(
+          Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")
+        ).withContext("shadowTarget:foo").toEqual(originalDesc);
+        expect(
+          Reflect.getOwnPropertyDescriptor(shadowProto, "foo")
+        ).withContext("shadowProto:foo").toBeUndefined();
+
+        expect(
+          Reflect.getOwnPropertyDescriptor(nextTarget, "foo")
+        ).withContext("nextTarget:foo").toEqual(originalDesc);
+        expect(
+          Reflect.getOwnPropertyDescriptor(nextProto, "foo")
+        ).withContext("nextProto:foo").toBeUndefined();
+      });
+
+      it("for a local writable, non-configurable property", () => {
+        const originalDesc = {
+          value: "original",
+          writable: true,
+          enumerable: true,
+          configurable: false
+        };
+        Reflect.defineProperty(nextTarget, "foo", originalDesc);
+
+        const result: boolean = spyObjectGraphHandler.set(
+          shadowTarget, "foo", shadowFoo.value, shadowReceiver, nextGraphKey,
+          nextTarget, "foo", nextFoo.value, nextReceiver
         );
 
         expect(result).toBeTrue();
 
-        expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")).toEqual(shadowFoo);
-        expect(Reflect.getOwnPropertyDescriptor(shadowProto, "foo")).toEqual(inheritedDesc);
+        expect(
+          Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")
+        ).withContext("shadowTarget:foo").toEqual({
+          value: shadowFoo.value,
+          writable: true,
+          enumerable: true,
+          configurable: false,
+        });
+        expect(
+          Reflect.getOwnPropertyDescriptor(shadowProto, "foo")
+        ).withContext("shadowProto:foo").toBeUndefined();
 
-        expect(Reflect.getOwnPropertyDescriptor(nextTarget, "foo")).toEqual(nextFoo);
-        expect(Reflect.getOwnPropertyDescriptor(nextProto, "foo")).toEqual(inheritedDesc);
+        // https://262.ecma-international.org/#sec-ordinarysetwithowndescriptor step 2.d.iii
+        expect(
+          Reflect.getOwnPropertyDescriptor(nextTarget, "foo")
+        ).withContext("nextTarget:foo").toEqual({
+          value: nextFoo.value,
+          writable: true,
+          enumerable: true,
+          configurable: false,
+        });
+        expect(
+          Reflect.getOwnPropertyDescriptor(nextProto, "foo")
+        ).withContext("nextProto:foo").toBeUndefined();
+      });
+
+      it("for a local non-writable, non-configurable property", () => {
+        const originalDesc = {
+          value: "original",
+          writable: false,
+          enumerable: true,
+          configurable: false
+        };
+        Reflect.defineProperty(
+          nextTarget, "foo", originalDesc
+        );
+
+        const result: boolean = spyObjectGraphHandler.set(
+          shadowTarget, "foo", shadowFoo.value, shadowReceiver, nextGraphKey,
+          nextTarget, "foo", nextFoo.value, nextReceiver
+        );
+
+        expect(result).toBeFalse();
+
+        expect(
+          Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")
+        ).withContext("shadowTarget:foo").toEqual(originalDesc);
+        expect(
+          Reflect.getOwnPropertyDescriptor(shadowProto, "foo")
+        ).withContext("shadowProto:foo").toBeUndefined();
+
+        expect(
+          Reflect.getOwnPropertyDescriptor(nextTarget, "foo")
+        ).withContext("nextTarget:foo").toEqual(originalDesc);
+        expect(
+          Reflect.getOwnPropertyDescriptor(nextProto, "foo")
+        ).withContext("nextProto:foo").toBeUndefined();
+      });
+
+      it("for an inherited writable, configurable property", () => {
+        const inheritedDesc: PropertyDescriptor = {
+          value: "inherited",
+          writable: true,
+          enumerable: false,
+          configurable: true,
+        }
+        Reflect.defineProperty(nextProto, "foo", inheritedDesc);
+
+        const result: boolean = spyObjectGraphHandler.set(
+          shadowProto, "foo", shadowFoo.value, shadowReceiver, nextGraphKey,
+          nextProto, "foo", nextFoo.value, nextReceiver
+        );
+
+        expect(result).toBeTrue();
+
+        expect(
+          Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")
+        ).withContext("shadowTarget:foo").toEqual(shadowFoo);
+        expect(
+          Reflect.getOwnPropertyDescriptor(shadowProto, "foo")
+        ).withContext("shadowProto:foo").toEqual(inheritedDesc);
+
+        expect(
+          Reflect.getOwnPropertyDescriptor(nextTarget, "foo")
+        ).withContext("nextTarget:foo").toEqual(nextFoo);
+        expect(
+          Reflect.getOwnPropertyDescriptor(nextProto, "foo")
+        ).withContext("nextProto:foo").toEqual(inheritedDesc);
       });
 
       /* We probably don't need the same tests for non-writable and/or non-configurable inherited properties.
