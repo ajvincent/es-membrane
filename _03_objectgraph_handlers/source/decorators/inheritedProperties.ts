@@ -28,30 +28,30 @@ export default function InheritedPropertyTraps(
       nextReceiver: any,
     ): any
     {
-      let desc: PropertyDescriptor | undefined = this.#getMatchingDescriptorDeep(
+      let shadowDesc: PropertyDescriptor | undefined = this.#getMatchingDescriptorDeep(
         shadowTarget, p, nextGraphKey, nextTarget, nextP
       );
-      if (desc === undefined)
+      if (shadowDesc === undefined)
         return undefined;
 
-      if (isDataDescriptor(desc))
-        return desc.value;
+      if (isDataDescriptor(shadowDesc))
+        return shadowDesc.value;
 
       graphAssert(
-        isAccessorDescriptor(desc),
+        isAccessorDescriptor(shadowDesc),
         "desc must be an accessor descriptor or a data descriptor",
         this.membrane,
         this.thisGraphKey
       );
 
-      if (desc.get === undefined)
+      if (shadowDesc.get === undefined)
         return undefined;
 
-      const wrappedGet = this.membrane.convertDescriptor(nextGraphKey, desc)?.get;
+      const wrappedGet = this.membrane.convertDescriptor(nextGraphKey, shadowDesc)?.get;
       graphAssert(typeof wrappedGet === "function", "must have a wrapped getter", this.membrane, this.thisGraphKey);
 
       return super.apply(
-        desc.get, receiver, [], nextGraphKey, wrappedGet as () => any, nextReceiver, []
+        shadowDesc.get, receiver, [], nextGraphKey, wrappedGet as () => any, nextReceiver, []
       );
     }
 
@@ -183,9 +183,9 @@ export default function InheritedPropertyTraps(
     ): PropertyDescriptor | undefined
     {
       do {
-        let desc = super.getOwnPropertyDescriptor(shadowTarget, p, nextGraphKey, nextTarget, nextP);
-        if (desc)
-          return desc;
+        let shadowDesc = super.getOwnPropertyDescriptor(shadowTarget, p, nextGraphKey, nextTarget, nextP);
+        if (shadowDesc)
+          return shadowDesc;
 
         let protoShadowTarget = super.getPrototypeOf(shadowTarget, nextGraphKey, nextTarget);
         let protoNextTarget = Reflect.getPrototypeOf(nextTarget);
