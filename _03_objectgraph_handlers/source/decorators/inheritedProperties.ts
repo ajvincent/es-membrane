@@ -163,13 +163,13 @@ export default function InheritedPropertyTraps(
         return false;
 
       const wrappedSet = this.membrane.convertDescriptor(nextGraphKey, ownDesc)?.set;
-      graphAssert(typeof wrappedSet === "function", "must have a wrapped getter", this.membrane, this.thisGraphKey);
+      graphAssert(wrappedSet !== undefined, "must have a wrapped getter", this.membrane, this.thisGraphKey);
 
       const valueArgs = [newValue];
       const wrappedValueArgs = this.membrane.convertArray(nextGraphKey, valueArgs);
 
       super.apply(
-        setter, receiver, valueArgs, nextGraphKey, wrappedSet!, nextReceiver, wrappedValueArgs
+        setter, receiver, valueArgs, nextGraphKey, wrappedSet, nextReceiver, wrappedValueArgs
       );
       return true;
     }
