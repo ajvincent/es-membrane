@@ -9,7 +9,7 @@ export default function graphAssert(
   message: string,
   membraneIfc: MembraneInternalIfc,
   graphName: string | symbol,
-): asserts condition is true
+): asserts condition
 {
   if (condition)
     return;
