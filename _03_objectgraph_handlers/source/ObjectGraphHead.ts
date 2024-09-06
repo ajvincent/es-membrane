@@ -58,7 +58,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
 
   // these are writable to allow for clearing the references upon revocation.
   #convertingHeadProxyHandler?: ConvertingHeadProxyHandler;
-  #targetsOneToOneMap?: OneToOneStrongMap<string | symbol, object>;
+  #proxiesOneToOneMap?: OneToOneStrongMap<string | symbol, object>;
   #shadowTargetToRealTargetMap? = new WeakMap<object, object>;
   #realTargetToOriginGraph? = new WeakMap<object, string | symbol>;
   #revokerManagement?: RevokerManagement;
@@ -68,17 +68,17 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
    * The bridge between an object graph proxy handler and the membrane.
    * @param membraneIfc - the membrane
    * @param graphHandlerIfc - the extended object graph proxy handler.
-   * @param objectsOneToOneMap - the one-to-one mapping to use for objects to object graph keys.
+   * @param proxiesOneToOneMap - the one-to-one mapping to use for objects to object graph keys.
    * @param objectGraphKey - our object graph key.
    */
   public constructor(
     membraneIfc: MembraneInternalIfc,
     graphHandlerIfc: ObjectGraphHandlerIfc & ObjectGraphValueCallbacksIfc,
-    objectsOneToOneMap: OneToOneStrongMap<string | symbol, object>,
+    proxiesOneToOneMap: OneToOneStrongMap<string | symbol, object>,
     objectGraphKey: string | symbol
   )
   {
-    this.#targetsOneToOneMap = objectsOneToOneMap;
+    this.#proxiesOneToOneMap = proxiesOneToOneMap;
 
     this.objectGraphKey = objectGraphKey;
     this.#revokerManagement = new RevokerManagement(objectGraphKey);
@@ -157,7 +157,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
 
     // sourceValue is an object
     const objectInSourceGraph = valueInSourceGraph as object;
-    let value: object | undefined = this.#targetsOneToOneMap!.get(objectInSourceGraph, this.objectGraphKey);
+    let value: object | undefined = this.#proxiesOneToOneMap!.get(objectInSourceGraph, this.objectGraphKey);
     if (value === undefined) {
       if (sourceGraphKey === this.objectGraphKey)
         value = objectInSourceGraph;
@@ -165,7 +165,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
         value = this.getIntrinsicInGraph(objectInSourceGraph, sourceGraphKey) ??
           this.#createNewProxy(objectInSourceGraph, sourceGraphKey);
 
-        this.#targetsOneToOneMap!.bindOneToOne(
+        this.#proxiesOneToOneMap!.bindOneToOne(
           this.objectGraphKey, value, sourceGraphKey, objectInSourceGraph
         );
       }
@@ -254,7 +254,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
 
       this.#shadowTargetToRealTargetMap = undefined;
       this.#realTargetToOriginGraph = undefined;
-      this.#targetsOneToOneMap = undefined;
+      this.#proxiesOneToOneMap = undefined;
       this.#revokerManagement = undefined;
       this.#convertingHeadProxyHandler = undefined;
       this.#weakProxySet = undefined;
