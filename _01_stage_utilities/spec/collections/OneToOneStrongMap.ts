@@ -81,4 +81,13 @@ describe("CodeGenerator(OneToOneStrongMap.mjs)", () => {
     expect(map.hasIdentity(redObj, "blue", false)).toBe(false);
     expect(map.hasIdentity(redObj, "blue", true)).toBe(true);
   });
+
+  it(".clear() clears the map entirely", () => {
+    map.bindOneToOne("red", redObj, "blue", blueObj);
+    map.clear();
+    expect(map.get(redObj, "red")).toBeUndefined();
+    expect(map.get(redObj, "blue")).toBeUndefined();
+    expect(map.get(blueObj, "red")).toBeUndefined();
+    expect(map.get(blueObj, "blue")).toBeUndefined();
+  });
 });

@@ -13,8 +13,8 @@ export default class OneToOneStrongMap<
   ValueType extends object
 >
 {
-  readonly #baseMap = new WeakStrongMap<InternalKey, StrongKeyType, ValueType>();
-  readonly #weakValueToInternalKeyMap: WeakMap<ValueType, InternalKey> = new WeakMap;
+  #baseMap: WeakStrongMap<InternalKey, StrongKeyType, ValueType> = new WeakStrongMap;
+  #weakValueToInternalKeyMap: WeakMap<ValueType, InternalKey> = new WeakMap;
 
   /**
    * Bind two sets of keys and values together.
@@ -56,6 +56,12 @@ export default class OneToOneStrongMap<
 
     if (!__hasKeySet2__)
       this.#baseMap.set(internalKey, strongKey_2, value_2);
+  }
+
+  /** Clear all bindings. */
+  public clear(): void {
+    this.#baseMap = new WeakStrongMap;
+    this.#weakValueToInternalKeyMap = new WeakMap;
   }
 
   /**
