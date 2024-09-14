@@ -1,9 +1,5 @@
 /* This API may change depending on needs from future components. */
 
-import type {
-  RequiredProxyHandler
-} from "./RequiredProxyHandler.js";
-
 export interface MembraneInternalIfc
 {
   convertArray<ValueTypes extends unknown[]>(
