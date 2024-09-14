@@ -816,12 +816,10 @@ describe("Inherited property traps:", () => {
         beforeEach(() => {
           nextFoo.configurable = false;
           shadowFoo.configurable = false;
-
-          Reflect.defineProperty(nextTarget, "foo", nextFoo);
         });
 
         // The configurable: false setting shouldn't affect anything.
-        xit("getter", () => {
+        it("getter", () => {
           nextFoo.set = undefined;
           shadowFoo.set = undefined;
           Reflect.defineProperty(nextTarget, "foo", nextFoo);
@@ -839,7 +837,7 @@ describe("Inherited property traps:", () => {
           ).withContext("nextTarget:foo").toEqual(nextFoo);
         });
 
-        xit("setter", () => {
+        it("setter", () => {
           nextFoo.get = undefined;
           shadowFoo.get = undefined;
           Reflect.defineProperty(nextTarget, "foo", nextFoo);
