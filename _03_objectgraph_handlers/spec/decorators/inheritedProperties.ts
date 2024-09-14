@@ -18,11 +18,17 @@ import type {
   ObjectGraphValuesIfc
 } from "#objectgraph_handlers/source/types/ObjectGraphHeadIfc.js";
 
-describe("Inherited property traps: ", () => {
+describe("Inherited property traps:", () => {
   //#region setup
   let spyObjectGraphHandler: ObjectGraphHandlerIfc;
-  let shadowTarget: object, nextTarget: object, shadowProto: object, nextProto: object;
-  let shadowReceiver: object, nextReceiver: object;
+  let shadowTarget: {
+    id: unknown,
+    accessorValue?: unknown
+  }, nextTarget: {
+    id: unknown,
+    accessorValue?: unknown
+  }, shadowProto: object, nextProto: object;
+  let shadowReceiver: { accessorValue?: unknown }, nextReceiver: { accessorValue?: unknown };
   let shadowFoo: PropertyDescriptor, nextFoo: PropertyDescriptor;
   const shadowGraphKey = Symbol("shadow graph");
   const nextGraphKey = Symbol("next graph");
@@ -90,7 +96,13 @@ describe("Inherited property traps: ", () => {
       values: ValueTypes
     ): ValueTypes
     {
-      throw new Error("Function not implemented.");
+      return values.map(value => {
+        if (value === null)
+          return null;
+        if ((typeof value === "object") || (typeof value === "function"))
+          return nextShadowOneToOne.get(value, targetGraphKey)
+        return value;
+      }) as ValueTypes;
     },
 
     convertDescriptor: function (
@@ -120,7 +132,7 @@ describe("Inherited property traps: ", () => {
   }
 
   /* This is really hard to do as an unit test, because correct use of InheritedPropertyTraps depends on
-  getting the right values set on shaedow and next targets.
+  getting the right values set on shadow and next targets.
   */
   @InheritedPropertyTraps
   @UpdateShadowTarget
@@ -138,7 +150,7 @@ describe("Inherited property traps: ", () => {
 
     // don't remove these id properties.  They will be useful in debugging to know which object is which.
     shadowTarget = {
-      id: "shadowTarget"
+      id: "shadowTarget",
     };
     nextTarget = {
       id: "nextTarget"
@@ -546,15 +558,17 @@ describe("Inherited property traps: ", () => {
   });
 
   describe("with an accessor descriptor", () => {
-    let shadowValue: unknown = "bar";
-    let nextValue: unknown = "bar";
     beforeEach(() => {
+      nextTarget.accessorValue = "not yet set";
+      shadowTarget.accessorValue = undefined;
       shadowFoo = {
         get: function(): unknown {
-          return shadowValue;
+          // @ts-expect-error
+          return this.accessorValue;
         },
         set: function(value: unknown): void {
-          shadowValue = value;
+          // @ts-expect-error
+          this.accessorValue = value;
         },
         enumerable: true,
         configurable: true,
@@ -562,10 +576,12 @@ describe("Inherited property traps: ", () => {
 
       nextFoo = {
         get: function(): unknown {
-          return nextValue;
+          // @ts-expect-error
+          return this.accessorValue;
         },
         set: function(value: unknown) {
-          nextValue = value;
+          // @ts-expect-error
+          this.accessorValue = value;
         },
         enumerable: true,
         configurable: true,
@@ -577,20 +593,13 @@ describe("Inherited property traps: ", () => {
     });
 
     describe(`"get" works`, () => {
-      it("for a non-existent property", () => {
-        const fooValue: unknown = spyObjectGraphHandler.get(
-          shadowTarget, "foo", shadowTarget, nextGraphKey, nextTarget, "foo", nextTarget
-        );
-        expect(fooValue).toBeUndefined();
-      });
-
       it(`for a local property`, () => {
         Reflect.defineProperty(nextTarget, "foo", nextFoo);
 
         const fooValue: unknown = spyObjectGraphHandler.get(
           shadowTarget, "foo", shadowTarget, nextGraphKey, nextTarget, "foo", nextTarget
         );
-        expect(fooValue).toBe("bar");
+        expect(fooValue).toBe("not yet set");
 
         expect(
           Reflect.getOwnPropertyDescriptor(nextTarget, "foo")
@@ -613,7 +622,7 @@ describe("Inherited property traps: ", () => {
         const fooValue: unknown = spyObjectGraphHandler.get(
           shadowTarget, "foo", shadowTarget, nextGraphKey, nextTarget, "foo", nextTarget
         );
-        expect(fooValue).toBe("bar");
+        expect(fooValue).toBe("not yet set");
 
         expect(
           Reflect.getOwnPropertyDescriptor(nextTarget, "foo")
@@ -636,7 +645,7 @@ describe("Inherited property traps: ", () => {
         const fooValue: unknown = spyObjectGraphHandler.get(
           shadowProto, "foo", shadowTarget, nextGraphKey, nextProto, "foo", nextTarget
         );
-        expect(fooValue).toBe("bar");
+        expect(fooValue).toBe("not yet set");
 
         expect(
           Reflect.getOwnPropertyDescriptor(nextTarget, "foo")
@@ -655,13 +664,6 @@ describe("Inherited property traps: ", () => {
     });
 
     describe(`"has" works`, () => {
-      it("for a non-existent property", () => {
-        const fooValue: boolean = spyObjectGraphHandler.has(
-          shadowTarget, "foo", nextGraphKey, nextTarget, "foo"
-        );
-        expect(fooValue).toBeFalse();
-      });
-
       it(`for a local property`, () => {
         Reflect.defineProperty(nextTarget, "foo", nextFoo);
 
@@ -711,21 +713,102 @@ describe("Inherited property traps: ", () => {
       });
     });
 
-    xdescribe(`"set" works when the accessor is`, () => {
+    describe(`"set" works when the accessor is`, () => {
+      beforeEach(() => {
+        shadowReceiver = shadowTarget;
+        nextReceiver = nextTarget;
+        bindNextAndShadow(nextReceiver, shadowReceiver);
+      });
+
       describe("configurable with a local", () => {
-        beforeEach(() => {
-          Reflect.defineProperty(nextTarget, "foo", nextFoo);
-        })
         it("getter", () => {
-          expect(false).toBeTrue();
+          nextFoo.set = undefined;
+          shadowFoo.set = undefined;
+          Reflect.defineProperty(nextTarget, "foo", nextFoo);
+
+          const result: boolean = spyObjectGraphHandler.set(
+            shadowTarget, "foo", "bar", shadowReceiver, nextGraphKey,
+            nextTarget, "foo", "bar", nextReceiver
+          );
+          expect(result).toBe(false);
+          expect(
+            Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")
+          ).withContext("shadowTarget:foo").toEqual(shadowFoo);
+          expect(
+            Reflect.getOwnPropertyDescriptor(nextTarget, "foo")
+          ).withContext("nextTarget:foo").toEqual(nextFoo);
         });
 
         it("setter", () => {
-          expect(false).toBeTrue();
+          nextFoo.get = undefined;
+          shadowFoo.get = undefined;
+          Reflect.defineProperty(nextTarget, "foo", nextFoo);
+
+          const result: boolean = spyObjectGraphHandler.set(
+            shadowTarget, "foo", "bar", shadowReceiver, nextGraphKey,
+            nextTarget, "foo", "bar", nextReceiver
+          );
+          expect(result).toBe(true);
+          /* The shadow receiver's accessorValue shouldn't be touched in this operation.  The proxy handler's
+          operations on all shadow targets are _lazy_, meaning we only affect what we have to.  We trust the
+          proxy handler's get() operation to update the accessorValue property.
+          */
+          expect(shadowReceiver.accessorValue).withContext("shadowReceiver:accessorValue").toBeUndefined();
+          expect(nextReceiver.accessorValue).withContext("nextReceiver:accessorValue").toBe("bar");
+
+          expect(
+            Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")
+          ).withContext("shadowTarget:foo").toEqual(shadowFoo);
+          expect(
+            Reflect.getOwnPropertyDescriptor(nextTarget, "foo")
+          ).withContext("nextTarget:foo").toEqual(nextFoo);
+
+          // Then to prove the point above,
+          expect(spyObjectGraphHandler.get(
+            shadowReceiver, "accessorValue", shadowReceiver, nextGraphKey,
+            nextReceiver, "accessorValue", nextReceiver
+          )).toBe("bar");
+          expect(
+            Reflect.getOwnPropertyDescriptor(shadowReceiver, "accessorValue")
+          ).withContext("shadowReceiver:accessorValue (2)").toEqual({
+            value: "bar",
+            enumerable: true,
+            writable: true,
+            configurable: true
+          })
         });
 
         it("getter & setter", () => {
-          expect(false).toBeTrue();
+          // THis should behave just as it did without the getter.
+          Reflect.defineProperty(nextTarget, "foo", nextFoo);
+
+          const result: boolean = spyObjectGraphHandler.set(
+            shadowTarget, "foo", "bar", shadowReceiver, nextGraphKey,
+            nextTarget, "foo", "bar", nextReceiver
+          );
+          expect(result).toBe(true);
+          expect(shadowReceiver.accessorValue).withContext("shadowReceiver:accessorValue").toBeUndefined();
+          expect(nextReceiver.accessorValue).withContext("nextReceiver:accessorValue").toBe("bar");
+
+          expect(
+            Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")
+          ).withContext("shadowTarget:foo").toEqual(shadowFoo);
+          expect(
+            Reflect.getOwnPropertyDescriptor(nextTarget, "foo")
+          ).withContext("nextTarget:foo").toEqual(nextFoo);
+
+          expect(spyObjectGraphHandler.get(
+            shadowReceiver, "accessorValue", shadowReceiver, nextGraphKey,
+            nextReceiver, "accessorValue", nextReceiver
+          )).toBe("bar");
+          expect(
+            Reflect.getOwnPropertyDescriptor(shadowReceiver, "accessorValue")
+          ).withContext("shadowReceiver:accessorValue (2)").toEqual({
+            value: "bar",
+            enumerable: true,
+            writable: true,
+            configurable: true
+          });
         });
       });
 
@@ -737,16 +820,90 @@ describe("Inherited property traps: ", () => {
           Reflect.defineProperty(nextTarget, "foo", nextFoo);
         });
 
-        it("getter", () => {
-          expect(false).toBeTrue();
+        // The configurable: false setting shouldn't affect anything.
+        xit("getter", () => {
+          nextFoo.set = undefined;
+          shadowFoo.set = undefined;
+          Reflect.defineProperty(nextTarget, "foo", nextFoo);
+
+          const result: boolean = spyObjectGraphHandler.set(
+            shadowTarget, "foo", "bar", shadowReceiver, nextGraphKey,
+            nextTarget, "foo", "bar", nextReceiver
+          );
+          expect(result).toBe(false);
+          expect(
+            Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")
+          ).withContext("shadowTarget:foo").toEqual(shadowFoo);
+          expect(
+            Reflect.getOwnPropertyDescriptor(nextTarget, "foo")
+          ).withContext("nextTarget:foo").toEqual(nextFoo);
         });
 
-        it("setter", () => {
-          expect(false).toBeTrue();
+        xit("setter", () => {
+          nextFoo.get = undefined;
+          shadowFoo.get = undefined;
+          Reflect.defineProperty(nextTarget, "foo", nextFoo);
+
+          const result: boolean = spyObjectGraphHandler.set(
+            shadowTarget, "foo", "bar", shadowReceiver, nextGraphKey,
+            nextTarget, "foo", "bar", nextReceiver
+          );
+          expect(result).toBe(true);
+          // See the configurable: true test above.
+          expect(shadowReceiver.accessorValue).withContext("shadowReceiver:accessorValue").toBeUndefined();
+          expect(nextReceiver.accessorValue).withContext("nextReceiver:accessorValue").toBe("bar");
+
+          expect(
+            Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")
+          ).withContext("shadowTarget:foo").toEqual(shadowFoo);
+          expect(
+            Reflect.getOwnPropertyDescriptor(nextTarget, "foo")
+          ).withContext("nextTarget:foo").toEqual(nextFoo);
+
+          expect(spyObjectGraphHandler.get(
+            shadowReceiver, "accessorValue", shadowReceiver, nextGraphKey,
+            nextReceiver, "accessorValue", nextReceiver
+          )).toBe("bar");
+          expect(
+            Reflect.getOwnPropertyDescriptor(shadowReceiver, "accessorValue")
+          ).withContext("shadowReceiver:accessorValue (2)").toEqual({
+            value: "bar",
+            enumerable: true,
+            writable: true,
+            configurable: true
+          })
         });
 
         it("getter & setter", () => {
-          expect(false).toBeTrue();
+          Reflect.defineProperty(nextTarget, "foo", nextFoo);
+
+          const result: boolean = spyObjectGraphHandler.set(
+            shadowTarget, "foo", "bar", shadowReceiver, nextGraphKey,
+            nextTarget, "foo", "bar", nextReceiver
+          );
+          expect(result).toBe(true);
+          expect(shadowReceiver.accessorValue).withContext("shadowReceiver:accessorValue").toBeUndefined();
+          expect(nextReceiver.accessorValue).withContext("nextReceiver:accessorValue").toBe("bar");
+
+          expect(
+            Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")
+          ).withContext("shadowTarget:foo").toEqual(shadowFoo);
+          expect(
+            Reflect.getOwnPropertyDescriptor(nextTarget, "foo")
+          ).withContext("nextTarget:foo").toEqual(nextFoo);
+
+          expect(spyObjectGraphHandler.get(
+            shadowReceiver, "accessorValue", shadowReceiver, nextGraphKey,
+            nextReceiver, "accessorValue", nextReceiver
+          )).toBe("bar");
+          expect(
+            Reflect.getOwnPropertyDescriptor(shadowReceiver, "accessorValue")
+          ).withContext("shadowReceiver:accessorValue (2)").toEqual({
+            value: "bar",
+            enumerable: true,
+            writable: true,
+            configurable: true
+          });
         });
       });
     });
