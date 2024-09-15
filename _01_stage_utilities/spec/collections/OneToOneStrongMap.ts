@@ -1,6 +1,6 @@
 import OneToOneStrongMap from "#stage_utilities/source/collections/OneToOneStrongMap.js";
 
-describe("CodeGenerator(OneToOneStrongMap.mjs)", () => {
+describe("OneToOneStrongMap", () => {
   let map: OneToOneStrongMap<unknown, object>;
   beforeEach(() => map = new OneToOneStrongMap);
 
@@ -35,23 +35,25 @@ describe("CodeGenerator(OneToOneStrongMap.mjs)", () => {
     ).not.toThrow();
   });
 
-  it(".bindOneToOne() accepts different pairings as long as there's no overlap", () => {
+  it(".bindOneToOne() can join different pairings as long as there's no overlap", () => {
     map.bindOneToOne("red", redObj, "blue", blueObj);
-    expect(
-      () => map.bindOneToOne("green", greenObj, "yellow", yellowObj)
-    ).not.toThrow();
+    map.bindOneToOne("green", greenObj, "yellow", yellowObj);
+    map.bindOneToOne("green", greenObj, "red", redObj);
 
-    expect(
-      () => map.bindOneToOne("green", greenObj, "yellow", yellowObj)
-    ).not.toThrow();
+    expect(map.get(blueObj, "yellow")).toBe(yellowObj);
+  });
 
-    expect(
-      () => map.bindOneToOne("yellow", yellowObj, "green", greenObj)
-    ).not.toThrow();
+  it(".bindOneToOne() throws when there is an overlap", () => {
+    map.bindOneToOne("red", redObj, "blue", blueObj);
+    map.bindOneToOne("red", { unreachable: true }, "green", greenObj);
 
     expect(
       () => map.bindOneToOne("green", greenObj, "red", redObj)
-    ).toThrowError("value_1 and value_2 are already in different one-to-one mappings!");
+    ).toThrowError("value_1 and value_2 have conflicting keys!");
+
+    expect(
+      () => map.bindOneToOne("blue", blueObj, "green", greenObj)
+    ).toThrowError("value_1 and value_2 have conflicting keys!");
   });
 
   it(".bindOneToOne() accepts joining pairings as long as there's no overlap", () => {
@@ -80,6 +82,25 @@ describe("CodeGenerator(OneToOneStrongMap.mjs)", () => {
 
     expect(map.hasIdentity(redObj, "blue", false)).toBe(false);
     expect(map.hasIdentity(redObj, "blue", true)).toBe(true);
+  });
+
+  it(".delete() removes unbound entries as well", () => {
+    map.bindOneToOne("red", redObj, "blue", blueObj);
+    map.bindOneToOne("red", redObj, "green", greenObj);
+
+    expect(map.delete(redObj, "red")).toBeTrue();
+    expect(map.get(redObj, "red")).toBeUndefined();
+    expect(map.get(blueObj, "green")).toBe(greenObj);
+    expect(map.get(redObj, "green")).toBeUndefined();
+    expect(map.get(blueObj, "red")).toBeUndefined();
+
+    expect(map.delete(redObj, "red")).toBeFalse();
+
+    expect(map.delete(blueObj, "green")).toBeTrue();
+    expect(map.get(blueObj, "blue")).toBeUndefined();
+    expect(map.get(blueObj, "green")).toBeUndefined();
+    expect(map.get(greenObj, "blue")).toBeUndefined();
+    expect(map.get(greenObj, "green")).toBeUndefined();
   });
 
   it(".clear() clears the map entirely", () => {

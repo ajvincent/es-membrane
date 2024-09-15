@@ -37,7 +37,7 @@ export default class OneToOneStrongMap<
       internalKey = __otherInternalKey__ || new InternalKey;
     }
     else if (__otherInternalKey__ && (__otherInternalKey__ !== internalKey)) {
-      throw new Error("value_1 and value_2 are already in different one-to-one mappings!");
+      return this.#attemptMergeKeys(internalKey, __otherInternalKey__);
     }
 
     const __hasKeySet1__  = this.#baseMap.has(internalKey, strongKey_1);
@@ -56,6 +56,28 @@ export default class OneToOneStrongMap<
 
     if (!__hasKeySet2__)
       this.#baseMap.set(internalKey, strongKey_2, value_2);
+  }
+
+  #attemptMergeKeys(
+    firstInternalKey: InternalKey,
+    secondInternalKey: InternalKey
+  ): void
+  {
+    const firstKeySet: ReadonlySet<StrongKeyType> = this.#baseMap.strongKeysFor(firstInternalKey);
+    const secondKeySet: ReadonlySet<StrongKeyType> = this.#baseMap.strongKeysFor(secondInternalKey);
+
+    const unionKeySet: ReadonlySet<StrongKeyType> = new Set([
+      ...firstKeySet, ...secondKeySet
+    ]);
+    if (unionKeySet.size < firstKeySet.size + secondKeySet.size)
+      throw new Error("value_1 and value_2 have conflicting keys!");
+
+    for (const strongKey of secondKeySet) {
+      const value: ValueType = this.#baseMap.get(secondInternalKey, strongKey)!;
+      this.#baseMap.set(firstInternalKey, strongKey, value);
+      this.#baseMap.delete(secondInternalKey, strongKey);
+      this.#weakValueToInternalKeyMap.set(value, firstInternalKey);
+    }
   }
 
   /** Clear all bindings. */
@@ -85,8 +107,19 @@ export default class OneToOneStrongMap<
       return false;
 
     const __returnValue__ = this.#baseMap.delete(weakKey, strongKey);
-    if (__returnValue__)
+    if (__returnValue__) {
       this.#weakValueToInternalKeyMap.delete(__target__);
+
+      const remainingKeys: Set<StrongKeyType> = this.#baseMap.strongKeysFor(weakKey);
+      if (remainingKeys.size < 2) {
+        for (const otherStrongKey of remainingKeys) {
+          const otherTarget: ValueType = this.#baseMap.get(weakKey, otherStrongKey)!;
+          this.#weakValueToInternalKeyMap.delete(otherTarget);
+          this.#baseMap.delete(weakKey, otherStrongKey);
+        }
+      }
+    }
+
     return __returnValue__;
   }
 
