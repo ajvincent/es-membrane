@@ -10,7 +10,7 @@ it("RevokerManagement class does not execute revokers until we revoke an object 
 
   function buildPair(graphName: string): [{ name: string }, jasmine.Spy<() => void>] {
     const name = graphName + countMap.getDefault(graphName, () => 1);
-    const rv:  [{ name: string }, jasmine.Spy<() => void>] = [ { name }, jasmine.createSpy(name)];
+    const rv: [{ name: string }, jasmine.Spy<() => void>] = [ { name }, jasmine.createSpy(name)];
     manager.addRevoker(...rv, graphName);
     return rv;
   }
