@@ -1,9 +1,4 @@
 import ObjectGraphHead from "#objectgraph_handlers/source/ObjectGraphHead.js";
-
-import type {
-  MembraneInternalIfc
-} from "#objectgraph_handlers/source/types/MembraneInternalIfc.js";
-
 import ObjectGraphTailHandler from "#objectgraph_handlers/source/generated/ObjectGraphTailHandler.js";
 
 import type {
@@ -21,19 +16,10 @@ import type {
   ObjectGraphValueCallbacksIfc
 } from "#objectgraph_handlers/source/types/ObjectGraphHeadIfc.js";
 
-describe("ObjectGraphHead", () => {
-  const mockMembrane: MembraneInternalIfc = {
-    convertArray: function <ValueTypes extends unknown[]>(targetGraphKey: string | symbol, values: ValueTypes): ValueTypes {
-      return values.slice() as ValueTypes;
-    },
-    convertDescriptor: function (targetGraphKey: string | symbol, descriptor: PropertyDescriptor): PropertyDescriptor {
-      throw new Error("Function not implemented.");
-    },
+import MockMembrane from "./support/MockMembrane.js";
 
-    notifyAssertionFailed(targetGraphKey: string | symbol): void {
-      throw new Error("Method not implemented.");
-    },
-  };
+describe("ObjectGraphHead", () => {
+  const mockMembrane = new MockMembrane;
 
   let map: OneToOneStrongMap<string | symbol, object>;
   beforeEach(() => {
@@ -41,19 +27,6 @@ describe("ObjectGraphHead", () => {
   });
 
   it("::getValueInGraph() maintains references to proxies or underlying values in the right graph", () => {
-    const mockMembrane: MembraneInternalIfc = {
-      convertArray: function <ValueTypes extends unknown[]>(targetGraphKey: string | symbol, values: ValueTypes): ValueTypes {
-        return values.slice() as ValueTypes;
-      },
-      convertDescriptor: function (targetGraphKey: string | symbol, descriptor: PropertyDescriptor): PropertyDescriptor {
-        throw new Error("Function not implemented.");
-      },
-
-      notifyAssertionFailed(targetGraphKey: string | symbol): void {
-        throw new Error("Method not implemented.");
-      },
-    };
-
     const map = new OneToOneStrongMap<string | symbol, object>;
     const redTailHandler = new ObjectGraphTailHandler(mockMembrane, "red");
     const redHeadHandler = new ObjectGraphHead(mockMembrane, redTailHandler, map, "red");
@@ -134,18 +107,6 @@ describe("ObjectGraphHead", () => {
   });
   
   it("::revokeAllProxiesForGraph() actually revokes proxies", () => {
-    const mockMembrane: MembraneInternalIfc = {
-      convertArray: function <ValueTypes extends unknown[]>(targetGraphKey: string | symbol, values: ValueTypes): ValueTypes {
-        return values.slice() as ValueTypes;
-      },
-      convertDescriptor: function (targetGraphKey: string | symbol, descriptor: PropertyDescriptor): PropertyDescriptor {
-        throw new Error("Function not implemented.");
-      },
-      notifyAssertionFailed(targetGraphKey: string | symbol): void {
-        throw new Error("Method not implemented.");
-      },
-    };
-  
     const graphHandler: (
       ObjectGraphHandlerIfc & ObjectGraphValueCallbacksIfc
     ) = new ObjectGraphTailHandler(mockMembrane, "mock");
@@ -217,7 +178,7 @@ describe("ObjectGraphHead", () => {
     const redTailHandler = new ObjectGraphTailHandler(mockMembrane, "red");
     const redHeadHandler = new ObjectGraphHead(mockMembrane, redTailHandler, map, "red");
 
-    const blueValue = { blueValue: true};
+    const blueValue = { blueValue: true };
     const blueDataDesc = new DataDescriptor<object>(blueValue, true, false, true);
 
     const redDataDesc = redHeadHandler.getDescriptorInGraph(blueDataDesc, "blue");
