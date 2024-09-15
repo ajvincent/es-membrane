@@ -44,6 +44,9 @@ it("The construct trap works with classes", () => {
   }
 
   expect(spy).withContext("class DerivedVehicleUnwrapped extends BaseVehicle").toHaveBeenCalledTimes(1);
+  for (let i = 0; i < spy.calls.count(); i++) {
+    expect(spy.calls.thisFor(i)).toBe(handler);
+  }
   expect(spy.calls.argsFor(0)).toEqual([
     "get",
     BaseVehicleUnwrapped, "prototype", Reflect.getPrototypeOf(DerivedVehicleUnwrapped),
