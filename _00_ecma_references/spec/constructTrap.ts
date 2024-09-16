@@ -10,6 +10,7 @@ it("The construct trap works with classes", () => {
 
   //#region creating BaseVehicle proxy
   class BaseVehicleUnwrapped {
+    static invokeCount = 0;
     wheelCount: number;
 
     adjustWheelCount(delta: number): void {
@@ -17,6 +18,7 @@ it("The construct trap works with classes", () => {
     }
 
     constructor(wheelCount: number) {
+      BaseVehicleUnwrapped.invokeCount++;
       this.wheelCount = wheelCount;
     }
   }
@@ -27,22 +29,10 @@ it("The construct trap works with classes", () => {
   } = Proxy.revocable<Class<object, [number]>>(BaseVehicleUnwrapped, handler);
 
   expect(spy).withContext("creating BaseVehicle proxy").toHaveBeenCalledTimes(0);
-  spy.calls.reset();
+  handler.reset();
   //#endregion creating BaseVehicle proxy
 
   //#region class DerivedVehicleUnwrapped extends BaseVehicle
-  /* WARNING: this test may be somewhat misleading.  Typically our classes extend other classes,
-  not proxies to them.  This leads to two Reflect.construct calls, but the first might be thrown
-  away.
-
-  On the other hand, it's not entirely implausible.  If:
-    - BaseVehicleUnwrapped lives in the "red" graph and
-    - DerivedVehicleUnwrapped lives in the "blue" graph,
-    - DerivedVehicle is passed to the "red" graph (or a "green" graph)
-  how should we handle new DerivedVehicle in either graph?
-
-  There might be behavior I need to clarify here, in terms of how membranes should work.
-  */
   class DerivedVehicleUnwrapped extends BaseVehicle {
     #color: string;
     constructor(wheelCount: number, color: string) {
@@ -55,16 +45,21 @@ it("The construct trap works with classes", () => {
     }
   }
 
-  expect(spy).withContext("class DerivedVehicleUnwrapped extends BaseVehicle").toHaveBeenCalledTimes(1);
+  expect(spy).withContext("class DerivedVehicleUnwrapped extends BaseVehicle").toHaveBeenCalledTimes(2);
   for (let i = 0; i < spy.calls.count(); i++) {
     expect(spy.calls.thisFor(i)).toBe(handler);
   }
-  expect(spy.calls.argsFor(0)).toEqual([
-    "get",
-    BaseVehicleUnwrapped, "prototype", Reflect.getPrototypeOf(DerivedVehicleUnwrapped),
-    BaseVehicleUnwrapped.prototype
-  ]);
-  spy.calls.reset();
+  expect(spy.calls.argsFor(0)).withContext("class DerivedVehicleUnwrapped extends BaseVehicle")
+    .toEqual([
+      "get:start:0",
+      BaseVehicleUnwrapped, "prototype", Reflect.getPrototypeOf(DerivedVehicleUnwrapped),
+    ]);
+  expect(spy.calls.argsFor(1)).withContext("class DerivedVehicleUnwrapped extends BaseVehicle")
+    .toEqual([
+      "get:close:0",
+      BaseVehicleUnwrapped.prototype
+    ]);
+  handler.reset();
   //#endregion class DerivedVehicleUnwrapped extends BaseVehicle
 
   //#region creating DerivedVehicle proxy
@@ -74,40 +69,53 @@ it("The construct trap works with classes", () => {
   } = Proxy.revocable<Class<object, [number, string]>>(DerivedVehicleUnwrapped, handler);
 
   expect(spy).withContext("creating DerivedVehicle proxy").toHaveBeenCalledTimes(0);
-  spy.calls.reset();
+  handler.reset();
   //#endregion creating DerivedVehicle proxy
 
   //#region new DerivedVehicle
   const car = new DerivedVehicle(4, "red");
 
-  expect(spy).withContext(`new DerivedVehicle`).toHaveBeenCalledTimes(3);
+  expect(spy).withContext(`new DerivedVehicle`).toHaveBeenCalledTimes(6);
   for (let i = 0; i < spy.calls.count(); i++) {
     expect(spy.calls.thisFor(i)).toBe(handler);
   }
 
-  expect(spy.calls.argsFor(0)).toEqual([
-    "get",
+  expect(spy.calls.argsFor(0)).withContext(`new DerivedVehicle:0`).toEqual([
+    "construct:start:0",
+    DerivedVehicleUnwrapped, [4, "red"], DerivedVehicle,
+  ]);
+
+  expect(spy.calls.argsFor(1)).withContext(`new DerivedVehicle:1`).toEqual([
+    "construct:start:1",
+    BaseVehicleUnwrapped, [4], DerivedVehicle,
+  ]);
+
+  expect(spy.calls.argsFor(2)).withContext(`new DerivedVehicle:2`).toEqual([
+    "get:start:2",
     DerivedVehicleUnwrapped, "prototype", DerivedVehicle,
-    DerivedVehicleUnwrapped.prototype // return value
+  ]);
+  expect(spy.calls.argsFor(3)).withContext(`new DerivedVehicle:3`).toEqual([
+    "get:close:2",
+    DerivedVehicleUnwrapped.prototype
   ]);
 
   // super(wheelCount)
-  expect(spy.calls.argsFor(1)).toEqual([
-    "construct",
-    BaseVehicleUnwrapped, [4], DerivedVehicle,
+  expect(spy.calls.argsFor(4)).withContext(`new DerivedVehicle:4`).toEqual([
+    "construct:close:1",
     car
   ]);
 
   // new DerivedVehicle(4, "red")
-  expect(spy.calls.argsFor(2)).toEqual([
-    "construct",
-    DerivedVehicleUnwrapped, [4, "red"], DerivedVehicle,
+  expect(spy.calls.argsFor(5)).withContext(`new DerivedVehicle:5`).toEqual([
+    "construct:close:0",
     car
   ]);
 
-  spy.calls.reset();
+  handler.reset();
   //#endregion new DerivedVehicle
 
   DerivedRevoker();
   BaseRevoker();
+
+  expect(BaseVehicleUnwrapped.invokeCount).toBe(1);
 });
