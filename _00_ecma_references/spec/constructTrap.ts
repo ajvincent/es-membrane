@@ -31,6 +31,18 @@ it("The construct trap works with classes", () => {
   //#endregion creating BaseVehicle proxy
 
   //#region class DerivedVehicleUnwrapped extends BaseVehicle
+  /* WARNING: this test may be somewhat misleading.  Typically our classes extend other classes,
+  not proxies to them.  This leads to two Reflect.construct calls, but the first might be thrown
+  away.
+
+  On the other hand, it's not entirely implausible.  If:
+    - BaseVehicleUnwrapped lives in the "red" graph and
+    - DerivedVehicleUnwrapped lives in the "blue" graph,
+    - DerivedVehicle is passed to the "red" graph (or a "green" graph)
+  how should we handle new DerivedVehicle in either graph?
+
+  There might be behavior I need to clarify here, in terms of how membranes should work.
+  */
   class DerivedVehicleUnwrapped extends BaseVehicle {
     #color: string;
     constructor(wheelCount: number, color: string) {
