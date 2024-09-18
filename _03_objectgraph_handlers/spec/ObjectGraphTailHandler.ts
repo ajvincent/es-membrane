@@ -1,4 +1,7 @@
 import ObjectGraphTailHandler from "#objectgraph_handlers/source/generated/ObjectGraphTailHandler.js";
+import {
+  DataDescriptor
+} from "#objectgraph_handlers/source/sharedUtilities.js";
 
 import type {
   MembraneInternalIfc
@@ -102,19 +105,19 @@ describe("ObjectGraphTailHandler", () => {
         instanceIndex: number;
         spy = jasmine.createSpy();
         wheelCount: number;
-  
+
         adjustWheelCount(delta: number): void {
           this.wheelCount += delta;
         }
-  
+
         constructor(wheelCount: number) {
           this.instanceIndex = BaseVehicleNextTarget.instanceCount++;
-  
+
           this.wheelCount = wheelCount;
           this.spy.apply(this, [wheelCount]);
         }
       }
-  
+
       class DerivedVehicleNextTarget extends BaseVehicleNextTarget {
         #color: string;
         constructor(wheelCount: number, color: string) {
@@ -158,20 +161,167 @@ describe("ObjectGraphTailHandler", () => {
         }
       }
       //#endregion set up classes
-  
+
       const car = handler.construct(
         DerivedVehicleShadowTarget, [4, "red"], DerivedVehicleShadowTarget, "next graph",
         DerivedVehicleNextTarget, [4, "red"], DerivedVehicleNextTarget
       ) as DerivedVehicleNextTarget;
-  
+
       expect(DerivedVehicleShadowTarget.instanceCount).toBe(0);
-  
+
       expect(DerivedVehicleNextTarget.instanceCount).toBe(1);
       expect(car).toBeInstanceOf(DerivedVehicleNextTarget);
       expect(car.wheelCount).toBe(4);
       expect(car.color).toBe("red");
       expect(car.spy).toHaveBeenCalledTimes(1);
       expect(car.spy.calls.argsFor(0)).toEqual([4]);
+    });
+
+    it(": defineProperty", () => {
+      const shadowTarget = { shadowTarget: true };
+      const shadowDesc = new DataDescriptor("bar", true, true, true);
+
+      const nextTarget = { nextTarget: true };
+      const nextDesc = new DataDescriptor("bar", true, true, true);
+
+      const result = handler.defineProperty(
+        shadowTarget, "foo", shadowDesc, "next graph", nextTarget, "foo", nextDesc
+      );
+
+      expect(result).toBeTrue();
+      expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")).toBeUndefined();
+      expect(Reflect.getOwnPropertyDescriptor(nextTarget, "foo")).toEqual({
+        value: "bar",
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });
+    });
+
+    it(": deleteProperty", () => {
+      const shadowTarget = { shadowTarget: true, foo: "bar" };
+      const nextTarget = { nextTarget: true, foo: "bar" };
+
+      const result = handler.deleteProperty(
+        shadowTarget, "foo", "next graph", nextTarget, "foo"
+      );
+
+      expect(result).toBeTrue();
+      expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")).toBeDefined();
+      expect(Reflect.getOwnPropertyDescriptor(nextTarget, "foo")).toBeUndefined();
+    });
+
+    it(": get", () => {
+      const shadowTarget = { shadowTarget: true, valueToGet: "red" };
+      const nextTarget = { nextTarget: true, valueToGet: "blue" };
+
+      const result = handler.get(
+        shadowTarget, "valueToGet", shadowTarget, "nextGraph", nextTarget, "valueToGet", nextTarget
+      );
+      expect(result).toBe("blue");
+      expect(shadowTarget.valueToGet).toBe("red");
+      expect(nextTarget.valueToGet).toBe("blue");
+    });
+
+    it(": getOwnPropertyDescriptor", () => {
+      const shadowTarget = { shadowTarget: true, foo: "wop" };
+      const nextTarget = { nextTarget: true, foo: "bar" };
+
+      const result = handler.getOwnPropertyDescriptor(
+        shadowTarget, "foo", "next graph", nextTarget, "foo"
+      );
+      expect(result).toEqual({
+        value: "bar",
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });
+      expect(Reflect.get(shadowTarget, "foo")).toBe("wop");
+      expect(Reflect.get(nextTarget, "foo")).toBe("bar");
+    });
+
+    it(": getPrototypeOf", () => {
+      const shadowProto = { shadowPrototype: true };
+      const shadowTarget = Object.create(shadowProto);
+
+      const nextProto = { nextPrototype: true };
+      const nextTarget = Object.create(nextProto);
+
+      expect(handler.getPrototypeOf(
+        shadowTarget, "next graph", nextTarget
+      )).toBe(nextProto);
+      expect(Reflect.getPrototypeOf(shadowTarget)).toBe(shadowProto);
+      expect(Reflect.getPrototypeOf(nextTarget)).toBe(nextProto);
+    });
+
+    it(": has", () => {
+      const shadowTarget = { shadowTarget: true };
+      const nextTarget = { nextTarget: true, valueToGet: "blue" };
+
+      const result = handler.has(
+        shadowTarget, "valueToGet", "nextGraph", nextTarget, "valueToGet"
+      );
+      expect(result).toBe(true);
+      expect(Reflect.get(shadowTarget, "valueToGet")).toBeUndefined();
+      expect(nextTarget.valueToGet).toBe("blue");
+    });
+
+    it(": isExtensible", () => {
+      const shadowTarget = { shadowTarget: true };
+      const nextTarget = { nextTarget: true };
+      Reflect.preventExtensions(nextTarget);
+
+      const result = handler.isExtensible(shadowTarget, "next graph", nextTarget);
+      expect(result).toBe(false);
+      expect(Reflect.isExtensible(shadowTarget)).toBe(true);
+      expect(Reflect.isExtensible(nextTarget)).toBe(false);
+    });
+
+    it(": ownKeys", () => {
+      const shadowTarget = { shadowTarget: true };
+      const nextTarget = { nextTarget: true };
+      expect(
+        handler.ownKeys(shadowTarget, "next graph", nextTarget)
+      ).toEqual(["nextTarget"]);
+    });
+
+    it(": preventExtensions", () => {
+      const shadowTarget = { shadowTarget: true };
+      const nextTarget = { nextTarget: true };
+
+      const result = handler.preventExtensions(
+        shadowTarget, "next graph", nextTarget
+      );
+      expect(result).toBeTrue();
+      expect(Reflect.isExtensible(shadowTarget)).toBe(true);
+      expect(Reflect.isExtensible(nextTarget)).toBe(false);
+    });
+
+    it(": set", () => {
+      const shadowTarget = { shadowTarget: true, valueToGet: "red" };
+      const nextTarget = { nextTarget: true, valueToGet: "blue" };
+
+      const result = handler.set(
+        shadowTarget, "valueToGet", "green", shadowTarget, "nextGraph",
+        nextTarget, "valueToGet", "yellow", nextTarget
+      );
+      expect(result).toBe(true);
+      expect(shadowTarget.valueToGet).toBe("red");
+      expect(nextTarget.valueToGet).toBe("yellow");
+    });
+
+    it(": setPrototypeOf", () => {
+      const shadowProto = { shadowPrototype: true };
+      const shadowTarget = { shadowTarget: true };
+
+      const nextProto = { nextPrototype: true };
+      const nextTarget = { nextTarget: true };
+
+      expect(handler.setPrototypeOf(
+        shadowTarget, shadowProto, "next graph", nextTarget, nextProto
+      )).toBe(true);
+      expect(Reflect.getPrototypeOf(shadowTarget)).toBe(Object.prototype);
+      expect(Reflect.getPrototypeOf(nextTarget)).toBe(nextProto);
     });
   });
 });
