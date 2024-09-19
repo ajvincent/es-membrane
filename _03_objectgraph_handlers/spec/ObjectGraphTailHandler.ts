@@ -124,12 +124,12 @@ describe("ObjectGraphTailHandler", () => {
           super(wheelCount);
           this.#color = color;
         }
-  
+
         get color(): string {
           return this.#color;
         }
       }
-  
+
       class BaseVehicleShadowTarget {
         static instanceCount = 0;
   
