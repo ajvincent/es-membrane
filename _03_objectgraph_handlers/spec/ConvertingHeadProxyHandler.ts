@@ -8,6 +8,8 @@ import MockMembrane from "./support/MockMembrane.js";
 import SpyProxyHandler from "./support/SpyProxyHandler.js";
 
 class LocalHead implements ObjectGraphConversionIfc {
+  readonly objectGraphKey = "this graph";
+
   readonly #expectedRealTarget: () => void;
   targetGraph?: string | symbol
 

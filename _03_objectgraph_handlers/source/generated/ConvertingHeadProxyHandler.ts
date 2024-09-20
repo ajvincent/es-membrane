@@ -14,6 +14,7 @@ export default class ConvertingHeadProxyHandler
   readonly #membraneIfc: MembraneInternalIfc;
   readonly #graphHandlerIfc: ObjectGraphHandlerIfc;
   readonly #graphConversionIfc: ObjectGraphConversionIfc;
+  readonly #thisGraphKey: string | symbol;
 
   constructor(
     membraneIfc: MembraneInternalIfc,
@@ -23,6 +24,7 @@ export default class ConvertingHeadProxyHandler
     this.#membraneIfc = membraneIfc;
     this.#graphHandlerIfc = graphHandlerIfc;
     this.#graphConversionIfc = graphConversionIfc;
+    this.#thisGraphKey = graphConversionIfc.objectGraphKey;
   }
 
   #getCommonConversions(target: object): CommonConversions {
@@ -39,10 +41,13 @@ export default class ConvertingHeadProxyHandler
    */
   public apply(shadowTarget: object, thisArg: any, argArray: any[]): any {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    const [nextThisArg] = this.#membraneIfc.convertArray<[any]>(graphKey, [
-      thisArg,
-    ]);
+    const [nextThisArg] = this.#membraneIfc.convertArray<[any]>(
+      this.#thisGraphKey,
+      graphKey,
+      [thisArg],
+    );
     const nextArgArray: any[] = this.#membraneIfc.convertArray<any[]>(
+      this.#thisGraphKey,
       graphKey,
       argArray,
     );
@@ -69,10 +74,12 @@ export default class ConvertingHeadProxyHandler
   ): object {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
     const [nextNewTarget] = this.#membraneIfc.convertArray<[Function]>(
+      this.#thisGraphKey,
       graphKey,
       [newTarget],
     );
     const nextArgArray: any[] = this.#membraneIfc.convertArray<any[]>(
+      this.#thisGraphKey,
       graphKey,
       argArray,
     );
@@ -99,11 +106,16 @@ export default class ConvertingHeadProxyHandler
   ): boolean {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
     const [nextProperty] = this.#membraneIfc.convertArray<[string | symbol]>(
+      this.#thisGraphKey,
       graphKey,
       [property],
     );
     const nextAttributes: PropertyDescriptor =
-      this.#membraneIfc.convertDescriptor(graphKey, attributes)!;
+      this.#membraneIfc.convertDescriptor(
+        this.#thisGraphKey,
+        graphKey,
+        attributes,
+      )!;
     return this.#graphHandlerIfc.defineProperty(
       shadowTarget,
       property,
@@ -124,6 +136,7 @@ export default class ConvertingHeadProxyHandler
   public deleteProperty(shadowTarget: object, p: string | symbol): boolean {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
     const [nextP] = this.#membraneIfc.convertArray<[string | symbol]>(
+      this.#thisGraphKey,
       graphKey,
       [p],
     );
@@ -146,7 +159,7 @@ export default class ConvertingHeadProxyHandler
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
     const [nextP, nextReceiver] = this.#membraneIfc.convertArray<
       [string | symbol, any]
-    >(graphKey, [p, receiver]);
+    >(this.#thisGraphKey, graphKey, [p, receiver]);
     return this.#graphHandlerIfc.get(
       shadowTarget,
       p,
@@ -169,6 +182,7 @@ export default class ConvertingHeadProxyHandler
   ): PropertyDescriptor | undefined {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
     const [nextP] = this.#membraneIfc.convertArray<[string | symbol]>(
+      this.#thisGraphKey,
       graphKey,
       [p],
     );
@@ -202,6 +216,7 @@ export default class ConvertingHeadProxyHandler
   public has(shadowTarget: object, p: string | symbol): boolean {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
     const [nextP] = this.#membraneIfc.convertArray<[string | symbol]>(
+      this.#thisGraphKey,
       graphKey,
       [p],
     );
@@ -265,7 +280,7 @@ export default class ConvertingHeadProxyHandler
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
     const [nextP, nextNewValue, nextReceiver] = this.#membraneIfc.convertArray<
       [string | symbol, any, any]
-    >(graphKey, [p, newValue, receiver]);
+    >(this.#thisGraphKey, graphKey, [p, newValue, receiver]);
     return this.#graphHandlerIfc.set(
       shadowTarget,
       p,
@@ -286,9 +301,11 @@ export default class ConvertingHeadProxyHandler
    */
   public setPrototypeOf(shadowTarget: object, v: object | null): boolean {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    const [nextV] = this.#membraneIfc.convertArray<[object | null]>(graphKey, [
-      v,
-    ]);
+    const [nextV] = this.#membraneIfc.convertArray<[object | null]>(
+      this.#thisGraphKey,
+      graphKey,
+      [v],
+    );
     return this.#graphHandlerIfc.setPrototypeOf(
       shadowTarget,
       v,

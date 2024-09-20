@@ -35,6 +35,8 @@ describe("ObjectGraphTailHandler", () => {
     let handler = new PublicHandlerProperties(membrane, "this graph");
 
     const mockGraphValues: ObjectGraphValuesIfc = {
+      objectGraphKey: "this graph",
+
       getArrayInGraph: function <Elements extends unknown[] = unknown[]>(
         valuesInSourceGraph: Elements,
         sourceGraphKey: string | symbol

@@ -1,8 +1,5 @@
 /** This interface is for membrane use. */
 export interface ObjectGraphHeadIfc extends ObjectGraphValuesIfc {
-  /** The unique graph key. */
-  readonly objectGraphKey: string | symbol;
-
   /** Revoke all proxies for a given object graph. */
   revokeAllProxiesForGraph(
     graphKey: string | symbol
@@ -31,6 +28,9 @@ export interface ObjectGraphConversionIfc extends ObjectGraphValuesIfc {
 }
 
 export interface ObjectGraphValuesIfc {
+  /** The unique graph key. */
+  readonly objectGraphKey: string | symbol;
+
   /**
    * This method exists to return an array of proxies, not a proxy to an array of values.
    */

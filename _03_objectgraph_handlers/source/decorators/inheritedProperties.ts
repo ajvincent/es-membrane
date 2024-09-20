@@ -47,7 +47,7 @@ export default function InheritedPropertyTraps(
       if (shadowDesc.get === undefined)
         return undefined;
 
-      const wrappedGet = this.membrane.convertDescriptor(nextGraphKey, shadowDesc)?.get;
+      const wrappedGet = this.membrane.convertDescriptor(this.thisGraphKey, nextGraphKey, shadowDesc)?.get;
       graphAssert(typeof wrappedGet === "function", "must have a wrapped getter", this.membrane, this.thisGraphKey);
 
       return super.apply(
@@ -162,11 +162,11 @@ export default function InheritedPropertyTraps(
       if (setter === undefined)
         return false;
 
-      const wrappedSet = this.membrane.convertDescriptor(nextGraphKey, ownDesc)?.set;
+      const wrappedSet = this.membrane.convertDescriptor(this.thisGraphKey, nextGraphKey, ownDesc)?.set;
       graphAssert(wrappedSet !== undefined, "must have a wrapped getter", this.membrane, this.thisGraphKey);
 
       const valueArgs = [newValue];
-      const wrappedValueArgs = this.membrane.convertArray(nextGraphKey, valueArgs);
+      const wrappedValueArgs = this.membrane.convertArray(this.thisGraphKey, nextGraphKey, valueArgs);
 
       super.apply(
         setter, receiver, valueArgs, nextGraphKey, wrappedSet, nextReceiver, wrappedValueArgs

@@ -204,7 +204,7 @@ function getStatementsForProxyHandlerTrap(
         (writer: CodeBlockWriter): void => {
           writer.write(`this.#membraneIfc.convertArray<`);
           param.typeStructure!.writerFunction(writer);
-          writer.write(`>(graphKey, argArray)`);
+          writer.write(`>(this.#thisGraphKey, graphKey, argArray)`);
         }
       );
       continue;
@@ -214,7 +214,7 @@ function getStatementsForProxyHandlerTrap(
       descriptorStatement = buildConstStatement(
         nextArgumentName,
         param.typeStructure!,
-        `this.#membraneIfc.convertDescriptor(graphKey, ${param.name})!`
+        `this.#membraneIfc.convertDescriptor(this.#thisGraphKey, graphKey, ${param.name})!`
       );
       continue;
     }
@@ -232,7 +232,7 @@ function getStatementsForProxyHandlerTrap(
         }] = this.#membraneIfc.convertArray<`
       );
       tupleType.writerFunction(writer);
-      writer.write(`>(graphKey, [${sourceConvertNames.join(", ")}]);`);
+      writer.write(`>(this.#thisGraphKey, graphKey, [${sourceConvertNames.join(", ")}]);`);
     });
   }
 
@@ -322,15 +322,20 @@ function insertConversionMembers(
 
   // #graphHeadIfc
   const ObjectGraphConversionIfc = new PropertyDeclarationImpl(false, "#graphConversionIfc");
+  const ThisGraphKey = new PropertyDeclarationImpl(false, "#thisGraphKey");
   {
     ObjectGraphConversionIfc.isReadonly = true;
     ObjectGraphConversionIfc.typeStructure = LiteralTypeStructureImpl.get("ObjectGraphConversionIfc");
+
+    ThisGraphKey.isReadonly = true;
+    ThisGraphKey.typeStructure = UnionStringOrSymbol;
 
     const ctorParam = new ParameterDeclarationImpl("graphConversionIfc");
     ctorParam.typeStructure = ObjectGraphConversionIfc.typeStructure;
     ctor.parameters.push(ctorParam);
 
-    ctor.statements.push(`this.#graphConversionIfc = graphConversionIfc`);
+    ctor.statements.push(`this.#graphConversionIfc = graphConversionIfc;`);
+    ctor.statements.push(`this.#thisGraphKey = graphConversionIfc.objectGraphKey;`);
   }
 
   // #getCommonConversions(target: object): CommonConversions
@@ -362,6 +367,7 @@ function insertConversionMembers(
     MembraneInternalIfc,
     ObjectGraphHandlerIfc,
     ObjectGraphConversionIfc,
+    ThisGraphKey,
   );
 
   classDecl.methods.unshift(

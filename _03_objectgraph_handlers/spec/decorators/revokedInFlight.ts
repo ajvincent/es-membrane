@@ -22,6 +22,8 @@ it("Revoked in-flight proxies throw the revocation error", () => {
   );
 
   const mockGraphValues: ObjectGraphValuesIfc = {
+    objectGraphKey: Symbol("this graph"),
+
     getArrayInGraph: function <Elements extends unknown[] = unknown[]>(valuesInSourceGraph: Elements, sourceGraphKey: string | symbol): Elements {
       throw fooError;
     },

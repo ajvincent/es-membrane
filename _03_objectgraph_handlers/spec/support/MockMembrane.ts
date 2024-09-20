@@ -8,6 +8,7 @@ export default class MockMembrane implements MembraneInternalIfc
     ValueTypes extends unknown[]
   >
   (
+    sourceGraphKey: string | symbol,
     targetGraphKey: string | symbol,
     values: ValueTypes
   ): ValueTypes
@@ -16,6 +17,7 @@ export default class MockMembrane implements MembraneInternalIfc
   }
 
   convertDescriptor(
+    sourceGraphKey: string | symbol,
     targetGraphKey: string | symbol,
     descriptor: PropertyDescriptor
   ): PropertyDescriptor

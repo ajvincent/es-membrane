@@ -16,6 +16,8 @@ describe("Wrapping return values works for the trap", () => {
   let handler: ObjectGraphTailHandler;
 
   class MockGraphValues implements ObjectGraphValuesIfc {
+    objectGraphKey = "this graph";
+
     returnArray?: unknown[];
     returnDesc?: PropertyDescriptor | undefined;
     returnValue?: unknown;

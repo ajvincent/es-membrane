@@ -39,6 +39,8 @@ describe("Inherited property traps:", () => {
   }
 
   const graphValues: ObjectGraphValuesIfc = {
+    objectGraphKey: shadowGraphKey,
+
     getArrayInGraph: function<
       Elements extends unknown[] = unknown[]
     >
@@ -92,6 +94,7 @@ describe("Inherited property traps:", () => {
 
   const membraneMock: MembraneInternalIfc = {
     convertArray: function <ValueTypes extends unknown[]>(
+      sourceGraphKey: string | symbol,
       targetGraphKey: string | symbol,
       values: ValueTypes
     ): ValueTypes
@@ -106,6 +109,7 @@ describe("Inherited property traps:", () => {
     },
 
     convertDescriptor: function (
+      sourceGraphKey: string | symbol,
       targetGraphKey: string | symbol,
       descriptor: PropertyDescriptor | undefined
     ): PropertyDescriptor | undefined
