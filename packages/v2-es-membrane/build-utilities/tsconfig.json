@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "module": "NodeNext",
+    "target": "ES2022",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "sourceMap": true,
+    "declaration": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "#build-utilities/*": ["../build-utilities/*"]
+    },
+    "composite": true
+  },
+
+  "exclude": [
+    "spec/**"
+  ],
+
+  "extends": "@tsconfig/node20/tsconfig.json"
+}

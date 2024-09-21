@@ -1,0 +1,9 @@
+**/.DS_Store
+_*/generated
+_*/**/playground
+_*/spec-generated
+_*/**/ts-stdout.txt
+_*/**/tsconfig.json
+
+playground/
+.tsimp

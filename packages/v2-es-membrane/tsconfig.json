@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "module": "NodeNext",
+    "target": "ES2022",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "sourceMap": true,
+    "declaration": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "#stage_utilities/*": ["_01_stage_utilities/*"],
+      "#code_generation/*": ["_02_code_generation/*"],
+      "#objectgraph_handlers/*": ["_03_objectgraph_handlers/*"],
+      "#mirror_membranes/*": ["_04_mirror_membranes/*"],
+      "#build-utilities/*": ["./build-utilities/*"]
+    }
+  },
+
+  "exclude": [
+    "spec/**"
+  ],
+
+  "extends": "@tsconfig/node20/tsconfig.json",
+  "references": [
+  ]
+}

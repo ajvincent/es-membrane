@@ -1,0 +1,7 @@
+**/*.mjs.map
+**/*.d.mts
+**/tsconfig.json
+tsconfig.json
+**/ts-stdout.txt
+generated
+spec-generated
