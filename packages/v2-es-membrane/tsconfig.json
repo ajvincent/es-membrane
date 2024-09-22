@@ -14,7 +14,8 @@
       "#code_generation/*": ["_02_code_generation/*"],
       "#objectgraph_handlers/*": ["_03_objectgraph_handlers/*"],
       "#mirror_membranes/*": ["_04_mirror_membranes/*"],
-      "#build-utilities/*": ["./build-utilities/*"]
+      "#build-utilities/*": ["./build-utilities/*"],
+      "#gulp-utilities/*": ["./gulp-utilities/*"]
     }
   },
 

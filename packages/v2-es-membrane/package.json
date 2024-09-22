@@ -10,6 +10,9 @@
     "node": ">=18.19"
   },
   "scripts": {
+    "gulp": "tsc --project ./tsconfig-gulp.json && gulp",
+    "gulp-clean": "node ./gulp-utilities/cleanTSC_output.js",
+    "gulp-tasks": "tsc --project ./tsconfig-gulp.json && gulp --tasks",
     "build": "node --expose-gc --import ./register-hooks.js ./build.ts",
     "debug": "node --inspect-brk --expose-gc --import ./register-hooks.js ./build.ts",
     "build-tsimp": "node --expose-gc --import=tsimp/import --import ./build-utilities/loader-hooks/subpath/registration.js ./build.ts",
@@ -27,8 +30,10 @@
   "homepage": "https://github.com/ajvincent/es-membrane#readme",
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
+    "@types/gulp": "^4.0.17",
     "@types/jasmine": "^5.1.4",
     "@types/node": "^18.19.34",
+    "gulp": "^5.0.0",
     "jasmine": "^5.1.0",
     "mixin-decorators": "^1.0.1",
     "prettier": "^3.3.3",
@@ -45,6 +50,7 @@
     "#code_generation/*": "./_02_code_generation/*",
     "#objectgraph_handlers/*": "./_03_objectgraph_handlers/*",
     "#mirror_membranes/*": "./_04_mirror_membranes/*",
-    "#build-utilities/*": "./build-utilities/*"
+    "#build-utilities/*": "./build-utilities/*",
+    "#gulp-utilities/*": "./gulp-utilities/*"
   }
 }
