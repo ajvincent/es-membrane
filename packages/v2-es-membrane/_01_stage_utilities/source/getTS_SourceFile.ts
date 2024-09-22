@@ -10,7 +10,7 @@ import {
 import {
   ModuleSourceDirectory,
   pathToModule,
-} from "./AsyncSpecModules.mjs";
+} from "./AsyncSpecModules.js";
 
 const project = new Project({
   "compilerOptions": {

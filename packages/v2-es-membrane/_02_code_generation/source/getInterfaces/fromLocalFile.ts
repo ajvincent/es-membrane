@@ -4,7 +4,7 @@ import {
 
 import getTS_SourceFile, {
   addSeveralSourceFiles
-} from "#stage_utilities/source/getTS_SourceFile.mjs";
+} from "#stage_utilities/source/getTS_SourceFile.js";
 
 import {
   InterfaceDeclarationImpl,

@@ -1,7 +1,7 @@
 import {
   type ModuleSourceDirectory,
   pathToModule,
-} from "#stage_utilities/source/AsyncSpecModules.mjs";
+} from "#stage_utilities/source/AsyncSpecModules.js";
 
 const stageDir: ModuleSourceDirectory = {
   importMeta: import.meta,

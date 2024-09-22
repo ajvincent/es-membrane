@@ -41,7 +41,7 @@ export function runModule(
   const moduleHookImports = [
     //"./build-utilities/loader-hooks/debug/registration.js?hookName=one",
     "./register-hooks.js",
-    //"./node_modules/tsimp/dist/esm/hooks/import.mjs",
+    //"./node_modules/tsimp/dist/esm/hooks/import.js",
     //"./build-utilities/loader-hooks/debug/registration.js?hookName=two",
     //"./build-utilities/loader-hooks/subpath/registration.js",
     //"./build-utilities/loader-hooks/debug/registration.js?hookName=three",

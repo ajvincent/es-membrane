@@ -6,16 +6,16 @@ import {
   getModuleDefaultClass,
   getModuleDefaultClassWithArgs,
   getModulePart,
-} from "../source/AsyncSpecModules.mjs";
+} from "../source/AsyncSpecModules.js";
 
-import NumberStringClass from "../fixtures/NumberStringClass.mjs";
+import NumberStringClass from "../fixtures/NumberStringClass.js";
 import type {
   NumberStringType
-} from "../fixtures/types/NumberStringType.mjs";
+} from "../fixtures/types/NumberStringType.js";
 
 import type {
   DoubleArrayPromiseType,
-} from "../examples/source/DoubleArrayPromise.mjs";
+} from "../examples/source/DoubleArrayPromise.js";
 
 const stageDir: ModuleSourceDirectory = {
   importMeta: import.meta,
@@ -25,20 +25,20 @@ const stageDir: ModuleSourceDirectory = {
 describe("AsyncSpecModules", () => {
   it("pathToModule provides resolved paths", () => {
     expect(
-      pathToModule(stageDir, "spec/AsyncSpecModules.mts")
+      pathToModule(stageDir, "spec/AsyncSpecModules.ts")
     ).toBe(fileURLToPath(import.meta.url));
 
     expect(
       pathToModule({
         pathToDirectory: "#stage_utilities/spec",
         isAbsolutePath: true
-      }, "AsyncSpecModules.mts")
+      }, "AsyncSpecModules.ts")
     ).toBe(fileURLToPath(import.meta.url));
   });
 
   it("getModuleDefaultClass retrieves an exported module", async () => {
     await expectAsync(getModuleDefaultClass<NumberStringType>(
-      stageDir, "fixtures/NumberStringClass.mjs"
+      stageDir, "fixtures/NumberStringClass.js"
     )).toBeResolvedTo(NumberStringClass);
   });
 
@@ -48,7 +48,7 @@ describe("AsyncSpecModules", () => {
       DoubleArrayPromiseType
     >
     (
-      stageDir, "examples/source/DoubleArrayPromise.mjs"
+      stageDir, "examples/source/DoubleArrayPromise.js"
     );
     const doubleArray = new DoubleArrayPromise(100);
     expect((await doubleArray.run()).length).toBe(100);
@@ -59,7 +59,7 @@ describe("AsyncSpecModules", () => {
       "pathToModule", typeof pathToModule
     >
     (
-      stageDir, "source/AsyncSpecModules.mjs", "pathToModule"
+      stageDir, "source/AsyncSpecModules.js", "pathToModule"
     );
 
     expect(pathToModuleAsPart).toBe(pathToModule);

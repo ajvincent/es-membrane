@@ -1,5 +1,5 @@
-import type { ModuleSourceDirectory } from "../source/AsyncSpecModules.mjs";
-import getTS_SourceFile from "../source/getTS_SourceFile.mjs";
+import type { ModuleSourceDirectory } from "../source/AsyncSpecModules.js";
+import getTS_SourceFile from "../source/getTS_SourceFile.js";
 
 it("getTS_SourceFile works", () => {
   const startDir: ModuleSourceDirectory = {
@@ -7,7 +7,7 @@ it("getTS_SourceFile works", () => {
     pathToDirectory: "../../source"
   };
 
-  const sourceFile = getTS_SourceFile(startDir, "PromiseTypes.mts");
+  const sourceFile = getTS_SourceFile(startDir, "PromiseTypes.ts");
   expect(
     () => sourceFile.getFunctionOrThrow("PromiseAllParallel")
   ).not.toThrow();

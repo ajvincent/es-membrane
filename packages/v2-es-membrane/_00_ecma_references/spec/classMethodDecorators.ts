@@ -2,9 +2,9 @@
 
 import type {
   NumberStringType
-} from "../fixtures/types/NumberStringType.mjs";
+} from "../fixtures/types/NumberStringType.js";
 
-import NumberStringClass from "../fixtures/NumberStringClass.mjs";
+import NumberStringClass from "../fixtures/NumberStringClass.js";
 
 type ClassMethodDecorator<
   This extends object,

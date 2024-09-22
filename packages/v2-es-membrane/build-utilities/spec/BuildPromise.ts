@@ -3,7 +3,7 @@ import {
   BuildPromiseSet
 } from "../source/BuildPromise.js";
 
-describe("BuildPromise.mts: ", () => {
+describe("BuildPromise.ts: ", () => {
   let bpSet: BuildPromiseSet;
   beforeEach(() => bpSet = new BuildPromiseSet);
 

@@ -19,7 +19,7 @@ import {
 
 import {
   createSourceFileFromStructure,
-} from "#stage_utilities/source/getTS_SourceFile.mjs";
+} from "#stage_utilities/source/getTS_SourceFile.js";
 
 import {
   stageDir

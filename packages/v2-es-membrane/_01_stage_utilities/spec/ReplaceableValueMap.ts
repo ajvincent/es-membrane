@@ -1,4 +1,4 @@
-import ReplaceableValueMap from "#stage_utilities/source/ReplaceableValueMap.mjs";
+import ReplaceableValueMap from "#stage_utilities/source/ReplaceableValueMap.js";
 
 it("ReplaceableValueMap provides a matching replacement for each value it receives", () => {
   class Foo {}

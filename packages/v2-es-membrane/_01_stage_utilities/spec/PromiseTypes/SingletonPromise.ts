@@ -1,6 +1,6 @@
 import {
   SingletonPromise
-} from "../../source/PromiseTypes.mjs";
+} from "../../source/PromiseTypes.js";
 
 describe("PromiseTypes.SingletonPromise", () => {
   it("resolves to the value we pass in", async () => {

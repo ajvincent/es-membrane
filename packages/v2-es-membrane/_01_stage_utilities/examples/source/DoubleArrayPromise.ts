@@ -1,7 +1,7 @@
 import {
   PromiseAllSequence,
   SingletonPromise,
-} from "../../source/PromiseTypes.mjs";
+} from "../../source/PromiseTypes.js";
 
 export type DoubleArrayPromiseType = {
   run() : Promise<number[]>;

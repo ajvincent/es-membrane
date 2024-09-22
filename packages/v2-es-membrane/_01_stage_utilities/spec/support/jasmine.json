@@ -1,6 +1,5 @@
 {
   "spec_files": [
-    "./spec/**/*.mts",
     "./spec/**/*.ts"
   ],
   "stopSpecOnExpectationFailure": false

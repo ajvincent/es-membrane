@@ -1,6 +1,6 @@
 import getRequiredInitializers, {
   type RequiredState
-} from "../source/RequiredInitializers.mjs";
+} from "../source/RequiredInitializers.js";
 
 it("RequiredInitializers provide a one-way path to ensuring flags are set, then cleared, then empty", () => {
   function message(

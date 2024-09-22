@@ -1,4 +1,4 @@
-import PropertyKeySorter, { propertyKey } from "../source/PropertyKeySorter.mjs";
+import PropertyKeySorter, { propertyKey } from "../source/PropertyKeySorter.js";
 
 describe("Property key sorter", () => {
   const str0 = "0", str1 = "1", sym0 = Symbol("0"), sym1 = Symbol("1");

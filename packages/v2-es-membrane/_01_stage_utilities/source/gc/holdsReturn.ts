@@ -1,7 +1,7 @@
-import tryGarbageCollection from "./tryGarbageCollection.mjs";
+import tryGarbageCollection from "./tryGarbageCollection.js";
 import PromiseFinalizer, {
   type PromiseResolver
-} from "./promiseFinalizer.mjs";
+} from "./promiseFinalizer.js";
 
 type MaybeHoldReturn = () => object;
 

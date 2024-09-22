@@ -2,7 +2,7 @@
 
 import type {
   MethodsOnlyType
-} from "./MethodsOnlyType.d.mts";
+} from "./MethodsOnlyType.js";
 
 export type ClassMethodDecoratorFunction<
   This extends MethodsOnlyType,

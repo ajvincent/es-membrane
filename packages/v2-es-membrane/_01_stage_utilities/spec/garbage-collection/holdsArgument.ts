@@ -1,4 +1,4 @@
-import holdsArgument from "#stage_utilities/source/gc/holdsArgument.mjs";
+import holdsArgument from "#stage_utilities/source/gc/holdsArgument.js";
 
 it("holdsArgument demonstrates functions holding an object strongly or weakly", async () => {
   function voidObject(obj: object): void {

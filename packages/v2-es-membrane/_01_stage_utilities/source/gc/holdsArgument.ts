@@ -1,4 +1,4 @@
-import holdsReturn from "./holdsReturn.mjs";
+import holdsReturn from "./holdsReturn.js";
 
 /**
  * Report if a callback function holds references to any values.

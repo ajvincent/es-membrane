@@ -1,4 +1,4 @@
-import { PromiseDictionary } from "#stage_utilities/source/PromiseTypes.mjs";
+import { PromiseDictionary } from "#stage_utilities/source/PromiseTypes.js";
 
 it("PromiseDictionary resolves", async () => {
   const THREE = Symbol("three");

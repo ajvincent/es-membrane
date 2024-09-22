@@ -10,11 +10,11 @@ import {
 
 import {
   monorepoDir
-} from "#stage_utilities/source/AsyncSpecModules.mjs";
+} from "#stage_utilities/source/AsyncSpecModules.js";
 
 import {
   addSeveralSourceFiles
-} from "#stage_utilities/source/getTS_SourceFile.mjs";
+} from "#stage_utilities/source/getTS_SourceFile.js";
 
 import {
   InterfaceDeclarationImpl,

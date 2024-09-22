@@ -1,6 +1,6 @@
 import WeakStrongMap from "#stage_utilities/source/collections/WeakStrongMap.js";
 
-describe("CodeGenerator(WeakStrongMap.mjs),", () => {
+describe("CodeGenerator(WeakStrongMap.js),", () => {
   let testMap: WeakStrongMap<object, unknown, unknown>, refMap = new Map;
 
   const defaultValue1 = Symbol("default value one");

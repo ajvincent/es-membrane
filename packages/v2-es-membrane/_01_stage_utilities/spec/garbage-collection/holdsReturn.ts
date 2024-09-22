@@ -1,4 +1,4 @@
-import holdsReturn from "#stage_utilities/source/gc/holdsReturn.mjs";
+import holdsReturn from "#stage_utilities/source/gc/holdsReturn.js";
 
 it("holdsReturn demonstrates functions returning objects held strongly or weakly", async () => {
   function voidObject(): object {

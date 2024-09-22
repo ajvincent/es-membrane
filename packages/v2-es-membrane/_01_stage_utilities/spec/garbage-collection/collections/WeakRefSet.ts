@@ -1,5 +1,5 @@
 import WeakRefSet from "#stage_utilities/source/collections/WeakRefSet.js";
-import holdsReturn from "#stage_utilities/source/gc/holdsReturn.mjs";
+import holdsReturn from "#stage_utilities/source/gc/holdsReturn.js";
 
 it("WeakRefSet holds references to objects weakly", async () => {
   const refSet: WeakRefSet<object> = new WeakRefSet;

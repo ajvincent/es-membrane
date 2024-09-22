@@ -2,7 +2,7 @@ import {
   DefaultMap
 } from "#stage_utilities/source/collections/DefaultMap.js";
 import RevokerManagement from "#objectgraph_handlers/source/RevokerManagement.js";
-import holdsArgument from "#stage_utilities/source/gc/holdsArgument.mjs";
+import holdsArgument from "#stage_utilities/source/gc/holdsArgument.js";
 
 it("RevokerManagement class does not execute revokers until we revoke an object graph", () => {
   const manager: RevokerManagement = new RevokerManagement("red");

@@ -1,5 +1,5 @@
 import RevokerManagement from "#objectgraph_handlers/source/RevokerManagement.js";
-import holdsArgument from "#stage_utilities/source/gc/holdsArgument.mjs";
+import holdsArgument from "#stage_utilities/source/gc/holdsArgument.js";
 
 describe("RevokerManagement class holds references", () => {
   let manager: RevokerManagement;

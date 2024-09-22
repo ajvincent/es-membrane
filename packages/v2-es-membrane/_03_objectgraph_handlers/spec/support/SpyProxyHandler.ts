@@ -1,4 +1,4 @@
-import SpyBase from "#stage_utilities/source/SpyBase.mjs";
+import SpyBase from "#stage_utilities/source/SpyBase.js";
 
 import type {
   RequiredProxyHandler,

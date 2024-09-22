@@ -3,7 +3,7 @@ import path from "path";
 
 import {
   projectDir,
-} from "#stage_utilities/source/AsyncSpecModules.mjs";
+} from "#stage_utilities/source/AsyncSpecModules.js";
 
 import {
   sourceGeneratedDir,

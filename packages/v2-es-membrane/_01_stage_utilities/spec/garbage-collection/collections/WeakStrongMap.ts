@@ -1,7 +1,7 @@
 import WeakStrongMap from "#stage_utilities/source/collections/WeakStrongMap.js";
-import holdsArgument from "#stage_utilities/source/gc/holdsArgument.mjs";
+import holdsArgument from "#stage_utilities/source/gc/holdsArgument.js";
 
-describe("CodeGenerator(WeakStrongMap.mjs) holds references to objects", () => {
+describe("CodeGenerator(WeakStrongMap.js) holds references to objects", () => {
   let testMap: WeakStrongMap<object, unknown, unknown>, refMap = new Map;
 
   const defaultValue1 = Symbol("default value one");
