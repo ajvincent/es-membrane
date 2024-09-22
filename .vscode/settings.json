@@ -1,0 +1,12 @@
+{
+  "files.exclude": {
+    "packages/v2-es-membrane/_*/**/*.js": { "when": "$(basename).ts"},
+    "packages/v2-es-membrane/_*/**/*.js.map": true,
+    "packages/v2-es-membrane/build-utilities/**/*.js": { "when": "$(basename).ts"},
+    "packages/v2-es-membrane/build-utilities/**/*.js.map": true,
+    "packages/v2-es-membrane/gulp-utilities/**/*.js": { "when": "$(basename).ts"},
+    "packages/v2-es-membrane/gulp-utilities/**/*.js.map": true,
+    "packages/v2-es-membrane/Gulpfile.js": true,
+    "packages/v2-es-membrane/Gulpfile.js.map": true,
+  }
+}
