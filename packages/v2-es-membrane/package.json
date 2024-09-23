@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/ajvincent/es-membrane#readme",
   "devDependencies": {
+    "@ajvincent/build-utilities": "file:../build-utilities",
     "@tsconfig/node20": "^20.1.4",
     "@types/gulp": "^4.0.17",
     "@types/jasmine": "^5.1.4",

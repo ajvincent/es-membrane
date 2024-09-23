@@ -1,0 +1,17 @@
+{
+  "name": "@ajvincent/build-utilities",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared utilities for es-membrane and other projects in the monorepo.",
+  "main": "dist/exports/index.js",
+  "typings": "dist/exports/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "clean": "gulp clean",
+    "build": "gulp compile",
+    "test": "gulp test",
+    "tasks": "gulp --tasks"
+  },
+  "author": "Alexander J. Vincent <ajvincent@gmail.com>",
+  "license": "ISC"
+}
