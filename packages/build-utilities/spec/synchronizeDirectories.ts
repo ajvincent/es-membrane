@@ -40,7 +40,7 @@ describe("synchronizeDirectories", () => {
   it("makes the destination directory reflect the source directory", async () => {
     await expectAsync(
       synchronizeDirectories(tempSrc, tempDest)
-    ).toBeResolved();
+    ).toBeResolvedTo(true);
 
     let {
       dirs: destDirs,
@@ -65,5 +65,9 @@ describe("synchronizeDirectories", () => {
     ]);
 
     expect(destHashes.split("\n")).toEqual(srcHashes.split("\n"));
- });
+
+    await expectAsync(
+      synchronizeDirectories(tempSrc, tempDest)
+    ).toBeResolvedTo(false);
+  });
 });

@@ -5,7 +5,7 @@ export async function overwriteFileIfDifferent(
   sourceOrContents: string,
   destination: string,
   mtime: Date,
-): Promise<void>
+): Promise<boolean>
 {
   let sourceModified: Date;
 
@@ -27,9 +27,10 @@ export async function overwriteFileIfDifferent(
   const contentsMatch = sourceOrContents === destContents;
   if (destFileFound && contentsMatch) {
     await fs.utimes(destination, destStats!.atime, destStats!.mtime)
-    return;
+    return false;
   }
 
   await fs.writeFile(destination, sourceOrContents, { encoding: "utf-8" });
+  return true;
 }
 

@@ -17,7 +17,8 @@ export async function overwriteFileIfDifferent(isContents, sourceOrContents, des
     const contentsMatch = sourceOrContents === destContents;
     if (destFileFound && contentsMatch) {
         await fs.utimes(destination, destStats.atime, destStats.mtime);
-        return;
+        return false;
     }
     await fs.writeFile(destination, sourceOrContents, { encoding: "utf-8" });
+    return true;
 }

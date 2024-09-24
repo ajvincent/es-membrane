@@ -18,7 +18,7 @@ import {
 export async function synchronizeDirectories(
   sourceTopDir: string,
   destinationTopDir: string,
-): Promise<void>
+): Promise<boolean>
 {
   const {
     dirs: sourceDirs,
@@ -44,17 +44,21 @@ export async function synchronizeDirectories(
   );
 
   const now = new Date();
-  await createRequiredDirectories(sourceDirSet, destDirSet, destinationTopDir);
-  await copyRequiredFiles(sourceFilesSet, destFilesSet, sourceTopDir, destinationTopDir, now);
-  await removeUnusedFiles(sourceFilesSet, destFilesSet, destinationTopDir);
-  await removeUnusedDirectories(sourceDirSet, destDirSet, destinationTopDir, now);
+
+  const results: boolean[] = [];
+  results.push(await createRequiredDirectories(sourceDirSet, destDirSet, destinationTopDir));
+  results.push(await copyRequiredFiles(sourceFilesSet, destFilesSet, sourceTopDir, destinationTopDir, now));
+  results.push(await removeUnusedFiles(sourceFilesSet, destFilesSet, destinationTopDir));
+  results.push(await removeUnusedDirectories(sourceDirSet, destDirSet, destinationTopDir, now));
+
+  return results.some(Boolean);
 }
 
 async function createRequiredDirectories(
   sourceDirSet: ReadonlySet<string>,
   destDirSet: ReadonlySet<string>,
   destinationTopDir: string,
-): Promise<void>
+): Promise<boolean>
 {
   const dirsToCreate: string[] = [];
 
@@ -63,8 +67,11 @@ async function createRequiredDirectories(
       continue;
     dirsToCreate.push(path.join(destinationTopDir, relativeDir));
   }
+  if (dirsToCreate.length === 0)
+    return false;
 
   await PromiseAllSequence<string, void>(dirsToCreate, dir => fs.mkdir(dir));
+  return true;
 }
 
 async function copyRequiredFiles(
@@ -73,7 +80,7 @@ async function copyRequiredFiles(
   sourceTopDir: string,
   destinationTopDir: string,
   now: Date,
-): Promise<void>
+): Promise<boolean>
 {
   const fileTuples: [string, string][] = [];
 
@@ -84,16 +91,17 @@ async function copyRequiredFiles(
     ]);
   }
 
-  await PromiseAllParallel<[string, string], void>(fileTuples,
+  const results: readonly boolean[] = await PromiseAllParallel<[string, string], boolean>(fileTuples,
     ([sourceFile, destFile]) => overwriteFileIfDifferent(false, sourceFile, destFile, now)
   );
+  return results.some(Boolean);
 }
 
 async function removeUnusedFiles(
   sourceFilesSet: ReadonlySet<string>,
   destFilesSet: ReadonlySet<string>,
   destinationTopDir: string,
-): Promise<void>
+): Promise<boolean>
 {
   const filesToRemove: string[] = [];
   for (const relativeFile of destFilesSet) {
@@ -103,7 +111,11 @@ async function removeUnusedFiles(
     filesToRemove.push(path.join(destinationTopDir, relativeFile));
   }
 
+  if (filesToRemove.length === 0)
+    return false;
+
   await PromiseAllParallel<string, void>(filesToRemove, f => fs.rm(f, { force: true }));
+  return true;
 }
 
 async function removeUnusedDirectories(
@@ -111,7 +123,7 @@ async function removeUnusedDirectories(
   destDirSet: ReadonlySet<string>,
   destinationTopDir: string,
   now: Date
-): Promise<void>
+): Promise<boolean>
 {
   const dirsToDelete: string[] = [];
   for (const relativeDir of destDirSet) {
@@ -120,5 +132,9 @@ async function removeUnusedDirectories(
     dirsToDelete.push(path.normalize(path.join(destinationTopDir, relativeDir)))
   }
 
+  if (dirsToDelete.length === 0)
+    return false;
+
   await PromiseAllSequence(dirsToDelete, d => fs.rmdir(d));
+  return true;
 }

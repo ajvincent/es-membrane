@@ -11,10 +11,12 @@ export async function synchronizeDirectories(sourceTopDir, destinationTopDir) {
     const sourceFilesSet = new Set(sourceFiles.map(f => path.relative(sourceTopDir, f)));
     const destFilesSet = new Set(destinationFiles.slice().reverse().map(f => path.relative(destinationTopDir, f)));
     const now = new Date();
-    await createRequiredDirectories(sourceDirSet, destDirSet, destinationTopDir);
-    await copyRequiredFiles(sourceFilesSet, destFilesSet, sourceTopDir, destinationTopDir, now);
-    await removeUnusedFiles(sourceFilesSet, destFilesSet, destinationTopDir);
-    await removeUnusedDirectories(sourceDirSet, destDirSet, destinationTopDir, now);
+    const results = [];
+    results.push(await createRequiredDirectories(sourceDirSet, destDirSet, destinationTopDir));
+    results.push(await copyRequiredFiles(sourceFilesSet, destFilesSet, sourceTopDir, destinationTopDir, now));
+    results.push(await removeUnusedFiles(sourceFilesSet, destFilesSet, destinationTopDir));
+    results.push(await removeUnusedDirectories(sourceDirSet, destDirSet, destinationTopDir, now));
+    return results.some(Boolean);
 }
 async function createRequiredDirectories(sourceDirSet, destDirSet, destinationTopDir) {
     const dirsToCreate = [];
@@ -23,7 +25,10 @@ async function createRequiredDirectories(sourceDirSet, destDirSet, destinationTo
             continue;
         dirsToCreate.push(path.join(destinationTopDir, relativeDir));
     }
+    if (dirsToCreate.length === 0)
+        return false;
     await PromiseAllSequence(dirsToCreate, dir => fs.mkdir(dir));
+    return true;
 }
 async function copyRequiredFiles(sourceFilesSet, destFileSet, sourceTopDir, destinationTopDir, now) {
     const fileTuples = [];
@@ -33,7 +38,8 @@ async function copyRequiredFiles(sourceFilesSet, destFileSet, sourceTopDir, dest
             path.normalize(path.join(destinationTopDir, relativeFile)),
         ]);
     }
-    await PromiseAllParallel(fileTuples, ([sourceFile, destFile]) => overwriteFileIfDifferent(false, sourceFile, destFile, now));
+    const results = await PromiseAllParallel(fileTuples, ([sourceFile, destFile]) => overwriteFileIfDifferent(false, sourceFile, destFile, now));
+    return results.some(Boolean);
 }
 async function removeUnusedFiles(sourceFilesSet, destFilesSet, destinationTopDir) {
     const filesToRemove = [];
@@ -42,7 +48,10 @@ async function removeUnusedFiles(sourceFilesSet, destFilesSet, destinationTopDir
             continue;
         filesToRemove.push(path.join(destinationTopDir, relativeFile));
     }
+    if (filesToRemove.length === 0)
+        return false;
     await PromiseAllParallel(filesToRemove, f => fs.rm(f, { force: true }));
+    return true;
 }
 async function removeUnusedDirectories(sourceDirSet, destDirSet, destinationTopDir, now) {
     const dirsToDelete = [];
@@ -51,5 +60,8 @@ async function removeUnusedDirectories(sourceDirSet, destDirSet, destinationTopD
             continue;
         dirsToDelete.push(path.normalize(path.join(destinationTopDir, relativeDir)));
     }
+    if (dirsToDelete.length === 0)
+        return false;
     await PromiseAllSequence(dirsToDelete, d => fs.rmdir(d));
+    return true;
 }

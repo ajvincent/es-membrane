@@ -51,12 +51,14 @@ describe("overwriteFileIfDifferent", () => {
   describe("does not overwrite matching files when", () => {
     it("the source file matches", async () => {
       const zeroDest = path.join(tempDest, "zero.ts");
-      await overwriteFileIfDifferent(
-        false,
-        path.join(tempSrc, "zero.ts"),
-        zeroDest,
-        CURRENT_DATE
-      );
+      await expectAsync(
+        overwriteFileIfDifferent(
+          false,
+          path.join(tempSrc, "zero.ts"),
+          zeroDest,
+          CURRENT_DATE
+        )
+      ).toBeResolvedTo(false);
 
       await expectDestAccessAndModifiedDates(zeroDest, DESTINATION_DATE, false);
 
@@ -67,12 +69,14 @@ describe("overwriteFileIfDifferent", () => {
 
     it("the source content matches", async () => {
       const oneDest = path.join(tempDest, "one.ts");
-      await overwriteFileIfDifferent(
-        true,
-        fileContents("one"),
-        oneDest,
-        CURRENT_DATE
-      );
+      await expectAsync(
+        overwriteFileIfDifferent(
+          true,
+          fileContents("one"),
+          oneDest,
+          CURRENT_DATE
+        )
+      ).toBeResolvedTo(false);
 
       await expectDestAccessAndModifiedDates(oneDest, DESTINATION_DATE, false);
 
@@ -85,12 +89,14 @@ describe("overwriteFileIfDifferent", () => {
   describe("creates the destination file when it does not exist, and we have", () => {
     it("a source file", async () => {
       const twoDest = path.join(tempDest, "two.ts");
-      await overwriteFileIfDifferent(
-        false,
-        path.join(tempSrc, "two.ts"),
-        twoDest,
-        CURRENT_DATE,
-      );
+      await expectAsync(
+        overwriteFileIfDifferent(
+          false,
+          path.join(tempSrc, "two.ts"),
+          twoDest,
+          CURRENT_DATE,
+        )
+      ).toBeResolvedTo(true);
 
       await expectDestAccessAndModifiedDates(twoDest, CURRENT_DATE, true);
 
@@ -102,12 +108,14 @@ describe("overwriteFileIfDifferent", () => {
 
   it("source content", async () => {
     const threeDest = path.join(tempDest, "three.ts");
-    await overwriteFileIfDifferent(
-      true,
-      fileContents("three"),
-      threeDest,
-      CURRENT_DATE
-    );
+    await expectAsync(
+      overwriteFileIfDifferent(
+        true,
+        fileContents("three"),
+        threeDest,
+        CURRENT_DATE
+      )
+    ).toBeResolvedTo(true);
 
     await expectDestAccessAndModifiedDates(threeDest, CURRENT_DATE, true);
 
@@ -119,12 +127,13 @@ describe("overwriteFileIfDifferent", () => {
   describe("overwrites the destination file when there is a mismatch against the source", () => {
     it("file", async () => {
       const fourDest = path.join(tempDest, "four.ts");
-      await overwriteFileIfDifferent(
-        false,
-        path.join(tempSrc, "four.ts"),
-        fourDest,
-        CURRENT_DATE
-      );
+      await expectAsync(overwriteFileIfDifferent(
+          false,
+          path.join(tempSrc, "four.ts"),
+          fourDest,
+          CURRENT_DATE
+        )
+      ).toBeResolvedTo(true);
 
       await expectDestAccessAndModifiedDates(fourDest, DESTINATION_DATE, true);
 
@@ -135,12 +144,14 @@ describe("overwriteFileIfDifferent", () => {
 
     it("contents", async () => {
       const fiveDest = path.join(tempDest, "five.ts");
-      await overwriteFileIfDifferent(
-        true,
-        fileContents("five"),
-        fiveDest,
-        CURRENT_DATE
-      );
+      await expectAsync(
+        overwriteFileIfDifferent(
+          true,
+          fileContents("five"),
+          fiveDest,
+          CURRENT_DATE
+        )
+      ).toBeResolvedTo(true);
 
       await expectDestAccessAndModifiedDates(fiveDest, DESTINATION_DATE, true);
     });
