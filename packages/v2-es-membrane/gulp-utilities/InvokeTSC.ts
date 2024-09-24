@@ -10,6 +10,10 @@ import {
   monorepoRoot,
 } from "./constants.js";
 
+import {
+  overwriteFileIfDifferent
+} from "@ajvincent/build-utilities";
+
 const dirConfig = `{
   "extends": "../tsconfig.json",
   "exclude": [
@@ -28,12 +32,10 @@ const TSC = path.resolve(monorepoRoot, "node_modules/typescript/bin/tsc");
 
 export default
 async function InvokeTSC(): Promise<void> {
-  await fs.writeFile(
-    path.join(process.cwd(), "tsconfig.json"),
-    dirConfig,
-    { "encoding": "utf-8" }
-  );
 
+  await overwriteFileIfDifferent(
+    true, dirConfig, path.join(process.cwd(), "tsconfig.json"), new Date()
+  );
   return InvokeTSC_Internal(process.cwd());
 }
 
@@ -47,12 +49,9 @@ export async function InvokeTSC_prebuild(): Promise<void> {
     return;
   }
 
-  await fs.writeFile(
-    path.join(buildDir, "tsconfig.json"),
-    buildDirConfig,
-    { "encoding": "utf-8" }
+  await overwriteFileIfDifferent(
+    true, buildDirConfig, path.join(buildDir, "tsconfig.json"), new Date()
   );
-
   return InvokeTSC_Internal(buildDir);
 }
 
