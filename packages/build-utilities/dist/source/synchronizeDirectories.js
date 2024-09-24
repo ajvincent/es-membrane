@@ -28,8 +28,6 @@ async function createRequiredDirectories(sourceDirSet, destDirSet, destinationTo
 async function copyRequiredFiles(sourceFilesSet, destFileSet, sourceTopDir, destinationTopDir, now) {
     const fileTuples = [];
     for (const relativeFile of sourceFilesSet) {
-        if (destFileSet.has(relativeFile))
-            continue;
         fileTuples.push([
             path.normalize(path.join(sourceTopDir, relativeFile)),
             path.normalize(path.join(destinationTopDir, relativeFile)),

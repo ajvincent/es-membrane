@@ -78,9 +78,6 @@ async function copyRequiredFiles(
   const fileTuples: [string, string][] = [];
 
   for (const relativeFile of sourceFilesSet) {
-    if (destFileSet.has(relativeFile))
-      continue;
-
     fileTuples.push([
       path.normalize(path.join(sourceTopDir, relativeFile)),
       path.normalize(path.join(destinationTopDir, relativeFile)),

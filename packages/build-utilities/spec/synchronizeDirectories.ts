@@ -12,6 +12,10 @@ import {
   readDirsDeep,
 } from "../source/readDirsDeep.js";
 
+import {
+  hashAllFiles
+} from "../source/hash-all-files.js";
+
 import createFixtureTempDir from "./support/createFixtureTempDir.js";
 
 describe("synchronizeDirectories", () => {
@@ -54,5 +58,12 @@ describe("synchronizeDirectories", () => {
 
     expect(destDirs).withContext("directories").toEqual(sourceDirs);
     expect(destFiles).withContext("files").toEqual(sourceFiles);
+
+    const [srcHashes, destHashes] = await Promise.all([
+      hashAllFiles(tempSrc, true),
+      hashAllFiles(tempDest, true)
+    ]);
+
+    expect(destHashes.split("\n")).toEqual(srcHashes.split("\n"));
  });
 });
