@@ -28,7 +28,9 @@ export async function expectDestAccessAndModifiedDates(
   const fileStats = await fs.stat(pathToFile);
 
   if (isNewFile) {
-    expect(fileStats.atimeMs).withContext("atime").toBeGreaterThan(Number(atime));
+    // Linux: greater than.  MacOS: equal
+    expect(fileStats.atimeMs).withContext("atime").toBeGreaterThanOrEqual(Number(atime));
+
     expect(fileStats.mtimeMs).withContext("mtime").toBeGreaterThan(DESTINATION_MS_SINCE_EPOCH);
   }
   else {
