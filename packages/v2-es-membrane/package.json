@@ -10,9 +10,9 @@
     "node": ">=18.19"
   },
   "scripts": {
-    "gulp": "tsc --project ./tsconfig-gulp.json && node --expose-gc ../../node_modules/gulp/bin/gulp.js",
+    "gulp": "npm run gulp-clean && tsc --project ./tsconfig-gulp.json && node --expose-gc ../../node_modules/gulp/bin/gulp.js",
     "gulp-clean": "node ./gulp-utilities/cleanTSC_output.js",
-    "gulp-tasks": "tsc --project ./tsconfig-gulp.json && gulp --tasks",
+    "gulp-tasks": "npm run gulp-clean && tsc --project ./tsconfig-gulp.json && gulp --tasks",
     "build": "node --expose-gc --import ./register-hooks.js ./build.ts",
     "debug": "node --inspect-brk --expose-gc --import ./register-hooks.js ./build.ts",
     "build-tsimp": "node --expose-gc --import=tsimp/import --import ./build-utilities/loader-hooks/subpath/registration.js ./build.ts",
