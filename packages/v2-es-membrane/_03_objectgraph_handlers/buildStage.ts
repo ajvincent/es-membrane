@@ -4,7 +4,9 @@ import {
 
 import runJasmine from "#build-utilities/source/runJasmine.js";
 
-import copyGenerated from "./build/copyGenerated.js";
+import {
+  copyGenerated
+} from "./pre-build/copyGenerated.js";
 
 const BPSet = new BuildPromiseSet;
 

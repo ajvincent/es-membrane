@@ -7,9 +7,8 @@ import {
 import {
   series
 } from "gulp";
-
-import PushAndPopDirSeries from "./gulp-utilities/PushAndPopDirs.js"
-import InvokeTSC from "#gulp-utilities/InvokeTSC.js";
+import { InvokeTSC_main, InvokeTSC_prebuild } from "#gulp-utilities/InvokeTSC.js";
+import { PushAndPopDirSeries } from "@ajvincent/build-utilities";
 
 const projectRoot = path.normalize(path.dirname(
   fileURLToPath(import.meta.url)
@@ -25,9 +24,49 @@ const dirs = dirEntries.filter(dirEnt => dirEnt.isDirectory())
 dirs.sort();
 dirs.unshift("build-utilities");
 
-const dependencies = series(dirs.map(d => {
-  const callback = PushAndPopDirSeries(d, [InvokeTSC]);
-  callback.displayName = d;
-  return callback;
-}));
+type VoidCallbackArray = (() => Promise<void>)[];
+
+async function childGulpfile(
+  localPathToDir: string
+): Promise<ReturnType<typeof series>>
+{
+  const callbacks: VoidCallbackArray = [];
+  const fullPathToDir = path.join(projectRoot, localPathToDir);
+
+  const prebuildGulp = path.join(fullPathToDir, "pre-build", "Gulpfile.js");
+  try {
+    if (await fs.stat(prebuildGulp)) {
+      let prebuildCallbacks = (await import(prebuildGulp)).default as VoidCallbackArray;
+      if (prebuildCallbacks.length > 0)
+      callbacks.push(InvokeTSC_prebuild, ...prebuildCallbacks);
+    }
+  }
+  catch (ex) {
+    // do nothing, this is normal
+  }
+
+  let importCallbacks = (await import(path.join(fullPathToDir, "Gulpfile.js"))).default as VoidCallbackArray;
+  if (importCallbacks.length > 0) {
+    callbacks.push(
+      InvokeTSC_main,
+      ...importCallbacks
+    );
+  }
+
+  if (callbacks.length === 0) {
+    let stageDir = () => Promise.resolve();
+    Reflect.set(stageDir, "displayName", localPathToDir);
+    return stageDir;
+  }
+
+  return PushAndPopDirSeries(localPathToDir, callbacks);
+}
+
+const tasks: ReturnType<typeof series>[] = [];
+
+for (const d of dirs) {
+  tasks.push(await childGulpfile(d));
+}
+
+const dependencies = series(tasks);
 export default dependencies;

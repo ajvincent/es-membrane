@@ -8,9 +8,10 @@ import {
 import {
   sourceGeneratedDir,
 } from "./constants.js";
+
 import runPrettify from "#build-utilities/source/runPrettify.js";
 
-export default async function copySnapshot(): Promise<void> {
+export async function copyGenerated(): Promise<void> {
   await fs.rm(sourceGeneratedDir, { recursive: true, force: true });
   await fs.mkdir(sourceGeneratedDir, { recursive: true });
 

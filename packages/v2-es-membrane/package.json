@@ -10,7 +10,7 @@
     "node": ">=18.19"
   },
   "scripts": {
-    "gulp": "tsc --project ./tsconfig-gulp.json && gulp",
+    "gulp": "tsc --project ./tsconfig-gulp.json && node --expose-gc ../../node_modules/gulp/bin/gulp.js",
     "gulp-clean": "node ./gulp-utilities/cleanTSC_output.js",
     "gulp-tasks": "tsc --project ./tsconfig-gulp.json && gulp --tasks",
     "build": "node --expose-gc --import ./register-hooks.js ./build.ts",
