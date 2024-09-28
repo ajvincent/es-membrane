@@ -18,7 +18,6 @@ const recursiveDirs = dirEntries.filter(dirEnt => dirEnt.isDirectory())
     .map(dirEnt => dirEnt.name)
     .filter(dirName => /^\_\d+\_/.test(dirName));
 recursiveDirs.sort();
-recursiveDirs.unshift("build-utilities");
 recursiveDirs.unshift("gulp-utilities");
 
 const TS_MODULE_EXT_RE = /(?<!\.d)\.ts$/;

@@ -22,7 +22,6 @@ const dirs = dirEntries.filter(dirEnt => dirEnt.isDirectory())
   .map(dirEnt => dirEnt.name)
   .filter(dirName => /^\_\d+\_/.test(dirName));
 dirs.sort();
-dirs.unshift("build-utilities");
 
 type VoidCallbackArray = (() => Promise<void>)[];
 
