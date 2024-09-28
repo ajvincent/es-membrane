@@ -22,21 +22,23 @@ import {
 } from "#stage_utilities/source/getTS_SourceFile.js";
 
 import {
-  stageDir
+  generatedDirs
 } from "./constants.js";
 
 import getRequiredProxyHandlerInterface from "./getInterfaces/requiredProxy.js";
 
 import UnionStringOrSymbol from "./UnionStringOrSymbol.js";
 
-export const pathToInterfaceModule = path.join(stageDir, "generated/types/ObjectGraphHandlerIfc.d.ts");
+export const pathToInterfaceModule = path.join(
+  generatedDirs.raw, "types/ObjectGraphHandlerIfc.d.ts"
+);
 
 export default
 async function createObjectGraphHandlerIfc(): Promise<InterfaceDeclarationImpl>
 {
   const importManager = new ImportManager(pathToInterfaceModule);
   importManager.addImports({
-    pathToImportedModule: path.join(stageDir, "types/RequiredProxyHandler.d.ts"),
+    pathToImportedModule: path.join(generatedDirs.raw, "../types/RequiredProxyHandler.d.ts"),
     isPackageImport: false,
     isDefaultImport: false,
     isTypeOnly: true,

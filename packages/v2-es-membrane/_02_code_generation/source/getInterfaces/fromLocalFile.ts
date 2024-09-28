@@ -2,9 +2,7 @@ import {
   StructureKind,
 } from "ts-morph";
 
-import getTS_SourceFile, {
-  addSeveralSourceFiles
-} from "#stage_utilities/source/getTS_SourceFile.js";
+import getTS_SourceFile from "#stage_utilities/source/getTS_SourceFile.js";
 
 import {
   InterfaceDeclarationImpl,

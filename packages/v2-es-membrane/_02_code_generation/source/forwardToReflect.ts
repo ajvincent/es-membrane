@@ -20,7 +20,7 @@ import {
 } from "#stage_utilities/source/getTS_SourceFile.js";
 
 import {
-  stageDir
+  generatedDirs
 } from "./constants.js";
 
 import getRequiredProxyHandlerInterface from "./getInterfaces/requiredProxy.js";
@@ -29,7 +29,7 @@ import buildHandlerClass from "./buildHandlerClass.js";
 export default
 async function forwardToReflect(): Promise<void>
 {
-  const pathToForwardModule = path.join(stageDir, "generated/ForwardToReflect.ts");
+  const pathToForwardModule = path.join(generatedDirs.raw, "ForwardToReflect.ts");
 
   const proxyInterface: InterfaceDeclarationImpl = getRequiredProxyHandlerInterface();
 

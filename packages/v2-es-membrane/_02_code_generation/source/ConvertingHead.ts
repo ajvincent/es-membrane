@@ -48,7 +48,7 @@ import {
 } from "#stage_utilities/source/getTS_SourceFile.js";
 
 import {
-  stageDir
+  generatedDirs
 } from "./constants.js";
 
 import getRequiredProxyHandlerInterface from "./getInterfaces/requiredProxy.js";
@@ -64,7 +64,7 @@ import buildConstStatement from "./utilities/buildConstStatement.js";
 
 // #endregion preamble
 
-const pathToConvertingHeadModule = path.join(stageDir, "generated/ConvertingHeadProxyHandler.ts");
+const pathToConvertingHeadModule = path.join(generatedDirs.raw, "ConvertingHeadProxyHandler.ts");
 
 export default
 async function createConvertingHeadProxyHandler(): Promise<void>
@@ -117,7 +117,7 @@ function buildImportManager(): ImportManager
   });
 
   importManager.addImports({
-    pathToImportedModule: path.join(stageDir, "types/ObjectGraphHeadIfc.d.ts"),
+    pathToImportedModule: path.join(generatedDirs.raw, "../types/ObjectGraphHeadIfc.d.ts"),
     isPackageImport: false,
     isDefaultImport: false,
     isTypeOnly: true,
@@ -127,7 +127,7 @@ function buildImportManager(): ImportManager
   });
 
   importManager.addImports({
-    pathToImportedModule: path.join(stageDir, "types/RequiredProxyHandler.d.ts"),
+    pathToImportedModule: path.join(generatedDirs.raw, "../types/RequiredProxyHandler.d.ts"),
     isPackageImport: false,
     isDefaultImport: false,
     isTypeOnly: true,
@@ -137,7 +137,7 @@ function buildImportManager(): ImportManager
   });
 
   importManager.addImports({
-    pathToImportedModule: path.join(stageDir, "types/MembraneInternalIfc.d.ts"),
+    pathToImportedModule: path.join(generatedDirs.raw, "../types/MembraneInternalIfc.d.ts"),
     isPackageImport: false,
     isDefaultImport: false,
     isTypeOnly: true,

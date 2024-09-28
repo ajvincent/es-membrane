@@ -1,12 +1,16 @@
 import fs from "fs/promises";
 
 import * as prettier from "prettier";
+
 import {
   PromiseAllParallel
 } from "./PromiseTypes.js";
-import readDirsDeep from "./readDirsDeep.js";
 
-export default async function runPrettify(
+import {
+  readDirsDeep
+} from "./readDirsDeep.js";
+
+export async function runPrettify(
   absolutePath: string
 ): Promise<void>
 {
