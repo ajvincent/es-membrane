@@ -23,7 +23,7 @@ import {
 } from "#stage_utilities/source/getTS_SourceFile.js";
 
 import {
-  stageDir
+  generatedDirs,
 } from "../constants.js";
 
 import buildHandlerClass from "../buildHandlerClass.js";
@@ -48,7 +48,7 @@ async function createRevokedInFlight(
   handlerInterface: InterfaceDeclarationImpl
 ): Promise<void>
 {
-  const pathToRevokedInFlight = path.join(stageDir, "generated/decorators/revokedInFlight.ts");
+  const pathToRevokedInFlight = path.join(generatedDirs.raw, "decorators/revokedInFlight.ts");
   const importManager = buildImportManager(pathToRevokedInFlight);
 
   const decoratorFunction = buildTailDecoratorFunction();
@@ -85,7 +85,7 @@ function buildImportManager(
   const importManager = new ImportManager(pathToReturnValuesModule);
 
   importManager.addImports({
-    pathToImportedModule: path.join(stageDir, "types/ClassDecoratorFunction.ts"),
+    pathToImportedModule: path.join(generatedDirs.raw, "../types/ClassDecoratorFunction.ts"),
     isPackageImport: false,
     isDefaultImport: false,
     isTypeOnly: true,
@@ -105,7 +105,7 @@ function buildImportManager(
   });
 
   importManager.addImports({
-    pathToImportedModule: path.join(stageDir, "AlwaysRevokedProxy.ts"),
+    pathToImportedModule: path.join(generatedDirs.raw, "../AlwaysRevokedProxy.ts"),
     isPackageImport: false,
     isDefaultImport: true,
     isTypeOnly: false,

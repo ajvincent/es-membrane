@@ -1,6 +1,6 @@
 {
   "spec_files": [
-    "./spec/**/*.ts"
+    "./spec/**/*.js"
   ],
   "stopSpecOnExpectationFailure": false
 }

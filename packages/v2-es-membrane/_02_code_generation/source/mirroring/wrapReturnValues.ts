@@ -22,7 +22,7 @@ import {
 } from "#stage_utilities/source/getTS_SourceFile.js";
 
 import {
-  stageDir
+  generatedDirs
 } from "../constants.js";
 
 import buildHandlerClass from "../buildHandlerClass.js";
@@ -44,7 +44,7 @@ async function createWrapReturnValues(
   handlerInterface: InterfaceDeclarationImpl
 ): Promise<void>
 {
-  const pathToReturnValuesModule = path.join(stageDir, "generated/decorators/wrapReturnValues.ts");
+  const pathToReturnValuesModule = path.join(generatedDirs.raw, "decorators/wrapReturnValues.ts");
   const importManager = buildImportManager(pathToReturnValuesModule);
 
   const decoratorFunction = buildTailDecoratorFunction();
@@ -81,7 +81,7 @@ function buildImportManager(
   const importManager = new ImportManager(pathToReturnValuesModule);
 
   importManager.addImports({
-    pathToImportedModule: path.join(stageDir, "types/ClassDecoratorFunction.ts"),
+    pathToImportedModule: path.join(generatedDirs.raw, "../types/ClassDecoratorFunction.ts"),
     isPackageImport: false,
     isDefaultImport: false,
     isTypeOnly: true,

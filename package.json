@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "description": "Monorepo for es-membrane packages.",
   "author": "Alexander J. Vincent <ajvincent@gmail.com>",
-
   "workspaces": [
     "./packages/*"
   ]

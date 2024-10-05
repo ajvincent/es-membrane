@@ -37,7 +37,7 @@ import {
 } from "#stage_utilities/source/getTS_SourceFile.js";
 
 import {
-  stageDir
+  generatedDirs,
 } from "./constants.js";
 
 import buildHandlerClass, {
@@ -51,7 +51,7 @@ import {
 import UnionStringOrSymbol from "./UnionStringOrSymbol.js";
 //#endregion preamble
 
-export const pathToTailHandlerModule = path.join(stageDir, "generated/ObjectGraphTailHandler.ts");
+export const pathToTailHandlerModule = path.join(generatedDirs.raw, "ObjectGraphTailHandler.ts");
 
 export default
 async function createObjectGraphTailHandler(
@@ -97,7 +97,7 @@ function buildImportManager(): ImportManager
   });
 
   importManager.addImports({
-    pathToImportedModule: path.join(stageDir, "types/MembraneInternalIfc.d.ts"),
+    pathToImportedModule: path.join(generatedDirs.raw, "../types/MembraneInternalIfc.d.ts"),
     isPackageImport: false,
     isDefaultImport: false,
     isTypeOnly: true,
@@ -221,7 +221,7 @@ function addValueCallbacks(
 ): void
 {
   importManager.addImports({
-    pathToImportedModule: path.join(stageDir, "types/ObjectGraphHeadIfc.d.ts"),
+    pathToImportedModule: path.join(generatedDirs.raw, "../types/ObjectGraphHeadIfc.d.ts"),
     isPackageImport: false,
     isDefaultImport: false,
     isTypeOnly: true,
