@@ -127,22 +127,22 @@ const BuiltInClassMap: Record<string, Class<object>> = {
     size: number = 0;
 
     @noReferences
-    entries(): IterableIterator<[K, V]> {
+    entries(): MapIterator<[K, V]> {
       throw new Error("Method not implemented.");
     }
 
     @noReferences
-    keys(): IterableIterator<K> {
+    keys(): MapIterator<K> {
       throw new Error("Method not implemented.");
     }
 
     @noReferences
-    values(): IterableIterator<V> {
+    values(): MapIterator<V> {
       throw new Error("Method not implemented.");
     }
 
     @noReferences
-    [Symbol.iterator](): IterableIterator<[K, V]> {
+    [Symbol.iterator](): MapIterator<[K, V]> {
       throw new Error("Method not implemented.");
     }
 
