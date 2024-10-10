@@ -6,7 +6,7 @@ import {
   Deferred,
   SingletonPromise,
   PromiseAllParallel,
-} from "../PromiseTypes.mjs";
+} from "../PromiseTypes.js";
 
 class ValueWithDependencies<ValueType>
 {

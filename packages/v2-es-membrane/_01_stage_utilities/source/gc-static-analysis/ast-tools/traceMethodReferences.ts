@@ -8,7 +8,7 @@ import type {
 import {
   Deferred,
   PromiseAllParallel
-} from "#stage_utilities/source/PromiseTypes.mjs";
+} from "#stage_utilities/source/PromiseTypes.js";
 
 import type {
   Scope,

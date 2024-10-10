@@ -15,7 +15,7 @@ import {
 
 import {
   projectDir
-} from "../../AsyncSpecModules.mjs";
+} from "../../AsyncSpecModules.js";
 
 import findClassInAST from "./findClassInAST.js";
 import organizeClassMembers, {
@@ -43,12 +43,12 @@ async function holdsArgument(
 
   const ast = parse(tsSource, { loc: true, range: true });
 
-  const classAST: TSESTree.ClassDeclaration | undefined = findClassInAST(ast, className);
+  const classAST: TSESTree.ClassDeclarationWithName | undefined = findClassInAST(ast, className);
   if (classAST === undefined) {
     throw new Error(`class ${className} not found`);
   }
 
-  const members: AST_ClassMembers = organizeClassMembers(classAST);
+  const members: AST_ClassMembers = await organizeClassMembers(classAST);
   const method = members.MethodDefinitions.get(methodName);
   if (!method)
     throw new Error(`class ${className} has no method ${methodName}`);

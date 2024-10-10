@@ -1,7 +1,7 @@
 import DependencyTracker from "#stage_utilities/source/collections/DependencyTracker.js";
 import {
   Deferred
-} from "#stage_utilities/source/PromiseTypes.mjs";
+} from "#stage_utilities/source/PromiseTypes.js";
 
 import {
   setImmediate as setImmediatePromise

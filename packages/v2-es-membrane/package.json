@@ -32,6 +32,8 @@
     "@types/gulp": "^4.0.17",
     "@types/jasmine": "^5.1.4",
     "@types/node": "^18.19.34",
+    "@typescript-eslint/scope-manager": "^8.0.1",
+    "@typescript-eslint/typescript-estree": "^8.0.1",
     "gulp": "^5.0.0",
     "jasmine": "^5.1.0",
     "mixin-decorators": "^1.0.1",

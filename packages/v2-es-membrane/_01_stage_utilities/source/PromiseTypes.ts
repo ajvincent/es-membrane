@@ -86,7 +86,7 @@ export function PromiseAllSequence<E, V>(
  * @see Array.prototype.map
  */
 export function PromiseAllParallel<E, V>(
-  elementArray: E[],
+  elementArray: readonly E[],
   callback: (value: E) => Promise<V>
 ) : Promise<V[]>
 {

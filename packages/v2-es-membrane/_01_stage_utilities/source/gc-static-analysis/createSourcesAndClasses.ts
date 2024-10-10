@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import readDirsDeep from "#build-utilities/source/readDirsDeep.js";
+import { readDirsDeep } from "@ajvincent/build-utilities";
 
 import {
   type TSESTree,
@@ -11,11 +11,11 @@ import {
 
 import {
   projectDir
-} from "../AsyncSpecModules.mjs";
+} from "../AsyncSpecModules.js";
 
 import {
   PromiseAllParallel,
-} from "../PromiseTypes.mjs";
+} from "../PromiseTypes.js";
 
 import {
   DefaultMap

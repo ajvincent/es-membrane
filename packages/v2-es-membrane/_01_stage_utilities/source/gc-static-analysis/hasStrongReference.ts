@@ -7,7 +7,7 @@ import {
 
 import {
   Deferred,
-} from "../PromiseTypes.mjs";
+} from "../PromiseTypes.js";
 
 import getDefinedClassAST from "./ast-tools/getDefinedClassAST.js";
 
