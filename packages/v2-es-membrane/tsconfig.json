@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "module": "NodeNext",
+    "target": "ES2022",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "sourceMap": true,
+    "declaration": false,
+
+    "baseUrl": ".",
+    "paths": {
+      "#stage_utilities/*": ["_01_stage_utilities/*"],
+      "#code_generation/*": ["_02_code_generation/*"],
+      "#objectgraph_handlers/*": ["_03_objectgraph_handlers/*"],
+      "#mirror_membranes/*": ["_04_mirror_membranes/*"],
+      "#gulp-utilities/*": ["./gulp-utilities/*"]
+    }
+  },
+
+  "extends": "@tsconfig/node20/tsconfig.json",
+  "references": [
+  ]
+}

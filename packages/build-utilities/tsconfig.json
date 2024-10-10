@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "module": "NodeNext",
+    "target": "ES2022",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "sourceMap": false,
+    "declaration": true,
+
+    "baseUrl": ".",
+    "outDir": "dist",
+  },
+
+  "include": [
+    "exports",
+    "source",
+    "spec"
+  ],
+
+  "extends": "@tsconfig/node20/tsconfig.json",
+}

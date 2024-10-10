@@ -1,0 +1,51 @@
+{
+  "name": "es-membrane",
+  "type": "module",
+  "version": "0.11.0",
+  "description": "An ECMAScript implementation of a Membrane, allowing users to dynamically hide, override, or extend objects in JavaScript with controlled effects on the original objects.",
+  "//": {
+    "debug": "Debugging this code requires Node 18.  Node 20 will fail to start running your code when using --inspect-brk and --import."
+  },
+  "engines": {
+    "node": ">=18.19"
+  },
+  "scripts": {
+    "build": "npm run clean && npm run tsc-buildsystem && node --expose-gc ../../node_modules/gulp/bin/gulp.js",
+    "debug": "npm run clean && npm run tsc-buildsystem && node --inspect-brk --expose-gc ../../node_modules/gulp/bin/gulp.js",
+    "tasks": "npm run clean && npm run tsc-buildsystem && gulp --tasks",
+    "clean": "node ./gulp-utilities/cleanTSC_output.js",
+    "tsc-buildsystem": "tsc --project ./tsconfig-gulp.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajvincent/es-membrane.git"
+  },
+  "author": "Alexander J. Vincent <ajvincent@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ajvincent/es-membrane/issues"
+  },
+  "homepage": "https://github.com/ajvincent/es-membrane#readme",
+  "devDependencies": {
+    "@ajvincent/build-utilities": "file:../build-utilities",
+    "@tsconfig/node20": "^20.1.4",
+    "@types/gulp": "^4.0.17",
+    "@types/jasmine": "^5.1.4",
+    "@types/node": "^18.19.34",
+    "gulp": "^5.0.0",
+    "jasmine": "^5.1.0",
+    "mixin-decorators": "^1.0.1",
+    "ts-morph": "^23.0.0",
+    "ts-morph-structures": "^1.1.2",
+    "tslib": "^2.6.3",
+    "type-fest": "^4.20.1",
+    "typescript": "^5.5.2"
+  },
+  "imports": {
+    "#stage_utilities/*": "./_01_stage_utilities/*",
+    "#code_generation/*": "./_02_code_generation/*",
+    "#objectgraph_handlers/*": "./_03_objectgraph_handlers/*",
+    "#mirror_membranes/*": "./_04_mirror_membranes/*",
+    "#gulp-utilities/*": "./gulp-utilities/*"
+  }
+}

@@ -1,52 +1,10 @@
 {
-  "name": "es-membrane",
-  "type": "module",
-  "version": "0.11.0",
-  "description": "An ECMAScript implementation of a Membrane, allowing users to dynamically hide, override, or extend objects in JavaScript with controlled effects on the original objects.",
-  "//": {
-    "debug": "Debugging this code requires Node 18.  Node 20 will fail to start running your code when using --inspect-brk and --import."
-  },
-  "engines": {
-    "node": ">=18.19"
-  },
-  "scripts": {
-    "build": "node --expose-gc --import ./register-hooks.js ./build.ts",
-    "debug": "node --inspect-brk --expose-gc --import ./register-hooks.js ./build.ts",
-    "build-tsimp": "node --expose-gc --import=tsimp/import --import ./build-utilities/loader-hooks/subpath/registration.js ./build.ts",
-    "tsimp-clean": "tsimp --clear"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ajvincent/es-membrane.git"
-  },
+  "name": "es-membrane-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Monorepo for es-membrane packages.",
   "author": "Alexander J. Vincent <ajvincent@gmail.com>",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ajvincent/es-membrane/issues"
-  },
-  "homepage": "https://github.com/ajvincent/es-membrane#readme",
-  "devDependencies": {
-    "@tsconfig/node20": "^20.1.4",
-    "@types/jasmine": "^5.1.4",
-    "@types/node": "^18.19.34",
-    "@typescript-eslint/scope-manager": "^8.0.1",
-    "@typescript-eslint/typescript-estree": "^8.0.1",
-    "jasmine": "^5.1.0",
-    "mixin-decorators": "^1.0.1",
-    "prettier": "^3.3.3",
-    "ts-morph": "^23.0.0",
-    "ts-morph-structures": "^1.1.2",
-    "ts-node": "^10.9.2",
-    "tsimp": "^2.0.11",
-    "tslib": "^2.6.3",
-    "type-fest": "^4.20.1",
-    "typescript": "^5.5.2"
-  },
-  "imports": {
-    "#stage_utilities/*": "./_01_stage_utilities/*",
-    "#code_generation/*": "./_02_code_generation/*",
-    "#objectgraph_handlers/*": "./_03_objectgraph_handlers/*",
-    "#mirror_membranes/*": "./_04_mirror_membranes/*",
-    "#build-utilities/*": "./build-utilities/*"
-  }
+  "workspaces": [
+    "./packages/*"
+  ]
 }
