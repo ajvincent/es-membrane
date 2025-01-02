@@ -35,11 +35,11 @@
     "gulp": "^5.0.0",
     "jasmine": "^5.5.0",
     "mixin-decorators": "^1.0.1",
-    "ts-morph": "^24.0.0",
-    "ts-morph-structures": "^1.2.0",
-    "tslib": "^2.6.3",
-    "type-fest": "^4.20.1",
-    "typescript": "^5.6.3"
+    "ts-morph": "^25.0.0",
+    "ts-morph-structures": "^1.2.1",
+    "tslib": "^2.8.1",
+    "type-fest": "^4.31.0",
+    "typescript": "^5.7.2"
   },
   "imports": {
     "#stage_utilities/*": "./_01_stage_utilities/*",
