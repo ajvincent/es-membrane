@@ -19,6 +19,5 @@ jobs:
         with:
           node-version: '20.x'
       - run: npm ci
-      - run: npm run clean
-      - run: npm run tsc-buildsystem
+      - run: npm run build-stage-one
       - run: npm run is-repo-clean
