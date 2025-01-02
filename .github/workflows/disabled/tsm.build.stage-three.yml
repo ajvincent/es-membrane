@@ -7,6 +7,7 @@ on:
       - 'projects/ts-morph-structures/stage_2_snapshot/snapshot/**'
       - 'projects/ts-morph-structures/stage_3_**'
       - 'projects/ts-morph-structures/utilities/**'
+      - 'projects/ts-morph-structures/gulp-utilities/**'
 jobs:
   build-stage-three:
     runs-on: ubuntu-latest
