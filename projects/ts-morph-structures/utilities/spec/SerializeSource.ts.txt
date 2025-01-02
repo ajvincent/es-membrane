@@ -1,0 +1,33 @@
+import fs from "fs/promises";
+import { tmpdir } from "os";
+import path from "path";
+
+import {
+  StructureKind,
+  type SourceFileStructure
+} from "ts-morph";
+
+import SerializeSource from "#utilities/source/SerializeSource.js";
+
+describe("SerializeSource works", () => {
+  let targetDir: string;
+  beforeAll(async () => targetDir = await fs.mkdtemp(path.join(tmpdir(), "tsm-structures")));
+  afterAll(async () => fs.rm(targetDir, { recursive: true }));
+
+  it("with a simple structure", async () => {
+    const structure: SourceFileStructure = {
+      kind: StructureKind.SourceFile,
+      statements: [
+        "const foo = 3;",
+        "export default foo;",
+      ],
+    };
+
+    const fooPath = path.join(targetDir, "foo.ts");
+    const source = await SerializeSource(
+      fooPath, structure
+    );
+    expect(source).toEqual("const foo = 3;\nexport default foo;\n");
+    await expectAsync(fs.stat(fooPath)).toBeRejected();
+  });
+});

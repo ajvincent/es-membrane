@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "module": "es2022",
+    "target": "esnext",
+    "moduleResolution": "node",
+
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "../typings-snapshot/source",
+    "newLine": "lf"
+  },
+
+  "extends": "@tsconfig/node18/tsconfig.json"
+}

@@ -1,0 +1,10 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "inlineSourceMap": true,
+  },
+  "files": [
+    "SerializeSource.ts"
+  ]
+}

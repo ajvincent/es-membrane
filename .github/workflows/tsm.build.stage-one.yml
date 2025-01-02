@@ -1,0 +1,24 @@
+name: build-stage-one
+on:
+  push:
+    paths:
+      - 'projects/ts-morph-structures/*'
+      - '.github/workflows/**'
+      - 'projects/ts-morph-structures/stage_0_references/**'
+      - 'projects/ts-morph-structures/stage_1_snapshot/**'
+      - 'projects/ts-morph-structures/utilities/**'
+jobs:
+  build-stage-one:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: './projects/ts-morph-structures'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - run: npm ci
+      - run: npm run build-stage-one
+        timeout-minutes: 5
+      - run: npm run is-repo-clean
