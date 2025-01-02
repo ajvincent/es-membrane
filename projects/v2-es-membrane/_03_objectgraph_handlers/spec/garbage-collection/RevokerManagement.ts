@@ -10,7 +10,7 @@ describe("RevokerManagement class holds references", () => {
 
   it("to proxies weakly when no one holds the revoker", async () => {
       await expectAsync(holdsArgument(
-        5, 5, proxy => { manager.addRevoker(proxy, (): void => {}, "blue")})
+        5, 5, proxy => { manager.addRevoker(proxy, (): void => { void(null); }, "blue")})
       ).toBeResolvedTo(false);
     });
 
