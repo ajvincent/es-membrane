@@ -15,7 +15,7 @@
   "author": "Alexander J. Vincent <ajvincent@gmail.com>",
   "license": "ISC",
   "devDependencies": {
-    "jasmine": "^5.3.0",
-    "prettier": "^3.3.3"
+    "jasmine": "^5.5.0",
+    "prettier": "^3.4.2"
   }
 }
