@@ -99,7 +99,6 @@ export async function InvokeTSC_main(): Promise<void> {
   }
 
   return InvokeTSC(path.join(path.relative(process.cwd(), projectRoot), "tsconfig.json"), [
-    "./Gulpfile.ts",
     "./pre-build/**",
     "./generated/**",
     ...filesToExclude,
@@ -120,7 +119,6 @@ export async function InvokeTSC_prebuild(): Promise<void> {
 
   await process.chdir(buildDir);
   await InvokeTSC("../../tsconfig.json", [
-    "./Gulpfile.ts",
   ]);
   await process.chdir(curDir);
 }
