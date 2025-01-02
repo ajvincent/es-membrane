@@ -19,7 +19,6 @@ jobs:
         with:
           node-version: '20.x'
       - run: npm ci
-      - run: echo $PWD
-      - run: npm run build-stage-one
-        timeout-minutes: 5
+      - run: npm run clean
+      - run: npm run tsc-buildsystem
       - run: npm run is-repo-clean
