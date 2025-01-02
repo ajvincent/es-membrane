@@ -19,8 +19,8 @@ stage_*/**/tsconfig.json
 utilities/**/*.js
 utilities/**/*.js.map
 utilities/**/*.d.ts
-!utilities_*/**/types/*.d.ts
-!utilities_*/**/types/**/*.d.ts
+!utilities/**/_types/*.d.ts
+!utilities/**/_types/**/*.d.ts
 utilities/tsconfig.json
 
 use-cases/**/*.js
