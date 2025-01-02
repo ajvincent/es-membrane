@@ -33,16 +33,3 @@ use-cases/tsconfig.json
 gulp-utilities/**/*.js
 gulp-utilities/**/*.js.map
 gulp-utilities/**/*.d.ts
-!gulp-utilities/cleanTSC_output.js
-!gulp-utilities/assertRepoIsClean.js
-
-stage_2_generation/dist
-stage_2_integration/snapshot
-stage_2_integration/typings-snapshot
-stage_2_snapshot/snapshot/dist
-stage_2_snapshot/snapshot/docs
-stage_2_snapshot/snapshot/coverage
-stage_3_generation/dist
-stage_3_integration/snapshot
-stage_3_integration/typings-snapshot
-stage_3_snapshot/snapshot
