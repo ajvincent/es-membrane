@@ -3,7 +3,7 @@ on:
   push:
     paths:
       - 'projects/ts-morph-structures/*'
-      - '.github/workflows/**'
+      - '.github/workflows/tsm.build.*'
       - 'projects/ts-morph-structures/stage_1_snapshot/prototype-snapshot/**'
       - 'projects/ts-morph-structures/stage_2_**'
       - 'projects/ts-morph-structures/utilities/**'
