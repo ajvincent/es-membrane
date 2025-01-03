@@ -31,7 +31,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ajvincent/ts-morph-structures.git"
+    "url": "git+https://github.com/ajvincent/es-membrane.git"
   },
   "keywords": [
     "ts-morph",
@@ -40,9 +40,9 @@
   "author": "Alexander J. Vincent <ajvincent@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ajvincent/ts-morph-structures/issues"
+    "url": "https://github.com/ajvincent/es-membrane/issues"
   },
-  "homepage": "https://github.com/ajvincent/ts-morph-structures#readme",
+  "homepage": "https://github.com/ajvincent/es-membrane/tree/landing-ts-morph-structures/projects/ts-morph-structures#readme",
   "devDependencies": {
     "@ajvincent/build-utilities": "file:../build-utilities",
     "@eslint/js": "^9.17.0",
