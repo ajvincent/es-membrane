@@ -25,7 +25,7 @@
     "debug-stage-one": "npm run clean && npm run tsc-buildsystem && node --inspect-brk ../../node_modules/gulp/bin/gulp.js stage_one",
     "debug-stage-two": "npm run clean && npm run tsc-buildsystem && node --inspect-brk ../../node_modules/gulp/bin/gulp.js stage_two",
     "debug-stage-three": "npm run clean && npm run tsc-buildsystem && node --inspect-brk ../../node_modules/gulp/bin/gulp.js stage_three",
-    "debug-use-cases": "npm run clean && npm run tsc-buildsystem && node --inspect-brk ../../node_modules/gulp/bin/gulp.js use-cases",
+    "debug-use-cases": "npm run clean && npm run tsc-buildsystem && node --inspect-brk ../../node_modules/gulp/bin/gulp.js use_cases",
     "is-repo-clean": "npm run clean && npm run tsc-buildsystem && node ./gulp-utilities/assertRepoIsClean.js",
     "diff-stages": "diff -p -U 8 -N -r ./stage_2_snapshot/snapshot/source ./stage_3_integration/snapshot/source"
   },
