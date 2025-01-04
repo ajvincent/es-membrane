@@ -29,6 +29,6 @@ export async function cleanTSC_Output(projectRoot, topDirs) {
         tsFile.replace(/\.ts$/, ".js"),
         tsFile.replace(/\.ts$/, ".d.ts"),
         tsFile.replace(/\.ts$/, ".js.map")
-    ]).flat().sort();
+    ]).flat();
     await Promise.all(allCompiledFiles.map(cf => fs.rm(cf, { force: true })));
 }

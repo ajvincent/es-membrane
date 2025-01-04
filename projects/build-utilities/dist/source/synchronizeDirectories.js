@@ -13,7 +13,7 @@ export async function synchronizeDirectories(sourceTopDir, destinationTopDir) {
     const now = new Date();
     const results = [];
     results.push(await createRequiredDirectories(sourceDirSet, destDirSet, destinationTopDir));
-    results.push(await copyRequiredFiles(sourceFilesSet, destFilesSet, sourceTopDir, destinationTopDir, now));
+    results.push(await copyRequiredFiles(sourceFilesSet, destFilesSet, sourceTopDir, destinationTopDir));
     results.push(await removeUnusedFiles(sourceFilesSet, destFilesSet, destinationTopDir));
     results.push(await removeUnusedDirectories(sourceDirSet, destDirSet, destinationTopDir, now));
     return results.some(Boolean);
@@ -30,7 +30,7 @@ async function createRequiredDirectories(sourceDirSet, destDirSet, destinationTo
     await PromiseAllSequence(dirsToCreate, dir => fs.mkdir(dir));
     return true;
 }
-async function copyRequiredFiles(sourceFilesSet, destFileSet, sourceTopDir, destinationTopDir, now) {
+async function copyRequiredFiles(sourceFilesSet, destFileSet, sourceTopDir, destinationTopDir) {
     const fileTuples = [];
     for (const relativeFile of sourceFilesSet) {
         fileTuples.push([
@@ -38,7 +38,7 @@ async function copyRequiredFiles(sourceFilesSet, destFileSet, sourceTopDir, dest
             path.normalize(path.join(destinationTopDir, relativeFile)),
         ]);
     }
-    const results = await PromiseAllParallel(fileTuples, ([sourceFile, destFile]) => overwriteFileIfDifferent(false, sourceFile, destFile, now));
+    const results = await PromiseAllParallel(fileTuples, ([sourceFile, destFile]) => overwriteFileIfDifferent(false, sourceFile, destFile));
     return results.some(Boolean);
 }
 async function removeUnusedFiles(sourceFilesSet, destFilesSet, destinationTopDir) {

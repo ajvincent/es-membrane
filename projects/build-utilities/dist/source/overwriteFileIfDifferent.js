@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-export async function overwriteFileIfDifferent(isContents, sourceOrContents, destination, mtime) {
+export async function overwriteFileIfDifferent(isContents, sourceOrContents, destination) {
     let sourceModified;
     if (isContents === false) {
         sourceModified = (await fs.stat(sourceOrContents)).mtime;

@@ -7,86 +7,10 @@ import {
 } from "node:url";
 
 import {
-  fork
-} from "node:child_process";
+  InvokeTSC,
+} from "@ajvincent/build-utilities";
 
 const projectRoot: string = path.normalize(path.join(fileURLToPath(import.meta.url), "../.."));
-
-const monorepoRoot: string = path.dirname(path.dirname(projectRoot));
-
-//#region remove me
-async function overwriteFileIfDifferent(
-  isContents: boolean,
-  sourceOrContents: string,
-  destination: string,
-): Promise<boolean>
-{
-  if (isContents === false) {
-    sourceOrContents = await fs.readFile(sourceOrContents, { encoding: "utf-8" });
-  }
-
-  let destStats: Awaited<ReturnType<typeof fs.stat>>;
-  let destContents: string | undefined, destFileFound = true;
-  try {
-    destStats = await fs.stat(destination);
-    destContents = await fs.readFile(destination, { encoding: "utf-8" });
-  }
-  catch (ex) {
-    void(ex);
-    destFileFound = false;
-  }
-
-  const contentsMatch = sourceOrContents === destContents;
-  if (destFileFound && contentsMatch) {
-    await fs.utimes(destination, destStats!.atime, destStats!.mtime)
-    return false;
-  }
-
-  await fs.writeFile(destination, sourceOrContents, { encoding: "utf-8" });
-  return true;
-}
-
-const TSC = path.resolve(monorepoRoot, "node_modules/typescript/bin/tsc");
-
-async function InvokeTSC(
-  pathToBaseTSConfig: string,
-  excludesGlobs: string[],
-): Promise<void>
-{
-  const configContents = {
-    extends: pathToBaseTSConfig,
-    exclude: excludesGlobs,
-  }
-  if (excludesGlobs.length === 0) {
-    Reflect.deleteProperty(excludesGlobs, "excludes");
-  }
-
-  await overwriteFileIfDifferent(
-    true,
-    JSON.stringify(configContents, null, 2) + "\n",
-    path.join(process.cwd(), "tsconfig.json"),
-  );
-
-  const child = fork(TSC, [], {
-    cwd: process.cwd(),
-    stdio: ["ignore", "inherit", "inherit", "ipc"]
-  });
-
-  const p = new Promise<number | null>((resolve, reject) => {
-    child.on("exit", (code) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      code ? reject(code) : resolve(code);
-    });
-  });
-  try {
-    await p;
-  }
-  catch (code) {
-    throw new Error(`Failed on "${TSC}" with code ${code}`);
-  }
-}
-
-//#endregion remove me
 
 export async function InvokeTSC_excludeDirs(): Promise<void> {
   const filesToExclude: string[] = [];

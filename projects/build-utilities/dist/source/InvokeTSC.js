@@ -12,7 +12,7 @@ export async function InvokeTSC(pathToBaseTSConfig, excludesGlobs) {
     if (excludesGlobs.length === 0) {
         Reflect.deleteProperty(excludesGlobs, "excludes");
     }
-    await overwriteFileIfDifferent(true, JSON.stringify(configContents, null, 2) + "\n", path.join(process.cwd(), "tsconfig.json"), new Date());
+    await overwriteFileIfDifferent(true, JSON.stringify(configContents, null, 2) + "\n", path.join(process.cwd(), "tsconfig.json"));
     const child = fork(TSC, [], {
         cwd: process.cwd(),
         stdio: ["ignore", "inherit", "inherit", "ipc"]

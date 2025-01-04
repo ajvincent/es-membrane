@@ -31,7 +31,6 @@ export async function InvokeTSC(
     true,
     JSON.stringify(configContents, null, 2) + "\n",
     path.join(process.cwd(), "tsconfig.json"),
-    new Date()
   );
 
   const child = fork(TSC, [], {
