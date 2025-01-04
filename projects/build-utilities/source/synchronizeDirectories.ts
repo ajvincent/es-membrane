@@ -47,7 +47,7 @@ export async function synchronizeDirectories(
 
   const results: boolean[] = [];
   results.push(await createRequiredDirectories(sourceDirSet, destDirSet, destinationTopDir));
-  results.push(await copyRequiredFiles(sourceFilesSet, destFilesSet, sourceTopDir, destinationTopDir, now));
+  results.push(await copyRequiredFiles(sourceFilesSet, destFilesSet, sourceTopDir, destinationTopDir));
   results.push(await removeUnusedFiles(sourceFilesSet, destFilesSet, destinationTopDir));
   results.push(await removeUnusedDirectories(sourceDirSet, destDirSet, destinationTopDir, now));
 
@@ -79,7 +79,6 @@ async function copyRequiredFiles(
   destFileSet: ReadonlySet<string>,
   sourceTopDir: string,
   destinationTopDir: string,
-  now: Date,
 ): Promise<boolean>
 {
   const fileTuples: [string, string][] = [];
@@ -92,7 +91,7 @@ async function copyRequiredFiles(
   }
 
   const results: readonly boolean[] = await PromiseAllParallel<[string, string], boolean>(fileTuples,
-    ([sourceFile, destFile]) => overwriteFileIfDifferent(false, sourceFile, destFile, now)
+    ([sourceFile, destFile]) => overwriteFileIfDifferent(false, sourceFile, destFile)
   );
   return results.some(Boolean);
 }

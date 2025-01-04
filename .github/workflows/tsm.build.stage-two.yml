@@ -1,0 +1,27 @@
+name: build-stage-two
+on:
+  push:
+    paths:
+      - '.github/workflows/tsm.build.*'
+      - 'projects/build-utilities/**'
+      - 'projects/ts-morph-structures/*'
+      - 'projects/ts-morph-structures/dist/**'
+      - 'projects/ts-morph-structures/gulp-utilities/**'
+      - 'projects/ts-morph-structures/stage_1_snapshot/prototype-snapshot/**'
+      - 'projects/ts-morph-structures/stage_2_**'
+      - 'projects/ts-morph-structures/utilities/**'
+jobs:
+  build-stage-two:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: './projects/ts-morph-structures'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - run: npm ci
+      - run: npm run build-stage-two
+        timeout-minutes: 5
+      - run: npm run is-repo-clean

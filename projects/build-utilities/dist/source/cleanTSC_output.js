@@ -1,16 +1,34 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 const TS_MODULE_EXT_RE = /(?<!\.d)\.ts$/;
-export async function cleanTSC_output(projectRoot, localDirs) {
-    const dirFilePromises = localDirs.map(async (localDir) => {
-        const descendants = await fs.readdir(path.join(projectRoot, localDir), { encoding: "utf-8", withFileTypes: true });
-        return descendants.filter(d => d.isFile() && TS_MODULE_EXT_RE.test(d.name)).map(d => path.join(projectRoot, localDir, d.name));
+function isTSFile(d) {
+    return d.isFile() && TS_MODULE_EXT_RE.test(d.name);
+}
+async function getDescendantFiles(projectRoot, topDir) {
+    const dirPath = path.join(projectRoot, topDir);
+    const descendants = await fs.readdir(dirPath, {
+        encoding: "utf-8",
+        withFileTypes: true,
+        recursive: true,
     });
-    const allTSFiles = (await Promise.all(dirFilePromises)).flat();
+    return descendants.filter(isTSFile).map(d => path.join(d.path, d.name));
+}
+async function getTopDirFiles(projectRoot) {
+    const topDirEntries = await fs.readdir(projectRoot, {
+        encoding: "utf-8",
+        withFileTypes: true,
+        recursive: false,
+    });
+    return Promise.resolve(topDirEntries.filter(isTSFile).map(dirEnt => path.join(projectRoot, dirEnt.name)));
+}
+export async function cleanTSC_Output(projectRoot, topDirs) {
+    const filePromises = topDirs.map(getDescendantFiles.bind(this, projectRoot));
+    filePromises.unshift(getTopDirFiles(projectRoot));
+    const allTSFiles = (await Promise.all(filePromises)).flat();
     const allCompiledFiles = allTSFiles.map(tsFile => [
         tsFile.replace(/\.ts$/, ".js"),
         tsFile.replace(/\.ts$/, ".d.ts"),
         tsFile.replace(/\.ts$/, ".js.map")
-    ]).flat().sort();
+    ]).flat();
     await Promise.all(allCompiledFiles.map(cf => fs.rm(cf, { force: true })));
 }

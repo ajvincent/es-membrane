@@ -1,0 +1,50 @@
+import fs from "fs/promises";
+import path from "path";
+
+import {
+  pathToModule,
+  projectDir
+} from "#utilities/source/AsyncSpecModules.js";
+
+import readDirsDeep from "#utilities/source/readDirsDeep.js";
+
+import {
+  PromiseAllParallel,
+  PromiseAllSequence
+} from "#utilities/source/PromiseTypes.js";
+
+import runPrettify from "#utilities/source/runPrettify.js";
+
+import {
+  stageDir,
+  snapshotDir,
+} from "./constants.js";
+
+const previousDist = pathToModule(stageDir, "../stage_3_generation/dist");
+
+// These are the hand-written files.  We don't need to recreate them.
+const previousSourceDir = path.join(projectDir, "stage_2_integration/source");
+
+export default async function copySnapshot(): Promise<void> {
+  await fs.rm(snapshotDir, { recursive: true, force: true });
+  await fs.mkdir(snapshotDir, { recursive: true });
+  await fs.cp(previousDist, snapshotDir, { recursive: true });
+
+  const { dirs, files } = await readDirsDeep(previousSourceDir);
+
+  const targetDir = path.join(snapshotDir, "source");
+  await PromiseAllSequence(dirs, async d => {
+    const targetSubDir = d.replace(previousSourceDir, targetDir);
+    await fs.mkdir(targetSubDir, { recursive: true });
+  });
+
+  await PromiseAllParallel(files, async f => {
+    let contents = await fs.readFile(f, { encoding: "utf-8" });
+    contents = contents.replace(/..\/..\/snapshot\/source\//g, "../");
+
+    const targetPath = f.replace(previousSourceDir, targetDir);
+    await fs.writeFile(targetPath, contents, { encoding: "utf-8" });
+  });
+
+  await runPrettify(targetDir);
+}

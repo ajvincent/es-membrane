@@ -55,8 +55,7 @@ describe("overwriteFileIfDifferent", () => {
         overwriteFileIfDifferent(
           false,
           path.join(tempSrc, "zero.ts"),
-          zeroDest,
-          CURRENT_DATE
+          zeroDest
         )
       ).toBeResolvedTo(false);
 
@@ -73,8 +72,7 @@ describe("overwriteFileIfDifferent", () => {
         overwriteFileIfDifferent(
           true,
           fileContents("one"),
-          oneDest,
-          CURRENT_DATE
+          oneDest
         )
       ).toBeResolvedTo(false);
 
@@ -93,8 +91,7 @@ describe("overwriteFileIfDifferent", () => {
         overwriteFileIfDifferent(
           false,
           path.join(tempSrc, "two.ts"),
-          twoDest,
-          CURRENT_DATE,
+          twoDest
         )
       ).toBeResolvedTo(true);
 
@@ -112,8 +109,7 @@ describe("overwriteFileIfDifferent", () => {
       overwriteFileIfDifferent(
         true,
         fileContents("three"),
-        threeDest,
-        CURRENT_DATE
+        threeDest
       )
     ).toBeResolvedTo(true);
 
@@ -130,8 +126,7 @@ describe("overwriteFileIfDifferent", () => {
       await expectAsync(overwriteFileIfDifferent(
           false,
           path.join(tempSrc, "four.ts"),
-          fourDest,
-          CURRENT_DATE
+          fourDest
         )
       ).toBeResolvedTo(true);
 
@@ -148,8 +143,7 @@ describe("overwriteFileIfDifferent", () => {
         overwriteFileIfDifferent(
           true,
           fileContents("five"),
-          fiveDest,
-          CURRENT_DATE
+          fiveDest
         )
       ).toBeResolvedTo(true);
 
@@ -162,8 +156,7 @@ describe("overwriteFileIfDifferent", () => {
       overwriteFileIfDifferent(
         false,
         path.join(tempSrc, "six.ts"),
-        path.join(tempDest, "six.ts"),
-        CURRENT_DATE
+        path.join(tempDest, "six.ts")
       )
     ).toBeRejected();
   });

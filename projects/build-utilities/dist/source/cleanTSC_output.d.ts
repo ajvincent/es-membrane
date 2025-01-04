@@ -1,1 +1,1 @@
-export declare function cleanTSC_output(projectRoot: string, localDirs: readonly string[]): Promise<void>;
+export declare function cleanTSC_Output(this: void, projectRoot: string, topDirs: readonly string[]): Promise<void>;

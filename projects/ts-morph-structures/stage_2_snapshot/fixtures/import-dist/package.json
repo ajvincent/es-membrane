@@ -1,0 +1,23 @@
+{
+  "name": "ts-morph-structures_import-test",
+  "version": "0.1.0",
+  "description": "Structure classes for ts-morph, including type structure classes.",
+  "type": "module",
+  "engines": {
+    "node": ">=18.19"
+  },
+  "scripts": {
+    "start": "node ./cmdLine.js"
+  },
+  "author": "Alexander J. Vincent <ajvincent@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "mixin-decorators": "^1.0.1",
+    "ts-morph": "^23.0.0",
+    "ts-morph-structures": "__TSM_STRUCTURES__",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.6.3",
+    "type-fest": "^4.20.1",
+    "typescript": "^5.5.2"
+  }
+}
