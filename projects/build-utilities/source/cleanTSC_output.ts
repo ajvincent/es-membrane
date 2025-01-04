@@ -1,31 +1,66 @@
 import fs from "node:fs/promises";
+import type { Dirent } from "node:fs";
 import path from "node:path";
 
 const TS_MODULE_EXT_RE = /(?<!\.d)\.ts$/;
 
-export async function cleanTSC_output(
+function isTSFile(
+  this: void,
+  d: Dirent
+): boolean
+{
+  return d.isFile() && TS_MODULE_EXT_RE.test(d.name);
+}
+
+async function getDescendantFiles(
+  this: void,
   projectRoot: string,
-  localDirs: readonly string[],
+  topDir: string
+): Promise<string[]>
+{
+  const dirPath = path.join(projectRoot, topDir);
+  const descendants = await fs.readdir(dirPath, {
+    encoding: "utf-8",
+    withFileTypes: true,
+    recursive: true,
+  });
+  return descendants.filter(isTSFile).map(d => path.join(d.path, d.name));
+}
+
+async function getTopDirFiles(
+  this: void,
+  projectRoot: string
+): Promise<string[]>
+{
+  const topDirEntries = await fs.readdir(
+    projectRoot,
+    {
+      encoding: "utf-8",
+      withFileTypes: true,
+      recursive: false,
+    }
+  );
+
+  return Promise.resolve(
+    topDirEntries.filter(isTSFile).map(dirEnt => path.join(projectRoot, dirEnt.name))
+  );
+}
+
+export async function cleanTSC_Output(
+  this: void,
+  projectRoot: string,
+  topDirs: readonly string[],
 ): Promise<void>
 {
-  const dirFilePromises: readonly Promise<string[]>[] = localDirs.map(async localDir => {
-    const descendants = await fs.readdir(
-      path.join(projectRoot, localDir),
-      { encoding: "utf-8", withFileTypes: true }
-    );
-    return descendants.filter(
-      d => d.isFile() && TS_MODULE_EXT_RE.test(d.name)
-    ).map(
-      d => path.join(projectRoot, localDir, d.name)
-    );
-  });
+  const filePromises: Promise<string[]>[] = topDirs.map(getDescendantFiles.bind(this, projectRoot));
+  filePromises.unshift(getTopDirFiles(projectRoot));
 
-  const allTSFiles: readonly string[] = (await Promise.all(dirFilePromises)).flat();
-  const allCompiledFiles: readonly string[] = allTSFiles.map(tsFile => [
+  const allTSFiles: string[] = (await Promise.all(filePromises)).flat();
+  const allCompiledFiles: string[] = allTSFiles.map(tsFile => [
     tsFile.replace(/\.ts$/, ".js"),
     tsFile.replace(/\.ts$/, ".d.ts"),
     tsFile.replace(/\.ts$/, ".js.map")
-  ]).flat().sort();
+  ]).flat();
 
   await Promise.all(allCompiledFiles.map(cf => fs.rm(cf, { force: true })));
 }
