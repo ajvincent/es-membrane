@@ -42,7 +42,7 @@
   "bugs": {
     "url": "https://github.com/ajvincent/es-membrane/issues"
   },
-  "homepage": "https://github.com/ajvincent/es-membrane/tree/landing-ts-morph-structures/projects/ts-morph-structures#readme",
+  "homepage": "https://github.com/ajvincent/es-membrane/tree/master/projects/ts-morph-structures#readme",
   "devDependencies": {
     "@ajvincent/build-utilities": "file:../build-utilities",
     "@eslint/js": "^9.17.0",
