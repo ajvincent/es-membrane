@@ -28,7 +28,7 @@ dirs.sort();
 async function buildDirectory(
   this: void,
   dir: string
-): Promise<ReturnType<typeof series>>
+): Promise<ReturnType<typeof series>[]>
 {
   const descendantDirs: string[] = [dir];
   try {
@@ -41,8 +41,8 @@ async function buildDirectory(
     // do nothing
   }
 
-  return series(descendantDirs.map(d => recursiveGulp(projectRoot, d)));
+  return descendantDirs.map(d => recursiveGulp(projectRoot, d));
 }
 
-const tasks: ReturnType<typeof series>[] = await Promise.all(dirs.map(buildDirectory));
+const tasks: ReturnType<typeof series>[] = (await Promise.all(dirs.map(buildDirectory))).flat();
 export default series(tasks);
