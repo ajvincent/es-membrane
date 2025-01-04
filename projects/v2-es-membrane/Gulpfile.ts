@@ -1,14 +1,16 @@
-import fs from "fs/promises";
-import path from "path";
+import fs from "node:fs/promises";
+import path from "node:path";
 import {
   fileURLToPath,
-} from "url"
+} from "node:url";
 
 import {
   series
 } from "gulp";
-import { InvokeTSC_main, InvokeTSC_prebuild } from "#gulp-utilities/InvokeTSC.js";
-import { PushAndPopDirSeries } from "@ajvincent/build-utilities";
+
+import {
+  recursiveGulp,
+} from "@ajvincent/build-utilities";
 
 const projectRoot = path.normalize(path.dirname(
   fileURLToPath(import.meta.url)
@@ -23,49 +25,24 @@ const dirs = dirEntries.filter(dirEnt => dirEnt.isDirectory())
   .filter(dirName => /^\_\d+\_/.test(dirName));
 dirs.sort();
 
-type VoidCallbackArray = (() => Promise<void>)[];
-
-async function childGulpfile(
-  localPathToDir: string
+async function buildDirectory(
+  this: void,
+  dir: string
 ): Promise<ReturnType<typeof series>>
 {
-  const callbacks: VoidCallbackArray = [];
-  const fullPathToDir = path.join(projectRoot, localPathToDir);
-
-  const prebuildGulp = path.join(fullPathToDir, "pre-build", "Gulpfile.js");
+  const descendantDirs: string[] = [dir];
   try {
-    if (await fs.stat(prebuildGulp)) {
-      let prebuildCallbacks = (await import(prebuildGulp)).default as VoidCallbackArray;
-      if (prebuildCallbacks.length > 0)
-      callbacks.push(InvokeTSC_prebuild, ...prebuildCallbacks);
+    const prebuildStat = await fs.stat(path.join(projectRoot, dir, "pre-build"));
+    if (prebuildStat?.isDirectory()) {
+      descendantDirs.unshift(dir + "/pre-build");
     }
   }
-  catch (ex) {
-    // do nothing, this is normal
+  catch {
+    // do nothing
   }
 
-  let importCallbacks = (await import(path.join(fullPathToDir, "Gulpfile.js"))).default as VoidCallbackArray;
-  if (importCallbacks.length > 0) {
-    callbacks.push(
-      InvokeTSC_main,
-      ...importCallbacks
-    );
-  }
-
-  if (callbacks.length === 0) {
-    let stageDir = () => Promise.resolve();
-    Reflect.set(stageDir, "displayName", localPathToDir);
-    return stageDir;
-  }
-
-  return PushAndPopDirSeries(localPathToDir, callbacks);
+  return series(descendantDirs.map(d => recursiveGulp(projectRoot, d)));
 }
 
-const tasks: ReturnType<typeof series>[] = [];
-
-for (const d of dirs) {
-  tasks.push(await childGulpfile(d));
-}
-
-const dependencies = series(tasks);
-export default dependencies;
+const tasks: ReturnType<typeof series>[] = await Promise.all(dirs.map(buildDirectory));
+export default series(tasks);

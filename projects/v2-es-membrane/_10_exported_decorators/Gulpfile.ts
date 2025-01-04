@@ -1,8 +1,3 @@
-import type {
-  TaskFunction,
-} from "gulp";
-
-const Tasks: readonly TaskFunction[] = [
-];
-
-export default Tasks;
+export default async function noTasksDefined(): Promise<void> {
+  // do nothing
+}

@@ -3,7 +3,7 @@ import path from "node:path";
 
 import {
   parallel,
-  type TaskFunction,
+  series,
 } from "gulp";
 
 import type {
@@ -63,7 +63,7 @@ async function copyAndPrettifyGenerated(): Promise<void> {
   await fs.cp(generatedDirs.prettified, generatedDirs.final, { recursive: true });
 }
 
-const Tasks: readonly TaskFunction[] = [
+export default series([
   removeGeneratedFiles,
   createGeneratedDirs,
   parallel([
@@ -77,6 +77,4 @@ const Tasks: readonly TaskFunction[] = [
     define_RevokedInFlight_Decorator,
   ]),
   copyAndPrettifyGenerated,
-];
-
-export default Tasks;
+]);
