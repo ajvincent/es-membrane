@@ -12,7 +12,7 @@ const projectDir = path.normalize(path.join(fileURLToPath(import.meta.url), "../
 
 const git = await which("git");
 
-export default async function assertRepoIsClean(): Promise<void> {
+export async function assertRepoIsClean(): Promise<void> {
   const child = await execAsync(
     git,
     ["status", "-s"],
