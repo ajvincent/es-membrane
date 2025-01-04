@@ -2,13 +2,14 @@ name: build-stage-two
 on:
   push:
     paths:
-      - 'projects/ts-morph-structures/*'
       - '.github/workflows/tsm.build.*'
+      - 'projects/build-utilities/**'
+      - 'projects/ts-morph-structures/*'
+      - 'projects/ts-morph-structures/dist/**'
+      - 'projects/ts-morph-structures/gulp-utilities/**'
       - 'projects/ts-morph-structures/stage_1_snapshot/prototype-snapshot/**'
       - 'projects/ts-morph-structures/stage_2_**'
       - 'projects/ts-morph-structures/utilities/**'
-      - 'projects/ts-morph-structures/dist/**'
-      - 'projects/ts-morph-structures/gulp-utilities/**'
 jobs:
   build-stage-two:
     runs-on: ubuntu-latest

@@ -2,8 +2,9 @@ name: build-use-cases
 on:
   push:
     paths:
-      - 'projects/ts-morph-structures/*'
       - '.github/workflows/tsm.build.*'
+      - 'projects/build-utilities/**'
+      - 'projects/ts-morph-structures/*'
       - 'projects/ts-morph-structures/stage_2_snapshot/snapshot/source/**'
       - 'projects/ts-morph-structures/use-cases/**'
 jobs:

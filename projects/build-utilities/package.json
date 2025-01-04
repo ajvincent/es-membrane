@@ -17,5 +17,8 @@
   "devDependencies": {
     "jasmine": "^5.5.0",
     "prettier": "^3.4.2"
+  },
+  "dependencies": {
+    "which": "^5.0.0"
   }
 }

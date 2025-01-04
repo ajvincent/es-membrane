@@ -88,7 +88,7 @@ async function InvokeTSC(
 
 //#endregion remove me
 
-export async function InvokeTSC_main(): Promise<void> {
+export async function InvokeTSC_excludeDirs(): Promise<void> {
   const filesToExclude: string[] = [];
   try {
     const excludesJSON = await fs.readFile(path.join(process.cwd(), "tsc-excludes.json"), { encoding: "utf-8" });
@@ -98,27 +98,5 @@ export async function InvokeTSC_main(): Promise<void> {
     void(ex);
   }
 
-  return InvokeTSC(path.join(path.relative(process.cwd(), projectRoot), "tsconfig.json"), [
-    "./pre-build/**",
-    "./generated/**",
-    ...filesToExclude,
-  ]);
-}
-
-export async function InvokeTSC_prebuild(): Promise<void> {
-  const curDir: string = process.cwd();
-  const buildDir: string = path.join(curDir, "pre-build");
-  try {
-    const dirStat = await fs.stat(buildDir);
-    if (dirStat.isDirectory() === false)
-      return;
-  } catch (ex) {
-    void(ex);
-    return;
-  }
-
-  await process.chdir(buildDir);
-  await InvokeTSC("../../tsconfig.json", [
-  ]);
-  await process.chdir(curDir);
+  return InvokeTSC(path.join(path.relative(process.cwd(), projectRoot), "tsconfig.json"), filesToExclude);
 }

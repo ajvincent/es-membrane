@@ -24,7 +24,7 @@ const TS_MODULE_EXT_RE = /(?<!\.d)\.ts$/;
 
 const dirFilePromises = recursiveDirs.map(async recursiveDir => {
   const dirPath = path.join(projectRoot, recursiveDir);
-  const descendants = await fs.readdir(path.join(projectRoot, recursiveDir), { "encoding": "utf-8", "recursive": true });
+  const descendants = await fs.readdir(dirPath, { "encoding": "utf-8", "recursive": true });
   return descendants.map(d => path.join(projectRoot, recursiveDir, d));
 });
 dirFilePromises.unshift(
