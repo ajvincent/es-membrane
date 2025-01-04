@@ -1,7 +1,7 @@
 import path from "node:path";
 
-import type {
-  TaskFunction,
+import {
+  series,
 } from "gulp";
 
 import {
@@ -27,9 +27,8 @@ async function eslint(): Promise<void> {
   ]);
 }
 
-const Tasks: readonly TaskFunction[] = [
+export default series([
   build_test,
   build,
   eslint,
-];
-export default Tasks;
+]);

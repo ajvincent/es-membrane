@@ -1,3 +1,6 @@
+import {
+  fork
+} from "node:child_process";
 import path from "node:path";
 import {
   chdir,
@@ -19,35 +22,58 @@ const projectRoot: string = path.normalize(path.dirname(
   fileURLToPath(import.meta.url)
 ));
 
-type VoidCallbackArray = (() => Promise<void>)[];
+const monoRepoRoot: string = path.dirname(path.dirname(projectRoot));
+const pathToGulp: string = path.join(monoRepoRoot, "node_modules/gulp/bin/gulp.js");
 
-async function childGulpfile(
+async function runChildGulpfile(): Promise<void> {
+  const child = fork(pathToGulp, [], {
+    cwd: cwd(),
+    stdio: ["ignore", "inherit", "inherit", "ipc"]
+  });
+
+  const p = new Promise<void>((resolve, reject) => {
+    child.on("exit", (code) => {
+      if (code)
+        reject(code);
+      else
+        resolve();
+    });
+  });
+
+  try {
+    await p;
+  }
+  catch (code) {
+    throw new Error(`Failed on "${pathToGulp}" with code ${code}`);
+  }
+}
+
+async function invokeChildGulpFile(
   localPathToDir: string
 ): Promise<void>
 {
-  const fullPathToDir = path.join(projectRoot, localPathToDir);
+  //const Gulpfile_JS = path.join(projectRoot, localPathToDir, "Gulpfile.js");
+  let targetDir: string = "";
 
   let previousDir: string;
   function pushd(): Promise<void> {
+    console.log(`pushd(${localPathToDir})`);
     previousDir = cwd();
-    chdir(path.normalize(path.join(previousDir, localPathToDir)));
+    targetDir = path.normalize(path.join(previousDir, localPathToDir));
+    chdir(targetDir);
     return Promise.resolve();
   }
-  pushd.displayName = `pushd(${localPathToDir})`;
 
   function popd(): Promise<void> {
+    console.log(`popd(${localPathToDir})`);
     chdir(previousDir);
     return Promise.resolve();
   }
-  popd.displayName = `popd(${localPathToDir})`;
 
   await pushd();
   try {
     await InvokeTSC_excludeDirs(projectRoot);
-    const importCallbacks = (await import(path.join(fullPathToDir, "Gulpfile.js"))).default as VoidCallbackArray;
-    for (const callback of importCallbacks) {
-      await callback();
-    }
+    await runChildGulpfile();
   }
   finally {
     await popd();
@@ -58,7 +84,7 @@ function namedChildGulpFile(
   localPathToDir: string
 ): ReturnType<typeof series>
 {
-  const callback = () => childGulpfile(localPathToDir);
+  const callback = () => invokeChildGulpFile(localPathToDir);
   callback.displayName = localPathToDir;
   return callback;
 }

@@ -1,7 +1,7 @@
 import path from "node:path";
 
-import type {
-  TaskFunction
+import {
+  series
 } from "gulp";
 
 import {
@@ -26,11 +26,10 @@ async function eslint(): Promise<void> {
   ]);
 }
 
-const Tasks: readonly TaskFunction[] = [
+export default series([
   jasmine,
   eslint,
 
   // There's actually a spec which relies on the canary files existing.
   removeCanaries,
-];
-export default Tasks;
+]);

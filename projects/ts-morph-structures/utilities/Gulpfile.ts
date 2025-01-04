@@ -1,7 +1,7 @@
 import path from "node:path";
 
-import type {
-  TaskFunction,
+import {
+  series,
 } from "gulp";
 
 import runJasmine from "#utilities/source/runJasmine.js";
@@ -17,7 +17,6 @@ export const
     "**/*.ts",
   ]);
 
-const Tasks: readonly TaskFunction[] = [
+export default series([
   jasmine, eslint
-];
-export default Tasks;
+]);

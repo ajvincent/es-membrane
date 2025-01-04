@@ -1,7 +1,7 @@
 import path from "node:path";
 
-import type {
-  TaskFunction
+import {
+  series
 } from "gulp";
 
 import {
@@ -16,7 +16,7 @@ async function build_tests(): Promise<void> {
 }
 
 async function build(): Promise<void> {
-  const support = (await import("./build/support.js")).default;
+  const support: () => Promise<void> = (await import("./build/support.js")).default;
   await support();
 }
 
@@ -30,10 +30,8 @@ async function eslint(): Promise<void> {
   ]);
 }
 
-const Tasks: readonly TaskFunction[] = [
+export default series([
   build_tests,
   build,
   eslint,
-];
-export default Tasks;
-
+]);
