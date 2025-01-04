@@ -11,7 +11,9 @@ import {
   series
 } from "gulp";
 
-import { InvokeTSC_excludeDirs /*, InvokeTSC_prebuild */ } from "#gulp-utilities/InvokeTSC.js";
+import {
+  InvokeTSC_excludeDirs,
+} from "@ajvincent/build-utilities";
 
 const projectRoot: string = path.normalize(path.dirname(
   fileURLToPath(import.meta.url)
@@ -25,23 +27,23 @@ async function childGulpfile(
 {
   const fullPathToDir = path.join(projectRoot, localPathToDir);
 
-  let stackDir: string;
+  let previousDir: string;
   function pushd(): Promise<void> {
-    stackDir = cwd();
-    chdir(path.normalize(path.join(stackDir, localPathToDir)));
+    previousDir = cwd();
+    chdir(path.normalize(path.join(previousDir, localPathToDir)));
     return Promise.resolve();
   }
   pushd.displayName = `pushd(${localPathToDir})`;
 
   function popd(): Promise<void> {
-    chdir(stackDir);
+    chdir(previousDir);
     return Promise.resolve();
   }
   popd.displayName = `popd(${localPathToDir})`;
 
   await pushd();
   try {
-    await InvokeTSC_excludeDirs();
+    await InvokeTSC_excludeDirs(projectRoot);
     const importCallbacks = (await import(path.join(fullPathToDir, "Gulpfile.js"))).default as VoidCallbackArray;
     for (const callback of importCallbacks) {
       await callback();
