@@ -45,7 +45,9 @@ export const stage_three = buildStage([
   "stage_3_snapshot",
 ]);
 
-export const use_cases = recursiveGulp(projectRoot, "use-cases");
+export const use_cases = buildStage([
+  "use-cases"
+]);
 
 export default series([
   stage_one,

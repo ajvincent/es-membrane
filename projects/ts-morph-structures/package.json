@@ -21,7 +21,7 @@
     "build-stage-one": "npm run clean && npm run tsc-buildsystem && node --expose-gc ../../node_modules/gulp/bin/gulp.js stage_one",
     "build-stage-two": "npm run clean && npm run tsc-buildsystem && node --expose-gc ../../node_modules/gulp/bin/gulp.js stage_two",
     "build-stage-three": "npm run clean && npm run tsc-buildsystem && node --expose-gc ../../node_modules/gulp/bin/gulp.js stage_three",
-    "use-cases": "npm run clean && npm run tsc-buildsystem && node --expose-gc ../../node_modules/gulp/bin/gulp.js use-cases",
+    "use-cases": "npm run clean && npm run tsc-buildsystem && node --expose-gc ../../node_modules/gulp/bin/gulp.js use_cases",
     "debug-stage-one": "npm run clean && npm run tsc-buildsystem && node --inspect-brk --expose-gc ../../node_modules/gulp/bin/gulp.js stage_one",
     "debug-stage-two": "npm run clean && npm run tsc-buildsystem && node --inspect-brk --expose-gc ../../node_modules/gulp/bin/gulp.js stage_two",
     "debug-stage-three": "npm run clean && npm run tsc-buildsystem && node --inspect-brk --expose-gc ../../node_modules/gulp/bin/gulp.js stage_three",
