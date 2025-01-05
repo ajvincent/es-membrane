@@ -1,0 +1,11 @@
+node_modules
+**/*.js
+**/*.js.map
+**/*.d.ts
+**/*.d.ts.map
+!fixtures/**/types/**/*.d.ts
+!source/**/types/**/*.d.ts
+!source/MultiMixinBuilder.js
+!source/MultiMixinBuilder.d.ts
+!exports.d.ts
+mixin-decorators-*.tgz

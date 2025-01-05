@@ -1,0 +1,44 @@
+{
+  "env": {
+    "es2021": true,
+    "jasmine": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-type-checked",
+    "plugin:@typescript-eslint/stylistic-type-checked"
+  ],
+  "ignorePatterns": [
+    "**/*.js",
+    "**/*.d.ts"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module",
+    "tsconfigRootDir": ".",
+    "project": true
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "eslint-plugin-tsdoc",
+    "jasmine"
+  ],
+  "root": true,
+  "rules": {
+    "@typescript-eslint/ban-types": [
+      "error",
+      {
+        "types": {
+          "Function": false
+        }
+      }
+    ],
+    "@typescript-eslint/consistent-type-definitions": "off",
+    "@typescript-eslint/explicit-function-return-type": ["error"],
+    "tsdoc/syntax": "warn"
+  }
+}

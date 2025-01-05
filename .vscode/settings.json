@@ -1,13 +1,9 @@
 {
   "files.exclude": {
-    "projects/v2-es-membrane/_*/**/*.js": { "when": "$(basename).ts"},
-    "projects/v2-es-membrane/_*/**/*.js.map": true,
-    "projects/v2-es-membrane/build-utilities/**/*.js": { "when": "$(basename).ts"},
-    "projects/v2-es-membrane/build-utilities/**/*.js.map": true,
-    "projects/v2-es-membrane/gulp-utilities/**/*.js": { "when": "$(basename).ts"},
-    "projects/v2-es-membrane/gulp-utilities/**/*.js.map": true,
-    "projects/v2-es-membrane/Gulpfile.js": true,
-    "projects/v2-es-membrane/Gulpfile.js.map": true,
+    "projects/mixin-decorators/**/*.js": { "when": "$(basename).ts"},
+    "projects/mixin-decorators/**/*.js.map": true,
+    "projects/mixin-decorators/Gulpfile.js": true,
+    "projects/mixin-decorators/Gulpfile.js.map": true,
 
     "projects/ts-morph-structures/stage_*/**/*.js": { "when": "$(basename).ts"},
     "projects/ts-morph-structures/stage_*/**/*.js.map": true,
@@ -19,5 +15,14 @@
     "projects/ts-morph-structures/gulp-utilities/**/*.js.map": true,
     "projects/ts-morph-structures/Gulpfile.js": true,
     "projects/ts-morph-structures/Gulpfile.js.map": true,
+
+    "projects/v2-es-membrane/_*/**/*.js": { "when": "$(basename).ts"},
+    "projects/v2-es-membrane/_*/**/*.js.map": true,
+    "projects/v2-es-membrane/build-utilities/**/*.js": { "when": "$(basename).ts"},
+    "projects/v2-es-membrane/build-utilities/**/*.js.map": true,
+    "projects/v2-es-membrane/gulp-utilities/**/*.js": { "when": "$(basename).ts"},
+    "projects/v2-es-membrane/gulp-utilities/**/*.js.map": true,
+    "projects/v2-es-membrane/Gulpfile.js": true,
+    "projects/v2-es-membrane/Gulpfile.js.map": true,
   }
 }
