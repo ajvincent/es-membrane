@@ -13,7 +13,9 @@ import {
   PromiseAllSequence
 } from "#utilities/source/PromiseTypes.js";
 
-import runPrettify from "#utilities/source/runPrettify.js";
+import {
+  runPrettify
+} from "@ajvincent/build-utilities";
 
 import {
   stageDir,
