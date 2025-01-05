@@ -4,15 +4,17 @@ import {
   series,
 } from "gulp";
 
-import runJasmine from "#utilities/source/runJasmine.js";
-import runESLint from "#utilities/source/runEslint.js";
+import {
+  runESLint,
+  runJasmine,
+} from "@ajvincent/build-utilities";
 
 import {
   projectDir,
 } from "./source/AsyncSpecModules.js";
 
 export const
-  jasmine = () => runJasmine("./spec/support/jasmine.json", "build"),
+  jasmine = () => runJasmine("./spec/support/jasmine.json"),
   eslint = () => runESLint(path.join(projectDir, "utilities"), [
     "**/*.ts",
   ]);

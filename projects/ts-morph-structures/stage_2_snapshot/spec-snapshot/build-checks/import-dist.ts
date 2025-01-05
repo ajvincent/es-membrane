@@ -1,10 +1,20 @@
-import fs from "fs/promises";
-import path from "path";
-import which from "which";
-import { exec } from "child_process";
-import { promisify } from "util";
+import fs from "node:fs/promises";
 
-import tempDirWithCleanup from "#utilities/source/tempDirWithCleanup.js";
+import {
+  exec
+} from "node:child_process";
+
+import path from "node:path";
+
+import {
+  promisify
+} from "node:util";
+
+import which from "which";
+
+import {
+  tempDirWithCleanup
+} from "@ajvincent/build-utilities";
 
 import {
   ModuleSourceDirectory,
@@ -61,7 +71,7 @@ it("Driver generates a valid set of classes", async () => {
     ).toEqual(JSON.parse(JSON.stringify(DefaultMapStructure)));
   }
   finally {
-    cleanup.resolve(null);
+    cleanup.resolve();
     await cleanup.promise;
   }
 }, 1000 * 60 * 60);

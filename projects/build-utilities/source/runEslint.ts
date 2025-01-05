@@ -4,7 +4,7 @@ import {
   ESLint
 } from "eslint";
 
-export default async function runESLint(
+export async function runESLint(
   cwd: string,
   files: string[]
 ): Promise<void>
