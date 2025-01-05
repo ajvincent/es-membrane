@@ -1,6 +1,7 @@
 import path from "node:path";
 
 import {
+  runESLint,
   runJasmine,
 } from "@ajvincent/build-utilities";
 
@@ -11,8 +12,6 @@ import {
 import {
   projectDir,
 } from "#utilities/source/AsyncSpecModules.js";
-
-import runESLint from "#utilities/source/runEslint.js";
 
 async function test(): Promise<void> {
   await runJasmine("./spec-snapshot/support/jasmine.json");

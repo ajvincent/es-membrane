@@ -1,14 +1,16 @@
 import path from "node:path";
 
 import {
+  runESLint,
+} from "@ajvincent/build-utilities"
+
+import {
   series,
 } from "gulp";
 
 import {
   projectDir,
 } from "#utilities/source/AsyncSpecModules.js";
-
-import runESLint from "#utilities/source/runEslint.js";
 
 import structureToSyntax from "./build/structureToSyntax.js";
 import compileTypeDeclarations from "./build/docs/typeDeclarations.js";

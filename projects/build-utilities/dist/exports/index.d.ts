@@ -6,6 +6,7 @@ export * from "../source/hash-all-files.js";
 export * from "../source/overwriteFileIfDifferent.js";
 export * from "../source/readDirsDeep.js";
 export * from "../source/recursiveGulp.js";
+export * from "../source/runEslint.js";
 export * from "../source/runJasmine.js";
 export * from "../source/runPrettify.js";
 export * from "../source/synchronizeDirectories.js";

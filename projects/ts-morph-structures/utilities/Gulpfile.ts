@@ -5,9 +5,9 @@ import {
 } from "gulp";
 
 import {
+  runESLint,
   runJasmine,
 } from "@ajvincent/build-utilities";
-import runESLint from "#utilities/source/runEslint.js";
 
 import {
   projectDir,
