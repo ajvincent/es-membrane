@@ -66,7 +66,7 @@
     "which": "^4.0.0"
   },
   "dependencies": {
-    "mixin-decorators": "^1.0.1"
+    "mixin-decorators": "file:../mixin-decorators"
   },
   "peerDependencies": {
     "ts-morph": "^25.0.0"
