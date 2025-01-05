@@ -4,6 +4,7 @@ on:
     paths:
       - '.github/workflows/tsm.build.*'
       - 'projects/build-utilities/**'
+      - 'projects/mixin-decorators/**'
       - 'projects/ts-morph-structures/*'
       - 'projects/ts-morph-structures/stage_2_snapshot/snapshot/source/**'
       - 'projects/ts-morph-structures/use-cases/**'
