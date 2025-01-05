@@ -1,6 +1,10 @@
 import path from "node:path";
 
 import {
+  runJasmine,
+} from "@ajvincent/build-utilities";
+
+import {
   series,
 } from "gulp";
 
@@ -8,11 +12,11 @@ import {
   projectDir,
 } from "#utilities/source/AsyncSpecModules.js";
 
-import runJasmine from "#utilities/source/runJasmine.js";
+
 import runESLint from "#utilities/source/runEslint.js";
 
 async function build_test(): Promise<void> {
-  await runJasmine("./build/spec/support/jasmine.json", "stage_two_generation_test");
+  await runJasmine("./build/spec/support/jasmine.json");
 }
 
 async function build(): Promise<void> {

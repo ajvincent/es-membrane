@@ -1,6 +1,10 @@
 import path from "node:path";
 
 import {
+  runJasmine,
+} from "@ajvincent/build-utilities";
+
+import {
   series
 } from "gulp";
 
@@ -9,11 +13,10 @@ import {
 } from "#utilities/source/AsyncSpecModules.js";
 
 import removeCanaries from "./build/removeCanaries.js";
-import runJasmine from "#utilities/source/runJasmine.js";
 import runESLint from "#utilities/source/runEslint.js";
 
 async function jasmine(): Promise<void> {
-  await runJasmine("./spec-snapshot/support/jasmine.json", "stage_three_test");
+  await runJasmine("./spec-snapshot/support/jasmine.json");
 }
 
 async function eslint(): Promise<void> {
