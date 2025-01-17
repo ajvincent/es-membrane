@@ -31,6 +31,7 @@
   },
   "homepage": "https://github.com/ajvincent/es-membrane/tree/master/projects/mixin-decorators#readme",
   "devDependencies": {
+    "@ajvincent/build-utilities": "file:../build-utilities",
     "@tsconfig/node18": "^18.2.4",
     "@types/jasmine": "^5.1.5",
     "@types/node": "^18.19.69",
