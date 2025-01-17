@@ -4,11 +4,13 @@ on:
     paths:
       - '.github/workflows/tsm.build.*'
       - 'projects/build-utilities/**'
+      - 'projects/mixin-decorators/*'
+      - 'projects/mixin-decorators/dist/source/**'
       - 'projects/ts-morph-structures/*'
       - 'projects/ts-morph-structures/stage_2_snapshot/snapshot/source/**'
       - 'projects/ts-morph-structures/use-cases/**'
 jobs:
-  build-use-cases:
+  build:
     runs-on: ubuntu-latest
     defaults:
       run:

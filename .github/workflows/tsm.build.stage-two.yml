@@ -4,6 +4,8 @@ on:
     paths:
       - '.github/workflows/tsm.build.*'
       - 'projects/build-utilities/**'
+      - 'projects/mixin-decorators/*'
+      - 'projects/mixin-decorators/dist/source/**'
       - 'projects/ts-morph-structures/*'
       - 'projects/ts-morph-structures/dist/**'
       - 'projects/ts-morph-structures/gulp-utilities/**'
@@ -11,7 +13,7 @@ on:
       - 'projects/ts-morph-structures/stage_2_**'
       - 'projects/ts-morph-structures/utilities/**'
 jobs:
-  build-stage-two:
+  build:
     runs-on: ubuntu-latest
     defaults:
       run:

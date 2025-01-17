@@ -66,7 +66,9 @@ async function invokeChildGulpFile(
 }
 
 async function runChildGulpfile(): Promise<void> {
-  const child = fork(pathToGulp, [], {
+  const child = fork(pathToGulp, [
+    "--no-experimental-require-module",
+  ], {
     cwd: cwd(),
     stdio: ["ignore", "inherit", "inherit", "ipc"]
   });

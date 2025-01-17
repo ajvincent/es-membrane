@@ -1,0 +1,56 @@
+{
+  "name": "mixin-decorators",
+  "version": "1.0.1",
+  "description": "Mixin classes via decorators",
+  "type": "module",
+  "main": "dist/source/MultiMixinBuilder.js",
+  "typings": "dist/source/exports.d.ts",
+  "engines": {
+    "node": ">=18.19"
+  },
+  "scripts": {
+    "clean": "rm -rf dist Gulpfile.js",
+    "tsc-buildsystem": "echo $PWD && tsc --project ./tsconfig-gulp.json",
+    "build": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js",
+    "tasks": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js --tasks",
+    "is-repo-clean": "node --no-experimental-require-module ./gulp-utilities/assertRepoIsClean.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajvincent/es-membrane.git"
+  },
+  "keywords": [
+    "mixins",
+    "decorators",
+    "typescript"
+  ],
+  "author": "Alexander J. Vincent <ajvincent@gmail.com>",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/ajvincent/es-membrane/issues"
+  },
+  "homepage": "https://github.com/ajvincent/es-membrane/tree/master/projects/mixin-decorators#readme",
+  "devDependencies": {
+    "@ajvincent/build-utilities": "file:../build-utilities",
+    "@tsconfig/node18": "^18.2.4",
+    "@types/gulp": "^4.0.17",
+    "@types/jasmine": "^5.1.5",
+    "@types/node": "^18.19.69",
+    "gulp": "^5.0.0",
+    "jasmine": "^5.5.0",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "type-fest": "^4.31.0"
+  },
+  "files": [
+    "dist/source/MultiMixinBuilder.js",
+    "dist/source/MultiMixinBuilder.d.ts",
+    "dist/source/exports.d.ts",
+    "dist/source/types/ClassDecoratorFunction.d.ts",
+    "dist/source/types/MixinClass.d.ts",
+    "dist/source/types/MultiMixinClass.d.ts",
+    "dist/source/types/StaticAndInstance.d.ts",
+    "dist/source/types/SubclassDecorator.d.ts"
+  ]
+}

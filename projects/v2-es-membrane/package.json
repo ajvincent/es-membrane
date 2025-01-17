@@ -34,7 +34,7 @@
     "@types/node": "^18.19.34",
     "gulp": "^5.0.0",
     "jasmine": "^5.5.0",
-    "mixin-decorators": "^1.0.1",
+    "mixin-decorators": "file:../mixin-decorators",
     "ts-morph": "^25.0.0",
     "ts-morph-structures": "file:../ts-morph-structures",
     "tslib": "^2.8.1",
