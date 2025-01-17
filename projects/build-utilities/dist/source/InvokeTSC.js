@@ -5,15 +5,18 @@ import process from "node:process";
 import { monorepoRoot, } from "./constants.js";
 import { overwriteFileIfDifferent, } from "./overwriteFileIfDifferent.js";
 const TSC = path.resolve(monorepoRoot, "node_modules/typescript/bin/tsc");
-export async function InvokeTSC(pathToBaseTSConfig, excludesGlobs) {
+export async function InvokeTSC(pathToTSConfig, excludesGlobs) {
     const configContents = {
-        extends: pathToBaseTSConfig,
+        extends: pathToTSConfig,
         exclude: excludesGlobs,
     };
     if (excludesGlobs.length === 0) {
         Reflect.deleteProperty(excludesGlobs, "excludes");
     }
-    await overwriteFileIfDifferent(true, JSON.stringify(configContents, null, 2) + "\n", path.join(process.cwd(), "tsconfig.json"));
+    const pathToBaseTSConfig = path.join(process.cwd(), "tsconfig.json");
+    if (pathToTSConfig !== pathToBaseTSConfig) {
+        await overwriteFileIfDifferent(true, JSON.stringify(configContents, null, 2) + "\n", path.join(process.cwd(), "tsconfig.json"));
+    }
     const child = fork(TSC, [], {
         cwd: process.cwd(),
         stdio: ["ignore", "inherit", "inherit", "ipc"]

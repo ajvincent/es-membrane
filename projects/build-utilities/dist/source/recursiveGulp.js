@@ -34,7 +34,9 @@ async function invokeChildGulpFile(projectRoot, localPathToDir) {
     }
 }
 async function runChildGulpfile() {
-    const child = fork(pathToGulp, [], {
+    const child = fork(pathToGulp, [
+        "--no-experimental-require-module",
+    ], {
         cwd: cwd(),
         stdio: ["ignore", "inherit", "inherit", "ipc"]
     });

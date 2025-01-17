@@ -91,3 +91,4 @@ function MultiMixinBuilder(decorators, baseClass) {
     })());
 }
 export default MultiMixinBuilder;
+//# sourceMappingURL=MultiMixinBuilder.js.map

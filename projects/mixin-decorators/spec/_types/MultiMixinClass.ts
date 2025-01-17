@@ -20,6 +20,9 @@ it("MultiMixinClass defines a class taking multiple interfaces", () => {
   const secondKey = Symbol("key 2");
   const thirdKey = Symbol("key 3");
 
+  void(secondKey);
+  void(thirdKey);
+
   type SecondStaticAndInstance = RightExtendsLeft<StaticAndInstance<typeof secondKey>, {
     staticFields: {
       middle: string;

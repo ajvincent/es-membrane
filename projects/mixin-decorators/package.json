@@ -3,17 +3,16 @@
   "version": "1.0.1",
   "description": "Mixin classes via decorators",
   "type": "module",
-  "main": "source/MultiMixinBuilder.js",
-  "typings": "exports.d.ts",
+  "main": "dist/source/MultiMixinBuilder.js",
+  "typings": "dist/source/exports.d.ts",
   "engines": {
     "node": ">=18.19"
   },
   "scripts": {
-    "all": "npm run clean && npm run build && npm run test && npm run eslint",
-    "build": "tsc -p ./tsconfig.json",
-    "clean": "rm -rf fixtures/*.d.ts fixtures/*.js source/MultiMixinBuilder.d.ts source/MultiMixinBuilder.js spec/*.d.ts spec/*.js spec/_types/*.d.ts spec/_types/*.js spec/support/*.d.ts spec/support/*.js",
-    "eslint": "eslint fixtures source spec",
-    "test": "jasmine"
+    "clean": "rm -rf dist Gulpfile.js",
+    "tsc-buildsystem": "echo $PWD && tsc --project ./tsconfig-gulp.json",
+    "build": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js",
+    "tasks": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js --tasks"
   },
   "repository": {
     "type": "git",
@@ -34,11 +33,7 @@
     "@tsconfig/node18": "^18.2.4",
     "@types/jasmine": "^5.1.5",
     "@types/node": "^18.19.69",
-    "@typescript-eslint/eslint-plugin": "^6.17.0",
-    "eslint": "^8.56.0",
-    "eslint-plugin-jasmine": "^4.1.3",
     "eslint-plugin-json": "^3.1.0",
-    "eslint-plugin-tsdoc": "^0.2.17",
     "jasmine": "^5.5.0",
     "typescript": "^5.7.2"
   },
@@ -46,13 +41,13 @@
     "type-fest": "^4.31.0"
   },
   "files": [
-    "source/MultiMixinBuilder.js",
-    "exports.d.ts",
-    "source/MultiMixinBuilder.d.ts",
-    "source/types/ClassDecoratorFunction.d.ts",
-    "source/types/MixinClass.d.ts",
-    "source/types/MultiMixinClass.d.ts",
-    "source/types/StaticAndInstance.d.ts",
-    "source/types/SubclassDecorator.d.ts"
+    "dist/source/MultiMixinBuilder.js",
+    "dist/source/MultiMixinBuilder.d.ts",
+    "dist/source/exports.d.ts",
+    "dist/source/types/ClassDecoratorFunction.d.ts",
+    "dist/source/types/MixinClass.d.ts",
+    "dist/source/types/MultiMixinClass.d.ts",
+    "dist/source/types/StaticAndInstance.d.ts",
+    "dist/source/types/SubclassDecorator.d.ts"
   ]
 }

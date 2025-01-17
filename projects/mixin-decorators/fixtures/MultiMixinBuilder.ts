@@ -8,6 +8,7 @@ import type {
   SubclassDecorator
 } from "../source/types/SubclassDecorator.js";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const XVectorKey: unique symbol;
 
 interface XVector extends StaticAndInstance<typeof XVectorKey> {
@@ -21,6 +22,7 @@ interface XVector extends StaticAndInstance<typeof XVectorKey> {
   symbolKey: typeof XVectorKey;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const YVectorKey: unique symbol;
 
 interface YVector extends StaticAndInstance<typeof YVectorKey> {
@@ -77,7 +79,8 @@ class MarkCalledBase extends MixinBase {
   }
 }
 
-const MarkCalledKey = Symbol("mark called");
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+declare const MarkCalledKey: unique symbol;
 
 interface MarkCalledFields {
   staticFields: object,

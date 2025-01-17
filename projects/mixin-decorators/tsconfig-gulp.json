@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "module": "ES2022",
+    "target": "ES2022",
+    "moduleResolution": "node",
+    "declaration": false,
+
+    "baseUrl": ".",
+  },
+
+  "include": [
+    "./Gulpfile.ts",
+  ],
+
+  "extends": "@tsconfig/node18/tsconfig.json"
+}
