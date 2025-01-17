@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ajvincent/mixin-decorators.git"
+    "url": "git+https://github.com/ajvincent/es-membrane.git"
   },
   "keywords": [
     "mixins",
@@ -26,9 +26,9 @@
   "author": "Alexander J. Vincent <ajvincent@gmail.com>",
   "license": "MPL-2.0",
   "bugs": {
-    "url": "https://github.com/ajvincent/mixin-decorators/issues"
+    "url": "https://github.com/ajvincent/es-membrane/issues"
   },
-  "homepage": "https://github.com/ajvincent/mixin-decorators#readme",
+  "homepage": "https://github.com/ajvincent/es-membrane/tree/master/projects/mixin-decorators#readme",
   "devDependencies": {
     "@tsconfig/node18": "^18.2.4",
     "@types/jasmine": "^5.1.5",
