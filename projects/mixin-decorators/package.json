@@ -36,7 +36,6 @@
     "@types/gulp": "^4.0.17",
     "@types/jasmine": "^5.1.5",
     "@types/node": "^18.19.69",
-    "eslint-plugin-json": "^3.1.0",
     "gulp": "^5.0.0",
     "jasmine": "^5.5.0",
     "typescript": "^5.7.2"
