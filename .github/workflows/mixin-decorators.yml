@@ -1,0 +1,21 @@
+name: mixin-decorators
+on:
+  push:
+    paths:
+      - '.github/workflows/mixin-decorators.yml'
+      - 'projects/build-utilities/**'
+      - 'projects/mixin-decorators/**'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: './projects/mixin-decorators'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '^22.13'
+      - run: npm ci
+      - run: npm run build
+      - run: npm run is-repo-clean
