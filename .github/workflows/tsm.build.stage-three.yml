@@ -11,7 +11,7 @@ on:
       - 'projects/ts-morph-structures/stage_3_**'
       - 'projects/ts-morph-structures/utilities/**'
 jobs:
-  build-stage-three:
+  build:
     runs-on: ubuntu-latest
     defaults:
       run:

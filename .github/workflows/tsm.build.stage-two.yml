@@ -12,7 +12,7 @@ on:
       - 'projects/ts-morph-structures/stage_2_**'
       - 'projects/ts-morph-structures/utilities/**'
 jobs:
-  build-stage-two:
+  build:
     runs-on: ubuntu-latest
     defaults:
       run:

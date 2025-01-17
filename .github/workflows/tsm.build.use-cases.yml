@@ -9,7 +9,7 @@ on:
       - 'projects/ts-morph-structures/stage_2_snapshot/snapshot/source/**'
       - 'projects/ts-morph-structures/use-cases/**'
 jobs:
-  build-use-cases:
+  build:
     runs-on: ubuntu-latest
     defaults:
       run:
