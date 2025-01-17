@@ -1,0 +1,30 @@
+{
+  "name": "@ajvincent/reference-tracking",
+  "version": "1.0.0",
+  "description": "JavaScript reference tracking by static analysis.  For libraries to test they don't leak memory directly.",
+  "main": "dist/bin/exports.js",
+  "typings": "dist/bin/exports.d.ts",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "clean": "rm -rf dist Gulpfile.js",
+    "tsc-buildsystem": "echo $PWD && tsc --project ./tsconfig-gulp.json",
+    "build": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js",
+    "tasks": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js --tasks",
+    "is-repo-clean": "node --no-experimental-require-module ./gulp-utilities/assertRepoIsClean.js"
+  },
+  "author": "Alexander J. Vincent <ajvincent@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "@ajvincent/build-utilities": "file:../build-utilities",
+    "@tsconfig/node18": "^18.2.4",
+    "@types/gulp": "^4.0.17",
+    "@types/jasmine": "^5.1.5",
+    "@types/node": "^18.19.69",
+    "gulp": "^5.0.0",
+    "typescript": "^5.7.2"
+  }
+}
