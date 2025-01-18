@@ -13,6 +13,6 @@ export async function runJasmine(
 
   const result = await jasmineRunner.execute();
   if (result.overallStatus !== "passed") {
-    process.exit(1)
+    throw new Error("jasmine test run failed: " + pathToConfigFile);
   }
 }
