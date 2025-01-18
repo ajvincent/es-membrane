@@ -12,7 +12,7 @@
   "scripts": {
     "clean": "rm -rf dist Gulpfile.js",
     "tsc-buildsystem": "echo $PWD && tsc --project ./tsconfig-gulp.json",
-    "build": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js",
+    "build": "npm run clean && npm run tsc-buildsystem && node --expose-gc --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js",
     "tasks": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js --tasks",
     "is-repo-clean": "node --no-experimental-require-module ./gulp-utilities/assertRepoIsClean.js"
   },

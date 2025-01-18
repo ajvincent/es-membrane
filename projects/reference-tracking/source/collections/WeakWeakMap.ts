@@ -1,29 +1,10 @@
-import RefCountWeakMap from "./RefCountWeakMap.js";
-
 export default class WeakWeakMap<
   K1 extends WeakKey,
   K2 extends WeakKey,
   V
 >
 {
-  #size = 0;
-
-  readonly #outerMap = new RefCountWeakMap<K1, RefCountWeakMap<K2, V>>;
-  readonly #firstKeyToWeakRef = new WeakMap<K1, WeakRef<K1>>;
-
-  #derefAndDelete(
-    keyRef: WeakRef<K1>
-  ): void
-  {
-    const key1 = keyRef.deref();
-    if (key1)
-      this.#deleteFirstKey(key1);
-  }
-
-  #deleteFirstKey(key1: K1): void {
-    this.#firstKeyToWeakRef.delete(key1);
-    this.#outerMap.delete(key1);
-  }
+  readonly #outerMap = new WeakMap<K1, WeakMap<K2, V>>;
 
   /**
    * Removes the specified element from the WeakMap.
@@ -40,15 +21,7 @@ export default class WeakWeakMap<
     if (!innerMap)
       return false;
 
-    const didDelete = innerMap.delete(key2);
-    if (didDelete) {
-      this.#size--;
-      if (innerMap.size === 0) {
-        this.#outerMap.delete(key1);
-      }
-    }
-
-    return didDelete;
+    return innerMap.delete(key2);
   }
 
   /**
@@ -88,19 +61,12 @@ export default class WeakWeakMap<
     value: V
   ): this
   {
-    let innerMap: RefCountWeakMap<K2, V> | undefined = this.#outerMap.get(key1);
+    let innerMap: WeakMap<K2, V> | undefined = this.#outerMap.get(key1);
     if (!innerMap) {
-      innerMap = new RefCountWeakMap<K2, V>;
+      innerMap = new WeakMap;
       this.#outerMap.set(key1, innerMap);
-
-      const weakRef = new WeakRef<K1>(key1);
-      this.#firstKeyToWeakRef.set(key1, weakRef);
-      innerMap.assignEmptyCallback(this.#derefAndDelete.bind(this, weakRef));
     }
 
-    if (!innerMap.has(key2)) {
-      this.#size++;
-    }
     innerMap.set(key2, value);
     return this;
   }
@@ -124,18 +90,5 @@ export default class WeakWeakMap<
       return value;
     }
     return this.get(key1, key2)!;
-  }
-
-  /**
-   * Assign a function to call for when this map becomes empty.
-   * @param callback the function to call, or undefined to clear the callback.
-   */
-  public assignEmptyCallback(callback: (() => void) | undefined) {
-    this.#outerMap.assignEmptyCallback(callback);
-  }
-
-  /** The number of elements in the map. */
-  public get size(): number {
-    return this.#size;
   }
 }

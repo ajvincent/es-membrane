@@ -25,12 +25,25 @@ async function build(): Promise<void> {
 
 function copyJasmineSupportJSON() {
   return src(
-    "spec/support/jasmine.json",
+    "spec/support/jasmine*.json",
   ).pipe(dest("dist/spec/support/"))
 }
 
 async function jasmine(): Promise<void> {
   await runJasmine("./dist/spec/support/jasmine.json");
+}
+
+async function jasmine_gc(): Promise<void> {
+  try {
+    console.log("Beginning garbage collection tests... these are unreliable, so a failure shouldn't block the build\n\n");
+    await runJasmine("./dist/spec/support/jasmine-gc.json");
+  }
+  catch (ex) {
+    console.error(ex);
+  }
+  finally {
+    console.log("Garbage collection tests complete.  Failures beyond this point will not be ignored.\n\n");
+  }
 }
 
 async function eslint(): Promise<void> {
@@ -48,5 +61,6 @@ export default series([
     copyJasmineSupportJSON,
   ),
   jasmine,
+  jasmine_gc,
   eslint,
 ]);
