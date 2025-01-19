@@ -27,4 +27,15 @@ describe("WeakWeakMap really holds weak references", () => {
       map.set(firstKey, secondKey, value);
     })).toBeResolvedTo(true);
   });
+
+  it("to values when keys are deleted", async () => {
+    const heldKeys = new Set<object>;
+    await expectAsync(holdsArgument(5, 5, value => {
+      const firstKey = {}, secondKey = {};
+      heldKeys.add(firstKey);
+      heldKeys.add(secondKey);
+      map.set(firstKey, secondKey, value);
+      map.delete(firstKey, secondKey);
+    })).toBeResolvedTo(false);
+  });
 });
