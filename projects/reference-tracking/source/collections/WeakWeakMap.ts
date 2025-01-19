@@ -17,11 +17,12 @@ export default class WeakWeakMap<
     key2: K2
   ): boolean
   {
-    const innerMap = this.#outerMap.get(key1);
-    if (!innerMap)
-      return false;
+    // Yes, this leaks memory in the sense of this.#outerMap holding potentially empty inner WeakMaps.
+    // to fix that entails some nastiness - either a FinalizationRegistry which might not fire in time, or
+    // polling a Set<WeakRef<K2>> for each K1 (O(m * n)).  Pick your poison.
 
-    return innerMap.delete(key2);
+    // For my needs, I opt for "don't bother", because these are meant to be short-lived WeakWeakMap objects.
+    return this.#outerMap.get(key1)?.delete(key2) ?? false;
   }
 
   /**
