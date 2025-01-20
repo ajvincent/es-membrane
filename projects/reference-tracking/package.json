@@ -26,5 +26,8 @@
     "@types/node": "^18.19.69",
     "gulp": "^5.0.0",
     "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "type-fest": "^4.32.0"
   }
 }
