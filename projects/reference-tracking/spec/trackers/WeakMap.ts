@@ -2,7 +2,7 @@ import { WeakMapTracking } from "../../source/trackers/WeakMap.js";
 import { COLLECT_REFERENCES } from "../../source/trackers/utilities/ReferenceDescription.js";
 
 it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
-  const map = new WeakMapTracking<object | symbol, unknown>;
+  let map = new WeakMapTracking<object | symbol, unknown>;
   expect(map[COLLECT_REFERENCES]()).toEqual([]);
 
   const redCar = {"type": "car", "color": "red"};
@@ -81,5 +81,24 @@ it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
     expect(refs[0].jointOwners.has(map)).toBeTrue();
     expect(refs[0].referencedValue).toBe(redCar);
     expect(refs[0].isStrongReference).toBe(false);
+  }
+
+  map = new WeakMapTracking([
+    [redCar, Fred]
+  ]);
+  {
+    const refs = map[COLLECT_REFERENCES]();
+    expect(refs.length).toBe(2);
+
+    expect(refs[0].jointOwners.size).toBe(1);
+    expect(refs[0].jointOwners.has(map)).toBeTrue();
+    expect(refs[0].referencedValue).toBe(redCar);
+    expect(refs[0].isStrongReference).toBe(false);
+
+    expect(refs[1].jointOwners.size).toBe(2);
+    expect(refs[1].jointOwners.has(map)).toBeTrue();
+    expect(refs[1].jointOwners.has(redCar)).toBeTrue();
+    expect(refs[1].referencedValue).toBe(Fred);
+    expect(refs[1].isStrongReference).toBe(false);
   }
 });
