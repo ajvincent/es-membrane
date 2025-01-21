@@ -25,7 +25,7 @@ implements ReferenceDescriptionGetter
   private readonly [KEY_REFERENCES] = new BuiltInCollections.WeakMap<K, WeakRef<K>>;
   private readonly [KEY_WEAKREFS_SET] = new BuiltInCollections.Set<WeakRef<K>>
 
-  constructor(entries?: Iterable<readonly [K, V]> | null | undefined) {
+  constructor(entries?: Iterable<readonly [K, V]> | null) {
     super(entries ? Array.from(entries) : undefined);
     if (entries) {
       for (const [key] of entries) {
