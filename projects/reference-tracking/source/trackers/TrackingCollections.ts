@@ -10,11 +10,15 @@ import {
   WeakMapTracking
 } from "./WeakMap.js";
 
+import {
+  WeakSetTracking
+} from "./WeakSet.js";
+
 export const TrackingCollections: CollectionsIfc = {
   Array: globalThis.Array,
 
   WeakMap: WeakMapTracking,
-  WeakSet: globalThis.WeakSet,
+  WeakSet: WeakSetTracking,
 
   Map: MapTracking,
   Set: globalThis.Set,
@@ -41,3 +45,4 @@ export const TrackingCollections: CollectionsIfc = {
     globalThis.FinalizationRegistry = this.FinalizationRegistry;
   }
 };
+Object.freeze(TrackingCollections);

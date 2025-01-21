@@ -33,3 +33,4 @@ export const BuiltInCollections: CollectionsIfc = {
     globalThis.FinalizationRegistry = this.FinalizationRegistry;
   }
 }
+Object.freeze(BuiltInCollections);

@@ -38,14 +38,16 @@ implements ReferenceDescriptionGetter
 
   public delete(key: K): boolean {
     const didDelete = super.delete(key);
-    const weakRef = this[KEY_REFERENCES].get(key)!;
-    this[KEY_WEAKREFS_SET].delete(weakRef);
-    this[KEY_REFERENCES].delete(key);
+    if (didDelete) {
+      const weakRef = this[KEY_REFERENCES].get(key)!;
+      this[KEY_WEAKREFS_SET].delete(weakRef);
+      this[KEY_REFERENCES].delete(key);
+    }
     return didDelete;
   }
 
   public set(key: K, value: V): this {
-    const didSet = super.set(key, value);
+    super.set(key, value);
     if (this[KEY_REFERENCES]) {
       if (!this[KEY_REFERENCES].has(key)) {
         const weakRef = new BuiltInCollections.WeakRef<K>(key);
@@ -53,7 +55,7 @@ implements ReferenceDescriptionGetter
         this[KEY_WEAKREFS_SET].add(weakRef);
       }
     }
-    return didSet;
+    return this;
   }
 
   public [COLLECT_REFERENCES](): ReadonlyDeep<ReferenceDescriptionIfc[]> {
