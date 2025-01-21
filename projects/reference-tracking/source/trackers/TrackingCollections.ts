@@ -15,6 +15,10 @@ import {
 } from "./WeakMap.js";
 
 import {
+  WeakRefTracking
+} from "./WeakRef.js";
+
+import {
   WeakSetTracking
 } from "./WeakSet.js";
 
@@ -30,7 +34,7 @@ export const TrackingCollections: CollectionsIfc = {
   Proxy: globalThis.Proxy,
   Proxy_revocable: globalThis.Proxy.revocable,
 
-  WeakRef: globalThis.WeakRef,
+  WeakRef: WeakRefTracking,
   FinalizationRegistry: globalThis.FinalizationRegistry,
 
   install: function(): void {
