@@ -63,11 +63,11 @@ implements ReferenceDescriptionGetter
       const strongRef: K | undefined = weakRef.deref();
       if (strongRef === undefined)
         continue;
-      refs.push(new ReferenceDescription([this], strongRef, false));
+      refs.push(new ReferenceDescription("WeakMap", [this], strongRef, false, []));
 
       const value = this.get(strongRef);
       if (isObjectOrSymbol(value)) {
-        refs.push(new ReferenceDescription([this, strongRef], value, false));
+        refs.push(new ReferenceDescription("WeakMap", [this, strongRef], value, false, []));
       }
     }
 

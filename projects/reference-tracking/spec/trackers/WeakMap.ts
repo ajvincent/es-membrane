@@ -15,16 +15,20 @@ it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
     const refs = map[COLLECT_REFERENCES]();
     expect(refs.length).toBe(2);
 
+    expect(refs[0].collectionName).toBe("WeakMap");
     expect(refs[0].jointOwners.size).toBe(1);
     expect(refs[0].jointOwners.has(map)).toBeTrue();
     expect(refs[0].referencedValue).toBe(redCar);
     expect(refs[0].isStrongReference).toBe(false);
+    expect(refs[0].contextPrimitives.length).toBe(0);
 
+    expect(refs[1].collectionName).toBe("WeakMap");
     expect(refs[1].jointOwners.size).toBe(2);
     expect(refs[1].jointOwners.has(map)).toBeTrue();
     expect(refs[1].jointOwners.has(redCar)).toBeTrue();
     expect(refs[1].referencedValue).toBe(Fred);
     expect(refs[1].isStrongReference).toBe(false);
+    expect(refs[1].contextPrimitives.length).toBe(0);
   }
 
   map.set(redCar, Cathy);
@@ -32,16 +36,20 @@ it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
     const refs = map[COLLECT_REFERENCES]();
     expect(refs.length).toBe(2);
 
+    expect(refs[0].collectionName).toBe("WeakMap");
     expect(refs[0].jointOwners.size).toBe(1);
     expect(refs[0].jointOwners.has(map)).toBeTrue();
     expect(refs[0].referencedValue).toBe(redCar);
     expect(refs[0].isStrongReference).toBe(false);
+    expect(refs[0].contextPrimitives.length).toBe(0);
 
+    expect(refs[1].collectionName).toBe("WeakMap");
     expect(refs[1].jointOwners.size).toBe(2);
     expect(refs[1].jointOwners.has(map)).toBeTrue();
     expect(refs[1].jointOwners.has(redCar)).toBeTrue();
     expect(refs[1].referencedValue).toBe(Cathy);
     expect(refs[1].isStrongReference).toBe(false);
+    expect(refs[1].contextPrimitives.length).toBe(0);
   }
 
   map.set(redCar, false);
@@ -49,10 +57,12 @@ it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
     const refs = map[COLLECT_REFERENCES]();
     expect(refs.length).toBe(1);
 
+    expect(refs[0].collectionName).toBe("WeakMap");
     expect(refs[0].jointOwners.size).toBe(1);
     expect(refs[0].jointOwners.has(map)).toBeTrue();
     expect(refs[0].referencedValue).toBe(redCar);
     expect(refs[0].isStrongReference).toBe(false);
+    expect(refs[0].contextPrimitives.length).toBe(0);
   }
 
   map.set(blueCar, Fred);
@@ -60,16 +70,22 @@ it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
     const refs = map[COLLECT_REFERENCES]();
     expect(refs.length).toBe(3);
 
+    expect(refs[0].collectionName).toBe("WeakMap");
+    expect(refs[0].contextPrimitives.length).toBe(0);
+
+    expect(refs[1].collectionName).toBe("WeakMap");
     expect(refs[1].jointOwners.size).toBe(1);
     expect(refs[1].jointOwners.has(map)).toBeTrue();
     expect(refs[1].referencedValue).toBe(blueCar);
     expect(refs[1].isStrongReference).toBe(false);
+    expect(refs[1].contextPrimitives.length).toBe(0);
 
     expect(refs[2].jointOwners.size).toBe(2);
     expect(refs[2].jointOwners.has(map)).toBeTrue();
     expect(refs[2].jointOwners.has(blueCar)).toBeTrue();
     expect(refs[2].referencedValue).toBe(Fred);
     expect(refs[2].isStrongReference).toBe(false);
+    expect(refs[2].contextPrimitives.length).toBe(0);
   }
 
   map.delete(blueCar);
@@ -77,10 +93,12 @@ it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
     const refs = map[COLLECT_REFERENCES]();
     expect(refs.length).toBe(1);
 
+    expect(refs[0].collectionName).toBe("WeakMap");
     expect(refs[0].jointOwners.size).toBe(1);
     expect(refs[0].jointOwners.has(map)).toBeTrue();
     expect(refs[0].referencedValue).toBe(redCar);
     expect(refs[0].isStrongReference).toBe(false);
+    expect(refs[0].contextPrimitives.length).toBe(0);
   }
 
   map = new WeakMapTracking([
@@ -90,15 +108,19 @@ it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
     const refs = map[COLLECT_REFERENCES]();
     expect(refs.length).toBe(2);
 
+    expect(refs[0].collectionName).toBe("WeakMap");
+    expect(refs[0].contextPrimitives.length).toBe(0);
     expect(refs[0].jointOwners.size).toBe(1);
     expect(refs[0].jointOwners.has(map)).toBeTrue();
     expect(refs[0].referencedValue).toBe(redCar);
     expect(refs[0].isStrongReference).toBe(false);
 
+    expect(refs[1].collectionName).toBe("WeakMap");
     expect(refs[1].jointOwners.size).toBe(2);
     expect(refs[1].jointOwners.has(map)).toBeTrue();
     expect(refs[1].jointOwners.has(redCar)).toBeTrue();
     expect(refs[1].referencedValue).toBe(Fred);
     expect(refs[1].isStrongReference).toBe(false);
+    expect(refs[1].contextPrimitives.length).toBe(0);
   }
 });

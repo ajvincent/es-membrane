@@ -3,6 +3,10 @@ import type {
 } from "./types/CollectionsIfc.js";
 
 import {
+  MapTracking
+} from "./Map.js";
+
+import {
   WeakMapTracking
 } from "./WeakMap.js";
 
@@ -12,7 +16,7 @@ export const TrackingCollections: CollectionsIfc = {
   WeakMap: WeakMapTracking,
   WeakSet: globalThis.WeakSet,
 
-  Map: globalThis.Map,
+  Map: MapTracking,
   Set: globalThis.Set,
 
   Proxy: globalThis.Proxy,
