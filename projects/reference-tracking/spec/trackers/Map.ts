@@ -1,7 +1,7 @@
 import { MapTracking } from "../../source/trackers/Map.js";
 import { COLLECT_REFERENCES } from "../../source/trackers/utilities/ReferenceDescription.js";
 
-it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
+it("MapTracking extends Map with [COLLECT_REFERENCES]", () => {
   let map = new MapTracking<unknown, unknown>;
   expect(map[COLLECT_REFERENCES]()).toEqual([]);
 

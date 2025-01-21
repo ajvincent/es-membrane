@@ -1,7 +1,7 @@
 import { WeakSetTracking } from "../../source/trackers/WeakSet.js";
 import { COLLECT_REFERENCES } from "../../source/trackers/utilities/ReferenceDescription.js";
 
-it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
+it("WeakSetTracking extends WeakSet with [COLLECT_REFERENCES]", () => {
   let set = new WeakSetTracking<object | symbol>;
   expect(set[COLLECT_REFERENCES]()).toEqual([]);
 

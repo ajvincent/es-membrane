@@ -7,6 +7,10 @@ import {
 } from "./Map.js";
 
 import {
+  SetTracking
+} from "./Set.js";
+
+import {
   WeakMapTracking
 } from "./WeakMap.js";
 
@@ -21,7 +25,7 @@ export const TrackingCollections: CollectionsIfc = {
   WeakSet: WeakSetTracking,
 
   Map: MapTracking,
-  Set: globalThis.Set,
+  Set: SetTracking,
 
   Proxy: globalThis.Proxy,
   Proxy_revocable: globalThis.Proxy.revocable,
