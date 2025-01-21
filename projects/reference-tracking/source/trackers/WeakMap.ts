@@ -22,8 +22,8 @@ export class WeakMapTracking<K extends WeakKey, V>
 extends BuiltInCollections.WeakMap<K, V>
 implements ReferenceDescriptionGetter
 {
-  readonly [KEY_REFERENCES] = new BuiltInCollections.WeakMap<K, WeakRef<K>>;
-  readonly [KEY_WEAKREFS_SET] = new BuiltInCollections.Set<WeakRef<K>>
+  private readonly [KEY_REFERENCES] = new BuiltInCollections.WeakMap<K, WeakRef<K>>;
+  private readonly [KEY_WEAKREFS_SET] = new BuiltInCollections.Set<WeakRef<K>>
 
   constructor(entries?: Iterable<readonly [K, V]> | null | undefined) {
     super(entries ? Array.from(entries) : undefined);
