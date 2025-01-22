@@ -1,6 +1,6 @@
 import type {
   CollectionsIfc
-} from "./types/CollectionsIfc.js";
+} from "../types/CollectionsIfc.js";
 
 export const BuiltInCollections: CollectionsIfc = {
   WeakMap: globalThis.WeakMap,

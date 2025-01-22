@@ -4,7 +4,7 @@ import type {
 
 import {
   BuiltInCollections
-} from "../BuiltInCollections.js";
+} from "./BuiltInCollections.js";
 
 export const COLLECT_REFERENCES = Symbol("Collect references");
 

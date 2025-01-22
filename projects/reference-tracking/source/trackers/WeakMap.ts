@@ -4,7 +4,7 @@ import {
 
 import {
   BuiltInCollections
-} from "./BuiltInCollections.js";
+} from "./utilities/BuiltInCollections.js";
 
 import {
   COLLECT_REFERENCES,

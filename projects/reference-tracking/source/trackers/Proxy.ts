@@ -4,7 +4,7 @@ import type{
 
 import {
   BuiltInCollections
-} from "./BuiltInCollections.js";
+} from "./utilities/BuiltInCollections.js";
 
 import {
   SpecialReferences
