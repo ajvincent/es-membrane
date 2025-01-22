@@ -12,7 +12,6 @@ export const BuiltInCollections: CollectionsIfc = {
   Set: globalThis.Set,
 
   Proxy: globalThis.Proxy,
-  Proxy_revocable: globalThis.Proxy.revocable,
 
   WeakRef: globalThis.WeakRef,
   FinalizationRegistry: globalThis.FinalizationRegistry,
@@ -27,7 +26,6 @@ export const BuiltInCollections: CollectionsIfc = {
     globalThis.Set = this.Set;
 
     globalThis.Proxy = this.Proxy;
-    globalThis.Proxy.revocable = this.Proxy_revocable;
 
     globalThis.WeakRef = this.WeakRef;
     globalThis.FinalizationRegistry = this.FinalizationRegistry;

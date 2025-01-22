@@ -7,6 +7,10 @@ import {
 } from "./Map.js";
 
 import {
+  ProxyTracking
+} from "./Proxy.js";
+
+import {
   SetTracking
 } from "./Set.js";
 
@@ -31,8 +35,7 @@ export const TrackingCollections: CollectionsIfc = {
   Map: MapTracking,
   Set: SetTracking,
 
-  Proxy: globalThis.Proxy,
-  Proxy_revocable: globalThis.Proxy.revocable,
+  Proxy: ProxyTracking,
 
   WeakRef: WeakRefTracking,
   FinalizationRegistry: globalThis.FinalizationRegistry,
@@ -47,7 +50,6 @@ export const TrackingCollections: CollectionsIfc = {
     globalThis.Set = this.Set;
 
     globalThis.Proxy = this.Proxy;
-    globalThis.Proxy.revocable = this.Proxy_revocable;
 
     globalThis.WeakRef = this.WeakRef;
     globalThis.FinalizationRegistry = this.FinalizationRegistry;
