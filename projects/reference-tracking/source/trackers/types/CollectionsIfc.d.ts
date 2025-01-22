@@ -1,6 +1,4 @@
 export type CollectionsIfc = {
-  Array: ArrayConstructor,
-
   WeakSet: WeakSetConstructor,
   WeakMap: WeakMapConstructor,
 

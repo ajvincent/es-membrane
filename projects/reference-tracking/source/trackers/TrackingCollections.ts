@@ -27,8 +27,6 @@ import {
 } from "./WeakSet.js";
 
 export const TrackingCollections: CollectionsIfc = {
-  Array: globalThis.Array,
-
   WeakMap: WeakMapTracking,
   WeakSet: WeakSetTracking,
 
@@ -41,8 +39,6 @@ export const TrackingCollections: CollectionsIfc = {
   FinalizationRegistry: globalThis.FinalizationRegistry,
 
   install: function(): void {
-    globalThis.Array = this.Array;
-
     globalThis.WeakMap = this.WeakMap;
     globalThis.WeakSet = this.WeakSet;
 

@@ -3,8 +3,6 @@ import type {
 } from "./types/CollectionsIfc.js";
 
 export const BuiltInCollections: CollectionsIfc = {
-  Array: globalThis.Array,
-
   WeakMap: globalThis.WeakMap,
   WeakSet: globalThis.WeakSet,
 
@@ -17,8 +15,6 @@ export const BuiltInCollections: CollectionsIfc = {
   FinalizationRegistry: globalThis.FinalizationRegistry,
 
   install: function(): void {
-    globalThis.Array = this.Array;
-
     globalThis.WeakMap = this.WeakMap;
     globalThis.WeakSet = this.WeakSet;
 
