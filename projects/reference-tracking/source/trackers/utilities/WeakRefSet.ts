@@ -20,7 +20,7 @@ export class WeakRefSet<T extends object> {
     if (!ref) {
       ref = new BuiltInCollections.WeakRef(value);
       this.#valueToRef.set(value, ref);
-      this.#finalizer.register(value, ref, ref);
+      this.#finalizer.register(value, ref, value);
       this.#references.add(ref);
     }
   }
@@ -42,7 +42,7 @@ export class WeakRefSet<T extends object> {
       return false;
     this.#valueToRef.delete(value);
     this.#references.delete(ref);
-    this.#finalizer.unregister(ref);
+    this.#finalizer.unregister(value);
     return true;
   }
 
