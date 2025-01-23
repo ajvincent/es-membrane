@@ -14,6 +14,8 @@ export const BuiltInCollections: CollectionsIfc = {
   WeakRef: globalThis.WeakRef,
   FinalizationRegistry: globalThis.FinalizationRegistry,
 
+  Promise: globalThis.Promise,
+
   install: function(): void {
     globalThis.WeakMap = this.WeakMap;
     globalThis.WeakSet = this.WeakSet;

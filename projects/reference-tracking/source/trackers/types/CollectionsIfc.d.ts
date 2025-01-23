@@ -10,5 +10,7 @@ export type CollectionsIfc = {
   WeakRef: WeakRefConstructor,
   FinalizationRegistry: FinalizationRegistryConstructor,
 
+  Promise: PromiseConstructor,
+
   install(): void;
 }
