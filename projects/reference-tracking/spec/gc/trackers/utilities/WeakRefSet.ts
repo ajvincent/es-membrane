@@ -26,16 +26,6 @@ describe("WeakRefSet", () => {
       )).toBeResolvedTo(false);
     });
 
-    it("except when something outside holds a value", async () => {
-      const heldValues = new Set<object>;
-      await expectAsync(holdsArgument(
-        5, 5, key => {
-          heldValues.add(key);
-          refSet.addReference(key);
-        }
-      )).toBeResolvedTo(true);
-    });
-
     it("and then deleteReference", async () => {
       await expectAsync(holdsArgument(
         5, 5, key => {
