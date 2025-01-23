@@ -33,7 +33,7 @@ class FinalizationCell<T> {
   }
 }
 
-/** @see {@link https://tc39.es/ecma262/#sec-finalization-registry-objects} */
+// @see {@link https://tc39.es/ecma262/#sec-finalization-registry-objects}
 export class FinalizationRegistryTracking<T>
 extends BuiltInCollections.FinalizationRegistry<T>
 implements ReferenceDescriptionGetter
