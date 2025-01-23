@@ -2,7 +2,7 @@ import { WeakSetTracking } from "../../source/trackers/WeakSet.js";
 import { COLLECT_REFERENCES } from "../../source/trackers/utilities/ReferenceDescription.js";
 
 it("WeakSetTracking extends WeakSet with [COLLECT_REFERENCES]", () => {
-  let set = new WeakSetTracking<object | symbol>;
+  let set = new WeakSetTracking<WeakKey>;
   expect(set[COLLECT_REFERENCES]()).toEqual([]);
 
   const redCar = {"type": "car", "color": "red"};
@@ -50,7 +50,7 @@ it("WeakSetTracking extends WeakSet with [COLLECT_REFERENCES]", () => {
     expect(refs[0].contextPrimitives.length).toBe(0);
   }
 
-  set = new WeakSetTracking([
+  set = new WeakSetTracking<WeakKey>([
     redCar
   ]);
   {

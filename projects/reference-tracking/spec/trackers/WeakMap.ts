@@ -2,7 +2,7 @@ import { WeakMapTracking } from "../../source/trackers/WeakMap.js";
 import { COLLECT_REFERENCES } from "../../source/trackers/utilities/ReferenceDescription.js";
 
 it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
-  let map = new WeakMapTracking<object | symbol, unknown>;
+  let map = new WeakMapTracking<WeakKey, unknown>;
   expect(map[COLLECT_REFERENCES]()).toEqual([]);
 
   const redCar = {"type": "car", "color": "red"};
@@ -27,7 +27,7 @@ it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
     expect(refs[1].jointOwners.has(map)).toBeTrue();
     expect(refs[1].jointOwners.has(redCar)).toBeTrue();
     expect(refs[1].referencedValue).toBe(Fred);
-    expect(refs[1].isStrongReference).toBe(false);
+    expect(refs[1].isStrongReference).toBe(true);
     expect(refs[1].contextPrimitives.length).toBe(0);
   }
 
@@ -48,7 +48,7 @@ it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
     expect(refs[1].jointOwners.has(map)).toBeTrue();
     expect(refs[1].jointOwners.has(redCar)).toBeTrue();
     expect(refs[1].referencedValue).toBe(Cathy);
-    expect(refs[1].isStrongReference).toBe(false);
+    expect(refs[1].isStrongReference).toBe(true);
     expect(refs[1].contextPrimitives.length).toBe(0);
   }
 
@@ -84,7 +84,7 @@ it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
     expect(refs[2].jointOwners.has(map)).toBeTrue();
     expect(refs[2].jointOwners.has(blueCar)).toBeTrue();
     expect(refs[2].referencedValue).toBe(Fred);
-    expect(refs[2].isStrongReference).toBe(false);
+    expect(refs[2].isStrongReference).toBe(true);
     expect(refs[2].contextPrimitives.length).toBe(0);
   }
 
@@ -101,7 +101,7 @@ it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
     expect(refs[0].contextPrimitives.length).toBe(0);
   }
 
-  map = new WeakMapTracking([
+  map = new WeakMapTracking<WeakKey, unknown>([
     [redCar, Fred]
   ]);
   {
@@ -120,7 +120,7 @@ it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
     expect(refs[1].jointOwners.has(map)).toBeTrue();
     expect(refs[1].jointOwners.has(redCar)).toBeTrue();
     expect(refs[1].referencedValue).toBe(Fred);
-    expect(refs[1].isStrongReference).toBe(false);
+    expect(refs[1].isStrongReference).toBe(true);
     expect(refs[1].contextPrimitives.length).toBe(0);
   }
 });

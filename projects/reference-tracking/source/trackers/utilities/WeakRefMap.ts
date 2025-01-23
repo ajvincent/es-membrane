@@ -12,7 +12,7 @@ implements Omit<Map<K, V>, "size">
   readonly #keyRefSet = new WeakRefSet<K>;
   #internalMap = new BuiltInCollections.WeakMap<WeakRef<K>, V>;
 
-  constructor(iterable?: Iterable<[K, V]>) {
+  constructor(iterable?: Iterable<readonly [K, V]> | null) {
     if (iterable) {
       for (const [key, value] of iterable) {
         this.set(key, value);

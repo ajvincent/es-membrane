@@ -13,56 +13,43 @@ import {
   ReferenceDescriptionIfc,
 } from "./utilities/ReferenceDescription.js";
 
-const KEY_REFERENCES = Symbol("#keyReferences");
-const KEY_WEAKREFS_SET = Symbol("#keyWeakRefsSet");
+import {
+  WeakRefSet
+} from "./utilities/WeakRefSet.js"
+
+const KEY_WEAKREFSET = Symbol("#keyWeakRefSet");
 
 export class WeakSetTracking<T extends WeakKey>
 extends BuiltInCollections.Set<T>
 implements ReferenceDescriptionGetter
 {
-  private readonly [KEY_REFERENCES] = new BuiltInCollections.WeakMap<T, WeakRef<T>>;
-  private readonly [KEY_WEAKREFS_SET] = new BuiltInCollections.Set<WeakRef<T>>;
+  private readonly[KEY_WEAKREFSET] = new WeakRefSet<T>;
 
   constructor(values?: Iterable<T> | null) {
     super(values);
     if (values) {
       for (const value of values) {
-        const weakRef = new BuiltInCollections.WeakRef<T>(value);
-        this[KEY_REFERENCES].set(value, weakRef);
-        this[KEY_WEAKREFS_SET].add(weakRef);
+        this[KEY_WEAKREFSET].addReference(value);
       }
     }
   }
 
   public add(value: T): this {
     super.add(value);
-    if (this[KEY_REFERENCES]) {
-      if (!this[KEY_REFERENCES].has(value)) {
-        const weakRef = new BuiltInCollections.WeakRef<T>(value);
-        this[KEY_REFERENCES].set(value, weakRef);
-        this[KEY_WEAKREFS_SET].add(weakRef);
-      }
-    }
+    this[KEY_WEAKREFSET]?.addReference(value);
     return this;
   }
 
-  public delete(key: T): boolean {
-    const didDelete = super.delete(key);
-    if (didDelete) {
-      const weakRef = this[KEY_REFERENCES].get(key)!;
-      this[KEY_WEAKREFS_SET].delete(weakRef);
-      this[KEY_REFERENCES].delete(key);
-    }
+  public delete(value: T): boolean {
+    const didDelete = super.delete(value);
+    this[KEY_WEAKREFSET].deleteReference(value);
     return didDelete;
   }
 
   public [COLLECT_REFERENCES](): ReadonlyDeep<ReferenceDescriptionIfc[]> {
     const refs: ReferenceDescription[] = [];
-    for (const weakRef of this[KEY_WEAKREFS_SET].values()) {
-      const strongRef: T | undefined = weakRef.deref();
-      if (strongRef === undefined)
-        continue;
-      refs.push(new ReferenceDescription("WeakSet", [this], strongRef, false, []));
+    for (const value of this[KEY_WEAKREFSET].liveElements()) {
+      refs.push(new ReferenceDescription("WeakSet", [this], value, false, []));
     }
 
     return refs;
