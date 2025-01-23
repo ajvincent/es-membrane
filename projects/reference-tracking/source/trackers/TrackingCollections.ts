@@ -42,6 +42,8 @@ export const TrackingCollections: CollectionsIfc = {
   WeakRef: WeakRefTracking,
   FinalizationRegistry: FinalizationRegistryTracking,
 
+  Promise: globalThis.Promise,
+
   install: function(): void {
     globalThis.WeakMap = this.WeakMap;
     globalThis.WeakSet = this.WeakSet;
@@ -53,6 +55,8 @@ export const TrackingCollections: CollectionsIfc = {
 
     globalThis.WeakRef = this.WeakRef;
     globalThis.FinalizationRegistry = this.FinalizationRegistry;
+
+    globalThis.Promise = this.Promise;
   }
 };
 Object.freeze(TrackingCollections);
