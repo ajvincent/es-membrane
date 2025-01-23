@@ -3,6 +3,10 @@ import type {
 } from "./types/CollectionsIfc.js";
 
 import {
+  FinalizationRegistryTracking
+} from "./FinalizationRegistry.js";
+
+import {
   MapTracking
 } from "./Map.js";
 
@@ -36,7 +40,7 @@ export const TrackingCollections: CollectionsIfc = {
   Proxy: ProxyTracking,
 
   WeakRef: WeakRefTracking,
-  FinalizationRegistry: globalThis.FinalizationRegistry,
+  FinalizationRegistry: FinalizationRegistryTracking,
 
   install: function(): void {
     globalThis.WeakMap = this.WeakMap;
