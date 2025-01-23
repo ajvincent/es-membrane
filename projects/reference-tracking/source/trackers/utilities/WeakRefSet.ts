@@ -2,7 +2,7 @@ import {
   BuiltInCollections
 } from "./BuiltInCollections.js";
 
-export class WeakRefSet<T extends object> {
+export class WeakRefSet<T extends WeakKey> {
   #finalizerCallback = (ref: WeakRef<T>) => {
     this.#references.delete(ref);
   }

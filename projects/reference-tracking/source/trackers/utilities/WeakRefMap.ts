@@ -4,7 +4,7 @@ import {
 
 import { WeakRefSet } from "./WeakRefSet.js";
 
-export class WeakRefMap<K extends object, V>
+export class WeakRefMap<K extends WeakKey, V>
 /*
 implements Omit<Map<K, V>, "size">
 */
