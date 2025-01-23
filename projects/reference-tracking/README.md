@@ -23,3 +23,5 @@ This library takes the third approach, with the idea of transforming source code
 In other words, **look, dude, these are hacks.**  Production code should _never even think_ about what I'm trying to do here, and should certainly _never publish_ what this code generates.
 
 The safest option above would've been option 2, using [engine262](https://engine262.js.org/), which is a ECMAScript engine written to run in [Node](https://nodejs.org/en).  Maybe I'll end up patching and using engine262 to run my code in an in-memory sandbox.
+
+[Source zip file for engine262](https://github.com/engine262/engine262/archive/refs/heads/main.zip)
