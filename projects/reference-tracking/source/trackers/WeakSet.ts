@@ -23,7 +23,7 @@ export class WeakSetTracking<T extends WeakKey>
 extends BuiltInCollections.Set<T>
 implements ReferenceDescriptionGetter
 {
-  private readonly[KEY_WEAKREFSET] = new WeakRefSet<T>;
+  private readonly [KEY_WEAKREFSET] = new WeakRefSet<T>;
 
   constructor(values?: Iterable<T> | null) {
     super(values);
