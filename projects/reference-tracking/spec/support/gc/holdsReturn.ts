@@ -36,16 +36,20 @@ function HoldsReturnPromise(
  * @param objectCount - the number of objects to store.
  * @param maxTries - the number of times to cycle.
  * @param maybeHoldsReturn - the function we're testing for strong or weak references
+ * @param runAfterMaybeHold - a callback to run after all iterations of the holding function have finished
  * @returns true if `maybeHoldsReturn` held any values.
  */
 export default async function holdsReturn(
   objectCount: number,
   maxTries: number,
-  maybeHoldsReturn: MaybeHoldReturn
+  maybeHoldsReturn: MaybeHoldReturn,
+  runAfterMaybeHold?: () => Promise<void>,
 ): Promise<boolean>
 {
   // the finalizer is here, with the await below, to make sure we collect the finalizer only when this function exits.
   const finalizer = PromiseFinalizer();
   const holdingPromise = HoldsReturnPromise(objectCount, maybeHoldsReturn, finalizer);
+  if (runAfterMaybeHold)
+    await runAfterMaybeHold();
   return await tryGarbageCollection(holdingPromise, maxTries);
 }
