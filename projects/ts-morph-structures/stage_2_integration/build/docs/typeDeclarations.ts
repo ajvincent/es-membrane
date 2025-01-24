@@ -1,13 +1,12 @@
-import { spawn } from 'child_process';
-import fs from "fs/promises";
-import path from "path";
-import { cwd, chdir } from 'process';
-import url from "url";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { cwd, chdir } from 'node:process';
+import url from "node:url";
 
 import {
+  asyncFork,
   monorepoRoot
 } from "@ajvincent/build-utilities";
-
 
 const projectDir = path.normalize(path.join(url.fileURLToPath(import.meta.url), "../../../.."));
 const sourceDir = path.join(projectDir, "stage_2_integration/snapshot");
@@ -30,34 +29,14 @@ async function compileTypeDefinitions(): Promise<void>
   );
 
   const pathToTSC = path.join(monorepoRoot, `node_modules/typescript/bin/tsc`);
-  const parameters = [
-    pathToTSC,
-    "--project", tsconfigSourceFile
-  ];
-
   const popDir: string = cwd();
 
   try {
-    // set up a promise to resolve or reject when tsc exits
-    type PromiseResolver<T> = (value: T | PromiseLike<T>) => unknown;
-    type PromiseRejecter = (reason?: unknown) => unknown;
-
-    let resolve: PromiseResolver<void>, reject: PromiseRejecter;
-    const tscPromise = new Promise((res, rej) => {
-      resolve = res;
-      reject = rej;
-    });
-
-    // run the TypeScript compiler!
-    // cwd is important for ts-node/tsimp hooks to run.
-    const tsc = spawn(process.argv0, parameters, {
-      cwd: projectDir,
-      // this ensures you can see TypeScript error messages
-      stdio: ["ignore", "inherit", "inherit", "ipc"]
-    });
-    tsc.on("exit", code => code ? reject(code) : resolve());
-
-    await tscPromise;
+    await asyncFork(
+      pathToTSC,
+      ["--project", tsconfigSourceFile],
+      projectDir
+    );
   }
   finally {
     // clean up

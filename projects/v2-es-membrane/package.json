@@ -10,8 +10,8 @@
     "node": ">=18.19"
   },
   "scripts": {
-    "build": "npm run clean && npm run tsc-buildsystem && node --expose-gc ../../node_modules/gulp/bin/gulp.js",
-    "debug": "npm run clean && npm run tsc-buildsystem && node --inspect-brk --expose-gc ../../node_modules/gulp/bin/gulp.js",
+    "build": "npm run clean && npm run tsc-buildsystem && node --expose-gc --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js",
+    "debug": "npm run clean && npm run tsc-buildsystem && node --inspect-brk --expose-gc --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js",
     "tasks": "npm run clean && npm run tsc-buildsystem && gulp --tasks",
     "clean": "node ./gulp-utilities/cleanTSC_output.js",
     "tsc-buildsystem": "tsc --project ./tsconfig-gulp.json"
