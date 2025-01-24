@@ -10,5 +10,4 @@ dist/**
 !dist/bin/*.js
 !dist/bin/*.d.ts
 
-postinstall/dist
-engine262
+playground
