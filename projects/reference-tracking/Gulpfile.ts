@@ -1,11 +1,8 @@
 import path from "node:path";
 
 import {
-  fileURLToPath
-} from "node:url";
-
-import {
   InvokeTSC,
+  monorepoRoot,
   runESLint,
   runJasmine,
 } from "@ajvincent/build-utilities";
@@ -17,7 +14,7 @@ import {
   dest
 } from "gulp";
 
-const projectRoot = path.normalize(path.join(fileURLToPath(import.meta.url), ".."));
+const projectRoot = path.join(monorepoRoot, "projects/reference-tracking");
 
 async function build(): Promise<void> {
   await InvokeTSC(path.join(projectRoot, "tsconfig.json"), []);
