@@ -11,6 +11,4 @@ export type CollectionsIfc = {
   FinalizationRegistry: FinalizationRegistryConstructor,
 
   Promise: PromiseConstructor,
-
-  install(): void;
 }
