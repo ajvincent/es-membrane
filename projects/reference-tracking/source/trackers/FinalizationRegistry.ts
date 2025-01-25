@@ -15,6 +15,8 @@ import {
 
 import isObjectOrSymbol from "./utilities/isObjectOrSymbol.js";
 
+export const FLUSH_CELLS_OF_HELD_VALUE = Symbol("#flushCellsOfHeldValue");
+
 class FinalizationCell<T> {
   readonly targetRef: WeakRef<WeakKey>;
   readonly heldValue: T;
@@ -41,23 +43,27 @@ implements ReferenceDescriptionGetter
   readonly #originalCallback: (heldValue: T) => void;
   readonly #cells = new Set<FinalizationCell<T>>;
 
-  #flushCellsOfHeldValue(heldValue: T): void {
+  /**
+   * @private
+   * @note exposed only for test purposes.
+   */
+  [FLUSH_CELLS_OF_HELD_VALUE](heldValue: T): void {
     for (const cell of this.#cells.values()) {
       if (cell.heldValue === heldValue)
         this.#cells.delete(cell);
     }
+    this.#originalCallback(heldValue);
   }
 
   constructor(cleanupCallback: (heldValue: T) => void) {
     super((heldValue: T): void => {
-      this.#flushCellsOfHeldValue(heldValue);
-      cleanupCallback(heldValue);
+      this[FLUSH_CELLS_OF_HELD_VALUE](heldValue);
     });
 
     this.#originalCallback = cleanupCallback;
   }
 
-  public register(target: WeakKey, heldValue: T, unregisterToken?: WeakKey): void {
+  public register(target: WeakKey, heldValue: T, unregisterToken?: WeakKey | undefined): void {
     super.register(target, heldValue, unregisterToken);
     this.#cells.add(new FinalizationCell<T>(target, heldValue, unregisterToken));
   }
@@ -94,3 +100,15 @@ implements ReferenceDescriptionGetter
     return refs;
   }
 }
+
+Reflect.defineProperty(FinalizationRegistryTracking.prototype, COLLECT_REFERENCES, {
+  configurable: false,
+  enumerable: false,
+  writable: false
+});
+
+Reflect.defineProperty(FinalizationRegistryTracking.prototype, FLUSH_CELLS_OF_HELD_VALUE, {
+  configurable: false,
+  enumerable: false,
+  writable: false
+});
