@@ -1,5 +1,5 @@
-import { SetTracking } from "../../source/trackers/Set.js";
-import { COLLECT_REFERENCES } from "../../source/trackers/utilities/ReferenceDescription.js";
+import { SetTracking } from "../../source/mockups/Set.js";
+import { COLLECT_REFERENCES } from "../../source/mockups/utilities/ReferenceDescription.js";
 
 it("SetTracking extends Set with [COLLECT_REFERENCES]", () => {
   let set = new SetTracking<unknown>;

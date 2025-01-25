@@ -1,5 +1,5 @@
-import { WeakRefTracking } from "../../source/trackers/WeakRef.js";
-import { COLLECT_REFERENCES } from "../../source/trackers/utilities/ReferenceDescription.js";
+import { WeakRefTracking } from "../../source/mockups/WeakRef.js";
+import { COLLECT_REFERENCES } from "../../source/mockups/utilities/ReferenceDescription.js";
 
 it("WeakRefTracking extends WeakRef with [COLLECT_REFERENCES]", () => {
   const obj = { "type": "car" };

@@ -1,11 +1,11 @@
 import {
   FLUSH_CELLS_OF_HELD_VALUE,
   FinalizationRegistryTracking,
- } from "../../source/trackers/FinalizationRegistry.js";
+ } from "../../source/mockups/FinalizationRegistry.js";
 
  import {
   COLLECT_REFERENCES
-} from "../../source/trackers/utilities/ReferenceDescription.js";
+} from "../../source/mockups/utilities/ReferenceDescription.js";
 
 it("FinalizationRegistryTracking extends FinalizationRegistry with [COLLECT_REFERENCES]", () => {
   const cleanupCallback = jasmine.createSpy();

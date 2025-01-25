@@ -1,5 +1,5 @@
-import { WeakMapTracking } from "../../source/trackers/WeakMap.js";
-import { COLLECT_REFERENCES } from "../../source/trackers/utilities/ReferenceDescription.js";
+import { WeakMapTracking } from "../../source/mockups/WeakMap.js";
+import { COLLECT_REFERENCES } from "../../source/mockups/utilities/ReferenceDescription.js";
 
 it("WeakMapTracking extends WeakMap with [COLLECT_REFERENCES]", () => {
   let map = new WeakMapTracking<WeakKey, unknown>;

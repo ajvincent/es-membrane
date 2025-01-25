@@ -1,4 +1,4 @@
-import { WeakRefMap } from "../../../source/trackers/utilities/WeakRefMap.js";
+import { WeakRefMap } from "../../../source/mockups/utilities/WeakRefMap.js";
 
 it("WeakRefMap works like a Map, except for .size()", () => {
   interface Car {

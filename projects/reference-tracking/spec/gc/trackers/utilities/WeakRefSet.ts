@@ -1,4 +1,4 @@
-import { WeakRefSet } from "../../../../source/trackers/utilities/WeakRefSet.js";
+import { WeakRefSet } from "../../../../source/mockups/utilities/WeakRefSet.js";
 import holdsArgument from "../../../support/gc/holdsArgument.js";
 
 describe("WeakRefSet", () => {

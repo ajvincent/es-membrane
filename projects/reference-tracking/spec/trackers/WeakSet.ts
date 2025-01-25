@@ -1,5 +1,5 @@
-import { WeakSetTracking } from "../../source/trackers/WeakSet.js";
-import { COLLECT_REFERENCES } from "../../source/trackers/utilities/ReferenceDescription.js";
+import { WeakSetTracking } from "../../source/mockups/WeakSet.js";
+import { COLLECT_REFERENCES } from "../../source/mockups/utilities/ReferenceDescription.js";
 
 it("WeakSetTracking extends WeakSet with [COLLECT_REFERENCES]", () => {
   let set = new WeakSetTracking<WeakKey>;

@@ -4,17 +4,17 @@ import type {
 
 import {
   ProxyTracking
-} from "../../source/trackers/Proxy.js";
+} from "../../source/mockups/Proxy.js";
 
 import {
   SpecialReferences
-} from "../../source/trackers/SpecialReferences.js";
+} from "../../source/mockups/SpecialReferences.js";
 
 import {
   COLLECT_REFERENCES,
   type ReferenceDescriptionGetter,
   type ReferenceDescription,
-} from "../../source/trackers/utilities/ReferenceDescription.js";
+} from "../../source/mockups/utilities/ReferenceDescription.js";
 
 describe("ProxyTracking creates proxies and exposes slots via SpecialReferences", () => {
   const proxyTarget = {

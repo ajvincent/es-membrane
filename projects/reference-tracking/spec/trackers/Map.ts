@@ -1,5 +1,5 @@
-import { MapTracking } from "../../source/trackers/Map.js";
-import { COLLECT_REFERENCES } from "../../source/trackers/utilities/ReferenceDescription.js";
+import { MapTracking } from "../../source/mockups/Map.js";
+import { COLLECT_REFERENCES } from "../../source/mockups/utilities/ReferenceDescription.js";
 
 it("MapTracking extends Map with [COLLECT_REFERENCES]", () => {
   let map = new MapTracking<unknown, unknown>;
