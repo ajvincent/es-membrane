@@ -11,6 +11,14 @@ import {
 } from "./Map.js";
 
 import {
+  PrivateClassPropertiesMap,
+  type PrivateClassFieldTools,
+  TrackPrivateStaticFields,
+  TrackPrivateFields,
+  TrackedPrivateReferences,
+} from "./PrivateClassProperties.js";
+
+import {
   ProxyTracking
 } from "./Proxy.js";
 
@@ -30,7 +38,7 @@ import {
   WeakSetTracking
 } from "./WeakSet.js";
 
-export const TrackingCollections: CollectionsIfc = {
+export const TrackingCollections: CollectionsIfc & PrivateClassFieldTools = {
   WeakMap: WeakMapTracking,
   WeakSet: WeakSetTracking,
 
@@ -43,5 +51,10 @@ export const TrackingCollections: CollectionsIfc = {
   FinalizationRegistry: FinalizationRegistryTracking,
 
   Promise: globalThis.Promise,
+
+  PrivateClassPropertiesMap,
+  TrackedPrivateReferences,
+  TrackPrivateStaticFields,
+  TrackPrivateFields,
 };
 Object.freeze(TrackingCollections);

@@ -15,13 +15,13 @@ type IsRequiredReturn<
 
 type ReadonlyWeakMap<K extends WeakKey, V> = Omit<WeakMap<K, V>, "delete" | "set">;
 
-interface ReadonlyCastMap<PropertyUnion extends PrivateClassKey, V> extends ReadonlyMap<PropertyUnion, V> {
+export interface ReadonlyCastMap<PropertyUnion extends PrivateClassKey, V> extends ReadonlyMap<PropertyUnion, V> {
   castGet<Type, IsRequired extends boolean>(
     key: PropertyUnion
   ): IsRequiredReturn<Type, IsRequired>;
 }
 
-interface ReadonlyPrivateFieldsSet extends ReadonlySet<ReadonlyCastMap<PrivateClassKey, unknown>> {
+export interface ReadonlyPrivateFieldsSet extends ReadonlySet<ReadonlyCastMap<PrivateClassKey, unknown>> {
   flatWeakKeys(): Iterator<WeakKey>;
 }
 
@@ -89,13 +89,13 @@ export function TrackPrivateFields<
   }
 
   {
-    let innerSet: PrivateFieldsSet | undefined = InstancePrivateFieldsMap.get(thisObj);
-    if (innerSet === undefined) {
-      innerSet = new PrivateFieldsSet;
-      InstancePrivateFieldsMap.set(thisObj, innerSet);
+    let innerPrivateFieldsSet: PrivateFieldsSet | undefined = InstancePrivateFieldsMap.get(thisObj);
+    if (innerPrivateFieldsSet === undefined) {
+      innerPrivateFieldsSet = new PrivateFieldsSet;
+      InstancePrivateFieldsMap.set(thisObj, innerPrivateFieldsSet);
     }
 
-    innerSet.add(privateFieldsMap);
+    innerPrivateFieldsSet.add(privateFieldsMap);
   }
 
   return privateFieldsMap;
@@ -111,4 +111,11 @@ export const TrackedPrivateReferences = {
   instancePrivateFields: InstancePrivateFieldsMap as ReadonlyWeakMap<
     object, ReadonlySet<ReadonlyCastMap<PrivateClassKey, unknown>>
   >,
+}
+
+export interface PrivateClassFieldTools {
+  TrackedPrivateReferences: typeof TrackedPrivateReferences,
+  PrivateClassPropertiesMap: typeof PrivateClassPropertiesMap,
+  TrackPrivateFields: typeof TrackPrivateFields,
+  TrackPrivateStaticFields: typeof TrackPrivateStaticFields,
 }
