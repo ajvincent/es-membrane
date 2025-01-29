@@ -14,6 +14,7 @@
 
   "include": [
     "fixtures/**/*.ts",
+    "playground/**/*.ts",
     "source/**/*.ts",
     "spec/**/*.ts"
   ],
