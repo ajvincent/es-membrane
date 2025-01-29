@@ -2,6 +2,10 @@ import type{
   ReadonlyDeep,
 } from "type-fest";
 
+import type {
+  ReferenceDescriptionIfc
+} from "../types/ReferenceDescriptionIfc.js";
+
 import {
   BuiltInCollections
 } from "./utilities/BuiltInCollections.js";
@@ -14,7 +18,6 @@ import {
   COLLECT_REFERENCES,
   ReferenceDescription,
   ReferenceDescriptionGetter,
-  ReferenceDescriptionIfc,
 } from "./utilities/ReferenceDescription.js";
 
 import type {

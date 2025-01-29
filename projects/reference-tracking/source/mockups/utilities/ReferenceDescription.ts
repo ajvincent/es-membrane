@@ -6,15 +6,11 @@ import {
   BuiltInCollections
 } from "./BuiltInCollections.js";
 
-export const COLLECT_REFERENCES = Symbol("Collect references");
+import type {
+  ReferenceDescriptionIfc
+} from "../../types/ReferenceDescriptionIfc.js"
 
-export interface ReferenceDescriptionIfc {
-  readonly collectionName: string;
-  readonly jointOwners: ReadonlySet<object | symbol>;
-  readonly referencedValue: object | symbol;
-  readonly isStrongReference: boolean;
-  readonly contextPrimitives: readonly unknown[];
-}
+export const COLLECT_REFERENCES = Symbol("Collect references");
 
 export interface ReferenceDescriptionGetter {
   [COLLECT_REFERENCES](): ReadonlyDeep<ReferenceDescriptionIfc[]>;
@@ -22,8 +18,8 @@ export interface ReferenceDescriptionGetter {
 
 export class ReferenceDescription implements ReferenceDescriptionIfc {
   readonly collectionName: string;
-  readonly jointOwners: ReadonlySet<object | symbol>;
-  readonly referencedValue: object | symbol;
+  readonly jointOwners: ReadonlySet<WeakKey>;
+  readonly referencedValue: WeakKey;
   readonly isStrongReference: boolean;
   readonly contextPrimitives: readonly unknown[];
 
