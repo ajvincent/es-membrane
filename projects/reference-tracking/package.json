@@ -29,6 +29,7 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
+    "@engine262/engine262": "^0.0.1-dd05c163162914b12baca4fbabb6e9ce99a217bc",
     "type-fest": "^4.32.0"
   }
 }
