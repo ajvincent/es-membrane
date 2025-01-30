@@ -8,6 +8,6 @@ async function* numbers() {
 
 (async () => {
   for await (const item of numbers()) {
-    print(item);
+    report(item);
   }
 })();
