@@ -37,13 +37,13 @@ export async function directInvoke(
   setSurroundingAgent(agent);
   const resolverCache = new Map;
 
-  const trackedPromises = new Set;
+  const trackedPromises = new Set<PromiseObjectValue>;
   const realm = new ManagedRealm({
     // getImportMetaProperties() {},
     // finalizeImportMeta() {},
     // randomSeed() {},
 
-    promiseRejectionTracker(promise: unknown, operation: unknown) {
+    promiseRejectionTracker(promise: PromiseObjectValue, operation: "reject" | "handle") {
       switch (operation) {
         case 'reject':
           trackedPromises.add(promise);
@@ -112,4 +112,10 @@ export async function directInvoke(
       return;
     }
   });
+
+  if (trackedPromises.size) {
+    const unhandledRejects: readonly PromiseObjectValue[] = Array.from(trackedPromises);
+    const unhandledErrors: readonly Error[] = unhandledRejects.map(value => new Error(inspect(value)));
+    throw new AggregateError(unhandledErrors);
+  }
 }
