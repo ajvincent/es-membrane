@@ -1,7 +1,7 @@
-async function* numbers() {
+async function * numbers(): AsyncGenerator<number, void, unknown> {
   let i = 0;
   while (i < 10) {
-    const n = await Promise.resolve(i++);
+    const n: number = await Promise.resolve(i++);
     yield n;
   }
 }

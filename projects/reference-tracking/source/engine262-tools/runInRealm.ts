@@ -123,4 +123,3 @@ function processAbruptCompletion(result: AbruptCompletion): void {
   const inspected = inspect(result as unknown as Value);
   void(inspected);
 }
-
