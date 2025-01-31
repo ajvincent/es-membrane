@@ -15,13 +15,7 @@ Now, obviously there are some challenges:
 Figuring out the answer to these questions requiries analyzing the relationships, which means we have to know about those relationships.  But to discover those relationships means, in several ways, we have to figure out what the code is actually going to do.  That requires either:
 
 1. implementing large parts of a JavaScript engine (no thanks)
-2. patching, compiling and running an existing engine (ugh)
-3. intercepting the built-in API's and inserting traps (unsafe)
+2. using an existing JavaScript engine we can hook into (ugh)
+3. intercepting the built-in API's and inserting traps (unsafe, and can't wrap closures anyway)
 
-This library takes the third approach, with the idea of transforming source code and running it as a bundle in a separate location.  So we're going to get _creative_ in one sense... and _evil_ in another.  Simply put, this code is taking a risky path with existing TypeScript files, which is why I will sandbox it as much as possible.
-
-In other words, **look, dude, these are hacks.**  Production code should _never even think_ about what I'm trying to do here, and should certainly _never publish_ what this code generates.
-
-The safest option above would've been option 2, using [engine262](https://engine262.js.org/), which is a ECMAScript engine written to run in [Node](https://nodejs.org/en).  Maybe I'll end up patching and using engine262 to run my code in an in-memory sandbox.
-
-[Source zip file for engine262](https://github.com/engine262/engine262/archive/refs/heads/main.zip)
+This library goes for approach #2, using [engine262](https://engine262.js.org/), which is a ECMAScript engine written to run in [Node](https://nodejs.org/en).  Maybe I'll end up patching and using engine262, but I sincerely hope not.
