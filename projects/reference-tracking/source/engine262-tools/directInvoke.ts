@@ -1,40 +1,69 @@
 import {
-  ManagedRealm,
-  Value,
-  CreateDataProperty,
-  inspect,
   CreateBuiltinFunction,
+  CreateDataProperty,
+  GetV,
+  JSStringValue,
+  LengthOfArrayLike,
+  ManagedRealm,
+  Throw,
+  UndefinedValue,
+  Value,
+  inspect,
+  isArrayExoticObject,
 } from '@engine262/engine262';
 
 import {
-  runInRealm
+  runInRealm,
 } from "./runInRealm.js";
 
 import {
+  GuestRealmInputs,
   GuestRealmOutputs
 } from './types/Virtualization262.js';
 
 export async function directInvoke(
-  absolutePathToFile: string,
-  reportFn: (...args: string[]) => void,
+  realmInputs: GuestRealmInputs,
+  reportFn: (guestValues: Value[]) => void,
 ): Promise<GuestRealmOutputs>
 {
   return await runInRealm({
-    absolutePathToFile,
+    absolutePathToFile: realmInputs.absolutePathToFile,
     defineBuiltIns: (realm: ManagedRealm) => {
       // Add print function from host
-      const print = CreateBuiltinFunction((args: Value[]) => {
+      const print = CreateBuiltinFunction((args: Value[]): UndefinedValue => {
         console.log(...args.map((tmp) => inspect(tmp)));
-        return Value.undefined;
+        return Value(undefined);
       }, 1, Value('print'), []);
       CreateDataProperty(realm.GlobalObject, Value('print'), print);
 
-      const report = CreateBuiltinFunction((args: Value[]) => {
-        const argSequence: readonly string[] = args.map((tmp) => inspect(tmp));
-        reportFn(...argSequence);
-        return Value.undefined;
-      }, 1, Value('report'), []);
+      const report = CreateBuiltinFunction(
+        (guestArguments: Value[], thisAndNewValue: { thisValue: Value, newTarget: Value} ): UndefinedValue | void => {
+          void(thisAndNewValue);
+
+          const guestReportedValues = guestArguments[0];
+          const guestValues: Value[] = [];
+          if (guestReportedValues.type !== "Object") {
+            Throw('TypeError', "NotAnObject", guestReportedValues);
+            return;
+          }
+          if (!isArrayExoticObject(guestReportedValues)) {
+            Throw('TypeError', "NotATypeObject", guestReportedValues, "Array");
+            return;
+          }
+
+          const length: number = LengthOfArrayLike(guestReportedValues);
+          for (let index = 0; index < length; index++) {
+            const key: JSStringValue = Value(index.toString());
+            guestValues.push(GetV(guestReportedValues, key));
+          }
+
+          reportFn(guestValues);
+          return Value(undefined);
+        }, 1, Value('report'), []);
       CreateDataProperty(realm.GlobalObject, Value('report'), report);
+
+      if (realmInputs.defineBuiltIns)
+        realmInputs.defineBuiltIns(realm);
     }
   });
 }

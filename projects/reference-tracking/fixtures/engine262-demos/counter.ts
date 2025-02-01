@@ -8,6 +8,6 @@ async function * numbers(): AsyncGenerator<number, void, unknown> {
 
 (async () => {
   for await (const item of numbers()) {
-    report(item);
+    report([item]);
   }
 })();
