@@ -18,14 +18,16 @@ import {
 } from '@engine262/engine262';
 
 import type {
-  GuestRealmInputs
+  GuestRealmInputs,
+  GuestRealmOutputs,
 } from "./types/Virtualization262.js";
 
 export async function runInRealm(
   inputs: GuestRealmInputs
-): Promise<void>
+): Promise<GuestRealmOutputs>
 {
   const contents = await fs.readFile(inputs.absolutePathToFile, { "encoding": "utf-8" });
+  const realmDriver = new RealmDriver;
 
   const agent = new Agent({
     // onDebugger() {},
@@ -37,27 +39,99 @@ export async function runInRealm(
   });
   setSurroundingAgent(agent);
 
-  const hostDefined = new RealmHostDefined;
-  const realm = new ManagedRealm(hostDefined);
+  const realm = new ManagedRealm(realmDriver.hostDefined);
 
   realm.scope(() => {
     if (inputs.defineBuiltIns) {
       inputs.defineBuiltIns(realm);
     }
 
-    runModule(inputs.absolutePathToFile, contents, hostDefined, realm);
+    realmDriver.runModule(inputs.absolutePathToFile, contents, realm);
   });
 
-  if (hostDefined.trackedPromises.size) {
-    const unhandledRejects: readonly PromiseObjectValue[] = Array.from(hostDefined.trackedPromises);
-    const unhandledErrors: readonly Error[] = unhandledRejects.map(value => new Error(inspect(value)));
-    throw new AggregateError(unhandledErrors);
+  return realmDriver.finalizeResults();
+}
+
+class RealmDriver {
+  #exceptionThrown = false;
+  readonly #results = new RealmResults;
+
+  readonly resolverCache = new Map<unknown, unknown>;
+  readonly trackedPromises = new Set<PromiseObjectValue>;
+
+  readonly hostDefined = new RealmHostDefined(this);
+
+  processAbruptCompletion(result: AbruptCompletion): void {
+    //eslint-disable-next-line no-debugger
+    debugger;
+    const inspected = inspect(result as unknown as Value);
+    void(inspected);
+
+    if (result.Type === "throw")
+      this.#exceptionThrown = true;
+  }
+
+  finalizeResults(): RealmResults {
+    if (this.trackedPromises.size) {
+      this.#results.unhandledPromises.push(...this.trackedPromises);
+      /*
+      const unhandledRejects: readonly PromiseObjectValue[] = Array.from(this.trackedPromises);
+      const unhandledErrors: readonly Error[] = unhandledRejects.map(value => new Error(inspect(value)));
+      throw new AggregateError(unhandledErrors);
+      */
+      this.#results.succeeded = false;
+    }
+    else {
+      this.#results.succeeded = !this.#exceptionThrown;
+    }
+    return this.#results;
+  }
+
+  runModule(
+    absolutePathToFile: string,
+    contents: string,
+    realm: ManagedRealm
+  ): void
+  {
+    const createSourceResult: ThrowCompletion | SourceTextModuleRecord = realm.createSourceTextModule(
+      pathToFileURL(absolutePathToFile).href, contents
+    );
+  
+    if (createSourceResult instanceof ThrowCompletion) {
+      this.processAbruptCompletion(createSourceResult);
+      return;
+    }
+
+    const module = createSourceResult;
+    this.resolverCache.set(absolutePathToFile, createSourceResult);
+    const loadRequestResult: PromiseObjectValue = module.LoadRequestedModules();
+    if (loadRequestResult instanceof AbruptCompletion) {
+      //@ts-expect-error ReturnType<LoadRequestedModule> says this shouldn't happen.
+      hostDefined.processAbruptCompletion(loadRequestResult);
+      return;
+    }
+  
+    const linkResult = module.Link();
+    if (linkResult instanceof ThrowCompletion) {
+      this.processAbruptCompletion(linkResult);
+      return;
+    }
+  
+    const evalResult: PromiseObjectValue = module.Evaluate();
+    if (evalResult.PromiseState === "rejected") {
+      // @ts-expect-error messages aren't exposed from api.d.mts, and besides, there's no obvious message to use.
+      this.processAbruptCompletion(Throw(evalResult.PromiseResult!));
+      return;
+    }
   }
 }
 
 class RealmHostDefined {
-  readonly resolverCache = new Map<unknown, unknown>;
-  readonly trackedPromises = new Set<PromiseObjectValue>;
+  readonly #driver: RealmDriver;
+
+  constructor(outer: RealmDriver) {
+    this.#driver = outer;
+  }
 
   public promiseRejectionTracker(
     promise: PromiseObjectValue,
@@ -66,60 +140,17 @@ class RealmHostDefined {
   {
     switch (operation) {
       case 'reject':
-        this.trackedPromises.add(promise);
+        this.#driver.trackedPromises.add(promise);
         break;
       case 'handle':
-        this.trackedPromises.delete(promise);
-        break;
-      /* c8 ignore next */
-      default:
+        this.#driver.trackedPromises.delete(promise);
         break;
     }
   }
 }
 
-function runModule(
-  absolutePathToFile: string,
-  contents: string,
-  hostDefined: RealmHostDefined,
-  realm: ManagedRealm
-): void
+export class RealmResults implements GuestRealmOutputs
 {
-  const createSourceResult: ThrowCompletion | SourceTextModuleRecord = realm.createSourceTextModule(
-    pathToFileURL(absolutePathToFile).href, contents
-  );
-
-  if (createSourceResult instanceof ThrowCompletion) {
-    processAbruptCompletion(createSourceResult);
-    return;
-  }
-
-  const module = createSourceResult;
-  hostDefined.resolverCache.set(absolutePathToFile, createSourceResult);
-  const loadRequestResult: PromiseObjectValue = module.LoadRequestedModules();
-  if (loadRequestResult instanceof AbruptCompletion) {
-    //@ts-expect-error ReturnType<LoadRequestedModule> says this shouldn't happen.
-    processAbruptCompletion(loadRequestResult);
-    return;
-  }
-
-  const linkResult = module.Link();
-  if (linkResult instanceof ThrowCompletion) {
-    processAbruptCompletion(linkResult);
-    return;
-  }
-
-  const evalResult: PromiseObjectValue = module.Evaluate();
-  if (evalResult.PromiseState === "rejected") {
-    // @ts-expect-error messages aren't exposed from api.d.mts, and besides, there's no obvious message to use.
-    processAbruptCompletion(Throw(evalResult.PromiseResult!));
-    return;
-  }
-}
-
-function processAbruptCompletion(result: AbruptCompletion): void {
-  //eslint-disable-next-line no-debugger
-  debugger;
-  const inspected = inspect(result as unknown as Value);
-  void(inspected);
+  readonly unhandledPromises: PromiseObjectValue[] = [];
+  succeeded = false;
 }

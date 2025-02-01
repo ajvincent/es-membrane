@@ -10,12 +10,16 @@ import {
   runInRealm
 } from "./runInRealm.js";
 
+import {
+  GuestRealmOutputs
+} from './types/Virtualization262.js';
+
 export async function directInvoke(
   absolutePathToFile: string,
   reportFn: (...args: string[]) => void,
-): Promise<void>
+): Promise<GuestRealmOutputs>
 {
-  await runInRealm({
+  return await runInRealm({
     absolutePathToFile,
     defineBuiltIns: (realm: ManagedRealm) => {
       // Add print function from host

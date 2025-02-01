@@ -2,13 +2,18 @@ import path from "node:path";
 
 import { directInvoke } from "../../source/engine262-tools/directInvoke.js";
 import { projectRoot } from "../support/projectRoot.js";
+import { GuestRealmOutputs } from "source/engine262-tools/types/Virtualization262.js";
 
 const fixturesDir = path.join(projectRoot, "dist/fixtures/engine262-demos");
 
 it("directInvoke works", async () => {
   const filePath = path.join(fixturesDir, "counter.js");
   const callback = jasmine.createSpy<(...values: string[]) => void>();
-  await directInvoke(filePath, callback);
+  const outputs: GuestRealmOutputs = await directInvoke(filePath, callback);
+
+  expect(outputs.succeeded).toBeTrue();
+  expect(outputs.unhandledPromises.length).toBe(0);
+
   expect(callback).toHaveBeenCalledTimes(10);
 
   expect(callback).toHaveBeenCalledWith("0");
