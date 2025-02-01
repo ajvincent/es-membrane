@@ -61,7 +61,45 @@ class RealmDriver {
 
   readonly hostDefined = new RealmHostDefined(this);
 
-  processAbruptCompletion(result: AbruptCompletion): void {
+  runModule(
+    absolutePathToFile: string,
+    contents: string,
+    realm: ManagedRealm
+  ): void
+  {
+    const createSourceResult: ThrowCompletion | SourceTextModuleRecord = realm.createSourceTextModule(
+      pathToFileURL(absolutePathToFile).href, contents
+    );
+
+    if (createSourceResult instanceof ThrowCompletion) {
+      this.#processAbruptCompletion(createSourceResult);
+      return;
+    }
+
+    const module = createSourceResult;
+    this.resolverCache.set(absolutePathToFile, createSourceResult);
+    const loadRequestResult: PromiseObjectValue = module.LoadRequestedModules();
+    if (loadRequestResult instanceof AbruptCompletion) {
+      //@ts-expect-error ReturnType<LoadRequestedModule> says this shouldn't happen.
+      this.#processAbruptCompletion(loadRequestResult);
+      return;
+    }
+  
+    const linkResult = module.Link();
+    if (linkResult instanceof ThrowCompletion) {
+      this.#processAbruptCompletion(linkResult);
+      return;
+    }
+  
+    const evalResult: PromiseObjectValue = module.Evaluate();
+    if (evalResult.PromiseState === "rejected") {
+      // @ts-expect-error messages aren't exposed from api.d.mts, and besides, there's no obvious message to use.
+      this.#processAbruptCompletion(Throw(evalResult.PromiseResult!));
+      return;
+    }
+  }
+
+  #processAbruptCompletion(result: AbruptCompletion): void {
     //eslint-disable-next-line no-debugger
     debugger;
     const inspected = inspect(result as unknown as Value);
@@ -86,44 +124,6 @@ class RealmDriver {
     }
     return this.#results;
   }
-
-  runModule(
-    absolutePathToFile: string,
-    contents: string,
-    realm: ManagedRealm
-  ): void
-  {
-    const createSourceResult: ThrowCompletion | SourceTextModuleRecord = realm.createSourceTextModule(
-      pathToFileURL(absolutePathToFile).href, contents
-    );
-  
-    if (createSourceResult instanceof ThrowCompletion) {
-      this.processAbruptCompletion(createSourceResult);
-      return;
-    }
-
-    const module = createSourceResult;
-    this.resolverCache.set(absolutePathToFile, createSourceResult);
-    const loadRequestResult: PromiseObjectValue = module.LoadRequestedModules();
-    if (loadRequestResult instanceof AbruptCompletion) {
-      //@ts-expect-error ReturnType<LoadRequestedModule> says this shouldn't happen.
-      hostDefined.processAbruptCompletion(loadRequestResult);
-      return;
-    }
-  
-    const linkResult = module.Link();
-    if (linkResult instanceof ThrowCompletion) {
-      this.processAbruptCompletion(linkResult);
-      return;
-    }
-  
-    const evalResult: PromiseObjectValue = module.Evaluate();
-    if (evalResult.PromiseState === "rejected") {
-      // @ts-expect-error messages aren't exposed from api.d.mts, and besides, there's no obvious message to use.
-      this.processAbruptCompletion(Throw(evalResult.PromiseResult!));
-      return;
-    }
-  }
 }
 
 class RealmHostDefined {
@@ -147,6 +147,24 @@ class RealmHostDefined {
         break;
     }
   }
+
+  /*
+  public getImportMetaProperties(...args: unknown[]): unknown {
+  }
+
+  public finalizeImportMeta(...args: unknown[]): unknown {
+  }
+
+  get public(): never {
+    throw new Error("what is this?");
+  }
+
+  get specifier(): never {
+    throw new Error("what should this be?");
+  }
+  */
+
+  public readonly randomSeed: undefined;
 }
 
 export class RealmResults implements GuestRealmOutputs
