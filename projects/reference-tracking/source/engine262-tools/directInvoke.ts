@@ -1,8 +1,4 @@
-import {
-  ManagedRealm,
-  Value,
-  inspect,
-} from '@engine262/engine262';
+import * as GuestEngine from '@engine262/engine262';
 
 import {
   defineBuiltInFunction,
@@ -20,25 +16,25 @@ import {
 export async function directInvoke(
   realmInputs: GuestRealmInputs,
   reportFn: (
-    guestThisArg: Value,
-    guestArguments: readonly Value[],
-    guestNewTarget: Value,
-  ) => Value,
+    guestThisArg: GuestEngine.Value,
+    guestArguments: readonly GuestEngine.Value[],
+    guestNewTarget: GuestEngine.Value,
+  ) => GuestEngine.Value,
 ): Promise<GuestRealmOutputs>
 {
   return await runInRealm({
     absolutePathToFile: realmInputs.absolutePathToFile,
-    defineBuiltIns: (realm: ManagedRealm) => {
+    defineBuiltIns: (realm: GuestEngine.ManagedRealm) => {
       defineBuiltInFunction(realm, "print", function print(
-        guestThisArg: Value,
-        guestArguments: readonly Value[],
-        guestNewTarget: Value,
-      ): Value
+        guestThisArg: GuestEngine.Value,
+        guestArguments: readonly GuestEngine.Value[],
+        guestNewTarget: GuestEngine.Value,
+      ): GuestEngine.Value
       {
         void(guestThisArg);
         void(guestNewTarget);
-        console.log(guestArguments.map((tmp) => inspect(tmp)));
-        return Value(undefined);
+        console.log(guestArguments.map((tmp) => GuestEngine.inspect(tmp)));
+        return GuestEngine.Value(undefined);
       });
 
       defineBuiltInFunction(realm, "report", reportFn);

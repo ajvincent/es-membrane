@@ -4,18 +4,7 @@ import {
   pathToFileURL,
 } from "node:url";
 
-import {
-  Agent,
-  setSurroundingAgent,
-  ManagedRealm,
-  Value,
-  inspect,
-  SourceTextModuleRecord,
-  AbruptCompletion,
-  ThrowCompletion,
-  PromiseObjectValue,
-  Throw,
-} from '@engine262/engine262';
+import * as GuestEngine from '@engine262/engine262';
 
 import type {
   GuestRealmInputs,
@@ -29,7 +18,7 @@ export async function runInRealm(
   const contents = await fs.readFile(inputs.absolutePathToFile, { "encoding": "utf-8" });
   const realmDriver = new RealmDriver;
 
-  const agent = new Agent({
+  const agent = new GuestEngine.Agent({
     // onDebugger() {},
     // ensureCanCompileStrings() {},
     // hasSourceTextAvailable() {},
@@ -37,9 +26,9 @@ export async function runInRealm(
     // onNodeEvaluation() {},
     // features: [],
   });
-  setSurroundingAgent(agent);
+  GuestEngine.setSurroundingAgent(agent);
 
-  const realm = new ManagedRealm(realmDriver.hostDefined);
+  const realm = new GuestEngine.ManagedRealm(realmDriver.hostDefined);
 
   realm.scope(() => {
     if (inputs.defineBuiltIns) {
@@ -57,41 +46,41 @@ class RealmDriver {
   readonly #results = new RealmResults;
 
   readonly resolverCache = new Map<unknown, unknown>;
-  readonly trackedPromises = new Set<PromiseObjectValue>;
+  readonly trackedPromises = new Set<GuestEngine.PromiseObjectValue>;
 
   readonly hostDefined = new RealmHostDefined(this);
 
   runModule(
     absolutePathToFile: string,
     contents: string,
-    realm: ManagedRealm
+    realm: GuestEngine.ManagedRealm
   ): void
   {
-    const createSourceResult: ThrowCompletion | SourceTextModuleRecord = realm.createSourceTextModule(
+    const createSourceResult: GuestEngine.ThrowCompletion | GuestEngine.SourceTextModuleRecord = realm.createSourceTextModule(
       pathToFileURL(absolutePathToFile).href, contents
     );
 
-    if (createSourceResult instanceof ThrowCompletion) {
+    if (createSourceResult instanceof GuestEngine.ThrowCompletion) {
       this.#processAbruptCompletion(createSourceResult);
       return;
     }
 
     const module = createSourceResult;
     this.resolverCache.set(absolutePathToFile, createSourceResult);
-    const loadRequestResult: PromiseObjectValue = module.LoadRequestedModules();
-    if (loadRequestResult instanceof AbruptCompletion) {
+    const loadRequestResult: GuestEngine.PromiseObjectValue = module.LoadRequestedModules();
+    if (loadRequestResult instanceof GuestEngine.AbruptCompletion) {
       //@ts-expect-error ReturnType<LoadRequestedModule> says this shouldn't happen.
       this.#processAbruptCompletion(loadRequestResult);
       return;
     }
   
     const linkResult = module.Link();
-    if (linkResult instanceof ThrowCompletion) {
+    if (linkResult instanceof GuestEngine.ThrowCompletion) {
       this.#processAbruptCompletion(linkResult);
       return;
     }
   
-    const evalResult: PromiseObjectValue = module.Evaluate();
+    const evalResult: GuestEngine.PromiseObjectValue = module.Evaluate();
     if (evalResult.PromiseState === "rejected") {
       // @ts-expect-error messages aren't exposed from api.d.mts, and besides, there's no obvious message to use.
       this.#processAbruptCompletion(Throw(evalResult.PromiseResult!));
@@ -99,10 +88,10 @@ class RealmDriver {
     }
   }
 
-  #processAbruptCompletion(result: AbruptCompletion): void {
+  #processAbruptCompletion(result: GuestEngine.AbruptCompletion): void {
     //eslint-disable-next-line no-debugger
     debugger;
-    const inspected = inspect(result as unknown as Value);
+    const inspected = GuestEngine.inspect(result as unknown as GuestEngine.Value);
     void(inspected);
 
     if (result.Type === "throw")
@@ -134,7 +123,7 @@ class RealmHostDefined {
   }
 
   public promiseRejectionTracker(
-    promise: PromiseObjectValue,
+    promise: GuestEngine.PromiseObjectValue,
     operation: "reject" | "handle"
   ): void
   {
@@ -169,6 +158,6 @@ class RealmHostDefined {
 
 export class RealmResults implements GuestRealmOutputs
 {
-  readonly unhandledPromises: PromiseObjectValue[] = [];
+  readonly unhandledPromises: GuestEngine.PromiseObjectValue[] = [];
   succeeded = false;
 }

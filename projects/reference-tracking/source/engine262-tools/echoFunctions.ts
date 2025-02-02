@@ -1,32 +1,25 @@
-import {
-  BooleanValue,
-  type ManagedRealm,
-  NumberValue,
-  JSStringValue,
-  Value,
-  BigIntValue,
-} from "@engine262/engine262";
+import * as GuestEngine from "@engine262/engine262";
 
 import {
   defineBuiltInFunction
 } from "./defineBuiltInFunction.js";
 
-export function defineEchoFunctions(realm: ManagedRealm): void {
-  defineBuiltInFunction(realm, "echoNull", () => Value.null);
+export function defineEchoFunctions(realm: GuestEngine.ManagedRealm): void {
+  defineBuiltInFunction(realm, "echoNull", () => GuestEngine.Value.null);
   defineBuiltInFunction(
     realm,
     "echoNegate",
     function echoNegate(
-      guestThisArg: Value,
-      guestArguments: readonly Value[],
-      guestNewTarget: Value
-    ): BooleanValue {
+      guestThisArg: GuestEngine.Value,
+      guestArguments: readonly GuestEngine.Value[],
+      guestNewTarget: GuestEngine.Value
+    ): GuestEngine.BooleanValue {
       void(guestThisArg);
       void(guestNewTarget);
       const [guestInput] = guestArguments;
       if (guestInput.type !== "Boolean")
-        return BooleanValue.false;
-      return (guestInput.booleanValue() === true) ? Value(false) : Value(true);
+        return GuestEngine.BooleanValue.false;
+      return (guestInput.booleanValue() === true) ? GuestEngine.Value.false : GuestEngine.Value.true;
     }
   );
 
@@ -34,18 +27,18 @@ export function defineEchoFunctions(realm: ManagedRealm): void {
     realm,
     "echoPlusOne",
     function echoPlusOne(
-      guestThisArg: Value,
-      guestArguments: readonly Value[],
-      guestNewTarget: Value
-    ): NumberValue
+      guestThisArg: GuestEngine.Value,
+      guestArguments: readonly GuestEngine.Value[],
+      guestNewTarget: GuestEngine.Value
+    ): GuestEngine.NumberValue
     {
       void(guestThisArg);
       void(guestNewTarget);
       const [guestInput] = guestArguments;
       if (guestInput?.type !== "Number")
-        return Value(NaN);
+        return GuestEngine.Value(NaN);
 
-      return Value(guestInput.numberValue() + 1);
+      return GuestEngine.Value(guestInput.numberValue() + 1);
     }
   );
 
@@ -53,18 +46,18 @@ export function defineEchoFunctions(realm: ManagedRealm): void {
     realm,
     "echoAppendUnderscore",
     function echoAppendUnderscore(
-      guestThisArg: Value,
-      guestArguments: readonly Value[],
-      guestNewTarget: Value
-    ): JSStringValue
+      guestThisArg: GuestEngine.Value,
+      guestArguments: readonly GuestEngine.Value[],
+      guestNewTarget: GuestEngine.Value
+    ): GuestEngine.JSStringValue
     {
       void(guestThisArg);
       void(guestNewTarget);
       const [guestInput] = guestArguments;
       if (guestInput?.type !== "String")
-        return Value("");
+        return GuestEngine.Value("");
 
-      return Value(guestInput.stringValue() + "_");
+      return GuestEngine.Value(guestInput.stringValue() + "_");
     }
   );
 
@@ -72,10 +65,10 @@ export function defineEchoFunctions(realm: ManagedRealm): void {
     realm,
     "echoMinusOne",
     function echoMinusOne(
-      guestThisArg: Value,
-      guestArguments: readonly Value[],
-      guestNewTarget: Value
-    ): BigIntValue
+      guestThisArg: GuestEngine.Value,
+      guestArguments: readonly GuestEngine.Value[],
+      guestNewTarget: GuestEngine.Value
+    ): GuestEngine.BigIntValue
     {
       void(guestThisArg);
       void(guestNewTarget);
@@ -83,7 +76,7 @@ export function defineEchoFunctions(realm: ManagedRealm): void {
       if (guestInput?.type !== "BigInt")
         throw new Error('oops');
 
-      return Value(guestInput.bigintValue() - BigInt(1));
+      return GuestEngine.Value(guestInput.bigintValue() - BigInt(1));
     }
   );
 }
