@@ -13,12 +13,13 @@ export function defineEchoFunctions(realm: GuestEngine.ManagedRealm): void {
       guestThisArg: GuestEngine.Value,
       guestArguments: readonly GuestEngine.Value[],
       guestNewTarget: GuestEngine.Value
-    ): GuestEngine.BooleanValue {
+    ): GuestEngine.BooleanValue
+    {
       void(guestThisArg);
       void(guestNewTarget);
       const [guestInput] = guestArguments;
-      if (guestInput.type !== "Boolean")
-        return GuestEngine.BooleanValue.false;
+      if (guestInput?.type !== "Boolean")
+        throw new Error("first argument to echoNegate must be a boolean");
       return (guestInput.booleanValue() === true) ? GuestEngine.Value.false : GuestEngine.Value.true;
     }
   );
@@ -36,7 +37,7 @@ export function defineEchoFunctions(realm: GuestEngine.ManagedRealm): void {
       void(guestNewTarget);
       const [guestInput] = guestArguments;
       if (guestInput?.type !== "Number")
-        return GuestEngine.Value(NaN);
+        throw new Error("first argument to echoNegate must be a number");
 
       return GuestEngine.Value(guestInput.numberValue() + 1);
     }
@@ -55,7 +56,7 @@ export function defineEchoFunctions(realm: GuestEngine.ManagedRealm): void {
       void(guestNewTarget);
       const [guestInput] = guestArguments;
       if (guestInput?.type !== "String")
-        return GuestEngine.Value("");
+        throw new Error("first argument to echoAppendUnderscore must be a string");
 
       return GuestEngine.Value(guestInput.stringValue() + "_");
     }
@@ -74,7 +75,7 @@ export function defineEchoFunctions(realm: GuestEngine.ManagedRealm): void {
       void(guestNewTarget);
       const [guestInput] = guestArguments;
       if (guestInput?.type !== "BigInt")
-        throw new Error('oops');
+        throw new Error("first argument to echoMinusOne must be a bigint");
 
       return GuestEngine.Value(guestInput.bigintValue() - BigInt(1));
     }
