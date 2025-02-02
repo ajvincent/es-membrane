@@ -1,48 +1,89 @@
 import {
   BooleanValue,
-  CreateBuiltinFunction,
-  CreateDataProperty,
   type ManagedRealm,
   NumberValue,
   JSStringValue,
   Value,
   BigIntValue,
-} from "@engine262/engine262"
+} from "@engine262/engine262";
+
+import {
+  defineBuiltInFunction
+} from "./defineBuiltInFunction.js";
 
 export function defineEchoFunctions(realm: ManagedRealm): void {
-  {
-    const echoNull = CreateBuiltinFunction(() => Value(null), 0, Value("echoNull"), []);
-    CreateDataProperty(realm.GlobalObject, Value("echoNull"), echoNull);
-  }
-
-  {
-    const echoNegate = CreateBuiltinFunction((guestInput: BooleanValue): BooleanValue => {
+  defineBuiltInFunction(realm, "echoNull", () => Value.null);
+  defineBuiltInFunction(
+    realm,
+    "echoNegate",
+    function echoNegate(
+      guestThisArg: Value,
+      guestArguments: readonly Value[],
+      guestNewTarget: Value
+    ): BooleanValue {
+      void(guestThisArg);
+      void(guestNewTarget);
+      const [guestInput] = guestArguments;
+      if (guestInput.type !== "Boolean")
+        return BooleanValue.false;
       return (guestInput.booleanValue() === true) ? Value(false) : Value(true);
-    }, 1, Value("echoNegate"), []);
-    CreateDataProperty(realm.GlobalObject, Value("echoNegate"), echoNegate);
-  }
+    }
+  );
 
-  {
-    const echoPlusOne = CreateBuiltinFunction((guestInput: NumberValue): NumberValue => {
-      const input: number = guestInput.numberValue();
-      return Value(input + 1);
-    }, 1, Value("echoPlusOne"), []);
-    CreateDataProperty(realm.GlobalObject, Value("echoPlusOne"), echoPlusOne);
-  }
+  defineBuiltInFunction(
+    realm,
+    "echoPlusOne",
+    function echoPlusOne(
+      guestThisArg: Value,
+      guestArguments: readonly Value[],
+      guestNewTarget: Value
+    ): NumberValue
+    {
+      void(guestThisArg);
+      void(guestNewTarget);
+      const [guestInput] = guestArguments;
+      if (guestInput?.type !== "Number")
+        return Value(NaN);
 
-  {
-    const echoAppendUnderscore = CreateBuiltinFunction((guestInput: JSStringValue): JSStringValue => {
-      const input: string = guestInput.stringValue();
-      return Value(input + "_");
-    }, 1, Value("echoAppendUnderscore"), []);
-    CreateDataProperty(realm.GlobalObject, Value("echoAppendUnderscore"), echoAppendUnderscore);
-  }
+      return Value(guestInput.numberValue() + 1);
+    }
+  );
 
-  {
-    const echoMinusOne = CreateBuiltinFunction((guestInput: BigIntValue): BigIntValue => {
-      const input: bigint = guestInput.bigintValue();
-      return Value(input - BigInt(1));
-    }, 1, Value("echoMinusOne"), []);
-    CreateDataProperty(realm.GlobalObject, Value("echoMinusOne"), echoMinusOne);
-  }
+  defineBuiltInFunction(
+    realm,
+    "echoAppendUnderscore",
+    function echoAppendUnderscore(
+      guestThisArg: Value,
+      guestArguments: readonly Value[],
+      guestNewTarget: Value
+    ): JSStringValue
+    {
+      void(guestThisArg);
+      void(guestNewTarget);
+      const [guestInput] = guestArguments;
+      if (guestInput?.type !== "String")
+        return Value("");
+
+      return Value(guestInput.stringValue() + "_");
+    }
+  );
+
+  defineBuiltInFunction(
+    realm,
+    "echoMinusOne",
+    function echoMinusOne(
+      guestThisArg: Value,
+      guestArguments: readonly Value[],
+      guestNewTarget: Value
+    ): BigIntValue
+    {
+      void(guestThisArg);
+      void(guestNewTarget);
+      const [guestInput] = guestArguments;
+      if (guestInput?.type !== "BigInt")
+        throw new Error('oops');
+
+      return Value(guestInput.bigintValue() - BigInt(1));
+    }
+  );
 }
