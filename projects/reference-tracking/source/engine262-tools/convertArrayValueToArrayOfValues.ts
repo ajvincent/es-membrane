@@ -12,12 +12,5 @@ export function convertArrayValueToArrayOfValues(
     return GuestEngine.Throw('TypeError', "NotATypeObject", arrayValue, "Array");
   }
 
-  const guestValues: GuestEngine.Value[] = [];
-  const length: number = GuestEngine.LengthOfArrayLike(arrayValue);
-  for (let index = 0; index < length; index++) {
-    const key: GuestEngine.JSStringValue = GuestEngine.Value(index.toString());
-    guestValues.push(GuestEngine.GetV(arrayValue, key));
-  }
-
-  return guestValues;
+  return GuestEngine.CreateListFromArrayLike(arrayValue, undefined);
 }
