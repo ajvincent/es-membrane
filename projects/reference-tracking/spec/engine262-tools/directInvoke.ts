@@ -14,40 +14,16 @@ it("directInvoke works", async () => {
   let counter = 0;
   const callback = jasmine.createSpy<
     (
-      guestThisArg: GuestEngine.Value,
-      guestArguments: readonly GuestEngine.Value[],
-      guestNewTarget: GuestEngine.Value,
-    ) => GuestEngine.Value
+      guestValues: readonly GuestEngine.Value[],
+    ) => GuestEngine.Value | GuestEngine.ThrowCompletion
   >();
 
   let failed = false;
   callback.and.callFake((
-    guestThisArg: GuestEngine.Value,
-    guestArguments: readonly GuestEngine.Value[],
-    guestNewTarget: GuestEngine.Value,
-  ): GuestEngine.Value => {
-    void(guestThisArg);
-    void(guestNewTarget);
-
+    guestValues: readonly GuestEngine.Value[],
+  ): (GuestEngine.Value | GuestEngine.ThrowCompletion) => {
     if (failed)
       return GuestEngine.Value.undefined;
-
-    const guestReportedArray = guestArguments[0];
-    const guestValues: GuestEngine.Value[] = [];
-    if (guestReportedArray.type !== "Object") {
-      GuestEngine.Throw('TypeError', "NotAnObject", guestReportedArray);
-      return GuestEngine.Value.undefined;
-    }
-    if (!GuestEngine.isArrayExoticObject(guestReportedArray)) {
-      GuestEngine.Throw('TypeError', "NotATypeObject", guestReportedArray, "Array");
-      return GuestEngine.Value.undefined;
-    }
-
-    const length: number = GuestEngine.LengthOfArrayLike(guestReportedArray);
-    for (let index = 0; index < length; index++) {
-      const key: GuestEngine.JSStringValue = GuestEngine.Value(index.toString());
-      guestValues.push(GuestEngine.GetV(guestReportedArray, key));
-    }
 
     expect(guestValues.length).withContext(`iteration ${counter} argument length`).toBe(1);
     if (guestValues.length !== 1) {
@@ -73,4 +49,20 @@ it("directInvoke works", async () => {
   expect(outputs.unhandledPromises.length).toBe(0);
 
   expect(callback).toHaveBeenCalledTimes(10);
-}, 1000 * 60 * 60);
+});
+
+it("directInvoke throws when it doesn't get an array argument", async () => {
+  const absolutePathToFile = path.join(fixturesDir, "throwOnReport.js");
+  const callback = jasmine.createSpy<
+    (
+      guestValues: readonly GuestEngine.Value[],
+    ) => GuestEngine.Value | GuestEngine.ThrowCompletion
+  >();
+
+  const outputs: GuestRealmOutputs = await directInvoke({absolutePathToFile}, callback);
+
+  expect(outputs.succeeded).toBeFalse();
+  expect(outputs.unhandledPromises.length).toBe(1); // for the thrown exception
+
+  expect(callback).toHaveBeenCalledTimes(0);
+});

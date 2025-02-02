@@ -1,6 +1,10 @@
 import * as GuestEngine from '@engine262/engine262';
 
 import {
+  convertArrayValueToArrayOfValues
+} from './convertArrayValueToArrayOfValues.js';
+
+import {
   defineBuiltInFunction,
 } from "./defineBuiltInFunction.js";
 
@@ -16,10 +20,8 @@ import {
 export async function directInvoke(
   realmInputs: GuestRealmInputs,
   reportFn: (
-    guestThisArg: GuestEngine.Value,
-    guestArguments: readonly GuestEngine.Value[],
-    guestNewTarget: GuestEngine.Value,
-  ) => GuestEngine.Value,
+    guestValues: readonly GuestEngine.Value[],
+  ) => GuestEngine.Value | GuestEngine.ThrowCompletion,
 ): Promise<GuestRealmOutputs>
 {
   return await runInRealm({
@@ -37,7 +39,19 @@ export async function directInvoke(
         return GuestEngine.Value(undefined);
       });
 
-      defineBuiltInFunction(realm, "report", reportFn);
+      defineBuiltInFunction(realm, "report", (
+        guestThisArg, guestArguments, guestNewTarget
+      ) => {
+        void(guestThisArg);
+        void(guestNewTarget);
+
+        const arrayOfValues: GuestEngine.Value[] | GuestEngine.ThrowCompletion = convertArrayValueToArrayOfValues(guestArguments[0]);
+        if (Array.isArray(arrayOfValues) === false)
+          return arrayOfValues;
+
+        return reportFn(arrayOfValues);
+      });
+
       if (realmInputs.defineBuiltIns)
         realmInputs.defineBuiltIns(realm);
     }

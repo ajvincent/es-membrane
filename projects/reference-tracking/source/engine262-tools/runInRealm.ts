@@ -83,7 +83,7 @@ class RealmDriver {
     const evalResult: GuestEngine.PromiseObjectValue = module.Evaluate();
     if (evalResult.PromiseState === "rejected") {
       // @ts-expect-error messages aren't exposed from api.d.mts, and besides, there's no obvious message to use.
-      this.#processAbruptCompletion(Throw(evalResult.PromiseResult!));
+      this.#processAbruptCompletion(GuestEngine.Throw(evalResult.PromiseResult!));
       return;
     }
   }

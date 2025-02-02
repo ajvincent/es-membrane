@@ -7,13 +7,13 @@ export function defineBuiltInFunction(
     guestThisArg: GuestEngine.Value,
     guestArguments: readonly GuestEngine.Value[],
     guestNewTarget: GuestEngine.Value
-  ) => GuestEngine.Value,
+  ) => GuestEngine.Value | GuestEngine.ThrowCompletion,
 ): void
 {
   function builtInConverter(
     guestArguments: readonly GuestEngine.Value[],
     thisAndNewValue: { thisValue: GuestEngine.Value, newTarget: GuestEngine.Value }
-  ): GuestEngine.Value
+  ): GuestEngine.Value | GuestEngine.ThrowCompletion
   {
     /*
     const guestReportedValues = guestArguments[0];
@@ -34,7 +34,14 @@ export function defineBuiltInFunction(
     }
     */
 
-    return callback(thisAndNewValue.thisValue, guestArguments, thisAndNewValue.newTarget);
+    try {
+      return callback(thisAndNewValue.thisValue, guestArguments, thisAndNewValue.newTarget);
+    }
+    catch (ex: unknown) {
+      return GuestEngine.Throw(
+        "Error", "Raw", "HostDefinedError: " + String(ex)
+      );
+    }
   }
 
   const builtInName = GuestEngine.Value(name);
