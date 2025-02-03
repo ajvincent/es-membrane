@@ -1,6 +1,8 @@
 import path from "node:path";
 
-import * as GuestEngine from "@engine262/engine262";
+import {
+  GuestEngine
+} from "../../source/engine262-tools/GuestEngine.js";
 
 import { directInvoke } from "../../source/engine262-tools/directInvoke.js";
 import { projectRoot } from "../support/projectRoot.js";

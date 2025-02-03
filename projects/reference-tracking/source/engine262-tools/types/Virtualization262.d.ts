@@ -1,4 +1,6 @@
-import * as GuestEngine from "@engine262/engine262";
+import type {
+  GuestEngine
+} from "./GuestEngine.js";
 
 export interface GuestRealmInputs {
   readonly absolutePathToFile: string;

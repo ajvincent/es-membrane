@@ -4,7 +4,9 @@ import {
   pathToFileURL,
 } from "node:url";
 
-import * as GuestEngine from '@engine262/engine262';
+import {
+  GuestEngine
+} from "./GuestEngine.js";
 
 import type {
   GuestRealmInputs,
