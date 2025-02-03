@@ -89,8 +89,6 @@ class RealmDriver {
   }
 
   #processAbruptCompletion(result: GuestEngine.AbruptCompletion): void {
-    //eslint-disable-next-line no-debugger
-    debugger;
     const inspected = GuestEngine.inspect(result as unknown as GuestEngine.Value);
     void(inspected);
 

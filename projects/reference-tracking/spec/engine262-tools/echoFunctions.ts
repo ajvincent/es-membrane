@@ -20,9 +20,6 @@ it("echo functions can work", async () => {
   callback.and.callFake((
     guestValues: readonly GuestEngine.Value[],
   ): GuestEngine.Value | GuestEngine.ThrowCompletion => {
-    // eslint-disable-next-line no-debugger
-    debugger;
-
     expect(guestValues.length).toBe(1);
     if (guestValues.length !== 1)
       return GuestEngine.Value.undefined;
