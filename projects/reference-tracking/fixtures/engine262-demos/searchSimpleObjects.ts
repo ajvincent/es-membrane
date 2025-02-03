@@ -1,5 +1,3 @@
-import { searchReferences } from "./searchReferences.js";
-
 class Person {
   readonly name: string;
 
@@ -29,4 +27,4 @@ const Alice = new Person("Alice");
 const Bob = new Person("Bob");
 Peter.setParents(Alice, Bob);
 
-report([searchReferences(Bob, [Carl], true)]);
+searchReferences(Bob, [Carl], true);

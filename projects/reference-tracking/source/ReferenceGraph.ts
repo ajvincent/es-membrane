@@ -91,4 +91,6 @@ export interface ReferenceGraph {
   readonly nodes: ReferenceGraphNode[];
   readonly parentToChildEdges: ParentToChildReferenceGraphEdge[];
   readonly childToParentEdges: ChildToParentReferenceGraphEdge[];
+
+  readonly succeeded: boolean;
 }

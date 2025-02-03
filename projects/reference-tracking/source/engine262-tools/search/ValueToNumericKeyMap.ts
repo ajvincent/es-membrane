@@ -2,7 +2,7 @@ import * as GuestEngine from "@engine262/engine262";
 
 import {
   DefaultWeakMap
-} from "../collections/DefaultMap.js";
+} from "../../collections/DefaultMap.js";
 
 export class ValueToNumericKeyMap {
   #counter = 0;

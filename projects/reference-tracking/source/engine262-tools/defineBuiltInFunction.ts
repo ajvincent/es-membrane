@@ -5,6 +5,7 @@ import {
 export function defineBuiltInFunction(
   realm: GuestEngine.ManagedRealm,
   name: string,
+  /* argumentsLength: number */
   callback: (
     guestThisArg: GuestEngine.Value,
     guestArguments: readonly GuestEngine.Value[],
@@ -12,6 +13,7 @@ export function defineBuiltInFunction(
   ) => GuestEngine.Value | GuestEngine.ThrowCompletion,
 ): void
 {
+  const argumentsLength = 1;
   function builtInConverter(
     guestArguments: readonly GuestEngine.Value[],
     thisAndNewValue: { thisValue: GuestEngine.Value, newTarget: GuestEngine.Value }
@@ -29,6 +31,6 @@ export function defineBuiltInFunction(
 
   const builtInName = GuestEngine.Value(name);
 
-  const builtInCallback = GuestEngine.CreateBuiltinFunction(builtInConverter, callback.length, builtInName, []);
+  const builtInCallback = GuestEngine.CreateBuiltinFunction(builtInConverter, argumentsLength, builtInName, []);
   GuestEngine.CreateDataProperty(realm.GlobalObject, builtInName, builtInCallback);
 }
