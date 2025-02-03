@@ -3,6 +3,8 @@ export enum ChildReferenceEdgeType {
   ArrayIndex,
   PropertySymbol,
   PrivateClassField,
+
+  // probably going to replace this with enums specific to each builtin class
   InternalSlot,
 
   // less sure of these
@@ -15,6 +17,26 @@ export enum ChildReferenceEdgeType {
 
 export const TARGET_NODE_KEY = 0;
 export const PRESUMED_HELD_NODE_KEY = 1;
+
+export type BuiltInClassName = (
+  "Object" |
+  "Array" |
+  "Function" |
+  "WeakRef" |
+  "WeakMap" |
+  "WeakSet" |
+  "Map" |
+  "Set" |
+  "Proxy" |
+  "FinalizationRegistry" |
+  never
+);
+
+export interface ReferenceGraphNode {
+  readonly objectKey: number;
+  readonly builtInClassName: BuiltInClassName;
+  readonly derivedClassName?: string;
+}
 
 export interface ChildToParentReferenceGraphEdge {
   readonly jointOwnerKeys: number[];
@@ -67,6 +89,7 @@ export type ParentToChildReferenceGraphEdge = (
 );
 
 export interface ReferenceGraph {
+  readonly nodes: ReferenceGraphNode[];
   readonly parentToChildEdges: ParentToChildReferenceGraphEdge[];
   readonly childToParentEdges: ChildToParentReferenceGraphEdge[];
 }
