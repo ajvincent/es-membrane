@@ -1,11 +1,14 @@
 import path from "node:path";
 
 import {
-  GuestEngine
+  GuestEngine,
+  type ThrowOr,
 } from "../../source/engine262-tools/GuestEngine.js";
 
-import { directInvoke } from "../../source/engine262-tools/directInvoke.js";
 import { projectRoot } from "../support/projectRoot.js";
+
+import { directInvoke } from "../../source/engine262-tools/directInvoke.js";
+import { defineReportFunction } from "../../source/engine262-tools/defineReportFunction.js";
 import { GuestRealmOutputs } from "../../source/engine262-tools/types/Virtualization262.js";
 import { defineEchoFunctions } from "../../source/engine262-tools/echoFunctions.js";
 
@@ -21,7 +24,7 @@ it("echo functions can work", async () => {
 
   callback.and.callFake((
     guestValues: readonly GuestEngine.Value[],
-  ): GuestEngine.Value | GuestEngine.ThrowCompletion => {
+  ): ThrowOr<GuestEngine.Value> => {
     expect(guestValues.length).toBe(1);
     if (guestValues.length !== 1)
       return GuestEngine.Value.undefined;
@@ -64,8 +67,11 @@ it("echo functions can work", async () => {
 
   const outputs: GuestRealmOutputs = await directInvoke({
     absolutePathToFile,
-    defineBuiltIns: defineEchoFunctions,
-  }, callback);
+    defineBuiltIns: (realm) => {
+      defineReportFunction(realm, callback);
+      defineEchoFunctions(realm);
+    },
+  });
 
   expect(outputs.succeeded).toBeTrue();
   expect(outputs.unhandledPromises.length).toBe(0);

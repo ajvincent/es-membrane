@@ -1,11 +1,14 @@
 import path from "node:path";
 
 import {
-  GuestEngine
+  GuestEngine,
+  type ThrowOr
 } from "../../source/engine262-tools/GuestEngine.js";
 
-import { directInvoke } from "../../source/engine262-tools/directInvoke.js";
 import { projectRoot } from "../support/projectRoot.js";
+
+import { directInvoke } from "../../source/engine262-tools/directInvoke.js";
+import { defineReportFunction } from "../../source/engine262-tools/defineReportFunction.js";
 import { GuestRealmOutputs } from "../../source/engine262-tools/types/Virtualization262.js";
 
 const fixturesDir = path.join(projectRoot, "dist/fixtures/engine262-demos");
@@ -17,13 +20,13 @@ it("directInvoke works", async () => {
   const callback = jasmine.createSpy<
     (
       guestValues: readonly GuestEngine.Value[],
-    ) => GuestEngine.Value | GuestEngine.ThrowCompletion
+    ) => ThrowOr<GuestEngine.Value>
   >();
 
   let failed = false;
   callback.and.callFake((
     guestValues: readonly GuestEngine.Value[],
-  ): (GuestEngine.Value | GuestEngine.ThrowCompletion) => {
+  ): ThrowOr<GuestEngine.Value> => {
     if (failed)
       return GuestEngine.Value.undefined;
 
@@ -45,7 +48,12 @@ it("directInvoke works", async () => {
     counter++;
     return GuestEngine.Value.undefined;
   });
-  const outputs: GuestRealmOutputs = await directInvoke({absolutePathToFile}, callback);
+  const outputs: GuestRealmOutputs = await directInvoke({
+    absolutePathToFile,
+    defineBuiltIns: (realm) => {
+      defineReportFunction(realm, callback);
+    },
+  });
 
   expect(outputs.succeeded).toBeTrue();
   expect(outputs.unhandledPromises.length).toBe(0);
@@ -58,10 +66,15 @@ it("directInvoke throws when it doesn't get an array argument", async () => {
   const callback = jasmine.createSpy<
     (
       guestValues: readonly GuestEngine.Value[],
-    ) => GuestEngine.Value | GuestEngine.ThrowCompletion
+    ) => ThrowOr<GuestEngine.Value>
   >();
 
-  const outputs: GuestRealmOutputs = await directInvoke({absolutePathToFile}, callback);
+  const outputs: GuestRealmOutputs = await directInvoke({
+    absolutePathToFile,
+    defineBuiltIns: (realm) => {
+      defineReportFunction(realm, callback);
+    },
+  });
 
   expect(outputs.succeeded).toBeFalse();
   expect(outputs.unhandledPromises.length).toBe(1); // for the thrown exception

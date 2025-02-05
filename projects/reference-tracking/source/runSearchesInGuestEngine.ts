@@ -34,21 +34,12 @@ export async function runSearchesInGuestEngine(
   const graphs = new Map<string, ReferenceGraph>;
   const reportCalls = new Map<string, boolean>;
 
-  //FIXME: remove the report callback, as we should just implement console API's
-  function guestReport(
-    guestValues: readonly GuestEngine.Value[]
-  ): GuestEngine.UndefinedValue
-  {
-    void(guestValues);
-    return GuestEngine.Value.undefined;
-  }
-
   const outputs: GuestRealmOutputs = await directInvoke({
     absolutePathToFile,
     defineBuiltIns: (realm: GuestEngine.ManagedRealm): void => {
       defineSearchReferences(realm, graphs);
     }
-  }, guestReport);
+  });
 
   if (outputs.succeeded === false) {
     throw new Error("evaluating module in guest engine failed: " + absolutePathToFile);
