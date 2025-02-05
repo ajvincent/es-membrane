@@ -27,4 +27,4 @@ const Alice = new Person("Alice");
 const Bob = new Person("Bob");
 Peter.setParents(Alice, Bob);
 
-searchReferences(Bob, [Carl], true);
+searchReferences("people", Bob, [Carl], true);

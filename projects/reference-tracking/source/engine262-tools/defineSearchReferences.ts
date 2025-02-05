@@ -3,7 +3,8 @@ import type {
 } from "type-fest";
 
 import {
-  GuestEngine
+  GuestEngine,
+  type ThrowOr,
 } from "./GuestEngine.js";
 
 import {
@@ -22,35 +23,89 @@ import {
   convertArrayValueToArrayOfValues
 } from "./convertArrayValueToArrayOfValues.js";
 
+interface SearchReferencesArguments {
+  readonly resultsKey: string;
+  readonly targetValue: GuestEngine.ObjectValue,
+  readonly heldValues: readonly GuestEngine.ObjectValue[],
+  readonly strongReferencesOnly: boolean,
+}
+
 export function defineSearchReferences(
+  this: void,
   realm: GuestEngine.ManagedRealm,
-  searchResultsArray: (ReadonlyDeep<ReferenceGraph>)[]
+  searchResultsMap: Map<string, ReadonlyDeep<ReferenceGraph>>,
 ): void
 {
   defineBuiltInFunction(
     realm, "searchReferences",
-    function performSearch(
+    function performGuestSearch(
+      this: void,
       guestThisArg: GuestEngine.Value,
       guestArguments: readonly GuestEngine.Value[],
       guestNewTarget: GuestEngine.Value
-    ): GuestEngine.BooleanValue | GuestEngine.ThrowCompletion
+    ): ThrowOr<GuestEngine.BooleanValue>
     {
       void(guestThisArg);
       void(guestNewTarget);
 
-      const heldValues = convertArrayValueToArrayOfValues(guestArguments[1]);
-      if (!Array.isArray(heldValues))
-        return heldValues;
+      const searchArgs: ThrowOr<SearchReferencesArguments> = extractSearchParameters(guestArguments);
+      if (searchArgs instanceof GuestEngine.ThrowCompletion)
+        return searchArgs;
+
+      if (searchResultsMap.has(searchArgs.resultsKey)) {
+        return GuestEngine.Throw("Error", "Raw", "You already have a search with that results key");
+      }
 
       const searchDriver = new SearchDriver(
-        guestArguments[0],
-        heldValues,
-        guestArguments[2] === GuestEngine.Value.true
+        searchArgs.targetValue,
+        searchArgs.heldValues,
+        searchArgs.strongReferencesOnly
       );
-      searchResultsArray.push(searchDriver);
 
-      searchDriver.run();
-      return searchDriver.succeeded ? GuestEngine.Value.true : GuestEngine.Value.false;
+      const graph: ThrowOr<ReadonlyDeep<ReferenceGraph>> = searchDriver.run();
+      if (graph instanceof GuestEngine.ThrowCompletion)
+        return graph;
+      searchResultsMap.set(searchArgs.resultsKey, graph);
+
+      return graph.succeeded ? GuestEngine.Value.true : GuestEngine.Value.false;
     }
   )
+}
+
+function extractSearchParameters(
+  this: void,
+  guestArguments: readonly GuestEngine.Value[],
+): ThrowOr<SearchReferencesArguments>
+{
+  const [resultsKeyGuest, targetValue, heldValuesArrayGuest, strongRefsGuest] = guestArguments;
+  if (resultsKeyGuest.type !== "String") {
+    return GuestEngine.Throw("TypeError", "Raw", "resultsKey is not a string");
+  }
+
+  if (targetValue.type !== "Object") {
+    return GuestEngine.Throw("TypeError", "NotAnObject", targetValue);
+  }
+  const heldValues = convertArrayValueToArrayOfValues(heldValuesArrayGuest);
+  if (heldValues instanceof GuestEngine.ThrowCompletion)
+    return heldValues;
+  if (!isObjectValueArray(heldValues)) {
+    return GuestEngine.Throw("TypeError", "Raw", "heldValues is not an array of objects");
+  }
+
+  if (strongRefsGuest.type !== "Boolean")
+    return GuestEngine.Throw("TypeError", "Raw", "strongReferences is not a boolean");
+
+  return {
+    resultsKey: resultsKeyGuest.stringValue(),
+    targetValue,
+    heldValues,
+    strongReferencesOnly: strongRefsGuest.booleanValue(),
+  };
+}
+
+function isObjectValueArray(
+  valuesArray: readonly GuestEngine.Value[]
+): valuesArray is readonly GuestEngine.ObjectValue[]
+{
+  return valuesArray.every(value => value.type === "Object");
 }

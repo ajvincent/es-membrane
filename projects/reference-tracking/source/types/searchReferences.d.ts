@@ -7,6 +7,7 @@
  * @returns true if the search was successful, false if there was an unexpected problem.
  */
 declare function searchReferences(
+  resultsKey: string,
   targetValue: object,
   heldValues: readonly object[],
   strongReferencesOnly: boolean,

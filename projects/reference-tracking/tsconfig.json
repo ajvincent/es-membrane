@@ -16,6 +16,7 @@
     "fixtures/**/*.ts",
     "playground/**/*.ts",
     "source/**/*.ts",
+    "reference-spec/**/*.ts",
     "spec/**/*.ts"
   ],
 

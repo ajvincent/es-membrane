@@ -1,18 +1,29 @@
+import type {
+  ReadonlyDeep,
+} from "type-fest";
+
 import {
-  GuestEngine
+  GuestEngine,
+  type ThrowOr,
 } from "../GuestEngine.js";
 
 import type {
-  ChildToParentReferenceGraphEdge,
-  ParentToChildReferenceGraphEdge,
   ReferenceGraph,
-  ReferenceGraphNode,
 } from "../../ReferenceGraph.js";
 
-export class SearchDriver implements ReferenceGraph
+import {
+  SearchDriverInternal
+} from "./Internal.js";
+
+import {
+  SearchDriverSummary
+} from "./Summary.js";
+
+export class SearchDriver
 {
   #internal: SearchDriverInternal;
   #summary: SearchDriverSummary;
+  #hasRun = false;
 
   constructor(
     targetValue: GuestEngine.Value,
@@ -24,79 +35,13 @@ export class SearchDriver implements ReferenceGraph
     this.#summary = new SearchDriverSummary;
   }
 
-  get nodes(): ReferenceGraphNode[] {
-    return this.#summary.nodes;
-  }
+  public run(): ThrowOr<ReadonlyDeep<ReferenceGraph>> {
+    if (!this.#hasRun) {
+      this.#hasRun = true;
+      this.#internal.run();
+      this.#summary.run(this.#internal);
+    }
 
-  get parentToChildEdges(): ParentToChildReferenceGraphEdge[] {
-    return this.#summary.parentToChildEdges;
-  };
-
-  get childToParentEdges(): ChildToParentReferenceGraphEdge[] {
-    return this.#summary.childToParentEdges;
-  }
-
-  get succeeded(): boolean {
-    return this.#summary.succeeded;
-  }
-
-  public run(): void {
-    this.#internal.run();
-    this.#summary.run(this.#internal);
-  }
-}
-
-class SearchDriverInternal implements ReferenceGraph
-{
-  #targetValue: GuestEngine.Value;
-  #heldValues: readonly GuestEngine.Value[];
-  #strongReferencesOnly: boolean;
-
-  constructor(
-    targetValue: GuestEngine.Value,
-    heldValues: readonly GuestEngine.Value[],
-    strongReferencesOnly: boolean
-  )
-  {
-    this.#targetValue = targetValue;
-    this.#heldValues = heldValues;
-    this.#strongReferencesOnly = strongReferencesOnly;
-  }
-
-  get nodes(): ReferenceGraphNode[] {
-    return [];
-  }
-
-  get parentToChildEdges(): ParentToChildReferenceGraphEdge[] {
-    return [];
-  };
-
-  get childToParentEdges(): ChildToParentReferenceGraphEdge[] {
-    return [];
-  }
-
-  succeeded = false;
-
-  public run(): void {
-    void(this.#targetValue);
-    void(this.#heldValues);
-    void(this.#strongReferencesOnly);
-  }
-}
-
-class SearchDriverSummary implements ReferenceGraph
-{
-  nodes: ReferenceGraphNode[] = [];
-  parentToChildEdges: ParentToChildReferenceGraphEdge[] = [];
-  childToParentEdges: ChildToParentReferenceGraphEdge[] = [];
-
-  succeeded = false;
-
-  run(
-    internalResults: SearchDriverInternal
-  )
-  {
-    if (internalResults.succeeded === false)
-      return;
+    return this.#summary;
   }
 }
