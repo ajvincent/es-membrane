@@ -1,8 +1,8 @@
 import {
   GuestEngine,
   type ThrowOr,
-} from "./GuestEngine.js";
-import { convertArrayValueToArrayOfValues } from "./convertArrayValueToArrayOfValues.js";
+} from "../GuestEngine.js";
+import { convertArrayValueToArrayOfValues } from "../convertArrayValueToArrayOfValues.js";
 import { defineBuiltInFunction } from "./defineBuiltInFunction.js";
 
 export function defineReportFunction(

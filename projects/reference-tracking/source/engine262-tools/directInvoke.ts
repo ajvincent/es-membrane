@@ -3,8 +3,8 @@ import {
 } from "./GuestEngine.js";
 
 import {
-  defineBuiltInFunction,
-} from "./defineBuiltInFunction.js";
+  definePrintFunction
+} from "./built-ins/definePrintFunction.js";
 
 import {
   runInRealm,
@@ -22,20 +22,11 @@ export async function directInvoke(
   return await runInRealm({
     absolutePathToFile: realmInputs.absolutePathToFile,
     defineBuiltIns: (realm: GuestEngine.ManagedRealm) => {
-      defineBuiltInFunction(realm, "print", function print(
-        guestThisArg: GuestEngine.Value,
-        guestArguments: readonly GuestEngine.Value[],
-        guestNewTarget: GuestEngine.Value,
-      ): GuestEngine.Value
-      {
-        void(guestThisArg);
-        void(guestNewTarget);
-        console.log(guestArguments.map((tmp) => GuestEngine.inspect(tmp)));
-        return GuestEngine.Value(undefined);
-      });
+      definePrintFunction(realm);
 
       if (realmInputs.defineBuiltIns)
         realmInputs.defineBuiltIns(realm);
     }
   });
 }
+

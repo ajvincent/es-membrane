@@ -5,7 +5,7 @@ import type {
 import {
   GuestEngine,
   type ThrowOr,
-} from "./GuestEngine.js";
+} from "../GuestEngine.js";
 
 import {
   defineBuiltInFunction
@@ -13,15 +13,15 @@ import {
 
 import type {
   ReferenceGraph
-} from "../ReferenceGraph.js";
+} from "../../ReferenceGraph.js";
 
 import {
   SearchDriver
-} from "./search/Driver.js";
+} from "../search/Driver.js";
 
 import {
   convertArrayValueToArrayOfValues
-} from "./convertArrayValueToArrayOfValues.js";
+} from "../convertArrayValueToArrayOfValues.js";
 
 interface SearchReferencesArguments {
   readonly resultsKey: string;

@@ -20,7 +20,7 @@ import {
 
 import {
   defineSearchReferences
-} from "./engine262-tools/defineSearchReferences.js";
+} from "./engine262-tools/built-ins/defineSearchReferences.js";
 
 export interface SearchResults {
   readonly graphs: ReadonlyDeep<Map<string, ReferenceGraph>>;

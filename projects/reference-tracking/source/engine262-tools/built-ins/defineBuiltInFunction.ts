@@ -1,6 +1,6 @@
 import {
   GuestEngine
-} from "./GuestEngine.js";
+} from "../GuestEngine.js";
 
 export function defineBuiltInFunction(
   realm: GuestEngine.ManagedRealm,
