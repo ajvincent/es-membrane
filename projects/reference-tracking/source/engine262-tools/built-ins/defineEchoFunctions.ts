@@ -1,10 +1,10 @@
 import {
   GuestEngine
-} from "./GuestEngine.js";
+} from "../GuestEngine.js";
 
 import {
   defineBuiltInFunction
-} from "./built-ins/defineBuiltInFunction.js";
+} from "./defineBuiltInFunction.js";
 
 export function defineEchoFunctions(realm: GuestEngine.ManagedRealm): void {
   defineBuiltInFunction(realm, "echoNull", () => GuestEngine.Value.null);
