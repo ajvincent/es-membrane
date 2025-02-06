@@ -7,11 +7,11 @@ export function convertArrayValueToArrayOfValues(
 ): GuestEngine.Value[] | GuestEngine.ThrowCompletion
 {
   if (arrayValue.type !== "Object") {
-    return GuestEngine.Throw('TypeError', "NotAnObject", arrayValue);
+    return GuestEngine.Throw('TypeError', "Raw", "Expected an Array object");
   }
 
   if (!GuestEngine.isArrayExoticObject(arrayValue)) {
-    return GuestEngine.Throw('TypeError', "NotATypeObject", arrayValue, "Array");
+    return GuestEngine.Throw('TypeError', "Raw", "Expected an Array exotic object");
   }
 
   return GuestEngine.CreateListFromArrayLike(arrayValue, undefined);

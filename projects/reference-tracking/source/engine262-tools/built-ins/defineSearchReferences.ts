@@ -37,8 +37,7 @@ export function defineSearchReferences(
 ): void
 {
   defineBuiltInFunction(
-    realm, "searchReferences",
-    function performGuestSearch(
+    realm, "searchReferences", function performGuestSearch(
       this: void,
       guestThisArg: GuestEngine.Value,
       guestArguments: readonly GuestEngine.Value[],
@@ -53,7 +52,9 @@ export function defineSearchReferences(
         return searchArgs;
 
       if (searchResultsMap.has(searchArgs.resultsKey)) {
-        return GuestEngine.Throw("Error", "Raw", "You already have a search with that results key");
+        return GuestEngine.Throw("Error", "Raw",
+          `You already have a search with the results key ${JSON.stringify(searchArgs.resultsKey)}`
+        );
       }
 
       const searchDriver = new SearchDriver(
@@ -78,22 +79,28 @@ function extractSearchParameters(
 ): ThrowOr<SearchReferencesArguments>
 {
   const [resultsKeyGuest, targetValue, heldValuesArrayGuest, strongRefsGuest] = guestArguments;
-  if (resultsKeyGuest.type !== "String") {
+  if (resultsKeyGuest?.type !== "String") {
     return GuestEngine.Throw("TypeError", "Raw", "resultsKey is not a string");
   }
 
-  if (targetValue.type !== "Object") {
+  if (targetValue?.type !== "Object") {
     return GuestEngine.Throw("TypeError", "NotAnObject", targetValue);
   }
-  const heldValues = convertArrayValueToArrayOfValues(heldValuesArrayGuest);
-  if (heldValues instanceof GuestEngine.ThrowCompletion)
-    return heldValues;
-  if (!isObjectValueArray(heldValues)) {
-    return GuestEngine.Throw("TypeError", "Raw", "heldValues is not an array of objects");
+  const heldValuesRaw: ThrowOr<readonly GuestEngine.Value[]> = convertArrayValueToArrayOfValues(
+    heldValuesArrayGuest
+  );
+  if (heldValuesRaw instanceof GuestEngine.ThrowCompletion)
+    return heldValuesRaw;
+
+  for (let i = 0; i < heldValuesRaw.length; i++) {
+    if (heldValuesRaw[i].type !== "Object")
+      return GuestEngine.Throw("TypeError", "Raw", `heldValues[${i}] is not an object`);
   }
 
-  if (strongRefsGuest.type !== "Boolean")
-    return GuestEngine.Throw("TypeError", "Raw", "strongReferences is not a boolean");
+  const heldValues = heldValuesRaw as readonly GuestEngine.ObjectValue[];
+
+  if (strongRefsGuest?.type !== "Boolean")
+    return GuestEngine.Throw("TypeError", "Raw", "strongReferencesOnly is not a boolean");
 
   return {
     resultsKey: resultsKeyGuest.stringValue(),
@@ -101,11 +108,4 @@ function extractSearchParameters(
     heldValues,
     strongReferencesOnly: strongRefsGuest.booleanValue(),
   };
-}
-
-function isObjectValueArray(
-  valuesArray: readonly GuestEngine.Value[]
-): valuesArray is readonly GuestEngine.ObjectValue[]
-{
-  return valuesArray.every(value => value.type === "Object");
 }
