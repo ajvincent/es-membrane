@@ -6,14 +6,26 @@ import {
 
 export class ValueToNumericKeyMap {
   #counter = 0;
-  readonly #map = new DefaultWeakMap<GuestEngine.ObjectValue | GuestEngine.SymbolValue, number>;
+  readonly #valueToNumberMap = new DefaultWeakMap<GuestEngine.ObjectValue, number>;
+  readonly #valuesArray: (GuestEngine.ObjectValue)[] = [];
 
   readonly #increment = () => this.#counter++;
 
-  getHeldObjectKey(
-    value: GuestEngine.ObjectValue | GuestEngine.SymbolValue
+  getKeyForHeldObject(
+    value: GuestEngine.ObjectValue
   ): number
   {
-    return this.#map.getDefault(value, this.#increment);
+    if (!this.#valueToNumberMap.has(value))
+      this.#valuesArray.push(value);
+    return this.#valueToNumberMap.getDefault(value, this.#increment);
+  }
+
+  getHeldObjectForKey(
+    key: number
+  ): GuestEngine.ObjectValue
+  {
+    const value: GuestEngine.ObjectValue | undefined = this.#valuesArray[key];
+    GuestEngine.Assert(value !== undefined);
+    return value;
   }
 }

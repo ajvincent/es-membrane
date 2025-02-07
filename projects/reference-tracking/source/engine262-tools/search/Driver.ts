@@ -13,11 +13,11 @@ import type {
 
 import {
   SearchDriverInternal
-} from "./Internal.js";
+} from "./DriverInternal.js";
 
 import {
   SearchDriverSummary
-} from "./Summary.js";
+} from "./DriverSummary.js";
 
 export class SearchDriver
 {
@@ -26,12 +26,15 @@ export class SearchDriver
   #hasRun = false;
 
   constructor(
-    targetValue: GuestEngine.Value,
-    heldValues: readonly GuestEngine.Value[],
-    strongReferencesOnly: boolean
+    targetValue: GuestEngine.ObjectValue,
+    heldValues: GuestEngine.ObjectValue,
+    strongReferencesOnly: boolean,
+    realm: GuestEngine.ManagedRealm,
   )
   {
-    this.#internal = new SearchDriverInternal(targetValue, heldValues, strongReferencesOnly);
+    this.#internal = new SearchDriverInternal(
+      targetValue, heldValues, strongReferencesOnly, realm
+    );
     this.#summary = new SearchDriverSummary;
   }
 

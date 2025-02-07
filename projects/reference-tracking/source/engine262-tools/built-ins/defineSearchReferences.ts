@@ -26,7 +26,7 @@ import {
 interface SearchReferencesArguments {
   readonly resultsKey: string;
   readonly targetValue: GuestEngine.ObjectValue,
-  readonly heldValues: readonly GuestEngine.ObjectValue[],
+  readonly heldValuesArray: GuestEngine.ObjectValue,
   readonly strongReferencesOnly: boolean,
 }
 
@@ -59,8 +59,9 @@ export function defineSearchReferences(
 
       const searchDriver = new SearchDriver(
         searchArgs.targetValue,
-        searchArgs.heldValues,
-        searchArgs.strongReferencesOnly
+        searchArgs.heldValuesArray,
+        searchArgs.strongReferencesOnly,
+        realm,
       );
 
       const graph: ThrowOr<ReadonlyDeep<ReferenceGraph>> = searchDriver.run();
@@ -86,6 +87,9 @@ function extractSearchParameters(
   if (targetValue?.type !== "Object") {
     return GuestEngine.Throw("TypeError", "NotAnObject", targetValue);
   }
+  if (heldValuesArrayGuest.type !== "Object") {
+    return GuestEngine.Throw('TypeError', "Raw", "Expected an Array object");
+  }
   const heldValuesRaw: ThrowOr<readonly GuestEngine.Value[]> = convertArrayValueToArrayOfValues(
     heldValuesArrayGuest
   );
@@ -97,15 +101,13 @@ function extractSearchParameters(
       return GuestEngine.Throw("TypeError", "Raw", `heldValues[${i}] is not an object`);
   }
 
-  const heldValues = heldValuesRaw as readonly GuestEngine.ObjectValue[];
-
   if (strongRefsGuest?.type !== "Boolean")
     return GuestEngine.Throw("TypeError", "Raw", "strongReferencesOnly is not a boolean");
 
   return {
     resultsKey: resultsKeyGuest.stringValue(),
     targetValue,
-    heldValues,
+    heldValuesArray: heldValuesArrayGuest,
     strongReferencesOnly: strongRefsGuest.booleanValue(),
   };
 }

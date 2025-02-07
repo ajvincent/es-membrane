@@ -21,7 +21,10 @@ export async function runInRealm(
   const realmDriver = new RealmDriver;
 
   const agent = new GuestEngine.Agent({
-    // onDebugger() {},
+    onDebugger() {
+      // eslint-disable-next-line no-debugger
+      debugger;
+    },
     // ensureCanCompileStrings() {},
     // hasSourceTextAvailable() {},
     // loadImportedModule() {},

@@ -7,7 +7,7 @@ import type {
 
 import type {
   SearchDriverInternal
-} from "./Internal.js";
+} from "./DriverInternal.js";
 
 export class SearchDriverSummary implements ReferenceGraph {
   nodes: ReferenceGraphNode[] = [];
@@ -18,7 +18,8 @@ export class SearchDriverSummary implements ReferenceGraph {
 
   run(
     internalResults: SearchDriverInternal
-  ) {
+  ): void
+  {
     if (internalResults.succeeded === false)
       return;
   }
