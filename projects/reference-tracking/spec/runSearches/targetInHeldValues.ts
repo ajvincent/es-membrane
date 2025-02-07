@@ -8,9 +8,12 @@ import {
   monorepoRoot,
 } from "@ajvincent/build-utilities";
 
+import type {
+  ReferenceGraph
+} from "../../source/ReferenceGraph.js";
+
 import {
   runSearchesInGuestEngine,
-  type SearchResults,
 } from "../../source/runSearchesInGuestEngine.js";
 
 export const projectRoot = path.join(monorepoRoot, "projects/reference-tracking");
@@ -22,7 +25,6 @@ function getSpecPath(leafName: string): string {
 
 xit("we can find the target when it's among the held values", async () => {
   const pathToSearch = getSpecPath("targetInHeldValuesArray.js");
-  const results: ReadonlyDeep<SearchResults> = await runSearchesInGuestEngine(pathToSearch);
-  const { graphs } = results;
+  const graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = await runSearchesInGuestEngine(pathToSearch);
   expect(graphs).toBeTruthy();
 }, 1000 * 60 * 60);
