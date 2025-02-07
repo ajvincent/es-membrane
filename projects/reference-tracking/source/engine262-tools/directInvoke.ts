@@ -3,10 +3,6 @@ import {
 } from "./GuestEngine.js";
 
 import {
-  definePrintFunction
-} from "./built-ins/definePrintFunction.js";
-
-import {
   runInRealm,
 } from "./runInRealm.js";
 
@@ -22,8 +18,6 @@ export async function directInvoke(
   return await runInRealm({
     absolutePathToFile: realmInputs.absolutePathToFile,
     defineBuiltIns: (realm: GuestEngine.ManagedRealm) => {
-      definePrintFunction(realm);
-
       if (realmInputs.defineBuiltIns)
         realmInputs.defineBuiltIns(realm);
     }
