@@ -1,4 +1,4 @@
-import StrongStrongMap from "../../../source/collections/StrongStrongMap.js";
+import StrongStrongMap from "../../../../source/collections/StrongStrongMap.js";
 import holdsArgument from "../../support/gc/holdsArgument.js";
 
 describe("StrongStrongMap really holds strong references", () => {

@@ -1,4 +1,4 @@
-import WeakWeakMap from "../../../source/collections/WeakWeakMap.js";
+import WeakWeakMap from "../../../../source/collections/WeakWeakMap.js";
 import holdsArgument from "../../support/gc/holdsArgument.js";
 
 describe("WeakWeakMap really holds weak references", () => {
