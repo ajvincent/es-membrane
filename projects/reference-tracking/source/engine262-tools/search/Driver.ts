@@ -11,17 +11,12 @@ import type {
   ReferenceGraph,
 } from "../../ReferenceGraph.js";
 
-import {
-  SearchDriverInternal
-} from "./DriverInternal.js";
-
-import {
-  SearchDriverSummary
-} from "./DriverSummary.js";
+import SearchDriverInternal from "./DriverInternal.js";
+import SearchDriverSummary from "./DriverSummary.js";
 
 export class SearchDriver
 {
-  #internal: SearchDriverInternal;
+  #internal?: SearchDriverInternal;
   #summary: SearchDriverSummary;
   #hasRun = false;
 
@@ -41,8 +36,12 @@ export class SearchDriver
   public run(): ThrowOr<ReadonlyDeep<ReferenceGraph>> {
     if (!this.#hasRun) {
       this.#hasRun = true;
-      this.#internal.run();
-      this.#summary.run(this.#internal);
+      try {
+        this.#internal!.run();
+        this.#summary.run(this.#internal!);
+      } finally {
+        this.#internal = undefined;
+      }
     }
 
     return this.#summary;

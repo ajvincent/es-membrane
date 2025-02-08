@@ -1,15 +1,15 @@
 import type {
+  ReadonlyDeep
+} from "type-fest";
+
+import type {
   ReferenceGraph,
   ReferenceGraphNode,
   ParentToChildReferenceGraphEdge,
   ChildToParentReferenceGraphEdge,
 } from "../../ReferenceGraph.js";
 
-import type {
-  SearchDriverInternal
-} from "./DriverInternal.js";
-
-export class SearchDriverSummary implements ReferenceGraph {
+export default class SearchDriverSummary implements ReferenceGraph {
   nodes: ReferenceGraphNode[] = [];
   parentToChildEdges: ParentToChildReferenceGraphEdge[] = [];
   childToParentEdges: ChildToParentReferenceGraphEdge[] = [];
@@ -17,7 +17,7 @@ export class SearchDriverSummary implements ReferenceGraph {
   succeeded = false;
 
   run(
-    internalResults: SearchDriverInternal
+    internalResults: ReadonlyDeep<ReferenceGraph>
   ): void
   {
     if (internalResults.succeeded === false)

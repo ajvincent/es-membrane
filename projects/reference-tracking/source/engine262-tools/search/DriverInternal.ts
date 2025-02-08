@@ -16,28 +16,29 @@ import type {
 
 import ReferenceGraphNodeImpl from "./ReferenceGraphNodeImpl.js";
 
+/*
+import PropertyNameEdgeImpl from "../graphEdges/PropertyNameEdgeImpl.js";
+import ArrayIndexEdgeImpl from "../graphEdges/ArrayIndexEdgeImpl.js";
+*/
+
 import {
   ValueToNumericKeyMap
 } from "./ValueToNumericKeyMap.js";
 
-export class SearchDriverInternal implements ReadonlyDeep<ReferenceGraph> {
+export default class SearchDriverInternal
+implements ReadonlyDeep<ReferenceGraph>
+{
   static readonly #targetValueKey = 0;
   static readonly #heldValuesKey = 1;
 
-  readonly #targetValue: GuestEngine.ObjectValue;
-  readonly #heldValues: GuestEngine.ObjectValue;
   readonly #strongReferencesOnly: boolean;
   readonly #realm: GuestEngine.ManagedRealm;
 
   readonly #valueToNumericKeyMap = new ValueToNumericKeyMap;
 
-  readonly #nodes: ReferenceGraphNode[] = [];
-  readonly #parentToChildEdges: ParentToChildReferenceGraphEdge[] = [];
-  readonly #childToParentEdges: ChildToParentReferenceGraphEdge[] = [];
-
-  readonly nodes: readonly ReferenceGraphNode[] = this.#nodes;
-  readonly parentToChildEdges: readonly ParentToChildReferenceGraphEdge[] = this.#parentToChildEdges;
-  readonly childToParentEdges: readonly ChildToParentReferenceGraphEdge[] = this.#childToParentEdges;
+  readonly #valueToNodeMap = new Map<GuestEngine.ObjectValue, ReferenceGraphNodeImpl>;
+  readonly parentToChildEdges: ParentToChildReferenceGraphEdge[] = [];
+  readonly childToParentEdges: ChildToParentReferenceGraphEdge[] = [];
 
   constructor(
     targetValue: GuestEngine.ObjectValue,
@@ -46,35 +47,45 @@ export class SearchDriverInternal implements ReadonlyDeep<ReferenceGraph> {
     realm: GuestEngine.ManagedRealm,
   )
   {
-    this.#targetValue = targetValue;
-    this.#heldValues = heldValues;
     this.#strongReferencesOnly = strongReferencesOnly;
     this.#realm = realm;
 
     GuestEngine.Assert(
-      this.#valueToNumericKeyMap.getKeyForHeldObject(this.#targetValue) === SearchDriverInternal.#targetValueKey
+      this.#valueToNumericKeyMap.getKeyForHeldObject(targetValue) === SearchDriverInternal.#targetValueKey
     );
     GuestEngine.Assert(
-      this.#valueToNumericKeyMap.getKeyForHeldObject(this.#heldValues) === SearchDriverInternal.#heldValuesKey
+      this.#valueToNumericKeyMap.getKeyForHeldObject(heldValues) === SearchDriverInternal.#heldValuesKey
     );
 
-    this.#nodes.push(new ReferenceGraphNodeImpl(targetValue, this.#valueToNumericKeyMap));
-    this.#nodes.push(new ReferenceGraphNodeImpl(heldValues, this.#valueToNumericKeyMap));
-
+    this.#valueToNodeMap.set(targetValue, new ReferenceGraphNodeImpl(
+      targetValue, this.#valueToNumericKeyMap, this.#realm
+    ));
+    this.#valueToNodeMap.set(heldValues, new ReferenceGraphNodeImpl(
+      heldValues, this.#valueToNumericKeyMap, this.#realm
+    ));
     Object.freeze(this);
   }
 
   succeeded = false;
 
   public run(): ThrowOr<void> {
-    void (this.#targetValue);
-    void (this.#heldValues);
     void (this.#strongReferencesOnly);
 
-    this.#searchNode(this.#nodes[1]);
+    const nodeIterator: MapIterator<ReferenceGraphNode> = this.#valueToNodeMap.values();
+    void(nodeIterator.next());
+    for (const node of nodeIterator) {
+      this.#searchNode(node);
+    }
   }
 
-  #searchNode(node: ReferenceGraphNode): void {
+  public get nodes(): ReferenceGraphNode[] {
+    return Array.from(this.#valueToNodeMap.values());
+  }
+
+  #searchNode(
+    node: ReferenceGraphNode
+  ): void
+  {
     const guestValue: GuestEngine.ObjectValue = this.#valueToNumericKeyMap.getHeldObjectForKey(node.objectKey);
     // eslint-disable-next-line no-debugger
     debugger;
