@@ -20,16 +20,24 @@ export default class SyncPromise<T>
   {
     return new SyncPromise<T[]>((resolve) => {
       let countdown = promises.length;
-      let resultsArray: T[] = [];
-      resultsArray.length = promises.length;
-      promises.forEach((p, index) => p.thenNoChain((result) => {
-        countdown--;
-        resultsArray[index] = result;
-        if (countdown === 0) {
-          resolve(resultsArray);
-          resultsArray = [];
+
+      const promiseSet = new Map<number, T>;
+      function resolveFromSet(): void {
+        const resultArray: T[] = [];
+        for (let index = 0; index < promiseSet.size; index++) {
+          resultArray.push(promiseSet.get(index)!);
         }
-      }));
+        resolve(resultArray);
+      }
+
+      promises.forEach((p, index) => {
+        p.thenNoChain((result) => {
+          countdown--;
+          promiseSet.set(index, result);
+          if (countdown === 0)
+            resolveFromSet();
+        });
+      });
     });
   }
 
