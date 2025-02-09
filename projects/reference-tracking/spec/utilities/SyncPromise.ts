@@ -2,6 +2,10 @@ import SyncPromise, {
   type SyncPromiseResolver
 } from "../../source/utilities/SyncPromise.js";
 
+import {
+  SyncTaskQueue
+} from "../../source/utilities/SyncTaskQueue.js";
+
 describe("SyncPromise", () => {
   it("supports a basic resolve() and .then() pattern", () => {
     const thenCallback = jasmine.createSpy<(value: number) => void>("thenCallback");
@@ -57,5 +61,44 @@ describe("SyncPromise", () => {
 
     expect(thenCallback).toHaveBeenCalledTimes(1);
     expect(thenCallback.calls.argsFor(0)).toEqual([[47, 82, 67]]);
+  });
+
+  it("integrates well with SyncTaskQueue", () => {
+    const queue = new SyncTaskQueue;
+
+    const firstCallback = jasmine.createSpy<(value: number) => void>("first callback");
+    const secondCallback = jasmine.createSpy<(value: number) => void>("second callback");
+    const allCallback = jasmine.createSpy<(value: readonly number[]) => void>("all callback");
+
+    let firstResolve: SyncPromiseResolver<number> = () => {
+      throw new Error("not reachable");
+    };
+    const firstPromise = new SyncPromise<number>(resolve => {
+      firstResolve = resolve;
+    }, queue);
+    firstPromise.thenNoChain(firstCallback);
+
+    const second = SyncPromise.withResolver<number>(queue);
+    second.promise.thenNoChain(secondCallback);
+
+    const allPromise = SyncPromise.all<number>([firstPromise, second.promise], queue);
+    allPromise.thenNoChain(allCallback);
+
+    firstResolve(10);
+    second.resolve(20);
+
+    expect(firstCallback).not.toHaveBeenCalled();
+    expect(secondCallback).not.toHaveBeenCalled();
+    expect(allCallback).not.toHaveBeenCalled();
+
+    for (const task of queue.getTasks()) {
+      task();
+    }
+
+    expect(firstCallback).toHaveBeenCalledBefore(secondCallback);
+    expect(secondCallback).toHaveBeenCalledBefore(allCallback);
+    expect(firstCallback).toHaveBeenCalledOnceWith(10);
+    expect(secondCallback).toHaveBeenCalledOnceWith(20);
+    expect(allCallback).toHaveBeenCalledOnceWith([10, 20]);
   });
 });

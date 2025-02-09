@@ -1,3 +1,7 @@
+import type {
+  SyncTaskQueue
+} from "./SyncTaskQueue.js";
+
 export type SyncPromiseResolver<T> = (
   this: void,
   value: T
@@ -15,54 +19,95 @@ export interface SyncPromiseWithResolvers<T> {
 export default class SyncPromise<T>
 {
   public static all<T>(
-    promises: readonly SyncPromise<T>[]
-  ): SyncPromise<T[]>
+    promises: readonly SyncPromise<T>[],
+    taskQueue?: SyncTaskQueue
+  ): SyncPromise<readonly T[]>
   {
-    return new SyncPromise<T[]>((resolve) => {
-      let countdown = promises.length;
+    const initPromise = (
+      resolve: SyncPromiseResolver<readonly T[]>
+    ): void => this.#initPromiseAll(promises, resolve);
 
-      const promiseSet = new Map<number, T>;
-      function resolveFromSet(): void {
-        const resultArray: T[] = [];
-        for (let index = 0; index < promiseSet.size; index++) {
-          resultArray.push(promiseSet.get(index)!);
-        }
-        resolve(resultArray);
-      }
+    return new SyncPromise<readonly T[]>(initPromise, taskQueue);
+  }
 
-      promises.forEach((p, index) => {
-        p.thenNoChain((result) => {
-          countdown--;
-          promiseSet.set(index, result);
-          if (countdown === 0)
-            resolveFromSet();
-        });
+  static #initPromiseAll<T>(
+    promises: readonly SyncPromise<T>[],
+    resolve: SyncPromiseResolver<readonly T[]>
+  ): void
+  {
+    const allPromisesLength = promises.length;
+
+    const promiseMap = new Map<number, T>;
+    const resolveFromSet = () => this.#resolvePromiseAll(promiseMap, resolve);
+
+    promises.forEach((p, index) => {
+      p.thenNoChain((result) => {
+        promiseMap.set(index, result);
+        if (promiseMap.size === allPromisesLength)
+          resolveFromSet();
       });
     });
   }
 
-  public static withResolver<T>(): SyncPromiseWithResolvers<T> {
-    let resolve: SyncPromiseResolver<T> = () => {
-      return;
-    };
+  static #resolvePromiseAll<T>(
+    promiseMap: ReadonlyMap<number, T>,
+    resolve: SyncPromiseResolver<readonly T[]>,
+  ): void
+  {
+    const resultArray: T[] = [];
+    for (let index = 0; index < promiseMap.size; index++) {
+      resultArray.push(promiseMap.get(index)!);
+    }
+    resolve(resultArray);
+  }
+
+  public static withResolver<T>(
+    taskQueue?: SyncTaskQueue
+  ): SyncPromiseWithResolvers<T>
+  {
+    let resolve: SyncPromiseResolver<T>;
     const promise = new SyncPromise<T>(res => {
       resolve = res;
-    });
+    }, taskQueue);
 
+    //@ts-expect-error resolve is defined by the promise
     return { promise, resolve };
+  }
+
+  static #queueOrRunTask<T>(
+    callback: SyncPromiseResolver<T>,
+    value: T,
+    taskQueue?: SyncTaskQueue
+  ): void
+  {
+    if (taskQueue) {
+      taskQueue.addTask(() => callback(value))
+      return;
+    }
+
+    try {
+      callback(value);
+    }
+    catch (ex) {
+      console.log(ex);
+    }
   }
 
   #isResolved = false;
   #resolvedValue?: T;
   #thenCallbacks: SyncPromiseResolver<T>[] = [];
 
+  #taskQueue?: SyncTaskQueue;
+
   public constructor(
     initCallback: (
       resolve: SyncPromiseResolver<T>
-    ) => void
+    ) => void,
+    taskQueue?: SyncTaskQueue
   )
   {
     initCallback(this.#resolve.bind(this));
+    this.#taskQueue = taskQueue;
   }
 
   #resolve(
@@ -76,12 +121,7 @@ export default class SyncPromise<T>
     this.#resolvedValue = value;
 
     for (const callback of this.#thenCallbacks) {
-      try {
-        callback(value);
-      }
-      catch (ex) {
-        console.log(ex);
-      }
+      SyncPromise.#queueOrRunTask<T>(callback, value, this.#taskQueue);
     }
 
     this.#thenCallbacks = [];
@@ -89,7 +129,7 @@ export default class SyncPromise<T>
 
   public thenNoChain(resolveCallback: SyncPromiseResolver<T>): void {
     if (this.#isResolved) {
-      resolveCallback(this.#resolvedValue!);
+      SyncPromise.#queueOrRunTask<T>(resolveCallback, this.#resolvedValue!, this.#taskQueue);
     } else {
       this.#thenCallbacks.push(resolveCallback);
     }
