@@ -1,4 +1,6 @@
-import ReachableValueSet from "../../source/utilities/ReachableValueSet.js";
+import {
+  ReachableValueSet
+} from "../../source/utilities/ReachableValueSet.js";
 
 describe("ReachableValueSet", () => {
   let valueSet: ReachableValueSet;

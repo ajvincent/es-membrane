@@ -2,7 +2,7 @@ import SyncPromise, {
   type SyncPromiseWithResolvers
 } from "./SyncPromise.js";
 
-export default class ReachableValueSet {
+export class ReachableValueSet {
   readonly #keyToPromiseMap = new Map<number, SyncPromiseWithResolvers<void>>;
 
   public hasKey(key: number): boolean {
