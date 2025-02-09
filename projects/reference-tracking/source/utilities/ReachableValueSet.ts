@@ -2,8 +2,17 @@ import SyncPromise, {
   type SyncPromiseWithResolvers
 } from "./SyncPromise.js";
 
+import type {
+  SyncTaskQueue
+} from "./SyncTaskQueue.js";
+
 export class ReachableValueSet {
+  readonly #taskQueue?: SyncTaskQueue;
   readonly #keyToPromiseMap = new Map<number, SyncPromiseWithResolvers<void>>;
+
+  constructor(taskQueue?: SyncTaskQueue) {
+    this.#taskQueue = taskQueue;
+  }
 
   public hasKey(key: number): boolean {
     return this.#keyToPromiseMap.has(key);
@@ -16,7 +25,7 @@ export class ReachableValueSet {
   {
     if (this.#keyToPromiseMap.has(key))
       throw new Error("reachable value already defined for key " + key);
-    const promiseAndResolver = SyncPromise.withResolver<void>();
+    const promiseAndResolver = SyncPromise.withResolver<void>(this.#taskQueue);
     this.#keyToPromiseMap.set(key, promiseAndResolver);
     promiseAndResolver.promise.thenNoChain(callback);
   }
@@ -42,7 +51,7 @@ export class ReachableValueSet {
       key => this.#keyToPromiseMap.get(key)!.promise
     );
 
-    const allPromise = SyncPromise.all(promises);
+    const allPromise = SyncPromise.all(promises, this.#taskQueue);
     allPromise.thenNoChain(() => this.resolveKey(childKey));
 
     if (callback) {

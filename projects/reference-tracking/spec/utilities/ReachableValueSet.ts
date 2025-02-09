@@ -2,6 +2,10 @@ import {
   ReachableValueSet
 } from "../../source/utilities/ReachableValueSet.js";
 
+import {
+  SyncTaskQueue
+} from "../../source/utilities/SyncTaskQueue.js";
+
 describe("ReachableValueSet", () => {
   let valueSet: ReachableValueSet;
   beforeEach(() => valueSet = new ReachableValueSet);
@@ -92,6 +96,41 @@ describe("ReachableValueSet", () => {
     expect(valueSet.isKeyResolved(0)).toBeTrue();
     expect(valueSet.isKeyResolved(1)).toBeFalse();
     expect(valueSet.isKeyResolved(2)).toBeTrue();
+  });
+
+  it("integrates well with SyncTaskQueue", () => {
+    const queue = new SyncTaskQueue;
+    valueSet = new ReachableValueSet(queue);
+
+    const callbacks: jasmine.Spy<() => void>[] = [];
+    for (let index = 0; index <= 2; index++) {
+      const spy = jasmine.createSpy<() => void>("callback " + index);
+      valueSet.defineKeyResolver(index, spy);
+      callbacks.push(spy);
+    }
+
+    valueSet.keyDependsOnJointOwners(0, [1, 2]);
+
+    valueSet.resolveKey(1);
+    expect(callbacks[1]).not.toHaveBeenCalled();
+
+    for (const task of queue.getTasks()) {
+      task();
+    }
+
+    expect(callbacks[1]).toHaveBeenCalledTimes(1);
+
+    valueSet.resolveKey(2);
+    expect(callbacks[0]).not.toHaveBeenCalled();
+    expect(callbacks[2]).not.toHaveBeenCalled();
+
+    for (const task of queue.getTasks()) {
+      task();
+    }
+
+    expect(callbacks[0]).toHaveBeenCalledTimes(1);
+    expect(callbacks[2]).toHaveBeenCalledTimes(1);
+    expect(callbacks[2]).toHaveBeenCalledBefore(callbacks[0]);
   });
 
   it("invokes an optional callback when any set of owner keys resolves", () => {
