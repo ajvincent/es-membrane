@@ -38,8 +38,8 @@ export interface ReferenceGraphNode {
 }
 
 export interface ChildToParentReferenceGraphEdge {
-  readonly jointOwnerKeys: number[];
   readonly childObjectKey: number;
+  readonly jointOwnerKeys: number[];
   readonly isStrongOwningReference: boolean;
 }
 
