@@ -9,7 +9,7 @@ import type {
   ChildToParentReferenceGraphEdge,
 } from "../../ReferenceGraph.js";
 
-export default class SearchDriverSummary implements ReferenceGraph {
+export default class BottomUpSearchForChildEdges implements ReferenceGraph {
   nodes: ReferenceGraphNode[] = [];
   parentToChildEdges: ParentToChildReferenceGraphEdge[] = [];
   childToParentEdges: ChildToParentReferenceGraphEdge[] = [];

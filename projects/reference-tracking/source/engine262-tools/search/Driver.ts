@@ -12,12 +12,12 @@ import type {
 } from "../../ReferenceGraph.js";
 
 import TopDownSearchForTarget from "./TopDownSearchForTarget.js";
-import SearchDriverSummary from "./DriverSummary.js";
+import BottomUpSearchForChildEdges from "./BottomUpSearchForChildEdges.js";
 
 export class SearchDriver
 {
   #topDownSearchForTarget?: TopDownSearchForTarget;
-  #summary: SearchDriverSummary;
+  #bottomUpSearchForEdges: BottomUpSearchForChildEdges;
   #hasRun = false;
 
   constructor(
@@ -30,7 +30,7 @@ export class SearchDriver
     this.#topDownSearchForTarget = new TopDownSearchForTarget(
       targetValue, heldValues, strongReferencesOnly, realm
     );
-    this.#summary = new SearchDriverSummary;
+    this.#bottomUpSearchForEdges = new BottomUpSearchForChildEdges;
   }
 
   public run(): ThrowOr<ReadonlyDeep<ReferenceGraph>> {
@@ -40,12 +40,12 @@ export class SearchDriver
         const result = this.#topDownSearchForTarget!.run();
         if (result instanceof GuestEngine.ThrowCompletion)
           return result;
-        this.#summary.run(this.#topDownSearchForTarget!);
+        this.#bottomUpSearchForEdges.run(this.#topDownSearchForTarget!);
       } finally {
         this.#topDownSearchForTarget = undefined;
       }
     }
 
-    return this.#summary;
+    return this.#bottomUpSearchForEdges;
   }
 }
