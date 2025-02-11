@@ -4,26 +4,27 @@ import type {
 
 import type {
   ReferenceGraph,
+  /*
   ReferenceGraphNode,
   ParentToChildReferenceGraphEdge,
   ChildToParentReferenceGraphEdge,
+  */
 } from "../../ReferenceGraph.js";
 
-export default class BottomUpSearchForChildEdges implements ReferenceGraph {
-  nodes: ReferenceGraphNode[] = [];
-  parentToChildEdges: ParentToChildReferenceGraphEdge[] = [];
-  childToParentEdges: ChildToParentReferenceGraphEdge[] = [];
+import {
+  ReferenceGraphImpl
+} from "./ReferenceGraphImpl.js";
 
-  succeeded = false;
-  foundTargetValue = false;
-
+export default class BottomUpSearchForChildEdges {
   run(
     internalResults: ReadonlyDeep<ReferenceGraph>
-  ): void
+  ): ReadonlyDeep<ReferenceGraph>
   {
+    const graph = new ReferenceGraphImpl;
     if (internalResults.succeeded === false)
-      return;
-    this.succeeded = true;
-    this.foundTargetValue = internalResults.foundTargetValue;
+      return graph;
+    graph.succeeded = true;
+    graph.foundTargetValue = internalResults.foundTargetValue;
+    return graph;
   }
 }

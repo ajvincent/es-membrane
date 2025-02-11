@@ -64,9 +64,11 @@ export function defineSearchReferences(
         realm,
       );
 
-      const graph: ThrowOr<ReadonlyDeep<ReferenceGraph>> = searchDriver.run();
+      const graph: ThrowOr<ReadonlyDeep<ReferenceGraph> | undefined> = searchDriver.run();
       if (graph instanceof GuestEngine.ThrowCompletion)
         return graph;
+      if (!graph)
+        return GuestEngine.Value.false;
       searchResultsMap.set(searchArgs.resultsKey, graph);
 
       return graph.succeeded ? GuestEngine.Value.true : GuestEngine.Value.false;

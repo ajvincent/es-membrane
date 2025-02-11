@@ -33,19 +33,22 @@ export class SearchDriver
     this.#bottomUpSearchForEdges = new BottomUpSearchForChildEdges;
   }
 
-  public run(): ThrowOr<ReadonlyDeep<ReferenceGraph>> {
+  public run(): ThrowOr<ReadonlyDeep<ReferenceGraph> | undefined> {
+    let graph: ReadonlyDeep<ReferenceGraph>;
+
     if (!this.#hasRun) {
       this.#hasRun = true;
+
       try {
         const result = this.#topDownSearchForTarget!.run();
         if (result instanceof GuestEngine.ThrowCompletion)
           return result;
-        this.#bottomUpSearchForEdges.run(this.#topDownSearchForTarget!);
+        graph = this.#bottomUpSearchForEdges.run(this.#topDownSearchForTarget!);
       } finally {
         this.#topDownSearchForTarget = undefined;
       }
-    }
 
-    return this.#bottomUpSearchForEdges;
+      return graph;
+    }
   }
 }
