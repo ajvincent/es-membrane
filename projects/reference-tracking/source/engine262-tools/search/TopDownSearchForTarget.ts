@@ -14,12 +14,15 @@ import type {
   ChildToParentReferenceGraphEdge
 } from "../../ReferenceGraph.js";
 
-import ReferenceGraphNodeImpl from "./ReferenceGraphNodeImpl.js";
+import {
+  ArrayIndexEdgeImpl,
+  ChildToParentImpl,
+  PropertyNameEdgeImpl,
+} from "../graphEdges/graphExports.js";
 
-import ChildToParentImpl from "../graphEdges/ChildToParentImpl.js";
-
-import PropertyNameEdgeImpl from "../graphEdges/PropertyNameEdgeImpl.js";
-import ArrayIndexEdgeImpl from "../graphEdges/ArrayIndexEdgeImpl.js";
+import {
+  ReferenceGraphNodeImpl
+} from "./ReferenceGraphNodeImpl.js";
 
 import {
   ChildEdgeReferenceTracker

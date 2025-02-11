@@ -11,7 +11,7 @@ import {
   ReferenceGraphNode
 } from "../../ReferenceGraph.js";
 
-export default class ReferenceGraphNodeImpl implements ReferenceGraphNode {
+export class ReferenceGraphNodeImpl implements ReferenceGraphNode {
   static #getCollectionAndClassName(
     guestObject: GuestEngine.ObjectValue,
     realm: GuestEngine.ManagedRealm

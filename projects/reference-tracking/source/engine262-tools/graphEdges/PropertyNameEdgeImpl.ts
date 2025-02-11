@@ -13,7 +13,7 @@ import type {
 
 import ParentToChildBaseImpl from "./ParentToChildBaseImpl.js";
 
-export default class PropertyNameEdgeImpl
+export class PropertyNameEdgeImpl
 extends ParentToChildBaseImpl<ChildReferenceEdgeType.PropertyName>
 implements PropertyNameEdge
 {

@@ -10,7 +10,7 @@ import type {
   ValueToNumericKeyMap,
 } from "../search/ValueToNumericKeyMap.js";
 
-export default class ChildToParentImpl implements ChildToParentReferenceGraphEdge {
+export class ChildToParentImpl implements ChildToParentReferenceGraphEdge {
   readonly childObjectKey: number;
   readonly jointOwnerKeys: number[];
   readonly isStrongOwningReference: boolean;

@@ -56,7 +56,7 @@ export interface PropertyNameEdge extends BaseParentToChildReferenceGraphEdge<Ch
 }
 
 export interface ArrayIndexEdge extends BaseParentToChildReferenceGraphEdge<ChildReferenceEdgeType.ArrayIndex> {
-  readonly index: number;
+  readonly arrayIndex: number;
 }
 
 export interface PropertySymbolEdge extends BaseParentToChildReferenceGraphEdge<ChildReferenceEdgeType.PropertySymbol> {

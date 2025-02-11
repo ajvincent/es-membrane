@@ -13,7 +13,7 @@ import type {
 
 import ParentToChildBaseImpl from "./ParentToChildBaseImpl.js";
 
-export default class ArrayIndexEdgeImpl
+export class ArrayIndexEdgeImpl
 extends ParentToChildBaseImpl<ChildReferenceEdgeType.ArrayIndex>
 implements ArrayIndexEdge
 {
@@ -22,7 +22,7 @@ implements ArrayIndexEdge
     return (value >= 0 && value % 1 === 0) ? value : NaN;
   }
 
-  public readonly index: number;
+  public readonly arrayIndex: number;
 
   constructor(
     parentObject: GuestEngine.ObjectValue,
@@ -39,6 +39,6 @@ implements ArrayIndexEdge
       parentToChildEdgeId,
       numericKeyMap
     );
-    this.index = index;
+    this.arrayIndex = index;
   }
 }
