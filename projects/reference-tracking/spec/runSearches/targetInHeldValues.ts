@@ -23,8 +23,14 @@ function getSpecPath(leafName: string): string {
   return path.join(referenceSpecDir, leafName);
 }
 
-xit("we can find the target when it's among the held values", async () => {
+it("we can find the target when it's among the held values", async () => {
   const pathToSearch = getSpecPath("targetInHeldValuesArray.js");
   const graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = await runSearchesInGuestEngine(pathToSearch);
-  expect(graphs).toBeTruthy();
-}, 1000 * 60 * 60);
+  expect(graphs.size).toBe(1);
+  const heldValuesGraph = graphs.get("targetHeldValuesArray");
+  expect(heldValuesGraph).toBeDefined();
+  if (heldValuesGraph) {
+    expect(heldValuesGraph.succeeded).toBeTrue();
+    expect(heldValuesGraph.foundTargetValue).toBeTrue();
+  }
+});

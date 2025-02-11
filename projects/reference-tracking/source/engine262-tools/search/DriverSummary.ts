@@ -15,6 +15,7 @@ export default class SearchDriverSummary implements ReferenceGraph {
   childToParentEdges: ChildToParentReferenceGraphEdge[] = [];
 
   succeeded = false;
+  foundTargetValue = false;
 
   run(
     internalResults: ReadonlyDeep<ReferenceGraph>
@@ -22,5 +23,7 @@ export default class SearchDriverSummary implements ReferenceGraph {
   {
     if (internalResults.succeeded === false)
       return;
+    this.succeeded = true;
+    this.foundTargetValue = internalResults.foundTargetValue;
   }
 }

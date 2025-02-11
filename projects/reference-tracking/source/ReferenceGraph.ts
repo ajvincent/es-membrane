@@ -93,4 +93,5 @@ export interface ReferenceGraph {
   readonly childToParentEdges: ChildToParentReferenceGraphEdge[];
 
   readonly succeeded: boolean;
+  readonly foundTargetValue: boolean;
 }
