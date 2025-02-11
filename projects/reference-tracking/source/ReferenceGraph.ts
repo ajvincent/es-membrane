@@ -41,12 +41,14 @@ export interface ChildToParentReferenceGraphEdge {
   readonly childObjectKey: number;
   readonly jointOwnerKeys: number[];
   readonly isStrongOwningReference: boolean;
+  readonly parentToChildEdgeId: number,
 }
 
 export interface BaseParentToChildReferenceGraphEdge<EdgeType extends ChildReferenceEdgeType> {
   readonly parentObjectKey: number,
   readonly childObjectKey: number,
-  readonly childEdgeType: EdgeType,
+  readonly parentToChildEdgeType: EdgeType,
+  readonly parentToChildEdgeId: number,
 }
 
 export interface PropertyNameEdge extends BaseParentToChildReferenceGraphEdge<ChildReferenceEdgeType.PropertyName> {

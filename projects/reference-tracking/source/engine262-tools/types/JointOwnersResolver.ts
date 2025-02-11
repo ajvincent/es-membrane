@@ -3,5 +3,6 @@ export type JointOwnersResolver<TrackerType extends object> = (
   childKey: number,
   jointOwnerKeys: readonly number[],
   isStrongOwningReference: boolean,
+  parentToChildEdgeId: number,
   tracker: TrackerType,
 ) => void;

@@ -17,17 +17,20 @@ implements BaseParentToChildReferenceGraphEdge<EdgeType>
 {
   readonly parentObjectKey: number;
   readonly childObjectKey: number;
-  readonly childEdgeType: EdgeType;
+  readonly parentToChildEdgeType: EdgeType;
+  readonly parentToChildEdgeId: number;
 
   constructor(
     parentObject: GuestEngine.ObjectValue,
     childObject: GuestEngine.ObjectValue,
     edgeType: EdgeType,
+    parentToChildEdgeId: number,
     numericKeyMap: ValueToNumericKeyMap,
   )
   {
     this.parentObjectKey = numericKeyMap.getKeyForHeldObject(parentObject);
     this.childObjectKey = numericKeyMap.getKeyForHeldObject(childObject);
-    this.childEdgeType = edgeType;
+    this.parentToChildEdgeId = parentToChildEdgeId;
+    this.parentToChildEdgeType = edgeType;
   }
 }

@@ -21,13 +21,14 @@ describe("JointOwnershipTracker", () => {
       12,
       [],
       false,
+      87,
       resolver
     );
     expect(resolver).toHaveBeenCalledTimes(0);
 
     tracker.fireCallbackIfEmpty();
 
-    expect(resolver).toHaveBeenCalledOnceWith(12, [], false, tracker);
+    expect(resolver).toHaveBeenCalledOnceWith(12, [], false, 87, tracker);
     resolver.calls.reset();
   });
 
@@ -40,13 +41,14 @@ describe("JointOwnershipTracker", () => {
       8,
       [23, 15],
       true,
+      88,
       resolver
     );
     expect(resolver).toHaveBeenCalledTimes(0);
 
     tracker.fireCallbackIfEmpty();
 
-    expect(resolver).toHaveBeenCalledOnceWith(8, [23, 15], true, tracker);
+    expect(resolver).toHaveBeenCalledOnceWith(8, [23, 15], true, 88, tracker);
     resolver.calls.reset();
   });
 
@@ -60,6 +62,7 @@ describe("JointOwnershipTracker", () => {
       2,
       [3, 6, 8],
       false,
+      89,
       resolver
     );
     expect(resolver).toHaveBeenCalledTimes(0);
@@ -77,7 +80,7 @@ describe("JointOwnershipTracker", () => {
     expect(resolver).toHaveBeenCalledTimes(0);
 
     tracker.keyWasResolved(8);
-    expect(resolver).toHaveBeenCalledOnceWith(2, [3, 6, 8], false, tracker);
+    expect(resolver).toHaveBeenCalledOnceWith(2, [3, 6, 8], false, 89, tracker);
     resolver.calls.reset();
 
     tracker.keyWasResolved(6); // it ignores later calls

@@ -23,10 +23,17 @@ implements PropertyNameEdge
     parentObject: GuestEngine.ObjectValue,
     propertyName: string,
     childObject: GuestEngine.ObjectValue,
+    parentToChildEdgeId: number,
     numericKeyMap: ValueToNumericKeyMap,
   )
   {
-    super(parentObject, childObject, ChildReferenceEdgeType.PropertyName, numericKeyMap);
+    super(
+      parentObject,
+      childObject,
+      ChildReferenceEdgeType.PropertyName,
+      parentToChildEdgeId,
+      numericKeyMap
+    );
     this.propertyName = propertyName;
   }
 }

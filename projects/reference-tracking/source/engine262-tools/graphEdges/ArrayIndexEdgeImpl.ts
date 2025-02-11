@@ -28,10 +28,17 @@ implements ArrayIndexEdge
     parentObject: GuestEngine.ObjectValue,
     index: number,
     childObject: GuestEngine.ObjectValue,
+    parentToChildEdgeId: number,
     numericKeyMap: ValueToNumericKeyMap,
   )
   {
-    super(parentObject, childObject, ChildReferenceEdgeType.ArrayIndex, numericKeyMap);
+    super(
+      parentObject,
+      childObject,
+      ChildReferenceEdgeType.ArrayIndex,
+      parentToChildEdgeId,
+      numericKeyMap
+    );
     this.index = index;
   }
 }

@@ -47,6 +47,8 @@ implements ReadonlyDeep<ReferenceGraph>
   readonly parentToChildEdges: ParentToChildReferenceGraphEdge[] = [];
   readonly childToParentEdges: ChildToParentReferenceGraphEdge[] = [];
 
+  #parentToChildEdgeIdCounter = 0;
+
   foundTargetValue = false;
   succeeded = false;
 
@@ -144,23 +146,37 @@ implements ReadonlyDeep<ReferenceGraph>
       GuestEngine.Assert(guestKey.type === "String");
       const localIndex = parseInt(guestKey.stringValue());
       parentToChildEdge = new ArrayIndexEdgeImpl(
-        guestValue, localIndex, childGuestValue, this.#valueToNumericKeyMap
+        guestValue,
+        localIndex,
+        childGuestValue,
+        this.#parentToChildEdgeIdCounter++,
+        this.#valueToNumericKeyMap
       );
     } else if (guestKey.type === "String") {
       parentToChildEdge = new PropertyNameEdgeImpl(
-        guestValue, guestKey.stringValue(), childGuestValue, this.#valueToNumericKeyMap
+        guestValue,
+        guestKey.stringValue(),
+        childGuestValue,
+        this.#parentToChildEdgeIdCounter++,
+        this.#valueToNumericKeyMap,
       );
     } else {
       throw new Error("Symbol keys not yet supported");
     }
 
     this.parentToChildEdges.push(parentToChildEdge);
-    this.#addPendingChildEdge(childGuestValue, [guestValue], true);
+    this.#addPendingChildEdge(
+      childGuestValue,
+      [guestValue],
+      parentToChildEdge.parentToChildEdgeId,
+      true
+    );
   }
 
   #addPendingChildEdge(
     childGuestValue: GuestEngine.ObjectValue,
     jointOwningValues: readonly GuestEngine.ObjectValue[],
+    parentToChildEdgeId: number,
     isStrongOwningReference: boolean,
   ): void
   {
@@ -171,7 +187,8 @@ implements ReadonlyDeep<ReferenceGraph>
     this.#childEdgeTracker.defineChildEdge(
       this.#valueToNumericKeyMap.getKeyForHeldObject(childGuestValue),
       jointOwningValues.map(owningValue => this.#valueToNumericKeyMap.getKeyForHeldObject(owningValue)),
-      isStrongOwningReference
+      isStrongOwningReference,
+      parentToChildEdgeId
     );
   }
 
@@ -179,6 +196,7 @@ implements ReadonlyDeep<ReferenceGraph>
     childKey: number,
     jointOwnerKeys: readonly number[],
     isStrongOwningReference: boolean,
+    parentToChildEdgeId: number,
   ): void
   {
     const childGuestValue = this.#valueToNumericKeyMap.getHeldObjectForKey(childKey);
@@ -188,6 +206,7 @@ implements ReadonlyDeep<ReferenceGraph>
       childGuestValue,
       jointOwningValues,
       isStrongOwningReference,
+      parentToChildEdgeId,
       this.#valueToNumericKeyMap
     );
     this.childToParentEdges.push(childEdge);

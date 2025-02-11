@@ -14,16 +14,19 @@ export default class ChildToParentImpl implements ChildToParentReferenceGraphEdg
   readonly childObjectKey: number;
   readonly jointOwnerKeys: number[];
   readonly isStrongOwningReference: boolean;
+  readonly parentToChildEdgeId: number;
 
   constructor(
     childObject: GuestEngine.ObjectValue,
     jointOwnerObjects: readonly GuestEngine.ObjectValue[],
     isStrongOwningReference: boolean,
+    parentToChildEdgeId: number,
     numericKeyMap: ValueToNumericKeyMap,
   )
   {
     this.childObjectKey = numericKeyMap.getKeyForHeldObject(childObject);
     this.isStrongOwningReference = isStrongOwningReference;
+    this.parentToChildEdgeId = parentToChildEdgeId;
 
     this.jointOwnerKeys = jointOwnerObjects.map(
       ownerValue => numericKeyMap.getKeyForHeldObject(ownerValue)

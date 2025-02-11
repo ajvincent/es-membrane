@@ -15,6 +15,7 @@ export class ChildEdgeReferenceTracker {
     childKey: number,
     jointOwnerKeys: readonly number[],
     isStrongOwningReference: boolean,
+    parentToChildEdgeId: number,
     tracker: JointOwnershipTracker
   ): void =>
   {
@@ -23,7 +24,7 @@ export class ChildEdgeReferenceTracker {
       innerSet.delete(tracker);
     }
     this.#outerJointOwnersResolver(
-      childKey, jointOwnerKeys, isStrongOwningReference, this
+      childKey, jointOwnerKeys, isStrongOwningReference, parentToChildEdgeId, this
     );
   }
 
@@ -67,6 +68,7 @@ export class ChildEdgeReferenceTracker {
     childKey: number,
     jointOwnerKeys: readonly number[],
     isStrongOwningReference: boolean,
+    parentToChildEdgeId: number,
   ): void
   {
     for (const ownerKey of jointOwnerKeys) {
@@ -77,7 +79,12 @@ export class ChildEdgeReferenceTracker {
       throw new Error("no resolved value defined for child key " + childKey);
 
     const tracker = new JointOwnershipTracker(
-      this.#keyResolvedMap, childKey, jointOwnerKeys, isStrongOwningReference, this.#innerJointOwnersResolver
+      this.#keyResolvedMap,
+      childKey,
+      jointOwnerKeys,
+      isStrongOwningReference,
+      parentToChildEdgeId,
+      this.#innerJointOwnersResolver
     );
 
     for (const ownerKey of jointOwnerKeys) {
