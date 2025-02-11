@@ -90,7 +90,8 @@ implements ReadonlyDeep<ReferenceGraph>
     objectKey: number
   ): void
   {
-    this.#heldNumericKeys.add(objectKey);
+    if (objectKey !== SearchDriverInternal.#targetValueKey)
+      this.#heldNumericKeys.add(objectKey);
   }
 
   public run(): ThrowOr<void> {
