@@ -22,12 +22,8 @@ import PropertyNameEdgeImpl from "../graphEdges/PropertyNameEdgeImpl.js";
 import ArrayIndexEdgeImpl from "../graphEdges/ArrayIndexEdgeImpl.js";
 
 import {
-  ReachableValueSet
-} from "../../utilities/ReachableValueSet.js";
-
-import {
-  SyncTaskQueue
-} from "../../utilities/SyncTaskQueue.js";
+  ChildEdgeReferenceTracker
+} from "./ChildEdgeReferenceTracker.js";
 
 import {
   ValueToNumericKeyMap
@@ -43,14 +39,16 @@ implements ReadonlyDeep<ReferenceGraph>
   readonly #realm: GuestEngine.ManagedRealm;
 
   readonly #valueToNumericKeyMap = new ValueToNumericKeyMap;
-  readonly #taskQueue = new SyncTaskQueue;
-  readonly #reachableValues = new ReachableValueSet(this.#taskQueue);
-
   readonly #valueToNodeMap = new Map<GuestEngine.ObjectValue, ReferenceGraphNodeImpl>;
+
+  readonly #childEdgeTracker = new ChildEdgeReferenceTracker(this.#jointEdgeOwnersResolver.bind(this));
+  readonly #heldNumericKeys = new Set<number>;
+
   readonly parentToChildEdges: ParentToChildReferenceGraphEdge[] = [];
   readonly childToParentEdges: ChildToParentReferenceGraphEdge[] = [];
 
   foundTargetValue = false;
+  succeeded = false;
 
   constructor(
     targetValue: GuestEngine.ObjectValue,
@@ -71,44 +69,41 @@ implements ReadonlyDeep<ReferenceGraph>
 
     this.#defineGraphNode(targetValue);
     this.#defineGraphNode(heldValues);
-
-    this.#reachableValues.defineKeyResolver(
-      SearchDriverInternal.#targetValueKey, () => this.foundTargetValue = true
-    );
-    this.#reachableValues.defineKeyResolver(
-      SearchDriverInternal.#heldValuesKey, () => undefined
-    );
-
-    this.#reachableValues.resolveKey(SearchDriverInternal.#heldValuesKey);
-    for (const task of this.#taskQueue.getTasks()) {
-      task();
-    }
-
-    Object.freeze(this);
+    this.#resolveObjectKey(SearchDriverInternal.#heldValuesKey);
   }
 
   #defineGraphNode(
     guestObject: GuestEngine.ObjectValue
   ): void
   {
-    this.#valueToNodeMap.set(guestObject, new ReferenceGraphNodeImpl(
+    if (this.#valueToNodeMap.has(guestObject))
+      return;
+
+    const node = new ReferenceGraphNodeImpl(
       guestObject, this.#valueToNumericKeyMap, this.#realm
-    ));
+    );
+    this.#valueToNodeMap.set(guestObject, node);
+    this.#childEdgeTracker.defineKey(node.objectKey);
   }
 
-  succeeded = false;
+  #resolveObjectKey(
+    objectKey: number
+  ): void
+  {
+    this.#heldNumericKeys.add(objectKey);
+  }
 
   public run(): ThrowOr<void> {
-    const nodeIterator: MapIterator<ReferenceGraphNode> = this.#valueToNodeMap.values();
-    void(nodeIterator.next()); // skip past the target value
+    for (const objectKey of this.#heldNumericKeys) {
+      const guestObject = this.#valueToNumericKeyMap.getHeldObjectForKey(objectKey);
+      const node = this.#valueToNodeMap.get(guestObject);
+      GuestEngine.Assert(node !== undefined);
 
-    for (const node of nodeIterator) {
       this.#searchNode(node);
-
-      for (const task of this.#taskQueue.getTasks()) {
-        task();
-      }
+      this.#childEdgeTracker.resolveKey(objectKey);
     }
+
+    this.succeeded = true;
   }
 
   public get nodes(): ReferenceGraphNode[] {
@@ -120,7 +115,6 @@ implements ReadonlyDeep<ReferenceGraph>
   ): void
   {
     const guestValue: GuestEngine.ObjectValue = this.#valueToNumericKeyMap.getHeldObjectForKey(node.objectKey);
-
     this.#addObjectProperties(guestValue);
   }
 
@@ -130,11 +124,10 @@ implements ReadonlyDeep<ReferenceGraph>
   {
     for (const guestKey of guestValue.OwnPropertyKeys()) {
       const childGuestValue: GuestEngine.Value = GuestEngine.GetV(guestValue, guestKey);
-      if (childGuestValue.type !== "Object")
-        continue;
-      if (this.#valueToNodeMap.has(childGuestValue))
-        continue;
-      this.#addObjectProperty(guestValue, guestKey, childGuestValue);
+      if (childGuestValue.type === "Object") {
+        this.#defineGraphNode(childGuestValue);
+        this.#addObjectProperty(guestValue, guestKey, childGuestValue);
+      }
     }
   }
 
@@ -149,27 +142,47 @@ implements ReadonlyDeep<ReferenceGraph>
     if (GuestEngine.isArrayIndex(guestKey)) {
       GuestEngine.Assert(guestKey.type === "String");
       const localIndex = parseInt(guestKey.stringValue());
-      parentToChildEdge = new ArrayIndexEdgeImpl(guestValue, localIndex, childGuestValue, this.#valueToNumericKeyMap);
+      parentToChildEdge = new ArrayIndexEdgeImpl(
+        guestValue, localIndex, childGuestValue, this.#valueToNumericKeyMap
+      );
     } else if (guestKey.type === "String") {
-      parentToChildEdge = new PropertyNameEdgeImpl(guestValue, guestKey.stringValue(), childGuestValue, this.#valueToNumericKeyMap);
+      parentToChildEdge = new PropertyNameEdgeImpl(
+        guestValue, guestKey.stringValue(), childGuestValue, this.#valueToNumericKeyMap
+      );
     } else {
       throw new Error("Symbol keys not yet supported");
     }
 
     this.parentToChildEdges.push(parentToChildEdge);
-
-    const childKey = this.#valueToNumericKeyMap.getKeyForHeldObject(childGuestValue);
-    this.#reachableValues.defineKeyResolver(childKey, () => undefined);
-
-    this.#addChildEdge(childGuestValue, [guestValue], true);
+    this.#addPendingChildEdge(childGuestValue, [guestValue], true);
   }
 
-  #addChildEdge(
+  #addPendingChildEdge(
     childGuestValue: GuestEngine.ObjectValue,
     jointOwningValues: readonly GuestEngine.ObjectValue[],
     isStrongOwningReference: boolean,
   ): void
   {
+    if (this.#strongReferencesOnly && isStrongOwningReference === false) {
+      return;
+    }
+
+    this.#childEdgeTracker.defineChildEdge(
+      this.#valueToNumericKeyMap.getKeyForHeldObject(childGuestValue),
+      jointOwningValues.map(owningValue => this.#valueToNumericKeyMap.getKeyForHeldObject(owningValue)),
+      isStrongOwningReference
+    );
+  }
+
+  #jointEdgeOwnersResolver(
+    childKey: number,
+    jointOwnerKeys: readonly number[],
+    isStrongOwningReference: boolean,
+  ): void
+  {
+    const childGuestValue = this.#valueToNumericKeyMap.getHeldObjectForKey(childKey);
+    const jointOwningValues = jointOwnerKeys.map(key => this.#valueToNumericKeyMap.getHeldObjectForKey(key));
+
     const childEdge = new ChildToParentImpl(
       childGuestValue,
       jointOwningValues,
@@ -177,16 +190,9 @@ implements ReadonlyDeep<ReferenceGraph>
       this.#valueToNumericKeyMap
     );
     this.childToParentEdges.push(childEdge);
+    this.#resolveObjectKey(childKey);
 
-    this.#reachableValues.keyDependsOnJointOwners(
-      childEdge.childObjectKey,
-      childEdge.jointOwnerKeys,
-      () => this.#defineGraphNode(childGuestValue),
-    );
-
-    const childKey = this.#valueToNumericKeyMap.getKeyForHeldObject(childGuestValue);
-    if (this.#strongReferencesOnly === false || childEdge.isStrongOwningReference) {
-      this.#reachableValues.resolveKey(childKey);
-    }
+    if (childKey === 0)
+      this.foundTargetValue = true;
   }
 }
