@@ -11,12 +11,12 @@ import type {
   ReferenceGraph,
 } from "../../ReferenceGraph.js";
 
-import SearchDriverInternal from "./DriverInternal.js";
+import TopDownSearchForTarget from "./TopDownSearchForTarget.js";
 import SearchDriverSummary from "./DriverSummary.js";
 
 export class SearchDriver
 {
-  #internal?: SearchDriverInternal;
+  #topDownSearchForTarget?: TopDownSearchForTarget;
   #summary: SearchDriverSummary;
   #hasRun = false;
 
@@ -27,7 +27,7 @@ export class SearchDriver
     realm: GuestEngine.ManagedRealm,
   )
   {
-    this.#internal = new SearchDriverInternal(
+    this.#topDownSearchForTarget = new TopDownSearchForTarget(
       targetValue, heldValues, strongReferencesOnly, realm
     );
     this.#summary = new SearchDriverSummary;
@@ -37,10 +37,12 @@ export class SearchDriver
     if (!this.#hasRun) {
       this.#hasRun = true;
       try {
-        this.#internal!.run();
-        this.#summary.run(this.#internal!);
+        const result = this.#topDownSearchForTarget!.run();
+        if (result instanceof GuestEngine.ThrowCompletion)
+          return result;
+        this.#summary.run(this.#topDownSearchForTarget!);
       } finally {
-        this.#internal = undefined;
+        this.#topDownSearchForTarget = undefined;
       }
     }
 

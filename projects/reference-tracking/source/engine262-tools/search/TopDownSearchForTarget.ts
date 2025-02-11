@@ -29,7 +29,7 @@ import {
   ValueToNumericKeyMap
 } from "./ValueToNumericKeyMap.js";
 
-export default class SearchDriverInternal
+export default class TopDownSearchForTarget
 implements ReadonlyDeep<ReferenceGraph>
 {
   static readonly #targetValueKey = 0;
@@ -61,15 +61,15 @@ implements ReadonlyDeep<ReferenceGraph>
     this.#realm = realm;
 
     GuestEngine.Assert(
-      this.#valueToNumericKeyMap.getKeyForHeldObject(targetValue) === SearchDriverInternal.#targetValueKey
+      this.#valueToNumericKeyMap.getKeyForHeldObject(targetValue) === TopDownSearchForTarget.#targetValueKey
     );
     GuestEngine.Assert(
-      this.#valueToNumericKeyMap.getKeyForHeldObject(heldValues) === SearchDriverInternal.#heldValuesKey
+      this.#valueToNumericKeyMap.getKeyForHeldObject(heldValues) === TopDownSearchForTarget.#heldValuesKey
     );
 
     this.#defineGraphNode(targetValue);
     this.#defineGraphNode(heldValues);
-    this.#resolveObjectKey(SearchDriverInternal.#heldValuesKey);
+    this.#resolveObjectKey(TopDownSearchForTarget.#heldValuesKey);
   }
 
   #defineGraphNode(
@@ -90,7 +90,7 @@ implements ReadonlyDeep<ReferenceGraph>
     objectKey: number
   ): void
   {
-    if (objectKey !== SearchDriverInternal.#targetValueKey)
+    if (objectKey !== TopDownSearchForTarget.#targetValueKey)
       this.#heldNumericKeys.add(objectKey);
   }
 
