@@ -17,6 +17,12 @@ describe("BottomUpSearchForChildEdges", () => {
   beforeEach(() => {
     TopSearchGraph = new ReferenceGraphImpl;
     ExpectedGraph = new ReferenceGraphImpl;
+
+    TopSearchGraph.foundTargetValue = true;
+    TopSearchGraph.succeeded = true;
+
+    ExpectedGraph.foundTargetValue = true;
+    ExpectedGraph.succeeded = true;
   });
 
   //#region utilities
@@ -70,26 +76,15 @@ describe("BottomUpSearchForChildEdges", () => {
     }
   }
 
-  function sortExpectedGraphFields(): void {
-    ExpectedGraph.nodes.sort(
-      (a, b) => a.objectKey - b.objectKey
-    );
-    ExpectedGraph.parentToChildEdges.sort(
-      (a, b) => a.parentObjectKey - b.parentObjectKey
-    );
-    ExpectedGraph.childToParentEdges.sort(
-      (a, b) => a.childObjectKey - b.childObjectKey
-    );
-  }
   //#endregion utilities
 
-  xit("returns a compacted ReferenceGraph", () => {
+  it("returns a compacted ReferenceGraph", () => {
     const target = { isTarget: true };
-  
+
     const differentTargetName = target;
     const isFirstValue = { isFirstValue: true };
     const isLastValue = { isLastValue: true };
-  
+
     const heldValues: readonly object[] = [
       isFirstValue,
       differentTargetName,
@@ -121,10 +116,12 @@ describe("BottomUpSearchForChildEdges", () => {
     addArrayIndexEdge(false, GraphCodes.heldValues, 0, GraphCodes.isFirstValue, GraphCodes.FirstHeldValueEdgeId);
     addArrayIndexEdge(true, GraphCodes.heldValues, 1, GraphCodes.target, GraphCodes.SecondHeldValueEdgeId);
     addArrayIndexEdge(false, GraphCodes.heldValues, 2, GraphCodes.isLastValue, GraphCodes.ThirdHeldValueEdgeId);
-  
-    const edgeSearch = new BottomUpSearchForChildEdges();
-    const ActualSearchGraph = edgeSearch.run(TopSearchGraph);
-    sortExpectedGraphFields();
+
+    BottomUpSearchForChildEdges.sortBottomUpGraphArrays(ExpectedGraph);
+
+    const edgeSearch = new BottomUpSearchForChildEdges(TopSearchGraph);
+    edgeSearch.run();
+    const ActualSearchGraph = edgeSearch.bottomUpGraph;
 
     expect(ActualSearchGraph).toEqual(ExpectedGraph);
   });

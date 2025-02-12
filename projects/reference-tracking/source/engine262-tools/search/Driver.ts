@@ -17,7 +17,7 @@ import BottomUpSearchForChildEdges from "./BottomUpSearchForChildEdges.js";
 export class SearchDriver
 {
   #topDownSearchForTarget?: TopDownSearchForTarget;
-  #bottomUpSearchForEdges: BottomUpSearchForChildEdges;
+  #bottomUpSearchForEdges?: BottomUpSearchForChildEdges;
   #hasRun = false;
 
   constructor(
@@ -30,7 +30,6 @@ export class SearchDriver
     this.#topDownSearchForTarget = new TopDownSearchForTarget(
       targetValue, heldValues, strongReferencesOnly, realm
     );
-    this.#bottomUpSearchForEdges = new BottomUpSearchForChildEdges;
   }
 
   public run(): ThrowOr<ReadonlyDeep<ReferenceGraph> | undefined> {
@@ -43,9 +42,12 @@ export class SearchDriver
         const result = this.#topDownSearchForTarget!.run();
         if (result instanceof GuestEngine.ThrowCompletion)
           return result;
-        graph = this.#bottomUpSearchForEdges.run(this.#topDownSearchForTarget!);
+        this.#bottomUpSearchForEdges = new BottomUpSearchForChildEdges(this.#topDownSearchForTarget!);
+        this.#bottomUpSearchForEdges.run();
+        graph = this.#bottomUpSearchForEdges.bottomUpGraph;
       } finally {
         this.#topDownSearchForTarget = undefined;
+        this.#bottomUpSearchForEdges = undefined;
       }
 
       return graph;

@@ -7,11 +7,13 @@ import {
   type ThrowOr,
 } from "../GuestEngine.js";
 
-import type {
+import {
   ReferenceGraph,
   ReferenceGraphNode,
   ParentToChildReferenceGraphEdge,
-  ChildToParentReferenceGraphEdge
+  ChildToParentReferenceGraphEdge,
+  PRESUMED_HELD_NODE_KEY,
+  TARGET_NODE_KEY,
 } from "../../ReferenceGraph.js";
 
 import {
@@ -35,9 +37,6 @@ import {
 export default class TopDownSearchForTarget
 implements ReadonlyDeep<ReferenceGraph>
 {
-  static readonly #targetValueKey = 0;
-  static readonly #heldValuesKey = 1;
-
   readonly #strongReferencesOnly: boolean;
   readonly #realm: GuestEngine.ManagedRealm;
 
@@ -66,15 +65,15 @@ implements ReadonlyDeep<ReferenceGraph>
     this.#realm = realm;
 
     GuestEngine.Assert(
-      this.#valueToNumericKeyMap.getKeyForHeldObject(targetValue) === TopDownSearchForTarget.#targetValueKey
+      this.#valueToNumericKeyMap.getKeyForHeldObject(targetValue) === TARGET_NODE_KEY
     );
     GuestEngine.Assert(
-      this.#valueToNumericKeyMap.getKeyForHeldObject(heldValues) === TopDownSearchForTarget.#heldValuesKey
+      this.#valueToNumericKeyMap.getKeyForHeldObject(heldValues) === PRESUMED_HELD_NODE_KEY
     );
 
     this.#defineGraphNode(targetValue);
     this.#defineGraphNode(heldValues);
-    this.#resolveObjectKey(TopDownSearchForTarget.#heldValuesKey);
+    this.#resolveObjectKey(PRESUMED_HELD_NODE_KEY);
   }
 
   #defineGraphNode(
@@ -95,7 +94,7 @@ implements ReadonlyDeep<ReferenceGraph>
     objectKey: number
   ): void
   {
-    if (objectKey !== TopDownSearchForTarget.#targetValueKey)
+    if (objectKey !== TARGET_NODE_KEY)
       this.#heldNumericKeys.add(objectKey);
   }
 
