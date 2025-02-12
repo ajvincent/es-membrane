@@ -15,17 +15,22 @@ export class ReferenceGraphNodeImpl implements ReferenceGraphNode {
   static #getCollectionAndClassName(
     guestObject: GuestEngine.ObjectValue,
     realm: GuestEngine.ManagedRealm
-  ): [BuiltInCollectionName, string | undefined]
+  ): [BuiltInCollectionName, string]
   {
     let isDirectMatch = true;
     let value: GuestEngine.ObjectValue = guestObject;
-    let derivedClassName: string | undefined;
+
+    // this will be fixed in the near future
+    // eslint-disable-next-line prefer-const
+    let derivedClassName: string = "(unknown)";
 
     let proto: GuestEngine.ObjectValue | GuestEngine.NullValue = value.GetPrototypeOf();
     while (proto.type !== "Null") {
       switch (proto) {
         case realm.Intrinsics["%Array.prototype%"]:
           return [BuiltInCollectionName.Array, isDirectMatch ? BuiltInCollectionName.Array : derivedClassName];
+        case realm.Intrinsics["%Object.prototype%"]:
+          return [BuiltInCollectionName.Object, isDirectMatch ? BuiltInCollectionName.Object : derivedClassName];
       }
 
       isDirectMatch = false;
@@ -38,7 +43,7 @@ export class ReferenceGraphNodeImpl implements ReferenceGraphNode {
 
   readonly objectKey: number;
   readonly builtInClassName: BuiltInCollectionName;
-  readonly derivedClassName: string | undefined;
+  readonly derivedClassName: string;
 
   constructor(
     guestObject: GuestEngine.ObjectValue,

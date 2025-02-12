@@ -30,7 +30,7 @@ describe("BottomUpSearchForChildEdges", () => {
     includeExpectedGraph: boolean,
     objectKey: number,
     builtInClassName: BuiltInCollectionName,
-    derivedClassName?: string,
+    derivedClassName: string,
   ): void
   {
     const node: ReferenceGraphNode = {
@@ -107,11 +107,11 @@ describe("BottomUpSearchForChildEdges", () => {
       SecondHeldValueEdgeId: 2001,
       ThirdHeldValueEdgeId: 2002,
     };
-    addObjectToGraphs(true, GraphCodes.target, BuiltInCollectionName.Object);
-    addObjectToGraphs(true, GraphCodes.heldValues, BuiltInCollectionName.Array);
-  
-    addObjectToGraphs(false, GraphCodes.isFirstValue, BuiltInCollectionName.Object);
-    addObjectToGraphs(false, GraphCodes.isLastValue, BuiltInCollectionName.Object);
+    addObjectToGraphs(true, GraphCodes.target, BuiltInCollectionName.Object, "Object");
+    addObjectToGraphs(true, GraphCodes.heldValues, BuiltInCollectionName.Array, "Array");
+
+    addObjectToGraphs(false, GraphCodes.isFirstValue, BuiltInCollectionName.Object, "Object");
+    addObjectToGraphs(false, GraphCodes.isLastValue, BuiltInCollectionName.Object, "Object");
   
     addArrayIndexEdge(false, GraphCodes.heldValues, 0, GraphCodes.isFirstValue, GraphCodes.FirstHeldValueEdgeId);
     addArrayIndexEdge(true, GraphCodes.heldValues, 1, GraphCodes.target, GraphCodes.SecondHeldValueEdgeId);

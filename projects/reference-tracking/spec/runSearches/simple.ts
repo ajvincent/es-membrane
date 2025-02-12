@@ -13,6 +13,8 @@ import {
   runSearchesInGuestEngine,
 } from "../../source/runSearchesInGuestEngine.js";
 
+import BottomUpSearchForChildEdges from "../../source/engine262-tools/search/BottomUpSearchForChildEdges.js";
+
 import {
   ReferenceGraphImpl,
 } from "../../source/engine262-tools/search/ReferenceGraphImpl.js";
@@ -20,6 +22,7 @@ import {
 import {
   addObjectToGraphs,
   addArrayIndexEdge,
+  addPropertyNameEdge,
 } from "../support/fillReferenceGraph.js";
 
 import {
@@ -39,15 +42,16 @@ describe("Simple graph searches: " , () => {
     expect(heldValuesGraph).toBeDefined();
     if (!heldValuesGraph)
       return;
-  
+
     const ExpectedGraph = new ReferenceGraphImpl;
     ExpectedGraph.foundTargetValue = true;
     ExpectedGraph.succeeded = true;
-  
+
     addObjectToGraphs(
       ExpectedGraph,
       TARGET_NODE_KEY,
       BuiltInCollectionName.Object,
+      "Object"
     );
     addObjectToGraphs(
       ExpectedGraph,
@@ -55,7 +59,7 @@ describe("Simple graph searches: " , () => {
       BuiltInCollectionName.Array,
       "Array"
     );
-  
+
     addArrayIndexEdge(
       ExpectedGraph,
       PRESUMED_HELD_NODE_KEY,
@@ -63,8 +67,137 @@ describe("Simple graph searches: " , () => {
       TARGET_NODE_KEY,
       1
     );
-  
+
+    BottomUpSearchForChildEdges.sortBottomUpGraphArrays(ExpectedGraph);
     expect(reparse(heldValuesGraph)).toEqual(reparse(ExpectedGraph));
+  });
+
+  it("we can find the target when it's inside an array literal among the held values", async () => {
+    const pathToSearch = getReferenceSpecPath("simple/targetIsElementOfHeldArray.js");
+    const graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = await runSearchesInGuestEngine(pathToSearch);
+    expect(graphs.size).toBe(1);
+
+    const ActualGraph = graphs.get("targetIsElementOfHeldArray");
+    expect(ActualGraph).toBeDefined();
+    if (!ActualGraph)
+      return;
+
+    const ExpectedGraph = new ReferenceGraphImpl;
+    ExpectedGraph.foundTargetValue = true;
+    ExpectedGraph.succeeded = true;
+
+    const GraphCodes = {
+      nodes: {
+        arrayHoldingTarget: 3,
+      },
+
+      parentEdgeIds: {
+        arrayHoldingTarget: 1,
+        targetToHoldingArray: 3,
+      }
+    }
+
+    addObjectToGraphs(
+      ExpectedGraph,
+      TARGET_NODE_KEY,
+      BuiltInCollectionName.Object,
+      "Object"
+    );
+    addObjectToGraphs(
+      ExpectedGraph,
+      PRESUMED_HELD_NODE_KEY,
+      BuiltInCollectionName.Array,
+      "Array"
+    );
+    addObjectToGraphs(
+      ExpectedGraph,
+      GraphCodes.nodes.arrayHoldingTarget,
+      BuiltInCollectionName.Array,
+      "Array"
+    );
+
+    addArrayIndexEdge(
+      ExpectedGraph,
+      PRESUMED_HELD_NODE_KEY,
+      1,
+      GraphCodes.nodes.arrayHoldingTarget,
+      GraphCodes.parentEdgeIds.arrayHoldingTarget,
+    );
+
+    addArrayIndexEdge(
+      ExpectedGraph,
+      GraphCodes.nodes.arrayHoldingTarget,
+      0,
+      TARGET_NODE_KEY,
+      GraphCodes.parentEdgeIds.targetToHoldingArray,
+    );
+
+    BottomUpSearchForChildEdges.sortBottomUpGraphArrays(ExpectedGraph);
+    expect(reparse(ActualGraph)).toEqual(reparse(ExpectedGraph));
+  });
+
+  it("we can find the target when it's inside an object literal among the held values", async () => {
+    const pathToSearch = getReferenceSpecPath("simple/targetIsElementOfHeldObject.js");
+    const graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = await runSearchesInGuestEngine(pathToSearch);
+    expect(graphs.size).toBe(1);
+
+    const ActualGraph = graphs.get("targetIsElementOfHeldObject");
+    expect(ActualGraph).toBeDefined();
+    if (!ActualGraph)
+      return;
+
+    const ExpectedGraph = new ReferenceGraphImpl;
+    ExpectedGraph.foundTargetValue = true;
+    ExpectedGraph.succeeded = true;
+
+    const GraphCodes = {
+      nodes: {
+        objectHoldingTarget: 3,
+      },
+
+      parentEdgeIds: {
+        objectHoldingTarget: 1,
+        targetToHoldingArray: 3,
+      }
+    }
+
+    addObjectToGraphs(
+      ExpectedGraph,
+      TARGET_NODE_KEY,
+      BuiltInCollectionName.Object,
+      "Object"
+    );
+    addObjectToGraphs(
+      ExpectedGraph,
+      PRESUMED_HELD_NODE_KEY,
+      BuiltInCollectionName.Array,
+      "Array"
+    );
+    addObjectToGraphs(
+      ExpectedGraph,
+      GraphCodes.nodes.objectHoldingTarget,
+      BuiltInCollectionName.Object,
+      "Object"
+    );
+
+    addArrayIndexEdge(
+      ExpectedGraph,
+      PRESUMED_HELD_NODE_KEY,
+      1,
+      GraphCodes.nodes.objectHoldingTarget,
+      GraphCodes.parentEdgeIds.objectHoldingTarget,
+    );
+
+    addPropertyNameEdge(
+      ExpectedGraph,
+      GraphCodes.nodes.objectHoldingTarget,
+      "target",
+      TARGET_NODE_KEY,
+      GraphCodes.parentEdgeIds.targetToHoldingArray,
+    );
+
+    BottomUpSearchForChildEdges.sortBottomUpGraphArrays(ExpectedGraph);
+    expect(reparse(ActualGraph)).toEqual(reparse(ExpectedGraph));
   });
   
   it("when the target is not reachable, we report so", async () => {

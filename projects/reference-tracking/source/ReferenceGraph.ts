@@ -34,7 +34,7 @@ export enum BuiltInCollectionName {
 export interface ReferenceGraphNode {
   readonly objectKey: number;
   readonly builtInClassName: BuiltInCollectionName;
-  readonly derivedClassName?: string;
+  readonly derivedClassName: string;
 }
 
 export interface ChildToParentReferenceGraphEdge {
