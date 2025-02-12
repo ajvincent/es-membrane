@@ -1,21 +1,15 @@
-import path from "node:path";
-
 import {
   runSearchesInGuestEngineInternal,
 } from "../../source/runSearchesInGuestEngineInternal.js";
 
 import {
-  referenceSpecDir,
+  getReferenceSpecPath,
 } from "../support/projectRoot.js";
-
-function getSpecPath(leafName: string): string {
-  return path.join(referenceSpecDir, "validateArguments", leafName);
-}
 
 describe("report() throws when", () => {
   it("using a non-string key", async () => {
     const { graphs, reportCalls } = await runSearchesInGuestEngineInternal(
-      getSpecPath("reportKeyIsNotAString.js")
+      getReferenceSpecPath("validateArguments/reportKeyIsNotAString.js")
     );
     expect(graphs.size).toBe(0);
     expect(reportCalls.size).toBe(1);
@@ -24,7 +18,7 @@ describe("report() throws when", () => {
 
   it("using the same key twice", async () => {
     const { graphs, reportCalls } = await runSearchesInGuestEngineInternal(
-      getSpecPath("reportSameKeyTwice.js")
+      getReferenceSpecPath("validateArguments/reportSameKeyTwice.js")
     );
     expect(graphs.size).toBe(0);
     expect(reportCalls.size).toBe(2);
@@ -34,7 +28,7 @@ describe("report() throws when", () => {
 
   it("using a non-primitive value", async () => {
     const { graphs, reportCalls } = await runSearchesInGuestEngineInternal(
-      getSpecPath("reportValueIsNotAPrimitive.js")
+      getReferenceSpecPath("validateArguments/reportValueIsNotAPrimitive.js")
     );
     expect(graphs.size).toBe(0);
     expect(reportCalls.size).toBe(1);
@@ -47,7 +41,7 @@ describe("report() throws when", () => {
 describe("runSearchesInGuestEngine throws when", () => {
   it("there aren't any arguments", async () => {
     const { graphs, reportCalls } = await runSearchesInGuestEngineInternal(
-      getSpecPath("noArguments.js")
+      getReferenceSpecPath("validateArguments/noArguments.js")
     );
     expect(graphs.size).toBe(0);
     expect(reportCalls.size).toBe(1);
@@ -56,7 +50,7 @@ describe("runSearchesInGuestEngine throws when", () => {
 
   it("the results key isn't a string", async () => {
     const { graphs, reportCalls } = await runSearchesInGuestEngineInternal(
-      getSpecPath("resultsKeyNotAString.js")
+      getReferenceSpecPath("validateArguments/resultsKeyNotAString.js")
     );
     expect(graphs.size).toBe(0);
     expect(reportCalls.size).toBe(1);
@@ -65,7 +59,7 @@ describe("runSearchesInGuestEngine throws when", () => {
 
   it("the target value isn't an object", async () => {
     const { graphs, reportCalls } = await runSearchesInGuestEngineInternal(
-      getSpecPath("targetValueNotAnObject.js")
+      getReferenceSpecPath("validateArguments/targetValueNotAnObject.js")
     );
     expect(graphs.size).toBe(0);
     expect(reportCalls.size).toBe(1);
@@ -74,7 +68,7 @@ describe("runSearchesInGuestEngine throws when", () => {
 
   it("the target value is null", async () => {
     const { graphs, reportCalls } = await runSearchesInGuestEngineInternal(
-      getSpecPath("targetValueMustNotBeNull.js")
+      getReferenceSpecPath("validateArguments/targetValueMustNotBeNull.js")
     );
     expect(graphs.size).toBe(0);
     expect(reportCalls.size).toBe(1);
@@ -83,7 +77,7 @@ describe("runSearchesInGuestEngine throws when", () => {
 
   it("the held values aren't an array", async () => {
     const { graphs, reportCalls } = await runSearchesInGuestEngineInternal(
-      getSpecPath("heldValuesIsNotAnArray.js")
+      getReferenceSpecPath("validateArguments/heldValuesIsNotAnArray.js")
     );
     expect(graphs.size).toBe(0);
     expect(reportCalls.size).toBe(1);
@@ -92,7 +86,7 @@ describe("runSearchesInGuestEngine throws when", () => {
 
   it("the held values includes a primitive", async () => {
     const { graphs, reportCalls } = await runSearchesInGuestEngineInternal(
-      getSpecPath("heldValuesIncludesAPrimitive.js")
+      getReferenceSpecPath("validateArguments/heldValuesIncludesAPrimitive.js")
     );
     expect(graphs.size).toBe(0);
     expect(reportCalls.size).toBe(1);
@@ -101,7 +95,7 @@ describe("runSearchesInGuestEngine throws when", () => {
 
   it("strongReferencesOnly is not a boolean", async () => {
     const { graphs, reportCalls } = await runSearchesInGuestEngineInternal(
-      getSpecPath("strongRefsIsNotABoolean.js")
+      getReferenceSpecPath("validateArguments/strongRefsIsNotABoolean.js")
     );
     expect(graphs.size).toBe(0);
     expect(reportCalls.size).toBe(1);
@@ -110,7 +104,7 @@ describe("runSearchesInGuestEngine throws when", () => {
 
   it("resultsKey can only be used once per run", async () => {
     const { graphs, reportCalls } = await runSearchesInGuestEngineInternal(
-      getSpecPath("duplicateSearchKeys.js")
+      getReferenceSpecPath("validateArguments/duplicateSearchKeys.js")
     );
     expect(graphs.size).toBe(1);
     expect(reportCalls.size).toBe(1);
