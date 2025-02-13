@@ -20,6 +20,7 @@ import {
   ArrayIndexEdgeImpl,
   ChildToParentImpl,
   PropertyNameEdgeImpl,
+  PropertySymbolEdgeImpl,
 } from "../graphEdges/graphExports.js";
 
 import {
@@ -37,10 +38,21 @@ import {
 export default class TopDownSearchForTarget
 implements ReadonlyDeep<ReferenceGraph>
 {
+  static * #counter(): Iterator<number> {
+    let count = 0;
+    while (count > -1) {
+      yield count;
+      count++;
+    }
+  }
+
   readonly #strongReferencesOnly: boolean;
   readonly #realm: GuestEngine.ManagedRealm;
 
-  readonly #valueToNumericKeyMap = new ValueToNumericKeyMap;
+  readonly #sharedIdCounter: Iterator<number> = TopDownSearchForTarget.#counter();
+
+  readonly #objectValueToNumericKeyMap = new ValueToNumericKeyMap<GuestEngine.ObjectValue>(this.#sharedIdCounter);
+  readonly #symbolValueToNumericKeyMap = new ValueToNumericKeyMap<GuestEngine.SymbolValue>(this.#sharedIdCounter);
   readonly #valueToNodeMap = new Map<GuestEngine.ObjectValue, ReferenceGraphNodeImpl>;
 
   readonly #childEdgeTracker = new ChildEdgeReferenceTracker(this.#jointEdgeOwnersResolver.bind(this));
@@ -65,10 +77,10 @@ implements ReadonlyDeep<ReferenceGraph>
     this.#realm = realm;
 
     GuestEngine.Assert(
-      this.#valueToNumericKeyMap.getKeyForHeldObject(targetValue) === TARGET_NODE_KEY
+      this.#objectValueToNumericKeyMap.getKeyForHeldObject(targetValue) === TARGET_NODE_KEY
     );
     GuestEngine.Assert(
-      this.#valueToNumericKeyMap.getKeyForHeldObject(heldValues) === PRESUMED_HELD_NODE_KEY
+      this.#objectValueToNumericKeyMap.getKeyForHeldObject(heldValues) === PRESUMED_HELD_NODE_KEY
     );
 
     this.#defineGraphNode(targetValue);
@@ -84,7 +96,7 @@ implements ReadonlyDeep<ReferenceGraph>
       return;
 
     const node = new ReferenceGraphNodeImpl(
-      guestObject, this.#valueToNumericKeyMap, this.#realm
+      guestObject, this.#objectValueToNumericKeyMap, this.#realm
     );
     this.#valueToNodeMap.set(guestObject, node);
     this.#childEdgeTracker.defineKey(node.objectKey);
@@ -100,7 +112,7 @@ implements ReadonlyDeep<ReferenceGraph>
 
   public run(): ThrowOr<void> {
     for (const objectKey of this.#heldNumericKeys) {
-      const guestObject = this.#valueToNumericKeyMap.getHeldObjectForKey(objectKey);
+      const guestObject = this.#objectValueToNumericKeyMap.getHeldObjectForKey(objectKey);
       const node = this.#valueToNodeMap.get(guestObject);
       GuestEngine.Assert(node !== undefined);
 
@@ -119,7 +131,7 @@ implements ReadonlyDeep<ReferenceGraph>
     node: ReferenceGraphNode
   ): void
   {
-    const guestValue: GuestEngine.ObjectValue = this.#valueToNumericKeyMap.getHeldObjectForKey(node.objectKey);
+    const guestValue: GuestEngine.ObjectValue = this.#objectValueToNumericKeyMap.getHeldObjectForKey(node.objectKey);
     this.#addObjectProperties(guestValue);
   }
 
@@ -152,7 +164,7 @@ implements ReadonlyDeep<ReferenceGraph>
         localIndex,
         childGuestValue,
         this.#parentToChildEdgeIdCounter++,
-        this.#valueToNumericKeyMap
+        this.#objectValueToNumericKeyMap
       );
     } else if (guestKey.type === "String") {
       parentToChildEdge = new PropertyNameEdgeImpl(
@@ -160,10 +172,17 @@ implements ReadonlyDeep<ReferenceGraph>
         guestKey.stringValue(),
         childGuestValue,
         this.#parentToChildEdgeIdCounter++,
-        this.#valueToNumericKeyMap,
+        this.#objectValueToNumericKeyMap,
       );
     } else {
-      throw new Error("Symbol keys not yet supported");
+      parentToChildEdge = new PropertySymbolEdgeImpl(
+        guestValue,
+        guestKey,
+        childGuestValue,
+        this.#parentToChildEdgeIdCounter,
+        this.#objectValueToNumericKeyMap,
+        this.#symbolValueToNumericKeyMap
+      );
     }
 
     this.parentToChildEdges.push(parentToChildEdge);
@@ -187,8 +206,8 @@ implements ReadonlyDeep<ReferenceGraph>
     }
 
     this.#childEdgeTracker.defineChildEdge(
-      this.#valueToNumericKeyMap.getKeyForHeldObject(childGuestValue),
-      jointOwningValues.map(owningValue => this.#valueToNumericKeyMap.getKeyForHeldObject(owningValue)),
+      this.#objectValueToNumericKeyMap.getKeyForHeldObject(childGuestValue),
+      jointOwningValues.map(owningValue => this.#objectValueToNumericKeyMap.getKeyForHeldObject(owningValue)),
       isStrongOwningReference,
       parentToChildEdgeId
     );
@@ -201,15 +220,15 @@ implements ReadonlyDeep<ReferenceGraph>
     parentToChildEdgeId: number,
   ): void
   {
-    const childGuestValue = this.#valueToNumericKeyMap.getHeldObjectForKey(childKey);
-    const jointOwningValues = jointOwnerKeys.map(key => this.#valueToNumericKeyMap.getHeldObjectForKey(key));
+    const childGuestValue = this.#objectValueToNumericKeyMap.getHeldObjectForKey(childKey);
+    const jointOwningValues = jointOwnerKeys.map(key => this.#objectValueToNumericKeyMap.getHeldObjectForKey(key));
 
     const childEdge = new ChildToParentImpl(
       childGuestValue,
       jointOwningValues,
       isStrongOwningReference,
       parentToChildEdgeId,
-      this.#valueToNumericKeyMap
+      this.#objectValueToNumericKeyMap
     );
     this.childToParentEdges.push(childEdge);
     this.#resolveObjectKey(childKey);

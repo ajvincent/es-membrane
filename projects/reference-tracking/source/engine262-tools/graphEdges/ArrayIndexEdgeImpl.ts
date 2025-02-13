@@ -29,7 +29,7 @@ implements ArrayIndexEdge
     index: number,
     childObject: GuestEngine.ObjectValue,
     parentToChildEdgeId: number,
-    numericKeyMap: ValueToNumericKeyMap,
+    numericKeyMap: ValueToNumericKeyMap<GuestEngine.ObjectValue>,
   )
   {
     super(

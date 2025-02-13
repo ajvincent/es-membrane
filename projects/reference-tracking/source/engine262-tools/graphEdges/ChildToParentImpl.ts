@@ -21,7 +21,7 @@ export class ChildToParentImpl implements ChildToParentReferenceGraphEdge {
     jointOwnerObjects: readonly GuestEngine.ObjectValue[],
     isStrongOwningReference: boolean,
     parentToChildEdgeId: number,
-    numericKeyMap: ValueToNumericKeyMap,
+    numericKeyMap: ValueToNumericKeyMap<GuestEngine.ObjectValue>,
   )
   {
     this.childObjectKey = numericKeyMap.getKeyForHeldObject(childObject);

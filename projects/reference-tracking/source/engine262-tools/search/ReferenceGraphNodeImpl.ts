@@ -47,7 +47,7 @@ export class ReferenceGraphNodeImpl implements ReferenceGraphNode {
 
   constructor(
     guestObject: GuestEngine.ObjectValue,
-    numericKeyMap: ValueToNumericKeyMap,
+    numericKeyMap: ValueToNumericKeyMap<GuestEngine.ObjectValue>,
     realm: GuestEngine.ManagedRealm,
   )
   {

@@ -4,6 +4,7 @@ import {
   ChildReferenceEdgeType,
   type ChildToParentReferenceGraphEdge,
   type PropertyNameEdge,
+  type PropertySymbolEdge,
   type ReferenceGraphNode,
 } from "../../source/ReferenceGraph.js";
 
@@ -67,6 +68,35 @@ export function addPropertyNameEdge(
     childObjectKey,
     parentToChildEdgeId,
     parentToChildEdgeType: ChildReferenceEdgeType.PropertyName,
+  };
+
+  const childToParentEdges: ChildToParentReferenceGraphEdge = {
+    childObjectKey,
+    jointOwnerKeys: [parentObjectKey],
+    isStrongOwningReference: true,
+    parentToChildEdgeId
+  };
+
+  graph.parentToChildEdges.push(propertyEdge);
+  graph.childToParentEdges.push(childToParentEdges);
+}
+
+export function addPropertySymbolEdge(
+  graph: ReferenceGraphImpl,
+  parentObjectKey: number,
+  symbolDescription: string | undefined,
+  symbolNumericKey: number,
+  childObjectKey: number,
+  parentToChildEdgeId: number
+): void
+{
+  const propertyEdge: PropertySymbolEdge = {
+    parentObjectKey,
+    symbolDescription,
+    symbolNumericKey,
+    childObjectKey,
+    parentToChildEdgeId,
+    parentToChildEdgeType: ChildReferenceEdgeType.PropertySymbol,
   };
 
   const childToParentEdges: ChildToParentReferenceGraphEdge = {

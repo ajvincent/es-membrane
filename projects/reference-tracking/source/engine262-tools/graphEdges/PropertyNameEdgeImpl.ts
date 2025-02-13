@@ -24,7 +24,7 @@ implements PropertyNameEdge
     propertyName: string,
     childObject: GuestEngine.ObjectValue,
     parentToChildEdgeId: number,
-    numericKeyMap: ValueToNumericKeyMap,
+    numericKeyMap: ValueToNumericKeyMap<GuestEngine.ObjectValue>,
   )
   {
     super(

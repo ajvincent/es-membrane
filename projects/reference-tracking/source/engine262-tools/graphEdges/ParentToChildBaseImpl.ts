@@ -25,7 +25,7 @@ implements BaseParentToChildReferenceGraphEdge<EdgeType>
     childObject: GuestEngine.ObjectValue,
     edgeType: EdgeType,
     parentToChildEdgeId: number,
-    numericKeyMap: ValueToNumericKeyMap,
+    numericKeyMap: ValueToNumericKeyMap<GuestEngine.ObjectValue>,
   )
   {
     this.parentObjectKey = numericKeyMap.getKeyForHeldObject(parentObject);

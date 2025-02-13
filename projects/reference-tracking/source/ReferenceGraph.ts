@@ -60,7 +60,7 @@ export interface ArrayIndexEdge extends BaseParentToChildReferenceGraphEdge<Chil
 }
 
 export interface PropertySymbolEdge extends BaseParentToChildReferenceGraphEdge<ChildReferenceEdgeType.PropertySymbol> {
-  readonly symbolInternalKey: string;
+  readonly symbolDescription: string | undefined;
   readonly symbolNumericKey: number;
 }
 

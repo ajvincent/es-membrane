@@ -23,6 +23,7 @@ import {
   addObjectToGraphs,
   addArrayIndexEdge,
   addPropertyNameEdge,
+  addPropertySymbolEdge,
 } from "../../support/fillReferenceGraph.js";
 
 import {
@@ -36,12 +37,6 @@ import {
 describe("Simple graph searches:" , () => {
   it("we can find the target when it's among the held values", async () => {
     const pathToSearch = getReferenceSpecPath("simple/targetInHeldValuesArray.js");
-    const graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = await runSearchesInGuestEngine(pathToSearch);
-    expect(graphs.size).toBe(1);
-    const heldValuesGraph = graphs.get("targetHeldValuesArray");
-    expect(heldValuesGraph).toBeDefined();
-    if (!heldValuesGraph)
-      return;
 
     const ExpectedGraph = new ReferenceGraphImpl;
     ExpectedGraph.foundTargetValue = true;
@@ -69,18 +64,19 @@ describe("Simple graph searches:" , () => {
     );
 
     BottomUpSearchForChildEdges.sortBottomUpGraphArrays(ExpectedGraph);
+
+    const graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = await runSearchesInGuestEngine(pathToSearch);
+    expect(graphs.size).toBe(1);
+    const heldValuesGraph = graphs.get("targetHeldValuesArray");
+    expect(heldValuesGraph).toBeDefined();
+    if (!heldValuesGraph)
+      return;
+
     expect(reparse(heldValuesGraph)).toEqual(reparse(ExpectedGraph));
   });
 
   it("we can find the target when it's inside an array literal among the held values", async () => {
     const pathToSearch = getReferenceSpecPath("simple/targetIsElementOfHeldArray.js");
-    const graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = await runSearchesInGuestEngine(pathToSearch);
-    expect(graphs.size).toBe(1);
-
-    const ActualGraph = graphs.get("targetIsElementOfHeldArray");
-    expect(ActualGraph).toBeDefined();
-    if (!ActualGraph)
-      return;
 
     const ExpectedGraph = new ReferenceGraphImpl;
     ExpectedGraph.foundTargetValue = true;
@@ -133,18 +129,20 @@ describe("Simple graph searches:" , () => {
     );
 
     BottomUpSearchForChildEdges.sortBottomUpGraphArrays(ExpectedGraph);
+
+    const graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = await runSearchesInGuestEngine(pathToSearch);
+    expect(graphs.size).toBe(1);
+
+    const ActualGraph = graphs.get("targetIsElementOfHeldArray");
+    expect(ActualGraph).toBeDefined();
+    if (!ActualGraph)
+      return;
+
     expect(reparse(ActualGraph)).toEqual(reparse(ExpectedGraph));
   });
 
   it("we can find the target when it's inside an object literal among the held values", async () => {
     const pathToSearch = getReferenceSpecPath("simple/targetIsElementOfHeldObject.js");
-    const graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = await runSearchesInGuestEngine(pathToSearch);
-    expect(graphs.size).toBe(1);
-
-    const ActualGraph = graphs.get("targetIsElementOfHeldObject");
-    expect(ActualGraph).toBeDefined();
-    if (!ActualGraph)
-      return;
 
     const ExpectedGraph = new ReferenceGraphImpl;
     ExpectedGraph.foundTargetValue = true;
@@ -157,7 +155,7 @@ describe("Simple graph searches:" , () => {
 
       parentEdgeIds: {
         objectHoldingTarget: 1,
-        targetToHoldingArray: 3,
+        targetToHoldingObject: 3,
       }
     }
 
@@ -193,10 +191,88 @@ describe("Simple graph searches:" , () => {
       GraphCodes.nodes.objectHoldingTarget,
       "target",
       TARGET_NODE_KEY,
-      GraphCodes.parentEdgeIds.targetToHoldingArray,
+      GraphCodes.parentEdgeIds.targetToHoldingObject,
     );
 
     BottomUpSearchForChildEdges.sortBottomUpGraphArrays(ExpectedGraph);
+
+    const graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = await runSearchesInGuestEngine(pathToSearch);
+    expect(graphs.size).toBe(1);
+
+    const ActualGraph = graphs.get("targetIsElementOfHeldObject");
+    expect(ActualGraph).toBeDefined();
+    if (!ActualGraph)
+      return;
+
+    expect(reparse(ActualGraph)).toEqual(reparse(ExpectedGraph));
+  });
+
+  it("we can find the target via a symbol-keyed property of an object literal", async () => {
+    const pathToSearch = getReferenceSpecPath("simple/symbolKeyHoldsTarget.js");
+
+    const ExpectedGraph = new ReferenceGraphImpl;
+    ExpectedGraph.foundTargetValue = true;
+    ExpectedGraph.succeeded = true;
+
+    const GraphCodes = {
+      nodes: {
+        objectHoldingTarget: 2,
+      },
+
+      parentEdgeIds: {
+        objectHoldingTarget: 0,
+        targetToHoldingObject: 1,
+      },
+
+      symbolKey: 3,
+    }
+
+    addObjectToGraphs(
+      ExpectedGraph,
+      TARGET_NODE_KEY,
+      BuiltInCollectionName.Object,
+      "Object"
+    );
+    addObjectToGraphs(
+      ExpectedGraph,
+      PRESUMED_HELD_NODE_KEY,
+      BuiltInCollectionName.Array,
+      "Array"
+    );
+    addObjectToGraphs(
+      ExpectedGraph,
+      GraphCodes.nodes.objectHoldingTarget,
+      BuiltInCollectionName.Object,
+      "Object"
+    );
+
+    addArrayIndexEdge(
+      ExpectedGraph,
+      PRESUMED_HELD_NODE_KEY,
+      0,
+      GraphCodes.nodes.objectHoldingTarget,
+      GraphCodes.parentEdgeIds.objectHoldingTarget,
+    );
+
+    addPropertySymbolEdge(
+      ExpectedGraph,
+      GraphCodes.nodes.objectHoldingTarget,
+      "This is a symbol",
+      GraphCodes.symbolKey,
+      TARGET_NODE_KEY,
+      GraphCodes.parentEdgeIds.targetToHoldingObject
+    );
+
+    BottomUpSearchForChildEdges.sortBottomUpGraphArrays(ExpectedGraph);
+
+    const graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = await runSearchesInGuestEngine(pathToSearch);
+    expect(graphs.size).toBe(1);
+
+    const ActualGraph = graphs.get("symbolKeyHoldsTarget");
+    expect(ActualGraph).toBeDefined();
+    if (!ActualGraph)
+      return;
+
     expect(reparse(ActualGraph)).toEqual(reparse(ExpectedGraph));
   });
   
