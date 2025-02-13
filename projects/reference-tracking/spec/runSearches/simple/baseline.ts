@@ -7,33 +7,33 @@ import {
   PRESUMED_HELD_NODE_KEY,
   type ReferenceGraph,
   TARGET_NODE_KEY,
-} from "../../source/ReferenceGraph.js";
+} from "../../../source/ReferenceGraph.js";
 
 import {
   runSearchesInGuestEngine,
-} from "../../source/runSearchesInGuestEngine.js";
+} from "../../../source/runSearchesInGuestEngine.js";
 
-import BottomUpSearchForChildEdges from "../../source/engine262-tools/search/BottomUpSearchForChildEdges.js";
+import BottomUpSearchForChildEdges from "../../../source/engine262-tools/search/BottomUpSearchForChildEdges.js";
 
 import {
   ReferenceGraphImpl,
-} from "../../source/engine262-tools/search/ReferenceGraphImpl.js";
+} from "../../../source/engine262-tools/search/ReferenceGraphImpl.js";
 
 import {
   addObjectToGraphs,
   addArrayIndexEdge,
   addPropertyNameEdge,
-} from "../support/fillReferenceGraph.js";
+} from "../../support/fillReferenceGraph.js";
 
 import {
   getReferenceSpecPath,
-} from "../support/projectRoot.js"
+} from "../../support/projectRoot.js"
 
 import {
   reparse
-} from "../support/reparse.js";
+} from "../../support/reparse.js";
 
-describe("Simple graph searches: " , () => {
+describe("Simple graph searches:" , () => {
   it("we can find the target when it's among the held values", async () => {
     const pathToSearch = getReferenceSpecPath("simple/targetInHeldValuesArray.js");
     const graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = await runSearchesInGuestEngine(pathToSearch);
@@ -215,5 +215,9 @@ describe("Simple graph searches: " , () => {
     ExpectedGraph.succeeded = true;
   
     expect(targetUnreachableGraph).toEqual(ExpectedGraph);
+  });
+
+  xit("when there is an import involved (modules importing other modules)", () => {
+    fail();
   });
 });
