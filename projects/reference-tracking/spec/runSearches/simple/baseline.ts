@@ -280,7 +280,7 @@ describe("Simple graph searches:" , () => {
     const pathToSearch = getReferenceSpecPath("simple/targetUnreachable.js");
     const graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = await runSearchesInGuestEngine(pathToSearch);
     expect(graphs.size).toBe(1);
-  
+
     const targetUnreachableGraph = graphs.get("targetUnreachable");
     expect(targetUnreachableGraph).toBeDefined();
     if (!targetUnreachableGraph)
@@ -293,7 +293,4 @@ describe("Simple graph searches:" , () => {
     expect(targetUnreachableGraph).toEqual(ExpectedGraph);
   });
 
-  xit("when there is an import involved (modules importing other modules)", () => {
-    fail();
-  });
 });
