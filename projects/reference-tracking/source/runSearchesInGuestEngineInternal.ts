@@ -13,7 +13,7 @@ import {
 
 import {
   defineReportFunction
-} from "./engine262-tools/built-ins/defineReportFunction.js";
+} from "./engine262-tools/built-ins/fixtures/defineReportFunction.js";
 
 import {
   defineSearchReferences

@@ -1,8 +1,8 @@
 import {
   GuestEngine
-} from "../GuestEngine.js";
+} from "../../GuestEngine.js";
 
-import { defineBuiltInFunction } from "./defineBuiltInFunction.js";
+import { defineBuiltInFunction } from "../defineBuiltInFunction.js";
 
 export function definePrintFunction(realm: GuestEngine.ManagedRealm) {
   defineBuiltInFunction(realm, "print", function print(

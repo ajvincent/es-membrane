@@ -1,9 +1,9 @@
 import {
   GuestEngine,
   type ThrowOr,
-} from "../GuestEngine.js";
-import { convertArrayValueToArrayOfValues } from "../convertArrayValueToArrayOfValues.js";
-import { defineBuiltInFunction } from "./defineBuiltInFunction.js";
+} from "../../GuestEngine.js";
+import { convertArrayValueToArrayOfValues } from "../../convertArrayValueToArrayOfValues.js";
+import { defineBuiltInFunction } from "../defineBuiltInFunction.js";
 
 export function defineReportFunction(
   realm: GuestEngine.ManagedRealm,
