@@ -77,7 +77,7 @@ it("directInvoke throws when it doesn't get an array argument", async () => {
   });
 
   expect(outputs.succeeded).toBeFalse();
-  expect(outputs.unhandledPromises.length).toBe(1); // for the thrown exception
+  expect(outputs.unhandledPromises.length).withContext("unhandled promises").toBe(1); // for the thrown exception
 
-  expect(callback).toHaveBeenCalledTimes(0);
+  expect(callback).withContext("callback").toHaveBeenCalledTimes(0);
 });

@@ -5,8 +5,20 @@ import {
 } from "node:url";
 
 import {
+  Deferred
+} from "../utilities/PromiseTypes.js";
+
+import {
   GuestEngine
 } from "./GuestEngine.js";
+
+import {
+  RealmHostDefined
+} from "./RealmHostDefined.js";
+
+import {
+  convertGuestPromiseToVoidHostPromise
+} from "./built-ins/HostPromiseForGuestPromise.js";
 
 import type {
   GuestRealmInputs,
@@ -43,10 +55,19 @@ export async function runInRealm(
     realmDriver.runModule(inputs.absolutePathToFile, contents, realm);
   });
 
+  const evalResult: GuestEngine.PromiseObjectValue | undefined = realmDriver.evalResult;
+  GuestEngine.Assert(evalResult !== undefined);
+
+  do {
+    await Promise.resolve(true);
+    realm.scope(() => realmDriver.flushPendingPromises());
+  } while (realmDriver.hostDefined.pendingHostPromises.size > 0);
+
+  await realmDriver.moduleCompleted;
   return realmDriver.finalizeResults();
 }
 
-class RealmDriver {
+export class RealmDriver {
   #exceptionThrown = false;
   readonly #results = new RealmResults;
 
@@ -54,6 +75,12 @@ class RealmDriver {
   readonly trackedPromises = new Set<GuestEngine.PromiseObjectValue>;
 
   readonly hostDefined = new RealmHostDefined(this);
+
+  readonly #moduleCompletedDeferred = new Deferred<void>;
+  readonly moduleCompleted: Promise<void> = this.#moduleCompletedDeferred.promise;
+
+  #module?: GuestEngine.SourceTextModuleRecord;
+  evalResult?: GuestEngine.PromiseObjectValue;
 
   runModule(
     absolutePathToFile: string,
@@ -70,27 +97,36 @@ class RealmDriver {
       return;
     }
 
-    const module = createSourceResult;
+    this.#module = createSourceResult;
     this.resolverCache.set(absolutePathToFile, createSourceResult);
-    const loadRequestResult: GuestEngine.PromiseObjectValue = module.LoadRequestedModules();
+
+    const loadRequestResult: GuestEngine.PromiseObjectValue = this.#module.LoadRequestedModules();
     if (loadRequestResult instanceof GuestEngine.AbruptCompletion) {
       //@ts-expect-error ReturnType<LoadRequestedModule> says this shouldn't happen.
       this.#processAbruptCompletion(loadRequestResult);
       return;
     }
   
-    const linkResult = module.Link();
+    const linkResult = this.#module.Link();
     if (linkResult instanceof GuestEngine.ThrowCompletion) {
       this.#processAbruptCompletion(linkResult);
       return;
     }
-  
-    const evalResult: GuestEngine.PromiseObjectValue = module.Evaluate();
-    if (evalResult.PromiseState === "rejected") {
-      // @ts-expect-error messages aren't exposed from api.d.mts, and besides, there's no obvious message to use.
-      this.#processAbruptCompletion(GuestEngine.Throw(evalResult.PromiseResult!));
-      return;
-    }
+
+    this.evalResult = this.#module.Evaluate();
+
+    const hostPromise: Promise<void> = convertGuestPromiseToVoidHostPromise(this.evalResult);
+    hostPromise.then(
+      () => this.#moduleCompletedDeferred.resolve(),
+      () => {
+        realm.scope(() => {
+          this.#processAbruptCompletion(GuestEngine.Throw(
+            "Error", "Raw", GuestEngine.inspect(this.evalResult!.PromiseResult!)
+          ));
+        });
+        this.#moduleCompletedDeferred.resolve();
+      }
+    );
   }
 
   #processAbruptCompletion(result: GuestEngine.AbruptCompletion): void {
@@ -99,6 +135,13 @@ class RealmDriver {
 
     if (result.Type === "throw")
       this.#exceptionThrown = true;
+  }
+
+  flushPendingPromises(): void {
+    GuestEngine.Assert(this.#module !== undefined);
+    GuestEngine.Assert(this.evalResult !== undefined);
+
+    this.#module.Evaluate();
   }
 
   finalizeResults(): RealmResults {
@@ -116,47 +159,6 @@ class RealmDriver {
     }
     return this.#results;
   }
-}
-
-class RealmHostDefined {
-  readonly #driver: RealmDriver;
-
-  constructor(outer: RealmDriver) {
-    this.#driver = outer;
-  }
-
-  public promiseRejectionTracker(
-    promise: GuestEngine.PromiseObjectValue,
-    operation: "reject" | "handle"
-  ): void
-  {
-    switch (operation) {
-      case 'reject':
-        this.#driver.trackedPromises.add(promise);
-        break;
-      case 'handle':
-        this.#driver.trackedPromises.delete(promise);
-        break;
-    }
-  }
-
-  /*
-  public getImportMetaProperties(...args: unknown[]): unknown {
-  }
-
-  public finalizeImportMeta(...args: unknown[]): unknown {
-  }
-
-  get public(): never {
-    throw new Error("what is this?");
-  }
-
-  get specifier(): never {
-    throw new Error("what should this be?");
-  }
-  */
-
-  public readonly randomSeed: undefined;
 }
 
 export class RealmResults implements GuestRealmOutputs
