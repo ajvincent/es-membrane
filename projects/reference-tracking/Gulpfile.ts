@@ -48,7 +48,8 @@ async function jasmine_gc(): Promise<void> {
 async function eslint(): Promise<void> {
   await runESLint(projectRoot, [
     "Gulpfile.ts",
-    //"fixtures/**/*.ts",
+    "fixtures/**/*.ts",
+    "reference-spec/**/*.ts",
     "source/**/*.ts",
     "spec/**/*.ts",
   ]);
