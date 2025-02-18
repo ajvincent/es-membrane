@@ -1,3 +1,4 @@
+// #region preamble
 import type {
   ReadonlyDeep
 } from "type-fest";
@@ -19,9 +20,18 @@ import {
 import {
   ArrayIndexEdgeImpl,
   ChildToParentImpl,
+  InternalSlotEdgeImpl,
   PropertyNameEdgeImpl,
   PropertySymbolEdgeImpl,
 } from "../graphEdges/graphExports.js";
+
+import {
+  InternalSlotAnalyzerMap
+} from "../internalSlotsByType/typeRegistry.js";
+
+import type {
+  TopDownSearchIfc
+} from "../types/TopDownSearchIfc.js";
 
 import {
   ReferenceGraphNodeImpl
@@ -35,8 +45,14 @@ import {
   ValueToNumericKeyMap
 } from "./ValueToNumericKeyMap.js";
 
-export default class TopDownSearchForTarget
-implements ReadonlyDeep<ReferenceGraph>
+import {
+  findInternalSlotsType
+} from "./findInternalSlotsType.js";
+
+//#endregion preamble
+
+export class TopDownSearchForTarget
+implements ReadonlyDeep<ReferenceGraph>, TopDownSearchIfc
 {
   static * #counter(): Iterator<number> {
     let count = 0;
@@ -57,16 +73,17 @@ implements ReadonlyDeep<ReferenceGraph>
 
   readonly #childEdgeTracker = new ChildEdgeReferenceTracker(this.#jointEdgeOwnersResolver.bind(this));
   readonly #heldNumericKeys = new Set<number>;
+  readonly #objectKeysToExcludeFromSearch = new Set<number>;
 
-  readonly parentToChildEdges: ParentToChildReferenceGraphEdge[] = [];
-  readonly childToParentEdges: ChildToParentReferenceGraphEdge[] = [];
+  public readonly parentToChildEdges: ParentToChildReferenceGraphEdge[] = [];
+  public readonly childToParentEdges: ChildToParentReferenceGraphEdge[] = [];
 
   #parentToChildEdgeIdCounter = 0;
 
-  foundTargetValue = false;
-  succeeded = false;
+  public foundTargetValue = false;
+  public succeeded = false;
 
-  constructor(
+  public constructor(
     targetValue: GuestEngine.ObjectValue,
     heldValues: GuestEngine.ObjectValue,
     strongReferencesOnly: boolean,
@@ -83,30 +100,18 @@ implements ReadonlyDeep<ReferenceGraph>
       this.#objectValueToNumericKeyMap.getKeyForHeldObject(heldValues) === PRESUMED_HELD_NODE_KEY
     );
 
-    this.#defineGraphNode(targetValue);
-    this.#defineGraphNode(heldValues);
+    this.defineGraphNode(targetValue);
+    this.defineGraphNode(heldValues);
+
+    this.excludeObjectFromSearch(targetValue);
     this.#resolveObjectKey(PRESUMED_HELD_NODE_KEY);
-  }
-
-  #defineGraphNode(
-    guestObject: GuestEngine.ObjectValue
-  ): void
-  {
-    if (this.#valueToNodeMap.has(guestObject))
-      return;
-
-    const node = new ReferenceGraphNodeImpl(
-      guestObject, this.#objectValueToNumericKeyMap, this.#realm
-    );
-    this.#valueToNodeMap.set(guestObject, node);
-    this.#childEdgeTracker.defineKey(node.objectKey);
   }
 
   #resolveObjectKey(
     objectKey: number
   ): void
   {
-    if (objectKey !== TARGET_NODE_KEY)
+    if (this.#objectKeysToExcludeFromSearch.has(objectKey) === false)
       this.#heldNumericKeys.add(objectKey);
   }
 
@@ -132,7 +137,11 @@ implements ReadonlyDeep<ReferenceGraph>
   ): void
   {
     const guestValue: GuestEngine.ObjectValue = this.#objectValueToNumericKeyMap.getHeldObjectForKey(node.objectKey);
-    this.#addObjectProperties(guestValue);
+    if (GuestEngine.isProxyExoticObject(guestValue) === false) {
+      this.#addObjectProperties(guestValue);
+    }
+
+    this.#lookupAndAddInternalSlots(guestValue);
   }
 
   #addObjectProperties(
@@ -142,7 +151,7 @@ implements ReadonlyDeep<ReferenceGraph>
     for (const guestKey of guestValue.OwnPropertyKeys()) {
       const childGuestValue: GuestEngine.Value = GuestEngine.GetV(guestValue, guestKey);
       if (childGuestValue.type === "Object") {
-        this.#defineGraphNode(childGuestValue);
+        this.defineGraphNode(childGuestValue);
         this.#addObjectProperty(guestValue, guestKey, childGuestValue);
       }
     }
@@ -194,6 +203,18 @@ implements ReadonlyDeep<ReferenceGraph>
     );
   }
 
+  #lookupAndAddInternalSlots(
+    guestValue: GuestEngine.ObjectValue
+  ): void
+  {
+    const internalSlotType = findInternalSlotsType(guestValue);
+    if (internalSlotType) {
+      const slotAnalyzer = InternalSlotAnalyzerMap.get(internalSlotType);
+      GuestEngine.Assert(slotAnalyzer !== undefined);
+      slotAnalyzer.addEdgesForObject(this, guestValue)
+    }
+  }
+
   #addPendingChildEdge(
     childGuestValue: GuestEngine.ObjectValue,
     jointOwningValues: readonly GuestEngine.ObjectValue[],
@@ -236,4 +257,48 @@ implements ReadonlyDeep<ReferenceGraph>
     if (childKey === 0)
       this.foundTargetValue = true;
   }
+
+  //#region TopDownSearchIfc
+  public defineGraphNode(
+    guestObject: GuestEngine.ObjectValue
+  ): void
+  {
+    if (this.#valueToNodeMap.has(guestObject))
+      return;
+
+    const node = new ReferenceGraphNodeImpl(
+      guestObject, this.#objectValueToNumericKeyMap, this.#realm
+    );
+    this.#valueToNodeMap.set(guestObject, node);
+    this.#childEdgeTracker.defineKey(node.objectKey);
+  }
+
+  public excludeObjectFromSearch(guestObject: GuestEngine.ObjectValue) {
+    const numericKey = this.#objectValueToNumericKeyMap.getKeyForHeldObject(guestObject);
+    this.#objectKeysToExcludeFromSearch.add(numericKey);
+  }
+
+  public addInternalSlotEdge(
+    parentObject: GuestEngine.ObjectValue,
+    slotName: `[[${string}]]`,
+    childObject: GuestEngine.ObjectValue
+  ): void
+  {
+    const parentToChildEdge = new InternalSlotEdgeImpl(
+      parentObject,
+      slotName,
+      childObject,
+      this.#parentToChildEdgeIdCounter++,
+      this.#objectValueToNumericKeyMap
+    );
+
+    this.parentToChildEdges.push(parentToChildEdge);
+    this.#addPendingChildEdge(
+      childObject,
+      [ parentObject ],
+      parentToChildEdge.parentToChildEdgeId,
+      true,
+    );
+  }
+  //#endregion TopDownSearchIfc
 }

@@ -4,7 +4,6 @@ export enum ChildReferenceEdgeType {
   PropertySymbol = "PropertySymbol",
   PrivateClassField = "PrivateClassField",
 
-  // probably going to replace this with enums specific to each builtin class
   InternalSlot = "InternalSlot",
 
   // less sure of these

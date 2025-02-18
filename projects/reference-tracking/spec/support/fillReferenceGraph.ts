@@ -3,6 +3,7 @@ import {
   type BuiltInCollectionName,
   ChildReferenceEdgeType,
   type ChildToParentReferenceGraphEdge,
+  type InternalSlotEdge,
   type PropertyNameEdge,
   type PropertySymbolEdge,
   type ReferenceGraphNode,
@@ -108,4 +109,32 @@ export function addPropertySymbolEdge(
 
   graph.parentToChildEdges.push(propertyEdge);
   graph.childToParentEdges.push(childToParentEdges);
+}
+
+export function addInternalSlotEdge(
+  graph: ReferenceGraphImpl,
+  parentObjectKey: number,
+  slotName: `[[${string}]]`,
+  childObjectKey: number,
+  parentToChildEdgeId: number,
+  isStrongOwningReference: boolean,
+): void
+{
+  const slotEdge: InternalSlotEdge = {
+    parentObjectKey,
+    slotName,
+    childObjectKey,
+    parentToChildEdgeId,
+    parentToChildEdgeType: ChildReferenceEdgeType.InternalSlot
+  };
+
+  const childToParentsEdge: ChildToParentReferenceGraphEdge = {
+    childObjectKey,
+    jointOwnerKeys: [parentObjectKey],
+    isStrongOwningReference,
+    parentToChildEdgeId
+  };
+
+  graph.parentToChildEdges.push(slotEdge);
+  graph.childToParentEdges.push(childToParentsEdge);
 }

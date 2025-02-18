@@ -1,8 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-const NotImplementedProxyHandler:  Required<ProxyHandler<object>> =
+
+interface SearchTargetIfc {
+  readonly searchTarget: {
+    readonly searchTargetOf: string
+  }
+}
+
+const NotImplementedProxyHandler: Required<ProxyHandler<object>> & SearchTargetIfc =
 {
+  searchTarget: { searchTargetOf: "ProxyHandler"},
+
   apply(target: object, thisArg: any, argArray: any[]): any {
     throw new Error("Method not implemented.");
   },
@@ -44,18 +53,26 @@ const NotImplementedProxyHandler:  Required<ProxyHandler<object>> =
   },
 }
 
-const shadowTarget: object = {};
+const shadowTarget: SearchTargetIfc = {
+  searchTarget: {
+    searchTargetOf: "shadowTarget"
+  }
+};
 const { proxy, revoke } = Proxy.revocable(shadowTarget, NotImplementedProxyHandler);
 
-searchReferences("shadow target held before revocation", shadowTarget, [revoke], true);
-searchReferences("proxy handler held before revocation", NotImplementedProxyHandler, [revoke], true);
+searchReferences("shadow target held before revocation", shadowTarget, [proxy], true);
+searchReferences("proxy handler held before revocation", NotImplementedProxyHandler, [proxy], true);
 searchReferences("proxy held before revocation", proxy, [revoke], true);
-searchReferences("revoke held by proxy", revoke, [proxy], true);
+searchReferences("revoke not held by proxy", revoke, [proxy], false);
+
+// proxy handlers should be searched
+searchReferences("proxy handler search target", NotImplementedProxyHandler.searchTarget, [proxy], true);
+
+// shadow targets shouldn't be searched
+searchReferences("shadow search target", shadowTarget.searchTarget, [proxy], false);
 
 revoke();
 
-searchReferences("shadow target held by revoker after revocation", shadowTarget, [revoke], true);
-searchReferences("proxy handler held by revoker after revocation", NotImplementedProxyHandler, [revoke], true);
 searchReferences("shadow target held by proxy after revocation", shadowTarget, [proxy], true);
 searchReferences("proxy handler held by proxy after revocation", NotImplementedProxyHandler, [proxy], true);
 searchReferences("proxy held after revocation", proxy, [revoke], true);

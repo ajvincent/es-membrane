@@ -11,8 +11,8 @@ import type {
   ReferenceGraph,
 } from "../../ReferenceGraph.js";
 
-import TopDownSearchForTarget from "./TopDownSearchForTarget.js";
-import BottomUpSearchForChildEdges from "./BottomUpSearchForChildEdges.js";
+import { TopDownSearchForTarget } from "./TopDownSearchForTarget.js";
+import { BottomUpSearchForChildEdges } from "./BottomUpSearchForChildEdges.js";
 
 export class SearchDriver
 {

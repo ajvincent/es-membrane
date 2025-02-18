@@ -11,7 +11,7 @@ import {
   ReferenceGraphImpl
 } from "./ReferenceGraphImpl.js";
 
-export default class BottomUpSearchForChildEdges {
+export class BottomUpSearchForChildEdges {
   public static sortBottomUpGraphArrays(graph: ReferenceGraphImpl): void {
     graph.nodes.sort(
       BottomUpSearchForChildEdges.#nodeComparator

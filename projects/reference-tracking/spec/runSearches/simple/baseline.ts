@@ -10,14 +10,16 @@ import {
 } from "../../../source/ReferenceGraph.js";
 
 import {
-  runSearchesInGuestEngine,
-} from "../../../source/runSearchesInGuestEngine.js";
-
-import BottomUpSearchForChildEdges from "../../../source/engine262-tools/search/BottomUpSearchForChildEdges.js";
+  BottomUpSearchForChildEdges,
+} from "../../../source/engine262-tools/search/BottomUpSearchForChildEdges.js";
 
 import {
   ReferenceGraphImpl,
 } from "../../../source/engine262-tools/search/ReferenceGraphImpl.js";
+
+import {
+  runSearchesInGuestEngine,
+} from "../../../source/runSearchesInGuestEngine.js";
 
 import {
   addObjectToGraphs,

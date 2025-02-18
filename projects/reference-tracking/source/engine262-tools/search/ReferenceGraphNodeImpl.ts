@@ -17,6 +17,10 @@ export class ReferenceGraphNodeImpl implements ReferenceGraphNode {
     realm: GuestEngine.ManagedRealm
   ): [BuiltInCollectionName, string]
   {
+    if (GuestEngine.isProxyExoticObject(guestObject)) {
+      return [BuiltInCollectionName.Proxy, BuiltInCollectionName.Proxy];
+    }
+
     let isDirectMatch = true;
     let value: GuestEngine.ObjectValue = guestObject;
 
