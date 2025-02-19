@@ -8,8 +8,8 @@ import type {
 } from "../GuestEngine.js";
 
 import type {
-  ValueToNumericKeyMap,
-} from "../search/ValueToNumericKeyMap.js";
+  TopDownSearchIfc
+} from "../types/TopDownSearchIfc.js";
 
 import ParentToChildBaseImpl from "./ParentToChildBaseImpl.js";
 
@@ -28,16 +28,14 @@ implements ArrayIndexEdge
     parentObject: GuestEngine.ObjectValue,
     index: number,
     childObject: GuestEngine.ObjectValue,
-    parentToChildEdgeId: number,
-    numericKeyMap: ValueToNumericKeyMap<GuestEngine.ObjectValue>,
+    topDownSearch: TopDownSearchIfc,
   )
   {
     super(
       parentObject,
       childObject,
       ChildReferenceEdgeType.ArrayIndex,
-      parentToChildEdgeId,
-      numericKeyMap
+      topDownSearch
     );
     this.arrayIndex = index;
   }

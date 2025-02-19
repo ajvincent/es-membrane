@@ -8,8 +8,8 @@ import type {
 } from "../GuestEngine.js";
 
 import type {
-  ValueToNumericKeyMap,
-} from "../search/ValueToNumericKeyMap.js";
+  TopDownSearchIfc
+} from "../types/TopDownSearchIfc.js";
 
 export default
 abstract class ParentToChildBaseImpl<EdgeType extends ChildReferenceEdgeType>
@@ -24,13 +24,12 @@ implements BaseParentToChildReferenceGraphEdge<EdgeType>
     parentObject: GuestEngine.ObjectValue,
     childObject: GuestEngine.ObjectValue,
     edgeType: EdgeType,
-    parentToChildEdgeId: number,
-    numericKeyMap: ValueToNumericKeyMap<GuestEngine.ObjectValue>,
+    topDownSearch: TopDownSearchIfc,
   )
   {
-    this.parentObjectKey = numericKeyMap.getKeyForHeldObject(parentObject);
-    this.childObjectKey = numericKeyMap.getKeyForHeldObject(childObject);
-    this.parentToChildEdgeId = parentToChildEdgeId;
+    this.parentObjectKey = topDownSearch.getKeyForExistingHeldObject(parentObject);
+    this.childObjectKey = topDownSearch.getKeyForExistingHeldObject(childObject);
+    this.parentToChildEdgeId = topDownSearch.getNextParentToChildEdgeId();
     this.parentToChildEdgeType = edgeType;
   }
 }

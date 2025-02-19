@@ -9,6 +9,11 @@ export interface TopDownSearchIfc {
     guestObject: GuestEngine.ObjectValue
   )
 
+  getNextParentToChildEdgeId(): number;
+
+  getKeyForExistingHeldObject(objectValue: GuestEngine.ObjectValue): number;
+  getKeyForExistingHeldSymbol(symbolValue: GuestEngine.SymbolValue): number;
+
   addInternalSlotEdge(
     parentObject: GuestEngine.ObjectValue,
     slotName: `[[${string}]]`,

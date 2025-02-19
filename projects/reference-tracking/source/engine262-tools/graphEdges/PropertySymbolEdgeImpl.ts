@@ -8,8 +8,8 @@ import type {
 } from "../GuestEngine.js";
 
 import type {
-  ValueToNumericKeyMap,
-} from "../search/ValueToNumericKeyMap.js";
+  TopDownSearchIfc
+} from "../types/TopDownSearchIfc.js";
 
 import ParentToChildBaseImpl from "./ParentToChildBaseImpl.js";
 
@@ -24,20 +24,17 @@ implements PropertySymbolEdge
     parentObject: GuestEngine.ObjectValue,
     symbolKey: GuestEngine.SymbolValue,
     childObject: GuestEngine.ObjectValue,
-    parentToChildEdgeId: number,
-    objectNumericKeyMap: ValueToNumericKeyMap<GuestEngine.ObjectValue>,
-    symbolNumericKeyMap: ValueToNumericKeyMap<GuestEngine.SymbolValue>,
+    topDownSearch: TopDownSearchIfc,
   )
   {
     super(
       parentObject,
       childObject,
       ChildReferenceEdgeType.PropertySymbol,
-      parentToChildEdgeId,
-      objectNumericKeyMap
+      topDownSearch
     );
 
     this.symbolDescription = symbolKey.Description.value;
-    this.symbolNumericKey = symbolNumericKeyMap.getKeyForHeldObject(symbolKey);
+    this.symbolNumericKey = topDownSearch.getKeyForExistingHeldSymbol(symbolKey);
   }
 }

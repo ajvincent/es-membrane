@@ -8,8 +8,8 @@ import type {
 } from "../GuestEngine.js";
 
 import type {
-  ValueToNumericKeyMap,
-} from "../search/ValueToNumericKeyMap.js";
+  TopDownSearchIfc
+} from "../types/TopDownSearchIfc.js";
 
 import ParentToChildBaseImpl from "./ParentToChildBaseImpl.js";
 
@@ -23,16 +23,14 @@ implements PropertyNameEdge
     parentObject: GuestEngine.ObjectValue,
     propertyName: string,
     childObject: GuestEngine.ObjectValue,
-    parentToChildEdgeId: number,
-    numericKeyMap: ValueToNumericKeyMap<GuestEngine.ObjectValue>,
+    topDownSearch: TopDownSearchIfc,
   )
   {
     super(
       parentObject,
       childObject,
       ChildReferenceEdgeType.PropertyName,
-      parentToChildEdgeId,
-      numericKeyMap
+      topDownSearch
     );
     this.propertyName = propertyName;
   }

@@ -172,25 +172,24 @@ implements ReadonlyDeep<ReferenceGraph>, TopDownSearchIfc
         guestValue,
         localIndex,
         childGuestValue,
-        this.#parentToChildEdgeIdCounter++,
-        this.#objectValueToNumericKeyMap
+        this
       );
-    } else if (guestKey.type === "String") {
+    }
+    else if (guestKey.type === "String") {
       parentToChildEdge = new PropertyNameEdgeImpl(
         guestValue,
         guestKey.stringValue(),
         childGuestValue,
-        this.#parentToChildEdgeIdCounter++,
-        this.#objectValueToNumericKeyMap,
+        this
       );
-    } else {
+    }
+    else {
+      this.#symbolValueToNumericKeyMap.getKeyForHeldObject(guestKey);
       parentToChildEdge = new PropertySymbolEdgeImpl(
         guestValue,
         guestKey,
         childGuestValue,
-        this.#parentToChildEdgeIdCounter,
-        this.#objectValueToNumericKeyMap,
-        this.#symbolValueToNumericKeyMap
+        this
       );
     }
 
@@ -278,6 +277,20 @@ implements ReadonlyDeep<ReferenceGraph>, TopDownSearchIfc
     this.#objectKeysToExcludeFromSearch.add(numericKey);
   }
 
+  public getNextParentToChildEdgeId(): number {
+      return this.#parentToChildEdgeIdCounter++;
+  }
+
+  public getKeyForExistingHeldObject(objectValue: GuestEngine.ObjectValue): number {
+    GuestEngine.Assert(this.#objectValueToNumericKeyMap.hasHeldObject(objectValue));
+    return this.#objectValueToNumericKeyMap.getKeyForHeldObject(objectValue);
+  }
+
+  public getKeyForExistingHeldSymbol(symbolValue: GuestEngine.SymbolValue): number {
+    GuestEngine.Assert(this.#symbolValueToNumericKeyMap.hasHeldObject(symbolValue));
+    return this.#symbolValueToNumericKeyMap.getKeyForHeldObject(symbolValue);
+  }
+
   public addInternalSlotEdge(
     parentObject: GuestEngine.ObjectValue,
     slotName: `[[${string}]]`,
@@ -288,8 +301,7 @@ implements ReadonlyDeep<ReferenceGraph>, TopDownSearchIfc
       parentObject,
       slotName,
       childObject,
-      this.#parentToChildEdgeIdCounter++,
-      this.#objectValueToNumericKeyMap
+      this
     );
 
     this.parentToChildEdges.push(parentToChildEdge);
