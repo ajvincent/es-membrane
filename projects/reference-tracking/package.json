@@ -1,5 +1,5 @@
 {
-  "name": "@ajvincent/reference-tracking",
+  "name": "dixonhill",
   "version": "1.0.0",
   "description": "JavaScript reference tracking by static analysis.  For libraries to test they don't leak memory directly.",
   "main": "dist/bin/exports.js",
