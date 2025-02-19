@@ -17,12 +17,10 @@ export function convertHostPromiseToGuestPromise<
 ): GuestEngine.PromiseObjectValue
 {
   const guestPromiseCompletion = GuestEngine.NewPromiseCapability(realm.Intrinsics["%Promise%"]);
-  if (guestPromiseCompletion.Type === "throw")
-    throw new Error("couldn't create a promise");
+  GuestEngine.Assert(guestPromiseCompletion.Type !==  "throw");
 
   const { HostDefined } = realm;
   GuestEngine.Assert(HostDefined instanceof RealmHostDefined);
-  HostDefined.pendingHostPromises.add(hostPromise as Promise<void>);
 
   const { Promise, Resolve, Reject } = guestPromiseCompletion.Value;
   GuestEngine.Assert(Promise.type === "Object");
@@ -35,9 +33,8 @@ export function convertHostPromiseToGuestPromise<
   hostPromise.then(
     value => guestResolver.Call(guestPromise, [GuestEngine.Value(value)]),
     error => guestRejecter.Call(guestPromise, [GuestEngine.Value(error as RejectType)])
-  ).finally(
-    () => HostDefined.pendingHostPromises.delete(hostPromise as Promise<void>)
   );
 
+  HostDefined.registerHostPromise(hostPromise);
   return guestPromise;
 }

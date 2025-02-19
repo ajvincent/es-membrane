@@ -2,14 +2,20 @@ import fs from "node:fs/promises";
 
 import {
   pathToFileURL,
+  fileURLToPath,
 } from "node:url";
+
+import {
+  resolve as ImportMetaResolve,
+} from 'import-meta-resolve'
 
 import {
   Deferred
 } from "../utilities/PromiseTypes.js";
 
 import {
-  GuestEngine
+  GuestEngine,
+  type ThrowOr
 } from "./GuestEngine.js";
 
 import {
@@ -39,7 +45,18 @@ export async function runInRealm(
     },
     // ensureCanCompileStrings() {},
     // hasSourceTextAvailable() {},
-    // loadImportedModule() {},
+
+    async loadImportedModule(
+      referrer: GuestEngine.SourceTextModuleRecord,
+      specifier: string,
+      hostDefined: object,
+      finish: (res: ThrowOr<GuestEngine.SourceTextModuleRecord/* | GuestEngine.SyntheticModuleRecord*/>) => void
+    )
+    {
+      const moduleOrThrow: ThrowOr<GuestEngine.SourceTextModuleRecord> = await realmDriver.resolveModule(specifier, referrer);
+      finish(moduleOrThrow);
+    },
+
     // onNodeEvaluation() {},
     // features: [],
   });
@@ -52,7 +69,15 @@ export async function runInRealm(
       inputs.defineBuiltIns(realm);
     }
 
-    realmDriver.runModule(inputs.absolutePathToFile, contents, realm);
+    realmDriver.loadModule(inputs.absolutePathToFile, contents, realm);
+  });
+
+  while (realmDriver.loadRequestResult!.PromiseState === "pending") {
+    await Promise.all(realmDriver.resolveModulePromises);
+  }
+
+  realm.scope(() => {
+    realmDriver.runModule(realm);
   });
 
   const evalResult: GuestEngine.PromiseObjectValue | undefined = realmDriver.evalResult;
@@ -61,7 +86,7 @@ export async function runInRealm(
   do {
     await Promise.resolve(true);
     realm.scope(() => realmDriver.flushPendingPromises());
-  } while (realmDriver.hostDefined.pendingHostPromises.size > 0);
+  } while (realmDriver.hostDefined.hasPendingPromises());
 
   await realmDriver.moduleCompleted;
   return realmDriver.finalizeResults();
@@ -72,22 +97,71 @@ export class RealmDriver {
   readonly #results = new RealmResults;
 
   readonly resolverCache = new Map<unknown, unknown>;
+  readonly #specifierToModuleRecordMap = new Map<string, GuestEngine.SourceTextModuleRecord>;
+  readonly #moduleRecordToSpecifierMap = new WeakMap<GuestEngine.SourceTextModuleRecord, string>;
   readonly trackedPromises = new Set<GuestEngine.PromiseObjectValue>;
 
   readonly hostDefined = new RealmHostDefined(this);
 
+  readonly resolveModulePromises = new Set<Promise<unknown>>;
+
   readonly #moduleCompletedDeferred = new Deferred<void>;
   readonly moduleCompleted: Promise<void> = this.#moduleCompletedDeferred.promise;
 
-  #module?: GuestEngine.SourceTextModuleRecord;
+  #mainModule?: GuestEngine.SourceTextModuleRecord;
+  loadRequestResult?: GuestEngine.PromiseObjectValue;
   evalResult?: GuestEngine.PromiseObjectValue;
 
-  runModule(
+  public async resolveModule(
+    targetSpecifier: string,
+    referrer: GuestEngine.SourceTextModuleRecord,
+  ): Promise<ThrowOr<GuestEngine.SourceTextModuleRecord>>
+  {
+    const promise = this.#resolveModule(targetSpecifier, referrer);
+    this.resolveModulePromises.add(promise);
+    return await promise.finally(() => this.resolveModulePromises.delete(promise));
+  }
+
+  async #resolveModule(
+    targetSpecifier: string,
+    referrer: GuestEngine.SourceTextModuleRecord,
+  ): Promise<ThrowOr<GuestEngine.SourceTextModuleRecord>>
+  {
+    GuestEngine.Assert(referrer.Realm instanceof GuestEngine.ManagedRealm);
+
+    const sourceSpecifier = this.#moduleRecordToSpecifierMap.get(referrer)!;
+    const resolvedSpecifier = ImportMetaResolve(targetSpecifier, sourceSpecifier);
+
+    const cachedModule: ThrowOr<GuestEngine.SourceTextModuleRecord> | undefined = this.#specifierToModuleRecordMap.get(resolvedSpecifier);
+    if (cachedModule)
+      return cachedModule;
+
+    if (!resolvedSpecifier.startsWith("file://"))
+      return GuestEngine.Throw("Error", "CouldNotResolveModule", targetSpecifier);
+
+    const absolutePathToFile = fileURLToPath(resolvedSpecifier);
+    const contents = await fs.readFile(absolutePathToFile, { "encoding": "utf-8" });
+
+    const module = referrer.Realm.createSourceTextModule(
+      resolvedSpecifier,
+      contents
+    );
+
+    if (module instanceof GuestEngine.SourceTextModuleRecord) {
+      this.#specifierToModuleRecordMap.set(resolvedSpecifier, module);
+      this.#moduleRecordToSpecifierMap.set(module, resolvedSpecifier);
+    }
+
+    return module;
+  }
+
+  public loadModule(
     absolutePathToFile: string,
     contents: string,
     realm: GuestEngine.ManagedRealm
   ): void
   {
+    const specifier = pathToFileURL(absolutePathToFile).href;
     const createSourceResult: GuestEngine.ThrowCompletion | GuestEngine.SourceTextModuleRecord = realm.createSourceTextModule(
       pathToFileURL(absolutePathToFile).href, contents
     );
@@ -97,23 +171,29 @@ export class RealmDriver {
       return;
     }
 
-    this.#module = createSourceResult;
-    this.resolverCache.set(absolutePathToFile, createSourceResult);
+    this.#mainModule = createSourceResult;
+    this.#specifierToModuleRecordMap.set(specifier, this.#mainModule);
+    this.#moduleRecordToSpecifierMap.set(this.#mainModule, specifier);
 
-    const loadRequestResult: GuestEngine.PromiseObjectValue = this.#module.LoadRequestedModules();
-    if (loadRequestResult instanceof GuestEngine.AbruptCompletion) {
+    this.loadRequestResult = this.#mainModule.LoadRequestedModules();
+    if (this.loadRequestResult instanceof GuestEngine.AbruptCompletion) {
       //@ts-expect-error ReturnType<LoadRequestedModule> says this shouldn't happen.
-      this.#processAbruptCompletion(loadRequestResult);
+      this.#processAbruptCompletion(this.loadRequestResult);
       return;
     }
-  
-    const linkResult = this.#module.Link();
+  }
+
+  public runModule(
+    realm: GuestEngine.ManagedRealm
+  ): void
+  {
+    const linkResult = this.#mainModule!.Link();
     if (linkResult instanceof GuestEngine.ThrowCompletion) {
       this.#processAbruptCompletion(linkResult);
       return;
     }
 
-    this.evalResult = this.#module.Evaluate();
+    this.evalResult = this.#mainModule!.Evaluate();
 
     const hostPromise: Promise<void> = convertGuestPromiseToVoidHostPromise(this.evalResult);
     hostPromise.then(
@@ -138,10 +218,10 @@ export class RealmDriver {
   }
 
   flushPendingPromises(): void {
-    GuestEngine.Assert(this.#module !== undefined);
+    GuestEngine.Assert(this.#mainModule !== undefined);
     GuestEngine.Assert(this.evalResult !== undefined);
 
-    this.#module.Evaluate();
+    this.#mainModule.Evaluate();
   }
 
   finalizeResults(): RealmResults {

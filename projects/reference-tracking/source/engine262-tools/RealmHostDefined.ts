@@ -8,8 +8,7 @@ import type {
 
 export class RealmHostDefined {
   readonly #driver: RealmDriver;
-
-  readonly pendingHostPromises = new Set<Promise<void>>;
+  readonly #pendingHostPromises = new Set<Promise<unknown>>;
 
   constructor(outer: RealmDriver) {
     this.#driver = outer;
@@ -27,6 +26,18 @@ export class RealmHostDefined {
         this.#driver.trackedPromises.delete(promise);
         break;
     }
+  }
+
+  public registerHostPromise(
+    p: Promise<unknown>
+  ): void
+  {
+    this.#pendingHostPromises.add(p);
+    p.finally(() => this.#pendingHostPromises.delete(p));
+  }
+
+  public hasPendingPromises(): boolean {
+    return this.#pendingHostPromises.size > 0;
   }
 
   /*

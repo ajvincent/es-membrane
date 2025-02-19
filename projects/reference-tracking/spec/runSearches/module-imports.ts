@@ -1,0 +1,108 @@
+//#region preamble
+import {
+  ReadonlyDeep
+} from "type-fest";
+
+import {
+  TARGET_NODE_KEY,
+  BuiltInCollectionName,
+  PRESUMED_HELD_NODE_KEY,
+  ReferenceGraph
+} from "../../source/ReferenceGraph.js";
+
+import {
+  BottomUpSearchForChildEdges
+} from "../../source/engine262-tools/search/BottomUpSearchForChildEdges.js";
+
+import {
+  ReferenceGraphImpl
+} from "../../source/engine262-tools/search/ReferenceGraphImpl.js";
+
+import {
+  runSearchesInGuestEngine
+} from "../../source/runSearchesInGuestEngine.js";
+
+import {
+  addObjectToGraphs,
+  addArrayIndexEdge,
+  addPropertyNameEdge
+} from "../support/fillReferenceGraph.js";
+
+import {
+  getReferenceSpecPath
+} from "../support/projectRoot.js";
+
+import {
+  reparse
+} from "../support/reparse.js";
+//#endregion preamble
+
+it("Simple graph searches: when there is an import involved (modules importing other modules), we can load them.", async () => {
+  const pathToSearch = getReferenceSpecPath("module-imports/importWrapObject.js");
+
+  const ExpectedGraph = new ReferenceGraphImpl;
+  ExpectedGraph.foundTargetValue = true;
+  ExpectedGraph.succeeded = true;
+
+  const GraphCodes = {
+    nodes: {
+      objectHoldingTarget: 2,
+    },
+
+    parentEdgeIds: {
+      objectHoldingTarget: 0,
+      targetToHoldingObject: 1,
+    },
+
+    symbolKey: 3,
+  }
+
+  addObjectToGraphs(
+    ExpectedGraph,
+    TARGET_NODE_KEY,
+    BuiltInCollectionName.Object,
+    "Object"
+  );
+
+  addObjectToGraphs(
+    ExpectedGraph,
+    PRESUMED_HELD_NODE_KEY,
+    BuiltInCollectionName.Array,
+    "Array"
+  );
+
+  addObjectToGraphs(
+    ExpectedGraph,
+    GraphCodes.nodes.objectHoldingTarget,
+    BuiltInCollectionName.Object,
+    "Object"
+  );
+
+  addArrayIndexEdge(
+    ExpectedGraph,
+    PRESUMED_HELD_NODE_KEY,
+    0,
+    GraphCodes.nodes.objectHoldingTarget,
+    GraphCodes.parentEdgeIds.objectHoldingTarget,
+  );
+
+  addPropertyNameEdge(
+    ExpectedGraph,
+    GraphCodes.nodes.objectHoldingTarget,
+    "value",
+    TARGET_NODE_KEY,
+    GraphCodes.parentEdgeIds.targetToHoldingObject,
+  );
+
+  BottomUpSearchForChildEdges.sortBottomUpGraphArrays(ExpectedGraph);
+
+  const graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = await runSearchesInGuestEngine(pathToSearch);
+  expect(graphs.size).toBe(1);
+
+  const ActualGraph = graphs.get("importWrapObject");
+  expect(ActualGraph).toBeDefined();
+  if (!ActualGraph)
+    return;
+
+  expect(reparse(ActualGraph)).toEqual(reparse(ExpectedGraph));
+});
