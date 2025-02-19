@@ -73,6 +73,6 @@ searchReferences("shadow search target", shadowTarget.searchTarget, [proxy], fal
 
 revoke();
 
-searchReferences("shadow target held by proxy after revocation", shadowTarget, [proxy], true);
-searchReferences("proxy handler held by proxy after revocation", NotImplementedProxyHandler, [proxy], true);
-searchReferences("proxy held after revocation", proxy, [revoke], true);
+searchReferences("shadow target held by proxy after revocation", shadowTarget, [proxy], false);
+searchReferences("proxy handler held by proxy after revocation", NotImplementedProxyHandler, [proxy], false);
+searchReferences("proxy held after revocation", proxy, [revoke], false);

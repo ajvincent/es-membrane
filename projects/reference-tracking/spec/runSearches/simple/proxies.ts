@@ -25,6 +25,8 @@ import {
   addArrayIndexEdge,
   addInternalSlotEdge,
   addObjectToGraphs,
+  addPropertyNameEdge,
+  EmptyReferenceGraph,
 } from "../../support/fillReferenceGraph.js";
 
 import {
@@ -50,13 +52,6 @@ describe("Simple graph searches, proxy support:", () => {
 
     addObjectToGraphs(
       ExpectedGraph,
-      TARGET_NODE_KEY,
-      BuiltInCollectionName.Object,
-      "Object"
-    );
-
-    addObjectToGraphs(
-      ExpectedGraph,
       PRESUMED_HELD_NODE_KEY,
       BuiltInCollectionName.Array,
       "Array"
@@ -68,14 +63,41 @@ describe("Simple graph searches, proxy support:", () => {
       proxy: 2,
       proxyTargetSlot: 3,
       proxyHandlerSlot: 4,
+      handlerSearchTarget: 6,
     },
 
     parentEdgeIds: {
       heldValuesToProxy: 0,
       proxyToTargetSlot: 1,
       proxyToHandlerSlot: 2,
+      handlerToSearchTarget: 3,
     },
   };
+
+  const RevokerHeldGraphCodes = {
+    nodes: {
+      revoke: 2,
+      proxy: 3,
+      proxyTargetSlot: 4,
+      proxyHandlerSlot: 5,
+    },
+
+    parentEdgeIds: {
+      heldValuesToRevoke: 0,
+      revokeToProxy: 1,
+      proxyToTargetSlot: 2,
+      proxyToHandlerSlot: 3,
+    }
+  }
+
+  function addObjectTarget(targetType: BuiltInCollectionName) {
+    addObjectToGraphs(
+      ExpectedGraph,
+      TARGET_NODE_KEY,
+      targetType,
+      targetType
+    );
+  }
 
   it("(internal: all searches ran)", () => {
     expect(graphs.size).toBe(9);
@@ -86,6 +108,8 @@ describe("Simple graph searches, proxy support:", () => {
     expect(heldValuesGraph).withContext("held values graph exists").toBeDefined();
     if (!heldValuesGraph)
       return;
+
+    addObjectTarget(BuiltInCollectionName.Object);
 
     addObjectToGraphs(
       ExpectedGraph,
@@ -113,5 +137,173 @@ describe("Simple graph searches, proxy support:", () => {
 
     BottomUpSearchForChildEdges.sortBottomUpGraphArrays(ExpectedGraph);
     expect(reparse(heldValuesGraph)).toEqual(reparse(ExpectedGraph));
+  });
+
+  it("proxies hold proxy handlers before revocation", () => {
+    const heldValuesGraph = graphs.get("proxy handler held before revocation");
+    expect(heldValuesGraph).withContext("held values graph exists").toBeDefined();
+    if (!heldValuesGraph)
+      return;
+
+    addObjectTarget(BuiltInCollectionName.Object);
+
+    addObjectToGraphs(
+      ExpectedGraph,
+      ProxyHeldGraphCodes.nodes.proxy,
+      BuiltInCollectionName.Proxy,
+      BuiltInCollectionName.Proxy,
+    );
+
+    addArrayIndexEdge(
+      ExpectedGraph,
+      PRESUMED_HELD_NODE_KEY,
+      0,
+      ProxyHeldGraphCodes.nodes.proxy,
+      ProxyHeldGraphCodes.parentEdgeIds.heldValuesToProxy
+    );
+
+    addInternalSlotEdge(
+      ExpectedGraph,
+      ProxyHeldGraphCodes.nodes.proxy,
+      `[[ProxyHandler]]`,
+      TARGET_NODE_KEY,
+      ProxyHeldGraphCodes.parentEdgeIds.proxyToHandlerSlot,
+      true
+    );
+
+    BottomUpSearchForChildEdges.sortBottomUpGraphArrays(ExpectedGraph);
+    expect(reparse(heldValuesGraph)).toEqual(reparse(ExpectedGraph));
+  });
+
+  it("revokers hold proxies before revocation", () => {
+    const heldValuesGraph = graphs.get("proxy held before revocation");
+    expect(heldValuesGraph).withContext("held values graph exists").toBeDefined();
+    if (!heldValuesGraph)
+      return;
+
+    addObjectTarget(BuiltInCollectionName.Proxy);
+
+    addObjectToGraphs(
+      ExpectedGraph,
+      RevokerHeldGraphCodes.nodes.revoke,
+      BuiltInCollectionName.Object,
+      "(unknown)"
+    );
+
+    addArrayIndexEdge(
+      ExpectedGraph,
+      PRESUMED_HELD_NODE_KEY,
+      0,
+      RevokerHeldGraphCodes.nodes.revoke,
+      RevokerHeldGraphCodes.parentEdgeIds.heldValuesToRevoke
+    );
+
+    addInternalSlotEdge(
+      ExpectedGraph,
+      RevokerHeldGraphCodes.nodes.revoke,
+      `[[RevocableProxy]]`,
+      TARGET_NODE_KEY,
+      RevokerHeldGraphCodes.parentEdgeIds.revokeToProxy,
+      true
+    );
+
+    BottomUpSearchForChildEdges.sortBottomUpGraphArrays(ExpectedGraph);
+    expect(reparse(heldValuesGraph)).toEqual(reparse(ExpectedGraph));
+  });
+
+  it("proxies do not hold references to their revokers", () => {
+    const heldValuesGraph = graphs.get("revoke not held by proxy");
+    expect(heldValuesGraph).withContext("held values graph exists").toBeDefined();
+    if (!heldValuesGraph)
+      return;
+
+    expect(reparse(heldValuesGraph)).toEqual(EmptyReferenceGraph);
+  });
+
+  it("proxies do not search shadow targets", () => {
+    const heldValuesGraph = graphs.get("shadow search target");
+    expect(heldValuesGraph).withContext("held values graph exists").toBeDefined();
+    if (!heldValuesGraph)
+      return;
+
+    expect(reparse(heldValuesGraph)).toEqual(EmptyReferenceGraph);
+  });
+
+  it("proxies search proxy handlers", () => {
+    const heldValuesGraph = graphs.get("proxy handler search target");
+    expect(heldValuesGraph).withContext("held values graph exists").toBeDefined();
+    if (!heldValuesGraph)
+      return;
+
+    addObjectTarget(BuiltInCollectionName.Object);
+
+    addObjectToGraphs(
+      ExpectedGraph,
+      ProxyHeldGraphCodes.nodes.proxy,
+      BuiltInCollectionName.Proxy,
+      BuiltInCollectionName.Proxy,
+    );
+
+    addObjectToGraphs(
+      ExpectedGraph,
+      ProxyHeldGraphCodes.nodes.proxyHandlerSlot,
+      BuiltInCollectionName.Object,
+      BuiltInCollectionName.Object
+    );
+
+    addArrayIndexEdge(
+      ExpectedGraph,
+      PRESUMED_HELD_NODE_KEY,
+      0,
+      ProxyHeldGraphCodes.nodes.proxy,
+      ProxyHeldGraphCodes.parentEdgeIds.heldValuesToProxy
+    );
+
+    addInternalSlotEdge(
+      ExpectedGraph,
+      ProxyHeldGraphCodes.nodes.proxy,
+      `[[ProxyHandler]]`,
+      ProxyHeldGraphCodes.nodes.proxyHandlerSlot,
+      ProxyHeldGraphCodes.parentEdgeIds.proxyToHandlerSlot,
+      true
+    );
+
+    addPropertyNameEdge(
+      ExpectedGraph,
+      ProxyHeldGraphCodes.nodes.proxyHandlerSlot,
+      "searchTarget",
+      TARGET_NODE_KEY,
+      ProxyHeldGraphCodes.parentEdgeIds.handlerToSearchTarget
+    );
+
+    BottomUpSearchForChildEdges.sortBottomUpGraphArrays(ExpectedGraph);
+    expect(reparse(heldValuesGraph)).toEqual(reparse(ExpectedGraph));
+  });
+
+  it("proxies do not hold references to their shadow targets after revocation", () => {
+    const heldValuesGraph = graphs.get("shadow target held by proxy after revocation");
+    expect(heldValuesGraph).withContext("held values graph exists").toBeDefined();
+    if (!heldValuesGraph)
+      return;
+
+    expect(reparse(heldValuesGraph)).toEqual(EmptyReferenceGraph);
+  });
+
+  it("proxies do not hold references to their proxy handlers after revocation", () => {
+    const heldValuesGraph = graphs.get("proxy handler held by proxy after revocation");
+    expect(heldValuesGraph).withContext("held values graph exists").toBeDefined();
+    if (!heldValuesGraph)
+      return;
+
+    expect(reparse(heldValuesGraph)).toEqual(EmptyReferenceGraph);
+  });
+
+  it("revokers do not hold references to their proxies after revocation", () => {
+    const heldValuesGraph = graphs.get("proxy held after revocation");
+    expect(heldValuesGraph).withContext("held values graph exists").toBeDefined();
+    if (!heldValuesGraph)
+      return;
+
+    expect(reparse(heldValuesGraph)).toEqual(EmptyReferenceGraph);
   });
 });

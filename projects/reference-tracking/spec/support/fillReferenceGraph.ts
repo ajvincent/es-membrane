@@ -1,3 +1,7 @@
+import type {
+  ReadonlyDeep
+} from "type-fest";
+
 import {
   type ArrayIndexEdge,
   type BuiltInCollectionName,
@@ -6,12 +10,21 @@ import {
   type InternalSlotEdge,
   type PropertyNameEdge,
   type PropertySymbolEdge,
+  type ReferenceGraph,
   type ReferenceGraphNode,
 } from "../../source/ReferenceGraph.js";
 
 import {
   ReferenceGraphImpl,
 } from "../../source/engine262-tools/search/ReferenceGraphImpl.js";
+
+export const EmptyReferenceGraph: ReadonlyDeep<ReferenceGraph> = {
+  nodes: [],
+  parentToChildEdges: [],
+  childToParentEdges: [],
+  succeeded: true,
+  foundTargetValue: false,
+}
 
 export function addObjectToGraphs(
   graph: ReferenceGraphImpl,

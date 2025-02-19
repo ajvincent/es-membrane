@@ -12,5 +12,11 @@ export function findInternalSlotsType(
   if (GuestEngine.isProxyExoticObject(guestValue))
     return InternalSlotTypesEnum.Proxy;
 
+  if (GuestEngine.isFunctionObject(guestValue)) {
+    if ("RevocableProxy" in guestValue) {
+      return InternalSlotTypesEnum.RevokerToProxy;
+    }
+  }
+
   return undefined;
 }
