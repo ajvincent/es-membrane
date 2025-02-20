@@ -35,6 +35,8 @@ export class ReferenceGraphNodeImpl implements ReferenceGraphNode {
           return [BuiltInCollectionName.Array, isDirectMatch ? BuiltInCollectionName.Array : derivedClassName];
         case realm.Intrinsics["%Object.prototype%"]:
           return [BuiltInCollectionName.Object, isDirectMatch ? BuiltInCollectionName.Object : derivedClassName];
+        case realm.Intrinsics["%WeakRef.prototype%"]:
+          return [BuiltInCollectionName.WeakRef, isDirectMatch ? BuiltInCollectionName.WeakRef : derivedClassName];
       }
 
       isDirectMatch = false;

@@ -17,6 +17,7 @@ export interface TopDownSearchIfc {
   addInternalSlotEdge(
     parentObject: GuestEngine.ObjectValue,
     slotName: `[[${string}]]`,
-    childObject: GuestEngine.ObjectValue
+    childObject: GuestEngine.ObjectValue,
+    isStrongOwningReference: boolean,
   ): void;
 }

@@ -41,12 +41,12 @@ export class ProxyEdgeAnalyzer implements InternalSlotAnalyzer {
       the shadow targets for properties, etc.
       */
       topDownSearch.excludeObjectFromSearch(ProxyTarget);
-      topDownSearch.addInternalSlotEdge(guestObjectValue, "[[ProxyTarget]]", ProxyTarget);
+      topDownSearch.addInternalSlotEdge(guestObjectValue, "[[ProxyTarget]]", ProxyTarget, true);
     }
 
     if (ProxyHandler.type === "Object") {
       topDownSearch.defineGraphNode(ProxyHandler);
-      topDownSearch.addInternalSlotEdge(guestObjectValue, "[[ProxyHandler]]", ProxyHandler);
+      topDownSearch.addInternalSlotEdge(guestObjectValue, "[[ProxyHandler]]", ProxyHandler, true);
     }
   }
 }

@@ -15,12 +15,12 @@ import {
   InternalSlotTypesEnum
 } from "./InternalSlotTypesEnum.js";
 
-export class RevokerToProxyAnalyzer implements InternalSlotAnalyzer {
+export class WeakRefAnalyzer implements InternalSlotAnalyzer {
   public static registerSlotHandler(
     slotMap: Map<InternalSlotTypesEnum, InternalSlotAnalyzer>
   ): void
   {
-    slotMap.set(InternalSlotTypesEnum.RevokerToProxy, new RevokerToProxyAnalyzer);
+    slotMap.set(InternalSlotTypesEnum.WeakRef, new WeakRefAnalyzer);
   }
 
   public addEdgesForObject(
@@ -29,14 +29,14 @@ export class RevokerToProxyAnalyzer implements InternalSlotAnalyzer {
   ): void
   {
     const guestProxyValue = guestObjectValue as unknown as Record<
-      "RevocableProxy", GuestEngine.ObjectValue | GuestEngine.NullValue
+      "WeakRefTarget", GuestEngine.ObjectValue | GuestEngine.NullValue
     >;
-    const { RevocableProxy } = guestProxyValue;
+    const { WeakRefTarget } = guestProxyValue;
 
-    if (RevocableProxy.type === "Object") {
-      topDownSearch.defineGraphNode(RevocableProxy);
-      topDownSearch.addInternalSlotEdge(guestObjectValue, "[[RevocableProxy]]", RevocableProxy, true);
+    if (WeakRefTarget.type === "Object") {
+      topDownSearch.defineGraphNode(WeakRefTarget);
+      topDownSearch.addInternalSlotEdge(guestObjectValue, "[[WeakRefTarget]]", WeakRefTarget, false);
     }
   }
 }
-RevokerToProxyAnalyzer satisfies InternalSlotAnalyzerStatic;
+WeakRefAnalyzer satisfies InternalSlotAnalyzerStatic;

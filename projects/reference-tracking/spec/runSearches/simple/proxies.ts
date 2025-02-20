@@ -1,3 +1,4 @@
+//#region preamble
 import type {
   ReadonlyDeep
 } from "type-fest";
@@ -36,6 +37,7 @@ import {
 import {
   reparse
 } from "../../support/reparse.js";
+//#endregion preamble
 
 describe("Simple graph searches, proxy support:", () => {
   let graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = new Map;

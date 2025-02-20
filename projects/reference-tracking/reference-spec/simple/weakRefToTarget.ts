@@ -5,5 +5,5 @@ const heldValues: readonly object[] = [
   weakRef,
 ];
 
-searchReferences("weakRefToTargetHoldsStrongly", target, heldValues, true);
-searchReferences("weakRefToTargetHoldsWeakly", target, heldValues, false);
+searchReferences("WeakRef to target does not hold strongly", target, heldValues, true);
+searchReferences("weakRef to target holds weakly", target, heldValues, false);

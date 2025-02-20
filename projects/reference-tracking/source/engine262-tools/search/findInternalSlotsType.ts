@@ -18,5 +18,8 @@ export function findInternalSlotsType(
     }
   }
 
+  if (guestValue.internalSlotsList.includes("WeakRefTarget"))
+    return InternalSlotTypesEnum.WeakRef;
+
   return undefined;
 }

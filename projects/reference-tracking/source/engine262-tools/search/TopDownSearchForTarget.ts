@@ -294,7 +294,8 @@ implements ReadonlyDeep<ReferenceGraph>, TopDownSearchIfc
   public addInternalSlotEdge(
     parentObject: GuestEngine.ObjectValue,
     slotName: `[[${string}]]`,
-    childObject: GuestEngine.ObjectValue
+    childObject: GuestEngine.ObjectValue,
+    isStrongOwningReference: boolean,
   ): void
   {
     const parentToChildEdge = new InternalSlotEdgeImpl(
@@ -309,7 +310,7 @@ implements ReadonlyDeep<ReferenceGraph>, TopDownSearchIfc
       childObject,
       [ parentObject ],
       parentToChildEdge.parentToChildEdgeId,
-      true,
+      isStrongOwningReference,
     );
   }
   //#endregion TopDownSearchIfc
