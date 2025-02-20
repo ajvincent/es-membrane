@@ -1,14 +1,16 @@
 //#region preamble
-import {
+import type {
   ReadonlyDeep
 } from "type-fest";
 
+import type {
+  ReferenceGraph
+} from "../../source/types/ReferenceGraph.js";
 import {
   TARGET_NODE_KEY,
   BuiltInCollectionName,
-  PRESUMED_HELD_NODE_KEY,
-  ReferenceGraph
-} from "../../source/ReferenceGraph.js";
+  PRESUMED_HELD_NODE_KEY
+} from "../../source/utilities/constants.js";
 
 import {
   BottomUpSearchForChildEdges

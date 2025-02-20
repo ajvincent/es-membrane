@@ -1,7 +1,10 @@
+import type {
+  BaseParentToChildReferenceGraphEdge,
+} from "../../types/ReferenceGraph.js";
+
 import {
-  ChildReferenceEdgeType,
-  type BaseParentToChildReferenceGraphEdge,
-} from "../../ReferenceGraph.js";
+  ChildReferenceEdgeType
+} from "../../utilities/constants.js";
 
 import type {
   GuestEngine

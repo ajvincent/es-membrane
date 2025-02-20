@@ -1,7 +1,10 @@
+import type {
+  PropertyNameEdge,
+} from "../../types/ReferenceGraph.js";
+
 import {
-  ChildReferenceEdgeType,
-  type PropertyNameEdge,
-} from "../../ReferenceGraph.js";
+  ChildReferenceEdgeType
+} from "../../utilities/constants.js";
 
 import type {
   GuestEngine

@@ -4,18 +4,21 @@ import type {
 } from "type-fest";
 
 import {
-  GuestEngine,
-  type ThrowOr,
-} from "../GuestEngine.js";
-
-import {
   ReferenceGraph,
   ReferenceGraphNode,
   ParentToChildReferenceGraphEdge,
   ChildToParentReferenceGraphEdge,
+} from "../../types/ReferenceGraph.js";
+
+import {
   PRESUMED_HELD_NODE_KEY,
-  TARGET_NODE_KEY,
-} from "../../ReferenceGraph.js";
+  TARGET_NODE_KEY
+} from "../../utilities/constants.js";
+
+import {
+  GuestEngine,
+  type ThrowOr,
+} from "../GuestEngine.js";
 
 import {
   ArrayIndexEdgeImpl,

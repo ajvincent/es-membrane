@@ -3,7 +3,7 @@ import type {
   ReferenceGraphNode,
   ParentToChildReferenceGraphEdge,
   ChildToParentReferenceGraphEdge,
-} from "../../ReferenceGraph.js";
+} from "../../types/ReferenceGraph.js";
 
 export class ReferenceGraphImpl implements ReferenceGraph {
   nodes: ReferenceGraphNode[] = [];

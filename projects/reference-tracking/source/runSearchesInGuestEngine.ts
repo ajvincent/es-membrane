@@ -6,21 +6,21 @@ import {
   GuestEngine,
 } from "./engine262-tools/GuestEngine.js";
 
-import type {
-  ReferenceGraph,
-} from "./ReferenceGraph.js";
-
-import type {
-  GuestRealmOutputs
-} from "./engine262-tools/types/Virtualization262.js";
+import {
+  defineSearchReferences
+} from "./engine262-tools/built-ins/defineSearchReferences.js";
 
 import {
   directInvoke
 } from "./engine262-tools/directInvoke.js";
 
-import {
-  defineSearchReferences
-} from "./engine262-tools/built-ins/defineSearchReferences.js";
+import type {
+  GuestRealmOutputs
+} from "./engine262-tools/types/Virtualization262.js";
+
+import type {
+  ReferenceGraph,
+} from "./types/ReferenceGraph.js";
 
 export async function runSearchesInGuestEngine(
   absolutePathToFile: string,

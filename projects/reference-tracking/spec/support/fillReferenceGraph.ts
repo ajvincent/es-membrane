@@ -2,17 +2,20 @@ import type {
   ReadonlyDeep
 } from "type-fest";
 
+import type {
+  ArrayIndexEdge,
+  ChildToParentReferenceGraphEdge,
+  InternalSlotEdge,
+  PropertyNameEdge,
+  PropertySymbolEdge,
+  ReferenceGraph,
+  ReferenceGraphNode,
+} from "../../source/types/ReferenceGraph.js";
+
 import {
-  type ArrayIndexEdge,
   type BuiltInCollectionName,
-  ChildReferenceEdgeType,
-  type ChildToParentReferenceGraphEdge,
-  type InternalSlotEdge,
-  type PropertyNameEdge,
-  type PropertySymbolEdge,
-  type ReferenceGraph,
-  type ReferenceGraphNode,
-} from "../../source/ReferenceGraph.js";
+  ChildReferenceEdgeType
+} from "../../source/utilities/constants.js";
 
 import {
   ReferenceGraphImpl,

@@ -1,7 +1,10 @@
+import type {
+  ArrayIndexEdge,
+} from "../../types/ReferenceGraph.js";
+
 import {
-  ChildReferenceEdgeType,
-  type ArrayIndexEdge,
-} from "../../ReferenceGraph.js";
+  ChildReferenceEdgeType
+} from "../../utilities/constants.js";
 
 import type {
   GuestEngine

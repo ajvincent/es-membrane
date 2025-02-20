@@ -2,22 +2,18 @@ import type {
   ReadonlyDeep
 } from "type-fest";
 
-import type {
-  ReferenceGraph
-} from "./ReferenceGraph.js";
-
 import {
   GuestEngine,
   type ThrowOr
 } from "./engine262-tools/GuestEngine.js";
 
 import {
-  defineReportFunction
-} from "./engine262-tools/built-ins/engine262-demos/defineReportFunction.js";
-
-import {
   defineSearchReferences
 } from "./engine262-tools/built-ins/defineSearchReferences.js";
+
+import {
+  defineReportFunction
+} from "./engine262-tools/built-ins/engine262-demos/defineReportFunction.js";
 
 import {
   directInvoke
@@ -26,6 +22,10 @@ import {
 import type {
   GuestRealmOutputs
 } from "./engine262-tools/types/Virtualization262.js";
+
+import type {
+  ReferenceGraph
+} from "./types/ReferenceGraph.js";
 
 export interface InternalSearchResults {
   readonly graphs: ReadonlyDeep<Map<string, ReferenceGraph>>;

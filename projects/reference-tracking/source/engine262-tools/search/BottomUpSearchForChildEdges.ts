@@ -1,11 +1,14 @@
-import {
+import type {
   ReferenceGraph,
   ReferenceGraphNode,
   ParentToChildReferenceGraphEdge,
   ChildToParentReferenceGraphEdge,
+} from "../../types/ReferenceGraph.js";
+
+import {
   TARGET_NODE_KEY,
-  PRESUMED_HELD_NODE_KEY,
-} from "../../ReferenceGraph.js";
+  PRESUMED_HELD_NODE_KEY
+} from "../../utilities/constants.js";
 
 import {
   ReferenceGraphImpl

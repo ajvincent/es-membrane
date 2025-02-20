@@ -2,17 +2,17 @@ import type {
   ReadonlyDeep,
 } from "type-fest";
 
+import type {
+  ReferenceGraph,
+} from "../../types/ReferenceGraph.js";
+
 import {
   GuestEngine,
   type ThrowOr,
 } from "../GuestEngine.js";
 
-import type {
-  ReferenceGraph,
-} from "../../ReferenceGraph.js";
-
-import { TopDownSearchForTarget } from "./TopDownSearchForTarget.js";
 import { BottomUpSearchForChildEdges } from "./BottomUpSearchForChildEdges.js";
+import { TopDownSearchForTarget } from "./TopDownSearchForTarget.js";
 
 export class SearchDriver
 {

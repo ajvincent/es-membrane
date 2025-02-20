@@ -3,13 +3,16 @@ import {
 } from "../GuestEngine.js";
 
 import type {
-  ValueToNumericKeyMap
-} from "./ValueToNumericKeyMap.js";
+  ReferenceGraphNode
+} from "../../types/ReferenceGraph.js";
 
 import {
-  BuiltInCollectionName,
-  ReferenceGraphNode
-} from "../../ReferenceGraph.js";
+  BuiltInCollectionName
+} from "../../utilities/constants.js";
+
+import type {
+  ValueToNumericKeyMap
+} from "./ValueToNumericKeyMap.js";
 
 export class ReferenceGraphNodeImpl implements ReferenceGraphNode {
   static #getCollectionAndClassName(

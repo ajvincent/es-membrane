@@ -4,13 +4,6 @@ import type {
 } from "type-fest";
 
 import {
-  BuiltInCollectionName,
-  PRESUMED_HELD_NODE_KEY,
-  type ReferenceGraph,
-  TARGET_NODE_KEY,
-} from "../../../source/ReferenceGraph.js";
-
-import {
   BottomUpSearchForChildEdges,
 } from "../../../source/engine262-tools/search/BottomUpSearchForChildEdges.js";
 
@@ -21,6 +14,16 @@ import {
 import {
   runSearchesInGuestEngine,
 } from "../../../source/runSearchesInGuestEngine.js";
+
+import type {
+  ReferenceGraph,
+} from "../../../source/types/ReferenceGraph.js";
+
+import {
+  BuiltInCollectionName,
+  PRESUMED_HELD_NODE_KEY,
+  TARGET_NODE_KEY,
+} from "../../../source/utilities/constants.js";
 
 import {
   addArrayIndexEdge,

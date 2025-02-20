@@ -2,26 +2,26 @@ import type {
   ReadonlyDeep
 } from "type-fest";
 
+import type {
+  ReferenceGraph
+} from "../../types/ReferenceGraph.js";
+
 import {
   GuestEngine,
   type ThrowOr,
 } from "../GuestEngine.js";
 
 import {
-  defineBuiltInFunction
-} from "./defineBuiltInFunction.js";
-
-import type {
-  ReferenceGraph
-} from "../../ReferenceGraph.js";
+  convertArrayValueToArrayOfValues
+} from "../convertArrayValueToArrayOfValues.js";
 
 import {
   SearchDriver
 } from "../search/Driver.js";
 
 import {
-  convertArrayValueToArrayOfValues
-} from "../convertArrayValueToArrayOfValues.js";
+  defineBuiltInFunction
+} from "./defineBuiltInFunction.js";
 
 interface SearchReferencesArguments {
   readonly resultsKey: string;

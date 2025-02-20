@@ -1,18 +1,21 @@
 import {
-  type ArrayIndexEdge,
-  BuiltInCollectionName,
-  ChildToParentReferenceGraphEdge,
-  ChildReferenceEdgeType,
-  type ReferenceGraphNode,
-} from "../../../source/ReferenceGraph.js";
-
-import {
   BottomUpSearchForChildEdges,
 } from "../../../source/engine262-tools/search/BottomUpSearchForChildEdges.js";
 
 import {
   ReferenceGraphImpl,
 } from "../../../source/engine262-tools/search/ReferenceGraphImpl.js";
+
+import type {
+  ArrayIndexEdge,
+  ChildToParentReferenceGraphEdge,
+  ReferenceGraphNode,
+} from "../../../source/types/ReferenceGraph.js";
+
+import {
+  BuiltInCollectionName,
+  ChildReferenceEdgeType
+} from "../../../source/utilities/constants.js";
 
 describe("BottomUpSearchForChildEdges", () => {
   let TopSearchGraph: ReferenceGraphImpl, ExpectedGraph: ReferenceGraphImpl;
