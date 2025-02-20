@@ -1,6 +1,6 @@
 import type {
-  TopDownSearchIfc
-} from "../types/TopDownSearchIfc.js";
+  GuestValueRegistarIfc
+} from "../types/GuestValueRegistrar.js";
 
 import type {
   ValueDescription,
@@ -16,7 +16,7 @@ import type {
 
 export function createValueDescription(
   guestValue: GuestEngine.Value | undefined,
-  topDownSearch: TopDownSearchIfc
+  topDownSearch: GuestValueRegistarIfc
 ): ValueDescription
 {
   if (guestValue === undefined) {

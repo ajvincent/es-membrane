@@ -11,8 +11,8 @@ import type {
 } from "../GuestEngine.js";
 
 import type {
-  TopDownSearchIfc
-} from "../types/TopDownSearchIfc.js";
+  GuestValueRegistarIfc
+} from "../types/GuestValueRegistrar.js";
 
 import ParentToChildBaseImpl from "./ParentToChildBaseImpl.js";
 
@@ -26,7 +26,7 @@ implements PropertyNameEdge
     parentObject: GuestEngine.ObjectValue,
     propertyName: string,
     childObject: GuestEngine.ObjectValue,
-    topDownSearch: TopDownSearchIfc,
+    topDownSearch: GuestValueRegistarIfc,
   )
   {
     super(

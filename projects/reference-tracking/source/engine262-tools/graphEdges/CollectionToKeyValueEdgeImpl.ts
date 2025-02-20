@@ -9,8 +9,8 @@ import type {
 } from "../../types/ReferenceGraph.js";
 
 import type {
-  TopDownSearchIfc,
-} from "../types/TopDownSearchIfc.js";
+  GuestValueRegistarIfc,
+} from "../types/GuestValueRegistrar.js";
 
 import {
   ValueDiscrimant
@@ -40,7 +40,7 @@ export class CollectionToKeyValueEdgeImpl implements CollectionToKeyValueEdge
     guestValue: GuestEngine.Value,
     collectionPseudoEdge: CollectionPseudoEdge,
     keyIsHeldStrongly: boolean,
-    topDownSearch: TopDownSearchIfc,
+    topDownSearch: GuestValueRegistarIfc,
   )
   {
     this.collectionEdgeId = collectionPseudoEdge.parentToChildEdgeId;

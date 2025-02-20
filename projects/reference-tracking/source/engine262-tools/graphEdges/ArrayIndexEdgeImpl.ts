@@ -11,8 +11,8 @@ import type {
 } from "../GuestEngine.js";
 
 import type {
-  TopDownSearchIfc
-} from "../types/TopDownSearchIfc.js";
+  GuestValueRegistarIfc
+} from "../types/GuestValueRegistrar.js";
 
 import ParentToChildBaseImpl from "./ParentToChildBaseImpl.js";
 
@@ -31,7 +31,7 @@ implements ArrayIndexEdge
     parentObject: GuestEngine.ObjectValue,
     index: number,
     childObject: GuestEngine.ObjectValue,
-    topDownSearch: TopDownSearchIfc,
+    topDownSearch: GuestValueRegistarIfc,
   )
   {
     super(

@@ -7,8 +7,8 @@ import type {
 } from "../GuestEngine.js";
 
 import {
-  TopDownSearchIfc
-} from "../types/TopDownSearchIfc.js";
+  GuestValueRegistarIfc
+} from "../types/GuestValueRegistrar.js";
 
 export class ChildToParentImpl implements ChildToParentReferenceGraphEdge {
   readonly childObjectKey: number;
@@ -21,7 +21,7 @@ export class ChildToParentImpl implements ChildToParentReferenceGraphEdge {
     jointOwnerObjects: readonly GuestEngine.ObjectValue[],
     isStrongOwningReference: boolean,
     parentToChildEdgeId: number,
-    topDownSearch: TopDownSearchIfc
+    topDownSearch: GuestValueRegistarIfc
   )
   {
     this.childObjectKey = topDownSearch.getKeyForExistingHeldObject(childObject);

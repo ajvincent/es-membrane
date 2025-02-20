@@ -8,8 +8,8 @@ import type {
 } from "../types/InternalSlotAnalyzer.js";
 
 import type {
-  TopDownSearchIfc
-} from "../types/TopDownSearchIfc.js";
+  GuestValueRegistarIfc
+} from "../types/GuestValueRegistrar.js";
 
 import {
   InternalSlotTypesEnum
@@ -24,7 +24,7 @@ export class WeakRefAnalyzer implements InternalSlotAnalyzer {
   }
 
   public addEdgesForObject(
-    topDownSearch: TopDownSearchIfc,
+    topDownSearch: GuestValueRegistarIfc,
     guestObjectValue: GuestEngine.ObjectValue
   ): void
   {

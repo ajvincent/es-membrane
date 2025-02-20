@@ -1,13 +1,15 @@
-import { GuestEngine } from "../GuestEngine.ts";
+import type {
+  GuestEngine
+} from "../GuestEngine.ts";
 
-export interface TopDownSearchIfc {
+export interface GuestValueRegistarIfc {
   defineGraphNode(
     guestObject: GuestEngine.ObjectValue
   ): void;
 
   excludeObjectFromSearch(
     guestObject: GuestEngine.ObjectValue
-  )
+  ): void;
 
   getNextParentToChildEdgeId(): number;
 

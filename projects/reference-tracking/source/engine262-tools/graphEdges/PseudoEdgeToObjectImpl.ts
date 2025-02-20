@@ -11,8 +11,8 @@ import type {
 } from "../GuestEngine.js";
 
 import type {
-  TopDownSearchIfc
-} from "../types/TopDownSearchIfc.js";
+  GuestValueRegistarIfc
+} from "../types/GuestValueRegistrar.js";
 
 import ParentToChildBaseImpl from "./ParentToChildBaseImpl.js";
 
@@ -26,7 +26,7 @@ implements PseudoEdgeToObject
     parentObject: GuestEngine.ObjectValue,
     childObject: GuestEngine.ObjectValue,
     edgeContext: string[],
-    topDownSearch: TopDownSearchIfc,
+    topDownSearch: GuestValueRegistarIfc,
   )
   {
     super(

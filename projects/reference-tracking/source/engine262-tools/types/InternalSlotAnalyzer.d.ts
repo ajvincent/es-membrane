@@ -3,8 +3,8 @@ import type {
 } from "../GuestEngine.ts";
 
 import type {
-  TopDownSearchIfc
-} from "./TopDownSearchIfc.js";
+  GuestValueRegistarIfc
+} from "./GuestValueRegistrar.js";
 
 export interface InternalSlotAnalyzerStatic {
   registerSlotHandler(
@@ -14,7 +14,7 @@ export interface InternalSlotAnalyzerStatic {
 
 export interface InternalSlotAnalyzer {
   addEdgesForObject(
-    topDownSearch: TopDownSearchIfc,
+    topDownSearch: GuestValueRegistarIfc,
     guestObjectValue: GuestEngine.ObjectValue,
   ): void;
 }

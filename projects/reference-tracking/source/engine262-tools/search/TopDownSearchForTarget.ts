@@ -37,8 +37,8 @@ import {
 } from "../internalSlotsByType/typeRegistry.js";
 
 import type {
-  TopDownSearchIfc
-} from "../types/TopDownSearchIfc.js";
+  GuestValueRegistarIfc
+} from "../types/GuestValueRegistrar.js";
 
 import {
   ReferenceGraphNodeImpl
@@ -59,7 +59,7 @@ import {
 //#endregion preamble
 
 export class TopDownSearchForTarget
-implements ReadonlyDeep<ReferenceGraph>, TopDownSearchIfc
+implements ReadonlyDeep<ReferenceGraph>, GuestValueRegistarIfc
 {
   static * #counter(): Iterator<number> {
     let count = 0;

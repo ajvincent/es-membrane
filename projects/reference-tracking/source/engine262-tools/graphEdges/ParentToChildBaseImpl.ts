@@ -11,8 +11,8 @@ import type {
 } from "../GuestEngine.js";
 
 import type {
-  TopDownSearchIfc
-} from "../types/TopDownSearchIfc.js";
+  GuestValueRegistarIfc
+} from "../types/GuestValueRegistrar.js";
 
 export default
 abstract class ParentToChildBaseImpl<EdgeType extends ChildReferenceEdgeType>
@@ -27,7 +27,7 @@ implements BaseParentToChildReferenceGraphEdge<EdgeType>
     parentObject: GuestEngine.ObjectValue,
     childObject: GuestEngine.ObjectValue,
     edgeType: EdgeType,
-    topDownSearch: TopDownSearchIfc,
+    topDownSearch: GuestValueRegistarIfc,
   )
   {
     this.parentObjectKey = topDownSearch.getKeyForExistingHeldObject(parentObject);
