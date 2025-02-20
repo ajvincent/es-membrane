@@ -6,9 +6,9 @@ import type {
   GuestEngine
 } from "../GuestEngine.js";
 
-import type {
-  ValueToNumericKeyMap,
-} from "../search/ValueToNumericKeyMap.js";
+import {
+  TopDownSearchIfc
+} from "../types/TopDownSearchIfc.js";
 
 export class ChildToParentImpl implements ChildToParentReferenceGraphEdge {
   readonly childObjectKey: number;
@@ -21,15 +21,15 @@ export class ChildToParentImpl implements ChildToParentReferenceGraphEdge {
     jointOwnerObjects: readonly GuestEngine.ObjectValue[],
     isStrongOwningReference: boolean,
     parentToChildEdgeId: number,
-    numericKeyMap: ValueToNumericKeyMap<GuestEngine.ObjectValue>,
+    topDownSearch: TopDownSearchIfc
   )
   {
-    this.childObjectKey = numericKeyMap.getKeyForHeldObject(childObject);
+    this.childObjectKey = topDownSearch.getKeyForExistingHeldObject(childObject);
     this.isStrongOwningReference = isStrongOwningReference;
     this.parentToChildEdgeId = parentToChildEdgeId;
 
     this.jointOwnerKeys = jointOwnerObjects.map(
-      ownerValue => numericKeyMap.getKeyForHeldObject(ownerValue)
+      ownerValue => topDownSearch.getKeyForExistingHeldObject(ownerValue)
     );
   }
 }

@@ -256,7 +256,7 @@ implements ReadonlyDeep<ReferenceGraph>, TopDownSearchIfc
       jointOwningValues,
       isStrongOwningReference,
       parentToChildEdgeId,
-      this.#objectValueToNumericKeyMap
+      this
     );
     this.childToParentEdges.push(childEdge);
     this.#resolveObjectKey(childKey);
