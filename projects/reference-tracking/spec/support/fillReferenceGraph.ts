@@ -25,6 +25,7 @@ export const EmptyReferenceGraph: ReadonlyDeep<ReferenceGraph> = {
   nodes: [],
   parentToChildEdges: [],
   childToParentEdges: [],
+  collectionToKeyValueEdges: [],
   succeeded: true,
   foundTargetValue: false,
 }

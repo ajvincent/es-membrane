@@ -1,3 +1,6 @@
+export const TARGET_NODE_KEY = 0;
+export const PRESUMED_HELD_NODE_KEY = 1;
+
 export enum ChildReferenceEdgeType {
   PropertyName = "PropertyName",
   ArrayIndex = "ArrayIndex",
@@ -6,16 +9,16 @@ export enum ChildReferenceEdgeType {
 
   InternalSlot = "InternalSlot",
 
+  CollectionPseudo = "Collection pseudo-edge",
+  PseudoToObject = "Pseudo-object to real object",
+
   // less sure of these
   FunctionClosure = "FunctionClosure",
   BoundFunction = "BoundFunction",
 
   // shortcut: foo.bar.baz[0] = wop;
-  PropertySequence = "PropertySequence"
+  PropertySequence = "PropertySequence",
 }
-
-export const TARGET_NODE_KEY = 0;
-export const PRESUMED_HELD_NODE_KEY = 1;
 
 export enum BuiltInCollectionName {
   Object = "Object",
@@ -27,5 +30,12 @@ export enum BuiltInCollectionName {
   Map = "Map",
   Set = "Set",
   Proxy = "Proxy",
-  FinalizationRegistry = "FinalizationRegistry"
+  FinalizationRegistry = "FinalizationRegistry",
+}
+
+export enum ValueDiscrimant {
+  NotApplicable = "NotApplicable",
+  Object = "Object",
+  Symbol = "Symbol",
+  Primitive = "Primitive",
 }

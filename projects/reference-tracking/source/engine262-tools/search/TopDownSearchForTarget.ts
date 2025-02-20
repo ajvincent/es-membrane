@@ -8,6 +8,7 @@ import {
   ReferenceGraphNode,
   ParentToChildReferenceGraphEdge,
   ChildToParentReferenceGraphEdge,
+  CollectionToKeyValueEdge,
 } from "../../types/ReferenceGraph.js";
 
 import {
@@ -23,9 +24,12 @@ import {
 import {
   ArrayIndexEdgeImpl,
   ChildToParentImpl,
+  CollectionPseudoEdgeImpl,
+  CollectionToKeyValueEdgeImpl,
   InternalSlotEdgeImpl,
   PropertyNameEdgeImpl,
   PropertySymbolEdgeImpl,
+  PseudoEdgeToObjectImpl,
 } from "../graphEdges/graphExports.js";
 
 import {
@@ -80,6 +84,7 @@ implements ReadonlyDeep<ReferenceGraph>, TopDownSearchIfc
 
   public readonly parentToChildEdges: ParentToChildReferenceGraphEdge[] = [];
   public readonly childToParentEdges: ChildToParentReferenceGraphEdge[] = [];
+  public readonly collectionToKeyValueEdges: CollectionToKeyValueEdge[] = [];
 
   #parentToChildEdgeIdCounter = 0;
 
@@ -315,6 +320,107 @@ implements ReadonlyDeep<ReferenceGraph>, TopDownSearchIfc
       parentToChildEdge.parentToChildEdgeId,
       isStrongOwningReference,
     );
+  }
+
+  public addCollectionKeyAndValue(
+    guestCollection: GuestEngine.ObjectValue,
+    guestKey: GuestEngine.Value | undefined,
+    keyIsHeldStrongly: boolean,
+    guestValue: GuestEngine.Value,
+  ): void
+  {
+    // Map: keyIsHeldStrongly = true, guestKey is defined
+    // Set: keyIsHeldStrongly is true, guestKey is undefined
+    // WeakMap: keyIsHeldStrongly = false, guestKey is an object
+    // WeakSet: keyIsHeldStrongly = false, guestKey is undefined, guestValue is an object
+    // ... for the sets, keyIsHeldStrongly really means valueIsHeldStrongly.
+    if (keyIsHeldStrongly === false) {
+      if (guestKey)
+        GuestEngine.Assert(guestKey.type === "Object");
+      else {
+        GuestEngine.Assert(guestValue.type === "Object");
+      }
+    }
+
+    if (guestKey?.type === "Object") {
+      this.defineGraphNode(guestKey);
+    }
+
+    if (guestValue.type === "Object") {
+      this.defineGraphNode(guestValue);
+    }
+
+    // This pseudo-object we use to tie the collection to a single key-value tuple.
+    const CollectionPseudoChild: GuestEngine.ObjectValue = GuestEngine.MakeBasicObject([]);
+
+    // define strong edges between the collection and the pseudo-child to trigger searching keys and values.
+    {
+      this.defineGraphNode(CollectionPseudoChild);
+
+      const collectionToPseudoEdge = new CollectionPseudoEdgeImpl(
+        guestCollection, CollectionPseudoChild, this
+      );
+      this.parentToChildEdges.push(collectionToPseudoEdge);
+
+      this.#addPendingChildEdge(
+        CollectionPseudoChild,
+        [guestCollection],
+        collectionToPseudoEdge.parentToChildEdgeId,
+        true
+      );
+
+      // this is informative for the top-down search, but will be more useful in the bottom-up search report.
+      const keyValueEdge: CollectionToKeyValueEdge = new CollectionToKeyValueEdgeImpl(
+        guestCollection, guestKey, guestValue, collectionToPseudoEdge, keyIsHeldStrongly, this
+      );
+      this.collectionToKeyValueEdges.push(keyValueEdge);
+    }
+
+    // Define an edge between the pseudo-child and the key.
+    if (guestKey?.type === "Object") {
+      const pseudoToKeyEdge = new PseudoEdgeToObjectImpl(
+        CollectionPseudoChild,
+        guestKey,
+        ["collection key"],
+        this
+      );
+      this.parentToChildEdges.push(pseudoToKeyEdge);
+
+      this.#addPendingChildEdge(
+        guestKey,
+        [CollectionPseudoChild],
+        pseudoToKeyEdge.parentToChildEdgeId,
+        keyIsHeldStrongly
+      );
+    }
+
+    // Define an edge between the pseudo-child and the value, possibly depending on the key as well.
+    if (guestValue.type === "Object") {
+      const pseudoToValueEdge = new PseudoEdgeToObjectImpl(
+        CollectionPseudoChild,
+        guestValue,
+        ["collection value"],
+        this
+      );
+      this.parentToChildEdges.push(pseudoToValueEdge);
+
+      const jointOwners: GuestEngine.ObjectValue[] = [CollectionPseudoChild];
+
+      let valueIsHeldStrongly: boolean;
+      if (guestKey?.type === "Object") {
+        jointOwners.push(guestKey);
+        valueIsHeldStrongly = true;
+      } else {
+        valueIsHeldStrongly = keyIsHeldStrongly;
+      }
+
+      this.#addPendingChildEdge(
+        guestValue,
+        jointOwners,
+        pseudoToValueEdge.parentToChildEdgeId,
+        valueIsHeldStrongly
+      );
+    }
   }
   //#endregion TopDownSearchIfc
 }
