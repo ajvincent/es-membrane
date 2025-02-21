@@ -99,6 +99,7 @@ implements ReadonlyDeep<ReferenceGraph>, GuestValueRegistarIfc
   )
   {
     this.#strongReferencesOnly = strongReferencesOnly;
+    void(this.#strongReferencesOnly);
     this.#realm = realm;
 
     GuestEngine.Assert(
@@ -206,7 +207,6 @@ implements ReadonlyDeep<ReferenceGraph>, GuestValueRegistarIfc
       childGuestValue,
       [guestValue],
       parentToChildEdge.parentToChildEdgeId,
-      true
     );
   }
 
@@ -226,17 +226,11 @@ implements ReadonlyDeep<ReferenceGraph>, GuestValueRegistarIfc
     childGuestValue: GuestEngine.ObjectValue,
     jointOwningValues: readonly GuestEngine.ObjectValue[],
     parentToChildEdgeId: number,
-    isStrongOwningReference: boolean,
   ): void
   {
-    if (this.#strongReferencesOnly && isStrongOwningReference === false) {
-      return;
-    }
-
     this.#childEdgeTracker.defineChildEdge(
       this.#objectValueToNumericKeyMap.getKeyForHeldObject(childGuestValue),
       jointOwningValues.map(owningValue => this.#objectValueToNumericKeyMap.getKeyForHeldObject(owningValue)),
-      isStrongOwningReference,
       parentToChildEdgeId
     );
   }
@@ -244,7 +238,6 @@ implements ReadonlyDeep<ReferenceGraph>, GuestValueRegistarIfc
   #jointEdgeOwnersResolver(
     childKey: number,
     jointOwnerKeys: readonly number[],
-    isStrongOwningReference: boolean,
     parentToChildEdgeId: number,
   ): void
   {
@@ -254,7 +247,6 @@ implements ReadonlyDeep<ReferenceGraph>, GuestValueRegistarIfc
     const childEdge = new ChildToParentImpl(
       childGuestValue,
       jointOwningValues,
-      isStrongOwningReference,
       parentToChildEdgeId,
       this
     );
@@ -310,6 +302,7 @@ implements ReadonlyDeep<ReferenceGraph>, GuestValueRegistarIfc
       parentObject,
       slotName,
       childObject,
+      isStrongOwningReference,
       this
     );
 
@@ -318,7 +311,6 @@ implements ReadonlyDeep<ReferenceGraph>, GuestValueRegistarIfc
       childObject,
       [ parentObject ],
       parentToChildEdge.parentToChildEdgeId,
-      isStrongOwningReference,
     );
   }
 
@@ -358,7 +350,7 @@ implements ReadonlyDeep<ReferenceGraph>, GuestValueRegistarIfc
       this.defineGraphNode(CollectionPseudoChild);
 
       const collectionToPseudoEdge = new CollectionPseudoEdgeImpl(
-        guestCollection, CollectionPseudoChild, this
+        guestCollection, CollectionPseudoChild, true, this
       );
       this.parentToChildEdges.push(collectionToPseudoEdge);
 
@@ -366,7 +358,6 @@ implements ReadonlyDeep<ReferenceGraph>, GuestValueRegistarIfc
         CollectionPseudoChild,
         [guestCollection],
         collectionToPseudoEdge.parentToChildEdgeId,
-        true
       );
 
       // this is informative for the top-down search, but will be more useful in the bottom-up search report.
@@ -382,6 +373,7 @@ implements ReadonlyDeep<ReferenceGraph>, GuestValueRegistarIfc
         CollectionPseudoChild,
         guestKey,
         ["collection key"],
+        keyIsHeldStrongly,
         this
       );
       this.parentToChildEdges.push(pseudoToKeyEdge);
@@ -390,20 +382,11 @@ implements ReadonlyDeep<ReferenceGraph>, GuestValueRegistarIfc
         guestKey,
         [CollectionPseudoChild],
         pseudoToKeyEdge.parentToChildEdgeId,
-        keyIsHeldStrongly
       );
     }
 
     // Define an edge between the pseudo-child and the value, possibly depending on the key as well.
     if (guestValue.type === "Object") {
-      const pseudoToValueEdge = new PseudoEdgeToObjectImpl(
-        CollectionPseudoChild,
-        guestValue,
-        ["collection value"],
-        this
-      );
-      this.parentToChildEdges.push(pseudoToValueEdge);
-
       const jointOwners: GuestEngine.ObjectValue[] = [CollectionPseudoChild];
 
       let valueIsHeldStrongly: boolean;
@@ -414,11 +397,19 @@ implements ReadonlyDeep<ReferenceGraph>, GuestValueRegistarIfc
         valueIsHeldStrongly = keyIsHeldStrongly;
       }
 
+      const pseudoToValueEdge = new PseudoEdgeToObjectImpl(
+        CollectionPseudoChild,
+        guestValue,
+        ["collection value"],
+        valueIsHeldStrongly,
+        this
+      );
+      this.parentToChildEdges.push(pseudoToValueEdge);
+
       this.#addPendingChildEdge(
         guestValue,
         jointOwners,
         pseudoToValueEdge.parentToChildEdgeId,
-        valueIsHeldStrongly
       );
     }
   }

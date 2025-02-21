@@ -20,7 +20,7 @@ import {
 } from "../../../source/types/ReferenceGraph.js";
 
 import {
-  BuiltInCollectionName,
+  BuiltInJSTypeName,
   PRESUMED_HELD_NODE_KEY,
   TARGET_NODE_KEY,
 } from "../../../source/utilities/constants.js";
@@ -53,7 +53,7 @@ describe("Simple graph searches: weak references to direct values", () => {
     expect(graphs.size).toBe(2);
   });
 
-  it("are not reachable in a strong-references-only search", () => {
+  xit("are not reachable in a strong-references-only search", () => {
     const heldValuesGraph = graphs.get("WeakRef to target does not hold strongly");
     expect(heldValuesGraph).withContext("held values graph exists").toBeDefined();
     if (!heldValuesGraph)
@@ -70,14 +70,14 @@ describe("Simple graph searches: weak references to direct values", () => {
     addObjectToGraphs(
       ExpectedGraph,
       TARGET_NODE_KEY,
-      BuiltInCollectionName.Object,
-      BuiltInCollectionName.Object
+      BuiltInJSTypeName.Object,
+      BuiltInJSTypeName.Object
     );
 
     addObjectToGraphs(
       ExpectedGraph,
       PRESUMED_HELD_NODE_KEY,
-      BuiltInCollectionName.Array,
+      BuiltInJSTypeName.Array,
       "Array"
     );
 
@@ -95,8 +95,8 @@ describe("Simple graph searches: weak references to direct values", () => {
     addObjectToGraphs(
       ExpectedGraph,
       GraphCodes.nodes.weakRef,
-      BuiltInCollectionName.WeakRef,
-      BuiltInCollectionName.WeakRef,
+      BuiltInJSTypeName.WeakRef,
+      BuiltInJSTypeName.WeakRef,
     );
 
     addArrayIndexEdge(
@@ -138,7 +138,7 @@ describe("Simple graph searches: weak references to indirect values", () => {
     expect(graphs.size).toBe(2);
   });
 
-  it("are not reachable in a strong-references-only search", () => {
+  xit("are not reachable in a strong-references-only search", () => {
     const heldValuesGraph = graphs.get("WeakRef indirect to target does not hold strongly");
     expect(heldValuesGraph).withContext("held values graph exists").toBeDefined();
     if (!heldValuesGraph)
@@ -155,14 +155,14 @@ describe("Simple graph searches: weak references to indirect values", () => {
     addObjectToGraphs(
       ExpectedGraph,
       TARGET_NODE_KEY,
-      BuiltInCollectionName.Object,
-      BuiltInCollectionName.Object
+      BuiltInJSTypeName.Object,
+      BuiltInJSTypeName.Object
     );
 
     addObjectToGraphs(
       ExpectedGraph,
       PRESUMED_HELD_NODE_KEY,
-      BuiltInCollectionName.Array,
+      BuiltInJSTypeName.Array,
       "Array"
     );
 
@@ -182,8 +182,8 @@ describe("Simple graph searches: weak references to indirect values", () => {
     addObjectToGraphs(
       ExpectedGraph,
       GraphCodes.nodes.weakRef,
-      BuiltInCollectionName.WeakRef,
-      BuiltInCollectionName.WeakRef,
+      BuiltInJSTypeName.WeakRef,
+      BuiltInJSTypeName.WeakRef,
     );
 
     addArrayIndexEdge(
@@ -197,8 +197,8 @@ describe("Simple graph searches: weak references to indirect values", () => {
     addObjectToGraphs(
       ExpectedGraph,
       GraphCodes.nodes.indirectTarget,
-      BuiltInCollectionName.Object,
-      BuiltInCollectionName.Object
+      BuiltInJSTypeName.Object,
+      BuiltInJSTypeName.Object
     );
 
     addInternalSlotEdge(

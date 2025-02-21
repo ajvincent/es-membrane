@@ -5,7 +5,6 @@ import type {
 export class JointOwnershipTracker {
   readonly #childKey: number;
   readonly #jointOwnerKeys: readonly number[];
-  readonly #isStrongOwningReference: boolean;
   readonly #parentToChildEdgeId: number;
   readonly #resolver: JointOwnersResolver<JointOwnershipTracker>;
 
@@ -15,14 +14,12 @@ export class JointOwnershipTracker {
     keyResolvedMap: ReadonlyMap<number, boolean>,
     childKey: number,
     jointOwnerKeys: readonly number[],
-    isStrongOwningReference: boolean,
     parentToChildEdgeId: number,
     resolver: JointOwnersResolver<JointOwnershipTracker>,
   )
   {
     this.#childKey = childKey;
     this.#jointOwnerKeys = jointOwnerKeys.slice();
-    this.#isStrongOwningReference = isStrongOwningReference;
     this.#parentToChildEdgeId = parentToChildEdgeId;
     this.#resolver = resolver;
 
@@ -41,7 +38,6 @@ export class JointOwnershipTracker {
     this.#resolver(
       this.#childKey,
       this.#jointOwnerKeys,
-      this.#isStrongOwningReference,
       this.#parentToChildEdgeId,
       this
     );

@@ -26,6 +26,7 @@ implements PseudoEdgeToObject
     parentObject: GuestEngine.ObjectValue,
     childObject: GuestEngine.ObjectValue,
     edgeContext: string[],
+    isStrongOwningReference: boolean,
     topDownSearch: GuestValueRegistarIfc,
   )
   {
@@ -33,6 +34,7 @@ implements PseudoEdgeToObject
       parentObject,
       childObject,
       ChildReferenceEdgeType.PseudoToObject,
+      isStrongOwningReference,
       topDownSearch
     );
 

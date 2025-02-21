@@ -8,7 +8,7 @@ import type {
 } from "../../source/types/ReferenceGraph.js";
 import {
   TARGET_NODE_KEY,
-  BuiltInCollectionName,
+  BuiltInJSTypeName,
   PRESUMED_HELD_NODE_KEY
 } from "../../source/utilities/constants.js";
 
@@ -62,21 +62,21 @@ it("Simple graph searches: when there is an import involved (modules importing o
   addObjectToGraphs(
     ExpectedGraph,
     TARGET_NODE_KEY,
-    BuiltInCollectionName.Object,
+    BuiltInJSTypeName.Object,
     "Object"
   );
 
   addObjectToGraphs(
     ExpectedGraph,
     PRESUMED_HELD_NODE_KEY,
-    BuiltInCollectionName.Array,
+    BuiltInJSTypeName.Array,
     "Array"
   );
 
   addObjectToGraphs(
     ExpectedGraph,
     GraphCodes.nodes.objectHoldingTarget,
-    BuiltInCollectionName.Object,
+    BuiltInJSTypeName.Object,
     "Object"
   );
 

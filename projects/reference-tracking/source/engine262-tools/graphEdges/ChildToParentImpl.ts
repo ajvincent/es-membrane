@@ -13,19 +13,16 @@ import {
 export class ChildToParentImpl implements ChildToParentReferenceGraphEdge {
   readonly childObjectKey: number;
   readonly jointOwnerKeys: number[];
-  readonly isStrongOwningReference: boolean;
   readonly parentToChildEdgeId: number;
 
   constructor(
     childObject: GuestEngine.ObjectValue,
     jointOwnerObjects: readonly GuestEngine.ObjectValue[],
-    isStrongOwningReference: boolean,
     parentToChildEdgeId: number,
     topDownSearch: GuestValueRegistarIfc
   )
   {
     this.childObjectKey = topDownSearch.getKeyForExistingHeldObject(childObject);
-    this.isStrongOwningReference = isStrongOwningReference;
     this.parentToChildEdgeId = parentToChildEdgeId;
 
     this.jointOwnerKeys = jointOwnerObjects.map(

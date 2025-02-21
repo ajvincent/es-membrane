@@ -22,11 +22,13 @@ implements BaseParentToChildReferenceGraphEdge<EdgeType>
   readonly childObjectKey: number;
   readonly parentToChildEdgeType: EdgeType;
   readonly parentToChildEdgeId: number;
+  readonly isStrongOwningReference: boolean;
 
   constructor(
     parentObject: GuestEngine.ObjectValue,
     childObject: GuestEngine.ObjectValue,
     edgeType: EdgeType,
+    isStrongOwningReference: boolean,
     topDownSearch: GuestValueRegistarIfc,
   )
   {
@@ -34,5 +36,6 @@ implements BaseParentToChildReferenceGraphEdge<EdgeType>
     this.childObjectKey = topDownSearch.getKeyForExistingHeldObject(childObject);
     this.parentToChildEdgeId = topDownSearch.getNextParentToChildEdgeId();
     this.parentToChildEdgeType = edgeType;
+    this.isStrongOwningReference = isStrongOwningReference;
   }
 }

@@ -20,7 +20,7 @@ export enum ChildReferenceEdgeType {
   PropertySequence = "PropertySequence",
 }
 
-export enum BuiltInCollectionName {
+export enum BuiltInJSTypeName {
   Object = "Object",
   Array = "Array",
   Function = "Function",

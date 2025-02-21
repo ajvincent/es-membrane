@@ -13,7 +13,7 @@ import type {
 } from "../../../source/types/ReferenceGraph.js";
 
 import {
-  BuiltInCollectionName,
+  BuiltInJSTypeName,
   ChildReferenceEdgeType
 } from "../../../source/utilities/constants.js";
 
@@ -34,13 +34,13 @@ describe("BottomUpSearchForChildEdges", () => {
   function addObjectToGraphs(
     includeExpectedGraph: boolean,
     objectKey: number,
-    builtInClassName: BuiltInCollectionName,
+    builtInClassName: BuiltInJSTypeName,
     derivedClassName: string,
   ): void
   {
     const node: ReferenceGraphNode = {
       objectKey,
-      builtInClassName,
+      builtInJSTypeName: builtInClassName,
       derivedClassName,
     };
     TopSearchGraph.nodes.push(node);
@@ -62,13 +62,13 @@ describe("BottomUpSearchForChildEdges", () => {
       arrayIndex,
       childObjectKey,
       parentToChildEdgeId,
+      isStrongOwningReference: true,
       parentToChildEdgeType: ChildReferenceEdgeType.ArrayIndex,
     };
 
     const childToParentEdges: ChildToParentReferenceGraphEdge = {
       childObjectKey,
       jointOwnerKeys: [parentObjectKey],
-      isStrongOwningReference: true,
       parentToChildEdgeId
     };
 
@@ -112,11 +112,11 @@ describe("BottomUpSearchForChildEdges", () => {
       SecondHeldValueEdgeId: 2001,
       ThirdHeldValueEdgeId: 2002,
     };
-    addObjectToGraphs(true, GraphCodes.target, BuiltInCollectionName.Object, "Object");
-    addObjectToGraphs(true, GraphCodes.heldValues, BuiltInCollectionName.Array, "Array");
+    addObjectToGraphs(true, GraphCodes.target, BuiltInJSTypeName.Object, "Object");
+    addObjectToGraphs(true, GraphCodes.heldValues, BuiltInJSTypeName.Array, "Array");
 
-    addObjectToGraphs(false, GraphCodes.isFirstValue, BuiltInCollectionName.Object, "Object");
-    addObjectToGraphs(false, GraphCodes.isLastValue, BuiltInCollectionName.Object, "Object");
+    addObjectToGraphs(false, GraphCodes.isFirstValue, BuiltInJSTypeName.Object, "Object");
+    addObjectToGraphs(false, GraphCodes.isLastValue, BuiltInJSTypeName.Object, "Object");
   
     addArrayIndexEdge(false, GraphCodes.heldValues, 0, GraphCodes.isFirstValue, GraphCodes.FirstHeldValueEdgeId);
     addArrayIndexEdge(true, GraphCodes.heldValues, 1, GraphCodes.target, GraphCodes.SecondHeldValueEdgeId);

@@ -38,6 +38,7 @@ implements ArrayIndexEdge
       parentObject,
       childObject,
       ChildReferenceEdgeType.ArrayIndex,
+      true,
       topDownSearch
     );
     this.arrayIndex = index;

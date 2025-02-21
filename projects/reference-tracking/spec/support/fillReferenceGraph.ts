@@ -13,7 +13,7 @@ import type {
 } from "../../source/types/ReferenceGraph.js";
 
 import {
-  type BuiltInCollectionName,
+  type BuiltInJSTypeName,
   ChildReferenceEdgeType
 } from "../../source/utilities/constants.js";
 
@@ -33,13 +33,13 @@ export const EmptyReferenceGraph: ReadonlyDeep<ReferenceGraph> = {
 export function addObjectToGraphs(
   graph: ReferenceGraphImpl,
   objectKey: number,
-  builtInClassName: BuiltInCollectionName,
+  builtInClassName: BuiltInJSTypeName,
   derivedClassName: string,
 ): void
 {
   const node: ReferenceGraphNode = {
     objectKey,
-    builtInClassName,
+    builtInJSTypeName: builtInClassName,
     derivedClassName,
   };
   graph.nodes.push(node);
@@ -58,13 +58,13 @@ export function addArrayIndexEdge(
     arrayIndex,
     childObjectKey,
     parentToChildEdgeId,
+    isStrongOwningReference: true,
     parentToChildEdgeType: ChildReferenceEdgeType.ArrayIndex,
   };
 
   const childToParentEdges: ChildToParentReferenceGraphEdge = {
     childObjectKey,
     jointOwnerKeys: [parentObjectKey],
-    isStrongOwningReference: true,
     parentToChildEdgeId
   };
 
@@ -85,13 +85,13 @@ export function addPropertyNameEdge(
     propertyName,
     childObjectKey,
     parentToChildEdgeId,
+    isStrongOwningReference: true,
     parentToChildEdgeType: ChildReferenceEdgeType.PropertyName,
   };
 
   const childToParentEdges: ChildToParentReferenceGraphEdge = {
     childObjectKey,
     jointOwnerKeys: [parentObjectKey],
-    isStrongOwningReference: true,
     parentToChildEdgeId
   };
 
@@ -114,13 +114,13 @@ export function addPropertySymbolEdge(
     symbolNumericKey,
     childObjectKey,
     parentToChildEdgeId,
+    isStrongOwningReference: true,
     parentToChildEdgeType: ChildReferenceEdgeType.PropertySymbol,
   };
 
   const childToParentEdges: ChildToParentReferenceGraphEdge = {
     childObjectKey,
     jointOwnerKeys: [parentObjectKey],
-    isStrongOwningReference: true,
     parentToChildEdgeId
   };
 
@@ -142,13 +142,13 @@ export function addInternalSlotEdge(
     slotName,
     childObjectKey,
     parentToChildEdgeId,
+    isStrongOwningReference,
     parentToChildEdgeType: ChildReferenceEdgeType.InternalSlot
   };
 
   const childToParentsEdge: ChildToParentReferenceGraphEdge = {
     childObjectKey,
     jointOwnerKeys: [parentObjectKey],
-    isStrongOwningReference,
     parentToChildEdgeId
   };
 

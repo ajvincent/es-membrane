@@ -22,8 +22,8 @@ describe("ChildEdgeReferenceTracker", () => {
 
     expect(resolver).toHaveBeenCalledTimes(0);
 
-    tracker.defineChildEdge(1, [2, 3], true, 91);
-    expect(resolver).toHaveBeenCalledOnceWith(1, [2, 3], true, 91, tracker);
+    tracker.defineChildEdge(1, [2, 3], 91);
+    expect(resolver).toHaveBeenCalledOnceWith(1, [2, 3], 91, tracker);
   });
 
   it("defining a child edge and then resolving all keys results in a self-resolving edge", () => {
@@ -31,14 +31,14 @@ describe("ChildEdgeReferenceTracker", () => {
     tracker.defineKey(2);
     tracker.defineKey(3);
 
-    tracker.defineChildEdge(1, [2, 3], false, 92);
+    tracker.defineChildEdge(1, [2, 3], 92);
     expect(resolver).toHaveBeenCalledTimes(0);
 
     tracker.resolveKey(2);
     expect(resolver).toHaveBeenCalledTimes(0);
 
     tracker.resolveKey(3);
-    expect(resolver).toHaveBeenCalledOnceWith(1, [2, 3], false, 92, tracker);
+    expect(resolver).toHaveBeenCalledOnceWith(1, [2, 3], 92, tracker);
   });
 
   it("throws for unknown keys", () => {
@@ -47,14 +47,14 @@ describe("ChildEdgeReferenceTracker", () => {
     ).toThrowError("key not defined: 4");
 
     expect(
-      () => tracker.defineChildEdge(6, [], true, 93)
+      () => tracker.defineChildEdge(6, [], 93)
     ).toThrowError("no resolved value defined for child key 6");
 
     tracker.defineKey(7);
     tracker.defineKey(8);
 
     expect(
-      () => tracker.defineChildEdge(7, [8, 9], true, 93)
+      () => tracker.defineChildEdge(7, [8, 9], 93)
     ).toThrowError("no resolved value defined for owner key 9");
   });
 

@@ -20,7 +20,7 @@ import type {
 } from "../../../source/types/ReferenceGraph.js";
 
 import {
-  BuiltInCollectionName,
+  BuiltInJSTypeName,
   PRESUMED_HELD_NODE_KEY,
   TARGET_NODE_KEY,
 } from "../../../source/utilities/constants.js";
@@ -58,7 +58,7 @@ describe("Simple graph searches, proxy support:", () => {
     addObjectToGraphs(
       ExpectedGraph,
       PRESUMED_HELD_NODE_KEY,
-      BuiltInCollectionName.Array,
+      BuiltInJSTypeName.Array,
       "Array"
     );
   });
@@ -95,7 +95,7 @@ describe("Simple graph searches, proxy support:", () => {
     }
   }
 
-  function addObjectTarget(targetType: BuiltInCollectionName) {
+  function addObjectTarget(targetType: BuiltInJSTypeName) {
     addObjectToGraphs(
       ExpectedGraph,
       TARGET_NODE_KEY,
@@ -114,13 +114,13 @@ describe("Simple graph searches, proxy support:", () => {
     if (!heldValuesGraph)
       return;
 
-    addObjectTarget(BuiltInCollectionName.Object);
+    addObjectTarget(BuiltInJSTypeName.Object);
 
     addObjectToGraphs(
       ExpectedGraph,
       ProxyHeldGraphCodes.nodes.proxy,
-      BuiltInCollectionName.Proxy,
-      BuiltInCollectionName.Proxy,
+      BuiltInJSTypeName.Proxy,
+      BuiltInJSTypeName.Proxy,
     );
 
     addArrayIndexEdge(
@@ -150,13 +150,13 @@ describe("Simple graph searches, proxy support:", () => {
     if (!heldValuesGraph)
       return;
 
-    addObjectTarget(BuiltInCollectionName.Object);
+    addObjectTarget(BuiltInJSTypeName.Object);
 
     addObjectToGraphs(
       ExpectedGraph,
       ProxyHeldGraphCodes.nodes.proxy,
-      BuiltInCollectionName.Proxy,
-      BuiltInCollectionName.Proxy,
+      BuiltInJSTypeName.Proxy,
+      BuiltInJSTypeName.Proxy,
     );
 
     addArrayIndexEdge(
@@ -186,12 +186,12 @@ describe("Simple graph searches, proxy support:", () => {
     if (!heldValuesGraph)
       return;
 
-    addObjectTarget(BuiltInCollectionName.Proxy);
+    addObjectTarget(BuiltInJSTypeName.Proxy);
 
     addObjectToGraphs(
       ExpectedGraph,
       RevokerHeldGraphCodes.nodes.revoke,
-      BuiltInCollectionName.Object,
+      BuiltInJSTypeName.Object,
       "(unknown)"
     );
 
@@ -240,20 +240,20 @@ describe("Simple graph searches, proxy support:", () => {
     if (!heldValuesGraph)
       return;
 
-    addObjectTarget(BuiltInCollectionName.Object);
+    addObjectTarget(BuiltInJSTypeName.Object);
 
     addObjectToGraphs(
       ExpectedGraph,
       ProxyHeldGraphCodes.nodes.proxy,
-      BuiltInCollectionName.Proxy,
-      BuiltInCollectionName.Proxy,
+      BuiltInJSTypeName.Proxy,
+      BuiltInJSTypeName.Proxy,
     );
 
     addObjectToGraphs(
       ExpectedGraph,
       ProxyHeldGraphCodes.nodes.proxyHandlerSlot,
-      BuiltInCollectionName.Object,
-      BuiltInCollectionName.Object
+      BuiltInJSTypeName.Object,
+      BuiltInJSTypeName.Object
     );
 
     addArrayIndexEdge(

@@ -14,7 +14,6 @@ export class ChildEdgeReferenceTracker {
   readonly #innerJointOwnersResolver: JointOwnersResolver<JointOwnershipTracker> = (
     childKey: number,
     jointOwnerKeys: readonly number[],
-    isStrongOwningReference: boolean,
     parentToChildEdgeId: number,
     tracker: JointOwnershipTracker
   ): void =>
@@ -24,7 +23,7 @@ export class ChildEdgeReferenceTracker {
       innerSet.delete(tracker);
     }
     this.#outerJointOwnersResolver(
-      childKey, jointOwnerKeys, isStrongOwningReference, parentToChildEdgeId, this
+      childKey, jointOwnerKeys, parentToChildEdgeId, this
     );
   }
 
@@ -67,7 +66,6 @@ export class ChildEdgeReferenceTracker {
   public defineChildEdge(
     childKey: number,
     jointOwnerKeys: readonly number[],
-    isStrongOwningReference: boolean,
     parentToChildEdgeId: number,
   ): void
   {
@@ -82,7 +80,6 @@ export class ChildEdgeReferenceTracker {
       this.#keyResolvedMap,
       childKey,
       jointOwnerKeys,
-      isStrongOwningReference,
       parentToChildEdgeId,
       this.#innerJointOwnersResolver
     );

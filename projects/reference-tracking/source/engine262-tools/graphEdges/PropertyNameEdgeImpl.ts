@@ -33,6 +33,7 @@ implements PropertyNameEdge
       parentObject,
       childObject,
       ChildReferenceEdgeType.PropertyName,
+      true,
       topDownSearch
     );
     this.propertyName = propertyName;

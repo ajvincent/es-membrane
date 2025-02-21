@@ -34,6 +34,7 @@ implements PropertySymbolEdge
       parentObject,
       childObject,
       ChildReferenceEdgeType.PropertySymbol,
+      true,
       topDownSearch
     );
 

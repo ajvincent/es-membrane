@@ -23,6 +23,7 @@ implements CollectionPseudoEdge
   constructor(
     parentObject: GuestEngine.ObjectValue,
     childObject: GuestEngine.ObjectValue,
+    isStrongOwningReference: boolean,
     topDownSearch: GuestValueRegistarIfc,
   )
   {
@@ -30,6 +31,7 @@ implements CollectionPseudoEdge
       parentObject,
       childObject,
       ChildReferenceEdgeType.CollectionPseudo,
+      isStrongOwningReference,
       topDownSearch
     );
   }

@@ -7,7 +7,7 @@ import type {
 } from "../../types/ReferenceGraph.js";
 
 import {
-  BuiltInCollectionName
+  BuiltInJSTypeName
 } from "../../utilities/constants.js";
 
 import type {
@@ -18,10 +18,10 @@ export class ReferenceGraphNodeImpl implements ReferenceGraphNode {
   static #getCollectionAndClassName(
     guestObject: GuestEngine.ObjectValue,
     realm: GuestEngine.ManagedRealm
-  ): [BuiltInCollectionName, string]
+  ): [BuiltInJSTypeName, string]
   {
     if (GuestEngine.isProxyExoticObject(guestObject)) {
-      return [BuiltInCollectionName.Proxy, BuiltInCollectionName.Proxy];
+      return [BuiltInJSTypeName.Proxy, BuiltInJSTypeName.Proxy];
     }
 
     let isDirectMatch = true;
@@ -35,11 +35,11 @@ export class ReferenceGraphNodeImpl implements ReferenceGraphNode {
     while (proto.type !== "Null") {
       switch (proto) {
         case realm.Intrinsics["%Array.prototype%"]:
-          return [BuiltInCollectionName.Array, isDirectMatch ? BuiltInCollectionName.Array : derivedClassName];
+          return [BuiltInJSTypeName.Array, isDirectMatch ? BuiltInJSTypeName.Array : derivedClassName];
         case realm.Intrinsics["%Object.prototype%"]:
-          return [BuiltInCollectionName.Object, isDirectMatch ? BuiltInCollectionName.Object : derivedClassName];
+          return [BuiltInJSTypeName.Object, isDirectMatch ? BuiltInJSTypeName.Object : derivedClassName];
         case realm.Intrinsics["%WeakRef.prototype%"]:
-          return [BuiltInCollectionName.WeakRef, isDirectMatch ? BuiltInCollectionName.WeakRef : derivedClassName];
+          return [BuiltInJSTypeName.WeakRef, isDirectMatch ? BuiltInJSTypeName.WeakRef : derivedClassName];
       }
 
       isDirectMatch = false;
@@ -47,11 +47,11 @@ export class ReferenceGraphNodeImpl implements ReferenceGraphNode {
       proto = value.GetPrototypeOf();
     }
 
-    return [BuiltInCollectionName.Object, isDirectMatch ? BuiltInCollectionName.Object : derivedClassName];
+    return [BuiltInJSTypeName.Object, isDirectMatch ? BuiltInJSTypeName.Object : derivedClassName];
   }
 
   readonly objectKey: number;
-  readonly builtInClassName: BuiltInCollectionName;
+  readonly builtInJSTypeName: BuiltInJSTypeName;
   readonly derivedClassName: string;
 
   constructor(
@@ -62,7 +62,7 @@ export class ReferenceGraphNodeImpl implements ReferenceGraphNode {
   {
     this.objectKey = numericKeyMap.getKeyForHeldObject(guestObject);
     [
-      this.builtInClassName,
+      this.builtInJSTypeName,
       this.derivedClassName
     ] = ReferenceGraphNodeImpl.#getCollectionAndClassName(guestObject, realm);
   }

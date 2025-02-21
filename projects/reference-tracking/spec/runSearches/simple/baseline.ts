@@ -19,7 +19,7 @@ import type {
 } from "../../../source/types/ReferenceGraph.js";
 
 import {
-  BuiltInCollectionName,
+  BuiltInJSTypeName,
   PRESUMED_HELD_NODE_KEY,
   TARGET_NODE_KEY,
 } from "../../../source/utilities/constants.js";
@@ -50,13 +50,13 @@ describe("Simple graph searches:" , () => {
     addObjectToGraphs(
       ExpectedGraph,
       TARGET_NODE_KEY,
-      BuiltInCollectionName.Object,
+      BuiltInJSTypeName.Object,
       "Object"
     );
     addObjectToGraphs(
       ExpectedGraph,
       PRESUMED_HELD_NODE_KEY,
-      BuiltInCollectionName.Array,
+      BuiltInJSTypeName.Array,
       "Array"
     );
 
@@ -101,19 +101,19 @@ describe("Simple graph searches:" , () => {
     addObjectToGraphs(
       ExpectedGraph,
       TARGET_NODE_KEY,
-      BuiltInCollectionName.Object,
+      BuiltInJSTypeName.Object,
       "Object"
     );
     addObjectToGraphs(
       ExpectedGraph,
       PRESUMED_HELD_NODE_KEY,
-      BuiltInCollectionName.Array,
+      BuiltInJSTypeName.Array,
       "Array"
     );
     addObjectToGraphs(
       ExpectedGraph,
       GraphCodes.nodes.arrayHoldingTarget,
-      BuiltInCollectionName.Array,
+      BuiltInJSTypeName.Array,
       "Array"
     );
 
@@ -167,19 +167,19 @@ describe("Simple graph searches:" , () => {
     addObjectToGraphs(
       ExpectedGraph,
       TARGET_NODE_KEY,
-      BuiltInCollectionName.Object,
+      BuiltInJSTypeName.Object,
       "Object"
     );
     addObjectToGraphs(
       ExpectedGraph,
       PRESUMED_HELD_NODE_KEY,
-      BuiltInCollectionName.Array,
+      BuiltInJSTypeName.Array,
       "Array"
     );
     addObjectToGraphs(
       ExpectedGraph,
       GraphCodes.nodes.objectHoldingTarget,
-      BuiltInCollectionName.Object,
+      BuiltInJSTypeName.Object,
       "Object"
     );
 
@@ -235,19 +235,19 @@ describe("Simple graph searches:" , () => {
     addObjectToGraphs(
       ExpectedGraph,
       TARGET_NODE_KEY,
-      BuiltInCollectionName.Object,
+      BuiltInJSTypeName.Object,
       "Object"
     );
     addObjectToGraphs(
       ExpectedGraph,
       PRESUMED_HELD_NODE_KEY,
-      BuiltInCollectionName.Array,
+      BuiltInJSTypeName.Array,
       "Array"
     );
     addObjectToGraphs(
       ExpectedGraph,
       GraphCodes.nodes.objectHoldingTarget,
-      BuiltInCollectionName.Object,
+      BuiltInJSTypeName.Object,
       "Object"
     );
 

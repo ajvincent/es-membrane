@@ -26,6 +26,7 @@ implements InternalSlotEdge
     parentObject: GuestEngine.ObjectValue,
     slotName: `[[${string}]]`,
     childObject: GuestEngine.ObjectValue,
+    isStrongOwningReference: boolean,
     topDownSearch: GuestValueRegistarIfc,
   )
   {
@@ -33,6 +34,7 @@ implements InternalSlotEdge
       parentObject,
       childObject,
       ChildReferenceEdgeType.InternalSlot,
+      isStrongOwningReference,
       topDownSearch
     );
     this.slotName = slotName;

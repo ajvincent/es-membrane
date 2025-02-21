@@ -1,5 +1,5 @@
 import {
-  BuiltInCollectionName,
+  BuiltInJSTypeName,
   ChildReferenceEdgeType,
 } from "../utilities/constants.ts";
 
@@ -10,14 +10,13 @@ import {
 
 export interface ReferenceGraphNode {
   readonly objectKey: number;
-  readonly builtInClassName: BuiltInCollectionName;
+  readonly builtInJSTypeName: BuiltInJSTypeName;
   readonly derivedClassName: string;
 }
 
 export interface ChildToParentReferenceGraphEdge {
   readonly childObjectKey: number;
   readonly jointOwnerKeys: number[];
-  readonly isStrongOwningReference: boolean;
   readonly parentToChildEdgeId: number,
 }
 
@@ -52,10 +51,11 @@ export interface CollectionToKeyValueEdge {
 //#region parent-to-child graph edges
 
 export interface BaseParentToChildReferenceGraphEdge<EdgeType extends ChildReferenceEdgeType> {
-  readonly parentObjectKey: number,
-  readonly childObjectKey: number,
-  readonly parentToChildEdgeType: EdgeType,
-  readonly parentToChildEdgeId: number,
+  readonly parentObjectKey: number;
+  readonly childObjectKey: number;
+  readonly parentToChildEdgeType: EdgeType;
+  readonly parentToChildEdgeId: number;
+  readonly isStrongOwningReference: boolean;
 }
 
 export interface PropertyNameEdge extends BaseParentToChildReferenceGraphEdge<ChildReferenceEdgeType.PropertyName> {
