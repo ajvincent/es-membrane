@@ -1,15 +1,12 @@
 import {
   BuiltInJSTypeName,
-  ChildReferenceEdgeType,
 } from "../../utilities/constants.ts";
 
 import type {
   ChildToParentReferenceGraphEdge,
-  BaseParentToChildReferenceGraphEdge,
   CollectionToKeyValueEdge,
+  ParentToChildReferenceGraphEdge,
 } from "../../types/ReferenceGraph.d.ts";
-
-export type ParentToChildEdge = BaseParentToChildReferenceGraphEdge<ChildReferenceEdgeType>;
 
 export interface TopDownSearchNumericIfc {
   //readonly strongReferencesOnly: boolean;
@@ -29,6 +26,10 @@ export interface TopDownSearchNumericIfc {
     derivedClassName: string
   ): number;
 
+  excludeObjectFromSearch(
+    graphObject: object
+  ): void;
+
   obtainSymbolKey(
     graphSymbol: symbol
   ): number;
@@ -36,6 +37,9 @@ export interface TopDownSearchNumericIfc {
   getNextParentToChildEdgeId(): number;
 
   addChildToParentEdge(childEdge: ChildToParentReferenceGraphEdge): void;
-  addParentToChildEdge(parentToChildEdge: ParentToChildEdge): void;
+  addParentToChildEdge(parentToChildEdge: ParentToChildReferenceGraphEdge): void;
   addCollectionToKeyValueEdge(collectionEdge: CollectionToKeyValueEdge): void;
+
+  markHeldValuesAsStrongReference(): void;
+  markStrongReferences(): void;
 }
