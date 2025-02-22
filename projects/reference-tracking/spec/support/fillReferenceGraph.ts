@@ -58,14 +58,15 @@ export function addArrayIndexEdge(
     arrayIndex,
     childObjectKey,
     parentToChildEdgeId,
-    isStrongOwningReference: true,
     parentToChildEdgeType: ChildReferenceEdgeType.ArrayIndex,
+    isStrongOwningReference: true,
   };
 
   const childToParentEdges: ChildToParentReferenceGraphEdge = {
     childObjectKey,
     jointOwnerKeys: [parentObjectKey],
-    parentToChildEdgeId
+    parentToChildEdgeId,
+    isMarkedStrongEdge: true,
   };
 
   graph.parentToChildEdges.push(arrayEdge);
@@ -92,7 +93,8 @@ export function addPropertyNameEdge(
   const childToParentEdges: ChildToParentReferenceGraphEdge = {
     childObjectKey,
     jointOwnerKeys: [parentObjectKey],
-    parentToChildEdgeId
+    parentToChildEdgeId,
+    isMarkedStrongEdge: true,
   };
 
   graph.parentToChildEdges.push(propertyEdge);
@@ -121,7 +123,8 @@ export function addPropertySymbolEdge(
   const childToParentEdges: ChildToParentReferenceGraphEdge = {
     childObjectKey,
     jointOwnerKeys: [parentObjectKey],
-    parentToChildEdgeId
+    parentToChildEdgeId,
+    isMarkedStrongEdge: true,
   };
 
   graph.parentToChildEdges.push(propertyEdge);
@@ -149,7 +152,8 @@ export function addInternalSlotEdge(
   const childToParentsEdge: ChildToParentReferenceGraphEdge = {
     childObjectKey,
     jointOwnerKeys: [parentObjectKey],
-    parentToChildEdgeId
+    parentToChildEdgeId,
+    isMarkedStrongEdge: isStrongOwningReference
   };
 
   graph.parentToChildEdges.push(slotEdge);

@@ -69,7 +69,8 @@ describe("BottomUpSearchForChildEdges", () => {
     const childToParentEdges: ChildToParentReferenceGraphEdge = {
       childObjectKey,
       jointOwnerKeys: [parentObjectKey],
-      parentToChildEdgeId
+      parentToChildEdgeId,
+      isMarkedStrongEdge: true,
     };
 
     TopSearchGraph.parentToChildEdges.push(arrayEdge);

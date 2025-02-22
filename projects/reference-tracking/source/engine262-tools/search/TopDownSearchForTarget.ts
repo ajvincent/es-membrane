@@ -250,6 +250,7 @@ implements ReadonlyDeep<ReferenceGraph>, GuestValueRegistarIfc
       parentToChildEdgeId,
       this
     );
+    childEdge.isMarkedStrongEdge = true;
     this.childToParentEdges.push(childEdge);
     this.#resolveObjectKey(childKey);
 

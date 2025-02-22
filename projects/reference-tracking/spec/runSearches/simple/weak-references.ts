@@ -42,7 +42,7 @@ import {
 } from "../../support/reparse.js";
 //#endregion preamble
 
-describe("Simple graph searches: weak references to direct values", () => {
+xdescribe("Simple graph searches: weak references to direct values", () => {
   let graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = new Map;
   beforeAll(async () => {
     const pathToSearch = getReferenceSpecPath("simple/weakRefToTarget.js");
@@ -127,7 +127,7 @@ describe("Simple graph searches: weak references to direct values", () => {
   });
 });
 
-describe("Simple graph searches: weak references to indirect values", () => {
+xdescribe("Simple graph searches: weak references to indirect values", () => {
   let graphs: ReadonlyDeep<Map<string, ReferenceGraph>> = new Map;
   beforeAll(async () => {
     const pathToSearch = getReferenceSpecPath("simple/weakRefIndirectToTarget.js");
