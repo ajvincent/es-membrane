@@ -14,6 +14,7 @@ export class ChildToParentImpl implements ChildToParentReferenceGraphEdge {
   readonly childObjectKey: number;
   readonly jointOwnerKeys: number[];
   readonly parentToChildEdgeId: number;
+  isMarkedStrongEdge = false;
 
   constructor(
     childObject: GuestEngine.ObjectValue,

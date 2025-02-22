@@ -18,6 +18,7 @@ export interface ChildToParentReferenceGraphEdge {
   readonly childObjectKey: number;
   readonly jointOwnerKeys: number[];
   readonly parentToChildEdgeId: number,
+  isMarkedStrongEdge: boolean;
 }
 
 /**
