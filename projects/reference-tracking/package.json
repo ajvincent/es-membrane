@@ -29,7 +29,6 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
-    "@dagrejs/dagre": "^1.1.4",
     "@engine262/engine262": "^0.0.1-dd05c163162914b12baca4fbabb6e9ce99a217bc",
     "import-meta-resolve": "^4.1.0",
     "type-fest": "^4.32.0"

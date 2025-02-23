@@ -1,24 +1,28 @@
+import type {
+  graphlib
+} from "@dagrejs/dagre";
+
 import {
   buildDagreGraph
-} from "../../source/dagre-tools/buildGraph.js";
+} from "../dagre-tools/buildGraph.js";
+
+import {
+  ReferenceGraphImpl
+} from "../engine262-tools/search/ReferenceGraphImpl.js";
 
 import {
   TARGET_NODE_KEY,
   BuiltInJSTypeName,
   PRESUMED_HELD_NODE_KEY
-} from "../../source/utilities/constants.js";
-
-import {
-  ReferenceGraphImpl
-} from "../../source/engine262-tools/search/ReferenceGraphImpl.js";
+} from "../utilities/constants.js";
 
 import {
   addObjectToGraphs,
   addArrayIndexEdge,
   addPropertyNameEdge
-} from "../support/fillReferenceGraph.js";
+} from "../../spec/support/fillReferenceGraph.js";
 
-it("basic test for building a dagre graph from a ReferenceGraph", () => {
+export function buildDummyGraph(): graphlib.Graph {
   const engineGraph = new ReferenceGraphImpl();
 
   engineGraph.foundTargetValue = true;
@@ -33,7 +37,7 @@ it("basic test for building a dagre graph from a ReferenceGraph", () => {
       objectHoldingTarget: 1,
       targetToHoldingObject: 3,
     }
-  }
+  };
 
   addObjectToGraphs(
     engineGraph,
@@ -59,7 +63,7 @@ it("basic test for building a dagre graph from a ReferenceGraph", () => {
     PRESUMED_HELD_NODE_KEY,
     1,
     GraphCodes.nodes.objectHoldingTarget,
-    GraphCodes.parentEdgeIds.objectHoldingTarget,
+    GraphCodes.parentEdgeIds.objectHoldingTarget
   );
 
   addPropertyNameEdge(
@@ -67,16 +71,9 @@ it("basic test for building a dagre graph from a ReferenceGraph", () => {
     GraphCodes.nodes.objectHoldingTarget,
     "target",
     TARGET_NODE_KEY,
-    GraphCodes.parentEdgeIds.targetToHoldingObject,
+    GraphCodes.parentEdgeIds.targetToHoldingObject
   );
 
   const dagreGraph = buildDagreGraph(engineGraph);
-  expect(dagreGraph).toBeDefined();
-
-  /*
-  const output: object = {
-    nodes: Object.fromEntries(dagreGraph.nodes().map(v => [v, reparse(dagreGraph.node(v))])),
-    edges: Object.fromEntries(dagreGraph.edges().map(e => [e.v + " -> " + e.w, reparse(dagreGraph.edge(e))]))
-  };
-  */
-});
+  return dagreGraph;
+}
