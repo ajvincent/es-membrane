@@ -25,7 +25,7 @@ I became too excited at this idea, spending an entire Saturday prototyping this 
   - [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/API/SVGGraphicsElement/getBBox) says it's part of SVG and has been forever.
   - [`JSDOM` has an open bug](https://github.com/jsdom/jsdom/issues/2647) that isn't going anywhere towards this.
     - [specification link if anyone's interested](https://svgwg.org/svg2-draft/types.html#__svg__SVGGraphicsElement__getBBox)
-- [Cytoscape] is a Canvas-based approach to rendering graphs.  Very powerful...
+- [Cytoscape](https://js.cytoscape.org/) is a Canvas-based approach to rendering graphs.  Very powerful...
   - but because it's Canvas-based, that means JavaScript execution, which [JSDOM explicitly warns us against](https://github.com/jsdom/jsdom?tab=readme-ov-file#executing-scripts).
 
 So that's the state of the work on this so far.  Plus when I'm trying to stabilize / implement my data model, it's too soon to work on visualization.  I was hoping this would be a quick task, to use for my [theory page](../../THEORY.md), but after several hours when the images I need would take maybe thirty minutes to do by hand _each_, it's not worth it right now.
