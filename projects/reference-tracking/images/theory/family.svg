@@ -52,7 +52,7 @@
     </g>
   </defs>
 
-  <rect x="0" y="0" width="300" height="300" fill="white"/>
+  <rect x="0" y="0" width="300" height="300" fill="#feffff"/>
 
   <g id="nodes">
     <g transform="translate(50, 50)">
