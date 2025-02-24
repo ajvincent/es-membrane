@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" fill="white">
+  <style type="text/css"><![CDATA[
+    text {
+      alignment-baseline: middle;
+      text-anchor: middle;
+      fill: black;
+      font-size: 14px;
+    }
+
+    circle, line {
+      stroke-width: 2px;
+    }
+
+    circle {
+      fill: none;
+    }
+
+    line {
+      stroke: black;
+    }
+  ]]></style>
+
+  <defs>
+    <circle id="node" cx="0" cy="0" r="40" stroke="black"/>
+
+    <g id="source">
+      <circle cx="0" cy="0" r="40" stroke="green"/>
+      <circle cx="0" cy="0" r="46" stroke="green"/>
+    </g>
+
+    <g id="sink">
+      <circle cx="0" cy="0" r="40" stroke="red"/>
+      <circle cx="0" cy="0" r="46" stroke="red"/>
+    </g>
+
+    <g id="horizontal-right-edge">
+      <line x1="-35" y1="0" x2="35" y2="0"/>
+      <line x1="35" y1="0" x2="30" y2="-5"/>
+      <line x1="35" y1="0" x2="30" y2="5"/>
+    </g>
+
+    <g id="vertical-down-edge">
+      <line x1="0" y1="-35" x2="0" y2="35"/>
+      <line x1="0" y1="35" x2="-5" y2="30"/>
+      <line x1="0" y1="35" x2="5" y2="30"/>
+    </g>
+
+    <g id="right-up-edge">
+      <line x1="-47" y1="47" x2="47" y2="-47"/>
+      <line x1="47" y1="-47" x2="40" y2="-47"/>
+      <line x1="47" y1="-47" x2="47" y2="-40"/>
+    </g>
+  </defs>
+
+  <g id="nodes">
+    <g transform="translate(50, 50)">
+      <use href="#source"/>
+      <text x="0" y="0">Fred</text>
+    </g>
+
+    <g transform="translate(50, 200)">
+      <use href="#node"/>
+      <text>Wilma</text>
+    </g>
+
+    <g transform="translate(200, 50)">
+      <use href="#sink"/>
+      <text x="0" y="0">Pebbles</text>
+    </g>
+  </g>
+
+  <g id="edges">
+    <g transform="translate(50, 125)">
+      <use href="#vertical-down-edge"/>
+      <text x="20" y="0">wife</text>
+    </g>
+
+    <g transform="translate(125, 50)">
+      <use href="#horizontal-right-edge"/>
+      <text x="0" y="-8">daughter</text>
+    </g>
+
+    <g transform="translate(125, 125)">
+      <use href="#right-up-edge"/>
+      <text x="0" y="-8" transform="rotate(-45)">daughter</text>
+    </g>
+  </g>
+</svg>

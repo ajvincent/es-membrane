@@ -201,7 +201,7 @@ const Bicycle = {
 }
 
 let vehicleToOwnerMap = new Map();
-allVehicles.set(Bicycle, Barney);
+vehicleToOwnerMap.set(Bicycle, Barney);
 
 console.log(vehicleToOwnerMap.get(Bicycle).firstName); // Barney
 
@@ -215,6 +215,7 @@ This may be obvious to any seasoned JavaScript developer:  you can get to the ke
 What's _not_ obvious is you actually need _both_ the key _and the map_ to look up the value.  Sure, I just iterated over all the values, but that's partly because the map holds the keys strongly.  (In reality, this may be a false claim, as `Map` objects by definition hold both.)
 
 If I had then done:
+
 ```javascript
 vehicleToOwnerMap = undefined;
 ```
@@ -234,7 +235,7 @@ const Bicycle = {
 }
 
 let vehicleToOwnerMap = new WeakMap();
-allVehicles.set(Bicycle, Barney);
+vehicleToOwnerMap.set(Bicycle, Barney);
 
 console.log(vehicleToOwnerMap.get(Bicycle).firstName); // "Barney"
 
@@ -265,7 +266,7 @@ There's no method of `Object` or `Reflect` that will _guarantee_ you all the val
 
 [The ECMA TC-39 Working Group](https://tc39.es) maintains the ECMAScript standard, which defines the core of the JavaScript language.  So everything I just described comes from the [ECMA-262 specification](https://tc39.es/ecma262/).
 
-### One object is "reachable" from another object if there is a chain of references from the latter object to the former.
+### One object is "reachable" from another object if there is a chain of references from the latter object to the former
 
 This point is worth emphasizing again, as a example of what it means to be "reachable".  I will skip writing a formal definition.
 
@@ -314,21 +315,29 @@ const Truck = {
 
 ### Graph theory has concepts for these ideas already (with some translation)
 
-[image needed](https://www.example.com/image-needed)
-
 In graph theory, we build a graph from _nodes_ and _edges_.  The nodes in our case define values, and the edges define how you get from one value to another.
 
 ### We can represent these objects in graph theory
+
 ```javascript
+const Wilma = {
+  firstName: "Wilma",
+  lastName: "Fredstone"
+}
+
 const Fred = {
   firstName: "Fred",
-  lastName: "Flintstone"
+  lastName: "Flintstone",
+  wife: Wilma
 };
+
 const Truck = {
   type: "Automobile",
   owner: Fred
 }
 ```
+
+![Fred and his truck, basic graph theory example](images/theory/basicNodesAndEdges.svg)
 
 We would consider `Truck` and `Fred` as _nodes_, and there is a _directed edge_ (the property name "owner") from `Truck` to `Fred`.
 
@@ -338,7 +347,56 @@ Graph theory depends on a single edge from one node to one node.  Period.  This 
 
 ### Multiple graph edges can refer to a graph node
 
+```javascript
+const Pebbles = {
+  firstName: "Pebbles",
+  lastName: "Rubble"
+}
+
+const Wilma = {
+  firstName: "Wilma",
+  lastName: "Fredstone",
+  daughter: Pebbles,
+}
+
+const Fred = {
+  firstName: "Fred",
+  lastName: "Flintstone",
+  wife: Wilma,
+  daughter: Pebbles
+};
+
+```
+
+![Fred and his family](images/theory/family.svg)
+
 ### We can define new nodes and edges if we need to
+
+How would we represent a `WeakMap` key-value relationship?
+
+```javascript
+const Barney = {
+  firstName: "Barney",
+  lastName: "Rubble",
+};
+
+const Bicycle = {
+  type: "Two-wheeler",
+};
+
+let vehicleToOwnerMap = new WeakMap();
+vehicleToOwnerMap.set(Bicycle, Barney);
+```
+
+From the perspective of the weak map ("who do I refer to"), the graph looks like this:
+
+![weakmap to value](images/theory/weakMap-to-value.svg)
+
+From the perspective of Fred ("who owns me"), the graph is slightly different:
+
+![value to weakmap](images/theory/value-to-weakMap.svg)
+
+This distinction matters, and it's why I have two different types of edges in my graphs.  The former represents _references_.  The latter represents _ownership_.
 
 ## What are we trying to do? (Goals)
 
@@ -347,6 +405,20 @@ Graph theory depends on a single edge from one node to one node.  Period.  This 
 ### Show if the target is held strongly by the held values (directly or indirectly)
 
 ### Run multiple searches
+
+## A side note
+
+When I started this project, I was thinking this was just a traversal: start from a set of objects we presume to hold, and see if we can reach a target object.  But then I started thinking, "if the set of objects includes `globalThis`, isn't this a little like the mark operation of mark-and-sweep garbage collection?`  Then there was this sentence on MDN about [garbage collection](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_management#release_when_the_memory_is_not_needed_anymore):
+
+"...the general problem of determining whether or not a specific piece of memory is still needed is [undecidable](https://en.wikipedia.org/wiki/Decidability_%28logic%29)."
+
+Uh-oh.  Have I entered into a holodeck that won't let me out?
+
+No.  My confusion stemmed from [the difference between "syntactic garbage" and "semantic garbage"](https://en.wikipedia.org/wiki/Tracing_garbage_collection#Reachability_of_an_object).  Wikipedia's explanation is refreshingly clear.  (Though I would prefer to cite an academic source, one less likely to change after I write this.)
+
+Simply put, I'm more interested in what objects are reachable, and less so in trying to decide if we've passed a point where we don't need an object.  The reason I'm interested is that's what the JavaScript engine will be tracking.
+
+So yes, this might indeed be re-implementing the mark operation of mark-and-sweep.
 
 ## What do we need to capture?  (Data, Requirements)
 
