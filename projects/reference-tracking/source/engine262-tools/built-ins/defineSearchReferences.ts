@@ -42,7 +42,7 @@ export function defineSearchReferences(
       guestThisArg: GuestEngine.Value,
       guestArguments: readonly GuestEngine.Value[],
       guestNewTarget: GuestEngine.Value
-    ): ThrowOr<GuestEngine.BooleanValue>
+    ): ThrowOr<GuestEngine.UndefinedValue>
     {
       void(guestThisArg);
       void(guestNewTarget);
@@ -67,11 +67,11 @@ export function defineSearchReferences(
       const graph: ThrowOr<ReadonlyDeep<ReferenceGraph> | undefined> = searchDriver.run();
       if (graph instanceof GuestEngine.ThrowCompletion)
         return graph;
-      if (!graph)
-        return GuestEngine.Value.false;
-      searchResultsMap.set(searchArgs.resultsKey, graph);
 
-      return graph.succeeded ? GuestEngine.Value.true : GuestEngine.Value.false;
+      if (graph)
+        searchResultsMap.set(searchArgs.resultsKey, graph);
+
+      return GuestEngine.Value.undefined;
     }
   )
 }
