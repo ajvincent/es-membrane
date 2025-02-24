@@ -2,7 +2,19 @@
 
 This document will start with some fundamentals of JavaScript, and of object-oriented programming in general.  From these axioms, I will craft a theory of how to actually extract these references and collect the information we need to answer the question, "is this object _reachable_ from these other objects?"
 
-I do want to emphasize the question is _not_ "is this object reachable at all?"  That way lies garbage collection, a problem which is undecidable.  (Citation really needed.)  At the time I write this, I don't know if my tighter question is undecidable.  (One clear area of concern is [function closures](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures), which are surprisingly common.  See [Promise.then()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then).)
+## What are I trying to do? (Goals)
+
+### Show how we get from a set of "held objects" to a target object
+
+Ideally, we could just call a function in JavaScript to determine if there's a chain of custody from one set of objects to the target object.
+
+### Show if the target is held strongly by the held values (directly or indirectly)
+
+I really want to know if I'm inadvertently leaking memory by holding a strong reference I lost track of, or causing this as a side effect I didn't anticipate.
+
+### Run multiple searches
+
+If I can ask this question once, there's no real reason I can't ask the question again, with different sources or targets.
 
 ## What we know about objects in JavaScript (Axioms of JavaScript)
 
@@ -253,7 +265,7 @@ Specifically,
 - `WeakRef`'s internal value
 - `WeakMap`'s keys and values
 - `WeakSet`'s values
-- `FinalizationRegistry`
+- `FinalizationRegistry` (to the registered values, held values and unregister tokens)
 - `Proxy` (to the proxy target and the proxy handler)
 - `Proxy.revocable` (from the revoker function to the proxy... [this has caused some pain](https://issues.chromium.org/issues/42201499) [in the past](https://bugzilla.mozilla.org/show_bug.cgi?id=1694781))
 - private class fields
@@ -398,14 +410,6 @@ From the perspective of Fred ("who owns me"), the graph is slightly different:
 
 This distinction matters, and it's why I have two different types of edges in my graphs.  The former represents _references_.  The latter represents _ownership_.
 
-## What are we trying to do? (Goals)
-
-### Show how we get from a set of "held objects" to a target object
-
-### Show if the target is held strongly by the held values (directly or indirectly)
-
-### Run multiple searches
-
 ## A side note
 
 When I started this project, I was thinking this was just a traversal: start from a set of objects we presume to hold, and see if we can reach a target object.  But then I started thinking, "if the set of objects includes `globalThis`, isn't this a little like the mark operation of mark-and-sweep garbage collection?`  Then there was this sentence on MDN about [garbage collection](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_management#release_when_the_memory_is_not_needed_anymore):
@@ -418,32 +422,75 @@ No.  My confusion stemmed from [the difference between "syntactic garbage" and "
 
 Simply put, I'm more interested in what objects are reachable, and less so in trying to decide if we've passed a point where we don't need an object.  The reason I'm interested is that's what the JavaScript engine will be tracking.
 
-So yes, this might indeed be re-implementing the mark operation of mark-and-sweep.
-
 ## What do we need to capture?  (Data, Requirements)
 
-### Objects as nodes
-
-### References from parent to child object ("parent-to-child edges")
-
-### Metadata about the references (property name, etc.)
-
-### Ownership of an object ("child-to-parent edges")
-
-### Maps and Sets references with multiple owners
+- Objects as graph nodes, first because that's what they are mathematically, and second because there are good tools to visualize graphs.
+- References from a parent object to a child object ("parent-to-child edges").  This is one class of edge, primarily to tell us the property name, internal slot, etc. on "how we get there".
+- Is it a strong reference, or is the child held weakly (say, as a key in a `WeakMap`)?
+- Ownership of an object: what nodes have to be held strongly for a child node to be held strongly?  ("child-to-parent edges")
 
 ## What can we use to capture and show this data?  (Tools)
 
-### engine262
+### A separate JavaScript engine: engine262
+
+I've mentioned several ways where we can't inspect the internal values of an object (private class fields, weak map keys, etc.)... _within_ the JavaScript scope being run.  They're inacccessible.
+
+So, I don't try.  Instead, I run the JavaScript code I wish to exercise in _another JavaScript engine_.  One where we can access those pesky internal slots from the outside.
+
+The `engine262` project is perfect for this.  It's a JavaScript implementation of an ECMAScript engine, to run in NodeJS ([or a web browser](https://engine262.js.org/), if you're so inclined).  My approach is to create a new built-in function, `searchReferences()`, for scripts running in `engine262` to call.  This gives me a sandbox to make sure I haven't brought anything non-ECMAScript in, and I can inspect the internal slots of `engine262` to answer my questions.
+
+The `searchReferences()` method takes four arguments:
+
+```typescript
+/**
+ * @param resultKey - an unique string key so searches can be distinguished from one another.
+ * @param targetValue - the target we're searching for.
+ * @param heldValues - the objects we presume are held strongly
+ * @param strongReferencesOnly - true if we should ignore weak references.
+ */
+declare function searchReferences(
+  this: void,
+  resultsKey: string,
+  targetValue: object,
+  heldValues: readonly object[],
+  strongReferencesOnly: boolean,
+): void;
+```
 
 ### JSON
 
-### graphlib
+Serializing and later parsing the data is paramount.  ECMAScript supports the JSON standard, which is a natural fit for this.
 
-### dagre
+One conscious decision I am making is to represent all objects by a numeric identifier, and all graph edges by another.  The reason is, aside from the held values array and the target value, no object in this graph is more important than any other.
 
-### Cytoscape
+The target value will have id 0, and the held values array will have id 1.
+
+I may change my mind on this later, for purposes of fitting into a conventional graph definition in the next section.
+
+### graphlib and dagre
+
+Once we have our extracted graph, showing how we get from the held values to the target, it would be really nice to create a visualization of that.  This transitions us from NodeJS to browsers, or more precisely from an environment where we don't need a GUI to one where we do.
+
+The `graphlib` library allows defining nodes and edges of a graph formally, and transform between serialized JSON and the graph.  `Dagre` is a tool for computing where, given certain constraints, these nodes and edges _should live in a coordinate space_ for rendering.
+
+### D3 or Cytoscape
+
+Here, we're firmly in a web browser environment:  `D3` provides tools to build SVG graphs from the output `Dagre` generates, while `Cytoscape` generates canvas elements.
+
+[I will note I was unsuccessful in using dagre, D3 and Cytoscape my first time.](./source/dagre-tools/README.md).  But that's because I was trying too hard to do something quickly.  This is going to require a bit more study on my part to integrate properly.
 
 ## How can we use these tools?  (Approach)
 
-## Data structures
+1. Define a special directory, `reference-spec`, for ECMAScript standard-compliant code plus the `searchReferences()` function to live in.
+2. Craft a driver to invoke `engine262` on the `reference-spec` files, with an implementation of the `searchReferences()` built-in function.
+3. Create a set of classes to represent the ECMASCript objects as nodes and the relationships as edges.  (I'll worry about formal graph definitions later.)
+4. The implementation for `searchReferences` will do three operations:
+  a. Create a graph of objects and references from the held values array.
+  b. If `strongReferencesOnly` is true, search the graph for strong references to the target value.
+  c. Create another graph from the first graph, copying only the objects and references connecting the target to the held values.
+5. Write many tests to exhaustively confirm this approach works in small bites, recursively.
+6. Write a couple of larger realistic integration tests to confirm the data model is good.
+7. Formalize the graph structure for feeding to `dagre` and `graphlib`.
+8. Feed the graph structures and verify the `dagre` coordinates are indeed useful.
+9. Provide API to run a `reference-spec` file and output the resulting graphs for consumers.
+10. Build out a HTML-based tool integrating the output with rendering libraries, for the visualization. (Help really wanted with this!)
