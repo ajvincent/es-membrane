@@ -481,16 +481,16 @@ Here, we're firmly in a web browser environment:  `D3` provides tools to build S
 
 ## How can we use these tools?  (Approach)
 
-1. Define a special directory, `reference-spec`, for ECMAScript standard-compliant code plus the `searchReferences()` function to live in.
-2. Craft a driver to invoke `engine262` on the `reference-spec` files, with an implementation of the `searchReferences()` built-in function.
-3. Create a set of classes to represent the ECMASCript objects as nodes and the relationships as edges.  (I'll worry about formal graph definitions later.)
-4. The implementation for `searchReferences` will do three operations:
-  a. Create a graph of objects and references from the held values array.
-  b. If `strongReferencesOnly` is true, search the graph for strong references to the target value.
-  c. Create another graph from the first graph, copying only the objects and references connecting the target to the held values.
-5. Write many tests to exhaustively confirm this approach works in small bites, recursively.
-6. Write a couple of larger realistic integration tests to confirm the data model is good.
-7. Formalize the graph structure for feeding to `dagre` and `graphlib`.
-8. Feed the graph structures and verify the `dagre` coordinates are indeed useful.
-9. Provide API to run a `reference-spec` file and output the resulting graphs for consumers.
-10. Build out a HTML-based tool integrating the output with rendering libraries, for the visualization. (Help really wanted with this!)
+- Define a special directory, `reference-spec`, for ECMAScript standard-compliant code plus the `searchReferences()` function to live in.
+- Craft a driver to invoke `engine262` on the `reference-spec` files, with an implementation of the `searchReferences()` built-in function.
+- Create a set of classes to represent the ECMASCript objects as nodes and the relationships as edges.  (I'll worry about formal graph definitions later.)
+- The implementation for `searchReferences` will do three operations:
+  - Create a graph of objects and references from the held values array.
+  - If `strongReferencesOnly` is true, search the graph for strong references to the target value.
+  - Create another graph from the first graph, copying only the objects and references connecting the target to the held values.
+- Write many tests to exhaustively confirm this approach works in small bites, recursively.
+- Write a couple of larger realistic integration tests to confirm the data model is good.
+- Formalize the graph structure for feeding to `dagre` and `graphlib`.
+- Feed the graph structures and verify the `dagre` coordinates are indeed useful.
+- Provide API to run a `reference-spec` file and output the resulting graphs for consumers.
+- Build out a HTML-based tool integrating the output with rendering libraries, for the visualization. (Help really wanted with this!)
