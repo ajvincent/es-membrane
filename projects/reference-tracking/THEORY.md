@@ -232,7 +232,7 @@ If I had then done:
 vehicleToOwnerMap = undefined;
 ```
 
-Barney becomes unreachable from the remaining key, `Bicycle`.  Sure, I could've done `vehicleToOwnerMap.clear();` instead, and that would have the same effect.
+Barney becomes unreachable from the remaining key, `Bicycle`.  I could've done `vehicleToOwnerMap.clear();` instead, and that would have the same effect.
 
 This point about two joint owners of the reference to `Barney` is much more tangible with a `WeakMap`.
 
@@ -323,7 +323,7 @@ const Truck = {
 // no guaranteed way to reach the person:  BlindTrust.deref() might return undefined, or Fred Flintstone.
 ```
 
-## What we know about objects in any programming language (Axioms of graph theory)
+## What we know about objects in any object-oriented programming language (Axioms of graph theory)
 
 ### Graph theory has concepts for these ideas already (with some translation)
 
@@ -353,7 +353,7 @@ const Truck = {
 
 We would consider `Truck` and `Fred` as _nodes_, and there is a _directed edge_ (the property name "owner") from `Truck` to `Fred`.
 
-I have realized, though, that this is partly incomplete.  Recall the `WeakMap` example above.  There, you need _two_ objects (the map and the key) to refer to a value.  So a simple "map owns key and key owns value" pair of edges isn't enough.
+This is partly incomplete, though.  Recall the `WeakMap` example above.  There, you need _two_ objects (the map and the key) to refer to a value.  So a simple "map owns key and key owns value" pair of edges isn't enough.
 
 Graph theory depends on a single edge from one node to one node.  Period.  This is an apparent contradiction, but I'll come back to that in a moment.
 
@@ -477,13 +477,13 @@ The `graphlib` library allows defining nodes and edges of a graph formally, and 
 
 Here, we're firmly in a web browser environment:  `D3` provides tools to build SVG graphs from the output `Dagre` generates, while `Cytoscape` generates canvas elements.
 
-[I will note I was unsuccessful in using dagre, D3 and Cytoscape my first time.](./source/dagre-tools/README.md).  But that's because I was trying too hard to do something quickly.  This is going to require a bit more study on my part to integrate properly.
+[I will note I was unsuccessful in using dagre, D3 and Cytoscape my first time.](./source/dagre-tools/README.md)  That's because I was trying too hard to do something quickly.  This is going to require a bit more study on my part to integrate properly.
 
 ## How can we use these tools?  (Approach)
 
 - Define a special directory, `reference-spec`, for ECMAScript standard-compliant code plus the `searchReferences()` function to live in.
 - Craft a driver to invoke `engine262` on the `reference-spec` files, with an implementation of the `searchReferences()` built-in function.
-- Create a set of classes to represent the ECMASCript objects as nodes and the relationships as edges.  (I'll worry about formal graph definitions later.)
+- Create a set of classes to represent the ECMAScript objects as nodes and the relationships as edges.  (I'll worry about formal graph definitions later.)
 - The implementation for `searchReferences` will do three operations:
   - Create a graph of objects and references from the held values array.
   - If `strongReferencesOnly` is true, search the graph for strong references to the target value.
