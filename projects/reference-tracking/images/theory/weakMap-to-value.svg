@@ -58,6 +58,8 @@
     </g>
   </defs>
 
+  <rect x="0" y="0" width="500" height="300" fill="white"/>
+
   <g id="nodes">
     <g transform="translate(50, 50)">
       <use href="#source"/>
