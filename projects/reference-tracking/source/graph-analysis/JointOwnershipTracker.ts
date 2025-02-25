@@ -1,6 +1,6 @@
 import type {
   JointOwnersResolver,
-} from "../types/JointOwnersResolver.js";
+} from "./types/JointOwnersResolver.js";
 
 export class JointOwnershipTracker {
   readonly #childKey: number;

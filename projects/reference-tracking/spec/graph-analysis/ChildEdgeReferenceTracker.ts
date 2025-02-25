@@ -1,10 +1,10 @@
 import type {
   JointOwnersResolver
-} from "../../../source/engine262-tools/types/JointOwnersResolver.js";
+} from "../../source/graph-analysis/types/JointOwnersResolver.js";
 
 import {
   ChildEdgeReferenceTracker
-} from "../../../source/engine262-tools/search/ChildEdgeReferenceTracker.js";
+} from "../../source/graph-analysis/ChildEdgeReferenceTracker.js";
 
 describe("ChildEdgeReferenceTracker", () => {
   const resolver = jasmine.createSpy<JointOwnersResolver<ChildEdgeReferenceTracker>>("resolver");

@@ -1,10 +1,10 @@
 import type {
   JointOwnersResolver
-} from "../../../source/engine262-tools/types/JointOwnersResolver.js";
+} from "../../source/graph-analysis/types/JointOwnersResolver.js";
 
 import {
   JointOwnershipTracker
-} from "../../../source/engine262-tools/search/JointOwnershipTracker.js";
+} from "../../source/graph-analysis/JointOwnershipTracker.js";
 
 describe("JointOwnershipTracker", () => {
   const resolver = jasmine.createSpy<JointOwnersResolver<JointOwnershipTracker>>("resolver");

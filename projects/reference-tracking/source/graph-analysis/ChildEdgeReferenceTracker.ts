@@ -1,6 +1,6 @@
 import type {
   JointOwnersResolver,
-} from "../types/JointOwnersResolver.js";
+} from "./types/JointOwnersResolver.js";
 
 import {
   JointOwnershipTracker,
