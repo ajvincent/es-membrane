@@ -21,6 +21,7 @@ export interface ObjectGraphIfc<
     parentObject: object,
     relationshipName: number | string | symbol,
     childObject: object,
+    isOwningReference: boolean,
     metadata: RelationshipMetadata,
   ): void;
 
