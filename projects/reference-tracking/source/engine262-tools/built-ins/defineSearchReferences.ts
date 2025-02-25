@@ -1,3 +1,4 @@
+/*
 import type {
   ReadonlyDeep
 } from "type-fest";
@@ -5,6 +6,7 @@ import type {
 import type {
   ReferenceGraph
 } from "../../types/ReferenceGraph.js";
+*/
 
 import {
   GuestEngine,
@@ -15,9 +17,11 @@ import {
   convertArrayValueToArrayOfValues
 } from "../convertArrayValueToArrayOfValues.js";
 
+/*
 import {
   SearchDriver
 } from "../search/Driver.js";
+*/
 
 import {
   defineBuiltInFunction
@@ -33,7 +37,9 @@ interface SearchReferencesArguments {
 export function defineSearchReferences(
   this: void,
   realm: GuestEngine.ManagedRealm,
+  /*
   searchResultsMap: Map<string, ReadonlyDeep<ReferenceGraph>>,
+  */
 ): void
 {
   defineBuiltInFunction(
@@ -51,6 +57,7 @@ export function defineSearchReferences(
       if (searchArgs instanceof GuestEngine.ThrowCompletion)
         return searchArgs;
 
+      /*
       if (searchResultsMap.has(searchArgs.resultsKey)) {
         return GuestEngine.Throw("Error", "Raw",
           `You already have a search with the results key ${JSON.stringify(searchArgs.resultsKey)}`
@@ -70,6 +77,7 @@ export function defineSearchReferences(
 
       if (graph)
         searchResultsMap.set(searchArgs.resultsKey, graph);
+      */
 
       return GuestEngine.Value.undefined;
     }

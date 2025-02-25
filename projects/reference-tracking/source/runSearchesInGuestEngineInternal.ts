@@ -1,3 +1,4 @@
+/*
 import type {
   ReadonlyDeep
 } from "type-fest";
@@ -83,3 +84,4 @@ function handleReport(
     return GuestEngine.Throw("TypeError", "Raw", `value must be undefined, a string, a boolean, a number, or null.`);
   return GuestEngine.Value.undefined;
 }
+*/

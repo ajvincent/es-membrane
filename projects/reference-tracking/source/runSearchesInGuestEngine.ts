@@ -1,3 +1,4 @@
+/*
 import type {
   ReadonlyDeep
 } from "type-fest";
@@ -21,11 +22,13 @@ import type {
 import type {
   ReferenceGraph,
 } from "./types/ReferenceGraph.js";
+*/
 
 export async function runSearchesInGuestEngine(
   absolutePathToFile: string,
-): Promise<ReadonlyDeep<Map<string, ReferenceGraph>>>
+): Promise<never>//Promise<ReadonlyDeep<Map<string, ReferenceGraph>>>
 {
+  /*
   const graphs = new Map<string, ReferenceGraph>;
 
   const outputs: GuestRealmOutputs = await directInvoke({
@@ -40,4 +43,7 @@ export async function runSearchesInGuestEngine(
   }
 
   return graphs;
+  */
+  void(absolutePathToFile);
+  return Promise.reject(new Error("rewriting"));
 }
