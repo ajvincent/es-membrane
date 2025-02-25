@@ -3,14 +3,14 @@ import path from "node:path";
 import {
   GuestEngine,
   type ThrowOr,
-} from "../../source/engine262-tools/GuestEngine.js";
+} from "../../../../source/engine262-tools/host-to-guest/GuestEngine.js";
 
-import { projectRoot } from "../support/projectRoot.js";
+import { projectRoot } from "../../../support/projectRoot.js";
 
-import { directInvoke } from "../../source/engine262-tools/directInvoke.js";
-import { defineReportFunction } from "../../source/engine262-tools/built-ins/engine262-demos/defineReportFunction.js";
-import { GuestRealmOutputs } from "../../source/engine262-tools/types/Virtualization262.js";
-import { defineAsyncPlusOneFunction } from "../../source/engine262-tools/built-ins/engine262-demos/defineAsyncPlusOneFunction.js";
+import { directInvoke } from "../../../../source/engine262-tools/host-to-guest/directInvoke.js";
+import { defineReportFunction } from "../../../../source/engine262-tools/built-ins/engine262-demos/defineReportFunction.js";
+import { GuestRealmOutputs } from "../../../../source/engine262-tools/types/Virtualization262.js";
+import { defineAsyncPlusOneFunction } from "../../../../source/engine262-tools/built-ins/engine262-demos/defineAsyncPlusOneFunction.js";
 
 const distFixturesDir = path.join(projectRoot, "dist/fixtures/engine262-demos");
 

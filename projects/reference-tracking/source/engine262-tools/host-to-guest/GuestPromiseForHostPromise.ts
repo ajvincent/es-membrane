@@ -1,11 +1,11 @@
 
 import {
   GuestEngine,
-} from "../GuestEngine.js";
+} from "./GuestEngine.js";
 
 import {
   RealmHostDefined
-} from "../RealmHostDefined.js";
+} from "./RealmHostDefined.js";
 
 export function convertHostPromiseToGuestPromise<
   ResolveType extends string | number | boolean | bigint | undefined,

@@ -1,6 +1,6 @@
 import {
   GuestEngine
-} from "../GuestEngine.js";
+} from "./GuestEngine.js";
 
 import {
   Deferred,

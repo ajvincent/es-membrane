@@ -1,7 +1,7 @@
 import {
   GuestEngine,
   ThrowOr
-} from "../../GuestEngine.js";
+} from "../../host-to-guest/GuestEngine.js";
 
 import {
   defineBuiltInFunction
@@ -9,7 +9,7 @@ import {
 
 import {
   convertHostPromiseToGuestPromise
-} from "../GuestPromiseForHostPromise.js";
+} from "../../host-to-guest/GuestPromiseForHostPromise.js";
 
 export function defineAsyncPlusOneFunction(
   realm: GuestEngine.ManagedRealm

@@ -11,11 +11,11 @@ import type {
 import {
   GuestEngine,
   type ThrowOr,
-} from "../GuestEngine.js";
+} from "../host-to-guest/GuestEngine.js";
 
 import {
   convertArrayValueToArrayOfValues
-} from "../convertArrayValueToArrayOfValues.js";
+} from "../host-to-guest/convertArrayValueToArrayOfValues.js";
 
 /*
 import {

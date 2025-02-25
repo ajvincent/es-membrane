@@ -9,7 +9,7 @@ import {
 import {
   GuestRealmInputs,
   GuestRealmOutputs
-} from './types/Virtualization262.js';
+} from '../types/Virtualization262.js';
 
 export async function directInvoke(
   realmInputs: GuestRealmInputs,

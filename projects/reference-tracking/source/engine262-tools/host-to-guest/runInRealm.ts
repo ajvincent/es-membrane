@@ -11,7 +11,7 @@ import {
 
 import {
   Deferred
-} from "../utilities/PromiseTypes.js";
+} from "../../utilities/PromiseTypes.js";
 
 import {
   GuestEngine,
@@ -24,12 +24,12 @@ import {
 
 import {
   convertGuestPromiseToVoidHostPromise
-} from "./built-ins/HostPromiseForGuestPromise.js";
+} from "./HostPromiseForGuestPromise.js";
 
 import type {
   GuestRealmInputs,
   GuestRealmOutputs,
-} from "./types/Virtualization262.js";
+} from "../types/Virtualization262.js";
 
 export async function runInRealm(
   inputs: GuestRealmInputs
