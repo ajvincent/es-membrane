@@ -48,6 +48,24 @@ export interface ObjectGraphIfc<
   ): void;
 
   /**
+   *
+   * @param parentObject
+   * @param relationshipName
+   * @param childObject
+   * @param isStrongReference
+   * @param metadata
+   *
+   * @privateRemarks Enclose the metadata in an object with the key `slot`.
+   */
+  defineInternalSlot(
+    parentObject: object,
+    slotName: string,
+    childObject: object,
+    isStrongReference: boolean,
+    metadata: RelationshipMetadata,
+  ): void;
+
+  /**
    * Define a relationship between a map, a key and a value.
    * @param map
    * @param key
