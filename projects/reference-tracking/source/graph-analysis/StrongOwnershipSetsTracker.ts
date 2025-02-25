@@ -1,4 +1,8 @@
 import type {
+  PrefixedNumber
+} from "../utilities/StringCounter.ts";
+
+import type {
   JointOwnersResolver,
 } from "./types/JointOwnersResolver.js";
 
@@ -6,16 +10,28 @@ import {
   JointOwnershipTracker,
 } from "./JointOwnershipTracker.js";
 
-export class StrongOwnershipSetsTracker {
-  readonly #keyResolvedMap = new Map<number, boolean>;
-  readonly #keyToTrackerSets = new Map<number, Set<JointOwnershipTracker>>;
-  readonly #outerJointOwnersResolver: JointOwnersResolver<StrongOwnershipSetsTracker>;
+export class StrongOwnershipSetsTracker<
+  KeyType extends PrefixedNumber<string>,
+  Context extends PrefixedNumber<string>
+>
+{
+  readonly #keyResolvedMap = new Map<KeyType, boolean>;
+  readonly #keyToTrackerSets = new Map<KeyType, Set<JointOwnershipTracker<KeyType, Context>>>;
+  readonly #outerJointOwnersResolver: JointOwnersResolver<
+    StrongOwnershipSetsTracker<KeyType, Context>,
+    KeyType,
+    Context
+  >;
 
-  readonly #innerJointOwnersResolver: JointOwnersResolver<JointOwnershipTracker> = (
-    childKey: number,
-    jointOwnerKeys: readonly number[],
-    parentToChildEdgeId: number,
-    tracker: JointOwnershipTracker
+  readonly #innerJointOwnersResolver: JointOwnersResolver<
+    JointOwnershipTracker<KeyType, Context>,
+    KeyType,
+    Context
+  > = (
+    childKey: KeyType,
+    jointOwnerKeys: readonly KeyType[],
+    context: Context,
+    tracker: JointOwnershipTracker<KeyType, Context>
   ): void =>
   {
     for (const ownerKey of jointOwnerKeys) {
@@ -23,19 +39,23 @@ export class StrongOwnershipSetsTracker {
       innerSet.delete(tracker);
     }
     this.#outerJointOwnersResolver(
-      childKey, jointOwnerKeys, parentToChildEdgeId, this
+      childKey, jointOwnerKeys, context, this
     );
   }
 
   constructor(
-    jointOwnersResolver: JointOwnersResolver<StrongOwnershipSetsTracker>
+    jointOwnersResolver: JointOwnersResolver<
+      StrongOwnershipSetsTracker<KeyType, Context>,
+      KeyType,
+      Context
+    >
   )
   {
     this.#outerJointOwnersResolver = jointOwnersResolver;
   }
 
   public defineKey(
-    key: number
+    key: KeyType
   ): void
   {
     if (this.#keyResolvedMap.has(key))
@@ -45,7 +65,7 @@ export class StrongOwnershipSetsTracker {
   }
 
   public resolveKey(
-    key: number
+    key: KeyType
   ): void
   {
     const isResolved = this.#keyResolvedMap.get(key);
@@ -64,9 +84,9 @@ export class StrongOwnershipSetsTracker {
   }
 
   public defineChildEdge(
-    childKey: number,
-    jointOwnerKeys: readonly number[],
-    parentToChildEdgeId: number,
+    childKey: KeyType,
+    jointOwnerKeys: readonly KeyType[],
+    context: Context,
   ): void
   {
     for (const ownerKey of jointOwnerKeys) {
@@ -80,7 +100,7 @@ export class StrongOwnershipSetsTracker {
       this.#keyResolvedMap,
       childKey,
       jointOwnerKeys,
-      parentToChildEdgeId,
+      context,
       this.#innerJointOwnersResolver
     );
 

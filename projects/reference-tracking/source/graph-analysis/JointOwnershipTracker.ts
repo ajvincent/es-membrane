@@ -2,31 +2,39 @@ import type {
   JointOwnersResolver,
 } from "./types/JointOwnersResolver.js";
 
-export class JointOwnershipTracker {
-  readonly #childKey: number;
-  readonly #jointOwnerKeys: readonly number[];
-  readonly #parentToChildEdgeId: number;
-  readonly #resolver: JointOwnersResolver<JointOwnershipTracker>;
+import type {
+  PrefixedNumber
+} from "../utilities/StringCounter.ts";
 
-  readonly #pendingValues: Set<number>;
+export class JointOwnershipTracker<
+  KeyType extends PrefixedNumber<string>,
+  Context extends PrefixedNumber<string>
+>
+{
+  readonly #childKey: KeyType;
+  readonly #jointOwnerKeys: readonly KeyType[];
+  readonly #context: Context;
+  readonly #resolver: JointOwnersResolver<JointOwnershipTracker<KeyType, Context>, KeyType, Context>;
+
+  readonly #pendingValues: Set<KeyType>;
 
   constructor(
-    keyResolvedMap: ReadonlyMap<number, boolean>,
-    childKey: number,
-    jointOwnerKeys: readonly number[],
-    parentToChildEdgeId: number,
-    resolver: JointOwnersResolver<JointOwnershipTracker>,
+    keyResolvedMap: ReadonlyMap<KeyType, boolean>,
+    childKey: KeyType,
+    jointOwnerKeys: readonly KeyType[],
+    context: Context,
+    resolver: JointOwnersResolver<JointOwnershipTracker<KeyType, Context>, KeyType, Context>,
   )
   {
     this.#childKey = childKey;
     this.#jointOwnerKeys = jointOwnerKeys.slice();
-    this.#parentToChildEdgeId = parentToChildEdgeId;
+    this.#context = context;
     this.#resolver = resolver;
 
     this.#pendingValues = new Set(jointOwnerKeys.filter(v => !keyResolvedMap.get(v)));
   }
 
-  keyWasResolved(key: number): void {
+  keyWasResolved(key: KeyType): void {
     if (this.#pendingValues.delete(key))
       this.fireCallbackIfEmpty();
   }
@@ -38,7 +46,7 @@ export class JointOwnershipTracker {
     this.#resolver(
       this.#childKey,
       this.#jointOwnerKeys,
-      this.#parentToChildEdgeId,
+      this.#context,
       this
     );
   }
