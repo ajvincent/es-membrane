@@ -6,10 +6,10 @@ import {
   JointOwnershipTracker,
 } from "./JointOwnershipTracker.js";
 
-export class ChildEdgeReferenceTracker {
+export class StrongOwnershipSetsTracker {
   readonly #keyResolvedMap = new Map<number, boolean>;
   readonly #keyToTrackerSets = new Map<number, Set<JointOwnershipTracker>>;
-  readonly #outerJointOwnersResolver: JointOwnersResolver<ChildEdgeReferenceTracker>;
+  readonly #outerJointOwnersResolver: JointOwnersResolver<StrongOwnershipSetsTracker>;
 
   readonly #innerJointOwnersResolver: JointOwnersResolver<JointOwnershipTracker> = (
     childKey: number,
@@ -28,7 +28,7 @@ export class ChildEdgeReferenceTracker {
   }
 
   constructor(
-    jointOwnersResolver: JointOwnersResolver<ChildEdgeReferenceTracker>
+    jointOwnersResolver: JointOwnersResolver<StrongOwnershipSetsTracker>
   )
   {
     this.#outerJointOwnersResolver = jointOwnersResolver;

@@ -3,15 +3,15 @@ import type {
 } from "../../source/graph-analysis/types/JointOwnersResolver.js";
 
 import {
-  ChildEdgeReferenceTracker
-} from "../../source/graph-analysis/ChildEdgeReferenceTracker.js";
+  StrongOwnershipSetsTracker
+} from "../../source/graph-analysis/StrongOwnershipSetsTracker.js";
 
-describe("ChildEdgeReferenceTracker", () => {
-  const resolver = jasmine.createSpy<JointOwnersResolver<ChildEdgeReferenceTracker>>("resolver");
+describe("StrongOwnershipSetsTracker", () => {
+  const resolver = jasmine.createSpy<JointOwnersResolver<StrongOwnershipSetsTracker>>("resolver");
   afterEach(() => resolver.calls.reset());
 
-  let tracker: ChildEdgeReferenceTracker;
-  beforeEach(() => tracker = new ChildEdgeReferenceTracker(resolver));
+  let tracker: StrongOwnershipSetsTracker;
+  beforeEach(() => tracker = new StrongOwnershipSetsTracker(resolver));
 
   it("resolving all keys before defining a child edge results in a self-resolving edge", () => {
     tracker.defineKey(1);
