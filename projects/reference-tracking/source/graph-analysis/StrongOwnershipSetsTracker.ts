@@ -1,6 +1,6 @@
 import type {
   PrefixedNumber
-} from "../utilities/StringCounter.ts";
+} from "../types/PrefixedNumber.js";
 
 import type {
   JointOwnersResolver,

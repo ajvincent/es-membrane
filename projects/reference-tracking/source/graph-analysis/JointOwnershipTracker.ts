@@ -4,7 +4,7 @@ import type {
 
 import type {
   PrefixedNumber
-} from "../utilities/StringCounter.ts";
+} from "../types/PrefixedNumber.js";
 
 export class JointOwnershipTracker<
   KeyType extends PrefixedNumber<string>,

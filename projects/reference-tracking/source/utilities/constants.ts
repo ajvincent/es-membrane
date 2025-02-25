@@ -37,5 +37,6 @@ export enum ValueDiscrimant {
   NotApplicable = "NotApplicable",
   Object = "Object",
   Symbol = "Symbol",
+  BigInt = "BigInt",
   Primitive = "Primitive",
 }

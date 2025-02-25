@@ -1,4 +1,6 @@
-export type PrefixedNumber<Prefix extends string> = `${Prefix}:${number}`;
+import type {
+  PrefixedNumber
+} from "../types/PrefixedNumber.js";
 
 export class StringCounter<BasePrefix extends string, OtherPrefix extends string>
 {

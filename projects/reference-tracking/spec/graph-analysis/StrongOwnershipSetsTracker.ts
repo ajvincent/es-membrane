@@ -1,7 +1,7 @@
 import type {
   ObjectId,
   ReferenceId,
-} from "../../source/graph-analysis/types/GraphIds.js";
+} from "../../source/types/PrefixedNumber.js";
 
 import type {
   JointOwnersResolver
