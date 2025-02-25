@@ -26,7 +26,12 @@ export interface ObjectGraphIfc<
   ): void;
 
   defineCollectionKeyValue(
-    collection: ReadonlyMap<unknown, unknown> | ReadonlySet<unknown> | WeakMap<object, unknown> | WeakSet<object>,
+    collection: (
+      ReadonlyMap<unknown, unknown> |
+      ReadonlySet<unknown> |
+      Omit<WeakMap<object, unknown>, "delete" | "set"> |
+      Omit<WeakSet<object>, "add" | "delete">
+    ),
     key: unknown,
     value: object,
   ): void;
