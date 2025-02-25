@@ -1,5 +1,6 @@
+export type PrefixedNumber<Prefix extends string> = `${Prefix}:${number}`;
+
 export class StringCounter<BasePrefix extends string, OtherPrefix extends string>
-implements Iterator<`${BasePrefix | OtherPrefix}:${number}`, never, OtherPrefix>
 {
   readonly #basePrefix: BasePrefix;
   #counter = 0;
@@ -11,14 +12,13 @@ implements Iterator<`${BasePrefix | OtherPrefix}:${number}`, never, OtherPrefix>
     this.#basePrefix = basePrefix;
   }
 
-  next(
-    ...[otherPrefix]: [] | [OtherPrefix]
-  ): IteratorYieldResult<`${BasePrefix}:${number}` | `${OtherPrefix}:${number}`>
+  base(): PrefixedNumber<BasePrefix>
   {
-    const nextCount = this.#counter++;
-    const prefix = typeof otherPrefix === "string" ? otherPrefix : this.#basePrefix;
-    return {
-      value: `${prefix}:${nextCount}`
-    };
+    return `${this.#basePrefix}:${this.#counter++}`;
+  }
+
+  other(prefix: OtherPrefix): PrefixedNumber<OtherPrefix>
+  {
+    return `${prefix}:${this.#counter++}`;
   }
 }
