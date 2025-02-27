@@ -54,6 +54,13 @@ export class StrongOwnershipSetsTracker<
     this.#outerJointOwnersResolver = jointOwnersResolver;
   }
 
+  public hasKey(
+    key: KeyType
+  ): boolean
+  {
+    return this.#keyResolvedMap.has(key);
+  }
+
   public defineKey(
     key: KeyType
   ): void

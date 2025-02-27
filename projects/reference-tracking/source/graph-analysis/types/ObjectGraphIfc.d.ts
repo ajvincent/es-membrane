@@ -1,6 +1,42 @@
-import {
-  JsonObject
+import type {
+  JsonObject,
 } from "type-fest";
+
+import type {
+  ObjectId,
+  SymbolId,
+} from "../../types/PrefixedNumber.js";
+
+import type {
+  NodePrefix,
+  EdgePrefix,
+} from "../../utilities/constants.js";
+
+import type {
+  ValueDescription,
+} from "../../types/ValueDescription.js";
+
+export interface GraphNodeWithMetadata<ObjectMetadata extends JsonObject | null> {
+  metadata: ObjectMetadata
+}
+
+export interface GraphEdgeWithMetadata<RelationshipMetadata extends JsonObject | null> {
+  edgeType: EdgePrefix,
+  description: ValueDescription,
+  metadata: RelationshipMetadata
+}
+
+export type GraphObjectId = PrefixedNumber<NodePrefix>;
+
+export interface ValueIdIfc {
+  getObjectId(
+    object: object
+  ): ObjectId;
+
+  getSymbolId(
+    symbol: symbol
+  ): SymbolId;
+}
 
 /**
  * Conversions from ECMAScript values to graph nodes and edges.
@@ -17,7 +53,7 @@ import {
 export interface ObjectGraphIfc<
   ObjectMetadata extends JsonObject | null,
   RelationshipMetadata extends JsonObject | null,
->
+> extends ValueIdIfc
 {
   //#region directed graph operations
   hasObject(
@@ -34,7 +70,6 @@ export interface ObjectGraphIfc<
    * @param parentObject
    * @param relationshipName
    * @param childObject
-   * @param isStrongReference
    * @param metadata
    *
    * @privateRemarks Enclose the metadata in an object with the key `reference`.
@@ -43,7 +78,6 @@ export interface ObjectGraphIfc<
     parentObject: object,
     relationshipName: number | string | symbol,
     childObject: object,
-    isStrongReference: boolean,
     metadata: RelationshipMetadata,
   ): void;
 
@@ -59,7 +93,7 @@ export interface ObjectGraphIfc<
    */
   defineInternalSlot(
     parentObject: object,
-    slotName: string,
+    slotName: `[[${string}]]`,
     childObject: object,
     isStrongReference: boolean,
     metadata: RelationshipMetadata,
@@ -101,7 +135,7 @@ export interface ObjectGraphIfc<
    *
    * @privateRemarks Enclose the metadata in an object with the key `set`.
    */
-  defineSetValueTuple(
+  defineSetValue(
     set: object,
     value: object,
     isStrongReferenceToValue: boolean,
@@ -126,12 +160,4 @@ export interface ObjectGraphIfc<
     target: object,
     strongReferencesOnly: boolean
   ): boolean;
-
-  /*
-  // placeholder, to be removed from this interface
-  defineGraphStyling(): never;
-
-  // placeholder, to be removed from this interface
-  cloneGraph(): never;
-  */
 }

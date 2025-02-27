@@ -21,7 +21,10 @@ describe("StrongOwnershipSetsTracker", () => {
   beforeEach(() => tracker = new StrongOwnershipSetsTracker(resolver));
 
   it("resolving all keys before defining a child edge results in a self-resolving edge", () => {
+    expect(tracker.hasKey("object:1")).toBeFalse();
     tracker.defineKey("object:1");
+    expect(tracker.hasKey("object:1")).toBeTrue();
+
     tracker.defineKey("object:2");
     tracker.defineKey("object:3");
     tracker.resolveKey("object:2");

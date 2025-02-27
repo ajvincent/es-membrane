@@ -2,24 +2,11 @@ import type {
   PrefixedNumber
 } from "../types/PrefixedNumber.js";
 
-export class StringCounter<BasePrefix extends string, OtherPrefix extends string>
+export class StringCounter<Prefix extends string>
 {
-  readonly #basePrefix: BasePrefix;
   #counter = 0;
 
-  constructor(
-    basePrefix: BasePrefix
-  )
-  {
-    this.#basePrefix = basePrefix;
-  }
-
-  base(): PrefixedNumber<BasePrefix>
-  {
-    return `${this.#basePrefix}:${this.#counter++}`;
-  }
-
-  other(prefix: OtherPrefix): PrefixedNumber<OtherPrefix>
+  next<SpecificPrefix extends Prefix>(prefix: SpecificPrefix): PrefixedNumber<SpecificPrefix>
   {
     return `${prefix}:${this.#counter++}`;
   }

@@ -40,3 +40,19 @@ export enum ValueDiscrimant {
   BigInt = "BigInt",
   Primitive = "Primitive",
 }
+
+export enum NodePrefix {
+  Object = "object",
+  Target = "target",
+  HeldValues = "heldValues",
+  KeyValueTuple = "keyValueTuple"
+};
+
+export enum EdgePrefix {
+  PropertyKey = "propertyKey",
+  InternalSlot = "internalSlot",
+  MapToTuple = "mapToTuple",
+  MapKey = "mapKey",
+  MapValue = "mapValue",
+  SetValue = "setValue"
+};
