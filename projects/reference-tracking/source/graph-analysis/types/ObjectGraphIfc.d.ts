@@ -1,9 +1,11 @@
 import type {
   JsonObject,
+  ReadonlyDeep,
 } from "type-fest";
 
 import type {
   ObjectId,
+  PrefixedNumber,
   SymbolId,
 } from "../../types/PrefixedNumber.js";
 
@@ -27,6 +29,13 @@ export interface GraphEdgeWithMetadata<RelationshipMetadata extends JsonObject |
 }
 
 export type GraphObjectId = PrefixedNumber<NodePrefix>;
+
+export interface MapKeyAndValueIds {
+  readonly tupleNodeId: PrefixedNumber<NodePrefix.KeyValueTuple>;
+  readonly mapToTupleEdgeId: PrefixedNumber<EdgePrefix.MapToTuple>;
+  readonly tupleToKeyEdgeId: PrefixedNumber<EdgePrefix.MapKey> | undefined;
+  readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue>;
+}
 
 export interface ValueIdIfc {
   getObjectId(
@@ -79,7 +88,7 @@ export interface ObjectGraphIfc<
     relationshipName: number | string | symbol,
     childObject: object,
     metadata: RelationshipMetadata,
-  ): void;
+  ): PrefixedNumber<EdgePrefix.PropertyKey>;
 
   /**
    *
@@ -97,7 +106,7 @@ export interface ObjectGraphIfc<
     childObject: object,
     isStrongReference: boolean,
     metadata: RelationshipMetadata,
-  ): void;
+  ): PrefixedNumber<EdgePrefix.InternalSlot>;
 
   /**
    * Define a relationship between a map, a key and a value.
@@ -123,7 +132,7 @@ export interface ObjectGraphIfc<
     value: object,
     isStrongReferenceToKey: boolean,
     metadata: RelationshipMetadata,
-  ): void;
+  ): MapKeyAndValueIds;
 
   /**
    * Define a reference between a set and a value.
@@ -140,7 +149,11 @@ export interface ObjectGraphIfc<
     value: object,
     isStrongReferenceToValue: boolean,
     metadata: RelationshipMetadata,
-  ): void;
+  ): PrefixedNumber<EdgePrefix.SetValue>;
+
+  getEdgeRelationship(
+    edgeId: PrefixedNumber<EdgePrefix>
+  ): ReadonlyDeep<GraphEdgeWithMetadata<RelationshipMetadata | null>> | undefined;
   //#endregion directed graph operations
 
   //#region strong references
