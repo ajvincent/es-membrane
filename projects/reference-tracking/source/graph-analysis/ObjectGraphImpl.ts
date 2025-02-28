@@ -144,7 +144,7 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
   }
   //#endregion ValueIdIfc
 
-  //#region ObjectGraphIfc
+  //#region ObjectGraphIfc: defining nodes and edges
   public hasObject(object: object): boolean {
     return this.#nodeToIdMap.has(object);
   }
@@ -455,7 +455,9 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
   {
     return this.#edgeIdToMetadataMap.get(edgeId);
   }
+  //#endregion ObjectGraphIfc: defining nodes and edges
 
+  //#region ObjectGraphIfc: searching for strong references
   setStrongReferenceCallback(callback: (object: object) => void) {
     this.#setNextState(ObjectGraphState.MarkingStrongReferences);
     this.#strongReferenceCallback = callback;
@@ -508,6 +510,7 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
     this.#setNextState(ObjectGraphState.MarkedStrongReferences);
     return this.#objectHeldStronglyMap.get(object) ?? false;
   }
+  //#endregion ObjectGraphIfc: searching for strong references
 
   public summarizeGraphToTarget(): void
   {
