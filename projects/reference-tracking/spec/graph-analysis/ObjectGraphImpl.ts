@@ -18,6 +18,10 @@ import type {
   ObjectGraphIfc,
 } from "../../source/graph-analysis/types/ObjectGraphIfc.js";
 
+import type {
+  SearchReferencesIfc,
+} from "source/graph-analysis/types/SearchReferencesIfc.js";
+
 import {
   EdgePrefix,
   ValueDiscrimant,
@@ -51,6 +55,7 @@ describe("ObjectGraphImpl", () => {
     Record<"type", "ObjectMetadata">,
     Record<"type", "RelationshipMetadata">
   >;
+  let searchReferences: SearchReferencesIfc;
 
   beforeEach(() => {
     target = {};
@@ -65,6 +70,7 @@ describe("ObjectGraphImpl", () => {
     );
     cloneableGraph = graph;
     objectGraph = graph;
+    searchReferences = graph;
   });
 
   describe("lets us define", () => {
@@ -299,10 +305,10 @@ describe("ObjectGraphImpl", () => {
         map, key, value, true, valueMetadata
       );
 
-      objectGraph.markStrongReferencesFromHeldValues();
-      expect(objectGraph.isObjectHeldStrongly(map)).withContext("map").toBeTrue();
-      expect(objectGraph.isObjectHeldStrongly(key)).withContext("key").toBeTrue();
-      expect(objectGraph.isObjectHeldStrongly(value)).withContext("value").toBeTrue();
+      searchReferences.markStrongReferencesFromHeldValues();
+      expect(searchReferences.isObjectHeldStrongly(map)).withContext("map").toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(key)).withContext("key").toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(value)).withContext("value").toBeTrue();
     });
 
     it("weak in a weak map with no references to the key", () => {
@@ -322,10 +328,10 @@ describe("ObjectGraphImpl", () => {
         map, key, value, false, valueMetadata
       );
 
-      objectGraph.markStrongReferencesFromHeldValues();
-      expect(objectGraph.isObjectHeldStrongly(map)).withContext("map").toBeTrue();
-      expect(objectGraph.isObjectHeldStrongly(key)).withContext("key").toBeFalse();
-      expect(objectGraph.isObjectHeldStrongly(value)).withContext("value").toBeFalse();
+      searchReferences.markStrongReferencesFromHeldValues();
+      expect(searchReferences.isObjectHeldStrongly(map)).withContext("map").toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(key)).withContext("key").toBeFalse();
+      expect(searchReferences.isObjectHeldStrongly(value)).withContext("value").toBeFalse();
     });
 
     it("strong in a weak map with another reference to the key", () => {
@@ -347,10 +353,10 @@ describe("ObjectGraphImpl", () => {
         map, key, value, false, valueMetadata
       );
 
-      objectGraph.markStrongReferencesFromHeldValues();
-      expect(objectGraph.isObjectHeldStrongly(map)).withContext("map").toBeTrue();
-      expect(objectGraph.isObjectHeldStrongly(key)).withContext("key").toBeTrue();
-      expect(objectGraph.isObjectHeldStrongly(value)).withContext("value").toBeTrue();
+      searchReferences.markStrongReferencesFromHeldValues();
+      expect(searchReferences.isObjectHeldStrongly(map)).withContext("map").toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(key)).withContext("key").toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(value)).withContext("value").toBeTrue();
     });
 
     it("strong when a chain of ownership is established", () => {
@@ -401,15 +407,15 @@ describe("ObjectGraphImpl", () => {
   
       // searchReferences("foo", target, heldvalues, true);
   
-      objectGraph.markStrongReferencesFromHeldValues();
+      searchReferences.markStrongReferencesFromHeldValues();
 
       // these tests are in the order I expect them to happen
-      expect(objectGraph.isObjectHeldStrongly(heldValues)).withContext("heldValues").toBeTrue();
-      expect(objectGraph.isObjectHeldStrongly(A)).withContext("A").toBeTrue();
-      expect(objectGraph.isObjectHeldStrongly(B)).withContext("B").toBeTrue();
-      expect(objectGraph.isObjectHeldStrongly(E)).withContext("E").toBeTrue();
-      expect(objectGraph.isObjectHeldStrongly(C)).withContext("C").toBeTrue();
-      expect(objectGraph.isObjectHeldStrongly(target)).withContext("target").toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(heldValues)).withContext("heldValues").toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(A)).withContext("A").toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(B)).withContext("B").toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(E)).withContext("E").toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(C)).withContext("C").toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(target)).withContext("target").toBeTrue();
     });
 
     it("weak when no chain of strong ownership exists", () => {
@@ -459,22 +465,22 @@ describe("ObjectGraphImpl", () => {
       //objectGraph.defineMapKeyValueTuple(B, E, C, false, new RelationshipMetadata);
   
       // searchReferences("foo", target, heldvalues, true);
-      objectGraph.markStrongReferencesFromHeldValues();
+      searchReferences.markStrongReferencesFromHeldValues();
   
       // these tests are in the order I expect them to happen
-      expect(objectGraph.isObjectHeldStrongly(heldValues)).toBeTrue();
-      expect(objectGraph.isObjectHeldStrongly(A)).toBeTrue();
-      expect(objectGraph.isObjectHeldStrongly(B)).toBeTrue();
-      expect(objectGraph.isObjectHeldStrongly(E)).toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(heldValues)).toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(A)).toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(B)).toBeTrue();
+      expect(searchReferences.isObjectHeldStrongly(E)).toBeTrue();
   
       // C should be a weak key of B, but nothing holds C strongly
       // no other references to C
-      expect(objectGraph.isObjectHeldStrongly(C)).toBeFalse();
+      expect(searchReferences.isObjectHeldStrongly(C)).toBeFalse();
   
       // target was held weakly by A, so that's not enough to hold the target
       // target was held strongly by B and C combined, but C wasn't held strongly, so that doesn't hold the target either.
       // no other references to target
-      expect(objectGraph.isObjectHeldStrongly(target)).toBeFalse();
+      expect(searchReferences.isObjectHeldStrongly(target)).toBeFalse();
     });
   });
 

@@ -64,7 +64,6 @@ export interface ObjectGraphIfc<
   RelationshipMetadata extends JsonObject | null,
 > extends ValueIdIfc
 {
-  //#region directed graph operations
   hasObject(
     object: object
   ): boolean;
@@ -154,21 +153,4 @@ export interface ObjectGraphIfc<
   getEdgeRelationship(
     edgeId: PrefixedNumber<EdgePrefix>
   ): ReadonlyDeep<GraphEdgeWithMetadata<RelationshipMetadata | null>> | undefined;
-  //#endregion directed graph operations
-
-  //#region reference searches
-
-  setStrongReferenceCallback(
-    callback: (object: object) => void
-  ): void;
-
-  markStrongReferencesFromHeldValues(): void;
-
-  isObjectHeldStrongly(
-    object: object
-  ): boolean;
-
-  summarizeGraphToTarget(): void;
-
-  //#endregion reference searches
 }

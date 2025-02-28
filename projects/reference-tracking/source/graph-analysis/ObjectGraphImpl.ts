@@ -49,6 +49,10 @@ import type {
   MapKeyAndValueIds,
   ObjectGraphIfc,
 } from "./types/ObjectGraphIfc.js";
+
+import type {
+  SearchReferencesIfc,
+} from "./types/SearchReferencesIfc.js";
 //#endregion preamble
 
 type SetsTracker = StrongOwnershipSetsTracker<GraphObjectId, PrefixedNumber<EdgePrefix>>;
@@ -65,7 +69,8 @@ export class ObjectGraphImpl<
   ObjectMetadata extends JsonObject | null,
   RelationshipMetadata extends JsonObject | null,
 >
-implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphIfc
+implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>,
+  CloneableGraphIfc, SearchReferencesIfc
 {
   //#region private class fields
   #state: ObjectGraphState = ObjectGraphState.AcceptingDefinitions;
@@ -148,7 +153,7 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
   }
   //#endregion ValueIdIfc
 
-  //#region ObjectGraphIfc: defining nodes and edges
+  //#region ObjectGraphIfc
   public hasObject(object: object): boolean {
     return this.#nodeToIdMap.has(object);
   }
@@ -462,9 +467,9 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
   {
     return this.#edgeIdToMetadataMap.get(edgeId);
   }
-  //#endregion ObjectGraphIfc: defining nodes and edges
+  //#endregion ObjectGraphIfc
 
-  //#region ObjectGraphIfc: searching for strong references
+  //#region SearchReferencesIfc
   setStrongReferenceCallback(callback: (object: object) => void) {
     this.#setNextState(ObjectGraphState.MarkingStrongReferences);
     this.#strongReferenceCallback = callback;
@@ -517,7 +522,6 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
     this.#setNextState(ObjectGraphState.MarkedStrongReferences);
     return this.#objectHeldStronglyMap.get(object) ?? false;
   }
-  //#endregion ObjectGraphIfc: searching for strong references
 
   public summarizeGraphToTarget(): void
   {
@@ -532,6 +536,5 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
     }
     */
   }
-
-  //#endregion ObjectGraphIfc
+  //#endregion SearchReferencesIfc
 }
