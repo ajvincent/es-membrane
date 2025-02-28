@@ -282,41 +282,54 @@ describe("ObjectGraphImpl", () => {
   });
 
   describe("throws for", () => {
-    xit("unknown objects", () => {
+    const metadata = new RelationshipMetadata;
+    it("unknown objects", () => {
+      const unused = {};
+      expect(objectGraph.hasObject(unused)).toBe(false);
 
+      expect(
+        () => objectGraph.getObjectId(unused)
+      ).toThrowError("object is not defined as a node");
+
+      expect(
+        () => objectGraph.defineReference(unused, "foo", target, metadata)
+      ).toThrowError("parentObject is not defined as a node");
+
+      expect(
+        () => objectGraph.defineReference(heldValues, "foo", unused, metadata)
+      ).toThrowError("childObject is not defined as a node");
+
+      expect(
+        () => objectGraph.defineInternalSlot(unused, "[[foo]]", target, false, metadata)
+      ).toThrowError("parentObject is not defined as a node");
+
+      expect(
+        () => objectGraph.defineInternalSlot(heldValues, "[[foo]]", unused, false, metadata)
+      ).toThrowError("childObject is not defined as a node");
+
+      expect(
+        () => objectGraph.defineMapKeyValueTuple(unused, heldValues, target, false, metadata)
+      ).toThrowError("map is not defined as a node");
+
+      expect(
+        () => objectGraph.defineMapKeyValueTuple(heldValues, unused, target, false, metadata)
+      ).toThrowError("key is not defined as a node");
+
+      expect(
+        () => objectGraph.defineMapKeyValueTuple(heldValues, target, unused, false, metadata)
+      ).toThrowError("value is not defined as a node");
     });
 
-    xit("defining an object twice", () => {
-
+    it("defining an object twice", () => {
+      expect(
+        () => objectGraph.defineObject(target, new ObjectMetadata)
+      ).toThrowError("object is already defined as a node in this graph");
     });
 
-    describe("passing in an unknown object to", () => {
-      xit("defineReference", () => {
-
-      });
-
-      xit("defineInternalSlot", () => {
-
-      });
-
-      xit("defineMapKeyValueTuple", () => {
-      });
-
-      xit("defineSetValue", () => {
-
-      });
-
-      xit("markStrongReference", () => {
-
-      });
-
-      xit("hasStrongReference", () => {
-
-      });
-
-      xit("isReachable", () => {
-
-      });
+    it("defining a non-object as a weak map key", () => {
+      expect(
+        () => objectGraph.defineMapKeyValueTuple(heldValues, 2, target, false, metadata)
+      ).toThrowError("key must be a WeakKey");
     });
   });
 });

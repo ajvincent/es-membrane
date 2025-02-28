@@ -45,10 +45,9 @@ import type {
   MapKeyAndValueIds,
   ObjectGraphIfc,
 } from "./types/ObjectGraphIfc.js";
+//#endregion preamble
 
 type SetsTracker = StrongOwnershipSetsTracker<GraphObjectId, PrefixedNumber<EdgePrefix>>;
-
-//#endregion internal types
 
 export class ObjectGraphImpl<
   ObjectMetadata extends JsonObject | null,
