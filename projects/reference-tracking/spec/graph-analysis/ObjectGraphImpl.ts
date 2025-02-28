@@ -281,7 +281,7 @@ describe("ObjectGraphImpl", () => {
     });
   });
 
-  xit("marks references to target as strong when a chain of ownership is established", () => {
+  it("marks references to target as strong when a chain of ownership is established", () => {
     /*
     const target = {};
 
@@ -340,7 +340,7 @@ describe("ObjectGraphImpl", () => {
     expect(objectGraph.isObjectHeldStrongly(target)).withContext("target").toBeTrue();
   });
 
-  xit("does not mark references to target as strong when no chain of strong ownership exists", () => {
+  it("does not mark references to target as strong when no chain of strong ownership exists", () => {
     /*
     const target = {};
 
@@ -382,6 +382,7 @@ describe("ObjectGraphImpl", () => {
     B.set(C, target);
     //B.set(E, C);
     */
+    objectGraph.defineObject(C, new ObjectMetadata);
     objectGraph.defineMapKeyValueTuple(B, C, target, false, new RelationshipMetadata);
     //objectGraph.defineMapKeyValueTuple(B, E, C, false, new RelationshipMetadata);
 

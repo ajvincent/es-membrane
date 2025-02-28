@@ -408,7 +408,7 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
       if (keyId)
         jointOwnerKeys.push(keyId);
       this.#ownershipSetsTracker.defineChildEdge(valueId, jointOwnerKeys, tupleToValueEdgeId);
-      this.#edgeIdTo_IsStrongReference_Map.set(tupleToValueEdgeId, isStrongReferenceToKey);
+      this.#edgeIdTo_IsStrongReference_Map.set(tupleToValueEdgeId, true);
     }
 
     return {
