@@ -49,6 +49,14 @@ import type {
 
 type SetsTracker = StrongOwnershipSetsTracker<GraphObjectId, PrefixedNumber<EdgePrefix>>;
 
+enum ObjectGraphState {
+  AcceptingDefinitions = 0,
+  MarkingStrongReferences,
+  MarkedStrongReferences,
+  Summarized,
+  Error = Infinity,
+}
+
 export class ObjectGraphImpl<
   ObjectMetadata extends JsonObject | null,
   RelationshipMetadata extends JsonObject | null,
@@ -56,7 +64,10 @@ export class ObjectGraphImpl<
 implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphIfc
 {
   //#region private class fields
-  readonly #rawGraph = new graphlib.Graph({ directed: true, multigraph: true });
+  #state: ObjectGraphState = ObjectGraphState.AcceptingDefinitions;
+  #graph = new graphlib.Graph({ directed: true, multigraph: true });
+  readonly #targetId: PrefixedNumber<"target">;
+  readonly #heldValuesId: PrefixedNumber<"heldValues">;
 
   readonly #nodeCounter = new StringCounter<NodePrefix>;
   readonly #edgeCounter = new StringCounter<EdgePrefix>;
@@ -64,6 +75,7 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
 
   readonly #nodeToIdMap = new WeakMap<object, GraphObjectId>;
   readonly #symbolToIdMap = new WeakMap<symbol, PrefixedNumber<"symbol">>;
+  readonly #idToObjectOrSymbolMap = new Map<GraphObjectId | PrefixedNumber<"symbol">, object | symbol>;
   readonly #edgeIdToMetadataMap = new Map<
     PrefixedNumber<EdgePrefix>,
     ReadonlyDeep<GraphEdgeWithMetadata<RelationshipMetadata | null>>
@@ -73,7 +85,10 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
     this.#ownershipResolver.bind(this)
   );
   readonly #edgeIdTo_IsStrongReference_Map = new Map<PrefixedNumber<EdgePrefix>, boolean>;
-  //readonly #reachableObjects = new WeakMap<object, boolean>;
+  readonly #objectHeldStronglyMap = new WeakMap<object, boolean>;
+  readonly #objectIdsToVisit = new Set<PrefixedNumber<NodePrefix>>;
+
+  #strongReferenceCallback?: (object: object) => void;
   //#endregion private class fields
 
   constructor(
@@ -83,13 +98,24 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
     heldValuesMetadata: ObjectMetadata,
   )
   {
-    this.#defineObject(target, targetMetadata, NodePrefix.Target);
-    this.#defineObject(heldValues, heldValuesMetadata, NodePrefix.HeldValues);
+    this.#targetId = this.#defineObject(target, targetMetadata, NodePrefix.Target);
+    this.#heldValuesId = this.#defineObject(heldValues, heldValuesMetadata, NodePrefix.HeldValues);
+
+    this.#objectHeldStronglyMap.delete(target);
+  }
+
+  #setNextState(nextState: ObjectGraphState): void {
+    if (nextState >= this.#state) {
+      this.#state = nextState;
+    } else {
+      this.#state = ObjectGraphState.Error;
+      throw new Error("invalid state transition");
+    }
   }
 
   //#region CloneableGraphIfc
   public cloneGraph(): graphlib.Graph {
-    return graphlib.json.read(graphlib.json.write(this.#rawGraph));
+    return graphlib.json.read(graphlib.json.write(this.#graph));
   }
   //#endregion CloneableGraphIfc
 
@@ -112,6 +138,7 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
     if (!symbolId) {
       symbolId = this.#symbolCounter.next("symbol");
       this.#symbolToIdMap.set(symbol, symbolId);
+      this.#idToObjectOrSymbolMap.set(symbolId, symbol);
     }
     return symbolId
   }
@@ -127,6 +154,7 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
     metadata: ObjectMetadata
   ): void
   {
+    this.#setNextState(ObjectGraphState.AcceptingDefinitions);
     if (this.#nodeToIdMap.has(object))
       throw new Error("object is already defined as a node in this graph");
 
@@ -141,11 +169,13 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
   {
     const nodeId = this.#nodeCounter.next(prefix);
     this.#nodeToIdMap.set(object, nodeId);
+    this.#idToObjectOrSymbolMap.set(nodeId, object);
 
     const nodeMetadata: GraphNodeWithMetadata<ObjectMetadata | null> = { metadata };
-    this.#rawGraph.setNode(nodeId, nodeMetadata);
+    this.#graph.setNode(nodeId, nodeMetadata);
 
     this.#ownershipSetsTracker.defineKey(nodeId);
+    this.#objectHeldStronglyMap.set(object, false);
 
     return nodeId;
   }
@@ -168,11 +198,14 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
     edgeId: PrefixedNumber<EdgePrefix>
   ): void
   {
-    this.#rawGraph.setEdge(parentId, childId, edgeMetadata, edgeId);
+    this.#graph.setEdge(parentId, childId, edgeMetadata, edgeId);
     this.#edgeIdToMetadataMap.set(
       edgeId,
       edgeMetadata as ReadonlyDeep<GraphEdgeWithMetadata<RelationshipMetadata | null>>
     );
+
+    if (childId === this.#targetId)
+      this.#objectHeldStronglyMap.set(this.#idToObjectOrSymbolMap.get(this.#targetId) as object, false);
   }
 
   public defineReference(
@@ -182,6 +215,7 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
     metadata: RelationshipMetadata
   ): PrefixedNumber<EdgePrefix.PropertyKey>
   {
+    this.#setNextState(ObjectGraphState.AcceptingDefinitions);
     const parentId = this.#requireObjectId(parentObject, "parentObject");
     const childId = this.#requireObjectId(childObject, "childObject");
 
@@ -270,6 +304,7 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
     metadata: RelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.InternalSlot>
   {
+    this.#setNextState(ObjectGraphState.AcceptingDefinitions);
     const parentId = this.#requireObjectId(parentObject, "parentObject");
     const childId = this.#requireObjectId(childObject, "childObject");
     const edgeId = this.#edgeCounter.next(EdgePrefix.InternalSlot);
@@ -301,6 +336,7 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
     metadata: RelationshipMetadata,
   ): MapKeyAndValueIds
   {
+    this.#setNextState(ObjectGraphState.AcceptingDefinitions);
     const mapId = this.#requireObjectId(map, "map");
 
     let keyId: GraphObjectId | undefined;
@@ -390,6 +426,7 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
     metadata: RelationshipMetadata
   ): PrefixedNumber<EdgePrefix.SetValue>
   {
+    this.#setNextState(ObjectGraphState.AcceptingDefinitions);
     const setId = this.#requireObjectId(set, "set");
     const valueId = this.#requireObjectId(value, "value");
 
@@ -419,40 +456,71 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
     return this.#edgeIdToMetadataMap.get(edgeId);
   }
 
+  setStrongReferenceCallback(callback: (object: object) => void) {
+    this.#setNextState(ObjectGraphState.MarkingStrongReferences);
+    this.#strongReferenceCallback = callback;
+  }
+
   #ownershipResolver(
     childKey: GraphObjectId,
     jointOwnerKeys: readonly GraphObjectId[],
-    context: PrefixedNumber<EdgePrefix>,
+    edgeId: PrefixedNumber<EdgePrefix>,
     tracker: SetsTracker
   ): void
   {
+    const isStrongReference: boolean = this.#edgeIdTo_IsStrongReference_Map.get(edgeId)!;
+    if (isStrongReference && !this.#objectIdsToVisit.has(childKey)) {
+      this.#objectIdsToVisit.add(childKey);
+      const objectOrSymbol: object | symbol = this.#idToObjectOrSymbolMap.get(childKey)!;
+      if (typeof objectOrSymbol === "object") {
+        this.#objectHeldStronglyMap.set(objectOrSymbol, true);
+
+        if (this.#strongReferenceCallback && childKey.startsWith("keyValueTuple") === false) {
+          this.#strongReferenceCallback(objectOrSymbol);
+        }
+      }
+    }
+
+    void(jointOwnerKeys);
     void(tracker);
   }
 
-  public markStrongReference(object: object): void {
-    void(object);
-    throw new Error("Method not implemented.");
+  public markStrongReferencesFromHeldValues(): void {
+    this.#setNextState(ObjectGraphState.MarkingStrongReferences);
+
+    const heldValues = this.#idToObjectOrSymbolMap.get(this.#heldValuesId) as object;
+    this.#objectHeldStronglyMap.set(heldValues, true);
+
+    this.#objectIdsToVisit.add(this.#heldValuesId);
+    try {
+      for (const id of this.#objectIdsToVisit) {
+        this.#ownershipSetsTracker.resolveKey(id);
+      }
+
+      this.#state = ObjectGraphState.MarkedStrongReferences;
+    } catch (ex) {
+      this.#state = ObjectGraphState.Error;
+      throw ex;
+    }
   }
 
-  public resolveStrongReferences(): void {
-    throw new Error("Method not implemented.");
+  public isObjectHeldStrongly(object: object): boolean {
+    this.#setNextState(ObjectGraphState.MarkedStrongReferences);
+    return this.#objectHeldStronglyMap.get(object) ?? false;
   }
 
-  public hasStrongReference(object: object): boolean {
-    void(object);
-    throw new Error("Method not implemented.");
-  }
-
-  public isReachable(
-    source: object,
-    target: object,
-    strongReferencesOnly: boolean
-  ): boolean
+  public summarizeGraphToTarget(): void
   {
-    void(source);
-    void(target);
-    void(strongReferencesOnly);
-    throw new Error("Method not implemented.");
+    throw new Error("not yet implemented");
+    /*
+    this.#setNextState(ObjectGraphState.Summarized);
+    try {
+      // todo
+    } catch (ex) {
+      this.#state = ObjectGraphState.Error;
+      throw ex;
+    }
+    */
   }
 
   //#endregion ObjectGraphIfc

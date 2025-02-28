@@ -156,21 +156,19 @@ export interface ObjectGraphIfc<
   ): ReadonlyDeep<GraphEdgeWithMetadata<RelationshipMetadata | null>> | undefined;
   //#endregion directed graph operations
 
-  //#region strong references
-  markStrongReference(
-    object: object
+  //#region reference searches
+
+  setStrongReferenceCallback(
+    callback: (object: object) => void
   ): void;
 
-  resolveStrongReferences(): void;
+  markStrongReferencesFromHeldValues(): void;
 
-  hasStrongReference(
+  isObjectHeldStrongly(
     object: object
   ): boolean;
-  //#endregion strong references
 
-  isReachable(
-    source: object,
-    target: object,
-    strongReferencesOnly: boolean
-  ): boolean;
+  summarizeGraphToTarget(): void;
+
+  //#endregion reference searches
 }
