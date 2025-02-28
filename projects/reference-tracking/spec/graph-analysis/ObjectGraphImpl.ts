@@ -400,7 +400,7 @@ describe("ObjectGraphImpl", () => {
     expect(objectGraph.isObjectHeldStrongly(C)).toBeFalse();
 
     // target was held weakly by A, so that's not enough to hold the target
-    // target was held weakly by B and C combined, but C wasn't held strongly, so that doesn't hold the target either.
+    // target was held strongly by B and C combined, but C wasn't held strongly, so that doesn't hold the target either.
     // no other references to target
     expect(objectGraph.isObjectHeldStrongly(target)).toBeFalse();
   });
