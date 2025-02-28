@@ -281,128 +281,201 @@ describe("ObjectGraphImpl", () => {
     });
   });
 
-  it("marks references to target as strong when a chain of ownership is established", () => {
-    /*
-    const target = {};
+  describe("marks references to target as", () => {
+    it("strong in a regular map", () => {
+      const map = {}, key = {}, value = {};
+      heldValues.push(map);
+      objectGraph.defineObject(map, new ObjectMetadata("map"));
 
-    const A = new WeakRef(target);
-    const B = new WeakMap<object, object>;
-    const C = {"name": "C" };
-    const E = {"name": "E" };
+      const heldToMap = new RelationshipMetadata("held values to map");
+      objectGraph.defineReference(heldValues, 0, map, heldToMap);
 
-    B.set(C, target);
-    B.set(E, C);
+      objectGraph.defineObject(key, new ObjectMetadata("key"));
+      objectGraph.defineObject(value, new ObjectMetadata("value"));
 
-    const heldValues = [ A, B, E ];
-    searchReferences("foo", target, heldValues, true);
-    */
+      const valueMetadata = new RelationshipMetadata("value metadata");
 
-    // presumed by objectGraph: const target = {};
+      objectGraph.defineMapKeyValueTuple(
+        map, key, value, true, valueMetadata
+      );
 
-    const A = {"name": "A"}, B = {"name": "B"}, C = {"name": "C"}, E = {"name": "E"};
+      objectGraph.markStrongReferencesFromHeldValues();
+      expect(objectGraph.isObjectHeldStrongly(map)).withContext("map").toBeTrue();
+      expect(objectGraph.isObjectHeldStrongly(key)).withContext("key").toBeTrue();
+      expect(objectGraph.isObjectHeldStrongly(value)).withContext("value").toBeTrue();
+    });
 
-    /*
-    const heldValues = [A, B, E];
-    const C = {"name": "C" };
-    const E = {"name": "E" };
-    */
-    objectGraph.defineObject(A, new ObjectMetadata);
-    objectGraph.defineReference(heldValues, 0, A, new RelationshipMetadata);
+    it("weak in a weak map with no references to the key", () => {
+      const map = {}, key = {}, value = {};
+      heldValues.push(map);
+      objectGraph.defineObject(map, new ObjectMetadata("map"));
 
-    objectGraph.defineObject(B, new ObjectMetadata);
-    objectGraph.defineReference(heldValues, 1, B, new RelationshipMetadata);
+      const heldToMap = new RelationshipMetadata("held values to map");
+      objectGraph.defineReference(heldValues, 0, map, heldToMap);
 
-    objectGraph.defineObject(E, new ObjectMetadata);
-    objectGraph.defineReference(heldValues, 2, E, new RelationshipMetadata);
+      objectGraph.defineObject(key, new ObjectMetadata("key"));
+      objectGraph.defineObject(value, new ObjectMetadata("value"));
 
-    // const A = new WeakRef(target);
-    objectGraph.defineInternalSlot(A, "[[WeakRefTarget]]", target, false, new RelationshipMetadata);
+      const valueMetadata = new RelationshipMetadata("value metadata");
 
-    /*
-    const B = new WeakMap<object, object>;
-    B.set(C, target);
-    B.set(E, C);
-    */
-    objectGraph.defineObject(C, new ObjectMetadata);
-    objectGraph.defineMapKeyValueTuple(B, C, target, false, new RelationshipMetadata);
-    objectGraph.defineMapKeyValueTuple(B, E, C, false, new RelationshipMetadata);
+      objectGraph.defineMapKeyValueTuple(
+        map, key, value, false, valueMetadata
+      );
 
-    // searchReferences("foo", target, heldvalues, true);
+      objectGraph.markStrongReferencesFromHeldValues();
+      expect(objectGraph.isObjectHeldStrongly(map)).withContext("map").toBeTrue();
+      expect(objectGraph.isObjectHeldStrongly(key)).withContext("key").toBeFalse();
+      expect(objectGraph.isObjectHeldStrongly(value)).withContext("value").toBeFalse();
+    });
 
-    objectGraph.markStrongReferencesFromHeldValues();
+    it("strong in a weak map with another reference to the key", () => {
+      const map = {}, key = {}, value = {};
+      heldValues.push(map, key);
+      objectGraph.defineObject(map, new ObjectMetadata("map"));
+      objectGraph.defineObject(key, new ObjectMetadata("key"));
 
-    // these tests are in the order I expect them to happen
-    expect(objectGraph.isObjectHeldStrongly(heldValues)).withContext("heldValues").toBeTrue();
-    expect(objectGraph.isObjectHeldStrongly(A)).withContext("A").toBeTrue();
-    expect(objectGraph.isObjectHeldStrongly(B)).withContext("B").toBeTrue();
-    expect(objectGraph.isObjectHeldStrongly(E)).withContext("E").toBeTrue();
-    expect(objectGraph.isObjectHeldStrongly(C)).withContext("C").toBeTrue();
-    expect(objectGraph.isObjectHeldStrongly(target)).withContext("target").toBeTrue();
-  });
+      const heldToMap = new RelationshipMetadata("held values to map");
+      objectGraph.defineReference(heldValues, 0, map, heldToMap);
+      objectGraph.defineReference(heldValues, 1, key, new RelationshipMetadata("held values to key"));
 
-  it("does not mark references to target as strong when no chain of strong ownership exists", () => {
-    /*
-    const target = {};
 
-    const A = new WeakRef(target);
-    const B = new WeakMap<object, object>;
-    const C = {"name": "C" };
-    const E = {"name": "E" };
+      objectGraph.defineObject(value, new ObjectMetadata("value"));
 
-    B.set(C, target);
-    //B.set(E, C);
+      const valueMetadata = new RelationshipMetadata("value metadata");
 
-    const heldValues = [ A, B, E ];
-    searchReferences("foo", target, heldValues, true);
-    */
+      objectGraph.defineMapKeyValueTuple(
+        map, key, value, false, valueMetadata
+      );
 
-    // presumed by objectGraph: const target = {};
+      objectGraph.markStrongReferencesFromHeldValues();
+      expect(objectGraph.isObjectHeldStrongly(map)).withContext("map").toBeTrue();
+      expect(objectGraph.isObjectHeldStrongly(key)).withContext("key").toBeTrue();
+      expect(objectGraph.isObjectHeldStrongly(value)).withContext("value").toBeTrue();
+    });
 
-    const A = {"name": "A"}, B = {"name": "B"}, C = {"name": "C"}, E = {"name": "E"};
+    it("strong when a chain of ownership is established", () => {
+      /*
+      const target = {};
+  
+      const A = new WeakRef(target);
+      const B = new WeakMap<object, object>;
+      const C = {"name": "C" };
+      const E = {"name": "E" };
+  
+      B.set(C, target);
+      B.set(E, C);
+  
+      const heldValues = [ A, B, E ];
+      searchReferences("foo", target, heldValues, true);
+      */
+  
+      // presumed by objectGraph: const target = {};
+  
+      const A = {"name": "A"}, B = {"name": "B"}, C = {"name": "C"}, E = {"name": "E"};
+  
+      /*
+      const heldValues = [A, B, E];
+      const C = {"name": "C" };
+      const E = {"name": "E" };
+      */
+      objectGraph.defineObject(A, new ObjectMetadata);
+      objectGraph.defineReference(heldValues, 0, A, new RelationshipMetadata);
+  
+      objectGraph.defineObject(B, new ObjectMetadata);
+      objectGraph.defineReference(heldValues, 1, B, new RelationshipMetadata);
+  
+      objectGraph.defineObject(E, new ObjectMetadata);
+      objectGraph.defineReference(heldValues, 2, E, new RelationshipMetadata);
+  
+      // const A = new WeakRef(target);
+      objectGraph.defineInternalSlot(A, "[[WeakRefTarget]]", target, false, new RelationshipMetadata);
+  
+      /*
+      const B = new WeakMap<object, object>;
+      B.set(C, target);
+      B.set(E, C);
+      */
+      objectGraph.defineObject(C, new ObjectMetadata);
+      objectGraph.defineMapKeyValueTuple(B, C, target, false, new RelationshipMetadata);
+      objectGraph.defineMapKeyValueTuple(B, E, C, false, new RelationshipMetadata);
+  
+      // searchReferences("foo", target, heldvalues, true);
+  
+      objectGraph.markStrongReferencesFromHeldValues();
 
-    /*
-    const heldValues = [A, B, E];
-    const C = {"name": "C" };
-    const E = {"name": "E" };
-    */
-    objectGraph.defineObject(A, new ObjectMetadata);
-    objectGraph.defineReference(heldValues, 0, A, new RelationshipMetadata);
+      // these tests are in the order I expect them to happen
+      expect(objectGraph.isObjectHeldStrongly(heldValues)).withContext("heldValues").toBeTrue();
+      expect(objectGraph.isObjectHeldStrongly(A)).withContext("A").toBeTrue();
+      expect(objectGraph.isObjectHeldStrongly(B)).withContext("B").toBeTrue();
+      expect(objectGraph.isObjectHeldStrongly(E)).withContext("E").toBeTrue();
+      expect(objectGraph.isObjectHeldStrongly(C)).withContext("C").toBeTrue();
+      expect(objectGraph.isObjectHeldStrongly(target)).withContext("target").toBeTrue();
+    });
 
-    objectGraph.defineObject(B, new ObjectMetadata);
-    objectGraph.defineReference(heldValues, 1, B, new RelationshipMetadata);
-
-    objectGraph.defineObject(E, new ObjectMetadata);
-    objectGraph.defineReference(heldValues, 2, E, new RelationshipMetadata);
-
-    // const A = new WeakRef(target);
-    objectGraph.defineInternalSlot(A, "[[WeakRefTarget]]", target, false, new RelationshipMetadata);
-
-    /*
-    const B = new WeakMap<object, object>;
-    B.set(C, target);
-    //B.set(E, C);
-    */
-    objectGraph.defineObject(C, new ObjectMetadata);
-    objectGraph.defineMapKeyValueTuple(B, C, target, false, new RelationshipMetadata);
-    //objectGraph.defineMapKeyValueTuple(B, E, C, false, new RelationshipMetadata);
-
-    // searchReferences("foo", target, heldvalues, true);
-    objectGraph.markStrongReferencesFromHeldValues();
-
-    // these tests are in the order I expect them to happen
-    expect(objectGraph.isObjectHeldStrongly(heldValues)).toBeTrue();
-    expect(objectGraph.isObjectHeldStrongly(A)).toBeTrue();
-    expect(objectGraph.isObjectHeldStrongly(B)).toBeTrue();
-    expect(objectGraph.isObjectHeldStrongly(E)).toBeTrue();
-
-    // C should be a weak key of B, but nothing holds C strongly
-    // no other references to C
-    expect(objectGraph.isObjectHeldStrongly(C)).toBeFalse();
-
-    // target was held weakly by A, so that's not enough to hold the target
-    // target was held strongly by B and C combined, but C wasn't held strongly, so that doesn't hold the target either.
-    // no other references to target
-    expect(objectGraph.isObjectHeldStrongly(target)).toBeFalse();
+    it("weak when no chain of strong ownership exists", () => {
+      /*
+      const target = {};
+  
+      const A = new WeakRef(target);
+      const B = new WeakMap<object, object>;
+      const C = {"name": "C" };
+      const E = {"name": "E" };
+  
+      B.set(C, target);
+      //B.set(E, C);
+  
+      const heldValues = [ A, B, E ];
+      searchReferences("foo", target, heldValues, true);
+      */
+  
+      // presumed by objectGraph: const target = {};
+  
+      const A = {"name": "A"}, B = {"name": "B"}, C = {"name": "C"}, E = {"name": "E"};
+  
+      /*
+      const heldValues = [A, B, E];
+      const C = {"name": "C" };
+      const E = {"name": "E" };
+      */
+      objectGraph.defineObject(A, new ObjectMetadata);
+      objectGraph.defineReference(heldValues, 0, A, new RelationshipMetadata);
+  
+      objectGraph.defineObject(B, new ObjectMetadata);
+      objectGraph.defineReference(heldValues, 1, B, new RelationshipMetadata);
+  
+      objectGraph.defineObject(E, new ObjectMetadata);
+      objectGraph.defineReference(heldValues, 2, E, new RelationshipMetadata);
+  
+      // const A = new WeakRef(target);
+      objectGraph.defineInternalSlot(A, "[[WeakRefTarget]]", target, false, new RelationshipMetadata);
+  
+      /*
+      const B = new WeakMap<object, object>;
+      B.set(C, target);
+      //B.set(E, C);
+      */
+      objectGraph.defineObject(C, new ObjectMetadata);
+      objectGraph.defineMapKeyValueTuple(B, C, target, false, new RelationshipMetadata);
+      //objectGraph.defineMapKeyValueTuple(B, E, C, false, new RelationshipMetadata);
+  
+      // searchReferences("foo", target, heldvalues, true);
+      objectGraph.markStrongReferencesFromHeldValues();
+  
+      // these tests are in the order I expect them to happen
+      expect(objectGraph.isObjectHeldStrongly(heldValues)).toBeTrue();
+      expect(objectGraph.isObjectHeldStrongly(A)).toBeTrue();
+      expect(objectGraph.isObjectHeldStrongly(B)).toBeTrue();
+      expect(objectGraph.isObjectHeldStrongly(E)).toBeTrue();
+  
+      // C should be a weak key of B, but nothing holds C strongly
+      // no other references to C
+      expect(objectGraph.isObjectHeldStrongly(C)).toBeFalse();
+  
+      // target was held weakly by A, so that's not enough to hold the target
+      // target was held strongly by B and C combined, but C wasn't held strongly, so that doesn't hold the target either.
+      // no other references to target
+      expect(objectGraph.isObjectHeldStrongly(target)).toBeFalse();
+    });
   });
 
   describe("throws for", () => {

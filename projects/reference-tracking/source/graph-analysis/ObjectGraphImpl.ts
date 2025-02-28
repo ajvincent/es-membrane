@@ -27,6 +27,10 @@ import {
 } from "../utilities/constants.js";
 
 import {
+  isObjectOrSymbol
+} from "../utilities/isObjectOrSymbol.js";
+
+import {
   StrongOwnershipSetsTracker
 } from "./StrongOwnershipSetsTracker.js";
 
@@ -340,11 +344,14 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>, CloneableGraphI
     const mapId = this.#requireObjectId(map, "map");
 
     let keyId: GraphObjectId | undefined;
-    if (isStrongReferenceToKey === false) {
-      const keyType = typeof key;
-      if ((keyType !== "object") && (keyType !== "function") && (keyType !== "symbol")) {
-        throw new Error("key must be a WeakKey");
-      }
+
+    if (isObjectOrSymbol(key) === false && isStrongReferenceToKey === false) {
+      throw new Error("key must be a WeakKey");
+    }
+
+    if (typeof key === "symbol") {
+      keyId = undefined;
+    } else if (isObjectOrSymbol(key)) {
       keyId = this.#requireObjectId(key as object, "key");
     }
 
