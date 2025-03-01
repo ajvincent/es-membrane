@@ -82,7 +82,7 @@ export interface ObjectGraphIfc<
    *
    * @privateRemarks Enclose the metadata in an object with the key `reference`.
    */
-  defineReference(
+  defineProperty(
     parentObject: object,
     relationshipName: number | string | symbol,
     childObject: object,

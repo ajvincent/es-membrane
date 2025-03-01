@@ -9,5 +9,7 @@ export interface SearchReferencesIfc {
     object: object
   ): boolean;
 
-  summarizeGraphToTarget(): void;
+  summarizeGraphToTarget(
+    strongReferencesOnly: boolean
+  ): void;
 }

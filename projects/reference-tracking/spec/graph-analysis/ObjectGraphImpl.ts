@@ -1,3 +1,4 @@
+//#region preamble
 import type {
   Graph
 } from "@dagrejs/graphlib";
@@ -26,6 +27,7 @@ import {
   EdgePrefix,
   ValueDiscrimant,
 } from "../../source/utilities/constants.js";
+//#endregion preamble
 
 describe("ObjectGraphImpl", () => {
   class ObjectMetadata {
@@ -50,6 +52,9 @@ describe("ObjectGraphImpl", () => {
   const targetMetadata = new ObjectMetadata("target");
   const heldValuesMetadata = new ObjectMetadata("heldValues");
 
+  /* If you're wondering "why have the same object in three variables", this is
+  to enforce the interface boundaries.  After all, I expect to pass the object
+  graph to different API's. */
   let cloneableGraph: CloneableGraphIfc;
   let objectGraph: ObjectGraphIfc<
     Record<"type", "ObjectMetadata">,
@@ -58,7 +63,7 @@ describe("ObjectGraphImpl", () => {
   let searchReferences: SearchReferencesIfc;
 
   beforeEach(() => {
-    target = {};
+    target = { "is target": true };
     heldValues = [];
 
     const graph = new ObjectGraphImpl<
@@ -91,9 +96,9 @@ describe("ObjectGraphImpl", () => {
 
       const targetEdgeMetadata = new RelationshipMetadata("heldValues to target");
 
-      objectGraph.defineReference(heldValues, 0, firstValue, new RelationshipMetadata);
-      const heldToTarget = objectGraph.defineReference(heldValues, 1, target, targetEdgeMetadata);
-      objectGraph.defineReference(heldValues, 2, lastValue, new RelationshipMetadata);
+      objectGraph.defineProperty(heldValues, 0, firstValue, new RelationshipMetadata);
+      const heldToTarget = objectGraph.defineProperty(heldValues, 1, target, targetEdgeMetadata);
+      objectGraph.defineProperty(heldValues, 2, lastValue, new RelationshipMetadata);
 
       expect(objectGraph.getObjectId(target)).toBe("target:0");
       expect(objectGraph.getObjectId(heldValues)).toBe("heldValues:1");
@@ -123,10 +128,10 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(middleValue, new ObjectMetadata);
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
-      objectGraph.defineReference(heldValues, 0, middleValue, heldToMiddle);
+      objectGraph.defineProperty(heldValues, 0, middleValue, heldToMiddle);
 
       const middleToTargetMeta = new RelationshipMetadata("middle value to target");
-      const middleToTarget = objectGraph.defineReference(middleValue, "target", target, middleToTargetMeta);
+      const middleToTarget = objectGraph.defineProperty(middleValue, "target", target, middleToTargetMeta);
 
       expect(objectGraph.getEdgeRelationship(middleToTarget)).toEqual({
         edgeType: EdgePrefix.PropertyKey,
@@ -144,10 +149,10 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(middleValue, new ObjectMetadata);
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
-      objectGraph.defineReference(heldValues, 0, middleValue, heldToMiddle);
+      objectGraph.defineProperty(heldValues, 0, middleValue, heldToMiddle);
 
       const middleToTargetMeta = new RelationshipMetadata("middle value to target");
-      const middleToTarget = objectGraph.defineReference(middleValue, symbolKey, target, middleToTargetMeta);
+      const middleToTarget = objectGraph.defineProperty(middleValue, symbolKey, target, middleToTargetMeta);
 
       expect(objectGraph.getEdgeRelationship(middleToTarget)).toEqual({
         edgeType: EdgePrefix.PropertyKey,
@@ -164,7 +169,7 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(middleValue, new ObjectMetadata);
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
-      objectGraph.defineReference(heldValues, 0, middleValue, heldToMiddle);
+      objectGraph.defineProperty(heldValues, 0, middleValue, heldToMiddle);
 
       const middleToTargetMeta = new RelationshipMetadata("middle value to target");
       const middleToTarget = objectGraph.defineInternalSlot(
@@ -185,7 +190,7 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(map, new ObjectMetadata("map"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
-      objectGraph.defineReference(heldValues, 0, map, heldToMap);
+      objectGraph.defineProperty(heldValues, 0, map, heldToMap);
 
       objectGraph.defineObject(key, new ObjectMetadata("key"));
       objectGraph.defineObject(value, new ObjectMetadata("value"));
@@ -248,7 +253,7 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(middleValue, new ObjectMetadata);
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
-      objectGraph.defineReference(heldValues, 0, middleValue, heldToMiddle);
+      objectGraph.defineProperty(heldValues, 0, middleValue, heldToMiddle);
 
       const middleToTargetMeta = new RelationshipMetadata("middle value to target");
       const middleToTarget = objectGraph.defineSetValue(middleValue, target, true, middleToTargetMeta);
@@ -268,8 +273,8 @@ describe("ObjectGraphImpl", () => {
 
       const firstIndexMetadata = new RelationshipMetadata("first index");
       const secondIndexMetadata = new RelationshipMetadata("second index");
-      const firstEdge = objectGraph.defineReference(heldValues, 0, target, firstIndexMetadata);
-      const secondEdge = objectGraph.defineReference(heldValues, 1, target, secondIndexMetadata);
+      const firstEdge = objectGraph.defineProperty(heldValues, 0, target, firstIndexMetadata);
+      const secondEdge = objectGraph.defineProperty(heldValues, 1, target, secondIndexMetadata);
 
       expect(objectGraph.getEdgeRelationship(firstEdge)).toEqual({
         edgeType: EdgePrefix.PropertyKey,
@@ -294,7 +299,7 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(map, new ObjectMetadata("map"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
-      objectGraph.defineReference(heldValues, 0, map, heldToMap);
+      objectGraph.defineProperty(heldValues, 0, map, heldToMap);
 
       objectGraph.defineObject(key, new ObjectMetadata("key"));
       objectGraph.defineObject(value, new ObjectMetadata("value"));
@@ -317,7 +322,7 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(map, new ObjectMetadata("map"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
-      objectGraph.defineReference(heldValues, 0, map, heldToMap);
+      objectGraph.defineProperty(heldValues, 0, map, heldToMap);
 
       objectGraph.defineObject(key, new ObjectMetadata("key"));
       objectGraph.defineObject(value, new ObjectMetadata("value"));
@@ -341,8 +346,8 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(key, new ObjectMetadata("key"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
-      objectGraph.defineReference(heldValues, 0, map, heldToMap);
-      objectGraph.defineReference(heldValues, 1, key, new RelationshipMetadata("held values to key"));
+      objectGraph.defineProperty(heldValues, 0, map, heldToMap);
+      objectGraph.defineProperty(heldValues, 1, key, new RelationshipMetadata("held values to key"));
 
 
       objectGraph.defineObject(value, new ObjectMetadata("value"));
@@ -370,13 +375,13 @@ describe("ObjectGraphImpl", () => {
   
       B.set(C, target);
       B.set(E, C);
-  
+
       const heldValues = [ A, B, E ];
       searchReferences("foo", target, heldValues, true);
       */
-  
+
       // presumed by objectGraph: const target = {};
-  
+
       const A = {"name": "A"}, B = {"name": "B"}, C = {"name": "C"}, E = {"name": "E"};
   
       /*
@@ -385,13 +390,13 @@ describe("ObjectGraphImpl", () => {
       const E = {"name": "E" };
       */
       objectGraph.defineObject(A, new ObjectMetadata);
-      objectGraph.defineReference(heldValues, 0, A, new RelationshipMetadata);
+      objectGraph.defineProperty(heldValues, 0, A, new RelationshipMetadata);
   
       objectGraph.defineObject(B, new ObjectMetadata);
-      objectGraph.defineReference(heldValues, 1, B, new RelationshipMetadata);
-  
+      objectGraph.defineProperty(heldValues, 1, B, new RelationshipMetadata);
+
       objectGraph.defineObject(E, new ObjectMetadata);
-      objectGraph.defineReference(heldValues, 2, E, new RelationshipMetadata);
+      objectGraph.defineProperty(heldValues, 2, E, new RelationshipMetadata);
   
       // const A = new WeakRef(target);
       objectGraph.defineInternalSlot(A, "[[WeakRefTarget]]", target, false, new RelationshipMetadata);
@@ -404,7 +409,7 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(C, new ObjectMetadata);
       objectGraph.defineMapKeyValueTuple(B, C, target, false, new RelationshipMetadata);
       objectGraph.defineMapKeyValueTuple(B, E, C, false, new RelationshipMetadata);
-  
+
       // searchReferences("foo", target, heldvalues, true);
   
       searchReferences.markStrongReferencesFromHeldValues();
@@ -444,13 +449,13 @@ describe("ObjectGraphImpl", () => {
       const E = {"name": "E" };
       */
       objectGraph.defineObject(A, new ObjectMetadata);
-      objectGraph.defineReference(heldValues, 0, A, new RelationshipMetadata);
+      objectGraph.defineProperty(heldValues, 0, A, new RelationshipMetadata);
   
       objectGraph.defineObject(B, new ObjectMetadata);
-      objectGraph.defineReference(heldValues, 1, B, new RelationshipMetadata);
+      objectGraph.defineProperty(heldValues, 1, B, new RelationshipMetadata);
   
       objectGraph.defineObject(E, new ObjectMetadata);
-      objectGraph.defineReference(heldValues, 2, E, new RelationshipMetadata);
+      objectGraph.defineProperty(heldValues, 2, E, new RelationshipMetadata);
   
       // const A = new WeakRef(target);
       objectGraph.defineInternalSlot(A, "[[WeakRefTarget]]", target, false, new RelationshipMetadata);
@@ -472,15 +477,192 @@ describe("ObjectGraphImpl", () => {
       expect(searchReferences.isObjectHeldStrongly(A)).toBeTrue();
       expect(searchReferences.isObjectHeldStrongly(B)).toBeTrue();
       expect(searchReferences.isObjectHeldStrongly(E)).toBeTrue();
-  
+
       // C should be a weak key of B, but nothing holds C strongly
       // no other references to C
       expect(searchReferences.isObjectHeldStrongly(C)).toBeFalse();
-  
+
       // target was held weakly by A, so that's not enough to hold the target
       // target was held strongly by B and C combined, but C wasn't held strongly, so that doesn't hold the target either.
       // no other references to target
       expect(searchReferences.isObjectHeldStrongly(target)).toBeFalse();
+    });
+  });
+
+  describe(".summarizeGraphToTarget", () => {
+    const heldToMap = new RelationshipMetadata("held values to map");
+    const valueMetadata = new RelationshipMetadata("value metadata");
+
+    const map = {}, key = {}, value = {}, targetKey = {};
+    beforeEach(() => {
+      heldValues.push(map);
+      objectGraph.defineObject(map, new ObjectMetadata("map"));
+
+      objectGraph.defineProperty(heldValues, 0, map, heldToMap);
+
+      objectGraph.defineObject(key, new ObjectMetadata("key"));
+      objectGraph.defineObject(value, new ObjectMetadata("value"));
+
+      objectGraph.defineObject(targetKey, new ObjectMetadata("target key"));
+    });
+
+    it("(true) reduces to strong reference chains to the target", () => {
+      objectGraph.defineMapKeyValueTuple(
+        map, key, value, true, valueMetadata
+      );
+      const {
+        tupleNodeId,
+        mapToTupleEdgeId,
+        tupleToKeyEdgeId,
+        tupleToValueEdgeId
+      } = objectGraph.defineMapKeyValueTuple(
+        map, targetKey, target, true, valueMetadata
+      );
+
+      let graph: Graph = cloneableGraph.cloneGraph();
+      const nodeCountBefore = graph.nodeCount();
+      const edgeCountBefore = graph.edgeCount();
+
+      // this is really the turning point.
+      searchReferences.markStrongReferencesFromHeldValues();
+
+      searchReferences.summarizeGraphToTarget(true);
+      graph = cloneableGraph.cloneGraph();
+
+      expect(graph.nodeCount()).toBe(5);
+      expect(graph.nodeCount()).toBeLessThan(nodeCountBefore);
+      expect(graph.hasNode(objectGraph.getObjectId(target))).toBeTrue();
+      expect(graph.hasNode(objectGraph.getObjectId(heldValues))).toBeTrue();
+      expect(graph.hasNode(objectGraph.getObjectId(map))).toBeTrue();
+      expect(graph.hasNode(objectGraph.getObjectId(targetKey))).toBeTrue();
+      expect(graph.hasNode(tupleNodeId)).toBeTrue();
+
+      expect(graph.hasNode(objectGraph.getObjectId(key))).toBeFalse();
+      expect(graph.hasNode(objectGraph.getObjectId(value))).toBeFalse();
+
+      expect(graph.edgeCount()).toBeGreaterThan(0);
+      expect(graph.edgeCount()).toBeLessThan(edgeCountBefore);
+
+      expect(graph.hasEdge(
+        objectGraph.getObjectId(map),
+        tupleNodeId,
+        mapToTupleEdgeId
+      )).withContext("heldValues => map").toBeTrue();
+
+      expect(graph.hasEdge(
+        tupleNodeId,
+        objectGraph.getObjectId(targetKey),
+        tupleToKeyEdgeId
+      )).withContext("heldValues => map").toBeTrue();
+
+      expect(graph.hasEdge(
+        tupleNodeId,
+        objectGraph.getObjectId(target),
+        tupleToValueEdgeId
+      )).withContext("heldValues => map").toBeTrue();
+
+      expect(
+        graph.inEdges(objectGraph.getObjectId(map))
+      ).toEqual(
+        graph.outEdges(objectGraph.getObjectId(heldValues))
+      );
+    });
+
+    it("(false) reduces to reference chains to the target", () => {
+      objectGraph.defineMapKeyValueTuple(
+        map, key, value, false, valueMetadata
+      );
+      const {
+        tupleNodeId,
+        mapToTupleEdgeId,
+        tupleToKeyEdgeId,
+        tupleToValueEdgeId
+      } = objectGraph.defineMapKeyValueTuple(
+        map, targetKey, target, false, valueMetadata
+      );
+
+      let graph: Graph = cloneableGraph.cloneGraph();
+      const nodeCountBefore = graph.nodeCount();
+      const edgeCountBefore = graph.edgeCount();
+
+      searchReferences.summarizeGraphToTarget(false);
+      graph = cloneableGraph.cloneGraph();
+
+      expect(graph.nodeCount()).toBe(5);
+      expect(graph.nodeCount()).toBeLessThan(nodeCountBefore);
+      expect(graph.hasNode(objectGraph.getObjectId(target))).toBeTrue();
+      expect(graph.hasNode(objectGraph.getObjectId(heldValues))).toBeTrue();
+      expect(graph.hasNode(objectGraph.getObjectId(map))).toBeTrue();
+      expect(graph.hasNode(objectGraph.getObjectId(targetKey))).toBeTrue();
+      expect(graph.hasNode(tupleNodeId)).toBeTrue();
+
+      expect(graph.hasNode(objectGraph.getObjectId(key))).toBeFalse();
+      expect(graph.hasNode(objectGraph.getObjectId(value))).toBeFalse();
+
+      expect(graph.edgeCount()).toBeGreaterThan(0);
+      expect(graph.edgeCount()).toBeLessThan(edgeCountBefore);
+
+      expect(graph.hasEdge(
+        objectGraph.getObjectId(map),
+        tupleNodeId,
+        mapToTupleEdgeId
+      )).withContext("heldValues => map").toBeTrue();
+
+      expect(graph.hasEdge(
+        tupleNodeId,
+        objectGraph.getObjectId(targetKey),
+        tupleToKeyEdgeId
+      )).withContext("heldValues => map").toBeTrue();
+
+      expect(graph.hasEdge(
+        tupleNodeId,
+        objectGraph.getObjectId(target),
+        tupleToValueEdgeId
+      )).withContext("heldValues => map").toBeTrue();
+
+      expect(
+        graph.inEdges(objectGraph.getObjectId(map))
+      ).toEqual(
+        graph.outEdges(objectGraph.getObjectId(heldValues))
+      );
+    });
+
+    it("(true) returns an empty graph when there are only weak reference chains to the target", () => {
+      objectGraph.defineMapKeyValueTuple(
+        map, key, target, false, valueMetadata
+      );
+
+      searchReferences.markStrongReferencesFromHeldValues();
+
+      // we tested summarizeGraphToTarget(false) above.
+      searchReferences.summarizeGraphToTarget(true);
+      const graph: Graph = cloneableGraph.cloneGraph();
+      expect(graph.nodeCount()).toBe(0);
+      expect(graph.edgeCount()).toBe(0);
+    });
+
+    it("(true) returns an empty graph when the target has no reference chains", () => {
+      objectGraph.defineMapKeyValueTuple(
+        map, key, value, true, valueMetadata
+      );
+
+      searchReferences.markStrongReferencesFromHeldValues();
+
+      searchReferences.summarizeGraphToTarget(true);
+      const graph: Graph = cloneableGraph.cloneGraph();
+      expect(graph.nodeCount()).toBe(0);
+      expect(graph.edgeCount()).toBe(0);
+    });
+
+    it("(false) returns an empty graph when the target has no reference chains", () => {
+      objectGraph.defineMapKeyValueTuple(
+        map, key, value, false, valueMetadata
+      );
+
+      searchReferences.summarizeGraphToTarget(false);
+      const graph: Graph = cloneableGraph.cloneGraph();
+      expect(graph.nodeCount()).toBe(0);
+      expect(graph.edgeCount()).toBe(0);
     });
   });
 
@@ -495,11 +677,11 @@ describe("ObjectGraphImpl", () => {
       ).toThrowError("object is not defined as a node");
 
       expect(
-        () => objectGraph.defineReference(unused, "foo", target, metadata)
+        () => objectGraph.defineProperty(unused, "foo", target, metadata)
       ).toThrowError("parentObject is not defined as a node");
 
       expect(
-        () => objectGraph.defineReference(heldValues, "foo", unused, metadata)
+        () => objectGraph.defineProperty(heldValues, "foo", unused, metadata)
       ).toThrowError("childObject is not defined as a node");
 
       expect(

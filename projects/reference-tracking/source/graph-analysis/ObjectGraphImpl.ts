@@ -61,6 +61,7 @@ enum ObjectGraphState {
   AcceptingDefinitions = 0,
   MarkingStrongReferences,
   MarkedStrongReferences,
+  Summarizing,
   Summarized,
   Error = Infinity,
 }
@@ -97,6 +98,16 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>,
   readonly #objectHeldStronglyMap = new WeakMap<object, boolean>;
   readonly #objectIdsToVisit = new Set<PrefixedNumber<NodePrefix>>;
 
+  readonly #edgeIdToJointOwnersMap_Weak = new Map<
+    PrefixedNumber<EdgePrefix>,
+    ReadonlySet<PrefixedNumber<NodePrefix>>
+  >;
+  readonly #edgeIdToJointOwnersMap_Strong = new Map<
+    PrefixedNumber<EdgePrefix>,
+    ReadonlySet<PrefixedNumber<NodePrefix>>
+  >;
+
+  #searchedForStrongReferences = false;
   #strongReferenceCallback?: (object: object) => void;
   //#endregion private class fields
 
@@ -204,7 +215,8 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>,
     parentId: PrefixedNumber<NodePrefix>,
     childId: PrefixedNumber<NodePrefix>,
     edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata | null>,
-    edgeId: PrefixedNumber<EdgePrefix>
+    edgeId: PrefixedNumber<EdgePrefix>,
+    jointOwnerKeys: readonly PrefixedNumber<NodePrefix>[],
   ): void
   {
     this.#graph.setEdge(parentId, childId, edgeMetadata, edgeId);
@@ -215,9 +227,12 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>,
 
     if (childId === this.#targetId)
       this.#objectHeldStronglyMap.set(this.#idToObjectOrSymbolMap.get(this.#targetId) as object, false);
+
+    const keySet = new Set(jointOwnerKeys);
+    this.#edgeIdToJointOwnersMap_Weak.set(edgeId, keySet);
   }
 
-  public defineReference(
+  public defineProperty(
     parentObject: object,
     relationshipName: number | string | symbol,
     childObject: object,
@@ -271,7 +286,8 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>,
       parentId,
       childId,
       edgeMetadata,
-      edgeId
+      edgeId,
+      [parentId]
     );
     return edgeId;
   }
@@ -299,7 +315,8 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>,
       this.getObjectId(parentObject),
       this.getObjectId(childObject),
       edgeMetadata,
-      edgeId
+      edgeId,
+      [this.getObjectId(parentObject)]
     );
 
     return edgeId;
@@ -327,7 +344,7 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>,
       metadata,
     };
 
-    this.#defineEdge(parentId, childId, edgeMetadata, edgeId);
+    this.#defineEdge(parentId, childId, edgeMetadata, edgeId, [parentId]);
 
     this.#ownershipSetsTracker.defineChildEdge(
       childId, [parentId], edgeId
@@ -378,7 +395,8 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>,
         mapId,
         tupleNodeId,
         edgeMetadata,
-        mapToTupleEdgeId
+        mapToTupleEdgeId,
+        [mapId]
       );
 
       this.#ownershipSetsTracker.defineChildEdge(tupleNodeId, [mapId], mapToTupleEdgeId);
@@ -397,7 +415,7 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>,
         metadata: null,
       };
 
-      this.#defineEdge(tupleNodeId, keyId, edgeMetadata, tupleToKeyEdgeId);
+      this.#defineEdge(tupleNodeId, keyId, edgeMetadata, tupleToKeyEdgeId, [tupleNodeId]);
 
       this.#ownershipSetsTracker.defineChildEdge(keyId, [tupleNodeId], tupleToKeyEdgeId);
       this.#edgeIdTo_IsStrongReference_Map.set(tupleToKeyEdgeId, isStrongReferenceToKey);
@@ -414,11 +432,10 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>,
         description,
       };
 
-      this.#defineEdge(tupleNodeId, valueId, edgeMetadata, tupleToValueEdgeId);
-
       const jointOwnerKeys = [mapId];
       if (keyId)
         jointOwnerKeys.push(keyId);
+      this.#defineEdge(tupleNodeId, valueId, edgeMetadata, tupleToValueEdgeId, jointOwnerKeys);
       this.#ownershipSetsTracker.defineChildEdge(valueId, jointOwnerKeys, tupleToValueEdgeId);
       this.#edgeIdTo_IsStrongReference_Map.set(tupleToValueEdgeId, true);
     }
@@ -451,7 +468,7 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>,
       metadata
     };
 
-    this.#defineEdge(setId, valueId, edgeMetadata, edgeId);
+    this.#defineEdge(setId, valueId, edgeMetadata, edgeId, [setId]);
 
     this.#ownershipSetsTracker.defineChildEdge(
       valueId, [setId], edgeId
@@ -493,14 +510,17 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>,
           this.#strongReferenceCallback(objectOrSymbol);
         }
       }
+
+      const keySet = new Set(jointOwnerKeys);
+      this.#edgeIdToJointOwnersMap_Strong.set(edgeId, keySet);
     }
 
-    void(jointOwnerKeys);
     void(tracker);
   }
 
   public markStrongReferencesFromHeldValues(): void {
     this.#setNextState(ObjectGraphState.MarkingStrongReferences);
+    this.#searchedForStrongReferences = true;
 
     const heldValues = this.#idToObjectOrSymbolMap.get(this.#heldValuesId) as object;
     this.#objectHeldStronglyMap.set(heldValues, true);
@@ -519,22 +539,83 @@ implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>,
   }
 
   public isObjectHeldStrongly(object: object): boolean {
+    if (!this.#searchedForStrongReferences) {
+      throw new Error("You haven't searched for strong references yet.");
+    }
     this.#setNextState(ObjectGraphState.MarkedStrongReferences);
     return this.#objectHeldStronglyMap.get(object) ?? false;
   }
 
-  public summarizeGraphToTarget(): void
+  public summarizeGraphToTarget(
+    strongReferencesOnly: boolean,
+  ): void
   {
-    throw new Error("not yet implemented");
-    /*
-    this.#setNextState(ObjectGraphState.Summarized);
+    this.#setNextState(ObjectGraphState.Summarizing);
     try {
-      // todo
+      const summaryGraph = new graphlib.Graph({ directed: true, multigraph: true });
+
+      const target = this.#idToObjectOrSymbolMap.get(this.#targetId) as object;
+      const targetReference: boolean | undefined = this.#objectHeldStronglyMap.get(target);
+
+      let edgeIdToJointOwnersMap: ReadonlyMap<
+        PrefixedNumber<EdgePrefix>,
+        ReadonlySet<PrefixedNumber<NodePrefix>>
+      > | undefined;
+
+      if (strongReferencesOnly && targetReference === true) {
+        edgeIdToJointOwnersMap = this.#edgeIdToJointOwnersMap_Strong;
+      } else if (!strongReferencesOnly && targetReference !== undefined) {
+        edgeIdToJointOwnersMap = this.#edgeIdToJointOwnersMap_Weak;
+      }
+      if (edgeIdToJointOwnersMap) {
+        this.#summarizeGraphToTarget(summaryGraph, edgeIdToJointOwnersMap);
+      }
+
+      this.#graph = summaryGraph;
+      this.#setNextState(ObjectGraphState.Summarized);
     } catch (ex) {
       this.#state = ObjectGraphState.Error;
       throw ex;
     }
-    */
+  }
+
+  #summarizeGraphToTarget(
+    summaryGraph: graphlib.Graph,
+    edgeIdToJointOwnersMap: ReadonlyMap<
+      PrefixedNumber<EdgePrefix>,
+      ReadonlySet<PrefixedNumber<NodePrefix>>
+    >,
+  ): void
+  {
+    const wNodeIds = new Set<GraphObjectId>([this.#targetId]);
+
+    for (const id of wNodeIds) {
+      const wNode = this.#graph.node(id);
+      if (!summaryGraph.node(id)) {
+        summaryGraph.setNode(id, wNode);
+      }
+
+      const edges = this.#graph.inEdges(id);
+      if (!edges)
+        continue;
+
+      for (const e of edges) {
+        const vNodeId = e.v;
+        if (!summaryGraph.node(vNodeId)) {
+          summaryGraph.setNode(vNodeId, this.#graph.node(vNodeId));
+        }
+
+        const edgeId = e.name as PrefixedNumber<EdgePrefix>;
+        summaryGraph.setEdge(e, this.#graph.edge(e));
+
+        const jointOwnerKeys: ReadonlySet<PrefixedNumber<NodePrefix>> | undefined = edgeIdToJointOwnersMap.get(edgeId);
+        if (!jointOwnerKeys)
+          continue;
+        for (const ownerKey of jointOwnerKeys) {
+          wNodeIds.add(ownerKey);
+        }
+      }
+    }
   }
   //#endregion SearchReferencesIfc
 }
