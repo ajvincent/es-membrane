@@ -75,9 +75,11 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
 {
   //#region private class fields
   #state: ObjectGraphState = ObjectGraphState.AcceptingDefinitions;
+  #targetId: PrefixedNumber<"target">;
+  #heldValuesId: PrefixedNumber<"heldValues">;
+  #defineTargetCalled = false;
+
   #graph = new graphlib.Graph({ directed: true, multigraph: true });
-  readonly #targetId: PrefixedNumber<"target">;
-  readonly #heldValuesId: PrefixedNumber<"heldValues">;
 
   readonly #nodeCounter = new StringCounter<NodePrefix>;
   readonly #edgeCounter = new StringCounter<EdgePrefix>;
@@ -111,10 +113,15 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   #strongReferenceCallback?: (object: object) => void;
   //#endregion private class fields
 
-  constructor(
+  constructor() {
+    this.#targetId = "target:-1";
+    this.#heldValuesId = "heldValues:-2";
+  }
+
+  public defineTargetAndHeldValues(
     target: object,
     targetMetadata: ObjectMetadata,
-    heldValues: object[],
+    heldValues: object,
     heldValuesMetadata: ObjectMetadata,
   )
   {
@@ -122,9 +129,17 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     this.#heldValuesId = this.#defineObject(heldValues, heldValuesMetadata, NodePrefix.HeldValues);
 
     this.#objectHeldStronglyMap.delete(target);
+    this.#defineTargetCalled = true;
+  }
+
+  #assertDefineTargetCalled(): void {
+    if (!this.#defineTargetCalled) {
+      throw new Error("you must call defineTargetAndHeldValues first!");
+    }
   }
 
   #setNextState(nextState: ObjectGraphState): void {
+    this.#assertDefineTargetCalled();
     if (nextState >= this.#state) {
       this.#state = nextState;
     } else {
@@ -135,6 +150,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
 
   //#region CloneableGraphIfc
   public cloneGraph(): graphlib.Graph {
+    this.#assertDefineTargetCalled();
     return graphlib.json.read(graphlib.json.write(this.#graph));
   }
   //#endregion CloneableGraphIfc
@@ -144,6 +160,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     object: object
   ): ObjectId
   {
+    this.#assertDefineTargetCalled();
     const id: GraphObjectId =  this.#requireObjectId(object, "object");
     if (id.startsWith("keyValueTuple"))
       throw new Error("object is a key-value tuple, how did you get it?");
@@ -154,6 +171,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     symbol: symbol
   ): SymbolId
   {
+    this.#assertDefineTargetCalled();
     let symbolId = this.#symbolToIdMap.get(symbol);
     if (!symbolId) {
       symbolId = this.#symbolCounter.next("symbol");
@@ -166,6 +184,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
 
   //#region ObjectGraphIfc
   public hasObject(object: object): boolean {
+    this.#assertDefineTargetCalled();
     return this.#nodeToIdMap.has(object);
   }
 
@@ -478,10 +497,11 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     return edgeId;
   }
 
-  getEdgeRelationship(
+  public getEdgeRelationship(
     edgeId: PrefixedNumber<EdgePrefix>
   ): ReadonlyDeep<GraphEdgeWithMetadata<RelationshipMetadata | null>> | undefined
   {
+    this.#assertDefineTargetCalled();
     return this.#edgeIdToMetadataMap.get(edgeId);
   }
   //#endregion ObjectGraphIfc
@@ -539,6 +559,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   }
 
   public isObjectHeldStrongly(object: object): boolean {
+    this.#assertDefineTargetCalled();
     if (!this.#searchedForStrongReferences) {
       throw new Error("You haven't searched for strong references yet.");
     }

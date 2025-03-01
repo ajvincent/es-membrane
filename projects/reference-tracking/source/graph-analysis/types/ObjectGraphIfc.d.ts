@@ -66,6 +66,13 @@ export interface ObjectGraphIfc<
   RelationshipMetadata extends JsonObject | null,
 > extends ValueIdIfc<EngineObject, EngineSymbol>
 {
+  defineTargetAndHeldValues(
+    target: EngineObject,
+    targetMetadata: ObjectMetadata,
+    heldValues: EngineObject,
+    heldValuesMetadata: ObjectMetadata,
+  ): void;
+
   hasObject(
     object: EngineObject
   ): boolean;

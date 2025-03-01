@@ -1,6 +1,6 @@
 import {
   BuiltInJSTypeName,
-} from "../../utilities/constants.ts";
+} from "../../../../source/utilities/constants.ts";
 
 import type {
   ChildToParentReferenceGraphEdge,

@@ -1,12 +1,10 @@
-/*
 import type {
   ReadonlyDeep
 } from "type-fest";
 
-import {
-  GuestEngine,
-  type ThrowOr
-} from "./engine262-tools/GuestEngine.js";
+import type {
+  Graph,
+} from "@dagrejs/graphlib";
 
 import {
   defineSearchReferences
@@ -17,26 +15,28 @@ import {
 } from "./engine262-tools/built-ins/engine262-demos/defineReportFunction.js";
 
 import {
+  GuestEngine,
+  type ThrowOr,
+} from "./engine262-tools/host-to-guest/GuestEngine.js";
+
+import {
   directInvoke
-} from "./engine262-tools/directInvoke.js";
+} from "./engine262-tools/host-to-guest/directInvoke.js";
 
 import type {
   GuestRealmOutputs
 } from "./engine262-tools/types/Virtualization262.js";
 
-import type {
-  ReferenceGraph
-} from "./types/ReferenceGraph.js";
-
 export interface InternalSearchResults {
-  readonly graphs: ReadonlyDeep<Map<string, ReferenceGraph>>;
+  readonly graphs: ReadonlyMap<string, Graph | null>;
   readonly reportCalls: ReadonlyMap<string, string | number | boolean | undefined | null>;
 }
 
 export async function runSearchesInGuestEngineInternal(
   absolutePathToFile: string,
-): Promise<ReadonlyDeep<InternalSearchResults>> {
-  const graphs = new Map<string, ReferenceGraph>;
+): Promise<ReadonlyDeep<InternalSearchResults>>
+{
+  const graphs = new Map<string, Graph | null>;
   const reportCalls = new Map<string, string | number | boolean | undefined | null>;
 
   const outputs: GuestRealmOutputs = await directInvoke({
@@ -51,10 +51,7 @@ export async function runSearchesInGuestEngineInternal(
     throw new Error("evaluating module in guest engine failed: " + absolutePathToFile);
   }
 
-  return {
-    graphs,
-    reportCalls
-  };
+  return { graphs, reportCalls };
 }
 
 function handleReport(
@@ -82,6 +79,6 @@ function handleReport(
 
   else
     return GuestEngine.Throw("TypeError", "Raw", `value must be undefined, a string, a boolean, a number, or null.`);
+
   return GuestEngine.Value.undefined;
 }
-*/

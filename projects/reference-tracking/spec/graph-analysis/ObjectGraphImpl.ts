@@ -71,8 +71,9 @@ describe("ObjectGraphImpl", () => {
     const graph = new ObjectGraphImpl<
       Record<"type", "ObjectMetadata">,
       Record<"type", "RelationshipMetadata">
-    >
-    (
+    >;
+
+    graph.defineTargetAndHeldValues(
       target, targetMetadata, heldValues, heldValuesMetadata
     );
     cloneableGraph = graph;

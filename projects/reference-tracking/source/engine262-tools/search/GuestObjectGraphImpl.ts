@@ -20,9 +20,9 @@ import type {
   EdgePrefix
 } from "../../utilities/constants.js";
 
-import {
+import type {
   GuestEngine
-} from "./GuestEngine.js";
+} from "../host-to-guest/GuestEngine.js";
 
 import {
   HostValueSubstitution
@@ -64,6 +64,21 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
   )
   {
     this.#hostGraph = hostGraph;
+  }
+
+  public defineTargetAndHeldValues(
+    target: GuestEngine.ObjectValue,
+    targetMetadata: ObjectMetadata,
+    heldValues: GuestEngine.ObjectValue,
+    heldValuesMetadata: ObjectMetadata
+  ): void
+  {
+    this.#hostGraph.defineTargetAndHeldValues(
+      this.#substitution.getHostObject(target),
+      targetMetadata,
+      this.#substitution.getHostObject(heldValues),
+      heldValuesMetadata
+    );
   }
 
   public getObjectId(object: GuestEngine.ObjectValue): ObjectId {

@@ -1,6 +1,6 @@
 import type {
   GuestEngine
-} from "./GuestEngine.js";
+} from "../host-to-guest/GuestEngine.js";
 
 export class HostValueSubstitution
 {

@@ -1,12 +1,6 @@
-/*
 import type {
-  ReadonlyDeep
-} from "type-fest";
-
-import type {
-  ReferenceGraph
-} from "../../types/ReferenceGraph.js";
-*/
+  Graph,
+} from "@dagrejs/graphlib";
 
 import {
   GuestEngine,
@@ -17,11 +11,9 @@ import {
   convertArrayValueToArrayOfValues
 } from "../host-to-guest/convertArrayValueToArrayOfValues.js";
 
-/*
 import {
   SearchDriver
-} from "../search/Driver.js";
-*/
+} from "../search/SearchDriver.js";
 
 import {
   defineBuiltInFunction
@@ -37,9 +29,7 @@ interface SearchReferencesArguments {
 export function defineSearchReferences(
   this: void,
   realm: GuestEngine.ManagedRealm,
-  /*
-  searchResultsMap: Map<string, ReadonlyDeep<ReferenceGraph>>,
-  */
+  searchResultsMap: Map<string, Graph | null>,
 ): void
 {
   defineBuiltInFunction(
@@ -57,7 +47,6 @@ export function defineSearchReferences(
       if (searchArgs instanceof GuestEngine.ThrowCompletion)
         return searchArgs;
 
-      /*
       if (searchResultsMap.has(searchArgs.resultsKey)) {
         return GuestEngine.Throw("Error", "Raw",
           `You already have a search with the results key ${JSON.stringify(searchArgs.resultsKey)}`
@@ -71,13 +60,12 @@ export function defineSearchReferences(
         realm,
       );
 
-      const graph: ThrowOr<ReadonlyDeep<ReferenceGraph> | undefined> = searchDriver.run();
+      const graph: ThrowOr<Graph | null> = searchDriver.run();
       if (graph instanceof GuestEngine.ThrowCompletion)
         return graph;
 
       if (graph)
         searchResultsMap.set(searchArgs.resultsKey, graph);
-      */
 
       return GuestEngine.Value.undefined;
     }
