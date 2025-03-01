@@ -20,9 +20,25 @@ import type {
   SearchReferencesIfc
 } from "../../graph-analysis/types/SearchReferencesIfc.js";
 
+import type {
+  GraphObjectMetadata
+} from "../../types/GraphObjectMetadata.js";
+
+import type {
+  GraphRelationshipMetadata
+} from "../../types/GraphRelationshipMetadata.js";
+
+import {
+  BuiltInJSTypeName
+} from "../../utilities/constants.js";
+
 import {
   GuestObjectGraphImpl
 } from "./GuestObjectGraphImpl.js";
+
+import {
+  buildObjectMetadata
+} from "./ObjectMetadata.js";
 //#endregion preamble
 
 export class SearchDriver
@@ -30,7 +46,7 @@ export class SearchDriver
   readonly #strongReferencesOnly: boolean;
   readonly #realm: GuestEngine.ManagedRealm;
 
-  readonly #guestObjectGraph: GuestObjectGraphImpl<null, null>;
+  readonly #guestObjectGraph: GuestObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
   readonly #cloneableGraph: CloneableGraphIfc;
   readonly #searchReferences: SearchReferencesIfc;
 
@@ -44,9 +60,22 @@ export class SearchDriver
     this.#strongReferencesOnly = strongReferencesOnly;
     this.#realm = realm;
 
-    const hostGraphImpl = new ObjectGraphImpl<null, null>;
+    const hostGraphImpl = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
     this.#guestObjectGraph = new GuestObjectGraphImpl(hostGraphImpl);
-    this.#guestObjectGraph.defineTargetAndHeldValues(targetValue, null, heldValues, null);
+
+    const targetMetadata: GraphObjectMetadata = buildObjectMetadata(
+      BuiltInJSTypeName.Object,
+      BuiltInJSTypeName.Object,
+    );
+
+    const heldValuesMetadata: GraphObjectMetadata = buildObjectMetadata(
+      BuiltInJSTypeName.Array,
+      BuiltInJSTypeName.Array,
+    );
+
+    this.#guestObjectGraph.defineTargetAndHeldValues(
+      targetValue, targetMetadata, heldValues, heldValuesMetadata
+    );
 
     this.#cloneableGraph = hostGraphImpl;
     this.#searchReferences = hostGraphImpl;

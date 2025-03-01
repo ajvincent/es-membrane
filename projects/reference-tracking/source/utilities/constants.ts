@@ -1,6 +1,3 @@
-export const TARGET_NODE_KEY = 0;
-export const PRESUMED_HELD_NODE_KEY = 1;
-
 export enum ChildReferenceEdgeType {
   PropertyName = "PropertyName",
   ArrayIndex = "ArrayIndex",

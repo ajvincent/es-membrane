@@ -1,35 +1,28 @@
-/*
 import type {
-  ReadonlyDeep
-} from "type-fest";
-
-import {
-  GuestEngine,
-} from "./engine262-tools/GuestEngine.js";
+  Graph,
+} from "@dagrejs/graphlib";
 
 import {
   defineSearchReferences
 } from "./engine262-tools/built-ins/defineSearchReferences.js";
 
 import {
+  GuestEngine,
+} from "./engine262-tools/host-to-guest/GuestEngine.js";
+
+import {
   directInvoke
-} from "./engine262-tools/directInvoke.js";
+} from "./engine262-tools/host-to-guest/directInvoke.js";
 
 import type {
   GuestRealmOutputs
 } from "./engine262-tools/types/Virtualization262.js";
 
-import type {
-  ReferenceGraph,
-} from "./types/ReferenceGraph.js";
-*/
-
 export async function runSearchesInGuestEngine(
   absolutePathToFile: string,
-): Promise<never>//Promise<ReadonlyDeep<Map<string, ReferenceGraph>>>
+): Promise<ReadonlyMap<string, Graph | null>>
 {
-  /*
-  const graphs = new Map<string, ReferenceGraph>;
+  const graphs = new Map<string, Graph | null>;
 
   const outputs: GuestRealmOutputs = await directInvoke({
     absolutePathToFile,
@@ -43,7 +36,4 @@ export async function runSearchesInGuestEngine(
   }
 
   return graphs;
-  */
-  void(absolutePathToFile);
-  return Promise.reject(new Error("rewriting"));
 }
