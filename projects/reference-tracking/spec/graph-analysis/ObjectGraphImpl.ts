@@ -57,6 +57,8 @@ describe("ObjectGraphImpl", () => {
   graph to different API's. */
   let cloneableGraph: CloneableGraphIfc;
   let objectGraph: ObjectGraphIfc<
+    object,
+    symbol,
     Record<"type", "ObjectMetadata">,
     Record<"type", "RelationshipMetadata">
   >;

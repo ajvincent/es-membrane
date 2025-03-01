@@ -18,7 +18,7 @@ describe("createValueDescription correctly serializes", () => {
   const objectMap = new WeakMap<object, PrefixedNumber<"object">>;
   const symbolMap = new WeakMap<symbol, PrefixedNumber<"symbol">>;
 
-  const idGetter: ValueIdIfc = {
+  const idGetter: ValueIdIfc<object, symbol> = {
     getObjectId(object: object): PrefixedNumber<"object"> {
       return objectMap.get(object)!;
     },

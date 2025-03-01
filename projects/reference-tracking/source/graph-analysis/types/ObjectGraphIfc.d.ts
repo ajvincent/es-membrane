@@ -37,13 +37,13 @@ export interface MapKeyAndValueIds {
   readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue>;
 }
 
-export interface ValueIdIfc {
+export interface ValueIdIfc<EngineObject, EngineSymbol> {
   getObjectId(
-    object: object
+    object: EngineObject
   ): ObjectId;
 
   getSymbolId(
-    symbol: symbol
+    symbol: EngineSymbol
   ): SymbolId;
 }
 
@@ -60,16 +60,18 @@ export interface ValueIdIfc {
  * usage here confuses the abstractions, making testing this harder.
  */
 export interface ObjectGraphIfc<
+  EngineObject,
+  EngineSymbol,
   ObjectMetadata extends JsonObject | null,
   RelationshipMetadata extends JsonObject | null,
-> extends ValueIdIfc
+> extends ValueIdIfc<EngineObject, EngineSymbol>
 {
   hasObject(
-    object: object
+    object: EngineObject
   ): boolean;
 
   defineObject(
-    object: object,
+    object: EngineObject,
     metadata: ObjectMetadata
   ): void;
 
@@ -83,9 +85,9 @@ export interface ObjectGraphIfc<
    * @privateRemarks Enclose the metadata in an object with the key `reference`.
    */
   defineProperty(
-    parentObject: object,
-    relationshipName: number | string | symbol,
-    childObject: object,
+    parentObject: EngineObject,
+    relationshipName: number | string | EngineSymbol,
+    childObject: EngineObject,
     metadata: RelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.PropertyKey>;
 
@@ -100,9 +102,9 @@ export interface ObjectGraphIfc<
    * @privateRemarks Enclose the metadata in an object with the key `slot`.
    */
   defineInternalSlot(
-    parentObject: object,
+    parentObject: EngineObject,
     slotName: `[[${string}]]`,
-    childObject: object,
+    childObject: EngineObject,
     isStrongReference: boolean,
     metadata: RelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.InternalSlot>;
@@ -126,9 +128,9 @@ export interface ObjectGraphIfc<
    * @privateRemarks Enclose the metadata in an object with the key `map`.
    */
   defineMapKeyValueTuple(
-    map: object,
+    map: EngineObject,
     key: unknown,
-    value: object,
+    value: EngineObject,
     isStrongReferenceToKey: boolean,
     metadata: RelationshipMetadata,
   ): MapKeyAndValueIds;
@@ -144,8 +146,8 @@ export interface ObjectGraphIfc<
    * @privateRemarks Enclose the metadata in an object with the key `set`.
    */
   defineSetValue(
-    set: object,
-    value: object,
+    set: EngineObject,
+    value: EngineObject,
     isStrongReferenceToValue: boolean,
     metadata: RelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.SetValue>;

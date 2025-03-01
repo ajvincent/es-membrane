@@ -70,7 +70,7 @@ export class ObjectGraphImpl<
   ObjectMetadata extends JsonObject | null,
   RelationshipMetadata extends JsonObject | null,
 >
-implements ObjectGraphIfc<ObjectMetadata, RelationshipMetadata>,
+implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   CloneableGraphIfc, SearchReferencesIfc
 {
   //#region private class fields

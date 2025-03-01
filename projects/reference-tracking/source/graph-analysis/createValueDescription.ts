@@ -12,7 +12,7 @@ import type {
 
 export function createValueDescription(
   value: unknown,
-  objectGraph: ValueIdIfc,
+  objectGraph: ValueIdIfc<object, symbol>,
 ): ValueDescription
 {
   switch (typeof value) {
