@@ -93,7 +93,7 @@ export interface ObjectGraphIfc<
    */
   defineProperty(
     parentObject: EngineObject,
-    relationshipName: number | string | symbol,
+    relationshipName: number | string | EngineSymbol,
     childObject: EngineObject,
     metadata: RelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.PropertyKey>;

@@ -29,26 +29,17 @@ import type {
 } from "../../types/GraphRelationshipMetadata.js";
 
 import {
-  BuiltInJSTypeName
-} from "../../utilities/constants.js";
-
-import {
-  GuestObjectGraphImpl
-} from "./GuestObjectGraphImpl.js";
-
-import {
-  buildObjectMetadata
-} from "./ObjectMetadata.js";
+  GraphBuilder
+} from "./GraphBuilder.js";
 //#endregion preamble
 
 export class SearchDriver
 {
   readonly #strongReferencesOnly: boolean;
-  readonly #realm: GuestEngine.ManagedRealm;
+  readonly #graphBuilder: GraphBuilder;
 
-  readonly #guestObjectGraph: GuestObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
-  readonly #cloneableGraph: CloneableGraphIfc;
   readonly #searchReferences: SearchReferencesIfc;
+  readonly #cloneableGraph: CloneableGraphIfc;
 
   constructor(
     targetValue: GuestEngine.ObjectValue,
@@ -58,23 +49,13 @@ export class SearchDriver
   )
   {
     this.#strongReferencesOnly = strongReferencesOnly;
-    this.#realm = realm;
 
     const hostGraphImpl = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
-    this.#guestObjectGraph = new GuestObjectGraphImpl(hostGraphImpl);
-
-    const targetMetadata: GraphObjectMetadata = buildObjectMetadata(
-      BuiltInJSTypeName.Object,
-      BuiltInJSTypeName.Object,
-    );
-
-    const heldValuesMetadata: GraphObjectMetadata = buildObjectMetadata(
-      BuiltInJSTypeName.Array,
-      BuiltInJSTypeName.Array,
-    );
-
-    this.#guestObjectGraph.defineTargetAndHeldValues(
-      targetValue, targetMetadata, heldValues, heldValuesMetadata
+    this.#graphBuilder = new GraphBuilder(
+      targetValue,
+      heldValues,
+      realm,
+      hostGraphImpl
     );
 
     this.#cloneableGraph = hostGraphImpl;
@@ -83,10 +64,19 @@ export class SearchDriver
 
   public run(): ThrowOr<Graph | null>
   {
-    void(this.#strongReferencesOnly);
-    void(this.#realm);
-    void(this.#cloneableGraph);
-    void(this.#searchReferences);
-    return null;
+    const buildResult = this.#graphBuilder.run();
+    if (buildResult)
+      return buildResult;
+
+    if (this.#strongReferencesOnly) {
+      this.#searchReferences.markStrongReferencesFromHeldValues();
+    }
+    this.#searchReferences.summarizeGraphToTarget(this.#strongReferencesOnly);
+
+    const graph = this.#cloneableGraph.cloneGraph();
+    if (graph.nodeCount() === 0)
+      return null;
+
+    return graph;
   }
 }

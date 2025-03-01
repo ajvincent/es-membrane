@@ -24,31 +24,15 @@ import type {
   GuestEngine
 } from "../host-to-guest/GuestEngine.js";
 
+import type {
+  GuestObjectGraphIfc
+} from "../types/GuestObjectGraphIfc.js";
+
 import {
   HostValueSubstitution
 } from "./HostValueSubstitution.js";
-//#endregion preamble
 
-interface GuestObjectGraphIfc<
-  ObjectMetadata extends JsonObject | null,
-  RelationshipMetadata extends JsonObject | null
->
-extends Omit<
-  ObjectGraphIfc<
-    GuestEngine.ObjectValue,
-    GuestEngine.SymbolValue,
-    ObjectMetadata,
-    RelationshipMetadata
-  >, "defineProperty"
->
-{
-  defineProperty(
-    parentObject: GuestEngine.ObjectValue,
-    relationshipName:  GuestEngine.NumberValue | GuestEngine.JSStringValue | GuestEngine.SymbolValue,
-    childObject: GuestEngine.ObjectValue,
-    metadata: RelationshipMetadata
-  ): PrefixedNumber<EdgePrefix.PropertyKey>;
-}
+//#endregion preamble
 
 export class GuestObjectGraphImpl<
   ObjectMetadata extends JsonObject | null,
@@ -118,14 +102,22 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
 
   public defineProperty(
     parentObject: GuestEngine.ObjectValue,
-    relationshipName: GuestEngine.JSStringValue | GuestEngine.NumberValue | GuestEngine.SymbolValue,
+    guestRelationshipName: string | number | GuestEngine.SymbolValue,
     childObject: GuestEngine.ObjectValue,
     metadata: RelationshipMetadata
   ): PrefixedNumber<EdgePrefix.PropertyKey>
   {
+    let relationshipName: string | number | symbol;
+    if (typeof guestRelationshipName === "object") {
+      relationshipName = this.#substitution.getHostSymbol(guestRelationshipName);
+    }
+    else {
+      relationshipName = guestRelationshipName;
+    }
+
     return this.#hostGraph.defineProperty(
       this.#substitution.getHostObject(parentObject),
-      this.#substitution.getHostPropertyKey(relationshipName),
+      relationshipName,
       this.#substitution.getHostObject(childObject),
       metadata
     );

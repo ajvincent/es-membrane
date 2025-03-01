@@ -1,6 +1,4 @@
-import type {
-  Graph,
-} from "@dagrejs/graphlib";
+import graphlib from "@dagrejs/graphlib";
 
 import type {
   ReadonlyDeep
@@ -27,9 +25,7 @@ import {
 } from "../../../source/utilities/constants.js";
 
 import {
-  /*
   addObjectToGraphs,
-  */
   addArrayIndexEdge,
   /*
   addPropertyNameEdge,
@@ -42,10 +38,10 @@ import {
 } from "../../support/projectRoot.js"
 
 describe("Simple graph searches:" , () => {
-  xit("we can find the target when it's among the held values", async () => {
+  it("we can find the target when it's among the held values", async () => {
     const pathToSearch = getReferenceSpecPath("simple/targetInHeldValuesArray.js");
 
-    const ExpectedGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+    const ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
     const target = {}, heldValues = {};
 
     const targetMetadata: GraphObjectMetadata = {
@@ -58,25 +54,35 @@ describe("Simple graph searches:" , () => {
       derivedClassName: BuiltInJSTypeName.Array
     };
 
-    ExpectedGraph.defineTargetAndHeldValues(
+    ExpectedObjectGraph.defineTargetAndHeldValues(
       target, targetMetadata, heldValues, heldValuesMetadata
     );
 
-    addArrayIndexEdge(
-      ExpectedGraph,
-      heldValues,
-      1,
-      target,
-    );
+    const isFirstValue = { isFirstValue: true };
+    const isLastValue = { isLastValue: true };
 
-    const graphs: ReadonlyDeep<Map<string, Graph | null>> = await runSearchesInGuestEngine(pathToSearch);
+    addObjectToGraphs(ExpectedObjectGraph, isFirstValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
+    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, isFirstValue);
+
+    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 1, target);
+
+    addObjectToGraphs(ExpectedObjectGraph, isLastValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
+    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 2, isLastValue);
+
+    ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+    ExpectedObjectGraph.summarizeGraphToTarget(true);
+
+    const expected: object = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+
+    const graphs: ReadonlyDeep<Map<string, graphlib.Graph | null>> = await runSearchesInGuestEngine(pathToSearch);
     expect(graphs.size).toBe(1);
     const heldValuesGraph = graphs.get("targetHeldValuesArray");
     expect(heldValuesGraph).toBeDefined();
     if (!heldValuesGraph)
       return;
 
-    //expect(reparse(heldValuesGraph)).toEqual(reparse(ExpectedGraph));
+    const actual = graphlib.json.write(heldValuesGraph);
+    expect(actual).toEqual(expected);
   });
 
   /*
