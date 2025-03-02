@@ -75,3 +75,20 @@ export function addPropertySymbolEdge(
 
   graph.defineProperty(parentObject, propertyKey, childObject, relationship);
 }
+
+export function addInternalSlotEdge(
+  graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
+  parentObject: object,
+  slotName: `[[${string}]]`,
+  childObject: object,
+  isStrongReference: boolean,
+): void
+{
+  const relationship: GraphRelationshipMetadata = {
+    parentToChildEdgeType: ChildReferenceEdgeType.InternalSlot
+  };
+
+  graph.defineInternalSlot(
+    parentObject, slotName, childObject, isStrongReference, relationship
+  );
+}

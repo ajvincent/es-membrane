@@ -85,6 +85,8 @@ export class GraphBuilder {
       if (GuestEngine.isProxyExoticObject(guestObject) === false) {
         this.#addObjectProperties(guestObject);
       }
+
+      this.#lookupAndAddInternalSlots(guestObject);
     }
   }
 
@@ -178,6 +180,30 @@ export class GraphBuilder {
     else {
       const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.PropertySymbol);
       this.#guestObjectGraph.defineProperty(parentObject, key, childObject, edgeRelationship);
+    }
+  }
+
+  #lookupAndAddInternalSlots(
+    guestObject: GuestEngine.ObjectValue
+  ): void
+  {
+    if (guestObject.internalSlotsList.includes("WeakRefTarget")) {
+      this.#addWeakRefSlot(guestObject);
+      return;
+    }
+  }
+
+  #addWeakRefSlot(
+    guestObject: GuestEngine.ObjectValue
+  ): void
+  {
+    const {
+      WeakRefTarget
+    } = guestObject as unknown as Record<"WeakRefTarget", GuestEngine.ObjectValue | GuestEngine.NullValue>;
+
+    if (WeakRefTarget.type === "Object") {
+      const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
+      this.#guestObjectGraph.defineInternalSlot(guestObject, `[[WeakRefTarget]]`, WeakRefTarget, false, edgeRelationship);
     }
   }
 }

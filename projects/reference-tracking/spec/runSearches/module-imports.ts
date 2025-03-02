@@ -26,8 +26,8 @@ import {
 import {
   getActualGraph
 } from "../support/getActualGraph.js";
-
 //#endregion preamble
+
 it("Simple graph searches: when there is an import involved (modules importing other modules), we can load them.", async () => {
   const target = { isTarget: true, }, heldValues = { isHeldValues: true };
 
