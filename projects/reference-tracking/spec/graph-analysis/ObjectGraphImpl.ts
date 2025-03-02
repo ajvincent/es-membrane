@@ -573,7 +573,7 @@ describe("ObjectGraphImpl", () => {
 
     it("(false) reduces to reference chains to the target", () => {
       objectGraph.defineMapKeyValueTuple(
-        map, key, value, false, valueMetadata
+        map, key, value, false, new RelationshipMetadata("other value metadata")
       );
       const {
         tupleNodeId,
