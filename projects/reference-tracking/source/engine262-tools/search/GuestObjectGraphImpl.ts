@@ -145,7 +145,8 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
     key: GuestEngine.Value,
     value: GuestEngine.ObjectValue,
     isStrongReferenceToKey: boolean,
-    metadata: RelationshipMetadata
+    keyMetadata: RelationshipMetadata,
+    valueMetadata: RelationshipMetadata
   ): MapKeyAndValueIds
   {
     return this.#hostGraph.defineMapKeyValueTuple(
@@ -153,7 +154,8 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
       this.#substitution.getHostValue(key),
       this.#substitution.getHostObject(value),
       isStrongReferenceToKey,
-      metadata
+      keyMetadata,
+      valueMetadata
     );
   }
 

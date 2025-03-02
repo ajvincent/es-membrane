@@ -34,7 +34,7 @@ export interface MapKeyAndValueIds {
   readonly tupleNodeId: PrefixedNumber<NodePrefix.KeyValueTuple>;
   readonly mapToTupleEdgeId: PrefixedNumber<EdgePrefix.MapToTuple>;
   readonly tupleToKeyEdgeId: PrefixedNumber<EdgePrefix.MapKey> | undefined;
-  readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue>;
+  readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue> | undefined;
 }
 
 export interface ValueIdIfc<EngineObject, EngineSymbol> {
@@ -137,9 +137,10 @@ export interface ObjectGraphIfc<
   defineMapKeyValueTuple(
     map: EngineObject,
     key: unknown,
-    value: EngineObject,
+    value: unknown,
     isStrongReferenceToKey: boolean,
-    metadata: RelationshipMetadata,
+    keyMetadata: RelationshipMetadata | undefined,
+    valueMetadata: RelationshipMetadata | undefined,
   ): MapKeyAndValueIds;
 
   /**

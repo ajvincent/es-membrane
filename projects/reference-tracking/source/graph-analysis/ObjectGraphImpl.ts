@@ -376,15 +376,17 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   public defineMapKeyValueTuple(
     map: object,
     key: unknown,
-    value: object,
+    value: unknown,
     isStrongReferenceToKey: boolean,
-    metadata: RelationshipMetadata,
+    keyMetadata: RelationshipMetadata | undefined,
+    valueMetadata: RelationshipMetadata | undefined,
   ): MapKeyAndValueIds
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
     const mapId = this.#requireObjectId(map, "map");
 
     let keyId: GraphObjectId | undefined;
+    let valueId: GraphObjectId | undefined;
 
     if (isObjectOrSymbol(key) === false && isStrongReferenceToKey === false) {
       throw new Error("key must be a WeakKey");
@@ -396,7 +398,21 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
       keyId = this.#requireObjectId(key as object, "key");
     }
 
-    const valueId = this.#requireObjectId(value, "value");
+    if (typeof value === "symbol") {
+      valueId = undefined;
+    } else if (isObjectOrSymbol(value)) {
+      valueId = this.#requireObjectId(value as object, "value");
+    }
+
+    if (!keyId && !valueId)
+      throw new Error("Why are you calling me when neither the key nor the value is an object?");
+    if (keyId && keyMetadata === undefined) {
+      throw new Error("Need metadata for key");
+    }
+    if (valueId && valueMetadata === undefined) {
+      throw new Error("Need metadata for value");
+    }
+
     const tupleNodeId = this.#defineObject({}, null, NodePrefix.KeyValueTuple);
 
     // map to tuple
@@ -428,10 +444,10 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     let tupleToKeyEdgeId: PrefixedNumber<EdgePrefix.MapKey> | undefined;
     if (keyId) {
       tupleToKeyEdgeId = this.#edgeCounter.next(EdgePrefix.MapKey);
-      const edgeMetadata: GraphEdgeWithMetadata<null> = {
+      const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata | null> = {
         edgeType: EdgePrefix.MapKey,
         description: keyDescription,
-        metadata: null,
+        metadata: keyMetadata === undefined ? null : keyMetadata,
       };
 
       this.#defineEdge(tupleNodeId, keyId, edgeMetadata, tupleToKeyEdgeId, [tupleNodeId]);
@@ -441,13 +457,14 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     }
 
     // map value edge
-    const tupleToValueEdgeId = this.#edgeCounter.next(EdgePrefix.MapValue);
-    {
+    let tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue> | undefined;
+    if (valueId) {
+      tupleToValueEdgeId = this.#edgeCounter.next(EdgePrefix.MapValue);
       const description = createValueDescription(value, this);
 
-      const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
+      const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata | null> = {
         edgeType: EdgePrefix.MapValue,
-        metadata,
+        metadata: valueMetadata === undefined ? null : valueMetadata,
         description,
       };
 
