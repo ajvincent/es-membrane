@@ -60,13 +60,11 @@ export class GraphBuilder {
     this.#guestObjectGraph = new GuestObjectGraphImpl(hostObjectGraph);
 
     const targetMetadata: GraphObjectMetadata = buildObjectMetadata(
-      BuiltInJSTypeName.Object,
-      BuiltInJSTypeName.Object,
+      ...this.#getCollectionAndClassName(targetValue)
     );
 
     const heldValuesMetadata: GraphObjectMetadata = buildObjectMetadata(
-      BuiltInJSTypeName.Array,
-      BuiltInJSTypeName.Array,
+      ...this.#getCollectionAndClassName(heldValues)
     );
 
     this.#guestObjectGraph.defineTargetAndHeldValues(
@@ -131,6 +129,8 @@ export class GraphBuilder {
           return [BuiltInJSTypeName.Array, isDirectMatch ? BuiltInJSTypeName.Array : derivedClassName];
         case this.#realm.Intrinsics["%Object.prototype%"]:
           return [BuiltInJSTypeName.Object, isDirectMatch ? BuiltInJSTypeName.Object : derivedClassName];
+        case this.#realm.Intrinsics["%Function.prototype%"]:
+          return [BuiltInJSTypeName.Function, isDirectMatch ? BuiltInJSTypeName.Function : derivedClassName];
         case this.#realm.Intrinsics["%WeakRef.prototype%"]:
           return [BuiltInJSTypeName.WeakRef, isDirectMatch ? BuiltInJSTypeName.WeakRef : derivedClassName];
       }
@@ -187,23 +187,36 @@ export class GraphBuilder {
     guestObject: GuestEngine.ObjectValue
   ): void
   {
+    if (GuestEngine.isProxyExoticObject(guestObject)) {
+      this.#addInternalSlotIfObject(guestObject, "ProxyTarget", true, true);
+      this.#addInternalSlotIfObject(guestObject, "ProxyHandler", false, true);
+      return;
+    }
+
+    if (guestObject.internalSlotsList.includes("RevocableProxy")) {
+      this.#addInternalSlotIfObject(guestObject, "RevocableProxy", false, true);
+      return;
+    }
+
     if (guestObject.internalSlotsList.includes("WeakRefTarget")) {
-      this.#addWeakRefSlot(guestObject);
+      this.#addInternalSlotIfObject(guestObject, "WeakRefTarget", false, false);
       return;
     }
   }
 
-  #addWeakRefSlot(
-    guestObject: GuestEngine.ObjectValue
+  #addInternalSlotIfObject(
+    parentObject: GuestEngine.ObjectValue,
+    slotName: string,
+    excludeFromSearches: boolean,
+    isStrongReference: boolean
   ): void
   {
-    const {
-      WeakRefTarget
-    } = guestObject as unknown as Record<"WeakRefTarget", GuestEngine.ObjectValue | GuestEngine.NullValue>;
+    const slotObject = Reflect.get(parentObject, slotName) as GuestEngine.ObjectValue | GuestEngine.NullValue;
+    if (slotObject.type === "Null")
+      return;
 
-    if (WeakRefTarget.type === "Object") {
-      const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
-      this.#guestObjectGraph.defineInternalSlot(guestObject, `[[WeakRefTarget]]`, WeakRefTarget, false, edgeRelationship);
-    }
+    this.#defineGraphNode(slotObject, excludeFromSearches);
+    const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
+    this.#guestObjectGraph.defineInternalSlot(parentObject, `[[${slotName}]]`, slotObject, isStrongReference, edgeRelationship);
   }
 }

@@ -65,11 +65,11 @@ searchReferences("proxy handler held before revocation", NotImplementedProxyHand
 searchReferences("proxy held before revocation", proxy, [revoke], true);
 searchReferences("revoke not held by proxy", revoke, [proxy], false);
 
-// proxy handlers should be searched
-searchReferences("proxy handler search target", NotImplementedProxyHandler.searchTarget, [proxy], true);
-
 // shadow targets shouldn't be searched
 searchReferences("shadow search target", shadowTarget.searchTarget, [proxy], false);
+
+// proxy handlers should be searched
+searchReferences("proxy handler search target", NotImplementedProxyHandler.searchTarget, [proxy], true);
 
 revoke();
 
