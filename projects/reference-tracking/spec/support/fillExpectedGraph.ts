@@ -19,19 +19,19 @@ import {
   ChildReferenceEdgeType,
 } from "../../source/utilities/constants.js";
 
-export function addObjectToGraphs(
+export function addObjectGraphNode(
   graph: ObjectGraphIfc<object, symbol, GraphObjectMetadata, JsonObject>,
   object: object,
   builtInJSTypeName: BuiltInJSTypeName,
   derivedClassName: string
 ): void
 {
-  const relationship: GraphObjectMetadata = {
+  const metadata: GraphObjectMetadata = {
     builtInJSTypeName,
     derivedClassName
   };
 
-  graph.defineObject(object, relationship);
+  graph.defineObject(object, metadata);
 }
 
 export function addArrayIndexEdge(
@@ -46,4 +46,32 @@ export function addArrayIndexEdge(
   };
 
   graph.defineProperty(parentObject, index, childObject, relationship);
+}
+
+export function addPropertyNameEdge(
+  graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
+  parentObject: object,
+  propertyName: string,
+  childObject: object
+): void
+{
+  const relationship: GraphRelationshipMetadata = {
+    parentToChildEdgeType: ChildReferenceEdgeType.PropertyName
+  };
+
+  graph.defineProperty(parentObject, propertyName, childObject, relationship);
+}
+
+export function addPropertySymbolEdge(
+  graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
+  parentObject: object,
+  propertyKey: symbol,
+  childObject: object
+): void
+{
+  const relationship: GraphRelationshipMetadata = {
+    parentToChildEdgeType: ChildReferenceEdgeType.PropertySymbol
+  };
+
+  graph.defineProperty(parentObject, propertyKey, childObject, relationship);
 }

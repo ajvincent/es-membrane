@@ -102,7 +102,7 @@ describe("runSearchesInGuestEngine throws when", () => {
     expect(reportCalls.get("strongReferencesIsNotABoolean")).toBe(`strongReferencesOnly is not a boolean`);
   });
 
-  xit("resultsKey can only be used once per run", async () => {
+  it("resultsKey can only be used once per run", async () => {
     const { graphs, reportCalls } = await runSearchesInGuestEngineInternal(
       getReferenceSpecPath("validateArguments/duplicateSearchKeys.js")
     );

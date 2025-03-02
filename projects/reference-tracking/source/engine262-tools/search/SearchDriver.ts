@@ -5,7 +5,6 @@ import type {
 
 import {
   GuestEngine,
-  type ThrowOr,
 } from "../host-to-guest/GuestEngine.js";
 
 import {
@@ -62,11 +61,9 @@ export class SearchDriver
     this.#searchReferences = hostGraphImpl;
   }
 
-  public run(): ThrowOr<Graph | null>
+  public run(): Graph | null
   {
-    const buildResult = this.#graphBuilder.run();
-    if (buildResult)
-      return buildResult;
+    this.#graphBuilder.run();
 
     if (this.#strongReferencesOnly) {
       this.#searchReferences.markStrongReferencesFromHeldValues();

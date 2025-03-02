@@ -18,7 +18,6 @@ import {
 
 import {
   GuestEngine,
-  ThrowOr,
 } from "../host-to-guest/GuestEngine.js";
 
 import type {
@@ -78,7 +77,7 @@ export class GraphBuilder {
     this.#objectQueue.add(heldValues);
   }
 
-  public run(): ThrowOr<void>
+  public run(): void
   {
     for (const guestObject of this.#objectQueue) {
       if (this.#objectsToExcludeFromSearch.has(guestObject))

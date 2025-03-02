@@ -60,13 +60,9 @@ export function defineSearchReferences(
         realm,
       );
 
-      const graph: ThrowOr<Graph | null> = searchDriver.run();
-      if (graph instanceof GuestEngine.ThrowCompletion)
-        return graph;
+      const graphOrNull: Graph | null = searchDriver.run();
 
-      if (graph)
-        searchResultsMap.set(searchArgs.resultsKey, graph);
-
+      searchResultsMap.set(searchArgs.resultsKey, graphOrNull);
       return GuestEngine.Value.undefined;
     }
   )
