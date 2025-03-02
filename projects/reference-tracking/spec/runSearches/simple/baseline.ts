@@ -33,6 +33,10 @@ import {
 } from "../../support/fillExpectedGraph.js";
 
 import {
+  getActualGraph
+} from "../../support/getActualGraph.js";
+
+import {
   getReferenceSpecPath,
 } from "../../support/projectRoot.js";
 //#endregion preamble
@@ -64,24 +68,6 @@ describe("Simple graph searches:", () => {
     ExpectedObjectGraph.summarizeGraphToTarget(true);
 
     return graphlib.json.write(ExpectedObjectGraph.cloneGraph());
-  }
-
-  async function getActualGraph(
-    referenceSpec: string,
-    expectedGraphName: string
-  ): Promise<object | null>
-  {
-    const pathToSearch = getReferenceSpecPath(referenceSpec);
-    const graphs: ReadonlyDeep<Map<string, graphlib.Graph | null>> = await runSearchesInGuestEngine(pathToSearch);
-    expect(graphs.size).toBe(1);
-
-    const heldValuesGraph = graphs.get(expectedGraphName);
-    expect(heldValuesGraph).toBeDefined();
-    if (heldValuesGraph === undefined)
-      throw new Error("no graph found");
-    if (heldValuesGraph === null)
-      return heldValuesGraph;
-    return graphlib.json.write(heldValuesGraph);
   }
 
   it("we can find the target when it's among the held values", async () => {
