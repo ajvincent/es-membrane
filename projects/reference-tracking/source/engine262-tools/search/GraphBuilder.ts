@@ -35,7 +35,8 @@ import {
 
 export class GraphBuilder {
   readonly #guestObjectGraph: GuestObjectGraphIfc<GraphObjectMetadata, GraphRelationshipMetadata>;
-  readonly #realm: GuestEngine.ManagedRealm;
+
+  readonly #intrinsicToBuiltInNameMap: ReadonlyMap<GuestEngine.Value, BuiltInJSTypeName>;
 
   readonly #objectsToExcludeFromSearch = new Set<GuestEngine.ObjectValue>;
   readonly #objectQueue = new Set<GuestEngine.ObjectValue>;
@@ -49,6 +50,19 @@ export class GraphBuilder {
     }
   }
 
+  static #builtInNamesFromInstrinsics(realm: GuestEngine.ManagedRealm): Map<GuestEngine.Value, BuiltInJSTypeName>
+  {
+    const { Intrinsics } = realm;
+    return new Map<GuestEngine.Value, BuiltInJSTypeName>([
+      [Intrinsics["%Array.prototype%"], BuiltInJSTypeName.Array],
+      [Intrinsics["%Object.prototype%"], BuiltInJSTypeName.Object],
+      [Intrinsics["%Function.prototype%"], BuiltInJSTypeName.Function],
+      [Intrinsics["%WeakRef.prototype%"], BuiltInJSTypeName.WeakRef],
+      [Intrinsics["%Set.prototype%"], BuiltInJSTypeName.Set],
+      [Intrinsics["%WeakSet.prototype%"], BuiltInJSTypeName.WeakSet],
+    ]);
+  }
+
   constructor(
     targetValue: GuestEngine.ObjectValue,
     heldValues: GuestEngine.ObjectValue,
@@ -56,7 +70,8 @@ export class GraphBuilder {
     hostObjectGraph: ObjectGraphIfc<object, symbol, GraphObjectMetadata, GraphRelationshipMetadata>,
   )
   {
-    this.#realm = realm;
+    this.#intrinsicToBuiltInNameMap = GraphBuilder.#builtInNamesFromInstrinsics(realm);
+
     this.#guestObjectGraph = new GuestObjectGraphImpl(hostObjectGraph);
 
     const targetMetadata: GraphObjectMetadata = buildObjectMetadata(
@@ -124,15 +139,9 @@ export class GraphBuilder {
 
     let proto: GuestEngine.ObjectValue | GuestEngine.NullValue = value.GetPrototypeOf();
     while (proto.type !== "Null") {
-      switch (proto) {
-        case this.#realm.Intrinsics["%Array.prototype%"]:
-          return [BuiltInJSTypeName.Array, isDirectMatch ? BuiltInJSTypeName.Array : derivedClassName];
-        case this.#realm.Intrinsics["%Object.prototype%"]:
-          return [BuiltInJSTypeName.Object, isDirectMatch ? BuiltInJSTypeName.Object : derivedClassName];
-        case this.#realm.Intrinsics["%Function.prototype%"]:
-          return [BuiltInJSTypeName.Function, isDirectMatch ? BuiltInJSTypeName.Function : derivedClassName];
-        case this.#realm.Intrinsics["%WeakRef.prototype%"]:
-          return [BuiltInJSTypeName.WeakRef, isDirectMatch ? BuiltInJSTypeName.WeakRef : derivedClassName];
+      const builtIn = this.#intrinsicToBuiltInNameMap.get(proto);
+      if (builtIn) {
+        return [builtIn, isDirectMatch ? builtIn : derivedClassName];
       }
 
       isDirectMatch = false;
@@ -202,6 +211,15 @@ export class GraphBuilder {
       this.#addInternalSlotIfObject(guestObject, "WeakRefTarget", false, false);
       return;
     }
+
+    if (guestObject.internalSlotsList.includes("SetData")) {
+      this.#addSetData(guestObject, "SetData");
+      return;
+    }
+    if (guestObject.internalSlotsList.includes("WeakSetData")) {
+      this.#addSetData(guestObject, "WeakSetData");
+      return;
+    }
   }
 
   #addInternalSlotIfObject(
@@ -218,5 +236,21 @@ export class GraphBuilder {
     this.#defineGraphNode(slotObject, excludeFromSearches);
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
     this.#guestObjectGraph.defineInternalSlot(parentObject, `[[${slotName}]]`, slotObject, isStrongReference, edgeRelationship);
+  }
+
+  #addSetData(
+    parentObject: GuestEngine.ObjectValue,
+    slotName: "SetData" | "WeakSetData",
+  ): void
+  {
+    const elements = Reflect.get(parentObject, slotName) as readonly GuestEngine.Value[];
+    for (const value of elements) {
+      if (value.type !== "Object")
+        continue;
+      this.#defineGraphNode(value, false);
+
+      const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.SetElement);
+      this.#guestObjectGraph.defineSetValue(parentObject, value, slotName === "SetData", edgeRelationship);
+    }
   }
 }

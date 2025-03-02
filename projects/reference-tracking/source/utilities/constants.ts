@@ -6,8 +6,7 @@ export enum ChildReferenceEdgeType {
 
   InternalSlot = "InternalSlot",
 
-  CollectionPseudo = "Collection pseudo-edge",
-  PseudoToObject = "Pseudo-object to real object",
+  SetElement = "SetElement",
 
   // less sure of these
   FunctionClosure = "FunctionClosure",

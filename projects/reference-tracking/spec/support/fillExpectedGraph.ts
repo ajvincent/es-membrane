@@ -92,3 +92,16 @@ export function addInternalSlotEdge(
     parentObject, slotName, childObject, isStrongReference, relationship
   );
 }
+
+export function addSetElementEdge(
+  graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
+  set: object,
+  value: object,
+  isStrongReference: boolean,
+): void
+{
+  const relationship: GraphRelationshipMetadata = {
+    parentToChildEdgeType: ChildReferenceEdgeType.SetElement
+  };
+  graph.defineSetValue(set, value, isStrongReference, relationship);
+}
