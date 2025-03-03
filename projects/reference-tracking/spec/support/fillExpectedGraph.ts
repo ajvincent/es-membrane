@@ -19,6 +19,10 @@ import {
   ChildReferenceEdgeType,
 } from "../../source/utilities/constants.js";
 
+import {
+  isObjectOrSymbol
+} from "../../source/utilities/isObjectOrSymbol.js";
+
 export function addObjectGraphNode(
   graph: ObjectGraphIfc<object, symbol, GraphObjectMetadata, JsonObject>,
   object: object,
@@ -90,6 +94,33 @@ export function addInternalSlotEdge(
 
   graph.defineInternalSlot(
     parentObject, slotName, childObject, isStrongReference, relationship
+  );
+}
+
+export function addMapKeyAndValue(
+  graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
+  map: object,
+  key: unknown,
+  value: unknown,
+  isStrongReference: boolean,
+): void
+{
+  let keyRelationship: GraphRelationshipMetadata | undefined;
+  if (isObjectOrSymbol(key) && typeof key !== "symbol") {
+    keyRelationship = {
+      parentToChildEdgeType: ChildReferenceEdgeType.MapKey
+    };
+  }
+
+  let valueRelationship: GraphRelationshipMetadata | undefined;
+  if (isObjectOrSymbol(value) && typeof value !== "symbol") {
+    valueRelationship = {
+      parentToChildEdgeType: ChildReferenceEdgeType.MapValue
+    };
+  }
+
+  graph.defineMapKeyValueTuple(
+    map, key, value, isStrongReference, keyRelationship, valueRelationship
   );
 }
 

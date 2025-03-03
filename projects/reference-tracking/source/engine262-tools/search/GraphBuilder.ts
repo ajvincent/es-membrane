@@ -58,7 +58,9 @@ export class GraphBuilder {
       [Intrinsics["%Object.prototype%"], BuiltInJSTypeName.Object],
       [Intrinsics["%Function.prototype%"], BuiltInJSTypeName.Function],
       [Intrinsics["%WeakRef.prototype%"], BuiltInJSTypeName.WeakRef],
+      [Intrinsics["%Map.prototype%"], BuiltInJSTypeName.Map],
       [Intrinsics["%Set.prototype%"], BuiltInJSTypeName.Set],
+      [Intrinsics["%WeakMap.prototype%"], BuiltInJSTypeName.WeakMap],
       [Intrinsics["%WeakSet.prototype%"], BuiltInJSTypeName.WeakSet],
     ]);
   }
@@ -220,6 +222,15 @@ export class GraphBuilder {
       this.#addSetData(guestObject, "WeakSetData");
       return;
     }
+
+    if (guestObject.internalSlotsList.includes("MapData")) {
+      this.#addMapData(guestObject, "MapData");
+      return;
+    }
+    if (guestObject.internalSlotsList.includes("WeakMapData")) {
+      this.#addMapData(guestObject, "WeakMapData");
+      return;
+    }
   }
 
   #addInternalSlotIfObject(
@@ -236,6 +247,35 @@ export class GraphBuilder {
     this.#defineGraphNode(slotObject, excludeFromSearches);
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
     this.#guestObjectGraph.defineInternalSlot(parentObject, `[[${slotName}]]`, slotObject, isStrongReference, edgeRelationship);
+  }
+
+  #addMapData(
+    mapObject: GuestEngine.ObjectValue,
+    slotName: "MapData" | "WeakMapData"
+  ): void
+  {
+    const elements = Reflect.get(mapObject, slotName) as readonly Record<"Key" | "Value", GuestEngine.Value>[];
+    for (const {Key, Value} of elements) {
+      if (Key.type !== "Object" && Value.type !== "Object") {
+        continue;
+      }
+
+      let keyRelationship: GraphRelationshipMetadata | undefined;
+      let valueRelationship: GraphRelationshipMetadata | undefined;
+      if (Key.type === "Object") {
+        this.#defineGraphNode(Key, false);
+        keyRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.MapKey);
+      }
+
+      if (Value.type === "Object") {
+        this.#defineGraphNode(Value, false);
+        valueRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.MapValue);
+      }
+
+      this.#guestObjectGraph.defineMapKeyValueTuple(
+        mapObject, Key, Value, slotName === "MapData", keyRelationship, valueRelationship
+      );
+    }
   }
 
   #addSetData(

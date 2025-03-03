@@ -7,6 +7,8 @@ export enum ChildReferenceEdgeType {
   InternalSlot = "InternalSlot",
 
   SetElement = "SetElement",
+  MapKey = "MapKey",
+  MapValue = "MapValue",
 
   // less sure of these
   FunctionClosure = "FunctionClosure",

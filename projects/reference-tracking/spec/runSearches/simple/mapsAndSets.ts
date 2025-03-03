@@ -20,6 +20,7 @@ import {
 import {
   addObjectGraphNode,
   addArrayIndexEdge,
+  addMapKeyAndValue,
   addSetElementEdge,
 } from "../../support/fillExpectedGraph.js";
 
@@ -32,7 +33,7 @@ import {
 describe("Simple graph searches:", () => {
   const target = { isTarget: true, }, heldValues = { isHeldValues: true };
 
-  const mapOrSet = { name: "isMapOrSet" };//, key = { name: "key" }, value = { name: "value" };
+  const mapOrSet = { name: "isMapOrSet" }, key = { name: "key" }, value = { name: "value" };
 
   const targetMetadata: GraphObjectMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Object,
@@ -61,12 +62,34 @@ describe("Simple graph searches:", () => {
     return graphlib.json.write(ExpectedObjectGraph.cloneGraph());
   }
 
-  xit("Map objects store keys and values", () => {
-    fail();
+  it("Map objects store object keys with strong references", async () => {
+    {
+      addObjectGraphNode(ExpectedObjectGraph, mapOrSet, BuiltInJSTypeName.Map, BuiltInJSTypeName.Map);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet);
+
+      addObjectGraphNode(ExpectedObjectGraph, value, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
+      addMapKeyAndValue(ExpectedObjectGraph, mapOrSet, target, value, true);
+    }
+
+    const expected = getExpectedGraph(true);
+
+    const actual = await getActualGraph("simple/mapKeyIsTarget.js", "strongMapHoldsKeyStrongly");
+    expect(actual).toEqual(expected);
   });
 
-  xit("WeakMap objects store keys and values", () => {
-    fail();
+  it("Map objects store object values with strong references", async () => {
+    {
+      addObjectGraphNode(ExpectedObjectGraph, mapOrSet, BuiltInJSTypeName.Map, BuiltInJSTypeName.Map);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet);
+
+      addObjectGraphNode(ExpectedObjectGraph, key, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
+      addMapKeyAndValue(ExpectedObjectGraph, mapOrSet, key, target, true);
+    }
+
+    const expected = getExpectedGraph(true);
+
+    const actual = await getActualGraph("simple/mapValueIsTarget.js", "strongMapHoldsValueStrongly");
+    expect(actual).toEqual(expected);
   });
 
   it("Set objects store values", async () => {
@@ -79,6 +102,63 @@ describe("Simple graph searches:", () => {
     const expected: object = getExpectedGraph(false);
 
     const actual = await getActualGraph("simple/setHoldsTarget.js", "setHoldsTargetStrongly");
+    expect(actual).toEqual(expected);
+  });
+
+  it("WeakMap objects never store keys strongly", async () => {
+    const actual = await getActualGraph("simple/weakMapKeyIsTarget.js", "weakMapHoldsKeyStrongly");
+    expect(actual).toBeNull();
+  });
+
+  it("WeakMap objects store object keys with weak references", async () => {
+    {
+      addObjectGraphNode(ExpectedObjectGraph, mapOrSet, BuiltInJSTypeName.WeakMap, BuiltInJSTypeName.WeakMap);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet);
+
+      addMapKeyAndValue(ExpectedObjectGraph, mapOrSet, target, "value", false);
+    }
+
+    const expected = getExpectedGraph(false);
+
+    const actual = await getActualGraph("simple/weakMapKeyIsTarget.js", "weakMapHoldsKeyWeakly");
+    expect(actual).toEqual(expected);
+  });
+
+  it("WeakMap objects never store values strongly", async () => {
+    const actual = await getActualGraph("simple/weakMapValueIsTarget.js", "weakMapHoldsValueStrongly");
+    expect(actual).toBeNull();
+  });
+
+  it("WeakMap objects store object values weakly", async () => {
+    {
+      addObjectGraphNode(ExpectedObjectGraph, mapOrSet, BuiltInJSTypeName.WeakMap, BuiltInJSTypeName.WeakMap);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet);
+
+      addObjectGraphNode(ExpectedObjectGraph, key, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
+      addMapKeyAndValue(ExpectedObjectGraph, mapOrSet, key, target, false);
+    }
+
+    const expected = getExpectedGraph(false);
+
+    const actual = await getActualGraph("simple/weakMapValueIsTarget.js", "weakMapHoldsValueWeakly");
+    expect(actual).toEqual(expected);
+  });
+
+  it("WeakMap objects store object values jointly with their map key", async () => {
+    {
+      addObjectGraphNode(ExpectedObjectGraph, mapOrSet, BuiltInJSTypeName.WeakMap, BuiltInJSTypeName.WeakMap);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet);
+
+      addObjectGraphNode(ExpectedObjectGraph, key, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 1, key);
+
+      // Order of operations really matters here.  Remember this is a breadth-first search, starting from heldValues.
+      addMapKeyAndValue(ExpectedObjectGraph, mapOrSet, key, target, false);
+    }
+
+    const expected = getExpectedGraph(true);
+
+    const actual = await getActualGraph("simple/weakMapValueIsTarget.js", "weakMapAndKeyJointlyHoldValue");
     expect(actual).toEqual(expected);
   });
 

@@ -10,4 +10,4 @@ searchReferences("weakMapHoldsValueStrongly", target, heldValues, true);
 searchReferences("weakMapHoldsValueWeakly", target, heldValues, false);
 
 heldValues.push(key);
-searchReferences("weakMapAndKeyJointlyHoldVale", target, heldValues, true);
+searchReferences("weakMapAndKeyJointlyHoldValue", target, heldValues, true);
