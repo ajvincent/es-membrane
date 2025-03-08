@@ -55,7 +55,7 @@ export function addArrayIndexEdge(
   graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
   parentObject: object,
   index: number,
-  childObject: object
+  childObject: object | symbol
 ): void
 {
   const relationship: GraphRelationshipMetadata = {

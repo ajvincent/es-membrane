@@ -90,7 +90,7 @@ describe("runSearchesInGuestEngine throws when", () => {
     );
     expect(graphs.size).toBe(0);
     expect(reportCalls.size).toBe(1);
-    expect(reportCalls.get("heldValuesIncludesAPrimitive")).toBe(`heldValues[1] is not an object`);
+    expect(reportCalls.get("heldValuesIncludesAPrimitive")).toBe(`heldValues[1] is not a weak key`);
   });
 
   it("strongReferencesOnly is not a boolean", async () => {

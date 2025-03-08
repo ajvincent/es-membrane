@@ -2,6 +2,11 @@ import type {
   Graph,
 } from "@dagrejs/graphlib";
 
+import type {
+  EngineWeakKey
+} from "../../graph-analysis/types/ObjectGraphIfc.js";
+
+
 import {
   GuestEngine,
   type ThrowOr,
@@ -21,7 +26,7 @@ import {
 
 interface SearchReferencesArguments {
   readonly resultsKey: string;
-  readonly targetValue: GuestEngine.ObjectValue,
+  readonly targetValue: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
   readonly heldValuesArray: GuestEngine.ObjectValue,
   readonly strongReferencesOnly: boolean,
 }
@@ -80,9 +85,11 @@ function extractSearchParameters(
     return GuestEngine.Throw("TypeError", "Raw", "resultsKey is not a string");
   }
 
-  if (targetValue?.type !== "Object") {
+  if (targetValue?.type !== "Object" && targetValue?.type !== "Symbol") {
+    //FIXME: NotAWeakKey
     return GuestEngine.Throw("TypeError", "NotAnObject", targetValue);
   }
+
   if (heldValuesArrayGuest.type !== "Object") {
     return GuestEngine.Throw('TypeError', "Raw", "Expected an Array object");
   }
@@ -93,8 +100,9 @@ function extractSearchParameters(
     return heldValuesRaw;
 
   for (let i = 0; i < heldValuesRaw.length; i++) {
-    if (heldValuesRaw[i].type !== "Object")
-      return GuestEngine.Throw("TypeError", "Raw", `heldValues[${i}] is not an object`);
+    //FIXME: NotAWeakKey
+    if (heldValuesRaw[i].type !== "Object" && heldValuesRaw[i].type !== "Symbol")
+      return GuestEngine.Throw("TypeError", "Raw", `heldValues[${i}] is not a weak key`);
   }
 
   if (strongRefsGuest?.type !== "Boolean")

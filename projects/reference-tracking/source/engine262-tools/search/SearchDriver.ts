@@ -4,16 +4,16 @@ import type {
 } from "@dagrejs/graphlib";
 
 import {
-  GuestEngine,
-} from "../host-to-guest/GuestEngine.js";
-
-import {
   ObjectGraphImpl
 } from "../../graph-analysis/ObjectGraphImpl.js";
 
 import type {
   CloneableGraphIfc
 } from "../../graph-analysis/types/CloneableGraphIfc.js";
+
+import type {
+  EngineWeakKey
+} from "../../graph-analysis/types/ObjectGraphIfc.js";
 
 import type {
   SearchReferencesIfc
@@ -26,6 +26,10 @@ import type {
 import type {
   GraphRelationshipMetadata
 } from "../../types/GraphRelationshipMetadata.js";
+
+import type {
+  GuestEngine,
+} from "../host-to-guest/GuestEngine.js";
 
 import {
   GraphBuilder
@@ -41,7 +45,7 @@ export class SearchDriver
   readonly #cloneableGraph: CloneableGraphIfc;
 
   constructor(
-    targetValue: GuestEngine.ObjectValue,
+    targetValue: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
     heldValues: GuestEngine.ObjectValue,
     strongReferencesOnly: boolean,
     realm: GuestEngine.ManagedRealm,

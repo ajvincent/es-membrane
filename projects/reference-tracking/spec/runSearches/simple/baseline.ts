@@ -71,22 +71,54 @@ describe("Simple graph searches:", () => {
     return graphlib.json.write(ExpectedObjectGraph.cloneGraph());
   }
 
-  it("we can find the target when it's among the held values", async () => {
+  it("we can find a target object when it's among the held values", async () => {
     {
       const isFirstValue = { isFirstValue: true };
-      const isLastValue = { isLastValue: true };
+      const isLastValue = Symbol("is last value");
 
       addObjectGraphNode(ExpectedObjectGraph, isFirstValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
       addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, isFirstValue);
 
       addArrayIndexEdge(ExpectedObjectGraph, heldValues, 1, target);
 
-      addObjectGraphNode(ExpectedObjectGraph, isLastValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
+      addSymbolGraphNode(ExpectedObjectGraph, isLastValue);
       addArrayIndexEdge(ExpectedObjectGraph, heldValues, 2, isLastValue);
     }
 
     const expected: object = getExpectedGraph();
-    const actual = await getActualGraph("simple/targetInHeldValuesArray.js", "targetHeldValuesArray");
+    const actual = await getActualGraph("simple/targetInHeldValuesArray.js", "target object in held values");
+    expect(actual).toEqual(expected);
+  });
+
+  it("we can find a target symbol when it's among the held values", async () => {
+    ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+
+    const target = Symbol("symbol target");
+
+    const targetMetadata: GraphObjectMetadata = {
+      builtInJSTypeName: BuiltInJSTypeName.Symbol,
+      derivedClassName: BuiltInJSTypeName.Symbol,
+    };
+
+    ExpectedObjectGraph.defineTargetAndHeldValues(
+      target, targetMetadata, heldValues, heldValuesMetadata
+    );
+
+    {
+      const isFirstValue = { isFirstValue: true };
+      const isMiddleValue = { isMiddleValue: true };
+
+      addObjectGraphNode(ExpectedObjectGraph, isFirstValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, isFirstValue);
+
+      addObjectGraphNode(ExpectedObjectGraph, isMiddleValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 1, isMiddleValue);
+
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 2, target);
+    }
+
+    const expected: object = getExpectedGraph();
+    const actual = await getActualGraph("simple/targetInHeldValuesArray.js", "target symbol in held values");
     expect(actual).toEqual(expected);
   });
 

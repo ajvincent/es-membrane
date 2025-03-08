@@ -110,7 +110,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   >;
 
   #searchedForStrongReferences = false;
-  #strongReferenceCallback?: (object: object) => void;
+  #strongReferenceCallback?: (key: WeakKey) => void;
 
   #internalErrorTrap?: () => void;
   //#endregion private class fields
@@ -132,7 +132,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   }
 
   public defineTargetAndHeldValues(
-    target: object,
+    target: WeakKey,
     targetMetadata: ObjectMetadata,
     heldValues: object,
     heldValuesMetadata: ObjectMetadata,
@@ -624,7 +624,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   //#endregion ObjectGraphIfc
 
   //#region SearchReferencesIfc
-  setStrongReferenceCallback(callback: (object: object) => void) {
+  setStrongReferenceCallback(callback: (key: WeakKey) => void) {
     this.#setNextState(ObjectGraphState.MarkingStrongReferences);
     this.#strongReferenceCallback = callback;
   }
@@ -639,13 +639,16 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     const isStrongReference: boolean = this.#edgeIdTo_IsStrongReference_Map.get(edgeId)!;
     if (isStrongReference && !this.#weakKeyIdsToVisit.has(childKey)) {
       this.#weakKeyIdsToVisit.add(childKey);
-      const objectOrSymbol: object | symbol = this.#idToWeakKeyMap.get(childKey)!;
-      if (typeof objectOrSymbol === "object") {
-        this.#weakKeyHeldStronglyMap.set(objectOrSymbol, true);
 
-        if (this.#strongReferenceCallback && childKey.startsWith("keyValueTuple") === false) {
-          this.#strongReferenceCallback(objectOrSymbol);
-        }
+      const objectOrSymbol: object | symbol = this.#idToWeakKeyMap.get(childKey)!;
+      this.#weakKeyHeldStronglyMap.set(objectOrSymbol, true);
+
+      if (this.#strongReferenceCallback &&
+        childKey.startsWith("keyValueTuple") === false &&
+        childKey.startsWith("finalizationTuple") === false
+      )
+      {
+        this.#strongReferenceCallback(objectOrSymbol);
       }
 
       const keySet = new Set(jointOwnerKeys);
@@ -675,7 +678,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     }
   }
 
-  public isObjectHeldStrongly(object: object): boolean {
+  public isKeyHeldStrongly(object: object): boolean {
     this.#assertDefineTargetCalled();
     if (!this.#searchedForStrongReferences) {
       this.#throwInternalError(new Error("You haven't searched for strong references yet."));

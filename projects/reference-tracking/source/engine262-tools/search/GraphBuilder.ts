@@ -71,7 +71,7 @@ export class GraphBuilder {
   #internalErrorTrap?: () => void;
 
   constructor(
-    targetValue: GuestEngine.ObjectValue,
+    targetValue: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
     heldValues: GuestEngine.ObjectValue,
     realm: GuestEngine.ManagedRealm,
     hostObjectGraph: ObjectGraphIfc<object, symbol, GraphObjectMetadata, GraphRelationshipMetadata>,
@@ -95,7 +95,8 @@ export class GraphBuilder {
       targetValue, targetMetadata, heldValues, heldValuesMetadata
     );
 
-    this.#objectsToExcludeFromSearch.add(targetValue);
+    if (targetValue.type === "Object")
+      this.#objectsToExcludeFromSearch.add(targetValue);
     this.#objectQueue.add(heldValues);
   }
 
@@ -166,15 +167,19 @@ export class GraphBuilder {
   }
 
   #getCollectionAndClassName(
-    guestObject: GuestEngine.ObjectValue,
+    guestValue: GuestEngine.ObjectValue | GuestEngine.SymbolValue,
   ): [BuiltInJSTypeName, string]
   {
-    if (GuestEngine.isProxyExoticObject(guestObject)) {
+    if (guestValue.type === "Symbol") {
+      return [BuiltInJSTypeName.Symbol, BuiltInJSTypeName.Symbol]
+    }
+
+    if (GuestEngine.isProxyExoticObject(guestValue)) {
       return [BuiltInJSTypeName.Proxy, BuiltInJSTypeName.Proxy];
     }
 
     let isDirectMatch = true;
-    let value: GuestEngine.ObjectValue = guestObject;
+    let value: GuestEngine.ObjectValue = guestValue;
 
     // this will be fixed in the near future
     // eslint-disable-next-line prefer-const

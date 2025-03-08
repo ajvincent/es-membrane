@@ -52,14 +52,14 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
   }
 
   public defineTargetAndHeldValues(
-    target: GuestEngine.ObjectValue,
+    target: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
     targetMetadata: ObjectMetadata,
     heldValues: GuestEngine.ObjectValue,
     heldValuesMetadata: ObjectMetadata
   ): void
   {
     this.#hostGraph.defineTargetAndHeldValues(
-      this.#substitution.getHostObject(target),
+      this.#substitution.getHostWeakKey(target),
       targetMetadata,
       this.#substitution.getHostObject(heldValues),
       heldValuesMetadata
@@ -121,7 +121,7 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
   public defineProperty(
     parentObject: GuestEngine.ObjectValue,
     guestRelationshipName: string | number | GuestEngine.SymbolValue,
-    childObject: GuestEngine.ObjectValue,
+    childObject: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
     metadata: RelationshipMetadata
   ): PrefixedNumber<EdgePrefix.PropertyKey>
   {
@@ -136,7 +136,7 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
     return this.#hostGraph.defineProperty(
       this.#substitution.getHostObject(parentObject),
       relationshipName,
-      this.#substitution.getHostObject(childObject),
+      this.#substitution.getHostWeakKey(childObject),
       metadata
     );
   }

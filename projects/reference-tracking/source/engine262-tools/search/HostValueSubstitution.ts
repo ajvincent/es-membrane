@@ -46,6 +46,13 @@ export class HostValueSubstitution
     }
   }
 
+  public getHostWeakKey(
+    guestValue: GuestEngine.ObjectValue | GuestEngine.SymbolValue
+  ): object | symbol
+  {
+    return guestValue.type === "Object" ? this.getHostObject(guestValue) : this.getHostSymbol(guestValue);
+  }
+
   public getHostObject(
     guestObject: GuestEngine.ObjectValue
   ): object

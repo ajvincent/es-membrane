@@ -1,12 +1,12 @@
 export interface SearchReferencesIfc {
   setStrongReferenceCallback(
-    callback: (object: object) => void
+    callback: (key: WeakKey) => void
   ): void;
 
   markStrongReferencesFromHeldValues(): void;
 
-  isObjectHeldStrongly(
-    object: object
+  isKeyHeldStrongly(
+    weakKey: WeakKey
   ): boolean;
 
   summarizeGraphToTarget(
