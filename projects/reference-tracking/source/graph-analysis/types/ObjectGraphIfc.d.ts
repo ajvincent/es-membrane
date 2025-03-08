@@ -37,6 +37,16 @@ export interface MapKeyAndValueIds {
   readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue> | undefined;
 }
 
+export type EngineWeakKey<EngineObject, EngineSymbol> = EngineObject | EngineSymbol;
+
+export interface FinalizationTupleIds {
+  readonly tupleNodeId: PrefixedNumber<NodePrefix.FinalizationTuple>;
+  readonly registryToTupleEdgeId: PrefixedNumber<EdgePrefix.FinalizationRegistryToTuple>;
+  readonly tupleToTargetEdgeId: PrefixedNumber<EdgePrefix.FinalizationToTarget>;
+  readonly tupleToHeldValueEdgeId: PrefixedNumber<EdgePrefix.FinalizationToHeldValue> | undefined;
+  readonly tupleToUnregisterTokenEdgeId: PrefixedNumber<EdgePrefix.FinalizationToUnregisterToken> | undefined;
+}
+
 export interface ValueIdIfc<EngineObject, EngineSymbol> {
   getObjectId(
     object: EngineObject
@@ -45,6 +55,10 @@ export interface ValueIdIfc<EngineObject, EngineSymbol> {
   getSymbolId(
     symbol: EngineSymbol
   ): SymbolId;
+
+  getWeakKeyId(
+    weakKey: EngineWeakKey<EngineObject, EngineSymbol>
+  ): ObjectId | SymbolId;
 }
 
 /**
@@ -131,9 +145,8 @@ export interface ObjectGraphIfc<
    * jointly own the value.  The intermediate node will own the key, strongly
    * only if `isStrongReferenceToKey`. The map will strongly own the
    * intermediate node.
-   *
-   * @privateRemarks Enclose the metadata in an object with the key `map`.
    */
+  //FIXME: key can be an EngineWeakKey if isStrongReferenceToKey is false.
   defineMapKeyValueTuple(
     map: EngineObject,
     key: unknown,
@@ -150,15 +163,23 @@ export interface ObjectGraphIfc<
    * @param value
    * @param isStrongReferenceToValue
    * @param metadata
-   *
-   * @privateRemarks Enclose the metadata in an object with the key `set`.
    */
+  //FIXME: value can be an EngineWeakKey.
   defineSetValue(
     set: EngineObject,
     value: EngineObject,
     isStrongReferenceToValue: boolean,
     metadata: RelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.SetValue>;
+
+  //FIXME: target can be an EngineWeakKey.
+  //FIXME: unregisterToken can be an EngineWeakKey.
+  defineFinalizationTuple(
+    registry: EngineObject,
+    target: EngineObject,
+    heldValue: unknown,
+    unregisterToken: EngineObject | undefined,
+  ): FinalizationTupleIds;
 
   getEdgeRelationship(
     edgeId: PrefixedNumber<EdgePrefix>

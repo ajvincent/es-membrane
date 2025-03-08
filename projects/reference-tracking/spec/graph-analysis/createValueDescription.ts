@@ -25,6 +25,12 @@ describe("createValueDescription correctly serializes", () => {
 
     getSymbolId(symbol: symbol): PrefixedNumber<"symbol"> {
       return symbolMap.get(symbol)!;
+    },
+
+    getWeakKeyId(weakKey: object | symbol): PrefixedNumber<"object" | "symbol"> {
+      if (typeof weakKey === "symbol")
+        return this.getSymbolId(weakKey);
+      return this.getObjectId(weakKey) as PrefixedNumber<"object">;
     }
   };
 

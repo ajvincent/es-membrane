@@ -43,6 +43,8 @@ import type {
 } from "./types/CloneableGraphIfc.js";
 
 import type {
+  EngineWeakKey,
+  FinalizationTupleIds,
   GraphEdgeWithMetadata,
   GraphNodeWithMetadata,
   GraphObjectId,
@@ -179,6 +181,15 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
       this.#idToObjectOrSymbolMap.set(symbolId, symbol);
     }
     return symbolId
+  }
+
+  public getWeakKeyId(
+    weakKey: EngineWeakKey<object, symbol>
+  ): ObjectId | SymbolId
+  {
+    if (typeof weakKey === "symbol")
+      return this.getSymbolId(weakKey);
+    return this.getObjectId(weakKey);
   }
   //#endregion ValueIdIfc
 
@@ -392,6 +403,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
       throw new Error("key must be a WeakKey");
     }
 
+    //FIXME: support symbols as weak keys
     if (typeof key === "symbol") {
       keyId = undefined;
     } else if (isObjectOrSymbol(key)) {
@@ -484,6 +496,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     };
   }
 
+  //FIXME: support symbols as weak keys
   public defineSetValue(
     set: object,
     value: object,
@@ -512,6 +525,102 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
 
     this.#edgeIdTo_IsStrongReference_Map.set(edgeId, isStrongReferenceToValue);
     return edgeId;
+  }
+
+  //FIXME: support symbols as weak keys
+  public defineFinalizationTuple(
+    registry: object,
+    target: object,
+    heldValue: unknown,
+    unregisterToken: object | undefined,
+  ): FinalizationTupleIds
+  {
+    this.#setNextState(ObjectGraphState.AcceptingDefinitions);
+    const registryId = this.#requireObjectId(registry, "registry");
+    const targetId = this.#requireObjectId(target, "target");
+
+    let heldValueId: GraphObjectId | undefined;
+    if (isObjectOrSymbol(heldValue) && typeof heldValue !== "symbol") {
+      heldValueId = this.#requireObjectId(heldValue, "heldValue");
+    }
+
+    let unregisterTokenId: GraphObjectId | undefined;
+    if (typeof unregisterToken !== "undefined" && unregisterToken !== target) {
+      unregisterTokenId = this.#requireObjectId(unregisterToken, "unregisterToken");
+    }
+    const tupleNodeId = this.#defineObject({}, null, NodePrefix.FinalizationTuple);
+
+    // registry to tuple
+    const registryToTupleEdgeId = this.#edgeCounter.next(EdgePrefix.FinalizationRegistryToTuple);
+    {
+      const edgeMetadata: GraphEdgeWithMetadata<null> = {
+        edgeType: EdgePrefix.MapToTuple,
+        description: {
+          valueType: ValueDiscrimant.NotApplicable
+        },
+        metadata: null,
+      };
+
+      this.#defineEdge(
+        registryId,
+        tupleNodeId,
+        edgeMetadata,
+        registryToTupleEdgeId,
+        [registryId]
+      );
+
+      this.#ownershipSetsTracker.defineChildEdge(tupleNodeId, [registryId], registryToTupleEdgeId);
+      this.#edgeIdTo_IsStrongReference_Map.set(registryToTupleEdgeId, true);
+    }
+
+    const tupleToTargetEdgeId = this.#edgeCounter.next(EdgePrefix.FinalizationToTarget);
+    {
+      const edgeMetadata: GraphEdgeWithMetadata<null> = {
+        edgeType: EdgePrefix.FinalizationToTarget,
+        description: createValueDescription(target, this),
+        metadata: null
+      };
+
+      this.#defineEdge(tupleNodeId, targetId, edgeMetadata, tupleToTargetEdgeId, [tupleNodeId]);
+      this.#ownershipSetsTracker.defineChildEdge(targetId, [tupleNodeId], tupleToTargetEdgeId);
+      this.#edgeIdTo_IsStrongReference_Map.set(tupleToTargetEdgeId, false);
+    }
+
+    let tupleToHeldValueEdgeId: PrefixedNumber<EdgePrefix.FinalizationToHeldValue> | undefined;
+    if (heldValueId) {
+      tupleToHeldValueEdgeId = this.#edgeCounter.next(EdgePrefix.FinalizationToHeldValue);
+      const edgeMetadata: GraphEdgeWithMetadata<null> = {
+        edgeType: EdgePrefix.FinalizationToHeldValue,
+        description: createValueDescription(heldValue, this),
+        metadata: null
+      };
+
+      this.#defineEdge(tupleNodeId, heldValueId, edgeMetadata, tupleToHeldValueEdgeId, [registryId, targetId]);
+      this.#ownershipSetsTracker.defineChildEdge(heldValueId, [registryId, targetId], tupleToHeldValueEdgeId);
+      this.#edgeIdTo_IsStrongReference_Map.set(tupleToHeldValueEdgeId, true);
+    }
+
+    let tupleToUnregisterTokenEdgeId: PrefixedNumber<EdgePrefix.FinalizationToUnregisterToken> | undefined;
+    if (unregisterTokenId) {
+      tupleToUnregisterTokenEdgeId = this.#edgeCounter.next(EdgePrefix.FinalizationToUnregisterToken);
+      const edgeMetadata: GraphEdgeWithMetadata<null> = {
+        edgeType: EdgePrefix.FinalizationToUnregisterToken,
+        description: createValueDescription(unregisterToken, this),
+        metadata: null
+      };
+
+      this.#defineEdge(tupleNodeId, unregisterTokenId, edgeMetadata, tupleToUnregisterTokenEdgeId, [registryId, targetId]);
+      this.#ownershipSetsTracker.defineChildEdge(unregisterTokenId, [registryId, targetId], tupleToUnregisterTokenEdgeId);
+      this.#edgeIdTo_IsStrongReference_Map.set(tupleToUnregisterTokenEdgeId, false);
+    }
+
+    return {
+      tupleNodeId,
+      registryToTupleEdgeId,
+      tupleToTargetEdgeId,
+      tupleToHeldValueEdgeId,
+      tupleToUnregisterTokenEdgeId,
+    };
   }
 
   public getEdgeRelationship(

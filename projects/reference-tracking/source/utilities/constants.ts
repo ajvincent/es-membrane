@@ -43,7 +43,8 @@ export enum NodePrefix {
   Object = "object",
   Target = "target",
   HeldValues = "heldValues",
-  KeyValueTuple = "keyValueTuple"
+  KeyValueTuple = "keyValueTuple",
+  FinalizationTuple = "finalizationTuple",
 };
 
 export enum EdgePrefix {
@@ -52,5 +53,9 @@ export enum EdgePrefix {
   MapToTuple = "mapToTuple",
   MapKey = "mapKey",
   MapValue = "mapValue",
-  SetValue = "setValue"
+  SetValue = "setValue",
+  FinalizationRegistryToTuple = "finalizationToTuple",
+  FinalizationToTarget = "finalizationToTarget",
+  FinalizationToHeldValue = "finalizationToHeldValue",
+  FinalizationToUnregisterToken = "finalizationToUnregisterToken",
 };

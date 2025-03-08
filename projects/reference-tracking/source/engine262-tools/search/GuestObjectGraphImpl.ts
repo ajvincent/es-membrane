@@ -5,6 +5,8 @@ import type {
 } from "type-fest";
 
 import type {
+  EngineWeakKey,
+  FinalizationTupleIds,
   GraphEdgeWithMetadata,
   MapKeyAndValueIds,
   ObjectGraphIfc
@@ -31,7 +33,6 @@ import type {
 import {
   HostValueSubstitution
 } from "./HostValueSubstitution.js";
-
 //#endregion preamble
 
 export class GuestObjectGraphImpl<
@@ -78,6 +79,18 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
     return this.#hostGraph.getSymbolId(
       this.#substitution.getHostSymbol(symbol)
     );
+  }
+
+  public getWeakKeyId(
+    weakKey: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>
+  ): ObjectId | SymbolId
+  {
+    let hostKey: object | symbol;
+    if (weakKey.type === "Object")
+      hostKey = this.#substitution.getHostObject(weakKey);
+    else
+      hostKey = this.#substitution.getHostSymbol(weakKey);
+    return this.#hostGraph.getWeakKeyId(hostKey);
   }
 
   public hasObject(
@@ -171,6 +184,21 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
       this.#substitution.getHostObject(value),
       isStrongReferenceToValue,
       metadata,
+    )
+  }
+
+  public defineFinalizationTuple(
+    registry: GuestEngine.ObjectValue,
+    target: GuestEngine.ObjectValue,
+    heldValue: GuestEngine.Value,
+    unregisterToken: GuestEngine.ObjectValue | undefined
+  ): FinalizationTupleIds
+  {
+    return this.#hostGraph.defineFinalizationTuple(
+      this.#substitution.getHostObject(registry),
+      this.#substitution.getHostObject(target),
+      this.#substitution.getHostValue(heldValue),
+      unregisterToken ? this.#substitution.getHostObject(unregisterToken) : undefined,
     )
   }
 

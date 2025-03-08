@@ -374,6 +374,24 @@ describe("ObjectGraphImpl", () => {
       });
     });
 
+    describe("finalization registry entries", () => {
+      xit("including the target, held value (object) and unregister token", () => {
+
+      });
+
+      xit("including the target and held value (object)", () => {
+
+      });
+
+      xit("including the target and held value (primitive)", () => {
+
+      });
+
+      xit("including the target, which is also the unregister token", () => {
+
+      });
+    });
+
     it("multiple references to a value", () => {
       heldValues.push(target, target);
 
@@ -559,7 +577,7 @@ describe("ObjectGraphImpl", () => {
       */
       objectGraph.defineObject(A, new ObjectMetadata);
       objectGraph.defineProperty(heldValues, 0, A, new RelationshipMetadata);
-  
+
       objectGraph.defineObject(B, new ObjectMetadata);
       objectGraph.defineProperty(heldValues, 1, B, new RelationshipMetadata);
   
