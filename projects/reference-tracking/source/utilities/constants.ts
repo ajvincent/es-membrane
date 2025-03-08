@@ -19,6 +19,7 @@ export enum ChildReferenceEdgeType {
 }
 
 export enum BuiltInJSTypeName {
+  Symbol = "Symbol",
   Object = "Object",
   Array = "Array",
   Function = "Function",
@@ -41,6 +42,7 @@ export enum ValueDiscrimant {
 
 export enum NodePrefix {
   Object = "object",
+  Symbol = "symbol",
   Target = "target",
   HeldValues = "heldValues",
   KeyValueTuple = "keyValueTuple",

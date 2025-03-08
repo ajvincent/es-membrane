@@ -1,3 +1,8 @@
+import {
+  ObjectId,
+  SymbolId,
+} from "../types/PrefixedNumber.js";
+
 import type {
   ValueDescription,
 } from "../types/ValueDescription.js";
@@ -25,7 +30,7 @@ export function createValueDescription(
     case "symbol":
       return {
         valueType: ValueDiscrimant.Symbol,
-        symbolId: objectGraph.getSymbolId(value),
+        symbolId: objectGraph.getWeakKeyId(value) as SymbolId,
       }
 
     case "boolean":
@@ -47,13 +52,13 @@ export function createValueDescription(
 
       return {
         valueType: ValueDiscrimant.Object,
-        objectId: objectGraph.getObjectId(value),
+        objectId: objectGraph.getWeakKeyId(value) as ObjectId,
       }
 
     case "function":
       return {
         valueType: ValueDiscrimant.Object,
-        objectId: objectGraph.getObjectId(value),
+        objectId: objectGraph.getWeakKeyId(value) as ObjectId,
       }
   }
 }

@@ -66,21 +66,6 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
     );
   }
 
-  public getObjectId(object: GuestEngine.ObjectValue): ObjectId {
-    return this.#hostGraph.getObjectId(
-      this.#substitution.getHostObject(object)
-    );
-  }
-
-  public getSymbolId(
-    symbol: GuestEngine.SymbolValue
-  ): SymbolId
-  {
-    return this.#hostGraph.getSymbolId(
-      this.#substitution.getHostSymbol(symbol)
-    );
-  }
-
   public getWeakKeyId(
     weakKey: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>
   ): ObjectId | SymbolId
@@ -109,6 +94,17 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
   {
     return this.#hostGraph.defineObject(
       this.#substitution.getHostObject(object),
+      metadata
+    );
+  }
+
+  public defineSymbol(
+    symbol: GuestEngine.SymbolValue,
+    metadata: ObjectMetadata
+  ): void
+  {
+    return this.#hostGraph.defineSymbol(
+      this.#substitution.getHostSymbol(symbol),
       metadata
     );
   }

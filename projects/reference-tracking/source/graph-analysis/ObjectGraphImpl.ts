@@ -7,9 +7,9 @@ import type {
 } from "type-fest";
 
 import type {
-  ObjectId,
   PrefixedNumber,
   SymbolId,
+  WeakKeyId,
 } from "../types/PrefixedNumber.js";
 
 import type {
@@ -85,11 +85,9 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
 
   readonly #nodeCounter = new StringCounter<NodePrefix>;
   readonly #edgeCounter = new StringCounter<EdgePrefix>;
-  readonly #symbolCounter = new StringCounter<"symbol">;
 
-  readonly #nodeToIdMap = new WeakMap<object, GraphObjectId>;
-  readonly #symbolToIdMap = new WeakMap<symbol, PrefixedNumber<"symbol">>;
-  readonly #idToObjectOrSymbolMap = new Map<GraphObjectId | PrefixedNumber<"symbol">, object | symbol>;
+  readonly #weakKeyToIdMap = new WeakMap<WeakKey, GraphObjectId>;
+  readonly #idToWeakKeyMap = new Map<GraphObjectId, WeakKey>;
   readonly #edgeIdToMetadataMap = new Map<
     PrefixedNumber<EdgePrefix>,
     ReadonlyDeep<GraphEdgeWithMetadata<RelationshipMetadata | null>>
@@ -99,8 +97,8 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     this.#ownershipResolver.bind(this)
   );
   readonly #edgeIdTo_IsStrongReference_Map = new Map<PrefixedNumber<EdgePrefix>, boolean>;
-  readonly #objectHeldStronglyMap = new WeakMap<object, boolean>;
-  readonly #objectIdsToVisit = new Set<PrefixedNumber<NodePrefix>>;
+  readonly #weakKeyHeldStronglyMap = new WeakMap<WeakKey, boolean>;
+  readonly #weakKeyIdsToVisit = new Set<PrefixedNumber<NodePrefix>>;
 
   readonly #edgeIdToJointOwnersMap_Weak = new Map<
     PrefixedNumber<EdgePrefix>,
@@ -127,11 +125,11 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     heldValuesMetadata: ObjectMetadata,
   )
   {
-    this.#targetId = this.#defineObject(target, targetMetadata, NodePrefix.Target);
-    this.#heldValuesId = this.#defineObject(heldValues, heldValuesMetadata, NodePrefix.HeldValues);
-
-    this.#objectHeldStronglyMap.delete(target);
     this.#defineTargetCalled = true;
+    this.#targetId = this.#defineWeakKey(target, targetMetadata, NodePrefix.Target);
+    this.#heldValuesId = this.#defineWeakKey(heldValues, heldValuesMetadata, NodePrefix.HeldValues);
+
+    this.#weakKeyHeldStronglyMap.delete(target);
   }
 
   #assertDefineTargetCalled(): void {
@@ -158,45 +156,22 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   //#endregion CloneableGraphIfc
 
   //#region ValueIdIfc
-  public getObjectId(
-    object: object
-  ): ObjectId
-  {
-    this.#assertDefineTargetCalled();
-    const id: GraphObjectId =  this.#requireObjectId(object, "object");
-    if (id.startsWith("keyValueTuple"))
-      throw new Error("object is a key-value tuple, how did you get it?");
-    return id as ObjectId;
-  }
-
-  public getSymbolId(
-    symbol: symbol
-  ): SymbolId
-  {
-    this.#assertDefineTargetCalled();
-    let symbolId = this.#symbolToIdMap.get(symbol);
-    if (!symbolId) {
-      symbolId = this.#symbolCounter.next("symbol");
-      this.#symbolToIdMap.set(symbol, symbolId);
-      this.#idToObjectOrSymbolMap.set(symbolId, symbol);
-    }
-    return symbolId
-  }
-
   public getWeakKeyId(
     weakKey: EngineWeakKey<object, symbol>
-  ): ObjectId | SymbolId
+  ): WeakKeyId
   {
-    if (typeof weakKey === "symbol")
-      return this.getSymbolId(weakKey);
-    return this.getObjectId(weakKey);
+    this.#assertDefineTargetCalled();
+    const id: GraphObjectId =  this.#requireWeakKeyId(weakKey, "weakKey");
+    if (id.startsWith("keyValueTuple") || id.startsWith("finalizationTuple"))
+      throw new Error("object is a internal tuple, how did you get it?");
+    return id as WeakKeyId;
   }
   //#endregion ValueIdIfc
 
   //#region ObjectGraphIfc
   public hasObject(object: object): boolean {
     this.#assertDefineTargetCalled();
-    return this.#nodeToIdMap.has(object);
+    return this.#weakKeyToIdMap.has(object);
   }
 
   public defineObject(
@@ -204,38 +179,42 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     metadata: ObjectMetadata
   ): void
   {
-    this.#setNextState(ObjectGraphState.AcceptingDefinitions);
-    if (this.#nodeToIdMap.has(object))
-      throw new Error("object is already defined as a node in this graph");
-
-    this.#defineObject(object, metadata, NodePrefix.Object);
+    this.#defineWeakKey(object, metadata, NodePrefix.Object);
   }
 
-  #defineObject<Prefix extends NodePrefix>(
-    object: object,
+  public defineSymbol(symbol: symbol, metadata: ObjectMetadata): void {
+    this.#defineWeakKey(symbol, metadata, NodePrefix.Symbol);
+  }
+
+  #defineWeakKey<Prefix extends NodePrefix>(
+    weakKey: object | symbol,
     metadata: ObjectMetadata | null,
     prefix: Prefix,
   ): PrefixedNumber<Prefix>
   {
+    this.#setNextState(ObjectGraphState.AcceptingDefinitions);
+    if (this.#weakKeyToIdMap.has(weakKey))
+      throw new Error("object is already defined as a node in this graph");
+
     const nodeId = this.#nodeCounter.next(prefix);
-    this.#nodeToIdMap.set(object, nodeId);
-    this.#idToObjectOrSymbolMap.set(nodeId, object);
+    this.#weakKeyToIdMap.set(weakKey, nodeId);
+    this.#idToWeakKeyMap.set(nodeId, weakKey);
 
     const nodeMetadata: GraphNodeWithMetadata<ObjectMetadata | null> = { metadata };
     this.#graph.setNode(nodeId, nodeMetadata);
 
     this.#ownershipSetsTracker.defineKey(nodeId);
-    this.#objectHeldStronglyMap.set(object, false);
+    this.#weakKeyHeldStronglyMap.set(weakKey, false);
 
     return nodeId;
   }
 
-  #requireObjectId(
-    object: object,
+  #requireWeakKeyId(
+    weakKey: WeakKey,
     identifier: string
   ): GraphObjectId
   {
-    const id = this.#nodeToIdMap.get(object);
+    const id = this.#weakKeyToIdMap.get(weakKey);
     if (!id)
       throw new Error(identifier + " is not defined as a node");
     return id;
@@ -256,7 +235,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     );
 
     if (childId === this.#targetId)
-      this.#objectHeldStronglyMap.set(this.#idToObjectOrSymbolMap.get(this.#targetId) as object, false);
+      this.#weakKeyHeldStronglyMap.set(this.#idToWeakKeyMap.get(this.#targetId) as object, false);
 
     const keySet = new Set(jointOwnerKeys);
     this.#edgeIdToJointOwnersMap_Weak.set(edgeId, keySet);
@@ -270,8 +249,8 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   ): PrefixedNumber<EdgePrefix.PropertyKey>
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
-    const parentId = this.#requireObjectId(parentObject, "parentObject");
-    const childId = this.#requireObjectId(childObject, "childObject");
+    const parentId = this.#requireWeakKeyId(parentObject, "parentObject");
+    const childId = this.#requireWeakKeyId(childObject, "childObject");
 
     let edgeId: PrefixedNumber<EdgePrefix.PropertyKey>;
     if (typeof relationshipName !== "symbol") {
@@ -308,8 +287,8 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
       metadata,
     };
 
-    const parentId = this.#nodeToIdMap.get(parentObject)!;
-    const childId = this.#nodeToIdMap.get(childObject)!
+    const parentId = this.#weakKeyToIdMap.get(parentObject)!;
+    const childId = this.#weakKeyToIdMap.get(childObject)!
     const edgeId = this.#edgeCounter.next(EdgePrefix.PropertyKey);
 
     this.#defineEdge(
@@ -329,7 +308,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     metadata: RelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.PropertyKey>
   {
-    const symbolId = this.getSymbolId(symbolKey);
+    const symbolId = this.getWeakKeyId(symbolKey) as SymbolId;
 
     const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
       edgeType: EdgePrefix.PropertyKey,
@@ -342,11 +321,11 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
 
     const edgeId = this.#edgeCounter.next(EdgePrefix.PropertyKey);
     this.#defineEdge(
-      this.getObjectId(parentObject),
-      this.getObjectId(childObject),
+      this.getWeakKeyId(parentObject),
+      this.getWeakKeyId(childObject),
       edgeMetadata,
       edgeId,
-      [this.getObjectId(parentObject)]
+      [this.getWeakKeyId(parentObject)]
     );
 
     return edgeId;
@@ -361,8 +340,8 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   ): PrefixedNumber<EdgePrefix.InternalSlot>
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
-    const parentId = this.#requireObjectId(parentObject, "parentObject");
-    const childId = this.#requireObjectId(childObject, "childObject");
+    const parentId = this.#requireWeakKeyId(parentObject, "parentObject");
+    const childId = this.#requireWeakKeyId(childObject, "childObject");
     const edgeId = this.#edgeCounter.next(EdgePrefix.InternalSlot);
 
     const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
@@ -394,7 +373,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   ): MapKeyAndValueIds
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
-    const mapId = this.#requireObjectId(map, "map");
+    const mapId = this.#requireWeakKeyId(map, "map");
 
     let keyId: GraphObjectId | undefined;
     let valueId: GraphObjectId | undefined;
@@ -404,16 +383,12 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     }
 
     //FIXME: support symbols as weak keys
-    if (typeof key === "symbol") {
-      keyId = undefined;
-    } else if (isObjectOrSymbol(key)) {
-      keyId = this.#requireObjectId(key as object, "key");
+    if (isObjectOrSymbol(key)) {
+      keyId = this.#requireWeakKeyId(key, "key");
     }
 
-    if (typeof value === "symbol") {
-      valueId = undefined;
-    } else if (isObjectOrSymbol(value)) {
-      valueId = this.#requireObjectId(value as object, "value");
+    if (isObjectOrSymbol(value)) {
+      valueId = this.#requireWeakKeyId(value, "value");
     }
 
     if (!keyId && !valueId)
@@ -425,7 +400,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
       throw new Error("Need metadata for value");
     }
 
-    const tupleNodeId = this.#defineObject({}, null, NodePrefix.KeyValueTuple);
+    const tupleNodeId = this.#defineWeakKey({}, null, NodePrefix.KeyValueTuple);
 
     // map to tuple
     const mapToTupleEdgeId = this.#edgeCounter.next(EdgePrefix.MapToTuple);
@@ -496,17 +471,16 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     };
   }
 
-  //FIXME: support symbols as weak keys
   public defineSetValue(
-    set: object,
-    value: object,
+    set: WeakKey,
+    value: WeakKey,
     isStrongReferenceToValue: boolean,
     metadata: RelationshipMetadata
   ): PrefixedNumber<EdgePrefix.SetValue>
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
-    const setId = this.#requireObjectId(set, "set");
-    const valueId = this.#requireObjectId(value, "value");
+    const setId = this.#requireWeakKeyId(set, "set");
+    const valueId = this.#requireWeakKeyId(value, "value");
 
     const edgeId = this.#edgeCounter.next(EdgePrefix.SetValue);
     const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
@@ -527,28 +501,27 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     return edgeId;
   }
 
-  //FIXME: support symbols as weak keys
   public defineFinalizationTuple(
     registry: object,
-    target: object,
+    target: WeakKey,
     heldValue: unknown,
-    unregisterToken: object | undefined,
+    unregisterToken: WeakKey | undefined,
   ): FinalizationTupleIds
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
-    const registryId = this.#requireObjectId(registry, "registry");
-    const targetId = this.#requireObjectId(target, "target");
+    const registryId = this.#requireWeakKeyId(registry, "registry");
+    const targetId = this.#requireWeakKeyId(target, "target");
 
     let heldValueId: GraphObjectId | undefined;
     if (isObjectOrSymbol(heldValue) && typeof heldValue !== "symbol") {
-      heldValueId = this.#requireObjectId(heldValue, "heldValue");
+      heldValueId = this.#requireWeakKeyId(heldValue, "heldValue");
     }
 
     let unregisterTokenId: GraphObjectId | undefined;
     if (typeof unregisterToken !== "undefined" && unregisterToken !== target) {
-      unregisterTokenId = this.#requireObjectId(unregisterToken, "unregisterToken");
+      unregisterTokenId = this.#requireWeakKeyId(unregisterToken, "unregisterToken");
     }
-    const tupleNodeId = this.#defineObject({}, null, NodePrefix.FinalizationTuple);
+    const tupleNodeId = this.#defineWeakKey({}, null, NodePrefix.FinalizationTuple);
 
     // registry to tuple
     const registryToTupleEdgeId = this.#edgeCounter.next(EdgePrefix.FinalizationRegistryToTuple);
@@ -646,11 +619,11 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   ): void
   {
     const isStrongReference: boolean = this.#edgeIdTo_IsStrongReference_Map.get(edgeId)!;
-    if (isStrongReference && !this.#objectIdsToVisit.has(childKey)) {
-      this.#objectIdsToVisit.add(childKey);
-      const objectOrSymbol: object | symbol = this.#idToObjectOrSymbolMap.get(childKey)!;
+    if (isStrongReference && !this.#weakKeyIdsToVisit.has(childKey)) {
+      this.#weakKeyIdsToVisit.add(childKey);
+      const objectOrSymbol: object | symbol = this.#idToWeakKeyMap.get(childKey)!;
       if (typeof objectOrSymbol === "object") {
-        this.#objectHeldStronglyMap.set(objectOrSymbol, true);
+        this.#weakKeyHeldStronglyMap.set(objectOrSymbol, true);
 
         if (this.#strongReferenceCallback && childKey.startsWith("keyValueTuple") === false) {
           this.#strongReferenceCallback(objectOrSymbol);
@@ -668,12 +641,12 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     this.#setNextState(ObjectGraphState.MarkingStrongReferences);
     this.#searchedForStrongReferences = true;
 
-    const heldValues = this.#idToObjectOrSymbolMap.get(this.#heldValuesId) as object;
-    this.#objectHeldStronglyMap.set(heldValues, true);
+    const heldValues = this.#idToWeakKeyMap.get(this.#heldValuesId) as object;
+    this.#weakKeyHeldStronglyMap.set(heldValues, true);
 
-    this.#objectIdsToVisit.add(this.#heldValuesId);
+    this.#weakKeyIdsToVisit.add(this.#heldValuesId);
     try {
-      for (const id of this.#objectIdsToVisit) {
+      for (const id of this.#weakKeyIdsToVisit) {
         this.#ownershipSetsTracker.resolveKey(id);
       }
 
@@ -690,7 +663,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
       throw new Error("You haven't searched for strong references yet.");
     }
     this.#setNextState(ObjectGraphState.MarkedStrongReferences);
-    return this.#objectHeldStronglyMap.get(object) ?? false;
+    return this.#weakKeyHeldStronglyMap.get(object) ?? false;
   }
 
   public summarizeGraphToTarget(
@@ -701,8 +674,8 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     try {
       const summaryGraph = new graphlib.Graph({ directed: true, multigraph: true });
 
-      const target = this.#idToObjectOrSymbolMap.get(this.#targetId) as object;
-      const targetReference: boolean | undefined = this.#objectHeldStronglyMap.get(target);
+      const target = this.#idToWeakKeyMap.get(this.#targetId) as object;
+      const targetReference: boolean | undefined = this.#weakKeyHeldStronglyMap.get(target);
 
       let edgeIdToJointOwnersMap: ReadonlyMap<
         PrefixedNumber<EdgePrefix>,

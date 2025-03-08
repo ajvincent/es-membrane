@@ -38,6 +38,19 @@ export function addObjectGraphNode(
   graph.defineObject(object, metadata);
 }
 
+export function addSymbolGraphNode(
+  graph: ObjectGraphIfc<object, symbol, GraphObjectMetadata, JsonObject>,
+  symbol: symbol,
+): void
+{
+  const metadata: GraphObjectMetadata = {
+    builtInJSTypeName: BuiltInJSTypeName.Symbol,
+    derivedClassName: BuiltInJSTypeName.Symbol
+  };
+
+  graph.defineSymbol(symbol, metadata);
+}
+
 export function addArrayIndexEdge(
   graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
   parentObject: object,

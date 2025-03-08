@@ -103,18 +103,18 @@ describe("ObjectGraphImpl", () => {
       const heldToTarget = objectGraph.defineProperty(heldValues, 1, target, targetEdgeMetadata);
       objectGraph.defineProperty(heldValues, 2, lastValue, new RelationshipMetadata);
 
-      expect(objectGraph.getObjectId(target)).toBe("target:0");
-      expect(objectGraph.getObjectId(heldValues)).toBe("heldValues:1");
-      expect(objectGraph.getObjectId(firstValue)).toBe("object:2");
-      expect(objectGraph.getObjectId(lastValue)).toBe("object:3");
+      expect(objectGraph.getWeakKeyId(target)).toBe("target:0");
+      expect(objectGraph.getWeakKeyId(heldValues)).toBe("heldValues:1");
+      expect(objectGraph.getWeakKeyId(firstValue)).toBe("object:2");
+      expect(objectGraph.getWeakKeyId(lastValue)).toBe("object:3");
 
       const rawGraph: Graph = cloneableGraph.cloneGraph();
 
       expect(rawGraph.nodeCount()).toBe(4);
-      expect(rawGraph.hasNode(objectGraph.getObjectId(target)));
-      expect(rawGraph.hasNode(objectGraph.getObjectId(heldValues)));
-      expect(rawGraph.hasNode(objectGraph.getObjectId(firstValue)));
-      expect(rawGraph.hasNode(objectGraph.getObjectId(lastValue)));
+      expect(rawGraph.hasNode(objectGraph.getWeakKeyId(target)));
+      expect(rawGraph.hasNode(objectGraph.getWeakKeyId(heldValues)));
+      expect(rawGraph.hasNode(objectGraph.getWeakKeyId(firstValue)));
+      expect(rawGraph.hasNode(objectGraph.getWeakKeyId(lastValue)));
 
       expect(objectGraph.getEdgeRelationship(heldToTarget)).toEqual({
         edgeType: EdgePrefix.PropertyKey,
@@ -146,6 +146,8 @@ describe("ObjectGraphImpl", () => {
 
     it("object properties with symbol keys", () => {
       const symbolKey = Symbol("key");
+      objectGraph.defineSymbol(symbolKey, new ObjectMetadata);
+
       const middleValue = { [symbolKey]: target };
       heldValues.push(middleValue);
 
@@ -659,40 +661,40 @@ describe("ObjectGraphImpl", () => {
 
       expect(graph.nodeCount()).toBe(5);
       expect(graph.nodeCount()).toBeLessThan(nodeCountBefore);
-      expect(graph.hasNode(objectGraph.getObjectId(target))).toBeTrue();
-      expect(graph.hasNode(objectGraph.getObjectId(heldValues))).toBeTrue();
-      expect(graph.hasNode(objectGraph.getObjectId(map))).toBeTrue();
-      expect(graph.hasNode(objectGraph.getObjectId(targetKey))).toBeTrue();
+      expect(graph.hasNode(objectGraph.getWeakKeyId(target))).toBeTrue();
+      expect(graph.hasNode(objectGraph.getWeakKeyId(heldValues))).toBeTrue();
+      expect(graph.hasNode(objectGraph.getWeakKeyId(map))).toBeTrue();
+      expect(graph.hasNode(objectGraph.getWeakKeyId(targetKey))).toBeTrue();
       expect(graph.hasNode(tupleNodeId)).toBeTrue();
 
-      expect(graph.hasNode(objectGraph.getObjectId(key))).toBeFalse();
-      expect(graph.hasNode(objectGraph.getObjectId(value))).toBeFalse();
+      expect(graph.hasNode(objectGraph.getWeakKeyId(key))).toBeFalse();
+      expect(graph.hasNode(objectGraph.getWeakKeyId(value))).toBeFalse();
 
       expect(graph.edgeCount()).toBeGreaterThan(0);
       expect(graph.edgeCount()).toBeLessThan(edgeCountBefore);
 
       expect(graph.hasEdge(
-        objectGraph.getObjectId(map),
+        objectGraph.getWeakKeyId(map),
         tupleNodeId,
         mapToTupleEdgeId
       )).withContext("heldValues => map").toBeTrue();
 
       expect(graph.hasEdge(
         tupleNodeId,
-        objectGraph.getObjectId(targetKey),
+        objectGraph.getWeakKeyId(targetKey),
         tupleToKeyEdgeId
       )).withContext("heldValues => map").toBeTrue();
 
       expect(graph.hasEdge(
         tupleNodeId,
-        objectGraph.getObjectId(target),
+        objectGraph.getWeakKeyId(target),
         tupleToValueEdgeId
       )).withContext("heldValues => map").toBeTrue();
 
       expect(
-        graph.inEdges(objectGraph.getObjectId(map))
+        graph.inEdges(objectGraph.getWeakKeyId(map))
       ).toEqual(
-        graph.outEdges(objectGraph.getObjectId(heldValues))
+        graph.outEdges(objectGraph.getWeakKeyId(heldValues))
       );
     });
 
@@ -720,40 +722,40 @@ describe("ObjectGraphImpl", () => {
 
       expect(graph.nodeCount()).toBe(5);
       expect(graph.nodeCount()).toBeLessThan(nodeCountBefore);
-      expect(graph.hasNode(objectGraph.getObjectId(target))).toBeTrue();
-      expect(graph.hasNode(objectGraph.getObjectId(heldValues))).toBeTrue();
-      expect(graph.hasNode(objectGraph.getObjectId(map))).toBeTrue();
-      expect(graph.hasNode(objectGraph.getObjectId(targetKey))).toBeTrue();
+      expect(graph.hasNode(objectGraph.getWeakKeyId(target))).toBeTrue();
+      expect(graph.hasNode(objectGraph.getWeakKeyId(heldValues))).toBeTrue();
+      expect(graph.hasNode(objectGraph.getWeakKeyId(map))).toBeTrue();
+      expect(graph.hasNode(objectGraph.getWeakKeyId(targetKey))).toBeTrue();
       expect(graph.hasNode(tupleNodeId)).toBeTrue();
 
-      expect(graph.hasNode(objectGraph.getObjectId(key))).toBeFalse();
-      expect(graph.hasNode(objectGraph.getObjectId(value))).toBeFalse();
+      expect(graph.hasNode(objectGraph.getWeakKeyId(key))).toBeFalse();
+      expect(graph.hasNode(objectGraph.getWeakKeyId(value))).toBeFalse();
 
       expect(graph.edgeCount()).toBeGreaterThan(0);
       expect(graph.edgeCount()).toBeLessThan(edgeCountBefore);
 
       expect(graph.hasEdge(
-        objectGraph.getObjectId(map),
+        objectGraph.getWeakKeyId(map),
         tupleNodeId,
         mapToTupleEdgeId
       )).withContext("heldValues => map").toBeTrue();
 
       expect(graph.hasEdge(
         tupleNodeId,
-        objectGraph.getObjectId(targetKey),
+        objectGraph.getWeakKeyId(targetKey),
         tupleToKeyEdgeId
       )).withContext("heldValues => map").toBeTrue();
 
       expect(graph.hasEdge(
         tupleNodeId,
-        objectGraph.getObjectId(target),
+        objectGraph.getWeakKeyId(target),
         tupleToValueEdgeId
       )).withContext("heldValues => map").toBeTrue();
 
       expect(
-        graph.inEdges(objectGraph.getObjectId(map))
+        graph.inEdges(objectGraph.getWeakKeyId(map))
       ).toEqual(
-        graph.outEdges(objectGraph.getObjectId(heldValues))
+        graph.outEdges(objectGraph.getWeakKeyId(heldValues))
       );
     });
 
@@ -804,8 +806,8 @@ describe("ObjectGraphImpl", () => {
       expect(objectGraph.hasObject(unused)).toBe(false);
 
       expect(
-        () => objectGraph.getObjectId(unused)
-      ).toThrowError("object is not defined as a node");
+        () => objectGraph.getWeakKeyId(unused)
+      ).toThrowError("weakKey is not defined as a node");
 
       expect(
         () => objectGraph.defineProperty(unused, "foo", target, valueMetadata)

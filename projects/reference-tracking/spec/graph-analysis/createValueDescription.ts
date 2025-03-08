@@ -15,22 +15,11 @@ import {
 } from "../../source/utilities/constants.js";
 
 describe("createValueDescription correctly serializes", () => {
-  const objectMap = new WeakMap<object, PrefixedNumber<"object">>;
-  const symbolMap = new WeakMap<symbol, PrefixedNumber<"symbol">>;
+  const weakKeyMap = new WeakMap<WeakKey, PrefixedNumber<"object" | "symbol">>;
 
   const idGetter: ValueIdIfc<object, symbol> = {
-    getObjectId(object: object): PrefixedNumber<"object"> {
-      return objectMap.get(object)!;
-    },
-
-    getSymbolId(symbol: symbol): PrefixedNumber<"symbol"> {
-      return symbolMap.get(symbol)!;
-    },
-
-    getWeakKeyId(weakKey: object | symbol): PrefixedNumber<"object" | "symbol"> {
-      if (typeof weakKey === "symbol")
-        return this.getSymbolId(weakKey);
-      return this.getObjectId(weakKey) as PrefixedNumber<"object">;
+    getWeakKeyId(weakKey: object | symbol): PrefixedNumber<"object" | "symbol" | "target"> {
+      return weakKeyMap.get(weakKey) as PrefixedNumber<"object" | "symbol">;
     }
   };
 
@@ -45,7 +34,7 @@ describe("createValueDescription correctly serializes", () => {
 
   it("symbol", () => {
     const s = Symbol("hello");
-    symbolMap.set(s, "symbol:14");
+    weakKeyMap.set(s, "symbol:14");
 
     const description = createValueDescription(s, idGetter);
     expect(description).toEqual({
@@ -102,7 +91,7 @@ describe("createValueDescription correctly serializes", () => {
 
   it("objects", () => {
     const value = { isValue: true };
-    objectMap.set(value, "object:97");
+    weakKeyMap.set(value, "object:97");
 
     const description = createValueDescription(value, idGetter);
     expect(description).toEqual({
@@ -113,7 +102,7 @@ describe("createValueDescription correctly serializes", () => {
 
   it("functions", () => {
     function value(): void {}
-    objectMap.set(value, "object:47");
+    weakKeyMap.set(value, "object:47");
 
     const description = createValueDescription(value, idGetter);
     expect(description).toEqual({

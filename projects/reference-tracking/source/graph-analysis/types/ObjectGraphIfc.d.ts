@@ -29,6 +29,7 @@ export interface GraphEdgeWithMetadata<RelationshipMetadata extends JsonObject |
 }
 
 export type GraphObjectId = PrefixedNumber<NodePrefix>;
+export type EngineWeakKey<EngineObject, EngineSymbol> = EngineObject | EngineSymbol;
 
 export interface MapKeyAndValueIds {
   readonly tupleNodeId: PrefixedNumber<NodePrefix.KeyValueTuple>;
@@ -36,8 +37,6 @@ export interface MapKeyAndValueIds {
   readonly tupleToKeyEdgeId: PrefixedNumber<EdgePrefix.MapKey> | undefined;
   readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue> | undefined;
 }
-
-export type EngineWeakKey<EngineObject, EngineSymbol> = EngineObject | EngineSymbol;
 
 export interface FinalizationTupleIds {
   readonly tupleNodeId: PrefixedNumber<NodePrefix.FinalizationTuple>;
@@ -48,14 +47,6 @@ export interface FinalizationTupleIds {
 }
 
 export interface ValueIdIfc<EngineObject, EngineSymbol> {
-  getObjectId(
-    object: EngineObject
-  ): ObjectId;
-
-  getSymbolId(
-    symbol: EngineSymbol
-  ): SymbolId;
-
   getWeakKeyId(
     weakKey: EngineWeakKey<EngineObject, EngineSymbol>
   ): ObjectId | SymbolId;
@@ -69,22 +60,23 @@ export interface ValueIdIfc<EngineObject, EngineSymbol> {
  *
  * @remarks
  *
- * You may notice there is no `GuestEngine` here, nor `ObjectId` and `ReferenceId`.
- * This is deliberate.  This interface builds a graph using these id's, and `GuestEngine`
- * usage here confuses the abstractions, making testing this harder.
+ * You may notice there is no `GuestEngine` here, nor `ObjectId`, `SymbolId` or
+ * `ReferenceId`.  This is deliberate.  This interface builds a graph using
+ * these id's, and these types usage here confuses the abstractions, making
+ * testing this harder.
  */
 export interface ObjectGraphIfc<
   EngineObject,
   EngineSymbol,
-  ObjectMetadata extends JsonObject | null,
+  ObjectOrSymbolMetadata extends JsonObject | null,
   RelationshipMetadata extends JsonObject | null,
 > extends ValueIdIfc<EngineObject, EngineSymbol>
 {
   defineTargetAndHeldValues(
-    target: EngineObject,
-    targetMetadata: ObjectMetadata,
+    target: EngineWeakKey<EngineObject, EngineSymbol>,
+    targetMetadata: ObjectOrSymbolMetadata,
     heldValues: EngineObject,
-    heldValuesMetadata: ObjectMetadata,
+    heldValuesMetadata: ObjectOrSymbolMetadata,
   ): void;
 
   hasObject(
@@ -93,7 +85,12 @@ export interface ObjectGraphIfc<
 
   defineObject(
     object: EngineObject,
-    metadata: ObjectMetadata
+    metadata: ObjectOrSymbolMetadata
+  ): void;
+
+  defineSymbol(
+    symbol: EngineSymbol,
+    metadata: ObjectOrSymbolMetadata
   ): void;
 
   /**
@@ -108,7 +105,7 @@ export interface ObjectGraphIfc<
   defineProperty(
     parentObject: EngineObject,
     relationshipName: number | string | EngineSymbol,
-    childObject: EngineObject,
+    childObject: EngineWeakKey<EngineObject, EngineSymbol>,
     metadata: RelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.PropertyKey>;
 
@@ -146,7 +143,6 @@ export interface ObjectGraphIfc<
    * only if `isStrongReferenceToKey`. The map will strongly own the
    * intermediate node.
    */
-  //FIXME: key can be an EngineWeakKey if isStrongReferenceToKey is false.
   defineMapKeyValueTuple(
     map: EngineObject,
     key: unknown,
@@ -164,21 +160,18 @@ export interface ObjectGraphIfc<
    * @param isStrongReferenceToValue
    * @param metadata
    */
-  //FIXME: value can be an EngineWeakKey.
   defineSetValue(
-    set: EngineObject,
+    set: EngineWeakKey<EngineObject, EngineSymbol>,
     value: EngineObject,
     isStrongReferenceToValue: boolean,
     metadata: RelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.SetValue>;
 
-  //FIXME: target can be an EngineWeakKey.
-  //FIXME: unregisterToken can be an EngineWeakKey.
   defineFinalizationTuple(
     registry: EngineObject,
-    target: EngineObject,
+    target: EngineWeakKey<EngineObject, EngineSymbol>,
     heldValue: unknown,
-    unregisterToken: EngineObject | undefined,
+    unregisterToken: EngineWeakKey<EngineObject, EngineSymbol> | undefined,
   ): FinalizationTupleIds;
 
   getEdgeRelationship(
