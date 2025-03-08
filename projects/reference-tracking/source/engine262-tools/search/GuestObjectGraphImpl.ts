@@ -87,6 +87,15 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
     );
   }
 
+  public hasSymbol(
+    symbol: GuestEngine.SymbolValue
+  ): boolean
+  {
+    return this.#hostGraph.hasSymbol(
+      this.#substitution.getHostSymbol(symbol)
+    );
+  }
+
   public defineObject(
     object: GuestEngine.ObjectValue,
     metadata: ObjectMetadata

@@ -57,7 +57,8 @@ export class SearchDriver
       targetValue,
       heldValues,
       realm,
-      hostGraphImpl
+      hostGraphImpl,
+      internalErrorTrap
     );
 
     this.#cloneableGraph = hostGraphImpl;

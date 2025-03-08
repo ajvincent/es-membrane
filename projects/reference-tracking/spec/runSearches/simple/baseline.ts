@@ -136,20 +136,19 @@ describe("Simple graph searches:", () => {
     expect(actual).toEqual(expected);
   });
 
-  xit("we can find the target via a symbol-keyed property of an object literal", async () => {
+  it("we can find the target via a symbol-keyed property of an object literal", async () => {
     {
       const symbolKey = Symbol("This is a symbol");
-      addSymbolGraphNode(ExpectedObjectGraph, symbolKey);
 
       const objectHoldingTarget = { [symbolKey]: target };
       addObjectGraphNode(ExpectedObjectGraph, objectHoldingTarget, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
       addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, objectHoldingTarget);
 
+      addSymbolGraphNode(ExpectedObjectGraph, symbolKey);
       addPropertySymbolEdge(ExpectedObjectGraph, objectHoldingTarget, symbolKey, target);
     }
 
     const expected = getExpectedGraph();
-    //test disabled for throwing exceptions while searching references
     const actual = await getActualGraph("simple/symbolKeyHoldsTarget.js", "symbolKeyHoldsTarget");
     expect(actual).toEqual(expected);
   });

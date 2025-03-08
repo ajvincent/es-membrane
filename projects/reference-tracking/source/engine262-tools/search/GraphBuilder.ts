@@ -1,5 +1,6 @@
 //#region preamble
 import type {
+  EngineWeakKey,
   ObjectGraphIfc,
 } from "../../graph-analysis/types/ObjectGraphIfc.js"
 
@@ -34,13 +35,6 @@ import {
 //#endregion preamble
 
 export class GraphBuilder {
-  readonly #guestObjectGraph: GuestObjectGraphIfc<GraphObjectMetadata, GraphRelationshipMetadata>;
-
-  readonly #intrinsicToBuiltInNameMap: ReadonlyMap<GuestEngine.Value, BuiltInJSTypeName>;
-
-  readonly #objectsToExcludeFromSearch = new Set<GuestEngine.ObjectValue>;
-  readonly #objectQueue = new Set<GuestEngine.ObjectValue>;
-
   static #buildChildEdgeType(
     type: ChildReferenceEdgeType,
   ): GraphRelationshipMetadata
@@ -50,7 +44,9 @@ export class GraphBuilder {
     }
   }
 
-  static #builtInNamesFromInstrinsics(realm: GuestEngine.ManagedRealm): Map<GuestEngine.Value, BuiltInJSTypeName>
+  static #builtInNamesFromInstrinsics(
+    realm: GuestEngine.ManagedRealm
+  ): Map<GuestEngine.Value, BuiltInJSTypeName>
   {
     const { Intrinsics } = realm;
     return new Map<GuestEngine.Value, BuiltInJSTypeName>([
@@ -65,13 +61,24 @@ export class GraphBuilder {
     ]);
   }
 
+  readonly #guestObjectGraph: GuestObjectGraphIfc<GraphObjectMetadata, GraphRelationshipMetadata>;
+
+  readonly #intrinsicToBuiltInNameMap: ReadonlyMap<GuestEngine.Value, BuiltInJSTypeName>;
+
+  readonly #objectsToExcludeFromSearch = new Set<GuestEngine.ObjectValue>;
+  readonly #objectQueue = new Set<GuestEngine.ObjectValue>;
+
+  #internalErrorTrap?: () => void;
+
   constructor(
     targetValue: GuestEngine.ObjectValue,
     heldValues: GuestEngine.ObjectValue,
     realm: GuestEngine.ManagedRealm,
     hostObjectGraph: ObjectGraphIfc<object, symbol, GraphObjectMetadata, GraphRelationshipMetadata>,
+    internalErrorTrap?: () => void,
   )
   {
+    this.#internalErrorTrap = internalErrorTrap;
     this.#intrinsicToBuiltInNameMap = GraphBuilder.#builtInNamesFromInstrinsics(realm);
 
     this.#guestObjectGraph = new GuestObjectGraphImpl(hostObjectGraph);
@@ -92,6 +99,13 @@ export class GraphBuilder {
     this.#objectQueue.add(heldValues);
   }
 
+  #throwInternalError(error: Error): never {
+    if (this.#internalErrorTrap) {
+      this.#internalErrorTrap();
+    }
+    throw error;
+  }
+
   public run(): void
   {
     for (const guestObject of this.#objectQueue) {
@@ -106,8 +120,23 @@ export class GraphBuilder {
   }
 
   #defineGraphNode(
-    guestObject: GuestEngine.ObjectValue,
+    guestWeakKey: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
     excludeFromSearch: boolean,
+  ): void
+  {
+    if (guestWeakKey.type === "Object")
+      this.#defineGraphObjectNode(guestWeakKey, excludeFromSearch);
+    else {
+      if (excludeFromSearch) {
+        this.#throwInternalError(new Error("excludeFromSearch must not be true for a symbol!"));
+      }
+      this.#defineGraphSymbolNode(guestWeakKey);
+    }
+  }
+
+  #defineGraphObjectNode(
+    guestObject: GuestEngine.ObjectValue,
+    excludeFromSearch: boolean
   ): void
   {
     if (this.#guestObjectGraph.hasObject(guestObject) === false) {
@@ -121,6 +150,18 @@ export class GraphBuilder {
       }
 
       this.#objectQueue.add(guestObject);
+    }
+  }
+
+  #defineGraphSymbolNode(
+    guestSymbol: GuestEngine.SymbolValue,
+  ): void
+  {
+    if (this.#guestObjectGraph.hasSymbol(guestSymbol) === false) {
+      this.#guestObjectGraph.defineSymbol(
+        guestSymbol,
+        buildObjectMetadata(BuiltInJSTypeName.Symbol, BuiltInJSTypeName.Symbol)
+      );
     }
   }
 
@@ -159,8 +200,12 @@ export class GraphBuilder {
   ): void
   {
     for (const guestKey of guestObject.OwnPropertyKeys()) {
+      if (guestKey.type === "Symbol") {
+        this.#defineGraphSymbolNode(guestKey);
+      }
+
       const childGuestValue: GuestEngine.Value = GuestEngine.GetV(guestObject, guestKey);
-      if (childGuestValue.type === "Object") {
+      if (childGuestValue.type === "Object" || childGuestValue.type === "Symbol") {
         this.#defineGraphNode(childGuestValue, false);
         this.#addObjectProperty(guestObject, guestKey, childGuestValue);
       }
@@ -170,7 +215,7 @@ export class GraphBuilder {
   #addObjectProperty(
     parentObject: GuestEngine.ObjectValue,
     key: GuestEngine.JSStringValue | GuestEngine.SymbolValue,
-    childObject: GuestEngine.ObjectValue
+    childObject: GuestEngine.ObjectValue | GuestEngine.SymbolValue
   ): void
   {
     if (GuestEngine.isArrayIndex(key)) {

@@ -83,6 +83,10 @@ export interface ObjectGraphIfc<
     object: EngineObject
   ): boolean;
 
+  hasSymbol(
+    symbol: EngineSymbol
+  ): boolean;
+
   defineObject(
     object: EngineObject,
     metadata: ObjectOrSymbolMetadata

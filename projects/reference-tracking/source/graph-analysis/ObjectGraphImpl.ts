@@ -187,6 +187,11 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     return this.#weakKeyToIdMap.has(object);
   }
 
+  public hasSymbol(symbol: symbol): boolean {
+    this.#assertDefineTargetCalled();
+    return this.#weakKeyToIdMap.has(symbol);
+  }
+
   public defineObject(
     object: object,
     metadata: ObjectMetadata
