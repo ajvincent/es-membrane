@@ -34,6 +34,7 @@ export interface InternalSearchResults {
 
 export async function runSearchesInGuestEngineInternal(
   absolutePathToFile: string,
+  internalErrorTrap?: () => void,
 ): Promise<ReadonlyDeep<InternalSearchResults>>
 {
   const graphs = new Map<string, Graph | null>;
@@ -43,7 +44,7 @@ export async function runSearchesInGuestEngineInternal(
     absolutePathToFile,
     defineBuiltIns: (realm: GuestEngine.ManagedRealm): void => {
       defineReportFunction(realm, (guestValues) => handleReport(guestValues, reportCalls));
-      defineSearchReferences(realm, graphs);
+      defineSearchReferences(realm, graphs, internalErrorTrap);
     }
   });
 

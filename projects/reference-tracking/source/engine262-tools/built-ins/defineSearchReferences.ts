@@ -30,6 +30,7 @@ export function defineSearchReferences(
   this: void,
   realm: GuestEngine.ManagedRealm,
   searchResultsMap: Map<string, Graph | null>,
+  internalErrorTrap?: () => void
 ): void
 {
   defineBuiltInFunction(
@@ -58,6 +59,7 @@ export function defineSearchReferences(
         searchArgs.heldValuesArray,
         searchArgs.strongReferencesOnly,
         realm,
+        internalErrorTrap
       );
 
       const graphOrNull: Graph | null = searchDriver.run();

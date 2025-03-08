@@ -20,6 +20,7 @@ import type {
 
 export async function runSearchesInGuestEngine(
   absolutePathToFile: string,
+  internalErrorTrap?: () => void,
 ): Promise<ReadonlyMap<string, Graph | null>>
 {
   const graphs = new Map<string, Graph | null>;
@@ -27,7 +28,7 @@ export async function runSearchesInGuestEngine(
   const outputs: GuestRealmOutputs = await directInvoke({
     absolutePathToFile,
     defineBuiltIns: (realm: GuestEngine.ManagedRealm): void => {
-      defineSearchReferences(realm, graphs);
+      defineSearchReferences(realm, graphs, internalErrorTrap);
     }
   });
 

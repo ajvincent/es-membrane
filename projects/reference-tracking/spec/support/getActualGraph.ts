@@ -24,7 +24,10 @@ export async function getActualGraph(
 
   let promiseGraphs: Promise<GraphsFromSearch> | undefined = GraphsFromFileSearches.get(pathToSearch);
   if (!promiseGraphs) {
-    promiseGraphs = runSearchesInGuestEngine(pathToSearch);
+    promiseGraphs = runSearchesInGuestEngine(pathToSearch, () => {
+      // eslint-disable-next-line no-debugger
+      debugger;
+    });
     GraphsFromFileSearches.set(pathToSearch, promiseGraphs);
   }
 

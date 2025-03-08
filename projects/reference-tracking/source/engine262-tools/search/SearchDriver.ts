@@ -45,11 +45,14 @@ export class SearchDriver
     heldValues: GuestEngine.ObjectValue,
     strongReferencesOnly: boolean,
     realm: GuestEngine.ManagedRealm,
+    internalErrorTrap?: () => void,
   )
   {
     this.#strongReferencesOnly = strongReferencesOnly;
 
-    const hostGraphImpl = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+    const hostGraphImpl = new ObjectGraphImpl<
+      GraphObjectMetadata, GraphRelationshipMetadata
+    >(internalErrorTrap);
     this.#graphBuilder = new GraphBuilder(
       targetValue,
       heldValues,

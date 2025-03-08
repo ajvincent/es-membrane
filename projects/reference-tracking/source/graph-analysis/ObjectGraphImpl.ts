@@ -111,11 +111,24 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
 
   #searchedForStrongReferences = false;
   #strongReferenceCallback?: (object: object) => void;
+
+  #internalErrorTrap?: () => void;
   //#endregion private class fields
 
-  constructor() {
+  constructor(
+    internalErrorTrap?: () => void,
+  )
+  {
     this.#targetId = "target:-1";
     this.#heldValuesId = "heldValues:-2";
+    this.#internalErrorTrap = internalErrorTrap;
+  }
+
+  #throwInternalError(error: Error): never {
+    if (this.#internalErrorTrap) {
+      this.#internalErrorTrap();
+    }
+    throw error;
   }
 
   public defineTargetAndHeldValues(
@@ -134,7 +147,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
 
   #assertDefineTargetCalled(): void {
     if (!this.#defineTargetCalled) {
-      throw new Error("you must call defineTargetAndHeldValues first!");
+      this.#throwInternalError(new Error("you must call defineTargetAndHeldValues first!"));
     }
   }
 
@@ -144,7 +157,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
       this.#state = nextState;
     } else {
       this.#state = ObjectGraphState.Error;
-      throw new Error("invalid state transition");
+      this.#throwInternalError(new Error("invalid state transition"));
     }
   }
 
@@ -163,7 +176,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     this.#assertDefineTargetCalled();
     const id: GraphObjectId =  this.#requireWeakKeyId(weakKey, "weakKey");
     if (id.startsWith("keyValueTuple") || id.startsWith("finalizationTuple"))
-      throw new Error("object is a internal tuple, how did you get it?");
+      this.#throwInternalError(new Error("object is a internal tuple, how did you get it?"));
     return id as WeakKeyId;
   }
   //#endregion ValueIdIfc
@@ -194,7 +207,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
     if (this.#weakKeyToIdMap.has(weakKey))
-      throw new Error("object is already defined as a node in this graph");
+      this.#throwInternalError(new Error("object is already defined as a node in this graph"));
 
     const nodeId = this.#nodeCounter.next(prefix);
     this.#weakKeyToIdMap.set(weakKey, nodeId);
@@ -216,7 +229,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   {
     const id = this.#weakKeyToIdMap.get(weakKey);
     if (!id)
-      throw new Error(identifier + " is not defined as a node");
+      this.#throwInternalError(new Error(identifier + " is not defined as a node"));
     return id;
   }
 
@@ -379,7 +392,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     let valueId: GraphObjectId | undefined;
 
     if (isObjectOrSymbol(key) === false && isStrongReferenceToKey === false) {
-      throw new Error("key must be a WeakKey");
+      this.#throwInternalError(new Error("key must be a WeakKey"));
     }
 
     //FIXME: support symbols as weak keys
@@ -392,12 +405,12 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     }
 
     if (!keyId && !valueId)
-      throw new Error("Why are you calling me when neither the key nor the value is an object?");
+      this.#throwInternalError(new Error("Why are you calling me when neither the key nor the value is an object?"));
     if (keyId && keyMetadata === undefined) {
-      throw new Error("Need metadata for key");
+      this.#throwInternalError(new Error("Need metadata for key"));
     }
     if (valueId && valueMetadata === undefined) {
-      throw new Error("Need metadata for value");
+      this.#throwInternalError(new Error("Need metadata for value"));
     }
 
     const tupleNodeId = this.#defineWeakKey({}, null, NodePrefix.KeyValueTuple);
@@ -660,7 +673,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   public isObjectHeldStrongly(object: object): boolean {
     this.#assertDefineTargetCalled();
     if (!this.#searchedForStrongReferences) {
-      throw new Error("You haven't searched for strong references yet.");
+      this.#throwInternalError(new Error("You haven't searched for strong references yet."));
     }
     this.#setNextState(ObjectGraphState.MarkedStrongReferences);
     return this.#weakKeyHeldStronglyMap.get(object) ?? false;
