@@ -22,7 +22,7 @@ import type {
   EdgePrefix
 } from "../../utilities/constants.js";
 
-import type {
+import {
   GuestEngine
 } from "../host-to-guest/GuestEngine.js";
 
@@ -44,11 +44,22 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
   readonly #hostGraph: ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>;
   readonly #substitution = new HostValueSubstitution;
 
+  readonly #internalErrorTrap?: () => void;
+
   constructor(
-    hostGraph: ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>
+    hostGraph: ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
+    internalErrorTrap?: () => void,
   )
   {
     this.#hostGraph = hostGraph;
+    this.#internalErrorTrap = internalErrorTrap;
+  }
+
+  #throwInternalError(error: Error): never {
+    if (this.#internalErrorTrap) {
+      this.#internalErrorTrap();
+    }
+    throw error;
   }
 
   public defineTargetAndHeldValues(
@@ -150,6 +161,30 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
       this.#substitution.getHostObject(parentObject),
       relationshipName,
       this.#substitution.getHostWeakKey(childObject),
+      metadata
+    );
+  }
+
+  public defineConstructorOf(
+    instanceObject: GuestEngine.ObjectValue,
+    ctorObject: GuestEngine.ObjectValue,
+    metadata: RelationshipMetadata
+  ): PrefixedNumber<EdgePrefix.InstanceOf>
+  {
+    if (!GuestEngine.IsConstructor(ctorObject)) {
+      this.#throwInternalError(new Error("ctorObject is not a constructor"));
+    }
+
+    // preserving the graph order, though the graph _should_ have instanceObject already
+    const hostInstance = this.#substitution.getHostObject(instanceObject);
+    const hostCtor = this.#substitution.getHostObject(ctorObject);
+    if (typeof hostCtor !== "function") {
+      this.#throwInternalError(new Error("assertion failure: hostCtor should be a function"));
+    }
+
+    return this.#hostGraph.defineConstructorOf(
+      hostInstance,
+      hostCtor,
       metadata
     );
   }

@@ -3,6 +3,7 @@ export enum ChildReferenceEdgeType {
   ArrayIndex = "ArrayIndex",
   PropertySymbol = "PropertySymbol",
   SymbolKey = "SymbolKey",
+  InstanceOf = "InstanceOf",
   PrivateClassField = "PrivateClassField",
 
   InternalSlot = "InternalSlot",
@@ -53,6 +54,7 @@ export enum NodePrefix {
 export enum EdgePrefix {
   PropertyKey = "propertyKey",
   HasSymbolAsKey = "hasSymbolAsKey",
+  InstanceOf = "instanceOf",
   InternalSlot = "internalSlot",
   MapToTuple = "mapToTuple",
   MapKey = "mapKey",

@@ -35,6 +35,11 @@ import {
 //#endregion preamble
 
 export class GraphBuilder {
+  static readonly #stringConstants: ReadonlyMap<string, GuestEngine.JSStringValue> = new Map([
+    ["constructor", GuestEngine.Value("constructor")],
+    ["name", GuestEngine.Value("name")],
+  ]);
+
   static #buildChildEdgeType(
     type: ChildReferenceEdgeType,
   ): GraphRelationshipMetadata
@@ -68,7 +73,7 @@ export class GraphBuilder {
   readonly #objectsToExcludeFromSearch = new Set<GuestEngine.ObjectValue>;
   readonly #objectQueue = new Set<GuestEngine.ObjectValue>;
 
-  #internalErrorTrap?: () => void;
+  readonly #internalErrorTrap?: () => void;
 
   constructor(
     targetValue: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
@@ -114,6 +119,7 @@ export class GraphBuilder {
         continue;
       if (GuestEngine.isProxyExoticObject(guestObject) === false) {
         this.#addObjectProperties(guestObject);
+        this.#addConstructorOf(guestObject);
       }
 
       this.#lookupAndAddInternalSlots(guestObject);
@@ -181,8 +187,6 @@ export class GraphBuilder {
     let isDirectMatch = true;
     let value: GuestEngine.ObjectValue = guestValue;
 
-    // this will be fixed in the near future
-    // eslint-disable-next-line prefer-const
     let derivedClassName: string = "(unknown)";
 
     let proto: GuestEngine.ObjectValue | GuestEngine.NullValue = value.GetPrototypeOf();
@@ -192,7 +196,18 @@ export class GraphBuilder {
         return [builtIn, isDirectMatch ? builtIn : derivedClassName];
       }
 
-      isDirectMatch = false;
+      if (isDirectMatch) {
+        const guestCtor = GuestEngine.GetV(value, GraphBuilder.#stringConstants.get("constructor")!);
+        if (guestCtor.type === "Object") {
+          const guestName = GuestEngine.GetV(guestCtor, GraphBuilder.#stringConstants.get("name")!);
+          if (guestName.type === "String") {
+            derivedClassName = guestName.stringValue();
+          }
+        }
+
+        isDirectMatch = false;
+      }
+
       value = proto;
       proto = value.GetPrototypeOf();
     }
@@ -301,6 +316,28 @@ export class GraphBuilder {
     this.#defineGraphNode(slotObject, excludeFromSearches);
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
     this.#guestObjectGraph.defineInternalSlot(parentObject, `[[${slotName}]]`, slotObject, isStrongReference, edgeRelationship);
+  }
+
+  #addConstructorOf(
+    guestObject: GuestEngine.ObjectValue
+  ): void
+  {
+    const guestCtor = GuestEngine.GetV(
+      guestObject, GraphBuilder.#stringConstants.get("constructor")!
+    );
+
+    const guestCtorProto = GuestEngine.GetPrototypeFromConstructor(
+      guestCtor, "%Object.prototype%"
+    );
+    if (this.#intrinsicToBuiltInNameMap.has(guestCtorProto))
+      return;
+
+    GuestEngine.Assert(guestCtor.type === "Object");
+    GuestEngine.Assert(GuestEngine.IsConstructor(guestCtor).booleanValue());
+
+    this.#defineGraphNode(guestCtor, false);
+    const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InstanceOf);
+    this.#guestObjectGraph.defineConstructorOf(guestObject, guestCtor, edgeRelationship);
   }
 
   #addMapData(

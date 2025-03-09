@@ -2,6 +2,7 @@
 import graphlib from "@dagrejs/graphlib";
 
 import type {
+  Constructor,
   JsonObject,
   ReadonlyDeep,
 } from "type-fest";
@@ -391,6 +392,39 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
       [this.getWeakKeyId(parentObject)]
     );
 
+    return edgeId;
+  }
+
+  public defineConstructorOf(
+    instanceObject: object,
+    ctorObject: Constructor<object, unknown[]>,
+    metadata: RelationshipMetadata
+  ): PrefixedNumber<EdgePrefix.InstanceOf>
+  {
+    this.#setNextState(ObjectGraphState.AcceptingDefinitions);
+    if (typeof ctorObject !== "function") {
+      this.#throwInternalError(new Error("ctorObject must be a function!"));
+    }
+
+    const instanceId = this.#requireWeakKeyId(instanceObject, "instanceObject");
+    const ctorId = this.#requireWeakKeyId(ctorObject, "ctorObject");
+    const edgeId = this.#edgeCounter.next(EdgePrefix.InstanceOf);
+
+    const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
+      edgeType: EdgePrefix.InstanceOf,
+      description: {
+        valueType: ValueDiscrimant.NotApplicable,
+      },
+      metadata,
+    };
+
+    this.#defineEdge(instanceId, ctorId, edgeMetadata, edgeId, [instanceId]);
+
+    this.#ownershipSetsTracker.defineChildEdge(
+      ctorId, [instanceId], edgeId
+    );
+
+    this.#edgeIdTo_IsStrongReference_Map.set(edgeId, true);
     return edgeId;
   }
 

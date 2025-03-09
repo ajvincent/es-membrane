@@ -1,4 +1,4 @@
-import type {
+import {
   GuestEngine
 } from "../host-to-guest/GuestEngine.js";
 
@@ -59,7 +59,11 @@ export class HostValueSubstitution
   {
     let hostObject: object | undefined = this.#objectMap.get(guestObject);
     if (!hostObject) {
-      hostObject = {};
+      if (GuestEngine.IsCallable(hostObject) || GuestEngine.IsConstructor(hostObject))
+        hostObject = function() {};
+      else
+        hostObject = {};
+
       this.#objectMap.set(guestObject, hostObject);
     }
     return hostObject;

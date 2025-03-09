@@ -123,6 +123,12 @@ export interface ObjectGraphIfc<
     metadata: RelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.PropertyKey>;
 
+  defineConstructorOf(
+    instanceObject: EngineObject,
+    ctorObject: EngineObject,
+    metadata: RelationshipMetadata
+  ): PrefixedNumber<EdgePrefix.InstanceOf>;
+
   /**
    *
    * @param parentObject

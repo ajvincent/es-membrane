@@ -16,4 +16,4 @@ class Vehicle {
 const Fred = new Person("Fred");
 const hisBike = new Vehicle(Fred);
 
-searchReferences("class without extensions", Fred, [hisBike], true);
+searchReferences("instance to class", Vehicle, [hisBike], true);
