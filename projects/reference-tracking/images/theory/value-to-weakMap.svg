@@ -92,8 +92,17 @@
       <use href="#horizontal-left-edge"/>
     </g>
 
+    <g transform="translate(83, 80) rotate(30)">
+      <line x1="-5" y1="0" x2="0" y2="-5"/>
+      <line x1="-5" y1="0" x2="0" y2="5"/>
+    </g>
+
     <g transform="translate(275, 125)">
-      <use href="#left-up-edge-weak"/>
+      <line x1="-195" y1="-46" x2="47" y2="47" stroke-dasharray="5 5"/>
+      <!--
+      <line x1="-190" y1="-43" x2="-185" y2="-45"/>
+      <line x1="-190" y1="-43" x2="-190" y2="-36"/>
+      -->
     </g>
 
     <g transform="translate(125, 50)">
