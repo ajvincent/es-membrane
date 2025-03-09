@@ -239,8 +239,12 @@ export class GraphBuilder {
     }
 
     else {
-      const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.PropertySymbol);
-      this.#guestObjectGraph.defineProperty(parentObject, key, childObject, edgeRelationship);
+      this.#defineGraphSymbolNode(key);
+      const keyRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.SymbolKey);
+      this.#guestObjectGraph.defineAsSymbolKey(parentObject, key, keyRelationship);
+
+      const propertyRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.PropertySymbol);
+      this.#guestObjectGraph.defineProperty(parentObject, key, childObject, propertyRelationship);
     }
   }
 

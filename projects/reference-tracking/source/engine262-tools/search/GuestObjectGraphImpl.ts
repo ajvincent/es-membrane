@@ -118,6 +118,19 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
     );
   }
 
+  public defineAsSymbolKey(
+    parentObject: GuestEngine.ObjectValue,
+    relationshipName: GuestEngine.SymbolValue,
+    keyEdgeMetadata: RelationshipMetadata
+  ): PrefixedNumber<EdgePrefix.HasSymbolAsKey>
+  {
+    return this.#hostGraph.defineAsSymbolKey(
+      this.#substitution.getHostObject(parentObject),
+      this.#substitution.getHostSymbol(relationshipName),
+      keyEdgeMetadata
+    );
+  }
+
   public defineProperty(
     parentObject: GuestEngine.ObjectValue,
     guestRelationshipName: string | number | GuestEngine.SymbolValue,

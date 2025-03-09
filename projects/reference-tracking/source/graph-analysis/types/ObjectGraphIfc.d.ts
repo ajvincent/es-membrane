@@ -98,13 +98,23 @@ export interface ObjectGraphIfc<
   ): void;
 
   /**
+   * `const target = Symbol("key"); obj[target] = true;`
+   * @param parentObject
+   * @param relationshipName 
+   * @param keyEdgeMetadata 
+   */
+  defineAsSymbolKey(
+    parentObject: EngineObject,
+    relationshipName: EngineSymbol,
+    keyEdgeMetadata: RelationshipMetadata,
+  ): PrefixedNumber<EdgePrefix.HasSymbolAsKey>;
+
+  /**
    *
    * @param parentObject
    * @param relationshipName
    * @param childObject
    * @param metadata
-   *
-   * @privateRemarks Enclose the metadata in an object with the key `reference`.
    */
   defineProperty(
     parentObject: EngineObject,
@@ -120,8 +130,6 @@ export interface ObjectGraphIfc<
    * @param childObject
    * @param isStrongReference
    * @param metadata
-   *
-   * @privateRemarks Enclose the metadata in an object with the key `slot`.
    */
   defineInternalSlot(
     parentObject: EngineObject,

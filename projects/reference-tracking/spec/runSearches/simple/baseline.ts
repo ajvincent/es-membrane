@@ -31,6 +31,7 @@ import {
   addPropertyNameEdge,
   addPropertySymbolEdge,
   addSymbolGraphNode,
+  addSymbolAsObjectKeyEdge,
 } from "../../support/fillExpectedGraph.js";
 
 import {
@@ -168,6 +169,40 @@ describe("Simple graph searches:", () => {
     expect(actual).toEqual(expected);
   });
 
+  it("we can find a target symbol as a key of an object", async () => {
+    {
+      ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+
+      const target = Symbol("symbol target");
+  
+      const targetMetadata: GraphObjectMetadata = {
+        builtInJSTypeName: BuiltInJSTypeName.Symbol,
+        derivedClassName: BuiltInJSTypeName.Symbol,
+      };
+  
+      ExpectedObjectGraph.defineTargetAndHeldValues(
+        target, targetMetadata, heldValues, heldValuesMetadata
+      );
+
+      const tailValue = { isTail: true };
+
+      const objectHoldingTarget = { [target]: tailValue };
+      addObjectGraphNode(ExpectedObjectGraph, objectHoldingTarget, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, objectHoldingTarget);
+
+      addObjectGraphNode(ExpectedObjectGraph, tailValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
+      addSymbolAsObjectKeyEdge(ExpectedObjectGraph, objectHoldingTarget, target);
+      addPropertySymbolEdge(ExpectedObjectGraph, objectHoldingTarget, target, tailValue);
+    }
+
+    const expected = getExpectedGraph();
+    const actual = await getActualGraph(
+      "simple/targetIsSymbolKeyOfHeldObject.js",
+      "target is symbol key of held object"
+    );
+    expect(actual).toEqual(expected);
+  });
+
   it("we can find the target via a symbol-keyed property of an object literal", async () => {
     {
       const symbolKey = Symbol("This is a symbol");
@@ -177,6 +212,7 @@ describe("Simple graph searches:", () => {
       addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, objectHoldingTarget);
 
       addSymbolGraphNode(ExpectedObjectGraph, symbolKey);
+      addSymbolAsObjectKeyEdge(ExpectedObjectGraph, objectHoldingTarget, symbolKey);
       addPropertySymbolEdge(ExpectedObjectGraph, objectHoldingTarget, symbolKey, target);
     }
 

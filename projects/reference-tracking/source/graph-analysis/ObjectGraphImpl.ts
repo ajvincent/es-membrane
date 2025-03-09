@@ -259,6 +259,44 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     this.#edgeIdToJointOwnersMap_Weak.set(edgeId, keySet);
   }
 
+  public defineAsSymbolKey(
+    parentObject: object,
+    relationshipName: symbol,
+    keyEdgeMetadata: RelationshipMetadata
+  ): PrefixedNumber<EdgePrefix.HasSymbolAsKey>
+  {
+    this.#setNextState(ObjectGraphState.AcceptingDefinitions);
+    const parentId = this.#requireWeakKeyId(parentObject, "parentObject");
+    const relationshipId = this.#requireWeakKeyId(relationshipName, "childObject") as SymbolId;
+    const edgeId = this.#edgeCounter.next(EdgePrefix.HasSymbolAsKey);
+
+    const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
+      edgeType: EdgePrefix.HasSymbolAsKey,
+      description: {
+        valueType: ValueDiscrimant.NotApplicable
+      },
+      metadata: keyEdgeMetadata,
+    };
+
+    this.#defineEdge(parentId, relationshipId, edgeMetadata, edgeId, [parentId]);
+
+    this.#ownershipSetsTracker.defineChildEdge(
+      relationshipId, [parentId], edgeId
+    );
+
+    this.#edgeIdTo_IsStrongReference_Map.set(edgeId, true);
+    return edgeId;
+  }
+
+  #hasSymbolKeyEdge(
+    edge: graphlib.Edge
+  ): boolean
+  {
+    return (
+      this.#graph.edgeAsObj(edge) as GraphEdgeWithMetadata<RelationshipMetadata | null>
+    ).edgeType === EdgePrefix.HasSymbolAsKey;
+  }
+
   public defineProperty(
     parentObject: object,
     relationshipName: number | string | symbol,
@@ -326,7 +364,14 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     metadata: RelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.PropertyKey>
   {
+    const parentId = this.getWeakKeyId(parentObject);
     const symbolId = this.getWeakKeyId(symbolKey) as SymbolId;
+    const matchingEdges: graphlib.Edge[] = this.#graph.outEdges(parentId, symbolId) ?? [];
+    if (matchingEdges.some(edge => this.#hasSymbolKeyEdge(edge)) === false) {
+      this.#throwInternalError(new Error(
+        `no edge found between parent object "${parentId}" and symbol key "${symbolId}"`
+      ));
+    }
 
     const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
       edgeType: EdgePrefix.PropertyKey,

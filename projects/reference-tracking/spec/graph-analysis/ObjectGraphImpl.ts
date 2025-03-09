@@ -157,12 +157,54 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineProperty(heldValues, 0, middleValue, heldToMiddle);
 
       const middleToTargetMeta = new RelationshipMetadata("middle value to target");
+      objectGraph.defineAsSymbolKey(middleValue, symbolKey, new RelationshipMetadata("symbol key of middle value"));
       const middleToTarget = objectGraph.defineProperty(middleValue, symbolKey, target, middleToTargetMeta);
 
       expect(objectGraph.getEdgeRelationship(middleToTarget)).toEqual({
         edgeType: EdgePrefix.PropertyKey,
         description: createValueDescription(symbolKey, objectGraph),
 
+        metadata: middleToTargetMeta
+      });
+    });
+
+    it("objects referring to the target as a symbol key", () => {
+      const target = Symbol("is target");
+      heldValues = [];
+
+      {
+        const graph = new ObjectGraphImpl<
+          Record<"type", "ObjectMetadata">,
+          Record<"type", "RelationshipMetadata">
+        >;
+
+        graph.defineTargetAndHeldValues(
+          target, targetMetadata, heldValues, heldValuesMetadata
+        );
+        cloneableGraph = graph;
+        objectGraph = graph;
+        searchReferences = graph;
+      }
+
+      const tailValue = { isTail: "true" };
+
+      const middleValue = { [target]: tailValue };
+      heldValues.push(middleValue);
+
+      const heldToMiddle = new RelationshipMetadata("held values to middle value");
+      objectGraph.defineObject(middleValue, new ObjectMetadata);
+      objectGraph.defineProperty(heldValues, 0, middleValue, heldToMiddle);
+
+      const middleToTargetMeta = new RelationshipMetadata("middle value to target as key");
+      const middleToTargetId = objectGraph.defineAsSymbolKey(middleValue, target, middleToTargetMeta);
+      objectGraph.defineObject(tailValue, new ObjectMetadata);
+      objectGraph.defineProperty(middleValue, target, tailValue, new RelationshipMetadata("middle value to tail"));
+
+      expect(objectGraph.getEdgeRelationship(middleToTargetId)).toEqual({
+        edgeType: EdgePrefix.HasSymbolAsKey,
+        description: {
+          valueType: ValueDiscrimant.NotApplicable
+        },
         metadata: middleToTargetMeta
       });
     });
@@ -619,6 +661,41 @@ describe("ObjectGraphImpl", () => {
   });
 
   describe("marks references to target symbols as", () => {
+    it("strong when the target is an object key", () => {
+      const target = Symbol("target");
+      {
+        heldValues = [];
+
+        const graph = new ObjectGraphImpl<
+          Record<"type", "ObjectMetadata">,
+          Record<"type", "RelationshipMetadata">
+        >;
+
+        graph.defineTargetAndHeldValues(
+          target, targetMetadata, heldValues, heldValuesMetadata
+        );
+        cloneableGraph = graph;
+        objectGraph = graph;
+        searchReferences = graph;
+      }
+
+      const value = { name: "value" };
+      const propertyBag = { name: "propertyBag", [target]: value };
+      objectGraph.defineObject(propertyBag, new ObjectMetadata("propertyBag"));
+
+      heldValues.push(propertyBag);
+      objectGraph.defineProperty(heldValues, 0, propertyBag, new RelationshipMetadata("held values to property bag"));
+
+      objectGraph.defineAsSymbolKey(propertyBag, target, new RelationshipMetadata("property bag to target"));
+      objectGraph.defineObject(value, new ObjectMetadata("value"));
+      objectGraph.defineProperty(propertyBag, target, value, new RelationshipMetadata("property bag to value via target"));
+
+      searchReferences.markStrongReferencesFromHeldValues();
+      expect(searchReferences.isKeyHeldStrongly(propertyBag)).withContext("propertyBag").toBeTrue();
+      expect(searchReferences.isKeyHeldStrongly(target)).withContext("target").toBeTrue();
+      expect(searchReferences.isKeyHeldStrongly(value)).withContext("value").toBeTrue();
+    });
+
     it("strong in a regular map", () => {
       const map = {}, key = Symbol("key"), value = Symbol("value");
       heldValues.push(map);

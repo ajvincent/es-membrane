@@ -79,6 +79,18 @@ export function addPropertyNameEdge(
   graph.defineProperty(parentObject, propertyName, childObject, relationship);
 }
 
+export function addSymbolAsObjectKeyEdge(
+  graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
+  parentObject: object,
+  symbolKey: symbol,
+): void
+{
+  const relationship: GraphRelationshipMetadata = {
+    parentToChildEdgeType: ChildReferenceEdgeType.SymbolKey
+  };
+  graph.defineAsSymbolKey(parentObject, symbolKey, relationship);
+}
+
 export function addPropertySymbolEdge(
   graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
   parentObject: object,
