@@ -146,8 +146,9 @@ describe("Simple graph searches, class support:", () => {
     expect(actual).toEqual(expected);
   });
 
-  xit("classes extending built-in classes", async () => {
-
+  it("classes extending built-in classes", async () => {
+    const actual = await getActualGraph("simple/classesExtendingBuiltins.js", "DefaultWeakMap extends WeakMap");
+    expect(actual).toBeNull();
   });
 
   xit("classes with private fields", async () => {

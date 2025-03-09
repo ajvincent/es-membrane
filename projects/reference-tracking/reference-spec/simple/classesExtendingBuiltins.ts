@@ -14,4 +14,5 @@ const map = new DefaultWeakMap<object, boolean>;
 const target = {};
 map.set(target, true);
 
-searchReferences("DefaultWeakMap extends WeakMap", target, [map], true);
+// this should come up empty:  I exclude edges to built-ins via the `[[Prototype]]` chain.
+searchReferences("DefaultWeakMap extends WeakMap", WeakMap, [map], true);
