@@ -44,14 +44,14 @@ describe("Simple graph searches: weak references to direct values", () => {
       builtInJSTypeName: BuiltInJSTypeName.Object,
       derivedClassName: BuiltInJSTypeName.Object,
     };
-  
+
     const heldValuesMetadata: GraphObjectMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Array,
       derivedClassName: BuiltInJSTypeName.Array
     };
-  
+
     const ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
-  
+
     ExpectedObjectGraph.defineTargetAndHeldValues(
       target, targetMetadata, heldValues, heldValuesMetadata
     );
@@ -63,7 +63,7 @@ describe("Simple graph searches: weak references to direct values", () => {
     addInternalSlotEdge(ExpectedObjectGraph, weakRefObject, `[[WeakRefTarget]]`, target, false);
 
     ExpectedObjectGraph.summarizeGraphToTarget(false);
-    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());;
+    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
     const actual = await getActualGraph(
       "simple/weakRefToTarget.js",
