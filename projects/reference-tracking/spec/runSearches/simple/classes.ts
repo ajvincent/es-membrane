@@ -158,4 +158,8 @@ describe("Simple graph searches, class support:", () => {
   xit("classes with static fields", async () => {
 
   });
+
+  xit("classes with static private fields", async () => {
+
+  });
 });

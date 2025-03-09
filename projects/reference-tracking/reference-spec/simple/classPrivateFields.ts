@@ -20,4 +20,4 @@ class Vehicle {
 const Fred = new Person("Fred");
 const hisBike = new Vehicle(Fred);
 
-searchReferences("class extending other classes", Fred, [hisBike], true);
+searchReferences("class private fields", Fred, [hisBike], true);
