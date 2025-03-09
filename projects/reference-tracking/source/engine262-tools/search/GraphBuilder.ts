@@ -69,6 +69,7 @@ export class GraphBuilder {
   readonly #guestObjectGraph: GuestObjectGraphIfc<GraphObjectMetadata, GraphRelationshipMetadata>;
 
   readonly #intrinsicToBuiltInNameMap: ReadonlyMap<GuestEngine.Value, BuiltInJSTypeName>;
+  readonly #intrinsics: Pick<WeakSet<GuestEngine.Value>, "has">;
 
   readonly #objectsToExcludeFromSearch = new Set<GuestEngine.ObjectValue>;
   readonly #objectQueue = new Set<GuestEngine.ObjectValue>;
@@ -85,6 +86,7 @@ export class GraphBuilder {
   {
     this.#internalErrorTrap = internalErrorTrap;
     this.#intrinsicToBuiltInNameMap = GraphBuilder.#builtInNamesFromInstrinsics(realm);
+    this.#intrinsics = new WeakSet(Object.values(realm.Intrinsics));
 
     this.#guestObjectGraph = new GuestObjectGraphImpl(hostObjectGraph);
 
@@ -273,6 +275,15 @@ export class GraphBuilder {
       return;
     }
 
+    if (GuestEngine.IsConstructor(guestObject).booleanValue()) {
+      const kind = Reflect.get(guestObject, "ConstructorKind");
+      if (kind === "derived") {
+        const proto = Reflect.get(guestObject, "Prototype");
+        if (this.#intrinsics.has(proto) === false)
+          this.#addInternalSlotIfObject(guestObject, "Prototype", false, true);
+      }
+    }
+
     if (guestObject.internalSlotsList.includes("RevocableProxy")) {
       this.#addInternalSlotIfObject(guestObject, "RevocableProxy", false, true);
       return;
@@ -330,6 +341,8 @@ export class GraphBuilder {
       guestCtor, "%Object.prototype%"
     );
     if (this.#intrinsicToBuiltInNameMap.has(guestCtorProto))
+      return;
+    if (GuestEngine.SameValue(guestCtorProto, guestObject).booleanValue())
       return;
 
     GuestEngine.Assert(guestCtor.type === "Object");

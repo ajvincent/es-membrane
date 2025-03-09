@@ -11,13 +11,6 @@ export enum ChildReferenceEdgeType {
   SetElement = "SetElement",
   MapKey = "MapKey",
   MapValue = "MapValue",
-
-  // less sure of these
-  FunctionClosure = "FunctionClosure",
-  BoundFunction = "BoundFunction",
-
-  // shortcut: foo.bar.baz[0] = wop;
-  PropertySequence = "PropertySequence",
 }
 
 export enum BuiltInJSTypeName {

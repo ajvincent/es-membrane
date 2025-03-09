@@ -26,5 +26,4 @@ const Fred = new Person("Fred");
 const Betty = new Person("Betty");
 
 const hisBike = new Bicycle(Fred, Betty);
-
-searchReferences("class extending other classes", Fred, [hisBike], true);
+searchReferences("Bicycle extends Vehicle", Vehicle, [hisBike], true);
