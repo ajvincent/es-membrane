@@ -7,9 +7,13 @@ class Person {
 
 class Vehicle {
   static owners: Person[];
+  static #manufactured = 0;
+
+  readonly manufacturedOrder: number;
 
   constructor(owner: Person) {
     Vehicle.owners.push(owner);
+    this.manufacturedOrder = Vehicle.#manufactured++;
   }
 }
 
