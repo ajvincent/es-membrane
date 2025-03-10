@@ -151,7 +151,25 @@ describe("Simple graph searches, class support:", () => {
     expect(actual).toBeNull();
   });
 
+  xit("classes with getters to the target value", async () => {
+    const actual = await getActualGraph("simple/classAccessors.js", "reaching a value via a getter");
+    expect(actual).not.toBeNull();
+  });
+
+  xit("classes with setters but no getters to the target value", async () => {
+    const actual = await getActualGraph("simple/classAccessors.js", "unreachable values with only a setter route");
+    expect(actual).toBeNull();
+  });
+
   xit("classes with private fields", async () => {
+  });
+
+  // model on "classes with getters"
+  xit("classes with private getters to the target value", async () => {
+
+  });
+
+  xit("classes with private setters but no getters to the target value", async () => {
 
   });
 
