@@ -1,4 +1,12 @@
 //#region preamble
+import {
+  InstanceGetterTracking
+} from "../../graph-analysis/InstanceGetterTracking.js";
+
+import type {
+  InstanceGetterDefinitions
+} from "../../graph-analysis/types/InstanceGetterDefinitions.js";
+
 import type {
   EngineWeakKey,
   ObjectGraphIfc,
@@ -34,7 +42,9 @@ import {
 } from "./ObjectMetadata.js";
 //#endregion preamble
 
-export class GraphBuilder {
+export class GraphBuilder
+implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.SymbolValue>
+{
   //#region private class fields and static private fields
   static readonly #stringConstants: ReadonlyMap<string, GuestEngine.JSStringValue> = new Map([
     ["constructor", GuestEngine.Value("constructor")],
@@ -75,6 +85,10 @@ export class GraphBuilder {
   readonly #objectsToExcludeFromSearch = new Set<GuestEngine.ObjectValue>;
   readonly #objectQueue = new Set<GuestEngine.ObjectValue>;
 
+  readonly #instanceGetterTracking = new InstanceGetterTracking<
+    GuestEngine.ObjectValue, GuestEngine.SymbolValue
+  >(this);
+
   readonly #internalErrorTrap?: () => void;
   //#endregion private class fields and static private fields
 
@@ -107,6 +121,26 @@ export class GraphBuilder {
     if (targetValue.type === "Object")
       this.#objectsToExcludeFromSearch.add(targetValue);
     this.#objectQueue.add(heldValues);
+
+    void(this.#instanceGetterTracking);
+  }
+
+  defineInstanceGetter(
+    instance: GuestEngine.ObjectValue,
+    getterKey: string | number | GuestEngine.SymbolValue
+  ): void
+  {
+    void(instance);
+    void(getterKey);
+  }
+
+  definePrivateInstanceGetter(
+    instance: GuestEngine.ObjectValue,
+    privateKey: GuestEngine.ObjectValue
+  ): void
+  {
+    void(instance);
+    void(privateKey);
   }
 
   public run(): void
