@@ -35,6 +35,7 @@ import {
 //#endregion preamble
 
 export class GraphBuilder {
+  //#region private class fields and static private fields
   static readonly #stringConstants: ReadonlyMap<string, GuestEngine.JSStringValue> = new Map([
     ["constructor", GuestEngine.Value("constructor")],
     ["name", GuestEngine.Value("name")],
@@ -75,6 +76,7 @@ export class GraphBuilder {
   readonly #objectQueue = new Set<GuestEngine.ObjectValue>;
 
   readonly #internalErrorTrap?: () => void;
+  //#endregion private class fields and static private fields
 
   constructor(
     targetValue: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
@@ -107,13 +109,6 @@ export class GraphBuilder {
     this.#objectQueue.add(heldValues);
   }
 
-  #throwInternalError(error: Error): never {
-    if (this.#internalErrorTrap) {
-      this.#internalErrorTrap();
-    }
-    throw error;
-  }
-
   public run(): void
   {
     for (const guestObject of this.#objectQueue) {
@@ -126,6 +121,14 @@ export class GraphBuilder {
 
       this.#lookupAndAddInternalSlots(guestObject);
     }
+  }
+
+  //#region private methods
+  #throwInternalError(error: Error): never {
+    if (this.#internalErrorTrap) {
+      this.#internalErrorTrap();
+    }
+    throw error;
   }
 
   #defineGraphNode(
@@ -397,4 +400,5 @@ export class GraphBuilder {
       this.#guestObjectGraph.defineSetValue(parentObject, value, slotName === "SetData", edgeRelationship);
     }
   }
+  //#endregion private methods
 }
