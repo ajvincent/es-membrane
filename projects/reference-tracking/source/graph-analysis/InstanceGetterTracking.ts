@@ -1,15 +1,26 @@
+import type {
+  InstanceGetterDefinitions
+} from "./types/InstanceGetterDefinitions.js";
+
 export class InstanceGetterTracking<
-  EngineObject,
+  EngineObject extends object,
   EngineSymbol,
 >
 {
-  readonly #definitions: InstanceGetterTracking<EngineObject, EngineSymbol>;
+  readonly #definitions: InstanceGetterDefinitions<EngineObject, EngineSymbol>;
+
+  readonly #classToGetterKeysMap = new QuickWeakMapOfSets<EngineObject, string | number | EngineSymbol>;
+  readonly #classToPrivateKeysMap = new QuickWeakMapOfSets<EngineObject, EngineObject>;
+  readonly #classToInstancesMap = new QuickWeakMapOfSets<EngineObject, EngineObject>;
+  readonly #baseClassToDerivedClassMap = new QuickWeakMapOfSets<EngineObject, EngineObject>;
+
+  readonly #derivedClassToBaseClassMap = new WeakMap<EngineObject, EngineObject>;
+
   constructor(
-    definitions: InstanceGetterTracking<EngineObject, EngineSymbol>
+    definitions: InstanceGetterDefinitions<EngineObject, EngineSymbol>
   )
   {
     this.#definitions = definitions;
-    void(this.#definitions);
   }
 
   public addInstance(
@@ -17,18 +28,42 @@ export class InstanceGetterTracking<
     classObject: EngineObject
   ): void
   {
-    void(instance);
-    void(classObject);
-    throw new Error("not yet implemented");
+    this.#classToInstancesMap.add(classObject, instance);
+
+    const classStack: EngineObject[] = [];
+    let currentClass: EngineObject | undefined = classObject;
+    do {
+      classStack.unshift(currentClass);
+      currentClass = this.#derivedClassToBaseClassMap.get(currentClass);
+    } while (currentClass);
+
+    while (classStack.length) {
+      currentClass = classStack.shift();
+      for (const key of this.#classToGetterKeysMap.mapValues(currentClass!)) {
+        this.#definitions.defineInstanceGetter(instance, key);
+      }
+
+      for (const key of this.#classToPrivateKeysMap.mapValues(currentClass!)) {
+        this.#definitions.definePrivateInstanceGetter(instance, key);
+      }
+    }
   }
 
   public addBaseClass(
     derivedClass: EngineObject,
     baseClass: EngineObject
-  ): void {
-    void(derivedClass);
-    void(baseClass);
-    throw new Error("not yet implemented");
+  ): void
+  {
+    this.#baseClassToDerivedClassMap.add(baseClass, derivedClass);
+    this.#derivedClassToBaseClassMap.set(derivedClass, baseClass);
+
+    for (const key of this.#classToGetterKeysMap.mapValues(baseClass)) {
+      this.#notifyFoundPublicKey(derivedClass, key);
+    }
+
+    for (const key of this.#classToPrivateKeysMap.mapValues(baseClass)) {
+      this.#notifyFoundPrivateKey(derivedClass, key);
+    }
   }
 
   public addGetterName(
@@ -36,9 +71,22 @@ export class InstanceGetterTracking<
     key: string | number | EngineSymbol
   ): void
   {
-    void(baseClass);
-    void(key);
-    throw new Error("not yet implemented");
+    this.#classToGetterKeysMap.add(baseClass, key);
+    this.#notifyFoundPublicKey(baseClass, key);
+  }
+
+  #notifyFoundPublicKey(
+    baseClass: EngineObject,
+    key: string | number | EngineSymbol,
+  ): void
+  {
+    for (const instance of this.#classToInstancesMap.mapValues(baseClass)) {
+      this.#definitions.defineInstanceGetter(instance, key);
+    }
+
+    for (const derivedClass of this.#baseClassToDerivedClassMap.mapValues(baseClass)) {
+      this.#notifyFoundPublicKey(derivedClass, key);
+    }
   }
 
   public addPrivateGetterName(
@@ -46,8 +94,49 @@ export class InstanceGetterTracking<
     privateKey: EngineObject
   ): void
   {
-    void(baseClass);
-    void(privateKey);
-    throw new Error("not yet implemented");
+    this.#classToPrivateKeysMap.add(baseClass, privateKey);
+    this.#notifyFoundPrivateKey(baseClass, privateKey);
+  }
+
+  #notifyFoundPrivateKey(
+    classObject: EngineObject,
+    privateKey: EngineObject
+  ): void
+  {
+    for (const instance of this.#classToInstancesMap.mapValues(classObject)) {
+      this.#definitions.definePrivateInstanceGetter(instance, privateKey);
+    }
+
+    for (const derivedClass of this.#baseClassToDerivedClassMap.mapValues(classObject)) {
+      this.#notifyFoundPrivateKey(derivedClass, privateKey);
+    }
+  }
+}
+
+class QuickWeakMapOfSets<KeyType extends WeakKey, InnerSetType> {
+  readonly #outerMap = new WeakMap<KeyType, Set<InnerSetType>>;
+
+  add(
+    mapKey: KeyType,
+    setValue: InnerSetType
+  ): void
+  {
+    let innerSet: Set<InnerSetType> | undefined = this.#outerMap.get(mapKey);
+    if (!innerSet) {
+      innerSet = new Set<InnerSetType>;
+      this.#outerMap.set(mapKey, innerSet);
+    }
+
+    innerSet.add(setValue);
+  }
+
+  * mapValues(
+    mapKey: KeyType
+  ): IterableIterator<InnerSetType>
+  {
+    const innerSet: Set<InnerSetType> | undefined = this.#outerMap.get(mapKey);
+    if (innerSet) {
+      yield * innerSet.values();
+    }
   }
 }
