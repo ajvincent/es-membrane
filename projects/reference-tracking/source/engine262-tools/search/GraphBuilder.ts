@@ -78,6 +78,8 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
   }
 
   readonly #guestObjectGraph: GuestObjectGraphIfc<GraphObjectMetadata, GraphRelationshipMetadata>;
+  // eslint-disable-next-line no-unused-private-class-members
+  #currentNodeId?: string;
 
   readonly #intrinsicToBuiltInNameMap: ReadonlyMap<GuestEngine.Value, BuiltInJSTypeName>;
   readonly #intrinsics: Pick<WeakSet<GuestEngine.Value>, "has">;
@@ -121,17 +123,27 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     if (targetValue.type === "Object")
       this.#objectsToExcludeFromSearch.add(targetValue);
     this.#objectQueue.add(heldValues);
-
-    void(this.#instanceGetterTracking);
   }
 
   defineInstanceGetter(
-    instance: GuestEngine.ObjectValue,
+    guestInstance: GuestEngine.ObjectValue,
     getterKey: string | number | GuestEngine.SymbolValue
   ): void
   {
-    void(instance);
-    void(getterKey);
+    const guestKey: GuestEngine.JSStringValue | GuestEngine.SymbolValue = (
+      typeof getterKey === "object" ? getterKey : GuestEngine.Value(getterKey.toString())
+    );
+
+    // GetV says it will return a GuestEngine.Value.  For getters, it returns a NormalCompletion<GuestEngine.Value> sometimes.
+    //FIXME: when engine262 is type-checked throughout, this should be cleaned up.
+    const guestValue: GuestEngine.Value = GuestEngine.EnsureCompletion(
+      GuestEngine.GetV(guestInstance, guestKey)
+    ).Value;
+
+    if (guestValue.type === "Object" || guestValue.type === "Symbol") {
+      this.#defineGraphNode(guestValue, false);
+      this.#addObjectPropertyOrGetter(guestInstance, guestKey, guestValue, true);
+    }
   }
 
   definePrivateInstanceGetter(
@@ -141,19 +153,22 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
   {
     void(instance);
     void(privateKey);
+    this.#throwInternalError(new Error("definePrivateInstanceGetter not yet implemented"));
   }
 
   public run(): void
   {
     for (const guestObject of this.#objectQueue) {
-      if (this.#objectsToExcludeFromSearch.has(guestObject))
-        continue;
-      if (GuestEngine.isProxyExoticObject(guestObject) === false) {
-        this.#addObjectProperties(guestObject);
-        this.#addConstructorOf(guestObject);
-      }
+      this.#currentNodeId = this.#guestObjectGraph.getWeakKeyId(guestObject);
+      if (this.#objectsToExcludeFromSearch.has(guestObject) === false) {
+        if (GuestEngine.isProxyExoticObject(guestObject) === false) {
+          this.#addObjectProperties(guestObject);
+          this.#addConstructorOf(guestObject);
+        }
 
-      this.#lookupAndAddInternalSlots(guestObject);
+        this.#lookupAndAddInternalSlots(guestObject);
+      }
+      this.#currentNodeId = undefined;
     }
   }
 
@@ -263,18 +278,40 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
         this.#defineGraphSymbolNode(guestKey);
       }
 
-      const childGuestValue: GuestEngine.Value = GuestEngine.GetV(guestObject, guestKey);
-      if (childGuestValue.type === "Object" || childGuestValue.type === "Symbol") {
-        this.#defineGraphNode(childGuestValue, false);
-        this.#addObjectProperty(guestObject, guestKey, childGuestValue);
+      const descriptor = guestObject.GetOwnProperty(guestKey);
+      GuestEngine.Assert(descriptor instanceof GuestEngine.Descriptor);
+
+      if (GuestEngine.IsDataDescriptor(descriptor)) {
+        GuestEngine.Assert(descriptor.Value !== undefined);
+        const childGuestValue: GuestEngine.Value = descriptor.Value;
+        if (childGuestValue.type === "Object" || childGuestValue.type === "Symbol") {
+          this.#defineGraphNode(childGuestValue, false);
+          this.#addObjectPropertyOrGetter(guestObject, guestKey, childGuestValue, false);
+        }
+      }
+      else {
+        let key: number | string | GuestEngine.SymbolValue;
+        if (guestKey.type === "Symbol") {
+          key = guestKey;
+        } else if (GuestEngine.isArrayIndex(guestKey)) {
+          key = parseInt(guestKey.stringValue());
+        } else {
+          key = guestKey.stringValue();
+        }
+
+        const ctor = GuestEngine.GetV(guestObject, GraphBuilder.#stringConstants.get("constructor")!);
+        if (ctor.type === "Object") {
+          this.#instanceGetterTracking.addGetterName(ctor, key);
+        }
       }
     }
   }
 
-  #addObjectProperty(
+  #addObjectPropertyOrGetter(
     parentObject: GuestEngine.ObjectValue,
     key: GuestEngine.JSStringValue | GuestEngine.SymbolValue,
-    childObject: GuestEngine.ObjectValue | GuestEngine.SymbolValue
+    childObject: GuestEngine.ObjectValue | GuestEngine.SymbolValue,
+    isGetter: boolean,
   ): void
   {
     if (GuestEngine.isArrayIndex(key)) {
@@ -282,14 +319,16 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
       const localIndex = parseInt(key.stringValue());
 
       const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.ArrayIndex);
-      this.#guestObjectGraph.defineProperty(
-        parentObject, localIndex, childObject, edgeRelationship
+      this.#guestObjectGraph.definePropertyOrGetter(
+        parentObject, localIndex, childObject, edgeRelationship, isGetter
       );
     }
 
     else if (key.type === "String") {
       const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.PropertyName);
-      this.#guestObjectGraph.defineProperty(parentObject, key.stringValue(), childObject, edgeRelationship);
+      this.#guestObjectGraph.definePropertyOrGetter(
+        parentObject, key.stringValue(), childObject, edgeRelationship, isGetter
+      );
     }
 
     else {
@@ -298,7 +337,9 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
       this.#guestObjectGraph.defineAsSymbolKey(parentObject, key, keyRelationship);
 
       const propertyRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.PropertySymbol);
-      this.#guestObjectGraph.defineProperty(parentObject, key, childObject, propertyRelationship);
+      this.#guestObjectGraph.definePropertyOrGetter(
+        parentObject, key, childObject, propertyRelationship, isGetter
+      );
     }
   }
 
@@ -316,8 +357,10 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
       const kind = Reflect.get(guestObject, "ConstructorKind");
       if (kind === "derived") {
         const proto = Reflect.get(guestObject, "Prototype");
-        if (this.#intrinsics.has(proto) === false)
+        if (this.#intrinsics.has(proto) === false) {
           this.#addInternalSlotIfObject(guestObject, "Prototype", false, true);
+          this.#instanceGetterTracking.addBaseClass(guestObject, proto);
+        }
       }
     }
 
@@ -379,7 +422,7 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     );
     if (this.#intrinsicToBuiltInNameMap.has(guestCtorProto))
       return;
-    if (GuestEngine.SameValue(guestCtorProto, guestObject).booleanValue())
+    if (guestCtorProto === guestObject)
       return;
 
     GuestEngine.Assert(guestCtor.type === "Object");
@@ -388,6 +431,8 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     this.#defineGraphNode(guestCtor, false);
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InstanceOf);
     this.#guestObjectGraph.defineConstructorOf(guestObject, guestCtor, edgeRelationship);
+
+    this.#instanceGetterTracking.addInstance(guestObject, guestCtor);
   }
 
   #addMapData(

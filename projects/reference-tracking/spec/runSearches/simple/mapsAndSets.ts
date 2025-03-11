@@ -65,7 +65,7 @@ describe("Simple graph searches:", () => {
   it("Map objects store object keys with strong references", async () => {
     {
       addObjectGraphNode(ExpectedObjectGraph, mapOrSet, BuiltInJSTypeName.Map, BuiltInJSTypeName.Map);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet, false);
 
       addObjectGraphNode(ExpectedObjectGraph, value, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
       addMapKeyAndValue(ExpectedObjectGraph, mapOrSet, target, value, true);
@@ -80,7 +80,7 @@ describe("Simple graph searches:", () => {
   it("Map objects store object values with strong references", async () => {
     {
       addObjectGraphNode(ExpectedObjectGraph, mapOrSet, BuiltInJSTypeName.Map, BuiltInJSTypeName.Map);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet, false);
 
       addObjectGraphNode(ExpectedObjectGraph, key, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
       addMapKeyAndValue(ExpectedObjectGraph, mapOrSet, key, target, true);
@@ -95,7 +95,7 @@ describe("Simple graph searches:", () => {
   it("Set objects store values", async () => {
     {
       addObjectGraphNode(ExpectedObjectGraph, mapOrSet, BuiltInJSTypeName.Set, BuiltInJSTypeName.Set);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet, false);
 
       addSetElementEdge(ExpectedObjectGraph, mapOrSet, target, true);
     }
@@ -113,7 +113,7 @@ describe("Simple graph searches:", () => {
   it("WeakMap objects store object keys with weak references", async () => {
     {
       addObjectGraphNode(ExpectedObjectGraph, mapOrSet, BuiltInJSTypeName.WeakMap, BuiltInJSTypeName.WeakMap);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet, false);
 
       addMapKeyAndValue(ExpectedObjectGraph, mapOrSet, target, "value", false);
     }
@@ -132,7 +132,7 @@ describe("Simple graph searches:", () => {
   it("WeakMap objects store object values weakly", async () => {
     {
       addObjectGraphNode(ExpectedObjectGraph, mapOrSet, BuiltInJSTypeName.WeakMap, BuiltInJSTypeName.WeakMap);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet, false);
 
       addObjectGraphNode(ExpectedObjectGraph, key, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
       addMapKeyAndValue(ExpectedObjectGraph, mapOrSet, key, target, false);
@@ -147,10 +147,10 @@ describe("Simple graph searches:", () => {
   it("WeakMap objects store object values jointly with their map key", async () => {
     {
       addObjectGraphNode(ExpectedObjectGraph, mapOrSet, BuiltInJSTypeName.WeakMap, BuiltInJSTypeName.WeakMap);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet, false);
 
       addObjectGraphNode(ExpectedObjectGraph, key, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 1, key);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 1, key, false);
 
       // Order of operations really matters here.  Remember this is a breadth-first search, starting from heldValues.
       addMapKeyAndValue(ExpectedObjectGraph, mapOrSet, key, target, false);
@@ -170,7 +170,7 @@ describe("Simple graph searches:", () => {
   it("WeakSet objects stores values weakly", async () => {
     {
       addObjectGraphNode(ExpectedObjectGraph, mapOrSet, BuiltInJSTypeName.WeakSet, BuiltInJSTypeName.WeakSet);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, mapOrSet, false);
 
       addSetElementEdge(ExpectedObjectGraph, mapOrSet, target, false);
     }

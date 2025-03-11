@@ -298,55 +298,37 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     ).edgeType === EdgePrefix.HasSymbolAsKey;
   }
 
-  public defineProperty(
+  public definePropertyOrGetter(
     parentObject: object,
     relationshipName: number | string | symbol,
     childObject: object,
-    metadata: RelationshipMetadata
-  ): PrefixedNumber<EdgePrefix.PropertyKey>
+    metadata: RelationshipMetadata,
+    isGetter: boolean,
+  ): PrefixedNumber<EdgePrefix.GetterKey | EdgePrefix.PropertyKey>
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
     const parentId = this.#requireWeakKeyId(parentObject, "parentObject");
     const childId = this.#requireWeakKeyId(childObject, "childObject");
 
-    let edgeId: PrefixedNumber<EdgePrefix.PropertyKey>;
-    if (typeof relationshipName !== "symbol") {
-      edgeId = this.#definePropertyReference(
-        parentObject, relationshipName, childObject, metadata
-      );
-    } else {
-      edgeId = this.#defineSymbolReference(
-        parentObject, relationshipName, childObject, metadata
-      );
+    if (typeof relationshipName === "symbol") {
+      const symbolId = this.getWeakKeyId(relationshipName);
+      const matchingEdges: graphlib.Edge[] = this.#graph.outEdges(parentId, symbolId) ?? [];
+      if (matchingEdges.some(edge => this.#hasSymbolKeyEdge(edge)) === false) {
+        this.#throwInternalError(new Error(
+          `no edge found between parent object "${parentId}" and symbol key "${symbolId}"`
+        ));
+      }
     }
 
-    this.#ownershipSetsTracker.defineChildEdge(
-      childId, [parentId], edgeId
-    );
-
-    this.#edgeIdTo_IsStrongReference_Map.set(edgeId, true);
-    return edgeId;
-  }
-
-  #definePropertyReference(
-    parentObject: object,
-    relationshipName: number | string,
-    childObject: object,
-    metadata: RelationshipMetadata,
-  ): PrefixedNumber<EdgePrefix.PropertyKey>
-  {
     const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
       edgeType: EdgePrefix.PropertyKey,
-      description: {
-        valueType: ValueDiscrimant.Primitive,
-        primitiveValue: relationshipName
-      },
+      description: createValueDescription(relationshipName, this),
       metadata,
     };
 
-    const parentId = this.#weakKeyToIdMap.get(parentObject)!;
-    const childId = this.#weakKeyToIdMap.get(childObject)!
-    const edgeId = this.#edgeCounter.next(EdgePrefix.PropertyKey);
+    const edgeId = this.#edgeCounter.next(
+      isGetter ? EdgePrefix.GetterKey : EdgePrefix.PropertyKey
+    );
 
     this.#defineEdge(
       parentId,
@@ -355,43 +337,14 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
       edgeId,
       [parentId]
     );
-    return edgeId;
-  }
 
-  #defineSymbolReference(
-    parentObject: object,
-    symbolKey: symbol,
-    childObject: object,
-    metadata: RelationshipMetadata,
-  ): PrefixedNumber<EdgePrefix.PropertyKey>
-  {
-    const parentId = this.getWeakKeyId(parentObject);
-    const symbolId = this.getWeakKeyId(symbolKey) as SymbolId;
-    const matchingEdges: graphlib.Edge[] = this.#graph.outEdges(parentId, symbolId) ?? [];
-    if (matchingEdges.some(edge => this.#hasSymbolKeyEdge(edge)) === false) {
-      this.#throwInternalError(new Error(
-        `no edge found between parent object "${parentId}" and symbol key "${symbolId}"`
-      ));
-    }
-
-    const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
-      edgeType: EdgePrefix.PropertyKey,
-      description: {
-        valueType: ValueDiscrimant.Symbol,
-        symbolId,
-      },
-      metadata,
-    };
-
-    const edgeId = this.#edgeCounter.next(EdgePrefix.PropertyKey);
-    this.#defineEdge(
-      this.getWeakKeyId(parentObject),
-      this.getWeakKeyId(childObject),
-      edgeMetadata,
-      edgeId,
-      [this.getWeakKeyId(parentObject)]
+    this.#ownershipSetsTracker.defineChildEdge(
+      childId, [parentId], edgeId
     );
 
+    this.#edgeIdTo_IsStrongReference_Map.set(edgeId, true);
+    if (isGetter)
+      return edgeId as PrefixedNumber<EdgePrefix.GetterKey>;
     return edgeId;
   }
 

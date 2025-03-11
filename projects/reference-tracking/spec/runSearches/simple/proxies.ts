@@ -82,7 +82,7 @@ describe("Simple graph searches, proxy support:", () => {
   it("proxies hold shadow targets before revocation", async () => {
     {
       addObjectGraphNode(ExpectedObjectGraph, proxy, BuiltInJSTypeName.Proxy, BuiltInJSTypeName.Proxy);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, proxy);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, proxy, false);
 
       addInternalSlotEdge(ExpectedObjectGraph, proxy, `[[ProxyTarget]]`, target, true);
 
@@ -102,7 +102,7 @@ describe("Simple graph searches, proxy support:", () => {
   it("proxies hold proxy handlers before revocation", async () => {
     {
       addObjectGraphNode(ExpectedObjectGraph, proxy, BuiltInJSTypeName.Proxy, BuiltInJSTypeName.Proxy);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, proxy);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, proxy, false);
 
       addObjectGraphNode(ExpectedObjectGraph, shadowTarget, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
       addInternalSlotEdge(ExpectedObjectGraph, proxy, `[[ProxyTarget]]`, shadowTarget, true);
@@ -132,7 +132,7 @@ describe("Simple graph searches, proxy support:", () => {
     );
     {
       addObjectGraphNode(ExpectedObjectGraph, revoke, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, revoke);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, revoke, false);
 
       addInternalSlotEdge(ExpectedObjectGraph, revoke, `[[RevocableProxy]]`, target, true);
     }
@@ -165,7 +165,7 @@ describe("Simple graph searches, proxy support:", () => {
   it("proxies search proxy handlers", async () => {
     {
       addObjectGraphNode(ExpectedObjectGraph, proxy, BuiltInJSTypeName.Proxy, BuiltInJSTypeName.Proxy);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, proxy);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, proxy, false);
 
       addObjectGraphNode(ExpectedObjectGraph, shadowTarget, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
       addInternalSlotEdge(ExpectedObjectGraph, proxy, `[[ProxyTarget]]`, shadowTarget, true);
@@ -173,7 +173,7 @@ describe("Simple graph searches, proxy support:", () => {
       addObjectGraphNode(ExpectedObjectGraph, NotImplementedProxyHandler, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
       addInternalSlotEdge(ExpectedObjectGraph, proxy, `[[ProxyHandler]]`, NotImplementedProxyHandler, true);
 
-      addPropertyNameEdge(ExpectedObjectGraph, NotImplementedProxyHandler, "searchTarget", target);
+      addPropertyNameEdge(ExpectedObjectGraph, NotImplementedProxyHandler, "searchTarget", target, false);
     }
 
     const expected = getExpectedGraph();

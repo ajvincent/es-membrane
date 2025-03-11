@@ -78,12 +78,12 @@ describe("Simple graph searches:", () => {
       const isLastValue = Symbol("is last value");
 
       addObjectGraphNode(ExpectedObjectGraph, isFirstValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, isFirstValue);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, isFirstValue, false);
 
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 1, target);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 1, target, false);
 
       addSymbolGraphNode(ExpectedObjectGraph, isLastValue);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 2, isLastValue);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 2, isLastValue, false);
     }
 
     const expected: object = getExpectedGraph();
@@ -110,12 +110,12 @@ describe("Simple graph searches:", () => {
       const isMiddleValue = { isMiddleValue: true };
 
       addObjectGraphNode(ExpectedObjectGraph, isFirstValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, isFirstValue);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, isFirstValue, false);
 
       addObjectGraphNode(ExpectedObjectGraph, isMiddleValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 1, isMiddleValue);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 1, isMiddleValue, false);
 
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 2, target);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 2, target, false);
     }
 
     const expected: object = getExpectedGraph();
@@ -130,15 +130,15 @@ describe("Simple graph searches:", () => {
       const isLastValue = { isLastValue: true };
 
       addObjectGraphNode(ExpectedObjectGraph, isFirstValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, isFirstValue);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, isFirstValue, false);
 
       addObjectGraphNode(ExpectedObjectGraph, arrayHoldingTarget, BuiltInJSTypeName.Array, BuiltInJSTypeName.Array);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 1, arrayHoldingTarget);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 1, arrayHoldingTarget, false);
 
       addObjectGraphNode(ExpectedObjectGraph, isLastValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 2, isLastValue);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 2, isLastValue, false);
 
-      addArrayIndexEdge(ExpectedObjectGraph, arrayHoldingTarget, 0, target);
+      addArrayIndexEdge(ExpectedObjectGraph, arrayHoldingTarget, 0, target, false);
     }
 
     const expected: object = getExpectedGraph();
@@ -153,15 +153,15 @@ describe("Simple graph searches:", () => {
       const isLastValue = { isLastValue: true };
 
       addObjectGraphNode(ExpectedObjectGraph, isFirstValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, isFirstValue);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, isFirstValue, false);
 
       addObjectGraphNode(ExpectedObjectGraph, objectHoldingTarget, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 1, objectHoldingTarget);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 1, objectHoldingTarget, false);
 
       addObjectGraphNode(ExpectedObjectGraph, isLastValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 2, isLastValue);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 2, isLastValue, false);
 
-      addPropertyNameEdge(ExpectedObjectGraph, objectHoldingTarget, "target", target);
+      addPropertyNameEdge(ExpectedObjectGraph, objectHoldingTarget, "target", target, false);
     }
 
     const expected = getExpectedGraph();
@@ -188,11 +188,11 @@ describe("Simple graph searches:", () => {
 
       const objectHoldingTarget = { [target]: tailValue };
       addObjectGraphNode(ExpectedObjectGraph, objectHoldingTarget, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, objectHoldingTarget);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, objectHoldingTarget, false);
 
       addObjectGraphNode(ExpectedObjectGraph, tailValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
       addSymbolAsObjectKeyEdge(ExpectedObjectGraph, objectHoldingTarget, target);
-      addPropertySymbolEdge(ExpectedObjectGraph, objectHoldingTarget, target, tailValue);
+      addPropertySymbolEdge(ExpectedObjectGraph, objectHoldingTarget, target, tailValue, false);
     }
 
     const expected = getExpectedGraph();
@@ -209,11 +209,11 @@ describe("Simple graph searches:", () => {
 
       const objectHoldingTarget = { [symbolKey]: target };
       addObjectGraphNode(ExpectedObjectGraph, objectHoldingTarget, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
-      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, objectHoldingTarget);
+      addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, objectHoldingTarget, false);
 
       addSymbolGraphNode(ExpectedObjectGraph, symbolKey);
       addSymbolAsObjectKeyEdge(ExpectedObjectGraph, objectHoldingTarget, symbolKey);
-      addPropertySymbolEdge(ExpectedObjectGraph, objectHoldingTarget, symbolKey, target);
+      addPropertySymbolEdge(ExpectedObjectGraph, objectHoldingTarget, symbolKey, target, false);
     }
 
     const expected = getExpectedGraph();

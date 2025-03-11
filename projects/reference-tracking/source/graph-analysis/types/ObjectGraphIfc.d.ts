@@ -115,13 +115,15 @@ export interface ObjectGraphIfc<
    * @param relationshipName
    * @param childObject
    * @param metadata
+   * @param isGetter
    */
-  defineProperty(
+  definePropertyOrGetter(
     parentObject: EngineObject,
     relationshipName: number | string | EngineSymbol,
     childObject: EngineWeakKey<EngineObject, EngineSymbol>,
     metadata: RelationshipMetadata,
-  ): PrefixedNumber<EdgePrefix.PropertyKey>;
+    isGetter: boolean,
+  ): PrefixedNumber<EdgePrefix.GetterKey | EdgePrefix.PropertyKey>;
 
   defineConstructorOf(
     instanceObject: EngineObject,

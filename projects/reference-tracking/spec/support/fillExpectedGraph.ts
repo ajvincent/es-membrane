@@ -56,28 +56,32 @@ export function addArrayIndexEdge(
   graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
   parentObject: object,
   index: number,
-  childObject: object | symbol
+  childObject: object | symbol,
+  isGetter: boolean,
 ): void
 {
   const relationship: GraphRelationshipMetadata = {
     parentToChildEdgeType: ChildReferenceEdgeType.ArrayIndex
   };
 
-  graph.defineProperty(parentObject, index, childObject, relationship);
+  graph.definePropertyOrGetter(parentObject, index, childObject, relationship, isGetter);
 }
 
 export function addPropertyNameEdge(
   graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
   parentObject: object,
   propertyName: string,
-  childObject: object
+  childObject: object,
+  isGetter: boolean
 ): void
 {
   const relationship: GraphRelationshipMetadata = {
     parentToChildEdgeType: ChildReferenceEdgeType.PropertyName
   };
 
-  graph.defineProperty(parentObject, propertyName, childObject, relationship);
+  graph.definePropertyOrGetter(
+    parentObject, propertyName, childObject, relationship, isGetter
+  );
 }
 
 export function addSymbolAsObjectKeyEdge(
@@ -96,14 +100,17 @@ export function addPropertySymbolEdge(
   graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
   parentObject: object,
   propertyKey: symbol,
-  childObject: object
+  childObject: object,
+  isGetter: boolean
 ): void
 {
   const relationship: GraphRelationshipMetadata = {
     parentToChildEdgeType: ChildReferenceEdgeType.PropertySymbol
   };
 
-  graph.defineProperty(parentObject, propertyKey, childObject, relationship);
+  graph.definePropertyOrGetter(
+    parentObject, propertyKey, childObject, relationship, isGetter
+  );
 }
 
 export function addConstructorOf(

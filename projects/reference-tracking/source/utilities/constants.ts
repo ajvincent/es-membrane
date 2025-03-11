@@ -46,6 +46,7 @@ export enum NodePrefix {
 
 export enum EdgePrefix {
   PropertyKey = "propertyKey",
+  GetterKey = "getterKey",
   HasSymbolAsKey = "hasSymbolAsKey",
   InstanceOf = "instanceOf",
   InternalSlot = "internalSlot",

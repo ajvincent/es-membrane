@@ -99,9 +99,9 @@ describe("ObjectGraphImpl", () => {
 
       const targetEdgeMetadata = new RelationshipMetadata("heldValues to target");
 
-      objectGraph.defineProperty(heldValues, 0, firstValue, new RelationshipMetadata);
-      const heldToTarget = objectGraph.defineProperty(heldValues, 1, target, targetEdgeMetadata);
-      objectGraph.defineProperty(heldValues, 2, lastValue, new RelationshipMetadata);
+      objectGraph.definePropertyOrGetter(heldValues, 0, firstValue, new RelationshipMetadata, false);
+      const heldToTarget = objectGraph.definePropertyOrGetter(heldValues, 1, target, targetEdgeMetadata, false);
+      objectGraph.definePropertyOrGetter(heldValues, 2, lastValue, new RelationshipMetadata, false);
 
       expect(objectGraph.getWeakKeyId(target)).toBe("target:0");
       expect(objectGraph.getWeakKeyId(heldValues)).toBe("heldValues:1");
@@ -131,10 +131,10 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(middleValue, new ObjectMetadata);
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
-      objectGraph.defineProperty(heldValues, 0, middleValue, heldToMiddle);
+      objectGraph.definePropertyOrGetter(heldValues, 0, middleValue, heldToMiddle, false);
 
       const middleToTargetMeta = new RelationshipMetadata("middle value to target");
-      const middleToTarget = objectGraph.defineProperty(middleValue, "target", target, middleToTargetMeta);
+      const middleToTarget = objectGraph.definePropertyOrGetter(middleValue, "target", target, middleToTargetMeta, false);
 
       expect(objectGraph.getEdgeRelationship(middleToTarget)).toEqual({
         edgeType: EdgePrefix.PropertyKey,
@@ -154,11 +154,11 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(middleValue, new ObjectMetadata);
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
-      objectGraph.defineProperty(heldValues, 0, middleValue, heldToMiddle);
+      objectGraph.definePropertyOrGetter(heldValues, 0, middleValue, heldToMiddle, false);
 
       const middleToTargetMeta = new RelationshipMetadata("middle value to target");
       objectGraph.defineAsSymbolKey(middleValue, symbolKey, new RelationshipMetadata("symbol key of middle value"));
-      const middleToTarget = objectGraph.defineProperty(middleValue, symbolKey, target, middleToTargetMeta);
+      const middleToTarget = objectGraph.definePropertyOrGetter(middleValue, symbolKey, target, middleToTargetMeta, false);
 
       expect(objectGraph.getEdgeRelationship(middleToTarget)).toEqual({
         edgeType: EdgePrefix.PropertyKey,
@@ -193,12 +193,14 @@ describe("ObjectGraphImpl", () => {
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
       objectGraph.defineObject(middleValue, new ObjectMetadata);
-      objectGraph.defineProperty(heldValues, 0, middleValue, heldToMiddle);
+      objectGraph.definePropertyOrGetter(heldValues, 0, middleValue, heldToMiddle, false);
 
       const middleToTargetMeta = new RelationshipMetadata("middle value to target as key");
       const middleToTargetId = objectGraph.defineAsSymbolKey(middleValue, target, middleToTargetMeta);
       objectGraph.defineObject(tailValue, new ObjectMetadata);
-      objectGraph.defineProperty(middleValue, target, tailValue, new RelationshipMetadata("middle value to tail"));
+      objectGraph.definePropertyOrGetter(
+        middleValue, target, tailValue, new RelationshipMetadata("middle value to tail"), false
+      );
 
       expect(objectGraph.getEdgeRelationship(middleToTargetId)).toEqual({
         edgeType: EdgePrefix.HasSymbolAsKey,
@@ -216,7 +218,9 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(middleValue, new ObjectMetadata);
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
-      objectGraph.defineProperty(heldValues, 0, middleValue, heldToMiddle);
+      objectGraph.definePropertyOrGetter(
+        heldValues, 0, middleValue, heldToMiddle, false
+      );
 
       const middleToTargetMeta = new RelationshipMetadata("middle value to target");
       const middleToTarget = objectGraph.defineInternalSlot(
@@ -242,7 +246,7 @@ describe("ObjectGraphImpl", () => {
         heldValues.push(map);
         objectGraph.defineObject(map, new ObjectMetadata("map"));
   
-        objectGraph.defineProperty(heldValues, 0, map, heldToMap);
+        objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
       });
 
       it("object keys and object values", () => {
@@ -403,7 +407,7 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(middleValue, new ObjectMetadata);
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
-      objectGraph.defineProperty(heldValues, 0, middleValue, heldToMiddle);
+      objectGraph.definePropertyOrGetter(heldValues, 0, middleValue, heldToMiddle, false);
 
       const middleToTargetMeta = new RelationshipMetadata("middle value to target");
       const middleToTarget = objectGraph.defineSetValue(middleValue, target, true, middleToTargetMeta);
@@ -441,8 +445,12 @@ describe("ObjectGraphImpl", () => {
 
       const firstIndexMetadata = new RelationshipMetadata("first index");
       const secondIndexMetadata = new RelationshipMetadata("second index");
-      const firstEdge = objectGraph.defineProperty(heldValues, 0, target, firstIndexMetadata);
-      const secondEdge = objectGraph.defineProperty(heldValues, 1, target, secondIndexMetadata);
+      const firstEdge = objectGraph.definePropertyOrGetter(
+        heldValues, 0, target, firstIndexMetadata, false
+      );
+      const secondEdge = objectGraph.definePropertyOrGetter(
+        heldValues, 1, target, secondIndexMetadata, false
+      );
 
       expect(objectGraph.getEdgeRelationship(firstEdge)).toEqual({
         edgeType: EdgePrefix.PropertyKey,
@@ -483,7 +491,7 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(middleValue, new ObjectMetadata);
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
-      objectGraph.defineProperty(heldValues, 0, middleValue, heldToMiddle);
+      objectGraph.definePropertyOrGetter(heldValues, 0, middleValue, heldToMiddle, false);
 
       const ctorMetadata =new RelationshipMetadata("constructor of heldToMiddle");
       const ctorEdgeId = objectGraph.defineConstructorOf(
@@ -525,7 +533,7 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(middleValue, new ObjectMetadata);
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
-      objectGraph.defineProperty(heldValues, 0, middleValue, heldToMiddle);
+      objectGraph.definePropertyOrGetter(heldValues, 0, middleValue, heldToMiddle, false);
 
       const ctorMetadata =new RelationshipMetadata("constructor of heldToMiddle");
       objectGraph.defineConstructorOf(
@@ -542,7 +550,7 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(map, new ObjectMetadata("map"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
-      objectGraph.defineProperty(heldValues, 0, map, heldToMap);
+      objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
 
       objectGraph.defineObject(key, new ObjectMetadata("key"));
       objectGraph.defineObject(value, new ObjectMetadata("value"));
@@ -566,7 +574,7 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(map, new ObjectMetadata("map"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
-      objectGraph.defineProperty(heldValues, 0, map, heldToMap);
+      objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
 
       objectGraph.defineObject(key, new ObjectMetadata("key"));
       objectGraph.defineObject(value, new ObjectMetadata("value"));
@@ -591,9 +599,10 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(key, new ObjectMetadata("key"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
-      objectGraph.defineProperty(heldValues, 0, map, heldToMap);
-      objectGraph.defineProperty(heldValues, 1, key, new RelationshipMetadata("held values to key"));
-
+      objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
+      objectGraph.definePropertyOrGetter(
+        heldValues, 1, key, new RelationshipMetadata("held values to key"), false
+      );
 
       objectGraph.defineObject(value, new ObjectMetadata("value"));
 
@@ -636,13 +645,19 @@ describe("ObjectGraphImpl", () => {
       const E = {"name": "E" };
       */
       objectGraph.defineObject(A, new ObjectMetadata);
-      objectGraph.defineProperty(heldValues, 0, A, new RelationshipMetadata);
+      objectGraph.definePropertyOrGetter(
+        heldValues, 0, A, new RelationshipMetadata, false
+      );
   
       objectGraph.defineObject(B, new ObjectMetadata);
-      objectGraph.defineProperty(heldValues, 1, B, new RelationshipMetadata);
+      objectGraph.definePropertyOrGetter(
+        heldValues, 1, B, new RelationshipMetadata, false
+      );
 
       objectGraph.defineObject(E, new ObjectMetadata);
-      objectGraph.defineProperty(heldValues, 2, E, new RelationshipMetadata);
+      objectGraph.definePropertyOrGetter(
+        heldValues, 2, E, new RelationshipMetadata, false
+      );
   
       // const A = new WeakRef(target);
       objectGraph.defineInternalSlot(A, "[[WeakRefTarget]]", target, false, new RelationshipMetadata);
@@ -695,13 +710,19 @@ describe("ObjectGraphImpl", () => {
       const E = {"name": "E" };
       */
       objectGraph.defineObject(A, new ObjectMetadata);
-      objectGraph.defineProperty(heldValues, 0, A, new RelationshipMetadata);
+      objectGraph.definePropertyOrGetter(
+        heldValues, 0, A, new RelationshipMetadata, false
+      );
 
       objectGraph.defineObject(B, new ObjectMetadata);
-      objectGraph.defineProperty(heldValues, 1, B, new RelationshipMetadata);
+      objectGraph.definePropertyOrGetter(
+        heldValues, 1, B, new RelationshipMetadata, false
+      );
   
       objectGraph.defineObject(E, new ObjectMetadata);
-      objectGraph.defineProperty(heldValues, 2, E, new RelationshipMetadata);
+      objectGraph.definePropertyOrGetter(
+        heldValues, 2, E, new RelationshipMetadata, false
+      );
   
       // const A = new WeakRef(target);
       objectGraph.defineInternalSlot(A, "[[WeakRefTarget]]", target, false, new RelationshipMetadata);
@@ -759,11 +780,15 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(propertyBag, new ObjectMetadata("propertyBag"));
 
       heldValues.push(propertyBag);
-      objectGraph.defineProperty(heldValues, 0, propertyBag, new RelationshipMetadata("held values to property bag"));
+      objectGraph.definePropertyOrGetter(
+        heldValues, 0, propertyBag, new RelationshipMetadata("held values to property bag"), false
+      );
 
       objectGraph.defineAsSymbolKey(propertyBag, target, new RelationshipMetadata("property bag to target"));
       objectGraph.defineObject(value, new ObjectMetadata("value"));
-      objectGraph.defineProperty(propertyBag, target, value, new RelationshipMetadata("property bag to value via target"));
+      objectGraph.definePropertyOrGetter(
+        propertyBag, target, value, new RelationshipMetadata("property bag to value via target"), false
+      );
 
       searchReferences.markStrongReferencesFromHeldValues();
       expect(searchReferences.isKeyHeldStrongly(propertyBag)).withContext("propertyBag").toBeTrue();
@@ -777,7 +802,7 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(map, new ObjectMetadata("map"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
-      objectGraph.defineProperty(heldValues, 0, map, heldToMap);
+      objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
 
       objectGraph.defineSymbol(key, new ObjectMetadata("key"));
       objectGraph.defineSymbol(value, new ObjectMetadata("value"));
@@ -801,7 +826,7 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineObject(map, new ObjectMetadata("map"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
-      objectGraph.defineProperty(heldValues, 0, map, heldToMap);
+      objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
 
       objectGraph.defineSymbol(key, new ObjectMetadata("key"));
       objectGraph.defineSymbol(value, new ObjectMetadata("value"));
@@ -826,8 +851,10 @@ describe("ObjectGraphImpl", () => {
       objectGraph.defineSymbol(key, new ObjectMetadata("key"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
-      objectGraph.defineProperty(heldValues, 0, map, heldToMap);
-      objectGraph.defineProperty(heldValues, 1, key, new RelationshipMetadata("held values to key"));
+      objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
+      objectGraph.definePropertyOrGetter(
+        heldValues, 1, key, new RelationshipMetadata("held values to key"), false
+      );
 
       objectGraph.defineSymbol(value, new ObjectMetadata("value"));
 
@@ -855,7 +882,7 @@ describe("ObjectGraphImpl", () => {
       heldValues.push(map);
       objectGraph.defineObject(map, new ObjectMetadata("map"));
 
-      objectGraph.defineProperty(heldValues, 0, map, heldToMap);
+      objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
 
       objectGraph.defineObject(key, new ObjectMetadata("key"));
       objectGraph.defineObject(value, new ObjectMetadata("value"));
@@ -1037,11 +1064,15 @@ describe("ObjectGraphImpl", () => {
       ).toThrowError("weakKey is not defined as a node");
 
       expect(
-        () => objectGraph.defineProperty(unused, "foo", target, valueMetadata)
+        () => objectGraph.definePropertyOrGetter(
+          unused, "foo", target, valueMetadata, false
+        )
       ).toThrowError("parentObject is not defined as a node");
 
       expect(
-        () => objectGraph.defineProperty(heldValues, "foo", unused, valueMetadata)
+        () => objectGraph.definePropertyOrGetter(
+          heldValues, "foo", unused, valueMetadata, false
+        )
       ).toThrowError("childObject is not defined as a node");
 
       expect(

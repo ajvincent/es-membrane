@@ -49,14 +49,14 @@ it("Simple graph searches: when there is an import involved (modules importing o
 
   const objectHoldingTarget = { "name": "objectHoldingTarget" };
   addObjectGraphNode(ExpectedObjectGraph, objectHoldingTarget, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
-  addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, objectHoldingTarget);
+  addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, objectHoldingTarget, false);
 
-  addPropertyNameEdge(ExpectedObjectGraph, objectHoldingTarget, "value", target);
+  addPropertyNameEdge(ExpectedObjectGraph, objectHoldingTarget, "value", target, false);
 
   // this object will be dropped from the graph, but I include it for completeness.
   const addedProperty = { "isAddedProperty": true };
   addObjectGraphNode(ExpectedObjectGraph, addedProperty, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
-  addPropertyNameEdge(ExpectedObjectGraph, objectHoldingTarget, "addedProperty", addedProperty);
+  addPropertyNameEdge(ExpectedObjectGraph, objectHoldingTarget, "addedProperty", addedProperty, false);
 
   function getExpectedGraph(): object {
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();

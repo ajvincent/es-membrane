@@ -58,7 +58,7 @@ describe("Simple graph searches: weak references to direct values", () => {
 
     const weakRefObject = { "name": "weakRefObject" };
     addObjectGraphNode(ExpectedObjectGraph, weakRefObject, BuiltInJSTypeName.WeakRef, BuiltInJSTypeName.WeakRef);
-    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, weakRefObject);
+    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, weakRefObject, false);
 
     addInternalSlotEdge(ExpectedObjectGraph, weakRefObject, `[[WeakRefTarget]]`, target, false);
 

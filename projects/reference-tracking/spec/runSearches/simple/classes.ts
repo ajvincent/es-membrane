@@ -58,11 +58,11 @@ describe("Simple graph searches, class support:", () => {
     heldValues.push(instance);
 
     addObjectGraphNode(ExpectedObjectGraph, instance, BuiltInJSTypeName.Object, "Vehicle");
-    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, instance);
+    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, instance, false);
 
     const Fred = { name: "Fred" };
     addObjectGraphNode(ExpectedObjectGraph, Fred, BuiltInJSTypeName.Object, "Person");
-    addPropertyNameEdge(ExpectedObjectGraph, instance, "owner", Fred);
+    addPropertyNameEdge(ExpectedObjectGraph, instance, "owner", Fred, false);
 
     addConstructorOf(ExpectedObjectGraph, instance, target);
 
@@ -109,15 +109,15 @@ describe("Simple graph searches, class support:", () => {
     heldValues.push(hisBike);
 
     addObjectGraphNode(ExpectedObjectGraph, hisBike, BuiltInJSTypeName.Object, "Bicycle"); // node object:2
-    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, hisBike); // edge propertyKey:0
+    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, hisBike, false); // edge propertyKey:0
 
     const Fred = { name: "Fred" };
     addObjectGraphNode(ExpectedObjectGraph, Fred, BuiltInJSTypeName.Object, "Person"); // node object:3
-    addPropertyNameEdge(ExpectedObjectGraph, hisBike, "owner", Fred); // edge propertyKey:1
+    addPropertyNameEdge(ExpectedObjectGraph, hisBike, "owner", Fred, false); // edge propertyKey:1
 
     const Betty = { name: "Betty" };
     addObjectGraphNode(ExpectedObjectGraph, Betty, BuiltInJSTypeName.Object, "Person"); // node object:4
-    addPropertyNameEdge(ExpectedObjectGraph, hisBike, "driver", Betty); // edge propertyKey:2
+    addPropertyNameEdge(ExpectedObjectGraph, hisBike, "driver", Betty, false); // edge propertyKey:2
 
     addObjectGraphNode(ExpectedObjectGraph, Bicycle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function); // node object:5
     addConstructorOf(ExpectedObjectGraph, hisBike, Bicycle); // edge instanceOf:3
@@ -128,15 +128,15 @@ describe("Simple graph searches, class support:", () => {
     addConstructorOf(ExpectedObjectGraph, Betty, Person); // edge instanceOf:5
 
     addObjectGraphNode(ExpectedObjectGraph, Bicycle.prototype, BuiltInJSTypeName.Object, "Bicycle"); // node object:7
-    addPropertyNameEdge(ExpectedObjectGraph, Bicycle, "prototype", Bicycle.prototype); // edge propertyKey:6
+    addPropertyNameEdge(ExpectedObjectGraph, Bicycle, "prototype", Bicycle.prototype, false); // edge propertyKey:6
     addInternalSlotEdge(ExpectedObjectGraph, Bicycle, "[[Prototype]]", Vehicle, true); // edge internalSlot:7
 
     addObjectGraphNode(ExpectedObjectGraph, Person.prototype, BuiltInJSTypeName.Object, "Person"); // node object:8
-    addPropertyNameEdge(ExpectedObjectGraph, Person, "prototype", Person.prototype); // edge propertyKey:8
+    addPropertyNameEdge(ExpectedObjectGraph, Person, "prototype", Person.prototype, false); // edge propertyKey:8
 
-    addPropertyNameEdge(ExpectedObjectGraph, Bicycle.prototype, "constructor", Bicycle); // edge propertyKey:9
+    addPropertyNameEdge(ExpectedObjectGraph, Bicycle.prototype, "constructor", Bicycle, false); // edge propertyKey:9
 
-    addPropertyNameEdge(ExpectedObjectGraph, Person.prototype, "constructor", Person); // edge propertyKey:10
+    addPropertyNameEdge(ExpectedObjectGraph, Person.prototype, "constructor", Person, false); // edge propertyKey:10
 
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();
     ExpectedObjectGraph.summarizeGraphToTarget(true);

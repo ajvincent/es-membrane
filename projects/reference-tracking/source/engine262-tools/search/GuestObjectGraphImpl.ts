@@ -142,12 +142,13 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
     );
   }
 
-  public defineProperty(
+  public definePropertyOrGetter(
     parentObject: GuestEngine.ObjectValue,
     guestRelationshipName: string | number | GuestEngine.SymbolValue,
     childObject: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
-    metadata: RelationshipMetadata
-  ): PrefixedNumber<EdgePrefix.PropertyKey>
+    metadata: RelationshipMetadata,
+    isGetter: boolean
+  ): PrefixedNumber<EdgePrefix.GetterKey | EdgePrefix.PropertyKey>
   {
     let relationshipName: string | number | symbol;
     if (typeof guestRelationshipName === "object") {
@@ -157,11 +158,12 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
       relationshipName = guestRelationshipName;
     }
 
-    return this.#hostGraph.defineProperty(
+    return this.#hostGraph.definePropertyOrGetter(
       this.#substitution.getHostObject(parentObject),
       relationshipName,
       this.#substitution.getHostWeakKey(childObject),
-      metadata
+      metadata,
+      isGetter
     );
   }
 
