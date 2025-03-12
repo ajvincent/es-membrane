@@ -6,7 +6,7 @@ class Person {
 }
 
 class Vehicle {
-  static owners: Person[];
+  static owners: Person[] = [];
 
   constructor(owner: Person) {
     //this.owner = owner;
@@ -15,6 +15,6 @@ class Vehicle {
 }
 
 const Fred = new Person("Fred");
-const hisBike = new Vehicle(Fred);
+const hisCar = new Vehicle(Fred);
 
-searchReferences("class static fields", Fred, [hisBike], true);
+searchReferences("class static fields", Fred, [hisCar], true);
