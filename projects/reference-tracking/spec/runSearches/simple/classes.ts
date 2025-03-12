@@ -151,12 +151,61 @@ describe("Simple graph searches, class support:", () => {
     expect(actual).toBeNull();
   });
 
-  xit("classes with getters to the target value", async () => {
+  it("classes with getters to the target value", async () => {
+    class Person {
+      // empty on purpose
+    }
+    const Fred = new Person;
+
+    class Vehicle {
+      // empty on purpose
+      get owner(): string {
+        throw new Error("not implemented");
+      }
+    }
+
+    const heldValues: object[] = [];
+
+    const targetMetadata: GraphObjectMetadata = {
+      builtInJSTypeName: BuiltInJSTypeName.Object,
+      derivedClassName: "Person",
+    };
+
+    const heldValuesMetadata: GraphObjectMetadata = {
+      builtInJSTypeName: BuiltInJSTypeName.Array,
+      derivedClassName: BuiltInJSTypeName.Array
+    };
+
+    const ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+
+    ExpectedObjectGraph.defineTargetAndHeldValues(
+      Fred, targetMetadata, heldValues, heldValuesMetadata
+    );
+
+    const hisCar = new Vehicle;
+    heldValues.push(hisCar);
+
+    addObjectGraphNode(ExpectedObjectGraph, hisCar, BuiltInJSTypeName.Object, "Vehicle"); // object:2
+    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, hisCar, false);
+
+    addObjectGraphNode(ExpectedObjectGraph, Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function); // object:3
+    addConstructorOf(ExpectedObjectGraph, hisCar, Vehicle);
+
+    addObjectGraphNode(ExpectedObjectGraph, Vehicle.prototype, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object); // object:4
+    addPropertyNameEdge(ExpectedObjectGraph, Vehicle, "prototype", Vehicle.prototype, false);
+    addPropertyNameEdge(ExpectedObjectGraph, Vehicle.prototype, "constructor", Vehicle, false);
+
+    addPropertyNameEdge(ExpectedObjectGraph, hisCar, "owner", Fred, true); // here's your getter!
+
+    ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+    ExpectedObjectGraph.summarizeGraphToTarget(true);
+    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+
     const actual = await getActualGraph("classes/classAccessors.js", "reaching a value via a getter");
-    expect(actual).not.toBeNull();
+    expect(actual).toEqual(expected);
   });
 
-  xit("classes with setters but no getters to the target value", async () => {
+  it("classes with setters but no getters to the target value", async () => {
     const actual = await getActualGraph("classes/classAccessors.js", "unreachable values with only a setter route");
     expect(actual).toBeNull();
   });
