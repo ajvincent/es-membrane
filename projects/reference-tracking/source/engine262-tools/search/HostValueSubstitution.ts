@@ -59,7 +59,7 @@ export class HostValueSubstitution
   {
     let hostObject: object | undefined = this.#objectMap.get(guestObject);
     if (!hostObject) {
-      if (GuestEngine.IsCallable(hostObject) || GuestEngine.IsConstructor(hostObject))
+      if (GuestEngine.IsCallable(guestObject) || GuestEngine.IsConstructor(guestObject))
         hostObject = function() {};
       else
         hostObject = {};

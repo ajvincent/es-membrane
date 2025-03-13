@@ -22,7 +22,7 @@ export function defineAsyncPlusOneFunction(
       guestThisArg: GuestEngine.Value,
       guestArguments: readonly GuestEngine.Value[],
       guestNewTarget: GuestEngine.Value
-    ): ThrowOr<GuestEngine.PromiseObjectValue>
+    ): ThrowOr<GuestEngine.PromiseObject>
     {
       void(guestThisArg);
       void(guestNewTarget);

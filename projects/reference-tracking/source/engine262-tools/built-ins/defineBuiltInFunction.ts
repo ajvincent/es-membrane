@@ -16,13 +16,15 @@ export function defineBuiltInFunction(
   const argumentsLength = 1;
   function builtInConverter(
     guestArguments: readonly GuestEngine.Value[],
-    thisAndNewValue: { thisValue: GuestEngine.Value, newTarget: GuestEngine.Value }
+    thisAndNewValue: { thisValue: GuestEngine.Value, NewTarget: GuestEngine.Value }
   ): GuestEngine.Value | GuestEngine.ThrowCompletion
   {
     try {
-      return callback(thisAndNewValue.thisValue, guestArguments, thisAndNewValue.newTarget);
+      return callback(thisAndNewValue.thisValue, guestArguments, thisAndNewValue.NewTarget);
     }
     catch (ex: unknown) {
+      if (ex instanceof GuestEngine.ThrowCompletion)
+        return ex;
       return GuestEngine.Throw(
         "Error", "Raw", "HostDefinedError: " + String(ex)
       );

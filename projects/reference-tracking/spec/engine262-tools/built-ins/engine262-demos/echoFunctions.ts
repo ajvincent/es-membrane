@@ -11,6 +11,7 @@ import { directInvoke } from "../../../../source/engine262-tools/host-to-guest/d
 import { defineReportFunction } from "../../../../source/engine262-tools/built-ins/engine262-demos/defineReportFunction.js";
 import { GuestRealmOutputs } from "../../../../source/engine262-tools/types/Virtualization262.js";
 import { defineEchoFunctions } from "../../../../source/engine262-tools/built-ins/engine262-demos/defineEchoFunctions.js";
+import { EnsureValueOrThrow } from "../../../../source/engine262-tools/host-to-guest/ValueOrThrow.js";
 
 const fixturesDir = path.join(projectRoot, "dist/fixtures/engine262-demos");
 
@@ -33,7 +34,7 @@ it("echo functions can work", async () => {
     if (value.type !== "Object")
       return GuestEngine.Value.undefined;
 
-    const guestResults = GuestEngine.GetV(value, GuestEngine.Value("results"));
+    const guestResults = EnsureValueOrThrow(GuestEngine.GetV(value, GuestEngine.Value("results")));
     expect(guestResults.type).withContext("results type").toBe("Object");
     if (guestResults.type !== "Object")
       return GuestEngine.Value.undefined;

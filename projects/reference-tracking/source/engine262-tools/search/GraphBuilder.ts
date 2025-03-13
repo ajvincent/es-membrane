@@ -27,6 +27,7 @@ import {
 
 import {
   GuestEngine,
+  type PlainCompletion,
 } from "../host-to-guest/GuestEngine.js";
 
 import type {
@@ -40,6 +41,10 @@ import {
 import {
   buildObjectMetadata
 } from "./ObjectMetadata.js";
+
+import {
+  EnsureValueOrThrow
+} from "../host-to-guest/ValueOrThrow.js";
 //#endregion preamble
 
 export class GraphBuilder
@@ -185,8 +190,9 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     excludeFromSearch: boolean,
   ): void
   {
-    if (guestWeakKey.type === "Object")
+    if (guestWeakKey.type === "Object") {
       this.#defineGraphObjectNode(guestWeakKey, excludeFromSearch);
+    }
     else {
       if (excludeFromSearch) {
         this.#throwInternalError(new Error("excludeFromSearch must not be true for a symbol!"));
@@ -243,7 +249,8 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
 
     let derivedClassName: string = "(unknown)";
 
-    let proto: GuestEngine.ObjectValue | GuestEngine.NullValue = value.GetPrototypeOf();
+    let proto: GuestEngine.ObjectValue | GuestEngine.NullValue = EnsureValueOrThrow(value.GetPrototypeOf());
+
     while (proto.type !== "Null") {
       const builtIn = this.#intrinsicToBuiltInNameMap.get(proto);
       if (builtIn) {
@@ -251,9 +258,13 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
       }
 
       if (isDirectMatch) {
-        const guestCtor = GuestEngine.GetV(value, GraphBuilder.#stringConstants.get("constructor")!);
+        const guestCtor = EnsureValueOrThrow(
+          GuestEngine.GetV(value, GraphBuilder.#stringConstants.get("constructor")!)
+        );
         if (guestCtor.type === "Object") {
-          const guestName = GuestEngine.GetV(guestCtor, GraphBuilder.#stringConstants.get("name")!);
+          const guestName = EnsureValueOrThrow(
+            GuestEngine.GetV(guestCtor, GraphBuilder.#stringConstants.get("name")!)
+          );
           if (guestName.type === "String") {
             derivedClassName = guestName.stringValue();
           }
@@ -263,7 +274,7 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
       }
 
       value = proto;
-      proto = value.GetPrototypeOf();
+      proto = EnsureValueOrThrow(value.GetPrototypeOf());
     }
 
     return [BuiltInJSTypeName.Object, isDirectMatch ? BuiltInJSTypeName.Object : derivedClassName];
@@ -273,7 +284,9 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     guestObject: GuestEngine.ObjectValue
   ): void
   {
-    for (const guestKey of guestObject.OwnPropertyKeys()) {
+    const OwnKeys: PlainCompletion<GuestEngine.PropertyKeyValue[]> = guestObject.OwnPropertyKeys();
+    GuestEngine.Assert(Array.isArray(OwnKeys));
+    for (const guestKey of OwnKeys) {
       if (guestKey.type === "Symbol") {
         this.#defineGraphSymbolNode(guestKey);
       }
@@ -299,7 +312,9 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
           key = guestKey.stringValue();
         }
 
-        const ctor = GuestEngine.GetV(guestObject, GraphBuilder.#stringConstants.get("constructor")!);
+        const ctor = EnsureValueOrThrow(GuestEngine.GetV(
+          guestObject, GraphBuilder.#stringConstants.get("constructor")!
+        ));
         if (ctor.type === "Object") {
           this.#instanceGetterTracking.addGetterName(ctor, key);
         }
@@ -413,13 +428,14 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     guestObject: GuestEngine.ObjectValue
   ): void
   {
-    const guestCtor = GuestEngine.GetV(
+    const guestCtor = EnsureValueOrThrow(GuestEngine.GetV(
       guestObject, GraphBuilder.#stringConstants.get("constructor")!
-    );
+    ));
+    GuestEngine.Assert(GuestEngine.isFunctionObject(guestCtor));
 
-    const guestCtorProto = GuestEngine.GetPrototypeFromConstructor(
+    const guestCtorProto = EnsureValueOrThrow(GuestEngine.GetPrototypeFromConstructor(
       guestCtor, "%Object.prototype%"
-    );
+    ));
     if (this.#intrinsicToBuiltInNameMap.has(guestCtorProto))
       return;
     if (guestCtorProto === guestObject)

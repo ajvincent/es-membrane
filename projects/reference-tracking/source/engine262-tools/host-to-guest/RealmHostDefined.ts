@@ -15,7 +15,7 @@ export class RealmHostDefined {
   }
 
   public promiseRejectionTracker(
-    promise: GuestEngine.PromiseObjectValue,
+    promise: GuestEngine.PromiseObject,
     operation: "reject" | "handle"
   ): void {
     switch (operation) {

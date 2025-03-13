@@ -14,10 +14,10 @@ export function convertHostPromiseToGuestPromise<
 (
   realm: GuestEngine.ManagedRealm,
   hostPromise: Promise<ResolveType>
-): GuestEngine.PromiseObjectValue
+): GuestEngine.PromiseObject
 {
   const guestPromiseCompletion = GuestEngine.NewPromiseCapability(realm.Intrinsics["%Promise%"]);
-  GuestEngine.Assert(guestPromiseCompletion.Type !==  "throw");
+  GuestEngine.Assert(guestPromiseCompletion instanceof GuestEngine.NormalCompletion);
 
   const { HostDefined } = realm;
   GuestEngine.Assert(HostDefined instanceof RealmHostDefined);
@@ -28,7 +28,7 @@ export function convertHostPromiseToGuestPromise<
   GuestEngine.Assert(Reject.type === "Object");
   const guestResolver = Resolve as GuestEngine.PromiseResolvingFunctionObject;
   const guestRejecter = Reject as GuestEngine.PromiseResolvingFunctionObject;
-  const guestPromise = Promise as GuestEngine.PromiseObjectValue;
+  const guestPromise = Promise as GuestEngine.PromiseObject;
 
   hostPromise.then(
     value => guestResolver.Call(guestPromise, [GuestEngine.Value(value)]),

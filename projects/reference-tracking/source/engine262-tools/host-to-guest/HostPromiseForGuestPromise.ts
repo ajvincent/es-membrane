@@ -10,7 +10,7 @@ import {
 
 export function convertGuestPromiseToVoidHostPromise
 (
-  guestPromise: GuestEngine.PromiseObjectValue
+  guestPromise: GuestEngine.PromiseObject
 ): Promise<void>
 {
   const guestToHostPromise = new VoidGuestToHostPromise(guestPromise);
@@ -24,7 +24,7 @@ class VoidGuestToHostPromise {
   readonly promise: Promise<void>;
 
   constructor(
-    guestPromise: GuestEngine.PromiseObjectValue,
+    guestPromise: GuestEngine.PromiseObject,
   )
   {
     const deferred = new Deferred<void>;

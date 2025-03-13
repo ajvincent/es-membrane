@@ -15,6 +15,7 @@ import {
 
 import {
   GuestEngine,
+  type PlainCompletion,
   type ThrowOr
 } from "./GuestEngine.js";
 
@@ -80,7 +81,7 @@ export async function runInRealm(
     realmDriver.runModule(realm);
   });
 
-  const evalResult: GuestEngine.PromiseObjectValue | undefined = realmDriver.evalResult;
+  const evalResult: GuestEngine.PromiseObject | undefined = realmDriver.evalResult;
   GuestEngine.Assert(evalResult !== undefined);
 
   do {
@@ -99,7 +100,7 @@ export class RealmDriver {
   readonly resolverCache = new Map<unknown, unknown>;
   readonly #specifierToModuleRecordMap = new Map<string, GuestEngine.SourceTextModuleRecord>;
   readonly #moduleRecordToSpecifierMap = new WeakMap<GuestEngine.SourceTextModuleRecord, string>;
-  readonly trackedPromises = new Set<GuestEngine.PromiseObjectValue>;
+  readonly trackedPromises = new Set<GuestEngine.PromiseObject>;
 
   readonly hostDefined = new RealmHostDefined(this);
 
@@ -109,8 +110,8 @@ export class RealmDriver {
   readonly moduleCompleted: Promise<void> = this.#moduleCompletedDeferred.promise;
 
   #mainModule?: GuestEngine.SourceTextModuleRecord;
-  loadRequestResult?: GuestEngine.PromiseObjectValue;
-  evalResult?: GuestEngine.PromiseObjectValue;
+  loadRequestResult?: GuestEngine.PromiseObject;
+  evalResult?: GuestEngine.PromiseObject;
 
   public async resolveModule(
     targetSpecifier: string,
@@ -142,10 +143,13 @@ export class RealmDriver {
     const absolutePathToFile = fileURLToPath(resolvedSpecifier);
     const contents = await fs.readFile(absolutePathToFile, { "encoding": "utf-8" });
 
-    const module = referrer.Realm.createSourceTextModule(
+    let module: PlainCompletion<GuestEngine.SourceTextModuleRecord> = referrer.Realm.createSourceTextModule(
       resolvedSpecifier,
       contents
     );
+
+    if (module instanceof GuestEngine.NormalCompletion)
+      module = module.Value;
 
     if (module instanceof GuestEngine.SourceTextModuleRecord) {
       this.#specifierToModuleRecordMap.set(resolvedSpecifier, module);
@@ -162,7 +166,7 @@ export class RealmDriver {
   ): void
   {
     const specifier = pathToFileURL(absolutePathToFile).href;
-    const createSourceResult: GuestEngine.ThrowCompletion | GuestEngine.SourceTextModuleRecord = realm.createSourceTextModule(
+    let createSourceResult: PlainCompletion<GuestEngine.SourceTextModuleRecord> = realm.createSourceTextModule(
       pathToFileURL(absolutePathToFile).href, contents
     );
 
@@ -170,6 +174,9 @@ export class RealmDriver {
       this.#processAbruptCompletion(createSourceResult);
       return;
     }
+
+    if (createSourceResult instanceof GuestEngine.NormalCompletion)
+      createSourceResult = createSourceResult.Value;
 
     this.#mainModule = createSourceResult;
     this.#specifierToModuleRecordMap.set(specifier, this.#mainModule);
@@ -243,6 +250,6 @@ export class RealmDriver {
 
 export class RealmResults implements GuestRealmOutputs
 {
-  readonly unhandledPromises: GuestEngine.PromiseObjectValue[] = [];
+  readonly unhandledPromises: GuestEngine.PromiseObject[] = [];
   succeeded = false;
 }
