@@ -207,10 +207,9 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
   ): void
   {
     if (this.#guestObjectGraph.hasObject(guestObject) === false) {
-      this.#guestObjectGraph.defineObject(
-        guestObject,
-        buildObjectMetadata(...this.#getCollectionAndClassName(guestObject))
-      );
+      const collectionAndClass = this.#getCollectionAndClassName(guestObject);
+      const objectMetadata = buildObjectMetadata(...collectionAndClass);
+      this.#guestObjectGraph.defineObject(guestObject, objectMetadata);
 
       if (excludeFromSearch) {
         this.#objectsToExcludeFromSearch.add(guestObject);
@@ -225,10 +224,10 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
   ): void
   {
     if (this.#guestObjectGraph.hasSymbol(guestSymbol) === false) {
-      this.#guestObjectGraph.defineSymbol(
-        guestSymbol,
-        buildObjectMetadata(BuiltInJSTypeName.Symbol, BuiltInJSTypeName.Symbol)
+      const objectMetadata = buildObjectMetadata(
+        BuiltInJSTypeName.Symbol, BuiltInJSTypeName.Symbol
       );
+      this.#guestObjectGraph.defineSymbol(guestSymbol, objectMetadata);
     }
   }
 
@@ -315,8 +314,16 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
         const ctor = EnsureValueOrThrow(GuestEngine.GetV(
           guestObject, GraphBuilder.#stringConstants.get("constructor")!
         ));
-        if (ctor.type === "Object") {
+        if (ctor.type === "Object" && this.#intrinsics.has(ctor) === false) {
           this.#instanceGetterTracking.addGetterName(ctor, key);
+        }
+
+        const childGuestValue: GuestEngine.Value = EnsureValueOrThrow(GuestEngine.GetV(
+          guestObject, guestKey
+        ));
+        if (childGuestValue.type === "Object" || childGuestValue.type === "Symbol") {
+          this.#defineGraphNode(childGuestValue, false);
+          this.#addObjectPropertyOrGetter(guestObject, guestKey, childGuestValue, true);
         }
       }
     }

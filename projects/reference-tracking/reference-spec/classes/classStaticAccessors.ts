@@ -5,7 +5,7 @@ class Person {
   }
 }
 
-const vehicleToOwnerMap = new WeakMap<Vehicle, Person>;
+const vehicleToOwnerMap = new Map<Vehicle, Person>;
 
 class Vehicle {
   static get owners(): WeakMap<Vehicle, Person> {

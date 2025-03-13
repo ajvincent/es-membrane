@@ -279,7 +279,7 @@ describe("Simple graph searches, class support:", () => {
     expect(actual).toEqual(expected);
   });
 
-  xit("classes with static getters", async () => {
+  it("classes with static getters", async () => {
     class Person {
       // empty on purpose
     }
@@ -310,21 +310,22 @@ describe("Simple graph searches, class support:", () => {
     const hisCar = new Vehicle();
     heldValues.push(Vehicle);
 
-    addObjectGraphNode(ExpectedObjectGraph, Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function); // object:3
+    addObjectGraphNode(ExpectedObjectGraph, Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function); // object:2
     addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, Vehicle, false);
 
-    addObjectGraphNode(ExpectedObjectGraph, Vehicle.prototype, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object); // object:4
+    addObjectGraphNode(ExpectedObjectGraph, Vehicle.prototype, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object); // object:3
     addPropertyNameEdge(ExpectedObjectGraph, Vehicle, "prototype", Vehicle.prototype, false);
 
     const vehicleToOwnerMap = new WeakMap<Vehicle, Person>;
     vehicleToOwnerMap.set(hisCar, Fred);
-    addObjectGraphNode(ExpectedObjectGraph, vehicleToOwnerMap, BuiltInJSTypeName.Array, BuiltInJSTypeName.Array); // object:5
-    addPropertyNameEdge(ExpectedObjectGraph, Vehicle, "owners", vehicleToOwnerMap, false);
+    addObjectGraphNode(ExpectedObjectGraph, vehicleToOwnerMap, BuiltInJSTypeName.Map, BuiltInJSTypeName.Map); // object:4
+    addPropertyNameEdge(ExpectedObjectGraph, Vehicle, "owners", vehicleToOwnerMap, true);
 
     addPropertyNameEdge(ExpectedObjectGraph, Vehicle.prototype, "constructor", Vehicle, false);
 
-    addObjectGraphNode(ExpectedObjectGraph, hisCar, BuiltInJSTypeName.Object, "Vehicle");
+    addObjectGraphNode(ExpectedObjectGraph, hisCar, BuiltInJSTypeName.Object, "Vehicle"); // object:5
     addMapKeyAndValue(ExpectedObjectGraph, vehicleToOwnerMap, hisCar, Fred, true);
+    addConstructorOf(ExpectedObjectGraph, hisCar, Vehicle); // need to define the edge, even if we found the target
 
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();
     ExpectedObjectGraph.summarizeGraphToTarget(true);
