@@ -212,8 +212,11 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
   ): PrefixedNumber<Prefix>
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
-    if (this.#weakKeyToIdMap.has(weakKey))
-      this.#throwInternalError(new Error("object is already defined as a node in this graph"));
+    if (this.#weakKeyToIdMap.has(weakKey)) {
+      this.#throwInternalError(new Error(
+        "object is already defined as a node in this graph, with id " + this.#weakKeyToIdMap.get(weakKey)!
+      ));
+    }
 
     const nodeId = this.#nodeCounter.next(prefix);
     this.#weakKeyToIdMap.set(weakKey, nodeId);

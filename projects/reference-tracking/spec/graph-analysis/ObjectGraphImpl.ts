@@ -1099,7 +1099,7 @@ describe("ObjectGraphImpl", () => {
     it("defining an object twice", () => {
       expect(
         () => objectGraph.defineObject(target, new ObjectMetadata)
-      ).toThrowError("object is already defined as a node in this graph");
+      ).toThrowError("object is already defined as a node in this graph, with id target:0");
     });
 
     it("defining a non-object as a weak map key", () => {
