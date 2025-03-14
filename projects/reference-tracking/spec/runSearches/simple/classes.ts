@@ -32,40 +32,74 @@ import {
 //#endregion preamble
 
 describe("Simple graph searches, class support:", () => {
-  it("class instances refer to their constructors", async () => {
-    class target {
-      // empty on purpose
+  //#region common test fixtures
+  class Person {
+    readonly name: string;
+    constructor(name: string) {
+      this.name = name;
     }
+  }
+  const Fred = new Person("Fred");
+  const Betty = new Person("Betty");
 
-    const heldValues: object[] = [];
+  class Vehicle {
+    get owner(): string {
+      throw new Error("not implemented");
+    }
+  }
 
+  class Bicycle extends Vehicle {
+    // empty on purpose
+  }
+
+  let heldValues: object[];
+  beforeEach(() => {
+    heldValues = [];
+  });
+
+  const heldValuesMetadata: GraphObjectMetadata = {
+    builtInJSTypeName: BuiltInJSTypeName.Array,
+    derivedClassName: BuiltInJSTypeName.Array
+  };
+
+  let ExpectedObjectGraph: ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+  function setExpectedGraph(
+    target: object,
+    targetJSTypeName: BuiltInJSTypeName,
+    targetClassName: string,
+    startingObject: object,
+    startingJSTypeName: BuiltInJSTypeName,
+    startingClassName: string
+  ): void
+  {
     const targetMetadata: GraphObjectMetadata = {
-      builtInJSTypeName: BuiltInJSTypeName.Function,
-      derivedClassName: BuiltInJSTypeName.Function,
+      builtInJSTypeName: targetJSTypeName,
+      derivedClassName: targetClassName,
     };
 
-    const heldValuesMetadata: GraphObjectMetadata = {
-      builtInJSTypeName: BuiltInJSTypeName.Array,
-      derivedClassName: BuiltInJSTypeName.Array
-    };
-
-    const ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
-
+    ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
     ExpectedObjectGraph.defineTargetAndHeldValues(
       target, targetMetadata, heldValues, heldValuesMetadata
     );
 
-    const instance = new target;
-    heldValues.push(instance);
+    heldValues.push(startingObject);
 
-    addObjectGraphNode(ExpectedObjectGraph, instance, BuiltInJSTypeName.Object, "Vehicle");
-    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, instance, false);
+    addObjectGraphNode(ExpectedObjectGraph, startingObject, startingJSTypeName, startingClassName);
+    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, startingObject, false);
+  }
+  //#endregion common test fixtures
 
-    const Fred = { name: "Fred" };
+  it("class instances refer to their constructors", async () => {
+    const hisBike = new Vehicle;
+    setExpectedGraph(
+      Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function,
+      hisBike, BuiltInJSTypeName.Object, "Vehicle"
+    );
+
     addObjectGraphNode(ExpectedObjectGraph, Fred, BuiltInJSTypeName.Object, "Person");
-    addPropertyNameEdge(ExpectedObjectGraph, instance, "owner", Fred, false);
+    addPropertyNameEdge(ExpectedObjectGraph, hisBike, "owner", Fred, false);
 
-    addConstructorOf(ExpectedObjectGraph, instance, target);
+    addConstructorOf(ExpectedObjectGraph, hisBike, Vehicle);
 
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();
     ExpectedObjectGraph.summarizeGraphToTarget(true);
@@ -76,47 +110,15 @@ describe("Simple graph searches, class support:", () => {
   });
 
   it("classes extending other classes", async () => {
-    class Person {
-      // empty on purpose
-    }
-
-    class Vehicle {
-      // empty on purpose
-    }
-
-    class Bicycle extends Vehicle {
-      // empty on purpose
-    }
-
-    const heldValues: object[] = [];
-
-    const targetMetadata: GraphObjectMetadata = {
-      builtInJSTypeName: BuiltInJSTypeName.Function,
-      derivedClassName: BuiltInJSTypeName.Function,
-    };
-
-    const heldValuesMetadata: GraphObjectMetadata = {
-      builtInJSTypeName: BuiltInJSTypeName.Array,
-      derivedClassName: BuiltInJSTypeName.Array
-    };
-
-    const ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
-
-    ExpectedObjectGraph.defineTargetAndHeldValues(
-      Vehicle, targetMetadata, heldValues, heldValuesMetadata
+    const hisBike = new Bicycle;
+    setExpectedGraph(
+      Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function,
+      hisBike, BuiltInJSTypeName.Object, "Bicycle"
     );
 
-    const hisBike = new Bicycle;
-    heldValues.push(hisBike);
-
-    addObjectGraphNode(ExpectedObjectGraph, hisBike, BuiltInJSTypeName.Object, "Bicycle"); // node object:2
-    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, hisBike, false); // edge propertyKey:0
-
-    const Fred = { name: "Fred" };
     addObjectGraphNode(ExpectedObjectGraph, Fred, BuiltInJSTypeName.Object, "Person"); // node object:3
     addPropertyNameEdge(ExpectedObjectGraph, hisBike, "owner", Fred, false); // edge propertyKey:1
 
-    const Betty = { name: "Betty" };
     addObjectGraphNode(ExpectedObjectGraph, Betty, BuiltInJSTypeName.Object, "Person"); // node object:4
     addPropertyNameEdge(ExpectedObjectGraph, hisBike, "driver", Betty, false); // edge propertyKey:2
 
@@ -153,41 +155,11 @@ describe("Simple graph searches, class support:", () => {
   });
 
   it("classes with getters to the target value", async () => {
-    class Person {
-      // empty on purpose
-    }
-    const Fred = new Person;
-
-    class Vehicle {
-      // empty on purpose
-      get owner(): string {
-        throw new Error("not implemented");
-      }
-    }
-
-    const heldValues: object[] = [];
-
-    const targetMetadata: GraphObjectMetadata = {
-      builtInJSTypeName: BuiltInJSTypeName.Object,
-      derivedClassName: "Person",
-    };
-
-    const heldValuesMetadata: GraphObjectMetadata = {
-      builtInJSTypeName: BuiltInJSTypeName.Array,
-      derivedClassName: BuiltInJSTypeName.Array
-    };
-
-    const ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
-
-    ExpectedObjectGraph.defineTargetAndHeldValues(
-      Fred, targetMetadata, heldValues, heldValuesMetadata
-    );
-
     const hisCar = new Vehicle;
-    heldValues.push(hisCar);
-
-    addObjectGraphNode(ExpectedObjectGraph, hisCar, BuiltInJSTypeName.Object, "Vehicle"); // object:2
-    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, hisCar, false);
+    setExpectedGraph(
+      Fred, BuiltInJSTypeName.Object, "Person",
+      hisCar, BuiltInJSTypeName.Object, "Vehicle"
+    );
 
     addObjectGraphNode(ExpectedObjectGraph, Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function); // object:3
     addConstructorOf(ExpectedObjectGraph, hisCar, Vehicle);
@@ -224,38 +196,11 @@ describe("Simple graph searches, class support:", () => {
   });
 
   it("classes with static fields", async () => {
-    class Person {
-      // empty on purpose
-    }
-    const Fred = new Person;
-
-    class Vehicle {
-      // empty on purpose
-    }
-
-    const heldValues: object[] = [];
-
-    const targetMetadata: GraphObjectMetadata = {
-      builtInJSTypeName: BuiltInJSTypeName.Object,
-      derivedClassName: "Person",
-    };
-
-    const heldValuesMetadata: GraphObjectMetadata = {
-      builtInJSTypeName: BuiltInJSTypeName.Array,
-      derivedClassName: BuiltInJSTypeName.Array
-    };
-
-    const ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
-
-    ExpectedObjectGraph.defineTargetAndHeldValues(
-      Fred, targetMetadata, heldValues, heldValuesMetadata
-    );
-
     const hisCar = new Vehicle;
-    heldValues.push(hisCar);
-
-    addObjectGraphNode(ExpectedObjectGraph, hisCar, BuiltInJSTypeName.Object, "Vehicle"); // object:2
-    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, hisCar, false);
+    setExpectedGraph(
+      Fred, BuiltInJSTypeName.Object, "Person",
+      hisCar, BuiltInJSTypeName.Object, "Vehicle"
+    );
 
     addObjectGraphNode(ExpectedObjectGraph, Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function); // object:3
     addConstructorOf(ExpectedObjectGraph, hisCar, Vehicle);
@@ -280,38 +225,11 @@ describe("Simple graph searches, class support:", () => {
   });
 
   it("classes with static getters", async () => {
-    class Person {
-      // empty on purpose
-    }
-    const Fred = new Person;
-
-    class Vehicle {
-      // empty on purpose
-    }
-
-    const heldValues: object[] = [];
-
-    const targetMetadata: GraphObjectMetadata = {
-      builtInJSTypeName: BuiltInJSTypeName.Object,
-      derivedClassName: "Person",
-    };
-
-    const heldValuesMetadata: GraphObjectMetadata = {
-      builtInJSTypeName: BuiltInJSTypeName.Array,
-      derivedClassName: BuiltInJSTypeName.Array
-    };
-
-    const ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
-
-    ExpectedObjectGraph.defineTargetAndHeldValues(
-      Fred, targetMetadata, heldValues, heldValuesMetadata
-    );
-
     const hisCar = new Vehicle();
-    heldValues.push(Vehicle);
-
-    addObjectGraphNode(ExpectedObjectGraph, Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function); // object:2
-    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, Vehicle, false);
+    setExpectedGraph(
+      Fred, BuiltInJSTypeName.Object, "Person",
+      Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
+    );
 
     addObjectGraphNode(ExpectedObjectGraph, Vehicle.prototype, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object); // object:3
     addPropertyNameEdge(ExpectedObjectGraph, Vehicle, "prototype", Vehicle.prototype, false);

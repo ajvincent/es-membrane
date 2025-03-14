@@ -116,7 +116,7 @@ export function addPropertySymbolEdge(
 export function addConstructorOf(
   graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
   instanceObject: object,
-  ctorObject: Constructor<object, unknown[]>,
+  ctorObject: Constructor<object>,
 ): void
 {
   const relationship: GraphRelationshipMetadata = {
