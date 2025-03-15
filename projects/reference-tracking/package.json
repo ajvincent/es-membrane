@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@dagrejs/graphlib": "^2.2.4",
-    "@engine262/engine262": "^0.0.1-236d6597fcd421c90a9f1aee1227b26f6e1e5b38",
+    "@engine262/engine262": "^0.0.1-ecd13a9fce518c68ac510b00560cbd9755897fd8",
     "import-meta-resolve": "^4.1.0",
     "type-fest": "^4.32.0"
   }
