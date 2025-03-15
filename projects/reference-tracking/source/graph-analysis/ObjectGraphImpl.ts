@@ -82,6 +82,10 @@ export class ObjectGraphImpl<
 implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   CloneableGraphIfc, SearchReferencesIfc
 {
+  static readonly #NOT_APPLICABLE: ValueDescription = Object.freeze({
+    valueType: ValueDiscrimant.NotApplicable,
+  });
+
   //#region private class fields
   #state: ObjectGraphState = ObjectGraphState.AcceptingDefinitions;
   #targetId: PrefixedNumber<"target">;
@@ -280,14 +284,27 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     return id;
   }
 
-  #defineEdge(
-    parentId: PrefixedNumber<NodePrefix>,
-    childId: PrefixedNumber<NodePrefix>,
-    edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata | null>,
-    edgeId: PrefixedNumber<EdgePrefix>,
-    jointOwnerKeys: readonly PrefixedNumber<NodePrefix>[],
-  ): void
+  #defineEdge<EP extends EdgePrefix>(
+    parentId: GraphObjectId,
+    edgePrefixType: EP,
+    description: ValueDescription,
+    metadata: RelationshipMetadata | null,
+    childId: GraphObjectId,
+    isStrongReference: boolean,
+    secondParentId: GraphObjectId | undefined,
+  ): PrefixedNumber<EP>
   {
+    const edgeId = this.#edgeCounter.next(edgePrefixType);
+    const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata | null> = {
+      edgeType: edgePrefixType,
+      description,
+      metadata,
+    };
+
+    const jointOwnerKeys = [parentId];
+    if (secondParentId)
+      jointOwnerKeys.push(secondParentId);
+
     this.#graph.setEdge(parentId, childId, edgeMetadata, edgeId);
     this.#edgeIdToMetadataMap.set(
       edgeId,
@@ -295,10 +312,17 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     );
 
     if (childId === this.#targetId)
-      this.#weakKeyHeldStronglyMap.set(this.#idToWeakKeyMap.get(this.#targetId) as object, false);
+      this.#weakKeyHeldStronglyMap.set(this.#idToWeakKeyMap.get(this.#targetId)!, false);
 
     const keySet = new Set(jointOwnerKeys);
     this.#edgeIdToJointOwnersMap_Weak.set(edgeId, keySet);
+
+    this.#ownershipSetsTracker.defineChildEdge(
+      childId, jointOwnerKeys, edgeId
+    );
+    this.#edgeIdTo_IsStrongReference_Map.set(edgeId, isStrongReference);
+
+    return edgeId;
   }
 
   public defineAsSymbolKey(
@@ -310,23 +334,11 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
     const parentId = this.#requireWeakKeyId(parentObject, "parentObject");
     const relationshipId = this.#requireWeakKeyId(relationshipName, "childObject") as SymbolId;
-    const edgeId = this.#edgeCounter.next(EdgePrefix.HasSymbolAsKey);
 
-    const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
-      edgeType: EdgePrefix.HasSymbolAsKey,
-      description: {
-        valueType: ValueDiscrimant.NotApplicable
-      },
-      metadata: keyEdgeMetadata,
-    };
-
-    this.#defineEdge(parentId, relationshipId, edgeMetadata, edgeId, [parentId]);
-
-    this.#ownershipSetsTracker.defineChildEdge(
-      relationshipId, [parentId], edgeId
+    const edgeId = this.#defineEdge(
+      parentId, EdgePrefix.HasSymbolAsKey, ObjectGraphImpl.#NOT_APPLICABLE,
+      keyEdgeMetadata, relationshipId, true, undefined
     );
-
-    this.#edgeIdTo_IsStrongReference_Map.set(edgeId, true);
     return edgeId;
   }
 
@@ -361,31 +373,13 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
       }
     }
 
-    const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
-      edgeType: EdgePrefix.PropertyKey,
-      description: createValueDescription(relationshipName, this),
-      metadata,
-    };
-
-    const edgeId = this.#edgeCounter.next(
-      isGetter ? EdgePrefix.GetterKey : EdgePrefix.PropertyKey
-    );
-
-    this.#defineEdge(
+    const edgeId = this.#defineEdge(
       parentId,
-      childId,
-      edgeMetadata,
-      edgeId,
-      [parentId]
+      isGetter ? EdgePrefix.GetterKey : EdgePrefix.PropertyKey,
+      createValueDescription(relationshipName, this),
+      metadata, childId, true, undefined
     );
 
-    this.#ownershipSetsTracker.defineChildEdge(
-      childId, [parentId], edgeId
-    );
-
-    this.#edgeIdTo_IsStrongReference_Map.set(edgeId, true);
-    if (isGetter)
-      return edgeId as PrefixedNumber<EdgePrefix.GetterKey>;
     return edgeId;
   }
 
@@ -402,23 +396,11 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
 
     const instanceId = this.#requireWeakKeyId(instanceObject, "instanceObject");
     const ctorId = this.#requireWeakKeyId(ctorObject, "ctorObject");
-    const edgeId = this.#edgeCounter.next(EdgePrefix.InstanceOf);
 
-    const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
-      edgeType: EdgePrefix.InstanceOf,
-      description: {
-        valueType: ValueDiscrimant.NotApplicable,
-      },
-      metadata,
-    };
-
-    this.#defineEdge(instanceId, ctorId, edgeMetadata, edgeId, [instanceId]);
-
-    this.#ownershipSetsTracker.defineChildEdge(
-      ctorId, [instanceId], edgeId
+    const edgeId = this.#defineEdge(
+      instanceId, EdgePrefix.InstanceOf, ObjectGraphImpl.#NOT_APPLICABLE,
+      metadata, ctorId, true, undefined
     );
-
-    this.#edgeIdTo_IsStrongReference_Map.set(edgeId, true);
     return edgeId;
   }
 
@@ -433,24 +415,11 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
     const parentId = this.#requireWeakKeyId(parentObject, "parentObject");
     const childId = this.#requireWeakKeyId(childObject, "childObject");
-    const edgeId = this.#edgeCounter.next(EdgePrefix.InternalSlot);
 
-    const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
-      edgeType: EdgePrefix.InternalSlot,
-      description: {
-        valueType: ValueDiscrimant.Primitive,
-        primitiveValue: slotName
-      },
-      metadata,
-    };
-
-    this.#defineEdge(parentId, childId, edgeMetadata, edgeId, [parentId]);
-
-    this.#ownershipSetsTracker.defineChildEdge(
-      childId, [parentId], edgeId
+    const edgeId = this.#defineEdge(
+      parentId, EdgePrefix.InternalSlot, createValueDescription(slotName, this),
+      metadata, childId, isStrongReference, undefined
     );
-
-    this.#edgeIdTo_IsStrongReference_Map.set(edgeId, isStrongReference);
     return edgeId;
   }
 
@@ -493,64 +462,31 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     const tupleNodeId = this.#defineWeakKey({}, null, NodePrefix.KeyValueTuple);
 
     // map to tuple
-    const mapToTupleEdgeId = this.#edgeCounter.next(EdgePrefix.MapToTuple);
-    {
-      const edgeMetadata: GraphEdgeWithMetadata<null> = {
-        edgeType: EdgePrefix.MapToTuple,
-        description: {
-          valueType: ValueDiscrimant.NotApplicable
-        },
-        metadata: null,
-      };
-
-      this.#defineEdge(
-        mapId,
-        tupleNodeId,
-        edgeMetadata,
-        mapToTupleEdgeId,
-        [mapId]
-      );
-
-      this.#ownershipSetsTracker.defineChildEdge(tupleNodeId, [mapId], mapToTupleEdgeId);
-      this.#edgeIdTo_IsStrongReference_Map.set(mapToTupleEdgeId, true);
-    }
+    const mapToTupleEdgeId = this.#defineEdge(
+      mapId, EdgePrefix.MapToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
+      null, tupleNodeId, true, undefined
+    );
 
     const keyDescription: ValueDescription = createValueDescription(key, this);
 
     // map key edge
     let tupleToKeyEdgeId: PrefixedNumber<EdgePrefix.MapKey> | undefined;
     if (keyId) {
-      tupleToKeyEdgeId = this.#edgeCounter.next(EdgePrefix.MapKey);
-      const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata | null> = {
-        edgeType: EdgePrefix.MapKey,
-        description: keyDescription,
-        metadata: keyMetadata === undefined ? null : keyMetadata,
-      };
-
-      this.#defineEdge(tupleNodeId, keyId, edgeMetadata, tupleToKeyEdgeId, [tupleNodeId]);
-
-      this.#ownershipSetsTracker.defineChildEdge(keyId, [tupleNodeId], tupleToKeyEdgeId);
-      this.#edgeIdTo_IsStrongReference_Map.set(tupleToKeyEdgeId, isStrongReferenceToKey);
+      tupleToKeyEdgeId = this.#defineEdge(
+        tupleNodeId, EdgePrefix.MapKey, keyDescription,
+        keyMetadata === undefined ? null : keyMetadata,
+        keyId, isStrongReferenceToKey, undefined
+      );
     }
 
     // map value edge
     let tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue> | undefined;
     if (valueId) {
-      tupleToValueEdgeId = this.#edgeCounter.next(EdgePrefix.MapValue);
-      const description = createValueDescription(value, this);
-
-      const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata | null> = {
-        edgeType: EdgePrefix.MapValue,
-        metadata: valueMetadata === undefined ? null : valueMetadata,
-        description,
-      };
-
-      const jointOwnerKeys = [mapId];
-      if (keyId)
-        jointOwnerKeys.push(keyId);
-      this.#defineEdge(tupleNodeId, valueId, edgeMetadata, tupleToValueEdgeId, jointOwnerKeys);
-      this.#ownershipSetsTracker.defineChildEdge(valueId, jointOwnerKeys, tupleToValueEdgeId);
-      this.#edgeIdTo_IsStrongReference_Map.set(tupleToValueEdgeId, true);
+      tupleToValueEdgeId = this.#defineEdge(
+        tupleNodeId, EdgePrefix.MapValue, createValueDescription(value, this),
+        valueMetadata === undefined ? null : valueMetadata,
+        valueId, true, keyId
+      );
     }
 
     return {
@@ -572,22 +508,10 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     const setId = this.#requireWeakKeyId(set, "set");
     const valueId = this.#requireWeakKeyId(value, "value");
 
-    const edgeId = this.#edgeCounter.next(EdgePrefix.SetValue);
-    const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
-      edgeType: EdgePrefix.SetValue,
-      description: {
-        valueType: ValueDiscrimant.NotApplicable,
-      },
-      metadata
-    };
-
-    this.#defineEdge(setId, valueId, edgeMetadata, edgeId, [setId]);
-
-    this.#ownershipSetsTracker.defineChildEdge(
-      valueId, [setId], edgeId
+    const edgeId = this.#defineEdge(
+      setId, EdgePrefix.SetValue, ObjectGraphImpl.#NOT_APPLICABLE,
+      metadata, valueId, isStrongReferenceToValue, undefined
     );
-
-    this.#edgeIdTo_IsStrongReference_Map.set(edgeId, isStrongReferenceToValue);
     return edgeId;
   }
 
@@ -614,67 +538,32 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     const tupleNodeId = this.#defineWeakKey({}, null, NodePrefix.FinalizationTuple);
 
     // registry to tuple
-    const registryToTupleEdgeId = this.#edgeCounter.next(EdgePrefix.FinalizationRegistryToTuple);
-    {
-      const edgeMetadata: GraphEdgeWithMetadata<null> = {
-        edgeType: EdgePrefix.MapToTuple,
-        description: {
-          valueType: ValueDiscrimant.NotApplicable
-        },
-        metadata: null,
-      };
+    const registryToTupleEdgeId = this.#defineEdge(
+      registryId, EdgePrefix.FinalizationRegistryToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
+      null, tupleNodeId, true, undefined
+    );
 
-      this.#defineEdge(
-        registryId,
-        tupleNodeId,
-        edgeMetadata,
-        registryToTupleEdgeId,
-        [registryId]
-      );
-
-      this.#ownershipSetsTracker.defineChildEdge(tupleNodeId, [registryId], registryToTupleEdgeId);
-      this.#edgeIdTo_IsStrongReference_Map.set(registryToTupleEdgeId, true);
-    }
-
-    const tupleToTargetEdgeId = this.#edgeCounter.next(EdgePrefix.FinalizationToTarget);
-    {
-      const edgeMetadata: GraphEdgeWithMetadata<null> = {
-        edgeType: EdgePrefix.FinalizationToTarget,
-        description: createValueDescription(target, this),
-        metadata: null
-      };
-
-      this.#defineEdge(tupleNodeId, targetId, edgeMetadata, tupleToTargetEdgeId, [tupleNodeId]);
-      this.#ownershipSetsTracker.defineChildEdge(targetId, [tupleNodeId], tupleToTargetEdgeId);
-      this.#edgeIdTo_IsStrongReference_Map.set(tupleToTargetEdgeId, false);
-    }
+    const tupleToTargetEdgeId = this.#defineEdge(
+      tupleNodeId, EdgePrefix.FinalizationToTarget, createValueDescription(target, this),
+      null, targetId, false, undefined
+    );
 
     let tupleToHeldValueEdgeId: PrefixedNumber<EdgePrefix.FinalizationToHeldValue> | undefined;
     if (heldValueId) {
-      tupleToHeldValueEdgeId = this.#edgeCounter.next(EdgePrefix.FinalizationToHeldValue);
-      const edgeMetadata: GraphEdgeWithMetadata<null> = {
-        edgeType: EdgePrefix.FinalizationToHeldValue,
-        description: createValueDescription(heldValue, this),
-        metadata: null
-      };
-
-      this.#defineEdge(tupleNodeId, heldValueId, edgeMetadata, tupleToHeldValueEdgeId, [registryId, targetId]);
-      this.#ownershipSetsTracker.defineChildEdge(heldValueId, [registryId, targetId], tupleToHeldValueEdgeId);
-      this.#edgeIdTo_IsStrongReference_Map.set(tupleToHeldValueEdgeId, true);
+      tupleToHeldValueEdgeId = this.#defineEdge(
+        tupleNodeId, EdgePrefix.FinalizationToHeldValue,
+        createValueDescription(heldValue, this),
+        null, heldValueId, true, targetId
+      );
     }
 
     let tupleToUnregisterTokenEdgeId: PrefixedNumber<EdgePrefix.FinalizationToUnregisterToken> | undefined;
     if (unregisterTokenId) {
-      tupleToUnregisterTokenEdgeId = this.#edgeCounter.next(EdgePrefix.FinalizationToUnregisterToken);
-      const edgeMetadata: GraphEdgeWithMetadata<null> = {
-        edgeType: EdgePrefix.FinalizationToUnregisterToken,
-        description: createValueDescription(unregisterToken, this),
-        metadata: null
-      };
-
-      this.#defineEdge(tupleNodeId, unregisterTokenId, edgeMetadata, tupleToUnregisterTokenEdgeId, [registryId, targetId]);
-      this.#ownershipSetsTracker.defineChildEdge(unregisterTokenId, [registryId, targetId], tupleToUnregisterTokenEdgeId);
-      this.#edgeIdTo_IsStrongReference_Map.set(tupleToUnregisterTokenEdgeId, false);
+      this.#defineEdge(
+        tupleNodeId, EdgePrefix.FinalizationToUnregisterToken,
+        createValueDescription(unregisterToken, this),
+        null, unregisterTokenId, false, targetId
+      );
     }
 
     return {
@@ -704,80 +593,21 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
 
     const tupleNodeId = this.#defineWeakKey({}, null, NodePrefix.PrivateFieldTuple);
 
-    // object to tuple
-    const objectToTupleEdgeId = this.#edgeCounter.next(EdgePrefix.ObjectToPrivateTuple);
-    {
-      const edgeMetadata: GraphEdgeWithMetadata<null> = {
-        edgeType: EdgePrefix.ObjectToPrivateTuple,
-        description: {
-          valueType: ValueDiscrimant.NotApplicable
-        },
-        metadata: null
-      };
+    const objectToTupleEdgeId = this.#defineEdge(
+      parentId, EdgePrefix.ObjectToPrivateTuple, ObjectGraphImpl.#NOT_APPLICABLE,
+      null, tupleNodeId, true, undefined
+    );
 
-      this.#defineEdge(
-        parentId,
-        tupleNodeId,
-        edgeMetadata,
-        objectToTupleEdgeId,
-        [parentId]
-      );
-
-      this.#ownershipSetsTracker.defineChildEdge(tupleNodeId, [parentId], objectToTupleEdgeId);
-      this.#edgeIdTo_IsStrongReference_Map.set(objectToTupleEdgeId, true);
-    }
-
-    const tupleToKeyEdgeId = this.#edgeCounter.next(EdgePrefix.PrivateTupleToKey);
-    {
-      const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
-        edgeType: EdgePrefix.PrivateTupleToKey,
-        description: {
-          valueType: ValueDiscrimant.NotApplicable
-        },
-        metadata: privateNameMetadata
-      };
-      this.#defineEdge(
-        tupleNodeId,
-        privateNameId,
-        edgeMetadata,
-        tupleToKeyEdgeId,
-        [tupleNodeId]
-      );
-
-      this.#ownershipSetsTracker.defineChildEdge(privateNameId, [tupleNodeId], tupleToKeyEdgeId);
-      this.#edgeIdTo_IsStrongReference_Map.set(tupleToKeyEdgeId, true);
-    }
-
-    const tupleToValueEdgeId = this.#edgeCounter.next(EdgePrefix.PrivateTupleToValue);
-    {
-      const description = createValueDescription(childObject, this);
-
-      let edgeType: EdgePrefix;
-      if (isGetter)
-        edgeType = EdgePrefix.PrivateTupleToGetter;
-      else
-        edgeType = EdgePrefix.PrivateTupleToValue;
-
-      const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
-        edgeType,
-        metadata: childMetadata,
-        description
-      };
-
-      this.#defineEdge(
-        tupleNodeId,
-        childId,
-        edgeMetadata,
-        tupleToValueEdgeId,
-        [parentId, tupleNodeId]
-      );
-      this.#ownershipSetsTracker.defineChildEdge(
-        childId,
-        [parentId, tupleNodeId],
-        tupleToValueEdgeId
-      );
-      this.#edgeIdTo_IsStrongReference_Map.set(tupleToValueEdgeId, true);
-    }
+    const tupleToKeyEdgeId = this.#defineEdge(
+      tupleNodeId, EdgePrefix.PrivateTupleToKey, ObjectGraphImpl.#NOT_APPLICABLE,
+      privateNameMetadata, privateNameId, true, undefined
+    );
+    const tupleToValueEdgeId = this.#defineEdge(
+      tupleNodeId,
+      isGetter ? EdgePrefix.PrivateTupleToGetter : EdgePrefix.PrivateTupleToValue,
+      createValueDescription(childObject, this),
+      childMetadata, childId, true, parentId
+    );
 
     return {
       tupleNodeId,
