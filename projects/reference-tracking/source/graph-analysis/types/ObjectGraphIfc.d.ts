@@ -38,6 +38,13 @@ export interface MapKeyAndValueIds {
   readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue> | undefined;
 }
 
+export interface PrivateFieldTupleIds {
+  readonly tupleNodeId: PrefixedNumber<NodePrefix.PrivateFieldTuple>;
+  readonly objectToTupleEdgeId: PrefixedNumber<EdgePrefix.ObjectToPrivateTuple>;
+  readonly tupleToKeyEdgeId: PrefixedNumber<EdgePrefix.PrivateTupleToKey>;
+  readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.PrivateTupleToValue | EdgePrefix.PrivateTupleToGetter>;
+}
+
 export interface FinalizationTupleIds {
   readonly tupleNodeId: PrefixedNumber<NodePrefix.FinalizationTuple>;
   readonly registryToTupleEdgeId: PrefixedNumber<EdgePrefix.FinalizationRegistryToTuple>;
@@ -97,11 +104,16 @@ export interface ObjectGraphIfc<
     metadata: ObjectOrSymbolMetadata
   ): void;
 
+  definePrivateName(
+    privateName: object,
+    description: string,
+  ): void;
+
   /**
    * `const target = Symbol("key"); obj[target] = true;`
    * @param parentObject
-   * @param relationshipName 
-   * @param keyEdgeMetadata 
+   * @param relationshipName
+   * @param keyEdgeMetadata
    */
   defineAsSymbolKey(
     parentObject: EngineObject,
@@ -171,6 +183,15 @@ export interface ObjectGraphIfc<
     keyMetadata: RelationshipMetadata | undefined,
     valueMetadata: RelationshipMetadata | undefined,
   ): MapKeyAndValueIds;
+
+
+  definePrivateField(
+    parentObject: EngineObject,
+    privateName: object,
+    childObject: EngineWeakKey<EngineObject, EngineSymbol>,
+    metadata: RelationshipMetadata,
+    isGetter: boolean
+  ): PrivateKeyAndValueIds;
 
   /**
    * Define a reference between a set and a value.

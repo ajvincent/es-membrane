@@ -1,18 +1,13 @@
-export enum ChildReferenceEdgeType {
-  PropertyName = "PropertyName",
-  ArrayIndex = "ArrayIndex",
-  PropertySymbol = "PropertySymbol",
-  SymbolKey = "SymbolKey",
-  InstanceOf = "InstanceOf",
-  PrivateClassField = "PrivateClassField",
-
-  InternalSlot = "InternalSlot",
-
-  SetElement = "SetElement",
-  MapKey = "MapKey",
-  MapValue = "MapValue",
+// used in describing values
+export enum ValueDiscrimant {
+  NotApplicable = "NotApplicable",
+  Object = "Object",
+  Symbol = "Symbol",
+  BigInt = "BigInt",
+  Primitive = "Primitive",
 }
 
+//#region nodes
 export enum BuiltInJSTypeName {
   Symbol = "Symbol",
   Object = "Object",
@@ -25,14 +20,7 @@ export enum BuiltInJSTypeName {
   Set = "Set",
   Proxy = "Proxy",
   FinalizationRegistry = "FinalizationRegistry",
-}
-
-export enum ValueDiscrimant {
-  NotApplicable = "NotApplicable",
-  Object = "Object",
-  Symbol = "Symbol",
-  BigInt = "BigInt",
-  Primitive = "Primitive",
+  PrivateName = "#private",
 }
 
 export enum NodePrefix {
@@ -42,7 +30,27 @@ export enum NodePrefix {
   HeldValues = "heldValues",
   KeyValueTuple = "keyValueTuple",
   FinalizationTuple = "finalizationTuple",
+  PrivateName = "privateName",
+  PrivateFieldTuple = "privateFieldTuple",
 };
+//#endregion nodes
+
+//#region edges
+export enum ChildReferenceEdgeType {
+  PropertyName = "PropertyName",
+  ArrayIndex = "ArrayIndex",
+  PropertySymbol = "PropertySymbol",
+  SymbolKey = "SymbolKey",
+  InstanceOf = "InstanceOf",
+  PrivateClassKey = "PrivateClassKey",
+  PrivateClassValue = "PrivateClassValue",
+
+  InternalSlot = "InternalSlot",
+
+  SetElement = "SetElement",
+  MapKey = "MapKey",
+  MapValue = "MapValue",
+}
 
 export enum EdgePrefix {
   PropertyKey = "propertyKey",
@@ -58,4 +66,9 @@ export enum EdgePrefix {
   FinalizationToTarget = "finalizationToTarget",
   FinalizationToHeldValue = "finalizationToHeldValue",
   FinalizationToUnregisterToken = "finalizationToUnregisterToken",
+  ObjectToPrivateTuple = "privateTuple",
+  PrivateTupleToKey = "privateKey",
+  PrivateTupleToValue = "privateValue",
+  PrivateTupleToGetter = "privateGetter",
 };
+//#endregion edges

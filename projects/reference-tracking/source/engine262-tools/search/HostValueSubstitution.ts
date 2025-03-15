@@ -6,6 +6,7 @@ export class HostValueSubstitution
 {
   readonly #objectMap = new WeakMap<GuestEngine.ObjectValue, object>;
   readonly #symbolMap = new WeakMap<GuestEngine.SymbolValue, symbol>;
+  readonly #privateKeysMap = new WeakMap<GuestEngine.PrivateName, object>;
 
   public getHostValue(guestValue: GuestEngine.Value)
   {
@@ -79,5 +80,17 @@ export class HostValueSubstitution
       this.#symbolMap.set(guestSymbol, hostSymbol);
     }
     return hostSymbol;
+  }
+
+  public getHostPrivateName(
+    guestKey: GuestEngine.PrivateName
+  ): object
+  {
+    let hostObject: object | undefined = this.#privateKeysMap.get(guestKey);
+    if (!hostObject) {
+      hostObject = {};
+      this.#privateKeysMap.set(guestKey, hostObject);
+    }
+    return hostObject;
   }
 }

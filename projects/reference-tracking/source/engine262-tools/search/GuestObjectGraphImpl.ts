@@ -9,7 +9,8 @@ import type {
   FinalizationTupleIds,
   GraphEdgeWithMetadata,
   MapKeyAndValueIds,
-  ObjectGraphIfc
+  ObjectGraphIfc,
+  PrivateFieldTupleIds,
 } from "../../graph-analysis/types/ObjectGraphIfc.js";
 
 import type {
@@ -126,6 +127,17 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
     return this.#hostGraph.defineSymbol(
       this.#substitution.getHostSymbol(symbol),
       metadata
+    );
+  }
+
+  public definePrivateName(
+    privateName: GuestEngine.PrivateName,
+    description: string
+  ): void
+  {
+    return this.#hostGraph.definePrivateName(
+      this.#substitution.getHostPrivateName(privateName),
+      description
     );
   }
 
@@ -255,6 +267,23 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
       this.#substitution.getHostValue(heldValue),
       unregisterToken ? this.#substitution.getHostObject(unregisterToken) : undefined,
     )
+  }
+
+  public definePrivateField(
+    parentObject: GuestEngine.ObjectValue,
+    privateName: GuestEngine.PrivateName,
+    childObject: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
+    metadata: RelationshipMetadata,
+    isGetter: boolean
+  ): PrivateFieldTupleIds
+  {
+    return this.#hostGraph.definePrivateField(
+      this.#substitution.getHostObject(parentObject),
+      this.#substitution.getHostPrivateName(privateName),
+      this.#substitution.getHostWeakKey(childObject),
+      metadata,
+      isGetter
+    );
   }
 
   public getEdgeRelationship(

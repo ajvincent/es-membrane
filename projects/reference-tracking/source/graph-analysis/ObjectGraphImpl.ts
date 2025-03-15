@@ -51,6 +51,7 @@ import type {
   GraphObjectId,
   MapKeyAndValueIds,
   ObjectGraphIfc,
+  PrivateFieldTupleIds,
 } from "./types/ObjectGraphIfc.js";
 
 import type {
@@ -203,6 +204,33 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
 
   public defineSymbol(symbol: symbol, metadata: ObjectMetadata): void {
     this.#defineWeakKey(symbol, metadata, NodePrefix.Symbol);
+  }
+
+  public definePrivateName(
+    privateName: object,
+    description: string
+  ): void
+  {
+    this.#setNextState(ObjectGraphState.AcceptingDefinitions);
+    if (this.#weakKeyToIdMap.has(privateName)) {
+      this.#throwInternalError(new Error(
+        "privateName is already defined as a node in this graph, with id " + this.#weakKeyToIdMap.get(privateName)!
+      ));
+    }
+
+    const nodeId = this.#nodeCounter.next(NodePrefix.PrivateName);
+    this.#weakKeyToIdMap.set(privateName, nodeId);
+    this.#idToWeakKeyMap.set(nodeId, privateName);
+
+    const nodeMetadata: GraphNodeWithMetadata<Record<"description", string>> = {
+      metadata: {
+        description
+      }
+    };
+    this.#graph.setNode(nodeId, nodeMetadata);
+
+    this.#ownershipSetsTracker.defineKey(nodeId);
+    this.#weakKeyHeldStronglyMap.set(privateName, false);
   }
 
   #defineWeakKey<Prefix extends NodePrefix>(
@@ -435,7 +463,6 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
       this.#throwInternalError(new Error("key must be a WeakKey"));
     }
 
-    //FIXME: support symbols as weak keys
     if (isObjectOrSymbol(key)) {
       keyId = this.#requireWeakKeyId(key, "key");
     }
@@ -646,6 +673,106 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
       tupleToTargetEdgeId,
       tupleToHeldValueEdgeId,
       tupleToUnregisterTokenEdgeId,
+    };
+  }
+
+  definePrivateField(
+    parentObject: object,
+    privateName: object,
+    childObject: EngineWeakKey<object, symbol>,
+    metadata: RelationshipMetadata,
+    isGetter: boolean
+  ): PrivateFieldTupleIds
+  {
+    this.#setNextState(ObjectGraphState.AcceptingDefinitions);
+    const parentId = this.#requireWeakKeyId(parentObject, "parentObject");
+    const privateNameId = this.#requireWeakKeyId(privateName, "privateName");
+    if (privateNameId.startsWith(NodePrefix.PrivateName) === false)
+      throw new Error("privateName is not a registered private name!");
+    const childId = this.#requireWeakKeyId(childObject, "childObject");
+
+    const tupleNodeId = this.#defineWeakKey({}, null, NodePrefix.PrivateFieldTuple);
+
+    // object to tuple
+    const objectToTupleEdgeId = this.#edgeCounter.next(EdgePrefix.ObjectToPrivateTuple);
+    {
+      const edgeMetadata: GraphEdgeWithMetadata<null> = {
+        edgeType: EdgePrefix.ObjectToPrivateTuple,
+        description: {
+          valueType: ValueDiscrimant.NotApplicable
+        },
+        metadata: null
+      };
+
+      this.#defineEdge(
+        parentId,
+        tupleNodeId,
+        edgeMetadata,
+        objectToTupleEdgeId,
+        [parentId]
+      );
+
+      this.#ownershipSetsTracker.defineChildEdge(tupleNodeId, [parentId], objectToTupleEdgeId);
+      this.#edgeIdTo_IsStrongReference_Map.set(objectToTupleEdgeId, true);
+    }
+
+    const tupleToKeyEdgeId = this.#edgeCounter.next(EdgePrefix.PrivateTupleToKey);
+    {
+      const edgeMetadata: GraphEdgeWithMetadata<null> = {
+        edgeType: EdgePrefix.PrivateTupleToKey,
+        description: {
+          valueType: ValueDiscrimant.NotApplicable
+        },
+        metadata: null
+      };
+      this.#defineEdge(
+        tupleNodeId,
+        privateNameId,
+        edgeMetadata,
+        tupleToKeyEdgeId,
+        [tupleNodeId]
+      );
+
+      this.#ownershipSetsTracker.defineChildEdge(privateNameId, [tupleNodeId], tupleToKeyEdgeId);
+      this.#edgeIdTo_IsStrongReference_Map.set(tupleToKeyEdgeId, true);
+    }
+
+    const tupleToValueEdgeId = this.#edgeCounter.next(EdgePrefix.PrivateTupleToValue);
+    {
+      const description = createValueDescription(childObject, this);
+
+      let edgeType: EdgePrefix;
+      if (isGetter)
+        edgeType = EdgePrefix.PrivateTupleToGetter;
+      else
+        edgeType = EdgePrefix.PrivateTupleToValue;
+
+      const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
+        edgeType,
+        metadata,
+        description
+      };
+
+      this.#defineEdge(
+        tupleNodeId,
+        childId,
+        edgeMetadata,
+        tupleToValueEdgeId,
+        [parentId, tupleNodeId]
+      );
+      this.#ownershipSetsTracker.defineChildEdge(
+        childId,
+        [parentId, tupleNodeId],
+        tupleToValueEdgeId
+      );
+      this.#edgeIdTo_IsStrongReference_Map.set(tupleToValueEdgeId, true);
+    }
+
+    return {
+      tupleNodeId,
+      objectToTupleEdgeId,
+      tupleToKeyEdgeId,
+      tupleToValueEdgeId
     };
   }
 

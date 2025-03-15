@@ -184,6 +184,8 @@ describe("Simple graph searches, class support:", () => {
   });
 
   xit("classes with private fields", async () => {
+    const actual = await getActualGraph("classes/classPrivateFields.js", "class private fields");
+    expect(actual).not.toBeNull();
   });
 
   // model on "classes with getters"
