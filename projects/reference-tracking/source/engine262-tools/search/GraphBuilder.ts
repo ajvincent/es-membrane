@@ -82,6 +82,24 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     ]);
   }
 
+  static #isObjectPrototype(
+    guestObject: GuestEngine.ObjectValue
+  ): boolean
+  {
+    const guestCtor = EnsureValueOrThrow(GuestEngine.GetV(
+      guestObject, GraphBuilder.#stringConstants.get("constructor")!
+    ));
+
+    if (GuestEngine.isFunctionObject(guestCtor) === false) {
+      return false;
+    }
+
+    const guestCtorProto = EnsureValueOrThrow(GuestEngine.GetPrototypeFromConstructor(
+      guestCtor, "%Object.prototype%"
+    ));
+    return guestCtorProto === guestObject;
+  }
+
   readonly #guestObjectGraph: GuestObjectGraphIfc<GraphObjectMetadata, GraphRelationshipMetadata>;
   // eslint-disable-next-line no-unused-private-class-members
   #currentNodeId?: string;
@@ -283,6 +301,8 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     guestObject: GuestEngine.ObjectValue
   ): void
   {
+    const isObjectPrototype = GraphBuilder.#isObjectPrototype(guestObject);
+
     const OwnKeys: PlainCompletion<GuestEngine.PropertyKeyValue[]> = guestObject.OwnPropertyKeys();
     GuestEngine.Assert(Array.isArray(OwnKeys));
     for (const guestKey of OwnKeys) {
@@ -311,16 +331,32 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
           key = guestKey.stringValue();
         }
 
-        const ctor = EnsureValueOrThrow(GuestEngine.GetV(
+        const guestCtor = EnsureValueOrThrow(GuestEngine.GetV(
           guestObject, GraphBuilder.#stringConstants.get("constructor")!
         ));
-        if (ctor.type === "Object" && this.#intrinsics.has(ctor) === false) {
-          this.#instanceGetterTracking.addGetterName(ctor, key);
+        if (guestCtor.type === "Object" && this.#intrinsics.has(guestCtor) === false) {
+          this.#instanceGetterTracking.addGetterName(guestCtor, key);
         }
 
-        const childGuestValue: GuestEngine.Value = EnsureValueOrThrow(GuestEngine.GetV(
-          guestObject, guestKey
-        ));
+        if (isObjectPrototype)
+          continue;
+
+        /* In the case of getters, this can definitely have side effects.  For instance, the getter
+        could trigger code to delete something.  Well, too bad, this is what we have to do to get
+        the answer.
+
+        GetV can also throw if guestObject is a prototype and guestObject[guestKey] refers to this.
+        */
+        const childOrCompletion = GuestEngine.GetV(guestObject, guestKey);
+        if (childOrCompletion instanceof GuestEngine.ThrowCompletion)
+          continue;
+
+        let childGuestValue: GuestEngine.Value;
+        if (childOrCompletion instanceof GuestEngine.NormalCompletion)
+          childGuestValue = childOrCompletion.Value;
+        else
+          childGuestValue = childOrCompletion;
+
         if (childGuestValue.type === "Object" || childGuestValue.type === "Symbol") {
           this.#defineGraphNode(childGuestValue, false);
           this.#addObjectPropertyOrGetter(guestObject, guestKey, childGuestValue, true);
