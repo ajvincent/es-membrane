@@ -10,10 +10,7 @@ class Vehicle {
 
   constructor(owner: Person) {
     this.#owner = owner;
-  }
-
-  get owner(): Person {
-    return this.#owner;
+    void(this.#owner);
   }
 }
 

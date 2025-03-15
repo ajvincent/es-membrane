@@ -4,8 +4,8 @@ import type {
 } from "type-fest";
 
 import type {
-  ObjectGraphIfc
-} from "../../source/graph-analysis/types/ObjectGraphIfc.js";
+  HostObjectGraph
+} from "../../source/graph-analysis/ObjectGraphImpl.js";
 
 import {
   GraphObjectMetadata
@@ -25,7 +25,7 @@ import {
 } from "../../source/utilities/isObjectOrSymbol.js";
 
 export function addObjectGraphNode(
-  graph: ObjectGraphIfc<object, symbol, GraphObjectMetadata, JsonObject>,
+  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   object: object,
   builtInJSTypeName: BuiltInJSTypeName,
   derivedClassName: string
@@ -40,7 +40,7 @@ export function addObjectGraphNode(
 }
 
 export function addSymbolGraphNode(
-  graph: ObjectGraphIfc<object, symbol, GraphObjectMetadata, JsonObject>,
+  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   symbol: symbol,
 ): void
 {
@@ -53,7 +53,7 @@ export function addSymbolGraphNode(
 }
 
 export function addArrayIndexEdge(
-  graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
+  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   parentObject: object,
   index: number,
   childObject: object | symbol,
@@ -68,7 +68,7 @@ export function addArrayIndexEdge(
 }
 
 export function addPropertyNameEdge(
-  graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
+  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   parentObject: object,
   propertyName: string,
   childObject: object,
@@ -85,7 +85,7 @@ export function addPropertyNameEdge(
 }
 
 export function addSymbolAsObjectKeyEdge(
-  graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
+  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   parentObject: object,
   symbolKey: symbol,
 ): void
@@ -97,7 +97,7 @@ export function addSymbolAsObjectKeyEdge(
 }
 
 export function addPropertySymbolEdge(
-  graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
+  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   parentObject: object,
   propertyKey: symbol,
   childObject: object,
@@ -114,7 +114,7 @@ export function addPropertySymbolEdge(
 }
 
 export function addConstructorOf(
-  graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
+  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   instanceObject: object,
   ctorObject: Constructor<object>,
 ): void
@@ -127,7 +127,7 @@ export function addConstructorOf(
 }
 
 export function addInternalSlotEdge(
-  graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
+  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   parentObject: object,
   slotName: `[[${string}]]`,
   childObject: object,
@@ -144,7 +144,7 @@ export function addInternalSlotEdge(
 }
 
 export function addMapKeyAndValue(
-  graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
+  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   map: object,
   key: unknown,
   value: unknown,
@@ -171,7 +171,7 @@ export function addMapKeyAndValue(
 }
 
 export function addSetElementEdge(
-  graph: ObjectGraphIfc<object, symbol, JsonObject, GraphRelationshipMetadata>,
+  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   set: object,
   value: object,
   isStrongReference: boolean,
@@ -181,4 +181,25 @@ export function addSetElementEdge(
     parentToChildEdgeType: ChildReferenceEdgeType.SetElement
   };
   graph.defineSetValue(set, value, isStrongReference, relationship);
+}
+
+export function addPrivateFieldEdge(
+  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  parent: object,
+  privateName: object,
+  child: WeakKey,
+  isGetter: boolean
+): void
+{
+  const privateNameRelationship: GraphRelationshipMetadata = {
+    parentToChildEdgeType: ChildReferenceEdgeType.PrivateClassKey
+  };
+
+  const valueRelationship: GraphRelationshipMetadata = {
+    parentToChildEdgeType: ChildReferenceEdgeType.PrivateClassValue
+  };
+
+  graph.definePrivateField(
+    parent, privateName, child, privateNameRelationship, valueRelationship, isGetter
+  );
 }

@@ -4,6 +4,7 @@ import type {
 } from "@dagrejs/graphlib";
 
 import {
+  HostObjectGraph,
   ObjectGraphImpl
 } from "../../source/graph-analysis/ObjectGraphImpl.js";
 
@@ -14,10 +15,6 @@ import {
 import type {
   CloneableGraphIfc
 } from "../../source/graph-analysis/types/CloneableGraphIfc.js";
-
-import type {
-  ObjectGraphIfc,
-} from "../../source/graph-analysis/types/ObjectGraphIfc.js";
 
 import type {
   SearchReferencesIfc,
@@ -56,9 +53,7 @@ describe("ObjectGraphImpl", () => {
   to enforce the interface boundaries.  After all, I expect to pass the object
   graph to different API's. */
   let cloneableGraph: CloneableGraphIfc;
-  let objectGraph: ObjectGraphIfc<
-    object,
-    symbol,
+  let objectGraph: HostObjectGraph<
     Record<"type", "ObjectMetadata">,
     Record<"type", "RelationshipMetadata">
   >;
@@ -505,6 +500,69 @@ describe("ObjectGraphImpl", () => {
         },
         metadata: ctorMetadata
       });
+    });
+
+    it("private class fields", () => {
+      const privateKey = { isPrivateKey: true };
+      const owner = { isOwner: true };
+
+      heldValues.push(owner);
+      objectGraph.defineObject(owner, new ObjectMetadata("owner"));
+      objectGraph.definePropertyOrGetter(heldValues, 0, owner, new RelationshipMetadata(), false);
+
+      objectGraph.definePrivateName(privateKey, "#privateKey");
+      const privateNameRelationship = new RelationshipMetadata("owner to private name");
+      const targetRelationship = new RelationshipMetadata("owner to target");
+      const {
+        tupleNodeId,
+        objectToTupleEdgeId,
+        tupleToKeyEdgeId,
+        tupleToValueEdgeId
+      } = objectGraph.definePrivateField(
+        owner, privateKey, target, privateNameRelationship, targetRelationship, false
+      );
+
+      expect(objectGraph.getEdgeRelationship(objectToTupleEdgeId)).toEqual({
+        edgeType: EdgePrefix.ObjectToPrivateTuple,
+        description: {
+          valueType: ValueDiscrimant.NotApplicable
+        },
+        metadata: null
+      });
+
+      expect(objectGraph.getEdgeRelationship(tupleToKeyEdgeId)).toEqual({
+        edgeType: EdgePrefix.PrivateTupleToKey,
+        description: {
+          valueType: ValueDiscrimant.NotApplicable,
+        },
+        metadata: privateNameRelationship
+      });
+
+      expect(objectGraph.getEdgeRelationship(tupleToValueEdgeId)).toEqual({
+        edgeType: EdgePrefix.PrivateTupleToValue,
+        description: createValueDescription(target, objectGraph),
+        metadata: targetRelationship
+      });
+
+      const rawGraph = cloneableGraph.cloneGraph();
+      const inEdges = rawGraph.inEdges(tupleNodeId);
+      expect(inEdges).toBeDefined();
+      if (inEdges) {
+        expect(inEdges.length).toBe(1);
+        expect(inEdges[0]?.name).toBe(objectToTupleEdgeId);
+      }
+
+      const outEdges = rawGraph.outEdges(tupleNodeId);
+      expect(outEdges).toBeDefined();
+      if (outEdges) {
+        expect(outEdges.length).toBe(2);
+        expect(outEdges[0]?.name).toBe(tupleToKeyEdgeId);
+        expect(outEdges[1]?.name).toBe(tupleToValueEdgeId);
+      }
+    });
+
+    xit("private class getters", () => {
+
     });
   });
 

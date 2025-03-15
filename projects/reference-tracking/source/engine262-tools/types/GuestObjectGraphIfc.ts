@@ -14,5 +14,5 @@ export type GuestObjectGraphIfc<
   ObjectMetadata extends JsonObject | null,
   RelationshipMetadata extends JsonObject | null
 > = ObjectGraphIfc<
-  GuestEngine.ObjectValue, GuestEngine.SymbolValue, ObjectMetadata, RelationshipMetadata
+  GuestEngine.ObjectValue, GuestEngine.SymbolValue, GuestEngine.PrivateName, ObjectMetadata, RelationshipMetadata
 >;

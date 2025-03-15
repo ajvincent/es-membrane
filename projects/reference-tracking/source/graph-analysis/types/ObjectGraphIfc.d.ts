@@ -75,6 +75,7 @@ export interface ValueIdIfc<EngineObject, EngineSymbol> {
 export interface ObjectGraphIfc<
   EngineObject,
   EngineSymbol,
+  EnginePrivateName,
   ObjectOrSymbolMetadata extends JsonObject | null,
   RelationshipMetadata extends JsonObject | null,
 > extends ValueIdIfc<EngineObject, EngineSymbol>
@@ -94,6 +95,10 @@ export interface ObjectGraphIfc<
     symbol: EngineSymbol
   ): boolean;
 
+  hasPrivateName(
+    privateName: EnginePrivateName
+  ): boolean;
+
   defineObject(
     object: EngineObject,
     metadata: ObjectOrSymbolMetadata
@@ -105,8 +110,8 @@ export interface ObjectGraphIfc<
   ): void;
 
   definePrivateName(
-    privateName: object,
-    description: string,
+    privateName: EnginePrivateName,
+    description: `#${string}`,
   ): void;
 
   /**
@@ -187,9 +192,10 @@ export interface ObjectGraphIfc<
 
   definePrivateField(
     parentObject: EngineObject,
-    privateName: object,
+    privateName: EnginePrivateName,
     childObject: EngineWeakKey<EngineObject, EngineSymbol>,
-    metadata: RelationshipMetadata,
+    privateNameMetadata: RelationshipMetadata,
+    childMetadata: RelationshipMetadata,
     isGetter: boolean
   ): PrivateKeyAndValueIds;
 

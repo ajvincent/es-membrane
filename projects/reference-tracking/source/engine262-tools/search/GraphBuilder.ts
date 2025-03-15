@@ -121,7 +121,7 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     targetValue: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
     heldValues: GuestEngine.ObjectValue,
     realm: GuestEngine.ManagedRealm,
-    hostObjectGraph: ObjectGraphIfc<object, symbol, GraphObjectMetadata, GraphRelationshipMetadata>,
+    hostObjectGraph: ObjectGraphIfc<object, symbol, object, GraphObjectMetadata, GraphRelationshipMetadata>,
     internalErrorTrap?: () => void,
   )
   {

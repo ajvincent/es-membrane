@@ -70,11 +70,16 @@ enum ObjectGraphState {
   Error = Infinity,
 }
 
+export type HostObjectGraph<
+  ObjectMetadata extends JsonObject | null,
+  RelationshipMetadata extends JsonObject | null,
+> = ObjectGraphIfc<object, symbol, object, ObjectMetadata, RelationshipMetadata>;
+
 export class ObjectGraphImpl<
   ObjectMetadata extends JsonObject | null,
   RelationshipMetadata extends JsonObject | null,
 >
-implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
+implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   CloneableGraphIfc, SearchReferencesIfc
 {
   //#region private class fields
@@ -194,6 +199,11 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     return this.#weakKeyToIdMap.has(symbol);
   }
 
+  public hasPrivateName(object: object): boolean {
+    this.#assertDefineTargetCalled();
+    return this.#weakKeyToIdMap.has(object);
+  }
+
   public defineObject(
     object: object,
     metadata: ObjectMetadata
@@ -208,7 +218,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
 
   public definePrivateName(
     privateName: object,
-    description: string
+    description: `#${string}`,
   ): void
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
@@ -680,7 +690,8 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
     parentObject: object,
     privateName: object,
     childObject: EngineWeakKey<object, symbol>,
-    metadata: RelationshipMetadata,
+    privateNameMetadata: RelationshipMetadata,
+    childMetadata: RelationshipMetadata,
     isGetter: boolean
   ): PrivateFieldTupleIds
   {
@@ -718,12 +729,12 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
 
     const tupleToKeyEdgeId = this.#edgeCounter.next(EdgePrefix.PrivateTupleToKey);
     {
-      const edgeMetadata: GraphEdgeWithMetadata<null> = {
+      const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
         edgeType: EdgePrefix.PrivateTupleToKey,
         description: {
           valueType: ValueDiscrimant.NotApplicable
         },
-        metadata: null
+        metadata: privateNameMetadata
       };
       this.#defineEdge(
         tupleNodeId,
@@ -749,7 +760,7 @@ implements ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
 
       const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata> = {
         edgeType,
-        metadata,
+        metadata: childMetadata,
         description
       };
 

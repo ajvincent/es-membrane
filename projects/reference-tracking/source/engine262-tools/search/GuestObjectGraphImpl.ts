@@ -5,11 +5,14 @@ import type {
 } from "type-fest";
 
 import type {
+  HostObjectGraph
+} from "../../graph-analysis/ObjectGraphImpl.js";
+
+import type {
   EngineWeakKey,
   FinalizationTupleIds,
   GraphEdgeWithMetadata,
   MapKeyAndValueIds,
-  ObjectGraphIfc,
   PrivateFieldTupleIds,
 } from "../../graph-analysis/types/ObjectGraphIfc.js";
 
@@ -42,13 +45,13 @@ export class GuestObjectGraphImpl<
 >
 implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
 {
-  readonly #hostGraph: ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>;
+  readonly #hostGraph: HostObjectGraph<ObjectMetadata, RelationshipMetadata>;
   readonly #substitution = new HostValueSubstitution;
 
   readonly #internalErrorTrap?: () => void;
 
   constructor(
-    hostGraph: ObjectGraphIfc<object, symbol, ObjectMetadata, RelationshipMetadata>,
+    hostGraph: HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     internalErrorTrap?: () => void,
   )
   {
@@ -108,6 +111,15 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
     );
   }
 
+  public hasPrivateName(
+    privateName: GuestEngine.PrivateName
+  ): boolean
+  {
+    return this.#hostGraph.hasPrivateName(
+      this.#substitution.getHostPrivateName(privateName)
+    );
+  }
+
   public defineObject(
     object: GuestEngine.ObjectValue,
     metadata: ObjectMetadata
@@ -132,7 +144,7 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
 
   public definePrivateName(
     privateName: GuestEngine.PrivateName,
-    description: string
+    description: `#${string}`
   ): void
   {
     return this.#hostGraph.definePrivateName(
@@ -273,7 +285,8 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
     parentObject: GuestEngine.ObjectValue,
     privateName: GuestEngine.PrivateName,
     childObject: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
-    metadata: RelationshipMetadata,
+    privateNameMetadata: RelationshipMetadata,
+    childMetadata: RelationshipMetadata,
     isGetter: boolean
   ): PrivateFieldTupleIds
   {
@@ -281,7 +294,8 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
       this.#substitution.getHostObject(parentObject),
       this.#substitution.getHostPrivateName(privateName),
       this.#substitution.getHostWeakKey(childObject),
-      metadata,
+      privateNameMetadata,
+      childMetadata,
       isGetter
     );
   }
