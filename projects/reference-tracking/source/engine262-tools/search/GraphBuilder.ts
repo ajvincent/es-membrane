@@ -314,13 +314,13 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
       const descriptor = guestObject.GetOwnProperty(guestKey);
       GuestEngine.Assert(descriptor instanceof GuestEngine.Descriptor);
 
+      let childGuestValue: GuestEngine.Value;
+      let isGetter: boolean;
+
       if (GuestEngine.IsDataDescriptor(descriptor)) {
         GuestEngine.Assert(descriptor.Value !== undefined);
-        const childGuestValue: GuestEngine.Value = descriptor.Value;
-        if (childGuestValue.type === "Object" || childGuestValue.type === "Symbol") {
-          this.#defineGraphNode(childGuestValue, false);
-          this.#addObjectPropertyOrGetter(guestObject, guestKey, childGuestValue, false);
-        }
+        childGuestValue = descriptor.Value;
+        isGetter = false;
       }
       else {
         let key: number | string | GuestEngine.SymbolValue;
@@ -352,54 +352,53 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
         if (childOrCompletion instanceof GuestEngine.ThrowCompletion)
           continue;
 
-        let childGuestValue: GuestEngine.Value;
         if (childOrCompletion instanceof GuestEngine.NormalCompletion)
           childGuestValue = childOrCompletion.Value;
         else
           childGuestValue = childOrCompletion;
+        isGetter = true;
+      }
 
-        if (childGuestValue.type === "Object" || childGuestValue.type === "Symbol") {
-          this.#defineGraphNode(childGuestValue, false);
-          this.#addObjectPropertyOrGetter(guestObject, guestKey, childGuestValue, true);
-        }
+      if (childGuestValue.type === "Object" || childGuestValue.type === "Symbol") {
+        this.#defineGraphNode(childGuestValue, false);
+        this.#addObjectPropertyOrGetter(guestObject, guestKey, childGuestValue, isGetter);
       }
     }
   }
 
   #addObjectPropertyOrGetter(
     parentObject: GuestEngine.ObjectValue,
-    key: GuestEngine.JSStringValue | GuestEngine.SymbolValue,
+    guestKey: GuestEngine.JSStringValue | GuestEngine.SymbolValue,
     childObject: GuestEngine.ObjectValue | GuestEngine.SymbolValue,
     isGetter: boolean,
   ): void
   {
-    if (GuestEngine.isArrayIndex(key)) {
-      GuestEngine.Assert(key.type === "String");
-      const localIndex = parseInt(key.stringValue());
+    let key: number | string | GuestEngine.SymbolValue;
+    let valueRelationship: GraphRelationshipMetadata;
+    if (GuestEngine.isArrayIndex(guestKey)) {
+      GuestEngine.Assert(guestKey.type === "String");
 
-      const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.ArrayIndex);
-      this.#guestObjectGraph.definePropertyOrGetter(
-        parentObject, localIndex, childObject, edgeRelationship, isGetter
-      );
+      key = parseInt(guestKey.stringValue());
+      valueRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.ArrayIndex);
     }
 
-    else if (key.type === "String") {
-      const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.PropertyName);
-      this.#guestObjectGraph.definePropertyOrGetter(
-        parentObject, key.stringValue(), childObject, edgeRelationship, isGetter
-      );
+    else if (guestKey.type === "String") {
+      key = guestKey.stringValue();
+      valueRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.PropertyName);
     }
 
     else {
-      this.#defineGraphSymbolNode(key);
+      //this.#defineGraphSymbolNode(key);
       const keyRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.SymbolKey);
-      this.#guestObjectGraph.defineAsSymbolKey(parentObject, key, keyRelationship);
+      this.#guestObjectGraph.defineAsSymbolKey(parentObject, guestKey, keyRelationship);
 
-      const propertyRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.PropertySymbol);
-      this.#guestObjectGraph.definePropertyOrGetter(
-        parentObject, key, childObject, propertyRelationship, isGetter
-      );
+      key = guestKey;
+      valueRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.PropertySymbol);
     }
+
+    this.#guestObjectGraph.definePropertyOrGetter(
+      parentObject, key, childObject, valueRelationship, isGetter
+    );
   }
 
   #addPrivateFields(
