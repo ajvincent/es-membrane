@@ -443,6 +443,7 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
       if (guestValue.type !== "Object" && guestValue.type !== "Symbol")
         continue;
 
+      this.#defineGraphNode(guestValue, false);
       const privateNameMetadata = GraphBuilder.#buildChildEdgeType(
         ChildReferenceEdgeType.PrivateClassKey
       );

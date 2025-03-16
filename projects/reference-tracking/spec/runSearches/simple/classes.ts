@@ -270,8 +270,34 @@ describe("Simple graph searches, class support:", () => {
     expect(actual).toEqual(expected);
   });
 
-  xit("classes with static private fields", async () => {
+  it("classes with private static fields", async () => {
+    const hisCar = new Vehicle;
+    setExpectedGraph(
+      Fred, BuiltInJSTypeName.Object, "Person",
+      hisCar, BuiltInJSTypeName.Object, "Vehicle"
+    );
 
+    addObjectGraphNode(ExpectedObjectGraph, Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function); // object:3
+    addConstructorOf(ExpectedObjectGraph, hisCar, Vehicle);
+
+    addObjectGraphNode(ExpectedObjectGraph, Vehicle.prototype, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object); // object:4
+    addPropertyNameEdge(ExpectedObjectGraph, Vehicle, "prototype", Vehicle.prototype, false);
+
+    const ownersPrivateName = addPrivateName(ExpectedObjectGraph, "#owners");
+    const ownersArray: Person[] = [Fred];
+    addObjectGraphNode(ExpectedObjectGraph, ownersArray, BuiltInJSTypeName.Array, BuiltInJSTypeName.Array); // object:5
+    addPrivateFieldEdge(ExpectedObjectGraph, Vehicle, ownersPrivateName, "#owners", ownersArray, false);
+
+    addPropertyNameEdge(ExpectedObjectGraph, Vehicle.prototype, "constructor", Vehicle, false);
+
+    addArrayIndexEdge(ExpectedObjectGraph, ownersArray, 0, Fred, false);
+
+    ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+    ExpectedObjectGraph.summarizeGraphToTarget(true);
+    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+
+    const actual = await getActualGraph("classes/classStaticPrivateFields.js", "class private static fields");
+    expect(actual).toEqual(expected);
   });
 
   xit("classes with static private getters", async () => {

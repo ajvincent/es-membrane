@@ -9,7 +9,6 @@ class Vehicle {
   static owners: Person[] = [];
 
   constructor(owner: Person) {
-    //this.owner = owner;
     Vehicle.owners.push(owner);
   }
 }
