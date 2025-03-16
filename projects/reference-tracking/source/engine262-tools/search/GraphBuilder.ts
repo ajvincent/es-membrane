@@ -82,7 +82,7 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     ]);
   }
 
-  static #isObjectPrototype(
+  static #isConstructorPrototype(
     guestObject: GuestEngine.ObjectValue
   ): boolean
   {
@@ -186,6 +186,7 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
       if (this.#objectsToExcludeFromSearch.has(guestObject) === false) {
         if (GuestEngine.isProxyExoticObject(guestObject) === false) {
           this.#addObjectProperties(guestObject);
+          this.#addPrivateFields(guestObject);
           this.#addConstructorOf(guestObject);
         }
 
@@ -301,7 +302,7 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     guestObject: GuestEngine.ObjectValue
   ): void
   {
-    const isObjectPrototype = GraphBuilder.#isObjectPrototype(guestObject);
+    const isObjectPrototype = GraphBuilder.#isConstructorPrototype(guestObject);
 
     const OwnKeys: PlainCompletion<GuestEngine.PropertyKeyValue[]> = guestObject.OwnPropertyKeys();
     GuestEngine.Assert(Array.isArray(OwnKeys));
@@ -397,6 +398,60 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
       const propertyRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.PropertySymbol);
       this.#guestObjectGraph.definePropertyOrGetter(
         parentObject, key, childObject, propertyRelationship, isGetter
+      );
+    }
+  }
+
+  #addPrivateFields(
+    guestObject: GuestEngine.ObjectValue
+  ): void
+  {
+    const isObjectPrototype = GraphBuilder.#isConstructorPrototype(guestObject);
+
+    for (const element of guestObject.PrivateElements) {
+      const { Key, Kind } = element;
+      const privateKey: string = Key.Description.stringValue();
+      GuestEngine.Assert(privateKey.startsWith("#"));
+
+      if (this.#guestObjectGraph.hasPrivateName(Key) === false) {
+        this.#guestObjectGraph.definePrivateName(Key, privateKey as `#${string}`);
+      }
+
+      let guestValue: GuestEngine.Value;
+
+      if (Kind === "accessor") {
+        const { Get } = element;
+        if (Get?.type !== "Object")
+          continue;
+
+        if (isObjectPrototype) {
+          this.#instanceGetterTracking.addPrivateGetterName(guestObject, Get);
+          continue;
+        }
+
+        const RetrievedValue = GuestEngine.PrivateGet(Key, guestObject);
+        if (RetrievedValue instanceof GuestEngine.ThrowCompletion)
+          continue;
+        guestValue = EnsureValueOrThrow(RetrievedValue);
+      }
+      else {
+        const { Value } = element;
+        GuestEngine.Assert(Value !== undefined);
+        guestValue = Value;
+      }
+
+      if (guestValue.type !== "Object" && guestValue.type !== "Symbol")
+        continue;
+
+      const privateNameMetadata = GraphBuilder.#buildChildEdgeType(
+        ChildReferenceEdgeType.PrivateClassKey
+      );
+      const privateValueMetadata = GraphBuilder.#buildChildEdgeType(
+        ChildReferenceEdgeType.PrivateClassValue
+      );
+      this.#guestObjectGraph.definePrivateField(
+        guestObject, Key, privateKey as `#${string}`, guestValue,
+        privateNameMetadata, privateValueMetadata, Kind === "accessor"
       );
     }
   }

@@ -52,6 +52,16 @@ export function addSymbolGraphNode(
   graph.defineSymbol(symbol, metadata);
 }
 
+export function addPrivateName(
+  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  privateKey: `#${string}`
+): object
+{
+  const privateName = {};
+  graph.definePrivateName(privateName, privateKey);
+  return privateName;
+}
+
 export function addArrayIndexEdge(
   graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   parentObject: object,
@@ -187,6 +197,7 @@ export function addPrivateFieldEdge(
   graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   parent: object,
   privateName: object,
+  privateKey: `#${string}`,
   child: WeakKey,
   isGetter: boolean
 ): void
@@ -200,6 +211,7 @@ export function addPrivateFieldEdge(
   };
 
   graph.definePrivateField(
-    parent, privateName, child, privateNameRelationship, valueRelationship, isGetter
+    parent, privateName, privateKey, child,
+    privateNameRelationship, valueRelationship, isGetter
   );
 }

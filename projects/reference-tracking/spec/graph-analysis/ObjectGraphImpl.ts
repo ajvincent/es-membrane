@@ -519,7 +519,8 @@ describe("ObjectGraphImpl", () => {
         tupleToKeyEdgeId,
         tupleToValueEdgeId
       } = objectGraph.definePrivateField(
-        owner, privateKey, target, privateNameRelationship, targetRelationship, false
+        owner, privateKey, "#privateKey", target,
+        privateNameRelationship, targetRelationship, false
       );
 
       expect(objectGraph.getEdgeRelationship(objectToTupleEdgeId)).toEqual({
@@ -540,7 +541,7 @@ describe("ObjectGraphImpl", () => {
 
       expect(objectGraph.getEdgeRelationship(tupleToValueEdgeId)).toEqual({
         edgeType: EdgePrefix.PrivateTupleToValue,
-        description: createValueDescription(target, objectGraph),
+        description: createValueDescription("#privateKey", objectGraph),
         metadata: targetRelationship
       });
 

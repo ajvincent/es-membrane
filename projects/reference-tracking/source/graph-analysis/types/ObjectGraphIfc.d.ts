@@ -193,6 +193,7 @@ export interface ObjectGraphIfc<
   definePrivateField(
     parentObject: EngineObject,
     privateName: EnginePrivateName,
+    privateKey: `#${string}`,
     childObject: EngineWeakKey<EngineObject, EngineSymbol>,
     privateNameMetadata: RelationshipMetadata,
     childMetadata: RelationshipMetadata,

@@ -284,6 +284,7 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
   public definePrivateField(
     parentObject: GuestEngine.ObjectValue,
     privateName: GuestEngine.PrivateName,
+    privateKey: `#${string}`,
     childObject: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
     privateNameMetadata: RelationshipMetadata,
     childMetadata: RelationshipMetadata,
@@ -293,6 +294,7 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
     return this.#hostGraph.definePrivateField(
       this.#substitution.getHostObject(parentObject),
       this.#substitution.getHostPrivateName(privateName),
+      privateKey,
       this.#substitution.getHostWeakKey(childObject),
       privateNameMetadata,
       childMetadata,

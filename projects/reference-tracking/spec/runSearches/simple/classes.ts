@@ -24,6 +24,8 @@ import {
   addConstructorOf,
   addInternalSlotEdge,
   addMapKeyAndValue,
+  addPrivateName,
+  addPrivateFieldEdge,
 } from "../../support/fillExpectedGraph.js";
 
 import {
@@ -183,9 +185,22 @@ describe("Simple graph searches, class support:", () => {
     expect(actual).toBeNull();
   });
 
-  xit("classes with private fields", async () => {
+  it("classes with private fields", async () => {
+    const hisBike = new Vehicle;
+    setExpectedGraph(
+      Fred, BuiltInJSTypeName.Object, "Person",
+      hisBike, BuiltInJSTypeName.Object, "Vehicle"
+    );
+
+    const privateName = addPrivateName(ExpectedObjectGraph, "#owner");
+    addPrivateFieldEdge(ExpectedObjectGraph, hisBike, privateName, "#owner", Fred, false);
+
+    ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+    ExpectedObjectGraph.summarizeGraphToTarget(true);
+    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+
     const actual = await getActualGraph("classes/classPrivateFields.js", "class private fields");
-    expect(actual).not.toBeNull();
+    expect(actual).toEqual(expected);
   });
 
   // model on "classes with getters"

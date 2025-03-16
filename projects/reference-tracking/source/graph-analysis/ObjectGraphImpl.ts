@@ -578,6 +578,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   definePrivateField(
     parentObject: object,
     privateName: object,
+    privateKey: `#${string}`,
     childObject: EngineWeakKey<object, symbol>,
     privateNameMetadata: RelationshipMetadata,
     childMetadata: RelationshipMetadata,
@@ -605,7 +606,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     const tupleToValueEdgeId = this.#defineEdge(
       tupleNodeId,
       isGetter ? EdgePrefix.PrivateTupleToGetter : EdgePrefix.PrivateTupleToValue,
-      createValueDescription(childObject, this),
+      createValueDescription(privateKey, this),
       childMetadata, childId, true, parentId
     );
 
@@ -646,11 +647,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
       const objectOrSymbol: object | symbol = this.#idToWeakKeyMap.get(childKey)!;
       this.#weakKeyHeldStronglyMap.set(objectOrSymbol, true);
 
-      if (this.#strongReferenceCallback &&
-        childKey.startsWith("keyValueTuple") === false &&
-        childKey.startsWith("finalizationTuple") === false
-      )
-      {
+      if (this.#strongReferenceCallback && /Tuple:/.test(childKey) === false) {
         this.#strongReferenceCallback(objectOrSymbol);
       }
 
