@@ -22,3 +22,5 @@ const Fred = new Person("Fred");
 const hisBike = new Vehicle(Fred);
 
 searchReferences("class private getter", Fred, [hisBike], true);
+
+// no need for subclass tests: private fields live with the instance directly

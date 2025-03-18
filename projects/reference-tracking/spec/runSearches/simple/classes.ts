@@ -203,9 +203,28 @@ describe("Simple graph searches, class support:", () => {
     expect(actual).toEqual(expected);
   });
 
-  // model on "classes with getters"
-  xit("classes with private getters to the target value", async () => {
+  it("classes with private getters to the target value", async () => {
+    const hisBike = new Vehicle;
+    setExpectedGraph(
+      Fred, BuiltInJSTypeName.Object, "Person",
+      hisBike, BuiltInJSTypeName.Object, "Vehicle"
+    );
 
+    const privateName = addPrivateName(ExpectedObjectGraph, "#owner");
+    addPrivateFieldEdge(ExpectedObjectGraph, hisBike, privateName, "#owner", Fred, true);
+    addObjectGraphNode(ExpectedObjectGraph, Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function); // object:3
+    addConstructorOf(ExpectedObjectGraph, hisBike, Vehicle);
+
+    addObjectGraphNode(ExpectedObjectGraph, Vehicle.prototype, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object); // object:4
+    addPropertyNameEdge(ExpectedObjectGraph, Vehicle, "prototype", Vehicle.prototype, false);
+    addPropertyNameEdge(ExpectedObjectGraph, Vehicle.prototype, "constructor", Vehicle, false);
+
+    ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+    ExpectedObjectGraph.summarizeGraphToTarget(true);
+    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+
+    const actual = await getActualGraph("classes/classPrivateAccessors.js", "class private getter");
+    expect(actual).toEqual(expected);
   });
 
   xit("classes with private setters but no getters to the target value", async () => {

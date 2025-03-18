@@ -169,16 +169,6 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     }
   }
 
-  definePrivateInstanceGetter(
-    instance: GuestEngine.ObjectValue,
-    privateKey: GuestEngine.ObjectValue
-  ): void
-  {
-    void(instance);
-    void(privateKey);
-    this.#throwInternalError(new Error("definePrivateInstanceGetter not yet implemented"));
-  }
-
   public run(): void
   {
     for (const guestObject of this.#objectQueue) {
@@ -405,8 +395,6 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     guestObject: GuestEngine.ObjectValue
   ): void
   {
-    const isObjectPrototype = GraphBuilder.#isConstructorPrototype(guestObject);
-
     for (const element of guestObject.PrivateElements) {
       const { Key, Kind } = element;
       const privateKey: string = Key.Description.stringValue();
@@ -422,11 +410,6 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
         const { Get } = element;
         if (Get?.type !== "Object")
           continue;
-
-        if (isObjectPrototype) {
-          this.#instanceGetterTracking.addPrivateGetterName(guestObject, Get);
-          continue;
-        }
 
         const RetrievedValue = GuestEngine.PrivateGet(Key, guestObject);
         if (RetrievedValue instanceof GuestEngine.ThrowCompletion)

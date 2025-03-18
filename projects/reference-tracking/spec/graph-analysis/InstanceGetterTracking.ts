@@ -12,7 +12,6 @@ describe("Instance getter tracking utility notifies all", () => {
 
   const definitions: InstanceGetterDefinitions<object, symbol> = {
     defineInstanceGetter,
-    definePrivateInstanceGetter,
   };
 
   let tracking: InstanceGetterTracking<object, symbol>;
@@ -24,7 +23,6 @@ describe("Instance getter tracking utility notifies all", () => {
   const derivedClass = { name: "derivedClass" };
 
   const getterKey = Symbol("getter key");
-  const privateKey = { name: "privateKey" };
 
   beforeEach(() => {
     defineInstanceGetter.calls.reset();
@@ -105,79 +103,5 @@ describe("Instance getter tracking utility notifies all", () => {
     expect(defineInstanceGetter).toHaveBeenCalledOnceWith(thirdInstance, getterKey);
 
     expect(definePrivateInstanceGetter).toHaveBeenCalledTimes(0);
-  });
-
-  it("direct instances of a class when we add a private getter on the class", () => {
-    tracking.addInstance(firstInstance, baseClass);
-    tracking.addInstance(secondInstance, baseClass);
-
-    tracking.addPrivateGetterName(baseClass, privateKey);
-
-    expect(definePrivateInstanceGetter).toHaveBeenCalledTimes(2);
-    expect(definePrivateInstanceGetter).toHaveBeenCalledWith(firstInstance, privateKey);
-    expect(definePrivateInstanceGetter).toHaveBeenCalledWith(secondInstance, privateKey);
-
-    definePrivateInstanceGetter.calls.reset();
-
-    tracking.addInstance(thirdInstance, baseClass);
-    expect(definePrivateInstanceGetter).toHaveBeenCalledOnceWith(thirdInstance, privateKey);
-
-    expect(defineInstanceGetter).toHaveBeenCalledTimes(0);
-  });
-
-  it("instances of a derived class when we add a private getter on the base class", () => {
-    tracking.addInstance(firstInstance, derivedClass);
-    tracking.addInstance(secondInstance, derivedClass);
-
-    tracking.addBaseClass(derivedClass, baseClass);
-
-    tracking.addPrivateGetterName(baseClass, privateKey);
-
-    expect(definePrivateInstanceGetter).toHaveBeenCalledTimes(2);
-    expect(definePrivateInstanceGetter).toHaveBeenCalledWith(firstInstance, privateKey);
-    expect(definePrivateInstanceGetter).toHaveBeenCalledWith(secondInstance, privateKey);
-
-    definePrivateInstanceGetter.calls.reset();
-
-    tracking.addInstance(thirdInstance, baseClass);
-    expect(definePrivateInstanceGetter).toHaveBeenCalledOnceWith(thirdInstance, privateKey);
-
-    expect(defineInstanceGetter).toHaveBeenCalledTimes(0);
-  });
-
-  it("direct instances when we add a class with a private getter", () => {
-    tracking.addPrivateGetterName(baseClass, privateKey);
-    tracking.addInstance(firstInstance, baseClass);
-
-    expect(definePrivateInstanceGetter).toHaveBeenCalledOnceWith(firstInstance, privateKey);
-  });
-
-  it("instances of a derived class with a private getter on the base class", () => {
-    tracking.addPrivateGetterName(baseClass, privateKey);
-    tracking.addBaseClass(derivedClass, baseClass);
-
-    tracking.addInstance(firstInstance, derivedClass);
-    expect(definePrivateInstanceGetter).toHaveBeenCalledOnceWith(firstInstance, privateKey);
-  });
-
-  it("instances of a derived class of private getters when we add the derived-to-base relationship later", () => {
-    tracking.addInstance(firstInstance, derivedClass);
-    tracking.addInstance(secondInstance, derivedClass);
-
-    tracking.addPrivateGetterName(baseClass, privateKey);
-    expect(definePrivateInstanceGetter).toHaveBeenCalledTimes(0);
-
-    tracking.addBaseClass(derivedClass, baseClass);
-
-    expect(definePrivateInstanceGetter).toHaveBeenCalledTimes(2);
-    expect(definePrivateInstanceGetter).toHaveBeenCalledWith(firstInstance, privateKey);
-    expect(definePrivateInstanceGetter).toHaveBeenCalledWith(secondInstance, privateKey);
-
-    definePrivateInstanceGetter.calls.reset();
-
-    tracking.addInstance(thirdInstance, baseClass);
-    expect(definePrivateInstanceGetter).toHaveBeenCalledOnceWith(thirdInstance, privateKey);
-
-    expect(defineInstanceGetter).toHaveBeenCalledTimes(0);
   });
 });

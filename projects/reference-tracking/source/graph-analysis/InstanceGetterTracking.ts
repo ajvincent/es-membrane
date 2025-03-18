@@ -10,7 +10,6 @@ export class InstanceGetterTracking<
   readonly #definitions: InstanceGetterDefinitions<EngineObject, EngineSymbol>;
 
   readonly #classToGetterKeysMap = new QuickWeakMapOfSets<EngineObject, string | number | EngineSymbol>;
-  readonly #classToPrivateKeysMap = new QuickWeakMapOfSets<EngineObject, EngineObject>;
   readonly #classToInstancesMap = new QuickWeakMapOfSets<EngineObject, EngineObject>;
   readonly #baseClassToDerivedClassMap = new QuickWeakMapOfSets<EngineObject, EngineObject>;
 
@@ -42,10 +41,6 @@ export class InstanceGetterTracking<
       for (const key of this.#classToGetterKeysMap.mapValues(currentClass!)) {
         this.#definitions.defineInstanceGetter(instance, key);
       }
-
-      for (const key of this.#classToPrivateKeysMap.mapValues(currentClass!)) {
-        this.#definitions.definePrivateInstanceGetter(instance, key);
-      }
     }
   }
 
@@ -59,10 +54,6 @@ export class InstanceGetterTracking<
 
     for (const key of this.#classToGetterKeysMap.mapValues(baseClass)) {
       this.#notifyFoundPublicKey(derivedClass, key);
-    }
-
-    for (const key of this.#classToPrivateKeysMap.mapValues(baseClass)) {
-      this.#notifyFoundPrivateKey(derivedClass, key);
     }
   }
 
@@ -86,29 +77,6 @@ export class InstanceGetterTracking<
 
     for (const derivedClass of this.#baseClassToDerivedClassMap.mapValues(baseClass)) {
       this.#notifyFoundPublicKey(derivedClass, key);
-    }
-  }
-
-  public addPrivateGetterName(
-    baseClass: EngineObject,
-    privateKey: EngineObject
-  ): void
-  {
-    this.#classToPrivateKeysMap.add(baseClass, privateKey);
-    this.#notifyFoundPrivateKey(baseClass, privateKey);
-  }
-
-  #notifyFoundPrivateKey(
-    classObject: EngineObject,
-    privateKey: EngineObject
-  ): void
-  {
-    for (const instance of this.#classToInstancesMap.mapValues(classObject)) {
-      this.#definitions.definePrivateInstanceGetter(instance, privateKey);
-    }
-
-    for (const derivedClass of this.#baseClassToDerivedClassMap.mapValues(classObject)) {
-      this.#notifyFoundPrivateKey(derivedClass, privateKey);
     }
   }
 }
