@@ -14,7 +14,7 @@ class Vehicle {
   }
 
   get #owner(): Person {
-    return this.#owner;
+    return vehicleToOwnerMap.get(this)!;
   }
 }
 
