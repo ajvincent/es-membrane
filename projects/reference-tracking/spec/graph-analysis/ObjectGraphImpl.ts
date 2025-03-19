@@ -417,6 +417,10 @@ describe("ObjectGraphImpl", () => {
       });
     });
 
+    xit("finalization registry callbacks", () => {
+
+    });
+
     describe("finalization registry entries", () => {
       xit("including the target, held value (object) and unregister token", () => {
 
