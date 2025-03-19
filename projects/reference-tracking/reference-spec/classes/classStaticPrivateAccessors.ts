@@ -8,13 +8,12 @@ class Person {
 const vehicleToOwnerMap = new Map<Vehicle, Person>;
 
 class Vehicle {
-  // eslint-disable-next-line no-unused-private-class-members
   static get #owners(): WeakMap<Vehicle, Person> {
     return vehicleToOwnerMap;
   }
 
   constructor(owner: Person) {
-    vehicleToOwnerMap.set(this, owner);
+    Vehicle.#owners.set(this, owner);
   }
 }
 

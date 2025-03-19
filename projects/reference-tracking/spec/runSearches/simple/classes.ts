@@ -227,8 +227,11 @@ describe("Simple graph searches, class support:", () => {
     expect(actual).toEqual(expected);
   });
 
-  xit("classes with private setters but no getters to the target value", async () => {
-
+  it("classes with private setters but no getters to the target value", async () => {
+    const actual = await getActualGraph(
+      "classes/classPrivateAccessors.js", "unreachable values with only a setter route"
+    );
+    expect(actual).toBeNull();
   });
 
   it("classes with static fields", async () => {
@@ -319,7 +322,39 @@ describe("Simple graph searches, class support:", () => {
     expect(actual).toEqual(expected);
   });
 
-  xit("classes with static private getters", async () => {
+  it("classes with static private getters", async () => {
+    const hisCar = new Vehicle();
+    setExpectedGraph(
+      Fred, BuiltInJSTypeName.Object, "Person",
+      Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
+    );
 
+    // Vehicle = object:2
+    // Vehicle.prototype = object:3
+    addObjectGraphNode(ExpectedObjectGraph, Vehicle.prototype, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object); // object:3
+    addPropertyNameEdge(ExpectedObjectGraph, Vehicle, "prototype", Vehicle.prototype, false);
+
+    const ownersName = addPrivateName(ExpectedObjectGraph, `#owners`); // privateName:4
+    const vehicleToOwnerMap = new WeakMap<Vehicle, Person>;
+
+    // Vehicle.#owners leads to the map as object:5
+    addObjectGraphNode(ExpectedObjectGraph, vehicleToOwnerMap, BuiltInJSTypeName.Map, BuiltInJSTypeName.Map); // object:5
+    addPrivateFieldEdge(ExpectedObjectGraph, Vehicle, ownersName, "#owners", vehicleToOwnerMap, true);
+
+    addPropertyNameEdge(ExpectedObjectGraph, Vehicle.prototype, "constructor", Vehicle, false);
+
+    vehicleToOwnerMap.set(hisCar, Fred);
+    addObjectGraphNode(ExpectedObjectGraph, hisCar, BuiltInJSTypeName.Object, "Vehicle"); // object:6
+    addMapKeyAndValue(ExpectedObjectGraph, vehicleToOwnerMap, hisCar, Fred, true);
+    addConstructorOf(ExpectedObjectGraph, hisCar, Vehicle); // need to define the edge, even if we found the target
+
+    ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+    ExpectedObjectGraph.summarizeGraphToTarget(true);
+    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+
+    const actual = await getActualGraph(
+      "classes/classStaticPrivateAccessors.js", "class static getters"
+    );
+    expect(actual).toEqual(expected);
   });
 });

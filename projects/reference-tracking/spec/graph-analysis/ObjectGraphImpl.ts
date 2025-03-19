@@ -562,8 +562,65 @@ describe("ObjectGraphImpl", () => {
       }
     });
 
-    xit("private class getters", () => {
+    it("private class getters", () => {
+      const privateKey = { isPrivateKey: true };
+      const owner = { isOwner: true };
 
+      heldValues.push(owner);
+      objectGraph.defineObject(owner, new ObjectMetadata("owner"));
+      objectGraph.definePropertyOrGetter(heldValues, 0, owner, new RelationshipMetadata(), false);
+
+      objectGraph.definePrivateName(privateKey, "#privateKey");
+      const privateNameRelationship = new RelationshipMetadata("owner to private name");
+      const targetRelationship = new RelationshipMetadata("owner to target");
+      const {
+        tupleNodeId,
+        objectToTupleEdgeId,
+        tupleToKeyEdgeId,
+        tupleToValueEdgeId
+      } = objectGraph.definePrivateField(
+        owner, privateKey, "#privateKey", target,
+        privateNameRelationship, targetRelationship, true
+      );
+
+      expect(objectGraph.getEdgeRelationship(objectToTupleEdgeId)).toEqual({
+        edgeType: EdgePrefix.ObjectToPrivateTuple,
+        description: {
+          valueType: ValueDiscrimant.NotApplicable
+        },
+        metadata: null
+      });
+
+      expect(objectGraph.getEdgeRelationship(tupleToKeyEdgeId)).toEqual({
+        edgeType: EdgePrefix.PrivateTupleToKey,
+        description: {
+          valueType: ValueDiscrimant.NotApplicable,
+        },
+        metadata: privateNameRelationship
+      });
+
+      // the edge type is the significant difference from the private value test
+      expect(objectGraph.getEdgeRelationship(tupleToValueEdgeId)).toEqual({
+        edgeType: EdgePrefix.PrivateTupleToGetter,
+        description: createValueDescription("#privateKey", objectGraph),
+        metadata: targetRelationship
+      });
+
+      const rawGraph = cloneableGraph.cloneGraph();
+      const inEdges = rawGraph.inEdges(tupleNodeId);
+      expect(inEdges).toBeDefined();
+      if (inEdges) {
+        expect(inEdges.length).toBe(1);
+        expect(inEdges[0]?.name).toBe(objectToTupleEdgeId);
+      }
+
+      const outEdges = rawGraph.outEdges(tupleNodeId);
+      expect(outEdges).toBeDefined();
+      if (outEdges) {
+        expect(outEdges.length).toBe(2);
+        expect(outEdges[0]?.name).toBe(tupleToKeyEdgeId);
+        expect(outEdges[1]?.name).toBe(tupleToValueEdgeId);
+      }
     });
   });
 
