@@ -18,9 +18,13 @@ import type {
   GuestRealmOutputs
 } from "./engine262-tools/types/Virtualization262.js";
 
+import type {
+  SearchConfiguration
+} from "./types/SearchConfiguration.js";
+
 export async function runSearchesInGuestEngine(
   absolutePathToFile: string,
-  internalErrorTrap?: () => void,
+  searchConfiguration?: SearchConfiguration,
 ): Promise<ReadonlyMap<string, Graph | null>>
 {
   const graphs = new Map<string, Graph | null>;
@@ -28,7 +32,7 @@ export async function runSearchesInGuestEngine(
   const outputs: GuestRealmOutputs = await directInvoke({
     absolutePathToFile,
     defineBuiltIns: (realm: GuestEngine.ManagedRealm): void => {
-      defineSearchReferences(realm, graphs, internalErrorTrap);
+      defineSearchReferences(realm, graphs, searchConfiguration);
     }
   });
 

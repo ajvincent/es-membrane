@@ -44,7 +44,7 @@ export async function runSearchesInGuestEngineInternal(
     absolutePathToFile,
     defineBuiltIns: (realm: GuestEngine.ManagedRealm): void => {
       defineReportFunction(realm, (guestValues) => handleReport(guestValues, reportCalls));
-      defineSearchReferences(realm, graphs, internalErrorTrap);
+      defineSearchReferences(realm, graphs, { internalErrorTrap });
     }
   });
 

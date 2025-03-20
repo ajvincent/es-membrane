@@ -6,6 +6,9 @@ import type {
   EngineWeakKey
 } from "../../graph-analysis/types/ObjectGraphIfc.js";
 
+import type {
+  SearchConfiguration,
+} from "../../types/SearchConfiguration.js";
 
 import {
   GuestEngine,
@@ -35,7 +38,7 @@ export function defineSearchReferences(
   this: void,
   realm: GuestEngine.ManagedRealm,
   searchResultsMap: Map<string, Graph | null>,
-  internalErrorTrap?: () => void
+  searchConfiguration?: SearchConfiguration
 ): void
 {
   defineBuiltInFunction(
@@ -64,7 +67,7 @@ export function defineSearchReferences(
         searchArgs.heldValuesArray,
         searchArgs.strongReferencesOnly,
         realm,
-        internalErrorTrap
+        searchConfiguration
       );
 
       const graphOrNull: Graph | null = searchDriver.run();

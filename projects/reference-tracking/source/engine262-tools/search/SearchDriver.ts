@@ -27,6 +27,10 @@ import type {
   GraphRelationshipMetadata
 } from "../../types/GraphRelationshipMetadata.js";
 
+import {
+  SearchConfiguration
+} from "../../types/SearchConfiguration.js";
+
 import type {
   GuestEngine,
 } from "../host-to-guest/GuestEngine.js";
@@ -49,20 +53,20 @@ export class SearchDriver
     heldValues: GuestEngine.ObjectValue,
     strongReferencesOnly: boolean,
     realm: GuestEngine.ManagedRealm,
-    internalErrorTrap?: () => void,
+    searchConfiguration?: SearchConfiguration,
   )
   {
     this.#strongReferencesOnly = strongReferencesOnly;
 
     const hostGraphImpl = new ObjectGraphImpl<
       GraphObjectMetadata, GraphRelationshipMetadata
-    >(internalErrorTrap);
+    >(searchConfiguration?.internalErrorTrap);
     this.#graphBuilder = new GraphBuilder(
       targetValue,
       heldValues,
       realm,
       hostGraphImpl,
-      internalErrorTrap
+      searchConfiguration
     );
 
     this.#cloneableGraph = hostGraphImpl;

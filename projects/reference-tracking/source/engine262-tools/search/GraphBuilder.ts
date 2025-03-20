@@ -20,6 +20,10 @@ import type {
   GraphRelationshipMetadata
 } from "../../types/GraphRelationshipMetadata.js";
 
+import type {
+  SearchConfiguration
+} from "../../types/SearchConfiguration.js";
+
 import {
   BuiltInJSTypeName,
   ChildReferenceEdgeType,
@@ -114,7 +118,7 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     GuestEngine.ObjectValue, GuestEngine.SymbolValue
   >(this);
 
-  readonly #internalErrorTrap?: () => void;
+  readonly #searchConfiguration?: SearchConfiguration;
   //#endregion private class fields and static private fields
 
   constructor(
@@ -122,10 +126,10 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     heldValues: GuestEngine.ObjectValue,
     realm: GuestEngine.ManagedRealm,
     hostObjectGraph: ObjectGraphIfc<object, symbol, object, GraphObjectMetadata, GraphRelationshipMetadata>,
-    internalErrorTrap?: () => void,
+    searchConfiguration?: SearchConfiguration
   )
   {
-    this.#internalErrorTrap = internalErrorTrap;
+    this.#searchConfiguration = searchConfiguration;
     this.#intrinsicToBuiltInNameMap = GraphBuilder.#builtInNamesFromInstrinsics(realm);
     this.#intrinsics = new WeakSet(Object.values(realm.Intrinsics));
 
@@ -178,6 +182,12 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
           this.#addObjectProperties(guestObject);
           this.#addPrivateFields(guestObject);
           this.#addConstructorOf(guestObject);
+
+          if ((this.#searchConfiguration?.noFunctionEnvironment !== true) &&
+            GuestEngine.isECMAScriptFunctionObject(guestObject))
+          {
+            this.#addFunctionReferences(guestObject);
+          }
         }
 
         this.#lookupAndAddInternalSlots(guestObject);
@@ -188,8 +198,8 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
 
   //#region private methods
   #throwInternalError(error: Error): never {
-    if (this.#internalErrorTrap) {
-      this.#internalErrorTrap();
+    if (this.#searchConfiguration?.internalErrorTrap) {
+      this.#searchConfiguration.internalErrorTrap();
     }
     throw error;
   }
@@ -598,6 +608,16 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
 
       const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.SetElement);
       this.#guestObjectGraph.defineSetValue(parentObject, value, slotName === "SetData", edgeRelationship);
+    }
+  }
+
+  #addFunctionReferences(
+    guestObject: GuestEngine.ECMAScriptFunctionObject
+  ): void
+  {
+    if (guestObject.Environment) {
+      // eslint-disable-next-line no-debugger
+      debugger;
     }
   }
   //#endregion private methods

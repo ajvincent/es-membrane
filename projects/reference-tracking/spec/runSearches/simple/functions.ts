@@ -125,8 +125,9 @@ describe("Simple graph searches: function support, ", () => {
   });
 
   xit("closures", async () => {
-
-  });
+    const actual = await getActualGraph("functions/closures.js", "targetNotDirectlyHeld", true);
+    expect(actual).not.toBeNull();
+  }, 1000 * 60 * 60);
 
   xit("async functions", async () => {
 

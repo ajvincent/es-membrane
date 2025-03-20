@@ -9,6 +9,10 @@ import {
 } from "../../source/runSearchesInGuestEngine.js";
 
 import {
+  SearchConfiguration
+} from "../../source/types/SearchConfiguration.js";
+
+import {
   getReferenceSpecPath,
 } from "./projectRoot.js";
 
@@ -17,17 +21,22 @@ const GraphsFromFileSearches = new Map<string, Promise<GraphsFromSearch>>;
 
 export async function getActualGraph(
   referenceSpec: string,
-  graphName: string
+  graphName: string,
+  inspectFunctionEnvironment?: true
 ): Promise<object | null>
 {
   const pathToSearch = getReferenceSpecPath(referenceSpec);
 
   let promiseGraphs: Promise<GraphsFromSearch> | undefined = GraphsFromFileSearches.get(pathToSearch);
   if (!promiseGraphs) {
-    promiseGraphs = runSearchesInGuestEngine(pathToSearch, () => {
-      // eslint-disable-next-line no-debugger
-      debugger;
-    });
+    const config: SearchConfiguration = {
+      noFunctionEnvironment: !inspectFunctionEnvironment,
+      internalErrorTrap: () => {
+        // eslint-disable-next-line no-debugger
+        debugger;
+      }
+    }
+    promiseGraphs = runSearchesInGuestEngine(pathToSearch, config);
     GraphsFromFileSearches.set(pathToSearch, promiseGraphs);
   }
 
