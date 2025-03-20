@@ -5,7 +5,7 @@ class Person {
   }
 }
 
-const vehicleToOwnerMap = new Map<Vehicle, Person>;
+const vehicleToOwnerMap = new WeakMap<Vehicle, Person>;
 
 class Vehicle {
   constructor(owner: Person) {
@@ -14,7 +14,7 @@ class Vehicle {
 }
 
 function getOwner(
-  this: Map<Vehicle, Person>,
+  this: WeakMap<Vehicle, Person>,
   vehicle: Vehicle
 ): Person
 {
@@ -26,4 +26,4 @@ const hisBike = new Vehicle(Fred);
 
 const boundGetOwner = getOwner.bind(vehicleToOwnerMap, hisBike);
 
-searchReferences("bound function to target", Vehicle, [boundGetOwner], true);
+searchReferences("bound function to target", Fred, [boundGetOwner], true);

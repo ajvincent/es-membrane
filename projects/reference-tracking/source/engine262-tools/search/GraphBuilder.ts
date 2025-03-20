@@ -487,6 +487,16 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
       this.#addMapData(guestObject, "WeakMapData");
       return;
     }
+
+    if (guestObject.internalSlotsList.includes("BoundTargetFunction")) {
+      this.#addInternalSlotIfObject(guestObject, "BoundTargetFunction", false, true);
+      if (guestObject.internalSlotsList.includes("BoundThis"))
+        this.#addInternalSlotIfObject(guestObject, "BoundThis", false, true);
+      if (guestObject.internalSlotsList.includes("BoundArguments")) {
+        this.#addInternalSlotIfList(guestObject, "BoundArguments");
+      }
+      return;
+    }
   }
 
   #addInternalSlotIfObject(
@@ -503,6 +513,18 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     this.#defineGraphNode(slotObject, excludeFromSearches);
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
     this.#guestObjectGraph.defineInternalSlot(parentObject, `[[${slotName}]]`, slotObject, isStrongReference, edgeRelationship);
+  }
+
+  #addInternalSlotIfList(
+    parentObject: GuestEngine.ObjectValue,
+    slotName: string,
+  ): void
+  {
+    const slotArray = Reflect.get(parentObject, slotName) as GuestEngine.Value[];
+    const guestArray: GuestEngine.ObjectValue = GuestEngine.CreateArrayFromList(slotArray);
+    this.#defineGraphNode(guestArray, false);
+    const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
+    this.#guestObjectGraph.defineInternalSlot(parentObject, `[[${slotName}]]`, guestArray, true, edgeRelationship);
   }
 
   #addConstructorOf(
