@@ -460,39 +460,41 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
       }
     }
 
-    if (guestObject.internalSlotsList.includes("RevocableProxy")) {
+    const internalSlots: ReadonlySet<string> = new Set(guestObject.internalSlotsList);
+
+    if (internalSlots.has("RevocableProxy")) {
       this.#addInternalSlotIfObject(guestObject, "RevocableProxy", false, true);
       return;
     }
 
-    if (guestObject.internalSlotsList.includes("WeakRefTarget")) {
+    if (internalSlots.has("WeakRefTarget")) {
       this.#addInternalSlotIfObject(guestObject, "WeakRefTarget", false, false);
       return;
     }
 
-    if (guestObject.internalSlotsList.includes("SetData")) {
+    if (internalSlots.has("SetData")) {
       this.#addSetData(guestObject, "SetData");
       return;
     }
-    if (guestObject.internalSlotsList.includes("WeakSetData")) {
+    if (internalSlots.has("WeakSetData")) {
       this.#addSetData(guestObject, "WeakSetData");
       return;
     }
 
-    if (guestObject.internalSlotsList.includes("MapData")) {
+    if (internalSlots.has("MapData")) {
       this.#addMapData(guestObject, "MapData");
       return;
     }
-    if (guestObject.internalSlotsList.includes("WeakMapData")) {
+    if (internalSlots.has("WeakMapData")) {
       this.#addMapData(guestObject, "WeakMapData");
       return;
     }
 
-    if (guestObject.internalSlotsList.includes("BoundTargetFunction")) {
+    if (internalSlots.has("BoundTargetFunction")) {
       this.#addInternalSlotIfObject(guestObject, "BoundTargetFunction", false, true);
-      if (guestObject.internalSlotsList.includes("BoundThis"))
+      if (internalSlots.has("BoundThis"))
         this.#addInternalSlotIfObject(guestObject, "BoundThis", false, true);
-      if (guestObject.internalSlotsList.includes("BoundArguments")) {
+      if (internalSlots.has("BoundArguments")) {
         this.#addInternalSlotIfList(guestObject, "BoundArguments");
       }
       return;
