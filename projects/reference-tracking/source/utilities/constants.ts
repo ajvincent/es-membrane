@@ -57,6 +57,7 @@ export enum EdgePrefix {
   GetterKey = "getterKey",
   HasSymbolAsKey = "hasSymbolAsKey",
   InstanceOf = "instanceOf",
+  ScopeValue = "scopeValue",
   InternalSlot = "internalSlot",
   MapToTuple = "mapToTuple",
   MapKey = "mapKey",

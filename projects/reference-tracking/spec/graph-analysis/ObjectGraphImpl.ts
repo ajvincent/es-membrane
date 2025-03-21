@@ -206,6 +206,29 @@ describe("ObjectGraphImpl", () => {
       });
     });
 
+    it("values in a function's scope", () => {
+      const middleValue = function() {};
+      heldValues.push(middleValue);
+      objectGraph.defineObject(middleValue, new ObjectMetadata);
+
+      const heldToMiddle = new RelationshipMetadata("held values to middle value");
+      objectGraph.definePropertyOrGetter(
+        heldValues, 0, middleValue, heldToMiddle, false
+      );
+
+      const middleToTargetMeta = new RelationshipMetadata("middle value to target");
+      const middleToTargetId = objectGraph.defineScopeValue(
+        middleValue, "this", target, middleToTargetMeta
+      );
+
+      expect(objectGraph.getEdgeRelationship(middleToTargetId)).toEqual({
+        edgeType: EdgePrefix.ScopeValue,
+        description: createValueDescription("this", objectGraph),
+
+        metadata: middleToTargetMeta
+      });
+    });
+
     it("objects with internal slots", () => {
       const middleValue = {};
       heldValues.push(middleValue);

@@ -215,6 +215,25 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
     );
   }
 
+  public defineScopeValue(
+    functionObject: GuestEngine.ObjectValue,
+    identifier: string,
+    objectValue: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
+    metadata: RelationshipMetadata
+  ): PrefixedNumber<EdgePrefix.ScopeValue>
+  {
+    if (!GuestEngine.isFunctionObject(functionObject)) {
+      this.#throwInternalError(new Error("ctorObject is not a constructor"));
+    }
+
+    return this.#hostGraph.defineScopeValue(
+      this.#substitution.getHostObject(functionObject),
+      identifier,
+      this.#substitution.getHostWeakKey(objectValue),
+      metadata
+    );
+  }
+
   public defineInternalSlot(
     parentObject: GuestEngine.ObjectValue,
     slotName: `[[${string}]]`,

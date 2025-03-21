@@ -404,6 +404,27 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     return edgeId;
   }
 
+  public defineScopeValue(
+    functionObject: object,
+    identifier: string,
+    objectValue: EngineWeakKey<object, symbol>,
+    metadata: RelationshipMetadata,
+  ): PrefixedNumber<EdgePrefix.ScopeValue>
+  {
+    this.#setNextState(ObjectGraphState.AcceptingDefinitions);
+    if (typeof functionObject !== "function") {
+      this.#throwInternalError(new Error("functionObject must be a function!"));
+    }
+
+    const functionId = this.#requireWeakKeyId(functionObject, "functionObject");
+    const valueId = this.#requireWeakKeyId(objectValue, "objectValue");
+
+    return this.#defineEdge(
+      functionId, EdgePrefix.ScopeValue, createValueDescription(identifier, this),
+      metadata, valueId, true, undefined
+    );
+  }
+
   public defineInternalSlot(
     parentObject: object,
     slotName: `[[${string}]]`,

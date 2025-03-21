@@ -186,7 +186,7 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
           if ((this.#searchConfiguration?.noFunctionEnvironment !== true) &&
             GuestEngine.isECMAScriptFunctionObject(guestObject))
           {
-            this.#addFunctionReferences(guestObject);
+            this.#addReferencesInFunction(guestObject);
           }
         }
 
@@ -611,13 +611,15 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     }
   }
 
-  #addFunctionReferences(
+  #addReferencesInFunction(
     guestObject: GuestEngine.ECMAScriptFunctionObject
   ): void
   {
     if (guestObject.Environment) {
       // eslint-disable-next-line no-debugger
       debugger;
+      const scopedValueNames = new Set<string>;
+      void(scopedValueNames);
     }
   }
   //#endregion private methods

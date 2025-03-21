@@ -148,6 +148,13 @@ export interface ObjectGraphIfc<
     metadata: RelationshipMetadata
   ): PrefixedNumber<EdgePrefix.InstanceOf>;
 
+  defineScopeValue(
+    functionObject: EngineObject,
+    identifier: string,
+    objectValue: EngineWeakKey<EngineObject, EngineSymbol>,
+    metadata: RelationshipMetadata,
+  ): PrefixedNumber<EdgePrefix.ScopeValue>;
+
   /**
    *
    * @param parentObject
@@ -188,7 +195,6 @@ export interface ObjectGraphIfc<
     keyMetadata: RelationshipMetadata | undefined,
     valueMetadata: RelationshipMetadata | undefined,
   ): MapKeyAndValueIds;
-
 
   definePrivateField(
     parentObject: EngineObject,
