@@ -12,8 +12,6 @@ export interface FunctionReferenceBuilder {
 
 export class FunctionStatementSearch {
   readonly #referenceBuilder: FunctionReferenceBuilder;
-  readonly #scopedValueIdentifiers = new Set<string>;
-  readonly #localIdentifiers = new Set<string>;
 
   constructor(
     referenceBuilder: FunctionReferenceBuilder
@@ -23,13 +21,15 @@ export class FunctionStatementSearch {
   }
 
   searchForValues(
-    guestFunction: GuestEngine.FunctionObject,
+    guestFunction: GuestEngine.ECMAScriptFunctionObject,
   ): void
   {
-    void(guestFunction);
-    void(this.#referenceBuilder);
-
-    this.#scopedValueIdentifiers.clear();
-    this.#localIdentifiers.clear();
+    if (guestFunction.Environment instanceof GuestEngine.DeclarativeEnvironmentRecord) {
+      for (const [guestName, guestValue] of guestFunction.Environment.bindings.entries()) {
+        this.#referenceBuilder.buildFunctionValueReference(
+          guestFunction, guestName.stringValue(), guestValue.value ?? GuestEngine.Value.undefined
+        );
+      }
+    }
   }
 }

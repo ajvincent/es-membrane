@@ -641,11 +641,7 @@ FunctionReferenceBuilder
     guestObject: GuestEngine.ECMAScriptFunctionObject
   ): void
   {
-    if (guestObject.Environment) {
-      // eslint-disable-next-line no-debugger
-      debugger;
-      this.#functionStatementSearch.searchForValues(guestObject);
-    }
+    this.#functionStatementSearch.searchForValues(guestObject);
   }
   //#endregion private methods
 }

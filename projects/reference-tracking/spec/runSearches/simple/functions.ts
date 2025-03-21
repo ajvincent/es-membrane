@@ -120,14 +120,14 @@ describe("Simple graph searches: function support, ", () => {
     ExpectedObjectGraph.summarizeGraphToTarget(true);
     const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
-    const actual = await getActualGraph("functions/bound.js", "bound function to target", true);
+    const actual = await getActualGraph("functions/bound.js", "bound function to target");
     expect(actual).toEqual(expected);
   });
 
-  xit("closures", async () => {
+  it("closures", async () => {
     const actual = await getActualGraph("functions/closures.js", "targetNotDirectlyHeld", true);
     expect(actual).not.toBeNull();
-  }, 1000 * 60 * 60);
+  });
 
   xit("async functions", async () => {
 
