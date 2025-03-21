@@ -41,6 +41,7 @@ export enum ChildReferenceEdgeType {
   ArrayIndex = "ArrayIndex",
   PropertySymbol = "PropertySymbol",
   SymbolKey = "SymbolKey",
+  ScopeValue = "ScopeValue",
   InstanceOf = "InstanceOf",
   PrivateClassKey = "PrivateClassKey",
   PrivateClassValue = "PrivateClassValue",

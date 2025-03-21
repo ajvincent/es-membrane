@@ -34,6 +34,10 @@ import {
   type PlainCompletion,
 } from "../host-to-guest/GuestEngine.js";
 
+import {
+  EnsureValueOrThrow
+} from "../host-to-guest/ValueOrThrow.js";
+
 import type {
   GuestObjectGraphIfc
 } from "../types/GuestObjectGraphIfc.js";
@@ -47,12 +51,15 @@ import {
 } from "./ObjectMetadata.js";
 
 import {
-  EnsureValueOrThrow
-} from "../host-to-guest/ValueOrThrow.js";
+  FunctionStatementSearch,
+  type FunctionReferenceBuilder,
+} from "./FunctionStatementSearch.js";
+
 //#endregion preamble
 
 export class GraphBuilder
-implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.SymbolValue>
+implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
+FunctionReferenceBuilder
 {
   //#region private class fields and static private fields
   static readonly #stringConstants: ReadonlyMap<string, GuestEngine.JSStringValue> = new Map([
@@ -117,6 +124,7 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
   readonly #instanceGetterTracking = new InstanceGetterTracking<
     GuestEngine.ObjectValue, GuestEngine.SymbolValue
   >(this);
+  readonly #functionStatementSearch = new FunctionStatementSearch(this);
 
   readonly #searchConfiguration?: SearchConfiguration;
   //#endregion private class fields and static private fields
@@ -171,6 +179,24 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
       this.#defineGraphNode(guestValue, false);
       this.#addObjectPropertyOrGetter(guestInstance, guestKey, guestValue, true);
     }
+  }
+
+  buildFunctionValueReference(
+    guestFunction: GuestEngine.FunctionObject,
+    nameOfValue: string,
+    guestValue: GuestEngine.Value,
+  ): void
+  {
+    if (guestValue.type !== "Object" && guestValue.type !== "Symbol")
+      return;
+
+    this.#defineGraphNode(guestValue, false);
+    const relationship = GraphBuilder.#buildChildEdgeType(
+      ChildReferenceEdgeType.ScopeValue
+    );
+    this.#guestObjectGraph.defineScopeValue(
+      guestFunction, nameOfValue, guestValue, relationship
+    );
   }
 
   public run(): void
@@ -618,8 +644,7 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
     if (guestObject.Environment) {
       // eslint-disable-next-line no-debugger
       debugger;
-      const scopedValueNames = new Set<string>;
-      void(scopedValueNames);
+      this.#functionStatementSearch.searchForValues(guestObject);
     }
   }
   //#endregion private methods
