@@ -176,6 +176,56 @@ describe("Simple graph searches: function support,", () => {
       const actual = await getActualGraph("functions/closures.js", "targetNotDirectlyHeld", true);
       expect(actual).toEqual(expected);
     });
+
+    it("two levels deep, from the outer enclosure", async () => {
+      setExpectedGraph(
+        target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
+        oneLevelDeepEnclosure, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
+      );
+      addObjectGraphNode(
+        ExpectedObjectGraph, oneLevelDeepEnclosure.prototype,
+        BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
+      ); // object:3
+      addPropertyNameEdge(
+        ExpectedObjectGraph, oneLevelDeepEnclosure, "prototype",
+        oneLevelDeepEnclosure.prototype, false
+      );
+
+      addObjectGraphNode(
+        ExpectedObjectGraph, miscellaneous,
+        BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
+      ); // object:4
+
+      addScopeValueEdge(ExpectedObjectGraph, oneLevelDeepEnclosure, "firstValue", miscellaneous);
+      addScopeValueEdge(ExpectedObjectGraph, oneLevelDeepEnclosure, "secondValue", target);
+
+      const enclosureArgs = [miscellaneous, target];
+      addObjectGraphNode(
+        ExpectedObjectGraph, enclosureArgs,
+        BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
+      ); // object:5
+      addScopeValueEdge(ExpectedObjectGraph, oneLevelDeepEnclosure, "arguments", enclosureArgs);
+
+      addPropertyNameEdge(
+        ExpectedObjectGraph, oneLevelDeepEnclosure.prototype, "constructor",
+        oneLevelDeepEnclosure, false
+      );
+
+      addArrayIndexEdge(ExpectedObjectGraph, enclosureArgs, 0, miscellaneous, false);
+      addArrayIndexEdge(ExpectedObjectGraph, enclosureArgs, 1, target, false);
+
+      ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+      ExpectedObjectGraph.summarizeGraphToTarget(true);
+      const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+
+      const actual = await getActualGraph("functions/closures.js", "outerEnclosure", true);
+      expect(actual).toEqual(expected);
+    });
+
+    xit("two levels deep, from the inner enclosure", async () => {
+      const actual = await getActualGraph("functions/closures.js", "innerEnclosure", true);
+      expect(actual).not.toBeNull();
+    });
   });
 
   xit("async functions", async () => {
