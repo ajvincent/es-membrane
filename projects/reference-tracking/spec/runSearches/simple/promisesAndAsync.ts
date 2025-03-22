@@ -35,8 +35,6 @@ import {
 describe("Simple graph searches,", () => {
   describe("promises support", () => {
     it("resolved promises hold references to the target", async () => {
-      // eslint-disable-next-line no-debugger
-      debugger;
       const actual = await getActualGraph(
         "simple/promises.js", "promise after resolve", false
       );

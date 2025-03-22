@@ -84,6 +84,28 @@ describe("Simple graph searches: function support,", () => {
   }
   //#endregion common test fixtures
 
+  it("arrow functions refer to this", async () => {
+    function compare() {}
+    const sorter = { isSorter: true };
+    setExpectedGraph(sorter, BuiltInJSTypeName.Object, "PropertyKeySorter",
+      compare, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
+    );
+    addScopeValueEdge(ExpectedObjectGraph, compare, "this", sorter);
+
+    ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+    ExpectedObjectGraph.summarizeGraphToTarget(true);
+    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+
+    const actual = await getActualGraph(
+      "functions/arrow.js", "this as part of an arrow function", false
+    );
+    expect(actual).toEqual(expected);
+  });
+
+  xit("async arrow functions", async () => {
+
+  });
+
   it("bound functions can refer jointly to a target", async () => {
     function boundGetOwner() {
       // empty on purpose
@@ -278,10 +300,6 @@ describe("Simple graph searches: function support,", () => {
   });
 
   xit("async closures", async () => {
-
-  });
-
-  xit("arrow functions", async () => {
 
   });
 });
