@@ -54,7 +54,6 @@ import {
   FunctionStatementSearch,
   type FunctionReferenceBuilder,
 } from "./FunctionStatementSearch.js";
-
 //#endregion preamble
 
 export class GraphBuilder

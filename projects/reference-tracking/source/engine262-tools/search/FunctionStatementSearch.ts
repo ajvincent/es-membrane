@@ -24,12 +24,20 @@ export class FunctionStatementSearch {
     guestFunction: GuestEngine.ECMAScriptFunctionObject,
   ): void
   {
-    if (guestFunction.Environment instanceof GuestEngine.DeclarativeEnvironmentRecord) {
-      for (const [guestName, guestValue] of guestFunction.Environment.bindings.entries()) {
+    const visitedNames = new Set<string>;
+    let env: GuestEngine.EnvironmentRecord | GuestEngine.NullValue = guestFunction.Environment;
+    while (env instanceof GuestEngine.FunctionEnvironmentRecord) {
+      for (const [guestName, guestValue] of env.bindings.entries()) {
+        const hostName = guestName.stringValue();
+        if (visitedNames.has(hostName))
+          continue;
+        visitedNames.add(hostName);
+
         this.#referenceBuilder.buildFunctionValueReference(
-          guestFunction, guestName.stringValue(), guestValue.value ?? GuestEngine.Value.undefined
+          guestFunction, hostName, guestValue.value ?? GuestEngine.Value.undefined
         );
       }
+      env = env.OuterEnv;
     }
   }
 }

@@ -129,21 +129,21 @@ describe("Simple graph searches: function support,", () => {
     const target = { isTarget: true };
     const miscellaneous = { isSomeOtherObject: true };
 
-    function oneLevelDeepEnclosure() {
+    function enclosure() {
     }
 
     it("one level deep", async () => {
       setExpectedGraph(
         target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
-        oneLevelDeepEnclosure, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
+        enclosure, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
       );
       addObjectGraphNode(
-        ExpectedObjectGraph, oneLevelDeepEnclosure.prototype,
+        ExpectedObjectGraph, enclosure.prototype,
         BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
       ); // object:3
       addPropertyNameEdge(
-        ExpectedObjectGraph, oneLevelDeepEnclosure, "prototype",
-        oneLevelDeepEnclosure.prototype, false
+        ExpectedObjectGraph, enclosure, "prototype",
+        enclosure.prototype, false
       );
 
       addObjectGraphNode(
@@ -151,19 +151,19 @@ describe("Simple graph searches: function support,", () => {
         BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
       ); // object:4
 
-      addScopeValueEdge(ExpectedObjectGraph, oneLevelDeepEnclosure, "firstValue", miscellaneous);
-      addScopeValueEdge(ExpectedObjectGraph, oneLevelDeepEnclosure, "secondValue", target);
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "firstValue", miscellaneous);
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "secondValue", target);
 
       const enclosureArgs = [miscellaneous, target];
       addObjectGraphNode(
         ExpectedObjectGraph, enclosureArgs,
         BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
       ); // object:5
-      addScopeValueEdge(ExpectedObjectGraph, oneLevelDeepEnclosure, "arguments", enclosureArgs);
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "arguments", enclosureArgs);
 
       addPropertyNameEdge(
-        ExpectedObjectGraph, oneLevelDeepEnclosure.prototype, "constructor",
-        oneLevelDeepEnclosure, false
+        ExpectedObjectGraph, enclosure.prototype, "constructor",
+        enclosure, false
       );
 
       addArrayIndexEdge(ExpectedObjectGraph, enclosureArgs, 0, miscellaneous, false);
@@ -180,15 +180,15 @@ describe("Simple graph searches: function support,", () => {
     it("two levels deep, from the outer enclosure", async () => {
       setExpectedGraph(
         target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
-        oneLevelDeepEnclosure, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
+        enclosure, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
       );
       addObjectGraphNode(
-        ExpectedObjectGraph, oneLevelDeepEnclosure.prototype,
+        ExpectedObjectGraph, enclosure.prototype,
         BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
       ); // object:3
       addPropertyNameEdge(
-        ExpectedObjectGraph, oneLevelDeepEnclosure, "prototype",
-        oneLevelDeepEnclosure.prototype, false
+        ExpectedObjectGraph, enclosure, "prototype",
+        enclosure.prototype, false
       );
 
       addObjectGraphNode(
@@ -196,19 +196,19 @@ describe("Simple graph searches: function support,", () => {
         BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
       ); // object:4
 
-      addScopeValueEdge(ExpectedObjectGraph, oneLevelDeepEnclosure, "firstValue", miscellaneous);
-      addScopeValueEdge(ExpectedObjectGraph, oneLevelDeepEnclosure, "secondValue", target);
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "firstValue", miscellaneous);
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "secondValue", target);
 
       const enclosureArgs = [miscellaneous, target];
       addObjectGraphNode(
         ExpectedObjectGraph, enclosureArgs,
         BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
       ); // object:5
-      addScopeValueEdge(ExpectedObjectGraph, oneLevelDeepEnclosure, "arguments", enclosureArgs);
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "arguments", enclosureArgs);
 
       addPropertyNameEdge(
-        ExpectedObjectGraph, oneLevelDeepEnclosure.prototype, "constructor",
-        oneLevelDeepEnclosure, false
+        ExpectedObjectGraph, enclosure.prototype, "constructor",
+        enclosure, false
       );
 
       addArrayIndexEdge(ExpectedObjectGraph, enclosureArgs, 0, miscellaneous, false);
@@ -222,9 +222,46 @@ describe("Simple graph searches: function support,", () => {
       expect(actual).toEqual(expected);
     });
 
-    xit("two levels deep, from the inner enclosure", async () => {
+    it("two levels deep, from the inner enclosure", async () => {
+      setExpectedGraph(
+        target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
+        enclosure, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
+      ); // target:0, heldValues:1, object:2
+      addObjectGraphNode(
+        ExpectedObjectGraph, enclosure.prototype,
+        BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
+      ); // object:3
+      addPropertyNameEdge(
+        ExpectedObjectGraph, enclosure, "prototype",
+        enclosure.prototype, false
+      );
+
+      const innerEnclosureArgs: unknown[] = [];
+      addObjectGraphNode(
+        ExpectedObjectGraph, innerEnclosureArgs,
+        BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
+      ); // object:4
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "arguments", innerEnclosureArgs);
+
+      addObjectGraphNode(
+        ExpectedObjectGraph, miscellaneous,
+        BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
+      ); // object:5
+
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "firstValue", miscellaneous);
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "secondValue", target);
+
+      addPropertyNameEdge(
+        ExpectedObjectGraph, enclosure.prototype, "constructor",
+        enclosure, false
+      );
+
+      ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+      ExpectedObjectGraph.summarizeGraphToTarget(true);
+      const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+
       const actual = await getActualGraph("functions/closures.js", "innerEnclosure", true);
-      expect(actual).not.toBeNull();
+      expect(actual).toEqual(expected);
     });
   });
 
