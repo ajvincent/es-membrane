@@ -53,6 +53,7 @@ export class SearchDriver
     heldValues: GuestEngine.ObjectValue,
     strongReferencesOnly: boolean,
     realm: GuestEngine.ManagedRealm,
+    resultsKey: string,
     searchConfiguration?: SearchConfiguration,
   )
   {
@@ -66,6 +67,7 @@ export class SearchDriver
       heldValues,
       realm,
       hostGraphImpl,
+      resultsKey,
       searchConfiguration
     );
 

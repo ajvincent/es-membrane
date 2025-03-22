@@ -67,6 +67,7 @@ export function defineSearchReferences(
         searchArgs.heldValuesArray,
         searchArgs.strongReferencesOnly,
         realm,
+        searchArgs.resultsKey,
         searchConfiguration
       );
 

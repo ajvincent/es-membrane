@@ -129,14 +129,29 @@ FunctionReferenceBuilder
   readonly #searchConfiguration?: SearchConfiguration;
   //#endregion private class fields and static private fields
 
+  public readonly resultsKey: string;
+  public readonly sourceSpecifier?: string;
+  public readonly lineNumber: number;
+
   constructor(
     targetValue: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
     heldValues: GuestEngine.ObjectValue,
     realm: GuestEngine.ManagedRealm,
     hostObjectGraph: ObjectGraphIfc<object, symbol, object, GraphObjectMetadata, GraphRelationshipMetadata>,
+    resultsKey: string,
     searchConfiguration?: SearchConfiguration
   )
   {
+    this.resultsKey = resultsKey;
+    {
+      const callerContext = GuestEngine.surroundingAgent.executionContextStack[1];
+      if ("HostDefined" in callerContext.ScriptOrModule)
+        this.sourceSpecifier = callerContext.ScriptOrModule.HostDefined.specifier ?? "";
+      else
+        this.sourceSpecifier = "";
+      this.lineNumber = callerContext.callSite.lineNumber ?? NaN;
+    }
+
     this.#searchConfiguration = searchConfiguration;
     this.#intrinsicToBuiltInNameMap = GraphBuilder.#builtInNamesFromInstrinsics(realm);
     this.#intrinsics = new WeakSet(Object.values(realm.Intrinsics));
