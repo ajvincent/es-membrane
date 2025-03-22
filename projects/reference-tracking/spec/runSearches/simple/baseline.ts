@@ -87,7 +87,9 @@ describe("Simple graph searches:", () => {
     }
 
     const expected: object = getExpectedGraph();
-    const actual = await getActualGraph("simple/targetInHeldValuesArray.js", "target object in held values");
+    const actual = await getActualGraph(
+      "simple/targetInHeldValuesArray.js", "target object in held values", true
+    );
     expect(actual).toEqual(expected);
   });
 
@@ -119,7 +121,9 @@ describe("Simple graph searches:", () => {
     }
 
     const expected: object = getExpectedGraph();
-    const actual = await getActualGraph("simple/targetInHeldValuesArray.js", "target symbol in held values");
+    const actual = await getActualGraph(
+      "simple/targetInHeldValuesArray.js", "target symbol in held values", true
+    );
     expect(actual).toEqual(expected);
   });
 
@@ -142,7 +146,9 @@ describe("Simple graph searches:", () => {
     }
 
     const expected: object = getExpectedGraph();
-    const actual = await getActualGraph("simple/targetIsElementOfHeldArray.js", "targetIsElementOfHeldArray");
+    const actual = await getActualGraph(
+      "simple/targetIsElementOfHeldArray.js", "targetIsElementOfHeldArray", true
+    );
     expect(actual).toEqual(expected);
   });
 
@@ -165,7 +171,9 @@ describe("Simple graph searches:", () => {
     }
 
     const expected = getExpectedGraph();
-    const actual = await getActualGraph("simple/targetIsElementOfHeldObject.js", "targetIsElementOfHeldObject");
+    const actual = await getActualGraph(
+      "simple/targetIsElementOfHeldObject.js", "targetIsElementOfHeldObject", true
+    );
     expect(actual).toEqual(expected);
   });
 
@@ -198,7 +206,8 @@ describe("Simple graph searches:", () => {
     const expected = getExpectedGraph();
     const actual = await getActualGraph(
       "simple/targetIsSymbolKeyOfHeldObject.js",
-      "target is symbol key of held object"
+      "target is symbol key of held object",
+      true
     );
     expect(actual).toEqual(expected);
   });
@@ -217,7 +226,9 @@ describe("Simple graph searches:", () => {
     }
 
     const expected = getExpectedGraph();
-    const actual = await getActualGraph("simple/symbolKeyHoldsTarget.js", "symbolKeyHoldsTarget");
+    const actual = await getActualGraph(
+      "simple/symbolKeyHoldsTarget.js", "symbolKeyHoldsTarget", true
+    );
     expect(actual).toEqual(expected);
   });
 

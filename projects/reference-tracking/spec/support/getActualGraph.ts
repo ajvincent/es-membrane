@@ -22,7 +22,7 @@ const GraphsFromFileSearches = new Map<string, Promise<GraphsFromSearch>>;
 export async function getActualGraph(
   referenceSpec: string,
   graphName: string,
-  inspectFunctionEnvironment?: true
+  noFunctionEnvironment: boolean
 ): Promise<object | null>
 {
   const pathToSearch = getReferenceSpecPath(referenceSpec);
@@ -30,7 +30,7 @@ export async function getActualGraph(
   let promiseGraphs: Promise<GraphsFromSearch> | undefined = GraphsFromFileSearches.get(pathToSearch);
   if (!promiseGraphs) {
     const config: SearchConfiguration = {
-      noFunctionEnvironment: !inspectFunctionEnvironment,
+      noFunctionEnvironment,
       internalErrorTrap: () => {
         // eslint-disable-next-line no-debugger
         debugger;

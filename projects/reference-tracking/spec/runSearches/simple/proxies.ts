@@ -93,7 +93,8 @@ describe("Simple graph searches, proxy support:", () => {
     const expected = getExpectedGraph();
     const actual = await getActualGraph(
       "simple/proxies.js",
-      "shadow target held before revocation"
+      "shadow target held before revocation",
+      true
     );
 
     expect(actual).toEqual(expected);
@@ -113,7 +114,8 @@ describe("Simple graph searches, proxy support:", () => {
     const expected = getExpectedGraph();
     const actual = await getActualGraph(
       "simple/proxies.js",
-      "proxy handler held before revocation"
+      "proxy handler held before revocation",
+      true
     );
 
     expect(actual).toEqual(expected);
@@ -140,7 +142,8 @@ describe("Simple graph searches, proxy support:", () => {
     const expected = getExpectedGraph();
     const actual = await getActualGraph(
       "simple/proxies.js",
-      "proxy held before revocation"
+      "proxy held before revocation",
+      true
     );
 
     expect(actual).toEqual(expected);
@@ -149,7 +152,8 @@ describe("Simple graph searches, proxy support:", () => {
   it("proxies do not hold references to their revokers", async () => {
     const actual = await getActualGraph(
       "simple/proxies.js",
-      "revoke not held by proxy"
+      "revoke not held by proxy",
+      true
     );
     expect(actual).toBeNull();
   });
@@ -157,7 +161,8 @@ describe("Simple graph searches, proxy support:", () => {
   it("proxies do not search shadow target", async () => {
     const actual = await getActualGraph(
       "simple/proxies.js",
-      "shadow search target"
+      "shadow search target",
+      true
     );
     expect(actual).toBeNull();
   });
@@ -179,7 +184,8 @@ describe("Simple graph searches, proxy support:", () => {
     const expected = getExpectedGraph();
     const actual = await getActualGraph(
       "simple/proxies.js",
-      "proxy handler search target"
+      "proxy handler search target",
+      true
     );
 
     expect(actual).toEqual(expected);
@@ -188,7 +194,8 @@ describe("Simple graph searches, proxy support:", () => {
   it("proxies do not hold references to their targets after revocation", async () => {
     const actual = await getActualGraph(
       "simple/proxies.js",
-      "shadow target held by proxy after revocation"
+      "shadow target held by proxy after revocation",
+      true
     );
     expect(actual).toBeNull();
   });
@@ -196,7 +203,8 @@ describe("Simple graph searches, proxy support:", () => {
   it("proxies do not hold references to their proxy handlers after revocation", async () => {
     const actual = await getActualGraph(
       "simple/proxies.js",
-      "proxy handler held by proxy after revocation"
+      "proxy handler held by proxy after revocation",
+      true
     );
     expect(actual).toBeNull();
   });
@@ -204,7 +212,8 @@ describe("Simple graph searches, proxy support:", () => {
   it("revokers do not hold references to their proxies after revocation", async () => {
     const actual = await getActualGraph(
       "simple/proxies.js",
-      "proxy held after revocation"
+      "proxy held after revocation",
+      true
     );
     expect(actual).toBeNull();
   });

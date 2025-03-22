@@ -66,6 +66,8 @@ it("Simple graph searches: when there is an import involved (modules importing o
   }
 
   const expected: object = getExpectedGraph();
-  const actual = await getActualGraph("module-imports/importWrapObject.js", "importWrapObject");
+  const actual = await getActualGraph(
+    "module-imports/importWrapObject.js", "importWrapObject", true
+  );
   expect(actual).toEqual(expected);
 });

@@ -32,7 +32,8 @@ describe("Simple graph searches: weak references to direct values", () => {
   it("are not reachable in a strong-references-only search", async () => {
     const actual = await getActualGraph(
       "simple/weakRefToTarget.js",
-      "WeakRef to target does not hold strongly"
+      "WeakRef to target does not hold strongly",
+      true
     );
     expect(actual).toBeNull();
   });
@@ -67,7 +68,8 @@ describe("Simple graph searches: weak references to direct values", () => {
 
     const actual = await getActualGraph(
       "simple/weakRefToTarget.js",
-      "weakRef to target holds weakly"
+      "weakRef to target holds weakly",
+      true
     );
 
     expect(actual).toEqual(expected);

@@ -121,7 +121,9 @@ describe("Simple graph searches: function support,", () => {
     ExpectedObjectGraph.summarizeGraphToTarget(true);
     const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
-    const actual = await getActualGraph("functions/bound.js", "bound function to target");
+    const actual = await getActualGraph(
+      "functions/bound.js", "bound function to target", true
+    );
     expect(actual).toEqual(expected);
   });
 
@@ -173,7 +175,9 @@ describe("Simple graph searches: function support,", () => {
       ExpectedObjectGraph.summarizeGraphToTarget(true);
       const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
-      const actual = await getActualGraph("functions/closures.js", "targetNotDirectlyHeld", true);
+      const actual = await getActualGraph(
+        "functions/closures.js", "targetNotDirectlyHeld", false
+      );
       expect(actual).toEqual(expected);
     });
 
@@ -218,7 +222,9 @@ describe("Simple graph searches: function support,", () => {
       ExpectedObjectGraph.summarizeGraphToTarget(true);
       const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
-      const actual = await getActualGraph("functions/closures.js", "outerEnclosure", true);
+      const actual = await getActualGraph(
+        "functions/closures.js", "outerEnclosure", false
+      );
       expect(actual).toEqual(expected);
     });
 
@@ -260,7 +266,9 @@ describe("Simple graph searches: function support,", () => {
       ExpectedObjectGraph.summarizeGraphToTarget(true);
       const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
-      const actual = await getActualGraph("functions/closures.js", "innerEnclosure", true);
+      const actual = await getActualGraph(
+        "functions/closures.js", "innerEnclosure", false
+      );
       expect(actual).toEqual(expected);
     });
   });

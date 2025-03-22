@@ -107,7 +107,9 @@ describe("Simple graph searches, class support:", () => {
     ExpectedObjectGraph.summarizeGraphToTarget(true);
     const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
-    const actual = await getActualGraph("classes/classesWithoutExtensions.js", "instance to class");
+    const actual = await getActualGraph(
+      "classes/classesWithoutExtensions.js", "instance to class", true
+    );
     expect(actual).toEqual(expected);
   });
 
@@ -147,12 +149,16 @@ describe("Simple graph searches, class support:", () => {
     ExpectedObjectGraph.summarizeGraphToTarget(true);
     const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
-    const actual = await getActualGraph("classes/classesExtendingOtherClasses.js", "Bicycle extends Vehicle");
+    const actual = await getActualGraph(
+      "classes/classesExtendingOtherClasses.js", "Bicycle extends Vehicle", true
+    );
     expect(actual).toEqual(expected);
   });
 
   it("classes extending built-in classes", async () => {
-    const actual = await getActualGraph("classes/classesExtendingBuiltins.js", "DefaultWeakMap extends WeakMap");
+    const actual = await getActualGraph(
+      "classes/classesExtendingBuiltins.js", "DefaultWeakMap extends WeakMap", true
+    );
     expect(actual).toBeNull();
   });
 
@@ -176,12 +182,16 @@ describe("Simple graph searches, class support:", () => {
     ExpectedObjectGraph.summarizeGraphToTarget(true);
     const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
-    const actual = await getActualGraph("classes/classAccessors.js", "reaching a value via a getter");
+    const actual = await getActualGraph(
+      "classes/classAccessors.js", "reaching a value via a getter", true
+    );
     expect(actual).toEqual(expected);
   });
 
   it("classes with setters but no getters to the target value", async () => {
-    const actual = await getActualGraph("classes/classAccessors.js", "unreachable values with only a setter route");
+    const actual = await getActualGraph(
+      "classes/classAccessors.js", "unreachable values with only a setter route", true
+    );
     expect(actual).toBeNull();
   });
 
@@ -199,7 +209,9 @@ describe("Simple graph searches, class support:", () => {
     ExpectedObjectGraph.summarizeGraphToTarget(true);
     const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
-    const actual = await getActualGraph("classes/classPrivateFields.js", "class private fields");
+    const actual = await getActualGraph(
+      "classes/classPrivateFields.js", "class private fields", true
+    );
     expect(actual).toEqual(expected);
   });
 
@@ -223,13 +235,15 @@ describe("Simple graph searches, class support:", () => {
     ExpectedObjectGraph.summarizeGraphToTarget(true);
     const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
-    const actual = await getActualGraph("classes/classPrivateAccessors.js", "class private getter");
+    const actual = await getActualGraph(
+      "classes/classPrivateAccessors.js", "class private getter", true
+    );
     expect(actual).toEqual(expected);
   });
 
   it("classes with private setters but no getters to the target value", async () => {
     const actual = await getActualGraph(
-      "classes/classPrivateAccessors.js", "unreachable values with only a setter route"
+      "classes/classPrivateAccessors.js", "unreachable values with only a setter route", true
     );
     expect(actual).toBeNull();
   });
@@ -259,7 +273,9 @@ describe("Simple graph searches, class support:", () => {
     ExpectedObjectGraph.summarizeGraphToTarget(true);
     const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
-    const actual = await getActualGraph("classes/classStaticFields.js", "class static fields");
+    const actual = await getActualGraph(
+      "classes/classStaticFields.js", "class static fields", true
+    );
     expect(actual).toEqual(expected);
   });
 
@@ -288,7 +304,9 @@ describe("Simple graph searches, class support:", () => {
     ExpectedObjectGraph.summarizeGraphToTarget(true);
     const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
-    const actual = await getActualGraph("classes/classStaticAccessors.js", "class static getters");
+    const actual = await getActualGraph(
+      "classes/classStaticAccessors.js", "class static getters", true
+    );
     expect(actual).toEqual(expected);
   });
 
@@ -318,7 +336,9 @@ describe("Simple graph searches, class support:", () => {
     ExpectedObjectGraph.summarizeGraphToTarget(true);
     const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
-    const actual = await getActualGraph("classes/classStaticPrivateFields.js", "class private static fields");
+    const actual = await getActualGraph(
+      "classes/classStaticPrivateFields.js", "class private static fields", true
+    );
     expect(actual).toEqual(expected);
   });
 
@@ -353,7 +373,7 @@ describe("Simple graph searches, class support:", () => {
     const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
     const actual = await getActualGraph(
-      "classes/classStaticPrivateAccessors.js", "class static getters"
+      "classes/classStaticPrivateAccessors.js", "class static getters", true
     );
     expect(actual).toEqual(expected);
   });

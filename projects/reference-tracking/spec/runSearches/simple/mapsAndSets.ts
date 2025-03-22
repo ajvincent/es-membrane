@@ -73,7 +73,9 @@ describe("Simple graph searches:", () => {
 
     const expected = getExpectedGraph(true);
 
-    const actual = await getActualGraph("collections/mapKeyIsTarget.js", "strongMapHoldsKeyStrongly");
+    const actual = await getActualGraph(
+      "collections/mapKeyIsTarget.js", "strongMapHoldsKeyStrongly", true
+    );
     expect(actual).toEqual(expected);
   });
 
@@ -88,7 +90,9 @@ describe("Simple graph searches:", () => {
 
     const expected = getExpectedGraph(true);
 
-    const actual = await getActualGraph("collections/mapValueIsTarget.js", "strongMapHoldsValueStrongly");
+    const actual = await getActualGraph(
+      "collections/mapValueIsTarget.js", "strongMapHoldsValueStrongly", true
+    );
     expect(actual).toEqual(expected);
   });
 
@@ -101,12 +105,16 @@ describe("Simple graph searches:", () => {
     }
     const expected: object = getExpectedGraph(false);
 
-    const actual = await getActualGraph("collections/setHoldsTarget.js", "setHoldsTargetStrongly");
+    const actual = await getActualGraph(
+      "collections/setHoldsTarget.js", "setHoldsTargetStrongly", true
+    );
     expect(actual).toEqual(expected);
   });
 
   it("WeakMap objects never store keys strongly", async () => {
-    const actual = await getActualGraph("collections/weakMapKeyIsTarget.js", "weakMapHoldsKeyStrongly");
+    const actual = await getActualGraph(
+      "collections/weakMapKeyIsTarget.js", "weakMapHoldsKeyStrongly", true
+    );
     expect(actual).toBeNull();
   });
 
@@ -120,12 +128,16 @@ describe("Simple graph searches:", () => {
 
     const expected = getExpectedGraph(false);
 
-    const actual = await getActualGraph("collections/weakMapKeyIsTarget.js", "weakMapHoldsKeyWeakly");
+    const actual = await getActualGraph(
+      "collections/weakMapKeyIsTarget.js", "weakMapHoldsKeyWeakly", true
+    );
     expect(actual).toEqual(expected);
   });
 
   it("WeakMap objects never store values strongly", async () => {
-    const actual = await getActualGraph("collections/weakMapValueIsTarget.js", "weakMapHoldsValueStrongly");
+    const actual = await getActualGraph(
+      "collections/weakMapValueIsTarget.js", "weakMapHoldsValueStrongly", true
+    );
     expect(actual).toBeNull();
   });
 
@@ -140,7 +152,9 @@ describe("Simple graph searches:", () => {
 
     const expected = getExpectedGraph(false);
 
-    const actual = await getActualGraph("collections/weakMapValueIsTarget.js", "weakMapHoldsValueWeakly");
+    const actual = await getActualGraph(
+      "collections/weakMapValueIsTarget.js", "weakMapHoldsValueWeakly", true
+    );
     expect(actual).toEqual(expected);
   });
 
@@ -158,12 +172,16 @@ describe("Simple graph searches:", () => {
 
     const expected = getExpectedGraph(true);
 
-    const actual = await getActualGraph("collections/weakMapValueIsTarget.js", "weakMapAndKeyJointlyHoldValue");
+    const actual = await getActualGraph(
+      "collections/weakMapValueIsTarget.js", "weakMapAndKeyJointlyHoldValue", true
+    );
     expect(actual).toEqual(expected);
   });
 
   it("WeakSet objects do not store values strongly", async () => {
-    const actual = await getActualGraph("collections/weakSetHoldsTarget.js", "weakSetHoldsTargetStrongly");
+    const actual = await getActualGraph(
+      "collections/weakSetHoldsTarget.js", "weakSetHoldsTargetStrongly", true
+    );
     expect(actual).toBeNull();
   });
 
@@ -176,7 +194,9 @@ describe("Simple graph searches:", () => {
     }
     const expected: object = getExpectedGraph(false);
 
-    const actual = await getActualGraph("collections/weakSetHoldsTarget.js", "weakSetHoldsTargetWeakly");
+    const actual = await getActualGraph(
+      "collections/weakSetHoldsTarget.js", "weakSetHoldsTargetWeakly", true
+    );
     expect(actual).toEqual(expected);
   });
 });
