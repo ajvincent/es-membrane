@@ -3,8 +3,9 @@ import type {
   JsonObject
 } from "type-fest";
 
-import type {
-  HostObjectGraph
+import {
+  ObjectGraphImpl,
+  type HostObjectGraph
 } from "../../source/graph-analysis/ObjectGraphImpl.js";
 
 import {
@@ -23,6 +24,39 @@ import {
 import {
   isObjectOrSymbol
 } from "../../source/utilities/isObjectOrSymbol.js";
+
+export function createExpectedGraph(
+  target: object,
+  targetJSTypeName: BuiltInJSTypeName,
+  targetClassName: string,
+  startingObject: object,
+  startingJSTypeName: BuiltInJSTypeName,
+  startingClassName: string
+): ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>
+{
+  const targetMetadata: GraphObjectMetadata = {
+    builtInJSTypeName: targetJSTypeName,
+    derivedClassName: targetClassName,
+  };
+
+  const heldValuesMetadata: GraphObjectMetadata = {
+    builtInJSTypeName: BuiltInJSTypeName.Array,
+    derivedClassName: BuiltInJSTypeName.Array,
+  };
+
+  const heldValues: WeakKey[] = [];
+  const ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+  ExpectedObjectGraph.defineTargetAndHeldValues(
+    target, targetMetadata, heldValues, heldValuesMetadata
+  );
+
+  heldValues.push(startingObject);
+
+  addObjectGraphNode(ExpectedObjectGraph, startingObject, startingJSTypeName, startingClassName);
+  addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, startingObject, false);
+
+  return ExpectedObjectGraph;
+}
 
 export function addObjectGraphNode(
   graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,

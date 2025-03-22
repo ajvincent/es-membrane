@@ -24,6 +24,7 @@ import {
   addMapKeyAndValue,
   addPropertyNameEdge,
   addScopeValueEdge,
+  createExpectedGraph,
 } from "../../support/fillExpectedGraph.js";
 
 import {
@@ -47,47 +48,13 @@ describe("Simple graph searches: function support,", () => {
     }
   }
 
-  let heldValues: object[];
-  beforeEach(() => {
-    heldValues = [];
-  });
-
-  const heldValuesMetadata: GraphObjectMetadata = {
-    builtInJSTypeName: BuiltInJSTypeName.Array,
-    derivedClassName: BuiltInJSTypeName.Array
-  };
-
   let ExpectedObjectGraph: ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
-  function setExpectedGraph(
-    target: object,
-    targetJSTypeName: BuiltInJSTypeName,
-    targetClassName: string,
-    startingObject: object,
-    startingJSTypeName: BuiltInJSTypeName,
-    startingClassName: string
-  ): void
-  {
-    const targetMetadata: GraphObjectMetadata = {
-      builtInJSTypeName: targetJSTypeName,
-      derivedClassName: targetClassName,
-    };
-
-    ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
-    ExpectedObjectGraph.defineTargetAndHeldValues(
-      target, targetMetadata, heldValues, heldValuesMetadata
-    );
-
-    heldValues.push(startingObject);
-
-    addObjectGraphNode(ExpectedObjectGraph, startingObject, startingJSTypeName, startingClassName);
-    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, startingObject, false);
-  }
   //#endregion common test fixtures
 
   it("arrow functions refer to this", async () => {
     function compare() {}
     const sorter = { isSorter: true };
-    setExpectedGraph(sorter, BuiltInJSTypeName.Object, "PropertyKeySorter",
+    ExpectedObjectGraph = createExpectedGraph(sorter, BuiltInJSTypeName.Object, "PropertyKeySorter",
       compare, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
     );
     addScopeValueEdge(ExpectedObjectGraph, compare, "this", sorter);
@@ -110,7 +77,7 @@ describe("Simple graph searches: function support,", () => {
     function boundGetOwner() {
       // empty on purpose
     }
-    setExpectedGraph(
+    ExpectedObjectGraph = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       boundGetOwner, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
     );
@@ -157,7 +124,7 @@ describe("Simple graph searches: function support,", () => {
     }
 
     it("one level deep", async () => {
-      setExpectedGraph(
+      ExpectedObjectGraph = createExpectedGraph(
         target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
         enclosure, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
       );
@@ -204,7 +171,7 @@ describe("Simple graph searches: function support,", () => {
     });
 
     it("two levels deep, from the outer enclosure", async () => {
-      setExpectedGraph(
+      ExpectedObjectGraph = createExpectedGraph(
         target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
         enclosure, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
       );
@@ -251,7 +218,7 @@ describe("Simple graph searches: function support,", () => {
     });
 
     it("two levels deep, from the inner enclosure", async () => {
-      setExpectedGraph(
+      ExpectedObjectGraph = createExpectedGraph(
         target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
         enclosure, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
       ); // target:0, heldValues:1, object:2

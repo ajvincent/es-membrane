@@ -26,6 +26,7 @@ import {
   addMapKeyAndValue,
   addPrivateName,
   addPrivateFieldEdge,
+  createExpectedGraph,
 } from "../../support/fillExpectedGraph.js";
 
 import {
@@ -54,46 +55,12 @@ describe("Simple graph searches, class support:", () => {
     // empty on purpose
   }
 
-  let heldValues: object[];
-  beforeEach(() => {
-    heldValues = [];
-  });
-
-  const heldValuesMetadata: GraphObjectMetadata = {
-    builtInJSTypeName: BuiltInJSTypeName.Array,
-    derivedClassName: BuiltInJSTypeName.Array
-  };
-
   let ExpectedObjectGraph: ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
-  function setExpectedGraph(
-    target: object,
-    targetJSTypeName: BuiltInJSTypeName,
-    targetClassName: string,
-    startingObject: object,
-    startingJSTypeName: BuiltInJSTypeName,
-    startingClassName: string
-  ): void
-  {
-    const targetMetadata: GraphObjectMetadata = {
-      builtInJSTypeName: targetJSTypeName,
-      derivedClassName: targetClassName,
-    };
-
-    ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
-    ExpectedObjectGraph.defineTargetAndHeldValues(
-      target, targetMetadata, heldValues, heldValuesMetadata
-    );
-
-    heldValues.push(startingObject);
-
-    addObjectGraphNode(ExpectedObjectGraph, startingObject, startingJSTypeName, startingClassName);
-    addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, startingObject, false);
-  }
   //#endregion common test fixtures
 
   it("class instances refer to their constructors", async () => {
     const hisBike = new Vehicle;
-    setExpectedGraph(
+    ExpectedObjectGraph = createExpectedGraph(
       Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function,
       hisBike, BuiltInJSTypeName.Object, "Vehicle"
     );
@@ -115,7 +82,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes extending other classes", async () => {
     const hisBike = new Bicycle;
-    setExpectedGraph(
+    ExpectedObjectGraph = createExpectedGraph(
       Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function,
       hisBike, BuiltInJSTypeName.Object, "Bicycle"
     );
@@ -164,7 +131,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes with getters to the target value", async () => {
     const hisCar = new Vehicle;
-    setExpectedGraph(
+    ExpectedObjectGraph = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       hisCar, BuiltInJSTypeName.Object, "Vehicle"
     );
@@ -197,7 +164,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes with private fields", async () => {
     const hisBike = new Vehicle;
-    setExpectedGraph(
+    ExpectedObjectGraph = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       hisBike, BuiltInJSTypeName.Object, "Vehicle"
     );
@@ -217,7 +184,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes with private getters to the target value", async () => {
     const hisBike = new Vehicle;
-    setExpectedGraph(
+    ExpectedObjectGraph = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       hisBike, BuiltInJSTypeName.Object, "Vehicle"
     );
@@ -250,7 +217,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes with static fields", async () => {
     const hisCar = new Vehicle;
-    setExpectedGraph(
+    ExpectedObjectGraph = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       hisCar, BuiltInJSTypeName.Object, "Vehicle"
     );
@@ -281,7 +248,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes with static getters", async () => {
     const hisCar = new Vehicle();
-    setExpectedGraph(
+    ExpectedObjectGraph = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
     );
@@ -312,7 +279,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes with private static fields", async () => {
     const hisCar = new Vehicle;
-    setExpectedGraph(
+    ExpectedObjectGraph = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       hisCar, BuiltInJSTypeName.Object, "Vehicle"
     );
@@ -344,7 +311,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes with static private getters", async () => {
     const hisCar = new Vehicle();
-    setExpectedGraph(
+    ExpectedObjectGraph = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
     );
