@@ -400,6 +400,9 @@ FunctionReferenceBuilder
         isGetter = true;
       }
 
+      if (this.#intrinsics.has(childGuestValue))
+        continue;
+
       if (childGuestValue.type === "Object" || childGuestValue.type === "Symbol") {
         this.#defineGraphNode(childGuestValue, false);
         this.#addObjectPropertyOrGetter(guestObject, guestKey, childGuestValue, isGetter);

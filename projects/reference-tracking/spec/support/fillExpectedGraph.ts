@@ -136,6 +136,20 @@ export function addConstructorOf(
   graph.defineConstructorOf(instanceObject, ctorObject, relationship);
 }
 
+export function addScopeValueEdge(
+  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  functionObject: object,
+  identifier: string,
+  objectValue: WeakKey,
+): void
+{
+  const relationship: GraphRelationshipMetadata = {
+    parentToChildEdgeType: ChildReferenceEdgeType.ScopeValue
+  };
+
+  graph.defineScopeValue(functionObject, identifier, objectValue, relationship);
+}
+
 export function addInternalSlotEdge(
   graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   parentObject: object,
