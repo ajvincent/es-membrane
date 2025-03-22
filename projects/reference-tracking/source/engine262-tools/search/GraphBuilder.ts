@@ -89,6 +89,7 @@ FunctionReferenceBuilder
       [Intrinsics["%Set.prototype%"], BuiltInJSTypeName.Set],
       [Intrinsics["%WeakMap.prototype%"], BuiltInJSTypeName.WeakMap],
       [Intrinsics["%WeakSet.prototype%"], BuiltInJSTypeName.WeakSet],
+      [Intrinsics["%Promise.prototype%"], BuiltInJSTypeName.Promise],
     ]);
   }
 
@@ -552,6 +553,12 @@ FunctionReferenceBuilder
       }
       return;
     }
+
+    if (internalSlots.has("PromiseResult")) {
+      this.#addInternalSlotIfObject(guestObject, "PromiseResult", false, true);
+      this.#addInternalPromiseRecordsList(guestObject, "PromiseFulfillReactions");
+      this.#addInternalPromiseRecordsList(guestObject, "PromiseRejectReactions");
+    }
   }
 
   #addInternalSlotIfObject(
@@ -561,8 +568,8 @@ FunctionReferenceBuilder
     isStrongReference: boolean
   ): void
   {
-    const slotObject = Reflect.get(parentObject, slotName) as GuestEngine.ObjectValue | GuestEngine.NullValue;
-    if (slotObject.type === "Null")
+    const slotObject = Reflect.get(parentObject, slotName) as GuestEngine.Value;
+    if (slotObject.type !== "Object")
       return;
 
     this.#defineGraphNode(slotObject, excludeFromSearches);
@@ -575,11 +582,31 @@ FunctionReferenceBuilder
     slotName: string,
   ): void
   {
-    const slotArray = Reflect.get(parentObject, slotName) as GuestEngine.Value[];
+    const slotArray = Reflect.get(parentObject, slotName) as readonly GuestEngine.Value[] | undefined;
+    if (slotArray === undefined)
+      return;
     const guestArray: GuestEngine.ObjectValue = GuestEngine.CreateArrayFromList(slotArray);
     this.#defineGraphNode(guestArray, false);
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
     this.#guestObjectGraph.defineInternalSlot(parentObject, `[[${slotName}]]`, guestArray, true, edgeRelationship);
+  }
+
+  #addInternalPromiseRecordsList(
+    promiseObject: GuestEngine.ObjectValue,
+    slotName: "PromiseFulfillReactions" | "PromiseRejectReactions"
+  ): void
+  {
+    const records = Reflect.get(promiseObject, slotName) as readonly GuestEngine.PromiseReactionRecord[] | undefined;
+    if (records === undefined)
+      return;
+
+    const handlers = records.map(r => r.Handler).filter(Boolean) as readonly GuestEngine.JobCallbackRecord[];
+    const callbacks: readonly GuestEngine.FunctionObject[] = handlers.map(h => h.Callback);
+
+    const guestArray: GuestEngine.ObjectValue = GuestEngine.CreateArrayFromList(callbacks);
+    this.#defineGraphNode(guestArray, false);
+    const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
+    this.#guestObjectGraph.defineInternalSlot(promiseObject, `[[${slotName}]]`, guestArray, true, edgeRelationship);
   }
 
   #addConstructorOf(
@@ -594,7 +621,7 @@ FunctionReferenceBuilder
     const guestCtorProto = EnsureValueOrThrow(GuestEngine.GetPrototypeFromConstructor(
       guestCtor, "%Object.prototype%"
     ));
-    if (this.#intrinsicToBuiltInNameMap.has(guestCtorProto))
+    if (this.#intrinsics.has(guestCtorProto))
       return;
     if (guestCtorProto === guestObject)
       return;

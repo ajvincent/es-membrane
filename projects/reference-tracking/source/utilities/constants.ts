@@ -18,6 +18,7 @@ export enum BuiltInJSTypeName {
   WeakSet = "WeakSet",
   Map = "Map",
   Set = "Set",
+  Promise = "Promise",
   Proxy = "Proxy",
   FinalizationRegistry = "FinalizationRegistry",
   PrivateName = "#private",
