@@ -32,24 +32,18 @@ import {
 } from "../../support/getActualGraph.js";
 //#endregion preamble
 
-describe("Simple graph searches,", () => {
-  describe("promises support", () => {
-    it("resolved promises hold references to the target", async () => {
-      const actual = await getActualGraph(
-        "simple/promises.js", "promise after resolve", false
-      );
-      expect(actual).not.toBeNull();
-    });
-
-    xit("resolved promise chains hold references to the target", async () => {
-      const actual = await getActualGraph(
-        "simple/promises.js", "promise chain to target", false
-      );
-      expect(actual).not.toBeNull();
-    });
+describe("Simple graph searches, promises support", () => {
+  it("resolved promises hold references to the target", async () => {
+    const actual = await getActualGraph(
+      "simple/promises.js", "promise after resolve", false
+    );
+    expect(actual).not.toBeNull();
   });
 
-  xit("async functions support", () => {
-    fail();
+  xit("resolved promise chains hold references to the target", async () => {
+    const actual = await getActualGraph(
+      "simple/promises.js", "promise chain to target", false
+    );
+    expect(actual).not.toBeNull();
   });
 });
