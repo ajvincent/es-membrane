@@ -26,8 +26,8 @@ export class FunctionStatementSearch {
   {
     const visitedNames = new Set<string>;
     let env: GuestEngine.EnvironmentRecord | GuestEngine.NullValue = guestFunction.Environment;
-    while (env instanceof GuestEngine.FunctionEnvironmentRecord) {
-      if (visitedNames.has("this") === false && env.HasThisBinding().booleanValue()) {
+    if (env instanceof GuestEngine.FunctionEnvironmentRecord) {
+      if (env.HasThisBinding().booleanValue()) {
         const thisBinding = env.GetThisBinding();
         GuestEngine.Assert(thisBinding instanceof GuestEngine.Value);
 
@@ -35,16 +35,16 @@ export class FunctionStatementSearch {
           guestFunction, "this", thisBinding
         )
       }
-      visitedNames.add('this');
 
-      if (visitedNames.has("super") === false && env.HasSuperBinding().booleanValue()) {
+      if (env.HasSuperBinding().booleanValue()) {
         const superBinding = env.GetSuperBase();
         this.#referenceBuilder.buildFunctionValueReference(
           guestFunction, "super", superBinding
         );
       }
-      visitedNames.add("super");
+    }
 
+    while (env instanceof GuestEngine.FunctionEnvironmentRecord) {
       for (const [guestName, guestValue] of env.bindings.entries()) {
         const hostName = guestName.stringValue();
         if (visitedNames.has(hostName))
