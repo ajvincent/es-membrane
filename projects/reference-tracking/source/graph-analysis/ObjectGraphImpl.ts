@@ -548,7 +548,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     const targetId = this.#requireWeakKeyId(target, "target");
 
     let heldValueId: GraphObjectId | undefined;
-    if (isObjectOrSymbol(heldValue) && typeof heldValue !== "symbol") {
+    if (isObjectOrSymbol(heldValue)) {
       heldValueId = this.#requireWeakKeyId(heldValue, "heldValue");
     }
 
@@ -558,7 +558,6 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     }
     const tupleNodeId = this.#defineWeakKey({}, null, NodePrefix.FinalizationTuple);
 
-    // registry to tuple
     const registryToTupleEdgeId = this.#defineEdge(
       registryId, EdgePrefix.FinalizationRegistryToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
       null, tupleNodeId, true, undefined
@@ -580,7 +579,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
 
     let tupleToUnregisterTokenEdgeId: PrefixedNumber<EdgePrefix.FinalizationToUnregisterToken> | undefined;
     if (unregisterTokenId) {
-      this.#defineEdge(
+      tupleToUnregisterTokenEdgeId = this.#defineEdge(
         tupleNodeId, EdgePrefix.FinalizationToUnregisterToken,
         createValueDescription(unregisterToken, this),
         null, unregisterTokenId, false, targetId

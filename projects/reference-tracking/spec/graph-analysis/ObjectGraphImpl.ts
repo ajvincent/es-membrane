@@ -441,20 +441,224 @@ describe("ObjectGraphImpl", () => {
     });
 
     describe("finalization registry entries", () => {
-      xit("including the target, held value (object) and unregister token", () => {
-
+      const registry = {isFinalizationRegistry: true};
+      const regMetadata = new ObjectMetadata("finalization registry");
+      const registryHeld = {registryHeld: true };
+      const heldMetadata = new ObjectMetadata("held value metadata");
+      const token = { isUnregisterToken: true };
+      const tokenMetadata = new ObjectMetadata("unregister token");
+      beforeEach(() => {
+        objectGraph.defineObject(registry, regMetadata);
       });
 
-      xit("including the target and held value (object)", () => {
+      it("including the target, held value (object) and unregister token", () => {
+        objectGraph.defineObject(registryHeld, heldMetadata);
+        objectGraph.defineObject(token, tokenMetadata);
 
+        const {
+          tupleNodeId,
+          registryToTupleEdgeId,
+          tupleToTargetEdgeId,
+          tupleToHeldValueEdgeId,
+          tupleToUnregisterTokenEdgeId,
+        } = objectGraph.defineFinalizationTuple(registry, target, registryHeld, token);
+
+        expect(objectGraph.getEdgeRelationship(registryToTupleEdgeId)).toEqual({
+          edgeType: EdgePrefix.FinalizationRegistryToTuple,
+          description: {
+            valueType: ValueDiscrimant.NotApplicable
+          },
+          metadata: null
+        });
+
+        expect(objectGraph.getEdgeRelationship(tupleToTargetEdgeId)).toEqual({
+          edgeType: EdgePrefix.FinalizationToTarget,
+          description: createValueDescription(target, objectGraph),
+          metadata: null
+        });
+
+        expect(tupleToHeldValueEdgeId).toBeDefined();
+        if (tupleToHeldValueEdgeId) {
+          expect(objectGraph.getEdgeRelationship(tupleToHeldValueEdgeId)).toEqual({
+            edgeType: EdgePrefix.FinalizationToHeldValue,
+            description: createValueDescription(registryHeld, objectGraph),
+            metadata: null,
+          });
+        }
+
+        expect(tupleToUnregisterTokenEdgeId).toBeDefined();
+        if (tupleToUnregisterTokenEdgeId) {
+          expect(objectGraph.getEdgeRelationship(tupleToUnregisterTokenEdgeId)).toEqual({
+            edgeType: EdgePrefix.FinalizationToUnregisterToken,
+            description: createValueDescription(token, objectGraph),
+            metadata: null
+          });
+        }
+
+        const rawGraph = cloneableGraph.cloneGraph();
+        const inEdges = rawGraph.inEdges(tupleNodeId);
+        expect(inEdges).toBeDefined();
+        if (inEdges) {
+          expect(inEdges.length).toBe(1);
+          expect(inEdges[0]?.name).toBe(registryToTupleEdgeId);
+        }
+
+        const outEdges = rawGraph.outEdges(tupleNodeId);
+        expect(outEdges).toBeDefined();
+        if (outEdges) {
+          expect(outEdges.length).toBe(3);
+          expect(outEdges[0]?.name).toBe(tupleToTargetEdgeId);
+          expect(outEdges[1]?.name).toBe(tupleToHeldValueEdgeId);
+          expect(outEdges[2]?.name).toBe(tupleToUnregisterTokenEdgeId);
+        }
       });
 
-      xit("including the target and held value (primitive)", () => {
+      it("including the target and held value (object)", () => {
+        objectGraph.defineObject(registryHeld, heldMetadata);
 
+        const {
+          tupleNodeId,
+          registryToTupleEdgeId,
+          tupleToTargetEdgeId,
+          tupleToHeldValueEdgeId,
+          tupleToUnregisterTokenEdgeId,
+        } = objectGraph.defineFinalizationTuple(registry, target, registryHeld, undefined);
+
+        expect(objectGraph.getEdgeRelationship(registryToTupleEdgeId)).toEqual({
+          edgeType: EdgePrefix.FinalizationRegistryToTuple,
+          description: {
+            valueType: ValueDiscrimant.NotApplicable
+          },
+          metadata: null
+        });
+
+        expect(objectGraph.getEdgeRelationship(tupleToTargetEdgeId)).toEqual({
+          edgeType: EdgePrefix.FinalizationToTarget,
+          description: createValueDescription(target, objectGraph),
+          metadata: null
+        });
+
+        expect(tupleToHeldValueEdgeId).toBeDefined();
+        if (tupleToHeldValueEdgeId) {
+          expect(objectGraph.getEdgeRelationship(tupleToHeldValueEdgeId)).toEqual({
+            edgeType: EdgePrefix.FinalizationToHeldValue,
+            description: createValueDescription(registryHeld, objectGraph),
+            metadata: null,
+          });
+        }
+
+        expect(tupleToUnregisterTokenEdgeId).toBeUndefined();
+
+        const rawGraph = cloneableGraph.cloneGraph();
+        const inEdges = rawGraph.inEdges(tupleNodeId);
+        expect(inEdges).toBeDefined();
+        if (inEdges) {
+          expect(inEdges.length).toBe(1);
+          expect(inEdges[0]?.name).toBe(registryToTupleEdgeId);
+        }
+
+        const outEdges = rawGraph.outEdges(tupleNodeId);
+        expect(outEdges).toBeDefined();
+        if (outEdges) {
+          expect(outEdges.length).toBe(2);
+          expect(outEdges[0]?.name).toBe(tupleToTargetEdgeId);
+          expect(outEdges[1]?.name).toBe(tupleToHeldValueEdgeId);
+        }
       });
 
-      xit("including the target, which is also the unregister token", () => {
+      it("including the target and held value (primitive)", () => {
+        const {
+          tupleNodeId,
+          registryToTupleEdgeId,
+          tupleToTargetEdgeId,
+          tupleToHeldValueEdgeId,
+          tupleToUnregisterTokenEdgeId,
+        } = objectGraph.defineFinalizationTuple(registry, target, "hello", undefined);
 
+        expect(objectGraph.getEdgeRelationship(registryToTupleEdgeId)).toEqual({
+          edgeType: EdgePrefix.FinalizationRegistryToTuple,
+          description: {
+            valueType: ValueDiscrimant.NotApplicable
+          },
+          metadata: null
+        });
+
+        expect(objectGraph.getEdgeRelationship(tupleToTargetEdgeId)).toEqual({
+          edgeType: EdgePrefix.FinalizationToTarget,
+          description: createValueDescription(target, objectGraph),
+          metadata: null
+        });
+
+        expect(tupleToHeldValueEdgeId).toBeUndefined();
+        expect(tupleToUnregisterTokenEdgeId).toBeUndefined();
+
+        const rawGraph = cloneableGraph.cloneGraph();
+        const inEdges = rawGraph.inEdges(tupleNodeId);
+        expect(inEdges).toBeDefined();
+        if (inEdges) {
+          expect(inEdges.length).toBe(1);
+          expect(inEdges[0]?.name).toBe(registryToTupleEdgeId);
+        }
+
+        const outEdges = rawGraph.outEdges(tupleNodeId);
+        expect(outEdges).toBeDefined();
+        if (outEdges) {
+          expect(outEdges.length).toBe(1);
+          expect(outEdges[0]?.name).toBe(tupleToTargetEdgeId);
+        }
+      });
+
+      it("including the target, which is also the unregister token", () => {
+        objectGraph.defineObject(registryHeld, heldMetadata);
+
+        const {
+          tupleNodeId,
+          registryToTupleEdgeId,
+          tupleToTargetEdgeId,
+          tupleToHeldValueEdgeId,
+          tupleToUnregisterTokenEdgeId,
+        } = objectGraph.defineFinalizationTuple(registry, target, registryHeld, target);
+
+        expect(objectGraph.getEdgeRelationship(registryToTupleEdgeId)).toEqual({
+          edgeType: EdgePrefix.FinalizationRegistryToTuple,
+          description: {
+            valueType: ValueDiscrimant.NotApplicable
+          },
+          metadata: null
+        });
+
+        expect(objectGraph.getEdgeRelationship(tupleToTargetEdgeId)).toEqual({
+          edgeType: EdgePrefix.FinalizationToTarget,
+          description: createValueDescription(target, objectGraph),
+          metadata: null
+        });
+
+        expect(tupleToHeldValueEdgeId).toBeDefined();
+        if (tupleToHeldValueEdgeId) {
+          expect(objectGraph.getEdgeRelationship(tupleToHeldValueEdgeId)).toEqual({
+            edgeType: EdgePrefix.FinalizationToHeldValue,
+            description: createValueDescription(registryHeld, objectGraph),
+            metadata: null,
+          });
+        }
+
+        expect(tupleToUnregisterTokenEdgeId).toBeUndefined();
+
+        const rawGraph = cloneableGraph.cloneGraph();
+        const inEdges = rawGraph.inEdges(tupleNodeId);
+        expect(inEdges).toBeDefined();
+        if (inEdges) {
+          expect(inEdges.length).toBe(1);
+          expect(inEdges[0]?.name).toBe(registryToTupleEdgeId);
+        }
+
+        const outEdges = rawGraph.outEdges(tupleNodeId);
+        expect(outEdges).toBeDefined();
+        if (outEdges) {
+          expect(outEdges.length).toBe(2);
+          expect(outEdges[0]?.name).toBe(tupleToTargetEdgeId);
+          expect(outEdges[1]?.name).toBe(tupleToHeldValueEdgeId);
+        }
       });
     });
 
