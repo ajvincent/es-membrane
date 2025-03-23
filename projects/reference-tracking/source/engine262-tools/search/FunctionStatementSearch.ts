@@ -37,6 +37,14 @@ export class FunctionStatementSearch {
       }
       visitedNames.add('this');
 
+      if (visitedNames.has("super") === false && env.HasSuperBinding().booleanValue()) {
+        const superBinding = env.GetSuperBase();
+        this.#referenceBuilder.buildFunctionValueReference(
+          guestFunction, "super", superBinding
+        );
+      }
+      visitedNames.add("super");
+
       for (const [guestName, guestValue] of env.bindings.entries()) {
         const hostName = guestName.stringValue();
         if (visitedNames.has(hostName))
