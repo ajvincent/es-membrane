@@ -85,6 +85,7 @@ FunctionReferenceBuilder
       [Intrinsics["%Object.prototype%"], BuiltInJSTypeName.Object],
       [Intrinsics["%Function.prototype%"], BuiltInJSTypeName.Function],
       [Intrinsics["%WeakRef.prototype%"], BuiltInJSTypeName.WeakRef],
+      [Intrinsics["%FinalizationRegistry.prototype%"], BuiltInJSTypeName.FinalizationRegistry],
       [Intrinsics["%Map.prototype%"], BuiltInJSTypeName.Map],
       [Intrinsics["%Set.prototype%"], BuiltInJSTypeName.Set],
       [Intrinsics["%WeakMap.prototype%"], BuiltInJSTypeName.WeakMap],
@@ -524,6 +525,18 @@ FunctionReferenceBuilder
     if (internalSlots.has("WeakRefTarget")) {
       this.#addInternalSlotIfObject(guestObject, "WeakRefTarget", false, false);
       return;
+    }
+
+    if (internalSlots.has("CleanupCallback")) {
+      type JobCallbackRecord = { Callback: GuestEngine.Value };
+      const { Callback } = Reflect.get(guestObject, "CleanupCallback") as JobCallbackRecord;
+      if (Callback.type === "Object") {
+        this.#defineGraphNode(Callback, false);
+        const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
+        this.#guestObjectGraph.defineInternalSlot(
+          guestObject, `[[CleanupCallback]]`, Callback, true, edgeRelationship
+        );
+      }
     }
 
     if (internalSlots.has("SetData")) {
