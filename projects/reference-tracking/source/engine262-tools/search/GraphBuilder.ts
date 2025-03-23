@@ -56,6 +56,12 @@ import {
 } from "./FunctionStatementSearch.js";
 //#endregion preamble
 
+interface GuestFinalizationRegistryCell {
+  WeakRefTarget: GuestEngine.Value | undefined;
+  readonly HeldValue: GuestEngine.Value;
+  readonly UnregisterToken: GuestEngine.Value | undefined;
+}
+
 export class GraphBuilder
 implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
 FunctionReferenceBuilder
@@ -537,6 +543,12 @@ FunctionReferenceBuilder
           guestObject, `[[CleanupCallback]]`, Callback, true, edgeRelationship
         );
       }
+
+      if (internalSlots.has("Cells")) {
+        const cells = Reflect.get(guestObject, "Cells") as readonly GuestFinalizationRegistryCell[];
+        cells.forEach(cell => this.#addInternalFinalizationCell(guestObject, cell));
+      }
+      return;
     }
 
     if (internalSlots.has("SetData")) {
@@ -620,6 +632,32 @@ FunctionReferenceBuilder
     this.#defineGraphNode(guestArray, false);
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
     this.#guestObjectGraph.defineInternalSlot(promiseObject, `[[${slotName}]]`, guestArray, true, edgeRelationship);
+  }
+
+  #addInternalFinalizationCell(
+    registry: GuestEngine.ObjectValue,
+    cell: GuestFinalizationRegistryCell
+  ): void
+  {
+    let WeakRefTarget: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>;
+    if (cell.WeakRefTarget?.type === "Object" || cell.WeakRefTarget?.type === "Symbol")
+      WeakRefTarget = cell.WeakRefTarget;
+    else
+      return;
+
+    const { HeldValue } = cell;
+
+    let UnregisterToken: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue> | undefined;
+    if (cell.UnregisterToken?.type === "Object" || cell.UnregisterToken?.type === "Symbol")
+      UnregisterToken = cell.UnregisterToken;
+
+    this.#defineGraphNode(WeakRefTarget, false);
+    if (HeldValue.type === "Object" || HeldValue.type === "Symbol")
+      this.#defineGraphNode(HeldValue, false);
+    if (UnregisterToken)
+      this.#defineGraphNode(UnregisterToken, false);
+
+    this.#guestObjectGraph.defineFinalizationTuple(registry, WeakRefTarget, HeldValue, UnregisterToken);
   }
 
   #addConstructorOf(

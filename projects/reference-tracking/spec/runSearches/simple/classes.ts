@@ -60,7 +60,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("class instances refer to their constructors", async () => {
     const hisBike = new Vehicle;
-    ExpectedObjectGraph = createExpectedGraph(
+    [ExpectedObjectGraph] = createExpectedGraph(
       Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function,
       hisBike, BuiltInJSTypeName.Object, "Vehicle"
     );
@@ -82,7 +82,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes extending other classes", async () => {
     const hisBike = new Bicycle;
-    ExpectedObjectGraph = createExpectedGraph(
+    [ExpectedObjectGraph] = createExpectedGraph(
       Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function,
       hisBike, BuiltInJSTypeName.Object, "Bicycle"
     );
@@ -131,7 +131,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes with getters to the target value", async () => {
     const hisCar = new Vehicle;
-    ExpectedObjectGraph = createExpectedGraph(
+    [ExpectedObjectGraph] = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       hisCar, BuiltInJSTypeName.Object, "Vehicle"
     );
@@ -164,7 +164,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes with private fields", async () => {
     const hisBike = new Vehicle;
-    ExpectedObjectGraph = createExpectedGraph(
+    [ExpectedObjectGraph] = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       hisBike, BuiltInJSTypeName.Object, "Vehicle"
     );
@@ -184,7 +184,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes with private getters to the target value", async () => {
     const hisBike = new Vehicle;
-    ExpectedObjectGraph = createExpectedGraph(
+    [ExpectedObjectGraph] = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       hisBike, BuiltInJSTypeName.Object, "Vehicle"
     );
@@ -217,7 +217,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes with static fields", async () => {
     const hisCar = new Vehicle;
-    ExpectedObjectGraph = createExpectedGraph(
+    [ExpectedObjectGraph] = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       hisCar, BuiltInJSTypeName.Object, "Vehicle"
     );
@@ -248,7 +248,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes with static getters", async () => {
     const hisCar = new Vehicle();
-    ExpectedObjectGraph = createExpectedGraph(
+    [ExpectedObjectGraph] = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
     );
@@ -279,7 +279,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes with private static fields", async () => {
     const hisCar = new Vehicle;
-    ExpectedObjectGraph = createExpectedGraph(
+    [ExpectedObjectGraph] = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       hisCar, BuiltInJSTypeName.Object, "Vehicle"
     );
@@ -311,7 +311,7 @@ describe("Simple graph searches, class support:", () => {
 
   it("classes with static private getters", async () => {
     const hisCar = new Vehicle();
-    ExpectedObjectGraph = createExpectedGraph(
+    [ExpectedObjectGraph] = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       Vehicle, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
     );

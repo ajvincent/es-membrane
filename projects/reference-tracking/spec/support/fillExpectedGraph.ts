@@ -8,7 +8,7 @@ import {
   type HostObjectGraph
 } from "../../source/graph-analysis/ObjectGraphImpl.js";
 
-import {
+import type {
   GraphObjectMetadata
 } from "../../source/types/GraphObjectMetadata.js";
 
@@ -32,7 +32,7 @@ export function createExpectedGraph(
   startingObject: object,
   startingJSTypeName: BuiltInJSTypeName,
   startingClassName: string
-): ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>
+): [ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>, WeakKey[]]
 {
   const targetMetadata: GraphObjectMetadata = {
     builtInJSTypeName: targetJSTypeName,
@@ -55,7 +55,7 @@ export function createExpectedGraph(
   addObjectGraphNode(ExpectedObjectGraph, startingObject, startingJSTypeName, startingClassName);
   addArrayIndexEdge(ExpectedObjectGraph, heldValues, 0, startingObject, false);
 
-  return ExpectedObjectGraph;
+  return [ExpectedObjectGraph, heldValues];
 }
 
 export function addObjectGraphNode(

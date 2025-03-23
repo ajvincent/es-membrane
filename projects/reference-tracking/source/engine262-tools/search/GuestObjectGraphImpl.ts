@@ -39,6 +39,8 @@ import {
 } from "./HostValueSubstitution.js";
 //#endregion preamble
 
+type GuestWeakKey = EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>;
+
 export class GuestObjectGraphImpl<
   ObjectMetadata extends JsonObject | null,
   RelationshipMetadata extends JsonObject | null
@@ -67,7 +69,7 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
   }
 
   public defineTargetAndHeldValues(
-    target: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
+    target: GuestWeakKey,
     targetMetadata: ObjectMetadata,
     heldValues: GuestEngine.ObjectValue,
     heldValuesMetadata: ObjectMetadata
@@ -82,7 +84,7 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
   }
 
   public getWeakKeyId(
-    weakKey: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>
+    weakKey: GuestWeakKey
   ): ObjectId | SymbolId
   {
     let hostKey: object | symbol;
@@ -169,7 +171,7 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
   public definePropertyOrGetter(
     parentObject: GuestEngine.ObjectValue,
     guestRelationshipName: string | number | GuestEngine.SymbolValue,
-    childObject: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
+    childObject: GuestWeakKey,
     metadata: RelationshipMetadata,
     isGetter: boolean
   ): PrefixedNumber<EdgePrefix.GetterKey | EdgePrefix.PropertyKey>
@@ -218,7 +220,7 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
   public defineScopeValue(
     functionObject: GuestEngine.ObjectValue,
     identifier: string,
-    objectValue: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
+    objectValue: GuestWeakKey,
     metadata: RelationshipMetadata
   ): PrefixedNumber<EdgePrefix.ScopeValue>
   {
@@ -282,29 +284,29 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
       this.#substitution.getHostObject(value),
       isStrongReferenceToValue,
       metadata,
-    )
+    );
   }
 
   public defineFinalizationTuple(
     registry: GuestEngine.ObjectValue,
-    target: GuestEngine.ObjectValue,
+    target: GuestWeakKey,
     heldValue: GuestEngine.Value,
-    unregisterToken: GuestEngine.ObjectValue | undefined
+    unregisterToken: GuestWeakKey | undefined
   ): FinalizationTupleIds
   {
     return this.#hostGraph.defineFinalizationTuple(
       this.#substitution.getHostObject(registry),
-      this.#substitution.getHostObject(target),
+      this.#substitution.getHostWeakKey(target),
       this.#substitution.getHostValue(heldValue),
-      unregisterToken ? this.#substitution.getHostObject(unregisterToken) : undefined,
-    )
+      unregisterToken ? this.#substitution.getHostWeakKey(unregisterToken) : undefined,
+    );
   }
 
   public definePrivateField(
     parentObject: GuestEngine.ObjectValue,
     privateName: GuestEngine.PrivateName,
     privateKey: `#${string}`,
-    childObject: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
+    childObject: GuestWeakKey,
     privateNameMetadata: RelationshipMetadata,
     childMetadata: RelationshipMetadata,
     isGetter: boolean

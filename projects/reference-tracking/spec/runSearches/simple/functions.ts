@@ -54,7 +54,7 @@ describe("Simple graph searches: function support,", () => {
   it("arrow functions refer to this", async () => {
     function compare() {}
     const sorter = { isSorter: true };
-    ExpectedObjectGraph = createExpectedGraph(sorter, BuiltInJSTypeName.Object, "PropertyKeySorter",
+    [ExpectedObjectGraph] = createExpectedGraph(sorter, BuiltInJSTypeName.Object, "PropertyKeySorter",
       compare, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
     );
     addScopeValueEdge(ExpectedObjectGraph, compare, "this", sorter);
@@ -77,7 +77,7 @@ describe("Simple graph searches: function support,", () => {
     function boundGetOwner() {
       // empty on purpose
     }
-    ExpectedObjectGraph = createExpectedGraph(
+    [ExpectedObjectGraph] = createExpectedGraph(
       Fred, BuiltInJSTypeName.Object, "Person",
       boundGetOwner, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
     );
@@ -124,7 +124,7 @@ describe("Simple graph searches: function support,", () => {
     }
 
     it("one level deep", async () => {
-      ExpectedObjectGraph = createExpectedGraph(
+      [ExpectedObjectGraph] = createExpectedGraph(
         target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
         enclosure, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
       );
@@ -171,7 +171,7 @@ describe("Simple graph searches: function support,", () => {
     });
 
     it("two levels deep, from the outer enclosure", async () => {
-      ExpectedObjectGraph = createExpectedGraph(
+      [ExpectedObjectGraph] = createExpectedGraph(
         target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
         enclosure, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
       );
@@ -218,7 +218,7 @@ describe("Simple graph searches: function support,", () => {
     });
 
     it("two levels deep, from the inner enclosure", async () => {
-      ExpectedObjectGraph = createExpectedGraph(
+      [ExpectedObjectGraph] = createExpectedGraph(
         target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
         enclosure, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
       ); // target:0, heldValues:1, object:2
