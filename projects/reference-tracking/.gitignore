@@ -11,3 +11,4 @@ dist/**
 !dist/bin/*.d.ts
 
 playground
+spec/playground
