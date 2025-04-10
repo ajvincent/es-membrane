@@ -2,7 +2,6 @@ import path from "node:path";
 
 import {
   GuestEngine,
-  type ThrowOr
 } from "../../../source/engine262-tools/host-to-guest/GuestEngine.js";
 
 import {
@@ -30,13 +29,14 @@ it("directInvoke works", async () => {
   const callback = jasmine.createSpy<
     (
       guestValues: readonly GuestEngine.Value[],
-    ) => ThrowOr<GuestEngine.Value>
+    ) => GuestEngine.Evaluator<GuestEngine.Value>
   >();
 
   let failed = false;
-  callback.and.callFake((
+  // eslint-disable-next-line require-yield
+  callback.and.callFake(function * (
     guestValues: readonly GuestEngine.Value[],
-  ): ThrowOr<GuestEngine.Value> => {
+  ): GuestEngine.Evaluator<GuestEngine.Value> {
     if (failed)
       return GuestEngine.Value.undefined;
 
@@ -61,8 +61,8 @@ it("directInvoke works", async () => {
 
   const outputs: GuestRealmOutputs = await directInvoke({
     absolutePathToFile,
-    defineBuiltIns: (realm) => {
-      defineReportFunction(realm, callback);
+    defineBuiltIns: function * (realm) {
+      yield * defineReportFunction(realm, callback);
     },
   });
 
@@ -77,13 +77,13 @@ it("directInvoke throws when it doesn't get an array argument", async () => {
   const callback = jasmine.createSpy<
     (
       guestValues: readonly GuestEngine.Value[],
-    ) => ThrowOr<GuestEngine.Value>
+    ) => GuestEngine.Evaluator<GuestEngine.Value>
   >();
 
   const outputs: GuestRealmOutputs = await directInvoke({
     absolutePathToFile,
-    defineBuiltIns: (realm) => {
-      defineReportFunction(realm, callback);
+    defineBuiltIns: function * (realm) {
+      yield * defineReportFunction(realm, callback);
     },
   });
 

@@ -1,26 +1,35 @@
 import {
+  EnsureTypeOrThrow
+} from "../../host-to-guest/EnsureTypeOrThrow.js";
+
+import {
   GuestEngine,
-  type ThrowOr,
 } from "../../host-to-guest/GuestEngine.js";
 
 import { convertArrayValueToArrayOfValues } from "../../host-to-guest/convertArrayValueToArrayOfValues.js";
 import { defineBuiltInFunction } from "../defineBuiltInFunction.js";
 
-export function defineReportFunction(
+type ReporterFunction = (
+  guestValues: readonly GuestEngine.Value[]
+) => GuestEngine.Evaluator<GuestEngine.Value>;
+
+export function * defineReportFunction(
   realm: GuestEngine.ManagedRealm,
-  reportFn: (guestValues: readonly GuestEngine.Value[]) => ThrowOr<GuestEngine.Value>
-)
+  reportFn: ReporterFunction
+): GuestEngine.Evaluator<void>
 {
-  defineBuiltInFunction(realm, "report", (
-    guestThisArg, guestArguments, guestNewTarget
-  ) => {
+  yield * defineBuiltInFunction(realm, "report", function * (
+    guestThisArg: GuestEngine.Value,
+    guestArguments: readonly GuestEngine.Value[],
+    guestNewTarget: GuestEngine.Value,
+  ): GuestEngine.Evaluator<GuestEngine.Value>
+  {
     void (guestThisArg);
     void (guestNewTarget);
 
-    const arrayOfValues: ThrowOr<GuestEngine.Value[]> = convertArrayValueToArrayOfValues(guestArguments[0]);
-    if (Array.isArray(arrayOfValues) === false)
-      return arrayOfValues;
-
-    return reportFn(arrayOfValues);
+    const arrayOfValues: GuestEngine.Value[] = yield* EnsureTypeOrThrow<GuestEngine.Value[]>(
+      convertArrayValueToArrayOfValues(guestArguments[0])
+    );
+    return yield* reportFn(arrayOfValues);
   });
 }

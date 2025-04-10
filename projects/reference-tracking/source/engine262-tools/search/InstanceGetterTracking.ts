@@ -1,6 +1,10 @@
 import type {
+  GuestEngine,
+} from "../host-to-guest/GuestEngine.js";
+
+import type {
   InstanceGetterDefinitions
-} from "./types/InstanceGetterDefinitions.js";
+} from "../types/InstanceGetterDefinitions.js";
 
 export class InstanceGetterTracking<
   EngineObject extends object,
@@ -22,10 +26,10 @@ export class InstanceGetterTracking<
     this.#definitions = definitions;
   }
 
-  public addInstance(
+  public * addInstance(
     instance: EngineObject,
     classObject: EngineObject
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
     this.#classToInstancesMap.add(classObject, instance);
 
@@ -39,44 +43,44 @@ export class InstanceGetterTracking<
     while (classStack.length) {
       currentClass = classStack.shift();
       for (const key of this.#classToGetterKeysMap.mapValues(currentClass!)) {
-        this.#definitions.defineInstanceGetter(instance, key);
+        yield* this.#definitions.defineInstanceGetter(instance, key);
       }
     }
   }
 
-  public addBaseClass(
+  public * addBaseClass(
     derivedClass: EngineObject,
     baseClass: EngineObject
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
     this.#baseClassToDerivedClassMap.add(baseClass, derivedClass);
     this.#derivedClassToBaseClassMap.set(derivedClass, baseClass);
 
     for (const key of this.#classToGetterKeysMap.mapValues(baseClass)) {
-      this.#notifyFoundPublicKey(derivedClass, key);
+      yield * this.#notifyFoundPublicKey(derivedClass, key);
     }
   }
 
-  public addGetterName(
+  public * addGetterName(
     baseClass: EngineObject,
     key: string | number | EngineSymbol
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
     this.#classToGetterKeysMap.add(baseClass, key);
-    this.#notifyFoundPublicKey(baseClass, key);
+    yield * this.#notifyFoundPublicKey(baseClass, key);
   }
 
-  #notifyFoundPublicKey(
+  * #notifyFoundPublicKey(
     baseClass: EngineObject,
     key: string | number | EngineSymbol,
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
     for (const instance of this.#classToInstancesMap.mapValues(baseClass)) {
-      this.#definitions.defineInstanceGetter(instance, key);
+      yield * this.#definitions.defineInstanceGetter(instance, key);
     }
 
     for (const derivedClass of this.#baseClassToDerivedClassMap.mapValues(baseClass)) {
-      this.#notifyFoundPublicKey(derivedClass, key);
+      yield * this.#notifyFoundPublicKey(derivedClass, key);
     }
   }
 }

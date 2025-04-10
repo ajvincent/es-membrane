@@ -48,7 +48,8 @@ class VoidGuestToHostPromise {
 
   #guestResolver(
     guestArguments: readonly GuestEngine.Value[]
-  ): GuestEngine.Value {
+  ): GuestEngine.Value
+  {
     void(guestArguments);
     this.#resolve();
     return guestArguments[0];
@@ -56,7 +57,8 @@ class VoidGuestToHostPromise {
 
   #guestRejecter(
     guestArguments: readonly GuestEngine.Value[]
-  ): GuestEngine.ThrowCompletion {
+  ): GuestEngine.ThrowCompletion
+  {
     this.#reject("guest promise rejected");
     return GuestEngine.ThrowCompletion(guestArguments[0]);
   }

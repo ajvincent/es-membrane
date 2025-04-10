@@ -145,20 +145,10 @@ describe("Simple graph searches: function support,", () => {
       addScopeValueEdge(ExpectedObjectGraph, enclosure, "firstValue", miscellaneous);
       addScopeValueEdge(ExpectedObjectGraph, enclosure, "secondValue", target);
 
-      const enclosureArgs = [miscellaneous, target];
-      addObjectGraphNode(
-        ExpectedObjectGraph, enclosureArgs,
-        BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
-      ); // object:5
-      addScopeValueEdge(ExpectedObjectGraph, enclosure, "arguments", enclosureArgs);
-
       addPropertyNameEdge(
         ExpectedObjectGraph, enclosure.prototype, "constructor",
         enclosure, false
       );
-
-      addArrayIndexEdge(ExpectedObjectGraph, enclosureArgs, 0, miscellaneous, false);
-      addArrayIndexEdge(ExpectedObjectGraph, enclosureArgs, 1, target, false);
 
       ExpectedObjectGraph.markStrongReferencesFromHeldValues();
       ExpectedObjectGraph.summarizeGraphToTarget(true);
@@ -192,20 +182,10 @@ describe("Simple graph searches: function support,", () => {
       addScopeValueEdge(ExpectedObjectGraph, enclosure, "firstValue", miscellaneous);
       addScopeValueEdge(ExpectedObjectGraph, enclosure, "secondValue", target);
 
-      const enclosureArgs = [miscellaneous, target];
-      addObjectGraphNode(
-        ExpectedObjectGraph, enclosureArgs,
-        BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
-      ); // object:5
-      addScopeValueEdge(ExpectedObjectGraph, enclosure, "arguments", enclosureArgs);
-
       addPropertyNameEdge(
         ExpectedObjectGraph, enclosure.prototype, "constructor",
         enclosure, false
       );
-
-      addArrayIndexEdge(ExpectedObjectGraph, enclosureArgs, 0, miscellaneous, false);
-      addArrayIndexEdge(ExpectedObjectGraph, enclosureArgs, 1, target, false);
 
       ExpectedObjectGraph.markStrongReferencesFromHeldValues();
       ExpectedObjectGraph.summarizeGraphToTarget(true);
@@ -230,13 +210,6 @@ describe("Simple graph searches: function support,", () => {
         ExpectedObjectGraph, enclosure, "prototype",
         enclosure.prototype, false
       );
-
-      const innerEnclosureArgs: unknown[] = [];
-      addObjectGraphNode(
-        ExpectedObjectGraph, innerEnclosureArgs,
-        BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
-      ); // object:4
-      addScopeValueEdge(ExpectedObjectGraph, enclosure, "arguments", innerEnclosureArgs);
 
       addObjectGraphNode(
         ExpectedObjectGraph, miscellaneous,

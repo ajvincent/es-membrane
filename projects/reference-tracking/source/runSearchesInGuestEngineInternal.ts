@@ -16,7 +16,6 @@ import {
 
 import {
   GuestEngine,
-  type ThrowOr,
 } from "./engine262-tools/host-to-guest/GuestEngine.js";
 
 import {
@@ -42,9 +41,11 @@ export async function runSearchesInGuestEngineInternal(
 
   const outputs: GuestRealmOutputs = await directInvoke({
     absolutePathToFile,
-    defineBuiltIns: (realm: GuestEngine.ManagedRealm): void => {
-      defineReportFunction(realm, (guestValues) => handleReport(guestValues, reportCalls));
-      defineSearchReferences(realm, graphs, {
+    defineBuiltIns: function * (realm: GuestEngine.ManagedRealm): GuestEngine.Evaluator<void> {
+      yield * defineReportFunction(realm, function * (guestValues): GuestEngine.Evaluator<GuestEngine.Value> {
+        return yield* handleReport(guestValues, reportCalls);
+      });
+      yield * defineSearchReferences(realm, graphs, {
         internalErrorTrap,
         noFunctionEnvironment: true
       });
@@ -58,17 +59,19 @@ export async function runSearchesInGuestEngineInternal(
   return { graphs, reportCalls };
 }
 
-function handleReport(
+// eslint-disable-next-line require-yield
+function * handleReport(
   guestValues: readonly GuestEngine.Value[],
   reportCalls: Map<string, string | number | boolean | undefined | null>
-): ThrowOr<GuestEngine.UndefinedValue> {
+): GuestEngine.Evaluator<GuestEngine.UndefinedValue>
+{
   const [keyGuest, valueGuest] = guestValues;
   if (keyGuest?.type !== "String")
-    return GuestEngine.Throw("TypeError", "Raw", "key must be a string");
+    throw GuestEngine.Throw("TypeError", "Raw", "key must be a string");
 
   const key: string = keyGuest.stringValue();
   if (reportCalls.has(key))
-    return GuestEngine.Throw("Error", "Raw", `key "${key}" is already defined`);
+    throw GuestEngine.Throw("Error", "Raw", `key "${key}" is already defined`);
 
   if (valueGuest === undefined || valueGuest.type === "Undefined")
     reportCalls.set(key, undefined);
@@ -82,7 +85,7 @@ function handleReport(
     reportCalls.set(key, null);
 
   else
-    return GuestEngine.Throw("TypeError", "Raw", `value must be undefined, a string, a boolean, a number, or null.`);
+    throw GuestEngine.Throw("TypeError", "Raw", `value must be undefined, a string, a boolean, a number, or null.`);
 
   return GuestEngine.Value.undefined;
 }

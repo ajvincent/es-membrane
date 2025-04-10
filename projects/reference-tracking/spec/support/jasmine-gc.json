@@ -1,6 +1,0 @@
-{
-  "spec_files": [
-    "./dist/spec/gc/**/*.js"
-  ],
-  "stopSpecOnExpectationFailure": false
-}

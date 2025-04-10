@@ -17,9 +17,9 @@ export async function directInvoke(
 {
   return await runInRealm({
     absolutePathToFile: realmInputs.absolutePathToFile,
-    defineBuiltIns: (realm: GuestEngine.ManagedRealm) => {
+    defineBuiltIns: function * (realm: GuestEngine.ManagedRealm): GuestEngine.Evaluator<void> {
       if (realmInputs.defineBuiltIns)
-        realmInputs.defineBuiltIns(realm);
+        yield * realmInputs.defineBuiltIns(realm);
     }
   });
 }

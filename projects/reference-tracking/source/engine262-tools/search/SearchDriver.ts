@@ -48,6 +48,9 @@ export class SearchDriver
   readonly #searchReferences: SearchReferencesIfc;
   readonly #cloneableGraph: CloneableGraphIfc;
 
+  readonly #targetValue: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>;
+  readonly #heldValues: GuestEngine.ObjectValue;
+
   constructor(
     targetValue: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
     heldValues: GuestEngine.ObjectValue,
@@ -57,14 +60,14 @@ export class SearchDriver
     searchConfiguration?: SearchConfiguration,
   )
   {
+    this.#targetValue = targetValue;
+    this.#heldValues = heldValues;
     this.#strongReferencesOnly = strongReferencesOnly;
 
     const hostGraphImpl = new ObjectGraphImpl<
       GraphObjectMetadata, GraphRelationshipMetadata
     >(searchConfiguration?.internalErrorTrap);
     this.#graphBuilder = new GraphBuilder(
-      targetValue,
-      heldValues,
       realm,
       hostGraphImpl,
       resultsKey,
@@ -75,9 +78,9 @@ export class SearchDriver
     this.#searchReferences = hostGraphImpl;
   }
 
-  public run(): Graph | null
+  public * run(): GuestEngine.Evaluator<Graph | null>
   {
-    this.#graphBuilder.run();
+    yield * this.#graphBuilder.run(this.#targetValue, this.#heldValues);
 
     if (this.#strongReferencesOnly) {
       this.#searchReferences.markStrongReferencesFromHeldValues();

@@ -11,8 +11,11 @@ import type {
 } from "../../types/SearchConfiguration.js";
 
 import {
+  EnsureTypeOrThrow
+} from "../host-to-guest/EnsureTypeOrThrow.js";
+
+import {
   GuestEngine,
-  type ThrowOr,
 } from "../host-to-guest/GuestEngine.js";
 
 import {
@@ -34,30 +37,28 @@ interface SearchReferencesArguments {
   readonly strongReferencesOnly: boolean,
 }
 
-export function defineSearchReferences(
+export function * defineSearchReferences(
   this: void,
   realm: GuestEngine.ManagedRealm,
   searchResultsMap: Map<string, Graph | null>,
   searchConfiguration?: SearchConfiguration
-): void
+): GuestEngine.Evaluator<void>
 {
-  defineBuiltInFunction(
-    realm, "searchReferences", function performGuestSearch(
+  yield* defineBuiltInFunction(
+    realm, "searchReferences", function * performGuestSearch(
       this: void,
       guestThisArg: GuestEngine.Value,
       guestArguments: readonly GuestEngine.Value[],
       guestNewTarget: GuestEngine.Value
-    ): ThrowOr<GuestEngine.UndefinedValue>
+    ): GuestEngine.Evaluator<GuestEngine.UndefinedValue>
     {
       void(guestThisArg);
       void(guestNewTarget);
 
-      const searchArgs: ThrowOr<SearchReferencesArguments> = extractSearchParameters(guestArguments);
-      if (searchArgs instanceof GuestEngine.ThrowCompletion)
-        return searchArgs;
+      const searchArgs: SearchReferencesArguments = yield* EnsureTypeOrThrow(extractSearchParameters(guestArguments));
 
       if (searchResultsMap.has(searchArgs.resultsKey)) {
-        return GuestEngine.Throw("Error", "Raw",
+        throw GuestEngine.Throw("Error", "Raw",
           `You already have a search with the results key ${JSON.stringify(searchArgs.resultsKey)}`
         );
       }
@@ -71,7 +72,7 @@ export function defineSearchReferences(
         searchConfiguration
       );
 
-      const graphOrNull: Graph | null = searchDriver.run();
+      const graphOrNull: Graph | null = yield* searchDriver.run();
 
       searchResultsMap.set(searchArgs.resultsKey, graphOrNull);
       return GuestEngine.Value.undefined;
@@ -79,38 +80,36 @@ export function defineSearchReferences(
   )
 }
 
-function extractSearchParameters(
+function * extractSearchParameters(
   this: void,
   guestArguments: readonly GuestEngine.Value[],
-): ThrowOr<SearchReferencesArguments>
+): GuestEngine.Evaluator<SearchReferencesArguments>
 {
   const [resultsKeyGuest, targetValue, heldValuesArrayGuest, strongRefsGuest] = guestArguments;
   if (resultsKeyGuest?.type !== "String") {
-    return GuestEngine.Throw("TypeError", "Raw", "resultsKey is not a string");
+    throw GuestEngine.Throw("TypeError", "Raw", "resultsKey is not a string");
   }
 
   if (targetValue?.type !== "Object" && targetValue?.type !== "Symbol") {
     //FIXME: NotAWeakKey
-    return GuestEngine.Throw("TypeError", "NotAnObject", targetValue);
+    throw GuestEngine.Throw("TypeError", "NotAnObject", targetValue);
   }
 
   if (heldValuesArrayGuest.type !== "Object") {
-    return GuestEngine.Throw('TypeError', "Raw", "Expected an Array object");
+    throw GuestEngine.Throw('TypeError', "Raw", "Expected an Array object");
   }
-  const heldValuesRaw: ThrowOr<readonly GuestEngine.Value[]> = convertArrayValueToArrayOfValues(
+  const heldValuesRaw: GuestEngine.Value[] = yield* EnsureTypeOrThrow(convertArrayValueToArrayOfValues(
     heldValuesArrayGuest
-  );
-  if (heldValuesRaw instanceof GuestEngine.ThrowCompletion)
-    return heldValuesRaw;
+  ));
 
   for (let i = 0; i < heldValuesRaw.length; i++) {
     //FIXME: NotAWeakKey
     if (heldValuesRaw[i].type !== "Object" && heldValuesRaw[i].type !== "Symbol")
-      return GuestEngine.Throw("TypeError", "Raw", `heldValues[${i}] is not a weak key`);
+      throw GuestEngine.Throw("TypeError", "Raw", `heldValues[${i}] is not a weak key`);
   }
 
   if (strongRefsGuest?.type !== "Boolean")
-    return GuestEngine.Throw("TypeError", "Raw", "strongReferencesOnly is not a boolean");
+    throw GuestEngine.Throw("TypeError", "Raw", "strongReferencesOnly is not a boolean");
 
   return {
     resultsKey: resultsKeyGuest.stringValue(),

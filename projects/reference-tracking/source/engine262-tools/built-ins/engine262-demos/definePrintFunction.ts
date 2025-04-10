@@ -5,11 +5,12 @@ import {
 import { defineBuiltInFunction } from "../defineBuiltInFunction.js";
 
 export function definePrintFunction(realm: GuestEngine.ManagedRealm) {
-  defineBuiltInFunction(realm, "print", function print(
+  // eslint-disable-next-line require-yield
+  defineBuiltInFunction(realm, "print", function * print(
     guestThisArg: GuestEngine.Value,
     guestArguments: readonly GuestEngine.Value[],
     guestNewTarget: GuestEngine.Value
-  ): GuestEngine.Value {
+  ): GuestEngine.Evaluator<GuestEngine.Value> {
     void (guestThisArg);
     void (guestNewTarget);
     console.log(guestArguments.map((tmp) => GuestEngine.inspect(tmp)));

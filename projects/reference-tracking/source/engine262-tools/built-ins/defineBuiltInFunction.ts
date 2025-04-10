@@ -2,7 +2,7 @@ import {
   GuestEngine
 } from "../host-to-guest/GuestEngine.js";
 
-export function defineBuiltInFunction(
+export function * defineBuiltInFunction(
   realm: GuestEngine.ManagedRealm,
   name: string,
   /* argumentsLength: number */
@@ -10,17 +10,17 @@ export function defineBuiltInFunction(
     guestThisArg: GuestEngine.Value,
     guestArguments: readonly GuestEngine.Value[],
     guestNewTarget: GuestEngine.Value
-  ) => GuestEngine.Value | GuestEngine.ThrowCompletion,
-): void
+  ) => GuestEngine.Evaluator<GuestEngine.Value>
+): GuestEngine.Evaluator<void>
 {
   const argumentsLength = 1;
-  function builtInConverter(
+  function * builtInConverter(
     guestArguments: readonly GuestEngine.Value[],
     thisAndNewValue: { thisValue: GuestEngine.Value, NewTarget: GuestEngine.Value }
-  ): GuestEngine.Value | GuestEngine.ThrowCompletion
+  ): GuestEngine.ValueEvaluator<GuestEngine.Value>
   {
     try {
-      return callback(thisAndNewValue.thisValue, guestArguments, thisAndNewValue.NewTarget);
+      return yield* callback(thisAndNewValue.thisValue, guestArguments, thisAndNewValue.NewTarget);
     }
     catch (ex: unknown) {
       if (ex instanceof GuestEngine.ThrowCompletion)
@@ -34,5 +34,5 @@ export function defineBuiltInFunction(
   const builtInName = GuestEngine.Value(name);
 
   const builtInCallback = GuestEngine.CreateBuiltinFunction(builtInConverter, argumentsLength, builtInName, []);
-  GuestEngine.CreateDataProperty(realm.GlobalObject, builtInName, builtInCallback);
+  yield * GuestEngine.CreateDataProperty(realm.GlobalObject, builtInName, builtInCallback);
 }

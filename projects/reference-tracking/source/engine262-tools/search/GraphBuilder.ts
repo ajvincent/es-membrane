@@ -1,11 +1,11 @@
 //#region preamble
 import {
   InstanceGetterTracking
-} from "../../graph-analysis/InstanceGetterTracking.js";
+} from "./InstanceGetterTracking.js";
 
 import type {
   InstanceGetterDefinitions
-} from "../../graph-analysis/types/InstanceGetterDefinitions.js";
+} from "../types/InstanceGetterDefinitions.js";
 
 import type {
   EngineWeakKey,
@@ -31,12 +31,11 @@ import {
 
 import {
   GuestEngine,
-  type PlainCompletion,
 } from "../host-to-guest/GuestEngine.js";
 
 import {
-  EnsureValueOrThrow
-} from "../host-to-guest/ValueOrThrow.js";
+  EnsureTypeOrThrow
+} from "../host-to-guest/EnsureTypeOrThrow.js";
 
 import type {
   GuestObjectGraphIfc
@@ -50,10 +49,6 @@ import {
   buildObjectMetadata
 } from "./ObjectMetadata.js";
 
-import {
-  FunctionStatementSearch,
-  type FunctionReferenceBuilder,
-} from "./FunctionStatementSearch.js";
 //#endregion preamble
 
 interface GuestFinalizationRegistryCell {
@@ -62,9 +57,10 @@ interface GuestFinalizationRegistryCell {
   readonly UnregisterToken: GuestEngine.Value | undefined;
 }
 
+type GuestObjectOrNull = GuestEngine.ObjectValue | GuestEngine.NullValue
+
 export class GraphBuilder
-implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
-FunctionReferenceBuilder
+implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.SymbolValue>
 {
   //#region private class fields and static private fields
   static readonly #stringConstants: ReadonlyMap<string, GuestEngine.JSStringValue> = new Map([
@@ -100,11 +96,11 @@ FunctionReferenceBuilder
     ]);
   }
 
-  static #isConstructorPrototype(
+  static * #isConstructorPrototype(
     guestObject: GuestEngine.ObjectValue
-  ): boolean
+  ): GuestEngine.Evaluator<boolean>
   {
-    const guestCtor = EnsureValueOrThrow(GuestEngine.GetV(
+    const guestCtor: GuestEngine.Value = yield * EnsureTypeOrThrow(GuestEngine.GetV(
       guestObject, GraphBuilder.#stringConstants.get("constructor")!
     ));
 
@@ -112,7 +108,7 @@ FunctionReferenceBuilder
       return false;
     }
 
-    const guestCtorProto = EnsureValueOrThrow(GuestEngine.GetPrototypeFromConstructor(
+    const guestCtorProto: GuestEngine.ObjectValue = yield* EnsureTypeOrThrow(GuestEngine.GetPrototypeFromConstructor(
       guestCtor, "%Object.prototype%"
     ));
     return guestCtorProto === guestObject;
@@ -128,10 +124,10 @@ FunctionReferenceBuilder
   readonly #objectsToExcludeFromSearch = new Set<GuestEngine.ObjectValue>;
   readonly #objectQueue = new Set<GuestEngine.ObjectValue>;
 
+  //FIXME: InstanceGetterTracking is
   readonly #instanceGetterTracking = new InstanceGetterTracking<
     GuestEngine.ObjectValue, GuestEngine.SymbolValue
   >(this);
-  readonly #functionStatementSearch = new FunctionStatementSearch(this);
 
   readonly #searchConfiguration?: SearchConfiguration;
   //#endregion private class fields and static private fields
@@ -141,8 +137,6 @@ FunctionReferenceBuilder
   public readonly lineNumber: number;
 
   constructor(
-    targetValue: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
-    heldValues: GuestEngine.ObjectValue,
     realm: GuestEngine.ManagedRealm,
     hostObjectGraph: ObjectGraphIfc<object, symbol, object, GraphObjectMetadata, GraphRelationshipMetadata>,
     resultsKey: string,
@@ -151,7 +145,7 @@ FunctionReferenceBuilder
   {
     this.resultsKey = resultsKey;
     {
-      const callerContext = GuestEngine.surroundingAgent.executionContextStack[1];
+      const callerContext = GuestEngine.surroundingAgent.executionContextStack[2];
       if ("HostDefined" in callerContext.ScriptOrModule)
         this.sourceSpecifier = callerContext.ScriptOrModule.HostDefined.specifier ?? "";
       else
@@ -164,13 +158,56 @@ FunctionReferenceBuilder
     this.#intrinsics = new WeakSet(Object.values(realm.Intrinsics));
 
     this.#guestObjectGraph = new GuestObjectGraphImpl(hostObjectGraph);
+  }
 
+  * defineInstanceGetter(
+    guestInstance: GuestEngine.ObjectValue,
+    getterKey: string | number | GuestEngine.SymbolValue
+  ): GuestEngine.Evaluator<void>
+  {
+    const guestKey: GuestEngine.JSStringValue | GuestEngine.SymbolValue = (
+      typeof getterKey === "object" ? getterKey : GuestEngine.Value(getterKey.toString())
+    );
+
+    const guestValue: GuestEngine.Value = yield* EnsureTypeOrThrow(
+      GuestEngine.GetV(guestInstance, guestKey)
+    );
+
+    if (guestValue.type === "Object" || guestValue.type === "Symbol") {
+      yield* this.#defineGraphNode(guestValue, false);
+      this.#addObjectPropertyOrGetter(guestInstance, guestKey, guestValue, true);
+    }
+  }
+
+  * buildFunctionValueReference(
+    guestFunction: GuestEngine.FunctionObject,
+    nameOfValue: string,
+    guestValue: GuestEngine.Value,
+  ): GuestEngine.Evaluator<void>
+  {
+    if (guestValue.type !== "Object" && guestValue.type !== "Symbol")
+      return;
+
+    yield* this.#defineGraphNode(guestValue, false);
+    const relationship = GraphBuilder.#buildChildEdgeType(
+      ChildReferenceEdgeType.ScopeValue
+    );
+    this.#guestObjectGraph.defineScopeValue(
+      guestFunction, nameOfValue, guestValue, relationship
+    );
+  }
+
+  public * run(
+    targetValue: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
+    heldValues: GuestEngine.ObjectValue,
+  ): GuestEngine.Evaluator<void>
+  {
     const targetMetadata: GraphObjectMetadata = buildObjectMetadata(
-      ...this.#getCollectionAndClassName(targetValue)
+      ...yield * this.#getCollectionAndClassName(targetValue)
     );
 
     const heldValuesMetadata: GraphObjectMetadata = buildObjectMetadata(
-      ...this.#getCollectionAndClassName(heldValues)
+      ...yield * this.#getCollectionAndClassName(heldValues)
     );
 
     this.#guestObjectGraph.defineTargetAndHeldValues(
@@ -180,65 +217,24 @@ FunctionReferenceBuilder
     if (targetValue.type === "Object")
       this.#objectsToExcludeFromSearch.add(targetValue);
     this.#objectQueue.add(heldValues);
-  }
 
-  defineInstanceGetter(
-    guestInstance: GuestEngine.ObjectValue,
-    getterKey: string | number | GuestEngine.SymbolValue
-  ): void
-  {
-    const guestKey: GuestEngine.JSStringValue | GuestEngine.SymbolValue = (
-      typeof getterKey === "object" ? getterKey : GuestEngine.Value(getterKey.toString())
-    );
-
-    // GetV says it will return a GuestEngine.Value.  For getters, it returns a NormalCompletion<GuestEngine.Value> sometimes.
-    //FIXME: when engine262 is type-checked throughout, this should be cleaned up.
-    const guestValue: GuestEngine.Value = GuestEngine.EnsureCompletion(
-      GuestEngine.GetV(guestInstance, guestKey)
-    ).Value;
-
-    if (guestValue.type === "Object" || guestValue.type === "Symbol") {
-      this.#defineGraphNode(guestValue, false);
-      this.#addObjectPropertyOrGetter(guestInstance, guestKey, guestValue, true);
-    }
-  }
-
-  buildFunctionValueReference(
-    guestFunction: GuestEngine.FunctionObject,
-    nameOfValue: string,
-    guestValue: GuestEngine.Value,
-  ): void
-  {
-    if (guestValue.type !== "Object" && guestValue.type !== "Symbol")
-      return;
-
-    this.#defineGraphNode(guestValue, false);
-    const relationship = GraphBuilder.#buildChildEdgeType(
-      ChildReferenceEdgeType.ScopeValue
-    );
-    this.#guestObjectGraph.defineScopeValue(
-      guestFunction, nameOfValue, guestValue, relationship
-    );
-  }
-
-  public run(): void
-  {
     for (const guestObject of this.#objectQueue) {
       this.#currentNodeId = this.#guestObjectGraph.getWeakKeyId(guestObject);
       if (this.#objectsToExcludeFromSearch.has(guestObject) === false) {
         if (GuestEngine.isProxyExoticObject(guestObject) === false) {
-          this.#addObjectProperties(guestObject);
-          this.#addPrivateFields(guestObject);
-          this.#addConstructorOf(guestObject);
+          yield * this.#addObjectProperties(guestObject);
+          yield * this.#addPrivateFields(guestObject);
+          yield * this.#addConstructorOf(guestObject);
 
           if ((this.#searchConfiguration?.noFunctionEnvironment !== true) &&
             GuestEngine.isECMAScriptFunctionObject(guestObject))
           {
-            this.#addReferencesInFunction(guestObject);
+            // closures
+            yield * this.#addReferencesInFunction(guestObject);
           }
         }
 
-        this.#lookupAndAddInternalSlots(guestObject);
+        yield * this.#lookupAndAddInternalSlots(guestObject);
       }
       this.#currentNodeId = undefined;
     }
@@ -252,13 +248,14 @@ FunctionReferenceBuilder
     throw error;
   }
 
-  #defineGraphNode(
+  * #defineGraphNode(
     guestWeakKey: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
     excludeFromSearch: boolean,
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
+    GuestEngine.Assert(("next" in guestWeakKey) === false);
     if (guestWeakKey.type === "Object") {
-      this.#defineGraphObjectNode(guestWeakKey, excludeFromSearch);
+      yield * this.#defineGraphObjectNode(guestWeakKey, excludeFromSearch);
     }
     else {
       if (excludeFromSearch) {
@@ -268,13 +265,13 @@ FunctionReferenceBuilder
     }
   }
 
-  #defineGraphObjectNode(
+  * #defineGraphObjectNode(
     guestObject: GuestEngine.ObjectValue,
     excludeFromSearch: boolean
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
     if (this.#guestObjectGraph.hasObject(guestObject) === false) {
-      const collectionAndClass = this.#getCollectionAndClassName(guestObject);
+      const collectionAndClass = yield * this.#getCollectionAndClassName(guestObject);
       const objectMetadata = buildObjectMetadata(...collectionAndClass);
       this.#guestObjectGraph.defineObject(guestObject, objectMetadata);
 
@@ -298,9 +295,9 @@ FunctionReferenceBuilder
     }
   }
 
-  #getCollectionAndClassName(
+  * #getCollectionAndClassName(
     guestValue: GuestEngine.ObjectValue | GuestEngine.SymbolValue,
-  ): [BuiltInJSTypeName, string]
+  ): GuestEngine.Evaluator<[BuiltInJSTypeName, string]>
   {
     if (guestValue.type === "Symbol") {
       return [BuiltInJSTypeName.Symbol, BuiltInJSTypeName.Symbol]
@@ -315,7 +312,7 @@ FunctionReferenceBuilder
 
     let derivedClassName: string = "(unknown)";
 
-    let proto: GuestEngine.ObjectValue | GuestEngine.NullValue = EnsureValueOrThrow(value.GetPrototypeOf());
+    let proto: GuestObjectOrNull = yield * EnsureTypeOrThrow(value.GetPrototypeOf());
 
     while (proto.type !== "Null") {
       const builtIn = this.#intrinsicToBuiltInNameMap.get(proto);
@@ -324,11 +321,11 @@ FunctionReferenceBuilder
       }
 
       if (isDirectMatch) {
-        const guestCtor = EnsureValueOrThrow(
+        const guestCtor: GuestEngine.Value = yield * EnsureTypeOrThrow(
           GuestEngine.GetV(value, GraphBuilder.#stringConstants.get("constructor")!)
         );
         if (guestCtor.type === "Object") {
-          const guestName = EnsureValueOrThrow(
+          const guestName: GuestEngine.Value = yield * EnsureTypeOrThrow(
             GuestEngine.GetV(guestCtor, GraphBuilder.#stringConstants.get("name")!)
           );
           if (guestName.type === "String") {
@@ -340,26 +337,29 @@ FunctionReferenceBuilder
       }
 
       value = proto;
-      proto = EnsureValueOrThrow(value.GetPrototypeOf());
+      proto = yield * EnsureTypeOrThrow(value.GetPrototypeOf());
     }
 
-    return [BuiltInJSTypeName.Object, isDirectMatch ? BuiltInJSTypeName.Object : derivedClassName];
+    return [
+      BuiltInJSTypeName.Object,
+      isDirectMatch ? BuiltInJSTypeName.Object : derivedClassName
+    ];
   }
 
-  #addObjectProperties(
+  * #addObjectProperties(
     guestObject: GuestEngine.ObjectValue
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
-    const isObjectPrototype = GraphBuilder.#isConstructorPrototype(guestObject);
+    const isObjectPrototype = yield * GraphBuilder.#isConstructorPrototype(guestObject);
 
-    const OwnKeys: PlainCompletion<GuestEngine.PropertyKeyValue[]> = guestObject.OwnPropertyKeys();
+    const OwnKeys: GuestEngine.PropertyKeyValue[] = yield * EnsureTypeOrThrow(guestObject.OwnPropertyKeys());
     GuestEngine.Assert(Array.isArray(OwnKeys));
     for (const guestKey of OwnKeys) {
       if (guestKey.type === "Symbol") {
         this.#defineGraphSymbolNode(guestKey);
       }
 
-      const descriptor = guestObject.GetOwnProperty(guestKey);
+      const descriptor = yield* guestObject.GetOwnProperty(guestKey);
       GuestEngine.Assert(descriptor instanceof GuestEngine.Descriptor);
 
       let childGuestValue: GuestEngine.Value;
@@ -380,11 +380,11 @@ FunctionReferenceBuilder
           key = guestKey.stringValue();
         }
 
-        const guestCtor = EnsureValueOrThrow(GuestEngine.GetV(
+        const guestCtor = yield * EnsureTypeOrThrow(GuestEngine.GetV(
           guestObject, GraphBuilder.#stringConstants.get("constructor")!
         ));
         if (guestCtor.type === "Object" && this.#intrinsics.has(guestCtor) === false) {
-          this.#instanceGetterTracking.addGetterName(guestCtor, key);
+          yield* this.#instanceGetterTracking.addGetterName(guestCtor, key);
         }
 
         if (isObjectPrototype)
@@ -396,7 +396,7 @@ FunctionReferenceBuilder
 
         GetV can also throw if guestObject is a prototype and guestObject[guestKey] refers to this.
         */
-        const childOrCompletion = GuestEngine.GetV(guestObject, guestKey);
+        const childOrCompletion = yield * EnsureTypeOrThrow(GuestEngine.GetV(guestObject, guestKey));
         if (childOrCompletion instanceof GuestEngine.ThrowCompletion)
           continue;
 
@@ -411,7 +411,7 @@ FunctionReferenceBuilder
         continue;
 
       if (childGuestValue.type === "Object" || childGuestValue.type === "Symbol") {
-        this.#defineGraphNode(childGuestValue, false);
+        yield* this.#defineGraphNode(childGuestValue, false);
         this.#addObjectPropertyOrGetter(guestObject, guestKey, childGuestValue, isGetter);
       }
     }
@@ -452,9 +452,9 @@ FunctionReferenceBuilder
     );
   }
 
-  #addPrivateFields(
+  * #addPrivateFields(
     guestObject: GuestEngine.ObjectValue
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
     for (const element of guestObject.PrivateElements) {
       const { Key, Kind } = element;
@@ -472,10 +472,7 @@ FunctionReferenceBuilder
         if (Get?.type !== "Object")
           continue;
 
-        const RetrievedValue = GuestEngine.PrivateGet(Key, guestObject);
-        if (RetrievedValue instanceof GuestEngine.ThrowCompletion)
-          continue;
-        guestValue = EnsureValueOrThrow(RetrievedValue);
+        guestValue = yield * EnsureTypeOrThrow(GuestEngine.PrivateGet(guestObject, Key));
       }
       else {
         const { Value } = element;
@@ -486,7 +483,7 @@ FunctionReferenceBuilder
       if (guestValue.type !== "Object" && guestValue.type !== "Symbol")
         continue;
 
-      this.#defineGraphNode(guestValue, false);
+      yield* this.#defineGraphNode(guestValue, false);
       const privateNameMetadata = GraphBuilder.#buildChildEdgeType(
         ChildReferenceEdgeType.PrivateClassKey
       );
@@ -500,23 +497,23 @@ FunctionReferenceBuilder
     }
   }
 
-  #lookupAndAddInternalSlots(
+  * #lookupAndAddInternalSlots(
     guestObject: GuestEngine.ObjectValue
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
     if (GuestEngine.isProxyExoticObject(guestObject)) {
-      this.#addInternalSlotIfObject(guestObject, "ProxyTarget", true, true);
-      this.#addInternalSlotIfObject(guestObject, "ProxyHandler", false, true);
+      yield* this.#addInternalSlotIfObject(guestObject, "ProxyTarget", true, true);
+      yield* this.#addInternalSlotIfObject(guestObject, "ProxyHandler", false, true);
       return;
     }
 
-    if (GuestEngine.IsConstructor(guestObject).booleanValue()) {
+    if (GuestEngine.IsConstructor(guestObject)) {
       const kind = Reflect.get(guestObject, "ConstructorKind");
       if (kind === "derived") {
         const proto = Reflect.get(guestObject, "Prototype");
-        if (this.#intrinsics.has(proto) === false) {
-          this.#addInternalSlotIfObject(guestObject, "Prototype", false, true);
-          this.#instanceGetterTracking.addBaseClass(guestObject, proto);
+        if (proto.type !== "Null" && this.#intrinsics.has(proto) === false) {
+          yield* this.#addInternalSlotIfObject(guestObject, "Prototype", false, true);
+          yield* this.#instanceGetterTracking.addBaseClass(guestObject, proto);
         }
       }
     }
@@ -524,12 +521,12 @@ FunctionReferenceBuilder
     const internalSlots: ReadonlySet<string> = new Set(guestObject.internalSlotsList);
 
     if (internalSlots.has("RevocableProxy")) {
-      this.#addInternalSlotIfObject(guestObject, "RevocableProxy", false, true);
+      yield* this.#addInternalSlotIfObject(guestObject, "RevocableProxy", false, true);
       return;
     }
 
     if (internalSlots.has("WeakRefTarget")) {
-      this.#addInternalSlotIfObject(guestObject, "WeakRefTarget", false, false);
+      yield* this.#addInternalSlotIfObject(guestObject, "WeakRefTarget", false, false);
       return;
     }
 
@@ -537,7 +534,7 @@ FunctionReferenceBuilder
       type JobCallbackRecord = { Callback: GuestEngine.Value };
       const { Callback } = Reflect.get(guestObject, "CleanupCallback") as JobCallbackRecord;
       if (Callback.type === "Object") {
-        this.#defineGraphNode(Callback, false);
+        yield* this.#defineGraphNode(Callback, false);
         const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
         this.#guestObjectGraph.defineInternalSlot(
           guestObject, `[[CleanupCallback]]`, Callback, true, edgeRelationship
@@ -546,80 +543,82 @@ FunctionReferenceBuilder
 
       if (internalSlots.has("Cells")) {
         const cells = Reflect.get(guestObject, "Cells") as readonly GuestFinalizationRegistryCell[];
-        cells.forEach(cell => this.#addInternalFinalizationCell(guestObject, cell));
+        for (const cell of cells) {
+          yield* this.#addInternalFinalizationCell(guestObject, cell);
+        }
       }
       return;
     }
 
     if (internalSlots.has("SetData")) {
-      this.#addSetData(guestObject, "SetData");
+      yield* this.#addSetData(guestObject, "SetData");
       return;
     }
     if (internalSlots.has("WeakSetData")) {
-      this.#addSetData(guestObject, "WeakSetData");
+      yield* this.#addSetData(guestObject, "WeakSetData");
       return;
     }
 
     if (internalSlots.has("MapData")) {
-      this.#addMapData(guestObject, "MapData");
+      yield* this.#addMapData(guestObject, "MapData");
       return;
     }
     if (internalSlots.has("WeakMapData")) {
-      this.#addMapData(guestObject, "WeakMapData");
+      yield* this.#addMapData(guestObject, "WeakMapData");
       return;
     }
 
     if (internalSlots.has("BoundTargetFunction")) {
-      this.#addInternalSlotIfObject(guestObject, "BoundTargetFunction", false, true);
+      yield* this.#addInternalSlotIfObject(guestObject, "BoundTargetFunction", false, true);
       if (internalSlots.has("BoundThis"))
-        this.#addInternalSlotIfObject(guestObject, "BoundThis", false, true);
+        yield* this.#addInternalSlotIfObject(guestObject, "BoundThis", false, true);
       if (internalSlots.has("BoundArguments")) {
-        this.#addInternalSlotIfList(guestObject, "BoundArguments");
+        yield* this.#addInternalSlotIfList(guestObject, "BoundArguments");
       }
       return;
     }
 
     if (internalSlots.has("PromiseResult")) {
-      this.#addInternalSlotIfObject(guestObject, "PromiseResult", false, true);
-      this.#addInternalPromiseRecordsList(guestObject, "PromiseFulfillReactions");
-      this.#addInternalPromiseRecordsList(guestObject, "PromiseRejectReactions");
+      yield* this.#addInternalSlotIfObject(guestObject, "PromiseResult", false, true);
+      yield* this.#addInternalPromiseRecordsList(guestObject, "PromiseFulfillReactions");
+      yield* this.#addInternalPromiseRecordsList(guestObject, "PromiseRejectReactions");
     }
   }
 
-  #addInternalSlotIfObject(
+  * #addInternalSlotIfObject(
     parentObject: GuestEngine.ObjectValue,
     slotName: string,
     excludeFromSearches: boolean,
     isStrongReference: boolean
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
     const slotObject = Reflect.get(parentObject, slotName) as GuestEngine.Value;
     if (slotObject.type !== "Object")
       return;
 
-    this.#defineGraphNode(slotObject, excludeFromSearches);
+    yield* this.#defineGraphNode(slotObject, excludeFromSearches);
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
     this.#guestObjectGraph.defineInternalSlot(parentObject, `[[${slotName}]]`, slotObject, isStrongReference, edgeRelationship);
   }
 
-  #addInternalSlotIfList(
+  * #addInternalSlotIfList(
     parentObject: GuestEngine.ObjectValue,
     slotName: string,
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
     const slotArray = Reflect.get(parentObject, slotName) as readonly GuestEngine.Value[] | undefined;
     if (slotArray === undefined)
       return;
     const guestArray: GuestEngine.ObjectValue = GuestEngine.CreateArrayFromList(slotArray);
-    this.#defineGraphNode(guestArray, false);
+    yield* this.#defineGraphNode(guestArray, false);
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
     this.#guestObjectGraph.defineInternalSlot(parentObject, `[[${slotName}]]`, guestArray, true, edgeRelationship);
   }
 
-  #addInternalPromiseRecordsList(
+  * #addInternalPromiseRecordsList(
     promiseObject: GuestEngine.ObjectValue,
     slotName: "PromiseFulfillReactions" | "PromiseRejectReactions"
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
     const records = Reflect.get(promiseObject, slotName) as readonly GuestEngine.PromiseReactionRecord[] | undefined;
     if (records === undefined)
@@ -629,15 +628,15 @@ FunctionReferenceBuilder
     const callbacks: readonly GuestEngine.FunctionObject[] = handlers.map(h => h.Callback);
 
     const guestArray: GuestEngine.ObjectValue = GuestEngine.CreateArrayFromList(callbacks);
-    this.#defineGraphNode(guestArray, false);
+    yield* this.#defineGraphNode(guestArray, false);
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
     this.#guestObjectGraph.defineInternalSlot(promiseObject, `[[${slotName}]]`, guestArray, true, edgeRelationship);
   }
 
-  #addInternalFinalizationCell(
+  * #addInternalFinalizationCell(
     registry: GuestEngine.ObjectValue,
     cell: GuestFinalizationRegistryCell
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
     let WeakRefTarget: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>;
     if (cell.WeakRefTarget?.type === "Object" || cell.WeakRefTarget?.type === "Symbol")
@@ -651,25 +650,25 @@ FunctionReferenceBuilder
     if (cell.UnregisterToken?.type === "Object" || cell.UnregisterToken?.type === "Symbol")
       UnregisterToken = cell.UnregisterToken;
 
-    this.#defineGraphNode(WeakRefTarget, false);
+    yield* this.#defineGraphNode(WeakRefTarget, false);
     if (HeldValue.type === "Object" || HeldValue.type === "Symbol")
-      this.#defineGraphNode(HeldValue, false);
+      yield* this.#defineGraphNode(HeldValue, false);
     if (UnregisterToken)
-      this.#defineGraphNode(UnregisterToken, false);
+      yield* this.#defineGraphNode(UnregisterToken, false);
 
     this.#guestObjectGraph.defineFinalizationTuple(registry, WeakRefTarget, HeldValue, UnregisterToken);
   }
 
-  #addConstructorOf(
+  * #addConstructorOf(
     guestObject: GuestEngine.ObjectValue
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
-    const guestCtor = EnsureValueOrThrow(GuestEngine.GetV(
+    const guestCtor = yield * EnsureTypeOrThrow(GuestEngine.GetV(
       guestObject, GraphBuilder.#stringConstants.get("constructor")!
     ));
     GuestEngine.Assert(GuestEngine.isFunctionObject(guestCtor));
 
-    const guestCtorProto = EnsureValueOrThrow(GuestEngine.GetPrototypeFromConstructor(
+    const guestCtorProto = yield * EnsureTypeOrThrow(GuestEngine.GetPrototypeFromConstructor(
       guestCtor, "%Object.prototype%"
     ));
     if (this.#intrinsics.has(guestCtorProto))
@@ -678,19 +677,19 @@ FunctionReferenceBuilder
       return;
 
     GuestEngine.Assert(guestCtor.type === "Object");
-    GuestEngine.Assert(GuestEngine.IsConstructor(guestCtor).booleanValue());
+    GuestEngine.Assert(GuestEngine.IsConstructor(guestCtor));
 
-    this.#defineGraphNode(guestCtor, false);
+    yield* this.#defineGraphNode(guestCtor, false);
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InstanceOf);
     this.#guestObjectGraph.defineConstructorOf(guestObject, guestCtor, edgeRelationship);
 
-    this.#instanceGetterTracking.addInstance(guestObject, guestCtor);
+    yield* this.#instanceGetterTracking.addInstance(guestObject, guestCtor);
   }
 
-  #addMapData(
+  * #addMapData(
     mapObject: GuestEngine.ObjectValue,
     slotName: "MapData" | "WeakMapData"
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
     const elements = Reflect.get(mapObject, slotName) as readonly Record<"Key" | "Value", GuestEngine.Value>[];
     for (const {Key, Value} of elements) {
@@ -700,13 +699,15 @@ FunctionReferenceBuilder
 
       let keyRelationship: GraphRelationshipMetadata | undefined;
       let valueRelationship: GraphRelationshipMetadata | undefined;
+      //FIXME: type === "Symbol"
       if (Key.type === "Object") {
-        this.#defineGraphNode(Key, false);
+        yield* this.#defineGraphNode(Key, false);
         keyRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.MapKey);
       }
 
+      //FIXME: type === "Symbol"
       if (Value.type === "Object") {
-        this.#defineGraphNode(Value, false);
+        yield* this.#defineGraphNode(Value, false);
         valueRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.MapValue);
       }
 
@@ -716,27 +717,61 @@ FunctionReferenceBuilder
     }
   }
 
-  #addSetData(
+  * #addSetData(
     parentObject: GuestEngine.ObjectValue,
     slotName: "SetData" | "WeakSetData",
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
     const elements = Reflect.get(parentObject, slotName) as readonly GuestEngine.Value[];
     for (const value of elements) {
+      //FIXME: type === "Symbol"
       if (value.type !== "Object")
         continue;
-      this.#defineGraphNode(value, false);
+      yield* this.#defineGraphNode(value, false);
 
       const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.SetElement);
       this.#guestObjectGraph.defineSetValue(parentObject, value, slotName === "SetData", edgeRelationship);
     }
   }
 
-  #addReferencesInFunction(
-    guestObject: GuestEngine.ECMAScriptFunctionObject
-  ): void
+  * #addReferencesInFunction(
+    guestFunction: GuestEngine.ECMAScriptFunctionObject
+  ): GuestEngine.Evaluator<void>
   {
-    this.#functionStatementSearch.searchForValues(guestObject);
+    // the 'arguments' property is off-limits... engine262 throws for this.
+    const visitedNames = new Set<string>(["arguments"]);
+    let env: GuestEngine.EnvironmentRecord | GuestEngine.NullValue = guestFunction.Environment;
+    if (env instanceof GuestEngine.FunctionEnvironmentRecord) {
+      if (env.HasThisBinding() === GuestEngine.Value.true) {
+        const thisBinding = env.GetThisBinding();
+        GuestEngine.Assert(thisBinding instanceof GuestEngine.Value);
+
+        yield* this.buildFunctionValueReference(
+          guestFunction, "this", thisBinding
+        )
+      }
+
+      if (env.HasSuperBinding() === GuestEngine.Value.true) {
+        const superBinding = env.GetSuperBase();
+        yield* this.buildFunctionValueReference(
+          guestFunction, "super", superBinding
+        );
+      }
+    }
+
+    while (env instanceof GuestEngine.FunctionEnvironmentRecord) {
+      for (const [guestName, guestValue] of env.bindings.entries()) {
+        const hostName = guestName.stringValue();
+        if (visitedNames.has(hostName))
+          continue;
+        visitedNames.add(hostName);
+
+        yield* this.buildFunctionValueReference(
+          guestFunction, hostName, guestValue.value ?? GuestEngine.Value.undefined
+        );
+      }
+      env = env.OuterEnv;
+    }
   }
   //#endregion private methods
 }

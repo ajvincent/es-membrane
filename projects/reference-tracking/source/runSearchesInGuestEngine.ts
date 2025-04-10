@@ -31,8 +31,8 @@ export async function runSearchesInGuestEngine(
 
   const outputs: GuestRealmOutputs = await directInvoke({
     absolutePathToFile,
-    defineBuiltIns: (realm: GuestEngine.ManagedRealm): void => {
-      defineSearchReferences(realm, graphs, searchConfiguration);
+    defineBuiltIns: function * (realm: GuestEngine.ManagedRealm): GuestEngine.Evaluator<void> {
+      yield * defineSearchReferences(realm, graphs, searchConfiguration);
     }
   });
 

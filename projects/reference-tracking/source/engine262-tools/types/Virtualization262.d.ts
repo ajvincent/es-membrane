@@ -4,7 +4,7 @@ import type {
 
 export interface GuestRealmInputs {
   readonly absolutePathToFile: string;
-  defineBuiltIns?: (realm: GuestEngine.ManagedRealm) => void;
+  defineBuiltIns?: (realm: GuestEngine.ManagedRealm) => GuestEngine.Evaluator<void>;
 }
 
 export interface GuestRealmOutputs {
