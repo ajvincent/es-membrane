@@ -274,14 +274,14 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
 
   public defineSetValue(
     set: GuestEngine.ObjectValue,
-    value: GuestEngine.ObjectValue,
+    value: GuestWeakKey,
     isStrongReferenceToValue: boolean,
     metadata: RelationshipMetadata
   ): PrefixedNumber<EdgePrefix.SetValue>
   {
     return this.#hostGraph.defineSetValue(
       this.#substitution.getHostObject(set),
-      this.#substitution.getHostObject(value),
+      this.#substitution.getHostWeakKey(value),
       isStrongReferenceToValue,
       metadata,
     );

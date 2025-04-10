@@ -59,8 +59,7 @@ interface GuestFinalizationRegistryCell {
 
 type GuestObjectOrNull = GuestEngine.ObjectValue | GuestEngine.NullValue
 
-export class GraphBuilder
-implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.SymbolValue>
+export class GraphBuilder implements InstanceGetterDefinitions
 {
   //#region private class fields and static private fields
   static readonly #stringConstants: ReadonlyMap<string, GuestEngine.JSStringValue> = new Map([
@@ -124,10 +123,7 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
   readonly #objectsToExcludeFromSearch = new Set<GuestEngine.ObjectValue>;
   readonly #objectQueue = new Set<GuestEngine.ObjectValue>;
 
-  //FIXME: InstanceGetterTracking is
-  readonly #instanceGetterTracking = new InstanceGetterTracking<
-    GuestEngine.ObjectValue, GuestEngine.SymbolValue
-  >(this);
+  readonly #instanceGetterTracking = new InstanceGetterTracking(this);
 
   readonly #searchConfiguration?: SearchConfiguration;
   //#endregion private class fields and static private fields
@@ -177,24 +173,6 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
       yield* this.#defineGraphNode(guestValue, false);
       this.#addObjectPropertyOrGetter(guestInstance, guestKey, guestValue, true);
     }
-  }
-
-  * buildFunctionValueReference(
-    guestFunction: GuestEngine.FunctionObject,
-    nameOfValue: string,
-    guestValue: GuestEngine.Value,
-  ): GuestEngine.Evaluator<void>
-  {
-    if (guestValue.type !== "Object" && guestValue.type !== "Symbol")
-      return;
-
-    yield* this.#defineGraphNode(guestValue, false);
-    const relationship = GraphBuilder.#buildChildEdgeType(
-      ChildReferenceEdgeType.ScopeValue
-    );
-    this.#guestObjectGraph.defineScopeValue(
-      guestFunction, nameOfValue, guestValue, relationship
-    );
   }
 
   public * run(
@@ -699,14 +677,12 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
 
       let keyRelationship: GraphRelationshipMetadata | undefined;
       let valueRelationship: GraphRelationshipMetadata | undefined;
-      //FIXME: type === "Symbol"
-      if (Key.type === "Object") {
+      if (Key.type === "Object" || Key.type === "Symbol") {
         yield* this.#defineGraphNode(Key, false);
         keyRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.MapKey);
       }
 
-      //FIXME: type === "Symbol"
-      if (Value.type === "Object") {
+      if (Value.type === "Object" || Value.type === "Symbol") {
         yield* this.#defineGraphNode(Value, false);
         valueRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.MapValue);
       }
@@ -724,13 +700,12 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
   {
     const elements = Reflect.get(parentObject, slotName) as readonly GuestEngine.Value[];
     for (const value of elements) {
-      //FIXME: type === "Symbol"
-      if (value.type !== "Object")
-        continue;
-      yield* this.#defineGraphNode(value, false);
+      if (value.type === "Object" || value.type === "Symbol") {
+        yield* this.#defineGraphNode(value, false);
 
-      const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.SetElement);
-      this.#guestObjectGraph.defineSetValue(parentObject, value, slotName === "SetData", edgeRelationship);
+        const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.SetElement);
+        this.#guestObjectGraph.defineSetValue(parentObject, value, slotName === "SetData", edgeRelationship);
+      }
     }
   }
 
@@ -746,14 +721,14 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
         const thisBinding = env.GetThisBinding();
         GuestEngine.Assert(thisBinding instanceof GuestEngine.Value);
 
-        yield* this.buildFunctionValueReference(
+        yield* this.#buildFunctionValueReference(
           guestFunction, "this", thisBinding
         )
       }
 
       if (env.HasSuperBinding() === GuestEngine.Value.true) {
         const superBinding = env.GetSuperBase();
-        yield* this.buildFunctionValueReference(
+        yield* this.#buildFunctionValueReference(
           guestFunction, "super", superBinding
         );
       }
@@ -766,12 +741,30 @@ implements InstanceGetterDefinitions<GuestEngine.ObjectValue, GuestEngine.Symbol
           continue;
         visitedNames.add(hostName);
 
-        yield* this.buildFunctionValueReference(
+        yield* this.#buildFunctionValueReference(
           guestFunction, hostName, guestValue.value ?? GuestEngine.Value.undefined
         );
       }
       env = env.OuterEnv;
     }
+  }
+
+  * #buildFunctionValueReference(
+    guestFunction: GuestEngine.FunctionObject,
+    nameOfValue: string,
+    guestValue: GuestEngine.Value,
+  ): GuestEngine.Evaluator<void>
+  {
+    if (guestValue.type !== "Object" && guestValue.type !== "Symbol")
+      return;
+
+    yield* this.#defineGraphNode(guestValue, false);
+    const relationship = GraphBuilder.#buildChildEdgeType(
+      ChildReferenceEdgeType.ScopeValue
+    );
+    this.#guestObjectGraph.defineScopeValue(
+      guestFunction, nameOfValue, guestValue, relationship
+    );
   }
   //#endregion private methods
 }

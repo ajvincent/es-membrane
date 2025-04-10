@@ -63,7 +63,7 @@ describe("runSearchesInGuestEngine throws when", () => {
     );
     expect(graphs.size).toBe(0);
     expect(reportCalls.size).toBe(1);
-    expect(reportCalls.get("targetKeyIsNumber")).toBe("6 is not an object");
+    expect(reportCalls.get("targetKeyIsNumber")).toBe("6 is not an object or a symbol");
   });
 
   it("the target value is null", async () => {
@@ -72,7 +72,7 @@ describe("runSearchesInGuestEngine throws when", () => {
     );
     expect(graphs.size).toBe(0);
     expect(reportCalls.size).toBe(1);
-    expect(reportCalls.get("targetKeyIsNull")).toBe("null is not an object");
+    expect(reportCalls.get("targetKeyIsNull")).toBe("null is not an object or a symbol");
   });
 
   it("the held values aren't an array", async () => {
@@ -90,7 +90,7 @@ describe("runSearchesInGuestEngine throws when", () => {
     );
     expect(graphs.size).toBe(0);
     expect(reportCalls.size).toBe(1);
-    expect(reportCalls.get("heldValuesIncludesAPrimitive")).toBe(`heldValues[1] is not a weak key`);
+    expect(reportCalls.get("heldValuesIncludesAPrimitive")).toBe(`true is not an object or a symbol`);
   });
 
   it("strongReferencesOnly is not a boolean", async () => {

@@ -6,35 +6,40 @@ import type {
   InstanceGetterDefinitions
 } from "../types/InstanceGetterDefinitions.js";
 
-export class InstanceGetterTracking<
-  EngineObject extends object,
-  EngineSymbol,
->
+export class InstanceGetterTracking
 {
-  readonly #definitions: InstanceGetterDefinitions<EngineObject, EngineSymbol>;
+  readonly #definitions: InstanceGetterDefinitions;
 
-  readonly #classToGetterKeysMap = new QuickWeakMapOfSets<EngineObject, string | number | EngineSymbol>;
-  readonly #classToInstancesMap = new QuickWeakMapOfSets<EngineObject, EngineObject>;
-  readonly #baseClassToDerivedClassMap = new QuickWeakMapOfSets<EngineObject, EngineObject>;
+  readonly #classToGetterKeysMap = new QuickWeakMapOfSets<
+    GuestEngine.ObjectValue, string | number | GuestEngine.SymbolValue
+  >;
+  readonly #classToInstancesMap = new QuickWeakMapOfSets<
+    GuestEngine.ObjectValue, GuestEngine.ObjectValue
+  >;
+  readonly #baseClassToDerivedClassMap = new QuickWeakMapOfSets<
+    GuestEngine.ObjectValue, GuestEngine.ObjectValue
+  >;
 
-  readonly #derivedClassToBaseClassMap = new WeakMap<EngineObject, EngineObject>;
+  readonly #derivedClassToBaseClassMap = new WeakMap<
+    GuestEngine.ObjectValue, GuestEngine.ObjectValue
+  >;
 
   constructor(
-    definitions: InstanceGetterDefinitions<EngineObject, EngineSymbol>
+    definitions: InstanceGetterDefinitions
   )
   {
     this.#definitions = definitions;
   }
 
   public * addInstance(
-    instance: EngineObject,
-    classObject: EngineObject
+    instance: GuestEngine.ObjectValue,
+    classObject: GuestEngine.ObjectValue
   ): GuestEngine.Evaluator<void>
   {
     this.#classToInstancesMap.add(classObject, instance);
 
-    const classStack: EngineObject[] = [];
-    let currentClass: EngineObject | undefined = classObject;
+    const classStack: GuestEngine.ObjectValue[] = [];
+    let currentClass: GuestEngine.ObjectValue | undefined = classObject;
     do {
       classStack.unshift(currentClass);
       currentClass = this.#derivedClassToBaseClassMap.get(currentClass);
@@ -49,8 +54,8 @@ export class InstanceGetterTracking<
   }
 
   public * addBaseClass(
-    derivedClass: EngineObject,
-    baseClass: EngineObject
+    derivedClass: GuestEngine.ObjectValue,
+    baseClass: GuestEngine.ObjectValue
   ): GuestEngine.Evaluator<void>
   {
     this.#baseClassToDerivedClassMap.add(baseClass, derivedClass);
@@ -62,8 +67,8 @@ export class InstanceGetterTracking<
   }
 
   public * addGetterName(
-    baseClass: EngineObject,
-    key: string | number | EngineSymbol
+    baseClass: GuestEngine.ObjectValue,
+    key: string | number | GuestEngine.SymbolValue
   ): GuestEngine.Evaluator<void>
   {
     this.#classToGetterKeysMap.add(baseClass, key);
@@ -71,8 +76,8 @@ export class InstanceGetterTracking<
   }
 
   * #notifyFoundPublicKey(
-    baseClass: EngineObject,
-    key: string | number | EngineSymbol,
+    baseClass: GuestEngine.ObjectValue,
+    key: string | number | GuestEngine.SymbolValue,
   ): GuestEngine.Evaluator<void>
   {
     for (const instance of this.#classToInstancesMap.mapValues(baseClass)) {

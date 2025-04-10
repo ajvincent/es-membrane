@@ -215,8 +215,8 @@ export interface ObjectGraphIfc<
    * @param metadata
    */
   defineSetValue(
-    set: EngineWeakKey<EngineObject, EngineSymbol>,
-    value: EngineObject,
+    set: EngineObject,
+    value: EngineWeakKey<EngineObject, EngineSymbol>,
     isStrongReferenceToValue: boolean,
     metadata: RelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.SetValue>;

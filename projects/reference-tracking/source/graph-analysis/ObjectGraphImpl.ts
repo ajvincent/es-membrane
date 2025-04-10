@@ -519,7 +519,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   }
 
   public defineSetValue(
-    set: WeakKey,
+    set: object,
     value: WeakKey,
     isStrongReferenceToValue: boolean,
     metadata: RelationshipMetadata

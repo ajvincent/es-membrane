@@ -91,8 +91,7 @@ function * extractSearchParameters(
   }
 
   if (targetValue?.type !== "Object" && targetValue?.type !== "Symbol") {
-    //FIXME: NotAWeakKey
-    throw GuestEngine.Throw("TypeError", "NotAnObject", targetValue);
+    throw GuestEngine.Throw("TypeError", "NotAWeakKey", targetValue);
   }
 
   if (heldValuesArrayGuest.type !== "Object") {
@@ -103,9 +102,8 @@ function * extractSearchParameters(
   ));
 
   for (let i = 0; i < heldValuesRaw.length; i++) {
-    //FIXME: NotAWeakKey
     if (heldValuesRaw[i].type !== "Object" && heldValuesRaw[i].type !== "Symbol")
-      throw GuestEngine.Throw("TypeError", "Raw", `heldValues[${i}] is not a weak key`);
+      throw GuestEngine.Throw("TypeError", "NotAWeakKey", heldValuesRaw[i]);
   }
 
   if (strongRefsGuest?.type !== "Boolean")

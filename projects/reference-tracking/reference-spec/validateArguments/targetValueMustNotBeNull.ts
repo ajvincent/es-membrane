@@ -1,7 +1,7 @@
 let success: string | undefined;
 try {
-  //@ts-expect-error targetKey must be an object
-  searchReferences("resultsKey", null, [], true)
+  //@ts-expect-error null is not an object or a symbol
+  searchReferences("resultsKey", null, [], true);
 }
 catch (ex) {
   success = (ex as Error).message;
