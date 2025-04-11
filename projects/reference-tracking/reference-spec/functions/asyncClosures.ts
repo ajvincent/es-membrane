@@ -1,20 +1,37 @@
 const target = { isTarget: true };
 const miscellaneous = { isSomeOtherObject: true };
 
-function createEnclosure(
+function createShallowEnclosure(
   firstValue: object,
   secondValue: object
-): () => object
+): () => Promise<object>
 {
-  void(secondValue);
   return async function() {
     await Promise.resolve();
+    void(secondValue);
     return firstValue;
   }
 }
 
-const targetInEnclosure = createEnclosure(target, miscellaneous);
-const targetNotDirectlyHeld = createEnclosure(miscellaneous, target);
+const oneLevelDeepEnclosure = createShallowEnclosure(miscellaneous, target);
+searchReferences("targetNotDirectlyHeld", target, [oneLevelDeepEnclosure], true);
 
-searchReferences("targetInAsyncEnclosure", target, [targetInEnclosure], true);
-searchReferences("targetNotInAsyncEnclosure", target, [targetNotDirectlyHeld], true);
+function createDeepEnclosure(
+  firstValue: object,
+  secondValue: object
+): () => () => Promise<object>
+{
+  return function() {
+    return async function() {
+      await Promise.resolve();
+      void(secondValue);
+      return firstValue;
+    }
+  }
+}
+
+const outerEnclosure = createDeepEnclosure(miscellaneous, target);
+searchReferences("outerEnclosure", target, [outerEnclosure], true);
+
+const innerEnclosure = outerEnclosure();
+searchReferences("innerEnclosure", target, [innerEnclosure], true);

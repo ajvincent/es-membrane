@@ -235,11 +235,96 @@ describe("Simple graph searches: function support,", () => {
     });
   });
 
-  xit("async functions", async () => {
+  describe("async closures", () => {
+    const target = { isTarget: true };
+    const miscellaneous = { isSomeOtherObject: true };
 
-  });
+    function enclosure() {
+    }
 
-  xit("async closures", async () => {
+    it("one level deep", async () => {
+      [ExpectedObjectGraph] = createExpectedGraph(
+        target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
+        enclosure, BuiltInJSTypeName.AsyncFunction, BuiltInJSTypeName.AsyncFunction
+      );
 
+      addObjectGraphNode(
+        ExpectedObjectGraph, miscellaneous,
+        BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
+      ); // object:3
+
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "firstValue", miscellaneous);
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "secondValue", target);
+
+      ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+      ExpectedObjectGraph.summarizeGraphToTarget(true);
+      const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+
+      const actual = await getActualGraph(
+        "functions/asyncClosures.js", "targetNotDirectlyHeld", false
+      );
+      expect(actual).toEqual(expected);
+    });
+
+    it("two levels deep, from the outer enclosure", async () => {
+      [ExpectedObjectGraph] = createExpectedGraph(
+        target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
+        enclosure, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
+      );
+      addObjectGraphNode(
+        ExpectedObjectGraph, enclosure.prototype,
+        BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
+      ); // object:3
+      addPropertyNameEdge(
+        ExpectedObjectGraph, enclosure, "prototype",
+        enclosure.prototype, false
+      );
+
+      addObjectGraphNode(
+        ExpectedObjectGraph, miscellaneous,
+        BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
+      ); // object:4
+
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "firstValue", miscellaneous);
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "secondValue", target);
+
+      addPropertyNameEdge(
+        ExpectedObjectGraph, enclosure.prototype, "constructor",
+        enclosure, false
+      );
+
+      ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+      ExpectedObjectGraph.summarizeGraphToTarget(true);
+      const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+
+      const actual = await getActualGraph(
+        "functions/asyncClosures.js", "outerEnclosure", false
+      );
+      expect(actual).toEqual(expected);
+    });
+
+    it("two levels deep, from the inner enclosure", async () => {
+      [ExpectedObjectGraph] = createExpectedGraph(
+        target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
+        enclosure, BuiltInJSTypeName.AsyncFunction, BuiltInJSTypeName.AsyncFunction
+      ); // target:0, heldValues:1, object:2
+
+      addObjectGraphNode(
+        ExpectedObjectGraph, miscellaneous,
+        BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
+      ); // object:3
+
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "firstValue", miscellaneous);
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "secondValue", target);
+
+      ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+      ExpectedObjectGraph.summarizeGraphToTarget(true);
+      const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+
+      const actual = await getActualGraph(
+        "functions/asyncClosures.js", "innerEnclosure", false
+      );
+      expect(actual).toEqual(expected);
+    });
   });
 });

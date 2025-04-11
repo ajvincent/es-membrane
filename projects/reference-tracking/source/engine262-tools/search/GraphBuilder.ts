@@ -84,6 +84,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
     return new Map<GuestEngine.Value, BuiltInJSTypeName>([
       [Intrinsics["%Array.prototype%"], BuiltInJSTypeName.Array],
       [Intrinsics["%Object.prototype%"], BuiltInJSTypeName.Object],
+      [Intrinsics["%AsyncFunction.prototype%"], BuiltInJSTypeName.AsyncFunction],
       [Intrinsics["%Function.prototype%"], BuiltInJSTypeName.Function],
       [Intrinsics["%WeakRef.prototype%"], BuiltInJSTypeName.WeakRef],
       [Intrinsics["%FinalizationRegistry.prototype%"], BuiltInJSTypeName.FinalizationRegistry],

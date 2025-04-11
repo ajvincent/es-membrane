@@ -13,6 +13,7 @@ export enum BuiltInJSTypeName {
   Object = "Object",
   Array = "Array",
   Function = "Function",
+  AsyncFunction = "AsyncFunction",
   WeakRef = "WeakRef",
   WeakMap = "WeakMap",
   WeakSet = "WeakSet",
