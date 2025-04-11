@@ -51,6 +51,13 @@ describe("Simple graph searches: function support,", () => {
   let ExpectedObjectGraph: ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
   //#endregion common test fixtures
 
+  it("the returned value of an uncalled function is unreachable", async () => {
+    const actual = await getActualGraph(
+      "functions/returnValue.js", "return target", false
+    );
+    expect(actual).toEqual(null);
+  });
+
   it("arrow functions refer to this", async () => {
     function compare() {}
     const sorter = { isSorter: true };
@@ -67,6 +74,13 @@ describe("Simple graph searches: function support,", () => {
       "functions/arrow.js", "this as part of an arrow function", false
     );
     expect(actual).toEqual(expected);
+  });
+
+  it("arrow functions returning a value cannot reach that value without a call", async () => {
+    const actual = await getActualGraph(
+      "functions/arrowReturnValue.js", "return target", false
+    );
+    expect(actual).toEqual(null);
   });
 
   it("async arrow functions", async () => {
