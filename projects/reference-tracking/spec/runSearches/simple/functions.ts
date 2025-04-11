@@ -69,8 +69,22 @@ describe("Simple graph searches: function support,", () => {
     expect(actual).toEqual(expected);
   });
 
-  xit("async arrow functions", async () => {
+  it("async arrow functions", async () => {
+    function compare() {}
+    const sorter = { isSorter: true };
+    [ExpectedObjectGraph] = createExpectedGraph(sorter, BuiltInJSTypeName.Object, "PropertyKeySorter",
+      compare, BuiltInJSTypeName.AsyncFunction, BuiltInJSTypeName.AsyncFunction
+    );
+    addScopeValueEdge(ExpectedObjectGraph, compare, "this", sorter);
 
+    ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+    ExpectedObjectGraph.summarizeGraphToTarget(true);
+    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+
+    const actual = await getActualGraph(
+      "functions/asyncArrow.js", "this as part of an arrow function", false
+    );
+    expect(actual).toEqual(expected);
   });
 
   it("bound functions can refer jointly to a target", async () => {
