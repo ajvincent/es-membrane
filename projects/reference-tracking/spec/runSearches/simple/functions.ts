@@ -322,7 +322,7 @@ describe("Simple graph searches: function support,", () => {
     });
   });
 
-  xdescribe("async closures", () => {
+  describe("async closures", () => {
     const target = { isTarget: true };
     const miscellaneous = { isSomeOtherObject: true };
 
@@ -375,10 +375,20 @@ describe("Simple graph searches: function support,", () => {
       addScopeValueEdge(ExpectedObjectGraph, enclosure, "firstValue", miscellaneous);
       addScopeValueEdge(ExpectedObjectGraph, enclosure, "secondValue", target);
 
+      function innerEnclosure() {}
+      addObjectGraphNode(
+        ExpectedObjectGraph, innerEnclosure,
+        BuiltInJSTypeName.AsyncFunction, BuiltInJSTypeName.AsyncFunction
+      ); // object:5
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "[[return value]]", innerEnclosure);
+
       addPropertyNameEdge(
         ExpectedObjectGraph, enclosure.prototype, "constructor",
         enclosure, false
       );
+
+      addScopeValueEdge(ExpectedObjectGraph, innerEnclosure, "firstValue", miscellaneous);
+      addScopeValueEdge(ExpectedObjectGraph, innerEnclosure, "secondValue", target);
 
       ExpectedObjectGraph.markStrongReferencesFromHeldValues();
       ExpectedObjectGraph.summarizeGraphToTarget(true);
