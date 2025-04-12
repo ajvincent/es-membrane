@@ -1,6 +1,6 @@
 import {
   runSearchesInGuestEngineInternal,
-} from "../../source/runSearchesInGuestEngineInternal.js";
+} from "../support/runSearchesInGuestEngineInternal.js";
 
 import {
   getReferenceSpecPath,
