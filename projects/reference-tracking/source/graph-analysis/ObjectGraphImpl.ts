@@ -8,6 +8,10 @@ import type {
 } from "type-fest";
 
 import type {
+  SearchConfiguration
+} from "../public/types/SearchConfiguration.js";
+
+import type {
   PrefixedNumber,
   SymbolId,
   WeakKeyId,
@@ -123,21 +127,21 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   #searchedForStrongReferences = false;
   #strongReferenceCallback?: (key: WeakKey) => void;
 
-  #internalErrorTrap?: () => void;
+  #searchConfiguration?: SearchConfiguration
   //#endregion private class fields
 
   constructor(
-    internalErrorTrap?: () => void,
+    searchConfiguration?: SearchConfiguration
   )
   {
     this.#targetId = "target:-1";
     this.#heldValuesId = "heldValues:-2";
-    this.#internalErrorTrap = internalErrorTrap;
+    this.#searchConfiguration = searchConfiguration;
   }
 
   #throwInternalError(error: Error): never {
-    if (this.#internalErrorTrap) {
-      this.#internalErrorTrap();
+    if (this.#searchConfiguration?.internalErrorTrap) {
+      this.#searchConfiguration.internalErrorTrap();
     }
     throw error;
   }
@@ -270,6 +274,9 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     this.#ownershipSetsTracker.defineKey(nodeId);
     this.#weakKeyHeldStronglyMap.set(weakKey, false);
 
+    if (this.#searchConfiguration?.defineWeakKeyTrap) {
+      this.#searchConfiguration.defineWeakKeyTrap(nodeId);
+    }
     return nodeId;
   }
 
@@ -321,6 +328,12 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
       childId, jointOwnerKeys, edgeId
     );
     this.#edgeIdTo_IsStrongReference_Map.set(edgeId, isStrongReference);
+
+    if (this.#searchConfiguration?.defineEdgeTrap) {
+      this.#searchConfiguration.defineEdgeTrap(
+        parentId, edgeId, childId, secondParentId, isStrongReference
+      );
+    }
 
     return edgeId;
   }
@@ -481,6 +494,9 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     }
 
     const tupleNodeId = this.#defineWeakKey({}, null, NodePrefix.KeyValueTuple);
+    if (this.#searchConfiguration?.defineNodeTrap) {
+      this.#searchConfiguration.defineNodeTrap(mapId, tupleNodeId, "(new map tuple)");
+    }
 
     // map to tuple
     const mapToTupleEdgeId = this.#defineEdge(
@@ -557,6 +573,9 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
       unregisterTokenId = this.#requireWeakKeyId(unregisterToken, "unregisterToken");
     }
     const tupleNodeId = this.#defineWeakKey({}, null, NodePrefix.FinalizationTuple);
+    if (this.#searchConfiguration?.defineNodeTrap) {
+      this.#searchConfiguration.defineNodeTrap(registryId, tupleNodeId, "(new finalization tuple)");
+    }
 
     const registryToTupleEdgeId = this.#defineEdge(
       registryId, EdgePrefix.FinalizationRegistryToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
@@ -613,6 +632,9 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     const childId = this.#requireWeakKeyId(childObject, "childObject");
 
     const tupleNodeId = this.#defineWeakKey({}, null, NodePrefix.PrivateFieldTuple);
+    if (this.#searchConfiguration?.defineNodeTrap) {
+      this.#searchConfiguration.defineNodeTrap(parentId, tupleNodeId, "(new private field tuple)");
+    }
 
     const objectToTupleEdgeId = this.#defineEdge(
       parentId, EdgePrefix.ObjectToPrivateTuple, ObjectGraphImpl.#NOT_APPLICABLE,

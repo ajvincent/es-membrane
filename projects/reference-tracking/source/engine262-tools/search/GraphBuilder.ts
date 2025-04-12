@@ -13,6 +13,10 @@ import type {
 } from "../../graph-analysis/types/ObjectGraphIfc.js"
 
 import type {
+  SearchConfiguration
+} from "../../public/types/SearchConfiguration.js";
+
+import type {
   GraphObjectMetadata
 } from "../../types/GraphObjectMetadata.js";
 
@@ -23,10 +27,6 @@ import type {
 import type {
   PrefixedNumber
 } from "../../types/PrefixedNumber.js";
-
-import type {
-  SearchConfiguration
-} from "../../public/types/SearchConfiguration.js";
 
 import {
   BuiltInJSTypeName,
@@ -149,7 +149,6 @@ export class GraphBuilder implements InstanceGetterDefinitions
   }
 
   readonly #guestObjectGraph: GuestObjectGraphIfc<GraphObjectMetadata, GraphRelationshipMetadata>;
-  // eslint-disable-next-line no-unused-private-class-members
   #currentNodeId?: string;
 
   readonly #intrinsicToBuiltInNameMap: ReadonlyMap<GuestEngine.Value, BuiltInJSTypeName>;
@@ -164,7 +163,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
   //#endregion private class fields and static private fields
 
   public readonly resultsKey: string;
-  public readonly sourceSpecifier?: string;
+  public readonly sourceSpecifier: string;
   public readonly lineNumber: number;
 
   constructor(
@@ -188,7 +187,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
     this.#intrinsicToBuiltInNameMap = GraphBuilder.#builtInNamesFromInstrinsics(realm);
     this.#intrinsics = new WeakSet(Object.values(realm.Intrinsics));
 
-    this.#guestObjectGraph = new GuestObjectGraphImpl(hostObjectGraph);
+    this.#guestObjectGraph = new GuestObjectGraphImpl(hostObjectGraph, this.#searchConfiguration);
   }
 
   * defineInstanceGetter(
@@ -205,7 +204,8 @@ export class GraphBuilder implements InstanceGetterDefinitions
     );
 
     if (guestValue.type === "Object" || guestValue.type === "Symbol") {
-      yield* this.#defineGraphNode(guestValue, false);
+      const details = "instance: key=" + (guestKey.type === "String" ? guestKey.stringValue() : "(symbol)");
+      yield* this.#defineGraphNode(guestValue, false, details);
       this.#addObjectPropertyOrGetter(guestInstance, guestKey, guestValue, true);
     }
   }
@@ -264,6 +264,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
   * #defineGraphNode(
     guestWeakKey: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
     excludeFromSearch: boolean,
+    details: string,
   ): GuestEngine.Evaluator<PrefixedNumber<NodePrefix>>
   {
     GuestEngine.Assert(("next" in guestWeakKey) === false);
@@ -277,7 +278,11 @@ export class GraphBuilder implements InstanceGetterDefinitions
       this.#defineGraphSymbolNode(guestWeakKey);
     }
 
-    return this.#guestObjectGraph.getWeakKeyId(guestWeakKey);
+    const weakKey: PrefixedNumber<NodePrefix> = this.#guestObjectGraph.getWeakKeyId(guestWeakKey);
+    if (this.#searchConfiguration?.defineNodeTrap) {
+      this.#searchConfiguration.defineNodeTrap(this.#currentNodeId!, weakKey, details);
+    }
+    return weakKey;
   }
 
   * #defineGraphObjectNode(
@@ -380,21 +385,21 @@ export class GraphBuilder implements InstanceGetterDefinitions
       let childGuestValue: GuestEngine.Value;
       let isGetter: boolean;
 
+      let key: number | string | GuestEngine.SymbolValue;
+      if (guestKey.type === "Symbol") {
+        key = guestKey;
+      } else if (GuestEngine.isArrayIndex(guestKey)) {
+        key = parseInt(guestKey.stringValue());
+      } else {
+        key = guestKey.stringValue();
+      }
+
       if (GuestEngine.IsDataDescriptor(descriptor)) {
         GuestEngine.Assert(descriptor.Value !== undefined);
         childGuestValue = descriptor.Value;
         isGetter = false;
       }
       else {
-        let key: number | string | GuestEngine.SymbolValue;
-        if (guestKey.type === "Symbol") {
-          key = guestKey;
-        } else if (GuestEngine.isArrayIndex(guestKey)) {
-          key = parseInt(guestKey.stringValue());
-        } else {
-          key = guestKey.stringValue();
-        }
-
         const guestCtor = yield * EnsureTypeOrThrow(GuestEngine.GetV(
           guestObject, GraphBuilder.#stringConstants.get("constructor")!
         ));
@@ -426,7 +431,14 @@ export class GraphBuilder implements InstanceGetterDefinitions
         continue;
 
       if (childGuestValue.type === "Object" || childGuestValue.type === "Symbol") {
-        yield* this.#defineGraphNode(childGuestValue, false);
+        let details = `addObjectProperties: `;
+        if (typeof key !== "object") {
+          details += "key=" + key;
+        } else {
+          details += "key=(symbol)";
+        }
+
+        yield* this.#defineGraphNode(childGuestValue, false, details);
         this.#addObjectPropertyOrGetter(guestObject, guestKey, childGuestValue, isGetter);
       }
     }
@@ -498,7 +510,11 @@ export class GraphBuilder implements InstanceGetterDefinitions
       if (guestValue.type !== "Object" && guestValue.type !== "Symbol")
         continue;
 
-      yield* this.#defineGraphNode(guestValue, false);
+      yield* this.#defineGraphNode(
+        guestValue,
+        false,
+        "addPrivateFields: key=" + privateKey
+      );
       const privateNameMetadata = GraphBuilder.#buildChildEdgeType(
         ChildReferenceEdgeType.PrivateClassKey
       );
@@ -549,7 +565,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
       type JobCallbackRecord = { Callback: GuestEngine.Value };
       const { Callback } = Reflect.get(guestObject, "CleanupCallback") as JobCallbackRecord;
       if (Callback.type === "Object") {
-        yield* this.#defineGraphNode(Callback, false);
+        yield* this.#defineGraphNode(Callback, false, `internal slot: [[CleanupCallback]]`);
         const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
         this.#guestObjectGraph.defineInternalSlot(
           guestObject, `[[CleanupCallback]]`, Callback, true, edgeRelationship
@@ -611,9 +627,13 @@ export class GraphBuilder implements InstanceGetterDefinitions
     if (slotObject.type !== "Object")
       return;
 
-    yield* this.#defineGraphNode(slotObject, excludeFromSearches);
+    yield* this.#defineGraphNode(
+      slotObject, excludeFromSearches,`internal slot object: slotName`
+    );
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
-    this.#guestObjectGraph.defineInternalSlot(parentObject, `[[${slotName}]]`, slotObject, isStrongReference, edgeRelationship);
+    this.#guestObjectGraph.defineInternalSlot(
+      parentObject, `[[${slotName}]]`, slotObject, isStrongReference, edgeRelationship
+    );
   }
 
   * #addInternalSlotIfList(
@@ -625,9 +645,14 @@ export class GraphBuilder implements InstanceGetterDefinitions
     if (slotArray === undefined)
       return;
     const guestArray: GuestEngine.ObjectValue = GuestEngine.CreateArrayFromList(slotArray);
-    yield* this.#defineGraphNode(guestArray, false);
+    yield* this.#defineGraphNode(
+      guestArray, false, `internal slot list: ${slotName}`
+    );
+
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
-    this.#guestObjectGraph.defineInternalSlot(parentObject, `[[${slotName}]]`, guestArray, true, edgeRelationship);
+    this.#guestObjectGraph.defineInternalSlot(
+      parentObject, `[[${slotName}]]`, guestArray, true, edgeRelationship
+    );
   }
 
   * #addInternalPromiseRecordsList(
@@ -643,7 +668,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
     const callbacks: readonly GuestEngine.FunctionObject[] = handlers.map(h => h.Callback);
 
     const guestArray: GuestEngine.ObjectValue = GuestEngine.CreateArrayFromList(callbacks);
-    yield* this.#defineGraphNode(guestArray, false);
+    yield* this.#defineGraphNode(guestArray, false, "internal slot:" + slotName);
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
     this.#guestObjectGraph.defineInternalSlot(promiseObject, `[[${slotName}]]`, guestArray, true, edgeRelationship);
   }
@@ -665,11 +690,15 @@ export class GraphBuilder implements InstanceGetterDefinitions
     if (cell.UnregisterToken?.type === "Object" || cell.UnregisterToken?.type === "Symbol")
       UnregisterToken = cell.UnregisterToken;
 
-    yield* this.#defineGraphNode(WeakRefTarget, false);
+    yield* this.#defineGraphNode(
+      WeakRefTarget, false, "finalization cell target");
     if (HeldValue.type === "Object" || HeldValue.type === "Symbol")
-      yield* this.#defineGraphNode(HeldValue, false);
+      yield* this.#defineGraphNode(
+        HeldValue, false, "finalization cell heldValue");
     if (UnregisterToken)
-      yield* this.#defineGraphNode(UnregisterToken, false);
+      yield* this.#defineGraphNode(
+        UnregisterToken, false, "finalization cell unregisterToken"
+      );
 
     this.#guestObjectGraph.defineFinalizationTuple(registry, WeakRefTarget, HeldValue, UnregisterToken);
   }
@@ -694,7 +723,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
     GuestEngine.Assert(guestCtor.type === "Object");
     GuestEngine.Assert(GuestEngine.IsConstructor(guestCtor));
 
-    yield* this.#defineGraphNode(guestCtor, false);
+    yield* this.#defineGraphNode(guestCtor, false, "constructor");
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InstanceOf);
     this.#guestObjectGraph.defineConstructorOf(guestObject, guestCtor, edgeRelationship);
 
@@ -715,12 +744,12 @@ export class GraphBuilder implements InstanceGetterDefinitions
       let keyRelationship: GraphRelationshipMetadata | undefined;
       let valueRelationship: GraphRelationshipMetadata | undefined;
       if (Key.type === "Object" || Key.type === "Symbol") {
-        yield* this.#defineGraphNode(Key, false);
+        yield* this.#defineGraphNode(Key, false, "map key");
         keyRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.MapKey);
       }
 
       if (Value.type === "Object" || Value.type === "Symbol") {
-        yield* this.#defineGraphNode(Value, false);
+        yield* this.#defineGraphNode(Value, false, "map value");
         valueRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.MapValue);
       }
 
@@ -738,7 +767,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
     const elements = Reflect.get(parentObject, slotName) as readonly GuestEngine.Value[];
     for (const value of elements) {
       if (value.type === "Object" || value.type === "Symbol") {
-        yield* this.#defineGraphNode(value, false);
+        yield* this.#defineGraphNode(value, false, "set value");
 
         const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.SetElement);
         this.#guestObjectGraph.defineSetValue(parentObject, value, slotName === "SetData", edgeRelationship);
@@ -806,7 +835,9 @@ export class GraphBuilder implements InstanceGetterDefinitions
     if (guestValue.type !== "Object" && guestValue.type !== "Symbol")
       return;
 
-    yield* this.#defineGraphNode(guestValue, false);
+    yield* this.#defineGraphNode(
+      guestValue, false, "function reference: " + nameOfValue
+    );
     const relationship = GraphBuilder.#buildChildEdgeType(
       ChildReferenceEdgeType.ScopeValue
     );

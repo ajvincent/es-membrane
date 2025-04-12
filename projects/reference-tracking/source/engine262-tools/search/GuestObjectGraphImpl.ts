@@ -31,6 +31,10 @@ import {
 } from "../host-to-guest/GuestEngine.js";
 
 import type {
+  SearchConfiguration
+} from "../../public/types/SearchConfiguration.js";
+
+import type {
   GuestObjectGraphIfc
 } from "../types/GuestObjectGraphIfc.js";
 
@@ -50,20 +54,20 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
   readonly #hostGraph: HostObjectGraph<ObjectMetadata, RelationshipMetadata>;
   readonly #substitution = new HostValueSubstitution;
 
-  readonly #internalErrorTrap?: () => void;
+  readonly #searchConfiguration?: SearchConfiguration;
 
   constructor(
     hostGraph: HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
-    internalErrorTrap?: () => void,
+    searchConfiguration?: SearchConfiguration
   )
   {
     this.#hostGraph = hostGraph;
-    this.#internalErrorTrap = internalErrorTrap;
+    this.#searchConfiguration = searchConfiguration;
   }
 
   #throwInternalError(error: Error): never {
-    if (this.#internalErrorTrap) {
-      this.#internalErrorTrap();
+    if (this.#searchConfiguration?.internalErrorTrap) {
+      this.#searchConfiguration.internalErrorTrap();
     }
     throw error;
   }
