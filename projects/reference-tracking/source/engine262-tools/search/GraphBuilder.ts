@@ -26,7 +26,7 @@ import type {
 
 import type {
   SearchConfiguration
-} from "../../types/SearchConfiguration.js";
+} from "../../public/types/SearchConfiguration.js";
 
 import {
   BuiltInJSTypeName,

@@ -11,7 +11,7 @@ import {
 
 import {
   runSearchesInGuestEngine,
-} from "../../../source/runSearchesInGuestEngine.js";
+} from "../../../source/public/runSearchesInGuestEngine.js";
 
 import type {
   GraphObjectMetadata

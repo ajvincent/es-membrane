@@ -4,19 +4,19 @@ import type {
 
 import {
   defineSearchReferences
-} from "./engine262-tools/built-ins/defineSearchReferences.js";
+} from "../engine262-tools/built-ins/defineSearchReferences.js";
 
 import {
   GuestEngine,
-} from "./engine262-tools/host-to-guest/GuestEngine.js";
+} from "../engine262-tools/host-to-guest/GuestEngine.js";
 
 import {
   directInvoke
-} from "./engine262-tools/host-to-guest/directInvoke.js";
+} from "../engine262-tools/host-to-guest/directInvoke.js";
 
 import type {
   GuestRealmOutputs
-} from "./engine262-tools/types/Virtualization262.js";
+} from "../engine262-tools/types/Virtualization262.js";
 
 import type {
   SearchConfiguration

@@ -29,7 +29,7 @@ import type {
 
 import {
   SearchConfiguration
-} from "../../types/SearchConfiguration.js";
+} from "../../public/types/SearchConfiguration.js";
 
 import type {
   GuestEngine,
