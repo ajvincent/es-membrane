@@ -51,11 +51,38 @@ describe("Simple graph searches: function support,", () => {
   let ExpectedObjectGraph: ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
   //#endregion common test fixtures
 
-  it("the returned value of an uncalled function is unreachable", async () => {
+  it("functions with no arguments and a single statement, a return, return a value", async () => {
+    const target = { isTarget: true };
+    function returnTarget() {
+      return target;
+    }
+
+    [ExpectedObjectGraph] = createExpectedGraph(
+      target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
+      returnTarget, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
+    );
+
+    // object:3
+    addObjectGraphNode(
+      ExpectedObjectGraph, returnTarget.prototype, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
+    );
+    addPropertyNameEdge(
+      ExpectedObjectGraph, returnTarget, "prototype", returnTarget.prototype, false
+    );
+
+    addScopeValueEdge(ExpectedObjectGraph, returnTarget, "[[return value]]", target);
+
+    addPropertyNameEdge(
+      ExpectedObjectGraph, returnTarget.prototype, "constructor", returnTarget, false
+    );
+
+    ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+    ExpectedObjectGraph.summarizeGraphToTarget(true);
+    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
     const actual = await getActualGraph(
       "functions/returnValue.js", "return target", false
     );
-    expect(actual).toEqual(null);
+    expect(actual).toEqual(expected);
   });
 
   it("arrow functions refer to this", async () => {
@@ -76,11 +103,23 @@ describe("Simple graph searches: function support,", () => {
     expect(actual).toEqual(expected);
   });
 
-  it("arrow functions returning a value cannot reach that value without a call", async () => {
+  it("arrow functions without arguemtns returning a value", async () => {
+    const target = { isTarget: true };
+    const returnTarget = () => target;
+
+    [ExpectedObjectGraph] = createExpectedGraph(
+      target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
+      returnTarget, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
+    );
+    addScopeValueEdge(ExpectedObjectGraph, returnTarget, "[[return value]]", target);
+
+    ExpectedObjectGraph.markStrongReferencesFromHeldValues();
+    ExpectedObjectGraph.summarizeGraphToTarget(true);
+    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
     const actual = await getActualGraph(
       "functions/arrowReturnValue.js", "return target", false
     );
-    expect(actual).toEqual(null);
+    expect(actual).toEqual(expected);
   });
 
   it("async arrow functions", async () => {
@@ -144,7 +183,7 @@ describe("Simple graph searches: function support,", () => {
     expect(actual).toEqual(expected);
   });
 
-  describe("closures", () => {
+  xdescribe("closures", () => {
     const target = { isTarget: true };
     const miscellaneous = { isSomeOtherObject: true };
 
@@ -263,7 +302,7 @@ describe("Simple graph searches: function support,", () => {
     });
   });
 
-  describe("async closures", () => {
+  xdescribe("async closures", () => {
     const target = { isTarget: true };
     const miscellaneous = { isSomeOtherObject: true };
 

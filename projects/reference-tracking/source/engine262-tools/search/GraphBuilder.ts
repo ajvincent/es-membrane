@@ -21,12 +21,17 @@ import type {
 } from "../../types/GraphRelationshipMetadata.js";
 
 import type {
+  PrefixedNumber
+} from "../../types/PrefixedNumber.js";
+
+import type {
   SearchConfiguration
 } from "../../types/SearchConfiguration.js";
 
 import {
   BuiltInJSTypeName,
   ChildReferenceEdgeType,
+  type NodePrefix,
 } from "../../utilities/constants.js";
 
 import {
@@ -48,7 +53,6 @@ import {
 import {
   buildObjectMetadata
 } from "./ObjectMetadata.js";
-
 //#endregion preamble
 
 interface GuestFinalizationRegistryCell {
@@ -64,6 +68,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
   //#region private class fields and static private fields
   static readonly #stringConstants: ReadonlyMap<string, GuestEngine.JSStringValue> = new Map([
     ["constructor", GuestEngine.Value("constructor")],
+    ["length", GuestEngine.Value("length")],
     ["name", GuestEngine.Value("name")],
   ]);
 
@@ -112,6 +117,35 @@ export class GraphBuilder implements InstanceGetterDefinitions
       guestCtor, "%Object.prototype%"
     ));
     return guestCtorProto === guestObject;
+  }
+
+  static * #isDirectReturnFunction(
+    guestFunction: GuestEngine.ECMAScriptFunctionObject
+  ): GuestEngine.Evaluator<boolean>
+  {
+    {
+      const lengthValue: GuestEngine.Value = yield* EnsureTypeOrThrow(
+        GuestEngine.Get(guestFunction, GraphBuilder.#stringConstants.get("length")!)
+      );
+      GuestEngine.Assert(lengthValue.type === "Number");
+      const length: number = lengthValue.numberValue();
+      if (length > 0)
+        return false;
+    }
+
+    const type = guestFunction.ECMAScriptCode?.type;
+
+    if (type === "ConciseBody") {
+      return true;
+    }
+
+    if (type === "FunctionBody") {
+      const { FunctionStatementList } = guestFunction.ECMAScriptCode;
+      if (FunctionStatementList.length === 1 && FunctionStatementList[0].type === "ReturnStatement")
+        return true;
+    }
+
+    return false;
   }
 
   readonly #guestObjectGraph: GuestObjectGraphIfc<GraphObjectMetadata, GraphRelationshipMetadata>;
@@ -230,7 +264,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
   * #defineGraphNode(
     guestWeakKey: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>,
     excludeFromSearch: boolean,
-  ): GuestEngine.Evaluator<void>
+  ): GuestEngine.Evaluator<PrefixedNumber<NodePrefix>>
   {
     GuestEngine.Assert(("next" in guestWeakKey) === false);
     if (guestWeakKey.type === "Object") {
@@ -242,6 +276,8 @@ export class GraphBuilder implements InstanceGetterDefinitions
       }
       this.#defineGraphSymbolNode(guestWeakKey);
     }
+
+    return this.#guestObjectGraph.getWeakKeyId(guestWeakKey);
   }
 
   * #defineGraphObjectNode(
@@ -717,10 +753,12 @@ export class GraphBuilder implements InstanceGetterDefinitions
     // the 'arguments' property is off-limits... engine262 throws for this.
     const visitedNames = new Set<string>(["arguments"]);
     let env: GuestEngine.EnvironmentRecord | GuestEngine.NullValue = guestFunction.Environment;
+    let thisValue: GuestEngine.Value | undefined = undefined;
     if (env instanceof GuestEngine.FunctionEnvironmentRecord) {
       if (env.HasThisBinding() === GuestEngine.Value.true) {
         const thisBinding = env.GetThisBinding();
         GuestEngine.Assert(thisBinding instanceof GuestEngine.Value);
+        thisValue = thisBinding;
 
         yield* this.#buildFunctionValueReference(
           guestFunction, "this", thisBinding
@@ -747,6 +785,15 @@ export class GraphBuilder implements InstanceGetterDefinitions
         );
       }
       env = env.OuterEnv;
+    }
+
+    if (yield* GraphBuilder.#isDirectReturnFunction(guestFunction)) {
+      // here be dragons: not sure if `this` will be the right value for a given module
+      thisValue ??= GuestEngine.surroundingAgent.currentRealmRecord.GlobalObject;
+      const result: GuestEngine.Value = yield* EnsureTypeOrThrow(guestFunction.Call(thisValue, []));
+      if (result.type === "Object" || result.type === "Symbol") {
+        yield* this.#buildFunctionValueReference(guestFunction, `[[return value]]`, result);
+      }
     }
   }
 
