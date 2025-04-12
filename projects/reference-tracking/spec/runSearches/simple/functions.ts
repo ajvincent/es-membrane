@@ -28,7 +28,7 @@ import {
 } from "../../support/fillExpectedGraph.js";
 
 import {
-  getActualGraph
+  getActualGraph,
 } from "../../support/getActualGraph.js";
 //#endregion preamble
 
@@ -183,7 +183,7 @@ describe("Simple graph searches: function support,", () => {
     expect(actual).toEqual(expected);
   });
 
-  xdescribe("closures", () => {
+  describe("closures", () => {
     const target = { isTarget: true };
     const miscellaneous = { isSomeOtherObject: true };
 
@@ -249,10 +249,30 @@ describe("Simple graph searches: function support,", () => {
       addScopeValueEdge(ExpectedObjectGraph, enclosure, "firstValue", miscellaneous);
       addScopeValueEdge(ExpectedObjectGraph, enclosure, "secondValue", target);
 
+      function innerEnclosure() {
+      }
+      addObjectGraphNode(
+        ExpectedObjectGraph, innerEnclosure,
+        BuiltInJSTypeName.Function, BuiltInJSTypeName.Function
+      ); // object:5
+      addScopeValueEdge(ExpectedObjectGraph, enclosure, "[[return value]]", innerEnclosure);
+
       addPropertyNameEdge(
         ExpectedObjectGraph, enclosure.prototype, "constructor",
         enclosure, false
       );
+
+      addObjectGraphNode(
+        ExpectedObjectGraph, innerEnclosure.prototype,
+        BuiltInJSTypeName.Object, BuiltInJSTypeName.Object
+      ); // object:6
+      addPropertyNameEdge(
+        ExpectedObjectGraph, innerEnclosure, "prototype", innerEnclosure.prototype, false
+      );
+      addScopeValueEdge(ExpectedObjectGraph, innerEnclosure, "firstValue", miscellaneous);
+      addScopeValueEdge(ExpectedObjectGraph, innerEnclosure, "secondValue", target);
+
+      addPropertyNameEdge(ExpectedObjectGraph, innerEnclosure.prototype, "constructor", innerEnclosure, false);
 
       ExpectedObjectGraph.markStrongReferencesFromHeldValues();
       ExpectedObjectGraph.summarizeGraphToTarget(true);

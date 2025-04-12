@@ -107,7 +107,7 @@ class TracingConfiguration implements SearchConfiguration {
   {
     const secondIdPart = secondParentId ? " + " + secondParentId : "";
     this.log(
-      `defineEdge: ${parentId}${secondIdPart} via ${edgeId} to ${childId}, isStrongReference: ${isStrongReference}`
+      `defineEdgeTrap: ${parentId}${secondIdPart} via ${edgeId} to ${childId}, isStrongReference: ${isStrongReference}`
     );
   }
 
