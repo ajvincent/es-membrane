@@ -170,17 +170,22 @@ describe("Simple graph searches, promises: references to the target", () => {
   //#endregion catch, resolve()
 
   //#region finally, resolve()
-  xit("exist as a finally reaction, before resolve", async () => {
-    addReactions();
-    addSettleCallback(true, true);
-    addSettleCallback(false, true);
+  it("do not exist as a finally reaction, before resolve", async () => {
+    /* https://tc39.es/ecma262/#sec-promise.prototype.finally
 
-    const expected = summarize();
+    The specification requires creating built-in functions and passing them to
+    Promise.prototype.then().  The callback the guest script provides is in a
+    _native_ closure. and is not accessible from outside engine262.
 
+    As a result, though the target might be reachable in principle, I can't reach it
+    from the host.
+
+    @see {@link https://github.com/engine262/engine262/blob/d14bb4b3dac4eb352a471debaa77b10d0677d881/src/intrinsics/PromisePrototype.mts#L58}
+    */
     const actual = await getActualGraph(
       "simple/promises.js", "promise.finally() to target, before resolve", false
     );
-    expect(actual).toEqual(expected);
+    expect(actual).toEqual(null);
   });
 
   it("do not exist as a finally reaction, after resolve", async () => {
