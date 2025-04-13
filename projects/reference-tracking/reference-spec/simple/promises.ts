@@ -102,3 +102,10 @@ const target = { isTarget: true };
   searchReferences("promise.finally() to target, after reject", target, [promise], true);
 }
 //#endregion finally, reject()
+
+/*
+  Promise.all, Promise.race, etc. do not hold references to their passed-in
+  iterable's members.  Rather, each member holds a reference to the returned promise.
+
+  So looking up references on a Promise.all call is useless.
+*/
