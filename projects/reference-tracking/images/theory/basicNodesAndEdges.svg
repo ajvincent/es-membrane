@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="100" fill="white">
+  <style type="text/css"><![CDATA[
+    text {
+      alignment-baseline: middle;
+      text-anchor: middle;
+      fill: black;
+      font-size: 14px;
+    }
+  ]]></style>
+
+  <defs>
+    <g id="source">
+      <circle cx="0" cy="0" r="40" stroke="green" fill="none"/>
+      <circle cx="0" cy="0" r="46" stroke="green" fill="none"/>
+    </g>
+
+    <g id="sink">
+      <circle cx="0" cy="0" r="40" stroke="red" fill="none"/>
+      <circle cx="0" cy="0" r="46" stroke="red" fill="none"/>
+    </g>
+
+    <g id="horizontal-edge">
+      <line x1="-35" y1="0" x2="35" y2="0" stroke="black" stroke-width="2"/>
+      <line x1="35" y1="0" x2="30" y2="-5" stroke="black" stroke-width="2"/>
+      <line x1="35" y1="0" x2="30" y2="5" stroke="black" stroke-width="2"/>
+    </g>
+  </defs>
+
+  <rect x="0" y="0" width="400" height="100" fill="#feffff"/>
+
+  <g id="nodes">
+    <g transform="translate(50, 50)">
+      <use href="#source"/>
+      <text x="0" y="0">Truck</text>
+    </g>
+
+    <g transform="translate(200, 50)">
+      <circle cx="0" cy="0" r="40" stroke="black" fill="none"/>
+      <text>Fred</text>
+    </g>
+
+    <g transform="translate(350, 50)">
+      <use href="#sink"/>
+      <text x="0" y="0">Wilma</text>
+    </g>
+  </g>
+
+  <g id="edges">
+    <g transform="translate(125, 50)">
+      <use href="#horizontal-edge"/>
+      <text x="0" y="-8">owner</text>
+    </g>
+
+    <g transform="translate(275, 50)">
+      <use href="#horizontal-edge"/>
+      <text x="0" y="-8">wife</text>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2024"],
+    "module": "NodeNext",
+    "target": "ES2024",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "sourceMap": true,
+    "declaration": true,
+
+    "baseUrl": ".",
+    "outDir": "dist"
+  },
+
+  "include": [
+    "fixtures/**/*.ts",
+    "playground/**/*.ts",
+    "source/**/*.ts",
+    "reference-spec/**/*.ts",
+    "spec/**/*.ts"
+  ],
+
+  "extends": "@tsconfig/node18/tsconfig.json"
+}

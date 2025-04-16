@@ -1,9 +1,10 @@
-import {
-  fork
-} from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+
+import {
+  asyncFork
+} from "./childProcess.js";
 
 import {
   monorepoRoot,
@@ -37,18 +38,8 @@ export async function InvokeTSC(
     );
   }
 
-  const child = fork(TSC, [], {
-    cwd: process.cwd(),
-    stdio: ["ignore", "inherit", "inherit", "ipc"]
-  });
-
-  let p = new Promise((resolve, reject) => {
-    child.on("exit", (code) => {
-      code ? reject(code) : resolve(code);
-    });
-  });
   try {
-    await p;
+    await asyncFork(TSC, [], process.cwd());
   }
   catch (code) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call

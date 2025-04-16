@@ -1,6 +1,6 @@
-import { fork } from "node:child_process";
 import path from "node:path";
 import { chdir, cwd, } from "node:process";
+import { asyncFork } from "./childProcess.js";
 import { monorepoRoot, } from "./constants.js";
 import { InvokeTSC_excludeDirs, } from "./InvokeTSC.js";
 const pathToGulp = path.join(monorepoRoot, "node_modules/gulp/bin/gulp.js");
@@ -34,22 +34,11 @@ async function invokeChildGulpFile(projectRoot, localPathToDir) {
     }
 }
 async function runChildGulpfile() {
-    const child = fork(pathToGulp, [
-        "--no-experimental-require-module",
-    ], {
-        cwd: cwd(),
-        stdio: ["ignore", "inherit", "inherit", "ipc"]
-    });
-    const p = new Promise((resolve, reject) => {
-        child.on("exit", (code) => {
-            if (code)
-                reject(code);
-            else
-                resolve();
-        });
-    });
     try {
-        await p;
+        await asyncFork(pathToGulp, [
+            "--no-experimental-require-module",
+            "--expose-gc",
+        ], cwd());
     }
     catch (code) {
         throw new Error(`Failed on "${pathToGulp}" with code ${code}`);

@@ -1,0 +1,36 @@
+{
+  "name": "es-search-references",
+  "version": "1.0.0-beta.1",
+  "description": "JavaScript reference tracking by static analysis.  For libraries to test they don't leak memory directly.",
+  "main": "dist/bin/exports.js",
+  "typings": "dist/bin/exports.d.ts",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "clean": "rm -rf dist Gulpfile.js",
+    "tsc-buildsystem": "echo $PWD && tsc --project ./tsconfig-gulp.json",
+    "build": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js",
+    "debug": "npm run clean && npm run tsc-buildsystem && node --inspect-brk --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js",
+    "tasks": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js --tasks",
+    "is-repo-clean": "node --no-experimental-require-module ./gulp-utilities/assertRepoIsClean.js"
+  },
+  "author": "Alexander J. Vincent <ajvincent@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "@ajvincent/build-utilities": "file:../build-utilities",
+    "@tsconfig/node18": "^18.2.4",
+    "@types/gulp": "^4.0.17",
+    "@types/jasmine": "^5.1.5",
+    "@types/node": "^18.19.69",
+    "gulp": "^5.0.0",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "@dagrejs/graphlib": "^2.2.4",
+    "@engine262/engine262": "^0.0.1-541a5631dee2e95603eb0b195c572aed6e2a244f",
+    "import-meta-resolve": "^4.1.0",
+    "type-fest": "^4.32.0"
+  }
+}

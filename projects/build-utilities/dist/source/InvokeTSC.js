@@ -1,7 +1,7 @@
-import { fork } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { asyncFork } from "./childProcess.js";
 import { monorepoRoot, } from "./constants.js";
 import { overwriteFileIfDifferent, } from "./overwriteFileIfDifferent.js";
 const TSC = path.resolve(monorepoRoot, "node_modules/typescript/bin/tsc");
@@ -17,17 +17,8 @@ export async function InvokeTSC(pathToTSConfig, excludesGlobs) {
     if (pathToTSConfig !== pathToBaseTSConfig) {
         await overwriteFileIfDifferent(true, JSON.stringify(configContents, null, 2) + "\n", path.join(process.cwd(), "tsconfig.json"));
     }
-    const child = fork(TSC, [], {
-        cwd: process.cwd(),
-        stdio: ["ignore", "inherit", "inherit", "ipc"]
-    });
-    let p = new Promise((resolve, reject) => {
-        child.on("exit", (code) => {
-            code ? reject(code) : resolve(code);
-        });
-    });
     try {
-        await p;
+        await asyncFork(TSC, [], process.cwd());
     }
     catch (code) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call

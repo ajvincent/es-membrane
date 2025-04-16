@@ -1,7 +1,3 @@
-import {
-  fork
-} from "node:child_process";
-
 import path from "node:path";
 
 import {
@@ -12,6 +8,8 @@ import {
 import type {
   series,
 } from "gulp";
+
+import { asyncFork } from "./childProcess.js";
 
 import {
   monorepoRoot,
@@ -66,24 +64,11 @@ async function invokeChildGulpFile(
 }
 
 async function runChildGulpfile(): Promise<void> {
-  const child = fork(pathToGulp, [
-    "--no-experimental-require-module",
-  ], {
-    cwd: cwd(),
-    stdio: ["ignore", "inherit", "inherit", "ipc"]
-  });
-
-  const p = new Promise<void>((resolve, reject) => {
-    child.on("exit", (code) => {
-      if (code)
-        reject(code);
-      else
-        resolve();
-    });
-  });
-
   try {
-    await p;
+    await asyncFork(pathToGulp, [
+      "--no-experimental-require-module",
+      "--expose-gc",
+    ], cwd());
   }
   catch (code) {
     throw new Error(`Failed on "${pathToGulp}" with code ${code}`);

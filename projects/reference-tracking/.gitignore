@@ -1,0 +1,14 @@
+node_modules
+*.js
+*.d.ts
+*.js.map
+**/*.js
+**/*.js.map
+**/*.d.ts
+!**/types/**/*.d.ts
+dist/**
+!dist/bin/*.js
+!dist/bin/*.d.ts
+
+playground
+spec/playground

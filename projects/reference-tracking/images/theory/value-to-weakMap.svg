@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="300" fill="white">
+  <style type="text/css"><![CDATA[
+    text {
+      alignment-baseline: middle;
+      text-anchor: middle;
+      fill: black;
+      font-size: 14px;
+    }
+
+    circle, line {
+      stroke-width: 2px;
+    }
+
+    circle {
+      fill: none;
+    }
+
+    line {
+      stroke: black;
+    }
+  ]]></style>
+
+  <defs>
+    <circle id="node" cx="0" cy="0" r="40" stroke="black"/>
+
+    <g id="source">
+      <circle cx="0" cy="0" r="40" stroke="green"/>
+      <circle cx="0" cy="0" r="46" stroke="green"/>
+    </g>
+
+    <g id="sink">
+      <circle cx="0" cy="0" r="40" stroke="red"/>
+      <circle cx="0" cy="0" r="46" stroke="red"/>
+    </g>
+
+    <g id="horizontal-left-edge">
+      <line x1="-35" y1="0" x2="35" y2="0"/>
+      <line x1="-35" y1="0" x2="-30" y2="-5"/>
+      <line x1="-35" y1="0" x2="-30" y2="5"/>
+    </g>
+
+    <g id="vertical-up-edge-weak">
+      <line x1="0" y1="-35" x2="0" y2="35" stroke-dasharray="5 5"/>
+      <line x1="0" y1="-35" x2="-5" y2="-30"/>
+      <line x1="0" y1="-35" x2="5" y2="-30"/>
+    </g>
+
+    <g id="left-up-edge-weak">
+      <line x1="-47" y1="-47" x2="47" y2="47" stroke-dasharray="5 5"/>
+      <line x1="-47" y1="-47" x2="-40" y2="-47"/>
+      <line x1="-47" y1="-47" x2="-47" y2="-40"/>
+    </g>
+
+    <g id="left-down-edge">
+      <line x1="-47" y1="47" x2="47" y2="-47"/>
+      <line x1="-47" y1="47" x2="-40" y2="47"/>
+      <line x1="-47" y1="47" x2="-47" y2="40"/>
+    </g>
+  </defs>
+
+  <rect x="0" y="0" width="500" height="300" fill="#feffff"/>
+
+  <g id="nodes">
+    <g transform="translate(50, 50)">
+      <use href="#source"/>
+      <text x="0" y="0">map</text>
+    </g>
+
+    <g transform="translate(200, 50)">
+      <circle cx="0" cy="0" r="40" stroke="orange"/>
+      <text>(tuple)</text>
+    </g>
+
+    <g transform="translate(350, 50)">
+      <use href="#node"/>
+      <text>Car</text>
+    </g>
+
+    <g transform="translate(350, 200)">
+      <use href="#sink"/>
+      <text x="0" y="0">Fred</text>
+    </g>
+
+  </g>
+
+  <g id="edges">
+    <g transform="translate(350, 125)">
+      <use href="#vertical-up-edge-weak"/>
+    </g>
+
+    <g transform="translate(275, 50)">
+      <use href="#horizontal-left-edge"/>
+    </g>
+
+    <g transform="translate(83, 80) rotate(30)">
+      <line x1="-5" y1="0" x2="0" y2="-5"/>
+      <line x1="-5" y1="0" x2="0" y2="5"/>
+    </g>
+
+    <g transform="translate(275, 125)">
+      <line x1="-195" y1="-46" x2="47" y2="47" stroke-dasharray="5 5"/>
+      <!--
+      <line x1="-190" y1="-43" x2="-185" y2="-45"/>
+      <line x1="-190" y1="-43" x2="-190" y2="-36"/>
+      -->
+    </g>
+
+    <g transform="translate(125, 50)">
+      <use href="#horizontal-left-edge"/>
+    </g>
+  </g>
+</svg>

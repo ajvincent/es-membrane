@@ -1,0 +1,79 @@
+import type {
+  graphlib
+} from "@dagrejs/dagre";
+
+import {
+  buildDagreGraph
+} from "../dagre-tools/buildGraph.js";
+
+import {
+  ReferenceGraphImpl
+} from "../engine262-tools/search/ReferenceGraphImpl.js";
+
+import {
+  TARGET_NODE_KEY,
+  BuiltInJSTypeName,
+  PRESUMED_HELD_NODE_KEY
+} from "../utilities/constants.js";
+
+import {
+  addObjectToGraphs,
+  addArrayIndexEdge,
+  addPropertyNameEdge
+} from "../../spec/support/fillReferenceGraph.js";
+
+export function buildDummyGraph(): graphlib.Graph {
+  const engineGraph = new ReferenceGraphImpl();
+
+  engineGraph.foundTargetValue = true;
+  engineGraph.succeeded = true;
+
+  const GraphCodes = {
+    nodes: {
+      objectHoldingTarget: 3,
+    },
+
+    parentEdgeIds: {
+      objectHoldingTarget: 1,
+      targetToHoldingObject: 3,
+    }
+  };
+
+  addObjectToGraphs(
+    engineGraph,
+    TARGET_NODE_KEY,
+    BuiltInJSTypeName.Object,
+    "Object"
+  );
+  addObjectToGraphs(
+    engineGraph,
+    PRESUMED_HELD_NODE_KEY,
+    BuiltInJSTypeName.Array,
+    "Array"
+  );
+  addObjectToGraphs(
+    engineGraph,
+    GraphCodes.nodes.objectHoldingTarget,
+    BuiltInJSTypeName.Object,
+    "Object"
+  );
+
+  addArrayIndexEdge(
+    engineGraph,
+    PRESUMED_HELD_NODE_KEY,
+    1,
+    GraphCodes.nodes.objectHoldingTarget,
+    GraphCodes.parentEdgeIds.objectHoldingTarget
+  );
+
+  addPropertyNameEdge(
+    engineGraph,
+    GraphCodes.nodes.objectHoldingTarget,
+    "target",
+    TARGET_NODE_KEY,
+    GraphCodes.parentEdgeIds.targetToHoldingObject
+  );
+
+  const dagreGraph = buildDagreGraph(engineGraph);
+  return dagreGraph;
+}
