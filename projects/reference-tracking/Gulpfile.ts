@@ -8,7 +8,6 @@ import {
 } from "@ajvincent/build-utilities";
 
 import {
-  parallel,
   series,
   src,
   dest
@@ -42,12 +41,7 @@ async function eslint(): Promise<void> {
 
 export default series([
   build,
-  parallel(
-    copyJasmineSupportJSON,
-  ),
+  copyJasmineSupportJSON,
   jasmine,
-  /*
-  jasmine_gc,
-  */
   eslint,
 ]);

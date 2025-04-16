@@ -15,7 +15,7 @@ Now, obviously there are some challenges:
 Figuring out the answer to these questions requiries analyzing the relationships, which means we have to know about those relationships.  But to discover those relationships means, in several ways, we have to figure out what the code is actually going to do.  That requires either:
 
 1. implementing large parts of a JavaScript engine (no thanks)
-2. using an existing JavaScript engine we can hook into (ugh)
+2. using an existing JavaScript engine we can hook into
 3. intercepting the built-in API's and inserting traps (unsafe, and can't wrap closures anyway)
 
 This library goes for approach #2, using [engine262](https://engine262.js.org/), which is a ECMAScript engine written to run in [Node](https://nodejs.org/en).  Maybe I'll end up patching and using engine262, but I sincerely hope not.

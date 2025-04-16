@@ -238,19 +238,24 @@ export class GraphBuilder implements InstanceGetterDefinitions
     this.#objectQueue.add(heldValues);
 
     for (const guestObject of this.#objectQueue) {
-      this.#currentNodeId = this.#guestObjectGraph.getWeakKeyId(guestObject);
-      if (this.#objectsToExcludeFromSearch.has(guestObject) === false) {
-        if (GuestEngine.isProxyExoticObject(guestObject) === false) {
-          yield * this.#addObjectProperties(guestObject);
-          yield * this.#addPrivateFields(guestObject);
-          yield * this.#addConstructorOf(guestObject);
+      if (this.#objectsToExcludeFromSearch.has(guestObject)) {
+        continue;
+      }
 
-          if ((this.#searchConfiguration?.noFunctionEnvironment !== true) &&
-            GuestEngine.isECMAScriptFunctionObject(guestObject))
-          {
-            // closures
-            yield * this.#addReferencesInFunction(guestObject);
-          }
+      this.#currentNodeId = this.#guestObjectGraph.getWeakKeyId(guestObject);
+      if (GuestEngine.isProxyExoticObject(guestObject)) {
+        yield* this.#addInternalSlotIfObject(guestObject, "ProxyTarget", true, true);
+        yield* this.#addInternalSlotIfObject(guestObject, "ProxyHandler", false, true);
+      } else {
+        yield * this.#addObjectProperties(guestObject);
+        yield * this.#addPrivateFields(guestObject);
+        yield * this.#addConstructorOf(guestObject);
+
+        if ((this.#searchConfiguration?.noFunctionEnvironment !== true) &&
+          GuestEngine.isECMAScriptFunctionObject(guestObject))
+        {
+          // closures
+          yield * this.#addReferencesInFunction(guestObject);
         }
 
         yield * this.#lookupAndAddInternalSlots(guestObject);
@@ -538,12 +543,6 @@ export class GraphBuilder implements InstanceGetterDefinitions
     guestObject: GuestEngine.ObjectValue
   ): GuestEngine.Evaluator<void>
   {
-    if (GuestEngine.isProxyExoticObject(guestObject)) {
-      yield* this.#addInternalSlotIfObject(guestObject, "ProxyTarget", true, true);
-      yield* this.#addInternalSlotIfObject(guestObject, "ProxyHandler", false, true);
-      return;
-    }
-
     if (GuestEngine.IsConstructor(guestObject)) {
       const kind = Reflect.get(guestObject, "ConstructorKind");
       if (kind === "derived") {
@@ -790,6 +789,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
   {
     // the 'arguments' property is off-limits... engine262 throws for this.
     const visitedNames = new Set<string>(["arguments"]);
+
     let env: GuestEngine.EnvironmentRecord | GuestEngine.NullValue = guestFunction.Environment;
     let thisValue: GuestEngine.Value | undefined = undefined;
     if (env instanceof GuestEngine.FunctionEnvironmentRecord) {

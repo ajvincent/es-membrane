@@ -18,47 +18,6 @@ import type {
   ValueDescription,
 } from "../../types/ValueDescription.js";
 
-export interface GraphNodeWithMetadata<ObjectMetadata extends JsonObject | null> {
-  metadata: ObjectMetadata
-}
-
-export interface GraphEdgeWithMetadata<RelationshipMetadata extends JsonObject | null> {
-  edgeType: EdgePrefix,
-  description: ValueDescription,
-  metadata: RelationshipMetadata
-}
-
-export type GraphObjectId = PrefixedNumber<NodePrefix>;
-export type EngineWeakKey<EngineObject, EngineSymbol> = EngineObject | EngineSymbol;
-
-export interface MapKeyAndValueIds {
-  readonly tupleNodeId: PrefixedNumber<NodePrefix.KeyValueTuple>;
-  readonly mapToTupleEdgeId: PrefixedNumber<EdgePrefix.MapToTuple>;
-  readonly tupleToKeyEdgeId: PrefixedNumber<EdgePrefix.MapKey> | undefined;
-  readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue> | undefined;
-}
-
-export interface PrivateFieldTupleIds {
-  readonly tupleNodeId: PrefixedNumber<NodePrefix.PrivateFieldTuple>;
-  readonly objectToTupleEdgeId: PrefixedNumber<EdgePrefix.ObjectToPrivateTuple>;
-  readonly tupleToKeyEdgeId: PrefixedNumber<EdgePrefix.PrivateTupleToKey>;
-  readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.PrivateTupleToValue | EdgePrefix.PrivateTupleToGetter>;
-}
-
-export interface FinalizationTupleIds {
-  readonly tupleNodeId: PrefixedNumber<NodePrefix.FinalizationTuple>;
-  readonly registryToTupleEdgeId: PrefixedNumber<EdgePrefix.FinalizationRegistryToTuple>;
-  readonly tupleToTargetEdgeId: PrefixedNumber<EdgePrefix.FinalizationToTarget>;
-  readonly tupleToHeldValueEdgeId: PrefixedNumber<EdgePrefix.FinalizationToHeldValue> | undefined;
-  readonly tupleToUnregisterTokenEdgeId: PrefixedNumber<EdgePrefix.FinalizationToUnregisterToken> | undefined;
-}
-
-export interface ValueIdIfc<EngineObject, EngineSymbol> {
-  getWeakKeyId(
-    weakKey: EngineWeakKey<EngineObject, EngineSymbol>
-  ): ObjectId | SymbolId;
-}
-
 /**
  * Conversions from ECMAScript values to graph nodes and edges.
  *
@@ -69,7 +28,7 @@ export interface ValueIdIfc<EngineObject, EngineSymbol> {
  *
  * You may notice there is no `GuestEngine` here, nor `ObjectId`, `SymbolId` or
  * `ReferenceId`.  This is deliberate.  This interface builds a graph using
- * these id's, and these types usage here confuses the abstractions, making
+ * these id's, and the use of these types here confuses the abstractions, making
  * testing this harder.
  */
 export interface ObjectGraphIfc<
@@ -231,4 +190,45 @@ export interface ObjectGraphIfc<
   getEdgeRelationship(
     edgeId: PrefixedNumber<EdgePrefix>
   ): ReadonlyDeep<GraphEdgeWithMetadata<RelationshipMetadata | null>> | undefined;
+}
+
+export interface GraphNodeWithMetadata<ObjectMetadata extends JsonObject | null> {
+  metadata: ObjectMetadata
+}
+
+export interface GraphEdgeWithMetadata<RelationshipMetadata extends JsonObject | null> {
+  edgeType: EdgePrefix,
+  description: ValueDescription,
+  metadata: RelationshipMetadata
+}
+
+export type GraphObjectId = PrefixedNumber<NodePrefix>;
+export type EngineWeakKey<EngineObject, EngineSymbol> = EngineObject | EngineSymbol;
+
+export interface MapKeyAndValueIds {
+  readonly tupleNodeId: PrefixedNumber<NodePrefix.KeyValueTuple>;
+  readonly mapToTupleEdgeId: PrefixedNumber<EdgePrefix.MapToTuple>;
+  readonly tupleToKeyEdgeId: PrefixedNumber<EdgePrefix.MapKey> | undefined;
+  readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue> | undefined;
+}
+
+export interface PrivateFieldTupleIds {
+  readonly tupleNodeId: PrefixedNumber<NodePrefix.PrivateFieldTuple>;
+  readonly objectToTupleEdgeId: PrefixedNumber<EdgePrefix.ObjectToPrivateTuple>;
+  readonly tupleToKeyEdgeId: PrefixedNumber<EdgePrefix.PrivateTupleToKey>;
+  readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.PrivateTupleToValue | EdgePrefix.PrivateTupleToGetter>;
+}
+
+export interface FinalizationTupleIds {
+  readonly tupleNodeId: PrefixedNumber<NodePrefix.FinalizationTuple>;
+  readonly registryToTupleEdgeId: PrefixedNumber<EdgePrefix.FinalizationRegistryToTuple>;
+  readonly tupleToTargetEdgeId: PrefixedNumber<EdgePrefix.FinalizationToTarget>;
+  readonly tupleToHeldValueEdgeId: PrefixedNumber<EdgePrefix.FinalizationToHeldValue> | undefined;
+  readonly tupleToUnregisterTokenEdgeId: PrefixedNumber<EdgePrefix.FinalizationToUnregisterToken> | undefined;
+}
+
+export interface ValueIdIfc<EngineObject, EngineSymbol> {
+  getWeakKeyId(
+    weakKey: EngineWeakKey<EngineObject, EngineSymbol>
+  ): ObjectId | SymbolId;
 }

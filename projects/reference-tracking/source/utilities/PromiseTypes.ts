@@ -1,6 +1,7 @@
 export type PromiseResolver<T> = (value: T | PromiseLike<T>) => unknown;
 export type PromiseRejecter = (reason?: unknown) => unknown;
 
+/** @deprecated use `Promise.withResolvers()` instead. */
 export class Deferred<T>
 {
   resolve: PromiseResolver<T>;

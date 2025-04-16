@@ -7,4 +7,3 @@ const heldValues: readonly object[] = [
 ];
 
 searchReferences("strongMapHoldsValueStrongly", target, heldValues, true);
-
