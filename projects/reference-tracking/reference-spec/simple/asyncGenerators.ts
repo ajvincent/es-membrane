@@ -9,11 +9,12 @@ const target = new IdObject("target");
 const firstValue = new IdObject("firstValue");
 const lastValue = new IdObject("lastValue");
 
-function * objectGenerator() {
-  yield firstValue;
-  yield target;
-  return lastValue;
+async function * objectGenerator(): AsyncGenerator<IdObject, unknown, unknown> {
+  yield await Promise.resolve(firstValue);
+  yield await Promise.resolve(target);
+  yield await Promise.resolve(lastValue);
+  return;
 }
 
-const generator: Generator<IdObject, IdObject, unknown> = objectGenerator();
+const generator: AsyncGenerator<IdObject, unknown, unknown> = objectGenerator();
 searchReferences("generator holds target strongly", target, [ generator ], true);

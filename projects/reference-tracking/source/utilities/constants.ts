@@ -23,6 +23,12 @@ export enum BuiltInJSTypeName {
   Proxy = "Proxy",
   FinalizationRegistry = "FinalizationRegistry",
   PrivateName = "#private",
+
+  ArrayIterator = "ArrayIterator",
+  MapIterator = "MapIterator",
+  SetIterator = "SetIterator",
+  Generator = "Generator",
+  AsyncGenerator = "AsyncGenerator",
 }
 
 export enum NodePrefix {

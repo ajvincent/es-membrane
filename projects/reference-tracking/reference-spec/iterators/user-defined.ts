@@ -2,7 +2,7 @@ const target = { isTarget: true };
 const firstValue = { isFirstValue: true };
 const lastValue = { isLastValue: true };
 
-class ObjectIterator implements Iterator<object>{
+class ObjectIterator implements Iterator<object> {
   #count = 0;
   next(...[value]: [] | [unknown]): IteratorResult<object, unknown> {
     void(value);
@@ -16,10 +16,14 @@ class ObjectIterator implements Iterator<object>{
       return { value: target, done: false };
     }
 
-    this.#count++;
-    return { value: lastValue, done: true };
+    if (this.#count === 2) {
+      this.#count++;
+      return { value: lastValue, done: true };
+    }
+
+    return { value: undefined, done: true };
   }
 }
 const iter = new ObjectIterator;
 
-searchReferences("iterator", target, [ iter ], true);
+searchReferences("no explicit hold", target, [ iter ], true);

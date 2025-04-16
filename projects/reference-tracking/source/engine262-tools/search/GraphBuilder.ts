@@ -98,6 +98,12 @@ export class GraphBuilder implements InstanceGetterDefinitions
       [Intrinsics["%WeakMap.prototype%"], BuiltInJSTypeName.WeakMap],
       [Intrinsics["%WeakSet.prototype%"], BuiltInJSTypeName.WeakSet],
       [Intrinsics["%Promise.prototype%"], BuiltInJSTypeName.Promise],
+
+      [Intrinsics["%GeneratorPrototype%"], BuiltInJSTypeName.Generator],
+      [Intrinsics["%AsyncGeneratorPrototype%"], BuiltInJSTypeName.AsyncGenerator],
+      [Intrinsics["%ArrayIteratorPrototype%"], BuiltInJSTypeName.ArrayIterator],
+      [Intrinsics["%MapIteratorPrototype%"], BuiltInJSTypeName.MapIterator],
+      [Intrinsics["%SetIteratorPrototype%"], BuiltInJSTypeName.SetIterator],
     ]);
   }
 
@@ -710,7 +716,10 @@ export class GraphBuilder implements InstanceGetterDefinitions
     const guestCtor = yield * EnsureTypeOrThrow(GuestEngine.GetV(
       guestObject, GraphBuilder.#stringConstants.get("constructor")!
     ));
-    GuestEngine.Assert(GuestEngine.isFunctionObject(guestCtor));
+    if (GuestEngine.isFunctionObject(guestCtor) === false) {
+      // generators end up here
+      return;
+    }
 
     const guestCtorProto = yield * EnsureTypeOrThrow(GuestEngine.GetPrototypeFromConstructor(
       guestCtor, "%Object.prototype%"
