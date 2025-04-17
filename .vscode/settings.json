@@ -5,10 +5,10 @@
     "projects/mixin-decorators/Gulpfile.js": true,
     "projects/mixin-decorators/Gulpfile.js.map": true,
 
-    "projects/reference-tracking/**/*.js": { "when": "$(basename).ts"},
-    "projects/reference-tracking/**/*.js.map": true,
-    "projects/reference-tracking/Gulpfile.js": true,
-    "projects/reference-tracking/Gulpfile.js.map": true,
+    "projects/search-references-host/**/*.js": { "when": "$(basename).ts"},
+    "projects/search-references-host/**/*.js.map": true,
+    "projects/search-references-host/Gulpfile.js": true,
+    "projects/search-references-host/Gulpfile.js.map": true,
 
     "projects/ts-morph-structures/stage_*/**/*.js": { "when": "$(basename).ts"},
     "projects/ts-morph-structures/stage_*/**/*.js.map": true,
