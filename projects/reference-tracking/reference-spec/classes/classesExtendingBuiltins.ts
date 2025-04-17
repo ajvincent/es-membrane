@@ -1,3 +1,5 @@
+import "es-search-references-guest";
+
 class DefaultWeakMap<K extends WeakKey, V> extends WeakMap<K, V>
 {
   getDefault(key: K, builder: () => V): V {

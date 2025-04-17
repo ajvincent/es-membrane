@@ -1,3 +1,5 @@
+import "es-search-references-guest";
+
 const target = { isTarget: true };
 const miscellaneous = { isSomeOtherObject: true };
 

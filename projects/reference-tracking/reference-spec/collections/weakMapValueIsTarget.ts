@@ -1,3 +1,5 @@
+import "es-search-references-guest";
+
 const target = { isTarget: true };
 const key = { isKey: true };
 const objectHoldingTarget = new WeakMap<object, object>([[key, target]]);

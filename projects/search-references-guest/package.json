@@ -1,6 +1,6 @@
 {
   "name": "es-search-references-guest",
-  "version": "1.0b1",
+  "version": "1.0.0",
   "description": "A type definition library for es-search-references's guest scripts run in engine262.",
   "main": "exports.js",
   "typings": "exports.d.ts",

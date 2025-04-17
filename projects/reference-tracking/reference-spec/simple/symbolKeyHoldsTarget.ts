@@ -1,3 +1,5 @@
+import "es-search-references-guest";
+
 const target = { isTarget: true };
 const symbolKey = Symbol("This is a symbol");
 const objectHoldingTarget = { [symbolKey]: target };

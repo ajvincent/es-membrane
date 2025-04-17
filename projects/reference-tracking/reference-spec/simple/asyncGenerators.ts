@@ -1,3 +1,5 @@
+import "es-search-references-guest";
+
 class IdObject {
   readonly id: string
   constructor(id: string) {

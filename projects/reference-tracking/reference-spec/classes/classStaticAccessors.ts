@@ -1,3 +1,5 @@
+import "es-search-references-guest";
+
 class Person {
   name: string;
   constructor(name: string) {

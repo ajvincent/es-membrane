@@ -1,3 +1,5 @@
+import "es-search-references-guest";
+
 const target = Symbol("is target");
 
 const isTailValue = { isTailValue: true };

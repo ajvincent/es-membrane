@@ -1,3 +1,5 @@
+import "es-search-references-guest";
+
 let success: string | undefined;
 try {
   //@ts-expect-error 6 is not an object or a symbol

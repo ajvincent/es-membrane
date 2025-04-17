@@ -1,3 +1,5 @@
+import "es-search-references-guest";
+
 let success: string | undefined;
 
 searchReferences("duplicateSearchKeys", {}, [{}, {}], true);

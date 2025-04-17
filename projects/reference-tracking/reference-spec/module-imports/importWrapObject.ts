@@ -1,3 +1,5 @@
+import "es-search-references-guest";
+
 import addProperty from "./exportAddProperty.js";
 
 const target = { isTarget: true };

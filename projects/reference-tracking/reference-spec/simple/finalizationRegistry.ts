@@ -1,3 +1,4 @@
+import "es-search-references-guest";
 
 const foundHeldValues = new Set<unknown>;
 

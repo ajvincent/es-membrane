@@ -1,3 +1,5 @@
+import "es-search-references-guest";
+
 export type propertyKey = string | symbol;
 
 class PropertyKeySorter
