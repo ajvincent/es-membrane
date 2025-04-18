@@ -8,7 +8,7 @@ import type {
 
 import type {
   SearchConfiguration,
-} from "../../public/types/SearchConfiguration.js";
+} from "../../public/host/types/SearchConfiguration.js";
 
 import {
   EnsureTypeOrThrow

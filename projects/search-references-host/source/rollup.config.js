@@ -20,7 +20,7 @@ const compilerOptions = {
 
 const RollupOptions = [
   {
-    input: "./exports.ts",
+    input: "./host-exports.ts",
     output: {
       dir: "../dist/host",
       format: "es",
@@ -43,7 +43,7 @@ const RollupOptions = [
   },
 
   {
-    input: "./exports.ts",
+    input: "./host-exports.ts",
     output: {
       dir: "../dist/host",
       format: "es"

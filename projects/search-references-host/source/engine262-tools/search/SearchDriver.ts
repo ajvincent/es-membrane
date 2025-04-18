@@ -21,7 +21,7 @@ import type {
 
 import {
   SearchConfiguration
-} from "../../public/types/SearchConfiguration.js";
+} from "../../public/host/types/SearchConfiguration.js";
 
 import type {
   GraphObjectMetadata

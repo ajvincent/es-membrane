@@ -9,6 +9,7 @@ import {
 } from "@ajvincent/build-utilities";
 
 import {
+  parallel,
   series,
   src,
   dest
@@ -40,7 +41,7 @@ async function eslint(): Promise<void> {
   ]);
 }
 
-async function doRollup(): Promise<void>
+async function doHostRollup(): Promise<void>
 {
   const rollupLocation = path.join(monorepoRoot, "node_modules/rollup/dist/bin/rollup");
   const pathToConfig = path.join(projectRoot, "source", "rollup.config.js");
@@ -52,11 +53,17 @@ async function doRollup(): Promise<void>
   );
 }
 
+function copyGuestFiles() {
+  return src("source/public/guest/*").pipe(dest("dist/guest"));
+}
 
 export default series([
   build,
   copyJasmineSupportJSON,
   jasmine,
   eslint,
-  doRollup,
+  parallel([
+    doHostRollup,
+    copyGuestFiles,
+  ]),
 ]);

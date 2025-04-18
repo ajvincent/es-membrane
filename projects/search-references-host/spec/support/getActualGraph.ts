@@ -6,11 +6,11 @@ import type {
 
 import {
   runSearchesInGuestEngine
-} from "../../source/public/runSearchesInGuestEngine.js";
+} from "../../source/public/host/runSearchesInGuestEngine.js";
 
 import {
   SearchConfiguration
-} from "../../source/public/types/SearchConfiguration.js";
+} from "../../source/public/host/types/SearchConfiguration.js";
 
 import {
   getReferenceSpecPath,
