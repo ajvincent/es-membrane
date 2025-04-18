@@ -1,6 +1,7 @@
 import path from "node:path";
 
 import {
+  asyncFork,
   InvokeTSC,
   monorepoRoot,
   runESLint,
@@ -39,9 +40,23 @@ async function eslint(): Promise<void> {
   ]);
 }
 
+async function doRollup(): Promise<void>
+{
+  const rollupLocation = path.join(monorepoRoot, "node_modules/rollup/dist/bin/rollup");
+  const pathToConfig = path.join(projectRoot, "source", "rollup.config.js");
+  await asyncFork(rollupLocation, [
+      "--config",
+      pathToConfig,
+    ],
+    path.join(projectRoot, "source")
+  );
+}
+
+
 export default series([
   build,
   copyJasmineSupportJSON,
   jasmine,
   eslint,
+  doRollup,
 ]);

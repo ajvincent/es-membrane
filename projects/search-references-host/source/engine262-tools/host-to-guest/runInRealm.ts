@@ -7,7 +7,7 @@ import {
 
 import {
   resolve as ImportMetaResolve,
-} from 'import-meta-resolve'
+} from 'import-meta-resolve';
 
 import type {
   GuestRealmInputs,

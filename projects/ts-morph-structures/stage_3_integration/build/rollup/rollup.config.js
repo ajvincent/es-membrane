@@ -1,5 +1,5 @@
 import pkg from 'typescript';
-const {  ModuleKind, ModuleResolutionKind, ScriptTarget } = pkg;
+const { ModuleKind, ModuleResolutionKind, ScriptTarget } = pkg;
 
 import ts_plugin from "@rollup/plugin-typescript";
 import dts from "rollup-plugin-dts";

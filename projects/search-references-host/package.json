@@ -2,8 +2,8 @@
   "name": "es-search-references",
   "version": "1.0.0",
   "description": "JavaScript reference tracking by static analysis.  For libraries to test they don't leak memory directly.",
-  "main": "dist/bin/exports.js",
-  "typings": "dist/bin/exports.d.ts",
+  "main": "dist/host/exports.js",
+  "typings": "dist/host/exports.d.ts",
   "type": "module",
   "engines": {
     "node": ">=22.13"

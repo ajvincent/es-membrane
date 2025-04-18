@@ -20,16 +20,18 @@ const compilerOptions = {
 
 const RollupOptions = [
   {
-    input: "./source/exports.ts",
+    input: "./exports.ts",
     output: {
-      dir: "./dist",
+      dir: "../dist/host",
       format: "es",
     },
     external: [
-      "mixin-decorators",
-      "node:assert/strict",
-      "path",
-      "ts-morph",
+      "@dagrejs/graphlib",
+      "@engine262/engine262",
+      "import-meta-resolve",
+      "node:fs",
+      "node:url",
+      "type-fest",
     ],
     plugins: [
       ts_plugin(
@@ -41,16 +43,18 @@ const RollupOptions = [
   },
 
   {
-    input: "./source/exports.ts",
+    input: "./exports.ts",
     output: {
-      dir: "./dist",
+      dir: "../dist/host",
       format: "es"
     },
     external: [
-      "mixin-decorators",
-      "node:assert/strict",
-      "path",
-      "ts-morph",
+      "@dagrejs/graphlib",
+      "@engine262/engine262",
+      "import-meta-resolve",
+      "node:fs",
+      "node:url",
+      "type-fest",
     ],
     plugins: [
       dts(

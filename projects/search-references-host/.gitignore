@@ -7,8 +7,10 @@ node_modules
 **/*.d.ts
 !**/types/**/*.d.ts
 dist/**
-!dist/bin/*.js
-!dist/bin/*.d.ts
+!dist/host
+!dist/host/exports.d.ts
+!dist/host/exports.js
+!source/rollup.config.js
 
 playground
 spec/playground
