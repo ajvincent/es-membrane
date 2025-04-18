@@ -1,6 +1,6 @@
 {
   "name": "es-search-references",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "JavaScript reference tracking by static analysis.  For libraries to test they don't leak memory directly.",
   "exports": {
     "./host": {
