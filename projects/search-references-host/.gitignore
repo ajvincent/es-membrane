@@ -7,9 +7,6 @@ node_modules
 **/*.d.ts
 !**/types/**/*.d.ts
 dist/**
-!dist/host
-!dist/host/exports.d.ts
-!dist/host/exports.js
 !source/rollup.config.js
 !source/public/guest/exports.d.ts
 !source/public/guest/exports.js
