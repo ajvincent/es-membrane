@@ -23,5 +23,5 @@ declare function searchReferences(
 In your engine262 scripts, you will include this with the following line:
 
 ```typescript
-import "es-search-references-guest";
+import "es-search-references/guest";
 ```

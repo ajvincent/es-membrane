@@ -1,4 +1,4 @@
-import "es-search-references-guest";
+import "es-search-references/guest";
 import OneToOneStrongMap from "../fixtures/OneToOneStrongMap/OneToOneStrongMap.js";
 
 class DummyMembrane {

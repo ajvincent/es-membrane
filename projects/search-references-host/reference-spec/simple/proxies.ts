@@ -1,4 +1,4 @@
-import "es-search-references-guest";
+import "es-search-references/guest";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */

@@ -1,4 +1,4 @@
-import "es-search-references-guest";
+import "es-search-references/guest";
 
 import wrapObject from "./exportWrapObject.js";
 export default function addProperty(value: object): Record<"value" | "addedProperty", object> {

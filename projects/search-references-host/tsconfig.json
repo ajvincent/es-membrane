@@ -9,6 +9,7 @@
     "declaration": true,
 
     "baseUrl": ".",
+    "rootDir": ".",
     "outDir": "dist"
   },
 

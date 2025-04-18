@@ -1,4 +1,4 @@
-import "es-search-references-guest";
+import "es-search-references/guest";
 
 class DefaultWeakMap<K extends WeakKey, V> extends WeakMap<K, V>
 {

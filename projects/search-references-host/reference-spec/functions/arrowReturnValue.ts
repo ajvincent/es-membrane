@@ -1,4 +1,4 @@
-import "es-search-references-guest";
+import "es-search-references/guest";
 
 const target = { isTarget: true };
 const returnTarget = () => target;
