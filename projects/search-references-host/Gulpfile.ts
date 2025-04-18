@@ -59,11 +59,11 @@ function copyGuestFiles() {
 
 export default series([
   build,
-  copyJasmineSupportJSON,
-  jasmine,
-  eslint,
   parallel([
     doHostRollup,
     copyGuestFiles,
   ]),
+  copyJasmineSupportJSON,
+  jasmine,
+  eslint,
 ]);

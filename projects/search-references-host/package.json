@@ -16,6 +16,10 @@
       }
     }
   },
+  "files": [
+    "./dist/host/*",
+    "./dist/guest/*"
+  ],
   "type": "module",
   "engines": {
     "node": ">=22.13"

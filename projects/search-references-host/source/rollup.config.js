@@ -22,7 +22,7 @@ const RollupOptions = [
   {
     input: "./host-exports.ts",
     output: {
-      dir: "../dist/host",
+      file: "../dist/host/exports.js",
       format: "es",
     },
     external: [
@@ -45,7 +45,7 @@ const RollupOptions = [
   {
     input: "./host-exports.ts",
     output: {
-      dir: "../dist/host",
+      file: "../dist/host/exports.d.ts",
       format: "es"
     },
     external: [
