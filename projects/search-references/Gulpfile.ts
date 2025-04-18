@@ -15,7 +15,7 @@ import {
   dest
 } from "gulp";
 
-const projectRoot = path.join(monorepoRoot, "projects/search-references-host");
+const projectRoot = path.join(monorepoRoot, "projects/search-references");
 
 async function build(): Promise<void> {
   await InvokeTSC(path.join(projectRoot, "tsconfig.json"), []);

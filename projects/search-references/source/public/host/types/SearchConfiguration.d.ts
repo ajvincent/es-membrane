@@ -54,7 +54,7 @@ export interface SearchConfiguration {
   /**
    * True if we should exclude values available to functions (this, super, arguments).
    * Usually you do not want this, but for internal development purposes (reducing noise
-   * in search-references-host testcases) this can be very helpful.
+   * in search-references testcases) this can be very helpful.
    */
   noFunctionEnvironment?: boolean;
 }
