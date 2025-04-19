@@ -9,16 +9,16 @@
         "types": "./dist/core-host/runSearchesInGuestEngine.d.ts"
       }
     },
-    "./host": {
-      "import": {
-        "default": "./dist/host/runSearchesInGuestEngine.js",
-        "types": "./dist/host/runSearchesInGuestEngine.d.ts"
-      }
-    },
     "./guest": {
       "import": {
         "default": "./dist/guest/searchReferences.js",
         "types": "./dist/guest/searchReferences.d.ts"
+      }
+    },
+    "./host": {
+      "import": {
+        "default": "./dist/host/runSearchesInGuestEngine.js",
+        "types": "./dist/host/runSearchesInGuestEngine.d.ts"
       }
     }
   },
@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@dagrejs/graphlib": "^2.2.4",
-    "@engine262/engine262": "^0.0.1-541a5631dee2e95603eb0b195c572aed6e2a244f",
+    "@engine262/engine262": "^0.0.1-0bd9a5fb33988b1e4a3a7bc9560c242fa8fe7393",
     "import-meta-resolve": "^4.1.0",
     "type-fest": "^4.32.0"
   }
