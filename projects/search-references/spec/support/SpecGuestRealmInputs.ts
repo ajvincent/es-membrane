@@ -1,8 +1,7 @@
 import fs from "node:fs";
-
 import {
-  pathToFileURL,
   fileURLToPath,
+  pathToFileURL,
 } from "node:url";
 
 import {
@@ -10,41 +9,24 @@ import {
 } from 'import-meta-resolve';
 
 import type {
-  Graph,
-} from "@dagrejs/graphlib";
+  GuestEngine,
+} from "../../source/engine262-tools/host-to-guest/GuestEngine.js";
 
 import type {
-  GuestRealmInputs,
-} from "../core-host/types/Virtualization262.js";
+  GuestRealmInputsWithBuiltins
+} from "../../source/engine262-tools/types/Virtualization262.js";
 
-import {
-  LoggingConfiguration,
-  runSearchesInGuestEngine as runSearches,
-  type SearchConfiguration,
-} from "../core-host/runSearchesInGuestEngine.js";
-
-export {
-  LoggingConfiguration,
-  type SearchConfiguration,
-};
-
-export async function runSearchesInGuestEngine(
-  absolutePathToFile: string,
-  searchConfiguration?: SearchConfiguration,
-): Promise<ReadonlyMap<string, Graph | null>>
-{
-  const realmInputs = new NodeGuestRealmInputs(absolutePathToFile);
-  return runSearches(realmInputs, searchConfiguration);
-}
-
-class NodeGuestRealmInputs implements GuestRealmInputs {
+export class SpecGuestRealmInputs implements GuestRealmInputsWithBuiltins {
   readonly startingSpecifier: string;
+  readonly defineBuiltIns?: ((realm: GuestEngine.UnicodeSets) => GuestEngine.UnicodeSets<void>) | undefined;
 
   constructor(
     absolutePathToFile: string,
+    defineBuiltIns?: ((realm: GuestEngine.UnicodeSets) => GuestEngine.UnicodeSets<void>) | undefined
   )
   {
     this.startingSpecifier = pathToFileURL(absolutePathToFile).href;
+    this.defineBuiltIns = defineBuiltIns;
   }
 
   public contentsGetter(

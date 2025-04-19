@@ -19,12 +19,16 @@ import {
 } from "../../source/engine262-tools/host-to-guest/GuestEngine.js";
 
 import {
-  directInvoke
-} from "../../source/engine262-tools/host-to-guest/directInvoke.js";
+  runInRealm
+} from "../../source/engine262-tools/host-to-guest/runInRealm.js";
 
 import type {
   GuestRealmOutputs
 } from "../../source/engine262-tools/types/Virtualization262.js";
+
+import {
+  SpecGuestRealmInputs
+} from "./SpecGuestRealmInputs.js";
 
 export interface InternalSearchResults {
   readonly graphs: ReadonlyMap<string, Graph | null>;
@@ -39,18 +43,17 @@ export async function runSearchesInGuestEngineInternal(
   const graphs = new Map<string, Graph | null>;
   const reportCalls = new Map<string, string | number | boolean | undefined | null>;
 
-  const outputs: GuestRealmOutputs = await directInvoke({
-    absolutePathToFile,
-    defineBuiltIns: function * (realm: GuestEngine.ManagedRealm): GuestEngine.Evaluator<void> {
-      yield * defineReportFunction(realm, function * (guestValues): GuestEngine.Evaluator<GuestEngine.Value> {
-        return yield* handleReport(guestValues, reportCalls);
-      });
-      yield * defineSearchReferences(realm, graphs, {
-        internalErrorTrap,
-        noFunctionEnvironment: true
-      });
-    }
-  });
+  function * defineBuiltIns(realm: GuestEngine.ManagedRealm): GuestEngine.Evaluator<void> {
+    yield * defineReportFunction(realm, function * (guestValues): GuestEngine.Evaluator<GuestEngine.Value> {
+      return yield* handleReport(guestValues, reportCalls);
+    });
+    yield * defineSearchReferences(realm, graphs, {
+      internalErrorTrap,
+      noFunctionEnvironment: true
+    });
+  }
+  const inputs = new SpecGuestRealmInputs(absolutePathToFile, defineBuiltIns)
+  const outputs: GuestRealmOutputs = await runInRealm(inputs);
 
   if (outputs.succeeded === false) {
     throw new Error("evaluating module in guest engine failed: " + absolutePathToFile);

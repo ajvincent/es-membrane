@@ -8,9 +8,9 @@ import {
   runSearchesInGuestEngine
 } from "../../source/public/host/runSearchesInGuestEngine.js";
 
-import {
+import type {
   SearchConfiguration
-} from "../../source/public/host/types/SearchConfiguration.js";
+} from "../../source/public/core-host/types/SearchConfiguration.js";
 
 import {
   getReferenceSpecPath,

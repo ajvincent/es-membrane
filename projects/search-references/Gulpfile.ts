@@ -1,3 +1,4 @@
+import fs from "node:fs/promises";
 import path from "node:path";
 
 import {
@@ -18,6 +19,11 @@ import {
 const projectRoot = path.join(monorepoRoot, "projects/search-references");
 
 async function build(): Promise<void> {
+  await fs.cp(
+    path.join(projectRoot, "source/engine262-tools/types/Virtualization262.d.ts"),
+    path.join(projectRoot, "source/public/core-host/types/Virtualization262.d.ts"),
+  )
+
   await InvokeTSC(path.join(projectRoot, "tsconfig.json"), []);
 }
 
@@ -50,6 +56,12 @@ async function doHostRollup(): Promise<void>
       pathToConfig,
     ],
     path.join(projectRoot, "source")
+  );
+
+  await fs.cp(
+    path.join(projectRoot, "dist/source/public/host"),
+    path.join(projectRoot, "dist/host/"),
+    { recursive: true }
   );
 }
 

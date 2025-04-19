@@ -18,21 +18,21 @@ const compilerOptions = {
   "forceConsistentCasingInFileNames": true,
 };
 
+const sharedCoreOptions = {
+  input: "./core-host-exports.ts",
+  external: [
+    "@dagrejs/graphlib",
+    "@engine262/engine262",
+  ],
+};
+
 const RollupOptions = [
   {
-    input: "./host-exports.ts",
+    ...sharedCoreOptions,
     output: {
-      file: "../dist/host/exports.js",
+      file: "../dist/core-host/runSearchesInGuestEngine.js",
       format: "es",
     },
-    external: [
-      "@dagrejs/graphlib",
-      "@engine262/engine262",
-      "import-meta-resolve",
-      "node:fs",
-      "node:url",
-      "type-fest",
-    ],
     plugins: [
       ts_plugin(
         {
@@ -43,19 +43,11 @@ const RollupOptions = [
   },
 
   {
-    input: "./host-exports.ts",
+    ...sharedCoreOptions,
     output: {
-      file: "../dist/host/exports.d.ts",
+      file: "../dist/core-host/runSearchesInGuestEngine.d.ts",
       format: "es"
     },
-    external: [
-      "@dagrejs/graphlib",
-      "@engine262/engine262",
-      "import-meta-resolve",
-      "node:fs",
-      "node:url",
-      "type-fest",
-    ],
     plugins: [
       dts(
         {

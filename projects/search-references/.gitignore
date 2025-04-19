@@ -7,9 +7,10 @@ node_modules
 **/*.d.ts
 !**/types/**/*.d.ts
 dist/**
+source/public/core-host/types/Virtualization262.d.ts
+!source/public/guest/searchReferences.d.ts
+!source/public/guest/searchReferences.js
 !source/rollup.config.js
-!source/public/guest/exports.d.ts
-!source/public/guest/exports.js
 
 playground
 spec/playground

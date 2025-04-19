@@ -1,13 +1,20 @@
 import type {
-  GuestEngine
-} from "./GuestEngine.js";
+  Evaluator,
+  ManagedRealm,
+  PromiseObjectValue,
+} from "@engine262/engine262";
 
 export interface GuestRealmInputs {
-  readonly absolutePathToFile: string;
-  defineBuiltIns?: (realm: GuestEngine.ManagedRealm) => GuestEngine.Evaluator<void>;
+  readonly startingSpecifier: string;
+  readonly contentsGetter: (specifier: string) => string;
+  readonly resolveSpecifier: (targetSpecifier: string, sourceSpecifier: string) => string;
+}
+
+export interface GuestRealmInputsWithBuiltins extends GuestRealmInputs {
+  readonly defineBuiltIns?: (realm: ManagedRealm) => Evaluator<void>;
 }
 
 export interface GuestRealmOutputs {
-  succeeded: boolean;
-  readonly unhandledPromises: GuestEngine.PromiseObjectValue[];
+  readonly succeeded: boolean;
+  readonly unhandledPromises: PromiseObjectValue[];
 }

@@ -8,43 +8,24 @@ import {
 import {
   resolve as ImportMetaResolve,
 } from 'import-meta-resolve';
-
 import type {
-  Graph,
-} from "@dagrejs/graphlib";
-
+  GuestRealmInputsWithBuiltins
+} from "../engine262-tools/types/Virtualization262.js";
 import type {
-  GuestRealmInputs,
-} from "../core-host/types/Virtualization262.js";
+  GuestEngine
+} from "../engine262-tools/host-to-guest/GuestEngine.js";
 
-import {
-  LoggingConfiguration,
-  runSearchesInGuestEngine as runSearches,
-  type SearchConfiguration,
-} from "../core-host/runSearchesInGuestEngine.js";
-
-export {
-  LoggingConfiguration,
-  type SearchConfiguration,
-};
-
-export async function runSearchesInGuestEngine(
-  absolutePathToFile: string,
-  searchConfiguration?: SearchConfiguration,
-): Promise<ReadonlyMap<string, Graph | null>>
-{
-  const realmInputs = new NodeGuestRealmInputs(absolutePathToFile);
-  return runSearches(realmInputs, searchConfiguration);
-}
-
-class NodeGuestRealmInputs implements GuestRealmInputs {
+export class NodeGuestRealmInputs implements GuestRealmInputsWithBuiltins {
   readonly startingSpecifier: string;
+  readonly defineBuiltIns?: ((realm: GuestEngine.ManagedRealm) => GuestEngine.Evaluator<void>) | undefined;
 
   constructor(
     absolutePathToFile: string,
+    defineBuiltIns?: ((realm: GuestEngine.ManagedRealm) => GuestEngine.Evaluator<void>) | undefined
   )
   {
     this.startingSpecifier = pathToFileURL(absolutePathToFile).href;
+    this.defineBuiltIns = defineBuiltIns;
   }
 
   public contentsGetter(

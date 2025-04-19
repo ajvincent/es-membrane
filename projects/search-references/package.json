@@ -3,20 +3,27 @@
   "version": "0.1.0",
   "description": "JavaScript reference tracking by static analysis.  For libraries to test they don't leak memory directly.",
   "exports": {
+    "./core-host": {
+      "import": {
+        "default": "./dist/core-host/runSearchesInGuestEngine.js",
+        "types": "./dist/core-host/runSearchesInGuestEngine.d.ts"
+      }
+    },
     "./host": {
       "import": {
-        "default": "./dist/host/exports.js",
-        "types": "./dist/host/exports.d.ts"
+        "default": "./dist/host/runSearchesInGuestEngine.js",
+        "types": "./dist/host/runSearchesInGuestEngine.d.ts"
       }
     },
     "./guest": {
       "import": {
-        "default": "./dist/guest/exports.js",
-        "types": "./dist/guest/exports.d.ts"
+        "default": "./dist/guest/searchReferences.js",
+        "types": "./dist/guest/searchReferences.d.ts"
       }
     }
   },
   "files": [
+    "./dist/core-host/*",
     "./dist/host/*",
     "./dist/guest/*"
   ],

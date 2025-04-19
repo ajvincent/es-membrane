@@ -9,7 +9,7 @@ import type {
 
 import type {
   SearchConfiguration
-} from "../public/host/types/SearchConfiguration.js";
+} from "../public/core-host/types/SearchConfiguration.js";
 
 import type {
   PrefixedNumber,

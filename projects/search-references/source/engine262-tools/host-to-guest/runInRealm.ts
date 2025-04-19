@@ -1,16 +1,5 @@
-import fs from "node:fs";
-
-import {
-  pathToFileURL,
-  fileURLToPath,
-} from "node:url";
-
-import {
-  resolve as ImportMetaResolve,
-} from 'import-meta-resolve';
-
 import type {
-  GuestRealmInputs,
+  GuestRealmInputsWithBuiltins,
   GuestRealmOutputs,
 } from "../types/Virtualization262.js";
 
@@ -35,11 +24,11 @@ import {
 */
 
 export async function runInRealm(
-  inputs: GuestRealmInputs
+  inputs: GuestRealmInputsWithBuiltins
 ): Promise<GuestRealmOutputs>
 {
-  const contents = await fs.promises.readFile(inputs.absolutePathToFile, { "encoding": "utf-8" });
-  const realmDriver = new RealmDriver;
+  const contents = inputs.contentsGetter(inputs.startingSpecifier);
+  const realmDriver = new RealmDriver(inputs);
 
   const agent = new GuestEngine.Agent({
     onDebugger() {
@@ -72,7 +61,7 @@ export async function runInRealm(
       GuestEngine.skipDebugger(inputs.defineBuiltIns(realm));
     }
 
-    const specifier = pathToFileURL(inputs.absolutePathToFile).href;
+    const specifier = inputs.startingSpecifier;
     let module: PlainCompletion<GuestEngine.SourceTextModuleRecord> = realm.compileModule(contents, { specifier });
     if (module instanceof GuestEngine.NormalCompletion)
       module = module.Value;
@@ -88,6 +77,8 @@ export async function runInRealm(
 }
 
 export class RealmDriver {
+  readonly #realmInputs: GuestRealmInputsWithBuiltins;
+
   #exceptionThrown = false;
   readonly #results = new RealmResults;
 
@@ -106,6 +97,11 @@ export class RealmDriver {
   #mainModule?: GuestEngine.SourceTextModuleRecord;
   loadRequestResult?: GuestEngine.PromiseObject;
   evalResult?: GuestEngine.PromiseObject;
+
+  public constructor(realmInputs: GuestRealmInputsWithBuiltins)
+  {
+    this.#realmInputs = realmInputs;
+  }
 
   public registerMainModule(specifier: string, module: GuestEngine.SourceTextModuleRecord): void {
     this.#specifierToModuleRecordMap.set(specifier, module);
@@ -128,7 +124,7 @@ export class RealmDriver {
     GuestEngine.Assert(referrer.Realm instanceof GuestEngine.ManagedRealm);
 
     const sourceSpecifier = this.#moduleRecordToSpecifierMap.get(referrer)!;
-    const resolvedSpecifier = ImportMetaResolve(targetSpecifier, sourceSpecifier);
+    const resolvedSpecifier = this.#realmInputs.resolveSpecifier(targetSpecifier, sourceSpecifier);
 
     const cachedModule: ThrowOr<GuestEngine.SourceTextModuleRecord> | undefined = this.#specifierToModuleRecordMap.get(resolvedSpecifier);
     if (cachedModule)
@@ -137,8 +133,7 @@ export class RealmDriver {
     if (!resolvedSpecifier.startsWith("file://"))
       return GuestEngine.Throw("Error", "CouldNotResolveModule", targetSpecifier);
 
-    const absolutePathToFile = fileURLToPath(resolvedSpecifier);
-    const contents = fs.readFileSync(absolutePathToFile, { "encoding": "utf-8" });
+    const contents = this.#realmInputs.contentsGetter(resolvedSpecifier);
 
     let module: PlainCompletion<GuestEngine.SourceTextModuleRecord> = referrer.Realm.compileModule(
       contents, { specifier: resolvedSpecifier }
