@@ -1,4 +1,5 @@
 export {
+  type GuestRealmInputs,
   LoggingConfiguration,
   type SearchConfiguration,
   runSearchesInGuestEngine,

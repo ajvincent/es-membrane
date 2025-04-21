@@ -25,7 +25,10 @@ import type {
 } from "./types/SearchConfiguration.js";
 
 export { LoggingConfiguration } from "./LoggingConfiguration.js";
-export type { SearchConfiguration };
+export type {
+  GuestRealmInputs,
+  SearchConfiguration,
+ };
 
 export async function runSearchesInGuestEngine(
   inputs: GuestRealmInputs,
