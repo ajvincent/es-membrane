@@ -130,9 +130,6 @@ export class RealmDriver {
     if (cachedModule)
       return cachedModule;
 
-    if (!resolvedSpecifier.startsWith("file://"))
-      return GuestEngine.Throw("Error", "CouldNotResolveModule", targetSpecifier);
-
     const contents = this.#realmInputs.contentsGetter(resolvedSpecifier);
 
     let module: PlainCompletion<GuestEngine.SourceTextModuleRecord> = referrer.Realm.compileModule(
