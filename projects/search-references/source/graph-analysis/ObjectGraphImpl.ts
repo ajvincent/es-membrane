@@ -101,7 +101,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   readonly #nodeCounter = new StringCounter<NodePrefix>;
   readonly #edgeCounter = new StringCounter<EdgePrefix>;
 
-  readonly #weakKeyToIdMap = new WeakMap<WeakKey, GraphObjectId>;
+  readonly #weakKeyToIdMap = buildSymbolWeakMap<WeakKey, GraphObjectId>();
   readonly #idToWeakKeyMap = new Map<GraphObjectId, WeakKey>;
   readonly #edgeIdToMetadataMap = new Map<
     PrefixedNumber<EdgePrefix>,
@@ -112,7 +112,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     this.#ownershipResolver.bind(this)
   );
   readonly #edgeIdTo_IsStrongReference_Map = new Map<PrefixedNumber<EdgePrefix>, boolean>;
-  readonly #weakKeyHeldStronglyMap = new WeakMap<WeakKey, boolean>;
+  readonly #weakKeyHeldStronglyMap = buildSymbolWeakMap<WeakKey, boolean>();
   readonly #weakKeyIdsToVisit = new Set<PrefixedNumber<NodePrefix>>;
 
   readonly #edgeIdToJointOwnersMap_Weak = new Map<
@@ -801,4 +801,22 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     }
   }
   //#endregion SearchReferencesIfc
+}
+
+let supportsWeakSymbolKeys: boolean | undefined;
+function buildSymbolWeakMap<Key extends WeakKey, Value>(): WeakMap<Key, Value> {
+  if (supportsWeakSymbolKeys === undefined) {
+    supportsWeakSymbolKeys = false;
+    try {
+      void new WeakMap([
+        [Symbol(), "success"]
+      ]);
+      supportsWeakSymbolKeys = true;
+    }
+    catch (ex) {
+      void(ex);
+    }
+  }
+
+  return supportsWeakSymbolKeys ? new WeakMap : new Map;
 }
