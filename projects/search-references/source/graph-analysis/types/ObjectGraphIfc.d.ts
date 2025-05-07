@@ -193,13 +193,16 @@ export interface ObjectGraphIfc<
 }
 
 export interface GraphNodeWithMetadata<ObjectMetadata extends JsonObject | null> {
-  metadata: ObjectMetadata
+  metadata: ObjectMetadata,
+  width: number,
+  height: number,
 }
 
 export interface GraphEdgeWithMetadata<RelationshipMetadata extends JsonObject | null> {
-  edgeType: EdgePrefix,
-  description: ValueDescription,
-  metadata: RelationshipMetadata
+  label: string;
+  edgeType: EdgePrefix;
+  description: ValueDescription;
+  metadata: RelationshipMetadata;
 }
 
 export type GraphObjectId = PrefixedNumber<NodePrefix>;

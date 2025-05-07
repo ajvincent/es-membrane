@@ -112,6 +112,7 @@ describe("ObjectGraphImpl", () => {
       expect(rawGraph.hasNode(objectGraph.getWeakKeyId(lastValue)));
 
       expect(objectGraph.getEdgeRelationship(heldToTarget)).toEqual({
+        label: "1",
         edgeType: EdgePrefix.PropertyKey,
         description: createValueDescription(1, objectGraph),
 
@@ -132,6 +133,7 @@ describe("ObjectGraphImpl", () => {
       const middleToTarget = objectGraph.definePropertyOrGetter(middleValue, "target", target, middleToTargetMeta, false);
 
       expect(objectGraph.getEdgeRelationship(middleToTarget)).toEqual({
+        label: "target",
         edgeType: EdgePrefix.PropertyKey,
         description: createValueDescription("target", objectGraph),
 
@@ -156,6 +158,7 @@ describe("ObjectGraphImpl", () => {
       const middleToTarget = objectGraph.definePropertyOrGetter(middleValue, symbolKey, target, middleToTargetMeta, false);
 
       expect(objectGraph.getEdgeRelationship(middleToTarget)).toEqual({
+        label: "key",
         edgeType: EdgePrefix.PropertyKey,
         description: createValueDescription(symbolKey, objectGraph),
 
@@ -198,6 +201,7 @@ describe("ObjectGraphImpl", () => {
       );
 
       expect(objectGraph.getEdgeRelationship(middleToTargetId)).toEqual({
+        label: "is target",
         edgeType: EdgePrefix.HasSymbolAsKey,
         description: {
           valueType: ValueDiscrimant.NotApplicable
@@ -222,6 +226,7 @@ describe("ObjectGraphImpl", () => {
       );
 
       expect(objectGraph.getEdgeRelationship(middleToTargetId)).toEqual({
+        label: `(scope:this)`,
         edgeType: EdgePrefix.ScopeValue,
         description: createValueDescription("this", objectGraph),
 
@@ -246,6 +251,7 @@ describe("ObjectGraphImpl", () => {
       );
 
       expect(objectGraph.getEdgeRelationship(middleToTarget)).toEqual({
+        label: "[[WeakRefTarget]]",
         edgeType: EdgePrefix.InternalSlot,
         description: createValueDescription("[[WeakRefTarget]]", objectGraph),
 
@@ -281,6 +287,7 @@ describe("ObjectGraphImpl", () => {
         );
 
         expect(objectGraph.getEdgeRelationship(mapToTupleEdgeId)).toEqual({
+          label: "(tuple)",
           edgeType: EdgePrefix.MapToTuple,
           description: {
             valueType: ValueDiscrimant.NotApplicable
@@ -291,6 +298,7 @@ describe("ObjectGraphImpl", () => {
         expect(tupleToKeyEdgeId).toBeDefined();
         if (tupleToKeyEdgeId) {
           expect(objectGraph.getEdgeRelationship(tupleToKeyEdgeId)).toEqual({
+            label: "(key)",
             edgeType: EdgePrefix.MapKey,
             description: createValueDescription(key, objectGraph),
             metadata: keyMetadata,
@@ -300,6 +308,7 @@ describe("ObjectGraphImpl", () => {
         expect(tupleToValueEdgeId).toBeDefined();
         if (tupleToValueEdgeId) {
           expect(objectGraph.getEdgeRelationship(tupleToValueEdgeId)).toEqual({
+            label: "(value)",
             edgeType: EdgePrefix.MapValue,
             description: createValueDescription(value, objectGraph),
             metadata: valueMetadata
@@ -336,6 +345,7 @@ describe("ObjectGraphImpl", () => {
         );
 
         expect(objectGraph.getEdgeRelationship(mapToTupleEdgeId)).toEqual({
+          label: "(tuple)",
           edgeType: EdgePrefix.MapToTuple,
           description: {
             valueType: ValueDiscrimant.NotApplicable
@@ -348,6 +358,7 @@ describe("ObjectGraphImpl", () => {
         expect(tupleToValueEdgeId).toBeDefined();
         if (tupleToValueEdgeId) {
           expect(objectGraph.getEdgeRelationship(tupleToValueEdgeId)).toEqual({
+            label: "(value)",
             edgeType: EdgePrefix.MapValue,
             description: createValueDescription(value, objectGraph),
             metadata: valueMetadata
@@ -361,7 +372,7 @@ describe("ObjectGraphImpl", () => {
           expect(inEdges.length).toBe(1);
           expect(inEdges[0]?.name).toBe(mapToTupleEdgeId);
         }
-  
+
         const outEdges = rawGraph.outEdges(tupleNodeId);
         expect(outEdges).toBeDefined();
         if (outEdges) {
@@ -383,6 +394,7 @@ describe("ObjectGraphImpl", () => {
         );
 
         expect(objectGraph.getEdgeRelationship(mapToTupleEdgeId)).toEqual({
+          label: "(tuple)",
           edgeType: EdgePrefix.MapToTuple,
           description: {
             valueType: ValueDiscrimant.NotApplicable
@@ -393,6 +405,7 @@ describe("ObjectGraphImpl", () => {
         expect(tupleToKeyEdgeId).toBeDefined();
         if (tupleToKeyEdgeId) {
           expect(objectGraph.getEdgeRelationship(tupleToKeyEdgeId)).toEqual({
+            label: "(key)",
             edgeType: EdgePrefix.MapKey,
             description: createValueDescription(key, objectGraph),
             metadata: keyMetadata,
@@ -431,6 +444,7 @@ describe("ObjectGraphImpl", () => {
       const middleToTarget = objectGraph.defineSetValue(middleValue, target, true, middleToTargetMeta);
 
       expect(objectGraph.getEdgeRelationship(middleToTarget)).toEqual({
+        label: "(element)",
         edgeType: EdgePrefix.SetValue,
         description: {
           valueType: ValueDiscrimant.NotApplicable,
@@ -464,6 +478,7 @@ describe("ObjectGraphImpl", () => {
         } = objectGraph.defineFinalizationTuple(registry, target, registryHeld, token);
 
         expect(objectGraph.getEdgeRelationship(registryToTupleEdgeId)).toEqual({
+          label: "(tuple)",
           edgeType: EdgePrefix.FinalizationRegistryToTuple,
           description: {
             valueType: ValueDiscrimant.NotApplicable
@@ -472,6 +487,7 @@ describe("ObjectGraphImpl", () => {
         });
 
         expect(objectGraph.getEdgeRelationship(tupleToTargetEdgeId)).toEqual({
+          label: "(target)",
           edgeType: EdgePrefix.FinalizationToTarget,
           description: createValueDescription(target, objectGraph),
           metadata: null
@@ -480,6 +496,7 @@ describe("ObjectGraphImpl", () => {
         expect(tupleToHeldValueEdgeId).toBeDefined();
         if (tupleToHeldValueEdgeId) {
           expect(objectGraph.getEdgeRelationship(tupleToHeldValueEdgeId)).toEqual({
+            label: "(held value)",
             edgeType: EdgePrefix.FinalizationToHeldValue,
             description: createValueDescription(registryHeld, objectGraph),
             metadata: null,
@@ -489,6 +506,7 @@ describe("ObjectGraphImpl", () => {
         expect(tupleToUnregisterTokenEdgeId).toBeDefined();
         if (tupleToUnregisterTokenEdgeId) {
           expect(objectGraph.getEdgeRelationship(tupleToUnregisterTokenEdgeId)).toEqual({
+            label: "(unregister token)",
             edgeType: EdgePrefix.FinalizationToUnregisterToken,
             description: createValueDescription(token, objectGraph),
             metadata: null
@@ -525,6 +543,7 @@ describe("ObjectGraphImpl", () => {
         } = objectGraph.defineFinalizationTuple(registry, target, registryHeld, undefined);
 
         expect(objectGraph.getEdgeRelationship(registryToTupleEdgeId)).toEqual({
+          label: "(tuple)",
           edgeType: EdgePrefix.FinalizationRegistryToTuple,
           description: {
             valueType: ValueDiscrimant.NotApplicable
@@ -533,6 +552,7 @@ describe("ObjectGraphImpl", () => {
         });
 
         expect(objectGraph.getEdgeRelationship(tupleToTargetEdgeId)).toEqual({
+          label: "(target)",
           edgeType: EdgePrefix.FinalizationToTarget,
           description: createValueDescription(target, objectGraph),
           metadata: null
@@ -541,6 +561,7 @@ describe("ObjectGraphImpl", () => {
         expect(tupleToHeldValueEdgeId).toBeDefined();
         if (tupleToHeldValueEdgeId) {
           expect(objectGraph.getEdgeRelationship(tupleToHeldValueEdgeId)).toEqual({
+            label: "(held value)",
             edgeType: EdgePrefix.FinalizationToHeldValue,
             description: createValueDescription(registryHeld, objectGraph),
             metadata: null,
@@ -576,6 +597,7 @@ describe("ObjectGraphImpl", () => {
         } = objectGraph.defineFinalizationTuple(registry, target, "hello", undefined);
 
         expect(objectGraph.getEdgeRelationship(registryToTupleEdgeId)).toEqual({
+          label: "(tuple)",
           edgeType: EdgePrefix.FinalizationRegistryToTuple,
           description: {
             valueType: ValueDiscrimant.NotApplicable
@@ -584,6 +606,7 @@ describe("ObjectGraphImpl", () => {
         });
 
         expect(objectGraph.getEdgeRelationship(tupleToTargetEdgeId)).toEqual({
+          label: "(target)",
           edgeType: EdgePrefix.FinalizationToTarget,
           description: createValueDescription(target, objectGraph),
           metadata: null
@@ -620,6 +643,7 @@ describe("ObjectGraphImpl", () => {
         } = objectGraph.defineFinalizationTuple(registry, target, registryHeld, target);
 
         expect(objectGraph.getEdgeRelationship(registryToTupleEdgeId)).toEqual({
+          label: "(tuple)",
           edgeType: EdgePrefix.FinalizationRegistryToTuple,
           description: {
             valueType: ValueDiscrimant.NotApplicable
@@ -628,6 +652,7 @@ describe("ObjectGraphImpl", () => {
         });
 
         expect(objectGraph.getEdgeRelationship(tupleToTargetEdgeId)).toEqual({
+          label: "(target)",
           edgeType: EdgePrefix.FinalizationToTarget,
           description: createValueDescription(target, objectGraph),
           metadata: null
@@ -636,6 +661,7 @@ describe("ObjectGraphImpl", () => {
         expect(tupleToHeldValueEdgeId).toBeDefined();
         if (tupleToHeldValueEdgeId) {
           expect(objectGraph.getEdgeRelationship(tupleToHeldValueEdgeId)).toEqual({
+            label: "(held value)",
             edgeType: EdgePrefix.FinalizationToHeldValue,
             description: createValueDescription(registryHeld, objectGraph),
             metadata: null,
@@ -675,6 +701,7 @@ describe("ObjectGraphImpl", () => {
       );
 
       expect(objectGraph.getEdgeRelationship(firstEdge)).toEqual({
+        label: "0",
         edgeType: EdgePrefix.PropertyKey,
         description: createValueDescription(0, objectGraph),
 
@@ -682,6 +709,7 @@ describe("ObjectGraphImpl", () => {
       });
 
       expect(objectGraph.getEdgeRelationship(secondEdge)).toEqual({
+        label: "1",
         edgeType: EdgePrefix.PropertyKey,
         description: createValueDescription(1, objectGraph),
 
@@ -715,12 +743,13 @@ describe("ObjectGraphImpl", () => {
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
       objectGraph.definePropertyOrGetter(heldValues, 0, middleValue, heldToMiddle, false);
 
-      const ctorMetadata =new RelationshipMetadata("constructor of heldToMiddle");
+      const ctorMetadata = new RelationshipMetadata("constructor of heldToMiddle");
       const ctorEdgeId = objectGraph.defineConstructorOf(
         middleValue, target, ctorMetadata
       );
 
       expect(objectGraph.getEdgeRelationship(ctorEdgeId)).toEqual({
+        label: "(constructor)",
         edgeType: EdgePrefix.InstanceOf,
         description: {
           valueType: ValueDiscrimant.NotApplicable
@@ -751,6 +780,7 @@ describe("ObjectGraphImpl", () => {
       );
 
       expect(objectGraph.getEdgeRelationship(objectToTupleEdgeId)).toEqual({
+        label: "(tuple)",
         edgeType: EdgePrefix.ObjectToPrivateTuple,
         description: {
           valueType: ValueDiscrimant.NotApplicable
@@ -759,6 +789,7 @@ describe("ObjectGraphImpl", () => {
       });
 
       expect(objectGraph.getEdgeRelationship(tupleToKeyEdgeId)).toEqual({
+        label: "(private key)",
         edgeType: EdgePrefix.PrivateTupleToKey,
         description: {
           valueType: ValueDiscrimant.NotApplicable,
@@ -767,6 +798,7 @@ describe("ObjectGraphImpl", () => {
       });
 
       expect(objectGraph.getEdgeRelationship(tupleToValueEdgeId)).toEqual({
+        label: "#privateKey",
         edgeType: EdgePrefix.PrivateTupleToValue,
         description: createValueDescription("#privateKey", objectGraph),
         metadata: targetRelationship
@@ -811,6 +843,7 @@ describe("ObjectGraphImpl", () => {
       );
 
       expect(objectGraph.getEdgeRelationship(objectToTupleEdgeId)).toEqual({
+        label: "(tuple)",
         edgeType: EdgePrefix.ObjectToPrivateTuple,
         description: {
           valueType: ValueDiscrimant.NotApplicable
@@ -819,6 +852,7 @@ describe("ObjectGraphImpl", () => {
       });
 
       expect(objectGraph.getEdgeRelationship(tupleToKeyEdgeId)).toEqual({
+        label: "(private key)",
         edgeType: EdgePrefix.PrivateTupleToKey,
         description: {
           valueType: ValueDiscrimant.NotApplicable,
@@ -828,6 +862,7 @@ describe("ObjectGraphImpl", () => {
 
       // the edge type is the significant difference from the private value test
       expect(objectGraph.getEdgeRelationship(tupleToValueEdgeId)).toEqual({
+        label: "#privateKey",
         edgeType: EdgePrefix.PrivateTupleToGetter,
         description: createValueDescription("#privateKey", objectGraph),
         metadata: targetRelationship

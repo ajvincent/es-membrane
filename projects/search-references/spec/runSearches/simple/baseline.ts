@@ -181,13 +181,13 @@ describe("Simple graph searches:", () => {
     {
       ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
 
-      const target = Symbol("symbol target");
-  
+      const target = Symbol("(symbol)");
+
       const targetMetadata: GraphObjectMetadata = {
         builtInJSTypeName: BuiltInJSTypeName.Symbol,
         derivedClassName: BuiltInJSTypeName.Symbol,
       };
-  
+
       ExpectedObjectGraph.defineTargetAndHeldValues(
         target, targetMetadata, heldValues, heldValuesMetadata
       );
@@ -214,7 +214,7 @@ describe("Simple graph searches:", () => {
 
   it("we can find the target via a symbol-keyed property of an object literal", async () => {
     {
-      const symbolKey = Symbol("This is a symbol");
+      const symbolKey = Symbol("(symbol)");
 
       const objectHoldingTarget = { [symbolKey]: target };
       addObjectGraphNode(ExpectedObjectGraph, objectHoldingTarget, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);

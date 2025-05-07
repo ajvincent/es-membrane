@@ -137,6 +137,8 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     this.#targetId = "target:-1";
     this.#heldValuesId = "heldValues:-2";
     this.#searchConfiguration = searchConfiguration;
+
+    this.#graph.setGraph({});
   }
 
   #throwInternalError(error: Error): never {
@@ -241,6 +243,8 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     this.#idToWeakKeyMap.set(nodeId, privateName);
 
     const nodeMetadata: GraphNodeWithMetadata<Record<"description", string>> = {
+      width: 200,
+      height: 200,
       metadata: {
         description
       }
@@ -268,7 +272,11 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     this.#weakKeyToIdMap.set(weakKey, nodeId);
     this.#idToWeakKeyMap.set(nodeId, weakKey);
 
-    const nodeMetadata: GraphNodeWithMetadata<ObjectMetadata | null> = { metadata };
+    const nodeMetadata: GraphNodeWithMetadata<ObjectMetadata | null> = {
+      width: 200,
+      height: 200,
+      metadata,
+    };
     this.#graph.setNode(nodeId, nodeMetadata);
 
     this.#ownershipSetsTracker.defineKey(nodeId);
@@ -292,6 +300,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   }
 
   #defineEdge<EP extends EdgePrefix>(
+    label: string,
     parentId: GraphObjectId,
     edgePrefixType: EP,
     description: ValueDescription,
@@ -303,6 +312,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   {
     const edgeId = this.#edgeCounter.next(edgePrefixType);
     const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata | null> = {
+      label,
       edgeType: edgePrefixType,
       description,
       metadata,
@@ -349,6 +359,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     const relationshipId = this.#requireWeakKeyId(relationshipName, "childObject") as SymbolId;
 
     const edgeId = this.#defineEdge(
+      relationshipName.description ?? "(symbol)",
       parentId, EdgePrefix.HasSymbolAsKey, ObjectGraphImpl.#NOT_APPLICABLE,
       keyEdgeMetadata, relationshipId, true, undefined
     );
@@ -386,8 +397,11 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
       }
     }
 
+    const label = typeof relationshipName === "symbol" ? (
+      relationshipName.description ?? "(symbol)"
+    ) : relationshipName.toString();
     const edgeId = this.#defineEdge(
-      parentId,
+      label, parentId,
       isGetter ? EdgePrefix.GetterKey : EdgePrefix.PropertyKey,
       createValueDescription(relationshipName, this),
       metadata, childId, true, undefined
@@ -411,6 +425,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     const ctorId = this.#requireWeakKeyId(ctorObject, "ctorObject");
 
     const edgeId = this.#defineEdge(
+      "(constructor)",
       instanceId, EdgePrefix.InstanceOf, ObjectGraphImpl.#NOT_APPLICABLE,
       metadata, ctorId, true, undefined
     );
@@ -433,6 +448,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     const valueId = this.#requireWeakKeyId(objectValue, "objectValue");
 
     return this.#defineEdge(
+      "(scope:" + identifier + ")",
       functionId, EdgePrefix.ScopeValue, createValueDescription(identifier, this),
       metadata, valueId, true, undefined
     );
@@ -451,6 +467,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     const childId = this.#requireWeakKeyId(childObject, "childObject");
 
     const edgeId = this.#defineEdge(
+      slotName,
       parentId, EdgePrefix.InternalSlot, createValueDescription(slotName, this),
       metadata, childId, isStrongReference, undefined
     );
@@ -500,6 +517,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
 
     // map to tuple
     const mapToTupleEdgeId = this.#defineEdge(
+      "(tuple)",
       mapId, EdgePrefix.MapToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
       null, tupleNodeId, true, undefined
     );
@@ -510,6 +528,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     let tupleToKeyEdgeId: PrefixedNumber<EdgePrefix.MapKey> | undefined;
     if (keyId) {
       tupleToKeyEdgeId = this.#defineEdge(
+        "(key)",
         tupleNodeId, EdgePrefix.MapKey, keyDescription,
         keyMetadata === undefined ? null : keyMetadata,
         keyId, isStrongReferenceToKey, undefined
@@ -520,6 +539,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     let tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue> | undefined;
     if (valueId) {
       tupleToValueEdgeId = this.#defineEdge(
+        "(value)",
         tupleNodeId, EdgePrefix.MapValue, createValueDescription(value, this),
         valueMetadata === undefined ? null : valueMetadata,
         valueId, true, keyId
@@ -546,6 +566,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     const valueId = this.#requireWeakKeyId(value, "value");
 
     const edgeId = this.#defineEdge(
+      "(element)",
       setId, EdgePrefix.SetValue, ObjectGraphImpl.#NOT_APPLICABLE,
       metadata, valueId, isStrongReferenceToValue, undefined
     );
@@ -578,11 +599,13 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     }
 
     const registryToTupleEdgeId = this.#defineEdge(
+      "(tuple)",
       registryId, EdgePrefix.FinalizationRegistryToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
       null, tupleNodeId, true, undefined
     );
 
     const tupleToTargetEdgeId = this.#defineEdge(
+      "(target)",
       tupleNodeId, EdgePrefix.FinalizationToTarget, createValueDescription(target, this),
       null, targetId, false, undefined
     );
@@ -590,6 +613,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     let tupleToHeldValueEdgeId: PrefixedNumber<EdgePrefix.FinalizationToHeldValue> | undefined;
     if (heldValueId) {
       tupleToHeldValueEdgeId = this.#defineEdge(
+        "(held value)",
         tupleNodeId, EdgePrefix.FinalizationToHeldValue,
         createValueDescription(heldValue, this),
         null, heldValueId, true, targetId
@@ -599,6 +623,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     let tupleToUnregisterTokenEdgeId: PrefixedNumber<EdgePrefix.FinalizationToUnregisterToken> | undefined;
     if (unregisterTokenId) {
       tupleToUnregisterTokenEdgeId = this.#defineEdge(
+        "(unregister token)",
         tupleNodeId, EdgePrefix.FinalizationToUnregisterToken,
         createValueDescription(unregisterToken, this),
         null, unregisterTokenId, false, targetId
@@ -637,16 +662,18 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     }
 
     const objectToTupleEdgeId = this.#defineEdge(
+      "(tuple)",
       parentId, EdgePrefix.ObjectToPrivateTuple, ObjectGraphImpl.#NOT_APPLICABLE,
       null, tupleNodeId, true, undefined
     );
 
     const tupleToKeyEdgeId = this.#defineEdge(
+      "(private key)",
       tupleNodeId, EdgePrefix.PrivateTupleToKey, ObjectGraphImpl.#NOT_APPLICABLE,
       privateNameMetadata, privateNameId, true, undefined
     );
     const tupleToValueEdgeId = this.#defineEdge(
-      tupleNodeId,
+      privateKey, tupleNodeId,
       isGetter ? EdgePrefix.PrivateTupleToGetter : EdgePrefix.PrivateTupleToValue,
       createValueDescription(privateKey, this),
       childMetadata, childId, true, parentId
