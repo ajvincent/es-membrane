@@ -210,8 +210,9 @@ export type EngineWeakKey<EngineObject, EngineSymbol> = EngineObject | EngineSym
 
 export interface MapKeyAndValueIds {
   readonly tupleNodeId: PrefixedNumber<NodePrefix.KeyValueTuple>;
+  readonly mapToKeyEdgeId: PrefixedNumber<EdgePrefix.MapKey> | undefined;
   readonly mapToTupleEdgeId: PrefixedNumber<EdgePrefix.MapToTuple>;
-  readonly tupleToKeyEdgeId: PrefixedNumber<EdgePrefix.MapKey> | undefined;
+  readonly keyToTupleEdgeId: PrefixedNumber<EdgePrefix.MapKeyToTuple> | undefined;
   readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue> | undefined;
 }
 

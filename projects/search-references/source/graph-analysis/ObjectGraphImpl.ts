@@ -515,23 +515,31 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
       this.#searchConfiguration.defineNodeTrap(mapId, tupleNodeId, "(new map tuple)");
     }
 
+    // map-to-key edge
+    let mapToKeyEdgeId: PrefixedNumber<EdgePrefix.MapKey> | undefined;
+    if (keyId) {
+      const keyDescription: ValueDescription = createValueDescription(key, this);
+      mapToKeyEdgeId = this.#defineEdge(
+        "(map key)",
+        mapId, EdgePrefix.MapKey, keyDescription, keyMetadata ?? null, keyId,
+        isStrongReferenceToKey, undefined
+      );
+    }
+
     // map to tuple
     const mapToTupleEdgeId = this.#defineEdge(
-      "(tuple)",
+      "(map tuple)",
       mapId, EdgePrefix.MapToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
-      null, tupleNodeId, true, undefined
+      null, tupleNodeId, true, keyId
     );
 
-    const keyDescription: ValueDescription = createValueDescription(key, this);
-
-    // map key edge
-    let tupleToKeyEdgeId: PrefixedNumber<EdgePrefix.MapKey> | undefined;
+    // key to tuple
+    let keyToTupleEdgeId: PrefixedNumber<EdgePrefix.MapKeyToTuple> | undefined;
     if (keyId) {
-      tupleToKeyEdgeId = this.#defineEdge(
-        "(key)",
-        tupleNodeId, EdgePrefix.MapKey, keyDescription,
-        keyMetadata === undefined ? null : keyMetadata,
-        keyId, isStrongReferenceToKey, undefined
+      keyToTupleEdgeId = this.#defineEdge(
+        "(map key to tuple)",
+        keyId, EdgePrefix.MapKeyToTuple, ObjectGraphImpl.#NOT_APPLICABLE, null, tupleNodeId,
+        true, mapId
       );
     }
 
@@ -539,7 +547,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     let tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue> | undefined;
     if (valueId) {
       tupleToValueEdgeId = this.#defineEdge(
-        "(value)",
+        "(map value)",
         tupleNodeId, EdgePrefix.MapValue, createValueDescription(value, this),
         valueMetadata === undefined ? null : valueMetadata,
         valueId, true, keyId
@@ -548,8 +556,9 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
 
     return {
       tupleNodeId,
+      mapToKeyEdgeId,
       mapToTupleEdgeId,
-      tupleToKeyEdgeId,
+      keyToTupleEdgeId,
       tupleToValueEdgeId
     };
   }

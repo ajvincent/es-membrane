@@ -59,6 +59,33 @@ describe("StrongOwnershipSetsTracker", () => {
     );
   });
 
+  it("supports multiple joint owners to the same child", () => {
+    tracker.defineKey("object:1");
+    tracker.defineKey("object:2");
+    tracker.defineKey("object:3");
+
+    tracker.defineChildEdge(
+      "object:1", ["object:2", "object:3"], "reference:92"
+    );
+    tracker.defineChildEdge(
+      "object:1", ["object:2", "object:3"], "reference:94"
+    );
+
+    expect(resolver).toHaveBeenCalledTimes(0);
+
+    tracker.resolveKey("object:3");
+    expect(resolver).toHaveBeenCalledTimes(0);
+
+    tracker.resolveKey("object:2");
+    expect(resolver).toHaveBeenCalledTimes(2);
+    expect(resolver).toHaveBeenCalledWith(
+      "object:1", ["object:2", "object:3"], "reference:92", tracker
+    );
+    expect(resolver).toHaveBeenCalledWith(
+      "object:1", ["object:2", "object:3"], "reference:94", tracker
+    );
+  });
+
   it("throws for unknown keys", () => {
     expect(
       () => tracker.resolveKey("object:4")

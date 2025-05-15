@@ -70,6 +70,7 @@ export enum EdgePrefix {
   InternalSlot = "internalSlot",
   MapToTuple = "mapToTuple",
   MapKey = "mapKey",
+  MapKeyToTuple = "mapKeyToTuple",
   MapValue = "mapValue",
   SetValue = "setValue",
   FinalizationRegistryToTuple = "finalizationToTuple",

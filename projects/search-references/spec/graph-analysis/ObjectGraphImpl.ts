@@ -279,15 +279,16 @@ describe("ObjectGraphImpl", () => {
 
         const {
           tupleNodeId,
+          mapToKeyEdgeId,
           mapToTupleEdgeId,
-          tupleToKeyEdgeId,
+          keyToTupleEdgeId,
           tupleToValueEdgeId
         } = objectGraph.defineMapKeyValueTuple(
           map, key, value, false, keyMetadata, valueMetadata
         );
 
         expect(objectGraph.getEdgeRelationship(mapToTupleEdgeId)).toEqual({
-          label: "(tuple)",
+          label: "(map tuple)",
           edgeType: EdgePrefix.MapToTuple,
           description: {
             valueType: ValueDiscrimant.NotApplicable
@@ -295,20 +296,32 @@ describe("ObjectGraphImpl", () => {
           metadata: null
         });
 
-        expect(tupleToKeyEdgeId).toBeDefined();
-        if (tupleToKeyEdgeId) {
-          expect(objectGraph.getEdgeRelationship(tupleToKeyEdgeId)).toEqual({
-            label: "(key)",
+        expect(mapToKeyEdgeId).toBeDefined();
+        if (mapToKeyEdgeId) {
+          expect(objectGraph.getEdgeRelationship(mapToKeyEdgeId)).toEqual({
+            label: "(map key)",
             edgeType: EdgePrefix.MapKey,
             description: createValueDescription(key, objectGraph),
             metadata: keyMetadata,
           });
         }
 
+        expect(keyToTupleEdgeId).toBeDefined();
+        if (keyToTupleEdgeId) {
+          expect(objectGraph.getEdgeRelationship(keyToTupleEdgeId)).toEqual({
+            label: "(map key to tuple)",
+            edgeType: EdgePrefix.MapKeyToTuple,
+            description: {
+              valueType: ValueDiscrimant.NotApplicable
+            },
+            metadata: null,
+          });
+        }
+
         expect(tupleToValueEdgeId).toBeDefined();
         if (tupleToValueEdgeId) {
           expect(objectGraph.getEdgeRelationship(tupleToValueEdgeId)).toEqual({
-            label: "(value)",
+            label: "(map value)",
             edgeType: EdgePrefix.MapValue,
             description: createValueDescription(value, objectGraph),
             metadata: valueMetadata
@@ -319,16 +332,16 @@ describe("ObjectGraphImpl", () => {
         const inEdges = rawGraph.inEdges(tupleNodeId);
         expect(inEdges).toBeDefined();
         if (inEdges) {
-          expect(inEdges.length).toBe(1);
+          expect(inEdges.length).toBe(2);
           expect(inEdges[0]?.name).toBe(mapToTupleEdgeId);
+          expect(inEdges[1]?.name).toBe(keyToTupleEdgeId);
         }
 
         const outEdges = rawGraph.outEdges(tupleNodeId);
         expect(outEdges).toBeDefined();
         if (outEdges) {
-          expect(outEdges.length).toBe(2);
-          expect(outEdges[0]?.name).toBe(tupleToKeyEdgeId);
-          expect(outEdges[1]?.name).toBe(tupleToValueEdgeId);
+          expect(outEdges.length).toBe(1);
+          expect(outEdges[0]?.name).toBe(tupleToValueEdgeId);
         }
       });
 
@@ -337,15 +350,16 @@ describe("ObjectGraphImpl", () => {
 
         const {
           tupleNodeId,
+          mapToKeyEdgeId,
           mapToTupleEdgeId,
-          tupleToKeyEdgeId,
+          keyToTupleEdgeId,
           tupleToValueEdgeId
         } = objectGraph.defineMapKeyValueTuple(
           map, "key", value, true, undefined, valueMetadata
         );
 
         expect(objectGraph.getEdgeRelationship(mapToTupleEdgeId)).toEqual({
-          label: "(tuple)",
+          label: "(map tuple)",
           edgeType: EdgePrefix.MapToTuple,
           description: {
             valueType: ValueDiscrimant.NotApplicable
@@ -353,12 +367,13 @@ describe("ObjectGraphImpl", () => {
           metadata: null
         });
 
-        expect(tupleToKeyEdgeId).toBeUndefined();
+        expect(mapToKeyEdgeId).toBeUndefined();
+        expect(keyToTupleEdgeId).toBeUndefined();
 
         expect(tupleToValueEdgeId).toBeDefined();
         if (tupleToValueEdgeId) {
           expect(objectGraph.getEdgeRelationship(tupleToValueEdgeId)).toEqual({
-            label: "(value)",
+            label: "(map value)",
             edgeType: EdgePrefix.MapValue,
             description: createValueDescription(value, objectGraph),
             metadata: valueMetadata
@@ -386,15 +401,16 @@ describe("ObjectGraphImpl", () => {
 
         const {
           tupleNodeId,
+          mapToKeyEdgeId,
           mapToTupleEdgeId,
-          tupleToKeyEdgeId,
+          keyToTupleEdgeId,
           tupleToValueEdgeId
         } = objectGraph.defineMapKeyValueTuple(
           map, key, "value", false, keyMetadata, undefined
         );
 
         expect(objectGraph.getEdgeRelationship(mapToTupleEdgeId)).toEqual({
-          label: "(tuple)",
+          label: "(map tuple)",
           edgeType: EdgePrefix.MapToTuple,
           description: {
             valueType: ValueDiscrimant.NotApplicable
@@ -402,13 +418,25 @@ describe("ObjectGraphImpl", () => {
           metadata: null
         });
 
-        expect(tupleToKeyEdgeId).toBeDefined();
-        if (tupleToKeyEdgeId) {
-          expect(objectGraph.getEdgeRelationship(tupleToKeyEdgeId)).toEqual({
-            label: "(key)",
+        expect(mapToKeyEdgeId).toBeDefined();
+        if (mapToKeyEdgeId) {
+          expect(objectGraph.getEdgeRelationship(mapToKeyEdgeId)).toEqual({
+            label: "(map key)",
             edgeType: EdgePrefix.MapKey,
             description: createValueDescription(key, objectGraph),
             metadata: keyMetadata,
+          });
+        }
+
+        expect(keyToTupleEdgeId).toBeDefined();
+        if (keyToTupleEdgeId) {
+          expect(objectGraph.getEdgeRelationship(keyToTupleEdgeId)).toEqual({
+            label: "(map key to tuple)",
+            edgeType: EdgePrefix.MapKeyToTuple,
+            description: {
+              valueType: ValueDiscrimant.NotApplicable
+            },
+            metadata: null,
           });
         }
 
@@ -418,15 +446,15 @@ describe("ObjectGraphImpl", () => {
         const inEdges = rawGraph.inEdges(tupleNodeId);
         expect(inEdges).toBeDefined();
         if (inEdges) {
-          expect(inEdges.length).toBe(1);
+          expect(inEdges.length).toBe(2);
           expect(inEdges[0]?.name).toBe(mapToTupleEdgeId);
+          expect(inEdges[1]?.name).toBe(keyToTupleEdgeId);
         }
 
         const outEdges = rawGraph.outEdges(tupleNodeId);
         expect(outEdges).toBeDefined();
         if (outEdges) {
-          expect(outEdges.length).toBe(1);
-          expect(outEdges[0]?.name).toBe(tupleToKeyEdgeId);
+          expect(outEdges.length).toBe(0);
         }
       });
     });
@@ -1104,7 +1132,7 @@ describe("ObjectGraphImpl", () => {
   
       // const A = new WeakRef(target);
       objectGraph.defineInternalSlot(A, "[[WeakRefTarget]]", target, false, new RelationshipMetadata);
-  
+
       /*
       const B = new WeakMap<object, object>;
       B.set(C, target);
@@ -1274,8 +1302,9 @@ describe("ObjectGraphImpl", () => {
       );
       const {
         tupleNodeId,
+        mapToKeyEdgeId,
         mapToTupleEdgeId,
-        tupleToKeyEdgeId,
+        keyToTupleEdgeId,
         tupleToValueEdgeId
       } = objectGraph.defineMapKeyValueTuple(
         map, targetKey, target, true, keyMetadata, valueMetadata
@@ -1309,19 +1338,25 @@ describe("ObjectGraphImpl", () => {
         objectGraph.getWeakKeyId(map),
         tupleNodeId,
         mapToTupleEdgeId
-      )).withContext("heldValues => map").toBeTrue();
+      )).withContext("map => tuple").toBeTrue();
 
       expect(graph.hasEdge(
-        tupleNodeId,
+        objectGraph.getWeakKeyId(map),
         objectGraph.getWeakKeyId(targetKey),
-        tupleToKeyEdgeId
-      )).withContext("heldValues => map").toBeTrue();
+        mapToKeyEdgeId
+      )).withContext("map => key").toBeTrue();
+
+      expect(graph.hasEdge(
+        objectGraph.getWeakKeyId(targetKey),
+        tupleNodeId,
+        keyToTupleEdgeId
+      )).withContext("key => tuple").toBeTrue();
 
       expect(graph.hasEdge(
         tupleNodeId,
         objectGraph.getWeakKeyId(target),
         tupleToValueEdgeId
-      )).withContext("heldValues => map").toBeTrue();
+      )).withContext("tuple => value").toBeTrue();
 
       expect(
         graph.inEdges(objectGraph.getWeakKeyId(map))
@@ -1338,8 +1373,9 @@ describe("ObjectGraphImpl", () => {
       );
       const {
         tupleNodeId,
+        mapToKeyEdgeId,
         mapToTupleEdgeId,
-        tupleToKeyEdgeId,
+        keyToTupleEdgeId,
         tupleToValueEdgeId
       } = objectGraph.defineMapKeyValueTuple(
         map, targetKey, target, false, keyMetadata, valueMetadata
@@ -1368,15 +1404,21 @@ describe("ObjectGraphImpl", () => {
 
       expect(graph.hasEdge(
         objectGraph.getWeakKeyId(map),
-        tupleNodeId,
-        mapToTupleEdgeId
-      )).withContext("heldValues => map").toBeTrue();
+        objectGraph.getWeakKeyId(targetKey),
+        mapToKeyEdgeId
+      )).withContext("map => key");
 
       expect(graph.hasEdge(
+        objectGraph.getWeakKeyId(map),
         tupleNodeId,
+        mapToTupleEdgeId
+      )).withContext("map => tuple").toBeTrue();
+
+      expect(graph.hasEdge(
         objectGraph.getWeakKeyId(targetKey),
-        tupleToKeyEdgeId
-      )).withContext("heldValues => map").toBeTrue();
+        tupleNodeId,
+        keyToTupleEdgeId
+      )).withContext("key => tuple").toBeTrue();
 
       expect(graph.hasEdge(
         tupleNodeId,
