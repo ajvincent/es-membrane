@@ -41,6 +41,7 @@ export async function runInRealm(
     loadImportedModule(
       referrer: GuestEngine.SourceTextModuleRecord,
       specifier: string,
+      attributes: Map<string, string>,
       hostDefined: object,
       finish: (res: ThrowOr<GuestEngine.SourceTextModuleRecord/* | GuestEngine.SyntheticModuleRecord*/>) => void
     )
