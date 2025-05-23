@@ -163,7 +163,7 @@ export interface ObjectGraphIfc<
     privateNameMetadata: RelationshipMetadata,
     childMetadata: RelationshipMetadata,
     isGetter: boolean
-  ): PrivateKeyAndValueIds;
+  ): PrivateFieldTupleIds;
 
   /**
    * Define a reference between a set and a value.
@@ -218,8 +218,9 @@ export interface MapKeyAndValueIds {
 
 export interface PrivateFieldTupleIds {
   readonly tupleNodeId: PrefixedNumber<NodePrefix.PrivateFieldTuple>;
+  readonly objectToPrivateKeyEdgeId: PrefixedNumber<EdgePrefix.ObjectToPrivateKey>;
   readonly objectToTupleEdgeId: PrefixedNumber<EdgePrefix.ObjectToPrivateTuple>;
-  readonly tupleToKeyEdgeId: PrefixedNumber<EdgePrefix.PrivateTupleToKey>;
+  readonly privateKeyToTupleEdgeId: PrefixedNumber<EdgePrefix.PrivateKeyToTuple>;
   readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.PrivateTupleToValue | EdgePrefix.PrivateTupleToGetter>;
 }
 

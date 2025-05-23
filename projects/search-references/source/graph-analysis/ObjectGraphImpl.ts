@@ -670,17 +670,24 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
       this.#searchConfiguration.defineNodeTrap(parentId, tupleNodeId, "(new private field tuple)");
     }
 
-    const objectToTupleEdgeId = this.#defineEdge(
-      "(tuple)",
-      parentId, EdgePrefix.ObjectToPrivateTuple, ObjectGraphImpl.#NOT_APPLICABLE,
-      null, tupleNodeId, true, undefined
-    );
-
-    const tupleToKeyEdgeId = this.#defineEdge(
+    const objectToPrivateKeyEdgeId = this.#defineEdge(
       "(private key)",
-      tupleNodeId, EdgePrefix.PrivateTupleToKey, ObjectGraphImpl.#NOT_APPLICABLE,
+      parentId, EdgePrefix.ObjectToPrivateKey, ObjectGraphImpl.#NOT_APPLICABLE,
       privateNameMetadata, privateNameId, true, undefined
     );
+
+    const objectToTupleEdgeId = this.#defineEdge(
+      "(object to private tuple)",
+      parentId, EdgePrefix.ObjectToPrivateTuple, ObjectGraphImpl.#NOT_APPLICABLE,
+      null, tupleNodeId, true, privateNameId
+    );
+
+    const privateKeyToTupleEdgeId = this.#defineEdge(
+      "(private key to tuple)",
+      privateNameId, EdgePrefix.PrivateKeyToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
+      null, tupleNodeId, true, parentId
+    );
+
     const tupleToValueEdgeId = this.#defineEdge(
       privateKey, tupleNodeId,
       isGetter ? EdgePrefix.PrivateTupleToGetter : EdgePrefix.PrivateTupleToValue,
@@ -690,8 +697,9 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
 
     return {
       tupleNodeId,
+      objectToPrivateKeyEdgeId,
       objectToTupleEdgeId,
-      tupleToKeyEdgeId,
+      privateKeyToTupleEdgeId,
       tupleToValueEdgeId
     };
   }

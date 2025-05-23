@@ -77,8 +77,9 @@ export enum EdgePrefix {
   FinalizationToTarget = "finalizationToTarget",
   FinalizationToHeldValue = "finalizationToHeldValue",
   FinalizationToUnregisterToken = "finalizationToUnregisterToken",
-  ObjectToPrivateTuple = "privateTuple",
-  PrivateTupleToKey = "privateKey",
+  ObjectToPrivateKey = "objectToPrivateKey",
+  ObjectToPrivateTuple = "objectToPrivateTuple",
+  PrivateKeyToTuple = "privateKeyToTuple",
   PrivateTupleToValue = "privateValue",
   PrivateTupleToGetter = "privateGetter",
 };
