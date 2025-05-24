@@ -316,6 +316,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
       edgeType: edgePrefixType,
       description,
       metadata,
+      isStrongReference,
     };
 
     const jointOwnerKeys = [parentId];

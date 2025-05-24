@@ -119,8 +119,8 @@ describe("ObjectGraphImpl", () => {
         label: "1",
         edgeType: EdgePrefix.PropertyKey,
         description: createValueDescription(1, objectGraph),
-
-        metadata: targetEdgeMetadata
+        metadata: targetEdgeMetadata,
+        isStrongReference: true,
       });
     });
 
@@ -140,8 +140,8 @@ describe("ObjectGraphImpl", () => {
         label: "target",
         edgeType: EdgePrefix.PropertyKey,
         description: createValueDescription("target", objectGraph),
-
-        metadata: middleToTargetMeta
+        metadata: middleToTargetMeta,
+        isStrongReference: true,
       });
     });
 
@@ -165,8 +165,8 @@ describe("ObjectGraphImpl", () => {
         label: "key",
         edgeType: EdgePrefix.PropertyKey,
         description: createValueDescription(symbolKey, objectGraph),
-
-        metadata: middleToTargetMeta
+        metadata: middleToTargetMeta,
+        isStrongReference: true,
       });
     });
 
@@ -210,7 +210,8 @@ describe("ObjectGraphImpl", () => {
         description: {
           valueType: ValueDiscrimant.NotApplicable
         },
-        metadata: middleToTargetMeta
+        metadata: middleToTargetMeta,
+        isStrongReference: true,
       });
     });
 
@@ -233,8 +234,8 @@ describe("ObjectGraphImpl", () => {
         label: `(scope:this)`,
         edgeType: EdgePrefix.ScopeValue,
         description: createValueDescription("this", objectGraph),
-
-        metadata: middleToTargetMeta
+        metadata: middleToTargetMeta,
+        isStrongReference: true,
       });
     });
 
@@ -258,8 +259,8 @@ describe("ObjectGraphImpl", () => {
         label: "[[WeakRefTarget]]",
         edgeType: EdgePrefix.InternalSlot,
         description: createValueDescription("[[WeakRefTarget]]", objectGraph),
-
-        metadata: middleToTargetMeta
+        metadata: middleToTargetMeta,
+        isStrongReference: false
       });
     });
 
@@ -297,7 +298,8 @@ describe("ObjectGraphImpl", () => {
           description: {
             valueType: ValueDiscrimant.NotApplicable
           },
-          metadata: null
+          metadata: null,
+          isStrongReference: true,
         });
 
         expect(mapToKeyEdgeId).toBeDefined();
@@ -307,6 +309,7 @@ describe("ObjectGraphImpl", () => {
             edgeType: EdgePrefix.MapKey,
             description: createValueDescription(key, objectGraph),
             metadata: keyMetadata,
+            isStrongReference: false,
           });
         }
 
@@ -319,6 +322,7 @@ describe("ObjectGraphImpl", () => {
               valueType: ValueDiscrimant.NotApplicable
             },
             metadata: null,
+            isStrongReference: true,
           });
         }
 
@@ -328,7 +332,8 @@ describe("ObjectGraphImpl", () => {
             label: "(map value)",
             edgeType: EdgePrefix.MapValue,
             description: createValueDescription(value, objectGraph),
-            metadata: valueMetadata
+            metadata: valueMetadata,
+            isStrongReference: true,
           });
         }
 
@@ -368,7 +373,8 @@ describe("ObjectGraphImpl", () => {
           description: {
             valueType: ValueDiscrimant.NotApplicable
           },
-          metadata: null
+          metadata: null,
+          isStrongReference: true,
         });
 
         expect(mapToKeyEdgeId).toBeUndefined();
@@ -380,7 +386,8 @@ describe("ObjectGraphImpl", () => {
             label: "(map value)",
             edgeType: EdgePrefix.MapValue,
             description: createValueDescription(value, objectGraph),
-            metadata: valueMetadata
+            metadata: valueMetadata,
+            isStrongReference: true,
           });
         }
 
@@ -419,7 +426,8 @@ describe("ObjectGraphImpl", () => {
           description: {
             valueType: ValueDiscrimant.NotApplicable
           },
-          metadata: null
+          metadata: null,
+          isStrongReference: true,
         });
 
         expect(mapToKeyEdgeId).toBeDefined();
@@ -429,6 +437,7 @@ describe("ObjectGraphImpl", () => {
             edgeType: EdgePrefix.MapKey,
             description: createValueDescription(key, objectGraph),
             metadata: keyMetadata,
+            isStrongReference: false,
           });
         }
 
@@ -441,6 +450,7 @@ describe("ObjectGraphImpl", () => {
               valueType: ValueDiscrimant.NotApplicable
             },
             metadata: null,
+            isStrongReference: true,
           });
         }
 
@@ -481,8 +491,8 @@ describe("ObjectGraphImpl", () => {
         description: {
           valueType: ValueDiscrimant.NotApplicable,
         },
-
-        metadata: middleToTargetMeta
+        metadata: middleToTargetMeta,
+        isStrongReference: true,
       });
     });
 
@@ -516,7 +526,8 @@ describe("ObjectGraphImpl", () => {
           label: "(registry to target)",
           edgeType: EdgePrefix.FinalizationRegistryToTarget,
           description: createValueDescription(target, objectGraph),
-          metadata: null
+          metadata: null,
+          isStrongReference: false,
         });
 
         expect(
@@ -527,7 +538,8 @@ describe("ObjectGraphImpl", () => {
           description: {
             valueType: ValueDiscrimant.NotApplicable
           },
-          metadata: null
+          metadata: null,
+          isStrongReference: true,
         });
 
         expect(
@@ -538,7 +550,8 @@ describe("ObjectGraphImpl", () => {
           description: {
             valueType: ValueDiscrimant.NotApplicable
           },
-          metadata: null
+          metadata: null,
+          isStrongReference: true,
         });
 
         expect(tupleToHeldValueEdgeId).withContext("held value defined").toBeDefined();
@@ -550,6 +563,7 @@ describe("ObjectGraphImpl", () => {
             edgeType: EdgePrefix.FinalizationTupleToHeldValue,
             description: createValueDescription(registryHeld, objectGraph),
             metadata: null,
+            isStrongReference: true,
           });
         }
 
@@ -559,7 +573,8 @@ describe("ObjectGraphImpl", () => {
             label: "(unregister token)",
             edgeType: EdgePrefix.FinalizationTupleToUnregisterToken,
             description: createValueDescription(token, objectGraph),
-            metadata: null
+            metadata: null,
+            isStrongReference: false,
           });
         }
 
@@ -599,7 +614,8 @@ describe("ObjectGraphImpl", () => {
           label: "(registry to target)",
           edgeType: EdgePrefix.FinalizationRegistryToTarget,
           description: createValueDescription(target, objectGraph),
-          metadata: null
+          metadata: null,
+          isStrongReference: false,
         });
 
         expect(
@@ -610,7 +626,8 @@ describe("ObjectGraphImpl", () => {
           description: {
             valueType: ValueDiscrimant.NotApplicable
           },
-          metadata: null
+          metadata: null,
+          isStrongReference: true,
         });
 
         expect(
@@ -621,7 +638,8 @@ describe("ObjectGraphImpl", () => {
           description: {
             valueType: ValueDiscrimant.NotApplicable,
           },
-          metadata: null
+          metadata: null,
+          isStrongReference: true,
         });
 
         expect(tupleToHeldValueEdgeId).toBeDefined();
@@ -633,6 +651,7 @@ describe("ObjectGraphImpl", () => {
             edgeType: EdgePrefix.FinalizationTupleToHeldValue,
             description: createValueDescription(registryHeld, objectGraph),
             metadata: null,
+            isStrongReference: true,
           });
         }
 
@@ -671,7 +690,8 @@ describe("ObjectGraphImpl", () => {
           label: "(registry to target)",
           edgeType: EdgePrefix.FinalizationRegistryToTarget,
           description: createValueDescription(target, objectGraph),
-          metadata: null
+          metadata: null,
+          isStrongReference: false,
         });
 
         expect(
@@ -682,7 +702,8 @@ describe("ObjectGraphImpl", () => {
           description: {
             valueType: ValueDiscrimant.NotApplicable
           },
-          metadata: null
+          metadata: null,
+          isStrongReference: true,
         });
 
         expect(tupleToHeldValueEdgeId).withContext("tuple to held value").toBeUndefined();
@@ -720,7 +741,8 @@ describe("ObjectGraphImpl", () => {
           label: "(registry to target)",
           edgeType: EdgePrefix.FinalizationRegistryToTarget,
           description: createValueDescription(target, objectGraph),
-          metadata: null
+          metadata: null,
+          isStrongReference: false,
         });
 
         expect(
@@ -731,7 +753,8 @@ describe("ObjectGraphImpl", () => {
           description: {
             valueType: ValueDiscrimant.NotApplicable
           },
-          metadata: null
+          metadata: null,
+          isStrongReference: true,
         });
 
         expect(
@@ -742,7 +765,8 @@ describe("ObjectGraphImpl", () => {
           description: {
             valueType: ValueDiscrimant.NotApplicable
           },
-          metadata: null
+          metadata: null,
+          isStrongReference: true,
         });
 
         expect(tupleToHeldValueEdgeId).withContext("tuple to held value defined").toBeDefined();
@@ -754,6 +778,7 @@ describe("ObjectGraphImpl", () => {
             edgeType: EdgePrefix.FinalizationTupleToHeldValue,
             description: createValueDescription(registryHeld, objectGraph),
             metadata: null,
+            isStrongReference: true,
           });
         }
 
@@ -793,16 +818,16 @@ describe("ObjectGraphImpl", () => {
         label: "0",
         edgeType: EdgePrefix.PropertyKey,
         description: createValueDescription(0, objectGraph),
-
-        metadata: firstIndexMetadata
+        metadata: firstIndexMetadata,
+        isStrongReference: true,
       });
 
       expect(objectGraph.getEdgeRelationship(secondEdge)).toEqual({
         label: "1",
         edgeType: EdgePrefix.PropertyKey,
         description: createValueDescription(1, objectGraph),
-
-        metadata: secondIndexMetadata
+        metadata: secondIndexMetadata,
+        isStrongReference: true,
       });
     });
 
@@ -843,7 +868,8 @@ describe("ObjectGraphImpl", () => {
         description: {
           valueType: ValueDiscrimant.NotApplicable
         },
-        metadata: ctorMetadata
+        metadata: ctorMetadata,
+        isStrongReference: true,
       });
     });
 
@@ -875,7 +901,8 @@ describe("ObjectGraphImpl", () => {
         description: {
           valueType: ValueDiscrimant.NotApplicable,
         },
-        metadata: privateNameRelationship
+        metadata: privateNameRelationship,
+        isStrongReference: true,
       })
 
       expect(objectGraph.getEdgeRelationship(objectToTupleEdgeId)).withContext("object to tuple").toEqual({
@@ -884,7 +911,8 @@ describe("ObjectGraphImpl", () => {
         description: {
           valueType: ValueDiscrimant.NotApplicable
         },
-        metadata: null
+        metadata: null,
+        isStrongReference: true,
       });
 
       expect(objectGraph.getEdgeRelationship(privateKeyToTupleEdgeId)).withContext("private key to tuple").toEqual({
@@ -894,13 +922,15 @@ describe("ObjectGraphImpl", () => {
           valueType: ValueDiscrimant.NotApplicable,
         },
         metadata: null,
+        isStrongReference: true,
       });
 
       expect(objectGraph.getEdgeRelationship(tupleToValueEdgeId)).withContext("#privateKey").toEqual({
         label: "#privateKey",
         edgeType: EdgePrefix.PrivateTupleToValue,
         description: createValueDescription("#privateKey", objectGraph),
-        metadata: targetRelationship
+        metadata: targetRelationship,
+        isStrongReference: true,
       });
 
       const rawGraph = cloneableGraph.cloneGraph();
@@ -948,7 +978,8 @@ describe("ObjectGraphImpl", () => {
         description: {
           valueType: ValueDiscrimant.NotApplicable,
         },
-        metadata: privateNameRelationship
+        metadata: privateNameRelationship,
+        isStrongReference: true,
       });
 
       expect(objectGraph.getEdgeRelationship(objectToTupleEdgeId)).withContext("object to private tuple").toEqual({
@@ -957,7 +988,8 @@ describe("ObjectGraphImpl", () => {
         description: {
           valueType: ValueDiscrimant.NotApplicable
         },
-        metadata: null
+        metadata: null,
+        isStrongReference: true,
       });
 
       expect(objectGraph.getEdgeRelationship(privateKeyToTupleEdgeId)).withContext("private key to tuple").toEqual({
@@ -966,7 +998,8 @@ describe("ObjectGraphImpl", () => {
         description: {
           valueType: ValueDiscrimant.NotApplicable,
         },
-        metadata: null
+        metadata: null,
+        isStrongReference: true,
       });
 
       // the edge type is the significant difference from the private value test
@@ -974,7 +1007,8 @@ describe("ObjectGraphImpl", () => {
         label: "#privateKey",
         edgeType: EdgePrefix.PrivateTupleToGetter,
         description: createValueDescription("#privateKey", objectGraph),
-        metadata: targetRelationship
+        metadata: targetRelationship,
+        isStrongReference: true,
       });
 
       const rawGraph = cloneableGraph.cloneGraph();
