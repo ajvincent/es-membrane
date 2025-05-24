@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@dagrejs/graphlib": "^2.2.4",
-    "@engine262/engine262": "^0.0.1-beb5e4b61d4cc6fdeab90262f5b06c549cbc079b",
+    "@engine262/engine262": "^0.0.1-c321b36d986d0d8294de670c3e8ff98dd2622cef",
     "import-meta-resolve": "^4.1.0"
   }
 }

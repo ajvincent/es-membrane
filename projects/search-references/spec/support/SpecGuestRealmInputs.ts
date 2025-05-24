@@ -18,11 +18,11 @@ import type {
 
 export class SpecGuestRealmInputs implements GuestRealmInputsWithBuiltins {
   readonly startingSpecifier: string;
-  readonly defineBuiltIns?: ((realm: GuestEngine.UnicodeSets) => GuestEngine.UnicodeSets<void>) | undefined;
+  readonly defineBuiltIns?: ((realm: GuestEngine.ManagedRealm) => GuestEngine.Evaluator<void>) | undefined;
 
   constructor(
     absolutePathToFile: string,
-    defineBuiltIns?: ((realm: GuestEngine.UnicodeSets) => GuestEngine.UnicodeSets<void>) | undefined
+    defineBuiltIns?: ((realm: GuestEngine.ManagedRealm) => GuestEngine.Evaluator<void>) | undefined
   )
   {
     this.startingSpecifier = pathToFileURL(absolutePathToFile).href;
