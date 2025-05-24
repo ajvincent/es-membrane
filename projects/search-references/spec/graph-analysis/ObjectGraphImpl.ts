@@ -1514,7 +1514,7 @@ describe("ObjectGraphImpl", () => {
       );
     });
 
-    xit("(true) removes nodes unreachable from the held values", () => {
+    it("(true) removes nodes unreachable from the held values", () => {
       const { tupleNodeId } = objectGraph.defineMapKeyValueTuple(
         map, key, target, false, keyMetadata, valueMetadata
       );

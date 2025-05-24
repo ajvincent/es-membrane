@@ -786,7 +786,6 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   {
     this.#setNextState(ObjectGraphState.Summarizing);
     try {
-      const summaryGraph = new graphlib.Graph({ directed: true, multigraph: true });
 
       const target = this.#idToWeakKeyMap.get(this.#targetId) as object;
       const targetReference: boolean | undefined = this.#weakKeyHeldStronglyMap.get(target);
@@ -802,10 +801,12 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
         edgeIdToJointOwnersMap = this.#edgeIdToJointOwnersMap_Weak;
       }
       if (edgeIdToJointOwnersMap) {
-        this.#summarizeGraphToTarget(summaryGraph, edgeIdToJointOwnersMap);
+        this.#summarizeGraphToTarget(edgeIdToJointOwnersMap);
+        this.#summarizeGraphFromHeldValues();
+      } else {
+        this.#graph = new graphlib.Graph({ directed: true, multigraph: true });
       }
 
-      this.#graph = summaryGraph;
       this.#setNextState(ObjectGraphState.Summarized);
     } catch (ex) {
       this.#state = ObjectGraphState.Error;
@@ -814,24 +815,24 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   }
 
   #summarizeGraphToTarget(
-    summaryGraph: graphlib.Graph,
     edgeIdToJointOwnersMap: ReadonlyMap<
       PrefixedNumber<EdgePrefix>,
       ReadonlySet<PrefixedNumber<NodePrefix>>
     >,
   ): void
   {
+    const summaryGraph = new graphlib.Graph({ directed: true, multigraph: true });
     const wNodeIds = new Set<GraphObjectId>([this.#targetId]);
 
     for (const id of wNodeIds) {
+      const edges = this.#graph.inEdges(id);
+      if (!edges)
+        continue;
+
       const wNode = this.#graph.node(id);
       if (!summaryGraph.node(id)) {
         summaryGraph.setNode(id, wNode);
       }
-
-      const edges = this.#graph.inEdges(id);
-      if (!edges)
-        continue;
 
       for (const e of edges) {
         const vNodeId = e.v;
@@ -850,6 +851,33 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
         }
       }
     }
+
+    this.#graph = summaryGraph;
+  }
+
+  #summarizeGraphFromHeldValues(): void
+  {
+    const summaryGraph = new graphlib.Graph({ directed: true, multigraph: true });
+    const vNodeIds = new Set<GraphObjectId>([this.#heldValuesId]);
+
+    summaryGraph.setNode(this.#heldValuesId, this.#graph.node(this.#heldValuesId));
+
+    for (const id of vNodeIds) {
+      const edges = this.#graph.outEdges(id);
+      if (!edges)
+        continue;
+
+      for (const e of edges) {
+        const wNodeId = e.w;
+        if (!summaryGraph.node(wNodeId)) {
+          summaryGraph.setNode(wNodeId, this.#graph.node(wNodeId));
+          vNodeIds.add(wNodeId as GraphObjectId);
+        }
+        summaryGraph.setEdge(e, this.#graph.edge(e));
+      }
+    }
+
+    this.#graph = summaryGraph;
   }
   //#endregion SearchReferencesIfc
 }
