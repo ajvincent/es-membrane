@@ -607,33 +607,39 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
       this.#searchConfiguration.defineNodeTrap(registryId, tupleNodeId, "(new finalization tuple)");
     }
 
-    const registryToTupleEdgeId = this.#defineEdge(
-      "(tuple)",
-      registryId, EdgePrefix.FinalizationRegistryToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
-      null, tupleNodeId, true, undefined
-    );
-
-    const tupleToTargetEdgeId = this.#defineEdge(
-      "(target)",
-      tupleNodeId, EdgePrefix.FinalizationToTarget, createValueDescription(target, this),
+    const registryToTargetEdgeId = this.#defineEdge(
+      "(registry to target)",
+      registryId, EdgePrefix.FinalizationRegistryToTarget, createValueDescription(target, this),
       null, targetId, false, undefined
     );
 
-    let tupleToHeldValueEdgeId: PrefixedNumber<EdgePrefix.FinalizationToHeldValue> | undefined;
+    const registryToTupleEdgeId = this.#defineEdge(
+      "(registry to tuple)",
+      registryId, EdgePrefix.FinalizationRegistryToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
+      null, tupleNodeId, true, targetId
+    );
+
+    const registryTargetToTupleEdgeId = this.#defineEdge(
+      "(registry target to tuple)",
+      targetId, EdgePrefix.FinalizationTargetToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
+      null, tupleNodeId, true, registryId
+    );
+
+    let tupleToHeldValueEdgeId: PrefixedNumber<EdgePrefix.FinalizationTupleToHeldValue> | undefined;
     if (heldValueId) {
       tupleToHeldValueEdgeId = this.#defineEdge(
         "(held value)",
-        tupleNodeId, EdgePrefix.FinalizationToHeldValue,
+        tupleNodeId, EdgePrefix.FinalizationTupleToHeldValue,
         createValueDescription(heldValue, this),
         null, heldValueId, true, targetId
       );
     }
 
-    let tupleToUnregisterTokenEdgeId: PrefixedNumber<EdgePrefix.FinalizationToUnregisterToken> | undefined;
+    let tupleToUnregisterTokenEdgeId: PrefixedNumber<EdgePrefix.FinalizationTupleToUnregisterToken> | undefined;
     if (unregisterTokenId) {
       tupleToUnregisterTokenEdgeId = this.#defineEdge(
         "(unregister token)",
-        tupleNodeId, EdgePrefix.FinalizationToUnregisterToken,
+        tupleNodeId, EdgePrefix.FinalizationTupleToUnregisterToken,
         createValueDescription(unregisterToken, this),
         null, unregisterTokenId, false, targetId
       );
@@ -641,8 +647,9 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
 
     return {
       tupleNodeId,
+      registryToTargetEdgeId,
       registryToTupleEdgeId,
-      tupleToTargetEdgeId,
+      registryTargetToTupleEdgeId,
       tupleToHeldValueEdgeId,
       tupleToUnregisterTokenEdgeId,
     };

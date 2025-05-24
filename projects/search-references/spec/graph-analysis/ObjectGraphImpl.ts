@@ -503,14 +503,26 @@ describe("ObjectGraphImpl", () => {
 
         const {
           tupleNodeId,
+          registryToTargetEdgeId,
           registryToTupleEdgeId,
-          tupleToTargetEdgeId,
+          registryTargetToTupleEdgeId,
           tupleToHeldValueEdgeId,
           tupleToUnregisterTokenEdgeId,
         } = objectGraph.defineFinalizationTuple(registry, target, registryHeld, token);
 
-        expect(objectGraph.getEdgeRelationship(registryToTupleEdgeId)).toEqual({
-          label: "(tuple)",
+        expect(
+          objectGraph.getEdgeRelationship(registryToTargetEdgeId)
+        ).withContext("registry to target").toEqual({
+          label: "(registry to target)",
+          edgeType: EdgePrefix.FinalizationRegistryToTarget,
+          description: createValueDescription(target, objectGraph),
+          metadata: null
+        });
+
+        expect(
+          objectGraph.getEdgeRelationship(registryToTupleEdgeId)
+        ).withContext("registry to tuple").toEqual({
+          label: "(registry to tuple)",
           edgeType: EdgePrefix.FinalizationRegistryToTuple,
           description: {
             valueType: ValueDiscrimant.NotApplicable
@@ -518,28 +530,34 @@ describe("ObjectGraphImpl", () => {
           metadata: null
         });
 
-        expect(objectGraph.getEdgeRelationship(tupleToTargetEdgeId)).toEqual({
-          label: "(target)",
-          edgeType: EdgePrefix.FinalizationToTarget,
-          description: createValueDescription(target, objectGraph),
+        expect(
+          objectGraph.getEdgeRelationship(registryTargetToTupleEdgeId)
+        ).withContext("target to tuple").toEqual({
+          label: "(registry target to tuple)",
+          edgeType: EdgePrefix.FinalizationTargetToTuple,
+          description: {
+            valueType: ValueDiscrimant.NotApplicable
+          },
           metadata: null
         });
 
-        expect(tupleToHeldValueEdgeId).toBeDefined();
+        expect(tupleToHeldValueEdgeId).withContext("held value defined").toBeDefined();
         if (tupleToHeldValueEdgeId) {
-          expect(objectGraph.getEdgeRelationship(tupleToHeldValueEdgeId)).toEqual({
+          expect(
+            objectGraph.getEdgeRelationship(tupleToHeldValueEdgeId)
+          ).withContext("held value").toEqual({
             label: "(held value)",
-            edgeType: EdgePrefix.FinalizationToHeldValue,
+            edgeType: EdgePrefix.FinalizationTupleToHeldValue,
             description: createValueDescription(registryHeld, objectGraph),
             metadata: null,
           });
         }
 
-        expect(tupleToUnregisterTokenEdgeId).toBeDefined();
+        expect(tupleToUnregisterTokenEdgeId).withContext("tuple to unregister token").toBeDefined();
         if (tupleToUnregisterTokenEdgeId) {
           expect(objectGraph.getEdgeRelationship(tupleToUnregisterTokenEdgeId)).toEqual({
             label: "(unregister token)",
-            edgeType: EdgePrefix.FinalizationToUnregisterToken,
+            edgeType: EdgePrefix.FinalizationTupleToUnregisterToken,
             description: createValueDescription(token, objectGraph),
             metadata: null
           });
@@ -549,17 +567,17 @@ describe("ObjectGraphImpl", () => {
         const inEdges = rawGraph.inEdges(tupleNodeId);
         expect(inEdges).toBeDefined();
         if (inEdges) {
-          expect(inEdges.length).toBe(1);
-          expect(inEdges[0]?.name).toBe(registryToTupleEdgeId);
+          expect(inEdges.length).withContext("inEdges").toBe(2);
+          expect(inEdges[0]?.name).withContext("inEdges[0]").toBe(registryToTupleEdgeId);
+          expect(inEdges[1]?.name).withContext("inEdges[1]").toBe(registryTargetToTupleEdgeId);
         }
 
         const outEdges = rawGraph.outEdges(tupleNodeId);
         expect(outEdges).toBeDefined();
         if (outEdges) {
-          expect(outEdges.length).toBe(3);
-          expect(outEdges[0]?.name).toBe(tupleToTargetEdgeId);
-          expect(outEdges[1]?.name).toBe(tupleToHeldValueEdgeId);
-          expect(outEdges[2]?.name).toBe(tupleToUnregisterTokenEdgeId);
+          expect(outEdges.length).withContext("outEdges").toBe(2);
+          expect(outEdges[0]?.name).withContext("outEdges[0]").toBe(tupleToHeldValueEdgeId);
+          expect(outEdges[1]?.name).withContext("outEdges[1]").toBe(tupleToUnregisterTokenEdgeId);
         }
       });
 
@@ -568,14 +586,26 @@ describe("ObjectGraphImpl", () => {
 
         const {
           tupleNodeId,
+          registryToTargetEdgeId,
           registryToTupleEdgeId,
-          tupleToTargetEdgeId,
+          registryTargetToTupleEdgeId,
           tupleToHeldValueEdgeId,
           tupleToUnregisterTokenEdgeId,
         } = objectGraph.defineFinalizationTuple(registry, target, registryHeld, undefined);
 
-        expect(objectGraph.getEdgeRelationship(registryToTupleEdgeId)).toEqual({
-          label: "(tuple)",
+        expect(
+          objectGraph.getEdgeRelationship(registryToTargetEdgeId)
+        ).withContext("registry to target").toEqual({
+          label: "(registry to target)",
+          edgeType: EdgePrefix.FinalizationRegistryToTarget,
+          description: createValueDescription(target, objectGraph),
+          metadata: null
+        });
+
+        expect(
+          objectGraph.getEdgeRelationship(registryToTupleEdgeId)
+        ).withContext("registry to tuple").toEqual({
+          label: "(registry to tuple)",
           edgeType: EdgePrefix.FinalizationRegistryToTuple,
           description: {
             valueType: ValueDiscrimant.NotApplicable
@@ -583,18 +613,24 @@ describe("ObjectGraphImpl", () => {
           metadata: null
         });
 
-        expect(objectGraph.getEdgeRelationship(tupleToTargetEdgeId)).toEqual({
-          label: "(target)",
-          edgeType: EdgePrefix.FinalizationToTarget,
-          description: createValueDescription(target, objectGraph),
+        expect(
+          objectGraph.getEdgeRelationship(registryTargetToTupleEdgeId)
+        ).withContext("registry target to tuple").toEqual({
+          label: "(registry target to tuple)",
+          edgeType: EdgePrefix.FinalizationTargetToTuple,
+          description: {
+            valueType: ValueDiscrimant.NotApplicable,
+          },
           metadata: null
         });
 
         expect(tupleToHeldValueEdgeId).toBeDefined();
         if (tupleToHeldValueEdgeId) {
-          expect(objectGraph.getEdgeRelationship(tupleToHeldValueEdgeId)).toEqual({
+          expect(
+            objectGraph.getEdgeRelationship(tupleToHeldValueEdgeId)
+          ).withContext("tuple to held value").toEqual({
             label: "(held value)",
-            edgeType: EdgePrefix.FinalizationToHeldValue,
+            edgeType: EdgePrefix.FinalizationTupleToHeldValue,
             description: createValueDescription(registryHeld, objectGraph),
             metadata: null,
           });
@@ -604,32 +640,44 @@ describe("ObjectGraphImpl", () => {
 
         const rawGraph = cloneableGraph.cloneGraph();
         const inEdges = rawGraph.inEdges(tupleNodeId);
-        expect(inEdges).toBeDefined();
+        expect(inEdges).withContext("inEdges defined").toBeDefined();
         if (inEdges) {
-          expect(inEdges.length).toBe(1);
-          expect(inEdges[0]?.name).toBe(registryToTupleEdgeId);
+          expect(inEdges.length).withContext("inEdges").toBe(2);
+          expect(inEdges[0]?.name).withContext("inEdges[0]").toBe(registryToTupleEdgeId);
+          expect(inEdges[1]?.name).withContext("inEdges[1]").toBe(registryTargetToTupleEdgeId);
         }
 
         const outEdges = rawGraph.outEdges(tupleNodeId);
-        expect(outEdges).toBeDefined();
+        expect(outEdges).withContext("outEdges defined").toBeDefined();
         if (outEdges) {
-          expect(outEdges.length).toBe(2);
-          expect(outEdges[0]?.name).toBe(tupleToTargetEdgeId);
-          expect(outEdges[1]?.name).toBe(tupleToHeldValueEdgeId);
+          expect(outEdges.length).withContext("outEdges").toBe(1);
+          expect(outEdges[0]?.name).withContext("outEdges[0]").toBe(tupleToHeldValueEdgeId);
         }
       });
 
       it("including the target and held value (primitive)", () => {
         const {
           tupleNodeId,
+          registryToTargetEdgeId,
           registryToTupleEdgeId,
-          tupleToTargetEdgeId,
+          registryTargetToTupleEdgeId,
           tupleToHeldValueEdgeId,
           tupleToUnregisterTokenEdgeId,
         } = objectGraph.defineFinalizationTuple(registry, target, "hello", undefined);
 
-        expect(objectGraph.getEdgeRelationship(registryToTupleEdgeId)).toEqual({
-          label: "(tuple)",
+        expect(
+          objectGraph.getEdgeRelationship(registryToTargetEdgeId)
+        ).withContext("registry to target").toEqual({
+          label: "(registry to target)",
+          edgeType: EdgePrefix.FinalizationRegistryToTarget,
+          description: createValueDescription(target, objectGraph),
+          metadata: null
+        });
+
+        expect(
+          objectGraph.getEdgeRelationship(registryToTupleEdgeId)
+        ).withContext("registry to tuple").toEqual({
+          label: "(registry to tuple)",
           edgeType: EdgePrefix.FinalizationRegistryToTuple,
           description: {
             valueType: ValueDiscrimant.NotApplicable
@@ -637,30 +685,21 @@ describe("ObjectGraphImpl", () => {
           metadata: null
         });
 
-        expect(objectGraph.getEdgeRelationship(tupleToTargetEdgeId)).toEqual({
-          label: "(target)",
-          edgeType: EdgePrefix.FinalizationToTarget,
-          description: createValueDescription(target, objectGraph),
-          metadata: null
-        });
-
-        expect(tupleToHeldValueEdgeId).toBeUndefined();
-        expect(tupleToUnregisterTokenEdgeId).toBeUndefined();
+        expect(tupleToHeldValueEdgeId).withContext("tuple to held value").toBeUndefined();
+        expect(tupleToUnregisterTokenEdgeId).withContext("tuple to unregister token").toBeUndefined();
 
         const rawGraph = cloneableGraph.cloneGraph();
         const inEdges = rawGraph.inEdges(tupleNodeId);
-        expect(inEdges).toBeDefined();
+        expect(inEdges).withContext("inEdges defined").toBeDefined();
         if (inEdges) {
-          expect(inEdges.length).toBe(1);
-          expect(inEdges[0]?.name).toBe(registryToTupleEdgeId);
+          expect(inEdges.length).withContext("inEdges.length").toBe(2);
+          expect(inEdges[0]?.name).withContext("inEdges[0]").toBe(registryToTupleEdgeId);
+          expect(inEdges[1]?.name).withContext("inEdges[1]").toBe(registryTargetToTupleEdgeId);
         }
 
         const outEdges = rawGraph.outEdges(tupleNodeId);
-        expect(outEdges).toBeDefined();
-        if (outEdges) {
-          expect(outEdges.length).toBe(1);
-          expect(outEdges[0]?.name).toBe(tupleToTargetEdgeId);
-        }
+        expect(outEdges).withContext("outEdges defined").toBeDefined();
+        expect(outEdges?.length).withContext("outEdges.length").toBe(0);
       });
 
       it("including the target, which is also the unregister token", () => {
@@ -668,14 +707,26 @@ describe("ObjectGraphImpl", () => {
 
         const {
           tupleNodeId,
+          registryToTargetEdgeId,
           registryToTupleEdgeId,
-          tupleToTargetEdgeId,
+          registryTargetToTupleEdgeId,
           tupleToHeldValueEdgeId,
           tupleToUnregisterTokenEdgeId,
         } = objectGraph.defineFinalizationTuple(registry, target, registryHeld, target);
 
-        expect(objectGraph.getEdgeRelationship(registryToTupleEdgeId)).toEqual({
-          label: "(tuple)",
+        expect(
+          objectGraph.getEdgeRelationship(registryToTargetEdgeId)
+        ).withContext("registry to target").toEqual({
+          label: "(registry to target)",
+          edgeType: EdgePrefix.FinalizationRegistryToTarget,
+          description: createValueDescription(target, objectGraph),
+          metadata: null
+        });
+
+        expect(
+          objectGraph.getEdgeRelationship(registryToTupleEdgeId)
+        ).withContext("registry to tuple").toEqual({
+          label: "(registry to tuple)",
           edgeType: EdgePrefix.FinalizationRegistryToTuple,
           description: {
             valueType: ValueDiscrimant.NotApplicable
@@ -683,18 +734,24 @@ describe("ObjectGraphImpl", () => {
           metadata: null
         });
 
-        expect(objectGraph.getEdgeRelationship(tupleToTargetEdgeId)).toEqual({
-          label: "(target)",
-          edgeType: EdgePrefix.FinalizationToTarget,
-          description: createValueDescription(target, objectGraph),
+        expect(
+          objectGraph.getEdgeRelationship(registryTargetToTupleEdgeId)
+        ).withContext("registry target to tuple").toEqual({
+          label: "(registry target to tuple)",
+          edgeType: EdgePrefix.FinalizationTargetToTuple,
+          description: {
+            valueType: ValueDiscrimant.NotApplicable
+          },
           metadata: null
         });
 
-        expect(tupleToHeldValueEdgeId).toBeDefined();
+        expect(tupleToHeldValueEdgeId).withContext("tuple to held value defined").toBeDefined();
         if (tupleToHeldValueEdgeId) {
-          expect(objectGraph.getEdgeRelationship(tupleToHeldValueEdgeId)).toEqual({
+          expect(
+            objectGraph.getEdgeRelationship(tupleToHeldValueEdgeId)
+          ).withContext("held value").toEqual({
             label: "(held value)",
-            edgeType: EdgePrefix.FinalizationToHeldValue,
+            edgeType: EdgePrefix.FinalizationTupleToHeldValue,
             description: createValueDescription(registryHeld, objectGraph),
             metadata: null,
           });
@@ -704,18 +761,18 @@ describe("ObjectGraphImpl", () => {
 
         const rawGraph = cloneableGraph.cloneGraph();
         const inEdges = rawGraph.inEdges(tupleNodeId);
-        expect(inEdges).toBeDefined();
+        expect(inEdges).withContext("inEdges defined").toBeDefined();
         if (inEdges) {
-          expect(inEdges.length).toBe(1);
-          expect(inEdges[0]?.name).toBe(registryToTupleEdgeId);
+          expect(inEdges.length).withContext("inEdges.length").toBe(2);
+          expect(inEdges[0]?.name).withContext("inEdges[0]").toBe(registryToTupleEdgeId);
+          expect(inEdges[1]?.name).withContext("inEdges[1]").toBe(registryTargetToTupleEdgeId);
         }
 
         const outEdges = rawGraph.outEdges(tupleNodeId);
-        expect(outEdges).toBeDefined();
+        expect(outEdges).withContext("outEdges defined").toBeDefined();
         if (outEdges) {
-          expect(outEdges.length).toBe(2);
-          expect(outEdges[0]?.name).toBe(tupleToTargetEdgeId);
-          expect(outEdges[1]?.name).toBe(tupleToHeldValueEdgeId);
+          expect(outEdges.length).withContext("outEdges.length").toBe(1);
+          expect(outEdges[0]?.name).withContext("outEdges[0]").toBe(tupleToHeldValueEdgeId);
         }
       });
     });

@@ -226,10 +226,11 @@ export interface PrivateFieldTupleIds {
 
 export interface FinalizationTupleIds {
   readonly tupleNodeId: PrefixedNumber<NodePrefix.FinalizationTuple>;
+  readonly registryToTargetEdgeId: PrefixedNumber<EdgePrefix.FinalizationRegistryToTarget>;
   readonly registryToTupleEdgeId: PrefixedNumber<EdgePrefix.FinalizationRegistryToTuple>;
-  readonly tupleToTargetEdgeId: PrefixedNumber<EdgePrefix.FinalizationToTarget>;
-  readonly tupleToHeldValueEdgeId: PrefixedNumber<EdgePrefix.FinalizationToHeldValue> | undefined;
-  readonly tupleToUnregisterTokenEdgeId: PrefixedNumber<EdgePrefix.FinalizationToUnregisterToken> | undefined;
+  readonly registryTargetToTupleEdgeId: PrefixedNumber<EdgePrefix.FinalizationTargetToTuple>;
+  readonly tupleToHeldValueEdgeId: PrefixedNumber<EdgePrefix.FinalizationTupleToHeldValue> | undefined;
+  readonly tupleToUnregisterTokenEdgeId: PrefixedNumber<EdgePrefix.FinalizationTupleToUnregisterToken> | undefined;
 }
 
 export interface ValueIdIfc<EngineObject, EngineSymbol> {
