@@ -1514,6 +1514,20 @@ describe("ObjectGraphImpl", () => {
       );
     });
 
+    xit("(true) removes nodes unreachable from the held values", () => {
+      const { tupleNodeId } = objectGraph.defineMapKeyValueTuple(
+        map, key, target, false, keyMetadata, valueMetadata
+      );
+
+      objectGraph.definePropertyOrGetter(heldValues, 1, target, new RelationshipMetadata("held values direct to target"), false);
+
+      searchReferences.markStrongReferencesFromHeldValues();
+      searchReferences.summarizeGraphToTarget(true);
+      const graph: Graph = cloneableGraph.cloneGraph();
+      expect(graph.hasNode("target:0")).toBeTrue();
+      expect(graph.hasNode(tupleNodeId)).toBeFalse();
+    });
+
     it("(true) returns an empty graph when there are only weak reference chains to the target", () => {
       objectGraph.defineMapKeyValueTuple(
         map, key, target, false, keyMetadata, valueMetadata
