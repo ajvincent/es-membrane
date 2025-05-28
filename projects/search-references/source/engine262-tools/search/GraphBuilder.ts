@@ -104,6 +104,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
       [Intrinsics["%ArrayIteratorPrototype%"], BuiltInJSTypeName.ArrayIterator],
       [Intrinsics["%MapIteratorPrototype%"], BuiltInJSTypeName.MapIterator],
       [Intrinsics["%SetIteratorPrototype%"], BuiltInJSTypeName.SetIterator],
+      [Intrinsics["%IteratorHelperPrototype%"], BuiltInJSTypeName.IteratorHelper],
     ]);
   }
 
@@ -627,6 +628,20 @@ export class GraphBuilder implements InstanceGetterDefinitions
     {
       yield* this.#addInternalSlotIfList(guestObject, "HostCapturedValues");
     }
+
+    if (internalSlots.has("UnderlyingIterator")) {
+      const UnderlyingRecord = Reflect.get(guestObject, "UnderlyingIterator") as GuestEngine.IteratorRecord;
+      const guestRecord = GuestEngine.OrdinaryObjectCreate.from(
+        UnderlyingRecord as unknown as Record<string, GuestEngine.Value>
+      );
+      yield* this.#defineGraphNode(
+        guestRecord, false, `internal slot object: UnderlyingIterator`
+      );
+      const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
+      this.#guestObjectGraph.defineInternalSlot(
+        guestObject, `[[UnderlyingIterator]]`, guestRecord, true, edgeRelationship
+      );
+    }
   }
 
   * #addInternalSlotIfObject(
@@ -641,7 +656,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
       return;
 
     yield* this.#defineGraphNode(
-      slotObject, excludeFromSearches,`internal slot object: slotName`
+      slotObject, excludeFromSearches, `internal slot object: ${slotName}`
     );
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
     this.#guestObjectGraph.defineInternalSlot(

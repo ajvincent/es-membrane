@@ -29,6 +29,7 @@ export enum BuiltInJSTypeName {
   SetIterator = "SetIterator",
   Generator = "Generator",
   AsyncGenerator = "AsyncGenerator",
+  IteratorHelper = "IteratorHelper",
 }
 
 export enum NodePrefix {

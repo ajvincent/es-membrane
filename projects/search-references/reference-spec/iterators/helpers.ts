@@ -15,5 +15,10 @@ searchReferences("after visiting the first value", target, [iterator], true);
 void(iterator.next());
 searchReferences("after visiting the target value", target, [iterator], true);
 
+/* we're excluding the last value, so the next call will be { value: undefined, done: true }
 void(iterator.next());
 searchReferences("after visiting the last value", target, [iterator], true);
+*/
+
+void(iterator.next());
+searchReferences("after completing the iterator", target, [iterator], true);

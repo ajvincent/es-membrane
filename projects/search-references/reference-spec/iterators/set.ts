@@ -15,3 +15,6 @@ searchReferences("after visiting the target value", target, [iterator], true);
 
 void(iterator.next());
 searchReferences("after visiting the last value", target, [iterator], true);
+
+void(iterator.next());
+searchReferences("after completing the iterator", target, [iterator], true);
