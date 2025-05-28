@@ -619,6 +619,14 @@ export class GraphBuilder implements InstanceGetterDefinitions
       yield* this.#addInternalPromiseRecordsList(guestObject, "PromiseFulfillReactions");
       yield* this.#addInternalPromiseRecordsList(guestObject, "PromiseRejectReactions");
     }
+
+    if (internalSlots.has("HostCapturedValues") &&
+        "HostCapturedValues" in guestObject &&
+        Array.isArray(guestObject.HostCapturedValues)
+    )
+    {
+      yield* this.#addInternalSlotIfList(guestObject, "HostCapturedValues");
+    }
   }
 
   * #addInternalSlotIfObject(

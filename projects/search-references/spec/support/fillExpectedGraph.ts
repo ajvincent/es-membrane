@@ -9,6 +9,10 @@ import {
 } from "../../source/graph-analysis/ObjectGraphImpl.js";
 
 import type {
+  SearchConfiguration
+} from "../../source/public/core-host/runSearchesInGuestEngine.js";
+
+import type {
   GraphObjectMetadata
 } from "../../source/types/GraphObjectMetadata.js";
 
@@ -31,7 +35,8 @@ export function createExpectedGraph(
   targetClassName: string,
   startingObject: object,
   startingJSTypeName: BuiltInJSTypeName,
-  startingClassName: string
+  startingClassName: string,
+  configuration?: SearchConfiguration,
 ): [ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>, WeakKey[]]
 {
   const targetMetadata: GraphObjectMetadata = {
@@ -45,7 +50,9 @@ export function createExpectedGraph(
   };
 
   const heldValues: WeakKey[] = [];
-  const ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+  const ExpectedObjectGraph = new ObjectGraphImpl<
+    GraphObjectMetadata, GraphRelationshipMetadata
+  >(configuration);
   ExpectedObjectGraph.defineTargetAndHeldValues(
     target, targetMetadata, heldValues, heldValuesMetadata
   );

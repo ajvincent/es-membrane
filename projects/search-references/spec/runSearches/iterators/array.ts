@@ -22,6 +22,7 @@ describe("Iterator searches, Array:", () => {
   const firstValue = { isFirstValue: true };
   const lastValue = { isLastValue: true };
   const enclosedArray = [firstValue, target, lastValue];
+  const hostCapturedValues = [enclosedArray]
   const iterator = enclosedArray.values();
 
   const [ ExpectedObjectGraph ] = createExpectedGraph(
@@ -29,8 +30,12 @@ describe("Iterator searches, Array:", () => {
     iterator, BuiltInJSTypeName.ArrayIterator, BuiltInJSTypeName.ArrayIterator
   );
 
+  addObjectGraphNode(ExpectedObjectGraph, hostCapturedValues, BuiltInJSTypeName.Array, BuiltInJSTypeName.Array);
+
+  addInternalSlotEdge(ExpectedObjectGraph, iterator, "[[HostCapturedValues]]", hostCapturedValues, true);
+
   addObjectGraphNode(ExpectedObjectGraph, enclosedArray, BuiltInJSTypeName.Array, BuiltInJSTypeName.Array);
-  addInternalSlotEdge(ExpectedObjectGraph, iterator, "[[EnclosedValue]]", enclosedArray, true);
+  addArrayIndexEdge(ExpectedObjectGraph, hostCapturedValues, 0, enclosedArray, false);
 
   addObjectGraphNode(ExpectedObjectGraph, firstValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
   addArrayIndexEdge(ExpectedObjectGraph, enclosedArray, 0, firstValue, false);
@@ -45,24 +50,29 @@ describe("Iterator searches, Array:", () => {
   const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
 
   describe("we hold references", () => {
-    xit("before visiting any values", async () => {
+    it("before visiting any values", async () => {
       const actual = await getActualGraph("iterators/array.js", "before visiting any values", false);
       expect(actual).toEqual(expected);
     });
 
-    xit("after visiting the first value", async () => {
+    it("after visiting the first value", async () => {
       const actual = await getActualGraph("iterators/array.js", "after visiting the first value", false);
       expect(actual).toEqual(expected);
     });
 
-    xit("after visiting the target value", async () => {
+    it("after visiting the target value", async () => {
       const actual = await getActualGraph("iterators/array.js", "after visiting the target value", false);
+      expect(actual).toEqual(expected);
+    });
+
+    it("after visiting the last value", async () => {
+      const actual = await getActualGraph("iterators/array.js", "after visiting the last value", false);
       expect(actual).toEqual(expected);
     });
   });
 
-  it("we hold no references after visiting all values", async () => {
-    const actual = await getActualGraph("iterators/array.js", "after visiting the last value", false);
+  it("we hold no references after completing the iterator", async () => {
+    const actual = await getActualGraph("iterators/array.js", "after completing the iterator", false);
     expect(actual).toBeNull();
   });
 });

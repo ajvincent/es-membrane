@@ -50,7 +50,7 @@ const target = { isTarget: true };
 //#region finally, resolve()
 {
   const { promise, resolve } = Promise.withResolvers<void>();
-  promise.finally(() => void(target));
+  promise.finally(() => { return target; });
   searchReferences("promise.finally() to target, before resolve", target, [promise], true);
   resolve();
 

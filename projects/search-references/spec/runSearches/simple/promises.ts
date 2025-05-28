@@ -5,6 +5,10 @@ import {
   ObjectGraphImpl
 } from "../../../source/graph-analysis/ObjectGraphImpl.js";
 
+import {
+  LoggingConfiguration
+} from "../../../source/public/core-host/LoggingConfiguration.js";
+
 import type {
   GraphObjectMetadata
 } from "../../../source/types/GraphObjectMetadata.js";
@@ -41,6 +45,8 @@ describe("Simple graph searches, promises: references to the target", () => {
   const rejectReactions: readonly never[] = [];
   const callback = () => target;
 
+  let configuration: LoggingConfiguration;
+
   function addReactions()
   {
     addObjectGraphNode(ExpectedObjectGraph, fulfullReactions, BuiltInJSTypeName.Array, BuiltInJSTypeName.Array);
@@ -71,9 +77,11 @@ describe("Simple graph searches, promises: references to the target", () => {
   }
 
   beforeEach(() => {
+    configuration = new LoggingConfiguration;
     [ExpectedObjectGraph] = createExpectedGraph(
       target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
-      promise, BuiltInJSTypeName.Promise, BuiltInJSTypeName.Promise
+      promise, BuiltInJSTypeName.Promise, BuiltInJSTypeName.Promise,
+      configuration
     );
   });
 
@@ -171,21 +179,41 @@ describe("Simple graph searches, promises: references to the target", () => {
 
   //#region finally, resolve()
   it("do not exist as a finally reaction, before resolve", async () => {
-    /* https://tc39.es/ecma262/#sec-promise.prototype.finally
+    addReactions();
+    const fulfillCallback = {};
+    addObjectGraphNode(ExpectedObjectGraph, fulfillCallback, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function);
+    addArrayIndexEdge(ExpectedObjectGraph, fulfullReactions, 0, fulfillCallback, false);
 
-    The specification requires creating built-in functions and passing them to
-    Promise.prototype.then().  The callback the guest script provides is in a
-    _native_ closure. and is not accessible from outside engine262.
+    const rejectCallback = {};
+    addObjectGraphNode(ExpectedObjectGraph, rejectCallback, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function);
+    addArrayIndexEdge(ExpectedObjectGraph, rejectReactions, 0, rejectCallback, false);
 
-    As a result, though the target might be reachable in principle, I can't reach it
-    from the host.
+    const fulfilledCapture: never[] = [];
+    addObjectGraphNode(ExpectedObjectGraph, fulfilledCapture, BuiltInJSTypeName.Array, BuiltInJSTypeName.Array);
+    addInternalSlotEdge(ExpectedObjectGraph, fulfillCallback, "[[HostCapturedValues]]", fulfilledCapture, true);
 
-    @see {@link https://github.com/engine262/engine262/blob/d14bb4b3dac4eb352a471debaa77b10d0677d881/src/intrinsics/PromisePrototype.mts#L58}
-    */
+    const rejectedCapture: never[] = [];
+    addObjectGraphNode(ExpectedObjectGraph, rejectedCapture, BuiltInJSTypeName.Array, BuiltInJSTypeName.Array);
+    addInternalSlotEdge(ExpectedObjectGraph, rejectCallback, "[[HostCapturedValues]]", rejectedCapture, true);
+
+    function finallyCallback() {};
+    addObjectGraphNode(ExpectedObjectGraph, finallyCallback, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function);
+    addArrayIndexEdge(ExpectedObjectGraph, fulfilledCapture, 0, finallyCallback, false);
+    addArrayIndexEdge(ExpectedObjectGraph, rejectedCapture, 0, finallyCallback, false);
+
+    addScopeValueEdge(ExpectedObjectGraph, finallyCallback, "[[return value]]", target);
+
+    const expected = summarize();
+
     const actual = await getActualGraph(
       "simple/promises.js", "promise.finally() to target, before resolve", false
     );
-    expect(actual).toEqual(null);
+    expect(actual).toEqual(expected);
+
+    const resolvedGraph = graphlib.json.read(expected);
+    const finallyId = ExpectedObjectGraph.getWeakKeyId(finallyCallback);
+    const inEdges = resolvedGraph.inEdges(finallyId);
+    expect(inEdges?.length).toBe(2);
   });
 
   it("do not exist as a finally reaction, after resolve", async () => {
@@ -219,7 +247,6 @@ describe("Simple graph searches, promises: references to the target", () => {
     );
     expect(actual).toEqual(null);
   });
-
 
   it("exist as a rejected value via reject()", async () => {
     addInternalSlotEdge(ExpectedObjectGraph, promise, `[[PromiseResult]]`, target, true);

@@ -51,6 +51,10 @@ export interface SearchConfiguration {
    */
   internalErrorTrap?: () => void;
 
+  markStrongNodeTrap?: (
+    nodeId: string
+  ) => void;
+
   /**
    * True if we should exclude values available to functions (this, super, arguments).
    * Usually you do not want this, but for internal development purposes (reducing noise

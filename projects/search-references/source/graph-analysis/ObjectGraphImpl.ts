@@ -735,7 +735,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   ): void
   {
     const isStrongReference: boolean = this.#edgeIdTo_IsStrongReference_Map.get(edgeId)!;
-    if (isStrongReference && !this.#weakKeyIdsToVisit.has(childKey)) {
+    if (isStrongReference) {
       this.#weakKeyIdsToVisit.add(childKey);
 
       const objectOrSymbol: object | symbol = this.#idToWeakKeyMap.get(childKey)!;
@@ -762,6 +762,8 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     this.#weakKeyIdsToVisit.add(this.#heldValuesId);
     try {
       for (const id of this.#weakKeyIdsToVisit) {
+        if (this.#searchConfiguration?.markStrongNodeTrap)
+          this.#searchConfiguration?.markStrongNodeTrap(id);
         this.#ownershipSetsTracker.resolveKey(id);
       }
 

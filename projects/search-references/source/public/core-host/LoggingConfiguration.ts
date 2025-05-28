@@ -67,6 +67,10 @@ export class LoggingConfiguration implements Required<SearchConfiguration>
   defineWeakKeyTrap(weakKey: string): void {
     this.log(`defineWeakKey: ${weakKey}`);
   }
+
+  markStrongNodeTrap(nodeId: string): void {
+    this.log("markStrongNode: " + nodeId);
+  }
   //#endregion SearchConfiguration
 
   retrieveLogs(sourceSpecifier: string, resultsKey: string): readonly string[] | undefined {
