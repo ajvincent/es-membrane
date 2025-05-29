@@ -95,7 +95,7 @@ export class SearchDriver
         this.#searchReferences.markStrongReferencesFromHeldValues();
       }
       this.#searchReferences.summarizeGraphToTarget(this.#strongReferencesOnly);
-  
+
       const graph = this.#cloneableGraph.cloneGraph();
       if (graph.nodeCount() === 0)
         return null;

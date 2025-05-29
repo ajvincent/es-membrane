@@ -19,15 +19,14 @@ export class LoggingConfiguration implements Required<SearchConfiguration>
   noFunctionEnvironment = false;
 
   beginSearch(sourceSpecifier: string, resultsKey: string): void {
-    void(sourceSpecifier);
     this.#tracingHash = LoggingConfiguration.#hashSpecifierAndKey(sourceSpecifier, resultsKey);
-    this.log("enter " + this.#tracingHash, true);
+    this.log("enter " + this.#tracingHash, 0);
   }
 
   endSearch(sourceSpecifier: string, resultsKey: string): void {
     void(sourceSpecifier);
     void(resultsKey);
-    this.log("leave " + this.#tracingHash, true);
+    this.log("leave " + this.#tracingHash, 0);
     this.#tracingHash = "";
   }
 
@@ -36,14 +35,21 @@ export class LoggingConfiguration implements Required<SearchConfiguration>
     debugger;
   }
 
-  log(message: string, noIndent?: boolean): void {
-    if (!noIndent)
-      message = "  " + message;
+  log(message: string, indentLevel = 2): void {
+    message = "  ".repeat(indentLevel) + message;
 
     if (this.#logsMap.has(this.#tracingHash) === false) {
       this.#logsMap.set(this.#tracingHash, []);
     }
     this.#logsMap.get(this.#tracingHash)!.push(message);
+  }
+
+  enterNodeIdTrap(nodeId: string): void {
+    this.log("enter search nodeId: " + nodeId, 1);
+  }
+
+  leaveNodeIdTrap(nodeId: string): void {
+    this.log("leave search nodeId: " + nodeId, 1);
   }
 
   defineNodeTrap(parentId: string, weakKey: string, details: string): void {

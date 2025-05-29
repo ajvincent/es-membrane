@@ -14,7 +14,10 @@ export interface SearchConfiguration {
   endSearch?(sourceSpecifier: string, resultsKey: string): void;
 
   /** Ye olde log function. */
-  log?(message: string): void;
+  log?(message: string, indentLevel?: number): void;
+
+  enterNodeIdTrap?: (nodeId: string) => void;
+  leaveNodeIdTrap?: (nodeId: string) => void;
 
   /**
    * A callback for when we attempt to define a node, even if the node already exists.

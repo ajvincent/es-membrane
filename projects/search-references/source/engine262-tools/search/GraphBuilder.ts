@@ -244,6 +244,9 @@ export class GraphBuilder implements InstanceGetterDefinitions
       }
 
       this.#currentNodeId = this.#guestObjectGraph.getWeakKeyId(guestObject);
+      if (this.#searchConfiguration?.enterNodeIdTrap)
+        this.#searchConfiguration.enterNodeIdTrap(this.#currentNodeId);
+
       if (GuestEngine.isProxyExoticObject(guestObject)) {
         yield* this.#addInternalSlotIfObject(guestObject, "ProxyTarget", true, true);
         yield* this.#addInternalSlotIfObject(guestObject, "ProxyHandler", false, true);
@@ -261,6 +264,9 @@ export class GraphBuilder implements InstanceGetterDefinitions
 
         yield * this.#lookupAndAddInternalSlots(guestObject);
       }
+
+      if (this.#searchConfiguration?.leaveNodeIdTrap)
+        this.#searchConfiguration.leaveNodeIdTrap(this.#currentNodeId);
       this.#currentNodeId = undefined;
     }
   }
