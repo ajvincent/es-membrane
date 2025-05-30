@@ -253,7 +253,6 @@ export class GraphBuilder implements InstanceGetterDefinitions
       } else {
         yield * this.#addObjectProperties(guestObject);
         yield * this.#addPrivateFields(guestObject);
-        yield * this.#addConstructorOf(guestObject);
 
         if ((this.#searchConfiguration?.noFunctionEnvironment !== true) &&
           GuestEngine.isECMAScriptFunctionObject(guestObject))
@@ -388,8 +387,6 @@ export class GraphBuilder implements InstanceGetterDefinitions
     guestObject: GuestEngine.ObjectValue
   ): GuestEngine.Evaluator<void>
   {
-    const isObjectPrototype = yield * GraphBuilder.#isConstructorPrototype(guestObject);
-
     const OwnKeys: GuestEngine.PropertyKeyValue[] = yield * EnsureTypeOrThrow(guestObject.OwnPropertyKeys());
     GuestEngine.Assert(Array.isArray(OwnKeys));
     for (const guestKey of OwnKeys) {
@@ -425,6 +422,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
           yield* this.#instanceGetterTracking.addGetterName(guestCtor, key);
         }
 
+        const isObjectPrototype: boolean = yield * GraphBuilder.#isConstructorPrototype(guestObject);
         if (isObjectPrototype)
           continue;
 
@@ -648,6 +646,13 @@ export class GraphBuilder implements InstanceGetterDefinitions
         guestObject, `[[UnderlyingIterator]]`, guestRecord, true, edgeRelationship
       );
     }
+
+    if (guestObject.ConstructedBy?.length > 0) {
+      yield* this.#addInternalSlotIfList(guestObject, "ConstructedBy");
+      yield* this.#instanceGetterTracking.addInstance(
+        guestObject, guestObject.ConstructedBy[guestObject.ConstructedBy.length - 1]!
+      );
+    }
   }
 
   * #addInternalSlotIfObject(
@@ -737,35 +742,6 @@ export class GraphBuilder implements InstanceGetterDefinitions
     this.#guestObjectGraph.defineFinalizationTuple(registry, WeakRefTarget, HeldValue, UnregisterToken);
   }
 
-  * #addConstructorOf(
-    guestObject: GuestEngine.ObjectValue
-  ): GuestEngine.Evaluator<void>
-  {
-    const guestCtor = yield * EnsureTypeOrThrow(GuestEngine.GetV(
-      guestObject, GraphBuilder.#stringConstants.get("constructor")!
-    ));
-    if (GuestEngine.isFunctionObject(guestCtor) === false) {
-      // generators end up here
-      return;
-    }
-
-    const guestCtorProto = yield * EnsureTypeOrThrow(GuestEngine.GetPrototypeFromConstructor(
-      guestCtor, "%Object.prototype%"
-    ));
-    if (this.#intrinsics.has(guestCtorProto))
-      return;
-    if (guestCtorProto === guestObject)
-      return;
-
-    GuestEngine.Assert(guestCtor.type === "Object");
-    GuestEngine.Assert(GuestEngine.IsConstructor(guestCtor));
-
-    yield* this.#defineGraphNode(guestCtor, false, "constructor");
-    const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InstanceOf);
-    this.#guestObjectGraph.defineConstructorOf(guestObject, guestCtor, edgeRelationship);
-
-    yield* this.#instanceGetterTracking.addInstance(guestObject, guestCtor);
-  }
 
   * #addMapData(
     mapObject: GuestEngine.ObjectValue,

@@ -831,48 +831,6 @@ describe("ObjectGraphImpl", () => {
       });
     });
 
-    it("constructors of objects", () => {
-      class target {
-        // do nothing
-      }
-
-      {
-        const graph = new ObjectGraphImpl<
-          Record<"type", "ObjectMetadata">,
-          Record<"type", "RelationshipMetadata">
-        >;
-    
-        graph.defineTargetAndHeldValues(
-          target, targetMetadata, heldValues, heldValuesMetadata
-        );
-        cloneableGraph = graph;
-        objectGraph = graph;
-        searchReferences = graph;
-      }
-      const middleValue = {};
-      heldValues.push(middleValue);
-
-      objectGraph.defineObject(middleValue, new ObjectMetadata);
-
-      const heldToMiddle = new RelationshipMetadata("held values to middle value");
-      objectGraph.definePropertyOrGetter(heldValues, 0, middleValue, heldToMiddle, false);
-
-      const ctorMetadata = new RelationshipMetadata("constructor of heldToMiddle");
-      const ctorEdgeId = objectGraph.defineConstructorOf(
-        middleValue, target, ctorMetadata
-      );
-
-      expect(objectGraph.getEdgeRelationship(ctorEdgeId)).toEqual({
-        label: "(constructor)",
-        edgeType: EdgePrefix.InstanceOf,
-        description: {
-          valueType: ValueDiscrimant.NotApplicable
-        },
-        metadata: ctorMetadata,
-        isStrongReference: true,
-      });
-    });
-
     it("private class fields", () => {
       const privateKey = { isPrivateKey: true };
       const owner = { isOwner: true };
@@ -1030,41 +988,6 @@ describe("ObjectGraphImpl", () => {
   });
 
   describe("marks references to target objects as", () => {
-    it("strong from instance to class", () => {
-      class target {
-        // do nothing
-      }
-
-      {
-        const graph = new ObjectGraphImpl<
-          Record<"type", "ObjectMetadata">,
-          Record<"type", "RelationshipMetadata">
-        >;
-    
-        graph.defineTargetAndHeldValues(
-          target, targetMetadata, heldValues, heldValuesMetadata
-        );
-        cloneableGraph = graph;
-        objectGraph = graph;
-        searchReferences = graph;
-      }
-      const middleValue = {};
-      heldValues.push(middleValue);
-
-      objectGraph.defineObject(middleValue, new ObjectMetadata);
-
-      const heldToMiddle = new RelationshipMetadata("held values to middle value");
-      objectGraph.definePropertyOrGetter(heldValues, 0, middleValue, heldToMiddle, false);
-
-      const ctorMetadata =new RelationshipMetadata("constructor of heldToMiddle");
-      objectGraph.defineConstructorOf(
-        middleValue, target, ctorMetadata
-      );
-
-      searchReferences.markStrongReferencesFromHeldValues();
-      expect(searchReferences.isKeyHeldStrongly(target)).toBeTrue();
-    });
-
     it("strong in a regular map", () => {
       const map = {}, key = {}, value = {};
       heldValues.push(map);

@@ -197,30 +197,6 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
     );
   }
 
-  public defineConstructorOf(
-    instanceObject: GuestEngine.ObjectValue,
-    ctorObject: GuestEngine.ObjectValue,
-    metadata: RelationshipMetadata
-  ): PrefixedNumber<EdgePrefix.InstanceOf>
-  {
-    if (!GuestEngine.IsConstructor(ctorObject)) {
-      this.#throwInternalError(new Error("ctorObject is not a constructor"));
-    }
-
-    // preserving the graph order, though the graph _should_ have instanceObject already
-    const hostInstance = this.#substitution.getHostObject(instanceObject);
-    const hostCtor = this.#substitution.getHostObject(ctorObject);
-    if (typeof hostCtor !== "function") {
-      this.#throwInternalError(new Error("assertion failure: hostCtor should be a function"));
-    }
-
-    return this.#hostGraph.defineConstructorOf(
-      hostInstance,
-      hostCtor,
-      metadata
-    );
-  }
-
   public defineScopeValue(
     functionObject: GuestEngine.ObjectValue,
     identifier: string,

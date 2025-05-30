@@ -101,12 +101,6 @@ export interface ObjectGraphIfc<
     isGetter: boolean,
   ): PrefixedNumber<EdgePrefix.GetterKey | EdgePrefix.PropertyKey>;
 
-  defineConstructorOf(
-    instanceObject: EngineObject,
-    ctorObject: EngineObject,
-    metadata: RelationshipMetadata
-  ): PrefixedNumber<EdgePrefix.InstanceOf>;
-
   defineScopeValue(
     functionObject: EngineObject,
     identifier: string,

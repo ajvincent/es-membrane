@@ -10,7 +10,7 @@ class Person {
 const vehicleToOwnerMap = new Map<Vehicle, Person>;
 
 class Vehicle {
-  static get owners(): WeakMap<Vehicle, Person> {
+  static get owners(): Map<Vehicle, Person> {
     return vehicleToOwnerMap;
   }
 

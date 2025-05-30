@@ -51,7 +51,6 @@ export enum ChildReferenceEdgeType {
   PropertySymbol = "PropertySymbol",
   SymbolKey = "SymbolKey",
   ScopeValue = "ScopeValue",
-  InstanceOf = "InstanceOf",
   PrivateClassKey = "PrivateClassKey",
   PrivateClassValue = "PrivateClassValue",
 
@@ -66,7 +65,6 @@ export enum EdgePrefix {
   PropertyKey = "propertyKey",
   GetterKey = "getterKey",
   HasSymbolAsKey = "hasSymbolAsKey",
-  InstanceOf = "instanceOf",
   ScopeValue = "scopeValue",
   InternalSlot = "internalSlot",
   MapToTuple = "mapToTuple",

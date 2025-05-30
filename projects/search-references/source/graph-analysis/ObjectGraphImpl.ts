@@ -2,7 +2,6 @@
 import graphlib from "@dagrejs/graphlib";
 
 import type {
-  Constructor,
   JsonObject,
   ReadonlyDeep,
 } from "type-fest";
@@ -408,28 +407,6 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
       metadata, childId, true, undefined
     );
 
-    return edgeId;
-  }
-
-  public defineConstructorOf(
-    instanceObject: object,
-    ctorObject: Constructor<object, unknown[]>,
-    metadata: RelationshipMetadata
-  ): PrefixedNumber<EdgePrefix.InstanceOf>
-  {
-    this.#setNextState(ObjectGraphState.AcceptingDefinitions);
-    if (typeof ctorObject !== "function") {
-      this.#throwInternalError(new Error("ctorObject must be a function!"));
-    }
-
-    const instanceId = this.#requireWeakKeyId(instanceObject, "instanceObject");
-    const ctorId = this.#requireWeakKeyId(ctorObject, "ctorObject");
-
-    const edgeId = this.#defineEdge(
-      "(constructor)",
-      instanceId, EdgePrefix.InstanceOf, ObjectGraphImpl.#NOT_APPLICABLE,
-      metadata, ctorId, true, undefined
-    );
     return edgeId;
   }
 

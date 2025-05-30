@@ -1,5 +1,4 @@
 import type {
-  Constructor,
   JsonObject
 } from "type-fest";
 
@@ -162,19 +161,6 @@ export function addPropertySymbolEdge(
   graph.definePropertyOrGetter(
     parentObject, propertyKey, childObject, relationship, isGetter
   );
-}
-
-export function addConstructorOf(
-  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
-  instanceObject: object,
-  ctorObject: Constructor<object>,
-): void
-{
-  const relationship: GraphRelationshipMetadata = {
-    parentToChildEdgeType: ChildReferenceEdgeType.InstanceOf
-  };
-
-  graph.defineConstructorOf(instanceObject, ctorObject, relationship);
 }
 
 export function addScopeValueEdge(
