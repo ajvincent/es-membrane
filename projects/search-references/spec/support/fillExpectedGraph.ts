@@ -1,3 +1,5 @@
+import type graphlib from "@dagrejs/graphlib";
+
 import type {
   JsonObject
 } from "type-fest";
@@ -68,13 +70,19 @@ export function addObjectGraphNode(
   graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   object: object,
   builtInJSTypeName: BuiltInJSTypeName,
-  derivedClassName: string
+  derivedClassName: string,
+  classSpecifier?: string,
+  classLineNumber?: number,
 ): void
 {
   const metadata: GraphObjectMetadata = {
     builtInJSTypeName,
-    derivedClassName
+    derivedClassName,
   };
+  if (classSpecifier)
+    metadata.classSpecifier = "virtual://home/reference-spec/" + classSpecifier;
+  if (classLineNumber)
+    metadata.classLineNumber = classLineNumber;
 
   graph.defineObject(object, metadata);
 }
@@ -255,4 +263,16 @@ export function addPrivateFieldEdge(
     parent, privateName, privateKey, child,
     privateNameRelationship, valueRelationship, isGetter
   );
+}
+
+export function addSpecifierAndLine(
+  graph: graphlib.Graph,
+  nodeId: string,
+  classSpecifier: string,
+  classLineNumber: number,
+): void
+{
+  const node = graph.node(nodeId);
+  node.metadata.classSpecifier = "virtual://home/reference-spec/" + classSpecifier;
+  node.metadata.classLineNumber = classLineNumber;
 }

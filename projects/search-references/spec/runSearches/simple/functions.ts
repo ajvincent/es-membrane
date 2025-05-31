@@ -167,7 +167,10 @@ describe("Simple graph searches: function support,", () => {
     addPropertyNameEdge(ExpectedObjectGraph, getOwner, "prototype", getOwner.prototype, false);
 
     const hisBike = new Vehicle;
-    addObjectGraphNode(ExpectedObjectGraph, hisBike, BuiltInJSTypeName.Object, "Vehicle"); // object:7
+    addObjectGraphNode(
+      ExpectedObjectGraph, hisBike, BuiltInJSTypeName.Object, "Vehicle",
+      "functions/bound.js", 9
+    ); // object:7
     addMapKeyAndValue(ExpectedObjectGraph, vehicleToOwnerMap, hisBike, Fred, false);
 
     boundArguments.push(hisBike);

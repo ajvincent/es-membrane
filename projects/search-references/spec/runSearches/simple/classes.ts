@@ -26,6 +26,7 @@ import {
   addPrivateName,
   addPrivateFieldEdge,
   createExpectedGraph,
+  addSpecifierAndLine,
 } from "../../support/fillExpectedGraph.js";
 
 import {
@@ -87,7 +88,12 @@ describe("Simple graph searches, class support:", () => {
 
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();
     ExpectedObjectGraph.summarizeGraphToTarget(true);
-    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+    let expected: object;
+    {
+      const graph = ExpectedObjectGraph.cloneGraph();
+      addSpecifierAndLine(graph, "object:2", "classes/classesWithoutExtensions.js", 8);
+      expected = graphlib.json.write(graph);
+    }
 
     const actual = await getActualGraph(
       "classes/classesWithoutExtensions.js", "instance to class", true
@@ -161,7 +167,12 @@ describe("Simple graph searches, class support:", () => {
 
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();
     ExpectedObjectGraph.summarizeGraphToTarget(true);
-    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+    let expected: object;
+    {
+      const graph = ExpectedObjectGraph.cloneGraph();
+      addSpecifierAndLine(graph, "object:2", "classes/classesExtendingOtherClasses.js", 14);
+      expected = graphlib.json.write(graph);
+    }
 
     const actual = await getActualGraph(
       "classes/classesExtendingOtherClasses.js", "Bicycle extends Vehicle", true
@@ -206,7 +217,12 @@ describe("Simple graph searches, class support:", () => {
 
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();
     ExpectedObjectGraph.summarizeGraphToTarget(true);
-    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+    let expected: object;
+    {
+      const graph = ExpectedObjectGraph.cloneGraph();
+      addSpecifierAndLine(graph, "object:2", "classes/classAccessors.js", 9);
+      expected = graphlib.json.write(graph);
+    }
 
     const actual = await getActualGraph(
       "classes/classAccessors.js", "reaching a value via a getter", true
@@ -233,7 +249,12 @@ describe("Simple graph searches, class support:", () => {
 
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();
     ExpectedObjectGraph.summarizeGraphToTarget(true);
-    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+    let expected: object;
+    {
+      const graph = ExpectedObjectGraph.cloneGraph();
+      addSpecifierAndLine(graph, "object:2", "classes/classPrivateFields.js", 8);
+      expected = graphlib.json.write(graph);
+    }
 
     const actual = await getActualGraph(
       "classes/classPrivateFields.js", "class private fields", true
@@ -273,7 +294,12 @@ describe("Simple graph searches, class support:", () => {
 
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();
     ExpectedObjectGraph.summarizeGraphToTarget(true);
-    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+    let expected: object;
+    {
+      const graph = ExpectedObjectGraph.cloneGraph();
+      addSpecifierAndLine(graph, "object:2", "classes/classPrivateAccessors.js", 9);
+      expected = graphlib.json.write(graph);
+    }
 
     const actual = await getActualGraph(
       "classes/classPrivateAccessors.js", "class private getter", true
@@ -325,7 +351,12 @@ describe("Simple graph searches, class support:", () => {
 
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();
     ExpectedObjectGraph.summarizeGraphToTarget(true);
-    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+    let expected: object;
+    {
+      const graph = ExpectedObjectGraph.cloneGraph();
+      addSpecifierAndLine(graph, "object:2", "classes/classStaticFields.js", 8);
+      expected = graphlib.json.write(graph);
+    }
 
     const actual = await getActualGraph(
       "classes/classStaticFields.js", "class static fields", true
@@ -355,7 +386,10 @@ describe("Simple graph searches, class support:", () => {
     // end object:3
 
     // object:4
-    addObjectGraphNode(ExpectedObjectGraph, hisCar, BuiltInJSTypeName.Object, "Vehicle"); // object:5
+    addObjectGraphNode(
+      ExpectedObjectGraph, hisCar, BuiltInJSTypeName.Object, "Vehicle",
+      "classes/classStaticAccessors.js", 9
+    ); // object:5
     addMapKeyAndValue(ExpectedObjectGraph, vehicleToOwnerMap, hisCar, Fred, true); // defines keyValueTuple:6
     // end object:4
 
@@ -417,7 +451,12 @@ describe("Simple graph searches, class support:", () => {
 
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();
     ExpectedObjectGraph.summarizeGraphToTarget(true);
-    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+    let expected: object;
+    {
+      const graph = ExpectedObjectGraph.cloneGraph();
+      addSpecifierAndLine(graph, "object:2", "classes/classStaticPrivateFields.js", 8);
+      expected = graphlib.json.write(graph);
+    }
 
     const actual = await getActualGraph(
       "classes/classStaticPrivateFields.js", "class private static fields", true
@@ -450,7 +489,10 @@ describe("Simple graph searches, class support:", () => {
 
     // object:5
     vehicleToOwnerMap.set(hisCar, Fred);
-    addObjectGraphNode(ExpectedObjectGraph, hisCar, BuiltInJSTypeName.Object, "Vehicle"); // object:7
+    addObjectGraphNode(
+      ExpectedObjectGraph, hisCar, BuiltInJSTypeName.Object, "Vehicle",
+      "classes/classStaticPrivateAccessors.js", 9
+    ); // object:7
     addMapKeyAndValue(ExpectedObjectGraph, vehicleToOwnerMap, hisCar, Fred, true); // defines keyValueTuple:8
     // end object:5
 

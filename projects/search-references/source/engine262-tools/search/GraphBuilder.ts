@@ -310,6 +310,37 @@ export class GraphBuilder implements InstanceGetterDefinitions
     if (this.#guestObjectGraph.hasObject(guestObject) === false) {
       const collectionAndClass = yield * this.#getCollectionAndClassName(guestObject);
       const objectMetadata = buildObjectMetadata(...collectionAndClass);
+      if (guestObject.ConstructedBy.length > 0) {
+        const classObject: GuestEngine.ObjectValue = guestObject.ConstructedBy[guestObject.ConstructedBy.length - 1];
+        const slots = new Set<string>(classObject.internalSlotsList);
+        if (slots.has("ScriptOrModule")) {
+          const ScriptOrModule = Reflect.get(
+            classObject, "ScriptOrModule"
+          ) as GuestEngine.ModuleRecord | GuestEngine.ScriptRecord | GuestEngine.NullValue;
+          if (ScriptOrModule instanceof GuestEngine.NullValue === false)
+            objectMetadata.classSpecifier = ScriptOrModule?.HostDefined?.specifier;
+        }
+
+        if (slots.has("ECMAScriptCode")) {
+          const ECMAScriptCode = Reflect.get(
+            classObject, "ECMAScriptCode"
+          ) as GuestEngine.ParseNode.Module | GuestEngine.ParseNode.Script;
+          let parseNode: GuestEngine.ParseNode | undefined = ECMAScriptCode;
+          for (let i = 0; i < 5; i++) {
+            if ((parseNode.type === "ClassDeclaration") || (parseNode.type === "ClassExpression")) {
+              break;
+            }
+            parseNode = parseNode.parent;
+            if (!parseNode)
+              break;
+          }
+
+          if ((parseNode?.type !== "ClassDeclaration") && (parseNode?.type !== "ClassExpression")) {
+            parseNode = ECMAScriptCode;
+          }
+          objectMetadata.classLineNumber = parseNode?.location.start.line;
+        }
+      }
       this.#guestObjectGraph.defineObject(guestObject, objectMetadata);
 
       if (excludeFromSearch) {
@@ -741,7 +772,6 @@ export class GraphBuilder implements InstanceGetterDefinitions
 
     this.#guestObjectGraph.defineFinalizationTuple(registry, WeakRefTarget, HeldValue, UnregisterToken);
   }
-
 
   * #addMapData(
     mapObject: GuestEngine.ObjectValue,

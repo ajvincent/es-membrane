@@ -9,4 +9,6 @@ import type {
 export interface GraphObjectMetadata extends JsonObject {
   readonly builtInJSTypeName: BuiltInJSTypeName;
   readonly derivedClassName: string;
+  classSpecifier?: string;
+  classLineNumber?: number;
 }

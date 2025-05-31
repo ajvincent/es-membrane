@@ -4,6 +4,10 @@ import type {
   ReadonlyDeep
 } from "type-fest";
 
+import type {
+  GraphNodeWithMetadata
+} from "../../source/graph-analysis/types/ObjectGraphIfc.js";
+
 import {
   runSearchesInGuestEngine
 } from "../../source/public/host/runSearchesInGuestEngine.js";
@@ -12,8 +16,13 @@ import type {
   SearchConfiguration
 } from "../../source/public/core-host/types/SearchConfiguration.js";
 
+import type {
+  GraphObjectMetadata
+} from "../../source/types/GraphObjectMetadata.js";
+
 import {
   getReferenceSpecPath,
+  referenceSpecDir,
 } from "./projectRoot.js";
 
 type GraphsFromSearch = ReadonlyDeep<Map<string, graphlib.Graph | null>>;
@@ -32,7 +41,14 @@ export async function getActualGraph(
   let promiseGraphs: Promise<GraphsFromSearch> | undefined = GraphsFromFileSearches.get(pathToSearch);
   if (!promiseGraphs) {
     const config: SearchConfiguration = new TracingConfiguration(referenceSpec, noFunctionEnvironment);
-    promiseGraphs = runSearchesInGuestEngine(pathToSearch, config);
+    const rawGraphsPromise: Promise<ReadonlyMap<string, graphlib.Graph | null>> = runSearchesInGuestEngine(pathToSearch, config);
+    promiseGraphs = rawGraphsPromise.then(graphMap => {
+      for (const graph of graphMap.values()) {
+        if (graph)
+          canonicalizeSpecifiers(graph);
+      }
+      return graphMap;
+    });
     GraphsFromFileSearches.set(pathToSearch, promiseGraphs);
   }
 
@@ -45,6 +61,24 @@ export async function getActualGraph(
   if (heldValuesGraph === null)
     return heldValuesGraph;
   return graphlib.json.write(heldValuesGraph);
+}
+
+function canonicalizeSpecifiers(
+  graph: graphlib.Graph
+): void
+{
+  for (const nodeId of graph.nodes()) {
+    const node = graph.node(nodeId);
+    if (!node)
+      continue;
+    const { metadata } = node as GraphNodeWithMetadata<GraphObjectMetadata>;
+
+    if (metadata?.classSpecifier) {
+      metadata.classSpecifier = metadata.classSpecifier.replace(
+        "file://" + referenceSpecDir, "virtual://home/reference-spec"
+      );
+    }
+  }
 }
 
 export function getTracingLog(
