@@ -242,8 +242,6 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     this.#idToWeakKeyMap.set(nodeId, privateName);
 
     const nodeMetadata: GraphNodeWithMetadata<Record<"description", string>> = {
-      width: 200,
-      height: 200,
       metadata: {
         description
       }
@@ -272,8 +270,6 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     this.#idToWeakKeyMap.set(nodeId, weakKey);
 
     const nodeMetadata: GraphNodeWithMetadata<ObjectMetadata | null> = {
-      width: 200,
-      height: 200,
       metadata,
     };
     this.#graph.setNode(nodeId, nodeMetadata);

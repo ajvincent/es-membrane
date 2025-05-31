@@ -188,8 +188,6 @@ export interface ObjectGraphIfc<
 
 export interface GraphNodeWithMetadata<ObjectMetadata extends JsonObject | null> {
   readonly metadata: ObjectMetadata,
-  width: number,
-  height: number,
 }
 
 export interface GraphEdgeWithMetadata<RelationshipMetadata extends JsonObject | null> {
