@@ -90,7 +90,7 @@ export function getTracingLog(
   return TracingFromFileSearches.get(hash);
 }
 
-class TracingConfiguration implements SearchConfiguration {
+class TracingConfiguration implements Required<SearchConfiguration> {
   static hashSpecifierAndKey(
     referenceSpec: string,
     resultsKey: string
@@ -152,6 +152,14 @@ class TracingConfiguration implements SearchConfiguration {
       `defineEdgeTrap: ${parentId}${secondIdPart} via ${edgeId} to ${childId}, isStrongReference: ${isStrongReference}`
     );
   }
+
+  defineWeakKeyTrap(weakKey: string): void {
+    this.log("weak key defined: " + weakKey);
+  };
+
+  markStrongNodeTrap(nodeId: string): void {
+    this.log("mark strong node: " + nodeId);
+  };
 
   log(message: string, indentLevel = 2): void {
     message = "  ".repeat(indentLevel) + message;
