@@ -2,9 +2,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { asyncFork } from "./childProcess.js";
-import { monorepoRoot, } from "./constants.js";
+import { projectRoot, } from "./constants.js";
 import { overwriteFileIfDifferent, } from "./overwriteFileIfDifferent.js";
-const TSC = path.resolve(monorepoRoot, "node_modules/typescript/bin/tsc");
+const TSC = path.resolve(projectRoot, "node_modules/typescript/bin/tsc");
 export async function InvokeTSC(pathToTSConfig, excludesGlobs) {
     const configContents = {
         extends: pathToTSConfig,

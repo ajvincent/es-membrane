@@ -8,3 +8,5 @@ export const projectRoot = path.normalize(path.join(
 ));
 
 export const monorepoRoot = path.normalize(path.join(projectRoot, "../.."));
+
+export const TYPESCRIPT_LIBS_PATH = path.join(projectRoot, "node_modules/typescript/lib");

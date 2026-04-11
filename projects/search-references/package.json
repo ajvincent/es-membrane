@@ -29,33 +29,30 @@
   ],
   "type": "module",
   "engines": {
-    "node": ">=22.13"
+    "node": ">=25.8.2"
   },
   "scripts": {
-    "clean": "rm -rf dist Gulpfile.js",
-    "tsc-buildsystem": "echo $PWD && tsc --project ./tsconfig-gulp.json",
-    "build": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js",
-    "debug": "npm run clean && npm run tsc-buildsystem && node --inspect-brk --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js",
-    "tasks": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js --tasks",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && node ../../node_modules/gulp/bin/gulp.js",
+    "debug": "npm run clean && node --inspect-brk ../../node_modules/gulp/bin/gulp.js",
+    "tasks": "npm run clean && node ../../node_modules/gulp/bin/gulp.js --tasks",
     "is-repo-clean": "node --no-experimental-require-module ./gulp-utilities/assertRepoIsClean.js"
   },
   "author": "Alexander J. Vincent <ajvincent@gmail.com>",
   "license": "ISC",
   "devDependencies": {
     "@ajvincent/build-utilities": "file:../build-utilities",
-    "@tsconfig/node18": "^18.2.4",
     "@types/gulp": "^4.0.17",
     "@types/jasmine": "^5.1.5",
     "@types/node": "^18.19.69",
     "gulp": "^5.0.0",
     "rollup": "^4.40.0",
     "rollup-plugin-dts": "^6.2.1",
-    "type-fest": "^4.40.0",
-    "typescript": "^5.7.2"
+    "type-fest": "^4.40.0"
   },
   "dependencies": {
     "@dagrejs/graphlib": "^2.2.4",
-    "@engine262/engine262": "^0.0.1-eacb4e2fa7f362c22d5a754ca1bf853d28e69258",
+    "@magic-works/engine262": "^0.0.1-b249d351e89be2efdb59fecbc291d7aca6fd6e4c",
     "import-meta-resolve": "^4.1.0"
   }
 }

@@ -1,6 +1,4 @@
-import {
-  GuestEngine
-} from "../host-to-guest/GuestEngine.js";
+import * as GuestEngine from '@magic-works/engine262';
 
 export function * defineBuiltInFunction(
   realm: GuestEngine.ManagedRealm,
@@ -15,7 +13,7 @@ export function * defineBuiltInFunction(
 {
   const argumentsLength = 1;
   function * builtInConverter(
-    guestArguments: readonly GuestEngine.Value[],
+    guestArguments: readonly (GuestEngine.Value | undefined)[],
     thisAndNewValue: { thisValue: GuestEngine.Value, NewTarget: GuestEngine.Value }
   ): GuestEngine.ValueEvaluator<GuestEngine.Value>
   {
@@ -25,14 +23,12 @@ export function * defineBuiltInFunction(
     catch (ex: unknown) {
       if (ex instanceof GuestEngine.ThrowCompletion)
         return ex;
-      return GuestEngine.Throw(
-        "Error", "Raw", "HostDefinedError: " + String(ex)
-      );
+      return GuestEngine.Throw.Error("HostDefinedError: " + String(ex));
     }
   }
 
   const builtInName = GuestEngine.Value(name);
 
-  const builtInCallback = GuestEngine.CreateBuiltinFunction(builtInConverter, argumentsLength, builtInName, []);
+  const builtInCallback = GuestEngine.CreateBuiltinFunction.from(builtInConverter, argumentsLength, builtInName);
   yield * GuestEngine.CreateDataProperty(realm.GlobalObject, builtInName, builtInCallback);
 }

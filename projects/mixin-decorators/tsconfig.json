@@ -8,8 +8,10 @@
     "sourceMap": true,
     "declaration": true,
 
-    "baseUrl": ".",
-    "outDir": "dist"
+    "outDir": "dist",
+    "types": [
+      "jasmine"
+    ]
   },
 
   "include": [

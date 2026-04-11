@@ -1,5 +1,7 @@
 # Reference tracking tools
 
+# TODO: How can people _use_ this, now that it works?
+
 MDN states the question of whether an object has _zero_ strong references to it, and is subject to garbage collection, is [undecidable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_management#release_when_the_memory_is_not_needed_anymore).  I have struggled with this assertion, before realizing "is this object unreachable?" isn't really the question I'm trying to answer.  The question I seek to resolve is "Is this object unreachable _from this finite set of known objects_?".
 
 That's what this library is about: searching a tree of references to see what paths there are to a target value from another value.  Or, from a larger perspective, _is my code holding strong references it shouldn't be?_

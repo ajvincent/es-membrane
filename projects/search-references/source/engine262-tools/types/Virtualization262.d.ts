@@ -2,7 +2,7 @@ import type {
   Evaluator,
   ManagedRealm,
   PromiseObjectValue,
-} from "@engine262/engine262";
+} from "@magic-works/engine262";
 
 export interface GuestRealmInputs {
   readonly startingSpecifier: string;

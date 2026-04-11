@@ -7,14 +7,14 @@ import {
 } from "./childProcess.js";
 
 import {
-  monorepoRoot,
+  projectRoot,
 } from "./constants.js";
 
 import {
   overwriteFileIfDifferent,
 } from "./overwriteFileIfDifferent.js";
 
-const TSC = path.resolve(monorepoRoot, "node_modules/typescript/bin/tsc");
+const TSC = path.resolve(projectRoot, "node_modules/typescript/bin/tsc");
 
 export async function InvokeTSC(
   pathToTSConfig: string,
