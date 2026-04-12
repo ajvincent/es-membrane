@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "lib": ["ES2024"],
+    "lib": ["ES2024", "ESNext.Iterator"],
     "module": "NodeNext",
-    "target": "ES2024",
-    "moduleResolution": "NodeNext",
+    "target": "es2024",
+    "moduleResolution": "nodenext",
     "strict": true,
     "sourceMap": true,
     "declaration": true,

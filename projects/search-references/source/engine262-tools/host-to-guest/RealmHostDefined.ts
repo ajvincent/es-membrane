@@ -33,7 +33,7 @@ export class RealmHostDefined {
   ): void
   {
     this.#pendingHostPromises.add(p);
-    p.finally(() => this.#pendingHostPromises.delete(p));
+    void p.finally(() => this.#pendingHostPromises.delete(p));
   }
 
   public hasPendingPromises(): boolean {

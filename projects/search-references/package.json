@@ -36,7 +36,7 @@
     "build": "npm run clean && node ../../node_modules/gulp/bin/gulp.js",
     "debug": "npm run clean && node --inspect-brk ../../node_modules/gulp/bin/gulp.js",
     "tasks": "npm run clean && node ../../node_modules/gulp/bin/gulp.js --tasks",
-    "is-repo-clean": "node --no-experimental-require-module ./gulp-utilities/assertRepoIsClean.js"
+    "is-repo-clean": "node ./gulp-utilities/assertRepoIsClean.js"
   },
   "author": "Alexander J. Vincent <ajvincent@gmail.com>",
   "license": "ISC",
@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@dagrejs/graphlib": "^2.2.4",
-    "@magic-works/engine262": "^0.0.1-b249d351e89be2efdb59fecbc291d7aca6fd6e4c",
+    "@magic-works/engine262": "^0.0.1-941d619dbc7464602f91d811b1b3ce61e372cdfa",
     "import-meta-resolve": "^4.1.0"
   }
 }

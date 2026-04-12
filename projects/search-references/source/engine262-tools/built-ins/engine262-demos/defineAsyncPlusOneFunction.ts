@@ -32,7 +32,7 @@ export function * defineAsyncPlusOneFunction(
 
       const [incomingNumber] = guestArguments;
       if (incomingNumber?.type !== "Number")
-        throw GuestEngine.Throw("TypeError", "Raw", `incomingNumber is not a number`);
+        throw GuestEngine.Throw.TypeError(`incomingNumber is not a number`);
 
       const guestPromise: GuestEngine.PromiseObject = convertHostPromiseToGuestPromise<number, undefined>(
         realm, Promise.resolve(incomingNumber.numberValue() + 1)

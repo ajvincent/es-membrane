@@ -184,7 +184,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
     {
       const callerContext = GuestEngine.surroundingAgent.executionContextStack[2];
       if ("HostDefined" in callerContext.ScriptOrModule)
-        this.sourceSpecifier = callerContext.ScriptOrModule.HostDefined.specifier ?? "";
+        this.sourceSpecifier = callerContext.ScriptOrModule.HostDefined!.specifier ?? "";
       else
         this.sourceSpecifier = "";
       this.lineNumber = callerContext.callSite.lineNumber ?? NaN;
@@ -468,7 +468,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
           continue;
 
         if (childOrCompletion instanceof GuestEngine.NormalCompletion)
-          childGuestValue = childOrCompletion.Value;
+          childGuestValue = childOrCompletion.Value as GuestEngine.Value;
         else
           childGuestValue = childOrCompletion;
         isGetter = true;
@@ -580,7 +580,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
   ): GuestEngine.Evaluator<void>
   {
     if (GuestEngine.IsConstructor(guestObject)) {
-      const kind = Reflect.get(guestObject, "ConstructorKind");
+      const kind = Reflect.get(guestObject, "ConstructorKind") as "base" | "derived";
       if (kind === "derived") {
         const proto = Reflect.get(guestObject, "Prototype");
         if (proto.type !== "Null" && this.#intrinsics.has(proto) === false) {
@@ -664,24 +664,14 @@ export class GraphBuilder implements InstanceGetterDefinitions
       yield* this.#addInternalSlotIfList(guestObject, "HostCapturedValues");
     }
 
-    if (internalSlots.has("UnderlyingIterator")) {
-      const UnderlyingRecord = Reflect.get(guestObject, "UnderlyingIterator") as GuestEngine.IteratorRecord;
-      const guestRecord = GuestEngine.OrdinaryObjectCreate.from(
-        UnderlyingRecord as unknown as Record<string, GuestEngine.Value>
-      );
-      yield* this.#defineGraphNode(
-        guestRecord, false, `internal slot object: UnderlyingIterator`
-      );
-      const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
-      this.#guestObjectGraph.defineInternalSlot(
-        guestObject, `[[UnderlyingIterator]]`, guestRecord, true, edgeRelationship
-      );
+    if (internalSlots.has("UnderlyingIterators")) {
+      yield* this.#addInternalUnderlyingIterators(guestObject);
     }
 
     if (guestObject.ConstructedBy?.length > 0) {
       yield* this.#addInternalSlotIfList(guestObject, "ConstructedBy");
       yield* this.#instanceGetterTracking.addInstance(
-        guestObject, guestObject.ConstructedBy[guestObject.ConstructedBy.length - 1]!
+        guestObject, guestObject.ConstructedBy[guestObject.ConstructedBy.length - 1]
       );
     }
   }
@@ -741,6 +731,21 @@ export class GraphBuilder implements InstanceGetterDefinitions
     yield* this.#defineGraphNode(guestArray, false, "internal slot:" + slotName);
     const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
     this.#guestObjectGraph.defineInternalSlot(promiseObject, `[[${slotName}]]`, guestArray, true, edgeRelationship);
+  }
+
+  * #addInternalUnderlyingIterators(
+    parentObject: GuestEngine.ObjectValue,
+  ): GuestEngine.Evaluator<void>
+  {
+    const records = Reflect.get(parentObject, "UnderlyingIterators") as GuestEngine.IteratorRecord[];
+    if (records === undefined)
+      return;
+    const iterators = records.map(r => r.Iterator).filter(Boolean);
+
+    const guestArray: GuestEngine.ObjectValue = GuestEngine.CreateArrayFromList(iterators);
+    yield* this.#defineGraphNode(guestArray, false, "internal slot: UnderlyingIterators");
+    const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.InternalSlot);
+    this.#guestObjectGraph.defineInternalSlot(parentObject, `[[UnderlyingIterators]]`, guestArray, true, edgeRelationship);
   }
 
   * #addInternalFinalizationCell(

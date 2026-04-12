@@ -22,7 +22,7 @@ export class SpecGuestRealmInputs implements GuestRealmInputsWithBuiltins {
 
   constructor(
     absolutePathToFile: string,
-    defineBuiltIns?: ((realm: GuestEngine.ManagedRealm) => GuestEngine.Evaluator<void>) | undefined
+    defineBuiltIns?: ((realm: GuestEngine.ManagedRealm) => GuestEngine.Evaluator<void>)
   )
   {
     this.startingSpecifier = pathToFileURL(absolutePathToFile).href;

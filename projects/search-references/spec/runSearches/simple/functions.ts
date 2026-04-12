@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 //#region preamble
 import graphlib from "@dagrejs/graphlib";
 

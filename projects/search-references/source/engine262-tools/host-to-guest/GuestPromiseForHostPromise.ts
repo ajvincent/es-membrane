@@ -22,13 +22,11 @@ export function convertHostPromiseToGuestPromise<
   const { HostDefined } = realm;
   GuestEngine.Assert(HostDefined instanceof RealmHostDefined);
 
-  const { Promise, Resolve, Reject } = guestPromiseCompletion.Value;
-  GuestEngine.Assert(Promise.type === "Object");
-  GuestEngine.Assert(Resolve.type === "Object");
-  GuestEngine.Assert(Reject.type === "Object");
-  const guestResolver = Resolve as GuestEngine.PromiseResolvingFunctionObject;
-  const guestRejecter = Reject as GuestEngine.PromiseResolvingFunctionObject;
-  const guestPromise = Promise as GuestEngine.PromiseObject;
+  const {
+    Promise: guestPromise,
+    Resolve: guestResolver,
+    Reject: guestRejecter
+  } = guestPromiseCompletion.Value as GuestEngine.PromiseCapabilityRecord;
 
   hostPromise.then(
     value => guestResolver.Call(guestPromise, [GuestEngine.Value(value)]),

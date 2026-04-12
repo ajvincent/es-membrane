@@ -13,7 +13,7 @@ export function * defineBuiltInFunction(
 {
   const argumentsLength = 1;
   function * builtInConverter(
-    guestArguments: readonly (GuestEngine.Value | undefined)[],
+    guestArguments: readonly GuestEngine.Value[],
     thisAndNewValue: { thisValue: GuestEngine.Value, NewTarget: GuestEngine.Value }
   ): GuestEngine.ValueEvaluator<GuestEngine.Value>
   {
@@ -29,6 +29,8 @@ export function * defineBuiltInFunction(
 
   const builtInName = GuestEngine.Value(name);
 
-  const builtInCallback = GuestEngine.CreateBuiltinFunction.from(builtInConverter, argumentsLength, builtInName);
+  const builtInCallback = GuestEngine.CreateBuiltinFunction(
+    builtInConverter as GuestEngine.NativeSteps, argumentsLength, builtInName, []
+  );
   yield * GuestEngine.CreateDataProperty(realm.GlobalObject, builtInName, builtInCallback);
 }

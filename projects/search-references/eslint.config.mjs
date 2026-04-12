@@ -19,6 +19,22 @@ export default defineConfig(
       files: [
         "**/*.ts"
       ]
+    },
+    {
+      rules: {
+        "@typescript-eslint/only-throw-error": [
+          "error",
+          {
+            "allow": [
+              {
+                "from": "package",
+                "name": "ThrowCompletion",
+                "package": "@magic-works/engine262"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 );

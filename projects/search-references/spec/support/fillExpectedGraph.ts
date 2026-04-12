@@ -272,7 +272,7 @@ export function addSpecifierAndLine(
   classLineNumber: number,
 ): void
 {
-  const node = graph.node(nodeId);
+  const node = graph.node(nodeId) as Record<"metadata", GraphObjectMetadata>;
   node.metadata.classSpecifier = "virtual://home/reference-spec/" + classSpecifier;
   node.metadata.classLineNumber = classLineNumber;
 }

@@ -24,6 +24,6 @@
     "typescript-eslint": "^8.58.1"
   },
   "dependencies": {
-    "which": "^5.0.0"
+    "which": "^6.0.1"
   }
 }

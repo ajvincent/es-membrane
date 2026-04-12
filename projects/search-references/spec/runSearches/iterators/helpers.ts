@@ -10,7 +10,6 @@ import {
   addArrayIndexEdge,
   addInternalSlotEdge,
   createExpectedGraph,
-  addPropertyNameEdge,
 } from "../../support/fillExpectedGraph.js";
 
 import {
@@ -27,29 +26,29 @@ describe("Iterator searches, with helpers:", () => {
   const iterator = enclosedArray.values();
   const outerIterator = {};
   const underlying = {};
-  const nextValue = {};
 
   const [ ExpectedObjectGraph ] = createExpectedGraph(
     target, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object,
     outerIterator, BuiltInJSTypeName.IteratorHelper, BuiltInJSTypeName.IteratorHelper
   );
 
-  addObjectGraphNode(ExpectedObjectGraph, underlying, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
-  addInternalSlotEdge(ExpectedObjectGraph, outerIterator, "[[UnderlyingIterator]]", underlying, true);
+  // object:3
+  addObjectGraphNode(ExpectedObjectGraph, underlying, BuiltInJSTypeName.Array, BuiltInJSTypeName.Array);
+  addInternalSlotEdge(ExpectedObjectGraph, outerIterator, "[[UnderlyingIterators]]", underlying, true);
 
+  // object:4
   addObjectGraphNode(ExpectedObjectGraph, iterator, BuiltInJSTypeName.ArrayIterator, BuiltInJSTypeName.ArrayIterator);
-  addPropertyNameEdge(ExpectedObjectGraph, underlying, "Iterator", iterator, false);
+  addArrayIndexEdge(ExpectedObjectGraph, underlying, 0, iterator, false);
 
-  // this will not be serialized, so we don't care
-  addObjectGraphNode(ExpectedObjectGraph, nextValue, BuiltInJSTypeName.Function, BuiltInJSTypeName.Function);
-  addPropertyNameEdge(ExpectedObjectGraph, underlying, "NextValue", nextValue, false);
-
+  // object:5
   addObjectGraphNode(ExpectedObjectGraph, hostCapturedValues, BuiltInJSTypeName.Array, BuiltInJSTypeName.Array);
   addInternalSlotEdge(ExpectedObjectGraph, iterator, "[[HostCapturedValues]]", hostCapturedValues, true);
 
+  // object:6
   addObjectGraphNode(ExpectedObjectGraph, enclosedArray, BuiltInJSTypeName.Array, BuiltInJSTypeName.Array);
   addArrayIndexEdge(ExpectedObjectGraph, hostCapturedValues, 0, enclosedArray, false);
 
+  // object:7
   addObjectGraphNode(ExpectedObjectGraph, firstValue, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);
   addArrayIndexEdge(ExpectedObjectGraph, enclosedArray, 0, firstValue, false);
 

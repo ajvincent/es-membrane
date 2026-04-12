@@ -23,7 +23,7 @@ import {
 } from "./HostPromiseForGuestPromise.js";
 */
 
-export async function runInRealm(
+export function runInRealm(
   inputs: GuestRealmInputsWithBuiltins
 ): Promise<GuestRealmOutputs>
 {
@@ -74,7 +74,7 @@ export async function runInRealm(
   });
 
   //await realmDriver.moduleCompleted;
-  return realm.scope(() => realmDriver.finalizeResults());
+  return Promise.resolve(realm.scope(() => realmDriver.finalizeResults()));
 }
 
 export class RealmDriver {

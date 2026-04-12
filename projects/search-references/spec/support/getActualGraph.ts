@@ -68,10 +68,10 @@ function canonicalizeSpecifiers(
 ): void
 {
   for (const nodeId of graph.nodes()) {
-    const node = graph.node(nodeId);
+    const node = graph.node(nodeId) as GraphNodeWithMetadata<GraphObjectMetadata>;
     if (!node)
       continue;
-    const { metadata } = node as GraphNodeWithMetadata<GraphObjectMetadata>;
+    const { metadata } = node;
 
     if (metadata?.classSpecifier) {
       metadata.classSpecifier = metadata.classSpecifier.replace(
