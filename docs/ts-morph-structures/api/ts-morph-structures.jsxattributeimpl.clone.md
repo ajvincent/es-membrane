@@ -43,6 +43,7 @@ OptionalKind&lt;JsxAttributeStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [JsxAttributeImpl](./ts-morph-structures.jsxattributeimpl.md)

@@ -43,6 +43,7 @@ other
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ConditionalTypeStructureImpl](./ts-morph-structures.conditionaltypestructureimpl.md)

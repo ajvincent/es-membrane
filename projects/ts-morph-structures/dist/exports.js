@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { CodeBlockWriter, StructureKind, SyntaxKind, Structure, forEachStructureChild, Node, ConstructorTypeNode, ModuleKind, ScriptTarget, ModuleResolutionKind, Project, Writers } from 'ts-morph';
+import { CodeBlockWriter, StructureKind, SyntaxKind, Structure, forEachStructureChild, Node, ConstructorTypeNode, ModuleResolutionKind, ScriptTarget, ModuleKind, Project, Writers } from 'ts-morph';
 import path from 'path';
 import MultiMixinBuilder from 'mixin-decorators';
 
@@ -4888,7 +4888,7 @@ class ClassFieldStatementsMap {
         if (a === this.FIELD_HEAD_SUPER_CALL || b === this.FIELD_TAIL_FINAL_RETURN)
             return -1;
         if (a === this.FIELD_TAIL_FINAL_RETURN || b === this.FIELD_HEAD_SUPER_CALL)
-            return +1;
+            return 1;
         return a.localeCompare(b);
     }
     #map = new Map();
@@ -5706,14 +5706,14 @@ class MemberedTypeToClass {
         if (a.isGroupStatic && !b.isGroupStatic)
             return -1;
         if (b.isGroupStatic && !a.isGroupStatic)
-            return +1;
+            return 1;
         let result = a.statementGroupKey.localeCompare(b.statementGroupKey);
         if (result)
             return result;
         if (a.isFieldStatic && !b.isFieldStatic)
             return -1;
         if (b.isFieldStatic && !a.isFieldStatic)
-            return +1;
+            return 1;
         result = ClassFieldStatementsMap.fieldComparator(a.fieldKey, b.fieldKey);
         return result;
     }

@@ -243,3 +243,4 @@ StructureKind.Class
 
 </td></tr>
 </tbody></table>
+

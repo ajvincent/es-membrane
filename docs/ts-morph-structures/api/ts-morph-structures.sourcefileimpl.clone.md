@@ -43,6 +43,7 @@ OptionalKind&lt;SourceFileStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [SourceFileImpl](./ts-morph-structures.sourcefileimpl.md)

@@ -43,6 +43,7 @@ other
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [MappedTypeStructureImpl](./ts-morph-structures.mappedtypestructureimpl.md)

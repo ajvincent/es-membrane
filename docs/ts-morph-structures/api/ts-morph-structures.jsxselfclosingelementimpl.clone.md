@@ -43,6 +43,7 @@ OptionalKind&lt;JsxSelfClosingElementStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [JsxSelfClosingElementImpl](./ts-morph-structures.jsxselfclosingelementimpl.md)

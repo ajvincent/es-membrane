@@ -95,6 +95,7 @@ the expected structure kind to retrieve.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 RootStructureWithConvertFailures&lt;TKind&gt;

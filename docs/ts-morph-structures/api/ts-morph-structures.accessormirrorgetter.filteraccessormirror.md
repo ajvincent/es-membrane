@@ -45,6 +45,7 @@ Describing the getter or setter to implement. `statementGroupKey` will be `Class
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 boolean

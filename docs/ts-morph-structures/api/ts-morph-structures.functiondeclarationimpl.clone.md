@@ -43,6 +43,7 @@ OptionalKind&lt;FunctionDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [FunctionDeclarationImpl](./ts-morph-structures.functiondeclarationimpl.md)

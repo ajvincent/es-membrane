@@ -46,9 +46,9 @@ const targetDir = cleanup.tempDir;
   await fs.cp(path.join(projectDir, "node_modules"), path.join(targetDir, "node_modules"), { recursive: true });
 }
 
-const npm = await which("npm");
-
 it("Driver generates a valid set of classes", async () => {
+  const npm = await which("npm");
+
   const DefaultMapModule = pathToModule(stageDir, "fixtures/stage_utilities/DefaultMap.ts");
   const DefaultMapSourceFile = getTS_SourceFile(stageDir, "fixtures/stage_utilities/DefaultMap.ts");
   const DefaultMapStructure = getTypeAugmentedStructure(

@@ -53,3 +53,4 @@ StructureKind.ShorthandPropertyAssignment
 
 </td></tr>
 </tbody></table>
+

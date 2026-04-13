@@ -43,6 +43,7 @@ OptionalKind&lt;ImportDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ImportDeclarationImpl](./ts-morph-structures.importdeclarationimpl.md)

@@ -43,6 +43,7 @@ OptionalKind&lt;SpreadAssignmentStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [SpreadAssignmentImpl](./ts-morph-structures.spreadassignmentimpl.md)

@@ -43,6 +43,7 @@ other
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [IntersectionTypeStructureImpl](./ts-morph-structures.intersectiontypestructureimpl.md)

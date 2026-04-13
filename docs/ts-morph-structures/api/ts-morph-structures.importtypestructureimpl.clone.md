@@ -43,6 +43,7 @@ other
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ImportTypeStructureImpl](./ts-morph-structures.importtypestructureimpl.md)

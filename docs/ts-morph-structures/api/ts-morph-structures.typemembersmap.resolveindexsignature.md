@@ -65,6 +65,7 @@ the names to replace the signature's key with.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [MethodSignatureImpl](./ts-morph-structures.methodsignatureimpl.md)<!-- -->\[\] \| [PropertySignatureImpl](./ts-morph-structures.propertysignatureimpl.md)<!-- -->\[\]

@@ -79,6 +79,7 @@ _(Optional)_ for defining which type member a class member comes from.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [NamedClassMemberImpl](./ts-morph-structures.namedclassmemberimpl.md)<!-- -->\[\]

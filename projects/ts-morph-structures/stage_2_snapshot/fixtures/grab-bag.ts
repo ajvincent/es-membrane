@@ -25,8 +25,7 @@ interface GettersAndSetters {
   set foo(value: string);
 }
 
-// eslint-disable-next-line @typescript-eslint/prefer-namespace-keyword, @typescript-eslint/no-namespace
-module ThisIsAModule {
+namespace ThisIsAModule {
   export const x = 3;
 }
 void(ThisIsAModule);

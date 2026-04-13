@@ -45,3 +45,4 @@ Partial&lt;[FunctionTypeContext](./ts-morph-structures.functiontypecontext.md)<!
 
 </td></tr>
 </tbody></table>
+

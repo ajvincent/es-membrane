@@ -23,8 +23,8 @@ async function eslint(): Promise<void> {
   await runESLint(path.join(projectDir, "stage_2_snapshot"), [
     "Gulpfile.ts",
     "build/**/*.ts",
-    // "fixtures/**/*.ts"
-    "snapshot/**/*.ts",
+    // "fixtures/**/*.ts",
+    "snapshot/source/*.ts",
     "spec-snapshot/**/*.ts",
   ]);
 }

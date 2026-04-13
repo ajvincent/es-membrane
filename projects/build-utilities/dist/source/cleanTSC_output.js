@@ -11,7 +11,7 @@ async function getDescendantFiles(projectRoot, topDir) {
         withFileTypes: true,
         recursive: true,
     });
-    return descendants.filter(isTSFile).map(d => path.join(d.path, d.name));
+    return descendants.filter(isTSFile).map(d => path.join(d.parentPath, d.name));
 }
 async function getTopDirFiles(projectRoot) {
     const topDirEntries = await fs.readdir(projectRoot, {

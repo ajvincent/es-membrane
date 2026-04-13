@@ -43,6 +43,7 @@ OptionalKind&lt;ConstructSignatureDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ConstructSignatureDeclarationImpl](./ts-morph-structures.constructsignaturedeclarationimpl.md)

@@ -47,6 +47,7 @@ the class members to add.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 void

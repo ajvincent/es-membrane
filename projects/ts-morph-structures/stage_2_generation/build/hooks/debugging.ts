@@ -133,7 +133,7 @@ export function replaceWriterWithString
 {
   if (typeof value === "function") {
     const writer = new CodeBlockWriter();
-    value(writer);
+    (value as (writer: CodeBlockWriter) => void)(writer);
     return writer.toString();
   }
 

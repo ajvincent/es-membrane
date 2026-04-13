@@ -19,7 +19,8 @@
     },
 
     "types": [
-      "jasmine"
+      "jasmine",
+      "node"
     ]
   },
 

@@ -43,6 +43,7 @@ OptionalKind&lt;MethodSignatureStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [MethodSignatureImpl](./ts-morph-structures.methodsignatureimpl.md)

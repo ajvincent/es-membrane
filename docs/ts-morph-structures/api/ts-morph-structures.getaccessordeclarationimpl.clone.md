@@ -43,6 +43,7 @@ OptionalKind&lt;GetAccessorDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md)

@@ -45,6 +45,7 @@ The membered statement key.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 boolean

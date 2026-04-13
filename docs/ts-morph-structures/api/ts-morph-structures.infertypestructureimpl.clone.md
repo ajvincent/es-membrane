@@ -43,6 +43,7 @@ other
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [InferTypeStructureImpl](./ts-morph-structures.infertypestructureimpl.md)

@@ -47,6 +47,7 @@ the membered object.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [TypeMembersMap](./ts-morph-structures.typemembersmap.md)

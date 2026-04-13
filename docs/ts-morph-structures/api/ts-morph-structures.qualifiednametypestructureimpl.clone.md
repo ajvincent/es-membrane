@@ -43,6 +43,7 @@ other
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [QualifiedNameTypeStructureImpl](./ts-morph-structures.qualifiednametypestructureimpl.md)

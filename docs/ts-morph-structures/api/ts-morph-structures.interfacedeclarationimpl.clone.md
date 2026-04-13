@@ -43,6 +43,7 @@ OptionalKind&lt;InterfaceDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [InterfaceDeclarationImpl](./ts-morph-structures.interfacedeclarationimpl.md)

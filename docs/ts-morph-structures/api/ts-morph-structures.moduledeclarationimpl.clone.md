@@ -43,6 +43,7 @@ OptionalKind&lt;ModuleDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ModuleDeclarationImpl](./ts-morph-structures.moduledeclarationimpl.md)

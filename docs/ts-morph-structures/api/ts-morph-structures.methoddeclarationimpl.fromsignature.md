@@ -57,6 +57,7 @@ signature
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [MethodDeclarationImpl](./ts-morph-structures.methoddeclarationimpl.md)

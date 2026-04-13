@@ -43,6 +43,7 @@ OptionalKind&lt;ExportSpecifierStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ExportSpecifierImpl](./ts-morph-structures.exportspecifierimpl.md)

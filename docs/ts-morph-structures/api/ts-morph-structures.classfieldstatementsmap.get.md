@@ -63,6 +63,7 @@ The statement group owning the statements.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ClassFieldStatement](./ts-morph-structures.classfieldstatement.md)<!-- -->\[\] \| undefined

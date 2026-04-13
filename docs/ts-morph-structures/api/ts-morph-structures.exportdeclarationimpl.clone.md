@@ -43,6 +43,7 @@ OptionalKind&lt;ExportDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ExportDeclarationImpl](./ts-morph-structures.exportdeclarationimpl.md)

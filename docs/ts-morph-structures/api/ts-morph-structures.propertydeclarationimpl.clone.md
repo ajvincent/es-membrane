@@ -43,6 +43,7 @@ OptionalKind&lt;PropertyDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [PropertyDeclarationImpl](./ts-morph-structures.propertydeclarationimpl.md)

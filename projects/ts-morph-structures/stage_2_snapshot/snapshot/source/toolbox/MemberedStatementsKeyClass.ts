@@ -1,9 +1,7 @@
 import type { MemberedStatementsKey, TypeMemberImpl } from "../exports.js";
 
 /** @internal */
-export default class MemberedStatementsKeyClass
-  implements MemberedStatementsKey
-{
+export default class MemberedStatementsKeyClass implements MemberedStatementsKey {
   readonly fieldKey: string;
   readonly statementGroupKey: string;
   readonly purpose: string;

@@ -43,6 +43,7 @@ OptionalKind&lt;TypeAliasDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [TypeAliasDeclarationImpl](./ts-morph-structures.typealiasdeclarationimpl.md)

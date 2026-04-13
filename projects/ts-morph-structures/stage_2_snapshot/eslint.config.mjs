@@ -1,34 +1,24 @@
-// @ts-check
-
 import eslint from '@eslint/js';
+import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 
-export default tseslint.config(
+export default defineConfig(
   eslint.configs.recommended,
-  ...tseslint.configs.recommended,
-  {
-    "rules": {
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        {
-          "args": "all",
-          "argsIgnorePattern": "all",
-          "caughtErrors": "all",
-          "caughtErrorsIgnorePattern": "all",
-          "destructuredArrayIgnorePattern": "all",
-          "varsIgnorePattern": "Key$",
-          "ignoreRestSiblings": true
-        },
+  tseslint.configs.recommendedTypeChecked,
+  //tseslint.configs.stylisticTypeChecked,
+  [
+    {
+      languageOptions: {
+        parserOptions: {
+          projectService: {
+            allowDefaultProject: [],
+            defaultProject: "./tsconfig.json",
+          }
+        }
+      },
+      files: [
+        "**/*.ts"
       ],
-    },
-  },
-  {
-    "files": ["snapshot/dist/exports.d.ts"],
-    "rules": {
-      // #private
-      "no-unused-private-class-members": [
-        "off",
-      ]
     }
-  }
+  ]
 );

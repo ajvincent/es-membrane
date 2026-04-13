@@ -45,6 +45,7 @@ number
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [NumberTypeStructureImpl](./ts-morph-structures.numbertypestructureimpl.md)

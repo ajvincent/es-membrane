@@ -43,6 +43,7 @@ other
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [TypeArgumentedTypeStructureImpl](./ts-morph-structures.typeargumentedtypestructureimpl.md)
