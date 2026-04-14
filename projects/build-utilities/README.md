@@ -23,3 +23,7 @@ This is a collection of helper tools which I've crafted over the years to assist
 - `runPrettify` runs Prettier programatically.  I use it on generated code files, to make them readable.
 - `synchronizeDirectories` (currently unused) is to ensure a target directory has exactly the same shape as a source directory, without destroying and copying it.  Maybe an existing `rsync` package exists for this.
 - `tempDirWithCleanup` creates a temporary directory, a resolve function to start the cleanup, and a `Promise` to await for that cleanup.
+
+## Debugging tip
+
+The `recursiveGulp` function takes a `DEBUG_DIR` environment variable, so that you can specify a directory for which NodeJS should invite debugging.

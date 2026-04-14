@@ -1,5 +1,5 @@
 import path from "node:path";
-import { chdir, cwd, } from "node:process";
+import { chdir, cwd, env, } from "node:process";
 import { asyncFork } from "./childProcess.js";
 import { monorepoRoot, } from "./constants.js";
 import { InvokeTSC_excludeDirs, } from "./InvokeTSC.js";
@@ -27,18 +27,21 @@ async function invokeChildGulpFile(projectRoot, localPathToDir) {
     await pushd();
     try {
         await InvokeTSC_excludeDirs(projectRoot);
-        await runChildGulpfile();
+        await runChildGulpfile(localPathToDir);
     }
     finally {
         await popd();
     }
 }
-async function runChildGulpfile() {
+async function runChildGulpfile(localPathToDir) {
     try {
-        await asyncFork(pathToGulp, [
+        const args = [
             "--no-experimental-require-module",
             "--expose-gc",
-        ], cwd());
+        ];
+        if (env.DEBUG_DIR === localPathToDir)
+            args.push("--inspect-brk");
+        await asyncFork(pathToGulp, args, cwd());
     }
     catch (code) {
         throw new Error(`Failed on "${pathToGulp}" with code ${code}`);

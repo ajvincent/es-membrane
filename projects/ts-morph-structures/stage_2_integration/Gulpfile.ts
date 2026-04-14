@@ -18,6 +18,7 @@ import doBundles from "./build/rollup/bundle.js";
 import runAPIExtractor from "./build/docs/runAPIExtractor.js";
 import applyDecoratorsForDocModel from "./build/docs/decoratorsInDocModel.js";
 import runAPIDocumenter from "./build/docs/runAPIDocumenter.js";
+import exportDist from "./build/exportDist.js";
 
 async function eslint(): Promise<void> {
   await runESLint(path.join(projectDir, "stage_2_integration"), [
@@ -35,4 +36,5 @@ export default series([
   runAPIExtractor,
   runAPIDocumenter,
   eslint,
+  exportDist,
 ]);
