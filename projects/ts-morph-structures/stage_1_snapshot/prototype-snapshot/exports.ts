@@ -55,6 +55,8 @@ export type {
   MethodDeclarationEnableFlags,
 } from "./structures/MethodDeclarationImpl.js";
 
+export { default as forEachAugmentedStructureChild } from "./toolbox/forEachAugmentedStructureChild.js";
+
 // #endregion Structure implementations
 
 // #region TypeStructure implementations

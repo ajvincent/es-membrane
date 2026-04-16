@@ -17,7 +17,12 @@ import StructureKindToSyntaxKindMap from "../generated/structureToSyntax.js";
 
 import {
   StructuresClassesMap
-} from "../exports.js"
+} from "../exports.js";
+
+import {
+  fixFunctionOverloads,
+  getOverloadIndex,
+} from "./adjustForOverloads.js";
 // #endregion preamble
 
 const knownSyntaxKinds = new Set<SyntaxKind>(StructureKindToSyntaxKindMap.values());
@@ -101,6 +106,8 @@ class StructureAndNodeData
     this.#collectDescendantNodes(this.#rootNode, "");
 
     this.#rootStructure = this.#rootNode.getStructure();
+    fixFunctionOverloads(this.#rootStructure);
+
     if (useTypeAwareStructures)
       this.#rootStructure = StructuresClassesMap.get(this.#rootStructure.kind)!.clone(this.#rootStructure);
 
@@ -223,9 +230,29 @@ class StructureAndNodeData
        *   ConstructorDeclarationOverloadStructure (overload 2)
        *
        * The hashes have to reflect this pattern.
+       *
+       * node.isOverload() lies to us for type definition files.
        */
-      if (hash && Node.isOverloadable(node) && node.isOverload()) {
-        hash += "/overload";
+      if (hash && Node.isOverloadable(node)) {
+        let overloadIndex = NaN;
+        if (
+          Node.isConstructorDeclaration(node) ||
+          Node.isMethodDeclaration(node) ||
+          Node.isFunctionDeclaration(node)
+        ) {
+          overloadIndex = getOverloadIndex(node);
+        } else {
+          assert(
+            false,
+            "what kind of node is this? " +
+              node.getStartLineNumber() +
+              ":" +
+              node.getStartLinePos(),
+          );
+        }
+        if (overloadIndex > -1) {
+          hash += "/overload:" + overloadIndex;
+        }
       }
     }
 

@@ -18,6 +18,7 @@ This is a collection of helper tools which I've crafted over the years to assist
   - `PromiseAllParallel`, taking an array of values and a mapper function to call `Promise.all()`
 - `readDirsDeep` generates a list of files and directories.  Maybe obsolete with `fsPromises.readdir` now supporting the `recursive` option
 - `recursiveGulp` runs `Gulp` in child directories (think recursive Makefile)
+  - The `DEBUG_DIR` environment variable allows you to debug a specific directory.
 - `runEslint` invokes eslint programatically
 - `runJasmine` invokes Jasmine test runners programatically
 - `runPrettify` runs Prettier programatically.  I use it on generated code files, to make them readable.
