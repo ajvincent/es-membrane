@@ -15,7 +15,7 @@ import {
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import TypeAccessors from "../base/TypeAccessors.js";
 
@@ -126,4 +126,4 @@ implements IndexSignatureDeclarationStructure
 }
 IndexSignatureDeclarationImpl satisfies CloneableStructure<IndexSignatureDeclarationStructure>;
 
-StructuresClassesMap.set(StructureKind.IndexSignature, IndexSignatureDeclarationImpl);
+StructureClassesMap.set(StructureKind.IndexSignature, IndexSignatureDeclarationImpl);

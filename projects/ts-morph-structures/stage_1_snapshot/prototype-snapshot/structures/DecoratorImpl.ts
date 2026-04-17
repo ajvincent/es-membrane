@@ -9,7 +9,7 @@ import {
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import {
   replaceWriterWithString,
@@ -87,4 +87,4 @@ implements DecoratorStructure
 }
 DecoratorImpl satisfies CloneableStructure<DecoratorStructure>;
 
-StructuresClassesMap.set(StructureKind.Decorator, DecoratorImpl);
+StructureClassesMap.set(StructureKind.Decorator, DecoratorImpl);

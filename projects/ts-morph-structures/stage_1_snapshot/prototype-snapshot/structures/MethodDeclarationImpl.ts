@@ -21,7 +21,7 @@ import {
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import {
   cloneArrayOrUndefined,
@@ -266,4 +266,4 @@ implements
 }
 MethodDeclarationImpl satisfies CloneableStructure<MethodDeclarationStructure>;
 
-StructuresClassesMap.set(StructureKind.Method, MethodDeclarationImpl);
+StructureClassesMap.set(StructureKind.Method, MethodDeclarationImpl);

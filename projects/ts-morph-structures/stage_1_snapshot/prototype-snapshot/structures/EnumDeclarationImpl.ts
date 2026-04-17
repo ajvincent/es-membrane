@@ -20,7 +20,7 @@ import StatementClassesMap from "../base/StatementClassesMap.js";
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -106,4 +106,4 @@ implements EnumDeclarationStructure
 EnumDeclarationImpl satisfies CloneableStructure<EnumDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.Enum, EnumDeclarationImpl);
-StructuresClassesMap.set(StructureKind.Enum, EnumDeclarationImpl);
+StructureClassesMap.set(StructureKind.Enum, EnumDeclarationImpl);

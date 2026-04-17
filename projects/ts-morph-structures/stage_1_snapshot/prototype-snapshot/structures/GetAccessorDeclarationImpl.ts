@@ -9,7 +9,7 @@ import {
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -122,4 +122,4 @@ implements GetAccessorDeclarationStructure
 }
 GetAccessorDeclarationImpl satisfies CloneableStructure<GetAccessorDeclarationStructure>;
 
-StructuresClassesMap.set(StructureKind.GetAccessor, GetAccessorDeclarationImpl);
+StructureClassesMap.set(StructureKind.GetAccessor, GetAccessorDeclarationImpl);

@@ -43,7 +43,7 @@ All ts-morph structure classes inherit from [`StructureBase`](./prototype-snapsh
 There are three class maps for this project:
 
 ```typescript
-const StructuresClassesMap = new Map<
+const StructureClassesMap = new Map<
   StructureKind,
   CloneableStructure<Structures> & Class<KindedStructure<StructureKind>>
 >;

@@ -8,7 +8,7 @@ import {
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -62,4 +62,4 @@ implements SourceFileStructure
 
 SourceFileImpl satisfies CloneableStructure<SourceFileStructure>;
 
-StructuresClassesMap.set(StructureKind.SourceFile, SourceFileImpl);
+StructureClassesMap.set(StructureKind.SourceFile, SourceFileImpl);

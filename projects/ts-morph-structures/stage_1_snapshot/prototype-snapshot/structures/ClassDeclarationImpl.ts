@@ -26,7 +26,7 @@ import StatementClassesMap from "../base/StatementClassesMap.js";
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import TypeAccessors from "../base/TypeAccessors.js";
 
@@ -227,4 +227,4 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
 ClassDeclarationImpl satisfies CloneableStructure<ClassDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.Class, ClassDeclarationImpl);
-StructuresClassesMap.set(StructureKind.Class, ClassDeclarationImpl);
+StructureClassesMap.set(StructureKind.Class, ClassDeclarationImpl);

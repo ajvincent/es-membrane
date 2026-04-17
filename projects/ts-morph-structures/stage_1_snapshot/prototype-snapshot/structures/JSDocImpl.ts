@@ -13,7 +13,7 @@ import {
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import type {
   CloneableStructure
@@ -74,4 +74,4 @@ implements JSDocStructure
 
 JSDocImpl satisfies CloneableStructure<JSDocStructure>;
 
-StructuresClassesMap.set(StructureKind.JSDoc, JSDocImpl);
+StructureClassesMap.set(StructureKind.JSDoc, JSDocImpl);

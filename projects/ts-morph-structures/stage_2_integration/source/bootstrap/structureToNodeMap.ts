@@ -145,6 +145,7 @@ class StructureAndNodeData
       this.#rootStructure = StructureClassesMap.get(this.#rootStructure.kind)!.clone(this.#rootStructure);
 
     this.#collectDescendantStructures(this.#rootStructure, "");
+
     if (hashNeedle) {
       this.#structureToHash.forEach((hash, structure) => {
         if (hash.includes(hashNeedle)) {
@@ -190,6 +191,7 @@ class StructureAndNodeData
   ): void =>
   {
     const kind: SyntaxKind = node.getKind();
+
     // Build the node hash, and register the node.
     if (StructureAndNodeData.#knownSyntaxKinds!.has(kind) && (this.#nodeToHash.has(node) === false)) {
       const localHash = this.#hashNodeLocal(node);

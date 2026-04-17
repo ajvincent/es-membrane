@@ -6,7 +6,7 @@ import {
 } from "ts-morph";
 
 import StructureBase from "../base/StructureBase.js";
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import type {
   CloneableStructure
@@ -48,4 +48,4 @@ implements ExportSpecifierStructure
 }
 ExportSpecifierImpl satisfies CloneableStructure<ExportSpecifierStructure>;
 
-StructuresClassesMap.set(StructureKind.ExportSpecifier, ExportSpecifierImpl);
+StructureClassesMap.set(StructureKind.ExportSpecifier, ExportSpecifierImpl);

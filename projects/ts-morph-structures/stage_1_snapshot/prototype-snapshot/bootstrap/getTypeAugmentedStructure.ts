@@ -3,9 +3,13 @@ import {
   Structures
 } from "ts-morph";
 
-import structureToNodeMap, {
-  type NodeWithStructures
+import {
+  structureToNodeMap
 } from "./structureToNodeMap.js";
+
+import type {
+  NodeWithStructures
+} from "./types/conversions.js";
 
 import buildTypesForStructures, {
   type BuildTypesForStructureFailures

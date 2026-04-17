@@ -13,7 +13,7 @@ import StructureBase from "../base/StructureBase.js";
 
 import StatementClassesMap from "../base/StatementClassesMap.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import type {
   stringOrWriterFunction
@@ -86,4 +86,4 @@ implements ImportDeclarationStructure
 ImportDeclarationImpl satisfies CloneableStructure<ImportDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.ImportDeclaration, ImportDeclarationImpl);
-StructuresClassesMap.set(StructureKind.ImportDeclaration, ImportDeclarationImpl);
+StructureClassesMap.set(StructureKind.ImportDeclaration, ImportDeclarationImpl);

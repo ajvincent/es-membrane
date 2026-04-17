@@ -44,7 +44,7 @@ import {
   UnionTypedStructureImpl,
   TemplateLiteralTypedStructureImpl,
   MemberedObjectTypeStructureImpl,
-  StructuresClassesMap,
+  StructureClassesMap,
   CallSignatureDeclarationImpl,
   ConstructSignatureDeclarationImpl,
   IndexSignatureDeclarationImpl,
@@ -59,7 +59,8 @@ import {
 
 import type {
   NodeWithStructures
-} from "./structureToNodeMap.js";
+} from "./types/conversions.js";
+
 import StructureBase from "../base/StructureBase.js";
 
 // #endregion preamble
@@ -622,7 +623,7 @@ function convertTypeLiteralNode(
     }
 
     if (!(childStructure instanceof StructureBase)) {
-      childStructure = StructuresClassesMap.get(childStructure.kind)!.clone(childStructure);
+      childStructure = StructureClassesMap.get(childStructure.kind)!.clone(childStructure);
     }
 
     switch (childStructure.kind) {

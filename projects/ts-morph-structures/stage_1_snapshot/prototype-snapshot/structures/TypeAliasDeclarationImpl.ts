@@ -12,7 +12,7 @@ import StatementClassesMap from "../base/StatementClassesMap.js";
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -121,4 +121,4 @@ implements TypeAliasDeclarationStructure
 TypeAliasDeclarationImpl satisfies CloneableStructure<TypeAliasDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.TypeAlias, TypeAliasDeclarationImpl);
-StructuresClassesMap.set(StructureKind.TypeAlias, TypeAliasDeclarationImpl);
+StructureClassesMap.set(StructureKind.TypeAlias, TypeAliasDeclarationImpl);

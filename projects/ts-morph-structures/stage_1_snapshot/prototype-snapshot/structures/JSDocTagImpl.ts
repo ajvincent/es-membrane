@@ -7,7 +7,7 @@ import {
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import type {
   CloneableStructure
@@ -52,4 +52,4 @@ implements JSDocTagStructure
 }
 JSDocTagImpl satisfies CloneableStructure<JSDocTagStructure>;
 
-StructuresClassesMap.set(StructureKind.JSDocTag, JSDocTagImpl);
+StructureClassesMap.set(StructureKind.JSDocTag, JSDocTagImpl);

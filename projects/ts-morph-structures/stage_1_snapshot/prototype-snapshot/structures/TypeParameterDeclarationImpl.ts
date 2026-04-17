@@ -15,7 +15,7 @@ import {
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import TypeAccessors from "../base/TypeAccessors.js";
 
@@ -229,4 +229,4 @@ implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
 }
 TypeParameterDeclarationImpl satisfies CloneableStructure<TypeParameterDeclarationStructure>;
 
-StructuresClassesMap.set(StructureKind.TypeParameter, TypeParameterDeclarationImpl);
+StructureClassesMap.set(StructureKind.TypeParameter, TypeParameterDeclarationImpl);

@@ -10,7 +10,7 @@ import {
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -161,4 +161,4 @@ implements PropertyDeclarationStructure
 }
 PropertyDeclarationImpl satisfies CloneableStructure<PropertyDeclarationStructure>;
 
-StructuresClassesMap.set(StructureKind.Property, PropertyDeclarationImpl);
+StructureClassesMap.set(StructureKind.Property, PropertyDeclarationImpl);

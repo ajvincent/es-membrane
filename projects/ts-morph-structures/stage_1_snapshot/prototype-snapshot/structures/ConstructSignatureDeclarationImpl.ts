@@ -14,7 +14,7 @@ import {
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -122,4 +122,4 @@ implements ConstructSignatureDeclarationStructure
 
 ConstructSignatureDeclarationImpl satisfies CloneableStructure<ConstructSignatureDeclarationStructure>;
 
-StructuresClassesMap.set(StructureKind.ConstructSignature, ConstructSignatureDeclarationImpl);
+StructureClassesMap.set(StructureKind.ConstructSignature, ConstructSignatureDeclarationImpl);

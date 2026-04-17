@@ -22,7 +22,10 @@ import {
   TypeStructures,
   TypedNodeTypeStructure,
 } from "../exports.js";
-import { NodeWithStructures } from "./structureToNodeMap.js";
+
+import type {
+  NodeWithStructures
+} from "./types/conversions.js";
 
 // #endregion preamble
 

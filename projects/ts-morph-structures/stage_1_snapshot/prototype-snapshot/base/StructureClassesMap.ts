@@ -12,9 +12,9 @@ import {
   CloneableStructure
 } from "../types/CloneableStructure.js";
 
-const StructuresClassesMap = new Map<
+const StructureClassesMap = new Map<
   StructureKind,
   CloneableStructure<Structures> & Class<KindedStructure<StructureKind>>
 >;
 
-export default StructuresClassesMap;
+export default StructureClassesMap;

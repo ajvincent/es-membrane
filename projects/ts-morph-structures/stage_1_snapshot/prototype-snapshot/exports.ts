@@ -40,7 +40,7 @@ export { default as TypeParameterDeclarationImpl } from "./structures/TypeParame
 export { default as VariableDeclarationImpl } from "./structures/VariableDeclarationImpl.js";
 export { default as VariableStatementImpl } from "./structures/VariableStatementImpl.js";
 
-export { default as StructuresClassesMap } from "./base/StructuresClassesMap.js";
+export { default as StructureClassesMap } from "./base/StructureClassesMap.js";
 
 export {
   TypeParameterConstraintMode
