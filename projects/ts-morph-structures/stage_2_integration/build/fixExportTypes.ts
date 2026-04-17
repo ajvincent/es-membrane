@@ -37,5 +37,5 @@ export async function fixExportTypes(): Promise<void>
 
   debugger;
   const { rootStructure, failures } = getTypeAugmentedStructure(sourceFile, parseConsole);
-  assert.equal(failures.length, 0, "unknown structure failures");
+  assert.deepStrictEqual(failures, [], "unknown structure failures");
 }

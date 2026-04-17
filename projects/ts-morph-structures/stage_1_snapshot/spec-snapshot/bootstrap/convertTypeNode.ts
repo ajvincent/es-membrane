@@ -1,9 +1,15 @@
+import assert from "node:assert/strict";
+
 import {
+  ClassDeclaration,
+  MethodDeclaration,
   ModuleKind,
   ModuleResolutionKind,
+  Node,
   Project,
   ProjectOptions,
   ScriptTarget,
+  ThisTypeNode,
   TypeNode,
   VariableDeclaration,
 } from "ts-morph";
@@ -51,6 +57,8 @@ describe("convertTypeNode generates correct type structures, with type", () => {
   }
   failCallback satisfies TypeNodeToTypeStructureConsole;
 
+  let inMemoryProject: Project;
+
   beforeAll(() => {
     failMessage = undefined;
     failNode = null;
@@ -66,8 +74,8 @@ describe("convertTypeNode generates correct type structures, with type", () => {
       useInMemoryFileSystem: true,
     };
 
-    const project = new Project(TSC_CONFIG);
-    const sourceFile = project.createSourceFile("file.ts", `
+    inMemoryProject = new Project(TSC_CONFIG);
+    const sourceFile = inMemoryProject.createSourceFile("file.ts", `
 const refSymbol = Symbol("reference symbol");
 enum NumberEnum {
   one = 1,
@@ -698,5 +706,22 @@ const A: string;
     if (typeArg.kind === TypeStructureKind.Literal) {
       expect(typeArg.stringValue).toBe("foo");
     }
+  });
+
+  it("`ThisTypeNode`", () => {
+    const sourceFile = inMemoryProject.createSourceFile("thisTypeTest.ts", `
+void class ThisTypeReference {
+  getThis(): this {
+    return this;
+  }
+}
+        `.trim() + "\n");
+    const classDeclaration: ClassDeclaration = sourceFile.getClassOrThrow("ThisTypeReference");
+    const getThisMethod: MethodDeclaration = classDeclaration.getMethodOrThrow("getThis");
+    const returnTypeNode: TypeNode = getThisMethod.getReturnTypeNodeOrThrow();
+
+    assert(Node.isThisTypeNode(returnTypeNode));
+    structure = convertTypeNode(returnTypeNode, failCallback, node => node.getStructure());
+    assert(structure);
   });
 });

@@ -64,6 +64,12 @@ function foo(x: number): void
   void(x);
 }
 
+void class ThisTypeReference {
+  getThis(): this {
+    return this;
+  }
+}
+
 export {
   NumberString,
   foo
