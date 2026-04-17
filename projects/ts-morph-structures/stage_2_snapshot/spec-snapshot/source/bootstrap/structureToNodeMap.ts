@@ -197,10 +197,9 @@ it("structureToNodeMap returns an accurate Map<Structure, Node>", () => {
           fixFunctionOverloads(expectedStructure);
       }
 
-      expect<Structures>(structure)
-        .withContext(
-          `with kind ${StructureKind[structure.kind]} at ${pathToModuleFile}#${sourceFile.getLineAndColumnAtPos(node.getPos()).line}`
-        ).toEqual(expectedStructure);
+      expect<Structures>(structure).withContext(
+        `with kind ${StructureKind[structure.kind]} at ${pathToModuleFile}#${sourceFile.getLineAndColumnAtPos(node.getPos()).line}`
+      ).toEqual(expectedStructure);
 
       remainingKeys.delete(structure.kind);
     });

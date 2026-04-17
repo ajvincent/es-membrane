@@ -2,22 +2,26 @@
 import assert from "node:assert/strict";
 
 import {
-  Structures,
+  type ClassDeclaration,
+  type FunctionDeclarationOverloadStructure,
+  type JSDocableNode,
+  type JSDoc,
+  type Structures,
   Node,
-  forEachStructureChild,
-  SyntaxKind,
   StructureKind,
-  ClassDeclaration,
-  JSDocableNode,
-  JSDoc,
-  FunctionDeclarationOverloadStructure,
+  SyntaxKind,
+  forEachStructureChild,
 } from "ts-morph";
 
 import StructureKindToSyntaxKindMap from "../generated/structureToSyntax.js";
 
 import {
-  StructuresClassesMap
+  StructureClassesMap
 } from "../exports.js";
+
+import type {
+  NodeWithStructures,
+} from "./types/conversions.js";
 
 import {
   fixFunctionOverloads,
@@ -25,25 +29,24 @@ import {
 } from "./adjustForOverloads.js";
 // #endregion preamble
 
-const knownSyntaxKinds = new Set<SyntaxKind>(StructureKindToSyntaxKindMap.values());
-
-export interface NodeWithStructures extends Node {
-  getStructure(): Structures;
-}
-
 /**
  * Get structures for a node and its descendants.
  * @param nodeWithStructures - The node.
+ * @param useTypeAwareStructures - true if we should use the StructureImpls.
+ * @param hashNeedle - A string to search for among hashes for nodes and structures.  Generates console logs.
  * @returns a map of structures to their original nodes.
+ * @internal
  */
-export default function structureToNodeMap(
+export function structureToNodeMap(
   nodeWithStructures: NodeWithStructures,
   useTypeAwareStructures: boolean,
-): Map<Structures, Node>
+  hashNeedle?: string
+): ReadonlyMap<Structures, Node>
 {
   return (new StructureAndNodeData(
     nodeWithStructures,
-    useTypeAwareStructures
+    useTypeAwareStructures,
+    hashNeedle
   )).structureToNodeMap;
 }
 
@@ -69,6 +72,8 @@ export default function structureToNodeMap(
  */
 class StructureAndNodeData
 {
+  static #knownSyntaxKinds?: ReadonlySet<SyntaxKind>;
+
   readonly structureToNodeMap = new Map<Structures, Node>;
 
   // #region private fields, and life-cycle.
@@ -99,19 +104,39 @@ class StructureAndNodeData
 
   constructor(
     nodeWithStructures: NodeWithStructures,
-    useTypeAwareStructures: boolean
+    useTypeAwareStructures: boolean,
+    hashNeedle?: string,
   )
   {
     this.#rootNode = nodeWithStructures;
+    if (!StructureAndNodeData.#knownSyntaxKinds) {
+      StructureAndNodeData.#knownSyntaxKinds = new Set<SyntaxKind>(StructureKindToSyntaxKindMap.values());
+    }
+
     this.#collectDescendantNodes(this.#rootNode, "");
+
+    if (hashNeedle) {
+      this.#nodeSetsByHash.forEach((nodeSet, hash) => {
+        if (hash.includes(hashNeedle))
+          console.log("nodeSet: ", hash, Array.from(nodeSet));
+      });
+    }
 
     this.#rootStructure = this.#rootNode.getStructure();
     fixFunctionOverloads(this.#rootStructure);
 
     if (useTypeAwareStructures)
-      this.#rootStructure = StructuresClassesMap.get(this.#rootStructure.kind)!.clone(this.#rootStructure);
+      this.#rootStructure = StructureClassesMap.get(this.#rootStructure.kind)!.clone(this.#rootStructure);
 
     this.#collectDescendantStructures(this.#rootStructure, "");
+
+    if (hashNeedle) {
+      this.#structureToHash.forEach((hash, structure) => {
+        if (hash.includes(hashNeedle)) {
+          console.log("structure hash: ", hash, structure);
+        }
+      })
+    }
 
     this.#unusedStructures.forEach(value => this.#mapStructureToNode(value));
     assert(this.#unusedStructures.size === 0, "we should've resolved every structure");
@@ -152,7 +177,7 @@ class StructureAndNodeData
     const kind: SyntaxKind = node.getKind();
 
     // Build the node hash, and register the node.
-    if (knownSyntaxKinds.has(kind) && (this.#nodeToHash.has(node) === false)) {
+    if (StructureAndNodeData.#knownSyntaxKinds!.has(kind) && (this.#nodeToHash.has(node) === false)) {
       const localHash = this.#hashNodeLocal(node);
       assert(localHash, "this.#hashNodeLocal() must return a non-empty string");
 
@@ -192,7 +217,7 @@ class StructureAndNodeData
    * @returns the hash part for this node.
    *
    * @remarks
-   * The current format is `${node.getKindName}:${node.getName()}(/overload)?`
+   * The current format is `${node.getKindName}:${node.getName()}(/overload:1)?`
    */
   #hashNodeLocal(
     node: Node
@@ -235,20 +260,10 @@ class StructureAndNodeData
        */
       if (hash && Node.isOverloadable(node)) {
         let overloadIndex = NaN;
-        if (
-          Node.isConstructorDeclaration(node) ||
-          Node.isMethodDeclaration(node) ||
-          Node.isFunctionDeclaration(node)
-        ) {
+        if (Node.isConstructorDeclaration(node) || Node.isMethodDeclaration(node) || Node.isFunctionDeclaration(node)) {
           overloadIndex = getOverloadIndex(node);
         } else {
-          assert(
-            false,
-            "what kind of node is this? " +
-              node.getStartLineNumber() +
-              ":" +
-              node.getStartLinePos(),
-          );
+          assert(false, "what kind of node is this? " + node.getStartLineNumber() + ":" + node.getStartLinePos());
         }
         if (overloadIndex > -1) {
           hash += "/overload:" + overloadIndex;
@@ -397,12 +412,12 @@ class StructureAndNodeData
       */
 
       let parentMsg = "";
+      const sourceFile = this.#rootNode!.getSourceFile();
       if (parentNode) {
-        const sourceFile = this.#rootNode!.getSourceFile();
-
-        parentMsg = `, parent at ${
-          JSON.stringify(sourceFile.getLineAndColumnAtPos(parentNode.getPos()))
-        }`;
+        const { line, column } = sourceFile.getLineAndColumnAtPos(parentNode.getPos());
+        parentMsg = `, parent at ${sourceFile.getFilePath()} line ${line} column ${column}`;
+      } else {
+        parentMsg = `, at ${sourceFile.getFilePath()}`;
       }
       assert(false,
         `Expected candidate node to exist, structureHash = "${
@@ -435,8 +450,9 @@ class StructureAndNodeData
   ): string
   {
     let parentHash = "";
+    let parentStructure: Structures | undefined;
     if (structure !== this.#rootStructure) {
-      const parentStructure = this.#structureToParent.get(structure)!;
+      parentStructure = this.#structureToParent.get(structure)!;
       const parentNode = this.structureToNodeMap.get(parentStructure)!;
       const parentHashTemp = this.#nodeToHash.get(parentNode);
       assert(parentHashTemp !== undefined, "must have a parent hash");
@@ -451,7 +467,11 @@ class StructureAndNodeData
       localKind = "VariableStatement";
 
     if (StructureKind[structure.kind].endsWith("Overload")) {
-      localKind = "overload";
+      assert(
+        parentStructure && "overloads" in parentStructure && Array.isArray(parentStructure.overloads),
+        "must find the overload index in the parent structure"
+      );
+      localKind = "overload:" + (parentStructure.overloads as Structures[]).indexOf(structure);
     }
 
     let hash: string = parentHash + "/" + localKind;

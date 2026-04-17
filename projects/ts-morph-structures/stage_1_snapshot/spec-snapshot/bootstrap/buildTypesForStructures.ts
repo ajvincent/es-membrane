@@ -9,10 +9,15 @@ import {
 } from "#stage_one/prototype-snapshot/exports.js";
 
 import buildTypesForStructures from "#stage_one/prototype-snapshot/bootstrap/buildTypesForStructures.js";
-import { NodeWithStructures } from "#stage_one/prototype-snapshot/bootstrap/structureToNodeMap.js";
+
+import type {
+  NodeWithStructures
+} from "#stage_one/prototype-snapshot/bootstrap/types/conversions.js";
+
 import type {
   TypeNodeToTypeStructureConsole
 } from "#stage_one/prototype-snapshot/types/TypeNodeToTypeStructure.js";
+
 import {
   IndexSignatureDeclaration,
   ModuleKind,
