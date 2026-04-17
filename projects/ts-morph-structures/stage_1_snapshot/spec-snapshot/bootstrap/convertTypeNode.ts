@@ -1,15 +1,14 @@
 import assert from "node:assert/strict";
 
 import {
-  ClassDeclaration,
-  MethodDeclaration,
+  type ClassDeclaration,
+  type MethodDeclaration,
   ModuleKind,
   ModuleResolutionKind,
   Node,
   Project,
   ProjectOptions,
   ScriptTarget,
-  ThisTypeNode,
   TypeNode,
   VariableDeclaration,
 } from "ts-morph";
@@ -254,6 +253,28 @@ const A: string;
     expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
     if (structure instanceof LiteralTypedStructureImpl)
       expect(structure.stringValue).toBe("NumberStringType");
+    expect(failMessage).toBe(undefined);
+    expect(failNode).toBe(null);
+  });
+
+  it("`this`", () => {
+    const sourceFile = inMemoryProject.createSourceFile("thisTypeTest.ts", `
+class ThisTypeReference {
+  getThis(): this {
+    return this;
+  }
+}
+    `.trim() + "\n");
+    const classDeclaration: ClassDeclaration = sourceFile.getClassOrThrow("ThisTypeReference");
+    const getThisMethod: MethodDeclaration = classDeclaration.getMethodOrThrow("getThis");
+    const returnTypeNode: TypeNode = getThisMethod.getReturnTypeNodeOrThrow();
+
+    assert(Node.isThisTypeNode(returnTypeNode));
+    structure = convertTypeNode(returnTypeNode, failCallback, node => node.getStructure());
+    expect(structure).toBeInstanceOf(LiteralTypedStructureImpl);
+    if (structure instanceof LiteralTypedStructureImpl)
+      expect(structure.stringValue).toBe("this");
+
     expect(failMessage).toBe(undefined);
     expect(failNode).toBe(null);
   });
@@ -706,22 +727,5 @@ const A: string;
     if (typeArg.kind === TypeStructureKind.Literal) {
       expect(typeArg.stringValue).toBe("foo");
     }
-  });
-
-  it("`ThisTypeNode`", () => {
-    const sourceFile = inMemoryProject.createSourceFile("thisTypeTest.ts", `
-void class ThisTypeReference {
-  getThis(): this {
-    return this;
-  }
-}
-        `.trim() + "\n");
-    const classDeclaration: ClassDeclaration = sourceFile.getClassOrThrow("ThisTypeReference");
-    const getThisMethod: MethodDeclaration = classDeclaration.getMethodOrThrow("getThis");
-    const returnTypeNode: TypeNode = getThisMethod.getReturnTypeNodeOrThrow();
-
-    assert(Node.isThisTypeNode(returnTypeNode));
-    structure = convertTypeNode(returnTypeNode, failCallback, node => node.getStructure());
-    assert(structure);
   });
 });

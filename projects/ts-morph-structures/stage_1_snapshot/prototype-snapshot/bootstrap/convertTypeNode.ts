@@ -17,7 +17,7 @@ import {
   TemplateLiteralTypeNode,
   TypeLiteralNode,
   ImportTypeNode,
-} from "ts-morph"
+} from "ts-morph";
 
 import {
   ArrayTypedStructureImpl,
@@ -51,7 +51,7 @@ import {
   MethodSignatureImpl,
   PropertySignatureImpl,
   TypePrinterSettingsBase,
-} from "../exports.js"
+} from "../exports.js";
 
 import {
   TypeNodeToTypeStructureConsole,
@@ -107,9 +107,15 @@ export default function convertTypeNode(
   if (Node.isNumericLiteral(typeNode)) {
     return new LiteralTypedStructureImpl(typeNode.getLiteralText());
   }
+
+  if (Node.isThisTypeNode(typeNode)) {
+    return new LiteralTypedStructureImpl("this");
+  }
+
   if (Node.isStringLiteral(typeNode)) {
     return new StringTypedStructureImpl(typeNode.getLiteralText());
   }
+
   if (Node.isParenthesizedTypeNode(typeNode)) {
     const childStructure = convertTypeNode(
       typeNode.getTypeNode(),

@@ -411,9 +411,9 @@ Augmenting structures with type structures, and cloning structures, was really t
   - References to regular structures should be instances of existing structure classes
   - [ ] `#writerFunction(writer: CodeBlockWriter): void`
   - [ ] `readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);`
-  - [ ] `replaceDescendantTypes()` if there are descendant types
+  - [ ] `replaceDescendantTypes()` even if there are no descendant types (make it empty then)
   - [ ] Implement `public static clone()`
-    -[ ] The source parameter should be of the same type as your type alias
+    - [ ] The source parameter should be of the same type as your type alias
     - [ ] Use `TypeStructureClassesMap.clone()` (or `cloneArray()`) and your decorators' `cloneFoo(source, target)` functions where practical
   - [ ] Add a `satisfies` constraint for your class for the static clone method:  `ConditionalTypedStructureImpl satisfies CloneableStructure<ConditionalTypedStructure>;` for example
   - [ ] Add your class to the `TypeStructureClassesMap`, with your key being your `TypeStructureKind`
