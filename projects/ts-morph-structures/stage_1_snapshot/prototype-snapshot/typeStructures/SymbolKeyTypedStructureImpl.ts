@@ -15,6 +15,8 @@ import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.js";
 
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
+
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.js";
@@ -25,7 +27,9 @@ import type {
 // #endregion preamble
 
 /** Symbol keys (`[MySymbol]`), enclosed in square brackets. Leaf nodes.*/
-export default class SymbolKeyTypedStructureImpl implements SymbolKeyTypedStructure
+export default class SymbolKeyTypedStructureImpl
+extends TypeStructuresBase
+implements SymbolKeyTypedStructure
 {
   static clone(
     other: SymbolKeyTypedStructure
@@ -39,6 +43,7 @@ export default class SymbolKeyTypedStructureImpl implements SymbolKeyTypedStruct
   public readonly stringValue: string;
   constructor(literal: string)
   {
+    super();
     this.stringValue = literal;
     registerCallbackForTypeStructure(this);
   }

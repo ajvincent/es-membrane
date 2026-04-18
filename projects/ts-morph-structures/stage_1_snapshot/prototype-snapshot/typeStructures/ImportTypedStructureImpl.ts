@@ -14,6 +14,8 @@ import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.js";
 
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
+
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.js";
@@ -33,9 +35,19 @@ import type {
   CloneableStructure
 } from "../types/CloneableStructure.js";
 
+import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "../base/symbolKeys.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js";
+
+
 type QualifierImpl = LiteralTypedStructureImpl | QualifiedNameTypedStructureImpl;
 
 export default class ImportTypedStructureImpl
+extends TypeStructuresBase
 implements ImportTypedStructure
 {
   static clone(
@@ -72,6 +84,7 @@ implements ImportTypedStructure
     typeArguments: TypeStructures[],
   )
   {
+    super();
     this.#packageIdentifier = new ParenthesesTypedStructureImpl(argument);
 
     typeArguments = typeArguments.slice();
@@ -124,6 +137,20 @@ implements ImportTypedStructure
     }
   }
   readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
+
+  /** @internal */
+  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  {
+    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+
+    yield this.argument;
+
+    const qualifier = this.qualifier;
+    if (qualifier)
+      yield qualifier;
+
+    yield* this.childTypes;
+  }
 }
 ImportTypedStructureImpl satisfies CloneableStructure<ImportTypedStructure>;
 TypeStructureClassesMap.set(TypeStructureKind.Import, ImportTypedStructureImpl);

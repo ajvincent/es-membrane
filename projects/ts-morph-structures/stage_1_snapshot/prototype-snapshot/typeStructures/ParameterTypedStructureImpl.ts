@@ -15,6 +15,8 @@ import type {
 
 import TypeStructureClassesMap from "../base/TypeStructureClassesMap.js";
 
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
+
 import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.js";
@@ -24,10 +26,18 @@ import type {
 } from "../types/CloneableStructure.js";
 
 import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStructures.js";
+import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "../base/symbolKeys.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js";
 // #endregion
 
 /** Just a parameter name and type for a `FunctionTypedStructureImpl`. */
 export default class ParameterTypedStructureImpl
+extends TypeStructuresBase
 implements ParameterTypedStructure
 {
   readonly kind: TypeStructureKind.Parameter = TypeStructureKind.Parameter;
@@ -39,6 +49,7 @@ implements ParameterTypedStructure
     typeStructure: TypeStructures | undefined
   )
   {
+    super();
     if (typeof name === "string") {
       this.name = new LiteralTypedStructureImpl(name);
     }
@@ -81,6 +92,14 @@ implements ParameterTypedStructure
 
     const clone = new ParameterTypedStructureImpl(other.name.stringValue, typeClone);
     return clone;
+  }
+
+  /** @internal */
+  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  {
+    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    if (typeof this.typeStructure === "object")
+      yield this.typeStructure;
   }
 }
 ParameterTypedStructureImpl satisfies CloneableStructure<ParameterTypedStructure>;

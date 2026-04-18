@@ -2,14 +2,22 @@ import type {
   WriterFunction
 } from "ts-morph";
 
-import type {
-  TypeStructures
-} from "../exports.js";
-
 import {
   getTypeStructureForCallback,
   deregisterCallbackForTypeStructure,
 } from "./callbackToTypeStructureRegistry.js";
+
+import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "./symbolKeys.js";
+
+import type {
+  TypeStructures
+} from "../typeStructures/TypeStructures.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js";
 
 /**
  * This is a stub class, whose only purpose is to implement the parts of
@@ -21,10 +29,6 @@ import {
  */
 export default class TypeStructuresBase
 {
-  constructor() {
-    throw new Error("not implemented, deliberately: static members only");
-  }
-
   public static getTypeStructureForCallback(
     callback: WriterFunction
   ): TypeStructures | undefined
@@ -36,5 +40,11 @@ export default class TypeStructuresBase
     structure: TypeStructures
   ): void {
     return deregisterCallbackForTypeStructure(structure);
+  }
+
+  /** @internal */
+  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  {
+    // do nothing
   }
 }

@@ -15,6 +15,8 @@ import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.js";
 
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
+
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.js";
@@ -25,7 +27,9 @@ import type {
 // #endregion
 
 /** Strings, encased in double quotes.  Leaf nodes. */
-export default class StringTypedStructureImpl implements StringTypedStructure
+export default class StringTypedStructureImpl
+extends TypeStructuresBase
+implements StringTypedStructure
 {
   static clone(
     other: StringTypedStructure
@@ -39,6 +43,7 @@ export default class StringTypedStructureImpl implements StringTypedStructure
   public readonly stringValue: string;
   constructor(literal: string)
   {
+    super();
     this.stringValue = literal;
     registerCallbackForTypeStructure(this);
   }

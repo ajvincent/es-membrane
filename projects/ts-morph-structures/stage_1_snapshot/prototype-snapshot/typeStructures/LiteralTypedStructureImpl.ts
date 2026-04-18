@@ -15,6 +15,8 @@ import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.js";
 
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
+
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.js";
@@ -25,7 +27,9 @@ import type {
 // #region preamble
 
 /** Literals (boolean, number, string, void, etc.), without quotes, brackets, or anything else around them.  Leaf nodes. */
-export default class LiteralTypedStructureImpl implements LiteralTypedStructure
+export default class LiteralTypedStructureImpl
+extends TypeStructuresBase
+implements LiteralTypedStructure
 {
   static clone(
     other: LiteralTypedStructure
@@ -39,6 +43,7 @@ export default class LiteralTypedStructureImpl implements LiteralTypedStructure
   public readonly stringValue: string;
   constructor(literal: string)
   {
+    super();
     this.stringValue = literal;
     registerCallbackForTypeStructure(this);
   }

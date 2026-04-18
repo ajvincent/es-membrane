@@ -20,6 +20,8 @@ import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.js";
 
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
+
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.js";
@@ -29,10 +31,19 @@ import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStruct
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.js";
+
+import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "../base/symbolKeys.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js";
 // #endregion preamble
 
 /** `checkType` extends `extendsType` ? `trueType` : `falseType` */
 export default class ConditionalTypedStructureImpl
+extends TypeStructuresBase
 implements ConditionalTypedStructure
 {
   static #buildNever(): LiteralTypedStructureImpl
@@ -69,6 +80,7 @@ implements ConditionalTypedStructure
     conditionalParts: Partial<ConditionalTypeStructureParts>
   )
   {
+    super();
     this.checkType = conditionalParts.checkType ?? ConditionalTypedStructureImpl.#buildNever();
     this.extendsType = conditionalParts.extendsType ?? ConditionalTypedStructureImpl.#buildNever();
     this.trueType = conditionalParts.trueType ?? ConditionalTypedStructureImpl.#buildNever();
@@ -100,6 +112,21 @@ implements ConditionalTypedStructure
   }
 
   writerFunction: WriterFunction = this.#writerFunction.bind(this);
+
+  /** @internal */
+  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  {
+    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+
+    if (typeof this.checkType === "object")
+      yield this.checkType;
+    if (typeof this.extendsType === "object")
+      yield this.extendsType;
+    if (typeof this.trueType === "object")
+      yield this.trueType;
+    if (typeof this.falseType === "object")
+      yield this.falseType;
+  }
 }
 ConditionalTypedStructureImpl satisfies CloneableStructure<ConditionalTypedStructure>;
 

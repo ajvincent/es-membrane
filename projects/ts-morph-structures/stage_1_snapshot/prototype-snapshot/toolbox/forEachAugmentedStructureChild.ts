@@ -1,4 +1,7 @@
-import { forEachStructureChild, type Structures } from "ts-morph";
+import {
+  forEachStructureChild,
+  type Structures
+} from "ts-morph";
 
 import type {
   StructureImpls
@@ -8,10 +11,7 @@ import type {
 } from "../typeStructures/TypeStructures.js";
 
 import StructureBase from "../base/StructureBase.js";
-
-import {
-  STRUCTURE_AND_TYPES_CHILDREN
-} from "../base/symbolKeys.js";
+import { STRUCTURE_AND_TYPES_CHILDREN } from "../base/symbolKeys.js";
 
 type ArrayOrValue<T> = T | readonly T[];
 
@@ -36,9 +36,7 @@ export default function forEachAugmentedStructureChild<TStructure>(
 ): TStructure | undefined
 {
   if (Array.isArray(structureOrArray)) {
-    for (const element of structureOrArray as readonly (
-      | StructureImpls
-      | TypeStructures
+    for (const element of structureOrArray as readonly (StructureImpls  | TypeStructures
     )[]) {
       const rv = callback(element);
       if (rv) return rv;
@@ -56,6 +54,7 @@ export default function forEachAugmentedStructureChild<TStructure>(
     if (rv) return rv;
   }
 
+  // Yes, we need this because it's the only way to reach the .typeStructures field, or anything else.
   const iterator: IterableIterator<StructureImpls | TypeStructures> =
     structureOrType[STRUCTURE_AND_TYPES_CHILDREN]();
 

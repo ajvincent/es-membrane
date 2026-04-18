@@ -156,7 +156,7 @@ let A: string;
 
   it("`ThisTypeNode`", () => {
     const sourceFile = inMemoryProject.createSourceFile("thisTypeTest.ts", `
-void class ThisTypeReference {
+class ThisTypeReference {
   getThis(): this {
     return this;
   }

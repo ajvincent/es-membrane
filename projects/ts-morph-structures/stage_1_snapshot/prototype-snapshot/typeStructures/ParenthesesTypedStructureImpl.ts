@@ -20,6 +20,8 @@ import {
 
 import TypeStructureClassesMap from "../base/TypeStructureClassesMap.js";
 
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
+
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.js";
@@ -29,10 +31,19 @@ import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStruct
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.js";
+
+import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "../base/symbolKeys.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js";
 // #endregion preamble
 
 /** Wrap the child type in parentheses. */
 export default class ParenthesesTypedStructureImpl
+extends TypeStructuresBase
 implements ParenthesesTypedStructure
 {
   public static clone(
@@ -49,6 +60,7 @@ implements ParenthesesTypedStructure
 
   constructor(childType: TypeStructures)
   {
+    super();
     this.childTypes = [childType];
 
     registerCallbackForTypeStructure(this);
@@ -80,6 +92,13 @@ implements ParenthesesTypedStructure
   }
 
   writerFunction: WriterFunction = this.#writerFunction.bind(this);
+
+  /** @internal */
+  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  {
+    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    yield* this.childTypes;
+  }
 }
 ParenthesesTypedStructureImpl satisfies CloneableStructure<ParenthesesTypedStructure>;
 

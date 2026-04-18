@@ -20,6 +20,10 @@ import TypeAccessors from "../base/TypeAccessors.js";
 import type StructureBase from "../base/StructureBase.js";
 
 import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "../base/symbolKeys.js";
+
+import {
   replaceWriterWithString,
 } from "../base/utilities.js";
 
@@ -34,6 +38,10 @@ import {
 import {
   ReplaceWriterInProperties
 } from "../types/ModifyWriterInTypes.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js";
 // #endregion preamble
 
 declare const TypedNodeStructureKey: unique symbol;
@@ -104,6 +112,13 @@ export default function TypedNode(
       if (this.#typeWriterManager.type)
         rv.type = replaceWriterWithString<string>(this.#typeWriterManager.type);
       return rv;
+    }
+
+    /** @internal */
+    public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures> {
+      yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+      if (typeof this.typeStructure === "object")
+        yield this.typeStructure;
     }
   }
 }

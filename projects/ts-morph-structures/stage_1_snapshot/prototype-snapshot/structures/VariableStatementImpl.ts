@@ -75,7 +75,7 @@ implements VariableStatementStructure
     const clone = new VariableStatementImpl;
 
     clone.declarationKind = other.declarationKind;
-    cloneArrayOrUndefined<
+    clone.declarations = cloneArrayOrUndefined<
       OptionalKind<VariableDeclarationStructure>,
       typeof VariableDeclarationImpl
     >

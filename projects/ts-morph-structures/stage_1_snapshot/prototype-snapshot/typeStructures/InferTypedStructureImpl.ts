@@ -11,6 +11,8 @@ import type {
 
 import TypeStructureClassesMap from "../base/TypeStructureClassesMap.js";
 
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
+
 import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.js";
@@ -28,9 +30,17 @@ import {
   TypeParameterDeclarationImpl,
 } from "../exports.js";
 
+import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "../base/symbolKeys.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js";
 // #endregion preamble
 
 export default class InferTypedStructureImpl
+extends TypeStructuresBase
 implements InferTypedStructure
 {
   readonly kind: TypeStructureKind.Infer = TypeStructureKind.Infer;
@@ -41,6 +51,7 @@ implements InferTypedStructure
     typeParameter: TypeParameterDeclarationImpl
   )
   {
+    super();
     this.typeParameter = typeParameter;
     registerCallbackForTypeStructure(this);
   }
@@ -66,6 +77,13 @@ implements InferTypedStructure
   ): InferTypedStructureImpl
   {
     return new InferTypedStructureImpl(TypeParameterDeclarationImpl.clone(other.typeParameter));
+  }
+
+  /** @internal */
+  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  {
+    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    yield this.typeParameter;
   }
 }
 

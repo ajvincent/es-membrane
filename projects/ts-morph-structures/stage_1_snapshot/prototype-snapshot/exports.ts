@@ -113,7 +113,8 @@ export type {
 } from "./types/ts-morph-native.js";
 
 export type {
-  StatementStructureImpls
+  StatementStructureImpls,
+  StructureImpls,
 } from "./types/StructureImplUnions.js";
 
 export {

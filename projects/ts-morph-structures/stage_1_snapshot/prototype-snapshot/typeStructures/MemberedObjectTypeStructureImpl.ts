@@ -22,7 +22,9 @@ import {
   TypeStructureKind,
   TypeStructureClassesMap,
   TypeStructures,
-} from "../exports.js"
+} from "../exports.js";
+
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
 
 import {
   registerCallbackForTypeStructure
@@ -35,6 +37,14 @@ import {
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.js";
+
+import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "../base/symbolKeys.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js";
 // #endregion preamble
 
 /**
@@ -51,6 +61,7 @@ import type {
  * @see `MappedTypeTypedStructureImpl` for `{ readonly [key in keyof Foo]: boolean }`
  */
 export default class MemberedObjectTypeStructureImpl
+extends TypeStructuresBase
 implements MemberedObjectTypedStructure
 {
   readonly kind: TypeStructureKind.MemberedObject = TypeStructureKind.MemberedObject;
@@ -62,6 +73,7 @@ implements MemberedObjectTypedStructure
   readonly properties: PropertySignatureImpl[] = [];
 
   constructor(members: ObjectLiteralAppendables = []) {
+    super();
     this.appendStructures(members);
     registerCallbackForTypeStructure(this);
   }
@@ -176,6 +188,23 @@ implements MemberedObjectTypedStructure
     ));
 
     return clone;
+  }
+
+  /** @internal */
+  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  {
+    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    yield* this.callSignatures.values();
+    yield* this.constructSignatures.values();
+    /*
+    yield* this.getAccessors.values();
+    */
+    yield* this.indexSignatures.values();
+    yield* this.methods.values();
+    yield* this.properties.values();
+    /*
+    yield* this.setAccessors.values();
+    */
   }
 }
 

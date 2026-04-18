@@ -13,6 +13,7 @@ import StructureClassesMap from "../base/StructureClassesMap.js";
 import KindedStructure, {
   type KindedStructureFields
 } from "../decorators/KindedStructure.js";
+
 import StatementedNode, {
   type StatementedNodeStructureFields
 } from "../decorators/StatementedNode.js";
@@ -20,7 +21,10 @@ import StatementedNode, {
 import type {
   CloneableStructure,
 } from "../types/CloneableStructure.js";
-import { ReplaceWriterInProperties } from "../types/ModifyWriterInTypes.js";
+
+import {
+  ReplaceWriterInProperties
+} from "../types/ModifyWriterInTypes.js";
 // #endregion preamble
 
 const SourceFileBase = MultiMixinBuilder<
