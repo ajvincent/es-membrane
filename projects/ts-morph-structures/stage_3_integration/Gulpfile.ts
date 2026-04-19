@@ -14,6 +14,7 @@ import {
 
 import structureToSyntax from "./build/structureToSyntax.js";
 import doBundles from "./build/rollup/bundle.js";
+import { fixExportTypes } from "./build/fixExportTypes.js";
 
 async function eslint(): Promise<void> {
   await runESLint(path.join(projectDir, "stage_3_integration"), [
@@ -22,8 +23,12 @@ async function eslint(): Promise<void> {
   ]);
 }
 
+void fixExportTypes;
 export default series([
   structureToSyntax,
   doBundles,
+  /*
+  fixExportTypes,
+  */
   eslint,
 ]);

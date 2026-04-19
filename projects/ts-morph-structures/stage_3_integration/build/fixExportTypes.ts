@@ -1,6 +1,3 @@
-//#region preamble
-import assert from "node:assert/strict";
-
 import {
   StructureKind
 } from "ts-morph";
@@ -29,14 +26,13 @@ import {
   type StructureImpls,
   type TypeStructures,
   TypeStructureKind,
-  type MemberedObjectTypedStructure,
-  type SourceFileImpl,
-} from "#stage_one/prototype-snapshot/exports.js";
+  type MemberedObjectTypeStructureImpl,
+} from "#stage_two/snapshot/dist/exports.js";
 
 import {
   stageDir
 } from "../pre-build/constants.js";
-//#endregion preamble
+
 
 //#region driver
 export async function fixExportTypes(): Promise<void>
@@ -50,11 +46,9 @@ export async function fixExportTypes(): Promise<void>
     void(failingTypeNode);
   }
 
-  const { rootStructure, failures } = getTypeAugmentedStructure(sourceFile, parseConsole);
-  assert.deepStrictEqual(failures, [], "unknown structure failures");
-  assert(rootStructure.kind === StructureKind.SourceFile);
+  const { rootStructure } = getTypeAugmentedStructure(sourceFile, parseConsole, true, StructureKind.SourceFile);
 
-  forEachAugmentedStructureChild(rootStructure as SourceFileImpl, recurseStructures);
+  forEachAugmentedStructureChild(rootStructure, recurseStructures);
   StatementSorter.sortRoot(rootStructure);
 
   sourceFile.set(rootStructure);
@@ -80,7 +74,7 @@ function recurseStructures(child: StructureImpls | TypeStructures): void {
 
 //#region MemberedObjectTypedStructure
 function sortMemberedObjectType(
-  memberedObject: MemberedObjectTypedStructure,
+  memberedObject: MemberedObjectTypeStructureImpl,
 ): void
 {
   memberedObject.properties?.sort(sortMembers);
