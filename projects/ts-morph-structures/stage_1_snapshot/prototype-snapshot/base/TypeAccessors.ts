@@ -14,7 +14,6 @@ import {
 } from "../exports.js";
 
 import {
-  StructureBase,
   TypeStructureClassesMap,
   TypeStructuresBase,
 } from "../internal-exports.js";
@@ -31,9 +30,35 @@ import {
  * See `../decorators/TypedNode.ts` for an example.
  */
 export default class TypeAccessors
-extends StructureBase
 implements TypedNodeStructure, TypedNodeTypeStructure
 {
+  static buildTypeAccessors(
+    this: void,
+    thisObj: object,
+    fieldName: PropertyKey
+  ): TypeAccessors
+  {
+    const accessors = new TypeAccessors;
+    Reflect.defineProperty(thisObj, fieldName, {
+      configurable: false,
+      enumerable: true,
+
+      get: function(): string | WriterFunction | undefined {
+        return accessors.type;
+      },
+
+      set: function(value: string | WriterFunction | undefined) {
+        accessors.type = value;
+      }
+    });
+
+    return accessors;
+  }
+
+  private constructor() {
+    // do nothing
+  }
+
   typeStructure: TypeStructures | undefined = undefined;
 
   get type(): string | WriterFunction | undefined

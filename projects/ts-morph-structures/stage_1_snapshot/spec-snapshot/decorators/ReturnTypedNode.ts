@@ -40,17 +40,25 @@ it("ts-morph structure decorators: ReturnTypedNode", () => {
   }
 
   {
-    const target = new Foo;
+    let target = new Foo;
     target.returnType = "boolean";
     expect(target.returnType).toBe("boolean");
     expect(target.returnTypeStructure).toBeInstanceOf(LiteralTypedStructureImpl);
     expect((target.returnTypeStructure as LiteralTypedStructureImpl)?.stringValue).toBe("boolean");
+
+    // ts-morph is losing return types in cloning structures
+    target = Object.assign({}, target);
+    expect(target.returnType).withContext("Object.assign test for cloning").toBe("boolean");
   }
 
   {
-    const target = new Foo;
+    let target = new Foo;
     target.returnTypeStructure = stringTypeStructure;
     expect<WriterFunction>(target.returnType as WriterFunction).toBe(stringTypeStructure.writerFunction);
     expect(target.returnTypeStructure).toBe(stringTypeStructure);
+
+    // ts-morph is losing return types in cloning structures
+    target = Object.assign({}, target);
+    expect(target.returnType).withContext("Object.assign test for cloning").toBe(stringTypeStructure.writerFunction);
   }
 });

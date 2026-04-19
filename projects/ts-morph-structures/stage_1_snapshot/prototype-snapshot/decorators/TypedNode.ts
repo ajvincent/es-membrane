@@ -73,19 +73,17 @@ export default function TypedNode(
 {
   void(context);
   return class extends baseClass {
-    readonly #typeWriterManager = new TypeAccessors;
+    constructor() {
+      super();
 
-    get type(): string | WriterFunction | undefined
-    {
-      return this.#typeWriterManager.type;
+      // type is getting lost in ts-morph clone operations
+      this.#typeWriterManager = TypeAccessors.buildTypeAccessors(this, "type");
     }
 
-    set type(
-      value: string | WriterFunction | undefined
-    )
-    {
-      this.#typeWriterManager.type = value;
-    }
+    readonly #typeWriterManager: TypeAccessors;
+
+    // overridden in constructor
+    type: string | WriterFunction | undefined;
   
     get typeStructure(): TypeStructures | undefined
     {

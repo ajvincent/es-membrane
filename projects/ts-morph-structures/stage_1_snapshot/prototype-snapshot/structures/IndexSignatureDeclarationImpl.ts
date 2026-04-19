@@ -8,7 +8,6 @@ import {
 } from "ts-morph";
 
 import {
-  createCodeBlockWriter,
   TypeStructureClassesMap,
   type TypeStructures,
 } from "../exports.js";
@@ -60,23 +59,19 @@ export default class IndexSignatureDeclarationImpl
 extends IndexSignatureDeclarationBase
 implements IndexSignatureDeclarationStructure
 {
-  readonly #keyTypeAccessors = new TypeAccessors;
+  constructor() {
+    super();
+
+    // keyType is getting lost in ts-morph clone operations
+    this.#keyTypeAccessors = TypeAccessors.buildTypeAccessors(this, "keyType");
+  }
+
+  readonly #keyTypeAccessors: TypeAccessors;
 
   keyName: string | undefined;
-  get keyType(): string | undefined {
-    const { type } = this.#keyTypeAccessors;
-    if (typeof type === "function") {
-      const writer = createCodeBlockWriter();
-      type(writer);
-      return writer.toString();
-    }
 
-    return type;
-  }
-
-  set keyType(value: string | undefined) {
-    this.#keyTypeAccessors.type = value;
-  }
+  // overridden in constructor
+  keyType: string | undefined;
 
   get keyTypeStructure(): TypeStructures | undefined {
     return this.#keyTypeAccessors.typeStructure;
