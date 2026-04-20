@@ -564,15 +564,13 @@ declare const TypeParameterDeclarationStructureBase: mixin_decorators.MixinClass
 declare class TypeParameterDeclarationImpl extends TypeParameterDeclarationStructureBase implements TypeParameterDeclarationStructureClassIfc {
     #private;
     readonly kind: StructureKind.TypeParameter;
+    constraint?: stringOrWriterFunction | undefined;
+    default?: stringOrWriterFunction | undefined;
     isConst: boolean;
     variance?: TypeParameterVariance;
     constructor(name: string);
-    get constraint(): stringOrWriterFunction | undefined;
-    set constraint(value: stringOrWriterFunction | undefined);
     get constraintStructure(): TypeStructures | undefined;
     set constraintStructure(value: TypeStructures | undefined);
-    get default(): stringOrWriterFunction | undefined;
-    set default(value: stringOrWriterFunction | undefined);
     get defaultStructure(): TypeStructures | undefined;
     set defaultStructure(value: TypeStructures | undefined);
     /** @internal */
@@ -1036,14 +1034,14 @@ declare class ClassDeclarationImpl extends ClassDeclarationStructureBase impleme
     #private;
     readonly kind: StructureKind.Class;
     readonly ctors: ConstructorDeclarationImpl[];
+    extends?: stringOrWriterFunction | undefined;
     readonly getAccessors: GetAccessorDeclarationImpl[];
     readonly implementsSet: TypeStructureSet;
     readonly methods: MethodDeclarationImpl[];
     readonly properties: PropertyDeclarationImpl[];
     readonly setAccessors: SetAccessorDeclarationImpl[];
     readonly staticBlocks: ClassStaticBlockDeclarationImpl[];
-    get extends(): stringOrWriterFunction | undefined;
-    set extends(value: stringOrWriterFunction | undefined);
+    constructor();
     get extendsStructure(): TypeStructures | undefined;
     set extendsStructure(value: TypeStructures | undefined);
     /** Treat this as a read-only array.  Use `.implementsSet` to modify this. */
@@ -1337,8 +1335,8 @@ declare class IndexSignatureDeclarationImpl extends IndexSignatureDeclarationStr
     #private;
     readonly kind: StructureKind.IndexSignature;
     keyName?: string;
-    get keyType(): string | undefined;
-    set keyType(value: string | undefined);
+    keyType?: string | undefined;
+    constructor();
     get keyTypeStructure(): TypeStructures | undefined;
     set keyTypeStructure(value: TypeStructures | undefined);
     /** @internal */

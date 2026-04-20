@@ -29,6 +29,28 @@ import {
 export default class TypeAccessors
   implements TypedNodeStructure, TypedNodeTypeStructure
 {
+  static buildTypeAccessors(
+    this: void,
+    thisObj: object,
+    fieldName: PropertyKey,
+  ): TypeAccessors {
+    const accessors = new TypeAccessors();
+    Reflect.defineProperty(thisObj, fieldName, {
+      configurable: false,
+      enumerable: true,
+
+      get: function (): string | WriterFunction | undefined {
+        return accessors.type;
+      },
+
+      set: function (value: string | WriterFunction | undefined): void {
+        accessors.type = value;
+      },
+    });
+
+    return accessors;
+  }
+
   typeStructure: TypeStructures | undefined = undefined;
 
   get type(): string | WriterFunction | undefined {

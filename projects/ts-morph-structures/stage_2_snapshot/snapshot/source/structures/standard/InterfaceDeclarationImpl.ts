@@ -83,7 +83,9 @@ export default class InterfaceDeclarationImpl
   );
   readonly kind: StructureKind.Interface = StructureKind.Interface;
   readonly #extends_ShadowArray: stringOrWriterFunction[] = [];
-  readonly #extendsProxyArray = new Proxy<stringOrWriterFunction[]>(
+  readonly #extendsProxyArray: stringOrWriterFunction[] = new Proxy<
+    stringOrWriterFunction[]
+  >(
     this.#extends_ShadowArray,
     InterfaceDeclarationImpl.#extendsArrayReadonlyHandler,
   );
@@ -100,12 +102,22 @@ export default class InterfaceDeclarationImpl
 
   constructor(name: string) {
     super();
+    // extends is getting lost in ts-morph clone operations
+    const extendsProxyArray: stringOrWriterFunction[] = this.#extendsProxyArray;
+    Reflect.defineProperty(this, "extends", {
+      configurable: false,
+      enumerable: true,
+      get: function (): stringOrWriterFunction[] {
+        return extendsProxyArray;
+      },
+    });
     this.name = name;
   }
 
+  // overridden in constructor
   /** Treat this as a read-only array.  Use `.extendsSet` to modify this. */
   get extends(): stringOrWriterFunction[] {
-    return this.#extendsProxyArray;
+    return [];
   }
 
   /** @internal */

@@ -56,7 +56,15 @@ export class PropertyValue
 class BaseMetadata
 {
   readonly booleanKeys = new Set<string>;
+
+  /**
+   * represents fields whose type is a direct object
+   */
   readonly structureFields = new Map<PropertyName, PropertyValue>;
+
+  /**
+   * represents fields whose type is an array of values
+   */
   readonly structureFieldArrays = new Map<PropertyName, PropertyValue>;
   readonly decoratorKeys = new Set<StructureName>;
   readonly jsDocStructuresMap = new Map<PropertyName, readonly JSDocStructure[]>;

@@ -217,6 +217,20 @@ const StructureClassesMap = new StructureClassesMapClass();
  * See `../decorators/TypedNode.ts` for an example.
  */
 class TypeAccessors {
+    static buildTypeAccessors(thisObj, fieldName) {
+        const accessors = new TypeAccessors();
+        Reflect.defineProperty(thisObj, fieldName, {
+            configurable: false,
+            enumerable: true,
+            get: function () {
+                return accessors.type;
+            },
+            set: function (value) {
+                accessors.type = value;
+            },
+        });
+        return accessors;
+    }
     typeStructure = undefined;
     get type() {
         if (typeof this.typeStructure === "undefined")
@@ -680,12 +694,13 @@ function ReadonlyableNodeStructureMixin(baseClass, context) {
 
 function ReturnTypedNodeStructureMixin(baseClass, context) {
     class ReturnTypedNodeStructureMixin extends baseClass {
-        #returnTypeManager = new TypeAccessors();
-        get returnType() {
-            return this.#returnTypeManager.type;
-        }
-        set returnType(value) {
-            this.#returnTypeManager.type = value;
+        #returnTypeManager;
+        // overridden in constructor
+        returnType = undefined;
+        constructor() {
+            super();
+            // returnType is getting lost in ts-morph clone operations
+            this.#returnTypeManager = TypeAccessors.buildTypeAccessors(this, "returnType");
         }
         get returnTypeStructure() {
             return this.#returnTypeManager.typeStructure;
@@ -822,12 +837,13 @@ function StructureMixin(baseClass, context) {
 
 function TypedNodeStructureMixin(baseClass, context) {
     class TypedNodeStructureMixin extends baseClass {
-        #typeManager = new TypeAccessors();
-        get type() {
-            return this.#typeManager.type;
-        }
-        set type(value) {
-            this.#typeManager.type = value;
+        #typeManager;
+        // overridden in constructor
+        type = undefined;
+        constructor() {
+            super();
+            // type is getting lost in ts-morph clone operations
+            this.#typeManager = TypeAccessors.buildTypeAccessors(this, "type");
         }
         get typeStructure() {
             return this.#typeManager.typeStructure;
@@ -2229,21 +2245,31 @@ const ClassDeclarationStructureBase = MultiMixinBuilder([
 class ClassDeclarationImpl extends ClassDeclarationStructureBase {
     static #implementsArrayReadonlyHandler = new ReadonlyArrayProxyHandler("The implements array is read-only.  Please use this.implementsSet to set strings and type structures.");
     kind = StructureKind.Class;
-    #extendsManager = new TypeAccessors();
+    #extendsManager;
     #implements_ShadowArray = [];
     #implementsProxyArray = new Proxy(this.#implements_ShadowArray, _a$5.#implementsArrayReadonlyHandler);
     ctors = [];
+    // overridden in constructor
+    extends = undefined;
     getAccessors = [];
     implementsSet = new TypeStructureSetInternal(this.#implements_ShadowArray);
     methods = [];
     properties = [];
     setAccessors = [];
     staticBlocks = [];
-    get extends() {
-        return this.#extendsManager.type;
-    }
-    set extends(value) {
-        this.#extendsManager.type = value;
+    constructor() {
+        super();
+        // extends is getting lost in ts-morph clone operations
+        this.#extendsManager = TypeAccessors.buildTypeAccessors(this, "extends");
+        // implements is getting lost in ts-morph clone operations
+        const implementsProxyArray = this.#implementsProxyArray;
+        Reflect.defineProperty(this, "implements", {
+            configurable: false,
+            enumerable: true,
+            get: function () {
+                return implementsProxyArray;
+            },
+        });
     }
     get extendsStructure() {
         return this.#extendsManager.typeStructure;
@@ -2251,9 +2277,10 @@ class ClassDeclarationImpl extends ClassDeclarationStructureBase {
     set extendsStructure(value) {
         this.#extendsManager.typeStructure = value;
     }
+    // overridden in constructor
     /** Treat this as a read-only array.  Use `.implementsSet` to modify this. */
     get implements() {
-        return this.#implementsProxyArray;
+        return [];
     }
     /** @internal */
     static [COPY_FIELDS](source, target) {
@@ -2956,14 +2983,28 @@ const IndexSignatureDeclarationStructureBase = MultiMixinBuilder([
 ], StructureBase);
 class IndexSignatureDeclarationImpl extends IndexSignatureDeclarationStructureBase {
     kind = StructureKind.IndexSignature;
-    #keyTypeManager = new TypeAccessors();
+    #keyTypeManager;
     keyName = undefined;
-    get keyType() {
-        const type = this.#keyTypeManager.type;
-        return type ? StructureBase[REPLACE_WRITER_WITH_STRING](type) : undefined;
-    }
-    set keyType(value) {
-        this.#keyTypeManager.type = value;
+    // overridden in constructor
+    keyType = undefined;
+    constructor() {
+        super();
+        // keyType is getting lost in ts-morph clone operations
+        const keyTypeAccessors = new TypeAccessors();
+        this.#keyTypeManager = keyTypeAccessors;
+        Reflect.defineProperty(this, "keyType", {
+            configurable: false,
+            enumerable: true,
+            get: function () {
+                const type = keyTypeAccessors.type;
+                return type !== undefined
+                    ? StructureBase[REPLACE_WRITER_WITH_STRING](type)
+                    : undefined;
+            },
+            set: function (value) {
+                keyTypeAccessors.type = value;
+            },
+        });
     }
     get keyTypeStructure() {
         return this.#keyTypeManager.typeStructure;
@@ -3041,11 +3082,21 @@ class InterfaceDeclarationImpl extends InterfaceDeclarationStructureBase {
     setAccessors = [];
     constructor(name) {
         super();
+        // extends is getting lost in ts-morph clone operations
+        const extendsProxyArray = this.#extendsProxyArray;
+        Reflect.defineProperty(this, "extends", {
+            configurable: false,
+            enumerable: true,
+            get: function () {
+                return extendsProxyArray;
+            },
+        });
         this.name = name;
     }
+    // overridden in constructor
     /** Treat this as a read-only array.  Use `.extendsSet` to modify this. */
     get extends() {
-        return this.#extendsProxyArray;
+        return [];
     }
     /** @internal */
     static [COPY_FIELDS](source, target) {
@@ -3821,31 +3872,27 @@ StructureClassesMap.set(StructureKind.TypeAlias, TypeAliasDeclarationImpl);
 const TypeParameterDeclarationStructureBase = MultiMixinBuilder([NamedNodeStructureMixin, StructureMixin], StructureBase);
 class TypeParameterDeclarationImpl extends TypeParameterDeclarationStructureBase {
     kind = StructureKind.TypeParameter;
-    #constraintManager = new TypeAccessors();
-    #defaultManager = new TypeAccessors();
+    #constraintManager;
+    #defaultManager;
+    // overridden in constructor
+    constraint = undefined;
+    // overridden in constructor
+    default = undefined;
     isConst = false;
     variance = undefined;
     constructor(name) {
         super();
+        // constraint is getting lost in ts-morph clone operations
+        this.#constraintManager = TypeAccessors.buildTypeAccessors(this, "constraint");
+        // default is getting lost in ts-morph clone operations
+        this.#defaultManager = TypeAccessors.buildTypeAccessors(this, "default");
         this.name = name;
-    }
-    get constraint() {
-        return this.#constraintManager.type;
-    }
-    set constraint(value) {
-        this.#constraintManager.type = value;
     }
     get constraintStructure() {
         return this.#constraintManager.typeStructure;
     }
     set constraintStructure(value) {
         this.#constraintManager.typeStructure = value;
-    }
-    get default() {
-        return this.#defaultManager.type;
-    }
-    set default(value) {
-        this.#defaultManager.type = value;
     }
     get defaultStructure() {
         return this.#defaultManager.typeStructure;

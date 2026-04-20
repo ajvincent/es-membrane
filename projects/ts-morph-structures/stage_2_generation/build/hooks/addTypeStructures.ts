@@ -21,6 +21,7 @@ import {
   LiteralTypedStructureImpl,
   JSDocImpl,
   JSDocTagImpl,
+  type ConstructorDeclarationImpl,
   MethodDeclarationImpl,
   ParameterDeclarationImpl,
   PropertyDeclarationImpl,
@@ -60,7 +61,7 @@ export default function addTypeStructures(
 
   meta.structureFields.forEach((propertyValue, propertyKey) => {
     if (propertyValue.representsType) {
-      addTypeAccessor(dictionaries, parts, propertyValue, propertyKey)
+      addTypeAccessor(dictionaries, parts, propertyValue, propertyKey);
     }
   });
 }
@@ -109,6 +110,7 @@ function addTypeStructureSet(
 
   const proxyArrayProp = new PropertyDeclarationImpl(`#${propertyKey}ProxyArray`);
   proxyArrayProp.isReadonly = true;
+  proxyArrayProp.typeStructure = ConstantTypeStructures["stringOrWriterFunction[]"];
   parts.classFieldsStatements.set(
     ClassMembersMap.keyFromMember(proxyArrayProp),
     ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY,
@@ -130,11 +132,38 @@ function addTypeStructureSet(
   );
 
   const typeGetter = new GetAccessorDeclarationImpl(propertyKey);
+  typeGetter.leadingTrivia.push(`// overridden in constructor\n`);
   typeGetter.returnTypeStructure = existingProperty.typeStructure;
   parts.classFieldsStatements.set(
-    ClassMembersMap.keyFromMember(existingProperty),
-    ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY, [
-      `this.${proxyArrayProp.name}`
+    ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN,
+    ClassMembersMap.keyFromMember(typeGetter),
+    [`throw new Error("not implemented);`]
+  );
+
+  const ctor: ConstructorDeclarationImpl = parts.classMembersMap.getOrInsertConstructor();
+  const ctorKey: string = ClassMembersMap.keyFromMember(ctor);
+
+  if (!parts.classFieldsStatements.has(ClassFieldStatementsMap.FIELD_HEAD_SUPER_CALL, ctorKey)) {
+    parts.classFieldsStatements.set(
+      ClassFieldStatementsMap.FIELD_HEAD_SUPER_CALL,
+      ctorKey,
+      ["super();"]
+    );
+  }
+
+  parts.classFieldsStatements.set(
+    typeGetter.name,
+    ctorKey,
+    [
+      `// ${propertyKey} is getting lost in ts-morph clone operations`,
+      `const ${propertyKey}ProxyArray: stringOrWriterFunction[] = this.#${propertyKey}ProxyArray;`,
+      `Reflect.defineProperty(this, "${propertyKey}", {
+        configurable: false,
+        enumerable: true,
+        get: function(): stringOrWriterFunction[] {
+          return ${propertyKey}ProxyArray;
+        }
+      });`,
     ]
   );
 
@@ -238,6 +267,7 @@ function addTypeAccessor(
   });
 
   const existingProperty = parts.classMembersMap.getAsKind(propertyKey, StructureKind.Property)!;
+  existingProperty.leadingTrivia.push(`// overridden in constructor\n`);
   if (propertyValue.hasQuestionToken && existingProperty.typeStructure) {
     existingProperty.typeStructure = new UnionTypedStructureImpl([
       existingProperty.typeStructure,
@@ -245,34 +275,28 @@ function addTypeAccessor(
     ]);
   }
 
-  parts.classMembersMap.delete(propertyKey);
-
   const typeAccessorProp = new PropertyDeclarationImpl(`#${propertyKey}Manager`);
   typeAccessorProp.isReadonly = true;
-  parts.classFieldsStatements.set(
-    ClassMembersMap.keyFromMember(typeAccessorProp),
-    ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY,
-    [ "new TypeAccessors" ]
-  );
+  typeAccessorProp.typeStructure = new LiteralTypedStructureImpl("TypeAccessors");
 
-  const typeGetAccessor = new GetAccessorDeclarationImpl(propertyKey);
-  typeGetAccessor.returnTypeStructure = existingProperty.typeStructure;
+  const ctor: ConstructorDeclarationImpl = parts.classMembersMap.getOrInsertConstructor();
+  const ctorKey: string = ClassMembersMap.keyFromMember(ctor);
 
-  const typeSetAccessor = new SetAccessorDeclarationImpl(propertyKey);
-  {
-    const value = new ParameterDeclarationImpl("value");
-    value.typeStructure = existingProperty.typeStructure;
-    typeSetAccessor.parameters.push(value);
+  if (!parts.classFieldsStatements.has(ClassFieldStatementsMap.FIELD_HEAD_SUPER_CALL, ctorKey)) {
+    parts.classFieldsStatements.set(
+      ClassFieldStatementsMap.FIELD_HEAD_SUPER_CALL,
+      ctorKey,
+      ["super();"]
+    );
   }
 
-  const typeInitializer = [ `this.${typeAccessorProp.name}.type` ];
-  if (!propertyValue.hasQuestionToken)
-    typeInitializer.push(` ?? ""`);
-
   parts.classFieldsStatements.set(
-    ClassMembersMap.keyFromMember(typeGetAccessor),
-    ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY,
-    typeInitializer
+    typeAccessorProp.name,
+    ctorKey,
+    [
+      `// ${propertyKey} is getting lost in ts-morph clone operations`,
+      `this.${typeAccessorProp.name} = TypeAccessors.buildTypeAccessors(this, "${propertyKey}");`
+    ]
   );
 
   const structureGetAccessor = new GetAccessorDeclarationImpl(propertyKey + "Structure");
@@ -312,8 +336,6 @@ function addTypeAccessor(
 
   parts.classMembersMap.addMembers([
     typeAccessorProp,
-    typeGetAccessor,
-    typeSetAccessor,
     structureGetAccessor,
     structureSetAccessor,
   ]);

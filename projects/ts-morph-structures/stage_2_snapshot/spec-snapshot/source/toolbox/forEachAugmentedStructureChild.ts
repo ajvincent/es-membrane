@@ -60,7 +60,8 @@ describe("forEachAugmentedStructureImpl", () => {
       firstClass, firstType, secondClass, secondType, thirdClass,
     ], callback);
 
-    expect(result).toBe(secondClass);
+    // Jasmine dives deep into the objects to build an error message, even when the test passes.  This causes errors for `.type`.
+    expect(result === secondClass).toBeTrue();
     expect(Array.from(visited.values())).toEqual([
       firstClass, firstType, secondClass
     ]);

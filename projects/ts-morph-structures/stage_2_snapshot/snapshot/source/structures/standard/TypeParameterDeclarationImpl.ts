@@ -40,22 +40,25 @@ export default class TypeParameterDeclarationImpl
   implements TypeParameterDeclarationStructureClassIfc
 {
   readonly kind: StructureKind.TypeParameter = StructureKind.TypeParameter;
-  readonly #constraintManager = new TypeAccessors();
-  readonly #defaultManager = new TypeAccessors();
+  readonly #constraintManager: TypeAccessors;
+  readonly #defaultManager: TypeAccessors;
+  // overridden in constructor
+  constraint?: stringOrWriterFunction | undefined = undefined;
+  // overridden in constructor
+  default?: stringOrWriterFunction | undefined = undefined;
   isConst = false;
   variance?: TypeParameterVariance = undefined;
 
   constructor(name: string) {
     super();
+    // constraint is getting lost in ts-morph clone operations
+    this.#constraintManager = TypeAccessors.buildTypeAccessors(
+      this,
+      "constraint",
+    );
+    // default is getting lost in ts-morph clone operations
+    this.#defaultManager = TypeAccessors.buildTypeAccessors(this, "default");
     this.name = name;
-  }
-
-  get constraint(): stringOrWriterFunction | undefined {
-    return this.#constraintManager.type;
-  }
-
-  set constraint(value: stringOrWriterFunction | undefined) {
-    this.#constraintManager.type = value;
   }
 
   get constraintStructure(): TypeStructures | undefined {
@@ -64,14 +67,6 @@ export default class TypeParameterDeclarationImpl
 
   set constraintStructure(value: TypeStructures | undefined) {
     this.#constraintManager.typeStructure = value;
-  }
-
-  get default(): stringOrWriterFunction | undefined {
-    return this.#defaultManager.type;
-  }
-
-  set default(value: stringOrWriterFunction | undefined) {
-    this.#defaultManager.type = value;
   }
 
   get defaultStructure(): TypeStructures | undefined {

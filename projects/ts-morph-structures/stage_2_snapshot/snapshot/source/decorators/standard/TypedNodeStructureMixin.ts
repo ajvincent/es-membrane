@@ -43,14 +43,14 @@ export default function TypedNodeStructureMixin(
   void context;
 
   class TypedNodeStructureMixin extends baseClass {
-    readonly #typeManager = new TypeAccessors();
+    readonly #typeManager: TypeAccessors;
+    // overridden in constructor
+    type?: stringOrWriterFunction | undefined = undefined;
 
-    get type(): stringOrWriterFunction | undefined {
-      return this.#typeManager.type;
-    }
-
-    set type(value: stringOrWriterFunction | undefined) {
-      this.#typeManager.type = value;
+    constructor() {
+      super();
+      // type is getting lost in ts-morph clone operations
+      this.#typeManager = TypeAccessors.buildTypeAccessors(this, "type");
     }
 
     get typeStructure(): TypeStructures | undefined {

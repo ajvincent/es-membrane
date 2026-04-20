@@ -134,6 +134,18 @@ extends OrderedMap<string, ClassMemberImpl>
   }
 
   /**
+   * @returns the constructor for this class
+   */
+  getOrInsertConstructor(): ConstructorDeclarationImpl {
+    let ctor = this.get("constructor") as ConstructorDeclarationImpl | undefined;
+    if (!ctor) {
+      ctor = new ConstructorDeclarationImpl();
+      this.set("constructor", ctor);
+    }
+    return ctor;
+  }
+
+  /**
    * Move class members from this map to a class declaration, and clear this map.
    *
    * @param classDecl - the target class declaration.

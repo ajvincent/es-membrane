@@ -303,21 +303,40 @@ function fillPropertyValueWithTypeNodes(
     propertyValue.otherTypes.push(value);
   });
 
-  switch (interfaceName + ":" + propertyName) {
-    case "ClassLikeDeclarationBaseSpecificStructure:extends":
-    case "ExtendsClauseableNodeStructure:extends":
-    case "ImplementsClauseableNodeStructure:implements":
-    case "IndexSignatureDeclarationSpecificStructure:keyType":
-    case "InterfaceDeclarationStructure:extends":
-    case "ReturnTypedNodeStructure:returnType":
-    case "TypedNodeStructure:type":
-    case "TypeParameterDeclarationSpecificStructure:constraint":
-    case "TypeParameterDeclarationSpecificStructure:default":
-      propertyValue.representsType = true;
-  }
+  if (RepresentsTypeHashSet.has(interfaceName + ":" + propertyName))
+    propertyValue.representsType = true;
 
   return isArray;
 }
+
+const RepresentsTypeHashSet: ReadonlySet<string> = new Set([
+  // ClassDeclarationImpl
+  "ClassLikeDeclarationBaseSpecificStructure:extends",
+
+  // InterfaceDeclarationImpl, creates an array
+  "ExtendsClauseableNodeStructure:extends",
+
+  // ClassDeclarationImpl, creates an array
+  "ImplementsClauseableNodeStructure:implements",
+
+  // IndexSignatureDeclarationImpl
+  "IndexSignatureDeclarationSpecificStructure:keyType",
+
+  // InterfaceDeclarationImpl, creates an array
+  "InterfaceDeclarationStructure:extends",
+
+  // ReturnTypedNodeStructureMixin
+  "ReturnTypedNodeStructure:returnType",
+
+  // TypeNodeStructureMixin
+  "TypedNodeStructure:type",
+
+  // TypeParameterDeclarationImpl
+  "TypeParameterDeclarationSpecificStructure:constraint",
+
+  // TypeParameterDeclarationImpl
+  "TypeParameterDeclarationSpecificStructure:default",
+]);
 
 function consolidateNameDecorators(
   dictionary: StructureMetaDictionaries

@@ -52,7 +52,7 @@ export default function structureSpecialCases(
       break;
 
     case "IndexSignatureDeclarationImpl":
-      convertKeyTypePropertyToAccessors(parts, dictionaries);
+      convertKeyTypePropertyDescriptor(parts, dictionaries);
       break;
 
     case "SetAccessorDeclarationImpl":
@@ -66,7 +66,7 @@ export default function structureSpecialCases(
   }
 }
 
-function convertKeyTypePropertyToAccessors(
+function convertKeyTypePropertyDescriptor(
   parts: StructureParts,
   dictionaries: StructureDictionaries,
 ): void
@@ -79,39 +79,31 @@ function convertKeyTypePropertyToAccessors(
     isTypeOnly: false,
   });
 
-  const propertyName = ClassMembersMap.keyFromName(StructureKind.Property, false, "keyType");
-  const getterName = ClassMembersMap.keyFromName(StructureKind.GetAccessor, false, "keyType");
-  const setterName = ClassMembersMap.keyFromName(StructureKind.SetAccessor, false, "keyType");
-
-  const setter = parts.classMembersMap.getAsKind(
-    setterName,
-    StructureKind.SetAccessor
-  )!;
-
-  const initializer = parts.classFieldsStatements.get(
-    propertyName,
-    ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY,
-  )![0] as string;
-
-  parts.classFieldsStatements.delete(
-    propertyName,
-    ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY
-  );
+  const ctorKey: string = ClassMembersMap.keyFromName(StructureKind.Constructor, false, "constructor");
+  const accessorPropName = `#keyTypeManager`;
 
   parts.classFieldsStatements.set(
-    ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN,
-    getterName,
+    accessorPropName,
+    ctorKey,
     [
-      `const type = ${initializer};`,
-      `return type ? StructureBase[REPLACE_WRITER_WITH_STRING](type) : undefined;`,
-    ]
-  );
+      `// keyType is getting lost in ts-morph clone operations`,
+      `const keyTypeAccessors = new TypeAccessors;`,
+      `this.#keyTypeManager = keyTypeAccessors`,
+      `
+      Reflect.defineProperty(this, "keyType", {
+        configurable: false,
+        enumerable: true,
 
-  parts.classFieldsStatements.set(
-    ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN,
-    setterName,
-    [
-      `${initializer} = ${setter.parameters[0].name};`,
+        get: function(): string | undefined {
+          const type = keyTypeAccessors.type;
+          return type !== undefined ? StructureBase[REPLACE_WRITER_WITH_STRING](type) : undefined;
+        },
+
+        set: function(value: string | undefined): void {
+          keyTypeAccessors.type = value;
+        }
+      });
+      `
     ]
   );
 }
