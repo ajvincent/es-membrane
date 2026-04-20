@@ -94,6 +94,9 @@ class BaseMetadata
       else if (existing.fromTypeName && existing.fromTypeName) {
         throw new Error("property name conflict for existing versus added in fromTypeName: " + propertyName);
       }
+
+      if (propertyValue.representsType)
+        existing.representsType = true;
     } else {
       map.set(propertyName, propertyValue);
     }

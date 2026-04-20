@@ -70,7 +70,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[constraint](./ts-morph-structures.typeparameterdeclarationimpl.constraint.md)
+[constraint?](./ts-morph-structures.typeparameterdeclarationimpl.constraint.md)
 
 
 </td><td>
@@ -82,6 +82,8 @@ Description
 
 
 </td><td>
+
+_(Optional)_
 
 
 </td></tr>
@@ -104,7 +106,7 @@ Description
 </td></tr>
 <tr><td>
 
-[default](./ts-morph-structures.typeparameterdeclarationimpl.default.md)
+[default?](./ts-morph-structures.typeparameterdeclarationimpl.default.md)
 
 
 </td><td>
@@ -116,6 +118,8 @@ Description
 
 
 </td><td>
+
+_(Optional)_
 
 
 </td></tr>

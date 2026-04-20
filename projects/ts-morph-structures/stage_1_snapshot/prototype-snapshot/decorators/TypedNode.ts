@@ -84,12 +84,12 @@ export default function TypedNode(
 
     // overridden in constructor
     type: string | WriterFunction | undefined;
-  
+
     get typeStructure(): TypeStructures | undefined
     {
       return this.#typeWriterManager.typeStructure;
     }
-  
+
     set typeStructure(
       value: TypeStructures
     )

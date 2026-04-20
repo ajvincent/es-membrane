@@ -1,5 +1,5 @@
 //#region preamble
-import type { TypedNodeStructure, WriterFunction } from "ts-morph";
+import type { TypedNodeStructure } from "ts-morph";
 
 import {
   LiteralTypeStructureImpl,
@@ -33,18 +33,19 @@ export default class TypeAccessors
     this: void,
     thisObj: object,
     fieldName: PropertyKey,
+    defaultValue?: stringOrWriterFunction | undefined,
   ): TypeAccessors {
     const accessors = new TypeAccessors();
     Reflect.defineProperty(thisObj, fieldName, {
       configurable: false,
       enumerable: true,
 
-      get: function (): string | WriterFunction | undefined {
+      get: function (): stringOrWriterFunction | undefined {
         return accessors.type;
       },
 
-      set: function (value: string | WriterFunction | undefined): void {
-        accessors.type = value;
+      set: function (value: stringOrWriterFunction | undefined): void {
+        accessors.type = value ?? defaultValue;
       },
     });
 
@@ -53,7 +54,7 @@ export default class TypeAccessors
 
   typeStructure: TypeStructures | undefined = undefined;
 
-  get type(): string | WriterFunction | undefined {
+  get type(): stringOrWriterFunction | undefined {
     if (typeof this.typeStructure === "undefined") return undefined;
 
     if (this.typeStructure.kind === TypeStructureKind.Literal) {

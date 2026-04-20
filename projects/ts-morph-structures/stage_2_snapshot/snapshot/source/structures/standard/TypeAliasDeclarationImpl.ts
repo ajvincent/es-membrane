@@ -1,6 +1,7 @@
 //#region preamble
 import type {
   stringOrWriterFunction,
+  StructureImpls,
   TypeAliasDeclarationStructureClassIfc,
   TypeStructures,
 } from "../../exports.js";
@@ -17,15 +18,16 @@ import {
   type NamedNodeStructureFields,
   NamedNodeStructureMixin,
   REPLACE_WRITER_WITH_STRING,
+  STRUCTURE_AND_TYPES_CHILDREN,
   StructureBase,
   StructureClassesMap,
   type StructureClassToJSON,
   type StructureFields,
   StructureMixin,
-  type TypedNodeStructureFields,
-  TypedNodeStructureMixin,
+  TypeAccessors,
   type TypeParameteredNodeStructureFields,
   TypeParameteredNodeStructureMixin,
+  TypeStructureClassesMap,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {
@@ -37,7 +39,6 @@ import type { Class } from "type-fest";
 //#endregion preamble
 const TypeAliasDeclarationStructureBase = MultiMixinBuilder<
   [
-    TypedNodeStructureFields,
     ExportableNodeStructureFields,
     AmbientableNodeStructureFields,
     TypeParameteredNodeStructureFields,
@@ -48,7 +49,6 @@ const TypeAliasDeclarationStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >(
   [
-    TypedNodeStructureMixin,
     ExportableNodeStructureMixin,
     AmbientableNodeStructureMixin,
     TypeParameteredNodeStructureMixin,
@@ -64,23 +64,24 @@ export default class TypeAliasDeclarationImpl
   implements TypeAliasDeclarationStructureClassIfc
 {
   readonly kind: StructureKind.TypeAlias = StructureKind.TypeAlias;
+  readonly #typeManager: TypeAccessors;
+  // overridden in constructor
+  type: stringOrWriterFunction;
 
-  constructor(name: string, type: stringOrWriterFunction | TypeStructures) {
+  constructor(name: string, type: stringOrWriterFunction) {
     super();
+    // type is getting lost in ts-morph clone operations
+    this.#typeManager = TypeAccessors.buildTypeAccessors(this, "type", "");
     this.name = name;
-    if (typeof type === "object") {
-      this.typeStructure = type;
-    } else {
-      this.type = type;
-    }
+    this.type = type;
   }
 
-  get type(): stringOrWriterFunction {
-    return super.type ?? "";
+  get typeStructure(): TypeStructures {
+    return this.#typeManager.typeStructure!;
   }
 
-  set type(value: stringOrWriterFunction) {
-    super.type = value;
+  set typeStructure(value: TypeStructures) {
+    this.#typeManager.typeStructure! = value;
   }
 
   /** @internal */
@@ -89,7 +90,10 @@ export default class TypeAliasDeclarationImpl
     target: TypeAliasDeclarationImpl,
   ): void {
     super[COPY_FIELDS](source, target);
-    target.type = source.type;
+    const { typeStructure } = source as unknown as TypeAliasDeclarationImpl;
+    if (typeStructure) {
+      target.typeStructure = TypeStructureClassesMap.clone(typeStructure);
+    } else target.type = source.type;
   }
 
   public static clone(
@@ -98,6 +102,14 @@ export default class TypeAliasDeclarationImpl
     const target = new TypeAliasDeclarationImpl(source.name, source.type);
     this[COPY_FIELDS](source, target);
     return target;
+  }
+
+  /** @internal */
+  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+    StructureImpls | TypeStructures
+  > {
+    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    if (typeof this.typeStructure === "object") yield this.typeStructure;
   }
 
   public toJSON(): StructureClassToJSON<TypeAliasDeclarationImpl> {

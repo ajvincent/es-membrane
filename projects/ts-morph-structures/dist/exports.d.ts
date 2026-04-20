@@ -506,6 +506,7 @@ interface StructureClassIfc {
 interface TypeAliasDeclarationStructureClassIfc {
   readonly kind: StructureKind.TypeAlias;
   type: stringOrWriterFunction;
+  typeStructure: TypeStructures | undefined;
 }
 
 interface TypedNodeStructureClassIfc {
@@ -1213,11 +1214,11 @@ declare const FunctionDeclarationStructureBase: mixin_decorators.MixinClass<obje
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     name?: string | undefined;
     isDefaultExport: boolean;
     isExported: boolean;
     hasDeclareKeyword: boolean;
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     isAsync: boolean;
     isGenerator: boolean;
 }, typeof StructureBase>;
@@ -1258,9 +1259,9 @@ declare const GetAccessorDeclarationStructureBase: mixin_decorators.MixinClass<o
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly decorators: DecoratorImpl[];
     isAbstract: boolean;
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     scope?: ts_morph.Scope | undefined;
     name: string;
 }, typeof StructureBase>;
@@ -1465,9 +1466,9 @@ declare const MethodDeclarationStructureBase: mixin_decorators.MixinClass<object
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly decorators: DecoratorImpl[];
     isAbstract: boolean;
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     scope?: ts_morph.Scope | undefined;
     name: string;
     isAsync: boolean;
@@ -1532,10 +1533,10 @@ declare const ModuleDeclarationStructureBase: mixin_decorators.MixinClass<object
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     isDefaultExport: boolean;
     isExported: boolean;
     hasDeclareKeyword: boolean;
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     name: string;
 }, typeof StructureBase>;
 declare class ModuleDeclarationImpl extends ModuleDeclarationStructureBase implements ModuleDeclarationStructureClassIfc {
@@ -1623,9 +1624,9 @@ declare const SetAccessorDeclarationStructureBase: mixin_decorators.MixinClass<o
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly decorators: DecoratorImpl[];
     isAbstract: boolean;
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     scope?: ts_morph.Scope | undefined;
     name: string;
 }, typeof StructureBase>;
@@ -1683,17 +1684,19 @@ declare const TypeAliasDeclarationStructureBase: mixin_decorators.MixinClass<obj
     isExported: boolean;
     hasDeclareKeyword: boolean;
     name: string;
-    type?: stringOrWriterFunction | undefined;
-    typeStructure: TypeStructures | undefined;
 }, typeof StructureBase>;
 declare class TypeAliasDeclarationImpl extends TypeAliasDeclarationStructureBase implements TypeAliasDeclarationStructureClassIfc {
+    #private;
     readonly kind: StructureKind.TypeAlias;
-    constructor(name: string, type: stringOrWriterFunction | TypeStructures);
-    get type(): stringOrWriterFunction;
-    set type(value: stringOrWriterFunction);
+    type: stringOrWriterFunction;
+    constructor(name: string, type: stringOrWriterFunction);
+    get typeStructure(): TypeStructures;
+    set typeStructure(value: TypeStructures);
     /** @internal */
     static [COPY_FIELDS](source: OptionalKind<TypeAliasDeclarationStructure>, target: TypeAliasDeclarationImpl): void;
     static clone(source: OptionalKind<TypeAliasDeclarationStructure>): TypeAliasDeclarationImpl;
+    /** @internal */
+    [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
     toJSON(): StructureClassToJSON<TypeAliasDeclarationImpl>;
 }
 

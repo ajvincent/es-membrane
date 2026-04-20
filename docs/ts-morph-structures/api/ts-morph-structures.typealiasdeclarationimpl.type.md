@@ -7,7 +7,5 @@
 **Signature:**
 
 ```typescript
-get type(): stringOrWriterFunction;
-
-set type(value: stringOrWriterFunction);
+type: stringOrWriterFunction;
 ```

@@ -7,7 +7,5 @@
 **Signature:**
 
 ```typescript
-get constraint(): stringOrWriterFunction | undefined;
-
-set constraint(value: stringOrWriterFunction | undefined);
+constraint?: stringOrWriterFunction | undefined;
 ```

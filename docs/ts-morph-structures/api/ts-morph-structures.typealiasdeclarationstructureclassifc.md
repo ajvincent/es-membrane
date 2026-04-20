@@ -69,5 +69,22 @@ StructureKind.TypeAlias
 
 
 </td></tr>
+<tr><td>
+
+[typeStructure](./ts-morph-structures.typealiasdeclarationstructureclassifc.typestructure.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[TypeStructures](./ts-morph-structures.typestructures.md) \| undefined
+
+
+</td><td>
+
+
+</td></tr>
 </tbody></table>
 

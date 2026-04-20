@@ -46,6 +46,7 @@ function fillDictionaries(
   countDecoratorUsage(dictionary);
   consolidateSingleUseDecorators(dictionary);
   consolidateDecorator(dictionary, "StaticableNodeStructure");
+  removeTypedNodeStructureFromTypeAlias(dictionary);
 }
 
 /**
@@ -336,6 +337,9 @@ const RepresentsTypeHashSet: ReadonlySet<string> = new Set([
 
   // TypeParameterDeclarationImpl
   "TypeParameterDeclarationSpecificStructure:default",
+
+  // TypeAliasDeclarationImpl
+  "TypeAliasDeclarationStructure:type",
 ]);
 
 function consolidateNameDecorators(
@@ -502,4 +506,11 @@ function moveDecoratorIntoStructure(
   }
 
   structure.decoratorKeys.delete(decorator.structureName);
+}
+
+function removeTypedNodeStructureFromTypeAlias(
+  dictionary: StructureMetaDictionaries
+): void
+{
+  dictionary.structures.get("TypeAliasDeclarationStructure")!.decoratorKeys.delete("TypedNodeStructure");
 }

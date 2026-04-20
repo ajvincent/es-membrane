@@ -1,7 +1,6 @@
 //#region preamble
 import type {
   TypedNodeStructure,
-  WriterFunction,
 } from "ts-morph";
 
 import {
@@ -21,7 +20,7 @@ import {
 // #endregion preamble
 
 /**
- * This provides an API for converting between a type (`string | WriterFunction`) and a `TypeStructure`.
+ * This provides an API for converting between a type (`stringOrWriterFunction`) and a `TypeStructure`.
  *
  * For any class providing a type (return type, constraint, extends, etc.), you can have an instance of
  * `TypeAccessors` as a private class field, and provide getters and setters for type and typeStructure
@@ -35,7 +34,8 @@ implements TypedNodeStructure, TypedNodeTypeStructure
   static buildTypeAccessors(
     this: void,
     thisObj: object,
-    fieldName: PropertyKey
+    fieldName: PropertyKey,
+    defaultValue?: stringOrWriterFunction | undefined
   ): TypeAccessors
   {
     const accessors = new TypeAccessors;
@@ -43,12 +43,12 @@ implements TypedNodeStructure, TypedNodeTypeStructure
       configurable: false,
       enumerable: true,
 
-      get: function(): string | WriterFunction | undefined {
+      get: function(): stringOrWriterFunction | undefined {
         return accessors.type;
       },
 
-      set: function(value: string | WriterFunction | undefined) {
-        accessors.type = value;
+      set: function(value: stringOrWriterFunction | undefined) {
+        accessors.type = value ?? defaultValue;
       }
     });
 
@@ -61,7 +61,7 @@ implements TypedNodeStructure, TypedNodeTypeStructure
 
   typeStructure: TypeStructures | undefined = undefined;
 
-  get type(): string | WriterFunction | undefined
+  get type(): stringOrWriterFunction | undefined
   {
     if (!this.typeStructure)
       return undefined;

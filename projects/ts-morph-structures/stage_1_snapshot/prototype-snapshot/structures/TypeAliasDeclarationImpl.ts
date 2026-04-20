@@ -32,16 +32,19 @@ import JSDocableNode, {
 import TypeParameteredNode, {
   type TypeParameteredNodeStructureFields
 } from "../decorators/TypeParameteredNode.js";
-import TypedNode, {
-  type TypedNodeStructureFields
-} from "../decorators/TypedNode.js";
 
 import type {
   CloneableStructure,
 } from "../types/CloneableStructure.js";
 import { ReplaceWriterInProperties } from "../types/ModifyWriterInTypes.js";
+
+import {
+  TypeStructures
+} from "../typeStructures/TypeStructures.js";
+
 import { replaceWriterWithString } from "../base/utilities.js";
 import { stringOrWriterFunction } from "../exports.js";
+import TypeAccessors from "../base/TypeAccessors.js";
 // #endregion preamble
 
 const TypeAliasDeclarationBase = MultiMixinBuilder<
@@ -51,7 +54,6 @@ const TypeAliasDeclarationBase = MultiMixinBuilder<
     ExportableNodeStructureFields,
     JSDocableNodeStructureFields,
     NamedNodeStructureFields,
-    TypedNodeStructureFields,
     TypeParameteredNodeStructureFields,
   ],
   typeof StructureBase
@@ -63,7 +65,6 @@ const TypeAliasDeclarationBase = MultiMixinBuilder<
     ExportableNode,
     JSDocableNode,
     NamedNode,
-    TypedNode,
     TypeParameteredNode,
   ],
   StructureBase
@@ -73,26 +74,41 @@ export default class TypeAliasDeclarationImpl
 extends TypeAliasDeclarationBase
 implements TypeAliasDeclarationStructure
 {
+  static cloneTyped(
+    source: OptionalKind<TypeAliasDeclarationStructure>,
+    target: TypeAliasDeclarationImpl
+  ): void
+  {
+    target.type = TypeAccessors.cloneType(source.type) as stringOrWriterFunction;
+  }
+
   constructor(
     name: string,
-    type?: stringOrWriterFunction
+    type: stringOrWriterFunction = "",
   )
   {
     super();
     this.name = name;
-    if (type) {
-      this.type = type;
-    }
+
+    this.#typeWriterManager = TypeAccessors.buildTypeAccessors(this, "type", "");
+    this.type = type;
   }
 
-  get type(): string | WriterFunction
+  readonly #typeWriterManager: TypeAccessors;
+
+  // overridden in constructor
+  type: string | WriterFunction;
+
+  get typeStructure(): TypeStructures | undefined
   {
-    return super.type ?? "";
+    return this.#typeWriterManager.typeStructure;
   }
 
-  set type(value: string | WriterFunction)
+  set typeStructure(
+    value: TypeStructures
+  )
   {
-    super.type = value;
+    this.#typeWriterManager.typeStructure = value;
   }
 
   public static clone(
@@ -105,8 +121,9 @@ implements TypeAliasDeclarationStructure
     TypeAliasDeclarationBase.cloneAmbientable(other, clone);
     TypeAliasDeclarationBase.cloneExportable(other, clone);
     TypeAliasDeclarationBase.cloneJSDocable(other, clone);
-    TypeAliasDeclarationBase.cloneTyped(other, clone);
     TypeAliasDeclarationBase.cloneTypeParametered(other, clone);
+
+    TypeAliasDeclarationImpl.cloneTyped(other, clone);
 
     return clone;
   }

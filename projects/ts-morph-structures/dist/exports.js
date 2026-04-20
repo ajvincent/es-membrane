@@ -217,7 +217,7 @@ const StructureClassesMap = new StructureClassesMapClass();
  * See `../decorators/TypedNode.ts` for an example.
  */
 class TypeAccessors {
-    static buildTypeAccessors(thisObj, fieldName) {
+    static buildTypeAccessors(thisObj, fieldName, defaultValue) {
         const accessors = new TypeAccessors();
         Reflect.defineProperty(thisObj, fieldName, {
             configurable: false,
@@ -226,7 +226,7 @@ class TypeAccessors {
                 return accessors.type;
             },
             set: function (value) {
-                accessors.type = value;
+                accessors.type = value ?? defaultValue;
             },
         });
         return accessors;
@@ -3823,7 +3823,6 @@ StructureClassesMap.set(StructureKind.SpreadAssignment, SpreadAssignmentImpl);
 
 //#endregion preamble
 const TypeAliasDeclarationStructureBase = MultiMixinBuilder([
-    TypedNodeStructureMixin,
     ExportableNodeStructureMixin,
     AmbientableNodeStructureMixin,
     TypeParameteredNodeStructureMixin,
@@ -3833,31 +3832,42 @@ const TypeAliasDeclarationStructureBase = MultiMixinBuilder([
 ], StructureBase);
 class TypeAliasDeclarationImpl extends TypeAliasDeclarationStructureBase {
     kind = StructureKind.TypeAlias;
+    #typeManager;
+    // overridden in constructor
+    type;
     constructor(name, type) {
         super();
+        // type is getting lost in ts-morph clone operations
+        this.#typeManager = TypeAccessors.buildTypeAccessors(this, "type", "");
         this.name = name;
-        if (typeof type === "object") {
-            this.typeStructure = type;
-        }
-        else {
-            this.type = type;
-        }
+        this.type = type;
     }
-    get type() {
-        return super.type ?? "";
+    get typeStructure() {
+        return this.#typeManager.typeStructure;
     }
-    set type(value) {
-        super.type = value;
+    set typeStructure(value) {
+        this.#typeManager.typeStructure = value;
     }
     /** @internal */
     static [COPY_FIELDS](source, target) {
         super[COPY_FIELDS](source, target);
-        target.type = source.type;
+        const { typeStructure } = source;
+        if (typeStructure) {
+            target.typeStructure = TypeStructureClassesMap.clone(typeStructure);
+        }
+        else
+            target.type = source.type;
     }
     static clone(source) {
         const target = new TypeAliasDeclarationImpl(source.name, source.type);
         this[COPY_FIELDS](source, target);
         return target;
+    }
+    /** @internal */
+    *[STRUCTURE_AND_TYPES_CHILDREN]() {
+        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+        if (typeof this.typeStructure === "object")
+            yield this.typeStructure;
     }
     toJSON() {
         const rv = super.toJSON();

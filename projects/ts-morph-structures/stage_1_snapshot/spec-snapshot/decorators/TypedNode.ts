@@ -46,7 +46,7 @@ it("ts-morph structure decorators: TypedNode", () => {
     expect(target.typeStructure).toBeInstanceOf(LiteralTypedStructureImpl);
     expect((target.typeStructure as LiteralTypedStructureImpl)?.stringValue).toBe("boolean");
 
-    // ts-morph is losing return types in cloning structures
+    // ts-morph is losing types in cloning structures
     target = Object.assign({}, target);
     expect(target.type).withContext("Object.assign test for cloning").toBe("boolean");
   }
@@ -57,7 +57,7 @@ it("ts-morph structure decorators: TypedNode", () => {
     expect<WriterFunction>(target.type as WriterFunction).toBe(stringTypeStructure.writerFunction);
     expect(target.typeStructure).toBe(stringTypeStructure);
 
-    // ts-morph is losing return types in cloning structures
+    // ts-morph is losing types in cloning structures
     target = Object.assign({}, target);
     expect(target.type).withContext("Object.assign test for cloning").toBe(stringTypeStructure.writerFunction);
   }
