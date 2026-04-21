@@ -3834,13 +3834,18 @@ class TypeAliasDeclarationImpl extends TypeAliasDeclarationStructureBase {
     kind = StructureKind.TypeAlias;
     #typeManager;
     // overridden in constructor
-    type;
+    type = "";
     constructor(name, type) {
         super();
         // type is getting lost in ts-morph clone operations
         this.#typeManager = TypeAccessors.buildTypeAccessors(this, "type", "");
         this.name = name;
-        this.type = type;
+        if (typeof type === "object") {
+            this.typeStructure = type;
+        }
+        else {
+            this.type = type;
+        }
     }
     get typeStructure() {
         return this.#typeManager.typeStructure;

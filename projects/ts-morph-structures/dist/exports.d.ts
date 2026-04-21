@@ -984,8 +984,8 @@ declare class DecoratorImpl extends DecoratorStructureBase implements DecoratorS
 declare const ParameterDeclarationStructureBase: mixin_decorators.MixinClass<object, {
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly decorators: DecoratorImpl[];
     scope?: ts_morph.Scope | undefined;
+    readonly decorators: DecoratorImpl[];
     name: string;
     initializer?: stringOrWriterFunction | undefined;
     isReadonly: boolean;
@@ -1214,11 +1214,11 @@ declare const FunctionDeclarationStructureBase: mixin_decorators.MixinClass<obje
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     name?: string | undefined;
     isDefaultExport: boolean;
     isExported: boolean;
     hasDeclareKeyword: boolean;
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     isAsync: boolean;
     isGenerator: boolean;
 }, typeof StructureBase>;
@@ -1259,10 +1259,10 @@ declare const GetAccessorDeclarationStructureBase: mixin_decorators.MixinClass<o
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly decorators: DecoratorImpl[];
-    isAbstract: boolean;
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     scope?: ts_morph.Scope | undefined;
+    readonly decorators: DecoratorImpl[];
+    isAbstract: boolean;
     name: string;
 }, typeof StructureBase>;
 declare class GetAccessorDeclarationImpl extends GetAccessorDeclarationStructureBase implements GetAccessorDeclarationStructureClassIfc {
@@ -1466,10 +1466,10 @@ declare const MethodDeclarationStructureBase: mixin_decorators.MixinClass<object
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly decorators: DecoratorImpl[];
-    isAbstract: boolean;
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     scope?: ts_morph.Scope | undefined;
+    readonly decorators: DecoratorImpl[];
+    isAbstract: boolean;
     name: string;
     isAsync: boolean;
     isGenerator: boolean;
@@ -1496,8 +1496,8 @@ declare const MethodDeclarationOverloadStructureBase: mixin_decorators.MixinClas
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    isAbstract: boolean;
     scope?: ts_morph.Scope | undefined;
+    isAbstract: boolean;
     isAsync: boolean;
     isGenerator: boolean;
     hasOverrideKeyword: boolean;
@@ -1533,10 +1533,10 @@ declare const ModuleDeclarationStructureBase: mixin_decorators.MixinClass<object
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     isDefaultExport: boolean;
     isExported: boolean;
     hasDeclareKeyword: boolean;
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     name: string;
 }, typeof StructureBase>;
 declare class ModuleDeclarationImpl extends ModuleDeclarationStructureBase implements ModuleDeclarationStructureClassIfc {
@@ -1573,10 +1573,10 @@ declare const PropertyDeclarationStructureBase: mixin_decorators.MixinClass<obje
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
+    scope?: ts_morph.Scope | undefined;
     readonly decorators: DecoratorImpl[];
     isAbstract: boolean;
     hasDeclareKeyword: boolean;
-    scope?: ts_morph.Scope | undefined;
     name: string;
     initializer?: stringOrWriterFunction | undefined;
     isReadonly: boolean;
@@ -1624,10 +1624,10 @@ declare const SetAccessorDeclarationStructureBase: mixin_decorators.MixinClass<o
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly decorators: DecoratorImpl[];
-    isAbstract: boolean;
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     scope?: ts_morph.Scope | undefined;
+    readonly decorators: DecoratorImpl[];
+    isAbstract: boolean;
     name: string;
 }, typeof StructureBase>;
 declare class SetAccessorDeclarationImpl extends SetAccessorDeclarationStructureBase implements SetAccessorDeclarationStructureClassIfc {
@@ -1689,7 +1689,7 @@ declare class TypeAliasDeclarationImpl extends TypeAliasDeclarationStructureBase
     #private;
     readonly kind: StructureKind.TypeAlias;
     type: stringOrWriterFunction;
-    constructor(name: string, type: stringOrWriterFunction);
+    constructor(name: string, type: stringOrWriterFunction | TypeStructures);
     get typeStructure(): TypeStructures;
     set typeStructure(value: TypeStructures);
     /** @internal */

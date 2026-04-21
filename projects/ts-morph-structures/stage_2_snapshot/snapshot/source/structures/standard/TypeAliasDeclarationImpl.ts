@@ -66,14 +66,18 @@ export default class TypeAliasDeclarationImpl
   readonly kind: StructureKind.TypeAlias = StructureKind.TypeAlias;
   readonly #typeManager: TypeAccessors;
   // overridden in constructor
-  type: stringOrWriterFunction;
+  type: stringOrWriterFunction = "";
 
-  constructor(name: string, type: stringOrWriterFunction) {
+  constructor(name: string, type: stringOrWriterFunction | TypeStructures) {
     super();
     // type is getting lost in ts-morph clone operations
     this.#typeManager = TypeAccessors.buildTypeAccessors(this, "type", "");
     this.name = name;
-    this.type = type;
+    if (typeof type === "object") {
+      this.typeStructure = type;
+    } else {
+      this.type = type;
+    }
   }
 
   get typeStructure(): TypeStructures {

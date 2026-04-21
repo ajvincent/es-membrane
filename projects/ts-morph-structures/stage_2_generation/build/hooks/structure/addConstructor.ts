@@ -29,9 +29,13 @@ export default function addConstructor(
 {
   const parts = dictionaries.structureParts.get(meta)!;
 
-  let constructor: ConstructorDeclarationImpl | undefined = parts.classMembersMap.getAsKind(groupName, StructureKind.Constructor);
+  let constructor: ConstructorDeclarationImpl | undefined = parts.classMembersMap.getAsKind(
+    groupName, StructureKind.Constructor
+  );
 
-  const isStatic_property = parts.classMembersMap.getAsKind<StructureKind.Property>("isStatic", StructureKind.Property);
+  const isStatic_property = parts.classMembersMap.getAsKind<StructureKind.Property>(
+    "isStatic", StructureKind.Property
+  );
   const hasNamed = meta.decoratorKeys.has("NamedNodeStructure");
 
   if (Boolean(isStatic_property) || hasNamed) {
