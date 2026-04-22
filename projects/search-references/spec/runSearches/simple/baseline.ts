@@ -43,7 +43,7 @@ import {
 } from "../../support/projectRoot.js";
 //#endregion preamble
 
-describe("Simple graph searches:", () => {
+describe("Simple graph searches: baseline", () => {
   const target = { isTarget: true, }, heldValues = { isHeldValues: true };
 
   const targetMetadata: GraphObjectMetadata = {

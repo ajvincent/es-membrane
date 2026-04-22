@@ -43,7 +43,7 @@
   "devDependencies": {
     "@ajvincent/build-utilities": "file:../build-utilities",
     "@types/gulp": "^4.0.17",
-    "@types/jasmine": "^5.1.5",
+    "@types/jasmine": "^6.0.0",
     "@types/node": "^18.19.69",
     "gulp": "^5.0.0",
     "rollup": "^4.60.1",

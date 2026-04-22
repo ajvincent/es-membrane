@@ -49,7 +49,7 @@
     "@rollup/plugin-typescript": "^11.1.6",
     "@tsconfig/node18": "^18.2.4",
     "@types/gulp": "^4.0.17",
-    "@types/jasmine": "^5.1.5",
+    "@types/jasmine": "^6.0.0",
     "@types/node": "^20.17.11",
     "@types/which": "^3.0.4",
     "chalk": "^5.4.1",

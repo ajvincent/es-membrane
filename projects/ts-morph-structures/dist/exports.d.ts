@@ -982,9 +982,9 @@ declare class DecoratorImpl extends DecoratorStructureBase implements DecoratorS
 }
 
 declare const ParameterDeclarationStructureBase: mixin_decorators.MixinClass<object, {
+    scope?: ts_morph.Scope | undefined;
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    scope?: ts_morph.Scope | undefined;
     readonly decorators: DecoratorImpl[];
     name: string;
     initializer?: stringOrWriterFunction | undefined;
@@ -1056,10 +1056,10 @@ declare class ClassDeclarationImpl extends ClassDeclarationStructureBase impleme
 }
 
 declare const ClassStaticBlockDeclarationStructureBase: mixin_decorators.MixinClass<object, {
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
 }, typeof StructureBase>;
 declare class ClassStaticBlockDeclarationImpl extends ClassStaticBlockDeclarationStructureBase implements ClassStaticBlockDeclarationStructureClassIfc {
     readonly kind: StructureKind.ClassStaticBlock;
@@ -1068,6 +1068,8 @@ declare class ClassStaticBlockDeclarationImpl extends ClassStaticBlockDeclaratio
 }
 
 declare const ConstructorDeclarationStructureBase: mixin_decorators.MixinClass<object, {
+    scope?: ts_morph.Scope | undefined;
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly parameters: ParameterDeclarationImpl[];
     returnType?: stringOrWriterFunction | undefined;
     returnTypeStructure: TypeStructures | undefined;
@@ -1075,8 +1077,6 @@ declare const ConstructorDeclarationStructureBase: mixin_decorators.MixinClass<o
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
-    scope?: ts_morph.Scope | undefined;
 }, typeof StructureBase>;
 declare class ConstructorDeclarationImpl extends ConstructorDeclarationStructureBase implements ConstructorDeclarationStructureClassIfc {
     readonly kind: StructureKind.Constructor;
@@ -1089,6 +1089,7 @@ declare class ConstructorDeclarationImpl extends ConstructorDeclarationStructure
 }
 
 declare const ConstructorDeclarationOverloadStructureBase: mixin_decorators.MixinClass<object, {
+    scope?: ts_morph.Scope | undefined;
     readonly parameters: ParameterDeclarationImpl[];
     returnType?: stringOrWriterFunction | undefined;
     returnTypeStructure: TypeStructures | undefined;
@@ -1096,7 +1097,6 @@ declare const ConstructorDeclarationOverloadStructureBase: mixin_decorators.Mixi
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    scope?: ts_morph.Scope | undefined;
 }, typeof StructureBase>;
 declare class ConstructorDeclarationOverloadImpl extends ConstructorDeclarationOverloadStructureBase implements ConstructorDeclarationOverloadStructureClassIfc {
     readonly kind: StructureKind.ConstructorOverload;
@@ -1207,6 +1207,7 @@ declare class ExportSpecifierImpl extends ExportSpecifierStructureBase implement
 }
 
 declare const FunctionDeclarationStructureBase: mixin_decorators.MixinClass<object, {
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly parameters: ParameterDeclarationImpl[];
     returnType?: stringOrWriterFunction | undefined;
     returnTypeStructure: TypeStructures | undefined;
@@ -1214,7 +1215,6 @@ declare const FunctionDeclarationStructureBase: mixin_decorators.MixinClass<obje
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     name?: string | undefined;
     isDefaultExport: boolean;
     isExported: boolean;
@@ -1252,6 +1252,8 @@ declare class FunctionDeclarationOverloadImpl extends FunctionDeclarationOverloa
 }
 
 declare const GetAccessorDeclarationStructureBase: mixin_decorators.MixinClass<object, {
+    scope?: ts_morph.Scope | undefined;
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly parameters: ParameterDeclarationImpl[];
     returnType?: stringOrWriterFunction | undefined;
     returnTypeStructure: TypeStructures | undefined;
@@ -1259,8 +1261,6 @@ declare const GetAccessorDeclarationStructureBase: mixin_decorators.MixinClass<o
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
-    scope?: ts_morph.Scope | undefined;
     readonly decorators: DecoratorImpl[];
     isAbstract: boolean;
     name: string;
@@ -1459,6 +1459,8 @@ declare class JsxSpreadAttributeImpl extends JsxSpreadAttributeStructureBase imp
 }
 
 declare const MethodDeclarationStructureBase: mixin_decorators.MixinClass<object, {
+    scope?: ts_morph.Scope | undefined;
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly parameters: ParameterDeclarationImpl[];
     returnType?: stringOrWriterFunction | undefined;
     returnTypeStructure: TypeStructures | undefined;
@@ -1466,8 +1468,6 @@ declare const MethodDeclarationStructureBase: mixin_decorators.MixinClass<object
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
-    scope?: ts_morph.Scope | undefined;
     readonly decorators: DecoratorImpl[];
     isAbstract: boolean;
     name: string;
@@ -1489,6 +1489,7 @@ declare class MethodDeclarationImpl extends MethodDeclarationStructureBase imple
 }
 
 declare const MethodDeclarationOverloadStructureBase: mixin_decorators.MixinClass<object, {
+    scope?: ts_morph.Scope | undefined;
     readonly parameters: ParameterDeclarationImpl[];
     returnType?: stringOrWriterFunction | undefined;
     returnTypeStructure: TypeStructures | undefined;
@@ -1496,7 +1497,6 @@ declare const MethodDeclarationOverloadStructureBase: mixin_decorators.MixinClas
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    scope?: ts_morph.Scope | undefined;
     isAbstract: boolean;
     isAsync: boolean;
     isGenerator: boolean;
@@ -1530,10 +1530,10 @@ declare class MethodSignatureImpl extends MethodSignatureStructureBase implement
 }
 
 declare const ModuleDeclarationStructureBase: mixin_decorators.MixinClass<object, {
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     isDefaultExport: boolean;
     isExported: boolean;
     hasDeclareKeyword: boolean;
@@ -1570,10 +1570,10 @@ declare class PropertyAssignmentImpl extends PropertyAssignmentStructureBase imp
 }
 
 declare const PropertyDeclarationStructureBase: mixin_decorators.MixinClass<object, {
+    scope?: ts_morph.Scope | undefined;
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    scope?: ts_morph.Scope | undefined;
     readonly decorators: DecoratorImpl[];
     isAbstract: boolean;
     hasDeclareKeyword: boolean;
@@ -1617,6 +1617,8 @@ declare class PropertySignatureImpl extends PropertySignatureStructureBase imple
 }
 
 declare const SetAccessorDeclarationStructureBase: mixin_decorators.MixinClass<object, {
+    scope?: ts_morph.Scope | undefined;
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly parameters: ParameterDeclarationImpl[];
     returnType?: stringOrWriterFunction | undefined;
     returnTypeStructure: TypeStructures | undefined;
@@ -1624,8 +1626,6 @@ declare const SetAccessorDeclarationStructureBase: mixin_decorators.MixinClass<o
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
-    scope?: ts_morph.Scope | undefined;
     readonly decorators: DecoratorImpl[];
     isAbstract: boolean;
     name: string;
@@ -1651,9 +1651,9 @@ declare class ShorthandPropertyAssignmentImpl extends ShorthandPropertyAssignmen
 }
 
 declare const SourceFileStructureBase: mixin_decorators.MixinClass<object, {
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly trailingTrivia: stringOrWriterFunction[];
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
 }, typeof StructureBase>;
 declare class SourceFileImpl extends SourceFileStructureBase implements SourceFileStructureClassIfc {
     readonly kind: StructureKind.SourceFile;

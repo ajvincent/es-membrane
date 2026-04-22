@@ -30,7 +30,7 @@
     "@ajvincent/build-utilities": "file:../build-utilities",
     "@tsconfig/node20": "^20.1.4",
     "@types/gulp": "^4.0.17",
-    "@types/jasmine": "^5.1.5",
+    "@types/jasmine": "^6.0.0",
     "@types/node": "^18.19.34",
     "gulp": "^5.0.0",
     "jasmine": "^5.5.0",

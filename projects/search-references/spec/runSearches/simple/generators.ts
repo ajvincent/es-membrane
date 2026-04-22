@@ -4,13 +4,13 @@ import {
 } from "../../support/getActualGraph.js";
 //#endregion preamble
 
-describe("Simple graph searches:", () => {
-  it("generators do not directly expose their values", async () => {
+describe("Simple graph searches: generators", () => {
+  it("do not directly expose their values", async () => {
     const actual = await getActualGraph("simple/generators.js", "generator holds target strongly", false);
     expect(actual).toBeNull();
   });
 
-  it("async generators do not directly expose their values", async () => {
+  it("when async do not directly expose their values", async () => {
     const actual = await getActualGraph("simple/asyncGenerators.js", "generator holds target strongly", false);
     expect(actual).toBeNull();
   });

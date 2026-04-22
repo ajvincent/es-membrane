@@ -33,7 +33,7 @@ import {
 type ChildStructure = StructureImpls | TypeStructures;
 type ForEachStructureCallback<TStructure> = (child: ChildStructure) => TStructure | void;
 
-describe("forEachAugmentedStructureImpl", () => {
+describe("forEachAugmentedStructureImpl (dist)", () => {
   const visited = new Set<ChildStructure>;
   const expected = Symbol("expected");
 
