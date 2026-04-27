@@ -2032,7 +2032,7 @@ declare class ImportManager {
 
 interface InsertedMemberKey {
     readonly isFieldStatic: boolean;
-    readonly fieldType: PropertySignatureImpl;
+    readonly fieldType: PropertySignatureImpl | GetAccessorDeclarationImpl | SetAccessorDeclarationImpl;
     readonly isGroupStatic: boolean;
     readonly groupType: GetAccessorDeclarationImpl | SetAccessorDeclarationImpl | MethodSignatureImpl | "constructor" | "(initializer or property reference)";
 }
@@ -2127,7 +2127,7 @@ declare class MemberedTypeToClass {
      * @param isGroupStatic - true if the group is static (false for constructors)
      * @param groupType - the group signature, or "constructor" for the constructor I generate.
      */
-    insertMemberKey(isFieldStatic: boolean, fieldType: PropertySignatureImpl, isGroupStatic: boolean, groupType: InsertedMemberKey["groupType"]): void;
+    insertMemberKey(isFieldStatic: boolean, fieldType: PropertySignatureImpl | GetAccessorDeclarationImpl | SetAccessorDeclarationImpl, isGroupStatic: boolean, groupType: InsertedMemberKey["groupType"]): void;
 }
 
 /**

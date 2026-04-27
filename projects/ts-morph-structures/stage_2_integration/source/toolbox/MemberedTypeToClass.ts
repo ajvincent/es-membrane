@@ -46,7 +46,7 @@ interface ClassMembersByKind {
 
 interface InsertedMemberKey {
   readonly isFieldStatic: boolean;
-  readonly fieldType: PropertySignatureImpl;
+  readonly fieldType: PropertySignatureImpl | GetAccessorDeclarationImpl | SetAccessorDeclarationImpl;
   readonly isGroupStatic: boolean;
   readonly groupType: (
     GetAccessorDeclarationImpl |
@@ -715,14 +715,14 @@ export default class MemberedTypeToClass {
    */
   insertMemberKey(
     isFieldStatic: boolean,
-    fieldType: PropertySignatureImpl,
+    fieldType: PropertySignatureImpl | GetAccessorDeclarationImpl | SetAccessorDeclarationImpl,
     isGroupStatic: boolean,
     groupType: InsertedMemberKey["groupType"]
   ): void
   {
     this.#insertedMemberKeys.push({
       isFieldStatic, fieldType, isGroupStatic, groupType
-    })
+    });
   }
 
   #sortMembersByKind(members: ClassMemberImpl[]): ClassMembersByKind {

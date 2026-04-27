@@ -9,7 +9,7 @@ Add member keys for a field and a group.
 **Signature:**
 
 ```typescript
-insertMemberKey(isFieldStatic: boolean, fieldType: PropertySignatureImpl, isGroupStatic: boolean, groupType: InsertedMemberKey["groupType"]): void;
+insertMemberKey(isFieldStatic: boolean, fieldType: PropertySignatureImpl | GetAccessorDeclarationImpl | SetAccessorDeclarationImpl, isGroupStatic: boolean, groupType: InsertedMemberKey["groupType"]): void;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ fieldType
 
 </td><td>
 
-[PropertySignatureImpl](./ts-morph-structures.propertysignatureimpl.md)
+[PropertySignatureImpl](./ts-morph-structures.propertysignatureimpl.md) \| [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md) \| [SetAccessorDeclarationImpl](./ts-morph-structures.setaccessordeclarationimpl.md)
 
 
 </td><td>

@@ -1143,7 +1143,7 @@ describe("MemberedTypeToClass", () => {
     expect(method2_Decl?.isGenerator).toBeFalse();
   });
 
-  it("supports insertMemberKey for the constructor", () => {
+  it("supports insertMemberKey of a PropertySignatureImpl for the constructor", () => {
     typeToClass.defineStatementsByPurpose("first", false);
     typeToClass.defineStatementsByPurpose("second", false);
 
@@ -1165,6 +1165,47 @@ describe("MemberedTypeToClass", () => {
 
     typeToClass.insertMemberKey(false, new PropertySignatureImpl("hello"), false, "constructor");
     typeToClass.addStatementGetters(1, [statementsGetter]);
+    const classMembers: ClassMembersMap = typeToClass.buildClassMembersMap();
+
+    const ctor_Decl = classMembers.getAsKind<StructureKind.Constructor>(StructureKind.Constructor, false, "constructor");
+    expect(ctor_Decl).not.toBeUndefined();
+    if (ctor_Decl) {
+      expect(ctor_Decl.typeParameters.length).toBe(0);
+      expect(ctor_Decl.statements).toEqual([
+        first_hello_ctor,
+        second_hello_ctor,
+      ]);
+    }
+  });
+
+  it("supports insertMemberKey of a GetAccessor for the constructor", () => {
+    typeToClass.defineStatementsByPurpose("first", false);
+    typeToClass.defineStatementsByPurpose("second", false);
+
+    const statementsGetter = new AllStatementsGetter("test");
+
+    const first_hello_ctor = statementsGetter.createWriter(`void("first hello");`);
+    const second_hello_ctor = statementsGetter.createWriter(`void("second hello");`);
+
+    statementsGetter.setStatements(
+      "get hello", "constructor", "first", [
+        first_hello_ctor
+      ]
+    );
+    statementsGetter.setStatements(
+      "get hello", "constructor", "second", [
+        second_hello_ctor
+      ]
+    );
+
+    typeToClass.insertMemberKey(
+      false,
+      new GetAccessorDeclarationImpl(false, "hello", LiteralTypeStructureImpl.get("void")),
+      false,
+      "constructor"
+    );
+    typeToClass.addStatementGetters(1, [statementsGetter]);
+
     const classMembers: ClassMembersMap = typeToClass.buildClassMembersMap();
 
     const ctor_Decl = classMembers.getAsKind<StructureKind.Constructor>(StructureKind.Constructor, false, "constructor");
