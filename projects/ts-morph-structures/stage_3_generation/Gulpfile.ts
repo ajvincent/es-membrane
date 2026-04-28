@@ -27,7 +27,7 @@ async function eslint(): Promise<void> {
     "Gulpfile.ts",
     "build/**/*.ts",
     "moduleClasses/**/*.ts",
-    "pseudoStatements/**/*.ts",
+    "pseudoExpressions/**/*.ts",
     "vanilla/**/*.ts",
   ]);
 }

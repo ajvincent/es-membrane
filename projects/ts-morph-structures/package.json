@@ -26,7 +26,8 @@
     "debug-stage-three": "npm run clean && node --inspect-brk ../../node_modules/gulp/bin/gulp.js stage_three",
     "debug-use-cases": "npm run clean && node --inspect-brk ../../node_modules/gulp/bin/gulp.js use_cases",
     "is-repo-clean": "npm run clean && node ./gulp-utilities/assertRepoIsClean.js",
-    "diff-stages": "npm run clean && diff -p -U 8 -N -r --color ./stage_2_snapshot/snapshot/source ./stage_3_integration/snapshot/source && echo source ok && diff -p -U 8 -N -r --color ./stage_2_snapshot/snapshot/dist ./stage_3_integration/snapshot/dist"
+    "diff-stages": "npm run clean && diff -p -U 8 -N -r ./stage_2_snapshot/snapshot/source ./stage_3_integration/snapshot/source && echo source ok && diff -p -U 8 -N -r ./stage_2_snapshot/snapshot/dist ./stage_3_integration/snapshot/dist",
+    "diff-stages-color": "npm run clean && diff -p -U 8 -N -r --color ./stage_2_snapshot/snapshot/source ./stage_3_integration/snapshot/source && echo source ok && diff -p -U 8 -N -r --color ./stage_2_snapshot/snapshot/dist ./stage_3_integration/snapshot/dist"
   },
   "repository": {
     "type": "git",

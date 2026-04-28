@@ -10,10 +10,11 @@ import {
   ClassSupportsStatementsFlags,
   MemberedStatementsKey,
   TypeStructureKind,
+  TypeStructures,
   type stringWriterOrStatementImpl
 } from "#stage_two/snapshot/source/exports.js";
 
-import BlockStatementImpl from "../../pseudoStatements/BlockStatement.js";
+import BlockStatementImpl from "../../pseudoExpressions/statements/BlockStatement.js";
 import PropertyHashesWithTypes from "../classTools/PropertyHashesWithTypes.js";
 import StatementGetterBase from "./GetterBase.js";
 import BaseClassModule from "#stage_three/generation/moduleClasses/BaseClassModule.js";
@@ -47,8 +48,18 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
     return PropertyHashesWithTypes.has(this.module.baseName, key.fieldKey);
   }
   getBodyStatements(key: MemberedStatementsKey): readonly stringWriterOrStatementImpl[] {
-    assert.equal(key.fieldType?.kind, StructureKind.GetAccessor);
-    if (key.fieldType.returnTypeStructure?.kind === TypeStructureKind.Array) {
+    assert(
+      key.fieldType?.kind === StructureKind.GetAccessor || key.fieldType?.kind === StructureKind.PropertySignature,
+      `${this.module.exportName}:${key.fieldKey} kind is not PropertySignature`
+    )
+
+    let typeStructure: TypeStructures;
+    if (key.fieldType.kind === StructureKind.GetAccessor)
+      typeStructure = key.fieldType.returnTypeStructure!;
+    else
+      typeStructure = key.fieldType.typeStructure!;
+
+    if (typeStructure.kind === TypeStructureKind.Array) {
       return [
         new BlockStatementImpl(
           `for (const typeStructure of this.${key.fieldKey}Set)`,

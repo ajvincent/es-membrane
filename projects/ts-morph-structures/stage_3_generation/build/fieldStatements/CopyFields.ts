@@ -12,7 +12,7 @@ import {
   ArrayTypeStructureImpl,
   type ClassBodyStatementsGetter,
   type ClassHeadStatementsGetter,
-  GetAccessorDeclarationImpl,
+  type GetAccessorDeclarationImpl,
   LiteralTypeStructureImpl,
   MemberedStatementsKey,
   ParenthesesTypeStructureImpl,
@@ -27,6 +27,7 @@ import {
   type stringWriterOrStatementImpl,
   type stringOrWriterFunction,
   ClassSupportsStatementsFlags,
+  type TypeMembersMap,
 } from "#stage_two/snapshot/source/exports.js";
 
 import {
@@ -35,11 +36,12 @@ import {
   getStructureNameFromModified,
 } from "#utilities/source/StructureNameTransforms.js";
 
-import BlockStatementImpl from "../../pseudoStatements/BlockStatement.js";
-import CallExpressionStatementImpl from "../../pseudoStatements/CallExpression.js";
+import BlockStatementImpl from "../../pseudoExpressions/statements/BlockStatement.js";
+import CallExpressionStatementImpl from "../../pseudoExpressions/statements/CallExpression.js";
 import {
   BaseClassModule,
   InterfaceModule,
+  StructureModule,
 } from "../../moduleClasses/exports.js";
 import FlatInterfaceMap from "#stage_three/generation/vanilla/FlatInterfaceMap.js";
 import StatementGetterBase from "./GetterBase.js";
@@ -122,6 +124,14 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
 
     if (key.fieldType.name.startsWith("#"))
       return [];
+
+    {
+      if (this.module instanceof StructureModule) {
+        const typeMembers: TypeMembersMap = this.module.getFlatTypeMembers();
+        if (typeMembers.has(key.fieldKey + "Structure") || typeMembers.has(key.fieldKey + "Set"))
+          return this.#getCopyTypeStatements(key.fieldType);
+      }
+    }
 
     assert(key.fieldType.typeStructure, "no type structure?");
 
@@ -209,11 +219,12 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
   }
 
   #getCopyTypeStatements(
-    member: GetAccessorDeclarationImpl
+    member: GetAccessorDeclarationImpl | PropertySignatureImpl
   ): readonly stringWriterOrStatementImpl[]
   {
-    const { name, returnTypeStructure } = member;
-    if (returnTypeStructure?.kind === TypeStructureKind.Array) {
+    const { name } = member;
+    const typeStructure = (member.kind === StructureKind.GetAccessor ? member.returnTypeStructure : member.typeStructure);
+    if (typeStructure?.kind === TypeStructureKind.Array) {
       const setName = name + "Set";
 
       const setStatement = (writer: CodeBlockWriter): void => {

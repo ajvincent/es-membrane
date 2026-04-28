@@ -14,8 +14,8 @@ import {
   type stringWriterOrStatementImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
-import BlockStatementImpl from "../../pseudoStatements/BlockStatement.js";
-import CallExpressionStatementImpl from "#stage_three/generation/pseudoStatements/CallExpression.js";
+import BlockStatementImpl from "../../pseudoExpressions/statements/BlockStatement.js";
+import CallExpressionStatementImpl from "#stage_three/generation/pseudoExpressions/statements/CallExpression.js";
 import StatementGetterBase from "../fieldStatements/GetterBase.js";
 import { DecoratorModule } from "#stage_three/generation/moduleClasses/exports.js";
 //#endregion preamble

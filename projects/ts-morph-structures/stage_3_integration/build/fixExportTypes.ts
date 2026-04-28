@@ -33,6 +33,9 @@ import {
   stageDir
 } from "../pre-build/constants.js";
 
+import {
+  sortMemberNames
+} from "#stage_three/generation/moduleClasses/sortClassMembers.js";
 
 //#region driver
 export async function fixExportTypes(): Promise<void>
@@ -212,14 +215,9 @@ function sortMembers(
   b: Readonly<OptionalKind<MethodSignatureStructure> | OptionalKind<PropertySignatureStructure>>
 ): number
 {
-  if (a.name === "kind")
-    return -1;
-  if (b.name === "kind")
-    return +1;
-
-  return a.name.localeCompare(b.name);
+  return sortMemberNames(a.name, b.name);
 }
 
 function nameSorter(a: NameableNodeStructure, b: NameableNodeStructure): number {
-  return a.name!.localeCompare(b.name!);
+  return sortMemberNames(a.name!, b.name!);
 }

@@ -21,8 +21,8 @@ import type {
   BaseClassModule,
 } from "../../../moduleClasses/exports.js";
 
-import BlockStatementImpl from "../../../pseudoStatements/BlockStatement.js";
-import CallExpressionStatementImpl from "../../../pseudoStatements/CallExpression.js";
+import BlockStatementImpl from "../../../pseudoExpressions/statements/BlockStatement.js";
+import CallExpressionStatementImpl from "../../../pseudoExpressions/statements/CallExpression.js";
 import StatementGetterBase from "../../fieldStatements/GetterBase.js";
 // #endregion preamble
 

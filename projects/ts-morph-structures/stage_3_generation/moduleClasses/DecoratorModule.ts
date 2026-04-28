@@ -24,7 +24,7 @@ import {
   getStructureMixinName,
 } from "#utilities/source/StructureNameTransforms.js";
 
-import SatisfiesStatementImpl from "../pseudoStatements/SatisfiesStatement.js";
+import SatisfiesStatementImpl from "../pseudoExpressions/statements/SatisfiesStatement.js";
 
 import BaseClassModule from "./BaseClassModule.js";
 

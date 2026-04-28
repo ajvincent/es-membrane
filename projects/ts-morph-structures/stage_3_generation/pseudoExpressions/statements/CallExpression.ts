@@ -6,7 +6,7 @@ import type {
   TypeStructures,
   stringOrWriterFunction
 } from "#stage_two/snapshot/source/exports.js";
-import StatementBase from "./StatementBase.js";
+import ExpressionBase from "../ExpressionBase.js";
 
 export interface CallExpressionStatementContext {
   name: string;
@@ -15,7 +15,7 @@ export interface CallExpressionStatementContext {
 }
 
 export default
-class CallExpressionStatementImpl extends StatementBase
+class CallExpressionStatementImpl extends ExpressionBase
 implements CallExpressionStatementContext
 {
   name: string;
@@ -39,12 +39,12 @@ implements CallExpressionStatementContext
     writer.write(this.name);
     if (this.typeParameters.length) {
       this.pairedWrite(writer, "<", ">", () => {
-        this.writeArray(writer, this.typeParameters.map(typeParam => typeParam.writerFunction));
+        this.writeSequence(writer, this.typeParameters.map(typeParam => typeParam.writerFunction));
       })
     }
 
     this.pairedWrite(writer, "(", ")", () => {
-      this.writeArray(writer, this.parameters);
+      this.writeSequence(writer, this.parameters);
     });
   }
 

@@ -18,8 +18,8 @@ import {
   TypeStructureKind,
 } from "#stage_two/snapshot/source/exports.js";
 
-import BlockStatementImpl from "../../pseudoStatements/BlockStatement.js";
-import CallExpressionStatementImpl from "../../pseudoStatements/CallExpression.js";
+import BlockStatementImpl from "../../pseudoExpressions/statements/BlockStatement.js";
+import CallExpressionStatementImpl from "../../pseudoExpressions/statements/CallExpression.js";
 import StatementGetterBase from "./GetterBase.js";
 import BaseClassModule from "#stage_three/generation/moduleClasses/BaseClassModule.js";
 

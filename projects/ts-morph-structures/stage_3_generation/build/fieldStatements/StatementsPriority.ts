@@ -7,7 +7,6 @@ import StructureIteratorStatements from "./StructureIterator.js";
 import ToJSONStatements from "./ToJSON.js";
 import TypeManagerStatements from "./TypeStructures/Manager.js";
 import TypeStructureGetterStatements from "./TypeStructures/StructureGetter.js";
-import TypeGetterStatements from "./TypeStructures/TypeGetter.js";
 import UndefinedProperties from "./UndefinedProperties.js";
 
 export enum StatementsPriority {
@@ -28,7 +27,6 @@ export function getBaselineStatementGetters(
     new ToJSONStatements(module),
     new StructureIteratorStatements(module),
     new TypeManagerStatements(module),
-    new TypeGetterStatements(module),
     new TypeStructureGetterStatements(module),
 
     // this is last, because anything with a value we should've filtered out by now.

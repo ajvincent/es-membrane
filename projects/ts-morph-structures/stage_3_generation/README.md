@@ -9,7 +9,7 @@ Unlike in stage 2, when I was figuring it out as I went along, this time I made 
 3. Creating the [decorator modules](./build/decorators/createDecorators.ts) and [structure modules](./build/structures/createStructures.ts), using:
 
     - a set of [modules representing source module files](./moduleClasses/)
-    - ["pseudo-statement structures"](./pseudoStatements/) which the type structure classes inspire
+    - ["pseudo-expression  structures"](./pseudoExpressions/statements/) which the type structure classes inspire
     - ["vanilla" interfaces and unions from ts-morph](./vanilla/), which I represent as `InterfaceDeclarationImpl` instances and arrays of strings, respectively
     - `TypeMembersMap` to combine interfaces into convenient map structures
     - `MemberedTypeToClass` to actually generate the classes, with [class field statement generators](./build/fieldStatements/), starting with a [statements getter base class](./build/fieldStatements/GetterBase.ts)
