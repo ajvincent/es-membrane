@@ -23,12 +23,9 @@ async function eslint(): Promise<void> {
   ]);
 }
 
-void fixExportTypes;
 export default series([
   structureToSyntax,
   doBundles,
-  /*
   fixExportTypes,
-  */
   eslint,
 ]);

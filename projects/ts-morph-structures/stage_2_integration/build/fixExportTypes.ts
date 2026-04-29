@@ -21,6 +21,9 @@ import type {
   NamedNodeStructure,
 } from "ts-morph";
 
+import { runPrettify } from "@ajvincent/build-utilities";
+
+import { pathToModule } from "#utilities/source/AsyncSpecModules.js";
 import getTS_SourceFile from "#utilities/source/getTS_SourceFile.js";
 
 import {
@@ -59,6 +62,8 @@ export async function fixExportTypes(): Promise<void>
 
   sourceFile.set(rootStructure);
   await sourceFile.save();
+
+  await runPrettify(pathToModule(stageDir, "snapshot/dist"));
 }
 
 function recurseStructures(child: StructureImpls | TypeStructures): void {
