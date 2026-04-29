@@ -61,7 +61,6 @@ export class FunctionExpressionImpl extends ExpressionBase {
     }
   }
 
-
   #writerFunction(
     writer: CodeBlockWriter
   ): void

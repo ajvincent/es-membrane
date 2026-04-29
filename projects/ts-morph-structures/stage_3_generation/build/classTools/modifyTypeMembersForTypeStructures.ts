@@ -18,6 +18,12 @@ export default function modifyTypeMembersForTypeStructures(
   map: TypeMembersMap
 ): PropertySignatureImpl[]
 {
+  if (baseName === "TypeAliasDeclarationStructure") {
+    // special case: type can never be undefined
+    const typeStructureMember = map.getAsKind(StructureKind.PropertySignature, "typeStructure")!;
+    typeStructureMember.typeStructure = LiteralTypeStructureImpl.get("TypeStructures");
+  }
+
   const properties: PropertySignatureImpl[] = [];
   map.arrayOfKind(StructureKind.PropertySignature).forEach(prop => {
     if (defineTypeAccessors(baseName, prop, map))

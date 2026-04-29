@@ -251,16 +251,27 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
     this.module.addImports("internal", ["TypeStructureClassesMap"], []);
 
     const name_Structure = name + "Structure";
-    return [
+
+    const statements = [
       `const { ${name_Structure} } = source as unknown as ${this.module.exportName};`,
 
       new BlockStatementImpl(
         `if (${name_Structure})`,
         [`target.${name_Structure} = TypeStructureClassesMap.clone(${name_Structure});`],
       ).writerFunction,
-
-      this.#getIfSourceStatement(true, name, `target.${name} = source.${name}`),
     ];
+
+    if (this.module.baseName.startsWith("TypeAliasDeclaration")) {
+      // special case: type can never be undefined
+      statements.push(`else target.${name} = source.${name};`)
+    }
+    else {
+      statements.push(
+        this.#getIfSourceStatement(true, name, `target.${name} = source.${name}`),
+      );
+    }
+
+    return statements;
   }
   //#endregion literal type
 

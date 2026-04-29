@@ -6,7 +6,6 @@ import {
   type AccessorMirrorGetter,
   ClassSupportsStatementsFlags,
   type MemberedStatementsKey,
-  type stringWriterOrStatementImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
 import PropertyHashesWithTypes from "../../classTools/PropertyHashesWithTypes.js";
@@ -37,9 +36,14 @@ implements AccessorMirrorGetter
 
   getAccessorMirror(
     key: MemberedStatementsKey
-  ): stringWriterOrStatementImpl
+  ): string
   {
     this.module.addImports("public", [], ["TypeStructures"]);
-    return `this.#${key.fieldKey.replace("Structure", "Accessors")}.typeStructure`;
+    let value = `this.#${key.fieldKey.replace("Structure", "Accessors")}.typeStructure`;
+    if (this.module.baseName.startsWith("TypeAliasDeclaration")) {
+      // special case: type can never be undefined
+      value += "!";
+    }
+    return value;
   }
 }
