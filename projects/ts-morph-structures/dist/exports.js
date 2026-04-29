@@ -694,19 +694,19 @@ function ReadonlyableNodeStructureMixin(baseClass, context) {
 
 function ReturnTypedNodeStructureMixin(baseClass, context) {
     class ReturnTypedNodeStructureMixin extends baseClass {
-        #returnTypeManager;
+        #returnTypeAccessors;
         // overridden in constructor
         returnType = undefined;
         constructor() {
             super();
             // returnType is getting lost in ts-morph clone operations
-            this.#returnTypeManager = TypeAccessors.buildTypeAccessors(this, "returnType");
+            this.#returnTypeAccessors = TypeAccessors.buildTypeAccessors(this, "returnType");
         }
         get returnTypeStructure() {
-            return this.#returnTypeManager.typeStructure;
+            return this.#returnTypeAccessors.typeStructure;
         }
         set returnTypeStructure(value) {
-            this.#returnTypeManager.typeStructure = value;
+            this.#returnTypeAccessors.typeStructure = value;
         }
         /** @internal */
         static [COPY_FIELDS](source, target) {
@@ -837,19 +837,19 @@ function StructureMixin(baseClass, context) {
 
 function TypedNodeStructureMixin(baseClass, context) {
     class TypedNodeStructureMixin extends baseClass {
-        #typeManager;
+        #typeAccessors;
         // overridden in constructor
         type = undefined;
         constructor() {
             super();
             // type is getting lost in ts-morph clone operations
-            this.#typeManager = TypeAccessors.buildTypeAccessors(this, "type");
+            this.#typeAccessors = TypeAccessors.buildTypeAccessors(this, "type");
         }
         get typeStructure() {
-            return this.#typeManager.typeStructure;
+            return this.#typeAccessors.typeStructure;
         }
         set typeStructure(value) {
-            this.#typeManager.typeStructure = value;
+            this.#typeAccessors.typeStructure = value;
         }
         /** @internal */
         static [COPY_FIELDS](source, target) {
@@ -2234,8 +2234,8 @@ var _a$5;
 //#endregion preamble
 const ClassDeclarationStructureBase = MultiMixinBuilder([
     NameableNodeStructureMixin,
-    DecoratableNodeStructureMixin,
     AbstractableNodeStructureMixin,
+    DecoratableNodeStructureMixin,
     ExportableNodeStructureMixin,
     AmbientableNodeStructureMixin,
     TypeParameteredNodeStructureMixin,
@@ -2245,7 +2245,7 @@ const ClassDeclarationStructureBase = MultiMixinBuilder([
 class ClassDeclarationImpl extends ClassDeclarationStructureBase {
     static #implementsArrayReadonlyHandler = new ReadonlyArrayProxyHandler("The implements array is read-only.  Please use this.implementsSet to set strings and type structures.");
     kind = StructureKind.Class;
-    #extendsManager;
+    #extendsAccessors;
     #implements_ShadowArray = [];
     #implementsProxyArray = new Proxy(this.#implements_ShadowArray, _a$5.#implementsArrayReadonlyHandler);
     ctors = [];
@@ -2260,7 +2260,7 @@ class ClassDeclarationImpl extends ClassDeclarationStructureBase {
     constructor() {
         super();
         // extends is getting lost in ts-morph clone operations
-        this.#extendsManager = TypeAccessors.buildTypeAccessors(this, "extends");
+        this.#extendsAccessors = TypeAccessors.buildTypeAccessors(this, "extends");
         // implements is getting lost in ts-morph clone operations
         const implementsProxyArray = this.#implementsProxyArray;
         Reflect.defineProperty(this, "implements", {
@@ -2272,10 +2272,10 @@ class ClassDeclarationImpl extends ClassDeclarationStructureBase {
         });
     }
     get extendsStructure() {
-        return this.#extendsManager.typeStructure;
+        return this.#extendsAccessors.typeStructure;
     }
     set extendsStructure(value) {
-        this.#extendsManager.typeStructure = value;
+        this.#extendsAccessors.typeStructure = value;
     }
     // overridden in constructor
     /** Treat this as a read-only array.  Use `.implementsSet` to modify this. */
@@ -2798,8 +2798,8 @@ StructureClassesMap.set(StructureKind.FunctionOverload, FunctionDeclarationOverl
 
 //#endregion preamble
 const GetAccessorDeclarationStructureBase = MultiMixinBuilder([
-    DecoratableNodeStructureMixin,
     AbstractableNodeStructureMixin,
+    DecoratableNodeStructureMixin,
     ScopedNodeStructureMixin,
     StatementedNodeStructureMixin,
     ParameteredNodeStructureMixin,
@@ -2983,7 +2983,7 @@ const IndexSignatureDeclarationStructureBase = MultiMixinBuilder([
 ], StructureBase);
 class IndexSignatureDeclarationImpl extends IndexSignatureDeclarationStructureBase {
     kind = StructureKind.IndexSignature;
-    #keyTypeManager;
+    #keyTypeAccessors;
     keyName = undefined;
     // overridden in constructor
     keyType = undefined;
@@ -2991,7 +2991,7 @@ class IndexSignatureDeclarationImpl extends IndexSignatureDeclarationStructureBa
         super();
         // keyType is getting lost in ts-morph clone operations
         const keyTypeAccessors = new TypeAccessors();
-        this.#keyTypeManager = keyTypeAccessors;
+        this.#keyTypeAccessors = keyTypeAccessors;
         Reflect.defineProperty(this, "keyType", {
             configurable: false,
             enumerable: true,
@@ -3007,10 +3007,10 @@ class IndexSignatureDeclarationImpl extends IndexSignatureDeclarationStructureBa
         });
     }
     get keyTypeStructure() {
-        return this.#keyTypeManager.typeStructure;
+        return this.#keyTypeAccessors.typeStructure;
     }
     set keyTypeStructure(value) {
-        this.#keyTypeManager.typeStructure = value;
+        this.#keyTypeAccessors.typeStructure = value;
     }
     /** @internal */
     static [COPY_FIELDS](source, target) {
@@ -3392,8 +3392,8 @@ const MethodDeclarationStructureBase = MultiMixinBuilder([
     AsyncableNodeStructureMixin,
     GeneratorableNodeStructureMixin,
     OverrideableNodeStructureMixin,
-    DecoratableNodeStructureMixin,
     AbstractableNodeStructureMixin,
+    DecoratableNodeStructureMixin,
     QuestionTokenableNodeStructureMixin,
     ScopedNodeStructureMixin,
     StatementedNodeStructureMixin,
@@ -3561,8 +3561,8 @@ StructureClassesMap.set(StructureKind.Module, ModuleDeclarationImpl);
 
 //#endregion preamble
 const ParameterDeclarationStructureBase = MultiMixinBuilder([
-    ReadonlyableNodeStructureMixin,
     OverrideableNodeStructureMixin,
+    ReadonlyableNodeStructureMixin,
     TypedNodeStructureMixin,
     InitializerExpressionableNodeStructureMixin,
     DecoratableNodeStructureMixin,
@@ -3629,13 +3629,13 @@ StructureClassesMap.set(StructureKind.PropertyAssignment, PropertyAssignmentImpl
 //#endregion preamble
 const PropertyDeclarationStructureBase = MultiMixinBuilder([
     ExclamationTokenableNodeStructureMixin,
-    ReadonlyableNodeStructureMixin,
     OverrideableNodeStructureMixin,
+    ReadonlyableNodeStructureMixin,
     TypedNodeStructureMixin,
     InitializerExpressionableNodeStructureMixin,
-    QuestionTokenableNodeStructureMixin,
-    DecoratableNodeStructureMixin,
     AbstractableNodeStructureMixin,
+    DecoratableNodeStructureMixin,
+    QuestionTokenableNodeStructureMixin,
     ScopedNodeStructureMixin,
     AmbientableNodeStructureMixin,
     NamedNodeStructureMixin,
@@ -3715,8 +3715,8 @@ StructureClassesMap.set(StructureKind.PropertySignature, PropertySignatureImpl);
 //#region preamble
 //#endregion preamble
 const SetAccessorDeclarationStructureBase = MultiMixinBuilder([
-    DecoratableNodeStructureMixin,
     AbstractableNodeStructureMixin,
+    DecoratableNodeStructureMixin,
     ScopedNodeStructureMixin,
     StatementedNodeStructureMixin,
     ParameteredNodeStructureMixin,
@@ -3832,13 +3832,13 @@ const TypeAliasDeclarationStructureBase = MultiMixinBuilder([
 ], StructureBase);
 class TypeAliasDeclarationImpl extends TypeAliasDeclarationStructureBase {
     kind = StructureKind.TypeAlias;
-    #typeManager;
+    #typeAccessors;
     // overridden in constructor
     type = "";
     constructor(name, type) {
         super();
         // type is getting lost in ts-morph clone operations
-        this.#typeManager = TypeAccessors.buildTypeAccessors(this, "type", "");
+        this.#typeAccessors = TypeAccessors.buildTypeAccessors(this, "type", "");
         this.name = name;
         if (typeof type === "object") {
             this.typeStructure = type;
@@ -3848,10 +3848,10 @@ class TypeAliasDeclarationImpl extends TypeAliasDeclarationStructureBase {
         }
     }
     get typeStructure() {
-        return this.#typeManager.typeStructure;
+        return this.#typeAccessors.typeStructure;
     }
     set typeStructure(value) {
-        this.#typeManager.typeStructure = value;
+        this.#typeAccessors.typeStructure = value;
     }
     /** @internal */
     static [COPY_FIELDS](source, target) {
@@ -3887,8 +3887,8 @@ StructureClassesMap.set(StructureKind.TypeAlias, TypeAliasDeclarationImpl);
 const TypeParameterDeclarationStructureBase = MultiMixinBuilder([NamedNodeStructureMixin, StructureMixin], StructureBase);
 class TypeParameterDeclarationImpl extends TypeParameterDeclarationStructureBase {
     kind = StructureKind.TypeParameter;
-    #constraintManager;
-    #defaultManager;
+    #constraintAccessors;
+    #defaultAccessors;
     // overridden in constructor
     constraint = undefined;
     // overridden in constructor
@@ -3898,22 +3898,22 @@ class TypeParameterDeclarationImpl extends TypeParameterDeclarationStructureBase
     constructor(name) {
         super();
         // constraint is getting lost in ts-morph clone operations
-        this.#constraintManager = TypeAccessors.buildTypeAccessors(this, "constraint");
+        this.#constraintAccessors = TypeAccessors.buildTypeAccessors(this, "constraint");
         // default is getting lost in ts-morph clone operations
-        this.#defaultManager = TypeAccessors.buildTypeAccessors(this, "default");
+        this.#defaultAccessors = TypeAccessors.buildTypeAccessors(this, "default");
         this.name = name;
     }
     get constraintStructure() {
-        return this.#constraintManager.typeStructure;
+        return this.#constraintAccessors.typeStructure;
     }
     set constraintStructure(value) {
-        this.#constraintManager.typeStructure = value;
+        this.#constraintAccessors.typeStructure = value;
     }
     get defaultStructure() {
-        return this.#defaultManager.typeStructure;
+        return this.#defaultAccessors.typeStructure;
     }
     set defaultStructure(value) {
-        this.#defaultManager.typeStructure = value;
+        this.#defaultAccessors.typeStructure = value;
     }
     /** @internal */
     static [COPY_FIELDS](source, target) {
@@ -3981,8 +3981,8 @@ StructureClassesMap.set(StructureKind.TypeParameter, TypeParameterDeclarationImp
 //#endregion preamble
 const VariableDeclarationStructureBase = MultiMixinBuilder([
     ExclamationTokenableNodeStructureMixin,
-    InitializerExpressionableNodeStructureMixin,
     TypedNodeStructureMixin,
+    InitializerExpressionableNodeStructureMixin,
     NamedNodeStructureMixin,
     StructureMixin,
 ], StructureBase);

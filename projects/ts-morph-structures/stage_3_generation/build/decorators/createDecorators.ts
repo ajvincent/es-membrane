@@ -97,7 +97,7 @@ async function buildDecorator(
   typeToClass.addTypeMember(true, copyFieldsMethod);
   {
     const properties = interfaceMembers.arrayOfKind(StructureKind.PropertySignature);
-    if (properties.some(prop => /^#.*Manager$/.test(prop.name))) {
+    if (properties.some(prop => /^#.*Accessors$/.test(prop.name))) {
       structureIterator = module.createStructureIteratorMethod();
       typeToClass.addTypeMember(false, structureIterator);
     }

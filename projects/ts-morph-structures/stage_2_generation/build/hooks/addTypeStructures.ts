@@ -275,7 +275,7 @@ function addTypeAccessor(
     ]);
   }
 
-  const typeAccessorProp = new PropertyDeclarationImpl(`#${propertyKey}Manager`);
+  const typeAccessorProp = new PropertyDeclarationImpl(`#${propertyKey}Accessors`);
   typeAccessorProp.isReadonly = true;
   typeAccessorProp.typeStructure = new LiteralTypedStructureImpl("TypeAccessors");
 

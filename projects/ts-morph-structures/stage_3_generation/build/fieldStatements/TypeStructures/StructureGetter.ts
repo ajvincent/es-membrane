@@ -40,6 +40,6 @@ implements AccessorMirrorGetter
   ): stringWriterOrStatementImpl
   {
     this.module.addImports("public", [], ["TypeStructures"]);
-    return `this.#${key.fieldKey.replace("Structure", "Manager")}.typeStructure`;
+    return `this.#${key.fieldKey.replace("Structure", "Accessors")}.typeStructure`;
   }
 }

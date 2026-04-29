@@ -138,6 +138,13 @@ export class DecoratorImplMeta extends BaseMetadata implements MetaImplementatio
     this.#structuresUsing.add(structureName);
   }
 
+  deleteStructureUsing(
+    structureName: StructureName
+  ): void
+  {
+    this.#structuresUsing.delete(structureName);
+  }
+
   isBooleanKeysOnly(): boolean {
     return this.structureFieldArrays.size + this.structureFields.size + this.decoratorKeys.size === 0;
   }

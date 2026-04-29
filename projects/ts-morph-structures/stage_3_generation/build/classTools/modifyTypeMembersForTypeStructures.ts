@@ -60,7 +60,7 @@ function defineTypeAccessors(
   else {
     map.convertPropertyToAccessors(property.name + "Structure", true, true);
 
-    const manager = new PropertySignatureImpl(`#${property.name}Manager`);
+    const manager = new PropertySignatureImpl(`#${property.name}Accessors`);
     manager.isReadonly = true;
     manager.typeStructure = LiteralTypeStructureImpl.get("TypeAccessors");
     map.addMembers([manager]);

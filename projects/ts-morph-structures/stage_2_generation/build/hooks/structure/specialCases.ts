@@ -82,7 +82,7 @@ function convertKeyTypePropertyDescriptor(
   });
 
   const ctorKey: string = ClassMembersMap.keyFromName(StructureKind.Constructor, false, "constructor");
-  const accessorPropName = `#keyTypeManager`;
+  const accessorPropName = `#keyTypeAccessors`;
 
   parts.classFieldsStatements.set(
     accessorPropName,
@@ -90,7 +90,7 @@ function convertKeyTypePropertyDescriptor(
     [
       `// keyType is getting lost in ts-morph clone operations`,
       `const keyTypeAccessors = new TypeAccessors;`,
-      `this.#keyTypeManager = keyTypeAccessors`,
+      `this.${accessorPropName} = keyTypeAccessors`,
       `
       Reflect.defineProperty(this, "keyType", {
         configurable: false,
@@ -246,7 +246,7 @@ function setDefaultTypeAliasDeclarationType(
 {
   void dictionaries;
 
-  const statements: StatementsArray = parts.classFieldsStatements.get("#typeManager", "constructor")!;
+  const statements: StatementsArray = parts.classFieldsStatements.get("#typeAccessors", "constructor")!;
   let lastStatement = statements.pop() as string;
   lastStatement = lastStatement.replace(`(this, "type");`, `(this, "type", "");`)
   statements.push(lastStatement);
@@ -262,7 +262,7 @@ function setDefaultTypeAliasDeclarationType(
   parts.classFieldsStatements.set(
     getterName,
     ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY,
-    [ `this.#typeManager.typeStructure!` ]
+    [ `this.#typeAccessors.typeStructure!` ]
   );
 
   const typeStructureSetter: SetAccessorDeclarationImpl = parts.classMembersMap.getAsKind(

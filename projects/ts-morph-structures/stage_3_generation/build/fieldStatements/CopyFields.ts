@@ -27,7 +27,6 @@ import {
   type stringWriterOrStatementImpl,
   type stringOrWriterFunction,
   ClassSupportsStatementsFlags,
-  type TypeMembersMap,
 } from "#stage_two/snapshot/source/exports.js";
 
 import {
@@ -41,10 +40,11 @@ import CallExpressionStatementImpl from "../../pseudoExpressions/statements/Call
 import {
   BaseClassModule,
   InterfaceModule,
-  StructureModule,
+
 } from "../../moduleClasses/exports.js";
 import FlatInterfaceMap from "#stage_three/generation/vanilla/FlatInterfaceMap.js";
 import StatementGetterBase from "./GetterBase.js";
+import PropertyHashesWithTypes from "../classTools/PropertyHashesWithTypes.js";
 //#endregion preamble
 
 const booleanType = LiteralTypeStructureImpl.get("boolean");
@@ -125,13 +125,8 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
     if (key.fieldType.name.startsWith("#"))
       return [];
 
-    {
-      if (this.module instanceof StructureModule) {
-        const typeMembers: TypeMembersMap = this.module.getFlatTypeMembers();
-        if (typeMembers.has(key.fieldKey + "Structure") || typeMembers.has(key.fieldKey + "Set"))
-          return this.#getCopyTypeStatements(key.fieldType);
-      }
-    }
+    if (PropertyHashesWithTypes.has(this.module.baseName, key.fieldKey))
+      return this.#getCopyTypeStatements(key.fieldType);
 
     assert(key.fieldType.typeStructure, "no type structure?");
 
@@ -223,7 +218,9 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
   ): readonly stringWriterOrStatementImpl[]
   {
     const { name } = member;
-    const typeStructure = (member.kind === StructureKind.GetAccessor ? member.returnTypeStructure : member.typeStructure);
+    const typeStructure = (member.kind === StructureKind.GetAccessor ?
+      member.returnTypeStructure : member.typeStructure
+    );
     if (typeStructure?.kind === TypeStructureKind.Array) {
       const setName = name + "Set";
 

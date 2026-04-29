@@ -513,4 +513,5 @@ function removeTypedNodeStructureFromTypeAlias(
 ): void
 {
   dictionary.structures.get("TypeAliasDeclarationStructure")!.decoratorKeys.delete("TypedNodeStructure");
+  dictionary.decorators.get("TypedNodeStructure")!.deleteStructureUsing("TypeAliasDeclarationStructure");
 }

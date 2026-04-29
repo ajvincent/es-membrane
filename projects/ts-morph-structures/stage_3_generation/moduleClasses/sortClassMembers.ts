@@ -40,5 +40,4 @@ export function sortMemberNames(
     return +1;
 
   return a.localeCompare(b);
-
 }

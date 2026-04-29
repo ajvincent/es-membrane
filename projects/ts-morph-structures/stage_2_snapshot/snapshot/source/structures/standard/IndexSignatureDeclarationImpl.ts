@@ -55,7 +55,7 @@ export default class IndexSignatureDeclarationImpl
   implements IndexSignatureDeclarationStructureClassIfc
 {
   readonly kind: StructureKind.IndexSignature = StructureKind.IndexSignature;
-  readonly #keyTypeManager: TypeAccessors;
+  readonly #keyTypeAccessors: TypeAccessors;
   keyName?: string = undefined;
   // overridden in constructor
   keyType?: string | undefined = undefined;
@@ -64,7 +64,7 @@ export default class IndexSignatureDeclarationImpl
     super();
     // keyType is getting lost in ts-morph clone operations
     const keyTypeAccessors = new TypeAccessors();
-    this.#keyTypeManager = keyTypeAccessors;
+    this.#keyTypeAccessors = keyTypeAccessors;
 
     Reflect.defineProperty(this, "keyType", {
       configurable: false,
@@ -84,11 +84,11 @@ export default class IndexSignatureDeclarationImpl
   }
 
   get keyTypeStructure(): TypeStructures | undefined {
-    return this.#keyTypeManager.typeStructure;
+    return this.#keyTypeAccessors.typeStructure;
   }
 
   set keyTypeStructure(value: TypeStructures | undefined) {
-    this.#keyTypeManager.typeStructure = value;
+    this.#keyTypeAccessors.typeStructure = value;
   }
 
   /** @internal */

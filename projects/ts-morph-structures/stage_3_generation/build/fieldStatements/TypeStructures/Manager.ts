@@ -22,7 +22,7 @@ export default
 class TypeManagerStatements extends StatementGetterBase
 implements ConstructorBodyStatementsGetter
 {
-  static readonly #managerRE = /^#(.*)Manager$/;
+  static readonly #managerRE = /^#(.*)Accessors$/;
 
   constructor(
     module: BaseClassModule,
@@ -48,7 +48,7 @@ implements ConstructorBodyStatementsGetter
   {
     assert(key.fieldType?.kind === StructureKind.PropertySignature);
 
-    const fieldKey = key.fieldKey.match(/^#(.*)Manager$/)![1];
+    const fieldKey = key.fieldKey.match(/^#(.*)Accessors$/)![1];
     this.module.addImports("internal", ["TypeAccessors"], []);
 
     const callExpression = new CallExpressionStatementImpl({
@@ -64,7 +64,7 @@ implements ConstructorBodyStatementsGetter
 
     return [
       `// ${fieldKey} is getting lost in ts-morph clone operations\n`,
-      `this.#${fieldKey}Manager = `,
+      `this.#${fieldKey}Accessors = `,
       callExpression.writerFunction
     ];
   }

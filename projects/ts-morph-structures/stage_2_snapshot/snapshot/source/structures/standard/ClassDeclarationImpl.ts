@@ -59,8 +59,8 @@ import type { Class } from "type-fest";
 const ClassDeclarationStructureBase = MultiMixinBuilder<
   [
     NameableNodeStructureFields,
-    DecoratableNodeStructureFields,
     AbstractableNodeStructureFields,
+    DecoratableNodeStructureFields,
     ExportableNodeStructureFields,
     AmbientableNodeStructureFields,
     TypeParameteredNodeStructureFields,
@@ -71,8 +71,8 @@ const ClassDeclarationStructureBase = MultiMixinBuilder<
 >(
   [
     NameableNodeStructureMixin,
-    DecoratableNodeStructureMixin,
     AbstractableNodeStructureMixin,
+    DecoratableNodeStructureMixin,
     ExportableNodeStructureMixin,
     AmbientableNodeStructureMixin,
     TypeParameteredNodeStructureMixin,
@@ -91,7 +91,7 @@ export default class ClassDeclarationImpl
       "The implements array is read-only.  Please use this.implementsSet to set strings and type structures.",
     );
   readonly kind: StructureKind.Class = StructureKind.Class;
-  readonly #extendsManager: TypeAccessors;
+  readonly #extendsAccessors: TypeAccessors;
   readonly #implements_ShadowArray: stringOrWriterFunction[] = [];
   readonly #implementsProxyArray: stringOrWriterFunction[] = new Proxy<
     stringOrWriterFunction[]
@@ -114,7 +114,7 @@ export default class ClassDeclarationImpl
   constructor() {
     super();
     // extends is getting lost in ts-morph clone operations
-    this.#extendsManager = TypeAccessors.buildTypeAccessors(this, "extends");
+    this.#extendsAccessors = TypeAccessors.buildTypeAccessors(this, "extends");
     // implements is getting lost in ts-morph clone operations
     const implementsProxyArray: stringOrWriterFunction[] =
       this.#implementsProxyArray;
@@ -128,11 +128,11 @@ export default class ClassDeclarationImpl
   }
 
   get extendsStructure(): TypeStructures | undefined {
-    return this.#extendsManager.typeStructure;
+    return this.#extendsAccessors.typeStructure;
   }
 
   set extendsStructure(value: TypeStructures | undefined) {
-    this.#extendsManager.typeStructure = value;
+    this.#extendsAccessors.typeStructure = value;
   }
 
   // overridden in constructor

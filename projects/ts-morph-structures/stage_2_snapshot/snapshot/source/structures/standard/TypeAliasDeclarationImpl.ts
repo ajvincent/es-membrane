@@ -64,14 +64,14 @@ export default class TypeAliasDeclarationImpl
   implements TypeAliasDeclarationStructureClassIfc
 {
   readonly kind: StructureKind.TypeAlias = StructureKind.TypeAlias;
-  readonly #typeManager: TypeAccessors;
+  readonly #typeAccessors: TypeAccessors;
   // overridden in constructor
   type: stringOrWriterFunction = "";
 
   constructor(name: string, type: stringOrWriterFunction | TypeStructures) {
     super();
     // type is getting lost in ts-morph clone operations
-    this.#typeManager = TypeAccessors.buildTypeAccessors(this, "type", "");
+    this.#typeAccessors = TypeAccessors.buildTypeAccessors(this, "type", "");
     this.name = name;
     if (typeof type === "object") {
       this.typeStructure = type;
@@ -81,11 +81,11 @@ export default class TypeAliasDeclarationImpl
   }
 
   get typeStructure(): TypeStructures {
-    return this.#typeManager.typeStructure!;
+    return this.#typeAccessors.typeStructure!;
   }
 
   set typeStructure(value: TypeStructures) {
-    this.#typeManager.typeStructure! = value;
+    this.#typeAccessors.typeStructure! = value;
   }
 
   /** @internal */
