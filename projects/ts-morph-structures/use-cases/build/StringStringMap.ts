@@ -182,6 +182,20 @@ function modifyMethodSignature(method: MethodSignatureImpl): void {
     return;
   }
 
+  if (method.name === "getOrInsertComputed") {
+    // getOrInsertComputed(key: K, callback: (key: K) => V): V;
+    console.log(JSON.stringify(method, null, 2));
+    const callbackFn: ParameterDeclarationImpl = method.parameters[1];
+    const { typeStructure } = callbackFn;
+    assert.equal(typeStructure?.kind, TypeStructureKind.Function, "the callback should be a function");
+
+    const firstKeyParam = new ParameterTypeStructureImpl("firstKey", LiteralTypeStructureImpl.get("string"));
+    const secondKeyParam = new ParameterTypeStructureImpl("secondKey", LiteralTypeStructureImpl.get("string"));
+
+    typeStructure.parameters.splice(0, 1, firstKeyParam, secondKeyParam);
+    // fall through
+  }
+
   const { parameters } = method;
   const keyIndex = parameters.findIndex(param => param.name === "key");
   if (keyIndex > -1) {
@@ -318,13 +332,24 @@ function createClassBuilder(typeMembers: TypeMembersMap): MemberedTypeToClass {
     },
 
     getBodyStatements: function(key: MemberedStatementsKey): string[] {
-      return [`
-      ${
-        key.statementGroupKey !== "set" ? "const rv = " : ""
-      }this.#hashMap.${key.statementGroupKey}(key${
-        key.statementGroupKey === "set" ? ", value" : ""
-      });
-      `.trim()]
+      let prefix: string = "const rv = ", extraParam: string = "";
+      switch (key.statementGroupKey) {
+        case "set":
+          prefix = "";
+          extraParam = ", value";
+          break;
+        case "getOrInsert":
+          extraParam = ", defaultValue"
+          break;
+        case "getOrInsertComputed":
+          extraParam = ", () => callback(firstKey, secondKey)";
+          break;
+      }
+
+      const statement = `
+        ${prefix}this.#hashMap.${key.statementGroupKey}(key${extraParam});
+      `.trim();
+      return [statement];
     },
 
     filterTailStatements: function(key: MemberedStatementsKey): boolean {

@@ -2,7 +2,6 @@ import fs from "fs/promises";
 import path from "path";
 
 import {
-  monorepoRoot,
   TYPESCRIPT_LIBS_PATH
 } from "@ajvincent/build-utilities";
 
