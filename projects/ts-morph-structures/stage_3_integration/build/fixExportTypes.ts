@@ -30,7 +30,7 @@ import {
   type TypeStructures,
   TypeStructureKind,
   type MemberedObjectTypeStructureImpl,
-} from "#stage_two/snapshot/dist/exports.js";
+} from "#stage_two/snapshot/source/exports.js";
 
 import {
   stageDir
@@ -38,7 +38,7 @@ import {
 
 import {
   sortMemberNames
-} from "#stage_three/generation/moduleClasses/sortClassMembers.js";
+} from "../../stage_3_generation/moduleClasses/sortClassMembers.js";
 
 //#region driver
 export async function fixExportTypes(): Promise<void>
