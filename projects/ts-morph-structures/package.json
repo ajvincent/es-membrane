@@ -64,7 +64,7 @@
     "mixin-decorators": "^1.0.1"
   },
   "peerDependencies": {
-    "ts-morph": "^25.0.0"
+    "ts-morph": "^28.0.0"
   },
   "imports": {
     "#stage_one/*": "./stage_1_snapshot/*",
