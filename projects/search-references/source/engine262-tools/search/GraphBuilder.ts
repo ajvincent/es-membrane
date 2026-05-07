@@ -830,7 +830,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
     // the 'arguments' property is off-limits... engine262 throws for this.
     const visitedNames = new Set<string>(["arguments"]);
 
-    let env: GuestEngine.EnvironmentRecord | GuestEngine.NullValue = guestFunction.Environment;
+    let env: GuestEngine.EnvironmentRecord | null = guestFunction.Environment;
     let thisValue: GuestEngine.Value | undefined = undefined;
     if (env instanceof GuestEngine.FunctionEnvironmentRecord) {
       if (env.HasThisBinding() === GuestEngine.Value.true) {

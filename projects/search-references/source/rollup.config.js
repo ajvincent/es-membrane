@@ -22,7 +22,7 @@ const sharedCoreOptions = {
   input: "./core-host-exports.ts",
   external: [
     "@dagrejs/graphlib",
-    "@magic-works/engine262",
+    "@engine262/engine262",
   ],
 };
 

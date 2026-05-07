@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@dagrejs/graphlib": "^2.2.4",
-    "@magic-works/engine262": "^0.0.1-941d619dbc7464602f91d811b1b3ce61e372cdfa",
+    "@engine262/engine262": "^0.0.1-cf7664314152f0b0abe93dd0e5fdcab6bb1ab829",
     "import-meta-resolve": "^4.1.0"
   }
 }

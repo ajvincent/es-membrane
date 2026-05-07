@@ -29,7 +29,7 @@ export default defineConfig(
               {
                 "from": "package",
                 "name": "ThrowCompletion",
-                "package": "@magic-works/engine262"
+                "package": "@engine262/engine262"
               }
             ]
           }
