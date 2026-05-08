@@ -6,7 +6,7 @@
   "main": "dist/source/MultiMixinBuilder.js",
   "typings": "dist/source/exports.d.ts",
   "engines": {
-    "node": ">=18.19"
+    "node": ">=25.9"
   },
   "scripts": {
     "clean": "rm -rf dist Gulpfile.js",
@@ -34,7 +34,7 @@
     "@tsconfig/node18": "^18.2.4",
     "@types/gulp": "^4.0.17",
     "@types/jasmine": "^6.0.0",
-    "@types/node": "^18.19.69",
+    "@types/node": "^25.6.2",
     "gulp": "^5.0.0"
   },
   "dependencies": {
