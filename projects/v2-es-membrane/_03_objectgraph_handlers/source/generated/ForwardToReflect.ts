@@ -1,8 +1,8 @@
 // This file is generated.  Do not edit.
 
-export default class ForwardToReflect
-  implements Required<ProxyHandler<object>>
-{
+export default class ForwardToReflect implements Required<
+  ProxyHandler<object>
+> {
   /**
    * A trap method for a function call.
    * @param target The original callable object which is being proxied.

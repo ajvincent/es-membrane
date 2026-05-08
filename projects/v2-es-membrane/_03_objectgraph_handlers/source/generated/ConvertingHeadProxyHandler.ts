@@ -8,9 +8,7 @@ type CommonConversions = {
   graphKey: string | symbol;
 };
 
-export default class ConvertingHeadProxyHandler
-  implements RequiredProxyHandler
-{
+export default class ConvertingHeadProxyHandler implements RequiredProxyHandler {
   readonly #membraneIfc: MembraneInternalIfc;
   readonly #graphHandlerIfc: ObjectGraphHandlerIfc;
   readonly #graphConversionIfc: ObjectGraphConversionIfc;

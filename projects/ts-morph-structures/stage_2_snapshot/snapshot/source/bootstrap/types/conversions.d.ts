@@ -8,9 +8,9 @@ import {
 
 import type { StructureImpls, TypeStructuresOrNull } from "../../exports.js";
 
-export interface NodeWithStructures extends Node {
+export type NodeWithStructures = Node & {
   getStructure(): Structures;
-}
+};
 
 /** A string message and a type node. */
 export interface BuildTypesForStructureFailures {

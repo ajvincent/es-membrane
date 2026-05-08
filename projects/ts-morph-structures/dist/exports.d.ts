@@ -218,9 +218,9 @@ interface KindedTypeStructure<
   readonly kind: TKind;
 }
 
-interface NodeWithStructures extends Node {
+type NodeWithStructures = Node & {
   getStructure(): Structures;
-}
+};
 
 /** A string message and a type node. */
 interface BuildTypesForStructureFailures {
