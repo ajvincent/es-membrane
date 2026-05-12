@@ -42,6 +42,7 @@
   "license": "ISC",
   "devDependencies": {
     "@ajvincent/build-utilities": "file:../build-utilities",
+    "@tsconfig/node24": "^24.0.4",
     "@types/gulp": "^4.0.17",
     "@types/jasmine": "^6.0.0",
     "@types/node": "^25.6.2",
