@@ -54,6 +54,6 @@
   "dependencies": {
     "@dagrejs/graphlib": "^4.0.1",
     "@engine262/engine262": "^0.0.1-cf7664314152f0b0abe93dd0e5fdcab6bb1ab829",
-    "import-meta-resolve": "^4.1.0"
+    "import-meta-resolve": "^4.2.0"
   }
 }
