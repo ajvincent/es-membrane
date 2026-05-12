@@ -10,7 +10,7 @@ import StatementClassesMap from "../base/StatementClassesMap.js";
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -82,4 +82,4 @@ implements Required<ExportAssignmentStructure>
 ExportAssignmentImpl satisfies CloneableStructure<ExportAssignmentStructure>;
 
 StatementClassesMap.set(StructureKind.ExportAssignment, ExportAssignmentImpl);
-StructuresClassesMap.set(StructureKind.ExportAssignment, ExportAssignmentImpl);
+StructureClassesMap.set(StructureKind.ExportAssignment, ExportAssignmentImpl);

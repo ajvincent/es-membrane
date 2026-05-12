@@ -43,6 +43,7 @@ OptionalKind&lt;EnumMemberStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [EnumMemberImpl](./ts-morph-structures.enummemberimpl.md)

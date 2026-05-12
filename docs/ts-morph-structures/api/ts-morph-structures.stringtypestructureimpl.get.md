@@ -45,6 +45,7 @@ string
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [StringTypeStructureImpl](./ts-morph-structures.stringtypestructureimpl.md)

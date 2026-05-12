@@ -15,7 +15,7 @@ import {
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import TypeAccessors from "../base/TypeAccessors.js";
 
@@ -43,19 +43,11 @@ export default class TypeParameterDeclarationImpl
 extends StructureBase
 implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
 {
-  readonly #constraintManager = new TypeAccessors;
-  readonly #defaultManager = new TypeAccessors;
+  readonly #constraintManager: TypeAccessors;
+  readonly #defaultManager: TypeAccessors;
 
-  get constraint(): stringOrWriterFunction | undefined
-  {
-    return this.#constraintManager.type;
-  }
-  set constraint(
-    type: stringOrWriterFunction | undefined
-  )
-  {
-    this.#constraintManager.type = type;
-  }
+  // overridden in constructor
+  constraint: stringOrWriterFunction | undefined;
 
   get constraintStructure(): TypeStructures | undefined
   {
@@ -68,16 +60,8 @@ implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
     this.#constraintManager.typeStructure = structure;
   }
 
-  get default(): stringOrWriterFunction | undefined
-  {
-    return this.#defaultManager.type;
-  }
-  set default(
-    type: stringOrWriterFunction | undefined
-  )
-  {
-    this.#defaultManager.type = type;
-  }
+  // overridden in constructor
+  default: stringOrWriterFunction | undefined;
 
   get defaultStructure(): TypeStructures | undefined
   {
@@ -101,6 +85,12 @@ implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
   {
     super();
     this.name = name;
+
+    // constraint is getting lost in ts-morph clone operations
+    this.#constraintManager = TypeAccessors.buildTypeAccessors(this, "constraint");
+
+    // same for default
+    this.#defaultManager = TypeAccessors.buildTypeAccessors(this, "default");
   }
 
   public replaceDescendantTypes(
@@ -229,4 +219,4 @@ implements TypeParameterDeclarationStructure, TypeParameterWithTypeStructures
 }
 TypeParameterDeclarationImpl satisfies CloneableStructure<TypeParameterDeclarationStructure>;
 
-StructuresClassesMap.set(StructureKind.TypeParameter, TypeParameterDeclarationImpl);
+StructureClassesMap.set(StructureKind.TypeParameter, TypeParameterDeclarationImpl);

@@ -87,7 +87,7 @@ it("directInvoke throws when it doesn't get an array argument", async () => {
   function * defineBuiltIns(realm: GuestEngine.ManagedRealm) {
     yield * defineReportFunction(realm, callback);
   }
-  const inputs = new SpecGuestRealmInputs(absolutePathToFile, defineBuiltIns)
+  const inputs = new SpecGuestRealmInputs(absolutePathToFile, defineBuiltIns);
   const outputs: GuestRealmOutputs = await runInRealm(inputs);
 
   expect(outputs.succeeded).toBeFalse();

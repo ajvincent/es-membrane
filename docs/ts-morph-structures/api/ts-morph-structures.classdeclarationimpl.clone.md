@@ -43,6 +43,7 @@ OptionalKind&lt;ClassDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ClassDeclarationImpl](./ts-morph-structures.classdeclarationimpl.md)

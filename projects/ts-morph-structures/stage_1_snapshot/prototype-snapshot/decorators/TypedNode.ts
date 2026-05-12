@@ -20,6 +20,10 @@ import TypeAccessors from "../base/TypeAccessors.js";
 import type StructureBase from "../base/StructureBase.js";
 
 import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "../base/symbolKeys.js";
+
+import {
   replaceWriterWithString,
 } from "../base/utilities.js";
 
@@ -34,6 +38,10 @@ import {
 import {
   ReplaceWriterInProperties
 } from "../types/ModifyWriterInTypes.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js";
 // #endregion preamble
 
 declare const TypedNodeStructureKey: unique symbol;
@@ -65,25 +73,23 @@ export default function TypedNode(
 {
   void(context);
   return class extends baseClass {
-    readonly #typeWriterManager = new TypeAccessors;
+    constructor() {
+      super();
 
-    get type(): string | WriterFunction | undefined
-    {
-      return this.#typeWriterManager.type;
+      // type is getting lost in ts-morph clone operations
+      this.#typeWriterManager = TypeAccessors.buildTypeAccessors(this, "type");
     }
 
-    set type(
-      value: string | WriterFunction | undefined
-    )
-    {
-      this.#typeWriterManager.type = value;
-    }
-  
+    readonly #typeWriterManager: TypeAccessors;
+
+    // overridden in constructor
+    type: string | WriterFunction | undefined;
+
     get typeStructure(): TypeStructures | undefined
     {
       return this.#typeWriterManager.typeStructure;
     }
-  
+
     set typeStructure(
       value: TypeStructures
     )
@@ -104,6 +110,13 @@ export default function TypedNode(
       if (this.#typeWriterManager.type)
         rv.type = replaceWriterWithString<string>(this.#typeWriterManager.type);
       return rv;
+    }
+
+    /** @internal */
+    public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures> {
+      yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+      if (typeof this.typeStructure === "object")
+        yield this.typeStructure;
     }
   }
 }

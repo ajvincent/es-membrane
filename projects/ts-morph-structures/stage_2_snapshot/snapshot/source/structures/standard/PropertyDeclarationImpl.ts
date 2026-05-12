@@ -50,13 +50,13 @@ import type { Class } from "type-fest";
 const PropertyDeclarationStructureBase = MultiMixinBuilder<
   [
     ExclamationTokenableNodeStructureFields,
-    ReadonlyableNodeStructureFields,
     OverrideableNodeStructureFields,
+    ReadonlyableNodeStructureFields,
     TypedNodeStructureFields,
     InitializerExpressionableNodeStructureFields,
-    QuestionTokenableNodeStructureFields,
-    DecoratableNodeStructureFields,
     AbstractableNodeStructureFields,
+    DecoratableNodeStructureFields,
+    QuestionTokenableNodeStructureFields,
     ScopedNodeStructureFields,
     AmbientableNodeStructureFields,
     NamedNodeStructureFields,
@@ -67,13 +67,13 @@ const PropertyDeclarationStructureBase = MultiMixinBuilder<
 >(
   [
     ExclamationTokenableNodeStructureMixin,
-    ReadonlyableNodeStructureMixin,
     OverrideableNodeStructureMixin,
+    ReadonlyableNodeStructureMixin,
     TypedNodeStructureMixin,
     InitializerExpressionableNodeStructureMixin,
-    QuestionTokenableNodeStructureMixin,
-    DecoratableNodeStructureMixin,
     AbstractableNodeStructureMixin,
+    DecoratableNodeStructureMixin,
+    QuestionTokenableNodeStructureMixin,
     ScopedNodeStructureMixin,
     AmbientableNodeStructureMixin,
     NamedNodeStructureMixin,

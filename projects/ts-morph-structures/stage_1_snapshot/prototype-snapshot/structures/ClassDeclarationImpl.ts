@@ -26,7 +26,7 @@ import StatementClassesMap from "../base/StatementClassesMap.js";
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import TypeAccessors from "../base/TypeAccessors.js";
 
@@ -113,7 +113,14 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
     "The implements array is read-only.  Please use this.implementsSet to set strings, writer functions, and type structures."
   );
 
-  readonly #extendsTypeManager = new TypeAccessors();
+  constructor() {
+    super();
+
+    // extends is getting lost in ts-morph clone operations
+    this.#extendsTypeManager = TypeAccessors.buildTypeAccessors(this, "extends");
+  }
+
+  readonly #extendsTypeManager: TypeAccessors;
 
   readonly #implementsShadowArray: stringOrWriterFunction[] = [];
   readonly #implementsProxyArray = new Proxy<stringOrWriterFunction[]>(
@@ -124,17 +131,8 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
 
   readonly kind: StructureKind.Class = StructureKind.Class;
 
-  get extends(): stringOrWriterFunction | undefined
-  {
-    return this.#extendsTypeManager.type;
-  }
-
-  set extends(
-    value: stringOrWriterFunction | undefined
-  )
-  {
-    this.#extendsTypeManager.type = value;
-  }
+  // overridden in constructor
+  extends: stringOrWriterFunction | undefined
 
   get extendsStructure(): TypeStructures | undefined
   {
@@ -227,4 +225,4 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
 ClassDeclarationImpl satisfies CloneableStructure<ClassDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.Class, ClassDeclarationImpl);
-StructuresClassesMap.set(StructureKind.Class, ClassDeclarationImpl);
+StructureClassesMap.set(StructureKind.Class, ClassDeclarationImpl);

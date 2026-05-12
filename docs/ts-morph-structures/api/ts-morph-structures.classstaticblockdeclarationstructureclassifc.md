@@ -53,3 +53,4 @@ StructureKind.ClassStaticBlock
 
 </td></tr>
 </tbody></table>
+

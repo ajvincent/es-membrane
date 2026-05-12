@@ -43,6 +43,7 @@ OptionalKind&lt;DecoratorStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [DecoratorImpl](./ts-morph-structures.decoratorimpl.md)

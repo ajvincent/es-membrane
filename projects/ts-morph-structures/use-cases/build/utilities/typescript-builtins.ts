@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 
 import {
-  monorepoRoot
+  TYPESCRIPT_LIBS_PATH
 } from "@ajvincent/build-utilities";
 
 
@@ -15,8 +15,7 @@ import {
   project,
 } from "./sharedProject.js";
 
-const TYPESCRIPT_LIBS = path.join(monorepoRoot, "node_modules/typescript/lib");
-const fileNames = (await fs.readdir(TYPESCRIPT_LIBS)).filter(f => /^lib\..*\.d.ts$/.test(f)).map(f => path.join(TYPESCRIPT_LIBS, f));
+const fileNames = (await fs.readdir(TYPESCRIPT_LIBS_PATH)).filter(f => /^lib\..*\.d.ts$/.test(f)).map(f => path.join(TYPESCRIPT_LIBS_PATH, f));
 const sourceFiles: readonly SourceFile[] = project.addSourceFilesAtPaths(fileNames);
 
 export default function getTypeScriptNodes<

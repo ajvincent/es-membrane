@@ -19,6 +19,8 @@ import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.js";
 
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
+
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.js";
@@ -28,10 +30,19 @@ import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStruct
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.js";
+
+import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "../base/symbolKeys.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js";
 // #endregion
 
 /** Foo | Bar | ... */
 export default class UnionTypedStructureImpl
+extends TypeStructuresBase
 implements UnionTypedStructure
 {
   static clone(
@@ -51,6 +62,7 @@ implements UnionTypedStructure
     childTypes: TypeStructures[] = []
   )
   {
+    super();
     this.appendStructures(childTypes);
     registerCallbackForTypeStructure(this);
   }
@@ -85,6 +97,13 @@ implements UnionTypedStructure
   }
 
   writerFunction: WriterFunction = this.#writerFunction.bind(this);
+
+  /** @internal */
+  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  {
+    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    yield* this.childTypes;
+  }
 }
 UnionTypedStructureImpl satisfies CloneableStructure<UnionTypedStructure>;
 

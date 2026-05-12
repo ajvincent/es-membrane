@@ -43,6 +43,7 @@ OptionalKind&lt;ImportSpecifierStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ImportSpecifierImpl](./ts-morph-structures.importspecifierimpl.md)

@@ -12,7 +12,7 @@ import {
   ArrayTypeStructureImpl,
   type ClassBodyStatementsGetter,
   type ClassHeadStatementsGetter,
-  GetAccessorDeclarationImpl,
+  type GetAccessorDeclarationImpl,
   LiteralTypeStructureImpl,
   MemberedStatementsKey,
   ParenthesesTypeStructureImpl,
@@ -35,14 +35,16 @@ import {
   getStructureNameFromModified,
 } from "#utilities/source/StructureNameTransforms.js";
 
-import BlockStatementImpl from "../../pseudoStatements/BlockStatement.js";
-import CallExpressionStatementImpl from "../../pseudoStatements/CallExpression.js";
+import BlockStatementImpl from "../../pseudoExpressions/statements/BlockStatement.js";
+import CallExpressionStatementImpl from "../../pseudoExpressions/statements/CallExpression.js";
 import {
   BaseClassModule,
   InterfaceModule,
+
 } from "../../moduleClasses/exports.js";
 import FlatInterfaceMap from "#stage_three/generation/vanilla/FlatInterfaceMap.js";
 import StatementGetterBase from "./GetterBase.js";
+import PropertyHashesWithTypes from "../classTools/PropertyHashesWithTypes.js";
 //#endregion preamble
 
 const booleanType = LiteralTypeStructureImpl.get("boolean");
@@ -122,6 +124,9 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
 
     if (key.fieldType.name.startsWith("#"))
       return [];
+
+    if (PropertyHashesWithTypes.has(this.module.baseName, key.fieldKey))
+      return this.#getCopyTypeStatements(key.fieldType);
 
     assert(key.fieldType.typeStructure, "no type structure?");
 
@@ -209,11 +214,14 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
   }
 
   #getCopyTypeStatements(
-    member: GetAccessorDeclarationImpl
+    member: GetAccessorDeclarationImpl | PropertySignatureImpl
   ): readonly stringWriterOrStatementImpl[]
   {
-    const { name, returnTypeStructure } = member;
-    if (returnTypeStructure?.kind === TypeStructureKind.Array) {
+    const { name } = member;
+    const typeStructure = (member.kind === StructureKind.GetAccessor ?
+      member.returnTypeStructure : member.typeStructure
+    );
+    if (typeStructure?.kind === TypeStructureKind.Array) {
       const setName = name + "Set";
 
       const setStatement = (writer: CodeBlockWriter): void => {
@@ -243,16 +251,27 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
     this.module.addImports("internal", ["TypeStructureClassesMap"], []);
 
     const name_Structure = name + "Structure";
-    return [
+
+    const statements = [
       `const { ${name_Structure} } = source as unknown as ${this.module.exportName};`,
 
       new BlockStatementImpl(
         `if (${name_Structure})`,
         [`target.${name_Structure} = TypeStructureClassesMap.clone(${name_Structure});`],
       ).writerFunction,
-
-      this.#getIfSourceStatement(true, name, `target.${name} = source.${name}`),
     ];
+
+    if (this.module.baseName.startsWith("TypeAliasDeclaration")) {
+      // special case: type can never be undefined
+      statements.push(`else target.${name} = source.${name};`)
+    }
+    else {
+      statements.push(
+        this.#getIfSourceStatement(true, name, `target.${name} = source.${name}`),
+      );
+    }
+
+    return statements;
   }
   //#endregion literal type
 

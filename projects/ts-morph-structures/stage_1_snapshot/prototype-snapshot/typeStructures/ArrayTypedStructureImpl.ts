@@ -18,11 +18,22 @@ import {
   TypeStructureKind
 } from "../base/TypeStructureKind.js";
 
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
+
 import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStructures.js";
 
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.js";
+
+import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "../base/symbolKeys.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js";
+
 // #endregion preamble
 
 /**
@@ -32,6 +43,7 @@ import type {
  * @see `TupleTypedStructureImpl` for `[number, boolean]`
  */
 export default class ArrayTypedStructureImpl
+extends TypeStructuresBase
 implements ArrayTypedStructure
 {
   static clone(
@@ -50,6 +62,7 @@ implements ArrayTypedStructure
     objectType: TypeStructures,
   )
   {
+    super();
     this.objectType = objectType;
 
     registerCallbackForTypeStructure(this);
@@ -72,6 +85,14 @@ implements ArrayTypedStructure
   }
 
   writerFunction = this.#writerFunction.bind(this);
+
+  /** @internal */
+  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  {
+    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    if (typeof this.objectType === "object")
+      yield this.objectType;
+  }
 }
 ArrayTypedStructureImpl satisfies CloneableStructure<ArrayTypedStructure>;
 

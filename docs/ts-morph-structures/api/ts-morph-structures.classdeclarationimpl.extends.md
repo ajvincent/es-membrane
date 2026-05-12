@@ -7,7 +7,5 @@
 **Signature:**
 
 ```typescript
-get extends(): stringOrWriterFunction | undefined;
-
-set extends(value: stringOrWriterFunction | undefined);
+extends?: stringOrWriterFunction | undefined;
 ```

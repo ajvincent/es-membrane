@@ -34,13 +34,13 @@ export function requireUnion(
 
   const identifiers: string[] = [];
 
-  if (typeList?.kind === TypeStructureKind.Literal) {
+  if (typeList.kind === TypeStructureKind.Literal) {
     identifiers.push(typeList.stringValue);
   } else {
     assert.equal(
-      typeList?.kind,
+      typeList.kind,
       TypeStructureKind.Union,
-      `found typeList.kind ${TypeStructureKind[typeList!.kind]} for name ${name}`
+      `found typeList.kind ${TypeStructureKind[typeList.kind]} for name ${name}`
     );
 
     for (const childType of typeList.childTypes) {

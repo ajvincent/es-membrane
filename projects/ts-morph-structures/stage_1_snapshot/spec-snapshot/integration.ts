@@ -47,7 +47,7 @@ it("ts-morph-structures: integration test", () => {
   };
 
   // get the NumberStringType interface
-  let NST_InterfaceStructure = new InterfaceDeclarationImpl("notUsed");
+  let NST_InterfaceStructure: InterfaceDeclarationImpl;
   {
     const NumberStringClassFile = getTS_SourceFile(
       stageDir, "fixtures/ecma_references/NumberStringClass.ts"

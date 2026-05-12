@@ -8,7 +8,7 @@ import {
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -122,4 +122,4 @@ implements MethodDeclarationOverloadStructure
 
 MethodDeclarationOverloadImpl satisfies CloneableStructure<MethodDeclarationOverloadStructure>;
 
-StructuresClassesMap.set(StructureKind.MethodOverload, MethodDeclarationOverloadImpl);
+StructureClassesMap.set(StructureKind.MethodOverload, MethodDeclarationOverloadImpl);

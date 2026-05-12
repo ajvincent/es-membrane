@@ -3,6 +3,7 @@ import path from "node:path";
 import {
   chdir,
   cwd,
+  env,
 } from "node:process";
 
 import type {
@@ -56,19 +57,23 @@ async function invokeChildGulpFile(
   await pushd();
   try {
     await InvokeTSC_excludeDirs(projectRoot);
-    await runChildGulpfile();
+    await runChildGulpfile(localPathToDir);
   }
   finally {
     await popd();
   }
 }
 
-async function runChildGulpfile(): Promise<void> {
+async function runChildGulpfile(localPathToDir: string): Promise<void> {
   try {
-    await asyncFork(pathToGulp, [
+    const args: string[] = [
       "--no-experimental-require-module",
       "--expose-gc",
-    ], cwd());
+    ];
+    if (env.DEBUG_DIR === localPathToDir)
+      args.push("--inspect-brk");
+
+    await asyncFork(pathToGulp, args, cwd());
   }
   catch (code) {
     throw new Error(`Failed on "${pathToGulp}" with code ${code}`);

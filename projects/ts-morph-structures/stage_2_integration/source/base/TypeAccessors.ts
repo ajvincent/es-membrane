@@ -1,7 +1,6 @@
 //#region preamble
 import type {
   TypedNodeStructure,
-  WriterFunction,
 } from "ts-morph";
 
 import {
@@ -32,9 +31,33 @@ import {
 export default class TypeAccessors
 implements TypedNodeStructure, TypedNodeTypeStructure
 {
+  static buildTypeAccessors(
+    this: void,
+    thisObj: object,
+    fieldName: PropertyKey,
+    defaultValue?: stringOrWriterFunction | undefined
+  ): TypeAccessors
+  {
+    const accessors = new TypeAccessors;
+    Reflect.defineProperty(thisObj, fieldName, {
+      configurable: false,
+      enumerable: true,
+
+      get: function(): stringOrWriterFunction | undefined {
+        return accessors.type;
+      },
+
+      set: function(value: stringOrWriterFunction | undefined): void {
+        accessors.type = value ?? defaultValue;
+      }
+    });
+
+    return accessors;
+  }
+
   typeStructure: TypeStructures | undefined = undefined;
 
-  get type(): string | WriterFunction | undefined
+  get type(): stringOrWriterFunction | undefined
   {
     if (typeof this.typeStructure === "undefined")
       return undefined;

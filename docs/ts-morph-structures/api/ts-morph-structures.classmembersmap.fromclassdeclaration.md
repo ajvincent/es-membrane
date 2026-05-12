@@ -47,6 +47,7 @@ the class declaration.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ClassMembersMap](./ts-morph-structures.classmembersmap.md)

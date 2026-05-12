@@ -20,7 +20,7 @@ import {
   StructureModule
 } from "../../moduleClasses/exports.js";
 
-import CallExpressionStatementImpl from "../../pseudoStatements/CallExpression.js";
+import CallExpressionStatementImpl from "../../pseudoExpressions/statements/CallExpression.js";
 import StatementGetterBase from "../fieldStatements/GetterBase.js";
 
 export default

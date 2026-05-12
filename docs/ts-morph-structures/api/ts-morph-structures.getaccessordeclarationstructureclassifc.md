@@ -70,3 +70,4 @@ StructureKind.GetAccessor
 
 </td></tr>
 </tbody></table>
+

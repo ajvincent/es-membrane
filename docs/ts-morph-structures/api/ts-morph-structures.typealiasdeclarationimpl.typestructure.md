@@ -7,5 +7,7 @@
 **Signature:**
 
 ```typescript
-typeStructure: TypeStructures | undefined;
+get typeStructure(): TypeStructures;
+
+set typeStructure(value: TypeStructures);
 ```

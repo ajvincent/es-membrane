@@ -34,7 +34,7 @@ export async function getHashFileList(root) {
  */
 export async function hashAllFiles(root, verbose) {
     const allFiles = await getHashFileList(root);
-    const fileHashes = await PromiseAllParallel(allFiles, async (file) => hashOneFile(root, file));
+    const fileHashes = await PromiseAllParallel(allFiles, file => hashOneFile(root, file));
     const contents = fileHashes.join("\n");
     if (verbose) {
         return contents;

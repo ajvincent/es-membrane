@@ -18,15 +18,25 @@ import {
 
 import TypeStructureClassesMap from "../base/TypeStructureClassesMap.js";
 
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
+
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.js";
 
 import replaceDescendantTypeStructures from "../base/replaceDescendantTypeStructures.js";
 
+import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "../base/symbolKeys.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js";
 // #endregion preamble
 
 export default class QualifiedNameTypedStructureImpl
+extends TypeStructuresBase
 implements QualifiedNameTypedStructure
 {
   static clone(
@@ -57,6 +67,7 @@ implements QualifiedNameTypedStructure
     childTypes: TypeStructures[] = [],
   )
   {
+    super();
     this.appendStructures(childTypes);
     registerCallbackForTypeStructure(this);
   }
@@ -77,6 +88,13 @@ implements QualifiedNameTypedStructure
     for (let i = 0; i < this.childTypes.length; i++) {
       replaceDescendantTypeStructures(this.childTypes, i, filter, replacement);
     }
+  }
+
+  /** @internal */
+  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  {
+    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    yield* this.childTypes;
   }
 }
 

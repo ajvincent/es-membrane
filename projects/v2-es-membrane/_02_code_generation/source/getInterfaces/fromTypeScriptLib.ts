@@ -9,8 +9,8 @@ import {
 } from "ts-morph";
 
 import {
-  monorepoDir
-} from "#stage_utilities/source/AsyncSpecModules.js";
+  TYPESCRIPT_LIBS_PATH
+} from "@ajvincent/build-utilities";
 
 import {
   addSeveralSourceFiles
@@ -26,7 +26,6 @@ export const TYPESCRIPT_LIB_SOURCEFILES: readonly SourceFile[] = await getLibrar
 
 async function getLibraryFiles(): Promise<readonly SourceFile[]>
 {
-  const TYPESCRIPT_LIBS_PATH = path.join(monorepoDir, "node_modules/typescript/lib");
   let fileList: string[] = await fs.readdir(TYPESCRIPT_LIBS_PATH);
   fileList = fileList.filter(f => /^lib\..*\.d.ts$/.test(f));
   fileList = fileList.map(f => path.join(TYPESCRIPT_LIBS_PATH, f));

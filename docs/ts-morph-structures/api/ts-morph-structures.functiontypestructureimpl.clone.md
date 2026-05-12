@@ -43,6 +43,7 @@ other
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [FunctionTypeStructureImpl](./ts-morph-structures.functiontypestructureimpl.md)

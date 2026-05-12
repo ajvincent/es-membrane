@@ -25,7 +25,8 @@ export enum TypeStructureKind {
   TypePredicate,
 }
 
-export interface KindedTypeStructure<TKind extends TypeStructureKind>
-  extends TypedNodeWriter {
+export interface KindedTypeStructure<
+  TKind extends TypeStructureKind,
+> extends TypedNodeWriter {
   readonly kind: TKind;
 }

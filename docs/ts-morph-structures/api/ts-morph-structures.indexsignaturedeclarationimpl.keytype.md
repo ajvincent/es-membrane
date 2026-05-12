@@ -7,7 +7,5 @@
 **Signature:**
 
 ```typescript
-get keyType(): string | undefined;
-
-set keyType(value: string | undefined);
+keyType?: string | undefined;
 ```

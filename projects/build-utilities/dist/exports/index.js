@@ -2,7 +2,7 @@ export * from "../source/InvokeTSC.js";
 export * from "../source/assertRepoIsClean.js";
 export * from "../source/childProcess.js";
 export * from "../source/cleanTSC_output.js";
-export { monorepoRoot } from "../source/constants.js";
+export { monorepoRoot, TYPESCRIPT_LIBS_PATH } from "../source/constants.js";
 export * from "../source/hash-all-files.js";
 export * from "../source/overwriteFileIfDifferent.js";
 export * from "../source/readDirsDeep.js";

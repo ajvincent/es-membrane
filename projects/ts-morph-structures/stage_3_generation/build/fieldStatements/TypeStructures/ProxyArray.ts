@@ -13,7 +13,7 @@ import {
   type stringWriterOrStatementImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
-import CallExpressionStatementImpl from "#stage_three/generation/pseudoStatements/CallExpression.js";
+import CallExpressionStatementImpl from "#stage_three/generation/pseudoExpressions/statements/CallExpression.js";
 import StatementGetterBase from "../GetterBase.js";
 import { BaseClassModule } from "#stage_three/generation/moduleClasses/exports.js";
 

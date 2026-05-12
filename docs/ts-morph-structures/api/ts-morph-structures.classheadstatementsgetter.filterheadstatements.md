@@ -45,6 +45,7 @@ The membered statement key. `fieldKey` will be `ClassFieldStatementsMap.FIELD_HE
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 boolean

@@ -37,5 +37,5 @@ declare namespace ReflectTest {
       thisArgument: T,
       argumentsList: Readonly<A>,
   ): R;
-  function apply(target: Function, thisArgument: unknown, argumentsList: ArrayLike<unknown>): unknown;
+  function apply(target: CallableFunction, thisArgument: unknown, argumentsList: ArrayLike<unknown>): unknown;
 }

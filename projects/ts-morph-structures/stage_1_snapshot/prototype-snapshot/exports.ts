@@ -40,7 +40,7 @@ export { default as TypeParameterDeclarationImpl } from "./structures/TypeParame
 export { default as VariableDeclarationImpl } from "./structures/VariableDeclarationImpl.js";
 export { default as VariableStatementImpl } from "./structures/VariableStatementImpl.js";
 
-export { default as StructuresClassesMap } from "./base/StructuresClassesMap.js";
+export { default as StructureClassesMap } from "./base/StructureClassesMap.js";
 
 export {
   TypeParameterConstraintMode
@@ -54,6 +54,8 @@ export type {
   MethodDeclarationAppendContext,
   MethodDeclarationEnableFlags,
 } from "./structures/MethodDeclarationImpl.js";
+
+export { default as forEachAugmentedStructureChild } from "./toolbox/forEachAugmentedStructureChild.js";
 
 // #endregion Structure implementations
 
@@ -111,7 +113,8 @@ export type {
 } from "./types/ts-morph-native.js";
 
 export type {
-  StatementStructureImpls
+  StatementStructureImpls,
+  StructureImpls,
 } from "./types/StructureImplUnions.js";
 
 export {

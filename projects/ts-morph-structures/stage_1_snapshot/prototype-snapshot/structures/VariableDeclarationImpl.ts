@@ -9,7 +9,7 @@ import {
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -88,4 +88,4 @@ implements VariableDeclarationStructure
 
 VariableDeclarationImpl satisfies CloneableStructure<VariableDeclarationStructure>;
 
-StructuresClassesMap.set(StructureKind.VariableDeclaration, VariableDeclarationImpl);
+StructureClassesMap.set(StructureKind.VariableDeclaration, VariableDeclarationImpl);

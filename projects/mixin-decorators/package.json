@@ -6,14 +6,13 @@
   "main": "dist/source/MultiMixinBuilder.js",
   "typings": "dist/source/exports.d.ts",
   "engines": {
-    "node": ">=18.19"
+    "node": ">=25.9"
   },
   "scripts": {
     "clean": "rm -rf dist Gulpfile.js",
-    "tsc-buildsystem": "echo $PWD && tsc --project ./tsconfig-gulp.json",
-    "build": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js",
-    "tasks": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js --tasks",
-    "is-repo-clean": "node --no-experimental-require-module ./gulp-utilities/assertRepoIsClean.js"
+    "build": "npm run clean && node ../../node_modules/gulp/bin/gulp.js",
+    "tasks": "npm run clean && node ../../node_modules/gulp/bin/gulp.js --tasks",
+    "is-repo-clean": "node ./gulp-utilities/assertRepoIsClean.js"
   },
   "repository": {
     "type": "git",
@@ -32,16 +31,14 @@
   "homepage": "https://github.com/ajvincent/es-membrane/tree/master/projects/mixin-decorators#readme",
   "devDependencies": {
     "@ajvincent/build-utilities": "file:../build-utilities",
-    "@tsconfig/node18": "^18.2.4",
-    "@types/gulp": "^4.0.17",
-    "@types/jasmine": "^5.1.5",
-    "@types/node": "^18.19.69",
-    "gulp": "^5.0.0",
-    "jasmine": "^5.5.0",
-    "typescript": "^5.7.2"
+    "@tsconfig/node24": "^24.0.4",
+    "@types/gulp": "^4.0.18",
+    "@types/jasmine": "^6.0.0",
+    "@types/node": "^25.7.0",
+    "gulp": "^5.0.1"
   },
   "dependencies": {
-    "type-fest": "^4.31.0"
+    "type-fest": "^5.6.0"
   },
   "files": [
     "dist/source/MultiMixinBuilder.js",

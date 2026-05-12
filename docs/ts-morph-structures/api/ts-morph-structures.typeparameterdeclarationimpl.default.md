@@ -7,7 +7,5 @@
 **Signature:**
 
 ```typescript
-get default(): stringOrWriterFunction | undefined;
-
-set default(value: stringOrWriterFunction | undefined);
+default?: stringOrWriterFunction | undefined;
 ```

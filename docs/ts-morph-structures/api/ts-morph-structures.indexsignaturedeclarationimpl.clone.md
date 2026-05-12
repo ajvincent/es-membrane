@@ -43,6 +43,7 @@ OptionalKind&lt;IndexSignatureDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [IndexSignatureDeclarationImpl](./ts-morph-structures.indexsignaturedeclarationimpl.md)

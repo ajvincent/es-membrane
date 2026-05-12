@@ -45,3 +45,4 @@ Partial&lt;[ConditionalTypeStructureParts](./ts-morph-structures.conditionaltype
 
 </td></tr>
 </tbody></table>
+

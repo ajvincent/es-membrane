@@ -9,7 +9,7 @@ import removeStaticableDecorator from "./removeStaticableDecorator.js";
 
 export default function mergeInterfaces(): void {
   {
-    let count = 0;
+    let count: number;
     for (count = 0; count < 5; count++) {
       if (moveSubDecoratorsToStructures() === false)
         break;
@@ -120,10 +120,15 @@ function removeUnnecessaryDecorators(): void {
 
   // todo: remove Structures, which should be on every structure
 
-  for (const { extendsSet } of InterfaceModule.structuresMap.values()) {
-    extendsSet.sort((a, b): number => {
-      return decoratorsReferencedByMap.get(a)!.references.length -
-        decoratorsReferencedByMap.get(b)!.references.length
+  const referenceCountMap = new Map<string, number>;
+  for (const [key, { references }] of decoratorsReferencedByMap) {
+    referenceCountMap.set(key, references.length);
+  }
+
+  for (const interfaceModule of InterfaceModule.structuresMap.values()) {
+    //NOTE: this is ultimately what determines the order of mixin decorators.
+    interfaceModule.extendsSet.sort((a, b): number => {
+      return (referenceCountMap.get(a)! - referenceCountMap.get(b)!) || a.localeCompare(b)
     });
   }
 }

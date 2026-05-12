@@ -16,7 +16,7 @@ import StructureBase from "../base/StructureBase.js";
 
 import StatementClassesMap from "../base/StatementClassesMap.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import {
   cloneArrayOrUndefined,
@@ -139,4 +139,4 @@ implements FunctionDeclarationStructure
 FunctionDeclarationImpl satisfies CloneableStructure<FunctionDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.Function, FunctionDeclarationImpl);
-StructuresClassesMap.set(StructureKind.Function, FunctionDeclarationImpl);
+StructureClassesMap.set(StructureKind.Function, FunctionDeclarationImpl);

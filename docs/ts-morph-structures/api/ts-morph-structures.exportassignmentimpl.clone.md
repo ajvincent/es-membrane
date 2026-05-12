@@ -43,6 +43,7 @@ OptionalKind&lt;ExportAssignmentStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ExportAssignmentImpl](./ts-morph-structures.exportassignmentimpl.md)

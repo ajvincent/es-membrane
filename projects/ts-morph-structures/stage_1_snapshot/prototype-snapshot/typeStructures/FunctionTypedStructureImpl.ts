@@ -23,6 +23,8 @@ import {
 
 import TypeStructureClassesMap from "../base/TypeStructureClassesMap.js";
 
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
+
 import {
   registerCallbackForTypeStructure,
 } from "../base/callbackToTypeStructureRegistry.js";
@@ -36,11 +38,22 @@ import {
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.js";
+
+
 import { TypePrinter } from "../base/TypePrinter.js";
+
+import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "../base/symbolKeys.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js";
 // #endregion preamble
 
 /** ("new" | "get" | "set" | "") name<typeParameters>(parameters, ...restParameter) ("=\>" | ":" ) returnType */
 export default class FunctionTypedStructureImpl
+extends TypeStructuresBase
 implements FunctionTypedStructure
 {
   static clone(
@@ -72,6 +85,7 @@ implements FunctionTypedStructure
     context: Partial<FunctionTypeContext>
   )
   {
+    super();
     this.name = context.name ?? "";
     this.isConstructor = context.isConstructor ?? false
     this.typeParameters = context.typeParameters?.slice() ?? []
@@ -186,6 +200,19 @@ implements FunctionTypedStructure
   }
 
   writerFunction: WriterFunction = this.#writerFunction.bind(this);
+
+  /** @internal */
+  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  {
+    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+
+    yield* this.typeParameters.values();
+    yield* this.parameters.values();
+    if (this.restParameter)
+      yield this.restParameter;
+    if (typeof this.returnType === "object")
+      yield this.returnType;
+  }
 }
 
 FunctionTypedStructureImpl satisfies CloneableStructure<FunctionTypedStructure>;

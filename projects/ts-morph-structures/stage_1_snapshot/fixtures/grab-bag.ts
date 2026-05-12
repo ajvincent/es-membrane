@@ -18,7 +18,7 @@ interface HasConstructSignature {
   new (x: number): HasConstructSignature
 }
 
-// eslint-disable-next-line @typescript-eslint/prefer-namespace-keyword, @typescript-eslint/no-namespace
+//@ts-expect-error next line is invalid, I know
 module ThisIsAModule {
   export const x = 3;
 }
@@ -62,6 +62,12 @@ function foo(x: number, y: string): void
 function foo(x: number): void
 {
   void(x);
+}
+
+void class ThisTypeReference {
+  getThis(): this {
+    return this;
+  }
 }
 
 export {

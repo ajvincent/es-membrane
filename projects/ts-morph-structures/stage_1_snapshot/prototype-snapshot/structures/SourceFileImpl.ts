@@ -8,11 +8,12 @@ import {
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import KindedStructure, {
   type KindedStructureFields
 } from "../decorators/KindedStructure.js";
+
 import StatementedNode, {
   type StatementedNodeStructureFields
 } from "../decorators/StatementedNode.js";
@@ -20,7 +21,10 @@ import StatementedNode, {
 import type {
   CloneableStructure,
 } from "../types/CloneableStructure.js";
-import { ReplaceWriterInProperties } from "../types/ModifyWriterInTypes.js";
+
+import {
+  ReplaceWriterInProperties
+} from "../types/ModifyWriterInTypes.js";
 // #endregion preamble
 
 const SourceFileBase = MultiMixinBuilder<
@@ -62,4 +66,4 @@ implements SourceFileStructure
 
 SourceFileImpl satisfies CloneableStructure<SourceFileStructure>;
 
-StructuresClassesMap.set(StructureKind.SourceFile, SourceFileImpl);
+StructureClassesMap.set(StructureKind.SourceFile, SourceFileImpl);

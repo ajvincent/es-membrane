@@ -47,6 +47,7 @@ The statement group owning the statements.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 ReadonlyMap&lt;string, [ClassFieldStatement](./ts-morph-structures.classfieldstatement.md)<!-- -->\[\]&gt; \| undefined

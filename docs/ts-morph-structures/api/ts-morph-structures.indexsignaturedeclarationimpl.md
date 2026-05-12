@@ -11,6 +11,40 @@ export default class IndexSignatureDeclarationImpl implements IndexSignatureDecl
 ```
 **Implements:** [IndexSignatureDeclarationStructureClassIfc](./ts-morph-structures.indexsignaturedeclarationstructureclassifc.md)
 
+## Constructors
+
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)()](./ts-morph-structures.indexsignaturedeclarationimpl._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Constructs a new instance of the `IndexSignatureDeclarationImpl` class
+
+
+</td></tr>
+</tbody></table>
+
 ## Properties
 
 <table><thead><tr><th>
@@ -91,7 +125,7 @@ _(Optional)_
 </td></tr>
 <tr><td>
 
-[keyType](./ts-morph-structures.indexsignaturedeclarationimpl.keytype.md)
+[keyType?](./ts-morph-structures.indexsignaturedeclarationimpl.keytype.md)
 
 
 </td><td>
@@ -103,6 +137,8 @@ string \| undefined
 
 
 </td><td>
+
+_(Optional)_
 
 
 </td></tr>
@@ -263,3 +299,4 @@ Description
 
 </td></tr>
 </tbody></table>
+

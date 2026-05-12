@@ -26,10 +26,18 @@ function sortMembers(
   if (b.isStatic && !a.isStatic)
     return +1;
 
-  if (a.name === "kind")
+  return sortMemberNames(a.name, b.name);
+}
+
+export function sortMemberNames(
+  a: string,
+  b: string
+): number
+{
+  if (a === "kind")
     return -1;
-  if (b.name === "kind")
+  if (b === "kind")
     return +1;
 
-  return a.name.localeCompare(b.name);
+  return a.localeCompare(b);
 }

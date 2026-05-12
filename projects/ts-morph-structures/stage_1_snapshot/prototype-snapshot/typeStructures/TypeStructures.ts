@@ -11,9 +11,17 @@ import type {
   TypeStructureKind,
 } from "../base/TypeStructureKind.js";
 
+import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "../base/symbolKeys.js";
+
 import type {
   AppendableStructure
 } from "../types/AppendableStructure.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js"
 
 import {
   CallSignatureDeclarationImpl,
@@ -26,8 +34,13 @@ import {
   TypeParameterDeclarationImpl,
 } from "../exports.js";
 
+interface TypedChildrenIteration {
+  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+}
+
 export type WriterTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.Writer> &
+  TypedChildrenIteration &
   ReplaceableDescendants
 >;
 
@@ -84,43 +97,55 @@ interface ReplaceableDescendants {
 
 export type LiteralTypedStructure = Simplify<
   TypedStructureWithPrimitive<TypeStructureKind.Literal> &
+  TypedChildrenIteration &
   ReplaceableDescendants
 >;
+
 export type StringTypedStructure = Simplify<
   TypedStructureWithPrimitive<TypeStructureKind.String> &
+  TypedChildrenIteration &
   ReplaceableDescendants
 >;
+
 export type SymbolKeyTypedStructure = Simplify<
   TypedStructureWithPrimitive<TypeStructureKind.SymbolKey> &
+  TypedChildrenIteration &
   ReplaceableDescendants
 >;
 
 export type ParenthesesTypedStructure = Simplify<
   TypeStructureWithOneChild<TypeStructureKind.Parentheses> &
+  TypedChildrenIteration &
   TypePrinterSettings &
   ReplaceableDescendants
 >;
 
 export type PrefixOperatorsTypedStructure = Simplify<
   TypeStructureWithOneChild<TypeStructureKind.PrefixOperators> &
+  TypedChildrenIteration &
   PrefixUnaryOperatorOwner &
   ReplaceableDescendants
 >;
 
 export type UnionTypedStructure = Simplify<
   TypedStructureWithChildren<TypeStructureKind.Union> &
+  TypedChildrenIteration &
   TypePrinterSettings &
   ReplaceableDescendants &
   AppendableStructure<TypeStructures[]>
 >;
+
 export type IntersectionTypedStructure = Simplify<
   TypedStructureWithChildren<TypeStructureKind.Intersection> &
+  TypedChildrenIteration &
   TypePrinterSettings &
   ReplaceableDescendants &
   AppendableStructure<TypeStructures[]>
 >;
+
 export type TupleTypedStructure = Simplify<
   TypedStructureWithChildren<TypeStructureKind.Tuple> &
+  TypedChildrenIteration &
   TypePrinterSettings &
   ReplaceableDescendants &
   AppendableStructure<TypeStructures[]>
@@ -128,12 +153,14 @@ export type TupleTypedStructure = Simplify<
 
 export type QualifiedNameTypedStructure = Simplify<
   TypedStructureWithChildren<TypeStructureKind.QualifiedName> &
+  TypedChildrenIteration &
   ReplaceableDescendants &
   AppendableStructure<TypeStructures[]>
 >;
 
 export type ArrayTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.Array> &
+  TypedChildrenIteration &
   TypedStructureWithObjectType &
   ReplaceableDescendants
 >;
@@ -147,6 +174,7 @@ export interface ConditionalTypeStructureParts {
 
 export type ConditionalTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.Conditional> &
+  TypedChildrenIteration &
   ConditionalTypeStructureParts &
   ReplaceableDescendants
 >;
@@ -157,6 +185,7 @@ interface IndexedAccessType {
 
 export type IndexedAccessTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.IndexedAccess> &
+  TypedChildrenIteration &
   TypedStructureWithObjectType &
   TypePrinterSettings &
   IndexedAccessType &
@@ -173,6 +202,7 @@ interface MappedType {
 
 export type MappedTypeTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.Mapped> &
+  TypedChildrenIteration &
   MappedType &
   ReplaceableDescendants
 >;
@@ -180,6 +210,7 @@ export type MappedTypeTypedStructure = Simplify<
 export type TypeArgumentedTypedStructure = Simplify<
   TypedStructureWithObjectType &
   TypedStructureWithChildren<TypeStructureKind.TypeArgumented> &
+  TypedChildrenIteration &
   TypePrinterSettings &
   ReplaceableDescendants &
   AppendableStructure<TypeStructures[]>
@@ -208,6 +239,7 @@ export interface FunctionTypeContext {
 
 export type FunctionTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.Function> &
+  TypedChildrenIteration &
   FunctionTypeContext &
   ReplaceableDescendants
 >;
@@ -219,6 +251,7 @@ interface ParameterTypeStructureFields {
 
 export type ParameterTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.Parameter> &
+  TypedChildrenIteration &
   ParameterTypeStructureFields &
   ReplaceableDescendants
 >;
@@ -229,6 +262,7 @@ interface TemplateLiteralTypedStructureFields {
 
 export type TemplateLiteralTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.TemplateLiteral> &
+  TypedChildrenIteration &
   TypePrinterSettings &
   TemplateLiteralTypedStructureFields &
   ReplaceableDescendants
@@ -253,6 +287,7 @@ export type ObjectLiteralAppendables = (
 
 export type MemberedObjectTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.MemberedObject> &
+  TypedChildrenIteration &
   TypeElementMemberedNodeStructure &
   ReplaceableDescendants &
   AppendableStructure<ObjectLiteralAppendables>
@@ -264,6 +299,7 @@ export interface InferTypedStructureFields {
 
 export type InferTypedStructure = Simplify<
   KindedTypeStructure<TypeStructureKind.Infer> &
+  TypedChildrenIteration &
   InferTypedStructureFields &
   ReplaceableDescendants
 >;
@@ -278,6 +314,7 @@ export interface ImportTypedStructureFields {
 
 export type ImportTypedStructure = Simplify<
   TypedStructureWithChildren<TypeStructureKind.Import> &
+  TypedChildrenIteration &
   ImportTypedStructureFields &
   ReplaceableDescendants
 >;

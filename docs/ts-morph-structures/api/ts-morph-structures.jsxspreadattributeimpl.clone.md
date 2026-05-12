@@ -43,6 +43,7 @@ OptionalKind&lt;JsxSpreadAttributeStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [JsxSpreadAttributeImpl](./ts-morph-structures.jsxspreadattributeimpl.md)

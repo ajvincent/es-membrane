@@ -1,6 +1,11 @@
+import assert from "node:assert/strict";
+
 import {
+  type ClassDeclaration,
+  type MethodDeclaration,
   ModuleKind,
   ModuleResolutionKind,
+  Node,
   Project,
   ProjectOptions,
   ScriptTarget,
@@ -55,6 +60,8 @@ describe("convertTypeNode generates correct type structures, with type", () => {
   }
   failCallback satisfies TypeNodeToTypeStructureConsole;
 
+  let inMemoryProject: Project;
+
   beforeAll(() => {
     failMessage = undefined;
     failNode = null;
@@ -70,8 +77,8 @@ describe("convertTypeNode generates correct type structures, with type", () => {
       useInMemoryFileSystem: true,
     };
 
-    const project = new Project(TSC_CONFIG);
-    const sourceFile = project.createSourceFile("file.ts", `
+    inMemoryProject = new Project(TSC_CONFIG);
+    const sourceFile = inMemoryProject.createSourceFile("file.ts", `
 const refSymbol = Symbol("reference symbol");
 enum NumberEnum {
   one = 1,
@@ -83,6 +90,7 @@ let A: string;
     `.trim() + "\n");
     declaration = sourceFile.getVariableDeclarationOrThrow("A");
   });
+
   beforeEach(() => {
     failMessage = undefined;
     failNode = null;
@@ -146,6 +154,29 @@ let A: string;
     expect(failNode).toBeNull();
   });
 
+  it("`ThisTypeNode`", () => {
+    const sourceFile = inMemoryProject.createSourceFile("thisTypeTest.ts", `
+class ThisTypeReference {
+  getThis(): this {
+    return this;
+  }
+}
+        `.trim() + "\n");
+    const classDeclaration: ClassDeclaration = sourceFile.getClassOrThrow("ThisTypeReference");
+    const getThisMethod: MethodDeclaration = classDeclaration.getMethodOrThrow("getThis");
+    const returnTypeNode: TypeNode = getThisMethod.getReturnTypeNodeOrThrow();
+
+    assert(Node.isThisTypeNode(returnTypeNode));
+    structure = convertTypeNode(
+      returnTypeNode,
+      failCallback,
+      node => StructureClassesMap.clone(node.getStructure())
+    );
+
+    expect(structure).toBeInstanceOf(LiteralTypeStructureImpl);
+    if (structure instanceof LiteralTypeStructureImpl)
+      expect(structure.stringValue).toBe("this");
+  });
   //#endregion literals
 
   //#region complex types
@@ -565,5 +596,5 @@ let A: string;
     expect(failMessage).toBe(undefined);
     expect(failNode).toBe(null);
   });
-  //#region complex types
+  //#endregion complex types
 });

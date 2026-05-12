@@ -3,7 +3,7 @@ import type {
 } from "../../source/types/MixinClass.js";
 
 // #region test fixtures
-type FirstClassInterface = {
+interface FirstClassInterface {
 	readonly index: number;
 };
 class FirstClass implements FirstClassInterface {
@@ -16,10 +16,10 @@ class FirstClass implements FirstClassInterface {
 	}
 }
 
-type SecondClassStaticInterface = {
+interface SecondClassStaticInterface {
 	middle: string;
 };
-type SecondClassInterface = {
+interface SecondClassInterface {
 	isMiddle: boolean;
 };
 
@@ -41,10 +41,10 @@ function buildSecondClass<Middle extends string, IsMiddle extends boolean>(
 
 type ThirdClassType = MixinClass<ThirdClassStaticInterface, ThirdClassInterface, SecondClassType>;
 
-type ThirdClassStaticInterface = {
+interface ThirdClassStaticInterface {
 	readonly ending: string;
 };
-type ThirdClassInterface = {
+interface ThirdClassInterface {
 	readonly length: number;
 };
 

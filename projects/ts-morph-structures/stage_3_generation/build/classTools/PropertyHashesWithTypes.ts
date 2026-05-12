@@ -7,6 +7,7 @@ const PropertyHashesWithTypesInternal: ReadonlySet<string> = new Set<string>([
   "TypedNodeStructure:type",
   "TypeParameterDeclarationStructure:constraint",
   "TypeParameterDeclarationStructure:default",
+  "TypeAliasDeclarationStructure:type",
 ]);
 
 const PropertyHashesWithTypes = {

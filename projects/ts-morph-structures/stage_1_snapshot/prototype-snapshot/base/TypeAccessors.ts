@@ -1,7 +1,6 @@
 //#region preamble
 import type {
   TypedNodeStructure,
-  WriterFunction,
 } from "ts-morph";
 
 import {
@@ -14,7 +13,6 @@ import {
 } from "../exports.js";
 
 import {
-  StructureBase,
   TypeStructureClassesMap,
   TypeStructuresBase,
 } from "../internal-exports.js";
@@ -22,7 +20,7 @@ import {
 // #endregion preamble
 
 /**
- * This provides an API for converting between a type (`string | WriterFunction`) and a `TypeStructure`.
+ * This provides an API for converting between a type (`stringOrWriterFunction`) and a `TypeStructure`.
  *
  * For any class providing a type (return type, constraint, extends, etc.), you can have an instance of
  * `TypeAccessors` as a private class field, and provide getters and setters for type and typeStructure
@@ -31,12 +29,39 @@ import {
  * See `../decorators/TypedNode.ts` for an example.
  */
 export default class TypeAccessors
-extends StructureBase
 implements TypedNodeStructure, TypedNodeTypeStructure
 {
+  static buildTypeAccessors(
+    this: void,
+    thisObj: object,
+    fieldName: PropertyKey,
+    defaultValue?: stringOrWriterFunction | undefined
+  ): TypeAccessors
+  {
+    const accessors = new TypeAccessors;
+    Reflect.defineProperty(thisObj, fieldName, {
+      configurable: false,
+      enumerable: true,
+
+      get: function(): stringOrWriterFunction | undefined {
+        return accessors.type;
+      },
+
+      set: function(value: stringOrWriterFunction | undefined) {
+        accessors.type = value ?? defaultValue;
+      }
+    });
+
+    return accessors;
+  }
+
+  private constructor() {
+    // do nothing
+  }
+
   typeStructure: TypeStructures | undefined = undefined;
 
-  get type(): string | WriterFunction | undefined
+  get type(): stringOrWriterFunction | undefined
   {
     if (!this.typeStructure)
       return undefined;

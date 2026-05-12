@@ -43,6 +43,7 @@ signature
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 string\[\]

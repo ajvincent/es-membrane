@@ -41,8 +41,8 @@ import type { Class } from "type-fest";
 //#endregion preamble
 const GetAccessorDeclarationStructureBase = MultiMixinBuilder<
   [
-    DecoratableNodeStructureFields,
     AbstractableNodeStructureFields,
+    DecoratableNodeStructureFields,
     ScopedNodeStructureFields,
     StatementedNodeStructureFields,
     ParameteredNodeStructureFields,
@@ -55,8 +55,8 @@ const GetAccessorDeclarationStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >(
   [
-    DecoratableNodeStructureMixin,
     AbstractableNodeStructureMixin,
+    DecoratableNodeStructureMixin,
     ScopedNodeStructureMixin,
     StatementedNodeStructureMixin,
     ParameteredNodeStructureMixin,

@@ -11,7 +11,7 @@ import type {
   TypeStructuresOrNull
 } from "../../../snapshot/source/exports.js";
 
-export interface NodeWithStructures extends Node {
+export type NodeWithStructures = Node & {
   getStructure(): Structures;
 }
 

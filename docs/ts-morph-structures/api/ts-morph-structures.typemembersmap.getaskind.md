@@ -63,6 +63,7 @@ the key to get.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 Extract&lt;[TypeMemberImpl](./ts-morph-structures.typememberimpl.md)<!-- -->, KindedStructure&lt;Kind&gt;&gt; \| undefined

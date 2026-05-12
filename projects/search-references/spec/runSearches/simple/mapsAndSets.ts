@@ -1,5 +1,5 @@
 //#region preamble
-import graphlib from "@dagrejs/graphlib";
+import * as graphlib from "@dagrejs/graphlib";
 
 import {
   ObjectGraphImpl
@@ -30,7 +30,7 @@ import {
 
 //#endregion preamble
 
-describe("Simple graph searches:", () => {
+describe("Simple graph searches: Collections:", () => {
   const target = { isTarget: true, }, heldValues = { isHeldValues: true };
 
   const mapOrSet = { name: "isMapOrSet" }, key = { name: "key" }, value = { name: "value" };

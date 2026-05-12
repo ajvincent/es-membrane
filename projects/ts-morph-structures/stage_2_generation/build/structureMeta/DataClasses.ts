@@ -56,7 +56,15 @@ export class PropertyValue
 class BaseMetadata
 {
   readonly booleanKeys = new Set<string>;
+
+  /**
+   * represents fields whose type is a direct object
+   */
   readonly structureFields = new Map<PropertyName, PropertyValue>;
+
+  /**
+   * represents fields whose type is an array of values
+   */
   readonly structureFieldArrays = new Map<PropertyName, PropertyValue>;
   readonly decoratorKeys = new Set<StructureName>;
   readonly jsDocStructuresMap = new Map<PropertyName, readonly JSDocStructure[]>;
@@ -86,6 +94,9 @@ class BaseMetadata
       else if (existing.fromTypeName && existing.fromTypeName) {
         throw new Error("property name conflict for existing versus added in fromTypeName: " + propertyName);
       }
+
+      if (propertyValue.representsType)
+        existing.representsType = true;
     } else {
       map.set(propertyName, propertyValue);
     }
@@ -125,6 +136,13 @@ export class DecoratorImplMeta extends BaseMetadata implements MetaImplementatio
   ): void
   {
     this.#structuresUsing.add(structureName);
+  }
+
+  deleteStructureUsing(
+    structureName: StructureName
+  ): void
+  {
+    this.#structuresUsing.delete(structureName);
   }
 
   isBooleanKeysOnly(): boolean {

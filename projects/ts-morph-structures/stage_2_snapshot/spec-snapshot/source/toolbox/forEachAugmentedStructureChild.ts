@@ -33,7 +33,7 @@ import {
 type ChildStructure = StructureImpls | TypeStructures;
 type ForEachStructureCallback<TStructure> = (child: ChildStructure) => TStructure | void;
 
-describe("forEachAugmentedStructureImpl", () => {
+describe("forEachAugmentedStructureImpl (source)", () => {
   const visited = new Set<ChildStructure>;
   const expected = Symbol("expected");
 
@@ -60,7 +60,8 @@ describe("forEachAugmentedStructureImpl", () => {
       firstClass, firstType, secondClass, secondType, thirdClass,
     ], callback);
 
-    expect(result).toBe(secondClass);
+    // Jasmine dives deep into the objects to build an error message, even when the test passes.  This causes errors for `.type`.
+    expect(result === secondClass).toBeTrue();
     expect(Array.from(visited.values())).toEqual([
       firstClass, firstType, secondClass
     ]);

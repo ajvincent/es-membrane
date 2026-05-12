@@ -178,3 +178,4 @@ Gets a singleton `NumberTypeStructureImpl` for the given name.
 
 </td></tr>
 </tbody></table>
+

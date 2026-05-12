@@ -6,10 +6,10 @@ import {
   type stringOrWriterFunction
 } from "#stage_two/snapshot/source/exports.js";
 
-import StatementBase from "./StatementBase.js";
+import ExpressionBase from "../ExpressionBase.js";
 
 export default
-class BlockStatementImpl extends StatementBase
+class BlockStatementImpl extends ExpressionBase
 {
   readonly #beforeBlock?: stringOrWriterFunction;
   readonly #statements: readonly stringOrWriterFunction[];
@@ -32,15 +32,15 @@ class BlockStatementImpl extends StatementBase
   ): void
   {
     if (this.#beforeBlock) {
-      this.writeStatement(writer, this.#beforeBlock, false);
+      this.writeExpression(writer, this.#beforeBlock, false);
     }
     writer.block(() => {
       for (const statement of this.#statements) {
-        this.writeStatement(writer, statement, true);
+        this.writeExpression(writer, statement, true);
       }
     });
     if (this.#afterBlock) {
-      this.writeStatement(writer, this.#afterBlock, false);
+      this.writeExpression(writer, this.#afterBlock, false);
     }
   }
 

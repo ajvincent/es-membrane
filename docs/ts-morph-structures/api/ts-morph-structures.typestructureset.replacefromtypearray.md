@@ -47,6 +47,7 @@ the types to add.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 void

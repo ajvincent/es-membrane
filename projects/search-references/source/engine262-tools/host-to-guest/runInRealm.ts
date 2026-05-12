@@ -17,13 +17,11 @@ import {
   RealmHostDefined
 } from "./RealmHostDefined.js";
 
-/*
 import {
-  convertGuestPromiseToVoidHostPromise
-} from "./HostPromiseForGuestPromise.js";
-*/
+  CreateBuiltinFunction
+} from "@engine262/engine262";
 
-export async function runInRealm(
+export function runInRealm(
   inputs: GuestRealmInputsWithBuiltins
 ): Promise<GuestRealmOutputs>
 {
@@ -38,18 +36,42 @@ export async function runInRealm(
     // ensureCanCompileStrings() {},
     // hasSourceTextAvailable() {},
 
-    loadImportedModule(
-      referrer: GuestEngine.SourceTextModuleRecord,
-      specifier: string,
-      attributes: Map<string, string>,
-      hostDefined: object,
-      finish: (res: ThrowOr<GuestEngine.SourceTextModuleRecord/* | GuestEngine.SyntheticModuleRecord*/>) => void
-    )
-    {
-      const moduleOrThrow: ThrowOr<GuestEngine.SourceTextModuleRecord> = realmDriver.resolveModule(specifier, referrer);
-      finish(moduleOrThrow);
+    hostHooks: {
+      HostLoadImportedModule(
+        referrer: GuestEngine.CyclicModuleRecord | GuestEngine.ScriptRecord | GuestEngine.Realm,
+        moduleRequest: GuestEngine.ModuleRequestRecord,
+        hostDefined: GuestEngine.ModuleRecordHostDefined | undefined,
+        payload: GuestEngine.HostLoadImportedModulePayloadOpaque,
+      ): void
+      {
+        void hostDefined;
+        void payload;
+        if (referrer instanceof GuestEngine.SourceTextModuleRecord) {
+          const specifier: string = moduleRequest.Specifier;
+          const moduleOrThrow: ThrowOr<GuestEngine.SourceTextModuleRecord> = realmDriver.resolveModule(specifier, referrer);
+          GuestEngine.FinishLoadingImportedModule(referrer, moduleRequest, payload, moduleOrThrow);
+          return;
+        }
+
+        throw new Error("uh, what do we do here?");
+      },
+
+      /*
+      HostPromiseRejectionTrackers: new Set([
+        (promise: GuestEngine.PromiseObject, operation: "reject" | "handle") => {
+          realmDriver.hostDefined.promiseRejectionTracker(promise, operation);
+        }
+      ]),
+      */
     },
 
+    /*
+    uncaughtExceptionTrackers: new Set([
+      (error: GuestEngine.Value) => {
+        void error;
+      }
+    ]),
+    */
     // onNodeEvaluation() {},
     // features: [],
   });
@@ -69,12 +91,31 @@ export async function runInRealm(
 
     if (module instanceof GuestEngine.SourceTextModuleRecord) {
       realmDriver.registerMainModule(specifier, module);
-      return realm.evaluateModule(module, specifier);
+      return realm.evaluateModule(
+        module,
+        specifier,
+        (completion: GuestEngine.ValueCompletion<GuestEngine.PromiseObject>) => {
+          if (completion instanceof GuestEngine.ThrowCompletion) {
+            // console.error('Module evaluate error: ', inspect(result.Value));
+          }
+          else {
+            const promiseObj: GuestEngine.PromiseObject = GuestEngine.ValueOfNormalCompletion(completion);
+            GuestEngine.PerformPromiseThen(
+              promiseObj,
+              GuestEngine.Value.undefined,
+              CreateBuiltinFunction.from((error: GuestEngine.Value | undefined = GuestEngine.Value.undefined) => {
+                void error;
+                realmDriver.trackedPromises.add(promiseObj);
+              })
+            );
+          }
+        }
+      );
     }
   });
 
   //await realmDriver.moduleCompleted;
-  return realm.scope(() => realmDriver.finalizeResults());
+  return Promise.resolve(realm.scope(() => realmDriver.finalizeResults()));
 }
 
 export class RealmDriver {

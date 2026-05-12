@@ -43,6 +43,7 @@ OptionalKind&lt;PropertyAssignmentStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [PropertyAssignmentImpl](./ts-morph-structures.propertyassignmentimpl.md)

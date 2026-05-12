@@ -1,5 +1,5 @@
 //#region preamble
-import graphlib from "@dagrejs/graphlib";
+import * as graphlib from "@dagrejs/graphlib";
 
 import {
   BuiltInJSTypeName
@@ -18,7 +18,7 @@ import {
 } from "../../support/getActualGraph.js";
 //#endregion preamble
 
-describe("Iterator searches, Array:", () => {
+describe("Iterator searches, Map:", () => {
   const target = { isTarget: true };
   const firstValue = { isFirstValue: true };
   const lastValue = { isLastValue: true };

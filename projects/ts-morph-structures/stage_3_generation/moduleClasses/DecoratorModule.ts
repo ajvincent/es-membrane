@@ -24,9 +24,10 @@ import {
   getStructureMixinName,
 } from "#utilities/source/StructureNameTransforms.js";
 
-import SatisfiesStatementImpl from "../pseudoStatements/SatisfiesStatement.js";
+import SatisfiesStatementImpl from "../pseudoExpressions/statements/SatisfiesStatement.js";
 
 import BaseClassModule from "./BaseClassModule.js";
+import sortClassMembers from "./sortClassMembers.js";
 
 export default
 class DecoratorModule extends BaseClassModule
@@ -190,6 +191,9 @@ class DecoratorModule extends BaseClassModule
     classDecl.name = this.baseName + "Mixin";
     classDecl.extends = "baseClass";
     this.classMembersMap!.moveMembersToClass(classDecl);
+
+    sortClassMembers(classDecl);
+
     return classDecl;
   }
 

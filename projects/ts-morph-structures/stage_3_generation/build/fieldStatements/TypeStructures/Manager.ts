@@ -1,8 +1,14 @@
+import assert from "node:assert/strict";
+
+import {
+  StructureKind
+} from "ts-morph";
+
 import {
   ClassSupportsStatementsFlags,
+  ConstructorBodyStatementsGetter,
+  stringOrWriterFunction,
   type MemberedStatementsKey,
-  type PropertyInitializerGetter,
-  type stringWriterOrStatementImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
 import {
@@ -10,33 +16,56 @@ import {
 } from "#stage_three/generation/moduleClasses/exports.js";
 
 import StatementGetterBase from "../GetterBase.js";
+import CallExpressionStatementImpl from "#stage_three/generation/pseudoExpressions/statements/CallExpression.js";
 
 export default
 class TypeManagerStatements extends StatementGetterBase
-implements PropertyInitializerGetter
+implements ConstructorBodyStatementsGetter
 {
-  static readonly #managerRE = /^#(.*)Manager$/;
+  static readonly #managerRE = /^#(.*)Accessors$/;
 
   constructor(
     module: BaseClassModule,
   )
   {
-    super(module, "TypeManagerStatements", ClassSupportsStatementsFlags.PropertyInitializer);
+    super(
+      module,
+      "TypeManagerStatements",
+      ClassSupportsStatementsFlags.ConstructorBodyStatements
+    );
   }
 
-  filterPropertyInitializer(
+  filterCtorBodyStatements(
     key: MemberedStatementsKey
   ): boolean
   {
     return TypeManagerStatements.#managerRE.test(key.fieldKey);
   }
 
-  getPropertyInitializer(
+  getCtorBodyStatements(
     key: MemberedStatementsKey
-  ): stringWriterOrStatementImpl
+  ): readonly stringOrWriterFunction[]
   {
-    void(key);
+    assert(key.fieldType?.kind === StructureKind.PropertySignature);
+
+    const fieldKey = key.fieldKey.match(/^#(.*)Accessors$/)![1];
     this.module.addImports("internal", ["TypeAccessors"], []);
-    return `new TypeAccessors()`;
+
+    const callExpression = new CallExpressionStatementImpl({
+      name: "TypeAccessors.buildTypeAccessors",
+      parameters: [
+        "this",
+        `"${fieldKey}"`
+      ]
+    });
+
+    if (this.baseName.startsWith("TypeAliasDeclaration"))
+      callExpression.parameters.push(`""`);
+
+    return [
+      `// ${fieldKey} is getting lost in ts-morph clone operations\n`,
+      `this.#${fieldKey}Accessors = `,
+      callExpression.writerFunction
+    ];
   }
 }

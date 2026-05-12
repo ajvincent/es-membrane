@@ -43,6 +43,7 @@ OptionalKind&lt;ImportAttributeStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ImportAttributeImpl](./ts-morph-structures.importattributeimpl.md)

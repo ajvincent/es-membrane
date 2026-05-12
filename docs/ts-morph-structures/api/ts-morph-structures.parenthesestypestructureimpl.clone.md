@@ -43,6 +43,7 @@ other
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ParenthesesTypeStructureImpl](./ts-morph-structures.parenthesestypestructureimpl.md)

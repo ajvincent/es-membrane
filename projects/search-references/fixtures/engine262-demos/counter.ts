@@ -6,7 +6,7 @@ async function * numbers(): AsyncGenerator<number, void, unknown> {
   }
 }
 
-(async () => {
+void (async () => {
   for await (const item of numbers()) {
     report([item]);
   }

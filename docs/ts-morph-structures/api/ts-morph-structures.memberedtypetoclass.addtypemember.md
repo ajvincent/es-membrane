@@ -63,6 +63,7 @@ the type member to convert to a class member.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 void

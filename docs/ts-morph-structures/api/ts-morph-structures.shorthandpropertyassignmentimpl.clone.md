@@ -43,6 +43,7 @@ OptionalKind&lt;ShorthandPropertyAssignmentStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ShorthandPropertyAssignmentImpl](./ts-morph-structures.shorthandpropertyassignmentimpl.md)

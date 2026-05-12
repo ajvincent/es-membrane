@@ -47,6 +47,7 @@ the class member
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 string

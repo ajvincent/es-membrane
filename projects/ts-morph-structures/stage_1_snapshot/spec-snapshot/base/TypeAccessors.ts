@@ -17,7 +17,7 @@ import {
 
 describe("TypeAccessors with", () => {
   let manager: TypeAccessors;
-  beforeEach(() => manager = new TypeAccessors);
+  beforeEach(() => manager = TypeAccessors.buildTypeAccessors({}, "type"));
 
   const literalTypeStructure = new LiteralTypedStructureImpl("NumberStringType");
   const stringTypeStructure = new StringTypedStructureImpl("NumberStringType");

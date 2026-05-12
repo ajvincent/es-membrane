@@ -16,7 +16,7 @@ import type {
 } from "../support/RightExtendsLeft.js";
 
 describe("Subclass decorators: ", () => {
-  type FirstClassInterface = {
+  interface FirstClassInterface {
     readonly index: number;
   };
   class FirstClass implements FirstClassInterface {

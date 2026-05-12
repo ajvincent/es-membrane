@@ -43,6 +43,7 @@ OptionalKind&lt;PropertySignatureStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [PropertySignatureImpl](./ts-morph-structures.propertysignatureimpl.md)

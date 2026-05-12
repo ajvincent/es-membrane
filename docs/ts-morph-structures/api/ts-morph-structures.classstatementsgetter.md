@@ -10,7 +10,8 @@ Traps for getting statements, based on a `MemberedStatementsKey`<!-- -->.
 
 ```typescript
 export interface ClassStatementsGetter
-  extends Partial<PropertyInitializerGetter>,
+  extends
+    Partial<PropertyInitializerGetter>,
     Partial<AccessorMirrorGetter>,
     Partial<ClassHeadStatementsGetter>,
     Partial<ClassBodyStatementsGetter>,
@@ -83,3 +84,4 @@ Bitwise flags to determine which statement getter traps are active.
 
 </td></tr>
 </tbody></table>
+

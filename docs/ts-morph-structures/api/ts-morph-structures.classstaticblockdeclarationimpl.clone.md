@@ -43,6 +43,7 @@ OptionalKind&lt;ClassStaticBlockDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ClassStaticBlockDeclarationImpl](./ts-morph-structures.classstaticblockdeclarationimpl.md)

@@ -13,6 +13,10 @@ import BaseModule from "./BaseModule.js";
 import OrderedSet from "./OrderedSet.js";
 import SuffixMap from "./SuffixMap.js";
 
+import {
+  sortMemberNames
+} from "./sortClassMembers.js";
+
 export default
 class InterfaceModule extends BaseModule {
   static readonly decoratorsMap = new SuffixMap<InterfaceModule>("ClassIfc");
@@ -25,12 +29,7 @@ class InterfaceModule extends BaseModule {
     b: [string, TypeMemberImpl]
   ): number
   {
-    if (a[0] === "kind")
-      return -1;
-    if (b[0] === "kind")
-      return +1;
-  
-    return a[0].localeCompare(b[0]);
+    return sortMemberNames(a[0], b[0]);
   }
 
   readonly typeMembers: TypeMembersMap;

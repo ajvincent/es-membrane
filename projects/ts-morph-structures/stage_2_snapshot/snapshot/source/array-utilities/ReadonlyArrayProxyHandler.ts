@@ -7,9 +7,9 @@
  * place unreachable, and likewise prevents setting index values.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy#handler_functions}
  */
-export default class ReadonlyArrayProxyHandler<ElementType>
-  implements Required<ProxyHandler<ElementType[]>>
-{
+export default class ReadonlyArrayProxyHandler<ElementType> implements Required<
+  ProxyHandler<ElementType[]>
+> {
   /** Members which don't affect the original array. */
   static #safeMembers: ReadonlySet<keyof (readonly object[])> = new Set([
     Symbol.iterator,

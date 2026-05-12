@@ -43,6 +43,7 @@ other
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [IndexedAccessTypeStructureImpl](./ts-morph-structures.indexedaccesstypestructureimpl.md)

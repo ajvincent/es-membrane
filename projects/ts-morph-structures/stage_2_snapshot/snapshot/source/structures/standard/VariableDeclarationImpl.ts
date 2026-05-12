@@ -29,8 +29,8 @@ import type { Class } from "type-fest";
 const VariableDeclarationStructureBase = MultiMixinBuilder<
   [
     ExclamationTokenableNodeStructureFields,
-    InitializerExpressionableNodeStructureFields,
     TypedNodeStructureFields,
+    InitializerExpressionableNodeStructureFields,
     NamedNodeStructureFields,
     StructureFields,
   ],
@@ -38,8 +38,8 @@ const VariableDeclarationStructureBase = MultiMixinBuilder<
 >(
   [
     ExclamationTokenableNodeStructureMixin,
-    InitializerExpressionableNodeStructureMixin,
     TypedNodeStructureMixin,
+    InitializerExpressionableNodeStructureMixin,
     NamedNodeStructureMixin,
     StructureMixin,
   ],

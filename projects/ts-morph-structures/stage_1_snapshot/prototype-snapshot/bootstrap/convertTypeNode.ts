@@ -17,7 +17,7 @@ import {
   TemplateLiteralTypeNode,
   TypeLiteralNode,
   ImportTypeNode,
-} from "ts-morph"
+} from "ts-morph";
 
 import {
   ArrayTypedStructureImpl,
@@ -44,14 +44,14 @@ import {
   UnionTypedStructureImpl,
   TemplateLiteralTypedStructureImpl,
   MemberedObjectTypeStructureImpl,
-  StructuresClassesMap,
+  StructureClassesMap,
   CallSignatureDeclarationImpl,
   ConstructSignatureDeclarationImpl,
   IndexSignatureDeclarationImpl,
   MethodSignatureImpl,
   PropertySignatureImpl,
   TypePrinterSettingsBase,
-} from "../exports.js"
+} from "../exports.js";
 
 import {
   TypeNodeToTypeStructureConsole,
@@ -59,7 +59,8 @@ import {
 
 import type {
   NodeWithStructures
-} from "./structureToNodeMap.js";
+} from "./types/conversions.js";
+
 import StructureBase from "../base/StructureBase.js";
 
 // #endregion preamble
@@ -106,9 +107,15 @@ export default function convertTypeNode(
   if (Node.isNumericLiteral(typeNode)) {
     return new LiteralTypedStructureImpl(typeNode.getLiteralText());
   }
+
+  if (Node.isThisTypeNode(typeNode)) {
+    return new LiteralTypedStructureImpl("this");
+  }
+
   if (Node.isStringLiteral(typeNode)) {
     return new StringTypedStructureImpl(typeNode.getLiteralText());
   }
+
   if (Node.isParenthesizedTypeNode(typeNode)) {
     const childStructure = convertTypeNode(
       typeNode.getTypeNode(),
@@ -387,7 +394,7 @@ function convertFunctionTypeNode(
   subStructureResolver: (node: NodeWithStructures) => Structures,
 ): FunctionTypedStructureImpl | null
 {
-  let typeParameterNodes: readonly TypeParameterDeclaration[] = [];
+  let typeParameterNodes: readonly TypeParameterDeclaration[];
   try {
     // https://github.com/dsherret/ts-morph/issues/1434
     typeParameterNodes = (typeNode as Pick<FunctionTypeNode, "getTypeParameters">).getTypeParameters();
@@ -622,7 +629,7 @@ function convertTypeLiteralNode(
     }
 
     if (!(childStructure instanceof StructureBase)) {
-      childStructure = StructuresClassesMap.get(childStructure.kind)!.clone(childStructure);
+      childStructure = StructureClassesMap.get(childStructure.kind)!.clone(childStructure);
     }
 
     switch (childStructure.kind) {

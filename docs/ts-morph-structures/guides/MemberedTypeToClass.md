@@ -395,7 +395,7 @@ declare class MemberedTypeToClass {
    */
   insertMemberKey(
     isFieldStatic: boolean,
-    fieldType: PropertySignatureImpl,
+    fieldType: PropertySignatureImpl | GetAccessorDeclarationImpl | SetAccessorDeclarationImpl,
     isGroupStatic: boolean,
     groupType: InsertedMemberKey["groupType"]
   ): void;

@@ -70,11 +70,11 @@ function * handleReport(
 {
   const [keyGuest, valueGuest] = guestValues;
   if (keyGuest?.type !== "String")
-    throw GuestEngine.Throw("TypeError", "Raw", "key must be a string");
+    throw GuestEngine.Throw.TypeError("key must be a string");
 
   const key: string = keyGuest.stringValue();
   if (reportCalls.has(key))
-    throw GuestEngine.Throw("Error", "Raw", `key "${key}" is already defined`);
+    throw GuestEngine.Throw.TypeError(`key "${key}" is already defined`);
 
   if (valueGuest === undefined || valueGuest.type === "Undefined")
     reportCalls.set(key, undefined);
@@ -88,7 +88,7 @@ function * handleReport(
     reportCalls.set(key, null);
 
   else
-    throw GuestEngine.Throw("TypeError", "Raw", `value must be undefined, a string, a boolean, a number, or null.`);
+    throw GuestEngine.Throw.TypeError(`value must be undefined, a string, a boolean, a number, or null.`);
 
   return GuestEngine.Value.undefined;
 }

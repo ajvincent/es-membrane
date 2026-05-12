@@ -214,7 +214,7 @@ string
 </td></tr>
 <tr><td>
 
-[type?](./ts-morph-structures.typealiasdeclarationimpl.type.md)
+[type](./ts-morph-structures.typealiasdeclarationimpl.type.md)
 
 
 </td><td>
@@ -226,8 +226,6 @@ string
 
 
 </td><td>
-
-_(Optional)_
 
 
 </td></tr>
@@ -260,7 +258,7 @@ _(Optional)_
 
 </td><td>
 
-[TypeStructures](./ts-morph-structures.typestructures.md) \| undefined
+[TypeStructures](./ts-morph-structures.typestructures.md)
 
 
 </td><td>
@@ -314,3 +312,4 @@ Description
 
 </td></tr>
 </tbody></table>
+

@@ -2,9 +2,12 @@
  * These are utilities for asynchronously importing modules which may not exist until after the build completes.
  */
 
-import fs from "fs/promises";
-import path from "path";
-import {fileURLToPath, pathToFileURL, } from "url";
+import fs from "node:fs/promises";
+import path from "node:path";
+import {
+  fileURLToPath,
+  pathToFileURL
+} from "node:url";
 
 export const projectDir = path.normalize(path.resolve(
   fileURLToPath(import.meta.url),

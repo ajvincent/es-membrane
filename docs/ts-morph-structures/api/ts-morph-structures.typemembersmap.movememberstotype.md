@@ -47,6 +47,7 @@ the target interface or type literal declaration.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 void

@@ -10,9 +10,9 @@ export const execAsync = promisify(execFile);
 
 const projectDir = path.normalize(path.join(fileURLToPath(import.meta.url), "../.."));
 
-const git: string = await which("git");
-
 export async function assertRepoIsClean(): Promise<void> {
+  const git: string = await which("git");
+
   const child = await execAsync(
     git,
     ["status", "-s"],

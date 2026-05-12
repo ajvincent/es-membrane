@@ -15,9 +15,11 @@ import {
 import structureToSyntax from "./build/structureToSyntax.js";
 import compileTypeDeclarations from "./build/docs/typeDeclarations.js";
 import doBundles from "./build/rollup/bundle.js";
+import { fixExportTypes } from "./build/fixExportTypes.js";
 import runAPIExtractor from "./build/docs/runAPIExtractor.js";
 import applyDecoratorsForDocModel from "./build/docs/decoratorsInDocModel.js";
 import runAPIDocumenter from "./build/docs/runAPIDocumenter.js";
+import exportDist from "./build/exportDist.js";
 
 async function eslint(): Promise<void> {
   await runESLint(path.join(projectDir, "stage_2_integration"), [
@@ -30,9 +32,11 @@ async function eslint(): Promise<void> {
 export default series([
   structureToSyntax,
   doBundles,
+  fixExportTypes,
   compileTypeDeclarations,
   applyDecoratorsForDocModel,
   runAPIExtractor,
   runAPIDocumenter,
   eslint,
+  exportDist,
 ]);

@@ -43,6 +43,7 @@ OptionalKind&lt;JsxElementStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [JsxElementImpl](./ts-morph-structures.jsxelementimpl.md)

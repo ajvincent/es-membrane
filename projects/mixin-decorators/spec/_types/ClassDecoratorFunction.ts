@@ -11,7 +11,7 @@ import type {
   NumberStringType
 } from "../../fixtures/types/NumberStringType.js";
 
-type WithCounter = {
+interface WithCounter {
   counter: number | boolean;
 };
 
@@ -127,7 +127,7 @@ describe("Mixin class types: ClassDecoratorFunction", () => {
   });
 
   it("with specific parameters on the constructor, that must match throughout", () => {
-    type Invocations = {
+    interface Invocations {
       invocations: number;
     }
 

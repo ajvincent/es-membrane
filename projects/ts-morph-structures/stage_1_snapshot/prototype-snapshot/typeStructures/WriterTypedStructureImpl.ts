@@ -14,6 +14,8 @@ import {
   TypeStructureKind,
 } from "../base/TypeStructureKind.js";
 
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
+
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.js";
@@ -21,6 +23,7 @@ import {
 
 /** Wrappers for writer functions from external sources.  Leaf nodes. */
 export default class WriterTypedStructureImpl
+extends TypeStructuresBase
 implements WriterTypedStructure
 {
   static clone(
@@ -34,6 +37,7 @@ implements WriterTypedStructure
   readonly writerFunction: WriterFunction;
 
   constructor(writer: WriterFunction) {
+    super();
     this.writerFunction = writer;
     registerCallbackForTypeStructure(this);
   }

@@ -12,6 +12,8 @@ import {
   TypePrinterSettingsBase,
 } from "../exports.js";
 
+import TypeStructuresBase from "../base/TypeStructuresBase.js";
+
 import {
   registerCallbackForTypeStructure
 } from "../base/callbackToTypeStructureRegistry.js";
@@ -25,10 +27,19 @@ import {
 import type {
   CloneableStructure
 } from "../types/CloneableStructure.js";
+
+import {
+  STRUCTURE_AND_TYPES_CHILDREN
+} from "../base/symbolKeys.js";
+
+import type {
+  StructureImpls
+} from "../types/StructureImplUnions.js";
 // #endregion
 
 /** `one${"A" | "B"}two${"C" | "D"}three` */
 export default class TemplateLiteralTypedStructureImpl
+extends TypeStructuresBase
 implements TemplateLiteralTypedStructure
 {
   readonly kind: TypeStructureKind.TemplateLiteral = TypeStructureKind.TemplateLiteral;
@@ -40,6 +51,7 @@ implements TemplateLiteralTypedStructure
     childTypes: (string | TypeStructures)[] = []
   )
   {
+    super();
     this.childTypes = childTypes;
     registerCallbackForTypeStructure(this);
   }
@@ -85,6 +97,16 @@ implements TemplateLiteralTypedStructure
       return TypeStructureClassesMap.clone(child);
     });
     return new TemplateLiteralTypedStructureImpl(childTypes);
+  }
+
+  /** @internal */
+  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  {
+    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    for (const type of this.childTypes) {
+      if (typeof type === "object")
+        yield type;
+    }
   }
 }
 

@@ -43,6 +43,7 @@ other
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ParameterTypeStructureImpl](./ts-morph-structures.parametertypestructureimpl.md)

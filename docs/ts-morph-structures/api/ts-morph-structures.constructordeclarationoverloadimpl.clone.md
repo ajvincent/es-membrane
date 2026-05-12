@@ -43,6 +43,7 @@ OptionalKind&lt;ConstructorDeclarationOverloadStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ConstructorDeclarationOverloadImpl](./ts-morph-structures.constructordeclarationoverloadimpl.md)

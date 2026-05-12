@@ -47,6 +47,7 @@ the type structure set to copy
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 void

@@ -299,7 +299,8 @@ export interface ConstructorTailStatementsGetter {
  * Traps for getting statements, based on a `MemberedStatementsKey`.
  */
 export interface ClassStatementsGetter
-  extends Partial<PropertyInitializerGetter>,
+  extends
+    Partial<PropertyInitializerGetter>,
     Partial<AccessorMirrorGetter>,
     Partial<ClassHeadStatementsGetter>,
     Partial<ClassBodyStatementsGetter>,

@@ -63,6 +63,7 @@ Callback to do on each structure, until the callback returns a truthy result.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 TStructure \| undefined

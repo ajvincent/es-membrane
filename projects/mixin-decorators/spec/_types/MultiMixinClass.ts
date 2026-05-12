@@ -43,7 +43,7 @@ it("MultiMixinClass defines a class taking multiple interfaces", () => {
     symbolKey: typeof thirdKey;
   }>;
 
-  type FirstClassInterface = {
+  interface FirstClassInterface {
     readonly index: number;
   };
 

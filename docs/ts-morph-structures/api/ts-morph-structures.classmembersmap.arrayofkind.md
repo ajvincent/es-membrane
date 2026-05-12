@@ -47,6 +47,7 @@ the structure kind to get.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 Extract&lt;[ClassMemberImpl](./ts-morph-structures.classmemberimpl.md)<!-- -->, KindedStructure&lt;Kind&gt;&gt;\[\]

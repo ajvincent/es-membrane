@@ -12,7 +12,7 @@ import StatementClassesMap from "../base/StatementClassesMap.js";
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import type {
   CloneableStructure
@@ -77,4 +77,4 @@ implements ExportDeclarationStructure
 ExportDeclarationImpl satisfies CloneableStructure<ExportDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.ExportDeclaration, ExportDeclarationImpl);
-StructuresClassesMap.set(StructureKind.ExportDeclaration, ExportDeclarationImpl);
+StructureClassesMap.set(StructureKind.ExportDeclaration, ExportDeclarationImpl);

@@ -43,6 +43,7 @@ OptionalKind&lt;JSDocStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [JSDocImpl](./ts-morph-structures.jsdocimpl.md)

@@ -45,6 +45,7 @@ The property description key. `statementGroupKey` will be `ClassFieldStatementsM
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 boolean

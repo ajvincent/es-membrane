@@ -43,6 +43,7 @@ OptionalKind&lt;ParameterDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ParameterDeclarationImpl](./ts-morph-structures.parameterdeclarationimpl.md)

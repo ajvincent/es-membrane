@@ -43,6 +43,7 @@ OptionalKind&lt;VariableStatementStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [VariableStatementImpl](./ts-morph-structures.variablestatementimpl.md)

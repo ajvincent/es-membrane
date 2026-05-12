@@ -6,8 +6,8 @@ import { fileURLToPath } from "node:url";
 import which from "which";
 export const execAsync = promisify(execFile);
 const projectDir = path.normalize(path.join(fileURLToPath(import.meta.url), "../.."));
-const git = await which("git");
 export async function assertRepoIsClean() {
+    const git = await which("git");
     const child = await execAsync(git, ["status", "-s"], { cwd: projectDir });
     if (child.stderr) {
         console.log(child.stderr);

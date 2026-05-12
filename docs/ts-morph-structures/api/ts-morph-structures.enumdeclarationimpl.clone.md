@@ -43,6 +43,7 @@ OptionalKind&lt;EnumDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [EnumDeclarationImpl](./ts-morph-structures.enumdeclarationimpl.md)

@@ -5,8 +5,11 @@ import {
 } from "ts-morph";
 
 import {
+  ClassMembersMap,
   ClassFieldStatementsMap,
   type ClassMemberImpl,
+  ClassSupportsStatementsFlags,
+  GetAccessorDeclarationImpl,
   LiteralTypeStructureImpl,
   MemberedTypeToClass,
   MethodSignatureImpl,
@@ -14,8 +17,6 @@ import {
   PropertySignatureImpl,
   type TypeMembersMap,
   TypeStructureKind,
-  ClassMembersMap,
-  ClassSupportsStatementsFlags,
 } from "#stage_two/snapshot/source/exports.js";
 
 import {
@@ -42,8 +43,6 @@ import {
 
 import initializeTypes from "../../vanilla/initializer.js";
 
-import PropertyHashesWithTypes from "../classTools/PropertyHashesWithTypes.js";
-
 import addReadonlyArrayHandlers from "./addReadonlyArrayHandler.js";
 
 import ArrayReadonlyHandler from "../fieldStatements/TypeStructures/ArrayReadonlyHandler.js";
@@ -56,6 +55,9 @@ import ProxyArrayStatements from "../fieldStatements/TypeStructures/ProxyArray.j
 import ShadowArrayStatements from "../fieldStatements/TypeStructures/ShadowArray.js";
 import TypeStructureSetStatements from "../fieldStatements/TypeStructures/TypeStructureSet.js";
 import TypeArrayStatements from "../fieldStatements/TypeStructures/ArrayGetter.js";
+import {
+  TypeAliasDeclarationInitializer
+} from "./specialCases/typeAliasInitializer.js";
 
 import DebuggingFilter from "../fieldStatements/Debugging.js";
 
@@ -70,10 +72,15 @@ import {
   AccessorExtraParameters,
   getInsertedAccessorProperty,
 } from "./specialCases/accessorConstructors.js";
+
 import {
   StatementsPriority,
   getBaselineStatementGetters,
 } from "../fieldStatements/StatementsPriority.js";
+
+import {
+  getTypeStructureNativeMembers
+} from "../getTypeStructureMembers.js";
 
 // useful for debugging
 void(ClassFieldStatementsMap);
@@ -89,7 +96,18 @@ async function createStructures(): Promise<void>
     InterfaceModule.structuresMap.keys()
   ).map(getStructureNameFromModified);
 
-  await PromiseAllParallel(names, buildStructure);
+  try {
+    await PromiseAllParallel(names, buildStructure);
+  }
+  catch (ex) {
+    const exception = ex as AggregateError;
+    if (exception.errors) {
+      exception.errors.forEach((childError: Error) => {
+        console.error(childError, childError.stack);
+      });
+    }
+    throw exception;
+  }
 }
 
 async function buildStructure(
@@ -101,7 +119,6 @@ async function buildStructure(
   )!;
 
   const module = new StructureModule(name, interfaceModule);
-
   const interfaceMembers: TypeMembersMap = interfaceModule.typeMembers.clone();
   const replacedProperties = modifyTypeMembersForTypeStructures(name, interfaceMembers);
 
@@ -163,6 +180,7 @@ function buildTypeToClass(
     new ProxyArrayStatements(module),
     new TypeStructureSetStatements(module),
     new TypeArrayStatements(module),
+    new TypeAliasDeclarationInitializer(module),
   ]);
 
   const flatTypes = InterfaceModule.flatTypesMap.get(
@@ -214,13 +232,11 @@ function defineImplMethods(
   }
 
   let iteratorMethod: MethodSignatureImpl | undefined;
-  {
-    const properties = interfaceMembers.arrayOfKind(StructureKind.GetAccessor);
-    if (properties.some(prop => PropertyHashesWithTypes.has(module.baseName, prop.name))) {
-      iteratorMethod = module.createStructureIteratorMethod();
-      typeToClass.addTypeMember(false, iteratorMethod);
-    }
+  if (getTypeStructureNativeMembers(module, interfaceMembers).next().done !== true) {
+    iteratorMethod = module.createStructureIteratorMethod();
+    typeToClass.addTypeMember(false, iteratorMethod);
   }
+
   const toJSONMethod = module.createToJSONMethod();
   typeToClass.addTypeMember(false, toJSONMethod);
 
@@ -278,13 +294,24 @@ function insertConstructorKeys(
       continue;
     if (property.typeStructure === booleanType)
       continue;
-    if ((property.typeStructure?.kind === TypeStructureKind.Union) && property.typeStructure.childTypes.includes(TypeStructuresLiteral))
+    if ((property.typeStructure?.kind === TypeStructureKind.Union) &&
+         property.typeStructure.childTypes.includes(TypeStructuresLiteral))
       continue;
 
     if (typeToClass.constructorParameters.find(param => param.name === property.name))
       continue;
 
     typeToClass.insertMemberKey(false, property, false, "constructor");
+  }
+
+  for (const [key, propOrGetter] of getTypeStructureNativeMembers(module, module.getFlatTypeMembers())) {
+    if (propOrGetter.kind !== StructureKind.PropertySignature)
+      continue;
+    if (propOrGetter.typeStructure!.kind === TypeStructureKind.Array) {
+      const getter = new GetAccessorDeclarationImpl(false, propOrGetter.name, propOrGetter.typeStructure);
+      typeToClass.insertMemberKey(false, getter, false, "constructor");
+    }
+    void key;
   }
 }
 

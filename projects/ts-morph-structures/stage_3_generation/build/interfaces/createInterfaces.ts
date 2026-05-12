@@ -97,6 +97,11 @@ function createStructureInterface(
   else
     assert(module.structureKindName, "structure kind name not found for " + name);
 
+  // special case: TypeAliasDeclarationStructure has its own "type" property.
+  if (name === "TypeAliasDeclarationStructure") {
+    module.extendsSet.delete("TypedNodeStructure");
+  }
+
   InterfaceModule.structuresMap.set(
     module.defaultExportName, module
   );

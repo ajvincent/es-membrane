@@ -208,3 +208,4 @@ It is up to you to ensure the names match the key type of the index signature.
 
 </td></tr>
 </tbody></table>
+

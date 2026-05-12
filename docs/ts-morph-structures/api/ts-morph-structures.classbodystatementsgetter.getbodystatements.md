@@ -47,6 +47,7 @@ The membered statement key.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 readonly [stringWriterOrStatementImpl](./ts-morph-structures.stringwriterorstatementimpl.md)<!-- -->\[\]

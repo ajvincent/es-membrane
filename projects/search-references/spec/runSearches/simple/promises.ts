@@ -1,5 +1,5 @@
 //#region preamble
-import graphlib from "@dagrejs/graphlib";
+import * as graphlib from "@dagrejs/graphlib";
 
 import {
   ObjectGraphImpl
@@ -69,7 +69,7 @@ describe("Simple graph searches, promises: references to the target", () => {
     addScopeValueEdge(ExpectedObjectGraph, callback, "[[return value]]", target);
   }
 
-  function summarize(): object {
+  function summarize(): ReturnType<typeof graphlib.json.write> {
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();
     ExpectedObjectGraph.summarizeGraphToTarget(true);
     const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
@@ -169,7 +169,7 @@ describe("Simple graph searches, promises: references to the target", () => {
     expect(actual).toEqual(null);
   });
 
-  it("do not exist as a fulfilled value via reject()", async () => {
+  it("do not exist as a fulfilled value via catch", async () => {
     const actual = await getActualGraph(
       "simple/promises.js", "promise.catch() resolved to target", false
     );
@@ -225,7 +225,7 @@ describe("Simple graph searches, promises: references to the target", () => {
   //#endregion finally, resolve()
 
   //#region then, reject()
-  it("do not exist when fulfilling to target, after reject", async () => {
+  it("do not exist when .then() to target, after reject", async () => {
     const actual = await getActualGraph(
       "simple/promises.js", "promise.then() to target, after reject", false
     );

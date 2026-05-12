@@ -1,8 +1,4 @@
-import graphlib from "@dagrejs/graphlib";
-
-import type {
-  ReadonlyDeep
-} from "type-fest";
+import * as graphlib from "@dagrejs/graphlib";
 
 import type {
   GraphNodeWithMetadata
@@ -25,7 +21,7 @@ import {
   referenceSpecDir,
 } from "./projectRoot.js";
 
-type GraphsFromSearch = ReadonlyDeep<Map<string, graphlib.Graph | null>>;
+type GraphsFromSearch = ReadonlyMap<string, graphlib.Graph | null>;
 const GraphsFromFileSearches = new Map<string, Promise<GraphsFromSearch>>;
 
 const TracingFromFileSearches = new Map<string, string[]>;
@@ -68,10 +64,10 @@ function canonicalizeSpecifiers(
 ): void
 {
   for (const nodeId of graph.nodes()) {
-    const node = graph.node(nodeId);
+    const node = graph.node(nodeId) as GraphNodeWithMetadata<GraphObjectMetadata>;
     if (!node)
       continue;
-    const { metadata } = node as GraphNodeWithMetadata<GraphObjectMetadata>;
+    const { metadata } = node;
 
     if (metadata?.classSpecifier) {
       metadata.classSpecifier = metadata.classSpecifier.replace(

@@ -58,9 +58,7 @@ export function * defineSearchReferences(
       const searchArgs: SearchReferencesArguments = yield* EnsureTypeOrThrow(extractSearchParameters(guestArguments));
 
       if (searchResultsMap.has(searchArgs.resultsKey)) {
-        throw GuestEngine.Throw("Error", "Raw",
-          `You already have a search with the results key ${JSON.stringify(searchArgs.resultsKey)}`
-        );
+        throw GuestEngine.Throw.Error(`You already have a search with the results key $1`, JSON.stringify(searchArgs.resultsKey));
       }
 
       const searchDriver = new SearchDriver(
@@ -87,15 +85,15 @@ function * extractSearchParameters(
 {
   const [resultsKeyGuest, targetValue, heldValuesArrayGuest, strongRefsGuest] = guestArguments;
   if (resultsKeyGuest?.type !== "String") {
-    throw GuestEngine.Throw("TypeError", "Raw", "resultsKey is not a string");
+    throw GuestEngine.Throw.TypeError("resultsKey is not a string");
   }
 
   if (targetValue?.type !== "Object" && targetValue?.type !== "Symbol") {
-    throw GuestEngine.Throw("TypeError", "NotAWeakKey", targetValue);
+    throw GuestEngine.Throw.TypeError("$1 is not an object or a symbol", targetValue);
   }
 
   if (heldValuesArrayGuest.type !== "Object") {
-    throw GuestEngine.Throw('TypeError', "Raw", "Expected an Array object");
+    throw GuestEngine.Throw.TypeError("Expected an Array object");
   }
   const heldValuesRaw: GuestEngine.Value[] = yield* EnsureTypeOrThrow(convertArrayValueToArrayOfValues(
     heldValuesArrayGuest
@@ -103,11 +101,11 @@ function * extractSearchParameters(
 
   for (let i = 0; i < heldValuesRaw.length; i++) {
     if (heldValuesRaw[i].type !== "Object" && heldValuesRaw[i].type !== "Symbol")
-      throw GuestEngine.Throw("TypeError", "NotAWeakKey", heldValuesRaw[i]);
+      throw GuestEngine.Throw.TypeError("$1 is not an object or a symbol", heldValuesRaw[i]);
   }
 
   if (strongRefsGuest?.type !== "Boolean")
-    throw GuestEngine.Throw("TypeError", "Raw", "strongReferencesOnly is not a boolean");
+    throw GuestEngine.Throw.TypeError("strongReferencesOnly is not a boolean");
 
   return {
     resultsKey: resultsKeyGuest.stringValue(),

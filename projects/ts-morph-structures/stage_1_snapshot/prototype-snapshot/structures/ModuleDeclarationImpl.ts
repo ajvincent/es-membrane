@@ -11,7 +11,7 @@ import StatementClassesMap from "../base/StatementClassesMap.js";
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import KindedStructure, {
   type KindedStructureFields
@@ -100,4 +100,4 @@ implements ModuleDeclarationStructure
 ModuleDeclarationImpl satisfies CloneableStructure<ModuleDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.Module, ModuleDeclarationImpl);
-StructuresClassesMap.set(StructureKind.Module, ModuleDeclarationImpl);
+StructureClassesMap.set(StructureKind.Module, ModuleDeclarationImpl);

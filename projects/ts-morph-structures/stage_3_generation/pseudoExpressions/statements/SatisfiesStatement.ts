@@ -6,10 +6,10 @@ import {
   type TypeStructures
 } from "#stage_two/snapshot/source/exports.js";
 
-import StatementBase from "./StatementBase.js";
+import ExpressionBase from "../ExpressionBase.js";
 
 export default class SatisfiesStatementImpl
-extends StatementBase
+extends ExpressionBase
 {
   identifier: string;
   satisfiesType: TypeStructures;

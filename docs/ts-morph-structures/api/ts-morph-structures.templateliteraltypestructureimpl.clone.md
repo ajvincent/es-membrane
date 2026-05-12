@@ -43,6 +43,7 @@ other
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [TemplateLiteralTypeStructureImpl](./ts-morph-structures.templateliteraltypestructureimpl.md)

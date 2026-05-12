@@ -19,7 +19,9 @@ export default tseslint.config(
           "varsIgnorePattern": "Key$",
           "ignoreRestSiblings": true
         },
-      ]
+      ],
+      "@typescript-eslint/prefer-namespace-keyword": "off",
+      "@typescript-eslint/no-namespace": "off"
     }
   }
 );

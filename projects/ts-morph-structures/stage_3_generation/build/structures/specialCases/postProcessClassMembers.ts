@@ -18,8 +18,8 @@ import type {
   StructureModule,
 } from "../../../moduleClasses/exports.js";
 
-import BlockStatementImpl from "../../../pseudoStatements/BlockStatement.js";
-import CallExpressionStatementImpl from "../../../pseudoStatements/CallExpression.js";
+import BlockStatementImpl from "../../../pseudoExpressions/statements/BlockStatement.js";
+import CallExpressionStatementImpl from "../../../pseudoExpressions/statements/CallExpression.js";
 
 export default function postProcessClassMembers(
   module: StructureModule
@@ -27,7 +27,6 @@ export default function postProcessClassMembers(
 {
   if (module.defaultExportName === "TypeAliasDeclarationImpl") {
     allowTypeStructureInConstructor(module);
-    convertTypePropertyToAccessors(module);
   }
 
   if (module.defaultExportName === "SetAccessorDeclarationImpl") {
@@ -63,20 +62,6 @@ function allowTypeStructureInConstructor(
       [ `this.type = type;`]
     ).writerFunction,
   );
-}
-
-function convertTypePropertyToAccessors(
-  module: StructureModule
-): void
-{
-  assert(module.classMembersMap);
-  module.classMembersMap.convertPropertyToAccessors(false, "type", true, true);
-
-  const typeGetter = module.classMembersMap.getAsKind(StructureKind.GetAccessor, false, "type")!;
-  typeGetter.statements.push(`return super.type ?? "";`);
-
-  const typeSetter = module.classMembersMap.getAsKind(StructureKind.SetAccessor, false, "type")!;
-  typeSetter.statements.push(`super.type = value;`);
 }
 
 function removeExtraParameterFromSetAccessor_Clone(

@@ -25,6 +25,9 @@ export default class StringStringMap<V> {
         return [firstKey, secondKey];
     }
 
+    /**
+     * Removes all elements from the Map.
+     */
     clear(): void {
         return this.#hashMap.clear();
     }
@@ -102,5 +105,27 @@ export default class StringStringMap<V> {
      */
     values(): MapIterator<V> {
         return this.#hashMap.values()
+    }
+
+    /**
+     * Returns a specified element from the Map object.
+     * If no element is associated with the specified key, a new element with the value `defaultValue` will be inserted into the Map and returned.
+     * @returns The element associated with the specified key, which will be `defaultValue` if no element previously existed.
+     */
+    getOrInsert(firstKey: string, secondKey: string, defaultValue: V): V {
+        const key = StringStringMap.#hashKeys(firstKey, secondKey);
+        const rv = this.#hashMap.getOrInsert(key, defaultValue);
+        return rv;
+    }
+
+    /**
+     * Returns a specified element from the Map object.
+     * If no element is associated with the specified key, the result of passing the specified key to the `callback` function will be inserted into the Map and returned.
+     * @returns The element associated with the specific key, which will be the newly computed value if no element previously existed.
+     */
+    getOrInsertComputed(firstKey: string, secondKey: string, callback: (firstKey: string, secondKey: string) => V): V {
+        const key = StringStringMap.#hashKeys(firstKey, secondKey);
+        const rv = this.#hashMap.getOrInsertComputed(key, () => callback(firstKey, secondKey));
+        return rv;
     }
 }

@@ -36,8 +36,8 @@ import type { Class } from "type-fest";
 //#endregion preamble
 const ParameterDeclarationStructureBase = MultiMixinBuilder<
   [
-    ReadonlyableNodeStructureFields,
     OverrideableNodeStructureFields,
+    ReadonlyableNodeStructureFields,
     TypedNodeStructureFields,
     InitializerExpressionableNodeStructureFields,
     DecoratableNodeStructureFields,
@@ -49,8 +49,8 @@ const ParameterDeclarationStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >(
   [
-    ReadonlyableNodeStructureMixin,
     OverrideableNodeStructureMixin,
+    ReadonlyableNodeStructureMixin,
     TypedNodeStructureMixin,
     InitializerExpressionableNodeStructureMixin,
     DecoratableNodeStructureMixin,

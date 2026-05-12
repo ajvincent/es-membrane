@@ -23,7 +23,9 @@ import {
   VariableStatementImpl,
 } from "#stage_one/prototype-snapshot/exports.js";
 
-import ClassFieldStatementsMap from "#stage_two/generation/build/utilities/public/ClassFieldStatementsMap.js";
+import ClassFieldStatementsMap, {
+  type StatementsArray
+} from "#stage_two/generation/build/utilities/public/ClassFieldStatementsMap.js";
 import ClassMembersMap from "#stage_two/generation/build/utilities/public/ClassMembersMap.js";
 import ConstantTypeStructures from "#stage_two/generation/build/utilities/ConstantTypeStructures.js";
 
@@ -52,7 +54,7 @@ export default function structureSpecialCases(
       break;
 
     case "IndexSignatureDeclarationImpl":
-      convertKeyTypePropertyToAccessors(parts, dictionaries);
+      convertKeyTypePropertyDescriptor(parts, dictionaries);
       break;
 
     case "SetAccessorDeclarationImpl":
@@ -61,12 +63,12 @@ export default function structureSpecialCases(
 
     case "TypeAliasDeclarationImpl":
       allowTypeStructureInConstructor(parts, dictionaries);
-      convertTypePropertyToAccessors(parts, dictionaries);
+      setDefaultTypeAliasDeclarationType(parts, dictionaries);
       break;
   }
 }
 
-function convertKeyTypePropertyToAccessors(
+function convertKeyTypePropertyDescriptor(
   parts: StructureParts,
   dictionaries: StructureDictionaries,
 ): void
@@ -79,39 +81,31 @@ function convertKeyTypePropertyToAccessors(
     isTypeOnly: false,
   });
 
-  const propertyName = ClassMembersMap.keyFromName(StructureKind.Property, false, "keyType");
-  const getterName = ClassMembersMap.keyFromName(StructureKind.GetAccessor, false, "keyType");
-  const setterName = ClassMembersMap.keyFromName(StructureKind.SetAccessor, false, "keyType");
-
-  const setter = parts.classMembersMap.getAsKind(
-    setterName,
-    StructureKind.SetAccessor
-  )!;
-
-  const initializer = parts.classFieldsStatements.get(
-    propertyName,
-    ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY,
-  )![0] as string;
-
-  parts.classFieldsStatements.delete(
-    propertyName,
-    ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY
-  );
+  const ctorKey: string = ClassMembersMap.keyFromName(StructureKind.Constructor, false, "constructor");
+  const accessorPropName = `#keyTypeAccessors`;
 
   parts.classFieldsStatements.set(
-    ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN,
-    getterName,
+    accessorPropName,
+    ctorKey,
     [
-      `const type = ${initializer};`,
-      `return type ? StructureBase[REPLACE_WRITER_WITH_STRING](type) : undefined;`,
-    ]
-  );
+      `// keyType is getting lost in ts-morph clone operations`,
+      `const keyTypeAccessors = new TypeAccessors;`,
+      `this.${accessorPropName} = keyTypeAccessors`,
+      `
+      Reflect.defineProperty(this, "keyType", {
+        configurable: false,
+        enumerable: true,
 
-  parts.classFieldsStatements.set(
-    ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN,
-    setterName,
-    [
-      `${initializer} = ${setter.parameters[0].name};`,
+        get: function(): string | undefined {
+          const type = keyTypeAccessors.type;
+          return type !== undefined ? StructureBase[REPLACE_WRITER_WITH_STRING](type) : undefined;
+        },
+
+        set: function(value: string | undefined): void {
+          keyTypeAccessors.type = value;
+        }
+      });
+      `
     ]
   );
 }
@@ -239,57 +233,44 @@ function allowTypeStructureInConstructor(
       });
     }
   ]);
+
+  // fix type initializer
+  const typeProperty = parts.classMembersMap.getAsKind("type", StructureKind.Property)!;
+  typeProperty.initializer = `""`;
 }
 
-function convertTypePropertyToAccessors(
+function setDefaultTypeAliasDeclarationType(
   parts: StructureParts,
-  dictionaries: StructureDictionaries,
+  dictionaries: StructureDictionaries
 ): void
 {
-  parts.classMembersMap.delete(
-    ClassMembersMap.keyFromName(StructureKind.Property, false, "type")
-  );
+  void dictionaries;
 
-  /*
-  get type(): stringOrWriterFunction {
-    return super.type ?? "";
-  }
-  set type(value: stringOrWriterFunction) {
-    super.type = value;
-  }
-  */
-  const getter = new GetAccessorDeclarationImpl("type");
-  getter.returnTypeStructure = ConstantTypeStructures.stringOrWriterFunction;
-  //getter.statements.push(`return super.type ?? "";`);
+  const statements: StatementsArray = parts.classFieldsStatements.get("#typeAccessors", "constructor")!;
+  let lastStatement = statements.pop() as string;
+  lastStatement = lastStatement.replace(`(this, "type");`, `(this, "type", "");`)
+  statements.push(lastStatement);
 
-  const setter = new SetAccessorDeclarationImpl("type");
-  const setterParam = new ParameterDeclarationImpl("value");
-  setterParam.typeStructure = ConstantTypeStructures.stringOrWriterFunction;
-  setter.parameters.push(setterParam);
+  const getterName: string = ClassMembersMap.keyFromName(StructureKind.GetAccessor, false, "typeStructure");
 
-  parts.classMembersMap.addMembers([getter, setter]);
-
-  parts.classFieldsStatements.delete(
-    "type", ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY
-  );
+  const typeStructureGetter: GetAccessorDeclarationImpl = parts.classMembersMap.getAsKind(
+    getterName,
+    StructureKind.GetAccessor,
+  )!;
+  typeStructureGetter.returnTypeStructure = ConstantTypeStructures.TypeStructures;
 
   parts.classFieldsStatements.set(
-    ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN,
-    ClassMembersMap.keyFromMember(getter),
-    [
-      `return super.type ?? "";`,
-    ]
+    getterName,
+    ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY,
+    [ `this.#typeAccessors.typeStructure!` ]
   );
 
-  parts.classFieldsStatements.set(
-    ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN,
-    ClassMembersMap.keyFromMember(setter),
-    [
-      `super.type = value;`,
-    ]
-  );
-
-  void(dictionaries);
+  const typeStructureSetter: SetAccessorDeclarationImpl = parts.classMembersMap.getAsKind(
+    ClassMembersMap.keyFromName(StructureKind.SetAccessor, false, "typeStructure"),
+    StructureKind.SetAccessor
+  )!;
+  const firstParameter: ParameterDeclarationImpl = typeStructureSetter.parameters[0];
+  firstParameter.typeStructure = ConstantTypeStructures.TypeStructures;
 }
 
 function makeAttributesPropertyOptional(

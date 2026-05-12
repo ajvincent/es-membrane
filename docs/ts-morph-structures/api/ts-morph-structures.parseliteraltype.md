@@ -43,6 +43,7 @@ string
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [TypeStructures](./ts-morph-structures.typestructures.md)

@@ -13,7 +13,7 @@ import StructureBase from "../base/StructureBase.js";
 
 import StatementClassesMap from "../base/StatementClassesMap.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import TypeStructureSet from "../base/TypeStructureSet.js";
 
@@ -171,4 +171,4 @@ implements InterfaceDeclarationStructure, InterfaceDeclarationWithExtendsTypeStr
 InterfaceDeclarationImpl satisfies CloneableStructure<InterfaceDeclarationStructure>;
 
 StatementClassesMap.set(StructureKind.Interface, InterfaceDeclarationImpl);
-StructuresClassesMap.set(StructureKind.Interface, InterfaceDeclarationImpl);
+StructureClassesMap.set(StructureKind.Interface, InterfaceDeclarationImpl);

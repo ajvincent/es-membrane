@@ -32,10 +32,10 @@ class VoidGuestToHostPromise {
     this.#reject = deferred.reject;
 
     const guestResolver = this.#guestResolver.bind(this);
-    const resolveCallback = GuestEngine.CreateBuiltinFunction(guestResolver, 0, GuestEngine.Value(""), []);
+    const resolveCallback = GuestEngine.CreateBuiltinFunction(guestResolver as GuestEngine.NativeSteps, 0, GuestEngine.Value(""), []);
 
     const guestRejecter = this.#guestRejecter.bind(this);
-    const rejectCallback = GuestEngine.CreateBuiltinFunction(guestRejecter, 1, GuestEngine.Value(""), []);
+    const rejectCallback = GuestEngine.CreateBuiltinFunction(guestRejecter as GuestEngine.NativeSteps, 1, GuestEngine.Value(""), []);
 
     const thenBuiltin = GuestEngine.surroundingAgent.intrinsic("%Promise.prototype.then%");
     GuestEngine.Assert(thenBuiltin.type === "Object");

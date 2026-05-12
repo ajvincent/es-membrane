@@ -9,9 +9,9 @@ import {
 
 import { STRUCTURE_AND_TYPES_CHILDREN } from "../../internal-exports.js";
 
-export default abstract class TypeStructuresBase<Kind extends TypeStructureKind>
-  implements KindedTypeStructure<Kind>
-{
+export default abstract class TypeStructuresBase<
+  Kind extends TypeStructureKind,
+> implements KindedTypeStructure<Kind> {
   static readonly #callbackToTypeStructureImpl = new WeakMap<
     WriterFunction,
     TypeStructures

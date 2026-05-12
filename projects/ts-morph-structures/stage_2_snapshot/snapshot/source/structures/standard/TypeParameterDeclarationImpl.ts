@@ -40,46 +40,41 @@ export default class TypeParameterDeclarationImpl
   implements TypeParameterDeclarationStructureClassIfc
 {
   readonly kind: StructureKind.TypeParameter = StructureKind.TypeParameter;
-  readonly #constraintManager = new TypeAccessors();
-  readonly #defaultManager = new TypeAccessors();
+  readonly #constraintAccessors: TypeAccessors;
+  readonly #defaultAccessors: TypeAccessors;
+  // overridden in constructor
+  constraint?: stringOrWriterFunction | undefined = undefined;
+  // overridden in constructor
+  default?: stringOrWriterFunction | undefined = undefined;
   isConst = false;
   variance?: TypeParameterVariance = undefined;
 
   constructor(name: string) {
     super();
+    // constraint is getting lost in ts-morph clone operations
+    this.#constraintAccessors = TypeAccessors.buildTypeAccessors(
+      this,
+      "constraint",
+    );
+    // default is getting lost in ts-morph clone operations
+    this.#defaultAccessors = TypeAccessors.buildTypeAccessors(this, "default");
     this.name = name;
   }
 
-  get constraint(): stringOrWriterFunction | undefined {
-    return this.#constraintManager.type;
-  }
-
-  set constraint(value: stringOrWriterFunction | undefined) {
-    this.#constraintManager.type = value;
-  }
-
   get constraintStructure(): TypeStructures | undefined {
-    return this.#constraintManager.typeStructure;
+    return this.#constraintAccessors.typeStructure;
   }
 
   set constraintStructure(value: TypeStructures | undefined) {
-    this.#constraintManager.typeStructure = value;
-  }
-
-  get default(): stringOrWriterFunction | undefined {
-    return this.#defaultManager.type;
-  }
-
-  set default(value: stringOrWriterFunction | undefined) {
-    this.#defaultManager.type = value;
+    this.#constraintAccessors.typeStructure = value;
   }
 
   get defaultStructure(): TypeStructures | undefined {
-    return this.#defaultManager.typeStructure;
+    return this.#defaultAccessors.typeStructure;
   }
 
   set defaultStructure(value: TypeStructures | undefined) {
-    this.#defaultManager.typeStructure = value;
+    this.#defaultAccessors.typeStructure = value;
   }
 
   /** @internal */

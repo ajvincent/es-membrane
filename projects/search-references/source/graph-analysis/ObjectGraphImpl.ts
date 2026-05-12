@@ -1,5 +1,5 @@
 //#region preamble
-import graphlib from "@dagrejs/graphlib";
+import * as graphlib from "@dagrejs/graphlib";
 
 import type {
   JsonObject,
@@ -805,7 +805,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
       if (!edges)
         continue;
 
-      const wNode = this.#graph.node(id);
+      const wNode = this.#graph.node(id) as GraphNodeWithMetadata<ObjectMetadata | null>;
       if (!summaryGraph.node(id)) {
         summaryGraph.setNode(id, wNode);
       }

@@ -11,7 +11,7 @@ import {
   type stringWriterOrStatementImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
-import CallExpressionStatementImpl from "../../../pseudoStatements/CallExpression.js";
+import CallExpressionStatementImpl from "../../../pseudoExpressions/statements/CallExpression.js";
 import StatementGetterBase from "../GetterBase.js";
 import {
   BaseClassModule

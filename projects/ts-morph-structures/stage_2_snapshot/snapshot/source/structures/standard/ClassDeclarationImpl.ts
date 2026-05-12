@@ -59,8 +59,8 @@ import type { Class } from "type-fest";
 const ClassDeclarationStructureBase = MultiMixinBuilder<
   [
     NameableNodeStructureFields,
-    DecoratableNodeStructureFields,
     AbstractableNodeStructureFields,
+    DecoratableNodeStructureFields,
     ExportableNodeStructureFields,
     AmbientableNodeStructureFields,
     TypeParameteredNodeStructureFields,
@@ -71,8 +71,8 @@ const ClassDeclarationStructureBase = MultiMixinBuilder<
 >(
   [
     NameableNodeStructureMixin,
-    DecoratableNodeStructureMixin,
     AbstractableNodeStructureMixin,
+    DecoratableNodeStructureMixin,
     ExportableNodeStructureMixin,
     AmbientableNodeStructureMixin,
     TypeParameteredNodeStructureMixin,
@@ -91,13 +91,17 @@ export default class ClassDeclarationImpl
       "The implements array is read-only.  Please use this.implementsSet to set strings and type structures.",
     );
   readonly kind: StructureKind.Class = StructureKind.Class;
-  readonly #extendsManager = new TypeAccessors();
+  readonly #extendsAccessors: TypeAccessors;
   readonly #implements_ShadowArray: stringOrWriterFunction[] = [];
-  readonly #implementsProxyArray = new Proxy<stringOrWriterFunction[]>(
+  readonly #implementsProxyArray: stringOrWriterFunction[] = new Proxy<
+    stringOrWriterFunction[]
+  >(
     this.#implements_ShadowArray,
     ClassDeclarationImpl.#implementsArrayReadonlyHandler,
   );
   readonly ctors: ConstructorDeclarationImpl[] = [];
+  // overridden in constructor
+  extends?: stringOrWriterFunction | undefined = undefined;
   readonly getAccessors: GetAccessorDeclarationImpl[] = [];
   readonly implementsSet: TypeStructureSet = new TypeStructureSetInternal(
     this.#implements_ShadowArray,
@@ -107,25 +111,34 @@ export default class ClassDeclarationImpl
   readonly setAccessors: SetAccessorDeclarationImpl[] = [];
   readonly staticBlocks: ClassStaticBlockDeclarationImpl[] = [];
 
-  get extends(): stringOrWriterFunction | undefined {
-    return this.#extendsManager.type;
-  }
-
-  set extends(value: stringOrWriterFunction | undefined) {
-    this.#extendsManager.type = value;
+  constructor() {
+    super();
+    // extends is getting lost in ts-morph clone operations
+    this.#extendsAccessors = TypeAccessors.buildTypeAccessors(this, "extends");
+    // implements is getting lost in ts-morph clone operations
+    const implementsProxyArray: stringOrWriterFunction[] =
+      this.#implementsProxyArray;
+    Reflect.defineProperty(this, "implements", {
+      configurable: false,
+      enumerable: true,
+      get: function (): stringOrWriterFunction[] {
+        return implementsProxyArray;
+      },
+    });
   }
 
   get extendsStructure(): TypeStructures | undefined {
-    return this.#extendsManager.typeStructure;
+    return this.#extendsAccessors.typeStructure;
   }
 
   set extendsStructure(value: TypeStructures | undefined) {
-    this.#extendsManager.typeStructure = value;
+    this.#extendsAccessors.typeStructure = value;
   }
 
+  // overridden in constructor
   /** Treat this as a read-only array.  Use `.implementsSet` to modify this. */
   get implements(): stringOrWriterFunction[] {
-    return this.#implementsProxyArray;
+    return [];
   }
 
   /** @internal */

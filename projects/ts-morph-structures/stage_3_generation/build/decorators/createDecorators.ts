@@ -1,3 +1,4 @@
+//#region preamble
 import assert from "node:assert/strict";
 
 import {
@@ -40,8 +41,13 @@ import {
   getBaselineStatementGetters,
 } from "../fieldStatements/StatementsPriority.js";
 
+import {
+  TypedNodeConstructorStatements
+} from "./TypedNodeConstructor.js";
+
 void(ClassFieldStatementsMap);
 void(DebuggingFilter);
+//#endregion preamble
 
 export default
 async function createDecorators(): Promise<void>
@@ -50,20 +56,34 @@ async function createDecorators(): Promise<void>
     InterfaceModule.decoratorsMap.keys()
   ).map(getStructureNameFromModified);
 
-  await PromiseAllParallel(names, buildDecorator);
+  try {
+    await PromiseAllParallel(names, buildDecorator);
+  }
+  catch (ex) {
+    const exception = ex as AggregateError;
+    if (exception.errors) {
+      exception.errors.forEach((childError: Error) => {
+        console.error(childError, childError.stack);
+      });
+    }
+    throw exception;
+  }
 }
 
 async function buildDecorator(
   name: string
 ): Promise<void>
 {
-  const module = new DecoratorModule(name);
-  const interfaceMembers: TypeMembersMap = InterfaceModule.decoratorsMap.get(
+  const interfaceModule: InterfaceModule = InterfaceModule.decoratorsMap.get(
     getClassInterfaceName(name)
-  )!.typeMembers.clone();
+  )!;
+
+  const module = new DecoratorModule(name);
+
+  const interfaceMembers: TypeMembersMap = interfaceModule.typeMembers.clone();
   assert(interfaceMembers.size > 0, "Empty interface?  Or was it just consumed?  " + name);
 
-  const replacedProperties = modifyTypeMembersForTypeStructures(name, interfaceMembers);
+  const typeProperties = modifyTypeMembersForTypeStructures(name, interfaceMembers);
 
   const typeToClass = new MemberedTypeToClass;
   typeToClass.importFromTypeMembersMap(false, interfaceMembers);
@@ -77,7 +97,7 @@ async function buildDecorator(
   typeToClass.addTypeMember(true, copyFieldsMethod);
   {
     const properties = interfaceMembers.arrayOfKind(StructureKind.PropertySignature);
-    if (properties.some(prop => /^#.*Manager$/.test(prop.name))) {
+    if (properties.some(prop => /^#.*Accessors$/.test(prop.name))) {
       structureIterator = module.createStructureIteratorMethod();
       typeToClass.addTypeMember(false, structureIterator);
     }
@@ -91,7 +111,13 @@ async function buildDecorator(
     typeToClass.addTypeMember(true, cloneStatementFilter.getMethodSignature());
   }
 
-  replacedProperties.forEach(prop => {
+  if (name.includes("TypedNode")) {
+    typeToClass.addStatementGetters(StatementsPriority.DECORATOR_SPECIFIC, [
+      new TypedNodeConstructorStatements(module)
+    ]);
+  }
+
+  typeProperties.forEach(prop => {
     typeToClass.insertMemberKey(false, prop, true, copyFieldsMethod);
     if (structureIterator)
       typeToClass.insertMemberKey(false, prop, false, structureIterator);

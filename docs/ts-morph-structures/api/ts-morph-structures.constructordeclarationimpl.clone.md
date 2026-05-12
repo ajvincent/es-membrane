@@ -43,6 +43,7 @@ OptionalKind&lt;ConstructorDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [ConstructorDeclarationImpl](./ts-morph-structures.constructordeclarationimpl.md)

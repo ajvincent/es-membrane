@@ -20,9 +20,10 @@ export default function StructureMixinWriter(
   countMap: ReadonlyMap<StructureName, number>,
 ): WriterFunction
 {
+  //NOTE: this is ultimately what determines the order of mixin decorators.
   const metaKeys = Array.from(meta.decoratorKeys);
-  metaKeys.sort((a, b) => {
-    return countMap.get(a)! - countMap.get(b)!;
+  metaKeys.sort((a, b): number => {
+    return (countMap.get(a)! - countMap.get(b)!) || a.localeCompare(b);
   });
 
   const decoratorImplArray = metaKeys.map(key => dictionaries.decorators.get(key)!);

@@ -43,6 +43,7 @@ OptionalKind&lt;CallSignatureDeclarationStructure&gt;
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [CallSignatureDeclarationImpl](./ts-morph-structures.callsignaturedeclarationimpl.md)

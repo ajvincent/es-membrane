@@ -17,7 +17,7 @@ import StatementClassesMap from "../base/StatementClassesMap.js";
 
 import StructureBase from "../base/StructureBase.js";
 
-import StructuresClassesMap from "../base/StructuresClassesMap.js";
+import StructureClassesMap from "../base/StructureClassesMap.js";
 
 import {
   cloneArrayOrUndefined
@@ -75,7 +75,7 @@ implements VariableStatementStructure
     const clone = new VariableStatementImpl;
 
     clone.declarationKind = other.declarationKind;
-    cloneArrayOrUndefined<
+    clone.declarations = cloneArrayOrUndefined<
       OptionalKind<VariableDeclarationStructure>,
       typeof VariableDeclarationImpl
     >
@@ -99,4 +99,4 @@ implements VariableStatementStructure
 VariableStatementImpl satisfies CloneableStructure<VariableStatementStructure>;
 
 StatementClassesMap.set(StructureKind.VariableStatement, VariableStatementImpl);
-StructuresClassesMap.set(StructureKind.VariableStatement, VariableStatementImpl);
+StructureClassesMap.set(StructureKind.VariableStatement, VariableStatementImpl);

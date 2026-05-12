@@ -70,3 +70,4 @@ StructureKind.PropertyAssignment
 
 </td></tr>
 </tbody></table>
+

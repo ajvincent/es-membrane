@@ -43,6 +43,7 @@ other
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [WriterTypeStructureImpl](./ts-morph-structures.writertypestructureimpl.md)

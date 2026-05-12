@@ -43,6 +43,7 @@ other
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 [TypePredicateTypeStructureImpl](./ts-morph-structures.typepredicatetypestructureimpl.md)

@@ -43,22 +43,25 @@ export default function ReturnTypedNodeStructureMixin(
   void context;
 
   class ReturnTypedNodeStructureMixin extends baseClass {
-    readonly #returnTypeManager = new TypeAccessors();
+    readonly #returnTypeAccessors: TypeAccessors;
+    // overridden in constructor
+    returnType?: stringOrWriterFunction | undefined = undefined;
 
-    get returnType(): stringOrWriterFunction | undefined {
-      return this.#returnTypeManager.type;
-    }
-
-    set returnType(value: stringOrWriterFunction | undefined) {
-      this.#returnTypeManager.type = value;
+    constructor() {
+      super();
+      // returnType is getting lost in ts-morph clone operations
+      this.#returnTypeAccessors = TypeAccessors.buildTypeAccessors(
+        this,
+        "returnType",
+      );
     }
 
     get returnTypeStructure(): TypeStructures | undefined {
-      return this.#returnTypeManager.typeStructure;
+      return this.#returnTypeAccessors.typeStructure;
     }
 
     set returnTypeStructure(value: TypeStructures | undefined) {
-      this.#returnTypeManager.typeStructure = value;
+      this.#returnTypeAccessors.typeStructure = value;
     }
 
     /** @internal */

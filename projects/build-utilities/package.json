@@ -7,22 +7,24 @@
   "typings": "dist/exports/index.d.ts",
   "type": "module",
   "scripts": {
-    "clean": "gulp clean",
-    "build": "gulp compile",
-    "test": "gulp test",
+    "all": "gulp test",
     "tasks": "gulp --tasks"
   },
   "author": "Alexander J. Vincent <ajvincent@gmail.com>",
   "license": "ISC",
+  "engines": {
+    "node": ">=25.8.2"
+  },
   "devDependencies": {
-    "@eslint/js": "^9.17.0",
-    "@types/eslint__js": "^8.42.3",
-    "eslint": "^9.17.0",
-    "jasmine": "^5.5.0",
-    "prettier": "^3.4.2",
-    "typescript-eslint": "^8.19.0"
+    "@eslint/js": "^10.0.1",
+    "@tsconfig/node24": "^24.0.4",
+    "eslint": "^10.3.0",
+    "jasmine": "^6.2.0",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.3"
   },
   "dependencies": {
-    "which": "^5.0.0"
+    "which": "^6.0.1"
   }
 }

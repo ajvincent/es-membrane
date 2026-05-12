@@ -79,6 +79,7 @@ if true, assert there are no conversion failures.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 RootStructureWithConvertFailures
