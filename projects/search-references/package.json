@@ -43,7 +43,7 @@
   "devDependencies": {
     "@ajvincent/build-utilities": "file:../build-utilities",
     "@tsconfig/node24": "^24.0.4",
-    "@types/gulp": "^4.0.17",
+    "@types/gulp": "^4.0.18",
     "@types/jasmine": "^6.0.0",
     "@types/node": "^25.6.2",
     "gulp": "^5.0.0",
