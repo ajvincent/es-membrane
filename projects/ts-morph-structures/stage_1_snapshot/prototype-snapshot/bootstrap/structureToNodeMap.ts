@@ -384,7 +384,7 @@ class StructureAndNodeData
       "node hash must not contain two consecutive slashes: " + nodeHash
     );
 
-    let parentStructure: Structures | null = null;
+    let parentStructure: Structures | null;
 
     // these are outside the statement block for debugging purposes.
     let parentNode: Node | null = null;
@@ -411,7 +411,7 @@ class StructureAndNodeData
       3. The node hash from the structure is wrong.  `#createNodeHashFromStructure()`.
       */
 
-      let parentMsg = "";
+      let parentMsg;
       const sourceFile = this.#rootNode!.getSourceFile();
       if (parentNode) {
         const { line, column } = sourceFile.getLineAndColumnAtPos(parentNode.getPos());

@@ -394,7 +394,7 @@ function convertFunctionTypeNode(
   subStructureResolver: (node: NodeWithStructures) => Structures,
 ): FunctionTypedStructureImpl | null
 {
-  let typeParameterNodes: readonly TypeParameterDeclaration[] = [];
+  let typeParameterNodes: readonly TypeParameterDeclaration[];
   try {
     // https://github.com/dsherret/ts-morph/issues/1434
     typeParameterNodes = (typeNode as Pick<FunctionTypeNode, "getTypeParameters">).getTypeParameters();

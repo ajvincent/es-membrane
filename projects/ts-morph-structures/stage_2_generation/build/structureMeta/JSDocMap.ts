@@ -133,7 +133,7 @@ export default class JSDocMap {
     fieldName: string,
   ): JSDocImpl | undefined | null
   {
-    let hasClass = false;
+    let hasClass: boolean;
     if (isStructureDef)
       hasClass = this.#structureClassNames.has(className);
     else

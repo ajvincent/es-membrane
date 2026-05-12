@@ -9,7 +9,7 @@ import removeStaticableDecorator from "./removeStaticableDecorator.js";
 
 export default function mergeInterfaces(): void {
   {
-    let count = 0;
+    let count: number;
     for (count = 0; count < 5; count++) {
       if (moveSubDecoratorsToStructures() === false)
         break;

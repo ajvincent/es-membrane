@@ -5,7 +5,7 @@ const firstValue = { isFirstValue: true };
 const lastValue = { isLastValue: true };
 
 let iterator: IteratorObject<object> = ([firstValue, target, lastValue]).values();
-iterator = iterator.filter((p: object): boolean => p !== lastValue) as IteratorObject<object>;
+iterator = iterator.filter((p: object): boolean => p !== lastValue);
 searchReferences("before visiting any values", target, [iterator], true);
 
 void(iterator.next());
