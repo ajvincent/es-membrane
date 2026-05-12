@@ -1,5 +1,5 @@
 //#region preamble
-import graphlib from "@dagrejs/graphlib";
+import * as graphlib from "@dagrejs/graphlib";
 
 import {
   ObjectGraphImpl
@@ -69,7 +69,7 @@ describe("Simple graph searches, promises: references to the target", () => {
     addScopeValueEdge(ExpectedObjectGraph, callback, "[[return value]]", target);
   }
 
-  function summarize(): object {
+  function summarize(): ReturnType<typeof graphlib.json.write> {
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();
     ExpectedObjectGraph.summarizeGraphToTarget(true);
     const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 //#region preamble
-import graphlib from "@dagrejs/graphlib";
+import * as graphlib from "@dagrejs/graphlib";
 
 import {
   ObjectGraphImpl

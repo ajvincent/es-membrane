@@ -1,5 +1,5 @@
 //#region preamble
-import graphlib from "@dagrejs/graphlib";
+import * as graphlib from "@dagrejs/graphlib";
 
 import type {
   ReadonlyDeep

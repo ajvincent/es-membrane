@@ -1,8 +1,4 @@
-import graphlib from "@dagrejs/graphlib";
-
-import type {
-  ReadonlyDeep
-} from "type-fest";
+import * as graphlib from "@dagrejs/graphlib";
 
 import type {
   GraphNodeWithMetadata
@@ -25,7 +21,7 @@ import {
   referenceSpecDir,
 } from "./projectRoot.js";
 
-type GraphsFromSearch = ReadonlyDeep<Map<string, graphlib.Graph | null>>;
+type GraphsFromSearch = ReadonlyMap<string, graphlib.Graph | null>;
 const GraphsFromFileSearches = new Map<string, Promise<GraphsFromSearch>>;
 
 const TracingFromFileSearches = new Map<string, string[]>;
