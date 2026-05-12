@@ -1,6 +1,6 @@
 {
   "name": "ts-morph-structures",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Structure classes for ts-morph, including type structure classes.",
   "main": "dist/exports.js",
   "typings": "dist/exports.d.ts",
