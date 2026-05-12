@@ -54,7 +54,7 @@
     "@types/node": "^25.7.0",
     "@types/which": "^3.0.4",
     "chalk": "^5.4.1",
-    "gulp": "^5.0.0",
+    "gulp": "^5.0.1",
     "rollup": "^4.60.1",
     "rollup-plugin-dts": "^6.4.1",
     "type-fest": "^5.5.0",

@@ -35,7 +35,7 @@
     "@types/gulp": "^4.0.18",
     "@types/jasmine": "^6.0.0",
     "@types/node": "^25.7.0",
-    "gulp": "^5.0.0"
+    "gulp": "^5.0.1"
   },
   "dependencies": {
     "type-fest": "^4.31.0"

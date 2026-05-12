@@ -46,7 +46,7 @@
     "@types/gulp": "^4.0.18",
     "@types/jasmine": "^6.0.0",
     "@types/node": "^25.7.0",
-    "gulp": "^5.0.0",
+    "gulp": "^5.0.1",
     "rollup": "^4.60.1",
     "rollup-plugin-dts": "^6.4.1",
     "type-fest": "^4.40.0"
