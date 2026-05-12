@@ -31,7 +31,7 @@
     "@tsconfig/node24": "^24.0.4",
     "@types/gulp": "^4.0.18",
     "@types/jasmine": "^6.0.0",
-    "@types/node": "^25.6.2",
+    "@types/node": "^25.7.0",
     "gulp": "^5.0.0",
     "jasmine": "^5.5.0",
     "mixin-decorators": "file:../mixin-decorators",

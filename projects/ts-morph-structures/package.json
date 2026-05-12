@@ -51,7 +51,7 @@
     "@tsconfig/node24": "^24.0.4",
     "@types/gulp": "^4.0.18",
     "@types/jasmine": "^6.0.0",
-    "@types/node": "^25.6.2",
+    "@types/node": "^25.7.0",
     "@types/which": "^3.0.4",
     "chalk": "^5.4.1",
     "gulp": "^5.0.0",
