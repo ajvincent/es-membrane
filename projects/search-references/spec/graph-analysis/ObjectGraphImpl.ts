@@ -1,6 +1,7 @@
 //#region preamble
-import type {
-  Graph
+import {
+  type Graph,
+  alg,
 } from "@dagrejs/graphlib";
 
 import {
@@ -1521,6 +1522,29 @@ describe("ObjectGraphImpl", () => {
       const graph: Graph = cloneableGraph.cloneGraph();
       expect(graph.nodeCount()).toBe(0);
       expect(graph.edgeCount()).toBe(0);
+    });
+
+    it("removes cycles from the graph", () => {
+      objectGraph.definePropertyOrGetter(map, "lastVisited", key, new RelationshipMetadata("held values to map"), false);
+      objectGraph.definePropertyOrGetter(key, "innerValue", value, new RelationshipMetadata("inner value"), false);
+      objectGraph.definePropertyOrGetter(value, "parentMap", map, new RelationshipMetadata("parent map"), false);
+
+      objectGraph.definePropertyOrGetter(value, "target", target, valueMetadata, false);
+
+      let graph: Graph = cloneableGraph.cloneGraph();
+      const cycles = alg.findCycles(graph);
+      expect(cycles.length).withContext("one cycle in graph").toBe(1);
+
+      const firstCycle: ReadonlySet<string> = new Set(cycles[0]);
+      expect(firstCycle.has(objectGraph.getWeakKeyId(map))).withContext("first cycle has map-to-key edge").toBeTrue();
+      expect(firstCycle.has(objectGraph.getWeakKeyId(key))).withContext("first cycle has key-to-value edge").toBeTrue();
+      expect(firstCycle.has(objectGraph.getWeakKeyId(value))).withContext("first cycle has value-to-map edge").toBeTrue();
+      expect(firstCycle.size).withContext("firstCycle has three elements").toBe(3);
+
+      searchReferences.summarizeGraphToTarget(false);
+
+      graph = cloneableGraph.cloneGraph();
+      expect(alg.isAcyclic(graph)).withContext("cycles should have been removed").toBeTrue();
     });
   });
 

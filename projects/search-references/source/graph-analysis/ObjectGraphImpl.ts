@@ -776,7 +776,9 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
       } else if (!strongReferencesOnly && targetReference !== undefined) {
         edgeIdToJointOwnersMap = this.#edgeIdToJointOwnersMap_Weak;
       }
+
       if (edgeIdToJointOwnersMap) {
+        this.#removeCycles();
         this.#summarizeGraphToTarget(edgeIdToJointOwnersMap);
         this.#summarizeGraphFromHeldValues();
       } else {
@@ -787,6 +789,20 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     } catch (ex) {
       this.#state = ObjectGraphState.Error;
       throw ex;
+    }
+  }
+
+  #removeCycles(): void {
+    const allCycles: string[][] = graphlib.alg.findCycles(this.#graph);
+    for (const cycle of allCycles) {
+      let wNodeId: string = cycle.pop()!;
+      if (wNodeId === this.#heldValuesId)
+        wNodeId = cycle.pop() ?? wNodeId;
+      const vNodeId: string = cycle.pop() ?? wNodeId;
+
+      for (const edge of this.#graph.inEdges(vNodeId, wNodeId)!) {
+        this.#graph.removeEdge(edge);
+      }
     }
   }
 
