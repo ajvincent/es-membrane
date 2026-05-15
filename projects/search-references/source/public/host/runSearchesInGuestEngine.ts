@@ -10,8 +10,8 @@ import {
 } from 'import-meta-resolve';
 
 import type {
-  Graph,
-} from "@dagrejs/graphlib";
+  SearchGraph
+} from "../../graph-analysis/types/SearchGraph.js";
 
 import type {
   GuestRealmInputs,
@@ -31,7 +31,7 @@ export {
 export async function runSearchesInGuestEngine(
   absolutePathToFile: string,
   searchConfiguration?: SearchConfiguration,
-): Promise<ReadonlyMap<string, Graph | null>>
+): Promise<ReadonlyMap<string, SearchGraph | null>>
 {
   const realmInputs = new NodeGuestRealmInputs(absolutePathToFile);
   return runSearches(realmInputs, searchConfiguration);

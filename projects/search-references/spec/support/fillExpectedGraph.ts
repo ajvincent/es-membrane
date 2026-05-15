@@ -38,7 +38,7 @@ export function createExpectedGraph(
   startingJSTypeName: BuiltInJSTypeName,
   startingClassName: string,
   configuration?: SearchConfiguration,
-): [ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>, WeakKey[]]
+): [ObjectGraphImpl, WeakKey[]]
 {
   const targetMetadata: GraphObjectMetadata = {
     builtInJSTypeName: targetJSTypeName,
@@ -51,9 +51,7 @@ export function createExpectedGraph(
   };
 
   const heldValues: WeakKey[] = [];
-  const ExpectedObjectGraph = new ObjectGraphImpl<
-    GraphObjectMetadata, GraphRelationshipMetadata
-  >(configuration);
+  const ExpectedObjectGraph = new ObjectGraphImpl(configuration);
   ExpectedObjectGraph.defineTargetAndHeldValues(
     target, targetMetadata, heldValues, heldValuesMetadata
   );

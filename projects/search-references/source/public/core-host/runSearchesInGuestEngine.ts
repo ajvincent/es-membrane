@@ -1,7 +1,3 @@
-import type {
-  Graph,
-} from "@dagrejs/graphlib";
-
 import {
   defineSearchReferences
 } from "../../engine262-tools/built-ins/defineSearchReferences.js";
@@ -21,21 +17,29 @@ import type {
 } from "../../engine262-tools/types/Virtualization262.js";
 
 import type {
+  SearchGraph
+} from "../../graph-analysis/types/SearchGraph.js";
+
+import type {
   SearchConfiguration
 } from "./types/SearchConfiguration.js";
 
-export { LoggingConfiguration } from "./LoggingConfiguration.js";
+export {
+  LoggingConfiguration
+} from "./LoggingConfiguration.js";
+
 export type {
   GuestRealmInputs,
   SearchConfiguration,
- };
+  SearchGraph,
+};
 
 export async function runSearchesInGuestEngine(
   inputs: GuestRealmInputs,
   searchConfiguration?: SearchConfiguration,
-): Promise<ReadonlyMap<string, Graph | null>>
+): Promise<ReadonlyMap<string, SearchGraph | null>>
 {
-  const graphs = new Map<string, Graph | null>;
+  const graphs = new Map<string, SearchGraph | null>;
   const realmInputs: GuestRealmInputsWithBuiltins =  new SearchGuestRealmInputs(inputs, graphs, searchConfiguration);
   const outputs: GuestRealmOutputs = await runInRealm(realmInputs);
 
@@ -48,12 +52,12 @@ export async function runSearchesInGuestEngine(
 
 class SearchGuestRealmInputs implements GuestRealmInputsWithBuiltins {
   readonly #baseInputs: GuestRealmInputs;
-  readonly #graphs: Map<string, Graph | null>;
+  readonly #graphs: Map<string, SearchGraph | null>;
   readonly #searchConfiguration?: SearchConfiguration;
 
   constructor(
     baseInputs: GuestRealmInputs,
-    graphs: Map<string, Graph | null>,
+    graphs: Map<string, SearchGraph | null>,
     searchConfiguration?: SearchConfiguration,
   )
   {

@@ -2,10 +2,6 @@ import type {
   ReadonlyDeep
 } from "type-fest";
 
-import type {
-  Graph,
-} from "@dagrejs/graphlib";
-
 import {
   defineSearchReferences
 } from "../../source/engine262-tools/built-ins/defineSearchReferences.js";
@@ -26,12 +22,16 @@ import type {
   GuestRealmOutputs
 } from "../../source/engine262-tools/types/Virtualization262.js";
 
+import type {
+  SearchGraph
+} from "../../source/graph-analysis/types/SearchGraph.js";
+
 import {
   SpecGuestRealmInputs
 } from "./SpecGuestRealmInputs.js";
 
 export interface InternalSearchResults {
-  readonly graphs: ReadonlyMap<string, Graph | null>;
+  readonly graphs: ReadonlyMap<string, SearchGraph | null>;
   readonly reportCalls: ReadonlyMap<string, string | number | boolean | undefined | null>;
 }
 
@@ -40,7 +40,7 @@ export async function runSearchesInGuestEngineInternal(
   internalErrorTrap?: () => void,
 ): Promise<ReadonlyDeep<InternalSearchResults>>
 {
-  const graphs = new Map<string, Graph | null>;
+  const graphs = new Map<string, SearchGraph | null>;
   const reportCalls = new Map<string, string | number | boolean | undefined | null>;
 
   function * defineBuiltIns(realm: GuestEngine.ManagedRealm): GuestEngine.Evaluator<void> {

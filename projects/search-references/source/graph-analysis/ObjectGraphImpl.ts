@@ -20,11 +20,20 @@ import type {
   ValueDescription,
 } from "../types/ValueDescription.js";
 
+import type {
+  GraphObjectMetadata
+} from "../types/GraphObjectMetadata.js";
+
+import type {
+  GraphRelationshipMetadata
+} from "../types/GraphRelationshipMetadata.js";
+
 import {
   StringCounter
 } from "../utilities/StringCounter.js";
 
 import {
+  BuiltInJSTypeName,
   EdgePrefix,
   NodePrefix,
   ValueDiscrimant
@@ -58,6 +67,10 @@ import type {
 } from "./types/ObjectGraphIfc.js";
 
 import type {
+  SearchGraph
+} from "./types/SearchGraph.js";
+
+import type {
   SearchReferencesIfc,
 } from "./types/SearchReferencesIfc.js";
 //#endregion preamble
@@ -78,11 +91,8 @@ export type HostObjectGraph<
   RelationshipMetadata extends JsonObject | null,
 > = ObjectGraphIfc<object, symbol, object, ObjectMetadata, RelationshipMetadata>;
 
-export class ObjectGraphImpl<
-  ObjectMetadata extends JsonObject | null,
-  RelationshipMetadata extends JsonObject | null,
->
-implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
+export class ObjectGraphImpl
+implements HostObjectGraph<GraphObjectMetadata, GraphRelationshipMetadata>,
   CloneableGraphIfc, SearchReferencesIfc
 {
   static readonly #NOT_APPLICABLE: ValueDescription = Object.freeze({
@@ -95,7 +105,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   #heldValuesId: PrefixedNumber<"heldValues">;
   #defineTargetCalled = false;
 
-  #graph = new graphlib.Graph({ directed: true, multigraph: true });
+  #graph: SearchGraph = new graphlib.Graph({ directed: true, multigraph: true });
 
   readonly #nodeCounter = new StringCounter<NodePrefix>;
   readonly #edgeCounter = new StringCounter<EdgePrefix>;
@@ -104,7 +114,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   readonly #idToWeakKeyMap = new Map<GraphObjectId, WeakKey>;
   readonly #edgeIdToMetadataMap = new Map<
     PrefixedNumber<EdgePrefix>,
-    ReadonlyDeep<GraphEdgeWithMetadata<RelationshipMetadata | null>>
+    ReadonlyDeep<GraphEdgeWithMetadata<GraphRelationshipMetadata | null>>
   >;
 
   readonly #ownershipSetsTracker = new StrongOwnershipSetsTracker<GraphObjectId, PrefixedNumber<EdgePrefix>>(
@@ -126,7 +136,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   #searchedForStrongReferences = false;
   #strongReferenceCallback?: (key: WeakKey) => void;
 
-  #searchConfiguration?: SearchConfiguration
+  #searchConfiguration?: SearchConfiguration;
   //#endregion private class fields
 
   constructor(
@@ -149,9 +159,9 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
 
   public defineTargetAndHeldValues(
     target: WeakKey,
-    targetMetadata: ObjectMetadata,
+    targetMetadata: GraphObjectMetadata,
     heldValues: object,
-    heldValuesMetadata: ObjectMetadata,
+    heldValuesMetadata: GraphObjectMetadata,
   )
   {
     this.#defineTargetCalled = true;
@@ -178,7 +188,8 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   }
 
   //#region CloneableGraphIfc
-  public cloneGraph(): graphlib.Graph {
+  public cloneGraph(): SearchGraph
+  {
     this.#assertDefineTargetCalled();
     return graphlib.json.read(graphlib.json.write(this.#graph));
   }
@@ -215,13 +226,13 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
 
   public defineObject(
     object: object,
-    metadata: ObjectMetadata
+    metadata: GraphObjectMetadata
   ): void
   {
     this.#defineWeakKey(object, metadata, NodePrefix.Object);
   }
 
-  public defineSymbol(symbol: symbol, metadata: ObjectMetadata): void {
+  public defineSymbol(symbol: symbol, metadata: GraphObjectMetadata): void {
     this.#defineWeakKey(symbol, metadata, NodePrefix.Symbol);
   }
 
@@ -241,8 +252,10 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     this.#weakKeyToIdMap.set(privateName, nodeId);
     this.#idToWeakKeyMap.set(nodeId, privateName);
 
-    const nodeMetadata: GraphNodeWithMetadata<Record<"description", string>> = {
+    const nodeMetadata: GraphNodeWithMetadata<GraphObjectMetadata> = {
       metadata: {
+        builtInJSTypeName: BuiltInJSTypeName.PrivateName,
+        derivedClassName: "",
         description
       }
     };
@@ -254,7 +267,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
 
   #defineWeakKey<Prefix extends NodePrefix>(
     weakKey: object | symbol,
-    metadata: ObjectMetadata | null,
+    metadata: GraphObjectMetadata | null,
     prefix: Prefix,
   ): PrefixedNumber<Prefix>
   {
@@ -269,7 +282,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     this.#weakKeyToIdMap.set(weakKey, nodeId);
     this.#idToWeakKeyMap.set(nodeId, weakKey);
 
-    const nodeMetadata: GraphNodeWithMetadata<ObjectMetadata | null> = {
+    const nodeMetadata: GraphNodeWithMetadata<GraphObjectMetadata | null> = {
       metadata,
     };
     this.#graph.setNode(nodeId, nodeMetadata);
@@ -299,14 +312,14 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     parentId: GraphObjectId,
     edgePrefixType: EP,
     description: ValueDescription,
-    metadata: RelationshipMetadata | null,
+    metadata: GraphRelationshipMetadata | null,
     childId: GraphObjectId,
     isStrongReference: boolean,
     secondParentId: GraphObjectId | undefined,
   ): PrefixedNumber<EP>
   {
     const edgeId = this.#edgeCounter.next(edgePrefixType);
-    const edgeMetadata: GraphEdgeWithMetadata<RelationshipMetadata | null> = {
+    const edgeMetadata: GraphEdgeWithMetadata<GraphRelationshipMetadata | null> = {
       label,
       edgeType: edgePrefixType,
       description,
@@ -319,10 +332,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
       jointOwnerKeys.push(secondParentId);
 
     this.#graph.setEdge(parentId, childId, edgeMetadata, edgeId);
-    this.#edgeIdToMetadataMap.set(
-      edgeId,
-      edgeMetadata as ReadonlyDeep<GraphEdgeWithMetadata<RelationshipMetadata | null>>
-    );
+    this.#edgeIdToMetadataMap.set(edgeId, edgeMetadata);
 
     if (childId === this.#targetId)
       this.#weakKeyHeldStronglyMap.set(this.#idToWeakKeyMap.get(this.#targetId)!, false);
@@ -347,7 +357,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
   public defineAsSymbolKey(
     parentObject: object,
     relationshipName: symbol,
-    keyEdgeMetadata: RelationshipMetadata
+    keyEdgeMetadata: GraphRelationshipMetadata
   ): PrefixedNumber<EdgePrefix.HasSymbolAsKey>
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
@@ -366,16 +376,14 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     edge: graphlib.Edge
   ): boolean
   {
-    return (
-      this.#graph.edgeAsObj(edge) as GraphEdgeWithMetadata<RelationshipMetadata | null>
-    ).edgeType === EdgePrefix.HasSymbolAsKey;
+    return this.#graph.edge(edge).edgeType === EdgePrefix.HasSymbolAsKey;
   }
 
   public definePropertyOrGetter(
     parentObject: object,
     relationshipName: number | string | symbol,
     childObject: object,
-    metadata: RelationshipMetadata,
+    metadata: GraphRelationshipMetadata,
     isGetter: boolean,
   ): PrefixedNumber<EdgePrefix.GetterKey | EdgePrefix.PropertyKey>
   {
@@ -410,7 +418,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     functionObject: object,
     identifier: string,
     objectValue: EngineWeakKey<object, symbol>,
-    metadata: RelationshipMetadata,
+    metadata: GraphRelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.ScopeValue>
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
@@ -433,7 +441,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     slotName: `[[${string}]]`,
     childObject: object,
     isStrongReference: boolean,
-    metadata: RelationshipMetadata,
+    metadata: GraphRelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.InternalSlot>
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
@@ -453,8 +461,8 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     key: unknown,
     value: unknown,
     isStrongReferenceToKey: boolean,
-    keyMetadata: RelationshipMetadata | undefined,
-    valueMetadata: RelationshipMetadata | undefined,
+    keyMetadata: GraphRelationshipMetadata | undefined,
+    valueMetadata: GraphRelationshipMetadata | undefined,
   ): MapKeyAndValueIds
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
@@ -541,7 +549,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     set: object,
     value: WeakKey,
     isStrongReferenceToValue: boolean,
-    metadata: RelationshipMetadata
+    metadata: GraphRelationshipMetadata
   ): PrefixedNumber<EdgePrefix.SetValue>
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
@@ -634,8 +642,8 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     privateName: object,
     privateKey: `#${string}`,
     childObject: EngineWeakKey<object, symbol>,
-    privateNameMetadata: RelationshipMetadata,
-    childMetadata: RelationshipMetadata,
+    privateNameMetadata: GraphRelationshipMetadata,
+    childMetadata: GraphRelationshipMetadata,
     isGetter: boolean
   ): PrivateFieldTupleIds
   {
@@ -687,7 +695,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
 
   public getEdgeRelationship(
     edgeId: PrefixedNumber<EdgePrefix>
-  ): ReadonlyDeep<GraphEdgeWithMetadata<RelationshipMetadata | null>> | undefined
+  ): ReadonlyDeep<GraphEdgeWithMetadata<GraphRelationshipMetadata | null>> | undefined
   {
     this.#assertDefineTargetCalled();
     return this.#edgeIdToMetadataMap.get(edgeId);
@@ -813,7 +821,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
     >,
   ): void
   {
-    const summaryGraph = new graphlib.Graph({ directed: true, multigraph: true });
+    const summaryGraph: SearchGraph = new graphlib.Graph({ directed: true, multigraph: true });
     const wNodeIds = new Set<GraphObjectId>([this.#targetId]);
 
     for (const id of wNodeIds) {
@@ -821,7 +829,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
       if (!edges)
         continue;
 
-      const wNode = this.#graph.node(id) as GraphNodeWithMetadata<ObjectMetadata | null>;
+      const wNode: GraphNodeWithMetadata<GraphObjectMetadata | null> = this.#graph.node(id);
       if (!summaryGraph.node(id)) {
         summaryGraph.setNode(id, wNode);
       }
@@ -849,7 +857,7 @@ implements HostObjectGraph<ObjectMetadata, RelationshipMetadata>,
 
   #summarizeGraphFromHeldValues(): void
   {
-    const summaryGraph = new graphlib.Graph({ directed: true, multigraph: true });
+    const summaryGraph: SearchGraph = new graphlib.Graph({ directed: true, multigraph: true });
     const vNodeIds = new Set<GraphObjectId>([this.#heldValuesId]);
 
     summaryGraph.setNode(this.#heldValuesId, this.#graph.node(this.#heldValuesId));

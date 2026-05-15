@@ -40,7 +40,7 @@ describe("Simple graph searches: FinalizationRegistry", () => {
   const registryHeld = { isRegistryHeld: true};
   const token = { isToken: true };
 
-  let ExpectedObjectGraph: ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+  let ExpectedObjectGraph: ObjectGraphImpl;
   let heldValues: WeakKey[];
 
   function addToRegistry(

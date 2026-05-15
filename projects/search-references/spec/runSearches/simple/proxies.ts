@@ -9,10 +9,6 @@ import type {
   GraphObjectMetadata
 } from "../../../source/types/GraphObjectMetadata.js";
 
-import type {
-  GraphRelationshipMetadata
-} from "../../../source/types/GraphRelationshipMetadata.js";
-
 import {
   BuiltInJSTypeName
 } from "../../../source/utilities/constants.js";
@@ -63,9 +59,9 @@ describe("Simple graph searches, proxy support:", () => {
     },
   };
 
-  let ExpectedObjectGraph: ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+  let ExpectedObjectGraph: ObjectGraphImpl;
   beforeEach(() => {
-    ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+    ExpectedObjectGraph = new ObjectGraphImpl;
 
     ExpectedObjectGraph.defineTargetAndHeldValues(
       target, targetMetadata, heldValues, heldValuesMetadata
@@ -122,7 +118,7 @@ describe("Simple graph searches, proxy support:", () => {
   });
 
   it("revokers hold proxies before revocation", async () => {
-    ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+    ExpectedObjectGraph = new ObjectGraphImpl;
 
     const targetMetadata: GraphObjectMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Proxy,

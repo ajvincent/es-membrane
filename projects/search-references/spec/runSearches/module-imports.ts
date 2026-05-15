@@ -9,10 +9,6 @@ import type {
   GraphObjectMetadata
 } from "../../source/types/GraphObjectMetadata.js";
 
-import type {
-  GraphRelationshipMetadata
-} from "../../source/types/GraphRelationshipMetadata.js";
-
 import {
   BuiltInJSTypeName
 } from "../../source/utilities/constants.js";
@@ -41,7 +37,7 @@ it("Simple graph searches: when there is an import involved (modules importing o
     derivedClassName: BuiltInJSTypeName.Array
   };
 
-  const ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+  const ExpectedObjectGraph = new ObjectGraphImpl;
 
   ExpectedObjectGraph.defineTargetAndHeldValues(
     target, targetMetadata, heldValues, heldValuesMetadata

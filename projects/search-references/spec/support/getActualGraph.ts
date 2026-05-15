@@ -4,6 +4,10 @@ import type {
   GraphNodeWithMetadata
 } from "../../source/graph-analysis/types/ObjectGraphIfc.js";
 
+import type {
+  SearchGraph
+} from "../../source/graph-analysis/types/SearchGraph.js";
+
 import {
   runSearchesInGuestEngine
 } from "../../source/public/host/runSearchesInGuestEngine.js";
@@ -20,8 +24,7 @@ import {
   getReferenceSpecPath,
   referenceSpecDir,
 } from "./projectRoot.js";
-
-type GraphsFromSearch = ReadonlyMap<string, graphlib.Graph | null>;
+type GraphsFromSearch = ReadonlyMap<string, SearchGraph | null>;
 const GraphsFromFileSearches = new Map<string, Promise<GraphsFromSearch>>;
 
 const TracingFromFileSearches = new Map<string, string[]>;
@@ -37,7 +40,7 @@ export async function getActualGraph(
   let promiseGraphs: Promise<GraphsFromSearch> | undefined = GraphsFromFileSearches.get(pathToSearch);
   if (!promiseGraphs) {
     const config: SearchConfiguration = new TracingConfiguration(referenceSpec, noFunctionEnvironment);
-    const rawGraphsPromise: Promise<ReadonlyMap<string, graphlib.Graph | null>> = runSearchesInGuestEngine(pathToSearch, config);
+    const rawGraphsPromise: Promise<ReadonlyMap<string, SearchGraph | null>> = runSearchesInGuestEngine(pathToSearch, config);
     promiseGraphs = rawGraphsPromise.then(graphMap => {
       for (const graph of graphMap.values()) {
         if (graph)

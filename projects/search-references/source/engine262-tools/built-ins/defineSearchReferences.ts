@@ -1,10 +1,10 @@
 import type {
-  Graph,
-} from "@dagrejs/graphlib";
-
-import type {
   EngineWeakKey
 } from "../../graph-analysis/types/ObjectGraphIfc.js";
+
+import type {
+  SearchGraph
+} from "../../graph-analysis/types/SearchGraph.js";
 
 import type {
   SearchConfiguration,
@@ -40,7 +40,7 @@ interface SearchReferencesArguments {
 export function * defineSearchReferences(
   this: void,
   realm: GuestEngine.ManagedRealm,
-  searchResultsMap: Map<string, Graph | null>,
+  searchResultsMap: Map<string, SearchGraph | null>,
   searchConfiguration?: SearchConfiguration
 ): GuestEngine.Evaluator<void>
 {
@@ -70,7 +70,7 @@ export function * defineSearchReferences(
         searchConfiguration
       );
 
-      const graphOrNull: Graph | null = yield* searchDriver.run();
+      const graphOrNull: SearchGraph | null = yield* searchDriver.run();
 
       searchResultsMap.set(searchArgs.resultsKey, graphOrNull);
       return GuestEngine.Value.undefined;

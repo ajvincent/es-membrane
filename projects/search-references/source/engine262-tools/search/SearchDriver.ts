@@ -1,8 +1,4 @@
 //#region preamble
-import type {
-  Graph
-} from "@dagrejs/graphlib";
-
 import {
   ObjectGraphImpl
 } from "../../graph-analysis/ObjectGraphImpl.js";
@@ -12,8 +8,12 @@ import type {
 } from "../../graph-analysis/types/CloneableGraphIfc.js";
 
 import type {
-  EngineWeakKey
+  EngineWeakKey,
 } from "../../graph-analysis/types/ObjectGraphIfc.js";
+
+import type {
+  SearchGraph
+} from "../../graph-analysis/types/SearchGraph.js";
 
 import type {
   SearchReferencesIfc
@@ -22,14 +22,6 @@ import type {
 import type {
   SearchConfiguration
 } from "../../public/core-host/types/SearchConfiguration.js";
-
-import type {
-  GraphObjectMetadata
-} from "../../types/GraphObjectMetadata.js";
-
-import type {
-  GraphRelationshipMetadata
-} from "../../types/GraphRelationshipMetadata.js";
 
 import type {
   GuestEngine,
@@ -67,9 +59,7 @@ export class SearchDriver
     this.#strongReferencesOnly = strongReferencesOnly;
     this.#searchConfiguration = searchConfiguration;
 
-    const hostGraphImpl = new ObjectGraphImpl<
-      GraphObjectMetadata, GraphRelationshipMetadata
-    >(searchConfiguration);
+    const hostGraphImpl = new ObjectGraphImpl(searchConfiguration);
     this.#graphBuilder = new GraphBuilder(
       realm,
       hostGraphImpl,
@@ -81,7 +71,7 @@ export class SearchDriver
     this.#searchReferences = hostGraphImpl;
   }
 
-  public * run(): GuestEngine.Evaluator<Graph | null>
+  public * run(): GuestEngine.Evaluator<SearchGraph| null>
   {
     if (this.#searchConfiguration?.beginSearch) {
       this.#searchConfiguration.beginSearch(

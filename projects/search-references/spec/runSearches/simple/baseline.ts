@@ -9,6 +9,10 @@ import {
   ObjectGraphImpl
 } from "../../../source/graph-analysis/ObjectGraphImpl.js";
 
+import type {
+  SearchGraph
+} from "../../../source/graph-analysis/types/SearchGraph.js";
+
 import {
   runSearchesInGuestEngine,
 } from "../../../source/public/host/runSearchesInGuestEngine.js";
@@ -16,10 +20,6 @@ import {
 import type {
   GraphObjectMetadata
 } from "../../../source/types/GraphObjectMetadata.js";
-
-import type {
-  GraphRelationshipMetadata
-} from "../../../source/types/GraphRelationshipMetadata.js";
 
 import {
   BuiltInJSTypeName
@@ -56,9 +56,9 @@ describe("Simple graph searches: baseline", () => {
     derivedClassName: BuiltInJSTypeName.Array
   };
 
-  let ExpectedObjectGraph: ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+  let ExpectedObjectGraph: ObjectGraphImpl;
   beforeEach(() => {
-    ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+    ExpectedObjectGraph = new ObjectGraphImpl;
 
     ExpectedObjectGraph.defineTargetAndHeldValues(
       target, targetMetadata, heldValues, heldValuesMetadata
@@ -94,7 +94,7 @@ describe("Simple graph searches: baseline", () => {
   });
 
   it("we can find a target symbol when it's among the held values", async () => {
-    ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+    ExpectedObjectGraph = new ObjectGraphImpl;
 
     const target = Symbol("symbol target");
 
@@ -179,7 +179,7 @@ describe("Simple graph searches: baseline", () => {
 
   it("we can find a target symbol as a key of an object", async () => {
     {
-      ExpectedObjectGraph = new ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+      ExpectedObjectGraph = new ObjectGraphImpl;
 
       const target = Symbol("(symbol)");
 
@@ -235,7 +235,7 @@ describe("Simple graph searches: baseline", () => {
   it("when the target is not reachable, we report so", async () => {
     const pathToSearch = getReferenceSpecPath("simple/targetUnreachable.js");
 
-    const graphs: ReadonlyDeep<Map<string, graphlib.Graph | null>> = await runSearchesInGuestEngine(pathToSearch);
+    const graphs: ReadonlyDeep<Map<string, SearchGraph | null>> = await runSearchesInGuestEngine(pathToSearch);
     expect(graphs.size).toBe(1);
 
     const targetUnreachableGraph = graphs.get("targetUnreachable");

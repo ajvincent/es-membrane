@@ -6,14 +6,6 @@ import {
   ObjectGraphImpl
 } from "../../../source/graph-analysis/ObjectGraphImpl.js";
 
-import type {
-  GraphObjectMetadata
-} from "../../../source/types/GraphObjectMetadata.js";
-
-import type {
-  GraphRelationshipMetadata
-} from "../../../source/types/GraphRelationshipMetadata.js";
-
 import {
   BuiltInJSTypeName
 } from "../../../source/utilities/constants.js";
@@ -49,7 +41,7 @@ describe("Simple graph searches: function support,", () => {
     }
   }
 
-  let ExpectedObjectGraph: ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+  let ExpectedObjectGraph: ObjectGraphImpl;
   //#endregion common test fixtures
 
   it("functions with no arguments and a single statement, a return, return a value", async () => {

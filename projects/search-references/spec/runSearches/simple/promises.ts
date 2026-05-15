@@ -9,14 +9,6 @@ import {
   LoggingConfiguration
 } from "../../../source/public/core-host/LoggingConfiguration.js";
 
-import type {
-  GraphObjectMetadata
-} from "../../../source/types/GraphObjectMetadata.js";
-
-import type {
-  GraphRelationshipMetadata
-} from "../../../source/types/GraphRelationshipMetadata.js";
-
 import {
   BuiltInJSTypeName
 } from "../../../source/utilities/constants.js";
@@ -38,7 +30,7 @@ import {
  * we're actually after here is the traceability of the target object.
  */
 describe("Simple graph searches, promises: references to the target", () => {
-  let ExpectedObjectGraph: ObjectGraphImpl<GraphObjectMetadata, GraphRelationshipMetadata>;
+  let ExpectedObjectGraph: ObjectGraphImpl;
   const target = { isTarget: true };
   const promise = Promise.resolve(target);
   const fulfullReactions: readonly never[] = [];
@@ -221,7 +213,7 @@ describe("Simple graph searches, promises: references to the target", () => {
       "simple/promises.js", "promise.finally() to target, after resolve", false
     );
     expect(actual).toEqual(null);
-  })
+  });
   //#endregion finally, resolve()
 
   //#region then, reject()
