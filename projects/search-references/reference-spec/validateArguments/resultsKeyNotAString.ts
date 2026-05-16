@@ -3,7 +3,7 @@ import "es-search-references/guest";
 let success: string | undefined;
 try {
   // @ts-expect-error resultsKey is not a string
-  searchReferences(15, {}, [], true)
+  searchReferences(15, {}, [], true);
 }
 catch (ex) {
   success = (ex as Error).message;

@@ -71,7 +71,7 @@ function buildClassWithDifferentArguments(): ClassTypeWithDifferentArguments {
       super(myIndex);
       this.isMiddle = isMissle;
     }
-  }
+  };
 }
 
 // #endregion test fixtures
@@ -162,7 +162,7 @@ it("MixinClass works", () => {
   
   expect<ThirdClassType>(buildThirdClass('tail', 16)).toBeTruthy();
 
-  const ClassWithDifferentArguments = buildClassWithDifferentArguments()
+  const ClassWithDifferentArguments = buildClassWithDifferentArguments();
   const fourthObject = new ClassWithDifferentArguments(7, false);
   expect(fourthObject.index).toBe(7);
   expect(fourthObject.isMiddle).toBe(false);

@@ -19,6 +19,11 @@ export default defineConfig(
       files: [
         "**/*.ts"
       ]
-    }
+    },
+    {
+      rules: {
+        "semi": ["error", "always"],
+      }
+    },
   ]
 );

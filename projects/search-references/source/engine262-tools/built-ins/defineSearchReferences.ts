@@ -75,7 +75,7 @@ export function * defineSearchReferences(
       searchResultsMap.set(searchArgs.resultsKey, graphOrNull);
       return GuestEngine.Value.undefined;
     }
-  )
+  );
 }
 
 function * extractSearchParameters(

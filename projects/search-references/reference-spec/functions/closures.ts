@@ -11,7 +11,7 @@ function createShallowEnclosure(
   return function() {
     void(secondValue);
     return firstValue;
-  }
+  };
 }
 
 const oneLevelDeepEnclosure = createShallowEnclosure(miscellaneous, target);
@@ -26,8 +26,8 @@ function createDeepEnclosure(
     return function() {
       void(secondValue);
       return firstValue;
-    }
-  }
+    };
+  };
 }
 
 const outerEnclosure = createDeepEnclosure(miscellaneous, target);

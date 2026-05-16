@@ -3,7 +3,7 @@ import "es-search-references/guest";
 let success: string | undefined;
 try {
   //@ts-expect-error heldValues is not an array
-  searchReferences("heldValuesNotAnArray", {}, {}, true)
+  searchReferences("heldValuesNotAnArray", {}, {}, true);
 }
 catch (ex) {
   success = (ex as Error).message;

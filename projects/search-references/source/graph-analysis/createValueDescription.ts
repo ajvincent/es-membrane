@@ -31,7 +31,7 @@ export function createValueDescription(
       return {
         valueType: ValueDiscrimant.Symbol,
         symbolId: objectGraph.getWeakKeyId(value) as SymbolId,
-      }
+      };
 
     case "boolean":
     case "number":
@@ -40,25 +40,25 @@ export function createValueDescription(
       return {
         valueType: ValueDiscrimant.Primitive,
         primitiveValue: value,
-      }
+      };
 
     case "object":
       if (value === null) {
         return {
           valueType: ValueDiscrimant.Primitive,
           primitiveValue: null
-        }
+        };
       }
 
       return {
         valueType: ValueDiscrimant.Object,
         objectId: objectGraph.getWeakKeyId(value) as ObjectId,
-      }
+      };
 
     case "function":
       return {
         valueType: ValueDiscrimant.Object,
         objectId: objectGraph.getWeakKeyId(value) as ObjectId,
-      }
+      };
   }
 }

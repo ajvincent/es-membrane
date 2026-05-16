@@ -17,6 +17,6 @@ export function wrapSpyInGenerator(
     ...args: unknown[]
   ): Generator<unknown, ReturnType<typeof spy>, unknown>
   {
-    spy.apply(this, args)
-  }
+    spy.apply(this, args);
+  };
 }

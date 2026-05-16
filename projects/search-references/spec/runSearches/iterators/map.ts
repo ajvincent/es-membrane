@@ -27,7 +27,7 @@ describe("Iterator searches, Map:", () => {
     [1, target,],
     [2, lastValue]
   ]);
-  const hostCapturedValues = [enclosedMap]
+  const hostCapturedValues = [enclosedMap];
   const iterator = enclosedMap.values();
 
   const [ ExpectedObjectGraph ] = createExpectedGraph(

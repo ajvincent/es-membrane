@@ -65,8 +65,8 @@ describe("Subclass decorators: ", () => {
       return class extends baseClass {
         static readonly middle = 'second class';
         isMiddle = true;
-      }
-    }
+      };
+    };
 
     @secondDecorator
     class SecondClass extends FirstClass
@@ -100,9 +100,9 @@ describe("Subclass decorators: ", () => {
         return class extends baseClass {
           static readonly middle = middleString;
           isMiddle = false;
-        }
-      }
-    }
+        };
+      };
+    };
 
     @secondDecorator("class number two")
     class SecondClass extends FirstClass
@@ -132,8 +132,8 @@ describe("Subclass decorators: ", () => {
       return class extends baseClass {
         static readonly middle = 'second class';
         isMiddle = true;
-      }
-    }
+      };
+    };
 
     const thirdDecorator: SubclassDecorator<ThirdStaticAndInstance, typeof FirstClass, false> = function(
       baseClass: typeof FirstClass,
@@ -144,8 +144,8 @@ describe("Subclass decorators: ", () => {
       return class extends baseClass {
         static readonly ending = "end";
         length = 0;
-      }
-    }
+      };
+    };
 
     type DecoratorSequence<Interfaces extends readonly StaticAndInstance<symbol>[]> =
       SubclassDecoratorSequence<Interfaces, typeof FirstClass, false>;

@@ -1,7 +1,7 @@
 import "es-search-references/guest";
 
 class IdObject {
-  readonly id: string
+  readonly id: string;
   constructor(id: string) {
     this.id = id;
   }

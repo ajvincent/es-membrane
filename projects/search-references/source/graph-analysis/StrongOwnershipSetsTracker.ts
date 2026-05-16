@@ -41,7 +41,7 @@ export class StrongOwnershipSetsTracker<
     this.#outerJointOwnersResolver(
       childKey, jointOwnerKeys, context, this
     );
-  }
+  };
 
   constructor(
     jointOwnersResolver: JointOwnersResolver<

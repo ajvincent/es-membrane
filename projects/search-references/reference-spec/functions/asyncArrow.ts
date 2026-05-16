@@ -30,7 +30,7 @@ class PropertyKeySorter
           sB = this.#symbolMap.get(b as symbol)!;
 
     return sA - sB;
-  }
+  };
 }
 
 const sorter = new PropertyKeySorter;

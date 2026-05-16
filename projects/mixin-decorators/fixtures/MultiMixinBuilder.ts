@@ -42,7 +42,7 @@ const Mixin_XVector: SubclassDecorator<XVector, typeof MixinBase, false> = funct
 )
 {
   if (context.kind !== "class") {
-    throw new Error("what's happening?")
+    throw new Error("what's happening?");
   }
 
   return class extends _class {
@@ -52,8 +52,8 @@ const Mixin_XVector: SubclassDecorator<XVector, typeof MixinBase, false> = funct
     constructor(...args: unknown[]) {
       super(...args);
     }
-  }
-}
+  };
+};
 
 const Mixin_YVector: SubclassDecorator<YVector, typeof MixinBase, false> = function(
   this: void,
@@ -63,8 +63,8 @@ const Mixin_YVector: SubclassDecorator<YVector, typeof MixinBase, false> = funct
   return class extends _class {
     static yCoord = 7;
     yLength = 4;
-  }
-}
+  };
+};
 
 type VectorInterfaces = [XVector, YVector];
 

@@ -22,7 +22,7 @@ describe("Iterator searches, Array:", () => {
   const firstValue = { isFirstValue: true };
   const lastValue = { isLastValue: true };
   const enclosedArray = [firstValue, target, lastValue];
-  const hostCapturedValues = [enclosedArray]
+  const hostCapturedValues = [enclosedArray];
   const iterator = enclosedArray.values();
 
   const [ ExpectedObjectGraph ] = createExpectedGraph(

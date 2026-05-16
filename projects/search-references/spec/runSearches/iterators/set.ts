@@ -23,7 +23,7 @@ describe("Iterator searches, Set:", () => {
   const firstValue = { isFirstValue: true };
   const lastValue = { isLastValue: true };
   const enclosedSet = new Set([firstValue, target, lastValue]);
-  const hostCapturedValues = [enclosedSet]
+  const hostCapturedValues = [enclosedSet];
   const iterator = enclosedSet.values();
 
   const [ ExpectedObjectGraph ] = createExpectedGraph(

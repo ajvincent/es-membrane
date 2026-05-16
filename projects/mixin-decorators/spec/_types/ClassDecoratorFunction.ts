@@ -6,7 +6,7 @@ import type {
   ClassDecoratorFunction
 } from "../../source/types/ClassDecoratorFunction.js";
 
-import NumberStringClass from "../../fixtures/NumberStringClass.js"
+import NumberStringClass from "../../fixtures/NumberStringClass.js";
 import type {
   NumberStringType
 } from "../../fixtures/types/NumberStringType.js";
@@ -26,7 +26,7 @@ describe("Mixin class types: ClassDecoratorFunction", () => {
       {
         _class = baseClass;
         void(context);
-      }
+      };
 
       @NST_Decorator
       class Foo extends NumberStringClass {
@@ -43,8 +43,8 @@ describe("Mixin class types: ClassDecoratorFunction", () => {
         void(context);
         return class extends baseClass implements WithCounter {
           counter: number | boolean = 120;
-        }
-      }
+        };
+      };
 
       @NST_Decorator
       class Foo extends NumberStringClass {
@@ -65,8 +65,8 @@ describe("Mixin class types: ClassDecoratorFunction", () => {
         void(context);
         return class extends baseClass implements WithCounter {
           counter: number | boolean = false;
-        }
-      }
+        };
+      };
 
       @NST_Decorator
       class Foo extends NumberStringClass {
@@ -89,9 +89,9 @@ describe("Mixin class types: ClassDecoratorFunction", () => {
           void(context);
           return class extends baseClass implements WithCounter {
             counter = counter;
-          }
-        }
-      }
+          };
+        };
+      };
 
       @NST_Decorator(-147)
       class Foo extends NumberStringClass {
@@ -114,7 +114,7 @@ describe("Mixin class types: ClassDecoratorFunction", () => {
     {
       _class = baseClass;
       void(context);
-    }
+    };
 
     @NST_Decorator
     class Foo extends NumberStringClass {
@@ -153,8 +153,8 @@ describe("Mixin class types: ClassDecoratorFunction", () => {
           super(counter);
           this.counter = counter;
         }
-      }
-    }
+      };
+    };
 
     @NST_Decorator
     class Foo extends NumberStringClassWithCtor {

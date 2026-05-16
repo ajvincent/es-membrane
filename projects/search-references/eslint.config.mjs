@@ -22,6 +22,7 @@ export default defineConfig(
     },
     {
       rules: {
+        "semi": ["error", "always"],
         "@typescript-eslint/only-throw-error": [
           "error",
           {

@@ -12,7 +12,7 @@ function createShallowEnclosure(
     await Promise.resolve();
     void(secondValue);
     return firstValue;
-  }
+  };
 }
 
 const oneLevelDeepEnclosure = createShallowEnclosure(miscellaneous, target);
@@ -28,8 +28,8 @@ function createDeepEnclosure(
       await Promise.resolve();
       void(secondValue);
       return firstValue;
-    }
-  }
+    };
+  };
 }
 
 const outerEnclosure = createDeepEnclosure(miscellaneous, target);

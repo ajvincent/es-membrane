@@ -52,7 +52,7 @@ export async function runSearchesInGuestEngineInternal(
       noFunctionEnvironment: true
     });
   }
-  const inputs = new SpecGuestRealmInputs(absolutePathToFile, defineBuiltIns)
+  const inputs = new SpecGuestRealmInputs(absolutePathToFile, defineBuiltIns);
   const outputs: GuestRealmOutputs = await runInRealm(inputs);
 
   if (outputs.succeeded === false) {

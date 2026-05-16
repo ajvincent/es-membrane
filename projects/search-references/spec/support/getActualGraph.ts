@@ -166,6 +166,6 @@ class TracingConfiguration implements Required<SearchConfiguration> {
     if (TracingFromFileSearches.has(this.#tracingHash) === false) {
       TracingFromFileSearches.set(this.#tracingHash, []);
     }
-    TracingFromFileSearches.get(this.#tracingHash)!.push(message)
+    TracingFromFileSearches.get(this.#tracingHash)!.push(message);
   }
 }

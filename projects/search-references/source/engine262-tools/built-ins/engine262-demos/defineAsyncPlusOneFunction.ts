@@ -39,5 +39,5 @@ export function * defineAsyncPlusOneFunction(
       );
       return yield* simpleEvaluator(guestPromise);
     }
-  )
+  );
 }

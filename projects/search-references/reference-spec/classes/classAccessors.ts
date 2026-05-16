@@ -34,7 +34,7 @@ class Bicycle {
     vehicleToOwnerMap.set(this, newRider);
   }
 }
-const Wilma = new Person("Wilma")
+const Wilma = new Person("Wilma");
 const herBike = new Bicycle(Wilma);
 
 // this should come back null:  there's no way to get a rider from herBike.

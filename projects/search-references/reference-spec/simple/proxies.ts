@@ -53,7 +53,7 @@ const NotImplementedProxyHandler: Required<ProxyHandler<object>> & SearchTargetI
   setPrototypeOf(target: object, v: object | null): boolean {
     throw new Error("Method not implemented.");
   },
-}
+};
 
 const shadowTarget: SearchTargetIfc = {
   searchTarget: {

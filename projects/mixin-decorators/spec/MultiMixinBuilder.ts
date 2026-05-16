@@ -35,7 +35,7 @@ describe("MultiMixinBuilder can generate mixins of several classes", () => {
           super(...args);
           foundState = getRequiredInitializers(this).getState();
         }
-      }
+      };
     }
 
     const VectorMixinClass =
@@ -45,7 +45,7 @@ describe("MultiMixinBuilder can generate mixins of several classes", () => {
     ], MixinBase)
     {
       // empty on purpose
-    }
+    };
 
     expect(VectorMixinClass.xCoord).toBe(12);
     expect(VectorMixinClass.yCoord).toBe(7);
@@ -93,7 +93,7 @@ describe("MultiMixinBuilder can generate mixins of several classes", () => {
           super(...args);
           foundState = getRequiredInitializers(this).getState();
         }
-      }
+      };
     }
 
     const XMixedinClass = MultiMixinBuilder<[XVector], typeof MixinBase>([

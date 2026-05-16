@@ -5,5 +5,5 @@ export default function addProperty(value: object): Record<"value" | "addedPrope
   return {
     ...wrapObject(value),
     addedProperty: { isAddedProperty: true },
-  }
+  };
 }

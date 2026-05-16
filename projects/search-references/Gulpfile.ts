@@ -22,7 +22,7 @@ async function build(): Promise<void> {
   await fs.cp(
     path.join(projectRoot, "source/engine262-tools/types/Virtualization262.d.ts"),
     path.join(projectRoot, "source/public/core-host/types/Virtualization262.d.ts"),
-  )
+  );
 
   await InvokeTSC(path.join(projectRoot, "tsconfig.json"), []);
 }
@@ -30,7 +30,7 @@ async function build(): Promise<void> {
 function copyJasmineSupportJSON() {
   return src(
     "spec/support/jasmine*.json",
-  ).pipe(dest("dist/spec/support/"))
+  ).pipe(dest("dist/spec/support/"));
 }
 
 async function jasmine(): Promise<void> {

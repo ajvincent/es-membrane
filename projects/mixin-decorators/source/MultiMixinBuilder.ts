@@ -65,7 +65,7 @@ function MixinBuilderInternal<
   ) : MultiMixinClass<Interfaces, Base>
   {
     return applyAllDecorators(decorators, _class, context);
-  }
+  };
 }
 
 /**

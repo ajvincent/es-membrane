@@ -10,7 +10,7 @@ import type {
 import type {
   EngineWeakKey,
   ObjectGraphIfc,
-} from "../../graph-analysis/types/ObjectGraphIfc.js"
+} from "../../graph-analysis/types/ObjectGraphIfc.js";
 
 import type {
   SearchConfiguration
@@ -78,7 +78,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
   {
     return {
       parentToChildEdgeType: type
-    }
+    };
   }
 
   static #builtInNamesFromInstrinsics(
@@ -368,7 +368,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
   ): GuestEngine.Evaluator<[BuiltInJSTypeName, string]>
   {
     if (guestValue.type === "Symbol") {
-      return [BuiltInJSTypeName.Symbol, BuiltInJSTypeName.Symbol]
+      return [BuiltInJSTypeName.Symbol, BuiltInJSTypeName.Symbol];
     }
 
     if (GuestEngine.isProxyExoticObject(guestValue)) {
@@ -840,7 +840,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
 
         yield* this.#buildFunctionValueReference(
           guestFunction, "this", thisBinding
-        )
+        );
       }
 
       if (env.HasSuperBinding() === GuestEngine.Value.true) {
