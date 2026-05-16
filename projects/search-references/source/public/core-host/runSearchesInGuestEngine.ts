@@ -28,6 +28,10 @@ export {
   LoggingConfiguration
 } from "./LoggingConfiguration.js";
 
+export {
+  pathsToTarget
+} from "./pathsToTarget.js";
+
 export type {
   GuestRealmInputs,
   SearchConfiguration,

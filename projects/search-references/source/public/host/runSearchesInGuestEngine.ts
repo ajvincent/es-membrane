@@ -19,6 +19,7 @@ import type {
 
 import {
   LoggingConfiguration,
+  pathsToTarget,
   runSearchesInGuestEngine as runSearches,
   type SearchConfiguration,
 } from "../core-host/runSearchesInGuestEngine.js";
@@ -26,6 +27,7 @@ import {
 export {
   LoggingConfiguration,
   type SearchConfiguration,
+  pathsToTarget,
 };
 
 export async function runSearchesInGuestEngine(
