@@ -17,10 +17,6 @@ import {
   RealmHostDefined
 } from "./RealmHostDefined.js";
 
-import {
-  CreateBuiltinFunction
-} from "@engine262/engine262";
-
 export function runInRealm(
   inputs: GuestRealmInputsWithBuiltins
 ): Promise<GuestRealmOutputs>
@@ -103,7 +99,7 @@ export function runInRealm(
             GuestEngine.PerformPromiseThen(
               promiseObj,
               GuestEngine.Value.undefined,
-              CreateBuiltinFunction.from((error: GuestEngine.Value | undefined = GuestEngine.Value.undefined) => {
+              GuestEngine.CreateBuiltinFunction.from((error: GuestEngine.Value | undefined = GuestEngine.Value.undefined) => {
                 void error;
                 realmDriver.trackedPromises.add(promiseObj);
               })

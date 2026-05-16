@@ -22,7 +22,7 @@ export interface SymbolValueDescription {
 }
 
 export interface BigIntValueDescription {
-  readonly valueType: ValueDescription.BigInt;
+  readonly valueType: ValueDiscrimant.BigInt;
   readonly bigintStringValue: string;
 }
 

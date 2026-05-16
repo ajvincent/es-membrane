@@ -6,8 +6,14 @@ export {
   type GuestRealmInputs,
   LoggingConfiguration,
   type SearchConfiguration,
+  type SearchGraph,
   runSearchesInGuestEngine,
 } from "./public/core-host/runSearchesInGuestEngine.js";
+
+export {
+  type NodeAndEdgeLabels,
+  pathsToTarget
+} from "./public/core-host/pathsToTarget.js";
 
 export * as JSGraphConstants from "./utilities/constants.js";
 
