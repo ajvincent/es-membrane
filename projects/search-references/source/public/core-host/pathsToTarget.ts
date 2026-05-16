@@ -34,7 +34,10 @@ class NodeAndEdge {
   }
 }
 
-export function pathsToTarget(graph: SearchGraph): readonly (readonly NodeAndEdgeLabels[])[] {
+export function pathsToTarget(graph: SearchGraph | null): readonly (readonly NodeAndEdgeLabels[])[] {
+  if (graph === null)
+    return [];
+
   if (alg.isAcyclic(graph) === false)
     throw new Error("graph has a cycle");
   const nodeStack: NodeAndEdge[] = [];

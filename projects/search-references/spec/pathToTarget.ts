@@ -17,6 +17,8 @@ import {
 } from "../source/public/core-host/pathsToTarget.js";
 
 it("pathsToTarget responds with all paths to a target", () => {
+  expect(pathsToTarget(null)).toEqual([]);
+
   const graph: SearchGraph = new Graph;
 
   class GraphEdge implements GraphEdgeWithMetadata<null> {
