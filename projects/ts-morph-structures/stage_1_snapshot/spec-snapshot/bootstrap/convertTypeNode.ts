@@ -228,7 +228,7 @@ const A: string;
 
   it("string literal 'foo'", () => {
     setTypeStructure(`"foo"`, failCallback);
-    expect(structure).toBeInstanceOf(StringTypedStructureImpl)
+    expect(structure).toBeInstanceOf(StringTypedStructureImpl);
     if (structure instanceof StringTypedStructureImpl)
       expect(structure.stringValue).toBe("foo");
     expect(failMessage).toBe(undefined);

@@ -177,7 +177,7 @@ export default function buildTypesForStructures(
           subStructureResolver,
           converter,
           typeStructure => {
-            structure.extendsStructure = typeStructure
+            structure.extendsStructure = typeStructure;
           }
         );
 
@@ -216,7 +216,7 @@ export default function buildTypesForStructures(
             subStructureResolver,
             converter,
             typeStructure => _extendsArray.push(typeStructure)
-          )
+          );
         });
 
         structure.extendsSet.replaceFromArray(_extendsArray);

@@ -71,7 +71,7 @@ export default function DecoratableNode(
         source.decorators, DecoratorImpl
       );
     }
-  }
+  };
 }
 
 DecoratableNode satisfies SubclassDecorator<

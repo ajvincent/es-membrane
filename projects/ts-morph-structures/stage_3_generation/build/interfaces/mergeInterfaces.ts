@@ -128,7 +128,7 @@ function removeUnnecessaryDecorators(): void {
   for (const interfaceModule of InterfaceModule.structuresMap.values()) {
     //NOTE: this is ultimately what determines the order of mixin decorators.
     interfaceModule.extendsSet.sort((a, b): number => {
-      return (referenceCountMap.get(a)! - referenceCountMap.get(b)!) || a.localeCompare(b)
+      return (referenceCountMap.get(a)! - referenceCountMap.get(b)!) || a.localeCompare(b);
     });
   }
 }

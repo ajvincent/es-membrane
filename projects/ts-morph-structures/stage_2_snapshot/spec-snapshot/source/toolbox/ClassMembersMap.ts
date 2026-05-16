@@ -77,7 +77,7 @@ describe("ClassMembersMap", () => {
 
     expect<readonly MethodDeclarationImpl[]>(
       membersMap.arrayOfKind<StructureKind.Method>(StructureKind.Method)
-    ).toEqual([method3, method4])
+    ).toEqual([method3, method4]);
 
     expect<readonly ConstructorDeclarationImpl[]>(
       membersMap.arrayOfKind<StructureKind.Constructor>(StructureKind.Constructor)

@@ -90,7 +90,7 @@ export async function getModulePart<Key extends string, T>(
 {
   const module = (
     await import(pathToModule(source, leafName))
-  ) as { [key in Key]: T }
+  ) as { [key in Key]: T };
   return module[property] as T;
 }
 

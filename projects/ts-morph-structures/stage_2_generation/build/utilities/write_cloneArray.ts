@@ -339,7 +339,7 @@ export function write_cloneStatementsArray(
         ...statementsArray.map(statement => StatementedNodeStructureMixin.#cloneStatement(statement))
       );`);
     }
-  )
+  );
 
   return statements;
 }

@@ -5,7 +5,7 @@ import type {
 import type {
   OptionalKind,
   Structure,
-} from "ts-morph"
+} from "ts-morph";
 
 import type {
   TypeStructures

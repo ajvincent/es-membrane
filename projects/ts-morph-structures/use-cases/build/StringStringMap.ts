@@ -252,7 +252,7 @@ function createClassBuilder(typeMembers: TypeMembersMap): MemberedTypeToClass {
       void(key);
       return `new Map<string, V>`;
     }
-  }
+  };
 
   const iteratorStatements: ClassStatementsGetter & ClassBodyStatementsGetter & ClassTailStatementsGetter = {
     keyword: "iterators",
@@ -281,7 +281,7 @@ function createClassBuilder(typeMembers: TypeMembersMap): MemberedTypeToClass {
         return [`return this.#hashMap.values()`];
       }
 
-      return [`return this[Symbol.iterator]();`]
+      return [`return this[Symbol.iterator]();`];
     }
   };
 
@@ -339,7 +339,7 @@ function createClassBuilder(typeMembers: TypeMembersMap): MemberedTypeToClass {
           extraParam = ", value";
           break;
         case "getOrInsert":
-          extraParam = ", defaultValue"
+          extraParam = ", defaultValue";
           break;
         case "getOrInsertComputed":
           extraParam = ", () => callback(firstKey, secondKey)";

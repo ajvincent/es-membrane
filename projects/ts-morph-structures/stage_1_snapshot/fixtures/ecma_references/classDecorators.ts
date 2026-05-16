@@ -78,8 +78,8 @@ const logEvent: ClassDecoratorFunction<Class<object>, true, [ClassEvent["item"]]
 
     decoratorItems.push(item);
     return extendedClass;
-  }
-}
+  };
+};
 
 @logEvent("A")
 @logEvent("B")

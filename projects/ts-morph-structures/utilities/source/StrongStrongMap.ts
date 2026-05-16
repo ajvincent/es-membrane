@@ -18,7 +18,7 @@ class KeyHasher {
 
   #incrementer: (() => string) = () => {
     return (++this.#hashCount).toString(36);
-  }
+  };
 
   #requireKey(key: unknown) : string
   {

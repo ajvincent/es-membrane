@@ -124,7 +124,7 @@ export default class ImportManager
         throw new Error("You already have a default import.");
       }
       if (importNames.length !== 1) {
-        throw new Error("There must be one import name for a default import!")
+        throw new Error("There must be one import name for a default import!");
       }
       this.#moveTypeOnlyToSpecifiers(importDecl);
       importDecl.defaultImport = importNames[0];

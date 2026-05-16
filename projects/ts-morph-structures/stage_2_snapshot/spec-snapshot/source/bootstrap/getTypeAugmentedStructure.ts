@@ -74,9 +74,9 @@ it("getTypeAugmentedStructure gets structures having type structures for types",
       const [key, builder] = getDefaultMethod.parameters;
       expect(key.typeStructure).toBe(LiteralTypeStructureImpl.get("K"));
 
-      expect(builder.typeStructure).toBeInstanceOf(FunctionTypeStructureImpl)
+      expect(builder.typeStructure).toBeInstanceOf(FunctionTypeStructureImpl);
       if (builder.typeStructure instanceof FunctionTypeStructureImpl) {
-        expect(builder.typeStructure.typeParameters.length).toBe(0)
+        expect(builder.typeStructure.typeParameters.length).toBe(0);
         expect(builder.typeStructure.parameters.length).toBe(0);
         expect(builder.typeStructure.returnType).toBe(LiteralTypeStructureImpl.get("V"));
       }

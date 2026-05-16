@@ -9,7 +9,7 @@ import {
 import {
   ExportDeclarationImpl,
   ExportSpecifierImpl,
-} from "#stage_one/prototype-snapshot/exports.js"
+} from "#stage_one/prototype-snapshot/exports.js";
 
 // #endregion preamble
 

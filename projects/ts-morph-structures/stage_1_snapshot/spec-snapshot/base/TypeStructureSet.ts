@@ -20,7 +20,7 @@ describe("TypeStructureSet", () => {
 
   it("starts out empty", () => {
     expect(writerSet.size).toBe(0);
-  })
+  });
 
   it("tracks strings as strings", () => {
     writerSet.add("boolean");

@@ -132,7 +132,7 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
   readonly kind: StructureKind.Class = StructureKind.Class;
 
   // overridden in constructor
-  extends: stringOrWriterFunction | undefined
+  extends: stringOrWriterFunction | undefined;
 
   get extendsStructure(): TypeStructures | undefined
   {
@@ -173,7 +173,7 @@ implements ClassDeclarationStructure, ClassDeclarationWithImplementsTypeStructur
 
     clone.ctors = cloneArrayOrUndefined<OptionalKind<ConstructorDeclarationStructure>, typeof ConstructorDeclarationImpl>(
       other.ctors, ConstructorDeclarationImpl
-    )
+    );
     clone.properties = cloneArrayOrUndefined<OptionalKind<PropertyDeclarationStructure>, typeof PropertyDeclarationImpl>(
       other.properties, PropertyDeclarationImpl
     );

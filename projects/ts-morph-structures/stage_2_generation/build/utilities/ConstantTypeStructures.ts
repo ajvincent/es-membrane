@@ -50,6 +50,6 @@ const ConstantTypeStructures: Record<string, Readonly<TypeStructures>> = {
     ["unique"], new LiteralTypedStructureImpl("symbol")
   ),
   "void": new LiteralTypedStructureImpl("void"),
-}
+};
 
 export default ConstantTypeStructures;

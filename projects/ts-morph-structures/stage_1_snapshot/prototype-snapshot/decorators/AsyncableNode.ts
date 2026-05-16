@@ -55,7 +55,7 @@ export default function AsyncableNode(
     {
       target.isAsync = source.isAsync ?? false;
     }
-  }
+  };
 }
 
 AsyncableNode satisfies SubclassDecorator<

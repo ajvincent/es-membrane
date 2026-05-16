@@ -143,7 +143,7 @@ let A: string;
   it("number literal", () => {
     setTypeStructure("12.5", failCallback);
     expect(structure).toBe(NumberTypeStructureImpl.get(12.5));
-    expect(failMessage).toBeUndefined()
+    expect(failMessage).toBeUndefined();
     expect(failNode).toBeNull();
   });
 

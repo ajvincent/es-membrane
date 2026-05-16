@@ -72,5 +72,5 @@ export default function defineFieldsType(
   return {
     fieldType: alias,
     instanceFieldsArgumented: instanceFields.typeStructure
-  }
+  };
 }

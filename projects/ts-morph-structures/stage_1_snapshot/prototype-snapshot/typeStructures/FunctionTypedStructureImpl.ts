@@ -87,8 +87,8 @@ implements FunctionTypedStructure
   {
     super();
     this.name = context.name ?? "";
-    this.isConstructor = context.isConstructor ?? false
-    this.typeParameters = context.typeParameters?.slice() ?? []
+    this.isConstructor = context.isConstructor ?? false;
+    this.typeParameters = context.typeParameters?.slice() ?? [];
     this.parameters = context.parameters?.slice() ?? [];
     this.restParameter = context.restParameter;
     this.returnType = context.returnType;

@@ -102,7 +102,7 @@ implements ConstructorBodyStatementsGetter, ClassHeadStatementsGetter
       parameter.typeStructure = LiteralTypeStructureImpl.get("ParameterDeclarationImpl");
       this.#ctorParameters.push(parameter);
 
-      return [`this.parameters.push(setterParameter);`]
+      return [`this.parameters.push(setterParameter);`];
     }
 
     return [];

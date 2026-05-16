@@ -14,7 +14,7 @@ it("ReadonlyArrayProxyHandler builds proxies which appear read-only", () => {
   expect(Array.from(array.values())).toEqual(["boolean", "string"]);
 
   expect(() => {
-    void(array.push)
+    void(array.push);
   }).toThrowError("readonly");
 
   expect(() => {

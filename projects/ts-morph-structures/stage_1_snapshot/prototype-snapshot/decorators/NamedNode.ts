@@ -54,7 +54,7 @@ export default function NamedNode(
     {
       target.name = source.name;
     }
-  }
+  };
 }
 
 NamedNode satisfies SubclassDecorator<

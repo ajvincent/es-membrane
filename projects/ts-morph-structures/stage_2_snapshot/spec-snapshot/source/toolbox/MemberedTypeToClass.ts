@@ -127,7 +127,7 @@ describe("MemberedTypeToClass", () => {
   implements ConstructorHeadStatementsGetter, ConstructorTailStatementsGetter
   {
     filterCtorHeadStatements(key: MemberedStatementsKey): boolean {
-      void(key)
+      void(key);
       return true;
     }
     getCtorHeadStatements(key: MemberedStatementsKey): readonly stringWriterOrStatementImpl[] {
@@ -468,7 +468,7 @@ describe("MemberedTypeToClass", () => {
     firstCtorGetter.filterCtorHeadStatements = function(key: MemberedStatementsKey): boolean {
       void(key);
       return false;
-    }
+    };
 
     const secondCtorGetter = new ConstructorStatementsGetter(
       "second",
@@ -502,7 +502,7 @@ describe("MemberedTypeToClass", () => {
     firstCtorGetter.filterCtorHeadStatements = function(key: MemberedStatementsKey): boolean {
       void(key);
       throw new Error("first filter " + key.purpose);
-    }
+    };
 
     const secondCtorGetter = new ConstructorStatementsGetter(
       "second",
@@ -511,7 +511,7 @@ describe("MemberedTypeToClass", () => {
     secondCtorGetter.getCtorHeadStatements = function(key: MemberedStatementsKey): stringWriterOrStatementImpl[] {
       void(key);
       throw new Error("second get " + key.purpose);
-    }
+    };
 
     typeToClass.addStatementGetters(0, [firstCtorGetter, secondCtorGetter]);
     typeToClass.defineStatementsByPurpose("alpha", false);
@@ -772,7 +772,7 @@ describe("MemberedTypeToClass", () => {
         void(signature);
         return ["foo", "bar"];
       }
-    }
+    };
     typeToClass.addTypeMember(false, index_C);
     typeToClass.defineStatementsByPurpose("first", false);
     typeToClass.addStatementGetters(1, [statementsGetter]);
@@ -845,7 +845,7 @@ describe("MemberedTypeToClass", () => {
         void(signature);
         return indexNames.slice();
       }
-    }
+    };
 
     let indexSignature = new IndexSignatureDeclarationImpl();
     indexSignature.keyName = "Key";
@@ -917,7 +917,7 @@ describe("MemberedTypeToClass", () => {
           return true;
         return false;
       }
-    }
+    };
 
     const statementsGetter = new AllStatementsGetter("test");
 
@@ -1051,7 +1051,7 @@ describe("MemberedTypeToClass", () => {
         if (name === "two")
           return Scope.Protected;
       }
-    }
+    };
 
     const tempMap = new TypeMembersMap();
     tempMap.addMembers([prop1, prop2, prop3]);

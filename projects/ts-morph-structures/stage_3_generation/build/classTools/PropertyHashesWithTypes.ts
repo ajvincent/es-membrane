@@ -14,6 +14,6 @@ const PropertyHashesWithTypes = {
   has(moduleName: string, fieldName: string): boolean {
     return PropertyHashesWithTypesInternal.has(moduleName + ":" + fieldName);
   }
-}
+};
 
 export default PropertyHashesWithTypes;

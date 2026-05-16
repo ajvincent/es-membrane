@@ -68,7 +68,7 @@ void class ThisTypeReference {
   getThis(): this {
     return this;
   }
-}
+};
 
 export {
   NumberString,

@@ -103,7 +103,7 @@ export default function ReturnTypedNode(
         rv.returnType = replaceWriterWithString<string>(this.#typeWriterManager.type);
       return rv;
     }
-  }
+  };
 }
 ReturnTypedNode satisfies SubclassDecorator<
   ReturnTypedNodeStructureFields,

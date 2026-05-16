@@ -72,7 +72,7 @@ const PropertySignatureBase = MultiMixinBuilder<
     TypedNode,
   ],
   StructureBase
-)
+);
 
 export default class PropertySignatureImpl
 extends PropertySignatureBase

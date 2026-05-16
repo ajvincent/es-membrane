@@ -30,5 +30,5 @@ implements WriterInterface
 
   readonly writerFunction = (writer: CodeBlockWriter): void => {
     writer.block(() => this.#writerFunction(writer));
-  }
+  };
 }

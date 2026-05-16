@@ -80,6 +80,6 @@ class InterfaceModule extends BaseModule {
       structureKindName: this.#structureKindName,
       extendsSet: Array.from(this.extendsSet),
       typeMembers: this.typeMembers,
-    }
+    };
   }
 }

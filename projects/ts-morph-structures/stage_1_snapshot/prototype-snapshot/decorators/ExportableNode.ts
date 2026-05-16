@@ -57,7 +57,7 @@ export default function ExportableNode(
       target.isDefaultExport = source.isDefaultExport ?? false;
       target.isExported = source.isExported ?? false;
     }
-  }
+  };
 }
 
 ExportableNode satisfies SubclassDecorator<

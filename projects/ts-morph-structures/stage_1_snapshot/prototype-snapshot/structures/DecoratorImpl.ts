@@ -45,7 +45,7 @@ const DecoratorBase = MultiMixinBuilder<
     NamedNode,
   ],
   StructureBase
-)
+);
 
 export default class DecoratorImpl
 extends DecoratorBase

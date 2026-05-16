@@ -70,7 +70,7 @@ export default function ParameteredNode(
       >
       (source.parameters, ParameterDeclarationImpl);
     }
-  }
+  };
 }
 ParameteredNode satisfies SubclassDecorator<
   ParameteredNodeStructureFields,

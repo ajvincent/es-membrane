@@ -226,7 +226,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
 
       const setStatement = (writer: CodeBlockWriter): void => {
         writer.write(`const { ${setName} } = source as unknown as ${this.module.exportName};`);
-      }
+      };
 
       this.module.addImports("internal", ["TypeStructureSetInternal"], []);
       return [
@@ -263,7 +263,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
 
     if (this.module.baseName.startsWith("TypeAliasDeclaration")) {
       // special case: type can never be undefined
-      statements.push(`else target.${name} = source.${name};`)
+      statements.push(`else target.${name} = source.${name};`);
     }
     else {
       statements.push(
@@ -448,7 +448,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
       return [
         statement,
         `else if (source.${name} !== undefined) { target.${name}.push(source.${name}); }`
-      ]
+      ];
     }
 
     return [statement];
@@ -519,7 +519,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
   ): readonly stringWriterOrStatementImpl[]
   {
     void(childTypes);
-    let statement: stringWriterOrStatementImpl = `target.${fieldType.name} = source.${fieldType.name};`
+    let statement: stringWriterOrStatementImpl = `target.${fieldType.name} = source.${fieldType.name};`;
     if (fieldType.hasQuestionToken) {
       statement = this.#getIfSourceStatement(false, fieldType.name, statement);
     }
@@ -572,7 +572,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
       [
         `statementsArray = [source.statements];`
       ],
-    )
+    );
 
     const pushCall = new CallExpressionStatementImpl({
       name: `target.statements.push`,
@@ -584,7 +584,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
           ]
         }).writerFunction
       ]
-    })
+    });
 
     this.module.addImports(
       "public",

@@ -162,7 +162,7 @@ class StructureDictionaries extends StructureMetaDictionaries
     assert(this.saveDecoratorHook, "save decorator hook is missing?");
 
     const entries: [string, DecoratorHook][] = Array.from(this.#decoratorHooks.entries());
-    const decorator: DecoratorImplMeta = this.decorators.get(name)!
+    const decorator: DecoratorImplMeta = this.decorators.get(name)!;
 
     const errors: unknown[] = [];
 

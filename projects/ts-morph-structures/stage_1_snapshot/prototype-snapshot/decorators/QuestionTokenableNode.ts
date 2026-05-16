@@ -56,7 +56,7 @@ export default function QuestionTokenableNode(
     {
       target.hasQuestionToken = source.hasQuestionToken ?? false;
     }
-  }
+  };
 }
 
 QuestionTokenableNode satisfies SubclassDecorator<

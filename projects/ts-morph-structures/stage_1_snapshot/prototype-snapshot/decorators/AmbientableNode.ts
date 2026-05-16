@@ -56,7 +56,7 @@ export default function AmbientableNode(
     {
       target.hasDeclareKeyword = source.hasDeclareKeyword ?? false;
     }
-  }
+  };
 }
 
 AmbientableNode satisfies SubclassDecorator<

@@ -9,7 +9,7 @@ export default async function removeCanaries(): Promise<void> {
   files = files.filter(f => f.endsWith("Canary.js") || f.endsWith("Canary.js.map"));
   await PromiseAllParallel(files, async f => {
     try {
-      await fs.rm(f)
+      await fs.rm(f);
     }
     catch (ex) {
       void(ex);

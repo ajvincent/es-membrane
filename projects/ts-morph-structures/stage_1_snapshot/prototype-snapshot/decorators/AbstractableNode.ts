@@ -55,7 +55,7 @@ export default function AbstractableNode(
     {
       target.isAbstract = source.isAbstract ?? false;
     }
-  }
+  };
 }
 
 AbstractableNode satisfies SubclassDecorator<

@@ -144,7 +144,7 @@ implements InterfaceDeclarationStructure, InterfaceDeclarationWithExtendsTypeStr
     }
     else if (Array.isArray(other.extends)) {
       other.extends.forEach((extendsValue: stringOrWriterFunction) => {
-        clone.extendsSet.add(extendsValue)
+        clone.extendsSet.add(extendsValue);
       });
     }
 

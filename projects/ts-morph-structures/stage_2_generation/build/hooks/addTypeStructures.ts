@@ -183,10 +183,10 @@ function addTypeStructureSet(
     COPY_FIELDS_NAME,
     [
       (writer: CodeBlockWriter): void => {
-        writer.write(`const { ${typeStructureSetProp.name} } = (source as unknown as ${parts.classDecl.name!});`)
+        writer.write(`const { ${typeStructureSetProp.name} } = (source as unknown as ${parts.classDecl.name!});`);
         writer.write(`if (${typeStructureSetProp.name} instanceof TypeStructureSetInternal)`);
         writer.block(() => {
-          writer.write(`target.${typeStructureSetProp.name}.cloneFromTypeStructureSet(${typeStructureSetProp.name});`)
+          writer.write(`target.${typeStructureSetProp.name}.cloneFromTypeStructureSet(${typeStructureSetProp.name});`);
         });
         writer.write(`else if (Array.isArray(source.${propertyKey})) `);
         writer.block(() => {
@@ -330,7 +330,7 @@ function addTypeAccessor(
   existingStatements[0] = `if (${propertyKey}Structure) {\n` +
     `target.${propertyKey}Structure = TypeStructureClassesMap.clone(${propertyKey}Structure);\n` +
   `} else ${existingStatements[0] as string}`;
-  existingStatements.unshift(`const { ${propertyKey}Structure } = source as unknown as ${parts.classDecl.name!};`)
+  existingStatements.unshift(`const { ${propertyKey}Structure } = source as unknown as ${parts.classDecl.name!};`);
 
   defineStructureAndTypesChildren(dictionaries, parts, propertyKey + "Structure", false);
 

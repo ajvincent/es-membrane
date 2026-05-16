@@ -39,7 +39,7 @@ function addStructureUnion(
   originalNames.forEach(child => {
     if (child.endsWith("Structures")) {
       const newName = getUnionOfStructuresName(child);
-      unionStructure.childTypes.push(LiteralTypeStructureImpl.get(newName))
+      unionStructure.childTypes.push(LiteralTypeStructureImpl.get(newName));
       unions.push(newName);
       structures.push(...addStructureUnion(child));
     }

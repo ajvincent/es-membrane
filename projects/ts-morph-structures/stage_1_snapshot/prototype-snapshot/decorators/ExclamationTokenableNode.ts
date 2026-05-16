@@ -56,7 +56,7 @@ export default function ExclamationTokenableNode(
     {
       target.hasExclamationToken = source.hasExclamationToken ?? false;
     }
-  }
+  };
 }
 
 ExclamationTokenableNode satisfies SubclassDecorator<

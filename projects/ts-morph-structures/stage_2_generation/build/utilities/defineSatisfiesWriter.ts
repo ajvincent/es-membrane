@@ -32,7 +32,7 @@ export default function defineSatisfiesWriter(
       ConstantTypeStructures["typeof StructureBase"],
       ConstantTypeStructures.false,
     ]
-  )
+  );
   return writer => {
     writer.write(fnDecl.name!);
     writer.write(" satisfies ");

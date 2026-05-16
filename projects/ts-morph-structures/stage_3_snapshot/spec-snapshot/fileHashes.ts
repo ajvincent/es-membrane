@@ -140,7 +140,7 @@ async function compareOneSnapshot(
 {
 
   const stage_two_file = path.join(stage_two_snapshot, localPath);
-  const stage_three_file = path.join(stage_three_snapshot, localPath)
+  const stage_three_file = path.join(stage_three_snapshot, localPath);
 
   if (compareFileLists(stage_two_snapshot, stage_three_snapshot, [ stage_two_file ], [ stage_three_file ]) === false)
     return;

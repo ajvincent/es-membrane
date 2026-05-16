@@ -15,7 +15,7 @@ import {
 it("toJSON() generally works", () => {
   const tag = new JSDocTagImpl("returns");
   tag.text = "The tag value";
-  tag.leadingTrivia.push("// This is a test.")
+  tag.leadingTrivia.push("// This is a test.");
   tag.leadingTrivia.push((writer: CodeBlockWriter): void => {
     writer.write("// this is only a test");
   });
@@ -23,7 +23,7 @@ it("toJSON() generally works", () => {
   const doc = new JSDocImpl();
   doc.description = (writer: CodeBlockWriter): void => {
     writer.write("An internal value");
-  }
+  };
   doc.tags.push(tag);
 
   const classDecl = new ClassDeclarationImpl;

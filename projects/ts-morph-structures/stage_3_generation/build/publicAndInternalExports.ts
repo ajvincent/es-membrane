@@ -13,7 +13,7 @@ import {
 import {
   internalExports,
   publicExports,
-} from "../moduleClasses/exports.js"
+} from "../moduleClasses/exports.js";
 
 export default async function defineExistingExports(
 ): Promise<void> {

@@ -31,7 +31,7 @@ implements ClassTailStatementsGetter
       module,
       "CloneStatement_Statements",
       ClassSupportsStatementsFlags.TailStatements
-    )
+    );
   }
 
   getMethodSignature(): MethodSignatureImpl
@@ -88,6 +88,6 @@ implements ClassTailStatementsGetter
           parameters: ["source"]
         })).writerFunction(writer);
       }
-    ]
+    ];
   }
 }

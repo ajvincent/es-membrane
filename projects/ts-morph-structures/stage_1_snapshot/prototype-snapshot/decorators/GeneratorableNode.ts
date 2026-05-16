@@ -55,7 +55,7 @@ export default function GeneratorableNode(
     {
       target.isGenerator = source.isGenerator ?? false;
     }
-  }
+  };
 }
 
 GeneratorableNode satisfies SubclassDecorator<

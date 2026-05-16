@@ -173,7 +173,7 @@ it("fillDictionaries works", () => {
   const unknownNames: string[] = [];
   for (const [key, str] of dictionaries.structures) {
     if (!str.structureKindName)
-      unknownNames.push(key)
+      unknownNames.push(key);
   }
   expect(unknownNames).toEqual([]);
 });

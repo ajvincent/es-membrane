@@ -47,7 +47,7 @@ export class FunctionExpressionImpl extends ExpressionBase {
       p => this.#parameterWriter(writer, p)
     );
     this.pairedWrite(writer, "(", ")", () => {
-      this.writeSequence(writer, params)
+      this.writeSequence(writer, params);
     });
 
     writer.write(": ");
@@ -58,7 +58,7 @@ export class FunctionExpressionImpl extends ExpressionBase {
     return () => {
       writer.write(param.name + ": ");
       this.writeExpression(writer, param.type!);
-    }
+    };
   }
 
   #writerFunction(

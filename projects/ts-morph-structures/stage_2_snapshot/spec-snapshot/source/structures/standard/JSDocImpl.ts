@@ -24,7 +24,7 @@ describe("JSDocImpl", () => {
     const docStructure: OptionalKind<JSDocStructure> = {
       description: "Hello World",
       tags: [tag],
-    }
+    };
 
     const doc = JSDocImpl.clone(docStructure);
     expect(doc.description).toBe("Hello World");

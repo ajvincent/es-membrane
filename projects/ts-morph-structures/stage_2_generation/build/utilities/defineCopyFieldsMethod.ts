@@ -31,7 +31,7 @@ import ClassMembersMap from "./public/ClassMembersMap.js";
 
 // #endregion preamble
 
-const internalDoc = new JSDocImpl()
+const internalDoc = new JSDocImpl();
 internalDoc.tags.push(new JSDocTagImpl("internal"));
 
 export default function defineCopyFieldsMethod(

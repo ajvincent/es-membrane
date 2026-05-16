@@ -73,5 +73,5 @@ export default function getTypeAugmentedStructure(
     rootStructure,
     rootNode,
     failures,
-  }
+  };
 }

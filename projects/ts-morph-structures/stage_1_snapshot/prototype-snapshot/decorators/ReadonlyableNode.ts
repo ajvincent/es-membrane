@@ -54,7 +54,7 @@ export default function ReadonlyableNode(
     {
       target.isReadonly = source.isReadonly ?? false;
     }
-  }
+  };
 }
 
 ReadonlyableNode satisfies SubclassDecorator<

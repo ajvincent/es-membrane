@@ -40,7 +40,7 @@ implements PropertyInitializerGetter
     key: MemberedStatementsKey
   ): stringWriterOrStatementImpl
   {
-    assert(key.fieldType, "No field type?")
+    assert(key.fieldType, "No field type?");
     assert.equal(key.fieldType.kind, StructureKind.PropertySignature, "kind must be a property");
     assert.equal(key.fieldType.typeStructure?.kind, TypeStructureKind.QualifiedName, "Not a qualified name?");
     assert.equal(key.fieldType.typeStructure.childTypes.length, 2);

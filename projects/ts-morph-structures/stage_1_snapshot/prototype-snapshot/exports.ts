@@ -82,7 +82,7 @@ export { default as FunctionTypedStructureImpl } from "./typeStructures/Function
 export { default as ImportTypedStructureImpl } from "./typeStructures/ImportTypedStructureImpl.js";
 export { default as IndexedAccessTypedStructureImpl } from "./typeStructures/IndexedAccessTypedStructureImpl.js";
 export { default as InferTypedStructureImpl } from "./typeStructures/InferTypedStructureImpl.js";
-export { default as IntersectionTypedStructureImpl } from "./typeStructures/IntersectionTypedStructureImpl.js"
+export { default as IntersectionTypedStructureImpl } from "./typeStructures/IntersectionTypedStructureImpl.js";
 export { default as LiteralTypedStructureImpl } from "./typeStructures/LiteralTypedStructureImpl.js";
 export { default as MappedTypeTypedStructureImpl } from "./typeStructures/MappedTypeTypedStructureImpl.js";
 export { default as MemberedObjectTypeStructureImpl } from "./typeStructures/MemberedObjectTypeStructureImpl.js";

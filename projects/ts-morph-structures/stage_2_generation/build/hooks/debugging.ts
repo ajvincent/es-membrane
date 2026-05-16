@@ -30,7 +30,7 @@ export function debugDecoratorIfNameStart(
     }
     void(meta);
     void(dictionaries);
-  }
+  };
 }
 
 export function debugStructureIfNameStart(
@@ -49,7 +49,7 @@ export function debugStructureIfNameStart(
     }
     void(meta);
     void(dictionaries);
-  }
+  };
 }
 
 export function logDecoratorIfNameStart(
@@ -64,7 +64,7 @@ export function logDecoratorIfNameStart(
   {
     if (name.startsWith(prefix))
       logParts(prefix, name, meta, dictionaries);
-  }
+  };
 }
 
 export function logStructureIfNameStart(
@@ -79,7 +79,7 @@ export function logStructureIfNameStart(
   {
     if (name.startsWith(prefix))
       logParts(prefix, name, meta, dictionaries);
-  }
+  };
 }
 
 function logParts(

@@ -58,7 +58,7 @@ export default function ScopedNode(
     {
       target.scope = source.scope;
     }
-  }
+  };
 }
 
 ScopedNode satisfies SubclassDecorator<

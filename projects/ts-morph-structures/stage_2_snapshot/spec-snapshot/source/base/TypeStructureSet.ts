@@ -24,7 +24,7 @@ describe("TypeStructureSet", () => {
 
   it("starts out empty", () => {
     expect(writerSet.size).toBe(0);
-  })
+  });
 
   it("tracks type structures as themselves", () => {
     const stringFoo = new StringTypeStructureImpl("foo");

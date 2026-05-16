@@ -445,7 +445,7 @@ function convertFunctionTypeNode(
 
     typeParameterPrinterSettings: new TypePrinterSettingsBase,
     parameterPrinterSettings: new TypePrinterSettingsBase,
-  }
+  };
 
   return new FunctionTypedStructureImpl(functionContext);
 }

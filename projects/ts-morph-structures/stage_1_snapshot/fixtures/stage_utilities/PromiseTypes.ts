@@ -21,7 +21,7 @@ export class Deferred<T>
     };
     this.reject = (reason): void => {
       throw reason;
-    }
+    };
     this.promise = new Promise((res, rej) => {
       this.resolve = res;
       this.reject = rej;

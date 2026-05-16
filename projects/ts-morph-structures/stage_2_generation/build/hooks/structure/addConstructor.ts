@@ -80,7 +80,7 @@ export default function addConstructor(
     constructor ??= new ConstructorDeclarationImpl;
 
     const param = new ParameterDeclarationImpl(key);
-    const existingProp = parts.classMembersMap.getAsKind<StructureKind.Property>(key, StructureKind.Property)!
+    const existingProp = parts.classMembersMap.getAsKind<StructureKind.Property>(key, StructureKind.Property)!;
 
     const fieldName = ClassMembersMap.keyFromName(StructureKind.Property, false, key);
     const initializerStatements = parts.classFieldsStatements.get(

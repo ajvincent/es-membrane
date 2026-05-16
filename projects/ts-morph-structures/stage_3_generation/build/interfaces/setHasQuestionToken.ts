@@ -4,7 +4,7 @@ import {
 
 import {
   getStructureNameFromModified
-} from "#utilities/source/StructureNameTransforms.js"
+} from "#utilities/source/StructureNameTransforms.js";
 
 import InterfaceModule from "../../moduleClasses/InterfaceModule.js";
 

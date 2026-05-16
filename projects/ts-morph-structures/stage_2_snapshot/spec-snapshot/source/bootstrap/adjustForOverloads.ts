@@ -348,7 +348,7 @@ class Bar {
             setAccessors: [],
           }
         ]
-      )
+      );
     });
 
     it("classes with method overloads (static and non-static)", () => {
@@ -1291,7 +1291,7 @@ declare namespace NamespaceTest {
             declarationKind: ModuleDeclarationKind.Namespace,
           }
         ]
-      )
+      );
     });
   });
 

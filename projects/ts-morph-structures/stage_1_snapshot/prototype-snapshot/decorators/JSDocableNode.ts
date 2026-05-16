@@ -7,7 +7,7 @@ import type {
 
 import {
   JSDocableNodeStructure,
-} from "ts-morph"
+} from "ts-morph";
 
 import type {
   RightExtendsLeft
@@ -61,7 +61,7 @@ export default function JSDocableNode(
     {
       target.docs = JSDocImpl.cloneArray(source);
     }
-  }
+  };
 }
 
 JSDocableNode satisfies SubclassDecorator<

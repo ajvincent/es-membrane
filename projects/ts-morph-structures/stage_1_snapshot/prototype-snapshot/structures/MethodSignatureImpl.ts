@@ -67,7 +67,7 @@ const MethodSignatureBase = MultiMixinBuilder<
     TypeParameteredNode
   ],
   StructureBase
-)
+);
 
 export default class MethodSignatureImpl
 extends MethodSignatureBase

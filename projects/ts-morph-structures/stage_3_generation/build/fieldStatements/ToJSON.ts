@@ -170,7 +170,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter, ClassTailStatem
       writer.write(`rv.${fieldName} = `);
       value(writer);
       writer.write(";");
-    }
+    };
 
     if (mayBeUndefined) {
       return [

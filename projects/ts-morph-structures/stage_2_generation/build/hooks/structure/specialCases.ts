@@ -248,7 +248,7 @@ function setDefaultTypeAliasDeclarationType(
 
   const statements: StatementsArray = parts.classFieldsStatements.get("#typeAccessors", "constructor")!;
   let lastStatement = statements.pop() as string;
-  lastStatement = lastStatement.replace(`(this, "type");`, `(this, "type", "");`)
+  lastStatement = lastStatement.replace(`(this, "type");`, `(this, "type", "");`);
   statements.push(lastStatement);
 
   const getterName: string = ClassMembersMap.keyFromName(StructureKind.GetAccessor, false, "typeStructure");

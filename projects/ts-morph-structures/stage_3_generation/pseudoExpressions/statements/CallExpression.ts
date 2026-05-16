@@ -40,7 +40,7 @@ implements CallExpressionStatementContext
     if (this.typeParameters.length) {
       this.pairedWrite(writer, "<", ">", () => {
         this.writeSequence(writer, this.typeParameters.map(typeParam => typeParam.writerFunction));
-      })
+      });
     }
 
     this.pairedWrite(writer, "(", ")", () => {

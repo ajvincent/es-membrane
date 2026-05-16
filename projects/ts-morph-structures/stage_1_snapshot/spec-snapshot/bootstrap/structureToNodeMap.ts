@@ -59,7 +59,7 @@ async function getSupportedKindSet(): Promise<Set<StructureKind>> {
   const KindList: StructureKind[] = await PromiseAllParallel(moduleList, async leafName => {
     const fileToRead = path.join(pathToStructuresDir, leafName);
     const contents = await fs.readFile(fileToRead, { encoding: "utf-8" });
-    const match = contents.match(StructureKindRE)!
+    const match = contents.match(StructureKindRE)!;
     return StructureKind[match[0].replace("StructureKind.", "") as keyof typeof StructureKind];
   });
 

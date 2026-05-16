@@ -44,8 +44,8 @@ function KindedStructureMixin<TKind extends StructureKind>(
     void(context);
     return class extends baseClass {
       readonly kind = kind;
-    }
-  }
+    };
+  };
 }
 KindedStructureMixin satisfies SubclassDecorator<
   KindedStructureFields<StructureKind>, typeof StructureBase, [StructureKind]

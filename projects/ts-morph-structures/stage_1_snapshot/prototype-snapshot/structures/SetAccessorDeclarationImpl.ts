@@ -82,7 +82,7 @@ const SetAccessorDeclarationBase = MultiMixinBuilder<
     TypeParameteredNode,
   ],
   StructureBase
-)
+);
 
 export default class SetAccessorDeclarationImpl
 extends SetAccessorDeclarationBase

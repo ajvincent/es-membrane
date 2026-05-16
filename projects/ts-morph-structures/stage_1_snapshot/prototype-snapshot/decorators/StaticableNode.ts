@@ -54,7 +54,7 @@ export default function StaticableNode(
     {
       target.isStatic = source.isStatic ?? false;
     }
-  }
+  };
 }
 
 StaticableNode satisfies SubclassDecorator<

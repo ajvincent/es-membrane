@@ -41,7 +41,7 @@ describe("AwaitedMap", () => {
 
     await expectAsync(map.allResolved()).toBeRejectedWithError(AwaitedMapError);
     try {
-      await map.allResolved()
+      await map.allResolved();
     }
     catch (ex) {
       const entries = Array.from(

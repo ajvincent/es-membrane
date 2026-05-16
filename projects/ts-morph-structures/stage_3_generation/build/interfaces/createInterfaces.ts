@@ -49,7 +49,7 @@ export default async function createInterfaces(
     createStructureInterface(name);
     const module = InterfaceModule.structuresMap.get(
       getClassInterfaceName(name)
-    )!
+    )!;
     decoratorNamesUnordered.push(...module.extendsSet);
   }
 

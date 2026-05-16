@@ -78,7 +78,7 @@ class DecoratorModule extends BaseClassModule
   }
 
   get fieldsName(): string {
-    return this.baseName + "Fields"
+    return this.baseName + "Fields";
   }
 
   protected getSourceFileImpl(): SourceFileImpl

@@ -32,7 +32,7 @@ describe("buildTypesForStructures applies a type node converter for each structu
   let sourceFile: SourceFile;
 
   let failMessage: string | undefined;
-  let failNode: TypeNode | null
+  let failNode: TypeNode | null;
   function failCallback(message: string, typeNode: TypeNode): void {
     failMessage = message;
     failNode = typeNode;

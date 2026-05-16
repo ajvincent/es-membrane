@@ -80,5 +80,5 @@ export default function StructureMixinWriter(
 
       writer.write("StructureBase");
     });
-  }
+  };
 }

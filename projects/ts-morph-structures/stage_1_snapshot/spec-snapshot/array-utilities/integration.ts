@@ -1,7 +1,7 @@
 import type {
   CodeBlockWriter,
   ImplementsClauseableNodeStructure
-} from 'ts-morph'
+} from 'ts-morph';
 
 import TypeStructureSet from "#stage_one/prototype-snapshot/base/TypeStructureSet.js";
 import ReadonlyArrayProxyHandler from "#stage_one/prototype-snapshot/array-utilities/ReadonlyArrayProxyHandler.js";

@@ -1,5 +1,5 @@
 // #region preamble
-import assert from 'node:assert/strict'
+import assert from 'node:assert/strict';
 
 import path from "path";
 
@@ -155,7 +155,7 @@ function addStructureFieldArray(
       });
       writer.write(`else if (source.${propertyKey} !== undefined)`);
       writer.block(() => {
-        writer.write(`target.${propertyKey}.push(source.${propertyKey});`)
+        writer.write(`target.${propertyKey}.push(source.${propertyKey});`);
       });
     });
   }

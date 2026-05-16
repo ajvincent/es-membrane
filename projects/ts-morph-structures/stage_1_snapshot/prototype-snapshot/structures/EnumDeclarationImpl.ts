@@ -62,7 +62,8 @@ const EnumDeclarationBase = MultiMixinBuilder<
     NamedNode,
   ],
   StructureBase
-)
+);
+
 export default class EnumDeclarationImpl
 extends EnumDeclarationBase
 implements EnumDeclarationStructure

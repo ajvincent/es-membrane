@@ -51,7 +51,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
     assert(
       key.fieldType?.kind === StructureKind.GetAccessor || key.fieldType?.kind === StructureKind.PropertySignature,
       `${this.module.exportName}:${key.fieldKey} kind is not PropertySignature`
-    )
+    );
 
     let typeStructure: TypeStructures;
     if (key.fieldType.kind === StructureKind.GetAccessor)
@@ -73,6 +73,6 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
     const propertyName = key.fieldKey + "Structure";
     return [
       `if (typeof this.${propertyName} === "object") yield this.${propertyName};`
-    ]
+    ];
   }
 }

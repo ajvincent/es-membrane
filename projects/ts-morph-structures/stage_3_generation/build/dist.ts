@@ -45,7 +45,7 @@ export default async function buildDist(): Promise<void>
   await Promise.all([
     createDecorators(),
     createStructures(),
-  ])
+  ]);
 
   await defineExistingExports();
 

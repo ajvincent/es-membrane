@@ -113,7 +113,7 @@ function satisfiesCloneableWriter(
   return function(writer: CodeBlockWriter): void {
     writer.writeLine(`${classDecl.name!} satisfies `);
     intersection.writerFunction(writer);
-  }
+  };
 }
 
 function addToCloneableMapWriter(
@@ -123,7 +123,7 @@ function addToCloneableMapWriter(
 {
   return function(writer: CodeBlockWriter): void {
     writer.writeLine(`StructureClassesMap.set(StructureKind.${structureKindName}, ${classDecl.name!});`);
-  }
+  };
 }
 
 async function saveClassInterfaceFile(

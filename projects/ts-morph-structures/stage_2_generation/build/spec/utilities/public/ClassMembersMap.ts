@@ -36,7 +36,7 @@ it("ClassMembersMap allows us to organize class members by kind", () => {
 
   expect<readonly MethodDeclarationImpl[]>(
     memberMap.arrayOfKind<StructureKind.Method>(StructureKind.Method)
-  ).toEqual([method3, method4])
+  ).toEqual([method3, method4]);
 
   expect<readonly ConstructorDeclarationImpl[]>(
     memberMap.arrayOfKind<StructureKind.Constructor>(StructureKind.Constructor)

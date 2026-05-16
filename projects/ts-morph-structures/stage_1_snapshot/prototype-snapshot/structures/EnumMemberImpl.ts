@@ -53,7 +53,7 @@ const EnumMemberBase = MultiMixinBuilder<
     NamedNode,
   ],
   StructureBase
-)
+);
 
 export default class EnumMemberImpl
 extends EnumMemberBase

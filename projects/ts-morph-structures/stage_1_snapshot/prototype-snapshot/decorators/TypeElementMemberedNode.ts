@@ -13,7 +13,7 @@ import type {
   OptionalKind,
   PropertySignatureStructure,
   TypeElementMemberedNodeStructure
-} from "ts-morph"
+} from "ts-morph";
 
 import type {
   RightExtendsLeft
@@ -122,7 +122,7 @@ export default function TypeElementMemberedNode(
         source.properties, PropertySignatureImpl
       );
     }
-  }
+  };
 }
 
 TypeElementMemberedNode satisfies SubclassDecorator<

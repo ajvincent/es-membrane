@@ -34,7 +34,7 @@ import {
 } from "#stage_one/prototype-snapshot/exports.js";
 
 describe("TypeStructure for ts-morph (stage 1): ", () => {
-  let writer: CodeBlockWriter = createCodeBlockWriter()
+  let writer: CodeBlockWriter = createCodeBlockWriter();
   beforeEach(() => writer = createCodeBlockWriter());
 
   const fooTyped = new LiteralTypedStructureImpl("foo");

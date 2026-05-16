@@ -118,7 +118,7 @@ export default function TypedNode(
       if (typeof this.typeStructure === "object")
         yield this.typeStructure;
     }
-  }
+  };
 }
 TypedNode satisfies SubclassDecorator<
   TypedNodeStructureFields,

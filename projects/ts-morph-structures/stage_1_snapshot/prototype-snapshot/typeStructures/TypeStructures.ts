@@ -4,7 +4,7 @@ import type {
 
 import type {
   TypeElementMemberedNodeStructure
-} from "ts-morph"
+} from "ts-morph";
 
 import type {
   KindedTypeStructure,
@@ -21,7 +21,7 @@ import type {
 
 import type {
   StructureImpls
-} from "../types/StructureImplUnions.js"
+} from "../types/StructureImplUnions.js";
 
 import {
   CallSignatureDeclarationImpl,

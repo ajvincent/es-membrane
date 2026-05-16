@@ -42,7 +42,7 @@ async function runAPIExtractor(): Promise<void>
     throw new Error(
       `API Extractor completed with ${extractorResult.errorCount} errors` +
       ` and ${extractorResult.warningCount} warnings`
-    )
+    );
   }
 
   await Promise.resolve();

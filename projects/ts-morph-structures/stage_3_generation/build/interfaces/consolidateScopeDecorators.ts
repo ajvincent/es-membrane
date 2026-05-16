@@ -5,7 +5,7 @@ import InterfaceModule from "../../moduleClasses/InterfaceModule.js";
 
 export default function consolidateScopeDecorators(): void
 {
-  const oldDecorator = "ScopeableNodeStructure"
+  const oldDecorator = "ScopeableNodeStructure";
   for (const str of InterfaceModule.structuresMap.values()) {
     if (str.extendsSet.has(oldDecorator)) {
       str.extendsSet.add("ScopedNodeStructure");

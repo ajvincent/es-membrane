@@ -60,7 +60,7 @@ implements IndexedAccessTypedStructure
     return new IndexedAccessTypedStructureImpl(
       TypeStructureClassesMap.clone(other.objectType),
       TypeStructureClassesMap.clone(other.indexType)
-    )
+    );
   }
 
   readonly kind: TypeStructureKind.IndexedAccess = TypeStructureKind.IndexedAccess;

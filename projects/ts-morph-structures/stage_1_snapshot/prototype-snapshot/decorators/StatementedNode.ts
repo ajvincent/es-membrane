@@ -85,7 +85,7 @@ export default function StatementedNode(
 
       return rv;
     }
-  }
+  };
 }
 
 StatementedNode satisfies SubclassDecorator<

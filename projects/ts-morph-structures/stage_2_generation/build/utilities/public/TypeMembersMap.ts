@@ -92,7 +92,7 @@ extends OrderedMap<string, TypeMemberImpl>
   ): void
   {
     members.forEach(member => {
-      this.set(TypeMembersMap.keyFromMember(member), member)
+      this.set(TypeMembersMap.keyFromMember(member), member);
     });
   }
 

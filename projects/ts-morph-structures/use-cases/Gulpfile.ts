@@ -2,7 +2,7 @@ import path from "node:path";
 
 import {
   runESLint,
-} from "@ajvincent/build-utilities"
+} from "@ajvincent/build-utilities";
 
 import {
   series,

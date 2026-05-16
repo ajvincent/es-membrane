@@ -74,7 +74,7 @@ export default function InitializerExpressionableNode(
         rv.initializer = replaceWriterWithString<string>(this.initializer);
       return rv;
     }
-  }
+  };
 }
 InitializerExpressionableNode satisfies SubclassDecorator<
   InitializerExpressionableNodeStructureFields,

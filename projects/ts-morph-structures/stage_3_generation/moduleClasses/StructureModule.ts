@@ -45,7 +45,7 @@ export default class StructureModule extends BaseClassModule
   readonly baseName: string;
   readonly exportName: string;
   readonly #interfaceModule: InterfaceModule;
-  #flatTypeMembers?: TypeMembersMap
+  #flatTypeMembers?: TypeMembersMap;
 
   constructor(
     baseName: string,
@@ -120,7 +120,7 @@ export default class StructureModule extends BaseClassModule
   {
     const extendsKeys = Array.from(this.#interfaceModule.extendsSet.keys());
 
-    const extendsFields = extendsKeys.map(StructureModule.#getFieldsName)
+    const extendsFields = extendsKeys.map(StructureModule.#getFieldsName);
     const extendsMixins = extendsKeys.map(getStructureMixinName);
 
     this.addImports(
@@ -174,7 +174,7 @@ export default class StructureModule extends BaseClassModule
     this.addImports("public", [], [interfaceName]);
     classDecl.name = this.exportName;
     classDecl.isDefaultExport = true;
-    classDecl.extendsStructure = LiteralTypeStructureImpl.get(getStructureClassBaseName(this.baseName))
+    classDecl.extendsStructure = LiteralTypeStructureImpl.get(getStructureClassBaseName(this.baseName));
     classDecl.implementsSet.add(LiteralTypeStructureImpl.get(interfaceName));
     this.classMembersMap!.moveMembersToClass(classDecl);
 
@@ -202,7 +202,7 @@ export default class StructureModule extends BaseClassModule
       [
         "Class"
       ]
-    )
+    );
 
     return new SatisfiesStatementImpl(
       this.exportName,

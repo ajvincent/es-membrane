@@ -135,7 +135,7 @@ class StructureAndNodeData
         if (hash.includes(hashNeedle)) {
           console.log("structure hash: ", hash, structure);
         }
-      })
+      });
     }
 
     this.#unusedStructures.forEach(value => this.#mapStructureToNode(value));
@@ -208,7 +208,7 @@ class StructureAndNodeData
     }
 
     node.forEachChild(child => this.#collectDescendantNodes(child, hash));
-  }
+  };
 
   /**
    * Get the hash for a node's local part (meaning without parent hashing).

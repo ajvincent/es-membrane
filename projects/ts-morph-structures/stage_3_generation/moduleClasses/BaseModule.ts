@@ -182,13 +182,13 @@ abstract class BaseModule
   {
     const sourceStructure: SourceFileImpl = this.getSourceFileImpl();
     const file = project.createSourceFile(this.importManager.absolutePathToModule, sourceStructure);
-    await file.save()
+    await file.save();
   }
 
   public toJSON(): object {
     return {
       defaultExportName: this.defaultExportName,
       imports: this.importManager.getDeclarations(),
-    }
+    };
   }
 }

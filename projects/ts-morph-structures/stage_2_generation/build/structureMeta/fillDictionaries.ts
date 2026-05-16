@@ -373,7 +373,7 @@ function consolidateNameDecorators(
   }
 
   {
-    const classStructure = dictionary.structures.get("ClassDeclarationStructure")!
+    const classStructure = dictionary.structures.get("ClassDeclarationStructure")!;
     classStructure.decoratorKeys.add("NameableNodeStructure");
     classStructure.structureFields.delete("name");
   }
@@ -482,7 +482,7 @@ function consolidateDecorator(
     moveDecoratorIntoStructure(
       decorator,
       dictionary.structures.get(structureName)!
-    )
+    );
   });
   dictionary.decorators.delete(decoratorName);
 }

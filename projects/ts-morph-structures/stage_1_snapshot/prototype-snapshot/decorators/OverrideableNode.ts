@@ -56,7 +56,7 @@ export default function OverrideableNode(
     {
       target.hasOverrideKeyword = source.hasOverrideKeyword ?? false;
     }
-  }
+  };
 }
 
 OverrideableNode satisfies SubclassDecorator<

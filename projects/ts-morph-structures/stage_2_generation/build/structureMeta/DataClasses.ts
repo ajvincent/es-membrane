@@ -108,7 +108,7 @@ class BaseMetadata
       structureFields: Object.fromEntries(this.structureFields),
       structureFieldArrays: Object.fromEntries(this.structureFieldArrays),
       decoratorKeys: Array.from(this.decoratorKeys),
-    }
+    };
   }
 }
 
@@ -193,7 +193,7 @@ export class StructureImplMeta extends BaseMetadata implements MetaImplementatio
       structureName: this.structureName,
       structureKindName: this.structureKindName,
       syntaxKindName: this.syntaxKindName,
-    }
+    };
   }
 }
 

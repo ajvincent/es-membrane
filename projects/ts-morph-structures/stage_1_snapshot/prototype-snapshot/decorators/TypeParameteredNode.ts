@@ -65,7 +65,7 @@ export default function TypeParameteredNode(
     {
       target.typeParameters = TypeParameterDeclarationImpl.cloneArray(source);
     }
-  }
+  };
 }
 
 TypeParameteredNode satisfies SubclassDecorator<
