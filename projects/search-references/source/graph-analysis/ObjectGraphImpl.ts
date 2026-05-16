@@ -256,7 +256,9 @@ implements HostObjectGraph<GraphObjectMetadata, GraphRelationshipMetadata>,
       metadata: {
         builtInJSTypeName: BuiltInJSTypeName.PrivateName,
         derivedClassName: "",
-        description
+        description,
+        classSpecifier: null,
+        classLineNumber: null,
       }
     };
     this.#graph.setNode(nodeId, nodeMetadata);

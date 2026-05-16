@@ -43,11 +43,15 @@ export function createExpectedGraph(
   const targetMetadata: GraphObjectMetadata = {
     builtInJSTypeName: targetJSTypeName,
     derivedClassName: targetClassName,
+    classSpecifier: null,
+    classLineNumber: null,
   };
 
   const heldValuesMetadata: GraphObjectMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Array,
     derivedClassName: BuiltInJSTypeName.Array,
+    classSpecifier: null,
+    classLineNumber: null,
   };
 
   const heldValues: WeakKey[] = [];
@@ -76,6 +80,8 @@ export function addObjectGraphNode(
   const metadata: GraphObjectMetadata = {
     builtInJSTypeName,
     derivedClassName,
+    classSpecifier: null,
+    classLineNumber: null,
   };
   if (classSpecifier)
     metadata.classSpecifier = "virtual://home/reference-spec/" + classSpecifier;
@@ -92,7 +98,9 @@ export function addSymbolGraphNode(
 {
   const metadata: GraphObjectMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Symbol,
-    derivedClassName: BuiltInJSTypeName.Symbol
+    derivedClassName: BuiltInJSTypeName.Symbol,
+    classSpecifier: null,
+    classLineNumber: null,
   };
 
   graph.defineSymbol(symbol, metadata);

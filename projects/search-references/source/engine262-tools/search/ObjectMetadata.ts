@@ -13,6 +13,8 @@ export function buildObjectMetadata(
 {
   return {
     builtInJSTypeName,
-    derivedClassName
+    derivedClassName,
+    classSpecifier: null,
+    classLineNumber: null,
   };
 }

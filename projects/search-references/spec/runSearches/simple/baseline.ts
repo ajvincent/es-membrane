@@ -49,11 +49,15 @@ describe("Simple graph searches: baseline", () => {
   const targetMetadata: GraphObjectMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Object,
     derivedClassName: BuiltInJSTypeName.Object,
+    classSpecifier: null,
+    classLineNumber: null,
   };
 
   const heldValuesMetadata: GraphObjectMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Array,
-    derivedClassName: BuiltInJSTypeName.Array
+    derivedClassName: BuiltInJSTypeName.Array,
+    classSpecifier: null,
+    classLineNumber: null,
   };
 
   let ExpectedObjectGraph: ObjectGraphImpl;
@@ -101,6 +105,8 @@ describe("Simple graph searches: baseline", () => {
     const targetMetadata: GraphObjectMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Symbol,
       derivedClassName: BuiltInJSTypeName.Symbol,
+    classSpecifier: null,
+    classLineNumber: null,
     };
 
     ExpectedObjectGraph.defineTargetAndHeldValues(
@@ -186,6 +192,8 @@ describe("Simple graph searches: baseline", () => {
       const targetMetadata: GraphObjectMetadata = {
         builtInJSTypeName: BuiltInJSTypeName.Symbol,
         derivedClassName: BuiltInJSTypeName.Symbol,
+        classSpecifier: null,
+        classLineNumber: null,
       };
 
       ExpectedObjectGraph.defineTargetAndHeldValues(

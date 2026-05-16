@@ -40,11 +40,15 @@ describe("Simple graph searches: weak references to direct values", () => {
     const targetMetadata: GraphObjectMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Object,
       derivedClassName: BuiltInJSTypeName.Object,
+      classSpecifier: null,
+      classLineNumber: null,
     };
 
     const heldValuesMetadata: GraphObjectMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Array,
-      derivedClassName: BuiltInJSTypeName.Array
+      derivedClassName: BuiltInJSTypeName.Array,
+      classSpecifier: null,
+      classLineNumber: null,
     };
 
     const ExpectedObjectGraph = new ObjectGraphImpl;

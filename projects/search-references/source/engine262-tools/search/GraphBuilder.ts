@@ -318,7 +318,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
             classObject, "ScriptOrModule"
           ) as GuestEngine.ModuleRecord | GuestEngine.ScriptRecord | GuestEngine.NullValue;
           if (ScriptOrModule instanceof GuestEngine.NullValue === false)
-            objectMetadata.classSpecifier = ScriptOrModule?.HostDefined?.specifier;
+            objectMetadata.classSpecifier = ScriptOrModule?.HostDefined?.specifier ?? null;
         }
 
         if (slots.has("ECMAScriptCode")) {

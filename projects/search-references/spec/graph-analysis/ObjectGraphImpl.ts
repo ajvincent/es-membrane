@@ -51,6 +51,8 @@ describe("ObjectGraphImpl", () => {
     readonly type = "ObjectMetadata";
     readonly builtInJSTypeName = BuiltInJSTypeName.Object;
     readonly derivedClassName: string = "";
+    classSpecifier: string | null = null;
+    classLineNumber: number | null = null;
     constructor(id: string) {
       this.id = id;
     }
