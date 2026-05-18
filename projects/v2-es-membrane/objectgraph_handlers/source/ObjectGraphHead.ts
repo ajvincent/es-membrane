@@ -4,7 +4,7 @@ import type {
   ObjectGraphHandlerIfc
 } from "./generated/types/ObjectGraphHandlerIfc.js";
 
-import OneToOneStrongMap from "../../_01_stage_utilities/source/collections/OneToOneStrongMap.js";
+import OneToOneStrongMap from "../../stage_utilities/source/collections/OneToOneStrongMap.js";
 
 import type {
   MembraneInternalIfc

@@ -18,10 +18,15 @@ const dirEntries = await fs.readdir(
     recursive: false,
   }
 );
-const topDirs = dirEntries.filter(dirEnt => dirEnt.isDirectory())
-    .map(dirEnt => dirEnt.name)
-    .filter(dirName => /^\_\d+\_/.test(dirName));
-topDirs.sort();
-topDirs.unshift("gulp-utilities");
+
+const topDirs = [
+  "ecma_references",
+  "stage_utilities",
+  "code_generation",
+  "objectgraph_handlers",
+  "mirror_membranes",
+  "exported_decorators",
+  "gulp-utilities",
+];
 
 await cleanTSC_Output(projectRoot, topDirs);

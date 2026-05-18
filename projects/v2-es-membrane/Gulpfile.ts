@@ -19,11 +19,15 @@ const projectRoot = path.normalize(path.dirname(
 const monorepoRoot = path.normalize(path.join(projectRoot, "../.."));
 console.log(monorepoRoot);
 
-const dirEntries = await fs.readdir(projectRoot, { encoding: "utf-8", withFileTypes: true });
-const dirs = dirEntries.filter(dirEnt => dirEnt.isDirectory())
-  .map(dirEnt => dirEnt.name)
-  .filter(dirName => /^\_\d+\_/.test(dirName));
-dirs.sort();
+// Remember to update gulp-utilities/cleanTSC_output.js when you change this.
+const dirs: readonly string[] = [
+  "ecma_references",
+  "stage_utilities",
+  "code_generation",
+  "objectgraph_handlers",
+  "mirror_membranes",
+  "exported_decorators",
+];
 
 async function buildDirectory(
   this: void,

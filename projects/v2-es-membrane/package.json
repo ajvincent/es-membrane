@@ -40,10 +40,10 @@
     "type-fest": "^5.6.0"
   },
   "imports": {
-    "#stage_utilities/*": "./_01_stage_utilities/*",
-    "#code_generation/*": "./_02_code_generation/*",
-    "#objectgraph_handlers/*": "./_03_objectgraph_handlers/*",
-    "#mirror_membranes/*": "./_04_mirror_membranes/*",
+    "#stage_utilities/*": "./stage_utilities/*",
+    "#code_generation/*": "./code_generation/*",
+    "#objectgraph_handlers/*": "./objectgraph_handlers/*",
+    "#mirror_membranes/*": "./mirror_membranes/*",
     "#gulp-utilities/*": "./gulp-utilities/*"
   }
 }
