@@ -10,10 +10,6 @@ import {
 } from 'import-meta-resolve';
 
 import type {
-  SearchGraph
-} from "../../graph-analysis/types/SearchGraph.js";
-
-import type {
   GuestRealmInputs,
 } from "../core-host/types/Virtualization262.js";
 
@@ -21,12 +17,14 @@ import {
   LoggingConfiguration,
   pathsToTarget,
   runSearchesInGuestEngine as runSearches,
+  type SearchGraph,
   type SearchConfiguration,
 } from "../core-host/runSearchesInGuestEngine.js";
 
 export {
   LoggingConfiguration,
   type SearchConfiguration,
+  type SearchGraph,
   pathsToTarget,
 };
 
