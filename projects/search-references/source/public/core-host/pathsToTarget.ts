@@ -35,7 +35,7 @@ class NodeAndEdge {
 }
 
 export function pathsToTarget(graph: SearchGraph | null): readonly (readonly NodeAndEdgeLabels[])[] {
-  if (graph === null)
+  if (graph === null || graph.nodeCount() === 0)
     return [];
 
   if (alg.isAcyclic(graph) === false)
