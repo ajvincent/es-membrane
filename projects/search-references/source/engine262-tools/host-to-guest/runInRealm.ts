@@ -28,6 +28,7 @@ export function runInRealm(
     onDebugger() {
       // eslint-disable-next-line no-debugger
       debugger;
+      agent.resumeEvaluate({});
     },
     // ensureCanCompileStrings() {},
     // hasSourceTextAvailable() {},
