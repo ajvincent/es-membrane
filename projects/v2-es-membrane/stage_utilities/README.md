@@ -27,4 +27,4 @@ This directory is an infrastructure grab-bag:  it provides common classes to sup
 - [getTS_SourceFile.ts](./source/getTS_SourceFile.ts) uses [ts-morph](https://ts-morph.com) to parse TypeScript source files.
 - [SpyBase](./source/SpyBase.ts) provides a helper class for Jasmine spies.
 - [StateMachine_DFA](./source/stateMachines/dfa-states.ts) is a very bare-bones state machine implementation.
-- [holdsArgument](./source/gc/holdsArgument.ts) and [holdsReturn](./source/gc/holdsReturn.ts) are for Jasmine test specifications to use, testing whether a particular function holds a reference to an argument or its return value, respectively.  They use two NodeJS-specific functions, `gc()` and `setImmediatePromise()`, for tests involving garbage collection.
+

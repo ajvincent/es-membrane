@@ -68,7 +68,6 @@ async function runChildGulpfile(localPathToDir: string): Promise<void> {
   try {
     const args: string[] = [
       "--no-experimental-require-module",
-      "--expose-gc",
     ];
     if (env.DEBUG_DIR === localPathToDir)
       args.push("--inspect-brk");

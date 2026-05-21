@@ -2,7 +2,7 @@ import {
   DefaultMap,
 } from "#stage_utilities/source/collections/DefaultMap.js";
 
-type RevokerFunction = () => void;
+type RevokerFunction = (this: void) => void;
 type RevokerReference = WeakRef<RevokerFunction>;
 type RevokerSet = Set<RevokerReference>;
 
@@ -98,7 +98,7 @@ export default class RevokerManagement {
     const secondaryFinalizer: FinalizationRegistry<RevokerReference> = this.#keyToFinalizerMap.get(key)!
 
     for (const reference of referencesSet) {
-      const revoker = reference.deref();
+      const revoker: RevokerFunction | undefined = reference.deref();
       if (revoker === undefined)
         continue;
 
