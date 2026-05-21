@@ -55,7 +55,7 @@ export async function runSearchesInGuestEngineInternal(
   const inputs = new SpecGuestRealmInputs(absolutePathToFile, defineBuiltIns);
   const outputs: GuestRealmOutputs = await runInRealm(inputs);
 
-  if (outputs.succeeded === false) {
+  if (!outputs?.succeeded) {
     throw new Error("evaluating module in guest engine failed: " + absolutePathToFile);
   }
 

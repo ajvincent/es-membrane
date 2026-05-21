@@ -47,8 +47,8 @@ export async function runSearchesInGuestEngine(
   const realmInputs: GuestRealmInputsWithBuiltins =  new SearchGuestRealmInputs(inputs, graphs, searchConfiguration);
   const outputs: GuestRealmOutputs = await runInRealm(realmInputs);
 
-  if (outputs.succeeded === false) {
-    throw new Error("evaluating module in guest engine failed");
+  if (!outputs?.succeeded) {
+    throw new Error("evaluating module in guest engine failed: " + inputs.startingSpecifier);
   }
 
   return graphs;
