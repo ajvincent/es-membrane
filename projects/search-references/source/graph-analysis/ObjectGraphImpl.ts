@@ -803,16 +803,17 @@ implements HostObjectGraph<GraphObjectMetadata, GraphRelationshipMetadata>,
   }
 
   #removeCycles(): void {
-    const allCycles: string[][] = graphlib.alg.findCycles(this.#graph);
-    for (const cycle of allCycles) {
-      let wNodeId: string = cycle.pop()!;
-      if (wNodeId === this.#heldValuesId)
-        wNodeId = cycle.pop() ?? wNodeId;
-      const vNodeId: string = cycle.pop() ?? wNodeId;
+    let allCycles: string[][] = graphlib.alg.findCycles(this.#graph);
+    while (allCycles.length) {
+      for (const cycle of allCycles) {
+        const wNodeId: string = cycle.pop()!;
+        const vNodeId: string = cycle.pop() ?? wNodeId;
 
-      for (const edge of this.#graph.inEdges(vNodeId, wNodeId)!) {
-        this.#graph.removeEdge(edge);
+        for (const edge of this.#graph.inEdges(vNodeId, wNodeId)!) {
+          this.#graph.removeEdge(edge);
+        }
       }
+      allCycles = graphlib.alg.findCycles(this.#graph);
     }
   }
 
