@@ -1,4 +1,4 @@
-import WeakRefSet from "#stage_utilities/source/collections/WeakRefSet.js";
+import { WeakRefSet } from "#stage_utilities/source/collections/WeakRefSet.js";
 
 describe("WeakRefSet", () => {
   let refSet: WeakRefSet<object>;
