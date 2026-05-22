@@ -1,14 +1,11 @@
-import {
-  DefaultMap
-} from "#stage_utilities/source/collections/DefaultMap.js";
 import RevokerManagement from "#objectgraph_handlers/source/RevokerManagement.js";
 
 it("RevokerManagement class does not execute revokers until we revoke an object graph", () => {
   const manager: RevokerManagement = new RevokerManagement("red");
-  const countMap = new DefaultMap<string, number>;
+  const countMap = new Map<string, number>;
 
   function buildPair(graphName: string): [{ name: string }, jasmine.Spy<() => void>] {
-    const name = graphName + countMap.getDefault(graphName, () => 1);
+    const name = graphName + countMap.getOrInsertComputed(graphName, () => 1);
     const rv: [{ name: string }, jasmine.Spy<() => void>] = [ { name }, jasmine.createSpy(name)];
     manager.addRevoker(...rv, graphName);
     return rv;

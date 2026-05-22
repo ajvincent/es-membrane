@@ -1,3 +1,4 @@
+/** @deprecated Use `Map.prototype.getOrInsertComputed(), available in NodeJS 26`*/
 export class DefaultMap<K, V> extends Map<K, V> {
   getDefault(key: K, builder: () => V): V {
     let value = this.get(key);
@@ -9,6 +10,7 @@ export class DefaultMap<K, V> extends Map<K, V> {
   }
 }
 
+/** @deprecated Use `WeakMap.prototype.getOrInsertComputed(), available in NodeJS 26`*/
 export class DefaultWeakMap<K extends object, V> extends WeakMap<K, V> {
   getDefault(key: K, builder: () => V): V {
     let value = this.get(key);

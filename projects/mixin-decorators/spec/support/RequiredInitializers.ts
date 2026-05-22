@@ -1,7 +1,3 @@
-import {
-  DefaultWeakMap
-} from "./DefaultMap.js";
-
 export type RequiredState = "initial" | "adding" | "resolving" | "ready" | "checkFired";
 export interface RequiredInitializersInterface {
   getState() : RequiredState;
@@ -67,8 +63,10 @@ class RequiredInitializers implements RequiredInitializersInterface
   }
 }
 
-const initializersMap = new DefaultWeakMap<object, RequiredInitializers>;
+const initializersMap = new WeakMap<object, RequiredInitializers>;
 
 export default function getRequiredInitializers(instance: object): RequiredInitializers {
-  return initializersMap.getDefault(instance, () => new RequiredInitializers);
+  if (initializersMap.has(instance) === false)
+    initializersMap.set(instance, new RequiredInitializers());
+  return initializersMap.get(instance)!;
 }

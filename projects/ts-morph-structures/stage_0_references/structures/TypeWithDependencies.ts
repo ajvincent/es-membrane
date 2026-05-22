@@ -17,10 +17,6 @@ import {
   resolveCodeBlock,
 } from "./typeArrayFromNode.js";
 
-import {
-  DefaultMap
-} from "#utilities/source/DefaultMap.js";
-
 import AwaitedMap from "#utilities/source/AwaitedMap.js";
 //TODO: replace this with the DependencyTracker from #utilities
 import DependencyTracker from "./DependencyTracker.js";
@@ -296,8 +292,6 @@ extends TypeWithDependencies<InterfaceDeclarationStructure, InterfaceDeclaration
   {
     const visited = new Set<string>;
 
-    const nameToExtendsMap = new DefaultMap<string, Set<string>>;
-
     while (interfaceNames.length) {
       const name = interfaceNames.shift()!;
       if (visited.has(name))
@@ -308,10 +302,9 @@ extends TypeWithDependencies<InterfaceDeclarationStructure, InterfaceDeclaration
 
       const newNames = typeArrayFromInterface(interfaceWithDeps.structure);
       interfaceNames.push(...newNames);
-      nameToExtendsMap.set(name, new Set(newNames));
     }
 
-    return Array.from(nameToExtendsMap.keys());
+    return Array.from(visited.keys());
   }
 
   static readonly #KindedStructureRE = /^KindedStructure<(StructureKind\..*)>$/;

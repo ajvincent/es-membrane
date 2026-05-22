@@ -1,18 +1,16 @@
-import { DefaultMap } from "./collections/DefaultMap.js";
-
 export interface SpyBaseInterface {
-  readonly spyMap: DefaultMap<string | symbol, jasmine.Spy>;
+  readonly spyMap: Map<string | symbol, jasmine.Spy>;
   getSpy(name: string | symbol) : jasmine.Spy;
   expectSpiesClearExcept(...names: (string | symbol)[]) : void;
 }
 
 export default class SpyBase implements SpyBaseInterface
 {
-  readonly spyMap = new DefaultMap<string | symbol, jasmine.Spy>();
+  readonly spyMap = new Map<string | symbol, jasmine.Spy>();
 
   getSpy(name: string | symbol) : jasmine.Spy
   {
-    return this.spyMap.getDefault(name, () => jasmine.createSpy());
+    return this.spyMap.getOrInsertComputed(name, () => jasmine.createSpy());
   }
 
   expectSpiesClearExcept(...names: (string | symbol)[]) : void

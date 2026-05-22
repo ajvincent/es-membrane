@@ -1,5 +1,6 @@
 import "es-search-references/guest";
 
+/** @deprecated Use `WeakMap.prototype.getOrInsertComputed(), available in NodeJS 26`*/
 class DefaultWeakMap<K extends WeakKey, V> extends WeakMap<K, V>
 {
   getDefault(key: K, builder: () => V): V {

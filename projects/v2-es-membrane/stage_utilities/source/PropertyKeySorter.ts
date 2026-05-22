@@ -1,14 +1,12 @@
 export type propertyKey = string | symbol;
 
-import { DefaultMap } from "./collections/DefaultMap.js";
-
 export default class PropertyKeySorter
 {
-  readonly #symbolMap = new DefaultMap<symbol, number>;
+  readonly #symbolMap = new Map<symbol, number>;
 
   addSymbol(key: symbol) : void
   {
-    this.#symbolMap.getDefault(key, this.#currentSize);
+    this.#symbolMap.getOrInsertComputed(key, this.#currentSize);
   }
 
   #currentSize: () => number = () => this.#symbolMap.size + 1;
@@ -48,8 +46,8 @@ export default class PropertyKeySorter
     if (tB === "string")
       return +1;
 
-    const sA = this.#symbolMap.getDefault(a as symbol, this.#currentSize),
-          sB = this.#symbolMap.getDefault(b as symbol, this.#currentSize);
+    const sA = this.#symbolMap.getOrInsertComputed(a as symbol, this.#currentSize),
+          sB = this.#symbolMap.getOrInsertComputed(b as symbol, this.#currentSize);
 
     return sA - sB;
   }

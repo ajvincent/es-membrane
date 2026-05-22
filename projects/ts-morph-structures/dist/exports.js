@@ -1036,6 +1036,7 @@ class TypeStructuresWithTypeParameters extends TypeStructuresBase {
     }
 }
 
+/** @deprecated Use `Map.prototype.getOrInsertComputed(), available in NodeJS 26`*/
 class DefaultMap extends Map {
     getDefault(key, builder) {
         let value = this.get(key);
@@ -1046,6 +1047,7 @@ class DefaultMap extends Map {
         return value;
     }
 }
+/** @deprecated Use `WeakMap.prototype.getOrInsertComputed(), available in NodeJS 26`*/
 class DefaultWeakMap extends WeakMap {
     getDefault(key, builder) {
         let value = this.get(key);

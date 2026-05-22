@@ -1,7 +1,3 @@
-import {
-  DefaultMap,
-} from "#stage_utilities/source/collections/DefaultMap.js";
-
 type RevokerFunction = (this: void) => void;
 type RevokerReference = WeakRef<RevokerFunction>;
 type RevokerSet = Set<RevokerReference>;
@@ -17,8 +13,8 @@ export default class RevokerManagement {
   readonly #primaryKey: string | symbol;
 
   readonly #revokerToReferenceMap = new WeakMap<RevokerFunction, RevokerReference>;
-  readonly #keyToReferences = new DefaultMap<string | symbol, RevokerSet>;
-  readonly #keyToFinalizerMap = new DefaultMap<string | symbol, FinalizationRegistry<RevokerReference>>;
+  readonly #keyToReferences = new Map<string | symbol, RevokerSet>;
+  readonly #keyToFinalizerMap = new Map<string | symbol, FinalizationRegistry<RevokerReference>>;
 
   /**
    * @param primaryKey - the object graph key all revokers may execute for.
@@ -57,8 +53,8 @@ export default class RevokerManagement {
     reference: RevokerReference
   ): void
   {
-    const referencesSet = this.#keyToReferences.getDefault(key, () => new Set);
-    const finalizerRegistry: FinalizationRegistry<RevokerReference> = this.#keyToFinalizerMap.getDefault(
+    const referencesSet = this.#keyToReferences.getOrInsertComputed(key, () => new Set);
+    const finalizerRegistry: FinalizationRegistry<RevokerReference> = this.#keyToFinalizerMap.getOrInsertComputed(
       key, () => new FinalizationRegistry(
         ref => this.#clearReference(key, ref)
       )

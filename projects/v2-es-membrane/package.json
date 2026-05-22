@@ -7,7 +7,7 @@
     "debug": "Debugging this code requires Node 18.  Node 20 will fail to start running your code when using --inspect-brk and --import."
   },
   "engines": {
-    "node": ">=18.19"
+    "node": ">=26.2"
   },
   "scripts": {
     "build": "npm run clean && npm run tsc-buildsystem && node --no-experimental-require-module ../../node_modules/gulp/bin/gulp.js",
