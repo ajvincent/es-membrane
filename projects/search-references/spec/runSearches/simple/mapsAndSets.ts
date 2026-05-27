@@ -77,6 +77,11 @@ describe("Simple graph searches: Collections:", () => {
       "collections/mapKeyIsTarget.js", "strongMapHoldsKeyStrongly", true
     );
     expect(actual).toEqual(expected);
+
+    const deletedActual = await getActualGraph(
+      "collections/mapKeyIsTarget.js", "after deleting key", false
+    );
+    expect(deletedActual).toBeNull();
   });
 
   it("Map objects store object values with strong references", async () => {
@@ -94,6 +99,11 @@ describe("Simple graph searches: Collections:", () => {
       "collections/mapValueIsTarget.js", "strongMapHoldsValueStrongly", true
     );
     expect(actual).toEqual(expected);
+
+    const deletedActual = await getActualGraph(
+      "collections/mapValueIsTarget.js", "after deleting key", false
+    );
+    expect(deletedActual).toBeNull();
   });
 
   it("Set objects store values", async () => {
@@ -109,6 +119,11 @@ describe("Simple graph searches: Collections:", () => {
       "collections/setHoldsTarget.js", "setHoldsTargetStrongly", true
     );
     expect(actual).toEqual(expected);
+
+    const deletedActual = await getActualGraph(
+      "collections/setHoldsTarget.js", "after deleting key", false
+    );
+    expect(deletedActual).toBeNull();
   });
 
   it("WeakMap objects never store keys strongly", async () => {
@@ -132,6 +147,11 @@ describe("Simple graph searches: Collections:", () => {
       "collections/weakMapKeyIsTarget.js", "weakMapHoldsKeyWeakly", true
     );
     expect(actual).toEqual(expected);
+
+    const deletedActual = await getActualGraph(
+      "collections/weakMapKeyIsTarget.js", "after deleting key", false
+    );
+    expect(deletedActual).toBeNull();
   });
 
   it("WeakMap objects never store values strongly", async () => {
@@ -156,6 +176,11 @@ describe("Simple graph searches: Collections:", () => {
       "collections/weakMapValueIsTarget.js", "weakMapHoldsValueWeakly", true
     );
     expect(actual).toEqual(expected);
+
+    const deletedActual = await getActualGraph(
+      "collections/weakMapValueIsTarget.js", "after deleting key", false
+    );
+    expect(deletedActual).toBeNull();
   });
 
   it("WeakMap objects store object values jointly with their map key", async () => {
@@ -198,5 +223,10 @@ describe("Simple graph searches: Collections:", () => {
       "collections/weakSetHoldsTarget.js", "weakSetHoldsTargetWeakly", true
     );
     expect(actual).toEqual(expected);
+
+    const deletedActual = await getActualGraph(
+      "collections/weakSetHoldsTarget.js", "after deleting key", false
+    );
+    expect(deletedActual).toBeNull();
   });
 });

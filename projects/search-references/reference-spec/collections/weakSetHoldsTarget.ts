@@ -9,3 +9,6 @@ const heldValues: readonly object[] = [
 
 searchReferences("weakSetHoldsTargetStrongly", target, heldValues, true);
 searchReferences("weakSetHoldsTargetWeakly", target, heldValues, false);
+
+objectHoldingTarget.delete(target);
+searchReferences("after deleting key", target, heldValues, false);

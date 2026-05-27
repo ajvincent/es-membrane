@@ -8,3 +8,6 @@ const heldValues: readonly object[] = [
 ];
 
 searchReferences("setHoldsTargetStrongly", target, heldValues, true);
+
+objectHoldingTarget.delete(target);
+searchReferences("after deleting key", target, heldValues, false);

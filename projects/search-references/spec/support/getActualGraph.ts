@@ -55,7 +55,7 @@ export async function getActualGraph(
 
   const heldValuesGraph = graphs.get(graphName);
   if (heldValuesGraph === undefined)
-    throw new Error("no graph found");
+    throw new Error(`no graph found for reference spec "${referenceSpec}", key "${graphName}"`);
 
   if (heldValuesGraph === null)
     return heldValuesGraph;

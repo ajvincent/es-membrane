@@ -9,3 +9,6 @@ const heldValues: readonly object[] = [
 ];
 
 searchReferences("strongMapHoldsValueStrongly", target, heldValues, true);
+
+objectHoldingTarget.delete(key);
+searchReferences("after deleting key", target, heldValues, true);

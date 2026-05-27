@@ -785,6 +785,9 @@ export class GraphBuilder implements InstanceGetterDefinitions
   {
     const elements = Reflect.get(mapObject, slotName) as readonly Record<"Key" | "Value", GuestEngine.Value>[];
     for (const {Key, Value} of elements) {
+      if (Key === undefined)
+        continue;
+
       if (Key.type !== "Object" && Value.type !== "Object") {
         continue;
       }
@@ -814,6 +817,9 @@ export class GraphBuilder implements InstanceGetterDefinitions
   {
     const elements = Reflect.get(parentObject, slotName) as readonly GuestEngine.Value[];
     for (const value of elements) {
+      if (value === undefined)
+        continue;
+
       if (value.type === "Object" || value.type === "Symbol") {
         yield* this.#defineGraphNode(value, false, "set value");
 

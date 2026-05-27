@@ -13,3 +13,6 @@ searchReferences("weakMapHoldsValueWeakly", target, heldValues, false);
 
 heldValues.push(key);
 searchReferences("weakMapAndKeyJointlyHoldValue", target, heldValues, true);
+
+objectHoldingTarget.delete(key);
+searchReferences("after deleting key", target, heldValues, false);
