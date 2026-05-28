@@ -63,7 +63,7 @@ export default class WeakStrongMap<
    * @param defaultGetter - A function to provide a default value if necessary.
    * @returns The value.
    */
-  public getDefault(
+  public getOrInsertComputed(
     weakKey: WeakKeyType,
     strongKey: StrongKeyType,
     defaultGetter: () => ValueType

@@ -23,7 +23,7 @@ export default class ReplaceableValueMap<
     this.#contextGenerator = contextGenerator;
   }
 
-  public getDefault(
+  public getOrInsertComputed(
     source: Replaceable,
     replacer: (source: Replaceable, userContext: UserContext) => Replaceable
   ): ReplaceableValueType<Replaceable, UserContext>

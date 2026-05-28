@@ -17,7 +17,7 @@ extends SpyBase implements RequiredProxyHandler
   expectSpiesClearExcept(...names: (string | symbol)[]) : void
   {
     super.expectSpiesClearExcept(...names);
-    expect(this.spyMap.size).toBe(Reflect.ownKeys(Reflect).length);
+    expect(this.spyCount).toBe(Reflect.ownKeys(Reflect).length);
   }
 
   apply(target: object, thisArg: unknown, argArray: unknown[]) : unknown
