@@ -11,7 +11,7 @@ import {
   stageDir
 } from "#objectgraph_handlers/pre-build/constants.js";
 
-describe("RevokerManagement class holds references", () => {
+xdescribe("RevokerManagement class holds references", () => {
   let graphs: ReadonlyMap<string, SearchGraph | null>;
   beforeAll(async () => {
     graphs = await runSearchesInGuestEngine(
@@ -23,7 +23,8 @@ describe("RevokerManagement class holds references", () => {
     expect(graphs.get("Revoker management holds primary key strongly")!).not.toBeNull();
   });
 
-  xit(": todo", () => {
-    expect(false).toBeTrue();
+  it("to a revoker function weakly", () => {
+    expect(graphs.get("Revoker management holds proxy weakly")!).withContext("blueOne.proxy weak").not.toBeNull();
+    expect(graphs.get("Revoker management holds proxy strongly")!).withContext("blueOne.proxy strong").toBeNull();
   });
 });

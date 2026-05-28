@@ -5,6 +5,7 @@ type RevokerSet = Set<RevokerReference>;
 /**
  * This class is all about tracking and invoking revokers for when an object graph must die.
  * @internal
+ * @deprecated
  */
 export default class RevokerManagement {
   // this is the memory leak
