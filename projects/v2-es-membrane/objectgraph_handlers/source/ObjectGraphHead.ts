@@ -16,7 +16,7 @@ import type {
   ObjectGraphValueCallbacksIfc,
 } from "./types/ObjectGraphHeadIfc.js";
 
-import RevokerManagement from "./RevokerManagement.js";
+import { KeyedRevokerSets } from "./KeyedRevokerSets.js";
 
 export default
 class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
@@ -61,7 +61,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
   #proxiesOneToOneMap?: OneToOneStrongMap<string | symbol, object>;
   #shadowTargetToRealTargetMap? = new WeakMap<object, object>;
   #realTargetToOriginGraph? = new WeakMap<object, string | symbol>;
-  #revokerManagement?: RevokerManagement;
+  #keyedRevokerSets? = new KeyedRevokerSets;
   #weakProxySet? = new WeakSet<object>;
 
   /**
@@ -81,7 +81,6 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     this.#proxiesOneToOneMap = proxiesOneToOneMap;
 
     this.objectGraphKey = objectGraphKey;
-    this.#revokerManagement = new RevokerManagement(objectGraphKey);
 
     graphHandlerIfc.setThisGraphValues(this);
 
@@ -221,7 +220,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
       revoke
     } = Proxy.revocable<object>(shadowTarget, this.#convertingHeadProxyHandler!);
 
-    this.#revokerManagement!.addRevoker(proxy, revoke, sourceGraphKey);
+    this.#keyedRevokerSets!.addRevoker(proxy, revoke, [this.objectGraphKey, sourceGraphKey]);
 
     this.#shadowTargetToRealTargetMap!.set(shadowTarget, objectInSourceGraph);
     this.#realTargetToOriginGraph!.set(objectInSourceGraph, sourceGraphKey);
@@ -247,7 +246,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     if (this.#revoked)
       throw new Error("This object graph has been revoked");
 
-    this.#revokerManagement!.revokeSet(graphKey);
+    this.#keyedRevokerSets!.revokeSet(graphKey);
 
     if (graphKey === this.objectGraphKey) {
       this.#revoked = true;
@@ -255,7 +254,8 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
       this.#shadowTargetToRealTargetMap = undefined;
       this.#realTargetToOriginGraph = undefined;
       this.#proxiesOneToOneMap = undefined;
-      this.#revokerManagement = undefined;
+      this.#keyedRevokerSets!.revokeAll();
+      this.#keyedRevokerSets = undefined;
       this.#convertingHeadProxyHandler = undefined;
       this.#weakProxySet = undefined;
     }
