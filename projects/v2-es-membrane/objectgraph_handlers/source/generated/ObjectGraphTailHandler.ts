@@ -30,13 +30,13 @@ export default class ObjectGraphTailHandler
    */
   public apply(
     shadowTarget: object,
-    thisArg: any,
-    argArray: any[],
+    thisArg: unknown,
+    argArray: unknown[],
     nextGraphKey: string | symbol,
     nextTarget: object,
-    nextThisArg: any,
-    nextArgArray: any[],
-  ): any {
+    nextThisArg: unknown,
+    nextArgArray: unknown[],
+  ): unknown {
     void shadowTarget;
     void thisArg;
     void argArray;
@@ -55,11 +55,11 @@ export default class ObjectGraphTailHandler
    */
   public construct(
     shadowTarget: object,
-    argArray: any[],
+    argArray: unknown[],
     newTarget: Function,
     nextGraphKey: string | symbol,
     nextTarget: object,
-    nextArgArray: any[],
+    nextArgArray: unknown[],
     nextNewTarget: Function,
   ): object {
     void shadowTarget;
@@ -122,12 +122,12 @@ export default class ObjectGraphTailHandler
   public get(
     shadowTarget: object,
     p: string | symbol,
-    receiver: any,
+    receiver: unknown,
     nextGraphKey: string | symbol,
     nextTarget: object,
     nextP: string | symbol,
-    nextReceiver: any,
-  ): any {
+    nextReceiver: unknown,
+  ): unknown {
     void shadowTarget;
     void p;
     void receiver;
@@ -237,13 +237,13 @@ export default class ObjectGraphTailHandler
   public set(
     shadowTarget: object,
     p: string | symbol,
-    newValue: any,
-    receiver: any,
+    newValue: unknown,
+    receiver: unknown,
     nextGraphKey: string | symbol,
     nextTarget: object,
     nextP: string | symbol,
-    nextNewValue: any,
-    nextReceiver: any,
+    nextNewValue: unknown,
+    nextReceiver: unknown,
   ): boolean {
     void shadowTarget;
     void p;

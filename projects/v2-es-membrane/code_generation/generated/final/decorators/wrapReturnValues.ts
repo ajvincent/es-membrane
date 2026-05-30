@@ -12,14 +12,14 @@ export default function WrapReturnValues(
      */
     public apply(
       shadowTarget: object,
-      thisArg: any,
-      argArray: any[],
+      thisArg: unknown,
+      argArray: unknown[],
       nextGraphKey: string | symbol,
       nextTarget: object,
-      nextThisArg: any,
-      nextArgArray: any[],
-    ): any {
-      const result: any = super.apply(
+      nextThisArg: unknown,
+      nextArgArray: unknown[],
+    ): unknown {
+      const result: unknown = super.apply(
         shadowTarget,
         thisArg,
         argArray,
@@ -31,7 +31,7 @@ export default function WrapReturnValues(
       return this.thisGraphValues!.getValueInGraph(
         result,
         this.thisGraphKey,
-      ) as any;
+      ) as unknown;
     }
 
     /**
@@ -41,11 +41,11 @@ export default function WrapReturnValues(
      */
     public construct(
       shadowTarget: object,
-      argArray: any[],
+      argArray: unknown[],
       newTarget: Function,
       nextGraphKey: string | symbol,
       nextTarget: object,
-      nextArgArray: any[],
+      nextArgArray: unknown[],
       nextNewTarget: Function,
     ): object {
       const result: object = super.construct(
@@ -127,13 +127,13 @@ export default function WrapReturnValues(
     public get(
       shadowTarget: object,
       p: string | symbol,
-      receiver: any,
+      receiver: unknown,
       nextGraphKey: string | symbol,
       nextTarget: object,
       nextP: string | symbol,
-      nextReceiver: any,
-    ): any {
-      const result: any = super.get(
+      nextReceiver: unknown,
+    ): unknown {
+      const result: unknown = super.get(
         shadowTarget,
         p,
         receiver,
@@ -145,7 +145,7 @@ export default function WrapReturnValues(
       return this.thisGraphValues!.getValueInGraph(
         result,
         this.thisGraphKey,
-      ) as any;
+      ) as unknown;
     }
 
     /**
@@ -289,13 +289,13 @@ export default function WrapReturnValues(
     public set(
       shadowTarget: object,
       p: string | symbol,
-      newValue: any,
-      receiver: any,
+      newValue: unknown,
+      receiver: unknown,
       nextGraphKey: string | symbol,
       nextTarget: object,
       nextP: string | symbol,
-      nextNewValue: any,
-      nextReceiver: any,
+      nextNewValue: unknown,
+      nextReceiver: unknown,
     ): boolean {
       const result: boolean = super.set(
         shadowTarget,

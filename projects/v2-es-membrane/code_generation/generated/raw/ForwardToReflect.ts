@@ -5,7 +5,7 @@ export default class ForwardToReflect implements Required<ProxyHandler<object>> 
      * A trap method for a function call.
      * @param target The original callable object which is being proxied.
      */
-    public apply(target: object, thisArg: any, argArray: any[]): any {
+    public apply(target: object, thisArg: unknown, argArray: unknown[]): unknown {
         return Reflect.apply(target as CallableFunction, thisArg, argArray);
     }
 
@@ -14,7 +14,7 @@ export default class ForwardToReflect implements Required<ProxyHandler<object>> 
      * @param target The original object which is being proxied.
      * @param newTarget The constructor that was originally called.
      */
-    public construct(target: object, argArray: any[], newTarget: Function): object {
+    public construct(target: object, argArray: unknown[], newTarget: Function): object {
         return Reflect.construct(target as NewableFunction, argArray, newTarget);
     }
 
@@ -43,7 +43,7 @@ export default class ForwardToReflect implements Required<ProxyHandler<object>> 
      * @param p The name or `Symbol` of the property to get.
      * @param receiver The proxy or an object that inherits from the proxy.
      */
-    public get(target: object, p: string | symbol, receiver: any): any {
+    public get(target: object, p: string | symbol, receiver: unknown): unknown {
         return Reflect.get(target, p, receiver);
     }
 
@@ -104,7 +104,7 @@ export default class ForwardToReflect implements Required<ProxyHandler<object>> 
      * @param receiver The object to which the assignment was originally directed.
      * @returns A `Boolean` indicating whether or not the property was set.
      */
-    public set(target: object, p: string | symbol, newValue: any, receiver: any): boolean {
+    public set(target: object, p: string | symbol, newValue: unknown, receiver: unknown): boolean {
         return Reflect.set(target, p, newValue, receiver);
     }
 

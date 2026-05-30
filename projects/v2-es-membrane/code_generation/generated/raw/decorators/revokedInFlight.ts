@@ -8,7 +8,7 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
          * A trap method for a function call.
          * @param target The original callable object which is being proxied.
          */
-        public apply(shadowTarget: object, thisArg: any, argArray: any[], nextGraphKey: string | symbol, nextTarget: object, nextThisArg: any, nextArgArray: any[]): any {
+        public apply(shadowTarget: object, thisArg: unknown, argArray: unknown[], nextGraphKey: string | symbol, nextTarget: object, nextThisArg: unknown, nextArgArray: unknown[]): unknown {
             try {
                 return super.apply(shadowTarget, thisArg, argArray, nextGraphKey, nextTarget, nextThisArg, nextArgArray);
             }
@@ -23,7 +23,7 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
          * @param target The original object which is being proxied.
          * @param newTarget The constructor that was originally called.
          */
-        public construct(shadowTarget: object, argArray: any[], newTarget: Function, nextGraphKey: string | symbol, nextTarget: object, nextArgArray: any[], nextNewTarget: Function): object {
+        public construct(shadowTarget: object, argArray: unknown[], newTarget: Function, nextGraphKey: string | symbol, nextTarget: object, nextArgArray: unknown[], nextNewTarget: Function): object {
             try {
                 return super.construct(shadowTarget, argArray, newTarget, nextGraphKey, nextTarget, nextArgArray, nextNewTarget);
             }
@@ -70,7 +70,7 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
          * @param p The name or `Symbol` of the property to get.
          * @param receiver The proxy or an object that inherits from the proxy.
          */
-        public get(shadowTarget: object, p: string | symbol, receiver: any, nextGraphKey: string | symbol, nextTarget: object, nextP: string | symbol, nextReceiver: any): any {
+        public get(shadowTarget: object, p: string | symbol, receiver: unknown, nextGraphKey: string | symbol, nextTarget: object, nextP: string | symbol, nextReceiver: unknown): unknown {
             try {
                 return super.get(shadowTarget, p, receiver, nextGraphKey, nextTarget, nextP, nextReceiver);
             }
@@ -173,7 +173,7 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
          * @param receiver The object to which the assignment was originally directed.
          * @returns A `Boolean` indicating whether or not the property was set.
          */
-        public set(shadowTarget: object, p: string | symbol, newValue: any, receiver: any, nextGraphKey: string | symbol, nextTarget: object, nextP: string | symbol, nextNewValue: any, nextReceiver: any): boolean {
+        public set(shadowTarget: object, p: string | symbol, newValue: unknown, receiver: unknown, nextGraphKey: string | symbol, nextTarget: object, nextP: string | symbol, nextNewValue: unknown, nextReceiver: unknown): boolean {
             try {
                 return super.set(shadowTarget, p, newValue, receiver, nextGraphKey, nextTarget, nextP, nextNewValue, nextReceiver);
             }

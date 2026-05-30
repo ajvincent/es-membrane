@@ -21,12 +21,12 @@ export default function InheritedPropertyTraps(
     public get(
       shadowTarget: object,
       p: string | symbol,
-      receiver: any,
+      receiver: unknown,
       nextGraphKey: string | symbol,
       nextTarget: object,
       nextP: string | symbol,
-      nextReceiver: any,
-    ): any
+      nextReceiver: unknown,
+    ): unknown
     {
       let shadowDesc: PropertyDescriptor | undefined = this.#getMatchingDescriptorDeep(
         shadowTarget, p, nextGraphKey, nextTarget, nextP
@@ -73,13 +73,13 @@ export default function InheritedPropertyTraps(
     public set(
       shadowTarget: object,
       p: string | symbol,
-      newValue: any,
-      receiver: any,
+      newValue: unknown,
+      receiver: object,
       nextGraphKey: string | symbol,
       nextTarget: object,
       nextP: string | symbol,
-      nextNewValue: any,
-      nextReceiver: any,
+      nextNewValue: unknown,
+      nextReceiver: object,
     ): boolean
     {
       let ownDesc: PropertyDescriptor | undefined = this.#getMatchingDescriptorDeep(

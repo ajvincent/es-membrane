@@ -31,10 +31,10 @@ export default class ConvertingHeadProxyHandler implements RequiredProxyHandler 
      * A trap method for a function call.
      * @param target The original callable object which is being proxied.
      */
-    public apply(shadowTarget: object, thisArg: any, argArray: any[]): any {
+    public apply(shadowTarget: object, thisArg: unknown, argArray: unknown[]): unknown {
         const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-        const [nextThisArg] = this.#membraneIfc.convertArray<[any]>(this.#thisGraphKey, graphKey, [thisArg]);
-        const nextArgArray: any[] = this.#membraneIfc.convertArray<any[]>(this.#thisGraphKey, graphKey, argArray);
+        const [nextThisArg] = this.#membraneIfc.convertArray<[unknown]>(this.#thisGraphKey, graphKey, [thisArg]);
+        const nextArgArray: unknown[] = this.#membraneIfc.convertArray<unknown[]>(this.#thisGraphKey, graphKey, argArray);
         return this.#graphHandlerIfc.apply(shadowTarget, thisArg, argArray, graphKey, realTarget, nextThisArg, nextArgArray);
     }
 
@@ -43,10 +43,10 @@ export default class ConvertingHeadProxyHandler implements RequiredProxyHandler 
      * @param target The original object which is being proxied.
      * @param newTarget The constructor that was originally called.
      */
-    public construct(shadowTarget: object, argArray: any[], newTarget: Function): object {
+    public construct(shadowTarget: object, argArray: unknown[], newTarget: Function): object {
         const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
         const [nextNewTarget] = this.#membraneIfc.convertArray<[Function]>(this.#thisGraphKey, graphKey, [newTarget]);
-        const nextArgArray: any[] = this.#membraneIfc.convertArray<any[]>(this.#thisGraphKey, graphKey, argArray);
+        const nextArgArray: unknown[] = this.#membraneIfc.convertArray<unknown[]>(this.#thisGraphKey, graphKey, argArray);
         return this.#graphHandlerIfc.construct(shadowTarget, argArray, newTarget, graphKey, realTarget, nextArgArray, nextNewTarget);
     }
 
@@ -80,9 +80,9 @@ export default class ConvertingHeadProxyHandler implements RequiredProxyHandler 
      * @param p The name or `Symbol` of the property to get.
      * @param receiver The proxy or an object that inherits from the proxy.
      */
-    public get(shadowTarget: object, p: string | symbol, receiver: any): any {
+    public get(shadowTarget: object, p: string | symbol, receiver: unknown): unknown {
         const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-        const [nextP, nextReceiver] = this.#membraneIfc.convertArray<[string | symbol, any]>(this.#thisGraphKey, graphKey, [p, receiver]);
+        const [nextP, nextReceiver] = this.#membraneIfc.convertArray<[string | symbol, unknown]>(this.#thisGraphKey, graphKey, [p, receiver]);
         return this.#graphHandlerIfc.get(shadowTarget, p, receiver, graphKey, realTarget, nextP, nextReceiver);
     }
 
@@ -151,9 +151,9 @@ export default class ConvertingHeadProxyHandler implements RequiredProxyHandler 
      * @param receiver The object to which the assignment was originally directed.
      * @returns A `Boolean` indicating whether or not the property was set.
      */
-    public set(shadowTarget: object, p: string | symbol, newValue: any, receiver: any): boolean {
+    public set(shadowTarget: object, p: string | symbol, newValue: unknown, receiver: unknown): boolean {
         const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-        const [nextP, nextNewValue, nextReceiver] = this.#membraneIfc.convertArray<[string | symbol, any, any]>(this.#thisGraphKey, graphKey, [p, newValue, receiver]);
+        const [nextP, nextNewValue, nextReceiver] = this.#membraneIfc.convertArray<[string | symbol, unknown, unknown]>(this.#thisGraphKey, graphKey, [p, newValue, receiver]);
         return this.#graphHandlerIfc.set(shadowTarget, p, newValue, receiver, graphKey, realTarget, nextP, nextNewValue, nextReceiver);
     }
 

@@ -22,7 +22,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc, Ob
      * A trap method for a function call.
      * @param target The original callable object which is being proxied.
      */
-    public apply(shadowTarget: object, thisArg: any, argArray: any[], nextGraphKey: string | symbol, nextTarget: object, nextThisArg: any, nextArgArray: any[]): any {
+    public apply(shadowTarget: object, thisArg: unknown, argArray: unknown[], nextGraphKey: string | symbol, nextTarget: object, nextThisArg: unknown, nextArgArray: unknown[]): unknown {
         void(shadowTarget);
         void(thisArg);
         void(argArray);
@@ -35,7 +35,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc, Ob
      * @param target The original object which is being proxied.
      * @param newTarget The constructor that was originally called.
      */
-    public construct(shadowTarget: object, argArray: any[], newTarget: Function, nextGraphKey: string | symbol, nextTarget: object, nextArgArray: any[], nextNewTarget: Function): object {
+    public construct(shadowTarget: object, argArray: unknown[], newTarget: Function, nextGraphKey: string | symbol, nextTarget: object, nextArgArray: unknown[], nextNewTarget: Function): object {
         void(shadowTarget);
         void(argArray);
         void(newTarget);
@@ -75,7 +75,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc, Ob
      * @param p The name or `Symbol` of the property to get.
      * @param receiver The proxy or an object that inherits from the proxy.
      */
-    public get(shadowTarget: object, p: string | symbol, receiver: any, nextGraphKey: string | symbol, nextTarget: object, nextP: string | symbol, nextReceiver: any): any {
+    public get(shadowTarget: object, p: string | symbol, receiver: unknown, nextGraphKey: string | symbol, nextTarget: object, nextP: string | symbol, nextReceiver: unknown): unknown {
         void(shadowTarget);
         void(p);
         void(receiver);
@@ -154,7 +154,7 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc, Ob
      * @param receiver The object to which the assignment was originally directed.
      * @returns A `Boolean` indicating whether or not the property was set.
      */
-    public set(shadowTarget: object, p: string | symbol, newValue: any, receiver: any, nextGraphKey: string | symbol, nextTarget: object, nextP: string | symbol, nextNewValue: any, nextReceiver: any): boolean {
+    public set(shadowTarget: object, p: string | symbol, newValue: unknown, receiver: unknown, nextGraphKey: string | symbol, nextTarget: object, nextP: string | symbol, nextNewValue: unknown, nextReceiver: unknown): boolean {
         void(shadowTarget);
         void(p);
         void(newValue);

@@ -13,13 +13,13 @@ export default function RevokedInFlight(
      */
     public apply(
       shadowTarget: object,
-      thisArg: any,
-      argArray: any[],
+      thisArg: unknown,
+      argArray: unknown[],
       nextGraphKey: string | symbol,
       nextTarget: object,
-      nextThisArg: any,
-      nextArgArray: any[],
-    ): any {
+      nextThisArg: unknown,
+      nextArgArray: unknown[],
+    ): unknown {
       try {
         return super.apply(
           shadowTarget,
@@ -43,11 +43,11 @@ export default function RevokedInFlight(
      */
     public construct(
       shadowTarget: object,
-      argArray: any[],
+      argArray: unknown[],
       newTarget: Function,
       nextGraphKey: string | symbol,
       nextTarget: object,
-      nextArgArray: any[],
+      nextArgArray: unknown[],
       nextNewTarget: Function,
     ): object {
       try {
@@ -136,12 +136,12 @@ export default function RevokedInFlight(
     public get(
       shadowTarget: object,
       p: string | symbol,
-      receiver: any,
+      receiver: unknown,
       nextGraphKey: string | symbol,
       nextTarget: object,
       nextP: string | symbol,
-      nextReceiver: any,
-    ): any {
+      nextReceiver: unknown,
+    ): unknown {
       try {
         return super.get(
           shadowTarget,
@@ -282,13 +282,13 @@ export default function RevokedInFlight(
     public set(
       shadowTarget: object,
       p: string | symbol,
-      newValue: any,
-      receiver: any,
+      newValue: unknown,
+      receiver: unknown,
       nextGraphKey: string | symbol,
       nextTarget: object,
       nextP: string | symbol,
-      nextNewValue: any,
-      nextReceiver: any,
+      nextNewValue: unknown,
+      nextReceiver: unknown,
     ): boolean {
       try {
         return super.set(
