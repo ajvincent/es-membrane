@@ -29,7 +29,7 @@ export default class WeakStrongMap<
     strongKey: StrongKeyType
   ): boolean
   {
-    let innerMap = this.#root.get(weakKey);
+    const innerMap = this.#root.get(weakKey);
     if (!innerMap)
       return false;
 

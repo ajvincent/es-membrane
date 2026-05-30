@@ -109,8 +109,8 @@ export async function getModulePart<Key extends string, T>(
   }
   const module = (
     await import(fullPath)
-  ) as { [key in Key]: T }
-  return module[property] as T;
+  ) as { [key in Key]: T };
+  return module[property];
 }
 
 /**

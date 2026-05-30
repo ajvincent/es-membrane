@@ -44,7 +44,7 @@ export default class ReplaceableValueMap<
     return {
       source: newSource,
       userContext
-    }
+    };
   }
 
   public get(

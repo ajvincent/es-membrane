@@ -50,5 +50,5 @@ export default class PropertyKeySorter
           sB = this.#symbolMap.getOrInsertComputed(b as symbol, this.#currentSize);
 
     return sA - sB;
-  }
+  };
 }

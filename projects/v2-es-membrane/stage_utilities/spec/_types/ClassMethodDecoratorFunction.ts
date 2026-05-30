@@ -31,7 +31,7 @@ describe("ClassMethodDecoratorFunction is compatible with ECMAScript decorators"
         void(method);
         void(context);
         withArgsCalled = higherScopeBoolean;
-      }
+      };
     }
     back satisfies ClassMethodDecoratorFunction<NumberStringType, "repeatBack", false, [boolean]>;
 
@@ -64,7 +64,7 @@ describe("ClassMethodDecoratorFunction is compatible with ECMAScript decorators"
       void(context);
       return function(s: string, n: number): string {
         return method(s, n + 1);
-      }
+      };
     }
     forward satisfies ClassMethodDecoratorFunction<NumberStringType, "repeatForward", true, false>;
 
@@ -76,8 +76,8 @@ describe("ClassMethodDecoratorFunction is compatible with ECMAScript decorators"
         void(context);
         return function(n: number, s: string): string {
           return method(n + offset, s);
-        }
-      }
+        };
+      };
     }
     back satisfies ClassMethodDecoratorFunction<NumberStringType, "repeatBack", true, [number]>;
 

@@ -1,7 +1,8 @@
 import WeakStrongMap from "#stage_utilities/source/collections/WeakStrongMap.js";
 
 describe("CodeGenerator(WeakStrongMap.js),", () => {
-  let testMap: WeakStrongMap<object, unknown, unknown>, refMap = new Map;
+  let testMap: WeakStrongMap<object, unknown, unknown>;
+  const refMap = new Map;
 
   const defaultValue1 = Symbol("default value one");
   const defaultGetter1 = () => defaultValue1;
@@ -19,6 +20,7 @@ describe("CodeGenerator(WeakStrongMap.js),", () => {
   });
 
   it("instances stringify to a string with the className", () => {
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     expect(testMap.toString().includes("WeakStrongMap")).toBe(true);
   });
 
