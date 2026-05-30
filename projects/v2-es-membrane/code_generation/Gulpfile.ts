@@ -19,7 +19,6 @@ import {
   generatedDirs,
 } from "./source/constants.js";
 
-import forwardToReflect from "./source/forwardToReflect.js";
 import createObjectGraphHandlerIfc from "./source/ObjectGraphHandlerIfc.js";
 import createObjectGraphTailHandler from "./source/ObjectGraphTailHandler.js";
 import createConvertingHeadProxyHandler from "./source/ConvertingHead.js";
@@ -78,10 +77,7 @@ async function eslint(): Promise<void> {
 export default series([
   removeGeneratedFiles,
   createGeneratedDirs,
-  parallel([
-    forwardToReflect,
-    defineObjectGraphHandlerIfc,
-  ]),
+  defineObjectGraphHandlerIfc,
   defineObjectGraphTailHandler,
   parallel([
     createConvertingHeadProxyHandler,
