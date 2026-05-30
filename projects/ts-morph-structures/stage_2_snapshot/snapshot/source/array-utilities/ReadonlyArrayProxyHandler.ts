@@ -98,7 +98,7 @@ export default class ReadonlyArrayProxyHandler<ElementType> implements Required<
   getOwnPropertyDescriptor(
     target: ElementType[],
     p: string | symbol,
-  ): PropertyDescriptor | undefined {
+  ): TypedPropertyDescriptor<unknown> | undefined {
     if (ReadonlyArrayProxyHandler.#isSafeMember(p))
       return Reflect.getOwnPropertyDescriptor(target, p);
     if (!Reflect.has(Array.prototype, p)) return undefined;

@@ -95,7 +95,7 @@ implements Required<ProxyHandler<ElementType[]>>
       return undefined;
     throw new Error(this.#errorMessage);
   }
-  getOwnPropertyDescriptor(target: ElementType[], p: string | symbol): PropertyDescriptor | undefined {
+  getOwnPropertyDescriptor(target: ElementType[], p: string | symbol): TypedPropertyDescriptor<unknown> | undefined {
     if (ReadonlyArrayProxyHandler.#isSafeMember(p))
       return Reflect.getOwnPropertyDescriptor(target, p);
     if (!Reflect.has(Array.prototype, p))
