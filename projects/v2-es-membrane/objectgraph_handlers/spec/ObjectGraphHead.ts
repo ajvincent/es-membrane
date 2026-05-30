@@ -5,7 +5,9 @@ import type {
   ObjectGraphHandlerIfc
 } from "#objectgraph_handlers/source/generated/types/ObjectGraphHandlerIfc.js";
 
-import OneToOneStrongMap from "#stage_utilities/source/collections/OneToOneStrongMap.js";
+import {
+  OneToOneStrongMap
+} from "#stage_utilities/source/collections/OneToOneStrongMap.js";
 
 import {
   AccessorDescriptor,

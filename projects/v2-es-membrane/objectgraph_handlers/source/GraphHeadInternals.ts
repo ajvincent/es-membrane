@@ -1,6 +1,13 @@
 import ConvertingHeadProxyHandler from "./generated/ConvertingHeadProxyHandler.js";
-import OneToOneStrongMap from "../../stage_utilities/source/collections/OneToOneStrongMap.js";
-import { KeyedRevokerSets } from "./KeyedRevokerSets.js";
+
+import type {
+  OneToOneStrongMap
+} from "../../stage_utilities/source/collections/OneToOneStrongMap.js";
+
+import {
+  KeyedRevokerSets
+} from "./KeyedRevokerSets.js";
+
 import MembraneInternalError from "./exceptions/MembraneInternalError.js";
 
 export interface GraphHeadInternalsIfc {

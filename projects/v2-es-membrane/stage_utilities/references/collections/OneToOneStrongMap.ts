@@ -1,5 +1,7 @@
 import "es-search-references/guest";
-import OneToOneStrongMap from "../../source/collections/OneToOneStrongMap.js";
+import {
+  OneToOneStrongMap
+} from "../../source/collections/OneToOneStrongMap.js";
 
 const testMap: OneToOneStrongMap<symbol, object> = new OneToOneStrongMap();
 

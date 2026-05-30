@@ -9,7 +9,9 @@ import type {
 import ObjectGraphHead from "#objectgraph_handlers/source/ObjectGraphHead.js";
 
 import MirrorObjectGraphHandler from "./MirrorObjectGraphHandler.js";
-import OneToOneStrongMap from "#stage_utilities/source/collections/OneToOneStrongMap.js";
+import {
+  OneToOneStrongMap
+} from "#stage_utilities/source/collections/OneToOneStrongMap.js";
 
 import type {
   MirrorMembraneIfc

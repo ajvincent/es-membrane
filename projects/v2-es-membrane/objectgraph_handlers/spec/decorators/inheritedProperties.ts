@@ -1,4 +1,6 @@
-import OneToOneStrongMap from "#stage_utilities/source/collections/OneToOneStrongMap.js";
+import {
+  OneToOneStrongMap
+} from "#stage_utilities/source/collections/OneToOneStrongMap.js";
 
 import InheritedPropertyTraps from "#objectgraph_handlers/source/decorators/inheritedProperties.js";
 

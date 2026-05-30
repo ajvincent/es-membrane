@@ -8,7 +8,7 @@ class InternalKey {
 Object.freeze(InternalKey);
 Object.freeze(InternalKey.prototype);
 
-export default class OneToOneStrongMap<
+export class OneToOneStrongMap<
   StrongKeyType,
   ValueType extends object
 >

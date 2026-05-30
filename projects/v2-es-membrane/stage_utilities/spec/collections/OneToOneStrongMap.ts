@@ -1,4 +1,6 @@
-import OneToOneStrongMap from "#stage_utilities/source/collections/OneToOneStrongMap.js";
+import {
+  OneToOneStrongMap
+} from "#stage_utilities/source/collections/OneToOneStrongMap.js";
 
 describe("OneToOneStrongMap", () => {
   let map: OneToOneStrongMap<unknown, object>;
