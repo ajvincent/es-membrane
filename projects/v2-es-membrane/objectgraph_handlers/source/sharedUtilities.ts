@@ -9,6 +9,8 @@ export function NOT_IMPLEMENTED(): never {
   throw new Error("Not implemented!");
 }
 
+export type PrimitiveType = boolean | bigint | number | null | string | symbol | undefined;
+
 export function valueType(
   value: unknown
 ): "object" | "function" | "primitive"
@@ -16,7 +18,7 @@ export function valueType(
   if (value === null)
     return "primitive";
   const type = typeof value;
-  if ((type != "function") && (type != "object"))
+  if ((type !== "function") && (type !== "object"))
     return "primitive";
   return type;
 }
@@ -52,14 +54,14 @@ export class AccessorDescriptor<T>
   implements Required<Pick<PropertyDescriptor, "configurable" | "enumerable">>,
   Pick<PropertyDescriptor,  "get" | "set">
 {
-  get?: (() => T);
-  set?: (v: T) => void;
+  get?: ((this: void) => T);
+  set?: (this: void, v: T) => void;
   enumerable: boolean;
   configurable: boolean;
 
   constructor(
-    get: (() => T) | undefined,
-    set: ((value: T) => void) | undefined,
+    get: ((this: void) => T) | undefined,
+    set: ((this: void, value: T) => void) | undefined,
     enumerable: boolean,
     configurable: boolean
   )
@@ -108,7 +110,7 @@ export function isGenericDescriptor(desc: object): desc is PropertyDescriptor {
   return !isAccessorDescriptor(desc) && !isDataDescriptor(desc);
 }
 
-export const allTraps = Object.freeze([
+export const allTraps: readonly (keyof ProxyHandler<object>)[] = Object.freeze([
   "apply",
   "construct",
   "defineProperty",

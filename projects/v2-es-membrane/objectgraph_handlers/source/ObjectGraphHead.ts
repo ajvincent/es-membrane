@@ -6,6 +6,12 @@ import type {
 
 import OneToOneStrongMap from "../../stage_utilities/source/collections/OneToOneStrongMap.js";
 
+import {
+  type GraphHeadInternalsIfc,
+  LiveGraphHeadInternals,
+  RevokedGraphHeadInternals,
+} from "./GraphHeadInternals.js";
+
 import type {
   MembraneInternalIfc
 } from "./types/MembraneInternalIfc.js";
@@ -16,7 +22,11 @@ import type {
   ObjectGraphValueCallbacksIfc,
 } from "./types/ObjectGraphHeadIfc.js";
 
-import { KeyedRevokerSets } from "./KeyedRevokerSets.js";
+
+import {
+  type PrimitiveType,
+  valueType
+} from "./sharedUtilities.js";
 
 export default
 class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
@@ -53,16 +63,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
 
   // ObjectGraphHeadIfc
   readonly objectGraphKey: string | symbol;
-
-  #revoked = false;
-
-  // these are writable to allow for clearing the references upon revocation.
-  #convertingHeadProxyHandler?: ConvertingHeadProxyHandler;
-  #proxiesOneToOneMap?: OneToOneStrongMap<string | symbol, object>;
-  #shadowTargetToRealTargetMap? = new WeakMap<object, object>;
-  #realTargetToOriginGraph? = new WeakMap<object, string | symbol>;
-  #keyedRevokerSets? = new KeyedRevokerSets;
-  #weakProxySet? = new WeakSet<object>;
+  #graphHeadInternals: GraphHeadInternalsIfc;
 
   /**
    * The bridge between an object graph proxy handler and the membrane.
@@ -78,20 +79,21 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     objectGraphKey: string | symbol
   )
   {
-    this.#proxiesOneToOneMap = proxiesOneToOneMap;
-
     this.objectGraphKey = objectGraphKey;
-
     graphHandlerIfc.setThisGraphValues(this);
 
-    this.#convertingHeadProxyHandler = new ConvertingHeadProxyHandler(
+    const convertingHeadProxyHandler = new ConvertingHeadProxyHandler(
       membraneIfc, graphHandlerIfc, this
+    );
+    this.#graphHeadInternals = new LiveGraphHeadInternals(
+      convertingHeadProxyHandler,
+      proxiesOneToOneMap
     );
   }
 
   // ObjectGraphHeadIfc
   public get isRevoked(): boolean {
-    return this.#revoked;
+    return this.#graphHeadInternals.revoked;
   }
 
   // ObjectGraphValuesIfc
@@ -137,26 +139,15 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     sourceGraphKey: string | symbol
   ): T
   {
-    if (this.#revoked)
+    if (this.#graphHeadInternals.revoked)
       throw new Error("This object graph has been revoked");
 
-    switch (typeof valueInSourceGraph) {
-      case "boolean":
-      case "bigint":
-      case "number":
-      case "string":
-      case "symbol":
-      case "undefined":
-        return this.getPrimitiveInGraph(valueInSourceGraph);
-
-      case "object":
-        if (valueInSourceGraph === null)
-          return this.getPrimitiveInGraph(valueInSourceGraph);
-    }
+    if (valueType(valueInSourceGraph) === "primitive")
+      return this.getPrimitiveInGraph(valueInSourceGraph as PrimitiveType) as T;
 
     // sourceValue is an object
     const objectInSourceGraph = valueInSourceGraph as object;
-    let value: object | undefined = this.#proxiesOneToOneMap!.get(objectInSourceGraph, this.objectGraphKey);
+    let value: object | undefined = this.#graphHeadInternals.proxiesOneToOneMap.get(objectInSourceGraph, this.objectGraphKey);
     if (value === undefined) {
       if (sourceGraphKey === this.objectGraphKey)
         value = objectInSourceGraph;
@@ -164,7 +155,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
         value = this.getIntrinsicInGraph(objectInSourceGraph, sourceGraphKey) ??
           this.#createNewProxy(objectInSourceGraph, sourceGraphKey);
 
-        this.#proxiesOneToOneMap!.bindOneToOne(
+        this.#graphHeadInternals.proxiesOneToOneMap.bindOneToOne(
           this.objectGraphKey, value, sourceGraphKey, objectInSourceGraph
         );
       }
@@ -182,7 +173,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
    * This part I haven't explored yet, but SES-shim might be a good place to look.
    */
   protected getPrimitiveInGraph<
-    T extends boolean | bigint | number | null | string | symbol | undefined
+    T extends PrimitiveType
   >(valueInSourceGraph: T): T
   {
     //TODO: wrap in a compartment?  If so, consider updating #makeShadowTarget to be non-static
@@ -218,24 +209,22 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     const {
       proxy,
       revoke
-    } = Proxy.revocable<object>(shadowTarget, this.#convertingHeadProxyHandler!);
+    } = Proxy.revocable<object>(shadowTarget, this.#graphHeadInternals.convertingHeadProxyHandler);
 
-    this.#keyedRevokerSets!.addRevoker(proxy, revoke, [this.objectGraphKey, sourceGraphKey]);
-
-    this.#shadowTargetToRealTargetMap!.set(shadowTarget, objectInSourceGraph);
-    this.#realTargetToOriginGraph!.set(objectInSourceGraph, sourceGraphKey);
-
-    this.#weakProxySet!.add(proxy);
+    this.#graphHeadInternals.keyedRevokerSets.addRevoker(proxy, revoke, [this.objectGraphKey, sourceGraphKey]);
+    this.#graphHeadInternals.shadowTargetToRealTargetMap.set(shadowTarget, objectInSourceGraph);
+    this.#graphHeadInternals.realTargetToOriginGraph.set(objectInSourceGraph, sourceGraphKey);
+    this.#graphHeadInternals.weakProxySet.add(proxy);
 
     return proxy;
   }
 
   // ObjectGraphValuesIfc
-  isKnownProxy(
+  public isKnownProxy(
     value: object
   ): boolean
   {
-    return this.#weakProxySet!.has(value);
+    return this.#graphHeadInternals.weakProxySet!.has(value);
   }
 
   // ObjectGraphHeadIfc
@@ -243,21 +232,13 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     graphKey: string | symbol
   ): void
   {
-    if (this.#revoked)
+    if (this.#graphHeadInternals.revoked)
       throw new Error("This object graph has been revoked");
 
-    this.#keyedRevokerSets!.revokeSet(graphKey);
+    this.#graphHeadInternals.keyedRevokerSets.revokeSet(graphKey);
 
     if (graphKey === this.objectGraphKey) {
-      this.#revoked = true;
-
-      this.#shadowTargetToRealTargetMap = undefined;
-      this.#realTargetToOriginGraph = undefined;
-      this.#proxiesOneToOneMap = undefined;
-      this.#keyedRevokerSets!.revokeAll();
-      this.#keyedRevokerSets = undefined;
-      this.#convertingHeadProxyHandler = undefined;
-      this.#weakProxySet = undefined;
+      this.#graphHeadInternals = new RevokedGraphHeadInternals();
     }
   }
 
@@ -266,9 +247,9 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     shadowTarget: object
   ): object
   {
-    if (this.#revoked)
+    if (this.#graphHeadInternals.revoked)
       throw new Error("This object graph has been revoked");
-    return this.#shadowTargetToRealTargetMap!.get(shadowTarget)!;
+    return this.#graphHeadInternals.shadowTargetToRealTargetMap.get(shadowTarget)!;
   }
 
   // ObjectGraphConversionIfc
@@ -276,8 +257,8 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     realTarget: object
   ): string | symbol
   {
-    if (this.#revoked)
+    if (this.#graphHeadInternals.revoked)
       throw new Error("This object graph has been revoked");
-    return this.#realTargetToOriginGraph!.get(realTarget)!;
+    return this.#graphHeadInternals.realTargetToOriginGraph.get(realTarget)!;
   }
 }
