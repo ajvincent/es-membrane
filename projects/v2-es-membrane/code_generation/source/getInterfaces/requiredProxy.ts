@@ -25,7 +25,7 @@ const requiredHandlerInterface = InterfaceDeclarationImpl.clone(
 );
 for (const method of requiredHandlerInterface.methods) {
   method.hasQuestionToken = false;
-  const targetParam = method.parameters[0]!;
+  const targetParam = method.parameters[0];
   targetParam.typeStructure = LiteralTypeStructureImpl.get("object");
 
   if (method.name === "ownKeys") {
@@ -36,7 +36,6 @@ for (const method of requiredHandlerInterface.methods) {
     );
   }
 
-  debugger;
   replaceAnyWithUnknown(method);
 }
 

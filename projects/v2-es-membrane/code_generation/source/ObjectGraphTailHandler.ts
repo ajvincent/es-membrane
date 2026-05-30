@@ -115,7 +115,6 @@ function buildProxyHandlerTrap(
 {
   assert.equal(key.groupType?.kind, StructureKind.MethodSignature, "expected a method");
 
-  let statements: stringWriterOrStatementImpl[] = [];
   let foundNextTarget = false;
 
   const acceptedParameterNames: string[] = [];
@@ -143,8 +142,6 @@ function buildProxyHandlerTrap(
     ...voidParameterNames.map(paramName => `void(${paramName});`),
     `return Reflect.${key.groupType.name}(${acceptedParameterNames.join(", ")});`
   ];
-
-  return statements;
 }
 
 function applyInitialization(
@@ -173,6 +170,7 @@ function applyInitialization(
     classBuilder.constructorParameters.push(ctorParam);
   }
 
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const originalScopeCallback = classBuilder.scopeCallback!.getScope;
   classBuilder.scopeCallback!.getScope = function(
     isStatic,
@@ -187,7 +185,7 @@ function applyInitialization(
       return Scope.Protected;
     if (memberName === "thisGraphKey")
       return Scope.Protected;
-  }
+  };
 
   const ctorStatements: ClassStatementsGetter & ConstructorBodyStatementsGetter = {
     keyword: "constructor statements",
@@ -208,7 +206,7 @@ function applyInitialization(
         `this.${key.fieldKey} = ${key.fieldKey};`,
       ];
     },
-  }
+  };
 
   classBuilder.addStatementGetters(
     ClassBuilder_Priorities.Initialization, [ctorStatements]

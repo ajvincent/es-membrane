@@ -47,5 +47,5 @@ export function tailSatisfiesStatement(
     writer.write(" satisfies ");
     SatisfiesTypeArgumented.writerFunction(writer);
     writer.writeLine(";");
-  }
+  };
 }

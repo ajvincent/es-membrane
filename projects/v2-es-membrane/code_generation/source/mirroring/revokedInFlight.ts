@@ -62,7 +62,7 @@ async function createRevokedInFlight(
 
   decoratorFunction.statements.push(
     classDecl,
-    `return ${classDecl.name!};`
+    `return ${classDecl.name};`
   );
 
   const sourceStructure = new SourceFileImpl();

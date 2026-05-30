@@ -27,7 +27,10 @@ export default function buildHandlerClass(
   const classBuilder = new MemberedTypeToClass();
   classBuilder.importFromTypeMembersMap(false, typeMembers);
   classBuilder.scopeCallback = {
-    getScope(isStatic, kind, memberName) {
+    getScope(this: void, isStatic, kind, memberName) {
+      void isStatic;
+      void kind;
+      void memberName;
       return Scope.Public;
     },
   };
@@ -39,6 +42,7 @@ export default function buildHandlerClass(
     keyword: "body",
 
     filterTailStatements: function (key: MemberedStatementsKey): boolean {
+      void key;
       return true;
     },
 

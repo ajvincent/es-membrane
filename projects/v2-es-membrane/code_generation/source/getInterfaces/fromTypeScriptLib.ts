@@ -34,14 +34,9 @@ async function getLibraryFiles(): Promise<readonly SourceFile[]>
 
 export default function getLibraryInterface(identifier: string): InterfaceDeclarationImpl
 {
-  let matchedDecl: InterfaceDeclarationImpl | undefined;
-
-  if (matchedDecl)
-    return matchedDecl;
-
   let decl: InterfaceDeclarationImpl | undefined;
   for (const file of TYPESCRIPT_LIB_SOURCEFILES) {
-    let rawDeclaration: InterfaceDeclaration | undefined = file.getInterface(identifier);
+    const rawDeclaration: InterfaceDeclaration | undefined = file.getInterface(identifier);
     if (rawDeclaration) {
       assert(decl === undefined, "we should only get one interface");
       decl = getTypeAugmentedStructure<StructureKind.Interface>(
@@ -54,6 +49,5 @@ export default function getLibraryInterface(identifier: string): InterfaceDeclar
   }
 
   assert(decl, "don't we have the declaration yet?");
-  matchedDecl = decl;
   return decl;
 }

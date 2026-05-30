@@ -20,7 +20,6 @@ import path from "path";
 
 import {
   type CodeBlockWriter,
-  Scope,
   StructureKind,
 } from "ts-morph";
 
@@ -74,8 +73,8 @@ async function createConvertingHeadProxyHandler(): Promise<void>
   const CommonConversions = buildCommonConversionsAlias();
 
   proxyInterface.methods.forEach(method => {
-    method.parameters[0]!.name = "shadowTarget";
-  })
+    method.parameters[0].name = "shadowTarget";
+  });
 
   const classDecl: ClassDeclarationImpl = buildHandlerClass(
     proxyInterface,
@@ -281,7 +280,7 @@ function getStatementsForProxyHandlerTrap(
         ...nextArgumentNames,
       ].join(", ")
     });`
-  )
+  );
 
   return statements;
 }

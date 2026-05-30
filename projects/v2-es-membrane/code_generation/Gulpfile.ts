@@ -11,9 +11,14 @@ import type {
 } from "ts-morph-structures";
 
 import {
+  runESLint,
+} from "@ajvincent/build-utilities";
+
+import {
   stageDir,
   generatedDirs,
 } from "./source/constants.js";
+
 import forwardToReflect from "./source/forwardToReflect.js";
 import createObjectGraphHandlerIfc from "./source/ObjectGraphHandlerIfc.js";
 import createObjectGraphTailHandler from "./source/ObjectGraphTailHandler.js";
@@ -63,6 +68,12 @@ async function copyAndPrettifyGenerated(): Promise<void> {
   await fs.cp(generatedDirs.prettified, generatedDirs.final, { recursive: true });
 }
 
+async function eslint(): Promise<void> {
+  await runESLint(stageDir, [
+    "source/**/*.ts",
+  ]);
+}
+
 export default series([
   removeGeneratedFiles,
   createGeneratedDirs,
@@ -77,4 +88,5 @@ export default series([
     define_RevokedInFlight_Decorator,
   ]),
   copyAndPrettifyGenerated,
+  eslint,
 ]);
