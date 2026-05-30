@@ -25,14 +25,14 @@ describe("ObjectGraphTailHandler", () => {
   }
 
   it("initializes with the specified membrane and thisGraphKey", () => {
-    let handler = new PublicHandlerProperties(membrane, "this graph");
+    const handler = new PublicHandlerProperties(membrane, "this graph");
     expect(handler.membrane).toBe(membrane);
     expect(handler.thisGraphKey).toBe("this graph");
     expect(handler.thisGraphValues).toBeUndefined();
   });
 
   it("allows calling setThisGraphValues once", () => {
-    let handler = new PublicHandlerProperties(membrane, "this graph");
+    const handler = new PublicHandlerProperties(membrane, "this graph");
 
     const mockGraphValues: ObjectGraphValuesIfc = {
       objectGraphKey: "this graph",
@@ -42,6 +42,8 @@ describe("ObjectGraphTailHandler", () => {
         sourceGraphKey: string | symbol
       ): Elements
       {
+        void valuesInSourceGraph;
+        void sourceGraphKey;
         throw new Error("not implemented");
       },
 
@@ -50,6 +52,8 @@ describe("ObjectGraphTailHandler", () => {
         sourceGraphKey: string | symbol
       ): PropertyDescriptor | undefined
       {
+        void descriptorInSourceGraph;
+        void sourceGraphKey;
         throw new Error("not implemented");
       },
 
@@ -58,6 +62,8 @@ describe("ObjectGraphTailHandler", () => {
         sourceGraphKey: string | symbol
       ): unknown
       {
+        void valueInSourceGraph;
+        void sourceGraphKey;
         throw new Error("not implemented");
       },
 
@@ -66,9 +72,10 @@ describe("ObjectGraphTailHandler", () => {
       },
 
       isKnownProxy: function(value) {
+        void value;
         throw new Error("not implemented");
       }
-    }
+    };
 
     handler.setThisGraphValues(mockGraphValues);
     expect(handler.thisGraphValues).toBe(mockGraphValues);
@@ -244,10 +251,10 @@ describe("ObjectGraphTailHandler", () => {
 
     it(": getPrototypeOf", () => {
       const shadowProto = { shadowPrototype: true };
-      const shadowTarget = Object.create(shadowProto);
+      const shadowTarget = Object.create(shadowProto) as object;
 
       const nextProto = { nextPrototype: true };
-      const nextTarget = Object.create(nextProto);
+      const nextTarget = Object.create(nextProto) as object;
 
       expect(handler.getPrototypeOf(
         shadowTarget, "next graph", nextTarget

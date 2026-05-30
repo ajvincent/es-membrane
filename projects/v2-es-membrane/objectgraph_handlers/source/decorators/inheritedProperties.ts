@@ -28,7 +28,7 @@ export default function InheritedPropertyTraps(
       nextReceiver: unknown,
     ): unknown
     {
-      let shadowDesc: PropertyDescriptor | undefined = this.#getMatchingDescriptorDeep(
+      const shadowDesc: TypedPropertyDescriptor<unknown> | undefined = this.#getMatchingDescriptorDeep(
         shadowTarget, p, nextGraphKey, nextTarget, nextP
       );
       if (shadowDesc === undefined)
@@ -51,7 +51,7 @@ export default function InheritedPropertyTraps(
       graphAssert(typeof wrappedGet === "function", "must have a wrapped getter", this.membrane, this.thisGraphKey);
 
       return super.apply(
-        shadowDesc.get, receiver, [], nextGraphKey, wrappedGet as () => any, nextReceiver, []
+        shadowDesc.get, receiver, [], nextGraphKey, wrappedGet, nextReceiver, []
       );
     }
 
@@ -82,7 +82,7 @@ export default function InheritedPropertyTraps(
       nextReceiver: object,
     ): boolean
     {
-      let ownDesc: PropertyDescriptor | undefined = this.#getMatchingDescriptorDeep(
+      let ownDesc: TypedPropertyDescriptor<unknown> | undefined = this.#getMatchingDescriptorDeep(
         shadowTarget, p, nextGraphKey, nextTarget, nextP
       );
 
@@ -180,15 +180,15 @@ export default function InheritedPropertyTraps(
       nextGraphKey: string | symbol,
       nextTarget: object,
       nextP: string | symbol,
-    ): PropertyDescriptor | undefined
+    ): TypedPropertyDescriptor<unknown> | undefined
     {
       do {
-        let shadowDesc = super.getOwnPropertyDescriptor(shadowTarget, p, nextGraphKey, nextTarget, nextP);
+        const shadowDesc = super.getOwnPropertyDescriptor(shadowTarget, p, nextGraphKey, nextTarget, nextP);
         if (shadowDesc)
           return shadowDesc;
 
-        let protoShadowTarget = super.getPrototypeOf(shadowTarget, nextGraphKey, nextTarget);
-        let protoNextTarget = Reflect.getPrototypeOf(nextTarget);
+        const protoShadowTarget = super.getPrototypeOf(shadowTarget, nextGraphKey, nextTarget);
+        const protoNextTarget = Reflect.getPrototypeOf(nextTarget);
         if (!protoNextTarget || !protoShadowTarget)
           break;
 

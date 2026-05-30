@@ -23,12 +23,12 @@ export type ShadowObject<
 > = T & ShadowBranding<"shadow", G>;
 
 export type ProxyValue<
-  T extends unknown,
+  T,
   G extends GraphBrandUnion
 > = T & ShadowBranding<"proxy", G>;
 
 export type ReceiverValue<
-  T extends unknown,
+  T,
   G extends GraphBrandUnion
 > = T & ShadowBranding<"receiver", G>;
 
@@ -40,7 +40,7 @@ interface ProxyDescriptorBase {
 }
 
 export interface ProxyDataDescriptor<
-  T extends unknown,
+  T,
   G extends GraphBrandUnion
 > extends ProxyDescriptorBase
 {
@@ -49,7 +49,7 @@ export interface ProxyDataDescriptor<
 };
 
 interface ProxyGetterSetter<
-  T extends unknown,
+  T,
   G extends GraphBrandUnion
 >
 {
@@ -57,8 +57,8 @@ interface ProxyGetterSetter<
   set?: (value: ProxyValue<T, G>) => void;
 }
 
-export type ProxyAccessorDescriptor<T extends unknown, G extends GraphBrandUnion> =
+export type ProxyAccessorDescriptor<T, G extends GraphBrandUnion> =
   ProxyDescriptorBase & RequireAtLeastOne<ProxyGetterSetter<T, G>>;
 
-export type ProxyGenericDescriptor<T extends unknown, G extends GraphBrandUnion> =
+export type ProxyGenericDescriptor<T, G extends GraphBrandUnion> =
   ProxyDataDescriptor<T, G> | ProxyAccessorDescriptor<T, G>;

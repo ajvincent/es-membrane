@@ -22,6 +22,9 @@ export default class MockMembrane implements MembraneInternalIfc
     descriptor: PropertyDescriptor
   ): PropertyDescriptor
   {
+    void sourceGraphKey;
+    void targetGraphKey;
+    void descriptor;
     throw new Error("Function not implemented.");
   }
 
@@ -29,6 +32,7 @@ export default class MockMembrane implements MembraneInternalIfc
     targetGraphKey: string | symbol
   ): void
   {
+    void targetGraphKey;
     throw new Error("Method not implemented.");
   }
 };

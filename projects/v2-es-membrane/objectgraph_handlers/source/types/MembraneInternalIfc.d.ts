@@ -12,7 +12,7 @@ export interface MembraneInternalIfc
     sourceGraphKey: string | symbol,
     targetGraphKey: string | symbol,
     descriptor: PropertyDescriptor | undefined,
-  ): PropertyDescriptor | undefined;
+  ): TypedPropertyDescriptor<unknown> | undefined;
 
   notifyAssertionFailed(
     targetGraphKey: string | symbol,

@@ -118,7 +118,7 @@ describe("ObjectGraphHead", () => {
     const head = new ObjectGraphHead(mockMembrane, graphHandler, map, "red");
     expect(head.objectGraphKey).toBe("red");
   
-    const proxyObject = head.getValueInGraph<object>({}, "blue") as object;
+    const proxyObject = head.getValueInGraph<object>({}, "blue");
     const proxyArray = head.getValueInGraph<unknown[]>([], "green");
     const proxyFunction = head.getValueInGraph<() => void>((): void => {}, "blue");
   
@@ -186,7 +186,7 @@ describe("ObjectGraphHead", () => {
     const redDataDesc = redHeadHandler.getDescriptorInGraph(blueDataDesc, "blue");
     const { value: redValue } = redDataDesc!;
     expect(typeof redValue).toBe("object");
-    expect(map.get(blueValue, "red")).toBe(redValue);
+    expect(map.get(blueValue, "red")).toBe(redValue as object);
     expect(redDataDesc?.writable).toBeTrue();
     expect(redDataDesc?.enumerable).toBeFalse();
     expect(redDataDesc?.configurable).toBeTrue();
@@ -194,8 +194,9 @@ describe("ObjectGraphHead", () => {
 
     const blueGetter = () => blueValue;
     const blueSetter = (value: object) => {
+      void value;
       return;
-    }
+    };
 
     const blueAccessorDesc = new AccessorDescriptor<object>(blueGetter, blueSetter, true, false);
     const redAccessorDesc = redHeadHandler.getDescriptorInGraph(blueAccessorDesc, "blue")!;

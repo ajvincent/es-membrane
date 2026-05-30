@@ -25,13 +25,13 @@ describe("Inherited property traps:", () => {
   let spyObjectGraphHandler: ObjectGraphHandlerIfc;
   let shadowTarget: {
     id: unknown,
-    accessorValue?: unknown
+    accessorValue?: string
   }, nextTarget: {
     id: unknown,
-    accessorValue?: unknown
+    accessorValue?: string
   }, shadowProto: object, nextProto: object;
   let shadowReceiver: { accessorValue?: unknown }, nextReceiver: { accessorValue?: unknown };
-  let shadowFoo: PropertyDescriptor, nextFoo: PropertyDescriptor;
+  let shadowFoo: TypedPropertyDescriptor<string | undefined>, nextFoo: TypedPropertyDescriptor<string | undefined>;
   const shadowGraphKey = Symbol("shadow graph");
   const nextGraphKey = Symbol("next graph");
 
@@ -51,13 +51,15 @@ describe("Inherited property traps:", () => {
       sourceGraphKey: string | symbol
     ): Elements
     {
+      void valuesInSourceGraph;
+      void sourceGraphKey;
       throw new Error("Function not implemented.");
     },
 
-    getDescriptorInGraph: function (
-      descriptorInSourceGraph: PropertyDescriptor | undefined,
+    getDescriptorInGraph: function<T> (
+      descriptorInSourceGraph: TypedPropertyDescriptor<T> | undefined,
       sourceGraphKey: string | symbol
-    ): PropertyDescriptor | undefined
+    ): TypedPropertyDescriptor<T> | undefined
     {
       if (!descriptorInSourceGraph)
         return descriptorInSourceGraph;
@@ -66,11 +68,11 @@ describe("Inherited property traps:", () => {
         ...descriptorInSourceGraph
       };
       if ("value" in result)
-        result.value = this.getValueInGraph(result.value, sourceGraphKey);
+        result.value = this.getValueInGraph(result.value, sourceGraphKey) as T;
       if ("get" in result)
-        result.get = this.getValueInGraph(result.get, sourceGraphKey) as (() => unknown);
+        result.get = this.getValueInGraph(result.get, sourceGraphKey) as (() => T);
       if ("set" in result)
-        result.set = this.getValueInGraph(result.set, sourceGraphKey) as ((value: unknown) => void);
+        result.set = this.getValueInGraph(result.set, sourceGraphKey) as ((value: T) => void);
 
       return result;
     },
@@ -92,7 +94,7 @@ describe("Inherited property traps:", () => {
     isKnownProxy: function (value: object): boolean {
       return value === shadowReceiver;
     }
-  }
+  };
 
   const membraneMock: MembraneInternalIfc = {
     convertArray: function <ValueTypes extends unknown[]>(
@@ -105,16 +107,16 @@ describe("Inherited property traps:", () => {
         if (value === null)
           return null;
         if ((typeof value === "object") || (typeof value === "function"))
-          return nextShadowOneToOne.get(value, targetGraphKey)
+          return nextShadowOneToOne.get(value, targetGraphKey);
         return value;
       }) as ValueTypes;
     },
 
-    convertDescriptor: function (
+    convertDescriptor: function<T> (
       sourceGraphKey: string | symbol,
       targetGraphKey: string | symbol,
-      descriptor: PropertyDescriptor | undefined
-    ): PropertyDescriptor | undefined
+      descriptor: TypedPropertyDescriptor<T> | undefined
+    ): TypedPropertyDescriptor<T> | undefined
     {
       if (descriptor === undefined)
         return undefined;
@@ -133,9 +135,10 @@ describe("Inherited property traps:", () => {
     },
 
     notifyAssertionFailed: function (targetGraphKey: string | symbol): void {
+      void targetGraphKey;
       throw new Error("Function not implemented.");
     }
-  }
+  };
 
   /* This is really hard to do as an unit test, because correct use of InheritedPropertyTraps depends on
   getting the right values set on shadow and next targets.
@@ -530,7 +533,7 @@ describe("Inherited property traps:", () => {
           writable: true,
           enumerable: false,
           configurable: true,
-        }
+        };
         Reflect.defineProperty(nextProto, "foo", inheritedDesc);
 
         const result: boolean = spyObjectGraphHandler.set(
@@ -568,12 +571,10 @@ describe("Inherited property traps:", () => {
       nextTarget.accessorValue = "not yet set";
       shadowTarget.accessorValue = undefined;
       shadowFoo = {
-        get: function(): unknown {
-          // @ts-expect-error
+        get: function(this: typeof shadowTarget): string | undefined {
           return this.accessorValue;
         },
-        set: function(value: unknown): void {
-          // @ts-expect-error
+        set: function(this: typeof shadowTarget, value: string | undefined): void {
           this.accessorValue = value;
         },
         enumerable: true,
@@ -581,12 +582,10 @@ describe("Inherited property traps:", () => {
       };
 
       nextFoo = {
-        get: function(): unknown {
-          // @ts-expect-error
+        get: function(this: typeof nextTarget): string | undefined {
           return this.accessorValue;
         },
-        set: function(value: unknown) {
-          // @ts-expect-error
+        set: function(this: typeof nextTarget, value: string | undefined) {
           this.accessorValue = value;
         },
         enumerable: true,
@@ -781,7 +780,7 @@ describe("Inherited property traps:", () => {
             enumerable: true,
             writable: true,
             configurable: true
-          })
+          });
         });
 
         it("getter & setter", () => {
@@ -875,7 +874,7 @@ describe("Inherited property traps:", () => {
             enumerable: true,
             writable: true,
             configurable: true
-          })
+          });
         });
 
         it("getter & setter", () => {

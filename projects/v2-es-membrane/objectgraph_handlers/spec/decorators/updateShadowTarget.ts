@@ -9,6 +9,10 @@ import {
   DataDescriptor
 } from "#objectgraph_handlers/source/sharedUtilities.js";
 
+import type {
+  MembraneInternalIfc
+} from "#objectgraph_handlers/source/types/MembraneInternalIfc.js";
+
 describe("UpdateShadowTarget works as a direct class decorator: the trap", () => {
   let spyObjectGraphHandler: ObjectGraphHandlerIfc;
   let shadowTarget: object, nextTarget: object;
@@ -21,7 +25,7 @@ describe("UpdateShadowTarget works as a direct class decorator: the trap", () =>
 
   beforeEach(() => {
     spyObjectGraphHandler = new MockProxyHandler(
-      jasmine.createSpyObj("membrane", ["convertArray", "convertDescriptors"]),
+      jasmine.createSpyObj<MembraneInternalIfc>("membrane", ["convertArray", "convertDescriptor", "notifyAssertionFailed"], []),
       "this graph"
     );
     shadowTarget = {};
@@ -132,7 +136,7 @@ describe("UpdateShadowTarget works as a direct class decorator: the trap", () =>
       expect(
         spyObjectGraphHandler.deleteProperty(shadowTarget, "foo", nextGraphKey, nextTarget, "foo")
       ).toBe(false);
-      expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")?.value).toBe("bar")
+      expect(Reflect.getOwnPropertyDescriptor(shadowTarget, "foo")?.value).toBe("bar");
       expect(Reflect.getOwnPropertyDescriptor(nextTarget, "foo")?.value).toBe("bar");
     });
   });
@@ -380,7 +384,7 @@ describe("UpdateShadowTarget works as a direct class decorator: the trap", () =>
       expect(
         spyObjectGraphHandler.setPrototypeOf(shadowTarget, null, nextGraphKey, nextTarget, null)
       ).toBe(true);
-      expect(Reflect.getPrototypeOf(shadowTarget)).toBeNull()
+      expect(Reflect.getPrototypeOf(shadowTarget)).toBeNull();
       expect(Reflect.getPrototypeOf(nextTarget)).toBeNull();
     });
 

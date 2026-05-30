@@ -71,6 +71,7 @@ async function copyAndPrettifyGenerated(): Promise<void> {
 async function eslint(): Promise<void> {
   await runESLint(stageDir, [
     "source/**/*.ts",
+    "Gulpfile.ts",
   ]);
 }
 

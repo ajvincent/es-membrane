@@ -112,10 +112,10 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
   }
 
   // ObjectGraphValuesIfc
-  public getDescriptorInGraph(
-    descriptorInSourceGraph: PropertyDescriptor | undefined,
+  public getDescriptorInGraph<T>(
+    descriptorInSourceGraph: TypedPropertyDescriptor<T> | undefined,
     sourceGraphKey: string | symbol
-  ): PropertyDescriptor | undefined
+  ): TypedPropertyDescriptor<T> | undefined
   {
     if (typeof descriptorInSourceGraph === "undefined") {
       return this.getValueInGraph<undefined>(descriptorInSourceGraph, sourceGraphKey);
@@ -127,7 +127,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     for (const key of ObjectGraphHead.#propertyDescriptorKeys) {
       if (Reflect.has(descriptorInSourceGraph, key) === false)
         continue;
-      graphDescriptor[key] = this.getValueInGraph(
+      graphDescriptor[key] = this.getValueInGraph<unknown>(
         descriptorInSourceGraph[key], sourceGraphKey
       );
     }
@@ -198,6 +198,8 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     sourceGraphKey: string | symbol
   ): T | undefined
   {
+    void valueInSourceGraph;
+    void sourceGraphKey;
     // TODO: intrinsics (Object, Array, etc.) and their prototypes
     return undefined;
   }
@@ -226,7 +228,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     value: object
   ): boolean
   {
-    return this.#graphHeadInternals.weakProxySet!.has(value);
+    return this.#graphHeadInternals.weakProxySet.has(value);
   }
 
   // ObjectGraphHeadIfc

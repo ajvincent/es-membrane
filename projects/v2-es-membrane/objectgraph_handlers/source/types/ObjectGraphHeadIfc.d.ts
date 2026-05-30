@@ -45,10 +45,10 @@ export interface ObjectGraphValuesIfc {
    *
    * @returns the property descriptor for _this_ object graph.
    */
-  getDescriptorInGraph(
-    descriptorInSourceGraph: PropertyDescriptor | undefined,
+  getDescriptorInGraph<T>(
+    descriptorInSourceGraph: TypedPropertyDescriptor<T> | undefined,
     sourceGraphKey: string | symbol
-  ): PropertyDescriptor | undefined;
+  ): TypedPropertyDescriptor<T> | undefined;
 
   /**
    * @param valueInSourceGraph - The value to wrap

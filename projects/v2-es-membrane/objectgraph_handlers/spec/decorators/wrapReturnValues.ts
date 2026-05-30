@@ -60,6 +60,7 @@ describe("Wrapping return values works for the trap", () => {
     }
 
     isKnownProxy(value: object): boolean {
+      void value;
       throw new Error("not implemented");
     }
   }
@@ -269,10 +270,10 @@ describe("Wrapping return values works for the trap", () => {
 
   it(": getPrototypeOf", () => {
     const shadowProto = { shadowPrototype: true };
-    const shadowTarget = Object.create(shadowProto);
+    const shadowTarget = Object.create(shadowProto) as object;
 
     const nextProto = { nextPrototype: true };
-    const nextTarget = Object.create(nextProto);
+    const nextTarget = Object.create(nextProto) as object;
 
     mockValues.returnValue = shadowProto;
 

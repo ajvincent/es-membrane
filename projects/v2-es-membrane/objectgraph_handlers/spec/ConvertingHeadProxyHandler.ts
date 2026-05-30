@@ -5,13 +5,16 @@ import type {
 } from "#objectgraph_handlers/source/types/ObjectGraphHeadIfc.js";
 
 import MockMembrane from "./support/MockMembrane.js";
-import SpyProxyHandler from "./support/SpyProxyHandler.js";
+
+import {
+  SpyObjectGraphHandler
+} from "./support/SpyObjectGraphHandler.js";
 
 class LocalHead implements ObjectGraphConversionIfc {
   readonly objectGraphKey = "this graph";
 
   readonly #expectedRealTarget: () => void;
-  targetGraph?: string | symbol
+  targetGraph?: string | symbol;
 
   constructor(
     expectedRealTarget: () => void
@@ -29,6 +32,8 @@ class LocalHead implements ObjectGraphConversionIfc {
     sourceGraphKey: string | symbol
   ): Elements
   {
+    void valuesInSourceGraph;
+    void sourceGraphKey;
     throw new Error("Method not implemented.");
   }
 
@@ -37,6 +42,8 @@ class LocalHead implements ObjectGraphConversionIfc {
     sourceGraphKey: string | symbol
   ): PropertyDescriptor | undefined
   {
+    void descriptorInSourceGraph;
+    void sourceGraphKey;
     throw new Error("Method not implemented.");
   }
 
@@ -45,25 +52,30 @@ class LocalHead implements ObjectGraphConversionIfc {
     sourceGraphKey: string | symbol
   ): unknown
   {
+    void valueInSourceGraph;
+    void sourceGraphKey;
     throw new Error("Method not implemented.");
   }
 
   public isKnownProxy(value: object): boolean {
+    void value;
     throw new Error("Method not implemented.");
   }
 
   public getRealTargetForShadowTarget(shadowTarget: object): object {
+    void shadowTarget;
     return this.#expectedRealTarget;
   }
 
   public getTargetGraphKeyForRealTarget(realTarget: object): string | symbol {
+    void realTarget;
     return this.targetGraph!;
   }
 }
 
 describe("Converting-head proxy handler works for the trap", () => {
   let membrane: MockMembrane;
-  let spyObjectGraphHandler: SpyProxyHandler;
+  let spyObjectGraphHandler: SpyObjectGraphHandler;
   let shadowTarget: () => void;
   let expectedRealTarget: () => void;
 
@@ -76,7 +88,7 @@ describe("Converting-head proxy handler works for the trap", () => {
 
     membrane = new MockMembrane();
 
-    spyObjectGraphHandler = new SpyProxyHandler;
+    spyObjectGraphHandler = new SpyObjectGraphHandler;
     graphHead = new LocalHead(expectedRealTarget);
     headHandler = new ConvertingHeadProxyHandler(membrane, spyObjectGraphHandler, graphHead);
   });
@@ -125,7 +137,7 @@ describe("Converting-head proxy handler works for the trap", () => {
     spyObjectGraphHandler.getSpy("construct").and.returnValue(result);
 
     const argArray = [{ argName: "one"}, { argName: "two"}];
-    const newTarget = () => { return "new target" };
+    const newTarget = () => "new target";
     expect(headHandler.construct(shadowTarget, argArray, newTarget)).toBe(result);
 
     spyObjectGraphHandler.expectSpiesClearExcept("construct");

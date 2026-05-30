@@ -18,6 +18,7 @@ export default function graphAssert(
     membraneIfc.notifyAssertionFailed(graphName);
   }
   catch (ex) {
+    void ex;
     // do nothing
   }
 
