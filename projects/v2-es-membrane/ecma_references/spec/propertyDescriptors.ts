@@ -51,7 +51,7 @@ it("Reflect.getOwnPropertyDescriptor() returns a full descriptor", () => {
     expect(driverDesc.value).toBe(1);
   }
 
-  let _windowCount = 2;
+  const _windowCount = 2;
   Reflect.defineProperty(car, "windows", {
     get(): number {
       return _windowCount;
@@ -75,7 +75,7 @@ it("Reflect.getOwnPropertyDescriptor() returns a full descriptor", () => {
         enumerable: true,
         value: "all your base",
         get: function() {
-          return "all your base"
+          return "all your base";
         }
       });
     }

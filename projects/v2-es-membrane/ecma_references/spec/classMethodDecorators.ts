@@ -64,7 +64,7 @@ it("Method decorators apply from bottom to top, so the returned method runs from
         });
 
         return method.apply(this, ...args);
-      }
+      };
 
       context.addInitializer(() => {
         events.push({
@@ -82,8 +82,8 @@ it("Method decorators apply from bottom to top, so the returned method runs from
 
       decoratorItems.push(item);
       return override;
-    }
-  }
+    };
+  };
 
   class DecoratedClass implements FooInstance {
     // if this compilation files, check your tsconfig.json: compilerOptions.target cannot be "ESNext"
@@ -137,7 +137,7 @@ it("Method decorators apply from bottom to top, so the returned method runs from
       eventType: "invocation",
       item: "C",
     },
-  ])
+  ]);
 });
 
 it("Generic method decorators are possible", () => {
@@ -195,7 +195,7 @@ it("Generic method decorators are possible", () => {
     )
     {
       return (spyDecoratorBase<This, Key>).apply(this, [key, method, context]);
-    }
+    };
   }
   
   spyDecorator satisfies ClassMethodDecorator<

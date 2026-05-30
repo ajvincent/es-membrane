@@ -1,7 +1,3 @@
-interface TracingSpy {
-  spy: jasmine.Spy
-};
-
 export default
 class TracingProxyHandler<T extends object>
 implements Required<ProxyHandler<T>>
@@ -14,39 +10,41 @@ implements Required<ProxyHandler<T>>
     this.spy.calls.reset();
   }
 
-  #logTrap<T extends unknown>(
+  #logTrap<T>(
     trapName: string,
     args: unknown[],
     callback: () => T
   ): T
   {
-    let count = this.#counter++;
+    const count = this.#counter++;
     this.spy.apply(this, [`${trapName}:start:${count}`, ...args]);
-    let result = callback();
+    const result = callback();
     this.spy.apply(this, [`${trapName}:close:${count}`, result]);
     return result;
   }
 
-  apply(target: T, thisArg: any, argArray: any[]) {
+  apply(target: T, thisArg: unknown, argArray: unknown[]): unknown {
     return this.#logTrap(
       "apply",
-      Array.from(arguments),
-      () => Reflect.apply(target as CallableFunction, thisArg, argArray)
+      [target, thisArg, argArray],
+      () => Reflect.apply(target as CallableFunction, thisArg, argArray) as unknown
     );
   }
 
-  construct(target: T, argArray: any[], newTarget: Function): object {
+  construct(target: T, argArray: unknown[], newTarget: NewableFunction): object {
     return this.#logTrap(
       "construct",
-      Array.from(arguments),
-      () => Reflect.construct(target as new (...args: unknown[]) => object, argArray, newTarget)
+      [target, argArray, newTarget],
+      () => Reflect.construct(
+        target as new (...args: unknown[]) => object, argArray, newTarget
+      ) as object
     );
   }
 
   defineProperty(target: object, property: string | symbol, attributes: PropertyDescriptor): boolean {
     return this.#logTrap(
       "defineProperty",
-      Array.from(arguments),
+      [target, property, attributes],
       () => Reflect.defineProperty(target, property, attributes)
     );
   }
@@ -54,23 +52,23 @@ implements Required<ProxyHandler<T>>
   deleteProperty(target: object, p: string | symbol): boolean {
     return this.#logTrap(
       "deleteProperty",
-      Array.from(arguments),
+      [target, p],
       () => Reflect.deleteProperty(target, p)
     );
   }
 
-  get(target: object, p: string | symbol, receiver: any) {
+  get(target: object, p: string | symbol, receiver: unknown): unknown {
     return this.#logTrap(
       "get",
-      Array.from(arguments),
-      () => Reflect.get(target, p, receiver)
+      [target, p, receiver],
+      () => Reflect.get(target, p, receiver) as unknown
     );
   }
 
   getOwnPropertyDescriptor(target: object, p: string | symbol): PropertyDescriptor | undefined {
     return this.#logTrap(
       "getOwnPropertyDescriptor",
-      Array.from(arguments),
+      [target, p],
       () => Reflect.getOwnPropertyDescriptor(target, p)
     );
   }
@@ -78,7 +76,7 @@ implements Required<ProxyHandler<T>>
   getPrototypeOf(target: object): object | null {
     return this.#logTrap(
       "getPrototypeOf",
-      Array.from(arguments),
+      [target],
       () => Reflect.getPrototypeOf(target)
     );
   }
@@ -86,7 +84,7 @@ implements Required<ProxyHandler<T>>
   has(target: object, p: string | symbol): boolean {
     return this.#logTrap(
       "has",
-      Array.from(arguments),
+      [target],
       () => Reflect.has(target, p)
     );
   }
@@ -94,15 +92,15 @@ implements Required<ProxyHandler<T>>
   isExtensible(target: object): boolean {
     return this.#logTrap(
       "isExtensible",
-      Array.from(arguments),
+      [target],
       () => Reflect.isExtensible(target)
     );
   }
 
-  ownKeys(target: object): ArrayLike<string | symbol> {
+  ownKeys(target: object): (string | symbol)[] {
     return this.#logTrap(
       "ownKeys",
-      Array.from(arguments),
+      [target],
       () => Reflect.ownKeys(target)
     );
   }
@@ -110,15 +108,15 @@ implements Required<ProxyHandler<T>>
   preventExtensions(target: object): boolean {
     return this.#logTrap(
       "preventExtensions",
-      Array.from(arguments),
+      [target],
       () => Reflect.preventExtensions(target)
     );
   }
 
-  set(target: object, p: string | symbol, newValue: any, receiver: any): boolean {
+  set(target: object, p: string | symbol, newValue: unknown, receiver: unknown): boolean {
     return this.#logTrap(
       "set",
-      Array.from(arguments),
+      [target, p, newValue, receiver],
       () => Reflect.set(target, p, newValue, receiver)
     );
   }
@@ -126,7 +124,7 @@ implements Required<ProxyHandler<T>>
   setPrototypeOf(target: object, v: object | null): boolean {
     return this.#logTrap(
       "setPrototypeOf",
-      Array.from(arguments),
+      [target, v],
       () => Reflect.setPrototypeOf(target, v)
     );
   }

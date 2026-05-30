@@ -79,8 +79,8 @@ it("Class decorators apply from bottom to top, so classes may construct from top
 
       decoratorItems.push(item);
       return extendedClass;
-    }
-  }
+    };
+  };
 
   // if this compilation files, check your tsconfig.json: compilerOptions.target cannot be "ESNext"
   @logEvent("A")
