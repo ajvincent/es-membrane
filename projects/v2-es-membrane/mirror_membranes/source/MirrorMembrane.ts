@@ -9,6 +9,7 @@ import type {
 import ObjectGraphHead from "#objectgraph_handlers/source/ObjectGraphHead.js";
 
 import MirrorObjectGraphHandler from "./MirrorObjectGraphHandler.js";
+
 import {
   OneToOneStrongMap
 } from "#stage_utilities/source/collections/OneToOneStrongMap.js";
@@ -75,6 +76,9 @@ implements MembraneInternalIfc, Omit<MirrorMembraneIfc, "isRevoked">
     values: ValueTypes
   ): ValueTypes
   {
+    void sourceGraphKey;
+    void targetGraphKey;
+    void values;
     throw new Error("Method not implemented.");
   }
 
@@ -85,6 +89,9 @@ implements MembraneInternalIfc, Omit<MirrorMembraneIfc, "isRevoked">
     descriptor: PropertyDescriptor | undefined
   ): PropertyDescriptor | undefined
   {
+    void sourceGraphKey;
+    void targetGraphKey;
+    void descriptor;
     throw new Error("Method not implemented.");
   }
 

@@ -1,9 +1,31 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import {
-  runJasmine
+  series
+} from "gulp";
+
+import {
+  runJasmine,
+  runESLint,
 } from "@ajvincent/build-utilities";
+
+const stageDir = path.normalize(path.resolve(
+  fileURLToPath(import.meta.url),
+  ".."
+));
 
 async function internalTests(): Promise<void> {
   return runJasmine("./spec/support/jasmine.json");
 }
 
-export default internalTests;
+async function eslint(): Promise<void> {
+  await runESLint(stageDir, [
+    "**/*.ts",
+  ]);
+}
+
+export default series([
+  internalTests,
+  eslint
+]);
