@@ -25,7 +25,7 @@ const dirs: readonly string[] = [
   "stage_utilities",
   "code_generation",
   "objectgraph_handlers",
-  "mirror_membranes",
+  "membranes_decorated",
   "exported_decorators",
 ];
 

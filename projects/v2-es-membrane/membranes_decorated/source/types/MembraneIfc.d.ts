@@ -1,4 +1,4 @@
-export interface MirrorMembraneIfc {
+export interface MembraneIfc {
   /** True if the membrane has been revoked. */
   readonly isRevoked: boolean;
 
@@ -26,6 +26,6 @@ export interface MirrorMembraneIfc {
   convertObject<ObjectType extends object>(
     sourceGraphKey: string | symbol,
     targetGraphKey: string | symbol,
-    value: ObjectType
+    sourceValue: ObjectType
   ): ObjectType;
 }

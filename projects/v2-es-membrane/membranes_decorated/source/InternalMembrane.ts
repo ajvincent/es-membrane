@@ -1,35 +1,31 @@
 import type {
-  MembraneInternalIfc
-} from "#objectgraph_handlers/source/types/MembraneInternalIfc.js";
-
-import type {
-  ObjectGraphHeadIfc
-} from "#objectgraph_handlers/source/types/ObjectGraphHeadIfc.js";
+  MembraneIfc
+} from "./types/MembraneIfc.js";
 
 import ObjectGraphHead from "#objectgraph_handlers/source/ObjectGraphHead.js";
 
-import MirrorObjectGraphHandler from "./MirrorObjectGraphHandler.js";
+import type { MembraneInternalIfc } from "#objectgraph_handlers/source/types/MembraneInternalIfc.js";
 
-import {
-  OneToOneStrongMap
-} from "#stage_utilities/source/collections/OneToOneStrongMap.js";
+import type { ObjectGraphHeadIfc } from "#objectgraph_handlers/source/types/ObjectGraphHeadIfc.js";
 
-import type {
-  MirrorMembraneIfc
-} from "../types/MirrorMembraneIfc.js";
+import { OneToOneStrongMap } from "#stage_utilities/source/collections/OneToOneStrongMap.js";
 
-class MirrorMembraneInternal 
-implements MembraneInternalIfc, Omit<MirrorMembraneIfc, "isRevoked">
-{
+import { ObjectGraphHandler } from "./ObjectGraphHandler.js";
+
+export class InternalMembrane implements MembraneIfc, MembraneInternalIfc {
   readonly #graphHeads = new Map<string | symbol, ObjectGraphHeadIfc>;
   readonly #proxiesOneToOneMap = new OneToOneStrongMap<string | symbol, object>;
+
+  get isRevoked(): boolean {
+    return false;
+  }
 
   createObjectGraph(graphKey: string | symbol): void {
     if (this.#graphHeads.has(graphKey)) {
       throw new Error("Graph already exists!");
     }
 
-    const handler = new MirrorObjectGraphHandler(this, graphKey);
+    const handler = new ObjectGraphHandler(this, graphKey);
     const head = new ObjectGraphHead(this, handler, this.#proxiesOneToOneMap, graphKey);
     this.#graphHeads.set(graphKey, head);
   }
@@ -56,8 +52,7 @@ implements MembraneInternalIfc, Omit<MirrorMembraneIfc, "isRevoked">
     sourceGraphKey: string | symbol,
     targetGraphKey: string | symbol,
     value: ObjectType
-  ): ObjectType
-  {
+  ): ObjectType {
     if (!this.#graphHeads.has(sourceGraphKey))
       throw new Error("unknown source graph!");
     const targetGraph = this.#graphHeads.get(targetGraphKey);
@@ -69,13 +64,11 @@ implements MembraneInternalIfc, Omit<MirrorMembraneIfc, "isRevoked">
   // MembraneInternalIfc
   convertArray<
     ValueTypes extends unknown[]
-  >
-  (
+  >(
     sourceGraphKey: string | symbol,
     targetGraphKey: string | symbol,
     values: ValueTypes
-  ): ValueTypes
-  {
+  ): ValueTypes {
     void sourceGraphKey;
     void targetGraphKey;
     void values;
@@ -87,8 +80,7 @@ implements MembraneInternalIfc, Omit<MirrorMembraneIfc, "isRevoked">
     sourceGraphKey: string | symbol,
     targetGraphKey: string | symbol,
     descriptor: PropertyDescriptor | undefined
-  ): PropertyDescriptor | undefined
-  {
+  ): PropertyDescriptor | undefined {
     void sourceGraphKey;
     void targetGraphKey;
     void descriptor;
@@ -98,61 +90,9 @@ implements MembraneInternalIfc, Omit<MirrorMembraneIfc, "isRevoked">
   // MembraneInternalIfc
   notifyAssertionFailed(
     targetGraphKey: string | symbol
-  ): void
-  {
+  ): void {
     for (const graphHead of this.#graphHeads.values()) {
       graphHead.revokeAllProxiesForGraph(targetGraphKey);
     }
-  }
-}
-
-export default
-class MirrorMembrane implements MirrorMembraneIfc
-{
-  #internal? = new MirrorMembraneInternal;
-
-  #requireNotRevoked(): void {
-    if (this.#internal === undefined)
-      throw new Error("Membrane has been revoked!");
-  }
-
-  get isRevoked(): boolean {
-    return this.#internal === undefined;
-  }
-
-  createObjectGraph(
-    graphKey: string | symbol
-  ): void
-  {
-    this.#requireNotRevoked();
-    this.#internal!.createObjectGraph(graphKey);
-  }
-
-  revokeObjectGraph(
-    graphKey: string | symbol
-  ): boolean
-  {
-    this.#requireNotRevoked();
-    return this.#internal!.revokeObjectGraph(graphKey);
-  }
-
-  revokeEverything(): void {
-    this.#requireNotRevoked();
-    const internalMembrane = this.#internal!;
-    this.#internal = undefined;
-    internalMembrane.revokeEverything();
-  }
-
-  convertObject<
-    ObjectType extends object
-  >
-  (
-    sourceGraphKey: string | symbol,
-    targetGraphKey: string | symbol,
-    value: ObjectType
-  ): ObjectType
-  {
-    this.#requireNotRevoked();
-    return this.#internal!.convertObject<ObjectType>(sourceGraphKey, targetGraphKey, value);
   }
 }

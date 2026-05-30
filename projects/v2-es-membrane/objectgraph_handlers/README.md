@@ -28,7 +28,7 @@ Decorators which apply "distortions" (modifying what the proxy traps expose) wil
 
 ## Providing the "next object graph" values to the tail handler
 
-So I still have to _get_ values for the next object graph from equivalent values we pass in from this object graph.  [`ConvertingHeadProxyHandler`](./source/generated/ConvertingHeadProxyHandler.ts) does this, calling on a [`MembraneInternalIfc`](./source/types/MembraneInternalIfc.d.ts) to do the conversions for us.  The actual implementation of this interface is in future build stages such as [`mirror_membranes`](../mirror_membranes/).
+So I still have to _get_ values for the next object graph from equivalent values we pass in from this object graph.  [`ConvertingHeadProxyHandler`](./source/generated/ConvertingHeadProxyHandler.ts) does this, calling on a [`MembraneInternalIfc`](./source/types/MembraneInternalIfc.d.ts) to do the conversions for us.  The actual implementation of this interface is in future build stages such as [`membranes_decorated`](../membranes_decorated/).
 
 ## The object graph itself
 

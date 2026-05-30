@@ -8,7 +8,6 @@ import WrapReturnValues from "#objectgraph_handlers/source/generated/decorators/
 @InheritedPropertyTraps
 @UpdateShadowTarget
 @WrapReturnValues
-export default
-class MirrorObjectGraphHandler extends ObjectGraphTailHandler {
+export class ObjectGraphHandler extends ObjectGraphTailHandler {
   // this class definition empty on purpose
 }

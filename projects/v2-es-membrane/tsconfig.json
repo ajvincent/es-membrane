@@ -12,7 +12,7 @@
       "#stage_utilities/*": ["./stage_utilities/*"],
       "#code_generation/*": ["./code_generation/*"],
       "#objectgraph_handlers/*": ["./objectgraph_handlers/*"],
-      "#mirror_membranes/*": ["./mirror_membranes/*"],
+      "#membranes_decorated/*": ["./membranes_decorated/*"],
       "#gulp-utilities/*": ["./gulp-utilities/*"]
     },
 

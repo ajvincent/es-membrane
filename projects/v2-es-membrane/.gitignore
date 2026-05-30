@@ -25,10 +25,10 @@ exported_decorators/**/*.d.ts
 exported_decorators/**/*.map
 !exported_decorators/**/types/*.d.ts
 
-mirror_membranes/**/*.js
-mirror_membranes/**/*.d.ts
-mirror_membranes/**/*.map
-!mirror_membranes/**/types/*.d.ts
+membranes_decorated/**/*.js
+membranes_decorated/**/*.d.ts
+membranes_decorated/**/*.map
+!membranes_decorated/**/types/*.d.ts
 
 Gulpfile.d.ts
 Gulpfile.js
