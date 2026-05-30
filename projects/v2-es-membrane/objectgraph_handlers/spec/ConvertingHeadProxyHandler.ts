@@ -137,14 +137,16 @@ describe("Converting-head proxy handler works for the trap", () => {
     spyObjectGraphHandler.getSpy("construct").and.returnValue(result);
 
     const argArray = [{ argName: "one"}, { argName: "two"}];
-    const newTarget = () => "new target";
-    expect(headHandler.construct(shadowTarget, argArray, newTarget)).toBe(result);
+    class NewTargetClass {
+
+    }
+    expect(headHandler.construct(shadowTarget, argArray, NewTargetClass)).toBe(result);
 
     spyObjectGraphHandler.expectSpiesClearExcept("construct");
     expect(spyObjectGraphHandler.getSpy("construct")).toHaveBeenCalledOnceWith(
       shadowTarget,
       argArray,
-      newTarget,
+      NewTargetClass,
       graphHead.targetGraph,
       expectedRealTarget,
       nextArgArray,

@@ -61,6 +61,7 @@ async function createRevokedInFlight(
   classDecl.extendsStructure = LiteralTypeStructureImpl.get("baseClass");
 
   decoratorFunction.statements.push(
+    "void context;",
     classDecl,
     `return ${classDecl.name};`
   );
@@ -137,7 +138,12 @@ function buildProxyHandlerTrap(
       writer.write("finally ");
       writer.block(() => {
         writer.write(`
-          if (this.thisGraphValues!.isRevoked) return Reflect.${trap.name}(AlwaysRevokedProxy, ${argsAfterFirst});`
+          if (this.thisGraphValues!.isRevoked) {
+            // eslint-disable-next-line no-unsafe-finally
+            return Reflect.${trap.name}(AlwaysRevokedProxy, ${argsAfterFirst})${
+              trap.name === "construct" ? " as object" : ""
+            };
+          }`
         );
       });
     }

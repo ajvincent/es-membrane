@@ -19,9 +19,13 @@ export default class ForwardToReflect implements Required<
   public construct(
     target: object,
     argArray: unknown[],
-    newTarget: Function,
+    newTarget: NewableFunction,
   ): object {
-    return Reflect.construct(target as NewableFunction, argArray, newTarget);
+    return Reflect.construct(
+      target as NewableFunction,
+      argArray,
+      newTarget,
+    ) as object;
   }
 
   /**

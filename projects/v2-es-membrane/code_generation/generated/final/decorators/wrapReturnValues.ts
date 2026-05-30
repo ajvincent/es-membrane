@@ -5,6 +5,8 @@ export default function WrapReturnValues(
   baseClass: typeof ObjectGraphTailHandler,
   context: ClassDecoratorContext,
 ): typeof ObjectGraphTailHandler {
+  void context;
+
   class WrapReturnValues extends baseClass {
     /**
      * A trap method for a function call.
@@ -28,10 +30,7 @@ export default function WrapReturnValues(
         nextThisArg,
         nextArgArray,
       );
-      return this.thisGraphValues!.getValueInGraph(
-        result,
-        this.thisGraphKey,
-      ) as unknown;
+      return this.thisGraphValues!.getValueInGraph(result, this.thisGraphKey);
     }
 
     /**
@@ -42,11 +41,11 @@ export default function WrapReturnValues(
     public construct(
       shadowTarget: object,
       argArray: unknown[],
-      newTarget: Function,
+      newTarget: NewableFunction,
       nextGraphKey: string | symbol,
       nextTarget: object,
       nextArgArray: unknown[],
-      nextNewTarget: Function,
+      nextNewTarget: NewableFunction,
     ): object {
       const result: object = super.construct(
         shadowTarget,
@@ -142,10 +141,7 @@ export default function WrapReturnValues(
         nextP,
         nextReceiver,
       );
-      return this.thisGraphValues!.getValueInGraph(
-        result,
-        this.thisGraphKey,
-      ) as unknown;
+      return this.thisGraphValues!.getValueInGraph(result, this.thisGraphKey);
     }
 
     /**
@@ -253,10 +249,7 @@ export default function WrapReturnValues(
         nextGraphKey,
         nextTarget,
       );
-      return this.thisGraphValues!.getArrayInGraph(
-        result,
-        this.thisGraphKey,
-      ) as (string | symbol)[];
+      return this.thisGraphValues!.getArrayInGraph(result, this.thisGraphKey);
     }
 
     /**

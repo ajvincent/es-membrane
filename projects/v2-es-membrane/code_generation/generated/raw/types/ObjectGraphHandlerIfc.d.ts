@@ -1,5 +1,4 @@
 // This file is generated.  Do not edit.
-import type { RequiredProxyHandler } from "../../types/RequiredProxyHandler.js";
 
 export interface ObjectGraphHandlerIfc {
     /**
@@ -12,7 +11,7 @@ export interface ObjectGraphHandlerIfc {
      * @param target The original object which is being proxied.
      * @param newTarget The constructor that was originally called.
      */
-    construct(shadowTarget: object, argArray: unknown[], newTarget: Function, nextGraphKey: string | symbol, nextTarget: object, nextArgArray: unknown[], nextNewTarget: Function): object;
+    construct(shadowTarget: object, argArray: unknown[], newTarget: NewableFunction, nextGraphKey: string | symbol, nextTarget: object, nextArgArray: unknown[], nextNewTarget: NewableFunction): object;
     /**
      * A trap for `Object.defineProperty()`.
      * @param target The original object which is being proxied.

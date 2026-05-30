@@ -36,6 +36,10 @@ for (const method of requiredHandlerInterface.methods) {
     );
   }
 
+  if (method.name === "construct") {
+    method.parameters[2].typeStructure = LiteralTypeStructureImpl.get("NewableFunction");
+  }
+
   replaceAnyWithUnknown(method);
 }
 

@@ -53,7 +53,9 @@ async function forwardToReflect(): Promise<void>
       }
 
       return [
-        `return Reflect.${key.statementGroupKey}(${methodArguments.join(", ")});`
+        `return Reflect.${key.statementGroupKey}(${methodArguments.join(", ")})${
+          key.groupType.name === "construct" ? " as object" : ""
+        };`
       ];
     }
   );

@@ -140,7 +140,9 @@ function buildProxyHandlerTrap(
 
   return [
     ...voidParameterNames.map(paramName => `void(${paramName});`),
-    `return Reflect.${key.groupType.name}(${acceptedParameterNames.join(", ")});`
+    `return Reflect.${key.groupType.name}(${acceptedParameterNames.join(", ")})${
+      key.groupType.name === "construct" ? " as object" : ""
+    };`
   ];
 }
 
@@ -203,7 +205,9 @@ function applyInitialization(
     ): readonly string[]
     {
       return [
-        `this.${key.fieldKey} = ${key.fieldKey};`,
+        `this.${key.fieldKey} = ${key.fieldKey}${
+          key.groupType?.kind === StructureKind.MethodSignature && key.groupType.name === "construct" ? " as object" : ""
+        };`,
       ];
     },
   };

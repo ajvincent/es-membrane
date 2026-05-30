@@ -35,12 +35,12 @@ export default class ObjectGraphTailHandler implements ObjectGraphHandlerIfc, Ob
      * @param target The original object which is being proxied.
      * @param newTarget The constructor that was originally called.
      */
-    public construct(shadowTarget: object, argArray: unknown[], newTarget: Function, nextGraphKey: string | symbol, nextTarget: object, nextArgArray: unknown[], nextNewTarget: Function): object {
+    public construct(shadowTarget: object, argArray: unknown[], newTarget: NewableFunction, nextGraphKey: string | symbol, nextTarget: object, nextArgArray: unknown[], nextNewTarget: NewableFunction): object {
         void(shadowTarget);
         void(argArray);
         void(newTarget);
         void(nextGraphKey);
-        return Reflect.construct(nextTarget as NewableFunction, nextArgArray, nextNewTarget);
+        return Reflect.construct(nextTarget as NewableFunction, nextArgArray, nextNewTarget) as object;
     }
 
     /**

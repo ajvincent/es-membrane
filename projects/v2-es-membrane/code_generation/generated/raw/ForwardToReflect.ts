@@ -14,8 +14,8 @@ export default class ForwardToReflect implements Required<ProxyHandler<object>> 
      * @param target The original object which is being proxied.
      * @param newTarget The constructor that was originally called.
      */
-    public construct(target: object, argArray: unknown[], newTarget: Function): object {
-        return Reflect.construct(target as NewableFunction, argArray, newTarget);
+    public construct(target: object, argArray: unknown[], newTarget: NewableFunction): object {
+        return Reflect.construct(target as NewableFunction, argArray, newTarget) as object;
     }
 
     /**

@@ -43,9 +43,9 @@ export default class ConvertingHeadProxyHandler implements RequiredProxyHandler 
      * @param target The original object which is being proxied.
      * @param newTarget The constructor that was originally called.
      */
-    public construct(shadowTarget: object, argArray: unknown[], newTarget: Function): object {
+    public construct(shadowTarget: object, argArray: unknown[], newTarget: NewableFunction): object {
         const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-        const [nextNewTarget] = this.#membraneIfc.convertArray<[Function]>(this.#thisGraphKey, graphKey, [newTarget]);
+        const [nextNewTarget] = this.#membraneIfc.convertArray<[NewableFunction]>(this.#thisGraphKey, graphKey, [newTarget]);
         const nextArgArray: unknown[] = this.#membraneIfc.convertArray<unknown[]>(this.#thisGraphKey, graphKey, argArray);
         return this.#graphHandlerIfc.construct(shadowTarget, argArray, newTarget, graphKey, realTarget, nextArgArray, nextNewTarget);
     }

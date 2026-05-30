@@ -21,14 +21,7 @@ async function internalTests(): Promise<void> {
 
 async function eslint(): Promise<void> {
   await runESLint(stageDir, [
-    "pre-build/**/*.ts",
-    "references/**/*.ts",
-    "source/decorators/**/*.ts",
-    "source/exceptions/**/*.ts",
-    "source/types/**/*.ts",
-    "source/*.ts",
-    "spec/**/*.ts",
-    "Gulpfile.ts",
+    "**/*.ts",
   ]);
 }
 

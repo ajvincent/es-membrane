@@ -2,6 +2,8 @@ import type { ClassDecoratorFunction } from "../../types/ClassDecoratorFunction.
 import ObjectGraphTailHandler from "../ObjectGraphTailHandler.js";
 
 export default function WrapReturnValues(baseClass: typeof ObjectGraphTailHandler, context: ClassDecoratorContext): typeof ObjectGraphTailHandler {
+    void context;
+
     class WrapReturnValues extends baseClass {
         /**
          * A trap method for a function call.
@@ -9,7 +11,7 @@ export default function WrapReturnValues(baseClass: typeof ObjectGraphTailHandle
          */
         public apply(shadowTarget: object, thisArg: unknown, argArray: unknown[], nextGraphKey: string | symbol, nextTarget: object, nextThisArg: unknown, nextArgArray: unknown[]): unknown {
             const result: unknown = super.apply(shadowTarget, thisArg, argArray, nextGraphKey, nextTarget, nextThisArg, nextArgArray);
-            return this.thisGraphValues!.getValueInGraph(result, this.thisGraphKey) as unknown;
+            return this.thisGraphValues!.getValueInGraph(result, this.thisGraphKey)
         }
 
         /**
@@ -17,7 +19,7 @@ export default function WrapReturnValues(baseClass: typeof ObjectGraphTailHandle
          * @param target The original object which is being proxied.
          * @param newTarget The constructor that was originally called.
          */
-        public construct(shadowTarget: object, argArray: unknown[], newTarget: Function, nextGraphKey: string | symbol, nextTarget: object, nextArgArray: unknown[], nextNewTarget: Function): object {
+        public construct(shadowTarget: object, argArray: unknown[], newTarget: NewableFunction, nextGraphKey: string | symbol, nextTarget: object, nextArgArray: unknown[], nextNewTarget: NewableFunction): object {
             const result: object = super.construct(shadowTarget, argArray, newTarget, nextGraphKey, nextTarget, nextArgArray, nextNewTarget);
             return this.thisGraphValues!.getValueInGraph(result, this.thisGraphKey) as object;
         }
@@ -51,7 +53,7 @@ export default function WrapReturnValues(baseClass: typeof ObjectGraphTailHandle
          */
         public get(shadowTarget: object, p: string | symbol, receiver: unknown, nextGraphKey: string | symbol, nextTarget: object, nextP: string | symbol, nextReceiver: unknown): unknown {
             const result: unknown = super.get(shadowTarget, p, receiver, nextGraphKey, nextTarget, nextP, nextReceiver);
-            return this.thisGraphValues!.getValueInGraph(result, this.thisGraphKey) as unknown;
+            return this.thisGraphValues!.getValueInGraph(result, this.thisGraphKey)
         }
 
         /**
@@ -98,7 +100,7 @@ export default function WrapReturnValues(baseClass: typeof ObjectGraphTailHandle
          */
         public ownKeys(shadowTarget: object, nextGraphKey: string | symbol, nextTarget: object): (string | symbol)[] {
             const result: (string | symbol)[] = super.ownKeys(shadowTarget, nextGraphKey, nextTarget);
-            return this.thisGraphValues!.getArrayInGraph(result, this.thisGraphKey) as (string | symbol)[];
+            return this.thisGraphValues!.getArrayInGraph(result, this.thisGraphKey)
         }
 
         /**

@@ -1,5 +1,4 @@
 // This file is generated.  Do not edit.
-import type { RequiredProxyHandler } from "../../types/RequiredProxyHandler.js";
 
 export interface ObjectGraphHandlerIfc {
   /**
@@ -23,11 +22,11 @@ export interface ObjectGraphHandlerIfc {
   construct(
     shadowTarget: object,
     argArray: unknown[],
-    newTarget: Function,
+    newTarget: NewableFunction,
     nextGraphKey: string | symbol,
     nextTarget: object,
     nextArgArray: unknown[],
-    nextNewTarget: Function,
+    nextNewTarget: NewableFunction,
   ): object;
   /**
    * A trap for `Object.defineProperty()`.

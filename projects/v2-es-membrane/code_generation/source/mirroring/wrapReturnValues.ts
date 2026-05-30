@@ -57,6 +57,7 @@ async function createWrapReturnValues(
   classDecl.extendsStructure = LiteralTypeStructureImpl.get("baseClass");
 
   decoratorFunction.statements.push(
+    "void context;",
     classDecl,
     `return ${classDecl.name};`
   );
@@ -130,6 +131,14 @@ function buildProxyHandlerTrap(
       else {
         writer.write(`getValueInGraph(result, this.thisGraphKey)`);
       }
+
+      switch (trap.name) {
+        case "apply":
+        case "get":
+        case "ownKeys":
+          return;
+      }
+
       writer.write(` as `);
       trap.returnTypeStructure!.writerFunction(writer);
       writer.write(";");

@@ -3,6 +3,8 @@ import type { ClassDecoratorFunction } from "../../types/ClassDecoratorFunction.
 import ObjectGraphTailHandler from "../ObjectGraphTailHandler.js";
 
 export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler, context: ClassDecoratorContext): typeof ObjectGraphTailHandler {
+    void context;
+
     class RevokedInFlight extends baseClass {
         /**
          * A trap method for a function call.
@@ -14,7 +16,10 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
             }
             finally {
 
-                          if (this.thisGraphValues!.isRevoked) return Reflect.apply(AlwaysRevokedProxy, thisArg, argArray);
+                          if (this.thisGraphValues!.isRevoked) {
+                            // eslint-disable-next-line no-unsafe-finally
+                            return Reflect.apply(AlwaysRevokedProxy, thisArg, argArray);
+                          }
             }
         }
 
@@ -23,13 +28,16 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
          * @param target The original object which is being proxied.
          * @param newTarget The constructor that was originally called.
          */
-        public construct(shadowTarget: object, argArray: unknown[], newTarget: Function, nextGraphKey: string | symbol, nextTarget: object, nextArgArray: unknown[], nextNewTarget: Function): object {
+        public construct(shadowTarget: object, argArray: unknown[], newTarget: NewableFunction, nextGraphKey: string | symbol, nextTarget: object, nextArgArray: unknown[], nextNewTarget: NewableFunction): object {
             try {
                 return super.construct(shadowTarget, argArray, newTarget, nextGraphKey, nextTarget, nextArgArray, nextNewTarget);
             }
             finally {
 
-                          if (this.thisGraphValues!.isRevoked) return Reflect.construct(AlwaysRevokedProxy, argArray, newTarget);
+                          if (this.thisGraphValues!.isRevoked) {
+                            // eslint-disable-next-line no-unsafe-finally
+                            return Reflect.construct(AlwaysRevokedProxy, argArray, newTarget) as object;
+                          }
             }
         }
 
@@ -44,7 +52,10 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
             }
             finally {
 
-                          if (this.thisGraphValues!.isRevoked) return Reflect.defineProperty(AlwaysRevokedProxy, property, attributes);
+                          if (this.thisGraphValues!.isRevoked) {
+                            // eslint-disable-next-line no-unsafe-finally
+                            return Reflect.defineProperty(AlwaysRevokedProxy, property, attributes);
+                          }
             }
         }
 
@@ -60,7 +71,10 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
             }
             finally {
 
-                          if (this.thisGraphValues!.isRevoked) return Reflect.deleteProperty(AlwaysRevokedProxy, p);
+                          if (this.thisGraphValues!.isRevoked) {
+                            // eslint-disable-next-line no-unsafe-finally
+                            return Reflect.deleteProperty(AlwaysRevokedProxy, p);
+                          }
             }
         }
 
@@ -76,7 +90,10 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
             }
             finally {
 
-                          if (this.thisGraphValues!.isRevoked) return Reflect.get(AlwaysRevokedProxy, p, receiver);
+                          if (this.thisGraphValues!.isRevoked) {
+                            // eslint-disable-next-line no-unsafe-finally
+                            return Reflect.get(AlwaysRevokedProxy, p, receiver);
+                          }
             }
         }
 
@@ -91,7 +108,10 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
             }
             finally {
 
-                          if (this.thisGraphValues!.isRevoked) return Reflect.getOwnPropertyDescriptor(AlwaysRevokedProxy, p);
+                          if (this.thisGraphValues!.isRevoked) {
+                            // eslint-disable-next-line no-unsafe-finally
+                            return Reflect.getOwnPropertyDescriptor(AlwaysRevokedProxy, p);
+                          }
             }
         }
 
@@ -105,7 +125,10 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
             }
             finally {
 
-                          if (this.thisGraphValues!.isRevoked) return Reflect.getPrototypeOf(AlwaysRevokedProxy, );
+                          if (this.thisGraphValues!.isRevoked) {
+                            // eslint-disable-next-line no-unsafe-finally
+                            return Reflect.getPrototypeOf(AlwaysRevokedProxy, );
+                          }
             }
         }
 
@@ -120,7 +143,10 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
             }
             finally {
 
-                          if (this.thisGraphValues!.isRevoked) return Reflect.has(AlwaysRevokedProxy, p);
+                          if (this.thisGraphValues!.isRevoked) {
+                            // eslint-disable-next-line no-unsafe-finally
+                            return Reflect.has(AlwaysRevokedProxy, p);
+                          }
             }
         }
 
@@ -134,7 +160,10 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
             }
             finally {
 
-                          if (this.thisGraphValues!.isRevoked) return Reflect.isExtensible(AlwaysRevokedProxy, );
+                          if (this.thisGraphValues!.isRevoked) {
+                            // eslint-disable-next-line no-unsafe-finally
+                            return Reflect.isExtensible(AlwaysRevokedProxy, );
+                          }
             }
         }
 
@@ -148,7 +177,10 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
             }
             finally {
 
-                          if (this.thisGraphValues!.isRevoked) return Reflect.ownKeys(AlwaysRevokedProxy, );
+                          if (this.thisGraphValues!.isRevoked) {
+                            // eslint-disable-next-line no-unsafe-finally
+                            return Reflect.ownKeys(AlwaysRevokedProxy, );
+                          }
             }
         }
 
@@ -162,7 +194,10 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
             }
             finally {
 
-                          if (this.thisGraphValues!.isRevoked) return Reflect.preventExtensions(AlwaysRevokedProxy, );
+                          if (this.thisGraphValues!.isRevoked) {
+                            // eslint-disable-next-line no-unsafe-finally
+                            return Reflect.preventExtensions(AlwaysRevokedProxy, );
+                          }
             }
         }
 
@@ -179,7 +214,10 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
             }
             finally {
 
-                          if (this.thisGraphValues!.isRevoked) return Reflect.set(AlwaysRevokedProxy, p, newValue, receiver);
+                          if (this.thisGraphValues!.isRevoked) {
+                            // eslint-disable-next-line no-unsafe-finally
+                            return Reflect.set(AlwaysRevokedProxy, p, newValue, receiver);
+                          }
             }
         }
 
@@ -194,7 +232,10 @@ export default function RevokedInFlight(baseClass: typeof ObjectGraphTailHandler
             }
             finally {
 
-                          if (this.thisGraphValues!.isRevoked) return Reflect.setPrototypeOf(AlwaysRevokedProxy, v);
+                          if (this.thisGraphValues!.isRevoked) {
+                            // eslint-disable-next-line no-unsafe-finally
+                            return Reflect.setPrototypeOf(AlwaysRevokedProxy, v);
+                          }
             }
         }
     }

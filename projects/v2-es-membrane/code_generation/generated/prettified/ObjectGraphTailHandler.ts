@@ -56,11 +56,11 @@ export default class ObjectGraphTailHandler
   public construct(
     shadowTarget: object,
     argArray: unknown[],
-    newTarget: Function,
+    newTarget: NewableFunction,
     nextGraphKey: string | symbol,
     nextTarget: object,
     nextArgArray: unknown[],
-    nextNewTarget: Function,
+    nextNewTarget: NewableFunction,
   ): object {
     void shadowTarget;
     void argArray;
@@ -70,7 +70,7 @@ export default class ObjectGraphTailHandler
       nextTarget as NewableFunction,
       nextArgArray,
       nextNewTarget,
-    );
+    ) as object;
   }
 
   /**

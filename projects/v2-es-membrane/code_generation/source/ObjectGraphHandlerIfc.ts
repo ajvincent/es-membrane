@@ -10,7 +10,6 @@ The output of this module needs to be a .d.ts file.  Also, other MemberedTypeToC
 import path from "path";
 
 import {
-  ImportManager,
   type InterfaceDeclarationImpl,
   type MethodSignatureImpl,
   ParameterDeclarationImpl,
@@ -36,17 +35,6 @@ export const pathToInterfaceModule = path.join(
 export default
 async function createObjectGraphHandlerIfc(): Promise<InterfaceDeclarationImpl>
 {
-  const importManager = new ImportManager(pathToInterfaceModule);
-  importManager.addImports({
-    pathToImportedModule: path.join(generatedDirs.raw, "../types/RequiredProxyHandler.d.ts"),
-    isPackageImport: false,
-    isDefaultImport: false,
-    isTypeOnly: true,
-    importNames: [
-      "RequiredProxyHandler"
-    ]
-  });
-
   const ObjectGraphHandlerIfc: InterfaceDeclarationImpl = getRequiredProxyHandlerInterface();
   ObjectGraphHandlerIfc.name = "ObjectGraphHandlerIfc";
   ObjectGraphHandlerIfc.isExported = true;
@@ -72,7 +60,6 @@ async function createObjectGraphHandlerIfc(): Promise<InterfaceDeclarationImpl>
   const sourceStructure = new SourceFileImpl();
   sourceStructure.statements.push(
     "// This file is generated.  Do not edit.",
-    ...importManager.getDeclarations(),
     ObjectGraphHandlerIfc,
   );
 
