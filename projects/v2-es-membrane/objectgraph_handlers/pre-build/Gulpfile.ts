@@ -13,6 +13,6 @@ export default async function copyGenerated(): Promise<void> {
   await fs.rm(sourceGeneratedDir, { recursive: true, force: true });
   await fs.mkdir(sourceGeneratedDir, { recursive: true });
 
-  const previousGenerated = path.join(projectDir, "code_generation/generated/final");
+  const previousGenerated = path.join(projectDir, "code_generation/generated/final/object-graphs");
   await fs.cp(previousGenerated, sourceGeneratedDir, { recursive: true });
 }
