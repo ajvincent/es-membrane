@@ -1,4 +1,4 @@
-import { InertWeakMap } from "./InertWeakMap.js";
+import { InertWeakMap } from "./inert/WeakMap.js";
 import { WeakStrongMapIfc } from "./types/WeakStrongMap.js";
 
 export class WeakStrongMap<WeakKeyType extends object, StrongKeyType, ValueType>
@@ -35,13 +35,6 @@ implements WeakStrongMapIfc<WeakKeyType, StrongKeyType, ValueType>
     }
   }
 
-  /**
-   * Delete an element from the collection by the given key sequence.
-   *
-   * @param weakKey - The weakly held key.
-   * @param strongKey - The strongly held key.
-   * @returns True if we found the value and deleted it.
-   */
   public delete(
     weakKey: WeakKeyType,
     strongKey: StrongKeyType
@@ -54,13 +47,6 @@ implements WeakStrongMapIfc<WeakKeyType, StrongKeyType, ValueType>
     return innerMap.delete(weakKey);
   }
 
-  /**
-   * Get a value for a key set.
-   *
-   * @param weakKey - The weakly held key.
-   * @param strongKey - The strongly held key.
-   * @returns The value.  Undefined if it isn't in the collection.
-   */
   public get(
     weakKey: WeakKeyType,
     strongKey: StrongKeyType
@@ -69,14 +55,6 @@ implements WeakStrongMapIfc<WeakKeyType, StrongKeyType, ValueType>
     return this.#root.get(strongKey)?.get(weakKey);
   }
 
-  /**
-   * Guarantee a value for a key set.
-   *
-   * @param weakKey - The weakly held key.
-   * @param strongKey - The strongly held key.
-   * @param defaultGetter - A function to provide a default value if necessary.
-   * @returns The value.
-   */
   public getOrInsertComputed(
     weakKey: WeakKeyType,
     strongKey: StrongKeyType,
@@ -100,24 +78,10 @@ implements WeakStrongMapIfc<WeakKeyType, StrongKeyType, ValueType>
     return retrievedKeys;
   }
 
-  /**
-   * Report if the collection has a value for a key set.
-   *
-   * @param weakKey -The weakly held key.
-   * @param strongKey - The strongly held key.
-   * @returns True if the key set refers to a value in the collection.
-   */
   public has(weakKey: WeakKeyType, strongKey: StrongKeyType): boolean {
     return this.#root.get(strongKey)?.has(weakKey) ?? false;
   }
 
-  /**
-   * Set a value for a key set.
-   *
-   * @param weakKey - The weakly held key.
-   * @param strongKey - The strongly held key.
-   * @param value - The value.
-   */
   public set(
     weakKey: WeakKeyType,
     strongKey: StrongKeyType,
