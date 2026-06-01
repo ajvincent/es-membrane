@@ -1,5 +1,5 @@
 import "es-search-references/guest";
-import WeakStrongMap from "../../source/collections/WeakStrongMap.js";
+import { WeakStrongMap } from "../../source/collections/WeakStrongMap.js";
 
 let testMap: WeakStrongMap<object, unknown, unknown>;
 

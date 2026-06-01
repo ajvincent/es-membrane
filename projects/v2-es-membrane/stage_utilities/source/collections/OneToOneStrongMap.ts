@@ -1,4 +1,4 @@
-import WeakStrongMap from "./WeakStrongMap.js";
+import { WeakStrongMap } from "./WeakStrongMap.js";
 
 class InternalKey {
   doNotCallMe(): never {

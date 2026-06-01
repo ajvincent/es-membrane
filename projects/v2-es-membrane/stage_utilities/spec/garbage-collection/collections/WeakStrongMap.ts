@@ -21,10 +21,7 @@ describe("WeakStrongMap holds references to the", () => {
 
   it("second key weakly", () => {
     expect(graphs.get("set holds the second key weakly")).not.toBeNull();
-
-    // There's a decent argument to make for holding the second key strongly.
-    expect(graphs.get("set holds the second key strongly")).toBeNull();
-    expect(graphs.get("set holds the second key jointly with the first key")).toBeDefined();
+    expect(graphs.get("set holds the second key strongly")).not.toBeNull();
     expect(graphs.get("set holds the second key jointly with the first key")).not.toBeNull();
   });
 

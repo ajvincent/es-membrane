@@ -1,4 +1,4 @@
-import WeakStrongMap from "#stage_utilities/source/collections/WeakStrongMap.js";
+import { WeakStrongMap } from "#stage_utilities/source/collections/WeakStrongMap.js";
 
 describe("CodeGenerator(WeakStrongMap.js),", () => {
   let testMap: WeakStrongMap<object, unknown, unknown>;
