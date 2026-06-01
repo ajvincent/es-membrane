@@ -1,4 +1,22 @@
-import { WeakStrongMap } from "./WeakStrongMap.js";
+import {
+  InertWeakMap
+} from "./inert/WeakMap.js";
+
+import {
+  InertWeakStrongMap
+} from "./inert/WeakStrongMap.js";
+
+import type {
+  OneToOneStrongMapIfc
+} from "./types/OneToOneStrongMapIfc.js";
+
+import type {
+  WeakStrongMapIfc
+} from "./types/WeakStrongMap.js";
+
+import {
+  WeakStrongMap
+} from "./WeakStrongMap.js";
 
 class InternalKey {
   doNotCallMe(): never {
@@ -8,22 +26,12 @@ class InternalKey {
 Object.freeze(InternalKey);
 Object.freeze(InternalKey.prototype);
 
-export class OneToOneStrongMap<
-  StrongKeyType,
-  ValueType extends object
->
+export class OneToOneStrongMap<StrongKeyType, ValueType extends object>
+implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
 {
-  #baseMap: WeakStrongMap<InternalKey, StrongKeyType, ValueType> = new WeakStrongMap;
+  #baseMap: WeakStrongMapIfc<InternalKey, StrongKeyType, ValueType> = new WeakStrongMap;
   #weakValueToInternalKeyMap: WeakMap<ValueType, InternalKey> = new WeakMap;
 
-  /**
-   * Bind two sets of keys and values together.
-   *
-   * @param strongKey_1 - The strongly held key.
-   * @param value_1 - The first value.
-   * @param strongKey_2 - The second key.
-   * @param value_2 - The second value.
-   */
   public bindOneToOne(
     strongKey_1: StrongKeyType,
     value_1: ValueType,
@@ -80,19 +88,11 @@ export class OneToOneStrongMap<
     }
   }
 
-  /** Clear all bindings. */
   public clear(): void {
     this.#baseMap = new WeakStrongMap;
     this.#weakValueToInternalKeyMap = new WeakMap;
   }
 
-  /**
-   * Delete a target value.
-   *
-   * @param value -The value.
-   * @param strongKey - The strongly held key.
-   * @returns True if the target value was deleted.
-   */
   public delete(
     value: ValueType,
     strongKey: StrongKeyType
@@ -123,13 +123,6 @@ export class OneToOneStrongMap<
     return __returnValue__;
   }
 
-  /**
-   * Get a target value.
-   *
-   * @param value - The value.
-   * @param strongKey - The strongly held key.
-   * @returns The target value.
-   */
   public get(
     value: ValueType,
     strongKey: StrongKeyType
@@ -139,13 +132,6 @@ export class OneToOneStrongMap<
     return weakKey ? this.#baseMap.get(weakKey, strongKey) : undefined;
   }
 
-  /**
-   * Determine if a target value exists.
-   *
-   * @param value - The value.
-   * @param strongKey - The strongly held key.
-   * @returns True if the target value exists.
-   */
   public has(
     value: ValueType,
     strongKey: StrongKeyType
@@ -155,15 +141,6 @@ export class OneToOneStrongMap<
     return weakKey ? this.#baseMap.has(weakKey, strongKey) : false;
   }
 
-  /**
-   * Determine if a target value is an identity in this map.
-   *
-   * @param value - The value.
-   * @param strongKey - The strongly held key.
-   * @param allowNotDefined - If true, treat the absence of the value as an identity.
-   * @returns True if the target value exists.
-   * @public
-   */
   hasIdentity(
     value: ValueType,
     strongKey: StrongKeyType,
@@ -178,16 +155,20 @@ export class OneToOneStrongMap<
   }
 
   [Symbol.toStringTag] = "OneToOneStrongMap";
+
+  keyWasRevoked(strongKey: StrongKeyType): boolean {
+    return this.#baseMap.keyWasRevoked(strongKey);
+  }
+
+  revokeStrongKey(strongKey: StrongKeyType): void {
+    this.#baseMap.revokeStrongKey(strongKey);
+  }
+
+  revokeEverything(): void {
+    this.#baseMap = new InertWeakStrongMap();
+    this.#weakValueToInternalKeyMap = new InertWeakMap();
+  }
 }
 
 Object.freeze(OneToOneStrongMap);
 Object.freeze(OneToOneStrongMap.prototype);
-
-export type ReadonlyOneToOneStrongMap<
-  StrongKeyType,
-  ValueType extends object
-> =
-  Pick<
-    OneToOneStrongMap<StrongKeyType, ValueType>,
-    "get" | "has" | "hasIdentity"
-  >
