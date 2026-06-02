@@ -1,4 +1,4 @@
-export interface ReadonlyWeakStrongMap<WeakKeyType extends object, StrongKeyType, ValueType> {
+export interface ReadonlyWeakStrongMap<WeakKeyType extends WeakKey, StrongKeyType, ValueType> {
   /**
    * Get a value for a key set.
    *
@@ -30,7 +30,7 @@ export interface ReadonlyWeakStrongMap<WeakKeyType extends object, StrongKeyType
   keyWasRevoked(strongKey: StrongKeyType): boolean;
 }
 
-export interface WeakStrongMapIfc<WeakKeyType extends object, StrongKeyType, ValueType>
+export interface WeakStrongMapIfc<WeakKeyType extends WeakKey, StrongKeyType, ValueType>
 extends ReadonlyWeakStrongMap<WeakKeyType, StrongKeyType, ValueType>
 {
   /**

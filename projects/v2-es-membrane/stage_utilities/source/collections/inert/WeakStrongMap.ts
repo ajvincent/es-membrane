@@ -2,7 +2,7 @@ import type {
   WeakStrongMapIfc
 } from "../types/WeakStrongMap.js";
 
-export class InertWeakStrongMap<WeakKeyType extends object, StrongKeyType, ValueType>
+export class InertWeakStrongMap<WeakKeyType extends WeakKey, StrongKeyType, ValueType>
 implements WeakStrongMapIfc<WeakKeyType, StrongKeyType, ValueType>
 {
   delete(weakKey: WeakKeyType, strongKey: StrongKeyType): boolean {

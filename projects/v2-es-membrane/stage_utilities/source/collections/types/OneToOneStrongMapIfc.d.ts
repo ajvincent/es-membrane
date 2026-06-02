@@ -1,4 +1,4 @@
-export interface ReadonlyOneToOneStrongMapIfc<StrongKeyType, ValueType extends object> {
+export interface ReadonlyOneToOneStrongMapIfc<StrongKeyType, ValueType extends WeakKey> {
   /**
    * Get a target value.
    *
@@ -35,7 +35,7 @@ export interface ReadonlyOneToOneStrongMapIfc<StrongKeyType, ValueType extends o
   keyWasRevoked(strongKey: StrongKeyType): boolean;
 }
 
-export interface OneToOneStrongMapIfc<StrongKeyType, ValueType extends object>
+export interface OneToOneStrongMapIfc<StrongKeyType, ValueType extends WeakKey>
 extends ReadonlyOneToOneStrongMapIfc<StrongKeyType, ValueType>
 {
   /**

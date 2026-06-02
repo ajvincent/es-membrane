@@ -1,4 +1,4 @@
-export class WeakRefSet<T extends object> {
+export class WeakRefSet<T extends WeakKey> {
   #valueToRef = new WeakMap<T, WeakRef<T>>();
   readonly #references = new Set<WeakRef<T>>;
 

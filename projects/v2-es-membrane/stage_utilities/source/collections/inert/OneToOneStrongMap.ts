@@ -2,7 +2,7 @@ import type {
   OneToOneStrongMapIfc
 } from "../types/OneToOneStrongMapIfc.js";
 
-export class InertOneToOneStrongMapIfc<StrongKeyType, ValueType extends object>
+export class InertOneToOneStrongMapIfc<StrongKeyType, ValueType extends WeakKey>
 implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
 {
   bindOneToOne(strongKey_1: StrongKeyType, value_1: ValueType, strongKey_2: StrongKeyType, value_2: ValueType): void {

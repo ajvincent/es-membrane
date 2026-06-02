@@ -1,5 +1,5 @@
 export default class WeakStrongMap<
-  WeakKeyType extends object,
+  WeakKeyType extends WeakKey,
   StrongKeyType,
   ValueType
 >

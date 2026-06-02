@@ -1,7 +1,7 @@
 import { InertWeakMap } from "./inert/WeakMap.js";
 import { WeakStrongMapIfc } from "./types/WeakStrongMap.js";
 
-export class WeakStrongMap<WeakKeyType extends object, StrongKeyType, ValueType>
+export class WeakStrongMap<WeakKeyType extends WeakKey, StrongKeyType, ValueType>
 implements WeakStrongMapIfc<WeakKeyType, StrongKeyType, ValueType>
 {
   /**

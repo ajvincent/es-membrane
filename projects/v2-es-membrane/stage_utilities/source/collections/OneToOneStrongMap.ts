@@ -18,19 +18,11 @@ import {
   WeakStrongMap
 } from "./WeakStrongMap.js";
 
-class InternalKey {
-  doNotCallMe(): never {
-    throw new Error("don't call me");
-  }
-}
-Object.freeze(InternalKey);
-Object.freeze(InternalKey.prototype);
-
-export class OneToOneStrongMap<StrongKeyType, ValueType extends object>
+export class OneToOneStrongMap<StrongKeyType, ValueType extends WeakKey>
 implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
 {
-  #baseMap: WeakStrongMapIfc<InternalKey, StrongKeyType, ValueType> = new WeakStrongMap;
-  #weakValueToInternalKeyMap: WeakMap<ValueType, InternalKey> = new WeakMap;
+  #baseMap: WeakStrongMapIfc<symbol, StrongKeyType, ValueType> = new WeakStrongMap;
+  #weakValueToInternalKeyMap: WeakMap<ValueType, symbol> = new WeakMap;
 
   public bindOneToOne(
     strongKey_1: StrongKeyType,
@@ -42,7 +34,7 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
     let internalKey = this.#weakValueToInternalKeyMap.get(value_1);
     const __otherInternalKey__ = this.#weakValueToInternalKeyMap.get(value_2);
     if (!internalKey) {
-      internalKey = __otherInternalKey__ || new InternalKey;
+      internalKey = __otherInternalKey__ || Symbol();
     }
     else if (__otherInternalKey__ && (__otherInternalKey__ !== internalKey)) {
       return this.#attemptMergeKeys(internalKey, __otherInternalKey__);
@@ -67,8 +59,8 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
   }
 
   #attemptMergeKeys(
-    firstInternalKey: InternalKey,
-    secondInternalKey: InternalKey
+    firstInternalKey: symbol,
+    secondInternalKey: symbol
   ): void
   {
     const firstKeySet: ReadonlySet<StrongKeyType> = this.#baseMap.strongKeysFor(firstInternalKey);
