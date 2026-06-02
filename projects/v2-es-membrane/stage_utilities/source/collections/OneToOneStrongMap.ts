@@ -66,9 +66,7 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
     const firstKeySet: ReadonlySet<StrongKeyType> = this.#baseMap.strongKeysFor(firstInternalKey);
     const secondKeySet: ReadonlySet<StrongKeyType> = this.#baseMap.strongKeysFor(secondInternalKey);
 
-    const unionKeySet: ReadonlySet<StrongKeyType> = new Set([
-      ...firstKeySet, ...secondKeySet
-    ]);
+    const unionKeySet: ReadonlySet<StrongKeyType> = firstKeySet.union(secondKeySet);
     if (unionKeySet.size < firstKeySet.size + secondKeySet.size)
       throw new Error("value_1 and value_2 have conflicting keys!");
 
