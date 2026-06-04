@@ -119,7 +119,7 @@ export interface ObjectGraphIfc<
   defineInternalSlot(
     parentObject: EngineObject,
     slotName: `[[${string}]]`,
-    childObject: EngineObject,
+    childObject: EngineWeakKey,
     isStrongReference: boolean,
     metadata: RelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.InternalSlot>;

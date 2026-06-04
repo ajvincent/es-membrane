@@ -441,7 +441,7 @@ implements HostObjectGraph<GraphObjectMetadata, GraphRelationshipMetadata>,
   public defineInternalSlot(
     parentObject: object,
     slotName: `[[${string}]]`,
-    childObject: object,
+    childObject: WeakKey,
     isStrongReference: boolean,
     metadata: GraphRelationshipMetadata,
   ): PrefixedNumber<EdgePrefix.InternalSlot>

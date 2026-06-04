@@ -195,7 +195,7 @@ export function addInternalSlotEdge(
   graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   parentObject: object,
   slotName: `[[${string}]]`,
-  childObject: object,
+  childObject: WeakKey,
   isStrongReference: boolean,
 ): void
 {
@@ -217,14 +217,14 @@ export function addMapKeyAndValue(
 ): void
 {
   let keyRelationship: GraphRelationshipMetadata | undefined;
-  if (isObjectOrSymbol(key) && typeof key !== "symbol") {
+  if (isObjectOrSymbol(key)) {
     keyRelationship = {
       parentToChildEdgeType: ChildReferenceEdgeType.MapKey
     };
   }
 
   let valueRelationship: GraphRelationshipMetadata | undefined;
-  if (isObjectOrSymbol(value) && typeof value !== "symbol") {
+  if (isObjectOrSymbol(value)) {
     valueRelationship = {
       parentToChildEdgeType: ChildReferenceEdgeType.MapValue
     };
@@ -238,7 +238,7 @@ export function addMapKeyAndValue(
 export function addSetElementEdge(
   graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
   set: object,
-  value: object,
+  value: WeakKey,
   isStrongReference: boolean,
 ): void
 {

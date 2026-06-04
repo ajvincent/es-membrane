@@ -155,6 +155,13 @@ export class GraphBuilder implements InstanceGetterDefinitions
     return false;
   }
 
+  static #isWeakKey(
+    guestValue: GuestEngine.Value | undefined
+  ): guestValue is GuestEngine.ObjectValue | GuestEngine.SymbolValue
+  {
+    return guestValue?.type === "Object" || guestValue?.type === "Symbol";
+  }
+
   readonly #guestObjectGraph: GuestObjectGraphIfc<GraphObjectMetadata, GraphRelationshipMetadata>;
   #currentNodeId?: string;
 
@@ -210,7 +217,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
       GuestEngine.GetV(guestInstance, guestKey)
     );
 
-    if (guestValue.type === "Object" || guestValue.type === "Symbol") {
+    if (GraphBuilder.#isWeakKey(guestValue)) {
       const details = "instance: key=" + (guestKey.type === "String" ? guestKey.stringValue() : "(symbol)");
       yield* this.#defineGraphNode(guestValue, false, details);
       this.#addObjectPropertyOrGetter(guestInstance, guestKey, guestValue, true);
@@ -248,8 +255,8 @@ export class GraphBuilder implements InstanceGetterDefinitions
         this.#searchConfiguration.enterNodeIdTrap(this.#currentNodeId);
 
       if (GuestEngine.isProxyExoticObject(guestObject)) {
-        yield* this.#addInternalSlotIfObject(guestObject, "ProxyTarget", true, true);
-        yield* this.#addInternalSlotIfObject(guestObject, "ProxyHandler", false, true);
+        yield* this.#addInternalSlotIfWeakKey(guestObject, "ProxyTarget", true, true);
+        yield* this.#addInternalSlotIfWeakKey(guestObject, "ProxyHandler", false, true);
       } else {
         yield * this.#addObjectProperties(guestObject);
         yield * this.#addPrivateFields(guestObject);
@@ -477,7 +484,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
       if (this.#intrinsics.has(childGuestValue))
         continue;
 
-      if (childGuestValue.type === "Object" || childGuestValue.type === "Symbol") {
+      if (GraphBuilder.#isWeakKey(childGuestValue)) {
         let details = `addObjectProperties: `;
         if (typeof key !== "object") {
           details += "key=" + key;
@@ -554,7 +561,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
         guestValue = Value;
       }
 
-      if (guestValue.type !== "Object" && guestValue.type !== "Symbol")
+      if (!GraphBuilder.#isWeakKey(guestValue))
         continue;
 
       yield* this.#defineGraphNode(
@@ -584,7 +591,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
       if (kind === "derived") {
         const proto = Reflect.get(guestObject, "Prototype");
         if (proto.type !== "Null" && this.#intrinsics.has(proto) === false) {
-          yield* this.#addInternalSlotIfObject(guestObject, "Prototype", false, true);
+          yield* this.#addInternalSlotIfWeakKey(guestObject, "Prototype", false, true);
           yield* this.#instanceGetterTracking.addBaseClass(guestObject, proto);
         }
       }
@@ -593,12 +600,12 @@ export class GraphBuilder implements InstanceGetterDefinitions
     const internalSlots: ReadonlySet<string> = new Set(guestObject.internalSlotsList);
 
     if (internalSlots.has("RevocableProxy")) {
-      yield* this.#addInternalSlotIfObject(guestObject, "RevocableProxy", false, true);
+      yield* this.#addInternalSlotIfWeakKey(guestObject, "RevocableProxy", false, true);
       return;
     }
 
     if (internalSlots.has("WeakRefTarget")) {
-      yield* this.#addInternalSlotIfObject(guestObject, "WeakRefTarget", false, false);
+      yield* this.#addInternalSlotIfWeakKey(guestObject, "WeakRefTarget", false, false);
       return;
     }
 
@@ -641,9 +648,9 @@ export class GraphBuilder implements InstanceGetterDefinitions
     }
 
     if (internalSlots.has("BoundTargetFunction")) {
-      yield* this.#addInternalSlotIfObject(guestObject, "BoundTargetFunction", false, true);
+      yield* this.#addInternalSlotIfWeakKey(guestObject, "BoundTargetFunction", false, true);
       if (internalSlots.has("BoundThis"))
-        yield* this.#addInternalSlotIfObject(guestObject, "BoundThis", false, true);
+        yield* this.#addInternalSlotIfWeakKey(guestObject, "BoundThis", false, true);
       if (internalSlots.has("BoundArguments")) {
         yield* this.#addInternalSlotIfList(guestObject, "BoundArguments");
       }
@@ -651,7 +658,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
     }
 
     if (internalSlots.has("PromiseResult")) {
-      yield* this.#addInternalSlotIfObject(guestObject, "PromiseResult", false, true);
+      yield* this.#addInternalSlotIfWeakKey(guestObject, "PromiseResult", false, true);
       yield* this.#addInternalPromiseRecordsList(guestObject, "PromiseFulfillReactions");
       yield* this.#addInternalPromiseRecordsList(guestObject, "PromiseRejectReactions");
     }
@@ -676,7 +683,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
     }
   }
 
-  * #addInternalSlotIfObject(
+  * #addInternalSlotIfWeakKey(
     parentObject: GuestEngine.ObjectValue,
     slotName: string,
     excludeFromSearches: boolean,
@@ -684,7 +691,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
   ): GuestEngine.Evaluator<void>
   {
     const slotObject = Reflect.get(parentObject, slotName) as GuestEngine.Value;
-    if (slotObject.type !== "Object")
+    if (!GraphBuilder.#isWeakKey(slotObject))
       return;
 
     yield* this.#defineGraphNode(
@@ -754,7 +761,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
   ): GuestEngine.Evaluator<void>
   {
     let WeakRefTarget: EngineWeakKey<GuestEngine.ObjectValue, GuestEngine.SymbolValue>;
-    if (cell.WeakRefTarget?.type === "Object" || cell.WeakRefTarget?.type === "Symbol")
+    if (GraphBuilder.#isWeakKey(cell.WeakRefTarget))
       WeakRefTarget = cell.WeakRefTarget;
     else
       return;
@@ -767,7 +774,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
 
     yield* this.#defineGraphNode(
       WeakRefTarget, false, "finalization cell target");
-    if (HeldValue.type === "Object" || HeldValue.type === "Symbol")
+    if (GraphBuilder.#isWeakKey(HeldValue))
       yield* this.#defineGraphNode(
         HeldValue, false, "finalization cell heldValue");
     if (UnregisterToken)
@@ -788,18 +795,18 @@ export class GraphBuilder implements InstanceGetterDefinitions
       if (Key === undefined)
         continue;
 
-      if (Key.type !== "Object" && Value.type !== "Object") {
+      if (!GraphBuilder.#isWeakKey(Key) && !GraphBuilder.#isWeakKey(Value)) {
         continue;
       }
 
       let keyRelationship: GraphRelationshipMetadata | undefined;
       let valueRelationship: GraphRelationshipMetadata | undefined;
-      if (Key.type === "Object" || Key.type === "Symbol") {
+      if (GraphBuilder.#isWeakKey(Key)) {
         yield* this.#defineGraphNode(Key, false, "map key");
         keyRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.MapKey);
       }
 
-      if (Value.type === "Object" || Value.type === "Symbol") {
+      if (GraphBuilder.#isWeakKey(Value)) {
         yield* this.#defineGraphNode(Value, false, "map value");
         valueRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.MapValue);
       }
@@ -820,7 +827,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
       if (value === undefined)
         continue;
 
-      if (value.type === "Object" || value.type === "Symbol") {
+      if (GraphBuilder.#isWeakKey(value)) {
         yield* this.#defineGraphNode(value, false, "set value");
 
         const edgeRelationship = GraphBuilder.#buildChildEdgeType(ChildReferenceEdgeType.SetElement);
@@ -875,7 +882,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
       // here be dragons: not sure if `this` will be the right value for a given module
       thisValue ??= GuestEngine.surroundingAgent.currentRealmRecord.GlobalObject;
       const result: GuestEngine.Value = yield* EnsureTypeOrThrow(guestFunction.Call(thisValue, []));
-      if (result.type === "Object" || result.type === "Symbol") {
+      if (GraphBuilder.#isWeakKey(result)) {
         yield* this.#buildFunctionValueReference(guestFunction, `[[return value]]`, result);
       }
     }
@@ -887,7 +894,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
     guestValue: GuestEngine.Value,
   ): GuestEngine.Evaluator<void>
   {
-    if (guestValue.type !== "Object" && guestValue.type !== "Symbol")
+    if (!GraphBuilder.#isWeakKey(guestValue))
       return;
 
     yield* this.#defineGraphNode(

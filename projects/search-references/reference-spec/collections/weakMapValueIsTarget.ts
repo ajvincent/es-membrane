@@ -1,18 +1,39 @@
 import "es-search-references/guest";
 
-const target = { isTarget: true };
-const key = { isKey: true };
-const objectHoldingTarget = new WeakMap<object, object>([[key, target]]);
+{
+  const target = { isTarget: true };
+  const key = { isKey: true };
+  const objectHoldingTarget = new WeakMap<object, object>([[key, target]]);
 
-const heldValues: object[] = [
-  objectHoldingTarget,
-];
+  const heldValues: object[] = [
+    objectHoldingTarget,
+  ];
 
-searchReferences("weakMapHoldsValueStrongly", target, heldValues, true);
-searchReferences("weakMapHoldsValueWeakly", target, heldValues, false);
+  searchReferences("WeakMap with object key holds value strongly", target, heldValues, true);
+  searchReferences("WeakMap with object key holds value weakly", target, heldValues, false);
 
-heldValues.push(key);
-searchReferences("weakMapAndKeyJointlyHoldValue", target, heldValues, true);
+  heldValues.push(key);
+  searchReferences("WeakMap and object key jointly hold value", target, heldValues, true);
 
-objectHoldingTarget.delete(key);
-searchReferences("after deleting key", target, heldValues, false);
+  objectHoldingTarget.delete(key);
+  searchReferences("after deleting object key", target, heldValues, false);
+}
+
+{
+  const target = Symbol("target");
+  const key = Symbol("key");
+  const objectHoldingTarget = new WeakMap<symbol, symbol>([[key, target]]);
+
+  const heldValues: (object | symbol)[] = [
+    objectHoldingTarget,
+  ];
+
+  searchReferences("WeakMap with symbol key holds value strongly", target, heldValues, true);
+  searchReferences("WeakMap with symbol key holds value weakly", target, heldValues, false);
+
+  heldValues.push(key);
+  searchReferences("WeakMap and symbol key jointly hold value", target, heldValues, true);
+
+  objectHoldingTarget.delete(key);
+  searchReferences("after deleting symbol key", target, heldValues, false);
+}

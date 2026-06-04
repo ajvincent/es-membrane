@@ -219,7 +219,7 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
   public defineInternalSlot(
     parentObject: GuestEngine.ObjectValue,
     slotName: `[[${string}]]`,
-    childObject: GuestEngine.ObjectValue,
+    childObject: GuestWeakKey,
     isStrongReference: boolean,
     metadata: RelationshipMetadata
   ): PrefixedNumber<EdgePrefix.InternalSlot>
@@ -227,7 +227,7 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
     return this.#hostGraph.defineInternalSlot(
       this.#substitution.getHostObject(parentObject),
       slotName,
-      this.#substitution.getHostObject(childObject),
+      this.#substitution.getHostWeakKey(childObject),
       isStrongReference,
       metadata
     );

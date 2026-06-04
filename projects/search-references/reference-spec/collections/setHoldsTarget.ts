@@ -1,13 +1,29 @@
 import "es-search-references/guest";
 
-const target = { isTarget: true };
-const objectHoldingTarget = new Set<object>([target]);
+{
+  const target = { isTarget: true };
+  const objectHoldingTarget = new Set<object>([target]);
 
-const heldValues: readonly object[] = [
-  objectHoldingTarget,
-];
+  const heldValues: readonly object[] = [
+    objectHoldingTarget,
+  ];
 
-searchReferences("setHoldsTargetStrongly", target, heldValues, true);
+  searchReferences("setHoldsObjectTargetStrongly", target, heldValues, true);
 
-objectHoldingTarget.delete(target);
-searchReferences("after deleting key", target, heldValues, false);
+  objectHoldingTarget.delete(target);
+  searchReferences("after deleting object key", target, heldValues, false);
+}
+
+{
+  const target = Symbol("is target");
+  const objectHoldingTarget = new Set<symbol>([target]);
+
+  const heldValues: readonly object[] = [
+    objectHoldingTarget,
+  ];
+
+  searchReferences("setHoldsSymbolTargetStrongly", target, heldValues, true);
+
+  objectHoldingTarget.delete(target);
+  searchReferences("after deleting symbol key", target, heldValues, false);
+}
