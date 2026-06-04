@@ -9,6 +9,7 @@ stage_utilities/**/*.js
 stage_utilities/**/*.d.ts
 stage_utilities/**/*.map
 !stage_utilities/**/types/*.d.ts
+stage_utilities/exported-references.zip
 
 code_generation/**/*.js
 code_generation/**/*.d.ts
