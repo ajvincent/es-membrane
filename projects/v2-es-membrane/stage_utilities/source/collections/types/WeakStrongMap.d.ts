@@ -21,7 +21,7 @@ export interface ReadonlyWeakStrongMap<WeakKeyType extends WeakKey, StrongKeyTyp
    * Get all strong keys for a given weak key.
    * @param weakKey The weak key to look up strong keys for.
    */
-  strongKeysFor(weakKey: WeakKeyType): Set<StrongKeyType>;
+  strongKeysFor(weakKey: WeakKeyType): ReadonlySet<StrongKeyType>;
 
   /**
    * Report if a strong key was revoked.

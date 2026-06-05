@@ -6,7 +6,14 @@ describe("OneToOneStrongMap", () => {
   let map: OneToOneStrongMap<unknown, object>;
   beforeEach(() => map = new OneToOneStrongMap);
 
-  const redObj = {}, blueObj = {}, greenObj = {}, yellowObj = {};
+  class ColorObj {
+    readonly color: string;
+    constructor(color: string) {
+      this.color = color;
+    }
+  }
+  const redObj = new ColorObj("red"), blueObj = new ColorObj("blue"),
+    greenObj = new ColorObj("green"), yellowObj = new ColorObj("yellow");
 
   it("class is frozen", () => {
     expect(Object.isFrozen(OneToOneStrongMap)).toBe(true);
@@ -79,6 +86,7 @@ describe("OneToOneStrongMap", () => {
   });
 
   it(".hasIdentity returns the boolean value of allowNotDefined for an unknown identity", () => {
+    // this test does not call bindOneToOne
     expect(map.hasIdentity(redObj, "red", false)).toBe(false);
     expect(map.hasIdentity(redObj, "red", true)).toBe(true);
 
@@ -112,5 +120,26 @@ describe("OneToOneStrongMap", () => {
     expect(map.get(redObj, "blue")).toBeUndefined();
     expect(map.get(blueObj, "red")).toBeUndefined();
     expect(map.get(blueObj, "blue")).toBeUndefined();
+  });
+
+  it(".revokeStrongKey() makes nothing reachable either from that key or to that key", () => {
+    map.bindOneToOne("red", redObj, "blue", blueObj);
+    map.bindOneToOne("red", redObj, "green", greenObj);
+
+    map.revokeStrongKey("red");
+    expect(map.get(redObj, "blue")).toBeUndefined();
+    expect(map.get(blueObj, "red")).toBeUndefined();
+
+    expect(map.get(blueObj, "green")).toBe(greenObj);
+  });
+
+  it(".revokeEverything() wipes out the map", () => {
+    map.bindOneToOne("red", redObj, "blue", blueObj);
+    map.bindOneToOne("red", redObj, "green", greenObj);
+
+    map.revokeEverything();
+    expect(map.get(redObj, "blue")).toBeUndefined();
+    expect(map.get(blueObj, "red")).toBeUndefined();
+    expect(map.get(blueObj, "green")).toBeUndefined();
   });
 });

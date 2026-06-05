@@ -22,8 +22,17 @@ testMap.bindOneToOne(firstGraphKey, firstValue, secondGraphKey, secondValue);
 searchReferences("1:1 binding to first value from just the map (weak)", firstValue, [testMap], false);
 searchReferences("1:1 binding to first value from just the map (strong)", firstValue, [testMap], true);
 
-searchReferences("1:1 binding to first value from the map and second value (strong)", firstValue, [testMap, secondValue], true);
+searchReferences(
+  "1:1 binding to first value from the map and second value (strong)",
+  firstValue, [testMap, secondValue], true
+);
 
 testMap.delete(secondValue, secondGraphKey);
-
 searchReferences("1:1 binding after value was deleted", firstValue, [testMap, secondValue], false);
+
+// restore the binding
+testMap.bindOneToOne(firstGraphKey, firstValue, secondGraphKey, secondValue);
+
+testMap.revokeStrongKey(secondGraphKey);
+searchReferences("1:1 map binding after revocation of the second graph key", firstValue, [testMap, secondValue], true);
+searchReferences("1:1 joint binding after revocation of the second graph key", firstValue, [testMap, secondValue], true);

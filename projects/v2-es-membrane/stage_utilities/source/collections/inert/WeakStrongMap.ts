@@ -21,7 +21,7 @@ implements WeakStrongMapIfc<WeakKeyType, StrongKeyType, ValueType>
     void defaultGetter;
     throw new Error("Method not implemented.");
   }
-  strongKeysFor(weakKey: WeakKeyType): Set<StrongKeyType> {
+  strongKeysFor(weakKey: WeakKeyType): ReadonlySet<StrongKeyType> {
     void weakKey;
     return new Set();
   }

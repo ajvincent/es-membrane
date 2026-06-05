@@ -4,7 +4,9 @@ import {
   SearchGraph
 } from "es-search-references/host";
 
-import { stageDir } from "#stage_utilities/spec/support/stageDir.js";
+import {
+  stageDir
+} from "#stage_utilities/spec/support/stageDir.js";
 
 describe("OneToOneStrongMap holds references to a value", () => {
   let graphs: ReadonlyMap<string, SearchGraph | null>;
@@ -25,5 +27,15 @@ describe("OneToOneStrongMap holds references to a value", () => {
 
   it("unless the second value was deleted", () => {
     expect(graphs.get("1:1 binding after value was deleted")!).toBeNull();
+  });
+
+  it("unless revoking the second object graph", () => {
+    expect(graphs.get(
+      "1:1 map binding after revocation of the second graph key"
+    )!).withContext("map only").toBeNull();
+
+    expect(graphs.get(
+      "1:1 joint binding after revocation of the second graph key"
+    )!).withContext("with second key").toBeNull();
   });
 });

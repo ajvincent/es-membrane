@@ -66,7 +66,7 @@ implements WeakStrongMapIfc<WeakKeyType, StrongKeyType, ValueType>
 
   public strongKeysFor(
     weakKey: WeakKeyType
-  ): Set<StrongKeyType>
+  ): ReadonlySet<StrongKeyType>
   {
     const retrievedKeys: Set<StrongKeyType> = new Set;
 
