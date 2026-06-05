@@ -6,7 +6,7 @@ import type {
   BuiltInJSTypeName,
 } from "../utilities/constants.js";
 
-export interface GraphObjectMetadata extends JsonObject {
+export interface GraphWeakKeyMetadata extends JsonObject {
   readonly builtInJSTypeName: BuiltInJSTypeName;
   readonly derivedClassName: string;
   classSpecifier: string | null;

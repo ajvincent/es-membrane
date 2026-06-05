@@ -3,8 +3,8 @@ import type {
 } from "@dagrejs/graphlib";
 
 import type {
-  GraphObjectMetadata
-} from "../../types/GraphObjectMetadata.d.ts";
+  GraphWeakKeyMetadata
+} from "../../types/GraphWeakKeyMetadata.d.ts";
 
 import type {
   GraphRelationshipMetadata
@@ -17,6 +17,6 @@ import type {
 
 export type SearchGraph = Graph<
   unknown,
-  GraphNodeWithMetadata<GraphObjectMetadata | null>,
+  GraphNodeWithMetadata<GraphWeakKeyMetadata | null>,
   GraphEdgeWithMetadata<GraphRelationshipMetadata | null>
 >;

@@ -6,8 +6,8 @@ import {
 } from "../../../source/graph-analysis/ObjectGraphImpl.js";
 
 import type {
-  GraphObjectMetadata
-} from "../../../source/types/GraphObjectMetadata.js";
+  GraphWeakKeyMetadata
+} from "../../../source/types/GraphWeakKeyMetadata.js";
 
 import {
   BuiltInJSTypeName
@@ -32,7 +32,7 @@ describe("Simple graph searches: Collections (object tests):", () => {
 
   const mapOrSet = { name: "isMapOrSet" }, key = { name: "key" }, value = { name: "value" };
 
-  const targetMetadata: GraphObjectMetadata = {
+  const targetMetadata: GraphWeakKeyMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Object,
     derivedClassName: BuiltInJSTypeName.Object,
     classSpecifier: null,
@@ -40,7 +40,7 @@ describe("Simple graph searches: Collections (object tests):", () => {
     symbolDescription: null,
   };
 
-  const heldValuesMetadata: GraphObjectMetadata = {
+  const heldValuesMetadata: GraphWeakKeyMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Array,
     derivedClassName: BuiltInJSTypeName.Array,
     classSpecifier: null,
@@ -239,7 +239,7 @@ describe("Simple graph searches: Collections (symbol tests):", () => {
 
   const mapOrSet = { name: "isMapOrSet" }, key = Symbol("key"), value = Symbol("value");
 
-  const targetMetadata: GraphObjectMetadata = {
+  const targetMetadata: GraphWeakKeyMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Symbol,
     derivedClassName: BuiltInJSTypeName.Symbol,
     classSpecifier: null,
@@ -247,7 +247,7 @@ describe("Simple graph searches: Collections (symbol tests):", () => {
     symbolDescription: target.description!,
   };
 
-  const heldValuesMetadata: GraphObjectMetadata = {
+  const heldValuesMetadata: GraphWeakKeyMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Array,
     derivedClassName: BuiltInJSTypeName.Array,
     classSpecifier: null,

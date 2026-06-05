@@ -17,8 +17,8 @@ import type {
 } from "../../source/public/core-host/types/SearchConfiguration.js";
 
 import type {
-  GraphObjectMetadata
-} from "../../source/types/GraphObjectMetadata.js";
+  GraphWeakKeyMetadata
+} from "../../source/types/GraphWeakKeyMetadata.js";
 
 import {
   getReferenceSpecPath,
@@ -67,7 +67,7 @@ function canonicalizeSpecifiers(
 ): void
 {
   for (const nodeId of graph.nodes()) {
-    const node = graph.node(nodeId) as GraphNodeWithMetadata<GraphObjectMetadata>;
+    const node = graph.node(nodeId) as GraphNodeWithMetadata<GraphWeakKeyMetadata>;
     if (!node)
       continue;
     const { metadata } = node;

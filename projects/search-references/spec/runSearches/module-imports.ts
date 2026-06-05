@@ -6,8 +6,8 @@ import {
 } from "../../source/graph-analysis/ObjectGraphImpl.js";
 
 import type {
-  GraphObjectMetadata
-} from "../../source/types/GraphObjectMetadata.js";
+  GraphWeakKeyMetadata
+} from "../../source/types/GraphWeakKeyMetadata.js";
 
 import {
   BuiltInJSTypeName
@@ -27,7 +27,7 @@ import {
 it("Simple graph searches: when there is an import involved (modules importing other modules), we can load them.", async () => {
   const target = { isTarget: true, }, heldValues = { isHeldValues: true };
 
-  const targetMetadata: GraphObjectMetadata = {
+  const targetMetadata: GraphWeakKeyMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Object,
     derivedClassName: BuiltInJSTypeName.Object,
     classSpecifier: null,
@@ -35,7 +35,7 @@ it("Simple graph searches: when there is an import involved (modules importing o
     symbolDescription: null,
   };
 
-  const heldValuesMetadata: GraphObjectMetadata = {
+  const heldValuesMetadata: GraphWeakKeyMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Array,
     derivedClassName: BuiltInJSTypeName.Array,
     classSpecifier: null,

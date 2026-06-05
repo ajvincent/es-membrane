@@ -17,8 +17,8 @@ import type {
 } from "../../public/core-host/types/SearchConfiguration.js";
 
 import type {
-  GraphObjectMetadata
-} from "../../types/GraphObjectMetadata.js";
+  GraphWeakKeyMetadata
+} from "../../types/GraphWeakKeyMetadata.js";
 
 import type {
   GraphRelationshipMetadata
@@ -162,7 +162,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
     return guestValue?.type === "Object" || guestValue?.type === "Symbol";
   }
 
-  readonly #guestObjectGraph: GuestObjectGraphIfc<GraphObjectMetadata, GraphRelationshipMetadata>;
+  readonly #guestObjectGraph: GuestObjectGraphIfc<GraphWeakKeyMetadata, GraphRelationshipMetadata>;
   #currentNodeId?: string;
 
   readonly #intrinsicToBuiltInNameMap: ReadonlyMap<GuestEngine.Value, BuiltInJSTypeName>;
@@ -182,7 +182,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
 
   constructor(
     realm: GuestEngine.ManagedRealm,
-    hostObjectGraph: ObjectGraphIfc<object, symbol, object, GraphObjectMetadata, GraphRelationshipMetadata>,
+    hostObjectGraph: ObjectGraphIfc<object, symbol, object, GraphWeakKeyMetadata, GraphRelationshipMetadata>,
     resultsKey: string,
     searchConfiguration?: SearchConfiguration
   )
@@ -229,8 +229,8 @@ export class GraphBuilder implements InstanceGetterDefinitions
     heldValues: GuestEngine.ObjectValue,
   ): GuestEngine.Evaluator<void>
   {
-    const targetMetadata: GraphObjectMetadata = yield * this.#buildGraphObjectMetadata(targetValue);
-    const heldValuesMetadata: GraphObjectMetadata = yield * this.#buildGraphObjectMetadata(heldValues);
+    const targetMetadata: GraphWeakKeyMetadata = yield * this.#buildGraphWeakKeyMetadata(targetValue);
+    const heldValuesMetadata: GraphWeakKeyMetadata = yield * this.#buildGraphWeakKeyMetadata(heldValues);
 
     this.#guestObjectGraph.defineTargetAndHeldValues(
       targetValue, targetMetadata, heldValues, heldValuesMetadata
@@ -310,7 +310,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
   ): GuestEngine.Evaluator<void>
   {
     if (this.#guestObjectGraph.hasObject(guestObject) === false) {
-      const objectMetadata: GraphObjectMetadata = yield * this.#buildGraphObjectMetadata(guestObject);
+      const objectMetadata: GraphWeakKeyMetadata = yield * this.#buildGraphWeakKeyMetadata(guestObject);
       if (guestObject.ConstructedBy.length > 0) {
         const classObject: GuestEngine.ObjectValue = guestObject.ConstructedBy[guestObject.ConstructedBy.length - 1];
         const slots = new Set<string>(classObject.internalSlotsList);
@@ -357,14 +357,14 @@ export class GraphBuilder implements InstanceGetterDefinitions
   ): GuestEngine.Evaluator<void>
   {
     if (this.#guestObjectGraph.hasSymbol(guestSymbol) === false) {
-      const objectMetadata: GraphObjectMetadata = yield * this.#buildGraphObjectMetadata(guestSymbol);
+      const objectMetadata: GraphWeakKeyMetadata = yield * this.#buildGraphWeakKeyMetadata(guestSymbol);
       this.#guestObjectGraph.defineSymbol(guestSymbol, objectMetadata);
     }
   }
 
-  * #buildGraphObjectMetadata(
+  * #buildGraphWeakKeyMetadata(
     guestValue: GuestEngine.ObjectValue | GuestEngine.SymbolValue
-  ): GuestEngine.Evaluator<GraphObjectMetadata>
+  ): GuestEngine.Evaluator<GraphWeakKeyMetadata>
   {
       const collectionAndClass = yield * this.#getCollectionAndClassName(guestValue);
       const objectMetadata = buildObjectMetadata(...collectionAndClass);

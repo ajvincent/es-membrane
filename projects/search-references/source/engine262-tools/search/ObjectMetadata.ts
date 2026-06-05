@@ -3,13 +3,13 @@ import type {
 } from "../../utilities/constants.js";
 
 import type {
-  GraphObjectMetadata
-} from "../../types/GraphObjectMetadata.js";
+  GraphWeakKeyMetadata
+} from "../../types/GraphWeakKeyMetadata.js";
 
 export function buildObjectMetadata(
   builtInJSTypeName: BuiltInJSTypeName,
   derivedClassName: string,
-): GraphObjectMetadata
+): GraphWeakKeyMetadata
 {
   return {
     builtInJSTypeName,

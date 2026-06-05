@@ -6,8 +6,8 @@ import {
 } from "../../../source/graph-analysis/ObjectGraphImpl.js";
 
 import type {
-  GraphObjectMetadata
-} from "../../../source/types/GraphObjectMetadata.js";
+  GraphWeakKeyMetadata
+} from "../../../source/types/GraphWeakKeyMetadata.js";
 
 import {
   BuiltInJSTypeName
@@ -28,7 +28,7 @@ import {
 describe("Simple graph searches, proxy support:", () => {
   const target = { isTarget: true, }, heldValues = { isHeldValues: true };
 
-  const targetMetadata: GraphObjectMetadata = {
+  const targetMetadata: GraphWeakKeyMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Object,
     derivedClassName: BuiltInJSTypeName.Object,
     classSpecifier: null,
@@ -36,7 +36,7 @@ describe("Simple graph searches, proxy support:", () => {
     symbolDescription: null,
   };
 
-  const heldValuesMetadata: GraphObjectMetadata = {
+  const heldValuesMetadata: GraphWeakKeyMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Array,
     derivedClassName: BuiltInJSTypeName.Array,
     classSpecifier: null,
@@ -126,7 +126,7 @@ describe("Simple graph searches, proxy support:", () => {
   it("revokers hold proxies before revocation", async () => {
     ExpectedObjectGraph = new ObjectGraphImpl;
 
-    const targetMetadata: GraphObjectMetadata = {
+    const targetMetadata: GraphWeakKeyMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Proxy,
       derivedClassName: BuiltInJSTypeName.Proxy,
       classSpecifier: null,

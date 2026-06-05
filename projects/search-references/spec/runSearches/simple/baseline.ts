@@ -18,8 +18,8 @@ import {
 } from "../../../source/public/host/runSearchesInGuestEngine.js";
 
 import type {
-  GraphObjectMetadata
-} from "../../../source/types/GraphObjectMetadata.js";
+  GraphWeakKeyMetadata
+} from "../../../source/types/GraphWeakKeyMetadata.js";
 
 import {
   BuiltInJSTypeName
@@ -46,7 +46,7 @@ import {
 describe("Simple graph searches: baseline", () => {
   const target = { isTarget: true, }, heldValues = { isHeldValues: true };
 
-  const targetMetadata: GraphObjectMetadata = {
+  const targetMetadata: GraphWeakKeyMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Object,
     derivedClassName: BuiltInJSTypeName.Object,
     classSpecifier: null,
@@ -54,7 +54,7 @@ describe("Simple graph searches: baseline", () => {
     symbolDescription: null,
   };
 
-  const heldValuesMetadata: GraphObjectMetadata = {
+  const heldValuesMetadata: GraphWeakKeyMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Array,
     derivedClassName: BuiltInJSTypeName.Array,
     classSpecifier: null,
@@ -104,7 +104,7 @@ describe("Simple graph searches: baseline", () => {
 
     const target = Symbol("is symbol target");
 
-    const targetMetadata: GraphObjectMetadata = {
+    const targetMetadata: GraphWeakKeyMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Symbol,
       derivedClassName: BuiltInJSTypeName.Symbol,
       classSpecifier: null,
@@ -192,7 +192,7 @@ describe("Simple graph searches: baseline", () => {
 
       const target = Symbol("target symbol");
 
-      const targetMetadata: GraphObjectMetadata = {
+      const targetMetadata: GraphWeakKeyMetadata = {
         builtInJSTypeName: BuiltInJSTypeName.Symbol,
         derivedClassName: BuiltInJSTypeName.Symbol,
         classSpecifier: null,

@@ -11,8 +11,8 @@ import type {
 } from "../../../source/graph-analysis/ObjectGraphImpl.js";
 
 import type {
-  GraphObjectMetadata
-} from "../../../source/types/GraphObjectMetadata.js";
+  GraphWeakKeyMetadata
+} from "../../../source/types/GraphWeakKeyMetadata.js";
 
 import type {
   GraphRelationshipMetadata
@@ -44,7 +44,7 @@ describe("Simple graph searches: FinalizationRegistry", () => {
   let heldValues: WeakKey[];
 
   function addToRegistry(
-    ExpectedObjectGraph: HostObjectGraph<GraphObjectMetadata, GraphRelationshipMetadata>
+    ExpectedObjectGraph: HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>
   ): void
   {
     addObjectGraphNode(

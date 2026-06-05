@@ -14,8 +14,8 @@ import type {
 } from "../../source/public/core-host/runSearchesInGuestEngine.js";
 
 import type {
-  GraphObjectMetadata
-} from "../../source/types/GraphObjectMetadata.js";
+  GraphWeakKeyMetadata
+} from "../../source/types/GraphWeakKeyMetadata.js";
 
 import type {
   GraphRelationshipMetadata
@@ -40,7 +40,7 @@ export function createExpectedGraph(
   configuration?: SearchConfiguration,
 ): [ObjectGraphImpl, WeakKey[]]
 {
-  const targetMetadata: GraphObjectMetadata = {
+  const targetMetadata: GraphWeakKeyMetadata = {
     builtInJSTypeName: targetJSTypeName,
     derivedClassName: targetClassName,
     classSpecifier: null,
@@ -48,7 +48,7 @@ export function createExpectedGraph(
     symbolDescription: null,
   };
 
-  const heldValuesMetadata: GraphObjectMetadata = {
+  const heldValuesMetadata: GraphWeakKeyMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Array,
     derivedClassName: BuiltInJSTypeName.Array,
     classSpecifier: null,
@@ -71,7 +71,7 @@ export function createExpectedGraph(
 }
 
 export function addObjectGraphNode(
-  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  graph: HostObjectGraph<GraphWeakKeyMetadata, JsonObject>,
   object: object,
   builtInJSTypeName: BuiltInJSTypeName,
   derivedClassName: string,
@@ -79,7 +79,7 @@ export function addObjectGraphNode(
   classLineNumber?: number,
 ): void
 {
-  const metadata: GraphObjectMetadata = {
+  const metadata: GraphWeakKeyMetadata = {
     builtInJSTypeName,
     derivedClassName,
     classSpecifier: null,
@@ -95,11 +95,11 @@ export function addObjectGraphNode(
 }
 
 export function addSymbolGraphNode(
-  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  graph: HostObjectGraph<GraphWeakKeyMetadata, JsonObject>,
   symbol: symbol,
 ): void
 {
-  const metadata: GraphObjectMetadata = {
+  const metadata: GraphWeakKeyMetadata = {
     builtInJSTypeName: BuiltInJSTypeName.Symbol,
     derivedClassName: BuiltInJSTypeName.Symbol,
     classSpecifier: null,
@@ -111,7 +111,7 @@ export function addSymbolGraphNode(
 }
 
 export function addPrivateName(
-  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  graph: HostObjectGraph<GraphWeakKeyMetadata, JsonObject>,
   privateKey: `#${string}`
 ): object
 {
@@ -121,7 +121,7 @@ export function addPrivateName(
 }
 
 export function addArrayIndexEdge(
-  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  graph: HostObjectGraph<GraphWeakKeyMetadata, JsonObject>,
   parentObject: object,
   index: number,
   childObject: object | symbol,
@@ -136,7 +136,7 @@ export function addArrayIndexEdge(
 }
 
 export function addPropertyNameEdge(
-  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  graph: HostObjectGraph<GraphWeakKeyMetadata, JsonObject>,
   parentObject: object,
   propertyName: string,
   childObject: object,
@@ -153,7 +153,7 @@ export function addPropertyNameEdge(
 }
 
 export function addSymbolAsObjectKeyEdge(
-  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  graph: HostObjectGraph<GraphWeakKeyMetadata, JsonObject>,
   parentObject: object,
   symbolKey: symbol,
 ): void
@@ -165,7 +165,7 @@ export function addSymbolAsObjectKeyEdge(
 }
 
 export function addPropertySymbolEdge(
-  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  graph: HostObjectGraph<GraphWeakKeyMetadata, JsonObject>,
   parentObject: object,
   propertyKey: symbol,
   childObject: object,
@@ -182,7 +182,7 @@ export function addPropertySymbolEdge(
 }
 
 export function addScopeValueEdge(
-  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  graph: HostObjectGraph<GraphWeakKeyMetadata, JsonObject>,
   functionObject: object,
   identifier: string,
   objectValue: WeakKey,
@@ -196,7 +196,7 @@ export function addScopeValueEdge(
 }
 
 export function addInternalSlotEdge(
-  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  graph: HostObjectGraph<GraphWeakKeyMetadata, JsonObject>,
   parentObject: object,
   slotName: `[[${string}]]`,
   childObject: WeakKey,
@@ -213,7 +213,7 @@ export function addInternalSlotEdge(
 }
 
 export function addMapKeyAndValue(
-  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  graph: HostObjectGraph<GraphWeakKeyMetadata, JsonObject>,
   map: object,
   key: unknown,
   value: unknown,
@@ -240,7 +240,7 @@ export function addMapKeyAndValue(
 }
 
 export function addSetElementEdge(
-  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  graph: HostObjectGraph<GraphWeakKeyMetadata, JsonObject>,
   set: object,
   value: WeakKey,
   isStrongReference: boolean,
@@ -253,7 +253,7 @@ export function addSetElementEdge(
 }
 
 export function addPrivateFieldEdge(
-  graph: HostObjectGraph<GraphObjectMetadata, JsonObject>,
+  graph: HostObjectGraph<GraphWeakKeyMetadata, JsonObject>,
   parent: object,
   privateName: object,
   privateKey: `#${string}`,
@@ -282,7 +282,7 @@ export function addSpecifierAndLine(
   classLineNumber: number,
 ): void
 {
-  const node = graph.node(nodeId) as Record<"metadata", GraphObjectMetadata>;
+  const node = graph.node(nodeId) as Record<"metadata", GraphWeakKeyMetadata>;
   node.metadata.classSpecifier = "virtual://home/reference-spec/" + classSpecifier;
   node.metadata.classLineNumber = classLineNumber;
 }

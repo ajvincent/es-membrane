@@ -34,8 +34,8 @@ import {
 } from "../source/graph-analysis/ObjectGraphImpl.js";
 
 import type {
-  GraphObjectMetadata
-} from "../source/types/GraphObjectMetadata.js";
+  GraphWeakKeyMetadata
+} from "../source/types/GraphWeakKeyMetadata.js";
 
 import {
   addObjectGraphNode,
@@ -110,7 +110,7 @@ describe("pathsToTarget works well with ObjectGraphImpl (weak map simulation)", 
 
     const mapOrSet = { name: "isMapOrSet" }, key = { name: "key" };
 
-    const targetMetadata: GraphObjectMetadata = {
+    const targetMetadata: GraphWeakKeyMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Object,
       derivedClassName: BuiltInJSTypeName.Object,
       classSpecifier: null,
@@ -118,7 +118,7 @@ describe("pathsToTarget works well with ObjectGraphImpl (weak map simulation)", 
       symbolDescription: null,
     };
 
-    const heldValuesMetadata: GraphObjectMetadata = {
+    const heldValuesMetadata: GraphWeakKeyMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Array,
       derivedClassName: BuiltInJSTypeName.Array,
       classSpecifier: null,

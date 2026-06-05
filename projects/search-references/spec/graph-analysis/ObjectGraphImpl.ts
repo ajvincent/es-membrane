@@ -30,8 +30,8 @@ import type {
 } from "../../source/graph-analysis/types/SearchReferencesIfc.js";
 
 import type {
-  GraphObjectMetadata
-} from "../../source/types/GraphObjectMetadata.js";
+  GraphWeakKeyMetadata
+} from "../../source/types/GraphWeakKeyMetadata.js";
 
 import type {
   GraphRelationshipMetadata
@@ -46,7 +46,7 @@ import {
 //#endregion preamble
 
 describe("ObjectGraphImpl", () => {
-  class ObjectMetadata implements GraphObjectMetadata {
+  class WeakKeyMetadata implements GraphWeakKeyMetadata {
     readonly id: string;
     readonly type = "ObjectMetadata";
     readonly builtInJSTypeName = BuiltInJSTypeName.Object;
@@ -74,14 +74,14 @@ describe("ObjectGraphImpl", () => {
   let target: object;
   let heldValues: WeakKey[];
 
-  const targetMetadata = new ObjectMetadata("target");
-  const heldValuesMetadata = new ObjectMetadata("heldValues");
+  const targetMetadata = new WeakKeyMetadata("target");
+  const heldValuesMetadata = new WeakKeyMetadata("heldValues");
 
   /* If you're wondering "why have the same object in three variables", this is
   to enforce the interface boundaries.  After all, I expect to pass the object
   graph to different API's. */
   let cloneableGraph: CloneableGraphIfc;
-  let objectGraph: HostObjectGraph<GraphObjectMetadata, GraphRelationshipMetadata>;
+  let objectGraph: HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>;
   let searchReferences: SearchReferencesIfc;
 
   beforeEach(() => {
@@ -108,8 +108,8 @@ describe("ObjectGraphImpl", () => {
       expect(objectGraph.hasSymbol(lastValue)).toBeFalse();
       expect(objectGraph.hasObject(heldValues)).toBeTrue();
 
-      objectGraph.defineObject(firstValue, new ObjectMetadata("first"));
-      const lastMetadata = new ObjectMetadata("last");
+      objectGraph.defineObject(firstValue, new WeakKeyMetadata("first"));
+      const lastMetadata = new WeakKeyMetadata("last");
       lastMetadata.symbolDescription = lastValue.description!;
       objectGraph.defineSymbol(lastValue, lastMetadata);
 
@@ -148,7 +148,7 @@ describe("ObjectGraphImpl", () => {
       const middleValue = { target };
       heldValues.push(middleValue);
 
-      objectGraph.defineObject(middleValue, new ObjectMetadata("middle"));
+      objectGraph.defineObject(middleValue, new WeakKeyMetadata("middle"));
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
       objectGraph.definePropertyOrGetter(heldValues, 0, middleValue, heldToMiddle, false);
@@ -168,15 +168,15 @@ describe("ObjectGraphImpl", () => {
     it("object properties with symbol keys", () => {
       const symbolKey = Symbol("key");
       {
-        const metadata = new ObjectMetadata("symbolKey");
+        const metadata = new WeakKeyMetadata("symbolKey");
         metadata.symbolDescription = symbolKey.description!;
-        objectGraph.defineSymbol(symbolKey, new ObjectMetadata("symbolKey"));
+        objectGraph.defineSymbol(symbolKey, new WeakKeyMetadata("symbolKey"));
       }
 
       const middleValue = { [symbolKey]: target };
       heldValues.push(middleValue);
 
-      objectGraph.defineObject(middleValue, new ObjectMetadata("middle"));
+      objectGraph.defineObject(middleValue, new WeakKeyMetadata("middle"));
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
       objectGraph.definePropertyOrGetter(heldValues, 0, middleValue, heldToMiddle, false);
@@ -196,7 +196,7 @@ describe("ObjectGraphImpl", () => {
 
     it("objects referring to the target as a symbol key", () => {
       const target = Symbol("is target");
-      const targetMetadata = new ObjectMetadata("target");
+      const targetMetadata = new WeakKeyMetadata("target");
       targetMetadata.symbolDescription = target.description!;
       heldValues = [];
 
@@ -217,12 +217,12 @@ describe("ObjectGraphImpl", () => {
       heldValues.push(middleValue);
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
-      objectGraph.defineObject(middleValue, new ObjectMetadata("middle"));
+      objectGraph.defineObject(middleValue, new WeakKeyMetadata("middle"));
       objectGraph.definePropertyOrGetter(heldValues, 0, middleValue, heldToMiddle, false);
 
       const middleToTargetMeta = new RelationshipMetadata("middle value to target as key");
       const middleToTargetId = objectGraph.defineAsSymbolKey(middleValue, target, middleToTargetMeta);
-      objectGraph.defineObject(tailValue, new ObjectMetadata("tail"));
+      objectGraph.defineObject(tailValue, new WeakKeyMetadata("tail"));
       objectGraph.definePropertyOrGetter(
         middleValue, target, tailValue, new RelationshipMetadata("middle value to tail"), false
       );
@@ -241,7 +241,7 @@ describe("ObjectGraphImpl", () => {
     it("values in a function's scope", () => {
       const middleValue = function() {};
       heldValues.push(middleValue);
-      objectGraph.defineObject(middleValue, new ObjectMetadata("middle"));
+      objectGraph.defineObject(middleValue, new WeakKeyMetadata("middle"));
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
       objectGraph.definePropertyOrGetter(
@@ -266,7 +266,7 @@ describe("ObjectGraphImpl", () => {
       const middleValue = {};
       heldValues.push(middleValue);
 
-      objectGraph.defineObject(middleValue, new ObjectMetadata("middle"));
+      objectGraph.defineObject(middleValue, new WeakKeyMetadata("middle"));
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
       objectGraph.definePropertyOrGetter(
@@ -296,14 +296,14 @@ describe("ObjectGraphImpl", () => {
 
       beforeEach(() => {
         heldValues.push(map);
-        objectGraph.defineObject(map, new ObjectMetadata("map"));
+        objectGraph.defineObject(map, new WeakKeyMetadata("map"));
   
         objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
       });
 
       it("object keys and object values", () => {
-        objectGraph.defineObject(key, new ObjectMetadata("key"));
-        objectGraph.defineObject(value, new ObjectMetadata("value"));
+        objectGraph.defineObject(key, new WeakKeyMetadata("key"));
+        objectGraph.defineObject(value, new WeakKeyMetadata("value"));
 
         const {
           tupleNodeId,
@@ -378,7 +378,7 @@ describe("ObjectGraphImpl", () => {
       });
 
       it("primitive keys and object values", () => {
-        objectGraph.defineObject(value, new ObjectMetadata("value"));
+        objectGraph.defineObject(value, new WeakKeyMetadata("value"));
 
         const {
           tupleNodeId,
@@ -431,7 +431,7 @@ describe("ObjectGraphImpl", () => {
       });
 
       it("object keys and primitive values", () => {
-        objectGraph.defineObject(key, new ObjectMetadata("key"));
+        objectGraph.defineObject(key, new WeakKeyMetadata("key"));
 
         const {
           tupleNodeId,
@@ -500,7 +500,7 @@ describe("ObjectGraphImpl", () => {
       const middleValue = {};
       heldValues.push(middleValue);
 
-      objectGraph.defineObject(middleValue, new ObjectMetadata("middle"));
+      objectGraph.defineObject(middleValue, new WeakKeyMetadata("middle"));
 
       const heldToMiddle = new RelationshipMetadata("held values to middle value");
       objectGraph.definePropertyOrGetter(heldValues, 0, middleValue, heldToMiddle, false);
@@ -521,11 +521,11 @@ describe("ObjectGraphImpl", () => {
 
     describe("finalization registry entries", () => {
       const registry = {isFinalizationRegistry: true};
-      const regMetadata = new ObjectMetadata("finalization registry");
+      const regMetadata = new WeakKeyMetadata("finalization registry");
       const registryHeld = {registryHeld: true };
-      const heldMetadata = new ObjectMetadata("held value metadata");
+      const heldMetadata = new WeakKeyMetadata("held value metadata");
       const token = { isUnregisterToken: true };
-      const tokenMetadata = new ObjectMetadata("unregister token");
+      const tokenMetadata = new WeakKeyMetadata("unregister token");
       beforeEach(() => {
         objectGraph.defineObject(registry, regMetadata);
       });
@@ -859,7 +859,7 @@ describe("ObjectGraphImpl", () => {
       const owner = { isOwner: true };
 
       heldValues.push(owner);
-      objectGraph.defineObject(owner, new ObjectMetadata("owner"));
+      objectGraph.defineObject(owner, new WeakKeyMetadata("owner"));
       objectGraph.definePropertyOrGetter(heldValues, 0, owner, new RelationshipMetadata("held to owner"), false);
 
       objectGraph.definePrivateName(privateKey, "#privateKey");
@@ -936,7 +936,7 @@ describe("ObjectGraphImpl", () => {
       const owner = { isOwner: true };
 
       heldValues.push(owner);
-      objectGraph.defineObject(owner, new ObjectMetadata("owner"));
+      objectGraph.defineObject(owner, new WeakKeyMetadata("owner"));
       objectGraph.definePropertyOrGetter(heldValues, 0, owner, new RelationshipMetadata("held to owner"), false);
 
       objectGraph.definePrivateName(privateKey, "#privateKey");
@@ -1014,13 +1014,13 @@ describe("ObjectGraphImpl", () => {
     it("strong in a regular map", () => {
       const map = {}, key = {}, value = {};
       heldValues.push(map);
-      objectGraph.defineObject(map, new ObjectMetadata("map"));
+      objectGraph.defineObject(map, new WeakKeyMetadata("map"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
       objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
 
-      objectGraph.defineObject(key, new ObjectMetadata("key"));
-      objectGraph.defineObject(value, new ObjectMetadata("value"));
+      objectGraph.defineObject(key, new WeakKeyMetadata("key"));
+      objectGraph.defineObject(value, new WeakKeyMetadata("value"));
 
       const keyMetadata = new RelationshipMetadata("key metadata");
       const valueMetadata = new RelationshipMetadata("value metadata");
@@ -1038,13 +1038,13 @@ describe("ObjectGraphImpl", () => {
     it("weak in a weak map with no references to the key", () => {
       const map = {}, key = {}, value = {};
       heldValues.push(map);
-      objectGraph.defineObject(map, new ObjectMetadata("map"));
+      objectGraph.defineObject(map, new WeakKeyMetadata("map"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
       objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
 
-      objectGraph.defineObject(key, new ObjectMetadata("key"));
-      objectGraph.defineObject(value, new ObjectMetadata("value"));
+      objectGraph.defineObject(key, new WeakKeyMetadata("key"));
+      objectGraph.defineObject(value, new WeakKeyMetadata("value"));
 
       const keyMetadata = new RelationshipMetadata("key metadata");
       const valueMetadata = new RelationshipMetadata("value metadata");
@@ -1062,8 +1062,8 @@ describe("ObjectGraphImpl", () => {
     it("strong in a weak map with another reference to the key", () => {
       const map = {}, key = {}, value = {};
       heldValues.push(map, key);
-      objectGraph.defineObject(map, new ObjectMetadata("map"));
-      objectGraph.defineObject(key, new ObjectMetadata("key"));
+      objectGraph.defineObject(map, new WeakKeyMetadata("map"));
+      objectGraph.defineObject(key, new WeakKeyMetadata("key"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
       objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
@@ -1071,7 +1071,7 @@ describe("ObjectGraphImpl", () => {
         heldValues, 1, key, new RelationshipMetadata("held values to key"), false
       );
 
-      objectGraph.defineObject(value, new ObjectMetadata("value"));
+      objectGraph.defineObject(value, new WeakKeyMetadata("value"));
 
       const keyMetadata = new RelationshipMetadata("key metadata");
       const valueMetadata = new RelationshipMetadata("value metadata");
@@ -1111,17 +1111,17 @@ describe("ObjectGraphImpl", () => {
       const C = {"name": "C" };
       const E = {"name": "E" };
       */
-      objectGraph.defineObject(A, new ObjectMetadata("A"));
+      objectGraph.defineObject(A, new WeakKeyMetadata("A"));
       objectGraph.definePropertyOrGetter(
         heldValues, 0, A, new RelationshipMetadata("held to A"), false
       );
 
-      objectGraph.defineObject(B, new ObjectMetadata("B"));
+      objectGraph.defineObject(B, new WeakKeyMetadata("B"));
       objectGraph.definePropertyOrGetter(
         heldValues, 1, B, new RelationshipMetadata("held to B"), false
       );
 
-      objectGraph.defineObject(E, new ObjectMetadata("E"));
+      objectGraph.defineObject(E, new WeakKeyMetadata("E"));
       objectGraph.definePropertyOrGetter(
         heldValues, 2, E, new RelationshipMetadata("held to E"), false
       );
@@ -1134,7 +1134,7 @@ describe("ObjectGraphImpl", () => {
       B.set(C, target);
       B.set(E, C);
       */
-      objectGraph.defineObject(C, new ObjectMetadata("C"));
+      objectGraph.defineObject(C, new WeakKeyMetadata("C"));
       objectGraph.defineMapKeyValueTuple(
         B, C, target, false,
         new RelationshipMetadata("map B to key C"), new RelationshipMetadata("map tuple to value target")
@@ -1182,17 +1182,17 @@ describe("ObjectGraphImpl", () => {
       const C = {"name": "C" };
       const E = {"name": "E" };
       */
-      objectGraph.defineObject(A, new ObjectMetadata("A"));
+      objectGraph.defineObject(A, new WeakKeyMetadata("A"));
       objectGraph.definePropertyOrGetter(
         heldValues, 0, A, new RelationshipMetadata("held to A"), false
       );
 
-      objectGraph.defineObject(B, new ObjectMetadata("B"));
+      objectGraph.defineObject(B, new WeakKeyMetadata("B"));
       objectGraph.definePropertyOrGetter(
         heldValues, 1, B, new RelationshipMetadata("held to B"), false
       );
 
-      objectGraph.defineObject(E, new ObjectMetadata("E"));
+      objectGraph.defineObject(E, new WeakKeyMetadata("E"));
       objectGraph.definePropertyOrGetter(
         heldValues, 2, E, new RelationshipMetadata("held to E"), false
       );
@@ -1205,7 +1205,7 @@ describe("ObjectGraphImpl", () => {
       B.set(C, target);
       //B.set(E, C);
       */
-      objectGraph.defineObject(C, new ObjectMetadata("C"));
+      objectGraph.defineObject(C, new WeakKeyMetadata("C"));
       objectGraph.defineMapKeyValueTuple(
         B, C, target, false,
         new RelationshipMetadata("B to key C"), new RelationshipMetadata("B map to value target")
@@ -1235,7 +1235,7 @@ describe("ObjectGraphImpl", () => {
   describe("marks references to target symbols as", () => {
     it("strong when the target is an object key", () => {
       const target = Symbol("target");
-      const targetMetadata = new ObjectMetadata("target");
+      const targetMetadata = new WeakKeyMetadata("target");
       targetMetadata.symbolDescription = target.description!;
       {
         heldValues = [];
@@ -1252,7 +1252,7 @@ describe("ObjectGraphImpl", () => {
 
       const value = { name: "value" };
       const propertyBag = { name: "propertyBag", [target]: value };
-      objectGraph.defineObject(propertyBag, new ObjectMetadata("propertyBag"));
+      objectGraph.defineObject(propertyBag, new WeakKeyMetadata("propertyBag"));
 
       heldValues.push(propertyBag);
       objectGraph.definePropertyOrGetter(
@@ -1260,7 +1260,7 @@ describe("ObjectGraphImpl", () => {
       );
 
       objectGraph.defineAsSymbolKey(propertyBag, target, new RelationshipMetadata("property bag to target"));
-      objectGraph.defineObject(value, new ObjectMetadata("value"));
+      objectGraph.defineObject(value, new WeakKeyMetadata("value"));
       objectGraph.definePropertyOrGetter(
         propertyBag, target, value, new RelationshipMetadata("property bag to value via target"), false
       );
@@ -1274,17 +1274,17 @@ describe("ObjectGraphImpl", () => {
     it("strong in a regular map", () => {
       const map = {}, key = Symbol("key"), value = Symbol("value");
       heldValues.push(map);
-      objectGraph.defineObject(map, new ObjectMetadata("map"));
+      objectGraph.defineObject(map, new WeakKeyMetadata("map"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
       objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
 
       {
-        const keySymbolMetadata = new ObjectMetadata("key");
+        const keySymbolMetadata = new WeakKeyMetadata("key");
         keySymbolMetadata.symbolDescription = key.description!;
         objectGraph.defineSymbol(key, keySymbolMetadata);
 
-        const valueSymbolMetadata = new ObjectMetadata("value");
+        const valueSymbolMetadata = new WeakKeyMetadata("value");
         valueSymbolMetadata.symbolDescription = value.description!;
         objectGraph.defineSymbol(value, valueSymbolMetadata);
       }
@@ -1305,17 +1305,17 @@ describe("ObjectGraphImpl", () => {
     it("weak in a weak map with no references to the key", () => {
       const map = {}, key = Symbol("key"), value = Symbol("value");
       heldValues.push(map);
-      objectGraph.defineObject(map, new ObjectMetadata("map"));
+      objectGraph.defineObject(map, new WeakKeyMetadata("map"));
 
       const heldToMap = new RelationshipMetadata("held values to map");
       objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
 
       {
-        const keySymbolMetadata = new ObjectMetadata("key");
+        const keySymbolMetadata = new WeakKeyMetadata("key");
         keySymbolMetadata.symbolDescription = key.description!;
         objectGraph.defineSymbol(key, keySymbolMetadata);
 
-        const valueSymbolMetadata = new ObjectMetadata("value");
+        const valueSymbolMetadata = new WeakKeyMetadata("value");
         valueSymbolMetadata.symbolDescription = value.description!;
         objectGraph.defineSymbol(value, valueSymbolMetadata);
       }
@@ -1337,9 +1337,9 @@ describe("ObjectGraphImpl", () => {
     it("strong in a weak map with another reference to the key", () => {
       const map = {}, key = Symbol("key"), value = Symbol("value");
       heldValues.push(map, key);
-      objectGraph.defineObject(map, new ObjectMetadata("map"));
+      objectGraph.defineObject(map, new WeakKeyMetadata("map"));
       {
-        const keySymbolMetadata = new ObjectMetadata("key");
+        const keySymbolMetadata = new WeakKeyMetadata("key");
         keySymbolMetadata.symbolDescription = key.description!;
         objectGraph.defineSymbol(key, keySymbolMetadata);
       }
@@ -1351,7 +1351,7 @@ describe("ObjectGraphImpl", () => {
       );
 
       {
-        const valueSymbolMetadata = new ObjectMetadata("value");
+        const valueSymbolMetadata = new WeakKeyMetadata("value");
         valueSymbolMetadata.symbolDescription = value.description!;
         objectGraph.defineSymbol(value, valueSymbolMetadata);
       }
@@ -1378,14 +1378,14 @@ describe("ObjectGraphImpl", () => {
     const map = {}, key = {}, value = {}, targetKey = {};
     beforeEach(() => {
       heldValues.push(map);
-      objectGraph.defineObject(map, new ObjectMetadata("map"));
+      objectGraph.defineObject(map, new WeakKeyMetadata("map"));
 
       objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
 
-      objectGraph.defineObject(key, new ObjectMetadata("key"));
-      objectGraph.defineObject(value, new ObjectMetadata("value"));
+      objectGraph.defineObject(key, new WeakKeyMetadata("key"));
+      objectGraph.defineObject(value, new WeakKeyMetadata("value"));
 
-      objectGraph.defineObject(targetKey, new ObjectMetadata("target key"));
+      objectGraph.defineObject(targetKey, new WeakKeyMetadata("target key"));
     });
 
     it("(true) reduces to strong reference chains to the target", () => {
@@ -1647,7 +1647,7 @@ describe("ObjectGraphImpl", () => {
 
     it("defining an object twice", () => {
       expect(
-        () => objectGraph.defineObject(target, new ObjectMetadata("target"))
+        () => objectGraph.defineObject(target, new WeakKeyMetadata("target"))
       ).toThrowError("object is already defined as a node in this graph, with id target:0");
     });
 

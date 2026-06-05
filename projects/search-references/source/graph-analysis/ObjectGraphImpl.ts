@@ -21,8 +21,8 @@ import type {
 } from "../types/ValueDescription.js";
 
 import type {
-  GraphObjectMetadata
-} from "../types/GraphObjectMetadata.js";
+  GraphWeakKeyMetadata
+} from "../types/GraphWeakKeyMetadata.js";
 
 import type {
   GraphRelationshipMetadata
@@ -92,7 +92,7 @@ export type HostObjectGraph<
 > = ObjectGraphIfc<object, symbol, object, ObjectMetadata, RelationshipMetadata>;
 
 export class ObjectGraphImpl
-implements HostObjectGraph<GraphObjectMetadata, GraphRelationshipMetadata>,
+implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
   CloneableGraphIfc, SearchReferencesIfc
 {
   static readonly #NOT_APPLICABLE: ValueDescription = Object.freeze({
@@ -159,9 +159,9 @@ implements HostObjectGraph<GraphObjectMetadata, GraphRelationshipMetadata>,
 
   public defineTargetAndHeldValues(
     target: WeakKey,
-    targetMetadata: GraphObjectMetadata,
+    targetMetadata: GraphWeakKeyMetadata,
     heldValues: object,
-    heldValuesMetadata: GraphObjectMetadata,
+    heldValuesMetadata: GraphWeakKeyMetadata,
   )
   {
     this.#defineTargetCalled = true;
@@ -226,13 +226,13 @@ implements HostObjectGraph<GraphObjectMetadata, GraphRelationshipMetadata>,
 
   public defineObject(
     object: object,
-    metadata: GraphObjectMetadata
+    metadata: GraphWeakKeyMetadata
   ): void
   {
     this.#defineWeakKey(object, metadata, NodePrefix.Object);
   }
 
-  public defineSymbol(symbol: symbol, metadata: GraphObjectMetadata): void {
+  public defineSymbol(symbol: symbol, metadata: GraphWeakKeyMetadata): void {
     this.#defineWeakKey(symbol, metadata, NodePrefix.Symbol);
   }
 
@@ -252,7 +252,7 @@ implements HostObjectGraph<GraphObjectMetadata, GraphRelationshipMetadata>,
     this.#weakKeyToIdMap.set(privateName, nodeId);
     this.#idToWeakKeyMap.set(nodeId, privateName);
 
-    const nodeMetadata: GraphNodeWithMetadata<GraphObjectMetadata> = {
+    const nodeMetadata: GraphNodeWithMetadata<GraphWeakKeyMetadata> = {
       metadata: {
         builtInJSTypeName: BuiltInJSTypeName.PrivateName,
         derivedClassName: "",
@@ -270,7 +270,7 @@ implements HostObjectGraph<GraphObjectMetadata, GraphRelationshipMetadata>,
 
   #defineWeakKey<Prefix extends NodePrefix>(
     weakKey: object | symbol,
-    metadata: GraphObjectMetadata | null,
+    metadata: GraphWeakKeyMetadata | null,
     prefix: Prefix,
   ): PrefixedNumber<Prefix>
   {
@@ -285,7 +285,7 @@ implements HostObjectGraph<GraphObjectMetadata, GraphRelationshipMetadata>,
     this.#weakKeyToIdMap.set(weakKey, nodeId);
     this.#idToWeakKeyMap.set(nodeId, weakKey);
 
-    const nodeMetadata: GraphNodeWithMetadata<GraphObjectMetadata | null> = {
+    const nodeMetadata: GraphNodeWithMetadata<GraphWeakKeyMetadata | null> = {
       metadata,
     };
     this.#graph.setNode(nodeId, nodeMetadata);
@@ -833,7 +833,7 @@ implements HostObjectGraph<GraphObjectMetadata, GraphRelationshipMetadata>,
       if (!edges)
         continue;
 
-      const wNode: GraphNodeWithMetadata<GraphObjectMetadata | null> = this.#graph.node(id);
+      const wNode: GraphNodeWithMetadata<GraphWeakKeyMetadata | null> = this.#graph.node(id);
       if (!summaryGraph.node(id)) {
         summaryGraph.setNode(id, wNode);
       }

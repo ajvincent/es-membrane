@@ -23,12 +23,12 @@ import type {
 } from "./graph-analysis/types/ObjectGraphIfc.js";
 
 import type {
-  GraphObjectMetadata
-} from "./types/GraphObjectMetadata.js";
+  GraphWeakKeyMetadata
+} from "./types/GraphWeakKeyMetadata.js";
 
 import type {
   GraphRelationshipMetadata
 } from "./types/GraphRelationshipMetadata.js";
 
-export type JSGraphNode = ReadonlyDeep<GraphNodeWithMetadata<GraphObjectMetadata>>;
+export type JSGraphNode = ReadonlyDeep<GraphNodeWithMetadata<GraphWeakKeyMetadata>>;
 export type JSGraphEdge = ReadonlyDeep<GraphEdgeWithMetadata<GraphRelationshipMetadata>>;

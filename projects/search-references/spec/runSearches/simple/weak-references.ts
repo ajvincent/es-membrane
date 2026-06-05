@@ -6,8 +6,8 @@ import {
 } from "../../../source/graph-analysis/ObjectGraphImpl.js";
 
 import type {
-  GraphObjectMetadata
-} from "../../../source/types/GraphObjectMetadata.js";
+  GraphWeakKeyMetadata
+} from "../../../source/types/GraphWeakKeyMetadata.js";
 
 import {
   BuiltInJSTypeName
@@ -37,7 +37,7 @@ describe("Simple graph searches: weak references to direct", () => {
   it("objects are reachable in a search including weak references", async () => {
     const target = { isTarget: true, }, heldValues = { isHeldValues: true };
 
-    const targetMetadata: GraphObjectMetadata = {
+    const targetMetadata: GraphWeakKeyMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Object,
       derivedClassName: BuiltInJSTypeName.Object,
       classSpecifier: null,
@@ -45,7 +45,7 @@ describe("Simple graph searches: weak references to direct", () => {
       symbolDescription: null,
     };
 
-    const heldValuesMetadata: GraphObjectMetadata = {
+    const heldValuesMetadata: GraphWeakKeyMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Array,
       derivedClassName: BuiltInJSTypeName.Array,
       classSpecifier: null,
@@ -89,7 +89,7 @@ describe("Simple graph searches: weak references to direct", () => {
   it("symbols are reachable in a search including weak references", async () => {
     const target = Symbol("target symbol"), heldValues = { isHeldValues: true };
 
-    const targetMetadata: GraphObjectMetadata = {
+    const targetMetadata: GraphWeakKeyMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Symbol,
       derivedClassName: BuiltInJSTypeName.Symbol,
       classSpecifier: null,
@@ -97,7 +97,7 @@ describe("Simple graph searches: weak references to direct", () => {
       symbolDescription: target.description!,
     };
 
-    const heldValuesMetadata: GraphObjectMetadata = {
+    const heldValuesMetadata: GraphWeakKeyMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Array,
       derivedClassName: BuiltInJSTypeName.Array,
       classSpecifier: null,
