@@ -1,6 +1,6 @@
 # OneToOneStrongMap can leak memory if we are not careful
 
-## Revoking a strong key doesn't clean up `weakValueToInternalMap`
+## SOLVED: Revoking a strong key doesn't clean up `weakValueToInternalMap`
 
 ```typescript
 const oneToOne = new OneToOneStrongMap<object, string>;
