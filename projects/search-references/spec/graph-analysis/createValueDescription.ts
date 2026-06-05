@@ -32,14 +32,27 @@ describe("createValueDescription correctly serializes", () => {
     });
   });
 
-  it("symbol", () => {
+  it("symbol with description", () => {
     const s = Symbol("hello");
     weakKeyMap.set(s, "symbol:14");
 
     const description = createValueDescription(s, idGetter);
     expect(description).toEqual({
       valueType: ValueDiscrimant.Symbol,
-      symbolId: "symbol:14"
+      symbolId: "symbol:14",
+      description: "hello",
+    });
+  });
+
+  it("symbol without description", () => {
+    const s = Symbol();
+    weakKeyMap.set(s, "symbol:15");
+
+    const description = createValueDescription(s, idGetter);
+    expect(description).toEqual({
+      valueType: ValueDiscrimant.Symbol,
+      symbolId: "symbol:15",
+      description: undefined,
     });
   });
 

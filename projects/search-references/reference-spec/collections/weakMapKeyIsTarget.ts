@@ -16,7 +16,7 @@ import "es-search-references/guest";
 }
 
 {
-  const target = Symbol("target");
+  const target = Symbol("target symbol");
   const objectHoldingTarget = new WeakMap<symbol, boolean>([[target, true]]);
 
   const heldValues: readonly object[] = [

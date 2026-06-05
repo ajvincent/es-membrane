@@ -16,7 +16,7 @@ import "es-search-references/guest";
 }
 
 {
-  const target = Symbol("target");
+  const target = Symbol("target symbol");
   const key = Symbol("key");
   const objectHoldingTarget = new Map<symbol, symbol>([[key, target]]);
 

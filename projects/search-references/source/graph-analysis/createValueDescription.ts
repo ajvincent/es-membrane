@@ -31,6 +31,7 @@ export function createValueDescription(
       return {
         valueType: ValueDiscrimant.Symbol,
         symbolId: objectGraph.getWeakKeyId(value) as SymbolId,
+        description: value.description,
       };
 
     case "boolean":

@@ -187,7 +187,7 @@ describe("Simple graph searches: baseline", () => {
     {
       ExpectedObjectGraph = new ObjectGraphImpl;
 
-      const target = Symbol("(symbol)");
+      const target = Symbol("target symbol");
 
       const targetMetadata: GraphObjectMetadata = {
         builtInJSTypeName: BuiltInJSTypeName.Symbol,
@@ -222,7 +222,7 @@ describe("Simple graph searches: baseline", () => {
 
   it("we can find the target via a symbol-keyed property of an object literal", async () => {
     {
-      const symbolKey = Symbol("(symbol)");
+      const symbolKey = Symbol("This is a symbol key");
 
       const objectHoldingTarget = { [symbolKey]: target };
       addObjectGraphNode(ExpectedObjectGraph, objectHoldingTarget, BuiltInJSTypeName.Object, BuiltInJSTypeName.Object);

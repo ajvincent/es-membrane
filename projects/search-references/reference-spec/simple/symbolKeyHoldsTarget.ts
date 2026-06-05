@@ -1,7 +1,7 @@
 import "es-search-references/guest";
 
 const target = { isTarget: true };
-const symbolKey = Symbol("This is a symbol");
+const symbolKey = Symbol("This is a symbol key");
 const objectHoldingTarget = { [symbolKey]: target };
 
 const heldValues: readonly object[] = [

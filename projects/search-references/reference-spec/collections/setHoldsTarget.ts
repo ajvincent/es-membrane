@@ -15,7 +15,7 @@ import "es-search-references/guest";
 }
 
 {
-  const target = Symbol("is target");
+  const target = Symbol("target symbol");
   const objectHoldingTarget = new Set<symbol>([target]);
 
   const heldValues: readonly object[] = [

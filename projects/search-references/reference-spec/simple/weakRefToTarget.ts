@@ -13,7 +13,7 @@ import "es-search-references/guest";
 }
 
 {
-  const target = Symbol("is target");
+  const target = Symbol("target symbol");
   const weakRef = new WeakRef<symbol>(target);
 
   const heldValues: readonly object[] = [

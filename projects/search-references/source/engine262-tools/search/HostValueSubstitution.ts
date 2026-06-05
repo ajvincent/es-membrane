@@ -76,7 +76,9 @@ export class HostValueSubstitution
   {
     let hostSymbol: symbol | undefined = this.#symbolMap.get(guestSymbol);
     if (!hostSymbol) {
-      hostSymbol = Symbol();
+      const { Description } = guestSymbol;
+      const hostDescription = (Description.type === "String") ? Description.stringValue() : undefined;
+      hostSymbol = Symbol(hostDescription);
       this.#symbolMap.set(guestSymbol, hostSymbol);
     }
     return hostSymbol;

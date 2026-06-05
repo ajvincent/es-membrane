@@ -16,7 +16,7 @@ import "es-search-references/guest";
 }
 
 {
-  const target = Symbol("target");
+  const target = Symbol("target symbol");
   const objectHoldingTarget = new WeakSet<symbol>([target]);
 
   const heldValues: readonly object[] = [

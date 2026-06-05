@@ -233,7 +233,7 @@ describe("Simple graph searches: Collections (object tests):", () => {
 });
 
 describe("Simple graph searches: Collections (symbol tests):", () => {
-  const target = Symbol("is target"), heldValues = { isHeldValues: true };
+  const target = Symbol("target symbol"), heldValues = { isHeldValues: true };
 
   const mapOrSet = { name: "isMapOrSet" }, key = Symbol("key"), value = Symbol("value");
 

@@ -19,6 +19,7 @@ export interface ObjectValueDescription {
 export interface SymbolValueDescription {
   readonly valueType: ValueDiscrimant.Symbol;
   readonly symbolId: SymbolId,
+  readonly description: string | undefined;
 }
 
 export interface BigIntValueDescription {

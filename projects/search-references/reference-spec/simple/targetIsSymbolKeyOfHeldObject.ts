@@ -1,6 +1,6 @@
 import "es-search-references/guest";
 
-const target = Symbol("is target");
+const target = Symbol("target symbol");
 
 const isTailValue = { isTailValue: true };
 const objectHoldingTarget = { [target]: isTailValue };

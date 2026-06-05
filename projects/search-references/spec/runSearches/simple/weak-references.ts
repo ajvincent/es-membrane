@@ -85,7 +85,7 @@ describe("Simple graph searches: weak references to direct", () => {
   });
 
   it("symbols are reachable in a search including weak references", async () => {
-    const target = Symbol("target"), heldValues = { isHeldValues: true };
+    const target = Symbol("target symbol"), heldValues = { isHeldValues: true };
 
     const targetMetadata: GraphObjectMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Symbol,
