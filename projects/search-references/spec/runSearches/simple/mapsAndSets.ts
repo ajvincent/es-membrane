@@ -37,6 +37,7 @@ describe("Simple graph searches: Collections (object tests):", () => {
     derivedClassName: BuiltInJSTypeName.Object,
     classSpecifier: null,
     classLineNumber: null,
+    symbolDescription: null,
   };
 
   const heldValuesMetadata: GraphObjectMetadata = {
@@ -44,6 +45,7 @@ describe("Simple graph searches: Collections (object tests):", () => {
     derivedClassName: BuiltInJSTypeName.Array,
     classSpecifier: null,
     classLineNumber: null,
+    symbolDescription: null,
   };
 
   let ExpectedObjectGraph: ObjectGraphImpl;
@@ -242,6 +244,7 @@ describe("Simple graph searches: Collections (symbol tests):", () => {
     derivedClassName: BuiltInJSTypeName.Symbol,
     classSpecifier: null,
     classLineNumber: null,
+    symbolDescription: target.description!,
   };
 
   const heldValuesMetadata: GraphObjectMetadata = {
@@ -249,6 +252,7 @@ describe("Simple graph searches: Collections (symbol tests):", () => {
     derivedClassName: BuiltInJSTypeName.Array,
     classSpecifier: null,
     classLineNumber: null,
+    symbolDescription: null,
   };
 
   let ExpectedObjectGraph: ObjectGraphImpl;

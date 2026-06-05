@@ -259,6 +259,7 @@ implements HostObjectGraph<GraphObjectMetadata, GraphRelationshipMetadata>,
         description,
         classSpecifier: null,
         classLineNumber: null,
+        symbolDescription: null,
       }
     };
     this.#graph.setNode(nodeId, nodeMetadata);

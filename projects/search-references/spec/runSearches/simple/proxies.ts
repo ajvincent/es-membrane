@@ -33,6 +33,7 @@ describe("Simple graph searches, proxy support:", () => {
     derivedClassName: BuiltInJSTypeName.Object,
     classSpecifier: null,
     classLineNumber: null,
+    symbolDescription: null,
   };
 
   const heldValuesMetadata: GraphObjectMetadata = {
@@ -40,6 +41,7 @@ describe("Simple graph searches, proxy support:", () => {
     derivedClassName: BuiltInJSTypeName.Array,
     classSpecifier: null,
     classLineNumber: null,
+    symbolDescription: null,
   };
 
   interface SearchTargetIfc {
@@ -129,6 +131,7 @@ describe("Simple graph searches, proxy support:", () => {
       derivedClassName: BuiltInJSTypeName.Proxy,
       classSpecifier: null,
       classLineNumber: null,
+      symbolDescription: null,
     };
 
     ExpectedObjectGraph.defineTargetAndHeldValues(

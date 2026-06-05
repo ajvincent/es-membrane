@@ -53,6 +53,7 @@ describe("ObjectGraphImpl", () => {
     readonly derivedClassName: string = "";
     classSpecifier: string | null = null;
     classLineNumber: number | null = null;
+    symbolDescription: string | null = null;
     constructor(id: string) {
       this.id = id;
     }
@@ -108,7 +109,9 @@ describe("ObjectGraphImpl", () => {
       expect(objectGraph.hasObject(heldValues)).toBeTrue();
 
       objectGraph.defineObject(firstValue, new ObjectMetadata("first"));
-      objectGraph.defineSymbol(lastValue, new ObjectMetadata("last"));
+      const lastMetadata = new ObjectMetadata("last");
+      lastMetadata.symbolDescription = lastValue.description!;
+      objectGraph.defineSymbol(lastValue, lastMetadata);
 
       expect(objectGraph.hasObject(firstValue)).toBeTrue();
       expect(objectGraph.hasSymbol(lastValue)).toBeTrue();
@@ -164,7 +167,11 @@ describe("ObjectGraphImpl", () => {
 
     it("object properties with symbol keys", () => {
       const symbolKey = Symbol("key");
-      objectGraph.defineSymbol(symbolKey, new ObjectMetadata("symbolKey"));
+      {
+        const metadata = new ObjectMetadata("symbolKey");
+        metadata.symbolDescription = symbolKey.description!;
+        objectGraph.defineSymbol(symbolKey, new ObjectMetadata("symbolKey"));
+      }
 
       const middleValue = { [symbolKey]: target };
       heldValues.push(middleValue);
@@ -189,6 +196,8 @@ describe("ObjectGraphImpl", () => {
 
     it("objects referring to the target as a symbol key", () => {
       const target = Symbol("is target");
+      const targetMetadata = new ObjectMetadata("target");
+      targetMetadata.symbolDescription = target.description!;
       heldValues = [];
 
       {
@@ -1226,6 +1235,8 @@ describe("ObjectGraphImpl", () => {
   describe("marks references to target symbols as", () => {
     it("strong when the target is an object key", () => {
       const target = Symbol("target");
+      const targetMetadata = new ObjectMetadata("target");
+      targetMetadata.symbolDescription = target.description!;
       {
         heldValues = [];
 
@@ -1268,8 +1279,15 @@ describe("ObjectGraphImpl", () => {
       const heldToMap = new RelationshipMetadata("held values to map");
       objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
 
-      objectGraph.defineSymbol(key, new ObjectMetadata("key"));
-      objectGraph.defineSymbol(value, new ObjectMetadata("value"));
+      {
+        const keySymbolMetadata = new ObjectMetadata("key");
+        keySymbolMetadata.symbolDescription = key.description!;
+        objectGraph.defineSymbol(key, keySymbolMetadata);
+
+        const valueSymbolMetadata = new ObjectMetadata("value");
+        valueSymbolMetadata.symbolDescription = value.description!;
+        objectGraph.defineSymbol(value, valueSymbolMetadata);
+      }
 
       const keyMetadata = new RelationshipMetadata("key metadata");
       const valueMetadata = new RelationshipMetadata("value metadata");
@@ -1292,8 +1310,16 @@ describe("ObjectGraphImpl", () => {
       const heldToMap = new RelationshipMetadata("held values to map");
       objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
 
-      objectGraph.defineSymbol(key, new ObjectMetadata("key"));
-      objectGraph.defineSymbol(value, new ObjectMetadata("value"));
+      {
+        const keySymbolMetadata = new ObjectMetadata("key");
+        keySymbolMetadata.symbolDescription = key.description!;
+        objectGraph.defineSymbol(key, keySymbolMetadata);
+
+        const valueSymbolMetadata = new ObjectMetadata("value");
+        valueSymbolMetadata.symbolDescription = value.description!;
+        objectGraph.defineSymbol(value, valueSymbolMetadata);
+      }
+
 
       const keyMetadata = new RelationshipMetadata("key metadata");
       const valueMetadata = new RelationshipMetadata("value metadata");
@@ -1312,7 +1338,11 @@ describe("ObjectGraphImpl", () => {
       const map = {}, key = Symbol("key"), value = Symbol("value");
       heldValues.push(map, key);
       objectGraph.defineObject(map, new ObjectMetadata("map"));
-      objectGraph.defineSymbol(key, new ObjectMetadata("key"));
+      {
+        const keySymbolMetadata = new ObjectMetadata("key");
+        keySymbolMetadata.symbolDescription = key.description!;
+        objectGraph.defineSymbol(key, keySymbolMetadata);
+      }
 
       const heldToMap = new RelationshipMetadata("held values to map");
       objectGraph.definePropertyOrGetter(heldValues, 0, map, heldToMap, false);
@@ -1320,7 +1350,11 @@ describe("ObjectGraphImpl", () => {
         heldValues, 1, key, new RelationshipMetadata("held values to key"), false
       );
 
-      objectGraph.defineSymbol(value, new ObjectMetadata("value"));
+      {
+        const valueSymbolMetadata = new ObjectMetadata("value");
+        valueSymbolMetadata.symbolDescription = value.description!;
+        objectGraph.defineSymbol(value, valueSymbolMetadata);
+      }
 
       const keyMetadata = new RelationshipMetadata("key metadata");
       const valueMetadata = new RelationshipMetadata("value metadata");

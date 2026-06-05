@@ -11,4 +11,5 @@ export interface GraphObjectMetadata extends JsonObject {
   readonly derivedClassName: string;
   classSpecifier: string | null;
   classLineNumber: number | null;
+  symbolDescription: string | null;
 }

@@ -16,5 +16,6 @@ export function buildObjectMetadata(
     derivedClassName,
     classSpecifier: null,
     classLineNumber: null,
+    symbolDescription: null,
   };
 }

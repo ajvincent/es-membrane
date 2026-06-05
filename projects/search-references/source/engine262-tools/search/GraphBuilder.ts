@@ -229,13 +229,8 @@ export class GraphBuilder implements InstanceGetterDefinitions
     heldValues: GuestEngine.ObjectValue,
   ): GuestEngine.Evaluator<void>
   {
-    const targetMetadata: GraphObjectMetadata = buildObjectMetadata(
-      ...yield * this.#getCollectionAndClassName(targetValue)
-    );
-
-    const heldValuesMetadata: GraphObjectMetadata = buildObjectMetadata(
-      ...yield * this.#getCollectionAndClassName(heldValues)
-    );
+    const targetMetadata: GraphObjectMetadata = yield * this.#buildGraphObjectMetadata(targetValue);
+    const heldValuesMetadata: GraphObjectMetadata = yield * this.#buildGraphObjectMetadata(heldValues);
 
     this.#guestObjectGraph.defineTargetAndHeldValues(
       targetValue, targetMetadata, heldValues, heldValuesMetadata
@@ -299,7 +294,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
       if (excludeFromSearch) {
         this.#throwInternalError(new Error("excludeFromSearch must not be true for a symbol!"));
       }
-      this.#defineGraphSymbolNode(guestWeakKey);
+      yield * this.#defineGraphSymbolNode(guestWeakKey);
     }
 
     const weakKey: PrefixedNumber<NodePrefix> = this.#guestObjectGraph.getWeakKeyId(guestWeakKey);
@@ -315,8 +310,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
   ): GuestEngine.Evaluator<void>
   {
     if (this.#guestObjectGraph.hasObject(guestObject) === false) {
-      const collectionAndClass = yield * this.#getCollectionAndClassName(guestObject);
-      const objectMetadata = buildObjectMetadata(...collectionAndClass);
+      const objectMetadata: GraphObjectMetadata = yield * this.#buildGraphObjectMetadata(guestObject);
       if (guestObject.ConstructedBy.length > 0) {
         const classObject: GuestEngine.ObjectValue = guestObject.ConstructedBy[guestObject.ConstructedBy.length - 1];
         const slots = new Set<string>(classObject.internalSlotsList);
@@ -358,16 +352,28 @@ export class GraphBuilder implements InstanceGetterDefinitions
     }
   }
 
-  #defineGraphSymbolNode(
+  * #defineGraphSymbolNode(
     guestSymbol: GuestEngine.SymbolValue,
-  ): void
+  ): GuestEngine.Evaluator<void>
   {
     if (this.#guestObjectGraph.hasSymbol(guestSymbol) === false) {
-      const objectMetadata = buildObjectMetadata(
-        BuiltInJSTypeName.Symbol, BuiltInJSTypeName.Symbol
-      );
+      const objectMetadata: GraphObjectMetadata = yield * this.#buildGraphObjectMetadata(guestSymbol);
       this.#guestObjectGraph.defineSymbol(guestSymbol, objectMetadata);
     }
+  }
+
+  * #buildGraphObjectMetadata(
+    guestValue: GuestEngine.ObjectValue | GuestEngine.SymbolValue
+  ): GuestEngine.Evaluator<GraphObjectMetadata>
+  {
+      const collectionAndClass = yield * this.#getCollectionAndClassName(guestValue);
+      const objectMetadata = buildObjectMetadata(...collectionAndClass);
+      if (guestValue.type === "Symbol") {
+        const { Description } = guestValue;
+        const hostDescription: string | undefined = Description.type === "String" ? Description.stringValue() : undefined;
+        objectMetadata.symbolDescription = hostDescription ?? null;
+      }
+      return objectMetadata;
   }
 
   * #getCollectionAndClassName(
@@ -429,7 +435,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
     GuestEngine.Assert(Array.isArray(OwnKeys));
     for (const guestKey of OwnKeys) {
       if (guestKey.type === "Symbol") {
-        this.#defineGraphSymbolNode(guestKey);
+        yield * this.#defineGraphSymbolNode(guestKey);
       }
 
       const descriptor = yield* guestObject.GetOwnProperty(guestKey);

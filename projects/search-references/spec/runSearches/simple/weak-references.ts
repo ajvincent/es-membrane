@@ -42,6 +42,7 @@ describe("Simple graph searches: weak references to direct", () => {
       derivedClassName: BuiltInJSTypeName.Object,
       classSpecifier: null,
       classLineNumber: null,
+      symbolDescription: null,
     };
 
     const heldValuesMetadata: GraphObjectMetadata = {
@@ -49,6 +50,7 @@ describe("Simple graph searches: weak references to direct", () => {
       derivedClassName: BuiltInJSTypeName.Array,
       classSpecifier: null,
       classLineNumber: null,
+      symbolDescription: null,
     };
 
     const ExpectedObjectGraph = new ObjectGraphImpl;
@@ -92,6 +94,7 @@ describe("Simple graph searches: weak references to direct", () => {
       derivedClassName: BuiltInJSTypeName.Symbol,
       classSpecifier: null,
       classLineNumber: null,
+      symbolDescription: target.description!,
     };
 
     const heldValuesMetadata: GraphObjectMetadata = {
@@ -99,6 +102,7 @@ describe("Simple graph searches: weak references to direct", () => {
       derivedClassName: BuiltInJSTypeName.Array,
       classSpecifier: null,
       classLineNumber: null,
+      symbolDescription: null,
     };
 
     const ExpectedObjectGraph = new ObjectGraphImpl;

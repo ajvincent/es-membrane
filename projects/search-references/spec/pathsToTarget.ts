@@ -115,6 +115,7 @@ describe("pathsToTarget works well with ObjectGraphImpl (weak map simulation)", 
       derivedClassName: BuiltInJSTypeName.Object,
       classSpecifier: null,
       classLineNumber: null,
+      symbolDescription: null,
     };
 
     const heldValuesMetadata: GraphObjectMetadata = {
@@ -122,6 +123,7 @@ describe("pathsToTarget works well with ObjectGraphImpl (weak map simulation)", 
       derivedClassName: BuiltInJSTypeName.Array,
       classSpecifier: null,
       classLineNumber: null,
+      symbolDescription: null,
     };
 
     ExpectedObjectGraph = new ObjectGraphImpl;

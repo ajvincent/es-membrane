@@ -51,6 +51,7 @@ describe("Simple graph searches: baseline", () => {
     derivedClassName: BuiltInJSTypeName.Object,
     classSpecifier: null,
     classLineNumber: null,
+    symbolDescription: null,
   };
 
   const heldValuesMetadata: GraphObjectMetadata = {
@@ -58,6 +59,7 @@ describe("Simple graph searches: baseline", () => {
     derivedClassName: BuiltInJSTypeName.Array,
     classSpecifier: null,
     classLineNumber: null,
+    symbolDescription: null,
   };
 
   let ExpectedObjectGraph: ObjectGraphImpl;
@@ -100,13 +102,14 @@ describe("Simple graph searches: baseline", () => {
   it("we can find a target symbol when it's among the held values", async () => {
     ExpectedObjectGraph = new ObjectGraphImpl;
 
-    const target = Symbol("symbol target");
+    const target = Symbol("is symbol target");
 
     const targetMetadata: GraphObjectMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Symbol,
       derivedClassName: BuiltInJSTypeName.Symbol,
-    classSpecifier: null,
-    classLineNumber: null,
+      classSpecifier: null,
+      classLineNumber: null,
+      symbolDescription: target.description!,
     };
 
     ExpectedObjectGraph.defineTargetAndHeldValues(
@@ -194,6 +197,7 @@ describe("Simple graph searches: baseline", () => {
         derivedClassName: BuiltInJSTypeName.Symbol,
         classSpecifier: null,
         classLineNumber: null,
+        symbolDescription: target.description!,
       };
 
       ExpectedObjectGraph.defineTargetAndHeldValues(

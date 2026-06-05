@@ -32,6 +32,7 @@ it("Simple graph searches: when there is an import involved (modules importing o
     derivedClassName: BuiltInJSTypeName.Object,
     classSpecifier: null,
     classLineNumber: null,
+    symbolDescription: null,
   };
 
   const heldValuesMetadata: GraphObjectMetadata = {
@@ -39,6 +40,7 @@ it("Simple graph searches: when there is an import involved (modules importing o
     derivedClassName: BuiltInJSTypeName.Array,
     classSpecifier: null,
     classLineNumber: null,
+    symbolDescription: null,
   };
 
   const ExpectedObjectGraph = new ObjectGraphImpl;
