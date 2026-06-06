@@ -19,15 +19,22 @@ import {
 } from "./WeakStrongMap.js";
 
 declare const WeakKeyBranding: unique symbol;
-type PrivateKeyBranded = symbol & { [WeakKeyBranding]: "private" };
-type SharedKeyBranded = symbol & { [WeakKeyBranding]: "shared" };
+type WeakKeyBranded<Brand extends string> = symbol & { [WeakKeyBranding]: Brand};
+type PrivateKeyBranded = WeakKeyBranded<"private">;
+type SharedKeyBranded = WeakKeyBranded<"shared">;
 
 export class OneToOneStrongMap<StrongKeyType, ValueType extends WeakKey>
 implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
 {
   static #symbolCounter: number = 0;
-  static #getNextSymbol(type: "private" | "shared"): symbol {
-    return Symbol(type + ":" + this.#symbolCounter++);
+  static #getNextSymbol<
+    Brand extends "private" | "shared"
+  >
+  (
+    type: Brand
+  ): WeakKeyBranded<Brand>
+  {
+    return Symbol(type + ":" + this.#symbolCounter++) as WeakKeyBranded<Brand>;
   }
 
   /* Here's the routing:
@@ -69,7 +76,7 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
     let sharedKey: SharedKeyBranded | undefined = this.#getSharedKey(value_1);
     const secondSharedKey: SharedKeyBranded | undefined = this.#getSharedKey(value_2);
     if (!sharedKey) {
-      sharedKey = secondSharedKey || (OneToOneStrongMap.#getNextSymbol("shared") as SharedKeyBranded);
+      sharedKey = secondSharedKey || OneToOneStrongMap.#getNextSymbol("shared");
     }
     else if (secondSharedKey && (secondSharedKey !== sharedKey)) {
       return this.#attemptMergeKeys(sharedKey, secondSharedKey);
@@ -129,7 +136,7 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
   #setSharedKey(value: ValueType, strongKey: StrongKeyType, sharedKey: SharedKeyBranded): void {
     this.#valueToOwnStrongKeyMap.set(value, strongKey);
     const privateKey = this.#incomingMap.getOrInsertComputed(
-      value, strongKey, () => OneToOneStrongMap.#getNextSymbol("private") as PrivateKeyBranded
+      value, strongKey, () => OneToOneStrongMap.#getNextSymbol("private")
     );
     this.#privateKeyToSharedKeyMap.set(privateKey, sharedKey);
     this.#outgoingMap.set(sharedKey, strongKey, value);
