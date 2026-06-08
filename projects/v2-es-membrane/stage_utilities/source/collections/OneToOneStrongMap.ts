@@ -1,27 +1,15 @@
-import {
-  InertWeakMap
-} from "./inert/WeakMap.js";
-
-import {
-  InertWeakStrongMap
-} from "./inert/WeakStrongMap.js";
-
 import type {
   OneToOneStrongMapIfc
 } from "./types/OneToOneStrongMapIfc.js";
 
-import type {
-  WeakStrongMapIfc
-} from "./types/WeakStrongMap.js";
-
 import {
-  WeakStrongMap
-} from "./WeakStrongMap.js";
-
-declare const WeakKeyBranding: unique symbol;
-type WeakKeyBranded<Brand extends string> = symbol & { [WeakKeyBranding]: Brand};
-type PrivateKeyBranded = WeakKeyBranded<"private">;
-type SharedKeyBranded = WeakKeyBranded<"shared">;
+  type WeakKeyBranded,
+  type PrivateKeyBranded,
+  type SharedKeyBranded,
+  type OneToOneInternalsIfc,
+  OneToOneInternalsLive,
+  OneToOneInternalsInert,
+} from "./OneToOneInternals.js";
 
 export class OneToOneStrongMap<StrongKeyType, ValueType extends WeakKey>
 implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
@@ -37,24 +25,7 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
     return Symbol(type + ":" + this.#symbolCounter++) as WeakKeyBranded<Brand>;
   }
 
-  /* Here's the routing:
-  1. When we bind values, `this.#valueToOwnStrongKeyMap.set(value, strongKey);`
-  2. `const strongKey = this.#valueToOwnStrongKeyMap.get(value);`
-    - a revoked strong key means we aren't holding any values coming from that key.
-  3. `const privateKey = this.#incomingMap.get(value, strongKey)`.
-  4. `const sharedKey = this.#privateKeyToSharedKeyMap.get(privateKey);`
-  5. `return this.#outgoingMap.get(sharedKey, targetStrongKey, value);`
-    - a revoked `targetStrongKey` means we aren't holding values going in to that key.
-
-  Four maps to get a 1:1 value binding is annoying.  It used to be two:
-    - (value => shared internal key) + target strong key => target value
-
-  But this means we're inadvertently holding references from revoked values to live ones.
-  */
-  #valueToOwnStrongKeyMap: WeakMap<ValueType, StrongKeyType> = new WeakMap;
-  #incomingMap: WeakStrongMapIfc<ValueType, StrongKeyType, PrivateKeyBranded> = new WeakStrongMap;
-  #privateKeyToSharedKeyMap: WeakMap<PrivateKeyBranded, SharedKeyBranded> = new WeakMap;
-  #outgoingMap: WeakStrongMapIfc<SharedKeyBranded, StrongKeyType, ValueType> = new WeakStrongMap;
+  #internals: OneToOneInternalsIfc<StrongKeyType, ValueType> = new OneToOneInternalsLive();
 
   public bindOneToOne(
     strongKey_1: StrongKeyType,
@@ -63,9 +34,9 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
     value_2: ValueType
   ) : void
   {
-    if (this.#incomingMap.keyWasRevoked(strongKey_1))
+    if (this.#internals.incomingMap.keyWasRevoked(strongKey_1))
       throw new Error("The first key was revoked!");
-    if (this.#incomingMap.keyWasRevoked(strongKey_2))
+    if (this.#internals.incomingMap.keyWasRevoked(strongKey_2))
       throw new Error("The second key was revoked!");
 
     if (!this.hasIdentity(value_1, strongKey_1, true))
@@ -82,71 +53,68 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
       return this.#attemptMergeKeys(sharedKey, secondSharedKey);
     }
 
-    const __hasKeySet1__  = this.#outgoingMap.has(sharedKey, strongKey_1);
-    const __hasKeySet2__  = this.#outgoingMap.has(sharedKey, strongKey_2);
+    const __hasKeySet1__  = this.#internals.outgoingMap.has(sharedKey, strongKey_1);
+    const __hasKeySet2__  = this.#internals.outgoingMap.has(sharedKey, strongKey_2);
 
-    if (__hasKeySet1__ && (this.#outgoingMap.get(sharedKey, strongKey_1) !== value_1))
+    if (__hasKeySet1__ && (this.#internals.outgoingMap.get(sharedKey, strongKey_1) !== value_1))
       throw new Error("value_1 mismatch!");
-    if (__hasKeySet2__ && (this.#outgoingMap.get(sharedKey, strongKey_2) !== value_2))
+    if (__hasKeySet2__ && (this.#internals.outgoingMap.get(sharedKey, strongKey_2) !== value_2))
       throw new Error("value_2 mismatch!");
 
     this.#setSharedKey(value_1, strongKey_1, sharedKey);
     this.#setSharedKey(value_2, strongKey_2, sharedKey);
 
     if (!__hasKeySet1__)
-      this.#outgoingMap.set(sharedKey, strongKey_1, value_1);
+      this.#internals.outgoingMap.set(sharedKey, strongKey_1, value_1);
 
     if (!__hasKeySet2__)
-      this.#outgoingMap.set(sharedKey, strongKey_2, value_2);
+      this.#internals.outgoingMap.set(sharedKey, strongKey_2, value_2);
   }
-
 
   #attemptMergeKeys(
     firstSharedKey: SharedKeyBranded,
     secondSharedKey: SharedKeyBranded
   ): void
   {
-    const firstKeySet: ReadonlySet<StrongKeyType> = this.#outgoingMap.strongKeysFor(firstSharedKey);
-    const secondKeySet: ReadonlySet<StrongKeyType> = this.#outgoingMap.strongKeysFor(secondSharedKey);
+    const firstKeySet: ReadonlySet<StrongKeyType> = this.#internals.outgoingMap.strongKeysFor(firstSharedKey);
+    const secondKeySet: ReadonlySet<StrongKeyType> = this.#internals.outgoingMap.strongKeysFor(secondSharedKey);
 
     const unionKeySet: ReadonlySet<StrongKeyType> = firstKeySet.union(secondKeySet);
     if (unionKeySet.size < firstKeySet.size + secondKeySet.size)
       throw new Error("value_1 and value_2 have conflicting keys!");
 
     for (const strongKey of secondKeySet) {
-      const secondValue: ValueType = this.#outgoingMap.get(secondSharedKey, strongKey)!;
-      this.#outgoingMap.set(firstSharedKey, strongKey, secondValue);
-      this.#outgoingMap.delete(secondSharedKey, strongKey);
+      const secondValue: ValueType = this.#internals.outgoingMap.get(secondSharedKey, strongKey)!;
+      this.#internals.outgoingMap.set(firstSharedKey, strongKey, secondValue);
+      this.#internals.outgoingMap.delete(secondSharedKey, strongKey);
 
-      const privateKey: PrivateKeyBranded = this.#incomingMap.get(secondValue, strongKey)!;
-      this.#privateKeyToSharedKeyMap.set(privateKey, firstSharedKey);
+      const privateKey: PrivateKeyBranded = this.#internals.incomingMap.get(secondValue, strongKey)!;
+      this.#internals.privateKeyToSharedKeyMap.set(privateKey, firstSharedKey);
     }
   }
 
   #getSharedKey(value: ValueType): SharedKeyBranded | undefined {
-    const strongKey = this.#valueToOwnStrongKeyMap.get(value);
+    const strongKey = this.#internals.valueToOwnStrongKeyMap.get(value);
     if (!strongKey)
       return undefined;
-    const privateKey = this.#incomingMap.get(value, strongKey);
+    const privateKey = this.#internals.incomingMap.get(value, strongKey);
     if (!privateKey)
       return undefined;
-    return this.#privateKeyToSharedKeyMap.get(privateKey);
+    return this.#internals.privateKeyToSharedKeyMap.get(privateKey);
   }
 
   #setSharedKey(value: ValueType, strongKey: StrongKeyType, sharedKey: SharedKeyBranded): void {
-    this.#valueToOwnStrongKeyMap.set(value, strongKey);
-    const privateKey = this.#incomingMap.getOrInsertComputed(
+    this.#internals.valueToOwnStrongKeyMap.set(value, strongKey);
+    const privateKey = this.#internals.incomingMap.getOrInsertComputed(
       value, strongKey, () => OneToOneStrongMap.#getNextSymbol("private")
     );
-    this.#privateKeyToSharedKeyMap.set(privateKey, sharedKey);
-    this.#outgoingMap.set(sharedKey, strongKey, value);
+    this.#internals.privateKeyToSharedKeyMap.set(privateKey, sharedKey);
+    this.#internals.outgoingMap.set(sharedKey, strongKey, value);
   }
 
   public clear(): void {
-    this.#valueToOwnStrongKeyMap = new WeakMap;
-    this.#incomingMap = new WeakStrongMap;
-    this.#privateKeyToSharedKeyMap = new WeakMap;
-    this.#outgoingMap = new WeakStrongMap;
+    if (this.#internals instanceof OneToOneInternalsLive)
+      this.#internals = new OneToOneInternalsLive();
   }
 
   public delete(
@@ -158,15 +126,15 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
     if (!sharedKey)
       return false;
 
-    const __target__: ValueType | undefined = this.#outgoingMap.get(sharedKey, strongKey);
+    const __target__: ValueType | undefined = this.#internals.outgoingMap.get(sharedKey, strongKey);
     if (!__target__)
       return false;
 
     this.#deleteValue(__target__);
-    const remainingKeys: ReadonlySet<StrongKeyType> = this.#outgoingMap.strongKeysFor(sharedKey);
+    const remainingKeys: ReadonlySet<StrongKeyType> = this.#internals.outgoingMap.strongKeysFor(sharedKey);
     if (remainingKeys.size < 2) {
       for (const strongKey of remainingKeys) {
-        const otherTarget: ValueType = this.#outgoingMap.get(sharedKey, strongKey)!;
+        const otherTarget: ValueType = this.#internals.outgoingMap.get(sharedKey, strongKey)!;
         this.#deleteValue(otherTarget);
       }
     }
@@ -175,13 +143,13 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
   }
 
   #deleteValue(value: ValueType): void {
-    const strongKey: StrongKeyType = this.#valueToOwnStrongKeyMap.get(value)!;
-    const privateKey: PrivateKeyBranded = this.#incomingMap.get(value, strongKey)!;
-    const sharedKey: SharedKeyBranded = this.#privateKeyToSharedKeyMap.get(privateKey)!;
+    const strongKey: StrongKeyType = this.#internals.valueToOwnStrongKeyMap.get(value)!;
+    const privateKey: PrivateKeyBranded = this.#internals.incomingMap.get(value, strongKey)!;
+    const sharedKey: SharedKeyBranded = this.#internals.privateKeyToSharedKeyMap.get(privateKey)!;
 
-    this.#outgoingMap.delete(sharedKey, strongKey);
-    this.#incomingMap.delete(value, strongKey);
-    this.#valueToOwnStrongKeyMap.delete(value);
+    this.#internals.outgoingMap.delete(sharedKey, strongKey);
+    this.#internals.incomingMap.delete(value, strongKey);
+    this.#internals.valueToOwnStrongKeyMap.delete(value);
   }
 
   public get(
@@ -190,7 +158,7 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
   ) : ValueType | undefined
   {
     const weakKey = this.#getSharedKey(value);
-    return weakKey ? this.#outgoingMap.get(weakKey, strongKey) : undefined;
+    return weakKey ? this.#internals.outgoingMap.get(weakKey, strongKey) : undefined;
   }
 
   public has(
@@ -199,7 +167,7 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
   ) : boolean
   {
     const weakKey = this.#getSharedKey(value);
-    return weakKey ? this.#outgoingMap.has(weakKey, strongKey) : false;
+    return weakKey ? this.#internals.outgoingMap.has(weakKey, strongKey) : false;
   }
 
   public hasIdentity(
@@ -208,28 +176,25 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
     allowNotDefined: boolean
   ) : boolean
   {
-    if (!this.#valueToOwnStrongKeyMap.has(value))
+    if (!this.#internals.valueToOwnStrongKeyMap.has(value))
       return allowNotDefined;
 
-    return this.#valueToOwnStrongKeyMap.get(value) === strongKey;
+    return this.#internals.valueToOwnStrongKeyMap.get(value) === strongKey;
   }
 
   public readonly [Symbol.toStringTag] = "OneToOneStrongMap";
 
   public keyWasRevoked(strongKey: StrongKeyType): boolean {
-    return this.#outgoingMap.keyWasRevoked(strongKey);
+    return this.#internals.outgoingMap.keyWasRevoked(strongKey);
   }
 
   public revokeStrongKey(strongKey: StrongKeyType): void {
-    this.#incomingMap.revokeStrongKey(strongKey);
-    this.#outgoingMap.revokeStrongKey(strongKey);
+    this.#internals.incomingMap.revokeStrongKey(strongKey);
+    this.#internals.outgoingMap.revokeStrongKey(strongKey);
   }
 
   public revokeEverything(): void {
-    this.#valueToOwnStrongKeyMap = new InertWeakMap;
-    this.#incomingMap = new InertWeakStrongMap;
-    this.#privateKeyToSharedKeyMap = new InertWeakMap;
-    this.#outgoingMap = new InertWeakStrongMap;
+    this.#internals = new OneToOneInternalsInert();
   }
 }
 
