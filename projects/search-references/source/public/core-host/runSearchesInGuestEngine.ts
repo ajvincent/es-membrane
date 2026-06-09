@@ -2,6 +2,10 @@ import {
   defineSearchReferences
 } from "../../engine262-tools/built-ins/defineSearchReferences.js";
 
+import {
+  definePrintFunction
+} from "../../engine262-tools/built-ins/definePrintFunction.js";
+
 import type {
   GuestEngine,
 } from "../../engine262-tools/host-to-guest/GuestEngine.js";
@@ -81,5 +85,6 @@ class SearchGuestRealmInputs implements GuestRealmInputsWithBuiltins {
 
   * defineBuiltIns(realm: GuestEngine.ManagedRealm): GuestEngine.Evaluator<void> {
     yield * defineSearchReferences(realm, this.#graphs, this.#searchConfiguration);
+    yield * definePrintFunction(realm);
   }
 }

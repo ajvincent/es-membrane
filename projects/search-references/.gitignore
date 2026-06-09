@@ -8,6 +8,8 @@ node_modules
 !**/types/**/*.d.ts
 dist/**
 source/public/core-host/types/Virtualization262.d.ts
+!source/public/guest/print.d.ts
+!source/public/guest/print.js
 !source/public/guest/searchReferences.d.ts
 !source/public/guest/searchReferences.js
 !source/rollup.config.js
