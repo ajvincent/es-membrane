@@ -2,45 +2,47 @@ import {
   MinRefCountTracker
 } from "../../source/collections/MinRefCountTracker.js";
 
-declare const WeakKeyBranding: unique symbol;
-type ValueBranded = symbol & { [WeakKeyBranding]: "value" };
-type SharedKeyBranded = symbol & { [WeakKeyBranding]: "shared" };
+import type {
+  PrivateKeyBranded,
+  SharedKeyBranded
+} from "../../source/collections/KeysBranded.js";
+
 
 function callback(sharedKey: SharedKeyBranded, strongKeySet: ReadonlySet<string>): void {
   void sharedKey;
   for (const strongKey of strongKeySet) {
-    const value: ValueBranded = keyToValueMap.get(strongKey)!;
+    const value: PrivateKeyBranded = strongKeyToPrivateKeyMap.get(strongKey)!;
     tracker.deleteReference(value, false);
   }
 }
-const tracker = new MinRefCountTracker<SharedKeyBranded, string, ValueBranded>(2, callback);
+const tracker = new MinRefCountTracker<string>(2, callback);
 
 const shared = Symbol("shared key") as SharedKeyBranded;
-const redValue = Symbol("red value") as ValueBranded;
-const blueValue = Symbol("blue value") as ValueBranded;
-const greenValue = Symbol("green value") as ValueBranded;
+const redKey = Symbol("red private key") as PrivateKeyBranded;
+const blueKey = Symbol("blue private key") as PrivateKeyBranded;
+const greenKey = Symbol("green private key") as PrivateKeyBranded;
 
-const keyToValueMap = new Map<string, ValueBranded>([
-  [ "red", redValue ],
-  [ "blue", blueValue ],
-  [ "green", greenValue ]
+const strongKeyToPrivateKeyMap = new Map<string, PrivateKeyBranded>([
+  [ "red", redKey ],
+  [ "blue", blueKey ],
+  [ "green", greenKey ]
 ]);
-tracker.addReference(shared, "red", redValue);
-tracker.addReference(shared, "blue", blueValue);
-tracker.addReference(shared, "green", greenValue);
+tracker.addReference(redKey, shared, "red");
+tracker.addReference(blueKey, shared, "blue");
+tracker.addReference(greenKey, shared, "green");
 
 searchReferences("shared before deleting references", shared, [tracker], true);
-searchReferences("redValue before deleting references", redValue, [tracker], true);
+searchReferences("redValue before deleting references", redKey, [tracker], true);
 // not bothering with blueValue or greenValue: they're of the same shape
 
-keyToValueMap.delete("green");
-tracker.deleteReference(greenValue, true);
+strongKeyToPrivateKeyMap.delete("green");
+tracker.deleteReference(greenKey, true);
 // not enough to trigger the callback
 
 searchReferences("shared after deleting greenValue", shared, [tracker], true);
-searchReferences("redValue after deleting greenValue", redValue, [tracker], true);
+searchReferences("redValue after deleting greenValue", redKey, [tracker], true);
 
-keyToValueMap.delete("blue");
-tracker.deleteReference(blueValue, true);
+strongKeyToPrivateKeyMap.delete("blue");
+tracker.deleteReference(blueKey, true);
 searchReferences("shared after deleting blueValue", shared, [tracker], true);
-searchReferences("redValue after deleting blueValue", redValue, [tracker], true);
+searchReferences("redValue after deleting blueValue", redKey, [tracker], true);

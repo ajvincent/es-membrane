@@ -1,37 +1,50 @@
-export type SharedAndStrongKeys<SharedKey extends WeakKey, StrongKeyType> = [WeakRef<SharedKey>, StrongKeyType];
+import type {
+  PrivateKeyBranded,
+  SharedKeyBranded
+} from "./KeysBranded.js";
+import { MinRefCountTrackerIfc } from "./types/MinRefCountTrackerIfc.js";
 
-export type RefCountTrackerCallback<SharedKey extends WeakKey, StrongKeyType> = (
+export type SharedAndStrongKeys<StrongKeyType> = [WeakRef<SharedKeyBranded>, StrongKeyType];
+
+export type RefCountTrackerCallback<StrongKeyType> = (
   this: void,
-  parentKey: SharedKey,
+  sharedKey: SharedKeyBranded,
   remainingKeys: ReadonlySet<StrongKeyType>
 ) => void;
 
-// The type parameter names I borrow from OneToOneStrongMap, since that's where I'm going to use this.
-export class MinRefCountTracker<
-  SharedKey extends WeakKey,
-  StrongKeyType,
-  ValueType extends WeakKey
->
+interface RefCountFinalizationRegistry<StrongKeyType> {
+  register(
+    target: PrivateKeyBranded,
+    heldValue: SharedAndStrongKeys<StrongKeyType>,
+    unregisterToken?: PrivateKeyBranded
+  ): void;
+
+  unregister(
+    unregisterToken: PrivateKeyBranded
+  ): boolean;
+}
+
+export class MinRefCountTracker<StrongKeyType> implements MinRefCountTrackerIfc<StrongKeyType>
 {
   readonly #minRefCount: number;
-  readonly #cleanupCallback: RefCountTrackerCallback<SharedKey, StrongKeyType>;
+  readonly #cleanupCallback: RefCountTrackerCallback<StrongKeyType>;
 
-  readonly #sharedKeyToStrongKeys = new WeakMap<SharedKey, Set<StrongKeyType>>;
-  readonly #valueToSharedAndStrongKeys = new WeakMap<
-    ValueType, SharedAndStrongKeys<SharedKey, StrongKeyType>
+  readonly #sharedKeyToStrongKeys = new WeakMap<SharedKeyBranded, Set<StrongKeyType>>;
+  readonly #privateKeyToSharedAndStrongKeys = new WeakMap<
+    PrivateKeyBranded, SharedAndStrongKeys<StrongKeyType>
   >;
 
-  readonly #finalizer = new FinalizationRegistry<[WeakRef<SharedKey>, StrongKeyType]>(
+  readonly #finalizer: RefCountFinalizationRegistry<StrongKeyType> = new FinalizationRegistry(
     ([weakRef, strongKey]) => this.#cleanupRef(weakRef, strongKey)
   );
-  readonly #alreadyCleanedUp = new WeakSet<SharedKey>;
+  readonly #alreadyCleanedUp = new WeakSet<SharedKeyBranded>;
 
   #cleanupRef(
-    weakRef: WeakRef<SharedKey>,
+    weakRef: WeakRef<SharedKeyBranded>,
     strongKey: StrongKeyType
   ): void
   {
-    const sharedKey: SharedKey | undefined = weakRef.deref();
+    const sharedKey: SharedKeyBranded | undefined = weakRef.deref();
     if (sharedKey === undefined || this.#alreadyCleanedUp.has(sharedKey))
       return;
 
@@ -50,44 +63,51 @@ export class MinRefCountTracker<
 
   constructor(
     minRefCount: number,
-    cleanupCallback: RefCountTrackerCallback<SharedKey, StrongKeyType>,
+    cleanupCallback: RefCountTrackerCallback<StrongKeyType>,
   )
   {
     this.#minRefCount = minRefCount;
     this.#cleanupCallback = cleanupCallback;
   }
 
-  addReference(
-    sharedKey: SharedKey,
+  hasReference(
+    sharedKey: SharedKeyBranded,
     strongKey: StrongKeyType,
-    value: ValueType
+  ): boolean
+  {
+    return this.#sharedKeyToStrongKeys.get(sharedKey)?.has(strongKey) ?? false;
+  }
+
+  addReference(
+    privateKey: PrivateKeyBranded,
+    sharedKey: SharedKeyBranded,
+    strongKey: StrongKeyType,
   ): void
   {
     const keySet: Set<StrongKeyType> = this.#sharedKeyToStrongKeys.getOrInsertComputed(sharedKey, () => new Set);
     if (keySet.has(strongKey))
       throw new Error("strong key already known");
 
-    const refAndKey: [WeakRef<SharedKey>, StrongKeyType] = [
+    const refAndKey: [WeakRef<SharedKeyBranded>, StrongKeyType] = [
       new WeakRef(sharedKey), strongKey
     ];
 
-    this.#finalizer.register(value, refAndKey, value);
-    this.#valueToSharedAndStrongKeys.set(value, refAndKey);
+    this.#finalizer.register(privateKey, refAndKey, privateKey);
+    this.#privateKeyToSharedAndStrongKeys.set(privateKey, refAndKey);
     keySet.add(strongKey);
   }
 
   deleteReference(
-    value: ValueType,
+    privateKey: PrivateKeyBranded,
     attemptCleanup: boolean,
   ): void
   {
-    this.#finalizer.unregister(value);
+    this.#finalizer.unregister(privateKey);
 
-    const keyRefAndStrongKey: SharedAndStrongKeys<
-      SharedKey, StrongKeyType
-    > | undefined = this.#valueToSharedAndStrongKeys.get(value);
+    const keyRefAndStrongKey: SharedAndStrongKeys<StrongKeyType> | undefined
+      = this.#privateKeyToSharedAndStrongKeys.get(privateKey);
 
-    this.#valueToSharedAndStrongKeys.delete(value);
+    this.#privateKeyToSharedAndStrongKeys.delete(privateKey);
     if (attemptCleanup)
       this.#cleanupRef(...keyRefAndStrongKey!);
   }

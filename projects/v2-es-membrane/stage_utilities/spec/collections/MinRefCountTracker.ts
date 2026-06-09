@@ -3,42 +3,43 @@ import {
   type RefCountTrackerCallback,
 } from "../../source/collections/MinRefCountTracker.js";
 
-declare const WeakKeyBranding: unique symbol;
-type ValueBranded = symbol & { [WeakKeyBranding]: "value" };
-type SharedKeyBranded = symbol & { [WeakKeyBranding]: "shared" };
+import type {
+  PrivateKeyBranded,
+  SharedKeyBranded
+} from "../../source/collections/KeysBranded.js";
 
 it("MinRefCountTracker reports when we drop below a certain threshold of strong keys", () => {
-  const spy = jasmine.createSpy<RefCountTrackerCallback<SharedKeyBranded, string>>();
-  const tracker = new MinRefCountTracker<SharedKeyBranded, string, ValueBranded>(4, spy);
+  const spy = jasmine.createSpy<RefCountTrackerCallback<string>>();
+  const tracker = new MinRefCountTracker<string>(4, spy);
 
   expect(spy).toHaveBeenCalledTimes(0);
 
   const sharedKey = Symbol("shared key") as SharedKeyBranded;
 
-  const foods: Record<string, ValueBranded> = {
-    ravioli: Symbol("ravioli") as ValueBranded,
-    salad: Symbol("salad") as ValueBranded,
-    friedrice: Symbol("fried rice") as ValueBranded,
-    pizza: Symbol("pizza") as ValueBranded,
-    steak: Symbol("steak") as ValueBranded,
-    potatoes: Symbol("potatoes") as ValueBranded,
-    cauliflower: Symbol("cauliflower") as ValueBranded,
+  const foods: Record<string, PrivateKeyBranded> = {
+    ravioli: Symbol("ravioli") as PrivateKeyBranded,
+    salad: Symbol("salad") as PrivateKeyBranded,
+    friedrice: Symbol("fried rice") as PrivateKeyBranded,
+    pizza: Symbol("pizza") as PrivateKeyBranded,
+    steak: Symbol("steak") as PrivateKeyBranded,
+    potatoes: Symbol("potatoes") as PrivateKeyBranded,
+    cauliflower: Symbol("cauliflower") as PrivateKeyBranded,
   };
 
-  tracker.addReference(sharedKey, "red", foods.ravioli);
-  tracker.addReference(sharedKey, "blue", foods.salad);
-  tracker.addReference(sharedKey, "green", foods.friedrice);
+  tracker.addReference(foods.ravioli, sharedKey, "red");
+  tracker.addReference(foods.salad, sharedKey, "blue");
+  tracker.addReference(foods.friedrice, sharedKey, "green");
 
   // time to test for exceptions
   expect(
     () => {
-      tracker.addReference(sharedKey, "red", foods.pizza);
+      tracker.addReference(foods.pizza, sharedKey, "red");
     }
   ).toThrowError("strong key already known");
 
-  tracker.addReference(sharedKey, "yellow", foods.pizza);
-  tracker.addReference(sharedKey, "orange", foods.steak);
-  tracker.addReference(sharedKey, "purple", foods.potatoes);
+  tracker.addReference(foods.pizza, sharedKey, "yellow");
+  tracker.addReference(foods.steak, sharedKey, "orange");
+  tracker.addReference(foods.potatoes, sharedKey, "purple");
 
   expect(spy).toHaveBeenCalledTimes(0);
 
@@ -48,7 +49,7 @@ it("MinRefCountTracker reports when we drop below a certain threshold of strong 
   tracker.deleteReference(foods.friedrice, true); // 4 values left, the minimum
   expect(spy).toHaveBeenCalledTimes(0);
 
-  tracker.addReference(sharedKey, "white", foods.cauliflower);
+  tracker.addReference(foods.cauliflower, sharedKey, "white");
   expect(spy).toHaveBeenCalledTimes(0);
 
   tracker.deleteReference(foods.potatoes, true); // back to 4 values
