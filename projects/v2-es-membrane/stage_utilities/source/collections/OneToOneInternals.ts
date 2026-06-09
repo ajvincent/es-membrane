@@ -1,14 +1,23 @@
-import { InertWeakMap } from "./inert/WeakMap.js";
-import { InertWeakStrongMap } from "./inert/WeakStrongMap.js";
+import {
+  InertWeakMap
+} from "./inert/WeakMap.js";
+
+import {
+  InertWeakStrongMap
+} from "./inert/WeakStrongMap.js";
+
 import type {
   WeakStrongMapIfc
 } from "./types/WeakStrongMap.js";
-import { WeakStrongMap } from "./WeakStrongMap.js";
 
-export declare const WeakKeyBranding: unique symbol;
-export type WeakKeyBranded<Brand extends string> = symbol & { [WeakKeyBranding]: Brand};
-export type PrivateKeyBranded = WeakKeyBranded<"private">;
-export type SharedKeyBranded = WeakKeyBranded<"shared">;
+import {
+  WeakStrongMap
+} from "./WeakStrongMap.js";
+
+import type {
+  PrivateKeyBranded,
+  SharedKeyBranded,
+} from "./KeysBranded.js";
 
 export interface OneToOneInternalsIfc<StrongKeyType, ValueType extends WeakKey> {
   /* Here's the routing:
@@ -16,6 +25,7 @@ export interface OneToOneInternalsIfc<StrongKeyType, ValueType extends WeakKey> 
   2. `const strongKey = this.#valueToOwnStrongKeyMap.get(value);`
     - a revoked strong key means we aren't holding any values coming from that key.
   3. `const privateKey = this.#incomingMap.get(value, strongKey)`.
+    - the private key is truly unique:  it only exists in this map and depends on both the weak key and the strong key.
   4. `const sharedKey = this.#privateKeyToSharedKeyMap.get(privateKey);`
   5. `return this.#outgoingMap.get(sharedKey, targetStrongKey, value);`
     - a revoked `targetStrongKey` means we aren't holding values going in to that key.
