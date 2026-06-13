@@ -16,6 +16,9 @@ export interface SearchConfiguration {
   /** Ye olde log function. */
   log?(message: string, indentLevel?: number): void;
 
+  /** for print statements and beginSearch/endSearch tracing. */
+  printToScriptLog?(...values: readonly string[]): void;
+
   enterNodeIdTrap?: (nodeId: string) => void;
   leaveNodeIdTrap?: (nodeId: string) => void;
 

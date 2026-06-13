@@ -41,7 +41,7 @@ export function * defineSearchReferences(
   this: void,
   realm: GuestEngine.ManagedRealm,
   searchResultsMap: Map<string, SearchGraph | null>,
-  searchConfiguration?: SearchConfiguration
+  searchConfiguration: SearchConfiguration
 ): GuestEngine.Evaluator<void>
 {
   yield* defineBuiltInFunction(
@@ -88,6 +88,10 @@ function * extractSearchParameters(
     throw GuestEngine.Throw.TypeError("resultsKey is not a string");
   }
 
+  const resultsKey: string = resultsKeyGuest.stringValue();
+  if (resultsKey.length === 0)
+    throw GuestEngine.Throw.Error("resultsKey can not be empty");
+
   if (targetValue?.type !== "Object" && targetValue?.type !== "Symbol") {
     throw GuestEngine.Throw.TypeError("$1 is not an object or a symbol", targetValue);
   }
@@ -108,7 +112,7 @@ function * extractSearchParameters(
     throw GuestEngine.Throw.TypeError("strongReferencesOnly is not a boolean");
 
   return {
-    resultsKey: resultsKeyGuest.stringValue(),
+    resultsKey,
     targetValue,
     heldValuesArray: heldValuesArrayGuest,
     strongReferencesOnly: strongRefsGuest.booleanValue(),

@@ -44,7 +44,7 @@ export type {
 
 export async function runSearchesInGuestEngine(
   inputs: GuestRealmInputs,
-  searchConfiguration?: SearchConfiguration,
+  searchConfiguration: SearchConfiguration,
 ): Promise<ReadonlyMap<string, SearchGraph | null>>
 {
   const graphs = new Map<string, SearchGraph | null>;
@@ -61,12 +61,12 @@ export async function runSearchesInGuestEngine(
 class SearchGuestRealmInputs implements GuestRealmInputsWithBuiltins {
   readonly #baseInputs: GuestRealmInputs;
   readonly #graphs: Map<string, SearchGraph | null>;
-  readonly #searchConfiguration?: SearchConfiguration;
+  readonly #searchConfiguration: SearchConfiguration;
 
   constructor(
     baseInputs: GuestRealmInputs,
     graphs: Map<string, SearchGraph | null>,
-    searchConfiguration?: SearchConfiguration,
+    searchConfiguration: SearchConfiguration,
   )
   {
     this.#baseInputs = baseInputs;
@@ -85,6 +85,6 @@ class SearchGuestRealmInputs implements GuestRealmInputsWithBuiltins {
 
   * defineBuiltIns(realm: GuestEngine.ManagedRealm): GuestEngine.Evaluator<void> {
     yield * defineSearchReferences(realm, this.#graphs, this.#searchConfiguration);
-    yield * definePrintFunction(realm);
+    yield * definePrintFunction(realm, this.#searchConfiguration);
   }
 }

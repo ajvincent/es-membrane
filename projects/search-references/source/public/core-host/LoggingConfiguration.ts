@@ -9,16 +9,18 @@ export class LoggingConfiguration implements Required<SearchConfiguration>
     resultsKey: string
   ): string
   {
-    return referenceSpec + ": " + resultsKey;
+    return JSON.stringify({referenceSpec, resultsKey});
   }
 
   readonly #logsMap = new Map<string, string[]>;
+  #currentSpecifier: string = "";
   #tracingHash: string = "";
 
   //#region SearchConfiguration
   noFunctionEnvironment = false;
 
   beginSearch(sourceSpecifier: string, resultsKey: string): void {
+    this.#currentSpecifier = sourceSpecifier;
     this.#tracingHash = LoggingConfiguration.#hashSpecifierAndKey(sourceSpecifier, resultsKey);
     this.log("enter " + this.#tracingHash, 0);
   }
@@ -28,6 +30,7 @@ export class LoggingConfiguration implements Required<SearchConfiguration>
     void(resultsKey);
     this.log("leave " + this.#tracingHash, 0);
     this.#tracingHash = "";
+    this.#currentSpecifier = "";
   }
 
   internalErrorTrap(): void {
@@ -42,6 +45,13 @@ export class LoggingConfiguration implements Required<SearchConfiguration>
       this.#logsMap.set(this.#tracingHash, []);
     }
     this.#logsMap.get(this.#tracingHash)!.push(message);
+  }
+
+  printToScriptLog(message: string): void {
+    if (this.#logsMap.has(this.#currentSpecifier) === false) {
+      this.#logsMap.set(this.#currentSpecifier, []);
+    }
+    this.#logsMap.get(this.#currentSpecifier)!.push(message);
   }
 
   enterNodeIdTrap(nodeId: string): void {
@@ -79,8 +89,19 @@ export class LoggingConfiguration implements Required<SearchConfiguration>
   }
   //#endregion SearchConfiguration
 
-  retrieveLogs(sourceSpecifier: string, resultsKey: string): readonly string[] | undefined {
+  public retrieveLogs(
+    sourceSpecifier: string,
+    resultsKey: string
+  ): (readonly string[]) | undefined
+  {
     const tracingHash: string = LoggingConfiguration.#hashSpecifierAndKey(sourceSpecifier, resultsKey);
     return this.#logsMap.get(tracingHash);
+  }
+
+  public retrieveScriptLog(
+    sourceSpecifier: string
+  ): (readonly string[]) | undefined
+  {
+    return this.#logsMap.get(sourceSpecifier);
   }
 }

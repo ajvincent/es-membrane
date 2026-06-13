@@ -89,13 +89,20 @@ export function getTracingLog(
   return TracingFromFileSearches.get(hash);
 }
 
+export function getScriptLog(
+  sourceSpecifier: string
+): (readonly string[]) | undefined
+{
+  return TracingFromFileSearches.get(sourceSpecifier);
+}
+
 class TracingConfiguration implements Required<SearchConfiguration> {
   static hashSpecifierAndKey(
     referenceSpec: string,
     resultsKey: string
   ): string
   {
-    return referenceSpec + ": " + resultsKey;
+    return JSON.stringify({referenceSpec, resultsKey});
   }
 
   #tracingHash: string = "";
@@ -167,5 +174,12 @@ class TracingConfiguration implements Required<SearchConfiguration> {
       TracingFromFileSearches.set(this.#tracingHash, []);
     }
     TracingFromFileSearches.get(this.#tracingHash)!.push(message);
+  }
+
+  printToScriptLog(message: string): void {
+    if (TracingFromFileSearches.has(this.#referenceSpec) === false) {
+      TracingFromFileSearches.set(this.#referenceSpec, []);
+    }
+    TracingFromFileSearches.get(this.#referenceSpec)!.push(message);
   }
 }

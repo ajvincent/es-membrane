@@ -30,7 +30,7 @@ export {
 
 export async function runSearchesInGuestEngine(
   absolutePathToFile: string,
-  searchConfiguration?: SearchConfiguration,
+  searchConfiguration: SearchConfiguration,
 ): Promise<ReadonlyMap<string, SearchGraph | null>>
 {
   const realmInputs = new NodeGuestRealmInputs(absolutePathToFile);

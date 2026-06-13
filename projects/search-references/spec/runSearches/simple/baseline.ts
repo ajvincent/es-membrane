@@ -247,7 +247,7 @@ describe("Simple graph searches: baseline", () => {
   it("when the target is not reachable, we report so", async () => {
     const pathToSearch = getReferenceSpecPath("simple/targetUnreachable.js");
 
-    const graphs: ReadonlyDeep<Map<string, SearchGraph | null>> = await runSearchesInGuestEngine(pathToSearch);
+    const graphs: ReadonlyDeep<Map<string, SearchGraph | null>> = await runSearchesInGuestEngine(pathToSearch, {});
     expect(graphs.size).toBe(1);
 
     const targetUnreachableGraph = graphs.get("targetUnreachable");

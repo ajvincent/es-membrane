@@ -51,7 +51,7 @@ export class SearchDriver
     strongReferencesOnly: boolean,
     realm: GuestEngine.ManagedRealm,
     resultsKey: string,
-    searchConfiguration?: SearchConfiguration,
+    searchConfiguration: SearchConfiguration,
   )
   {
     this.#targetValue = targetValue;
@@ -73,6 +73,12 @@ export class SearchDriver
 
   public * run(): GuestEngine.Evaluator<SearchGraph| null>
   {
+    if (this.#searchConfiguration?.printToScriptLog) {
+      this.#searchConfiguration.printToScriptLog(
+        `searchReferences enter: ${this.#graphBuilder.resultsKey}`
+      );
+    }
+
     if (this.#searchConfiguration?.beginSearch) {
       this.#searchConfiguration.beginSearch(
         this.#graphBuilder.sourceSpecifier, this.#graphBuilder.resultsKey
@@ -96,6 +102,12 @@ export class SearchDriver
       if (this.#searchConfiguration?.endSearch) {
         this.#searchConfiguration.endSearch(
           this.#graphBuilder.sourceSpecifier, this.#graphBuilder.resultsKey
+        );
+      }
+
+      if (this.#searchConfiguration?.printToScriptLog) {
+        this.#searchConfiguration.printToScriptLog(
+          `searchReferences leave: ${this.#graphBuilder.resultsKey}`
         );
       }
     }
