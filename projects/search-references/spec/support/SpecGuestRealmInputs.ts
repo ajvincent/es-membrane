@@ -20,6 +20,8 @@ export class SpecGuestRealmInputs implements GuestRealmInputsWithBuiltins {
   readonly startingSpecifier: string;
   readonly defineBuiltIns?: ((realm: GuestEngine.ManagedRealm) => GuestEngine.Evaluator<void>) | undefined;
 
+  readonly logs: (readonly string[])[] = [];
+
   constructor(
     absolutePathToFile: string,
     defineBuiltIns?: ((realm: GuestEngine.ManagedRealm) => GuestEngine.Evaluator<void>)
@@ -45,4 +47,8 @@ export class SpecGuestRealmInputs implements GuestRealmInputsWithBuiltins {
   {
     return ImportMetaResolve(targetSpecifier, sourceSpecifier);
   }
+
+  public printToScriptLog(...values: readonly string[]): void {
+    this.logs.push(values);
+  };
 }

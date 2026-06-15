@@ -63,4 +63,11 @@ class NodeGuestRealmInputs implements GuestRealmInputs {
   {
     return ImportMetaResolve(targetSpecifier, sourceSpecifier);
   }
+
+  public printToScriptLog(
+    ...values: readonly string[]
+  ): void
+  {
+    console.log("guest engine reports: ", ...values);
+  }
 }

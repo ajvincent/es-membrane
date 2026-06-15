@@ -50,25 +50,38 @@ export function runInRealm(
           return;
         }
 
+        inputs.printToScriptLog("HostLoadImportedModule: expected SourceTextModuleRecord for specifier " + moduleRequest.Specifier);
         throw new Error("uh, what do we do here?");
       },
 
-      /*
       HostPromiseRejectionTrackers: new Set([
         (promise: GuestEngine.PromiseObject, operation: "reject" | "handle") => {
-          realmDriver.hostDefined.promiseRejectionTracker(promise, operation);
+          if (operation === "reject") {
+            try {
+              inputs.printToScriptLog("promise rejected:", GuestEngine.inspect(promise));
+              /*
+              realmDriver.hostDefined.promiseRejectionTracker(promise, operation);
+              */
+            }
+            catch (ex) {
+              console.error(ex);
+            }
+          }
         }
       ]),
-      */
     },
 
-    /*
     uncaughtExceptionTrackers: new Set([
       (error: GuestEngine.Value) => {
-        void error;
+        try {
+          inputs.printToScriptLog(GuestEngine.inspect(error));
+        }
+        catch (ex) {
+          console.error(ex);
+        }
       }
     ]),
-    */
+
     // onNodeEvaluation() {},
     // features: [],
   });

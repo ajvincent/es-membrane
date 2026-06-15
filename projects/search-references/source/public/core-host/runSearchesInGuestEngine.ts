@@ -48,11 +48,21 @@ export async function runSearchesInGuestEngine(
 ): Promise<ReadonlyMap<string, SearchGraph | null>>
 {
   const graphs = new Map<string, SearchGraph | null>;
-  const realmInputs: GuestRealmInputsWithBuiltins =  new SearchGuestRealmInputs(inputs, graphs, searchConfiguration);
-  const outputs: GuestRealmOutputs = await runInRealm(realmInputs);
+  try {
+    const realmInputs: GuestRealmInputsWithBuiltins = new SearchGuestRealmInputs(
+      inputs, graphs, searchConfiguration
+    );
 
-  if (!outputs?.succeeded) {
-    throw new Error("evaluating module in guest engine failed: " + inputs.startingSpecifier);
+    const outputs: GuestRealmOutputs = await runInRealm(realmInputs);
+    if (!outputs?.succeeded) {
+      throw new Error("evaluating module in guest engine failed: " + inputs.startingSpecifier);
+    }
+  }
+  catch (ex) {
+    if (searchConfiguration.printToScriptLog)
+      searchConfiguration.printToScriptLog(String(ex));
+    else
+      throw ex;
   }
 
   return graphs;
@@ -73,14 +83,38 @@ class SearchGuestRealmInputs implements GuestRealmInputsWithBuiltins {
     this.#graphs = graphs;
     this.#searchConfiguration = searchConfiguration;
   }
+
   get startingSpecifier(): string {
     return this.#baseInputs.startingSpecifier;
   }
+
   contentsGetter(specifier: string): string {
-    return this.#baseInputs.contentsGetter(specifier);
+    try {
+      const contents: string = this.#baseInputs.contentsGetter(specifier);
+      this.printToScriptLog(`retrieved contents from "${specifier}"`);
+      return contents;
+    }
+    catch (ex) {
+      this.printToScriptLog(`error retrieving contents from "${specifier}"`);
+      throw ex;
+    }
   }
+
   resolveSpecifier(targetSpecifier: string, sourceSpecifier: string): string {
-    return this.#baseInputs.resolveSpecifier(targetSpecifier, sourceSpecifier);
+    try {
+      const resultSpecifier = this.#baseInputs.resolveSpecifier(targetSpecifier, sourceSpecifier);
+      this.printToScriptLog(`resolved with target "${targetSpecifier}" and source "${sourceSpecifier}", result: "${resultSpecifier}"` );
+      return resultSpecifier;
+    }
+    catch (ex) {
+      this.printToScriptLog(`resolveSpecifier failed with target "${targetSpecifier}" and source "${sourceSpecifier}"`);
+      throw ex;
+    }
+  }
+
+  printToScriptLog(...values: readonly string[]): void {
+    if (this.#searchConfiguration.printToScriptLog)
+      this.#searchConfiguration.printToScriptLog(...values);
   }
 
   * defineBuiltIns(realm: GuestEngine.ManagedRealm): GuestEngine.Evaluator<void> {
