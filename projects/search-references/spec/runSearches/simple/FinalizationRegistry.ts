@@ -7,8 +7,8 @@ import {
 
 import type {
   HostObjectGraph,
-  ObjectGraphImpl,
-} from "../../../source/graph-analysis/ObjectGraphImpl.js";
+  HostObjectGraphImpl,
+} from "../../../source/graph-analysis/HostObjectGraphImpl.js";
 
 import type {
   GraphWeakKeyMetadata
@@ -40,7 +40,7 @@ describe("Simple graph searches: FinalizationRegistry", () => {
   const registryHeld = { isRegistryHeld: true};
   const token = { isToken: true };
 
-  let ExpectedObjectGraph: ObjectGraphImpl;
+  let ExpectedObjectGraph: HostObjectGraphImpl;
   let heldValues: WeakKey[];
 
   function addToRegistry(

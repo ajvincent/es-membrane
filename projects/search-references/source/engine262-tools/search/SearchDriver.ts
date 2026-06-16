@@ -1,7 +1,7 @@
 //#region preamble
 import {
-  ObjectGraphImpl
-} from "../../graph-analysis/ObjectGraphImpl.js";
+  HostObjectGraphImpl
+} from "../../graph-analysis/HostObjectGraphImpl.js";
 
 import type {
   CloneableGraphIfc
@@ -59,7 +59,7 @@ export class SearchDriver
     this.#strongReferencesOnly = strongReferencesOnly;
     this.#searchConfiguration = searchConfiguration;
 
-    const hostGraphImpl = new ObjectGraphImpl(searchConfiguration);
+    const hostGraphImpl = new HostObjectGraphImpl(searchConfiguration);
     this.#graphBuilder = new GraphBuilder(
       realm,
       hostGraphImpl,

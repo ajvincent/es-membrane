@@ -2,8 +2,8 @@
 import * as graphlib from "@dagrejs/graphlib";
 
 import {
-  ObjectGraphImpl
-} from "../../../source/graph-analysis/ObjectGraphImpl.js";
+  HostObjectGraphImpl
+} from "../../../source/graph-analysis/HostObjectGraphImpl.js";
 
 import type {
   GraphWeakKeyMetadata
@@ -65,9 +65,9 @@ describe("Simple graph searches, proxy support:", () => {
     },
   };
 
-  let ExpectedObjectGraph: ObjectGraphImpl;
+  let ExpectedObjectGraph: HostObjectGraphImpl;
   beforeEach(() => {
-    ExpectedObjectGraph = new ObjectGraphImpl;
+    ExpectedObjectGraph = new HostObjectGraphImpl;
 
     ExpectedObjectGraph.defineTargetAndHeldValues(
       target, targetMetadata, heldValues, heldValuesMetadata
@@ -124,7 +124,7 @@ describe("Simple graph searches, proxy support:", () => {
   });
 
   it("revokers hold proxies before revocation", async () => {
-    ExpectedObjectGraph = new ObjectGraphImpl;
+    ExpectedObjectGraph = new HostObjectGraphImpl;
 
     const targetMetadata: GraphWeakKeyMetadata = {
       builtInJSTypeName: BuiltInJSTypeName.Proxy,

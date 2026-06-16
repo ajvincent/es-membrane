@@ -2,8 +2,8 @@
 import * as graphlib from "@dagrejs/graphlib";
 
 import {
-  ObjectGraphImpl
-} from "../../../source/graph-analysis/ObjectGraphImpl.js";
+  HostObjectGraphImpl
+} from "../../../source/graph-analysis/HostObjectGraphImpl.js";
 
 import {
   LoggingConfiguration
@@ -30,7 +30,7 @@ import {
  * we're actually after here is the traceability of the target object.
  */
 describe("Simple graph searches, promises: references to the target", () => {
-  let ExpectedObjectGraph: ObjectGraphImpl;
+  let ExpectedObjectGraph: HostObjectGraphImpl;
   const target = { isTarget: true };
   const promise = Promise.resolve(target);
   const fulfullReactions: readonly never[] = [];

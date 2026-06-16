@@ -6,7 +6,7 @@ import type {
 
 import type {
   HostObjectGraph
-} from "../../graph-analysis/ObjectGraphImpl.js";
+} from "../../graph-analysis/HostObjectGraphImpl.js";
 
 import type {
   EngineWeakKey,

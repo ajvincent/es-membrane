@@ -30,8 +30,8 @@ import {
 } from "../source/public/core-host/pathsToTarget.js";
 
 import {
-  ObjectGraphImpl
-} from "../source/graph-analysis/ObjectGraphImpl.js";
+  HostObjectGraphImpl
+} from "../source/graph-analysis/HostObjectGraphImpl.js";
 
 import type {
   GraphWeakKeyMetadata
@@ -103,7 +103,7 @@ it("pathsToTarget responds with all paths to a target", () => {
 });
 
 describe("pathsToTarget works well with ObjectGraphImpl (weak map simulation)", () => {
-  let ExpectedObjectGraph: ObjectGraphImpl;
+  let ExpectedObjectGraph: HostObjectGraphImpl;
   beforeEach(() => {
     const target = { isTarget: true };
     const heldValues: object[] = [];
@@ -126,7 +126,7 @@ describe("pathsToTarget works well with ObjectGraphImpl (weak map simulation)", 
       symbolDescription: null,
     };
 
-    ExpectedObjectGraph = new ObjectGraphImpl;
+    ExpectedObjectGraph = new HostObjectGraphImpl;
 
     ExpectedObjectGraph.defineTargetAndHeldValues(
       target, targetMetadata, heldValues, heldValuesMetadata

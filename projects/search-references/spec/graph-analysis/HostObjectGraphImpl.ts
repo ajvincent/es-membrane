@@ -10,8 +10,8 @@ import type {
 
 import {
   HostObjectGraph,
-  ObjectGraphImpl
-} from "../../source/graph-analysis/ObjectGraphImpl.js";
+  HostObjectGraphImpl
+} from "../../source/graph-analysis/HostObjectGraphImpl.js";
 
 import {
   createValueDescription,
@@ -88,7 +88,7 @@ describe("ObjectGraphImpl", () => {
     target = { "is target": true };
     heldValues = [];
 
-    const graph = new ObjectGraphImpl;
+    const graph = new HostObjectGraphImpl;
 
     graph.defineTargetAndHeldValues(
       target, targetMetadata, heldValues, heldValuesMetadata
@@ -201,7 +201,7 @@ describe("ObjectGraphImpl", () => {
       heldValues = [];
 
       {
-        const graph = new ObjectGraphImpl;
+        const graph = new HostObjectGraphImpl;
 
         graph.defineTargetAndHeldValues(
           target, targetMetadata, heldValues, heldValuesMetadata
@@ -1240,7 +1240,7 @@ describe("ObjectGraphImpl", () => {
       {
         heldValues = [];
 
-        const graph = new ObjectGraphImpl();
+        const graph = new HostObjectGraphImpl();
 
         graph.defineTargetAndHeldValues(
           target, targetMetadata, heldValues, heldValuesMetadata

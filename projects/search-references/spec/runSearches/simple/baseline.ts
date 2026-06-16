@@ -6,8 +6,8 @@ import type {
 } from "type-fest";
 
 import {
-  ObjectGraphImpl
-} from "../../../source/graph-analysis/ObjectGraphImpl.js";
+  HostObjectGraphImpl
+} from "../../../source/graph-analysis/HostObjectGraphImpl.js";
 
 import type {
   SearchGraph
@@ -62,9 +62,9 @@ describe("Simple graph searches: baseline", () => {
     symbolDescription: null,
   };
 
-  let ExpectedObjectGraph: ObjectGraphImpl;
+  let ExpectedObjectGraph: HostObjectGraphImpl;
   beforeEach(() => {
-    ExpectedObjectGraph = new ObjectGraphImpl;
+    ExpectedObjectGraph = new HostObjectGraphImpl;
 
     ExpectedObjectGraph.defineTargetAndHeldValues(
       target, targetMetadata, heldValues, heldValuesMetadata
@@ -100,7 +100,7 @@ describe("Simple graph searches: baseline", () => {
   });
 
   it("we can find a target symbol when it's among the held values", async () => {
-    ExpectedObjectGraph = new ObjectGraphImpl;
+    ExpectedObjectGraph = new HostObjectGraphImpl;
 
     const target = Symbol("is symbol target");
 
@@ -188,7 +188,7 @@ describe("Simple graph searches: baseline", () => {
 
   it("we can find a target symbol as a key of an object", async () => {
     {
-      ExpectedObjectGraph = new ObjectGraphImpl;
+      ExpectedObjectGraph = new HostObjectGraphImpl;
 
       const target = Symbol("target symbol");
 

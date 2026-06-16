@@ -91,7 +91,7 @@ export type HostObjectGraph<
   RelationshipMetadata extends JsonObject | null,
 > = ObjectGraphIfc<object, symbol, object, ObjectMetadata, RelationshipMetadata>;
 
-export class ObjectGraphImpl
+export class HostObjectGraphImpl
 implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
   CloneableGraphIfc, SearchReferencesIfc
 {
@@ -321,7 +321,7 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
     secondParentId: GraphObjectId | undefined,
   ): PrefixedNumber<EP>
   {
-    const edgeId = this.#edgeCounter.next(edgePrefixType);
+    const edgeId: PrefixedNumber<EP> = this.#edgeCounter.next(edgePrefixType);
     const edgeMetadata: GraphEdgeWithMetadata<GraphRelationshipMetadata | null> = {
       label,
       edgeType: edgePrefixType,
@@ -369,7 +369,7 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
 
     const edgeId = this.#defineEdge(
       relationshipName.description ?? "(symbol)",
-      parentId, EdgePrefix.HasSymbolAsKey, ObjectGraphImpl.#NOT_APPLICABLE,
+      parentId, EdgePrefix.HasSymbolAsKey, HostObjectGraphImpl.#NOT_APPLICABLE,
       keyEdgeMetadata, relationshipId, true, undefined
     );
     return edgeId;
@@ -514,7 +514,7 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
     // map to tuple
     const mapToTupleEdgeId = this.#defineEdge(
       "(map tuple)",
-      mapId, EdgePrefix.MapToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
+      mapId, EdgePrefix.MapToTuple, HostObjectGraphImpl.#NOT_APPLICABLE,
       null, tupleNodeId, true, keyId
     );
 
@@ -523,7 +523,7 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
     if (keyId) {
       keyToTupleEdgeId = this.#defineEdge(
         "(map key to tuple)",
-        keyId, EdgePrefix.MapKeyToTuple, ObjectGraphImpl.#NOT_APPLICABLE, null, tupleNodeId,
+        keyId, EdgePrefix.MapKeyToTuple, HostObjectGraphImpl.#NOT_APPLICABLE, null, tupleNodeId,
         true, mapId
       );
     }
@@ -561,7 +561,7 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
 
     const edgeId = this.#defineEdge(
       "(element)",
-      setId, EdgePrefix.SetValue, ObjectGraphImpl.#NOT_APPLICABLE,
+      setId, EdgePrefix.SetValue, HostObjectGraphImpl.#NOT_APPLICABLE,
       metadata, valueId, isStrongReferenceToValue, undefined
     );
     return edgeId;
@@ -600,13 +600,13 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
 
     const registryToTupleEdgeId = this.#defineEdge(
       "(registry to tuple)",
-      registryId, EdgePrefix.FinalizationRegistryToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
+      registryId, EdgePrefix.FinalizationRegistryToTuple, HostObjectGraphImpl.#NOT_APPLICABLE,
       null, tupleNodeId, true, targetId
     );
 
     const registryTargetToTupleEdgeId = this.#defineEdge(
       "(registry target to tuple)",
-      targetId, EdgePrefix.FinalizationTargetToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
+      targetId, EdgePrefix.FinalizationTargetToTuple, HostObjectGraphImpl.#NOT_APPLICABLE,
       null, tupleNodeId, true, registryId
     );
 
@@ -664,19 +664,19 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
 
     const objectToPrivateKeyEdgeId = this.#defineEdge(
       "(private key)",
-      parentId, EdgePrefix.ObjectToPrivateKey, ObjectGraphImpl.#NOT_APPLICABLE,
+      parentId, EdgePrefix.ObjectToPrivateKey, HostObjectGraphImpl.#NOT_APPLICABLE,
       privateNameMetadata, privateNameId, true, undefined
     );
 
     const objectToTupleEdgeId = this.#defineEdge(
       "(object to private tuple)",
-      parentId, EdgePrefix.ObjectToPrivateTuple, ObjectGraphImpl.#NOT_APPLICABLE,
+      parentId, EdgePrefix.ObjectToPrivateTuple, HostObjectGraphImpl.#NOT_APPLICABLE,
       null, tupleNodeId, true, privateNameId
     );
 
     const privateKeyToTupleEdgeId = this.#defineEdge(
       "(private key to tuple)",
-      privateNameId, EdgePrefix.PrivateKeyToTuple, ObjectGraphImpl.#NOT_APPLICABLE,
+      privateNameId, EdgePrefix.PrivateKeyToTuple, HostObjectGraphImpl.#NOT_APPLICABLE,
       null, tupleNodeId, true, parentId
     );
 

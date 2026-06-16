@@ -3,8 +3,8 @@
 import * as graphlib from "@dagrejs/graphlib";
 
 import {
-  ObjectGraphImpl
-} from "../../../source/graph-analysis/ObjectGraphImpl.js";
+  HostObjectGraphImpl
+} from "../../../source/graph-analysis/HostObjectGraphImpl.js";
 
 import {
   BuiltInJSTypeName
@@ -41,7 +41,7 @@ describe("Simple graph searches: function support,", () => {
     }
   }
 
-  let ExpectedObjectGraph: ObjectGraphImpl;
+  let ExpectedObjectGraph: HostObjectGraphImpl;
   //#endregion common test fixtures
 
   it("functions with no arguments and a single statement, a return, return a value", async () => {

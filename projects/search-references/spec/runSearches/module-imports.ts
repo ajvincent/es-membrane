@@ -2,8 +2,8 @@
 import * as graphlib from "@dagrejs/graphlib";
 
 import {
-  ObjectGraphImpl
-} from "../../source/graph-analysis/ObjectGraphImpl.js";
+  HostObjectGraphImpl
+} from "../../source/graph-analysis/HostObjectGraphImpl.js";
 
 import type {
   GraphWeakKeyMetadata
@@ -43,7 +43,7 @@ it("Simple graph searches: when there is an import involved (modules importing o
     symbolDescription: null,
   };
 
-  const ExpectedObjectGraph = new ObjectGraphImpl;
+  const ExpectedObjectGraph = new HostObjectGraphImpl;
 
   ExpectedObjectGraph.defineTargetAndHeldValues(
     target, targetMetadata, heldValues, heldValuesMetadata

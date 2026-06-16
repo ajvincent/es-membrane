@@ -5,9 +5,9 @@ import type {
 } from "type-fest";
 
 import {
-  ObjectGraphImpl,
+  HostObjectGraphImpl,
   type HostObjectGraph
-} from "../../source/graph-analysis/ObjectGraphImpl.js";
+} from "../../source/graph-analysis/HostObjectGraphImpl.js";
 
 import type {
   SearchConfiguration
@@ -38,7 +38,7 @@ export function createExpectedGraph(
   startingJSTypeName: BuiltInJSTypeName,
   startingClassName: string,
   configuration?: SearchConfiguration,
-): [ObjectGraphImpl, WeakKey[]]
+): [HostObjectGraphImpl, WeakKey[]]
 {
   const targetMetadata: GraphWeakKeyMetadata = {
     builtInJSTypeName: targetJSTypeName,
@@ -57,7 +57,7 @@ export function createExpectedGraph(
   };
 
   const heldValues: WeakKey[] = [];
-  const ExpectedObjectGraph = new ObjectGraphImpl(configuration);
+  const ExpectedObjectGraph = new HostObjectGraphImpl(configuration);
   ExpectedObjectGraph.defineTargetAndHeldValues(
     target, targetMetadata, heldValues, heldValuesMetadata
   );

@@ -2,8 +2,8 @@
 import * as graphlib from "@dagrejs/graphlib";
 
 import {
-  ObjectGraphImpl
-} from "../../../source/graph-analysis/ObjectGraphImpl.js";
+  HostObjectGraphImpl
+} from "../../../source/graph-analysis/HostObjectGraphImpl.js";
 
 import type {
   GraphWeakKeyMetadata
@@ -53,7 +53,7 @@ describe("Simple graph searches: weak references to direct", () => {
       symbolDescription: null,
     };
 
-    const ExpectedObjectGraph = new ObjectGraphImpl;
+    const ExpectedObjectGraph = new HostObjectGraphImpl;
 
     ExpectedObjectGraph.defineTargetAndHeldValues(
       target, targetMetadata, heldValues, heldValuesMetadata
@@ -105,7 +105,7 @@ describe("Simple graph searches: weak references to direct", () => {
       symbolDescription: null,
     };
 
-    const ExpectedObjectGraph = new ObjectGraphImpl;
+    const ExpectedObjectGraph = new HostObjectGraphImpl;
 
     ExpectedObjectGraph.defineTargetAndHeldValues(
       target, targetMetadata, heldValues, heldValuesMetadata
