@@ -5,6 +5,7 @@ export enum ValueDiscrimant {
   Symbol = "Symbol",
   BigInt = "BigInt",
   Primitive = "Primitive",
+  PrivateKey = "PrivateKey",
 }
 
 //#region nodes
@@ -51,7 +52,6 @@ export enum ChildReferenceEdgeType {
   PropertySymbol = "PropertySymbol",
   SymbolKey = "SymbolKey",
   ScopeValue = "ScopeValue",
-  PrivateClassKey = "PrivateClassKey",
   PrivateClassValue = "PrivateClassValue",
 
   InternalSlot = "InternalSlot",
@@ -77,10 +77,7 @@ export enum EdgePrefix {
   FinalizationTargetToTuple = "finalizationTargetToTuple",
   FinalizationTupleToHeldValue = "finalizationTupleToHeldValue",
   FinalizationTupleToUnregisterToken = "finalizationTupleToUnregisterToken",
-  ObjectToPrivateKey = "objectToPrivateKey",
-  ObjectToPrivateTuple = "objectToPrivateTuple",
-  PrivateKeyToTuple = "privateKeyToTuple",
-  PrivateTupleToValue = "privateValue",
-  PrivateTupleToGetter = "privateGetter",
+  PrivatePropertyKey = "#privateProperty",
+  PrivateGetter = "#privateGetter",
 };
 //#endregion edges

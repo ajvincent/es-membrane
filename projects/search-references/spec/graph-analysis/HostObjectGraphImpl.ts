@@ -22,10 +22,6 @@ import type {
 } from "../../source/graph-analysis/types/CloneableGraphIfc.js";
 
 import type {
-  PrivateFieldTupleIds
-} from "../../source/graph-analysis/types/ObjectGraphIfc.js";
-
-import type {
   SearchReferencesIfc,
 } from "../../source/graph-analysis/types/SearchReferencesIfc.js";
 
@@ -855,158 +851,49 @@ describe("ObjectGraphImpl", () => {
     });
 
     it("private class fields", () => {
-      const privateKey = { isPrivateKey: true };
+      const privateKey = Symbol("#privateKey");
       const owner = { isOwner: true };
 
       heldValues.push(owner);
       objectGraph.defineObject(owner, new WeakKeyMetadata("owner"));
       objectGraph.definePropertyOrGetter(heldValues, 0, owner, new RelationshipMetadata("held to owner"), false);
 
-      objectGraph.definePrivateName(privateKey, "#privateKey");
-      const privateNameRelationship = new RelationshipMetadata("owner to private name");
+      objectGraph.definePrivateName(privateKey);
       const targetRelationship = new RelationshipMetadata("owner to target");
-      const {
-        tupleNodeId,
-        objectToPrivateKeyEdgeId,
-        objectToTupleEdgeId,
-        privateKeyToTupleEdgeId,
-        tupleToValueEdgeId
-      }: PrivateFieldTupleIds = objectGraph.definePrivateField(
-        owner, privateKey, "#privateKey", target,
-        privateNameRelationship, targetRelationship, false
+      const edgeId = objectGraph.definePrivateField(
+        owner, privateKey, target, targetRelationship, false
       );
 
-      expect(objectGraph.getEdgeRelationship(objectToPrivateKeyEdgeId)).withContext("object to private key").toEqual({
-        label: "(private key)",
-        edgeType: EdgePrefix.ObjectToPrivateKey,
-        description: {
-          valueType: ValueDiscrimant.NotApplicable,
-        },
-        metadata: privateNameRelationship,
-        isStrongReference: true,
-      });
-
-      expect(objectGraph.getEdgeRelationship(objectToTupleEdgeId)).withContext("object to tuple").toEqual({
-        label: "(object to private tuple)",
-        edgeType: EdgePrefix.ObjectToPrivateTuple,
-        description: {
-          valueType: ValueDiscrimant.NotApplicable
-        },
-        metadata: null,
-        isStrongReference: true,
-      });
-
-      expect(objectGraph.getEdgeRelationship(privateKeyToTupleEdgeId)).withContext("private key to tuple").toEqual({
-        label: "(private key to tuple)",
-        edgeType: EdgePrefix.PrivateKeyToTuple,
-        description: {
-          valueType: ValueDiscrimant.NotApplicable,
-        },
-        metadata: null,
-        isStrongReference: true,
-      });
-
-      expect(objectGraph.getEdgeRelationship(tupleToValueEdgeId)).withContext("#privateKey").toEqual({
+      expect(objectGraph.getEdgeRelationship(edgeId)).toEqual({
         label: "#privateKey",
-        edgeType: EdgePrefix.PrivateTupleToValue,
-        description: createValueDescription("#privateKey", objectGraph),
+        edgeType: EdgePrefix.PrivatePropertyKey,
+        description: { valueType: ValueDiscrimant.PrivateKey, description: "#privateKey" },
         metadata: targetRelationship,
         isStrongReference: true,
       });
-
-      const rawGraph = cloneableGraph.cloneGraph();
-      const inEdges = rawGraph.inEdges(tupleNodeId);
-      expect(inEdges).toBeDefined();
-      if (inEdges) {
-        expect(inEdges.length).toBe(2);
-        expect(inEdges[0]?.name).toBe(objectToTupleEdgeId);
-        expect(inEdges[1]?.name).toBe(privateKeyToTupleEdgeId);
-      }
-
-      const outEdges = rawGraph.outEdges(tupleNodeId);
-      expect(outEdges).toBeDefined();
-      if (outEdges) {
-        expect(outEdges.length).toBe(1);
-        expect(outEdges[0]?.name).toBe(tupleToValueEdgeId);
-      }
     });
 
     it("private class getters", () => {
-      const privateKey = { isPrivateKey: true };
+      const privateKey = Symbol("#privateKey");
       const owner = { isOwner: true };
 
       heldValues.push(owner);
       objectGraph.defineObject(owner, new WeakKeyMetadata("owner"));
       objectGraph.definePropertyOrGetter(heldValues, 0, owner, new RelationshipMetadata("held to owner"), false);
 
-      objectGraph.definePrivateName(privateKey, "#privateKey");
-      const privateNameRelationship = new RelationshipMetadata("owner to private name");
+      objectGraph.definePrivateName(privateKey);
       const targetRelationship = new RelationshipMetadata("owner to target");
-      const {
-        tupleNodeId,
-        objectToPrivateKeyEdgeId,
-        objectToTupleEdgeId,
-        privateKeyToTupleEdgeId,
-        tupleToValueEdgeId
-      } = objectGraph.definePrivateField(
-        owner, privateKey, "#privateKey", target,
-        privateNameRelationship, targetRelationship, true
+      const edgeId = objectGraph.definePrivateField(
+        owner, privateKey, target, targetRelationship, true
       );
 
-      expect(objectGraph.getEdgeRelationship(objectToPrivateKeyEdgeId)).withContext("private key").toEqual({
-        label: "(private key)",
-        edgeType: EdgePrefix.ObjectToPrivateKey,
-        description: {
-          valueType: ValueDiscrimant.NotApplicable,
-        },
-        metadata: privateNameRelationship,
-        isStrongReference: true,
-      });
-
-      expect(objectGraph.getEdgeRelationship(objectToTupleEdgeId)).withContext("object to private tuple").toEqual({
-        label: "(object to private tuple)",
-        edgeType: EdgePrefix.ObjectToPrivateTuple,
-        description: {
-          valueType: ValueDiscrimant.NotApplicable
-        },
-        metadata: null,
-        isStrongReference: true,
-      });
-
-      expect(objectGraph.getEdgeRelationship(privateKeyToTupleEdgeId)).withContext("private key to tuple").toEqual({
-        label: "(private key to tuple)",
-        edgeType: EdgePrefix.PrivateKeyToTuple,
-        description: {
-          valueType: ValueDiscrimant.NotApplicable,
-        },
-        metadata: null,
-        isStrongReference: true,
-      });
-
-      // the edge type is the significant difference from the private value test
-      expect(objectGraph.getEdgeRelationship(tupleToValueEdgeId)).withContext("tuple to value").toEqual({
+      expect(objectGraph.getEdgeRelationship(edgeId)).toEqual({
         label: "#privateKey",
-        edgeType: EdgePrefix.PrivateTupleToGetter,
-        description: createValueDescription("#privateKey", objectGraph),
+        edgeType: EdgePrefix.PrivateGetter,
+        description: { valueType: ValueDiscrimant.PrivateKey, description: "#privateKey" },
         metadata: targetRelationship,
         isStrongReference: true,
       });
-
-      const rawGraph = cloneableGraph.cloneGraph();
-      const inEdges = rawGraph.inEdges(tupleNodeId);
-      expect(inEdges).toBeDefined();
-      if (inEdges) {
-        expect(inEdges.length).toBe(2);
-        expect(inEdges[0]?.name).toBe(objectToTupleEdgeId);
-        expect(inEdges[1]?.name).toBe(privateKeyToTupleEdgeId);
-      }
-
-      const outEdges = rawGraph.outEdges(tupleNodeId);
-      expect(outEdges).toBeDefined();
-      if (outEdges) {
-        expect(outEdges.length).toBe(1);
-        expect(outEdges[0]?.name).toBe(tupleToValueEdgeId);
-      }
     });
   });
 
@@ -1165,7 +1052,7 @@ describe("ObjectGraphImpl", () => {
       const B = new WeakMap<object, object>;
       const C = {"name": "C" };
       const E = {"name": "E" };
-  
+
       B.set(C, target);
       //B.set(E, C);
   

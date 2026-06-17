@@ -6,7 +6,7 @@ export class HostValueSubstitution
 {
   readonly #objectMap = new WeakMap<GuestEngine.ObjectValue, object>;
   readonly #symbolMap = new WeakMap<GuestEngine.SymbolValue, symbol>;
-  readonly #privateKeysMap = new WeakMap<GuestEngine.PrivateName, object>;
+  readonly #privateKeysMap = new WeakMap<GuestEngine.PrivateName, symbol>;
 
   public getHostValue(guestValue: GuestEngine.Value)
   {
@@ -86,11 +86,14 @@ export class HostValueSubstitution
 
   public getHostPrivateName(
     guestKey: GuestEngine.PrivateName
-  ): object
+  ): symbol
   {
-    let hostObject: object | undefined = this.#privateKeysMap.get(guestKey);
+    let hostObject: symbol | undefined = this.#privateKeysMap.get(guestKey);
     if (!hostObject) {
-      hostObject = {};
+      const hostDescription = guestKey.Description.stringValue();
+      if (hostDescription.startsWith("#") === false)
+        throw new Error("expected description to start with #");
+      hostObject = Symbol(hostDescription);
       this.#privateKeysMap.set(guestKey, hostObject);
     }
     return hostObject;

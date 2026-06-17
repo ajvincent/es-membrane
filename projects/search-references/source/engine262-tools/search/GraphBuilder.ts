@@ -182,7 +182,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
 
   constructor(
     realm: GuestEngine.ManagedRealm,
-    hostObjectGraph: ObjectGraphIfc<object, symbol, object, GraphWeakKeyMetadata, GraphRelationshipMetadata>,
+    hostObjectGraph: ObjectGraphIfc<object, symbol, symbol, GraphWeakKeyMetadata, GraphRelationshipMetadata>,
     resultsKey: string,
     searchConfiguration?: SearchConfiguration
   )
@@ -549,7 +549,7 @@ export class GraphBuilder implements InstanceGetterDefinitions
       GuestEngine.Assert(privateKey.startsWith("#"));
 
       if (this.#guestObjectGraph.hasPrivateName(Key) === false) {
-        this.#guestObjectGraph.definePrivateName(Key, privateKey as `#${string}`);
+        this.#guestObjectGraph.definePrivateName(Key);
       }
 
       let guestValue: GuestEngine.Value;
@@ -575,15 +575,11 @@ export class GraphBuilder implements InstanceGetterDefinitions
         false,
         "addPrivateFields: key=" + privateKey
       );
-      const privateNameMetadata = GraphBuilder.#buildChildEdgeType(
-        ChildReferenceEdgeType.PrivateClassKey
-      );
       const privateValueMetadata = GraphBuilder.#buildChildEdgeType(
         ChildReferenceEdgeType.PrivateClassValue
       );
       this.#guestObjectGraph.definePrivateField(
-        guestObject, Key, privateKey as `#${string}`, guestValue,
-        privateNameMetadata, privateValueMetadata, Kind === "accessor"
+        guestObject, Key, guestValue, privateValueMetadata, Kind === "accessor"
       );
     }
   }

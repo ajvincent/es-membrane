@@ -113,10 +113,10 @@ export function addSymbolGraphNode(
 export function addPrivateName(
   graph: HostObjectGraph<GraphWeakKeyMetadata, JsonObject>,
   privateKey: `#${string}`
-): object
+): symbol
 {
-  const privateName = {};
-  graph.definePrivateName(privateName, privateKey);
+  const privateName = Symbol(privateKey);
+  graph.definePrivateName(privateName);
   return privateName;
 }
 
@@ -255,23 +255,18 @@ export function addSetElementEdge(
 export function addPrivateFieldEdge(
   graph: HostObjectGraph<GraphWeakKeyMetadata, JsonObject>,
   parent: object,
-  privateName: object,
+  privateName: symbol,
   privateKey: `#${string}`,
   child: WeakKey,
   isGetter: boolean
 ): void
 {
-  const privateNameRelationship: GraphRelationshipMetadata = {
-    parentToChildEdgeType: ChildReferenceEdgeType.PrivateClassKey
-  };
-
   const valueRelationship: GraphRelationshipMetadata = {
     parentToChildEdgeType: ChildReferenceEdgeType.PrivateClassValue
   };
 
   graph.definePrivateField(
-    parent, privateName, privateKey, child,
-    privateNameRelationship, valueRelationship, isGetter
+    parent, privateName, child, valueRelationship, isGetter
   );
 }
 

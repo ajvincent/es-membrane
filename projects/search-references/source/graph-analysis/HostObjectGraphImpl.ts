@@ -33,7 +33,6 @@ import {
 } from "../utilities/StringCounter.js";
 
 import {
-  BuiltInJSTypeName,
   EdgePrefix,
   NodePrefix,
   ValueDiscrimant
@@ -63,7 +62,6 @@ import type {
   GraphObjectId,
   MapKeyAndValueIds,
   ObjectGraphIfc,
-  PrivateFieldTupleIds,
 } from "./types/ObjectGraphIfc.js";
 
 import type {
@@ -89,7 +87,7 @@ enum ObjectGraphState {
 export type HostObjectGraph<
   ObjectMetadata extends JsonObject | null,
   RelationshipMetadata extends JsonObject | null,
-> = ObjectGraphIfc<object, symbol, object, ObjectMetadata, RelationshipMetadata>;
+> = ObjectGraphIfc<object, symbol, symbol, ObjectMetadata, RelationshipMetadata>;
 
 export class HostObjectGraphImpl
 implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
@@ -104,6 +102,8 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
   #targetId: PrefixedNumber<"target">;
   #heldValuesId: PrefixedNumber<"heldValues">;
   #defineTargetCalled = false;
+
+  readonly #privateKeySet = new Set<symbol>;
 
   #graph: SearchGraph = new graphlib.Graph({ directed: true, multigraph: true });
 
@@ -219,9 +219,9 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
     return this.#weakKeyToIdMap.has(symbol);
   }
 
-  public hasPrivateName(object: object): boolean {
+  public hasPrivateName(privateName: symbol): boolean {
     this.#assertDefineTargetCalled();
-    return this.#weakKeyToIdMap.has(object);
+    return this.#weakKeyToIdMap.has(privateName);
   }
 
   public defineObject(
@@ -237,35 +237,24 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
   }
 
   public definePrivateName(
-    privateName: object,
-    description: `#${string}`,
+    privateName: symbol,
   ): void
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
-    if (this.#weakKeyToIdMap.has(privateName)) {
+    if (this.#privateKeySet.has(privateName)) {
       this.#throwInternalError(new Error(
-        "privateName is already defined as a node in this graph, with id " + this.#weakKeyToIdMap.get(privateName)!
+        `privateName ${privateName.description!} is already defined in this graph`
+      ));
+    }
+    if (privateName.description === undefined)
+      this.#throwInternalError(new Error("privateName.description must start with #"));
+    if (privateName.description.startsWith("#") === false) {
+      this.#throwInternalError(new Error(
+        "privateName.description must start with #: " + privateName.description
       ));
     }
 
-    const nodeId = this.#nodeCounter.next(NodePrefix.PrivateName);
-    this.#weakKeyToIdMap.set(privateName, nodeId);
-    this.#idToWeakKeyMap.set(nodeId, privateName);
-
-    const nodeMetadata: GraphNodeWithMetadata<GraphWeakKeyMetadata> = {
-      metadata: {
-        builtInJSTypeName: BuiltInJSTypeName.PrivateName,
-        derivedClassName: "",
-        description,
-        classSpecifier: null,
-        classLineNumber: null,
-        symbolDescription: null,
-      }
-    };
-    this.#graph.setNode(nodeId, nodeMetadata);
-
-    this.#ownershipSetsTracker.defineKey(nodeId);
-    this.#weakKeyHeldStronglyMap.set(privateName, false);
+    this.#privateKeySet.add(privateName);
   }
 
   #defineWeakKey<Prefix extends NodePrefix>(
@@ -385,14 +374,14 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
   public definePropertyOrGetter(
     parentObject: object,
     relationshipName: number | string | symbol,
-    childObject: object,
+    childValue: object | symbol,
     metadata: GraphRelationshipMetadata,
     isGetter: boolean,
   ): PrefixedNumber<EdgePrefix.GetterKey | EdgePrefix.PropertyKey>
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
     const parentId = this.#requireWeakKeyId(parentObject, "parentObject");
-    const childId = this.#requireWeakKeyId(childObject, "childObject");
+    const childId = this.#requireWeakKeyId(childValue, "childObject");
 
     if (typeof relationshipName === "symbol") {
       const symbolId = this.getWeakKeyId(relationshipName);
@@ -642,58 +631,28 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
 
   definePrivateField(
     parentObject: object,
-    privateName: object,
-    privateKey: `#${string}`,
-    childObject: EngineWeakKey<object, symbol>,
-    privateNameMetadata: GraphRelationshipMetadata,
+    privateName: symbol,
+    childValue: EngineWeakKey<object, symbol>,
     childMetadata: GraphRelationshipMetadata,
     isGetter: boolean
-  ): PrivateFieldTupleIds
+  ): PrefixedNumber<EdgePrefix.PrivateGetter | EdgePrefix.PrivatePropertyKey>
   {
     this.#setNextState(ObjectGraphState.AcceptingDefinitions);
+    if (!this.#privateKeySet.has(privateName))
+      this.#throwInternalError(new Error("privateName not found"));
     const parentId = this.#requireWeakKeyId(parentObject, "parentObject");
-    const privateNameId = this.#requireWeakKeyId(privateName, "privateName");
-    if (privateNameId.startsWith(NodePrefix.PrivateName) === false)
-      throw new Error("privateName is not a registered private name!");
-    const childId = this.#requireWeakKeyId(childObject, "childObject");
+    const childId = this.#requireWeakKeyId(childValue, "childObject");
 
-    const tupleNodeId = this.#defineWeakKey({}, null, NodePrefix.PrivateFieldTuple);
-    if (this.#searchConfiguration?.defineNodeTrap) {
-      this.#searchConfiguration.defineNodeTrap(parentId, tupleNodeId, "(new private field tuple)");
-    }
+    const { description } = privateName as Record<"description", `#${string}`>;
 
-    const objectToPrivateKeyEdgeId = this.#defineEdge(
-      "(private key)",
-      parentId, EdgePrefix.ObjectToPrivateKey, HostObjectGraphImpl.#NOT_APPLICABLE,
-      privateNameMetadata, privateNameId, true, undefined
+    const edgeId = this.#defineEdge(
+      description, parentId,
+      isGetter ? EdgePrefix.PrivateGetter : EdgePrefix.PrivatePropertyKey,
+      { valueType: ValueDiscrimant.PrivateKey, description },
+      childMetadata, childId, true, undefined
     );
 
-    const objectToTupleEdgeId = this.#defineEdge(
-      "(object to private tuple)",
-      parentId, EdgePrefix.ObjectToPrivateTuple, HostObjectGraphImpl.#NOT_APPLICABLE,
-      null, tupleNodeId, true, privateNameId
-    );
-
-    const privateKeyToTupleEdgeId = this.#defineEdge(
-      "(private key to tuple)",
-      privateNameId, EdgePrefix.PrivateKeyToTuple, HostObjectGraphImpl.#NOT_APPLICABLE,
-      null, tupleNodeId, true, parentId
-    );
-
-    const tupleToValueEdgeId = this.#defineEdge(
-      privateKey, tupleNodeId,
-      isGetter ? EdgePrefix.PrivateTupleToGetter : EdgePrefix.PrivateTupleToValue,
-      createValueDescription(privateKey, this),
-      childMetadata, childId, true, parentId
-    );
-
-    return {
-      tupleNodeId,
-      objectToPrivateKeyEdgeId,
-      objectToTupleEdgeId,
-      privateKeyToTupleEdgeId,
-      tupleToValueEdgeId
-    };
+    return edgeId;
   }
 
   public getEdgeRelationship(

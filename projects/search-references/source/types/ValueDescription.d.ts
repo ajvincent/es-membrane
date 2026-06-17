@@ -32,10 +32,16 @@ export interface PrimitiveValueDescription {
   readonly primitiveValue: boolean | number | string | undefined | null;
 }
 
+export interface PrivateKeyDescription {
+  readonly valueType: ValueDiscrimant.PrivateKey;
+  readonly description: string;
+}
+
 export type ValueDescription = (
   NotApplicableValueDescription |
   ObjectValueDescription |
   SymbolValueDescription |
   BigIntValueDescription |
-  PrimitiveValueDescription
+  PrimitiveValueDescription |
+  PrivateKeyDescription
 );

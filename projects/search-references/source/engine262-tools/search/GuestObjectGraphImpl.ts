@@ -13,7 +13,6 @@ import type {
   FinalizationTupleIds,
   GraphEdgeWithMetadata,
   MapKeyAndValueIds,
-  PrivateFieldTupleIds,
 } from "../../graph-analysis/types/ObjectGraphIfc.js";
 
 import type {
@@ -150,12 +149,10 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
 
   public definePrivateName(
     privateName: GuestEngine.PrivateName,
-    description: `#${string}`
   ): void
   {
     return this.#hostGraph.definePrivateName(
       this.#substitution.getHostPrivateName(privateName),
-      description
     );
   }
 
@@ -285,19 +282,15 @@ implements GuestObjectGraphIfc<ObjectMetadata, RelationshipMetadata>
   public definePrivateField(
     parentObject: GuestEngine.ObjectValue,
     privateName: GuestEngine.PrivateName,
-    privateKey: `#${string}`,
     childObject: GuestWeakKey,
-    privateNameMetadata: RelationshipMetadata,
     childMetadata: RelationshipMetadata,
     isGetter: boolean
-  ): PrivateFieldTupleIds
+  ): PrefixedNumber<EdgePrefix.PrivateGetter | EdgePrefix.PrivatePropertyKey>
   {
     return this.#hostGraph.definePrivateField(
       this.#substitution.getHostObject(parentObject),
       this.#substitution.getHostPrivateName(privateName),
-      privateKey,
       this.#substitution.getHostWeakKey(childObject),
-      privateNameMetadata,
       childMetadata,
       isGetter
     );

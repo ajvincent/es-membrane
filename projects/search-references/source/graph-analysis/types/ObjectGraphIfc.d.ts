@@ -70,7 +70,6 @@ export interface ObjectGraphIfc<
 
   definePrivateName(
     privateName: EnginePrivateName,
-    description: `#${string}`,
   ): void;
 
   /**
@@ -89,14 +88,14 @@ export interface ObjectGraphIfc<
    *
    * @param parentObject
    * @param relationshipName
-   * @param childObject
+   * @param childValue
    * @param metadata
    * @param isGetter
    */
   definePropertyOrGetter(
     parentObject: EngineObject,
     relationshipName: number | string | EngineSymbol,
-    childObject: EngineWeakKey<EngineObject, EngineSymbol>,
+    childValue: EngineWeakKey<EngineObject, EngineSymbol>,
     metadata: RelationshipMetadata,
     isGetter: boolean,
   ): PrefixedNumber<EdgePrefix.GetterKey | EdgePrefix.PropertyKey>;
@@ -152,12 +151,10 @@ export interface ObjectGraphIfc<
   definePrivateField(
     parentObject: EngineObject,
     privateName: EnginePrivateName,
-    privateKey: `#${string}`,
     childObject: EngineWeakKey<EngineObject, EngineSymbol>,
-    privateNameMetadata: RelationshipMetadata,
     childMetadata: RelationshipMetadata,
     isGetter: boolean
-  ): PrivateFieldTupleIds;
+  ): PrefixedNumber<EdgePrefix.PrivateGetter | EdgePrefix.PrivatePropertyKey>;
 
   /**
    * Define a reference between a set and a value.
@@ -207,14 +204,6 @@ export interface MapKeyAndValueIds {
   readonly mapToTupleEdgeId: PrefixedNumber<EdgePrefix.MapToTuple>;
   readonly keyToTupleEdgeId: PrefixedNumber<EdgePrefix.MapKeyToTuple> | undefined;
   readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.MapValue> | undefined;
-}
-
-export interface PrivateFieldTupleIds {
-  readonly tupleNodeId: PrefixedNumber<NodePrefix.PrivateFieldTuple>;
-  readonly objectToPrivateKeyEdgeId: PrefixedNumber<EdgePrefix.ObjectToPrivateKey>;
-  readonly objectToTupleEdgeId: PrefixedNumber<EdgePrefix.ObjectToPrivateTuple>;
-  readonly privateKeyToTupleEdgeId: PrefixedNumber<EdgePrefix.PrivateKeyToTuple>;
-  readonly tupleToValueEdgeId: PrefixedNumber<EdgePrefix.PrivateTupleToValue | EdgePrefix.PrivateTupleToGetter>;
 }
 
 export interface FinalizationTupleIds {
