@@ -477,8 +477,6 @@ The `graphlib` library allows defining nodes and edges of a graph formally, and 
 
 Here, we're firmly in a web browser environment:  `D3` provides tools to build SVG graphs from the output `Dagre` generates, while `Cytoscape` generates canvas elements.
 
-[I will note I was unsuccessful in using dagre, D3 and Cytoscape my first time.](./source/dagre-tools/README.md)  That's because I was trying too hard to do something quickly.  This is going to require a bit more study on my part to integrate properly.
-
 ## How can we use these tools?  (Approach)
 
 - Define a special directory, `reference-spec`, for ECMAScript standard-compliant code plus the `searchReferences()` function to live in.
@@ -493,4 +491,4 @@ Here, we're firmly in a web browser environment:  `D3` provides tools to build S
 - Formalize the graph structure for feeding to `dagre` and `graphlib`.
 - Feed the graph structures and verify the `dagre` coordinates are indeed useful.
 - Provide API to run a `reference-spec` file and output the resulting graphs for consumers.
-- Build out a HTML-based tool integrating the output with rendering libraries, for the visualization. (Help really wanted with this!)
+- Build out [a HTML-based tool](https://ajvincent.github.io/es-search-references/) integrating the output with rendering libraries, for the visualization.
