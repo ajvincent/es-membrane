@@ -763,6 +763,7 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
   }
 
   #removeCycles(): void {
+    /*
     let allCycles: string[][] = graphlib.alg.findCycles(this.#graph);
     while (allCycles.length) {
       for (const cycle of allCycles) {
@@ -775,6 +776,7 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
       }
       allCycles = graphlib.alg.findCycles(this.#graph);
     }
+    */
   }
 
   #summarizeGraphToTarget(

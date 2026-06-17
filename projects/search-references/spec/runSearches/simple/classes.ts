@@ -397,7 +397,10 @@ describe("Simple graph searches, class support:", () => {
 
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();
     ExpectedObjectGraph.summarizeGraphToTarget(true);
-    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+    const cloneGraph = ExpectedObjectGraph.cloneGraph();
+    expect(cloneGraph.hasNode("heldValues:1")).withContext("heldValues:1").toBeTrue();
+    expect(cloneGraph.hasNode("target:0")).withContext("target:0").toBeTrue();
+    const expected = graphlib.json.write(cloneGraph);
 
     const actual = await getActualGraph(
       "classes/classStaticAccessors.js", "class static getters", true
@@ -500,7 +503,11 @@ describe("Simple graph searches, class support:", () => {
 
     ExpectedObjectGraph.markStrongReferencesFromHeldValues();
     ExpectedObjectGraph.summarizeGraphToTarget(true);
-    const expected = graphlib.json.write(ExpectedObjectGraph.cloneGraph());
+    const cloneGraph = ExpectedObjectGraph.cloneGraph();
+    expect(cloneGraph.hasNode("heldValues:1")).withContext("heldValues:1").toBeTrue();
+    expect(cloneGraph.hasNode("target:0")).withContext("target:0").toBeTrue();
+
+    const expected = graphlib.json.write(cloneGraph);
 
     const actual = await getActualGraph(
       "classes/classStaticPrivateAccessors.js", "class static getters", true
