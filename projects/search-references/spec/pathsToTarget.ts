@@ -1,3 +1,4 @@
+//#region preamble
 import {
   Graph,
 } from "@dagrejs/graphlib";
@@ -42,25 +43,27 @@ import {
   addArrayIndexEdge,
   addMapKeyAndValue
 } from "./support/fillExpectedGraph.js";
+//#endregion preamble
+class GraphEdge implements GraphEdgeWithMetadata<null> {
+  label: string;
+  edgeType: EdgePrefix = EdgePrefix.PropertyKey;
+  description: ReadonlyDeep<ValueDescription> = {
+    valueType: ValueDiscrimant.NotApplicable
+  };
+  metadata: null = null;
+  isStrongReference: boolean = true;
+
+  constructor(label: string) {
+    this.label = label;
+  }
+}
+
+it("pathsToTarget treats null as no paths", () => {
+  expect(pathsToTarget(null)).toEqual([]);
+});
 
 it("pathsToTarget responds with all paths to a target", () => {
-  expect(pathsToTarget(null)).toEqual([]);
-
   const graph: SearchGraph = new Graph;
-
-  class GraphEdge implements GraphEdgeWithMetadata<null> {
-    label: string;
-    edgeType: EdgePrefix = EdgePrefix.PropertyKey;
-    description: ReadonlyDeep<ValueDescription> = {
-      valueType: ValueDiscrimant.NotApplicable
-    };
-    metadata: null = null;
-    isStrongReference: boolean = true;
-
-    constructor(label: string) {
-      this.label = label;
-    }
-  }
 
   graph.setNode("target:0", { metadata: null });
   graph.setNode("heldValues:1", { metadata: null });
@@ -179,4 +182,33 @@ describe("pathsToTarget works well with ObjectGraphImpl (weak map simulation)", 
     const allPaths = pathsToTarget(ExpectedObjectGraph.cloneGraph());
     expect(allPaths).toEqual([]);
   });
+});
+
+it("pathsToTarget excludes cycles", () => {
+  const graph: SearchGraph = new Graph;
+
+  graph.setNode("target:0", { metadata: null });
+  graph.setNode("heldValues:1", { metadata: null });
+  graph.setNode("object:2", { metadata: null });
+  graph.setNode("object:3", { metadata: null });
+  graph.setNode("object:4", { metadata: null });
+  graph.setNode("object:5", { metadata: null });
+  graph.setNode("object:6", { metadata: null });
+
+  graph.setEdge("heldValues:1", "object:2", new GraphEdge("1:2"));
+  graph.setEdge("object:2", "object:3", new GraphEdge("2:3"));
+  graph.setEdge("object:2", "object:4", new GraphEdge("2:4"));
+  graph.setEdge("object:3", "object:5", new GraphEdge("3:5"));
+  graph.setEdge("object:4", "target:0", new GraphEdge("4:0"));
+  graph.setEdge("object:5", "object:6", new GraphEdge("5:6"));
+  graph.setEdge("object:6", "object:2", new GraphEdge("6:2"));
+
+  const actual: readonly (readonly NodeAndEdgeLabels[])[] = pathsToTarget(graph);
+  expect(actual).withContext(JSON.stringify(actual, null, 2)).toEqual([
+    [
+      { nodeIndex: 2, nextEdgeLabel: "2:4" },
+      { nodeIndex: 4, nextEdgeLabel: "4:0" },
+      { nodeIndex: 0 }
+    ],
+  ]);
 });

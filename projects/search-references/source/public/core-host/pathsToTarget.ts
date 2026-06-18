@@ -1,7 +1,3 @@
-import {
-  alg,
-} from "@dagrejs/graphlib";
-
 import type {
   SearchGraph
 } from "./runSearchesInGuestEngine.js";
@@ -11,7 +7,72 @@ export interface NodeAndEdgeLabels {
   nextEdgeLabel?: string;
 }
 
-class NodeAndEdge {
+export function pathsToTarget(
+  graph: SearchGraph | null
+): readonly (readonly NodeAndEdgeLabels[])[]
+{
+  if (graph === null || graph.nodeCount() === 0)
+    return [];
+
+  const traversal = new GraphTraversal(graph);
+  const values: (readonly NodeAndEdgeLabels[])[] = Array.from(traversal.getPaths());
+
+  values.sort(NodeAndEdge.comparator);
+  return values;
+}
+
+class GraphTraversal {
+  readonly #graph: SearchGraph;
+  readonly #currentNodeStack = new Set<string>;
+  readonly #currentStack: NodeAndEdge[] = [];
+
+  /* We could speed things up by memoizing paths from each visited node to the target,
+  and then concatting them with an existing path leading to a visited node.
+  We're dealing for O(n^2 * m) for n nodes and m edges... as long as n and m remain small,
+  we're probably okay.
+  */
+
+  constructor(graph: SearchGraph) {
+    this.#graph = graph;
+  }
+
+  * getPaths(): Iterable<readonly NodeAndEdgeLabels[]> {
+    yield * this.#yieldPaths("heldValues:1");
+  }
+
+  * #yieldPaths(
+    nextNodeId: string
+  ): IterableIterator<readonly NodeAndEdgeLabels[]>
+  {
+    const id = parseInt(/:(\d+)$/.exec(nextNodeId)![1]);
+    const next = new NodeAndEdge(id);
+
+    this.#currentNodeStack.add(nextNodeId);
+    this.#currentStack.push(next);
+
+    if (nextNodeId === "target:0") {
+      const result: NodeAndEdgeLabels[] = this.#currentStack.map(n => n.clone());
+      result.shift();
+      yield result;
+    }
+    else {
+      for (const edge of this.#graph.outEdges(nextNodeId)!) {
+        if (this.#currentNodeStack.has(edge.w))
+          continue;
+
+        const edgeLabel = this.#graph.edge(edge);
+        next.nextEdgeLabel = edgeLabel.label;
+        yield * this.#yieldPaths(edge.w);
+        next.nextEdgeLabel = undefined;
+      }
+    }
+
+    this.#currentStack.pop();
+    this.#currentNodeStack.delete(nextNodeId);
+  }
+}
+
+class NodeAndEdge implements NodeAndEdgeLabels {
   static comparator(this: void, a: readonly NodeAndEdgeLabels[], b: readonly NodeAndEdgeLabels[]): number {
     let diff = a.length - b.length;
     for (let i = 0; diff === 0 && i < a.length; i++) {
@@ -32,37 +93,4 @@ class NodeAndEdge {
     const { nodeIndex, nextEdgeLabel } = this;
     return nextEdgeLabel === undefined ? { nodeIndex } : { nodeIndex, nextEdgeLabel };
   }
-}
-
-export function pathsToTarget(graph: SearchGraph | null): readonly (readonly NodeAndEdgeLabels[])[] {
-  if (graph === null || graph.nodeCount() === 0)
-    return [];
-
-  if (alg.isAcyclic(graph) === false)
-    throw new Error("graph has a cycle");
-  const nodeStack: NodeAndEdge[] = [];
-  const values: (readonly NodeAndEdgeLabels[])[] = Array.from(yieldPaths(graph, "heldValues:1", nodeStack));
-  values.sort(NodeAndEdge.comparator);
-  return values;
-}
-
-function * yieldPaths(graph: SearchGraph, nextNodeId: string, stack: NodeAndEdge[]): Iterable<readonly NodeAndEdgeLabels[]> {
-  const id = parseInt(/:(\d+)$/.exec(nextNodeId)![1]);
-  const next = new NodeAndEdge(id);
-  stack.push(next);
-
-  if (nextNodeId === "target:0") {
-    const result: NodeAndEdgeLabels[] = stack.map(n => n.clone());
-    result.shift();
-    yield result;
-  }
-  else {
-    for (const edge of graph.outEdges(nextNodeId)!) {
-      const edgeLabel = graph.edge(edge);
-      next.nextEdgeLabel = edgeLabel.label;
-      yield * yieldPaths(graph, edge.w, stack);
-      next.nextEdgeLabel = undefined;
-    }
-  }
-  stack.pop();
 }
