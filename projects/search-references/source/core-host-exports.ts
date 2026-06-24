@@ -11,7 +11,7 @@ export {
 } from "./public/core-host/runSearchesInGuestEngine.js";
 
 export {
-  type NodeAndEdgeLabels,
+  type PathsArray,
   pathsToTarget
 } from "./public/core-host/pathsToTarget.js";
 

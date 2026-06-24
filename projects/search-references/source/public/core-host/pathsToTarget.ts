@@ -1,30 +1,31 @@
 import type {
+  Edge
+} from "@dagrejs/graphlib";
+
+import type {
   SearchGraph
 } from "./runSearchesInGuestEngine.js";
 
-export interface NodeAndEdgeLabels {
-  nodeIndex: number;
-  nextEdgeLabel?: string;
-}
+export type PathsArray = readonly (readonly Record<"v" | "w" | "name", string>[])[];
 
 export function pathsToTarget(
   graph: SearchGraph | null
-): readonly (readonly NodeAndEdgeLabels[])[]
+): PathsArray
 {
   if (graph === null || graph.nodeCount() === 0)
     return [];
 
   const traversal = new GraphTraversal(graph);
-  const values: (readonly NodeAndEdgeLabels[])[] = Array.from(traversal.getPaths());
+  const values: (readonly Required<Edge>[])[] = Array.from(traversal.getPaths());
 
-  values.sort(NodeAndEdge.comparator);
+  values.sort(EdgeImpl.comparator);
   return values;
 }
 
 class GraphTraversal {
   readonly #graph: SearchGraph;
   readonly #currentNodeStack = new Set<string>;
-  readonly #currentStack: NodeAndEdge[] = [];
+  readonly #currentStack: EdgeImpl[] = [];
 
   /* We could speed things up by memoizing paths from each visited node to the target,
   and then concatting them with an existing path leading to a visited node.
@@ -36,61 +37,68 @@ class GraphTraversal {
     this.#graph = graph;
   }
 
-  * getPaths(): Iterable<readonly NodeAndEdgeLabels[]> {
+  * getPaths(): Iterable<readonly Required<Edge>[]> {
     yield * this.#yieldPaths("heldValues:1");
   }
 
   * #yieldPaths(
     nextNodeId: string
-  ): IterableIterator<readonly NodeAndEdgeLabels[]>
+  ): IterableIterator<readonly Required<Edge>[]>
   {
-    const id = parseInt(/:(\d+)$/.exec(nextNodeId)![1]);
-    const next = new NodeAndEdge(id);
-
     this.#currentNodeStack.add(nextNodeId);
-    this.#currentStack.push(next);
 
-    if (nextNodeId === "target:0") {
-      const result: NodeAndEdgeLabels[] = this.#currentStack.map(n => n.clone());
-      result.shift();
-      yield result;
-    }
-    else {
-      for (const edge of this.#graph.outEdges(nextNodeId)!) {
-        if (this.#currentNodeStack.has(edge.w))
-          continue;
+    for (const edge of this.#graph.outEdges(nextNodeId)!) {
+      const next = new EdgeImpl(edge);
+      this.#currentStack.push(next);
 
-        const edgeLabel = this.#graph.edge(edge);
-        next.nextEdgeLabel = edgeLabel.label;
-        yield * this.#yieldPaths(edge.w);
-        next.nextEdgeLabel = undefined;
+      const { w } = edge;
+
+      if (w === "target:0") {
+        yield this.#currentStack.map(e => e.cloneWithRegistration());
       }
+      else {
+        if (this.#currentNodeStack.has(w) === false)
+          yield * this.#yieldPaths(w);
+      }
+
+      this.#currentStack.pop();
     }
 
-    this.#currentStack.pop();
     this.#currentNodeStack.delete(nextNodeId);
   }
 }
 
-class NodeAndEdge implements NodeAndEdgeLabels {
-  static comparator(this: void, a: readonly NodeAndEdgeLabels[], b: readonly NodeAndEdgeLabels[]): number {
+class EdgeImpl implements Required<Edge> {
+  readonly v: string;
+  readonly w: string;
+  readonly name: string;
+
+  static readonly #edgeMap = new WeakMap<Edge, number>;
+
+  static comparator(
+    this: void,
+    a: readonly Edge[],
+    b: readonly Edge[]
+  ): number
+  {
     let diff = a.length - b.length;
     for (let i = 0; diff === 0 && i < a.length; i++) {
-      const aIndex = a[i].nodeIndex, bIndex = b[i].nodeIndex;
+      const aIndex = EdgeImpl.#edgeMap.get(a[i])!, bIndex = EdgeImpl.#edgeMap.get(b[i])!;
       diff = aIndex - bIndex;
     }
     return diff;
   }
 
-  nodeIndex: number;
-  nextEdgeLabel?: string;
-
-  constructor(nodeIndex: number) {
-    this.nodeIndex = nodeIndex;
+  constructor(edge: Edge) {
+    this.v = edge.v;
+    this.w = edge.w;
+    this.name = edge.name!;
   }
 
-  clone(): NodeAndEdgeLabels {
-    const { nodeIndex, nextEdgeLabel } = this;
-    return nextEdgeLabel === undefined ? { nodeIndex } : { nodeIndex, nextEdgeLabel };
+  cloneWithRegistration(): Required<Edge> {
+    const { v, w, name } = this;
+    const clone: Required<Edge> = { v, w, name };
+    EdgeImpl.#edgeMap.set(clone, parseInt(/:(\d+)$/.exec(clone.v)![1]));
+    return clone;
   }
 }
