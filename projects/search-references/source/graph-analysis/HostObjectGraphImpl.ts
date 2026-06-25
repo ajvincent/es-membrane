@@ -221,7 +221,7 @@ implements HostObjectGraph<GraphWeakKeyMetadata, GraphRelationshipMetadata>,
 
   public hasPrivateName(privateName: symbol): boolean {
     this.#assertDefineTargetCalled();
-    return this.#weakKeyToIdMap.has(privateName);
+    return this.#privateKeySet.has(privateName);
   }
 
   public defineObject(
