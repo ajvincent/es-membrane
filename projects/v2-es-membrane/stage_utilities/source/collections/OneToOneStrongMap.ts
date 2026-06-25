@@ -1,15 +1,30 @@
 import type {
-  OneToOneStrongMapIfc
-} from "./types/OneToOneStrongMapIfc.js";
+  WeakKeyBranded,
+  PrivateKeyBranded,
+  SharedKeyBranded
+} from "./KeysBranded.js";
 
 import {
-  type WeakKeyBranded,
-  type PrivateKeyBranded,
-  type SharedKeyBranded,
   type OneToOneInternalsIfc,
   OneToOneInternalsLive,
   OneToOneInternalsInert,
 } from "./OneToOneInternals.js";
+
+import {
+  MinRefCountTracker
+} from "./MinRefCountTracker.js";
+
+import {
+  InertMinRefCountTracker,
+} from "./inert/MinRefCountTracker.js";
+
+import type {
+  MinRefCountTrackerIfc,
+} from "./types/MinRefCountTrackerIfc.js";
+
+import type {
+  OneToOneStrongMapIfc
+} from "./types/OneToOneStrongMapIfc.js";
 
 export class OneToOneStrongMap<StrongKeyType, ValueType extends WeakKey>
 implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
@@ -26,6 +41,9 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
   }
 
   #internals: OneToOneInternalsIfc<StrongKeyType, ValueType> = new OneToOneInternalsLive();
+  #refCountTracker: MinRefCountTrackerIfc<StrongKeyType> = new MinRefCountTracker(
+    2, this.#deleteRemainingKeys.bind(this)
+  );
 
   public bindOneToOne(
     strongKey_1: StrongKeyType,
@@ -47,7 +65,7 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
     let sharedKey: SharedKeyBranded | undefined = this.#getSharedKey(value_1);
     const secondSharedKey: SharedKeyBranded | undefined = this.#getSharedKey(value_2);
     if (!sharedKey) {
-      sharedKey = secondSharedKey || OneToOneStrongMap.#getNextSymbol("shared");
+      sharedKey = secondSharedKey ?? OneToOneStrongMap.#getNextSymbol("shared");
     }
     else if (secondSharedKey && (secondSharedKey !== sharedKey)) {
       return this.#attemptMergeKeys(sharedKey, secondSharedKey);
@@ -90,6 +108,9 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
 
       const privateKey: PrivateKeyBranded = this.#internals.incomingMap.get(secondValue, strongKey)!;
       this.#internals.privateKeyToSharedKeyMap.set(privateKey, firstSharedKey);
+
+      this.#refCountTracker.deleteReference(privateKey, false);
+      this.#refCountTracker.addReference(privateKey, firstSharedKey, strongKey);
     }
   }
 
@@ -103,13 +124,22 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
     return this.#internals.privateKeyToSharedKeyMap.get(privateKey);
   }
 
-  #setSharedKey(value: ValueType, strongKey: StrongKeyType, sharedKey: SharedKeyBranded): void {
+  #setSharedKey(
+    value: ValueType,
+    strongKey: StrongKeyType,
+    sharedKey: SharedKeyBranded
+  ): void
+  {
     this.#internals.valueToOwnStrongKeyMap.set(value, strongKey);
     const privateKey = this.#internals.incomingMap.getOrInsertComputed(
       value, strongKey, () => OneToOneStrongMap.#getNextSymbol("private")
     );
     this.#internals.privateKeyToSharedKeyMap.set(privateKey, sharedKey);
     this.#internals.outgoingMap.set(sharedKey, strongKey, value);
+
+    if (this.#refCountTracker.hasReference(sharedKey, strongKey) === false) {
+      this.#refCountTracker.addReference(privateKey, sharedKey, strongKey);
+    }
   }
 
   public clear(): void {
@@ -150,6 +180,23 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
     this.#internals.outgoingMap.delete(sharedKey, strongKey);
     this.#internals.incomingMap.delete(value, strongKey);
     this.#internals.valueToOwnStrongKeyMap.delete(value);
+
+    this.#refCountTracker.deleteReference(privateKey, false);
+  }
+
+  #deleteRemainingKeys(
+    sharedKey: SharedKeyBranded,
+    remainingKeys: ReadonlySet<StrongKeyType>
+  ): void
+  {
+    if (this.#internals instanceof OneToOneInternalsInert)
+      return;
+    for (const strongKey of remainingKeys) {
+      const value: ValueType | undefined = this.#internals.outgoingMap.get(sharedKey, strongKey);
+      if (!value)
+        continue;
+      this.delete(value, strongKey);
+    }
   }
 
   public get(
@@ -195,6 +242,7 @@ implements OneToOneStrongMapIfc<StrongKeyType, ValueType>
 
   public revokeEverything(): void {
     this.#internals = new OneToOneInternalsInert();
+    this.#refCountTracker = new InertMinRefCountTracker();
   }
 }
 

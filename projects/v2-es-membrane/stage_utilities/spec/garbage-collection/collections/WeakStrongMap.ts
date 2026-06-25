@@ -1,16 +1,19 @@
 import path from "node:path";
 import {
+  LoggingConfiguration,
+  type SearchGraph,
   runSearchesInGuestEngine,
-  SearchGraph
 } from "es-search-references/host";
 
 import { stageDir } from "#stage_utilities/spec/support/stageDir.js";
 
 describe("WeakStrongMap holds references to the", () => {
   let graphs: ReadonlyMap<string, SearchGraph | null>;
+  const config = new LoggingConfiguration();
   beforeAll(async () => {
     graphs = await runSearchesInGuestEngine(
-      path.join(stageDir, "references/collections/WeakStrongMap.js")
+      path.join(stageDir, "references/collections/WeakStrongMap.js"),
+      config
     );
   });
 

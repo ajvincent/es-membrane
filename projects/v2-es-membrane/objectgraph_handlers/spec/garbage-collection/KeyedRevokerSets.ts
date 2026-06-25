@@ -1,4 +1,5 @@
 import {
+  LoggingConfiguration,
   type SearchGraph,
   runSearchesInGuestEngine,
 } from "es-search-references/host";
@@ -13,9 +14,11 @@ import {
 
 describe("KeyedRevokerSets class holds references", () => {
   let graphs: ReadonlyMap<string, SearchGraph | null>;
+  const config = new LoggingConfiguration();
   beforeAll(async () => {
     graphs = await runSearchesInGuestEngine(
-      pathToModule(stageDir, "references/KeyedRevokerSets.js")
+      pathToModule(stageDir, "references/KeyedRevokerSets.js"),
+      config
     );
   });
 

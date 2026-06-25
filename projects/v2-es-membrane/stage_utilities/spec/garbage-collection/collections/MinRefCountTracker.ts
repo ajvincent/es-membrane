@@ -1,7 +1,8 @@
 import path from "node:path";
 import {
+  LoggingConfiguration,
+  type SearchGraph,
   runSearchesInGuestEngine,
-  SearchGraph
 } from "es-search-references/host";
 
 import {
@@ -9,8 +10,10 @@ import {
 } from "#stage_utilities/spec/support/stageDir.js";
 
 it("MinRefCountTracker never holds any references", async () => {
+  const config = new LoggingConfiguration();
   const graphs: ReadonlyMap<string, SearchGraph | null> = await runSearchesInGuestEngine(
-    path.join(stageDir, "references/collections/MinRefCountTracker.js")
+    path.join(stageDir, "references/collections/MinRefCountTracker.js"),
+    config
   );
 
   const specs: readonly string[] = [

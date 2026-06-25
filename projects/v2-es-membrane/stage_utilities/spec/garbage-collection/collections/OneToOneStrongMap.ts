@@ -1,7 +1,8 @@
 import path from "node:path";
 import {
+  LoggingConfiguration,
+  type SearchGraph,
   runSearchesInGuestEngine,
-  SearchGraph
 } from "es-search-references/host";
 
 import {
@@ -10,9 +11,11 @@ import {
 
 describe("OneToOneStrongMap holds references to a value", () => {
   let graphs: ReadonlyMap<string, SearchGraph | null>;
+  const config = new LoggingConfiguration();
   beforeAll(async () => {
     graphs = await runSearchesInGuestEngine(
-      path.join(stageDir, "references/collections/OneToOneStrongMap.js")
+      path.join(stageDir, "references/collections/OneToOneStrongMap.js"),
+      config
     );
   });
 

@@ -27,7 +27,7 @@ searchReferences(
 
 This is a problem because secondValue is likely to be a proxy to firstValue.
 
-## Holding a shared internal key just by creating the binding
+## SOLVED: Holding a shared internal key just by creating the binding
 
 The implementation of `OneToOneStrongMap` has the following:
 
