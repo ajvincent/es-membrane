@@ -4,4 +4,16 @@ THe membrane metadata decorators I provide have to be available without requirin
 
 The idea is that library developers could use _just_ the decorators, and `es-membrane` would import the static readonly map.
 
-I'm not sure how this will work if the library is in a separate realm.
+I'm not sure how this will work if the library is in a separate realm.  Maybe like this:
+
+```typescript
+await shadowRealm.importValue(
+  "./buildScript.js", "getMembraneDecorators"
+);
+
+// assuming importMap
+const getMembraneConfigurationSnapshot = await shadowRealm.importValue(
+  "getMembraneConfigurationSnapshot", "membrane-decorators"
+);
+const config = getMembraneConfigurationSnapshot();
+```
