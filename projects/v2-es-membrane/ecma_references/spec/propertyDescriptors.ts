@@ -93,3 +93,184 @@ it("Reflect.getOwnPropertyDescriptor() returns unique objects each time", () => 
   expect(getFoo()).toEqual(getFoo());
   expect(getFoo()).not.toBe(getFoo());
 });
+
+describe("Reflect.defineProperty() has specific rules", () => {
+  interface Person {
+    name: string;
+  }
+
+  interface Car {
+    owner?: Person;
+  }
+
+  const Fred: Person = { name: "Fred" };
+  const Wilma: Person = { name: "Wilma" };
+
+  let car: Car;
+  let cachedOwner: Person;
+  beforeEach(() => {
+    car = {};
+    cachedOwner = Fred;
+  });
+  function ownerGetter() {
+    return cachedOwner;
+  }
+  function ownerSetter(value: Person): void {
+    cachedOwner = value;
+  }
+
+  it("with configurable, enumerable and writable not defined", () => {
+    expect(Reflect.defineProperty(car, "owner", {
+      value: Fred,
+    })).toBeTrue();
+
+    expect(Reflect.getOwnPropertyDescriptor(car, "owner")).toEqual({
+      value: Fred,
+      configurable: false,
+      enumerable: false,
+      writable: false
+    });
+  });
+
+  it("with configurable set to false and enumerable, writable not defined", () => {
+    expect(Reflect.defineProperty(car, "owner", {
+      value: Fred,
+      configurable: false
+    })).toBeTrue();
+
+    expect(Reflect.getOwnPropertyDescriptor(car, "owner")).toEqual({
+      value: Fred,
+      configurable: false,
+      enumerable: false,
+      writable: false
+    });
+
+    expect(Reflect.defineProperty(car, "owner", {
+      value: Wilma,
+      configurable: false
+    })).toBeFalse();
+
+    expect(Reflect.getOwnPropertyDescriptor(car, "owner")).toEqual({
+      value: Fred,
+      configurable: false,
+      enumerable: false,
+      writable: false
+    });
+
+    expect(Reflect.deleteProperty(car, "owner")).toBeFalse();
+    expect(Reflect.getOwnPropertyDescriptor(car, "owner")).toEqual({
+      value: Fred,
+      configurable: false,
+      enumerable: false,
+      writable: false
+    });
+  });
+
+  it("with configurable set to true and enumerable, writable not defined", () => {
+    expect(Reflect.defineProperty(car, "owner", {
+      value: Fred,
+      configurable: true
+    })).toBeTrue();
+
+    expect(Reflect.getOwnPropertyDescriptor(car, "owner")).toEqual({
+      value: Fred,
+      configurable: true,
+      enumerable: false,
+      writable: false
+    });
+
+    expect(Reflect.defineProperty(car, "owner", {
+      value: Wilma,
+      configurable: true
+    })).toBeTrue();
+
+    expect(Reflect.getOwnPropertyDescriptor(car, "owner")).toEqual({
+      value: Wilma,
+      configurable: true,
+      enumerable: false,
+      writable: false
+    });
+
+    expect(Reflect.deleteProperty(car, "owner")).toBeTrue();
+    expect(Reflect.getOwnPropertyDescriptor(car, "owner")).toBeUndefined();
+  });
+
+  it("with a pre-existing property and configurable: false", () => {
+    car.owner = Fred;
+    // we already tested getOwnPropertyDescriptor for direct definitions above
+
+    expect(Reflect.defineProperty(car, "owner", {
+      configurable: false
+    })).toBeTrue();
+
+    expect(Reflect.getOwnPropertyDescriptor(car, "owner")).toEqual({
+      value: Fred,
+      configurable: false,
+      enumerable: true,
+      writable: true
+    });
+
+    // writable: true
+    car.owner = Wilma;
+
+    expect(Reflect.getOwnPropertyDescriptor(car, "owner")).toEqual({
+      value: Wilma,
+      configurable: false,
+      enumerable: true,
+      writable: true
+    });
+
+    // writable: true, so this still works
+    expect(Reflect.defineProperty(car, "owner", { value: Fred })).toBeTrue();
+
+    expect(Reflect.getOwnPropertyDescriptor(car, "owner")).toEqual({
+      value: Fred,
+      configurable: false,
+      enumerable: true,
+      writable: true
+    });
+
+    // configurable: false means we can't redefine the property
+    expect(Reflect.defineProperty(car, "owner", {
+      get: () => Wilma,
+    })).toBeFalse();
+
+    expect(Reflect.getOwnPropertyDescriptor(car, "owner")).toEqual({
+      value: Fred,
+      configurable: false,
+      enumerable: true,
+      writable: true
+    });
+  });
+
+  it("with getters and setters", () => {
+    expect(Reflect.defineProperty(car, "owner", {
+      get: ownerGetter,
+      set: ownerSetter,
+      configurable: true
+    })).toBeTrue();
+
+    expect(car.owner).toBe(Fred);
+    expect(Reflect.getOwnPropertyDescriptor(car, "owner")).toEqual({
+      get: ownerGetter,
+      set: ownerSetter,
+      configurable: true,
+      enumerable: false,
+    });
+  });
+
+  it(", when enumerable == false, hide a key from Object.keys", () => {
+    expect(Reflect.ownKeys(car)).toEqual([]);
+    car.owner = Fred;
+    expect(Reflect.ownKeys(car)).toContain("owner");
+
+    delete car.owner;
+    expect(Reflect.ownKeys(car)).toEqual([]);
+
+    Reflect.defineProperty(car, "owner", {
+      value: Fred
+    });
+    expect(Reflect.ownKeys(car)).toContain("owner");
+    expect(Object.keys(car)).toEqual([]);
+  });
+});
