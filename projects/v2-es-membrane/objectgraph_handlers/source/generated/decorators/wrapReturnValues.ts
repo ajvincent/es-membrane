@@ -30,7 +30,7 @@ export default function WrapReturnValues(
         nextThisArg,
         nextArgArray,
       );
-      return this.thisGraphValues!.getValueInGraph(result, this.thisGraphKey);
+      return this.thisGraphValues!.getValueInGraph(result, nextGraphKey);
     }
 
     /**
@@ -58,7 +58,7 @@ export default function WrapReturnValues(
       );
       return this.thisGraphValues!.getValueInGraph(
         result,
-        this.thisGraphKey,
+        nextGraphKey,
       ) as object;
     }
 
@@ -87,7 +87,7 @@ export default function WrapReturnValues(
       );
       return this.thisGraphValues!.getValueInGraph(
         result,
-        this.thisGraphKey,
+        nextGraphKey,
       ) as boolean;
     }
 
@@ -113,7 +113,7 @@ export default function WrapReturnValues(
       );
       return this.thisGraphValues!.getValueInGraph(
         result,
-        this.thisGraphKey,
+        nextGraphKey,
       ) as boolean;
     }
 
@@ -141,7 +141,7 @@ export default function WrapReturnValues(
         nextP,
         nextReceiver,
       );
-      return this.thisGraphValues!.getValueInGraph(result, this.thisGraphKey);
+      return this.thisGraphValues!.getValueInGraph(result, nextGraphKey);
     }
 
     /**
@@ -164,10 +164,7 @@ export default function WrapReturnValues(
           nextTarget,
           nextP,
         );
-      return this.thisGraphValues!.getDescriptorInGraph(
-        result,
-        this.thisGraphKey,
-      );
+      return this.thisGraphValues!.getDescriptorInGraph(result, nextGraphKey);
     }
 
     /**
@@ -184,10 +181,9 @@ export default function WrapReturnValues(
         nextGraphKey,
         nextTarget,
       );
-      return this.thisGraphValues!.getValueInGraph(
-        result,
-        this.thisGraphKey,
-      ) as object | null;
+      return this.thisGraphValues!.getValueInGraph(result, nextGraphKey) as
+        | object
+        | null;
     }
 
     /**
@@ -211,7 +207,7 @@ export default function WrapReturnValues(
       );
       return this.thisGraphValues!.getValueInGraph(
         result,
-        this.thisGraphKey,
+        nextGraphKey,
       ) as boolean;
     }
 
@@ -231,7 +227,7 @@ export default function WrapReturnValues(
       );
       return this.thisGraphValues!.getValueInGraph(
         result,
-        this.thisGraphKey,
+        nextGraphKey,
       ) as boolean;
     }
 
@@ -249,7 +245,7 @@ export default function WrapReturnValues(
         nextGraphKey,
         nextTarget,
       );
-      return this.thisGraphValues!.getArrayInGraph(result, this.thisGraphKey);
+      return this.thisGraphValues!.getArrayInGraph(result, nextGraphKey);
     }
 
     /**
@@ -268,7 +264,7 @@ export default function WrapReturnValues(
       );
       return this.thisGraphValues!.getValueInGraph(
         result,
-        this.thisGraphKey,
+        nextGraphKey,
       ) as boolean;
     }
 
@@ -303,7 +299,7 @@ export default function WrapReturnValues(
       );
       return this.thisGraphValues!.getValueInGraph(
         result,
-        this.thisGraphKey,
+        nextGraphKey,
       ) as boolean;
     }
 
@@ -328,7 +324,7 @@ export default function WrapReturnValues(
       );
       return this.thisGraphValues!.getValueInGraph(
         result,
-        this.thisGraphKey,
+        nextGraphKey,
       ) as boolean;
     }
   }

@@ -23,7 +23,7 @@ describe("Wrapping return values works for the trap", () => {
     returnValue?: unknown;
 
     incomingValue: unknown;
-    graphKey: unknown;
+    sourceGraphKey: unknown;
 
     getArrayInGraph<Elements extends unknown[] = unknown[]>(
       valuesInSourceGraph: Elements,
@@ -31,7 +31,7 @@ describe("Wrapping return values works for the trap", () => {
     ): Elements
     {
       this.incomingValue = valuesInSourceGraph;
-      this.graphKey = sourceGraphKey;
+      this.sourceGraphKey = sourceGraphKey;
       return this.returnArray as Elements;
     }
 
@@ -41,7 +41,7 @@ describe("Wrapping return values works for the trap", () => {
     ): PropertyDescriptor | undefined
     {
       this.incomingValue = descriptorInSourceGraph;
-      this.graphKey = sourceGraphKey;
+      this.sourceGraphKey = sourceGraphKey;
       return this.returnDesc;
     }
 
@@ -51,7 +51,7 @@ describe("Wrapping return values works for the trap", () => {
     ): unknown
     {
       this.incomingValue = valueInSourceGraph;
-      this.graphKey = sourceGraphKey;
+      this.sourceGraphKey = sourceGraphKey;
       return this.returnValue;
     }
 
@@ -100,7 +100,7 @@ describe("Wrapping return values works for the trap", () => {
     expect(shadowTarget).toHaveBeenCalledTimes(0);
 
     expect(mockValues.incomingValue).toBe(nextReturn);
-    expect(mockValues.graphKey).toBe("this graph");
+    expect(mockValues.sourceGraphKey).toBe("next graph");
   });
 
   it(": construct", () => {
@@ -181,7 +181,7 @@ describe("Wrapping return values works for the trap", () => {
     expect(DerivedVehicleNextTarget.instanceCount).toBe(1);
 
     expect(mockValues.incomingValue).toBeInstanceOf(DerivedVehicleNextTarget);
-    expect(mockValues.graphKey).toBe("this graph");
+    expect(mockValues.sourceGraphKey).toBe("next graph");
   });
 
   it(": defineProperty", () => {
@@ -207,7 +207,7 @@ describe("Wrapping return values works for the trap", () => {
     });
 
     expect(mockValues.incomingValue).toBeTrue();
-    expect(mockValues.graphKey).toBe("this graph");
+    expect(mockValues.sourceGraphKey).toBe("next graph");
   });
 
   it(": deleteProperty", () => {
@@ -225,7 +225,7 @@ describe("Wrapping return values works for the trap", () => {
     expect(Reflect.getOwnPropertyDescriptor(nextTarget, "foo")).toBeUndefined();
 
     expect(mockValues.incomingValue).toBeTrue();
-    expect(mockValues.graphKey).toBe("this graph");
+    expect(mockValues.sourceGraphKey).toBe("next graph");
   });
 
   it(": get", () => {
@@ -242,10 +242,10 @@ describe("Wrapping return values works for the trap", () => {
     expect(nextTarget.valueToGet).toBe("blue");
 
     expect(mockValues.incomingValue).toBe("blue");
-    expect(mockValues.graphKey).toBe("this graph");
+    expect(mockValues.sourceGraphKey).toBe("nextGraph");
   });
 
-  it(": getOwnPropertyDescriptor", () => {
+  it(": getOwnPropertyDescriptor with primitives", () => {
     const shadowTarget = { shadowTarget: true, foo: "wop" };
     const nextTarget = { nextTarget: true, foo: "bar" };
 
@@ -265,8 +265,35 @@ describe("Wrapping return values works for the trap", () => {
       enumerable: true,
       configurable: true
     });
-    expect(mockValues.graphKey).toBe("this graph");
+    expect(mockValues.sourceGraphKey).toBe("next graph");
   });
+
+  it(": getOwnPropertyDescriptor with known objects", () => {
+    const shadowResult = { shadowResult: true };
+    const nextResult = { nextResult: true };
+
+    const shadowTarget = { shadowTarget: true, foo: shadowResult };
+    const nextTarget = { nextTarget: true, foo: nextResult };
+
+    const shadowDesc = Reflect.getOwnPropertyDescriptor(shadowTarget, "foo");
+    mockValues.returnDesc = {...shadowDesc};
+
+    const result = handler.getOwnPropertyDescriptor(
+      shadowTarget, "foo", "next graph", nextTarget, "foo"
+    );
+    expect(result).toEqual(shadowDesc);
+    expect(Reflect.get(shadowTarget, "foo")).toBe(shadowResult);
+    expect(Reflect.get(nextTarget, "foo")).toBe(nextResult);
+
+    expect(mockValues.incomingValue).toEqual({
+      value: nextResult,
+      writable: true,
+      enumerable: true,
+      configurable: true
+    });
+    expect(mockValues.sourceGraphKey).toBe("next graph");
+  });
+
 
   it(": getPrototypeOf", () => {
     const shadowProto = { shadowPrototype: true };
@@ -284,7 +311,7 @@ describe("Wrapping return values works for the trap", () => {
     expect(Reflect.getPrototypeOf(nextTarget)).toBe(nextProto);
 
     expect(mockValues.incomingValue).toBe(nextProto);
-    expect(mockValues.graphKey).toBe("this graph");
+    expect(mockValues.sourceGraphKey).toBe("next graph");
   });
 
   it(": has", () => {
@@ -301,7 +328,7 @@ describe("Wrapping return values works for the trap", () => {
     expect(nextTarget.valueToGet).toBe("blue");
 
     expect(mockValues.incomingValue).toBeTrue();
-    expect(mockValues.graphKey).toBe("this graph");
+    expect(mockValues.sourceGraphKey).toBe("nextGraph");
   });
 
   it(": isExtensible", () => {
@@ -317,7 +344,7 @@ describe("Wrapping return values works for the trap", () => {
     expect(Reflect.isExtensible(nextTarget)).toBe(false);
 
     expect(mockValues.incomingValue).toBeFalse();
-    expect(mockValues.graphKey).toBe("this graph");
+    expect(mockValues.sourceGraphKey).toBe("next graph");
   });
 
   it(": ownKeys", () => {
@@ -331,7 +358,7 @@ describe("Wrapping return values works for the trap", () => {
     ).toEqual(["shadowTarget"]);
 
     expect(mockValues.incomingValue).toEqual(["nextTarget"]);
-    expect(mockValues.graphKey).toBe("this graph");
+    expect(mockValues.sourceGraphKey).toBe("next graph");
   });
 
   it(": preventExtensions", () => {
@@ -348,7 +375,7 @@ describe("Wrapping return values works for the trap", () => {
     expect(Reflect.isExtensible(nextTarget)).toBe(false);
 
     expect(mockValues.incomingValue).toBeTrue();
-    expect(mockValues.graphKey).toBe("this graph");
+    expect(mockValues.sourceGraphKey).toBe("next graph");
   });
 
   it(": set", () => {
@@ -366,7 +393,7 @@ describe("Wrapping return values works for the trap", () => {
     expect(nextTarget.valueToGet).toBe("yellow");
 
     expect(mockValues.incomingValue).toBeTrue();
-    expect(mockValues.graphKey).toBe("this graph");
+    expect(mockValues.sourceGraphKey).toBe("nextGraph");
   });
 
   it(": setPrototypeOf", () => {
@@ -385,6 +412,6 @@ describe("Wrapping return values works for the trap", () => {
     expect(Reflect.getPrototypeOf(nextTarget)).toBe(nextProto);
 
     expect(mockValues.incomingValue).toBeTrue();
-    expect(mockValues.graphKey).toBe("this graph");
+    expect(mockValues.sourceGraphKey).toBe("next graph");
   });
 });

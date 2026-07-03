@@ -121,15 +121,15 @@ function buildProxyHandlerTrap(
     (writer: CodeBlockWriter): void => {
       writer.write(`return this.thisGraphValues!.`);
       if (trap.name === "getOwnPropertyDescriptor") {
-        writer.write(`getDescriptorInGraph(result, this.thisGraphKey);`);
+        writer.write(`getDescriptorInGraph(result, nextGraphKey);`);
         return;
       }
 
       if (trap.name === "ownKeys") {
-        writer.write(`getArrayInGraph(result, this.thisGraphKey)`);
+        writer.write(`getArrayInGraph(result, nextGraphKey)`);
       }
       else {
-        writer.write(`getValueInGraph(result, this.thisGraphKey)`);
+        writer.write(`getValueInGraph(result, nextGraphKey)`);
       }
 
       switch (trap.name) {
