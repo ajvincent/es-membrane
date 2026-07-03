@@ -1,1 +1,1 @@
-export declare function runJasmine(pathToConfigFile: string): Promise<void>;
+export declare function runJasmine(pathToConfigFile: string, seed?: number): Promise<void>;

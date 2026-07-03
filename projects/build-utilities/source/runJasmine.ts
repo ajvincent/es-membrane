@@ -2,6 +2,7 @@ import Jasmine from "jasmine";
 
 export async function runJasmine(
   pathToConfigFile: string,
+  seed?: number
 ): Promise<void>
 {
   const jasmineRunner = new Jasmine();
@@ -9,6 +10,9 @@ export async function runJasmine(
   jasmineRunner.configureDefaultReporter({
     showColors: true,
   });
+  if (typeof seed === "number") {
+    jasmineRunner.seed(seed);
+  }
   jasmineRunner.exitOnCompletion = false;
 
   const result = await jasmineRunner.execute();
