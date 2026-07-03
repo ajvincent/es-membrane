@@ -17,7 +17,7 @@ import {
   MockEventPhase
 } from "./MockEventPhase.js";
 
-export interface MembraneMocksIfc {
+export interface WetDOMMocksIfc {
   readonly ElementWet: Class<MockElementIfc, [MockDocumentIfc, string]>;
   readonly wetDocument: MockDocumentIfc;
 }
@@ -29,7 +29,7 @@ every time.
 
 export function WetDOMMocks(
   enabledDecorators: ReadonlySet<string>
-): MembraneMocksIfc
+): WetDOMMocksIfc
 {
   void enabledDecorators;
 

@@ -15,12 +15,12 @@ export class Membrane implements MembraneIfc
   #internal: MembraneIfc = new InternalMembrane;
 
   #requireNotRevoked(): void {
-    if (this.#internal === undefined)
+    if (this.#internal.isRevoked)
       throw new Error("Membrane has been revoked!");
   }
 
   get isRevoked(): boolean {
-    return this.#internal === undefined;
+    return this.#internal.isRevoked;
   }
 
   createObjectGraph(
