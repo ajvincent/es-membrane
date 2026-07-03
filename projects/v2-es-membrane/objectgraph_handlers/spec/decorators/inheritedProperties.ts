@@ -26,10 +26,12 @@ describe("Inherited property traps:", () => {
   let shadowTarget: {
     id: unknown,
     accessorValue?: string
-  }, nextTarget: {
+  };
+  let nextTarget: {
     id: unknown,
     accessorValue?: string
-  }, shadowProto: object, nextProto: object;
+  };
+  let shadowProto: object, nextProto: object;
   let shadowReceiver: { accessorValue?: unknown }, nextReceiver: { accessorValue?: unknown };
   let shadowFoo: TypedPropertyDescriptor<string | undefined>, nextFoo: TypedPropertyDescriptor<string | undefined>;
   const shadowGraphKey = Symbol("shadow graph");
@@ -82,10 +84,11 @@ describe("Inherited property traps:", () => {
       sourceGraphKey: string | symbol
     ): unknown
     {
+      void sourceGraphKey;
       if (!valueInSourceGraph)
         return valueInSourceGraph;
       if ((typeof valueInSourceGraph === "object") || (typeof valueInSourceGraph === "function"))
-        return nextShadowOneToOne.get(valueInSourceGraph, sourceGraphKey);
+        return nextShadowOneToOne.get(valueInSourceGraph, this.objectGraphKey);
       return valueInSourceGraph;
     },
 
@@ -571,10 +574,10 @@ describe("Inherited property traps:", () => {
       nextTarget.accessorValue = "not yet set";
       shadowTarget.accessorValue = undefined;
       shadowFoo = {
-        get: function(this: typeof shadowTarget): string | undefined {
+        get: function ShadowFoo_Get(this: typeof shadowTarget): string | undefined {
           return this.accessorValue;
         },
-        set: function(this: typeof shadowTarget, value: string | undefined): void {
+        set: function ShadowFoo_Set(this: typeof shadowTarget, value: string | undefined): void {
           this.accessorValue = value;
         },
         enumerable: true,
@@ -582,10 +585,10 @@ describe("Inherited property traps:", () => {
       };
 
       nextFoo = {
-        get: function(this: typeof nextTarget): string | undefined {
+        get: function NextFoo_get(this: typeof nextTarget): string | undefined {
           return this.accessorValue;
         },
-        set: function(this: typeof nextTarget, value: string | undefined) {
+        set: function NextFoo_set(this: typeof nextTarget, value: string | undefined) {
           this.accessorValue = value;
         },
         enumerable: true,
