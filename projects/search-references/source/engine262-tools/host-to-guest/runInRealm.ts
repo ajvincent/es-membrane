@@ -89,43 +89,49 @@ export function runInRealm(
 
   const realm = new GuestEngine.ManagedRealm(realmDriver.hostDefined);
 
-  realm.scope(function () {
-    if (inputs.defineBuiltIns) {
-      GuestEngine.skipDebugger(inputs.defineBuiltIns(realm));
-    }
+  let pop: (() => void) | undefined = realm.pushTopContext();
 
-    const specifier = inputs.startingSpecifier;
-    let module: PlainCompletion<GuestEngine.SourceTextModuleRecord> = realm.compileModule(contents, { specifier });
-    if (module instanceof GuestEngine.NormalCompletion)
-      module = module.Value;
+  if (inputs.defineBuiltIns) {
+    GuestEngine.skipDebugger(inputs.defineBuiltIns(realm));
+  }
 
-    if (module instanceof GuestEngine.SourceTextModuleRecord) {
-      realmDriver.registerMainModule(specifier, module);
-      return realm.evaluateModule(
-        module,
-        specifier,
-        (completion: GuestEngine.ValueCompletion<GuestEngine.PromiseObject>) => {
-          if (completion instanceof GuestEngine.ThrowCompletion) {
-            // console.error('Module evaluate error: ', inspect(result.Value));
-          }
-          else {
-            const promiseObj: GuestEngine.PromiseObject = GuestEngine.ValueOfNormalCompletion(completion);
-            GuestEngine.PerformPromiseThen(
-              promiseObj,
-              GuestEngine.Value.undefined,
-              GuestEngine.CreateBuiltinFunction.from((error: GuestEngine.Value | undefined = GuestEngine.Value.undefined) => {
-                void error;
-                realmDriver.trackedPromises.add(promiseObj);
-              })
-            );
-          }
+  const specifier = inputs.startingSpecifier;
+  let module: PlainCompletion<GuestEngine.SourceTextModuleRecord> = realm.compileModule(contents, { specifier });
+  if (module instanceof GuestEngine.NormalCompletion)
+    module = module.Value;
+
+  if (module instanceof GuestEngine.SourceTextModuleRecord) {
+    realmDriver.registerMainModule(specifier, module);
+    realm.evaluateModule(
+      module,
+      specifier,
+      (completion: GuestEngine.ValueCompletion<GuestEngine.PromiseObject>) => {
+        if (completion instanceof GuestEngine.ThrowCompletion) {
+          // console.error('Module evaluate error: ', inspect(result.Value));
         }
-      );
-    }
-  });
+        else {
+          const promiseObj: GuestEngine.PromiseObject = GuestEngine.ValueOfNormalCompletion(completion);
+          GuestEngine.PerformPromiseThen(
+            promiseObj,
+            GuestEngine.Value.undefined,
+            GuestEngine.CreateBuiltinFunction.from((error: GuestEngine.Value | undefined = GuestEngine.Value.undefined) => {
+              void error;
+              realmDriver.trackedPromises.add(promiseObj);
+            })
+          );
+        }
+      }
+    );
+  }
+  pop?.();
+  agent.eventLoop.runOnce();
 
+  pop = realm.pushTopContext();
   //await realmDriver.moduleCompleted;
-  return Promise.resolve(realm.scope(() => realmDriver.finalizeResults()));
+  const result = realmDriver.finalizeResults();
+  pop?.();
+  agent.eventLoop.runOnce();
+  return Promise.resolve(result);
 }
 
 export class RealmDriver {
