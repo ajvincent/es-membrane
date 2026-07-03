@@ -84,7 +84,7 @@ export function WetDOMMocks(
   */
 
   abstract class EventTargetWet implements MockEventTargetIfc {
-    readonly #eventHandlers: MockEventHandlerIfc[] = [];
+    readonly _eventHandlers: MockEventHandlerIfc[] = [];
     protected abstract parentNode: NodeWet | null;
 
     public addEventListener(
@@ -97,7 +97,7 @@ export function WetDOMMocks(
         listener = { handleEvent: listener };
       }
 
-      this.#eventHandlers.push({
+      this._eventHandlers.push({
         type,
         listener,
         isBubbling
@@ -134,7 +134,7 @@ export function WetDOMMocks(
       event: WetEvent
     ): void
     {
-      for (const handler of this.#eventHandlers.slice()) {
+      for (const handler of this._eventHandlers.slice()) {
         if (handler.type !== event.type)
           continue;
         const hCode: number = handler.isBubbling ? 4 - event.currentPhase : event.currentPhase;
@@ -195,6 +195,11 @@ export function WetDOMMocks(
 
       NodeWet.#count++;
     }
+
+    get firstChild(): NodeWet | null {
+      const { childNodes } = this;
+      return childNodes.length > 0 ? childNodes[0] : null;
+    }
   }
   Reflect.defineProperty(NodeWet, "count", { enumerable: false });
 
@@ -214,7 +219,7 @@ export function WetDOMMocks(
     }
 
     public insertBefore(
-      this: DocumentWet,
+      this: ElementWetInternal,
       newChild: NodeWet,
       refChild: NodeWet | null
     ): NodeWet
@@ -246,6 +251,7 @@ export function WetDOMMocks(
 
     readonly [Symbol.toStringTag] = "ElementWet";
   }
+
   Reflect.defineProperty(ElementWetInternal.prototype, "nodeType", {
     configurable: false,
   });

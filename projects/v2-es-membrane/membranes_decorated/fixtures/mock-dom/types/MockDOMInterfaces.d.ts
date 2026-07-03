@@ -32,6 +32,10 @@ export interface MockNodeIfc<NodeType extends number = number> extends MockEvent
   readonly nodeType: NodeType;
   readonly ownerDocument: MockDocumentIfc | null;
   readonly wetMarker: Record<"marker", string>;
+  get firstChild(): MockNodeIfc | null;
+
+  /* @internal */
+  readonly _eventHandlers: MockEventHandlerIfc[];
 }
 
 export interface MockElementIfc extends MockNodeIfc<1> {
