@@ -61,7 +61,7 @@ describe("basic concepts: ", function() {
     };
 
     Reflect.defineProperty(dryDocument, "extra", desc);
-    
+
     var unwrappedExtra = {};
     dryDocument.extra = unwrappedExtra;
     expect(typeof extraHolder).toBe("object");
@@ -93,6 +93,7 @@ describe("basic concepts: ", function() {
 
     [found, foundValue] = membrane.getMembraneValue("wet", wetDocument.extra);
     expect(found).toBe(true);
+    // BUG, this shouldn't be allowed to mutate later
     expect(foundValue).toBe(unwrappedExtra);
 
     [found, foundValue] = membrane.getMembraneValue("dry", dryDocument.extra);
