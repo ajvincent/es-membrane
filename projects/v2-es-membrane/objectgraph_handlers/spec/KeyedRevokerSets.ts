@@ -22,6 +22,9 @@ it("KeyedRevokerSets do not execute revokers until we revoke an object graph", (
   for (const [obj, revoker] of allPairs)
     expect(revoker).withContext(obj.name).toHaveBeenCalledTimes(0);
 
+  // if it's unknown, we want to revoke it anyway
+  expect(() => revokerSets.revokeSet("purple")).not.toThrow();
+
   revokerSets.revokeSet("green");
   for (const [obj, revoker] of greenPairs)
     expect(revoker).withContext(obj.name + " before revokeAll").toHaveBeenCalledOnceWith();

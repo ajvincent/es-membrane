@@ -72,11 +72,12 @@ export class KeyedRevokerSets {
 
   #revokeSet(key: string | symbol) {
     const revokerSet = this.#revokerSets.get(key);
-    if (!revokerSet)
-      throw new Error("unknown key");
     this.#revokedKeys.add(key);
-    this.#revokerSets.delete(key);
 
+    if (!revokerSet)
+      return;
+
+    this.#revokerSets.delete(key);
     for (const revoker of revokerSet.liveElements()) {
       if (this.#alreadyCalled.has(revoker))
         continue;
