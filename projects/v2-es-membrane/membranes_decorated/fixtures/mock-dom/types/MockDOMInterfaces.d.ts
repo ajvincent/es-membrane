@@ -40,6 +40,7 @@ export interface MockNodeIfc<NodeType extends number = number> extends MockEvent
 
 export interface MockElementIfc extends MockNodeIfc<1> {
   readonly ownerDocument: MockDocumentIfc;
+  readonly name: string;
   insertBefore(newChild: MockNodeIfc, refChild: MockNodeIfc | null): MockNodeIfc;
 }
 
@@ -50,4 +51,6 @@ export interface MockDocumentIfc extends MockNodeIfc<9> {
     this: DocumentWet,
     name: string
   ) => MockElementIfc;
+
+  baseURL: string | undefined;
 }

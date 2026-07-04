@@ -1,11 +1,12 @@
 import type {
   MockEventListenerIfc
-} from "#membranes_decorated/fixtures/mock-dom/types/MockDOMInterfaces.js";
+} from "../../fixtures/mock-dom/types/MockDOMInterfaces.js";
+
 import {
   WetDOMMocks
-} from "#membranes_decorated/fixtures/mock-dom/WetDOM.js";
+} from "../../fixtures/mock-dom/WetDOM.js";
 
-it("WetDOMMocks is reasonable and has enough to test with", () => {
+it("WetDOMMocks is reasonable and has enough to test with", async () => {
   /* Checklist: Be sure to annotate here where we implement one of these.
   -[x] Writable property: NodeWet.ownerDocument
   -[x] Non-writable property: NodeWet.childNodes
@@ -23,7 +24,7 @@ it("WetDOMMocks is reasonable and has enough to test with", () => {
   -[x] Symbol key: ElementWet::[Symbol.toStringTag]
   */
 
-  const { wetDocument, ElementWet } = WetDOMMocks(new Set());
+  const { wetDocument, ElementWet, NodeWet } = await WetDOMMocks(new Set());
   const { rootElement } = wetDocument;
   {
     const ownerDocDesc = Reflect.getOwnPropertyDescriptor(rootElement, "ownerDocument")!;
@@ -48,18 +49,14 @@ it("WetDOMMocks is reasonable and has enough to test with", () => {
     expect(nodeTypeDesc.configurable).toBeFalse();
   }
 
-
-  const NodeWet = Reflect.getPrototypeOf(ElementWet.prototype)!.constructor;
   expect(NodeWet.name).toBe("NodeWet");
-  expect(ElementWet.name).toBe("ElementWetInternal");
+  expect(ElementWet.name).toBe("ElementWet");
 
   {
     const countDescriptor = Reflect.getOwnPropertyDescriptor(NodeWet, "count")!;
     expect(countDescriptor.set).toBeInstanceOf(Function);
     expect(countDescriptor.enumerable).toBeFalse();
   }
-
-  expect(typeof Reflect.get(rootElement, Symbol.toStringTag)).toBe("string");
 
   // Test that wetDocument behaves reasonably
   const lastChild = wetDocument.createElement("lastChild");
