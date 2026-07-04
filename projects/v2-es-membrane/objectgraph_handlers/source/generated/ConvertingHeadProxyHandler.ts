@@ -43,10 +43,10 @@ export default class ConvertingHeadProxyHandler implements RequiredProxyHandler 
     argArray: unknown[],
   ): unknown {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    const [nextThisArg] = this.#membraneIfc.convertArray<[unknown]>(
+    const nextThisArg = this.#membraneIfc.convertValue<unknown>(
       this.#thisGraphKey,
       graphKey,
-      [thisArg],
+      thisArg,
     );
     const nextArgArray: unknown[] = this.#membraneIfc.convertArray<unknown[]>(
       this.#thisGraphKey,
@@ -75,10 +75,10 @@ export default class ConvertingHeadProxyHandler implements RequiredProxyHandler 
     newTarget: NewableFunction,
   ): object {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    const [nextNewTarget] = this.#membraneIfc.convertArray<[NewableFunction]>(
+    const nextNewTarget = this.#membraneIfc.convertValue<NewableFunction>(
       this.#thisGraphKey,
       graphKey,
-      [newTarget],
+      newTarget,
     );
     const nextArgArray: unknown[] = this.#membraneIfc.convertArray<unknown[]>(
       this.#thisGraphKey,
@@ -107,10 +107,10 @@ export default class ConvertingHeadProxyHandler implements RequiredProxyHandler 
     attributes: PropertyDescriptor,
   ): boolean {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    const [nextProperty] = this.#membraneIfc.convertArray<[string | symbol]>(
+    const nextProperty = this.#membraneIfc.convertValue<string | symbol>(
       this.#thisGraphKey,
       graphKey,
-      [property],
+      property,
     );
     const nextAttributes: PropertyDescriptor =
       this.#membraneIfc.convertDescriptor(
@@ -137,10 +137,10 @@ export default class ConvertingHeadProxyHandler implements RequiredProxyHandler 
    */
   public deleteProperty(shadowTarget: object, p: string | symbol): boolean {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    const [nextP] = this.#membraneIfc.convertArray<[string | symbol]>(
+    const nextP = this.#membraneIfc.convertValue<string | symbol>(
       this.#thisGraphKey,
       graphKey,
-      [p],
+      p,
     );
     return this.#graphHandlerIfc.deleteProperty(
       shadowTarget,
@@ -163,9 +163,16 @@ export default class ConvertingHeadProxyHandler implements RequiredProxyHandler 
     receiver: unknown,
   ): unknown {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    const [nextP, nextReceiver] = this.#membraneIfc.convertArray<
-      [string | symbol, unknown]
-    >(this.#thisGraphKey, graphKey, [p, receiver]);
+    const nextP = this.#membraneIfc.convertValue<string | symbol>(
+      this.#thisGraphKey,
+      graphKey,
+      p,
+    );
+    const nextReceiver = this.#membraneIfc.convertValue<unknown>(
+      this.#thisGraphKey,
+      graphKey,
+      receiver,
+    );
     return this.#graphHandlerIfc.get(
       shadowTarget,
       p,
@@ -187,10 +194,10 @@ export default class ConvertingHeadProxyHandler implements RequiredProxyHandler 
     p: string | symbol,
   ): PropertyDescriptor | undefined {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    const [nextP] = this.#membraneIfc.convertArray<[string | symbol]>(
+    const nextP = this.#membraneIfc.convertValue<string | symbol>(
       this.#thisGraphKey,
       graphKey,
-      [p],
+      p,
     );
     return this.#graphHandlerIfc.getOwnPropertyDescriptor(
       shadowTarget,
@@ -221,10 +228,10 @@ export default class ConvertingHeadProxyHandler implements RequiredProxyHandler 
    */
   public has(shadowTarget: object, p: string | symbol): boolean {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    const [nextP] = this.#membraneIfc.convertArray<[string | symbol]>(
+    const nextP = this.#membraneIfc.convertValue<string | symbol>(
       this.#thisGraphKey,
       graphKey,
-      [p],
+      p,
     );
     return this.#graphHandlerIfc.has(
       shadowTarget,
@@ -284,9 +291,21 @@ export default class ConvertingHeadProxyHandler implements RequiredProxyHandler 
     receiver: unknown,
   ): boolean {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    const [nextP, nextNewValue, nextReceiver] = this.#membraneIfc.convertArray<
-      [string | symbol, unknown, unknown]
-    >(this.#thisGraphKey, graphKey, [p, newValue, receiver]);
+    const nextP = this.#membraneIfc.convertValue<string | symbol>(
+      this.#thisGraphKey,
+      graphKey,
+      p,
+    );
+    const nextNewValue = this.#membraneIfc.convertValue<unknown>(
+      this.#thisGraphKey,
+      graphKey,
+      newValue,
+    );
+    const nextReceiver = this.#membraneIfc.convertValue<unknown>(
+      this.#thisGraphKey,
+      graphKey,
+      receiver,
+    );
     return this.#graphHandlerIfc.set(
       shadowTarget,
       p,
@@ -307,10 +326,10 @@ export default class ConvertingHeadProxyHandler implements RequiredProxyHandler 
    */
   public setPrototypeOf(shadowTarget: object, v: object | null): boolean {
     const { realTarget, graphKey } = this.#getCommonConversions(shadowTarget);
-    const [nextV] = this.#membraneIfc.convertArray<[object | null]>(
+    const nextV = this.#membraneIfc.convertValue<object | null>(
       this.#thisGraphKey,
       graphKey,
-      [v],
+      v,
     );
     return this.#graphHandlerIfc.setPrototypeOf(
       shadowTarget,

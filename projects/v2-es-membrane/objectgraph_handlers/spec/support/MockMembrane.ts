@@ -4,6 +4,16 @@ import type {
 
 export default class MockMembrane implements MembraneInternalIfc
 {
+  convertValue<ValueType>
+  (
+    sourceGraphKey: string | symbol,
+    targetGraphKey: string | symbol,
+    value: ValueType
+  ): ValueType
+  {
+    return value;
+  }
+
   convertArray<
     ValueTypes extends unknown[]
   >

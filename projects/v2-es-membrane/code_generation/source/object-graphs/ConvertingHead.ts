@@ -36,9 +36,9 @@ import {
   PropertyDeclarationImpl,
   PropertySignatureImpl,
   SourceFileImpl,
-  TupleTypeStructureImpl,
   TypeAliasDeclarationImpl,
-  VariableStatementImpl,
+  type TypeStructures,
+  type VariableStatementImpl,
   type stringWriterOrStatementImpl,
 } from "ts-morph-structures";
 
@@ -182,10 +182,14 @@ function getStatementsForProxyHandlerTrap(
   // convert the remaining parameters
   let descriptorStatement: VariableStatementImpl | undefined;
   let argArrayStatement: VariableStatementImpl | undefined;
-  const sourceConvertNames: string[] = [];
-  const ReflectConvertNames: string[] = [];
 
-  const tupleType = new TupleTypeStructureImpl;
+  interface ConvertNameRecord {
+    readonly thisGraphName: string;
+    readonly nextGraphName: string;
+    readonly typeStructure: TypeStructures;
+  }
+
+  const convertNameRecords: ConvertNameRecord[] = [];
 
   for (const param of key.groupType.parameters) {
     argumentNames.push(param.name);
@@ -218,20 +222,20 @@ function getStatementsForProxyHandlerTrap(
       continue;
     }
 
-    sourceConvertNames.push(param.name);
-    ReflectConvertNames.push(nextArgumentName);
-    tupleType.childTypes.push(param.typeStructure!);
+    convertNameRecords.push({
+      thisGraphName: param.name,
+      nextGraphName: nextArgumentName,
+      typeStructure: param.typeStructure!
+    });
   };
 
-  if (sourceConvertNames.length) {
+  for (const { thisGraphName, nextGraphName, typeStructure } of convertNameRecords) {
     statements.push((writer: CodeBlockWriter): void => {
       writer.write(
-        `const [${
-          ReflectConvertNames.join(", ")
-        }] = this.#membraneIfc.convertArray<`
+        `const ${nextGraphName} = this.#membraneIfc.convertValue<`
       );
-      tupleType.writerFunction(writer);
-      writer.write(`>(this.#thisGraphKey, graphKey, [${sourceConvertNames.join(", ")}]);`);
+      typeStructure.writerFunction(writer);
+      writer.write(`>(this.#thisGraphKey, graphKey, ${thisGraphName});`);
     });
   }
 

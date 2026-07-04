@@ -86,6 +86,17 @@ export class InternalMembrane implements MembraneIfc, MembraneInternalIfc {
     ).getValueInGraph(value, sourceGraphKey) as ObjectType;
   }
 
+  convertValue<ValueType>(
+    sourceGraphKey: string | symbol,
+    targetGraphKey: string | symbol,
+    value: ValueType
+  ): ValueType
+  {
+    return this.#getTargetGraph(
+      sourceGraphKey, targetGraphKey
+    ).getValueInGraph(value, sourceGraphKey) as ValueType;
+  }
+
   // MembraneInternalIfc
   convertArray<
     ValueTypes extends unknown[]

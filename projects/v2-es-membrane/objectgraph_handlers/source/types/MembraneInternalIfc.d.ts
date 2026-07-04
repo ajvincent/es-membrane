@@ -2,6 +2,12 @@
 
 export interface MembraneInternalIfc
 {
+  convertValue<ValueType>(
+    sourceGraphKey: string | symbol,
+    targetGraphKey: string | symbol,
+    value: ValueType
+  ): ValueType;
+
   convertArray<ValueTypes extends unknown[]>(
     sourceGraphKey: string | symbol,
     targetGraphKey: string | symbol,

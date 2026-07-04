@@ -100,19 +100,26 @@ describe("Inherited property traps:", () => {
   };
 
   const membraneMock: MembraneInternalIfc = {
+    convertValue: function<ValueType>(
+      sourceGraphKey: string | symbol,
+      targetGraphKey: string | symbol,
+      value: ValueType
+    ): ValueType
+    {
+      if (value === null)
+        return null as ValueType;
+      if ((typeof value === "object") || (typeof value === "function"))
+        return nextShadowOneToOne.get(value, targetGraphKey) as ValueType;
+      return value;
+    },
+
     convertArray: function <ValueTypes extends unknown[]>(
       sourceGraphKey: string | symbol,
       targetGraphKey: string | symbol,
       values: ValueTypes
     ): ValueTypes
     {
-      return values.map(value => {
-        if (value === null)
-          return null;
-        if ((typeof value === "object") || (typeof value === "function"))
-          return nextShadowOneToOne.get(value, targetGraphKey);
-        return value;
-      }) as ValueTypes;
+      return values.map(value => this.convertValue(sourceGraphKey, targetGraphKey, value)) as ValueTypes;
     },
 
     convertDescriptor: function<T> (

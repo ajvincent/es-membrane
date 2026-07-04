@@ -24,7 +24,6 @@ import type {
   ObjectGraphValueCallbacksIfc,
 } from "./types/ObjectGraphHeadIfc.js";
 
-
 import {
   type PrimitiveType,
   valueType

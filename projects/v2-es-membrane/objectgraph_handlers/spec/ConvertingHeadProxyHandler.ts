@@ -98,9 +98,12 @@ describe("Converting-head proxy handler works for the trap", () => {
 
     const nextThisArg = { nextThisArg: true };
     const nextArgArray = [{ argName: "three" }, { argName: "four"}];
+
+    spyOn(membrane, "convertValue").and.returnValues(
+      nextThisArg,
+    );
     spyOn(membrane, "convertArray").and.returnValues(
-      [ nextThisArg ],
-      nextArgArray
+      nextArgArray,
     );
 
     const result = { result: true };
@@ -128,8 +131,10 @@ describe("Converting-head proxy handler works for the trap", () => {
 
     const nextArgArray = [{ argName: "three" }, { argName: "four"}];
     const nextNewTarget = { nextNewTarget: true };
+    spyOn(membrane, "convertValue").and.returnValues(
+      nextNewTarget
+    );
     spyOn(membrane, "convertArray").and.returnValues(
-      [ nextNewTarget ],
       nextArgArray,
     );
 
@@ -172,10 +177,10 @@ describe("Converting-head proxy handler works for the trap", () => {
       enumerable: true,
     };
 
-    spyOn(membrane, "convertArray").and.returnValue(
-      [ nextProperty ]
+    spyOn(membrane, "convertValue").and.returnValues(
+      nextProperty
     );
-    spyOn(membrane, "convertDescriptor").and.returnValue(
+    spyOn(membrane, "convertDescriptor").and.returnValues(
       nextAttributes
     );
 
@@ -200,8 +205,8 @@ describe("Converting-head proxy handler works for the trap", () => {
     const property = Symbol("property");
     const nextProperty = Symbol("next property");
 
-    spyOn(membrane, "convertArray").and.returnValue(
-      [ nextProperty ]
+    spyOn(membrane, "convertValue").and.returnValues(
+      nextProperty
     );
 
     spyObjectGraphHandler.getSpy("deleteProperty").and.returnValue(false);
@@ -226,8 +231,9 @@ describe("Converting-head proxy handler works for the trap", () => {
     const nextProperty = Symbol("next property");
     const nextReceiver = { nextReceiver: true };
 
-    spyOn(membrane, "convertArray").and.returnValue(
-      [ nextProperty, nextReceiver ]
+    spyOn(membrane, "convertValue").and.returnValues(
+      nextProperty,
+      nextReceiver
     );
 
     const result = { result: true };
@@ -259,8 +265,8 @@ describe("Converting-head proxy handler works for the trap", () => {
     };
 
     const nextProperty = Symbol("next property");
-    spyOn(membrane, "convertArray").and.returnValue(
-      [ nextProperty ]
+    spyOn(membrane, "convertValue").and.returnValues(
+      nextProperty
     );
 
     spyObjectGraphHandler.getSpy("getOwnPropertyDescriptor").and.returnValue(attributes);
@@ -298,8 +304,8 @@ describe("Converting-head proxy handler works for the trap", () => {
     const property = Symbol("property");
     const nextProperty = Symbol("next property");
 
-    spyOn(membrane, "convertArray").and.returnValue(
-      [ nextProperty ]
+    spyOn(membrane, "convertValue").and.returnValues(
+      nextProperty
     );
 
     const result = false;
@@ -375,8 +381,10 @@ describe("Converting-head proxy handler works for the trap", () => {
     const nextNewValue = { nextNewValue: true };
     const nextReceiver = { nextReceiver: true };
 
-    spyOn(membrane, "convertArray").and.returnValue(
-      [ nextProperty, nextNewValue, nextReceiver ]
+    spyOn(membrane, "convertValue").and.returnValues(
+      nextProperty,
+      nextNewValue,
+      nextReceiver,
     );
 
     spyObjectGraphHandler.getSpy("set").and.returnValue(true);
@@ -403,8 +411,8 @@ describe("Converting-head proxy handler works for the trap", () => {
     const proto = { isPrototype: true };
     const nextProto = { isNextPrototype: true };
 
-    spyOn(membrane, "convertArray").and.returnValue(
-      [ nextProto ]
+    spyOn(membrane, "convertValue").and.returnValues(
+      nextProto
     );
 
     spyObjectGraphHandler.getSpy("setPrototypeOf").and.returnValue(false);
