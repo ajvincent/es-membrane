@@ -292,3 +292,13 @@ it("Class getters and setters are by default non-enumerable", () => {
   expect(desc.configurable).toBeTrue();
   expect(desc.enumerable).toBeFalse();
 });
+
+it("Classes each have a non-writable prototype property.", () => {
+  // https://tc39.es/ecma262/#sec-runtime-semantics-classdefinitionevaluation
+  // https://tc39.es/ecma262/#sec-makeconstructor
+  class DummyDocument {
+    // empty on purpose
+  }
+  const desc = Reflect.getOwnPropertyDescriptor(DummyDocument, "prototype")!;
+  expect(desc.writable).toBeFalse();
+});
