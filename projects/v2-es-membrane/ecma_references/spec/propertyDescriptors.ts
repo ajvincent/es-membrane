@@ -274,3 +274,21 @@ describe("Reflect.defineProperty() has specific rules", () => {
     expect(Object.keys(car)).toEqual([]);
   });
 });
+
+it("Class getters and setters are by default non-enumerable", () => {
+  // https://tc39.es/ecma262/#sec-static-semantics-classelementevaluation
+  // https://tc39.es/ecma262/#sec-runtime-semantics-methoddefinitionevaluation
+  class DummyDocument {
+    #baseURL: string | undefined;
+    get baseURL(): string | undefined {
+      return this.#baseURL;
+    }
+    set baseURL(value: string | undefined) {
+      this.#baseURL = value;
+    }
+  }
+
+  const desc = Reflect.getOwnPropertyDescriptor(DummyDocument.prototype, "baseURL")!;
+  expect(desc.configurable).toBeTrue();
+  expect(desc.enumerable).toBeFalse();
+});
