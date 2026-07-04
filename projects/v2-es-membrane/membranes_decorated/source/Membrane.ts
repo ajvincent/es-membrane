@@ -35,12 +35,14 @@ export class Membrane implements MembraneIfc
     graphKey: string | symbol
   ): boolean
   {
-    this.#requireNotRevoked();
+    if (this.#internal.isRevoked)
+      return false;
     return this.#internal.revokeObjectGraph(graphKey);
   }
 
   revokeEverything(): void {
-    this.#requireNotRevoked();
+    if (this.#internal.isRevoked)
+      return;
     const internalMembrane = this.#internal;
     this.#internal = new InertMembrane;
     internalMembrane.revokeEverything();
