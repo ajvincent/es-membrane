@@ -1,11 +1,11 @@
 describe("Receivers in Reflect", function() {
   let alpha: {
     upper: object,
-    _upper: object,
+    _hidden: object,
     value: string,
   };
   let beta: {
-    _upper: object,
+    _hidden: object,
     value: string,
   };
   let ALPHA: object, BETA: object;
@@ -19,17 +19,17 @@ describe("Receivers in Reflect", function() {
 
     alpha = {
       get upper() {
-        return this._upper;
+        return this._hidden;
       },
       set upper(val) {
-        this._upper = val;
+        this._hidden = val;
       },
-      _upper: ALPHA,
+      _hidden: ALPHA,
       value: "a",
     };
 
     beta = {
-      _upper: BETA,
+      _hidden: BETA,
       value: "b"
     };
   });
@@ -41,7 +41,7 @@ describe("Receivers in Reflect", function() {
   it("are where property setter invocations happen", function() {
     const X = { isX: true };
     Reflect.set(alpha, "upper", X, beta);
-    expect(beta._upper).toBe(X);
-    expect(alpha._upper).toBe(ALPHA);
+    expect(beta._hidden).toBe(X);
+    expect(alpha._hidden).toBe(ALPHA);
   });
 });
