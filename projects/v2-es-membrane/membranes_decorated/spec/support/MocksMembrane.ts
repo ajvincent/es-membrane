@@ -72,7 +72,7 @@ export async function MocksMembrane<IncludeDamp extends boolean>(
   membrane.createObjectGraph("damp");
   const dampDocument: MockDocumentIfc = membrane.convertObject("wet", "damp", wetDocument);
   const NodeDamp: AbstractClass<MockNodeIfc, [MockDocumentIfc]> = membrane.convertObject("wet", "damp", NodeWet);
-  const ElementDamp: Class<MockElementIfc, [MockDocumentIfc, string]> = membrane.convertObject("wet", "dry", ElementWet);
+  const ElementDamp: Class<MockElementIfc, [MockDocumentIfc, string]> = membrane.convertObject("wet", "damp", ElementWet);
 
   return {
     membrane,
