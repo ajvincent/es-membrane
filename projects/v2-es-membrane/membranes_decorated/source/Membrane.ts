@@ -60,4 +60,13 @@ export class Membrane implements MembraneIfc
     this.#requireNotRevoked();
     return this.#internal.convertObject<ObjectType>(sourceGraphKey, targetGraphKey, value);
   }
+
+  isObjectInGraph(
+    graphKey: string | symbol,
+    value: object
+  ): boolean
+  {
+    this.#requireNotRevoked();
+    return this.#internal.isObjectInGraph(graphKey, value);
+  }
 }

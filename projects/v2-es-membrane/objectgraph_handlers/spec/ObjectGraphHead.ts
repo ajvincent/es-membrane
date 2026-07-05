@@ -155,7 +155,7 @@ describe("ObjectGraphHead", () => {
   
     expect(
       () => head.revokeAllProxiesForGraph(head.objectGraphKey)
-    ).toThrowError("This object graph has been revoked");
+    ).not.toThrow();
   });
 
   it("::getArrayInGraph() converts members of an array", () => {

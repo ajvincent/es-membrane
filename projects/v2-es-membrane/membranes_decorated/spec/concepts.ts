@@ -7,11 +7,14 @@ import type {
   MembraneIfc
 } from "../source/types/MembraneIfc.js";
 
+import {
+  MockEventPhase
+} from "../fixtures/mock-dom/MockEventPhase.js";
+
 import type {
   MockDocumentIfc,
   MockElementIfc,
   MockEventIfc,
-  MockEventListenerIfc,
   MockNodeIfc
 } from "../fixtures/mock-dom/types/MockDOMInterfaces.js";
 
@@ -19,7 +22,7 @@ import {
   MocksMembrane
 } from "./support/MocksMembrane.js";
 
-describe("basic concepts (with two object graphs): ", () => {
+describe("basic concepts (with two object graphs):", () => {
   let wetDocument: MockDocumentIfc, dryDocument: MockDocumentIfc, membrane: MembraneIfc;
   let ElementWet: Class<MockElementIfc, [MockDocumentIfc, string]>, ElementDry: Class<MockElementIfc, [MockDocumentIfc, string]>;
   let NodeWet: AbstractClass<MockNodeIfc, [MockDocumentIfc]>, NodeDry: AbstractClass<MockNodeIfc, [MockDocumentIfc]>;
@@ -33,9 +36,6 @@ describe("basic concepts (with two object graphs): ", () => {
     dryDocument = parts.dryDocument;
     NodeDry = parts.NodeDry;
     ElementDry = parts.ElementDry;
-
-    void ElementWet;
-    void NodeWet;
   });
 
   afterEach(() => {
@@ -277,6 +277,36 @@ describe("basic concepts (with two object graphs): ", () => {
     expect(wetDocument.rootElement.firstChild).not.toBeNull();
     expect(element === wetDocument.rootElement.firstChild).toBeFalse();
     expect(element.name).toBe((wetDocument.rootElement.firstChild as MockElementIfc).name);
+  });
+
+  it("Callback functions properly wrap their arguments", () => {
+    let dryEvent: MockEventIfc = {
+      type: "",
+      currentPhase: MockEventPhase.CAPTURING
+    };
+    function dryHandler(evt: MockEventIfc): void {
+      dryEvent = evt;
+    }
+
+    let wetEvent: MockEventIfc = {
+      type: "",
+      currentPhase: MockEventPhase.CAPTURING
+    };
+    function wetHandler(evt: MockEventIfc): void {
+      wetEvent = evt;
+    }
+
+    const dryRoot = dryDocument.rootElement;
+    dryRoot.addEventListener("testEvent", dryHandler, true);
+    wetDocument.rootElement.addEventListener("testEvent", wetHandler, true);
+    dryRoot.dispatchEvent("testEvent");
+
+    expect(dryEvent.type).toBe("testEvent");
+    const wetPrototype = Reflect.getPrototypeOf(wetEvent);
+    const dryPrototype = Reflect.getPrototypeOf(dryEvent);
+    expect(dryPrototype === wetPrototype).toBeFalse();
+    expect(membrane.isObjectInGraph("dry", dryEvent)).toBeTrue();
+    expect(membrane.isObjectInGraph("wet", wetEvent)).toBeTrue();
   });
 
   it("constructors work", () => {
@@ -808,39 +838,305 @@ describe("basic concepts (with two object graphs): ", () => {
   });
 
   describe("Revocation works", () => {
-    let root: MockElementIfc;
-    let wetEventListener: MockEventListenerIfc;
-    const dryEventListener: MockEventListenerIfc = {
-      handleEvent: function(evt: MockEventIfc): void {
-        void evt;
-      }
+    let dryRoot: MockElementIfc;
+
+    let dryEvent: MockEventIfc = {
+      type: "",
+      currentPhase: MockEventPhase.CAPTURING
     };
+    function dryHandler(evt: MockEventIfc): void {
+      dryEvent = evt;
+    }
+
+    let wetEvent: MockEventIfc = {
+      type: "",
+      currentPhase: MockEventPhase.CAPTURING
+    };
+    function wetHandler(evt: MockEventIfc): void {
+      wetEvent = evt;
+    }
 
     beforeEach(() => {
-      root = dryDocument.rootElement;
-      root.addEventListener("testEvent", dryEventListener, true);
-      wetEventListener = wetDocument.rootElement._eventHandlers[0].listener;
+      wetEvent = {
+        type: "",
+        currentPhase: MockEventPhase.CAPTURING
+      };
+
+      dryEvent = {
+        type: "",
+        currentPhase: MockEventPhase.CAPTURING
+      };
+
+      dryRoot = dryDocument.rootElement;
+      dryRoot.addEventListener("testEvent", dryHandler, true);
+      wetDocument.rootElement.addEventListener("testEvent", wetHandler, true);
+      dryRoot.dispatchEvent("testEvent");
     });
 
     it("on the wet object graph", () => {
       membrane.revokeObjectGraph("wet");
-      expect(() => dryDocument.rootElement).toThrow();
-      expect(() => root.ownerDocument).toThrow();
-      expect(() => wetEventListener.handleEvent).toThrow();
+      expect(() => dryDocument.rootElement).withContext("dryDocument.rootElement").toThrow();
+      expect(() => dryRoot.ownerDocument).withContext("dryRoot.ownerDocument").toThrow();
+      expect(() => wetEvent.type).withContext("wetEvent.type").not.toThrow();
+      expect(() => dryEvent.type).withContext("dryEvent.type").toThrow();
+
+      expect(() => membrane.convertObject("wet", "dry", {})).withContext(
+        "convert wet to dry after revoke"
+      ).toThrow();
+      expect(() => membrane.convertObject("dry", "wet", {})).withContext(
+        "convert dry to wet after revoke"
+      ).toThrow();
+
+      expect(() => membrane.createObjectGraph("wet")).withContext("create graph again").toThrow();
+      expect(() => membrane.revokeObjectGraph("wet")).withContext("revoke again").not.toThrow();
+
+      expect(() => membrane.createObjectGraph("steamy")).withContext("create steamy graph").not.toThrow();
     });
 
     it("on the dry object graph", () => {
       membrane.revokeObjectGraph("dry");
-      expect(() => dryDocument.rootElement).toThrow();
-      expect(() => root.ownerDocument).toThrow();
-      expect(() => wetEventListener.handleEvent).toThrow();
+      expect(() => dryDocument.rootElement).withContext("dryDocument.rootElement").toThrow();
+      expect(() => dryRoot.ownerDocument).withContext("dryRoot.ownerDocument").toThrow();
+      expect(() => wetEvent.type).withContext("wetEvent.type").not.toThrow();
+      expect(() => dryEvent.type).withContext("dryEvent.type").toThrow();
+
+      expect(() => membrane.convertObject("wet", "dry", {})).withContext(
+        "convert wet to dry after revoke"
+      ).toThrow();
+      expect(() => membrane.convertObject("dry", "wet", {})).withContext(
+        "convert dry to wet after revoke"
+      ).toThrow();
+
+      expect(() => membrane.createObjectGraph("steamy")).withContext("create steamy graph").not.toThrow();
     });
 
     it("on the entire membrane", () => {
       membrane.revokeEverything();
-      expect(() => dryDocument.rootElement).toThrow();
-      expect(() => root.ownerDocument).toThrow();
-      expect(() => wetEventListener.handleEvent).toThrow();
+      expect(() => dryDocument.rootElement).withContext("dryDocument.rootElement").toThrow();
+      expect(() => dryRoot.ownerDocument).withContext("dryRoot.ownerDocument").toThrow();
+      expect(() => wetEvent.type).withContext("wetEvent.type").not.toThrow();
+      expect(() => dryEvent.type).withContext("dryEvent.type").toThrow();
+
+      expect(() => membrane.convertObject("wet", "dry", {})).withContext(
+        "convert wet to dry after revoke"
+      ).toThrow();
+      expect(() => membrane.convertObject("dry", "wet", {})).withContext(
+        "convert dry to wet after revoke"
+      ).toThrow();
+
+      expect(() => membrane.createObjectGraph("dry")).withContext("create graph again").toThrow();
+      expect(() => membrane.revokeObjectGraph("dry")).withContext("revoke again").not.toThrow();
+
+      expect(() => membrane.createObjectGraph("steamy")).withContext("create steamy graph").toThrow();
     });
+  });
+});
+
+describe("basic concepts (with three object graphs): Revocation works", () => {
+  let membrane: MembraneIfc;
+  let wetDocument: MockDocumentIfc, dryDocument: MockDocumentIfc, dampDocument: MockDocumentIfc;
+  let wetRoot: MockElementIfc, dryRoot: MockElementIfc, dampRoot: MockElementIfc;
+
+  let dryEvent: MockEventIfc = {
+    type: "",
+    currentPhase: MockEventPhase.CAPTURING
+  };
+  function dryHandler(evt: MockEventIfc): void {
+    dryEvent = evt;
+  }
+
+  let wetEvent: MockEventIfc = {
+    type: "",
+    currentPhase: MockEventPhase.CAPTURING
+  };
+  function wetHandler(evt: MockEventIfc): void {
+    wetEvent = evt;
+  }
+
+  let dampEvent: MockEventIfc = {
+    type: "",
+    currentPhase: MockEventPhase.CAPTURING
+  };
+  function dampHandler(evt: MockEventIfc): void {
+    dampEvent = evt;
+  }
+
+  beforeEach(async () => {
+    const parts = await MocksMembrane(new Set(), true);
+    membrane = parts.membrane;
+    wetDocument = parts.wetDocument;
+    dryDocument = parts.dryDocument;
+    dampDocument = parts.dampDocument;
+
+    wetEvent = {
+      type: "",
+      currentPhase: MockEventPhase.CAPTURING
+    };
+
+    dryEvent = {
+      type: "",
+      currentPhase: MockEventPhase.CAPTURING
+    };
+
+    dampEvent = {
+      type: "",
+      currentPhase: MockEventPhase.CAPTURING
+    };
+
+    dryRoot = dryDocument.rootElement;
+    dryRoot.addEventListener("testEvent", dryHandler, true);
+
+    wetRoot = wetDocument.rootElement;
+    wetRoot.addEventListener("testEvent", wetHandler, true);
+
+    dampRoot = dampDocument.rootElement;
+    dampRoot.addEventListener("testEvent", dampHandler, true);
+
+    dryRoot.dispatchEvent("testEvent");
+  });
+
+  afterEach(() => {
+    membrane.revokeEverything();
+  });
+
+  it("on the wet object graph", () => {
+    membrane.revokeObjectGraph("wet");
+    expect(() => dryDocument.rootElement).withContext("dryDocument.rootElement").toThrow();
+    expect(() => dryRoot.ownerDocument).withContext("dryRoot.ownerDocument").toThrow();
+    expect(() => wetEvent.type).withContext("wetEvent.type").not.toThrow();
+    expect(() => dryEvent.type).withContext("dryEvent.type").toThrow();
+
+    // these belong to the wet graph
+    expect(() => dampDocument.rootElement).withContext("dampDocument.rootElement").toThrow();
+    expect(() => dampRoot.ownerDocument).withContext("dampRoot.ownerDocument").toThrow();
+    expect(() => dampEvent.type).withContext("dampEvent.type").toThrow();
+
+    expect(() => membrane.convertObject("wet", "dry", {})).withContext(
+      "convert wet to dry after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("dry", "wet", {})).withContext(
+      "convert dry to wet after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("wet", "damp", {})).withContext(
+      "convert wet to damp after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("damp", "wet", {})).withContext(
+      "convert damp to wet after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("dry", "damp", {})).withContext(
+      "convert dry to damp after revoke"
+    ).not.toThrow();
+    expect(() => membrane.convertObject("dry", "damp", {})).withContext(
+      "convert damp to dry after revoke"
+    ).not.toThrow();
+
+    expect(() => membrane.createObjectGraph("wet")).withContext("create graph again").toThrow();
+    expect(() => membrane.revokeObjectGraph("wet")).withContext("revoke again").not.toThrow();
+
+    expect(() => membrane.createObjectGraph("steamy")).withContext("create steamy graph").not.toThrow();
+  });
+
+  it("on the dry object graph", () => {
+    membrane.revokeObjectGraph("dry");
+    expect(() => dryDocument.rootElement).withContext("dryDocument.rootElement").toThrow();
+    expect(() => dryRoot.ownerDocument).withContext("dryRoot.ownerDocument").toThrow();
+    expect(() => wetEvent.type).withContext("wetEvent.type").not.toThrow();
+    expect(() => dryEvent.type).withContext("dryEvent.type").toThrow();
+
+    // these belong to the wet graph
+    expect(() => dampDocument.rootElement).withContext("dampDocument.rootElement").not.toThrow();
+    expect(() => dampRoot.ownerDocument).withContext("dampRoot.ownerDocument").not.toThrow();
+    expect(() => dampEvent.type).withContext("dampEvent.type").not.toThrow();
+
+    expect(() => membrane.convertObject("wet", "dry", {})).withContext(
+      "convert wet to dry after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("dry", "wet", {})).withContext(
+      "convert dry to wet after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("wet", "damp", {})).withContext(
+      "convert wet to damp after revoke"
+    ).not.toThrow();
+    expect(() => membrane.convertObject("damp", "wet", {})).withContext(
+      "convert damp to wet after revoke"
+    ).not.toThrow();
+    expect(() => membrane.convertObject("dry", "damp", {})).withContext(
+      "convert dry to damp after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("dry", "damp", {})).withContext(
+      "convert damp to dry after revoke"
+    ).toThrow();
+
+    expect(() => membrane.createObjectGraph("steamy")).withContext("create steamy graph").not.toThrow();
+  });
+
+  it("on the damp object graph", () => {
+    membrane.revokeObjectGraph("damp");
+    expect(() => dryDocument.rootElement).withContext("dryDocument.rootElement").not.toThrow();
+    expect(() => dryRoot.ownerDocument).withContext("dryRoot.ownerDocument").not.toThrow();
+    expect(() => wetEvent.type).withContext("wetEvent.type").not.toThrow();
+    expect(() => dryEvent.type).withContext("dryEvent.type").not.toThrow();
+
+    expect(() => dampDocument.rootElement).withContext("dampDocument.rootElement").toThrow();
+    expect(() => dampRoot.ownerDocument).withContext("dampRoot.ownerDocument").toThrow();
+    expect(() => dampEvent.type).withContext("dampEvent.type").toThrow();
+
+    expect(() => membrane.convertObject("wet", "dry", {})).withContext(
+      "convert wet to dry after revoke"
+    ).not.toThrow();
+    expect(() => membrane.convertObject("dry", "wet", {})).withContext(
+      "convert dry to wet after revoke"
+    ).not.toThrow();
+    expect(() => membrane.convertObject("wet", "damp", {})).withContext(
+      "convert wet to damp after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("damp", "wet", {})).withContext(
+      "convert damp to wet after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("dry", "damp", {})).withContext(
+      "convert dry to damp after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("dry", "damp", {})).withContext(
+      "convert damp to dry after revoke"
+    ).toThrow();
+
+    expect(() => membrane.createObjectGraph("steamy")).withContext("create steamy graph").not.toThrow();
+  });
+
+  it("on the entire membrane", () => {
+    membrane.revokeEverything();
+    expect(() => dryDocument.rootElement).withContext("dryDocument.rootElement").toThrow();
+    expect(() => dryRoot.ownerDocument).withContext("dryRoot.ownerDocument").toThrow();
+    // this is a value native to the wet graph, so there's no proxy
+    expect(() => wetEvent.type).withContext("wetEvent.type").not.toThrow();
+    expect(() => dryEvent.type).withContext("dryEvent.type").toThrow();
+
+    expect(() => dampDocument.rootElement).withContext("dampDocument.rootElement").toThrow();
+    expect(() => dampRoot.ownerDocument).withContext("dampRoot.ownerDocument").toThrow();
+    expect(() => dampEvent.type).withContext("dampEvent.type").toThrow();
+
+    expect(() => membrane.convertObject("wet", "dry", {})).withContext(
+      "convert wet to dry after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("dry", "wet", {})).withContext(
+      "convert dry to wet after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("wet", "damp", {})).withContext(
+      "convert wet to damp after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("damp", "wet", {})).withContext(
+      "convert damp to wet after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("dry", "damp", {})).withContext(
+      "convert dry to damp after revoke"
+    ).toThrow();
+    expect(() => membrane.convertObject("dry", "damp", {})).withContext(
+      "convert damp to dry after revoke"
+    ).toThrow();
+
+    expect(() => membrane.createObjectGraph("wet")).withContext("create graph again").toThrow();
+    expect(() => membrane.revokeObjectGraph("wet")).withContext("revoke again").not.toThrow();
+
+    expect(() => membrane.createObjectGraph("steamy")).withContext("create steamy graph").toThrow();
   });
 });

@@ -28,4 +28,9 @@ export interface MembraneIfc {
     targetGraphKey: string | symbol,
     sourceValue: ObjectType
   ): ObjectType;
+
+  isObjectInGraph(
+    graphKey: string | symbol,
+    value: object
+  ): boolean;
 }

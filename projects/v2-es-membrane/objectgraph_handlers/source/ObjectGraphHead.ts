@@ -236,7 +236,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
   ): void
   {
     if (this.#graphHeadInternals.revoked)
-      throw new Error("This object graph has been revoked");
+      return;
 
     this.#graphHeadInternals.keyedRevokerSets.revokeSet(graphKey);
 

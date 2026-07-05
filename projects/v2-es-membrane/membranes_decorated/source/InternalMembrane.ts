@@ -28,10 +28,12 @@ export class InternalMembrane implements MembraneIfc, MembraneInternalIfc {
   readonly #graphHeads = new Map<string | symbol, ObjectGraphHeadIfc>;
   readonly #proxiesOneToOneMap = new OneToOneStrongMap<string | symbol, object>;
 
+  // MembraneIfc
   get isRevoked(): boolean {
     return false;
   }
 
+  // MembraneIfc
   createObjectGraph(graphKey: string | symbol): void {
     if (this.#graphHeads.has(graphKey)) {
       throw new Error("Graph already exists!");
@@ -42,23 +44,37 @@ export class InternalMembrane implements MembraneIfc, MembraneInternalIfc {
     this.#graphHeads.set(graphKey, head);
   }
 
+  // MembraneIfc
   revokeObjectGraph(graphKey: string | symbol): boolean {
     const graphHead = this.#graphHeads.get(graphKey);
     if (!graphHead) {
       throw new Error("no graph by this name exists!");
     }
-    if (graphHead.isRevoked)
-      return false;
-    this.#graphHeads.set(graphKey, new InertObjectGraphHead(graphKey));
 
-    graphHead.revokeAllProxiesForGraph(graphKey);
+    return this.#revokeObjectGraph(graphHead);
+  }
+
+  #revokeObjectGraph(graphHeadToRevoke: ObjectGraphHeadIfc): boolean {
+    if (graphHeadToRevoke.isRevoked)
+      return false;
+
+    const graphKey = graphHeadToRevoke.objectGraphKey;
+    const allHeads = Array.from(this.#graphHeads.values());
+
+    this.#graphHeads.set(graphKey, new InertObjectGraphHead(graphKey));
+    this.#proxiesOneToOneMap.revokeStrongKey(graphKey);
+    for (const graphHead of allHeads) {
+      graphHead.revokeAllProxiesForGraph(graphKey);
+    }
+
+    graphHeadToRevoke.revokeAllProxiesForGraph(graphKey);
     return true;
   }
 
+  // MembraneIfc
   revokeEverything(): void {
-    for (const [graphKey, graphHead] of this.#graphHeads.entries()) {
-      graphHead.revokeAllProxiesForGraph(graphKey);
-      this.#graphHeads.set(graphKey, new InertObjectGraphHead(graphKey));
+    for (const graphHead of this.#graphHeads.values()) {
+      this.#revokeObjectGraph(graphHead);
     }
   }
 
@@ -67,15 +83,21 @@ export class InternalMembrane implements MembraneIfc, MembraneInternalIfc {
     targetGraphKey: string | symbol
   ): ObjectGraphHeadIfc
   {
-    if (!this.#graphHeads.has(sourceGraphKey))
+    const sourceGraph = this.#graphHeads.get(sourceGraphKey);
+    if (!sourceGraph)
       throw new Error("unknown source graph!");
+    if (sourceGraph.isRevoked)
+      throw new Error("revoked source graph!");
 
     const targetGraph = this.#graphHeads.get(targetGraphKey);
     if (!targetGraph)
       throw new Error("unknown target graph!");
+    if (targetGraph.isRevoked)
+      throw new Error("revoked target graph!");
     return targetGraph;
   }
 
+  // MembraneIfc
   convertObject<ObjectType extends object>(
     sourceGraphKey: string | symbol,
     targetGraphKey: string | symbol,
@@ -86,6 +108,20 @@ export class InternalMembrane implements MembraneIfc, MembraneInternalIfc {
     ).getValueInGraph(value, sourceGraphKey) as ObjectType;
   }
 
+  isObjectInGraph(
+    graphKey: string | symbol,
+    value: object
+  ): boolean
+  {
+    const graph = this.#graphHeads.get(graphKey);
+    if (!graph)
+      throw new Error("unknown graph!");
+    if (graph.isRevoked)
+      throw new Error("revoked graph!");
+    return this.#proxiesOneToOneMap.hasIdentity(value, graphKey, false);
+  }
+
+  // MembraneInternalIfc
   convertValue<ValueType>(
     sourceGraphKey: string | symbol,
     targetGraphKey: string | symbol,

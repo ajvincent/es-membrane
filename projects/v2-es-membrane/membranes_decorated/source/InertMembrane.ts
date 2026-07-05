@@ -31,4 +31,10 @@ export class InertMembrane implements MembraneIfc {
     void sourceValue;
     throw new Error("Method not implemented.");
   }
+
+  isObjectInGraph(graphKey: string | symbol, value: object): boolean {
+    void graphKey;
+    void value;
+    throw new Error("Method not implemented.");
+  }
 }
