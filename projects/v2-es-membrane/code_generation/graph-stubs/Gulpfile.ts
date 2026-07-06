@@ -17,13 +17,13 @@ import {
 import {
   stageDir,
   generatedDirs,
-} from "./source/object-graphs/constants.js";
+} from "./source/constants.js";
 
-import createObjectGraphHandlerIfc from "./source/object-graphs/ObjectGraphHandlerIfc.js";
-import createObjectGraphTailHandler from "./source/object-graphs/ObjectGraphTailHandler.js";
-import createConvertingHeadProxyHandler from "./source/object-graphs/ConvertingHead.js";
-import createRevokedInFlight from "./source/object-graphs/mirroring/revokedInFlight.js";
-import createWrapReturnValues from "./source/object-graphs/mirroring/wrapReturnValues.js";
+import createObjectGraphHandlerIfc from "./source/ObjectGraphHandlerIfc.js";
+import createObjectGraphTailHandler from "./source/ObjectGraphTailHandler.js";
+import createConvertingHeadProxyHandler from "./source/ConvertingHead.js";
+import createRevokedInFlight from "./source/mirroring/revokedInFlight.js";
+import createWrapReturnValues from "./source/mirroring/wrapReturnValues.js";
 
 import { runPrettify } from "@ajvincent/build-utilities";
 

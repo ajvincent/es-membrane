@@ -23,10 +23,11 @@ console.log(monorepoRoot);
 const dirs: readonly string[] = [
   "ecma_references",
   "stage_utilities",
-  "code_generation",
+  "code_generation/graph-stubs",
+  "exported_decorators",
   "objectgraph_handlers",
   "membranes_decorated",
-  "exported_decorators",
+  //"code_generation/flat-graphhandler",
 ];
 
 async function buildDirectory(
