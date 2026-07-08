@@ -6,7 +6,7 @@
   "main": "dist/source/MultiMixinBuilder.js",
   "typings": "dist/source/exports.d.ts",
   "engines": {
-    "node": ">=25.9"
+    "node": ">=26.4"
   },
   "scripts": {
     "clean": "rm -rf dist Gulpfile.js",

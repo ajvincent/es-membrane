@@ -29,7 +29,7 @@
   ],
   "type": "module",
   "engines": {
-    "node": ">=25.8.2"
+    "node": ">=26.4"
   },
   "scripts": {
     "clean": "rm -rf dist",

@@ -13,7 +13,7 @@
   "author": "Alexander J. Vincent <ajvincent@gmail.com>",
   "license": "ISC",
   "engines": {
-    "node": ">=25.8.2"
+    "node": ">=26.4"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
