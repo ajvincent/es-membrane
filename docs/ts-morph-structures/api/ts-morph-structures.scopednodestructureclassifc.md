@@ -33,24 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[scope?](./ts-morph-structures.scopednodestructureclassifc.scope.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Scope
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.scopednodestructureclassifc.scope.md">scope?</a></td><td></td><td>Scope</td><td><em>(Optional)</em></td></tr>
 </tbody></table>
 

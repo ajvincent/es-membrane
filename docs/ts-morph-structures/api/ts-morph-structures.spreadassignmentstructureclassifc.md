@@ -33,41 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[expression](./ts-morph-structures.spreadassignmentstructureclassifc.expression.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.spreadassignmentstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.SpreadAssignment
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.spreadassignmentstructureclassifc.expression.md">expression</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.spreadassignmentstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.SpreadAssignment</td><td></td></tr>
 </tbody></table>
 

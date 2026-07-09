@@ -23,14 +23,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[getScope(isStatic, kind, memberName)](./ts-morph-structures.classscopememberquestion.getscope.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.classscopememberquestion.getscope.md">getScope(isStatic, kind, memberName)</a></td><td></td></tr>
 </tbody></table>
 

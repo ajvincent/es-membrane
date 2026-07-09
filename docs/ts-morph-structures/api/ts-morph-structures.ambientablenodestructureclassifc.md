@@ -33,22 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[hasDeclareKeyword](./ts-morph-structures.ambientablenodestructureclassifc.hasdeclarekeyword.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.ambientablenodestructureclassifc.hasdeclarekeyword.md">hasDeclareKeyword</a></td><td></td><td>boolean</td><td></td></tr>
 </tbody></table>
 

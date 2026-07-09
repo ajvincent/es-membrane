@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-other
-
-
-</td><td>
-
-[LiteralTypeStructureImpl](./ts-morph-structures.literaltypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>other</td><td><a href="./ts-morph-structures.literaltypestructureimpl.md">LiteralTypeStructureImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

@@ -29,23 +29,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[filterTailStatements(key)](./ts-morph-structures.classtailstatementsgetter.filtertailstatements.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[getTailStatements(key)](./ts-morph-structures.classtailstatementsgetter.gettailstatements.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.classtailstatementsgetter.filtertailstatements.md">filterTailStatements(key)</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.classtailstatementsgetter.gettailstatements.md">getTailStatements(key)</a></td><td></td></tr>
 </tbody></table>
 

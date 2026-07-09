@@ -32,48 +32,9 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-isStatic
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-kind
-
-
-</td><td>
-
-[ClassMemberImpl](./ts-morph-structures.classmemberimpl.md)<!-- -->\["kind"\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-memberName
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>isStatic</td><td>boolean</td><td></td></tr>
+<tr><td>kind</td><td><a href="./ts-morph-structures.classmemberimpl.md">ClassMemberImpl</a><!-- -->[“kind”]</td><td></td></tr>
+<tr><td>memberName</td><td>string</td><td></td></tr>
 </tbody></table>
 
 **Returns:**

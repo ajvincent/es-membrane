@@ -30,38 +30,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-structureOrArray
-
-
-</td><td>
-
-ArrayOrValue&lt;[StructureImpls](./ts-morph-structures.structureimpls.md) \| [TypeStructures](./ts-morph-structures.typestructures.md)<!-- -->&gt;
-
-
-</td><td>
-
-Structure or array of structures to iterate over.
-
-
-</td></tr>
-<tr><td>
-
-callback
-
-
-</td><td>
-
-(child: [StructureImpls](./ts-morph-structures.structureimpls.md) \| [TypeStructures](./ts-morph-structures.typestructures.md)<!-- -->) =&gt; TStructure \| void
-
-
-</td><td>
-
-Callback to do on each structure, until the callback returns a truthy result.
-
-
-</td></tr>
+<tbody><tr><td>structureOrArray</td><td>ArrayOrValue&lt;<a href="./ts-morph-structures.structureimpls.md">StructureImpls</a> | <a href="./ts-morph-structures.typestructures.md">TypeStructures</a><!-- -->&gt;</td><td>Structure or array of structures to iterate over.</td></tr>
+<tr><td>callback</td><td>(child: <a href="./ts-morph-structures.structureimpls.md">StructureImpls</a> | <a href="./ts-morph-structures.typestructures.md">TypeStructures</a><!-- -->) =&gt; TStructure | void</td><td>Callback to do on each structure, until the callback returns a truthy result.</td></tr>
 </tbody></table>
 
 **Returns:**

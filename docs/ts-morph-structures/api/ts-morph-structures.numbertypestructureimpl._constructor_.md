@@ -30,19 +30,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-value
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>value</td><td>number</td><td></td></tr>
 </tbody></table>
 

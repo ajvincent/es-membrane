@@ -33,60 +33,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[isConst](./ts-morph-structures.enumdeclarationstructureclassifc.isconst.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.enumdeclarationstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.Enum
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[members](./ts-morph-structures.enumdeclarationstructureclassifc.members.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[EnumMemberImpl](./ts-morph-structures.enummemberimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.enumdeclarationstructureclassifc.isconst.md">isConst</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.enumdeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Enum</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.enumdeclarationstructureclassifc.members.md">members</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.enummemberimpl.md">EnumMemberImpl</a><!-- -->[]</td><td></td></tr>
 </tbody></table>
 

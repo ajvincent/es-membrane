@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-other
-
-
-</td><td>
-
-[MappedTypeStructureImpl](./ts-morph-structures.mappedtypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>other</td><td><a href="./ts-morph-structures.mappedtypestructureimpl.md">MappedTypeStructureImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

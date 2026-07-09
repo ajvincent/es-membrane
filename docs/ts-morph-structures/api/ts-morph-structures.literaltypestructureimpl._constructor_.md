@@ -30,19 +30,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-literal
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>literal</td><td>string</td><td></td></tr>
 </tbody></table>
 

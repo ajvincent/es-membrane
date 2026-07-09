@@ -33,22 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[isReadonly](./ts-morph-structures.readonlyablenodestructureclassifc.isreadonly.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.readonlyablenodestructureclassifc.isreadonly.md">isReadonly</a></td><td></td><td>boolean</td><td></td></tr>
 </tbody></table>
 

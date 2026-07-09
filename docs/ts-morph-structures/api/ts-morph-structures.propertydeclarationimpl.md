@@ -29,20 +29,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(isStatic, name)](./ts-morph-structures.propertydeclarationimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `PropertyDeclarationImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.propertydeclarationimpl._constructor_.md">(constructor)(isStatic, name)</a></td><td></td><td>Constructs a new instance of the <code>PropertyDeclarationImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -68,328 +55,24 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[decorators](./ts-morph-structures.propertydeclarationimpl.decorators.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[DecoratorImpl](./ts-morph-structures.decoratorimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[docs](./ts-morph-structures.propertydeclarationimpl.docs.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[hasAccessorKeyword](./ts-morph-structures.propertydeclarationimpl.hasaccessorkeyword.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[hasDeclareKeyword](./ts-morph-structures.propertydeclarationimpl.hasdeclarekeyword.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[hasExclamationToken](./ts-morph-structures.propertydeclarationimpl.hasexclamationtoken.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[hasOverrideKeyword](./ts-morph-structures.propertydeclarationimpl.hasoverridekeyword.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[hasQuestionToken](./ts-morph-structures.propertydeclarationimpl.hasquestiontoken.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[initializer?](./ts-morph-structures.propertydeclarationimpl.initializer.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[isAbstract](./ts-morph-structures.propertydeclarationimpl.isabstract.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[isReadonly](./ts-morph-structures.propertydeclarationimpl.isreadonly.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[isStatic](./ts-morph-structures.propertydeclarationimpl.isstatic.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.propertydeclarationimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.Property
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[leadingTrivia](./ts-morph-structures.propertydeclarationimpl.leadingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[name](./ts-morph-structures.propertydeclarationimpl.name.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[scope?](./ts-morph-structures.propertydeclarationimpl.scope.md)
-
-
-</td><td>
-
-
-</td><td>
-
-import("ts-morph").Scope&lt;&gt; \| undefined
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[trailingTrivia](./ts-morph-structures.propertydeclarationimpl.trailingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[type?](./ts-morph-structures.propertydeclarationimpl.type.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[typeStructure](./ts-morph-structures.propertydeclarationimpl.typestructure.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md) \| undefined
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.propertydeclarationimpl.decorators.md">decorators</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.decoratorimpl.md">DecoratorImpl</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.hasaccessorkeyword.md">hasAccessorKeyword</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.hasdeclarekeyword.md">hasDeclareKeyword</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.hasexclamationtoken.md">hasExclamationToken</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.hasoverridekeyword.md">hasOverrideKeyword</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.hasquestiontoken.md">hasQuestionToken</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.initializer.md">initializer?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.isabstract.md">isAbstract</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.isreadonly.md">isReadonly</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.isstatic.md">isStatic</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Property</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.scope.md">scope?</a></td><td></td><td>import(“ts-morph”).Scope&lt;&gt; | undefined</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.type.md">type?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.typestructure.md">typeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -410,45 +93,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(source)](./ts-morph-structures.propertydeclarationimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[fromSignature(isStatic, signature)](./ts-morph-structures.propertydeclarationimpl.fromsignature.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[toJSON()](./ts-morph-structures.propertydeclarationimpl.tojson.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.propertydeclarationimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.fromsignature.md">fromSignature(isStatic, signature)</a></td><td><code>static</code></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
 </tbody></table>
 

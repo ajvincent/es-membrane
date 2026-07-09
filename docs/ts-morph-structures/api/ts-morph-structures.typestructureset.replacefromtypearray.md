@@ -30,22 +30,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-array
-
-
-</td><td>
-
-(string \| WriterFunction)\[\]
-
-
-</td><td>
-
-the types to add.
-
-
-</td></tr>
+<tbody><tr><td>array</td><td>(string | WriterFunction)[]</td><td>the types to add.</td></tr>
 </tbody></table>
 
 **Returns:**

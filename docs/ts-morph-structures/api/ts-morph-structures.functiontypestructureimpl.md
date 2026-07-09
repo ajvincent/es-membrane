@@ -31,20 +31,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(context)](./ts-morph-structures.functiontypestructureimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `FunctionTypeStructureImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.functiontypestructureimpl._constructor_.md">(constructor)(context)</a></td><td></td><td>Constructs a new instance of the <code>FunctionTypeStructureImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -70,161 +57,15 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[isConstructor](./ts-morph-structures.functiontypestructureimpl.isconstructor.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.functiontypestructureimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[TypeStructureKind.Function](./ts-morph-structures.typestructurekind.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[name](./ts-morph-structures.functiontypestructureimpl.name.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[parameters](./ts-morph-structures.functiontypestructureimpl.parameters.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[ParameterTypeStructureImpl](./ts-morph-structures.parametertypestructureimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[restParameter](./ts-morph-structures.functiontypestructureimpl.restparameter.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[ParameterTypeStructureImpl](./ts-morph-structures.parametertypestructureimpl.md) \| undefined
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[returnType](./ts-morph-structures.functiontypestructureimpl.returntype.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md) \| undefined
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[typeParameters](./ts-morph-structures.functiontypestructureimpl.typeparameters.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeParameterDeclarationImpl](./ts-morph-structures.typeparameterdeclarationimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[writerFunction](./ts-morph-structures.functiontypestructureimpl.writerfunction.md)
-
-
-</td><td>
-
-
-</td><td>
-
-WriterFunction
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[writerStyle](./ts-morph-structures.functiontypestructureimpl.writerstyle.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[FunctionWriterStyle](./ts-morph-structures.functionwriterstyle.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.functiontypestructureimpl.isconstructor.md">isConstructor</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.functiontypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.typestructurekind.md">TypeStructureKind.Function</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.functiontypestructureimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.functiontypestructureimpl.parameters.md">parameters</a></td><td></td><td><a href="./ts-morph-structures.parametertypestructureimpl.md">ParameterTypeStructureImpl</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.functiontypestructureimpl.restparameter.md">restParameter</a></td><td></td><td><a href="./ts-morph-structures.parametertypestructureimpl.md">ParameterTypeStructureImpl</a> | undefined</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.functiontypestructureimpl.returntype.md">returnType</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.functiontypestructureimpl.typeparameters.md">typeParameters</a></td><td></td><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.md">TypeParameterDeclarationImpl</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.functiontypestructureimpl.writerfunction.md">writerFunction</a></td><td></td><td>WriterFunction</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.functiontypestructureimpl.writerstyle.md">writerStyle</a></td><td></td><td><a href="./ts-morph-structures.functionwriterstyle.md">FunctionWriterStyle</a></td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -245,19 +86,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(other)](./ts-morph-structures.functiontypestructureimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.functiontypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
 </tbody></table>
 

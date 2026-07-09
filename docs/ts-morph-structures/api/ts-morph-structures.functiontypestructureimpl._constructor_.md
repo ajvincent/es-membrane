@@ -30,19 +30,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-context
-
-
-</td><td>
-
-Partial&lt;[FunctionTypeContext](./ts-morph-structures.functiontypecontext.md)<!-- -->&gt;
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>context</td><td>Partial&lt;<a href="./ts-morph-structures.functiontypecontext.md">FunctionTypeContext</a><!-- -->&gt;</td><td></td></tr>
 </tbody></table>
 

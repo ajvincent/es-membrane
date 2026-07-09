@@ -33,20 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(typeParameter)](./ts-morph-structures.infertypestructureimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `InferTypeStructureImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.infertypestructureimpl._constructor_.md">(constructor)(typeParameter)</a></td><td></td><td>Constructs a new instance of the <code>InferTypeStructureImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -72,61 +59,9 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[kind](./ts-morph-structures.infertypestructureimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[TypeStructureKind.Infer](./ts-morph-structures.typestructurekind.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[typeParameter](./ts-morph-structures.infertypestructureimpl.typeparameter.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeParameterDeclarationImpl](./ts-morph-structures.typeparameterdeclarationimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[writerFunction](./ts-morph-structures.infertypestructureimpl.writerfunction.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-WriterFunction
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.infertypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.typestructurekind.md">TypeStructureKind.Infer</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.infertypestructureimpl.typeparameter.md">typeParameter</a></td><td></td><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.md">TypeParameterDeclarationImpl</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.infertypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -147,19 +82,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(other)](./ts-morph-structures.infertypestructureimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.infertypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
 </tbody></table>
 

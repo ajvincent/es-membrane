@@ -28,34 +28,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-message
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-failingTypeNode
-
-
-</td><td>
-
-TypeNode
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>message</td><td>string</td><td></td></tr>
+<tr><td>failingTypeNode</td><td>TypeNode</td><td></td></tr>
 </tbody></table>
 
 **Returns:**

@@ -29,23 +29,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[filterCtorBodyStatements(key)](./ts-morph-structures.constructorbodystatementsgetter.filterctorbodystatements.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[getCtorBodyStatements(key)](./ts-morph-structures.constructorbodystatementsgetter.getctorbodystatements.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.constructorbodystatementsgetter.filterctorbodystatements.md">filterCtorBodyStatements(key)</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.constructorbodystatementsgetter.getctorbodystatements.md">getCtorBodyStatements(key)</a></td><td></td></tr>
 </tbody></table>
 

@@ -28,34 +28,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-fieldName
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-statementGroup
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>fieldName</td><td>string</td><td></td></tr>
+<tr><td>statementGroup</td><td>string</td><td></td></tr>
 </tbody></table>
 
 **Returns:**

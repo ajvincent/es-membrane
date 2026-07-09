@@ -33,64 +33,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[description?](./ts-morph-structures.jsdocstructureclassifc.description.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)
-
-
-</td><td>
-
-_(Optional)_ The description of the JS doc.
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.jsdocstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.JSDoc
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[tags](./ts-morph-structures.jsdocstructureclassifc.tags.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[JSDocTagImpl](./ts-morph-structures.jsdoctagimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-JS doc tags (ex. `&#64;param value - Some description.`<!-- -->).
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.jsdocstructureclassifc.description.md">description?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td><em>(Optional)</em> The description of the JS doc.</td></tr>
+<tr><td><a href="./ts-morph-structures.jsdocstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JSDoc</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsdocstructureclassifc.tags.md">tags</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.jsdoctagimpl.md">JSDocTagImpl</a><!-- -->[]</td><td>JS doc tags (ex. <code>&amp;#64;param value - Some description.</code><!-- -->).</td></tr>
 </tbody></table>
 

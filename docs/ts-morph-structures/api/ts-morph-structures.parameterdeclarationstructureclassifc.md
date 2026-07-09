@@ -33,41 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[isRestParameter](./ts-morph-structures.parameterdeclarationstructureclassifc.isrestparameter.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.parameterdeclarationstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.Parameter
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.parameterdeclarationstructureclassifc.isrestparameter.md">isRestParameter</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.parameterdeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Parameter</td><td></td></tr>
 </tbody></table>
 

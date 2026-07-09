@@ -29,20 +29,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(name)](./ts-morph-structures.jsxattributeimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `JsxAttributeImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.jsxattributeimpl._constructor_.md">(constructor)(name)</a></td><td></td><td>Constructs a new instance of the <code>JsxAttributeImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -68,99 +55,11 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[initializer?](./ts-morph-structures.jsxattributeimpl.initializer.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.jsxattributeimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.JsxAttribute
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[leadingTrivia](./ts-morph-structures.jsxattributeimpl.leadingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[name](./ts-morph-structures.jsxattributeimpl.name.md)
-
-
-</td><td>
-
-
-</td><td>
-
-JsxNamespacedNameStructure \| string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[trailingTrivia](./ts-morph-structures.jsxattributeimpl.trailingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.jsxattributeimpl.initializer.md">initializer?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.jsxattributeimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JsxAttribute</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsxattributeimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsxattributeimpl.name.md">name</a></td><td></td><td>JsxNamespacedNameStructure | string</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsxattributeimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -181,31 +80,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(source)](./ts-morph-structures.jsxattributeimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[toJSON()](./ts-morph-structures.jsxattributeimpl.tojson.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.jsxattributeimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsxattributeimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
 </tbody></table>
 

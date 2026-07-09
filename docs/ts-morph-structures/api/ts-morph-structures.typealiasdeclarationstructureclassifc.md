@@ -33,58 +33,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[kind](./ts-morph-structures.typealiasdeclarationstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.TypeAlias
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[type](./ts-morph-structures.typealiasdeclarationstructureclassifc.type.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[typeStructure](./ts-morph-structures.typealiasdeclarationstructureclassifc.typestructure.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md) \| undefined
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.typealiasdeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.TypeAlias</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.typealiasdeclarationstructureclassifc.type.md">type</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.typealiasdeclarationstructureclassifc.typestructure.md">typeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
 </tbody></table>
 

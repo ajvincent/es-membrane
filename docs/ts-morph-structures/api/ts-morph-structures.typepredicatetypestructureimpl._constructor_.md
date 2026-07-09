@@ -30,49 +30,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-hasAssertsKeyword
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-parameterName
-
-
-</td><td>
-
-[LiteralTypeStructureImpl](./ts-morph-structures.literaltypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-isType
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md) \| null
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
+<tbody><tr><td>hasAssertsKeyword</td><td>boolean</td><td></td></tr>
+<tr><td>parameterName</td><td><a href="./ts-morph-structures.literaltypestructureimpl.md">LiteralTypeStructureImpl</a></td><td></td></tr>
+<tr><td>isType</td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | null</td><td><em>(Optional)</em></td></tr>
 </tbody></table>
 

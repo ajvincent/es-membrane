@@ -30,38 +30,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-isStatic
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-true if the class member is static.
-
-
-</td></tr>
-<tr><td>
-
-member
-
-
-</td><td>
-
-[TypeMemberImpl](./ts-morph-structures.typememberimpl.md)
-
-
-</td><td>
-
-the type member to convert to a class member.
-
-
-</td></tr>
+<tbody><tr><td>isStatic</td><td>boolean</td><td>true if the class member is static.</td></tr>
+<tr><td>member</td><td><a href="./ts-morph-structures.typememberimpl.md">TypeMemberImpl</a></td><td>the type member to convert to a class member.</td></tr>
 </tbody></table>
 
 **Returns:**

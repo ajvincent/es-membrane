@@ -33,22 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[hasExclamationToken](./ts-morph-structures.exclamationtokenablenodestructureclassifc.hasexclamationtoken.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.exclamationtokenablenodestructureclassifc.hasexclamationtoken.md">hasExclamationToken</a></td><td></td><td>boolean</td><td></td></tr>
 </tbody></table>
 

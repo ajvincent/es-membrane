@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-other
-
-
-</td><td>
-
-[NumberTypeStructureImpl](./ts-morph-structures.numbertypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>other</td><td><a href="./ts-morph-structures.numbertypestructureimpl.md">NumberTypeStructureImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

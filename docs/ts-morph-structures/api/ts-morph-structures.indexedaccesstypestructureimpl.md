@@ -35,20 +35,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(objectType, indexType)](./ts-morph-structures.indexedaccesstypestructureimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `IndexedAccessTypeStructureImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl._constructor_.md">(constructor)(objectType, indexType)</a></td><td></td><td>Constructs a new instance of the <code>IndexedAccessTypeStructureImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -74,145 +61,17 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[childTypes](./ts-morph-structures.indexedaccesstypestructureimpl.childtypes.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-\[[TypeStructures](./ts-morph-structures.typestructures.md)<!-- -->\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[endToken](./ts-morph-structures.indexedaccesstypestructureimpl.endtoken.md)
-
-
-</td><td>
-
-`protected`
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[joinChildrenToken](./ts-morph-structures.indexedaccesstypestructureimpl.joinchildrentoken.md)
-
-
-</td><td>
-
-`protected`
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.indexedaccesstypestructureimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[maxChildCount](./ts-morph-structures.indexedaccesstypestructureimpl.maxchildcount.md)
-
-
-</td><td>
-
-`protected`
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[objectType](./ts-morph-structures.indexedaccesstypestructureimpl.objecttype.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[startToken](./ts-morph-structures.indexedaccesstypestructureimpl.starttoken.md)
-
-
-</td><td>
-
-`protected`
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.childtypes.md">childTypes</a></td><td><code>readonly</code></td><td>[<a href="./ts-morph-structures.typestructures.md">TypeStructures</a><!-- -->]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.endtoken.md">endToken</a></td><td><p><code>protected</code></p>
+<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.joinchildrentoken.md">joinChildrenToken</a></td><td><p><code>protected</code></p>
+<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.maxchildcount.md">maxChildCount</a></td><td><p><code>protected</code></p>
+<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.objecttype.md">objectType</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.starttoken.md">startToken</a></td><td><p><code>protected</code></p>
+<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -233,19 +92,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(other)](./ts-morph-structures.indexedaccesstypestructureimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
 </tbody></table>
 

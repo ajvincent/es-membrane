@@ -30,38 +30,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-isStatic
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-true if the class members are static.
-
-
-</td></tr>
-<tr><td>
-
-membered
-
-
-</td><td>
-
-[InterfaceDeclarationImpl](./ts-morph-structures.interfacedeclarationimpl.md) \| [MemberedObjectTypeStructureImpl](./ts-morph-structures.memberedobjecttypestructureimpl.md)
-
-
-</td><td>
-
-the interface or membered object type.
-
-
-</td></tr>
+<tbody><tr><td>isStatic</td><td>boolean</td><td>true if the class members are static.</td></tr>
+<tr><td>membered</td><td><a href="./ts-morph-structures.interfacedeclarationimpl.md">InterfaceDeclarationImpl</a> | <a href="./ts-morph-structures.memberedobjecttypestructureimpl.md">MemberedObjectTypeStructureImpl</a></td><td>the interface or membered object type.</td></tr>
 </tbody></table>
 
 **Returns:**

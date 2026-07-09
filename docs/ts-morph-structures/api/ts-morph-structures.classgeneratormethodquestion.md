@@ -23,14 +23,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[isGenerator(isStatic, methodName)](./ts-morph-structures.classgeneratormethodquestion.isgenerator.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.classgeneratormethodquestion.isgenerator.md">isGenerator(isStatic, methodName)</a></td><td></td></tr>
 </tbody></table>
 

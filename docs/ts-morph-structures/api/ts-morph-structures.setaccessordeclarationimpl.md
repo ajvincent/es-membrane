@@ -29,20 +29,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(isStatic, name, setterParameter)](./ts-morph-structures.setaccessordeclarationimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `SetAccessorDeclarationImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl._constructor_.md">(constructor)(isStatic, name, setterParameter)</a></td><td></td><td>Constructs a new instance of the <code>SetAccessorDeclarationImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -68,264 +55,20 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[decorators](./ts-morph-structures.setaccessordeclarationimpl.decorators.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[DecoratorImpl](./ts-morph-structures.decoratorimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[docs](./ts-morph-structures.setaccessordeclarationimpl.docs.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[isAbstract](./ts-morph-structures.setaccessordeclarationimpl.isabstract.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[isStatic](./ts-morph-structures.setaccessordeclarationimpl.isstatic.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.setaccessordeclarationimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.SetAccessor
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[leadingTrivia](./ts-morph-structures.setaccessordeclarationimpl.leadingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[name](./ts-morph-structures.setaccessordeclarationimpl.name.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[parameters](./ts-morph-structures.setaccessordeclarationimpl.parameters.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[ParameterDeclarationImpl](./ts-morph-structures.parameterdeclarationimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[returnType?](./ts-morph-structures.setaccessordeclarationimpl.returntype.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[returnTypeStructure](./ts-morph-structures.setaccessordeclarationimpl.returntypestructure.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md) \| undefined
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[scope?](./ts-morph-structures.setaccessordeclarationimpl.scope.md)
-
-
-</td><td>
-
-
-</td><td>
-
-import("ts-morph").Scope&lt;&gt; \| undefined
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[statements](./ts-morph-structures.setaccessordeclarationimpl.statements.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-([StatementStructureImpls](./ts-morph-structures.statementstructureimpls.md) \| [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->)\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[trailingTrivia](./ts-morph-structures.setaccessordeclarationimpl.trailingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[typeParameters](./ts-morph-structures.setaccessordeclarationimpl.typeparameters.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-([TypeParameterDeclarationImpl](./ts-morph-structures.typeparameterdeclarationimpl.md) \| string)\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.decorators.md">decorators</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.decoratorimpl.md">DecoratorImpl</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.isabstract.md">isAbstract</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.isstatic.md">isStatic</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.SetAccessor</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.parameters.md">parameters</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.parameterdeclarationimpl.md">ParameterDeclarationImpl</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.returntype.md">returnType?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.returntypestructure.md">returnTypeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.scope.md">scope?</a></td><td></td><td>import(“ts-morph”).Scope&lt;&gt; | undefined</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.statements.md">statements</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.statementstructureimpls.md">StatementStructureImpls</a> | <a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->)[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.typeparameters.md">typeParameters</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.typeparameterdeclarationimpl.md">TypeParameterDeclarationImpl</a> | string)[]</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -346,31 +89,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(source)](./ts-morph-structures.setaccessordeclarationimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[toJSON()](./ts-morph-structures.setaccessordeclarationimpl.tojson.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
 </tbody></table>
 

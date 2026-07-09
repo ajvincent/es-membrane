@@ -33,81 +33,9 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[attributes](./ts-morph-structures.jsxelementstructureclassifc.attributes.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-([JsxAttributeImpl](./ts-morph-structures.jsxattributeimpl.md) \| [JsxSpreadAttributeImpl](./ts-morph-structures.jsxspreadattributeimpl.md)<!-- -->)\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[bodyText?](./ts-morph-structures.jsxelementstructureclassifc.bodytext.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[children](./ts-morph-structures.jsxelementstructureclassifc.children.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-([JsxElementImpl](./ts-morph-structures.jsxelementimpl.md) \| [JsxSelfClosingElementImpl](./ts-morph-structures.jsxselfclosingelementimpl.md)<!-- -->)\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.jsxelementstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.JsxElement
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.jsxelementstructureclassifc.attributes.md">attributes</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsxattributeimpl.md">JsxAttributeImpl</a> | <a href="./ts-morph-structures.jsxspreadattributeimpl.md">JsxSpreadAttributeImpl</a><!-- -->)[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsxelementstructureclassifc.bodytext.md">bodyText?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.jsxelementstructureclassifc.children.md">children</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsxelementimpl.md">JsxElementImpl</a> | <a href="./ts-morph-structures.jsxselfclosingelementimpl.md">JsxSelfClosingElementImpl</a><!-- -->)[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsxelementstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JsxElement</td><td></td></tr>
 </tbody></table>
 

@@ -33,22 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[name](./ts-morph-structures.namednodestructureclassifc.name.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.namednodestructureclassifc.name.md">name</a></td><td></td><td>string</td><td></td></tr>
 </tbody></table>
 

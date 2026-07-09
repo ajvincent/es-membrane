@@ -30,22 +30,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-owner
-
-
-</td><td>
-
-[InterfaceDeclarationImpl](./ts-morph-structures.interfacedeclarationimpl.md) \| [MemberedObjectTypeStructureImpl](./ts-morph-structures.memberedobjecttypestructureimpl.md)
-
-
-</td><td>
-
-the target interface or type literal declaration.
-
-
-</td></tr>
+<tbody><tr><td>owner</td><td><a href="./ts-morph-structures.interfacedeclarationimpl.md">InterfaceDeclarationImpl</a> | <a href="./ts-morph-structures.memberedobjecttypestructureimpl.md">MemberedObjectTypeStructureImpl</a></td><td>the target interface or type literal declaration.</td></tr>
 </tbody></table>
 
 **Returns:**

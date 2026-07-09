@@ -31,20 +31,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(name, typeStructure)](./ts-morph-structures.parametertypestructureimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `ParameterTypeStructureImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.parametertypestructureimpl._constructor_.md">(constructor)(name, typeStructure)</a></td><td></td><td>Constructs a new instance of the <code>ParameterTypeStructureImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -70,78 +57,10 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[kind](./ts-morph-structures.parametertypestructureimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[name](./ts-morph-structures.parametertypestructureimpl.name.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[typeStructure](./ts-morph-structures.parametertypestructureimpl.typestructure.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md) \| undefined
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[writerFunction](./ts-morph-structures.parametertypestructureimpl.writerfunction.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-(writer: CodeBlockWriter) =&gt; void
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.parametertypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.parametertypestructureimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.parametertypestructureimpl.typestructure.md">typeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.parametertypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>(writer: CodeBlockWriter) =&gt; void</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -162,19 +81,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(other)](./ts-morph-structures.parametertypestructureimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.parametertypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
 </tbody></table>
 

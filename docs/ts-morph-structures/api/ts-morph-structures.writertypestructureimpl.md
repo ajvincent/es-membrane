@@ -31,20 +31,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(writer)](./ts-morph-structures.writertypestructureimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `WriterTypeStructureImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.writertypestructureimpl._constructor_.md">(constructor)(writer)</a></td><td></td><td>Constructs a new instance of the <code>WriterTypeStructureImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -70,44 +57,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[kind](./ts-morph-structures.writertypestructureimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[writerFunction](./ts-morph-structures.writertypestructureimpl.writerfunction.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-WriterFunction
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.writertypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.writertypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -128,19 +79,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(other)](./ts-morph-structures.writertypestructureimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.writertypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
 </tbody></table>
 

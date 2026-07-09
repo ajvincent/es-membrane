@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-source
-
-
-</td><td>
-
-OptionalKind&lt;ExportSpecifierStructure&gt;
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>source</td><td>OptionalKind&lt;ExportSpecifierStructure&gt;</td><td></td></tr>
 </tbody></table>
 
 **Returns:**

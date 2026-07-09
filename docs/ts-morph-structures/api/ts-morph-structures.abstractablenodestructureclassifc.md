@@ -33,22 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[isAbstract](./ts-morph-structures.abstractablenodestructureclassifc.isabstract.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.abstractablenodestructureclassifc.isabstract.md">isAbstract</a></td><td></td><td>boolean</td><td></td></tr>
 </tbody></table>
 

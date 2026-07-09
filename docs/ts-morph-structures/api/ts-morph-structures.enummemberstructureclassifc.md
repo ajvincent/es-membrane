@@ -33,43 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[kind](./ts-morph-structures.enummemberstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.EnumMember
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[value?](./ts-morph-structures.enummemberstructureclassifc.value.md)
-
-
-</td><td>
-
-
-</td><td>
-
-number \| string
-
-
-</td><td>
-
-_(Optional)_ Convenience property for setting the initializer.
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.enummemberstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.EnumMember</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.enummemberstructureclassifc.value.md">value?</a></td><td></td><td>number | string</td><td><em>(Optional)</em> Convenience property for setting the initializer.</td></tr>
 </tbody></table>
 

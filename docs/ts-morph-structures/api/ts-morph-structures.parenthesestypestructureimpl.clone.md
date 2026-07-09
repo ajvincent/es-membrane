@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-other
-
-
-</td><td>
-
-[ParenthesesTypeStructureImpl](./ts-morph-structures.parenthesestypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>other</td><td><a href="./ts-morph-structures.parenthesestypestructureimpl.md">ParenthesesTypeStructureImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-other
-
-
-</td><td>
-
-[IndexedAccessTypeStructureImpl](./ts-morph-structures.indexedaccesstypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>other</td><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.md">IndexedAccessTypeStructureImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

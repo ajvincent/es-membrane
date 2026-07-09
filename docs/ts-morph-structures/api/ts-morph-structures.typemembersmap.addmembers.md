@@ -30,22 +30,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-members
-
-
-</td><td>
-
-readonly [TypeMemberImpl](./ts-morph-structures.typememberimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-the type members to add.
-
-
-</td></tr>
+<tbody><tr><td>members</td><td>readonly <a href="./ts-morph-structures.typememberimpl.md">TypeMemberImpl</a><!-- -->[]</td><td>the type members to add.</td></tr>
 </tbody></table>
 
 **Returns:**

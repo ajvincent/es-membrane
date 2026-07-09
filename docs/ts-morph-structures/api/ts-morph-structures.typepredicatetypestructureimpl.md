@@ -33,20 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(hasAssertsKeyword, parameterName, isType)](./ts-morph-structures.typepredicatetypestructureimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `TypePredicateTypeStructureImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl._constructor_.md">(constructor)(hasAssertsKeyword, parameterName, isType)</a></td><td></td><td>Constructs a new instance of the <code>TypePredicateTypeStructureImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -72,95 +59,11 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[hasAssertsKeyword](./ts-morph-structures.typepredicatetypestructureimpl.hasassertskeyword.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[isType](./ts-morph-structures.typepredicatetypestructureimpl.istype.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md) \| null
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.typepredicatetypestructureimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[TypeStructureKind.TypePredicate](./ts-morph-structures.typestructurekind.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[parameterName](./ts-morph-structures.typepredicatetypestructureimpl.parametername.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[LiteralTypeStructureImpl](./ts-morph-structures.literaltypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[writerFunction](./ts-morph-structures.typepredicatetypestructureimpl.writerfunction.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-WriterFunction
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.hasassertskeyword.md">hasAssertsKeyword</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.istype.md">isType</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | null</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.typestructurekind.md">TypeStructureKind.TypePredicate</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.parametername.md">parameterName</a></td><td></td><td><a href="./ts-morph-structures.literaltypestructureimpl.md">LiteralTypeStructureImpl</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -181,19 +84,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(other)](./ts-morph-structures.typepredicatetypestructureimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
 </tbody></table>
 

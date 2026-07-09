@@ -30,22 +30,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-name
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-the property name
-
-
-</td></tr>
+<tbody><tr><td>name</td><td>string</td><td>the property name</td></tr>
 </tbody></table>
 
 **Returns:**

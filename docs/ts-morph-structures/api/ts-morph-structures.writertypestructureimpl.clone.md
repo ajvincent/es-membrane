@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-other
-
-
-</td><td>
-
-[WriterTypeStructureImpl](./ts-morph-structures.writertypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>other</td><td><a href="./ts-morph-structures.writertypestructureimpl.md">WriterTypeStructureImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

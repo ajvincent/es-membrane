@@ -34,171 +34,15 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[declarationKind?](./ts-morph-structures.variablestatementimpl.declarationkind.md)
-
-
-</td><td>
-
-
-</td><td>
-
-VariableDeclarationKind
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[declarations](./ts-morph-structures.variablestatementimpl.declarations.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[VariableDeclarationImpl](./ts-morph-structures.variabledeclarationimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[docs](./ts-morph-structures.variablestatementimpl.docs.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[hasDeclareKeyword](./ts-morph-structures.variablestatementimpl.hasdeclarekeyword.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[isDefaultExport](./ts-morph-structures.variablestatementimpl.isdefaultexport.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[isExported](./ts-morph-structures.variablestatementimpl.isexported.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.variablestatementimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.VariableStatement
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[leadingTrivia](./ts-morph-structures.variablestatementimpl.leadingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[trailingTrivia](./ts-morph-structures.variablestatementimpl.trailingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.variablestatementimpl.declarationkind.md">declarationKind?</a></td><td></td><td>VariableDeclarationKind</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.variablestatementimpl.declarations.md">declarations</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.variabledeclarationimpl.md">VariableDeclarationImpl</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.variablestatementimpl.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.variablestatementimpl.hasdeclarekeyword.md">hasDeclareKeyword</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.variablestatementimpl.isdefaultexport.md">isDefaultExport</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.variablestatementimpl.isexported.md">isExported</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.variablestatementimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.VariableStatement</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.variablestatementimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.variablestatementimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -219,31 +63,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(source)](./ts-morph-structures.variablestatementimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[toJSON()](./ts-morph-structures.variablestatementimpl.tojson.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.variablestatementimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.variablestatementimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
 </tbody></table>
 

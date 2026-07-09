@@ -25,27 +25,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[cloneFromTypeStructureSet(other)](./ts-morph-structures.typestructureset.clonefromtypestructureset.md)
-
-
-</td><td>
-
-Replace all the type structures this set managers with those from another set.
-
-
-</td></tr>
-<tr><td>
-
-[replaceFromTypeArray(array)](./ts-morph-structures.typestructureset.replacefromtypearray.md)
-
-
-</td><td>
-
-Replace all the types this set manages with those from another array.
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.typestructureset.clonefromtypestructureset.md">cloneFromTypeStructureSet(other)</a></td><td>Replace all the type structures this set managers with those from another set.</td></tr>
+<tr><td><a href="./ts-morph-structures.typestructureset.replacefromtypearray.md">replaceFromTypeArray(array)</a></td><td>Replace all the types this set manages with those from another array.</td></tr>
 </tbody></table>
 

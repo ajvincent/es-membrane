@@ -33,60 +33,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[alias?](./ts-morph-structures.importspecifierstructureclassifc.alias.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[isTypeOnly](./ts-morph-structures.importspecifierstructureclassifc.istypeonly.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.importspecifierstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.ImportSpecifier
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.importspecifierstructureclassifc.alias.md">alias?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.importspecifierstructureclassifc.istypeonly.md">isTypeOnly</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.importspecifierstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.ImportSpecifier</td><td></td></tr>
 </tbody></table>
 

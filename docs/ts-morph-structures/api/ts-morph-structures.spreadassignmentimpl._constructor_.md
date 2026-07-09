@@ -30,19 +30,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-expression
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>expression</td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td></td></tr>
 </tbody></table>
 

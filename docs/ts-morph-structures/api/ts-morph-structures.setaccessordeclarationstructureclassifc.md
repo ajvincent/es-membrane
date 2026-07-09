@@ -33,41 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[isStatic](./ts-morph-structures.setaccessordeclarationstructureclassifc.isstatic.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.setaccessordeclarationstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.SetAccessor
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.setaccessordeclarationstructureclassifc.isstatic.md">isStatic</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.setaccessordeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.SetAccessor</td><td></td></tr>
 </tbody></table>
 

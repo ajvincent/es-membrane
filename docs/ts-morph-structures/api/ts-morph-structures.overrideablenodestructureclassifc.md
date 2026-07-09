@@ -33,22 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[hasOverrideKeyword](./ts-morph-structures.overrideablenodestructureclassifc.hasoverridekeyword.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.overrideablenodestructureclassifc.hasoverridekeyword.md">hasOverrideKeyword</a></td><td></td><td>boolean</td><td></td></tr>
 </tbody></table>
 

@@ -30,33 +30,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-head
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-spans
-
-
-</td><td>
-
-\[[TypeStructures](./ts-morph-structures.typestructures.md)<!-- -->, string\]\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>head</td><td>string</td><td></td></tr>
+<tr><td>spans</td><td>[<a href="./ts-morph-structures.typestructures.md">TypeStructures</a><!-- -->, string][]</td><td></td></tr>
 </tbody></table>
 

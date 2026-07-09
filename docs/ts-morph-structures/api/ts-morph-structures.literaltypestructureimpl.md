@@ -31,20 +31,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(literal)](./ts-morph-structures.literaltypestructureimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `LiteralTypeStructureImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.literaltypestructureimpl._constructor_.md">(constructor)(literal)</a></td><td></td><td>Constructs a new instance of the <code>LiteralTypeStructureImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -70,63 +57,9 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[kind](./ts-morph-structures.literaltypestructureimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[stringValue](./ts-morph-structures.literaltypestructureimpl.stringvalue.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[writerFunction](./ts-morph-structures.literaltypestructureimpl.writerfunction.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-WriterFunction
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.literaltypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.literaltypestructureimpl.stringvalue.md">stringValue</a></td><td><code>readonly</code></td><td>string</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.literaltypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -147,35 +80,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(other)](./ts-morph-structures.literaltypestructureimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[get(name)](./ts-morph-structures.literaltypestructureimpl.get.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-Gets a singleton `LiteralTypeStructureImpl` for the given name.
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.literaltypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.literaltypestructureimpl.get.md">get(name)</a></td><td><code>static</code></td><td>Gets a singleton <code>LiteralTypeStructureImpl</code> for the given name.</td></tr>
 </tbody></table>
 

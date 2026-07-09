@@ -23,14 +23,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[isAsync(isStatic, methodName)](./ts-morph-structures.classasyncmethodquestion.isasync.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.classasyncmethodquestion.isasync.md">isAsync(isStatic, methodName)</a></td><td></td></tr>
 </tbody></table>
 

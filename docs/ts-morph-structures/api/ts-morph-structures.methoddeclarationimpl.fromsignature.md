@@ -28,34 +28,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-isStatic
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-signature
-
-
-</td><td>
-
-[MethodSignatureImpl](./ts-morph-structures.methodsignatureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>isStatic</td><td>boolean</td><td></td></tr>
+<tr><td>signature</td><td><a href="./ts-morph-structures.methodsignatureimpl.md">MethodSignatureImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

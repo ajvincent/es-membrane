@@ -30,21 +30,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-absolutePathToExportFile
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-Where the file will live on the file system.
-
-
-</td></tr>
+<tbody><tr><td>absolutePathToExportFile</td><td>string</td><td>Where the file will live on the file system.</td></tr>
 </tbody></table>
 

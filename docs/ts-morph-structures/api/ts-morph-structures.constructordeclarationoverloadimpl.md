@@ -34,175 +34,15 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[docs](./ts-morph-structures.constructordeclarationoverloadimpl.docs.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.constructordeclarationoverloadimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.ConstructorOverload
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[leadingTrivia](./ts-morph-structures.constructordeclarationoverloadimpl.leadingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[parameters](./ts-morph-structures.constructordeclarationoverloadimpl.parameters.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[ParameterDeclarationImpl](./ts-morph-structures.parameterdeclarationimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[returnType?](./ts-morph-structures.constructordeclarationoverloadimpl.returntype.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[returnTypeStructure](./ts-morph-structures.constructordeclarationoverloadimpl.returntypestructure.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md) \| undefined
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[scope?](./ts-morph-structures.constructordeclarationoverloadimpl.scope.md)
-
-
-</td><td>
-
-
-</td><td>
-
-import("ts-morph").Scope&lt;&gt; \| undefined
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[trailingTrivia](./ts-morph-structures.constructordeclarationoverloadimpl.trailingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[typeParameters](./ts-morph-structures.constructordeclarationoverloadimpl.typeparameters.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-([TypeParameterDeclarationImpl](./ts-morph-structures.typeparameterdeclarationimpl.md) \| string)\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.constructordeclarationoverloadimpl.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.constructordeclarationoverloadimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.ConstructorOverload</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.constructordeclarationoverloadimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.constructordeclarationoverloadimpl.parameters.md">parameters</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.parameterdeclarationimpl.md">ParameterDeclarationImpl</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.constructordeclarationoverloadimpl.returntype.md">returnType?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.constructordeclarationoverloadimpl.returntypestructure.md">returnTypeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.constructordeclarationoverloadimpl.scope.md">scope?</a></td><td></td><td>import(“ts-morph”).Scope&lt;&gt; | undefined</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.constructordeclarationoverloadimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.constructordeclarationoverloadimpl.typeparameters.md">typeParameters</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.typeparameterdeclarationimpl.md">TypeParameterDeclarationImpl</a> | string)[]</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -223,31 +63,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(source)](./ts-morph-structures.constructordeclarationoverloadimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[toJSON()](./ts-morph-structures.constructordeclarationoverloadimpl.tojson.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.constructordeclarationoverloadimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.constructordeclarationoverloadimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
 </tbody></table>
 

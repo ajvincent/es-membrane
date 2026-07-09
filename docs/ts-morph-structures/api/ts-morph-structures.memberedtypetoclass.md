@@ -35,114 +35,12 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[constructorParameters](./ts-morph-structures.memberedtypetoclass.constructorparameters.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[ParameterDeclarationImpl](./ts-morph-structures.parameterdeclarationimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-The class constructor's current parameters list.
-
-
-</td></tr>
-<tr><td>
-
-[indexSignatureResolver](./ts-morph-structures.memberedtypetoclass.indexsignatureresolver.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[IndexSignatureResolver](./ts-morph-structures.indexsignatureresolver.md) \| undefined
-
-
-</td><td>
-
-An interface to get names which match an index signature's key name.
-
-
-</td></tr>
-<tr><td>
-
-[isAbstractCallback](./ts-morph-structures.memberedtypetoclass.isabstractcallback.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[ClassAbstractMemberQuestion](./ts-morph-structures.classabstractmemberquestion.md) \| undefined
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[isAsyncCallback](./ts-morph-structures.memberedtypetoclass.isasynccallback.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[ClassAsyncMethodQuestion](./ts-morph-structures.classasyncmethodquestion.md) \| undefined
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[isGeneratorCallback](./ts-morph-structures.memberedtypetoclass.isgeneratorcallback.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[ClassGeneratorMethodQuestion](./ts-morph-structures.classgeneratormethodquestion.md) \| undefined
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[scopeCallback](./ts-morph-structures.memberedtypetoclass.scopecallback.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[ClassScopeMemberQuestion](./ts-morph-structures.classscopememberquestion.md) \| undefined
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.memberedtypetoclass.constructorparameters.md">constructorParameters</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.parameterdeclarationimpl.md">ParameterDeclarationImpl</a><!-- -->[]</td><td>The class constructor’s current parameters list.</td></tr>
+<tr><td><a href="./ts-morph-structures.memberedtypetoclass.indexsignatureresolver.md">indexSignatureResolver</a></td><td></td><td><a href="./ts-morph-structures.indexsignatureresolver.md">IndexSignatureResolver</a> | undefined</td><td>An interface to get names which match an index signature’s key name.</td></tr>
+<tr><td><a href="./ts-morph-structures.memberedtypetoclass.isabstractcallback.md">isAbstractCallback</a></td><td></td><td><a href="./ts-morph-structures.classabstractmemberquestion.md">ClassAbstractMemberQuestion</a> | undefined</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.memberedtypetoclass.isasynccallback.md">isAsyncCallback</a></td><td></td><td><a href="./ts-morph-structures.classasyncmethodquestion.md">ClassAsyncMethodQuestion</a> | undefined</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.memberedtypetoclass.isgeneratorcallback.md">isGeneratorCallback</a></td><td></td><td><a href="./ts-morph-structures.classgeneratormethodquestion.md">ClassGeneratorMethodQuestion</a> | undefined</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.memberedtypetoclass.scopecallback.md">scopeCallback</a></td><td></td><td><a href="./ts-morph-structures.classscopememberquestion.md">ClassScopeMemberQuestion</a> | undefined</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -163,103 +61,12 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[addStatementGetters(priority, statementGetters)](./ts-morph-structures.memberedtypetoclass.addstatementgetters.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Add statement getters to this.
-
-
-</td></tr>
-<tr><td>
-
-[addTypeMember(isStatic, member)](./ts-morph-structures.memberedtypetoclass.addtypemember.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Define a class member for a given type member (constructor, property, method, getter, setter).
-
-
-</td></tr>
-<tr><td>
-
-[buildClassMembersMap()](./ts-morph-structures.memberedtypetoclass.buildclassmembersmap.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Convert cached type members to a ClassMembersMap, complete with statements.
-
-
-</td></tr>
-<tr><td>
-
-[defineStatementsByPurpose(purposeKey, isBlockStatement, regionName)](./ts-morph-structures.memberedtypetoclass.definestatementsbypurpose.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Define a statement purpose group for the target class.
-
-
-</td></tr>
-<tr><td>
-
-[importFromMemberedType(isStatic, membered)](./ts-morph-structures.memberedtypetoclass.importfrommemberedtype.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Define class members for a membered object type or interface.
-
-
-</td></tr>
-<tr><td>
-
-[importFromTypeMembersMap(isStatic, membersMap)](./ts-morph-structures.memberedtypetoclass.importfromtypemembersmap.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Define class members for a map of given type members (constructor, property, method, getter, setter).
-
-
-</td></tr>
-<tr><td>
-
-[insertMemberKey(isFieldStatic, fieldType, isGroupStatic, groupType)](./ts-morph-structures.memberedtypetoclass.insertmemberkey.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Add member keys for a field and a group.
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.memberedtypetoclass.addstatementgetters.md">addStatementGetters(priority, statementGetters)</a></td><td></td><td>Add statement getters to this.</td></tr>
+<tr><td><a href="./ts-morph-structures.memberedtypetoclass.addtypemember.md">addTypeMember(isStatic, member)</a></td><td></td><td>Define a class member for a given type member (constructor, property, method, getter, setter).</td></tr>
+<tr><td><a href="./ts-morph-structures.memberedtypetoclass.buildclassmembersmap.md">buildClassMembersMap()</a></td><td></td><td>Convert cached type members to a ClassMembersMap, complete with statements.</td></tr>
+<tr><td><a href="./ts-morph-structures.memberedtypetoclass.definestatementsbypurpose.md">defineStatementsByPurpose(purposeKey, isBlockStatement, regionName)</a></td><td></td><td>Define a statement purpose group for the target class.</td></tr>
+<tr><td><a href="./ts-morph-structures.memberedtypetoclass.importfrommemberedtype.md">importFromMemberedType(isStatic, membered)</a></td><td></td><td>Define class members for a membered object type or interface.</td></tr>
+<tr><td><a href="./ts-morph-structures.memberedtypetoclass.importfromtypemembersmap.md">importFromTypeMembersMap(isStatic, membersMap)</a></td><td></td><td>Define class members for a map of given type members (constructor, property, method, getter, setter).</td></tr>
+<tr><td><a href="./ts-morph-structures.memberedtypetoclass.insertmemberkey.md">insertMemberKey(isFieldStatic, fieldType, isGroupStatic, groupType)</a></td><td></td><td>Add member keys for a field and a group.</td></tr>
 </tbody></table>
 

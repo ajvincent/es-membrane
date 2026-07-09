@@ -28,22 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-context
-
-
-</td><td>
-
-[AddExportContext](./ts-morph-structures.addexportcontext.md)
-
-
-</td><td>
-
-a description of the exports to add.
-
-
-</td></tr>
+<tbody><tr><td>context</td><td><a href="./ts-morph-structures.addexportcontext.md">AddExportContext</a></td><td>a description of the exports to add.</td></tr>
 </tbody></table>
 
 **Returns:**

@@ -31,20 +31,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(literal)](./ts-morph-structures.stringtypestructureimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `StringTypeStructureImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.stringtypestructureimpl._constructor_.md">(constructor)(literal)</a></td><td></td><td>Constructs a new instance of the <code>StringTypeStructureImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -70,63 +57,9 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[kind](./ts-morph-structures.stringtypestructureimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[stringValue](./ts-morph-structures.stringtypestructureimpl.stringvalue.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[writerFunction](./ts-morph-structures.stringtypestructureimpl.writerfunction.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-WriterFunction
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.stringtypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.stringtypestructureimpl.stringvalue.md">stringValue</a></td><td><code>readonly</code></td><td>string</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.stringtypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -147,35 +80,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(other)](./ts-morph-structures.stringtypestructureimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[get(name)](./ts-morph-structures.stringtypestructureimpl.get.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-Gets a singleton `StringTypeStructureImpl` for the given name.
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.stringtypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.stringtypestructureimpl.get.md">get(name)</a></td><td><code>static</code></td><td>Gets a singleton <code>StringTypeStructureImpl</code> for the given name.</td></tr>
 </tbody></table>
 

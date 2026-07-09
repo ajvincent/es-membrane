@@ -30,19 +30,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-conditionalParts
-
-
-</td><td>
-
-Partial&lt;[ConditionalTypeStructureParts](./ts-morph-structures.conditionaltypestructureparts.md)<!-- -->&gt;
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>conditionalParts</td><td>Partial&lt;<a href="./ts-morph-structures.conditionaltypestructureparts.md">ConditionalTypeStructureParts</a><!-- -->&gt;</td><td></td></tr>
 </tbody></table>
 

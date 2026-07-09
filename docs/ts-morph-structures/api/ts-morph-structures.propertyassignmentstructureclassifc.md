@@ -33,41 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[initializer](./ts-morph-structures.propertyassignmentstructureclassifc.initializer.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.propertyassignmentstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.PropertyAssignment
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.propertyassignmentstructureclassifc.initializer.md">initializer</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertyassignmentstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.PropertyAssignment</td><td></td></tr>
 </tbody></table>
 

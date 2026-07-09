@@ -45,20 +45,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(absolutePathToModule)](./ts-morph-structures.importmanager._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `ImportManager` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.importmanager._constructor_.md">(constructor)(absolutePathToModule)</a></td><td></td><td>Constructs a new instance of the <code>ImportManager</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -84,27 +71,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[absolutePathToModule](./ts-morph-structures.importmanager.absolutepathtomodule.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-Where the file will live on the file system.
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.importmanager.absolutepathtomodule.md">absolutePathToModule</a></td><td><code>readonly</code></td><td>string</td><td>Where the file will live on the file system.</td></tr>
 </tbody></table>
 
 ## Methods
@@ -125,31 +92,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[addImports(context)](./ts-morph-structures.importmanager.addimports.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[getDeclarations()](./ts-morph-structures.importmanager.getdeclarations.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Get the import declarations, sorted by path to file, then internally by specified import values.
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.importmanager.addimports.md">addImports(context)</a></td><td></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.importmanager.getdeclarations.md">getDeclarations()</a></td><td></td><td>Get the import declarations, sorted by path to file, then internally by specified import values.</td></tr>
 </tbody></table>
 

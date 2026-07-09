@@ -29,20 +29,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(tagName)](./ts-morph-structures.jsdoctagimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `JSDocTagImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.jsdoctagimpl._constructor_.md">(constructor)(tagName)</a></td><td></td><td>Constructs a new instance of the <code>JSDocTagImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -68,101 +55,11 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[kind](./ts-morph-structures.jsdoctagimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.JSDocTag
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[leadingTrivia](./ts-morph-structures.jsdoctagimpl.leadingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[tagName](./ts-morph-structures.jsdoctagimpl.tagname.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-The name for the JS doc tag that comes after the "at" symbol.
-
-
-</td></tr>
-<tr><td>
-
-[text?](./ts-morph-structures.jsdoctagimpl.text.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)
-
-
-</td><td>
-
-_(Optional)_ The text that follows the tag name.
-
-
-</td></tr>
-<tr><td>
-
-[trailingTrivia](./ts-morph-structures.jsdoctagimpl.trailingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.jsdoctagimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JSDocTag</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsdoctagimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsdoctagimpl.tagname.md">tagName</a></td><td></td><td>string</td><td>The name for the JS doc tag that comes after the “at” symbol.</td></tr>
+<tr><td><a href="./ts-morph-structures.jsdoctagimpl.text.md">text?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td><em>(Optional)</em> The text that follows the tag name.</td></tr>
+<tr><td><a href="./ts-morph-structures.jsdoctagimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -183,31 +80,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(source)](./ts-morph-structures.jsdoctagimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[toJSON()](./ts-morph-structures.jsdoctagimpl.tojson.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.jsdoctagimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsdoctagimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
 </tbody></table>
 

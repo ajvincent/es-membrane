@@ -33,58 +33,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[hasAccessorKeyword](./ts-morph-structures.propertydeclarationstructureclassifc.hasaccessorkeyword.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[isStatic](./ts-morph-structures.propertydeclarationstructureclassifc.isstatic.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.propertydeclarationstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.Property
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.propertydeclarationstructureclassifc.hasaccessorkeyword.md">hasAccessorKeyword</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationstructureclassifc.isstatic.md">isStatic</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertydeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Property</td><td></td></tr>
 </tbody></table>
 

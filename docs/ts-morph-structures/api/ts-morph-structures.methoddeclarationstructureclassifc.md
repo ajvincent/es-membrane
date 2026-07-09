@@ -33,60 +33,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[isStatic](./ts-morph-structures.methoddeclarationstructureclassifc.isstatic.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.methoddeclarationstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.Method
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[overloads](./ts-morph-structures.methoddeclarationstructureclassifc.overloads.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[MethodDeclarationOverloadImpl](./ts-morph-structures.methoddeclarationoverloadimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.methoddeclarationstructureclassifc.isstatic.md">isStatic</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.methoddeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Method</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.methoddeclarationstructureclassifc.overloads.md">overloads</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.md">MethodDeclarationOverloadImpl</a><!-- -->[]</td><td></td></tr>
 </tbody></table>
 

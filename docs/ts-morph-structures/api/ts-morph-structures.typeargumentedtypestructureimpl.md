@@ -35,20 +35,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(objectType, childTypes)](./ts-morph-structures.typeargumentedtypestructureimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `TypeArgumentedTypeStructureImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.typeargumentedtypestructureimpl._constructor_.md">(constructor)(objectType, childTypes)</a></td><td></td><td>Constructs a new instance of the <code>TypeArgumentedTypeStructureImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -74,143 +61,17 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[childTypes](./ts-morph-structures.typeargumentedtypestructureimpl.childtypes.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[endToken](./ts-morph-structures.typeargumentedtypestructureimpl.endtoken.md)
-
-
-</td><td>
-
-`protected`
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[joinChildrenToken](./ts-morph-structures.typeargumentedtypestructureimpl.joinchildrentoken.md)
-
-
-</td><td>
-
-`protected`
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.typeargumentedtypestructureimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[maxChildCount](./ts-morph-structures.typeargumentedtypestructureimpl.maxchildcount.md)
-
-
-</td><td>
-
-`protected`
-
-`readonly`
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[objectType](./ts-morph-structures.typeargumentedtypestructureimpl.objecttype.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[startToken](./ts-morph-structures.typeargumentedtypestructureimpl.starttoken.md)
-
-
-</td><td>
-
-`protected`
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.typeargumentedtypestructureimpl.childtypes.md">childTypes</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.typeargumentedtypestructureimpl.endtoken.md">endToken</a></td><td><p><code>protected</code></p>
+<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.typeargumentedtypestructureimpl.joinchildrentoken.md">joinChildrenToken</a></td><td><p><code>protected</code></p>
+<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.typeargumentedtypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.typeargumentedtypestructureimpl.maxchildcount.md">maxChildCount</a></td><td><p><code>protected</code></p>
+<p><code>readonly</code></p></td><td>number</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.typeargumentedtypestructureimpl.objecttype.md">objectType</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.typeargumentedtypestructureimpl.starttoken.md">startToken</a></td><td><p><code>protected</code></p>
+<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -231,19 +92,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(other)](./ts-morph-structures.typeargumentedtypestructureimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.typeargumentedtypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
 </tbody></table>
 

@@ -30,70 +30,10 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-isFieldStatic
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-true if the field is static.
-
-
-</td></tr>
-<tr><td>
-
-fieldType
-
-
-</td><td>
-
-[PropertySignatureImpl](./ts-morph-structures.propertysignatureimpl.md) \| [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md) \| [SetAccessorDeclarationImpl](./ts-morph-structures.setaccessordeclarationimpl.md)
-
-
-</td><td>
-
-the field signature.
-
-
-</td></tr>
-<tr><td>
-
-isGroupStatic
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-true if the group is static (false for constructors)
-
-
-</td></tr>
-<tr><td>
-
-groupType
-
-
-</td><td>
-
-InsertedMemberKey\["groupType"\]
-
-
-</td><td>
-
-the group signature, or "constructor" for the constructor I generate.
-
-
-</td></tr>
+<tbody><tr><td>isFieldStatic</td><td>boolean</td><td>true if the field is static.</td></tr>
+<tr><td>fieldType</td><td><a href="./ts-morph-structures.propertysignatureimpl.md">PropertySignatureImpl</a> | <a href="./ts-morph-structures.getaccessordeclarationimpl.md">GetAccessorDeclarationImpl</a> | <a href="./ts-morph-structures.setaccessordeclarationimpl.md">SetAccessorDeclarationImpl</a></td><td>the field signature.</td></tr>
+<tr><td>isGroupStatic</td><td>boolean</td><td>true if the group is static (false for constructors)</td></tr>
+<tr><td>groupType</td><td>InsertedMemberKey[“groupType”]</td><td>the group signature, or “constructor” for the constructor I generate.</td></tr>
 </tbody></table>
 
 **Returns:**

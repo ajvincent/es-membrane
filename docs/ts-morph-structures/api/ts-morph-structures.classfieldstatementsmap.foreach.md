@@ -30,38 +30,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-\_\_callback\_\_
-
-
-</td><td>
-
-(statements: [ClassFieldStatement](./ts-morph-structures.classfieldstatement.md)<!-- -->\[\], fieldName: string, statementGroup: string, \_\_collection\_\_: [ClassFieldStatementsMap](./ts-morph-structures.classfieldstatementsmap.md)<!-- -->) =&gt; void
-
-
-</td><td>
-
-A function to invoke for each iteration.
-
-
-</td></tr>
-<tr><td>
-
-\_\_thisArg\_\_
-
-
-</td><td>
-
-unknown
-
-
-</td><td>
-
-_(Optional)_ statements to use as this when executing callback.
-
-
-</td></tr>
+<tbody><tr><td>__callback__</td><td>(statements: <a href="./ts-morph-structures.classfieldstatement.md">ClassFieldStatement</a><!-- -->[], fieldName: string, statementGroup: string, __collection__: <a href="./ts-morph-structures.classfieldstatementsmap.md">ClassFieldStatementsMap</a><!-- -->) =&gt; void</td><td>A function to invoke for each iteration.</td></tr>
+<tr><td>__thisArg__</td><td>unknown</td><td><em>(Optional)</em> statements to use as this when executing callback.</td></tr>
 </tbody></table>
 
 **Returns:**

@@ -30,38 +30,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-isStatic
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-true if the property is static (and the accessors should be)
-
-
-</td></tr>
-<tr><td>
-
-name
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-the property name
-
-
-</td></tr>
+<tbody><tr><td>isStatic</td><td>boolean</td><td>true if the property is static (and the accessors should be)</td></tr>
+<tr><td>name</td><td>string</td><td>the property name</td></tr>
 </tbody></table>
 
 **Returns:**

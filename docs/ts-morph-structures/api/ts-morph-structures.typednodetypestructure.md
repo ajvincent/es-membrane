@@ -33,39 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[type](./ts-morph-structures.typednodetypestructure.type.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[typeStructure](./ts-morph-structures.typednodetypestructure.typestructure.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md) \| undefined
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.typednodetypestructure.type.md">type</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.typednodetypestructure.typestructure.md">typeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
 </tbody></table>
 

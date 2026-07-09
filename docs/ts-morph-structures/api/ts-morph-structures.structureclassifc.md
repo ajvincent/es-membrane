@@ -33,47 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[leadingTrivia](./ts-morph-structures.structureclassifc.leadingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-Leading comments or whitespace.
-
-
-</td></tr>
-<tr><td>
-
-[trailingTrivia](./ts-morph-structures.structureclassifc.trailingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-Trailing comments or whitespace.
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.structureclassifc.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td>Leading comments or whitespace.</td></tr>
+<tr><td><a href="./ts-morph-structures.structureclassifc.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td>Trailing comments or whitespace.</td></tr>
 </tbody></table>
 

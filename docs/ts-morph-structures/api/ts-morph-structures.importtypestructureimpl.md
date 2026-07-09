@@ -33,20 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(argument, qualifier, typeArguments)](./ts-morph-structures.importtypestructureimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `ImportTypeStructureImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.importtypestructureimpl._constructor_.md">(constructor)(argument, qualifier, typeArguments)</a></td><td></td><td>Constructs a new instance of the <code>ImportTypeStructureImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -72,97 +59,11 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[argument](./ts-morph-structures.importtypestructureimpl.argument.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[StringTypeStructureImpl](./ts-morph-structures.stringtypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[childTypes](./ts-morph-structures.importtypestructureimpl.childtypes.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.importtypestructureimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[TypeStructureKind.Import](./ts-morph-structures.typestructurekind.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[qualifier](./ts-morph-structures.importtypestructureimpl.qualifier.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[LiteralTypeStructureImpl](./ts-morph-structures.literaltypestructureimpl.md) \| [QualifiedNameTypeStructureImpl](./ts-morph-structures.qualifiednametypestructureimpl.md) \| null
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[writerFunction](./ts-morph-structures.importtypestructureimpl.writerfunction.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-WriterFunction
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.importtypestructureimpl.argument.md">argument</a></td><td></td><td><a href="./ts-morph-structures.stringtypestructureimpl.md">StringTypeStructureImpl</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.importtypestructureimpl.childtypes.md">childTypes</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.importtypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.typestructurekind.md">TypeStructureKind.Import</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.importtypestructureimpl.qualifier.md">qualifier</a></td><td></td><td><a href="./ts-morph-structures.literaltypestructureimpl.md">LiteralTypeStructureImpl</a> | <a href="./ts-morph-structures.qualifiednametypestructureimpl.md">QualifiedNameTypeStructureImpl</a> | null</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.importtypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -183,19 +84,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(other)](./ts-morph-structures.importtypestructureimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.importtypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
 </tbody></table>
 

@@ -30,22 +30,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-classDecl
-
-
-</td><td>
-
-[ClassDeclarationImpl](./ts-morph-structures.classdeclarationimpl.md)
-
-
-</td><td>
-
-the class declaration.
-
-
-</td></tr>
+<tbody><tr><td>classDecl</td><td><a href="./ts-morph-structures.classdeclarationimpl.md">ClassDeclarationImpl</a></td><td>the class declaration.</td></tr>
 </tbody></table>
 
 **Returns:**

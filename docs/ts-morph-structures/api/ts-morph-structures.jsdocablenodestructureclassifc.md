@@ -33,24 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[docs](./ts-morph-structures.jsdocablenodestructureclassifc.docs.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.jsdocablenodestructureclassifc.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
 </tbody></table>
 

@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-other
-
-
-</td><td>
-
-[IntersectionTypeStructureImpl](./ts-morph-structures.intersectiontypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>other</td><td><a href="./ts-morph-structures.intersectiontypestructureimpl.md">IntersectionTypeStructureImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

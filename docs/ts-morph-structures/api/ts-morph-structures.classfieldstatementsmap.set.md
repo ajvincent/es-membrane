@@ -30,54 +30,9 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-fieldName
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-The class field name for the statements.
-
-
-</td></tr>
-<tr><td>
-
-statementGroup
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-The statement group owning the statements.
-
-
-</td></tr>
-<tr><td>
-
-statements
-
-
-</td><td>
-
-[ClassFieldStatement](./ts-morph-structures.classfieldstatement.md)<!-- -->\[\]
-
-
-</td><td>
-
-The statements.
-
-
-</td></tr>
+<tbody><tr><td>fieldName</td><td>string</td><td>The class field name for the statements.</td></tr>
+<tr><td>statementGroup</td><td>string</td><td>The statement group owning the statements.</td></tr>
+<tr><td>statements</td><td><a href="./ts-morph-structures.classfieldstatement.md">ClassFieldStatement</a><!-- -->[]</td><td>The statements.</td></tr>
 </tbody></table>
 
 **Returns:**

@@ -44,20 +44,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(absolutePathToExportFile)](./ts-morph-structures.exportmanager._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `ExportManager` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.exportmanager._constructor_.md">(constructor)(absolutePathToExportFile)</a></td><td></td><td>Constructs a new instance of the <code>ExportManager</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -83,27 +70,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[absolutePathToExportFile](./ts-morph-structures.exportmanager.absolutepathtoexportfile.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-Where the file will live on the file system.
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.exportmanager.absolutepathtoexportfile.md">absolutePathToExportFile</a></td><td><code>readonly</code></td><td>string</td><td>Where the file will live on the file system.</td></tr>
 </tbody></table>
 
 ## Methods
@@ -124,31 +91,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[addExports(context)](./ts-morph-structures.exportmanager.addexports.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[getDeclarations()](./ts-morph-structures.exportmanager.getdeclarations.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Get the export declarations, sorted by path to file, then internally by specified export values.
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.exportmanager.addexports.md">addExports(context)</a></td><td></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.exportmanager.getdeclarations.md">getDeclarations()</a></td><td></td><td>Get the export declarations, sorted by path to file, then internally by specified export values.</td></tr>
 </tbody></table>
 

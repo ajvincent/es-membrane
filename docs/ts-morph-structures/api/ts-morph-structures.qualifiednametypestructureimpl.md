@@ -33,20 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(childTypes)](./ts-morph-structures.qualifiednametypestructureimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `QualifiedNameTypeStructureImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.qualifiednametypestructureimpl._constructor_.md">(constructor)(childTypes)</a></td><td></td><td>Constructs a new instance of the <code>QualifiedNameTypeStructureImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -72,61 +59,9 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[childTypes](./ts-morph-structures.qualifiednametypestructureimpl.childtypes.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.qualifiednametypestructureimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[writerFunction](./ts-morph-structures.qualifiednametypestructureimpl.writerfunction.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-WriterFunction
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.qualifiednametypestructureimpl.childtypes.md">childTypes</a></td><td></td><td>string[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.qualifiednametypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.qualifiednametypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -147,19 +82,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(other)](./ts-morph-structures.qualifiednametypestructureimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.qualifiednametypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
 </tbody></table>
 

@@ -33,41 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[expression](./ts-morph-structures.jsxspreadattributestructureclassifc.expression.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.jsxspreadattributestructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.JsxSpreadAttribute
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.jsxspreadattributestructureclassifc.expression.md">expression</a></td><td></td><td>string</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsxspreadattributestructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JsxSpreadAttribute</td><td></td></tr>
 </tbody></table>
 

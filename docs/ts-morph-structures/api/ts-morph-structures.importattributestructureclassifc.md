@@ -33,43 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[kind](./ts-morph-structures.importattributestructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.ImportAttribute
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[value](./ts-morph-structures.importattributestructureclassifc.value.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-Expression value. Quote this when providing a string.
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.importattributestructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.ImportAttribute</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.importattributestructureclassifc.value.md">value</a></td><td></td><td>string</td><td>Expression value. Quote this when providing a string.</td></tr>
 </tbody></table>
 

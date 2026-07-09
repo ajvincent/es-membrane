@@ -34,103 +34,11 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[description?](./ts-morph-structures.jsdocimpl.description.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)
-
-
-</td><td>
-
-_(Optional)_ The description of the JS doc.
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.jsdocimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.JSDoc
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[leadingTrivia](./ts-morph-structures.jsdocimpl.leadingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[tags](./ts-morph-structures.jsdocimpl.tags.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[JSDocTagImpl](./ts-morph-structures.jsdoctagimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-JS doc tags (ex. `&#64;param value - Some description.`<!-- -->).
-
-
-</td></tr>
-<tr><td>
-
-[trailingTrivia](./ts-morph-structures.jsdocimpl.trailingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.jsdocimpl.description.md">description?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td><em>(Optional)</em> The description of the JS doc.</td></tr>
+<tr><td><a href="./ts-morph-structures.jsdocimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JSDoc</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsdocimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsdocimpl.tags.md">tags</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.jsdoctagimpl.md">JSDocTagImpl</a><!-- -->[]</td><td>JS doc tags (ex. <code>&amp;#64;param value - Some description.</code><!-- -->).</td></tr>
+<tr><td><a href="./ts-morph-structures.jsdocimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -151,31 +59,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(source)](./ts-morph-structures.jsdocimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[toJSON()](./ts-morph-structures.jsdocimpl.tojson.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.jsdocimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsdocimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
 </tbody></table>
 

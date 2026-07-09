@@ -33,24 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[typeParameters](./ts-morph-structures.typeparameterednodestructureclassifc.typeparameters.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-([TypeParameterDeclarationImpl](./ts-morph-structures.typeparameterdeclarationimpl.md) \| string)\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.typeparameterednodestructureclassifc.typeparameters.md">typeParameters</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.typeparameterdeclarationimpl.md">TypeParameterDeclarationImpl</a> | string)[]</td><td></td></tr>
 </tbody></table>
 

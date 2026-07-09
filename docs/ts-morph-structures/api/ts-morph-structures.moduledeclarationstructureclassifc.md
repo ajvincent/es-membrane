@@ -33,43 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[declarationKind?](./ts-morph-structures.moduledeclarationstructureclassifc.declarationkind.md)
-
-
-</td><td>
-
-
-</td><td>
-
-ModuleDeclarationKind
-
-
-</td><td>
-
-_(Optional)_ The module declaration kind.
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.moduledeclarationstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.Module
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.moduledeclarationstructureclassifc.declarationkind.md">declarationKind?</a></td><td></td><td>ModuleDeclarationKind</td><td><em>(Optional)</em> The module declaration kind.</td></tr>
+<tr><td><a href="./ts-morph-structures.moduledeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Module</td><td></td></tr>
 </tbody></table>
 

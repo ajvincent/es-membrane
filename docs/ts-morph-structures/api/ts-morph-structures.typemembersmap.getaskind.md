@@ -30,38 +30,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-kind
-
-
-</td><td>
-
-Kind
-
-
-</td><td>
-
-the structure kind.
-
-
-</td></tr>
-<tr><td>
-
-name
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-the key to get.
-
-
-</td></tr>
+<tbody><tr><td>kind</td><td>Kind</td><td>the structure kind.</td></tr>
+<tr><td>name</td><td>string</td><td>the key to get.</td></tr>
 </tbody></table>
 
 **Returns:**

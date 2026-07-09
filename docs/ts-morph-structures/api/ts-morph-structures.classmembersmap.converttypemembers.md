@@ -30,54 +30,9 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-isStatic
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-true if the class members should be static, false if they should not be.
-
-
-</td></tr>
-<tr><td>
-
-typeMembers
-
-
-</td><td>
-
-[NamedTypeMemberImpl](./ts-morph-structures.namedtypememberimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-the type members to convert.
-
-
-</td></tr>
-<tr><td>
-
-map
-
-
-</td><td>
-
-WeakMap&lt;[ClassMemberImpl](./ts-morph-structures.classmemberimpl.md)<!-- -->, [TypeMemberImpl](./ts-morph-structures.typememberimpl.md)<!-- -->&gt;
-
-
-</td><td>
-
-_(Optional)_ for defining which type member a class member comes from.
-
-
-</td></tr>
+<tbody><tr><td>isStatic</td><td>boolean</td><td>true if the class members should be static, false if they should not be.</td></tr>
+<tr><td>typeMembers</td><td><a href="./ts-morph-structures.namedtypememberimpl.md">NamedTypeMemberImpl</a><!-- -->[]</td><td>the type members to convert.</td></tr>
+<tr><td>map</td><td>WeakMap&lt;<a href="./ts-morph-structures.classmemberimpl.md">ClassMemberImpl</a><!-- -->, <a href="./ts-morph-structures.typememberimpl.md">TypeMemberImpl</a><!-- -->&gt;</td><td><em>(Optional)</em> for defining which type member a class member comes from.</td></tr>
 </tbody></table>
 
 **Returns:**

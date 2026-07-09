@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-signature
-
-
-</td><td>
-
-[IndexSignatureDeclarationImpl](./ts-morph-structures.indexsignaturedeclarationimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>signature</td><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.md">IndexSignatureDeclarationImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

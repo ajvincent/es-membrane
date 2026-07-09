@@ -31,20 +31,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(value)](./ts-morph-structures.numbertypestructureimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `NumberTypeStructureImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.numbertypestructureimpl._constructor_.md">(constructor)(value)</a></td><td></td><td>Constructs a new instance of the <code>NumberTypeStructureImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -70,63 +57,9 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[kind](./ts-morph-structures.numbertypestructureimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[numberValue](./ts-morph-structures.numbertypestructureimpl.numbervalue.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[writerFunction](./ts-morph-structures.numbertypestructureimpl.writerfunction.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-WriterFunction
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.numbertypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.numbertypestructureimpl.numbervalue.md">numberValue</a></td><td><code>readonly</code></td><td>number</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.numbertypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -147,35 +80,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(other)](./ts-morph-structures.numbertypestructureimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[get(name)](./ts-morph-structures.numbertypestructureimpl.get.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-Gets a singleton `NumberTypeStructureImpl` for the given name.
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.numbertypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.numbertypestructureimpl.get.md">get(name)</a></td><td><code>static</code></td><td>Gets a singleton <code>NumberTypeStructureImpl</code> for the given name.</td></tr>
 </tbody></table>
 

@@ -30,38 +30,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-priority
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-a number indicating the priority of the getters (lower numbers beat higher numbers).
-
-
-</td></tr>
-<tr><td>
-
-statementGetters
-
-
-</td><td>
-
-readonly [ClassStatementsGetter](./ts-morph-structures.classstatementsgetter.md)<!-- -->\[\]
-
-
-</td><td>
-
-the statement getters to insert.
-
-
-</td></tr>
+<tbody><tr><td>priority</td><td>number</td><td>a number indicating the priority of the getters (lower numbers beat higher numbers).</td></tr>
+<tr><td>statementGetters</td><td>readonly <a href="./ts-morph-structures.classstatementsgetter.md">ClassStatementsGetter</a><!-- -->[]</td><td>the statement getters to insert.</td></tr>
 </tbody></table>
 
 **Returns:**

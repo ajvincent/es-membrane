@@ -34,156 +34,14 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[attributes?](./ts-morph-structures.exportdeclarationimpl.attributes.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[ImportAttributeImpl](./ts-morph-structures.importattributeimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[isTypeOnly](./ts-morph-structures.exportdeclarationimpl.istypeonly.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.exportdeclarationimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.ExportDeclaration
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[leadingTrivia](./ts-morph-structures.exportdeclarationimpl.leadingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[moduleSpecifier?](./ts-morph-structures.exportdeclarationimpl.modulespecifier.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[namedExports](./ts-morph-structures.exportdeclarationimpl.namedexports.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-([ExportSpecifierImpl](./ts-morph-structures.exportspecifierimpl.md) \| [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->)\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[namespaceExport?](./ts-morph-structures.exportdeclarationimpl.namespaceexport.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[trailingTrivia](./ts-morph-structures.exportdeclarationimpl.trailingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.exportdeclarationimpl.attributes.md">attributes?</a></td><td></td><td><a href="./ts-morph-structures.importattributeimpl.md">ImportAttributeImpl</a><!-- -->[]</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.exportdeclarationimpl.istypeonly.md">isTypeOnly</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.exportdeclarationimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.ExportDeclaration</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.exportdeclarationimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.exportdeclarationimpl.modulespecifier.md">moduleSpecifier?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.exportdeclarationimpl.namedexports.md">namedExports</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.exportspecifierimpl.md">ExportSpecifierImpl</a> | <a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->)[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.exportdeclarationimpl.namespaceexport.md">namespaceExport?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.exportdeclarationimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -204,31 +62,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(source)](./ts-morph-structures.exportdeclarationimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[toJSON()](./ts-morph-structures.exportdeclarationimpl.tojson.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.exportdeclarationimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.exportdeclarationimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
 </tbody></table>
 

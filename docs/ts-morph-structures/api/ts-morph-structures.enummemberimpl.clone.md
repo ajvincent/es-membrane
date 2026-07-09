@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-source
-
-
-</td><td>
-
-OptionalKind&lt;EnumMemberStructure&gt;
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>source</td><td>OptionalKind&lt;EnumMemberStructure&gt;</td><td></td></tr>
 </tbody></table>
 
 **Returns:**

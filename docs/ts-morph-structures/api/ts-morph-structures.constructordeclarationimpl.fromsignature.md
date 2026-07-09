@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-signature
-
-
-</td><td>
-
-[ConstructSignatureDeclarationImpl](./ts-morph-structures.constructsignaturedeclarationimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>signature</td><td><a href="./ts-morph-structures.constructsignaturedeclarationimpl.md">ConstructSignatureDeclarationImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

@@ -30,19 +30,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-name
-
-
-</td><td>
-
-JsxNamespacedNameStructure \| string
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>name</td><td>JsxNamespacedNameStructure | string</td><td></td></tr>
 </tbody></table>
 

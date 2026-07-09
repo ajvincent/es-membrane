@@ -31,20 +31,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(head, spans)](./ts-morph-structures.templateliteraltypestructureimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `TemplateLiteralTypeStructureImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.templateliteraltypestructureimpl._constructor_.md">(constructor)(head, spans)</a></td><td></td><td>Constructs a new instance of the <code>TemplateLiteralTypeStructureImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -70,78 +57,10 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[head](./ts-morph-structures.templateliteraltypestructureimpl.head.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.templateliteraltypestructureimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[spans](./ts-morph-structures.templateliteraltypestructureimpl.spans.md)
-
-
-</td><td>
-
-
-</td><td>
-
-\[[TypeStructures](./ts-morph-structures.typestructures.md)<!-- -->, string\]\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[writerFunction](./ts-morph-structures.templateliteraltypestructureimpl.writerfunction.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-WriterFunction
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.templateliteraltypestructureimpl.head.md">head</a></td><td></td><td>string</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.templateliteraltypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.templateliteraltypestructureimpl.spans.md">spans</a></td><td></td><td>[<a href="./ts-morph-structures.typestructures.md">TypeStructures</a><!-- -->, string][]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.templateliteraltypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -162,19 +81,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(other)](./ts-morph-structures.templateliteraltypestructureimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.templateliteraltypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
 </tbody></table>
 

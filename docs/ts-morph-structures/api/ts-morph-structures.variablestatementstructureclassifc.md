@@ -33,62 +33,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[declarationKind?](./ts-morph-structures.variablestatementstructureclassifc.declarationkind.md)
-
-
-</td><td>
-
-
-</td><td>
-
-VariableDeclarationKind
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[declarations](./ts-morph-structures.variablestatementstructureclassifc.declarations.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[VariableDeclarationImpl](./ts-morph-structures.variabledeclarationimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.variablestatementstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.VariableStatement
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.variablestatementstructureclassifc.declarationkind.md">declarationKind?</a></td><td></td><td>VariableDeclarationKind</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.variablestatementstructureclassifc.declarations.md">declarations</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.variabledeclarationimpl.md">VariableDeclarationImpl</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.variablestatementstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.VariableStatement</td><td></td></tr>
 </tbody></table>
 

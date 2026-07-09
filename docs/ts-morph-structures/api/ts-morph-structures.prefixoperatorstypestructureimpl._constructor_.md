@@ -30,33 +30,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-operators
-
-
-</td><td>
-
-readonly [PrefixUnaryOperator](./ts-morph-structures.prefixunaryoperator.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-objectType
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>operators</td><td>readonly <a href="./ts-morph-structures.prefixunaryoperator.md">PrefixUnaryOperator</a><!-- -->[]</td><td></td></tr>
+<tr><td>objectType</td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td></td></tr>
 </tbody></table>
 

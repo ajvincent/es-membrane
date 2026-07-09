@@ -30,22 +30,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-statementsMaps
-
-
-</td><td>
-
-[ClassFieldStatementsMap](./ts-morph-structures.classfieldstatementsmap.md)<!-- -->\[\]
-
-
-</td><td>
-
-the statements to apply to each member, ordered by purpose.
-
-
-</td></tr>
+<tbody><tr><td>statementsMaps</td><td><a href="./ts-morph-structures.classfieldstatementsmap.md">ClassFieldStatementsMap</a><!-- -->[]</td><td>the statements to apply to each member, ordered by purpose.</td></tr>
 </tbody></table>
 
 **Returns:**

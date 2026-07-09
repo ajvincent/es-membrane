@@ -30,22 +30,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-kind
-
-
-</td><td>
-
-Kind
-
-
-</td><td>
-
-the structure kind to get.
-
-
-</td></tr>
+<tbody><tr><td>kind</td><td>Kind</td><td>the structure kind to get.</td></tr>
 </tbody></table>
 
 **Returns:**

@@ -30,54 +30,9 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-kind
-
-
-</td><td>
-
-Kind
-
-
-</td><td>
-
-the structure kind.
-
-
-</td></tr>
-<tr><td>
-
-isStatic
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-true if the member is static.
-
-
-</td></tr>
-<tr><td>
-
-name
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-the name of the member.
-
-
-</td></tr>
+<tbody><tr><td>kind</td><td>Kind</td><td>the structure kind.</td></tr>
+<tr><td>isStatic</td><td>boolean</td><td>true if the member is static.</td></tr>
+<tr><td>name</td><td>string</td><td>the name of the member.</td></tr>
 </tbody></table>
 
 **Returns:**

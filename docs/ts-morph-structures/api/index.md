@@ -17,14 +17,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[ts-morph-structures](./ts-morph-structures.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.md">ts-morph-structures</a></td><td></td></tr>
 </tbody></table>
 

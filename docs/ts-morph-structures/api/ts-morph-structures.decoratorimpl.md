@@ -29,20 +29,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(name)](./ts-morph-structures.decoratorimpl._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `DecoratorImpl` class
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.decoratorimpl._constructor_.md">(constructor)(name)</a></td><td></td><td>Constructs a new instance of the <code>DecoratorImpl</code> class</td></tr>
 </tbody></table>
 
 ## Properties
@@ -68,120 +55,12 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[arguments](./ts-morph-structures.decoratorimpl.arguments.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-Arguments for a decorator factory.
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.decoratorimpl.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.Decorator
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[leadingTrivia](./ts-morph-structures.decoratorimpl.leadingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[name](./ts-morph-structures.decoratorimpl.name.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[trailingTrivia](./ts-morph-structures.decoratorimpl.trailingtrivia.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[typeArguments](./ts-morph-structures.decoratorimpl.typearguments.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.decoratorimpl.arguments.md">arguments</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td>Arguments for a decorator factory.</td></tr>
+<tr><td><a href="./ts-morph-structures.decoratorimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Decorator</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.decoratorimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.decoratorimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.decoratorimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.decoratorimpl.typearguments.md">typeArguments</a></td><td><code>readonly</code></td><td>string[]</td><td></td></tr>
 </tbody></table>
 
 ## Methods
@@ -202,31 +81,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[clone(source)](./ts-morph-structures.decoratorimpl.clone.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[toJSON()](./ts-morph-structures.decoratorimpl.tojson.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.decoratorimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.decoratorimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
 </tbody></table>
 

@@ -33,79 +33,9 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[keyName?](./ts-morph-structures.indexsignaturedeclarationstructureclassifc.keyname.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[keyType?](./ts-morph-structures.indexsignaturedeclarationstructureclassifc.keytype.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[keyTypeStructure](./ts-morph-structures.indexsignaturedeclarationstructureclassifc.keytypestructure.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md) \| undefined
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.indexsignaturedeclarationstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.IndexSignature
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.indexsignaturedeclarationstructureclassifc.keyname.md">keyName?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationstructureclassifc.keytype.md">keyType?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationstructureclassifc.keytypestructure.md">keyTypeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.IndexSignature</td><td></td></tr>
 </tbody></table>
 

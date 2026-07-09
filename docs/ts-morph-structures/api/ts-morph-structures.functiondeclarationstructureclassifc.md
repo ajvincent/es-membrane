@@ -33,43 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[kind](./ts-morph-structures.functiondeclarationstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.Function
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[overloads](./ts-morph-structures.functiondeclarationstructureclassifc.overloads.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[FunctionDeclarationOverloadImpl](./ts-morph-structures.functiondeclarationoverloadimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.functiondeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Function</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.functiondeclarationstructureclassifc.overloads.md">overloads</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.functiondeclarationoverloadimpl.md">FunctionDeclarationOverloadImpl</a><!-- -->[]</td><td></td></tr>
 </tbody></table>
 

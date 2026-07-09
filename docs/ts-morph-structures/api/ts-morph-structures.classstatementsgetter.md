@@ -45,43 +45,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[keyword](./ts-morph-structures.classstatementsgetter.keyword.md)
-
-
-</td><td>
-
-
-</td><td>
-
-readonly string
-
-
-</td><td>
-
-A human-readable string for debugging.
-
-
-</td></tr>
-<tr><td>
-
-[supportsStatementsFlags](./ts-morph-structures.classstatementsgetter.supportsstatementsflags.md)
-
-
-</td><td>
-
-
-</td><td>
-
-readonly number
-
-
-</td><td>
-
-Bitwise flags to determine which statement getter traps are active.
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.classstatementsgetter.keyword.md">keyword</a></td><td></td><td>readonly string</td><td>A human-readable string for debugging.</td></tr>
+<tr><td><a href="./ts-morph-structures.classstatementsgetter.supportsstatementsflags.md">supportsStatementsFlags</a></td><td></td><td>readonly number</td><td>Bitwise flags to determine which statement getter traps are active.</td></tr>
 </tbody></table>
 

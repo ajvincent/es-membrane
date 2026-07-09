@@ -33,24 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[kind](./ts-morph-structures.propertysignaturestructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.PropertySignature
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.propertysignaturestructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.PropertySignature</td><td></td></tr>
 </tbody></table>
 

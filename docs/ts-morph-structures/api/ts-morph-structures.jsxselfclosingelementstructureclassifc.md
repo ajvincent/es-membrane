@@ -33,43 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[attributes](./ts-morph-structures.jsxselfclosingelementstructureclassifc.attributes.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-([JsxAttributeImpl](./ts-morph-structures.jsxattributeimpl.md) \| [JsxSpreadAttributeImpl](./ts-morph-structures.jsxspreadattributeimpl.md)<!-- -->)\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.jsxselfclosingelementstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.JsxSelfClosingElement
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.jsxselfclosingelementstructureclassifc.attributes.md">attributes</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsxattributeimpl.md">JsxAttributeImpl</a> | <a href="./ts-morph-structures.jsxspreadattributeimpl.md">JsxSpreadAttributeImpl</a><!-- -->)[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsxselfclosingelementstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JsxSelfClosingElement</td><td></td></tr>
 </tbody></table>
 

@@ -33,24 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[kind](./ts-morph-structures.callsignaturedeclarationstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.CallSignature
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.callsignaturedeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.CallSignature</td><td></td></tr>
 </tbody></table>
 

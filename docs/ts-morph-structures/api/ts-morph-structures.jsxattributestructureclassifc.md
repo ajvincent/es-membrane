@@ -33,60 +33,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[initializer?](./ts-morph-structures.jsxattributestructureclassifc.initializer.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.jsxattributestructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.JsxAttribute
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[name](./ts-morph-structures.jsxattributestructureclassifc.name.md)
-
-
-</td><td>
-
-
-</td><td>
-
-JsxNamespacedNameStructure \| string
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.jsxattributestructureclassifc.initializer.md">initializer?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.jsxattributestructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JsxAttribute</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.jsxattributestructureclassifc.name.md">name</a></td><td></td><td>JsxNamespacedNameStructure | string</td><td></td></tr>
 </tbody></table>
 

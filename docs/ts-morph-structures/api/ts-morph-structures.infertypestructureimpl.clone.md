@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-other
-
-
-</td><td>
-
-[InferTypeStructureImpl](./ts-morph-structures.infertypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>other</td><td><a href="./ts-morph-structures.infertypestructureimpl.md">InferTypeStructureImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

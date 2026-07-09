@@ -30,22 +30,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-member
-
-
-</td><td>
-
-[ClassMemberImpl](./ts-morph-structures.classmemberimpl.md)
-
-
-</td><td>
-
-the class member
-
-
-</td></tr>
+<tbody><tr><td>member</td><td><a href="./ts-morph-structures.classmemberimpl.md">ClassMemberImpl</a></td><td>the class member</td></tr>
 </tbody></table>
 
 **Returns:**

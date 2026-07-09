@@ -33,39 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[extends](./ts-morph-structures.interfacedeclarationwithextendstypestructures.extends.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[extendsSet](./ts-morph-structures.interfacedeclarationwithextendstypestructures.extendsset.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructureSet](./ts-morph-structures.typestructureset.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.interfacedeclarationwithextendstypestructures.extends.md">extends</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.interfacedeclarationwithextendstypestructures.extendsset.md">extendsSet</a></td><td></td><td><a href="./ts-morph-structures.typestructureset.md">TypeStructureSet</a></td><td></td></tr>
 </tbody></table>
 

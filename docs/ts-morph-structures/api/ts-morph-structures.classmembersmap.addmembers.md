@@ -30,22 +30,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-members
-
-
-</td><td>
-
-readonly [ClassMemberImpl](./ts-morph-structures.classmemberimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-the class members to add.
-
-
-</td></tr>
+<tbody><tr><td>members</td><td>readonly <a href="./ts-morph-structures.classmemberimpl.md">ClassMemberImpl</a><!-- -->[]</td><td>the class members to add.</td></tr>
 </tbody></table>
 
 **Returns:**

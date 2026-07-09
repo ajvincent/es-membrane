@@ -29,23 +29,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[filterPropertyInitializer(key)](./ts-morph-structures.propertyinitializergetter.filterpropertyinitializer.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[getPropertyInitializer(key)](./ts-morph-structures.propertyinitializergetter.getpropertyinitializer.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.propertyinitializergetter.filterpropertyinitializer.md">filterPropertyInitializer(key)</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.propertyinitializergetter.getpropertyinitializer.md">getPropertyInitializer(key)</a></td><td></td></tr>
 </tbody></table>
 

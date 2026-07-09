@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-other
-
-
-</td><td>
-
-[UnionTypeStructureImpl](./ts-morph-structures.uniontypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>other</td><td><a href="./ts-morph-structures.uniontypestructureimpl.md">UnionTypeStructureImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

@@ -29,23 +29,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[filterHeadStatements(key)](./ts-morph-structures.classheadstatementsgetter.filterheadstatements.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[getHeadStatements(key)](./ts-morph-structures.classheadstatementsgetter.getheadstatements.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.classheadstatementsgetter.filterheadstatements.md">filterHeadStatements(key)</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.classheadstatementsgetter.getheadstatements.md">getHeadStatements(key)</a></td><td></td></tr>
 </tbody></table>
 

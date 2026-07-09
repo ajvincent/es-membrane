@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-other
-
-
-</td><td>
-
-[TupleTypeStructureImpl](./ts-morph-structures.tupletypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>other</td><td><a href="./ts-morph-structures.tupletypestructureimpl.md">TupleTypeStructureImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

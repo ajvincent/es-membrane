@@ -30,21 +30,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-iterable
-
-
-</td><td>
-
-\[string, string, [ClassFieldStatement](./ts-morph-structures.classfieldstatement.md)<!-- -->\[\]\]\[\]
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
+<tbody><tr><td>iterable</td><td>[string, string, <a href="./ts-morph-structures.classfieldstatement.md">ClassFieldStatement</a><!-- -->[]][]</td><td><em>(Optional)</em></td></tr>
 </tbody></table>
 

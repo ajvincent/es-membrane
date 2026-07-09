@@ -30,47 +30,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-argument
-
-
-</td><td>
-
-[StringTypeStructureImpl](./ts-morph-structures.stringtypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-qualifier
-
-
-</td><td>
-
-[LiteralTypeStructureImpl](./ts-morph-structures.literaltypestructureimpl.md) \| [QualifiedNameTypeStructureImpl](./ts-morph-structures.qualifiednametypestructureimpl.md) \| null
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-typeArguments
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>argument</td><td><a href="./ts-morph-structures.stringtypestructureimpl.md">StringTypeStructureImpl</a></td><td></td></tr>
+<tr><td>qualifier</td><td><a href="./ts-morph-structures.literaltypestructureimpl.md">LiteralTypeStructureImpl</a> | <a href="./ts-morph-structures.qualifiednametypestructureimpl.md">QualifiedNameTypeStructureImpl</a> | null</td><td></td></tr>
+<tr><td>typeArguments</td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a><!-- -->[]</td><td></td></tr>
 </tbody></table>
 

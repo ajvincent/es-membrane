@@ -28,54 +28,9 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-kind
-
-
-</td><td>
-
-[ClassMemberImpl](./ts-morph-structures.classmemberimpl.md)<!-- -->\["kind"\]
-
-
-</td><td>
-
-the structure kind.
-
-
-</td></tr>
-<tr><td>
-
-isStatic
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-true if the class member should be static.
-
-
-</td></tr>
-<tr><td>
-
-name
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-the name of the class member.
-
-
-</td></tr>
+<tbody><tr><td>kind</td><td><a href="./ts-morph-structures.classmemberimpl.md">ClassMemberImpl</a><!-- -->[“kind”]</td><td>the structure kind.</td></tr>
+<tr><td>isStatic</td><td>boolean</td><td>true if the class member should be static.</td></tr>
+<tr><td>name</td><td>string</td><td>the name of the class member.</td></tr>
 </tbody></table>
 
 **Returns:**

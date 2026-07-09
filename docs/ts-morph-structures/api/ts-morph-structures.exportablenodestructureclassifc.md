@@ -33,39 +33,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[isDefaultExport](./ts-morph-structures.exportablenodestructureclassifc.isdefaultexport.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[isExported](./ts-morph-structures.exportablenodestructureclassifc.isexported.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.exportablenodestructureclassifc.isdefaultexport.md">isDefaultExport</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.exportablenodestructureclassifc.isexported.md">isExported</a></td><td></td><td>boolean</td><td></td></tr>
 </tbody></table>
 

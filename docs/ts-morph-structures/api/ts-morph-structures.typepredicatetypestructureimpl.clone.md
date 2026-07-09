@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-other
-
-
-</td><td>
-
-[TypePredicateTypeStructureImpl](./ts-morph-structures.typepredicatetypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>other</td><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.md">TypePredicateTypeStructureImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

@@ -33,22 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[isAsync](./ts-morph-structures.asyncablenodestructureclassifc.isasync.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.asyncablenodestructureclassifc.isasync.md">isAsync</a></td><td></td><td>boolean</td><td></td></tr>
 </tbody></table>
 

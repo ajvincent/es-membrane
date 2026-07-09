@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-other
-
-
-</td><td>
-
-[PrefixOperatorsTypeStructureImpl](./ts-morph-structures.prefixoperatorstypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>other</td><td><a href="./ts-morph-structures.prefixoperatorstypestructureimpl.md">PrefixOperatorsTypeStructureImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

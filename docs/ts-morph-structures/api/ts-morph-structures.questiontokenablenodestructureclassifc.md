@@ -33,22 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[hasQuestionToken](./ts-morph-structures.questiontokenablenodestructureclassifc.hasquestiontoken.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.questiontokenablenodestructureclassifc.hasquestiontoken.md">hasQuestionToken</a></td><td></td><td>boolean</td><td></td></tr>
 </tbody></table>
 

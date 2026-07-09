@@ -30,35 +30,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-objectType
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-childTypes
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md)<!-- -->\[\]
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
+<tbody><tr><td>objectType</td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td></td></tr>
+<tr><td>childTypes</td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a><!-- -->[]</td><td><em>(Optional)</em></td></tr>
 </tbody></table>
 

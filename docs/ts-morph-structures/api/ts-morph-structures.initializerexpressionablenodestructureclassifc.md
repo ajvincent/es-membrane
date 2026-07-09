@@ -33,24 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[initializer?](./ts-morph-structures.initializerexpressionablenodestructureclassifc.initializer.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.initializerexpressionablenodestructureclassifc.initializer.md">initializer?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td><em>(Optional)</em></td></tr>
 </tbody></table>
 

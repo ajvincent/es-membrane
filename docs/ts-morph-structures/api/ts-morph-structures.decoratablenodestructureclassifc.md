@@ -33,24 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[decorators](./ts-morph-structures.decoratablenodestructureclassifc.decorators.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[DecoratorImpl](./ts-morph-structures.decoratorimpl.md)<!-- -->\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.decoratablenodestructureclassifc.decorators.md">decorators</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.decoratorimpl.md">DecoratorImpl</a><!-- -->[]</td><td></td></tr>
 </tbody></table>
 

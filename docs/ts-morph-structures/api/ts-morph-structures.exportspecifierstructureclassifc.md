@@ -33,60 +33,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[alias?](./ts-morph-structures.exportspecifierstructureclassifc.alias.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[isTypeOnly](./ts-morph-structures.exportspecifierstructureclassifc.istypeonly.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.exportspecifierstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.ExportSpecifier
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.exportspecifierstructureclassifc.alias.md">alias?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
+<tr><td><a href="./ts-morph-structures.exportspecifierstructureclassifc.istypeonly.md">isTypeOnly</a></td><td></td><td>boolean</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.exportspecifierstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.ExportSpecifier</td><td></td></tr>
 </tbody></table>
 

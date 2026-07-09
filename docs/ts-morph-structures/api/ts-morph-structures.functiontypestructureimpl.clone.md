@@ -28,20 +28,7 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-other
-
-
-</td><td>
-
-[FunctionTypeStructureImpl](./ts-morph-structures.functiontypestructureimpl.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td>other</td><td><a href="./ts-morph-structures.functiontypestructureimpl.md">FunctionTypeStructureImpl</a></td><td></td></tr>
 </tbody></table>
 
 **Returns:**

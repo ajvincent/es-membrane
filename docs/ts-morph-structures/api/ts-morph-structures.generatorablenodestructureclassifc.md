@@ -33,22 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[isGenerator](./ts-morph-structures.generatorablenodestructureclassifc.isgenerator.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.generatorablenodestructureclassifc.isgenerator.md">isGenerator</a></td><td></td><td>boolean</td><td></td></tr>
 </tbody></table>
 

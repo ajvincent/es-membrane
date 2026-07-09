@@ -30,21 +30,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-childTypes
-
-
-</td><td>
-
-string\[\]
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
+<tbody><tr><td>childTypes</td><td>string[]</td><td><em>(Optional)</em></td></tr>
 </tbody></table>
 

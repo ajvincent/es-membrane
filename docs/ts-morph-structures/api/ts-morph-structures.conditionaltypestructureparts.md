@@ -33,73 +33,9 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[checkType](./ts-morph-structures.conditionaltypestructureparts.checktype.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[extendsType](./ts-morph-structures.conditionaltypestructureparts.extendstype.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[falseType](./ts-morph-structures.conditionaltypestructureparts.falsetype.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[trueType](./ts-morph-structures.conditionaltypestructureparts.truetype.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[TypeStructures](./ts-morph-structures.typestructures.md)
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.conditionaltypestructureparts.checktype.md">checkType</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.conditionaltypestructureparts.extendstype.md">extendsType</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.conditionaltypestructureparts.falsetype.md">falseType</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.conditionaltypestructureparts.truetype.md">trueType</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td></td></tr>
 </tbody></table>
 

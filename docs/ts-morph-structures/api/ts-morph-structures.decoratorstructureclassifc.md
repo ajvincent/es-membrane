@@ -33,64 +33,8 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[arguments](./ts-morph-structures.decoratorstructureclassifc.arguments.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->\[\]
-
-
-</td><td>
-
-Arguments for a decorator factory.
-
-
-</td></tr>
-<tr><td>
-
-[kind](./ts-morph-structures.decoratorstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.Decorator
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[typeArguments](./ts-morph-structures.decoratorstructureclassifc.typearguments.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string\[\]
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.decoratorstructureclassifc.arguments.md">arguments</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td>Arguments for a decorator factory.</td></tr>
+<tr><td><a href="./ts-morph-structures.decoratorstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Decorator</td><td></td></tr>
+<tr><td><a href="./ts-morph-structures.decoratorstructureclassifc.typearguments.md">typeArguments</a></td><td><code>readonly</code></td><td>string[]</td><td></td></tr>
 </tbody></table>
 

@@ -33,24 +33,6 @@ Description
 
 
 </th></tr></thead>
-<tbody><tr><td>
-
-[kind](./ts-morph-structures.shorthandpropertyassignmentstructureclassifc.kind.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-StructureKind.ShorthandPropertyAssignment
-
-
-</td><td>
-
-
-</td></tr>
+<tbody><tr><td><a href="./ts-morph-structures.shorthandpropertyassignmentstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.ShorthandPropertyAssignment</td><td></td></tr>
 </tbody></table>
 
