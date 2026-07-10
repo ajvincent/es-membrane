@@ -29,6 +29,7 @@ async function runAPIDocumenter(): Promise<void>
 {
   const Temp = await tempDirWithCleanup();
   try {
+    const targetDir: string = path.join(monorepoRoot, "docs/ts-morph-structures/api");
     await asyncFork(
       path.join(monorepoRoot, "node_modules/@microsoft/api-documenter/bin/api-documenter"),
       [
@@ -46,12 +47,11 @@ async function runAPIDocumenter(): Promise<void>
     let allMarkdownFiles: string[] = await fs.promises.readdir(Temp.tempDir, { recursive: true, encoding: "utf-8" });
     allMarkdownFiles = allMarkdownFiles.filter(f => f.endsWith(".md"));
 
-    const targetDir: string = path.join(monorepoRoot, "docs/ts-morph-structures/api");
-
     await PromiseAllParallel(
       allMarkdownFiles,
       f => fixMarkdown(Temp.tempDir, targetDir, f)
     );
+    void PromiseAllParallel;
   }
   finally {
     Temp.resolve();
@@ -66,8 +66,11 @@ async function fixMarkdown(
   pathToFile: string,
 ): Promise<void>
 {
-  const readable: ReadStream  = fs.createReadStream( path.join(sourceDir, pathToFile), { encoding: "utf-8" });
-  const writable: WriteStream = fs.createWriteStream(path.join(targetDir, pathToFile), { encoding: "utf-8" });
+  const pathToSource: string = path.join(sourceDir, pathToFile);
+  const pathToTarget: string = path.join(targetDir, pathToFile);
+
+  const readable: ReadStream  = fs.createReadStream( pathToSource, { encoding: "utf-8" });
+  const writable: WriteStream = fs.createWriteStream(pathToTarget, { encoding: "utf-8" });
   try {
     await fixMarkdownTables(readable, writable);
   }

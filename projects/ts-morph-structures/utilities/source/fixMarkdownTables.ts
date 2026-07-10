@@ -7,8 +7,6 @@ import type {
   Writable,
 } from "node:stream";
 
-import markdownit from 'markdown-it';
-
 export async function fixMarkdownTables(
   readableStream: Readable,
   writableStream: Writable
@@ -16,93 +14,172 @@ export async function fixMarkdownTables(
 {
   await pipeline(
     readableStream,
-    noPartialTableCellTags,
-    tableCellToggleIterable,
-    replaceMarkdownWithHTML,
+    noPartialTableTags,
+    HTMLTableTokenizer,
+    tagToMarkdownReplacer,
     writableStream
   );
 }
 
-// Make sure we don't yield partial td tags.
-export async function * noPartialTableCellTags(source: AsyncIterable<string | Buffer>): AsyncIterable<string> {
+export async function * noPartialTableTags(
+  source: AsyncIterable<string | Buffer>
+): AsyncIterable<string>
+{
   let buffer: string = "";
   for await (const chunk of source) {
     buffer += chunk.toString();
+
     const sizeToConsume = buffer.length - tdTagTail(buffer);
+    if (sizeToConsume === 0)
+      continue;
+
     const nextChunk = buffer.substring(0, sizeToConsume);
     buffer = buffer.substring(sizeToConsume);
-    if (nextChunk.length > 0)
-      yield nextChunk;
+    yield nextChunk;
   }
 
   if (buffer.length > 0)
     yield buffer;
 }
 
-// yield segments inside td tags as [content, true], and everything else (including the td tags) as [content, false].
-export async function * tableCellToggleIterable(source: AsyncIterable<string>): AsyncIterable<[string, boolean]> {
+const TABLE_TAG_RE = /<\/?(?:table|thead|tbody|tfoot|tr|th|td)>/;
+
+export async function * HTMLTableTokenizer(
+  source: AsyncIterable<string>
+): AsyncIterable<[string, string]>
+{
   let buffer: string = "";
-  let inTDTag: boolean = false;
 
   for await (const chunk of source) {
     buffer += chunk;
-
     while (buffer.length) {
-      if (inTDTag === false) {
-        const index: number = buffer.indexOf("<td>");
-        if (index === -1) {
-          break; // this should force us to add the next chunk
-        }
-        const nextChunk = buffer.substring(0, index + 4);
-        buffer = buffer.substring(index + 4);
-        if (nextChunk.length > 0)
-          yield [nextChunk, false];
-        inTDTag = true;
-      }
-      else {
-        const index: number = buffer.indexOf("</td>");
-        if (index === -1)
-          break; // this should force us to add the next chunk
-
-        const nextChunk = buffer.substring(0, index);
-        buffer = buffer.substring(index);
-        if (nextChunk.length > 0)
-          yield [nextChunk, true];
-        inTDTag = false;
-      }
+      const nextTokenMatch: RegExpMatchArray | null = buffer.match(TABLE_TAG_RE);
+      if (nextTokenMatch === null)
+        break;
+      const token = nextTokenMatch[0];
+      const sizeToConsume = nextTokenMatch.index! + token.length;
+      const contents = buffer.substring(0, nextTokenMatch.index!);
+      buffer = buffer.substring(sizeToConsume);
+      yield [contents, token];
     }
   }
 
-  // inTDTag should be false
   if (buffer.length > 0)
-    yield [buffer, inTDTag];
+    yield [buffer, ""];
 }
 
-export async function * replaceMarkdownWithHTML(
-  source: AsyncIterable<[string, boolean]>
+export async function * tagToMarkdownReplacer(
+  source: AsyncIterable<[string, string]>
 ): AsyncIterable<string>
 {
-  for await (const [chunk, inTDTag] of source) {
-    if (inTDTag)
-      yield markdownFixer.render(chunk).trim().replace(/^<p>(.*)<\/p>$/, "$1");
-    else
-      yield chunk;
+  const replacer = new HTMLToMarkdownReplacer();
+
+  const results: string[] = [];
+  for await (const contentsAndToken of source) {
+    let contents: string = contentsAndToken[0];
+    const token: string = contentsAndToken[1];
+
+    if (contents.length > 0) {
+      contents = contents.replaceAll("<!-- -->", "");
+    }
+    if (contents.length > 0 && contents[0] === "\n" && replacer.ignoreNextCharIfNewLine) {
+      contents = contents.substring(1);
+    }
+    if (contents.length > 0 && replacer.isInTable) {
+      contents = contents.replaceAll(/[\r\n]+/gm, " ");
+    }
+    if (contents.length > 0 && replacer.trimContent) {
+      contents = contents.trim();
+    }
+    contents += replacer.processToken(token);
+    if (contents.length > 0)
+      results.push(contents);
+  }
+  yield * results;
+}
+
+class HTMLToMarkdownReplacer {
+  #rowDivider: string = "";
+  isInTable: boolean = false;
+  isInTBody: boolean = false;
+  ignoreNextCharIfNewLine: boolean = false;
+  trimContent: boolean = false;
+
+  processToken(
+    token: string
+  ): string
+  {
+    this.ignoreNextCharIfNewLine = false;
+    this.trimContent = false;
+    switch (token) {
+      case "<table>":
+        this.isInTable = true;
+        return "";
+      case "<thead>":
+        this.#rowDivider = "|";
+        return "";
+      case "<tr>":
+        return "|";
+      case "<th>":
+        return "";
+      case "</th>":
+        this.#rowDivider += "-|";
+        return "|";
+      case "<td>":
+        return "";
+      case "</td>":
+        return "|";
+      case "</tr>":
+        this.ignoreNextCharIfNewLine = true;
+        return "\n";
+      case "</thead>": {
+        this.ignoreNextCharIfNewLine = true;
+        const divider = this.#rowDivider;
+        this.#rowDivider = "";
+        return divider + "\n";
+      }
+      case "<tbody>":
+        this.isInTBody = true;
+        return "";
+      case "</tbody>":
+        this.ignoreNextCharIfNewLine = true;
+        return "";
+      case "</table>":
+        this.isInTable = false;
+        this.isInTBody = false;
+        this.ignoreNextCharIfNewLine = false;
+        this.trimContent = false;
+        return "\n";
+      default:
+        return "";
+    }
   }
 }
 
-const markdownFixer = new markdownit({
-  html: true,
-  typographer: true
-});
+const tableTags: ReadonlySet<string> = new Set([
+  "<table>", "</table>",
+  "<thead>", "</thead>",
+  "<tbody>", "</tbody>",
+  "<tr>", "</tr>",
+  "<th>", "</th>",
+  "<td>", "</td>"
+]);
+
+const partialTags: Set<string> = new Set();
+for (let key of tableTags) {
+  key = key.substring(0, key.length - 1);
+  partialTags.add(key);
+}
+for (let key of partialTags) {
+  key = key.substring(0, key.length - 1);
+  if (key !== "")
+    partialTags.add(key);
+}
 
 function tdTagTail(buffer: string): number {
-  if (buffer.endsWith("<"))
-    return 1;
-  if (buffer.endsWith("<t") || buffer.endsWith("</"))
-    return 2;
-  if (buffer.endsWith("<td") || buffer.endsWith("</t"))
-    return 3;
-  if (buffer.endsWith("</td"))
-    return 4;
+  for (const key of partialTags) {
+    if (buffer.endsWith(key))
+      return key.length;
+  }
   return 0;
 }
