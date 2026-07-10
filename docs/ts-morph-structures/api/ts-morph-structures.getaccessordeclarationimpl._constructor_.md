@@ -14,24 +14,11 @@ constructor(isStatic: boolean, name: string, returnType?: TypeStructures);
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | isStatic | boolean | |
+ | name | string | |
+ | returnType | [TypeStructures](./ts-morph-structures.typestructures.md) | _(Optional)_ |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>isStatic</td><td>boolean</td><td></td></tr>
-<tr><td>name</td><td>string</td><td></td></tr>
-<tr><td>returnType</td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td><em>(Optional)</em></td></tr>
-</tbody></table>
 

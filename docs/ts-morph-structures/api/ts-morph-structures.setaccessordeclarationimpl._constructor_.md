@@ -14,24 +14,11 @@ constructor(isStatic: boolean, name: string, setterParameter: ParameterDeclarati
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | isStatic | boolean | |
+ | name | string | |
+ | setterParameter | [ParameterDeclarationImpl](./ts-morph-structures.parameterdeclarationimpl.md) | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>isStatic</td><td>boolean</td><td></td></tr>
-<tr><td>name</td><td>string</td><td></td></tr>
-<tr><td>setterParameter</td><td><a href="./ts-morph-structures.parameterdeclarationimpl.md">ParameterDeclarationImpl</a></td><td></td></tr>
-</tbody></table>
 

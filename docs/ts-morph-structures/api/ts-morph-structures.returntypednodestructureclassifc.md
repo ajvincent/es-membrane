@@ -12,28 +12,10 @@ export interface ReturnTypedNodeStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [returnType?](./ts-morph-structures.returntypednodestructureclassifc.returntype.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | _(Optional)_ |
+ | [returnTypeStructure](./ts-morph-structures.returntypednodestructureclassifc.returntypestructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.returntypednodestructureclassifc.returntype.md">returnType?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.returntypednodestructureclassifc.returntypestructure.md">returnTypeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-</tbody></table>
 

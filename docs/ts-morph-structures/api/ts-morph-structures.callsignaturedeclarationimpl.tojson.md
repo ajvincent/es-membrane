@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<CallSignatureDeclarationImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[CallSignatureDeclarationImpl](./ts-morph-structures.callsignaturedeclarationimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[CallSignatureDeclarationImpl](./ts-morph-structures.callsignaturedeclarationimpl.md)&gt;
 

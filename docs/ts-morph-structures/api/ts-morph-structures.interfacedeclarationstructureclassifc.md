@@ -12,36 +12,18 @@ export interface InterfaceDeclarationStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [callSignatures](./ts-morph-structures.interfacedeclarationstructureclassifc.callsignatures.md) | `readonly` | [CallSignatureDeclarationImpl](./ts-morph-structures.callsignaturedeclarationimpl.md)\[\] | |
+ | [constructSignatures](./ts-morph-structures.interfacedeclarationstructureclassifc.constructsignatures.md) | `readonly` | [ConstructSignatureDeclarationImpl](./ts-morph-structures.constructsignaturedeclarationimpl.md)\[\] | |
+ | [extends](./ts-morph-structures.interfacedeclarationstructureclassifc.extends.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | Treat this as a read-only array. Use `.extendsSet` to modify this. |
+ | [extendsSet](./ts-morph-structures.interfacedeclarationstructureclassifc.extendsset.md) | `readonly` | [TypeStructureSet](./ts-morph-structures.typestructureset.md) | |
+ | [getAccessors](./ts-morph-structures.interfacedeclarationstructureclassifc.getaccessors.md) | `readonly` | [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md)\[\] | |
+ | [indexSignatures](./ts-morph-structures.interfacedeclarationstructureclassifc.indexsignatures.md) | `readonly` | [IndexSignatureDeclarationImpl](./ts-morph-structures.indexsignaturedeclarationimpl.md)\[\] | |
+ | [kind](./ts-morph-structures.interfacedeclarationstructureclassifc.kind.md) | `readonly` | StructureKind.Interface | |
+ | [methods](./ts-morph-structures.interfacedeclarationstructureclassifc.methods.md) | `readonly` | [MethodSignatureImpl](./ts-morph-structures.methodsignatureimpl.md)\[\] | |
+ | [properties](./ts-morph-structures.interfacedeclarationstructureclassifc.properties.md) | `readonly` | [PropertySignatureImpl](./ts-morph-structures.propertysignatureimpl.md)\[\] | |
+ | [setAccessors](./ts-morph-structures.interfacedeclarationstructureclassifc.setaccessors.md) | `readonly` | [SetAccessorDeclarationImpl](./ts-morph-structures.setaccessordeclarationimpl.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.interfacedeclarationstructureclassifc.callsignatures.md">callSignatures</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.callsignaturedeclarationimpl.md">CallSignatureDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationstructureclassifc.constructsignatures.md">constructSignatures</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.constructsignaturedeclarationimpl.md">ConstructSignatureDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationstructureclassifc.extends.md">extends</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td>Treat this as a read-only array. Use <code>.extendsSet</code> to modify this.</td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationstructureclassifc.extendsset.md">extendsSet</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.typestructureset.md">TypeStructureSet</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationstructureclassifc.getaccessors.md">getAccessors</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.getaccessordeclarationimpl.md">GetAccessorDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationstructureclassifc.indexsignatures.md">indexSignatures</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.md">IndexSignatureDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Interface</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationstructureclassifc.methods.md">methods</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.methodsignatureimpl.md">MethodSignatureImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationstructureclassifc.properties.md">properties</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.propertysignatureimpl.md">PropertySignatureImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationstructureclassifc.setaccessors.md">setAccessors</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.setaccessordeclarationimpl.md">SetAccessorDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 

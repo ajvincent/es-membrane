@@ -12,24 +12,11 @@ static clone(source: OptionalKind<ExportSpecifierStructure>): ExportSpecifierImp
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | source | OptionalKind&lt;ExportSpecifierStructure&gt; | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>source</td><td>OptionalKind&lt;ExportSpecifierStructure&gt;</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

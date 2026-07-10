@@ -9,79 +9,35 @@
 ```typescript
 export default class InferTypeStructureImpl extends TypeStructuresWithTypeParameters<TypeStructureKind.Infer> 
 ```
-**Extends:** TypeStructuresWithTypeParameters&lt;[TypeStructureKind.Infer](./ts-morph-structures.typestructurekind.md)<!-- -->&gt;
+**Extends:** TypeStructuresWithTypeParameters&lt;[TypeStructureKind.Infer](./ts-morph-structures.typestructurekind.md)&gt;
 
 ## Example
 
-infer &lt;<!-- -->type<!-- -->&gt; (extends &lt;<!-- -->type<!-- -->&gt;<!-- -->)?
+infer &lt;type&gt; (extends &lt;type&gt;)?
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(typeParameter)](./ts-morph-structures.infertypestructureimpl._constructor_.md) | | Constructs a new instance of the `InferTypeStructureImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.infertypestructureimpl._constructor_.md">(constructor)(typeParameter)</a></td><td></td><td>Constructs a new instance of the <code>InferTypeStructureImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.infertypestructureimpl.kind.md) | `readonly` | [TypeStructureKind.Infer](./ts-morph-structures.typestructurekind.md) | |
+ | [typeParameter](./ts-morph-structures.infertypestructureimpl.typeparameter.md) | | [TypeParameterDeclarationImpl](./ts-morph-structures.typeparameterdeclarationimpl.md) | |
+ | [writerFunction](./ts-morph-structures.infertypestructureimpl.writerfunction.md) | `readonly` | WriterFunction | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.infertypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.typestructurekind.md">TypeStructureKind.Infer</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.infertypestructureimpl.typeparameter.md">typeParameter</a></td><td></td><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.md">TypeParameterDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.infertypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(other)](./ts-morph-structures.infertypestructureimpl.clone.md) | `static` | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.infertypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
-</tbody></table>
 

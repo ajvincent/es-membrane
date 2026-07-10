@@ -12,28 +12,10 @@ export interface ParameterDeclarationStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [isRestParameter](./ts-morph-structures.parameterdeclarationstructureclassifc.isrestparameter.md) | | boolean | |
+ | [kind](./ts-morph-structures.parameterdeclarationstructureclassifc.kind.md) | `readonly` | StructureKind.Parameter | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.parameterdeclarationstructureclassifc.isrestparameter.md">isRestParameter</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.parameterdeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Parameter</td><td></td></tr>
-</tbody></table>
 

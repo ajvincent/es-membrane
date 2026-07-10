@@ -12,25 +12,12 @@ static keyFromName(kind: NamedTypeMemberImpl["kind"], name: string): string;
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | kind | [NamedTypeMemberImpl](./ts-morph-structures.namedtypememberimpl.md)\["kind"\] | the structure kind. |
+ | name | string | the name of the type member. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>kind</td><td><a href="./ts-morph-structures.namedtypememberimpl.md">NamedTypeMemberImpl</a><!-- -->[“kind”]</td><td>the structure kind.</td></tr>
-<tr><td>name</td><td>string</td><td>the name of the type member.</td></tr>
-</tbody></table>
 
 **Returns:**
 

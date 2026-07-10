@@ -12,27 +12,9 @@ export interface DecoratableNodeStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [decorators](./ts-morph-structures.decoratablenodestructureclassifc.decorators.md) | `readonly` | [DecoratorImpl](./ts-morph-structures.decoratorimpl.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.decoratablenodestructureclassifc.decorators.md">decorators</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.decoratorimpl.md">DecoratorImpl</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 

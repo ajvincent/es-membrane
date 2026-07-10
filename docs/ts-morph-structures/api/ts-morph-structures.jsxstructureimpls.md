@@ -13,5 +13,5 @@ export type JsxStructureImpls =
   | JsxSelfClosingElementImpl
   | JsxSpreadAttributeImpl;
 ```
-**References:** [JsxAttributeImpl](./ts-morph-structures.jsxattributeimpl.md)<!-- -->, [JsxElementImpl](./ts-morph-structures.jsxelementimpl.md)<!-- -->, [JsxSelfClosingElementImpl](./ts-morph-structures.jsxselfclosingelementimpl.md)<!-- -->, [JsxSpreadAttributeImpl](./ts-morph-structures.jsxspreadattributeimpl.md)
+**References:** [JsxAttributeImpl](./ts-morph-structures.jsxattributeimpl.md), [JsxElementImpl](./ts-morph-structures.jsxelementimpl.md), [JsxSelfClosingElementImpl](./ts-morph-structures.jsxselfclosingelementimpl.md), [JsxSpreadAttributeImpl](./ts-morph-structures.jsxspreadattributeimpl.md)
 

@@ -12,25 +12,12 @@ static fromSignature(isStatic: boolean, signature: PropertySignatureImpl): Prope
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | isStatic | boolean | |
+ | signature | [PropertySignatureImpl](./ts-morph-structures.propertysignatureimpl.md) | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>isStatic</td><td>boolean</td><td></td></tr>
-<tr><td>signature</td><td><a href="./ts-morph-structures.propertysignatureimpl.md">PropertySignatureImpl</a></td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

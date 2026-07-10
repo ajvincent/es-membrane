@@ -13,76 +13,32 @@ export default class EnumMemberImpl implements EnumMemberStructureClassIfc
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(name)](./ts-morph-structures.enummemberimpl._constructor_.md) | | Constructs a new instance of the `EnumMemberImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.enummemberimpl._constructor_.md">(constructor)(name)</a></td><td></td><td>Constructs a new instance of the <code>EnumMemberImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [docs](./ts-morph-structures.enummemberimpl.docs.md) | `readonly` | ([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\] | |
+ | [initializer?](./ts-morph-structures.enummemberimpl.initializer.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined | _(Optional)_ |
+ | [kind](./ts-morph-structures.enummemberimpl.kind.md) | `readonly` | StructureKind.EnumMember | |
+ | [leadingTrivia](./ts-morph-structures.enummemberimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [name](./ts-morph-structures.enummemberimpl.name.md) | | string | |
+ | [trailingTrivia](./ts-morph-structures.enummemberimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [value?](./ts-morph-structures.enummemberimpl.value.md) | | number \| string | _(Optional)_ Convenience property for setting the initializer. |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.enummemberimpl.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.enummemberimpl.initializer.md">initializer?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.enummemberimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.EnumMember</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.enummemberimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.enummemberimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.enummemberimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.enummemberimpl.value.md">value?</a></td><td></td><td>number | string</td><td><em>(Optional)</em> Convenience property for setting the initializer.</td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.enummemberimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.enummemberimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.enummemberimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.enummemberimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

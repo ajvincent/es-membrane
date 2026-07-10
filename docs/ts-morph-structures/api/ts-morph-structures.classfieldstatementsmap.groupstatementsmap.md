@@ -14,26 +14,13 @@ groupStatementsMap(statementGroup: string): ReadonlyMap<string, ClassFieldStatem
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | statementGroup | string | The statement group owning the statements. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>statementGroup</td><td>string</td><td>The statement group owning the statements.</td></tr>
-</tbody></table>
 
 **Returns:**
 
-ReadonlyMap&lt;string, [ClassFieldStatement](./ts-morph-structures.classfieldstatement.md)<!-- -->\[\]&gt; \| undefined
+ReadonlyMap&lt;string, [ClassFieldStatement](./ts-morph-structures.classfieldstatement.md)\[\]&gt; \| undefined
 

@@ -12,24 +12,11 @@ static clone(source: OptionalKind<MethodDeclarationOverloadStructure>): MethodDe
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | source | OptionalKind&lt;MethodDeclarationOverloadStructure&gt; | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>source</td><td>OptionalKind&lt;MethodDeclarationOverloadStructure&gt;</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

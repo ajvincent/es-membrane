@@ -13,53 +13,22 @@ export default class JSDocImpl implements JSDocStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [description?](./ts-morph-structures.jsdocimpl.description.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | _(Optional)_ The description of the JS doc. |
+ | [kind](./ts-morph-structures.jsdocimpl.kind.md) | `readonly` | StructureKind.JSDoc | |
+ | [leadingTrivia](./ts-morph-structures.jsdocimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [tags](./ts-morph-structures.jsdocimpl.tags.md) | `readonly` | [JSDocTagImpl](./ts-morph-structures.jsdoctagimpl.md)\[\] | JS doc tags (ex. `&#64;param value - Some description.`). |
+ | [trailingTrivia](./ts-morph-structures.jsdocimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsdocimpl.description.md">description?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td><em>(Optional)</em> The description of the JS doc.</td></tr>
-<tr><td><a href="./ts-morph-structures.jsdocimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JSDoc</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsdocimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsdocimpl.tags.md">tags</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.jsdoctagimpl.md">JSDocTagImpl</a><!-- -->[]</td><td>JS doc tags (ex. <code>&amp;#64;param value - Some description.</code><!-- -->).</td></tr>
-<tr><td><a href="./ts-morph-structures.jsdocimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.jsdocimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.jsdocimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsdocimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsdocimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

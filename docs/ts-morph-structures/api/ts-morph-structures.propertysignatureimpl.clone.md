@@ -12,24 +12,11 @@ static clone(source: OptionalKind<PropertySignatureStructure>): PropertySignatur
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | source | OptionalKind&lt;PropertySignatureStructure&gt; | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>source</td><td>OptionalKind&lt;PropertySignatureStructure&gt;</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

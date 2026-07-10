@@ -13,84 +13,40 @@ export default class MethodDeclarationOverloadImpl implements MethodDeclarationO
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(isStatic)](./ts-morph-structures.methoddeclarationoverloadimpl._constructor_.md) | | Constructs a new instance of the `MethodDeclarationOverloadImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl._constructor_.md">(constructor)(isStatic)</a></td><td></td><td>Constructs a new instance of the <code>MethodDeclarationOverloadImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [docs](./ts-morph-structures.methoddeclarationoverloadimpl.docs.md) | `readonly` | ([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\] | |
+ | [hasOverrideKeyword](./ts-morph-structures.methoddeclarationoverloadimpl.hasoverridekeyword.md) | | boolean | |
+ | [hasQuestionToken](./ts-morph-structures.methoddeclarationoverloadimpl.hasquestiontoken.md) | | boolean | |
+ | [isAbstract](./ts-morph-structures.methoddeclarationoverloadimpl.isabstract.md) | | boolean | |
+ | [isAsync](./ts-morph-structures.methoddeclarationoverloadimpl.isasync.md) | | boolean | |
+ | [isGenerator](./ts-morph-structures.methoddeclarationoverloadimpl.isgenerator.md) | | boolean | |
+ | [isStatic](./ts-morph-structures.methoddeclarationoverloadimpl.isstatic.md) | | boolean | |
+ | [kind](./ts-morph-structures.methoddeclarationoverloadimpl.kind.md) | `readonly` | StructureKind.MethodOverload | |
+ | [leadingTrivia](./ts-morph-structures.methoddeclarationoverloadimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [parameters](./ts-morph-structures.methoddeclarationoverloadimpl.parameters.md) | `readonly` | [ParameterDeclarationImpl](./ts-morph-structures.parameterdeclarationimpl.md)\[\] | |
+ | [returnType?](./ts-morph-structures.methoddeclarationoverloadimpl.returntype.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined | _(Optional)_ |
+ | [returnTypeStructure](./ts-morph-structures.methoddeclarationoverloadimpl.returntypestructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ | [scope?](./ts-morph-structures.methoddeclarationoverloadimpl.scope.md) | | import("ts-morph").Scope&lt;&gt; \| undefined | _(Optional)_ |
+ | [trailingTrivia](./ts-morph-structures.methoddeclarationoverloadimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [typeParameters](./ts-morph-structures.methoddeclarationoverloadimpl.typeparameters.md) | `readonly` | ([TypeParameterDeclarationImpl](./ts-morph-structures.typeparameterdeclarationimpl.md) \| string)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.hasoverridekeyword.md">hasOverrideKeyword</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.hasquestiontoken.md">hasQuestionToken</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.isabstract.md">isAbstract</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.isasync.md">isAsync</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.isgenerator.md">isGenerator</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.isstatic.md">isStatic</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.MethodOverload</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.parameters.md">parameters</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.parameterdeclarationimpl.md">ParameterDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.returntype.md">returnType?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.returntypestructure.md">returnTypeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.scope.md">scope?</a></td><td></td><td>import(“ts-morph”).Scope&lt;&gt; | undefined</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.typeparameters.md">typeParameters</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.typeparameterdeclarationimpl.md">TypeParameterDeclarationImpl</a> | string)[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.methoddeclarationoverloadimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.methoddeclarationoverloadimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

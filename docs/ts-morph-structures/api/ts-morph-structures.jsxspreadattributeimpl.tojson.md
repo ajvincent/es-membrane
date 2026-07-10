@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<JsxSpreadAttributeImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[JsxSpreadAttributeImpl](./ts-morph-structures.jsxspreadattributeimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[JsxSpreadAttributeImpl](./ts-morph-structures.jsxspreadattributeimpl.md)&gt;
 

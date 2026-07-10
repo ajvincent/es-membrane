@@ -12,25 +12,12 @@ export declare function VoidTypeNodeToTypeStructureConsole(message: string, fail
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | message | string | |
+ | failingTypeNode | TypeNode | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>message</td><td>string</td><td></td></tr>
-<tr><td>failingTypeNode</td><td>TypeNode</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

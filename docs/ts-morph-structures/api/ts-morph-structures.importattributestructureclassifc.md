@@ -12,28 +12,10 @@ export interface ImportAttributeStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.importattributestructureclassifc.kind.md) | `readonly` | StructureKind.ImportAttribute | |
+ | [value](./ts-morph-structures.importattributestructureclassifc.value.md) | | string | Expression value. Quote this when providing a string. |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.importattributestructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.ImportAttribute</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importattributestructureclassifc.value.md">value</a></td><td></td><td>string</td><td>Expression value. Quote this when providing a string.</td></tr>
-</tbody></table>
 

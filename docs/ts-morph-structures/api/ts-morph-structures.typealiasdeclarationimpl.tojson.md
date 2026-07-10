@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<TypeAliasDeclarationImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[TypeAliasDeclarationImpl](./ts-morph-structures.typealiasdeclarationimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[TypeAliasDeclarationImpl](./ts-morph-structures.typealiasdeclarationimpl.md)&gt;
 

@@ -12,29 +12,11 @@ export interface JSDocTagStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.jsdoctagstructureclassifc.kind.md) | `readonly` | StructureKind.JSDocTag | |
+ | [tagName](./ts-morph-structures.jsdoctagstructureclassifc.tagname.md) | | string | The name for the JS doc tag that comes after the "at" symbol. |
+ | [text?](./ts-morph-structures.jsdoctagstructureclassifc.text.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | _(Optional)_ The text that follows the tag name. |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsdoctagstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JSDocTag</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsdoctagstructureclassifc.tagname.md">tagName</a></td><td></td><td>string</td><td>The name for the JS doc tag that comes after the “at” symbol.</td></tr>
-<tr><td><a href="./ts-morph-structures.jsdoctagstructureclassifc.text.md">text?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td><em>(Optional)</em> The text that follows the tag name.</td></tr>
-</tbody></table>
 

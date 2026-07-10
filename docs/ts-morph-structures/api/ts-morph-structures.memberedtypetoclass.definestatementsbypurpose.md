@@ -14,27 +14,13 @@ defineStatementsByPurpose(purposeKey: string, isBlockStatement: boolean, regionN
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | purposeKey | string | The purpose of the statmeent group (validation, preconditions, body, postconditions, etc.) |
+ | isBlockStatement | boolean | true if the statement block should be enclosed in curly braces. |
+ | regionName | string | _(Optional)_ an optional \#region / \#endregion comment name. Call this in the order of statement purpose groups you intend. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>purposeKey</td><td>string</td><td>The purpose of the statmeent group (validation, preconditions, body, postconditions, etc.)</td></tr>
-<tr><td>isBlockStatement</td><td>boolean</td><td>true if the statement block should be enclosed in curly braces.</td></tr>
-<tr><td>regionName</td><td>string</td><td><p><em>(Optional)</em> an optional #region / #endregion comment name.</p>
-<p>Call this in the order of statement purpose groups you intend.</p></td></tr>
-</tbody></table>
 
 **Returns:**
 

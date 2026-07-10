@@ -12,24 +12,11 @@ addImports(context: AddImportContext): void;
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | context | [AddImportContext](./ts-morph-structures.addimportcontext.md) | a description of the imports to add. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>context</td><td><a href="./ts-morph-structures.addimportcontext.md">AddImportContext</a></td><td>a description of the imports to add.</td></tr>
-</tbody></table>
 
 **Returns:**
 

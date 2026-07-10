@@ -14,24 +14,11 @@ moveStatementsToMembers(statementsMaps: ClassFieldStatementsMap[]): void;
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | statementsMaps | [ClassFieldStatementsMap](./ts-morph-structures.classfieldstatementsmap.md)\[\] | the statements to apply to each member, ordered by purpose. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>statementsMaps</td><td><a href="./ts-morph-structures.classfieldstatementsmap.md">ClassFieldStatementsMap</a><!-- -->[]</td><td>the statements to apply to each member, ordered by purpose.</td></tr>
-</tbody></table>
 
 **Returns:**
 

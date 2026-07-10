@@ -15,5 +15,5 @@ export type ObjectLiteralExpressionPropertyStructureImpls =
   | ShorthandPropertyAssignmentImpl
   | SpreadAssignmentImpl;
 ```
-**References:** [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md)<!-- -->, [MethodDeclarationImpl](./ts-morph-structures.methoddeclarationimpl.md)<!-- -->, [PropertyAssignmentImpl](./ts-morph-structures.propertyassignmentimpl.md)<!-- -->, [SetAccessorDeclarationImpl](./ts-morph-structures.setaccessordeclarationimpl.md)<!-- -->, [ShorthandPropertyAssignmentImpl](./ts-morph-structures.shorthandpropertyassignmentimpl.md)<!-- -->, [SpreadAssignmentImpl](./ts-morph-structures.spreadassignmentimpl.md)
+**References:** [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md), [MethodDeclarationImpl](./ts-morph-structures.methoddeclarationimpl.md), [PropertyAssignmentImpl](./ts-morph-structures.propertyassignmentimpl.md), [SetAccessorDeclarationImpl](./ts-morph-structures.setaccessordeclarationimpl.md), [ShorthandPropertyAssignmentImpl](./ts-morph-structures.shorthandpropertyassignmentimpl.md), [SpreadAssignmentImpl](./ts-morph-structures.spreadassignmentimpl.md)
 

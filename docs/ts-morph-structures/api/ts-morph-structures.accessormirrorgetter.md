@@ -18,18 +18,10 @@ To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFla
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Description |
+|-|-|
+ | [filterAccessorMirror(key)](./ts-morph-structures.accessormirrorgetter.filteraccessormirror.md) | |
+ | [getAccessorMirror(key)](./ts-morph-structures.accessormirrorgetter.getaccessormirror.md) | |
+ 
 
-Method
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.accessormirrorgetter.filteraccessormirror.md">filterAccessorMirror(key)</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.accessormirrorgetter.getaccessormirror.md">getAccessorMirror(key)</a></td><td></td></tr>
-</tbody></table>
 

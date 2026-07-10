@@ -14,23 +14,10 @@ constructor(head: string, spans: [TypeStructures, string][]);
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | head | string | |
+ | spans | \[[TypeStructures](./ts-morph-structures.typestructures.md), string\]\[\] | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>head</td><td>string</td><td></td></tr>
-<tr><td>spans</td><td>[<a href="./ts-morph-structures.typestructures.md">TypeStructures</a><!-- -->, string][]</td><td></td></tr>
-</tbody></table>
 

@@ -16,5 +16,5 @@ export type TypeMemberImpl =
   | PropertySignatureImpl
   | SetAccessorDeclarationImpl;
 ```
-**References:** [CallSignatureDeclarationImpl](./ts-morph-structures.callsignaturedeclarationimpl.md)<!-- -->, [ConstructSignatureDeclarationImpl](./ts-morph-structures.constructsignaturedeclarationimpl.md)<!-- -->, [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md)<!-- -->, [IndexSignatureDeclarationImpl](./ts-morph-structures.indexsignaturedeclarationimpl.md)<!-- -->, [MethodSignatureImpl](./ts-morph-structures.methodsignatureimpl.md)<!-- -->, [PropertySignatureImpl](./ts-morph-structures.propertysignatureimpl.md)<!-- -->, [SetAccessorDeclarationImpl](./ts-morph-structures.setaccessordeclarationimpl.md)
+**References:** [CallSignatureDeclarationImpl](./ts-morph-structures.callsignaturedeclarationimpl.md), [ConstructSignatureDeclarationImpl](./ts-morph-structures.constructsignaturedeclarationimpl.md), [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md), [IndexSignatureDeclarationImpl](./ts-morph-structures.indexsignaturedeclarationimpl.md), [MethodSignatureImpl](./ts-morph-structures.methodsignatureimpl.md), [PropertySignatureImpl](./ts-morph-structures.propertysignatureimpl.md), [SetAccessorDeclarationImpl](./ts-morph-structures.setaccessordeclarationimpl.md)
 

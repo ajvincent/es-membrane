@@ -14,25 +14,12 @@ addStatementGetters(priority: number, statementGetters: readonly ClassStatements
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | priority | number | a number indicating the priority of the getters (lower numbers beat higher numbers). |
+ | statementGetters | readonly [ClassStatementsGetter](./ts-morph-structures.classstatementsgetter.md)\[\] | the statement getters to insert. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>priority</td><td>number</td><td>a number indicating the priority of the getters (lower numbers beat higher numbers).</td></tr>
-<tr><td>statementGetters</td><td>readonly <a href="./ts-morph-structures.classstatementsgetter.md">ClassStatementsGetter</a><!-- -->[]</td><td>the statement getters to insert.</td></tr>
-</tbody></table>
 
 **Returns:**
 

@@ -12,29 +12,11 @@ export interface ExportSpecifierStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [alias?](./ts-morph-structures.exportspecifierstructureclassifc.alias.md) | | string | _(Optional)_ |
+ | [isTypeOnly](./ts-morph-structures.exportspecifierstructureclassifc.istypeonly.md) | | boolean | |
+ | [kind](./ts-morph-structures.exportspecifierstructureclassifc.kind.md) | `readonly` | StructureKind.ExportSpecifier | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.exportspecifierstructureclassifc.alias.md">alias?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.exportspecifierstructureclassifc.istypeonly.md">isTypeOnly</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportspecifierstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.ExportSpecifier</td><td></td></tr>
-</tbody></table>
 

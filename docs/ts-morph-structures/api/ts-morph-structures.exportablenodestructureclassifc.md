@@ -12,28 +12,10 @@ export interface ExportableNodeStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [isDefaultExport](./ts-morph-structures.exportablenodestructureclassifc.isdefaultexport.md) | | boolean | |
+ | [isExported](./ts-morph-structures.exportablenodestructureclassifc.isexported.md) | | boolean | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.exportablenodestructureclassifc.isdefaultexport.md">isDefaultExport</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportablenodestructureclassifc.isexported.md">isExported</a></td><td></td><td>boolean</td><td></td></tr>
-</tbody></table>
 

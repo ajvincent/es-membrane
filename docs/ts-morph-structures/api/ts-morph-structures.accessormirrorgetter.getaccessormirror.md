@@ -14,24 +14,11 @@ getAccessorMirror(
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | key | [MemberedStatementsKey](./ts-morph-structures.memberedstatementskey.md) | Describing the getter or setter to implement. `statementGroupKey` will be `ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY`. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>key</td><td><a href="./ts-morph-structures.memberedstatementskey.md">MemberedStatementsKey</a></td><td>Describing the getter or setter to implement. <code>statementGroupKey</code> will be <code>ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY</code><!-- -->.</td></tr>
-</tbody></table>
 
 **Returns:**
 

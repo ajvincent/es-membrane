@@ -12,24 +12,11 @@ static clone(other: TupleTypeStructureImpl): TupleTypeStructureImpl;
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | other | [TupleTypeStructureImpl](./ts-morph-structures.tupletypestructureimpl.md) | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>other</td><td><a href="./ts-morph-structures.tupletypestructureimpl.md">TupleTypeStructureImpl</a></td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

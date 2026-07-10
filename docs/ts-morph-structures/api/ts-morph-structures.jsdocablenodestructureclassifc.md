@@ -12,27 +12,9 @@ export interface JSDocableNodeStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [docs](./ts-morph-structures.jsdocablenodestructureclassifc.docs.md) | `readonly` | ([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsdocablenodestructureclassifc.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
-</tbody></table>
 

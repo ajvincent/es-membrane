@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<ConstructSignatureDeclarationImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[ConstructSignatureDeclarationImpl](./ts-morph-structures.constructsignaturedeclarationimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[ConstructSignatureDeclarationImpl](./ts-morph-structures.constructsignaturedeclarationimpl.md)&gt;
 

@@ -14,23 +14,10 @@ constructor(name: string, type: stringOrWriterFunction | TypeStructures);
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | name | string | |
+ | type | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| [TypeStructures](./ts-morph-structures.typestructures.md) | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>name</td><td>string</td><td></td></tr>
-<tr><td>type</td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | <a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td></td></tr>
-</tbody></table>
 

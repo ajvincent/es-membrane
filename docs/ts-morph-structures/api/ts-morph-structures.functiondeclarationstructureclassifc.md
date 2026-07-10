@@ -12,28 +12,10 @@ export interface FunctionDeclarationStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.functiondeclarationstructureclassifc.kind.md) | `readonly` | StructureKind.Function | |
+ | [overloads](./ts-morph-structures.functiondeclarationstructureclassifc.overloads.md) | `readonly` | [FunctionDeclarationOverloadImpl](./ts-morph-structures.functiondeclarationoverloadimpl.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.functiondeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Function</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.functiondeclarationstructureclassifc.overloads.md">overloads</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.functiondeclarationoverloadimpl.md">FunctionDeclarationOverloadImpl</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 

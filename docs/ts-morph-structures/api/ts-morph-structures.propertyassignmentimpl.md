@@ -13,74 +13,30 @@ export default class PropertyAssignmentImpl implements PropertyAssignmentStructu
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(name, initializer)](./ts-morph-structures.propertyassignmentimpl._constructor_.md) | | Constructs a new instance of the `PropertyAssignmentImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.propertyassignmentimpl._constructor_.md">(constructor)(name, initializer)</a></td><td></td><td>Constructs a new instance of the <code>PropertyAssignmentImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [initializer](./ts-morph-structures.propertyassignmentimpl.initializer.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | |
+ | [kind](./ts-morph-structures.propertyassignmentimpl.kind.md) | `readonly` | StructureKind.PropertyAssignment | |
+ | [leadingTrivia](./ts-morph-structures.propertyassignmentimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [name](./ts-morph-structures.propertyassignmentimpl.name.md) | | string | |
+ | [trailingTrivia](./ts-morph-structures.propertyassignmentimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.propertyassignmentimpl.initializer.md">initializer</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertyassignmentimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.PropertyAssignment</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertyassignmentimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertyassignmentimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertyassignmentimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.propertyassignmentimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.propertyassignmentimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.propertyassignmentimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertyassignmentimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

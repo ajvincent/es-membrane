@@ -6,266 +6,222 @@
 
 ## Classes
 
-<table><thead><tr><th>
+| Class | Description |
+|-|-|
+ | [ArrayTypeStructureImpl](./ts-morph-structures.arraytypestructureimpl.md) | `boolean[]` |
+ | [CallSignatureDeclarationImpl](./ts-morph-structures.callsignaturedeclarationimpl.md) | |
+ | [ClassDeclarationImpl](./ts-morph-structures.classdeclarationimpl.md) | |
+ | [ClassFieldStatementsMap](./ts-morph-structures.classfieldstatementsmap.md) | This is a map for specifying statements across several class members for a single class field. For example, a field may require statements for: - defining a getter and/or a setter - initializing in a constructor - implementing a .toJSON() method The field name specifies which field the statements are about. The statement group specifies where the statements go (what method, or an initializer). Special field keys: ClassFieldStatementsMap.FIELD\_HEAD\_SUPER\_CALL: These statements will appear at the head of the statement block. ClassFieldStatementsMap.FIELD\_TAIL\_FINAL\_RETURN: These statements will appear at the tail of the statement block. Special statement group keys: ClassFieldStatementsMap.GROUP\_INITIALIZER\_OR\_PROPERTY: This represents an initializer for a property, or a value reference for a getter or setter. Field keys will have `get ` or `set ` stripped from them for this group key. Statement arrays for this group key should contain exactly one statement, and should be just a string. |
+ | [ClassMembersMap](./ts-morph-structures.classmembersmap.md) | A map for class methods, properties, accessors and a constructor. This doesn't replace `ClassDeclarationImpl`, rather, it \_feeds\_ `ClassDeclarationImpl`. |
+ | [ClassStaticBlockDeclarationImpl](./ts-morph-structures.classstaticblockdeclarationimpl.md) | |
+ | [ConditionalTypeStructureImpl](./ts-morph-structures.conditionaltypestructureimpl.md) | `checkType` extends `extendsType` ? `trueType` : `falseType` |
+ | [ConstructorDeclarationImpl](./ts-morph-structures.constructordeclarationimpl.md) | |
+ | [ConstructorDeclarationOverloadImpl](./ts-morph-structures.constructordeclarationoverloadimpl.md) | |
+ | [ConstructSignatureDeclarationImpl](./ts-morph-structures.constructsignaturedeclarationimpl.md) | |
+ | [DecoratorImpl](./ts-morph-structures.decoratorimpl.md) | |
+ | [EnumDeclarationImpl](./ts-morph-structures.enumdeclarationimpl.md) | |
+ | [EnumMemberImpl](./ts-morph-structures.enummemberimpl.md) | |
+ | [ExportAssignmentImpl](./ts-morph-structures.exportassignmentimpl.md) | |
+ | [ExportDeclarationImpl](./ts-morph-structures.exportdeclarationimpl.md) | |
+ | [ExportManager](./ts-morph-structures.exportmanager.md) | This manages export declarations and specifiers, for including in a source file. |
+ | [ExportSpecifierImpl](./ts-morph-structures.exportspecifierimpl.md) | |
+ | [FunctionDeclarationImpl](./ts-morph-structures.functiondeclarationimpl.md) | |
+ | [FunctionDeclarationOverloadImpl](./ts-morph-structures.functiondeclarationoverloadimpl.md) | |
+ | [FunctionTypeStructureImpl](./ts-morph-structures.functiontypestructureimpl.md) | ("new" \| "get" \| "set" \| "") name<typeParameters>(parameters, ...restParameter) ("=&gt;" \| ":" ) returnType |
+ | [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md) | |
+ | [ImportAttributeImpl](./ts-morph-structures.importattributeimpl.md) | |
+ | [ImportDeclarationImpl](./ts-morph-structures.importdeclarationimpl.md) | |
+ | [ImportManager](./ts-morph-structures.importmanager.md) | This manages import declarations and specifiers, for including in a source file. |
+ | [ImportSpecifierImpl](./ts-morph-structures.importspecifierimpl.md) | |
+ | [ImportTypeStructureImpl](./ts-morph-structures.importtypestructureimpl.md) | |
+ | [IndexedAccessTypeStructureImpl](./ts-morph-structures.indexedaccesstypestructureimpl.md) | |
+ | [IndexSignatureDeclarationImpl](./ts-morph-structures.indexsignaturedeclarationimpl.md) | |
+ | [InferTypeStructureImpl](./ts-morph-structures.infertypestructureimpl.md) | |
+ | [InterfaceDeclarationImpl](./ts-morph-structures.interfacedeclarationimpl.md) | |
+ | [IntersectionTypeStructureImpl](./ts-morph-structures.intersectiontypestructureimpl.md) | |
+ | [JSDocImpl](./ts-morph-structures.jsdocimpl.md) | |
+ | [JSDocTagImpl](./ts-morph-structures.jsdoctagimpl.md) | |
+ | [JsxAttributeImpl](./ts-morph-structures.jsxattributeimpl.md) | |
+ | [JsxElementImpl](./ts-morph-structures.jsxelementimpl.md) | |
+ | [JsxSelfClosingElementImpl](./ts-morph-structures.jsxselfclosingelementimpl.md) | |
+ | [JsxSpreadAttributeImpl](./ts-morph-structures.jsxspreadattributeimpl.md) | |
+ | [LiteralTypeStructureImpl](./ts-morph-structures.literaltypestructureimpl.md) | Literals (boolean, number, string, void, etc.), without quotes, brackets, or anything else around them. Leaf nodes. |
+ | [MappedTypeStructureImpl](./ts-morph-structures.mappedtypestructureimpl.md) | `{ readonly [key in keyof Foo]: boolean }` |
+ | [MemberedObjectTypeStructureImpl](./ts-morph-structures.memberedobjecttypestructureimpl.md) | Properties, methods, getters, setters, and index signatures. Very much like interfaces. Usually in type aliases. |
+ | [MemberedTypeToClass](./ts-morph-structures.memberedtypetoclass.md) | Convert type members to a class members map, including statements. |
+ | [MethodDeclarationImpl](./ts-morph-structures.methoddeclarationimpl.md) | |
+ | [MethodDeclarationOverloadImpl](./ts-morph-structures.methoddeclarationoverloadimpl.md) | |
+ | [MethodSignatureImpl](./ts-morph-structures.methodsignatureimpl.md) | |
+ | [ModuleDeclarationImpl](./ts-morph-structures.moduledeclarationimpl.md) | |
+ | [NumberTypeStructureImpl](./ts-morph-structures.numbertypestructureimpl.md) | Numbers (boolean, number, string, void, etc.), without quotes, brackets, or anything else around them. Leaf nodes. |
+ | [ParameterDeclarationImpl](./ts-morph-structures.parameterdeclarationimpl.md) | |
+ | [ParameterTypeStructureImpl](./ts-morph-structures.parametertypestructureimpl.md) | Just a parameter name and type for a `FunctionTypeStructureImpl`. |
+ | [ParenthesesTypeStructureImpl](./ts-morph-structures.parenthesestypestructureimpl.md) | Wrap the child type in parentheses. |
+ | [PrefixOperatorsTypeStructureImpl](./ts-morph-structures.prefixoperatorstypestructureimpl.md) | `("..." | "keyof" | "typeof" | "readonly" | "unique")[]` (object type) |
+ | [PropertyAssignmentImpl](./ts-morph-structures.propertyassignmentimpl.md) | |
+ | [PropertyDeclarationImpl](./ts-morph-structures.propertydeclarationimpl.md) | |
+ | [PropertySignatureImpl](./ts-morph-structures.propertysignatureimpl.md) | |
+ | [QualifiedNameTypeStructureImpl](./ts-morph-structures.qualifiednametypestructureimpl.md) | |
+ | [SetAccessorDeclarationImpl](./ts-morph-structures.setaccessordeclarationimpl.md) | |
+ | [ShorthandPropertyAssignmentImpl](./ts-morph-structures.shorthandpropertyassignmentimpl.md) | |
+ | [SourceFileImpl](./ts-morph-structures.sourcefileimpl.md) | |
+ | [SpreadAssignmentImpl](./ts-morph-structures.spreadassignmentimpl.md) | |
+ | [StringTypeStructureImpl](./ts-morph-structures.stringtypestructureimpl.md) | Strings, encased in double quotes. Leaf nodes. |
+ | [TemplateLiteralTypeStructureImpl](./ts-morph-structures.templateliteraltypestructureimpl.md) | `one${"A" | "B"}two${"C" | "D"}three` |
+ | [TupleTypeStructureImpl](./ts-morph-structures.tupletypestructureimpl.md) | |
+ | [TypeAliasDeclarationImpl](./ts-morph-structures.typealiasdeclarationimpl.md) | |
+ | [TypeArgumentedTypeStructureImpl](./ts-morph-structures.typeargumentedtypestructureimpl.md) | This resolves type parameters, as opposed to defining them. |
+ | [TypeMembersMap](./ts-morph-structures.typemembersmap.md) | A map for members of `InterfaceDeclarationImpl` and `MemberedObjectTypeStructureImpl`. This doesn't replace the structures, rather it \_feeds\_ them. |
+ | [TypeParameterDeclarationImpl](./ts-morph-structures.typeparameterdeclarationimpl.md) | |
+ | [TypePredicateTypeStructureImpl](./ts-morph-structures.typepredicatetypestructureimpl.md) | |
+ | [UnionTypeStructureImpl](./ts-morph-structures.uniontypestructureimpl.md) | |
+ | [VariableDeclarationImpl](./ts-morph-structures.variabledeclarationimpl.md) | |
+ | [VariableStatementImpl](./ts-morph-structures.variablestatementimpl.md) | |
+ | [WriterTypeStructureImpl](./ts-morph-structures.writertypestructureimpl.md) | Wrappers for writer functions from external sources. Leaf nodes. |
+ 
 
-Class
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.arraytypestructureimpl.md">ArrayTypeStructureImpl</a></td><td><code>boolean[]</code></td></tr>
-<tr><td><a href="./ts-morph-structures.callsignaturedeclarationimpl.md">CallSignatureDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.md">ClassDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.md">ClassFieldStatementsMap</a></td><td><p>This is a map for specifying statements across several class members for a single class field.</p>
-<p>For example, a field may require statements for: - defining a getter and/or a setter - initializing in a constructor - implementing a .toJSON() method</p>
-<p>The field name specifies which field the statements are about. The statement group specifies where the statements go (what method, or an initializer).</p>
-<p>Special field keys: ClassFieldStatementsMap.FIELD_HEAD_SUPER_CALL: These statements will appear at the head of the statement block. ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN: These statements will appear at the tail of the statement block.</p>
-<p>Special statement group keys: ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY: This represents an initializer for a property, or a value reference for a getter or setter. Field keys will have <code>get </code> or <code>set </code> stripped from them for this group key. Statement arrays for this group key should contain exactly one statement, and should be just a string.</p></td></tr>
-<tr><td><a href="./ts-morph-structures.classmembersmap.md">ClassMembersMap</a></td><td>A map for class methods, properties, accessors and a constructor. This doesn’t replace <code>ClassDeclarationImpl</code><!-- -->, rather, it _feeds_ <code>ClassDeclarationImpl</code><!-- -->.</td></tr>
-<tr><td><a href="./ts-morph-structures.classstaticblockdeclarationimpl.md">ClassStaticBlockDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.conditionaltypestructureimpl.md">ConditionalTypeStructureImpl</a></td><td><code>checkType</code> extends <code>extendsType</code> ? <code>trueType</code> : <code>falseType</code></td></tr>
-<tr><td><a href="./ts-morph-structures.constructordeclarationimpl.md">ConstructorDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.constructordeclarationoverloadimpl.md">ConstructorDeclarationOverloadImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.constructsignaturedeclarationimpl.md">ConstructSignatureDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.decoratorimpl.md">DecoratorImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.enumdeclarationimpl.md">EnumDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.enummemberimpl.md">EnumMemberImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportassignmentimpl.md">ExportAssignmentImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportdeclarationimpl.md">ExportDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportmanager.md">ExportManager</a></td><td>This manages export declarations and specifiers, for including in a source file.</td></tr>
-<tr><td><a href="./ts-morph-structures.exportspecifierimpl.md">ExportSpecifierImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.functiondeclarationimpl.md">FunctionDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.functiondeclarationoverloadimpl.md">FunctionDeclarationOverloadImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.functiontypestructureimpl.md">FunctionTypeStructureImpl</a></td><td>(“new” | “get” | “set” | “”) name<typeParameters>(parameters, …restParameter) (“=<!-- -->&gt;<!-- -->” | “:” ) returnType</td></tr>
-<tr><td><a href="./ts-morph-structures.getaccessordeclarationimpl.md">GetAccessorDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importattributeimpl.md">ImportAttributeImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importdeclarationimpl.md">ImportDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importmanager.md">ImportManager</a></td><td>This manages import declarations and specifiers, for including in a source file.</td></tr>
-<tr><td><a href="./ts-morph-structures.importspecifierimpl.md">ImportSpecifierImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importtypestructureimpl.md">ImportTypeStructureImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.md">IndexedAccessTypeStructureImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.md">IndexSignatureDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.infertypestructureimpl.md">InferTypeStructureImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.md">InterfaceDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.intersectiontypestructureimpl.md">IntersectionTypeStructureImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsdoctagimpl.md">JSDocTagImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxattributeimpl.md">JsxAttributeImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxelementimpl.md">JsxElementImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxselfclosingelementimpl.md">JsxSelfClosingElementImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxspreadattributeimpl.md">JsxSpreadAttributeImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.literaltypestructureimpl.md">LiteralTypeStructureImpl</a></td><td>Literals (boolean, number, string, void, etc.), without quotes, brackets, or anything else around them. Leaf nodes.</td></tr>
-<tr><td><a href="./ts-morph-structures.mappedtypestructureimpl.md">MappedTypeStructureImpl</a></td><td><code>{ readonly [key in keyof Foo]: boolean }</code></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedobjecttypestructureimpl.md">MemberedObjectTypeStructureImpl</a></td><td>Properties, methods, getters, setters, and index signatures. Very much like interfaces. Usually in type aliases.</td></tr>
-<tr><td><a href="./ts-morph-structures.memberedtypetoclass.md">MemberedTypeToClass</a></td><td>Convert type members to a class members map, including statements.</td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.md">MethodDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.md">MethodDeclarationOverloadImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methodsignatureimpl.md">MethodSignatureImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.moduledeclarationimpl.md">ModuleDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.numbertypestructureimpl.md">NumberTypeStructureImpl</a></td><td>Numbers (boolean, number, string, void, etc.), without quotes, brackets, or anything else around them. Leaf nodes.</td></tr>
-<tr><td><a href="./ts-morph-structures.parameterdeclarationimpl.md">ParameterDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.parametertypestructureimpl.md">ParameterTypeStructureImpl</a></td><td>Just a parameter name and type for a <code>FunctionTypeStructureImpl</code><!-- -->.</td></tr>
-<tr><td><a href="./ts-morph-structures.parenthesestypestructureimpl.md">ParenthesesTypeStructureImpl</a></td><td>Wrap the child type in parentheses.</td></tr>
-<tr><td><a href="./ts-morph-structures.prefixoperatorstypestructureimpl.md">PrefixOperatorsTypeStructureImpl</a></td><td><code>(&quot;...&quot; | &quot;keyof&quot; | &quot;typeof&quot; | &quot;readonly&quot; | &quot;unique&quot;)[]</code> (object type)</td></tr>
-<tr><td><a href="./ts-morph-structures.propertyassignmentimpl.md">PropertyAssignmentImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertydeclarationimpl.md">PropertyDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertysignatureimpl.md">PropertySignatureImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.qualifiednametypestructureimpl.md">QualifiedNameTypeStructureImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.setaccessordeclarationimpl.md">SetAccessorDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.shorthandpropertyassignmentimpl.md">ShorthandPropertyAssignmentImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.sourcefileimpl.md">SourceFileImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.spreadassignmentimpl.md">SpreadAssignmentImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.stringtypestructureimpl.md">StringTypeStructureImpl</a></td><td>Strings, encased in double quotes. Leaf nodes.</td></tr>
-<tr><td><a href="./ts-morph-structures.templateliteraltypestructureimpl.md">TemplateLiteralTypeStructureImpl</a></td><td><code>one${&quot;A&quot; | &quot;B&quot;}two${&quot;C&quot; | &quot;D&quot;}three</code></td></tr>
-<tr><td><a href="./ts-morph-structures.tupletypestructureimpl.md">TupleTypeStructureImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typealiasdeclarationimpl.md">TypeAliasDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeargumentedtypestructureimpl.md">TypeArgumentedTypeStructureImpl</a></td><td>This resolves type parameters, as opposed to defining them.</td></tr>
-<tr><td><a href="./ts-morph-structures.typemembersmap.md">TypeMembersMap</a></td><td>A map for members of <code>InterfaceDeclarationImpl</code> and <code>MemberedObjectTypeStructureImpl</code><!-- -->. This doesn’t replace the structures, rather it _feeds_ them.</td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.md">TypeParameterDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.md">TypePredicateTypeStructureImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.uniontypestructureimpl.md">UnionTypeStructureImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.variabledeclarationimpl.md">VariableDeclarationImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.variablestatementimpl.md">VariableStatementImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.writertypestructureimpl.md">WriterTypeStructureImpl</a></td><td>Wrappers for writer functions from external sources. Leaf nodes.</td></tr>
-</tbody></table>
 
 ## Enumerations
 
-<table><thead><tr><th>
+| Enumeration | Description |
+|-|-|
+ | [ClassSupportsStatementsFlags](./ts-morph-structures.classsupportsstatementsflags.md) | Bitwise flags to enable statement getter traps. |
+ | [FunctionWriterStyle](./ts-morph-structures.functionwriterstyle.md) | |
+ | [TypeStructureKind](./ts-morph-structures.typestructurekind.md) | |
+ 
 
-Enumeration
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classsupportsstatementsflags.md">ClassSupportsStatementsFlags</a></td><td>Bitwise flags to enable statement getter traps.</td></tr>
-<tr><td><a href="./ts-morph-structures.functionwriterstyle.md">FunctionWriterStyle</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typestructurekind.md">TypeStructureKind</a></td><td></td></tr>
-</tbody></table>
 
 ## Functions
 
-<table><thead><tr><th>
+| Function | Description |
+|-|-|
+ | [forEachAugmentedStructureChild(structureOrArray, callback)](./ts-morph-structures.foreachaugmentedstructurechild.md) | Iterates over the children of a structure (or type structure), or the elements of an array of structures and type structures. |
+ | [getTypeAugmentedStructure(rootNode, userConsole, assertNoFailures)](./ts-morph-structures.gettypeaugmentedstructure.md) | Get a structure for a node, with type structures installed throughout its descendants. |
+ | [getTypeAugmentedStructure(rootNode, userConsole, assertNoFailures, kind)](./ts-morph-structures.gettypeaugmentedstructure_1.md) | Get a structure for a node, with type structures installed throughout its descendants. |
+ | [parseLiteralType(source)](./ts-morph-structures.parseliteraltype.md) | |
+ | [VoidTypeNodeToTypeStructureConsole(message, failingTypeNode)](./ts-morph-structures.voidtypenodetotypestructureconsole.md) | |
+ 
 
-Function
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.foreachaugmentedstructurechild.md">forEachAugmentedStructureChild(structureOrArray, callback)</a></td><td>Iterates over the children of a structure (or type structure), or the elements of an array of structures and type structures.</td></tr>
-<tr><td><a href="./ts-morph-structures.gettypeaugmentedstructure.md">getTypeAugmentedStructure(rootNode, userConsole, assertNoFailures)</a></td><td>Get a structure for a node, with type structures installed throughout its descendants.</td></tr>
-<tr><td><a href="./ts-morph-structures.gettypeaugmentedstructure_1.md">getTypeAugmentedStructure(rootNode, userConsole, assertNoFailures, kind)</a></td><td>Get a structure for a node, with type structures installed throughout its descendants.</td></tr>
-<tr><td><a href="./ts-morph-structures.parseliteraltype.md">parseLiteralType(source)</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.voidtypenodetotypestructureconsole.md">VoidTypeNodeToTypeStructureConsole(message, failingTypeNode)</a></td><td></td></tr>
-</tbody></table>
 
 ## Interfaces
 
-<table><thead><tr><th>
+| Interface | Description |
+|-|-|
+ | [AbstractableNodeStructureClassIfc](./ts-morph-structures.abstractablenodestructureclassifc.md) | |
+ | [AccessorMirrorGetter](./ts-morph-structures.accessormirrorgetter.md) | A value for getters and setters of a class to reflect. |
+ | [AddExportContext](./ts-morph-structures.addexportcontext.md) | A description of the exports to add. |
+ | [AddImportContext](./ts-morph-structures.addimportcontext.md) | A description of the imports to add. |
+ | [AmbientableNodeStructureClassIfc](./ts-morph-structures.ambientablenodestructureclassifc.md) | |
+ | [AsyncableNodeStructureClassIfc](./ts-morph-structures.asyncablenodestructureclassifc.md) | |
+ | [CallSignatureDeclarationStructureClassIfc](./ts-morph-structures.callsignaturedeclarationstructureclassifc.md) | |
+ | [ClassAbstractMemberQuestion](./ts-morph-structures.classabstractmemberquestion.md) | |
+ | [ClassAsyncMethodQuestion](./ts-morph-structures.classasyncmethodquestion.md) | |
+ | [ClassBodyStatementsGetter](./ts-morph-structures.classbodystatementsgetter.md) | Statements in a statement purpose block for a particular property and function. |
+ | [ClassDeclarationStructureClassIfc](./ts-morph-structures.classdeclarationstructureclassifc.md) | |
+ | [ClassDeclarationWithImplementsTypeStructures](./ts-morph-structures.classdeclarationwithimplementstypestructures.md) | |
+ | [ClassGeneratorMethodQuestion](./ts-morph-structures.classgeneratormethodquestion.md) | |
+ | [ClassHeadStatementsGetter](./ts-morph-structures.classheadstatementsgetter.md) | Statements at the start of a statement purpose block. |
+ | [ClassScopeMemberQuestion](./ts-morph-structures.classscopememberquestion.md) | |
+ | [ClassStatementsGetter](./ts-morph-structures.classstatementsgetter.md) | Traps for getting statements, based on a `MemberedStatementsKey`. |
+ | [ClassStaticBlockDeclarationStructureClassIfc](./ts-morph-structures.classstaticblockdeclarationstructureclassifc.md) | |
+ | [ClassTailStatementsGetter](./ts-morph-structures.classtailstatementsgetter.md) | Statements at the end of a statement purpose block. |
+ | [ConditionalTypeStructureParts](./ts-morph-structures.conditionaltypestructureparts.md) | |
+ | [ConstructorBodyStatementsGetter](./ts-morph-structures.constructorbodystatementsgetter.md) | Statements in a statement purpose block for a particular property in the constructor. |
+ | [ConstructorDeclarationOverloadStructureClassIfc](./ts-morph-structures.constructordeclarationoverloadstructureclassifc.md) | |
+ | [ConstructorDeclarationStructureClassIfc](./ts-morph-structures.constructordeclarationstructureclassifc.md) | |
+ | [ConstructorHeadStatementsGetter](./ts-morph-structures.constructorheadstatementsgetter.md) | Statements at the start of a constructor's statement purpose block. |
+ | [ConstructorTailStatementsGetter](./ts-morph-structures.constructortailstatementsgetter.md) | Statements at the end of a constructor's statement purpose block. |
+ | [ConstructSignatureDeclarationStructureClassIfc](./ts-morph-structures.constructsignaturedeclarationstructureclassifc.md) | |
+ | [DecoratableNodeStructureClassIfc](./ts-morph-structures.decoratablenodestructureclassifc.md) | |
+ | [DecoratorStructureClassIfc](./ts-morph-structures.decoratorstructureclassifc.md) | |
+ | [EnumDeclarationStructureClassIfc](./ts-morph-structures.enumdeclarationstructureclassifc.md) | |
+ | [EnumMemberStructureClassIfc](./ts-morph-structures.enummemberstructureclassifc.md) | |
+ | [ExclamationTokenableNodeStructureClassIfc](./ts-morph-structures.exclamationtokenablenodestructureclassifc.md) | |
+ | [ExportableNodeStructureClassIfc](./ts-morph-structures.exportablenodestructureclassifc.md) | |
+ | [ExportAssignmentStructureClassIfc](./ts-morph-structures.exportassignmentstructureclassifc.md) | |
+ | [ExportDeclarationStructureClassIfc](./ts-morph-structures.exportdeclarationstructureclassifc.md) | |
+ | [ExportSpecifierStructureClassIfc](./ts-morph-structures.exportspecifierstructureclassifc.md) | |
+ | [FunctionDeclarationOverloadStructureClassIfc](./ts-morph-structures.functiondeclarationoverloadstructureclassifc.md) | |
+ | [FunctionDeclarationStructureClassIfc](./ts-morph-structures.functiondeclarationstructureclassifc.md) | |
+ | [FunctionTypeContext](./ts-morph-structures.functiontypecontext.md) | |
+ | [GeneratorableNodeStructureClassIfc](./ts-morph-structures.generatorablenodestructureclassifc.md) | |
+ | [GetAccessorDeclarationStructureClassIfc](./ts-morph-structures.getaccessordeclarationstructureclassifc.md) | |
+ | [ImportAttributeStructureClassIfc](./ts-morph-structures.importattributestructureclassifc.md) | |
+ | [ImportDeclarationStructureClassIfc](./ts-morph-structures.importdeclarationstructureclassifc.md) | |
+ | [ImportSpecifierStructureClassIfc](./ts-morph-structures.importspecifierstructureclassifc.md) | |
+ | [IndexSignatureDeclarationStructureClassIfc](./ts-morph-structures.indexsignaturedeclarationstructureclassifc.md) | |
+ | [IndexSignatureResolver](./ts-morph-structures.indexsignatureresolver.md) | |
+ | [InitializerExpressionableNodeStructureClassIfc](./ts-morph-structures.initializerexpressionablenodestructureclassifc.md) | |
+ | [InterfaceDeclarationStructureClassIfc](./ts-morph-structures.interfacedeclarationstructureclassifc.md) | |
+ | [InterfaceDeclarationWithExtendsTypeStructures](./ts-morph-structures.interfacedeclarationwithextendstypestructures.md) | |
+ | [JSDocableNodeStructureClassIfc](./ts-morph-structures.jsdocablenodestructureclassifc.md) | |
+ | [JSDocStructureClassIfc](./ts-morph-structures.jsdocstructureclassifc.md) | |
+ | [JSDocTagStructureClassIfc](./ts-morph-structures.jsdoctagstructureclassifc.md) | |
+ | [JsxAttributeStructureClassIfc](./ts-morph-structures.jsxattributestructureclassifc.md) | |
+ | [JsxElementStructureClassIfc](./ts-morph-structures.jsxelementstructureclassifc.md) | |
+ | [JsxSelfClosingElementStructureClassIfc](./ts-morph-structures.jsxselfclosingelementstructureclassifc.md) | |
+ | [JsxSpreadAttributeStructureClassIfc](./ts-morph-structures.jsxspreadattributestructureclassifc.md) | |
+ | [KindedTypeStructure](./ts-morph-structures.kindedtypestructure.md) | |
+ | [MemberedStatementsKey](./ts-morph-structures.memberedstatementskey.md) | |
+ | [MethodDeclarationOverloadStructureClassIfc](./ts-morph-structures.methoddeclarationoverloadstructureclassifc.md) | |
+ | [MethodDeclarationStructureClassIfc](./ts-morph-structures.methoddeclarationstructureclassifc.md) | |
+ | [MethodSignatureStructureClassIfc](./ts-morph-structures.methodsignaturestructureclassifc.md) | |
+ | [ModuleDeclarationStructureClassIfc](./ts-morph-structures.moduledeclarationstructureclassifc.md) | |
+ | [NameableNodeStructureClassIfc](./ts-morph-structures.nameablenodestructureclassifc.md) | |
+ | [NamedNodeStructureClassIfc](./ts-morph-structures.namednodestructureclassifc.md) | |
+ | [OverrideableNodeStructureClassIfc](./ts-morph-structures.overrideablenodestructureclassifc.md) | |
+ | [ParameterDeclarationStructureClassIfc](./ts-morph-structures.parameterdeclarationstructureclassifc.md) | |
+ | [ParameteredNodeStructureClassIfc](./ts-morph-structures.parameterednodestructureclassifc.md) | |
+ | [PropertyAssignmentStructureClassIfc](./ts-morph-structures.propertyassignmentstructureclassifc.md) | |
+ | [PropertyDeclarationStructureClassIfc](./ts-morph-structures.propertydeclarationstructureclassifc.md) | |
+ | [PropertyInitializerGetter](./ts-morph-structures.propertyinitializergetter.md) | For the initial value of a property. |
+ | [PropertySignatureStructureClassIfc](./ts-morph-structures.propertysignaturestructureclassifc.md) | |
+ | [QuestionTokenableNodeStructureClassIfc](./ts-morph-structures.questiontokenablenodestructureclassifc.md) | |
+ | [ReadonlyableNodeStructureClassIfc](./ts-morph-structures.readonlyablenodestructureclassifc.md) | |
+ | [ReturnTypedNodeStructureClassIfc](./ts-morph-structures.returntypednodestructureclassifc.md) | |
+ | [ReturnTypedNodeTypeStructure](./ts-morph-structures.returntypednodetypestructure.md) | |
+ | [ScopedNodeStructureClassIfc](./ts-morph-structures.scopednodestructureclassifc.md) | |
+ | [SetAccessorDeclarationStructureClassIfc](./ts-morph-structures.setaccessordeclarationstructureclassifc.md) | |
+ | [ShorthandPropertyAssignmentStructureClassIfc](./ts-morph-structures.shorthandpropertyassignmentstructureclassifc.md) | |
+ | [SourceFileStructureClassIfc](./ts-morph-structures.sourcefilestructureclassifc.md) | |
+ | [SpreadAssignmentStructureClassIfc](./ts-morph-structures.spreadassignmentstructureclassifc.md) | |
+ | [StatementedNodeStructureClassIfc](./ts-morph-structures.statementednodestructureclassifc.md) | |
+ | [StructureClassIfc](./ts-morph-structures.structureclassifc.md) | |
+ | [TypeAliasDeclarationStructureClassIfc](./ts-morph-structures.typealiasdeclarationstructureclassifc.md) | |
+ | [TypedNodeStructureClassIfc](./ts-morph-structures.typednodestructureclassifc.md) | |
+ | [TypedNodeTypeStructure](./ts-morph-structures.typednodetypestructure.md) | |
+ | [TypeParameterDeclarationStructureClassIfc](./ts-morph-structures.typeparameterdeclarationstructureclassifc.md) | |
+ | [TypeParameteredNodeStructureClassIfc](./ts-morph-structures.typeparameterednodestructureclassifc.md) | |
+ | [TypeParameterWithTypeStructures](./ts-morph-structures.typeparameterwithtypestructures.md) | |
+ | [TypeStructureSet](./ts-morph-structures.typestructureset.md) | |
+ | [VariableDeclarationStructureClassIfc](./ts-morph-structures.variabledeclarationstructureclassifc.md) | |
+ | [VariableStatementStructureClassIfc](./ts-morph-structures.variablestatementstructureclassifc.md) | |
+ 
 
-Interface
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.abstractablenodestructureclassifc.md">AbstractableNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.accessormirrorgetter.md">AccessorMirrorGetter</a></td><td>A value for getters and setters of a class to reflect.</td></tr>
-<tr><td><a href="./ts-morph-structures.addexportcontext.md">AddExportContext</a></td><td>A description of the exports to add.</td></tr>
-<tr><td><a href="./ts-morph-structures.addimportcontext.md">AddImportContext</a></td><td>A description of the imports to add.</td></tr>
-<tr><td><a href="./ts-morph-structures.ambientablenodestructureclassifc.md">AmbientableNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.asyncablenodestructureclassifc.md">AsyncableNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.callsignaturedeclarationstructureclassifc.md">CallSignatureDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classabstractmemberquestion.md">ClassAbstractMemberQuestion</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classasyncmethodquestion.md">ClassAsyncMethodQuestion</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classbodystatementsgetter.md">ClassBodyStatementsGetter</a></td><td>Statements in a statement purpose block for a particular property and function.</td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationstructureclassifc.md">ClassDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationwithimplementstypestructures.md">ClassDeclarationWithImplementsTypeStructures</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classgeneratormethodquestion.md">ClassGeneratorMethodQuestion</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classheadstatementsgetter.md">ClassHeadStatementsGetter</a></td><td>Statements at the start of a statement purpose block.</td></tr>
-<tr><td><a href="./ts-morph-structures.classscopememberquestion.md">ClassScopeMemberQuestion</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classstatementsgetter.md">ClassStatementsGetter</a></td><td>Traps for getting statements, based on a <code>MemberedStatementsKey</code><!-- -->.</td></tr>
-<tr><td><a href="./ts-morph-structures.classstaticblockdeclarationstructureclassifc.md">ClassStaticBlockDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classtailstatementsgetter.md">ClassTailStatementsGetter</a></td><td>Statements at the end of a statement purpose block.</td></tr>
-<tr><td><a href="./ts-morph-structures.conditionaltypestructureparts.md">ConditionalTypeStructureParts</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.constructorbodystatementsgetter.md">ConstructorBodyStatementsGetter</a></td><td>Statements in a statement purpose block for a particular property in the constructor.</td></tr>
-<tr><td><a href="./ts-morph-structures.constructordeclarationoverloadstructureclassifc.md">ConstructorDeclarationOverloadStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.constructordeclarationstructureclassifc.md">ConstructorDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.constructorheadstatementsgetter.md">ConstructorHeadStatementsGetter</a></td><td>Statements at the start of a constructor’s statement purpose block.</td></tr>
-<tr><td><a href="./ts-morph-structures.constructortailstatementsgetter.md">ConstructorTailStatementsGetter</a></td><td>Statements at the end of a constructor’s statement purpose block.</td></tr>
-<tr><td><a href="./ts-morph-structures.constructsignaturedeclarationstructureclassifc.md">ConstructSignatureDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.decoratablenodestructureclassifc.md">DecoratableNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.decoratorstructureclassifc.md">DecoratorStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.enumdeclarationstructureclassifc.md">EnumDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.enummemberstructureclassifc.md">EnumMemberStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exclamationtokenablenodestructureclassifc.md">ExclamationTokenableNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportablenodestructureclassifc.md">ExportableNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportassignmentstructureclassifc.md">ExportAssignmentStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportdeclarationstructureclassifc.md">ExportDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportspecifierstructureclassifc.md">ExportSpecifierStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.functiondeclarationoverloadstructureclassifc.md">FunctionDeclarationOverloadStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.functiondeclarationstructureclassifc.md">FunctionDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.functiontypecontext.md">FunctionTypeContext</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.generatorablenodestructureclassifc.md">GeneratorableNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.getaccessordeclarationstructureclassifc.md">GetAccessorDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importattributestructureclassifc.md">ImportAttributeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importdeclarationstructureclassifc.md">ImportDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importspecifierstructureclassifc.md">ImportSpecifierStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationstructureclassifc.md">IndexSignatureDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexsignatureresolver.md">IndexSignatureResolver</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.initializerexpressionablenodestructureclassifc.md">InitializerExpressionableNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationstructureclassifc.md">InterfaceDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationwithextendstypestructures.md">InterfaceDeclarationWithExtendsTypeStructures</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsdocablenodestructureclassifc.md">JSDocableNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsdocstructureclassifc.md">JSDocStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsdoctagstructureclassifc.md">JSDocTagStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxattributestructureclassifc.md">JsxAttributeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxelementstructureclassifc.md">JsxElementStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxselfclosingelementstructureclassifc.md">JsxSelfClosingElementStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxspreadattributestructureclassifc.md">JsxSpreadAttributeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.kindedtypestructure.md">KindedTypeStructure</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedstatementskey.md">MemberedStatementsKey</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationoverloadstructureclassifc.md">MethodDeclarationOverloadStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationstructureclassifc.md">MethodDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methodsignaturestructureclassifc.md">MethodSignatureStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.moduledeclarationstructureclassifc.md">ModuleDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.nameablenodestructureclassifc.md">NameableNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.namednodestructureclassifc.md">NamedNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.overrideablenodestructureclassifc.md">OverrideableNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.parameterdeclarationstructureclassifc.md">ParameterDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.parameterednodestructureclassifc.md">ParameteredNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertyassignmentstructureclassifc.md">PropertyAssignmentStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertydeclarationstructureclassifc.md">PropertyDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertyinitializergetter.md">PropertyInitializerGetter</a></td><td>For the initial value of a property.</td></tr>
-<tr><td><a href="./ts-morph-structures.propertysignaturestructureclassifc.md">PropertySignatureStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.questiontokenablenodestructureclassifc.md">QuestionTokenableNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.readonlyablenodestructureclassifc.md">ReadonlyableNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.returntypednodestructureclassifc.md">ReturnTypedNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.returntypednodetypestructure.md">ReturnTypedNodeTypeStructure</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.scopednodestructureclassifc.md">ScopedNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.setaccessordeclarationstructureclassifc.md">SetAccessorDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.shorthandpropertyassignmentstructureclassifc.md">ShorthandPropertyAssignmentStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.sourcefilestructureclassifc.md">SourceFileStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.spreadassignmentstructureclassifc.md">SpreadAssignmentStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.statementednodestructureclassifc.md">StatementedNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.structureclassifc.md">StructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typealiasdeclarationstructureclassifc.md">TypeAliasDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typednodestructureclassifc.md">TypedNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typednodetypestructure.md">TypedNodeTypeStructure</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationstructureclassifc.md">TypeParameterDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterednodestructureclassifc.md">TypeParameteredNodeStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterwithtypestructures.md">TypeParameterWithTypeStructures</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typestructureset.md">TypeStructureSet</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.variabledeclarationstructureclassifc.md">VariableDeclarationStructureClassIfc</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.variablestatementstructureclassifc.md">VariableStatementStructureClassIfc</a></td><td></td></tr>
-</tbody></table>
 
 ## Type Aliases
 
-<table><thead><tr><th>
+| Type Alias | Description |
+|-|-|
+ | [ClassFieldStatement](./ts-morph-structures.classfieldstatement.md) | |
+ | [ClassMemberImpl](./ts-morph-structures.classmemberimpl.md) | |
+ | [ClassMemberStructureImpls](./ts-morph-structures.classmemberstructureimpls.md) | |
+ | [InterfaceMemberStructureImpls](./ts-morph-structures.interfacememberstructureimpls.md) | |
+ | [JsxStructureImpls](./ts-morph-structures.jsxstructureimpls.md) | |
+ | [NamedClassMemberImpl](./ts-morph-structures.namedclassmemberimpl.md) | |
+ | [NamedTypeMemberImpl](./ts-morph-structures.namedtypememberimpl.md) | |
+ | [ObjectLiteralExpressionPropertyStructureImpls](./ts-morph-structures.objectliteralexpressionpropertystructureimpls.md) | |
+ | [PrefixUnaryOperator](./ts-morph-structures.prefixunaryoperator.md) | |
+ | [ReadonlyTypeMembersMap](./ts-morph-structures.readonlytypemembersmap.md) | |
+ | [StatementStructureImpls](./ts-morph-structures.statementstructureimpls.md) | |
+ | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | |
+ | [stringWriterOrStatementImpl](./ts-morph-structures.stringwriterorstatementimpl.md) | |
+ | [StructureImpls](./ts-morph-structures.structureimpls.md) | |
+ | [TypeElementMemberStructureImpls](./ts-morph-structures.typeelementmemberstructureimpls.md) | |
+ | [TypeMemberImpl](./ts-morph-structures.typememberimpl.md) | |
+ | [TypeNodeToTypeStructureConsole](./ts-morph-structures.typenodetotypestructureconsole.md) | |
+ | [TypeStructures](./ts-morph-structures.typestructures.md) | |
+ | [TypeStructuresOrNull](./ts-morph-structures.typestructuresornull.md) | |
+ 
 
-Type Alias
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classfieldstatement.md">ClassFieldStatement</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classmemberimpl.md">ClassMemberImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classmemberstructureimpls.md">ClassMemberStructureImpls</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacememberstructureimpls.md">InterfaceMemberStructureImpls</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxstructureimpls.md">JsxStructureImpls</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.namedclassmemberimpl.md">NamedClassMemberImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.namedtypememberimpl.md">NamedTypeMemberImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.objectliteralexpressionpropertystructureimpls.md">ObjectLiteralExpressionPropertyStructureImpls</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.prefixunaryoperator.md">PrefixUnaryOperator</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.readonlytypemembersmap.md">ReadonlyTypeMembersMap</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.statementstructureimpls.md">StatementStructureImpls</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.stringwriterorstatementimpl.md">stringWriterOrStatementImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.structureimpls.md">StructureImpls</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeelementmemberstructureimpls.md">TypeElementMemberStructureImpls</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typememberimpl.md">TypeMemberImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typenodetotypestructureconsole.md">TypeNodeToTypeStructureConsole</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typestructuresornull.md">TypeStructuresOrNull</a></td><td></td></tr>
-</tbody></table>
 

@@ -11,75 +11,31 @@
 ```typescript
 export default class ArrayTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Array> 
 ```
-**Extends:** TypeStructuresBase&lt;[TypeStructureKind.Array](./ts-morph-structures.typestructurekind.md)<!-- -->&gt;
+**Extends:** TypeStructuresBase&lt;[TypeStructureKind.Array](./ts-morph-structures.typestructurekind.md)&gt;
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(objectType)](./ts-morph-structures.arraytypestructureimpl._constructor_.md) | | Constructs a new instance of the `ArrayTypeStructureImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.arraytypestructureimpl._constructor_.md">(constructor)(objectType)</a></td><td></td><td>Constructs a new instance of the <code>ArrayTypeStructureImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.arraytypestructureimpl.kind.md) | `readonly` | (not declared) | |
+ | [objectType](./ts-morph-structures.arraytypestructureimpl.objecttype.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) | |
+ | [writerFunction](./ts-morph-structures.arraytypestructureimpl.writerfunction.md) | `readonly` | WriterFunction | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.arraytypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.arraytypestructureimpl.objecttype.md">objectType</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.arraytypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(other)](./ts-morph-structures.arraytypestructureimpl.clone.md) | `static` | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.arraytypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
-</tbody></table>
 

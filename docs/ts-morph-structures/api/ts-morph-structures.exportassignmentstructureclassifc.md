@@ -12,29 +12,11 @@ export interface ExportAssignmentStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [expression](./ts-morph-structures.exportassignmentstructureclassifc.expression.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | |
+ | [isExportEquals](./ts-morph-structures.exportassignmentstructureclassifc.isexportequals.md) | | boolean | |
+ | [kind](./ts-morph-structures.exportassignmentstructureclassifc.kind.md) | `readonly` | StructureKind.ExportAssignment | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.exportassignmentstructureclassifc.expression.md">expression</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportassignmentstructureclassifc.isexportequals.md">isExportEquals</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportassignmentstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.ExportAssignment</td><td></td></tr>
-</tbody></table>
 

@@ -14,28 +14,15 @@ arrayOfKind<Kind extends ClassMemberImpl["kind"]>(kind: Kind): Extract<ClassMemb
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | kind | Kind | the structure kind to get. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>kind</td><td>Kind</td><td>the structure kind to get.</td></tr>
-</tbody></table>
 
 **Returns:**
 
-Extract&lt;[ClassMemberImpl](./ts-morph-structures.classmemberimpl.md)<!-- -->, KindedStructure&lt;Kind&gt;&gt;\[\]
+Extract&lt;[ClassMemberImpl](./ts-morph-structures.classmemberimpl.md), KindedStructure&lt;Kind&gt;&gt;\[\]
 
 all current members of that kind.
 

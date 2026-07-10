@@ -11,76 +11,32 @@
 ```typescript
 export default class TemplateLiteralTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.TemplateLiteral> 
 ```
-**Extends:** TypeStructuresBase&lt;[TypeStructureKind.TemplateLiteral](./ts-morph-structures.typestructurekind.md)<!-- -->&gt;
+**Extends:** TypeStructuresBase&lt;[TypeStructureKind.TemplateLiteral](./ts-morph-structures.typestructurekind.md)&gt;
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(head, spans)](./ts-morph-structures.templateliteraltypestructureimpl._constructor_.md) | | Constructs a new instance of the `TemplateLiteralTypeStructureImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.templateliteraltypestructureimpl._constructor_.md">(constructor)(head, spans)</a></td><td></td><td>Constructs a new instance of the <code>TemplateLiteralTypeStructureImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [head](./ts-morph-structures.templateliteraltypestructureimpl.head.md) | | string | |
+ | [kind](./ts-morph-structures.templateliteraltypestructureimpl.kind.md) | `readonly` | (not declared) | |
+ | [spans](./ts-morph-structures.templateliteraltypestructureimpl.spans.md) | | \[[TypeStructures](./ts-morph-structures.typestructures.md), string\]\[\] | |
+ | [writerFunction](./ts-morph-structures.templateliteraltypestructureimpl.writerfunction.md) | `readonly` | WriterFunction | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.templateliteraltypestructureimpl.head.md">head</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.templateliteraltypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.templateliteraltypestructureimpl.spans.md">spans</a></td><td></td><td>[<a href="./ts-morph-structures.typestructures.md">TypeStructures</a><!-- -->, string][]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.templateliteraltypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(other)](./ts-morph-structures.templateliteraltypestructureimpl.clone.md) | `static` | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.templateliteraltypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
-</tbody></table>
 

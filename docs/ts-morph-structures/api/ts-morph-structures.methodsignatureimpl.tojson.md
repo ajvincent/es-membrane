@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<MethodSignatureImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[MethodSignatureImpl](./ts-morph-structures.methodsignatureimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[MethodSignatureImpl](./ts-morph-structures.methodsignatureimpl.md)&gt;
 

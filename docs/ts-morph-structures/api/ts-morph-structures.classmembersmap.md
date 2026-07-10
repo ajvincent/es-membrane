@@ -4,14 +4,14 @@
 
 ## ClassMembersMap class
 
-A map for class methods, properties, accessors and a constructor. This doesn't replace `ClassDeclarationImpl`<!-- -->, rather, it \_feeds\_ `ClassDeclarationImpl`<!-- -->.
+A map for class methods, properties, accessors and a constructor. This doesn't replace `ClassDeclarationImpl`, rather, it \_feeds\_ `ClassDeclarationImpl`.
 
 **Signature:**
 
 ```typescript
 export default class ClassMembersMap extends OrderedMap<string, ClassMemberImpl> 
 ```
-**Extends:** OrderedMap&lt;string, [ClassMemberImpl](./ts-morph-structures.classmemberimpl.md)<!-- -->&gt;
+**Extends:** OrderedMap&lt;string, [ClassMemberImpl](./ts-morph-structures.classmemberimpl.md)&gt;
 
 ## Example
 
@@ -19,34 +19,21 @@ const map = new ClassMembersMap; const foo = new PropertyDeclarationImpl(false, 
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [addMembers(members)](./ts-morph-structures.classmembersmap.addmembers.md) | | Add class members as values of this map, using standard keys. |
+ | [arrayOfKind(kind)](./ts-morph-structures.classmembersmap.arrayofkind.md) | | Get class members of a particular kind. |
+ | [clone()](./ts-morph-structures.classmembersmap.clone.md) | | Get a clone of this map. |
+ | [convertAccessorsToProperty(isStatic, name)](./ts-morph-structures.classmembersmap.convertaccessorstoproperty.md) | | Convert get and/or set accessors to a property. This may be lossy, but we try to be faithful. |
+ | [convertPropertyToAccessors(isStatic, name, toGetter, toSetter)](./ts-morph-structures.classmembersmap.convertpropertytoaccessors.md) | | Convert a property to get and/or set accessors. This may be lossy, but we try to be faithful. |
+ | [convertTypeMembers(isStatic, typeMembers, map)](./ts-morph-structures.classmembersmap.converttypemembers.md) | `static` | Creata an array of class members from an array of type members, |
+ | [fromClassDeclaration(classDecl)](./ts-morph-structures.classmembersmap.fromclassdeclaration.md) | `static` | Create a `ClassMembersMap` from a class declaration. |
+ | [getAsKind(kind, isStatic, name)](./ts-morph-structures.classmembersmap.getaskind.md) | | A typed call to `this.get()` for a given kind. |
+ | [keyFromMember(member)](./ts-morph-structures.classmembersmap.keyfrommember.md) | `static` | Get a map key from a potential class member. |
+ | [keyFromName(kind, isStatic, name)](./ts-morph-structures.classmembersmap.keyfromname.md) | `static` | |
+ | [moveMembersToClass(classDecl)](./ts-morph-structures.classmembersmap.movememberstoclass.md) | | Move class members from this map to a class declaration, and clear this map. |
+ | [moveStatementsToMembers(statementsMaps)](./ts-morph-structures.classmembersmap.movestatementstomembers.md) | | Move statements from a sequence of statement maps to the class members. |
+ | [toJSON()](./ts-morph-structures.classmembersmap.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classmembersmap.addmembers.md">addMembers(members)</a></td><td></td><td>Add class members as values of this map, using standard keys.</td></tr>
-<tr><td><a href="./ts-morph-structures.classmembersmap.arrayofkind.md">arrayOfKind(kind)</a></td><td></td><td>Get class members of a particular kind.</td></tr>
-<tr><td><a href="./ts-morph-structures.classmembersmap.clone.md">clone()</a></td><td></td><td>Get a clone of this map.</td></tr>
-<tr><td><a href="./ts-morph-structures.classmembersmap.convertaccessorstoproperty.md">convertAccessorsToProperty(isStatic, name)</a></td><td></td><td>Convert get and/or set accessors to a property. This may be lossy, but we try to be faithful.</td></tr>
-<tr><td><a href="./ts-morph-structures.classmembersmap.convertpropertytoaccessors.md">convertPropertyToAccessors(isStatic, name, toGetter, toSetter)</a></td><td></td><td>Convert a property to get and/or set accessors. This may be lossy, but we try to be faithful.</td></tr>
-<tr><td><a href="./ts-morph-structures.classmembersmap.converttypemembers.md">convertTypeMembers(isStatic, typeMembers, map)</a></td><td><code>static</code></td><td>Creata an array of class members from an array of type members,</td></tr>
-<tr><td><a href="./ts-morph-structures.classmembersmap.fromclassdeclaration.md">fromClassDeclaration(classDecl)</a></td><td><code>static</code></td><td>Create a <code>ClassMembersMap</code> from a class declaration.</td></tr>
-<tr><td><a href="./ts-morph-structures.classmembersmap.getaskind.md">getAsKind(kind, isStatic, name)</a></td><td></td><td>A typed call to <code>this.get()</code> for a given kind.</td></tr>
-<tr><td><a href="./ts-morph-structures.classmembersmap.keyfrommember.md">keyFromMember(member)</a></td><td><code>static</code></td><td>Get a map key from a potential class member.</td></tr>
-<tr><td><a href="./ts-morph-structures.classmembersmap.keyfromname.md">keyFromName(kind, isStatic, name)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classmembersmap.movememberstoclass.md">moveMembersToClass(classDecl)</a></td><td></td><td>Move class members from this map to a class declaration, and clear this map.</td></tr>
-<tr><td><a href="./ts-morph-structures.classmembersmap.movestatementstomembers.md">moveStatementsToMembers(statementsMaps)</a></td><td></td><td>Move statements from a sequence of statement maps to the class members.</td></tr>
-<tr><td><a href="./ts-morph-structures.classmembersmap.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

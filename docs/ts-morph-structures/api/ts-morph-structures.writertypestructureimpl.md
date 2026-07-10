@@ -11,74 +11,30 @@ Wrappers for writer functions from external sources. Leaf nodes.
 ```typescript
 export default class WriterTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Writer> 
 ```
-**Extends:** TypeStructuresBase&lt;[TypeStructureKind.Writer](./ts-morph-structures.typestructurekind.md)<!-- -->&gt;
+**Extends:** TypeStructuresBase&lt;[TypeStructureKind.Writer](./ts-morph-structures.typestructurekind.md)&gt;
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(writer)](./ts-morph-structures.writertypestructureimpl._constructor_.md) | | Constructs a new instance of the `WriterTypeStructureImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.writertypestructureimpl._constructor_.md">(constructor)(writer)</a></td><td></td><td>Constructs a new instance of the <code>WriterTypeStructureImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.writertypestructureimpl.kind.md) | `readonly` | (not declared) | |
+ | [writerFunction](./ts-morph-structures.writertypestructureimpl.writerfunction.md) | `readonly` | WriterFunction | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.writertypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.writertypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(other)](./ts-morph-structures.writertypestructureimpl.clone.md) | `static` | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.writertypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
-</tbody></table>
 

@@ -13,74 +13,30 @@ export default class JsxSelfClosingElementImpl implements JsxSelfClosingElementS
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(name)](./ts-morph-structures.jsxselfclosingelementimpl._constructor_.md) | | Constructs a new instance of the `JsxSelfClosingElementImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsxselfclosingelementimpl._constructor_.md">(constructor)(name)</a></td><td></td><td>Constructs a new instance of the <code>JsxSelfClosingElementImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [attributes](./ts-morph-structures.jsxselfclosingelementimpl.attributes.md) | `readonly` | ([JsxAttributeImpl](./ts-morph-structures.jsxattributeimpl.md) \| [JsxSpreadAttributeImpl](./ts-morph-structures.jsxspreadattributeimpl.md))\[\] | |
+ | [kind](./ts-morph-structures.jsxselfclosingelementimpl.kind.md) | `readonly` | StructureKind.JsxSelfClosingElement | |
+ | [leadingTrivia](./ts-morph-structures.jsxselfclosingelementimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [name](./ts-morph-structures.jsxselfclosingelementimpl.name.md) | | string | |
+ | [trailingTrivia](./ts-morph-structures.jsxselfclosingelementimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsxselfclosingelementimpl.attributes.md">attributes</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsxattributeimpl.md">JsxAttributeImpl</a> | <a href="./ts-morph-structures.jsxspreadattributeimpl.md">JsxSpreadAttributeImpl</a><!-- -->)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxselfclosingelementimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JsxSelfClosingElement</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxselfclosingelementimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxselfclosingelementimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxselfclosingelementimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.jsxselfclosingelementimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.jsxselfclosingelementimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsxselfclosingelementimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxselfclosingelementimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

@@ -14,22 +14,9 @@ constructor(childTypes?: string[]);
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | childTypes | string\[\] | _(Optional)_ |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>childTypes</td><td>string[]</td><td><em>(Optional)</em></td></tr>
-</tbody></table>
 

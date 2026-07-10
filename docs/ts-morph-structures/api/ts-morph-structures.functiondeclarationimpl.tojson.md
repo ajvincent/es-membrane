@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<FunctionDeclarationImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[FunctionDeclarationImpl](./ts-morph-structures.functiondeclarationimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[FunctionDeclarationImpl](./ts-morph-structures.functiondeclarationimpl.md)&gt;
 

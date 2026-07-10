@@ -9,7 +9,7 @@
 ```typescript
 export default class TypePredicateTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.TypePredicate> 
 ```
-**Extends:** TypeStructuresBase&lt;[TypeStructureKind.TypePredicate](./ts-morph-structures.typestructurekind.md)<!-- -->&gt;
+**Extends:** TypeStructuresBase&lt;[TypeStructureKind.TypePredicate](./ts-morph-structures.typestructurekind.md)&gt;
 
 ## Example
 
@@ -17,73 +17,29 @@ assert condition is true
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(hasAssertsKeyword, parameterName, isType)](./ts-morph-structures.typepredicatetypestructureimpl._constructor_.md) | | Constructs a new instance of the `TypePredicateTypeStructureImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl._constructor_.md">(constructor)(hasAssertsKeyword, parameterName, isType)</a></td><td></td><td>Constructs a new instance of the <code>TypePredicateTypeStructureImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [hasAssertsKeyword](./ts-morph-structures.typepredicatetypestructureimpl.hasassertskeyword.md) | | boolean | |
+ | [isType](./ts-morph-structures.typepredicatetypestructureimpl.istype.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| null | |
+ | [kind](./ts-morph-structures.typepredicatetypestructureimpl.kind.md) | `readonly` | [TypeStructureKind.TypePredicate](./ts-morph-structures.typestructurekind.md) | |
+ | [parameterName](./ts-morph-structures.typepredicatetypestructureimpl.parametername.md) | | [LiteralTypeStructureImpl](./ts-morph-structures.literaltypestructureimpl.md) | |
+ | [writerFunction](./ts-morph-structures.typepredicatetypestructureimpl.writerfunction.md) | `readonly` | WriterFunction | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.hasassertskeyword.md">hasAssertsKeyword</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.istype.md">isType</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | null</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.typestructurekind.md">TypeStructureKind.TypePredicate</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.parametername.md">parameterName</a></td><td></td><td><a href="./ts-morph-structures.literaltypestructureimpl.md">LiteralTypeStructureImpl</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(other)](./ts-morph-structures.typepredicatetypestructureimpl.clone.md) | `static` | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
-</tbody></table>
 

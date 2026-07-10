@@ -13,79 +13,35 @@ export default class MethodSignatureImpl implements MethodSignatureStructureClas
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(name)](./ts-morph-structures.methodsignatureimpl._constructor_.md) | | Constructs a new instance of the `MethodSignatureImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.methodsignatureimpl._constructor_.md">(constructor)(name)</a></td><td></td><td>Constructs a new instance of the <code>MethodSignatureImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [docs](./ts-morph-structures.methodsignatureimpl.docs.md) | `readonly` | ([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\] | |
+ | [hasQuestionToken](./ts-morph-structures.methodsignatureimpl.hasquestiontoken.md) | | boolean | |
+ | [kind](./ts-morph-structures.methodsignatureimpl.kind.md) | `readonly` | StructureKind.MethodSignature | |
+ | [leadingTrivia](./ts-morph-structures.methodsignatureimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [name](./ts-morph-structures.methodsignatureimpl.name.md) | | string | |
+ | [parameters](./ts-morph-structures.methodsignatureimpl.parameters.md) | `readonly` | [ParameterDeclarationImpl](./ts-morph-structures.parameterdeclarationimpl.md)\[\] | |
+ | [returnType?](./ts-morph-structures.methodsignatureimpl.returntype.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined | _(Optional)_ |
+ | [returnTypeStructure](./ts-morph-structures.methodsignatureimpl.returntypestructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ | [trailingTrivia](./ts-morph-structures.methodsignatureimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [typeParameters](./ts-morph-structures.methodsignatureimpl.typeparameters.md) | `readonly` | ([TypeParameterDeclarationImpl](./ts-morph-structures.typeparameterdeclarationimpl.md) \| string)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.methodsignatureimpl.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methodsignatureimpl.hasquestiontoken.md">hasQuestionToken</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methodsignatureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.MethodSignature</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methodsignatureimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methodsignatureimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methodsignatureimpl.parameters.md">parameters</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.parameterdeclarationimpl.md">ParameterDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methodsignatureimpl.returntype.md">returnType?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.methodsignatureimpl.returntypestructure.md">returnTypeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methodsignatureimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methodsignatureimpl.typeparameters.md">typeParameters</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.typeparameterdeclarationimpl.md">TypeParameterDeclarationImpl</a> | string)[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.methodsignatureimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.methodsignatureimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.methodsignatureimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methodsignatureimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

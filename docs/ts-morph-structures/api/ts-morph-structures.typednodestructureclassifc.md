@@ -12,28 +12,10 @@ export interface TypedNodeStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [type?](./ts-morph-structures.typednodestructureclassifc.type.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | _(Optional)_ |
+ | [typeStructure](./ts-morph-structures.typednodestructureclassifc.typestructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.typednodestructureclassifc.type.md">type?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.typednodestructureclassifc.typestructure.md">typeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-</tbody></table>
 

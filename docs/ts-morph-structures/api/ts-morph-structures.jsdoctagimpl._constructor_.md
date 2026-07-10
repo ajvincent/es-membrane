@@ -14,22 +14,9 @@ constructor(tagName: string);
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | tagName | string | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>tagName</td><td>string</td><td></td></tr>
-</tbody></table>
 

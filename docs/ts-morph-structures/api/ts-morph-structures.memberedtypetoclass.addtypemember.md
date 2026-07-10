@@ -14,25 +14,12 @@ addTypeMember(isStatic: boolean, member: TypeMemberImpl): void;
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | isStatic | boolean | true if the class member is static. |
+ | member | [TypeMemberImpl](./ts-morph-structures.typememberimpl.md) | the type member to convert to a class member. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>isStatic</td><td>boolean</td><td>true if the class member is static.</td></tr>
-<tr><td>member</td><td><a href="./ts-morph-structures.typememberimpl.md">TypeMemberImpl</a></td><td>the type member to convert to a class member.</td></tr>
-</tbody></table>
 
 **Returns:**
 

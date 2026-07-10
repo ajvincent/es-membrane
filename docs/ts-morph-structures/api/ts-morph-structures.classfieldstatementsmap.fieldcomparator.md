@@ -14,25 +14,12 @@ static fieldComparator(a: string, b: string): number;
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | a | string | |
+ | b | string | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>a</td><td>string</td><td></td></tr>
-<tr><td>b</td><td>string</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

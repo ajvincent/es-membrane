@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<DecoratorImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[DecoratorImpl](./ts-morph-structures.decoratorimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[DecoratorImpl](./ts-morph-structures.decoratorimpl.md)&gt;
 

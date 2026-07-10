@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<ExportSpecifierImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[ExportSpecifierImpl](./ts-morph-structures.exportspecifierimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[ExportSpecifierImpl](./ts-morph-structures.exportspecifierimpl.md)&gt;
 

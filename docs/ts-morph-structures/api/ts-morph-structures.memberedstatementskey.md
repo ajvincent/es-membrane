@@ -12,33 +12,15 @@ export interface MemberedStatementsKey
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [fieldKey](./ts-morph-structures.memberedstatementskey.fieldkey.md) | `readonly` | string | |
+ | [fieldType](./ts-morph-structures.memberedstatementskey.fieldtype.md) | `readonly` | [TypeMemberImpl](./ts-morph-structures.typememberimpl.md) \| undefined | |
+ | [groupType](./ts-morph-structures.memberedstatementskey.grouptype.md) | `readonly` | [TypeMemberImpl](./ts-morph-structures.typememberimpl.md) \| undefined | |
+ | [isFieldStatic](./ts-morph-structures.memberedstatementskey.isfieldstatic.md) | `readonly` | boolean | |
+ | [isGroupStatic](./ts-morph-structures.memberedstatementskey.isgroupstatic.md) | `readonly` | boolean | |
+ | [purpose](./ts-morph-structures.memberedstatementskey.purpose.md) | `readonly` | string | |
+ | [statementGroupKey](./ts-morph-structures.memberedstatementskey.statementgroupkey.md) | `readonly` | string | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.memberedstatementskey.fieldkey.md">fieldKey</a></td><td><code>readonly</code></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedstatementskey.fieldtype.md">fieldType</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.typememberimpl.md">TypeMemberImpl</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedstatementskey.grouptype.md">groupType</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.typememberimpl.md">TypeMemberImpl</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedstatementskey.isfieldstatic.md">isFieldStatic</a></td><td><code>readonly</code></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedstatementskey.isgroupstatic.md">isGroupStatic</a></td><td><code>readonly</code></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedstatementskey.purpose.md">purpose</a></td><td><code>readonly</code></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedstatementskey.statementgroupkey.md">statementGroupKey</a></td><td><code>readonly</code></td><td>string</td><td></td></tr>
-</tbody></table>
 

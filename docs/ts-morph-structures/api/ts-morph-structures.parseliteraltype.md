@@ -12,24 +12,11 @@ export default function parseLiteralType(source: string): TypeStructures;
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | source | string | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>source</td><td>string</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<JsxSelfClosingElementImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[JsxSelfClosingElementImpl](./ts-morph-structures.jsxselfclosingelementimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[JsxSelfClosingElementImpl](./ts-morph-structures.jsxselfclosingelementimpl.md)&gt;
 

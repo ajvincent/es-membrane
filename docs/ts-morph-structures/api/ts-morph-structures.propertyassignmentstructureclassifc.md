@@ -12,28 +12,10 @@ export interface PropertyAssignmentStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [initializer](./ts-morph-structures.propertyassignmentstructureclassifc.initializer.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | |
+ | [kind](./ts-morph-structures.propertyassignmentstructureclassifc.kind.md) | `readonly` | StructureKind.PropertyAssignment | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.propertyassignmentstructureclassifc.initializer.md">initializer</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertyassignmentstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.PropertyAssignment</td><td></td></tr>
-</tbody></table>
 

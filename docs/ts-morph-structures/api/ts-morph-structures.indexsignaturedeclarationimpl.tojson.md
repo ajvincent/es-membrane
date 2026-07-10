@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<IndexSignatureDeclarationImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[IndexSignatureDeclarationImpl](./ts-morph-structures.indexsignaturedeclarationimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[IndexSignatureDeclarationImpl](./ts-morph-structures.indexsignaturedeclarationimpl.md)&gt;
 

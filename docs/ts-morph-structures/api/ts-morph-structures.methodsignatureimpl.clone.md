@@ -12,24 +12,11 @@ static clone(source: OptionalKind<MethodSignatureStructure>): MethodSignatureImp
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | source | OptionalKind&lt;MethodSignatureStructure&gt; | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>source</td><td>OptionalKind&lt;MethodSignatureStructure&gt;</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

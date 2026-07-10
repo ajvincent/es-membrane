@@ -12,25 +12,12 @@ static normalizeKeys(fieldName: string, statementGroup: string): [string, string
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | fieldName | string | |
+ | statementGroup | string | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>fieldName</td><td>string</td><td></td></tr>
-<tr><td>statementGroup</td><td>string</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

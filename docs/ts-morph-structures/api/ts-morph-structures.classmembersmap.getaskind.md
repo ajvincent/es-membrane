@@ -14,30 +14,17 @@ getAsKind<Kind extends ClassMemberImpl["kind"]>(kind: Kind, isStatic: boolean, n
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | kind | Kind | the structure kind. |
+ | isStatic | boolean | true if the member is static. |
+ | name | string | the name of the member. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>kind</td><td>Kind</td><td>the structure kind.</td></tr>
-<tr><td>isStatic</td><td>boolean</td><td>true if the member is static.</td></tr>
-<tr><td>name</td><td>string</td><td>the name of the member.</td></tr>
-</tbody></table>
 
 **Returns:**
 
-Extract&lt;[ClassMemberImpl](./ts-morph-structures.classmemberimpl.md)<!-- -->, KindedStructure&lt;Kind&gt;&gt; \| undefined
+Extract&lt;[ClassMemberImpl](./ts-morph-structures.classmemberimpl.md), KindedStructure&lt;Kind&gt;&gt; \| undefined
 
 - the class member, as the right type, or undefined if the wrong type.
 

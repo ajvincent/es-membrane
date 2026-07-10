@@ -10,22 +10,14 @@
 ```typescript
 export interface TypeStructureSet extends Set<TypeStructures> 
 ```
-**Extends:** Set&lt;[TypeStructures](./ts-morph-structures.typestructures.md)<!-- -->&gt;
+**Extends:** Set&lt;[TypeStructures](./ts-morph-structures.typestructures.md)&gt;
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Description |
+|-|-|
+ | [cloneFromTypeStructureSet(other)](./ts-morph-structures.typestructureset.clonefromtypestructureset.md) | Replace all the type structures this set managers with those from another set. |
+ | [replaceFromTypeArray(array)](./ts-morph-structures.typestructureset.replacefromtypearray.md) | Replace all the types this set manages with those from another array. |
+ 
 
-Method
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.typestructureset.clonefromtypestructureset.md">cloneFromTypeStructureSet(other)</a></td><td>Replace all the type structures this set managers with those from another set.</td></tr>
-<tr><td><a href="./ts-morph-structures.typestructureset.replacefromtypearray.md">replaceFromTypeArray(array)</a></td><td>Replace all the types this set manages with those from another array.</td></tr>
-</tbody></table>
 

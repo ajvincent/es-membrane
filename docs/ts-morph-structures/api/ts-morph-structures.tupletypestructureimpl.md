@@ -9,7 +9,7 @@
 ```typescript
 export default class TupleTypeStructureImpl extends TypeStructuresWithChildren<TypeStructureKind.Tuple, TypeStructures[]> 
 ```
-**Extends:** TypeStructuresWithChildren&lt;[TypeStructureKind.Tuple](./ts-morph-structures.typestructurekind.md)<!-- -->, [TypeStructures](./ts-morph-structures.typestructures.md)<!-- -->\[\]&gt;
+**Extends:** TypeStructuresWithChildren&lt;[TypeStructureKind.Tuple](./ts-morph-structures.typestructurekind.md), [TypeStructures](./ts-morph-structures.typestructures.md)\[\]&gt;
 
 ## Example
 
@@ -17,80 +17,31 @@ export default class TupleTypeStructureImpl extends TypeStructuresWithChildren<T
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(childTypes)](./ts-morph-structures.tupletypestructureimpl._constructor_.md) | | Constructs a new instance of the `TupleTypeStructureImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.tupletypestructureimpl._constructor_.md">(constructor)(childTypes)</a></td><td></td><td>Constructs a new instance of the <code>TupleTypeStructureImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [childTypes](./ts-morph-structures.tupletypestructureimpl.childtypes.md) | | [TypeStructures](./ts-morph-structures.typestructures.md)\[\] | |
+ | [endToken](./ts-morph-structures.tupletypestructureimpl.endtoken.md) | `protected` `readonly` | (not declared) | |
+ | [joinChildrenToken](./ts-morph-structures.tupletypestructureimpl.joinchildrentoken.md) | `protected` `readonly` | (not declared) | |
+ | [kind](./ts-morph-structures.tupletypestructureimpl.kind.md) | `readonly` | (not declared) | |
+ | [maxChildCount](./ts-morph-structures.tupletypestructureimpl.maxchildcount.md) | `protected` `readonly` | number | |
+ | [objectType](./ts-morph-structures.tupletypestructureimpl.objecttype.md) | `protected` `readonly` | null | |
+ | [startToken](./ts-morph-structures.tupletypestructureimpl.starttoken.md) | `protected` `readonly` | (not declared) | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.tupletypestructureimpl.childtypes.md">childTypes</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.tupletypestructureimpl.endtoken.md">endToken</a></td><td><p><code>protected</code></p>
-<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.tupletypestructureimpl.joinchildrentoken.md">joinChildrenToken</a></td><td><p><code>protected</code></p>
-<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.tupletypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.tupletypestructureimpl.maxchildcount.md">maxChildCount</a></td><td><p><code>protected</code></p>
-<p><code>readonly</code></p></td><td>number</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.tupletypestructureimpl.objecttype.md">objectType</a></td><td><p><code>protected</code></p>
-<p><code>readonly</code></p></td><td>null</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.tupletypestructureimpl.starttoken.md">startToken</a></td><td><p><code>protected</code></p>
-<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(other)](./ts-morph-structures.tupletypestructureimpl.clone.md) | `static` | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.tupletypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
-</tbody></table>
 

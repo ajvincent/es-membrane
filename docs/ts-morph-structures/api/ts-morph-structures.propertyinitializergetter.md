@@ -18,18 +18,10 @@ To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFla
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Description |
+|-|-|
+ | [filterPropertyInitializer(key)](./ts-morph-structures.propertyinitializergetter.filterpropertyinitializer.md) | |
+ | [getPropertyInitializer(key)](./ts-morph-structures.propertyinitializergetter.getpropertyinitializer.md) | |
+ 
 
-Method
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.propertyinitializergetter.filterpropertyinitializer.md">filterPropertyInitializer(key)</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertyinitializergetter.getpropertyinitializer.md">getPropertyInitializer(key)</a></td><td></td></tr>
-</tbody></table>
 

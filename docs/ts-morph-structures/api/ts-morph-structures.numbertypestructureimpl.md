@@ -11,76 +11,32 @@ Numbers (boolean, number, string, void, etc.), without quotes, brackets, or anyt
 ```typescript
 export default class NumberTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Number> 
 ```
-**Extends:** TypeStructuresBase&lt;[TypeStructureKind.Number](./ts-morph-structures.typestructurekind.md)<!-- -->&gt;
+**Extends:** TypeStructuresBase&lt;[TypeStructureKind.Number](./ts-morph-structures.typestructurekind.md)&gt;
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(value)](./ts-morph-structures.numbertypestructureimpl._constructor_.md) | | Constructs a new instance of the `NumberTypeStructureImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.numbertypestructureimpl._constructor_.md">(constructor)(value)</a></td><td></td><td>Constructs a new instance of the <code>NumberTypeStructureImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.numbertypestructureimpl.kind.md) | `readonly` | (not declared) | |
+ | [numberValue](./ts-morph-structures.numbertypestructureimpl.numbervalue.md) | `readonly` | number | |
+ | [writerFunction](./ts-morph-structures.numbertypestructureimpl.writerfunction.md) | `readonly` | WriterFunction | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.numbertypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.numbertypestructureimpl.numbervalue.md">numberValue</a></td><td><code>readonly</code></td><td>number</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.numbertypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(other)](./ts-morph-structures.numbertypestructureimpl.clone.md) | `static` | |
+ | [get(name)](./ts-morph-structures.numbertypestructureimpl.get.md) | `static` | Gets a singleton `NumberTypeStructureImpl` for the given name. |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.numbertypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.numbertypestructureimpl.get.md">get(name)</a></td><td><code>static</code></td><td>Gets a singleton <code>NumberTypeStructureImpl</code> for the given name.</td></tr>
-</tbody></table>
 

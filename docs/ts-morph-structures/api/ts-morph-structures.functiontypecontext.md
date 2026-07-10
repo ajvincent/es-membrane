@@ -12,33 +12,15 @@ export interface FunctionTypeContext
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [isConstructor](./ts-morph-structures.functiontypecontext.isconstructor.md) | | boolean | |
+ | [name](./ts-morph-structures.functiontypecontext.name.md) | | string \| undefined | |
+ | [parameters](./ts-morph-structures.functiontypecontext.parameters.md) | | [ParameterTypeStructureImpl](./ts-morph-structures.parametertypestructureimpl.md)\[\] | |
+ | [restParameter](./ts-morph-structures.functiontypecontext.restparameter.md) | | [ParameterTypeStructureImpl](./ts-morph-structures.parametertypestructureimpl.md) \| undefined | |
+ | [returnType](./ts-morph-structures.functiontypecontext.returntype.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ | [typeParameters](./ts-morph-structures.functiontypecontext.typeparameters.md) | | [TypeParameterDeclarationImpl](./ts-morph-structures.typeparameterdeclarationimpl.md)\[\] | |
+ | [writerStyle](./ts-morph-structures.functiontypecontext.writerstyle.md) | | [FunctionWriterStyle](./ts-morph-structures.functionwriterstyle.md) | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.functiontypecontext.isconstructor.md">isConstructor</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.functiontypecontext.name.md">name</a></td><td></td><td>string | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.functiontypecontext.parameters.md">parameters</a></td><td></td><td><a href="./ts-morph-structures.parametertypestructureimpl.md">ParameterTypeStructureImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.functiontypecontext.restparameter.md">restParameter</a></td><td></td><td><a href="./ts-morph-structures.parametertypestructureimpl.md">ParameterTypeStructureImpl</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.functiontypecontext.returntype.md">returnType</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.functiontypecontext.typeparameters.md">typeParameters</a></td><td></td><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.md">TypeParameterDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.functiontypecontext.writerstyle.md">writerStyle</a></td><td></td><td><a href="./ts-morph-structures.functionwriterstyle.md">FunctionWriterStyle</a></td><td></td></tr>
-</tbody></table>
 

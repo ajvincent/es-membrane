@@ -12,28 +12,10 @@ export interface ClassDeclarationWithImplementsTypeStructures
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [implements](./ts-morph-structures.classdeclarationwithimplementstypestructures.implements.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [implementsSet](./ts-morph-structures.classdeclarationwithimplementstypestructures.implementsset.md) | | [TypeStructureSet](./ts-morph-structures.typestructureset.md) | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classdeclarationwithimplementstypestructures.implements.md">implements</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationwithimplementstypestructures.implementsset.md">implementsSet</a></td><td></td><td><a href="./ts-morph-structures.typestructureset.md">TypeStructureSet</a></td><td></td></tr>
-</tbody></table>
 

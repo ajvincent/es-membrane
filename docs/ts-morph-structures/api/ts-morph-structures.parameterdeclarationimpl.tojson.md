@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<ParameterDeclarationImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[ParameterDeclarationImpl](./ts-morph-structures.parameterdeclarationimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[ParameterDeclarationImpl](./ts-morph-structures.parameterdeclarationimpl.md)&gt;
 

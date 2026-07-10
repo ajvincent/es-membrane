@@ -11,7 +11,7 @@ Properties, methods, getters, setters, and index signatures. Very much like inte
 ```typescript
 export default class MemberedObjectTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.MemberedObject> 
 ```
-**Extends:** TypeStructuresBase&lt;[TypeStructureKind.MemberedObject](./ts-morph-structures.typestructurekind.md)<!-- -->&gt;
+**Extends:** TypeStructuresBase&lt;[TypeStructureKind.MemberedObject](./ts-morph-structures.typestructurekind.md)&gt;
 
 ## Example
 
@@ -30,77 +30,33 @@ export default class MemberedObjectTypeStructureImpl extends TypeStructuresBase<
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)()](./ts-morph-structures.memberedobjecttypestructureimpl._constructor_.md) | | Constructs a new instance of the `MemberedObjectTypeStructureImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.memberedobjecttypestructureimpl._constructor_.md">(constructor)()</a></td><td></td><td>Constructs a new instance of the <code>MemberedObjectTypeStructureImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [callSignatures](./ts-morph-structures.memberedobjecttypestructureimpl.callsignatures.md) | `readonly` | [CallSignatureDeclarationImpl](./ts-morph-structures.callsignaturedeclarationimpl.md)\[\] | |
+ | [constructSignatures](./ts-morph-structures.memberedobjecttypestructureimpl.constructsignatures.md) | `readonly` | [ConstructSignatureDeclarationImpl](./ts-morph-structures.constructsignaturedeclarationimpl.md)\[\] | |
+ | [getAccessors](./ts-morph-structures.memberedobjecttypestructureimpl.getaccessors.md) | `readonly` | [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md)\[\] | |
+ | [indexSignatures](./ts-morph-structures.memberedobjecttypestructureimpl.indexsignatures.md) | `readonly` | [IndexSignatureDeclarationImpl](./ts-morph-structures.indexsignaturedeclarationimpl.md)\[\] | |
+ | [kind](./ts-morph-structures.memberedobjecttypestructureimpl.kind.md) | `readonly` | (not declared) | |
+ | [methods](./ts-morph-structures.memberedobjecttypestructureimpl.methods.md) | `readonly` | [MethodSignatureImpl](./ts-morph-structures.methodsignatureimpl.md)\[\] | |
+ | [properties](./ts-morph-structures.memberedobjecttypestructureimpl.properties.md) | `readonly` | [PropertySignatureImpl](./ts-morph-structures.propertysignatureimpl.md)\[\] | |
+ | [setAccessors](./ts-morph-structures.memberedobjecttypestructureimpl.setaccessors.md) | `readonly` | [SetAccessorDeclarationImpl](./ts-morph-structures.setaccessordeclarationimpl.md)\[\] | |
+ | [writerFunction](./ts-morph-structures.memberedobjecttypestructureimpl.writerfunction.md) | | (writer: CodeBlockWriter) =&gt; void | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.memberedobjecttypestructureimpl.callsignatures.md">callSignatures</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.callsignaturedeclarationimpl.md">CallSignatureDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedobjecttypestructureimpl.constructsignatures.md">constructSignatures</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.constructsignaturedeclarationimpl.md">ConstructSignatureDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedobjecttypestructureimpl.getaccessors.md">getAccessors</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.getaccessordeclarationimpl.md">GetAccessorDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedobjecttypestructureimpl.indexsignatures.md">indexSignatures</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.md">IndexSignatureDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedobjecttypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedobjecttypestructureimpl.methods.md">methods</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.methodsignatureimpl.md">MethodSignatureImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedobjecttypestructureimpl.properties.md">properties</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.propertysignatureimpl.md">PropertySignatureImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedobjecttypestructureimpl.setaccessors.md">setAccessors</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.setaccessordeclarationimpl.md">SetAccessorDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.memberedobjecttypestructureimpl.writerfunction.md">writerFunction</a></td><td></td><td>(writer: CodeBlockWriter) =&gt; void</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(other)](./ts-morph-structures.memberedobjecttypestructureimpl.clone.md) | `static` | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.memberedobjecttypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
-</tbody></table>
 

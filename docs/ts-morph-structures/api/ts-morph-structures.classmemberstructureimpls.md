@@ -15,5 +15,5 @@ export type ClassMemberStructureImpls =
   | PropertyDeclarationImpl
   | SetAccessorDeclarationImpl;
 ```
-**References:** [ClassStaticBlockDeclarationImpl](./ts-morph-structures.classstaticblockdeclarationimpl.md)<!-- -->, [ConstructorDeclarationImpl](./ts-morph-structures.constructordeclarationimpl.md)<!-- -->, [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md)<!-- -->, [MethodDeclarationImpl](./ts-morph-structures.methoddeclarationimpl.md)<!-- -->, [PropertyDeclarationImpl](./ts-morph-structures.propertydeclarationimpl.md)<!-- -->, [SetAccessorDeclarationImpl](./ts-morph-structures.setaccessordeclarationimpl.md)
+**References:** [ClassStaticBlockDeclarationImpl](./ts-morph-structures.classstaticblockdeclarationimpl.md), [ConstructorDeclarationImpl](./ts-morph-structures.constructordeclarationimpl.md), [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md), [MethodDeclarationImpl](./ts-morph-structures.methoddeclarationimpl.md), [PropertyDeclarationImpl](./ts-morph-structures.propertydeclarationimpl.md), [SetAccessorDeclarationImpl](./ts-morph-structures.setaccessordeclarationimpl.md)
 

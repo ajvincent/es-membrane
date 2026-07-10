@@ -12,29 +12,11 @@ export interface VariableStatementStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [declarationKind?](./ts-morph-structures.variablestatementstructureclassifc.declarationkind.md) | | VariableDeclarationKind | _(Optional)_ |
+ | [declarations](./ts-morph-structures.variablestatementstructureclassifc.declarations.md) | `readonly` | [VariableDeclarationImpl](./ts-morph-structures.variabledeclarationimpl.md)\[\] | |
+ | [kind](./ts-morph-structures.variablestatementstructureclassifc.kind.md) | `readonly` | StructureKind.VariableStatement | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.variablestatementstructureclassifc.declarationkind.md">declarationKind?</a></td><td></td><td>VariableDeclarationKind</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.variablestatementstructureclassifc.declarations.md">declarations</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.variabledeclarationimpl.md">VariableDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.variablestatementstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.VariableStatement</td><td></td></tr>
-</tbody></table>
 

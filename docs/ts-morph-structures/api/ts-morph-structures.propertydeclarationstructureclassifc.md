@@ -12,29 +12,11 @@ export interface PropertyDeclarationStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [hasAccessorKeyword](./ts-morph-structures.propertydeclarationstructureclassifc.hasaccessorkeyword.md) | | boolean | |
+ | [isStatic](./ts-morph-structures.propertydeclarationstructureclassifc.isstatic.md) | | boolean | |
+ | [kind](./ts-morph-structures.propertydeclarationstructureclassifc.kind.md) | `readonly` | StructureKind.Property | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.propertydeclarationstructureclassifc.hasaccessorkeyword.md">hasAccessorKeyword</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertydeclarationstructureclassifc.isstatic.md">isStatic</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertydeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Property</td><td></td></tr>
-</tbody></table>
 

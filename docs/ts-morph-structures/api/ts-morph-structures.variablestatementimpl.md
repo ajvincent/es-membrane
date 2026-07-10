@@ -13,57 +13,26 @@ export default class VariableStatementImpl implements VariableStatementStructure
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [declarationKind?](./ts-morph-structures.variablestatementimpl.declarationkind.md) | | VariableDeclarationKind | _(Optional)_ |
+ | [declarations](./ts-morph-structures.variablestatementimpl.declarations.md) | `readonly` | [VariableDeclarationImpl](./ts-morph-structures.variabledeclarationimpl.md)\[\] | |
+ | [docs](./ts-morph-structures.variablestatementimpl.docs.md) | `readonly` | ([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\] | |
+ | [hasDeclareKeyword](./ts-morph-structures.variablestatementimpl.hasdeclarekeyword.md) | | boolean | |
+ | [isDefaultExport](./ts-morph-structures.variablestatementimpl.isdefaultexport.md) | | boolean | |
+ | [isExported](./ts-morph-structures.variablestatementimpl.isexported.md) | | boolean | |
+ | [kind](./ts-morph-structures.variablestatementimpl.kind.md) | `readonly` | StructureKind.VariableStatement | |
+ | [leadingTrivia](./ts-morph-structures.variablestatementimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [trailingTrivia](./ts-morph-structures.variablestatementimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.variablestatementimpl.declarationkind.md">declarationKind?</a></td><td></td><td>VariableDeclarationKind</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.variablestatementimpl.declarations.md">declarations</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.variabledeclarationimpl.md">VariableDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.variablestatementimpl.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.variablestatementimpl.hasdeclarekeyword.md">hasDeclareKeyword</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.variablestatementimpl.isdefaultexport.md">isDefaultExport</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.variablestatementimpl.isexported.md">isExported</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.variablestatementimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.VariableStatement</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.variablestatementimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.variablestatementimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.variablestatementimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.variablestatementimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.variablestatementimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.variablestatementimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

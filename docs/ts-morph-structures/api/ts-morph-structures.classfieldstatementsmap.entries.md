@@ -13,5 +13,5 @@ entries(): IterableIterator<[string, string, ClassFieldStatement[]]>;
 ```
 **Returns:**
 
-IterableIterator&lt;\[string, string, [ClassFieldStatement](./ts-morph-structures.classfieldstatement.md)<!-- -->\[\]\]&gt;
+IterableIterator&lt;\[string, string, [ClassFieldStatement](./ts-morph-structures.classfieldstatement.md)\[\]\]&gt;
 

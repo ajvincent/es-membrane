@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<JSDocTagImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[JSDocTagImpl](./ts-morph-structures.jsdoctagimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[JSDocTagImpl](./ts-morph-structures.jsdoctagimpl.md)&gt;
 

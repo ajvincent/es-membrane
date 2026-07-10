@@ -13,87 +13,43 @@ export default class InterfaceDeclarationImpl implements InterfaceDeclarationStr
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(name)](./ts-morph-structures.interfacedeclarationimpl._constructor_.md) | | Constructs a new instance of the `InterfaceDeclarationImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.interfacedeclarationimpl._constructor_.md">(constructor)(name)</a></td><td></td><td>Constructs a new instance of the <code>InterfaceDeclarationImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [callSignatures](./ts-morph-structures.interfacedeclarationimpl.callsignatures.md) | `readonly` | [CallSignatureDeclarationImpl](./ts-morph-structures.callsignaturedeclarationimpl.md)\[\] | |
+ | [constructSignatures](./ts-morph-structures.interfacedeclarationimpl.constructsignatures.md) | `readonly` | [ConstructSignatureDeclarationImpl](./ts-morph-structures.constructsignaturedeclarationimpl.md)\[\] | |
+ | [docs](./ts-morph-structures.interfacedeclarationimpl.docs.md) | `readonly` | ([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\] | |
+ | [extends](./ts-morph-structures.interfacedeclarationimpl.extends.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | Treat this as a read-only array. Use `.extendsSet` to modify this. |
+ | [extendsSet](./ts-morph-structures.interfacedeclarationimpl.extendsset.md) | `readonly` | [TypeStructureSet](./ts-morph-structures.typestructureset.md) | |
+ | [getAccessors](./ts-morph-structures.interfacedeclarationimpl.getaccessors.md) | `readonly` | [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md)\[\] | |
+ | [hasDeclareKeyword](./ts-morph-structures.interfacedeclarationimpl.hasdeclarekeyword.md) | | boolean | |
+ | [indexSignatures](./ts-morph-structures.interfacedeclarationimpl.indexsignatures.md) | `readonly` | [IndexSignatureDeclarationImpl](./ts-morph-structures.indexsignaturedeclarationimpl.md)\[\] | |
+ | [isDefaultExport](./ts-morph-structures.interfacedeclarationimpl.isdefaultexport.md) | | boolean | |
+ | [isExported](./ts-morph-structures.interfacedeclarationimpl.isexported.md) | | boolean | |
+ | [kind](./ts-morph-structures.interfacedeclarationimpl.kind.md) | `readonly` | StructureKind.Interface | |
+ | [leadingTrivia](./ts-morph-structures.interfacedeclarationimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [methods](./ts-morph-structures.interfacedeclarationimpl.methods.md) | `readonly` | [MethodSignatureImpl](./ts-morph-structures.methodsignatureimpl.md)\[\] | |
+ | [name](./ts-morph-structures.interfacedeclarationimpl.name.md) | | string | |
+ | [properties](./ts-morph-structures.interfacedeclarationimpl.properties.md) | `readonly` | [PropertySignatureImpl](./ts-morph-structures.propertysignatureimpl.md)\[\] | |
+ | [setAccessors](./ts-morph-structures.interfacedeclarationimpl.setaccessors.md) | `readonly` | [SetAccessorDeclarationImpl](./ts-morph-structures.setaccessordeclarationimpl.md)\[\] | |
+ | [trailingTrivia](./ts-morph-structures.interfacedeclarationimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [typeParameters](./ts-morph-structures.interfacedeclarationimpl.typeparameters.md) | `readonly` | ([TypeParameterDeclarationImpl](./ts-morph-structures.typeparameterdeclarationimpl.md) \| string)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.callsignatures.md">callSignatures</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.callsignaturedeclarationimpl.md">CallSignatureDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.constructsignatures.md">constructSignatures</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.constructsignaturedeclarationimpl.md">ConstructSignatureDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.extends.md">extends</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td>Treat this as a read-only array. Use <code>.extendsSet</code> to modify this.</td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.extendsset.md">extendsSet</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.typestructureset.md">TypeStructureSet</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.getaccessors.md">getAccessors</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.getaccessordeclarationimpl.md">GetAccessorDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.hasdeclarekeyword.md">hasDeclareKeyword</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.indexsignatures.md">indexSignatures</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.md">IndexSignatureDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.isdefaultexport.md">isDefaultExport</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.isexported.md">isExported</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Interface</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.methods.md">methods</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.methodsignatureimpl.md">MethodSignatureImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.properties.md">properties</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.propertysignatureimpl.md">PropertySignatureImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.setaccessors.md">setAccessors</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.setaccessordeclarationimpl.md">SetAccessorDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.typeparameters.md">typeParameters</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.typeparameterdeclarationimpl.md">TypeParameterDeclarationImpl</a> | string)[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.interfacedeclarationimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.interfacedeclarationimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

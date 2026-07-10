@@ -13,79 +13,35 @@ export default class TypeParameterDeclarationImpl implements TypeParameterDeclar
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(name)](./ts-morph-structures.typeparameterdeclarationimpl._constructor_.md) | | Constructs a new instance of the `TypeParameterDeclarationImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.typeparameterdeclarationimpl._constructor_.md">(constructor)(name)</a></td><td></td><td>Constructs a new instance of the <code>TypeParameterDeclarationImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [constraint?](./ts-morph-structures.typeparameterdeclarationimpl.constraint.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined | _(Optional)_ |
+ | [constraintStructure](./ts-morph-structures.typeparameterdeclarationimpl.constraintstructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ | [default?](./ts-morph-structures.typeparameterdeclarationimpl.default.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined | _(Optional)_ |
+ | [defaultStructure](./ts-morph-structures.typeparameterdeclarationimpl.defaultstructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ | [isConst](./ts-morph-structures.typeparameterdeclarationimpl.isconst.md) | | boolean | |
+ | [kind](./ts-morph-structures.typeparameterdeclarationimpl.kind.md) | `readonly` | StructureKind.TypeParameter | |
+ | [leadingTrivia](./ts-morph-structures.typeparameterdeclarationimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [name](./ts-morph-structures.typeparameterdeclarationimpl.name.md) | | string | |
+ | [trailingTrivia](./ts-morph-structures.typeparameterdeclarationimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [variance?](./ts-morph-structures.typeparameterdeclarationimpl.variance.md) | | TypeParameterVariance | _(Optional)_ |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.constraint.md">constraint?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.constraintstructure.md">constraintStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.default.md">default?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.defaultstructure.md">defaultStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.isconst.md">isConst</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.TypeParameter</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.variance.md">variance?</a></td><td></td><td>TypeParameterVariance</td><td><em>(Optional)</em></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.typeparameterdeclarationimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.typeparameterdeclarationimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

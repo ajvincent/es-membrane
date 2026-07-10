@@ -11,5 +11,5 @@ export type stringWriterOrStatementImpl =
   | stringOrWriterFunction
   | StatementStructureImpls;
 ```
-**References:** [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)<!-- -->, [StatementStructureImpls](./ts-morph-structures.statementstructureimpls.md)
+**References:** [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md), [StatementStructureImpls](./ts-morph-structures.statementstructureimpls.md)
 

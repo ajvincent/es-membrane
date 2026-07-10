@@ -14,29 +14,16 @@ export declare enum ClassSupportsStatementsFlags
 
 ## Enumeration Members
 
-<table><thead><tr><th>
+| Member | Value | Description |
+|-|-|-|
+ | AccessorMirror | `2` | Values for a class getter or class setter to mirror. |
+ | BodyStatements | `8` | Statements in a purpose block for a given property and class member. |
+ | ConstructorBodyStatements | `64` | Statements in a purpose block for a given property on the constructor. |
+ | ConstructorHeadStatements | `32` | Statements starting a statement purpose block for the constructor. |
+ | ConstructorTailStatements | `128` | Statements closing a statement purpose block for the constructor. |
+ | HeadStatements | `4` | Statements starting a statement purpose block. |
+ | PropertyInitializer | `1` | The initial value of a property. |
+ | TailStatements | `16` | Statements closing a statement purpose block. |
+ 
 
-Member
-
-
-</th><th>
-
-Value
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>AccessorMirror</td><td><code>2</code></td><td>Values for a class getter or class setter to mirror.</td></tr>
-<tr><td>BodyStatements</td><td><code>8</code></td><td>Statements in a purpose block for a given property and class member.</td></tr>
-<tr><td>ConstructorBodyStatements</td><td><code>64</code></td><td>Statements in a purpose block for a given property on the constructor.</td></tr>
-<tr><td>ConstructorHeadStatements</td><td><code>32</code></td><td>Statements starting a statement purpose block for the constructor.</td></tr>
-<tr><td>ConstructorTailStatements</td><td><code>128</code></td><td>Statements closing a statement purpose block for the constructor.</td></tr>
-<tr><td>HeadStatements</td><td><code>4</code></td><td>Statements starting a statement purpose block.</td></tr>
-<tr><td>PropertyInitializer</td><td><code>1</code></td><td>The initial value of a property.</td></tr>
-<tr><td>TailStatements</td><td><code>16</code></td><td>Statements closing a statement purpose block.</td></tr>
-</tbody></table>
 

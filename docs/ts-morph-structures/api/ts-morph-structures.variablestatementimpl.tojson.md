@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<VariableStatementImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[VariableStatementImpl](./ts-morph-structures.variablestatementimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[VariableStatementImpl](./ts-morph-structures.variablestatementimpl.md)&gt;
 

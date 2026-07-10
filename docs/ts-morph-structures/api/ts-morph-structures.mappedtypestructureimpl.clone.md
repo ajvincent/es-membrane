@@ -12,24 +12,11 @@ static clone(other: MappedTypeStructureImpl): MappedTypeStructureImpl;
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | other | [MappedTypeStructureImpl](./ts-morph-structures.mappedtypestructureimpl.md) | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>other</td><td><a href="./ts-morph-structures.mappedtypestructureimpl.md">MappedTypeStructureImpl</a></td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

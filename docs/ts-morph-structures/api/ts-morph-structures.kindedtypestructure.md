@@ -13,27 +13,9 @@ export interface KindedTypeStructure<TKind extends TypeStructureKind> extends Ty
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.kindedtypestructure.kind.md) | `readonly` | TKind | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.kindedtypestructure.kind.md">kind</a></td><td><code>readonly</code></td><td>TKind</td><td></td></tr>
-</tbody></table>
 

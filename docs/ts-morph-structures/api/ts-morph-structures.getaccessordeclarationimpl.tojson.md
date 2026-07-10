@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<GetAccessorDeclarationImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md)&gt;
 

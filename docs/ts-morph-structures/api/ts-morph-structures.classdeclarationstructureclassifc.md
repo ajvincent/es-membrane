@@ -12,37 +12,19 @@ export interface ClassDeclarationStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [ctors](./ts-morph-structures.classdeclarationstructureclassifc.ctors.md) | `readonly` | [ConstructorDeclarationImpl](./ts-morph-structures.constructordeclarationimpl.md)\[\] | |
+ | [extends?](./ts-morph-structures.classdeclarationstructureclassifc.extends.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | _(Optional)_ |
+ | [extendsStructure](./ts-morph-structures.classdeclarationstructureclassifc.extendsstructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ | [getAccessors](./ts-morph-structures.classdeclarationstructureclassifc.getaccessors.md) | `readonly` | [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md)\[\] | |
+ | [implements](./ts-morph-structures.classdeclarationstructureclassifc.implements.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | Treat this as a read-only array. Use `.implementsSet` to modify this. |
+ | [implementsSet](./ts-morph-structures.classdeclarationstructureclassifc.implementsset.md) | `readonly` | [TypeStructureSet](./ts-morph-structures.typestructureset.md) | |
+ | [kind](./ts-morph-structures.classdeclarationstructureclassifc.kind.md) | `readonly` | StructureKind.Class | |
+ | [methods](./ts-morph-structures.classdeclarationstructureclassifc.methods.md) | `readonly` | [MethodDeclarationImpl](./ts-morph-structures.methoddeclarationimpl.md)\[\] | |
+ | [properties](./ts-morph-structures.classdeclarationstructureclassifc.properties.md) | `readonly` | [PropertyDeclarationImpl](./ts-morph-structures.propertydeclarationimpl.md)\[\] | |
+ | [setAccessors](./ts-morph-structures.classdeclarationstructureclassifc.setaccessors.md) | `readonly` | [SetAccessorDeclarationImpl](./ts-morph-structures.setaccessordeclarationimpl.md)\[\] | |
+ | [staticBlocks](./ts-morph-structures.classdeclarationstructureclassifc.staticblocks.md) | `readonly` | [ClassStaticBlockDeclarationImpl](./ts-morph-structures.classstaticblockdeclarationimpl.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classdeclarationstructureclassifc.ctors.md">ctors</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.constructordeclarationimpl.md">ConstructorDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationstructureclassifc.extends.md">extends?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationstructureclassifc.extendsstructure.md">extendsStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationstructureclassifc.getaccessors.md">getAccessors</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.getaccessordeclarationimpl.md">GetAccessorDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationstructureclassifc.implements.md">implements</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td>Treat this as a read-only array. Use <code>.implementsSet</code> to modify this.</td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationstructureclassifc.implementsset.md">implementsSet</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.typestructureset.md">TypeStructureSet</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Class</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationstructureclassifc.methods.md">methods</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.methoddeclarationimpl.md">MethodDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationstructureclassifc.properties.md">properties</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.propertydeclarationimpl.md">PropertyDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationstructureclassifc.setaccessors.md">setAccessors</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.setaccessordeclarationimpl.md">SetAccessorDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationstructureclassifc.staticblocks.md">staticBlocks</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.classstaticblockdeclarationimpl.md">ClassStaticBlockDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 

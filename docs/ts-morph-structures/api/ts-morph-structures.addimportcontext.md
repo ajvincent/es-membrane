@@ -14,31 +14,13 @@ export interface AddImportContext
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [importNames](./ts-morph-structures.addimportcontext.importnames.md) | | readonly string\[\] | The names to add to the import. Pass an empty array for "\*". |
+ | [isDefaultImport](./ts-morph-structures.addimportcontext.isdefaultimport.md) | | boolean | True if the import is the default. importNames will then be the default import. |
+ | [isPackageImport](./ts-morph-structures.addimportcontext.ispackageimport.md) | | boolean | True if `this.pathToImportedModule` represents a package import. False if the imported module path should be relative to the manager's absolute path in generated code. |
+ | [isTypeOnly](./ts-morph-structures.addimportcontext.istypeonly.md) | | boolean | True if the import names are types only. |
+ | [pathToImportedModule](./ts-morph-structures.addimportcontext.pathtoimportedmodule.md) | | string | This could be an absolute path, or a package import like "ts-morph-structures". |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.addimportcontext.importnames.md">importNames</a></td><td></td><td>readonly string[]</td><td>The names to add to the import. Pass an empty array for “*”.</td></tr>
-<tr><td><a href="./ts-morph-structures.addimportcontext.isdefaultimport.md">isDefaultImport</a></td><td></td><td>boolean</td><td>True if the import is the default. importNames will then be the default import.</td></tr>
-<tr><td><a href="./ts-morph-structures.addimportcontext.ispackageimport.md">isPackageImport</a></td><td></td><td>boolean</td><td>True if <code>this.pathToImportedModule</code> represents a package import. False if the imported module path should be relative to the manager’s absolute path in generated code.</td></tr>
-<tr><td><a href="./ts-morph-structures.addimportcontext.istypeonly.md">isTypeOnly</a></td><td></td><td>boolean</td><td>True if the import names are types only.</td></tr>
-<tr><td><a href="./ts-morph-structures.addimportcontext.pathtoimportedmodule.md">pathToImportedModule</a></td><td></td><td>string</td><td>This could be an absolute path, or a package import like “ts-morph-structures”.</td></tr>
-</tbody></table>
 

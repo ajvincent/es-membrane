@@ -13,73 +13,29 @@ export default class SpreadAssignmentImpl implements SpreadAssignmentStructureCl
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(expression)](./ts-morph-structures.spreadassignmentimpl._constructor_.md) | | Constructs a new instance of the `SpreadAssignmentImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.spreadassignmentimpl._constructor_.md">(constructor)(expression)</a></td><td></td><td>Constructs a new instance of the <code>SpreadAssignmentImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [expression](./ts-morph-structures.spreadassignmentimpl.expression.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | |
+ | [kind](./ts-morph-structures.spreadassignmentimpl.kind.md) | `readonly` | StructureKind.SpreadAssignment | |
+ | [leadingTrivia](./ts-morph-structures.spreadassignmentimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [trailingTrivia](./ts-morph-structures.spreadassignmentimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.spreadassignmentimpl.expression.md">expression</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.spreadassignmentimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.SpreadAssignment</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.spreadassignmentimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.spreadassignmentimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.spreadassignmentimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.spreadassignmentimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.spreadassignmentimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.spreadassignmentimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

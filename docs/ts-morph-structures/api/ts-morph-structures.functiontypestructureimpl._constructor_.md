@@ -14,22 +14,9 @@ constructor(context: Partial<FunctionTypeContext>);
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | context | Partial&lt;[FunctionTypeContext](./ts-morph-structures.functiontypecontext.md)&gt; | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>context</td><td>Partial&lt;<a href="./ts-morph-structures.functiontypecontext.md">FunctionTypeContext</a><!-- -->&gt;</td><td></td></tr>
-</tbody></table>
 

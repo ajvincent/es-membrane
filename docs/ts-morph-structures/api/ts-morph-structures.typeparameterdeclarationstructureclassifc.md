@@ -12,33 +12,15 @@ export interface TypeParameterDeclarationStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [constraint?](./ts-morph-structures.typeparameterdeclarationstructureclassifc.constraint.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | _(Optional)_ |
+ | [constraintStructure](./ts-morph-structures.typeparameterdeclarationstructureclassifc.constraintstructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ | [default?](./ts-morph-structures.typeparameterdeclarationstructureclassifc.default.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | _(Optional)_ |
+ | [defaultStructure](./ts-morph-structures.typeparameterdeclarationstructureclassifc.defaultstructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ | [isConst](./ts-morph-structures.typeparameterdeclarationstructureclassifc.isconst.md) | | boolean | |
+ | [kind](./ts-morph-structures.typeparameterdeclarationstructureclassifc.kind.md) | `readonly` | StructureKind.TypeParameter | |
+ | [variance?](./ts-morph-structures.typeparameterdeclarationstructureclassifc.variance.md) | | TypeParameterVariance | _(Optional)_ |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.typeparameterdeclarationstructureclassifc.constraint.md">constraint?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationstructureclassifc.constraintstructure.md">constraintStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationstructureclassifc.default.md">default?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationstructureclassifc.defaultstructure.md">defaultStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationstructureclassifc.isconst.md">isConst</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.TypeParameter</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterdeclarationstructureclassifc.variance.md">variance?</a></td><td></td><td>TypeParameterVariance</td><td><em>(Optional)</em></td></tr>
-</tbody></table>
 

@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<JsxElementImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[JsxElementImpl](./ts-morph-structures.jsxelementimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[JsxElementImpl](./ts-morph-structures.jsxelementimpl.md)&gt;
 

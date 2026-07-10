@@ -16,27 +16,14 @@ resolveIndexSignature(signature: IndexSignatureDeclarationImpl, names: string[])
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | signature | [IndexSignatureDeclarationImpl](./ts-morph-structures.indexsignaturedeclarationimpl.md) | the signature (which must be a member of this) to resolve. |
+ | names | string\[\] | the names to replace the signature's key with. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>signature</td><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.md">IndexSignatureDeclarationImpl</a></td><td>the signature (which must be a member of this) to resolve.</td></tr>
-<tr><td>names</td><td>string[]</td><td>the names to replace the signature’s key with.</td></tr>
-</tbody></table>
 
 **Returns:**
 
-[MethodSignatureImpl](./ts-morph-structures.methodsignatureimpl.md)<!-- -->\[\] \| [PropertySignatureImpl](./ts-morph-structures.propertysignatureimpl.md)<!-- -->\[\]
+[MethodSignatureImpl](./ts-morph-structures.methodsignatureimpl.md)\[\] \| [PropertySignatureImpl](./ts-morph-structures.propertysignatureimpl.md)\[\]
 

@@ -11,7 +11,7 @@ export default class IndexedAccessTypeStructureImpl extends TypeStructuresWithCh
     TypeStructures
 ]> 
 ```
-**Extends:** TypeStructuresWithChildren&lt;[TypeStructureKind.IndexedAccess](./ts-morph-structures.typestructurekind.md)<!-- -->, \[ [TypeStructures](./ts-morph-structures.typestructures.md) \]&gt;
+**Extends:** TypeStructuresWithChildren&lt;[TypeStructureKind.IndexedAccess](./ts-morph-structures.typestructurekind.md), \[ [TypeStructures](./ts-morph-structures.typestructures.md) \]&gt;
 
 ## Example
 
@@ -19,79 +19,31 @@ export default class IndexedAccessTypeStructureImpl extends TypeStructuresWithCh
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(objectType, indexType)](./ts-morph-structures.indexedaccesstypestructureimpl._constructor_.md) | | Constructs a new instance of the `IndexedAccessTypeStructureImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl._constructor_.md">(constructor)(objectType, indexType)</a></td><td></td><td>Constructs a new instance of the <code>IndexedAccessTypeStructureImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [childTypes](./ts-morph-structures.indexedaccesstypestructureimpl.childtypes.md) | `readonly` | \[[TypeStructures](./ts-morph-structures.typestructures.md)\] | |
+ | [endToken](./ts-morph-structures.indexedaccesstypestructureimpl.endtoken.md) | `protected` `readonly` | (not declared) | |
+ | [joinChildrenToken](./ts-morph-structures.indexedaccesstypestructureimpl.joinchildrentoken.md) | `protected` `readonly` | (not declared) | |
+ | [kind](./ts-morph-structures.indexedaccesstypestructureimpl.kind.md) | `readonly` | (not declared) | |
+ | [maxChildCount](./ts-morph-structures.indexedaccesstypestructureimpl.maxchildcount.md) | `protected` `readonly` | (not declared) | |
+ | [objectType](./ts-morph-structures.indexedaccesstypestructureimpl.objecttype.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) | |
+ | [startToken](./ts-morph-structures.indexedaccesstypestructureimpl.starttoken.md) | `protected` `readonly` | (not declared) | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.childtypes.md">childTypes</a></td><td><code>readonly</code></td><td>[<a href="./ts-morph-structures.typestructures.md">TypeStructures</a><!-- -->]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.endtoken.md">endToken</a></td><td><p><code>protected</code></p>
-<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.joinchildrentoken.md">joinChildrenToken</a></td><td><p><code>protected</code></p>
-<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.maxchildcount.md">maxChildCount</a></td><td><p><code>protected</code></p>
-<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.objecttype.md">objectType</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.starttoken.md">startToken</a></td><td><p><code>protected</code></p>
-<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(other)](./ts-morph-structures.indexedaccesstypestructureimpl.clone.md) | `static` | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.indexedaccesstypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
-</tbody></table>
 

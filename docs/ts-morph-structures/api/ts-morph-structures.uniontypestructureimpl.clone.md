@@ -12,24 +12,11 @@ static clone(other: UnionTypeStructureImpl): UnionTypeStructureImpl;
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | other | [UnionTypeStructureImpl](./ts-morph-structures.uniontypestructureimpl.md) | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>other</td><td><a href="./ts-morph-structures.uniontypestructureimpl.md">UnionTypeStructureImpl</a></td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

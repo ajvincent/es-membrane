@@ -9,5 +9,5 @@
 ```typescript
 export type ReadonlyTypeMembersMap = Simplify<ReadonlyMap<string, TypeMemberImpl> & Pick<TypeMembersMap, "arrayOfKind" | "clone" | "getAsKind">>;
 ```
-**References:** [TypeMemberImpl](./ts-morph-structures.typememberimpl.md)<!-- -->, [TypeMembersMap](./ts-morph-structures.typemembersmap.md)
+**References:** [TypeMemberImpl](./ts-morph-structures.typememberimpl.md), [TypeMembersMap](./ts-morph-structures.typemembersmap.md)
 

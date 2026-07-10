@@ -12,24 +12,11 @@ static clone(source: OptionalKind<EnumDeclarationStructure>): EnumDeclarationImp
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | source | OptionalKind&lt;EnumDeclarationStructure&gt; | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>source</td><td>OptionalKind&lt;EnumDeclarationStructure&gt;</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

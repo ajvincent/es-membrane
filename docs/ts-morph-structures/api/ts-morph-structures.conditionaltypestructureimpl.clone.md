@@ -12,24 +12,11 @@ static clone(other: ConditionalTypeStructureImpl): ConditionalTypeStructureImpl;
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | other | [ConditionalTypeStructureImpl](./ts-morph-structures.conditionaltypestructureimpl.md) | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>other</td><td><a href="./ts-morph-structures.conditionaltypestructureimpl.md">ConditionalTypeStructureImpl</a></td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

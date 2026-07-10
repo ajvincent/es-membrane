@@ -14,26 +14,13 @@ declare function getTypeAugmentedStructure(rootNode: NodeWithStructures, userCon
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | rootNode | NodeWithStructures | The node to start from. |
+ | userConsole | [TypeNodeToTypeStructureConsole](./ts-morph-structures.typenodetotypestructureconsole.md) | a callback for conversion failures. |
+ | assertNoFailures | boolean | if true, assert there are no conversion failures. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>rootNode</td><td>NodeWithStructures</td><td>The node to start from.</td></tr>
-<tr><td>userConsole</td><td><a href="./ts-morph-structures.typenodetotypestructureconsole.md">TypeNodeToTypeStructureConsole</a></td><td>a callback for conversion failures.</td></tr>
-<tr><td>assertNoFailures</td><td>boolean</td><td>if true, assert there are no conversion failures.</td></tr>
-</tbody></table>
 
 **Returns:**
 

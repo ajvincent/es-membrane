@@ -12,28 +12,10 @@ export interface JsxSelfClosingElementStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [attributes](./ts-morph-structures.jsxselfclosingelementstructureclassifc.attributes.md) | `readonly` | ([JsxAttributeImpl](./ts-morph-structures.jsxattributeimpl.md) \| [JsxSpreadAttributeImpl](./ts-morph-structures.jsxspreadattributeimpl.md))\[\] | |
+ | [kind](./ts-morph-structures.jsxselfclosingelementstructureclassifc.kind.md) | `readonly` | StructureKind.JsxSelfClosingElement | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsxselfclosingelementstructureclassifc.attributes.md">attributes</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsxattributeimpl.md">JsxAttributeImpl</a> | <a href="./ts-morph-structures.jsxspreadattributeimpl.md">JsxSpreadAttributeImpl</a><!-- -->)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxselfclosingelementstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JsxSelfClosingElement</td><td></td></tr>
-</tbody></table>
 

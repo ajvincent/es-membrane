@@ -11,5 +11,5 @@ toJSON(): readonly TypeMemberImpl[];
 ```
 **Returns:**
 
-readonly [TypeMemberImpl](./ts-morph-structures.typememberimpl.md)<!-- -->\[\]
+readonly [TypeMemberImpl](./ts-morph-structures.typememberimpl.md)\[\]
 

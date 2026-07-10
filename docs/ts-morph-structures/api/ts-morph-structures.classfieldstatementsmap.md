@@ -36,92 +36,45 @@ Array.from(map.groupStatementsMap("toJSON")!.values())
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(iterable)](./ts-morph-structures.classfieldstatementsmap._constructor_.md) | | Constructs a new instance of the `ClassFieldStatementsMap` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classfieldstatementsmap._constructor_.md">(constructor)(iterable)</a></td><td></td><td>Constructs a new instance of the <code>ClassFieldStatementsMap</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [\[Symbol.toStringTag\]](./ts-morph-structures.classfieldstatementsmap._symbol.tostringtag_.md) | | string | |
+ | [FIELD\_HEAD\_SUPER\_CALL](./ts-morph-structures.classfieldstatementsmap.field_head_super_call.md) | `static` `readonly` | (not declared) | A special field name for the start of a function. |
+ | [FIELD\_TAIL\_FINAL\_RETURN](./ts-morph-structures.classfieldstatementsmap.field_tail_final_return.md) | `static` `readonly` | (not declared) | A special field name for the end of a function. |
+ | [GROUP\_INITIALIZER\_OR\_PROPERTY](./ts-morph-structures.classfieldstatementsmap.group_initializer_or_property.md) | `static` `readonly` | (not declared) | |
+ | [isBlockStatement](./ts-morph-structures.classfieldstatementsmap.isblockstatement.md) | | boolean | |
+ | [purposeKey?](./ts-morph-structures.classfieldstatementsmap.purposekey.md) | | string | _(Optional)_ |
+ | [regionName?](./ts-morph-structures.classfieldstatementsmap.regionname.md) | | string | _(Optional)_ |
+ | [size](./ts-morph-structures.classfieldstatementsmap.size.md) | `readonly` | number | The number of elements in this collection. |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classfieldstatementsmap._symbol.tostringtag_.md">[Symbol.toStringTag]</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.field_head_super_call.md">FIELD_HEAD_SUPER_CALL</a></td><td><p><code>static</code></p>
-<p><code>readonly</code></p></td><td>(not declared)</td><td>A special field name for the start of a function.</td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.field_tail_final_return.md">FIELD_TAIL_FINAL_RETURN</a></td><td><p><code>static</code></p>
-<p><code>readonly</code></p></td><td>(not declared)</td><td>A special field name for the end of a function.</td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.group_initializer_or_property.md">GROUP_INITIALIZER_OR_PROPERTY</a></td><td><p><code>static</code></p>
-<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.isblockstatement.md">isBlockStatement</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.purposekey.md">purposeKey?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.regionname.md">regionName?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.size.md">size</a></td><td><code>readonly</code></td><td>number</td><td>The number of elements in this collection.</td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [\[Symbol.iterator\]()](./ts-morph-structures.classfieldstatementsmap._symbol.iterator_.md) | | |
+ | [clear()](./ts-morph-structures.classfieldstatementsmap.clear.md) | | Clear the collection. |
+ | [delete(fieldName, statementGroup)](./ts-morph-structures.classfieldstatementsmap.delete.md) | | Delete an element from the collection by the given key sequence. |
+ | [entries()](./ts-morph-structures.classfieldstatementsmap.entries.md) | | Yield the key-statements tuples of the collection. |
+ | [fieldComparator(a, b)](./ts-morph-structures.classfieldstatementsmap.fieldcomparator.md) | `static` | A convenience sorting function for fields. |
+ | [forEach(\_\_callback\_\_, \_\_thisArg\_\_)](./ts-morph-structures.classfieldstatementsmap.foreach.md) | | Iterate over the keys and statementss. |
+ | [get(fieldName, statementGroup)](./ts-morph-structures.classfieldstatementsmap.get.md) | | Get a statements for a key set. |
+ | [groupKeys()](./ts-morph-structures.classfieldstatementsmap.groupkeys.md) | | |
+ | [groupStatementsMap(statementGroup)](./ts-morph-structures.classfieldstatementsmap.groupstatementsmap.md) | | Get the current set of statements for each statement group, sorted by field name. |
+ | [has(fieldName, statementGroup)](./ts-morph-structures.classfieldstatementsmap.has.md) | | Report if the collection has a statements for a key set. |
+ | [keys()](./ts-morph-structures.classfieldstatementsmap.keys.md) | | Yield the key sets of the collection. |
+ | [normalizeKeys(fieldName, statementGroup)](./ts-morph-structures.classfieldstatementsmap.normalizekeys.md) | `static` | |
+ | [set(fieldName, statementGroup, statements)](./ts-morph-structures.classfieldstatementsmap.set.md) | | Set a statements for a key set. |
+ | [values()](./ts-morph-structures.classfieldstatementsmap.values.md) | | Yield the statementss of the collection. |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classfieldstatementsmap._symbol.iterator_.md">[Symbol.iterator]()</a></td><td></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.clear.md">clear()</a></td><td></td><td>Clear the collection.</td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.delete.md">delete(fieldName, statementGroup)</a></td><td></td><td>Delete an element from the collection by the given key sequence.</td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.entries.md">entries()</a></td><td></td><td>Yield the key-statements tuples of the collection.</td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.fieldcomparator.md">fieldComparator(a, b)</a></td><td><code>static</code></td><td>A convenience sorting function for fields.</td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.foreach.md">forEach(__callback__, __thisArg__)</a></td><td></td><td>Iterate over the keys and statementss.</td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.get.md">get(fieldName, statementGroup)</a></td><td></td><td>Get a statements for a key set.</td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.groupkeys.md">groupKeys()</a></td><td></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.groupstatementsmap.md">groupStatementsMap(statementGroup)</a></td><td></td><td>Get the current set of statements for each statement group, sorted by field name.</td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.has.md">has(fieldName, statementGroup)</a></td><td></td><td>Report if the collection has a statements for a key set.</td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.keys.md">keys()</a></td><td></td><td>Yield the key sets of the collection.</td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.normalizekeys.md">normalizeKeys(fieldName, statementGroup)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.set.md">set(fieldName, statementGroup, statements)</a></td><td></td><td>Set a statements for a key set.</td></tr>
-<tr><td><a href="./ts-morph-structures.classfieldstatementsmap.values.md">values()</a></td><td></td><td>Yield the statementss of the collection.</td></tr>
-</tbody></table>
 

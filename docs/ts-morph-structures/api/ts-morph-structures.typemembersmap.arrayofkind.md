@@ -14,28 +14,15 @@ arrayOfKind<Kind extends TypeMemberImpl["kind"]>(kind: Kind): readonly Extract<T
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | kind | Kind | the structure kind to get. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>kind</td><td>Kind</td><td>the structure kind to get.</td></tr>
-</tbody></table>
 
 **Returns:**
 
-readonly Extract&lt;[TypeMemberImpl](./ts-morph-structures.typememberimpl.md)<!-- -->, KindedStructure&lt;Kind&gt;&gt;\[\]
+readonly Extract&lt;[TypeMemberImpl](./ts-morph-structures.typememberimpl.md), KindedStructure&lt;Kind&gt;&gt;\[\]
 
 all current members of that kind.
 

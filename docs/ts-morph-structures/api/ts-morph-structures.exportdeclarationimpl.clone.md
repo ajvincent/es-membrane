@@ -12,24 +12,11 @@ static clone(source: OptionalKind<ExportDeclarationStructure>): ExportDeclaratio
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | source | OptionalKind&lt;ExportDeclarationStructure&gt; | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>source</td><td>OptionalKind&lt;ExportDeclarationStructure&gt;</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

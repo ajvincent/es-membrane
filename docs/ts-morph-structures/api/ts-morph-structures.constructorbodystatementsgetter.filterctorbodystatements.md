@@ -12,24 +12,11 @@ filterCtorBodyStatements(key: MemberedStatementsKey): boolean;
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | key | [MemberedStatementsKey](./ts-morph-structures.memberedstatementskey.md) | The membered statement key. `statementGroupKey` will be "constructor". |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>key</td><td><a href="./ts-morph-structures.memberedstatementskey.md">MemberedStatementsKey</a></td><td>The membered statement key. <code>statementGroupKey</code> will be “constructor”.</td></tr>
-</tbody></table>
 
 **Returns:**
 

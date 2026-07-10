@@ -14,24 +14,11 @@ constructor(hasAssertsKeyword: boolean, parameterName: LiteralTypeStructureImpl,
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | hasAssertsKeyword | boolean | |
+ | parameterName | [LiteralTypeStructureImpl](./ts-morph-structures.literaltypestructureimpl.md) | |
+ | isType | [TypeStructures](./ts-morph-structures.typestructures.md) \| null | _(Optional)_ |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>hasAssertsKeyword</td><td>boolean</td><td></td></tr>
-<tr><td>parameterName</td><td><a href="./ts-morph-structures.literaltypestructureimpl.md">LiteralTypeStructureImpl</a></td><td></td></tr>
-<tr><td>isType</td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | null</td><td><em>(Optional)</em></td></tr>
-</tbody></table>
 

@@ -28,70 +28,26 @@ sourceFile.statements.push(...publicExports.getDeclarations());
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(absolutePathToExportFile)](./ts-morph-structures.exportmanager._constructor_.md) | | Constructs a new instance of the `ExportManager` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.exportmanager._constructor_.md">(constructor)(absolutePathToExportFile)</a></td><td></td><td>Constructs a new instance of the <code>ExportManager</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [absolutePathToExportFile](./ts-morph-structures.exportmanager.absolutepathtoexportfile.md) | `readonly` | string | Where the file will live on the file system. |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.exportmanager.absolutepathtoexportfile.md">absolutePathToExportFile</a></td><td><code>readonly</code></td><td>string</td><td>Where the file will live on the file system.</td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [addExports(context)](./ts-morph-structures.exportmanager.addexports.md) | | |
+ | [getDeclarations()](./ts-morph-structures.exportmanager.getdeclarations.md) | | Get the export declarations, sorted by path to file, then internally by specified export values. |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.exportmanager.addexports.md">addExports(context)</a></td><td></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportmanager.getdeclarations.md">getDeclarations()</a></td><td></td><td>Get the export declarations, sorted by path to file, then internally by specified export values.</td></tr>
-</tbody></table>
 

@@ -12,27 +12,9 @@ export interface ClassStaticBlockDeclarationStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.classstaticblockdeclarationstructureclassifc.kind.md) | `readonly` | StructureKind.ClassStaticBlock | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classstaticblockdeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.ClassStaticBlock</td><td></td></tr>
-</tbody></table>
 

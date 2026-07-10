@@ -14,24 +14,11 @@ static keyFromMember(member: ClassMemberImpl): string;
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | member | [ClassMemberImpl](./ts-morph-structures.classmemberimpl.md) | the class member |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>member</td><td><a href="./ts-morph-structures.classmemberimpl.md">ClassMemberImpl</a></td><td>the class member</td></tr>
-</tbody></table>
 
 **Returns:**
 

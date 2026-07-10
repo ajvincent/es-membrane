@@ -12,24 +12,11 @@ static clone(source: OptionalKind<ClassDeclarationStructure>): ClassDeclarationI
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | source | OptionalKind&lt;ClassDeclarationStructure&gt; | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>source</td><td>OptionalKind&lt;ClassDeclarationStructure&gt;</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

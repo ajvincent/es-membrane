@@ -12,27 +12,9 @@ export interface GeneratorableNodeStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [isGenerator](./ts-morph-structures.generatorablenodestructureclassifc.isgenerator.md) | | boolean | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.generatorablenodestructureclassifc.isgenerator.md">isGenerator</a></td><td></td><td>boolean</td><td></td></tr>
-</tbody></table>
 

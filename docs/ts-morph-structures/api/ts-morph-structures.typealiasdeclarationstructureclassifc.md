@@ -12,29 +12,11 @@ export interface TypeAliasDeclarationStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.typealiasdeclarationstructureclassifc.kind.md) | `readonly` | StructureKind.TypeAlias | |
+ | [type](./ts-morph-structures.typealiasdeclarationstructureclassifc.type.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | |
+ | [typeStructure](./ts-morph-structures.typealiasdeclarationstructureclassifc.typestructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.typealiasdeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.TypeAlias</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typealiasdeclarationstructureclassifc.type.md">type</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typealiasdeclarationstructureclassifc.typestructure.md">typeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-</tbody></table>
 

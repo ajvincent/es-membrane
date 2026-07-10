@@ -14,23 +14,10 @@ constructor(name: string, initializer: stringOrWriterFunction);
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | name | string | |
+ | initializer | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>name</td><td>string</td><td></td></tr>
-<tr><td>initializer</td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td></td></tr>
-</tbody></table>
 

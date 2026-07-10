@@ -13,76 +13,32 @@ export default class JsxElementImpl implements JsxElementStructureClassIfc
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(name)](./ts-morph-structures.jsxelementimpl._constructor_.md) | | Constructs a new instance of the `JsxElementImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsxelementimpl._constructor_.md">(constructor)(name)</a></td><td></td><td>Constructs a new instance of the <code>JsxElementImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [attributes](./ts-morph-structures.jsxelementimpl.attributes.md) | `readonly` | ([JsxAttributeImpl](./ts-morph-structures.jsxattributeimpl.md) \| [JsxSpreadAttributeImpl](./ts-morph-structures.jsxspreadattributeimpl.md))\[\] | |
+ | [bodyText?](./ts-morph-structures.jsxelementimpl.bodytext.md) | | string | _(Optional)_ |
+ | [children](./ts-morph-structures.jsxelementimpl.children.md) | `readonly` | ([JsxElementImpl](./ts-morph-structures.jsxelementimpl.md) \| [JsxSelfClosingElementImpl](./ts-morph-structures.jsxselfclosingelementimpl.md))\[\] | |
+ | [kind](./ts-morph-structures.jsxelementimpl.kind.md) | `readonly` | StructureKind.JsxElement | |
+ | [leadingTrivia](./ts-morph-structures.jsxelementimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [name](./ts-morph-structures.jsxelementimpl.name.md) | | string | |
+ | [trailingTrivia](./ts-morph-structures.jsxelementimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsxelementimpl.attributes.md">attributes</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsxattributeimpl.md">JsxAttributeImpl</a> | <a href="./ts-morph-structures.jsxspreadattributeimpl.md">JsxSpreadAttributeImpl</a><!-- -->)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxelementimpl.bodytext.md">bodyText?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxelementimpl.children.md">children</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsxelementimpl.md">JsxElementImpl</a> | <a href="./ts-morph-structures.jsxselfclosingelementimpl.md">JsxSelfClosingElementImpl</a><!-- -->)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxelementimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JsxElement</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxelementimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxelementimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxelementimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.jsxelementimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.jsxelementimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsxelementimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxelementimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

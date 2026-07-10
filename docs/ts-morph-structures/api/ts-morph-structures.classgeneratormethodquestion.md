@@ -12,17 +12,9 @@ export interface ClassGeneratorMethodQuestion
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Description |
+|-|-|
+ | [isGenerator(isStatic, methodName)](./ts-morph-structures.classgeneratormethodquestion.isgenerator.md) | |
+ 
 
-Method
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classgeneratormethodquestion.isgenerator.md">isGenerator(isStatic, methodName)</a></td><td></td></tr>
-</tbody></table>
 

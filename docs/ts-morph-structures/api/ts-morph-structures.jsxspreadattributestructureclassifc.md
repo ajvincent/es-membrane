@@ -12,28 +12,10 @@ export interface JsxSpreadAttributeStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [expression](./ts-morph-structures.jsxspreadattributestructureclassifc.expression.md) | | string | |
+ | [kind](./ts-morph-structures.jsxspreadattributestructureclassifc.kind.md) | `readonly` | StructureKind.JsxSpreadAttribute | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsxspreadattributestructureclassifc.expression.md">expression</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxspreadattributestructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JsxSpreadAttribute</td><td></td></tr>
-</tbody></table>
 

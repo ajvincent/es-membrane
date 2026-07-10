@@ -18,18 +18,10 @@ To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFla
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Description |
+|-|-|
+ | [filterBodyStatements(key)](./ts-morph-structures.classbodystatementsgetter.filterbodystatements.md) | |
+ | [getBodyStatements(key)](./ts-morph-structures.classbodystatementsgetter.getbodystatements.md) | |
+ 
 
-Method
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classbodystatementsgetter.filterbodystatements.md">filterBodyStatements(key)</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classbodystatementsgetter.getbodystatements.md">getBodyStatements(key)</a></td><td></td></tr>
-</tbody></table>
 

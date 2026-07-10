@@ -12,27 +12,9 @@ export interface CallSignatureDeclarationStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.callsignaturedeclarationstructureclassifc.kind.md) | `readonly` | StructureKind.CallSignature | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.callsignaturedeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.CallSignature</td><td></td></tr>
-</tbody></table>
 

@@ -13,73 +13,29 @@ export default class JsxSpreadAttributeImpl implements JsxSpreadAttributeStructu
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(expression)](./ts-morph-structures.jsxspreadattributeimpl._constructor_.md) | | Constructs a new instance of the `JsxSpreadAttributeImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsxspreadattributeimpl._constructor_.md">(constructor)(expression)</a></td><td></td><td>Constructs a new instance of the <code>JsxSpreadAttributeImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [expression](./ts-morph-structures.jsxspreadattributeimpl.expression.md) | | string | |
+ | [kind](./ts-morph-structures.jsxspreadattributeimpl.kind.md) | `readonly` | StructureKind.JsxSpreadAttribute | |
+ | [leadingTrivia](./ts-morph-structures.jsxspreadattributeimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [trailingTrivia](./ts-morph-structures.jsxspreadattributeimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsxspreadattributeimpl.expression.md">expression</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxspreadattributeimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JsxSpreadAttribute</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxspreadattributeimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxspreadattributeimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.jsxspreadattributeimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.jsxspreadattributeimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsxspreadattributeimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxspreadattributeimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

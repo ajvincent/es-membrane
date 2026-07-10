@@ -12,29 +12,11 @@ export interface EnumDeclarationStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [isConst](./ts-morph-structures.enumdeclarationstructureclassifc.isconst.md) | | boolean | |
+ | [kind](./ts-morph-structures.enumdeclarationstructureclassifc.kind.md) | `readonly` | StructureKind.Enum | |
+ | [members](./ts-morph-structures.enumdeclarationstructureclassifc.members.md) | `readonly` | [EnumMemberImpl](./ts-morph-structures.enummemberimpl.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.enumdeclarationstructureclassifc.isconst.md">isConst</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.enumdeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Enum</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.enumdeclarationstructureclassifc.members.md">members</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.enummemberimpl.md">EnumMemberImpl</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 

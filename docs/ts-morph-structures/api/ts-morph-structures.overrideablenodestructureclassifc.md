@@ -12,27 +12,9 @@ export interface OverrideableNodeStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [hasOverrideKeyword](./ts-morph-structures.overrideablenodestructureclassifc.hasoverridekeyword.md) | | boolean | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.overrideablenodestructureclassifc.hasoverridekeyword.md">hasOverrideKeyword</a></td><td></td><td>boolean</td><td></td></tr>
-</tbody></table>
 

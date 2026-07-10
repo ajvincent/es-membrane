@@ -12,17 +12,9 @@ export interface ClassScopeMemberQuestion
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Description |
+|-|-|
+ | [getScope(isStatic, kind, memberName)](./ts-morph-structures.classscopememberquestion.getscope.md) | |
+ 
 
-Method
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classscopememberquestion.getscope.md">getScope(isStatic, kind, memberName)</a></td><td></td></tr>
-</tbody></table>
 

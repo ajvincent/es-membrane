@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<ExportAssignmentImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[ExportAssignmentImpl](./ts-morph-structures.exportassignmentimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[ExportAssignmentImpl](./ts-morph-structures.exportassignmentimpl.md)&gt;
 

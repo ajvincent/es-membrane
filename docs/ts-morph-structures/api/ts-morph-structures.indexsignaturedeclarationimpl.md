@@ -13,79 +13,35 @@ export default class IndexSignatureDeclarationImpl implements IndexSignatureDecl
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)()](./ts-morph-structures.indexsignaturedeclarationimpl._constructor_.md) | | Constructs a new instance of the `IndexSignatureDeclarationImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl._constructor_.md">(constructor)()</a></td><td></td><td>Constructs a new instance of the <code>IndexSignatureDeclarationImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [docs](./ts-morph-structures.indexsignaturedeclarationimpl.docs.md) | `readonly` | ([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\] | |
+ | [isReadonly](./ts-morph-structures.indexsignaturedeclarationimpl.isreadonly.md) | | boolean | |
+ | [keyName?](./ts-morph-structures.indexsignaturedeclarationimpl.keyname.md) | | string | _(Optional)_ |
+ | [keyType?](./ts-morph-structures.indexsignaturedeclarationimpl.keytype.md) | | string \| undefined | _(Optional)_ |
+ | [keyTypeStructure](./ts-morph-structures.indexsignaturedeclarationimpl.keytypestructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ | [kind](./ts-morph-structures.indexsignaturedeclarationimpl.kind.md) | `readonly` | StructureKind.IndexSignature | |
+ | [leadingTrivia](./ts-morph-structures.indexsignaturedeclarationimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [returnType?](./ts-morph-structures.indexsignaturedeclarationimpl.returntype.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined | _(Optional)_ |
+ | [returnTypeStructure](./ts-morph-structures.indexsignaturedeclarationimpl.returntypestructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ | [trailingTrivia](./ts-morph-structures.indexsignaturedeclarationimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.isreadonly.md">isReadonly</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.keyname.md">keyName?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.keytype.md">keyType?</a></td><td></td><td>string | undefined</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.keytypestructure.md">keyTypeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.IndexSignature</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.returntype.md">returnType?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.returntypestructure.md">returnTypeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.indexsignaturedeclarationimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.indexsignaturedeclarationimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.indexsignaturedeclarationimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

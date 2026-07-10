@@ -13,79 +13,35 @@ export default class PropertySignatureImpl implements PropertySignatureStructure
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(name)](./ts-morph-structures.propertysignatureimpl._constructor_.md) | | Constructs a new instance of the `PropertySignatureImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.propertysignatureimpl._constructor_.md">(constructor)(name)</a></td><td></td><td>Constructs a new instance of the <code>PropertySignatureImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [docs](./ts-morph-structures.propertysignatureimpl.docs.md) | `readonly` | ([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\] | |
+ | [hasQuestionToken](./ts-morph-structures.propertysignatureimpl.hasquestiontoken.md) | | boolean | |
+ | [initializer?](./ts-morph-structures.propertysignatureimpl.initializer.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined | _(Optional)_ |
+ | [isReadonly](./ts-morph-structures.propertysignatureimpl.isreadonly.md) | | boolean | |
+ | [kind](./ts-morph-structures.propertysignatureimpl.kind.md) | `readonly` | StructureKind.PropertySignature | |
+ | [leadingTrivia](./ts-morph-structures.propertysignatureimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [name](./ts-morph-structures.propertysignatureimpl.name.md) | | string | |
+ | [trailingTrivia](./ts-morph-structures.propertysignatureimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [type?](./ts-morph-structures.propertysignatureimpl.type.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined | _(Optional)_ |
+ | [typeStructure](./ts-morph-structures.propertysignatureimpl.typestructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.propertysignatureimpl.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertysignatureimpl.hasquestiontoken.md">hasQuestionToken</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertysignatureimpl.initializer.md">initializer?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.propertysignatureimpl.isreadonly.md">isReadonly</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertysignatureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.PropertySignature</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertysignatureimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertysignatureimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertysignatureimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertysignatureimpl.type.md">type?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.propertysignatureimpl.typestructure.md">typeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.propertysignatureimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.propertysignatureimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.propertysignatureimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.propertysignatureimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

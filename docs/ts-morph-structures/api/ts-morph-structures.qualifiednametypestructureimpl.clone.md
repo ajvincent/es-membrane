@@ -12,24 +12,11 @@ static clone(other: QualifiedNameTypeStructureImpl): QualifiedNameTypeStructureI
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | other | [QualifiedNameTypeStructureImpl](./ts-morph-structures.qualifiednametypestructureimpl.md) | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>other</td><td><a href="./ts-morph-structures.qualifiednametypestructureimpl.md">QualifiedNameTypeStructureImpl</a></td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

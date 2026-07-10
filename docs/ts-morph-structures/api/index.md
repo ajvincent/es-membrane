@@ -6,17 +6,9 @@
 
 ## Packages
 
-<table><thead><tr><th>
+| Package | Description |
+|-|-|
+ | [ts-morph-structures](./ts-morph-structures.md) | |
+ 
 
-Package
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.md">ts-morph-structures</a></td><td></td></tr>
-</tbody></table>
 

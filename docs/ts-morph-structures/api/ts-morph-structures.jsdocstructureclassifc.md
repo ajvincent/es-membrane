@@ -12,29 +12,11 @@ export interface JSDocStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [description?](./ts-morph-structures.jsdocstructureclassifc.description.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) | _(Optional)_ The description of the JS doc. |
+ | [kind](./ts-morph-structures.jsdocstructureclassifc.kind.md) | `readonly` | StructureKind.JSDoc | |
+ | [tags](./ts-morph-structures.jsdocstructureclassifc.tags.md) | `readonly` | [JSDocTagImpl](./ts-morph-structures.jsdoctagimpl.md)\[\] | JS doc tags (ex. `&#64;param value - Some description.`). |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsdocstructureclassifc.description.md">description?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a></td><td><em>(Optional)</em> The description of the JS doc.</td></tr>
-<tr><td><a href="./ts-morph-structures.jsdocstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JSDoc</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsdocstructureclassifc.tags.md">tags</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.jsdoctagimpl.md">JSDocTagImpl</a><!-- -->[]</td><td>JS doc tags (ex. <code>&amp;#64;param value - Some description.</code><!-- -->).</td></tr>
-</tbody></table>
 

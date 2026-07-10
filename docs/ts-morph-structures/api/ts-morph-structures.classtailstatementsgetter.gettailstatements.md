@@ -14,28 +14,15 @@ getTailStatements(
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | key | [MemberedStatementsKey](./ts-morph-structures.memberedstatementskey.md) | The membered statement key. `fieldKey` will be `ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN`. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>key</td><td><a href="./ts-morph-structures.memberedstatementskey.md">MemberedStatementsKey</a></td><td>The membered statement key. <code>fieldKey</code> will be <code>ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN</code><!-- -->.</td></tr>
-</tbody></table>
 
 **Returns:**
 
-readonly [stringWriterOrStatementImpl](./ts-morph-structures.stringwriterorstatementimpl.md)<!-- -->\[\]
+readonly [stringWriterOrStatementImpl](./ts-morph-structures.stringwriterorstatementimpl.md)\[\]
 
 statements to insert after other statements in the purpose block.
 

@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<MethodDeclarationOverloadImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[MethodDeclarationOverloadImpl](./ts-morph-structures.methoddeclarationoverloadimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[MethodDeclarationOverloadImpl](./ts-morph-structures.methoddeclarationoverloadimpl.md)&gt;
 

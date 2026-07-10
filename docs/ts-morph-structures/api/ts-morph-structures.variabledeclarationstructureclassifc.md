@@ -12,27 +12,9 @@ export interface VariableDeclarationStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.variabledeclarationstructureclassifc.kind.md) | `readonly` | StructureKind.VariableDeclaration | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.variabledeclarationstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.VariableDeclaration</td><td></td></tr>
-</tbody></table>
 

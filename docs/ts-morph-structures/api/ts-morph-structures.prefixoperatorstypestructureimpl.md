@@ -11,76 +11,32 @@
 ```typescript
 export default class PrefixOperatorsTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.PrefixOperators> 
 ```
-**Extends:** TypeStructuresBase&lt;[TypeStructureKind.PrefixOperators](./ts-morph-structures.typestructurekind.md)<!-- -->&gt;
+**Extends:** TypeStructuresBase&lt;[TypeStructureKind.PrefixOperators](./ts-morph-structures.typestructurekind.md)&gt;
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(operators, objectType)](./ts-morph-structures.prefixoperatorstypestructureimpl._constructor_.md) | | Constructs a new instance of the `PrefixOperatorsTypeStructureImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.prefixoperatorstypestructureimpl._constructor_.md">(constructor)(operators, objectType)</a></td><td></td><td>Constructs a new instance of the <code>PrefixOperatorsTypeStructureImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.prefixoperatorstypestructureimpl.kind.md) | `readonly` | (not declared) | |
+ | [objectType](./ts-morph-structures.prefixoperatorstypestructureimpl.objecttype.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) | |
+ | [operators](./ts-morph-structures.prefixoperatorstypestructureimpl.operators.md) | | [PrefixUnaryOperator](./ts-morph-structures.prefixunaryoperator.md)\[\] | |
+ | [writerFunction](./ts-morph-structures.prefixoperatorstypestructureimpl.writerfunction.md) | `readonly` | WriterFunction | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.prefixoperatorstypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.prefixoperatorstypestructureimpl.objecttype.md">objectType</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.prefixoperatorstypestructureimpl.operators.md">operators</a></td><td></td><td><a href="./ts-morph-structures.prefixunaryoperator.md">PrefixUnaryOperator</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.prefixoperatorstypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(other)](./ts-morph-structures.prefixoperatorstypestructureimpl.clone.md) | `static` | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.prefixoperatorstypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
-</tbody></table>
 

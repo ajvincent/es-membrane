@@ -13,84 +13,35 @@ export default class ParenthesesTypeStructureImpl extends TypeStructuresWithChil
     TypeStructures
 ]> 
 ```
-**Extends:** TypeStructuresWithChildren&lt;[TypeStructureKind.Parentheses](./ts-morph-structures.typestructurekind.md)<!-- -->, \[ [TypeStructures](./ts-morph-structures.typestructures.md) \]&gt;
+**Extends:** TypeStructuresWithChildren&lt;[TypeStructureKind.Parentheses](./ts-morph-structures.typestructurekind.md), \[ [TypeStructures](./ts-morph-structures.typestructures.md) \]&gt;
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(childType)](./ts-morph-structures.parenthesestypestructureimpl._constructor_.md) | | Constructs a new instance of the `ParenthesesTypeStructureImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.parenthesestypestructureimpl._constructor_.md">(constructor)(childType)</a></td><td></td><td>Constructs a new instance of the <code>ParenthesesTypeStructureImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [childTypes](./ts-morph-structures.parenthesestypestructureimpl.childtypes.md) | `readonly` | \[[TypeStructures](./ts-morph-structures.typestructures.md)\] | |
+ | [endToken](./ts-morph-structures.parenthesestypestructureimpl.endtoken.md) | `protected` `readonly` | (not declared) | |
+ | [joinChildrenToken](./ts-morph-structures.parenthesestypestructureimpl.joinchildrentoken.md) | `protected` `readonly` | (not declared) | |
+ | [kind](./ts-morph-structures.parenthesestypestructureimpl.kind.md) | `readonly` | (not declared) | |
+ | [maxChildCount](./ts-morph-structures.parenthesestypestructureimpl.maxchildcount.md) | `protected` `readonly` | (not declared) | |
+ | [objectType](./ts-morph-structures.parenthesestypestructureimpl.objecttype.md) | `protected` `readonly` | null | |
+ | [startToken](./ts-morph-structures.parenthesestypestructureimpl.starttoken.md) | `protected` `readonly` | (not declared) | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.parenthesestypestructureimpl.childtypes.md">childTypes</a></td><td><code>readonly</code></td><td>[<a href="./ts-morph-structures.typestructures.md">TypeStructures</a><!-- -->]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.parenthesestypestructureimpl.endtoken.md">endToken</a></td><td><p><code>protected</code></p>
-<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.parenthesestypestructureimpl.joinchildrentoken.md">joinChildrenToken</a></td><td><p><code>protected</code></p>
-<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.parenthesestypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.parenthesestypestructureimpl.maxchildcount.md">maxChildCount</a></td><td><p><code>protected</code></p>
-<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.parenthesestypestructureimpl.objecttype.md">objectType</a></td><td><p><code>protected</code></p>
-<p><code>readonly</code></p></td><td>null</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.parenthesestypestructureimpl.starttoken.md">startToken</a></td><td><p><code>protected</code></p>
-<p><code>readonly</code></p></td><td>(not declared)</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(other)](./ts-morph-structures.parenthesestypestructureimpl.clone.md) | `static` | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.parenthesestypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
-</tbody></table>
 

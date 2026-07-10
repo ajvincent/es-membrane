@@ -14,22 +14,9 @@ constructor(objectType: TypeStructures);
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | objectType | [TypeStructures](./ts-morph-structures.typestructures.md) | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>objectType</td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a></td><td></td></tr>
-</tbody></table>
 

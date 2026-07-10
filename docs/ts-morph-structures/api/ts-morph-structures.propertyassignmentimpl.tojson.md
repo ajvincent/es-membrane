@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<PropertyAssignmentImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[PropertyAssignmentImpl](./ts-morph-structures.propertyassignmentimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[PropertyAssignmentImpl](./ts-morph-structures.propertyassignmentimpl.md)&gt;
 

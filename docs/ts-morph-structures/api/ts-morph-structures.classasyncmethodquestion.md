@@ -12,17 +12,9 @@ export interface ClassAsyncMethodQuestion
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Description |
+|-|-|
+ | [isAsync(isStatic, methodName)](./ts-morph-structures.classasyncmethodquestion.isasync.md) | |
+ 
 
-Method
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classasyncmethodquestion.isasync.md">isAsync(isStatic, methodName)</a></td><td></td></tr>
-</tbody></table>
 

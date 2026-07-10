@@ -12,28 +12,10 @@ export interface InterfaceDeclarationWithExtendsTypeStructures
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [extends](./ts-morph-structures.interfacedeclarationwithextendstypestructures.extends.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [extendsSet](./ts-morph-structures.interfacedeclarationwithextendstypestructures.extendsset.md) | | [TypeStructureSet](./ts-morph-structures.typestructureset.md) | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.interfacedeclarationwithextendstypestructures.extends.md">extends</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.interfacedeclarationwithextendstypestructures.extendsset.md">extendsSet</a></td><td></td><td><a href="./ts-morph-structures.typestructureset.md">TypeStructureSet</a></td><td></td></tr>
-</tbody></table>
 

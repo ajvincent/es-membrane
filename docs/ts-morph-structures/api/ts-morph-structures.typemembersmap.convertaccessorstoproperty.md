@@ -14,24 +14,11 @@ convertAccessorsToProperty(name: string): void;
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | name | string | the property name |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>name</td><td>string</td><td>the property name</td></tr>
-</tbody></table>
 
 **Returns:**
 

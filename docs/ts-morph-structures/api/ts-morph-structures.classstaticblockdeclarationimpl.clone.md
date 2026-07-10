@@ -12,24 +12,11 @@ static clone(source: OptionalKind<ClassStaticBlockDeclarationStructure>): ClassS
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | source | OptionalKind&lt;ClassStaticBlockDeclarationStructure&gt; | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>source</td><td>OptionalKind&lt;ClassStaticBlockDeclarationStructure&gt;</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

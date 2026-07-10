@@ -13,5 +13,5 @@ getDeclarations(): ImportDeclarationImpl[];
 ```
 **Returns:**
 
-[ImportDeclarationImpl](./ts-morph-structures.importdeclarationimpl.md)<!-- -->\[\]
+[ImportDeclarationImpl](./ts-morph-structures.importdeclarationimpl.md)\[\]
 

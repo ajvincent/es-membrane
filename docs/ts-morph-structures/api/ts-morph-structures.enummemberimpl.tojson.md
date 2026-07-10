@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<EnumMemberImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[EnumMemberImpl](./ts-morph-structures.enummemberimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[EnumMemberImpl](./ts-morph-structures.enummemberimpl.md)&gt;
 

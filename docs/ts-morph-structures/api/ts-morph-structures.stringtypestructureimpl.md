@@ -11,76 +11,32 @@ Strings, encased in double quotes. Leaf nodes.
 ```typescript
 export default class StringTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.String> 
 ```
-**Extends:** TypeStructuresBase&lt;[TypeStructureKind.String](./ts-morph-structures.typestructurekind.md)<!-- -->&gt;
+**Extends:** TypeStructuresBase&lt;[TypeStructureKind.String](./ts-morph-structures.typestructurekind.md)&gt;
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(literal)](./ts-morph-structures.stringtypestructureimpl._constructor_.md) | | Constructs a new instance of the `StringTypeStructureImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.stringtypestructureimpl._constructor_.md">(constructor)(literal)</a></td><td></td><td>Constructs a new instance of the <code>StringTypeStructureImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.stringtypestructureimpl.kind.md) | `readonly` | (not declared) | |
+ | [stringValue](./ts-morph-structures.stringtypestructureimpl.stringvalue.md) | `readonly` | string | |
+ | [writerFunction](./ts-morph-structures.stringtypestructureimpl.writerfunction.md) | `readonly` | WriterFunction | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.stringtypestructureimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>(not declared)</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.stringtypestructureimpl.stringvalue.md">stringValue</a></td><td><code>readonly</code></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.stringtypestructureimpl.writerfunction.md">writerFunction</a></td><td><code>readonly</code></td><td>WriterFunction</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(other)](./ts-morph-structures.stringtypestructureimpl.clone.md) | `static` | |
+ | [get(name)](./ts-morph-structures.stringtypestructureimpl.get.md) | `static` | Gets a singleton `StringTypeStructureImpl` for the given name. |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.stringtypestructureimpl.clone.md">clone(other)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.stringtypestructureimpl.get.md">get(name)</a></td><td><code>static</code></td><td>Gets a singleton <code>StringTypeStructureImpl</code> for the given name.</td></tr>
-</tbody></table>
 

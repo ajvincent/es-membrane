@@ -13,90 +13,46 @@ export default class ClassDeclarationImpl implements ClassDeclarationStructureCl
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)()](./ts-morph-structures.classdeclarationimpl._constructor_.md) | | Constructs a new instance of the `ClassDeclarationImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classdeclarationimpl._constructor_.md">(constructor)()</a></td><td></td><td>Constructs a new instance of the <code>ClassDeclarationImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [ctors](./ts-morph-structures.classdeclarationimpl.ctors.md) | `readonly` | [ConstructorDeclarationImpl](./ts-morph-structures.constructordeclarationimpl.md)\[\] | |
+ | [decorators](./ts-morph-structures.classdeclarationimpl.decorators.md) | `readonly` | [DecoratorImpl](./ts-morph-structures.decoratorimpl.md)\[\] | |
+ | [docs](./ts-morph-structures.classdeclarationimpl.docs.md) | `readonly` | ([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\] | |
+ | [extends?](./ts-morph-structures.classdeclarationimpl.extends.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined | _(Optional)_ |
+ | [extendsStructure](./ts-morph-structures.classdeclarationimpl.extendsstructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ | [getAccessors](./ts-morph-structures.classdeclarationimpl.getaccessors.md) | `readonly` | [GetAccessorDeclarationImpl](./ts-morph-structures.getaccessordeclarationimpl.md)\[\] | |
+ | [hasDeclareKeyword](./ts-morph-structures.classdeclarationimpl.hasdeclarekeyword.md) | | boolean | |
+ | [implements](./ts-morph-structures.classdeclarationimpl.implements.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | Treat this as a read-only array. Use `.implementsSet` to modify this. |
+ | [implementsSet](./ts-morph-structures.classdeclarationimpl.implementsset.md) | `readonly` | [TypeStructureSet](./ts-morph-structures.typestructureset.md) | |
+ | [isAbstract](./ts-morph-structures.classdeclarationimpl.isabstract.md) | | boolean | |
+ | [isDefaultExport](./ts-morph-structures.classdeclarationimpl.isdefaultexport.md) | | boolean | |
+ | [isExported](./ts-morph-structures.classdeclarationimpl.isexported.md) | | boolean | |
+ | [kind](./ts-morph-structures.classdeclarationimpl.kind.md) | `readonly` | StructureKind.Class | |
+ | [leadingTrivia](./ts-morph-structures.classdeclarationimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [methods](./ts-morph-structures.classdeclarationimpl.methods.md) | `readonly` | [MethodDeclarationImpl](./ts-morph-structures.methoddeclarationimpl.md)\[\] | |
+ | [name?](./ts-morph-structures.classdeclarationimpl.name.md) | | string \| undefined | _(Optional)_ |
+ | [properties](./ts-morph-structures.classdeclarationimpl.properties.md) | `readonly` | [PropertyDeclarationImpl](./ts-morph-structures.propertydeclarationimpl.md)\[\] | |
+ | [setAccessors](./ts-morph-structures.classdeclarationimpl.setaccessors.md) | `readonly` | [SetAccessorDeclarationImpl](./ts-morph-structures.setaccessordeclarationimpl.md)\[\] | |
+ | [staticBlocks](./ts-morph-structures.classdeclarationimpl.staticblocks.md) | `readonly` | [ClassStaticBlockDeclarationImpl](./ts-morph-structures.classstaticblockdeclarationimpl.md)\[\] | |
+ | [trailingTrivia](./ts-morph-structures.classdeclarationimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [typeParameters](./ts-morph-structures.classdeclarationimpl.typeparameters.md) | `readonly` | ([TypeParameterDeclarationImpl](./ts-morph-structures.typeparameterdeclarationimpl.md) \| string)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classdeclarationimpl.ctors.md">ctors</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.constructordeclarationimpl.md">ConstructorDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.decorators.md">decorators</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.decoratorimpl.md">DecoratorImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.extends.md">extends?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.extendsstructure.md">extendsStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.getaccessors.md">getAccessors</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.getaccessordeclarationimpl.md">GetAccessorDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.hasdeclarekeyword.md">hasDeclareKeyword</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.implements.md">implements</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td>Treat this as a read-only array. Use <code>.implementsSet</code> to modify this.</td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.implementsset.md">implementsSet</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.typestructureset.md">TypeStructureSet</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.isabstract.md">isAbstract</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.isdefaultexport.md">isDefaultExport</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.isexported.md">isExported</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Class</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.methods.md">methods</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.methoddeclarationimpl.md">MethodDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.name.md">name?</a></td><td></td><td>string | undefined</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.properties.md">properties</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.propertydeclarationimpl.md">PropertyDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.setaccessors.md">setAccessors</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.setaccessordeclarationimpl.md">SetAccessorDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.staticblocks.md">staticBlocks</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.classstaticblockdeclarationimpl.md">ClassStaticBlockDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.typeparameters.md">typeParameters</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.typeparameterdeclarationimpl.md">TypeParameterDeclarationImpl</a> | string)[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.classdeclarationimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.classdeclarationimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.classdeclarationimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.classdeclarationimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

@@ -12,24 +12,11 @@ static clone(source: OptionalKind<ParameterDeclarationStructure>): ParameterDecl
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | source | OptionalKind&lt;ParameterDeclarationStructure&gt; | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>source</td><td>OptionalKind&lt;ParameterDeclarationStructure&gt;</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

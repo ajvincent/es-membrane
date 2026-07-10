@@ -12,17 +12,9 @@ export interface IndexSignatureResolver
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Description |
+|-|-|
+ | [resolveIndexSignature(signature)](./ts-morph-structures.indexsignatureresolver.resolveindexsignature.md) | |
+ 
 
-Method
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.indexsignatureresolver.resolveindexsignature.md">resolveIndexSignature(signature)</a></td><td></td></tr>
-</tbody></table>
 

@@ -14,22 +14,9 @@ constructor(absolutePathToExportFile: string);
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | absolutePathToExportFile | string | Where the file will live on the file system. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>absolutePathToExportFile</td><td>string</td><td>Where the file will live on the file system.</td></tr>
-</tbody></table>
 

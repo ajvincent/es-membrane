@@ -12,24 +12,11 @@ static clone(source: OptionalKind<ModuleDeclarationStructure>): ModuleDeclaratio
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | source | OptionalKind&lt;ModuleDeclarationStructure&gt; | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>source</td><td>OptionalKind&lt;ModuleDeclarationStructure&gt;</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

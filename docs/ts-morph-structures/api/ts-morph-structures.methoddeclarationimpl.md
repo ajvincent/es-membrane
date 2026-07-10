@@ -13,89 +13,45 @@ export default class MethodDeclarationImpl implements MethodDeclarationStructure
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(isStatic, name)](./ts-morph-structures.methoddeclarationimpl._constructor_.md) | | Constructs a new instance of the `MethodDeclarationImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.methoddeclarationimpl._constructor_.md">(constructor)(isStatic, name)</a></td><td></td><td>Constructs a new instance of the <code>MethodDeclarationImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [decorators](./ts-morph-structures.methoddeclarationimpl.decorators.md) | `readonly` | [DecoratorImpl](./ts-morph-structures.decoratorimpl.md)\[\] | |
+ | [docs](./ts-morph-structures.methoddeclarationimpl.docs.md) | `readonly` | ([JSDocImpl](./ts-morph-structures.jsdocimpl.md) \| string)\[\] | |
+ | [hasOverrideKeyword](./ts-morph-structures.methoddeclarationimpl.hasoverridekeyword.md) | | boolean | |
+ | [hasQuestionToken](./ts-morph-structures.methoddeclarationimpl.hasquestiontoken.md) | | boolean | |
+ | [isAbstract](./ts-morph-structures.methoddeclarationimpl.isabstract.md) | | boolean | |
+ | [isAsync](./ts-morph-structures.methoddeclarationimpl.isasync.md) | | boolean | |
+ | [isGenerator](./ts-morph-structures.methoddeclarationimpl.isgenerator.md) | | boolean | |
+ | [isStatic](./ts-morph-structures.methoddeclarationimpl.isstatic.md) | | boolean | |
+ | [kind](./ts-morph-structures.methoddeclarationimpl.kind.md) | `readonly` | StructureKind.Method | |
+ | [leadingTrivia](./ts-morph-structures.methoddeclarationimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [name](./ts-morph-structures.methoddeclarationimpl.name.md) | | string | |
+ | [overloads](./ts-morph-structures.methoddeclarationimpl.overloads.md) | `readonly` | [MethodDeclarationOverloadImpl](./ts-morph-structures.methoddeclarationoverloadimpl.md)\[\] | |
+ | [parameters](./ts-morph-structures.methoddeclarationimpl.parameters.md) | `readonly` | [ParameterDeclarationImpl](./ts-morph-structures.parameterdeclarationimpl.md)\[\] | |
+ | [returnType?](./ts-morph-structures.methoddeclarationimpl.returntype.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined | _(Optional)_ |
+ | [returnTypeStructure](./ts-morph-structures.methoddeclarationimpl.returntypestructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ | [scope?](./ts-morph-structures.methoddeclarationimpl.scope.md) | | import("ts-morph").Scope&lt;&gt; \| undefined | _(Optional)_ |
+ | [statements](./ts-morph-structures.methoddeclarationimpl.statements.md) | `readonly` | ([StatementStructureImpls](./ts-morph-structures.statementstructureimpls.md) \| [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md))\[\] | |
+ | [trailingTrivia](./ts-morph-structures.methoddeclarationimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [typeParameters](./ts-morph-structures.methoddeclarationimpl.typeparameters.md) | `readonly` | ([TypeParameterDeclarationImpl](./ts-morph-structures.typeparameterdeclarationimpl.md) \| string)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.methoddeclarationimpl.decorators.md">decorators</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.decoratorimpl.md">DecoratorImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.docs.md">docs</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsdocimpl.md">JSDocImpl</a> | string)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.hasoverridekeyword.md">hasOverrideKeyword</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.hasquestiontoken.md">hasQuestionToken</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.isabstract.md">isAbstract</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.isasync.md">isAsync</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.isgenerator.md">isGenerator</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.isstatic.md">isStatic</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.Method</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.overloads.md">overloads</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.methoddeclarationoverloadimpl.md">MethodDeclarationOverloadImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.parameters.md">parameters</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.parameterdeclarationimpl.md">ParameterDeclarationImpl</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.returntype.md">returnType?</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.returntypestructure.md">returnTypeStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.scope.md">scope?</a></td><td></td><td>import(“ts-morph”).Scope&lt;&gt; | undefined</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.statements.md">statements</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.statementstructureimpls.md">StatementStructureImpls</a> | <a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.typeparameters.md">typeParameters</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.typeparameterdeclarationimpl.md">TypeParameterDeclarationImpl</a> | string)[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.methoddeclarationimpl.clone.md) | `static` | |
+ | [fromSignature(isStatic, signature)](./ts-morph-structures.methoddeclarationimpl.fromsignature.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.methoddeclarationimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.methoddeclarationimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.fromsignature.md">fromSignature(isStatic, signature)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.methoddeclarationimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

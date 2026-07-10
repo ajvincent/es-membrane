@@ -13,74 +13,30 @@ export default class ImportAttributeImpl implements ImportAttributeStructureClas
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(name, value)](./ts-morph-structures.importattributeimpl._constructor_.md) | | Constructs a new instance of the `ImportAttributeImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.importattributeimpl._constructor_.md">(constructor)(name, value)</a></td><td></td><td>Constructs a new instance of the <code>ImportAttributeImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [kind](./ts-morph-structures.importattributeimpl.kind.md) | `readonly` | StructureKind.ImportAttribute | |
+ | [leadingTrivia](./ts-morph-structures.importattributeimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [name](./ts-morph-structures.importattributeimpl.name.md) | | string | |
+ | [trailingTrivia](./ts-morph-structures.importattributeimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [value](./ts-morph-structures.importattributeimpl.value.md) | | string | Expression value. Quote this when providing a string. |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.importattributeimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.ImportAttribute</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importattributeimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importattributeimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importattributeimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importattributeimpl.value.md">value</a></td><td></td><td>string</td><td>Expression value. Quote this when providing a string.</td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.importattributeimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.importattributeimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.importattributeimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importattributeimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

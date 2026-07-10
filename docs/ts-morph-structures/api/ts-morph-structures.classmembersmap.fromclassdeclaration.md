@@ -14,24 +14,11 @@ static fromClassDeclaration(classDecl: ClassDeclarationImpl): ClassMembersMap;
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | classDecl | [ClassDeclarationImpl](./ts-morph-structures.classdeclarationimpl.md) | the class declaration. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>classDecl</td><td><a href="./ts-morph-structures.classdeclarationimpl.md">ClassDeclarationImpl</a></td><td>the class declaration.</td></tr>
-</tbody></table>
 
 **Returns:**
 

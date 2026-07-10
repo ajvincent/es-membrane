@@ -13,75 +13,31 @@ export default class ImportSpecifierImpl implements ImportSpecifierStructureClas
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(name)](./ts-morph-structures.importspecifierimpl._constructor_.md) | | Constructs a new instance of the `ImportSpecifierImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.importspecifierimpl._constructor_.md">(constructor)(name)</a></td><td></td><td>Constructs a new instance of the <code>ImportSpecifierImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [alias?](./ts-morph-structures.importspecifierimpl.alias.md) | | string | _(Optional)_ |
+ | [isTypeOnly](./ts-morph-structures.importspecifierimpl.istypeonly.md) | | boolean | |
+ | [kind](./ts-morph-structures.importspecifierimpl.kind.md) | `readonly` | StructureKind.ImportSpecifier | |
+ | [leadingTrivia](./ts-morph-structures.importspecifierimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [name](./ts-morph-structures.importspecifierimpl.name.md) | | string | |
+ | [trailingTrivia](./ts-morph-structures.importspecifierimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.importspecifierimpl.alias.md">alias?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.importspecifierimpl.istypeonly.md">isTypeOnly</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importspecifierimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.ImportSpecifier</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importspecifierimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importspecifierimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importspecifierimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.importspecifierimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.importspecifierimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.importspecifierimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.importspecifierimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

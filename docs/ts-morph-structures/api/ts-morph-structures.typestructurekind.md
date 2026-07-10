@@ -12,43 +12,30 @@ export declare enum TypeStructureKind
 
 ## Enumeration Members
 
-<table><thead><tr><th>
+| Member | Value | Description |
+|-|-|-|
+ | Array | `1000000011` | |
+ | Conditional | `1000000012` | |
+ | Function | `1000000016` | |
+ | Import | `1000000020` | |
+ | IndexedAccess | `1000000013` | |
+ | Infer | `1000000007` | |
+ | Intersection | `1000000009` | |
+ | Literal | `1000000000` | |
+ | Mapped | `1000000014` | |
+ | MemberedObject | `1000000019` | |
+ | Number | `1000000002` | |
+ | Parameter | `1000000017` | |
+ | Parentheses | `1000000005` | |
+ | PrefixOperators | `1000000006` | |
+ | QualifiedName | `1000000004` | |
+ | String | `1000000001` | |
+ | TemplateLiteral | `1000000018` | |
+ | Tuple | `1000000010` | |
+ | TypeArgumented | `1000000015` | |
+ | TypePredicate | `1000000021` | |
+ | Union | `1000000008` | |
+ | Writer | `1000000003` | |
+ 
 
-Member
-
-
-</th><th>
-
-Value
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>Array</td><td><code>1000000011</code></td><td></td></tr>
-<tr><td>Conditional</td><td><code>1000000012</code></td><td></td></tr>
-<tr><td>Function</td><td><code>1000000016</code></td><td></td></tr>
-<tr><td>Import</td><td><code>1000000020</code></td><td></td></tr>
-<tr><td>IndexedAccess</td><td><code>1000000013</code></td><td></td></tr>
-<tr><td>Infer</td><td><code>1000000007</code></td><td></td></tr>
-<tr><td>Intersection</td><td><code>1000000009</code></td><td></td></tr>
-<tr><td>Literal</td><td><code>1000000000</code></td><td></td></tr>
-<tr><td>Mapped</td><td><code>1000000014</code></td><td></td></tr>
-<tr><td>MemberedObject</td><td><code>1000000019</code></td><td></td></tr>
-<tr><td>Number</td><td><code>1000000002</code></td><td></td></tr>
-<tr><td>Parameter</td><td><code>1000000017</code></td><td></td></tr>
-<tr><td>Parentheses</td><td><code>1000000005</code></td><td></td></tr>
-<tr><td>PrefixOperators</td><td><code>1000000006</code></td><td></td></tr>
-<tr><td>QualifiedName</td><td><code>1000000004</code></td><td></td></tr>
-<tr><td>String</td><td><code>1000000001</code></td><td></td></tr>
-<tr><td>TemplateLiteral</td><td><code>1000000018</code></td><td></td></tr>
-<tr><td>Tuple</td><td><code>1000000010</code></td><td></td></tr>
-<tr><td>TypeArgumented</td><td><code>1000000015</code></td><td></td></tr>
-<tr><td>TypePredicate</td><td><code>1000000021</code></td><td></td></tr>
-<tr><td>Union</td><td><code>1000000008</code></td><td></td></tr>
-<tr><td>Writer</td><td><code>1000000003</code></td><td></td></tr>
-</tbody></table>
 

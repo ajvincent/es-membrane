@@ -12,24 +12,11 @@ static clone(source: OptionalKind<CallSignatureDeclarationStructure>): CallSigna
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | source | OptionalKind&lt;CallSignatureDeclarationStructure&gt; | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>source</td><td>OptionalKind&lt;CallSignatureDeclarationStructure&gt;</td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

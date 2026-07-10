@@ -12,30 +12,12 @@ export interface TypeParameterWithTypeStructures
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [constraint](./ts-morph-structures.typeparameterwithtypestructures.constraint.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined | |
+ | [constraintStructure](./ts-morph-structures.typeparameterwithtypestructures.constraintstructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ | [default](./ts-morph-structures.typeparameterwithtypestructures.default.md) | | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md) \| undefined | |
+ | [defaultStructure](./ts-morph-structures.typeparameterwithtypestructures.defaultstructure.md) | | [TypeStructures](./ts-morph-structures.typestructures.md) \| undefined | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.typeparameterwithtypestructures.constraint.md">constraint</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterwithtypestructures.constraintstructure.md">constraintStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterwithtypestructures.default.md">default</a></td><td></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a> | undefined</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typeparameterwithtypestructures.defaultstructure.md">defaultStructure</a></td><td></td><td><a href="./ts-morph-structures.typestructures.md">TypeStructures</a> | undefined</td><td></td></tr>
-</tbody></table>
 

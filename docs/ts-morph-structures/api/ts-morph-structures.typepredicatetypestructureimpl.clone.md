@@ -12,24 +12,11 @@ static clone(other: TypePredicateTypeStructureImpl): TypePredicateTypeStructureI
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | other | [TypePredicateTypeStructureImpl](./ts-morph-structures.typepredicatetypestructureimpl.md) | |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>other</td><td><a href="./ts-morph-structures.typepredicatetypestructureimpl.md">TypePredicateTypeStructureImpl</a></td><td></td></tr>
-</tbody></table>
 
 **Returns:**
 

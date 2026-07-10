@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<SpreadAssignmentImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[SpreadAssignmentImpl](./ts-morph-structures.spreadassignmentimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[SpreadAssignmentImpl](./ts-morph-structures.spreadassignmentimpl.md)&gt;
 

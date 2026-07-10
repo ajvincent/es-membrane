@@ -14,22 +14,9 @@ constructor(absolutePathToModule: string);
 
 ## Parameters
 
-<table><thead><tr><th>
+| Parameter | Type | Description |
+|-|-|-|
+ | absolutePathToModule | string | Where the file will live on the file system. |
+ 
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>absolutePathToModule</td><td>string</td><td>Where the file will live on the file system.</td></tr>
-</tbody></table>
 

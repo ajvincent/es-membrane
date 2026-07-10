@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<SourceFileImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[SourceFileImpl](./ts-morph-structures.sourcefileimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[SourceFileImpl](./ts-morph-structures.sourcefileimpl.md)&gt;
 

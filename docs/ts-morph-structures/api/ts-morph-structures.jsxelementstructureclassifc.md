@@ -12,30 +12,12 @@ export interface JsxElementStructureClassIfc
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [attributes](./ts-morph-structures.jsxelementstructureclassifc.attributes.md) | `readonly` | ([JsxAttributeImpl](./ts-morph-structures.jsxattributeimpl.md) \| [JsxSpreadAttributeImpl](./ts-morph-structures.jsxspreadattributeimpl.md))\[\] | |
+ | [bodyText?](./ts-morph-structures.jsxelementstructureclassifc.bodytext.md) | | string | _(Optional)_ |
+ | [children](./ts-morph-structures.jsxelementstructureclassifc.children.md) | `readonly` | ([JsxElementImpl](./ts-morph-structures.jsxelementimpl.md) \| [JsxSelfClosingElementImpl](./ts-morph-structures.jsxselfclosingelementimpl.md))\[\] | |
+ | [kind](./ts-morph-structures.jsxelementstructureclassifc.kind.md) | `readonly` | StructureKind.JsxElement | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.jsxelementstructureclassifc.attributes.md">attributes</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsxattributeimpl.md">JsxAttributeImpl</a> | <a href="./ts-morph-structures.jsxspreadattributeimpl.md">JsxSpreadAttributeImpl</a><!-- -->)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxelementstructureclassifc.bodytext.md">bodyText?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxelementstructureclassifc.children.md">children</a></td><td><code>readonly</code></td><td>(<a href="./ts-morph-structures.jsxelementimpl.md">JsxElementImpl</a> | <a href="./ts-morph-structures.jsxselfclosingelementimpl.md">JsxSelfClosingElementImpl</a><!-- -->)[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.jsxelementstructureclassifc.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.JsxElement</td><td></td></tr>
-</tbody></table>
 

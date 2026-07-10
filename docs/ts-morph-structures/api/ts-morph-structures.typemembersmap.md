@@ -4,14 +4,14 @@
 
 ## TypeMembersMap class
 
-A map for members of `InterfaceDeclarationImpl` and `MemberedObjectTypeStructureImpl`<!-- -->. This doesn't replace the structures, rather it \_feeds\_ them.
+A map for members of `InterfaceDeclarationImpl` and `MemberedObjectTypeStructureImpl`. This doesn't replace the structures, rather it \_feeds\_ them.
 
 **Signature:**
 
 ```typescript
 export default class TypeMembersMap extends OrderedMap<string, TypeMemberImpl> 
 ```
-**Extends:** OrderedMap&lt;string, [TypeMemberImpl](./ts-morph-structures.typememberimpl.md)<!-- -->&gt;
+**Extends:** OrderedMap&lt;string, [TypeMemberImpl](./ts-morph-structures.typememberimpl.md)&gt;
 
 ## Example
 
@@ -19,34 +19,20 @@ const map = new TypeMembersMap; const foo = new PropertySignatureImpl(false, "fo
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [addMembers(members)](./ts-morph-structures.typemembersmap.addmembers.md) | | Add type members as values of this map, using standard keys. |
+ | [arrayOfKind(kind)](./ts-morph-structures.typemembersmap.arrayofkind.md) | | Get type members of a particular kind. |
+ | [clone()](./ts-morph-structures.typemembersmap.clone.md) | | Get a clone of this map. |
+ | [convertAccessorsToProperty(name)](./ts-morph-structures.typemembersmap.convertaccessorstoproperty.md) | | Convert get and/or set accessors to a property. This may be lossy, but we try to be faithful. |
+ | [convertPropertyToAccessors(name, toGetter, toSetter)](./ts-morph-structures.typemembersmap.convertpropertytoaccessors.md) | | Convert a property signature to get and/or set accessors. This may be lossy, but we try to be faithful. |
+ | [fromMemberedObject(membered)](./ts-morph-structures.typemembersmap.frommemberedobject.md) | `static` | Create a `TypeMembersMap` from an interface or membered object. |
+ | [getAsKind(kind, name)](./ts-morph-structures.typemembersmap.getaskind.md) | | A typed call to `this.get()` for a given kind. |
+ | [keyFromMember(member)](./ts-morph-structures.typemembersmap.keyfrommember.md) | `static` | Get a map key from a potential type member. |
+ | [keyFromName(kind, name)](./ts-morph-structures.typemembersmap.keyfromname.md) | `static` | |
+ | [moveMembersToType(owner)](./ts-morph-structures.typemembersmap.movememberstotype.md) | | Move type members from this map to an interface or type literal, and clear this map. |
+ | [resolveIndexSignature(signature, names)](./ts-morph-structures.typemembersmap.resolveindexsignature.md) | | Replace an index signature with other methods/properties matching the signature's return type. It is up to you to ensure the names match the key type of the index signature. |
+ | [toJSON()](./ts-morph-structures.typemembersmap.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.typemembersmap.addmembers.md">addMembers(members)</a></td><td></td><td>Add type members as values of this map, using standard keys.</td></tr>
-<tr><td><a href="./ts-morph-structures.typemembersmap.arrayofkind.md">arrayOfKind(kind)</a></td><td></td><td>Get type members of a particular kind.</td></tr>
-<tr><td><a href="./ts-morph-structures.typemembersmap.clone.md">clone()</a></td><td></td><td>Get a clone of this map.</td></tr>
-<tr><td><a href="./ts-morph-structures.typemembersmap.convertaccessorstoproperty.md">convertAccessorsToProperty(name)</a></td><td></td><td>Convert get and/or set accessors to a property. This may be lossy, but we try to be faithful.</td></tr>
-<tr><td><a href="./ts-morph-structures.typemembersmap.convertpropertytoaccessors.md">convertPropertyToAccessors(name, toGetter, toSetter)</a></td><td></td><td>Convert a property signature to get and/or set accessors. This may be lossy, but we try to be faithful.</td></tr>
-<tr><td><a href="./ts-morph-structures.typemembersmap.frommemberedobject.md">fromMemberedObject(membered)</a></td><td><code>static</code></td><td>Create a <code>TypeMembersMap</code> from an interface or membered object.</td></tr>
-<tr><td><a href="./ts-morph-structures.typemembersmap.getaskind.md">getAsKind(kind, name)</a></td><td></td><td>A typed call to <code>this.get()</code> for a given kind.</td></tr>
-<tr><td><a href="./ts-morph-structures.typemembersmap.keyfrommember.md">keyFromMember(member)</a></td><td><code>static</code></td><td>Get a map key from a potential type member.</td></tr>
-<tr><td><a href="./ts-morph-structures.typemembersmap.keyfromname.md">keyFromName(kind, name)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.typemembersmap.movememberstotype.md">moveMembersToType(owner)</a></td><td></td><td>Move type members from this map to an interface or type literal, and clear this map.</td></tr>
-<tr><td><a href="./ts-morph-structures.typemembersmap.resolveindexsignature.md">resolveIndexSignature(signature, names)</a></td><td></td><td><p>Replace an index signature with other methods/properties matching the signature’s return type.</p>
-<p>It is up to you to ensure the names match the key type of the index signature.</p></td></tr>
-<tr><td><a href="./ts-morph-structures.typemembersmap.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

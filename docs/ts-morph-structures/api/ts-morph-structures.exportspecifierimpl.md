@@ -13,75 +13,31 @@ export default class ExportSpecifierImpl implements ExportSpecifierStructureClas
 
 ## Constructors
 
-<table><thead><tr><th>
+| Constructor | Modifiers | Description |
+|-|-|-|
+ | [(constructor)(name)](./ts-morph-structures.exportspecifierimpl._constructor_.md) | | Constructs a new instance of the `ExportSpecifierImpl` class |
+ 
 
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.exportspecifierimpl._constructor_.md">(constructor)(name)</a></td><td></td><td>Constructs a new instance of the <code>ExportSpecifierImpl</code> class</td></tr>
-</tbody></table>
 
 ## Properties
 
-<table><thead><tr><th>
+| Property | Modifiers | Type | Description |
+|-|-|-|-|
+ | [alias?](./ts-morph-structures.exportspecifierimpl.alias.md) | | string | _(Optional)_ |
+ | [isTypeOnly](./ts-morph-structures.exportspecifierimpl.istypeonly.md) | | boolean | |
+ | [kind](./ts-morph-structures.exportspecifierimpl.kind.md) | `readonly` | StructureKind.ExportSpecifier | |
+ | [leadingTrivia](./ts-morph-structures.exportspecifierimpl.leadingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ | [name](./ts-morph-structures.exportspecifierimpl.name.md) | | string | |
+ | [trailingTrivia](./ts-morph-structures.exportspecifierimpl.trailingtrivia.md) | `readonly` | [stringOrWriterFunction](./ts-morph-structures.stringorwriterfunction.md)\[\] | |
+ 
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.exportspecifierimpl.alias.md">alias?</a></td><td></td><td>string</td><td><em>(Optional)</em></td></tr>
-<tr><td><a href="./ts-morph-structures.exportspecifierimpl.istypeonly.md">isTypeOnly</a></td><td></td><td>boolean</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportspecifierimpl.kind.md">kind</a></td><td><code>readonly</code></td><td>StructureKind.ExportSpecifier</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportspecifierimpl.leadingtrivia.md">leadingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportspecifierimpl.name.md">name</a></td><td></td><td>string</td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportspecifierimpl.trailingtrivia.md">trailingTrivia</a></td><td><code>readonly</code></td><td><a href="./ts-morph-structures.stringorwriterfunction.md">stringOrWriterFunction</a><!-- -->[]</td><td></td></tr>
-</tbody></table>
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Modifiers | Description |
+|-|-|-|
+ | [clone(source)](./ts-morph-structures.exportspecifierimpl.clone.md) | `static` | |
+ | [toJSON()](./ts-morph-structures.exportspecifierimpl.tojson.md) | | |
+ 
 
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.exportspecifierimpl.clone.md">clone(source)</a></td><td><code>static</code></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.exportspecifierimpl.tojson.md">toJSON()</a></td><td></td><td></td></tr>
-</tbody></table>
 

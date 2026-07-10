@@ -12,25 +12,12 @@ export declare enum FunctionWriterStyle
 
 ## Enumeration Members
 
-<table><thead><tr><th>
+| Member | Value | Description |
+|-|-|-|
+ | Arrow | `"Arrow"` | |
+ | GetAccessor | `"GetAccessor"` | |
+ | Method | `"Method"` | |
+ | SetAccessor | `"SetAccessor"` | |
+ 
 
-Member
-
-
-</th><th>
-
-Value
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>Arrow</td><td><code>&quot;Arrow&quot;</code></td><td></td></tr>
-<tr><td>GetAccessor</td><td><code>&quot;GetAccessor&quot;</code></td><td></td></tr>
-<tr><td>Method</td><td><code>&quot;Method&quot;</code></td><td></td></tr>
-<tr><td>SetAccessor</td><td><code>&quot;SetAccessor&quot;</code></td><td></td></tr>
-</tbody></table>
 

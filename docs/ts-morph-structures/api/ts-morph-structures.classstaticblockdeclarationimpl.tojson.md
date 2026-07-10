@@ -11,5 +11,5 @@ toJSON(): StructureClassToJSON<ClassStaticBlockDeclarationImpl>;
 ```
 **Returns:**
 
-StructureClassToJSON&lt;[ClassStaticBlockDeclarationImpl](./ts-morph-structures.classstaticblockdeclarationimpl.md)<!-- -->&gt;
+StructureClassToJSON&lt;[ClassStaticBlockDeclarationImpl](./ts-morph-structures.classstaticblockdeclarationimpl.md)&gt;
 

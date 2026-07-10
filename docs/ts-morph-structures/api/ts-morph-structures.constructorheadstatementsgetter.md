@@ -18,18 +18,10 @@ To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFla
 
 ## Methods
 
-<table><thead><tr><th>
+| Method | Description |
+|-|-|
+ | [filterCtorHeadStatements(key)](./ts-morph-structures.constructorheadstatementsgetter.filterctorheadstatements.md) | |
+ | [getCtorHeadStatements(key)](./ts-morph-structures.constructorheadstatementsgetter.getctorheadstatements.md) | |
+ 
 
-Method
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td><a href="./ts-morph-structures.constructorheadstatementsgetter.filterctorheadstatements.md">filterCtorHeadStatements(key)</a></td><td></td></tr>
-<tr><td><a href="./ts-morph-structures.constructorheadstatementsgetter.getctorheadstatements.md">getCtorHeadStatements(key)</a></td><td></td></tr>
-</tbody></table>
 
