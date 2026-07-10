@@ -18,8 +18,7 @@ export async function fixMarkdownTables(
     readableStream,
     noPartialTableCellTags,
     tableCellToggleIterable,
-    replaceMarkdownInCellsWithHTML,
-    aggregateAndRenderHTML,
+    replaceMarkdownWithHTML,
     writableStream
   );
 }
@@ -79,7 +78,7 @@ export async function * tableCellToggleIterable(source: AsyncIterable<string>): 
     yield [buffer, inTDTag];
 }
 
-export async function * replaceMarkdownInCellsWithHTML(
+export async function * replaceMarkdownWithHTML(
   source: AsyncIterable<[string, boolean]>
 ): AsyncIterable<string>
 {
@@ -89,14 +88,6 @@ export async function * replaceMarkdownInCellsWithHTML(
     else
       yield chunk;
   }
-}
-
-async function * aggregateAndRenderHTML(
-  source: AsyncIterable<string>
-): AsyncIterable<string>
-{
-  const contents = (await Array.fromAsync(source)).join("").replaceAll(".md", ".html");
-  yield markdownFixer.render(contents);
 }
 
 const markdownFixer = new markdownit({

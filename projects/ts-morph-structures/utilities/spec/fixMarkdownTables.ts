@@ -9,7 +9,7 @@ import {
 import {
   noPartialTableCellTags,
   tableCellToggleIterable,
-  replaceMarkdownInCellsWithHTML,
+  replaceMarkdownWithHTML,
 } from "../source/fixMarkdownTables.js";
 
 import {
@@ -82,7 +82,7 @@ describe("fixMarkdownTables: ", () => {
     ]);
   });
 
-  it("replaceMarkdownInCellsWithHTML works", async () => {
+  it("replaceMarkdownWithHTML works", async () => {
     const inStream = Readable.from(`
 <td>[ctors](./ts-morph-structures.classdeclarationimpl.ctors.md)</td>
 <td>\`readonly\`</td>
@@ -95,7 +95,7 @@ describe("fixMarkdownTables: ", () => {
     await pipeline(
       inStream,
       tableCellToggleIterable,
-      replaceMarkdownInCellsWithHTML,
+      replaceMarkdownWithHTML,
       outStream
     );
 

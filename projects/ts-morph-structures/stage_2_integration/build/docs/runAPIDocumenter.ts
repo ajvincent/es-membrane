@@ -67,7 +67,7 @@ async function fixMarkdown(
 ): Promise<void>
 {
   const readable: ReadStream  = fs.createReadStream( path.join(sourceDir, pathToFile), { encoding: "utf-8" });
-  const writable: WriteStream = fs.createWriteStream(path.join(targetDir, pathToFile.replace(".md", ".html")), { encoding: "utf-8" });
+  const writable: WriteStream = fs.createWriteStream(path.join(targetDir, pathToFile), { encoding: "utf-8" });
   try {
     await fixMarkdownTables(readable, writable);
   }
