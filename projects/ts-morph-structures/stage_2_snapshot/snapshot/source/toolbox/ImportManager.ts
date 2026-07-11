@@ -1,7 +1,10 @@
-import path from "path";
+import path from "node:path";
+
+import type {
+  AddImportContext
+} from "./types/toolbox.js";
 
 import {
-  type AddImportContext,
   ImportDeclarationImpl,
   ImportSpecifierImpl,
 } from "../exports.js";
