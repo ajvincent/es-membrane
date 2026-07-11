@@ -12,6 +12,7 @@ import type {
 
 import {
   runESLint,
+  runPrettify,
 } from "@ajvincent/build-utilities";
 
 import {
@@ -24,8 +25,6 @@ import createObjectGraphTailHandler from "./source/ObjectGraphTailHandler.js";
 import createConvertingHeadProxyHandler from "./source/ConvertingHead.js";
 import createRevokedInFlight from "./source/mirroring/revokedInFlight.js";
 import createWrapReturnValues from "./source/mirroring/wrapReturnValues.js";
-
-import { runPrettify } from "@ajvincent/build-utilities";
 
 let ObjectGraphHandlerIfc: InterfaceDeclarationImpl;
 

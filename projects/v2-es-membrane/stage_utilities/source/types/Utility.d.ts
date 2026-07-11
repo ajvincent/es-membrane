@@ -1,6 +1,12 @@
 /* Just some utilities I may use some day. */
 
-import type {Class} from "type-fest";
+import type {
+  Class,
+  /*
+  ArrayTail,
+  LastArrayElement,
+  */
+} from "type-fest";
 
 // #region booleans
 export type And<Left extends boolean, Right extends boolean> = Left extends true ? Right extends true ? true : false : false;
@@ -37,6 +43,7 @@ export type HasTail<Elements extends readonly unknown[]> =
 export type Head<Elements extends readonly T[], T = unknown> =
   HasHead<Elements> extends true ? ShiftArrayElement<Elements, T>["element"] : never;
 
+/** @deprecated use ArrayTail */
 export type Tail<Elements extends readonly T[], T = unknown> =
   HasTail<Elements> extends true ? ShiftArrayElement<Elements, T>["tail"] : never;
 

@@ -110,7 +110,9 @@ export function isGenericDescriptor(desc: object): desc is PropertyDescriptor {
   return !isAccessorDescriptor(desc) && !isDataDescriptor(desc);
 }
 
-export const allTraps: readonly (keyof ProxyHandler<object>)[] = Object.freeze([
+export type ProxyTrap = keyof ProxyHandler<object>;
+
+export const allTraps: readonly ProxyTrap[] = Object.freeze([
   "apply",
   "construct",
   "defineProperty",
