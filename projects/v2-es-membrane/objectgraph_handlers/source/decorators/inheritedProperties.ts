@@ -2,6 +2,10 @@ import graphAssert from "../exceptions/graphAssert.js";
 
 import ObjectGraphTailHandler from "../generated/ObjectGraphTailHandler.js";
 
+import type {
+  ClassDecoratorFunction
+} from "../types/ClassDecoratorFunction.js";
+
 import {
   DataDescriptor,
   isAccessorDescriptor,
@@ -202,3 +206,8 @@ export default function InheritedPropertyTraps(
 
   return InheritedPropertyTraps;
 }
+InheritedPropertyTraps satisfies ClassDecoratorFunction<
+  typeof ObjectGraphTailHandler,
+  true,
+  false
+>;
