@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { CodeBlockWriter, StructureKind, SyntaxKind, Structure, forEachStructureChild, Node, ConstructorTypeNode, ModuleResolutionKind, ScriptTarget, ModuleKind, Project, Writers } from 'ts-morph';
 import path from 'path';
+import path$1 from 'node:path';
 import MultiMixinBuilder from 'mixin-decorators';
 
 var TypeStructureKind;
@@ -5832,11 +5833,40 @@ function forEachAugmentedStructureChild(structureOrArray, callback) {
  * ```
  */
 class ImportManager {
+    static fromSourceFile(absolutePathToModule, sourceFile) {
+        throw new Error("not yet implemented");
+    }
     static #compareDeclarations(a, b) {
         return a[0].localeCompare(b[0]);
     }
     static #compareSpecifiers(a, b) {
         return a.name.localeCompare(b.name);
+    }
+    static #separateNamedImportDeclByType(decl) {
+        if (decl.isTypeOnly)
+            return [ImportDeclarationImpl.clone(decl)];
+        let foundNonTypedImports = Boolean(decl.defaultImport), foundTypedImports = false;
+        for (const namedImport of decl.namedImports) {
+            if (namedImport.isTypeOnly)
+                foundTypedImports = true;
+            else
+                foundNonTypedImports = true;
+        }
+        if (!foundTypedImports) {
+            return [ImportDeclarationImpl.clone(decl)];
+        }
+        if (!foundNonTypedImports) {
+            decl = ImportDeclarationImpl.clone(decl);
+            decl.isTypeOnly = true;
+            for (const namedImport of decl.namedImports) {
+                namedImport.isTypeOnly = false;
+            }
+            return [decl];
+        }
+        return [
+            ImportDeclarationImpl.clone(decl, "excludeTypes"),
+            ImportDeclarationImpl.clone(decl, "typesOnly"),
+        ];
     }
     /** Where the file will live on the file system. */
     absolutePathToModule;
@@ -5849,9 +5879,13 @@ class ImportManager {
         if (!absolutePathToModule.endsWith(".ts")) {
             throw new Error("path to module must end with .ts");
         }
-        if (!path.isAbsolute(absolutePathToModule))
+        if (!path$1.isAbsolute(absolutePathToModule))
             throw new Error("path to module must be absolute");
-        this.absolutePathToModule = path.normalize(absolutePathToModule);
+        this.absolutePathToModule = path$1.normalize(absolutePathToModule);
+    }
+    /** If you have a declaration, add its imported names. */
+    addFromDeclaration(decl) {
+        throw new Error("not yet implemented");
     }
     /**
      * @param context - a description of the imports to add.
@@ -5863,13 +5897,13 @@ class ImportManager {
             if (!pathToImportedModule.endsWith(".ts")) {
                 throw new Error("path to module must end with .ts, or use isPackageImport: true to specify package import");
             }
-            if (!isPackageImport && !path.isAbsolute(pathToImportedModule)) {
+            if (!isPackageImport && !path$1.isAbsolute(pathToImportedModule)) {
                 throw new Error("path to module must be absolute, or use isPackageImport: true to specify package import");
             }
         }
-        pathToImportedModule = path.normalize(pathToImportedModule.replace(/(\.d)?\.(m?)ts$/, ".$2js"));
+        pathToImportedModule = path$1.normalize(pathToImportedModule.replace(/(\.d)?\.(m?)ts$/, ".$2js"));
         if (!isPackageImport) {
-            pathToImportedModule = path.relative(path.dirname(this.absolutePathToModule), pathToImportedModule);
+            pathToImportedModule = path$1.relative(path$1.dirname(this.absolutePathToModule), pathToImportedModule);
             if (!pathToImportedModule.startsWith("../"))
                 pathToImportedModule = "./" + pathToImportedModule;
         }
@@ -5916,14 +5950,35 @@ class ImportManager {
         });
         importDecl.isTypeOnly = false;
     }
+    clone(resolver, relativePathToModule) {
+        throw new Error("not yet implemented");
+    }
+    /**
+     * Get a map of all imported names.  Each key will have its own metadata,
+     * which excludes information about other names.
+     */
+    getAllNamesMap() {
+        throw new Error("not yet implemented");
+    }
     /** Get the import declarations, sorted by path to file, then internally by specified import values. */
-    getDeclarations() {
+    getDeclarations(separateTypeOnlyDeclarations = false) {
         const entries = Array.from(this.#declarationsMap);
         entries.sort(ImportManager.#compareDeclarations);
-        return entries.map((entry) => {
-            entry[1].namedImports.sort(ImportManager.#compareSpecifiers);
-            return entry[1];
+        let decls = entries.map((entry) => entry[1]);
+        decls.forEach((decl) => {
+            decl.namedImports.sort(ImportManager.#compareSpecifiers);
         });
+        if (separateTypeOnlyDeclarations) {
+            decls = decls.map(ImportManager.#separateNamedImportDeclByType).flat();
+        }
+        return decls;
+    }
+    getNameContext(name) {
+        throw new Error("not yet implemented");
+    }
+    /** Remove a key's metadata. */
+    removeImportName(name) {
+        throw new Error("not yet implemented");
     }
 }
 

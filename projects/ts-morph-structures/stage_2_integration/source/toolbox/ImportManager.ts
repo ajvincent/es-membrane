@@ -1,9 +1,13 @@
-import path from "path";
+import path from "node:path";
+
+import type {
+  AddImportContext
+} from "./types/toolbox.js";
 
 import {
-  type AddImportContext,
   ImportDeclarationImpl,
   ImportSpecifierImpl,
+  type SourceFileImpl,
 } from "../../snapshot/source/exports.js";
 
 /**
@@ -24,6 +28,16 @@ import {
  */
 export default class ImportManager
 {
+  public static fromSourceFile(
+    absolutePathToModule: string,
+    sourceFile: SourceFileImpl
+  ): ImportManager
+  {
+    void absolutePathToModule;
+    void sourceFile;
+    throw new Error("not yet implemented");
+  }
+
   static #compareDeclarations(
     this: void,
     a: [string, ImportDeclarationImpl],
@@ -40,6 +54,41 @@ export default class ImportManager
   ): number
   {
     return a.name.localeCompare(b.name);
+  }
+
+  static #separateNamedImportDeclByType(
+    this: void,
+    decl: ImportDeclarationImpl
+  ): [ImportDeclarationImpl] | [ImportDeclarationImpl, ImportDeclarationImpl]
+  {
+    if (decl.isTypeOnly)
+      return [ImportDeclarationImpl.clone(decl)];
+
+    let foundNonTypedImports = Boolean(decl.defaultImport), foundTypedImports: boolean = false;
+    for (const namedImport of (decl.namedImports as ImportSpecifierImpl[])) {
+      if (namedImport.isTypeOnly)
+        foundTypedImports = true;
+      else
+        foundNonTypedImports = true;
+    }
+
+    if (!foundTypedImports) {
+      return [ImportDeclarationImpl.clone(decl)];
+    }
+
+    if (!foundNonTypedImports) {
+      decl = ImportDeclarationImpl.clone(decl);
+      decl.isTypeOnly = true;
+      for (const namedImport of (decl.namedImports as ImportSpecifierImpl[])) {
+        namedImport.isTypeOnly = false;
+      }
+      return [decl];
+    }
+
+    return [
+      ImportDeclarationImpl.clone(decl, "excludeTypes"),
+      ImportDeclarationImpl.clone(decl, "typesOnly")
+    ];
   }
 
   /** Where the file will live on the file system. */
@@ -65,10 +114,19 @@ export default class ImportManager
     this.absolutePathToModule = path.normalize(absolutePathToModule);
   }
 
+  /** If you have a declaration, add its imported names. */
+  public addFromDeclaration(
+    decl: ImportDeclarationImpl
+  ): void
+  {
+    void decl;
+    throw new Error("not yet implemented");
+  }
+
   /**
    * @param context - a description of the imports to add.
    */
-  addImports(
+  public addImports(
     context: AddImportContext
   ): void
   {
@@ -146,14 +204,58 @@ export default class ImportManager
     importDecl.isTypeOnly = false;
   }
 
+  public clone(
+    resolver?: (sourceSpecifier: string, targetSpecifier: string) => string,
+    relativePathToModule?: string
+  ): ImportManager
+  {
+    void relativePathToModule;
+    throw new Error("not yet implemented");
+  }
+
+  /**
+   * Get a map of all imported names.  Each key will have its own metadata,
+   * which excludes information about other names.
+   */
+  public getAllNamesMap(): ReadonlyMap<string, AddImportContext>
+  {
+    throw new Error("not yet implemented");
+  }
+
   /** Get the import declarations, sorted by path to file, then internally by specified import values. */
-  getDeclarations(): ImportDeclarationImpl[]
+  public getDeclarations(
+    separateTypeOnlyDeclarations: boolean = false
+  ): ImportDeclarationImpl[]
   {
     const entries = Array.from(this.#declarationsMap);
     entries.sort(ImportManager.#compareDeclarations);
-    return entries.map(entry => {
-      (entry[1].namedImports as ImportSpecifierImpl[]).sort(ImportManager.#compareSpecifiers);
-      return entry[1];
+    let decls = entries.map(entry => entry[1]);
+
+    decls.forEach(decl => {
+      (decl.namedImports as ImportSpecifierImpl[]).sort(ImportManager.#compareSpecifiers);
     });
+
+    if (separateTypeOnlyDeclarations) {
+      decls = decls.map(ImportManager.#separateNamedImportDeclByType).flat();
+    }
+
+    return decls;
+  }
+
+  public getNameContext(
+    name: string
+  ): AddImportContext | undefined
+  {
+    void name;
+    throw new Error("not yet implemented");
+  }
+
+  /** Remove a key's metadata. */
+  public removeImportName(
+    name: string
+  ): void
+  {
+    void name;
+    throw new Error("not yet implemented");
   }
 }

@@ -982,269 +982,6 @@ declare function forEachAugmentedStructureChild<TStructure>(
   callback: (child: StructureImpls | TypeStructures) => TStructure | void,
 ): TStructure | undefined;
 
-/**
- * This manages import declarations and specifiers, for including in a source file.
- *
- * @example
- * ```typescript
- * importsManager.addImports({
- *   pathToImportedModule: "ts-morph",
- *   isPackageImport: true,
- *   importNames: ["Structure", "StructureKind"],
- *   isDefaultImport: false,
- *   isTypeOnly: true
- * });
- * // ...
- * sourceFile.statements.unshift(...importsManager.getDeclarations());
- * ```
- */
-declare class ImportManager {
-  #private;
-  /** Where the file will live on the file system. */
-  readonly absolutePathToModule: string;
-  /** @param absolutePathToModule - Where the file will live on the file system. */
-  constructor(absolutePathToModule: string);
-  /** @param context - a description of the imports to add. */
-  addImports(context: AddImportContext): void;
-  /** Get the import declarations, sorted by path to file, then internally by specified import values. */
-  getDeclarations(): ImportDeclarationImpl[];
-}
-
-interface InsertedMemberKey {
-  readonly isFieldStatic: boolean;
-  readonly fieldType:
-    | PropertySignatureImpl
-    | GetAccessorDeclarationImpl
-    | SetAccessorDeclarationImpl;
-  readonly isGroupStatic: boolean;
-  readonly groupType:
-    | GetAccessorDeclarationImpl
-    | SetAccessorDeclarationImpl
-    | MethodSignatureImpl
-    | "constructor"
-    | "(initializer or property reference)";
-}
-
-/**
- * Bitwise flags to enable statement getter traps.
- */
-declare enum ClassSupportsStatementsFlags {
-  /** The initial value of a property. */
-  PropertyInitializer = 1,
-  /** Values for a class getter or class setter to mirror. */
-  AccessorMirror = 2,
-  /** Statements starting a statement purpose block. */
-  HeadStatements = 4,
-  /** Statements in a purpose block for a given property and class member. */
-  BodyStatements = 8,
-  /** Statements closing a statement purpose block. */
-  TailStatements = 16,
-  /** Statements starting a statement purpose block for the constructor. */
-  ConstructorHeadStatements = 32,
-  /** Statements in a purpose block for a given property on the constructor. */
-  ConstructorBodyStatements = 64,
-  /** Statements closing a statement purpose block for the constructor. */
-  ConstructorTailStatements = 128,
-}
-
-/** Convert type members to a class members map, including statements. */
-declare class MemberedTypeToClass {
-  #private;
-  /** The class constructor's current parameters list. */
-  get constructorParameters(): ParameterDeclarationImpl[];
-  /**
-   * An interface to get names which match an index signature's key name.
-   */
-  get indexSignatureResolver(): IndexSignatureResolver | undefined;
-  set indexSignatureResolver(value: IndexSignatureResolver | undefined);
-  get isAbstractCallback(): ClassAbstractMemberQuestion | undefined;
-  set isAbstractCallback(value: ClassAbstractMemberQuestion | undefined);
-  get isAsyncCallback(): ClassAsyncMethodQuestion | undefined;
-  set isAsyncCallback(value: ClassAsyncMethodQuestion | undefined);
-  get isGeneratorCallback(): ClassGeneratorMethodQuestion | undefined;
-  set isGeneratorCallback(value: ClassGeneratorMethodQuestion | undefined);
-  get scopeCallback(): ClassScopeMemberQuestion | undefined;
-  set scopeCallback(value: ClassScopeMemberQuestion | undefined);
-  /**
-   * Get the current type members in our cache.
-   *
-   * @internal This is for debugging and testing purposes only.
-   */
-  getCurrentTypeMembers(isStatic: boolean): readonly TypeMemberImpl[];
-  /**
-   * Define a class member for a given type member (constructor, property, method, getter, setter).
-   * @param isStatic - true if the class member is static.
-   * @param member - the type member to convert to a class member.
-   */
-  addTypeMember(isStatic: boolean, member: TypeMemberImpl): void;
-  /**
-   * Define class members for a map of given type members (constructor, property, method, getter, setter).
-   * @param isStatic - true if the class members are static.
-   * @param membersMap - the type members map for conversion to class members.
-   */
-  importFromTypeMembersMap(isStatic: boolean, membersMap: TypeMembersMap): void;
-  /**
-   * Define class members for a membered object type or interface.
-   * @param isStatic - true if the class members are static.
-   * @param membered - the interface or membered object type.
-   */
-  importFromMemberedType(
-    isStatic: boolean,
-    membered: InterfaceDeclarationImpl | MemberedObjectTypeStructureImpl,
-  ): void;
-  /**
-   * Convert cached type members to a ClassMembersMap, complete with statements.
-   */
-  buildClassMembersMap(): ClassMembersMap;
-  /**
-   * Define a statement purpose group for the target class.
-   *
-   * @param purposeKey - The purpose of the statmeent group (validation, preconditions, body, postconditions, etc.)
-   * @param isBlockStatement - true if the statement block should be enclosed in curly braces.
-   * @param regionName - an optional #region / #endregion comment name.
-   *
-   * Call this in the order of statement purpose groups you intend.
-   */
-  defineStatementsByPurpose(
-    purposeKey: string,
-    isBlockStatement: boolean,
-    regionName?: string,
-  ): void;
-  /**
-   * Add statement getters to this.
-   *
-   * @param priority - a number indicating the priority of the getters (lower numbers beat higher numbers).
-   * @param statementGetters - the statement getters to insert.
-   */
-  addStatementGetters(
-    priority: number,
-    statementGetters: readonly ClassStatementsGetter[],
-  ): void;
-  /**
-   * Add member keys for a field and a group.
-   * @param isFieldStatic - true if the field is static.
-   * @param fieldType - the field signature.
-   * @param isGroupStatic - true if the group is static (false for constructors)
-   * @param groupType - the group signature, or "constructor" for the constructor I generate.
-   */
-  insertMemberKey(
-    isFieldStatic: boolean,
-    fieldType:
-      | PropertySignatureImpl
-      | GetAccessorDeclarationImpl
-      | SetAccessorDeclarationImpl,
-    isGroupStatic: boolean,
-    groupType: InsertedMemberKey["groupType"],
-  ): void;
-}
-
-/**
- * A map for members of `InterfaceDeclarationImpl` and `MemberedObjectTypeStructureImpl`.  This
- * doesn't replace the structures, rather it _feeds_ them.
- *
- * @example
- *
- * const map = new TypeMembersMap;
- * const foo = new PropertySignatureImpl(false, "foo");
- * map.addMembers([foo]);
- * // ...
- * const interfaceDecl = new InterfaceDeclarationImpl("FooInterface");
- * map.moveMembersToType(interfaceDecl);
- * // interfaceDecl.properties === [foo];
- */
-declare class TypeMembersMap extends OrderedMap<string, TypeMemberImpl> {
-  #private;
-  /**
-   * Get a map key from a potential type member.
-   * @param member - the type member
-   */
-  static keyFromMember(member: TypeMemberImpl): string;
-  /**
-   * @param kind - the structure kind.
-   * @param name - the name of the type member.
-   * @returns the map key to use.
-   */
-  static keyFromName(kind: NamedTypeMemberImpl["kind"], name: string): string;
-  /**
-   * Create a `TypeMembersMap` from an interface or membered object.
-   * @param membered - the membered object.
-   * @returns the type members map.
-   */
-  static fromMemberedObject(
-    membered: InterfaceDeclarationImpl | MemberedObjectTypeStructureImpl,
-  ): TypeMembersMap;
-  /**
-   * Add type members as values of this map, using standard keys.
-   *
-   * @param members - the type members to add.
-   */
-  addMembers(members: readonly TypeMemberImpl[]): void;
-  /**
-   * Get type members of a particular kind.
-   *
-   * @param kind - the structure kind to get.
-   * @returns all current members of that kind.
-   */
-  arrayOfKind<Kind extends TypeMemberImpl["kind"]>(
-    kind: Kind,
-  ): readonly Extract<TypeMemberImpl, KindedStructure<Kind>>[];
-  /** Get a clone of this map. */
-  clone(): TypeMembersMap;
-  /**
-   * Convert get and/or set accessors to a property.  This may be lossy, but we try to be faithful.
-   * @param name - the property name
-   */
-  convertAccessorsToProperty(name: string): void;
-  /**
-   * Convert a property signature to get and/or set accessors.  This may be lossy, but we try to be faithful.
-   * @param name - the property name
-   * @param toGetter - true if the caller wants a getter
-   * @param toSetter - true if the caller wants a setter
-   */
-  convertPropertyToAccessors(
-    name: string,
-    toGetter: boolean,
-    toSetter: boolean,
-  ): void;
-  /**
-   * A typed call to `this.get()` for a given kind.
-   * @param kind - the structure kind.
-   * @param name - the key to get.
-   * @returns - the type member, as the right type, or undefined if the wrong type.
-   * @see `TypeMembersMap::keyFromName`
-   */
-  getAsKind<Kind extends NamedTypeMemberImpl["kind"]>(
-    kind: Kind,
-    name: string,
-  ): Extract<TypeMemberImpl, KindedStructure<Kind>> | undefined;
-  /**
-   * Move type members from this map to an interface or type literal, and clear this map.
-   *
-   * @param owner - the target interface or type literal declaration.
-   */
-  moveMembersToType(
-    owner: InterfaceDeclarationImpl | MemberedObjectTypeStructureImpl,
-  ): void;
-  /**
-   * Replace an index signature with other methods/properties matching the signature's return type.
-   *
-   * It is up to you to ensure the names match the key type of the index signature.
-   *
-   * @param signature - the signature (which must be a member of this) to resolve.
-   * @param names - the names to replace the signature's key with.
-   */
-  resolveIndexSignature(
-    signature: IndexSignatureDeclarationImpl,
-    names: string[],
-  ): MethodSignatureImpl[] | PropertySignatureImpl[];
-  toJSON(): readonly TypeMemberImpl[];
-}
-
-type ReadonlyTypeMembersMap = Simplify<
-  ReadonlyMap<string, TypeMemberImpl> &
-    Pick<TypeMembersMap, "arrayOfKind" | "clone" | "getAsKind">
->;
-
 /** A description of the exports to add. */
 interface AddExportContext {
   /** This could be an absolute path, or a package import like "ts-morph-structures". */
@@ -1534,6 +1271,288 @@ interface ClassStatementsGetter
   supportsStatementsFlags: readonly number;
 }
 
+/**
+ * This manages import declarations and specifiers, for including in a source file.
+ *
+ * @example
+ * ```typescript
+ * importsManager.addImports({
+ *   pathToImportedModule: "ts-morph",
+ *   isPackageImport: true,
+ *   importNames: ["Structure", "StructureKind"],
+ *   isDefaultImport: false,
+ *   isTypeOnly: true
+ * });
+ * // ...
+ * sourceFile.statements.unshift(...importsManager.getDeclarations());
+ * ```
+ */
+declare class ImportManager {
+  #private;
+  /** Where the file will live on the file system. */
+  readonly absolutePathToModule: string;
+  /** @param absolutePathToModule - Where the file will live on the file system. */
+  constructor(absolutePathToModule: string);
+  static fromSourceFile(
+    absolutePathToModule: string,
+    sourceFile: SourceFileImpl,
+  ): ImportManager;
+  /** If you have a declaration, add its imported names. */
+  addFromDeclaration(decl: ImportDeclarationImpl): void;
+  /** @param context - a description of the imports to add. */
+  addImports(context: AddImportContext): void;
+  clone(
+    resolver?: (sourceSpecifier: string, targetSpecifier: string) => string,
+    relativePathToModule?: string,
+  ): ImportManager;
+  /**
+   * Get a map of all imported names.  Each key will have its own metadata,
+   * which excludes information about other names.
+   */
+  getAllNamesMap(): ReadonlyMap<string, AddImportContext>;
+  /** Get the import declarations, sorted by path to file, then internally by specified import values. */
+  getDeclarations(
+    separateTypeOnlyDeclarations?: boolean,
+  ): ImportDeclarationImpl[];
+  getNameContext(name: string): AddImportContext | undefined;
+  /** Remove a key's metadata. */
+  removeImportName(name: string): void;
+}
+
+interface InsertedMemberKey {
+  readonly isFieldStatic: boolean;
+  readonly fieldType:
+    | PropertySignatureImpl
+    | GetAccessorDeclarationImpl
+    | SetAccessorDeclarationImpl;
+  readonly isGroupStatic: boolean;
+  readonly groupType:
+    | GetAccessorDeclarationImpl
+    | SetAccessorDeclarationImpl
+    | MethodSignatureImpl
+    | "constructor"
+    | "(initializer or property reference)";
+}
+
+/**
+ * Bitwise flags to enable statement getter traps.
+ */
+declare enum ClassSupportsStatementsFlags {
+  /** The initial value of a property. */
+  PropertyInitializer = 1,
+  /** Values for a class getter or class setter to mirror. */
+  AccessorMirror = 2,
+  /** Statements starting a statement purpose block. */
+  HeadStatements = 4,
+  /** Statements in a purpose block for a given property and class member. */
+  BodyStatements = 8,
+  /** Statements closing a statement purpose block. */
+  TailStatements = 16,
+  /** Statements starting a statement purpose block for the constructor. */
+  ConstructorHeadStatements = 32,
+  /** Statements in a purpose block for a given property on the constructor. */
+  ConstructorBodyStatements = 64,
+  /** Statements closing a statement purpose block for the constructor. */
+  ConstructorTailStatements = 128,
+}
+
+/** Convert type members to a class members map, including statements. */
+declare class MemberedTypeToClass {
+  #private;
+  /** The class constructor's current parameters list. */
+  get constructorParameters(): ParameterDeclarationImpl[];
+  /**
+   * An interface to get names which match an index signature's key name.
+   */
+  get indexSignatureResolver(): IndexSignatureResolver | undefined;
+  set indexSignatureResolver(value: IndexSignatureResolver | undefined);
+  get isAbstractCallback(): ClassAbstractMemberQuestion | undefined;
+  set isAbstractCallback(value: ClassAbstractMemberQuestion | undefined);
+  get isAsyncCallback(): ClassAsyncMethodQuestion | undefined;
+  set isAsyncCallback(value: ClassAsyncMethodQuestion | undefined);
+  get isGeneratorCallback(): ClassGeneratorMethodQuestion | undefined;
+  set isGeneratorCallback(value: ClassGeneratorMethodQuestion | undefined);
+  get scopeCallback(): ClassScopeMemberQuestion | undefined;
+  set scopeCallback(value: ClassScopeMemberQuestion | undefined);
+  /**
+   * Get the current type members in our cache.
+   *
+   * @internal This is for debugging and testing purposes only.
+   */
+  getCurrentTypeMembers(isStatic: boolean): readonly TypeMemberImpl[];
+  /**
+   * Define a class member for a given type member (constructor, property, method, getter, setter).
+   * @param isStatic - true if the class member is static.
+   * @param member - the type member to convert to a class member.
+   */
+  addTypeMember(isStatic: boolean, member: TypeMemberImpl): void;
+  /**
+   * Define class members for a map of given type members (constructor, property, method, getter, setter).
+   * @param isStatic - true if the class members are static.
+   * @param membersMap - the type members map for conversion to class members.
+   */
+  importFromTypeMembersMap(isStatic: boolean, membersMap: TypeMembersMap): void;
+  /**
+   * Define class members for a membered object type or interface.
+   * @param isStatic - true if the class members are static.
+   * @param membered - the interface or membered object type.
+   */
+  importFromMemberedType(
+    isStatic: boolean,
+    membered: InterfaceDeclarationImpl | MemberedObjectTypeStructureImpl,
+  ): void;
+  /**
+   * Convert cached type members to a ClassMembersMap, complete with statements.
+   */
+  buildClassMembersMap(): ClassMembersMap;
+  /**
+   * Define a statement purpose group for the target class.
+   *
+   * @param purposeKey - The purpose of the statmeent group (validation, preconditions, body, postconditions, etc.)
+   * @param isBlockStatement - true if the statement block should be enclosed in curly braces.
+   * @param regionName - an optional #region / #endregion comment name.
+   *
+   * Call this in the order of statement purpose groups you intend.
+   */
+  defineStatementsByPurpose(
+    purposeKey: string,
+    isBlockStatement: boolean,
+    regionName?: string,
+  ): void;
+  /**
+   * Add statement getters to this.
+   *
+   * @param priority - a number indicating the priority of the getters (lower numbers beat higher numbers).
+   * @param statementGetters - the statement getters to insert.
+   */
+  addStatementGetters(
+    priority: number,
+    statementGetters: readonly ClassStatementsGetter[],
+  ): void;
+  /**
+   * Add member keys for a field and a group.
+   * @param isFieldStatic - true if the field is static.
+   * @param fieldType - the field signature.
+   * @param isGroupStatic - true if the group is static (false for constructors)
+   * @param groupType - the group signature, or "constructor" for the constructor I generate.
+   */
+  insertMemberKey(
+    isFieldStatic: boolean,
+    fieldType:
+      | PropertySignatureImpl
+      | GetAccessorDeclarationImpl
+      | SetAccessorDeclarationImpl,
+    isGroupStatic: boolean,
+    groupType: InsertedMemberKey["groupType"],
+  ): void;
+}
+
+/**
+ * A map for members of `InterfaceDeclarationImpl` and `MemberedObjectTypeStructureImpl`.  This
+ * doesn't replace the structures, rather it _feeds_ them.
+ *
+ * @example
+ *
+ * const map = new TypeMembersMap;
+ * const foo = new PropertySignatureImpl(false, "foo");
+ * map.addMembers([foo]);
+ * // ...
+ * const interfaceDecl = new InterfaceDeclarationImpl("FooInterface");
+ * map.moveMembersToType(interfaceDecl);
+ * // interfaceDecl.properties === [foo];
+ */
+declare class TypeMembersMap extends OrderedMap<string, TypeMemberImpl> {
+  #private;
+  /**
+   * Get a map key from a potential type member.
+   * @param member - the type member
+   */
+  static keyFromMember(member: TypeMemberImpl): string;
+  /**
+   * @param kind - the structure kind.
+   * @param name - the name of the type member.
+   * @returns the map key to use.
+   */
+  static keyFromName(kind: NamedTypeMemberImpl["kind"], name: string): string;
+  /**
+   * Create a `TypeMembersMap` from an interface or membered object.
+   * @param membered - the membered object.
+   * @returns the type members map.
+   */
+  static fromMemberedObject(
+    membered: InterfaceDeclarationImpl | MemberedObjectTypeStructureImpl,
+  ): TypeMembersMap;
+  /**
+   * Add type members as values of this map, using standard keys.
+   *
+   * @param members - the type members to add.
+   */
+  addMembers(members: readonly TypeMemberImpl[]): void;
+  /**
+   * Get type members of a particular kind.
+   *
+   * @param kind - the structure kind to get.
+   * @returns all current members of that kind.
+   */
+  arrayOfKind<Kind extends TypeMemberImpl["kind"]>(
+    kind: Kind,
+  ): readonly Extract<TypeMemberImpl, KindedStructure<Kind>>[];
+  /** Get a clone of this map. */
+  clone(): TypeMembersMap;
+  /**
+   * Convert get and/or set accessors to a property.  This may be lossy, but we try to be faithful.
+   * @param name - the property name
+   */
+  convertAccessorsToProperty(name: string): void;
+  /**
+   * Convert a property signature to get and/or set accessors.  This may be lossy, but we try to be faithful.
+   * @param name - the property name
+   * @param toGetter - true if the caller wants a getter
+   * @param toSetter - true if the caller wants a setter
+   */
+  convertPropertyToAccessors(
+    name: string,
+    toGetter: boolean,
+    toSetter: boolean,
+  ): void;
+  /**
+   * A typed call to `this.get()` for a given kind.
+   * @param kind - the structure kind.
+   * @param name - the key to get.
+   * @returns - the type member, as the right type, or undefined if the wrong type.
+   * @see `TypeMembersMap::keyFromName`
+   */
+  getAsKind<Kind extends NamedTypeMemberImpl["kind"]>(
+    kind: Kind,
+    name: string,
+  ): Extract<TypeMemberImpl, KindedStructure<Kind>> | undefined;
+  /**
+   * Move type members from this map to an interface or type literal, and clear this map.
+   *
+   * @param owner - the target interface or type literal declaration.
+   */
+  moveMembersToType(
+    owner: InterfaceDeclarationImpl | MemberedObjectTypeStructureImpl,
+  ): void;
+  /**
+   * Replace an index signature with other methods/properties matching the signature's return type.
+   *
+   * It is up to you to ensure the names match the key type of the index signature.
+   *
+   * @param signature - the signature (which must be a member of this) to resolve.
+   * @param names - the names to replace the signature's key with.
+   */
+  resolveIndexSignature(
+    signature: IndexSignatureDeclarationImpl,
+    names: string[],
+  ): MethodSignatureImpl[] | PropertySignatureImpl[];
+  toJSON(): readonly TypeMemberImpl[];
+}
+
+type ReadonlyTypeMembersMap = Simplify<
+  ReadonlyMap<string, TypeMemberImpl> &
+    Pick<TypeMembersMap, "arrayOfKind" | "clone" | "getAsKind">
+>;
 type stringOrWriterFunction = string | WriterFunction;
 type ClassMemberStructureImpls =
   | ClassStaticBlockDeclarationImpl
