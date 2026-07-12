@@ -85,6 +85,10 @@ export default class GetAccessorDeclarationImpl
     }
   }
 
+  /**
+   * Create a `GetAccessorDeclarationImpl` from a `GetAccessorDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<GetAccessorDeclarationStructure>,
   ): GetAccessorDeclarationImpl {

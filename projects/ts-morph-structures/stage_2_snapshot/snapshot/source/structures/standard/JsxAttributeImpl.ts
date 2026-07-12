@@ -50,6 +50,10 @@ export default class JsxAttributeImpl
     target.name = source.name;
   }
 
+  /**
+   * Create a `JsxAttributeImpl` from a `JsxAttributeStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<JsxAttributeStructure>,
   ): JsxAttributeImpl {

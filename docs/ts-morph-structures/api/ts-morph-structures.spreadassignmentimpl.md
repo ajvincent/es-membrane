@@ -34,7 +34,7 @@ export default class SpreadAssignmentImpl implements SpreadAssignmentStructureCl
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.spreadassignmentimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.spreadassignmentimpl.clone.md) | `static` | Create a `SpreadAssignmentImpl` from a `SpreadAssignmentStructure`. |
  | [toJSON()](./ts-morph-structures.spreadassignmentimpl.tojson.md) | | |
  
 

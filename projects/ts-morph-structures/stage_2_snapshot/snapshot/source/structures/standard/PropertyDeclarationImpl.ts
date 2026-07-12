@@ -106,6 +106,10 @@ export default class PropertyDeclarationImpl
     target.hasAccessorKeyword = source.hasAccessorKeyword ?? false;
   }
 
+  /**
+   * Create a `PropertyDeclarationImpl` from a `PropertyDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<PropertyDeclarationStructure>,
   ): PropertyDeclarationImpl {

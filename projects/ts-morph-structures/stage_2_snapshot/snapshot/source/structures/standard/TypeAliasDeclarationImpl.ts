@@ -100,6 +100,10 @@ export default class TypeAliasDeclarationImpl
     } else target.type = source.type;
   }
 
+  /**
+   * Create a `TypeAliasDeclarationImpl` from a `TypeAliasDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<TypeAliasDeclarationStructure>,
   ): TypeAliasDeclarationImpl {

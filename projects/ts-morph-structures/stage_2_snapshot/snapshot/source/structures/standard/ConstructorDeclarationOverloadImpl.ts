@@ -57,6 +57,10 @@ export default class ConstructorDeclarationOverloadImpl
   readonly kind: StructureKind.ConstructorOverload =
     StructureKind.ConstructorOverload;
 
+  /**
+   * Create a `ConstructorDeclarationOverloadImpl` from a `ConstructorDeclarationOverloadStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<ConstructorDeclarationOverloadStructure>,
   ): ConstructorDeclarationOverloadImpl {

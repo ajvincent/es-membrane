@@ -4,6 +4,8 @@
 
 ## EnumDeclarationImpl.clone() method
 
+Create a `EnumDeclarationImpl` from a `EnumDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<EnumDeclarationStructure>): EnumDeclarationImp
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;EnumDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;EnumDeclarationStructure&gt; | The structure to clone. |
  
 
 

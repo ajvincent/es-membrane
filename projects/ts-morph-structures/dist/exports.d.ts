@@ -1640,6 +1640,10 @@ declare class CallSignatureDeclarationImpl
   implements CallSignatureDeclarationStructureClassIfc
 {
   readonly kind: StructureKind.CallSignature;
+  /**
+   * Create a `CallSignatureDeclarationImpl` from a `CallSignatureDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<CallSignatureDeclarationStructure>,
   ): CallSignatureDeclarationImpl;
@@ -1687,6 +1691,10 @@ declare class ClassDeclarationImpl
     source: OptionalKind<ClassDeclarationStructure>,
     target: ClassDeclarationImpl,
   ): void;
+  /**
+   * Create a `ClassDeclarationImpl` from a `ClassDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ClassDeclarationStructure>,
   ): ClassDeclarationImpl;
@@ -1713,6 +1721,10 @@ declare class ClassStaticBlockDeclarationImpl
   implements ClassStaticBlockDeclarationStructureClassIfc
 {
   readonly kind: StructureKind.ClassStaticBlock;
+  /**
+   * Create a `ClassStaticBlockDeclarationImpl` from a `ClassStaticBlockDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ClassStaticBlockDeclarationStructure>,
   ): ClassStaticBlockDeclarationImpl;
@@ -1746,6 +1758,10 @@ declare class ConstructorDeclarationImpl
     source: OptionalKind<ConstructorDeclarationStructure>,
     target: ConstructorDeclarationImpl,
   ): void;
+  /**
+   * Create a `ConstructorDeclarationImpl` from a `ConstructorDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ConstructorDeclarationStructure>,
   ): ConstructorDeclarationImpl;
@@ -1775,6 +1791,10 @@ declare class ConstructorDeclarationOverloadImpl
   implements ConstructorDeclarationOverloadStructureClassIfc
 {
   readonly kind: StructureKind.ConstructorOverload;
+  /**
+   * Create a `ConstructorDeclarationOverloadImpl` from a `ConstructorDeclarationOverloadStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ConstructorDeclarationOverloadStructure>,
   ): ConstructorDeclarationOverloadImpl;
@@ -1800,6 +1820,10 @@ declare class ConstructSignatureDeclarationImpl
   implements ConstructSignatureDeclarationStructureClassIfc
 {
   readonly kind: StructureKind.ConstructSignature;
+  /**
+   * Create a `ConstructSignatureDeclarationImpl` from a `ConstructSignatureDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ConstructSignatureDeclarationStructure>,
   ): ConstructSignatureDeclarationImpl;
@@ -1833,6 +1857,10 @@ declare class DecoratorImpl
     source: OptionalKind<DecoratorStructure>,
     target: DecoratorImpl,
   ): void;
+  /**
+   * Create a `DecoratorImpl` from a `DecoratorStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(source: OptionalKind<DecoratorStructure>): DecoratorImpl;
   toJSON(): StructureClassToJSON<DecoratorImpl>;
 }
@@ -1864,6 +1892,10 @@ declare class EnumDeclarationImpl
     source: OptionalKind<EnumDeclarationStructure>,
     target: EnumDeclarationImpl,
   ): void;
+  /**
+   * Create a `EnumDeclarationImpl` from a `EnumDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<EnumDeclarationStructure>,
   ): EnumDeclarationImpl;
@@ -1895,6 +1927,10 @@ declare class EnumMemberImpl
     source: OptionalKind<EnumMemberStructure>,
     target: EnumMemberImpl,
   ): void;
+  /**
+   * Create a `EnumMemberImpl` from a `EnumMemberStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(source: OptionalKind<EnumMemberStructure>): EnumMemberImpl;
   toJSON(): StructureClassToJSON<EnumMemberImpl>;
 }
@@ -1922,6 +1958,10 @@ declare class ExportAssignmentImpl
     source: OptionalKind<ExportAssignmentStructure>,
     target: ExportAssignmentImpl,
   ): void;
+  /**
+   * Create a `ExportAssignmentImpl` from a `ExportAssignmentStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ExportAssignmentStructure>,
   ): ExportAssignmentImpl;
@@ -1952,6 +1992,10 @@ declare class ExportDeclarationImpl
     source: OptionalKind<ExportDeclarationStructure>,
     target: ExportDeclarationImpl,
   ): void;
+  /**
+   * Create a `ExportDeclarationImpl` from a `ExportDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ExportDeclarationStructure>,
   ): ExportDeclarationImpl;
@@ -1981,6 +2025,10 @@ declare class ExportSpecifierImpl
     source: OptionalKind<ExportSpecifierStructure>,
     target: ExportSpecifierImpl,
   ): void;
+  /**
+   * Create a `ExportSpecifierImpl` from a `ExportSpecifierStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ExportSpecifierStructure>,
   ): ExportSpecifierImpl;
@@ -2019,6 +2067,10 @@ declare class FunctionDeclarationImpl
     source: OptionalKind<FunctionDeclarationStructure>,
     target: FunctionDeclarationImpl,
   ): void;
+  /**
+   * Create a `FunctionDeclarationImpl` from a `FunctionDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<FunctionDeclarationStructure>,
   ): FunctionDeclarationImpl;
@@ -2049,6 +2101,10 @@ declare class FunctionDeclarationOverloadImpl
   implements FunctionDeclarationOverloadStructureClassIfc
 {
   readonly kind: StructureKind.FunctionOverload;
+  /**
+   * Create a `FunctionDeclarationOverloadImpl` from a `FunctionDeclarationOverloadStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<FunctionDeclarationOverloadStructure>,
   ): FunctionDeclarationOverloadImpl;
@@ -2081,6 +2137,10 @@ declare class GetAccessorDeclarationImpl
   readonly kind: StructureKind.GetAccessor;
   isStatic: boolean;
   constructor(isStatic: boolean, name: string, returnType?: TypeStructures);
+  /**
+   * Create a `GetAccessorDeclarationImpl` from a `GetAccessorDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<GetAccessorDeclarationStructure>,
   ): GetAccessorDeclarationImpl;
@@ -2110,6 +2170,10 @@ declare class ImportAttributeImpl
     source: OptionalKind<ImportAttributeStructure>,
     target: ImportAttributeImpl,
   ): void;
+  /**
+   * Create a `ImportAttributeImpl` from a `ImportAttributeStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ImportAttributeStructure>,
   ): ImportAttributeImpl;
@@ -2129,6 +2193,7 @@ declare class ImportDeclarationImpl
   extends ImportDeclarationStructureBase
   implements ImportDeclarationStructureClassIfc
 {
+  #private;
   readonly kind: StructureKind.ImportDeclaration;
   attributes?: ImportAttributeImpl[];
   defaultImport?: string;
@@ -2142,8 +2207,14 @@ declare class ImportDeclarationImpl
     source: OptionalKind<ImportDeclarationStructure>,
     target: ImportDeclarationImpl,
   ): void;
+  /**
+   * Create a `ImportDeclarationImpl` from a `ImportDeclarationStructure`.
+   * @param source - The structure to clone.
+   * @param withTypesArg - When "typesOnly", the clone has only type imports.  When "excludeTypes", the clone has no type imports.
+   */
   static clone(
     source: OptionalKind<ImportDeclarationStructure>,
+    withTypesArg?: "typesOnly" | "excludeTypes",
   ): ImportDeclarationImpl;
   toJSON(): StructureClassToJSON<ImportDeclarationImpl>;
 }
@@ -2171,6 +2242,10 @@ declare class ImportSpecifierImpl
     source: OptionalKind<ImportSpecifierStructure>,
     target: ImportSpecifierImpl,
   ): void;
+  /**
+   * Create a `ImportSpecifierImpl` from a `ImportSpecifierStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ImportSpecifierStructure>,
   ): ImportSpecifierImpl;
@@ -2206,6 +2281,10 @@ declare class IndexSignatureDeclarationImpl
     source: OptionalKind<IndexSignatureDeclarationStructure>,
     target: IndexSignatureDeclarationImpl,
   ): void;
+  /**
+   * Create a `IndexSignatureDeclarationImpl` from a `IndexSignatureDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<IndexSignatureDeclarationStructure>,
   ): IndexSignatureDeclarationImpl;
@@ -2253,6 +2332,10 @@ declare class InterfaceDeclarationImpl
     source: OptionalKind<InterfaceDeclarationStructure>,
     target: InterfaceDeclarationImpl,
   ): void;
+  /**
+   * Create a `InterfaceDeclarationImpl` from a `InterfaceDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<InterfaceDeclarationStructure>,
   ): InterfaceDeclarationImpl;
@@ -2289,6 +2372,10 @@ declare class JSDocImpl
     source: OptionalKind<JSDocStructure>,
     target: JSDocImpl,
   ): void;
+  /**
+   * Create a `JSDocImpl` from a `JSDocStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(source: OptionalKind<JSDocStructure>): JSDocImpl;
   toJSON(): StructureClassToJSON<JSDocImpl>;
 }
@@ -2317,6 +2404,10 @@ declare class JSDocTagImpl
     source: OptionalKind<JSDocTagStructure>,
     target: JSDocTagImpl,
   ): void;
+  /**
+   * Create a `JSDocTagImpl` from a `JSDocTagStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(source: OptionalKind<JSDocTagStructure>): JSDocTagImpl;
   toJSON(): StructureClassToJSON<JSDocTagImpl>;
 }
@@ -2343,6 +2434,10 @@ declare class JsxAttributeImpl
     source: OptionalKind<JsxAttributeStructure>,
     target: JsxAttributeImpl,
   ): void;
+  /**
+   * Create a `JsxAttributeImpl` from a `JsxAttributeStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(source: OptionalKind<JsxAttributeStructure>): JsxAttributeImpl;
   toJSON(): StructureClassToJSON<JsxAttributeImpl>;
 }
@@ -2371,6 +2466,10 @@ declare class JsxElementImpl
     source: OptionalKind<JsxElementStructure>,
     target: JsxElementImpl,
   ): void;
+  /**
+   * Create a `JsxElementImpl` from a `JsxElementStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(source: OptionalKind<JsxElementStructure>): JsxElementImpl;
   toJSON(): StructureClassToJSON<JsxElementImpl>;
 }
@@ -2397,6 +2496,10 @@ declare class JsxSelfClosingElementImpl
     source: OptionalKind<JsxSelfClosingElementStructure>,
     target: JsxSelfClosingElementImpl,
   ): void;
+  /**
+   * Create a `JsxSelfClosingElementImpl` from a `JsxSelfClosingElementStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<JsxSelfClosingElementStructure>,
   ): JsxSelfClosingElementImpl;
@@ -2424,6 +2527,10 @@ declare class JsxSpreadAttributeImpl
     source: OptionalKind<JsxSpreadAttributeStructure>,
     target: JsxSpreadAttributeImpl,
   ): void;
+  /**
+   * Create a `JsxSpreadAttributeImpl` from a `JsxSpreadAttributeStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<JsxSpreadAttributeStructure>,
   ): JsxSpreadAttributeImpl;
@@ -2466,6 +2573,10 @@ declare class MethodDeclarationImpl
     source: OptionalKind<MethodDeclarationStructure>,
     target: MethodDeclarationImpl,
   ): void;
+  /**
+   * Create a `MethodDeclarationImpl` from a `MethodDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<MethodDeclarationStructure>,
   ): MethodDeclarationImpl;
@@ -2503,6 +2614,10 @@ declare class MethodDeclarationOverloadImpl
   readonly kind: StructureKind.MethodOverload;
   isStatic: boolean;
   constructor(isStatic: boolean);
+  /**
+   * Create a `MethodDeclarationOverloadImpl` from a `MethodDeclarationOverloadStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<MethodDeclarationOverloadStructure>,
   ): MethodDeclarationOverloadImpl;
@@ -2531,6 +2646,10 @@ declare class MethodSignatureImpl
 {
   readonly kind: StructureKind.MethodSignature;
   constructor(name: string);
+  /**
+   * Create a `MethodSignatureImpl` from a `MethodSignatureStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<MethodSignatureStructure>,
   ): MethodSignatureImpl;
@@ -2569,6 +2688,10 @@ declare class ModuleDeclarationImpl
     source: OptionalKind<ModuleDeclarationStructure>,
     target: ModuleDeclarationImpl,
   ): void;
+  /**
+   * Create a `ModuleDeclarationImpl` from a `ModuleDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ModuleDeclarationStructure>,
   ): ModuleDeclarationImpl;
@@ -2605,6 +2728,10 @@ declare class ParameterDeclarationImpl
     source: OptionalKind<ParameterDeclarationStructure>,
     target: ParameterDeclarationImpl,
   ): void;
+  /**
+   * Create a `ParameterDeclarationImpl` from a `ParameterDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ParameterDeclarationStructure>,
   ): ParameterDeclarationImpl;
@@ -2633,6 +2760,10 @@ declare class PropertyAssignmentImpl
     source: OptionalKind<PropertyAssignmentStructure>,
     target: PropertyAssignmentImpl,
   ): void;
+  /**
+   * Create a `PropertyAssignmentImpl` from a `PropertyAssignmentStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<PropertyAssignmentStructure>,
   ): PropertyAssignmentImpl;
@@ -2674,6 +2805,10 @@ declare class PropertyDeclarationImpl
     source: OptionalKind<PropertyDeclarationStructure>,
     target: PropertyDeclarationImpl,
   ): void;
+  /**
+   * Create a `PropertyDeclarationImpl` from a `PropertyDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<PropertyDeclarationStructure>,
   ): PropertyDeclarationImpl;
@@ -2706,6 +2841,10 @@ declare class PropertySignatureImpl
 {
   readonly kind: StructureKind.PropertySignature;
   constructor(name: string);
+  /**
+   * Create a `PropertySignatureImpl` from a `PropertySignatureStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<PropertySignatureStructure>,
   ): PropertySignatureImpl;
@@ -2742,6 +2881,10 @@ declare class SetAccessorDeclarationImpl
     name: string,
     setterParameter: ParameterDeclarationImpl,
   );
+  /**
+   * Create a `SetAccessorDeclarationImpl` from a `SetAccessorDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<SetAccessorDeclarationStructure>,
   ): SetAccessorDeclarationImpl;
@@ -2764,6 +2907,10 @@ declare class ShorthandPropertyAssignmentImpl
 {
   readonly kind: StructureKind.ShorthandPropertyAssignment;
   constructor(name: string);
+  /**
+   * Create a `ShorthandPropertyAssignmentImpl` from a `ShorthandPropertyAssignmentStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ShorthandPropertyAssignmentStructure>,
   ): ShorthandPropertyAssignmentImpl;
@@ -2785,6 +2932,10 @@ declare class SourceFileImpl
   implements SourceFileStructureClassIfc
 {
   readonly kind: StructureKind.SourceFile;
+  /**
+   * Create a `SourceFileImpl` from a `SourceFileStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(source: OptionalKind<SourceFileStructure>): SourceFileImpl;
   toJSON(): StructureClassToJSON<SourceFileImpl>;
 }
@@ -2810,6 +2961,10 @@ declare class SpreadAssignmentImpl
     source: OptionalKind<SpreadAssignmentStructure>,
     target: SpreadAssignmentImpl,
   ): void;
+  /**
+   * Create a `SpreadAssignmentImpl` from a `SpreadAssignmentStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<SpreadAssignmentStructure>,
   ): SpreadAssignmentImpl;
@@ -2846,6 +3001,10 @@ declare class TypeAliasDeclarationImpl
     source: OptionalKind<TypeAliasDeclarationStructure>,
     target: TypeAliasDeclarationImpl,
   ): void;
+  /**
+   * Create a `TypeAliasDeclarationImpl` from a `TypeAliasDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<TypeAliasDeclarationStructure>,
   ): TypeAliasDeclarationImpl;
@@ -2886,6 +3045,10 @@ declare class TypeParameterDeclarationImpl
     source: OptionalKind<TypeParameterDeclarationStructure>,
     target: TypeParameterDeclarationImpl,
   ): void;
+  /**
+   * Create a `TypeParameterDeclarationImpl` from a `TypeParameterDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<TypeParameterDeclarationStructure>,
   ): TypeParameterDeclarationImpl;
@@ -2916,6 +3079,10 @@ declare class VariableDeclarationImpl
 {
   readonly kind: StructureKind.VariableDeclaration;
   constructor(name: string);
+  /**
+   * Create a `VariableDeclarationImpl` from a `VariableDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<VariableDeclarationStructure>,
   ): VariableDeclarationImpl;
@@ -2947,6 +3114,10 @@ declare class VariableStatementImpl
     source: OptionalKind<VariableStatementStructure>,
     target: VariableStatementImpl,
   ): void;
+  /**
+   * Create a `VariableStatementImpl` from a `VariableStatementStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<VariableStatementStructure>,
   ): VariableStatementImpl;

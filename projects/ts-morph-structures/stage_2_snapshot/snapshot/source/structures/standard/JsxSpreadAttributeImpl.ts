@@ -45,6 +45,10 @@ export default class JsxSpreadAttributeImpl
     target.expression = source.expression;
   }
 
+  /**
+   * Create a `JsxSpreadAttributeImpl` from a `JsxSpreadAttributeStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<JsxSpreadAttributeStructure>,
   ): JsxSpreadAttributeImpl {

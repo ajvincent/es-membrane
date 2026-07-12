@@ -65,6 +65,10 @@ export default class DecoratorImpl
     }
   }
 
+  /**
+   * Create a `DecoratorImpl` from a `DecoratorStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(source: OptionalKind<DecoratorStructure>): DecoratorImpl {
     const target = new DecoratorImpl(source.name);
     this[COPY_FIELDS](source, target);

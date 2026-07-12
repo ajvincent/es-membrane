@@ -27,7 +27,7 @@ export default class JSDocImpl implements JSDocStructureClassIfc
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.jsdocimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.jsdocimpl.clone.md) | `static` | Create a `JSDocImpl` from a `JSDocStructure`. |
  | [toJSON()](./ts-morph-structures.jsdocimpl.tojson.md) | | |
  
 

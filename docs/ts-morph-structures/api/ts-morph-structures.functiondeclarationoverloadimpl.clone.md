@@ -4,6 +4,8 @@
 
 ## FunctionDeclarationOverloadImpl.clone() method
 
+Create a `FunctionDeclarationOverloadImpl` from a `FunctionDeclarationOverloadStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<FunctionDeclarationOverloadStructure>): Functi
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;FunctionDeclarationOverloadStructure&gt; | |
+ | source | OptionalKind&lt;FunctionDeclarationOverloadStructure&gt; | The structure to clone. |
  
 
 

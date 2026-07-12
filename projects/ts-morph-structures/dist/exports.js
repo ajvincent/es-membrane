@@ -2219,6 +2219,10 @@ const CallSignatureDeclarationStructureBase = MultiMixinBuilder([
 ], StructureBase);
 class CallSignatureDeclarationImpl extends CallSignatureDeclarationStructureBase {
     kind = StructureKind.CallSignature;
+    /**
+     * Create a `CallSignatureDeclarationImpl` from a `CallSignatureDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new CallSignatureDeclarationImpl();
         this[COPY_FIELDS](source, target);
@@ -2323,6 +2327,10 @@ class ClassDeclarationImpl extends ClassDeclarationStructureBase {
             target.staticBlocks.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.ClassStaticBlock, StructureClassesMap.forceArray(source.staticBlocks)));
         }
     }
+    /**
+     * Create a `ClassDeclarationImpl` from a `ClassDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new _a$5();
         this[COPY_FIELDS](source, target);
@@ -2366,6 +2374,10 @@ StructureClassesMap.set(StructureKind.Class, ClassDeclarationImpl);
 const ClassStaticBlockDeclarationStructureBase = MultiMixinBuilder([StatementedNodeStructureMixin, JSDocableNodeStructureMixin, StructureMixin], StructureBase);
 class ClassStaticBlockDeclarationImpl extends ClassStaticBlockDeclarationStructureBase {
     kind = StructureKind.ClassStaticBlock;
+    /**
+     * Create a `ClassStaticBlockDeclarationImpl` from a `ClassStaticBlockDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ClassStaticBlockDeclarationImpl();
         this[COPY_FIELDS](source, target);
@@ -2399,6 +2411,10 @@ class ConstructorDeclarationImpl extends ConstructorDeclarationStructureBase {
             target.overloads.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.ConstructorOverload, StructureClassesMap.forceArray(source.overloads)));
         }
     }
+    /**
+     * Create a `ConstructorDeclarationImpl` from a `ConstructorDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ConstructorDeclarationImpl();
         this[COPY_FIELDS](source, target);
@@ -2436,6 +2452,10 @@ const ConstructorDeclarationOverloadStructureBase = MultiMixinBuilder([
 ], StructureBase);
 class ConstructorDeclarationOverloadImpl extends ConstructorDeclarationOverloadStructureBase {
     kind = StructureKind.ConstructorOverload;
+    /**
+     * Create a `ConstructorDeclarationOverloadImpl` from a `ConstructorDeclarationOverloadStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ConstructorDeclarationOverloadImpl();
         this[COPY_FIELDS](source, target);
@@ -2459,6 +2479,10 @@ const ConstructSignatureDeclarationStructureBase = MultiMixinBuilder([
 ], StructureBase);
 class ConstructSignatureDeclarationImpl extends ConstructSignatureDeclarationStructureBase {
     kind = StructureKind.ConstructSignature;
+    /**
+     * Create a `ConstructSignatureDeclarationImpl` from a `ConstructSignatureDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ConstructSignatureDeclarationImpl();
         this[COPY_FIELDS](source, target);
@@ -2502,6 +2526,10 @@ class DecoratorImpl extends DecoratorStructureBase {
             target.typeArguments.push(source.typeArguments);
         }
     }
+    /**
+     * Create a `DecoratorImpl` from a `DecoratorStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new DecoratorImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -2543,6 +2571,10 @@ class EnumDeclarationImpl extends EnumDeclarationStructureBase {
             target.members.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.EnumMember, StructureClassesMap.forceArray(source.members)));
         }
     }
+    /**
+     * Create a `EnumDeclarationImpl` from a `EnumDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new EnumDeclarationImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -2580,6 +2612,10 @@ class EnumMemberImpl extends EnumMemberStructureBase {
             target.value = source.value;
         }
     }
+    /**
+     * Create a `EnumMemberImpl` from a `EnumMemberStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new EnumMemberImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -2615,6 +2651,10 @@ class ExportAssignmentImpl extends ExportAssignmentStructureBase {
         target.expression = source.expression;
         target.isExportEquals = source.isExportEquals ?? false;
     }
+    /**
+     * Create a `ExportAssignmentImpl` from a `ExportAssignmentStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ExportAssignmentImpl(source.expression);
         this[COPY_FIELDS](source, target);
@@ -2657,6 +2697,10 @@ class ExportDeclarationImpl extends ExportDeclarationStructureBase {
             target.namespaceExport = source.namespaceExport;
         }
     }
+    /**
+     * Create a `ExportDeclarationImpl` from a `ExportDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ExportDeclarationImpl();
         this[COPY_FIELDS](source, target);
@@ -2713,6 +2757,10 @@ class ExportSpecifierImpl extends ExportSpecifierStructureBase {
         }
         target.isTypeOnly = source.isTypeOnly ?? false;
     }
+    /**
+     * Create a `ExportSpecifierImpl` from a `ExportSpecifierStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ExportSpecifierImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -2757,6 +2805,10 @@ class FunctionDeclarationImpl extends FunctionDeclarationStructureBase {
             target.overloads.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.FunctionOverload, StructureClassesMap.forceArray(source.overloads)));
         }
     }
+    /**
+     * Create a `FunctionDeclarationImpl` from a `FunctionDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new FunctionDeclarationImpl();
         this[COPY_FIELDS](source, target);
@@ -2785,6 +2837,10 @@ const FunctionDeclarationOverloadStructureBase = MultiMixinBuilder([
 ], StructureBase);
 class FunctionDeclarationOverloadImpl extends FunctionDeclarationOverloadStructureBase {
     kind = StructureKind.FunctionOverload;
+    /**
+     * Create a `FunctionDeclarationOverloadImpl` from a `FunctionDeclarationOverloadStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new FunctionDeclarationOverloadImpl();
         this[COPY_FIELDS](source, target);
@@ -2822,6 +2878,10 @@ class GetAccessorDeclarationImpl extends GetAccessorDeclarationStructureBase {
             this.returnTypeStructure = returnType;
         }
     }
+    /**
+     * Create a `GetAccessorDeclarationImpl` from a `GetAccessorDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new GetAccessorDeclarationImpl(source.isStatic ?? false, source.name);
         this[COPY_FIELDS](source, target);
@@ -2852,6 +2912,10 @@ class ImportAttributeImpl extends ImportAttributeStructureBase {
         super[COPY_FIELDS](source, target);
         target.value = source.value;
     }
+    /**
+     * Create a `ImportAttributeImpl` from a `ImportAttributeStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ImportAttributeImpl(source.name, source.value);
         this[COPY_FIELDS](source, target);
@@ -2899,9 +2963,31 @@ class ImportDeclarationImpl extends ImportDeclarationStructureBase {
             target.namespaceImport = source.namespaceImport;
         }
     }
-    static clone(source) {
+    static #namedImportsTypeFilter(namedImport, withTypes) {
+        if (typeof namedImport !== "object") {
+            throw new Error("cannot process string or writer functions");
+        }
+        return namedImport.isTypeOnly === withTypes;
+    }
+    /**
+     * Create a `ImportDeclarationImpl` from a `ImportDeclarationStructure`.
+     * @param source - The structure to clone.
+     * @param withTypesArg - When "typesOnly", the clone has only type imports.  When "excludeTypes", the clone has no type imports.
+     */
+    static clone(source, withTypesArg) {
         const target = new ImportDeclarationImpl(source.moduleSpecifier);
         this[COPY_FIELDS](source, target);
+        if (withTypesArg) {
+            const typesOnly = withTypesArg === "typesOnly";
+            const filteredImports = target.namedImports.filter((namedImport) => this.#namedImportsTypeFilter(namedImport, typesOnly));
+            for (const namedImport of filteredImports) {
+                namedImport.isTypeOnly = false;
+            }
+            target.namedImports.splice(0, target.namedImports.length, ...filteredImports);
+            target.isTypeOnly = typesOnly;
+            if (typesOnly)
+                delete target.defaultImport;
+        }
         return target;
     }
     toJSON() {
@@ -2956,6 +3042,10 @@ class ImportSpecifierImpl extends ImportSpecifierStructureBase {
         }
         target.isTypeOnly = source.isTypeOnly ?? false;
     }
+    /**
+     * Create a `ImportSpecifierImpl` from a `ImportSpecifierStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ImportSpecifierImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3028,6 +3118,10 @@ class IndexSignatureDeclarationImpl extends IndexSignatureDeclarationStructureBa
             target.keyType = source.keyType;
         }
     }
+    /**
+     * Create a `IndexSignatureDeclarationImpl` from a `IndexSignatureDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new IndexSignatureDeclarationImpl();
         this[COPY_FIELDS](source, target);
@@ -3135,6 +3229,10 @@ class InterfaceDeclarationImpl extends InterfaceDeclarationStructureBase {
             target.setAccessors.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.SetAccessor, StructureClassesMap.forceArray(source.setAccessors)));
         }
     }
+    /**
+     * Create a `InterfaceDeclarationImpl` from a `InterfaceDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new _a$4(source.name);
         this[COPY_FIELDS](source, target);
@@ -3188,6 +3286,10 @@ class JSDocImpl extends JSDocStructureBase {
             target.tags.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.JSDocTag, StructureClassesMap.forceArray(source.tags)));
         }
     }
+    /**
+     * Create a `JSDocImpl` from a `JSDocStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new JSDocImpl();
         this[COPY_FIELDS](source, target);
@@ -3228,6 +3330,10 @@ class JSDocTagImpl extends JSDocTagStructureBase {
             target.text = source.text;
         }
     }
+    /**
+     * Create a `JSDocTagImpl` from a `JSDocTagStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new JSDocTagImpl(source.tagName);
         this[COPY_FIELDS](source, target);
@@ -3266,6 +3372,10 @@ class JsxAttributeImpl extends JsxAttributeStructureBase {
         }
         target.name = source.name;
     }
+    /**
+     * Create a `JsxAttributeImpl` from a `JsxAttributeStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new JsxAttributeImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3310,6 +3420,10 @@ class JsxElementImpl extends JsxElementStructureBase {
             target.children.push(...StructureClassesMap.cloneRequiredAndOptionalArray(source.children, StructureKind.JsxSelfClosingElement, StructureKind.JsxElement));
         }
     }
+    /**
+     * Create a `JsxElementImpl` from a `JsxElementStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new JsxElementImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3347,6 +3461,10 @@ class JsxSelfClosingElementImpl extends JsxSelfClosingElementStructureBase {
             target.attributes.push(...StructureClassesMap.cloneRequiredAndOptionalArray(source.attributes, StructureKind.JsxSpreadAttribute, StructureKind.JsxAttribute));
         }
     }
+    /**
+     * Create a `JsxSelfClosingElementImpl` from a `JsxSelfClosingElementStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new JsxSelfClosingElementImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3375,6 +3493,10 @@ class JsxSpreadAttributeImpl extends JsxSpreadAttributeStructureBase {
         super[COPY_FIELDS](source, target);
         target.expression = source.expression;
     }
+    /**
+     * Create a `JsxSpreadAttributeImpl` from a `JsxSpreadAttributeStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new JsxSpreadAttributeImpl(source.expression);
         this[COPY_FIELDS](source, target);
@@ -3422,6 +3544,10 @@ class MethodDeclarationImpl extends MethodDeclarationStructureBase {
             target.overloads.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.MethodOverload, StructureClassesMap.forceArray(source.overloads)));
         }
     }
+    /**
+     * Create a `MethodDeclarationImpl` from a `MethodDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new MethodDeclarationImpl(source.isStatic ?? false, source.name);
         this[COPY_FIELDS](source, target);
@@ -3471,6 +3597,10 @@ class MethodDeclarationOverloadImpl extends MethodDeclarationOverloadStructureBa
         super();
         this.isStatic = isStatic;
     }
+    /**
+     * Create a `MethodDeclarationOverloadImpl` from a `MethodDeclarationOverloadStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new MethodDeclarationOverloadImpl(source.isStatic ?? false);
         this[COPY_FIELDS](source, target);
@@ -3501,6 +3631,10 @@ class MethodSignatureImpl extends MethodSignatureStructureBase {
         super();
         this.name = name;
     }
+    /**
+     * Create a `MethodSignatureImpl` from a `MethodSignatureStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new MethodSignatureImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3542,6 +3676,10 @@ class ModuleDeclarationImpl extends ModuleDeclarationStructureBase {
             target.declarationKind = source.declarationKind;
         }
     }
+    /**
+     * Create a `ModuleDeclarationImpl` from a `ModuleDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ModuleDeclarationImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3585,6 +3723,10 @@ class ParameterDeclarationImpl extends ParameterDeclarationStructureBase {
         super[COPY_FIELDS](source, target);
         target.isRestParameter = source.isRestParameter ?? false;
     }
+    /**
+     * Create a `ParameterDeclarationImpl` from a `ParameterDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ParameterDeclarationImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3614,6 +3756,10 @@ class PropertyAssignmentImpl extends PropertyAssignmentStructureBase {
         super[COPY_FIELDS](source, target);
         target.initializer = source.initializer;
     }
+    /**
+     * Create a `PropertyAssignmentImpl` from a `PropertyAssignmentStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new PropertyAssignmentImpl(source.name, source.initializer);
         this[COPY_FIELDS](source, target);
@@ -3658,6 +3804,10 @@ class PropertyDeclarationImpl extends PropertyDeclarationStructureBase {
         super[COPY_FIELDS](source, target);
         target.hasAccessorKeyword = source.hasAccessorKeyword ?? false;
     }
+    /**
+     * Create a `PropertyDeclarationImpl` from a `PropertyDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new PropertyDeclarationImpl(source.isStatic ?? false, source.name);
         this[COPY_FIELDS](source, target);
@@ -3701,6 +3851,10 @@ class PropertySignatureImpl extends PropertySignatureStructureBase {
         super();
         this.name = name;
     }
+    /**
+     * Create a `PropertySignatureImpl` from a `PropertySignatureStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new PropertySignatureImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3737,6 +3891,10 @@ class SetAccessorDeclarationImpl extends SetAccessorDeclarationStructureBase {
         this.name = name;
         this.parameters.push(setterParameter);
     }
+    /**
+     * Create a `SetAccessorDeclarationImpl` from a `SetAccessorDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const valueParam = new ParameterDeclarationImpl("value");
         const hasSourceParameter = source.parameters && source.parameters.length > 0;
@@ -3765,6 +3923,10 @@ class ShorthandPropertyAssignmentImpl extends ShorthandPropertyAssignmentStructu
         super();
         this.name = name;
     }
+    /**
+     * Create a `ShorthandPropertyAssignmentImpl` from a `ShorthandPropertyAssignmentStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ShorthandPropertyAssignmentImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3782,6 +3944,10 @@ StructureClassesMap.set(StructureKind.ShorthandPropertyAssignment, ShorthandProp
 const SourceFileStructureBase = MultiMixinBuilder([StatementedNodeStructureMixin, StructureMixin], StructureBase);
 class SourceFileImpl extends SourceFileStructureBase {
     kind = StructureKind.SourceFile;
+    /**
+     * Create a `SourceFileImpl` from a `SourceFileStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new SourceFileImpl();
         this[COPY_FIELDS](source, target);
@@ -3809,6 +3975,10 @@ class SpreadAssignmentImpl extends SpreadAssignmentStructureBase {
         super[COPY_FIELDS](source, target);
         target.expression = source.expression;
     }
+    /**
+     * Create a `SpreadAssignmentImpl` from a `SpreadAssignmentStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new SpreadAssignmentImpl(source.expression);
         this[COPY_FIELDS](source, target);
@@ -3865,6 +4035,10 @@ class TypeAliasDeclarationImpl extends TypeAliasDeclarationStructureBase {
         else
             target.type = source.type;
     }
+    /**
+     * Create a `TypeAliasDeclarationImpl` from a `TypeAliasDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new TypeAliasDeclarationImpl(source.name, source.type);
         this[COPY_FIELDS](source, target);
@@ -3940,6 +4114,10 @@ class TypeParameterDeclarationImpl extends TypeParameterDeclarationStructureBase
             target.variance = source.variance;
         }
     }
+    /**
+     * Create a `TypeParameterDeclarationImpl` from a `TypeParameterDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new TypeParameterDeclarationImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3994,6 +4172,10 @@ class VariableDeclarationImpl extends VariableDeclarationStructureBase {
         super();
         this.name = name;
     }
+    /**
+     * Create a `VariableDeclarationImpl` from a `VariableDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new VariableDeclarationImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -4026,6 +4208,10 @@ class VariableStatementImpl extends VariableStatementStructureBase {
         }
         target.declarations.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.VariableDeclaration, StructureClassesMap.forceArray(source.declarations)));
     }
+    /**
+     * Create a `VariableStatementImpl` from a `VariableStatementStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new VariableStatementImpl();
         this[COPY_FIELDS](source, target);

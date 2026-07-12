@@ -7,6 +7,8 @@ import {
   ClassDeclarationImpl,
   IndexedAccessTypeStructureImpl,
   IntersectionTypeStructureImpl,
+  JSDocImpl,
+  JSDocTagImpl,
   LiteralTypeStructureImpl,
   MethodSignatureImpl,
   ParameterDeclarationImpl,
@@ -34,7 +36,15 @@ import BaseClassModule from "./BaseClassModule.js";
 import InterfaceModule from "./InterfaceModule.js";
 import sortClassMembers from "./sortClassMembers.js";
 
-export default class StructureModule extends BaseClassModule
+import type {
+  StructureModuleModifierTraps
+} from "../types/StructureModuleModifierTraps.js";
+
+import {
+  StructureModifiersMap
+} from "../build/structures/specialCases/modifiers/map.js";
+
+export class StructureModule extends BaseClassModule
 {
   static readonly map = new Map<string, StructureModule>;
 
@@ -46,6 +56,8 @@ export default class StructureModule extends BaseClassModule
   readonly exportName: string;
   readonly #interfaceModule: InterfaceModule;
   #flatTypeMembers?: TypeMembersMap;
+
+  readonly modifiers: StructureModuleModifierTraps | undefined;
 
   constructor(
     baseName: string,
@@ -59,12 +71,21 @@ export default class StructureModule extends BaseClassModule
     this.baseName = baseName;
     this.exportName = structureName;
     this.#interfaceModule = interfaceModule;
+
+    this.modifiers = StructureModifiersMap.get(this.exportName);
   }
 
   createStaticCloneMethod(): MethodSignatureImpl
   {
     this.addImports("ts-morph", [], ["OptionalKind"]);
     const method = new MethodSignatureImpl("clone");
+
+    const jsDoc = new JSDocImpl();
+    jsDoc.description = `Create a \`${getStructureImplName(this.baseName)}\` from a \`${this.baseName}\`.`;
+    const sourceParamTag = new JSDocTagImpl("param");
+    sourceParamTag.text = "source - The structure to clone.";
+    jsDoc.tags.push(sourceParamTag);
+    method.docs.push(jsDoc);
 
     const sourceParam = new ParameterDeclarationImpl("source");
     sourceParam.typeStructure = new TypeArgumentedTypeStructureImpl(

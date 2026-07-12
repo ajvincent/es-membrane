@@ -40,7 +40,7 @@ export default class MethodSignatureImpl implements MethodSignatureStructureClas
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.methodsignatureimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.methodsignatureimpl.clone.md) | `static` | Create a `MethodSignatureImpl` from a `MethodSignatureStructure`. |
  | [toJSON()](./ts-morph-structures.methodsignatureimpl.tojson.md) | | |
  
 

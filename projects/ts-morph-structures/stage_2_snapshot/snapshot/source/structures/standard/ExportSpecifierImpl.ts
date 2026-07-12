@@ -51,6 +51,10 @@ export default class ExportSpecifierImpl
     target.isTypeOnly = source.isTypeOnly ?? false;
   }
 
+  /**
+   * Create a `ExportSpecifierImpl` from a `ExportSpecifierStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<ExportSpecifierStructure>,
   ): ExportSpecifierImpl {

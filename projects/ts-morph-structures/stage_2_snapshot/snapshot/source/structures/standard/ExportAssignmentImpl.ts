@@ -53,6 +53,10 @@ export default class ExportAssignmentImpl
     target.isExportEquals = source.isExportEquals ?? false;
   }
 
+  /**
+   * Create a `ExportAssignmentImpl` from a `ExportAssignmentStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<ExportAssignmentStructure>,
   ): ExportAssignmentImpl {

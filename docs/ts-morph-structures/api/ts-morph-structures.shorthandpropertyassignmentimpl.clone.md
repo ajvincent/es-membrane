@@ -4,6 +4,8 @@
 
 ## ShorthandPropertyAssignmentImpl.clone() method
 
+Create a `ShorthandPropertyAssignmentImpl` from a `ShorthandPropertyAssignmentStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<ShorthandPropertyAssignmentStructure>): Shorth
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;ShorthandPropertyAssignmentStructure&gt; | |
+ | source | OptionalKind&lt;ShorthandPropertyAssignmentStructure&gt; | The structure to clone. |
  
 
 

@@ -4,6 +4,8 @@
 
 ## ExportDeclarationImpl.clone() method
 
+Create a `ExportDeclarationImpl` from a `ExportDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<ExportDeclarationStructure>): ExportDeclaratio
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;ExportDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;ExportDeclarationStructure&gt; | The structure to clone. |
  
 
 

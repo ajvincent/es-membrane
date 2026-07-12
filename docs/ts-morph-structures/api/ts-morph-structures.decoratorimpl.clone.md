@@ -4,6 +4,8 @@
 
 ## DecoratorImpl.clone() method
 
+Create a `DecoratorImpl` from a `DecoratorStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<DecoratorStructure>): DecoratorImpl;
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;DecoratorStructure&gt; | |
+ | source | OptionalKind&lt;DecoratorStructure&gt; | The structure to clone. |
  
 
 

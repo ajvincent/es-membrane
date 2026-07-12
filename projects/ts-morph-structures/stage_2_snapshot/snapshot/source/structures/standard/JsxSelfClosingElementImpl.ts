@@ -68,6 +68,10 @@ export default class JsxSelfClosingElementImpl
     }
   }
 
+  /**
+   * Create a `JsxSelfClosingElementImpl` from a `JsxSelfClosingElementStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<JsxSelfClosingElementStructure>,
   ): JsxSelfClosingElementImpl {

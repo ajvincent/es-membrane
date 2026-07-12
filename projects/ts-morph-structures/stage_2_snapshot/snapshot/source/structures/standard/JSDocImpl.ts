@@ -63,6 +63,10 @@ export default class JSDocImpl
     }
   }
 
+  /**
+   * Create a `JSDocImpl` from a `JSDocStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(source: OptionalKind<JSDocStructure>): JSDocImpl {
     const target = new JSDocImpl();
     this[COPY_FIELDS](source, target);

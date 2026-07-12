@@ -38,7 +38,7 @@ export default class VariableDeclarationImpl implements VariableDeclarationStruc
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.variabledeclarationimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.variabledeclarationimpl.clone.md) | `static` | Create a `VariableDeclarationImpl` from a `VariableDeclarationStructure`. |
  | [toJSON()](./ts-morph-structures.variabledeclarationimpl.tojson.md) | | |
  
 

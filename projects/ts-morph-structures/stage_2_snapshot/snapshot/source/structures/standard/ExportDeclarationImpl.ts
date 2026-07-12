@@ -86,6 +86,10 @@ export default class ExportDeclarationImpl
     }
   }
 
+  /**
+   * Create a `ExportDeclarationImpl` from a `ExportDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<ExportDeclarationStructure>,
   ): ExportDeclarationImpl {

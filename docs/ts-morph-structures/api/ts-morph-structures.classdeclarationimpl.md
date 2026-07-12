@@ -51,7 +51,7 @@ export default class ClassDeclarationImpl implements ClassDeclarationStructureCl
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.classdeclarationimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.classdeclarationimpl.clone.md) | `static` | Create a `ClassDeclarationImpl` from a `ClassDeclarationStructure`. |
  | [toJSON()](./ts-morph-structures.classdeclarationimpl.tojson.md) | | |
  
 

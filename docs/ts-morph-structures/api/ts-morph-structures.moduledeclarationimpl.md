@@ -40,7 +40,7 @@ export default class ModuleDeclarationImpl implements ModuleDeclarationStructure
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.moduledeclarationimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.moduledeclarationimpl.clone.md) | `static` | Create a `ModuleDeclarationImpl` from a `ModuleDeclarationStructure`. |
  | [toJSON()](./ts-morph-structures.moduledeclarationimpl.tojson.md) | | |
  
 

@@ -37,7 +37,7 @@ export default class JsxElementImpl implements JsxElementStructureClassIfc
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.jsxelementimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.jsxelementimpl.clone.md) | `static` | Create a `JsxElementImpl` from a `JsxElementStructure`. |
  | [toJSON()](./ts-morph-structures.jsxelementimpl.tojson.md) | | |
  
 

@@ -58,6 +58,10 @@ export default class VariableDeclarationImpl
     this.name = name;
   }
 
+  /**
+   * Create a `VariableDeclarationImpl` from a `VariableDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<VariableDeclarationStructure>,
   ): VariableDeclarationImpl {

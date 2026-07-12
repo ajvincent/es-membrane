@@ -53,6 +53,10 @@ export default class ConstructSignatureDeclarationImpl
   readonly kind: StructureKind.ConstructSignature =
     StructureKind.ConstructSignature;
 
+  /**
+   * Create a `ConstructSignatureDeclarationImpl` from a `ConstructSignatureDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<ConstructSignatureDeclarationStructure>,
   ): ConstructSignatureDeclarationImpl {

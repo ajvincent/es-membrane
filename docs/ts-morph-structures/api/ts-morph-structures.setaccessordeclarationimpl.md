@@ -44,7 +44,7 @@ export default class SetAccessorDeclarationImpl implements SetAccessorDeclaratio
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.setaccessordeclarationimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.setaccessordeclarationimpl.clone.md) | `static` | Create a `SetAccessorDeclarationImpl` from a `SetAccessorDeclarationStructure`. |
  | [toJSON()](./ts-morph-structures.setaccessordeclarationimpl.tojson.md) | | |
  
 

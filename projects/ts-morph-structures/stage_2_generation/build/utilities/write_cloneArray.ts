@@ -136,7 +136,9 @@ export function write_cloneRequiredAndOptionalArray(
   };
 
   return statement;
-}export function write_cloneStructureArray(
+}
+
+export function write_cloneStructureArray(
   structureName: string,
   dictionaries: StructureDictionaries,
   parts: DecoratorParts | StructureParts,

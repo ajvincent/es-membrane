@@ -4,6 +4,8 @@
 
 ## JSDocImpl.clone() method
 
+Create a `JSDocImpl` from a `JSDocStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<JSDocStructure>): JSDocImpl;
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;JSDocStructure&gt; | |
+ | source | OptionalKind&lt;JSDocStructure&gt; | The structure to clone. |
  
 
 

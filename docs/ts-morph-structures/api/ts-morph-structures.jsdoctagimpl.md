@@ -35,7 +35,7 @@ export default class JSDocTagImpl implements JSDocTagStructureClassIfc
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.jsdoctagimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.jsdoctagimpl.clone.md) | `static` | Create a `JSDocTagImpl` from a `JSDocTagStructure`. |
  | [toJSON()](./ts-morph-structures.jsdoctagimpl.tojson.md) | | |
  
 

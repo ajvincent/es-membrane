@@ -106,6 +106,10 @@ export default class TypeParameterDeclarationImpl
     }
   }
 
+  /**
+   * Create a `TypeParameterDeclarationImpl` from a `TypeParameterDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<TypeParameterDeclarationStructure>,
   ): TypeParameterDeclarationImpl {

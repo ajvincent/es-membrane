@@ -110,6 +110,10 @@ export default class IndexSignatureDeclarationImpl
     }
   }
 
+  /**
+   * Create a `IndexSignatureDeclarationImpl` from a `IndexSignatureDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<IndexSignatureDeclarationStructure>,
   ): IndexSignatureDeclarationImpl {

@@ -4,6 +4,8 @@
 
 ## JSDocTagImpl.clone() method
 
+Create a `JSDocTagImpl` from a `JSDocTagStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<JSDocTagStructure>): JSDocTagImpl;
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;JSDocTagStructure&gt; | |
+ | source | OptionalKind&lt;JSDocTagStructure&gt; | The structure to clone. |
  
 
 

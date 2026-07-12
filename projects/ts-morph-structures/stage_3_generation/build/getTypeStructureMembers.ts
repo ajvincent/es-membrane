@@ -3,7 +3,10 @@ import { StructureKind } from "ts-morph";
 import { GetAccessorDeclarationImpl,PropertySignatureImpl, TypeMembersMap } from "#stage_two/snapshot/source/exports.js";
 import PropertyHashesWithTypes from "./classTools/PropertyHashesWithTypes.js";
 import DecoratorModule from "../moduleClasses/DecoratorModule.js";
-import StructureModule from "../moduleClasses/StructureModule.js";
+
+import {
+  StructureModule
+} from "../moduleClasses/StructureModule.js";
 
 export function * getTypeStructureNativeMembers(
   module: DecoratorModule | StructureModule,

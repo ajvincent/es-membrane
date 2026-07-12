@@ -26,7 +26,7 @@ export default class SourceFileImpl implements SourceFileStructureClassIfc
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.sourcefileimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.sourcefileimpl.clone.md) | `static` | Create a `SourceFileImpl` from a `SourceFileStructure`. |
  | [toJSON()](./ts-morph-structures.sourcefileimpl.tojson.md) | | |
  
 

@@ -4,6 +4,8 @@
 
 ## JsxElementImpl.clone() method
 
+Create a `JsxElementImpl` from a `JsxElementStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<JsxElementStructure>): JsxElementImpl;
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;JsxElementStructure&gt; | |
+ | source | OptionalKind&lt;JsxElementStructure&gt; | The structure to clone. |
  
 
 

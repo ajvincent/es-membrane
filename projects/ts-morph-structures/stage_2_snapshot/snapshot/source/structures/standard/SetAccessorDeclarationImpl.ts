@@ -87,6 +87,10 @@ export default class SetAccessorDeclarationImpl
     this.parameters.push(setterParameter);
   }
 
+  /**
+   * Create a `SetAccessorDeclarationImpl` from a `SetAccessorDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<SetAccessorDeclarationStructure>,
   ): SetAccessorDeclarationImpl {

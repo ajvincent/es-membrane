@@ -36,7 +36,7 @@ export default class ImportSpecifierImpl implements ImportSpecifierStructureClas
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.importspecifierimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.importspecifierimpl.clone.md) | `static` | Create a `ImportSpecifierImpl` from a `ImportSpecifierStructure`. |
  | [toJSON()](./ts-morph-structures.importspecifierimpl.tojson.md) | | |
  
 

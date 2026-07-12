@@ -4,6 +4,8 @@
 
 ## SpreadAssignmentImpl.clone() method
 
+Create a `SpreadAssignmentImpl` from a `SpreadAssignmentStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<SpreadAssignmentStructure>): SpreadAssignmentI
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;SpreadAssignmentStructure&gt; | |
+ | source | OptionalKind&lt;SpreadAssignmentStructure&gt; | The structure to clone. |
  
 
 

@@ -30,7 +30,7 @@ export default class ConstructSignatureDeclarationImpl implements ConstructSigna
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.constructsignaturedeclarationimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.constructsignaturedeclarationimpl.clone.md) | `static` | Create a `ConstructSignatureDeclarationImpl` from a `ConstructSignatureDeclarationStructure`. |
  | [toJSON()](./ts-morph-structures.constructsignaturedeclarationimpl.tojson.md) | | |
  
 

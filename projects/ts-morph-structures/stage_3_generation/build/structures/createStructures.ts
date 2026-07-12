@@ -201,6 +201,8 @@ function buildTypeToClass(
     typeToClass.insertMemberKey(false, accessorProp, false, "constructor");
   }
 
+  module.modifiers?.buildTypeToClass?.(module, interfaceModule, typeToClass);
+
   return typeToClass;
 }
 
@@ -213,7 +215,9 @@ function defineImplMethods(
 {
   const copyFieldsMethod = module.createCopyFieldsMethod(true);
   typeToClass.addTypeMember(true, copyFieldsMethod);
-  typeToClass.addTypeMember(true, module.createStaticCloneMethod());
+
+  const staticCloneMethod: MethodSignatureImpl = module.createStaticCloneMethod();
+  typeToClass.addTypeMember(true, staticCloneMethod);
 
   const fromSignature = getFromSignatureMethod(module);
   if (fromSignature) {
@@ -246,6 +250,8 @@ function defineImplMethods(
       typeToClass.insertMemberKey(false, prop, false, iteratorMethod);
     typeToClass.insertMemberKey(false, prop, false, toJSONMethod);
   });
+
+  module.modifiers?.defineImplMethods?.(module, interfaceMembers, typeToClass, replacedProperties);
 }
 
 function defineClassCallbacks(

@@ -4,6 +4,8 @@
 
 ## MethodDeclarationImpl.clone() method
 
+Create a `MethodDeclarationImpl` from a `MethodDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<MethodDeclarationStructure>): MethodDeclaratio
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;MethodDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;MethodDeclarationStructure&gt; | The structure to clone. |
  
 
 

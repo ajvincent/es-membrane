@@ -4,6 +4,8 @@
 
 ## PropertyDeclarationImpl.clone() method
 
+Create a `PropertyDeclarationImpl` from a `PropertyDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<PropertyDeclarationStructure>): PropertyDeclar
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;PropertyDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;PropertyDeclarationStructure&gt; | The structure to clone. |
  
 
 

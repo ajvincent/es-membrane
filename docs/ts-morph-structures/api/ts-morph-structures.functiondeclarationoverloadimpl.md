@@ -35,7 +35,7 @@ export default class FunctionDeclarationOverloadImpl implements FunctionDeclarat
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.functiondeclarationoverloadimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.functiondeclarationoverloadimpl.clone.md) | `static` | Create a `FunctionDeclarationOverloadImpl` from a `FunctionDeclarationOverloadStructure`. |
  | [toJSON()](./ts-morph-structures.functiondeclarationoverloadimpl.tojson.md) | | |
  
 

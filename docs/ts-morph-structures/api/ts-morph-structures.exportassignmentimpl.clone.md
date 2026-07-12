@@ -4,6 +4,8 @@
 
 ## ExportAssignmentImpl.clone() method
 
+Create a `ExportAssignmentImpl` from a `ExportAssignmentStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<ExportAssignmentStructure>): ExportAssignmentI
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;ExportAssignmentStructure&gt; | |
+ | source | OptionalKind&lt;ExportAssignmentStructure&gt; | The structure to clone. |
  
 
 

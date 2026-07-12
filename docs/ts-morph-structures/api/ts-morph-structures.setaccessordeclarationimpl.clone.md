@@ -4,6 +4,8 @@
 
 ## SetAccessorDeclarationImpl.clone() method
 
+Create a `SetAccessorDeclarationImpl` from a `SetAccessorDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<SetAccessorDeclarationStructure>): SetAccessor
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;SetAccessorDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;SetAccessorDeclarationStructure&gt; | The structure to clone. |
  
 
 

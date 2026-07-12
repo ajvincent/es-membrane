@@ -83,6 +83,10 @@ export default class ParameterDeclarationImpl
     target.isRestParameter = source.isRestParameter ?? false;
   }
 
+  /**
+   * Create a `ParameterDeclarationImpl` from a `ParameterDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<ParameterDeclarationStructure>,
   ): ParameterDeclarationImpl {

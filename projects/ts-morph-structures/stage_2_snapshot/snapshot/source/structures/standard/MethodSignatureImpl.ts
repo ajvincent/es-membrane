@@ -65,6 +65,10 @@ export default class MethodSignatureImpl
     this.name = name;
   }
 
+  /**
+   * Create a `MethodSignatureImpl` from a `MethodSignatureStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<MethodSignatureStructure>,
   ): MethodSignatureImpl {

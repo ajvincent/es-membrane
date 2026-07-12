@@ -90,6 +90,10 @@ export default class ConstructorDeclarationImpl
     }
   }
 
+  /**
+   * Create a `ConstructorDeclarationImpl` from a `ConstructorDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<ConstructorDeclarationStructure>,
   ): ConstructorDeclarationImpl {

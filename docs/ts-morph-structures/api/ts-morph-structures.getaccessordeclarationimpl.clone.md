@@ -4,6 +4,8 @@
 
 ## GetAccessorDeclarationImpl.clone() method
 
+Create a `GetAccessorDeclarationImpl` from a `GetAccessorDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<GetAccessorDeclarationStructure>): GetAccessor
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;GetAccessorDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;GetAccessorDeclarationStructure&gt; | The structure to clone. |
  
 
 

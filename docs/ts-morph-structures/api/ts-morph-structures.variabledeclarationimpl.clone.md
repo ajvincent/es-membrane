@@ -4,6 +4,8 @@
 
 ## VariableDeclarationImpl.clone() method
 
+Create a `VariableDeclarationImpl` from a `VariableDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<VariableDeclarationStructure>): VariableDeclar
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;VariableDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;VariableDeclarationStructure&gt; | The structure to clone. |
  
 
 

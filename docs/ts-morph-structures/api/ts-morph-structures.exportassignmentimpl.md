@@ -36,7 +36,7 @@ export default class ExportAssignmentImpl implements ExportAssignmentStructureCl
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.exportassignmentimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.exportassignmentimpl.clone.md) | `static` | Create a `ExportAssignmentImpl` from a `ExportAssignmentStructure`. |
  | [toJSON()](./ts-morph-structures.exportassignmentimpl.tojson.md) | | |
  
 

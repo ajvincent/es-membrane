@@ -78,6 +78,10 @@ export default class VariableStatementImpl
     );
   }
 
+  /**
+   * Create a `VariableStatementImpl` from a `VariableStatementStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<VariableStatementStructure>,
   ): VariableStatementImpl {

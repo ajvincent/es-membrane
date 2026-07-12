@@ -92,6 +92,10 @@ export default class JsxElementImpl
     }
   }
 
+  /**
+   * Create a `JsxElementImpl` from a `JsxElementStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<JsxElementStructure>,
   ): JsxElementImpl {

@@ -35,7 +35,7 @@ export default class JsxSelfClosingElementImpl implements JsxSelfClosingElementS
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.jsxselfclosingelementimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.jsxselfclosingelementimpl.clone.md) | `static` | Create a `JsxSelfClosingElementImpl` from a `JsxSelfClosingElementStructure`. |
  | [toJSON()](./ts-morph-structures.jsxselfclosingelementimpl.tojson.md) | | |
  
 

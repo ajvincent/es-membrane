@@ -4,6 +4,8 @@
 
 ## ModuleDeclarationImpl.clone() method
 
+Create a `ModuleDeclarationImpl` from a `ModuleDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<ModuleDeclarationStructure>): ModuleDeclaratio
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;ModuleDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;ModuleDeclarationStructure&gt; | The structure to clone. |
  
 
 

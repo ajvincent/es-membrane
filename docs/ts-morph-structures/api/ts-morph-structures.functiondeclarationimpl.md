@@ -38,7 +38,7 @@ export default class FunctionDeclarationImpl implements FunctionDeclarationStruc
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.functiondeclarationimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.functiondeclarationimpl.clone.md) | `static` | Create a `FunctionDeclarationImpl` from a `FunctionDeclarationStructure`. |
  | [toJSON()](./ts-morph-structures.functiondeclarationimpl.tojson.md) | | |
  
 

@@ -35,7 +35,7 @@ export default class JsxAttributeImpl implements JsxAttributeStructureClassIfc
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.jsxattributeimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.jsxattributeimpl.clone.md) | `static` | Create a `JsxAttributeImpl` from a `JsxAttributeStructure`. |
  | [toJSON()](./ts-morph-structures.jsxattributeimpl.tojson.md) | | |
  
 

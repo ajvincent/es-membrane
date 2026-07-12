@@ -4,6 +4,8 @@
 
 ## EnumMemberImpl.clone() method
 
+Create a `EnumMemberImpl` from a `EnumMemberStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<EnumMemberStructure>): EnumMemberImpl;
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;EnumMemberStructure&gt; | |
+ | source | OptionalKind&lt;EnumMemberStructure&gt; | The structure to clone. |
  
 
 

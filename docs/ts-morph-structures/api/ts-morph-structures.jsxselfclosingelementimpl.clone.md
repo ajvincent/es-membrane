@@ -4,6 +4,8 @@
 
 ## JsxSelfClosingElementImpl.clone() method
 
+Create a `JsxSelfClosingElementImpl` from a `JsxSelfClosingElementStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<JsxSelfClosingElementStructure>): JsxSelfClosi
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;JsxSelfClosingElementStructure&gt; | |
+ | source | OptionalKind&lt;JsxSelfClosingElementStructure&gt; | The structure to clone. |
  
 
 

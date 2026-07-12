@@ -52,6 +52,10 @@ export default class PropertyAssignmentImpl
     target.initializer = source.initializer;
   }
 
+  /**
+   * Create a `PropertyAssignmentImpl` from a `PropertyAssignmentStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<PropertyAssignmentStructure>,
   ): PropertyAssignmentImpl {

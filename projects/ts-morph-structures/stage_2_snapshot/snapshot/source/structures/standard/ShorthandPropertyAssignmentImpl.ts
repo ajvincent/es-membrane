@@ -37,6 +37,10 @@ export default class ShorthandPropertyAssignmentImpl
     this.name = name;
   }
 
+  /**
+   * Create a `ShorthandPropertyAssignmentImpl` from a `ShorthandPropertyAssignmentStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<ShorthandPropertyAssignmentStructure>,
   ): ShorthandPropertyAssignmentImpl {

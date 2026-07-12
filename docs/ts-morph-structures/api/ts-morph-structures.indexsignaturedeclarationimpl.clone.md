@@ -4,6 +4,8 @@
 
 ## IndexSignatureDeclarationImpl.clone() method
 
+Create a `IndexSignatureDeclarationImpl` from a `IndexSignatureDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<IndexSignatureDeclarationStructure>): IndexSig
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;IndexSignatureDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;IndexSignatureDeclarationStructure&gt; | The structure to clone. |
  
 
 
