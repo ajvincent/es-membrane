@@ -1293,12 +1293,13 @@ declare class ImportManager {
   readonly absolutePathToModule: string;
   /** @param absolutePathToModule - Where the file will live on the file system. */
   constructor(absolutePathToModule: string);
+  /** Build an ImportManager from a source file. */
   static fromSourceFile(
     absolutePathToModule: string,
     sourceFile: SourceFileImpl,
   ): ImportManager;
-  /** If you have a declaration, add its imported names. */
-  addFromDeclaration(decl: ImportDeclarationImpl): void;
+  /** Add imports from an existing import declaration. */
+  addFromDeclaration(declStructure: ImportDeclarationStructure): void;
   /** @param context - a description of the imports to add. */
   addImports(context: AddImportContext): void;
   clone(

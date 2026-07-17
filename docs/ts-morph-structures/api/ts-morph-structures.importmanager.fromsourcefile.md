@@ -4,6 +4,8 @@
 
 ## ImportManager.fromSourceFile() method
 
+Build an ImportManager from a source file.
+
 **Signature:**
 
 ```typescript

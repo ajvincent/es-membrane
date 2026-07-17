@@ -4,19 +4,19 @@
 
 ## ImportManager.addFromDeclaration() method
 
-If you have a declaration, add its imported names.
+Add imports from an existing import declaration.
 
 **Signature:**
 
 ```typescript
-addFromDeclaration(decl: ImportDeclarationImpl): void;
+addFromDeclaration(declStructure: ImportDeclarationStructure): void;
 ```
 
 ## Parameters
 
 | Parameter | Type | Description |
 |-|-|-|
- | decl | [ImportDeclarationImpl](./ts-morph-structures.importdeclarationimpl.md) | |
+ | declStructure | ImportDeclarationStructure | |
  
 
 

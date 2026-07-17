@@ -29,6 +29,7 @@ At its heart, the `ImportManager` class has three key parts:
     - Pass in files ending in `.ts` or `.mts`.
     - I may support `.js` and `.mjs` if someone asks for it.
 2. The `addImports(context: AddImportContext)` method, which allows you to define what you're importing.
+    - alternatively `addFromDeclaration(decl: ImportDeclarationStructure): void` and `ImportManager.fromSourceFile(absolutePathToModule: string, sourceFile: SourceFileImpl)` methods, as ways to reconstruct an `ImportManager`.
 3. The `getDeclarations()` method, which returns `ImportDeclarationImpl[]` for you to add as statements to a [`SourceFileImpl`](../api/ts-morph-structures.sourcefileimpl.md) for your source file.
 
 The [`AddImportContext`](../api/ts-morph-structures.addimportcontext.md) interface is very simple:
