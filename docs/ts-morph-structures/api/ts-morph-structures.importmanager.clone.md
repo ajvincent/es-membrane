@@ -7,15 +7,15 @@
 **Signature:**
 
 ```typescript
-clone(resolver?: (sourceSpecifier: string, targetSpecifier: string) => string, relativePathToModule?: string): ImportManager;
+clone(relativePathToModule: string, importMap: ImportMapDefinition): ImportManager;
 ```
 
 ## Parameters
 
 | Parameter | Type | Description |
 |-|-|-|
- | resolver | (sourceSpecifier: string, targetSpecifier: string) =&gt; string | _(Optional)_ |
- | relativePathToModule | string | _(Optional)_ |
+ | relativePathToModule | string | |
+ | importMap | [ImportMapDefinition](./ts-morph-structures.importmapdefinition.md) | |
  
 
 

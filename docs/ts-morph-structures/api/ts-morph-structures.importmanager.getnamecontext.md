@@ -4,6 +4,8 @@
 
 ## ImportManager.getNameContext() method
 
+Get contextual information about an existing name.
+
 **Signature:**
 
 ```typescript

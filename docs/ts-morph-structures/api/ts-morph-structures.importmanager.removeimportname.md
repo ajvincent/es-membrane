@@ -4,12 +4,12 @@
 
 ## ImportManager.removeImportName() method
 
-Remove a key's metadata.
+Remove a key from its import declaration.
 
 **Signature:**
 
 ```typescript
-removeImportName(name: string): void;
+removeImportName(name: string): boolean;
 ```
 
 ## Parameters
@@ -22,5 +22,7 @@ removeImportName(name: string): void;
 
 **Returns:**
 
-void
+boolean
+
+`true` if this deleted a key, `false` otherwise.
 

@@ -1012,6 +1012,14 @@ interface AddImportContext {
   isTypeOnly: boolean;
 }
 
+type ModuleSpecifierMap = Record<string, string | null>;
+
+interface ImportMapDefinition {
+  imports?: ModuleSpecifierMap;
+  integrity?: Record<string, string>;
+  scopes?: Record<string, ModuleSpecifierMap>;
+}
+
 type ClassFieldStatement = string | WriterFunction | StatementStructureImpls;
 type ClassMemberImpl =
   | ConstructorDeclarationImpl
@@ -1303,8 +1311,8 @@ declare class ImportManager {
   /** @param context - a description of the imports to add. */
   addImports(context: AddImportContext): void;
   clone(
-    resolver?: (sourceSpecifier: string, targetSpecifier: string) => string,
-    relativePathToModule?: string,
+    relativePathToModule: string,
+    importMap: ImportMapDefinition,
   ): ImportManager;
   /**
    * Get a map of all imported names.  Each key will have its own metadata,
@@ -1315,9 +1323,14 @@ declare class ImportManager {
   getDeclarations(
     separateTypeOnlyDeclarations?: boolean,
   ): ImportDeclarationImpl[];
+  /** Get contextual information about an existing name. */
   getNameContext(name: string): AddImportContext | undefined;
-  /** Remove a key's metadata. */
-  removeImportName(name: string): void;
+  /**
+   * Remove a key from its import declaration.
+   *
+   * @returns `true` if this deleted a key, `false` otherwise.
+   */
+  removeImportName(name: string): boolean;
 }
 
 interface InsertedMemberKey {
@@ -3694,6 +3707,7 @@ export type {
   GetAccessorDeclarationStructureClassIfc,
   ImportAttributeStructureClassIfc,
   ImportDeclarationStructureClassIfc,
+  ImportMapDefinition,
   ImportSpecifierStructureClassIfc,
   IndexSignatureDeclarationStructureClassIfc,
   IndexSignatureResolver,
@@ -3715,6 +3729,7 @@ export type {
   MethodDeclarationStructureClassIfc,
   MethodSignatureStructureClassIfc,
   ModuleDeclarationStructureClassIfc,
+  ModuleSpecifierMap,
   NameableNodeStructureClassIfc,
   NamedClassMemberImpl,
   NamedNodeStructureClassIfc,

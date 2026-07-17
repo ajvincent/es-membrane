@@ -6060,7 +6060,7 @@ class ImportManager {
         });
         importDecl.isTypeOnly = false;
     }
-    clone(resolver, relativePathToModule) {
+    clone(relativePathToModule, importMap) {
         throw new Error("not yet implemented");
     }
     /**
@@ -6068,7 +6068,11 @@ class ImportManager {
      * which excludes information about other names.
      */
     getAllNamesMap() {
-        throw new Error("not yet implemented");
+        const entries = [];
+        for (const key of this.#importedKeyToDeclMap.keys()) {
+            entries.push([key, this.getNameContext(key)]);
+        }
+        return new Map(entries);
     }
     /** Get the import declarations, sorted by path to file, then internally by specified import values. */
     getDeclarations(separateTypeOnlyDeclarations = false) {
@@ -6083,12 +6087,55 @@ class ImportManager {
         }
         return decls;
     }
+    /** Get contextual information about an existing name. */
     getNameContext(name) {
-        throw new Error("not yet implemented");
+        const decl = this.#importedKeyToDeclMap.get(name);
+        if (!decl)
+            return undefined;
+        const isPackageImport = !/^\.\.?\//.test(decl.moduleSpecifier);
+        if (decl.defaultImport === name) {
+            return {
+                pathToImportedModule: decl.moduleSpecifier,
+                isPackageImport,
+                importNames: [name],
+                isDefaultImport: true,
+                isTypeOnly: false,
+            };
+        }
+        const specifier = this.#knownSpecifiersMap.get(name);
+        return {
+            pathToImportedModule: decl.moduleSpecifier,
+            isPackageImport,
+            importNames: [name],
+            isDefaultImport: false,
+            isTypeOnly: specifier.isTypeOnly,
+        };
     }
-    /** Remove a key's metadata. */
+    /**
+     * Remove a key from its import declaration.
+     *
+     * @returns `true` if this deleted a key, `false` otherwise.
+     */
     removeImportName(name) {
-        throw new Error("not yet implemented");
+        const decl = this.#importedKeyToDeclMap.get(name);
+        if (!decl)
+            return false;
+        if (decl.defaultImport === name) {
+            decl.defaultImport = undefined;
+        }
+        else {
+            const specifier = this.#knownSpecifiersMap.get(name);
+            const index = decl.namedImports.indexOf(specifier);
+            if (index === -1)
+                return false;
+            decl.namedImports.splice(index, 1);
+        }
+        this.#knownSpecifiersMap.delete(name);
+        this.#importedKeyToDeclMap.delete(name);
+        if (decl.defaultImport === undefined && decl.namedImports.length === 0) {
+            this.#declarationsMap.delete(decl.moduleSpecifier);
+        }
+        return true;
     }
 }
 

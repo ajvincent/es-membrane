@@ -49,12 +49,12 @@ sourceFile.statements.unshift(...importsManager.getDeclarations());
 |-|-|-|
  | [addFromDeclaration(declStructure)](./ts-morph-structures.importmanager.addfromdeclaration.md) | | Add imports from an existing import declaration. |
  | [addImports(context)](./ts-morph-structures.importmanager.addimports.md) | | |
- | [clone(resolver, relativePathToModule)](./ts-morph-structures.importmanager.clone.md) | | |
+ | [clone(relativePathToModule, importMap)](./ts-morph-structures.importmanager.clone.md) | | |
  | [fromSourceFile(absolutePathToModule, sourceFile)](./ts-morph-structures.importmanager.fromsourcefile.md) | `static` | Build an ImportManager from a source file. |
  | [getAllNamesMap()](./ts-morph-structures.importmanager.getallnamesmap.md) | | Get a map of all imported names. Each key will have its own metadata, which excludes information about other names. |
  | [getDeclarations(separateTypeOnlyDeclarations)](./ts-morph-structures.importmanager.getdeclarations.md) | | Get the import declarations, sorted by path to file, then internally by specified import values. |
- | [getNameContext(name)](./ts-morph-structures.importmanager.getnamecontext.md) | | |
- | [removeImportName(name)](./ts-morph-structures.importmanager.removeimportname.md) | | Remove a key's metadata. |
+ | [getNameContext(name)](./ts-morph-structures.importmanager.getnamecontext.md) | | Get contextual information about an existing name. |
+ | [removeImportName(name)](./ts-morph-structures.importmanager.removeimportname.md) | | Remove a key from its import declaration. |
  
 
 

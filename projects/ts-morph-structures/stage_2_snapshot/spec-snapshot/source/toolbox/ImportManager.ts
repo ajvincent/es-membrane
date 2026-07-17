@@ -6,6 +6,7 @@ import {
 } from "#utilities/source/AsyncSpecModules.js";
 
 import {
+  type AddImportContext,
   ImportDeclarationImpl,
   ImportManager,
   ImportSpecifierImpl,
@@ -17,9 +18,10 @@ const stageDir: ModuleSourceDirectory = {
   pathToDirectory: "#stage_two/snapshot",
 };
 
-it("ImportManager can import values from submodules", () => {
-  const baseDir = pathToModule(stageDir, "non-existent");
-  const pathToImport = path.join(baseDir, "module.ts");
+const baseDir = pathToModule(stageDir, "non-existent");
+const pathToImport = path.join(baseDir, "module.ts");
+
+function initializeMockManager(): ImportManager {
   const manager = new ImportManager(pathToImport);
 
   manager.addImports({
@@ -30,7 +32,7 @@ it("ImportManager can import values from submodules", () => {
     isTypeOnly: false,
   });
 
- manager.addImports({
+  manager.addImports({
     pathToImportedModule: "ts-morph",
     isPackageImport: true,
     isDefaultImport: false,
@@ -74,6 +76,12 @@ it("ImportManager can import values from submodules", () => {
     importNames: ["Bar"],
     isTypeOnly: false,
   });
+
+  return manager;
+}
+
+it("ImportManager can import values from submodules", () => {
+  const manager = initializeMockManager();
 
   const decls = manager.getDeclarations();
   expect(decls.map(d => d.moduleSpecifier)).toEqual([
@@ -369,4 +377,107 @@ it("ImportManager.fromSourceFile() works", () => {
     expect(StructureKind.isTypeOnly).withContext("StructureKind").toBeFalse();
     expect(StructureKind.alias).withContext("StructureKind").toBeUndefined();
   }
+});
+
+it("ImportManager.getNameContext() works", () => {
+  const manager: ImportManager = initializeMockManager();
+  {
+    const actual: AddImportContext = manager.getNameContext("MultiMixinBuilder")!;
+    expect(actual).withContext("MultiMixinBuilder").toEqual({
+      pathToImportedModule: "mixin-decorators",
+      isPackageImport: true,
+      importNames: ["MultiMixinBuilder"],
+      isDefaultImport: true,
+      isTypeOnly: false,
+    });
+  }
+
+  {
+    const actual: AddImportContext = manager.getNameContext("CallSignatureDeclarationStructure")!;
+    expect(actual).withContext("CallSignatureDeclarationStructure").toEqual({
+      pathToImportedModule: "ts-morph",
+      isPackageImport: true,
+      isDefaultImport: false,
+      importNames: [
+        "CallSignatureDeclarationStructure",
+      ],
+      isTypeOnly: true
+    });
+  }
+
+  {
+    const actual: AddImportContext = manager.getNameContext("StructureKind")!;
+    expect(actual).withContext("StructureKind").toEqual({
+      pathToImportedModule: "ts-morph",
+      isPackageImport: true,
+      isDefaultImport: false,
+      importNames: [
+        "StructureKind",
+      ],
+      isTypeOnly: false
+    });
+  }
+
+  expect(manager.getNameContext("UnknownValue")).toBeUndefined();
+});
+
+it("ImportManager.getAllNamesMap() works", () => {
+  const manager: ImportManager = initializeMockManager();
+
+  const map: ReadonlyMap<string, AddImportContext> = manager.getAllNamesMap();
+  expect(map.get("MultiMixinBuilder")).withContext("MultiMixinBuilder").toEqual({
+    pathToImportedModule: "mixin-decorators",
+    isPackageImport: true,
+    importNames: ["MultiMixinBuilder"],
+    isDefaultImport: true,
+    isTypeOnly: false,
+  });
+
+  expect(map.get("CallSignatureDeclarationStructure")).withContext("CallSignatureDeclarationStructure").toEqual({
+    pathToImportedModule: "ts-morph",
+    isPackageImport: true,
+    isDefaultImport: false,
+    importNames: [
+      "CallSignatureDeclarationStructure",
+    ],
+    isTypeOnly: true
+  });
+
+  expect(map.get("StructureKind")).withContext("StructureKind").toEqual({
+    pathToImportedModule: "ts-morph",
+    isPackageImport: true,
+    isDefaultImport: false,
+    importNames: [
+      "StructureKind",
+    ],
+    isTypeOnly: false
+  });
+
+  expect(map.has("UnknownValue")).withContext("UnknownValue").toBeFalse();
+
+  expect(map.size).withContext("map.size").toBe(7);
+});
+
+function buildImportsMap(
+  manager: ImportManager
+): ReadonlyMap<string, ImportDeclarationImpl>
+{
+  const decls = manager.getDeclarations();
+  return new Map(decls.map(decl => [decl.moduleSpecifier, decl]));
+}
+
+it("ImportManager.removeImportName() works", () => {
+  const manager: ImportManager = initializeMockManager();
+  expect(manager.removeImportName("UnknownValue")).withContext("UnknownValue").toBeFalse();
+
+  expect(manager.removeImportName("StructureKind")).withContext("StructureKind (first)").toBeTrue();
+  expect(buildImportsMap(manager).has("ts-morph")).withContext("ts-morph after removing StructureKind").toBeTrue();
+  expect(manager.getNameContext("StructureKind")).withContext("StructureKind name").toBeUndefined();
+  expect(manager.removeImportName("StructureKind")).withContext("StructureKind (second)").toBeFalse();
+
+  expect(manager.removeImportName("CallSignatureDeclarationStructure")).withContext("CallSignatureDeclarationStructure").toBeTrue();
+  expect(buildImportsMap(manager).has("ts-morph")).withContext("ts-morph after removing CallSignatureDeclarationStructure").toBeTrue();
+
+  expect(manager.removeImportName("OptionalKind")).withContext("OptionalKind").toBeTrue();
+  expect(buildImportsMap(manager).has("ts-morph")).withContext("ts-morph after removing OptionalKind").toBeFalse();
 });

@@ -12,7 +12,7 @@ import {
   type SourceFileImpl,
 } from "../exports.js";
 
-import type { AddImportContext } from "./types/toolbox.js";
+import type { AddImportContext, ImportMapDefinition } from "./types/toolbox.js";
 
 /**
  * This manages import declarations and specifiers, for including in a source file.
@@ -95,7 +95,7 @@ export default class ImportManager {
   }
 
   /** Where the file will live on the file system. */
-  readonly absolutePathToModule: string;
+  public readonly absolutePathToModule: string;
 
   /** key: pathToImportedModule */
   readonly #declarationsMap = new Map<string, ImportDeclarationImpl>();
@@ -109,7 +109,7 @@ export default class ImportManager {
   /**
    * @param absolutePathToModule - Where the file will live on the file system.
    */
-  constructor(absolutePathToModule: string) {
+  public constructor(absolutePathToModule: string) {
     if (!absolutePathToModule.endsWith(".ts")) {
       throw new Error("path to module must end with .ts");
     }
@@ -329,10 +329,11 @@ export default class ImportManager {
   }
 
   public clone(
-    resolver?: (sourceSpecifier: string, targetSpecifier: string) => string,
-    relativePathToModule?: string,
+    relativePathToModule: string,
+    importMap: ImportMapDefinition,
   ): ImportManager {
     void relativePathToModule;
+    void importMap;
     throw new Error("not yet implemented");
   }
 
@@ -341,7 +342,11 @@ export default class ImportManager {
    * which excludes information about other names.
    */
   public getAllNamesMap(): ReadonlyMap<string, AddImportContext> {
-    throw new Error("not yet implemented");
+    const entries: [string, AddImportContext][] = [];
+    for (const key of this.#importedKeyToDeclMap.keys()) {
+      entries.push([key, this.getNameContext(key)!]);
+    }
+    return new Map(entries);
   }
 
   /** Get the import declarations, sorted by path to file, then internally by specified import values. */
@@ -365,14 +370,62 @@ export default class ImportManager {
     return decls;
   }
 
+  /** Get contextual information about an existing name. */
   public getNameContext(name: string): AddImportContext | undefined {
-    void name;
-    throw new Error("not yet implemented");
+    const decl: ImportDeclarationImpl | undefined =
+      this.#importedKeyToDeclMap.get(name);
+    if (!decl) return undefined;
+
+    const isPackageImport = !/^\.\.?\//.test(decl.moduleSpecifier);
+
+    if (decl.defaultImport === name) {
+      return {
+        pathToImportedModule: decl.moduleSpecifier,
+        isPackageImport,
+        importNames: [name],
+        isDefaultImport: true,
+        isTypeOnly: false,
+      };
+    }
+
+    const specifier: ImportSpecifierImpl = this.#knownSpecifiersMap.get(name)!;
+
+    return {
+      pathToImportedModule: decl.moduleSpecifier,
+      isPackageImport,
+      importNames: [name],
+      isDefaultImport: false,
+      isTypeOnly: specifier.isTypeOnly,
+    };
   }
 
-  /** Remove a key's metadata. */
-  public removeImportName(name: string): void {
-    void name;
-    throw new Error("not yet implemented");
+  /**
+   * Remove a key from its import declaration.
+   *
+   * @returns `true` if this deleted a key, `false` otherwise.
+   */
+  public removeImportName(name: string): boolean {
+    const decl: ImportDeclarationImpl | undefined =
+      this.#importedKeyToDeclMap.get(name);
+    if (!decl) return false;
+
+    if (decl.defaultImport === name) {
+      decl.defaultImport = undefined;
+    } else {
+      const specifier: ImportSpecifierImpl =
+        this.#knownSpecifiersMap.get(name)!;
+      const index: number = decl.namedImports.indexOf(specifier);
+      if (index === -1) return false;
+      decl.namedImports.splice(index, 1);
+    }
+
+    this.#knownSpecifiersMap.delete(name);
+    this.#importedKeyToDeclMap.delete(name);
+
+    if (decl.defaultImport === undefined && decl.namedImports.length === 0) {
+      this.#declarationsMap.delete(decl.moduleSpecifier);
+    }
+
+    return true;
   }
 }

@@ -55,6 +55,13 @@ export interface AddImportContext {
   isTypeOnly: boolean,
 }
 
+export type ModuleSpecifierMap = Record<string, string | null>;
+export interface ImportMapDefinition {
+  imports?: ModuleSpecifierMap,
+  integrity?: Record<string, string>;
+  scopes?: Record<string, ModuleSpecifierMap>;
+}
+
 export type ClassFieldStatement = string | WriterFunction | StatementStructureImpls;
 
 export type ClassMemberImpl = (
