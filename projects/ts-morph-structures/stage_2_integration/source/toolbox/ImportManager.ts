@@ -14,7 +14,6 @@ import {
 
 import type {
   AddImportContext,
-  ImportMapDefinition,
 } from "./types/toolbox.js";
 
 /**
@@ -339,16 +338,6 @@ export default class ImportManager
       (namedImport as ImportSpecifierImpl).isTypeOnly = true;
     });
     importDecl.isTypeOnly = false;
-  }
-
-  public clone(
-    relativePathToModule: string,
-    importMap: ImportMapDefinition,
-  ): ImportManager
-  {
-    void relativePathToModule;
-    void importMap;
-    throw new Error("not yet implemented");
   }
 
   /**

@@ -12,7 +12,7 @@ import {
   type SourceFileImpl,
 } from "../exports.js";
 
-import type { AddImportContext, ImportMapDefinition } from "./types/toolbox.js";
+import type { AddImportContext } from "./types/toolbox.js";
 
 /**
  * This manages import declarations and specifiers, for including in a source file.
@@ -326,15 +326,6 @@ export default class ImportManager {
       (namedImport as ImportSpecifierImpl).isTypeOnly = true;
     });
     importDecl.isTypeOnly = false;
-  }
-
-  public clone(
-    relativePathToModule: string,
-    importMap: ImportMapDefinition,
-  ): ImportManager {
-    void relativePathToModule;
-    void importMap;
-    throw new Error("not yet implemented");
   }
 
   /**

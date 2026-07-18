@@ -6060,9 +6060,6 @@ class ImportManager {
         });
         importDecl.isTypeOnly = false;
     }
-    clone(relativePathToModule, importMap) {
-        throw new Error("not yet implemented");
-    }
     /**
      * Get a map of all imported names.  Each key will have its own metadata,
      * which excludes information about other names.

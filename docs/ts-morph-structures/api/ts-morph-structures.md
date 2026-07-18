@@ -148,7 +148,6 @@
  | [GetAccessorDeclarationStructureClassIfc](./ts-morph-structures.getaccessordeclarationstructureclassifc.md) | |
  | [ImportAttributeStructureClassIfc](./ts-morph-structures.importattributestructureclassifc.md) | |
  | [ImportDeclarationStructureClassIfc](./ts-morph-structures.importdeclarationstructureclassifc.md) | |
- | [ImportMapDefinition](./ts-morph-structures.importmapdefinition.md) | |
  | [ImportSpecifierStructureClassIfc](./ts-morph-structures.importspecifierstructureclassifc.md) | |
  | [IndexSignatureDeclarationStructureClassIfc](./ts-morph-structures.indexsignaturedeclarationstructureclassifc.md) | |
  | [IndexSignatureResolver](./ts-morph-structures.indexsignatureresolver.md) | |
@@ -209,7 +208,6 @@
  | [ClassMemberStructureImpls](./ts-morph-structures.classmemberstructureimpls.md) | |
  | [InterfaceMemberStructureImpls](./ts-morph-structures.interfacememberstructureimpls.md) | |
  | [JsxStructureImpls](./ts-morph-structures.jsxstructureimpls.md) | |
- | [ModuleSpecifierMap](./ts-morph-structures.modulespecifiermap.md) | |
  | [NamedClassMemberImpl](./ts-morph-structures.namedclassmemberimpl.md) | |
  | [NamedTypeMemberImpl](./ts-morph-structures.namedtypememberimpl.md) | |
  | [ObjectLiteralExpressionPropertyStructureImpls](./ts-morph-structures.objectliteralexpressionpropertystructureimpls.md) | |

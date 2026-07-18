@@ -1012,14 +1012,6 @@ interface AddImportContext {
   isTypeOnly: boolean;
 }
 
-type ModuleSpecifierMap = Record<string, string | null>;
-
-interface ImportMapDefinition {
-  imports?: ModuleSpecifierMap;
-  integrity?: Record<string, string>;
-  scopes?: Record<string, ModuleSpecifierMap>;
-}
-
 type ClassFieldStatement = string | WriterFunction | StatementStructureImpls;
 type ClassMemberImpl =
   | ConstructorDeclarationImpl
@@ -1310,10 +1302,6 @@ declare class ImportManager {
   addFromDeclaration(declStructure: ImportDeclarationStructure): void;
   /** @param context - a description of the imports to add. */
   addImports(context: AddImportContext): void;
-  clone(
-    relativePathToModule: string,
-    importMap: ImportMapDefinition,
-  ): ImportManager;
   /**
    * Get a map of all imported names.  Each key will have its own metadata,
    * which excludes information about other names.
@@ -3707,7 +3695,6 @@ export type {
   GetAccessorDeclarationStructureClassIfc,
   ImportAttributeStructureClassIfc,
   ImportDeclarationStructureClassIfc,
-  ImportMapDefinition,
   ImportSpecifierStructureClassIfc,
   IndexSignatureDeclarationStructureClassIfc,
   IndexSignatureResolver,
@@ -3729,7 +3716,6 @@ export type {
   MethodDeclarationStructureClassIfc,
   MethodSignatureStructureClassIfc,
   ModuleDeclarationStructureClassIfc,
-  ModuleSpecifierMap,
   NameableNodeStructureClassIfc,
   NamedClassMemberImpl,
   NamedNodeStructureClassIfc,
