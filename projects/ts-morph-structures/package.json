@@ -10,7 +10,7 @@
   ],
   "type": "module",
   "engines": {
-    "node": ">=26.4"
+    "node": ">=22"
   },
   "scripts": {
     "clean": "node ./gulp-utilities/cleanTSC_output.js",
