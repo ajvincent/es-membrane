@@ -51,6 +51,10 @@ export default class ImportSpecifierImpl
     target.isTypeOnly = source.isTypeOnly ?? false;
   }
 
+  /**
+   * Create a `ImportSpecifierImpl` from a `ImportSpecifierStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<ImportSpecifierStructure>,
   ): ImportSpecifierImpl {

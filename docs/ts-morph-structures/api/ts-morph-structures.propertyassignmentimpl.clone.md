@@ -4,6 +4,8 @@
 
 ## PropertyAssignmentImpl.clone() method
 
+Create a `PropertyAssignmentImpl` from a `PropertyAssignmentStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<PropertyAssignmentStructure>): PropertyAssignm
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;PropertyAssignmentStructure&gt; | |
+ | source | OptionalKind&lt;PropertyAssignmentStructure&gt; | The structure to clone. |
  
 
 

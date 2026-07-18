@@ -4,6 +4,8 @@
 
 ## MethodDeclarationOverloadImpl.clone() method
 
+Create a `MethodDeclarationOverloadImpl` from a `MethodDeclarationOverloadStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<MethodDeclarationOverloadStructure>): MethodDe
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;MethodDeclarationOverloadStructure&gt; | |
+ | source | OptionalKind&lt;MethodDeclarationOverloadStructure&gt; | The structure to clone. |
  
 
 

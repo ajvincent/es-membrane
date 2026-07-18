@@ -66,6 +66,10 @@ export default class EnumMemberImpl
     }
   }
 
+  /**
+   * Create a `EnumMemberImpl` from a `EnumMemberStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<EnumMemberStructure>,
   ): EnumMemberImpl {

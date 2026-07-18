@@ -125,6 +125,10 @@ export default class MethodDeclarationImpl
     }
   }
 
+  /**
+   * Create a `MethodDeclarationImpl` from a `MethodDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<MethodDeclarationStructure>,
   ): MethodDeclarationImpl {

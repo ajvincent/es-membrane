@@ -40,7 +40,7 @@ export default class PropertySignatureImpl implements PropertySignatureStructure
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.propertysignatureimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.propertysignatureimpl.clone.md) | `static` | Create a `PropertySignatureImpl` from a `PropertySignatureStructure`. |
  | [toJSON()](./ts-morph-structures.propertysignatureimpl.tojson.md) | | |
  
 

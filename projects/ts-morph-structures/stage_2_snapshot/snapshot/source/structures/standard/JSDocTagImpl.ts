@@ -54,6 +54,10 @@ export default class JSDocTagImpl
     }
   }
 
+  /**
+   * Create a `JSDocTagImpl` from a `JSDocTagStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(source: OptionalKind<JSDocTagStructure>): JSDocTagImpl {
     const target = new JSDocTagImpl(source.tagName);
     this[COPY_FIELDS](source, target);

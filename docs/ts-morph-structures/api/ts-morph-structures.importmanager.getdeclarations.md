@@ -9,8 +9,17 @@ Get the import declarations, sorted by path to file, then internally by specifie
 **Signature:**
 
 ```typescript
-getDeclarations(): ImportDeclarationImpl[];
+getDeclarations(separateTypeOnlyDeclarations?: boolean): ImportDeclarationImpl[];
 ```
+
+## Parameters
+
+| Parameter | Type | Description |
+|-|-|-|
+ | separateTypeOnlyDeclarations | boolean | _(Optional)_ |
+ 
+
+
 **Returns:**
 
 [ImportDeclarationImpl](./ts-morph-structures.importdeclarationimpl.md)\[\]

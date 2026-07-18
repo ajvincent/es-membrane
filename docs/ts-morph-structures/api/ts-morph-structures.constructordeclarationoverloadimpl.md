@@ -31,7 +31,7 @@ export default class ConstructorDeclarationOverloadImpl implements ConstructorDe
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.constructordeclarationoverloadimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.constructordeclarationoverloadimpl.clone.md) | `static` | Create a `ConstructorDeclarationOverloadImpl` from a `ConstructorDeclarationOverloadStructure`. |
  | [toJSON()](./ts-morph-structures.constructordeclarationoverloadimpl.tojson.md) | | |
  
 

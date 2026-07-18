@@ -31,7 +31,7 @@ export default class VariableStatementImpl implements VariableStatementStructure
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.variablestatementimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.variablestatementimpl.clone.md) | `static` | Create a `VariableStatementImpl` from a `VariableStatementStructure`. |
  | [toJSON()](./ts-morph-structures.variablestatementimpl.tojson.md) | | |
  
 

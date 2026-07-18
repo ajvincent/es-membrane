@@ -48,6 +48,10 @@ export default class ImportAttributeImpl
     target.value = source.value;
   }
 
+  /**
+   * Create a `ImportAttributeImpl` from a `ImportAttributeStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<ImportAttributeStructure>,
   ): ImportAttributeImpl {

@@ -12,6 +12,8 @@ import {
 import ConstantTypeStructures from "#stage_two/generation/build/utilities/ConstantTypeStructures.js";
 
 import {
+  JSDocImpl,
+  JSDocTagImpl,
   LiteralTypedStructureImpl,
   MethodDeclarationImpl,
   ParameterDeclarationImpl,
@@ -69,6 +71,13 @@ export default function addStaticClone(
   const cloneMethod = new MethodDeclarationImpl("clone");
   cloneMethod.scope = Scope.Public;
   cloneMethod.isStatic = true;
+
+  const jsDoc = new JSDocImpl();
+  jsDoc.description = `Create a \`${classDecl.name}\` from a \`${meta.structureName}\`.`;
+  const sourceParamTag = new JSDocTagImpl("param");
+  sourceParamTag.text = "source - The structure to clone.";
+  jsDoc.tags.push(sourceParamTag);
+  cloneMethod.docs.push(jsDoc);
 
   const sourceParam = new ParameterDeclarationImpl("source");
   sourceParam.typeStructure = new TypeArgumentedTypedStructureImpl(

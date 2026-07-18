@@ -35,7 +35,7 @@ export default class PropertyAssignmentImpl implements PropertyAssignmentStructu
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.propertyassignmentimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.propertyassignmentimpl.clone.md) | `static` | Create a `PropertyAssignmentImpl` from a `PropertyAssignmentStructure`. |
  | [toJSON()](./ts-morph-structures.propertyassignmentimpl.tojson.md) | | |
  
 

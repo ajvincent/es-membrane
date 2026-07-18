@@ -4,6 +4,8 @@
 
 ## ConstructSignatureDeclarationImpl.clone() method
 
+Create a `ConstructSignatureDeclarationImpl` from a `ConstructSignatureDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<ConstructSignatureDeclarationStructure>): Cons
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;ConstructSignatureDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;ConstructSignatureDeclarationStructure&gt; | The structure to clone. |
  
 
 

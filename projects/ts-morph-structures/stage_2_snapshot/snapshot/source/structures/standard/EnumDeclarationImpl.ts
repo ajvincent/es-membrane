@@ -84,6 +84,10 @@ export default class EnumDeclarationImpl
     }
   }
 
+  /**
+   * Create a `EnumDeclarationImpl` from a `EnumDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<EnumDeclarationStructure>,
   ): EnumDeclarationImpl {

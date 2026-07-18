@@ -4,6 +4,8 @@
 
 ## CallSignatureDeclarationImpl.clone() method
 
+Create a `CallSignatureDeclarationImpl` from a `CallSignatureDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<CallSignatureDeclarationStructure>): CallSigna
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;CallSignatureDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;CallSignatureDeclarationStructure&gt; | The structure to clone. |
  
 
 

@@ -31,6 +31,10 @@ export default class SourceFileImpl
 {
   readonly kind: StructureKind.SourceFile = StructureKind.SourceFile;
 
+  /**
+   * Create a `SourceFileImpl` from a `SourceFileStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<SourceFileStructure>,
   ): SourceFileImpl {

@@ -4,6 +4,8 @@
 
 ## ExportSpecifierImpl.clone() method
 
+Create a `ExportSpecifierImpl` from a `ExportSpecifierStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<ExportSpecifierStructure>): ExportSpecifierImp
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;ExportSpecifierStructure&gt; | |
+ | source | OptionalKind&lt;ExportSpecifierStructure&gt; | The structure to clone. |
  
 
 

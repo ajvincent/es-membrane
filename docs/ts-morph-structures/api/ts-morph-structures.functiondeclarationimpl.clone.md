@@ -4,6 +4,8 @@
 
 ## FunctionDeclarationImpl.clone() method
 
+Create a `FunctionDeclarationImpl` from a `FunctionDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<FunctionDeclarationStructure>): FunctionDeclar
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;FunctionDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;FunctionDeclarationStructure&gt; | The structure to clone. |
  
 
 

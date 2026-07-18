@@ -239,6 +239,10 @@ export default class ClassDeclarationImpl
     }
   }
 
+  /**
+   * Create a `ClassDeclarationImpl` from a `ClassDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<ClassDeclarationStructure>,
   ): ClassDeclarationImpl {

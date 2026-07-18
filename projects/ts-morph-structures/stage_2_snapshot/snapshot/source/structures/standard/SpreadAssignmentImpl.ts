@@ -49,6 +49,10 @@ export default class SpreadAssignmentImpl
     target.expression = source.expression;
   }
 
+  /**
+   * Create a `SpreadAssignmentImpl` from a `SpreadAssignmentStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<SpreadAssignmentStructure>,
   ): SpreadAssignmentImpl {

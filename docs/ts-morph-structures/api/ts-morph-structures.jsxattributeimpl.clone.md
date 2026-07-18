@@ -4,6 +4,8 @@
 
 ## JsxAttributeImpl.clone() method
 
+Create a `JsxAttributeImpl` from a `JsxAttributeStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<JsxAttributeStructure>): JsxAttributeImpl;
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;JsxAttributeStructure&gt; | |
+ | source | OptionalKind&lt;JsxAttributeStructure&gt; | The structure to clone. |
  
 
 

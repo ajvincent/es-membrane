@@ -4,17 +4,20 @@
 
 ## ImportDeclarationImpl.clone() method
 
+Create a `ImportDeclarationImpl` from a `ImportDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
-static clone(source: OptionalKind<ImportDeclarationStructure>): ImportDeclarationImpl;
+static clone(source: OptionalKind<ImportDeclarationStructure>, withTypesArg?: "typesOnly" | "excludeTypes"): ImportDeclarationImpl;
 ```
 
 ## Parameters
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;ImportDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;ImportDeclarationStructure&gt; | The structure to clone. |
+ | withTypesArg | "typesOnly" \| "excludeTypes" | _(Optional)_ When "typesOnly", the clone has only type imports. When "excludeTypes", the clone has no type imports. |
  
 
 

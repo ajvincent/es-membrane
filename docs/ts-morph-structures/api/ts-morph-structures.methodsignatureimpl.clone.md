@@ -4,6 +4,8 @@
 
 ## MethodSignatureImpl.clone() method
 
+Create a `MethodSignatureImpl` from a `MethodSignatureStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<MethodSignatureStructure>): MethodSignatureImp
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;MethodSignatureStructure&gt; | |
+ | source | OptionalKind&lt;MethodSignatureStructure&gt; | The structure to clone. |
  
 
 

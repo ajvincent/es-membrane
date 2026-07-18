@@ -45,7 +45,7 @@ export default class MethodDeclarationOverloadImpl implements MethodDeclarationO
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.methoddeclarationoverloadimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.methoddeclarationoverloadimpl.clone.md) | `static` | Create a `MethodDeclarationOverloadImpl` from a `MethodDeclarationOverloadStructure`. |
  | [toJSON()](./ts-morph-structures.methoddeclarationoverloadimpl.tojson.md) | | |
  
 

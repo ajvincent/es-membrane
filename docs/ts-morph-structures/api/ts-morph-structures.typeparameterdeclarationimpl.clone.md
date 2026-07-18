@@ -4,6 +4,8 @@
 
 ## TypeParameterDeclarationImpl.clone() method
 
+Create a `TypeParameterDeclarationImpl` from a `TypeParameterDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<TypeParameterDeclarationStructure>): TypeParam
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;TypeParameterDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;TypeParameterDeclarationStructure&gt; | The structure to clone. |
  
 
 

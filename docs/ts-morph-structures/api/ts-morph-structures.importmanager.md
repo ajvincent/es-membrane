@@ -47,8 +47,13 @@ sourceFile.statements.unshift(...importsManager.getDeclarations());
 
 | Method | Modifiers | Description |
 |-|-|-|
+ | [addFromDeclaration(declStructure)](./ts-morph-structures.importmanager.addfromdeclaration.md) | | Add imports from an existing import declaration. |
  | [addImports(context)](./ts-morph-structures.importmanager.addimports.md) | | |
- | [getDeclarations()](./ts-morph-structures.importmanager.getdeclarations.md) | | Get the import declarations, sorted by path to file, then internally by specified import values. |
+ | [fromSourceFile(absolutePathToModule, sourceFile)](./ts-morph-structures.importmanager.fromsourcefile.md) | `static` | Build an ImportManager from a source file. |
+ | [getAllNamesMap()](./ts-morph-structures.importmanager.getallnamesmap.md) | | Get a map of all imported names. Each key will have its own metadata, which excludes information about other names. |
+ | [getDeclarations(separateTypeOnlyDeclarations)](./ts-morph-structures.importmanager.getdeclarations.md) | | Get the import declarations, sorted by path to file, then internally by specified import values. |
+ | [getNameContext(name)](./ts-morph-structures.importmanager.getnamecontext.md) | | Get contextual information about an existing name. |
+ | [removeImportName(name)](./ts-morph-structures.importmanager.removeimportname.md) | | Remove a key from its import declaration. |
  
 
 

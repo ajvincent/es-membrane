@@ -4,6 +4,8 @@
 
 ## ImportAttributeImpl.clone() method
 
+Create a `ImportAttributeImpl` from a `ImportAttributeStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<ImportAttributeStructure>): ImportAttributeImp
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;ImportAttributeStructure&gt; | |
+ | source | OptionalKind&lt;ImportAttributeStructure&gt; | The structure to clone. |
  
 
 

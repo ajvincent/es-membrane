@@ -4,6 +4,8 @@
 
 ## InterfaceDeclarationImpl.clone() method
 
+Create a `InterfaceDeclarationImpl` from a `InterfaceDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<InterfaceDeclarationStructure>): InterfaceDecl
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;InterfaceDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;InterfaceDeclarationStructure&gt; | The structure to clone. |
  
 
 

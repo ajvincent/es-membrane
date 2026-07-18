@@ -4,6 +4,8 @@
 
 ## ConstructorDeclarationImpl.clone() method
 
+Create a `ConstructorDeclarationImpl` from a `ConstructorDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<ConstructorDeclarationStructure>): Constructor
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;ConstructorDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;ConstructorDeclarationStructure&gt; | The structure to clone. |
  
 
 

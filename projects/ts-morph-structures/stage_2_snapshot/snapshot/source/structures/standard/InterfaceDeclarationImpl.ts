@@ -227,6 +227,10 @@ export default class InterfaceDeclarationImpl
     }
   }
 
+  /**
+   * Create a `InterfaceDeclarationImpl` from a `InterfaceDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<InterfaceDeclarationStructure>,
   ): InterfaceDeclarationImpl {

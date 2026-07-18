@@ -4,6 +4,8 @@
 
 ## ClassStaticBlockDeclarationImpl.clone() method
 
+Create a `ClassStaticBlockDeclarationImpl` from a `ClassStaticBlockDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<ClassStaticBlockDeclarationStructure>): ClassS
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;ClassStaticBlockDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;ClassStaticBlockDeclarationStructure&gt; | The structure to clone. |
  
 
 

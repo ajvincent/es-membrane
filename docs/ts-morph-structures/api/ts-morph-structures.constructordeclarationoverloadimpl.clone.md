@@ -4,6 +4,8 @@
 
 ## ConstructorDeclarationOverloadImpl.clone() method
 
+Create a `ConstructorDeclarationOverloadImpl` from a `ConstructorDeclarationOverloadStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<ConstructorDeclarationOverloadStructure>): Con
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;ConstructorDeclarationOverloadStructure&gt; | |
+ | source | OptionalKind&lt;ConstructorDeclarationOverloadStructure&gt; | The structure to clone. |
  
 
 

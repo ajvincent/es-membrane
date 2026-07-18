@@ -1,3 +1,4 @@
+//#region preamble
 import {
   CodeBlockWriter,
   StructureKind,
@@ -15,9 +16,13 @@ import {
 
 import {
   GetAccessorDeclarationImpl,
+  JSDocImpl,
+  JSDocTagImpl,
   LiteralTypedStructureImpl,
+  MethodDeclarationImpl,
   ParameterDeclarationImpl,
   SetAccessorDeclarationImpl,
+  StringTypedStructureImpl,
   UnionTypedStructureImpl,
   VariableDeclarationImpl,
   VariableStatementImpl,
@@ -32,6 +37,7 @@ import ConstantTypeStructures from "#stage_two/generation/build/utilities/Consta
 import {
   COPY_FIELDS_NAME
 } from "../../constants.js";
+//#endregion preamble
 
 export default function structureSpecialCases(
   name: string,
@@ -39,7 +45,7 @@ export default function structureSpecialCases(
   dictionaries: StructureDictionaries
 ): void
 {
-  const parts = dictionaries.structureParts.get(meta)!;
+  const parts: StructureParts = dictionaries.structureParts.get(meta)!;
   switch (parts.classDecl.name) {
     case "ExportDeclarationImpl":
       makeAttributesPropertyOptional(parts, dictionaries);
@@ -51,6 +57,7 @@ export default function structureSpecialCases(
 
     case "ImportDeclarationImpl":
       makeAttributesPropertyOptional(parts, dictionaries);
+      addWithTypesArgumentToClone(parts, dictionaries);
       break;
 
     case "IndexSignatureDeclarationImpl":
@@ -322,4 +329,93 @@ function makeAttributesPropertyOptional(
   }
 
   void(dictionaries);
+}
+
+function addWithTypesArgumentToClone(
+  parts: StructureParts,
+  dictionaries: StructureDictionaries,
+): void
+{
+  void dictionaries;
+
+  const staticCloneKey = ClassMembersMap.keyFromName(StructureKind.Method, true, "clone");
+  const cloneMethod: MethodDeclarationImpl = parts.classMembersMap.getAsKind(staticCloneKey, StructureKind.Method)!;
+  const withTypesArg = new ParameterDeclarationImpl("withTypesArg");
+  cloneMethod.parameters.push(withTypesArg);
+  withTypesArg.hasQuestionToken = true;
+  withTypesArg.typeStructure = new UnionTypedStructureImpl([
+    new StringTypedStructureImpl("typesOnly"),
+    new StringTypedStructureImpl("excludeTypes"),
+  ]);
+
+  {
+    const jsDoc = cloneMethod.docs[0] as JSDocImpl;
+    const withTypesTag = new JSDocTagImpl("param");
+    withTypesTag.text = `withTypesArg - When "typesOnly", the clone has only type imports.  When "excludeTypes", the clone has no type imports.`;
+    jsDoc.tags.push(withTypesTag);
+  }
+
+  /*
+  classFieldsStatements.set(
+    ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN,
+    ClassMembersMap.keyFromMember(cloneMethod),
+    [
+      `return target;`
+    ]
+  );
+  */
+  {
+    const statements: StatementsArray = parts.classFieldsStatements.get(
+      ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN,
+      staticCloneKey
+    )!;
+    statements.unshift(`
+      if (withTypesArg) {
+        const typesOnly = withTypesArg === "typesOnly";
+        const filteredImports = target.namedImports.filter(
+          namedImport => this.#namedImportsTypeFilter(namedImport, typesOnly)
+        ) as readonly ImportSpecifierImpl[];
+        for (const namedImport of filteredImports) {
+          namedImport.isTypeOnly = false;
+        }
+        target.namedImports.splice(0, target.namedImports.length, ...filteredImports);
+        target.isTypeOnly = typesOnly;
+        if (typesOnly)
+          delete target.defaultImport;
+      }
+    `);
+  }
+
+  const namedImportsTypeFilter = new MethodDeclarationImpl(
+    "#namedImportsTypeFilter"
+  );
+  namedImportsTypeFilter.isStatic = true;
+  namedImportsTypeFilter.returnTypeStructure = ConstantTypeStructures.boolean;
+  {
+    const thisParam = new ParameterDeclarationImpl("this");
+    thisParam.typeStructure = ConstantTypeStructures.void;
+    namedImportsTypeFilter.parameters.push(thisParam);
+  }
+  {
+    const namedImport = new ParameterDeclarationImpl("namedImport");
+    namedImport.typeStructure = new UnionTypedStructureImpl([
+      new LiteralTypedStructureImpl("ImportSpecifierImpl"),
+      ConstantTypeStructures.stringOrWriterFunction
+    ]);
+    namedImportsTypeFilter.parameters.push(namedImport);
+  }
+  {
+    const withTypes = new ParameterDeclarationImpl("withTypes");
+    withTypes.typeStructure = ConstantTypeStructures.boolean;
+    namedImportsTypeFilter.parameters.push(withTypes);
+  }
+
+  namedImportsTypeFilter.statements.push(`
+    if (typeof namedImport !== "object") {
+      throw new Error("cannot process string or writer functions");
+    }
+    return namedImport.isTypeOnly === withTypes;
+  `.trim());
+
+  parts.classMembersMap.addMembers([namedImportsTypeFilter]);
 }

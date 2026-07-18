@@ -4,6 +4,8 @@
 
 ## TypeAliasDeclarationImpl.clone() method
 
+Create a `TypeAliasDeclarationImpl` from a `TypeAliasDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<TypeAliasDeclarationStructure>): TypeAliasDecl
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;TypeAliasDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;TypeAliasDeclarationStructure&gt; | The structure to clone. |
  
 
 

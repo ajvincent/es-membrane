@@ -82,6 +82,10 @@ export default class MethodDeclarationOverloadImpl
     this.isStatic = isStatic;
   }
 
+  /**
+   * Create a `MethodDeclarationOverloadImpl` from a `MethodDeclarationOverloadStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<MethodDeclarationOverloadStructure>,
   ): MethodDeclarationOverloadImpl {

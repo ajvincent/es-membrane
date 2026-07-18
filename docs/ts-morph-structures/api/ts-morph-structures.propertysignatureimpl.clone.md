@@ -4,6 +4,8 @@
 
 ## PropertySignatureImpl.clone() method
 
+Create a `PropertySignatureImpl` from a `PropertySignatureStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<PropertySignatureStructure>): PropertySignatur
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;PropertySignatureStructure&gt; | |
+ | source | OptionalKind&lt;PropertySignatureStructure&gt; | The structure to clone. |
  
 
 

@@ -4,6 +4,8 @@
 
 ## ParameterDeclarationImpl.clone() method
 
+Create a `ParameterDeclarationImpl` from a `ParameterDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<ParameterDeclarationStructure>): ParameterDecl
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;ParameterDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;ParameterDeclarationStructure&gt; | The structure to clone. |
  
 
 

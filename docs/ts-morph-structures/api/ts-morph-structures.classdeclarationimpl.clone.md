@@ -4,6 +4,8 @@
 
 ## ClassDeclarationImpl.clone() method
 
+Create a `ClassDeclarationImpl` from a `ClassDeclarationStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<ClassDeclarationStructure>): ClassDeclarationI
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;ClassDeclarationStructure&gt; | |
+ | source | OptionalKind&lt;ClassDeclarationStructure&gt; | The structure to clone. |
  
 
 

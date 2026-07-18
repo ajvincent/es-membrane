@@ -44,7 +44,7 @@ export default class GetAccessorDeclarationImpl implements GetAccessorDeclaratio
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.getaccessordeclarationimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.getaccessordeclarationimpl.clone.md) | `static` | Create a `GetAccessorDeclarationImpl` from a `GetAccessorDeclarationStructure`. |
  | [toJSON()](./ts-morph-structures.getaccessordeclarationimpl.tojson.md) | | |
  
 

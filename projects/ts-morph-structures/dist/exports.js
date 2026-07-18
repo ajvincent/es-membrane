@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { CodeBlockWriter, StructureKind, SyntaxKind, Structure, forEachStructureChild, Node, ConstructorTypeNode, ModuleResolutionKind, ScriptTarget, ModuleKind, Project, Writers } from 'ts-morph';
 import path from 'path';
+import path$1 from 'node:path';
 import MultiMixinBuilder from 'mixin-decorators';
 
 var TypeStructureKind;
@@ -2219,6 +2220,10 @@ const CallSignatureDeclarationStructureBase = MultiMixinBuilder([
 ], StructureBase);
 class CallSignatureDeclarationImpl extends CallSignatureDeclarationStructureBase {
     kind = StructureKind.CallSignature;
+    /**
+     * Create a `CallSignatureDeclarationImpl` from a `CallSignatureDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new CallSignatureDeclarationImpl();
         this[COPY_FIELDS](source, target);
@@ -2323,6 +2328,10 @@ class ClassDeclarationImpl extends ClassDeclarationStructureBase {
             target.staticBlocks.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.ClassStaticBlock, StructureClassesMap.forceArray(source.staticBlocks)));
         }
     }
+    /**
+     * Create a `ClassDeclarationImpl` from a `ClassDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new _a$5();
         this[COPY_FIELDS](source, target);
@@ -2366,6 +2375,10 @@ StructureClassesMap.set(StructureKind.Class, ClassDeclarationImpl);
 const ClassStaticBlockDeclarationStructureBase = MultiMixinBuilder([StatementedNodeStructureMixin, JSDocableNodeStructureMixin, StructureMixin], StructureBase);
 class ClassStaticBlockDeclarationImpl extends ClassStaticBlockDeclarationStructureBase {
     kind = StructureKind.ClassStaticBlock;
+    /**
+     * Create a `ClassStaticBlockDeclarationImpl` from a `ClassStaticBlockDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ClassStaticBlockDeclarationImpl();
         this[COPY_FIELDS](source, target);
@@ -2399,6 +2412,10 @@ class ConstructorDeclarationImpl extends ConstructorDeclarationStructureBase {
             target.overloads.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.ConstructorOverload, StructureClassesMap.forceArray(source.overloads)));
         }
     }
+    /**
+     * Create a `ConstructorDeclarationImpl` from a `ConstructorDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ConstructorDeclarationImpl();
         this[COPY_FIELDS](source, target);
@@ -2436,6 +2453,10 @@ const ConstructorDeclarationOverloadStructureBase = MultiMixinBuilder([
 ], StructureBase);
 class ConstructorDeclarationOverloadImpl extends ConstructorDeclarationOverloadStructureBase {
     kind = StructureKind.ConstructorOverload;
+    /**
+     * Create a `ConstructorDeclarationOverloadImpl` from a `ConstructorDeclarationOverloadStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ConstructorDeclarationOverloadImpl();
         this[COPY_FIELDS](source, target);
@@ -2459,6 +2480,10 @@ const ConstructSignatureDeclarationStructureBase = MultiMixinBuilder([
 ], StructureBase);
 class ConstructSignatureDeclarationImpl extends ConstructSignatureDeclarationStructureBase {
     kind = StructureKind.ConstructSignature;
+    /**
+     * Create a `ConstructSignatureDeclarationImpl` from a `ConstructSignatureDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ConstructSignatureDeclarationImpl();
         this[COPY_FIELDS](source, target);
@@ -2502,6 +2527,10 @@ class DecoratorImpl extends DecoratorStructureBase {
             target.typeArguments.push(source.typeArguments);
         }
     }
+    /**
+     * Create a `DecoratorImpl` from a `DecoratorStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new DecoratorImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -2543,6 +2572,10 @@ class EnumDeclarationImpl extends EnumDeclarationStructureBase {
             target.members.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.EnumMember, StructureClassesMap.forceArray(source.members)));
         }
     }
+    /**
+     * Create a `EnumDeclarationImpl` from a `EnumDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new EnumDeclarationImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -2580,6 +2613,10 @@ class EnumMemberImpl extends EnumMemberStructureBase {
             target.value = source.value;
         }
     }
+    /**
+     * Create a `EnumMemberImpl` from a `EnumMemberStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new EnumMemberImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -2615,6 +2652,10 @@ class ExportAssignmentImpl extends ExportAssignmentStructureBase {
         target.expression = source.expression;
         target.isExportEquals = source.isExportEquals ?? false;
     }
+    /**
+     * Create a `ExportAssignmentImpl` from a `ExportAssignmentStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ExportAssignmentImpl(source.expression);
         this[COPY_FIELDS](source, target);
@@ -2657,6 +2698,10 @@ class ExportDeclarationImpl extends ExportDeclarationStructureBase {
             target.namespaceExport = source.namespaceExport;
         }
     }
+    /**
+     * Create a `ExportDeclarationImpl` from a `ExportDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ExportDeclarationImpl();
         this[COPY_FIELDS](source, target);
@@ -2713,6 +2758,10 @@ class ExportSpecifierImpl extends ExportSpecifierStructureBase {
         }
         target.isTypeOnly = source.isTypeOnly ?? false;
     }
+    /**
+     * Create a `ExportSpecifierImpl` from a `ExportSpecifierStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ExportSpecifierImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -2757,6 +2806,10 @@ class FunctionDeclarationImpl extends FunctionDeclarationStructureBase {
             target.overloads.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.FunctionOverload, StructureClassesMap.forceArray(source.overloads)));
         }
     }
+    /**
+     * Create a `FunctionDeclarationImpl` from a `FunctionDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new FunctionDeclarationImpl();
         this[COPY_FIELDS](source, target);
@@ -2785,6 +2838,10 @@ const FunctionDeclarationOverloadStructureBase = MultiMixinBuilder([
 ], StructureBase);
 class FunctionDeclarationOverloadImpl extends FunctionDeclarationOverloadStructureBase {
     kind = StructureKind.FunctionOverload;
+    /**
+     * Create a `FunctionDeclarationOverloadImpl` from a `FunctionDeclarationOverloadStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new FunctionDeclarationOverloadImpl();
         this[COPY_FIELDS](source, target);
@@ -2822,6 +2879,10 @@ class GetAccessorDeclarationImpl extends GetAccessorDeclarationStructureBase {
             this.returnTypeStructure = returnType;
         }
     }
+    /**
+     * Create a `GetAccessorDeclarationImpl` from a `GetAccessorDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new GetAccessorDeclarationImpl(source.isStatic ?? false, source.name);
         this[COPY_FIELDS](source, target);
@@ -2852,6 +2913,10 @@ class ImportAttributeImpl extends ImportAttributeStructureBase {
         super[COPY_FIELDS](source, target);
         target.value = source.value;
     }
+    /**
+     * Create a `ImportAttributeImpl` from a `ImportAttributeStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ImportAttributeImpl(source.name, source.value);
         this[COPY_FIELDS](source, target);
@@ -2899,9 +2964,31 @@ class ImportDeclarationImpl extends ImportDeclarationStructureBase {
             target.namespaceImport = source.namespaceImport;
         }
     }
-    static clone(source) {
+    static #namedImportsTypeFilter(namedImport, withTypes) {
+        if (typeof namedImport !== "object") {
+            throw new Error("cannot process string or writer functions");
+        }
+        return namedImport.isTypeOnly === withTypes;
+    }
+    /**
+     * Create a `ImportDeclarationImpl` from a `ImportDeclarationStructure`.
+     * @param source - The structure to clone.
+     * @param withTypesArg - When "typesOnly", the clone has only type imports.  When "excludeTypes", the clone has no type imports.
+     */
+    static clone(source, withTypesArg) {
         const target = new ImportDeclarationImpl(source.moduleSpecifier);
         this[COPY_FIELDS](source, target);
+        if (withTypesArg) {
+            const typesOnly = withTypesArg === "typesOnly";
+            const filteredImports = target.namedImports.filter((namedImport) => this.#namedImportsTypeFilter(namedImport, typesOnly));
+            for (const namedImport of filteredImports) {
+                namedImport.isTypeOnly = false;
+            }
+            target.namedImports.splice(0, target.namedImports.length, ...filteredImports);
+            target.isTypeOnly = typesOnly;
+            if (typesOnly)
+                delete target.defaultImport;
+        }
         return target;
     }
     toJSON() {
@@ -2956,6 +3043,10 @@ class ImportSpecifierImpl extends ImportSpecifierStructureBase {
         }
         target.isTypeOnly = source.isTypeOnly ?? false;
     }
+    /**
+     * Create a `ImportSpecifierImpl` from a `ImportSpecifierStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ImportSpecifierImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3028,6 +3119,10 @@ class IndexSignatureDeclarationImpl extends IndexSignatureDeclarationStructureBa
             target.keyType = source.keyType;
         }
     }
+    /**
+     * Create a `IndexSignatureDeclarationImpl` from a `IndexSignatureDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new IndexSignatureDeclarationImpl();
         this[COPY_FIELDS](source, target);
@@ -3135,6 +3230,10 @@ class InterfaceDeclarationImpl extends InterfaceDeclarationStructureBase {
             target.setAccessors.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.SetAccessor, StructureClassesMap.forceArray(source.setAccessors)));
         }
     }
+    /**
+     * Create a `InterfaceDeclarationImpl` from a `InterfaceDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new _a$4(source.name);
         this[COPY_FIELDS](source, target);
@@ -3188,6 +3287,10 @@ class JSDocImpl extends JSDocStructureBase {
             target.tags.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.JSDocTag, StructureClassesMap.forceArray(source.tags)));
         }
     }
+    /**
+     * Create a `JSDocImpl` from a `JSDocStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new JSDocImpl();
         this[COPY_FIELDS](source, target);
@@ -3228,6 +3331,10 @@ class JSDocTagImpl extends JSDocTagStructureBase {
             target.text = source.text;
         }
     }
+    /**
+     * Create a `JSDocTagImpl` from a `JSDocTagStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new JSDocTagImpl(source.tagName);
         this[COPY_FIELDS](source, target);
@@ -3266,6 +3373,10 @@ class JsxAttributeImpl extends JsxAttributeStructureBase {
         }
         target.name = source.name;
     }
+    /**
+     * Create a `JsxAttributeImpl` from a `JsxAttributeStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new JsxAttributeImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3310,6 +3421,10 @@ class JsxElementImpl extends JsxElementStructureBase {
             target.children.push(...StructureClassesMap.cloneRequiredAndOptionalArray(source.children, StructureKind.JsxSelfClosingElement, StructureKind.JsxElement));
         }
     }
+    /**
+     * Create a `JsxElementImpl` from a `JsxElementStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new JsxElementImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3347,6 +3462,10 @@ class JsxSelfClosingElementImpl extends JsxSelfClosingElementStructureBase {
             target.attributes.push(...StructureClassesMap.cloneRequiredAndOptionalArray(source.attributes, StructureKind.JsxSpreadAttribute, StructureKind.JsxAttribute));
         }
     }
+    /**
+     * Create a `JsxSelfClosingElementImpl` from a `JsxSelfClosingElementStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new JsxSelfClosingElementImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3375,6 +3494,10 @@ class JsxSpreadAttributeImpl extends JsxSpreadAttributeStructureBase {
         super[COPY_FIELDS](source, target);
         target.expression = source.expression;
     }
+    /**
+     * Create a `JsxSpreadAttributeImpl` from a `JsxSpreadAttributeStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new JsxSpreadAttributeImpl(source.expression);
         this[COPY_FIELDS](source, target);
@@ -3422,6 +3545,10 @@ class MethodDeclarationImpl extends MethodDeclarationStructureBase {
             target.overloads.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.MethodOverload, StructureClassesMap.forceArray(source.overloads)));
         }
     }
+    /**
+     * Create a `MethodDeclarationImpl` from a `MethodDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new MethodDeclarationImpl(source.isStatic ?? false, source.name);
         this[COPY_FIELDS](source, target);
@@ -3471,6 +3598,10 @@ class MethodDeclarationOverloadImpl extends MethodDeclarationOverloadStructureBa
         super();
         this.isStatic = isStatic;
     }
+    /**
+     * Create a `MethodDeclarationOverloadImpl` from a `MethodDeclarationOverloadStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new MethodDeclarationOverloadImpl(source.isStatic ?? false);
         this[COPY_FIELDS](source, target);
@@ -3501,6 +3632,10 @@ class MethodSignatureImpl extends MethodSignatureStructureBase {
         super();
         this.name = name;
     }
+    /**
+     * Create a `MethodSignatureImpl` from a `MethodSignatureStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new MethodSignatureImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3542,6 +3677,10 @@ class ModuleDeclarationImpl extends ModuleDeclarationStructureBase {
             target.declarationKind = source.declarationKind;
         }
     }
+    /**
+     * Create a `ModuleDeclarationImpl` from a `ModuleDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ModuleDeclarationImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3585,6 +3724,10 @@ class ParameterDeclarationImpl extends ParameterDeclarationStructureBase {
         super[COPY_FIELDS](source, target);
         target.isRestParameter = source.isRestParameter ?? false;
     }
+    /**
+     * Create a `ParameterDeclarationImpl` from a `ParameterDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ParameterDeclarationImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3614,6 +3757,10 @@ class PropertyAssignmentImpl extends PropertyAssignmentStructureBase {
         super[COPY_FIELDS](source, target);
         target.initializer = source.initializer;
     }
+    /**
+     * Create a `PropertyAssignmentImpl` from a `PropertyAssignmentStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new PropertyAssignmentImpl(source.name, source.initializer);
         this[COPY_FIELDS](source, target);
@@ -3658,6 +3805,10 @@ class PropertyDeclarationImpl extends PropertyDeclarationStructureBase {
         super[COPY_FIELDS](source, target);
         target.hasAccessorKeyword = source.hasAccessorKeyword ?? false;
     }
+    /**
+     * Create a `PropertyDeclarationImpl` from a `PropertyDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new PropertyDeclarationImpl(source.isStatic ?? false, source.name);
         this[COPY_FIELDS](source, target);
@@ -3701,6 +3852,10 @@ class PropertySignatureImpl extends PropertySignatureStructureBase {
         super();
         this.name = name;
     }
+    /**
+     * Create a `PropertySignatureImpl` from a `PropertySignatureStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new PropertySignatureImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3737,6 +3892,10 @@ class SetAccessorDeclarationImpl extends SetAccessorDeclarationStructureBase {
         this.name = name;
         this.parameters.push(setterParameter);
     }
+    /**
+     * Create a `SetAccessorDeclarationImpl` from a `SetAccessorDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const valueParam = new ParameterDeclarationImpl("value");
         const hasSourceParameter = source.parameters && source.parameters.length > 0;
@@ -3765,6 +3924,10 @@ class ShorthandPropertyAssignmentImpl extends ShorthandPropertyAssignmentStructu
         super();
         this.name = name;
     }
+    /**
+     * Create a `ShorthandPropertyAssignmentImpl` from a `ShorthandPropertyAssignmentStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new ShorthandPropertyAssignmentImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3782,6 +3945,10 @@ StructureClassesMap.set(StructureKind.ShorthandPropertyAssignment, ShorthandProp
 const SourceFileStructureBase = MultiMixinBuilder([StatementedNodeStructureMixin, StructureMixin], StructureBase);
 class SourceFileImpl extends SourceFileStructureBase {
     kind = StructureKind.SourceFile;
+    /**
+     * Create a `SourceFileImpl` from a `SourceFileStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new SourceFileImpl();
         this[COPY_FIELDS](source, target);
@@ -3809,6 +3976,10 @@ class SpreadAssignmentImpl extends SpreadAssignmentStructureBase {
         super[COPY_FIELDS](source, target);
         target.expression = source.expression;
     }
+    /**
+     * Create a `SpreadAssignmentImpl` from a `SpreadAssignmentStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new SpreadAssignmentImpl(source.expression);
         this[COPY_FIELDS](source, target);
@@ -3865,6 +4036,10 @@ class TypeAliasDeclarationImpl extends TypeAliasDeclarationStructureBase {
         else
             target.type = source.type;
     }
+    /**
+     * Create a `TypeAliasDeclarationImpl` from a `TypeAliasDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new TypeAliasDeclarationImpl(source.name, source.type);
         this[COPY_FIELDS](source, target);
@@ -3940,6 +4115,10 @@ class TypeParameterDeclarationImpl extends TypeParameterDeclarationStructureBase
             target.variance = source.variance;
         }
     }
+    /**
+     * Create a `TypeParameterDeclarationImpl` from a `TypeParameterDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new TypeParameterDeclarationImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -3994,6 +4173,10 @@ class VariableDeclarationImpl extends VariableDeclarationStructureBase {
         super();
         this.name = name;
     }
+    /**
+     * Create a `VariableDeclarationImpl` from a `VariableDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new VariableDeclarationImpl(source.name);
         this[COPY_FIELDS](source, target);
@@ -4026,6 +4209,10 @@ class VariableStatementImpl extends VariableStatementStructureBase {
         }
         target.declarations.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.VariableDeclaration, StructureClassesMap.forceArray(source.declarations)));
     }
+    /**
+     * Create a `VariableStatementImpl` from a `VariableStatementStructure`.
+     * @param source - The structure to clone.
+     */
     static clone(source) {
         const target = new VariableStatementImpl();
         this[COPY_FIELDS](source, target);
@@ -5646,16 +5833,58 @@ function forEachAugmentedStructureChild(structureOrArray, callback) {
  * ```
  */
 class ImportManager {
+    /** Build an ImportManager from a source file. */
+    static fromSourceFile(absolutePathToModule, sourceFile) {
+        const manager = new ImportManager(absolutePathToModule);
+        for (const statement of sourceFile.statements) {
+            if (typeof statement !== "object")
+                continue;
+            if (statement.kind === StructureKind.ImportDeclaration) {
+                manager.addFromDeclaration(statement);
+            }
+        }
+        return manager;
+    }
     static #compareDeclarations(a, b) {
         return a[0].localeCompare(b[0]);
     }
     static #compareSpecifiers(a, b) {
         return a.name.localeCompare(b.name);
     }
+    static #separateNamedImportDeclByType(decl) {
+        if (decl.isTypeOnly)
+            return [ImportDeclarationImpl.clone(decl)];
+        let foundNonTypedImports = Boolean(decl.defaultImport), foundTypedImports = false;
+        for (const namedImport of decl.namedImports) {
+            if (namedImport.isTypeOnly)
+                foundTypedImports = true;
+            else
+                foundNonTypedImports = true;
+        }
+        if (!foundTypedImports) {
+            return [ImportDeclarationImpl.clone(decl)];
+        }
+        if (!foundNonTypedImports) {
+            decl = ImportDeclarationImpl.clone(decl);
+            decl.isTypeOnly = true;
+            for (const namedImport of decl.namedImports) {
+                namedImport.isTypeOnly = false;
+            }
+            return [decl];
+        }
+        return [
+            ImportDeclarationImpl.clone(decl, "excludeTypes"),
+            ImportDeclarationImpl.clone(decl, "typesOnly"),
+        ];
+    }
     /** Where the file will live on the file system. */
     absolutePathToModule;
+    /** key: pathToImportedModule */
     #declarationsMap = new Map();
+    /** key: an imported field */
     #knownSpecifiersMap = new Map();
+    /** key: an imported field */
+    #importedKeyToDeclMap = new Map();
     /**
      * @param absolutePathToModule - Where the file will live on the file system.
      */
@@ -5663,27 +5892,131 @@ class ImportManager {
         if (!absolutePathToModule.endsWith(".ts")) {
             throw new Error("path to module must end with .ts");
         }
-        if (!path.isAbsolute(absolutePathToModule))
+        if (!path$1.isAbsolute(absolutePathToModule))
             throw new Error("path to module must be absolute");
-        this.absolutePathToModule = path.normalize(absolutePathToModule);
+        this.absolutePathToModule = path$1.normalize(absolutePathToModule);
+    }
+    /** Add imports from an existing import declaration. */
+    addFromDeclaration(declStructure) {
+        if (declStructure.defaultImport &&
+            this.#importedKeyToDeclMap.has(declStructure.defaultImport))
+            throw new Error(`default import "${declStructure.defaultImport}" is already in the manager`);
+        const alreadyDefinedNames = [];
+        if (typeof declStructure.namedImports === "object") {
+            for (let specifier of declStructure.namedImports) {
+                if (typeof specifier === "function")
+                    throw new Error("writer functions not supported in declStructure.namedImports");
+                if (typeof specifier === "object") {
+                    if (specifier.alias) {
+                        // FIXME: there's no real reason we can't support them.
+                        throw new Error("aliases not supported");
+                    }
+                    specifier = specifier.name;
+                }
+                if (this.#importedKeyToDeclMap.has(specifier)) {
+                    alreadyDefinedNames.push(specifier);
+                }
+            }
+        }
+        else if (declStructure.namedImports !== undefined) {
+            throw new Error("writer functions for named imports not supported");
+        }
+        if (alreadyDefinedNames.length > 0) {
+            throw new Error("These names are already in the manager: " +
+                JSON.stringify(alreadyDefinedNames));
+        }
+        const isPackageImport = !/^\.\.?\//.test(declStructure.moduleSpecifier);
+        let { moduleSpecifier } = declStructure;
+        if (!isPackageImport) {
+            moduleSpecifier = path$1.normalize(path$1.join(this.absolutePathToModule, "..", moduleSpecifier));
+        }
+        if (declStructure.defaultImport) {
+            this.#addImports({
+                pathToImportedModule: moduleSpecifier,
+                isPackageImport,
+                importNames: [declStructure.defaultImport],
+                isDefaultImport: true,
+                isTypeOnly: false,
+            });
+        }
+        const nonTypesContext = {
+            pathToImportedModule: moduleSpecifier,
+            isPackageImport,
+            importNames: [],
+            isDefaultImport: false,
+            isTypeOnly: false,
+        };
+        const typesContext = {
+            pathToImportedModule: moduleSpecifier,
+            isPackageImport,
+            importNames: [],
+            isDefaultImport: false,
+            isTypeOnly: true,
+        };
+        if (declStructure.namedImports) {
+            for (const specifierRaw of declStructure.namedImports) {
+                let specifier = specifierRaw;
+                let contextToUse = nonTypesContext;
+                if (typeof specifier === "object" && specifier.isTypeOnly) {
+                    contextToUse = typesContext;
+                }
+                if (typeof specifier === "object")
+                    specifier = specifier.name;
+                contextToUse.importNames.push(specifier);
+            }
+        }
+        if (declStructure.isTypeOnly)
+            nonTypesContext.isTypeOnly = true;
+        if (nonTypesContext.importNames.length > 0) {
+            this.#addImports(nonTypesContext);
+        }
+        if (typesContext.importNames.length > 0) {
+            this.#addImports(typesContext);
+        }
     }
     /**
      * @param context - a description of the imports to add.
      */
     addImports(context) {
-        const { isPackageImport, isDefaultImport, isTypeOnly, importNames } = context;
+        const { isPackageImport, isDefaultImport, importNames } = context;
         let { pathToImportedModule } = context;
+        pathToImportedModule = path$1.normalize(pathToImportedModule.replace(/(\.d)?\.(m?)ts$/, ".$2js"));
         if (!isPackageImport) {
-            if (!pathToImportedModule.endsWith(".ts")) {
-                throw new Error("path to module must end with .ts, or use isPackageImport: true to specify package import");
-            }
-            if (!isPackageImport && !path.isAbsolute(pathToImportedModule)) {
+            if (!path$1.isAbsolute(pathToImportedModule)) {
                 throw new Error("path to module must be absolute, or use isPackageImport: true to specify package import");
             }
+            pathToImportedModule = path$1.relative(path$1.dirname(this.absolutePathToModule), pathToImportedModule);
+            if (!pathToImportedModule.startsWith("../"))
+                pathToImportedModule = "./" + pathToImportedModule;
         }
-        pathToImportedModule = path.normalize(pathToImportedModule.replace(/(\.d)?\.(m?)ts$/, ".$2js"));
+        const alreadyDefined = [];
+        for (const name of context.importNames) {
+            const decl = this.#importedKeyToDeclMap.get(name);
+            if (decl && decl.moduleSpecifier !== pathToImportedModule) {
+                alreadyDefined.push([name, decl.moduleSpecifier]);
+            }
+        }
+        if (alreadyDefined.length) {
+            throw new Error(`These names are already in the manager in other declarations: ${JSON.stringify(alreadyDefined)}, for pathToImportedModule "${pathToImportedModule}"`);
+        }
+        if (isDefaultImport) {
+            const importDecl = this.#declarationsMap.get(pathToImportedModule);
+            if (importDecl?.defaultImport) {
+                throw new Error("You already have a default import.");
+            }
+            if (importNames.length !== 1) {
+                throw new Error("There must be one import name for a default import!");
+            }
+        }
+        this.#addImports(context);
+    }
+    // If you've reached this, we should've passed all error handling.
+    #addImports(context) {
+        const { isPackageImport, isDefaultImport, isTypeOnly, importNames } = context;
+        let { pathToImportedModule } = context;
+        pathToImportedModule = path$1.normalize(pathToImportedModule.replace(/(\.d)?\.(m?)ts$/, ".$2js"));
         if (!isPackageImport) {
-            pathToImportedModule = path.relative(path.dirname(this.absolutePathToModule), pathToImportedModule);
+            pathToImportedModule = path$1.relative(path$1.dirname(this.absolutePathToModule), pathToImportedModule);
             if (!pathToImportedModule.startsWith("../"))
                 pathToImportedModule = "./" + pathToImportedModule;
         }
@@ -5694,12 +6027,6 @@ class ImportManager {
             this.#declarationsMap.set(pathToImportedModule, importDecl);
         }
         if (isDefaultImport) {
-            if (importDecl.defaultImport) {
-                throw new Error("You already have a default import.");
-            }
-            if (importNames.length !== 1) {
-                throw new Error("There must be one import name for a default import!");
-            }
             this.#moveTypeOnlyToSpecifiers(importDecl);
             importDecl.defaultImport = importNames[0];
         }
@@ -5721,6 +6048,9 @@ class ImportManager {
                 this.#knownSpecifiersMap.set(nameToImport, specifier);
             }
         }
+        for (const name of context.importNames) {
+            this.#importedKeyToDeclMap.set(name, importDecl);
+        }
     }
     #moveTypeOnlyToSpecifiers(importDecl) {
         if (!importDecl.isTypeOnly)
@@ -5730,14 +6060,79 @@ class ImportManager {
         });
         importDecl.isTypeOnly = false;
     }
+    /**
+     * Get a map of all imported names.  Each key will have its own metadata,
+     * which excludes information about other names.
+     */
+    getAllNamesMap() {
+        const entries = [];
+        for (const key of this.#importedKeyToDeclMap.keys()) {
+            entries.push([key, this.getNameContext(key)]);
+        }
+        return new Map(entries);
+    }
     /** Get the import declarations, sorted by path to file, then internally by specified import values. */
-    getDeclarations() {
+    getDeclarations(separateTypeOnlyDeclarations = false) {
         const entries = Array.from(this.#declarationsMap);
         entries.sort(ImportManager.#compareDeclarations);
-        return entries.map((entry) => {
-            entry[1].namedImports.sort(ImportManager.#compareSpecifiers);
-            return entry[1];
+        let decls = entries.map((entry) => entry[1]);
+        decls.forEach((decl) => {
+            decl.namedImports.sort(ImportManager.#compareSpecifiers);
         });
+        if (separateTypeOnlyDeclarations) {
+            decls = decls.map(ImportManager.#separateNamedImportDeclByType).flat();
+        }
+        return decls;
+    }
+    /** Get contextual information about an existing name. */
+    getNameContext(name) {
+        const decl = this.#importedKeyToDeclMap.get(name);
+        if (!decl)
+            return undefined;
+        const isPackageImport = !/^\.\.?\//.test(decl.moduleSpecifier);
+        if (decl.defaultImport === name) {
+            return {
+                pathToImportedModule: decl.moduleSpecifier,
+                isPackageImport,
+                importNames: [name],
+                isDefaultImport: true,
+                isTypeOnly: false,
+            };
+        }
+        const specifier = this.#knownSpecifiersMap.get(name);
+        return {
+            pathToImportedModule: decl.moduleSpecifier,
+            isPackageImport,
+            importNames: [name],
+            isDefaultImport: false,
+            isTypeOnly: specifier.isTypeOnly,
+        };
+    }
+    /**
+     * Remove a key from its import declaration.
+     *
+     * @returns `true` if this deleted a key, `false` otherwise.
+     */
+    removeImportName(name) {
+        const decl = this.#importedKeyToDeclMap.get(name);
+        if (!decl)
+            return false;
+        if (decl.defaultImport === name) {
+            decl.defaultImport = undefined;
+        }
+        else {
+            const specifier = this.#knownSpecifiersMap.get(name);
+            const index = decl.namedImports.indexOf(specifier);
+            if (index === -1)
+                return false;
+            decl.namedImports.splice(index, 1);
+        }
+        this.#knownSpecifiersMap.delete(name);
+        this.#importedKeyToDeclMap.delete(name);
+        if (decl.defaultImport === undefined && decl.namedImports.length === 0) {
+            this.#declarationsMap.delete(decl.moduleSpecifier);
+        }
+        return true;
     }
 }
 

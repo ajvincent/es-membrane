@@ -52,6 +52,10 @@ export default class CallSignatureDeclarationImpl
 {
   readonly kind: StructureKind.CallSignature = StructureKind.CallSignature;
 
+  /**
+   * Create a `CallSignatureDeclarationImpl` from a `CallSignatureDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<CallSignatureDeclarationStructure>,
   ): CallSignatureDeclarationImpl {

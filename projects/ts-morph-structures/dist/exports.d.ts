@@ -982,269 +982,6 @@ declare function forEachAugmentedStructureChild<TStructure>(
   callback: (child: StructureImpls | TypeStructures) => TStructure | void,
 ): TStructure | undefined;
 
-/**
- * This manages import declarations and specifiers, for including in a source file.
- *
- * @example
- * ```typescript
- * importsManager.addImports({
- *   pathToImportedModule: "ts-morph",
- *   isPackageImport: true,
- *   importNames: ["Structure", "StructureKind"],
- *   isDefaultImport: false,
- *   isTypeOnly: true
- * });
- * // ...
- * sourceFile.statements.unshift(...importsManager.getDeclarations());
- * ```
- */
-declare class ImportManager {
-  #private;
-  /** Where the file will live on the file system. */
-  readonly absolutePathToModule: string;
-  /** @param absolutePathToModule - Where the file will live on the file system. */
-  constructor(absolutePathToModule: string);
-  /** @param context - a description of the imports to add. */
-  addImports(context: AddImportContext): void;
-  /** Get the import declarations, sorted by path to file, then internally by specified import values. */
-  getDeclarations(): ImportDeclarationImpl[];
-}
-
-interface InsertedMemberKey {
-  readonly isFieldStatic: boolean;
-  readonly fieldType:
-    | PropertySignatureImpl
-    | GetAccessorDeclarationImpl
-    | SetAccessorDeclarationImpl;
-  readonly isGroupStatic: boolean;
-  readonly groupType:
-    | GetAccessorDeclarationImpl
-    | SetAccessorDeclarationImpl
-    | MethodSignatureImpl
-    | "constructor"
-    | "(initializer or property reference)";
-}
-
-/**
- * Bitwise flags to enable statement getter traps.
- */
-declare enum ClassSupportsStatementsFlags {
-  /** The initial value of a property. */
-  PropertyInitializer = 1,
-  /** Values for a class getter or class setter to mirror. */
-  AccessorMirror = 2,
-  /** Statements starting a statement purpose block. */
-  HeadStatements = 4,
-  /** Statements in a purpose block for a given property and class member. */
-  BodyStatements = 8,
-  /** Statements closing a statement purpose block. */
-  TailStatements = 16,
-  /** Statements starting a statement purpose block for the constructor. */
-  ConstructorHeadStatements = 32,
-  /** Statements in a purpose block for a given property on the constructor. */
-  ConstructorBodyStatements = 64,
-  /** Statements closing a statement purpose block for the constructor. */
-  ConstructorTailStatements = 128,
-}
-
-/** Convert type members to a class members map, including statements. */
-declare class MemberedTypeToClass {
-  #private;
-  /** The class constructor's current parameters list. */
-  get constructorParameters(): ParameterDeclarationImpl[];
-  /**
-   * An interface to get names which match an index signature's key name.
-   */
-  get indexSignatureResolver(): IndexSignatureResolver | undefined;
-  set indexSignatureResolver(value: IndexSignatureResolver | undefined);
-  get isAbstractCallback(): ClassAbstractMemberQuestion | undefined;
-  set isAbstractCallback(value: ClassAbstractMemberQuestion | undefined);
-  get isAsyncCallback(): ClassAsyncMethodQuestion | undefined;
-  set isAsyncCallback(value: ClassAsyncMethodQuestion | undefined);
-  get isGeneratorCallback(): ClassGeneratorMethodQuestion | undefined;
-  set isGeneratorCallback(value: ClassGeneratorMethodQuestion | undefined);
-  get scopeCallback(): ClassScopeMemberQuestion | undefined;
-  set scopeCallback(value: ClassScopeMemberQuestion | undefined);
-  /**
-   * Get the current type members in our cache.
-   *
-   * @internal This is for debugging and testing purposes only.
-   */
-  getCurrentTypeMembers(isStatic: boolean): readonly TypeMemberImpl[];
-  /**
-   * Define a class member for a given type member (constructor, property, method, getter, setter).
-   * @param isStatic - true if the class member is static.
-   * @param member - the type member to convert to a class member.
-   */
-  addTypeMember(isStatic: boolean, member: TypeMemberImpl): void;
-  /**
-   * Define class members for a map of given type members (constructor, property, method, getter, setter).
-   * @param isStatic - true if the class members are static.
-   * @param membersMap - the type members map for conversion to class members.
-   */
-  importFromTypeMembersMap(isStatic: boolean, membersMap: TypeMembersMap): void;
-  /**
-   * Define class members for a membered object type or interface.
-   * @param isStatic - true if the class members are static.
-   * @param membered - the interface or membered object type.
-   */
-  importFromMemberedType(
-    isStatic: boolean,
-    membered: InterfaceDeclarationImpl | MemberedObjectTypeStructureImpl,
-  ): void;
-  /**
-   * Convert cached type members to a ClassMembersMap, complete with statements.
-   */
-  buildClassMembersMap(): ClassMembersMap;
-  /**
-   * Define a statement purpose group for the target class.
-   *
-   * @param purposeKey - The purpose of the statmeent group (validation, preconditions, body, postconditions, etc.)
-   * @param isBlockStatement - true if the statement block should be enclosed in curly braces.
-   * @param regionName - an optional #region / #endregion comment name.
-   *
-   * Call this in the order of statement purpose groups you intend.
-   */
-  defineStatementsByPurpose(
-    purposeKey: string,
-    isBlockStatement: boolean,
-    regionName?: string,
-  ): void;
-  /**
-   * Add statement getters to this.
-   *
-   * @param priority - a number indicating the priority of the getters (lower numbers beat higher numbers).
-   * @param statementGetters - the statement getters to insert.
-   */
-  addStatementGetters(
-    priority: number,
-    statementGetters: readonly ClassStatementsGetter[],
-  ): void;
-  /**
-   * Add member keys for a field and a group.
-   * @param isFieldStatic - true if the field is static.
-   * @param fieldType - the field signature.
-   * @param isGroupStatic - true if the group is static (false for constructors)
-   * @param groupType - the group signature, or "constructor" for the constructor I generate.
-   */
-  insertMemberKey(
-    isFieldStatic: boolean,
-    fieldType:
-      | PropertySignatureImpl
-      | GetAccessorDeclarationImpl
-      | SetAccessorDeclarationImpl,
-    isGroupStatic: boolean,
-    groupType: InsertedMemberKey["groupType"],
-  ): void;
-}
-
-/**
- * A map for members of `InterfaceDeclarationImpl` and `MemberedObjectTypeStructureImpl`.  This
- * doesn't replace the structures, rather it _feeds_ them.
- *
- * @example
- *
- * const map = new TypeMembersMap;
- * const foo = new PropertySignatureImpl(false, "foo");
- * map.addMembers([foo]);
- * // ...
- * const interfaceDecl = new InterfaceDeclarationImpl("FooInterface");
- * map.moveMembersToType(interfaceDecl);
- * // interfaceDecl.properties === [foo];
- */
-declare class TypeMembersMap extends OrderedMap<string, TypeMemberImpl> {
-  #private;
-  /**
-   * Get a map key from a potential type member.
-   * @param member - the type member
-   */
-  static keyFromMember(member: TypeMemberImpl): string;
-  /**
-   * @param kind - the structure kind.
-   * @param name - the name of the type member.
-   * @returns the map key to use.
-   */
-  static keyFromName(kind: NamedTypeMemberImpl["kind"], name: string): string;
-  /**
-   * Create a `TypeMembersMap` from an interface or membered object.
-   * @param membered - the membered object.
-   * @returns the type members map.
-   */
-  static fromMemberedObject(
-    membered: InterfaceDeclarationImpl | MemberedObjectTypeStructureImpl,
-  ): TypeMembersMap;
-  /**
-   * Add type members as values of this map, using standard keys.
-   *
-   * @param members - the type members to add.
-   */
-  addMembers(members: readonly TypeMemberImpl[]): void;
-  /**
-   * Get type members of a particular kind.
-   *
-   * @param kind - the structure kind to get.
-   * @returns all current members of that kind.
-   */
-  arrayOfKind<Kind extends TypeMemberImpl["kind"]>(
-    kind: Kind,
-  ): readonly Extract<TypeMemberImpl, KindedStructure<Kind>>[];
-  /** Get a clone of this map. */
-  clone(): TypeMembersMap;
-  /**
-   * Convert get and/or set accessors to a property.  This may be lossy, but we try to be faithful.
-   * @param name - the property name
-   */
-  convertAccessorsToProperty(name: string): void;
-  /**
-   * Convert a property signature to get and/or set accessors.  This may be lossy, but we try to be faithful.
-   * @param name - the property name
-   * @param toGetter - true if the caller wants a getter
-   * @param toSetter - true if the caller wants a setter
-   */
-  convertPropertyToAccessors(
-    name: string,
-    toGetter: boolean,
-    toSetter: boolean,
-  ): void;
-  /**
-   * A typed call to `this.get()` for a given kind.
-   * @param kind - the structure kind.
-   * @param name - the key to get.
-   * @returns - the type member, as the right type, or undefined if the wrong type.
-   * @see `TypeMembersMap::keyFromName`
-   */
-  getAsKind<Kind extends NamedTypeMemberImpl["kind"]>(
-    kind: Kind,
-    name: string,
-  ): Extract<TypeMemberImpl, KindedStructure<Kind>> | undefined;
-  /**
-   * Move type members from this map to an interface or type literal, and clear this map.
-   *
-   * @param owner - the target interface or type literal declaration.
-   */
-  moveMembersToType(
-    owner: InterfaceDeclarationImpl | MemberedObjectTypeStructureImpl,
-  ): void;
-  /**
-   * Replace an index signature with other methods/properties matching the signature's return type.
-   *
-   * It is up to you to ensure the names match the key type of the index signature.
-   *
-   * @param signature - the signature (which must be a member of this) to resolve.
-   * @param names - the names to replace the signature's key with.
-   */
-  resolveIndexSignature(
-    signature: IndexSignatureDeclarationImpl,
-    names: string[],
-  ): MethodSignatureImpl[] | PropertySignatureImpl[];
-  toJSON(): readonly TypeMemberImpl[];
-}
-
-type ReadonlyTypeMembersMap = Simplify<
-  ReadonlyMap<string, TypeMemberImpl> &
-    Pick<TypeMembersMap, "arrayOfKind" | "clone" | "getAsKind">
->;
-
 /** A description of the exports to add. */
 interface AddExportContext {
   /** This could be an absolute path, or a package import like "ts-morph-structures". */
@@ -1534,6 +1271,290 @@ interface ClassStatementsGetter
   supportsStatementsFlags: readonly number;
 }
 
+/**
+ * This manages import declarations and specifiers, for including in a source file.
+ *
+ * @example
+ * ```typescript
+ * importsManager.addImports({
+ *   pathToImportedModule: "ts-morph",
+ *   isPackageImport: true,
+ *   importNames: ["Structure", "StructureKind"],
+ *   isDefaultImport: false,
+ *   isTypeOnly: true
+ * });
+ * // ...
+ * sourceFile.statements.unshift(...importsManager.getDeclarations());
+ * ```
+ */
+declare class ImportManager {
+  #private;
+  /** Where the file will live on the file system. */
+  readonly absolutePathToModule: string;
+  /** @param absolutePathToModule - Where the file will live on the file system. */
+  constructor(absolutePathToModule: string);
+  /** Build an ImportManager from a source file. */
+  static fromSourceFile(
+    absolutePathToModule: string,
+    sourceFile: SourceFileImpl,
+  ): ImportManager;
+  /** Add imports from an existing import declaration. */
+  addFromDeclaration(declStructure: ImportDeclarationStructure): void;
+  /** @param context - a description of the imports to add. */
+  addImports(context: AddImportContext): void;
+  /**
+   * Get a map of all imported names.  Each key will have its own metadata,
+   * which excludes information about other names.
+   */
+  getAllNamesMap(): ReadonlyMap<string, AddImportContext>;
+  /** Get the import declarations, sorted by path to file, then internally by specified import values. */
+  getDeclarations(
+    separateTypeOnlyDeclarations?: boolean,
+  ): ImportDeclarationImpl[];
+  /** Get contextual information about an existing name. */
+  getNameContext(name: string): AddImportContext | undefined;
+  /**
+   * Remove a key from its import declaration.
+   *
+   * @returns `true` if this deleted a key, `false` otherwise.
+   */
+  removeImportName(name: string): boolean;
+}
+
+interface InsertedMemberKey {
+  readonly isFieldStatic: boolean;
+  readonly fieldType:
+    | PropertySignatureImpl
+    | GetAccessorDeclarationImpl
+    | SetAccessorDeclarationImpl;
+  readonly isGroupStatic: boolean;
+  readonly groupType:
+    | GetAccessorDeclarationImpl
+    | SetAccessorDeclarationImpl
+    | MethodSignatureImpl
+    | "constructor"
+    | "(initializer or property reference)";
+}
+
+/**
+ * Bitwise flags to enable statement getter traps.
+ */
+declare enum ClassSupportsStatementsFlags {
+  /** The initial value of a property. */
+  PropertyInitializer = 1,
+  /** Values for a class getter or class setter to mirror. */
+  AccessorMirror = 2,
+  /** Statements starting a statement purpose block. */
+  HeadStatements = 4,
+  /** Statements in a purpose block for a given property and class member. */
+  BodyStatements = 8,
+  /** Statements closing a statement purpose block. */
+  TailStatements = 16,
+  /** Statements starting a statement purpose block for the constructor. */
+  ConstructorHeadStatements = 32,
+  /** Statements in a purpose block for a given property on the constructor. */
+  ConstructorBodyStatements = 64,
+  /** Statements closing a statement purpose block for the constructor. */
+  ConstructorTailStatements = 128,
+}
+
+/** Convert type members to a class members map, including statements. */
+declare class MemberedTypeToClass {
+  #private;
+  /** The class constructor's current parameters list. */
+  get constructorParameters(): ParameterDeclarationImpl[];
+  /**
+   * An interface to get names which match an index signature's key name.
+   */
+  get indexSignatureResolver(): IndexSignatureResolver | undefined;
+  set indexSignatureResolver(value: IndexSignatureResolver | undefined);
+  get isAbstractCallback(): ClassAbstractMemberQuestion | undefined;
+  set isAbstractCallback(value: ClassAbstractMemberQuestion | undefined);
+  get isAsyncCallback(): ClassAsyncMethodQuestion | undefined;
+  set isAsyncCallback(value: ClassAsyncMethodQuestion | undefined);
+  get isGeneratorCallback(): ClassGeneratorMethodQuestion | undefined;
+  set isGeneratorCallback(value: ClassGeneratorMethodQuestion | undefined);
+  get scopeCallback(): ClassScopeMemberQuestion | undefined;
+  set scopeCallback(value: ClassScopeMemberQuestion | undefined);
+  /**
+   * Get the current type members in our cache.
+   *
+   * @internal This is for debugging and testing purposes only.
+   */
+  getCurrentTypeMembers(isStatic: boolean): readonly TypeMemberImpl[];
+  /**
+   * Define a class member for a given type member (constructor, property, method, getter, setter).
+   * @param isStatic - true if the class member is static.
+   * @param member - the type member to convert to a class member.
+   */
+  addTypeMember(isStatic: boolean, member: TypeMemberImpl): void;
+  /**
+   * Define class members for a map of given type members (constructor, property, method, getter, setter).
+   * @param isStatic - true if the class members are static.
+   * @param membersMap - the type members map for conversion to class members.
+   */
+  importFromTypeMembersMap(isStatic: boolean, membersMap: TypeMembersMap): void;
+  /**
+   * Define class members for a membered object type or interface.
+   * @param isStatic - true if the class members are static.
+   * @param membered - the interface or membered object type.
+   */
+  importFromMemberedType(
+    isStatic: boolean,
+    membered: InterfaceDeclarationImpl | MemberedObjectTypeStructureImpl,
+  ): void;
+  /**
+   * Convert cached type members to a ClassMembersMap, complete with statements.
+   */
+  buildClassMembersMap(): ClassMembersMap;
+  /**
+   * Define a statement purpose group for the target class.
+   *
+   * @param purposeKey - The purpose of the statmeent group (validation, preconditions, body, postconditions, etc.)
+   * @param isBlockStatement - true if the statement block should be enclosed in curly braces.
+   * @param regionName - an optional #region / #endregion comment name.
+   *
+   * Call this in the order of statement purpose groups you intend.
+   */
+  defineStatementsByPurpose(
+    purposeKey: string,
+    isBlockStatement: boolean,
+    regionName?: string,
+  ): void;
+  /**
+   * Add statement getters to this.
+   *
+   * @param priority - a number indicating the priority of the getters (lower numbers beat higher numbers).
+   * @param statementGetters - the statement getters to insert.
+   */
+  addStatementGetters(
+    priority: number,
+    statementGetters: readonly ClassStatementsGetter[],
+  ): void;
+  /**
+   * Add member keys for a field and a group.
+   * @param isFieldStatic - true if the field is static.
+   * @param fieldType - the field signature.
+   * @param isGroupStatic - true if the group is static (false for constructors)
+   * @param groupType - the group signature, or "constructor" for the constructor I generate.
+   */
+  insertMemberKey(
+    isFieldStatic: boolean,
+    fieldType:
+      | PropertySignatureImpl
+      | GetAccessorDeclarationImpl
+      | SetAccessorDeclarationImpl,
+    isGroupStatic: boolean,
+    groupType: InsertedMemberKey["groupType"],
+  ): void;
+}
+
+/**
+ * A map for members of `InterfaceDeclarationImpl` and `MemberedObjectTypeStructureImpl`.  This
+ * doesn't replace the structures, rather it _feeds_ them.
+ *
+ * @example
+ *
+ * const map = new TypeMembersMap;
+ * const foo = new PropertySignatureImpl(false, "foo");
+ * map.addMembers([foo]);
+ * // ...
+ * const interfaceDecl = new InterfaceDeclarationImpl("FooInterface");
+ * map.moveMembersToType(interfaceDecl);
+ * // interfaceDecl.properties === [foo];
+ */
+declare class TypeMembersMap extends OrderedMap<string, TypeMemberImpl> {
+  #private;
+  /**
+   * Get a map key from a potential type member.
+   * @param member - the type member
+   */
+  static keyFromMember(member: TypeMemberImpl): string;
+  /**
+   * @param kind - the structure kind.
+   * @param name - the name of the type member.
+   * @returns the map key to use.
+   */
+  static keyFromName(kind: NamedTypeMemberImpl["kind"], name: string): string;
+  /**
+   * Create a `TypeMembersMap` from an interface or membered object.
+   * @param membered - the membered object.
+   * @returns the type members map.
+   */
+  static fromMemberedObject(
+    membered: InterfaceDeclarationImpl | MemberedObjectTypeStructureImpl,
+  ): TypeMembersMap;
+  /**
+   * Add type members as values of this map, using standard keys.
+   *
+   * @param members - the type members to add.
+   */
+  addMembers(members: readonly TypeMemberImpl[]): void;
+  /**
+   * Get type members of a particular kind.
+   *
+   * @param kind - the structure kind to get.
+   * @returns all current members of that kind.
+   */
+  arrayOfKind<Kind extends TypeMemberImpl["kind"]>(
+    kind: Kind,
+  ): readonly Extract<TypeMemberImpl, KindedStructure<Kind>>[];
+  /** Get a clone of this map. */
+  clone(): TypeMembersMap;
+  /**
+   * Convert get and/or set accessors to a property.  This may be lossy, but we try to be faithful.
+   * @param name - the property name
+   */
+  convertAccessorsToProperty(name: string): void;
+  /**
+   * Convert a property signature to get and/or set accessors.  This may be lossy, but we try to be faithful.
+   * @param name - the property name
+   * @param toGetter - true if the caller wants a getter
+   * @param toSetter - true if the caller wants a setter
+   */
+  convertPropertyToAccessors(
+    name: string,
+    toGetter: boolean,
+    toSetter: boolean,
+  ): void;
+  /**
+   * A typed call to `this.get()` for a given kind.
+   * @param kind - the structure kind.
+   * @param name - the key to get.
+   * @returns - the type member, as the right type, or undefined if the wrong type.
+   * @see `TypeMembersMap::keyFromName`
+   */
+  getAsKind<Kind extends NamedTypeMemberImpl["kind"]>(
+    kind: Kind,
+    name: string,
+  ): Extract<TypeMemberImpl, KindedStructure<Kind>> | undefined;
+  /**
+   * Move type members from this map to an interface or type literal, and clear this map.
+   *
+   * @param owner - the target interface or type literal declaration.
+   */
+  moveMembersToType(
+    owner: InterfaceDeclarationImpl | MemberedObjectTypeStructureImpl,
+  ): void;
+  /**
+   * Replace an index signature with other methods/properties matching the signature's return type.
+   *
+   * It is up to you to ensure the names match the key type of the index signature.
+   *
+   * @param signature - the signature (which must be a member of this) to resolve.
+   * @param names - the names to replace the signature's key with.
+   */
+  resolveIndexSignature(
+    signature: IndexSignatureDeclarationImpl,
+    names: string[],
+  ): MethodSignatureImpl[] | PropertySignatureImpl[];
+  toJSON(): readonly TypeMemberImpl[];
+}
+
+type ReadonlyTypeMembersMap = Simplify<
+  ReadonlyMap<string, TypeMemberImpl> &
+    Pick<TypeMembersMap, "arrayOfKind" | "clone" | "getAsKind">
+>;
 type stringOrWriterFunction = string | WriterFunction;
 type ClassMemberStructureImpls =
   | ClassStaticBlockDeclarationImpl
@@ -1640,6 +1661,10 @@ declare class CallSignatureDeclarationImpl
   implements CallSignatureDeclarationStructureClassIfc
 {
   readonly kind: StructureKind.CallSignature;
+  /**
+   * Create a `CallSignatureDeclarationImpl` from a `CallSignatureDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<CallSignatureDeclarationStructure>,
   ): CallSignatureDeclarationImpl;
@@ -1687,6 +1712,10 @@ declare class ClassDeclarationImpl
     source: OptionalKind<ClassDeclarationStructure>,
     target: ClassDeclarationImpl,
   ): void;
+  /**
+   * Create a `ClassDeclarationImpl` from a `ClassDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ClassDeclarationStructure>,
   ): ClassDeclarationImpl;
@@ -1713,6 +1742,10 @@ declare class ClassStaticBlockDeclarationImpl
   implements ClassStaticBlockDeclarationStructureClassIfc
 {
   readonly kind: StructureKind.ClassStaticBlock;
+  /**
+   * Create a `ClassStaticBlockDeclarationImpl` from a `ClassStaticBlockDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ClassStaticBlockDeclarationStructure>,
   ): ClassStaticBlockDeclarationImpl;
@@ -1746,6 +1779,10 @@ declare class ConstructorDeclarationImpl
     source: OptionalKind<ConstructorDeclarationStructure>,
     target: ConstructorDeclarationImpl,
   ): void;
+  /**
+   * Create a `ConstructorDeclarationImpl` from a `ConstructorDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ConstructorDeclarationStructure>,
   ): ConstructorDeclarationImpl;
@@ -1775,6 +1812,10 @@ declare class ConstructorDeclarationOverloadImpl
   implements ConstructorDeclarationOverloadStructureClassIfc
 {
   readonly kind: StructureKind.ConstructorOverload;
+  /**
+   * Create a `ConstructorDeclarationOverloadImpl` from a `ConstructorDeclarationOverloadStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ConstructorDeclarationOverloadStructure>,
   ): ConstructorDeclarationOverloadImpl;
@@ -1800,6 +1841,10 @@ declare class ConstructSignatureDeclarationImpl
   implements ConstructSignatureDeclarationStructureClassIfc
 {
   readonly kind: StructureKind.ConstructSignature;
+  /**
+   * Create a `ConstructSignatureDeclarationImpl` from a `ConstructSignatureDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ConstructSignatureDeclarationStructure>,
   ): ConstructSignatureDeclarationImpl;
@@ -1833,6 +1878,10 @@ declare class DecoratorImpl
     source: OptionalKind<DecoratorStructure>,
     target: DecoratorImpl,
   ): void;
+  /**
+   * Create a `DecoratorImpl` from a `DecoratorStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(source: OptionalKind<DecoratorStructure>): DecoratorImpl;
   toJSON(): StructureClassToJSON<DecoratorImpl>;
 }
@@ -1864,6 +1913,10 @@ declare class EnumDeclarationImpl
     source: OptionalKind<EnumDeclarationStructure>,
     target: EnumDeclarationImpl,
   ): void;
+  /**
+   * Create a `EnumDeclarationImpl` from a `EnumDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<EnumDeclarationStructure>,
   ): EnumDeclarationImpl;
@@ -1895,6 +1948,10 @@ declare class EnumMemberImpl
     source: OptionalKind<EnumMemberStructure>,
     target: EnumMemberImpl,
   ): void;
+  /**
+   * Create a `EnumMemberImpl` from a `EnumMemberStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(source: OptionalKind<EnumMemberStructure>): EnumMemberImpl;
   toJSON(): StructureClassToJSON<EnumMemberImpl>;
 }
@@ -1922,6 +1979,10 @@ declare class ExportAssignmentImpl
     source: OptionalKind<ExportAssignmentStructure>,
     target: ExportAssignmentImpl,
   ): void;
+  /**
+   * Create a `ExportAssignmentImpl` from a `ExportAssignmentStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ExportAssignmentStructure>,
   ): ExportAssignmentImpl;
@@ -1952,6 +2013,10 @@ declare class ExportDeclarationImpl
     source: OptionalKind<ExportDeclarationStructure>,
     target: ExportDeclarationImpl,
   ): void;
+  /**
+   * Create a `ExportDeclarationImpl` from a `ExportDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ExportDeclarationStructure>,
   ): ExportDeclarationImpl;
@@ -1981,6 +2046,10 @@ declare class ExportSpecifierImpl
     source: OptionalKind<ExportSpecifierStructure>,
     target: ExportSpecifierImpl,
   ): void;
+  /**
+   * Create a `ExportSpecifierImpl` from a `ExportSpecifierStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ExportSpecifierStructure>,
   ): ExportSpecifierImpl;
@@ -2019,6 +2088,10 @@ declare class FunctionDeclarationImpl
     source: OptionalKind<FunctionDeclarationStructure>,
     target: FunctionDeclarationImpl,
   ): void;
+  /**
+   * Create a `FunctionDeclarationImpl` from a `FunctionDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<FunctionDeclarationStructure>,
   ): FunctionDeclarationImpl;
@@ -2049,6 +2122,10 @@ declare class FunctionDeclarationOverloadImpl
   implements FunctionDeclarationOverloadStructureClassIfc
 {
   readonly kind: StructureKind.FunctionOverload;
+  /**
+   * Create a `FunctionDeclarationOverloadImpl` from a `FunctionDeclarationOverloadStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<FunctionDeclarationOverloadStructure>,
   ): FunctionDeclarationOverloadImpl;
@@ -2081,6 +2158,10 @@ declare class GetAccessorDeclarationImpl
   readonly kind: StructureKind.GetAccessor;
   isStatic: boolean;
   constructor(isStatic: boolean, name: string, returnType?: TypeStructures);
+  /**
+   * Create a `GetAccessorDeclarationImpl` from a `GetAccessorDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<GetAccessorDeclarationStructure>,
   ): GetAccessorDeclarationImpl;
@@ -2110,6 +2191,10 @@ declare class ImportAttributeImpl
     source: OptionalKind<ImportAttributeStructure>,
     target: ImportAttributeImpl,
   ): void;
+  /**
+   * Create a `ImportAttributeImpl` from a `ImportAttributeStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ImportAttributeStructure>,
   ): ImportAttributeImpl;
@@ -2129,6 +2214,7 @@ declare class ImportDeclarationImpl
   extends ImportDeclarationStructureBase
   implements ImportDeclarationStructureClassIfc
 {
+  #private;
   readonly kind: StructureKind.ImportDeclaration;
   attributes?: ImportAttributeImpl[];
   defaultImport?: string;
@@ -2142,8 +2228,14 @@ declare class ImportDeclarationImpl
     source: OptionalKind<ImportDeclarationStructure>,
     target: ImportDeclarationImpl,
   ): void;
+  /**
+   * Create a `ImportDeclarationImpl` from a `ImportDeclarationStructure`.
+   * @param source - The structure to clone.
+   * @param withTypesArg - When "typesOnly", the clone has only type imports.  When "excludeTypes", the clone has no type imports.
+   */
   static clone(
     source: OptionalKind<ImportDeclarationStructure>,
+    withTypesArg?: "typesOnly" | "excludeTypes",
   ): ImportDeclarationImpl;
   toJSON(): StructureClassToJSON<ImportDeclarationImpl>;
 }
@@ -2171,6 +2263,10 @@ declare class ImportSpecifierImpl
     source: OptionalKind<ImportSpecifierStructure>,
     target: ImportSpecifierImpl,
   ): void;
+  /**
+   * Create a `ImportSpecifierImpl` from a `ImportSpecifierStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ImportSpecifierStructure>,
   ): ImportSpecifierImpl;
@@ -2206,6 +2302,10 @@ declare class IndexSignatureDeclarationImpl
     source: OptionalKind<IndexSignatureDeclarationStructure>,
     target: IndexSignatureDeclarationImpl,
   ): void;
+  /**
+   * Create a `IndexSignatureDeclarationImpl` from a `IndexSignatureDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<IndexSignatureDeclarationStructure>,
   ): IndexSignatureDeclarationImpl;
@@ -2253,6 +2353,10 @@ declare class InterfaceDeclarationImpl
     source: OptionalKind<InterfaceDeclarationStructure>,
     target: InterfaceDeclarationImpl,
   ): void;
+  /**
+   * Create a `InterfaceDeclarationImpl` from a `InterfaceDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<InterfaceDeclarationStructure>,
   ): InterfaceDeclarationImpl;
@@ -2289,6 +2393,10 @@ declare class JSDocImpl
     source: OptionalKind<JSDocStructure>,
     target: JSDocImpl,
   ): void;
+  /**
+   * Create a `JSDocImpl` from a `JSDocStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(source: OptionalKind<JSDocStructure>): JSDocImpl;
   toJSON(): StructureClassToJSON<JSDocImpl>;
 }
@@ -2317,6 +2425,10 @@ declare class JSDocTagImpl
     source: OptionalKind<JSDocTagStructure>,
     target: JSDocTagImpl,
   ): void;
+  /**
+   * Create a `JSDocTagImpl` from a `JSDocTagStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(source: OptionalKind<JSDocTagStructure>): JSDocTagImpl;
   toJSON(): StructureClassToJSON<JSDocTagImpl>;
 }
@@ -2343,6 +2455,10 @@ declare class JsxAttributeImpl
     source: OptionalKind<JsxAttributeStructure>,
     target: JsxAttributeImpl,
   ): void;
+  /**
+   * Create a `JsxAttributeImpl` from a `JsxAttributeStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(source: OptionalKind<JsxAttributeStructure>): JsxAttributeImpl;
   toJSON(): StructureClassToJSON<JsxAttributeImpl>;
 }
@@ -2371,6 +2487,10 @@ declare class JsxElementImpl
     source: OptionalKind<JsxElementStructure>,
     target: JsxElementImpl,
   ): void;
+  /**
+   * Create a `JsxElementImpl` from a `JsxElementStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(source: OptionalKind<JsxElementStructure>): JsxElementImpl;
   toJSON(): StructureClassToJSON<JsxElementImpl>;
 }
@@ -2397,6 +2517,10 @@ declare class JsxSelfClosingElementImpl
     source: OptionalKind<JsxSelfClosingElementStructure>,
     target: JsxSelfClosingElementImpl,
   ): void;
+  /**
+   * Create a `JsxSelfClosingElementImpl` from a `JsxSelfClosingElementStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<JsxSelfClosingElementStructure>,
   ): JsxSelfClosingElementImpl;
@@ -2424,6 +2548,10 @@ declare class JsxSpreadAttributeImpl
     source: OptionalKind<JsxSpreadAttributeStructure>,
     target: JsxSpreadAttributeImpl,
   ): void;
+  /**
+   * Create a `JsxSpreadAttributeImpl` from a `JsxSpreadAttributeStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<JsxSpreadAttributeStructure>,
   ): JsxSpreadAttributeImpl;
@@ -2466,6 +2594,10 @@ declare class MethodDeclarationImpl
     source: OptionalKind<MethodDeclarationStructure>,
     target: MethodDeclarationImpl,
   ): void;
+  /**
+   * Create a `MethodDeclarationImpl` from a `MethodDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<MethodDeclarationStructure>,
   ): MethodDeclarationImpl;
@@ -2503,6 +2635,10 @@ declare class MethodDeclarationOverloadImpl
   readonly kind: StructureKind.MethodOverload;
   isStatic: boolean;
   constructor(isStatic: boolean);
+  /**
+   * Create a `MethodDeclarationOverloadImpl` from a `MethodDeclarationOverloadStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<MethodDeclarationOverloadStructure>,
   ): MethodDeclarationOverloadImpl;
@@ -2531,6 +2667,10 @@ declare class MethodSignatureImpl
 {
   readonly kind: StructureKind.MethodSignature;
   constructor(name: string);
+  /**
+   * Create a `MethodSignatureImpl` from a `MethodSignatureStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<MethodSignatureStructure>,
   ): MethodSignatureImpl;
@@ -2569,6 +2709,10 @@ declare class ModuleDeclarationImpl
     source: OptionalKind<ModuleDeclarationStructure>,
     target: ModuleDeclarationImpl,
   ): void;
+  /**
+   * Create a `ModuleDeclarationImpl` from a `ModuleDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ModuleDeclarationStructure>,
   ): ModuleDeclarationImpl;
@@ -2605,6 +2749,10 @@ declare class ParameterDeclarationImpl
     source: OptionalKind<ParameterDeclarationStructure>,
     target: ParameterDeclarationImpl,
   ): void;
+  /**
+   * Create a `ParameterDeclarationImpl` from a `ParameterDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ParameterDeclarationStructure>,
   ): ParameterDeclarationImpl;
@@ -2633,6 +2781,10 @@ declare class PropertyAssignmentImpl
     source: OptionalKind<PropertyAssignmentStructure>,
     target: PropertyAssignmentImpl,
   ): void;
+  /**
+   * Create a `PropertyAssignmentImpl` from a `PropertyAssignmentStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<PropertyAssignmentStructure>,
   ): PropertyAssignmentImpl;
@@ -2674,6 +2826,10 @@ declare class PropertyDeclarationImpl
     source: OptionalKind<PropertyDeclarationStructure>,
     target: PropertyDeclarationImpl,
   ): void;
+  /**
+   * Create a `PropertyDeclarationImpl` from a `PropertyDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<PropertyDeclarationStructure>,
   ): PropertyDeclarationImpl;
@@ -2706,6 +2862,10 @@ declare class PropertySignatureImpl
 {
   readonly kind: StructureKind.PropertySignature;
   constructor(name: string);
+  /**
+   * Create a `PropertySignatureImpl` from a `PropertySignatureStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<PropertySignatureStructure>,
   ): PropertySignatureImpl;
@@ -2742,6 +2902,10 @@ declare class SetAccessorDeclarationImpl
     name: string,
     setterParameter: ParameterDeclarationImpl,
   );
+  /**
+   * Create a `SetAccessorDeclarationImpl` from a `SetAccessorDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<SetAccessorDeclarationStructure>,
   ): SetAccessorDeclarationImpl;
@@ -2764,6 +2928,10 @@ declare class ShorthandPropertyAssignmentImpl
 {
   readonly kind: StructureKind.ShorthandPropertyAssignment;
   constructor(name: string);
+  /**
+   * Create a `ShorthandPropertyAssignmentImpl` from a `ShorthandPropertyAssignmentStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<ShorthandPropertyAssignmentStructure>,
   ): ShorthandPropertyAssignmentImpl;
@@ -2785,6 +2953,10 @@ declare class SourceFileImpl
   implements SourceFileStructureClassIfc
 {
   readonly kind: StructureKind.SourceFile;
+  /**
+   * Create a `SourceFileImpl` from a `SourceFileStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(source: OptionalKind<SourceFileStructure>): SourceFileImpl;
   toJSON(): StructureClassToJSON<SourceFileImpl>;
 }
@@ -2810,6 +2982,10 @@ declare class SpreadAssignmentImpl
     source: OptionalKind<SpreadAssignmentStructure>,
     target: SpreadAssignmentImpl,
   ): void;
+  /**
+   * Create a `SpreadAssignmentImpl` from a `SpreadAssignmentStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<SpreadAssignmentStructure>,
   ): SpreadAssignmentImpl;
@@ -2846,6 +3022,10 @@ declare class TypeAliasDeclarationImpl
     source: OptionalKind<TypeAliasDeclarationStructure>,
     target: TypeAliasDeclarationImpl,
   ): void;
+  /**
+   * Create a `TypeAliasDeclarationImpl` from a `TypeAliasDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<TypeAliasDeclarationStructure>,
   ): TypeAliasDeclarationImpl;
@@ -2886,6 +3066,10 @@ declare class TypeParameterDeclarationImpl
     source: OptionalKind<TypeParameterDeclarationStructure>,
     target: TypeParameterDeclarationImpl,
   ): void;
+  /**
+   * Create a `TypeParameterDeclarationImpl` from a `TypeParameterDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<TypeParameterDeclarationStructure>,
   ): TypeParameterDeclarationImpl;
@@ -2916,6 +3100,10 @@ declare class VariableDeclarationImpl
 {
   readonly kind: StructureKind.VariableDeclaration;
   constructor(name: string);
+  /**
+   * Create a `VariableDeclarationImpl` from a `VariableDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<VariableDeclarationStructure>,
   ): VariableDeclarationImpl;
@@ -2947,6 +3135,10 @@ declare class VariableStatementImpl
     source: OptionalKind<VariableStatementStructure>,
     target: VariableStatementImpl,
   ): void;
+  /**
+   * Create a `VariableStatementImpl` from a `VariableStatementStructure`.
+   * @param source - The structure to clone.
+   */
   static clone(
     source: OptionalKind<VariableStatementStructure>,
   ): VariableStatementImpl;

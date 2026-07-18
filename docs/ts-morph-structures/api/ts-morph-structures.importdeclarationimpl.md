@@ -39,7 +39,7 @@ export default class ImportDeclarationImpl implements ImportDeclarationStructure
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.importdeclarationimpl.clone.md) | `static` | |
+ | [clone(source, withTypesArg)](./ts-morph-structures.importdeclarationimpl.clone.md) | `static` | Create a `ImportDeclarationImpl` from a `ImportDeclarationStructure`. |
  | [toJSON()](./ts-morph-structures.importdeclarationimpl.tojson.md) | | |
  
 

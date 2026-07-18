@@ -88,14 +88,19 @@ implements ClassHeadStatementsGetter, ClassTailStatementsGetter
   filterTailStatements(key: MemberedStatementsKey): boolean {
     return (key.statementGroupKey === "static clone");
   }
+
   getTailStatements(key: MemberedStatementsKey): readonly stringWriterOrStatementImpl[] {
     void(key);
-    return [
+    const statements: stringOrWriterFunction[] = [
       new CallExpressionStatementImpl({
         name: `this[COPY_FIELDS]`,
         parameters: ["source", "target"]
       }).writerFunction,
       `return target;`
     ];
+
+    this.module.modifiers?.modifyStaticClone_TailStatements?.(statements);
+
+    return statements;
   }
 }

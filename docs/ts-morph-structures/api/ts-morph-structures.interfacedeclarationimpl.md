@@ -48,7 +48,7 @@ export default class InterfaceDeclarationImpl implements InterfaceDeclarationStr
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.interfacedeclarationimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.interfacedeclarationimpl.clone.md) | `static` | Create a `InterfaceDeclarationImpl` from a `InterfaceDeclarationStructure`. |
  | [toJSON()](./ts-morph-structures.interfacedeclarationimpl.tojson.md) | | |
  
 

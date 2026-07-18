@@ -30,7 +30,7 @@ export default class ExportDeclarationImpl implements ExportDeclarationStructure
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.exportdeclarationimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.exportdeclarationimpl.clone.md) | `static` | Create a `ExportDeclarationImpl` from a `ExportDeclarationStructure`. |
  | [toJSON()](./ts-morph-structures.exportdeclarationimpl.tojson.md) | | |
  
 

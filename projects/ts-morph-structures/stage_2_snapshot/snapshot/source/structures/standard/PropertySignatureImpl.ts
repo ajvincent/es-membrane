@@ -66,6 +66,10 @@ export default class PropertySignatureImpl
     this.name = name;
   }
 
+  /**
+   * Create a `PropertySignatureImpl` from a `PropertySignatureStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<PropertySignatureStructure>,
   ): PropertySignatureImpl {

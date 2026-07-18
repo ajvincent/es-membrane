@@ -101,6 +101,10 @@ export default class FunctionDeclarationImpl
     }
   }
 
+  /**
+   * Create a `FunctionDeclarationImpl` from a `FunctionDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<FunctionDeclarationStructure>,
   ): FunctionDeclarationImpl {

@@ -27,7 +27,7 @@ export default class ClassStaticBlockDeclarationImpl implements ClassStaticBlock
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.classstaticblockdeclarationimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.classstaticblockdeclarationimpl.clone.md) | `static` | Create a `ClassStaticBlockDeclarationImpl` from a `ClassStaticBlockDeclarationStructure`. |
  | [toJSON()](./ts-morph-structures.classstaticblockdeclarationimpl.tojson.md) | | |
  
 

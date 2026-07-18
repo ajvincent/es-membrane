@@ -4,6 +4,8 @@
 
 ## SourceFileImpl.clone() method
 
+Create a `SourceFileImpl` from a `SourceFileStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<SourceFileStructure>): SourceFileImpl;
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;SourceFileStructure&gt; | |
+ | source | OptionalKind&lt;SourceFileStructure&gt; | The structure to clone. |
  
 
 

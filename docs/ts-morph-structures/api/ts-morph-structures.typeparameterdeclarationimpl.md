@@ -40,7 +40,7 @@ export default class TypeParameterDeclarationImpl implements TypeParameterDeclar
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.typeparameterdeclarationimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.typeparameterdeclarationimpl.clone.md) | `static` | Create a `TypeParameterDeclarationImpl` from a `TypeParameterDeclarationStructure`. |
  | [toJSON()](./ts-morph-structures.typeparameterdeclarationimpl.tojson.md) | | |
  
 

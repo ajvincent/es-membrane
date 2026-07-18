@@ -13,10 +13,6 @@ import {
 } from "../../source/constants.js";
 
 import {
-  buildVFSFromMap
-} from "../../source/buildVFSFromMap.js";
-
-import {
   StringWritable
 } from "../support/StringWritable.js";
 
@@ -46,30 +42,3 @@ async function * typeofChunk(source: AsyncIterable<unknown>): AsyncIterable<stri
     yield typeof chunk;
   }
 }
-
-xit("virtualFileSystem.ReadStream produces string chunks", async () => {
-  const chunks: string[] = [];
-
-  const outStream = new StringWritable(chunks);
-  let vfs: typeof fs;
-  {
-    const contents = await fs.promises.readFile(classdeclarationimpl_md, { encoding: "utf-8" });
-    [vfs] = await buildVFSFromMap(new Map([
-      ["/fixtures/ts-morph-structures.classdeclarationimpl.md", contents]
-    ]));
-  }
-
-  const inStream: Readable = vfs.createReadStream(
-    "/fixtures/ts-morph-structures.classdeclarationimpl.md",
-    { encoding: "utf-8" }
-  );
-
-  await pipeline(
-    inStream,
-    typeofChunk,
-    outStream
-  );
-
-  expect(chunks.length).toBeGreaterThan(0);
-  expect(chunks.every(c => c === "string")).toBeTrue();
-});

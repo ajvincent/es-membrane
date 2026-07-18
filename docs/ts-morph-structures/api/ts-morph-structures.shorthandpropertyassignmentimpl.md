@@ -34,7 +34,7 @@ export default class ShorthandPropertyAssignmentImpl implements ShorthandPropert
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.shorthandpropertyassignmentimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.shorthandpropertyassignmentimpl.clone.md) | `static` | Create a `ShorthandPropertyAssignmentImpl` from a `ShorthandPropertyAssignmentStructure`. |
  | [toJSON()](./ts-morph-structures.shorthandpropertyassignmentimpl.tojson.md) | | |
  
 

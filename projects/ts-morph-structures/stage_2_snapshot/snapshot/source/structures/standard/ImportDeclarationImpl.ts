@@ -93,11 +93,46 @@ export default class ImportDeclarationImpl
     }
   }
 
+  static #namedImportsTypeFilter(
+    this: void,
+    namedImport: ImportSpecifierImpl | stringOrWriterFunction,
+    withTypes: boolean,
+  ): boolean {
+    if (typeof namedImport !== "object") {
+      throw new Error("cannot process string or writer functions");
+    }
+    return namedImport.isTypeOnly === withTypes;
+  }
+
+  /**
+   * Create a `ImportDeclarationImpl` from a `ImportDeclarationStructure`.
+   * @param source - The structure to clone.
+   * @param withTypesArg - When "typesOnly", the clone has only type imports.  When "excludeTypes", the clone has no type imports.
+   */
   public static clone(
     source: OptionalKind<ImportDeclarationStructure>,
+    withTypesArg?: "typesOnly" | "excludeTypes",
   ): ImportDeclarationImpl {
     const target = new ImportDeclarationImpl(source.moduleSpecifier);
     this[COPY_FIELDS](source, target);
+
+    if (withTypesArg) {
+      const typesOnly = withTypesArg === "typesOnly";
+      const filteredImports = target.namedImports.filter((namedImport) =>
+        this.#namedImportsTypeFilter(namedImport, typesOnly),
+      ) as readonly ImportSpecifierImpl[];
+      for (const namedImport of filteredImports) {
+        namedImport.isTypeOnly = false;
+      }
+      target.namedImports.splice(
+        0,
+        target.namedImports.length,
+        ...filteredImports,
+      );
+      target.isTypeOnly = typesOnly;
+      if (typesOnly) delete target.defaultImport;
+    }
+
     return target;
   }
 

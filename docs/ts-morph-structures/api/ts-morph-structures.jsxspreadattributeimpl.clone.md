@@ -4,6 +4,8 @@
 
 ## JsxSpreadAttributeImpl.clone() method
 
+Create a `JsxSpreadAttributeImpl` from a `JsxSpreadAttributeStructure`.
+
 **Signature:**
 
 ```typescript
@@ -14,7 +16,7 @@ static clone(source: OptionalKind<JsxSpreadAttributeStructure>): JsxSpreadAttrib
 
 | Parameter | Type | Description |
 |-|-|-|
- | source | OptionalKind&lt;JsxSpreadAttributeStructure&gt; | |
+ | source | OptionalKind&lt;JsxSpreadAttributeStructure&gt; | The structure to clone. |
  
 
 

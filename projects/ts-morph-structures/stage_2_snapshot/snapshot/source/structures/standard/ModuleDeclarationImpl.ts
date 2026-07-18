@@ -79,6 +79,10 @@ export default class ModuleDeclarationImpl
     }
   }
 
+  /**
+   * Create a `ModuleDeclarationImpl` from a `ModuleDeclarationStructure`.
+   * @param source - The structure to clone.
+   */
   public static clone(
     source: OptionalKind<ModuleDeclarationStructure>,
   ): ModuleDeclarationImpl {

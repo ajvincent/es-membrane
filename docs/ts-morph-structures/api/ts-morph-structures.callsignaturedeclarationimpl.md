@@ -30,7 +30,7 @@ export default class CallSignatureDeclarationImpl implements CallSignatureDeclar
 
 | Method | Modifiers | Description |
 |-|-|-|
- | [clone(source)](./ts-morph-structures.callsignaturedeclarationimpl.clone.md) | `static` | |
+ | [clone(source)](./ts-morph-structures.callsignaturedeclarationimpl.clone.md) | `static` | Create a `CallSignatureDeclarationImpl` from a `CallSignatureDeclarationStructure`. |
  | [toJSON()](./ts-morph-structures.callsignaturedeclarationimpl.tojson.md) | | |
  
 
