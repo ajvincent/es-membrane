@@ -70,7 +70,10 @@ export async function MocksMembrane<IncludeDamp extends boolean>(
   }
 
   membrane.createObjectGraph("damp");
-  const dampDocument: MockDocumentIfc = membrane.convertObject("wet", "damp", wetDocument);
+
+  // Converting from dry to damp is intentional, to make sure we're binding to the original value's graph ("wet").
+  const dampDocument: MockDocumentIfc = membrane.convertObject("dry", "damp", dryDocument);
+
   const NodeDamp: AbstractClass<MockNodeIfc, [MockDocumentIfc]> = membrane.convertObject("wet", "damp", NodeWet);
   const ElementDamp: Class<MockElementIfc, [MockDocumentIfc, string]> = membrane.convertObject("wet", "damp", ElementWet);
 

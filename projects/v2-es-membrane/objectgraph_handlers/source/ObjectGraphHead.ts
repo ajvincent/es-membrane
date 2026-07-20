@@ -88,7 +88,8 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     );
     this.#graphHeadInternals = new LiveGraphHeadInternals(
       convertingHeadProxyHandler,
-      proxiesOneToOneMap
+      proxiesOneToOneMap,
+      membraneIfc
     );
   }
 
@@ -153,6 +154,12 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
       if (sourceGraphKey === this.objectGraphKey)
         value = objectInSourceGraph;
       else {
+        const actualSourceGraphKey: string | symbol | undefined = this.#graphHeadInternals.membrane.getOriginGraph(objectInSourceGraph);
+        if (actualSourceGraphKey !== undefined && actualSourceGraphKey !== sourceGraphKey) {
+          // Whoops.  We are not the right graph head.
+          return this.#graphHeadInternals.membrane.convertValue(actualSourceGraphKey, this.objectGraphKey, objectInSourceGraph) as T;
+        }
+
         value = this.getIntrinsicInGraph(objectInSourceGraph, sourceGraphKey) ??
           this.#createNewProxy(objectInSourceGraph, sourceGraphKey);
 
@@ -218,6 +225,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     this.#graphHeadInternals.shadowTargetToRealTargetMap.set(shadowTarget, objectInSourceGraph);
     this.#graphHeadInternals.realTargetToOriginGraph.set(objectInSourceGraph, sourceGraphKey);
     this.#graphHeadInternals.weakProxySet.add(proxy);
+    this.#graphHeadInternals.membrane.notifyNewProxy(proxy, sourceGraphKey);
 
     return proxy;
   }

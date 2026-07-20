@@ -20,6 +20,15 @@ export interface MembraneInternalIfc
     descriptor: PropertyDescriptor | undefined,
   ): TypedPropertyDescriptor<unknown> | undefined;
 
+  notifyNewProxy(
+    targetProxy: object,
+    originGraph: string | symbol
+  ): void;
+
+  getOriginGraph(
+    targetValue: object
+  ): string | symbol | undefined;
+
   notifyAssertionFailed(
     targetGraphKey: string | symbol,
   ): void;

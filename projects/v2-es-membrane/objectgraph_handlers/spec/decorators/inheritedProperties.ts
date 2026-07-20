@@ -99,6 +99,8 @@ describe("Inherited property traps:", () => {
     }
   };
 
+  const proxyToSourceGraphMap = new WeakMap<object, string | symbol>;
+
   const membraneMock: MembraneInternalIfc = {
     convertValue: function<ValueType>(
       sourceGraphKey: string | symbol,
@@ -142,6 +144,21 @@ describe("Inherited property traps:", () => {
         wrappedDesc.set = nextShadowOneToOne.get(descriptor.set, nextGraphKey) as (value: unknown) => void;
 
       return wrappedDesc;
+    },
+
+    notifyNewProxy(
+      targetProxy: object,
+      sourceGraph: string | symbol
+    ): void
+    {
+      proxyToSourceGraphMap.set(targetProxy, sourceGraph);
+    },
+
+    getOriginGraph(
+      targetValue: object
+    ): string | symbol | undefined
+    {
+      return proxyToSourceGraphMap.get(targetValue);
     },
 
     notifyAssertionFailed: function (targetGraphKey: string | symbol): void {

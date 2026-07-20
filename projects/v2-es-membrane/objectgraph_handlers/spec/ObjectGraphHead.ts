@@ -21,10 +21,11 @@ import type {
 import MockMembrane from "./support/MockMembrane.js";
 
 describe("ObjectGraphHead", () => {
-  const mockMembrane = new MockMembrane;
+  let mockMembrane: MockMembrane;
 
   let map: OneToOneStrongMap<string | symbol, object>;
   beforeEach(() => {
+    mockMembrane = new MockMembrane;
     map = new OneToOneStrongMap;
   });
 
@@ -32,9 +33,11 @@ describe("ObjectGraphHead", () => {
     const map = new OneToOneStrongMap<string | symbol, object>;
     const redTailHandler = new ObjectGraphTailHandler(mockMembrane, "red");
     const redHeadHandler = new ObjectGraphHead(mockMembrane, redTailHandler, map, "red");
+    mockMembrane.registerGraphhead(redHeadHandler);
 
     const blueTailHandler = new ObjectGraphTailHandler(mockMembrane, "blue");
     const blueHeadHandler = new ObjectGraphHead(mockMembrane, blueTailHandler, map, "blue");
+    mockMembrane.registerGraphhead(blueHeadHandler);
 
     const redObject = {};
     const blueArray: unknown[] = [];
@@ -59,7 +62,7 @@ describe("ObjectGraphHead", () => {
     // stability: we don't create objects twice
     expect(redHeadHandler.getValueInGraph(blueObject, "blue")).toBe(redObject);
     expect(blueHeadHandler.getValueInGraph(redObject, "red")).toBe(blueObject);
-  
+
     const redArray = redHeadHandler.getValueInGraph(blueArray, "blue");
     expect(Array.isArray(redArray)).toBe(true);
     expect(redArray.length).toBe(0);
@@ -78,16 +81,20 @@ describe("ObjectGraphHead", () => {
     // Scalablity to multiple object graphs
     const greenTailHandler = new ObjectGraphTailHandler(mockMembrane, "green");
     const greenHeadHandler = new ObjectGraphHead(mockMembrane, greenTailHandler, map, "green");
-  
+    mockMembrane.registerGraphhead(greenHeadHandler);
+
     const greenObject = greenHeadHandler.getValueInGraph(blueObject, "blue");
+    expect(greenObject).withContext("greenObject is not redObject").not.toBe(redObject);
+    expect(greenObject).withContext("greenObject is not blueObject").not.toBe(blueObject);
+
     expect(map.get(greenObject, "red")).withContext(`(greenObject, "red", 3)`).toBe(redObject);
     expect(map.get(greenObject, "blue")).withContext(`(greenObject, "blue", 3)`).toBe(blueObject);
     expect(map.get(redObject, "green")).withContext(`(redObject, "green", 3)`).toBe(greenObject);
-  
+
     // stability
     expect(redHeadHandler.getValueInGraph(greenObject, "green")).toBe(redObject);
     expect(blueHeadHandler.getValueInGraph(greenObject, "green")).toBe(blueObject);
-  
+
     expect(redHeadHandler.getValueInGraph(blueObject, "blue")).toBe(redObject);
     expect(greenHeadHandler.getValueInGraph(blueObject, "blue")).toBe(greenObject);
   
@@ -116,6 +123,7 @@ describe("ObjectGraphHead", () => {
     const map = new OneToOneStrongMap<string | symbol, object>;
   
     const head = new ObjectGraphHead(mockMembrane, graphHandler, map, "red");
+    mockMembrane.registerGraphhead(head);
     expect(head.objectGraphKey).toBe("red");
   
     const proxyObject = head.getValueInGraph<object>({}, "blue");
@@ -161,6 +169,7 @@ describe("ObjectGraphHead", () => {
   it("::getArrayInGraph() converts members of an array", () => {
     const redTailHandler = new ObjectGraphTailHandler(mockMembrane, "red");
     const redHeadHandler = new ObjectGraphHead(mockMembrane, redTailHandler, map, "red");
+    mockMembrane.registerGraphhead(redHeadHandler);
 
     const blueObject1 = {}, blueObject2 = {};
     const blueArray = [blueObject1, blueObject2];
@@ -179,6 +188,7 @@ describe("ObjectGraphHead", () => {
   it("::getDescriptorInGraph() converts property descriptors", () => {
     const redTailHandler = new ObjectGraphTailHandler(mockMembrane, "red");
     const redHeadHandler = new ObjectGraphHead(mockMembrane, redTailHandler, map, "red");
+    mockMembrane.registerGraphhead(redHeadHandler);
 
     const blueValue = { blueValue: true };
     const blueDataDesc = new DataDescriptor<object>(blueValue, true, false, true);
