@@ -29,6 +29,10 @@ export interface MembraneInternalIfc
     targetValue: object
   ): string | symbol | undefined;
 
+  isGraphRevoked(
+    graphKey: string | symbol
+  ): boolean;
+
   notifyAssertionFailed(
     targetGraphKey: string | symbol,
   ): void;

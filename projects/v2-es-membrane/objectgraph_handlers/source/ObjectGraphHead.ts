@@ -144,20 +144,32 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     if (this.#graphHeadInternals.revoked)
       throw new Error("This object graph has been revoked");
 
+    if (this.#graphHeadInternals.membrane.isGraphRevoked(sourceGraphKey)) {
+      throw new Error("source object graph has been revoked");
+    }
+
     if (valueType(valueInSourceGraph) === "primitive")
       return this.getPrimitiveInGraph(valueInSourceGraph as PrimitiveType) as T;
 
     // sourceValue is an object
-    const objectInSourceGraph = valueInSourceGraph as object;
-    let value: object | undefined = this.#graphHeadInternals.proxiesOneToOneMap.get(objectInSourceGraph, this.objectGraphKey);
+    let objectInSourceGraph = valueInSourceGraph as object;
+    let value: object | undefined = this.#graphHeadInternals.proxiesOneToOneMap.get(
+      objectInSourceGraph, this.objectGraphKey
+    );
     if (value === undefined) {
       if (sourceGraphKey === this.objectGraphKey)
         value = objectInSourceGraph;
       else {
-        const actualSourceGraphKey: string | symbol | undefined = this.#graphHeadInternals.membrane.getOriginGraph(objectInSourceGraph);
+        const actualSourceGraphKey: string | symbol | undefined
+          = this.#graphHeadInternals.membrane.getOriginGraph(objectInSourceGraph);
         if (actualSourceGraphKey !== undefined && actualSourceGraphKey !== sourceGraphKey) {
-          // Whoops.  We are not the right graph head.
-          return this.#graphHeadInternals.membrane.convertValue(actualSourceGraphKey, this.objectGraphKey, objectInSourceGraph) as T;
+          // Whoops.  We have the wrong source graph.
+          if (this.#graphHeadInternals.membrane.isGraphRevoked(actualSourceGraphKey))
+            throw new Error("source object graph has been revoked");
+          objectInSourceGraph = this.#graphHeadInternals.proxiesOneToOneMap.get(
+            objectInSourceGraph, actualSourceGraphKey
+          )!;
+          sourceGraphKey = actualSourceGraphKey;
         }
 
         value = this.getIntrinsicInGraph(objectInSourceGraph, sourceGraphKey) ??

@@ -180,6 +180,18 @@ export class InternalMembrane implements MembraneIfc, MembraneInternalIfc {
   }
 
   // MembraneInternalIfc
+  isGraphRevoked(
+    graphKey: string | symbol
+  ): boolean
+  {
+    const graphHead = this.#graphHeads.get(graphKey);
+    if (!graphHead)
+      throw new Error("unknown graph");
+
+    return graphHead.isRevoked;
+  }
+
+  // MembraneInternalIfc
   notifyAssertionFailed(
     targetGraphKey: string | symbol
   ): void

@@ -34,6 +34,8 @@ export default class MockMembrane implements MembraneInternalIfc
     values: ValueTypes
   ): ValueTypes
   {
+    void sourceGraphKey;
+    void targetGraphKey;
     return values.slice() as ValueTypes;
   }
 
@@ -62,6 +64,14 @@ export default class MockMembrane implements MembraneInternalIfc
   ): string | symbol | undefined
   {
     return this.#proxyToSourceGraphMap.get(targetValue);
+  }
+
+  public isGraphRevoked(
+    graphKey: string | symbol
+  ): boolean
+  {
+    void graphKey;
+    return false;
   }
 
   public notifyAssertionFailed(

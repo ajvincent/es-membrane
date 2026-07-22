@@ -161,6 +161,14 @@ describe("Inherited property traps:", () => {
       return proxyToSourceGraphMap.get(targetValue);
     },
 
+    isGraphRevoked(
+      graphKey: string | symbol
+    ): boolean
+    {
+      void graphKey;
+      return false;
+    },
+
     notifyAssertionFailed: function (targetGraphKey: string | symbol): void {
       void targetGraphKey;
       throw new Error("Function not implemented.");
