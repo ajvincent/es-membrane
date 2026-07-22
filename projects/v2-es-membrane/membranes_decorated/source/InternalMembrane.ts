@@ -27,6 +27,7 @@ import {
 export class InternalMembrane implements MembraneIfc, MembraneInternalIfc {
   readonly #graphHeads = new Map<string | symbol, ObjectGraphHeadIfc>;
   readonly #proxiesOneToOneMap = new OneToOneStrongMap<string | symbol, object>;
+  readonly #proxyToSourceKeyMap = new WeakMap<object, string | symbol>;
 
   // MembraneIfc
   get isRevoked(): boolean {
@@ -80,7 +81,7 @@ export class InternalMembrane implements MembraneIfc, MembraneInternalIfc {
 
   #getTargetGraph(
     sourceGraphKey: string | symbol,
-    targetGraphKey: string | symbol
+    targetGraphKey: string | symbol,
   ): ObjectGraphHeadIfc
   {
     const sourceGraph = this.#graphHeads.get(sourceGraphKey);
@@ -108,6 +109,7 @@ export class InternalMembrane implements MembraneIfc, MembraneInternalIfc {
     ).getValueInGraph(value, sourceGraphKey) as ObjectType;
   }
 
+  // MembraneIfc
   isObjectInGraph(
     graphKey: string | symbol,
     value: object
@@ -158,6 +160,35 @@ export class InternalMembrane implements MembraneIfc, MembraneInternalIfc {
     return this.#getTargetGraph(
       sourceGraphKey, targetGraphKey
     ).getDescriptorInGraph(sourceDescriptor, sourceGraphKey);
+  }
+
+  // MembraneInternalIfc
+  notifyNewProxy(
+    targetProxy: object,
+    sourceGraph: string | symbol
+  ): void
+  {
+    this.#proxyToSourceKeyMap.set(targetProxy, sourceGraph);
+  }
+
+  // MembraneInternalIfc
+  getOriginGraph(
+    targetValue: object
+  ): string | symbol | undefined
+  {
+    return this.#proxyToSourceKeyMap.get(targetValue);
+  }
+
+  // MembraneInternalIfc
+  isGraphRevoked(
+    graphKey: string | symbol
+  ): boolean
+  {
+    const graphHead = this.#graphHeads.get(graphKey);
+    if (!graphHead)
+      throw new Error("unknown graph");
+
+    return graphHead.isRevoked;
   }
 
   // MembraneInternalIfc

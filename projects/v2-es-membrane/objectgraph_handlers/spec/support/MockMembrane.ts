@@ -2,19 +2,30 @@ import type {
   MembraneInternalIfc
 } from "#objectgraph_handlers/source/types/MembraneInternalIfc.js";
 
+import type {
+  ObjectGraphHeadIfc
+} from "#objectgraph_handlers/source/types/ObjectGraphHeadIfc.js";
+
 export default class MockMembrane implements MembraneInternalIfc
 {
-  convertValue<ValueType>
+  readonly #proxyToSourceGraphMap = new WeakMap<object, string | symbol>;
+  readonly #graphHeadMap = new Map<string | symbol, ObjectGraphHeadIfc>;
+
+  registerGraphhead(graphHead: ObjectGraphHeadIfc): void {
+    this.#graphHeadMap.set(graphHead.objectGraphKey, graphHead);
+  }
+
+  public convertValue<ValueType>
   (
     sourceGraphKey: string | symbol,
     targetGraphKey: string | symbol,
     value: ValueType
   ): ValueType
   {
-    return value;
+    return this.#graphHeadMap.get(targetGraphKey)!.getValueInGraph(value, sourceGraphKey) as ValueType;
   }
 
-  convertArray<
+  public convertArray<
     ValueTypes extends unknown[]
   >
   (
@@ -23,10 +34,12 @@ export default class MockMembrane implements MembraneInternalIfc
     values: ValueTypes
   ): ValueTypes
   {
+    void sourceGraphKey;
+    void targetGraphKey;
     return values.slice() as ValueTypes;
   }
 
-  convertDescriptor(
+  public convertDescriptor(
     sourceGraphKey: string | symbol,
     targetGraphKey: string | symbol,
     descriptor: PropertyDescriptor
@@ -38,7 +51,30 @@ export default class MockMembrane implements MembraneInternalIfc
     throw new Error("Function not implemented.");
   }
 
-  notifyAssertionFailed(
+  public notifyNewProxy(
+    targetProxy: object,
+    sourceGraph: string | symbol
+  ): void
+  {
+    this.#proxyToSourceGraphMap.set(targetProxy, sourceGraph);
+  }
+
+  public getOriginGraph(
+    targetValue: object
+  ): string | symbol | undefined
+  {
+    return this.#proxyToSourceGraphMap.get(targetValue);
+  }
+
+  public isGraphRevoked(
+    graphKey: string | symbol
+  ): boolean
+  {
+    void graphKey;
+    return false;
+  }
+
+  public notifyAssertionFailed(
     targetGraphKey: string | symbol
   ): void
   {

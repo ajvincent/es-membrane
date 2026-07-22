@@ -88,7 +88,8 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     );
     this.#graphHeadInternals = new LiveGraphHeadInternals(
       convertingHeadProxyHandler,
-      proxiesOneToOneMap
+      proxiesOneToOneMap,
+      membraneIfc
     );
   }
 
@@ -143,16 +144,34 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     if (this.#graphHeadInternals.revoked)
       throw new Error("This object graph has been revoked");
 
+    if (this.#graphHeadInternals.membrane.isGraphRevoked(sourceGraphKey)) {
+      throw new Error("source object graph has been revoked");
+    }
+
     if (valueType(valueInSourceGraph) === "primitive")
       return this.getPrimitiveInGraph(valueInSourceGraph as PrimitiveType) as T;
 
     // sourceValue is an object
-    const objectInSourceGraph = valueInSourceGraph as object;
-    let value: object | undefined = this.#graphHeadInternals.proxiesOneToOneMap.get(objectInSourceGraph, this.objectGraphKey);
+    let objectInSourceGraph = valueInSourceGraph as object;
+    let value: object | undefined = this.#graphHeadInternals.proxiesOneToOneMap.get(
+      objectInSourceGraph, this.objectGraphKey
+    );
     if (value === undefined) {
       if (sourceGraphKey === this.objectGraphKey)
         value = objectInSourceGraph;
       else {
+        const actualSourceGraphKey: string | symbol | undefined
+          = this.#graphHeadInternals.membrane.getOriginGraph(objectInSourceGraph);
+        if (actualSourceGraphKey !== undefined && actualSourceGraphKey !== sourceGraphKey) {
+          // Whoops.  We have the wrong source graph.
+          if (this.#graphHeadInternals.membrane.isGraphRevoked(actualSourceGraphKey))
+            throw new Error("source object graph has been revoked");
+          objectInSourceGraph = this.#graphHeadInternals.proxiesOneToOneMap.get(
+            objectInSourceGraph, actualSourceGraphKey
+          )!;
+          sourceGraphKey = actualSourceGraphKey;
+        }
+
         value = this.getIntrinsicInGraph(objectInSourceGraph, sourceGraphKey) ??
           this.#createNewProxy(objectInSourceGraph, sourceGraphKey);
 
@@ -218,6 +237,7 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
     this.#graphHeadInternals.shadowTargetToRealTargetMap.set(shadowTarget, objectInSourceGraph);
     this.#graphHeadInternals.realTargetToOriginGraph.set(objectInSourceGraph, sourceGraphKey);
     this.#graphHeadInternals.weakProxySet.add(proxy);
+    this.#graphHeadInternals.membrane.notifyNewProxy(proxy, sourceGraphKey);
 
     return proxy;
   }

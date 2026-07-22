@@ -4,6 +4,10 @@ import type {
   OneToOneStrongMap
 } from "../../stage_utilities/source/collections/OneToOneStrongMap.js";
 
+import type {
+  MembraneInternalIfc
+} from "./types/MembraneInternalIfc.js";
+
 import {
   KeyedRevokerSets
 } from "./KeyedRevokerSets.js";
@@ -18,6 +22,7 @@ export interface GraphHeadInternalsIfc {
   readonly realTargetToOriginGraph: WeakMap<object, string | symbol>;
   readonly keyedRevokerSets: KeyedRevokerSets;
   readonly weakProxySet: WeakSet<object>;
+  readonly membrane: MembraneInternalIfc;
 }
 
 export class LiveGraphHeadInternals implements GraphHeadInternalsIfc {
@@ -28,14 +33,17 @@ export class LiveGraphHeadInternals implements GraphHeadInternalsIfc {
   public readonly realTargetToOriginGraph = new WeakMap<object, string | symbol>;
   public readonly keyedRevokerSets = new KeyedRevokerSets;
   public readonly weakProxySet = new WeakSet<object>;
+  public readonly membrane: MembraneInternalIfc;
 
   constructor(
     convertingHeadProxyHandler: ConvertingHeadProxyHandler,
-    proxiesOneToOneMap: OneToOneStrongMap<string | symbol, object>
+    proxiesOneToOneMap: OneToOneStrongMap<string | symbol, object>,
+    membrane: MembraneInternalIfc,
   )
   {
     this.convertingHeadProxyHandler = convertingHeadProxyHandler;
     this.proxiesOneToOneMap = proxiesOneToOneMap;
+    this.membrane = membrane;
   }
 }
 
@@ -67,6 +75,10 @@ export class RevokedGraphHeadInternals implements GraphHeadInternalsIfc {
   }
 
   public get weakProxySet(): WeakSet<object> {
+    return RevokedGraphHeadInternals.#REVOKED();
+  }
+
+  public get membrane(): MembraneInternalIfc {
     return RevokedGraphHeadInternals.#REVOKED();
   }
 }
