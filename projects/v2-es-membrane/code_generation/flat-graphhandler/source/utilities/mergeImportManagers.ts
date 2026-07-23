@@ -2,7 +2,12 @@ import {
   ImportManager
 } from "ts-morph-structures";
 
-export declare function mergeImportManagers(
+export function mergeImportManagers(
   sourceManagers: Iterable<ImportManager>,
   targetModuleSpecifier: string
-): ImportManager;
+): ImportManager
+{
+  void sourceManagers;
+  void targetModuleSpecifier;
+  throw new Error("not yet implemented");
+}

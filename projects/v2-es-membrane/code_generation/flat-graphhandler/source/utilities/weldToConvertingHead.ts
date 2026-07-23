@@ -4,7 +4,12 @@ import {
   SourceFileImpl,
 } from "ts-morph-structures";
 
-export declare function weldToConvertingHead(
+export function weldToConvertingHead(
   tailClassMembers: ClassMembersMap,
   tailImportManager: ImportManager,
-): SourceFileImpl;
+): SourceFileImpl
+{
+  void tailClassMembers;
+  void tailImportManager;
+  throw new Error("not yet implemented");
+}

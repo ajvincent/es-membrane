@@ -16,7 +16,12 @@ import {
 } from "./getSourceStructure.js";
 */
 
-export declare function getSubclassAndImports(
+export function getSubclassAndImports(
   decoratorName: string,
   originalImportManager: ImportManager
-): ClassAndImportManager;
+): ClassAndImportManager
+{
+  void decoratorName;
+  void originalImportManager;
+  throw new Error("not yet implemented");
+}
