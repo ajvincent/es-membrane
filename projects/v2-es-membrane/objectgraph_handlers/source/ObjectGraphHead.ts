@@ -42,14 +42,12 @@ class ObjectGraphHead implements ObjectGraphHeadIfc, ObjectGraphConversionIfc
    */
   static #makeShadowTarget<T extends object>(value: T): T {
     let rv: object;
-    if (Array.isArray(value))
-      rv = [];
-    else if (typeof value === "object")
+    if (typeof value === "object")
       rv = {};
     else if (typeof value === "function")
       rv = function() {};
     else
-      throw new Error("Unknown value for makeShadowTarget");
+      throw new Error("Unknown type for makeShadowTarget");
     return rv as T;
   }
 

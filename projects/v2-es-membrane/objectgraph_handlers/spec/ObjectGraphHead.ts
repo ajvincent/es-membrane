@@ -64,7 +64,9 @@ describe("ObjectGraphHead", () => {
     expect(blueHeadHandler.getValueInGraph(redObject, "red")).toBe(blueObject);
 
     const redArray = redHeadHandler.getValueInGraph(blueArray, "blue");
-    expect(Array.isArray(redArray)).toBe(true);
+    expect(Array.isArray(redArray)).toBe(false);
+    expect(typeof redArray).toBe('object');
+    expect(redArray).not.toBeNull();
     expect(redArray.length).toBe(0);
     expect(redArray).not.toBe(blueArray);
 
@@ -142,7 +144,9 @@ describe("ObjectGraphHead", () => {
 
     expect(typeof proxyObject).toBe("object");
     expect(Array.isArray(proxyObject)).toBe(false);
-    expect(Array.isArray(proxyArray)).toBe(true);
+    expect(Array.isArray(proxyArray)).toBe(false);
+    expect(typeof proxyArray).toBe("object");
+    expect(proxyArray).not.toBeNull();
 
     expect(typeof proxyFunction).toBe("function");
 

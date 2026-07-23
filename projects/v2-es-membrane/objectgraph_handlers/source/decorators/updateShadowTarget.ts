@@ -15,7 +15,7 @@ export default function UpdateShadowTarget(
     static #undefinedDescriptor = Object.freeze({
       value: undefined,
       writable: true,
-      enumerable: false,
+      enumerable: true,
       configurable: true,
     });
 
