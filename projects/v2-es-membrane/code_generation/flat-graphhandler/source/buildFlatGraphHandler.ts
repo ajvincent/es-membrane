@@ -44,7 +44,7 @@ export async function buildFlatGraphHandler(): Promise<void> {
   const {
     classDecl: decoratedClassDecl,
     importManager: decoratedSourceImportManager,
-  }: ClassAndImportManager = getDecoratedHandler();
+  }: ClassAndImportManager = await getDecoratedHandler();
 
   const {
     classDecl: tailClass,

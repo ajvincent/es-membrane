@@ -19,7 +19,6 @@ import {
   generatedDirs,
 } from "./source/utilities/constants.js";
 
-
 async function removeGeneratedFiles(): Promise<void> {
   await fs.rm(
     path.join(stageDir, "generated"),

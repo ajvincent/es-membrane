@@ -1,4 +1,5 @@
 import {
+  type SourceFile,
   StructureKind,
 } from "ts-morph";
 
@@ -18,7 +19,7 @@ export function getSourceStructure(
   moduleLocation: string
 ): SourceFileImpl
 {
-  const sourceFile = getTS_SourceFile({
+  const sourceFile: SourceFile = getTS_SourceFile({
     isAbsolutePath: true,
     pathToDirectory: projectDir,
   }, moduleLocation);
