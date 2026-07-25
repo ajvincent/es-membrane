@@ -6,6 +6,17 @@ export class WeakRefSet<T extends WeakKey> {
     ref => this.#references.delete(ref)
   );
 
+  constructor(
+    values?: Iterable<T>
+  )
+  {
+    if (values) {
+      for (const value of values) {
+        this.addReference(value);
+      }
+    }
+  }
+
   /**
    * Add a weak reference to an object.
    * @param value - the object.
@@ -68,5 +79,12 @@ export class WeakRefSet<T extends WeakKey> {
   clearReferences(): void {
     this.#valueToRef = new WeakMap;
     this.#references.clear();
+  }
+
+  union(other: WeakRefSet<T>): WeakRefSet<T> {
+    return new WeakRefSet([
+      ...this.liveElements(),
+      ...other.liveElements()
+    ]);
   }
 }
