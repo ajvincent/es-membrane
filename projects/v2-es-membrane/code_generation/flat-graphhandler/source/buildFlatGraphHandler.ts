@@ -1,7 +1,5 @@
 //#region preamble
-import {
-  resolve as importResolve
-} from "import-meta-resolve";
+import path from "node:path";
 
 import type {
   ClassDeclarationImpl,
@@ -10,6 +8,10 @@ import type {
   ImportManager,
   SourceFileImpl,
 } from "ts-morph-structures";
+
+import {
+  projectDir
+} from "#stage_utilities/source/AsyncSpecModules.js";
 
 import type {
   ClassAndImportManager
@@ -44,7 +46,7 @@ export async function buildFlatGraphHandler(): Promise<void> {
   const {
     classDecl: decoratedClassDecl,
     importManager: decoratedSourceImportManager,
-  }: ClassAndImportManager = await getDecoratedHandler();
+  }: ClassAndImportManager = getDecoratedHandler();
 
   const {
     classDecl: tailClass,
@@ -67,13 +69,12 @@ export async function buildFlatGraphHandler(): Promise<void> {
     classToImportManager.set(classDecl, importManager);
   }
 
-  const outModulePath = "#membranes_flat/source/ObjectGraphHandler.ts";
-  const outModuleFilePath = importResolve(outModulePath, import.meta.url);
+  const outModulePath = "membranes_flat/source/ObjectGraphHandler.ts";
+  const outModuleFilePath = path.join(projectDir, outModulePath);
 
   const allTailClassMembers: ClassMembersMap = methodStacks.getFlattenedClassMembers();
   const consolidatedImports: ImportManager = mergeImportManagers(
-    classToImportManager.values(),
-    "#membranes_flat/source/ObjectGraphHandler.ts"
+    classToImportManager.values(), outModulePath
   );
 
   const FlatObjectGraphHandler_Source: SourceFileImpl = weldToConvertingHead(

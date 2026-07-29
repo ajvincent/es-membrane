@@ -1,6 +1,7 @@
 //#region preamble
 import assert from "node:assert";
 import path from "node:path";
+import url from "node:url";
 
 import {
   resolve as importResolve
@@ -39,17 +40,19 @@ export function getTailHandler(
   )!;
 
   // import ObjectGraphTailHandler from "#objectgraph_handlers/source/generated/ObjectGraphTailHandler.js";
-  const pathToModule: string = importResolve(
+  const pathToModule: string = url.fileURLToPath(importResolve(
     baseImportManager.moduleSpecifier,
     import.meta.url
-  );
+  ));
+
   const sourceFile: SourceFileImpl = getSourceStructure(path.relative(projectDir, pathToModule));
 
   const tailImports: ImportDeclarationImpl[] = [];
   let classDecl: ClassDeclarationImpl | undefined;
 
-  // TODO: ImportManager.fromSourceFile()
-  const importManager: ImportManager = new ImportManager("");
+  const importManager: ImportManager = ImportManager.fromSourceFile(
+    pathToModule.replace(/\.js$/, ".ts"), sourceFile
+  );
 
   for (const statement of sourceFile.statements) {
     // eslint-disable-next-line @typescript-eslint/no-base-to-string

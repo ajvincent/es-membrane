@@ -2,18 +2,13 @@ import assert from "node:assert";
 import path from "node:path";
 
 import {
-  type SourceFile,
   StructureKind,
 } from "ts-morph";
 
 import {
-  getTypeAugmentedStructure,
   ImportManager,
-  SourceFileImpl,
-  VoidTypeNodeToTypeStructureConsole,
+  type SourceFileImpl,
 } from "ts-morph-structures";
-
-import getTS_SourceFile from "#stage_utilities/source/getTS_SourceFile.js";
 
 import {
   projectDir
@@ -23,26 +18,13 @@ import type {
   ClassAndImportManager
 } from "../types/ClassAndImportManager.js";
 
-export async function getDecoratedHandler(): Promise<ClassAndImportManager> {
+import {
+  getSourceStructure
+} from "./getSourceStructure.js";
+
+export function getDecoratedHandler(): ClassAndImportManager {
   const writeFileLocation = "membranes_flat/source/ObjectGraphHandler.ts";
-  const tempSourceFileLocation = "membranes_flat/source/ObjectGraphHandler.tmp.ts";
-  let sourceFile: SourceFileImpl;
-  {
-    let sourceFileNative: SourceFile = getTS_SourceFile({
-      isAbsolutePath: true,
-      pathToDirectory: projectDir,
-    }, "membranes_decorated/source/ObjectGraphHandler.ts");
-
-    sourceFileNative = sourceFileNative.copyToDirectory(
-      path.join(projectDir, tempSourceFileLocation),
-      { overwrite: true }
-    );
-
-    sourceFile = getTypeAugmentedStructure(
-      sourceFileNative, VoidTypeNodeToTypeStructureConsole, true, StructureKind.SourceFile
-    ).rootStructure;
-    await sourceFileNative.deleteImmediately();
-  }
+  const sourceFile: SourceFileImpl = getSourceStructure("membranes_decorated/source/ObjectGraphHandler.ts");
 
   const classDecl = sourceFile.statements.at(-1);
   assert(typeof classDecl === "object", "expected ClassDeclarationImpl");
