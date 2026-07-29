@@ -74,9 +74,17 @@ export class InternalMembrane implements MembraneIfc, MembraneInternalIfc {
 
   // MembraneIfc
   revokeEverything(): void {
+    const errors: Error[] = [];
     for (const graphHead of this.#graphHeads.values()) {
-      this.#revokeObjectGraph(graphHead);
+      try {
+        this.#revokeObjectGraph(graphHead);
+      } catch (ex) {
+        errors.push(ex as Error);
+      }
     }
+
+    if (errors.length)
+      throw new AggregateError(errors, "revokeEverything failed");
   }
 
   #getTargetGraph(
