@@ -1,5 +1,4 @@
 import DependencyTracker from "#utilities/source/DependencyTracker.js";
-import { Deferred } from "#utilities/source/PromiseTypes.js";
 
 import { setImmediate as setImmediatePromise } from "timers/promises";
 
@@ -7,10 +6,10 @@ it("DependencyTracker", async () => {
   const tracker = new DependencyTracker<number>;
   tracker.addPromise("one", Promise.resolve(1));
 
-  const two = new Deferred<number>;
+  const two: PromiseWithResolvers<number> = Promise.withResolvers();
   tracker.addPromise("two", two.promise, ["one"]);
 
-  const three = new Deferred<number>;
+  const three: PromiseWithResolvers<number> = Promise.withResolvers();
   tracker.addPromise("three", three.promise);
 
   tracker.addPromise("four", Promise.resolve(4));
@@ -33,10 +32,10 @@ it("DependencyTracker", async () => {
     expect(dependencies.has("five")).toBe(true);
   }
 
-  const five = new Deferred<number>;
+  const five: PromiseWithResolvers<number> = Promise.withResolvers();
   tracker.addPromise("five", five.promise);
 
-  const six = new Deferred<number>;
+  const six: PromiseWithResolvers<number> = Promise.withResolvers();
   tracker.addPromise("six", six.promise, ["two", "five"]);
 
   {

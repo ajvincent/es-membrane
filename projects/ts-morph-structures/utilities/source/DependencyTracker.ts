@@ -3,7 +3,6 @@ import AwaitedMap, {
 } from "./AwaitedMap.js";
 
 import {
-  Deferred,
   SingletonPromise,
   PromiseAllParallel,
 } from "./PromiseTypes.js";
@@ -72,7 +71,7 @@ class DependencyTracker<ValueType>
   readonly #unresolvedNames = new Set<string>;
   readonly #unresolvedDependencies = new Set<string>;
 
-  readonly #startDeferred = new Deferred<void>;
+  readonly #startDeferred = Promise.withResolvers<void>();
   readonly #runPromise = new SingletonPromise(async () => this.#run());
 
   #started = false;
