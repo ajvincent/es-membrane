@@ -24,12 +24,15 @@ import {
   stageDir,
 } from "../../pre-build/constants.js";
 
+import {
+  targetDir
+} from "./targetDir.js";
+
 export default
 async function runAPIDocumenter(): Promise<void>
 {
   const Temp = await tempDirWithCleanup();
   try {
-    const targetDir: string = path.join(monorepoRoot, "docs/ts-morph-structures/api");
     await asyncFork(
       path.join(monorepoRoot, "node_modules/@microsoft/api-documenter/bin/api-documenter"),
       [
