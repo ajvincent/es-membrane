@@ -4,10 +4,6 @@ import type {
 } from "../types/Virtualization262.js";
 
 import {
-  Deferred
-} from "../../utilities/PromiseTypes.js";
-
-import {
   GuestEngine,
   type PlainCompletion,
   type ThrowOr
@@ -149,7 +145,7 @@ export class RealmDriver {
 
   readonly resolveModulePromises = new Set<Promise<unknown>>;
 
-  readonly #moduleCompletedDeferred = new Deferred<void>;
+  readonly #moduleCompletedDeferred = Promise.withResolvers<void>();
   readonly moduleCompleted: Promise<void> = this.#moduleCompletedDeferred.promise;
 
   #mainModule?: GuestEngine.SourceTextModuleRecord;

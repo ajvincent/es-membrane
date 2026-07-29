@@ -2,12 +2,6 @@ import {
   GuestEngine
 } from "./GuestEngine.js";
 
-import {
-  Deferred,
-  PromiseResolver,
-  PromiseRejecter
-} from "../../utilities/PromiseTypes.js";
-
 export function convertGuestPromiseToVoidHostPromise
 (
   guestPromise: GuestEngine.PromiseObject
@@ -18,8 +12,8 @@ export function convertGuestPromiseToVoidHostPromise
 }
 
 class VoidGuestToHostPromise {
-  readonly #resolve: PromiseResolver<void>;
-  readonly #reject: PromiseRejecter;
+  readonly #resolve: PromiseWithResolvers<void>["resolve"];
+  readonly #reject: PromiseWithResolvers<void>["reject"];
 
   readonly promise: Promise<void>;
 
@@ -27,7 +21,7 @@ class VoidGuestToHostPromise {
     guestPromise: GuestEngine.PromiseObject,
   )
   {
-    const deferred = new Deferred<void>;
+    const deferred = Promise.withResolvers<void>();
     this.#resolve = deferred.resolve;
     this.#reject = deferred.reject;
 
