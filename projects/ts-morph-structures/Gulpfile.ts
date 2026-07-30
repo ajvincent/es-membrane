@@ -35,6 +35,9 @@ export const stage_two = buildStage([
   "stage_2_integration",
   "stage_2_snapshot/pre-build",
   "stage_2_snapshot",
+  /*
+  "stage_2_documentation",
+  */
 ]);
 
 export const stage_three = buildStage([

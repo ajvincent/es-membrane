@@ -15,7 +15,9 @@ import {
 import structureToSyntax from "./build/structureToSyntax.js";
 import compileTypeDeclarations from "./build/docs/typeDeclarations.js";
 import doBundles from "./build/rollup/bundle.js";
-import { fixExportTypes } from "./build/fixExportTypes.js";
+import {
+  fixExportTypes
+} from "./build/fixExportTypes.js";
 import runAPIExtractor from "./build/docs/runAPIExtractor.js";
 import applyDecoratorsForDocModel from "./build/docs/decoratorsInDocModel.js";
 import runAPIDocumenter from "./build/docs/runAPIDocumenter.js";
@@ -29,14 +31,24 @@ async function eslint(): Promise<void> {
   ]);
 }
 
-export default series([
-  structureToSyntax,
-  doBundles,
-  fixExportTypes,
+const documentationTasks = series([
   compileTypeDeclarations,
   applyDecoratorsForDocModel,
   runAPIExtractor,
   runAPIDocumenter,
+]);
+
+export default series([
+  structureToSyntax,
+  doBundles,
+  fixExportTypes,
+
+  documentationTasks,
+
   eslint,
   exportDist,
 ]);
+
+export {
+  documentationTasks,
+};
