@@ -34,7 +34,6 @@ export default series([
   structureToSyntax,
   doBundles,
   fixExportTypes,
-
   eslint,
   exportDist,
 ]);
