@@ -28,7 +28,7 @@ import {
   TypeStructures,
   TypeStructureKind,
   getTypeAugmentedStructure,
-} from "#stage_two/snapshot/dist/exports.js";
+} from "#stage_two/snapshot/source/exports.js";
 
 import {
   PromiseAllParallel
