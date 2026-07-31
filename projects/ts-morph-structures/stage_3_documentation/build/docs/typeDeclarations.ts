@@ -12,8 +12,8 @@ import {
   projectDir,
 } from "#utilities/source/AsyncSpecModules.js";
 
-const sourceDir = path.join(projectDir, "stage_2_documentation/snapshot");
-const snapshotDir = path.join(projectDir, "stage_2_documentation/typings-snapshot");
+const sourceDir = path.join(projectDir, "stage_3_documentation/snapshot");
+const snapshotDir = path.join(projectDir, "stage_3_documentation/typings-snapshot");
 
 const tsconfigFile = path.join(
   url.fileURLToPath(import.meta.url), "../typings-tsconfig.json"

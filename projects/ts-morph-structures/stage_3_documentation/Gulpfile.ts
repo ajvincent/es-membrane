@@ -26,7 +26,7 @@ import runAPIExtractor from "./build/docs/runAPIExtractor.js";
 import runAPIDocumenter from "./build/docs/runAPIDocumenter.js";
 
 async function eslint(): Promise<void> {
-  await runESLint(path.join(projectDir, "stage_2_documentation"), [
+  await runESLint(path.join(projectDir, "stage_3_documentation"), [
     "Gulpfile.ts",
     "build/**/*.ts",
   ]);

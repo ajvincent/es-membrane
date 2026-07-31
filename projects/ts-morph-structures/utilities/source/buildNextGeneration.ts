@@ -18,7 +18,7 @@ export async function buildNextGeneration(): Promise<void> {
     "gulp-utilities",
     "node_modules",
     "stage_0_references",
-    "stage_2_documentation",
+    "stage_3_documentation",
     "use-cases",
     "utilities",
     ".gitignore",
