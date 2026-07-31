@@ -16,9 +16,7 @@ import {
   typingsSnapshotDir,
 } from "../constants.js";
 
-export default
-async function runAPIExtractor(): Promise<void>
-{
+export async function runAPIExtractor(): Promise<void> {
   await fs.copyFile(
     path.join(projectDir, "tsconfig.json"),
     path.join(typingsSnapshotDir, "tsconfig.json")

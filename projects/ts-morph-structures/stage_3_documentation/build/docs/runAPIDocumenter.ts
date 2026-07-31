@@ -28,9 +28,7 @@ import {
   targetDir
 } from "./targetDir.js";
 
-export default
-async function runAPIDocumenter(): Promise<void>
-{
+export async function runAPIDocumenter(): Promise<void> {
   const Temp = await tempDirWithCleanup();
   try {
     await asyncFork(

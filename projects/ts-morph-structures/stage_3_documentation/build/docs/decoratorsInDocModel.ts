@@ -3,6 +3,7 @@ import fs from "fs/promises";
 import path from "path";
 
 import {
+  ImportDeclaration,
   ModuleKind,
   ModuleResolutionKind,
   Project,
@@ -10,30 +11,24 @@ import {
   ScriptTarget,
   SourceFile,
   StructureKind,
-  TypeNode,
-  ImportDeclaration,
+  type TypeNode,
 } from "ts-morph";
 
 import {
-  typingsSnapshotDir
-} from '../constants.js';
-
-import {
+  ClassMembersMap,
   ImportDeclarationImpl,
   PropertyDeclarationImpl,
   MemberedObjectTypeStructureImpl,
   MethodDeclarationImpl,
   VariableDeclarationImpl,
-  ImportTypedStructureImpl,
+  ImportTypeStructureImpl,
   MethodSignatureImpl,
   PropertySignatureImpl,
-  LiteralTypedStructureImpl,
+  LiteralTypeStructureImpl,
   TypeStructures,
   TypeStructureKind,
   getTypeAugmentedStructure,
-} from "#stage_one/prototype-snapshot/exports.js";
-
-import ClassMembersMap from "#stage_two/generation/build/utilities/public/ClassMembersMap.js";
+} from "#stage_two/snapshot/dist/exports.js";
 
 import {
   PromiseAllParallel
@@ -43,6 +38,10 @@ import {
   getStructureClassBaseName,
   getStructureNameFromModified
 } from "#utilities/source/StructureNameTransforms.js";
+
+import {
+  typingsSnapshotDir
+} from '../constants.js';
 //#endregion preamble
 
 const structuresDir = path.join(typingsSnapshotDir, "source/structures/standard");
@@ -50,9 +49,7 @@ const structuresDir = path.join(typingsSnapshotDir, "source/structures/standard"
 /**
  * @returns true if we need to run the extractor again.
  */
-export default
-async function applyDecoratorsForDocModel(): Promise<void>
-{
+export async function applyDecoratorsForDocModel(): Promise<void> {
   const project: Project = createProject();
 
   const files = await fs.readdir(
@@ -114,7 +111,9 @@ async function updateSourceFile(
   await sourceFile.save();
 }
 
-function requireImportsDecl(sourceFile: SourceFile): ImportDeclaration
+function requireImportsDecl(
+  sourceFile: SourceFile
+): ImportDeclaration
 {
   let importsDecl: ImportDeclaration | undefined = sourceFile.getImportDeclaration("../../exports.js");
   if (!importsDecl) {
@@ -130,15 +129,22 @@ function getPropertiesAndMethods(
 {
   const classBaseNode = sourceFile.getVariableDeclarationOrThrow(classBaseName);
 
-  const baseStructure = getTypeAugmentedStructure(classBaseNode, (
+  function errorConsole(
     message: string,
-    failingTypeNode: TypeNode
-  ) => {
-    void(failingTypeNode);
-    throw new Error(message);
-  }).rootStructure as VariableDeclarationImpl;
+    failingTypeNode: TypeNode,
+  ): void
+  {
+    void failingTypeNode;
+    console.error(sourceFile.getFilePath(), message);
+  }
 
-  const importType = baseStructure.typeStructure as ImportTypedStructureImpl;
+  const baseStructure = getTypeAugmentedStructure(
+    classBaseNode,
+    errorConsole,
+    true
+  ).rootStructure as VariableDeclarationImpl;
+
+  const importType = baseStructure.typeStructure as ImportTypeStructureImpl;
   const membered = importType.childTypes[1] as MemberedObjectTypeStructureImpl;
 
   classBaseNode.remove();
@@ -157,9 +163,9 @@ function getClassMembersMap(
   const classMembers: (MethodDeclarationImpl | PropertyDeclarationImpl)[] = [];
   propertiesAndMethods.forEach(value => {
     if (value.kind === StructureKind.PropertySignature) {
-      classMembers.push(PropertyDeclarationImpl.fromSignature(value));
+      classMembers.push(PropertyDeclarationImpl.fromSignature(false, value));
     } else {
-      classMembers.push(MethodDeclarationImpl.fromSignature(value));
+      classMembers.push(MethodDeclarationImpl.fromSignature(false, value));
     }
   });
   map.addMembers(classMembers);
@@ -189,7 +195,7 @@ function replaceImportTypeRecursive(
 {
   switch (type.kind) {
     case TypeStructureKind.Import:
-      return getExportedTypeLiteral(importsDecl, type as ImportTypedStructureImpl);
+      return getExportedTypeLiteral(importsDecl, type);
     case TypeStructureKind.Array:
       type.objectType = replaceImportTypeRecursive(importsDecl, type.objectType);
       break;
@@ -210,8 +216,8 @@ const fileMatchRE = /^\.\/([a-zA-Z]*)\.js$/;
 
 function getExportedTypeLiteral(
   importsDecl: ImportDeclaration,
-  importType: ImportTypedStructureImpl
-): LiteralTypedStructureImpl | ImportTypedStructureImpl
+  importType: ImportTypeStructureImpl
+): LiteralTypeStructureImpl | ImportTypeStructureImpl
 {
   if (importType.childTypes.length > 0)
     return importType;
@@ -221,7 +227,7 @@ function getExportedTypeLiteral(
   if (importType.argument.stringValue.startsWith(".") === false)
     return importType;
 
-  let literal: LiteralTypedStructureImpl | undefined;
+  let literal: LiteralTypeStructureImpl | undefined;
   if (importType.qualifier.stringValue === "default") {
     const match = fileMatchRE.exec(importType.argument.stringValue);
     if (!match)
@@ -229,10 +235,10 @@ function getExportedTypeLiteral(
 
     const desiredType = match[1];
 
-    literal = new LiteralTypedStructureImpl(desiredType);
+    literal = LiteralTypeStructureImpl.get(desiredType);
   }
   else {
-    literal = new LiteralTypedStructureImpl(importType.qualifier.stringValue);
+    literal = LiteralTypeStructureImpl.get(importType.qualifier.stringValue);
   }
 
   const knownImports = new Set(importsDecl.getNamedImports().map(spec => spec.getName()));
