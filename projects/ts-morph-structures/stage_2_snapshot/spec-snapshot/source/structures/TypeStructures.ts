@@ -12,6 +12,7 @@ import {
   type ConditionalTypeStructureParts,
   FunctionTypeStructureImpl,
   FunctionWriterStyle,
+  ImportAttributeImpl,
   ImportTypeStructureImpl,
   IndexedAccessTypeStructureImpl,
   InferTypeStructureImpl,
@@ -122,12 +123,31 @@ describe("TypeStructure for ts-morph (stage 2): ", () => {
     checkCloneAndRegistration(typedWriter, FunctionTypeStructureImpl, false);
   });
 
-  it("ImportTypeStructureImpl", () => {
+  it("ImportTypeStructureImpl with no attributes", () => {
     const typedWriter = new ImportTypeStructureImpl(
-      stringBarTyped, nstTyped, [fooTyped]
+      stringBarTyped, [], nstTyped, [fooTyped]
     );
     typedWriter.writerFunction(writer);
     expect<string>(writer.toString()).toBe(`import("bar").NumberStringType<foo>`);
+    expect(typedWriter.kind).toBe(TypeStructureKind.Import);
+  });
+
+  it("ImportTypeStructureImpl with a module-resolution attribute", () => {
+    const attr = new ImportAttributeImpl("resolution-mode", "import");
+
+    const typedWriter = new ImportTypeStructureImpl(
+      stringBarTyped, [attr], nstTyped, [fooTyped]
+    );
+    typedWriter.writerFunction(writer);
+
+    expect<string>(writer.toString()).toBe(`
+import("bar", {
+    with: {
+        "resolution-mode": "import"
+    }
+}).NumberStringType<foo>
+`.trim());
+
     expect(typedWriter.kind).toBe(TypeStructureKind.Import);
   });
 

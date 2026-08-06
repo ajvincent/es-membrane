@@ -4,6 +4,9 @@ import {
   EntityName,
   FunctionTypeNode,
   Identifier,
+  type ImportAttribute,
+  type ImportAttributes,
+  type ImportTypeNode,
   MappedTypeNode,
   Node,
   ParameterDeclaration,
@@ -23,6 +26,8 @@ import {
   FunctionTypeContext,
   FunctionTypeStructureImpl,
   FunctionWriterStyle,
+  type ImportAttributeImpl,
+  ImportTypeStructureImpl,
   IndexedAccessTypeStructureImpl,
   InferTypeStructureImpl,
   IntersectionTypeStructureImpl,
@@ -41,6 +46,7 @@ import {
   TypeArgumentedTypeStructureImpl,
   TypeParameterDeclarationImpl,
   TypePredicateTypeStructureImpl,
+  TypeStructureKind,
   TypeStructures,
   UnionTypeStructureImpl,
   type TypeStructuresOrNull,
@@ -208,6 +214,10 @@ export default function convertTypeNode(
     }
 
     return new TypePredicateTypeStructureImpl(typeNode.hasAssertsModifier(), parameterName, isType_TypeStructure);
+  }
+
+  if (Node.isImportTypeNode(typeNode)) {
+    return convertImportTypeNode(typeNode, consoleTrap, subStructureResolver);
   }
 
   // Type nodes with generic type node children, based on a type.
@@ -622,6 +632,55 @@ function convertTypeOperatorNode(
     default:
       return null;
   }
+}
+
+function convertImportTypeNode(
+  importTypeNode: ImportTypeNode,
+  consoleTrap: TypeNodeToTypeStructureConsole,
+  subStructureResolver: SubstructureResolver,
+): ImportTypeStructureImpl | null
+{
+  const argStructure: TypeStructuresOrNull = convertTypeNode(
+    importTypeNode.getArgument(),
+    consoleTrap,
+    subStructureResolver
+  );
+  if (!argStructure) {
+    return reportConversionFailure("no arguments structure", importTypeNode, importTypeNode.getArgument(), consoleTrap);
+  }
+  if (argStructure.kind !== TypeStructureKind.String) {
+    return reportConversionFailure("expected string arg structure", importTypeNode, importTypeNode.getArgument(), consoleTrap);
+  }
+
+  const attrNodes: ImportAttributes | undefined = importTypeNode.getAttributes();
+  let attrs: ImportAttributeImpl[];
+  if (attrNodes) {
+    const elementNodes: ImportAttribute[] = attrNodes.getElements();
+    attrs = elementNodes.map(node => subStructureResolver(node)) as ImportAttributeImpl[];
+  } else {
+    attrs = [];
+  }
+
+  const qualifierNode = importTypeNode.getQualifier();
+  let qualifier: LiteralTypeStructureImpl | QualifiedNameTypeStructureImpl | null;
+  if (qualifierNode) {
+    const qStructure: string | QualifiedNameTypeStructureImpl = composeQualifiedName(qualifierNode);
+    if (typeof qStructure === "string")
+      qualifier = LiteralTypeStructureImpl.get(qStructure);
+    else
+      qualifier = qStructure;
+  } else {
+    qualifier = null;
+  }
+
+  const importTypeStructure = new ImportTypeStructureImpl(argStructure, attrs, qualifier, []);
+  const success = convertAndAppendChildTypes(
+    importTypeNode.getTypeArguments(),
+    importTypeStructure.childTypes,
+    consoleTrap,
+    subStructureResolver
+  );
+  return success ? importTypeStructure : null;
 }
 
 function prependPrefixOperator(

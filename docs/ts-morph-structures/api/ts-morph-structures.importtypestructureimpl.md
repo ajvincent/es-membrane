@@ -13,13 +13,13 @@ export default class ImportTypeStructureImpl extends TypeStructuresBase<TypeStru
 
 ## Example
 
-`import("ts-morph").StatementStructures`
+`import("ts-morph", { with: { "resolution-mode": "import" } }).StatementStructures`
 
 ## Constructors
 
 | Constructor | Modifiers | Description |
 |-|-|-|
- | [(constructor)(argument, qualifier, typeArguments)](./ts-morph-structures.importtypestructureimpl._constructor_.md) | | Constructs a new instance of the `ImportTypeStructureImpl` class |
+ | [(constructor)(argument, attributes, qualifier, typeArguments)](./ts-morph-structures.importtypestructureimpl._constructor_.md) | | Constructs a new instance of the `ImportTypeStructureImpl` class |
  
 
 
@@ -28,6 +28,7 @@ export default class ImportTypeStructureImpl extends TypeStructuresBase<TypeStru
 | Property | Modifiers | Type | Description |
 |-|-|-|-|
  | [argument](./ts-morph-structures.importtypestructureimpl.argument.md) | | [StringTypeStructureImpl](./ts-morph-structures.stringtypestructureimpl.md) | |
+ | [attributes](./ts-morph-structures.importtypestructureimpl.attributes.md) | `readonly` | [ImportAttributeImpl](./ts-morph-structures.importattributeimpl.md)\[\] | |
  | [childTypes](./ts-morph-structures.importtypestructureimpl.childtypes.md) | `readonly` | [TypeStructures](./ts-morph-structures.typestructures.md)\[\] | |
  | [kind](./ts-morph-structures.importtypestructureimpl.kind.md) | `readonly` | [TypeStructureKind.Import](./ts-morph-structures.typestructurekind.md) | |
  | [qualifier](./ts-morph-structures.importtypestructureimpl.qualifier.md) | | [LiteralTypeStructureImpl](./ts-morph-structures.literaltypestructureimpl.md) \| [QualifiedNameTypeStructureImpl](./ts-morph-structures.qualifiednametypestructureimpl.md) \| null | |
