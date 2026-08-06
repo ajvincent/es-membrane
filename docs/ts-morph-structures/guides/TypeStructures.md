@@ -43,7 +43,7 @@ These are type structures which contain other type structures.
 | [ArrayTypeStructureImpl](../api/ts-morph-structures.arraytypestructureimpl.md) | `string[]` | objectType |
 | [ConditionalTypeStructureImpl](../api/ts-morph-structures.conditionaltypestructureimpl.md) | `foo extends true ? string : never` | checkType, extendsType, trueType, falseType |
 | [FunctionTypeStructureImpl](../api/ts-morph-structures.functiontypestructureimpl.md) | `("new" or "get" or "set" or "") name<typeParameters>(parameters, ...restParameter) ("=>" or ":" ) returnType` | name, typeParameters, parameters, restParameter, returnType, writerStyle |
-| [ImportTypeStructurlImpl](../api/ts-morph-structures.importtypestructureimpl.md) | `import("ts-morph").StatementStructures<>` | argument, qualifier, childTypes |
+| [ImportTypeStructureImpl](../api/ts-morph-structures.importtypestructureimpl.md) | `import("ts-morph").StatementStructures<>` | argument, attributes, qualifier, childTypes |
 | [IndexedAccessStructureImpl](../api/ts-morph-structures.indexedaccesstypestructureimpl.md) | `NumberStringType["repeatForward"]` | objectType, childTypes (`[TypeStructures]`) |
 | [InferTypeStructureImpl](../api/ts-morph-structures.infertypestructureimpl.md) | `Elements extends [infer Head, ...infer Tail]` | typeParameter |
 | [IntersectionTypeStructureImpl](../api/ts-morph-structures.intersectiontypestructureimpl.md) | `Foo & Bar` | childTypes |

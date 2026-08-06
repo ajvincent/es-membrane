@@ -77,7 +77,6 @@ implements KindedTypeStructure<Kind>
   public abstract readonly kind: Kind;
   public abstract readonly writerFunction: WriterFunction;
 
-
   /** @internal */
   public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
