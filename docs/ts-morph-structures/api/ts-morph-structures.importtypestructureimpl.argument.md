@@ -7,7 +7,5 @@
 **Signature:**
 
 ```typescript
-get argument(): StringTypeStructureImpl;
-
-set argument(value: StringTypeStructureImpl);
+argument: StringTypeStructureImpl;
 ```

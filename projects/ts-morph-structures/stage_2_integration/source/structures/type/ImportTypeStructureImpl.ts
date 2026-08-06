@@ -1,13 +1,11 @@
-import type {
-  CodeBlockWriter,
-  WriterFunction,
+import {
+  StructureKind,
+  type CodeBlockWriter,
+  type WriterFunction,
 } from "ts-morph";
 
 import {
-  /*
   ImportAttributeImpl,
-  */
-  ParenthesesTypeStructureImpl,
   QualifiedNameTypeStructureImpl,
   StringTypeStructureImpl,
   TypeArgumentedTypeStructureImpl,
@@ -24,30 +22,32 @@ import {
 } from "../../../snapshot/source/internal-exports.js";
 
 import LiteralTypeStructureImpl from "./LiteralTypeStructureImpl.js";
+import StructureClassesMap from "../../base/StructureClassesMap.js";
 
-/** @example `import("ts-morph").StatementStructures` */
+/** @example `import("ts-morph", { with: { "resolution-mode": "import" } }).StatementStructures` */
 export default
 class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Import>
 {
   static readonly #nullIdentifier = new LiteralTypeStructureImpl("");
 
-  readonly #packageIdentifier: ParenthesesTypeStructureImpl;
   readonly #typeArguments: TypeArgumentedTypeStructureImpl;
 
+  argument: StringTypeStructureImpl;
+
   readonly kind: TypeStructureKind.Import = TypeStructureKind.Import;
-  /*
-  readonly attributes: ImportAttributeImpl[] = [];
-  */
+  readonly attributes: ImportAttributeImpl[];
   readonly childTypes: TypeStructures[];
 
   constructor(
     argument: StringTypeStructureImpl,
+    attributes: ImportAttributeImpl[],
     qualifier: LiteralTypeStructureImpl | QualifiedNameTypeStructureImpl | null,
     typeArguments: TypeStructures[]
   )
   {
     super();
-    this.#packageIdentifier = new ParenthesesTypeStructureImpl(argument);
+    this.argument = argument;
+    this.attributes = attributes.map(attr => ImportAttributeImpl.clone(attr));
 
     typeArguments = typeArguments.slice();
     this.#typeArguments = new TypeArgumentedTypeStructureImpl(
@@ -56,17 +56,6 @@ class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Impor
     );
 
     this.childTypes = typeArguments;
-  }
-
-  get argument(): StringTypeStructureImpl
-  {
-    return this.#packageIdentifier.childTypes[0] as StringTypeStructureImpl;
-  }
-  set argument(
-    value: StringTypeStructureImpl
-  )
-  {
-    this.#packageIdentifier.childTypes[0] = value;
   }
 
   get qualifier(): LiteralTypeStructureImpl | QualifiedNameTypeStructureImpl | null
@@ -82,10 +71,32 @@ class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Impor
     this.#typeArguments.objectType = value ?? ImportTypeStructureImpl.#nullIdentifier;
   }
 
-  #writerFunction(writer: CodeBlockWriter): void
+  #writerFunction(
+    writer: CodeBlockWriter
+  ): void
   {
-    writer.write("import");
-    this.#packageIdentifier.writerFunction(writer);
+    ImportTypeStructureImpl.pairedWrite(writer, "import(", ")", false, false, () => {
+      this.argument.writerFunction(writer);
+      if (this.attributes.length) {
+        writer.write(", ");
+
+        writer.inlineBlock(() => {
+          writer.write("with: ");
+          writer.inlineBlock(() => {
+            let isFirst: boolean = true;
+            for (const attr of this.attributes) {
+              if (isFirst === false) {
+                writer.write(",");
+              }
+              writer.quote(attr.name);
+              writer.write(": ");
+              writer.quote(attr.value);
+              isFirst = false;
+            }
+          });
+        });
+      }
+    });
     if (this.qualifier) {
       writer.write(".");
       this.#typeArguments.writerFunction(writer);
@@ -100,6 +111,7 @@ class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Impor
     yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
 
     yield this.argument;
+    yield * this.attributes;
 
     const qualifier = this.qualifier;
     if (qualifier)
@@ -122,6 +134,7 @@ class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Impor
 
     return new ImportTypeStructureImpl(
       other.argument,
+      StructureClassesMap.cloneArrayWithKind(StructureKind.ImportAttribute, other.attributes),
       qualifier,
       TypeStructureClassesMap.cloneArray(other.childTypes)
     );

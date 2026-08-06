@@ -3206,19 +3206,20 @@ declare class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters
   >;
 }
 
-/** @example `import("ts-morph").StatementStructures` */
+/** @example `import("ts-morph", { with: { "resolution-mode": "import" } }).StatementStructures` */
 declare class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Import> {
   #private;
+  argument: StringTypeStructureImpl;
   readonly kind: TypeStructureKind.Import;
+  readonly attributes: ImportAttributeImpl[];
   readonly childTypes: TypeStructures[];
   readonly writerFunction: WriterFunction;
   constructor(
     argument: StringTypeStructureImpl,
+    attributes: ImportAttributeImpl[],
     qualifier: LiteralTypeStructureImpl | QualifiedNameTypeStructureImpl | null,
     typeArguments: TypeStructures[],
   );
-  get argument(): StringTypeStructureImpl;
-  set argument(value: StringTypeStructureImpl);
   get qualifier():
     | LiteralTypeStructureImpl
     | QualifiedNameTypeStructureImpl
