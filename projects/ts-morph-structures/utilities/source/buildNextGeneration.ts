@@ -12,6 +12,7 @@ import {
 const copyOptions = { recursive: true };
 
 export async function buildNextGeneration(): Promise<void> {
+  throw new Error("no, this is not what we're doing");
   await fs.mkdir(path.join(projectDir, "next-generation"));
 
   const rawFiles = [
