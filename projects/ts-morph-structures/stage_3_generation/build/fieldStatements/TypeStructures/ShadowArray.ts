@@ -9,8 +9,11 @@ import {
   type stringWriterOrStatementImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
+import {
+  BaseClassModule
+} from "../../../moduleClasses/exports.js";
+
 import StatementGetterBase from "../GetterBase.js";
-import { BaseClassModule } from "#stage_three/generation/moduleClasses/exports.js";
 
 export default
 class ShadowArrayStatements extends StatementGetterBase

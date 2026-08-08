@@ -11,11 +11,13 @@ import {
   type stringWriterOrStatementImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
-import CallExpressionStatementImpl from "../../../pseudoExpressions/statements/CallExpression.js";
-import StatementGetterBase from "../GetterBase.js";
 import {
   BaseClassModule
-} from "#stage_three/generation/moduleClasses/exports.js";
+} from "../../../moduleClasses/exports.js";
+
+import CallExpressionStatementImpl from "../../../pseudoExpressions/statements/CallExpression.js";
+
+import StatementGetterBase from "../GetterBase.js";
 
 export default
 class ArrayReadonlyHandler extends StatementGetterBase

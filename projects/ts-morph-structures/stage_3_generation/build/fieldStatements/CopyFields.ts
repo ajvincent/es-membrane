@@ -35,16 +35,19 @@ import {
   getStructureNameFromModified,
 } from "#utilities/source/StructureNameTransforms.js";
 
-import BlockStatementImpl from "../../pseudoExpressions/statements/BlockStatement.js";
-import CallExpressionStatementImpl from "../../pseudoExpressions/statements/CallExpression.js";
 import {
   BaseClassModule,
   InterfaceModule,
-
 } from "../../moduleClasses/exports.js";
-import FlatInterfaceMap from "#stage_three/generation/vanilla/FlatInterfaceMap.js";
-import StatementGetterBase from "./GetterBase.js";
+
+import BlockStatementImpl from "../../pseudoExpressions/statements/BlockStatement.js";
+import CallExpressionStatementImpl from "../../pseudoExpressions/statements/CallExpression.js";
+
+import FlatInterfaceMap from "../../vanilla/FlatInterfaceMap.js";
+
 import PropertyHashesWithTypes from "../classTools/PropertyHashesWithTypes.js";
+
+import StatementGetterBase from "./GetterBase.js";
 //#endregion preamble
 
 const booleanType = LiteralTypeStructureImpl.get("boolean");

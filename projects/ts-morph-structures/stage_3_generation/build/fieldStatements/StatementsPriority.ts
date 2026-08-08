@@ -1,7 +1,7 @@
-import BaseClassModule from "#stage_three/generation/moduleClasses/BaseClassModule.js";
+import BaseClassModule from "../../moduleClasses/BaseClassModule.js";
 import {
   StructureModule
-} from "#stage_three/generation/moduleClasses/StructureModule.js";
+} from "../../moduleClasses/StructureModule.js";
 import ArrayBooleanAndString from "./ArrayBooleanAndString.js";
 import CopyFieldsStatements from "./CopyFields.js";
 import StatementGetterBase from "./GetterBase.js";

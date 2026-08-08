@@ -1,10 +1,12 @@
 // #region preamble
-import BaseClassModule from "#stage_three/generation/moduleClasses/BaseClassModule.js";
 import {
   ClassSupportsStatementsFlags,
   type MemberedStatementsKey,
   type PropertyInitializerGetter,
 } from "#stage_two/snapshot/source/exports.js";
+
+import BaseClassModule from "../../../moduleClasses/BaseClassModule.js";
+
 import StatementGetterBase from "../../fieldStatements/GetterBase.js";
 
 // #endregion preamble

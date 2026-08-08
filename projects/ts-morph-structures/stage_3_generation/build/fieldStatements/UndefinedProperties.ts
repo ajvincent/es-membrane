@@ -12,8 +12,9 @@ import {
   ClassSupportsStatementsFlags
 } from "#stage_two/snapshot/source/exports.js";
 
+import BaseClassModule from "../../moduleClasses/BaseClassModule.js";
+
 import StatementGetterBase from "./GetterBase.js";
-import BaseClassModule from "#stage_three/generation/moduleClasses/BaseClassModule.js";
 
 export default
 class UndefinedProperties extends StatementGetterBase

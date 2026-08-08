@@ -18,10 +18,12 @@ import {
   TypeStructureKind,
 } from "#stage_two/snapshot/source/exports.js";
 
+import BaseClassModule from "../../moduleClasses/BaseClassModule.js";
+
 import BlockStatementImpl from "../../pseudoExpressions/statements/BlockStatement.js";
 import CallExpressionStatementImpl from "../../pseudoExpressions/statements/CallExpression.js";
+
 import StatementGetterBase from "./GetterBase.js";
-import BaseClassModule from "#stage_three/generation/moduleClasses/BaseClassModule.js";
 
 export default class ToJSONStatements extends StatementGetterBase
 implements ClassHeadStatementsGetter, ClassBodyStatementsGetter, ClassTailStatementsGetter
