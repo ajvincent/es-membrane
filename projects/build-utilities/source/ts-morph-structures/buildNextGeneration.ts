@@ -17,11 +17,31 @@ const localRootSource = "ts-morph-structures";
 const localRootTarget = "ts-morph-structures-next";
 const allProjectsDir = path.join(monorepoRoot, "projects");
 
-await asyncFork(
-  path.join(allProjectsDir, localRootSource, "gulp-utilities/cleanTSC_output.js"),
-  [],
-  path.join(allProjectsDir, localRootSource)
-);
+// #region cleanup before copying
+{
+  await asyncFork(
+    path.join(allProjectsDir, localRootSource, "gulp-utilities/cleanTSC_output.js"),
+    [],
+    path.join(allProjectsDir, localRootSource)
+  );
+
+  await PromiseAllParallel(
+    [
+      "stage_2_generation/dist",
+      "stage_2_integration/snapshot",
+      "stage_3_generation/dist",
+      "stage_3_integration/snapshot",
+      "stage_3_snapshot/snapshot",
+    ],
+    (
+      pathToDir: string
+    ): Promise<void> => fs.rm(
+      path.join(allProjectsDir, localRootSource, pathToDir),
+      { recursive: true, force: true }
+    )
+  );
+}
+// #endregion cleanup before copying
 
 //#region build directories structure
 {
@@ -145,3 +165,76 @@ await asyncFork(
   modifyPackageJSON satisfies RoutingCallback;
 }
 //#endregion build directories structure
+
+//#region fix file references
+{
+  const filesToRemove: readonly string[] = [
+    "stage_1_snapshot/spec-snapshot/build-checks/sourceNotInFiles.ts",
+    "stage_1_snapshot/spec-snapshot/build-checks/import-dist.ts",
+    "stage_1_snapshot/README.md",
+  ];
+
+  await PromiseAllParallel(filesToRemove, f => fs.rm(
+    path.join(allProjectsDir, localRootTarget, f)
+  ));
+
+  await Promise.all([
+    replaceReferencesInDir(
+      [
+        ["#stage_two", "#stage_one"],
+      ],
+      "stage_1_snapshot"
+    ),
+    replaceReferencesInDir(
+      [
+        ["#stage_two", "#stage_one"],
+      ],
+      "stage_2_generation"
+    ),
+    replaceReferencesInDir(
+      [
+        [
+          "#stage_one/prototype-snapshot/exports.js",
+          "#stage_one/snapshot/dist/exports.js"
+        ]
+      ],
+      "stage_2_integration"
+    ),
+  ]);
+
+  // TODO: move package.json rewrite here
+  // TODO: stage_1_snapshot/Gulpfile.ts: buildCanaries
+  // TODO: update stage_3_documentation destination
+
+  async function replaceReferencesInDir(
+    searches: readonly [needle: string, replace: string][],
+    pathToDir: string
+  ): Promise<void>
+  {
+    pathToDir = path.join(allProjectsDir, localRootTarget, pathToDir);
+    const files = await fs.readdir(pathToDir, { recursive: true });
+    await PromiseAllParallel(
+      files,
+      f => replaceReferenceInFile(searches, path.join(pathToDir, f))
+    );
+  }
+
+  async function replaceReferenceInFile(
+    searches: readonly [needle: string, replace: string][],
+    pathToFile: string,
+  ): Promise<void>
+  {
+    const stats = await fs.stat(pathToFile);
+    if (!stats.isFile())
+      return;
+
+    const original: string = await fs.readFile(pathToFile, { encoding: "utf-8" });
+    let contents: string = original;
+    for (const [needle, replace] of searches) {
+      contents = contents.replaceAll(needle, replace);
+    }
+    if (contents !== original)
+      await fs.writeFile(pathToFile, contents, { encoding: "utf-8" });
+  }
+}
+//#endregion fix file references
