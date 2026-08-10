@@ -202,10 +202,6 @@ const allProjectsDir = path.join(monorepoRoot, "projects");
     ),
   ]);
 
-  // TODO: move package.json rewrite here
-  // TODO: stage_1_snapshot/Gulpfile.ts: buildCanaries
-  // TODO: update stage_3_documentation destination
-
   async function replaceReferencesInDir(
     searches: readonly [needle: string, replace: string][],
     pathToDir: string

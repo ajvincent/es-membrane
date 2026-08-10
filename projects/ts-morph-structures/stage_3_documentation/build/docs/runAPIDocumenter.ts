@@ -48,6 +48,8 @@ export async function runAPIDocumenter(): Promise<void> {
     let allMarkdownFiles: string[] = await fs.promises.readdir(Temp.tempDir, { recursive: true, encoding: "utf-8" });
     allMarkdownFiles = allMarkdownFiles.filter(f => f.endsWith(".md"));
 
+    await fs.promises.mkdir(targetDir, { recursive: true });
+
     await PromiseAllParallel(
       allMarkdownFiles,
       f => fixMarkdown(Temp.tempDir, targetDir, f)

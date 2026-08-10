@@ -126,9 +126,6 @@ const allProjectsDir = path.join(monorepoRoot, "projects");
             ]
         ], "stage_2_integration"),
     ]);
-    // TODO: move package.json rewrite here
-    // TODO: stage_1_snapshot/Gulpfile.ts: buildCanaries
-    // TODO: update stage_3_documentation destination
     async function replaceReferencesInDir(searches, pathToDir) {
         pathToDir = path.join(allProjectsDir, localRootTarget, pathToDir);
         const files = await fs.readdir(pathToDir, { recursive: true });
