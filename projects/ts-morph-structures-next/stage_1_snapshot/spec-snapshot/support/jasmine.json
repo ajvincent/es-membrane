@@ -1,0 +1,6 @@
+{
+  "spec_files": [
+    "spec-snapshot/**/*.js"
+  ],
+  "stopSpecOnExpectationFailure": false
+}

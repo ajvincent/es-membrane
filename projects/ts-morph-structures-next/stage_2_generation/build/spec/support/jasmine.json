@@ -1,0 +1,6 @@
+{
+  "spec_files": [
+    "build/spec/**/*.js"
+  ],
+  "stopSpecOnExpectationFailure": false
+}

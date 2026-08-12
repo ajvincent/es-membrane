@@ -1,0 +1,74 @@
+{
+  "name": "ts-morph-structures-next",
+  "version": "1.4.0",
+  "description": "Structure classes for ts-morph, including type structure classes.",
+  "main": "dist/exports.js",
+  "typings": "dist/exports.d.ts",
+  "files": [
+    "dist/exports.js",
+    "dist/exports.d.ts"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "clean": "node ./gulp-utilities/cleanTSC_output.js",
+    "build": "npm run clean && node ../../node_modules/gulp/bin/gulp.js",
+    "tasks": "npm run clean && node ../../node_modules/gulp/bin/gulp.js --tasks",
+    "build-stage-one": "npm run clean && node ../../node_modules/gulp/bin/gulp.js stage_one",
+    "build-stage-two": "npm run clean && node ../../node_modules/gulp/bin/gulp.js stage_two",
+    "build-stage-three": "npm run clean && node ../../node_modules/gulp/bin/gulp.js stage_three",
+    "use-cases": "npm run clean && node ../../node_modules/gulp/bin/gulp.js use_cases",
+    "is-repo-clean": "npm run clean && node ./gulp-utilities/assertRepoIsClean.js",
+    "diff-stages": "npm run clean && diff -p -U 8 -N -r ./stage_2_snapshot/snapshot/source ./stage_3_integration/snapshot/source && echo source ok && diff -p -U 8 -N -r ./stage_2_snapshot/snapshot/dist ./stage_3_integration/snapshot/dist",
+    "diff-stages-color": "npm run clean && diff -p -U 8 -N -r --color ./stage_2_snapshot/snapshot/source ./stage_3_integration/snapshot/source && echo source ok && diff -p -U 8 -N -r --color ./stage_2_snapshot/snapshot/dist ./stage_3_integration/snapshot/dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajvincent/es-membrane.git"
+  },
+  "keywords": [
+    "ts-morph",
+    "typescript"
+  ],
+  "author": "Alexander J. Vincent <ajvincent@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ajvincent/es-membrane/issues"
+  },
+  "homepage": "https://github.com/ajvincent/es-membrane/tree/master/projects/ts-morph-structures#readme",
+  "devDependencies": {
+    "@ajvincent/build-utilities": "file:../build-utilities",
+    "@microsoft/api-documenter": "^7.23.38",
+    "@microsoft/api-extractor": "^7.43.0",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@tsconfig/node24": "^24.0.4",
+    "@types/gulp": "^4.0.18",
+    "@types/jasmine": "^6.0.0",
+    "@types/node": "^25.7.0",
+    "@types/which": "^3.0.4",
+    "chalk": "^5.6.2",
+    "gulp": "^5.0.1",
+    "rollup": "^4.60.3",
+    "rollup-plugin-dts": "^6.4.1",
+    "type-fest": "^5.6.0",
+    "which": "^6.0.1"
+  },
+  "dependencies": {
+    "mixin-decorators": "^1.0.1"
+  },
+  "peerDependencies": {
+    "ts-morph": "^28.0.0"
+  },
+  "imports": {
+    "#stage_one/*": "./stage_1_snapshot/*",
+    "#stage_two/fixtures/*": "./stage_2_snapshot/fixtures/*",
+    "#stage_two/generation/*": "./stage_2_generation/*",
+    "#stage_two/snapshot/*": "./stage_2_snapshot/snapshot/*",
+    "#stage_three/generation/*": "./stage_3_generation/*",
+    "#utilities/*": "./utilities/*",
+    "#gulp-utilities/*": "./gulp-utilities/*"
+  },
+  "private": true
+}

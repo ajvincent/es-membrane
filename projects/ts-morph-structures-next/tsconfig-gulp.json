@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "Gulpfile.ts",
+    "gulp-utilities/**/*.ts"
+  ]
+}
