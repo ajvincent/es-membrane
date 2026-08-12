@@ -14,10 +14,12 @@ import {
   type stringWriterOrStatementImpl
 } from "#stage_two/snapshot/source/exports.js";
 
+import BaseClassModule from "../../moduleClasses/BaseClassModule.js";
 import BlockStatementImpl from "../../pseudoExpressions/statements/BlockStatement.js";
+
 import PropertyHashesWithTypes from "../classTools/PropertyHashesWithTypes.js";
+
 import StatementGetterBase from "./GetterBase.js";
-import BaseClassModule from "#stage_three/generation/moduleClasses/BaseClassModule.js";
 
 export default class StructureIteratorStatements extends StatementGetterBase
 implements ClassHeadStatementsGetter, ClassBodyStatementsGetter

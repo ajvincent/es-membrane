@@ -3,10 +3,6 @@ import {
   StructureKind
 } from "ts-morph";
 
-import type {
-  StructureModule
-} from "#stage_three/generation/moduleClasses/StructureModule.js";
-
 import {
   ClassMembersMap,
   ClassSupportsStatementsFlags,
@@ -26,17 +22,22 @@ import {
   stringWriterOrStatementImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
-import type {
-  StructureModuleModifierTraps
-} from "#stage_three/generation/types/StructureModuleModifierTraps.js";
-
-import InterfaceModule from "#stage_three/generation/moduleClasses/InterfaceModule.js";
-
 import {
   StatementsPriority
-} from "#stage_three/generation/build/fieldStatements/StatementsPriority.js";
+} from "../../../../build/fieldStatements/StatementsPriority.js";
 
-import StatementGetterBase from "#stage_three/generation/build/fieldStatements/GetterBase.js";
+import StatementGetterBase from "../../../../build/fieldStatements/GetterBase.js";
+
+import InterfaceModule from "../../../../moduleClasses/InterfaceModule.js";
+import type {
+  StructureModule
+} from "../../../../moduleClasses/StructureModule.js";
+
+import type {
+  StructureModuleModifierTraps
+} from "../../../../types/StructureModuleModifierTraps.js";
+
+
 //#endregion preamble
 
 const ImportDeclarationSpecialCases: StructureModuleModifierTraps = {

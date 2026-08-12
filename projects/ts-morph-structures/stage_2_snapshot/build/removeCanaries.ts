@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 
 import { PromiseAllParallel } from "#utilities/source/PromiseTypes.js";
 import readDirsDeep from "#utilities/source/readDirsDeep.js";
-import { snapshotDir } from "../pre-build/constants.js";
+import { snapshotDir } from "./constants.js";
 
 export default async function removeCanaries(): Promise<void> {
   let { files } = (await readDirsDeep(snapshotDir));

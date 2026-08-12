@@ -8,7 +8,7 @@ import {
 
 import {
   DecoratorModule
-} from "#stage_three/generation/moduleClasses/exports.js";
+} from "../../moduleClasses/exports.js";
 
 import StatementGetterBase from "../fieldStatements/GetterBase.js";
 

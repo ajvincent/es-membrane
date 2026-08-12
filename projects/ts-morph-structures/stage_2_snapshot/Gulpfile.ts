@@ -13,8 +13,6 @@ import {
   projectDir,
 } from "#utilities/source/AsyncSpecModules.js";
 
-import removeCanaries from "./build/removeCanaries.js";
-
 async function jasmine(): Promise<void> {
   await runJasmine("./spec-snapshot/support/jasmine.json");
 }
@@ -32,7 +30,4 @@ async function eslint(): Promise<void> {
 export default series([
   jasmine,
   eslint,
-
-  // There's actually a spec which relies on the canary files existing.
-  removeCanaries,
 ]);

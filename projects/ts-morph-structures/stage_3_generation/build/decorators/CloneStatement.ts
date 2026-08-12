@@ -15,9 +15,9 @@ import {
 } from "#stage_two/snapshot/source/exports.js";
 
 import BlockStatementImpl from "../../pseudoExpressions/statements/BlockStatement.js";
-import CallExpressionStatementImpl from "#stage_three/generation/pseudoExpressions/statements/CallExpression.js";
+import CallExpressionStatementImpl from "../../pseudoExpressions/statements/CallExpression.js";
 import StatementGetterBase from "../fieldStatements/GetterBase.js";
-import { DecoratorModule } from "#stage_three/generation/moduleClasses/exports.js";
+import { DecoratorModule } from "../../moduleClasses/exports.js";
 //#endregion preamble
 
 export default class CloneStatement_Statements extends StatementGetterBase

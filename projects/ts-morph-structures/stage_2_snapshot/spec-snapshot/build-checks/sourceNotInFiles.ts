@@ -16,6 +16,7 @@ const stageDir: ModuleSourceDirectory = {
 
 const filesMap = new DefaultMap<string, Promise<string>>;
 
+// The separate arguments are intentional: they keep this test from failing on its own module.
 async function needleFoundInFiles(
   relativePathToDir: string,
   firstPart: string,

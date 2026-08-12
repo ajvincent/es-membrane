@@ -1,6 +1,6 @@
-import UnionMap from "#stage_three/generation/vanilla/UnionMap.js";
-import InterfaceMap from "#stage_three/generation/vanilla/InterfaceMap.js";
-import initializeTypes from "#stage_three/generation/vanilla/initializer.js";
+import UnionMap from "../../../vanilla/UnionMap.js";
+import InterfaceMap from "../../../vanilla/InterfaceMap.js";
+import initializeTypes from "../../../vanilla/initializer.js";
 
 import {
   LiteralTypeStructureImpl

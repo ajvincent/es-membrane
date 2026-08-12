@@ -1,7 +1,11 @@
 import type { stringOrWriterFunction } from "#stage_two/snapshot/source/exports.js";
 import type { CodeBlockWriter } from "ts-morph";
+
+import type {
+  WriterInterface
+} from "../../types/WriterInterface.js";
+
 import type ExpressionBase from "../ExpressionBase.js";
-import type { WriterInterface } from "#stage_three/generation/types/WriterInterface.js";
 
 export class ObjectLiteralExpressionMap
 extends Map<string, stringOrWriterFunction | ExpressionBase>

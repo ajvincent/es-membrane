@@ -22,14 +22,15 @@ import {
 
 import {
   stageDir,
-} from "../../pre-build/constants.js";
+} from "../constants.js";
 
-export default
-async function runAPIDocumenter(): Promise<void>
-{
+import {
+  targetDir
+} from "./targetDir.js";
+
+export async function runAPIDocumenter(): Promise<void> {
   const Temp = await tempDirWithCleanup();
   try {
-    const targetDir: string = path.join(monorepoRoot, "docs/ts-morph-structures/api");
     await asyncFork(
       path.join(monorepoRoot, "node_modules/@microsoft/api-documenter/bin/api-documenter"),
       [
@@ -46,6 +47,8 @@ async function runAPIDocumenter(): Promise<void>
 
     let allMarkdownFiles: string[] = await fs.promises.readdir(Temp.tempDir, { recursive: true, encoding: "utf-8" });
     allMarkdownFiles = allMarkdownFiles.filter(f => f.endsWith(".md"));
+
+    await fs.promises.mkdir(targetDir, { recursive: true });
 
     await PromiseAllParallel(
       allMarkdownFiles,

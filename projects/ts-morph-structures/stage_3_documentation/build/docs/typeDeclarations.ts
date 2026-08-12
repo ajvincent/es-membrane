@@ -8,18 +8,19 @@ import {
   monorepoRoot
 } from "@ajvincent/build-utilities";
 
-const projectDir = path.normalize(path.join(url.fileURLToPath(import.meta.url), "../../../.."));
-const sourceDir = path.join(projectDir, "stage_2_integration/snapshot");
-const snapshotDir = path.join(projectDir, "stage_2_integration/typings-snapshot");
+import {
+  projectDir,
+} from "#utilities/source/AsyncSpecModules.js";
+
+const sourceDir = path.join(projectDir, "stage_3_documentation/snapshot");
+const snapshotDir = path.join(projectDir, "stage_3_documentation/typings-snapshot");
 
 const tsconfigFile = path.join(
   url.fileURLToPath(import.meta.url), "../typings-tsconfig.json"
 );
 const tsconfigSourceFile = path.join(sourceDir, "typings-tsconfig.json");
 
-export default
-async function compileTypeDefinitions(): Promise<void>
-{
+export async function compileTypeDefinitions(): Promise<void> {
   await fs.rm(snapshotDir, { force: true, recursive: true });
   await fs.mkdir(snapshotDir);
 

@@ -13,10 +13,11 @@ import {
 
 import {
   BaseClassModule
-} from "#stage_three/generation/moduleClasses/exports.js";
+} from "../../../moduleClasses/exports.js";
+
+import CallExpressionStatementImpl from "../../../pseudoExpressions/statements/CallExpression.js";
 
 import StatementGetterBase from "../GetterBase.js";
-import CallExpressionStatementImpl from "#stage_three/generation/pseudoExpressions/statements/CallExpression.js";
 
 export default
 class TypeManagerStatements extends StatementGetterBase

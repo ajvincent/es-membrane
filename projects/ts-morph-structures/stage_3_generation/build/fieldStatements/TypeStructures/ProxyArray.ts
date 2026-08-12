@@ -13,9 +13,13 @@ import {
   type stringWriterOrStatementImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
-import CallExpressionStatementImpl from "#stage_three/generation/pseudoExpressions/statements/CallExpression.js";
+import {
+  BaseClassModule
+} from "../../../moduleClasses/exports.js";
+
+import CallExpressionStatementImpl from "../../../pseudoExpressions/statements/CallExpression.js";
+
 import StatementGetterBase from "../GetterBase.js";
-import { BaseClassModule } from "#stage_three/generation/moduleClasses/exports.js";
 
 export default
 class ProxyArrayStatements extends StatementGetterBase

@@ -4,7 +4,7 @@ import {
   parseLiteralType
 } from "#stage_two/snapshot/source/exports.js";
 
-import tightenPropertyType from "#stage_three/generation/build/interfaces/tightenPropertyType.js";
+import tightenPropertyType from "../../../build/interfaces/tightenPropertyType.js";
 
 /*
 import {

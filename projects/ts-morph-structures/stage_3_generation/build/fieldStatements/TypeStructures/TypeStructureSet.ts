@@ -11,11 +11,13 @@ import {
   type stringWriterOrStatementImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
+import BaseClassModule from "../../../moduleClasses/BaseClassModule.js";
+
 import CallExpressionStatementImpl from "../../../pseudoExpressions/statements/CallExpression.js";
 
 import PropertyHashesWithTypes from "../../classTools/PropertyHashesWithTypes.js";
+
 import StatementGetterBase from "../GetterBase.js";
-import BaseClassModule from "#stage_three/generation/moduleClasses/BaseClassModule.js";
 
 export default
 class TypeStructureSetStatements extends StatementGetterBase
