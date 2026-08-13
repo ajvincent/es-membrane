@@ -33,6 +33,3 @@ use-cases/tsconfig.json
 gulp-utilities/**/*.js
 gulp-utilities/**/*.js.map
 gulp-utilities/**/*.d.ts
-
-next-generation
-#next-generation/docs-generated

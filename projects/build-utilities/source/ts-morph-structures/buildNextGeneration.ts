@@ -202,6 +202,22 @@ const allProjectsDir = path.join(monorepoRoot, "projects");
     ),
   ]);
 
+  await Promise.all([
+    replaceReferenceInFile(
+      [
+        ["stage_3_generation", "stage_2_generation"]
+      ],
+      "stage_2_generation/Gulpfile.ts"
+    ),
+
+    replaceReferenceInFile(
+      [
+        ["../stage_3_integration/snapshot", "../stage_2_integration/snapshot"]
+      ],
+      "stage_2_snapshot/pre-build/copySnapshot.ts"
+    ),
+  ]);
+
   async function replaceReferencesInDir(
     searches: readonly [needle: string, replace: string][],
     pathToDir: string

@@ -21,6 +21,17 @@
     "projects/ts-morph-structures/Gulpfile.js": true,
     "projects/ts-morph-structures/Gulpfile.js.map": true,
 
+    "projects/ts-morph-structures-next/stage_*/**/*.js": { "when": "$(basename).ts"},
+    "projects/ts-morph-structures-next/stage_*/**/*.js.map": true,
+    "projects/ts-morph-structures-next/use-cases/**/*.js": { "when": "$(basename).ts"},
+    "projects/ts-morph-structures-next/use-cases/**/*.js.map": true,
+    "projects/ts-morph-structures-next/utilities/**/*.js": { "when": "$(basename).ts"},
+    "projects/ts-morph-structures-next/utilities/**/*.js.map": true,
+    "projects/ts-morph-structures-next/gulp-utilities/**/*.js": { "when": "$(basename).ts"},
+    "projects/ts-morph-structures-next/gulp-utilities/**/*.js.map": true,
+    "projects/ts-morph-structures-next/Gulpfile.js": true,
+    "projects/ts-morph-structures-next/Gulpfile.js.map": true,
+
     "projects/v2-es-membrane/code_generation/**/*.js": { "when": "$(basename).ts"},
     "projects/v2-es-membrane/code_generation/**/*.js.map": true,
     "projects/v2-es-membrane/ecma_references/**/*.js": { "when": "$(basename).ts"},

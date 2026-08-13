@@ -23,7 +23,7 @@ async function build(): Promise<void> {
 }
 
 async function eslint(): Promise<void> {
-  await runESLint(path.join(projectDir, "stage_3_generation"), [
+  await runESLint(path.join(projectDir, "stage_2_generation"), [
     "Gulpfile.ts",
     "build/**/*.ts",
     "moduleClasses/**/*.ts",

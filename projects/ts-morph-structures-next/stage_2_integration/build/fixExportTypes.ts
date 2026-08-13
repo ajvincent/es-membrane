@@ -32,8 +32,7 @@ import {
   type StructureImpls,
   type TypeStructures,
   TypeStructureKind,
-  type MemberedObjectTypedStructure,
-  type SourceFileImpl,
+  type MemberedObjectTypeStructureImpl,
 } from "#stage_one/snapshot/dist/exports.js";
 
 import {
@@ -53,11 +52,11 @@ export async function fixExportTypes(): Promise<void>
     void(failingTypeNode);
   }
 
-  const { rootStructure, failures } = getTypeAugmentedStructure(sourceFile, parseConsole);
+  const { rootStructure, failures } = getTypeAugmentedStructure(sourceFile, parseConsole, true);
   assert.deepStrictEqual(failures, [], "unknown structure failures");
   assert(rootStructure.kind === StructureKind.SourceFile);
 
-  forEachAugmentedStructureChild(rootStructure as SourceFileImpl, recurseStructures);
+  forEachAugmentedStructureChild(rootStructure, recurseStructures);
   StatementSorter.sortRoot(rootStructure);
 
   sourceFile.set(rootStructure);
@@ -83,15 +82,15 @@ function recurseStructures(child: StructureImpls | TypeStructures): void {
 }
 //#endregion driver
 
-//#region MemberedObjectTypedStructure
+//#region MemberedObjectTypeStructureImpl
 function sortMemberedObjectType(
-  memberedObject: MemberedObjectTypedStructure,
+  memberedObject: MemberedObjectTypeStructureImpl,
 ): void
 {
   memberedObject.properties?.sort(sortMembers);
   memberedObject.methods?.sort(sortMembers);
 }
-//#endregion MemberedObjectTypedStructure
+//#endregion MemberedObjectTypeStructureImpl
 
 //#region source file statements
 interface RawStatementGroups {
