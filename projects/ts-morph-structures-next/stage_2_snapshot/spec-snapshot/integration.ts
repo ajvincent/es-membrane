@@ -11,7 +11,7 @@ import {
 } from "ts-morph";
 
 import getTS_SourceFile from "#utilities/source/getTS_SourceFile.js";
-import {
+import type {
   ModuleSourceDirectory,
 } from "#utilities/source/AsyncSpecModules.js";
 

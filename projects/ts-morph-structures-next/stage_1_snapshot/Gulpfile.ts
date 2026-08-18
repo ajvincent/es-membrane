@@ -18,9 +18,8 @@ async function jasmine(): Promise<void> {
 }
 
 async function eslint(): Promise<void> {
-  await runESLint(path.join(projectDir, "stage_2_snapshot"), [
+  await runESLint(path.join(projectDir, "stage_1_snapshot"), [
     "Gulpfile.ts",
-    "build/**/*.ts",
     // "fixtures/**/*.ts",
     "snapshot/source/*.ts",
     "spec-snapshot/**/*.ts",

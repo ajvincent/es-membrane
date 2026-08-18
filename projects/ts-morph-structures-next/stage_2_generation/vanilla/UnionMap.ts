@@ -10,7 +10,9 @@ import {
   getTypeAugmentedStructure,
 } from "#stage_one/snapshot/source/exports.js";
 
-import TS_MORPH_D from "#utilities/source/ts-morph-d-file.js";
+import {
+  TS_MORPH_D
+} from "#utilities/source/ts-morph-d-file.js";
 
 import {
   requireInterface

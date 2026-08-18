@@ -12,16 +12,19 @@ import {
 } from "ts-morph";
 
 import {
+  TS_MORPH_D
+} from "#utilities/source/ts-morph-d-file.js";
+
+import AwaitedMap from "#utilities/source/AwaitedMap.js";
+
+import {
   typeArrayFromAlias,
   typeArrayFromInterface,
   resolveCodeBlock,
 } from "./typeArrayFromNode.js";
 
-import AwaitedMap from "#utilities/source/AwaitedMap.js";
 //TODO: replace this with the DependencyTracker from #utilities
 import DependencyTracker from "./DependencyTracker.js";
-
-import typeFile from "#utilities/source/ts-morph-d-file.js";
 
 type StructuresInUse = (
   InterfaceDeclarationStructure |
@@ -101,8 +104,8 @@ abstract class TypeWithDependencies<
 
     // initial data
     {
-      const typeAliasList = TypeAliasToUnion.addNodes(typeFile);
-      InterfaceWithDependencies.addNodes(typeFile, typeAliasList.slice());
+      const typeAliasList = TypeAliasToUnion.addNodes(TS_MORPH_D);
+      InterfaceWithDependencies.addNodes(TS_MORPH_D, typeAliasList.slice());
     }
 
     const allStructureNames = Array.from(this.#collection.keys());

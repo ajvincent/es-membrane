@@ -10,8 +10,13 @@ import {
   Type,
 } from "ts-morph";
 
-import TS_MORPH_D from "#utilities/source/ts-morph-d-file.js";
-import { pathToModule } from "#utilities/source/AsyncSpecModules.js";
+import {
+  pathToModule
+} from "#utilities/source/AsyncSpecModules.js";
+
+import {
+  TS_MORPH_D
+} from "#utilities/source/ts-morph-d-file.js";
 
 import {
   stageDir

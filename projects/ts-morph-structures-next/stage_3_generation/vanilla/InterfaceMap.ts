@@ -16,7 +16,9 @@ import {
   addAndFlattenInterface
 } from "./FlatInterfaceMap.js";
 
-import TS_MORPH_D from "#utilities/source/ts-morph-d-file.js";
+import {
+  TS_MORPH_D
+} from "#utilities/source/ts-morph-d-file.js";
 
 const InterfaceMapInternal = new Map<string, InterfaceDeclarationImpl>;
 
