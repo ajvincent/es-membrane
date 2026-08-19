@@ -25,12 +25,9 @@ const end = performance.now();
 
 console.log("time to load ts-morph.d.ts: " + (end - start) + "ms");
 
-//let classNameToConstDecls: ReadonlyMap<string, VariableDeclaration[]> | undefined = undefined;
 const classToDerivedMap = new DefaultMap<ClassDeclaration, ClassDeclaration[]>;
 
-export function getDerivedClassesRecursive(
-  className: string
-): ReadonlySet<ClassDeclaration>
+export function getClassToDerivedMap(): ReadonlyMap<ClassDeclaration, readonly ClassDeclaration[]>
 {
   if (classToDerivedMap.size === 0) {
     const allClasses: readonly ClassDeclaration[] = TS_MORPH_D.getClasses();
@@ -43,16 +40,5 @@ export function getDerivedClassesRecursive(
     }
   }
 
-  const derivedClasses = new Set<ClassDeclaration>;
-  const startClass: ClassDeclaration = TS_MORPH_D.getClassOrThrow(className);
-  derivedClasses.add(startClass);
-
-  for (const classDecl of derivedClasses) {
-    const derived = classToDerivedMap.get(classDecl) ?? [];
-    for (const dc of derived)
-      derivedClasses.add(dc);
-  }
-
-  derivedClasses.delete(startClass);
-  return derivedClasses;
+  return classToDerivedMap;
 }

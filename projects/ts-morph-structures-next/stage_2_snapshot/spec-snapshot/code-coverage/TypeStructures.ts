@@ -1,5 +1,4 @@
 import {
-  CallExpression,
   type FunctionDeclaration,
   Node,
   type Statement,
@@ -10,18 +9,16 @@ import {
 } from "ts-morph";
 
 import {
-  TS_MORPH_D
+  TS_MORPH_D,
+  getClassToDerivedMap,
 } from "#utilities/source/ts-morph-d-file.js";
 
 import getTS_SourceFile from "#utilities/source/getTS_SourceFile.js";
 
-import AwaitedMap from "#utilities/source/AwaitedMap.js";
-import { DefaultMap } from "#utilities/source/DefaultMap.js";
-
 import {
   ClassDeclarationImpl,
-  PropertyDeclarationImpl,
   TypeStructureKind,
+  type TypeStructures,
   VoidTypeNodeToTypeStructureConsole,
   getTypeAugmentedStructure,
 } from "#stage_two/snapshot/dist/exports.js";
@@ -31,7 +28,78 @@ import {
 } from "../../pre-build/constants.js";
 
 it("convertTypeNode covers all possible type nodes", () => {
-  const foundMethodsOfNode: string[] = [];
+  // The leaf nodes are the ones which are unique classes.
+  const leafTypeNodeClasses = new Map<string, ClassDeclaration>;
+  {
+    const classToDerivedMap: ReadonlyMap<ClassDeclaration, readonly ClassDeclaration[]> = getClassToDerivedMap();
+    const allTypeNodeClasses = new Set<ClassDeclaration>;
+    allTypeNodeClasses.add(TS_MORPH_D.getClassOrThrow("TypeNode"));
+    for (const classDecl of allTypeNodeClasses) {
+      const derivedClasses: readonly ClassDeclaration[] = classToDerivedMap.get(classDecl) ?? [];
+      if (derivedClasses.length === 0) {
+        leafTypeNodeClasses.set(classDecl.getNameOrThrow(), classDecl);
+      } else {
+        for (const subclassDecl of derivedClasses) {
+          allTypeNodeClasses.add(subclassDecl);
+        }
+      }
+    }
+  }
+
+  // Get the list of methods returning type nodes.
+  /* key: name of static method of Node.  value: class name in leafTypeNodeClasses */
+  const staticAssertMethods = new Map<string, string>;
+  {
+    const nodeClass: ClassDeclarationImpl = getTypeAugmentedStructure(
+      TS_MORPH_D.getClassOrThrow("Node"), VoidTypeNodeToTypeStructureConsole, true, StructureKind.Class
+    ).rootStructure;
+
+    for (const prop of nodeClass.properties) {
+      if (!prop.name.startsWith("is"))
+        continue;
+      if (!prop.isStatic)
+        continue;
+      if (prop.typeStructure?.kind !== TypeStructureKind.Function)
+        continue;
+      const returnType: TypeStructures | undefined = prop.typeStructure.returnType;
+      if (!returnType)
+        continue;
+      if (returnType.kind !== TypeStructureKind.TypePredicate)
+        continue;
+      const isType = returnType.isType;
+      if (isType?.kind !== TypeStructureKind.Literal)
+        continue;
+
+      if (!leafTypeNodeClasses.has(isType.stringValue))
+        continue;
+      staticAssertMethods.set(prop.name, isType.stringValue);
+    }
+
+    for (const method of nodeClass.methods) {
+      if (!method.name.startsWith("is"))
+        continue;
+      if (!method.isStatic)
+        continue;
+      const returnType: TypeStructures | undefined = method.returnTypeStructure;
+      if (!returnType)
+        continue;
+      if (returnType.kind !== TypeStructureKind.TypePredicate)
+        continue;
+      const isType = returnType.isType;
+      if (isType?.kind !== TypeStructureKind.Literal)
+        continue;
+
+      if (!leafTypeNodeClasses.has(isType.stringValue))
+        continue;
+      staticAssertMethods.set(method.name, isType.stringValue);
+    }
+  }
+
+  // these are the static methods of Node that convertNode should be calling.
+  const expectedMethodsOfNode = new Set<string>(staticAssertMethods.keys());
+
+  // these are the static methods of Node that convertNode actually calls.
+  const foundMethodsOfNode = new Set<string>;
   {
     const CONVERT_FILE: SourceFile = getTS_SourceFile(stageDir, "snapshot/source/bootstrap/convertTypeNode.ts");
     const fnNode: FunctionDeclaration = CONVERT_FILE.getFunctionOrThrow("convertTypeNode");
@@ -48,93 +116,14 @@ it("convertTypeNode covers all possible type nodes", () => {
         if (!innerExpr || innerExpr.getText() !== "Node")
           continue;
 
-        foundMethodsOfNode.push(outerExpr.getName());
+        foundMethodsOfNode.add(outerExpr.getName());
       }
     }
   }
 
-  const staticAssertMethods = new Map<PropertyDeclarationImpl, string>;
-  {
-    const nodeClass: ClassDeclarationImpl = getTypeAugmentedStructure(
-      TS_MORPH_D.getClassOrThrow("Node"), VoidTypeNodeToTypeStructureConsole, true, StructureKind.Class
-    ).rootStructure;
-
-    for (const prop of nodeClass.properties) {
-      if (!prop.name.startsWith("is"))
-        continue;
-      if (!prop.isStatic)
-        continue;
-      if (prop.typeStructure?.kind !== TypeStructureKind.Function)
-        continue;
-      const returnType = prop.typeStructure.returnType;
-      if (!returnType)
-        continue;
-      if (returnType.kind !== TypeStructureKind.TypePredicate)
-        continue;
-      const isType = returnType.isType;
-      if (isType?.kind !== TypeStructureKind.Literal)
-        continue;
-      staticAssertMethods.set(prop, isType.stringValue);
-    }
-  }
-
-  /*
-  const typeNodeClasses = TS_MORPH_D.getClassOrThrow("TypeNode").getDerivedClasses();
-  */
-  const typeNodeClasses = new Map<string, ClassDeclaration>;
-  typeNodeClasses.set("TypeNode", TS_MORPH_D.getClassOrThrow("TypeNode"));
-  for (const classNode of typeNodeClasses.values()) {
-    const derivedClasses: ClassDeclaration[] = classNode.getDerivedClasses();
-    for (const dc of derivedClasses) {
-      const name = dc.getName();
-      if (name)
-        typeNodeClasses.set(name, dc);
-    }
-  }
-  /*
-  const typeClassNames: Set<string> = new Set();
-  {
-    const resolversMap = new Map<string, PromiseWithResolvers<boolean>["resolve"]>;
-    const classesMap = new AwaitedMap<string, boolean>;
-    resolversMap.set("Node", Boolean);
-    resolversMap.set("TypeNode", Boolean);
-    classesMap.set("Node", Promise.resolve(false));
-    classesMap.set("TypeNode", Promise.resolve(true));
-
-    for (const classNode of TS_MORPH_D.getClasses()) {
-      const className = classNode.getName();
-      if (!className)
-        continue;
-
-      // export declare class LiteralTypeNode extends TypeNode<ts.LiteralTypeNode>
-      const extendsClause = classNode.getExtends();
-      if (!extendsClause)
-        continue;
-      const ident = extendsClause.getExpressionIfKind(SyntaxKind.Identifier);
-      if (!ident)
-        continue;
-      const extendsName = ident.getText();
-
-      if (!classesMap.has(extendsName)) {
-        const { promise, resolve } = Promise.withResolvers<boolean>();
-        resolversMap.set(extendsName, resolve);
-        classesMap.set(extendsName, promise);
-      }
-
-      if (!classesMap.has(className)) {
-        const { promise, resolve } = Promise.withResolvers<boolean>();
-        resolversMap.set(className, resolve);
-        classesMap.set(className, promise);
-      }
-
-      classesMap.get(className)!.then(resolversMap.get(extendsName)!);
-    }
-
-    for (const resolve of resolversMap.values()) {
-      resolve(false);
-    }
-  }
-  */
+  const missedMethodsOfNode = Array.from(expectedMethodsOfNode.difference(foundMethodsOfNode));
+  missedMethodsOfNode.sort();
+  expect(missedMethodsOfNode).toEqual([]);
 });
 
 xit("convertTypeNode covers all possible type nodes (using structures to assess)", () => {

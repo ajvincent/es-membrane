@@ -4,11 +4,23 @@ import type {
 
 import {
   TS_MORPH_D,
-  getDerivedClassesRecursive
+  getClassToDerivedMap,
 } from "../source/ts-morph-d-file.js";
 
 it("getDerivedClassesRecursive() covers direct and indirect derived classes", () => {
-  const derivedFromTypeNode: ReadonlySet<ClassDeclaration> = getDerivedClassesRecursive("TypeNode");
+  const classToDerivedMap: ReadonlyMap<ClassDeclaration, readonly ClassDeclaration[]> = getClassToDerivedMap();
+  const derivedFromTypeNode = new Set<ClassDeclaration>;
+  const startClass: ClassDeclaration = TS_MORPH_D.getClassOrThrow("TypeNode");
+  derivedFromTypeNode.add(startClass);
+
+  for (const classDecl of derivedFromTypeNode) {
+    const derived = classToDerivedMap.get(classDecl) ?? [];
+    for (const dc of derived)
+      derivedFromTypeNode.add(dc);
+  }
+
+  derivedFromTypeNode.delete(startClass);
+
   expect(derivedFromTypeNode.has(
     TS_MORPH_D.getClassOrThrow("LiteralTypeNode")
   )).withContext("LiteralTypeNode (direct)").toBeTrue();
