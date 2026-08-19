@@ -1,11 +1,12 @@
 import {
+  type Expression,
   type FunctionDeclaration,
   Node,
   type Statement,
   SyntaxKind,
   type SourceFile,
   ClassDeclaration,
-  StructureKind
+  StructureKind,
 } from "ts-morph";
 
 import {
@@ -103,20 +104,47 @@ it("convertTypeNode covers all possible type nodes", () => {
   {
     const CONVERT_FILE: SourceFile = getTS_SourceFile(stageDir, "snapshot/source/bootstrap/convertTypeNode.ts");
     const fnNode: FunctionDeclaration = CONVERT_FILE.getFunctionOrThrow("convertTypeNode");
-    const fnStatements: readonly Statement[] = fnNode.getStatements();
+    const fnStatements: Statement[] = Array.from(fnNode.getStatements());
+
+    const expressionsQueue: Expression[] = [];
+
     for (const statement of fnStatements) {
       if (Node.isIfStatement(statement)) {
-        const callExpression = statement.getExpressionIfKind(SyntaxKind.CallExpression);
-        if (!callExpression)
-          continue;
-        const outerExpr = callExpression.getExpressionIfKind(SyntaxKind.PropertyAccessExpression);
-        if (!outerExpr)
-          continue;
-        const innerExpr = outerExpr.getExpressionIfKind(SyntaxKind.Identifier);
-        if (!innerExpr || innerExpr.getText() !== "Node")
-          continue;
+        if (Node.isIfStatement(statement.getElseStatement())) {
+          fnStatements.push(statement.getElseStatement()!);
+        }
 
-        foundMethodsOfNode.add(outerExpr.getName());
+        const expression: Expression = statement.getExpression();
+        expressionsQueue.push(expression);
+      }
+    }
+
+    for (const expression of expressionsQueue) {
+      switch (expression.getKind()) {
+        case SyntaxKind.CallExpression: {
+          const callExpression = expression.asKindOrThrow(SyntaxKind.CallExpression);
+          const outerExpr = callExpression.getExpressionIfKind(SyntaxKind.PropertyAccessExpression);
+          if (!outerExpr)
+            continue;
+          const innerExpr = outerExpr.getExpressionIfKind(SyntaxKind.Identifier);
+          if (!innerExpr || innerExpr.getText() !== "Node")
+            continue;
+
+          foundMethodsOfNode.add(outerExpr.getName());
+          break;
+        }
+
+        case SyntaxKind.BinaryExpression: {
+          const binExpression = expression.asKindOrThrow(SyntaxKind.BinaryExpression);
+          expressionsQueue.push(binExpression.getLeft(), binExpression.getRight());
+          break;
+        }
+
+        case SyntaxKind.Identifier:
+          break;
+
+        default:
+          throw new Error("unknown expression kind: " + expression.getKindName() + " at " + expression.getStartLineNumber());
       }
     }
   }
