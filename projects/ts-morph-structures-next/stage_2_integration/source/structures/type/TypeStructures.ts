@@ -1,25 +1,25 @@
-import ArrayTypeStructureImpl from "./ArrayTypeStructureImpl.js";
-import ConditionalTypeStructureImpl from "./ConditionalTypeStructureImpl.js";
-import FunctionTypeStructureImpl from "./FunctionTypeStructureImpl.js";
-import ImportTypeStructureImpl from "./ImportTypeStructureImpl.js";
-import IndexedAccessTypeStructureImpl from "./IndexedAccessTypeStructureImpl.js";
-import InferTypeStructureImpl from "./InferTypeStructureImpl.js";
-import IntersectionTypeStructureImpl from "./IntersectionTypeStructureImpl.js";
-import LiteralTypeStructureImpl from "./LiteralTypeStructureImpl.js";
-import MappedTypeStructureImpl from "./MappedTypeStructureImpl.js";
-import MemberedObjectTypeStructureImpl from "./MemberedObjectTypeStructureImpl.js";
-import NumberTypeStructureImpl from "./NumberTypeStructureImpl.js";
-import ParameterTypeStructureImpl from "./ParameterTypeStructureImpl.js";
-import ParenthesesTypeStructureImpl from "./ParenthesesTypeStructureImpl.js";
-import PrefixOperatorsTypeStructureImpl from "./PrefixOperatorsTypeStructureImpl.js";
-import QualifiedNameTypeStructureImpl from "./QualifiedNameTypeStructureImpl.js";
-import StringTypeStructureImpl from "./StringTypeStructureImpl.js";
-import TemplateLiteralTypeStructureImpl from "./TemplateLiteralTypeStructureImpl.js";
-import TupleTypeStructureImpl from "./TupleTypeStructureImpl.js";
-import TypeArgumentedTypeStructureImpl from "./TypeArgumentedTypeStructureImpl.js";
-import TypePredicateTypeStructureImpl from "./TypePredicateTypeStructureImpl.js";
-import UnionTypeStructureImpl from "./UnionTypeStructureImpl.js";
-import WriterTypeStructureImpl from "./WriterTypeStructureImpl.js";
+import type { ArrayTypeStructureImpl } from "./ArrayTypeStructureImpl.js";
+import type { ConditionalTypeStructureImpl } from "./ConditionalTypeStructureImpl.js";
+import type { FunctionTypeStructureImpl } from "./FunctionTypeStructureImpl.js";
+import type { ImportTypeStructureImpl } from "./ImportTypeStructureImpl.js";
+import type { IndexedAccessTypeStructureImpl } from "./IndexedAccessTypeStructureImpl.js";
+import type { InferTypeStructureImpl } from "./InferTypeStructureImpl.js";
+import type { IntersectionTypeStructureImpl } from "./IntersectionTypeStructureImpl.js";
+import type { LiteralTypeStructureImpl } from "./LiteralTypeStructureImpl.js";
+import type { MappedTypeStructureImpl } from "./MappedTypeStructureImpl.js";
+import type { MemberedObjectTypeStructureImpl } from "./MemberedObjectTypeStructureImpl.js";
+import type { NumberTypeStructureImpl } from "./NumberTypeStructureImpl.js";
+import type { ParameterTypeStructureImpl } from "./ParameterTypeStructureImpl.js";
+import type { ParenthesesTypeStructureImpl } from "./ParenthesesTypeStructureImpl.js";
+import type { PrefixOperatorsTypeStructureImpl } from "./PrefixOperatorsTypeStructureImpl.js";
+import type { QualifiedNameTypeStructureImpl } from "./QualifiedNameTypeStructureImpl.js";
+import type { StringTypeStructureImpl } from "./StringTypeStructureImpl.js";
+import type { TemplateLiteralTypeStructureImpl } from "./TemplateLiteralTypeStructureImpl.js";
+import type { TupleTypeStructureImpl } from "./TupleTypeStructureImpl.js";
+import type { TypeArgumentedTypeStructureImpl } from "./TypeArgumentedTypeStructureImpl.js";
+import type { TypePredicateTypeStructureImpl } from "./TypePredicateTypeStructureImpl.js";
+import type { UnionTypeStructureImpl } from "./UnionTypeStructureImpl.js";
+import type { WriterTypeStructureImpl } from "./WriterTypeStructureImpl.js";
 
 export type TypeStructures = (
   ArrayTypeStructureImpl |

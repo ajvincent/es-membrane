@@ -41,7 +41,7 @@ export interface FunctionTypeContext {
 }
 
 /** ("new" | "get" | "set" | "") name<typeParameters>(parameters, ...restParameter) ("=\>" | ":" ) returnType */
-export default class FunctionTypeStructureImpl
+export class FunctionTypeStructureImpl
 extends TypeStructuresWithTypeParameters<TypeStructureKind.Function>
 {
   static clone(

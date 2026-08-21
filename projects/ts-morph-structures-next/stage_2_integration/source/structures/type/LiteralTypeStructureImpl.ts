@@ -19,7 +19,7 @@ import {
  * Literals (boolean, number, string, void, etc.), without quotes, brackets, or
  * anything else around them.  Leaf nodes.
  */
-export default class LiteralTypeStructureImpl
+export class LiteralTypeStructureImpl
 extends TypeStructuresBase<TypeStructureKind.Literal>
 {
   static readonly #cache = new Map<string, LiteralTypeStructureImpl>;

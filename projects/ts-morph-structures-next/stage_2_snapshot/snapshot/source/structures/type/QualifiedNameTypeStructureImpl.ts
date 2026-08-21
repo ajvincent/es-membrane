@@ -9,7 +9,7 @@ import {
 } from "../../internal-exports.js";
 
 /** @example `Foo.bar.baz...` */
-export default class QualifiedNameTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.QualifiedName> {
+export class QualifiedNameTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.QualifiedName> {
   static clone(
     other: QualifiedNameTypeStructureImpl,
   ): QualifiedNameTypeStructureImpl {

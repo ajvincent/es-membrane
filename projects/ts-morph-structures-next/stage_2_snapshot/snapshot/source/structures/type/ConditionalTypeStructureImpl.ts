@@ -22,7 +22,7 @@ export interface ConditionalTypeStructureParts {
 }
 
 /** `checkType` extends `extendsType` ? `trueType` : `falseType` */
-export default class ConditionalTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Conditional> {
+export class ConditionalTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Conditional> {
   public static clone(
     other: ConditionalTypeStructureImpl,
   ): ConditionalTypeStructureImpl {

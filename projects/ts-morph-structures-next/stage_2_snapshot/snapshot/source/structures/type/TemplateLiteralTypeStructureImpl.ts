@@ -14,7 +14,7 @@ import {
 } from "../../internal-exports.js";
 
 /** `one${"A" | "B"}two${"C" | "D"}three` */
-export default class TemplateLiteralTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.TemplateLiteral> {
+export class TemplateLiteralTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.TemplateLiteral> {
   static clone(
     other: TemplateLiteralTypeStructureImpl,
   ): TemplateLiteralTypeStructureImpl {

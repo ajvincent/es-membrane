@@ -6,6 +6,10 @@ import {
 
 import {
   ImportAttributeImpl,
+  /*
+  // ReferenceError: Cannot access 'LiteralTypeStructureImpl' before initialization
+  LiteralTypeStructureImpl,
+  */
   QualifiedNameTypeStructureImpl,
   StringTypeStructureImpl,
   TypeArgumentedTypeStructureImpl,
@@ -21,13 +25,16 @@ import {
   TypeStructureClassesMap,
 } from "../../../snapshot/source/internal-exports.js";
 
-import LiteralTypeStructureImpl from "./LiteralTypeStructureImpl.js";
+import {
+  LiteralTypeStructureImpl
+} from "./LiteralTypeStructureImpl.js";
+
 import StructureClassesMap from "../../base/StructureClassesMap.js";
 
 /** @example `import("ts-morph", { with: { "resolution-mode": "import" } }).StatementStructures` */
-export default
-class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Import>
+export class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Import>
 {
+  // not using LiteralTypeStructureImpl.get() to avoid caching this
   static readonly #nullIdentifier = new LiteralTypeStructureImpl("");
 
   readonly #typeArguments: TypeArgumentedTypeStructureImpl;

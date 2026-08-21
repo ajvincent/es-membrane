@@ -19,7 +19,7 @@ import {
 // #endregion preamble
 
 /** Just a parameter name and type for a `FunctionTypeStructureImpl`. */
-export default class ParameterTypeStructureImpl
+export class ParameterTypeStructureImpl
 extends TypeStructuresBase<TypeStructureKind.Parameter>
 {
   public static clone(

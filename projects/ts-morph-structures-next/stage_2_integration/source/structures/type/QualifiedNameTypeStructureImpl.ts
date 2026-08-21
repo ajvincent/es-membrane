@@ -14,8 +14,7 @@ import {
 } from "../../../snapshot/source/internal-exports.js";
 
 /** @example `Foo.bar.baz...` */
-export default
-class QualifiedNameTypeStructureImpl
+export class QualifiedNameTypeStructureImpl
 extends TypeStructuresBase<TypeStructureKind.QualifiedName>
 {
   static clone(

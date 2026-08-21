@@ -10,8 +10,13 @@ import ReturnTypedNode, {
   type ReturnTypedNodeStructureFields
 } from "#stage_two/snapshot/source/decorators/standard/ReturnTypedNodeStructureMixin.js";
 
-import LiteralTypeStructureImpl from "#stage_two/snapshot/source/structures/type/LiteralTypeStructureImpl.js";
-import StringTypeStructureImpl from "#stage_two/snapshot/source/structures/type/StringTypeStructureImpl.js";
+import {
+  LiteralTypeStructureImpl
+} from "#stage_two/snapshot/source/structures/type/LiteralTypeStructureImpl.js";
+
+import {
+  StringTypeStructureImpl
+} from "#stage_two/snapshot/source/structures/type/StringTypeStructureImpl.js";
 
 it("ts-morph structure decorators: ReturnTypedNode", () => {
   const Foo = MultiMixinBuilder<[

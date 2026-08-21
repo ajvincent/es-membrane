@@ -22,7 +22,7 @@ import {
  * @see `IndexedAccessTypeStructureImpl` for `Foo["index"]`
  * @see `TupleTypeStructureImpl` for `[number, boolean]`
  */
-export default class ArrayTypeStructureImpl
+export class ArrayTypeStructureImpl
 extends TypeStructuresBase<TypeStructureKind.Array>
 {
   public static clone(

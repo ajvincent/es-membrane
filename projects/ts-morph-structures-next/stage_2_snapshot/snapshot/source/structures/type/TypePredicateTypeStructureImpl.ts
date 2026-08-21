@@ -15,7 +15,7 @@ import {
 } from "../../internal-exports.js";
 
 /** @example assert condition is true */
-export default class TypePredicateTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.TypePredicate> {
+export class TypePredicateTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.TypePredicate> {
   readonly kind: TypeStructureKind.TypePredicate =
     TypeStructureKind.TypePredicate;
 

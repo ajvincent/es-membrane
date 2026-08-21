@@ -18,7 +18,7 @@ import {
 // #endregion preamble
 
 /** @example infer \<type\> (extends \<type\>)? */
-export default class InferTypeStructureImpl extends TypeStructuresWithTypeParameters<TypeStructureKind.Infer> {
+export class InferTypeStructureImpl extends TypeStructuresWithTypeParameters<TypeStructureKind.Infer> {
   readonly kind: TypeStructureKind.Infer = TypeStructureKind.Infer;
 
   typeParameter: TypeParameterDeclarationImpl;

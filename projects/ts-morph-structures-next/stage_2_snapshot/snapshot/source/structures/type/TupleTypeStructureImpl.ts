@@ -13,7 +13,7 @@ import {
  * @see `ArrayTypeStructureImpl` for `boolean[]`
  * @see `IndexedAccessTypeStructureImpl` for `Foo["index"]`
  */
-export default class TupleTypeStructureImpl extends TypeStructuresWithChildren<
+export class TupleTypeStructureImpl extends TypeStructuresWithChildren<
   TypeStructureKind.Tuple,
   TypeStructures[]
 > {

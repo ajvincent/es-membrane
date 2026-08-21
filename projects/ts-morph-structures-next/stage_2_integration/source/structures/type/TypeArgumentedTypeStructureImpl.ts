@@ -17,8 +17,7 @@ import {
  *
  * @see `TypeParameterDeclarationImpl` for `Type<Foo extends object>`
  */
-export default
-class TypeArgumentedTypeStructureImpl
+export class TypeArgumentedTypeStructureImpl
 extends TypeStructuresWithChildren<TypeStructureKind.TypeArgumented, TypeStructures[]>
 {
   static clone(

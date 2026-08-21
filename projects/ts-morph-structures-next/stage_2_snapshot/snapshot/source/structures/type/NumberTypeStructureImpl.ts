@@ -14,7 +14,7 @@ import {
  * Numbers (boolean, number, string, void, etc.), without quotes, brackets, or
  * anything else around them.  Leaf nodes.
  */
-export default class NumberTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Number> {
+export class NumberTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Number> {
   static readonly #cache = new Map<number, NumberTypeStructureImpl>();
 
   /**

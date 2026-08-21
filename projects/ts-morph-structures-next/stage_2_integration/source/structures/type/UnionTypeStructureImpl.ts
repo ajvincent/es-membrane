@@ -10,8 +10,7 @@ import {
 } from "../../../snapshot/source/internal-exports.js";
 
 /** @example `Foo | Bar | ...` */
-export default
-class UnionTypeStructureImpl
+export class UnionTypeStructureImpl
 extends TypeStructuresWithChildren<TypeStructureKind.Union, TypeStructures[]>
 {
   static clone(

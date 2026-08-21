@@ -23,7 +23,7 @@ import {
  * @see `IndexedAccessTypedStructureImpl` for `Foo["index"]`
  * @see `ObjectLiteralTypedStructureImpl` for `{ [key: string]: boolean }`
  */
-export default class MappedTypeStructureImpl extends TypeStructuresWithTypeParameters<TypeStructureKind.Mapped> {
+export class MappedTypeStructureImpl extends TypeStructuresWithTypeParameters<TypeStructureKind.Mapped> {
   readonly kind: TypeStructureKind.Mapped = TypeStructureKind.Mapped;
 
   readonlyToken: "+readonly" | "-readonly" | "readonly" | undefined;

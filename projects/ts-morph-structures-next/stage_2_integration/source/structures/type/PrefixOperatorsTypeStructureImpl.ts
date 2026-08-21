@@ -26,8 +26,7 @@ export type PrefixUnaryOperator = (
 );
 
 /** `("..." | "keyof" | "typeof" | "readonly" | "unique")[]` (object type) */
-export default
-class PrefixOperatorsTypeStructureImpl
+export class PrefixOperatorsTypeStructureImpl
 extends TypeStructuresBase<TypeStructureKind.PrefixOperators>
 {
   public static clone(

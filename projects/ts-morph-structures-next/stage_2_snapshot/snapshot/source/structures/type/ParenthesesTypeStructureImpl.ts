@@ -7,7 +7,7 @@ import {
 } from "../../internal-exports.js";
 
 /** Wrap the child type in parentheses. */
-export default class ParenthesesTypeStructureImpl extends TypeStructuresWithChildren<
+export class ParenthesesTypeStructureImpl extends TypeStructuresWithChildren<
   TypeStructureKind.Parentheses,
   [TypeStructures]
 > {

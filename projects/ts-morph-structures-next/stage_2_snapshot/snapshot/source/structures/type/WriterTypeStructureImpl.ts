@@ -11,7 +11,7 @@ import {
 // #endregion preamble
 
 /** Wrappers for writer functions from external sources.  Leaf nodes. */
-export default class WriterTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Writer> {
+export class WriterTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Writer> {
   static clone(other: WriterTypeStructureImpl): WriterTypeStructureImpl {
     return new WriterTypeStructureImpl(other.writerFunction);
   }

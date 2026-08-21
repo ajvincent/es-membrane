@@ -10,8 +10,7 @@ import {
 } from "../../../snapshot/source/internal-exports.js";
 
 /** Wrap the child type in parentheses. */
-export default
-class ParenthesesTypeStructureImpl
+export class ParenthesesTypeStructureImpl
 extends TypeStructuresWithChildren<TypeStructureKind.Parentheses, [TypeStructures]>
 {
   static clone(

@@ -15,7 +15,7 @@ import {
 // #endregion preamble
 
 /** Wrappers for writer functions from external sources.  Leaf nodes. */
-export default class WriterTypeStructureImpl
+export class WriterTypeStructureImpl
 extends TypeStructuresBase<TypeStructureKind.Writer>
 {
   static clone(

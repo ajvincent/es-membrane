@@ -14,7 +14,7 @@ import {
  * @see `MappedTypeStructureImpl` for `{ [key in keyof Foo]: boolean}`
  * @see `MemberedObjectTypeStructureImpl` for `{ [key: string]: boolean }`
  */
-export default class IndexedAccessTypeStructureImpl extends TypeStructuresWithChildren<
+export class IndexedAccessTypeStructureImpl extends TypeStructuresWithChildren<
   TypeStructureKind.IndexedAccess,
   [TypeStructures]
 > {

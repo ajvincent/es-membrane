@@ -4510,6 +4510,7 @@ TypeStructureClassesMap.set(TypeStructureKind.Literal, LiteralTypeStructureImpl)
 var _a$3;
 /** @example `import("ts-morph", { with: { "resolution-mode": "import" } }).StatementStructures` */
 class ImportTypeStructureImpl extends TypeStructuresBase {
+    // not using LiteralTypeStructureImpl.get() to avoid caching this
     static #nullIdentifier = new LiteralTypeStructureImpl("");
     #typeArguments;
     argument;

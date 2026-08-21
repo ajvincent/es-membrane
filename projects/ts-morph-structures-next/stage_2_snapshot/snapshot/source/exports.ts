@@ -115,42 +115,42 @@ export { default as TypeAliasDeclarationImpl } from "./structures/standard/TypeA
 export { default as TypeParameterDeclarationImpl } from "./structures/standard/TypeParameterDeclarationImpl.js";
 export { default as VariableDeclarationImpl } from "./structures/standard/VariableDeclarationImpl.js";
 export { default as VariableStatementImpl } from "./structures/standard/VariableStatementImpl.js";
-export { default as ArrayTypeStructureImpl } from "./structures/type/ArrayTypeStructureImpl.js";
+export { ArrayTypeStructureImpl } from "./structures/type/ArrayTypeStructureImpl.js";
 export {
+  ConditionalTypeStructureImpl,
   type ConditionalTypeStructureParts,
-  default as ConditionalTypeStructureImpl,
 } from "./structures/type/ConditionalTypeStructureImpl.js";
 export {
-  default as FunctionTypeStructureImpl,
   type FunctionTypeContext,
+  FunctionTypeStructureImpl,
   FunctionWriterStyle,
 } from "./structures/type/FunctionTypeStructureImpl.js";
-export { default as ImportTypeStructureImpl } from "./structures/type/ImportTypeStructureImpl.js";
-export { default as IndexedAccessTypeStructureImpl } from "./structures/type/IndexedAccessTypeStructureImpl.js";
-export { default as InferTypeStructureImpl } from "./structures/type/InferTypeStructureImpl.js";
-export { default as IntersectionTypeStructureImpl } from "./structures/type/IntersectionTypeStructureImpl.js";
-export { default as LiteralTypeStructureImpl } from "./structures/type/LiteralTypeStructureImpl.js";
-export { default as MappedTypeStructureImpl } from "./structures/type/MappedTypeStructureImpl.js";
-export { default as MemberedObjectTypeStructureImpl } from "./structures/type/MemberedObjectTypeStructureImpl.js";
-export { default as NumberTypeStructureImpl } from "./structures/type/NumberTypeStructureImpl.js";
-export { default as ParameterTypeStructureImpl } from "./structures/type/ParameterTypeStructureImpl.js";
-export { default as ParenthesesTypeStructureImpl } from "./structures/type/ParenthesesTypeStructureImpl.js";
+export { ImportTypeStructureImpl } from "./structures/type/ImportTypeStructureImpl.js";
+export { IndexedAccessTypeStructureImpl } from "./structures/type/IndexedAccessTypeStructureImpl.js";
+export { InferTypeStructureImpl } from "./structures/type/InferTypeStructureImpl.js";
+export { IntersectionTypeStructureImpl } from "./structures/type/IntersectionTypeStructureImpl.js";
+export { LiteralTypeStructureImpl } from "./structures/type/LiteralTypeStructureImpl.js";
+export { MappedTypeStructureImpl } from "./structures/type/MappedTypeStructureImpl.js";
+export { MemberedObjectTypeStructureImpl } from "./structures/type/MemberedObjectTypeStructureImpl.js";
+export { NumberTypeStructureImpl } from "./structures/type/NumberTypeStructureImpl.js";
+export { ParameterTypeStructureImpl } from "./structures/type/ParameterTypeStructureImpl.js";
+export { ParenthesesTypeStructureImpl } from "./structures/type/ParenthesesTypeStructureImpl.js";
 export {
-  default as PrefixOperatorsTypeStructureImpl,
+  PrefixOperatorsTypeStructureImpl,
   type PrefixUnaryOperator,
 } from "./structures/type/PrefixOperatorsTypeStructureImpl.js";
-export { default as QualifiedNameTypeStructureImpl } from "./structures/type/QualifiedNameTypeStructureImpl.js";
-export { default as StringTypeStructureImpl } from "./structures/type/StringTypeStructureImpl.js";
-export { default as TemplateLiteralTypeStructureImpl } from "./structures/type/TemplateLiteralTypeStructureImpl.js";
-export { default as TupleTypeStructureImpl } from "./structures/type/TupleTypeStructureImpl.js";
-export { default as TypeArgumentedTypeStructureImpl } from "./structures/type/TypeArgumentedTypeStructureImpl.js";
-export { default as TypePredicateTypeStructureImpl } from "./structures/type/TypePredicateTypeStructureImpl.js";
+export { QualifiedNameTypeStructureImpl } from "./structures/type/QualifiedNameTypeStructureImpl.js";
+export { StringTypeStructureImpl } from "./structures/type/StringTypeStructureImpl.js";
+export { TemplateLiteralTypeStructureImpl } from "./structures/type/TemplateLiteralTypeStructureImpl.js";
+export { TupleTypeStructureImpl } from "./structures/type/TupleTypeStructureImpl.js";
+export { TypeArgumentedTypeStructureImpl } from "./structures/type/TypeArgumentedTypeStructureImpl.js";
+export { TypePredicateTypeStructureImpl } from "./structures/type/TypePredicateTypeStructureImpl.js";
 export type {
   TypeStructures,
   TypeStructuresOrNull,
 } from "./structures/type/TypeStructures.js";
-export { default as UnionTypeStructureImpl } from "./structures/type/UnionTypeStructureImpl.js";
-export { default as WriterTypeStructureImpl } from "./structures/type/WriterTypeStructureImpl.js";
+export { UnionTypeStructureImpl } from "./structures/type/UnionTypeStructureImpl.js";
+export { WriterTypeStructureImpl } from "./structures/type/WriterTypeStructureImpl.js";
 export { default as ClassFieldStatementsMap } from "./toolbox/ClassFieldStatementsMap.js";
 export { default as ClassMembersMap } from "./toolbox/ClassMembersMap.js";
 export { default as ExportManager } from "./toolbox/ExportManager.js";

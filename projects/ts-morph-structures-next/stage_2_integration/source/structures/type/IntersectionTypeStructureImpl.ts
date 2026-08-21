@@ -10,8 +10,7 @@ import {
 } from "../../../snapshot/source/internal-exports.js";
 
 /** @example `Foo & Bar & ...` */
-export default
-class IntersectionTypeStructureImpl
+export class IntersectionTypeStructureImpl
 extends TypeStructuresWithChildren<TypeStructureKind.Intersection, TypeStructures[]>
 {
   static clone(

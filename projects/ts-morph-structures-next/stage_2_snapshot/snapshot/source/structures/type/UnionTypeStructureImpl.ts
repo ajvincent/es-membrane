@@ -7,7 +7,7 @@ import {
 } from "../../internal-exports.js";
 
 /** @example `Foo | Bar | ...` */
-export default class UnionTypeStructureImpl extends TypeStructuresWithChildren<
+export class UnionTypeStructureImpl extends TypeStructuresWithChildren<
   TypeStructureKind.Union,
   TypeStructures[]
 > {

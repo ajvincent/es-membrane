@@ -7,7 +7,7 @@ import {
 } from "../../internal-exports.js";
 
 /** @example `Foo & Bar & ...` */
-export default class IntersectionTypeStructureImpl extends TypeStructuresWithChildren<
+export class IntersectionTypeStructureImpl extends TypeStructuresWithChildren<
   TypeStructureKind.Intersection,
   TypeStructures[]
 > {

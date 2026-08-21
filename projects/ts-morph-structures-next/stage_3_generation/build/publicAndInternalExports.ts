@@ -385,7 +385,7 @@ async function defineTypeStructurePublicExports(): Promise<void>
     publicExports.addExports({
       pathToExportedModule: pathToModule(distDir, "source/structures/type" + path.sep + moduleFileName),
       exportNames: [moduleFileName.replace(".ts", "")],
-      isDefaultExport: true,
+      isDefaultExport: false,
       isType: false
     });
   });

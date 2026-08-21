@@ -40,7 +40,7 @@ import {
  *
  * @see `MappedTypeStructureImpl` for `{ readonly [key in keyof Foo]: boolean }`
  */
-export default class MemberedObjectTypeStructureImpl
+export class MemberedObjectTypeStructureImpl
 extends TypeStructuresBase<TypeStructureKind.MemberedObject>
 {
   static clone(

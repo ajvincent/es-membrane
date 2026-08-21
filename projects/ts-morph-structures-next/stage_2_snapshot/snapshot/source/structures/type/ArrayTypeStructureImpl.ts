@@ -19,7 +19,7 @@ import {
  * @see `IndexedAccessTypeStructureImpl` for `Foo["index"]`
  * @see `TupleTypeStructureImpl` for `[number, boolean]`
  */
-export default class ArrayTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Array> {
+export class ArrayTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Array> {
   public static clone(other: ArrayTypeStructureImpl): ArrayTypeStructureImpl {
     return new ArrayTypeStructureImpl(
       TypeStructureClassesMap.clone(other.objectType),

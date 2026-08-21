@@ -16,8 +16,7 @@ import {
  * @see `ArrayTypeStructureImpl` for `boolean[]`
  * @see `IndexedAccessTypeStructureImpl` for `Foo["index"]`
  */
-export default
-class TupleTypeStructureImpl
+export class TupleTypeStructureImpl
 extends TypeStructuresWithChildren<TypeStructureKind.Tuple, TypeStructures[]>
 {
   static clone(

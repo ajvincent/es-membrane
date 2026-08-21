@@ -16,7 +16,7 @@ import {
 // #endregion preamble
 
 /** Strings, encased in double quotes.  Leaf nodes. */
-export default class StringTypeStructureImpl
+export class StringTypeStructureImpl
 extends TypeStructuresBase<TypeStructureKind.String>
 {
   static readonly #cache = new Map<string, StringTypeStructureImpl>;
