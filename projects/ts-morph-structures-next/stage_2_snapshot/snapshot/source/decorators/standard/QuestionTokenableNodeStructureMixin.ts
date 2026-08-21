@@ -23,7 +23,7 @@ export type QuestionTokenableNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function QuestionTokenableNodeStructureMixin(
+export function QuestionTokenableNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

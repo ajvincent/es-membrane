@@ -23,7 +23,7 @@ export type AbstractableNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function AbstractableNodeStructureMixin(
+export function AbstractableNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

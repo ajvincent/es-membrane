@@ -23,7 +23,7 @@ export type ExclamationTokenableNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function ExclamationTokenableNodeStructureMixin(
+export function ExclamationTokenableNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

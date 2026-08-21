@@ -152,7 +152,7 @@ class DecoratorModule extends BaseClassModule
 
   #getMixinFunction(): FunctionDeclarationImpl {
     const fn = new FunctionDeclarationImpl;
-    fn.isDefaultExport = true;
+    fn.isExported = true;
     fn.name = getStructureMixinName(this.baseName);
     fn.parameters.push(DecoratorModule.#baseClassParam, DecoratorModule.#contextParam);
     fn.returnTypeStructure = this.#getMixinClassType();

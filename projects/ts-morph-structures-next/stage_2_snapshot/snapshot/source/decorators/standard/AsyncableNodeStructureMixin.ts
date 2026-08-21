@@ -23,7 +23,7 @@ export type AsyncableNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function AsyncableNodeStructureMixin(
+export function AsyncableNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

@@ -32,7 +32,7 @@ export type JSDocableNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function JSDocableNodeStructureMixin(
+export function JSDocableNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

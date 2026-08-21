@@ -27,7 +27,7 @@ export type StructureFields = RightExtendsLeft<
   }
 >;
 
-export default function StructureMixin(
+export function StructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

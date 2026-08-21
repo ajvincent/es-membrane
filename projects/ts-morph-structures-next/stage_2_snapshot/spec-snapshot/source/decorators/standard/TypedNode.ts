@@ -6,7 +6,8 @@ import type {
 
 import StructureBase from "#stage_two/snapshot/source/base/StructureBase.js";
 
-import TypedNode, {
+import {
+  TypedNodeStructureMixin,
   type TypedNodeStructureFields
 } from "#stage_two/snapshot/source/decorators/standard/TypedNodeStructureMixin.js";
 
@@ -23,7 +24,7 @@ it("ts-morph structure decorators: TypedNode", () => {
     TypedNodeStructureFields
   ], typeof StructureBase>
   (
-    [TypedNode],
+    [TypedNodeStructureMixin],
     StructureBase
   );
 

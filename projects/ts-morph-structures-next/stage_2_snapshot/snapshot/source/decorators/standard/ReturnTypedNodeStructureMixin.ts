@@ -32,7 +32,7 @@ export type ReturnTypedNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function ReturnTypedNodeStructureMixin(
+export function ReturnTypedNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

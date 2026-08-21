@@ -6,7 +6,8 @@ import type {
 
 import StructureBase from "#stage_two/snapshot/source/base/StructureBase.js";
 
-import ReturnTypedNode, {
+import {
+  ReturnTypedNodeStructureMixin,
   type ReturnTypedNodeStructureFields
 } from "#stage_two/snapshot/source/decorators/standard/ReturnTypedNodeStructureMixin.js";
 
@@ -23,7 +24,7 @@ it("ts-morph structure decorators: ReturnTypedNode", () => {
     ReturnTypedNodeStructureFields
   ], typeof StructureBase>
   (
-    [ReturnTypedNode],
+    [ReturnTypedNodeStructureMixin],
     StructureBase
   );
 

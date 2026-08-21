@@ -23,7 +23,7 @@ export type AmbientableNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function AmbientableNodeStructureMixin(
+export function AmbientableNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

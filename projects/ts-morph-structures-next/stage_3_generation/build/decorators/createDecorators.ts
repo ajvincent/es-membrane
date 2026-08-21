@@ -170,7 +170,7 @@ async function buildDecorator(
 
   internalExports.addExports({
     pathToExportedModule: module.importManager.absolutePathToModule,
-    isDefaultExport: true,
+    isDefaultExport: false,
     isType: false,
     exportNames: [module.defaultExportName]
   });

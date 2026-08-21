@@ -23,7 +23,7 @@ export type ReadonlyableNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function ReadonlyableNodeStructureMixin(
+export function ReadonlyableNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

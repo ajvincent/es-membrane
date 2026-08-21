@@ -23,7 +23,7 @@ export type GeneratorableNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function GeneratorableNodeStructureMixin(
+export function GeneratorableNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

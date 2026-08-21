@@ -32,7 +32,7 @@ export type DecoratableNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function DecoratableNodeStructureMixin(
+export function DecoratableNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

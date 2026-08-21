@@ -23,7 +23,7 @@ export type OverrideableNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function OverrideableNodeStructureMixin(
+export function OverrideableNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

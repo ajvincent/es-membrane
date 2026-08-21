@@ -30,7 +30,7 @@ export type InitializerExpressionableNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function InitializerExpressionableNodeStructureMixin(
+export function InitializerExpressionableNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

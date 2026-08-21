@@ -23,7 +23,7 @@ export type ScopedNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function ScopedNodeStructureMixin(
+export function ScopedNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

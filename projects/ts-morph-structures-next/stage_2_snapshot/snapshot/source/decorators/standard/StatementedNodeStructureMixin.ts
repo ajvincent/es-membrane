@@ -33,7 +33,7 @@ export type StatementedNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function StatementedNodeStructureMixin(
+export function StatementedNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<

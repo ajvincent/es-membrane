@@ -32,7 +32,7 @@ export type ParameteredNodeStructureFields = RightExtendsLeft<
   }
 >;
 
-export default function ParameteredNodeStructureMixin(
+export function ParameteredNodeStructureMixin(
   baseClass: typeof StructureBase,
   context: ClassDecoratorContext,
 ): MixinClass<
