@@ -19,6 +19,11 @@ import {
 
 /** @example `never` */
 export class SubclassTypeStructureImpl extends TypeStructuresWithChildren<TypeStructureKind.Import, readonly TypeStructures[]> {
+  public static clone(other: SubclassTypeStructureImpl): SubclassTypeStructureImpl {
+    void other;
+    throw new Error("not yet implemented");
+  }
+
   public readonly kind: TypeStructureKind.Import = TypeStructureKind.Import;
 
   // FIXME: all these are stubs
@@ -28,24 +33,6 @@ export class SubclassTypeStructureImpl extends TypeStructuresWithChildren<TypeSt
   protected joinChildrenToken: string = "/";
   protected endToken: string = "-";
   protected maxChildCount: number = -1;
-
-  #writerFunction(writer: CodeBlockWriter): void {
-    void writer;
-    throw new Error("not yet implemented");
-  }
-
-  public readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
-
-  /** @internal */
-  public * [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures> {
-    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
-    throw new Error("not yet implemented");
-  }
-
-  public static clone(other: SubclassTypeStructureImpl): SubclassTypeStructureImpl {
-    void other;
-    throw new Error("not yet implemented");
-  }
 }
 SubclassTypeStructureImpl satisfies CloneableTypeStructure<SubclassTypeStructureImpl>;
 TypeStructureClassesMap.set(TypeStructureKind.Import, SubclassTypeStructureImpl);
