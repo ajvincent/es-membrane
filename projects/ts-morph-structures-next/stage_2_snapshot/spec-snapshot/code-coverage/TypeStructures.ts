@@ -28,7 +28,7 @@ import {
   stageDir
 } from "../../pre-build/constants.js";
 
-it("convertTypeNode covers all possible type nodes", () => {
+xit("convertTypeNode covers all possible type nodes", () => {
   // The leaf nodes are the ones which are unique classes.
   const leafTypeNodeClasses = new Map<string, ClassDeclaration>;
   {

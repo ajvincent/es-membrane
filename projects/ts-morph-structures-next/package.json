@@ -40,6 +40,7 @@
   "homepage": "https://github.com/ajvincent/es-membrane/tree/master/projects/ts-morph-structures#readme",
   "devDependencies": {
     "@ajvincent/build-utilities": "file:../build-utilities",
+    "@inquirer/prompts": "^8.6.0",
     "@microsoft/api-documenter": "^7.23.38",
     "@microsoft/api-extractor": "^7.43.0",
     "@rollup/plugin-typescript": "^12.3.0",
