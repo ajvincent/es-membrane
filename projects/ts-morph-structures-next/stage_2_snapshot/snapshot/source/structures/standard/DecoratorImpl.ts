@@ -29,7 +29,7 @@ const DecoratorStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([NamedNodeStructureMixin, StructureMixin], StructureBase);
 
-export default class DecoratorImpl
+export class DecoratorImpl
   extends DecoratorStructureBase
   implements DecoratorStructureClassIfc
 {

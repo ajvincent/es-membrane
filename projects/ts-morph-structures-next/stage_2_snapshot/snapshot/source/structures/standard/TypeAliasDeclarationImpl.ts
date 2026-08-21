@@ -59,7 +59,7 @@ const TypeAliasDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class TypeAliasDeclarationImpl
+export class TypeAliasDeclarationImpl
   extends TypeAliasDeclarationStructureBase
   implements TypeAliasDeclarationStructureClassIfc
 {

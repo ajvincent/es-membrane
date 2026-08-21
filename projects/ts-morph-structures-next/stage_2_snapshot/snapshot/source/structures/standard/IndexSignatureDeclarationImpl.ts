@@ -50,7 +50,7 @@ const IndexSignatureDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class IndexSignatureDeclarationImpl
+export class IndexSignatureDeclarationImpl
   extends IndexSignatureDeclarationStructureBase
   implements IndexSignatureDeclarationStructureClassIfc
 {

@@ -27,7 +27,7 @@ const JSDocTagStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([StructureMixin], StructureBase);
 
-export default class JSDocTagImpl
+export class JSDocTagImpl
   extends JSDocTagStructureBase
   implements JSDocTagStructureClassIfc
 {

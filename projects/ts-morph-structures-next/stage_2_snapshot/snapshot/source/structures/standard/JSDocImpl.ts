@@ -29,7 +29,7 @@ const JSDocStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([StructureMixin], StructureBase);
 
-export default class JSDocImpl
+export class JSDocImpl
   extends JSDocStructureBase
   implements JSDocStructureClassIfc
 {

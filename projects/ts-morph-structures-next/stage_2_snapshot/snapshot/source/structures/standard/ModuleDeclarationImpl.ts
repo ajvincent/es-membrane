@@ -51,7 +51,7 @@ const ModuleDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class ModuleDeclarationImpl
+export class ModuleDeclarationImpl
   extends ModuleDeclarationStructureBase
   implements ModuleDeclarationStructureClassIfc
 {

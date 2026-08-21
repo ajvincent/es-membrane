@@ -63,7 +63,7 @@ const ConstructorDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class ConstructorDeclarationImpl
+export class ConstructorDeclarationImpl
   extends ConstructorDeclarationStructureBase
   implements ConstructorDeclarationStructureClassIfc
 {

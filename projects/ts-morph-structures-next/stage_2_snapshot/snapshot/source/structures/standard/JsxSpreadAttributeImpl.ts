@@ -23,7 +23,7 @@ const JsxSpreadAttributeStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([StructureMixin], StructureBase);
 
-export default class JsxSpreadAttributeImpl
+export class JsxSpreadAttributeImpl
   extends JsxSpreadAttributeStructureBase
   implements JsxSpreadAttributeStructureClassIfc
 {

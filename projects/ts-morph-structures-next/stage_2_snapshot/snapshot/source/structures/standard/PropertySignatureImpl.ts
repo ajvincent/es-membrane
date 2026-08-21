@@ -54,7 +54,7 @@ const PropertySignatureStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class PropertySignatureImpl
+export class PropertySignatureImpl
   extends PropertySignatureStructureBase
   implements PropertySignatureStructureClassIfc
 {

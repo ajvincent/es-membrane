@@ -25,7 +25,7 @@ const SourceFileStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([StatementedNodeStructureMixin, StructureMixin], StructureBase);
 
-export default class SourceFileImpl
+export class SourceFileImpl
   extends SourceFileStructureBase
   implements SourceFileStructureClassIfc
 {

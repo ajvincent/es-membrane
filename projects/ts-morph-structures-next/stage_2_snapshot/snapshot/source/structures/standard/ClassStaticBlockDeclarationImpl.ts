@@ -34,7 +34,7 @@ const ClassStaticBlockDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class ClassStaticBlockDeclarationImpl
+export class ClassStaticBlockDeclarationImpl
   extends ClassStaticBlockDeclarationStructureBase
   implements ClassStaticBlockDeclarationStructureClassIfc
 {

@@ -152,7 +152,7 @@ async function buildStructure(
 
   publicExports.addExports({
     pathToExportedModule: module.importManager.absolutePathToModule,
-    isDefaultExport: true,
+    isDefaultExport: false,
     isType: false,
     exportNames: [module.exportName]
   });

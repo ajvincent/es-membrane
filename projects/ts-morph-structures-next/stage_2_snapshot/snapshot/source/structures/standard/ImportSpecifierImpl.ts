@@ -25,7 +25,7 @@ const ImportSpecifierStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([NamedNodeStructureMixin, StructureMixin], StructureBase);
 
-export default class ImportSpecifierImpl
+export class ImportSpecifierImpl
   extends ImportSpecifierStructureBase
   implements ImportSpecifierStructureClassIfc
 {

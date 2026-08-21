@@ -42,7 +42,7 @@ const EnumMemberStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class EnumMemberImpl
+export class EnumMemberImpl
   extends EnumMemberStructureBase
   implements EnumMemberStructureClassIfc
 {

@@ -31,7 +31,7 @@ const ExportDeclarationStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([StructureMixin], StructureBase);
 
-export default class ExportDeclarationImpl
+export class ExportDeclarationImpl
   extends ExportDeclarationStructureBase
   implements ExportDeclarationStructureClassIfc
 {

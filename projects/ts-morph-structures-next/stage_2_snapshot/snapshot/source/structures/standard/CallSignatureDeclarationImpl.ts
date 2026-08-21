@@ -46,7 +46,7 @@ const CallSignatureDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class CallSignatureDeclarationImpl
+export class CallSignatureDeclarationImpl
   extends CallSignatureDeclarationStructureBase
   implements CallSignatureDeclarationStructureClassIfc
 {

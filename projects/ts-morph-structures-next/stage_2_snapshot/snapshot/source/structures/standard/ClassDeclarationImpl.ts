@@ -82,7 +82,7 @@ const ClassDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class ClassDeclarationImpl
+export class ClassDeclarationImpl
   extends ClassDeclarationStructureBase
   implements ClassDeclarationStructureClassIfc
 {

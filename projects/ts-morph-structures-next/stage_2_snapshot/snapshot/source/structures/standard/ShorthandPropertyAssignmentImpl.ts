@@ -25,7 +25,7 @@ const ShorthandPropertyAssignmentStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([NamedNodeStructureMixin, StructureMixin], StructureBase);
 
-export default class ShorthandPropertyAssignmentImpl
+export class ShorthandPropertyAssignmentImpl
   extends ShorthandPropertyAssignmentStructureBase
   implements ShorthandPropertyAssignmentStructureClassIfc
 {

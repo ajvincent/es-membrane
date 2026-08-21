@@ -31,7 +31,7 @@ const JsxSelfClosingElementStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([NamedNodeStructureMixin, StructureMixin], StructureBase);
 
-export default class JsxSelfClosingElementImpl
+export class JsxSelfClosingElementImpl
   extends JsxSelfClosingElementStructureBase
   implements JsxSelfClosingElementStructureClassIfc
 {

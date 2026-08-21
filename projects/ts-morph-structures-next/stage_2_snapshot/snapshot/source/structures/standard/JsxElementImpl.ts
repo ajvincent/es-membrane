@@ -33,7 +33,7 @@ const JsxElementStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([NamedNodeStructureMixin, StructureMixin], StructureBase);
 
-export default class JsxElementImpl
+export class JsxElementImpl
   extends JsxElementStructureBase
   implements JsxElementStructureClassIfc
 {

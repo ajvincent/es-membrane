@@ -29,7 +29,7 @@ const PropertyAssignmentStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([NamedNodeStructureMixin, StructureMixin], StructureBase);
 
-export default class PropertyAssignmentImpl
+export class PropertyAssignmentImpl
   extends PropertyAssignmentStructureBase
   implements PropertyAssignmentStructureClassIfc
 {

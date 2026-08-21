@@ -46,7 +46,7 @@ const VariableDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class VariableDeclarationImpl
+export class VariableDeclarationImpl
   extends VariableDeclarationStructureBase
   implements VariableDeclarationStructureClassIfc
 {

@@ -74,7 +74,7 @@ const FunctionDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class FunctionDeclarationImpl
+export class FunctionDeclarationImpl
   extends FunctionDeclarationStructureBase
   implements FunctionDeclarationStructureClassIfc
 {

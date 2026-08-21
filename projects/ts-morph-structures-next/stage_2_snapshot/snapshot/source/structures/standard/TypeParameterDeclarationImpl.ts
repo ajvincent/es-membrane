@@ -35,7 +35,7 @@ const TypeParameterDeclarationStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([NamedNodeStructureMixin, StructureMixin], StructureBase);
 
-export default class TypeParameterDeclarationImpl
+export class TypeParameterDeclarationImpl
   extends TypeParameterDeclarationStructureBase
   implements TypeParameterDeclarationStructureClassIfc
 {

@@ -29,7 +29,7 @@ const ExportAssignmentStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([JSDocableNodeStructureMixin, StructureMixin], StructureBase);
 
-export default class ExportAssignmentImpl
+export class ExportAssignmentImpl
   extends ExportAssignmentStructureBase
   implements ExportAssignmentStructureClassIfc
 {

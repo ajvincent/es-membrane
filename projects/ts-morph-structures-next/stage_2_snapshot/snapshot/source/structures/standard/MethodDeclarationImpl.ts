@@ -91,7 +91,7 @@ const MethodDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class MethodDeclarationImpl
+export class MethodDeclarationImpl
   extends MethodDeclarationStructureBase
   implements MethodDeclarationStructureClassIfc
 {

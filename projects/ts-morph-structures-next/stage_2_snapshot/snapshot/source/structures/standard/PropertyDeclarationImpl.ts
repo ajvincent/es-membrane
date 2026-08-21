@@ -83,7 +83,7 @@ const PropertyDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class PropertyDeclarationImpl
+export class PropertyDeclarationImpl
   extends PropertyDeclarationStructureBase
   implements PropertyDeclarationStructureClassIfc
 {

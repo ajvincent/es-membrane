@@ -46,7 +46,7 @@ const ConstructSignatureDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class ConstructSignatureDeclarationImpl
+export class ConstructSignatureDeclarationImpl
   extends ConstructSignatureDeclarationStructureBase
   implements ConstructSignatureDeclarationStructureClassIfc
 {

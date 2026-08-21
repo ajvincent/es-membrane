@@ -24,7 +24,7 @@ const JsxAttributeStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([StructureMixin], StructureBase);
 
-export default class JsxAttributeImpl
+export class JsxAttributeImpl
   extends JsxAttributeStructureBase
   implements JsxAttributeStructureClassIfc
 {

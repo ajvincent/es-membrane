@@ -74,7 +74,7 @@ const InterfaceDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class InterfaceDeclarationImpl
+export class InterfaceDeclarationImpl
   extends InterfaceDeclarationStructureBase
   implements InterfaceDeclarationStructureClassIfc
 {

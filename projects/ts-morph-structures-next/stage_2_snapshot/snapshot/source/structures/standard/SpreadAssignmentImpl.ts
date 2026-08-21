@@ -27,7 +27,7 @@ const SpreadAssignmentStructureBase = MultiMixinBuilder<
   typeof StructureBase
 >([StructureMixin], StructureBase);
 
-export default class SpreadAssignmentImpl
+export class SpreadAssignmentImpl
   extends SpreadAssignmentStructureBase
   implements SpreadAssignmentStructureClassIfc
 {

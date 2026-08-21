@@ -194,7 +194,7 @@ export class StructureModule extends BaseClassModule
     const interfaceName = getClassInterfaceName(this.baseName);
     this.addImports("public", [], [interfaceName]);
     classDecl.name = this.exportName;
-    classDecl.isDefaultExport = true;
+    classDecl.isExported = true;
     classDecl.extendsStructure = LiteralTypeStructureImpl.get(getStructureClassBaseName(this.baseName));
     classDecl.implementsSet.add(LiteralTypeStructureImpl.get(interfaceName));
     this.classMembersMap!.moveMembersToClass(classDecl);

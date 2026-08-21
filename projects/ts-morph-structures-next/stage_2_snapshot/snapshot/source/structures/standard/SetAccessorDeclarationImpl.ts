@@ -69,7 +69,7 @@ const SetAccessorDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class SetAccessorDeclarationImpl
+export class SetAccessorDeclarationImpl
   extends SetAccessorDeclarationStructureBase
   implements SetAccessorDeclarationStructureClassIfc
 {

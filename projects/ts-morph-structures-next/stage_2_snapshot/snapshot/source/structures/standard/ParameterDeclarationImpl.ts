@@ -62,7 +62,7 @@ const ParameterDeclarationStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class ParameterDeclarationImpl
+export class ParameterDeclarationImpl
   extends ParameterDeclarationStructureBase
   implements ParameterDeclarationStructureClassIfc
 {

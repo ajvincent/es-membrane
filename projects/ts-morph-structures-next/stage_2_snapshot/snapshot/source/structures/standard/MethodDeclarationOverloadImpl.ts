@@ -70,7 +70,7 @@ const MethodDeclarationOverloadStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class MethodDeclarationOverloadImpl
+export class MethodDeclarationOverloadImpl
   extends MethodDeclarationOverloadStructureBase
   implements MethodDeclarationOverloadStructureClassIfc
 {

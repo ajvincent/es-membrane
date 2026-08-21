@@ -50,7 +50,7 @@ const ConstructorDeclarationOverloadStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class ConstructorDeclarationOverloadImpl
+export class ConstructorDeclarationOverloadImpl
   extends ConstructorDeclarationOverloadStructureBase
   implements ConstructorDeclarationOverloadStructureClassIfc
 {

@@ -54,7 +54,7 @@ const MethodSignatureStructureBase = MultiMixinBuilder<
   StructureBase,
 );
 
-export default class MethodSignatureImpl
+export class MethodSignatureImpl
   extends MethodSignatureStructureBase
   implements MethodSignatureStructureClassIfc
 {
