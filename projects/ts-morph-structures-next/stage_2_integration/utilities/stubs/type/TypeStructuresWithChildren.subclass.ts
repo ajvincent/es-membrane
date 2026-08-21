@@ -1,18 +1,11 @@
 import {
-  type CodeBlockWriter,
-  type WriterFunction,
-} from "ts-morph";
-
-import {
   TypeStructureKind,
   TypeStructuresOrNull,
-  type StructureImpls,
   type TypeStructures,
 } from "../../../snapshot/source/exports.js";
 
 import {
   type CloneableTypeStructure,
-  STRUCTURE_AND_TYPES_CHILDREN,
   TypeStructureClassesMap,
   TypeStructuresWithChildren,
 } from "../../../snapshot/source/internal-exports.js";

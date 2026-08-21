@@ -18,6 +18,11 @@ import {
 
 /** @example `never` */
 export class SubclassTypeStructureImpl extends TypeStructuresWithTypeParameters<TypeStructureKind.Import> {
+  public static clone(other: SubclassTypeStructureImpl): SubclassTypeStructureImpl {
+    void other;
+    throw new Error("not yet implemented");
+  }
+
   public readonly kind: TypeStructureKind.Import = TypeStructureKind.Import;
 
   #writerFunction(writer: CodeBlockWriter): void {
@@ -30,11 +35,6 @@ export class SubclassTypeStructureImpl extends TypeStructuresWithTypeParameters<
   /** @internal */
   public * [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures> {
     yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
-    throw new Error("not yet implemented");
-  }
-
-  public static clone(other: SubclassTypeStructureImpl): SubclassTypeStructureImpl {
-    void other;
     throw new Error("not yet implemented");
   }
 }

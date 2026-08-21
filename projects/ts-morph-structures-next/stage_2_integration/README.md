@@ -272,6 +272,8 @@ The `buildTypesForStructures()` function handles a null return from `convertType
 
 ### Checklist for adding a new type structure class
 
+Try running `utilities/newTypeStructure.ts`, which is a wizard to fill out the boilerplate for you.
+
 - [ ] In [source/base/TypeStructureKind.ts](./source/base/TypeStructureKind.ts), append a new enum member of `TypeStructureKind`
 - [ ] Import what you need:
   - [ ] from ts-morph:
