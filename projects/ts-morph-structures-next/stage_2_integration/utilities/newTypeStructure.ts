@@ -9,15 +9,12 @@ import {
 
 import {
   type EnumDeclaration,
-  printStructure,
   type SourceFile,
   StructureKind,
   SyntaxKind
 } from "ts-morph";
 
 import {
-  type ExportDeclarationImpl,
-  type ExportAssignmentImpl,
   ImportManager,
   TypeStructureKind,
   VoidTypeNodeToTypeStructureConsole,
@@ -26,16 +23,15 @@ import {
   LiteralTypeStructureImpl,
 } from "#stage_one/snapshot/dist/exports.js";
 
-import CallExpression from "#stage_two/generation/pseudoExpressions/statements/CallExpression.js";
-import BlockStatement from "#stage_two/generation/pseudoExpressions/statements/BlockStatement.js";
-import SatisfiesStatement from "#stage_two/generation/pseudoExpressions/statements/SatisfiesStatement.js";
+import {
+  pathToModule
+} from "#utilities/source/AsyncSpecModules.js";
 
 import getTS_SourceFile from "#utilities/source/getTS_SourceFile.js";
 
 import {
   stageDir
 } from "../pre-build/constants.js";
-import { pathToModule } from "#utilities/source/AsyncSpecModules.js";
 //#endregion preamble
 
 const newKind = await input({

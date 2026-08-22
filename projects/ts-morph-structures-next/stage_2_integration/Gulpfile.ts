@@ -27,6 +27,7 @@ async function eslint(): Promise<void> {
     "Gulpfile.ts",
     "build/**/*.ts",
     "pre-build/**/*.ts",
+    "utilities/newTypeStructure.ts",
   ]);
 }
 
