@@ -132,6 +132,7 @@ export { IntersectionTypeStructureImpl } from "./structures/type/IntersectionTyp
 export { LiteralTypeStructureImpl } from "./structures/type/LiteralTypeStructureImpl.js";
 export { MappedTypeStructureImpl } from "./structures/type/MappedTypeStructureImpl.js";
 export { MemberedObjectTypeStructureImpl } from "./structures/type/MemberedObjectTypeStructureImpl.js";
+export { NamedTupleMemberTypeStructureImpl } from "./structures/type/NamedTupleMemberTypeStructureImpl.js";
 export { NumberTypeStructureImpl } from "./structures/type/NumberTypeStructureImpl.js";
 export { ParameterTypeStructureImpl } from "./structures/type/ParameterTypeStructureImpl.js";
 export { ParenthesesTypeStructureImpl } from "./structures/type/ParenthesesTypeStructureImpl.js";

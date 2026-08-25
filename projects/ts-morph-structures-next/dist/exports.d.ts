@@ -210,6 +210,7 @@ declare enum TypeStructureKind {
   MemberedObject = 1000000019,
   Import = 1000000020,
   TypePredicate = 1000000021,
+  NamedTupleMember = 1000000022,
 }
 
 interface KindedTypeStructure<
@@ -669,6 +670,7 @@ type TypeStructures =
   | LiteralTypeStructureImpl
   | MappedTypeStructureImpl
   | MemberedObjectTypeStructureImpl
+  | NamedTupleMemberTypeStructureImpl
   | NumberTypeStructureImpl
   | ParameterTypeStructureImpl
   | ParenthesesTypeStructureImpl
@@ -3367,6 +3369,26 @@ declare class MemberedObjectTypeStructureImpl extends TypeStructuresBase<TypeStr
   >;
 }
 
+/** @example `never` */
+declare class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.NamedTupleMember> {
+  #private;
+  readonly kind: TypeStructureKind.NamedTupleMember;
+  readonly docs: JSDocImpl[];
+  hasDotDotDotToken: boolean;
+  name: string;
+  hasQuestionToken: boolean;
+  objectType: TypeStructures;
+  readonly writerFunction: WriterFunction;
+  constructor(name: string, objectType: TypeStructures);
+  static clone(
+    other: NamedTupleMemberTypeStructureImpl,
+  ): NamedTupleMemberTypeStructureImpl;
+  /** @internal */
+  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+    StructureImpls | TypeStructures
+  >;
+}
+
 /**
  * Numbers (boolean, number, string, void, etc.), without quotes, brackets, or
  * anything else around them.  Leaf nodes.
@@ -3620,6 +3642,7 @@ export {
   MethodDeclarationOverloadImpl,
   MethodSignatureImpl,
   ModuleDeclarationImpl,
+  NamedTupleMemberTypeStructureImpl,
   NumberTypeStructureImpl,
   ParameterDeclarationImpl,
   ParameterTypeStructureImpl,

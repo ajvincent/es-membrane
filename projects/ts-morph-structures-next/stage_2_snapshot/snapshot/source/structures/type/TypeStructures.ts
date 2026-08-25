@@ -8,6 +8,7 @@ import type { IntersectionTypeStructureImpl } from "./IntersectionTypeStructureI
 import type { LiteralTypeStructureImpl } from "./LiteralTypeStructureImpl.js";
 import type { MappedTypeStructureImpl } from "./MappedTypeStructureImpl.js";
 import type { MemberedObjectTypeStructureImpl } from "./MemberedObjectTypeStructureImpl.js";
+import type { NamedTupleMemberTypeStructureImpl } from "./NamedTupleMemberTypeStructureImpl.js";
 import type { NumberTypeStructureImpl } from "./NumberTypeStructureImpl.js";
 import type { ParameterTypeStructureImpl } from "./ParameterTypeStructureImpl.js";
 import type { ParenthesesTypeStructureImpl } from "./ParenthesesTypeStructureImpl.js";
@@ -20,7 +21,6 @@ import type { TypeArgumentedTypeStructureImpl } from "./TypeArgumentedTypeStruct
 import type { TypePredicateTypeStructureImpl } from "./TypePredicateTypeStructureImpl.js";
 import type { UnionTypeStructureImpl } from "./UnionTypeStructureImpl.js";
 import type { WriterTypeStructureImpl } from "./WriterTypeStructureImpl.js";
-
 export type TypeStructures =
   | ArrayTypeStructureImpl
   | ConditionalTypeStructureImpl
@@ -32,6 +32,7 @@ export type TypeStructures =
   | LiteralTypeStructureImpl
   | MappedTypeStructureImpl
   | MemberedObjectTypeStructureImpl
+  | NamedTupleMemberTypeStructureImpl
   | NumberTypeStructureImpl
   | ParameterTypeStructureImpl
   | ParenthesesTypeStructureImpl
@@ -44,5 +45,4 @@ export type TypeStructures =
   | TypePredicateTypeStructureImpl
   | UnionTypeStructureImpl
   | WriterTypeStructureImpl;
-
 export type TypeStructuresOrNull = TypeStructures | null;

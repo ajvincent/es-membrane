@@ -24,6 +24,7 @@ import {
   IntersectionTypeStructureImpl,
   MappedTypeStructureImpl,
   MemberedObjectTypeStructureImpl,
+  NamedTupleMemberTypeStructureImpl,
   NumberTypeStructureImpl,
   ParenthesesTypeStructureImpl,
   PrefixOperatorsTypeStructureImpl,
@@ -559,14 +560,23 @@ class ThisTypeReference {
     expect(failNode).toBe(null);
   });
 
-  it("Tuple: [string, number]", () => {
-    setTypeStructure("[string, number]", failCallback);
+  // testing NamedTupleMember as well
+  it("Tuple: [a: string, number]", () => {
+    setTypeStructure("[a: string, number]", failCallback);
     expect(structure).toBeInstanceOf(TupleTypeStructureImpl);
     if (structure instanceof TupleTypeStructureImpl) {
       expect(structure.childTypes.length).toBe(2);
-      expect(structure.childTypes[0]).toBe(LiteralTypeStructureImpl.get("string"));
       expect(structure.childTypes[1]).toBe(LiteralTypeStructureImpl.get("number"));
+
+      structure = structure.childTypes[0];
     }
+
+    expect(structure).toBeInstanceOf(NamedTupleMemberTypeStructureImpl);
+    if (structure instanceof NamedTupleMemberTypeStructureImpl) {
+      expect(structure.name).toBe("a");
+      expect(structure.objectType).toBe(LiteralTypeStructureImpl.get("string"));
+    }
+
     expect(failMessage).toBe(undefined);
     expect(failNode).toBe(null);
   });

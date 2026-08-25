@@ -21,6 +21,7 @@ import {
   MappedTypeStructureImpl,
   MemberedObjectTypeStructureImpl,
   MethodSignatureImpl,
+  NamedTupleMemberTypeStructureImpl,
   NumberTypeStructureImpl,
   ParameterDeclarationImpl,
   ParameterTypeStructureImpl,
@@ -214,6 +215,22 @@ import("bar", {
 
     expect(typedWriter.kind).toBe(TypeStructureKind.MemberedObject);
     checkCloneAndRegistration(typedWriter, MemberedObjectTypeStructureImpl, false);
+  });
+
+  it("NamedTupleMemberTypeStructureImpl", () => {
+    const typedWriter = new NamedTupleMemberTypeStructureImpl("foo", LiteralTypeStructureImpl.get("boolean"));
+
+    typedWriter.writerFunction(writer);
+    expect<string>(writer.toString()).toBe(`foo: boolean`);
+    expect(typedWriter.kind).toBe(TypeStructureKind.NamedTupleMember);
+    checkCloneAndRegistration(typedWriter, NamedTupleMemberTypeStructureImpl, false);
+
+    writer = new CodeBlockWriter();
+    typedWriter.hasDotDotDotToken = true;
+    typedWriter.hasQuestionToken = true;
+    typedWriter.writerFunction(writer);
+    expect<string>(writer.toString()).toBe("...foo?: boolean");
+    checkCloneAndRegistration(typedWriter, NamedTupleMemberTypeStructureImpl, false);
   });
 
   it("NumberTypeStructureImpl", () => {

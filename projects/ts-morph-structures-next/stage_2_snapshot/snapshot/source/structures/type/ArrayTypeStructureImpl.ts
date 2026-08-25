@@ -47,7 +47,7 @@ export class ArrayTypeStructureImpl extends TypeStructuresBase<TypeStructureKind
     StructureImpls | TypeStructures
   > {
     yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
-    if (typeof this.objectType === "object") yield this.objectType;
+    yield this.objectType;
   }
 }
 ArrayTypeStructureImpl satisfies CloneableTypeStructure<ArrayTypeStructureImpl>;

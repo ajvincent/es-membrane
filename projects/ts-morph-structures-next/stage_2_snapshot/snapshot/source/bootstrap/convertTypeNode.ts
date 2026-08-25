@@ -8,6 +8,7 @@ import {
   type ImportAttributes,
   type ImportTypeNode,
   MappedTypeNode,
+  NamedTupleMember,
   Node,
   ParameterDeclaration,
   StructureKind,
@@ -34,6 +35,7 @@ import {
   LiteralTypeStructureImpl,
   MappedTypeStructureImpl,
   MemberedObjectTypeStructureImpl,
+  NamedTupleMemberTypeStructureImpl,
   NumberTypeStructureImpl,
   ParameterTypeStructureImpl,
   ParenthesesTypeStructureImpl,
@@ -236,6 +238,14 @@ export default function convertTypeNode(
 
   if (Node.isImportTypeNode(typeNode)) {
     return convertImportTypeNode(typeNode, consoleTrap, subStructureResolver);
+  }
+
+  if (Node.isNamedTupleMember(typeNode)) {
+    return convertNamedTupleMemberNode(
+      typeNode,
+      consoleTrap,
+      subStructureResolver,
+    );
   }
 
   // Type nodes with generic type node children, based on a type.
@@ -769,6 +779,40 @@ function prependPrefixOperator(
   }
 
   return new PrefixOperatorsTypeStructureImpl([operator], typeStructure);
+}
+
+function convertNamedTupleMemberNode(
+  typeNode: NamedTupleMember,
+  consoleTrap: TypeNodeToTypeStructureConsole,
+  subStructureResolver: SubstructureResolver,
+): NamedTupleMemberTypeStructureImpl | null {
+  const name: string = typeNode.getName();
+
+  const isType_node = typeNode.getTypeNode();
+  const isType_TypeStructure: TypeStructures | null = convertTypeNode(
+    isType_node,
+    consoleTrap,
+    subStructureResolver,
+  );
+  if (!isType_TypeStructure) return null;
+
+  const node = new NamedTupleMemberTypeStructureImpl(
+    name,
+    isType_TypeStructure,
+  );
+  if (typeNode.getDotDotDotToken()) {
+    node.hasDotDotDotToken = true;
+  }
+  if (typeNode.hasQuestionToken()) {
+    node.hasQuestionToken = true;
+  }
+
+  for (const docNode of typeNode.getJsDocs()) {
+    const jsDoc = subStructureResolver(docNode);
+    if (jsDoc.kind === StructureKind.JSDoc) node.docs.push(jsDoc);
+  }
+
+  return node;
 }
 
 function convertAndAppendChildTypes(

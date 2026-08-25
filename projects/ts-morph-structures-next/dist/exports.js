@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { CodeBlockWriter, StructureKind, SyntaxKind, Structure, forEachStructureChild, Node, ConstructorTypeNode, ModuleResolutionKind, ScriptTarget, ModuleKind, Project, Writers } from 'ts-morph';
+import { CodeBlockWriter, StructureKind, SyntaxKind, Structure, forEachStructureChild, Node, ConstructorTypeNode, ModuleResolutionKind, ScriptTarget, ModuleKind, Project, Writers, printStructure } from 'ts-morph';
 import path from 'path';
 import path$1 from 'node:path';
 import MultiMixinBuilder from 'mixin-decorators';
@@ -28,6 +28,7 @@ var TypeStructureKind;
     TypeStructureKind[TypeStructureKind["MemberedObject"] = 1000000019] = "MemberedObject";
     TypeStructureKind[TypeStructureKind["Import"] = 1000000020] = "Import";
     TypeStructureKind[TypeStructureKind["TypePredicate"] = 1000000021] = "TypePredicate";
+    TypeStructureKind[TypeStructureKind["NamedTupleMember"] = 1000000022] = "NamedTupleMember";
 })(TypeStructureKind || (TypeStructureKind = {}));
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -1835,6 +1836,9 @@ function convertTypeNode(typeNode, consoleTrap, subStructureResolver) {
     if (Node.isImportTypeNode(typeNode)) {
         return convertImportTypeNode(typeNode, consoleTrap, subStructureResolver);
     }
+    if (Node.isNamedTupleMember(typeNode)) {
+        return convertNamedTupleMemberNode(typeNode, consoleTrap, subStructureResolver);
+    }
     // Type nodes with generic type node children, based on a type.
     let childTypeNodes = [], parentStructure;
     if (Node.isUnionTypeNode(typeNode)) {
@@ -2154,6 +2158,26 @@ function prependPrefixOperator(operator, typeStructure) {
         return typeStructure;
     }
     return new PrefixOperatorsTypeStructureImpl([operator], typeStructure);
+}
+function convertNamedTupleMemberNode(typeNode, consoleTrap, subStructureResolver) {
+    const name = typeNode.getName();
+    const isType_node = typeNode.getTypeNode();
+    const isType_TypeStructure = convertTypeNode(isType_node, consoleTrap, subStructureResolver);
+    if (!isType_TypeStructure)
+        return null;
+    const node = new NamedTupleMemberTypeStructureImpl(name, isType_TypeStructure);
+    if (typeNode.getDotDotDotToken()) {
+        node.hasDotDotDotToken = true;
+    }
+    if (typeNode.hasQuestionToken()) {
+        node.hasQuestionToken = true;
+    }
+    for (const docNode of typeNode.getJsDocs()) {
+        const jsDoc = subStructureResolver(docNode);
+        if (jsDoc.kind === StructureKind.JSDoc)
+            node.docs.push(jsDoc);
+    }
+    return node;
 }
 function convertAndAppendChildTypes(childTypeNodes, elements, consoleTrap, subStructureResolver) {
     return childTypeNodes.every((typeNode) => {
@@ -4294,8 +4318,7 @@ class ArrayTypeStructureImpl extends TypeStructuresBase {
     /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() {
         yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
-        if (typeof this.objectType === "object")
-            yield this.objectType;
+        yield this.objectType;
     }
 }
 TypeStructureClassesMap.set(TypeStructureKind.Array, ArrayTypeStructureImpl);
@@ -4784,6 +4807,48 @@ class MemberedObjectTypeStructureImpl extends TypeStructuresBase {
     }
 }
 TypeStructureClassesMap.set(TypeStructureKind.MemberedObject, MemberedObjectTypeStructureImpl);
+
+/** @example `never` */
+class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase {
+    static clone(other) {
+        const namedTuple = new NamedTupleMemberTypeStructureImpl(other.name, TypeStructureClassesMap.clone(other.objectType));
+        StructureClassesMap.cloneArrayWithKind(StructureKind.JSDoc, other.docs);
+        namedTuple.hasDotDotDotToken = other.hasDotDotDotToken;
+        namedTuple.hasQuestionToken = other.hasQuestionToken;
+        return namedTuple;
+    }
+    kind = TypeStructureKind.NamedTupleMember;
+    docs = [];
+    hasDotDotDotToken = false;
+    name;
+    hasQuestionToken = false;
+    objectType;
+    constructor(name, objectType) {
+        super();
+        this.name = name;
+        this.objectType = objectType;
+        this.registerCallbackForTypeStructure();
+    }
+    #writerFunction(writer) {
+        for (const doc of this.docs) {
+            printStructure(doc, {
+                indentNumberOfSpaces: writer.getIndentationLevel() * 2,
+            });
+        }
+        writer.conditionalWrite(this.hasDotDotDotToken, "...");
+        writer.write(this.name);
+        writer.conditionalWrite(this.hasQuestionToken, "?");
+        writer.write(": ");
+        this.objectType.writerFunction(writer);
+    }
+    writerFunction = this.#writerFunction.bind(this);
+    /** @internal */
+    *[STRUCTURE_AND_TYPES_CHILDREN]() {
+        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+        yield this.objectType;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.NamedTupleMember, NamedTupleMemberTypeStructureImpl);
 
 // #endregion preamble
 /**
@@ -7168,4 +7233,4 @@ class TypeMembersMap extends OrderedMap {
 }
 _a = TypeMembersMap;
 
-export { ArrayTypeStructureImpl, CallSignatureDeclarationImpl, ClassDeclarationImpl, ClassFieldStatementsMap, ClassMembersMap, ClassStaticBlockDeclarationImpl, ClassSupportsStatementsFlags, ConditionalTypeStructureImpl, ConstructSignatureDeclarationImpl, ConstructorDeclarationImpl, ConstructorDeclarationOverloadImpl, DecoratorImpl, EnumDeclarationImpl, EnumMemberImpl, ExportAssignmentImpl, ExportDeclarationImpl, ExportManager, ExportSpecifierImpl, FunctionDeclarationImpl, FunctionDeclarationOverloadImpl, FunctionTypeStructureImpl, FunctionWriterStyle, GetAccessorDeclarationImpl, ImportAttributeImpl, ImportDeclarationImpl, ImportManager, ImportSpecifierImpl, ImportTypeStructureImpl, IndexSignatureDeclarationImpl, IndexedAccessTypeStructureImpl, InferTypeStructureImpl, InterfaceDeclarationImpl, IntersectionTypeStructureImpl, JSDocImpl, JSDocTagImpl, JsxAttributeImpl, JsxElementImpl, JsxSelfClosingElementImpl, JsxSpreadAttributeImpl, LiteralTypeStructureImpl, MappedTypeStructureImpl, MemberedObjectTypeStructureImpl, MemberedTypeToClass, MethodDeclarationImpl, MethodDeclarationOverloadImpl, MethodSignatureImpl, ModuleDeclarationImpl, NumberTypeStructureImpl, ParameterDeclarationImpl, ParameterTypeStructureImpl, ParenthesesTypeStructureImpl, PrefixOperatorsTypeStructureImpl, PropertyAssignmentImpl, PropertyDeclarationImpl, PropertySignatureImpl, QualifiedNameTypeStructureImpl, SetAccessorDeclarationImpl, ShorthandPropertyAssignmentImpl, SourceFileImpl, SpreadAssignmentImpl, StringTypeStructureImpl, TemplateLiteralTypeStructureImpl, TupleTypeStructureImpl, TypeAliasDeclarationImpl, TypeArgumentedTypeStructureImpl, TypeMembersMap, TypeParameterDeclarationImpl, TypePredicateTypeStructureImpl, TypeStructureKind, UnionTypeStructureImpl, VariableDeclarationImpl, VariableStatementImpl, VoidTypeNodeToTypeStructureConsole, WriterTypeStructureImpl, forEachAugmentedStructureChild, getTypeAugmentedStructure, parseLiteralType };
+export { ArrayTypeStructureImpl, CallSignatureDeclarationImpl, ClassDeclarationImpl, ClassFieldStatementsMap, ClassMembersMap, ClassStaticBlockDeclarationImpl, ClassSupportsStatementsFlags, ConditionalTypeStructureImpl, ConstructSignatureDeclarationImpl, ConstructorDeclarationImpl, ConstructorDeclarationOverloadImpl, DecoratorImpl, EnumDeclarationImpl, EnumMemberImpl, ExportAssignmentImpl, ExportDeclarationImpl, ExportManager, ExportSpecifierImpl, FunctionDeclarationImpl, FunctionDeclarationOverloadImpl, FunctionTypeStructureImpl, FunctionWriterStyle, GetAccessorDeclarationImpl, ImportAttributeImpl, ImportDeclarationImpl, ImportManager, ImportSpecifierImpl, ImportTypeStructureImpl, IndexSignatureDeclarationImpl, IndexedAccessTypeStructureImpl, InferTypeStructureImpl, InterfaceDeclarationImpl, IntersectionTypeStructureImpl, JSDocImpl, JSDocTagImpl, JsxAttributeImpl, JsxElementImpl, JsxSelfClosingElementImpl, JsxSpreadAttributeImpl, LiteralTypeStructureImpl, MappedTypeStructureImpl, MemberedObjectTypeStructureImpl, MemberedTypeToClass, MethodDeclarationImpl, MethodDeclarationOverloadImpl, MethodSignatureImpl, ModuleDeclarationImpl, NamedTupleMemberTypeStructureImpl, NumberTypeStructureImpl, ParameterDeclarationImpl, ParameterTypeStructureImpl, ParenthesesTypeStructureImpl, PrefixOperatorsTypeStructureImpl, PropertyAssignmentImpl, PropertyDeclarationImpl, PropertySignatureImpl, QualifiedNameTypeStructureImpl, SetAccessorDeclarationImpl, ShorthandPropertyAssignmentImpl, SourceFileImpl, SpreadAssignmentImpl, StringTypeStructureImpl, TemplateLiteralTypeStructureImpl, TupleTypeStructureImpl, TypeAliasDeclarationImpl, TypeArgumentedTypeStructureImpl, TypeMembersMap, TypeParameterDeclarationImpl, TypePredicateTypeStructureImpl, TypeStructureKind, UnionTypeStructureImpl, VariableDeclarationImpl, VariableStatementImpl, VoidTypeNodeToTypeStructureConsole, WriterTypeStructureImpl, forEachAugmentedStructureChild, getTypeAugmentedStructure, parseLiteralType };
