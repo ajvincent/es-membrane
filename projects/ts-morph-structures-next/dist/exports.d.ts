@@ -3369,7 +3369,7 @@ declare class MemberedObjectTypeStructureImpl extends TypeStructuresBase<TypeStr
   >;
 }
 
-/** @example `never` */
+/** @example `[a: number]` */
 declare class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.NamedTupleMember> {
   #private;
   readonly kind: TypeStructureKind.NamedTupleMember;

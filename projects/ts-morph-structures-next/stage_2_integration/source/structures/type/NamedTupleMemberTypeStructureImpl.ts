@@ -20,7 +20,7 @@ import {
   TypeStructureClassesMap,
 } from "../../../snapshot/source/internal-exports.js";
 
-/** @example `never` */
+/** @example `[a: number]` */
 export class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.NamedTupleMember> {
   public static clone(other: NamedTupleMemberTypeStructureImpl): NamedTupleMemberTypeStructureImpl {
     const namedTuple = new NamedTupleMemberTypeStructureImpl(other.name, TypeStructureClassesMap.clone(other.objectType));

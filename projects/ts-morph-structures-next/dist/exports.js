@@ -4808,7 +4808,7 @@ class MemberedObjectTypeStructureImpl extends TypeStructuresBase {
 }
 TypeStructureClassesMap.set(TypeStructureKind.MemberedObject, MemberedObjectTypeStructureImpl);
 
-/** @example `never` */
+/** @example `[a: number]` */
 class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase {
     static clone(other) {
         const namedTuple = new NamedTupleMemberTypeStructureImpl(other.name, TypeStructureClassesMap.clone(other.objectType));
