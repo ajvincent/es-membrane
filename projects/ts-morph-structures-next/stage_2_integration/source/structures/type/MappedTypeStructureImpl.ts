@@ -21,7 +21,7 @@ import {
 // #endregion preamble
 
 /**
- * `{ readonly [key in keyof Foo]: boolean }`
+ * @example `{ readonly [key in keyof Foo]: boolean }`
  *
  * @see `IndexedAccessTypedStructureImpl` for `Foo["index"]`
  * @see `ObjectLiteralTypedStructureImpl` for `{ [key: string]: boolean }`

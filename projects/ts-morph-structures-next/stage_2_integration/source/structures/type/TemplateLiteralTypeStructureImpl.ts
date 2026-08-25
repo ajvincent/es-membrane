@@ -16,7 +16,7 @@ import {
   TypeStructuresBase,
 } from "../../../snapshot/source/internal-exports.js";
 
-/** `one${"A" | "B"}two${"C" | "D"}three` */
+/** @example `one${"A" | "B"}two${"C" | "D"}three` */
 export class TemplateLiteralTypeStructureImpl
 extends TypeStructuresBase<TypeStructureKind.TemplateLiteral>
 {

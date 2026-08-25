@@ -15,6 +15,7 @@ import {
  *
  * @see `ArrayTypeStructureImpl` for `boolean[]`
  * @see `IndexedAccessTypeStructureImpl` for `Foo["index"]`
+ * @see `NamedTupleMemberTypeStructureImpl` for `[foo: boolean]`
  */
 export class TupleTypeStructureImpl
 extends TypeStructuresWithChildren<TypeStructureKind.Tuple, TypeStructures[]>

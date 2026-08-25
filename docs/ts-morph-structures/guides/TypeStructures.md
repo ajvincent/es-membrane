@@ -50,6 +50,7 @@ These are type structures which contain other type structures.
 | [LiteralTypeStructureImpl](../api/ts-morph-structures.literaltypestructureimpl.md) | `string`, `number`, identifiers, etc. | stringValue |
 | [MappedTypeStructureImpl](../api/ts-morph-structures.mappedtypestructureimpl.md) | `{ readonly [key in keyof Foo]: boolean }` | parameter, type |
 | [MemberedObjectTypeStructureImpl](../api/ts-morph-structures.memberedobjecttypestructureimpl.md) | See below | getAccessors, indexSignatures, methods, properties, setAccessors |
+| [NamedTupleMemberTypeStructureImpl](../api/ts-morph-structures.namedtuplemembertypestructureimpl.md) | `foo: boolean` in tuples | name, type |
 | [NumberTypeStructureImpl](../api/ts-morph-structures.numbertypestructureimpl.md) | 1, 2, 3, 4.5, 6, Infinity, 0.25, etc. | numberValue |
 | [ParameterTypeStructureImpl](../api/ts-morph-structures.parametertypestructureimpl.md) | `foo: boolean` | name, typeStructure |
 | [ParenthesesTypeStructureImpl](../api/ts-morph-structures.parenthesestypestructureimpl.md) | `(string)` | childTypes (`[TypeStructure]`) |
