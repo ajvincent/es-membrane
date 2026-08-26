@@ -23,6 +23,7 @@ import {
   MethodSignatureImpl,
   NamedTupleMemberTypeStructureImpl,
   NumberTypeStructureImpl,
+  OptionalTypeStructureImpl,
   ParameterDeclarationImpl,
   ParameterTypeStructureImpl,
   ParenthesesTypeStructureImpl,
@@ -239,6 +240,14 @@ import("bar", {
 
     expect<string>(writer.toString()).toBe("47");
     checkCloneAndRegistration(typedWriter, NumberTypeStructureImpl, false);
+  });
+
+  it("OptionalTypeStructureImpl", () => {
+    const typedWriter = new OptionalTypeStructureImpl(LiteralTypeStructureImpl.get("boolean"));
+    typedWriter.writerFunction(writer);
+
+    expect<string>(writer.toString()).toBe("boolean?");
+    checkCloneAndRegistration(typedWriter, OptionalTypeStructureImpl, false);
   });
 
   it("ParameterTypeStructureImpl", () => {

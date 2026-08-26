@@ -37,6 +37,7 @@ import {
   MemberedObjectTypeStructureImpl,
   NamedTupleMemberTypeStructureImpl,
   NumberTypeStructureImpl,
+  OptionalTypeStructureImpl,
   ParameterTypeStructureImpl,
   ParenthesesTypeStructureImpl,
   PrefixOperatorsTypeStructureImpl,
@@ -246,6 +247,16 @@ export default function convertTypeNode(
       consoleTrap,
       subStructureResolver,
     );
+  }
+
+  if (Node.isOptionalTypeNode(typeNode)) {
+    const childTypeNode = convertTypeNode(
+      typeNode.getTypeNode(),
+      consoleTrap,
+      subStructureResolver,
+    );
+    if (!childTypeNode) return null;
+    return new OptionalTypeStructureImpl(childTypeNode);
   }
 
   // Type nodes with generic type node children, based on a type.

@@ -10,6 +10,7 @@ import type { MappedTypeStructureImpl } from "./MappedTypeStructureImpl.js";
 import type { MemberedObjectTypeStructureImpl } from "./MemberedObjectTypeStructureImpl.js";
 import type { NamedTupleMemberTypeStructureImpl } from "./NamedTupleMemberTypeStructureImpl.js";
 import type { NumberTypeStructureImpl } from "./NumberTypeStructureImpl.js";
+import type { OptionalTypeStructureImpl } from "./OptionalTypeStructureImpl.js";
 import type { ParameterTypeStructureImpl } from "./ParameterTypeStructureImpl.js";
 import type { ParenthesesTypeStructureImpl } from "./ParenthesesTypeStructureImpl.js";
 import type { PrefixOperatorsTypeStructureImpl } from "./PrefixOperatorsTypeStructureImpl.js";
@@ -34,6 +35,7 @@ export type TypeStructures =
   | MemberedObjectTypeStructureImpl
   | NamedTupleMemberTypeStructureImpl
   | NumberTypeStructureImpl
+  | OptionalTypeStructureImpl
   | ParameterTypeStructureImpl
   | ParenthesesTypeStructureImpl
   | PrefixOperatorsTypeStructureImpl

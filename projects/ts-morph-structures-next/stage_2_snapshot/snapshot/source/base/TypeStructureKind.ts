@@ -24,6 +24,7 @@ export enum TypeStructureKind {
   Import,
   TypePredicate,
   NamedTupleMember,
+  Optional,
 }
 
 export interface KindedTypeStructure<

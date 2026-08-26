@@ -52,6 +52,7 @@ These are type structures which contain other type structures.
 | [MemberedObjectTypeStructureImpl](../api/ts-morph-structures.memberedobjecttypestructureimpl.md) | See below | getAccessors, indexSignatures, methods, properties, setAccessors |
 | [NamedTupleMemberTypeStructureImpl](../api/ts-morph-structures.namedtuplemembertypestructureimpl.md) | `foo: boolean` in tuples | name, type |
 | [NumberTypeStructureImpl](../api/ts-morph-structures.numbertypestructureimpl.md) | 1, 2, 3, 4.5, 6, Infinity, 0.25, etc. | numberValue |
+| [OptionalTypeStructureImpl](../api/ts-morph-structures.optionaltypestructureimpl.md) | `[boolean?]` | objectType |
 | [ParameterTypeStructureImpl](../api/ts-morph-structures.parametertypestructureimpl.md) | `foo: boolean` | name, typeStructure |
 | [ParenthesesTypeStructureImpl](../api/ts-morph-structures.parenthesestypestructureimpl.md) | `(string)` | childTypes (`[TypeStructure]`) |
 | [PrefixOperatorsTypeStructureImpl](../api/ts-morph-structures.prefixoperatorstypestructureimpl.md) | `keyof typeof MyClass` | operators, objectType |

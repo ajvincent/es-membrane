@@ -211,6 +211,7 @@ declare enum TypeStructureKind {
   Import = 1000000020,
   TypePredicate = 1000000021,
   NamedTupleMember = 1000000022,
+  Optional = 1000000023,
 }
 
 interface KindedTypeStructure<
@@ -672,6 +673,7 @@ type TypeStructures =
   | MemberedObjectTypeStructureImpl
   | NamedTupleMemberTypeStructureImpl
   | NumberTypeStructureImpl
+  | OptionalTypeStructureImpl
   | ParameterTypeStructureImpl
   | ParenthesesTypeStructureImpl
   | PrefixOperatorsTypeStructureImpl
@@ -3310,8 +3312,7 @@ declare class LiteralTypeStructureImpl extends TypeStructuresBase<TypeStructureK
 }
 
 /**
- * `{ readonly [key in keyof Foo]: boolean }`
- *
+ * @example `{ readonly [key in keyof Foo]: boolean }`
  * @see `IndexedAccessTypedStructureImpl` for `Foo["index"]`
  * @see `ObjectLiteralTypedStructureImpl` for `{ [key: string]: boolean }`
  */
@@ -3406,6 +3407,20 @@ declare class NumberTypeStructureImpl extends TypeStructuresBase<TypeStructureKi
   static clone(other: NumberTypeStructureImpl): NumberTypeStructureImpl;
 }
 
+/** @example `[boolean?]` */
+declare class OptionalTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Optional> {
+  #private;
+  readonly kind: TypeStructureKind.Optional;
+  objectType: TypeStructures;
+  readonly writerFunction: WriterFunction;
+  constructor(objectType: TypeStructures);
+  static clone(other: OptionalTypeStructureImpl): OptionalTypeStructureImpl;
+  /** @internal */
+  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+    StructureImpls | TypeStructures
+  >;
+}
+
 /** Just a parameter name and type for a `FunctionTypeStructureImpl`. */
 declare class ParameterTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Parameter> {
   #private;
@@ -3485,7 +3500,7 @@ declare class StringTypeStructureImpl extends TypeStructuresBase<TypeStructureKi
   static clone(other: StringTypeStructureImpl): StringTypeStructureImpl;
 }
 
-/** `one${"A" | "B"}two${"C" | "D"}three` */
+/** @example `one${"A" | "B"}two${"C" | "D"}three` */
 declare class TemplateLiteralTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.TemplateLiteral> {
   #private;
   readonly kind = TypeStructureKind.TemplateLiteral;
@@ -3507,6 +3522,7 @@ declare class TemplateLiteralTypeStructureImpl extends TypeStructuresBase<TypeSt
  * `[number, boolean]`
  * @see `ArrayTypeStructureImpl` for `boolean[]`
  * @see `IndexedAccessTypeStructureImpl` for `Foo["index"]`
+ * @see `NamedTupleMemberTypeStructureImpl` for `[foo: boolean]`
  */
 declare class TupleTypeStructureImpl extends TypeStructuresWithChildren<
   TypeStructureKind.Tuple,
@@ -3644,6 +3660,7 @@ export {
   ModuleDeclarationImpl,
   NamedTupleMemberTypeStructureImpl,
   NumberTypeStructureImpl,
+  OptionalTypeStructureImpl,
   ParameterDeclarationImpl,
   ParameterTypeStructureImpl,
   ParenthesesTypeStructureImpl,

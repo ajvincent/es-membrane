@@ -24,6 +24,7 @@ import {
   IntersectionTypeStructureImpl,
   MappedTypeStructureImpl,
   MemberedObjectTypeStructureImpl,
+  OptionalTypeStructureImpl,
   NamedTupleMemberTypeStructureImpl,
   NumberTypeStructureImpl,
   ParenthesesTypeStructureImpl,
@@ -463,6 +464,22 @@ class ThisTypeReference {
 
     expect(failMessage).toBe(undefined);
     expect(failNode).toBe(null);
+  });
+
+  it(`Optional: boolean?`, () => {
+    setTypeStructure(`[boolean?]`, failCallback);
+    expect(structure).toBeInstanceOf(TupleTypeStructureImpl);
+    if (!(structure instanceof TupleTypeStructureImpl))
+      return;
+
+    structure = structure.childTypes[0];
+    expect(structure).toBeInstanceOf(OptionalTypeStructureImpl);
+    if (!(structure instanceof OptionalTypeStructureImpl))
+      return;
+
+    expect(structure.objectType).toBe(LiteralTypeStructureImpl.get("boolean"));
+    expect(failMessage).toBeUndefined();
+    expect(failNode).toBeNull();
   });
 
   it(`Parentheses: (true), meaning parentheses type`, () => {

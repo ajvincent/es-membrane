@@ -134,6 +134,7 @@ export { MappedTypeStructureImpl } from "./structures/type/MappedTypeStructureIm
 export { MemberedObjectTypeStructureImpl } from "./structures/type/MemberedObjectTypeStructureImpl.js";
 export { NamedTupleMemberTypeStructureImpl } from "./structures/type/NamedTupleMemberTypeStructureImpl.js";
 export { NumberTypeStructureImpl } from "./structures/type/NumberTypeStructureImpl.js";
+export { OptionalTypeStructureImpl } from "./structures/type/OptionalTypeStructureImpl.js";
 export { ParameterTypeStructureImpl } from "./structures/type/ParameterTypeStructureImpl.js";
 export { ParenthesesTypeStructureImpl } from "./structures/type/ParenthesesTypeStructureImpl.js";
 export {
