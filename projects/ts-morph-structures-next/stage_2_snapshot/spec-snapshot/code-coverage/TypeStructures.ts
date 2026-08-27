@@ -28,7 +28,7 @@ import {
   stageDir
 } from "../../pre-build/constants.js";
 
-xit("convertTypeNode covers all possible type nodes", () => {
+it("convertTypeNode covers all possible type nodes", () => {
   // The leaf nodes are the ones which are unique classes.
   const leafTypeNodeClasses = new Map<string, ClassDeclaration>;
   {
@@ -151,7 +151,19 @@ xit("convertTypeNode covers all possible type nodes", () => {
 
   const missedMethodsOfNode = Array.from(expectedMethodsOfNode.difference(foundMethodsOfNode));
   missedMethodsOfNode.sort();
-  expect(missedMethodsOfNode).toEqual([]);
+  expect(missedMethodsOfNode).toEqual([
+    "isJSDocAllType", /* "*" */
+    "isJSDocFunctionType",
+    "isJSDocNamepathType",
+    "isJSDocNonNullableType",
+    "isJSDocNullableType",
+    "isJSDocOptionalType",
+    "isJSDocSignature",
+    "isJSDocTypeExpression",
+    "isJSDocTypeLiteral",
+    "isJSDocUnknownType", /* "?" */
+    "isJSDocVariadicType",
+  ]);
 });
 
 xit("convertTypeNode covers all possible type nodes (using structures to assess)", () => {

@@ -65,6 +65,10 @@ const LiteralKeywords: ReadonlyMap<SyntaxKind, string> = new Map([
   [SyntaxKind.AnyKeyword, "any"],
   [SyntaxKind.BooleanKeyword, "boolean"],
   [SyntaxKind.FalseKeyword, "false"],
+  /*
+  [SyntaxKind.JSDocAllType, "*"],
+  [SyntaxKind.JSDocUnknownType, "?"],
+  */
   [SyntaxKind.NeverKeyword, "never"],
   [SyntaxKind.NumberKeyword, "number"],
   [SyntaxKind.NullKeyword, "null"],
@@ -82,6 +86,15 @@ export default function convertTypeNode(
   consoleTrap: TypeNodeToTypeStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): TypeStructuresOrNull {
+  /* A note about JSDocType nodes.
+
+  For completeness, sure, we should have type structures for them.  But for all practical
+  purposes they are _unreachable_.  ts-morph provides access to `JSDocType` nodes
+  only via `JSDocTypeTag::getTypeExpression().getTypeNode()`.  The `JSDocTypeTag` extends
+  `JSDocTag`, which we do have a built-in structure for from ts-morph... lacking any type information.
+
+  This function is about converting type nodes.  In this case, we just don't have one.
+  */
   if (Node.isLiteralTypeNode(typeNode)) {
     typeNode = typeNode.getFirstChildOrThrow();
   }
