@@ -1,0 +1,142 @@
+diff --git a/projects/ts-morph-structures-next/stage_2_snapshot/snapshot/source/structures/standard/JSDocTagImpl.ts b/projects/ts-morph-structures-next/stage_2_snapshot/snapshot/source/structures/standard/JSDocTagImpl.ts
+index 8b5dee10..eedec6ed 100644
+--- a/projects/ts-morph-structures-next/stage_2_snapshot/snapshot/source/structures/standard/JSDocTagImpl.ts
++++ b/projects/ts-morph-structures-next/stage_2_snapshot/snapshot/source/structures/standard/JSDocTagImpl.ts
+@@ -1,7 +1,10 @@
+ //#region preamble
+-import type {
+-  JSDocTagStructureClassIfc,
+-  stringOrWriterFunction,
++import {
++  type JSDocTagStructureClassIfc,
++  type TypeStructures,
++  type TypeStructuresOrNull,
++  parseLiteralType,
++  type stringOrWriterFunction,
+ } from "../../exports.js";
+ import {
+   type CloneableStructure,
+@@ -13,12 +16,15 @@ import {
+   type StructureClassToJSON,
+   type StructureFields,
+   StructureMixin,
++  TypeStructureClassesMap,
+ } from "../../internal-exports.js";
+ import MultiMixinBuilder from "mixin-decorators";
+ import {
++  type CodeBlockWriter,
+   type JSDocTagStructure,
+   type OptionalKind,
+   StructureKind,
++  type WriterFunction,
+ } from "ts-morph";
+ import type { Class } from "type-fest";
+ //#endregion preamble
+@@ -31,15 +37,50 @@ export class JSDocTagImpl
+   extends JSDocTagStructureBase
+   implements JSDocTagStructureClassIfc
+ {
++  static readonly #typeRE = /^\{([^}])+\}(.*)/;
++
+   readonly kind: StructureKind.JSDocTag = StructureKind.JSDocTag;
+   /** The name for the JS doc tag that comes after the "at" symbol. */
+   tagName: string;
++
++  #typeStructure: TypeStructuresOrNull = null;
++  #description: string = "";
++
+   /** The text that follows the tag name. */
+-  text?: stringOrWriterFunction = undefined;
++
++  readonly #defaultTextWriter: WriterFunction = this.#unboundTextWriter.bind(this);
++  #text: WriterFunction = this.#defaultTextWriter;
++
++  get text(): stringOrWriterFunction {
++    return this.#text;
++  }
++  set text(value: stringOrWriterFunction) {
++    if (typeof value === "function") {
++      this.#typeStructure = null;
++      this.#description = "";
++      this.#text = value;
++      return;
++    }
++
++    const match = JSDocTagImpl.#typeRE.exec(value.trim());
++    if (match) {
++      try {
++        const typeStructure: TypeStructures = parseLiteralType(match[1]);
++        this.setTypeAndDescription(typeStructure, match[2]);
++        return;
++      } catch (ex) {
++        void (ex);
++        // fall through
++      }
++    }
++
++    this.setTypeAndDescription(null, value);
++  }
+ 
+   constructor(tagName: string) {
+     super();
+     this.tagName = tagName;
++    this.setTypeAndDescription(null, "");
+   }
+ 
+   /** @internal */
+@@ -49,7 +90,18 @@ export class JSDocTagImpl
+   ): void {
+     super[COPY_FIELDS](source, target);
+     target.tagName = source.tagName;
+-    if (source.text) {
++
++    if (source instanceof JSDocTagImpl) {
++      const typeAndDesc = source.getTypeAndDescription();
++      if (typeAndDesc) {
++        let typeStructure: TypeStructuresOrNull = typeAndDesc[0];
++        if (typeStructure)
++          typeStructure = TypeStructureClassesMap.clone(typeStructure);
++        target.setTypeAndDescription(typeStructure, typeAndDesc[1]);
++      } else {
++        target.text = source.text;
++      }
++    } else if (source.text) {
+       target.text = source.text;
+     }
+   }
+@@ -64,14 +116,33 @@ export class JSDocTagImpl
+     return target;
+   }
+ 
++  public getTypeAndDescription(): [TypeStructuresOrNull, string] | undefined {
++    if (this.#unboundTextWriter === this.#defaultTextWriter)
++      return [this.#typeStructure, this.#description];
++    return undefined;
++  }
++
++  public setTypeAndDescription(type: TypeStructuresOrNull, description: string): void {
++    this.#text = this.#defaultTextWriter;
++    this.#typeStructure = type;
++    this.#description = description;
++  }
++
++  #unboundTextWriter(writer: CodeBlockWriter): void {
++    if (this.#typeStructure) {
++      writer.inlineBlock(() => this.#typeStructure!.writerFunction(writer));
++      writer.write(" ");
++    }
++
++    writer.write(this.#description);
++  }
++
+   public toJSON(): StructureClassToJSON<JSDocTagImpl> {
+     const rv = super.toJSON() as StructureClassToJSON<JSDocTagImpl>;
+     rv.kind = this.kind;
+     rv.tagName = this.tagName;
+     if (this.text) {
+       rv.text = StructureBase[REPLACE_WRITER_WITH_STRING](this.text);
+-    } else {
+-      rv.text = undefined;
+     }
+ 
+     return rv;
