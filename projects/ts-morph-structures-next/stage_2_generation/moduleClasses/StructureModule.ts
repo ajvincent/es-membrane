@@ -42,7 +42,7 @@ import type {
 
 import {
   StructureModifiersMap
-} from "../build/structures/specialCases/modifiers/map.js";
+} from "../build/structures/specialCases/map.js";
 
 export class StructureModule extends BaseClassModule
 {

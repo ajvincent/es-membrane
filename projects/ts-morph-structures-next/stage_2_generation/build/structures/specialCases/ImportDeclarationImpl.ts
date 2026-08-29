@@ -20,27 +20,25 @@ import {
   UnionTypeStructureImpl,
   type stringOrWriterFunction,
   stringWriterOrStatementImpl,
-} from "#stage_two/snapshot/source/exports.js";
+} from "#stage_one/snapshot/source/exports.js";
 
 import {
   StatementsPriority
-} from "../../../../build/fieldStatements/StatementsPriority.js";
+} from "../../../build/fieldStatements/StatementsPriority.js";
 
-import StatementGetterBase from "../../../../build/fieldStatements/GetterBase.js";
+import StatementGetterBase from "../../../build/fieldStatements/GetterBase.js";
 
-import InterfaceModule from "../../../../moduleClasses/InterfaceModule.js";
+import InterfaceModule from "../../../moduleClasses/InterfaceModule.js";
 import type {
   StructureModule
-} from "../../../../moduleClasses/StructureModule.js";
+} from "../../../moduleClasses/StructureModule.js";
 
 import type {
   StructureModuleModifierTraps
-} from "../../../../types/StructureModuleModifierTraps.js";
-
-
+} from "../../../types/StructureModuleModifierTraps.js";
 //#endregion preamble
 
-const ImportDeclarationSpecialCases: StructureModuleModifierTraps = {
+export const ImportDeclarationSpecialCases: StructureModuleModifierTraps = {
   defineImplMethods: function(
     module: StructureModule,
     interfaceMembers: TypeMembersMap,
@@ -153,7 +151,3 @@ class NamedImportsTypeFilterStatements extends StatementGetterBase implements Cl
     `];
   }
 }
-
-export {
-  ImportDeclarationSpecialCases
-};

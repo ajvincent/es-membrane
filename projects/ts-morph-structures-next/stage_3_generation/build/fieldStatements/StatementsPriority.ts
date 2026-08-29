@@ -13,6 +13,7 @@ import UndefinedProperties from "./UndefinedProperties.js";
 
 export enum StatementsPriority {
   DEBUG = 0,
+  SPECIAL_CASES,
   IS_STATIC,
   STRUCTURE_SPECIFIC,
   DECORATOR_SPECIFIC,

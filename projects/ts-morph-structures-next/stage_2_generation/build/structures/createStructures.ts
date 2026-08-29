@@ -49,29 +49,24 @@ import ArrayReadonlyHandler from "../fieldStatements/TypeStructures/ArrayReadonl
 import KindPropertyInitializer from "./KindProperty.js";
 import CloneStructureStatements from "./CloneStructureStatements.js";
 import ConstructorStatements from "./ConstructorStatements.js";
-import FixKeyType_Filter from "./specialCases/fixKeyType.js";
-import IsStatic_Constructor from "./specialCases/isStatic_Fields.js";
+import FixKeyType_Filter from "./specialCases-old/fixKeyType.js";
+import IsStatic_Constructor from "./specialCases-old/isStatic_Fields.js";
 import ProxyArrayStatements from "../fieldStatements/TypeStructures/ProxyArray.js";
 import ShadowArrayStatements from "../fieldStatements/TypeStructures/ShadowArray.js";
 import TypeStructureSetStatements from "../fieldStatements/TypeStructures/TypeStructureSet.js";
 import TypeArrayStatements from "../fieldStatements/TypeStructures/ArrayGetter.js";
 import {
   TypeAliasDeclarationInitializer
-} from "./specialCases/typeAliasInitializer.js";
+} from "./specialCases-old/typeAliasInitializer.js";
 
 import DebuggingFilter from "../fieldStatements/Debugging.js";
 
 import {
   FromSignatureStatements,
   getFromSignatureMethod,
-} from "./specialCases/fromSignature.js";
+} from "./specialCases-old/fromSignature.js";
 
-import postProcessClassMembers from "./specialCases/postProcessClassMembers.js";
-
-import {
-  AccessorExtraParameters,
-  getInsertedAccessorProperty,
-} from "./specialCases/accessorConstructors.js";
+import postProcessClassMembers from "./specialCases-old/postProcessClassMembers.js";
 
 import {
   StatementsPriority,
@@ -171,7 +166,6 @@ function buildTypeToClass(
   typeToClass.addStatementGetters(StatementsPriority.BASELINE, getBaselineStatementGetters(module));
   typeToClass.addStatementGetters(StatementsPriority.STRUCTURE_SPECIFIC, [
     new FixKeyType_Filter(module),
-    new AccessorExtraParameters(module, typeToClass.constructorParameters),
     new ArrayReadonlyHandler(module),
     new KindPropertyInitializer(module),
     new CloneStructureStatements(module, typeToClass.constructorParameters),
@@ -194,11 +188,6 @@ function buildTypeToClass(
       ]
     );
     typeToClass.insertMemberKey(false, isStaticProp, false, "constructor");
-  }
-
-  const accessorProp = getInsertedAccessorProperty(module.baseName);
-  if (accessorProp) {
-    typeToClass.insertMemberKey(false, accessorProp, false, "constructor");
   }
 
   module.modifiers?.buildTypeToClass?.(module, interfaceModule, typeToClass);

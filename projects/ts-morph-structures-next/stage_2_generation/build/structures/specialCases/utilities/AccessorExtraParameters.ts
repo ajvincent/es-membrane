@@ -11,7 +11,6 @@ import {
   LiteralTypeStructureImpl,
   type MemberedStatementsKey,
   ParameterDeclarationImpl,
-  PropertySignatureImpl,
   VariableDeclarationImpl,
   VariableStatementImpl,
   type stringWriterOrStatementImpl,
@@ -19,32 +18,12 @@ import {
 
 import type {
   BaseClassModule,
-} from "../../../moduleClasses/exports.js";
+} from "../../../../moduleClasses/exports.js";
 
-import BlockStatementImpl from "../../../pseudoExpressions/statements/BlockStatement.js";
-import CallExpressionStatementImpl from "../../../pseudoExpressions/statements/CallExpression.js";
-import StatementGetterBase from "../../fieldStatements/GetterBase.js";
+import BlockStatementImpl from "../../../../pseudoExpressions/statements/BlockStatement.js";
+import CallExpressionStatementImpl from "../../../../pseudoExpressions/statements/CallExpression.js";
+import StatementGetterBase from "../../../fieldStatements/GetterBase.js";
 // #endregion preamble
-
-export function getInsertedAccessorProperty(
-  name: string
-): PropertySignatureImpl | undefined
-{
-  if (name === "GetAccessorDeclarationStructure") {
-    const prop = new PropertySignatureImpl("returnType");
-    prop.hasQuestionToken = true;
-    prop.typeStructure = LiteralTypeStructureImpl.get("TypeStructures");
-    return prop;
-  }
-
-  if (name === "SetAccessorDeclarationStructure") {
-    const prop = new PropertySignatureImpl("setterParameter");
-    prop.typeStructure = LiteralTypeStructureImpl.get("ParameterDeclarationImpl");
-    return prop;
-  }
-
-  return undefined;
-}
 
 export class AccessorExtraParameters extends StatementGetterBase
 implements ConstructorBodyStatementsGetter, ClassHeadStatementsGetter
