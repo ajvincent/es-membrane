@@ -49,7 +49,6 @@ import ArrayReadonlyHandler from "../fieldStatements/TypeStructures/ArrayReadonl
 import KindPropertyInitializer from "./KindProperty.js";
 import CloneStructureStatements from "./CloneStructureStatements.js";
 import ConstructorStatements from "./ConstructorStatements.js";
-import FixKeyType_Filter from "./specialCases-old/fixKeyType.js";
 import IsStatic_Constructor from "./specialCases-old/isStatic_Fields.js";
 import ProxyArrayStatements from "../fieldStatements/TypeStructures/ProxyArray.js";
 import ShadowArrayStatements from "../fieldStatements/TypeStructures/ShadowArray.js";
@@ -165,7 +164,6 @@ function buildTypeToClass(
 
   typeToClass.addStatementGetters(StatementsPriority.BASELINE, getBaselineStatementGetters(module));
   typeToClass.addStatementGetters(StatementsPriority.STRUCTURE_SPECIFIC, [
-    new FixKeyType_Filter(module),
     new ArrayReadonlyHandler(module),
     new KindPropertyInitializer(module),
     new CloneStructureStatements(module, typeToClass.constructorParameters),

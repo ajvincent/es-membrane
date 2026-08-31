@@ -5,15 +5,15 @@ import {
   type MemberedStatementsKey,
   type PropertyInitializerGetter,
   type stringWriterOrStatementImpl,
-} from "#stage_one/snapshot/source/exports.js";
+} from "#stage_two/snapshot/source/exports.js";
 
-import BaseClassModule from "../../../moduleClasses/BaseClassModule.js";
+import BaseClassModule from "../../../../moduleClasses/BaseClassModule.js";
 
-import StatementGetterBase from "../../fieldStatements/GetterBase.js";
+import StatementGetterBase from "../../../fieldStatements/GetterBase.js";
 
 // #endregion preamble
 
-export default class FixKeyType_Filter extends StatementGetterBase
+export class FixKeyType_Filter extends StatementGetterBase
 implements PropertyInitializerGetter, ConstructorBodyStatementsGetter
 {
   constructor(

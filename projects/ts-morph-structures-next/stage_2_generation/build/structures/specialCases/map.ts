@@ -11,11 +11,16 @@ import {
 } from "./ImportDeclarationImpl.js";
 
 import {
+  IndexSignatureDeclarationSpecialCases,
+} from "./IndexSignature.js";
+
+import {
   SetAccessorDeclarationSpecialCases
 } from "./SetAccessorDeclaration.js";
 
 export const StructureModifiersMap: ReadonlyMap<string, StructureModuleModifierTraps> = new Map([
   ["GetAccessorDeclarationImpl", GetAccessorDeclarationSpecialCases],
   ["ImportDeclarationImpl", ImportDeclarationSpecialCases],
+  ["IndexSignatureDeclarationImpl", IndexSignatureDeclarationSpecialCases],
   ["SetAccessorDeclarationImpl", SetAccessorDeclarationSpecialCases],
 ]);
