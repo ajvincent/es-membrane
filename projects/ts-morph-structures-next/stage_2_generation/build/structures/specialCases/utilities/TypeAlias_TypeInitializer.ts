@@ -5,9 +5,9 @@ import {
   type PropertyInitializerGetter,
 } from "#stage_one/snapshot/source/exports.js";
 
-import BaseClassModule from "../../../moduleClasses/BaseClassModule.js";
+import BaseClassModule from "../../../../moduleClasses/BaseClassModule.js";
 
-import StatementGetterBase from "../../fieldStatements/GetterBase.js";
+import StatementGetterBase from "../../../fieldStatements/GetterBase.js";
 
 // #endregion preamble
 

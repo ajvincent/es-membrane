@@ -18,9 +18,14 @@ import {
   SetAccessorDeclarationSpecialCases
 } from "./SetAccessorDeclaration.js";
 
+import {
+  TypeAliasDeclarationSpecialCases
+} from "./TypeAliasDeclaration.js";
+
 export const StructureModifiersMap: ReadonlyMap<string, StructureModuleModifierTraps> = new Map([
   ["GetAccessorDeclarationImpl", GetAccessorDeclarationSpecialCases],
   ["ImportDeclarationImpl", ImportDeclarationSpecialCases],
   ["IndexSignatureDeclarationImpl", IndexSignatureDeclarationSpecialCases],
   ["SetAccessorDeclarationImpl", SetAccessorDeclarationSpecialCases],
+  ["TypeAliasDeclarationImpl", TypeAliasDeclarationSpecialCases],
 ]);

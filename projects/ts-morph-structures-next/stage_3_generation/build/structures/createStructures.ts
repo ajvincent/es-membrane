@@ -54,9 +54,6 @@ import ProxyArrayStatements from "../fieldStatements/TypeStructures/ProxyArray.j
 import ShadowArrayStatements from "../fieldStatements/TypeStructures/ShadowArray.js";
 import TypeStructureSetStatements from "../fieldStatements/TypeStructures/TypeStructureSet.js";
 import TypeArrayStatements from "../fieldStatements/TypeStructures/ArrayGetter.js";
-import {
-  TypeAliasDeclarationInitializer
-} from "./specialCases-old/typeAliasInitializer.js";
 
 import DebuggingFilter from "../fieldStatements/Debugging.js";
 
@@ -172,7 +169,6 @@ function buildTypeToClass(
     new ProxyArrayStatements(module),
     new TypeStructureSetStatements(module),
     new TypeArrayStatements(module),
-    new TypeAliasDeclarationInitializer(module),
   ]);
 
   const flatTypes = InterfaceModule.flatTypesMap.get(
