@@ -56,11 +56,6 @@ import TypeArrayStatements from "../fieldStatements/TypeStructures/ArrayGetter.j
 
 import DebuggingFilter from "../fieldStatements/Debugging.js";
 
-import {
-  FromSignatureStatements,
-  getFromSignatureMethod,
-} from "./specialCases-old/fromSignature.js";
-
 import postProcessClassMembers from "./specialCases-old/postProcessClassMembers.js";
 
 import {
@@ -187,22 +182,6 @@ function defineImplMethods(
 
   const staticCloneMethod: MethodSignatureImpl = module.createStaticCloneMethod();
   typeToClass.addTypeMember(true, staticCloneMethod);
-
-  const fromSignature = getFromSignatureMethod(module);
-  if (fromSignature) {
-    typeToClass.addTypeMember(true, fromSignature);
-    const fromSignatureGetters = new FromSignatureStatements(module, typeToClass.constructorParameters);
-    typeToClass.addStatementGetters(StatementsPriority.BASELINE, [fromSignatureGetters]);
-
-    fromSignatureGetters.sharedKeys.forEach(sharedKey => {
-      typeToClass.insertMemberKey(
-        false,
-        fromSignatureGetters.declarationFlatTypeMembers.get(sharedKey) as PropertySignatureImpl,
-        true,
-        fromSignature
-      );
-    });
-  }
 
   let iteratorMethod: MethodSignatureImpl | undefined;
   if (getTypeStructureNativeMembers(module, interfaceMembers).next().done !== true) {

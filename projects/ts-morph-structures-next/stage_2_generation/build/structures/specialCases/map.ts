@@ -7,6 +7,10 @@ import {
 } from "./ClassMemberDeclaration.js";
 
 import {
+  ConstructorDeclarationSpecialCases,
+} from "./ConstructorDeclaration.js";
+
+import {
   GetAccessorDeclarationSpecialCases
 } from "./GetAccessorDeclaration.js";
 
@@ -19,6 +23,14 @@ import {
 } from "./IndexSignature.js";
 
 import {
+  MethodDeclarationSpecialCases
+} from "./MethodDeclaration.js";
+
+import {
+  PropertyDeclarationSpecialCases
+} from "./PropertyDeclaration.js";
+
+import {
   SetAccessorDeclarationSpecialCases
 } from "./SetAccessorDeclaration.js";
 
@@ -27,12 +39,13 @@ import {
 } from "./TypeAliasDeclaration.js";
 
 export const StructureModifiersMap: ReadonlyMap<string, StructureModuleModifierTraps> = new Map([
+  ["ConstructorDeclarationImpl", ConstructorDeclarationSpecialCases],
   ["GetAccessorDeclarationImpl", GetAccessorDeclarationSpecialCases],
   ["ImportDeclarationImpl", ImportDeclarationSpecialCases],
   ["IndexSignatureDeclarationImpl", IndexSignatureDeclarationSpecialCases],
-  ["MethodDeclarationImpl", ClassMemberDeclarationSpecialCases],
+  ["MethodDeclarationImpl", MethodDeclarationSpecialCases],
   ["MethodDeclarationOverloadImpl", ClassMemberDeclarationSpecialCases],
-  ["PropertyDeclarationImpl", ClassMemberDeclarationSpecialCases],
+  ["PropertyDeclarationImpl", PropertyDeclarationSpecialCases],
   ["SetAccessorDeclarationImpl", SetAccessorDeclarationSpecialCases],
   ["TypeAliasDeclarationImpl", TypeAliasDeclarationSpecialCases],
 ]);

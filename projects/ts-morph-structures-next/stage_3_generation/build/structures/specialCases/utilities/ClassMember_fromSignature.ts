@@ -26,6 +26,7 @@ import {
   type stringOrWriterFunction,
   type stringWriterOrStatementImpl,
   ReadonlyTypeMembersMap,
+  type MemberedTypeToClass,
 } from "#stage_two/snapshot/source/exports.js";
 
 import {
@@ -33,17 +34,22 @@ import {
   getStructureNameFromModified,
 } from "#utilities/source/StructureNameTransforms.js";
 
-import FlatInterfaceMap from "../../../vanilla/FlatInterfaceMap.js";
+import FlatInterfaceMap from "../../../../vanilla/FlatInterfaceMap.js";
 
 import {
   type BaseClassModule,
   InterfaceModule,
   type StructureModule,
-} from "../../../moduleClasses/exports.js";
+} from "../../../../moduleClasses/exports.js";
 
-import BlockStatementImpl from "../../../pseudoExpressions/statements/BlockStatement.js";
-import CallExpressionStatementImpl from "../../../pseudoExpressions/statements/CallExpression.js";
-import StatementGetterBase from "../../fieldStatements/GetterBase.js";
+import BlockStatementImpl from "../../../../pseudoExpressions/statements/BlockStatement.js";
+import CallExpressionStatementImpl from "../../../../pseudoExpressions/statements/CallExpression.js";
+
+import {
+  StatementsPriority,
+} from "../../../fieldStatements/StatementsPriority.js";
+
+import StatementGetterBase from "../../../fieldStatements/GetterBase.js";
 // #endregion preamble
 
 const DeclarationToSignature: ReadonlyMap<string, string> = new Map<string, string>([
@@ -55,13 +61,32 @@ const DeclarationToSignature: ReadonlyMap<string, string> = new Map<string, stri
 const booleanType = LiteralTypeStructureImpl.get("boolean");
 const stringType = LiteralTypeStructureImpl.get("string");
 
-export function getFromSignatureMethod(
-  module: StructureModule
-): MethodSignatureImpl | undefined
+export function apply_FromSignature_rules(
+  module: StructureModule,
+  typeToClass: MemberedTypeToClass
+): void
 {
-  const signatureName = DeclarationToSignature.get(module.defaultExportName);
-  if (!signatureName)
-    return undefined;
+  const fromSignature: MethodSignatureImpl = getFromSignatureMethod(module);
+
+  typeToClass.addTypeMember(true, fromSignature);
+  const fromSignatureGetters = new FromSignatureStatements(module, typeToClass.constructorParameters);
+  typeToClass.addStatementGetters(StatementsPriority.BASELINE, [fromSignatureGetters]);
+
+  fromSignatureGetters.sharedKeys.forEach(sharedKey => {
+    typeToClass.insertMemberKey(
+      false,
+      fromSignatureGetters.declarationFlatTypeMembers.get(sharedKey) as PropertySignatureImpl,
+      true,
+      fromSignature
+    );
+  });
+}
+
+function getFromSignatureMethod(
+  module: StructureModule
+): MethodSignatureImpl
+{
+  const signatureName = DeclarationToSignature.get(module.defaultExportName)!;
 
   module.addImports("public", [], [signatureName, "JSDocImpl"]);
   module.addImports("internal", ["TypeStructureClassesMap"], []);
