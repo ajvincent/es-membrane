@@ -3,6 +3,10 @@ import type {
 } from "../../../types/StructureModuleModifierTraps.js";
 
 import {
+  ClassMemberDeclarationSpecialCases,
+} from "./ClassMemberDeclaration.js";
+
+import {
   GetAccessorDeclarationSpecialCases
 } from "./GetAccessorDeclaration.js";
 
@@ -19,13 +23,16 @@ import {
 } from "./SetAccessorDeclaration.js";
 
 import {
-  TypeAliasDeclarationSpecialCases,
+  TypeAliasDeclarationSpecialCases
 } from "./TypeAliasDeclaration.js";
 
 export const StructureModifiersMap: ReadonlyMap<string, StructureModuleModifierTraps> = new Map([
   ["GetAccessorDeclarationImpl", GetAccessorDeclarationSpecialCases],
   ["ImportDeclarationImpl", ImportDeclarationSpecialCases],
   ["IndexSignatureDeclarationImpl", IndexSignatureDeclarationSpecialCases],
+  ["MethodDeclarationImpl", ClassMemberDeclarationSpecialCases],
+  ["MethodDeclarationOverloadImpl", ClassMemberDeclarationSpecialCases],
+  ["PropertyDeclarationImpl", ClassMemberDeclarationSpecialCases],
   ["SetAccessorDeclarationImpl", SetAccessorDeclarationSpecialCases],
   ["TypeAliasDeclarationImpl", TypeAliasDeclarationSpecialCases],
 ]);

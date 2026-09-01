@@ -1,8 +1,6 @@
 //#region preamble
 import {
-  LiteralTypeStructureImpl,
   type MemberedTypeToClass,
-  PropertySignatureImpl,
 } from "#stage_one/snapshot/source/exports.js";
 
 import InterfaceModule from "../../../moduleClasses/InterfaceModule.js";
@@ -18,27 +16,18 @@ import {
   StatementsPriority,
 } from "../../fieldStatements/StatementsPriority.js";
 
-import {
-  AccessorExtraParameters
-} from "./utilities/AccessorExtraParameters.js";
 
 import {
-  ClassMemberDeclarationSpecialCases
-} from "./ClassMemberDeclaration.js";
+  ClassMember_isStatic
+} from "./utilities/ClassMember_isStatic.js";
 //#endregion preamble
 
-export const SetAccessorDeclarationSpecialCases: StructureModuleModifierTraps = {
+export const ClassMemberDeclarationSpecialCases: StructureModuleModifierTraps = {
   buildTypeToClass(module: StructureModule, interfaceModule: InterfaceModule, typeToClass: MemberedTypeToClass): void {
     void interfaceModule;
 
-    const prop = new PropertySignatureImpl("setterParameter");
-    prop.typeStructure = LiteralTypeStructureImpl.get("ParameterDeclarationImpl");
-    typeToClass.insertMemberKey(false, prop, false, "constructor");
-
     typeToClass.addStatementGetters(StatementsPriority.SPECIAL_CASES, [
-      new AccessorExtraParameters(module, typeToClass.constructorParameters)
+      new ClassMember_isStatic(module, typeToClass.constructorParameters)
     ]);
-
-    ClassMemberDeclarationSpecialCases.buildTypeToClass!(module, interfaceModule, typeToClass);
   }
 };

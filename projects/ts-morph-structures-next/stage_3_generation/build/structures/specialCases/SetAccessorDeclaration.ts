@@ -21,6 +21,10 @@ import {
 import {
   AccessorExtraParameters
 } from "./utilities/AccessorExtraParameters.js";
+
+import {
+  ClassMemberDeclarationSpecialCases
+} from "./ClassMemberDeclaration.js";
 //#endregion preamble
 
 export const SetAccessorDeclarationSpecialCases: StructureModuleModifierTraps = {
@@ -34,5 +38,7 @@ export const SetAccessorDeclarationSpecialCases: StructureModuleModifierTraps = 
     typeToClass.addStatementGetters(StatementsPriority.SPECIAL_CASES, [
       new AccessorExtraParameters(module, typeToClass.constructorParameters)
     ]);
+
+    ClassMemberDeclarationSpecialCases.buildTypeToClass!(module, interfaceModule, typeToClass);
   }
 };

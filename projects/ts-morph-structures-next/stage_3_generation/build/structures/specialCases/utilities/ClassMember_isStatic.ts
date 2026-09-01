@@ -12,11 +12,12 @@ import {
 
 import type {
   BaseClassModule,
-} from "../../../moduleClasses/exports.js";
-import StatementGetterBase from "../../fieldStatements/GetterBase.js";
+} from "../../../../moduleClasses/exports.js";
+
+import StatementGetterBase from "../../../fieldStatements/GetterBase.js";
 // #endregion preamble
 
-export default class IsStatic_Constructor extends StatementGetterBase
+export class ClassMember_isStatic extends StatementGetterBase
 implements ClassBodyStatementsGetter, ConstructorBodyStatementsGetter, PropertyInitializerGetter
 {
   readonly #ctorParameters: ParameterDeclarationImpl[];
