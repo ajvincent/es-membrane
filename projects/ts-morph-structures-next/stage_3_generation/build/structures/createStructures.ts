@@ -56,8 +56,6 @@ import TypeArrayStatements from "../fieldStatements/TypeStructures/ArrayGetter.j
 
 import DebuggingFilter from "../fieldStatements/Debugging.js";
 
-import postProcessClassMembers from "./specialCases-old/postProcessClassMembers.js";
-
 import {
   StatementsPriority,
   getBaselineStatementGetters,
@@ -127,7 +125,8 @@ async function buildStructure(
     StructureKind.Constructor, false, "constructor"
   )!.parameters.sort(compareConstructorParameters);
 
-  postProcessClassMembers(module);
+  if (module.modifiers?.postProcessClassMembers)
+    module.modifiers.postProcessClassMembers(module);
 
   removeUnnecessaryTypeStructures(module.classMembersMap);
   removeUnnecessaryMethods(module.classMembersMap);

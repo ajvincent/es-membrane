@@ -31,4 +31,8 @@ export interface StructureModuleModifierTraps {
     interfaceModule: InterfaceModule,
     typeToClass: MemberedTypeToClass,
   ): void;
+
+  postProcessClassMembers?(
+    module: StructureModule
+  ): void;
 }
