@@ -83,7 +83,7 @@ async function buildDecorator(
   const interfaceMembers: TypeMembersMap = interfaceModule.typeMembers.clone();
   assert(interfaceMembers.size > 0, "Empty interface?  Or was it just consumed?  " + name);
 
-  const typeProperties = modifyTypeMembersForTypeStructures(name, interfaceMembers);
+  const typeProperties = modifyTypeMembersForTypeStructures(module, name, interfaceMembers);
 
   const typeToClass = new MemberedTypeToClass;
   typeToClass.importFromTypeMembersMap(false, interfaceMembers);

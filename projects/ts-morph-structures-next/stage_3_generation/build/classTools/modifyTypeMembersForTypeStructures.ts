@@ -11,17 +11,22 @@ import {
   UnionTypeStructureImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
+import {
+  StructureModule
+} from "#stage_three/generation/moduleClasses/StructureModule.js";
+
+import type DecoratorModule from "#stage_three/generation/moduleClasses/DecoratorModule.js";
+
 import PropertyHashesWithTypes from "./PropertyHashesWithTypes.js";
 
 export default function modifyTypeMembersForTypeStructures(
+  module: StructureModule | DecoratorModule,
   baseName: string,
   map: TypeMembersMap
 ): PropertySignatureImpl[]
 {
-  if (baseName === "TypeAliasDeclarationStructure") {
-    // special case: type can never be undefined
-    const typeStructureMember = map.getAsKind(StructureKind.PropertySignature, "typeStructure")!;
-    typeStructureMember.typeStructure = LiteralTypeStructureImpl.get("TypeStructures");
+  if (module instanceof StructureModule && module.modifiers?.modifyTypeMembersForTypeStructures) {
+    module.modifiers.modifyTypeMembersForTypeStructures(baseName, map);
   }
 
   const properties: PropertySignatureImpl[] = [];

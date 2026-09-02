@@ -103,7 +103,7 @@ async function buildStructure(
 
   const module = new StructureModule(name, interfaceModule);
   const interfaceMembers: TypeMembersMap = interfaceModule.typeMembers.clone();
-  const replacedProperties = modifyTypeMembersForTypeStructures(name, interfaceMembers);
+  const replacedProperties = modifyTypeMembersForTypeStructures(module, name, interfaceMembers);
 
   const typeToClass = buildTypeToClass(module, interfaceModule);
   typeToClass.importFromTypeMembersMap(false, interfaceMembers);

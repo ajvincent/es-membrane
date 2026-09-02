@@ -15,6 +15,17 @@ import type {
  * No method in here is required.
  */
 export interface StructureModuleModifierTraps {
+  modifyTypeMembersForTypeStructures?(
+    baseName: string,
+    map: TypeMembersMap
+  ): void;
+
+  buildTypeToClass?(
+    module: StructureModule,
+    interfaceModule: InterfaceModule,
+    typeToClass: MemberedTypeToClass,
+  ): void;
+
   defineImplMethods?(
     module: StructureModule,
     interfaceMembers: TypeMembersMap,
@@ -24,12 +35,6 @@ export interface StructureModuleModifierTraps {
 
   modifyStaticClone_TailStatements?(
     statements: stringOrWriterFunction[]
-  ): void;
-
-  buildTypeToClass?(
-    module: StructureModule,
-    interfaceModule: InterfaceModule,
-    typeToClass: MemberedTypeToClass,
   ): void;
 
   postProcessClassMembers?(

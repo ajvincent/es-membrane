@@ -33,6 +33,13 @@ import {
 //#endregion preamble
 
 export const TypeAliasDeclarationSpecialCases: StructureModuleModifierTraps = {
+  modifyTypeMembersForTypeStructures(baseName, map) {
+    void baseName;
+    // special case: type can never be undefined
+    const typeStructureMember = map.getAsKind(StructureKind.PropertySignature, "typeStructure")!;
+    typeStructureMember.typeStructure = LiteralTypeStructureImpl.get("TypeStructures");
+  },
+
   buildTypeToClass(module: StructureModule, interfaceModule: InterfaceModule, typeToClass: MemberedTypeToClass) {
     void interfaceModule;
     typeToClass.addStatementGetters(StatementsPriority.SPECIAL_CASES, [
