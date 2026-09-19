@@ -16,6 +16,7 @@ import type {
  */
 export interface StructureModuleModifierTraps {
   modifyTypeMembersForTypeStructures?(
+    module: StructureModule,
     baseName: string,
     map: TypeMembersMap
   ): void;

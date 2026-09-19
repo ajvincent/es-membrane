@@ -26,7 +26,7 @@ export default function modifyTypeMembersForTypeStructures(
 ): PropertySignatureImpl[]
 {
   if (module instanceof StructureModule && module.modifiers?.modifyTypeMembersForTypeStructures) {
-    module.modifiers.modifyTypeMembersForTypeStructures(baseName, map);
+    module.modifiers.modifyTypeMembersForTypeStructures(module, baseName, map);
   }
 
   const properties: PropertySignatureImpl[] = [];

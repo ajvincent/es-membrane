@@ -271,7 +271,7 @@ extends OrderedMap<string, TypeMemberImpl>
 
       const setter = new SetAccessorDeclarationImpl(false, prop.name, param);
 
-      if (prop.docs) {
+      if (prop.docs && !toGetter) {
         setter.docs.push(...StructureClassesMap.cloneArray<string | JSDocImpl, string | JSDocImpl>(prop.docs))
       }
 

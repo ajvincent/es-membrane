@@ -303,7 +303,7 @@ extends OrderedMap<string, ClassMemberImpl>
 
       const setter = new SetAccessorDeclarationImpl(prop.isStatic, prop.name, param);
 
-      if (prop.docs) {
+      if (prop.docs && !toGetter) {
         setter.docs.push(...StructureClassesMap.cloneArray<string | JSDocImpl, string | JSDocImpl>(prop.docs));
       }
 

@@ -31,6 +31,8 @@ extends TypeStructuresBase<TypeStructureKind.Literal>
     name: string
   ): LiteralTypeStructureImpl
   {
+    if (name === "")
+      throw new Error("the empty string is not a legal literal type structure");
     if (!this.#cache.has(name)) {
       this.#cache.set(name, new LiteralTypeStructureImpl(name));
     }

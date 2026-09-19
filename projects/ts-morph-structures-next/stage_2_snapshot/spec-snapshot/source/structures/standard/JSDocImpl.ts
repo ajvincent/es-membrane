@@ -1,12 +1,15 @@
 import {
+  CodeBlockWriter,
+  type JSDocStructure,
+  type OptionalKind,
+  StructureKind,
+  type WriterFunction,
+} from "ts-morph";
+
+import {
   JSDocImpl,
   JSDocTagImpl,
 } from "#stage_two/snapshot/source/exports.js";
-import {
-  type JSDocStructure,
-  type OptionalKind,
-  StructureKind
-} from "ts-morph";
 
 describe("JSDocImpl", () => {
   const tag = new JSDocTagImpl("param");
@@ -31,6 +34,12 @@ describe("JSDocImpl", () => {
     expect(doc.tags.length).toBe(1);
     expect(doc.tags[0]).not.toBe(tag);
     expect(doc.tags[0].tagName).toBe(tag.tagName);
-    expect(doc.tags[0].text).toBe(tag.text);
+
+    const docTagWriter = new CodeBlockWriter();
+    (doc.tags[0].text as WriterFunction)(docTagWriter);
+
+    const textWriter = new CodeBlockWriter();
+    (tag.text as WriterFunction)(textWriter);
+    expect(docTagWriter.toString()).toBe(textWriter.toString());
   });
 });

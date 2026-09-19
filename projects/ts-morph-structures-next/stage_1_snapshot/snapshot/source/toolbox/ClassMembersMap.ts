@@ -331,7 +331,7 @@ export default class ClassMembersMap extends OrderedMap<
         param,
       );
 
-      if (prop.docs) {
+      if (prop.docs && !toGetter) {
         setter.docs.push(
           ...StructureClassesMap.cloneArray<
             string | JSDocImpl,

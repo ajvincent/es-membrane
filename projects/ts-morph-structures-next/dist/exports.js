@@ -3391,25 +3391,70 @@ class JSDocImpl extends JSDocStructureBase {
 }
 StructureClassesMap.set(StructureKind.JSDoc, JSDocImpl);
 
+//#region preamble
 //#endregion preamble
 const JSDocTagStructureBase = MultiMixinBuilder([StructureMixin], StructureBase);
 class JSDocTagImpl extends JSDocTagStructureBase {
+    static #typeRE = /^\{([^}]+)\}\s?(.*)/;
     kind = StructureKind.JSDocTag;
+    #defaultTextWriter = this.#unboundTextWriter.bind(this);
+    #description;
+    #text = this.#defaultTextWriter;
+    #typeStructure = null;
     /** The name for the JS doc tag that comes after the "at" symbol. */
     tagName;
-    /** The text that follows the tag name. */
-    text = undefined;
     constructor(tagName) {
         super();
         this.tagName = tagName;
+        this.#description = "";
+        this.setTypeAndDescription(null, "");
+    }
+    /** The text that follows the tag name. */
+    get text() {
+        return this.#text;
+    }
+    set text(value) {
+        if (typeof value === "function") {
+            this.#typeStructure = null;
+            this.#description = "";
+            this.#text = value;
+            return;
+        }
+        if (typeof value === "undefined") {
+            value = "";
+        }
+        const match = JSDocTagImpl.#typeRE.exec(value.trim());
+        if (match) {
+            try {
+                const typeStructure = parseLiteralType(match[1]);
+                this.setTypeAndDescription(typeStructure, match[2]);
+                return;
+            }
+            catch (ex) {
+                // fall through
+            }
+        }
+        this.setTypeAndDescription(null, value);
     }
     /** @internal */
     static [COPY_FIELDS](source, target) {
         super[COPY_FIELDS](source, target);
-        target.tagName = source.tagName;
-        if (source.text) {
+        if (source instanceof JSDocTagImpl) {
+            const typeAndDesc = source.getTypeAndDescription();
+            if (typeAndDesc) {
+                let typeStructure = typeAndDesc[0];
+                if (typeStructure)
+                    typeStructure = TypeStructureClassesMap.clone(typeStructure);
+                target.setTypeAndDescription(typeStructure, typeAndDesc[1]);
+            }
+            else {
+                target.text = source.text;
+            }
+        }
+        else if (source.text) {
             target.text = source.text;
         }
+        target.tagName = source.tagName;
     }
     /**
      * Create a `JSDocTagImpl` from a `JSDocTagStructure`.
@@ -3420,16 +3465,37 @@ class JSDocTagImpl extends JSDocTagStructureBase {
         this[COPY_FIELDS](source, target);
         return target;
     }
+    #unboundTextWriter(writer) {
+        if (this.#typeStructure) {
+            writer.write("{");
+            this.#typeStructure.writerFunction(writer);
+            writer.write("} ");
+        }
+        writer.write(this.#description);
+    }
+    /** Get the type structure and description of the tag. */
+    getTypeAndDescription() {
+        if (this.#text === this.#defaultTextWriter)
+            return [this.#typeStructure, this.#description];
+        return undefined;
+    }
+    /**
+     * Set the type structure and description of the tag.
+     * @param type - The type structure to use.
+     * @param description - The text to write after the type structure.
+     */
+    setTypeAndDescription(type, description) {
+        this.#text = this.#defaultTextWriter;
+        this.#typeStructure = type;
+        this.#description = description;
+    }
     toJSON() {
         const rv = super.toJSON();
         rv.kind = this.kind;
-        rv.tagName = this.tagName;
         if (this.text) {
             rv.text = StructureBase[REPLACE_WRITER_WITH_STRING](this.text);
         }
-        else {
-            rv.text = undefined;
-        }
+        rv.tagName = this.tagName;
         return rv;
     }
 }
@@ -4524,6 +4590,8 @@ class LiteralTypeStructureImpl extends TypeStructuresBase {
      * Gets a singleton `LiteralTypeStructureImpl` for the given name.
      */
     static get(name) {
+        if (name === "")
+            throw new Error("the empty string is not a legal literal type structure");
         if (!this.#cache.has(name)) {
             this.#cache.set(name, new LiteralTypeStructureImpl(name));
         }
@@ -5666,7 +5734,7 @@ class ClassMembersMap extends OrderedMap {
             if (prop.typeStructure)
                 param.typeStructure = TypeStructureClassesMap.clone(prop.typeStructure);
             const setter = new SetAccessorDeclarationImpl(prop.isStatic, prop.name, param);
-            if (prop.docs) {
+            if (prop.docs && !toGetter) {
                 setter.docs.push(...StructureClassesMap.cloneArray(prop.docs));
             }
             if (prop.isAbstract) {
@@ -7139,7 +7207,7 @@ class TypeMembersMap extends OrderedMap {
             if (prop.typeStructure)
                 param.typeStructure = TypeStructureClassesMap.clone(prop.typeStructure);
             const setter = new SetAccessorDeclarationImpl(false, prop.name, param);
-            if (prop.docs) {
+            if (prop.docs && !toGetter) {
                 setter.docs.push(...StructureClassesMap.cloneArray(prop.docs));
             }
             setter.leadingTrivia.push(...prop.leadingTrivia);

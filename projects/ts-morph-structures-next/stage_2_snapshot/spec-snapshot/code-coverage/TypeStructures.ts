@@ -167,5 +167,5 @@ it("convertTypeNode covers all possible type nodes", () => {
 });
 
 xit("convertTypeNode covers all possible type nodes (using structures to assess)", () => {
-  // do nothing
+  // do nothing.  This is a test case for stage 3, but it's here to remind me to move it there.
 });

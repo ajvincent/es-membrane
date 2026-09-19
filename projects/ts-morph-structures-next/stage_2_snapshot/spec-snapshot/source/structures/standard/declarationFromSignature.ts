@@ -14,7 +14,7 @@ import {
 
 describe("static fromSignature() methods generally work", () => {
   const tag = new JSDocTagImpl("param");
-  tag.text = "Hi Mom";
+  tag.setTypeAndDescription(LiteralTypeStructureImpl.get("object"), "hi mom");
   const baseDoc = new JSDocImpl;
   baseDoc.description = "Hello World";
   baseDoc.tags.push(tag);
@@ -30,7 +30,8 @@ describe("static fromSignature() methods generally work", () => {
     expect(clonedDoc.tags.length).toBe(1);
     expect(clonedDoc.tags[0]).not.toBe(tag);
     expect(clonedDoc.tags[0].tagName).toBe(tag.tagName);
-    expect(clonedDoc.tags[0].text).toBe(tag.text);
+
+    expect(clonedDoc.tags[0].getTypeAndDescription()).toEqual(tag.getTypeAndDescription());
   }
 
   it("on ConstructorDeclarationImpl", () => {

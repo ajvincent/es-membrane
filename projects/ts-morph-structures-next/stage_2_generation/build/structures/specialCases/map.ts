@@ -1,3 +1,4 @@
+//#region preamble
 import type {
   StructureModuleModifierTraps
 } from "../../../types/StructureModuleModifierTraps.js";
@@ -23,6 +24,10 @@ import {
 } from "./IndexSignature.js";
 
 import {
+  JSDocTagSpecialCases
+} from "./JSDocTagImpl.js";
+
+import {
   MethodDeclarationSpecialCases
 } from "./MethodDeclaration.js";
 
@@ -37,12 +42,14 @@ import {
 import {
   TypeAliasDeclarationSpecialCases
 } from "./TypeAliasDeclaration.js";
+//#endregion preamble
 
 export const StructureModifiersMap: ReadonlyMap<string, StructureModuleModifierTraps> = new Map([
   ["ConstructorDeclarationImpl", ConstructorDeclarationSpecialCases],
   ["GetAccessorDeclarationImpl", GetAccessorDeclarationSpecialCases],
   ["ImportDeclarationImpl", ImportDeclarationSpecialCases],
   ["IndexSignatureDeclarationImpl", IndexSignatureDeclarationSpecialCases],
+  ["JSDocTagImpl", JSDocTagSpecialCases],
   ["MethodDeclarationImpl", MethodDeclarationSpecialCases],
   ["MethodDeclarationOverloadImpl", ClassMemberDeclarationSpecialCases],
   ["PropertyDeclarationImpl", PropertyDeclarationSpecialCases],

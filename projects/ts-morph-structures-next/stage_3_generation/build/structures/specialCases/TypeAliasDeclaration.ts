@@ -9,6 +9,7 @@ import {
   LiteralTypeStructureImpl,
   type MemberedTypeToClass,
   type ParameterDeclarationImpl,
+  type TypeMembersMap,
   UnionTypeStructureImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
@@ -33,7 +34,8 @@ import {
 //#endregion preamble
 
 export const TypeAliasDeclarationSpecialCases: StructureModuleModifierTraps = {
-  modifyTypeMembersForTypeStructures(baseName, map) {
+  modifyTypeMembersForTypeStructures(module: StructureModule, baseName: string, map: TypeMembersMap) {
+    void module;
     void baseName;
     // special case: type can never be undefined
     const typeStructureMember = map.getAsKind(StructureKind.PropertySignature, "typeStructure")!;

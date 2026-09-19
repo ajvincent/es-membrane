@@ -1,4 +1,4 @@
-import {
+import type {
   CodeBlockWriter
 } from "ts-morph";
 

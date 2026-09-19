@@ -23,6 +23,10 @@ import {
 } from "./IndexSignature.js";
 
 import {
+  JSDocTagSpecialCases,
+} from "./JSDocTagImpl.js";
+
+import {
   MethodDeclarationSpecialCases
 } from "./MethodDeclaration.js";
 
@@ -43,6 +47,7 @@ export const StructureModifiersMap: ReadonlyMap<string, StructureModuleModifierT
   ["GetAccessorDeclarationImpl", GetAccessorDeclarationSpecialCases],
   ["ImportDeclarationImpl", ImportDeclarationSpecialCases],
   ["IndexSignatureDeclarationImpl", IndexSignatureDeclarationSpecialCases],
+  ["JSDocTagImpl", JSDocTagSpecialCases],
   ["MethodDeclarationImpl", MethodDeclarationSpecialCases],
   ["MethodDeclarationOverloadImpl", ClassMemberDeclarationSpecialCases],
   ["PropertyDeclarationImpl", PropertyDeclarationSpecialCases],

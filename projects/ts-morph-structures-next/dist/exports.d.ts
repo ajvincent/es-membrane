@@ -2418,12 +2418,14 @@ declare class JSDocTagImpl
   extends JSDocTagStructureBase
   implements JSDocTagStructureClassIfc
 {
+  #private;
   readonly kind: StructureKind.JSDocTag;
   /** The name for the JS doc tag that comes after the "at" symbol. */
   tagName: string;
-  /** The text that follows the tag name. */
-  text?: stringOrWriterFunction;
   constructor(tagName: string);
+  /** The text that follows the tag name. */
+  get text(): stringOrWriterFunction | undefined;
+  set text(value: stringOrWriterFunction | undefined);
   /** @internal */
   static [COPY_FIELDS](
     source: OptionalKind<JSDocTagStructure>,
@@ -2434,6 +2436,14 @@ declare class JSDocTagImpl
    * @param source - The structure to clone.
    */
   static clone(source: OptionalKind<JSDocTagStructure>): JSDocTagImpl;
+  /** Get the type structure and description of the tag. */
+  getTypeAndDescription(): [TypeStructuresOrNull, string] | undefined;
+  /**
+   * Set the type structure and description of the tag.
+   * @param type - The type structure to use.
+   * @param description - The text to write after the type structure.
+   */
+  setTypeAndDescription(type: TypeStructuresOrNull, description: string): void;
   toJSON(): StructureClassToJSON<JSDocTagImpl>;
 }
 
