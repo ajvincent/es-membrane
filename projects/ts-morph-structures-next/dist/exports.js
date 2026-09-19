@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { CodeBlockWriter, StructureKind, SyntaxKind, Structure, forEachStructureChild, Node, ConstructorTypeNode, ModuleResolutionKind, ScriptTarget, ModuleKind, Project, Writers, printStructure } from 'ts-morph';
-import path from 'path';
-import path$1 from 'node:path';
+import path from 'node:path';
 import MultiMixinBuilder from 'mixin-decorators';
 
 var TypeStructureKind;
@@ -6123,9 +6122,9 @@ class ImportManager {
         if (!absolutePathToModule.endsWith(".ts")) {
             throw new Error("path to module must end with .ts");
         }
-        if (!path$1.isAbsolute(absolutePathToModule))
+        if (!path.isAbsolute(absolutePathToModule))
             throw new Error("path to module must be absolute");
-        this.absolutePathToModule = path$1.normalize(absolutePathToModule);
+        this.absolutePathToModule = path.normalize(absolutePathToModule);
     }
     /** Add imports from an existing import declaration. */
     addFromDeclaration(declStructure) {
@@ -6159,7 +6158,7 @@ class ImportManager {
         const isPackageImport = !/^\.\.?\//.test(declStructure.moduleSpecifier);
         let { moduleSpecifier } = declStructure;
         if (!isPackageImport) {
-            moduleSpecifier = path$1.normalize(path$1.join(this.absolutePathToModule, "..", moduleSpecifier));
+            moduleSpecifier = path.normalize(path.join(this.absolutePathToModule, "..", moduleSpecifier));
         }
         if (declStructure.defaultImport) {
             this.#addImports({
@@ -6211,12 +6210,12 @@ class ImportManager {
     addImports(context) {
         const { isPackageImport, isDefaultImport, importNames } = context;
         let { pathToImportedModule } = context;
-        pathToImportedModule = path$1.normalize(pathToImportedModule.replace(/(\.d)?\.(m?)ts$/, ".$2js"));
+        pathToImportedModule = path.normalize(pathToImportedModule.replace(/(\.d)?\.(m?)ts$/, ".$2js"));
         if (!isPackageImport) {
-            if (!path$1.isAbsolute(pathToImportedModule)) {
+            if (!path.isAbsolute(pathToImportedModule)) {
                 throw new Error("path to module must be absolute, or use isPackageImport: true to specify package import");
             }
-            pathToImportedModule = path$1.relative(path$1.dirname(this.absolutePathToModule), pathToImportedModule);
+            pathToImportedModule = path.relative(path.dirname(this.absolutePathToModule), pathToImportedModule);
             if (!pathToImportedModule.startsWith("../"))
                 pathToImportedModule = "./" + pathToImportedModule;
         }
@@ -6245,9 +6244,9 @@ class ImportManager {
     #addImports(context) {
         const { isPackageImport, isDefaultImport, isTypeOnly, importNames } = context;
         let { pathToImportedModule } = context;
-        pathToImportedModule = path$1.normalize(pathToImportedModule.replace(/(\.d)?\.(m?)ts$/, ".$2js"));
+        pathToImportedModule = path.normalize(pathToImportedModule.replace(/(\.d)?\.(m?)ts$/, ".$2js"));
         if (!isPackageImport) {
-            pathToImportedModule = path$1.relative(path$1.dirname(this.absolutePathToModule), pathToImportedModule);
+            pathToImportedModule = path.relative(path.dirname(this.absolutePathToModule), pathToImportedModule);
             if (!pathToImportedModule.startsWith("../"))
                 pathToImportedModule = "./" + pathToImportedModule;
         }

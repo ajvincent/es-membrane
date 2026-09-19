@@ -1,5 +1,5 @@
 // #region preamble
-import path from "path";
+import path from "node:path";
 
 import {
   type AddExportContext,

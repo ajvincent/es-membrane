@@ -28,7 +28,7 @@ const RollupOptions = [
     external: [
       "mixin-decorators",
       "node:assert/strict",
-      "path",
+      "node:path",
       "ts-morph",
     ],
     plugins: [
@@ -49,7 +49,7 @@ const RollupOptions = [
     external: [
       "mixin-decorators",
       "node:assert/strict",
-      "path",
+      "node:path",
       "ts-morph",
     ],
     plugins: [
