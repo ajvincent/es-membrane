@@ -5,96 +5,30 @@ import {
   type Statement,
   SyntaxKind,
   type SourceFile,
-  ClassDeclaration,
-  StructureKind,
+  type ClassDeclaration,
 } from "ts-morph";
 
 import {
-  TS_MORPH_D,
-  getClassToDerivedMap,
+  getLeafSubclassesClassesOf,
 } from "#utilities/source/ts-morph-d-file.js";
 
 import getTS_SourceFile from "#utilities/source/getTS_SourceFile.js";
 
 import {
-  ClassDeclarationImpl,
-  TypeStructureKind,
-  type TypeStructures,
-  VoidTypeNodeToTypeStructureConsole,
-  getTypeAugmentedStructure,
-} from "#stage_two/snapshot/dist/exports.js";
-
-import {
   stageDir
 } from "../../pre-build/constants.js";
 
+import {
+  getStaticAssertMethodsOfNode
+} from "../../utilities/getStaticAssertMethodsOfNode.js";
+
 it("convertTypeNode covers all possible type nodes", () => {
   // The leaf nodes are the ones which are unique classes.
-  const leafTypeNodeClasses = new Map<string, ClassDeclaration>;
-  {
-    const classToDerivedMap: ReadonlyMap<ClassDeclaration, readonly ClassDeclaration[]> = getClassToDerivedMap();
-    const allTypeNodeClasses = new Set<ClassDeclaration>;
-    allTypeNodeClasses.add(TS_MORPH_D.getClassOrThrow("TypeNode"));
-    for (const classDecl of allTypeNodeClasses) {
-      const derivedClasses: readonly ClassDeclaration[] = classToDerivedMap.get(classDecl) ?? [];
-      if (derivedClasses.length === 0) {
-        leafTypeNodeClasses.set(classDecl.getNameOrThrow(), classDecl);
-      } else {
-        for (const subclassDecl of derivedClasses) {
-          allTypeNodeClasses.add(subclassDecl);
-        }
-      }
-    }
-  }
+  const leafTypeNodeClasses: ReadonlyMap<string, ClassDeclaration> = getLeafSubclassesClassesOf("TypeNode");
 
   // Get the list of methods returning type nodes.
   /* key: name of static method of Node.  value: class name in leafTypeNodeClasses */
-  const staticAssertMethods = new Map<string, string>;
-  {
-    const nodeClass: ClassDeclarationImpl = getTypeAugmentedStructure(
-      TS_MORPH_D.getClassOrThrow("Node"), VoidTypeNodeToTypeStructureConsole, true, StructureKind.Class
-    ).rootStructure;
-
-    for (const prop of nodeClass.properties) {
-      if (!prop.name.startsWith("is"))
-        continue;
-      if (!prop.isStatic)
-        continue;
-      if (prop.typeStructure?.kind !== TypeStructureKind.Function)
-        continue;
-      const returnType: TypeStructures | undefined = prop.typeStructure.returnType;
-      if (!returnType)
-        continue;
-      if (returnType.kind !== TypeStructureKind.TypePredicate)
-        continue;
-      const isType = returnType.isType;
-      if (isType?.kind !== TypeStructureKind.Literal)
-        continue;
-
-      if (!leafTypeNodeClasses.has(isType.stringValue))
-        continue;
-      staticAssertMethods.set(prop.name, isType.stringValue);
-    }
-
-    for (const method of nodeClass.methods) {
-      if (!method.name.startsWith("is"))
-        continue;
-      if (!method.isStatic)
-        continue;
-      const returnType: TypeStructures | undefined = method.returnTypeStructure;
-      if (!returnType)
-        continue;
-      if (returnType.kind !== TypeStructureKind.TypePredicate)
-        continue;
-      const isType = returnType.isType;
-      if (isType?.kind !== TypeStructureKind.Literal)
-        continue;
-
-      if (!leafTypeNodeClasses.has(isType.stringValue))
-        continue;
-      staticAssertMethods.set(method.name, isType.stringValue);
-    }
-  }
+  const staticAssertMethods: ReadonlyMap<string, string> = getStaticAssertMethodsOfNode(leafTypeNodeClasses);
 
   // these are the static methods of Node that convertNode should be calling.
   const expectedMethodsOfNode = new Set<string>(staticAssertMethods.keys());

@@ -24,6 +24,7 @@ async function eslint(): Promise<void> {
     // "fixtures/**/*.ts",
     "snapshot/source/*.ts",
     "spec-snapshot/**/*.ts",
+    "utilities/**/*.ts",
   ]);
 }
 
