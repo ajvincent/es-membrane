@@ -7,7 +7,10 @@ import {
   type TypeStructuresOrNull,
 } from "../../exports.js";
 
-import { STRUCTURE_AND_TYPES_CHILDREN } from "../../internal-exports.js";
+import {
+  STRUCTURE_AND_TYPES_CHILDREN,
+  WRITER_FUNCTION_KEY,
+} from "../../internal-exports.js";
 
 import TypeStructuresBase from "./TypeStructuresBase.js";
 
@@ -39,7 +42,7 @@ export default abstract class TypeStructuresWithChildren<
   /** For customizing printing of the child types. */
   readonly printerSettings = new TypePrinterSettings();
 
-  #writerFunctionOuter(writer: CodeBlockWriter): void {
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void {
     this.objectType?.writerFunction(writer);
 
     TypeStructuresBase.pairedWrite(
@@ -75,9 +78,6 @@ export default abstract class TypeStructuresWithChildren<
       }
     }
   }
-
-  readonly writerFunction: WriterFunction =
-    this.#writerFunctionOuter.bind(this);
 
   /** @internal */
   public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<

@@ -18,6 +18,7 @@ import {
   TypeStructureClassesMap,
   TypeStructuresWithTypeParameters,
   STRUCTURE_AND_TYPES_CHILDREN,
+  WRITER_FUNCTION_KEY,
 } from "../../../snapshot/source/internal-exports.js";
 
 // #endregion preamble
@@ -81,11 +82,10 @@ extends TypeStructuresWithTypeParameters<TypeStructureKind.Function>
     this.restParameter = context.restParameter;
     this.returnType = context.returnType;
     this.writerStyle = context.writerStyle ??  FunctionWriterStyle.Arrow;
-
-    this.registerCallbackForTypeStructure();
   }
 
-  #writerFunction(writer: CodeBlockWriter): void
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void
   {
     if (this.writerStyle === FunctionWriterStyle.GetAccessor) {
       writer.write("get ");
@@ -153,8 +153,6 @@ extends TypeStructuresWithTypeParameters<TypeStructureKind.Function>
       }
     }
   }
-
-  writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   /** @internal */
   public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>

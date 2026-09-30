@@ -11,6 +11,7 @@ import {
   type CloneableTypeStructure,
   TypeStructureClassesMap,
   TypeStructuresBase,
+  WRITER_FUNCTION_KEY,
 } from "../../../snapshot/source/internal-exports.js";
 
 /** @example `Foo.bar.baz...` */
@@ -35,15 +36,13 @@ extends TypeStructuresBase<TypeStructureKind.QualifiedName>
   {
     super();
     this.childTypes = childTypes;
-    this.registerCallbackForTypeStructure();
   }
 
-  #writerFunction(writer: CodeBlockWriter): void
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void
   {
     writer.write(this.childTypes.join("."));
   }
-
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 QualifiedNameTypeStructureImpl satisfies CloneableTypeStructure<QualifiedNameTypeStructureImpl>;
 TypeStructureClassesMap.set(TypeStructureKind.QualifiedName, QualifiedNameTypeStructureImpl);

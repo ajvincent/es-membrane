@@ -1,5 +1,5 @@
-import fs from "fs/promises";
-import path from "path";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 import {
   distDir,
@@ -366,12 +366,18 @@ function defineInternalExports(): void
     isType: true
   });
 
-
   internalExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/types/ts-morph-typednodewriter.ts"),
     exportNames: ["TypedNodeWriter"],
     isDefaultExport: false,
     isType: true
+  });
+
+  internalExports.addExports({
+    pathToExportedModule: pathToModule(distDir, "source/structures/WriterStructuresBase.ts"),
+    exportNames: ["WRITER_FUNCTION_KEY", "DEREGISTER_WRITER"],
+    isDefaultExport: false,
+    isType: false,
   });
 }
 

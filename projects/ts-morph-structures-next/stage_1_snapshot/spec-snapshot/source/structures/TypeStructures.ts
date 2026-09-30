@@ -44,7 +44,7 @@ import {
   TypeStructureClassesMap
 } from "#stage_one/snapshot/source/internal-exports.js";
 
-describe("TypeStructure for ts-morph (stage 2): ", () => {
+describe("TypeStructure for ts-morph (stage 1): ", () => {
   let writer: CodeBlockWriter;
   beforeEach(() => writer = new CodeBlockWriter());
 

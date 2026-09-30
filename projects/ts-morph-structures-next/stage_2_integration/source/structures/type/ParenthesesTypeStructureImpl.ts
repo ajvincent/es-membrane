@@ -35,7 +35,6 @@ extends TypeStructuresWithChildren<TypeStructureKind.Parentheses, [TypeStructure
   {
     super();
     this.childTypes = [childType];
-    this.registerCallbackForTypeStructure();
   }
 }
 ParenthesesTypeStructureImpl satisfies CloneableTypeStructure<ParenthesesTypeStructureImpl>;

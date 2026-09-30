@@ -28,7 +28,6 @@ export class UnionTypeStructureImpl extends TypeStructuresWithChildren<
   constructor(childTypes: TypeStructures[] = []) {
     super();
     this.childTypes = childTypes;
-    this.registerCallbackForTypeStructure();
   }
 }
 UnionTypeStructureImpl satisfies CloneableTypeStructure<UnionTypeStructureImpl>;

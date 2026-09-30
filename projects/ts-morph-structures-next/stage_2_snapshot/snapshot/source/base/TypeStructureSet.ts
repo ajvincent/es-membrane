@@ -64,8 +64,9 @@ export default class TypeStructureSetInternal
       }
 
       const typeStructure =
-        TypeStructuresBase.getTypeStructureForCallback(value) ??
-        new WriterTypeStructureImpl(value);
+        (TypeStructuresBase.getWriterStructureForCallback(value) as
+          | TypeStructures
+          | undefined) ?? new WriterTypeStructureImpl(value);
       super.add(typeStructure);
     }
   }
@@ -107,8 +108,9 @@ export default class TypeStructureSetInternal
       }
 
       const structure: TypeStructures =
-        TypeStructuresBase.getTypeStructureForCallback(value) ??
-        new WriterTypeStructureImpl(value);
+        (TypeStructuresBase.getWriterStructureForCallback(value) as
+          | TypeStructures
+          | undefined) ?? new WriterTypeStructureImpl(value);
       this.add(structure);
     });
   }

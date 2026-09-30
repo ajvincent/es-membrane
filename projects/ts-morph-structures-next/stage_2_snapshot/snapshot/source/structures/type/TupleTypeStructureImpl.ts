@@ -35,7 +35,6 @@ export class TupleTypeStructureImpl extends TypeStructuresWithChildren<
   constructor(childTypes: TypeStructures[] = []) {
     super();
     this.childTypes = childTypes;
-    this.registerCallbackForTypeStructure();
   }
 }
 TupleTypeStructureImpl satisfies CloneableTypeStructure<TupleTypeStructureImpl>;

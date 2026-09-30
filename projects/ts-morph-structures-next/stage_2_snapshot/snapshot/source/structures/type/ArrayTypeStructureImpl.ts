@@ -9,6 +9,7 @@ import {
 import {
   type CloneableTypeStructure,
   STRUCTURE_AND_TYPES_CHILDREN,
+  WRITER_FUNCTION_KEY,
   TypeStructuresBase,
   TypeStructureClassesMap,
 } from "../../internal-exports.js";
@@ -32,15 +33,13 @@ export class ArrayTypeStructureImpl extends TypeStructuresBase<TypeStructureKind
   constructor(objectType: TypeStructures) {
     super();
     this.objectType = objectType;
-    this.registerCallbackForTypeStructure();
   }
 
-  #writerFunction(writer: CodeBlockWriter): void {
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void {
     this.objectType.writerFunction(writer);
     writer.write("[]");
   }
-
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   /** @internal */
   public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<

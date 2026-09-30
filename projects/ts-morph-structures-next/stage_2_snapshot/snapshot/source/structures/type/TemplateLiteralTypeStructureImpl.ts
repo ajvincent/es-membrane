@@ -11,6 +11,7 @@ import {
   STRUCTURE_AND_TYPES_CHILDREN,
   TypeStructureClassesMap,
   TypeStructuresBase,
+  WRITER_FUNCTION_KEY,
 } from "../../internal-exports.js";
 
 /** @example `one${"A" | "B"}two${"C" | "D"}three` */
@@ -26,7 +27,6 @@ export class TemplateLiteralTypeStructureImpl extends TypeStructuresBase<TypeStr
   }
 
   readonly kind = TypeStructureKind.TemplateLiteral;
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   head: string;
   spans: [TypeStructures, string][];
@@ -35,10 +35,9 @@ export class TemplateLiteralTypeStructureImpl extends TypeStructuresBase<TypeStr
     super();
     this.head = head;
     this.spans = spans;
-    this.registerCallbackForTypeStructure();
   }
 
-  #writerFunction(writer: CodeBlockWriter): void {
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void {
     TypeStructuresBase.pairedWrite(writer, "`", "`", false, false, () => {
       writer.write(this.head);
       this.spans.forEach((span) => {

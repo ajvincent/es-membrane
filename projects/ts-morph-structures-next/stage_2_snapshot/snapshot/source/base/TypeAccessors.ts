@@ -13,6 +13,7 @@ import {
 import {
   TypeStructureClassesMap,
   TypeStructuresBase,
+  DEREGISTER_WRITER,
 } from "../internal-exports.js";
 
 // #endregion preamble
@@ -33,7 +34,7 @@ export default class TypeAccessors
     this: void,
     thisObj: object,
     fieldName: PropertyKey,
-    defaultValue?: stringOrWriterFunction | undefined,
+    defaultValue?: stringOrWriterFunction,
   ): TypeAccessors {
     const accessors = new TypeAccessors();
     Reflect.defineProperty(thisObj, fieldName, {
@@ -76,14 +77,14 @@ export default class TypeAccessors
     }
 
     const knownTypeStructure =
-      TypeStructuresBase.getTypeStructureForCallback(value);
-    if (knownTypeStructure) {
-      this.typeStructure = knownTypeStructure;
+      TypeStructuresBase.getWriterStructureForCallback(value);
+    if (knownTypeStructure instanceof TypeStructuresBase) {
+      this.typeStructure = knownTypeStructure as TypeStructures;
       return;
     }
 
     this.typeStructure = new WriterTypeStructureImpl(value);
-    TypeStructuresBase.deregisterCallbackForTypeStructure(this.typeStructure);
+    this.typeStructure[DEREGISTER_WRITER]();
   }
 
   /**
@@ -99,13 +100,18 @@ export default class TypeAccessors
   ): stringOrWriterFunction | undefined {
     if (typeof type !== "function") return type;
 
-    const typeStructure = TypeStructuresBase.getTypeStructureForCallback(type);
-    if (!typeStructure) return type;
+    const typeStructure =
+      TypeStructuresBase.getWriterStructureForCallback(type);
+    if (typeStructure instanceof TypeStructuresBase) {
+      if (typeStructure.kind === TypeStructureKind.Literal)
+        return (typeStructure as LiteralTypeStructureImpl).stringValue;
 
-    if (typeStructure.kind === TypeStructureKind.Literal)
-      return typeStructure.stringValue;
+      const value = TypeStructureClassesMap.clone(
+        typeStructure as TypeStructures,
+      );
+      return value.writerFunction;
+    }
 
-    const value = TypeStructureClassesMap.clone(typeStructure);
-    return value.writerFunction;
+    return type;
   }
 }

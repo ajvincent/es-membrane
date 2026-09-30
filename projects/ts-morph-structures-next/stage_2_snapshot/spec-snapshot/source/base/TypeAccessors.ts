@@ -1,6 +1,6 @@
-import type {
+import {
   CodeBlockWriter,
-  WriterFunction
+  type WriterFunction,
 } from "ts-morph";
 
 import {
@@ -39,14 +39,16 @@ describe("TypeAccessors with", () => {
   });
 
   it("a WriterFunction type", () => {
-    const callback: WriterFunction = (writer: CodeBlockWriter) => void(writer);
+    const callback: WriterFunction = (writer: CodeBlockWriter) => writer.write("Dog");
     manager.type = callback;
 
-    expect(manager.type).toBe(callback);
     expect(manager.typeStructure).toBeInstanceOf(WriterTypeStructureImpl);
-    expect(
-      (manager.typeStructure as WriterTypeStructureImpl)?.writerFunction
-    ).toBe(callback);
+
+    const actualWriter = new CodeBlockWriter();
+    if (typeof manager.type === "function") {
+      manager.type(actualWriter);
+    }
+    expect(actualWriter.toString()).toBe("Dog");
 
     const clone = TypeAccessors.cloneType(manager.type);
     expect(clone).toBe(manager.type);
@@ -62,7 +64,7 @@ describe("TypeAccessors with", () => {
     expect(typeof clone).toBe("function");
 
     if (typeof clone === "function") {
-      const cloneTypeStructure = TypeStructuresBase.getTypeStructureForCallback(clone);
+      const cloneTypeStructure = TypeStructuresBase.getWriterStructureForCallback(clone);
       expect(cloneTypeStructure).toBeInstanceOf(StringTypeStructureImpl);
       expect(cloneTypeStructure).not.toBe(stringTypeStructure);
       expect((cloneTypeStructure as StringTypeStructureImpl).stringValue).toBe(stringTypeStructure.stringValue);
@@ -72,10 +74,23 @@ describe("TypeAccessors with", () => {
   it("a writer function type structure", () => {
     manager.typeStructure = writerTypeStructure;
 
-    expect(manager.type).toBe(writerTypeStructure.writerFunction);
+    expect(manager.type).withContext("manager.type").toBe(writerTypeStructure.writerFunction);
     expect(manager.typeStructure).toBe(writerTypeStructure);
 
+
+    let actualWriter = new CodeBlockWriter();
+    if (typeof manager.type === "function") {
+      manager.type(actualWriter);
+    }
+    expect(actualWriter.toString()).toBe("NumberStringType");
+
     const clone = TypeAccessors.cloneType(manager.type);
-    expect(clone).toBe(manager.type);
+    expect(clone).withContext("clone").not.toBe(manager.type);
+
+    actualWriter = new CodeBlockWriter();
+    if (typeof clone === "function") {
+      clone(actualWriter);
+    }
+    expect(actualWriter.toString()).toBe("NumberStringType");
   });
 });

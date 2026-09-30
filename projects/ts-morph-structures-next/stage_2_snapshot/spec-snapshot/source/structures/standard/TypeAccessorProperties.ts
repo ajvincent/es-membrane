@@ -43,10 +43,17 @@ describe("Type accessor properties work", () => {
     });
 
     it("setting a writer function", () => {
+      // TypeAccessor deregisters its internal writer function right away.  The type structures are just not the same object.
+      // We have to test that they output the same.
       classDecl.extends = writerFunction;
-      expect(classDecl.extendsStructure).toBe(writerTypeStructure);
-      expect(classDecl.extends).toBe(writerFunction);
-      expect(writerCount).toBe(0);
+      expect(classDecl.extendsStructure?.kind).toBe(TypeStructureKind.Writer);
+      expect(typeof classDecl.extends).toBe("function");
+
+      const actualWriter = new CodeBlockWriter();
+      classDecl.extends(actualWriter);
+      expect(actualWriter.toString()).toBe("hello");
+
+      expect(writerCount).toBe(1);
     });
 
     it("setting back to undefined after setting the type", () => {
@@ -83,7 +90,7 @@ describe("Type accessor properties work", () => {
 
     it("setting a type structure", () => {
       classDecl.extendsStructure = writerTypeStructure;
-      expect(classDecl.extends).toBe(writerFunction);
+      expect(classDecl.extends).toBe(writerTypeStructure.writerFunction);
       expect(classDecl.extendsStructure).toBe(writerTypeStructure);
       expect(writerCount).toBe(0);
     });
@@ -130,19 +137,26 @@ describe("Type accessor properties work", () => {
 
     it("with a writer function", () => {
       classDecl.extends = writerFunction;
+      // TypeAccessor deregisters its internal writer function right away.  The type structures are just not the same object.
+      // We have to test that they output the same.
+
       cloneDecl = ClassDeclarationImpl.clone(classDecl);
-      expect(cloneDecl.extends).toBe(writerFunction);
       expect(cloneDecl.extendsStructure).not.toBe(writerTypeStructure);
       expect(typeof classDecl.extendsStructure).toBe("object");
       if (typeof classDecl.extendsStructure === "object") {
         expect(classDecl.extendsStructure.kind).toBe(TypeStructureKind.Writer);
-        expect(classDecl.extendsStructure.writerFunction).toBe(writerFunction);
+        expect(classDecl.extendsStructure.writerFunction).not.toBe(writerFunction);
       }
 
+      const actualWriter = new CodeBlockWriter();
+      if (typeof cloneDecl.extends === "function")
+        cloneDecl.extends(actualWriter);
+      expect(actualWriter.toString()).toBe("hello");
+
       expect(
-        TypeStructuresBase.getTypeStructureForCallback(writerFunction)
+        TypeStructuresBase.getWriterStructureForCallback(writerTypeStructure.writerFunction)
       ).toBe(writerTypeStructure);
-      expect(writerCount).toBe(0);
+      expect(writerCount).toBe(1);
     });
 
     it("with a string type structure", () => {
@@ -155,18 +169,15 @@ describe("Type accessor properties work", () => {
     it("with a writer type structure", () => {
       classDecl.extendsStructure = writerTypeStructure;
       cloneDecl = ClassDeclarationImpl.clone(classDecl);
-      expect(cloneDecl.extends).toBe(writerFunction);
-      expect(cloneDecl.extendsStructure).not.toBe(writerTypeStructure);
-      expect(typeof classDecl.extendsStructure).toBe("object");
-      if (typeof classDecl.extendsStructure === "object") {
-        expect(classDecl.extendsStructure.kind).toBe(TypeStructureKind.Writer);
-        expect(classDecl.extendsStructure.writerFunction).toBe(writerFunction);
-      }
+      expect(cloneDecl.extends).withContext("cloneDecl.extends").not.toBe(writerTypeStructure.writerFunction);
+      expect(cloneDecl.extendsStructure).withContext("cloneDecl.extendsStructure").not.toBe(writerTypeStructure);
 
-      expect(
-        TypeStructuresBase.getTypeStructureForCallback(writerFunction)
-      ).toBe(writerTypeStructure);
-      expect(writerCount).toBe(0);
+      const actualWriter = new CodeBlockWriter();
+      if (typeof cloneDecl.extends === "function")
+        cloneDecl.extends(actualWriter);
+      expect(actualWriter.toString()).toBe("hello");
+
+      expect(writerCount).toBe(1);
     });
   });
 

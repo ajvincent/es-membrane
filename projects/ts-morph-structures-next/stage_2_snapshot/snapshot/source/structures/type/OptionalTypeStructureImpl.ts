@@ -11,6 +11,7 @@ import {
   STRUCTURE_AND_TYPES_CHILDREN,
   TypeStructuresBase,
   TypeStructureClassesMap,
+  WRITER_FUNCTION_KEY,
 } from "../../internal-exports.js";
 
 /** @example `[boolean?]` */
@@ -29,15 +30,12 @@ export class OptionalTypeStructureImpl extends TypeStructuresBase<TypeStructureK
   constructor(objectType: TypeStructures) {
     super();
     this.objectType = objectType;
-    this.registerCallbackForTypeStructure();
   }
 
-  #writerFunction(writer: CodeBlockWriter): void {
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void {
     this.objectType.writerFunction(writer);
     writer.write("?");
   }
-
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   /** @internal */
   public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<

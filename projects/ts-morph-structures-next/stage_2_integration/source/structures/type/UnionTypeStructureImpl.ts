@@ -36,7 +36,6 @@ extends TypeStructuresWithChildren<TypeStructureKind.Union, TypeStructures[]>
   {
     super();
     this.childTypes = childTypes;
-    this.registerCallbackForTypeStructure();
   }
 }
 UnionTypeStructureImpl satisfies CloneableTypeStructure<UnionTypeStructureImpl>;

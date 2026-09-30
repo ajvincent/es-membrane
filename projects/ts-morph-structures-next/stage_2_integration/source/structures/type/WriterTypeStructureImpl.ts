@@ -1,5 +1,6 @@
 // #region preamble
 import type {
+  CodeBlockWriter,
   WriterFunction,
 } from "ts-morph";
 
@@ -11,6 +12,7 @@ import {
   type CloneableTypeStructure,
   TypeStructuresBase,
   TypeStructureClassesMap,
+  WRITER_FUNCTION_KEY
 } from "../../../snapshot/source/internal-exports.js";
 // #endregion preamble
 
@@ -22,22 +24,19 @@ extends TypeStructuresBase<TypeStructureKind.Writer>
     other: WriterTypeStructureImpl
   ): WriterTypeStructureImpl
   {
-    return new WriterTypeStructureImpl(other.writerFunction);
+    return new WriterTypeStructureImpl(other[WRITER_FUNCTION_KEY]);
   }
 
   readonly kind = TypeStructureKind.Writer;
-  readonly writerFunction: WriterFunction;
 
   constructor(writer: WriterFunction)
   {
     super();
-    this.writerFunction = writer;
-    Reflect.defineProperty(this, "writerFunction", {
-      writable: false,
-      configurable: false
-    });
-    this.registerCallbackForTypeStructure();
+    this[WRITER_FUNCTION_KEY] = writer;
   }
+
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY]: (writer: CodeBlockWriter) => void;
 }
 WriterTypeStructureImpl satisfies CloneableTypeStructure<WriterTypeStructureImpl>;
 TypeStructureClassesMap.set(TypeStructureKind.Writer, WriterTypeStructureImpl);

@@ -1,4 +1,4 @@
-import type {
+import {
   CodeBlockWriter
 } from "ts-morph";
 
@@ -72,10 +72,8 @@ describe("TypeStructureSet", () => {
   });
 
   it("initializes with existing values", () => {
-    let called = false;
     function writerOne(writer: CodeBlockWriter): void {
-      called = true;
-      void(writer);
+      writer.write("Record<string, boolean>");
     }
     const stringFoo = new StringTypeStructureImpl("foo");
     backingArray.push("boolean", writerOne, stringFoo.writerFunction);
@@ -84,7 +82,18 @@ describe("TypeStructureSet", () => {
     expect(writerSet.size).toBe(3);
     const writerArray = Array.from(writerSet);
     expect(writerArray[1]).toBeInstanceOf(WriterTypeStructureImpl);
-    expect((writerArray[1] as WriterTypeStructureImpl).writerFunction).toBe(writerOne);
+
+    if (writerArray[1] instanceof WriterTypeStructureImpl) {
+      const actualWriter = new CodeBlockWriter();
+      const expectedWriter = new CodeBlockWriter();
+
+      const actual = writerArray[1];
+      actual.writerFunction(actualWriter);
+
+      writerOne(expectedWriter);
+      expect(actualWriter.toString()).withContext("generated content").toBe(expectedWriter.toString());
+      expect(actual.writerFunction).withContext("writerFunction comparison").not.toBe(writerOne);
+    }
 
     writerArray.splice(1, 1);
     expect(writerArray).toEqual([
@@ -94,7 +103,6 @@ describe("TypeStructureSet", () => {
     expect(backingArray).toEqual([
       "boolean", writerOne, stringFoo.writerFunction
     ]);
-    expect(called).toBe(false);
   });
 
   it(".clear clears the backing array as well", () => {

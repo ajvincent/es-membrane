@@ -12,6 +12,7 @@ import {
 
 import {
   STRUCTURE_AND_TYPES_CHILDREN,
+  WRITER_FUNCTION_KEY,
 } from "../../../snapshot/source/internal-exports.js";
 
 import TypeStructuresBase from "./TypeStructuresBase.js";
@@ -48,7 +49,7 @@ extends TypeStructuresBase<Kind>
   /** For customizing printing of the child types. */
   readonly printerSettings = new TypePrinterSettings;
 
-  #writerFunctionOuter(
+  protected [WRITER_FUNCTION_KEY](
     writer: CodeBlockWriter
   ): void
   {
@@ -90,8 +91,6 @@ extends TypeStructuresBase<Kind>
       }
     }
   }
-
-  readonly writerFunction: WriterFunction = this.#writerFunctionOuter.bind(this);
 
   /** @internal */
   public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>

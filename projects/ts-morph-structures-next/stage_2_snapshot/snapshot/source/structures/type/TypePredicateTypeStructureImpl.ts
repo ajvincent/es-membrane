@@ -12,6 +12,7 @@ import {
   type CloneableTypeStructure,
   TypeStructuresBase,
   TypeStructureClassesMap,
+  WRITER_FUNCTION_KEY,
 } from "../../internal-exports.js";
 
 /** @example assert condition is true */
@@ -34,7 +35,7 @@ export class TypePredicateTypeStructureImpl extends TypeStructuresBase<TypeStruc
     this.isType = isType ?? null;
   }
 
-  #writerFunction(writer: CodeBlockWriter): void {
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void {
     if (this.hasAssertsKeyword) {
       writer.write("asserts ");
     }
@@ -44,8 +45,6 @@ export class TypePredicateTypeStructureImpl extends TypeStructuresBase<TypeStruc
       this.isType.writerFunction(writer);
     }
   }
-
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   public static clone(
     other: TypePredicateTypeStructureImpl,

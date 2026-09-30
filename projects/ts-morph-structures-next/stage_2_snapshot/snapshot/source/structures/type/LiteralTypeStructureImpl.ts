@@ -7,6 +7,7 @@ import {
   type CloneableTypeStructure,
   TypeStructureClassesMap,
   TypeStructuresBase,
+  WRITER_FUNCTION_KEY,
 } from "../../internal-exports.js";
 // #endregion preamble
 
@@ -44,15 +45,12 @@ export class LiteralTypeStructureImpl extends TypeStructuresBase<TypeStructureKi
       writable: false,
       configurable: false,
     });
-
-    this.registerCallbackForTypeStructure();
   }
 
-  #writerFunction(writer: CodeBlockWriter): void {
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void {
     writer.write(this.stringValue);
   }
-
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 LiteralTypeStructureImpl satisfies CloneableTypeStructure<LiteralTypeStructureImpl>;
 TypeStructureClassesMap.set(

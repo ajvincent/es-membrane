@@ -40,7 +40,6 @@ export class IndexedAccessTypeStructureImpl extends TypeStructuresWithChildren<
     super();
     this.objectType = objectType;
     this.childTypes = [indexType];
-    this.registerCallbackForTypeStructure();
   }
 }
 IndexedAccessTypeStructureImpl satisfies CloneableTypeStructure<IndexedAccessTypeStructureImpl>;

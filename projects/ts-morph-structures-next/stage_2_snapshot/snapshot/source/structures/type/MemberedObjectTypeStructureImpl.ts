@@ -18,6 +18,7 @@ import {
   STRUCTURE_AND_TYPES_CHILDREN,
   TypeStructureClassesMap,
   TypeStructuresBase,
+  WRITER_FUNCTION_KEY,
 } from "../../internal-exports.js";
 
 /**
@@ -90,16 +91,9 @@ export class MemberedObjectTypeStructureImpl extends TypeStructuresBase<TypeStru
   readonly properties: PropertySignatureImpl[] = [];
   readonly setAccessors: SetAccessorDeclarationImpl[] = [];
 
-  constructor() {
-    super();
-    this.registerCallbackForTypeStructure();
-  }
-
-  #writerFunction(writer: CodeBlockWriter): void {
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void {
     Writers.objectType(this)(writer);
   }
-
-  writerFunction = this.#writerFunction.bind(this);
 
   /** @internal */
   public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<

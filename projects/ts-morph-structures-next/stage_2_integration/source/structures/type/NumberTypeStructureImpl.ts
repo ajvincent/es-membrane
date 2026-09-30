@@ -12,6 +12,7 @@ import {
   type CloneableTypeStructure,
   TypeStructureClassesMap,
   TypeStructuresBase,
+  WRITER_FUNCTION_KEY,
 } from "../../../snapshot/source/internal-exports.js";
 // #endregion preamble
 
@@ -56,16 +57,13 @@ extends TypeStructuresBase<TypeStructureKind.Number>
       writable: false,
       configurable: false
     });
-
-    this.registerCallbackForTypeStructure();
   }
 
-  #writerFunction(writer: CodeBlockWriter): void
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void
   {
     writer.write(this.numberValue.toString());
   }
-
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 }
 NumberTypeStructureImpl satisfies CloneableTypeStructure<NumberTypeStructureImpl>;
 TypeStructureClassesMap.set(TypeStructureKind.Number, NumberTypeStructureImpl);

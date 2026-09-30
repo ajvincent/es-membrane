@@ -11,6 +11,7 @@ import {
   STRUCTURE_AND_TYPES_CHILDREN,
   TypeStructureClassesMap,
   TypeStructuresBase,
+  WRITER_FUNCTION_KEY,
 } from "../../internal-exports.js";
 
 export type PrefixUnaryOperator =
@@ -42,10 +43,10 @@ export class PrefixOperatorsTypeStructureImpl extends TypeStructuresBase<TypeStr
     super();
     this.operators = operators.slice();
     this.objectType = objectType;
-    this.registerCallbackForTypeStructure();
   }
 
-  #writerFunction(writer: CodeBlockWriter): void {
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void {
     if (this.operators.length) {
       writer.write(
         this.operators.map((op) => (op === "..." ? op : op + " ")).join(""),
@@ -54,8 +55,6 @@ export class PrefixOperatorsTypeStructureImpl extends TypeStructuresBase<TypeStr
 
     this.objectType.writerFunction(writer);
   }
-
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   /** @internal */
   public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<

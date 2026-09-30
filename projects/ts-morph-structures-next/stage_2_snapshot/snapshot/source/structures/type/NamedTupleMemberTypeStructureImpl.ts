@@ -18,6 +18,7 @@ import {
   STRUCTURE_AND_TYPES_CHILDREN,
   TypeStructuresBase,
   TypeStructureClassesMap,
+  WRITER_FUNCTION_KEY,
 } from "../../internal-exports.js";
 
 /** @example `[a: number]` */
@@ -47,10 +48,10 @@ export class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase<TypeSt
     super();
     this.name = name;
     this.objectType = objectType;
-    this.registerCallbackForTypeStructure();
   }
 
-  #writerFunction(writer: CodeBlockWriter): void {
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void {
     void writer;
 
     for (const doc of this.docs) {
@@ -64,9 +65,6 @@ export class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase<TypeSt
     writer.write(": ");
     this.objectType.writerFunction(writer);
   }
-
-  public readonly writerFunction: WriterFunction =
-    this.#writerFunction.bind(this);
 
   /** @internal */
   public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<

@@ -251,13 +251,13 @@ class TypeAccessors {
             this.typeStructure = LiteralTypeStructureImpl.get(value);
             return;
         }
-        const knownTypeStructure = TypeStructuresBase.getTypeStructureForCallback(value);
-        if (knownTypeStructure) {
+        const knownTypeStructure = TypeStructuresBase.getWriterStructureForCallback(value);
+        if (knownTypeStructure instanceof TypeStructuresBase) {
             this.typeStructure = knownTypeStructure;
             return;
         }
         this.typeStructure = new WriterTypeStructureImpl(value);
-        TypeStructuresBase.deregisterCallbackForTypeStructure(this.typeStructure);
+        this.typeStructure[DEREGISTER_WRITER]();
     }
     /**
      * Create a clone of an existing type, if it belongs to a type structure.
@@ -270,13 +270,14 @@ class TypeAccessors {
     static cloneType(type) {
         if (typeof type !== "function")
             return type;
-        const typeStructure = TypeStructuresBase.getTypeStructureForCallback(type);
-        if (!typeStructure)
-            return type;
-        if (typeStructure.kind === TypeStructureKind.Literal)
-            return typeStructure.stringValue;
-        const value = TypeStructureClassesMap.clone(typeStructure);
-        return value.writerFunction;
+        const typeStructure = TypeStructuresBase.getWriterStructureForCallback(type);
+        if (typeStructure instanceof TypeStructuresBase) {
+            if (typeStructure.kind === TypeStructureKind.Literal)
+                return typeStructure.stringValue;
+            const value = TypeStructureClassesMap.clone(typeStructure);
+            return value.writerFunction;
+        }
+        return type;
     }
 }
 
@@ -315,8 +316,7 @@ class TypeStructureSetInternal extends Set {
                 super.add(LiteralTypeStructureImpl.get(value));
                 continue;
             }
-            const typeStructure = TypeStructuresBase.getTypeStructureForCallback(value) ??
-                new WriterTypeStructureImpl(value);
+            const typeStructure = TypeStructuresBase.getWriterStructureForCallback(value) ?? new WriterTypeStructureImpl(value);
             super.add(typeStructure);
         }
     }
@@ -350,8 +350,7 @@ class TypeStructureSetInternal extends Set {
                 this.add(LiteralTypeStructureImpl.get(value));
                 return;
             }
-            const structure = TypeStructuresBase.getTypeStructureForCallback(value) ??
-                new WriterTypeStructureImpl(value);
+            const structure = TypeStructuresBase.getWriterStructureForCallback(value) ?? new WriterTypeStructureImpl(value);
             this.add(structure);
         });
     }
@@ -903,18 +902,22 @@ function TypeParameteredNodeStructureMixin(baseClass, context) {
     return TypeParameteredNodeStructureMixin;
 }
 
-class TypeStructuresBase {
-    static #callbackToTypeStructureImpl = new WeakMap();
-    registerCallbackForTypeStructure() {
-        if (TypeStructuresBase.#callbackToTypeStructureImpl.has(this.writerFunction))
-            return;
-        TypeStructuresBase.#callbackToTypeStructureImpl.set(this.writerFunction, this);
+const WRITER_FUNCTION_KEY = Symbol("writerFunction");
+const DEREGISTER_WRITER = Symbol("deregister writerFunction");
+class WriterStructuresBase {
+    static #writerToStructureMap = new WeakMap();
+    static getWriterStructureForCallback(writer) {
+        return WriterStructuresBase.#writerToStructureMap.get(writer);
     }
-    static getTypeStructureForCallback(callback) {
-        return this.#callbackToTypeStructureImpl.get(callback);
+    writerFunction = (writer) => {
+        this[WRITER_FUNCTION_KEY](writer);
+    };
+    constructor() {
+        WriterStructuresBase.#writerToStructureMap.set(this.writerFunction, this);
     }
-    static deregisterCallbackForTypeStructure(structure) {
-        this.#callbackToTypeStructureImpl.delete(structure.writerFunction);
+    /** @internal */
+    [DEREGISTER_WRITER]() {
+        WriterStructuresBase.#writerToStructureMap.delete(this.writerFunction);
     }
     /**
      * Write a start token, invoke a block, and write the end token, in that order.
@@ -939,6 +942,9 @@ class TypeStructuresBase {
             writer.newLine();
         writer.write(endToken);
     }
+}
+
+class TypeStructuresBase extends WriterStructuresBase {
     /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() { }
 }
@@ -951,7 +957,7 @@ class TypePrinterSettings {
 class TypeStructuresWithChildren extends TypeStructuresBase {
     /** For customizing printing of the child types. */
     printerSettings = new TypePrinterSettings();
-    #writerFunctionOuter(writer) {
+    [WRITER_FUNCTION_KEY](writer) {
         this.objectType?.writerFunction(writer);
         TypeStructuresBase.pairedWrite(writer, this.startToken, this.endToken, this.printerSettings.newLinesAroundChildren, this.printerSettings.indentChildren, () => this.#writerFunctionInner(writer));
     }
@@ -976,7 +982,6 @@ class TypeStructuresWithChildren extends TypeStructuresBase {
             }
         }
     }
-    writerFunction = this.#writerFunctionOuter.bind(this);
     /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() {
         yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
@@ -1243,7 +1248,7 @@ function getOverloadIndex(node) {
     return matchingNodes.indexOf(node);
 }
 
-var _a$7;
+var _a$5;
 // #endregion preamble
 /**
  * Get structures for a node and its descendants.
@@ -1308,8 +1313,8 @@ class StructureAndNodeData {
     }
     constructor(nodeWithStructures, useTypeAwareStructures, hashNeedle) {
         this.#rootNode = nodeWithStructures;
-        if (!_a$7.#knownSyntaxKinds) {
-            _a$7.#knownSyntaxKinds = new Set(StructureKindToSyntaxKindMap.values());
+        if (!_a$5.#knownSyntaxKinds) {
+            _a$5.#knownSyntaxKinds = new Set(StructureKindToSyntaxKindMap.values());
         }
         this.#collectDescendantNodes(this.#rootNode, "");
         if (hashNeedle) {
@@ -1359,7 +1364,7 @@ class StructureAndNodeData {
     #collectDescendantNodes = (node, hash) => {
         const kind = node.getKind();
         // Build the node hash, and register the node.
-        if (_a$7.#knownSyntaxKinds.has(kind) &&
+        if (_a$5.#knownSyntaxKinds.has(kind) &&
             this.#nodeToHash.has(node) === false) {
             const localHash = this.#hashNodeLocal(node);
             assert(localHash, "this.#hashNodeLocal() must return a non-empty string");
@@ -1597,7 +1602,7 @@ class StructureAndNodeData {
         return hash;
     }
 }
-_a$7 = StructureAndNodeData;
+_a$5 = StructureAndNodeData;
 
 // #region preamble
 /**
@@ -2316,7 +2321,7 @@ class CallSignatureDeclarationImpl extends CallSignatureDeclarationStructureBase
 }
 StructureClassesMap.set(StructureKind.CallSignature, CallSignatureDeclarationImpl);
 
-var _a$6;
+var _a$4;
 //#endregion preamble
 const ClassDeclarationStructureBase = MultiMixinBuilder([
     NameableNodeStructureMixin,
@@ -2333,7 +2338,7 @@ class ClassDeclarationImpl extends ClassDeclarationStructureBase {
     kind = StructureKind.Class;
     #extendsAccessors;
     #implements_ShadowArray = [];
-    #implementsProxyArray = new Proxy(this.#implements_ShadowArray, _a$6.#implementsArrayReadonlyHandler);
+    #implementsProxyArray = new Proxy(this.#implements_ShadowArray, _a$4.#implementsArrayReadonlyHandler);
     ctors = [];
     // overridden in constructor
     extends = undefined;
@@ -2412,7 +2417,7 @@ class ClassDeclarationImpl extends ClassDeclarationStructureBase {
      * @param source - The structure to clone.
      */
     static clone(source) {
-        const target = new _a$6();
+        const target = new _a$4();
         this[COPY_FIELDS](source, target);
         return target;
     }
@@ -2447,7 +2452,7 @@ class ClassDeclarationImpl extends ClassDeclarationStructureBase {
         return rv;
     }
 }
-_a$6 = ClassDeclarationImpl;
+_a$4 = ClassDeclarationImpl;
 StructureClassesMap.set(StructureKind.Class, ClassDeclarationImpl);
 
 //#endregion preamble
@@ -3233,7 +3238,7 @@ class IndexSignatureDeclarationImpl extends IndexSignatureDeclarationStructureBa
 }
 StructureClassesMap.set(StructureKind.IndexSignature, IndexSignatureDeclarationImpl);
 
-var _a$5;
+var _a$3;
 //#endregion preamble
 const InterfaceDeclarationStructureBase = MultiMixinBuilder([
     ExportableNodeStructureMixin,
@@ -3247,7 +3252,7 @@ class InterfaceDeclarationImpl extends InterfaceDeclarationStructureBase {
     static #extendsArrayReadonlyHandler = new ReadonlyArrayProxyHandler("The extends array is read-only.  Please use this.extendsSet to set strings and type structures.");
     kind = StructureKind.Interface;
     #extends_ShadowArray = [];
-    #extendsProxyArray = new Proxy(this.#extends_ShadowArray, _a$5.#extendsArrayReadonlyHandler);
+    #extendsProxyArray = new Proxy(this.#extends_ShadowArray, _a$3.#extendsArrayReadonlyHandler);
     callSignatures = [];
     constructSignatures = [];
     extendsSet = new TypeStructureSetInternal(this.#extends_ShadowArray);
@@ -3314,7 +3319,7 @@ class InterfaceDeclarationImpl extends InterfaceDeclarationStructureBase {
      * @param source - The structure to clone.
      */
     static clone(source) {
-        const target = new _a$5(source.name);
+        const target = new _a$3(source.name);
         this[COPY_FIELDS](source, target);
         return target;
     }
@@ -3342,7 +3347,7 @@ class InterfaceDeclarationImpl extends InterfaceDeclarationStructureBase {
         return rv;
     }
 }
-_a$5 = InterfaceDeclarationImpl;
+_a$3 = InterfaceDeclarationImpl;
 StructureClassesMap.set(StructureKind.Interface, InterfaceDeclarationImpl);
 
 //#endregion preamble
@@ -4393,13 +4398,12 @@ class ArrayTypeStructureImpl extends TypeStructuresBase {
     constructor(objectType) {
         super();
         this.objectType = objectType;
-        this.registerCallbackForTypeStructure();
     }
-    #writerFunction(writer) {
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
         this.objectType.writerFunction(writer);
         writer.write("[]");
     }
-    writerFunction = this.#writerFunction.bind(this);
     /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() {
         yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
@@ -4434,9 +4438,9 @@ class ConditionalTypeStructureImpl extends TypeStructuresBase {
             conditionalParts.trueType ?? LiteralTypeStructureImpl.get("never");
         this.falseType =
             conditionalParts.falseType ?? LiteralTypeStructureImpl.get("never");
-        this.registerCallbackForTypeStructure();
     }
-    #writerFunction(writer) {
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
         this.checkType.writerFunction(writer);
         writer.write(" extends ");
         this.extendsType.writerFunction(writer);
@@ -4445,7 +4449,6 @@ class ConditionalTypeStructureImpl extends TypeStructuresBase {
         writer.write(" : ");
         this.falseType.writerFunction(writer);
     }
-    writerFunction = this.#writerFunction.bind(this);
     /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() {
         yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
@@ -4461,7 +4464,6 @@ class ConditionalTypeStructureImpl extends TypeStructuresBase {
 }
 TypeStructureClassesMap.set(TypeStructureKind.Conditional, ConditionalTypeStructureImpl);
 
-var _a$4;
 // #endregion preamble
 var FunctionWriterStyle;
 (function (FunctionWriterStyle) {
@@ -4473,7 +4475,7 @@ var FunctionWriterStyle;
 /** ("new" | "get" | "set" | "") name<typeParameters>(parameters, ...restParameter) ("=\>" | ":" ) returnType */
 class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters {
     static clone(other) {
-        return new _a$4({
+        return new FunctionTypeStructureImpl({
             name: other.name,
             isConstructor: other.isConstructor,
             typeParameters: other.typeParameters.map((typeParam) => TypeParameterDeclarationImpl.clone(typeParam)),
@@ -4504,9 +4506,9 @@ class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters {
         this.restParameter = context.restParameter;
         this.returnType = context.returnType;
         this.writerStyle = context.writerStyle ?? FunctionWriterStyle.Arrow;
-        this.registerCallbackForTypeStructure();
     }
-    #writerFunction(writer) {
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
         if (this.writerStyle === FunctionWriterStyle.GetAccessor) {
             writer.write("get ");
             if (this.name)
@@ -4524,7 +4526,7 @@ class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters {
         else if (this.isConstructor)
             writer.write("new ");
         if (this.typeParameters.length) {
-            _a$4.pairedWrite(writer, "<", ">", false, false, () => {
+            FunctionTypeStructureImpl.pairedWrite(writer, "<", ">", false, false, () => {
                 const lastChild = this.typeParameters[this.typeParameters.length - 1];
                 for (const typeParam of this.typeParameters) {
                     TypeStructuresWithTypeParameters.writeTypeParameter(typeParam, writer, "extends");
@@ -4534,7 +4536,7 @@ class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters {
                 }
             });
         }
-        _a$4.pairedWrite(writer, "(", ")", false, false, () => {
+        FunctionTypeStructureImpl.pairedWrite(writer, "(", ")", false, false, () => {
             let lastType;
             if (this.restParameter)
                 lastType = new PrefixOperatorsTypeStructureImpl(["..."], this.restParameter);
@@ -4563,7 +4565,6 @@ class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters {
             }
         }
     }
-    writerFunction = this.#writerFunction.bind(this);
     /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() {
         yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
@@ -4575,7 +4576,6 @@ class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters {
             yield this.returnType;
     }
 }
-_a$4 = FunctionTypeStructureImpl;
 TypeStructureClassesMap.set(TypeStructureKind.Function, FunctionTypeStructureImpl);
 
 // #endregion preamble
@@ -4608,16 +4608,14 @@ class LiteralTypeStructureImpl extends TypeStructuresBase {
             writable: false,
             configurable: false,
         });
-        this.registerCallbackForTypeStructure();
     }
-    #writerFunction(writer) {
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
         writer.write(this.stringValue);
     }
-    writerFunction = this.#writerFunction.bind(this);
 }
 TypeStructureClassesMap.set(TypeStructureKind.Literal, LiteralTypeStructureImpl);
 
-var _a$3;
 /** @example `import("ts-morph", { with: { "resolution-mode": "import" } }).StatementStructures` */
 class ImportTypeStructureImpl extends TypeStructuresBase {
     // not using LiteralTypeStructureImpl.get() to avoid caching this
@@ -4632,20 +4630,21 @@ class ImportTypeStructureImpl extends TypeStructuresBase {
         this.argument = argument;
         this.attributes = attributes.map((attr) => ImportAttributeImpl.clone(attr));
         typeArguments = typeArguments.slice();
-        this.#typeArguments = new TypeArgumentedTypeStructureImpl(qualifier ?? _a$3.#nullIdentifier, typeArguments);
+        this.#typeArguments = new TypeArgumentedTypeStructureImpl(qualifier ?? ImportTypeStructureImpl.#nullIdentifier, typeArguments);
         this.childTypes = typeArguments;
     }
     get qualifier() {
-        if (this.#typeArguments.objectType === _a$3.#nullIdentifier)
+        if (this.#typeArguments.objectType === ImportTypeStructureImpl.#nullIdentifier)
             return null;
         return this.#typeArguments.objectType;
     }
     set qualifier(value) {
         this.#typeArguments.objectType =
-            value ?? _a$3.#nullIdentifier;
+            value ?? ImportTypeStructureImpl.#nullIdentifier;
     }
-    #writerFunction(writer) {
-        _a$3.pairedWrite(writer, "import(", ")", false, false, () => {
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
+        ImportTypeStructureImpl.pairedWrite(writer, "import(", ")", false, false, () => {
             this.argument.writerFunction(writer);
             if (this.attributes.length) {
                 writer.write(", ");
@@ -4671,7 +4670,6 @@ class ImportTypeStructureImpl extends TypeStructuresBase {
             this.#typeArguments.writerFunction(writer);
         }
     }
-    writerFunction = this.#writerFunction.bind(this);
     /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() {
         yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
@@ -4690,10 +4688,9 @@ class ImportTypeStructureImpl extends TypeStructuresBase {
         else if (qualifier?.kind === TypeStructureKind.QualifiedName) {
             qualifier = QualifiedNameTypeStructureImpl.clone(qualifier);
         }
-        return new _a$3(other.argument, StructureClassesMap.cloneArrayWithKind(StructureKind.ImportAttribute, other.attributes), qualifier, TypeStructureClassesMap.cloneArray(other.childTypes));
+        return new ImportTypeStructureImpl(other.argument, StructureClassesMap.cloneArrayWithKind(StructureKind.ImportAttribute, other.attributes), qualifier, TypeStructureClassesMap.cloneArray(other.childTypes));
     }
 }
-_a$3 = ImportTypeStructureImpl;
 TypeStructureClassesMap.set(TypeStructureKind.Import, ImportTypeStructureImpl);
 
 /**
@@ -4719,7 +4716,6 @@ class IndexedAccessTypeStructureImpl extends TypeStructuresWithChildren {
         super();
         this.objectType = objectType;
         this.childTypes = [indexType];
-        this.registerCallbackForTypeStructure();
     }
 }
 TypeStructureClassesMap.set(TypeStructureKind.IndexedAccess, IndexedAccessTypeStructureImpl);
@@ -4732,13 +4728,12 @@ class InferTypeStructureImpl extends TypeStructuresWithTypeParameters {
     constructor(typeParameter) {
         super();
         this.typeParameter = typeParameter;
-        this.registerCallbackForTypeStructure();
     }
-    #writerFunction(writer) {
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
         writer.write("infer ");
         TypeStructuresWithTypeParameters.writeTypeParameter(this.typeParameter, writer, "extends");
     }
-    writerFunction = this.#writerFunction.bind(this);
     static clone(other) {
         return new InferTypeStructureImpl(TypeParameterDeclarationImpl.clone(other.typeParameter));
     }
@@ -4765,7 +4760,6 @@ class IntersectionTypeStructureImpl extends TypeStructuresWithChildren {
     constructor(childTypes = []) {
         super();
         this.childTypes = childTypes;
-        this.registerCallbackForTypeStructure();
     }
 }
 TypeStructureClassesMap.set(TypeStructureKind.Intersection, IntersectionTypeStructureImpl);
@@ -4787,9 +4781,9 @@ class MappedTypeStructureImpl extends TypeStructuresWithTypeParameters {
     constructor(parameter) {
         super();
         this.parameter = parameter;
-        this.registerCallbackForTypeStructure();
     }
-    #writerFunction(writer) {
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
         writer.block(() => {
             if (this.readonlyToken) {
                 writer.write(this.readonlyToken + " ");
@@ -4811,7 +4805,6 @@ class MappedTypeStructureImpl extends TypeStructuresWithTypeParameters {
             writer.write(";");
         });
     }
-    writerFunction = this.#writerFunction.bind(this);
     static clone(other) {
         const clone = new MappedTypeStructureImpl(TypeParameterDeclarationImpl.clone(other.parameter));
         if (other.asName) {
@@ -4873,14 +4866,9 @@ class MemberedObjectTypeStructureImpl extends TypeStructuresBase {
     methods = [];
     properties = [];
     setAccessors = [];
-    constructor() {
-        super();
-        this.registerCallbackForTypeStructure();
-    }
-    #writerFunction(writer) {
+    [WRITER_FUNCTION_KEY](writer) {
         Writers.objectType(this)(writer);
     }
-    writerFunction = this.#writerFunction.bind(this);
     /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() {
         yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
@@ -4914,9 +4902,9 @@ class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase {
         super();
         this.name = name;
         this.objectType = objectType;
-        this.registerCallbackForTypeStructure();
     }
-    #writerFunction(writer) {
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
         for (const doc of this.docs) {
             printStructure(doc, {
                 indentNumberOfSpaces: writer.getIndentationLevel() * 2,
@@ -4928,7 +4916,6 @@ class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase {
         writer.write(": ");
         this.objectType.writerFunction(writer);
     }
-    writerFunction = this.#writerFunction.bind(this);
     /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() {
         yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
@@ -4965,12 +4952,11 @@ class NumberTypeStructureImpl extends TypeStructuresBase {
             writable: false,
             configurable: false,
         });
-        this.registerCallbackForTypeStructure();
     }
-    #writerFunction(writer) {
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
         writer.write(this.numberValue.toString());
     }
-    writerFunction = this.#writerFunction.bind(this);
 }
 TypeStructureClassesMap.set(TypeStructureKind.Number, NumberTypeStructureImpl);
 
@@ -4984,13 +4970,11 @@ class OptionalTypeStructureImpl extends TypeStructuresBase {
     constructor(objectType) {
         super();
         this.objectType = objectType;
-        this.registerCallbackForTypeStructure();
     }
-    #writerFunction(writer) {
+    [WRITER_FUNCTION_KEY](writer) {
         this.objectType.writerFunction(writer);
         writer.write("?");
     }
-    writerFunction = this.#writerFunction.bind(this);
     /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() {
         yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
@@ -5009,16 +4993,14 @@ class ParameterTypeStructureImpl extends TypeStructuresBase {
         return new ParameterTypeStructureImpl(other.name, typeClone);
     }
     kind = TypeStructureKind.Parameter;
-    writerFunction = this.#writerFunction.bind(this);
     name;
     typeStructure;
     constructor(name, typeStructure) {
         super();
         this.name = name;
         this.typeStructure = typeStructure;
-        this.registerCallbackForTypeStructure();
     }
-    #writerFunction(writer) {
+    [WRITER_FUNCTION_KEY](writer) {
         writer.write(this.name);
         if (this.typeStructure) {
             writer.write(": ");
@@ -5049,7 +5031,6 @@ class ParenthesesTypeStructureImpl extends TypeStructuresWithChildren {
     constructor(childType) {
         super();
         this.childTypes = [childType];
-        this.registerCallbackForTypeStructure();
     }
 }
 TypeStructureClassesMap.set(TypeStructureKind.Parentheses, ParenthesesTypeStructureImpl);
@@ -5066,15 +5047,14 @@ class PrefixOperatorsTypeStructureImpl extends TypeStructuresBase {
         super();
         this.operators = operators.slice();
         this.objectType = objectType;
-        this.registerCallbackForTypeStructure();
     }
-    #writerFunction(writer) {
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
         if (this.operators.length) {
             writer.write(this.operators.map((op) => (op === "..." ? op : op + " ")).join(""));
         }
         this.objectType.writerFunction(writer);
     }
-    writerFunction = this.#writerFunction.bind(this);
     /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() {
         yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
@@ -5094,12 +5074,11 @@ class QualifiedNameTypeStructureImpl extends TypeStructuresBase {
     constructor(childTypes = []) {
         super();
         this.childTypes = childTypes;
-        this.registerCallbackForTypeStructure();
     }
-    #writerFunction(writer) {
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
         writer.write(this.childTypes.join("."));
     }
-    writerFunction = this.#writerFunction.bind(this);
 }
 TypeStructureClassesMap.set(TypeStructureKind.QualifiedName, QualifiedNameTypeStructureImpl);
 
@@ -5128,12 +5107,10 @@ class StringTypeStructureImpl extends TypeStructuresBase {
             writable: false,
             configurable: false,
         });
-        this.registerCallbackForTypeStructure();
     }
-    #writerFunction(writer) {
+    [WRITER_FUNCTION_KEY](writer) {
         writer.quote(this.stringValue);
     }
-    writerFunction = this.#writerFunction.bind(this);
 }
 TypeStructureClassesMap.set(TypeStructureKind.String, StringTypeStructureImpl);
 
@@ -5147,16 +5124,14 @@ class TemplateLiteralTypeStructureImpl extends TypeStructuresBase {
         return new TemplateLiteralTypeStructureImpl(other.head, spans);
     }
     kind = TypeStructureKind.TemplateLiteral;
-    writerFunction = this.#writerFunction.bind(this);
     head;
     spans;
     constructor(head, spans) {
         super();
         this.head = head;
         this.spans = spans;
-        this.registerCallbackForTypeStructure();
     }
-    #writerFunction(writer) {
+    [WRITER_FUNCTION_KEY](writer) {
         TypeStructuresBase.pairedWrite(writer, "`", "`", false, false, () => {
             writer.write(this.head);
             this.spans.forEach((span) => {
@@ -5199,7 +5174,6 @@ class TupleTypeStructureImpl extends TypeStructuresWithChildren {
     constructor(childTypes = []) {
         super();
         this.childTypes = childTypes;
-        this.registerCallbackForTypeStructure();
     }
 }
 TypeStructureClassesMap.set(TypeStructureKind.Tuple, TupleTypeStructureImpl);
@@ -5227,7 +5201,6 @@ class TypeArgumentedTypeStructureImpl extends TypeStructuresWithChildren {
         super();
         this.objectType = objectType;
         this.childTypes = childTypes;
-        this.registerCallbackForTypeStructure();
     }
 }
 TypeStructureClassesMap.set(TypeStructureKind.TypeArgumented, TypeArgumentedTypeStructureImpl);
@@ -5244,7 +5217,7 @@ class TypePredicateTypeStructureImpl extends TypeStructuresBase {
         this.parameterName = parameterName;
         this.isType = isType ?? null;
     }
-    #writerFunction(writer) {
+    [WRITER_FUNCTION_KEY](writer) {
         if (this.hasAssertsKeyword) {
             writer.write("asserts ");
         }
@@ -5254,7 +5227,6 @@ class TypePredicateTypeStructureImpl extends TypeStructuresBase {
             this.isType.writerFunction(writer);
         }
     }
-    writerFunction = this.#writerFunction.bind(this);
     static clone(other) {
         let isType;
         if (other.isType) {
@@ -5286,7 +5258,6 @@ class UnionTypeStructureImpl extends TypeStructuresWithChildren {
     constructor(childTypes = []) {
         super();
         this.childTypes = childTypes;
-        this.registerCallbackForTypeStructure();
     }
 }
 TypeStructureClassesMap.set(TypeStructureKind.Union, UnionTypeStructureImpl);
@@ -5295,19 +5266,15 @@ TypeStructureClassesMap.set(TypeStructureKind.Union, UnionTypeStructureImpl);
 /** Wrappers for writer functions from external sources.  Leaf nodes. */
 class WriterTypeStructureImpl extends TypeStructuresBase {
     static clone(other) {
-        return new WriterTypeStructureImpl(other.writerFunction);
+        return new WriterTypeStructureImpl(other[WRITER_FUNCTION_KEY]);
     }
     kind = TypeStructureKind.Writer;
-    writerFunction;
     constructor(writer) {
         super();
-        this.writerFunction = writer;
-        Reflect.defineProperty(this, "writerFunction", {
-            writable: false,
-            configurable: false,
-        });
-        this.registerCallbackForTypeStructure();
+        this[WRITER_FUNCTION_KEY] = writer;
     }
+    /** @internal */
+    [WRITER_FUNCTION_KEY];
 }
 TypeStructureClassesMap.set(TypeStructureKind.Writer, WriterTypeStructureImpl);
 

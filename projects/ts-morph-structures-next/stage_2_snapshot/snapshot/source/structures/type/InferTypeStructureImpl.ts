@@ -13,6 +13,7 @@ import {
   STRUCTURE_AND_TYPES_CHILDREN,
   TypeStructureClassesMap,
   TypeStructuresWithTypeParameters,
+  WRITER_FUNCTION_KEY,
 } from "../../internal-exports.js";
 
 // #endregion preamble
@@ -26,10 +27,10 @@ export class InferTypeStructureImpl extends TypeStructuresWithTypeParameters<Typ
   constructor(typeParameter: TypeParameterDeclarationImpl) {
     super();
     this.typeParameter = typeParameter;
-    this.registerCallbackForTypeStructure();
   }
 
-  #writerFunction(writer: CodeBlockWriter): void {
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void {
     writer.write("infer ");
     TypeStructuresWithTypeParameters.writeTypeParameter(
       this.typeParameter,
@@ -37,8 +38,6 @@ export class InferTypeStructureImpl extends TypeStructuresWithTypeParameters<Typ
       "extends",
     );
   }
-
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   public static clone(other: InferTypeStructureImpl): InferTypeStructureImpl {
     return new InferTypeStructureImpl(

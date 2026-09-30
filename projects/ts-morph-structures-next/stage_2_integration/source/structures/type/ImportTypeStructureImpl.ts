@@ -23,6 +23,7 @@ import {
   TypeStructuresBase,
   STRUCTURE_AND_TYPES_CHILDREN,
   TypeStructureClassesMap,
+  WRITER_FUNCTION_KEY,
 } from "../../../snapshot/source/internal-exports.js";
 
 import {
@@ -78,9 +79,8 @@ export class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKin
     this.#typeArguments.objectType = value ?? ImportTypeStructureImpl.#nullIdentifier;
   }
 
-  #writerFunction(
-    writer: CodeBlockWriter
-  ): void
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void
   {
     ImportTypeStructureImpl.pairedWrite(writer, "import(", ")", false, false, () => {
       this.argument.writerFunction(writer);
@@ -109,8 +109,6 @@ export class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKin
       this.#typeArguments.writerFunction(writer);
     }
   }
-
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   /** @internal */
   public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>

@@ -98,6 +98,10 @@ export {
 export { default as TypeStructuresBase } from "./structures/type/TypeStructuresBase.js";
 export { default as TypeStructuresWithChildren } from "./structures/type/TypeStructuresWithChildren.js";
 export { default as TypeStructuresWithTypeParameters } from "./structures/type/TypeStructuresWithTypeParameters.js";
+export {
+  DEREGISTER_WRITER,
+  WRITER_FUNCTION_KEY,
+} from "./structures/WriterStructuresBase.js";
 export { DefaultMap, DefaultWeakMap } from "./toolbox/DefaultMap.js";
 export { default as MemberedStatementsKeyClass } from "./toolbox/MemberedStatementsKeyClass.js";
 export type {

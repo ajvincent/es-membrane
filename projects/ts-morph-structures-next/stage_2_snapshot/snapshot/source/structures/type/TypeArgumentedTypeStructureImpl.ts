@@ -39,7 +39,6 @@ export class TypeArgumentedTypeStructureImpl extends TypeStructuresWithChildren<
     super();
     this.objectType = objectType;
     this.childTypes = childTypes;
-    this.registerCallbackForTypeStructure();
   }
 }
 TypeArgumentedTypeStructureImpl satisfies CloneableTypeStructure<TypeArgumentedTypeStructureImpl>;

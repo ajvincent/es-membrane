@@ -71,7 +71,7 @@ implements TypeStructureSet
       }
 
       const typeStructure = (
-        TypeStructuresBase.getTypeStructureForCallback(value) ??
+        (TypeStructuresBase.getWriterStructureForCallback(value) as TypeStructures | undefined) ??
         new WriterTypeStructureImpl(value)
       );
       super.add(typeStructure);
@@ -125,7 +125,7 @@ implements TypeStructureSet
       }
 
       const structure: TypeStructures = (
-        TypeStructuresBase.getTypeStructureForCallback(value) ??
+        (TypeStructuresBase.getWriterStructureForCallback(value) as TypeStructures | undefined) ??
         new WriterTypeStructureImpl(value)
       );
       this.add(structure);

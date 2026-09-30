@@ -43,7 +43,6 @@ extends TypeStructuresWithChildren<TypeStructureKind.Tuple, TypeStructures[]>
   {
     super();
     this.childTypes = childTypes;
-    this.registerCallbackForTypeStructure();
   }
 }
 TupleTypeStructureImpl satisfies CloneableTypeStructure<TupleTypeStructureImpl>;

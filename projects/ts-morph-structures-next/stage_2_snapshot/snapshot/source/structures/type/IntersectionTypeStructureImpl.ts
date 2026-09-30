@@ -30,7 +30,6 @@ export class IntersectionTypeStructureImpl extends TypeStructuresWithChildren<
   constructor(childTypes: TypeStructures[] = []) {
     super();
     this.childTypes = childTypes;
-    this.registerCallbackForTypeStructure();
   }
 }
 IntersectionTypeStructureImpl satisfies CloneableTypeStructure<IntersectionTypeStructureImpl>;

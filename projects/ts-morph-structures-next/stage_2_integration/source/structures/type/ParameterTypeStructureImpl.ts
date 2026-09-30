@@ -14,6 +14,7 @@ import {
   STRUCTURE_AND_TYPES_CHILDREN,
   TypeStructureClassesMap,
   TypeStructuresBase,
+  WRITER_FUNCTION_KEY,
 } from "../../../snapshot/source/internal-exports.js";
 
 // #endregion preamble
@@ -33,7 +34,6 @@ extends TypeStructuresBase<TypeStructureKind.Parameter>
   }
 
   public readonly kind = TypeStructureKind.Parameter;
-  public readonly writerFunction = this.#writerFunction.bind(this);
 
   public name: string;
   public typeStructure: TypeStructures | undefined;
@@ -46,10 +46,9 @@ extends TypeStructuresBase<TypeStructureKind.Parameter>
     super();
     this.name = name;
     this.typeStructure = typeStructure;
-    this.registerCallbackForTypeStructure();
   }
 
-  #writerFunction(
+  protected [WRITER_FUNCTION_KEY](
     writer: CodeBlockWriter
   ): void
   {

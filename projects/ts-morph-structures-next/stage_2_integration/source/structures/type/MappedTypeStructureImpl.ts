@@ -16,6 +16,7 @@ import {
   STRUCTURE_AND_TYPES_CHILDREN,
   TypeStructureClassesMap,
   TypeStructuresWithTypeParameters,
+  WRITER_FUNCTION_KEY,
 } from "../../../snapshot/source/internal-exports.js";
 
 // #endregion preamble
@@ -43,12 +44,10 @@ extends TypeStructuresWithTypeParameters<TypeStructureKind.Mapped>
   {
     super();
     this.parameter = parameter;
-    this.registerCallbackForTypeStructure();
   }
 
-  #writerFunction(
-    writer: CodeBlockWriter
-  ): void
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void
   {
     writer.block(() => {
       if (this.readonlyToken) {
@@ -76,8 +75,6 @@ extends TypeStructuresWithTypeParameters<TypeStructureKind.Mapped>
       writer.write(";");
     });
   }
-
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   static clone(
     other: MappedTypeStructureImpl

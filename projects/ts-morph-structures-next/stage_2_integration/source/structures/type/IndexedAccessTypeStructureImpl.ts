@@ -46,7 +46,6 @@ extends TypeStructuresWithChildren<TypeStructureKind.IndexedAccess, [TypeStructu
     super();
     this.objectType = objectType;
     this.childTypes = [indexType];
-    this.registerCallbackForTypeStructure();
   }
 }
 IndexedAccessTypeStructureImpl satisfies CloneableTypeStructure<IndexedAccessTypeStructureImpl>;

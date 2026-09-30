@@ -91,17 +91,20 @@ interface TypeStructureSet extends Set<TypeStructures> {
   cloneFromTypeStructureSet(other: TypeStructureSet): void;
 }
 
-declare abstract class TypeStructuresBase<
-  Kind extends TypeStructureKind,
-> implements KindedTypeStructure<Kind> {
+declare const WRITER_FUNCTION_KEY: unique symbol;
+declare const DEREGISTER_WRITER: unique symbol;
+
+declare abstract class WriterStructuresBase {
   #private;
-  abstract readonly kind: Kind;
-  abstract readonly writerFunction: WriterFunction;
-  protected registerCallbackForTypeStructure(): void;
-  static getTypeStructureForCallback(
-    callback: WriterFunction,
-  ): TypeStructures | undefined;
-  static deregisterCallbackForTypeStructure(structure: TypeStructures): void;
+  readonly writerFunction: (writer: CodeBlockWriter) => void;
+  constructor();
+  static getWriterStructureForCallback(
+    writer: WriterFunction,
+  ): WriterStructuresBase | undefined;
+  /** @internal */
+  [DEREGISTER_WRITER](): void;
+  /** @internal */
+  protected abstract [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /**
    * Write a start token, invoke a block, and write the end token, in that order.
    * @param writer - the code block writer.
@@ -120,6 +123,13 @@ declare abstract class TypeStructuresBase<
     indent: boolean,
     block: () => void,
   ): void;
+}
+
+declare abstract class TypeStructuresBase<Kind extends TypeStructureKind>
+  extends WriterStructuresBase
+  implements KindedTypeStructure<Kind>
+{
+  abstract readonly kind: Kind;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
@@ -152,7 +162,7 @@ declare abstract class TypeStructuresWithChildren<
   protected abstract readonly maxChildCount: number;
   /** For customizing printing of the child types. */
   readonly printerSettings: TypePrinterSettings;
-  readonly writerFunction: WriterFunction;
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
@@ -3169,12 +3179,12 @@ declare class VariableStatementImpl
  * @see `TupleTypeStructureImpl` for `[number, boolean]`
  */
 declare class ArrayTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Array> {
-  #private;
   readonly kind = TypeStructureKind.Array;
   objectType: TypeStructures;
-  readonly writerFunction: WriterFunction;
   constructor(objectType: TypeStructures);
   static clone(other: ArrayTypeStructureImpl): ArrayTypeStructureImpl;
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
@@ -3183,17 +3193,17 @@ declare class ArrayTypeStructureImpl extends TypeStructuresBase<TypeStructureKin
 
 /** `checkType` extends `extendsType` ? `trueType` : `falseType` */
 declare class ConditionalTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Conditional> {
-  #private;
   readonly kind = TypeStructureKind.Conditional;
   checkType: TypeStructures;
   extendsType: TypeStructures;
   trueType: TypeStructures;
   falseType: TypeStructures;
-  readonly writerFunction: WriterFunction;
   constructor(conditionalParts: Partial<ConditionalTypeStructureParts>);
   static clone(
     other: ConditionalTypeStructureImpl,
   ): ConditionalTypeStructureImpl;
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
@@ -3202,7 +3212,6 @@ declare class ConditionalTypeStructureImpl extends TypeStructuresBase<TypeStruct
 
 /** ("new" | "get" | "set" | "") name<typeParameters>(parameters, ...restParameter) ("=\>" | ":" ) returnType */
 declare class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters<TypeStructureKind.Function> {
-  #private;
   readonly kind: TypeStructureKind.Function;
   name: string;
   isConstructor: boolean;
@@ -3211,9 +3220,10 @@ declare class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters
   restParameter: ParameterTypeStructureImpl | undefined;
   returnType: TypeStructures | undefined;
   writerStyle: FunctionWriterStyle;
-  writerFunction: WriterFunction;
   constructor(context: Partial<FunctionTypeContext>);
   static clone(other: FunctionTypeStructureImpl): FunctionTypeStructureImpl;
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
@@ -3227,7 +3237,6 @@ declare class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKi
   readonly kind: TypeStructureKind.Import;
   readonly attributes: ImportAttributeImpl[];
   readonly childTypes: TypeStructures[];
-  readonly writerFunction: WriterFunction;
   constructor(
     argument: StringTypeStructureImpl,
     attributes: ImportAttributeImpl[],
@@ -3241,6 +3250,8 @@ declare class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKi
   set qualifier(
     value: LiteralTypeStructureImpl | QualifiedNameTypeStructureImpl | null,
   );
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
@@ -3274,11 +3285,11 @@ declare class IndexedAccessTypeStructureImpl extends TypeStructuresWithChildren<
 
 /** @example infer \<type\> (extends \<type\>)? */
 declare class InferTypeStructureImpl extends TypeStructuresWithTypeParameters<TypeStructureKind.Infer> {
-  #private;
   readonly kind: TypeStructureKind.Infer;
   typeParameter: TypeParameterDeclarationImpl;
-  readonly writerFunction: WriterFunction;
   constructor(typeParameter: TypeParameterDeclarationImpl);
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   static clone(other: InferTypeStructureImpl): InferTypeStructureImpl;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
@@ -3312,13 +3323,14 @@ declare class LiteralTypeStructureImpl extends TypeStructuresBase<TypeStructureK
   #private;
   readonly kind = TypeStructureKind.Literal;
   readonly stringValue: string;
-  readonly writerFunction: WriterFunction;
   constructor(literal: string);
   /**
    * Gets a singleton `LiteralTypeStructureImpl` for the given name.
    */
   static get(name: string): LiteralTypeStructureImpl;
   static clone(other: LiteralTypeStructureImpl): LiteralTypeStructureImpl;
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
 }
 
 /**
@@ -3327,15 +3339,15 @@ declare class LiteralTypeStructureImpl extends TypeStructuresBase<TypeStructureK
  * @see `ObjectLiteralTypedStructureImpl` for `{ [key: string]: boolean }`
  */
 declare class MappedTypeStructureImpl extends TypeStructuresWithTypeParameters<TypeStructureKind.Mapped> {
-  #private;
   readonly kind: TypeStructureKind.Mapped;
   readonlyToken: "+readonly" | "-readonly" | "readonly" | undefined;
   parameter: TypeParameterDeclarationImpl;
   asName: TypeStructures | undefined;
   questionToken: "+?" | "-?" | "?" | undefined;
   type: TypeStructures | undefined;
-  readonly writerFunction: WriterFunction;
   constructor(parameter: TypeParameterDeclarationImpl);
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   static clone(other: MappedTypeStructureImpl): MappedTypeStructureImpl;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
@@ -3360,7 +3372,6 @@ declare class MappedTypeStructureImpl extends TypeStructuresWithTypeParameters<T
  * @see `MappedTypeStructureImpl` for `{ readonly [key in keyof Foo]: boolean }`
  */
 declare class MemberedObjectTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.MemberedObject> {
-  #private;
   readonly kind = TypeStructureKind.MemberedObject;
   readonly callSignatures: CallSignatureDeclarationImpl[];
   readonly constructSignatures: ConstructSignatureDeclarationImpl[];
@@ -3369,11 +3380,10 @@ declare class MemberedObjectTypeStructureImpl extends TypeStructuresBase<TypeStr
   readonly methods: MethodSignatureImpl[];
   readonly properties: PropertySignatureImpl[];
   readonly setAccessors: SetAccessorDeclarationImpl[];
-  writerFunction: (writer: CodeBlockWriter) => void;
-  constructor();
   static clone(
     other: MemberedObjectTypeStructureImpl,
   ): MemberedObjectTypeStructureImpl;
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
@@ -3382,18 +3392,18 @@ declare class MemberedObjectTypeStructureImpl extends TypeStructuresBase<TypeStr
 
 /** @example `[a: number]` */
 declare class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.NamedTupleMember> {
-  #private;
   readonly kind: TypeStructureKind.NamedTupleMember;
   readonly docs: JSDocImpl[];
   hasDotDotDotToken: boolean;
   name: string;
   hasQuestionToken: boolean;
   objectType: TypeStructures;
-  readonly writerFunction: WriterFunction;
   constructor(name: string, objectType: TypeStructures);
   static clone(
     other: NamedTupleMemberTypeStructureImpl,
   ): NamedTupleMemberTypeStructureImpl;
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
@@ -3408,23 +3418,23 @@ declare class NumberTypeStructureImpl extends TypeStructuresBase<TypeStructureKi
   #private;
   readonly kind = TypeStructureKind.Number;
   readonly numberValue: number;
-  readonly writerFunction: WriterFunction;
   constructor(value: number);
   /**
    * Gets a singleton `NumberTypeStructureImpl` for the given name.
    */
   static get(name: number): NumberTypeStructureImpl;
   static clone(other: NumberTypeStructureImpl): NumberTypeStructureImpl;
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
 }
 
 /** @example `[boolean?]` */
 declare class OptionalTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Optional> {
-  #private;
   readonly kind: TypeStructureKind.Optional;
   objectType: TypeStructures;
-  readonly writerFunction: WriterFunction;
   constructor(objectType: TypeStructures);
   static clone(other: OptionalTypeStructureImpl): OptionalTypeStructureImpl;
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
@@ -3433,13 +3443,12 @@ declare class OptionalTypeStructureImpl extends TypeStructuresBase<TypeStructure
 
 /** Just a parameter name and type for a `FunctionTypeStructureImpl`. */
 declare class ParameterTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Parameter> {
-  #private;
   readonly kind = TypeStructureKind.Parameter;
-  readonly writerFunction: (writer: CodeBlockWriter) => void;
   name: string;
   typeStructure: TypeStructures | undefined;
   constructor(name: string, typeStructure: TypeStructures | undefined);
   static clone(other: ParameterTypeStructureImpl): ParameterTypeStructureImpl;
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
@@ -3466,11 +3475,9 @@ declare class ParenthesesTypeStructureImpl extends TypeStructuresWithChildren<
 
 /** `("..." | "keyof" | "typeof" | "readonly" | "unique")[]` (object type) */
 declare class PrefixOperatorsTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.PrefixOperators> {
-  #private;
   readonly kind = TypeStructureKind.PrefixOperators;
   operators: PrefixUnaryOperator[];
   objectType: TypeStructures;
-  readonly writerFunction: WriterFunction;
   constructor(
     operators: readonly PrefixUnaryOperator[],
     objectType: TypeStructures,
@@ -3479,6 +3486,8 @@ declare class PrefixOperatorsTypeStructureImpl extends TypeStructuresBase<TypeSt
     other: PrefixOperatorsTypeStructureImpl,
   ): PrefixOperatorsTypeStructureImpl;
   /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
+  /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
   >;
@@ -3486,14 +3495,14 @@ declare class PrefixOperatorsTypeStructureImpl extends TypeStructuresBase<TypeSt
 
 /** @example `Foo.bar.baz...` */
 declare class QualifiedNameTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.QualifiedName> {
-  #private;
   readonly kind = TypeStructureKind.QualifiedName;
   childTypes: string[];
-  readonly writerFunction: WriterFunction;
   constructor(childTypes?: string[]);
   static clone(
     other: QualifiedNameTypeStructureImpl,
   ): QualifiedNameTypeStructureImpl;
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
 }
 
 /** Strings, encased in double quotes.  Leaf nodes. */
@@ -3501,26 +3510,25 @@ declare class StringTypeStructureImpl extends TypeStructuresBase<TypeStructureKi
   #private;
   readonly kind = TypeStructureKind.String;
   readonly stringValue: string;
-  readonly writerFunction: WriterFunction;
   constructor(literal: string);
   /**
    * Gets a singleton `StringTypeStructureImpl` for the given name.
    */
   static get(name: string): StringTypeStructureImpl;
   static clone(other: StringTypeStructureImpl): StringTypeStructureImpl;
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
 }
 
 /** @example `one${"A" | "B"}two${"C" | "D"}three` */
 declare class TemplateLiteralTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.TemplateLiteral> {
-  #private;
   readonly kind = TypeStructureKind.TemplateLiteral;
-  readonly writerFunction: WriterFunction;
   head: string;
   spans: [TypeStructures, string][];
   constructor(head: string, spans: [TypeStructures, string][]);
   static clone(
     other: TemplateLiteralTypeStructureImpl,
   ): TemplateLiteralTypeStructureImpl;
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
@@ -3575,17 +3583,16 @@ declare class TypeArgumentedTypeStructureImpl extends TypeStructuresWithChildren
 
 /** @example assert condition is true */
 declare class TypePredicateTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.TypePredicate> {
-  #private;
   readonly kind: TypeStructureKind.TypePredicate;
   hasAssertsKeyword: boolean;
   parameterName: LiteralTypeStructureImpl;
   isType: TypeStructures | null;
-  readonly writerFunction: WriterFunction;
   constructor(
     hasAssertsKeyword: boolean,
     parameterName: LiteralTypeStructureImpl,
     isType?: TypeStructures | null,
   );
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   static clone(
     other: TypePredicateTypeStructureImpl,
   ): TypePredicateTypeStructureImpl;
@@ -3614,7 +3621,8 @@ declare class UnionTypeStructureImpl extends TypeStructuresWithChildren<
 /** Wrappers for writer functions from external sources.  Leaf nodes. */
 declare class WriterTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.Writer> {
   readonly kind = TypeStructureKind.Writer;
-  readonly writerFunction: WriterFunction;
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY]: (writer: CodeBlockWriter) => void;
   constructor(writer: WriterFunction);
   static clone(other: WriterTypeStructureImpl): WriterTypeStructureImpl;
 }

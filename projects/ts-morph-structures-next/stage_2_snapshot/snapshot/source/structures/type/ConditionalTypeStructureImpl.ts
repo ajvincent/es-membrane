@@ -10,6 +10,7 @@ import {
 import {
   type CloneableTypeStructure,
   STRUCTURE_AND_TYPES_CHILDREN,
+  WRITER_FUNCTION_KEY,
   TypeStructuresBase,
   TypeStructureClassesMap,
 } from "../../internal-exports.js";
@@ -53,11 +54,10 @@ export class ConditionalTypeStructureImpl extends TypeStructuresBase<TypeStructu
       conditionalParts.trueType ?? LiteralTypeStructureImpl.get("never");
     this.falseType =
       conditionalParts.falseType ?? LiteralTypeStructureImpl.get("never");
-
-    this.registerCallbackForTypeStructure();
   }
 
-  #writerFunction(writer: CodeBlockWriter): void {
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void {
     this.checkType.writerFunction(writer);
     writer.write(" extends ");
     this.extendsType.writerFunction(writer);
@@ -66,8 +66,6 @@ export class ConditionalTypeStructureImpl extends TypeStructuresBase<TypeStructu
     writer.write(" : ");
     this.falseType.writerFunction(writer);
   }
-
-  readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   /** @internal */
   public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<

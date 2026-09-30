@@ -36,7 +36,6 @@ extends TypeStructuresWithChildren<TypeStructureKind.Intersection, TypeStructure
   {
     super();
     this.childTypes = childTypes;
-    this.registerCallbackForTypeStructure();
   }
 }
 IntersectionTypeStructureImpl satisfies CloneableTypeStructure<IntersectionTypeStructureImpl>;

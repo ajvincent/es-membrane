@@ -29,7 +29,6 @@ export class ParenthesesTypeStructureImpl extends TypeStructuresWithChildren<
   constructor(childType: TypeStructures) {
     super();
     this.childTypes = [childType];
-    this.registerCallbackForTypeStructure();
   }
 }
 ParenthesesTypeStructureImpl satisfies CloneableTypeStructure<ParenthesesTypeStructureImpl>;
