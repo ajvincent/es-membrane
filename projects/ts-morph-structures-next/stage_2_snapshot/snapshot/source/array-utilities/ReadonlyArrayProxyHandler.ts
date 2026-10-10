@@ -6,6 +6,8 @@
  * This proxy handler is simply making any methods which modify an array in
  * place unreachable, and likewise prevents setting index values.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy#handler_functions}
+ *
+ * @deprecated
  */
 export default class ReadonlyArrayProxyHandler<ElementType> implements Required<
   ProxyHandler<ElementType[]>
