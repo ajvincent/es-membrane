@@ -138,13 +138,13 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  * [Symbol.iterator](): ArrayIterator<OuterType> {
+  public * [Symbol.iterator](): ArrayIterator<OuterType> {
     for (const innerValue of this.#innerElements)
       yield innerValue[GET_OUTER_TYPE]();
   }
 
   // OuterType[]
-  get [Symbol.unscopables](): {
+  public get [Symbol.unscopables](): {
     [K in keyof unknown[]]?: boolean;
   }
   {
@@ -152,18 +152,18 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  pop(): OuterType | undefined {
+  public pop(): OuterType | undefined {
     return this.#innerElements.pop()?.[GET_OUTER_TYPE]();
   }
 
   // OuterType[]
-  push(...outerItems: OuterType[]): number {
+  public push(...outerItems: OuterType[]): number {
     const innerItems = outerItems.map(this.#convertOuterTypeToInner);
     return this.#innerElements.push(...innerItems);
   }
 
   // OuterType[]
-  concat(
+  public concat(
     ...items: readonly ConcatArray<OuterType>[]
   ): OuterType[]
   {
@@ -174,28 +174,31 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  join(separator?: string): string {
+  public join(separator?: string): string {
     return this.#innerElements.map(element => element[GET_OUTER_TYPE]()).join(separator);
   }
 
   // OuterType[]
-  reverse(): OuterType[] {
+  public reverse(): OuterType[] {
     this.#innerElements.reverse();
     return this.proxy;
   }
 
   // OuterType[]
-  shift(): OuterType | undefined {
+  public shift(): OuterType | undefined {
     return this.#innerElements.shift()?.[GET_OUTER_TYPE]();
   }
 
   // OuterType[]
-  slice(start?: number, end?: number): OuterType[] {
+  public slice(start?: number, end?: number): OuterType[] {
     return this[BUILD_ARRAY_WRAPPER](...this.#innerElements.slice(start, end));
   }
 
   // OuterType[]
-  sort(compareFn?: ((a: OuterType, b: OuterType) => number) | undefined): OuterType[] {
+  public sort(
+    compareFn?: ((a: OuterType, b: OuterType) => number) | undefined
+  ): OuterType[]
+  {
     const outerElements: OuterType[] = this.#innerElements.map(element => element[GET_OUTER_TYPE]());
     const sortOrder: number[] = ShadowArrayImpl.indexRange(outerElements.length);
 
@@ -215,7 +218,7 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  splice(
+  public splice(
     start: number,
     deleteCount?: number | undefined,
     ...outerItems: OuterType[]
@@ -225,8 +228,9 @@ implements Omit<OuterType[], number | "length">
     const extractedInnerItems: InnerType[] = this.#innerElements.splice(start, deleteCount ?? 0, ...newInnerItems);
     return this[BUILD_ARRAY_WRAPPER](...extractedInnerItems);
   }
+
   // OuterType[]
-  unshift(
+  public unshift(
     ...outerItems: OuterType[]
   ): number
   {
@@ -235,7 +239,7 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  indexOf(
+  public indexOf(
     searchElement: OuterType,
     fromIndex?: number | undefined
   ): number
@@ -252,12 +256,16 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  lastIndexOf(searchElement: OuterType, fromIndex?: number): number {
+  public lastIndexOf(
+    searchElement: OuterType,
+    fromIndex?: number
+  ): number
+  {
     return this.#innerElements.findLastIndex(this.#innerFinder.bind(this, searchElement), fromIndex);
   }
 
   // OuterType[]
-  every<S extends OuterType>(
+  public every<S extends OuterType>(
     predicate: (value: OuterType, index: number, array: OuterType[]) => value is S,
     thisArg?: unknown,
   ): this is S[]
@@ -275,7 +283,7 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  some<S extends OuterType>(
+  public some<S extends OuterType>(
     predicate: (value: OuterType, index: number, array: OuterType[]) => value is S,
     thisArg?: unknown,
   ): boolean
@@ -284,7 +292,7 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  forEach(
+  public forEach(
     callbackfn: (value: OuterType, index: number, array: OuterType[]) => void,
     thisArg?: unknown,
   ): void
@@ -295,7 +303,7 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  map<U>(
+  public map<U>(
     callbackfn: (value: OuterType, index: number, array: OuterType[]) => U,
     thisArg?: unknown,
   ): U[]
@@ -307,8 +315,7 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-
-  filter<S extends OuterType>(
+  public filter<S extends OuterType>(
     predicate: (value: OuterType, index: number, array: OuterType[]) => value is S,
     thisArg?: unknown,
   ): S[]
@@ -320,7 +327,7 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  reduce(
+  public reduce(
     callbackfn: (
       previousValue: OuterType,
       currentValue: OuterType,
@@ -333,7 +340,7 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  reduceRight(
+  public reduceRight(
     callbackfn: (
       previousValue: OuterType,
       currentValue: OuterType,
@@ -365,15 +372,20 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  find<S extends OuterType>(
+  public find<S extends OuterType>(
     predicate: (value: OuterType, index: number, obj: OuterType[]) => value is S,
     thisArg?: unknown,
-  ): S | undefined {
+  ): S | undefined
+  {
     return this.#innerElements.find(this.#finder.bind(this, predicate), thisArg)?.[GET_OUTER_TYPE]() as S | undefined
   }
 
   // OuterType[]
-  findIndex(predicate: (value: OuterType, index: number, obj: OuterType[]) => unknown, thisArg?: unknown): number {
+  public findIndex(
+    predicate: (value: OuterType, index: number, obj: OuterType[]) => unknown,
+    thisArg?: unknown
+  ): number
+  {
     return this.#innerElements.findIndex(this.#finder.bind(this, predicate), thisArg);
   }
 
@@ -387,7 +399,7 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  fill(
+  public fill(
     outerValue: OuterType,
     start?: number | undefined,
     end?: number | undefined,
@@ -399,7 +411,7 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  copyWithin(
+  public copyWithin(
     target: number,
     start: number,
     end?: number | undefined,
@@ -410,29 +422,33 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  entries(): ArrayIterator<[number, OuterType]> {
-    throw new Error("not yet implemented");
+  public * entries(): ArrayIterator<[number, OuterType]> {
+    for (const [index, innerValue] of this.#innerElements.entries()) {
+      yield [index, innerValue[GET_OUTER_TYPE]()];
+    }
   }
 
   // OuterType[]
-  keys(): ArrayIterator<number> {
-    throw new Error("not yet implemented");
+  public keys(): ArrayIterator<number> {
+    return this.#innerElements.keys();
   }
 
   // OuterType[]
-  values(): ArrayIterator<OuterType> {
-    throw new Error("not yet implemented");;
+  public values(): ArrayIterator<OuterType> {
+    return this[Symbol.iterator]();
   }
 
   // OuterType[]
-  includes(searchElement: OuterType, fromIndex?: number): boolean {
-    void searchElement;
-    void fromIndex;
-    throw new Error("not yet implemented");
+  public includes(
+    searchElement: OuterType,
+    fromIndex?: number
+  ): boolean
+  {
+    return this.indexOf(searchElement, fromIndex) !== -1;
   }
 
   // OuterType[]
-  flatMap<U, This = undefined>(
+  public flatMap<U, This = undefined>(
     callback: (this: This, value: OuterType, index: number, array: OuterType[]) => U | readonly U[],
     thisArg?: This | undefined
   ): U[]
@@ -443,48 +459,72 @@ implements Omit<OuterType[], number | "length">
   }
 
   // OuterType[]
-  flat<A, D extends number = 1>(this: A, depth?: D | undefined): FlatArray<A, D>[] {
+  public flat<A, D extends number = 1>(
+    this: A,
+    depth?: D | undefined
+  ): FlatArray<A, D>[]
+  {
     void depth;
     throw new Error("not yet implemented");
   }
 
   // OuterType[]
-  findLast<S extends OuterType>(predicate: unknown, thisArg?: unknown): OuterType | S | undefined {
-    void predicate;
-    void thisArg;
-    throw new Error("not yet implemented");
+  findLast<S extends OuterType>(
+    predicate: (value: OuterType, index: number, obj: OuterType[]) => value is S,
+    thisArg?: unknown
+  ): OuterType | S | undefined
+  {
+    return this.#innerElements.findLast(
+      this.#finder.bind(this, predicate),
+      thisArg
+    )?.[GET_OUTER_TYPE]() as S | undefined
   }
 
   // OuterType[]
-  findLastIndex(predicate: (value: OuterType, index: number, array: OuterType[]) => unknown, thisArg?: unknown): number {
-    void predicate;
-    void thisArg;
-    throw new Error("not yet implemented");
+  public findLastIndex(
+    predicate: (value: OuterType, index: number, array: OuterType[]) => unknown,
+    thisArg?: unknown
+  ): number
+  {
+    return this.#innerElements.findLastIndex(
+      this.#finder.bind(this, predicate),
+      thisArg
+    );
   }
 
   // OuterType[]
-  toReversed(): OuterType[] {
-    throw new Error("not yet implemented");
+  public toReversed(): OuterType[] {
+    return this.slice().reverse();
   }
 
   // OuterType[]
-  toSorted(compareFn?: ((a: OuterType, b: OuterType) => number) | undefined): OuterType[] {
-    void compareFn;
-    throw new Error("not yet implemented");
+  public toSorted(
+    compareFn?: ((a: OuterType, b: OuterType) => number) | undefined
+  ): OuterType[]
+  {
+    return this.slice().sort(compareFn);
   }
 
   // OuterType[]
-  toSpliced(start: unknown, deleteCount?: unknown, ...items: unknown[]): OuterType[] {
-    void start;
-    void deleteCount;
-    void items;
-    throw new Error("not yet implemented");
+  public toSpliced(
+    start: number,
+    deleteCount: number,
+    ...outerItems: OuterType[]
+  ): OuterType[]
+  {
+    const newInnerItems: InnerType[] = outerItems.map(this.#convertOuterTypeToInner);
+    const allInnerItems: InnerType[] = this.#innerElements.toSpliced(start, deleteCount, ...newInnerItems);
+    return this[BUILD_ARRAY_WRAPPER](...allInnerItems);
   }
 
   // OuterType[]
-  with(index: number, value: OuterType): OuterType[] {
-    void index;
-    void value;
-    throw new Error("not yet implemented");
+  public with(
+    index: number,
+    outerValue: OuterType
+  ): OuterType[]
+  {
+    const innerValue: InnerType = this[CONVERT_OUTER_TO_INNER](outerValue);
+    const innerArray: InnerType[] = this.#innerElements.with(index, innerValue);
+    return this[BUILD_ARRAY_WRAPPER](...innerArray);
   }
 }

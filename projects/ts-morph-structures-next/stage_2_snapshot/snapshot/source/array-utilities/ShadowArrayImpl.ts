@@ -130,31 +130,31 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  *[Symbol.iterator](): ArrayIterator<OuterType> {
+  public *[Symbol.iterator](): ArrayIterator<OuterType> {
     for (const innerValue of this.#innerElements)
       yield innerValue[GET_OUTER_TYPE]();
   }
 
   // OuterType[]
-  get [Symbol.unscopables](): {
+  public get [Symbol.unscopables](): {
     [K in keyof unknown[]]?: boolean;
   } {
     throw new Error("not yet implemented");
   }
 
   // OuterType[]
-  pop(): OuterType | undefined {
+  public pop(): OuterType | undefined {
     return this.#innerElements.pop()?.[GET_OUTER_TYPE]();
   }
 
   // OuterType[]
-  push(...outerItems: OuterType[]): number {
+  public push(...outerItems: OuterType[]): number {
     const innerItems = outerItems.map(this.#convertOuterTypeToInner);
     return this.#innerElements.push(...innerItems);
   }
 
   // OuterType[]
-  concat(...items: readonly ConcatArray<OuterType>[]): OuterType[] {
+  public concat(...items: readonly ConcatArray<OuterType>[]): OuterType[] {
     const newOuterItems: OuterType[] = items.flatMap((item) => item.slice());
     return this[BUILD_ARRAY_WRAPPER](
       ...this.#innerElements,
@@ -163,30 +163,30 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  join(separator?: string): string {
+  public join(separator?: string): string {
     return this.#innerElements
       .map((element) => element[GET_OUTER_TYPE]())
       .join(separator);
   }
 
   // OuterType[]
-  reverse(): OuterType[] {
+  public reverse(): OuterType[] {
     this.#innerElements.reverse();
     return this.proxy;
   }
 
   // OuterType[]
-  shift(): OuterType | undefined {
+  public shift(): OuterType | undefined {
     return this.#innerElements.shift()?.[GET_OUTER_TYPE]();
   }
 
   // OuterType[]
-  slice(start?: number, end?: number): OuterType[] {
+  public slice(start?: number, end?: number): OuterType[] {
     return this[BUILD_ARRAY_WRAPPER](...this.#innerElements.slice(start, end));
   }
 
   // OuterType[]
-  sort(
+  public sort(
     compareFn?: ((a: OuterType, b: OuterType) => number) | undefined,
   ): OuterType[] {
     const outerElements: OuterType[] = this.#innerElements.map((element) =>
@@ -214,7 +214,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  splice(
+  public splice(
     start: number,
     deleteCount?: number | undefined,
     ...outerItems: OuterType[]
@@ -229,14 +229,18 @@ export abstract class ShadowArrayImpl<
     );
     return this[BUILD_ARRAY_WRAPPER](...extractedInnerItems);
   }
+
   // OuterType[]
-  unshift(...outerItems: OuterType[]): number {
+  public unshift(...outerItems: OuterType[]): number {
     const innerItems = outerItems.map(this.#convertOuterTypeToInner);
     return this.#innerElements.unshift(...innerItems);
   }
 
   // OuterType[]
-  indexOf(searchElement: OuterType, fromIndex?: number | undefined): number {
+  public indexOf(
+    searchElement: OuterType,
+    fromIndex?: number | undefined,
+  ): number {
     return this.#innerElements.findIndex(
       this.#innerFinder.bind(this, searchElement),
       fromIndex,
@@ -248,7 +252,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  lastIndexOf(searchElement: OuterType, fromIndex?: number): number {
+  public lastIndexOf(searchElement: OuterType, fromIndex?: number): number {
     return this.#innerElements.findLastIndex(
       this.#innerFinder.bind(this, searchElement),
       fromIndex,
@@ -256,7 +260,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  every<S extends OuterType>(
+  public every<S extends OuterType>(
     predicate: (
       value: OuterType,
       index: number,
@@ -283,7 +287,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  some<S extends OuterType>(
+  public some<S extends OuterType>(
     predicate: (
       value: OuterType,
       index: number,
@@ -298,7 +302,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  forEach(
+  public forEach(
     callbackfn: (value: OuterType, index: number, array: OuterType[]) => void,
     thisArg?: unknown,
   ): void {
@@ -310,7 +314,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  map<U>(
+  public map<U>(
     callbackfn: (value: OuterType, index: number, array: OuterType[]) => U,
     thisArg?: unknown,
   ): U[] {
@@ -322,8 +326,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-
-  filter<S extends OuterType>(
+  public filter<S extends OuterType>(
     predicate: (
       value: OuterType,
       index: number,
@@ -340,7 +343,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  reduce(
+  public reduce(
     callbackfn: (
       previousValue: OuterType,
       currentValue: OuterType,
@@ -354,7 +357,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  reduceRight(
+  public reduceRight(
     callbackfn: (
       previousValue: OuterType,
       currentValue: OuterType,
@@ -391,7 +394,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  find<S extends OuterType>(
+  public find<S extends OuterType>(
     predicate: (
       value: OuterType,
       index: number,
@@ -405,7 +408,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  findIndex(
+  public findIndex(
     predicate: (value: OuterType, index: number, obj: OuterType[]) => unknown,
     thisArg?: unknown,
   ): number {
@@ -424,7 +427,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  fill(
+  public fill(
     outerValue: OuterType,
     start?: number | undefined,
     end?: number | undefined,
@@ -435,7 +438,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  copyWithin(
+  public copyWithin(
     target: number,
     start: number,
     end?: number | undefined,
@@ -445,29 +448,29 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  entries(): ArrayIterator<[number, OuterType]> {
-    throw new Error("not yet implemented");
+  public *entries(): ArrayIterator<[number, OuterType]> {
+    for (const [index, innerValue] of this.#innerElements.entries()) {
+      yield [index, innerValue[GET_OUTER_TYPE]()];
+    }
   }
 
   // OuterType[]
-  keys(): ArrayIterator<number> {
-    throw new Error("not yet implemented");
+  public keys(): ArrayIterator<number> {
+    return this.#innerElements.keys();
   }
 
   // OuterType[]
-  values(): ArrayIterator<OuterType> {
-    throw new Error("not yet implemented");
+  public values(): ArrayIterator<OuterType> {
+    return this[Symbol.iterator]();
   }
 
   // OuterType[]
-  includes(searchElement: OuterType, fromIndex?: number): boolean {
-    void searchElement;
-    void fromIndex;
-    throw new Error("not yet implemented");
+  public includes(searchElement: OuterType, fromIndex?: number): boolean {
+    return this.indexOf(searchElement, fromIndex) !== -1;
   }
 
   // OuterType[]
-  flatMap<U, This = undefined>(
+  public flatMap<U, This = undefined>(
     callback: (
       this: This,
       value: OuterType,
@@ -482,7 +485,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  flat<A, D extends number = 1>(
+  public flat<A, D extends number = 1>(
     this: A,
     depth?: D | undefined,
   ): FlatArray<A, D>[] {
@@ -492,53 +495,62 @@ export abstract class ShadowArrayImpl<
 
   // OuterType[]
   findLast<S extends OuterType>(
-    predicate: unknown,
+    predicate: (
+      value: OuterType,
+      index: number,
+      obj: OuterType[],
+    ) => value is S,
     thisArg?: unknown,
   ): OuterType | S | undefined {
-    void predicate;
-    void thisArg;
-    throw new Error("not yet implemented");
+    return this.#innerElements
+      .findLast(this.#finder.bind(this, predicate), thisArg)
+      ?.[GET_OUTER_TYPE]() as S | undefined;
   }
 
   // OuterType[]
-  findLastIndex(
+  public findLastIndex(
     predicate: (value: OuterType, index: number, array: OuterType[]) => unknown,
     thisArg?: unknown,
   ): number {
-    void predicate;
-    void thisArg;
-    throw new Error("not yet implemented");
+    return this.#innerElements.findLastIndex(
+      this.#finder.bind(this, predicate),
+      thisArg,
+    );
   }
 
   // OuterType[]
-  toReversed(): OuterType[] {
-    throw new Error("not yet implemented");
+  public toReversed(): OuterType[] {
+    return this.slice().reverse();
   }
 
   // OuterType[]
-  toSorted(
+  public toSorted(
     compareFn?: ((a: OuterType, b: OuterType) => number) | undefined,
   ): OuterType[] {
-    void compareFn;
-    throw new Error("not yet implemented");
+    return this.slice().sort(compareFn);
   }
 
   // OuterType[]
-  toSpliced(
-    start: unknown,
-    deleteCount?: unknown,
-    ...items: unknown[]
+  public toSpliced(
+    start: number,
+    deleteCount: number,
+    ...outerItems: OuterType[]
   ): OuterType[] {
-    void start;
-    void deleteCount;
-    void items;
-    throw new Error("not yet implemented");
+    const newInnerItems: InnerType[] = outerItems.map(
+      this.#convertOuterTypeToInner,
+    );
+    const allInnerItems: InnerType[] = this.#innerElements.toSpliced(
+      start,
+      deleteCount,
+      ...newInnerItems,
+    );
+    return this[BUILD_ARRAY_WRAPPER](...allInnerItems);
   }
 
   // OuterType[]
-  with(index: number, value: OuterType): OuterType[] {
-    void index;
-    void value;
-    throw new Error("not yet implemented");
+  public with(index: number, outerValue: OuterType): OuterType[] {
+    const innerValue: InnerType = this[CONVERT_OUTER_TO_INNER](outerValue);
+    const innerArray: InnerType[] = this.#innerElements.with(index, innerValue);
+    return this[BUILD_ARRAY_WRAPPER](...innerArray);
   }
 }

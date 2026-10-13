@@ -339,21 +339,21 @@ describe("ShadowArray", () => {
       expect(Array.from(proxy)).toEqual(["green", "yellow", "red", "blue"]);
     });
 
-    it("indexOf() works", () => {
+    it(".indexOf() works", () => {
       proxy.push("red");
       expect(proxy.indexOf("red")).toBe(0);
       expect(proxy.indexOf("blue")).toBe(1);
       expect(proxy.indexOf("green")).toBe(-1);
     });
 
-    it("lastIndexOf() works", () => {
+    it(".lastIndexOf() works", () => {
       proxy.push("red");
       expect(proxy.lastIndexOf("red")).toBe(2);
       expect(proxy.lastIndexOf("blue")).toBe(1);
       expect(proxy.lastIndexOf("green")).toBe(-1);
     });
 
-    it("every() works", () => {
+    it(".every() works", () => {
       proxy.push("green", "yellow");
       expect(proxy.every(v => v.includes("e"))).toBeTrue();
 
@@ -361,14 +361,14 @@ describe("ShadowArray", () => {
       expect(proxy.every(v => v.includes("e"))).toBeFalse();
     });
 
-    it("some() works", () => {
+    it(".some() works", () => {
       expect(proxy.some(v => v.includes("k"))).toBeFalse();
 
       proxy.push("pink");
       expect(proxy.some(v => v.includes("k"))).toBeTrue();
     });
 
-    it("forEach() works", () => {
+    it(".forEach() works", () => {
       const items: [string, number][] = [];
 
       proxy.push("pink");
@@ -379,12 +379,12 @@ describe("ShadowArray", () => {
       expect(items).toEqual([["red", 0], ["blue", 1], ["pink", 2]]);
     });
 
-    it("map() works", () => {
+    it(".map() works", () => {
       const newColors = proxy.map(c => new Color(c));
       expect(newColors).toEqual([new Color("red"), new Color("blue")]);
     });
 
-    it("filter() works", () => {
+    it(".filter() works", () => {
       proxy.splice(1, 0, "pink");
       const filtered = proxy.filter((value => value.includes("e")));
       expect(Array.from(filtered)).toEqual(["red", "blue"]);
@@ -433,7 +433,7 @@ describe("ShadowArray", () => {
       )).toBe(-1);
     });
 
-    it("fill works", () => {
+    it(".fill works", () => {
       proxy.push("green", "yellow");
 
       const ref = proxy.fill("white", 1, 3);
@@ -441,7 +441,7 @@ describe("ShadowArray", () => {
       expect(Array.from(proxy)).toEqual(["red", "white", "white", "yellow"]);
     });
 
-    it("copyWithin works", () => {
+    it(".copyWithin works", () => {
       proxy.push("green", "purple", "yellow", "white", "orange", "black");
 
       const ref = proxy.copyWithin(1, 3, 5);
@@ -449,6 +449,107 @@ describe("ShadowArray", () => {
       expect(Array.from(proxy)).toEqual([
         "red", "purple", "yellow", "purple", "yellow", "white", "orange", "black"
       ]);
+    });
+
+    it(".entries() works", () => {
+      const iter: ArrayIterator<[number, string]> = proxy.entries();
+      expect(iter.next()).toEqual({value: [0, "red"], done: false});
+      expect(iter.next()).toEqual({value: [1, "blue"], done: false});
+      expect(iter.next()).toEqual({value: undefined, done: true});
+    });
+
+    it(".keys() works", () => {
+      proxy.push("green", "purple", "yellow", "white", "orange", "black");
+      expect(Array.from(proxy.keys())).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+    });
+
+    it(".values() works", () => {
+      proxy.push("green", "purple", "yellow", "white", "orange", "black");
+      expect(Array.from(proxy.values())).toEqual(
+        ["red", "blue", "green", "purple", "yellow", "white", "orange", "black"]
+      );
+    });
+
+    it(".includes() works", () => {
+      proxy.push("green");
+      expect(proxy.includes("red")).toBeTrue();
+      expect(proxy.includes("blue")).toBeTrue();
+      expect(proxy.includes("green")).toBeTrue();
+      expect(proxy.includes("yellow")).toBeFalse();
+    });
+
+    xit(".flatMap() works", () => {
+
+    });
+
+    xit(".flat() works", () => {
+
+    });
+
+    it(".findLast() works", () => {
+      proxy.push("white");
+
+      expect(proxy.findLast(
+        (value) => value.endsWith("e")
+      )).toBe("white");
+
+      expect(proxy.findLast(
+        value => value.endsWith("x")
+      )).toBeUndefined();
+    });
+
+    it(".findLastIndex() works", () => {
+      proxy.push("white");
+
+      expect(proxy.findLastIndex(
+        (value) => value.endsWith("e")
+      )).toBe(2);
+
+      expect(proxy.findLastIndex(
+        (value) => value.endsWith("x")
+      )).toBe(-1);
+    });
+
+    it(".toReversed() works", () => {
+      proxy.push("white", "yellow");
+      const ref = proxy.toReversed();
+      expect(Array.from(ref)).toEqual(["yellow", "white", "blue", "red"]);
+      expect(Array.from(proxy)).toEqual(["red", "blue", "white", "yellow"]);
+    });
+
+    it(".toSorted() works", () => {
+      innerElements.push(new Color("green"), new Color("yellow"));
+      let ref = proxy.toSorted((a: string, b: string): number => {
+        if (a === "yellow")
+          return -1;
+        if (b === "yellow")
+          return +1;
+        return a.localeCompare(b);
+      });
+      expect(Array.from(ref)).toEqual(["yellow", "blue", "green", "red"]);
+      expect(Array.from(proxy)).toEqual(["red", "blue", "green", "yellow"]);
+
+      innerElements.reverse();
+      ref = proxy.toSorted();
+      expect(Array.from(ref)).toEqual(["blue", "green", "red", "yellow"]);
+
+      // we reversed the original array
+      expect(Array.from(proxy)).toEqual(["yellow", "green", "blue", "red"]);
+    });
+
+    it(".toSpliced() works", () => {
+      innerElements.push(new Color("green"), new Color("yellow"));
+      const newProxy = proxy.toSpliced(1, 2, "white", "purple");
+
+      expect(Array.from(newProxy)).toEqual(["red", "white", "purple", "yellow"]);
+      expect(Array.from(proxy)).toEqual(["red", "blue", "green", "yellow"]);
+    });
+
+    it(".with() works", () => {
+      proxy.push("green", "yellow", "white");
+      const newProxy: string[] = proxy.with(1, "purple");
+      expect(Array.from(newProxy)).toEqual(["red", "purple", "green", "yellow", "white"]);
+      expect(Array.from(proxy)).toEqual(["red", "blue", "green", "yellow", "white"]);
     });
   });
 });
