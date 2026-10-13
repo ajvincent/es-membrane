@@ -33,12 +33,12 @@ export abstract class ShadowArrayImpl<
    * @param innerElements {InnerTypeElement<OuterType>[]} the elements implementing the native type
    *
    * @returns {OuterType[]} the proxy defining the wrapped type array.
+   *
+   * @remarks `return new ShadowArrayImplSubclass(innerElements).proxy;`
    */
   public static createProxy(
     innerElements: InnerTypeElement<unknown>[],
   ): unknown[] {
-    // return new ShadowArrayImpl(innerElements).proxy;
-
     void innerElements;
     throw new Error("override this method");
   }
@@ -94,12 +94,15 @@ export abstract class ShadowArrayImpl<
     ArrayPrototypeProxyHandler.assignProxyToArrayImpl(this.proxy, this);
   }
 
-  /** abstract to preserve subclass types */
+  /**
+   * abstract to preserve subclass types
+   *
+   * `return new ShadowArrayImplSubclass(innerElements).proxy`
+   */
   protected abstract [BUILD_ARRAY_WRAPPER](
-    innerElements: InnerType[],
-  ): ShadowArrayImpl<OuterType, InnerType>;
+    ...innerElements: InnerType[]
+  ): OuterType[];
 
-  /** attempt no caching: InnerType provides the OuterType. */
   protected abstract [CONVERT_OUTER_TO_INNER](outerType: OuterType): InnerType;
 
   /** proxy access to get length() */
@@ -127,8 +130,9 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  [Symbol.iterator](): ArrayIterator<OuterType> {
-    throw new Error("not yet implemented");
+  *[Symbol.iterator](): ArrayIterator<OuterType> {
+    for (const innerValue of this.#innerElements)
+      yield innerValue[GET_OUTER_TYPE]();
   }
 
   // OuterType[]
@@ -140,102 +144,157 @@ export abstract class ShadowArrayImpl<
 
   // OuterType[]
   pop(): OuterType | undefined {
-    throw new Error("not yet implemented");
+    return this.#innerElements.pop()?.[GET_OUTER_TYPE]();
   }
 
   // OuterType[]
-  push(...items: OuterType[]): number {
-    void items;
-    throw new Error("not yet implemented");
+  push(...outerItems: OuterType[]): number {
+    const innerItems = outerItems.map(this.#convertOuterTypeToInner);
+    return this.#innerElements.push(...innerItems);
   }
 
   // OuterType[]
-  concat(...items: unknown[]): OuterType[] {
-    void items;
-    throw new Error("not yet implemented");
+  concat(...items: readonly ConcatArray<OuterType>[]): OuterType[] {
+    const newOuterItems: OuterType[] = items.flatMap((item) => item.slice());
+    return this[BUILD_ARRAY_WRAPPER](
+      ...this.#innerElements,
+      ...newOuterItems.map(this.#convertOuterTypeToInner),
+    );
   }
 
   // OuterType[]
   join(separator?: string): string {
-    void separator;
-    throw new Error("not yet implemented");
+    return this.#innerElements
+      .map((element) => element[GET_OUTER_TYPE]())
+      .join(separator);
   }
 
   // OuterType[]
   reverse(): OuterType[] {
-    throw new Error("not yet implemented");
+    this.#innerElements.reverse();
+    return this.proxy;
   }
 
   // OuterType[]
   shift(): OuterType | undefined {
-    throw new Error("not yet implemented");
+    return this.#innerElements.shift()?.[GET_OUTER_TYPE]();
   }
 
   // OuterType[]
   slice(start?: number, end?: number): OuterType[] {
-    void start;
-    void end;
-    throw new Error("not yet implemented");
+    return this[BUILD_ARRAY_WRAPPER](...this.#innerElements.slice(start, end));
   }
 
   // OuterType[]
   sort(
     compareFn?: ((a: OuterType, b: OuterType) => number) | undefined,
   ): OuterType[] {
-    void compareFn;
-    throw new Error("not yet implemented");
+    const outerElements: OuterType[] = this.#innerElements.map((element) =>
+      element[GET_OUTER_TYPE](),
+    );
+    const sortOrder: number[] = ShadowArrayImpl.indexRange(
+      outerElements.length,
+    );
+
+    if (compareFn) {
+      sortOrder.sort((a, b) => compareFn(outerElements[a], outerElements[b]));
+    } else {
+      const stringifiedOuter: readonly string[] = outerElements.map(String);
+      sortOrder.sort((a, b) =>
+        stringifiedOuter[a].localeCompare(stringifiedOuter[b]),
+      );
+    }
+
+    const innerSlice: InnerType[] = this.#innerElements.slice();
+    for (let i = 0; i < this.#innerElements.length; i++) {
+      this.#innerElements[i] = innerSlice[sortOrder[i]];
+    }
+
+    return this.proxy;
   }
 
   // OuterType[]
   splice(
-    start: unknown,
-    deleteCount?: unknown,
-    ...rest: unknown[]
+    start: number,
+    deleteCount?: number | undefined,
+    ...outerItems: OuterType[]
   ): OuterType[] {
-    void start;
-    void deleteCount;
-    void rest;
-    throw new Error("not yet implemented");
+    const newInnerItems: InnerType[] = outerItems.map(
+      this.#convertOuterTypeToInner,
+    );
+    const extractedInnerItems: InnerType[] = this.#innerElements.splice(
+      start,
+      deleteCount ?? 0,
+      ...newInnerItems,
+    );
+    return this[BUILD_ARRAY_WRAPPER](...extractedInnerItems);
+  }
+  // OuterType[]
+  unshift(...outerItems: OuterType[]): number {
+    const innerItems = outerItems.map(this.#convertOuterTypeToInner);
+    return this.#innerElements.unshift(...innerItems);
   }
 
   // OuterType[]
-  unshift(...items: OuterType[]): number {
-    void items;
-    throw new Error("not yet implemented");
+  indexOf(searchElement: OuterType, fromIndex?: number | undefined): number {
+    return this.#innerElements.findIndex(
+      this.#innerFinder.bind(this, searchElement),
+      fromIndex,
+    );
   }
 
-  // OuterType[]
-  indexOf(searchElement: OuterType, fromIndex?: number): number {
-    void searchElement;
-    void fromIndex;
-    throw new Error("not yet implemented");
+  #innerFinder(searchElement: OuterType, inner: InnerType): boolean {
+    return inner[GET_OUTER_TYPE]() === searchElement;
   }
 
   // OuterType[]
   lastIndexOf(searchElement: OuterType, fromIndex?: number): number {
-    void searchElement;
-    void fromIndex;
-    throw new Error("not yet implemented");
+    return this.#innerElements.findLastIndex(
+      this.#innerFinder.bind(this, searchElement),
+      fromIndex,
+    );
   }
 
   // OuterType[]
   every<S extends OuterType>(
-    predicate: unknown,
+    predicate: (
+      value: OuterType,
+      index: number,
+      array: OuterType[],
+    ) => value is S,
     thisArg?: unknown,
   ): this is S[] {
-    void predicate;
-    void thisArg;
-    throw new Error("not yet implemented");
+    return this.#innerElements.every(
+      this.#innerPredicate.bind(this, predicate),
+      thisArg,
+    );
+  }
+
+  #innerPredicate<S extends OuterType>(
+    predicate: (
+      value: OuterType,
+      index: number,
+      array: OuterType[],
+    ) => value is S,
+    innerElement: InnerType,
+    index: number,
+  ): boolean {
+    return predicate(innerElement[GET_OUTER_TYPE](), index, this.proxy);
   }
 
   // OuterType[]
-  some(
-    predicate: (value: OuterType, index: number, array: OuterType[]) => unknown,
+  some<S extends OuterType>(
+    predicate: (
+      value: OuterType,
+      index: number,
+      array: OuterType[],
+    ) => value is S,
     thisArg?: unknown,
   ): boolean {
-    void predicate;
-    void thisArg;
-    throw new Error("not yet implemented");
+    return this.#innerElements.some(
+      this.#innerPredicate.bind(this, predicate),
+      thisArg,
+    );
   }
 
   // OuterType[]
@@ -243,9 +302,11 @@ export abstract class ShadowArrayImpl<
     callbackfn: (value: OuterType, index: number, array: OuterType[]) => void,
     thisArg?: unknown,
   ): void {
-    void callbackfn;
-    void thisArg;
-    throw new Error("not yet implemented");
+    this.#innerElements.forEach(
+      (innerValue: InnerType, index: number) =>
+        callbackfn(innerValue[GET_OUTER_TYPE](), index, this.proxy),
+      thisArg,
+    );
   }
 
   // OuterType[]
@@ -253,40 +314,94 @@ export abstract class ShadowArrayImpl<
     callbackfn: (value: OuterType, index: number, array: OuterType[]) => U,
     thisArg?: unknown,
   ): U[] {
-    void callbackfn;
-    void thisArg;
-    throw new Error("not yet implemented");
+    return this.#innerElements.map<U>(
+      (innerValue, index) =>
+        callbackfn(innerValue[GET_OUTER_TYPE](), index, this.proxy),
+      thisArg,
+    );
   }
 
   // OuterType[]
-  filter<S extends OuterType>(predicate: unknown, thisArg?: unknown): S[] {
-    void predicate;
-    void thisArg;
-    throw new Error("not yet implemented");
+
+  filter<S extends OuterType>(
+    predicate: (
+      value: OuterType,
+      index: number,
+      array: OuterType[],
+    ) => value is S,
+    thisArg?: unknown,
+  ): S[] {
+    const newElements: InnerType[] = this.#innerElements.filter(
+      (innerValue: InnerType, index: number) =>
+        predicate(innerValue[GET_OUTER_TYPE](), index, this.proxy),
+      thisArg,
+    );
+    return this[BUILD_ARRAY_WRAPPER](...newElements) as S[];
   }
 
   // OuterType[]
-  reduce(callbackfn: unknown, initialValue?: unknown): OuterType {
-    void callbackfn;
-    void initialValue;
-    throw new Error("not yet implemented");
+  reduce(
+    callbackfn: (
+      previousValue: OuterType,
+      currentValue: OuterType,
+      currentIndex: number,
+      array: OuterType[],
+    ) => OuterType,
+  ): OuterType {
+    return this.#innerElements
+      .reduce(this.#reducer.bind(this, callbackfn))
+      [GET_OUTER_TYPE]();
   }
 
   // OuterType[]
-  reduceRight(callbackfn: unknown, initialValue?: unknown): OuterType {
-    void callbackfn;
-    void initialValue;
-    throw new Error("not yet implemented");
+  reduceRight(
+    callbackfn: (
+      previousValue: OuterType,
+      currentValue: OuterType,
+      currentIndex: number,
+      array: OuterType[],
+    ) => OuterType,
+  ): OuterType {
+    return this.#innerElements
+      .reduceRight(this.#reducer.bind(this, callbackfn))
+      [GET_OUTER_TYPE]();
+  }
+
+  #reducer(
+    callbackfn: (
+      previousValue: OuterType,
+      currentValue: OuterType,
+      currentIndex: number,
+      array: OuterType[],
+    ) => OuterType,
+    previousInner: InnerType,
+    currentInner: InnerType,
+    currentIndex: number,
+  ): InnerType {
+    const previousOuter: OuterType = previousInner[GET_OUTER_TYPE]();
+    const currentOuter: OuterType = currentInner[GET_OUTER_TYPE]();
+
+    const newOuterType: OuterType = callbackfn(
+      previousOuter,
+      currentOuter,
+      currentIndex,
+      this.proxy,
+    );
+    return this[CONVERT_OUTER_TO_INNER](newOuterType);
   }
 
   // OuterType[]
   find<S extends OuterType>(
-    predicate: unknown,
+    predicate: (
+      value: OuterType,
+      index: number,
+      obj: OuterType[],
+    ) => value is S,
     thisArg?: unknown,
   ): S | undefined {
-    void predicate;
-    void thisArg;
-    throw new Error("not yet implemented");
+    return this.#innerElements
+      .find(this.#finder.bind(this, predicate), thisArg)
+      ?.[GET_OUTER_TYPE]() as S | undefined;
   }
 
   // OuterType[]
@@ -294,25 +409,39 @@ export abstract class ShadowArrayImpl<
     predicate: (value: OuterType, index: number, obj: OuterType[]) => unknown,
     thisArg?: unknown,
   ): number {
-    void predicate;
-    void thisArg;
-    throw new Error("not yet implemented");
+    return this.#innerElements.findIndex(
+      this.#finder.bind(this, predicate),
+      thisArg,
+    );
+  }
+
+  #finder<RT>(
+    outerPredicate: (value: OuterType, index: number, obj: OuterType[]) => RT,
+    innerValue: InnerType,
+    index: number,
+  ): RT {
+    return outerPredicate(innerValue[GET_OUTER_TYPE](), index, this.proxy);
   }
 
   // OuterType[]
-  fill(value: OuterType, start?: number, end?: number): OuterType[] {
-    void value;
-    void start;
-    void end;
-    throw new Error("not yet implemented");
+  fill(
+    outerValue: OuterType,
+    start?: number | undefined,
+    end?: number | undefined,
+  ): OuterType[] {
+    const innerValue: InnerType = this.#convertOuterTypeToInner(outerValue);
+    this.#innerElements.fill(innerValue, start, end);
+    return this.proxy;
   }
 
   // OuterType[]
-  copyWithin(target: number, start: number, end?: number): OuterType[] {
-    void target;
-    void start;
-    void end;
-    throw new Error("not yet implemented");
+  copyWithin(
+    target: number,
+    start: number,
+    end?: number | undefined,
+  ): OuterType[] {
+    this.#innerElements.copyWithin(target, start, end);
+    return this.proxy;
   }
 
   // OuterType[]
