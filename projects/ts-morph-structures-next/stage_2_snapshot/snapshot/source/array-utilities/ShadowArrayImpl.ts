@@ -12,6 +12,13 @@ import type { WritableArrayLike } from "./_types/WritableArrayLike.js";
 
 import { ArrayElementsProxyHandler } from "./ArrayElementsProxyHandler.js";
 
+export {
+  type InnerTypeElement,
+  BUILD_ARRAY_WRAPPER,
+  CONVERT_OUTER_TO_INNER,
+  GET_OUTER_TYPE,
+};
+
 /**
  * This is a helper for implementing methods of an array, so the proxy can report the correct results.
  *

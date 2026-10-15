@@ -1,14 +1,8 @@
-import type {
-  InnerTypeElement
-} from "#stage_two/snapshot/source/array-utilities/_types/InnerTypeElements.js";
-
 import {
+  type InnerTypeElement,
   BUILD_ARRAY_WRAPPER,
   CONVERT_OUTER_TO_INNER,
   GET_OUTER_TYPE,
-} from "#stage_two/snapshot/source/array-utilities/symbols.js";
-
-import {
   ShadowArrayImpl
 } from "#stage_two/snapshot/source/array-utilities/ShadowArrayImpl.js";
 
@@ -242,6 +236,11 @@ describe("ShadowArray", () => {
   });
 
   describe("prototype", () => {
+    it("passes instanceof Array check", () => {
+      // ts-morph's printStructure() code depends on instanceof Array
+      expect(proxy instanceof Array).toBeTrue();
+    });
+
     it("[Symbol.iterator]() works", () => {
       const iter = proxy[Symbol.iterator]();
       expect(iter.next()).toEqual({ value: "red", done: false});

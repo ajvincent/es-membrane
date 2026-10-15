@@ -24,10 +24,7 @@ export class ArrayPrototypeProxyHandler<OuterType> implements Pick<
   >();
 
   /** The prototype to use for shadow targets. */
-  public static readonly proto = {} as Record<
-    keyof Omit<Array<unknown>[], number | "length">,
-    CallableFunction
-  >;
+  public static readonly proto: ReadonlyArray<unknown> = [];
 
   static {
     const handler = new ArrayPrototypeProxyHandler();
