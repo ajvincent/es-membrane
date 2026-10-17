@@ -1,10 +1,10 @@
 import type {
   WritableArrayLike
-} from "./_types/WritableArrayLike.js";
+} from "./types/WritableArrayLike.js";
 
 import type {
   InnerTypeElement
-} from "./_types/InnerTypeElements.js";
+} from "./types/InnerTypeElements.js";
 
 import {
   ShadowArrayImpl

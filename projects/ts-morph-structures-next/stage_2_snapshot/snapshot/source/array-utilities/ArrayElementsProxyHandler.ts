@@ -1,6 +1,6 @@
-import type { WritableArrayLike } from "./_types/WritableArrayLike.js";
+import type { WritableArrayLike } from "./types/WritableArrayLike.js";
 
-import type { InnerTypeElement } from "./_types/InnerTypeElements.js";
+import type { InnerTypeElement } from "./types/InnerTypeElements.js";
 
 import { ShadowArrayImpl } from "./ShadowArrayImpl.js";
 

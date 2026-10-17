@@ -1,5 +1,3 @@
-import type { InnerTypeElement } from "./_types/InnerTypeElements.js";
-
 import {
   BUILD_ARRAY_WRAPPER,
   CONVERT_OUTER_TO_INNER,
@@ -8,7 +6,9 @@ import {
 
 import { ArrayPrototypeProxyHandler } from "./ArrayPrototypeProxyHandler.js";
 
-import type { WritableArrayLike } from "./_types/WritableArrayLike.js";
+import type { InnerTypeElement } from "./types/InnerTypeElements.js";
+
+import type { WritableArrayLike } from "./types/WritableArrayLike.js";
 
 import { ArrayElementsProxyHandler } from "./ArrayElementsProxyHandler.js";
 
