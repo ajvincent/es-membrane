@@ -125,6 +125,9 @@ declare abstract class WriterStructuresBase {
   ): void;
 }
 
+declare const GET_OUTER_TYPE: unique symbol;
+type stringOrWriterFunction = string | WriterFunction;
+
 declare abstract class TypeStructuresBase<Kind extends TypeStructureKind>
   extends WriterStructuresBase
   implements KindedTypeStructure<Kind>
@@ -134,6 +137,7 @@ declare abstract class TypeStructuresBase<Kind extends TypeStructureKind>
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
   >;
+  [GET_OUTER_TYPE](): stringOrWriterFunction;
 }
 
 declare class TypePrinterSettings {
@@ -1569,7 +1573,6 @@ type ReadonlyTypeMembersMap = Simplify<
   ReadonlyMap<string, TypeMemberImpl> &
     Pick<TypeMembersMap, "arrayOfKind" | "clone" | "getAsKind">
 >;
-type stringOrWriterFunction = string | WriterFunction;
 type ClassMemberStructureImpls =
   | ClassStaticBlockDeclarationImpl
   | ConstructorDeclarationImpl
@@ -3331,6 +3334,7 @@ declare class LiteralTypeStructureImpl extends TypeStructuresBase<TypeStructureK
   static clone(other: LiteralTypeStructureImpl): LiteralTypeStructureImpl;
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
+  [GET_OUTER_TYPE](): string;
 }
 
 /**

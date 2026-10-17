@@ -946,9 +946,87 @@ class WriterStructuresBase {
     }
 }
 
+const GET_OUTER_TYPE = Symbol("get outer type");
+
+/**
+ * This is a minimalist ProxyHandler for methods of Array.prototype.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy#handler_functions}
+ *
+ * @internal
+ */
+class ArrayPrototypeProxyHandler {
+    static #shadowToMethodName = new WeakMap();
+    static #proxyToArrayImpl = new WeakMap();
+    /** The prototype to use for shadow targets. */
+    static proto = [];
+    static {
+        const handler = new ArrayPrototypeProxyHandler();
+        for (const key of Reflect.ownKeys(Array.prototype)) {
+            if (key === "length")
+                continue;
+            const shadow = function () {
+                // do nothing
+            };
+            const proxy = new Proxy(shadow, handler);
+            const desc = {
+                configurable: false,
+                enumerable: true,
+                writable: false,
+                value: proxy,
+            };
+            Reflect.defineProperty(this.proto, key, desc);
+            this.#shadowToMethodName.set(shadow, key);
+        }
+        // length get/set support
+        {
+            const shadowGetter = function () {
+                // do nothing
+            };
+            const proxyGetter = new Proxy(shadowGetter, handler);
+            this.#shadowToMethodName.set(shadowGetter, "getLength");
+            const shadowSetter = function () {
+                // do nothing
+            };
+            const proxySetter = new Proxy(shadowSetter, handler);
+            this.#shadowToMethodName.set(shadowSetter, "setLength");
+            const desc = {
+                configurable: false,
+                enumerable: false,
+                get: proxyGetter,
+                set: proxySetter,
+            };
+            Reflect.defineProperty(this.proto, "length", desc);
+        }
+    }
+    /**
+     * Tie a proxy to its shadow array implementation.
+     * @param proxyThis The proxy.
+     * @param arrayImpl The shadow array.
+     *
+     * @internal
+     */
+    static assignProxyToArrayImpl(proxyThis, arrayImpl) {
+        this.#proxyToArrayImpl.set(proxyThis, arrayImpl);
+    }
+    constructor() {
+        // do nothing
+    }
+    // ProxyHandler
+    apply(shadowTarget, thisArg, // a proxy
+    argArray) {
+        const methodName = ArrayPrototypeProxyHandler.#shadowToMethodName.get(shadowTarget);
+        const arrayImpl = ArrayPrototypeProxyHandler.#proxyToArrayImpl.get(thisArg);
+        // @ts-expect-error methodName is not a number, damn it
+        return arrayImpl[methodName](...argArray);
+    }
+}
+
 class TypeStructuresBase extends WriterStructuresBase {
     /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() { }
+    [GET_OUTER_TYPE]() {
+        return this.writerFunction;
+    }
 }
 
 class TypePrinterSettings {
@@ -4614,6 +4692,9 @@ class LiteralTypeStructureImpl extends TypeStructuresBase {
     /** @internal */
     [WRITER_FUNCTION_KEY](writer) {
         writer.write(this.stringValue);
+    }
+    [GET_OUTER_TYPE]() {
+        return this.stringValue;
     }
 }
 TypeStructureClassesMap.set(TypeStructureKind.Literal, LiteralTypeStructureImpl);

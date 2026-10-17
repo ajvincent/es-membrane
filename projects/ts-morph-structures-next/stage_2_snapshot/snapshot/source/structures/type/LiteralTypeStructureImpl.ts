@@ -9,6 +9,8 @@ import {
   TypeStructuresBase,
   WRITER_FUNCTION_KEY,
 } from "../../internal-exports.js";
+
+import { GET_OUTER_TYPE } from "../../array-utilities/ShadowArrayImpl.js";
 // #endregion preamble
 
 /**
@@ -50,6 +52,10 @@ export class LiteralTypeStructureImpl extends TypeStructuresBase<TypeStructureKi
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void {
     writer.write(this.stringValue);
+  }
+
+  public [GET_OUTER_TYPE](): string {
+    return this.stringValue;
   }
 }
 LiteralTypeStructureImpl satisfies CloneableTypeStructure<LiteralTypeStructureImpl>;

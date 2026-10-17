@@ -27,6 +27,17 @@ export default function addTypeStructures(
   for (const property of properties) {
     if (PropertyHashesWithTypes.has(moduleName, property.name) === false)
       continue;
+
+    /*
+    if (property.typeStructure!.kind === TypeStructureKind.Array) {
+      const newProp = new PropertySignatureImpl(property.name + "Sequence");
+      newProp.isReadonly = true;
+      newProp.typeStructure = new ArrayTypeStructureImpl(LiteralTypeStructureImpl.get("TypeStructures"));
+      module.typeMembers.addMembers([newProp]);
+      module.addImports("public", [], ["TypeStructures"]);
+    }
+    */
+
     if (property.typeStructure!.kind === TypeStructureKind.Array) {
       const newProp = new PropertySignatureImpl(property.name + "Set");
       newProp.isReadonly = true;
