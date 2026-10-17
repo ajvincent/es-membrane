@@ -1,6 +1,6 @@
-import {
+import type {
   CodeBlockWriter,
-  type WriterFunction,
+  WriterFunction,
 } from "ts-morph";
 
 import {
@@ -13,6 +13,10 @@ import {
   TypeAccessors,
   TypeStructuresBase,
 } from "#stage_two/snapshot/source/internal-exports.js";
+
+import {
+  serializeWriter
+} from "../../support/serializeWriter.js";
 
 describe("TypeAccessors with", () => {
   let manager: TypeAccessors;
@@ -43,12 +47,7 @@ describe("TypeAccessors with", () => {
     manager.type = callback;
 
     expect(manager.typeStructure).toBeInstanceOf(WriterTypeStructureImpl);
-
-    const actualWriter = new CodeBlockWriter();
-    if (typeof manager.type === "function") {
-      manager.type(actualWriter);
-    }
-    expect(actualWriter.toString()).toBe("Dog");
+    expect(serializeWriter(manager.type)).toBe("Dog");
 
     const clone = TypeAccessors.cloneType(manager.type);
     expect(clone).toBe(manager.type);
@@ -77,20 +76,16 @@ describe("TypeAccessors with", () => {
     expect(manager.type).withContext("manager.type").toBe(writerTypeStructure.writerFunction);
     expect(manager.typeStructure).toBe(writerTypeStructure);
 
-
-    let actualWriter = new CodeBlockWriter();
-    if (typeof manager.type === "function") {
-      manager.type(actualWriter);
+    if (manager.type === writerTypeStructure.writerFunction) {
+      expect(serializeWriter(manager.type)).toBe("NumberStringType");
     }
-    expect(actualWriter.toString()).toBe("NumberStringType");
 
     const clone = TypeAccessors.cloneType(manager.type);
     expect(clone).withContext("clone").not.toBe(manager.type);
 
-    actualWriter = new CodeBlockWriter();
+    expect(typeof clone).toBe("function");
     if (typeof clone === "function") {
-      clone(actualWriter);
+      expect(serializeWriter(clone)).toBe("NumberStringType");
     }
-    expect(actualWriter.toString()).toBe("NumberStringType");
   });
 });

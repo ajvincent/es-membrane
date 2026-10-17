@@ -1,5 +1,5 @@
 import {
-  CodeBlockWriter,
+  type CodeBlockWriter,
   type JSDocTagStructure,
   type OptionalKind,
   StructureKind,
@@ -11,6 +11,10 @@ import {
   JSDocTagImpl,
   LiteralTypeStructureImpl,
 } from "#stage_two/snapshot/source/exports.js";
+
+import {
+  serializeWriter
+} from "../../../support/serializeWriter.js";
 
 describe("JSDocTagImpl", () => {
   it("sanity check: we can create one via constructor", () => {
@@ -44,15 +48,18 @@ describe("JSDocTagImpl", () => {
     expect(tag.trailingTrivia).withContext("trailing trivia equals").toEqual(structure.trailingTrivia as readonly string[]);
 
     // get text, getTypeAndDescription, set text
-    let writer = new CodeBlockWriter();
-    (tag.text as WriterFunction)(writer);
-    expect(writer.toString()).withContext("constructed with text directly, get text").toBe("Hi Mom");
-    expect(tag.getTypeAndDescription()).withContext("constructed with text directly, getTypeAndDescription").toEqual([null, "Hi Mom"]);
+    expect(
+      serializeWriter(tag.text as WriterFunction)
+    ).withContext("constructed with text directly, get text").toBe("Hi Mom");
+    expect(
+      tag.getTypeAndDescription()
+    ).withContext("constructed with text directly, getTypeAndDescription").toEqual([null, "Hi Mom"]);
 
-    writer = new CodeBlockWriter();
+
     tag.text = `{boolean} Greetings`;
-    (tag.text as unknown as WriterFunction)(writer);
-    expect(writer.toString()).withContext("set text with type, get text").toBe("{boolean} Greetings");
+    expect(
+      serializeWriter(tag.text as unknown as WriterFunction)
+    ).withContext("set text with type, get text").toBe("{boolean} Greetings");
     expect(tag.getTypeAndDescription()).withContext("set text with type, getTypeAndDescription").toEqual([
       LiteralTypeStructureImpl.get("boolean"), "Greetings"
     ]);
@@ -63,27 +70,21 @@ describe("JSDocTagImpl", () => {
       writer.write("Welcome");
     };
     tag.text = WelcomeWriter;
-    writer = new CodeBlockWriter();
-    tag.text(writer);
-    expect(writer.toString()).withContext("set text to writer function").toBe("{boolean} Welcome");
+    expect(serializeWriter(tag.text)).withContext("set text to writer function").toBe("{boolean} Welcome");
     expect(tag.getTypeAndDescription()).withContext("setTypeAndDescription null type, getTypeAndDescription").toEqual(undefined);
 
     // test setTypeAndDescription with null type
-    writer = new CodeBlockWriter();
     tag.setTypeAndDescription(null, "Hello World");
-    tag.text(writer);
-    expect(writer.toString()).withContext("setTypeAndDescription null type, get text").toBe("Hello World");
+    expect(serializeWriter(tag.text)).withContext("setTypeAndDescription null type, get text").toBe("Hello World");
     expect(tag.getTypeAndDescription()).withContext("setTypeAndDescription null type, getTypeAndDescription").toEqual([
       null, "Hello World"
     ]);
 
     // test setTypeAndDescription with non-null type
-    writer = new CodeBlockWriter();
     tag.setTypeAndDescription(
       LiteralTypeStructureImpl.get("string"), "good day"
     );
-    tag.text(writer);
-    expect(writer.toString()).withContext("setTypeAndDescription string type, get text").toBe("{string} good day");
+    expect(serializeWriter(tag.text)).withContext("setTypeAndDescription string type, get text").toBe("{string} good day");
     expect(tag.getTypeAndDescription()).withContext("setTypeAndDescription string type, getTypeAndDescription").toEqual([
       LiteralTypeStructureImpl.get("string"), "good day"
     ]);

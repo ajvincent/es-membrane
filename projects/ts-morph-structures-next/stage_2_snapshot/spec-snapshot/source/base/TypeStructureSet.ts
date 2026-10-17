@@ -1,4 +1,4 @@
-import {
+import type {
   CodeBlockWriter
 } from "ts-morph";
 
@@ -13,6 +13,10 @@ import {
 import {
   TypeStructureSetInternal,
 } from "#stage_two/snapshot/source/internal-exports.js";
+
+import {
+  serializeWriter
+} from "../../support/serializeWriter.js";
 
 describe("TypeStructureSet", () => {
   let backingArray: stringOrWriterFunction[];
@@ -84,14 +88,8 @@ describe("TypeStructureSet", () => {
     expect(writerArray[1]).toBeInstanceOf(WriterTypeStructureImpl);
 
     if (writerArray[1] instanceof WriterTypeStructureImpl) {
-      const actualWriter = new CodeBlockWriter();
-      const expectedWriter = new CodeBlockWriter();
-
       const actual = writerArray[1];
-      actual.writerFunction(actualWriter);
-
-      writerOne(expectedWriter);
-      expect(actualWriter.toString()).withContext("generated content").toBe(expectedWriter.toString());
+      expect(serializeWriter(actual.writerFunction)).toBe(serializeWriter(writerOne));
       expect(actual.writerFunction).withContext("writerFunction comparison").not.toBe(writerOne);
     }
 

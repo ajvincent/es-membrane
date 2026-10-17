@@ -1,4 +1,4 @@
-import {
+import type {
   CodeBlockWriter
 } from "ts-morph";
 
@@ -13,11 +13,16 @@ import {
   TypeStructuresBase
 } from "#stage_two/snapshot/source/internal-exports.js";
 
+import {
+  serializeWriter
+} from "../../../support/serializeWriter.js";
+
 describe("Type accessor properties work", () => {
   let writerCount = 0;
   function writerFunction(
     writer: CodeBlockWriter
-  ): void {
+  ): void
+  {
     writerCount++;
     writer.write("hello");
   }
@@ -49,10 +54,7 @@ describe("Type accessor properties work", () => {
       expect(classDecl.extendsStructure?.kind).toBe(TypeStructureKind.Writer);
       expect(typeof classDecl.extends).toBe("function");
 
-      const actualWriter = new CodeBlockWriter();
-      classDecl.extends(actualWriter);
-      expect(actualWriter.toString()).toBe("hello");
-
+      expect(serializeWriter(classDecl.extends)).toBe("hello");
       expect(writerCount).toBe(1);
     });
 
@@ -148,10 +150,9 @@ describe("Type accessor properties work", () => {
         expect(classDecl.extendsStructure.writerFunction).not.toBe(writerFunction);
       }
 
-      const actualWriter = new CodeBlockWriter();
+      expect(typeof cloneDecl.extends).toBe("function");
       if (typeof cloneDecl.extends === "function")
-        cloneDecl.extends(actualWriter);
-      expect(actualWriter.toString()).toBe("hello");
+        expect(serializeWriter(cloneDecl.extends)).toBe("hello");
 
       expect(
         TypeStructuresBase.getWriterStructureForCallback(writerTypeStructure.writerFunction)
@@ -172,10 +173,9 @@ describe("Type accessor properties work", () => {
       expect(cloneDecl.extends).withContext("cloneDecl.extends").not.toBe(writerTypeStructure.writerFunction);
       expect(cloneDecl.extendsStructure).withContext("cloneDecl.extendsStructure").not.toBe(writerTypeStructure);
 
-      const actualWriter = new CodeBlockWriter();
+      expect(typeof cloneDecl.extends).toBe("function");
       if (typeof cloneDecl.extends === "function")
-        cloneDecl.extends(actualWriter);
-      expect(actualWriter.toString()).toBe("hello");
+        expect(serializeWriter(cloneDecl.extends)).toBe("hello");
 
       expect(writerCount).toBe(1);
     });

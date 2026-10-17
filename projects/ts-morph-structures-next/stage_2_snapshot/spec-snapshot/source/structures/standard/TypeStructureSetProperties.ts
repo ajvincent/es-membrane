@@ -1,6 +1,5 @@
-import {
+import type {
   CodeBlockWriter,
-  WriterFunction,
 } from "ts-morph";
 
 import {
@@ -10,6 +9,10 @@ import {
   WriterTypeStructureImpl,
   type stringOrWriterFunction,
 } from "#stage_two/snapshot/source/exports.js";
+
+import {
+  serializeWriter
+} from "../../../support/serializeWriter.js";
 
 describe("Type structure set properties work", () => {
   let writerCount = 0;
@@ -60,15 +63,11 @@ describe("Type structure set properties work", () => {
       expect(classDecl.implements[1]).toBe("NumberStringInterface");
       expect(typeof classDecl.implements[2]).toBe("function");
       if (typeof classDecl.implements[2] === "function") {
-        const actualWriter = new CodeBlockWriter();
-        classDecl.implements[2](actualWriter);
-        expect(actualWriter.toString()).toBe("Record<string, boolean>");
+        expect(serializeWriter(classDecl.implements[2])).toBe("Record<string, boolean>");
       }
       expect(typeof classDecl.implements[3]).toBe("function");
       if (typeof classDecl.implements[3] === "function") {
-        const actualWriter = new CodeBlockWriter();
-        classDecl.implements[3](actualWriter);
-        expect(actualWriter.toString()).toBe("boolean[]");
+        expect(serializeWriter(classDecl.implements[3])).toBe("boolean[]");
       }
       expect(classDecl.implements.length).toBe(4);
 
@@ -77,9 +76,7 @@ describe("Type structure set properties work", () => {
       expect(definedSet[1]).toBe(LiteralTypeStructureImpl.get("NumberStringInterface"));
       expect(definedSet[2]).toBeInstanceOf(WriterTypeStructureImpl);
       if (definedSet[2] instanceof WriterTypeStructureImpl) {
-        const actualWriter = new CodeBlockWriter();
-        definedSet[2].writerFunction(actualWriter);
-        expect(actualWriter.toString()).toBe("Record<string, boolean>");
+        expect(serializeWriter(definedSet[2].writerFunction)).toBe("Record<string, boolean>");
       }
       expect(definedSet[3]).toBeInstanceOf(ArrayTypeStructureImpl);
       if (definedSet[3] instanceof ArrayTypeStructureImpl) {
@@ -123,16 +120,14 @@ describe("Type structure set properties work", () => {
       expect(classImplements.length).toBe(3);
 
       if (typeof classImplements[2] === "function") {
-        const actualWriter = new CodeBlockWriter();
-        classImplements[2](actualWriter);
-        expect(actualWriter.toString()).toBe("Record<string, boolean>");
+        expect(serializeWriter(classImplements[2])).toBe("Record<string, boolean>");
       }
 
       expect(writerCount).toBe(1);
 
-      const writer = new CodeBlockWriter();
-      (arrayWriter as WriterFunction)(writer);
-      expect(writer.toString()).toBe("boolean[]");
+      expect(typeof arrayWriter).toBe("function");
+      if (typeof arrayWriter === "function")
+        expect(serializeWriter(arrayWriter)).toBe("boolean[]");
     });
   });
 

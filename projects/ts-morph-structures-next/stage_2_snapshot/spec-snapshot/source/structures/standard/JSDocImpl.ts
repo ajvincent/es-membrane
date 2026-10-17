@@ -1,15 +1,17 @@
 import {
-  CodeBlockWriter,
   type JSDocStructure,
   type OptionalKind,
   StructureKind,
-  type WriterFunction,
 } from "ts-morph";
 
 import {
   JSDocImpl,
   JSDocTagImpl,
 } from "#stage_two/snapshot/source/exports.js";
+
+import {
+  serializeWriter
+} from "../../../support/serializeWriter.js";
 
 describe("JSDocImpl", () => {
   const tag = new JSDocTagImpl("param");
@@ -35,11 +37,10 @@ describe("JSDocImpl", () => {
     expect(doc.tags[0]).not.toBe(tag);
     expect(doc.tags[0].tagName).toBe(tag.tagName);
 
-    const docTagWriter = new CodeBlockWriter();
-    (doc.tags[0].text as WriterFunction)(docTagWriter);
-
-    const textWriter = new CodeBlockWriter();
-    (tag.text as WriterFunction)(textWriter);
-    expect(docTagWriter.toString()).toBe(textWriter.toString());
+    expect(typeof doc.tags[0].text).toBe("function");
+    expect(typeof tag.text).toBe("function");
+    if (typeof doc.tags[0] === "function" && typeof tag.text === "function") {
+      expect(serializeWriter(doc.tags[0])).toBe(serializeWriter(tag.text));
+    }
   });
 });

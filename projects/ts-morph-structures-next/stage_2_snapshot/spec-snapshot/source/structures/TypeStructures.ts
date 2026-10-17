@@ -1,4 +1,4 @@
-import {
+import type {
   CodeBlockWriter,
 } from "ts-morph";
 
@@ -46,10 +46,11 @@ import {
   TypeStructureClassesMap
 } from "#stage_two/snapshot/source/internal-exports.js";
 
-describe("TypeStructure for ts-morph (stage 2): ", () => {
-  let writer: CodeBlockWriter;
-  beforeEach(() => writer = new CodeBlockWriter());
+import {
+  serializeWriter
+} from "../../support/serializeWriter.js";
 
+describe("TypeStructure for ts-morph (stage 2): ", () => {
   const fooTyped = LiteralTypeStructureImpl.get("foo");
   const nstTyped = LiteralTypeStructureImpl.get("NumberStringType");
   const typeParam = new TypeParameterDeclarationImpl("UserType");
@@ -78,10 +79,8 @@ describe("TypeStructure for ts-morph (stage 2): ", () => {
 
   it("ArrayTypedStructureImpl", () => {
     const typedWriter = new ArrayTypeStructureImpl(fooTyped);
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe("foo[]");
-
     expect(typedWriter.kind).toBe(TypeStructureKind.Array);
+    expect(serializeWriter(typedWriter.writerFunction)).toBe("foo[]");
 
     checkCloneAndRegistration(typedWriter, ArrayTypeStructureImpl);
   });
@@ -101,8 +100,7 @@ describe("TypeStructure for ts-morph (stage 2): ", () => {
 
     const typedWriter = new ConditionalTypeStructureImpl(parts);
 
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe(
+    expect(serializeWriter(typedWriter.writerFunction)).toBe(
       "true extends ReturnsModified ? BaseClassType : void"
     );
 
@@ -117,8 +115,10 @@ describe("TypeStructure for ts-morph (stage 2): ", () => {
       returnType: LiteralTypeStructureImpl.get("boolean"),
       writerStyle: FunctionWriterStyle.Method
     });
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe("<UserType extends number = 6>(nst: NumberStringType): boolean");
+
+    expect(
+      serializeWriter(typedWriter.writerFunction)
+    ).toBe("<UserType extends number = 6>(nst: NumberStringType): boolean");
 
     expect(typedWriter.kind).toBe(TypeStructureKind.Function);
     checkCloneAndRegistration(typedWriter, FunctionTypeStructureImpl);
@@ -128,8 +128,10 @@ describe("TypeStructure for ts-morph (stage 2): ", () => {
     const typedWriter = new ImportTypeStructureImpl(
       stringBarTyped, [], nstTyped, [fooTyped]
     );
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe(`import("bar").NumberStringType<foo>`);
+
+    expect(
+      serializeWriter(typedWriter.writerFunction)
+    ).toBe(`import("bar").NumberStringType<foo>`);
     expect(typedWriter.kind).toBe(TypeStructureKind.Import);
   });
 
@@ -139,9 +141,7 @@ describe("TypeStructure for ts-morph (stage 2): ", () => {
     const typedWriter = new ImportTypeStructureImpl(
       stringBarTyped, [attr], nstTyped, [fooTyped]
     );
-    typedWriter.writerFunction(writer);
-
-    expect<string>(writer.toString()).toBe(`
+    expect(serializeWriter(typedWriter.writerFunction)).toBe(`
 import("bar", {
     with: {
         "resolution-mode": "import"
@@ -154,16 +154,13 @@ import("bar", {
 
   it("IndexedAccessTypeStructureImpl", () => {
     const typedWriter = new IndexedAccessTypeStructureImpl(fooTyped, stringBarTyped);
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe(`foo["bar"]`);
-
+    expect(serializeWriter(typedWriter.writerFunction)).toBe(`foo["bar"]`);
     expect(typedWriter.kind).toBe(TypeStructureKind.IndexedAccess);
   });
 
   it("InferTypeStructureImpl", () => {
     const typedWriter = new InferTypeStructureImpl(typeParam);
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe(`infer UserType extends number = 6`);
+    expect(serializeWriter(typedWriter.writerFunction)).toBe(`infer UserType extends number = 6`);
     expect(typedWriter.kind).toBe(TypeStructureKind.Infer);
   });
 
@@ -172,15 +169,13 @@ import("bar", {
     typedWriter.childTypes.push(fooTyped);
     typedWriter.childTypes.push(nstTyped);
 
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe(`foo & NumberStringType`);
+    expect(serializeWriter(typedWriter.writerFunction)).toBe(`foo & NumberStringType`);
     expect(typedWriter.kind).toBe(TypeStructureKind.Intersection);
     checkCloneAndRegistration(typedWriter, IntersectionTypeStructureImpl);
   });
 
   it("LiteralTypeStructureImpl", () => {
-    fooTyped.writerFunction(writer);
-    expect<string>(writer.toString()).toBe("foo");
+    expect(serializeWriter(fooTyped.writerFunction)).toBe("foo");
     expect(fooTyped.kind).toBe(TypeStructureKind.Literal);
     checkCloneAndRegistration(fooTyped, LiteralTypeStructureImpl);
   });
@@ -189,9 +184,7 @@ import("bar", {
     const typedWriter = new MappedTypeStructureImpl(typeParam);
     typedWriter.readonlyToken = "+readonly";
     typedWriter.type = LiteralTypeStructureImpl.get("boolean");
-    typedWriter.writerFunction(writer);
-
-    expect<string>(writer.toString()).toBe(`{\n    +readonly [UserType in number]: boolean;\n}`);
+    expect(serializeWriter(typedWriter.writerFunction)).toBe(`{\n    +readonly [UserType in number]: boolean;\n}`);
 
     expect(typedWriter.kind).toBe(TypeStructureKind.Mapped);
     checkCloneAndRegistration(typedWriter, MappedTypeStructureImpl);
@@ -210,8 +203,7 @@ import("bar", {
     fooMethod.returnType = "void";
     //fooMethod.returnTypeStructure = LiteralTypedStructureImpl.get("void");
 
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe(`{\n    foo(firstArg: string): void;\n}`);
+    expect(serializeWriter(typedWriter.writerFunction)).toBe(`{\n    foo(firstArg: string): void;\n}`);
 
     expect(typedWriter.kind).toBe(TypeStructureKind.MemberedObject);
     checkCloneAndRegistration(typedWriter, MemberedObjectTypeStructureImpl);
@@ -220,66 +212,50 @@ import("bar", {
   it("NamedTupleMemberTypeStructureImpl", () => {
     const typedWriter = new NamedTupleMemberTypeStructureImpl("foo", LiteralTypeStructureImpl.get("boolean"));
 
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe(`foo: boolean`);
+    expect(serializeWriter(typedWriter.writerFunction)).toBe(`foo: boolean`);
     expect(typedWriter.kind).toBe(TypeStructureKind.NamedTupleMember);
     checkCloneAndRegistration(typedWriter, NamedTupleMemberTypeStructureImpl);
 
-    writer = new CodeBlockWriter();
     typedWriter.hasDotDotDotToken = true;
     typedWriter.hasQuestionToken = true;
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe("...foo?: boolean");
+    expect(serializeWriter(typedWriter.writerFunction)).toBe("...foo?: boolean");
     checkCloneAndRegistration(typedWriter, NamedTupleMemberTypeStructureImpl);
   });
 
   it("NumberTypeStructureImpl", () => {
     const typedWriter = new NumberTypeStructureImpl(47);
-    typedWriter.writerFunction(writer);
-
-    expect<string>(writer.toString()).toBe("47");
+    expect(serializeWriter(typedWriter.writerFunction)).toBe("47");
     checkCloneAndRegistration(typedWriter, NumberTypeStructureImpl);
   });
 
   it("OptionalTypeStructureImpl", () => {
     const typedWriter = new OptionalTypeStructureImpl(LiteralTypeStructureImpl.get("boolean"));
-    typedWriter.writerFunction(writer);
-
-    expect<string>(writer.toString()).toBe("boolean?");
+    expect(serializeWriter(typedWriter.writerFunction)).toBe("boolean?");
     checkCloneAndRegistration(typedWriter, OptionalTypeStructureImpl);
   });
 
   it("ParameterTypeStructureImpl", () => {
     const typedWriter = new ParameterTypeStructureImpl("nst", undefined);
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe("nst");
+    expect(serializeWriter(typedWriter.writerFunction)).toBe("nst");
     expect(typedWriter.kind).toBe(TypeStructureKind.Parameter);
 
-    writer = new CodeBlockWriter();
     typedWriter.typeStructure = nstTyped;
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe("nst: NumberStringType");
+    expect(serializeWriter(typedWriter.writerFunction)).toBe("nst: NumberStringType");
     checkCloneAndRegistration(typedWriter, ParameterTypeStructureImpl);
   });
 
   it("ParenthesesTypeStructureImpl", () => {
     const typedWriter = new ParenthesesTypeStructureImpl(LiteralTypeStructureImpl.get("true"));
-    typedWriter.writerFunction(writer);
-
-    expect<string>(writer.toString()).toBe("(true)");
+    expect(serializeWriter(typedWriter.writerFunction)).toBe("(true)");
     expect(typedWriter.kind).toBe(TypeStructureKind.Parentheses);
 
     // mutability test for the child type
-    writer = new CodeBlockWriter();
     typedWriter.childTypes[0] = LiteralTypeStructureImpl.get("false");
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe("(false)");
+    expect(serializeWriter(typedWriter.writerFunction)).toBe("(false)");
 
     // mutability test: if someone puts in too many child types...
-    writer = new CodeBlockWriter();
     typedWriter.childTypes.push(LiteralTypeStructureImpl.get("unknown"));
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe("(false)");
+    expect(serializeWriter(typedWriter.writerFunction)).toBe("(false)");
 
     checkCloneAndRegistration(typedWriter, ParenthesesTypeStructureImpl);
   });
@@ -290,9 +266,7 @@ import("bar", {
       prefixes,
       new LiteralTypeStructureImpl("NumberStringType")
     );
-    typedWriter.writerFunction(writer);
-
-    expect<string>(writer.toString()).toBe("typeof readonly NumberStringType");
+    expect(serializeWriter(typedWriter.writerFunction)).toBe("typeof readonly NumberStringType");
     expect(typedWriter.kind).toBe(TypeStructureKind.PrefixOperators);
     checkCloneAndRegistration(typedWriter, PrefixOperatorsTypeStructureImpl);
   });
@@ -302,15 +276,13 @@ import("bar", {
       nstTyped.stringValue,
       fooTyped.stringValue
     ]);
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe(`NumberStringType.foo`);
+    expect(serializeWriter(typedWriter.writerFunction)).toBe(`NumberStringType.foo`);
     expect(typedWriter.kind).toBe(TypeStructureKind.QualifiedName);
     checkCloneAndRegistration(typedWriter, QualifiedNameTypeStructureImpl);
   });
 
   it("StringTypeStructureImpl", () => {
-    stringBarTyped.writerFunction(writer);
-    expect<string>(writer.toString()).toBe(`"bar"`);
+    expect(serializeWriter(stringBarTyped.writerFunction)).toBe(`"bar"`);
     expect(stringBarTyped.kind).toBe(TypeStructureKind.String);
     checkCloneAndRegistration(stringBarTyped, StringTypeStructureImpl);
   });
@@ -326,8 +298,7 @@ import("bar", {
       "one", [[AB, "two"], [CD, "three"]]
     );
 
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe('`one${"A" | "B"}two${"C" | "D"}three`');
+    expect(serializeWriter(typedWriter.writerFunction)).toBe('`one${"A" | "B"}two${"C" | "D"}three`');
 
     expect(typedWriter.kind).toBe(TypeStructureKind.TemplateLiteral);
     checkCloneAndRegistration(typedWriter, TemplateLiteralTypeStructureImpl);
@@ -336,8 +307,7 @@ import("bar", {
   it("TupleTypeStructureImpl", () => {
     const typedWriter = new TupleTypeStructureImpl([fooTyped, nstTyped, nstTyped]);
 
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe(`[foo, NumberStringType, NumberStringType]`);
+    expect(serializeWriter(typedWriter.writerFunction)).toBe(`[foo, NumberStringType, NumberStringType]`);
     expect(typedWriter.kind).toBe(TypeStructureKind.Tuple);
     checkCloneAndRegistration(typedWriter, TupleTypeStructureImpl);
   });
@@ -345,8 +315,7 @@ import("bar", {
   it("TypeArgumentedTypeStructureImpl", () => {
     const typedWriter = new TypeArgumentedTypeStructureImpl(fooTyped);
     typedWriter.childTypes.push(stringBarTyped, nstTyped);
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe(`foo<"bar", NumberStringType>`);
+    expect(serializeWriter(typedWriter.writerFunction)).toBe(`foo<"bar", NumberStringType>`);
 
     expect(typedWriter.kind).toBe(TypeStructureKind.TypeArgumented);
     checkCloneAndRegistration(typedWriter, TypeArgumentedTypeStructureImpl);
@@ -354,8 +323,7 @@ import("bar", {
 
   it("UnionTypeStructureImpl", () => {
     const typedWriter = new UnionTypeStructureImpl([fooTyped, nstTyped]);
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe(`foo | NumberStringType`);
+    expect(serializeWriter(typedWriter.writerFunction)).toBe(`foo | NumberStringType`);
     expect(typedWriter.kind).toBe(TypeStructureKind.Union);
     checkCloneAndRegistration(typedWriter, UnionTypeStructureImpl);
   });
@@ -365,8 +333,7 @@ import("bar", {
       (writer: CodeBlockWriter) => writer.write("hi mom")
     );
 
-    typedWriter.writerFunction(writer);
-    expect<string>(writer.toString()).toBe(`hi mom`);
+    expect(serializeWriter(typedWriter.writerFunction)).toBe(`hi mom`);
     expect(typedWriter.kind).toBe(TypeStructureKind.Writer);
     checkCloneAndRegistration(typedWriter, WriterTypeStructureImpl);
   });
