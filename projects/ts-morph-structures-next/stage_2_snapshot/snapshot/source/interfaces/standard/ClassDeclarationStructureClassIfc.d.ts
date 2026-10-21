@@ -7,7 +7,6 @@ import type {
   SetAccessorDeclarationImpl,
   stringOrWriterFunction,
   TypeStructures,
-  TypeStructureSet,
 } from "../../exports.js";
 import type { StructureKind } from "ts-morph";
 
@@ -17,9 +16,8 @@ export interface ClassDeclarationStructureClassIfc {
   extends?: stringOrWriterFunction;
   extendsStructure: TypeStructures | undefined;
   readonly getAccessors: GetAccessorDeclarationImpl[];
-  /** Treat this as a read-only array.  Use `.implementsSet` to modify this. */
   readonly implements: stringOrWriterFunction[];
-  readonly implementsSet: TypeStructureSet;
+  readonly implementsSequence: TypeStructures[];
   readonly methods: MethodDeclarationImpl[];
   readonly properties: PropertyDeclarationImpl[];
   readonly setAccessors: SetAccessorDeclarationImpl[];

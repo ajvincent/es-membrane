@@ -3,7 +3,7 @@ import {
 } from "ts-morph";
 
 import {
-  JSDocImpl,
+  ArrayTypeStructureImpl,
   LiteralTypeStructureImpl,
   PropertySignatureImpl,
   UnionTypeStructureImpl,
@@ -28,26 +28,12 @@ export default function addTypeStructures(
     if (PropertyHashesWithTypes.has(moduleName, property.name) === false)
       continue;
 
-    /*
     if (property.typeStructure!.kind === TypeStructureKind.Array) {
       const newProp = new PropertySignatureImpl(property.name + "Sequence");
       newProp.isReadonly = true;
       newProp.typeStructure = new ArrayTypeStructureImpl(LiteralTypeStructureImpl.get("TypeStructures"));
       module.typeMembers.addMembers([newProp]);
       module.addImports("public", [], ["TypeStructures"]);
-    }
-    */
-
-    if (property.typeStructure!.kind === TypeStructureKind.Array) {
-      const newProp = new PropertySignatureImpl(property.name + "Set");
-      newProp.isReadonly = true;
-      newProp.typeStructure = LiteralTypeStructureImpl.get("TypeStructureSet");
-      module.typeMembers.addMembers([newProp]);
-      module.addImports("public", [], ["TypeStructureSet"]);
-
-      const typeDocs = new JSDocImpl();
-      property.docs.push(typeDocs);
-      typeDocs.description = `Treat this as a read-only array.  Use \`.${newProp.name}\` to modify this.`;
     }
     else {
       const newProp = new PropertySignatureImpl(property.name + "Structure");

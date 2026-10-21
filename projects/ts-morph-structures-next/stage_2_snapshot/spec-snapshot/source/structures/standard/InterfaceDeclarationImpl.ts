@@ -10,8 +10,8 @@ import {
 describe("InterfaceDeclarationImpl", () => {
   it("serializes extends correctly", () => {
     const decl = new InterfaceDeclarationImpl("CarIfc");
-    decl.extendsSet.add(LiteralTypeStructureImpl.get("ColorIfc"));
-    decl.extendsSet.add(LiteralTypeStructureImpl.get("ShapeIfc"));
+    decl.extendsSequence.push(LiteralTypeStructureImpl.get("ColorIfc"));
+    decl.extendsSequence.push(LiteralTypeStructureImpl.get("ShapeIfc"));
 
     const result = printStructure(decl);
     expect(result).toBe(`interface CarIfc extends ColorIfc, ShapeIfc {\n}`);

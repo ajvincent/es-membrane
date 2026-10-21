@@ -1,12 +1,12 @@
 // #region preamble
 import assert from "node:assert/strict";
 
-import {
+import { Node, StructureKind } from "ts-morph";
+
+import type {
   ClassDeclaration,
   IndexSignatureDeclaration,
-  Node,
   ReturnTypedNode,
-  StructureKind,
   TypeNode,
   TypeParameterDeclaration,
   TypedNode,
@@ -20,16 +20,19 @@ import {
 } from "./types/conversions.js";
 
 import type {
+  ClassDeclarationImpl,
+  InterfaceDeclarationImpl,
   StructureImpls,
-  TypeStructureSet,
   TypeStructures,
   TypeStructuresOrNull,
 } from "../exports.js";
 
+import type { TypeStructureSequence } from "../base/TypeStructureSequence.js";
+
 // #endregion preamble
 
 type TypeStructureKey<Key extends string> = {
-  [key in Key]: TypeStructures | undefined | TypeStructureSet;
+  [key in Key]: TypeStructures | undefined | TypeStructureSequence;
 };
 
 /**
@@ -147,7 +150,7 @@ export default function buildTypesForStructures(
           subStructureResolver,
           converter,
         );
-        structure.implementsSet.clear();
+        structure.implementsSequence.length = 0;
         const implementsTypeNodes: TypeNode[] = node.getImplements();
         implementsTypeNodes.forEach((implementsTypeNode) => {
           convertImplementsTypeNodeForClass(
@@ -166,7 +169,7 @@ export default function buildTypesForStructures(
           Node.isInterfaceDeclaration(node),
           "we should have an interface declaration",
         );
-        structure.extendsSet.clear();
+        structure.extendsSequence.length = 0;
         const extendsTypeNodes: TypeNode[] = node.getExtends();
         extendsTypeNodes.forEach((extendsTypeNode) => {
           convertExtendsTypeNodeForInterface(
@@ -282,7 +285,7 @@ function convertExtendsFieldForClass(
 }
 
 function convertImplementsTypeNodeForClass(
-  structure: Extract<StructureImpls, TypeStructureKey<"implementsSet">>,
+  structure: ClassDeclarationImpl,
   typeNode: TypeNode,
   consoleTrap: TypeNodeToTypeStructureConsole,
   subStructureResolver: SubstructureResolver,
@@ -293,12 +296,12 @@ function convertImplementsTypeNodeForClass(
     consoleTrap,
     subStructureResolver,
     converter,
-    (typeStructure) => structure.implementsSet.add(typeStructure),
+    (typeStructure) => structure.implementsSequence.push(typeStructure),
   );
 }
 
 function convertExtendsTypeNodeForInterface(
-  structure: Extract<StructureImpls, TypeStructureKey<"extendsSet">>,
+  structure: InterfaceDeclarationImpl,
   typeNode: TypeNode,
   consoleTrap: TypeNodeToTypeStructureConsole,
   subStructureResolver: SubstructureResolver,
@@ -309,7 +312,7 @@ function convertExtendsTypeNodeForInterface(
     consoleTrap,
     subStructureResolver,
     converter,
-    (typeStructure) => structure.extendsSet.add(typeStructure),
+    (typeStructure) => structure.extendsSequence.push(typeStructure),
   );
 }
 

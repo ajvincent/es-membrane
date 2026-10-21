@@ -10,10 +10,11 @@ import {
 
 import {
   type CloneableTypeStructure,
-  TypeStructuresBase,
   TypeStructureClassesMap,
   WRITER_FUNCTION_KEY
 } from "../../../snapshot/source/internal-exports.js";
+
+import TypeStructuresBase from "./TypeStructuresBase.js";
 // #endregion preamble
 
 /** Wrappers for writer functions from external sources.  Leaf nodes. */

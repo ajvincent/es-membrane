@@ -1,8 +1,6 @@
-import type {
-  TypeStructureSet,
-  TypeStructures,
-  stringOrWriterFunction,
-} from "../exports.js";
+import type { TypeStructures, stringOrWriterFunction } from "../exports.js";
+
+import type { TypeStructureSequence } from "../internal-exports.ts";
 
 export interface TypedNodeTypeStructure {
   typeStructure: TypeStructures | undefined;
@@ -23,11 +21,11 @@ export interface TypeParameterWithTypeStructures {
 }
 
 export interface ClassDeclarationWithImplementsTypeStructures {
-  implementsSet: TypeStructureSet;
+  implementsSequence: TypeStructureSequence;
   implements: stringOrWriterFunction[];
 }
 
 export interface InterfaceDeclarationWithExtendsTypeStructures {
-  extendsSet: TypeStructureSet;
+  extendsSequence: TypeStructureSequence;
   extends: stringOrWriterFunction[];
 }

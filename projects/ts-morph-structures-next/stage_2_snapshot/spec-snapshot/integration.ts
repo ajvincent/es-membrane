@@ -181,7 +181,7 @@ it("ts-morph-structures: integration test", () => {
     classDeclaration.isExported = true;
     classDeclaration.isDefaultExport = true;
 
-    classDeclaration.implementsSet.add(new TypeArgumentedTypeStructureImpl(
+    classDeclaration.implementsSequence.push(new TypeArgumentedTypeStructureImpl(
       LiteralTypeStructureImpl.get("ObjectWrapper"), [LiteralTypeStructureImpl.get("NumberStringType")]
     ));
 

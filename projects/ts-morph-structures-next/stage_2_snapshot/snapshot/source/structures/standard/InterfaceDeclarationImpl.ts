@@ -11,7 +11,6 @@ import type {
   stringOrWriterFunction,
   StructureImpls,
   TypeStructures,
-  TypeStructureSet,
 } from "../../exports.js";
 import {
   type AmbientableNodeStructureFields,
@@ -25,7 +24,6 @@ import {
   JSDocableNodeStructureMixin,
   type NamedNodeStructureFields,
   NamedNodeStructureMixin,
-  ReadonlyArrayProxyHandler,
   REPLACE_WRITER_WITH_STRING,
   STRUCTURE_AND_TYPES_CHILDREN,
   StructureBase,
@@ -35,7 +33,8 @@ import {
   StructureMixin,
   type TypeParameteredNodeStructureFields,
   TypeParameteredNodeStructureMixin,
-  TypeStructureSetInternal,
+  TypeStructureClassesMap,
+  TypeStructureSequence,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {
@@ -78,22 +77,11 @@ export class InterfaceDeclarationImpl
   extends InterfaceDeclarationStructureBase
   implements InterfaceDeclarationStructureClassIfc
 {
-  static readonly #extendsArrayReadonlyHandler = new ReadonlyArrayProxyHandler(
-    "The extends array is read-only.  Please use this.extendsSet to set strings and type structures.",
-  );
   readonly kind: StructureKind.Interface = StructureKind.Interface;
-  readonly #extends_ShadowArray: stringOrWriterFunction[] = [];
-  readonly #extendsProxyArray: stringOrWriterFunction[] = new Proxy<
-    stringOrWriterFunction[]
-  >(
-    this.#extends_ShadowArray,
-    InterfaceDeclarationImpl.#extendsArrayReadonlyHandler,
-  );
   readonly callSignatures: CallSignatureDeclarationImpl[] = [];
   readonly constructSignatures: ConstructSignatureDeclarationImpl[] = [];
-  readonly extendsSet: TypeStructureSet = new TypeStructureSetInternal(
-    this.#extends_ShadowArray,
-  );
+  readonly extends: stringOrWriterFunction[];
+  readonly extendsSequence: TypeStructures[] = [];
   readonly getAccessors: GetAccessorDeclarationImpl[] = [];
   readonly indexSignatures: IndexSignatureDeclarationImpl[] = [];
   readonly methods: MethodSignatureImpl[] = [];
@@ -102,22 +90,8 @@ export class InterfaceDeclarationImpl
 
   constructor(name: string) {
     super();
-    // extends is getting lost in ts-morph clone operations
-    const extendsProxyArray: stringOrWriterFunction[] = this.#extendsProxyArray;
-    Reflect.defineProperty(this, "extends", {
-      configurable: false,
-      enumerable: true,
-      get: function (): stringOrWriterFunction[] {
-        return extendsProxyArray;
-      },
-    });
+    this.extends = TypeStructureSequence.createProxy(this.extendsSequence);
     this.name = name;
-  }
-
-  // overridden in constructor
-  /** Treat this as a read-only array.  Use `.extendsSet` to modify this. */
-  get extends(): stringOrWriterFunction[] {
-    return [];
   }
 
   /** @internal */
@@ -152,13 +126,14 @@ export class InterfaceDeclarationImpl
       );
     }
 
-    const { extendsSet } = source as unknown as InterfaceDeclarationImpl;
-    if (extendsSet instanceof TypeStructureSetInternal) {
-      target.extendsSet.cloneFromTypeStructureSet(extendsSet);
+    if (source instanceof InterfaceDeclarationImpl) {
+      target.extendsSequence.push(
+        ...TypeStructureClassesMap.cloneArray(source.extendsSequence),
+      );
     } else if (Array.isArray(source.extends)) {
-      target.extendsSet.replaceFromTypeArray(source.extends);
-    } else if (typeof source.extends === "function") {
-      target.extendsSet.replaceFromTypeArray([source.extends]);
+      target.extends.push(...source.extends);
+    } else if (source.extends !== undefined) {
+      target.extends.push(source.extends);
     }
 
     if (source.getAccessors) {
@@ -244,9 +219,7 @@ export class InterfaceDeclarationImpl
     StructureImpls | TypeStructures
   > {
     yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
-    for (const typeStructure of this.extendsSet) {
-      if (typeof typeStructure === "object") yield typeStructure;
-    }
+    yield* this.extendsSequence;
   }
 
   public toJSON(): StructureClassToJSON<InterfaceDeclarationImpl> {

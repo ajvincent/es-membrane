@@ -9,7 +9,6 @@ import {
   ClassFieldStatementsMap,
   type ClassMemberImpl,
   ClassSupportsStatementsFlags,
-  GetAccessorDeclarationImpl,
   LiteralTypeStructureImpl,
   MemberedTypeToClass,
   MethodSignatureImpl,
@@ -43,17 +42,9 @@ import {
 
 import initializeTypes from "../../vanilla/initializer.js";
 
-import addReadonlyArrayHandlers from "./addReadonlyArrayHandler.js";
-
-import ArrayReadonlyHandler from "../fieldStatements/TypeStructures/ArrayReadonlyHandler.js";
 import KindPropertyInitializer from "./KindProperty.js";
 import CloneStructureStatements from "./CloneStructureStatements.js";
 import ConstructorStatements from "./ConstructorStatements.js";
-import ProxyArrayStatements from "../fieldStatements/TypeStructures/ProxyArray.js";
-import ShadowArrayStatements from "../fieldStatements/TypeStructures/ShadowArray.js";
-import TypeStructureSetStatements from "../fieldStatements/TypeStructures/TypeStructureSet.js";
-import TypeArrayStatements from "../fieldStatements/TypeStructures/ArrayGetter.js";
-
 import DebuggingFilter from "../fieldStatements/Debugging.js";
 
 import {
@@ -64,6 +55,10 @@ import {
 import {
   getTypeStructureNativeMembers
 } from "../getTypeStructureMembers.js";
+
+import {
+  addTypeStructureSequence
+} from "./addTypeStructureSequence.js";
 
 // useful for debugging
 void(ClassFieldStatementsMap);
@@ -150,18 +145,13 @@ function buildTypeToClass(
 ): MemberedTypeToClass
 {
   const typeToClass = new MemberedTypeToClass;
-  addReadonlyArrayHandlers(module, interfaceModule.typeMembers, typeToClass);
+  addTypeStructureSequence(module, interfaceModule.typeMembers, typeToClass);
 
   typeToClass.addStatementGetters(StatementsPriority.BASELINE, getBaselineStatementGetters(module));
   typeToClass.addStatementGetters(StatementsPriority.STRUCTURE_SPECIFIC, [
-    new ArrayReadonlyHandler(module),
     new KindPropertyInitializer(module),
     new CloneStructureStatements(module, typeToClass.constructorParameters),
     new ConstructorStatements(module, typeToClass.constructorParameters),
-    new ShadowArrayStatements(module),
-    new ProxyArrayStatements(module),
-    new TypeStructureSetStatements(module),
-    new TypeArrayStatements(module),
   ]);
 
   module.modifiers?.buildTypeToClass?.(module, interfaceModule, typeToClass);
@@ -255,16 +245,6 @@ function insertConstructorKeys(
       continue;
 
     typeToClass.insertMemberKey(false, property, false, "constructor");
-  }
-
-  for (const [key, propOrGetter] of getTypeStructureNativeMembers(module, module.getFlatTypeMembers())) {
-    if (propOrGetter.kind !== StructureKind.PropertySignature)
-      continue;
-    if (propOrGetter.typeStructure!.kind === TypeStructureKind.Array) {
-      const getter = new GetAccessorDeclarationImpl(false, propOrGetter.name, propOrGetter.typeStructure);
-      typeToClass.insertMemberKey(false, getter, false, "constructor");
-    }
-    void key;
   }
 }
 

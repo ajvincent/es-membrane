@@ -1,8 +1,11 @@
 import type {
-  TypeStructureSet,
   TypeStructures,
   stringOrWriterFunction,
 } from "../../snapshot/source/exports.js";
+
+import type {
+  TypeStructureSequence
+} from "../../snapshot/source/internal-exports.ts";
 
 export interface TypedNodeTypeStructure
 {
@@ -27,12 +30,12 @@ export interface TypeParameterWithTypeStructures
 
 export interface ClassDeclarationWithImplementsTypeStructures
 {
-  implementsSet: TypeStructureSet;
+  implementsSequence: TypeStructureSequence;
   implements: stringOrWriterFunction[];
 }
 
 export interface InterfaceDeclarationWithExtendsTypeStructures
 {
-  extendsSet: TypeStructureSet;
+  extendsSequence: TypeStructureSequence;
   extends: stringOrWriterFunction[];
 }

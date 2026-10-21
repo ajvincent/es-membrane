@@ -15,7 +15,6 @@ import {
 } from "#stage_one/snapshot/source/exports.js";
 
 import BaseClassModule from "../../moduleClasses/BaseClassModule.js";
-import BlockStatementImpl from "../../pseudoExpressions/statements/BlockStatement.js";
 
 import PropertyHashesWithTypes from "../classTools/PropertyHashesWithTypes.js";
 
@@ -63,12 +62,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
 
     if (typeStructure.kind === TypeStructureKind.Array) {
       return [
-        new BlockStatementImpl(
-          `for (const typeStructure of this.${key.fieldKey}Set)`,
-          [
-            `if (typeof typeStructure === "object") yield typeStructure;`
-          ]
-        ).writerFunction,
+        `yield* this.${key.fieldKey}Sequence;`
       ];
     }
 

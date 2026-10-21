@@ -84,7 +84,7 @@ describe("forEachAugmentedStructureImpl (source)", () => {
     ]);
     methodOne.returnTypeStructure = childUnion;
 
-    classDecl.implementsSet.add(unionDecl);
+    classDecl.implementsSequence.push(unionDecl);
     classDecl.methods.push(methodOne, methodTwo);
 
     function callback(
@@ -109,7 +109,7 @@ describe("forEachAugmentedStructureImpl (source)", () => {
       LiteralTypeStructureImpl.get("NumberStringType"),
       LiteralTypeStructureImpl.get("NumberStringInterface")
     ]);
-    classDecl.implementsSet.add(unionDecl);
+    classDecl.implementsSequence.push(unionDecl);
     classDecl.methods.push(methodOne, methodTwo, methodThree);
 
     function callback(
@@ -157,9 +157,7 @@ describe("forEachAugmentedStructureImpl (source)", () => {
     methodOne.returnTypeStructure = childUnion;
 
     classDecl.methods.push(methodOne, methodTwo, methodThree);
-    classDecl.implementsSet.add(firstType);
-    classDecl.implementsSet.add(secondType);
-    classDecl.implementsSet.add(thirdType);
+    classDecl.implementsSequence.push(firstType, secondType, thirdType);
 
     function augmentedCallback(
       child: ChildStructure

@@ -297,9 +297,9 @@ describe("buildTypesForStructures applies a type node converter for each structu
 
     expect(structure.extendsStructure).toBe(BaseClass);
 
-    expect(structure.implementsSet.size).toBe(2);
-    expect(structure.implementsSet.has(NS_Type)).toBe(true);
-    expect(structure.implementsSet.has(Foo)).toBe(true);
+    expect(structure.implementsSequence.length).toBe(2);
+    expect(structure.implementsSequence[0]).toBe(NS_Type);
+    expect(structure.implementsSequence[1]).toBe(Foo);
 
     expect(failMessage).toBe(undefined);
     expect(failNode).toBe(null);
@@ -350,9 +350,9 @@ describe("buildTypesForStructures applies a type node converter for each structu
       }
     );
 
-    expect(structure.extendsSet.size).toBe(2);
-    expect(structure.extendsSet.has(NS_Type)).toBe(true);
-    expect(structure.extendsSet.has(Foo)).toBe(true);
+    expect(structure.extendsSequence.length).toBe(2);
+    expect(structure.extendsSequence[0]).toBe(NS_Type);
+    expect(structure.extendsSequence[1]).toBe(Foo);
 
     expect(failMessage).toBe(undefined);
     expect(failNode).toBe(null);
@@ -441,8 +441,8 @@ describe("buildTypesForStructures applies a type node converter for each structu
       }
     );
 
-    expect(structure.implementsSet.size).toBe(1);
-    expect(structure.implementsSet.has(NS_Type)).toBe(true);
+    expect(structure.implementsSequence.length).toBe(1);
+    expect(structure.implementsSequence[0]).toBe(NS_Type);
 
     expect(failures.length).toBe(2);
     if (failures.length === 2) {

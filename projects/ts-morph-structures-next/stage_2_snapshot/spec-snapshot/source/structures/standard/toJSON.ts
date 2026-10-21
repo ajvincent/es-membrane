@@ -32,15 +32,17 @@ it("toJSON() generally works", () => {
   classDecl.docs.push(doc);
   classDecl.extendsStructure = LiteralTypeStructureImpl.get("Date");
 
-  classDecl.implementsSet.add(LiteralTypeStructureImpl.get("NumberStringType"));
-  classDecl.implementsSet.add(new WriterTypeStructureImpl((writer: CodeBlockWriter): void => {
-    writer.write("Foo");
-  }));
-  classDecl.implementsSet.add(LiteralTypeStructureImpl.get("Bar"));
+  classDecl.implementsSequence.push(
+    LiteralTypeStructureImpl.get("NumberStringType"),
+    new WriterTypeStructureImpl((writer: CodeBlockWriter): void => {
+      writer.write("Foo");
+    }),
+    LiteralTypeStructureImpl.get("Bar")
+  );
 
   const tagAsJSON = JSON.stringify(tag, null, 2);
   const tagReparsed = JSON.parse(tagAsJSON) as Required<JSDocTagStructure>;
-  expect<JSDocTagStructure>(tagReparsed).toEqual({
+  expect<JSDocTagStructure>(tagReparsed).withContext("JSDocTagStructure").toEqual({
     kind: StructureKind.JSDocTag,
     tagName: "returns",
     text: "The tag value",
@@ -53,7 +55,7 @@ it("toJSON() generally works", () => {
 
   const docAsJSON = JSON.stringify(doc, null, 2);
   const docReparsed = JSON.parse(docAsJSON) as Required<JSDocStructure>;
-  expect(docReparsed).toEqual({
+  expect(docReparsed).withContext("docReparsed").toEqual({
     kind: StructureKind.JSDoc,
     description: "An internal value",
     tags: [tagReparsed],
@@ -62,7 +64,7 @@ it("toJSON() generally works", () => {
   });
 
   const classAsJSON = JSON.stringify(classDecl, null, 2);
-  expect(JSON.parse(classAsJSON) as ClassDeclarationStructure).toEqual({
+  expect(JSON.parse(classAsJSON) as ClassDeclarationStructure).withContext("classAsJSON").toEqual({
     kind: StructureKind.Class,
     extends: "Date",
     implements: [

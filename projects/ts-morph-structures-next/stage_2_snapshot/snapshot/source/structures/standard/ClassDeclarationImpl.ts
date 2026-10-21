@@ -10,7 +10,6 @@ import type {
   stringOrWriterFunction,
   StructureImpls,
   TypeStructures,
-  TypeStructureSet,
 } from "../../exports.js";
 import {
   type AbstractableNodeStructureFields,
@@ -28,7 +27,6 @@ import {
   JSDocableNodeStructureMixin,
   type NameableNodeStructureFields,
   NameableNodeStructureMixin,
-  ReadonlyArrayProxyHandler,
   REPLACE_WRITER_WITH_STRING,
   STRUCTURE_AND_TYPES_CHILDREN,
   StructureBase,
@@ -40,7 +38,7 @@ import {
   type TypeParameteredNodeStructureFields,
   TypeParameteredNodeStructureMixin,
   TypeStructureClassesMap,
-  TypeStructureSetInternal,
+  TypeStructureSequence,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {
@@ -86,26 +84,14 @@ export class ClassDeclarationImpl
   extends ClassDeclarationStructureBase
   implements ClassDeclarationStructureClassIfc
 {
-  static readonly #implementsArrayReadonlyHandler =
-    new ReadonlyArrayProxyHandler(
-      "The implements array is read-only.  Please use this.implementsSet to set strings and type structures.",
-    );
   readonly kind: StructureKind.Class = StructureKind.Class;
   readonly #extendsAccessors: TypeAccessors;
-  readonly #implements_ShadowArray: stringOrWriterFunction[] = [];
-  readonly #implementsProxyArray: stringOrWriterFunction[] = new Proxy<
-    stringOrWriterFunction[]
-  >(
-    this.#implements_ShadowArray,
-    ClassDeclarationImpl.#implementsArrayReadonlyHandler,
-  );
   readonly ctors: ConstructorDeclarationImpl[] = [];
   // overridden in constructor
   extends?: stringOrWriterFunction | undefined = undefined;
   readonly getAccessors: GetAccessorDeclarationImpl[] = [];
-  readonly implementsSet: TypeStructureSet = new TypeStructureSetInternal(
-    this.#implements_ShadowArray,
-  );
+  readonly implements: stringOrWriterFunction[];
+  readonly implementsSequence: TypeStructures[] = [];
   readonly methods: MethodDeclarationImpl[] = [];
   readonly properties: PropertyDeclarationImpl[] = [];
   readonly setAccessors: SetAccessorDeclarationImpl[] = [];
@@ -115,16 +101,9 @@ export class ClassDeclarationImpl
     super();
     // extends is getting lost in ts-morph clone operations
     this.#extendsAccessors = TypeAccessors.buildTypeAccessors(this, "extends");
-    // implements is getting lost in ts-morph clone operations
-    const implementsProxyArray: stringOrWriterFunction[] =
-      this.#implementsProxyArray;
-    Reflect.defineProperty(this, "implements", {
-      configurable: false,
-      enumerable: true,
-      get: function (): stringOrWriterFunction[] {
-        return implementsProxyArray;
-      },
-    });
+    this.implements = TypeStructureSequence.createProxy(
+      this.implementsSequence,
+    );
   }
 
   get extendsStructure(): TypeStructures | undefined {
@@ -133,12 +112,6 @@ export class ClassDeclarationImpl
 
   set extendsStructure(value: TypeStructures | undefined) {
     this.#extendsAccessors.typeStructure = value;
-  }
-
-  // overridden in constructor
-  /** Treat this as a read-only array.  Use `.implementsSet` to modify this. */
-  get implements(): stringOrWriterFunction[] {
-    return [];
   }
 
   /** @internal */
@@ -180,13 +153,14 @@ export class ClassDeclarationImpl
       );
     }
 
-    const { implementsSet } = source as unknown as ClassDeclarationImpl;
-    if (implementsSet instanceof TypeStructureSetInternal) {
-      target.implementsSet.cloneFromTypeStructureSet(implementsSet);
+    if (source instanceof ClassDeclarationImpl) {
+      target.implementsSequence.push(
+        ...TypeStructureClassesMap.cloneArray(source.implementsSequence),
+      );
     } else if (Array.isArray(source.implements)) {
-      target.implementsSet.replaceFromTypeArray(source.implements);
-    } else if (typeof source.implements === "function") {
-      target.implementsSet.replaceFromTypeArray([source.implements]);
+      target.implements.push(...source.implements);
+    } else if (source.implements !== undefined) {
+      target.implements.push(source.implements);
     }
 
     if (source.methods) {
@@ -257,9 +231,7 @@ export class ClassDeclarationImpl
   > {
     yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
     if (typeof this.extendsStructure === "object") yield this.extendsStructure;
-    for (const typeStructure of this.implementsSet) {
-      if (typeof typeStructure === "object") yield typeStructure;
-    }
+    yield* this.implementsSequence;
   }
 
   public toJSON(): StructureClassToJSON<ClassDeclarationImpl> {

@@ -5,10 +5,11 @@ import { TypeStructureKind } from "../../exports.js";
 
 import {
   type CloneableTypeStructure,
-  TypeStructuresBase,
   TypeStructureClassesMap,
   WRITER_FUNCTION_KEY,
 } from "../../internal-exports.js";
+
+import TypeStructuresBase from "./TypeStructuresBase.js";
 // #endregion preamble
 
 /** Wrappers for writer functions from external sources.  Leaf nodes. */

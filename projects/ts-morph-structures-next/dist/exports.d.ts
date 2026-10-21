@@ -77,20 +77,39 @@ declare class StructureBase {
   >;
 }
 
-/** @public */
-interface TypeStructureSet extends Set<TypeStructures> {
-  /**
-   * Replace all the types this set manages with those from another array.
-   * @param array - the types to add.
-   */
-  replaceFromTypeArray(array: (string | WriterFunction)[]): void;
-  /**
-   * Replace all the type structures this set managers with those from another set.
-   * @param other - the type structure set to copy
-   */
-  cloneFromTypeStructureSet(other: TypeStructureSet): void;
+declare const BUILD_ARRAY_WRAPPER: unique symbol;
+declare const GET_OUTER_TYPE: unique symbol;
+declare const CONVERT_OUTER_TO_INNER: unique symbol;
+
+interface InnerTypeElement<OuterType> {
+  [GET_OUTER_TYPE](): OuterType;
 }
 
+interface ConditionalTypeStructureParts {
+  checkType: TypeStructures;
+  extendsType: TypeStructures;
+  trueType: TypeStructures;
+  falseType: TypeStructures;
+}
+
+declare enum FunctionWriterStyle {
+  Arrow = "Arrow",
+  Method = "Method",
+  GetAccessor = "GetAccessor",
+  SetAccessor = "SetAccessor",
+}
+
+interface FunctionTypeContext {
+  name: string | undefined;
+  isConstructor: boolean;
+  typeParameters: TypeParameterDeclarationImpl[];
+  parameters: ParameterTypeStructureImpl[];
+  restParameter: ParameterTypeStructureImpl | undefined;
+  returnType: TypeStructures | undefined;
+  writerStyle: FunctionWriterStyle;
+}
+
+type PrefixUnaryOperator = "..." | "keyof" | "typeof" | "readonly" | "unique";
 declare const WRITER_FUNCTION_KEY: unique symbol;
 declare const DEREGISTER_WRITER: unique symbol;
 
@@ -125,7 +144,6 @@ declare abstract class WriterStructuresBase {
   ): void;
 }
 
-declare const GET_OUTER_TYPE: unique symbol;
 type stringOrWriterFunction = string | WriterFunction;
 
 declare abstract class TypeStructuresBase<Kind extends TypeStructureKind>
@@ -138,6 +156,46 @@ declare abstract class TypeStructuresBase<Kind extends TypeStructureKind>
     StructureImpls | TypeStructures
   >;
   [GET_OUTER_TYPE](): stringOrWriterFunction;
+}
+
+type TypeStructures =
+  | ArrayTypeStructureImpl
+  | ConditionalTypeStructureImpl
+  | FunctionTypeStructureImpl
+  | ImportTypeStructureImpl
+  | IndexedAccessTypeStructureImpl
+  | InferTypeStructureImpl
+  | IntersectionTypeStructureImpl
+  | LiteralTypeStructureImpl
+  | MappedTypeStructureImpl
+  | MemberedObjectTypeStructureImpl
+  | NamedTupleMemberTypeStructureImpl
+  | NumberTypeStructureImpl
+  | OptionalTypeStructureImpl
+  | ParameterTypeStructureImpl
+  | ParenthesesTypeStructureImpl
+  | PrefixOperatorsTypeStructureImpl
+  | QualifiedNameTypeStructureImpl
+  | StringTypeStructureImpl
+  | TemplateLiteralTypeStructureImpl
+  | TupleTypeStructureImpl
+  | TypeArgumentedTypeStructureImpl
+  | TypePredicateTypeStructureImpl
+  | UnionTypeStructureImpl
+  | WriterTypeStructureImpl;
+type TypeStructuresOrNull = TypeStructures | null;
+
+declare class TypeStructureSequence extends ShadowArrayImpl<
+  stringOrWriterFunction,
+  TypeStructures
+> {
+  static createProxy(innerElements: TypeStructures[]): stringOrWriterFunction[];
+  protected [BUILD_ARRAY_WRAPPER](
+    ...innerElements: TypeStructures[]
+  ): stringOrWriterFunction[];
+  protected [CONVERT_OUTER_TO_INNER](
+    outerType: stringOrWriterFunction,
+  ): TypeStructures;
 }
 
 declare class TypePrinterSettings {
@@ -193,7 +251,7 @@ type OmitWriterFromFields<T extends object> = {
 type StructureClassToJSON<T extends object> = Writable<
   Omit<
     OmitWriterFromFields<T>,
-    "toJSON" | `${string}Structure` | `${string}Set`
+    "toJSON" | `${string}Structure` | `${string}Sequence`
   >
 >;
 
@@ -314,9 +372,8 @@ interface ClassDeclarationStructureClassIfc {
   extends?: stringOrWriterFunction;
   extendsStructure: TypeStructures | undefined;
   readonly getAccessors: GetAccessorDeclarationImpl[];
-  /** Treat this as a read-only array.  Use `.implementsSet` to modify this. */
   readonly implements: stringOrWriterFunction[];
-  readonly implementsSet: TypeStructureSet;
+  readonly implementsSequence: TypeStructures[];
   readonly methods: MethodDeclarationImpl[];
   readonly properties: PropertyDeclarationImpl[];
   readonly setAccessors: SetAccessorDeclarationImpl[];
@@ -451,9 +508,8 @@ interface InterfaceDeclarationStructureClassIfc {
   readonly kind: StructureKind.Interface;
   readonly callSignatures: CallSignatureDeclarationImpl[];
   readonly constructSignatures: ConstructSignatureDeclarationImpl[];
-  /** Treat this as a read-only array.  Use `.extendsSet` to modify this. */
   readonly extends: stringOrWriterFunction[];
-  readonly extendsSet: TypeStructureSet;
+  readonly extendsSequence: TypeStructures[];
   readonly getAccessors: GetAccessorDeclarationImpl[];
   readonly indexSignatures: IndexSignatureDeclarationImpl[];
   readonly methods: MethodSignatureImpl[];
@@ -648,58 +704,6 @@ interface VariableStatementStructureClassIfc {
   declarationKind?: VariableDeclarationKind;
   readonly declarations: VariableDeclarationImpl[];
 }
-
-interface ConditionalTypeStructureParts {
-  checkType: TypeStructures;
-  extendsType: TypeStructures;
-  trueType: TypeStructures;
-  falseType: TypeStructures;
-}
-
-declare enum FunctionWriterStyle {
-  Arrow = "Arrow",
-  Method = "Method",
-  GetAccessor = "GetAccessor",
-  SetAccessor = "SetAccessor",
-}
-
-interface FunctionTypeContext {
-  name: string | undefined;
-  isConstructor: boolean;
-  typeParameters: TypeParameterDeclarationImpl[];
-  parameters: ParameterTypeStructureImpl[];
-  restParameter: ParameterTypeStructureImpl | undefined;
-  returnType: TypeStructures | undefined;
-  writerStyle: FunctionWriterStyle;
-}
-
-type PrefixUnaryOperator = "..." | "keyof" | "typeof" | "readonly" | "unique";
-type TypeStructures =
-  | ArrayTypeStructureImpl
-  | ConditionalTypeStructureImpl
-  | FunctionTypeStructureImpl
-  | ImportTypeStructureImpl
-  | IndexedAccessTypeStructureImpl
-  | InferTypeStructureImpl
-  | IntersectionTypeStructureImpl
-  | LiteralTypeStructureImpl
-  | MappedTypeStructureImpl
-  | MemberedObjectTypeStructureImpl
-  | NamedTupleMemberTypeStructureImpl
-  | NumberTypeStructureImpl
-  | OptionalTypeStructureImpl
-  | ParameterTypeStructureImpl
-  | ParenthesesTypeStructureImpl
-  | PrefixOperatorsTypeStructureImpl
-  | QualifiedNameTypeStructureImpl
-  | StringTypeStructureImpl
-  | TemplateLiteralTypeStructureImpl
-  | TupleTypeStructureImpl
-  | TypeArgumentedTypeStructureImpl
-  | TypePredicateTypeStructureImpl
-  | UnionTypeStructureImpl
-  | WriterTypeStructureImpl;
-type TypeStructuresOrNull = TypeStructures | null;
 
 /**
  * This is a map for specifying statements across several class members for a single class field.
@@ -1649,12 +1653,12 @@ interface TypeParameterWithTypeStructures {
 }
 
 interface ClassDeclarationWithImplementsTypeStructures {
-  implementsSet: TypeStructureSet;
+  implementsSequence: TypeStructureSequence;
   implements: stringOrWriterFunction[];
 }
 
 interface InterfaceDeclarationWithExtendsTypeStructures {
-  extendsSet: TypeStructureSet;
+  extendsSequence: TypeStructureSequence;
   extends: stringOrWriterFunction[];
 }
 
@@ -1714,7 +1718,8 @@ declare class ClassDeclarationImpl
   readonly ctors: ConstructorDeclarationImpl[];
   extends?: stringOrWriterFunction | undefined;
   readonly getAccessors: GetAccessorDeclarationImpl[];
-  readonly implementsSet: TypeStructureSet;
+  readonly implements: stringOrWriterFunction[];
+  readonly implementsSequence: TypeStructures[];
   readonly methods: MethodDeclarationImpl[];
   readonly properties: PropertyDeclarationImpl[];
   readonly setAccessors: SetAccessorDeclarationImpl[];
@@ -1722,8 +1727,6 @@ declare class ClassDeclarationImpl
   constructor();
   get extendsStructure(): TypeStructures | undefined;
   set extendsStructure(value: TypeStructures | undefined);
-  /** Treat this as a read-only array.  Use `.implementsSet` to modify this. */
-  get implements(): stringOrWriterFunction[];
   /** @internal */
   static [COPY_FIELDS](
     source: OptionalKind<ClassDeclarationStructure>,
@@ -2352,19 +2355,17 @@ declare class InterfaceDeclarationImpl
   extends InterfaceDeclarationStructureBase
   implements InterfaceDeclarationStructureClassIfc
 {
-  #private;
   readonly kind: StructureKind.Interface;
   readonly callSignatures: CallSignatureDeclarationImpl[];
   readonly constructSignatures: ConstructSignatureDeclarationImpl[];
-  readonly extendsSet: TypeStructureSet;
+  readonly extends: stringOrWriterFunction[];
+  readonly extendsSequence: TypeStructures[];
   readonly getAccessors: GetAccessorDeclarationImpl[];
   readonly indexSignatures: IndexSignatureDeclarationImpl[];
   readonly methods: MethodSignatureImpl[];
   readonly properties: PropertySignatureImpl[];
   readonly setAccessors: SetAccessorDeclarationImpl[];
   constructor(name: string);
-  /** Treat this as a read-only array.  Use `.extendsSet` to modify this. */
-  get extends(): stringOrWriterFunction[];
   /** @internal */
   static [COPY_FIELDS](
     source: OptionalKind<InterfaceDeclarationStructure>,
@@ -2937,6 +2938,186 @@ declare class SetAccessorDeclarationImpl
     source: OptionalKind<SetAccessorDeclarationStructure>,
   ): SetAccessorDeclarationImpl;
   toJSON(): StructureClassToJSON<SetAccessorDeclarationImpl>;
+}
+
+/**
+ * This is a helper for implementing methods of an array, so the proxy can report the correct results.
+ *
+ * Subclass methods you must implement:
+ *
+ * - static createProxy (returns new ShadowArrayImpl(innerElements).proxy)
+ * - [BUILD_ARRAY_WRAPPER]
+ * - [CONVERT_OUTER_TO_INNER]
+ *
+ * Your constructor should be protected, not public.
+ */
+declare abstract class ShadowArrayImpl<
+  OuterType,
+  InnerType extends InnerTypeElement<OuterType>,
+> implements Omit<OuterType[], number | "length"> {
+  #private;
+  /** Our proxy to implement the array. */
+  readonly proxy: OuterType[];
+  protected constructor(innerElements: InnerType[]);
+  get [Symbol.unscopables](): {
+    [K in keyof unknown[]]?: boolean;
+  };
+  /**
+   * @param innerElements {InnerTypeElement<OuterType>[]} the elements implementing the native type
+   * @returns {OuterType[]} the proxy defining the wrapped type array.
+   * @remarks `return new ShadowArrayImplSubclass(innerElements).proxy;`
+   */
+  static createProxy(innerElements: InnerTypeElement<unknown>[]): unknown[];
+  /**
+   * Utility to get a range of indexes for a given length.
+   *
+   * @internal
+   */
+  static indexRange(length: number): number[];
+  /**
+   * abstract to preserve subclass types
+   *
+   * `return new ShadowArrayImplSubclass(innerElements).proxy`
+   */
+  protected abstract [BUILD_ARRAY_WRAPPER](
+    ...innerElements: InnerType[]
+  ): OuterType[];
+  protected abstract [CONVERT_OUTER_TO_INNER](outerType: OuterType): InnerType;
+  /** proxy access to get length() */
+  getLength(): number;
+  /** proxy access to set length() */
+  setLength(newLength: number): void;
+  /** proxy prototype helper to set [index] */
+  replaceAt(index: number, value: OuterType): void;
+  at(index: number): OuterType | undefined;
+  [Symbol.iterator](): ArrayIterator<OuterType>;
+  pop(): OuterType | undefined;
+  push(...outerItems: OuterType[]): number;
+  concat(...items: readonly ConcatArray<OuterType>[]): OuterType[];
+  join(separator?: string): string;
+  reverse(): OuterType[];
+  shift(): OuterType | undefined;
+  slice(start?: number, end?: number): OuterType[];
+  sort(
+    compareFn?: ((a: OuterType, b: OuterType) => number) | undefined,
+  ): OuterType[];
+  splice(
+    start: number,
+    deleteCount?: number | undefined,
+    ...outerItems: OuterType[]
+  ): OuterType[];
+  unshift(...outerItems: OuterType[]): number;
+  indexOf(searchElement: OuterType, fromIndex?: number | undefined): number;
+  lastIndexOf(searchElement: OuterType, fromIndex?: number): number;
+  every<S extends OuterType>(
+    predicate: (
+      value: OuterType,
+      index: number,
+      array: OuterType[],
+    ) => value is S,
+    thisArg?: unknown,
+  ): this is S[];
+  some<S extends OuterType>(
+    predicate: (
+      value: OuterType,
+      index: number,
+      array: OuterType[],
+    ) => value is S,
+    thisArg?: unknown,
+  ): boolean;
+  forEach(
+    callbackfn: (value: OuterType, index: number, array: OuterType[]) => void,
+    thisArg?: unknown,
+  ): void;
+  map<U>(
+    callbackfn: (value: OuterType, index: number, array: OuterType[]) => U,
+    thisArg?: unknown,
+  ): U[];
+  filter<S extends OuterType>(
+    predicate: (
+      value: OuterType,
+      index: number,
+      array: OuterType[],
+    ) => value is S,
+    thisArg?: unknown,
+  ): S[];
+  reduce(
+    callbackfn: (
+      previousValue: OuterType,
+      currentValue: OuterType,
+      currentIndex: number,
+      array: OuterType[],
+    ) => OuterType,
+  ): OuterType;
+  reduceRight(
+    callbackfn: (
+      previousValue: OuterType,
+      currentValue: OuterType,
+      currentIndex: number,
+      array: OuterType[],
+    ) => OuterType,
+  ): OuterType;
+  find<S extends OuterType>(
+    predicate: (
+      value: OuterType,
+      index: number,
+      obj: OuterType[],
+    ) => value is S,
+    thisArg?: unknown,
+  ): S | undefined;
+  findIndex(
+    predicate: (value: OuterType, index: number, obj: OuterType[]) => unknown,
+    thisArg?: unknown,
+  ): number;
+  fill(
+    outerValue: OuterType,
+    start?: number | undefined,
+    end?: number | undefined,
+  ): OuterType[];
+  copyWithin(
+    target: number,
+    start: number,
+    end?: number | undefined,
+  ): OuterType[];
+  entries(): ArrayIterator<[number, OuterType]>;
+  keys(): ArrayIterator<number>;
+  values(): ArrayIterator<OuterType>;
+  includes(searchElement: OuterType, fromIndex?: number): boolean;
+  flatMap<U, This = undefined>(
+    callback: (
+      this: This,
+      value: OuterType,
+      index: number,
+      array: OuterType[],
+    ) => U | readonly U[],
+    thisArg?: This | undefined,
+  ): U[];
+  flat<A, D extends number = 1>(
+    this: A,
+    depth?: D | undefined,
+  ): FlatArray<A, D>[];
+  findLast<S extends OuterType>(
+    predicate: (
+      value: OuterType,
+      index: number,
+      obj: OuterType[],
+    ) => value is S,
+    thisArg?: unknown,
+  ): OuterType | S | undefined;
+  findLastIndex(
+    predicate: (value: OuterType, index: number, array: OuterType[]) => unknown,
+    thisArg?: unknown,
+  ): number;
+  toReversed(): OuterType[];
+  toSorted(
+    compareFn?: ((a: OuterType, b: OuterType) => number) | undefined,
+  ): OuterType[];
+  toSpliced(
+    start: number,
+    deleteCount: number,
+    ...outerItems: OuterType[]
+  ): OuterType[];
+  with(index: number, outerValue: OuterType): OuterType[];
 }
 
 declare const ShorthandPropertyAssignmentStructureBase: mixin_decorators.MixinClass<
@@ -3813,7 +3994,6 @@ export type {
   TypeParameterDeclarationStructureClassIfc,
   TypeParameterWithTypeStructures,
   TypeParameteredNodeStructureClassIfc,
-  TypeStructureSet,
   TypeStructures,
   TypeStructuresOrNull,
   TypedNodeStructureClassIfc,

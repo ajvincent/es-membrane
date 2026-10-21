@@ -14,11 +14,12 @@ import {
   serializeWriter
 } from "../../../support/serializeWriter.js";
 
-describe("Type structure set properties work", () => {
+describe("Type structure sequence properties work", () => {
   let writerCount = 0;
   function writerFunction(
     writer: CodeBlockWriter
-  ): void {
+  ): void
+  {
     writerCount++;
     writer.write("Record<string, boolean>");
   }
@@ -33,16 +34,13 @@ describe("Type structure set properties work", () => {
 
   it("adding types directly", () => {
     classDecl = new ClassDeclarationImpl;
-    classDecl.implementsSet.add(writerTypeStructure);
-    classDecl.implementsSet.add(arrayTypeStructure);
+    classDecl.implementsSequence.push(writerTypeStructure, arrayTypeStructure);
+    classDecl.implements.push("never");
 
-    expect(
-      () => classDecl.implements.push("never")
-    ).toThrow();
-
-    expect(Array.from(classDecl.implementsSet.values())).toEqual([
+    expect(Array.from(classDecl.implementsSequence)).toEqual([
       writerTypeStructure,
-      arrayTypeStructure
+      arrayTypeStructure,
+      LiteralTypeStructureImpl.get("never")
     ]);
 
     expect(writerCount).toBe(0);
@@ -71,7 +69,7 @@ describe("Type structure set properties work", () => {
       }
       expect(classDecl.implements.length).toBe(4);
 
-      const definedSet = Array.from(classDecl.implementsSet.values());
+      const definedSet = Array.from(classDecl.implementsSequence);
       expect(definedSet[0]).toBe(LiteralTypeStructureImpl.get("NumberStringType"));
       expect(definedSet[1]).toBe(LiteralTypeStructureImpl.get("NumberStringInterface"));
       expect(definedSet[2]).toBeInstanceOf(WriterTypeStructureImpl);
@@ -92,11 +90,11 @@ describe("Type structure set properties work", () => {
         implements: arrayTypeStructure.writerFunction
       });
   
-      expect(classDecl.implements).toEqual([
+      expect(Array.from(classDecl.implements)).toEqual([
         arrayTypeStructure.writerFunction
       ]);
   
-      expect(Array.from(classDecl.implementsSet.values())).toEqual([
+      expect(Array.from(classDecl.implementsSequence)).toEqual([
         arrayTypeStructure
       ]);
   
@@ -105,10 +103,12 @@ describe("Type structure set properties work", () => {
 
     it("current structure implementation", () => {
       classDecl = new ClassDeclarationImpl;
-      classDecl.implementsSet.add(LiteralTypeStructureImpl.get("NumberStringType"));
-      classDecl.implementsSet.add(LiteralTypeStructureImpl.get("NumberStringInterface"));
-      classDecl.implementsSet.add(writerTypeStructure);
-      classDecl.implementsSet.add(arrayTypeStructure);
+      classDecl.implementsSequence.push(
+        LiteralTypeStructureImpl.get("NumberStringType"),
+        LiteralTypeStructureImpl.get("NumberStringInterface"),
+        writerTypeStructure,
+        arrayTypeStructure
+      );
 
       classDecl = ClassDeclarationImpl.clone(classDecl);
 
@@ -133,8 +133,7 @@ describe("Type structure set properties work", () => {
 
   it("with .toJSON()", () => {
     classDecl = new ClassDeclarationImpl;
-    classDecl.implementsSet.add(writerTypeStructure);
-    classDecl.implementsSet.add(arrayTypeStructure);
+    classDecl.implementsSequence.push(writerTypeStructure, arrayTypeStructure);
 
     expect(classDecl.toJSON().implements).toEqual([
       "Record<string, boolean>",
