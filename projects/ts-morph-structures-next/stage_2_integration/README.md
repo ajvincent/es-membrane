@@ -132,57 +132,73 @@ Other cases where we need to provide a type and a type structure follow the same
 
 In at least two cases, ts-morph structure interfaces specify an array of types.  These require special handling.
 
-- Structure classes provide access to the arrays as a getter _only_.  I can't allow a setter, because either:
-  1. we hand ownership over the elements to someone else, without being able to track updates, or
-  2. the array the caller passes in is not the array we have: they update it and the update doesn't stick.
-- The interface specifies these as writable, but that provides more complications:
-  1. I have to provide methods to update the type structures which back them.
-  2. If the user sets a value directly (`structure.implements[0] = "boolean";`), that means specialized [_proxy handling_](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) to intercept the new value and create a type structure.
-- There's really no need for these to be ordered.  A `Set<string | WriterFunction>` would suffice, and be easy to implement.  However, I have to implement the interface as it exists...
+### Using proxies for arrays
 
-Ultimately, I decided to punt:  I hide the type array behind a readonly array proxy, and provide a special `TypeStructureSet` class for managing the actual structures, strings and writer functions.
+I create two levels of proxies, one for an `Array` prototype, and one for indices of an array.  These are [`ArrayPrototypeProxyHandler`](./source/array-utilities/ArrayPrototypeProxyHandler.ts) and [`ArrayElementsProxyHandler`](./source/array-utilities/ArrayElementsProxyHandler.ts), respectively.  
 
-Yes, I could've completed the proxy with a special helper class for the writable array methods.  Since this is part of a membrane project which depends heavily on proxies, I need that capability anyway.  It's a chicken-and-egg problem, one which would make ts-morph adoption of this project much harder.
-
-That said, proxies are pretty obscure (and difficult to get right), and I felt for a first draft it would be overkill to write a truly correct proxy handler and helper class.  (I tried.  It really isn't worth it.)
-
-### `ReadonlyProxyArrayHandler`
-
-[`ReadonlyProxyArrayHandler.ts`](./source/array-utilities/ReadonlyArrayProxyHandler.ts) provides a minimalist proxy handler for reading index properties, and getting readonly methods (and the length) of a backing array of real strings and writer functions.
-
-When the user tries to set a property through the array, or access a method which would modify the array, the proxy handler throws an exception with a specific message.  The message comes from the proxy handler constructor.  The idea is the creator of the proxy handler will tell the user about the safe alternative for setting values.
-
-The backing array is the `target` parameter of each proxy trap.  It is very specifically _not_ a property of the proxy handler.  This means the same proxy handler is reusable for many backing arrays.
-
-### `TypeStructureSet`
-
-The [`TypeStructureSet`](./source/base/TypeStructureSet.ts) class extends `Set<string | WriterFunction | TypeStructures>`.  It overrides the `add`, `clear`, `has` and `delete` methods to update a backing array of strings and writer functions which it shares with the readonly array proxy.
-
-### Example implementation of a types array
+`ArrayPrototypeProxyHandler` forwards array method calls to a special helper, [`ShadowArrayImpl`](./source/array-utilities/ShadowArrayImpl.ts).  This helper holds a reference to a _live_ array of objects, and maps the indices proxy's indices to the live array's indices.  `ShadowArrayImpl` is an abstract class, requiring three methods in a subclass:
 
 ```typescript
-export default class ClassDeclarationImpl
-  extends ClassDeclarationStructureBase
-  implements ClassDeclarationStructureClassIfc
+export abstract class ShadowArrayImpl<OuterType, InnerType extends InnerTypeElement<OuterType>>
+implements Omit<OuterType[], number | "length">
 {
-  static readonly #implementsArrayReadonlyHandler =
-    new ReadonlyArrayProxyHandler(
-      "The implements array is read-only.  Please use this.implementsSet to set strings and type structures.",
-    );
+  /**
+   * @param innerElements {InnerTypeElement<OuterType>[]} the elements implementing the native type
+   *
+   * @returns {OuterType[]} the proxy defining the wrapped type array.
+   *
+   * @remarks `return new ShadowArrayImplSubclass(innerElements).proxy;`
+   */
+  public static createProxy(
+    innerElements: InnerTypeElement<unknown>[]
+  ): unknown[];
 
-  readonly #implements_ShadowArray: stringOrWriterFunction[] = [];
-  readonly #implementsProxyArray = new Proxy<stringOrWriterFunction[]>(
-    this.#implements_ShadowArray,
-    ClassDeclarationImpl.#implementsArrayReadonlyHandler,
-  );
+  /**
+   * abstract to preserve subclass types
+   *
+   * `return new ShadowArrayImplSubclass(innerElements).proxy`
+   */
+  protected abstract [BUILD_ARRAY_WRAPPER](
+    ...innerElements: InnerType[]
+  ): OuterType[];
 
-  readonly implementsSet = new TypeStructureSet(this.#implements_ShadowArray);
+  protected abstract [CONVERT_OUTER_TO_INNER](
+    outerType: OuterType
+  ): InnerType;
+}
+```
 
-  get implements(): stringOrWriterFunction[] {
-    return this.#implementsProxyArray;
+The missing parts are:
+```typescript
+const BUILD_ARRAY_WRAPPER = Symbol("build new array");
+const GET_OUTER_TYPE = Symbol("get outer type");
+const CONVERT_OUTER_TO_INNER = Symbol("convert outer type to inner type");
+
+export interface InnerTypeElement<OuterType> {
+  [GET_OUTER_TYPE](): OuterType;
+}
+```
+
+### Type structures
+
+I provide the [`TypeStructureSequence`](./source/base/TypeStructureSequence.ts) class to implement `ClassDeclarationImpl::implements` and `InterfaceDeclarationImpl::extends` via its `static createProxy()` method.
+
+```typescript
+export class TypeStructureSequence extends ShadowArrayImpl<stringOrWriterFunction, TypeStructures> {
+  // ...
+}
+
+export default abstract class TypeStructuresBase<Kind extends TypeStructureKind> {
+  // ...
+  public [GET_OUTER_TYPE](): stringOrWriterFunction {
+    return this.writerFunction;
   }
 }
 ```
+
+This overall approach fixes a major problem in the 1.x versions of ts-morph-structures:  the `ClassDeclarationImpl::implements` and `InterfaceDeclarationImpl::extends` proxy arrays were in reality read-only, but no longer.  The flip side is that where I used to have `ClassDeclarationImpl::implementsSet` and `InterfaceDeclarationImpl::extendsSet`, I now have `ClassDeclarationImpl::implementsSequence` and `InterfaceDeclarationImpl::extendsSequence`.  Both of these latter arrays are `TypeStructure[]` arrays.
+
+This is obviously a breaking change in the 2.0 release.
 
 ## Bootstrapping: from `ts-morph` nodes and structures to type-augmented structures
 

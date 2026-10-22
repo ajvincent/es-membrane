@@ -148,7 +148,7 @@ type stringOrWriterFunction = string | WriterFunction;
 
 declare abstract class TypeStructuresBase<Kind extends TypeStructureKind>
   extends WriterStructuresBase
-  implements KindedTypeStructure<Kind>
+  implements KindedTypeStructure<Kind>, InnerTypeElement<stringOrWriterFunction>
 {
   abstract readonly kind: Kind;
   /** @internal */

@@ -9,13 +9,16 @@ import { STRUCTURE_AND_TYPES_CHILDREN } from "../../internal-exports.js";
 
 import { WriterStructuresBase } from "../WriterStructuresBase.js";
 
-import { GET_OUTER_TYPE } from "../../array-utilities/ShadowArrayImpl.js";
+import {
+  GET_OUTER_TYPE,
+  type InnerTypeElement,
+} from "../../array-utilities/ShadowArrayImpl.js";
 
 import type { stringOrWriterFunction } from "../../types/stringOrWriterFunction.js";
 
 export default abstract class TypeStructuresBase<Kind extends TypeStructureKind>
   extends WriterStructuresBase
-  implements KindedTypeStructure<Kind>
+  implements KindedTypeStructure<Kind>, InnerTypeElement<stringOrWriterFunction>
 {
   public abstract readonly kind: Kind;
 

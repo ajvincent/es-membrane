@@ -14,7 +14,8 @@ import {
 } from "../WriterStructuresBase.js";
 
 import {
-  GET_OUTER_TYPE
+  GET_OUTER_TYPE,
+  type InnerTypeElement,
 } from "../../array-utilities/ShadowArrayImpl.js"
 
 import type {
@@ -24,7 +25,7 @@ import type {
 export default
 abstract class TypeStructuresBase<Kind extends TypeStructureKind>
 extends WriterStructuresBase
-implements KindedTypeStructure<Kind>
+implements KindedTypeStructure<Kind>, InnerTypeElement<stringOrWriterFunction>
 {
   public abstract readonly kind: Kind;
 
