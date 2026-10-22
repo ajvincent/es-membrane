@@ -2,7 +2,6 @@
 import assert from "node:assert/strict";
 
 import {
-  CodeBlockWriter,
   StructureKind,
   VariableDeclarationKind,
   WriterFunction,
@@ -225,30 +224,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
       member.returnTypeStructure : member.typeStructure
     );
     if (typeStructure?.kind === TypeStructureKind.Array) {
-      const setName = name + "Set";
-
-      const setStatement = (writer: CodeBlockWriter): void => {
-        writer.write(`const { ${setName} } = source as unknown as ${this.module.exportName};`);
-      };
-
-      this.module.addImports("internal", ["TypeStructureSetInternal"], []);
-      return [
-        setStatement,
-        new BlockStatementImpl(
-          `if (${setName} instanceof TypeStructureSetInternal)`,
-          [`target.${setName}.cloneFromTypeStructureSet(${setName});`]
-        ).writerFunction,
-
-        new BlockStatementImpl(
-          `else if (Array.isArray(source.${name}))`,
-          [`target.${setName}.replaceFromTypeArray(source.${name});`]
-        ).writerFunction,
-
-        new BlockStatementImpl(
-          `else if (typeof source.${name} === "function")`,
-          [`target.${setName}.replaceFromTypeArray([source.${name}]);`]
-        ).writerFunction,
-      ];
+      return [];
     }
 
     this.module.addImports("internal", ["TypeStructureClassesMap"], []);
