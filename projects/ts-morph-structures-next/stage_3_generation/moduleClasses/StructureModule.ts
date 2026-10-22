@@ -196,7 +196,7 @@ export class StructureModule extends BaseClassModule
     classDecl.name = this.exportName;
     classDecl.isExported = true;
     classDecl.extendsStructure = LiteralTypeStructureImpl.get(getStructureClassBaseName(this.baseName));
-    classDecl.implementsSet.add(LiteralTypeStructureImpl.get(interfaceName));
+    classDecl.implementsSequence.push(LiteralTypeStructureImpl.get(interfaceName));
     this.classMembersMap!.moveMembersToClass(classDecl);
 
     sortClassMembers(classDecl);

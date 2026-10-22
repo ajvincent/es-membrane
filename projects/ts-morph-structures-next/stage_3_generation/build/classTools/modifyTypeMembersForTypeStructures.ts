@@ -7,7 +7,6 @@ import {
   TypeStructureKind,
   PropertySignatureImpl,
   LiteralTypeStructureImpl,
-  ArrayTypeStructureImpl,
   UnionTypeStructureImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
@@ -46,51 +45,31 @@ function defineTypeAccessors(
   if (!PropertyHashesWithTypes.has(baseName, property.name))
     return false;
 
+  // arrays we take care of in addTypeStructureSequence
   if (property.typeStructure!.kind === TypeStructureKind.Array) {
-    const shadowArray = PropertySignatureImpl.clone(property);
-    shadowArray.docs.splice(0);
-    shadowArray.name = `#${property.name}_ShadowArray`;
-
-    const proxyArray = PropertySignatureImpl.clone(property);
-    proxyArray.name = `#${property.name}ProxyArray`;
-    proxyArray.docs.splice(0);
-    proxyArray.typeStructure = new ArrayTypeStructureImpl(
-      LiteralTypeStructureImpl.get("stringOrWriterFunction")
-    );
-
-    map.convertPropertyToAccessors(property.name, true, false);
-    map.getAsKind(StructureKind.GetAccessor, property.name)!.leadingTrivia.push(
-      "// overridden in constructor"
-    );
-
-    map.addMembers([
-      shadowArray,
-      proxyArray,
-    ]);
+    return false;
   }
-  else {
-    map.convertPropertyToAccessors(property.name + "Structure", true, true);
+  map.convertPropertyToAccessors(property.name + "Structure", true, true);
 
-    const manager = new PropertySignatureImpl(`#${property.name}Accessors`);
-    manager.isReadonly = true;
-    manager.typeStructure = LiteralTypeStructureImpl.get("TypeAccessors");
-    map.addMembers([manager]);
+  const manager = new PropertySignatureImpl(`#${property.name}Accessors`);
+  manager.isReadonly = true;
+  manager.typeStructure = LiteralTypeStructureImpl.get("TypeAccessors");
+  map.addMembers([manager]);
 
-    if (property.hasQuestionToken && property.typeStructure) {
-      if (property.typeStructure.kind !== TypeStructureKind.Union) {
-        property.typeStructure = new UnionTypeStructureImpl([
-          property.typeStructure
-        ]);
-      }
-
-      const lastType = property.typeStructure.childTypes.at(-1)!;
-      if (lastType.kind !== TypeStructureKind.Literal || lastType.stringValue !== "undefined") {
-        property.typeStructure.childTypes.push(LiteralTypeStructureImpl.get("undefined"));
-      }
+  if (property.hasQuestionToken && property.typeStructure) {
+    if (property.typeStructure.kind !== TypeStructureKind.Union) {
+      property.typeStructure = new UnionTypeStructureImpl([
+        property.typeStructure
+      ]);
     }
 
-    property.leadingTrivia.push("// overridden in constructor");
+    const lastType = property.typeStructure.childTypes.at(-1)!;
+    if (lastType.kind !== TypeStructureKind.Literal || lastType.stringValue !== "undefined") {
+      property.typeStructure.childTypes.push(LiteralTypeStructureImpl.get("undefined"));
+    }
   }
+
+  property.leadingTrivia.push("// overridden in constructor");
 
   return true;
 }

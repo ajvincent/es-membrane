@@ -139,7 +139,7 @@ function addInterface(
     InterfaceMap.get(name)!
   );
 
-  for (const extendsValue of structureInterface.extendsSet) {
+  for (const extendsValue of structureInterface.extendsSequence) {
     const { kind } = extendsValue;
     assert(kind === TypeStructureKind.Literal || kind === TypeStructureKind.TypeArgumented);
     if (kind === TypeStructureKind.Literal) {

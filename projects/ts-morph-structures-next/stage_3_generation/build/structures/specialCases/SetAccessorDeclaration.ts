@@ -114,7 +114,6 @@ export const SetAccessorDeclarationSpecialCases: StructureModuleModifierTraps = 
         valueParamStatement,
         hasSourceParameterStatement,
       );
-
     }
   }
 };

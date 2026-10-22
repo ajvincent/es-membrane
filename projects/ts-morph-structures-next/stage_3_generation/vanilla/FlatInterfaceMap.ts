@@ -18,7 +18,7 @@ export function addAndFlattenInterface(
 {
   _interface = InterfaceDeclarationImpl.clone(_interface);
   FlatInterfaceMapInternal.set(_interface.name, _interface);
-  for (let typeStructure of _interface.extendsSet) {
+  for (let typeStructure of _interface.extendsSequence) {
     if (typeStructure.kind === TypeStructureKind.TypeArgumented) {
       assert.equal(typeStructure.objectType, LiteralTypeStructureImpl.get("KindedStructure"));
       typeStructure = typeStructure.childTypes[0];
@@ -37,6 +37,6 @@ export function addAndFlattenInterface(
     _interface.properties.push(...properties);
   }
 
-  _interface.extendsSet.clear();
+  _interface.extendsSequence.length = 0;
   _interface.properties.sort((a, b) => a.name.localeCompare(b.name));
 }

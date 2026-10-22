@@ -36,7 +36,7 @@ export function requireInterface(
     ).rootStructure;
     InterfaceMapInternal.set(name, structure);
 
-    InterfaceMap.get(name)!.extendsSet.forEach(typeStructure => {
+    InterfaceMap.get(name)!.extendsSequence.forEach(typeStructure => {
       if (typeStructure.kind === TypeStructureKind.TypeArgumented) {
         assert.equal(typeStructure.objectType, LiteralTypeStructureImpl.get("KindedStructure"));
         typeStructure = typeStructure.childTypes[0];

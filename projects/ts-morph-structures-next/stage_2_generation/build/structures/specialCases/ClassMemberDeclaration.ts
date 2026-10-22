@@ -16,7 +16,6 @@ import {
   StatementsPriority,
 } from "../../fieldStatements/StatementsPriority.js";
 
-
 import {
   ClassMember_isStatic
 } from "./utilities/ClassMember_isStatic.js";

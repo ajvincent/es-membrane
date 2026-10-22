@@ -23,8 +23,9 @@ describe("Vanilla types: ", () => {
     expect(
       classDecl?.properties.find(prop => prop.name === "name")
     ).toBeTruthy();
+
     expect(
-      classDecl?.extendsSet.has(
+      classDecl?.extendsSequence.includes(
         LiteralTypeStructureImpl.get("ClassDeclarationSpecificStructure")
       )
     ).toBeTrue();

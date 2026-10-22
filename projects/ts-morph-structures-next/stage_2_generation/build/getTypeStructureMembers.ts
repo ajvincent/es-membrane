@@ -1,8 +1,13 @@
 import { StructureKind } from "ts-morph";
 
-import { GetAccessorDeclarationImpl,PropertySignatureImpl, TypeMembersMap } from "#stage_one/snapshot/source/exports.js";
+import type {
+  GetAccessorDeclarationImpl,
+  PropertySignatureImpl,
+  TypeMembersMap
+} from "#stage_one/snapshot/source/exports.js";
+
 import PropertyHashesWithTypes from "./classTools/PropertyHashesWithTypes.js";
-import DecoratorModule from "../moduleClasses/DecoratorModule.js";
+import type DecoratorModule from "../moduleClasses/DecoratorModule.js";
 
 import {
   StructureModule
