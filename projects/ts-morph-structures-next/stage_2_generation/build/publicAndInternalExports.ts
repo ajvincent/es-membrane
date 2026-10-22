@@ -231,13 +231,6 @@ function definePublicExports(): void
 function defineInternalExports(): void
 {
   internalExports.addExports({
-    pathToExportedModule: pathToModule(distDir, "source/array-utilities/ReadonlyArrayProxyHandler.ts"),
-    exportNames: ["ReadonlyArrayProxyHandler"],
-    isDefaultExport: true,
-    isType: false
-  });
-
-  internalExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/bootstrap/structureToSyntax.ts"),
     exportNames: ["StructureKindToSyntaxKindMap"],
     isDefaultExport: true,

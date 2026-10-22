@@ -1,5 +1,4 @@
 // This file is generated.  Do not edit.
-export { default as ReadonlyArrayProxyHandler } from "./array-utilities/ReadonlyArrayProxyHandler.js";
 export { default as StructureBase } from "./base/StructureBase.js";
 export { default as StructureClassesMap } from "./base/StructureClassesMap.js";
 export {

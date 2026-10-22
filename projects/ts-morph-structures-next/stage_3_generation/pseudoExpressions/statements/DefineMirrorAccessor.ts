@@ -15,6 +15,7 @@ import CallExpressionStatementImpl from "./CallExpression.js";
 import { ObjectLiteralExpressionMap } from "../literals/Object.js";
 import { FunctionExpressionImpl } from "../literals/Function.js";
 
+/** @deprecated trying to replace all pseudo-expressions with live expression structures */
 export class DefineMirrorAccessor extends ExpressionBase {
   readonly #descriptor = new ObjectLiteralExpressionMap();
   readonly #callExpression: CallExpressionStatementImpl;
