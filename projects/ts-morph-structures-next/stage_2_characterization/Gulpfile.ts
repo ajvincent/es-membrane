@@ -1,0 +1,30 @@
+import path from "node:path";
+
+import {
+  runESLint,
+  runJasmine,
+} from "@ajvincent/build-utilities";
+
+import {
+  series
+} from "gulp";
+
+import {
+  projectDir,
+} from "#utilities/source/AsyncSpecModules.js";
+
+async function jasmine(): Promise<void> {
+  await runJasmine("./spec/support/jasmine.json");
+}
+
+async function eslint(): Promise<void> {
+  await runESLint(path.join(projectDir, "stage_2_characterization"), [
+    "Gulpfile.ts",
+    "spec/**/*.ts",
+  ]);
+}
+
+export default series([
+  jasmine,
+  eslint,
+]);

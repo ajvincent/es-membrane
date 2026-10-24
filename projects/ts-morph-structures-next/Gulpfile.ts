@@ -30,6 +30,7 @@ export const stage_one = buildStage([
 ]);
 
 export const stage_two = buildStage([
+  "stage_2_characterization",
   "stage_2_generation",
   "stage_2_integration/pre-build",
   "stage_2_integration",
