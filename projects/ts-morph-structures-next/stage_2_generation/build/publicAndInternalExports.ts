@@ -231,6 +231,20 @@ function definePublicExports(): void
 function defineInternalExports(): void
 {
   internalExports.addExports({
+    pathToExportedModule: pathToModule(distDir, "source/array-utilities/ShadowArrayImpl.ts"),
+    exportNames: ["GET_OUTER_TYPE"],
+    isDefaultExport: false,
+    isType: false,
+  });
+
+  internalExports.addExports({
+    pathToExportedModule: pathToModule(distDir, "source/array-utilities/ShadowArrayImpl.ts"),
+    exportNames: ["InnerTypeElement"],
+    isDefaultExport: false,
+    isType: true,
+  });
+
+  internalExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/bootstrap/structureToSyntax.ts"),
     exportNames: ["StructureKindToSyntaxKindMap"],
     isDefaultExport: true,

@@ -1,4 +1,8 @@
 // This file is generated.  Do not edit.
+export {
+  GET_OUTER_TYPE,
+  type InnerTypeElement,
+} from "./array-utilities/ShadowArrayImpl.js";
 export { default as StructureBase } from "./base/StructureBase.js";
 export { default as StructureClassesMap } from "./base/StructureClassesMap.js";
 export {

@@ -58,6 +58,14 @@ import {
 } from "ts-morph";
 import * as mixin_decorators from "mixin-decorators";
 import { Simplify, Writable } from "type-fest";
+declare const BUILD_ARRAY_WRAPPER: unique symbol;
+declare const GET_OUTER_TYPE: unique symbol;
+declare const CONVERT_OUTER_TO_INNER: unique symbol;
+
+interface InnerTypeElement<OuterType> {
+  [GET_OUTER_TYPE](): OuterType;
+}
+
 declare const COPY_FIELDS: unique symbol;
 declare const REPLACE_WRITER_WITH_STRING: unique symbol;
 declare const STRUCTURE_AND_TYPES_CHILDREN: unique symbol;
@@ -75,14 +83,6 @@ declare class StructureBase {
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
   >;
-}
-
-declare const BUILD_ARRAY_WRAPPER: unique symbol;
-declare const GET_OUTER_TYPE: unique symbol;
-declare const CONVERT_OUTER_TO_INNER: unique symbol;
-
-interface InnerTypeElement<OuterType> {
-  [GET_OUTER_TYPE](): OuterType;
 }
 
 interface ConditionalTypeStructureParts {
@@ -1711,7 +1711,9 @@ declare const ClassDeclarationStructureBase: mixin_decorators.MixinClass<
 
 declare class ClassDeclarationImpl
   extends ClassDeclarationStructureBase
-  implements ClassDeclarationStructureClassIfc
+  implements
+    ClassDeclarationStructureClassIfc,
+    InnerTypeElement<ClassDeclarationImpl>
 {
   #private;
   readonly kind: StructureKind.Class;
@@ -1739,6 +1741,8 @@ declare class ClassDeclarationImpl
   static clone(
     source: OptionalKind<ClassDeclarationStructure>,
   ): ClassDeclarationImpl;
+  /** @internal */
+  [GET_OUTER_TYPE](): this;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
@@ -1922,7 +1926,9 @@ declare const EnumDeclarationStructureBase: mixin_decorators.MixinClass<
 
 declare class EnumDeclarationImpl
   extends EnumDeclarationStructureBase
-  implements EnumDeclarationStructureClassIfc
+  implements
+    EnumDeclarationStructureClassIfc,
+    InnerTypeElement<EnumDeclarationImpl>
 {
   readonly kind: StructureKind.Enum;
   isConst: boolean;
@@ -1940,6 +1946,8 @@ declare class EnumDeclarationImpl
   static clone(
     source: OptionalKind<EnumDeclarationStructure>,
   ): EnumDeclarationImpl;
+  /** @internal */
+  [GET_OUTER_TYPE](): this;
   toJSON(): StructureClassToJSON<EnumDeclarationImpl>;
 }
 
@@ -1988,7 +1996,9 @@ declare const ExportAssignmentStructureBase: mixin_decorators.MixinClass<
 
 declare class ExportAssignmentImpl
   extends ExportAssignmentStructureBase
-  implements ExportAssignmentStructureClassIfc
+  implements
+    ExportAssignmentStructureClassIfc,
+    InnerTypeElement<ExportAssignmentImpl>
 {
   readonly kind: StructureKind.ExportAssignment;
   expression: stringOrWriterFunction;
@@ -2006,6 +2016,8 @@ declare class ExportAssignmentImpl
   static clone(
     source: OptionalKind<ExportAssignmentStructure>,
   ): ExportAssignmentImpl;
+  /** @internal */
+  [GET_OUTER_TYPE](): this;
   toJSON(): StructureClassToJSON<ExportAssignmentImpl>;
 }
 
@@ -2020,7 +2032,9 @@ declare const ExportDeclarationStructureBase: mixin_decorators.MixinClass<
 
 declare class ExportDeclarationImpl
   extends ExportDeclarationStructureBase
-  implements ExportDeclarationStructureClassIfc
+  implements
+    ExportDeclarationStructureClassIfc,
+    InnerTypeElement<ExportDeclarationImpl>
 {
   readonly kind: StructureKind.ExportDeclaration;
   attributes?: ImportAttributeImpl[];
@@ -2040,6 +2054,8 @@ declare class ExportDeclarationImpl
   static clone(
     source: OptionalKind<ExportDeclarationStructure>,
   ): ExportDeclarationImpl;
+  /** @internal */
+  [GET_OUTER_TYPE](): this;
   toJSON(): StructureClassToJSON<ExportDeclarationImpl>;
 }
 
@@ -2099,7 +2115,9 @@ declare const FunctionDeclarationStructureBase: mixin_decorators.MixinClass<
 
 declare class FunctionDeclarationImpl
   extends FunctionDeclarationStructureBase
-  implements FunctionDeclarationStructureClassIfc
+  implements
+    FunctionDeclarationStructureClassIfc,
+    InnerTypeElement<FunctionDeclarationImpl>
 {
   readonly kind: StructureKind.Function;
   readonly overloads: FunctionDeclarationOverloadImpl[];
@@ -2115,6 +2133,8 @@ declare class FunctionDeclarationImpl
   static clone(
     source: OptionalKind<FunctionDeclarationStructure>,
   ): FunctionDeclarationImpl;
+  /** @internal */
+  [GET_OUTER_TYPE](): this;
   toJSON(): StructureClassToJSON<FunctionDeclarationImpl>;
 }
 
@@ -2232,7 +2252,9 @@ declare const ImportDeclarationStructureBase: mixin_decorators.MixinClass<
 
 declare class ImportDeclarationImpl
   extends ImportDeclarationStructureBase
-  implements ImportDeclarationStructureClassIfc
+  implements
+    ImportDeclarationStructureClassIfc,
+    InnerTypeElement<ImportDeclarationImpl>
 {
   #private;
   readonly kind: StructureKind.ImportDeclaration;
@@ -2257,6 +2279,8 @@ declare class ImportDeclarationImpl
     source: OptionalKind<ImportDeclarationStructure>,
     withTypesArg?: "typesOnly" | "excludeTypes",
   ): ImportDeclarationImpl;
+  /** @internal */
+  [GET_OUTER_TYPE](): this;
   toJSON(): StructureClassToJSON<ImportDeclarationImpl>;
 }
 
@@ -2353,7 +2377,9 @@ declare const InterfaceDeclarationStructureBase: mixin_decorators.MixinClass<
 
 declare class InterfaceDeclarationImpl
   extends InterfaceDeclarationStructureBase
-  implements InterfaceDeclarationStructureClassIfc
+  implements
+    InterfaceDeclarationStructureClassIfc,
+    InnerTypeElement<InterfaceDeclarationImpl>
 {
   readonly kind: StructureKind.Interface;
   readonly callSignatures: CallSignatureDeclarationImpl[];
@@ -2378,6 +2404,8 @@ declare class InterfaceDeclarationImpl
   static clone(
     source: OptionalKind<InterfaceDeclarationStructure>,
   ): InterfaceDeclarationImpl;
+  /** @internal */
+  [GET_OUTER_TYPE](): this;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
@@ -2722,7 +2750,9 @@ declare const ModuleDeclarationStructureBase: mixin_decorators.MixinClass<
 
 declare class ModuleDeclarationImpl
   extends ModuleDeclarationStructureBase
-  implements ModuleDeclarationStructureClassIfc
+  implements
+    ModuleDeclarationStructureClassIfc,
+    InnerTypeElement<ModuleDeclarationImpl>
 {
   readonly kind: StructureKind.Module;
   /**
@@ -2744,6 +2774,8 @@ declare class ModuleDeclarationImpl
   static clone(
     source: OptionalKind<ModuleDeclarationStructure>,
   ): ModuleDeclarationImpl;
+  /** @internal */
+  [GET_OUTER_TYPE](): this;
   toJSON(): StructureClassToJSON<ModuleDeclarationImpl>;
 }
 
@@ -3217,7 +3249,9 @@ declare const TypeAliasDeclarationStructureBase: mixin_decorators.MixinClass<
 
 declare class TypeAliasDeclarationImpl
   extends TypeAliasDeclarationStructureBase
-  implements TypeAliasDeclarationStructureClassIfc
+  implements
+    TypeAliasDeclarationStructureClassIfc,
+    InnerTypeElement<TypeAliasDeclarationImpl>
 {
   #private;
   readonly kind: StructureKind.TypeAlias;
@@ -3237,6 +3271,8 @@ declare class TypeAliasDeclarationImpl
   static clone(
     source: OptionalKind<TypeAliasDeclarationStructure>,
   ): TypeAliasDeclarationImpl;
+  /** @internal */
+  [GET_OUTER_TYPE](): this;
   /** @internal */
   [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
@@ -3333,7 +3369,9 @@ declare const VariableStatementStructureBase: mixin_decorators.MixinClass<
 
 declare class VariableStatementImpl
   extends VariableStatementStructureBase
-  implements VariableStatementStructureClassIfc
+  implements
+    VariableStatementStructureClassIfc,
+    InnerTypeElement<VariableStatementImpl>
 {
   readonly kind: StructureKind.VariableStatement;
   declarationKind?: VariableDeclarationKind;
@@ -3350,6 +3388,8 @@ declare class VariableStatementImpl
   static clone(
     source: OptionalKind<VariableStatementStructure>,
   ): VariableStatementImpl;
+  /** @internal */
+  [GET_OUTER_TYPE](): this;
   toJSON(): StructureClassToJSON<VariableStatementImpl>;
 }
 

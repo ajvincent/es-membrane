@@ -20,6 +20,8 @@ import {
   type ExportableNodeStructureFields,
   ExportableNodeStructureMixin,
   type ExtractStructure,
+  GET_OUTER_TYPE,
+  type InnerTypeElement,
   type JSDocableNodeStructureFields,
   JSDocableNodeStructureMixin,
   type NamedNodeStructureFields,
@@ -75,7 +77,9 @@ const InterfaceDeclarationStructureBase = MultiMixinBuilder<
 
 export class InterfaceDeclarationImpl
   extends InterfaceDeclarationStructureBase
-  implements InterfaceDeclarationStructureClassIfc
+  implements
+    InterfaceDeclarationStructureClassIfc,
+    InnerTypeElement<InterfaceDeclarationImpl>
 {
   readonly kind: StructureKind.Interface = StructureKind.Interface;
   readonly callSignatures: CallSignatureDeclarationImpl[] = [];
@@ -212,6 +216,11 @@ export class InterfaceDeclarationImpl
     const target = new InterfaceDeclarationImpl(source.name);
     this[COPY_FIELDS](source, target);
     return target;
+  }
+
+  /** @internal */
+  public [GET_OUTER_TYPE](): this {
+    return this;
   }
 
   /** @internal */

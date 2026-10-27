@@ -31,154 +31,6 @@ var TypeStructureKind;
     TypeStructureKind[TypeStructureKind["Optional"] = 1000000023] = "Optional";
 })(TypeStructureKind || (TypeStructureKind = {}));
 
-const COPY_FIELDS = Symbol("copy fields");
-const REPLACE_WRITER_WITH_STRING = Symbol("replaceWriterWithString");
-const STRUCTURE_AND_TYPES_CHILDREN = Symbol("otherwise unreachable structure and type-structure children");
-
-class StructureBase {
-    /** @internal */
-    static [COPY_FIELDS](source, target) {
-    }
-    /** @internal */
-    static [REPLACE_WRITER_WITH_STRING](value) {
-        if (typeof value === "function") {
-            const writer = new CodeBlockWriter();
-            value(writer);
-            return writer.toString();
-        }
-        return value;
-    }
-    toJSON() {
-        return {};
-    }
-    /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() { }
-}
-
-/** @internal */
-class StructureClassesMapClass extends Map {
-    clone(structure) {
-        return this.get(structure.kind).clone(structure);
-    }
-    #cloneWithKind(kind, structure) {
-        return this.get(kind).clone(structure);
-    }
-    cloneArray(structures) {
-        return structures.map((structure) => {
-            if (typeof structure === "string" || typeof structure === "function")
-                return structure;
-            return this.clone(structure);
-        });
-    }
-    cloneArrayWithKind(kind, structures) {
-        return structures.map((structure) => {
-            if (typeof structure === "string" || typeof structure === "function")
-                return structure;
-            return this.get(kind).clone(structure);
-        });
-    }
-    cloneRequiredAndOptionalArray(sources, requiredSourceKind, optionalSourceKind) {
-        const sourceArray = this.forceArray(sources);
-        return sourceArray.map((sourceValue) => this.#cloneRequiredOrOptionalStructure(sourceValue, requiredSourceKind, optionalSourceKind));
-    }
-    #cloneRequiredOrOptionalStructure(sourceValue, requiredSourceKind, optionalSourceKind) {
-        if (sourceValue.kind === requiredSourceKind) {
-            return this.#cloneWithKind(requiredSourceKind, sourceValue);
-        }
-        return this.#cloneWithKind(optionalSourceKind, sourceValue);
-    }
-    forceArray(sources) {
-        if (Array.isArray(sources)) {
-            return sources;
-        }
-        return [sources];
-    }
-}
-const StructureClassesMap = new StructureClassesMapClass();
-
-// #endregion preamble
-/**
- * This provides an API for converting between a type (`WriterFunction`) and a `TypeStructure`.
- *
- * For any class providing a type (return type, constraint, extends, etc.), you can have an instance of
- * `TypeAccessors` as a private class field, and provide getters and setters for type and typeStructure
- * referring to the private TypeAccessors.
- *
- * See `../decorators/TypedNode.ts` for an example.
- */
-class TypeAccessors {
-    static buildTypeAccessors(thisObj, fieldName, defaultValue) {
-        const accessors = new TypeAccessors();
-        Reflect.defineProperty(thisObj, fieldName, {
-            configurable: false,
-            enumerable: true,
-            get: function () {
-                return accessors.type;
-            },
-            set: function (value) {
-                accessors.type = value ?? defaultValue;
-            },
-        });
-        return accessors;
-    }
-    typeStructure = undefined;
-    get type() {
-        if (typeof this.typeStructure === "undefined")
-            return undefined;
-        if (this.typeStructure.kind === TypeStructureKind.Literal) {
-            return this.typeStructure.stringValue;
-        }
-        return this.typeStructure.writerFunction;
-    }
-    set type(value) {
-        if (typeof value === "undefined") {
-            this.typeStructure = undefined;
-            return;
-        }
-        if (typeof value === "string") {
-            this.typeStructure = LiteralTypeStructureImpl.get(value);
-            return;
-        }
-        const knownTypeStructure = TypeStructuresBase.getWriterStructureForCallback(value);
-        if (knownTypeStructure instanceof TypeStructuresBase) {
-            this.typeStructure = knownTypeStructure;
-            return;
-        }
-        this.typeStructure = new WriterTypeStructureImpl(value);
-        this.typeStructure[DEREGISTER_WRITER]();
-    }
-    /**
-     * Create a clone of an existing type, if it belongs to a type structure.
-     *
-     * If the underlying type structure exists, this will register the clone's type structure
-     * for later retrieval.
-     * @param type - the type to clone.
-     * @returns the cloned type, or the original type if the type is not cloneable.
-     */
-    static cloneType(type) {
-        if (typeof type !== "function")
-            return type;
-        const typeStructure = TypeStructuresBase.getWriterStructureForCallback(type);
-        if (typeStructure instanceof TypeStructuresBase) {
-            if (typeStructure.kind === TypeStructureKind.Literal)
-                return typeStructure.stringValue;
-            const value = TypeStructureClassesMap.clone(typeStructure);
-            return value.writerFunction;
-        }
-        return type;
-    }
-}
-
-class TypeStructureClassesMapClass extends Map {
-    clone(structure) {
-        return this.get(structure.kind).clone(structure);
-    }
-    cloneArray(structures) {
-        return structures.map((structure) => this.clone(structure));
-    }
-}
-const TypeStructureClassesMap = new TypeStructureClassesMapClass();
-
 const BUILD_ARRAY_WRAPPER = Symbol("build new array");
 const GET_OUTER_TYPE = Symbol("get outer type");
 const CONVERT_OUTER_TO_INNER = Symbol("convert outer type to inner type");
@@ -653,6 +505,154 @@ class ShadowArrayImpl {
         return this[BUILD_ARRAY_WRAPPER](...innerArray);
     }
 }
+
+const COPY_FIELDS = Symbol("copy fields");
+const REPLACE_WRITER_WITH_STRING = Symbol("replaceWriterWithString");
+const STRUCTURE_AND_TYPES_CHILDREN = Symbol("otherwise unreachable structure and type-structure children");
+
+class StructureBase {
+    /** @internal */
+    static [COPY_FIELDS](source, target) {
+    }
+    /** @internal */
+    static [REPLACE_WRITER_WITH_STRING](value) {
+        if (typeof value === "function") {
+            const writer = new CodeBlockWriter();
+            value(writer);
+            return writer.toString();
+        }
+        return value;
+    }
+    toJSON() {
+        return {};
+    }
+    /** @internal */
+    *[STRUCTURE_AND_TYPES_CHILDREN]() { }
+}
+
+/** @internal */
+class StructureClassesMapClass extends Map {
+    clone(structure) {
+        return this.get(structure.kind).clone(structure);
+    }
+    #cloneWithKind(kind, structure) {
+        return this.get(kind).clone(structure);
+    }
+    cloneArray(structures) {
+        return structures.map((structure) => {
+            if (typeof structure === "string" || typeof structure === "function")
+                return structure;
+            return this.clone(structure);
+        });
+    }
+    cloneArrayWithKind(kind, structures) {
+        return structures.map((structure) => {
+            if (typeof structure === "string" || typeof structure === "function")
+                return structure;
+            return this.get(kind).clone(structure);
+        });
+    }
+    cloneRequiredAndOptionalArray(sources, requiredSourceKind, optionalSourceKind) {
+        const sourceArray = this.forceArray(sources);
+        return sourceArray.map((sourceValue) => this.#cloneRequiredOrOptionalStructure(sourceValue, requiredSourceKind, optionalSourceKind));
+    }
+    #cloneRequiredOrOptionalStructure(sourceValue, requiredSourceKind, optionalSourceKind) {
+        if (sourceValue.kind === requiredSourceKind) {
+            return this.#cloneWithKind(requiredSourceKind, sourceValue);
+        }
+        return this.#cloneWithKind(optionalSourceKind, sourceValue);
+    }
+    forceArray(sources) {
+        if (Array.isArray(sources)) {
+            return sources;
+        }
+        return [sources];
+    }
+}
+const StructureClassesMap = new StructureClassesMapClass();
+
+// #endregion preamble
+/**
+ * This provides an API for converting between a type (`WriterFunction`) and a `TypeStructure`.
+ *
+ * For any class providing a type (return type, constraint, extends, etc.), you can have an instance of
+ * `TypeAccessors` as a private class field, and provide getters and setters for type and typeStructure
+ * referring to the private TypeAccessors.
+ *
+ * See `../decorators/TypedNode.ts` for an example.
+ */
+class TypeAccessors {
+    static buildTypeAccessors(thisObj, fieldName, defaultValue) {
+        const accessors = new TypeAccessors();
+        Reflect.defineProperty(thisObj, fieldName, {
+            configurable: false,
+            enumerable: true,
+            get: function () {
+                return accessors.type;
+            },
+            set: function (value) {
+                accessors.type = value ?? defaultValue;
+            },
+        });
+        return accessors;
+    }
+    typeStructure = undefined;
+    get type() {
+        if (typeof this.typeStructure === "undefined")
+            return undefined;
+        if (this.typeStructure.kind === TypeStructureKind.Literal) {
+            return this.typeStructure.stringValue;
+        }
+        return this.typeStructure.writerFunction;
+    }
+    set type(value) {
+        if (typeof value === "undefined") {
+            this.typeStructure = undefined;
+            return;
+        }
+        if (typeof value === "string") {
+            this.typeStructure = LiteralTypeStructureImpl.get(value);
+            return;
+        }
+        const knownTypeStructure = TypeStructuresBase.getWriterStructureForCallback(value);
+        if (knownTypeStructure instanceof TypeStructuresBase) {
+            this.typeStructure = knownTypeStructure;
+            return;
+        }
+        this.typeStructure = new WriterTypeStructureImpl(value);
+        this.typeStructure[DEREGISTER_WRITER]();
+    }
+    /**
+     * Create a clone of an existing type, if it belongs to a type structure.
+     *
+     * If the underlying type structure exists, this will register the clone's type structure
+     * for later retrieval.
+     * @param type - the type to clone.
+     * @returns the cloned type, or the original type if the type is not cloneable.
+     */
+    static cloneType(type) {
+        if (typeof type !== "function")
+            return type;
+        const typeStructure = TypeStructuresBase.getWriterStructureForCallback(type);
+        if (typeStructure instanceof TypeStructuresBase) {
+            if (typeStructure.kind === TypeStructureKind.Literal)
+                return typeStructure.stringValue;
+            const value = TypeStructureClassesMap.clone(typeStructure);
+            return value.writerFunction;
+        }
+        return type;
+    }
+}
+
+class TypeStructureClassesMapClass extends Map {
+    clone(structure) {
+        return this.get(structure.kind).clone(structure);
+    }
+    cloneArray(structures) {
+        return structures.map((structure) => this.clone(structure));
+    }
+}
+const TypeStructureClassesMap = new TypeStructureClassesMapClass();
 
 let ParseLiteralProject;
 function parseLiteralType(source) {
@@ -2728,6 +2728,10 @@ class ClassDeclarationImpl extends ClassDeclarationStructureBase {
         return target;
     }
     /** @internal */
+    [GET_OUTER_TYPE]() {
+        return this;
+    }
+    /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() {
         yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
         if (typeof this.extendsStructure === "object")
@@ -2967,6 +2971,10 @@ class EnumDeclarationImpl extends EnumDeclarationStructureBase {
         this[COPY_FIELDS](source, target);
         return target;
     }
+    /** @internal */
+    [GET_OUTER_TYPE]() {
+        return this;
+    }
     toJSON() {
         const rv = super.toJSON();
         rv.isConst = this.isConst;
@@ -3047,6 +3055,10 @@ class ExportAssignmentImpl extends ExportAssignmentStructureBase {
         this[COPY_FIELDS](source, target);
         return target;
     }
+    /** @internal */
+    [GET_OUTER_TYPE]() {
+        return this;
+    }
     toJSON() {
         const rv = super.toJSON();
         rv.expression = StructureBase[REPLACE_WRITER_WITH_STRING](this.expression);
@@ -3092,6 +3104,10 @@ class ExportDeclarationImpl extends ExportDeclarationStructureBase {
         const target = new ExportDeclarationImpl();
         this[COPY_FIELDS](source, target);
         return target;
+    }
+    /** @internal */
+    [GET_OUTER_TYPE]() {
+        return this;
     }
     toJSON() {
         const rv = super.toJSON();
@@ -3200,6 +3216,10 @@ class FunctionDeclarationImpl extends FunctionDeclarationStructureBase {
         const target = new FunctionDeclarationImpl();
         this[COPY_FIELDS](source, target);
         return target;
+    }
+    /** @internal */
+    [GET_OUTER_TYPE]() {
+        return this;
     }
     toJSON() {
         const rv = super.toJSON();
@@ -3376,6 +3396,10 @@ class ImportDeclarationImpl extends ImportDeclarationStructureBase {
                 delete target.defaultImport;
         }
         return target;
+    }
+    /** @internal */
+    [GET_OUTER_TYPE]() {
+        return this;
     }
     toJSON() {
         const rv = super.toJSON();
@@ -3607,6 +3631,10 @@ class InterfaceDeclarationImpl extends InterfaceDeclarationStructureBase {
         const target = new InterfaceDeclarationImpl(source.name);
         this[COPY_FIELDS](source, target);
         return target;
+    }
+    /** @internal */
+    [GET_OUTER_TYPE]() {
+        return this;
     }
     /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() {
@@ -4117,6 +4145,10 @@ class ModuleDeclarationImpl extends ModuleDeclarationStructureBase {
         this[COPY_FIELDS](source, target);
         return target;
     }
+    /** @internal */
+    [GET_OUTER_TYPE]() {
+        return this;
+    }
     toJSON() {
         const rv = super.toJSON();
         if (this.declarationKind) {
@@ -4477,6 +4509,10 @@ class TypeAliasDeclarationImpl extends TypeAliasDeclarationStructureBase {
         return target;
     }
     /** @internal */
+    [GET_OUTER_TYPE]() {
+        return this;
+    }
+    /** @internal */
     *[STRUCTURE_AND_TYPES_CHILDREN]() {
         yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
         if (typeof this.typeStructure === "object")
@@ -4648,6 +4684,10 @@ class VariableStatementImpl extends VariableStatementStructureBase {
         const target = new VariableStatementImpl();
         this[COPY_FIELDS](source, target);
         return target;
+    }
+    /** @internal */
+    [GET_OUTER_TYPE]() {
+        return this;
     }
     toJSON() {
         const rv = super.toJSON();

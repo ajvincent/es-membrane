@@ -1,4 +1,4 @@
-import UnionMap from "../../../vanilla/UnionMap.js";
+import { UnionMap } from "../../../vanilla/UnionMap.js";
 import InterfaceMap from "../../../vanilla/InterfaceMap.js";
 import initializeTypes from "../../../vanilla/initializer.js";
 

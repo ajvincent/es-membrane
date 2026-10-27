@@ -8,6 +8,8 @@ import {
   type ExportableNodeStructureFields,
   ExportableNodeStructureMixin,
   type ExtractStructure,
+  GET_OUTER_TYPE,
+  type InnerTypeElement,
   type JSDocableNodeStructureFields,
   JSDocableNodeStructureMixin,
   type NamedNodeStructureFields,
@@ -53,7 +55,9 @@ const ModuleDeclarationStructureBase = MultiMixinBuilder<
 
 export class ModuleDeclarationImpl
   extends ModuleDeclarationStructureBase
-  implements ModuleDeclarationStructureClassIfc
+  implements
+    ModuleDeclarationStructureClassIfc,
+    InnerTypeElement<ModuleDeclarationImpl>
 {
   readonly kind: StructureKind.Module = StructureKind.Module;
   /**
@@ -89,6 +93,11 @@ export class ModuleDeclarationImpl
     const target = new ModuleDeclarationImpl(source.name);
     this[COPY_FIELDS](source, target);
     return target;
+  }
+
+  /** @internal */
+  public [GET_OUTER_TYPE](): this {
+    return this;
   }
 
   public toJSON(): StructureClassToJSON<ModuleDeclarationImpl> {

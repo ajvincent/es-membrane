@@ -15,6 +15,8 @@ import {
   type ExtractStructure,
   type GeneratorableNodeStructureFields,
   GeneratorableNodeStructureMixin,
+  GET_OUTER_TYPE,
+  type InnerTypeElement,
   type JSDocableNodeStructureFields,
   JSDocableNodeStructureMixin,
   type NameableNodeStructureFields,
@@ -76,7 +78,9 @@ const FunctionDeclarationStructureBase = MultiMixinBuilder<
 
 export class FunctionDeclarationImpl
   extends FunctionDeclarationStructureBase
-  implements FunctionDeclarationStructureClassIfc
+  implements
+    FunctionDeclarationStructureClassIfc,
+    InnerTypeElement<FunctionDeclarationImpl>
 {
   readonly kind: StructureKind.Function = StructureKind.Function;
   readonly overloads: FunctionDeclarationOverloadImpl[] = [];
@@ -111,6 +115,11 @@ export class FunctionDeclarationImpl
     const target = new FunctionDeclarationImpl();
     this[COPY_FIELDS](source, target);
     return target;
+  }
+
+  /** @internal */
+  public [GET_OUTER_TYPE](): this {
+    return this;
   }
 
   public toJSON(): StructureClassToJSON<FunctionDeclarationImpl> {

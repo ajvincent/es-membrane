@@ -21,7 +21,7 @@ import {
 const UnionMapInternal = new Map<string, readonly string[]>;
 
 const UnionMap = UnionMapInternal as ReadonlyMap<string, readonly string[]>;
-export default UnionMap;
+export { UnionMap };
 
 export function requireUnion(
   name: string

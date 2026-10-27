@@ -9,6 +9,8 @@ import {
   type CloneableStructure,
   COPY_FIELDS,
   type ExtractStructure,
+  GET_OUTER_TYPE,
+  type InnerTypeElement,
   REPLACE_WRITER_WITH_STRING,
   StructureBase,
   StructureClassesMap,
@@ -33,7 +35,9 @@ const ExportDeclarationStructureBase = MultiMixinBuilder<
 
 export class ExportDeclarationImpl
   extends ExportDeclarationStructureBase
-  implements ExportDeclarationStructureClassIfc
+  implements
+    ExportDeclarationStructureClassIfc,
+    InnerTypeElement<ExportDeclarationImpl>
 {
   readonly kind: StructureKind.ExportDeclaration =
     StructureKind.ExportDeclaration;
@@ -96,6 +100,11 @@ export class ExportDeclarationImpl
     const target = new ExportDeclarationImpl();
     this[COPY_FIELDS](source, target);
     return target;
+  }
+
+  /** @internal */
+  public [GET_OUTER_TYPE](): this {
+    return this;
   }
 
   public toJSON(): StructureClassToJSON<ExportDeclarationImpl> {

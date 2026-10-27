@@ -23,6 +23,8 @@ import {
   type ExportableNodeStructureFields,
   ExportableNodeStructureMixin,
   type ExtractStructure,
+  GET_OUTER_TYPE,
+  type InnerTypeElement,
   type JSDocableNodeStructureFields,
   JSDocableNodeStructureMixin,
   type NameableNodeStructureFields,
@@ -82,7 +84,9 @@ const ClassDeclarationStructureBase = MultiMixinBuilder<
 
 export class ClassDeclarationImpl
   extends ClassDeclarationStructureBase
-  implements ClassDeclarationStructureClassIfc
+  implements
+    ClassDeclarationStructureClassIfc,
+    InnerTypeElement<ClassDeclarationImpl>
 {
   readonly kind: StructureKind.Class = StructureKind.Class;
   readonly #extendsAccessors: TypeAccessors;
@@ -223,6 +227,11 @@ export class ClassDeclarationImpl
     const target = new ClassDeclarationImpl();
     this[COPY_FIELDS](source, target);
     return target;
+  }
+
+  /** @internal */
+  public [GET_OUTER_TYPE](): this {
+    return this;
   }
 
   /** @internal */

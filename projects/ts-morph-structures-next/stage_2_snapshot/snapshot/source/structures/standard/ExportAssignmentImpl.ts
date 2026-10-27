@@ -7,6 +7,8 @@ import {
   type CloneableStructure,
   COPY_FIELDS,
   type ExtractStructure,
+  GET_OUTER_TYPE,
+  type InnerTypeElement,
   type JSDocableNodeStructureFields,
   JSDocableNodeStructureMixin,
   REPLACE_WRITER_WITH_STRING,
@@ -31,7 +33,9 @@ const ExportAssignmentStructureBase = MultiMixinBuilder<
 
 export class ExportAssignmentImpl
   extends ExportAssignmentStructureBase
-  implements ExportAssignmentStructureClassIfc
+  implements
+    ExportAssignmentStructureClassIfc,
+    InnerTypeElement<ExportAssignmentImpl>
 {
   readonly kind: StructureKind.ExportAssignment =
     StructureKind.ExportAssignment;
@@ -63,6 +67,11 @@ export class ExportAssignmentImpl
     const target = new ExportAssignmentImpl(source.expression);
     this[COPY_FIELDS](source, target);
     return target;
+  }
+
+  /** @internal */
+  public [GET_OUTER_TYPE](): this {
+    return this;
   }
 
   public toJSON(): StructureClassToJSON<ExportAssignmentImpl> {

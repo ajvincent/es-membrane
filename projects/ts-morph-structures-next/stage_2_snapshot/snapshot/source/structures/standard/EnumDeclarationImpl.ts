@@ -11,6 +11,8 @@ import {
   type ExportableNodeStructureFields,
   ExportableNodeStructureMixin,
   type ExtractStructure,
+  GET_OUTER_TYPE,
+  type InnerTypeElement,
   type JSDocableNodeStructureFields,
   JSDocableNodeStructureMixin,
   type NamedNodeStructureFields,
@@ -52,7 +54,9 @@ const EnumDeclarationStructureBase = MultiMixinBuilder<
 
 export class EnumDeclarationImpl
   extends EnumDeclarationStructureBase
-  implements EnumDeclarationStructureClassIfc
+  implements
+    EnumDeclarationStructureClassIfc,
+    InnerTypeElement<EnumDeclarationImpl>
 {
   readonly kind: StructureKind.Enum = StructureKind.Enum;
   isConst = false;
@@ -94,6 +98,11 @@ export class EnumDeclarationImpl
     const target = new EnumDeclarationImpl(source.name);
     this[COPY_FIELDS](source, target);
     return target;
+  }
+
+  /** @internal */
+  public [GET_OUTER_TYPE](): this {
+    return this;
   }
 
   public toJSON(): StructureClassToJSON<EnumDeclarationImpl> {

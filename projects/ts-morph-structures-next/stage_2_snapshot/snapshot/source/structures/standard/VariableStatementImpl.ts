@@ -11,6 +11,8 @@ import {
   type ExportableNodeStructureFields,
   ExportableNodeStructureMixin,
   type ExtractStructure,
+  GET_OUTER_TYPE,
+  type InnerTypeElement,
   type JSDocableNodeStructureFields,
   JSDocableNodeStructureMixin,
   StructureBase,
@@ -49,7 +51,9 @@ const VariableStatementStructureBase = MultiMixinBuilder<
 
 export class VariableStatementImpl
   extends VariableStatementStructureBase
-  implements VariableStatementStructureClassIfc
+  implements
+    VariableStatementStructureClassIfc,
+    InnerTypeElement<VariableStatementImpl>
 {
   readonly kind: StructureKind.VariableStatement =
     StructureKind.VariableStatement;
@@ -88,6 +92,11 @@ export class VariableStatementImpl
     const target = new VariableStatementImpl();
     this[COPY_FIELDS](source, target);
     return target;
+  }
+
+  /** @internal */
+  public [GET_OUTER_TYPE](): this {
+    return this;
   }
 
   public toJSON(): StructureClassToJSON<VariableStatementImpl> {

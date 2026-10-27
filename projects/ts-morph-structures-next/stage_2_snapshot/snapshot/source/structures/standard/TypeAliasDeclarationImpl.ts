@@ -13,6 +13,8 @@ import {
   type ExportableNodeStructureFields,
   ExportableNodeStructureMixin,
   type ExtractStructure,
+  GET_OUTER_TYPE,
+  type InnerTypeElement,
   type JSDocableNodeStructureFields,
   JSDocableNodeStructureMixin,
   type NamedNodeStructureFields,
@@ -61,7 +63,9 @@ const TypeAliasDeclarationStructureBase = MultiMixinBuilder<
 
 export class TypeAliasDeclarationImpl
   extends TypeAliasDeclarationStructureBase
-  implements TypeAliasDeclarationStructureClassIfc
+  implements
+    TypeAliasDeclarationStructureClassIfc,
+    InnerTypeElement<TypeAliasDeclarationImpl>
 {
   readonly kind: StructureKind.TypeAlias = StructureKind.TypeAlias;
   readonly #typeAccessors: TypeAccessors;
@@ -110,6 +114,11 @@ export class TypeAliasDeclarationImpl
     const target = new TypeAliasDeclarationImpl(source.name, source.type);
     this[COPY_FIELDS](source, target);
     return target;
+  }
+
+  /** @internal */
+  public [GET_OUTER_TYPE](): this {
+    return this;
   }
 
   /** @internal */

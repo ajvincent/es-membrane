@@ -14,7 +14,7 @@ import {
 } from "../moduleClasses/exports.js";
 
 import initializeTypes from "../vanilla/initializer.js";
-import UnionMap from "../vanilla/UnionMap.js";
+import { UnionMap } from "../vanilla/UnionMap.js";
 
 /**
  * @returns the original structure names (not modified by getStructureImplName)

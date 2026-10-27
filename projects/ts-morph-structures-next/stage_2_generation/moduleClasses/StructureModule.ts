@@ -1,4 +1,5 @@
 import {
+  Scope,
   VariableDeclarationKind,
   type WriterFunction,
 } from "ts-morph";
@@ -10,6 +11,7 @@ import {
   JSDocImpl,
   JSDocTagImpl,
   LiteralTypeStructureImpl,
+  MethodDeclarationImpl,
   MethodSignatureImpl,
   ParameterDeclarationImpl,
   PrefixOperatorsTypeStructureImpl,
@@ -31,6 +33,8 @@ import {
 
 import CallExpressionStatementImpl from "../pseudoExpressions/statements/CallExpression.js";
 import SatisfiesStatementImpl from "../pseudoExpressions/statements/SatisfiesStatement.js";
+
+import { UnionMap } from "../vanilla/UnionMap.js";
 
 import BaseClassModule from "./BaseClassModule.js";
 import InterfaceModule from "./InterfaceModule.js";
@@ -198,6 +202,28 @@ export class StructureModule extends BaseClassModule
     classDecl.extendsStructure = LiteralTypeStructureImpl.get(getStructureClassBaseName(this.baseName));
     classDecl.implementsSet.add(LiteralTypeStructureImpl.get(interfaceName));
     this.classMembersMap!.moveMembersToClass(classDecl);
+
+    // built-in statement structures: add GET_OUTER_TYPE for statementsSequence support
+    const statementStructures: readonly string[] = UnionMap.get("StatementStructures")!;
+    if (statementStructures.includes(this.baseName)) {
+      this.addImports("internal", ["GET_OUTER_TYPE"], ["InnerTypeElement"]);
+
+      classDecl.implementsSet.add(
+        new TypeArgumentedTypeStructureImpl(LiteralTypeStructureImpl.get("InnerTypeElement"), [
+          LiteralTypeStructureImpl.get(this.exportName)
+        ])
+      );
+
+      const getOuterType = new MethodDeclarationImpl(false, "[GET_OUTER_TYPE]");
+      getOuterType.scope = Scope.Public;
+      const jsDoc = new JSDocImpl();
+      const tag = new JSDocTagImpl("internal");
+      jsDoc.tags.push(tag);
+      getOuterType.docs.push(jsDoc);
+      getOuterType.returnTypeStructure = LiteralTypeStructureImpl.get("this");
+      getOuterType.statements.push("return this;");
+      classDecl.methods.push(getOuterType);
+    }
 
     sortClassMembers(classDecl);
 
