@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
-import { CodeBlockWriter, ModuleResolutionKind, ScriptTarget, ModuleKind, Project, StructureKind, SyntaxKind, Structure, forEachStructureChild, Node, ConstructorTypeNode, Writers, printStructure } from 'ts-morph';
+import { StructureKind, CodeBlockWriter, ModuleResolutionKind, ScriptTarget, ModuleKind, Project, SyntaxKind, Structure, forEachStructureChild, Node, ConstructorTypeNode, Writers, printStructure } from 'ts-morph';
 import path from 'node:path';
 import MultiMixinBuilder from 'mixin-decorators';
+
+var StatementStructureKind;
+(function (StatementStructureKind) {
+    StatementStructureKind[StatementStructureKind["UnknownString"] = 1002000000] = "UnknownString";
+    StatementStructureKind[StatementStructureKind["UnknownWriter"] = 1002000001] = "UnknownWriter";
+})(StatementStructureKind || (StatementStructureKind = {}));
 
 var TypeStructureKind;
 (function (TypeStructureKind) {
@@ -506,30 +512,6 @@ class ShadowArrayImpl {
     }
 }
 
-const COPY_FIELDS = Symbol("copy fields");
-const REPLACE_WRITER_WITH_STRING = Symbol("replaceWriterWithString");
-const STRUCTURE_AND_TYPES_CHILDREN = Symbol("otherwise unreachable structure and type-structure children");
-
-class StructureBase {
-    /** @internal */
-    static [COPY_FIELDS](source, target) {
-    }
-    /** @internal */
-    static [REPLACE_WRITER_WITH_STRING](value) {
-        if (typeof value === "function") {
-            const writer = new CodeBlockWriter();
-            value(writer);
-            return writer.toString();
-        }
-        return value;
-    }
-    toJSON() {
-        return {};
-    }
-    /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() { }
-}
-
 /** @internal */
 class StructureClassesMapClass extends Map {
     clone(structure) {
@@ -570,6 +552,53 @@ class StructureClassesMapClass extends Map {
     }
 }
 const StructureClassesMap = new StructureClassesMapClass();
+
+class StatementStructureClassesMapClass extends Map {
+    clone(structure) {
+        switch (structure.kind) {
+            case StructureKind.Class:
+            case StructureKind.Enum:
+            case StructureKind.ExportAssignment:
+            case StructureKind.ExportDeclaration:
+            case StructureKind.Function:
+            case StructureKind.ImportDeclaration:
+            case StructureKind.Interface:
+            case StructureKind.Module:
+            case StructureKind.TypeAlias:
+            case StructureKind.VariableStatement:
+                return StructureClassesMap.clone(structure);
+        }
+        return this.get(structure.kind).clone(structure);
+    }
+    cloneArray(structures) {
+        return structures.map((structure) => this.clone(structure));
+    }
+}
+const StatementStructureClassesMap = new StatementStructureClassesMapClass();
+
+const COPY_FIELDS = Symbol("copy fields");
+const REPLACE_WRITER_WITH_STRING = Symbol("replaceWriterWithString");
+const STRUCTURE_AND_TYPES_CHILDREN = Symbol("otherwise unreachable structure and type-structure children");
+
+class StructureBase {
+    /** @internal */
+    static [COPY_FIELDS](source, target) {
+    }
+    /** @internal */
+    static [REPLACE_WRITER_WITH_STRING](value) {
+        if (typeof value === "function") {
+            const writer = new CodeBlockWriter();
+            value(writer);
+            return writer.toString();
+        }
+        return value;
+    }
+    toJSON() {
+        return {};
+    }
+    /** @internal */
+    *[STRUCTURE_AND_TYPES_CHILDREN]() { }
+}
 
 // #endregion preamble
 /**
@@ -4704,6 +4733,52 @@ class VariableStatementImpl extends VariableStatementStructureBase {
 }
 StructureClassesMap.set(StructureKind.VariableStatement, VariableStatementImpl);
 
+class StatementStructuresBase extends WriterStructuresBase {
+    /** @internal */
+    *[STRUCTURE_AND_TYPES_CHILDREN]() { }
+    [GET_OUTER_TYPE]() {
+        return this.writerFunction;
+    }
+}
+
+/** For unparsed strings the user provides.  You should never need to construct these manually.  */
+class UnknownStringStatementImpl extends StatementStructuresBase {
+    static clone(other) {
+        return new UnknownStringStatementImpl(other[GET_OUTER_TYPE]());
+    }
+    #statement;
+    kind = StatementStructureKind.UnknownString;
+    constructor(statement) {
+        super();
+        this.#statement = statement;
+    }
+    [WRITER_FUNCTION_KEY](writer) {
+        writer.write(this.#statement);
+    }
+    [GET_OUTER_TYPE]() {
+        return this.#statement;
+    }
+}
+StatementStructureClassesMap.set(StatementStructureKind.UnknownString, UnknownStringStatementImpl);
+
+/** For `WriterFunction` objects the user provides.  You should never need to construct these manually.  */
+class UnknownWriterStatementImpl extends StatementStructuresBase {
+    static clone(other) {
+        return new UnknownWriterStatementImpl(other[GET_OUTER_TYPE]());
+    }
+    kind = StatementStructureKind.UnknownString;
+    constructor(writer) {
+        super();
+        this[WRITER_FUNCTION_KEY] = writer;
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY];
+    [GET_OUTER_TYPE]() {
+        return this[WRITER_FUNCTION_KEY];
+    }
+}
+StatementStructureClassesMap.set(StatementStructureKind.UnknownWriter, UnknownWriterStatementImpl);
+
 /**
  * `boolean[]`
  *
@@ -7621,4 +7696,4 @@ class TypeMembersMap extends OrderedMap {
 }
 _a = TypeMembersMap;
 
-export { ArrayTypeStructureImpl, CallSignatureDeclarationImpl, ClassDeclarationImpl, ClassFieldStatementsMap, ClassMembersMap, ClassStaticBlockDeclarationImpl, ClassSupportsStatementsFlags, ConditionalTypeStructureImpl, ConstructSignatureDeclarationImpl, ConstructorDeclarationImpl, ConstructorDeclarationOverloadImpl, DecoratorImpl, EnumDeclarationImpl, EnumMemberImpl, ExportAssignmentImpl, ExportDeclarationImpl, ExportManager, ExportSpecifierImpl, FunctionDeclarationImpl, FunctionDeclarationOverloadImpl, FunctionTypeStructureImpl, FunctionWriterStyle, GetAccessorDeclarationImpl, ImportAttributeImpl, ImportDeclarationImpl, ImportManager, ImportSpecifierImpl, ImportTypeStructureImpl, IndexSignatureDeclarationImpl, IndexedAccessTypeStructureImpl, InferTypeStructureImpl, InterfaceDeclarationImpl, IntersectionTypeStructureImpl, JSDocImpl, JSDocTagImpl, JsxAttributeImpl, JsxElementImpl, JsxSelfClosingElementImpl, JsxSpreadAttributeImpl, LiteralTypeStructureImpl, MappedTypeStructureImpl, MemberedObjectTypeStructureImpl, MemberedTypeToClass, MethodDeclarationImpl, MethodDeclarationOverloadImpl, MethodSignatureImpl, ModuleDeclarationImpl, NamedTupleMemberTypeStructureImpl, NumberTypeStructureImpl, OptionalTypeStructureImpl, ParameterDeclarationImpl, ParameterTypeStructureImpl, ParenthesesTypeStructureImpl, PrefixOperatorsTypeStructureImpl, PropertyAssignmentImpl, PropertyDeclarationImpl, PropertySignatureImpl, QualifiedNameTypeStructureImpl, SetAccessorDeclarationImpl, ShorthandPropertyAssignmentImpl, SourceFileImpl, SpreadAssignmentImpl, StringTypeStructureImpl, TemplateLiteralTypeStructureImpl, TupleTypeStructureImpl, TypeAliasDeclarationImpl, TypeArgumentedTypeStructureImpl, TypeMembersMap, TypeParameterDeclarationImpl, TypePredicateTypeStructureImpl, TypeStructureKind, UnionTypeStructureImpl, VariableDeclarationImpl, VariableStatementImpl, VoidTypeNodeToTypeStructureConsole, WriterTypeStructureImpl, forEachAugmentedStructureChild, getTypeAugmentedStructure, parseLiteralType };
+export { ArrayTypeStructureImpl, CallSignatureDeclarationImpl, ClassDeclarationImpl, ClassFieldStatementsMap, ClassMembersMap, ClassStaticBlockDeclarationImpl, ClassSupportsStatementsFlags, ConditionalTypeStructureImpl, ConstructSignatureDeclarationImpl, ConstructorDeclarationImpl, ConstructorDeclarationOverloadImpl, DecoratorImpl, EnumDeclarationImpl, EnumMemberImpl, ExportAssignmentImpl, ExportDeclarationImpl, ExportManager, ExportSpecifierImpl, FunctionDeclarationImpl, FunctionDeclarationOverloadImpl, FunctionTypeStructureImpl, FunctionWriterStyle, GetAccessorDeclarationImpl, ImportAttributeImpl, ImportDeclarationImpl, ImportManager, ImportSpecifierImpl, ImportTypeStructureImpl, IndexSignatureDeclarationImpl, IndexedAccessTypeStructureImpl, InferTypeStructureImpl, InterfaceDeclarationImpl, IntersectionTypeStructureImpl, JSDocImpl, JSDocTagImpl, JsxAttributeImpl, JsxElementImpl, JsxSelfClosingElementImpl, JsxSpreadAttributeImpl, LiteralTypeStructureImpl, MappedTypeStructureImpl, MemberedObjectTypeStructureImpl, MemberedTypeToClass, MethodDeclarationImpl, MethodDeclarationOverloadImpl, MethodSignatureImpl, ModuleDeclarationImpl, NamedTupleMemberTypeStructureImpl, NumberTypeStructureImpl, OptionalTypeStructureImpl, ParameterDeclarationImpl, ParameterTypeStructureImpl, ParenthesesTypeStructureImpl, PrefixOperatorsTypeStructureImpl, PropertyAssignmentImpl, PropertyDeclarationImpl, PropertySignatureImpl, QualifiedNameTypeStructureImpl, SetAccessorDeclarationImpl, ShorthandPropertyAssignmentImpl, SourceFileImpl, SpreadAssignmentImpl, StatementStructureKind, StringTypeStructureImpl, TemplateLiteralTypeStructureImpl, TupleTypeStructureImpl, TypeAliasDeclarationImpl, TypeArgumentedTypeStructureImpl, TypeMembersMap, TypeParameterDeclarationImpl, TypePredicateTypeStructureImpl, TypeStructureKind, UnionTypeStructureImpl, UnknownStringStatementImpl, UnknownWriterStatementImpl, VariableDeclarationImpl, VariableStatementImpl, VoidTypeNodeToTypeStructureConsole, WriterTypeStructureImpl, forEachAugmentedStructureChild, getTypeAugmentedStructure, parseLiteralType };

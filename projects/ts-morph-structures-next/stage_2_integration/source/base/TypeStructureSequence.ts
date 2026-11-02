@@ -6,7 +6,7 @@ import {
 
 import parseLiteralType from "../bootstrap/parseLiteralType.js";
 
-import {
+import type {
   TypeStructures
 } from "../structures/type/TypeStructures.js";
 

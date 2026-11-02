@@ -1,4 +1,4 @@
-import type { TypedNodeWriter } from "../internal-exports.js";
+import type { NodeWriter } from "../types/ts-morph-nodewriter.js";
 
 export enum TypeStructureKind {
   Literal = 1000000000,
@@ -29,6 +29,6 @@ export enum TypeStructureKind {
 
 export interface KindedTypeStructure<
   TKind extends TypeStructureKind,
-> extends TypedNodeWriter {
+> extends NodeWriter {
   readonly kind: TKind;
 }

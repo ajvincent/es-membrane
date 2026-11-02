@@ -8,6 +8,7 @@ import type {
 } from "ts-morph";
 
 import type {
+  AugmentedStatementStructures,
   StructureImpls,
   TypeStructures,
 } from "../../snapshot/source/exports.js";
@@ -17,5 +18,9 @@ export type CloneableStructure<Base extends Structure, Result extends StructureI
 };
 
 export type CloneableTypeStructure<Base extends TypeStructures> = Class<Base> & {
+  clone(other: Base): Base
+};
+
+export type CloneableStatementStructure<Base extends AugmentedStatementStructures> = Class<Base> & {
   clone(other: Base): Base
 };

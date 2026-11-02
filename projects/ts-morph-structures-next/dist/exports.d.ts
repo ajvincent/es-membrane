@@ -58,205 +58,20 @@ import {
 } from "ts-morph";
 import * as mixin_decorators from "mixin-decorators";
 import { Simplify, Writable } from "type-fest";
-declare const BUILD_ARRAY_WRAPPER: unique symbol;
-declare const GET_OUTER_TYPE: unique symbol;
-declare const CONVERT_OUTER_TO_INNER: unique symbol;
 
-interface InnerTypeElement<OuterType> {
-  [GET_OUTER_TYPE](): OuterType;
-}
-
-declare const COPY_FIELDS: unique symbol;
-declare const REPLACE_WRITER_WITH_STRING: unique symbol;
-declare const STRUCTURE_AND_TYPES_CHILDREN: unique symbol;
-
-declare class StructureBase {
-  /** @internal */
-  static [COPY_FIELDS](
-    source: OptionalKind<Structures>,
-    target: Structures,
-  ): void;
-  /** @internal */
-  static [REPLACE_WRITER_WITH_STRING](value: string | WriterFunction): string;
-  toJSON(): object;
-  /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
-}
-
-interface ConditionalTypeStructureParts {
-  checkType: TypeStructures;
-  extendsType: TypeStructures;
-  trueType: TypeStructures;
-  falseType: TypeStructures;
-}
-
-declare enum FunctionWriterStyle {
-  Arrow = "Arrow",
-  Method = "Method",
-  GetAccessor = "GetAccessor",
-  SetAccessor = "SetAccessor",
-}
-
-interface FunctionTypeContext {
-  name: string | undefined;
-  isConstructor: boolean;
-  typeParameters: TypeParameterDeclarationImpl[];
-  parameters: ParameterTypeStructureImpl[];
-  restParameter: ParameterTypeStructureImpl | undefined;
-  returnType: TypeStructures | undefined;
-  writerStyle: FunctionWriterStyle;
-}
-
-type PrefixUnaryOperator = "..." | "keyof" | "typeof" | "readonly" | "unique";
-declare const WRITER_FUNCTION_KEY: unique symbol;
-declare const DEREGISTER_WRITER: unique symbol;
-
-declare abstract class WriterStructuresBase {
-  #private;
-  readonly writerFunction: (writer: CodeBlockWriter) => void;
-  constructor();
-  static getWriterStructureForCallback(
-    writer: WriterFunction,
-  ): WriterStructuresBase | undefined;
-  /** @internal */
-  [DEREGISTER_WRITER](): void;
-  /** @internal */
-  protected abstract [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
-  /**
-   * Write a start token, invoke a block, and write the end token, in that order.
-   * @param writer - the code block writer.
-   * @param startToken - the start token.
-   * @param endToken - the end token.
-   * @param newLine - true if we should call `.newLine()` after the start and before the end.
-   * @param indent - true if we should indent the block statements.
-   * @param block - the callback to execute for the block statements.
-   * @see {@link https://github.com/dsherret/code-block-writer/issues/44}
-   */
-  protected static pairedWrite(
-    writer: CodeBlockWriter,
-    startToken: string,
-    endToken: string,
-    newLine: boolean,
-    indent: boolean,
-    block: () => void,
-  ): void;
-}
-
-type stringOrWriterFunction = string | WriterFunction;
-
-declare abstract class TypeStructuresBase<Kind extends TypeStructureKind>
-  extends WriterStructuresBase
-  implements KindedTypeStructure<Kind>, InnerTypeElement<stringOrWriterFunction>
-{
-  abstract readonly kind: Kind;
-  /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
-  [GET_OUTER_TYPE](): stringOrWriterFunction;
-}
-
-type TypeStructures =
-  | ArrayTypeStructureImpl
-  | ConditionalTypeStructureImpl
-  | FunctionTypeStructureImpl
-  | ImportTypeStructureImpl
-  | IndexedAccessTypeStructureImpl
-  | InferTypeStructureImpl
-  | IntersectionTypeStructureImpl
-  | LiteralTypeStructureImpl
-  | MappedTypeStructureImpl
-  | MemberedObjectTypeStructureImpl
-  | NamedTupleMemberTypeStructureImpl
-  | NumberTypeStructureImpl
-  | OptionalTypeStructureImpl
-  | ParameterTypeStructureImpl
-  | ParenthesesTypeStructureImpl
-  | PrefixOperatorsTypeStructureImpl
-  | QualifiedNameTypeStructureImpl
-  | StringTypeStructureImpl
-  | TemplateLiteralTypeStructureImpl
-  | TupleTypeStructureImpl
-  | TypeArgumentedTypeStructureImpl
-  | TypePredicateTypeStructureImpl
-  | UnionTypeStructureImpl
-  | WriterTypeStructureImpl;
-type TypeStructuresOrNull = TypeStructures | null;
-
-declare class TypeStructureSequence extends ShadowArrayImpl<
-  stringOrWriterFunction,
-  TypeStructures
-> {
-  static createProxy(innerElements: TypeStructures[]): stringOrWriterFunction[];
-  protected [BUILD_ARRAY_WRAPPER](
-    ...innerElements: TypeStructures[]
-  ): stringOrWriterFunction[];
-  protected [CONVERT_OUTER_TO_INNER](
-    outerType: stringOrWriterFunction,
-  ): TypeStructures;
-}
-
-declare class TypePrinterSettings {
-  indentChildren: boolean;
-  newLinesAroundChildren: boolean;
-  oneLinePerChild: boolean;
-}
-
-declare abstract class TypeStructuresWithChildren<
-  Kind extends TypeStructureKind,
-  Children extends readonly TypeStructures[],
-> extends TypeStructuresBase<Kind> {
-  #private;
-  abstract readonly kind: Kind;
-  /** This lives outside the start and end tokens.  Think of this as a parent type for the children, ie. `Partial`. */
-  protected abstract objectType: TypeStructuresOrNull;
-  /** The child types we join together, and wrap in the start and end tokens. */
-  abstract readonly childTypes: Children;
-  /** A very short string, one or two characters, before all child types. */
-  protected abstract readonly startToken: string;
-  /** A very short string, between all child types. */
-  protected abstract readonly joinChildrenToken: string;
-  /** A very short string, one or two characters, after all child types. */
-  protected abstract readonly endToken: string;
-  /** The maximum number of children to support. */
-  protected abstract readonly maxChildCount: number;
-  /** For customizing printing of the child types. */
-  readonly printerSettings: TypePrinterSettings;
-  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
-  /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
-}
-
-declare abstract class TypeStructuresWithTypeParameters<
-  Kind extends TypeStructureKind,
-> extends TypeStructuresBase<Kind> {
-  #private;
-  protected static writeTypeParameter(
-    typeParam: TypeParameterDeclarationImpl,
-    writer: CodeBlockWriter,
-    constraintMode: "extends" | "in",
-  ): void;
-}
-
-type OmitWriter<T> = T extends (infer A)[]
-  ? OmitWriter<A>[]
-  : Exclude<T, WriterFunction>;
-type OmitWriterFromFields<T extends object> = {
-  [key in keyof T]: OmitWriter<T[key]>;
-};
-type StructureClassToJSON<T extends object> = Writable<
-  Omit<
-    OmitWriterFromFields<T>,
-    "toJSON" | `${string}Structure` | `${string}Sequence`
-  >
->;
-
-interface TypedNodeWriter {
+interface NodeWriter {
   writerFunction: WriterFunction;
+}
+
+declare enum StatementStructureKind {
+  UnknownString = 1002000000,
+  UnknownWriter = 1002000001,
+}
+
+interface KindedStatementStructure<
+  TKind extends StatementStructureKind,
+> extends NodeWriter {
+  readonly kind: TKind;
 }
 
 declare enum TypeStructureKind {
@@ -288,7 +103,7 @@ declare enum TypeStructureKind {
 
 interface KindedTypeStructure<
   TKind extends TypeStructureKind,
-> extends TypedNodeWriter {
+> extends NodeWriter {
   readonly kind: TKind;
 }
 
@@ -704,6 +519,282 @@ interface VariableStatementStructureClassIfc {
   declarationKind?: VariableDeclarationKind;
   readonly declarations: VariableDeclarationImpl[];
 }
+
+declare const BUILD_ARRAY_WRAPPER: unique symbol;
+declare const GET_OUTER_TYPE: unique symbol;
+declare const CONVERT_OUTER_TO_INNER: unique symbol;
+
+interface InnerTypeElement<OuterType> {
+  [GET_OUTER_TYPE](): OuterType;
+}
+
+declare const COPY_FIELDS: unique symbol;
+declare const REPLACE_WRITER_WITH_STRING: unique symbol;
+declare const STRUCTURE_AND_TYPES_CHILDREN: unique symbol;
+
+declare class StructureBase {
+  /** @internal */
+  static [COPY_FIELDS](
+    source: OptionalKind<Structures>,
+    target: Structures,
+  ): void;
+  /** @internal */
+  static [REPLACE_WRITER_WITH_STRING](value: string | WriterFunction): string;
+  toJSON(): object;
+  /** @internal */
+  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+    StructureImpls | TypeStructures
+  >;
+}
+
+interface ConditionalTypeStructureParts {
+  checkType: TypeStructures;
+  extendsType: TypeStructures;
+  trueType: TypeStructures;
+  falseType: TypeStructures;
+}
+
+declare enum FunctionWriterStyle {
+  Arrow = "Arrow",
+  Method = "Method",
+  GetAccessor = "GetAccessor",
+  SetAccessor = "SetAccessor",
+}
+
+interface FunctionTypeContext {
+  name: string | undefined;
+  isConstructor: boolean;
+  typeParameters: TypeParameterDeclarationImpl[];
+  parameters: ParameterTypeStructureImpl[];
+  restParameter: ParameterTypeStructureImpl | undefined;
+  returnType: TypeStructures | undefined;
+  writerStyle: FunctionWriterStyle;
+}
+
+type PrefixUnaryOperator = "..." | "keyof" | "typeof" | "readonly" | "unique";
+declare const WRITER_FUNCTION_KEY: unique symbol;
+declare const DEREGISTER_WRITER: unique symbol;
+
+declare abstract class WriterStructuresBase {
+  #private;
+  readonly writerFunction: (writer: CodeBlockWriter) => void;
+  constructor();
+  static getWriterStructureForCallback(
+    writer: WriterFunction,
+  ): WriterStructuresBase | undefined;
+  /** @internal */
+  [DEREGISTER_WRITER](): void;
+  /** @internal */
+  protected abstract [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
+  /**
+   * Write a start token, invoke a block, and write the end token, in that order.
+   * @param writer - the code block writer.
+   * @param startToken - the start token.
+   * @param endToken - the end token.
+   * @param newLine - true if we should call `.newLine()` after the start and before the end.
+   * @param indent - true if we should indent the block statements.
+   * @param block - the callback to execute for the block statements.
+   * @see {@link https://github.com/dsherret/code-block-writer/issues/44}
+   */
+  protected static pairedWrite(
+    writer: CodeBlockWriter,
+    startToken: string,
+    endToken: string,
+    newLine: boolean,
+    indent: boolean,
+    block: () => void,
+  ): void;
+}
+
+type stringOrWriterFunction = string | WriterFunction;
+
+declare abstract class TypeStructuresBase<Kind extends TypeStructureKind>
+  extends WriterStructuresBase
+  implements KindedTypeStructure<Kind>, InnerTypeElement<stringOrWriterFunction>
+{
+  abstract readonly kind: Kind;
+  /** @internal */
+  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+    StructureImpls | TypeStructures
+  >;
+  [GET_OUTER_TYPE](): stringOrWriterFunction;
+}
+
+type TypeStructures =
+  | ArrayTypeStructureImpl
+  | ConditionalTypeStructureImpl
+  | FunctionTypeStructureImpl
+  | ImportTypeStructureImpl
+  | IndexedAccessTypeStructureImpl
+  | InferTypeStructureImpl
+  | IntersectionTypeStructureImpl
+  | LiteralTypeStructureImpl
+  | MappedTypeStructureImpl
+  | MemberedObjectTypeStructureImpl
+  | NamedTupleMemberTypeStructureImpl
+  | NumberTypeStructureImpl
+  | OptionalTypeStructureImpl
+  | ParameterTypeStructureImpl
+  | ParenthesesTypeStructureImpl
+  | PrefixOperatorsTypeStructureImpl
+  | QualifiedNameTypeStructureImpl
+  | StringTypeStructureImpl
+  | TemplateLiteralTypeStructureImpl
+  | TupleTypeStructureImpl
+  | TypeArgumentedTypeStructureImpl
+  | TypePredicateTypeStructureImpl
+  | UnionTypeStructureImpl
+  | WriterTypeStructureImpl;
+type TypeStructuresOrNull = TypeStructures | null;
+
+declare class TypeStructureSequence extends ShadowArrayImpl<
+  stringOrWriterFunction,
+  TypeStructures
+> {
+  static createProxy(innerElements: TypeStructures[]): stringOrWriterFunction[];
+  protected [BUILD_ARRAY_WRAPPER](
+    ...innerElements: TypeStructures[]
+  ): stringOrWriterFunction[];
+  protected [CONVERT_OUTER_TO_INNER](
+    outerType: stringOrWriterFunction,
+  ): TypeStructures;
+}
+
+declare class TypePrinterSettings {
+  indentChildren: boolean;
+  newLinesAroundChildren: boolean;
+  oneLinePerChild: boolean;
+}
+
+declare abstract class TypeStructuresWithChildren<
+  Kind extends TypeStructureKind,
+  Children extends readonly TypeStructures[],
+> extends TypeStructuresBase<Kind> {
+  #private;
+  abstract readonly kind: Kind;
+  /** This lives outside the start and end tokens.  Think of this as a parent type for the children, ie. `Partial`. */
+  protected abstract objectType: TypeStructuresOrNull;
+  /** The child types we join together, and wrap in the start and end tokens. */
+  abstract readonly childTypes: Children;
+  /** A very short string, one or two characters, before all child types. */
+  protected abstract readonly startToken: string;
+  /** A very short string, between all child types. */
+  protected abstract readonly joinChildrenToken: string;
+  /** A very short string, one or two characters, after all child types. */
+  protected abstract readonly endToken: string;
+  /** The maximum number of children to support. */
+  protected abstract readonly maxChildCount: number;
+  /** For customizing printing of the child types. */
+  readonly printerSettings: TypePrinterSettings;
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
+  /** @internal */
+  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+    StructureImpls | TypeStructures
+  >;
+}
+
+declare abstract class TypeStructuresWithTypeParameters<
+  Kind extends TypeStructureKind,
+> extends TypeStructuresBase<Kind> {
+  #private;
+  protected static writeTypeParameter(
+    typeParam: TypeParameterDeclarationImpl,
+    writer: CodeBlockWriter,
+    constraintMode: "extends" | "in",
+  ): void;
+}
+
+type OmitWriter<T> = T extends (infer A)[]
+  ? OmitWriter<A>[]
+  : Exclude<T, WriterFunction>;
+type OmitWriterFromFields<T extends object> = {
+  [key in keyof T]: OmitWriter<T[key]>;
+};
+type StructureClassToJSON<T extends object> = Writable<
+  Omit<
+    OmitWriterFromFields<T>,
+    "toJSON" | `${string}Structure` | `${string}Sequence`
+  >
+>;
+type ClassMemberStructureImpls =
+  | ClassStaticBlockDeclarationImpl
+  | ConstructorDeclarationImpl
+  | GetAccessorDeclarationImpl
+  | MethodDeclarationImpl
+  | PropertyDeclarationImpl
+  | SetAccessorDeclarationImpl;
+type InterfaceMemberStructureImpls = TypeElementMemberStructureImpls;
+type JsxStructureImpls =
+  | JsxAttributeImpl
+  | JsxElementImpl
+  | JsxSelfClosingElementImpl
+  | JsxSpreadAttributeImpl;
+type ObjectLiteralExpressionPropertyStructureImpls =
+  | GetAccessorDeclarationImpl
+  | MethodDeclarationImpl
+  | PropertyAssignmentImpl
+  | SetAccessorDeclarationImpl
+  | ShorthandPropertyAssignmentImpl
+  | SpreadAssignmentImpl;
+type StatementStructureImpls =
+  | ClassDeclarationImpl
+  | EnumDeclarationImpl
+  | ExportAssignmentImpl
+  | ExportDeclarationImpl
+  | FunctionDeclarationImpl
+  | ImportDeclarationImpl
+  | InterfaceDeclarationImpl
+  | ModuleDeclarationImpl
+  | TypeAliasDeclarationImpl
+  | VariableStatementImpl;
+type StructureImpls =
+  | ClassMemberStructureImpls
+  | ConstructorDeclarationOverloadImpl
+  | DecoratorImpl
+  | EnumMemberImpl
+  | ExportSpecifierImpl
+  | FunctionDeclarationOverloadImpl
+  | ImportAttributeImpl
+  | ImportSpecifierImpl
+  | InterfaceMemberStructureImpls
+  | JSDocImpl
+  | JSDocTagImpl
+  | JsxStructureImpls
+  | MethodDeclarationOverloadImpl
+  | ObjectLiteralExpressionPropertyStructureImpls
+  | ParameterDeclarationImpl
+  | SourceFileImpl
+  | StatementStructureImpls
+  | TypeParameterDeclarationImpl
+  | VariableDeclarationImpl;
+type TypeElementMemberStructureImpls =
+  | CallSignatureDeclarationImpl
+  | ConstructSignatureDeclarationImpl
+  | IndexSignatureDeclarationImpl
+  | MethodSignatureImpl
+  | PropertySignatureImpl;
+
+declare abstract class StatementStructuresBase<
+  Kind extends StatementStructureKind,
+>
+  extends WriterStructuresBase
+  implements
+    KindedStatementStructure<Kind>,
+    InnerTypeElement<stringOrWriterFunction>
+{
+  abstract readonly kind: Kind;
+  /** @internal */
+  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+    StructureImpls | AugmentedStatementStructures
+  >;
+  [GET_OUTER_TYPE](): stringOrWriterFunction;
+}
+
+type AugmentedStatementStructures =
+  | StatementStructureImpls
+  | UnknownStringStatementImpl
+  | UnknownWriterStatementImpl
+  | never;
 
 /**
  * This is a map for specifying statements across several class members for a single class field.
@@ -1577,63 +1668,6 @@ type ReadonlyTypeMembersMap = Simplify<
   ReadonlyMap<string, TypeMemberImpl> &
     Pick<TypeMembersMap, "arrayOfKind" | "clone" | "getAsKind">
 >;
-type ClassMemberStructureImpls =
-  | ClassStaticBlockDeclarationImpl
-  | ConstructorDeclarationImpl
-  | GetAccessorDeclarationImpl
-  | MethodDeclarationImpl
-  | PropertyDeclarationImpl
-  | SetAccessorDeclarationImpl;
-type InterfaceMemberStructureImpls = TypeElementMemberStructureImpls;
-type JsxStructureImpls =
-  | JsxAttributeImpl
-  | JsxElementImpl
-  | JsxSelfClosingElementImpl
-  | JsxSpreadAttributeImpl;
-type ObjectLiteralExpressionPropertyStructureImpls =
-  | GetAccessorDeclarationImpl
-  | MethodDeclarationImpl
-  | PropertyAssignmentImpl
-  | SetAccessorDeclarationImpl
-  | ShorthandPropertyAssignmentImpl
-  | SpreadAssignmentImpl;
-type StatementStructureImpls =
-  | ClassDeclarationImpl
-  | EnumDeclarationImpl
-  | ExportAssignmentImpl
-  | ExportDeclarationImpl
-  | FunctionDeclarationImpl
-  | ImportDeclarationImpl
-  | InterfaceDeclarationImpl
-  | ModuleDeclarationImpl
-  | TypeAliasDeclarationImpl
-  | VariableStatementImpl;
-type StructureImpls =
-  | ClassMemberStructureImpls
-  | ConstructorDeclarationOverloadImpl
-  | DecoratorImpl
-  | EnumMemberImpl
-  | ExportSpecifierImpl
-  | FunctionDeclarationOverloadImpl
-  | ImportAttributeImpl
-  | ImportSpecifierImpl
-  | InterfaceMemberStructureImpls
-  | JSDocImpl
-  | JSDocTagImpl
-  | JsxStructureImpls
-  | MethodDeclarationOverloadImpl
-  | ObjectLiteralExpressionPropertyStructureImpls
-  | ParameterDeclarationImpl
-  | SourceFileImpl
-  | StatementStructureImpls
-  | TypeParameterDeclarationImpl
-  | VariableDeclarationImpl;
-type TypeElementMemberStructureImpls =
-  | CallSignatureDeclarationImpl
-  | ConstructSignatureDeclarationImpl
-  | IndexSignatureDeclarationImpl
-  | MethodSignatureImpl
-  | PropertySignatureImpl;
 
 interface TypedNodeTypeStructure {
   typeStructure: TypeStructures | undefined;
@@ -3324,6 +3358,32 @@ declare class TypeParameterDeclarationImpl
   toJSON(): StructureClassToJSON<TypeParameterDeclarationImpl>;
 }
 
+/** For unparsed strings the user provides.  You should never need to construct these manually. */
+declare class UnknownStringStatementImpl
+  extends StatementStructuresBase<StatementStructureKind.UnknownString>
+  implements InnerTypeElement<string>
+{
+  #private;
+  readonly kind = StatementStructureKind.UnknownString;
+  constructor(statement: string);
+  static clone(other: UnknownStringStatementImpl): UnknownStringStatementImpl;
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
+  [GET_OUTER_TYPE](): string;
+}
+
+/** For `WriterFunction` objects the user provides.  You should never need to construct these manually. */
+declare class UnknownWriterStatementImpl
+  extends StatementStructuresBase<StatementStructureKind.UnknownString>
+  implements InnerTypeElement<WriterFunction>
+{
+  readonly kind = StatementStructureKind.UnknownString;
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY]: (writer: CodeBlockWriter) => void;
+  constructor(writer: WriterFunction);
+  static clone(other: UnknownWriterStatementImpl): UnknownWriterStatementImpl;
+  [GET_OUTER_TYPE](): WriterFunction;
+}
+
 declare const VariableDeclarationStructureBase: mixin_decorators.MixinClass<
   object,
   {
@@ -3916,6 +3976,7 @@ export {
   ShorthandPropertyAssignmentImpl,
   SourceFileImpl,
   SpreadAssignmentImpl,
+  StatementStructureKind,
   StringTypeStructureImpl,
   TemplateLiteralTypeStructureImpl,
   TupleTypeStructureImpl,
@@ -3926,6 +3987,8 @@ export {
   TypePredicateTypeStructureImpl,
   TypeStructureKind,
   UnionTypeStructureImpl,
+  UnknownStringStatementImpl,
+  UnknownWriterStatementImpl,
   VariableDeclarationImpl,
   VariableStatementImpl,
   VoidTypeNodeToTypeStructureConsole,
@@ -3941,6 +4004,7 @@ export type {
   AddImportContext,
   AmbientableNodeStructureClassIfc,
   AsyncableNodeStructureClassIfc,
+  AugmentedStatementStructures,
   CallSignatureDeclarationStructureClassIfc,
   ClassAbstractMemberQuestion,
   ClassAsyncMethodQuestion,
@@ -3994,6 +4058,7 @@ export type {
   JsxSelfClosingElementStructureClassIfc,
   JsxSpreadAttributeStructureClassIfc,
   JsxStructureImpls,
+  KindedStatementStructure,
   KindedTypeStructure,
   MemberedStatementsKey,
   MethodDeclarationOverloadStructureClassIfc,

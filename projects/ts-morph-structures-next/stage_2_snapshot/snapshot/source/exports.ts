@@ -1,5 +1,9 @@
 // This file is generated.  Do not edit.
 export {
+  type KindedStatementStructure,
+  StatementStructureKind,
+} from "./base/StatementStructureKind.js";
+export {
   type KindedTypeStructure,
   TypeStructureKind,
 } from "./base/TypeStructureKind.js";
@@ -114,6 +118,9 @@ export { TypeAliasDeclarationImpl } from "./structures/standard/TypeAliasDeclara
 export { TypeParameterDeclarationImpl } from "./structures/standard/TypeParameterDeclarationImpl.js";
 export { VariableDeclarationImpl } from "./structures/standard/VariableDeclarationImpl.js";
 export { VariableStatementImpl } from "./structures/standard/VariableStatementImpl.js";
+export type { AugmentedStatementStructures } from "./structures/statements/AugmentedStatements.js";
+export { UnknownStringStatementImpl } from "./structures/statements/UnknownStringStatementImpl.js";
+export { UnknownWriterStatementImpl } from "./structures/statements/UnknownWriterStatementImpl.js";
 export { ArrayTypeStructureImpl } from "./structures/type/ArrayTypeStructureImpl.js";
 export {
   ConditionalTypeStructureImpl,

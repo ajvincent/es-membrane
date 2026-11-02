@@ -2,7 +2,11 @@ import type { Class } from "type-fest";
 
 import type { OptionalKind, Structure } from "ts-morph";
 
-import type { StructureImpls, TypeStructures } from "../exports.js";
+import type {
+  AugmentedStatementStructures,
+  StructureImpls,
+  TypeStructures,
+} from "../exports.js";
 
 export type CloneableStructure<
   Base extends Structure,
@@ -15,3 +19,9 @@ export type CloneableTypeStructure<Base extends TypeStructures> =
   Class<Base> & {
     clone(other: Base): Base;
   };
+
+export type CloneableStatementStructure<
+  Base extends AugmentedStatementStructures,
+> = Class<Base> & {
+  clone(other: Base): Base;
+};

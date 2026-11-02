@@ -3,6 +3,7 @@ export {
   GET_OUTER_TYPE,
   type InnerTypeElement,
 } from "./array-utilities/ShadowArrayImpl.js";
+export { StatementStructureClassesMap } from "./base/StatementStructureClassesMap.js";
 export { default as StructureBase } from "./base/StructureBase.js";
 export { default as StructureClassesMap } from "./base/StructureClassesMap.js";
 export {
@@ -108,10 +109,10 @@ export {
 export { DefaultMap, DefaultWeakMap } from "./toolbox/DefaultMap.js";
 export { default as MemberedStatementsKeyClass } from "./toolbox/MemberedStatementsKeyClass.js";
 export type {
+  CloneableStatementStructure,
   CloneableStructure,
   CloneableTypeStructure,
 } from "./types/CloneableStructure.js";
 export type { ExtractStructure } from "./types/ExtractStructure.js";
 export type { RightExtendsLeft } from "./types/RightExtendsLeft.js";
 export type { StructureClassToJSON } from "./types/StructureClassToJSON.js";
-export type { TypedNodeWriter } from "./types/ts-morph-typednodewriter.js";

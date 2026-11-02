@@ -1,9 +1,9 @@
 import type { Class } from "type-fest";
 
-import {
+import type {
   KindedTypeStructure,
   TypeStructureKind,
-  type TypeStructures,
+  TypeStructures,
 } from "../exports.js";
 
 import type { CloneableTypeStructure } from "../internal-exports.js";

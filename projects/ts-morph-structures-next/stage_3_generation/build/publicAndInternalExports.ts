@@ -19,11 +19,28 @@ export default async function defineExistingExports(
 ): Promise<void> {
   definePublicExports();
   defineInternalExports();
-  await defineTypeStructurePublicExports();
+  await Promise.all([
+    defineStatementStructurePublicExports(),
+    defineTypeStructurePublicExports(),
+  ]);
 }
 
 function definePublicExports(): void
 {
+  publicExports.addExports({
+    pathToExportedModule: pathToModule(distDir, "source/base/StatementStructureKind.ts"),
+    exportNames: ["StatementStructureKind"],
+    isDefaultExport: false,
+    isType: false
+  });
+
+  publicExports.addExports({
+    pathToExportedModule: pathToModule(distDir, "source/base/StatementStructureKind.ts"),
+    exportNames: ["KindedStatementStructure"],
+    isDefaultExport: false,
+    isType: true
+  });
+
   publicExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/base/TypeStructureKind.ts"),
     exportNames: ["TypeStructureKind"],
@@ -72,6 +89,13 @@ function definePublicExports(): void
     ],
     isDefaultExport: false,
     isType: false
+  });
+
+  publicExports.addExports({
+    pathToExportedModule: pathToModule(distDir, "source/structures/statements/AugmentedStatements.ts"),
+    exportNames: ["AugmentedStatementStructures"], // export all the union types
+    isDefaultExport: false,
+    isType: true
   });
 
   publicExports.addExports({
@@ -252,6 +276,13 @@ function defineInternalExports(): void
   });
 
   internalExports.addExports({
+    pathToExportedModule: pathToModule(distDir, "source/base/StatementStructureClassesMap.ts"),
+    exportNames: ["StatementStructureClassesMap"],
+    isDefaultExport: false,
+    isType: false
+  });
+
+  internalExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/base/StructureBase.ts"),
     exportNames: ["StructureBase"],
     isDefaultExport: true,
@@ -338,6 +369,7 @@ function defineInternalExports(): void
   internalExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/types/CloneableStructure.d.ts"),
     exportNames: [
+      "CloneableStatementStructure",
       "CloneableStructure",
       "CloneableTypeStructure",
     ],
@@ -367,13 +399,6 @@ function defineInternalExports(): void
   });
 
   internalExports.addExports({
-    pathToExportedModule: pathToModule(distDir, "source/types/ts-morph-typednodewriter.ts"),
-    exportNames: ["TypedNodeWriter"],
-    isDefaultExport: false,
-    isType: true
-  });
-
-  internalExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/structures/WriterStructuresBase.ts"),
     exportNames: ["WRITER_FUNCTION_KEY", "DEREGISTER_WRITER"],
     isDefaultExport: false,
@@ -390,6 +415,22 @@ async function defineTypeStructurePublicExports(): Promise<void>
   typeStructureFiles.forEach((moduleFileName) => {
     publicExports.addExports({
       pathToExportedModule: pathToModule(distDir, "source/structures/type" + path.sep + moduleFileName),
+      exportNames: [moduleFileName.replace(".ts", "")],
+      isDefaultExport: false,
+      isType: false
+    });
+  });
+}
+
+async function defineStatementStructurePublicExports(): Promise<void>
+{
+  const sourceDir = path.join(projectDir, "stage_2_integration/source/structures/statements");
+  const structureFiles = (await fs.readdir(
+    sourceDir
+  )).filter(f => f.endsWith("StatementImpl.ts"));
+  structureFiles.forEach((moduleFileName) => {
+    publicExports.addExports({
+      pathToExportedModule: pathToModule(distDir, "source/structures/statements" + path.sep + moduleFileName),
       exportNames: [moduleFileName.replace(".ts", "")],
       isDefaultExport: false,
       isType: false

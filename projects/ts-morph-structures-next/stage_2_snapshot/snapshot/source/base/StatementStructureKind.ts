@@ -1,11 +1,12 @@
-import type { TypedNodeWriter } from "../internal-exports.js";
+import type { NodeWriter } from "../types/ts-morph-nodewriter.js";
 
 export enum StatementStructureKind {
-  Unknown = 1002000000 - 1,
+  UnknownString = 1002000000,
+  UnknownWriter,
 }
 
-export interface KindedTypeStructure<
+export interface KindedStatementStructure<
   TKind extends StatementStructureKind,
-> extends TypedNodeWriter {
+> extends NodeWriter {
   readonly kind: TKind;
 }

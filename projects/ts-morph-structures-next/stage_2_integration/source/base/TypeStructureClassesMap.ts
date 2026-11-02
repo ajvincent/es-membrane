@@ -2,10 +2,10 @@ import type {
   Class,
 } from "type-fest";
 
-import {
+import type {
   KindedTypeStructure,
   TypeStructureKind,
-  type TypeStructures,
+  TypeStructures,
 } from "../../snapshot/source/exports.js";
 
 import type {
