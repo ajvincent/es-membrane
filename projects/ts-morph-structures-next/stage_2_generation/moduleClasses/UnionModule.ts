@@ -12,10 +12,11 @@ import { pathToModule } from "#utilities/source/AsyncSpecModules.js";
 
 class UnionsModuleBase extends BaseModule
 {
+  readonly aliases = new Map<string, TypeAliasDeclarationImpl>;
+
   constructor() {
     super(pathToModule(distDir, "source/types"), "StructureImplUnions", true);
   }
-  readonly aliases = new Map<string, TypeAliasDeclarationImpl>;
 
   protected getSourceFileImpl(): SourceFileImpl {
     const structure = new SourceFileImpl;

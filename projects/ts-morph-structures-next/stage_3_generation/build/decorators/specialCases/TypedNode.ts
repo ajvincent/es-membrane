@@ -1,18 +1,42 @@
+//#region preamble
 import {
   ClassFieldStatementsMap,
   ClassSupportsStatementsFlags,
   ConstructorHeadStatementsGetter,
   stringWriterOrStatementImpl,
   type MemberedStatementsKey,
-} from "#stage_one/snapshot/source/exports.js";
+  type MemberedTypeToClass,
+} from "#stage_two/snapshot/source/exports.js";
+
+import StatementGetterBase from "../../fieldStatements/GetterBase.js";
+
+import type {
+  DecoratorModule
+} from "../../../moduleClasses/exports.js";
+
+import type {
+  DecoratorModuleModifierTraps
+} from "../../../types/DecoratorModuleModifierTraps.js";
 
 import {
-  DecoratorModule
-} from "../../moduleClasses/exports.js";
+  StatementsPriority
+} from "../../fieldStatements/StatementsPriority.js";
+//#endregion preamble
 
-import StatementGetterBase from "../fieldStatements/GetterBase.js";
+export const TypedNodeSpecialCases: DecoratorModuleModifierTraps = {
+  modifyTypeToClassBeforeBuild(
+    module: DecoratorModule,
+    typeToClass: MemberedTypeToClass
+  ): void
+  {
+    void module;
+    typeToClass.addStatementGetters(StatementsPriority.DECORATOR_SPECIFIC, [
+      new TypedNodeConstructorStatements(module)
+    ]);
+  }
+};
 
-export class TypedNodeConstructorStatements extends StatementGetterBase
+class TypedNodeConstructorStatements extends StatementGetterBase
 implements ConstructorHeadStatementsGetter
 {
   constructor(module: DecoratorModule) {

@@ -24,7 +24,15 @@ import {
   getStructureMixinName,
 } from "#utilities/source/StructureNameTransforms.js";
 
+import {
+  DecoratorModifiersMap
+} from "../build/decorators/specialCases/map.js";
+
 import SatisfiesStatementImpl from "../pseudoExpressions/statements/SatisfiesStatement.js";
+
+import type {
+  DecoratorModuleModifierTraps
+} from "../types/DecoratorModuleModifierTraps.js";
 
 import BaseClassModule from "./BaseClassModule.js";
 import sortClassMembers from "./sortClassMembers.js";
@@ -56,6 +64,8 @@ class DecoratorModule extends BaseClassModule
   readonly #fieldsType: LiteralTypeStructureImpl;
   readonly exportName: string;
 
+  readonly modifiers: DecoratorModuleModifierTraps | undefined;
+
   constructor(
     baseName: string,
   )
@@ -75,6 +85,8 @@ class DecoratorModule extends BaseClassModule
     ]);
     this.addImports("public", [], [getClassInterfaceName(baseName)]);
     this.addImports("internal", ["StructureBase"], ["RightExtendsLeft"]);
+
+    this.modifiers = DecoratorModifiersMap.get(this.exportName);
   }
 
   get fieldsName(): string {

@@ -26,8 +26,6 @@ import {
 
 import modifyTypeMembersForTypeStructures from "../classTools/modifyTypeMembersForTypeStructures.js";
 
-import CloneStatement_Statements from "./CloneStatement.js";
-
 import {
   addImportsToModule,
   DecoratorModule,
@@ -40,10 +38,6 @@ import {
   StatementsPriority,
   getBaselineStatementGetters,
 } from "../fieldStatements/StatementsPriority.js";
-
-import {
-  TypedNodeConstructorStatements
-} from "./TypedNodeConstructor.js";
 
 void(ClassFieldStatementsMap);
 void(DebuggingFilter);
@@ -89,8 +83,6 @@ async function buildDecorator(
   typeToClass.importFromTypeMembersMap(false, interfaceMembers);
   typeToClass.addStatementGetters(StatementsPriority.BASELINE, getBaselineStatementGetters(module));
 
-  // stage two sorts the type members... we don't.
-
   let structureIterator: MethodSignatureImpl | undefined;
 
   const copyFieldsMethod = module.createCopyFieldsMethod(false);
@@ -105,17 +97,7 @@ async function buildDecorator(
   const toJSONMethod = module.createToJSONMethod();
   typeToClass.addTypeMember(false, toJSONMethod);
 
-  if (name.startsWith("StatementedNode")) {
-    const cloneStatementFilter = new CloneStatement_Statements(module);
-    typeToClass.addStatementGetters(StatementsPriority.DECORATOR_SPECIFIC, [cloneStatementFilter]);
-    typeToClass.addTypeMember(true, cloneStatementFilter.getMethodSignature());
-  }
-
-  if (name.includes("TypedNode")) {
-    typeToClass.addStatementGetters(StatementsPriority.DECORATOR_SPECIFIC, [
-      new TypedNodeConstructorStatements(module)
-    ]);
-  }
+  module.modifiers?.modifyTypeToClassBeforeBuild?.(module, typeToClass);
 
   typeProperties.forEach(prop => {
     typeToClass.insertMemberKey(false, prop, true, copyFieldsMethod);

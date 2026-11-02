@@ -59,8 +59,6 @@ The source files are [StructureClassesMap](./source/base/StructureClassesMap.ts)
 
 I have built these type structures in a tree pattern.  These maintain a one-to-one correspondence to type nodes in TypeScript.
 
-**Important**: These are _not_ the same type structures that were in stage 1's prototype.  They are _similar_, but there are some important differences, mostly from me learning from my mistakes in building the early prototype.
-
 ### `TypeStructureKind`
 
 Each type structure has a `kind` property which comes from a [`TypeStructureKind`](./source/base/TypeStructureKind.ts) enum.  The values for this enum start at 1,000,000,000.  Since there's less than 100 type structure kinds, there should be no conflict with ts-morph.

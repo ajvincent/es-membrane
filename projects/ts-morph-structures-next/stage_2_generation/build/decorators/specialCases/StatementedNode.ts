@@ -7,20 +7,48 @@ import {
   ClassSupportsStatementsFlags,
   type ClassTailStatementsGetter,
   LiteralTypeStructureImpl,
-  MemberedStatementsKey,
+  type MemberedStatementsKey,
+  type MemberedTypeToClass,
   MethodSignatureImpl,
   ParameterDeclarationImpl,
   UnionTypeStructureImpl,
   type stringWriterOrStatementImpl,
-} from "#stage_two/snapshot/source/exports.js";
+} from "#stage_one/snapshot/source/exports.js";
 
-import BlockStatementImpl from "../../pseudoExpressions/statements/BlockStatement.js";
-import CallExpressionStatementImpl from "../../pseudoExpressions/statements/CallExpression.js";
-import StatementGetterBase from "../fieldStatements/GetterBase.js";
-import { DecoratorModule } from "../../moduleClasses/exports.js";
+import StatementGetterBase from "../../fieldStatements/GetterBase.js";
+
+import type {
+  DecoratorModule
+} from "../../../moduleClasses/exports.js";
+
+import BlockStatementImpl from "../../../pseudoExpressions/statements/BlockStatement.js";
+import CallExpressionStatementImpl from "../../../pseudoExpressions/statements/CallExpression.js";
+
+import type {
+  DecoratorModuleModifierTraps
+} from "../../../types/DecoratorModuleModifierTraps.js";
+
+import {
+  StatementsPriority
+} from "../../fieldStatements/StatementsPriority.js";
 //#endregion preamble
 
-export default class CloneStatement_Statements extends StatementGetterBase
+export const StatementedNodeSpecialCases: DecoratorModuleModifierTraps = {
+  modifyTypeToClassBeforeBuild(
+    module: DecoratorModule,
+    typeToClass: MemberedTypeToClass
+  ): void
+  {
+    void module;
+
+    const cloneStatementFilter = new CloneStatement_Statements(module);
+    typeToClass.addStatementGetters(StatementsPriority.DECORATOR_SPECIFIC, [cloneStatementFilter]);
+    typeToClass.addTypeMember(true, cloneStatementFilter.getMethodSignature());
+
+  }
+};
+
+class CloneStatement_Statements extends StatementGetterBase
 implements ClassTailStatementsGetter
 {
   constructor(
