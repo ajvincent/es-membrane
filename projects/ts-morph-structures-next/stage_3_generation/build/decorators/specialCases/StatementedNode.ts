@@ -4,18 +4,23 @@ import {
 } from "ts-morph";
 
 import {
+  ArrayTypeStructureImpl,
+  ClassBodyStatementsGetter,
+  ClassFieldStatementsMap,
   ClassSupportsStatementsFlags,
   type ClassTailStatementsGetter,
+  ConstructorBodyStatementsGetter,
+  ConstructorHeadStatementsGetter,
   LiteralTypeStructureImpl,
   type MemberedStatementsKey,
   type MemberedTypeToClass,
   MethodSignatureImpl,
   ParameterDeclarationImpl,
+  PropertyInitializerGetter,
+  PropertySignatureImpl,
   UnionTypeStructureImpl,
   type stringWriterOrStatementImpl,
 } from "#stage_two/snapshot/source/exports.js";
-
-import StatementGetterBase from "../../fieldStatements/GetterBase.js";
 
 import type {
   DecoratorModule
@@ -29,6 +34,16 @@ import type {
 } from "../../../types/DecoratorModuleModifierTraps.js";
 
 import {
+  pathToModule
+} from "#utilities/source/AsyncSpecModules.js";
+
+import {
+  distDir
+} from "../../constants.js";
+
+import StatementGetterBase from "../../fieldStatements/GetterBase.js";
+
+import {
   StatementsPriority
 } from "../../fieldStatements/StatementsPriority.js";
 //#endregion preamble
@@ -39,14 +54,155 @@ export const StatementedNodeSpecialCases: DecoratorModuleModifierTraps = {
     typeToClass: MemberedTypeToClass
   ): void
   {
-    void module;
+    module.addImports("public", [], ["AugmentedStatementStructures"]);
+    module.importManager.addImports({
+      pathToImportedModule: pathToModule(
+        distDir, "source/base/StatementsSequence.js"
+      ),
+      isDefaultImport: false,
+      isTypeOnly: false,
+      importNames: ["StatementsSequence"],
+      isPackageImport: false,
+    });
+
+    module.addImports("internal", ["StatementStructureClassesMap"], []);
+
+    const sequenceInitializer = new StatementsSequenceInitializer(module);
+    const statementsInitializer = new StatementsInitializer(module);
+    const toJSONStatements = new ToJSON_Statements(module);
 
     const cloneStatementFilter = new CloneStatement_Statements(module);
-    typeToClass.addStatementGetters(StatementsPriority.DECORATOR_SPECIFIC, [cloneStatementFilter]);
+
+    typeToClass.addTypeMember(false, sequenceInitializer.getPropertySignature());
     typeToClass.addTypeMember(true, cloneStatementFilter.getMethodSignature());
 
+    typeToClass.addStatementGetters(StatementsPriority.DECORATOR_SPECIFIC, [
+      sequenceInitializer, statementsInitializer, cloneStatementFilter, toJSONStatements
+    ]);
   }
 };
+
+class StatementsSequenceInitializer extends StatementGetterBase
+implements PropertyInitializerGetter
+{
+  constructor(
+    module: DecoratorModule
+  )
+  {
+    super(
+      module,
+      "StatementsSequenceInitializer",
+      ClassSupportsStatementsFlags.PropertyInitializer
+    );
+  }
+
+  getPropertySignature(): PropertySignatureImpl {
+    const property = new PropertySignatureImpl("statementsSequence");
+    property.typeStructure = new ArrayTypeStructureImpl(LiteralTypeStructureImpl.get("AugmentedStatementStructures"));
+    return property;
+  }
+
+  filterPropertyInitializer(key: MemberedStatementsKey): boolean {
+    return key.fieldKey === "statementsSequence";
+  }
+
+  getPropertyInitializer(key: MemberedStatementsKey): stringWriterOrStatementImpl | undefined {
+    void key;
+    return "[]";
+  }
+}
+
+class StatementsInitializer extends StatementGetterBase
+implements PropertyInitializerGetter, ConstructorHeadStatementsGetter, ConstructorBodyStatementsGetter
+{
+  constructor(
+    module: DecoratorModule
+  )
+  {
+    super(
+      module,
+      "StatementsInitializer",
+      ClassSupportsStatementsFlags.PropertyInitializer |
+      ClassSupportsStatementsFlags.ConstructorHeadStatements |
+      ClassSupportsStatementsFlags.ConstructorBodyStatements
+    );
+  }
+
+  filterPropertyInitializer(
+    key: MemberedStatementsKey
+  ): boolean
+  {
+    return key.fieldKey === "statements";
+  }
+
+  getPropertyInitializer(
+    key: MemberedStatementsKey
+  ): stringWriterOrStatementImpl | undefined
+  {
+    void key;
+    return undefined;
+  }
+
+  filterCtorHeadStatements(key: MemberedStatementsKey): boolean {
+    return key.fieldKey === ClassFieldStatementsMap.FIELD_HEAD_SUPER_CALL;
+  }
+
+  getCtorHeadStatements(key: MemberedStatementsKey): readonly stringWriterOrStatementImpl[] {
+    void key;
+    return [`super();`];
+  }
+
+  filterCtorBodyStatements(
+    key: MemberedStatementsKey
+  ): boolean
+  {
+    return key.fieldKey === "statements";
+  }
+
+  getCtorBodyStatements(
+    key: MemberedStatementsKey
+  ): readonly stringWriterOrStatementImpl[]
+  {
+    void key;
+    return [
+      `this.statements = StatementsSequence.createProxy(this.statementsSequence);`
+    ];
+  }
+}
+
+class ToJSON_Statements extends StatementGetterBase
+implements ClassBodyStatementsGetter
+{
+  constructor(
+    module: DecoratorModule
+  )
+  {
+    super(
+      module,
+      "StatementedNode_ToJSON",
+      ClassSupportsStatementsFlags.BodyStatements
+    );
+  }
+
+  filterBodyStatements(
+    key: MemberedStatementsKey
+  ): boolean
+  {
+    return (
+      (key.statementGroupKey === "toJSON") &&
+      (key.isFieldStatic === false) &&
+      (key.fieldKey === "statementsSequence")
+    );
+  }
+
+  getBodyStatements(
+    key: MemberedStatementsKey
+  ): readonly stringWriterOrStatementImpl[]
+  {
+    void key;
+    return [];
+  }
+}
 
 class CloneStatement_Statements extends StatementGetterBase
 implements ClassTailStatementsGetter

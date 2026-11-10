@@ -1,5 +1,7 @@
 //#region preamble
+import { StatementsSequence } from "../../base/StatementsSequence.js";
 import type {
+  AugmentedStatementStructures,
   StatementedNodeStructureClassIfc,
   StatementStructureImpls,
   stringOrWriterFunction,
@@ -8,6 +10,7 @@ import {
   COPY_FIELDS,
   REPLACE_WRITER_WITH_STRING,
   type RightExtendsLeft,
+  StatementStructureClassesMap,
   StructureBase,
   StructureClassesMap,
   type StructureClassToJSON,
@@ -44,8 +47,13 @@ export function StatementedNodeStructureMixin(
   void context;
 
   class StatementedNodeStructureMixin extends baseClass {
-    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[] =
-      [];
+    readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
+    statementsSequence: AugmentedStatementStructures[] = [];
+
+    constructor() {
+      super();
+      this.statements = StatementsSequence.createProxy(this.statementsSequence);
+    }
 
     /** @internal */
     public static [COPY_FIELDS](
@@ -53,15 +61,17 @@ export function StatementedNodeStructureMixin(
       target: StatementedNodeStructureMixin & Structures,
     ): void {
       super[COPY_FIELDS](source, target);
-      let statementsArray: (
-        | StatementStructureImpls
-        | stringOrWriterFunction
-      )[] = [];
+      if (source instanceof StatementedNodeStructureMixin) {
+        target.statementsSequence.push(
+          ...StatementStructureClassesMap.cloneArray(source.statementsSequence),
+        );
+        return;
+      }
+
+      let statementsArray: (StatementStructures | stringOrWriterFunction)[] =
+        [];
       if (Array.isArray(source.statements)) {
-        statementsArray = source.statements as (
-          | StatementStructureImpls
-          | stringOrWriterFunction
-        )[];
+        statementsArray = source.statements;
       } else if (source.statements !== undefined) {
         statementsArray = [source.statements];
       }

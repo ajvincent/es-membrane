@@ -209,6 +209,10 @@ describe("ShadowArray", () => {
       ]);
     });
 
+    it("appears as an array", () => {
+      expect(Array.isArray(proxy)).toBeTrue();
+    });
+
     it("responds well to mutations in the underlying array", () => {
       innerElements.push(new Color("green"));
       // This test means any method which updates the innerElements array will

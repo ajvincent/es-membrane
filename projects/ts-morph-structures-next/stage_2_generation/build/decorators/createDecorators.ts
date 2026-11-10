@@ -68,6 +68,19 @@ async function buildDecorator(
   name: string
 ): Promise<void>
 {
+  try {
+    await buildDecoratorInner(name);
+  }
+  catch (ex) {
+    (ex as Error).message = name + ": " + (ex as Error).message;
+    throw ex;
+  }
+}
+
+async function buildDecoratorInner(
+  name: string
+): Promise<void>
+{
   const interfaceModule: InterfaceModule = InterfaceModule.decoratorsMap.get(
     getClassInterfaceName(name)
   )!;

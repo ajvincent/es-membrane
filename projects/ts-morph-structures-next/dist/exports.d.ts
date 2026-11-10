@@ -547,31 +547,21 @@ declare class StructureBase {
   >;
 }
 
-interface ConditionalTypeStructureParts {
-  checkType: TypeStructures;
-  extendsType: TypeStructures;
-  trueType: TypeStructures;
-  falseType: TypeStructures;
+type stringOrWriterFunction = string | WriterFunction;
+
+declare class TypeStructureSequence extends ShadowArrayImpl<
+  stringOrWriterFunction,
+  TypeStructures
+> {
+  static createProxy(innerElements: TypeStructures[]): stringOrWriterFunction[];
+  protected [BUILD_ARRAY_WRAPPER](
+    ...innerElements: TypeStructures[]
+  ): stringOrWriterFunction[];
+  protected [CONVERT_OUTER_TO_INNER](
+    outerType: stringOrWriterFunction,
+  ): TypeStructures;
 }
 
-declare enum FunctionWriterStyle {
-  Arrow = "Arrow",
-  Method = "Method",
-  GetAccessor = "GetAccessor",
-  SetAccessor = "SetAccessor",
-}
-
-interface FunctionTypeContext {
-  name: string | undefined;
-  isConstructor: boolean;
-  typeParameters: TypeParameterDeclarationImpl[];
-  parameters: ParameterTypeStructureImpl[];
-  restParameter: ParameterTypeStructureImpl | undefined;
-  returnType: TypeStructures | undefined;
-  writerStyle: FunctionWriterStyle;
-}
-
-type PrefixUnaryOperator = "..." | "keyof" | "typeof" | "readonly" | "unique";
 declare const WRITER_FUNCTION_KEY: unique symbol;
 declare const DEREGISTER_WRITER: unique symbol;
 
@@ -606,8 +596,6 @@ declare abstract class WriterStructuresBase {
   ): void;
 }
 
-type stringOrWriterFunction = string | WriterFunction;
-
 declare abstract class TypeStructuresBase<Kind extends TypeStructureKind>
   extends WriterStructuresBase
   implements KindedTypeStructure<Kind>, InnerTypeElement<stringOrWriterFunction>
@@ -618,46 +606,6 @@ declare abstract class TypeStructuresBase<Kind extends TypeStructureKind>
     StructureImpls | TypeStructures
   >;
   [GET_OUTER_TYPE](): stringOrWriterFunction;
-}
-
-type TypeStructures =
-  | ArrayTypeStructureImpl
-  | ConditionalTypeStructureImpl
-  | FunctionTypeStructureImpl
-  | ImportTypeStructureImpl
-  | IndexedAccessTypeStructureImpl
-  | InferTypeStructureImpl
-  | IntersectionTypeStructureImpl
-  | LiteralTypeStructureImpl
-  | MappedTypeStructureImpl
-  | MemberedObjectTypeStructureImpl
-  | NamedTupleMemberTypeStructureImpl
-  | NumberTypeStructureImpl
-  | OptionalTypeStructureImpl
-  | ParameterTypeStructureImpl
-  | ParenthesesTypeStructureImpl
-  | PrefixOperatorsTypeStructureImpl
-  | QualifiedNameTypeStructureImpl
-  | StringTypeStructureImpl
-  | TemplateLiteralTypeStructureImpl
-  | TupleTypeStructureImpl
-  | TypeArgumentedTypeStructureImpl
-  | TypePredicateTypeStructureImpl
-  | UnionTypeStructureImpl
-  | WriterTypeStructureImpl;
-type TypeStructuresOrNull = TypeStructures | null;
-
-declare class TypeStructureSequence extends ShadowArrayImpl<
-  stringOrWriterFunction,
-  TypeStructures
-> {
-  static createProxy(innerElements: TypeStructures[]): stringOrWriterFunction[];
-  protected [BUILD_ARRAY_WRAPPER](
-    ...innerElements: TypeStructures[]
-  ): stringOrWriterFunction[];
-  protected [CONVERT_OUTER_TO_INNER](
-    outerType: stringOrWriterFunction,
-  ): TypeStructures;
 }
 
 declare class TypePrinterSettings {
@@ -716,6 +664,58 @@ type StructureClassToJSON<T extends object> = Writable<
     "toJSON" | `${string}Structure` | `${string}Sequence`
   >
 >;
+
+interface ConditionalTypeStructureParts {
+  checkType: TypeStructures;
+  extendsType: TypeStructures;
+  trueType: TypeStructures;
+  falseType: TypeStructures;
+}
+
+declare enum FunctionWriterStyle {
+  Arrow = "Arrow",
+  Method = "Method",
+  GetAccessor = "GetAccessor",
+  SetAccessor = "SetAccessor",
+}
+
+interface FunctionTypeContext {
+  name: string | undefined;
+  isConstructor: boolean;
+  typeParameters: TypeParameterDeclarationImpl[];
+  parameters: ParameterTypeStructureImpl[];
+  restParameter: ParameterTypeStructureImpl | undefined;
+  returnType: TypeStructures | undefined;
+  writerStyle: FunctionWriterStyle;
+}
+
+type PrefixUnaryOperator = "..." | "keyof" | "typeof" | "readonly" | "unique";
+type TypeStructures =
+  | ArrayTypeStructureImpl
+  | ConditionalTypeStructureImpl
+  | FunctionTypeStructureImpl
+  | ImportTypeStructureImpl
+  | IndexedAccessTypeStructureImpl
+  | InferTypeStructureImpl
+  | IntersectionTypeStructureImpl
+  | LiteralTypeStructureImpl
+  | MappedTypeStructureImpl
+  | MemberedObjectTypeStructureImpl
+  | NamedTupleMemberTypeStructureImpl
+  | NumberTypeStructureImpl
+  | OptionalTypeStructureImpl
+  | ParameterTypeStructureImpl
+  | ParenthesesTypeStructureImpl
+  | PrefixOperatorsTypeStructureImpl
+  | QualifiedNameTypeStructureImpl
+  | StringTypeStructureImpl
+  | TemplateLiteralTypeStructureImpl
+  | TupleTypeStructureImpl
+  | TypeArgumentedTypeStructureImpl
+  | TypePredicateTypeStructureImpl
+  | UnionTypeStructureImpl
+  | WriterTypeStructureImpl;
+type TypeStructuresOrNull = TypeStructures | null;
 type ClassMemberStructureImpls =
   | ClassStaticBlockDeclarationImpl
   | ConstructorDeclarationImpl

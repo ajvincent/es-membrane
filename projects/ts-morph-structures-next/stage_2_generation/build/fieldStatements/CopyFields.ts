@@ -261,7 +261,11 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
   {
     const { name } = fieldType;
 
-    if ((this.module.baseName === "StatementedNodeStructure") && (name === "statements")) {
+    if (this.module.baseName === "StatementedNodeStructure" && name === "statements") {
+      return [];
+    }
+
+    if (this.module.baseName === "StatementedNodeStructure" && name === "statementsSequence") {
       return this.#getStatementsForCloneStatements();
     }
 
@@ -524,6 +528,20 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
 
   #getStatementsForCloneStatements(): readonly stringWriterOrStatementImpl[]
   {
+    const sequenceStatement = new BlockStatementImpl(
+      `if (source instanceof StatementedNodeStructureMixin)`,
+      [
+        new CallExpressionStatementImpl({
+          name: "target.statementsSequence.push",
+          parameters: [
+            `...StatementStructureClassesMap.cloneArray(source.statementsSequence)`
+          ]
+        }).writerFunction,
+
+        `return;`
+      ]
+    );
+
     const letStatement = new VariableStatementImpl;
     letStatement.declarationKind = VariableDeclarationKind.Let;
 
@@ -531,7 +549,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
     statementsArrayDecl.typeStructure = new ArrayTypeStructureImpl(
       new ParenthesesTypeStructureImpl(
         new UnionTypeStructureImpl([
-          LiteralTypeStructureImpl.get("StatementStructureImpls"),
+          LiteralTypeStructureImpl.get("StatementStructures"),
           LiteralTypeStructureImpl.get("stringOrWriterFunction"),
         ])
       )
@@ -542,7 +560,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
     const isArrayStatement = new BlockStatementImpl(
       `if (Array.isArray(source.statements))`,
       [
-        "statementsArray = source.statements as (StatementStructureImpls | stringOrWriterFunction)[];"
+        "statementsArray = source.statements;"
       ],
     );
 
@@ -574,6 +592,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
     );
 
     return [
+      sequenceStatement.writerFunction,
       letStatement,
       isArrayStatement.writerFunction,
       isDefined.writerFunction,

@@ -280,9 +280,7 @@ class ShadowArrayImpl {
     constructor(innerElements) {
         /* You should have come here via ShadowArrayImpl::createProxy, which you should have overridden. */
         this.#innerElements = innerElements;
-        this.#shadow = {
-            length: 0,
-        };
+        this.#shadow = []; // necessary for Array.isArray()
         Reflect.defineProperty(this.#shadow, "length", {
             configurable: false,
             enumerable: false,
@@ -1198,12 +1196,103 @@ function ScopedNodeStructureMixin(baseClass, context) {
     return ScopedNodeStructureMixin;
 }
 
+class StatementStructuresBase extends WriterStructuresBase {
+    /** @internal */
+    *[STRUCTURE_AND_TYPES_CHILDREN]() { }
+    [GET_OUTER_TYPE]() {
+        return this.writerFunction;
+    }
+}
+
+/** For unparsed strings the user provides.  You should never need to construct these manually.  */
+class UnknownStringStatementImpl extends StatementStructuresBase {
+    static clone(other) {
+        return new UnknownStringStatementImpl(other[GET_OUTER_TYPE]());
+    }
+    #statement;
+    kind = StatementStructureKind.UnknownString;
+    constructor(statement) {
+        super();
+        this.#statement = statement;
+    }
+    [WRITER_FUNCTION_KEY](writer) {
+        writer.write(this.#statement);
+    }
+    [GET_OUTER_TYPE]() {
+        return this.#statement;
+    }
+}
+StatementStructureClassesMap.set(StatementStructureKind.UnknownString, UnknownStringStatementImpl);
+
+/** For `WriterFunction` objects the user provides.  You should never need to construct these manually.  */
+class UnknownWriterStatementImpl extends StatementStructuresBase {
+    static clone(other) {
+        return new UnknownWriterStatementImpl(other[GET_OUTER_TYPE]());
+    }
+    kind = StatementStructureKind.UnknownString;
+    constructor(writer) {
+        super();
+        this[WRITER_FUNCTION_KEY] = writer;
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY];
+    [GET_OUTER_TYPE]() {
+        return this[WRITER_FUNCTION_KEY];
+    }
+}
+StatementStructureClassesMap.set(StatementStructureKind.UnknownWriter, UnknownWriterStatementImpl);
+
+class StatementsSequence extends ShadowArrayImpl {
+    static createProxy(innerElements) {
+        return new StatementsSequence(innerElements).proxy;
+    }
+    [BUILD_ARRAY_WRAPPER](...innerElements) {
+        return StatementsSequence.createProxy(innerElements);
+    }
+    [CONVERT_OUTER_TO_INNER](outerType) {
+        if (typeof outerType === "string") {
+            return new UnknownStringStatementImpl(outerType);
+        }
+        if (typeof outerType === "object") {
+            switch (outerType.kind) {
+                case StructureKind.Class:
+                case StructureKind.Enum:
+                case StructureKind.ExportAssignment:
+                case StructureKind.ExportDeclaration:
+                case StructureKind.Function:
+                case StructureKind.ImportDeclaration:
+                case StructureKind.Interface:
+                case StructureKind.Module:
+                case StructureKind.TypeAlias:
+                case StructureKind.VariableStatement:
+                    return outerType;
+                default:
+                    throw new Error("unknown statement: " + outerType);
+            }
+        }
+        const structure = WriterStructuresBase.getWriterStructureForCallback(outerType);
+        if (structure)
+            return structure;
+        return new UnknownWriterStatementImpl(outerType);
+    }
+}
+
+//#region preamble
 function StatementedNodeStructureMixin(baseClass, context) {
     class StatementedNodeStructureMixin extends baseClass {
-        statements = [];
+        statements;
+        statementsSequence = [];
+        constructor() {
+            super();
+            this.statements = StatementsSequence.createProxy(this.statementsSequence);
+        }
         /** @internal */
         static [COPY_FIELDS](source, target) {
             super[COPY_FIELDS](source, target);
+            if (source instanceof StatementedNodeStructureMixin) {
+                target.statementsSequence.push(...StatementStructureClassesMap.cloneArray(source.statementsSequence));
+                return;
+            }
             let statementsArray = [];
             if (Array.isArray(source.statements)) {
                 statementsArray = source.statements;
@@ -4732,52 +4821,6 @@ class VariableStatementImpl extends VariableStatementStructureBase {
     }
 }
 StructureClassesMap.set(StructureKind.VariableStatement, VariableStatementImpl);
-
-class StatementStructuresBase extends WriterStructuresBase {
-    /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() { }
-    [GET_OUTER_TYPE]() {
-        return this.writerFunction;
-    }
-}
-
-/** For unparsed strings the user provides.  You should never need to construct these manually.  */
-class UnknownStringStatementImpl extends StatementStructuresBase {
-    static clone(other) {
-        return new UnknownStringStatementImpl(other[GET_OUTER_TYPE]());
-    }
-    #statement;
-    kind = StatementStructureKind.UnknownString;
-    constructor(statement) {
-        super();
-        this.#statement = statement;
-    }
-    [WRITER_FUNCTION_KEY](writer) {
-        writer.write(this.#statement);
-    }
-    [GET_OUTER_TYPE]() {
-        return this.#statement;
-    }
-}
-StatementStructureClassesMap.set(StatementStructureKind.UnknownString, UnknownStringStatementImpl);
-
-/** For `WriterFunction` objects the user provides.  You should never need to construct these manually.  */
-class UnknownWriterStatementImpl extends StatementStructuresBase {
-    static clone(other) {
-        return new UnknownWriterStatementImpl(other[GET_OUTER_TYPE]());
-    }
-    kind = StatementStructureKind.UnknownString;
-    constructor(writer) {
-        super();
-        this[WRITER_FUNCTION_KEY] = writer;
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY];
-    [GET_OUTER_TYPE]() {
-        return this[WRITER_FUNCTION_KEY];
-    }
-}
-StatementStructureClassesMap.set(StatementStructureKind.UnknownWriter, UnknownWriterStatementImpl);
 
 /**
  * `boolean[]`

@@ -80,9 +80,7 @@ export abstract class ShadowArrayImpl<
     /* You should have come here via ShadowArrayImpl::createProxy, which you should have overridden. */
 
     this.#innerElements = innerElements;
-    this.#shadow = {
-      length: 0,
-    };
+    this.#shadow = []; // necessary for Array.isArray()
     Reflect.defineProperty(this.#shadow, "length", {
       configurable: false,
       enumerable: false,
