@@ -6,7 +6,7 @@ import {
 } from "ts-morph";
 
 import {
-  getTypeAugmentedStructure,
+  getAugmentedStructure,
   VoidTypeNodeToTypeStructureConsole,
 } from "ts-morph-structures";
 
@@ -23,7 +23,7 @@ const project = new Project(TSC_CONFIG);
 
 export default function driver(pathToFile) {
   const sourceFile = project.addSourceFileAtPath(pathToFile);
-  const structure = getTypeAugmentedStructure(
+  const structure = getAugmentedStructure(
     sourceFile, VoidTypeNodeToTypeStructureConsole, true
   ).rootStructure;
   process.stdout.write(JSON.stringify(structure) + "\n\n");

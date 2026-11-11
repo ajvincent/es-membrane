@@ -25,7 +25,7 @@ import {
 import getTS_SourceFile from "#utilities/source/getTS_SourceFile.js";
 
 import {
-  getTypeAugmentedStructure,
+  getAugmentedStructure,
   VoidTypeNodeToTypeStructureConsole,
 } from "#stage_two/snapshot/source/exports.js";
 
@@ -51,7 +51,7 @@ xit("Driver generates a valid set of classes", async () => {
 
   const DefaultMapModule = pathToModule(stageDir, "fixtures/stage_utilities/DefaultMap.ts");
   const DefaultMapSourceFile = getTS_SourceFile(stageDir, "fixtures/stage_utilities/DefaultMap.ts");
-  const DefaultMapStructure = getTypeAugmentedStructure(
+  const DefaultMapStructure = getAugmentedStructure(
     DefaultMapSourceFile, VoidTypeNodeToTypeStructureConsole, true
   ).rootStructure;
 

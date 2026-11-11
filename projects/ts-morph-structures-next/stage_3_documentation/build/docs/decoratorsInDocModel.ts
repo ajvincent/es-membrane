@@ -27,7 +27,7 @@ import {
   LiteralTypeStructureImpl,
   TypeStructures,
   TypeStructureKind,
-  getTypeAugmentedStructure,
+  getAugmentedStructure,
 } from "#stage_two/snapshot/source/exports.js";
 
 import {
@@ -138,7 +138,7 @@ function getPropertiesAndMethods(
     console.error(sourceFile.getFilePath(), message);
   }
 
-  const baseStructure = getTypeAugmentedStructure(
+  const baseStructure = getAugmentedStructure(
     classBaseNode,
     errorConsole,
     true

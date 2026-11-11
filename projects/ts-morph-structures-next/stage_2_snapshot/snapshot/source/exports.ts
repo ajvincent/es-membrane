@@ -8,9 +8,9 @@ export {
   TypeStructureKind,
 } from "./base/TypeStructureKind.js";
 export {
-  default as getTypeAugmentedStructure,
+  default as getAugmentedStructure,
   type TypeNodeToTypeStructureConsole,
-} from "./bootstrap/getTypeAugmentedStructure.js";
+} from "./bootstrap/getAugmentedStructure.js";
 export { default as parseLiteralType } from "./bootstrap/parseLiteralType.js";
 export { VoidTypeNodeToTypeStructureConsole } from "./bootstrap/typeNodeConsoles.js";
 export type { AbstractableNodeStructureClassIfc } from "./interfaces/standard/AbstractableNodeStructureClassIfc.js";

@@ -140,7 +140,7 @@ interface RootStructureWithConvertFailures<
  * @param assertNoFailures - if true, assert there are no conversion failures.
  * @returns the root structure, the root node, and any failures during recursion.
  */
-declare function getTypeAugmentedStructure(
+declare function getAugmentedStructure(
   rootNode: NodeWithStructures,
   userConsole: TypeNodeToTypeStructureConsole,
   assertNoFailures: boolean,
@@ -153,7 +153,7 @@ declare function getTypeAugmentedStructure(
  * @param kind - the expected structure kind to retrieve.
  * @returns the root structure, the root node, and any failures during recursion.
  */
-declare function getTypeAugmentedStructure<TKind extends StructureKind>(
+declare function getAugmentedStructure<TKind extends StructureKind>(
   rootNode: NodeWithStructures,
   userConsole: TypeNodeToTypeStructureConsole,
   assertNoFailures: boolean,
@@ -3953,7 +3953,7 @@ export {
   VoidTypeNodeToTypeStructureConsole,
   WriterTypeStructureImpl,
   forEachAugmentedStructureChild,
-  getTypeAugmentedStructure,
+  getAugmentedStructure,
   parseLiteralType,
 };
 export type {

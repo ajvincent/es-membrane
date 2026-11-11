@@ -3,7 +3,7 @@ import chalk from "chalk";
 
 import {
   VoidTypeNodeToTypeStructureConsole,
-  getTypeAugmentedStructure,
+  getAugmentedStructure,
 } from "#stage_two/snapshot/source/exports.js";
 
 import getTS_SourceFile from "#utilities/source/getTS_SourceFile.js";
@@ -28,7 +28,7 @@ const stage_three_snapshot = path.join(projectDir, "stage_3_snapshot/snapshot");
  * 2. Do the files have the same source file structure?
  * 3. Do the files hash to exactly the same value?
  *
- * The second one is a strong dogfood test: it uses `getTypeAugmentedStructure` to build the structure,
+ * The second one is a strong dogfood test: it uses `getAugmentedStructure` to build the structure,
  * then serializes it for comparison.
  */
 
@@ -274,7 +274,7 @@ function getStructureEntryForFile(
     startDir, pathToSourceFile
   );
   try {
-    const structure = getTypeAugmentedStructure(
+    const structure = getAugmentedStructure(
       sourceFile, VoidTypeNodeToTypeStructureConsole, true
     ).rootStructure;
 

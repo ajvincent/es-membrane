@@ -8,7 +8,7 @@ import {
 } from "ts-morph";
 
 import {
-  getTypeAugmentedStructure,
+  getAugmentedStructure,
   TypeAliasDeclarationImpl,
   TypeStructures,
   VoidTypeNodeToTypeStructureConsole,
@@ -29,7 +29,7 @@ export default function parseLiteralType(
   const tempFile: SourceFile = ParseLiteralProject.createSourceFile("tempFile.ts");
 
   try {
-    const aliasStructure = getTypeAugmentedStructure(
+    const aliasStructure = getAugmentedStructure(
       tempFile.addTypeAlias(new TypeAliasDeclarationImpl(name, source)),
       VoidTypeNodeToTypeStructureConsole,
       true

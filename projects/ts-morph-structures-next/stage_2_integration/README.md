@@ -271,16 +271,16 @@ The `consoleTrap()` callback of `convertTypeNode()` exists for this purpose: to 
 
 The `buildTypesForStructures()` function handles a null return from `convertTypeNode()` gracefully: if it gets null back, it does nothing to the type field and rolls on to the next.  Thus, a failure will leave you with a string or writer function you can still use, and (courtesy of the `TypeAccessor`) a type structure reflecting the original type field, just unparsed.
 
-### Driving with `getTypeAugmentedStructure()`
+### Driving with `getAugmentedStructure()`
 
-[The `getTypeAugmentedStructure()` function](./source/bootstrap/getTypeAugmentedStructure.ts) integrates all the above together.
+[The `getAugmentedStructure()` function](./source/bootstrap/getAugmentedStructure.ts) integrates all the above together.
 
 1. It takes a callback function for type-to-type-structure conversion failures.
 1. It calls `structureToNodeMap()` to get a `Map<Structures, Node>`.
 1. It calls `buildTypesForStructures()` with:
    1. The map from `structureToNodeMap()`
    1. The user's failures callback
-   1. A sub-structures callback which calls `getTypeAugmentedStructure()` recursively, starting again at a deeper point in the node tree
+   1. A sub-structures callback which calls `getAugmentedStructure()` recursively, starting again at a deeper point in the node tree
    1. `convertTypeNode`
 1. It returns the root structure, the root node, and all conversion failures it accumulated.
 

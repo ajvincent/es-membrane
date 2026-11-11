@@ -56,16 +56,16 @@ function definePublicExports(): void
   });
 
   publicExports.addExports({
-    pathToExportedModule: pathToModule(distDir, "source/bootstrap/getTypeAugmentedStructure.ts"),
+    pathToExportedModule: pathToModule(distDir, "source/bootstrap/getAugmentedStructure.ts"),
     exportNames: [
-      "getTypeAugmentedStructure",
+      "getAugmentedStructure",
     ],
     isDefaultExport: true,
     isType: false
   });
 
   publicExports.addExports({
-    pathToExportedModule: pathToModule(distDir, "source/bootstrap/getTypeAugmentedStructure.ts"),
+    pathToExportedModule: pathToModule(distDir, "source/bootstrap/getAugmentedStructure.ts"),
     exportNames: [
       "TypeNodeToTypeStructureConsole"
     ],

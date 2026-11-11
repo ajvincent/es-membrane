@@ -41,7 +41,7 @@ Many ts-morph nodes have a `getStructure()` method on them - which return raw ts
  *
  * @returns the root structure, and any failures during recursion.
  */
-declare function getTypeAugmentedStructure(
+declare function getAugmentedStructure(
   rootNode: NodeWithStructures,
   userConsole: TypeNodeToTypeStructureConsole,
   assertNoFailures: boolean
@@ -55,7 +55,7 @@ declare function getTypeAugmentedStructure(
  * @param kind - the expected structure kind to retrieve.
  * @returns the root structure, and any failures during recursion.
  */
-declare function getTypeAugmentedStructure<TKind extends StructureKind>(
+declare function getAugmentedStructure<TKind extends StructureKind>(
   rootNode: NodeWithStructures,
   userConsole: TypeNodeToTypeStructureConsole,
   assertNoFailures: boolean,
@@ -99,7 +99,7 @@ All of these are exports from `"ts-morph-structures"`:
 - The `userConsole` is a callback function for when ts-morph-structures might fail to convert a value.  (If it does, please file a bug.)
 - `assertNoFailures` will cause the conversion to throw an exception if any conversion fails, recursively.
 - Passing in a `kind` argument will force a check against the node you pass in for a matching _syntax_ kind, and assert the returned structure is of the kind you pass in.
-- Usually, you just want the `rootStructure` of the `getTypeAugmentedStructure()` output.
+- Usually, you just want the `rootStructure` of the `getAugmentedStructure()` output.
 
 ## Creating from scratch
 

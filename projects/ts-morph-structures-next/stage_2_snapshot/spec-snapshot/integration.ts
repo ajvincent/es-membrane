@@ -35,7 +35,7 @@ import {
   TypeAliasDeclarationImpl,
   TypeArgumentedTypeStructureImpl,
   TypeParameterDeclarationImpl,
-  getTypeAugmentedStructure
+  getAugmentedStructure
 } from "#stage_two/snapshot/source/exports.js";
 
 // #endregion preamble
@@ -54,7 +54,7 @@ it("ts-morph-structures: integration test", () => {
     );
     const NST_Node = NumberStringClassFile.getInterfaceOrThrow("NumberStringType");
 
-    const result = getTypeAugmentedStructure(
+    const result = getAugmentedStructure(
       NST_Node, (message, failingTypeNode) => {
         void(message);
         void(failingTypeNode);

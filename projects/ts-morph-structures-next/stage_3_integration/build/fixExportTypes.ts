@@ -25,7 +25,7 @@ import getTS_SourceFile from "#utilities/source/getTS_SourceFile.js";
 
 import {
   forEachAugmentedStructureChild,
-  getTypeAugmentedStructure,
+  getAugmentedStructure,
   type StructureImpls,
   type TypeStructures,
   TypeStructureKind,
@@ -52,7 +52,7 @@ export async function fixExportTypes(): Promise<void>
     void(failingTypeNode);
   }
 
-  const { rootStructure } = getTypeAugmentedStructure(sourceFile, parseConsole, true, StructureKind.SourceFile);
+  const { rootStructure } = getAugmentedStructure(sourceFile, parseConsole, true, StructureKind.SourceFile);
 
   forEachAugmentedStructureChild(rootStructure, recurseStructures);
   StatementSorter.sortRoot(rootStructure);

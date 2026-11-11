@@ -8,7 +8,7 @@ import {
   TypeStructureKind,
   type TypeStructures,
   VoidTypeNodeToTypeStructureConsole,
-  getTypeAugmentedStructure,
+  getAugmentedStructure,
 } from "../../dist/exports.js";
 
 import {
@@ -22,7 +22,7 @@ export function getStaticAssertMethodsOfNode(
   // Get the list of methods returning type nodes.
   /* key: name of static method of Node.  value: class name in tS_MORPH_D */
   const staticAssertMethods = new Map<string, string>;
-  const nodeClass: ClassDeclarationImpl = getTypeAugmentedStructure(
+  const nodeClass: ClassDeclarationImpl = getAugmentedStructure(
     TS_MORPH_D.getClassOrThrow("Node"), VoidTypeNodeToTypeStructureConsole, true, StructureKind.Class
   ).rootStructure;
 

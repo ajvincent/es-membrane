@@ -143,7 +143,7 @@ This is relatively easy, and is necessary for `MemberedTypeToClass` to work:
   // Create the initial type members map
   const typeMembers = new TypeMembersMap();
   MapInterfaceNodes.forEach(node => {
-    const structure = getTypeAugmentedStructure(
+    const structure = getAugmentedStructure(
       node, VoidTypeNodeToTypeStructureConsole, true, StructureKind.Interface
     ).rootStructure;
     typeMembers.addMembers([
@@ -155,7 +155,7 @@ This is relatively easy, and is necessary for `MemberedTypeToClass` to work:
 ```
 
 - [TypeMembersMap API documentation](../api/ts-morph-structures.typemembersmap.md)
-- [getTypeAugmentedStructure API documentation](../api/ts-morph-structures.gettypeaugmentedstructure.md) with [overload](../api/ts-morph-structures.gettypeaugmentedstructure_1.md)
+- [getAugmentedStructure API documentation](../api/ts-morph-structures.getaugmentedstructure.md) with [overload](../api/ts-morph-structures.getaugmentedstructure_1.md)
 
 ## Analyzing the interfaces for type-to-class requirements
 

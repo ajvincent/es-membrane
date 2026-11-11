@@ -10,7 +10,7 @@ The [file hashes tests](./spec-snapshot/fileHashes.ts) are for this purpose.
  * 2. Do the files have the same source file structure?
  * 3. Do the files hash to exactly the same value?
  *
- * The second one is a strong dogfood test: it uses `getTypeAugmentedStructure` to build the structure,
+ * The second one is a strong dogfood test: it uses `getAugmentedStructure` to build the structure,
  * then serializes it for comparison.
  */
 ```

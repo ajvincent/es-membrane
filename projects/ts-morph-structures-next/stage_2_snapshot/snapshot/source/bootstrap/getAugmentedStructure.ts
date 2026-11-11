@@ -30,7 +30,7 @@ export type { TypeNodeToTypeStructureConsole };
  * @param assertNoFailures - if true, assert there are no conversion failures.
  * @returns the root structure, the root node, and any failures during recursion.
  */
-function getTypeAugmentedStructure(
+function getAugmentedStructure(
   rootNode: NodeWithStructures,
   userConsole: TypeNodeToTypeStructureConsole,
   assertNoFailures: boolean,
@@ -44,13 +44,13 @@ function getTypeAugmentedStructure(
  * @param kind - the expected structure kind to retrieve.
  * @returns the root structure, the root node, and any failures during recursion.
  */
-function getTypeAugmentedStructure<TKind extends StructureKind>(
+function getAugmentedStructure<TKind extends StructureKind>(
   rootNode: NodeWithStructures,
   userConsole: TypeNodeToTypeStructureConsole,
   assertNoFailures: boolean,
   kind: TKind,
 ): RootStructureWithConvertFailures<TKind>;
-function getTypeAugmentedStructure(
+function getAugmentedStructure(
   rootNode: NodeWithStructures,
   userConsole: TypeNodeToTypeStructureConsole,
   assertNoFailures: boolean,
@@ -83,7 +83,7 @@ function getTypeAugmentedStructure(
     userConsole,
     (nodeWithStructure: NodeWithStructures): StructureImpls => {
       const subStructureResults: RootStructureWithConvertFailures =
-        getTypeAugmentedStructure(nodeWithStructure, userConsole, false);
+        getAugmentedStructure(nodeWithStructure, userConsole, false);
       subFailures.push(...subStructureResults.failures);
       return subStructureResults.rootStructure;
     },
@@ -112,4 +112,4 @@ function getTypeAugmentedStructure(
   };
 }
 
-export default getTypeAugmentedStructure;
+export default getAugmentedStructure;
