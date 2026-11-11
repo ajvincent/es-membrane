@@ -3,7 +3,11 @@ import type {
 } from "./StructureImplUnions.d.ts";
 
 import type {
+  AugmentedStatementStructures
+} from "../structures/statements/AugmentedStatements.ts";
+
+import type {
   TypeStructures
 } from "../structures/type/TypeStructures.ts";
 
-export type AugmentedStructures = StructureImpls | TypeStructures;
+export type AugmentedStructures = StructureImpls | TypeStructures

@@ -1085,8 +1085,8 @@ type ArrayOrValue<T> = T | readonly T[];
  * @see {@link https://ts-morph.com/manipulation/structures#codeforeachstructurechildcode}
  */
 declare function forEachAugmentedStructureChild<TStructure>(
-  structureOrArray: ArrayOrValue<StructureImpls | TypeStructures>,
-  callback: (child: StructureImpls | TypeStructures) => TStructure | void,
+  structureOrArray: ArrayOrValue<AugmentedStructures>,
+  callback: (child: AugmentedStructures) => TStructure | void,
 ): TStructure | undefined;
 
 /** A description of the exports to add. */

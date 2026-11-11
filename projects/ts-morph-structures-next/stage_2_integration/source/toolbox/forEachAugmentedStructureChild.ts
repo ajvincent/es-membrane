@@ -4,8 +4,7 @@ import {
 } from "ts-morph";
 
 import {
-  type StructureImpls,
-  type TypeStructures,
+  type AugmentedStructures,
 } from "../../snapshot/source/exports.js";
 
 import {
@@ -31,14 +30,14 @@ export function forEachStructureChild<TStructure>(
  * @see {@link https://ts-morph.com/manipulation/structures#codeforeachstructurechildcode}
  */
 export default function forEachAugmentedStructureChild<TStructure>(
-  structureOrArray: ArrayOrValue<StructureImpls | TypeStructures>,
+  structureOrArray: ArrayOrValue<AugmentedStructures>,
   callback: (
-    child: StructureImpls | TypeStructures
+    child: AugmentedStructures
   ) => TStructure | void
 ): TStructure | undefined
 {
   if (Array.isArray(structureOrArray)) {
-    for (const element of (structureOrArray as readonly (StructureImpls | TypeStructures)[])) {
+    for (const element of (structureOrArray as readonly AugmentedStructures[])) {
       const rv = callback(element);
       if (rv)
         return rv;
@@ -46,7 +45,7 @@ export default function forEachAugmentedStructureChild<TStructure>(
     return;
   }
 
-  const structureOrType = structureOrArray as StructureImpls | TypeStructures;
+  const structureOrType = structureOrArray as AugmentedStructures;
 
   if (structureOrType instanceof StructureBase) {
     const rv = forEachStructureChild(
@@ -57,9 +56,7 @@ export default function forEachAugmentedStructureChild<TStructure>(
       return rv;
   }
 
-  const iterator: IterableIterator<
-    StructureImpls | TypeStructures
-  > = structureOrType[STRUCTURE_CHILDREN]();
+  const iterator: IterableIterator<AugmentedStructures> = structureOrType[STRUCTURE_CHILDREN]();
 
   for (const child of iterator) {
     const rv = callback(child);
