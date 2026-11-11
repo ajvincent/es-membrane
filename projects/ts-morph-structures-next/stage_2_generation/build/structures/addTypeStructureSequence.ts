@@ -51,6 +51,8 @@ export function addTypeStructureSequence(
     if (name.endsWith("Sequence") === false)
       return;
 
+    module.addImports("public", [], ["TypeStructures"]);
+
     name = name.replace(/Sequence$/, "");
     if (!PropertyHashesWithTypes.has(module.baseName, name)) {
       // how'd we get here?

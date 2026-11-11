@@ -5,7 +5,6 @@ import {
   MethodSignatureImpl,
   ParameterDeclarationImpl,
   TypeArgumentedTypeStructureImpl,
-  UnionTypeStructureImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
 import BaseModule from "./BaseModule.js";
@@ -77,7 +76,7 @@ abstract class BaseClassModule extends BaseModule
 
   createStructureIteratorMethod(): MethodSignatureImpl
   {
-    this.addImports("public", [], ["StructureImpls", "TypeStructures"]);
+    this.addImports("public", [], ["AugmentedStructures"]);
     this.addImports("internal", ["STRUCTURE_CHILDREN"], []);
 
     const methodSignature = new MethodSignatureImpl("[STRUCTURE_CHILDREN]");
@@ -86,10 +85,7 @@ abstract class BaseClassModule extends BaseModule
     methodSignature.returnTypeStructure = new TypeArgumentedTypeStructureImpl(
       LiteralTypeStructureImpl.get("IterableIterator"),
       [
-        new UnionTypeStructureImpl([
-          LiteralTypeStructureImpl.get("StructureImpls"),
-          LiteralTypeStructureImpl.get("TypeStructures")
-        ])
+        LiteralTypeStructureImpl.get("AugmentedStructures")
       ]
     );
     return methodSignature;

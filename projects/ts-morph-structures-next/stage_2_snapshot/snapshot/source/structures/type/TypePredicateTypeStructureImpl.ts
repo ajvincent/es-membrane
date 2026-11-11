@@ -1,8 +1,8 @@
-import { type CodeBlockWriter, type WriterFunction } from "ts-morph";
+import { type CodeBlockWriter } from "ts-morph";
 
 import {
+  type AugmentedStructures,
   LiteralTypeStructureImpl,
-  type StructureImpls,
   TypeStructureKind,
   type TypeStructures,
 } from "../../exports.js";
@@ -61,9 +61,7 @@ export class TypePredicateTypeStructureImpl extends TypeStructuresBase<TypeStruc
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  > {
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {
     yield* super[STRUCTURE_CHILDREN]();
     if (this.isType) yield this.isType;
   }

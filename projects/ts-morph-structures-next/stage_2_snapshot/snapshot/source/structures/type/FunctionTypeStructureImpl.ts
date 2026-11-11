@@ -1,10 +1,10 @@
 // #region preamble
-import type { CodeBlockWriter, WriterFunction } from "ts-morph";
+import type { CodeBlockWriter } from "ts-morph";
 
 import {
+  type AugmentedStructures,
   ParameterTypeStructureImpl,
   PrefixOperatorsTypeStructureImpl,
-  type StructureImpls,
   TypeParameterDeclarationImpl,
   TypeStructureKind,
   type TypeStructures,
@@ -164,9 +164,7 @@ export class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters<
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  > {
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {
     yield* super[STRUCTURE_CHILDREN]();
 
     yield* this.typeParameters.values();

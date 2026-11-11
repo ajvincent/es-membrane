@@ -1,5 +1,6 @@
 //#region preamble
 import type {
+  AugmentedStructures,
   CallSignatureDeclarationImpl,
   ConstructSignatureDeclarationImpl,
   GetAccessorDeclarationImpl,
@@ -9,7 +10,6 @@ import type {
   PropertySignatureImpl,
   SetAccessorDeclarationImpl,
   stringOrWriterFunction,
-  StructureImpls,
   TypeStructures,
 } from "../../exports.js";
 import {
@@ -224,9 +224,7 @@ export class InterfaceDeclarationImpl
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  > {
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {
     yield* super[STRUCTURE_CHILDREN]();
     yield* this.extendsSequence;
   }

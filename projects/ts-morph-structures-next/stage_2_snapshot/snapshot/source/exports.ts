@@ -197,6 +197,7 @@ export type {
   stringWriterOrStatementImpl,
   TypeMemberImpl,
 } from "./toolbox/types/toolbox.js";
+export type { AugmentedStructures } from "./types/AugmentedStructures.js";
 export type { stringOrWriterFunction } from "./types/stringOrWriterFunction.js";
 export type * from "./types/StructureImplUnions.js";
 export type * from "./types/TypeAndTypeStructureInterfaces.js";

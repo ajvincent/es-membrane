@@ -4,6 +4,7 @@ import {
 } from "ts-morph";
 
 import {
+  type AugmentedStructures,
   CallSignatureDeclarationImpl,
   ConstructSignatureDeclarationImpl,
   GetAccessorDeclarationImpl,
@@ -11,9 +12,7 @@ import {
   MethodSignatureImpl,
   PropertySignatureImpl,
   SetAccessorDeclarationImpl,
-  type StructureImpls,
   TypeStructureKind,
-  type TypeStructures,
 } from "../../../snapshot/source/exports.js";
 
 import {
@@ -90,7 +89,7 @@ extends TypeStructuresBase<TypeStructureKind.MemberedObject>
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>
   {
     yield* super[STRUCTURE_CHILDREN]();
     yield* this.callSignatures.values();

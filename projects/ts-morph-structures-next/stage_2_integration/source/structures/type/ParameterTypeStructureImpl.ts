@@ -4,7 +4,7 @@ import type {
 } from "ts-morph";
 
 import {
-  type StructureImpls,
+  type AugmentedStructures,
   TypeStructureKind,
   type TypeStructures,
 } from "../../../snapshot/source/exports.js";
@@ -60,7 +60,7 @@ extends TypeStructuresBase<TypeStructureKind.Parameter>
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>
   {
     yield* super[STRUCTURE_CHILDREN]();
     if (typeof this.typeStructure === "object")

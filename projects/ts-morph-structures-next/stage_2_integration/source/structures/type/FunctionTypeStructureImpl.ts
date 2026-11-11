@@ -1,13 +1,12 @@
 // #region preamble
 import type {
   CodeBlockWriter,
-  WriterFunction,
 } from "ts-morph";
 
 import {
+  type AugmentedStructures,
   ParameterTypeStructureImpl,
   PrefixOperatorsTypeStructureImpl,
-  type StructureImpls,
   TypeParameterDeclarationImpl,
   TypeStructureKind,
   type TypeStructures,
@@ -155,7 +154,7 @@ extends TypeStructuresWithTypeParameters<TypeStructureKind.Function>
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>
   {
     yield* super[STRUCTURE_CHILDREN]();
 

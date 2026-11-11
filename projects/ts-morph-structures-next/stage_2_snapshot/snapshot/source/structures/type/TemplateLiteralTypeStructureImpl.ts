@@ -1,7 +1,7 @@
-import { CodeBlockWriter, WriterFunction } from "ts-morph";
+import { CodeBlockWriter } from "ts-morph";
 
 import {
-  type StructureImpls,
+  type AugmentedStructures,
   TypeStructureKind,
   type TypeStructures,
 } from "../../exports.js";
@@ -51,9 +51,7 @@ export class TemplateLiteralTypeStructureImpl extends TypeStructuresBase<TypeStr
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  > {
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {
     yield* super[STRUCTURE_CHILDREN]();
     for (const span of this.spans) {
       const type = span[0];

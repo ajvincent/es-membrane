@@ -1,13 +1,12 @@
 import type {
   CodeBlockWriter,
-  WriterFunction,
 } from "ts-morph";
 
-import {
+import type {
+  AugmentedStructures,
   TypeStructureKind,
-  type StructureImpls,
-  type TypeStructures,
-  type TypeStructuresOrNull,
+  TypeStructures,
+  TypeStructuresOrNull,
 } from "../../../snapshot/source/exports.js";
 
 import {
@@ -93,7 +92,7 @@ extends TypeStructuresBase<Kind>
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>
   {
     yield* super[STRUCTURE_CHILDREN]();
     if ((typeof this.objectType === "object") && this.objectType)

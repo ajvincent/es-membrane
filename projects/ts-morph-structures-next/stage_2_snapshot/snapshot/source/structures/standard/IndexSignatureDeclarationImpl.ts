@@ -1,7 +1,7 @@
 //#region preamble
 import type {
+  AugmentedStructures,
   IndexSignatureDeclarationStructureClassIfc,
-  StructureImpls,
   TypeStructures,
 } from "../../exports.js";
 import {
@@ -123,9 +123,7 @@ export class IndexSignatureDeclarationImpl
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  > {
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {
     yield* super[STRUCTURE_CHILDREN]();
     if (typeof this.keyTypeStructure === "object") yield this.keyTypeStructure;
   }

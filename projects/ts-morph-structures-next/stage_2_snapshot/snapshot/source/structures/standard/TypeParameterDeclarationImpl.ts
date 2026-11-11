@@ -1,7 +1,7 @@
 //#region preamble
 import type {
+  AugmentedStructures,
   stringOrWriterFunction,
-  StructureImpls,
   TypeParameterDeclarationStructureClassIfc,
   TypeStructures,
 } from "../../exports.js";
@@ -119,9 +119,7 @@ export class TypeParameterDeclarationImpl
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  > {
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {
     yield* super[STRUCTURE_CHILDREN]();
     if (typeof this.constraintStructure === "object")
       yield this.constraintStructure;

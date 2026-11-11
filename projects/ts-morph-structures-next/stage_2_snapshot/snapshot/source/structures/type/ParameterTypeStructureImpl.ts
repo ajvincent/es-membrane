@@ -2,7 +2,7 @@
 import type { CodeBlockWriter } from "ts-morph";
 
 import {
-  type StructureImpls,
+  type AugmentedStructures,
   TypeStructureKind,
   type TypeStructures,
 } from "../../exports.js";
@@ -48,9 +48,7 @@ export class ParameterTypeStructureImpl extends TypeStructuresBase<TypeStructure
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  > {
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {
     yield* super[STRUCTURE_CHILDREN]();
     if (typeof this.typeStructure === "object") yield this.typeStructure;
   }

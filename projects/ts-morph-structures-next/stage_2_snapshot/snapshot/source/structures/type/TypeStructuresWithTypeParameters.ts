@@ -1,6 +1,6 @@
 import type { CodeBlockWriter } from "ts-morph";
 
-import {
+import type {
   TypeParameterDeclarationImpl,
   TypeStructureKind,
 } from "../../exports.js";

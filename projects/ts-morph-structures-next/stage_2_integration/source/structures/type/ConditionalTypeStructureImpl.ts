@@ -1,11 +1,10 @@
 import type {
   CodeBlockWriter,
-  WriterFunction,
 } from "ts-morph";
 
 import {
+  type AugmentedStructures,
   LiteralTypeStructureImpl,
-  type StructureImpls,
   TypeStructureKind,
   type TypeStructures,
 } from "../../../snapshot/source/exports.js";
@@ -75,7 +74,7 @@ extends TypeStructuresBase<TypeStructureKind.Conditional>
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>
   {
     yield* super[STRUCTURE_CHILDREN]();
 

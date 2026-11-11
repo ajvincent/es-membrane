@@ -1,14 +1,13 @@
 import {
   type CodeBlockWriter,
   StructureKind,
-  type WriterFunction,
   printStructure,
 } from "ts-morph";
 
 import {
+  type AugmentedStructures,
   type JSDocImpl,
   TypeStructureKind,
-  type StructureImpls,
   type TypeStructures,
 } from "../../../snapshot/source/exports.js";
 
@@ -63,7 +62,7 @@ export class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase<TypeSt
   }
 
   /** @internal */
-  public * [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures> {
+  public * [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {
     yield* super[STRUCTURE_CHILDREN]();
     yield this.objectType;
   }

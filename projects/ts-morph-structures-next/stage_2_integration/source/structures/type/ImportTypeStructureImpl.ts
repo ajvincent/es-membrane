@@ -1,10 +1,10 @@
 import {
   StructureKind,
   type CodeBlockWriter,
-  type WriterFunction,
 } from "ts-morph";
 
 import {
+  type AugmentedStructures,
   ImportAttributeImpl,
   /*
   // ReferenceError: Cannot access 'LiteralTypeStructureImpl' before initialization
@@ -14,7 +14,6 @@ import {
   StringTypeStructureImpl,
   TypeArgumentedTypeStructureImpl,
   TypeStructureKind,
-  type StructureImpls,
   type TypeStructures,
 } from "../../../snapshot/source/exports.js";
 
@@ -111,7 +110,7 @@ export class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKin
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>
   {
     yield* super[STRUCTURE_CHILDREN]();
 

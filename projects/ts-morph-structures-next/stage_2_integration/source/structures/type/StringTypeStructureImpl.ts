@@ -1,7 +1,6 @@
 // #region preamble
 import type {
   CodeBlockWriter,
-  WriterFunction,
 } from "ts-morph";
 
 import {

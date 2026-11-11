@@ -231,6 +231,13 @@ function definePublicExports(): void
   });
 
   publicExports.addExports({
+    pathToExportedModule: pathToModule(distDir, "source/types/AugmentedStructures.d.ts"),
+    exportNames: ["AugmentedStructures"],
+    isDefaultExport: false,
+    isType: true
+  });
+
+  publicExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/types/StructureImplUnions.d.ts"),
     exportNames: [], // export all the union types
     isDefaultExport: false,

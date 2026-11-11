@@ -1,8 +1,7 @@
-import {
+import type {
+  AugmentedStructures,
   KindedTypeStructure,
-  type StructureImpls,
   TypeStructureKind,
-  type TypeStructures,
 } from "../../../snapshot/source/exports.js";
 
 import {
@@ -30,9 +29,7 @@ implements KindedTypeStructure<Kind>, InnerTypeElement<stringOrWriterFunction>
   public abstract readonly kind: Kind;
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  > {}
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {}
 
   public [GET_OUTER_TYPE](): stringOrWriterFunction {
     return this.writerFunction;

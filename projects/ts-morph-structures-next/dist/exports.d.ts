@@ -612,7 +612,7 @@ declare abstract class TypeStructuresBase<Kind extends TypeStructureKind>
 {
   abstract readonly kind: Kind;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
   [GET_OUTER_TYPE](): stringOrWriterFunction;
 }
 
@@ -684,7 +684,7 @@ declare abstract class TypeStructuresWithChildren<
   readonly printerSettings: TypePrinterSettings;
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
 declare abstract class TypeStructuresWithTypeParameters<
@@ -1662,6 +1662,7 @@ type ReadonlyTypeMembersMap = Simplify<
   ReadonlyMap<string, TypeMemberImpl> &
     Pick<TypeMembersMap, "arrayOfKind" | "clone" | "getAsKind">
 >;
+type AugmentedStructures = StructureImpls | TypeStructures;
 
 interface TypedNodeTypeStructure {
   typeStructure: TypeStructures | undefined;
@@ -1772,7 +1773,7 @@ declare class ClassDeclarationImpl
   /** @internal */
   [GET_OUTER_TYPE](): this;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
   toJSON(): StructureClassToJSON<ClassDeclarationImpl>;
 }
 
@@ -2380,7 +2381,7 @@ declare class IndexSignatureDeclarationImpl
     source: OptionalKind<IndexSignatureDeclarationStructure>,
   ): IndexSignatureDeclarationImpl;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
   toJSON(): StructureClassToJSON<IndexSignatureDeclarationImpl>;
 }
 
@@ -2431,7 +2432,7 @@ declare class InterfaceDeclarationImpl
   /** @internal */
   [GET_OUTER_TYPE](): this;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
   toJSON(): StructureClassToJSON<InterfaceDeclarationImpl>;
 }
 
@@ -3296,7 +3297,7 @@ declare class TypeAliasDeclarationImpl
   /** @internal */
   [GET_OUTER_TYPE](): this;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
   toJSON(): StructureClassToJSON<TypeAliasDeclarationImpl>;
 }
 
@@ -3338,7 +3339,7 @@ declare class TypeParameterDeclarationImpl
     source: OptionalKind<TypeParameterDeclarationStructure>,
   ): TypeParameterDeclarationImpl;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
   toJSON(): StructureClassToJSON<TypeParameterDeclarationImpl>;
 }
 
@@ -3454,7 +3455,7 @@ declare class ArrayTypeStructureImpl extends TypeStructuresBase<TypeStructureKin
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
 /** `checkType` extends `extendsType` ? `trueType` : `falseType` */
@@ -3471,7 +3472,7 @@ declare class ConditionalTypeStructureImpl extends TypeStructuresBase<TypeStruct
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
 /** ("new" | "get" | "set" | "") name<typeParameters>(parameters, ...restParameter) ("=\>" | ":" ) returnType */
@@ -3489,7 +3490,7 @@ declare class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
 /** @example `import("ts-morph", { with: { "resolution-mode": "import" } }).StatementStructures` */
@@ -3515,7 +3516,7 @@ declare class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKi
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
   static clone(other: ImportTypeStructureImpl): ImportTypeStructureImpl;
 }
 
@@ -3552,7 +3553,7 @@ declare class InferTypeStructureImpl extends TypeStructuresWithTypeParameters<Ty
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   static clone(other: InferTypeStructureImpl): InferTypeStructureImpl;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
 /** @example `Foo & Bar & ...` */
@@ -3609,7 +3610,7 @@ declare class MappedTypeStructureImpl extends TypeStructuresWithTypeParameters<T
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   static clone(other: MappedTypeStructureImpl): MappedTypeStructureImpl;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
 /**
@@ -3642,7 +3643,7 @@ declare class MemberedObjectTypeStructureImpl extends TypeStructuresBase<TypeStr
   ): MemberedObjectTypeStructureImpl;
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
 /** @example `[a: number]` */
@@ -3660,7 +3661,7 @@ declare class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase<TypeS
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
 /**
@@ -3689,7 +3690,7 @@ declare class OptionalTypeStructureImpl extends TypeStructuresBase<TypeStructure
   static clone(other: OptionalTypeStructureImpl): OptionalTypeStructureImpl;
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
 /** Just a parameter name and type for a `FunctionTypeStructureImpl`. */
@@ -3701,7 +3702,7 @@ declare class ParameterTypeStructureImpl extends TypeStructuresBase<TypeStructur
   static clone(other: ParameterTypeStructureImpl): ParameterTypeStructureImpl;
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
 /** Wrap the child type in parentheses. */
@@ -3737,7 +3738,7 @@ declare class PrefixOperatorsTypeStructureImpl extends TypeStructuresBase<TypeSt
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
 /** @example `Foo.bar.baz...` */
@@ -3777,7 +3778,7 @@ declare class TemplateLiteralTypeStructureImpl extends TypeStructuresBase<TypeSt
   ): TemplateLiteralTypeStructureImpl;
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
 /**
@@ -3842,7 +3843,7 @@ declare class TypePredicateTypeStructureImpl extends TypeStructuresBase<TypeStru
     other: TypePredicateTypeStructureImpl,
   ): TypePredicateTypeStructureImpl;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
 /** @example `Foo | Bar | ...` */
@@ -3963,6 +3964,7 @@ export type {
   AmbientableNodeStructureClassIfc,
   AsyncableNodeStructureClassIfc,
   AugmentedStatementStructures,
+  AugmentedStructures,
   CallSignatureDeclarationStructureClassIfc,
   ClassAbstractMemberQuestion,
   ClassAsyncMethodQuestion,

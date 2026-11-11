@@ -1,5 +1,6 @@
 //#region preamble
 import type {
+  AugmentedStructures,
   ClassDeclarationStructureClassIfc,
   ClassStaticBlockDeclarationImpl,
   ConstructorDeclarationImpl,
@@ -8,7 +9,6 @@ import type {
   PropertyDeclarationImpl,
   SetAccessorDeclarationImpl,
   stringOrWriterFunction,
-  StructureImpls,
   TypeStructures,
 } from "../../exports.js";
 import {
@@ -235,9 +235,7 @@ export class ClassDeclarationImpl
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  > {
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {
     yield* super[STRUCTURE_CHILDREN]();
     if (typeof this.extendsStructure === "object") yield this.extendsStructure;
     yield* this.implementsSequence;

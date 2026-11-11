@@ -1,7 +1,7 @@
 //#region preamble
 import type {
+  AugmentedStructures,
   stringOrWriterFunction,
-  StructureImpls,
   TypeAliasDeclarationStructureClassIfc,
   TypeStructures,
 } from "../../exports.js";
@@ -122,9 +122,7 @@ export class TypeAliasDeclarationImpl
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  > {
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {
     yield* super[STRUCTURE_CHILDREN]();
     if (typeof this.typeStructure === "object") yield this.typeStructure;
   }

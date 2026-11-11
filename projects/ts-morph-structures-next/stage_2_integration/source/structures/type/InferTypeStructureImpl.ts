@@ -1,14 +1,12 @@
 // #region preamble
 import type {
   CodeBlockWriter,
-  WriterFunction,
 } from "ts-morph";
 
 import {
-  type StructureImpls,
+  type AugmentedStructures,
   TypeParameterDeclarationImpl,
   TypeStructureKind,
-  type TypeStructures,
 } from "../../../snapshot/source/exports.js";
 
 import {
@@ -56,7 +54,7 @@ extends TypeStructuresWithTypeParameters<TypeStructureKind.Infer>
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>
   {
     yield* super[STRUCTURE_CHILDREN]();
     yield this.typeParameter;

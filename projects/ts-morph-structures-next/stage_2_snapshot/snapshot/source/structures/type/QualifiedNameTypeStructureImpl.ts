@@ -1,4 +1,4 @@
-import type { CodeBlockWriter, WriterFunction } from "ts-morph";
+import type { CodeBlockWriter } from "ts-morph";
 
 import { TypeStructureKind } from "../../exports.js";
 

@@ -2,7 +2,7 @@ import type {
   CodeBlockWriter,
 } from "ts-morph";
 
-import {
+import type {
   TypeParameterDeclarationImpl,
   TypeStructureKind,
 } from "../../../snapshot/source/exports.js";

@@ -1,8 +1,8 @@
 //#region preamble
 import type {
+  AugmentedStructures,
   ReturnTypedNodeStructureClassIfc,
   stringOrWriterFunction,
-  StructureImpls,
   TypeStructures,
 } from "../../exports.js";
 import {
@@ -81,9 +81,7 @@ export function ReturnTypedNodeStructureMixin(
     }
 
     /** @internal */
-    public *[STRUCTURE_CHILDREN](): IterableIterator<
-      StructureImpls | TypeStructures
-    > {
+    public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {
       yield* super[STRUCTURE_CHILDREN]();
       if (typeof this.returnTypeStructure === "object")
         yield this.returnTypeStructure;

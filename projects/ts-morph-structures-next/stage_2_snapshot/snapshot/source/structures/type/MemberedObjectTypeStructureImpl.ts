@@ -1,6 +1,7 @@
 import { CodeBlockWriter, Writers } from "ts-morph";
 
 import {
+  type AugmentedStructures,
   CallSignatureDeclarationImpl,
   ConstructSignatureDeclarationImpl,
   GetAccessorDeclarationImpl,
@@ -8,9 +9,7 @@ import {
   MethodSignatureImpl,
   PropertySignatureImpl,
   SetAccessorDeclarationImpl,
-  type StructureImpls,
   TypeStructureKind,
-  type TypeStructures,
 } from "../../exports.js";
 
 import {
@@ -96,9 +95,7 @@ export class MemberedObjectTypeStructureImpl extends TypeStructuresBase<TypeStru
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  > {
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {
     yield* super[STRUCTURE_CHILDREN]();
     yield* this.callSignatures.values();
     yield* this.constructSignatures.values();
