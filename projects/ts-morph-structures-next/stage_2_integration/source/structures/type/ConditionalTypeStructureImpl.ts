@@ -12,7 +12,7 @@ import {
 
 import {
   type CloneableTypeStructure,
-  STRUCTURE_AND_TYPES_CHILDREN,
+  STRUCTURE_CHILDREN,
   WRITER_FUNCTION_KEY,
   TypeStructuresBase,
   TypeStructureClassesMap,
@@ -75,9 +75,9 @@ extends TypeStructuresBase<TypeStructureKind.Conditional>
   }
 
   /** @internal */
-  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  public *[STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
   {
-    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    yield* super[STRUCTURE_CHILDREN]();
 
     if (typeof this.checkType === "object")
       yield this.checkType;

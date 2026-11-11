@@ -1,6 +1,6 @@
 import { type StructureImpls } from "../../exports.js";
 
-import { STRUCTURE_AND_TYPES_CHILDREN } from "../../internal-exports.js";
+import { STRUCTURE_CHILDREN } from "../../internal-exports.js";
 
 import {
   GET_OUTER_TYPE,
@@ -29,7 +29,7 @@ export abstract class StatementStructuresBase<
   public abstract readonly kind: Kind;
 
   /** @internal */
-  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+  public *[STRUCTURE_CHILDREN](): IterableIterator<
     StructureImpls | AugmentedStatementStructures
   > {}
 

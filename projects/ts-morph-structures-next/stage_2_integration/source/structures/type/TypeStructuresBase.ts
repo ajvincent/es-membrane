@@ -6,7 +6,7 @@ import {
 } from "../../../snapshot/source/exports.js";
 
 import {
-  STRUCTURE_AND_TYPES_CHILDREN
+  STRUCTURE_CHILDREN
 } from "../../../snapshot/source/internal-exports.js";
 
 import {
@@ -30,7 +30,7 @@ implements KindedTypeStructure<Kind>, InnerTypeElement<stringOrWriterFunction>
   public abstract readonly kind: Kind;
 
   /** @internal */
-  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+  public *[STRUCTURE_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
   > {}
 

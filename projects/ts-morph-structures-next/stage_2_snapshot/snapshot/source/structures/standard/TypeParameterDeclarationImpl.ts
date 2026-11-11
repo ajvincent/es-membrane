@@ -12,7 +12,7 @@ import {
   type NamedNodeStructureFields,
   NamedNodeStructureMixin,
   REPLACE_WRITER_WITH_STRING,
-  STRUCTURE_AND_TYPES_CHILDREN,
+  STRUCTURE_CHILDREN,
   StructureBase,
   StructureClassesMap,
   type StructureClassToJSON,
@@ -119,10 +119,10 @@ export class TypeParameterDeclarationImpl
   }
 
   /** @internal */
-  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+  public *[STRUCTURE_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
   > {
-    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    yield* super[STRUCTURE_CHILDREN]();
     if (typeof this.constraintStructure === "object")
       yield this.constraintStructure;
     if (typeof this.defaultStructure === "object") yield this.defaultStructure;

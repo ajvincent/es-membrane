@@ -125,7 +125,7 @@ async function buildDecoratorInner(
 
   typeToClass.isGeneratorCallback = {
     isGenerator: function(isStatic: boolean, memberName: string): boolean {
-      return isStatic === false && memberName === "[STRUCTURE_AND_TYPES_CHILDREN]";
+      return isStatic === false && memberName === "[STRUCTURE_CHILDREN]";
     }
   };
   typeToClass.scopeCallback = {
@@ -140,7 +140,7 @@ async function buildDecoratorInner(
       switch (memberName) {
         case "[COPY_FIELDS]":
         case "toJSON":
-        case "[STRUCTURE_AND_TYPES_CHILDREN]":
+        case "[STRUCTURE_CHILDREN]":
         return Scope.Public;
       }
       return undefined;

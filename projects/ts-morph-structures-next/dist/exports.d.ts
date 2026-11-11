@@ -530,7 +530,7 @@ interface InnerTypeElement<OuterType> {
 
 declare const COPY_FIELDS: unique symbol;
 declare const REPLACE_WRITER_WITH_STRING: unique symbol;
-declare const STRUCTURE_AND_TYPES_CHILDREN: unique symbol;
+declare const STRUCTURE_CHILDREN: unique symbol;
 
 declare class StructureBase {
   /** @internal */
@@ -542,26 +542,34 @@ declare class StructureBase {
   static [REPLACE_WRITER_WITH_STRING](value: string | WriterFunction): string;
   toJSON(): object;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
-type stringOrWriterFunction = string | WriterFunction;
-
-declare class TypeStructureSequence extends ShadowArrayImpl<
-  stringOrWriterFunction,
-  TypeStructures
-> {
-  static createProxy(innerElements: TypeStructures[]): stringOrWriterFunction[];
-  protected [BUILD_ARRAY_WRAPPER](
-    ...innerElements: TypeStructures[]
-  ): stringOrWriterFunction[];
-  protected [CONVERT_OUTER_TO_INNER](
-    outerType: stringOrWriterFunction,
-  ): TypeStructures;
+interface ConditionalTypeStructureParts {
+  checkType: TypeStructures;
+  extendsType: TypeStructures;
+  trueType: TypeStructures;
+  falseType: TypeStructures;
 }
 
+declare enum FunctionWriterStyle {
+  Arrow = "Arrow",
+  Method = "Method",
+  GetAccessor = "GetAccessor",
+  SetAccessor = "SetAccessor",
+}
+
+interface FunctionTypeContext {
+  name: string | undefined;
+  isConstructor: boolean;
+  typeParameters: TypeParameterDeclarationImpl[];
+  parameters: ParameterTypeStructureImpl[];
+  restParameter: ParameterTypeStructureImpl | undefined;
+  returnType: TypeStructures | undefined;
+  writerStyle: FunctionWriterStyle;
+}
+
+type PrefixUnaryOperator = "..." | "keyof" | "typeof" | "readonly" | "unique";
 declare const WRITER_FUNCTION_KEY: unique symbol;
 declare const DEREGISTER_WRITER: unique symbol;
 
@@ -596,16 +604,56 @@ declare abstract class WriterStructuresBase {
   ): void;
 }
 
+type stringOrWriterFunction = string | WriterFunction;
+
 declare abstract class TypeStructuresBase<Kind extends TypeStructureKind>
   extends WriterStructuresBase
   implements KindedTypeStructure<Kind>, InnerTypeElement<stringOrWriterFunction>
 {
   abstract readonly kind: Kind;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
   [GET_OUTER_TYPE](): stringOrWriterFunction;
+}
+
+type TypeStructures =
+  | ArrayTypeStructureImpl
+  | ConditionalTypeStructureImpl
+  | FunctionTypeStructureImpl
+  | ImportTypeStructureImpl
+  | IndexedAccessTypeStructureImpl
+  | InferTypeStructureImpl
+  | IntersectionTypeStructureImpl
+  | LiteralTypeStructureImpl
+  | MappedTypeStructureImpl
+  | MemberedObjectTypeStructureImpl
+  | NamedTupleMemberTypeStructureImpl
+  | NumberTypeStructureImpl
+  | OptionalTypeStructureImpl
+  | ParameterTypeStructureImpl
+  | ParenthesesTypeStructureImpl
+  | PrefixOperatorsTypeStructureImpl
+  | QualifiedNameTypeStructureImpl
+  | StringTypeStructureImpl
+  | TemplateLiteralTypeStructureImpl
+  | TupleTypeStructureImpl
+  | TypeArgumentedTypeStructureImpl
+  | TypePredicateTypeStructureImpl
+  | UnionTypeStructureImpl
+  | WriterTypeStructureImpl;
+type TypeStructuresOrNull = TypeStructures | null;
+
+declare class TypeStructureSequence extends ShadowArrayImpl<
+  stringOrWriterFunction,
+  TypeStructures
+> {
+  static createProxy(innerElements: TypeStructures[]): stringOrWriterFunction[];
+  protected [BUILD_ARRAY_WRAPPER](
+    ...innerElements: TypeStructures[]
+  ): stringOrWriterFunction[];
+  protected [CONVERT_OUTER_TO_INNER](
+    outerType: stringOrWriterFunction,
+  ): TypeStructures;
 }
 
 declare class TypePrinterSettings {
@@ -636,9 +684,7 @@ declare abstract class TypeStructuresWithChildren<
   readonly printerSettings: TypePrinterSettings;
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
 declare abstract class TypeStructuresWithTypeParameters<
@@ -664,58 +710,6 @@ type StructureClassToJSON<T extends object> = Writable<
     "toJSON" | `${string}Structure` | `${string}Sequence`
   >
 >;
-
-interface ConditionalTypeStructureParts {
-  checkType: TypeStructures;
-  extendsType: TypeStructures;
-  trueType: TypeStructures;
-  falseType: TypeStructures;
-}
-
-declare enum FunctionWriterStyle {
-  Arrow = "Arrow",
-  Method = "Method",
-  GetAccessor = "GetAccessor",
-  SetAccessor = "SetAccessor",
-}
-
-interface FunctionTypeContext {
-  name: string | undefined;
-  isConstructor: boolean;
-  typeParameters: TypeParameterDeclarationImpl[];
-  parameters: ParameterTypeStructureImpl[];
-  restParameter: ParameterTypeStructureImpl | undefined;
-  returnType: TypeStructures | undefined;
-  writerStyle: FunctionWriterStyle;
-}
-
-type PrefixUnaryOperator = "..." | "keyof" | "typeof" | "readonly" | "unique";
-type TypeStructures =
-  | ArrayTypeStructureImpl
-  | ConditionalTypeStructureImpl
-  | FunctionTypeStructureImpl
-  | ImportTypeStructureImpl
-  | IndexedAccessTypeStructureImpl
-  | InferTypeStructureImpl
-  | IntersectionTypeStructureImpl
-  | LiteralTypeStructureImpl
-  | MappedTypeStructureImpl
-  | MemberedObjectTypeStructureImpl
-  | NamedTupleMemberTypeStructureImpl
-  | NumberTypeStructureImpl
-  | OptionalTypeStructureImpl
-  | ParameterTypeStructureImpl
-  | ParenthesesTypeStructureImpl
-  | PrefixOperatorsTypeStructureImpl
-  | QualifiedNameTypeStructureImpl
-  | StringTypeStructureImpl
-  | TemplateLiteralTypeStructureImpl
-  | TupleTypeStructureImpl
-  | TypeArgumentedTypeStructureImpl
-  | TypePredicateTypeStructureImpl
-  | UnionTypeStructureImpl
-  | WriterTypeStructureImpl;
-type TypeStructuresOrNull = TypeStructures | null;
 type ClassMemberStructureImpls =
   | ClassStaticBlockDeclarationImpl
   | ConstructorDeclarationImpl
@@ -784,7 +778,7 @@ declare abstract class StatementStructuresBase<
 {
   abstract readonly kind: Kind;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+  [STRUCTURE_CHILDREN](): IterableIterator<
     StructureImpls | AugmentedStatementStructures
   >;
   [GET_OUTER_TYPE](): stringOrWriterFunction;
@@ -1778,9 +1772,7 @@ declare class ClassDeclarationImpl
   /** @internal */
   [GET_OUTER_TYPE](): this;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
   toJSON(): StructureClassToJSON<ClassDeclarationImpl>;
 }
 
@@ -2388,9 +2380,7 @@ declare class IndexSignatureDeclarationImpl
     source: OptionalKind<IndexSignatureDeclarationStructure>,
   ): IndexSignatureDeclarationImpl;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
   toJSON(): StructureClassToJSON<IndexSignatureDeclarationImpl>;
 }
 
@@ -2441,9 +2431,7 @@ declare class InterfaceDeclarationImpl
   /** @internal */
   [GET_OUTER_TYPE](): this;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
   toJSON(): StructureClassToJSON<InterfaceDeclarationImpl>;
 }
 
@@ -3308,9 +3296,7 @@ declare class TypeAliasDeclarationImpl
   /** @internal */
   [GET_OUTER_TYPE](): this;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
   toJSON(): StructureClassToJSON<TypeAliasDeclarationImpl>;
 }
 
@@ -3352,9 +3338,7 @@ declare class TypeParameterDeclarationImpl
     source: OptionalKind<TypeParameterDeclarationStructure>,
   ): TypeParameterDeclarationImpl;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
   toJSON(): StructureClassToJSON<TypeParameterDeclarationImpl>;
 }
 
@@ -3470,9 +3454,7 @@ declare class ArrayTypeStructureImpl extends TypeStructuresBase<TypeStructureKin
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
 /** `checkType` extends `extendsType` ? `trueType` : `falseType` */
@@ -3489,9 +3471,7 @@ declare class ConditionalTypeStructureImpl extends TypeStructuresBase<TypeStruct
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
 /** ("new" | "get" | "set" | "") name<typeParameters>(parameters, ...restParameter) ("=\>" | ":" ) returnType */
@@ -3509,9 +3489,7 @@ declare class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
 /** @example `import("ts-morph", { with: { "resolution-mode": "import" } }).StatementStructures` */
@@ -3537,9 +3515,7 @@ declare class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKi
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
   static clone(other: ImportTypeStructureImpl): ImportTypeStructureImpl;
 }
 
@@ -3576,9 +3552,7 @@ declare class InferTypeStructureImpl extends TypeStructuresWithTypeParameters<Ty
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   static clone(other: InferTypeStructureImpl): InferTypeStructureImpl;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
 /** @example `Foo & Bar & ...` */
@@ -3635,9 +3609,7 @@ declare class MappedTypeStructureImpl extends TypeStructuresWithTypeParameters<T
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   static clone(other: MappedTypeStructureImpl): MappedTypeStructureImpl;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
 /**
@@ -3670,9 +3642,7 @@ declare class MemberedObjectTypeStructureImpl extends TypeStructuresBase<TypeStr
   ): MemberedObjectTypeStructureImpl;
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
 /** @example `[a: number]` */
@@ -3690,9 +3660,7 @@ declare class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase<TypeS
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
 /**
@@ -3721,9 +3689,7 @@ declare class OptionalTypeStructureImpl extends TypeStructuresBase<TypeStructure
   static clone(other: OptionalTypeStructureImpl): OptionalTypeStructureImpl;
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
 /** Just a parameter name and type for a `FunctionTypeStructureImpl`. */
@@ -3735,9 +3701,7 @@ declare class ParameterTypeStructureImpl extends TypeStructuresBase<TypeStructur
   static clone(other: ParameterTypeStructureImpl): ParameterTypeStructureImpl;
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
 /** Wrap the child type in parentheses. */
@@ -3773,9 +3737,7 @@ declare class PrefixOperatorsTypeStructureImpl extends TypeStructuresBase<TypeSt
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
 /** @example `Foo.bar.baz...` */
@@ -3815,9 +3777,7 @@ declare class TemplateLiteralTypeStructureImpl extends TypeStructuresBase<TypeSt
   ): TemplateLiteralTypeStructureImpl;
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
 /**
@@ -3882,9 +3842,7 @@ declare class TypePredicateTypeStructureImpl extends TypeStructuresBase<TypeStru
     other: TypePredicateTypeStructureImpl,
   ): TypePredicateTypeStructureImpl;
   /** @internal */
-  [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
 /** @example `Foo | Bar | ...` */

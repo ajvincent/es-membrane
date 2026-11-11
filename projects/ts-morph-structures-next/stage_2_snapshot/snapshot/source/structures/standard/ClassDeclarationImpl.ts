@@ -30,7 +30,7 @@ import {
   type NameableNodeStructureFields,
   NameableNodeStructureMixin,
   REPLACE_WRITER_WITH_STRING,
-  STRUCTURE_AND_TYPES_CHILDREN,
+  STRUCTURE_CHILDREN,
   StructureBase,
   StructureClassesMap,
   type StructureClassToJSON,
@@ -235,10 +235,10 @@ export class ClassDeclarationImpl
   }
 
   /** @internal */
-  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+  public *[STRUCTURE_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
   > {
-    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    yield* super[STRUCTURE_CHILDREN]();
     if (typeof this.extendsStructure === "object") yield this.extendsStructure;
     yield* this.implementsSequence;
   }

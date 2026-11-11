@@ -14,7 +14,7 @@ import {
   type CloneableTypeStructure,
   TypeStructureClassesMap,
   TypeStructuresWithTypeParameters,
-  STRUCTURE_AND_TYPES_CHILDREN,
+  STRUCTURE_CHILDREN,
   WRITER_FUNCTION_KEY,
 } from "../../internal-exports.js";
 
@@ -164,10 +164,10 @@ export class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters<
   }
 
   /** @internal */
-  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+  public *[STRUCTURE_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
   > {
-    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    yield* super[STRUCTURE_CHILDREN]();
 
     yield* this.typeParameters.values();
     yield* this.parameters.values();

@@ -78,9 +78,9 @@ abstract class BaseClassModule extends BaseModule
   createStructureIteratorMethod(): MethodSignatureImpl
   {
     this.addImports("public", [], ["StructureImpls", "TypeStructures"]);
-    this.addImports("internal", ["STRUCTURE_AND_TYPES_CHILDREN"], []);
+    this.addImports("internal", ["STRUCTURE_CHILDREN"], []);
 
-    const methodSignature = new MethodSignatureImpl("[STRUCTURE_AND_TYPES_CHILDREN]");
+    const methodSignature = new MethodSignatureImpl("[STRUCTURE_CHILDREN]");
     methodSignature.docs.push(InternalJSDocTag);
 
     methodSignature.returnTypeStructure = new TypeArgumentedTypeStructureImpl(

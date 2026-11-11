@@ -299,7 +299,7 @@ Try running `utilities/newTypeStructure.ts`, which is a wizard to fill out the b
     - [ ] `type TypeStructures`
   - [ ] From `../../../snapshot/source/internal-exports.js`:
     - [ ] `type CloneableTypeStructure`
-    - [ ] `STRUCTURE_AND_TYPES_CHILDREN`
+    - [ ] `STRUCTURE_CHILDREN`
     - [ ] one of the type structure bases from `internal-exports.js`:
       - `TypeStructuresBase`
       - `TypeStructuresWithChildren`
@@ -315,7 +315,7 @@ Try running `utilities/newTypeStructure.ts`, which is a wizard to fill out the b
   - [ ] Implement `public static clone()`
     - [ ] The source parameter should be of the same type as your type alias
     - [ ] Use `TypeStructureClassesMap.clone()` (or `cloneArray()`) and your decorators' `cloneFoo(source, target)` functions where practical
-  - [ ] Implement `[STRUCTURE_AND_TYPES_CHILDREN]` to iterate over type structures you own
+  - [ ] Implement `[STRUCTURE_CHILDREN]` to iterate over type structures you own
     - [ ] `/** @internal */`
 - [ ] Add a `satisfies` constraint for your class for the static clone method:  `ConditionalTypedStructureImpl satisfies CloneableTypeStructure<ConditionalTypedStructure>;` for example
 - [ ] Add your class to the `TypeStructureClassesMap`, with your key being your `TypeStructureKind`

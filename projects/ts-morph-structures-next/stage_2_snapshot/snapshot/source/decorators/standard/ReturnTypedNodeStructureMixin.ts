@@ -9,7 +9,7 @@ import {
   COPY_FIELDS,
   REPLACE_WRITER_WITH_STRING,
   type RightExtendsLeft,
-  STRUCTURE_AND_TYPES_CHILDREN,
+  STRUCTURE_CHILDREN,
   StructureBase,
   type StructureClassToJSON,
   TypeAccessors,
@@ -81,10 +81,10 @@ export function ReturnTypedNodeStructureMixin(
     }
 
     /** @internal */
-    public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+    public *[STRUCTURE_CHILDREN](): IterableIterator<
       StructureImpls | TypeStructures
     > {
-      yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+      yield* super[STRUCTURE_CHILDREN]();
       if (typeof this.returnTypeStructure === "object")
         yield this.returnTypeStructure;
     }

@@ -576,7 +576,7 @@ const StatementStructureClassesMap = new StatementStructureClassesMapClass();
 
 const COPY_FIELDS = Symbol("copy fields");
 const REPLACE_WRITER_WITH_STRING = Symbol("replaceWriterWithString");
-const STRUCTURE_AND_TYPES_CHILDREN = Symbol("otherwise unreachable structure and type-structure children");
+const STRUCTURE_CHILDREN = Symbol("otherwise unreachable structure and type-structure children");
 
 class StructureBase {
     /** @internal */
@@ -595,7 +595,7 @@ class StructureBase {
         return {};
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() { }
+    *[STRUCTURE_CHILDREN]() { }
 }
 
 // #endregion preamble
@@ -759,7 +759,7 @@ class WriterStructuresBase {
 
 class TypeStructuresBase extends WriterStructuresBase {
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() { }
+    *[STRUCTURE_CHILDREN]() { }
     [GET_OUTER_TYPE]() {
         return this.writerFunction;
     }
@@ -1153,8 +1153,8 @@ function ReturnTypedNodeStructureMixin(baseClass, context) {
             }
         }
         /** @internal */
-        *[STRUCTURE_AND_TYPES_CHILDREN]() {
-            yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+        *[STRUCTURE_CHILDREN]() {
+            yield* super[STRUCTURE_CHILDREN]();
             if (typeof this.returnTypeStructure === "object")
                 yield this.returnTypeStructure;
         }
@@ -1198,7 +1198,7 @@ function ScopedNodeStructureMixin(baseClass, context) {
 
 class StatementStructuresBase extends WriterStructuresBase {
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() { }
+    *[STRUCTURE_CHILDREN]() { }
     [GET_OUTER_TYPE]() {
         return this.writerFunction;
     }
@@ -1386,8 +1386,8 @@ function TypedNodeStructureMixin(baseClass, context) {
             }
         }
         /** @internal */
-        *[STRUCTURE_AND_TYPES_CHILDREN]() {
-            yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+        *[STRUCTURE_CHILDREN]() {
+            yield* super[STRUCTURE_CHILDREN]();
             if (typeof this.typeStructure === "object")
                 yield this.typeStructure;
         }
@@ -1458,8 +1458,8 @@ class TypeStructuresWithChildren extends TypeStructuresBase {
         }
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         if (typeof this.objectType === "object" && this.objectType)
             yield this.objectType;
         for (const child of this.childTypes) {
@@ -2850,8 +2850,8 @@ class ClassDeclarationImpl extends ClassDeclarationStructureBase {
         return this;
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         if (typeof this.extendsStructure === "object")
             yield this.extendsStructure;
         yield* this.implementsSequence;
@@ -3657,8 +3657,8 @@ class IndexSignatureDeclarationImpl extends IndexSignatureDeclarationStructureBa
         return target;
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         if (typeof this.keyTypeStructure === "object")
             yield this.keyTypeStructure;
     }
@@ -3755,8 +3755,8 @@ class InterfaceDeclarationImpl extends InterfaceDeclarationStructureBase {
         return this;
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         yield* this.extendsSequence;
     }
     toJSON() {
@@ -4631,8 +4631,8 @@ class TypeAliasDeclarationImpl extends TypeAliasDeclarationStructureBase {
         return this;
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         if (typeof this.typeStructure === "object")
             yield this.typeStructure;
     }
@@ -4710,8 +4710,8 @@ class TypeParameterDeclarationImpl extends TypeParameterDeclarationStructureBase
         return target;
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         if (typeof this.constraintStructure === "object")
             yield this.constraintStructure;
         if (typeof this.defaultStructure === "object")
@@ -4844,8 +4844,8 @@ class ArrayTypeStructureImpl extends TypeStructuresBase {
         writer.write("[]");
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         yield this.objectType;
     }
 }
@@ -4889,8 +4889,8 @@ class ConditionalTypeStructureImpl extends TypeStructuresBase {
         this.falseType.writerFunction(writer);
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         if (typeof this.checkType === "object")
             yield this.checkType;
         if (typeof this.extendsType === "object")
@@ -5005,8 +5005,8 @@ class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters {
         }
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         yield* this.typeParameters.values();
         yield* this.parameters.values();
         if (this.restParameter)
@@ -5113,8 +5113,8 @@ class ImportTypeStructureImpl extends TypeStructuresBase {
         }
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         yield this.argument;
         yield* this.attributes;
         const qualifier = this.qualifier;
@@ -5180,8 +5180,8 @@ class InferTypeStructureImpl extends TypeStructuresWithTypeParameters {
         return new InferTypeStructureImpl(TypeParameterDeclarationImpl.clone(other.typeParameter));
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         yield this.typeParameter;
     }
 }
@@ -5260,8 +5260,8 @@ class MappedTypeStructureImpl extends TypeStructuresWithTypeParameters {
         return clone;
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         yield this.parameter;
         if (typeof this.asName === "object")
             yield this.asName;
@@ -5312,8 +5312,8 @@ class MemberedObjectTypeStructureImpl extends TypeStructuresBase {
         Writers.objectType(this)(writer);
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         yield* this.callSignatures.values();
         yield* this.constructSignatures.values();
         yield* this.getAccessors.values();
@@ -5359,8 +5359,8 @@ class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase {
         this.objectType.writerFunction(writer);
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         yield this.objectType;
     }
 }
@@ -5418,8 +5418,8 @@ class OptionalTypeStructureImpl extends TypeStructuresBase {
         writer.write("?");
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         yield this.objectType;
     }
 }
@@ -5450,8 +5450,8 @@ class ParameterTypeStructureImpl extends TypeStructuresBase {
         }
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         if (typeof this.typeStructure === "object")
             yield this.typeStructure;
     }
@@ -5498,8 +5498,8 @@ class PrefixOperatorsTypeStructureImpl extends TypeStructuresBase {
         this.objectType.writerFunction(writer);
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         if (typeof this.objectType === "object")
             yield this.objectType;
     }
@@ -5583,8 +5583,8 @@ class TemplateLiteralTypeStructureImpl extends TypeStructuresBase {
         });
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         for (const span of this.spans) {
             const type = span[0];
             if (typeof type === "object")
@@ -5677,8 +5677,8 @@ class TypePredicateTypeStructureImpl extends TypeStructuresBase {
         return new TypePredicateTypeStructureImpl(other.hasAssertsKeyword, other.parameterName, isType);
     }
     /** @internal */
-    *[STRUCTURE_AND_TYPES_CHILDREN]() {
-        yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
         if (this.isType)
             yield this.isType;
     }
@@ -6430,7 +6430,7 @@ function forEachAugmentedStructureChild(structureOrArray, callback) {
         if (rv)
             return rv;
     }
-    const iterator = structureOrType[STRUCTURE_AND_TYPES_CHILDREN]();
+    const iterator = structureOrType[STRUCTURE_CHILDREN]();
     for (const child of iterator) {
         const rv = callback(child);
         if (rv)

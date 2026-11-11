@@ -15,7 +15,7 @@ import {
 import {
   type CloneableTypeStructure,
   StructureClassesMap,
-  STRUCTURE_AND_TYPES_CHILDREN,
+  STRUCTURE_CHILDREN,
   TypeStructuresBase,
   TypeStructureClassesMap,
   WRITER_FUNCTION_KEY,
@@ -63,8 +63,8 @@ export class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase<TypeSt
   }
 
   /** @internal */
-  public * [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures> {
-    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+  public * [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures> {
+    yield* super[STRUCTURE_CHILDREN]();
     yield this.objectType;
   }
 }

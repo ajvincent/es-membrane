@@ -69,7 +69,7 @@ const WithChildrenRequirements = `
 `.trim();
 
 const StandardRequirements = `
-- STRUCTURE_AND_TYPES_CHILDREN
+- STRUCTURE_CHILDREN
 - #writerFunction
 `.trim();
 

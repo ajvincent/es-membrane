@@ -8,7 +8,7 @@ import {
 import {
   COPY_FIELDS,
   REPLACE_WRITER_WITH_STRING,
-  STRUCTURE_AND_TYPES_CHILDREN,
+  STRUCTURE_CHILDREN,
 } from "./symbolKeys.js";
 
 import type {
@@ -49,6 +49,6 @@ export default class StructureBase
   }
 
   /** @internal */
-  public * [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures> {
+  public * [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures> {
   }
 }

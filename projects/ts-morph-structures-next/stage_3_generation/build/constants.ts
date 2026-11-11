@@ -24,13 +24,13 @@ const COPY_FIELDS_NAME = ClassMembersMap.keyFromName(
   StructureKind.Method, true, "[COPY_FIELDS]"
 );
 
-const STRUCTURE_AND_TYPES_CHILDREN_NAME = ClassMembersMap.keyFromName(
-  StructureKind.Method, false, "[STRUCTURE_AND_TYPES_CHILDREN]"
+const STRUCTURE_CHILDREN_NAME = ClassMembersMap.keyFromName(
+  StructureKind.Method, false, "[STRUCTURE_CHILDREN]"
 );
 
 export {
   COPY_FIELDS_NAME,
-  STRUCTURE_AND_TYPES_CHILDREN_NAME,
+  STRUCTURE_CHILDREN_NAME,
   distDir,
   stageDir,
 };

@@ -11,7 +11,7 @@ import {
 
 import {
   type CloneableTypeStructure,
-  STRUCTURE_AND_TYPES_CHILDREN,
+  STRUCTURE_CHILDREN,
   TypeStructureClassesMap,
   TypeStructuresBase,
   WRITER_FUNCTION_KEY,
@@ -65,9 +65,9 @@ extends TypeStructuresBase<TypeStructureKind.PrefixOperators>
   }
 
   /** @internal */
-  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  public *[STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
   {
-    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    yield* super[STRUCTURE_CHILDREN]();
     if (typeof this.objectType === "object")
       yield this.objectType;
   }

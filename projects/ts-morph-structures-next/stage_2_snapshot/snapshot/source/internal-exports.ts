@@ -9,7 +9,7 @@ export { default as StructureClassesMap } from "./base/StructureClassesMap.js";
 export {
   COPY_FIELDS,
   REPLACE_WRITER_WITH_STRING,
-  STRUCTURE_AND_TYPES_CHILDREN,
+  STRUCTURE_CHILDREN,
 } from "./base/symbolKeys.js";
 export { default as TypeAccessors } from "./base/TypeAccessors.js";
 export { default as TypeStructureClassesMap } from "./base/TypeStructureClassesMap.js";

@@ -5,7 +5,7 @@ import {
   type TypeStructures,
 } from "../../exports.js";
 
-import { STRUCTURE_AND_TYPES_CHILDREN } from "../../internal-exports.js";
+import { STRUCTURE_CHILDREN } from "../../internal-exports.js";
 
 import { WriterStructuresBase } from "../WriterStructuresBase.js";
 
@@ -23,7 +23,7 @@ export default abstract class TypeStructuresBase<Kind extends TypeStructureKind>
   public abstract readonly kind: Kind;
 
   /** @internal */
-  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+  public *[STRUCTURE_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
   > {}
 

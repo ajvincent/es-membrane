@@ -315,7 +315,7 @@ function defineInternalExports(): void
     exportNames: [
       "COPY_FIELDS",
       "REPLACE_WRITER_WITH_STRING",
-      "STRUCTURE_AND_TYPES_CHILDREN"
+      "STRUCTURE_CHILDREN"
     ],
     isDefaultExport: false,
     isType: false

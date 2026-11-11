@@ -11,7 +11,7 @@ import {
 
 import {
   type CloneableTypeStructure,
-  STRUCTURE_AND_TYPES_CHILDREN,
+  STRUCTURE_CHILDREN,
   TypeStructuresBase,
   TypeStructureClassesMap,
   WRITER_FUNCTION_KEY,
@@ -41,9 +41,9 @@ export class OptionalTypeStructureImpl extends TypeStructuresBase<TypeStructureK
   }
 
   /** @internal */
-  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
+  public *[STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>
   {
-    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    yield* super[STRUCTURE_CHILDREN]();
     yield this.objectType;
   }
 }

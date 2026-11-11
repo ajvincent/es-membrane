@@ -11,7 +11,7 @@ import {
 } from "../../../snapshot/source/exports.js";
 
 import {
-  STRUCTURE_AND_TYPES_CHILDREN,
+  STRUCTURE_CHILDREN,
   type CloneableTypeStructure,
   TypeStructuresBase,
   TypeStructureClassesMap,
@@ -54,10 +54,10 @@ extends TypeStructuresBase<TypeStructureKind.TypePredicate> {
   }
 
   /** @internal */
-  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+  public *[STRUCTURE_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
   > {
-    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    yield* super[STRUCTURE_CHILDREN]();
     if (this.isType)
       yield this.isType;
   }

@@ -10,7 +10,7 @@ import {
 
 import {
   StructureBase,
-  STRUCTURE_AND_TYPES_CHILDREN,
+  STRUCTURE_CHILDREN,
 } from "../../snapshot/source/internal-exports.js";
 
 type ArrayOrValue<T> = T | readonly T[];
@@ -59,7 +59,7 @@ export default function forEachAugmentedStructureChild<TStructure>(
 
   const iterator: IterableIterator<
     StructureImpls | TypeStructures
-  > = structureOrType[STRUCTURE_AND_TYPES_CHILDREN]();
+  > = structureOrType[STRUCTURE_CHILDREN]();
 
   for (const child of iterator) {
     const rv = callback(child);

@@ -36,15 +36,15 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
   }
 
   filterHeadStatements(key: MemberedStatementsKey): boolean {
-    return (key.statementGroupKey === "[STRUCTURE_AND_TYPES_CHILDREN]");
+    return (key.statementGroupKey === "[STRUCTURE_CHILDREN]");
   }
   getHeadStatements(key: MemberedStatementsKey): readonly stringWriterOrStatementImpl[] {
     void(key);
-    return [`yield* super[STRUCTURE_AND_TYPES_CHILDREN]();`];
+    return [`yield* super[STRUCTURE_CHILDREN]();`];
   }
 
   filterBodyStatements(key: MemberedStatementsKey): boolean {
-    if (key.statementGroupKey !== "[STRUCTURE_AND_TYPES_CHILDREN]")
+    if (key.statementGroupKey !== "[STRUCTURE_CHILDREN]")
       return false;
     return PropertyHashesWithTypes.has(this.module.baseName, key.fieldKey);
   }

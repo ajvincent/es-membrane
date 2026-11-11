@@ -10,7 +10,7 @@ import {
 
 import {
   type CloneableTypeStructure,
-  STRUCTURE_AND_TYPES_CHILDREN,
+  STRUCTURE_CHILDREN,
   TypeStructureClassesMap,
   TypeStructuresWithTypeParameters,
   WRITER_FUNCTION_KEY,
@@ -91,10 +91,10 @@ export class MappedTypeStructureImpl extends TypeStructuresWithTypeParameters<Ty
   }
 
   /** @internal */
-  public *[STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<
+  public *[STRUCTURE_CHILDREN](): IterableIterator<
     StructureImpls | TypeStructures
   > {
-    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+    yield* super[STRUCTURE_CHILDREN]();
     yield this.parameter;
     if (typeof this.asName === "object") yield this.asName;
     if (typeof this.type === "object") yield this.type;

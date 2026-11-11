@@ -11,7 +11,7 @@ import {
 
 import {
   type CloneableTypeStructure,
-  STRUCTURE_AND_TYPES_CHILDREN,
+  STRUCTURE_CHILDREN,
   TypeStructureClassesMap,
   TypeStructuresWithTypeParameters,
 } from "../../../snapshot/source/internal-exports.js";
@@ -33,8 +33,8 @@ export class SubclassTypeStructureImpl extends TypeStructuresWithTypeParameters<
   public readonly writerFunction: WriterFunction = this.#writerFunction.bind(this);
 
   /** @internal */
-  public * [STRUCTURE_AND_TYPES_CHILDREN](): IterableIterator<StructureImpls | TypeStructures> {
-    yield* super[STRUCTURE_AND_TYPES_CHILDREN]();
+  public * [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures> {
+    yield* super[STRUCTURE_CHILDREN]();
     throw new Error("not yet implemented");
   }
 }
