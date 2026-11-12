@@ -58,7 +58,7 @@ import {
 import type {
   SubstructureResolver,
   TypeNodeToTypeStructure,
-  TypeNodeToTypeStructureConsole
+  NodeToStructureConsole
 } from "./types/conversions.js";
 
 const LiteralKeywords: ReadonlyMap<SyntaxKind, string> = new Map([
@@ -83,7 +83,7 @@ const LiteralKeywords: ReadonlyMap<SyntaxKind, string> = new Map([
 
 export default function convertTypeNode(
   typeNode: TypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver
 ): TypeStructuresOrNull
 {
@@ -317,7 +317,7 @@ convertTypeNode satisfies TypeNodeToTypeStructure;
 
 function convertConditionalTypeNode(
   condition: ConditionalTypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): ConditionalTypeStructureImpl | null
 {
@@ -355,7 +355,7 @@ function convertConditionalTypeNode(
 
 function convertFunctionTypeNode(
   typeNode: FunctionTypeNode | ConstructorTypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): FunctionTypeStructureImpl | null
 {
@@ -426,7 +426,7 @@ function convertTypeParameterNode(
 
 function convertParameterNodeTypeNode(
   node: ParameterDeclaration,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): ParameterTypeStructureImpl
 {
@@ -460,7 +460,7 @@ function composeQualifiedName(
 
 function convertMappedTypeNode(
   mappedTypeNode: MappedTypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): MappedTypeStructureImpl | null
 {
@@ -529,7 +529,7 @@ function convertMappedTypeNode(
 
 function convertTemplateLiteralTypeNode(
   templateNode: TemplateLiteralTypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): TemplateLiteralTypeStructureImpl | null
 {
@@ -585,7 +585,7 @@ function convertTemplateLiteralTypeNode(
 
 function convertTypeLiteralNode(
   memberedTypeNode: TypeLiteralNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): MemberedObjectTypeStructureImpl | null
 {
@@ -633,7 +633,7 @@ function convertTypeLiteralNode(
 
 function convertTypeOperatorNode(
   typeNode: TypeOperatorTypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): PrefixOperatorsTypeStructureImpl | null
 {
@@ -663,7 +663,7 @@ function convertTypeOperatorNode(
 
 function convertImportTypeNode(
   importTypeNode: ImportTypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): ImportTypeStructureImpl | null
 {
@@ -727,7 +727,7 @@ function prependPrefixOperator(
 
 function convertNamedTupleMemberNode(
   typeNode: NamedTupleMember,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): NamedTupleMemberTypeStructureImpl | null
 {
@@ -759,7 +759,7 @@ function convertNamedTupleMemberNode(
 function convertAndAppendChildTypes(
   childTypeNodes: readonly TypeNode[],
   elements: TypeStructures[],
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver
 ): boolean
 {
@@ -778,7 +778,7 @@ function reportConversionFailure(
   prefixMessage: string,
   failingNode: Node,
   failingTypeNode: TypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
 ): null
 {
   const pos = failingNode.getPos();

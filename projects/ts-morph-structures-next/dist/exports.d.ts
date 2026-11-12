@@ -48,7 +48,6 @@ import {
   StructureKind,
   Structures,
   TypeAliasDeclarationStructure,
-  TypeNode,
   TypeParameterDeclarationStructure,
   TypeParameterVariance,
   VariableDeclarationKind,
@@ -112,25 +111,22 @@ type NodeWithStructures = Node & {
 };
 
 /** A string message and a type node. */
-interface BuildTypesForStructureFailures {
+interface ConversionFailureMessage {
   message: string;
-  failingTypeNode: TypeNode;
+  failingNode: Node;
 }
 
 /**
  * @param message - The failure message.
  * @param failingTypeNode - the type node we failed to resolve.
  */
-type TypeNodeToTypeStructureConsole = (
-  message: string,
-  failingTypeNode: TypeNode,
-) => void;
+type NodeToStructureConsole = (message: string, failingNode: Node) => void;
 
 interface RootStructureWithConvertFailures<
   TKind extends StructureKind = StructureKind,
 > {
   rootStructure: Extract<StructureImpls, KindedStructure<TKind>>;
-  failures: readonly BuildTypesForStructureFailures[];
+  failures: readonly ConversionFailureMessage[];
 }
 
 /**
@@ -142,7 +138,7 @@ interface RootStructureWithConvertFailures<
  */
 declare function getAugmentedStructure(
   rootNode: NodeWithStructures,
-  userConsole: TypeNodeToTypeStructureConsole,
+  userConsole: NodeToStructureConsole,
   assertNoFailures: boolean,
 ): RootStructureWithConvertFailures;
 /**
@@ -155,14 +151,14 @@ declare function getAugmentedStructure(
  */
 declare function getAugmentedStructure<TKind extends StructureKind>(
   rootNode: NodeWithStructures,
-  userConsole: TypeNodeToTypeStructureConsole,
+  userConsole: NodeToStructureConsole,
   assertNoFailures: boolean,
   kind: TKind,
 ): RootStructureWithConvertFailures<TKind>;
 declare function parseLiteralType(source: string): TypeStructures;
-declare function VoidTypeNodeToTypeStructureConsole(
+declare function VoidNodeToStructureConsole(
   message: string,
-  failingTypeNode: TypeNode,
+  failingNode: Node,
 ): void;
 
 interface AbstractableNodeStructureClassIfc {
@@ -3950,7 +3946,7 @@ export {
   UnknownWriterStatementImpl,
   VariableDeclarationImpl,
   VariableStatementImpl,
-  VoidTypeNodeToTypeStructureConsole,
+  VoidNodeToStructureConsole,
   WriterTypeStructureImpl,
   forEachAugmentedStructureChild,
   getAugmentedStructure,
@@ -4029,6 +4025,7 @@ export type {
   NamedClassMemberImpl,
   NamedNodeStructureClassIfc,
   NamedTypeMemberImpl,
+  NodeToStructureConsole,
   ObjectLiteralExpressionPropertyStructureImpls,
   OverrideableNodeStructureClassIfc,
   ParameterDeclarationStructureClassIfc,
@@ -4055,7 +4052,6 @@ export type {
   TypeAliasDeclarationStructureClassIfc,
   TypeElementMemberStructureImpls,
   TypeMemberImpl,
-  TypeNodeToTypeStructureConsole,
   TypeParameterDeclarationStructureClassIfc,
   TypeParameterWithTypeStructures,
   TypeParameteredNodeStructureClassIfc,

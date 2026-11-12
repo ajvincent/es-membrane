@@ -8,7 +8,7 @@ import {
   InterfaceDeclarationImpl,
   LiteralTypeStructureImpl,
   TypeStructureKind,
-  VoidTypeNodeToTypeStructureConsole,
+  VoidNodeToStructureConsole,
   getAugmentedStructure,
 } from "#stage_two/snapshot/source/exports.js";
 
@@ -32,7 +32,7 @@ export function requireInterface(
   if (!InterfaceMapInternal.has(name)) {
     const node = TS_MORPH_D.getInterfaceOrThrow(name);
     const structure = getAugmentedStructure(
-      node, VoidTypeNodeToTypeStructureConsole, true, StructureKind.Interface
+      node, VoidNodeToStructureConsole, true, StructureKind.Interface
     ).rootStructure;
     InterfaceMapInternal.set(name, structure);
 

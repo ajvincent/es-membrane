@@ -58,7 +58,7 @@ import {
 import type {
   SubstructureResolver,
   TypeNodeToTypeStructure,
-  TypeNodeToTypeStructureConsole,
+  NodeToStructureConsole,
 } from "./types/conversions.js";
 
 const LiteralKeywords: ReadonlyMap<SyntaxKind, string> = new Map([
@@ -83,7 +83,7 @@ const LiteralKeywords: ReadonlyMap<SyntaxKind, string> = new Map([
 
 export default function convertTypeNode(
   typeNode: TypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): TypeStructuresOrNull {
   /* A note about JSDocType nodes.
@@ -343,7 +343,7 @@ convertTypeNode satisfies TypeNodeToTypeStructure;
 
 function convertConditionalTypeNode(
   condition: ConditionalTypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): ConditionalTypeStructureImpl | null {
   const checkType: TypeStructuresOrNull = convertTypeNode(
@@ -384,7 +384,7 @@ function convertConditionalTypeNode(
 
 function convertFunctionTypeNode(
   typeNode: FunctionTypeNode | ConstructorTypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): FunctionTypeStructureImpl | null {
   let typeParameterNodes: readonly TypeParameterDeclaration[] = [];
@@ -466,7 +466,7 @@ function convertTypeParameterNode(
 
 function convertParameterNodeTypeNode(
   node: ParameterDeclaration,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): ParameterTypeStructureImpl {
   const paramTypeNode = node.getTypeNode();
@@ -507,7 +507,7 @@ function composeQualifiedName(
 
 function convertMappedTypeNode(
   mappedTypeNode: MappedTypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): MappedTypeStructureImpl | null {
   let parameterStructure: TypeParameterDeclarationImpl;
@@ -582,7 +582,7 @@ function convertMappedTypeNode(
 
 function convertTemplateLiteralTypeNode(
   templateNode: TemplateLiteralTypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): TemplateLiteralTypeStructureImpl | null {
   const headText = templateNode.getHead().getLiteralText();
@@ -645,7 +645,7 @@ function convertTemplateLiteralTypeNode(
 
 function convertTypeLiteralNode(
   memberedTypeNode: TypeLiteralNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): MemberedObjectTypeStructureImpl | null {
   const structure = new MemberedObjectTypeStructureImpl();
@@ -698,7 +698,7 @@ function convertTypeLiteralNode(
 
 function convertTypeOperatorNode(
   typeNode: TypeOperatorTypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): PrefixOperatorsTypeStructureImpl | null {
   const structure = convertTypeNode(
@@ -726,7 +726,7 @@ function convertTypeOperatorNode(
 
 function convertImportTypeNode(
   importTypeNode: ImportTypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): ImportTypeStructureImpl | null {
   const argStructure: TypeStructuresOrNull = convertTypeNode(
@@ -807,7 +807,7 @@ function prependPrefixOperator(
 
 function convertNamedTupleMemberNode(
   typeNode: NamedTupleMember,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): NamedTupleMemberTypeStructureImpl | null {
   const name: string = typeNode.getName();
@@ -842,7 +842,7 @@ function convertNamedTupleMemberNode(
 function convertAndAppendChildTypes(
   childTypeNodes: readonly TypeNode[],
   elements: TypeStructures[],
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ): boolean {
   return childTypeNodes.every((typeNode) => {
@@ -864,7 +864,7 @@ function reportConversionFailure(
   prefixMessage: string,
   failingNode: Node,
   failingTypeNode: TypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
 ): null {
   const pos = failingNode.getPos();
   const { line, column } = failingNode

@@ -2,7 +2,7 @@ import path from "path";
 import chalk from "chalk";
 
 import {
-  VoidTypeNodeToTypeStructureConsole,
+  VoidNodeToStructureConsole,
   getAugmentedStructure,
 } from "#stage_two/snapshot/source/exports.js";
 
@@ -275,7 +275,7 @@ function getStructureEntryForFile(
   );
   try {
     const structure = getAugmentedStructure(
-      sourceFile, VoidTypeNodeToTypeStructureConsole, true
+      sourceFile, VoidNodeToStructureConsole, true
     ).rootStructure;
 
     return [

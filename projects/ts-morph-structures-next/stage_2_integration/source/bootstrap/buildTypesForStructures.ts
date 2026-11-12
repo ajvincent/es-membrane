@@ -15,11 +15,11 @@ import type {
   TypedNode,
 } from "ts-morph";
 
-import {
-  BuildTypesForStructureFailures,
+import type {
+  ConversionFailureMessage,
   SubstructureResolver,
   TypeNodeToTypeStructure,
-  TypeNodeToTypeStructureConsole,
+  NodeToStructureConsole,
 } from "./types/conversions.js";
 
 import type {
@@ -55,17 +55,18 @@ type TypeStructureKey<Key extends string> = {
  */
 export default function buildTypesForStructures(
   structureMap: ReadonlyMap<StructureImpls, Node>,
-  userConsole: TypeNodeToTypeStructureConsole,
+  userConsole: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
   converter: TypeNodeToTypeStructure
-): BuildTypesForStructureFailures[]
+): ConversionFailureMessage[]
 {
-  const failures: BuildTypesForStructureFailures[] = [];
+  const failures: ConversionFailureMessage[] = [];
 
-  function consoleTrap(message: string, failingTypeNode: TypeNode): void {
-    userConsole(message, failingTypeNode);
-    failures.push({message, failingTypeNode});
+  function consoleTrap(message: string, failingNode: Node): void {
+    userConsole(message, failingNode);
+    failures.push({ message, failingNode });
   }
+  consoleTrap satisfies NodeToStructureConsole;
 
   for (const [structure, node] of structureMap) {
     switch (structure.kind) {
@@ -143,7 +144,7 @@ export default function buildTypesForStructures(
 function convertTypeField(
   structure: Extract<StructureImpls, TypeStructureKey<"typeStructure">>,
   node: TypedNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
   converter: TypeNodeToTypeStructure
 ): void {
@@ -159,7 +160,7 @@ function convertTypeField(
 function convertKeyTypeField(
   structure: Extract<StructureImpls, TypeStructureKey<"keyTypeStructure">>,
   node: IndexSignatureDeclaration,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
   converter: TypeNodeToTypeStructure
 ): void {
@@ -175,7 +176,7 @@ function convertKeyTypeField(
 function convertReturnTypeField(
   structure: Extract<StructureImpls, TypeStructureKey<"returnTypeStructure">>,
   node: ReturnTypedNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
   converter: TypeNodeToTypeStructure
 ): void {
@@ -191,7 +192,7 @@ function convertReturnTypeField(
 function convertConstraintField(
   structure: Extract<StructureImpls, TypeStructureKey<"constraintStructure">>,
   node: TypeParameterDeclaration,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
   converter: TypeNodeToTypeStructure
 ): void {
@@ -207,7 +208,7 @@ function convertConstraintField(
 function convertDefaultField(
   structure: Extract<StructureImpls, TypeStructureKey<"defaultStructure">>,
   node: TypeParameterDeclaration,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
   converter: TypeNodeToTypeStructure
 ): void {
@@ -223,7 +224,7 @@ function convertDefaultField(
 function convertExtendsFieldForClass(
   structure: Extract<StructureImpls, TypeStructureKey<"extendsStructure">>,
   node: ClassDeclaration,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
   converter: TypeNodeToTypeStructure
 ): void {
@@ -239,7 +240,7 @@ function convertExtendsFieldForClass(
 function convertImplementsTypeNodeForClass(
   structure: ClassDeclarationImpl,
   typeNode: TypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
   converter: TypeNodeToTypeStructure,
 ): void {
@@ -255,7 +256,7 @@ function convertImplementsTypeNodeForClass(
 function convertExtendsTypeNodeForInterface(
   structure: InterfaceDeclarationImpl,
   typeNode: TypeNode,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
   converter: TypeNodeToTypeStructure,
 ): void {
@@ -281,7 +282,7 @@ function convertExtendsTypeNodeForInterface(
  */
 function runConversion(
   typeNode: TypeNode | undefined,
-  consoleTrap: TypeNodeToTypeStructureConsole,
+  consoleTrap: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
   converter: TypeNodeToTypeStructure,
   callback: (typeStructure: TypeStructures) => void

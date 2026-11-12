@@ -46,7 +46,7 @@ import {
 import convertTypeNode from "#stage_two/snapshot/source/bootstrap/convertTypeNode.js";
 
 import type {
-  TypeNodeToTypeStructureConsole
+  NodeToStructureConsole
 } from "#stage_two/snapshot/source/bootstrap/types/conversions.js";
 
 describe("convertTypeNode generates correct type structures, with type", () => {
@@ -55,12 +55,12 @@ describe("convertTypeNode generates correct type structures, with type", () => {
   let structure: TypeStructures | null;
 
   let failMessage: string | undefined;
-  let failNode: TypeNode | null;
-  function failCallback(message: string, typeNode: TypeNode): void {
+  let failNode: Node | null;
+  function failCallback(message: string, node: Node): void {
     failMessage = message;
-    failNode = typeNode;
+    failNode = node;
   }
-  failCallback satisfies TypeNodeToTypeStructureConsole;
+  failCallback satisfies NodeToStructureConsole;
 
   let inMemoryProject: Project;
 
@@ -102,7 +102,7 @@ let A: string;
 
   function setTypeStructure(
     rawType: string,
-    console: TypeNodeToTypeStructureConsole
+    console: NodeToStructureConsole
   ): void
   {
     declaration.setType(rawType);

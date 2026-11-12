@@ -1,12 +1,12 @@
-import type { TypeNode } from "ts-morph";
+import type { Node } from "ts-morph";
 
-import type { TypeNodeToTypeStructureConsole } from "../exports.js";
+import type { NodeToStructureConsole } from "../exports.js";
 
-export function VoidTypeNodeToTypeStructureConsole(
+export function VoidNodeToStructureConsole(
   message: string,
-  failingTypeNode: TypeNode,
+  failingNode: Node,
 ): void {
   void message;
-  void failingTypeNode;
+  void failingNode;
 }
-VoidTypeNodeToTypeStructureConsole satisfies TypeNodeToTypeStructureConsole;
+VoidNodeToStructureConsole satisfies NodeToStructureConsole;

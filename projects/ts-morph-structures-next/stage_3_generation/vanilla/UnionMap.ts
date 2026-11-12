@@ -6,7 +6,7 @@ import {
 
 import {
   TypeStructureKind,
-  VoidTypeNodeToTypeStructureConsole,
+  VoidNodeToStructureConsole,
   getAugmentedStructure,
 } from "#stage_two/snapshot/source/exports.js";
 
@@ -29,7 +29,7 @@ export function requireUnion(
 {
   const aliasNode = TS_MORPH_D.getTypeAliasOrThrow(name);
   const aliasStructure = getAugmentedStructure(
-    aliasNode, VoidTypeNodeToTypeStructureConsole, true, StructureKind.TypeAlias
+    aliasNode, VoidNodeToStructureConsole, true, StructureKind.TypeAlias
   ).rootStructure;
 
   const typeList = aliasStructure.typeStructure;

@@ -14,14 +14,14 @@ import buildTypesForStructures from "./buildTypesForStructures.js";
 import convertTypeNode from "./convertTypeNode.js";
 
 import type {
-  BuildTypesForStructureFailures,
+  ConversionFailureMessage,
   NodeWithStructures,
   RootStructureWithConvertFailures,
-  TypeNodeToTypeStructureConsole,
+  NodeToStructureConsole,
 } from "./types/conversions.js";
 // #endregion preamble
 
-export type { TypeNodeToTypeStructureConsole };
+export type { NodeToStructureConsole };
 
 /**
  * Get a structure for a node, with type structures installed throughout its descendants.
@@ -32,7 +32,7 @@ export type { TypeNodeToTypeStructureConsole };
  */
 function getAugmentedStructure(
   rootNode: NodeWithStructures,
-  userConsole: TypeNodeToTypeStructureConsole,
+  userConsole: NodeToStructureConsole,
   assertNoFailures: boolean,
 ): RootStructureWithConvertFailures;
 
@@ -46,13 +46,13 @@ function getAugmentedStructure(
  */
 function getAugmentedStructure<TKind extends StructureKind>(
   rootNode: NodeWithStructures,
-  userConsole: TypeNodeToTypeStructureConsole,
+  userConsole: NodeToStructureConsole,
   assertNoFailures: boolean,
   kind: TKind,
 ): RootStructureWithConvertFailures<TKind>;
 function getAugmentedStructure(
   rootNode: NodeWithStructures,
-  userConsole: TypeNodeToTypeStructureConsole,
+  userConsole: NodeToStructureConsole,
   assertNoFailures: boolean,
   kind?: StructureKind,
 ): RootStructureWithConvertFailures {
@@ -76,7 +76,7 @@ function getAugmentedStructure(
   }
   assert(rootStructure, "we should have a root structure");
 
-  const subFailures: BuildTypesForStructureFailures[] = [];
+  const subFailures: ConversionFailureMessage[] = [];
 
   const failures = buildTypesForStructures(
     map,

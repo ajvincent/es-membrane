@@ -1,8 +1,8 @@
-import {
-  type KindedStructure,
+import type {
+  KindedStructure,
   Node,
   Structures,
-  type StructureKind,
+  StructureKind,
   TypeNode,
 } from "ts-morph";
 
@@ -16,19 +16,19 @@ export type NodeWithStructures = Node & {
 }
 
 /** A string message and a type node. */
-export interface BuildTypesForStructureFailures {
+export interface ConversionFailureMessage {
   message: string,
-  failingTypeNode: TypeNode
+  failingNode: Node
 }
 
 /**
  * @param message - The failure message.
  * @param failingTypeNode - the type node we failed to resolve.
  */
-export type TypeNodeToTypeStructureConsole = (
+export type NodeToStructureConsole = (
   message: string,
-  failingTypeNode: TypeNode,
-) => void
+  failingNode: Node,
+) => void;
 
 export type SubstructureResolver = (
   node: NodeWithStructures
@@ -42,11 +42,11 @@ export type SubstructureResolver = (
  */
 export type TypeNodeToTypeStructure = (
   typeNode: TypeNode,
-  _console: TypeNodeToTypeStructureConsole,
+  _console: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
 ) => TypeStructuresOrNull;
 
 export interface RootStructureWithConvertFailures<TKind extends StructureKind = StructureKind> {
   rootStructure: Extract<StructureImpls, KindedStructure<TKind>>;
-  failures: readonly BuildTypesForStructureFailures[];
+  failures: readonly ConversionFailureMessage[];
 }

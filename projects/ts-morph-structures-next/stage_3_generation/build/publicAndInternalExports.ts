@@ -67,7 +67,7 @@ function definePublicExports(): void
   publicExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/bootstrap/getAugmentedStructure.ts"),
     exportNames: [
-      "TypeNodeToTypeStructureConsole"
+      "NodeToStructureConsole"
     ],
     isDefaultExport: false,
     isType: true
@@ -85,7 +85,7 @@ function definePublicExports(): void
   publicExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/bootstrap/typeNodeConsoles.ts"),
     exportNames: [
-      "VoidTypeNodeToTypeStructureConsole"
+      "VoidNodeToStructureConsole"
     ],
     isDefaultExport: false,
     isType: false

@@ -6,27 +6,28 @@ import {
   ImportDeclaration,
   ModuleKind,
   ModuleResolutionKind,
+  type Node,
   Project,
   type ProjectOptions,
   ScriptTarget,
   SourceFile,
   StructureKind,
-  type TypeNode,
 } from "ts-morph";
 
 import {
   ClassMembersMap,
   ImportDeclarationImpl,
-  PropertyDeclarationImpl,
+  ImportTypeStructureImpl,
+  LiteralTypeStructureImpl,
   MemberedObjectTypeStructureImpl,
   MethodDeclarationImpl,
-  VariableDeclarationImpl,
-  ImportTypeStructureImpl,
   MethodSignatureImpl,
+  type NodeToStructureConsole,
+  PropertyDeclarationImpl,
   PropertySignatureImpl,
-  LiteralTypeStructureImpl,
   TypeStructures,
   TypeStructureKind,
+  VariableDeclarationImpl,
   getAugmentedStructure,
 } from "#stage_two/snapshot/source/exports.js";
 
@@ -131,12 +132,13 @@ function getPropertiesAndMethods(
 
   function errorConsole(
     message: string,
-    failingTypeNode: TypeNode,
+    failingTypeNode: Node,
   ): void
   {
     void failingTypeNode;
     console.error(sourceFile.getFilePath(), message);
   }
+  errorConsole satisfies NodeToStructureConsole;
 
   const baseStructure = getAugmentedStructure(
     classBaseNode,

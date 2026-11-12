@@ -16,7 +16,7 @@ import {
   MethodDeclarationImpl,
   TypeArgumentedTypeStructureImpl,
   TypeParameterDeclarationImpl,
-  VoidTypeNodeToTypeStructureConsole,
+  VoidNodeToStructureConsole,
 } from "#stage_two/snapshot/source/exports.js";
 
 it("getAugmentedStructure gets structures having type structures for types", () => {
@@ -31,7 +31,7 @@ it("getAugmentedStructure gets structures having type structures for types", () 
   const {
     rootStructure,
     failures
-  } = getAugmentedStructure(DefaultWeakMapClass, VoidTypeNodeToTypeStructureConsole, false);
+  } = getAugmentedStructure(DefaultWeakMapClass, VoidNodeToStructureConsole, false);
 
   expect(rootStructure).toBeInstanceOf(ClassDeclarationImpl);
   if (!(rootStructure instanceof ClassDeclarationImpl))
@@ -96,13 +96,13 @@ it("getAugmentedStructure can specify the structure kind", () => {
   const DefaultWeakMapClass = sourceFile.getClassOrThrow("DefaultWeakMap");
 
   expect(() => getAugmentedStructure(
-    DefaultWeakMapClass, VoidTypeNodeToTypeStructureConsole, true, StructureKind.Method
+    DefaultWeakMapClass, VoidNodeToStructureConsole, true, StructureKind.Method
   )).toThrowError();
 
   const {
     rootStructure,
   } = getAugmentedStructure(
-    DefaultWeakMapClass, VoidTypeNodeToTypeStructureConsole, true, StructureKind.Class
+    DefaultWeakMapClass, VoidNodeToStructureConsole, true, StructureKind.Class
   );
   expect(rootStructure.kind).toBe(StructureKind.Class);
 });

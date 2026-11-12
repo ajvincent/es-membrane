@@ -7,9 +7,9 @@ import type {
   ExportDeclarationStructure,
   ImportSpecifierStructure,
   MethodSignatureStructure,
+  Node,
   OptionalKind,
   PropertySignatureStructure,
-  TypeNode,
   StatementStructures,
   ClassDeclarationStructure,
   VariableDeclarationStructure,
@@ -30,6 +30,7 @@ import {
   type TypeStructures,
   TypeStructureKind,
   type MemberedObjectTypeStructureImpl,
+  type NodeToStructureConsole,
 } from "#stage_two/snapshot/source/exports.js";
 
 import {
@@ -46,11 +47,13 @@ export async function fixExportTypes(): Promise<void>
   const sourceFile: SourceFile = getTS_SourceFile(stageDir, "snapshot/dist/exports.d.ts");
   function parseConsole(
     message: string,
-    failingTypeNode: TypeNode,
-  ): void {
+    failingNode: Node,
+  ): void
+  {
     void(message);
-    void(failingTypeNode);
+    void(failingNode);
   }
+  parseConsole satisfies NodeToStructureConsole;
 
   const { rootStructure } = getAugmentedStructure(sourceFile, parseConsole, true, StructureKind.SourceFile);
 

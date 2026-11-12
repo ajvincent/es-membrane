@@ -11,7 +11,7 @@ import {
   getAugmentedStructure,
   TypeAliasDeclarationImpl,
   TypeStructures,
-  VoidTypeNodeToTypeStructureConsole,
+  VoidNodeToStructureConsole,
 } from "../../snapshot/source/exports.js";
 
 let ParseLiteralProject: Project;
@@ -31,7 +31,7 @@ export default function parseLiteralType(
   try {
     const aliasStructure = getAugmentedStructure(
       tempFile.addTypeAlias(new TypeAliasDeclarationImpl(name, source)),
-      VoidTypeNodeToTypeStructureConsole,
+      VoidNodeToStructureConsole,
       true
     ).rootStructure as TypeAliasDeclarationImpl;
 

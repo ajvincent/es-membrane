@@ -8,7 +8,6 @@ import {
   ScriptTarget,
   SourceFile,
   StructureKind,
-  TypeNode,
 } from "ts-morph";
 
 import {
@@ -18,6 +17,7 @@ import {
   InterfaceDeclarationImpl,
   StringTypeStructureImpl,
   StructureImpls,
+  type NodeToStructureConsole,
   TypeParameterDeclarationImpl,
   VariableDeclarationImpl,
 } from "#stage_two/snapshot/source/exports.js";
@@ -32,11 +32,12 @@ describe("buildTypesForStructures applies a type node converter for each structu
   let sourceFile: SourceFile;
 
   let failMessage: string | undefined;
-  let failNode: TypeNode | null;
-  function failCallback(message: string, typeNode: TypeNode): void {
+  let failNode: Node | null;
+  function failCallback(message: string, node: Node): void {
     failMessage = message;
-    failNode = typeNode;
+    failNode = node;
   }
+  failCallback satisfies NodeToStructureConsole;
 
   function invalidResolver(node: NodeWithStructures): never {
     void(node);
@@ -448,10 +449,10 @@ describe("buildTypesForStructures applies a type node converter for each structu
     if (failures.length === 2) {
       const [firstFailure, secondFailure] = failures;
       expect(firstFailure.message).toBe("fail: Foo");
-      expect(firstFailure.failingTypeNode).toBe(NumberStringClass.getImplements()[0]);
+      expect(firstFailure.failingNode).toBe(NumberStringClass.getImplements()[0]);
 
       expect(secondFailure.message).toBe("fail: Bar");
-      expect(secondFailure.failingTypeNode).toBe(NumberStringClass.getImplements()[1]);
+      expect(secondFailure.failingNode).toBe(NumberStringClass.getImplements()[1]);
     }
 
     expect(failNode).not.toBe(null);

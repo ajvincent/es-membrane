@@ -1,16 +1,17 @@
 import type {
-  TypeNode
+  Node
 } from "ts-morph";
 
 import type {
-  TypeNodeToTypeStructureConsole
+  NodeToStructureConsole
 } from "../../snapshot/source/exports.js";
 
-export function VoidTypeNodeToTypeStructureConsole(
+export function VoidNodeToStructureConsole(
   message: string,
-  failingTypeNode: TypeNode,
-): void {
-  void(message);
-  void(failingTypeNode);
+  failingNode: Node,
+): void
+{
+  void message;
+  void failingNode;
 }
-VoidTypeNodeToTypeStructureConsole satisfies TypeNodeToTypeStructureConsole;
+VoidNodeToStructureConsole satisfies NodeToStructureConsole;

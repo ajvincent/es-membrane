@@ -28,7 +28,7 @@ import {
   TypeArgumentedTypeStructureImpl,
   TypeMembersMap,
   TypeStructureKind,
-  VoidTypeNodeToTypeStructureConsole,
+  VoidNodeToStructureConsole,
   getAugmentedStructure,
   parseLiteralType,
 } from "#stage_two/snapshot/source/exports.js";
@@ -118,7 +118,7 @@ function buildTypeMembersMap(): TypeMembersMap {
   // Create the initial type members map
   const typeMembers = new TypeMembersMap();
   MapInterfaceNodes.forEach(node => {
-    const structure = getAugmentedStructure(node, VoidTypeNodeToTypeStructureConsole, true, StructureKind.Interface).rootStructure;
+    const structure = getAugmentedStructure(node, VoidNodeToStructureConsole, true, StructureKind.Interface).rootStructure;
     typeMembers.addMembers([
       // no getters or setters to worry about
       ...structure.properties,
