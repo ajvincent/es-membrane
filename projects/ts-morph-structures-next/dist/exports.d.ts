@@ -3339,32 +3339,6 @@ declare class TypeParameterDeclarationImpl
   toJSON(): StructureClassToJSON<TypeParameterDeclarationImpl>;
 }
 
-/** For unparsed strings the user provides.  You should never need to construct these manually. */
-declare class UnknownStringStatementImpl
-  extends StatementStructuresBase<StatementStructureKind.UnknownString>
-  implements InnerTypeElement<string>
-{
-  #private;
-  readonly kind = StatementStructureKind.UnknownString;
-  constructor(statement: string);
-  static clone(other: UnknownStringStatementImpl): UnknownStringStatementImpl;
-  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
-  [GET_OUTER_TYPE](): string;
-}
-
-/** For `WriterFunction` objects the user provides.  You should never need to construct these manually. */
-declare class UnknownWriterStatementImpl
-  extends StatementStructuresBase<StatementStructureKind.UnknownString>
-  implements InnerTypeElement<WriterFunction>
-{
-  readonly kind = StatementStructureKind.UnknownString;
-  /** @internal */
-  protected [WRITER_FUNCTION_KEY]: (writer: CodeBlockWriter) => void;
-  constructor(writer: WriterFunction);
-  static clone(other: UnknownWriterStatementImpl): UnknownWriterStatementImpl;
-  [GET_OUTER_TYPE](): WriterFunction;
-}
-
 declare const VariableDeclarationStructureBase: mixin_decorators.MixinClass<
   object,
   {
@@ -3868,6 +3842,37 @@ declare class WriterTypeStructureImpl extends TypeStructuresBase<TypeStructureKi
 }
 
 //#endregion type structure classes
+//#region statement structure classes
+
+/** For unparsed strings the user provides.  You should never need to construct these manually. */
+declare class UnknownStringStatementImpl
+  extends StatementStructuresBase<StatementStructureKind.UnknownString>
+  implements InnerTypeElement<string>
+{
+  #private;
+  readonly kind = StatementStructureKind.UnknownString;
+  constructor(statement: string);
+  static clone(other: UnknownStringStatementImpl): UnknownStringStatementImpl;
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
+  [GET_OUTER_TYPE](): string;
+}
+
+/** For `WriterFunction` objects the user provides.  You should never need to construct these manually. */
+declare class UnknownWriterStatementImpl
+  extends StatementStructuresBase<StatementStructureKind.UnknownString>
+  implements InnerTypeElement<WriterFunction>
+{
+  readonly kind = StatementStructureKind.UnknownString;
+  /** @internal */
+  protected [WRITER_FUNCTION_KEY]: (writer: CodeBlockWriter) => void;
+  constructor(writer: WriterFunction);
+  static clone(other: UnknownWriterStatementImpl): UnknownWriterStatementImpl;
+  [GET_OUTER_TYPE](): WriterFunction;
+}
+
+//#endregion statement structure classes
+//#region expression structure classes
+//#endregion expression structure classes
 export {
   ArrayTypeStructureImpl,
   CallSignatureDeclarationImpl,

@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   StructureKind
 } from "ts-morph";
+
 import type {
   SourceFile,
   SourceFileStructure,
@@ -96,6 +97,8 @@ function sortMemberedObjectType(
 interface RawStatementGroups {
   StructureImpl: (ClassDeclarationStructure & NamedNodeStructure)[];
   TypeStructureImpl: (ClassDeclarationStructure & NamedNodeStructure)[];
+  StatementStructureImpl: (ClassDeclarationStructure & NamedNodeStructure)[];
+  ExpressionStructureImpl: (ClassDeclarationStructure & NamedNodeStructure)[];
   StructureMixin: VariableStatementStructure[];
   Exports: ExportDeclarationStructure[];
   other: StatementStructures[];
@@ -104,6 +107,8 @@ interface RawStatementGroups {
 interface StatementGroups {
   Structures: (VariableStatementStructure | ClassDeclarationStructure)[];
   TypeStructures: (ClassDeclarationStructure & NamedNodeStructure)[];
+  StatementStructures: (ClassDeclarationStructure & NamedNodeStructure)[];
+  ExpressionStructures: (ClassDeclarationStructure & NamedNodeStructure)[];
   Exports: ExportDeclarationStructure[];
   other: StatementStructures[];
 }
@@ -123,11 +128,15 @@ class StatementSorter {
   static #statementGrouper(
     this: void,
     statement: StatementStructures
-  ): "StructureImpl" | "TypeStructureImpl" | "StructureMixin" | "Exports" | "other"
+  ): "StructureImpl" | "TypeStructureImpl" | "StatementStructureImpl" | "ExpressionStructureImpl" | "StructureMixin" | "Exports" | "other"
   {
     if (statement.kind === StructureKind.Class && statement.name) {
       if (statement.name.endsWith("TypeStructureImpl"))
         return "TypeStructureImpl";
+      if (statement.name !== "VariableStatementImpl" && statement.name.endsWith("StatementImpl"))
+        return "StatementStructureImpl";
+      if (statement.name.endsWith("ExpressionImpl"))
+        return "ExpressionStructureImpl";
       if (statement.name.endsWith("Impl"))
         return "StructureImpl";
     }
@@ -163,10 +172,14 @@ class StatementSorter {
     const statementGroups: StatementGroups = {
       Structures: [],
       TypeStructures: rawStatementGroups.TypeStructureImpl,
+      StatementStructures: rawStatementGroups.StatementStructureImpl,
+      ExpressionStructures: rawStatementGroups.ExpressionStructureImpl || [],
       Exports: rawStatementGroups.Exports,
       other: rawStatementGroups.other,
     };
     statementGroups.TypeStructures.sort(nameSorter);
+    statementGroups.StatementStructures.sort(nameSorter);
+    statementGroups.ExpressionStructures.sort(nameSorter);
 
     const constantsMap: ReadonlyMap<string, VariableStatementStructure> = this.#getVariableStatementsMap(
       rawStatementGroups.StructureMixin
@@ -203,6 +216,12 @@ class StatementSorter {
       "//#region type structure classes\n",
       groups.TypeStructures,
       "//#endregion type structure classes\n",
+      "//#region statement structure classes\n",
+      groups.StatementStructures,
+      "//#endregion statement structure classes\n",
+      "//#region expression structure classes\n",
+      groups.ExpressionStructures,
+      "//#endregion expression structure classes\n",
       groups.Exports
     ].flat();
   }
