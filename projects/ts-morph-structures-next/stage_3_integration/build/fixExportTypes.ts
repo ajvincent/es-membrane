@@ -2,20 +2,20 @@ import {
   StructureKind
 } from "ts-morph";
 import type {
-  SourceFile,
-  SourceFileStructure,
+  ClassDeclarationStructure,
   ExportDeclarationStructure,
   ImportSpecifierStructure,
   MethodSignatureStructure,
+  NameableNodeStructure,
+  NamedNodeStructure,
   Node,
   OptionalKind,
   PropertySignatureStructure,
   StatementStructures,
-  ClassDeclarationStructure,
+  SourceFile,
+  SourceFileStructure,
   VariableDeclarationStructure,
-  NameableNodeStructure,
   VariableStatementStructure,
-  NamedNodeStructure,
 } from "ts-morph";
 
 import { runPrettify } from "@ajvincent/build-utilities";
@@ -26,11 +26,12 @@ import getTS_SourceFile from "#utilities/source/getTS_SourceFile.js";
 import {
   forEachAugmentedStructureChild,
   getAugmentedStructure,
-  type StructureImpls,
-  type TypeStructures,
-  TypeStructureKind,
   type MemberedObjectTypeStructureImpl,
   type NodeToStructureConsole,
+  QualifiedNameTypeStructureImpl,
+  type StructureImpls,
+  TypeStructureKind,
+  type TypeStructures,
 } from "#stage_two/snapshot/source/exports.js";
 
 import {
@@ -57,6 +58,20 @@ export async function fixExportTypes(): Promise<void>
 
   const { rootStructure } = getAugmentedStructure(sourceFile, parseConsole, true, StructureKind.SourceFile);
 
+  // mixin-decorators injects a ts-morph import for scope... we already import it elsewhere
+  const ts_morph_index = rootStructure.statements.findIndex(s => {
+    if (typeof s !== "object")
+      return false;
+    if (s.kind !== StructureKind.ImportDeclaration)
+      return false;
+    if (s.namespaceImport !== "ts_morph")
+      return false;
+
+    return true;
+  });
+  if (ts_morph_index !== -1)
+    rootStructure.statements.splice(ts_morph_index, 1);
+
   forEachAugmentedStructureChild(rootStructure, recurseStructures);
   StatementSorter.sortRoot(rootStructure);
 
@@ -70,10 +85,16 @@ function recurseStructures(child: StructureImpls | TypeStructures): void {
   switch (child.kind) {
     case TypeStructureKind.MemberedObject:
       sortMemberedObjectType(child);
+      forEachAugmentedStructureChild(child, recurseStructures);
       break;
 
     case StructureKind.ImportDeclaration:
       (child.namedImports as ImportSpecifierStructure[]).sort(nameSorter);
+      break;
+
+    case TypeStructureKind.QualifiedName:
+      fixTS_MorphPrefix(child);
+      forEachAugmentedStructureChild(child, recurseStructures);
       break;
 
     default:
@@ -92,6 +113,16 @@ function sortMemberedObjectType(
   memberedObject.methods?.sort(sortMembers);
 }
 //#endregion MemberedObjectTypeStructureImpl
+
+// mixin-decorators injects a ts-morph import for scope... we already import it elsewhere
+function fixTS_MorphPrefix(
+  qName: QualifiedNameTypeStructureImpl
+): void
+{
+  if (qName.childTypes[0] === "ts_morph") {
+    qName.childTypes.shift();
+  }
+}
 
 //#region source file statements
 interface RawStatementGroups {
@@ -114,15 +145,20 @@ interface StatementGroups {
 }
 
 class StatementSorter {
+  static readonly #statementKindOrdering: ReadonlyMap<StructureKind, number> = new Map([
+    [StructureKind.ImportDeclaration, 0],
+    [StructureKind.Enum, 1],
+    [StructureKind.Interface, 3],
+    [StructureKind.TypeAlias, 2],
+    [StructureKind.VariableStatement, 4],
+    [StructureKind.Function, 5],
+    [StructureKind.Class, 6],
+  ]);
+
   public static sortRoot(rootStructure: SourceFileStructure): void {
     const statements = rootStructure.statements as StatementStructures[];
     const sorter = new StatementSorter(statements);
     rootStructure.statements = sorter.getSortedStatements();
-  }
-
-  static #elementWithPosition<T>(this: void, element: T, index: number): [T, number]
-  {
-    return [element, index];
   }
 
   static #statementGrouper(
@@ -197,11 +233,9 @@ class StatementSorter {
   }
 
   readonly #statements: StatementStructures[];
-  readonly #positionMap: Pick<WeakMap<StatementStructures, number>, "get">;
 
   private constructor(statements: StatementStructures[]) {
     this.#statements = statements;
-    this.#positionMap = new WeakMap(statements.map(StatementSorter.#elementWithPosition));
   }
 
   getSortedStatements(): (StatementStructures | string)[] {
@@ -231,7 +265,38 @@ class StatementSorter {
     b: StatementStructures,
   ): number
   {
-    return this.#positionMap.get(a)! - this.#positionMap.get(b)!;
+    const aOrder = StatementSorter.#statementKindOrdering.get(a.kind);
+    if (aOrder === undefined)
+      throw new Error("unknown kind: " + JSON.stringify(a));
+    const bOrder = StatementSorter.#statementKindOrdering.get(b.kind);
+      if (bOrder === undefined)
+        throw new Error("unknown kind: " + JSON.stringify(b));
+
+    if (a.kind !== b.kind) {
+      return aOrder - bOrder;
+    }
+
+    if (a.kind === StructureKind.VariableStatement && b.kind === StructureKind.VariableStatement) {
+      return nameSorter(a.declarations[0], b.declarations[0]);
+    }
+
+    if (a.kind === StructureKind.ImportDeclaration && b.kind === StructureKind.ImportDeclaration) {
+      const rv = a.moduleSpecifier.localeCompare(b.moduleSpecifier);
+      if (rv !== 0)
+        return rv;
+      if (!a.isTypeOnly && b.isTypeOnly) {
+        return -1;
+      }
+      if (!b.isTypeOnly && a.isTypeOnly) {
+        return +1;
+      }
+    }
+
+    if (("name" in a) && ("name" in b) && a.name !== undefined && b.name !== undefined) {
+      return nameSorter(a, b);
+    }
+
+    throw new Error("how'd we get here?  " + JSON.stringify({a, b}, null, 2));
   }
 }
 //#endregion source file statements

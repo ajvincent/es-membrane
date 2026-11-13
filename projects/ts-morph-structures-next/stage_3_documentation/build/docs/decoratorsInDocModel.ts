@@ -56,6 +56,7 @@ export async function applyDecoratorsForDocModel(): Promise<void> {
   const files = await fs.readdir(
     structuresDir, { encoding: "utf-8" }
   );
+
   await PromiseAllParallel(files, fileName => updateSourceFile(project, fileName));
 }
 
@@ -84,6 +85,10 @@ async function updateSourceFile(
   fileName: string
 ): Promise<void>
 {
+  // this file breaks the pattern of default exports.
+  if (fileName.includes("isStructureOfType"))
+    return;
+
   const className = fileName.replace(/\.d\.ts$/, "");
   const classBaseName = getStructureClassBaseName(getStructureNameFromModified(className));
 

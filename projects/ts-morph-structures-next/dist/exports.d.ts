@@ -1,4 +1,4 @@
-import * as ts_morph from "ts-morph";
+import * as mixin_decorators from "mixin-decorators";
 import {
   CallSignatureDeclarationStructure,
   ClassDeclarationStructure,
@@ -55,22 +55,40 @@ import {
   VariableStatementStructure,
   WriterFunction,
 } from "ts-morph";
-import * as mixin_decorators from "mixin-decorators";
 import { Simplify, Writable } from "type-fest";
 
-interface NodeWriter {
-  writerFunction: WriterFunction;
+/**
+ * Bitwise flags to enable statement getter traps.
+ */
+declare enum ClassSupportsStatementsFlags {
+  /** The initial value of a property. */
+  PropertyInitializer = 1,
+  /** Values for a class getter or class setter to mirror. */
+  AccessorMirror = 2,
+  /** Statements starting a statement purpose block. */
+  HeadStatements = 4,
+  /** Statements in a purpose block for a given property and class member. */
+  BodyStatements = 8,
+  /** Statements closing a statement purpose block. */
+  TailStatements = 16,
+  /** Statements starting a statement purpose block for the constructor. */
+  ConstructorHeadStatements = 32,
+  /** Statements in a purpose block for a given property on the constructor. */
+  ConstructorBodyStatements = 64,
+  /** Statements closing a statement purpose block for the constructor. */
+  ConstructorTailStatements = 128,
+}
+
+declare enum FunctionWriterStyle {
+  Arrow = "Arrow",
+  Method = "Method",
+  GetAccessor = "GetAccessor",
+  SetAccessor = "SetAccessor",
 }
 
 declare enum StatementStructureKind {
   UnknownString = 1002000000,
   UnknownWriter = 1002000001,
-}
-
-interface KindedStatementStructure<
-  TKind extends StatementStructureKind,
-> extends NodeWriter {
-  readonly kind: TKind;
 }
 
 declare enum TypeStructureKind {
@@ -100,69 +118,206 @@ declare enum TypeStructureKind {
   Optional = 1000000023,
 }
 
-interface KindedTypeStructure<
-  TKind extends TypeStructureKind,
-> extends NodeWriter {
-  readonly kind: TKind;
-}
-
-type NodeWithStructures = Node & {
-  getStructure(): Structures;
-};
-
-/** A string message and a type node. */
-interface ConversionFailureMessage {
-  message: string;
-  failingNode: Node;
-}
-
+type ArrayOrValue<T> = T | readonly T[];
+type AugmentedStatementStructures =
+  | StatementStructureImpls
+  | UnknownStringStatementImpl
+  | UnknownWriterStatementImpl
+  | never;
+type AugmentedStructures = StructureImpls | TypeStructures;
+type ClassFieldStatement = string | WriterFunction | StatementStructureImpls;
+type ClassMemberImpl =
+  | ConstructorDeclarationImpl
+  | GetAccessorDeclarationImpl
+  | MethodDeclarationImpl
+  | PropertyDeclarationImpl
+  | SetAccessorDeclarationImpl;
+type ClassMemberStructureImpls =
+  | ClassStaticBlockDeclarationImpl
+  | ConstructorDeclarationImpl
+  | GetAccessorDeclarationImpl
+  | MethodDeclarationImpl
+  | PropertyDeclarationImpl
+  | SetAccessorDeclarationImpl;
+type InterfaceMemberStructureImpls = TypeElementMemberStructureImpls;
+type JsxStructureImpls =
+  | JsxAttributeImpl
+  | JsxElementImpl
+  | JsxSelfClosingElementImpl
+  | JsxSpreadAttributeImpl;
+type NamedClassMemberImpl = Extract<
+  ClassMemberImpl,
+  {
+    name: string;
+  }
+>;
+type NamedTypeMemberImpl = Extract<
+  TypeMemberImpl,
+  {
+    name: string;
+  }
+>;
 /**
  * @param message - The failure message.
  * @param failingTypeNode - the type node we failed to resolve.
  */
 type NodeToStructureConsole = (message: string, failingNode: Node) => void;
-
-interface RootStructureWithConvertFailures<
-  TKind extends StructureKind = StructureKind,
-> {
-  rootStructure: Extract<StructureImpls, KindedStructure<TKind>>;
-  failures: readonly ConversionFailureMessage[];
-}
-
-/**
- * Get a structure for a node, with type structures installed throughout its descendants.
- * @param rootNode - The node to start from.
- * @param userConsole - a callback for conversion failures.
- * @param assertNoFailures - if true, assert there are no conversion failures.
- * @returns the root structure, the root node, and any failures during recursion.
- */
-declare function getAugmentedStructure(
-  rootNode: NodeWithStructures,
-  userConsole: NodeToStructureConsole,
-  assertNoFailures: boolean,
-): RootStructureWithConvertFailures;
-/**
- * Get a structure for a node, with type structures installed throughout its descendants.
- * @param rootNode - The node to start from.
- * @param userConsole - a callback for conversion failures.
- * @param assertNoFailures - if true, assert there are no conversion failures.
- * @param kind - the expected structure kind to retrieve.
- * @returns the root structure, the root node, and any failures during recursion.
- */
-declare function getAugmentedStructure<TKind extends StructureKind>(
-  rootNode: NodeWithStructures,
-  userConsole: NodeToStructureConsole,
-  assertNoFailures: boolean,
-  kind: TKind,
-): RootStructureWithConvertFailures<TKind>;
-declare function parseLiteralType(source: string): TypeStructures;
-declare function VoidNodeToStructureConsole(
-  message: string,
-  failingNode: Node,
-): void;
+type NodeWithStructures = Node & {
+  getStructure(): Structures;
+};
+type ObjectLiteralExpressionPropertyStructureImpls =
+  | GetAccessorDeclarationImpl
+  | MethodDeclarationImpl
+  | PropertyAssignmentImpl
+  | SetAccessorDeclarationImpl
+  | ShorthandPropertyAssignmentImpl
+  | SpreadAssignmentImpl;
+type OmitWriter<T> = T extends (infer A)[]
+  ? OmitWriter<A>[]
+  : Exclude<T, WriterFunction>;
+type OmitWriterFromFields<T extends object> = {
+  [key in keyof T]: OmitWriter<T[key]>;
+};
+type PrefixUnaryOperator = "..." | "keyof" | "typeof" | "readonly" | "unique";
+type ReadonlyTypeMembersMap = Simplify<
+  ReadonlyMap<string, TypeMemberImpl> &
+    Pick<TypeMembersMap, "arrayOfKind" | "clone" | "getAsKind">
+>;
+type StatementStructureImpls =
+  | ClassDeclarationImpl
+  | EnumDeclarationImpl
+  | ExportAssignmentImpl
+  | ExportDeclarationImpl
+  | FunctionDeclarationImpl
+  | ImportDeclarationImpl
+  | InterfaceDeclarationImpl
+  | ModuleDeclarationImpl
+  | TypeAliasDeclarationImpl
+  | VariableStatementImpl;
+type stringOrWriterFunction = string | WriterFunction;
+type stringWriterOrStatementImpl =
+  | stringOrWriterFunction
+  | StatementStructureImpls;
+type StructureClassToJSON<T extends object> = Writable<
+  Omit<
+    OmitWriterFromFields<T>,
+    "toJSON" | `${string}Structure` | `${string}Sequence`
+  >
+>;
+type StructureImpls =
+  | ClassMemberStructureImpls
+  | ConstructorDeclarationOverloadImpl
+  | DecoratorImpl
+  | EnumMemberImpl
+  | ExportSpecifierImpl
+  | FunctionDeclarationOverloadImpl
+  | ImportAttributeImpl
+  | ImportSpecifierImpl
+  | InterfaceMemberStructureImpls
+  | JSDocImpl
+  | JSDocTagImpl
+  | JsxStructureImpls
+  | MethodDeclarationOverloadImpl
+  | ObjectLiteralExpressionPropertyStructureImpls
+  | ParameterDeclarationImpl
+  | SourceFileImpl
+  | StatementStructureImpls
+  | TypeParameterDeclarationImpl
+  | VariableDeclarationImpl;
+type TypeElementMemberStructureImpls =
+  | CallSignatureDeclarationImpl
+  | ConstructSignatureDeclarationImpl
+  | IndexSignatureDeclarationImpl
+  | MethodSignatureImpl
+  | PropertySignatureImpl;
+type TypeMemberImpl =
+  | CallSignatureDeclarationImpl
+  | ConstructSignatureDeclarationImpl
+  | GetAccessorDeclarationImpl
+  | IndexSignatureDeclarationImpl
+  | MethodSignatureImpl
+  | PropertySignatureImpl
+  | SetAccessorDeclarationImpl;
+type TypeStructures =
+  | ArrayTypeStructureImpl
+  | ConditionalTypeStructureImpl
+  | FunctionTypeStructureImpl
+  | ImportTypeStructureImpl
+  | IndexedAccessTypeStructureImpl
+  | InferTypeStructureImpl
+  | IntersectionTypeStructureImpl
+  | LiteralTypeStructureImpl
+  | MappedTypeStructureImpl
+  | MemberedObjectTypeStructureImpl
+  | NamedTupleMemberTypeStructureImpl
+  | NumberTypeStructureImpl
+  | OptionalTypeStructureImpl
+  | ParameterTypeStructureImpl
+  | ParenthesesTypeStructureImpl
+  | PrefixOperatorsTypeStructureImpl
+  | QualifiedNameTypeStructureImpl
+  | StringTypeStructureImpl
+  | TemplateLiteralTypeStructureImpl
+  | TupleTypeStructureImpl
+  | TypeArgumentedTypeStructureImpl
+  | TypePredicateTypeStructureImpl
+  | UnionTypeStructureImpl
+  | WriterTypeStructureImpl;
+type TypeStructuresOrNull = TypeStructures | null;
 
 interface AbstractableNodeStructureClassIfc {
   isAbstract: boolean;
+}
+
+/**
+ * A value for getters and setters of a class to reflect.
+ *
+ * @remarks
+ * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.AccessorMirror` must be non-zero.
+ */
+interface AccessorMirrorGetter {
+  /**
+   * @param key - Describing the getter or setter to implement.  `statementGroupKey` will be `ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY`.
+   * @returns true for a match against the key.
+   */
+  filterAccessorMirror(key: MemberedStatementsKey): boolean;
+  /**
+   * @param key - Describing the getter or setter to implement.  `statementGroupKey` will be `ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY`.
+   * @returns the value to write for the getter and/or setter to mirror.
+   */
+  getAccessorMirror(
+    key: MemberedStatementsKey,
+  ): stringWriterOrStatementImpl | undefined;
+}
+
+/** A description of the exports to add. */
+interface AddExportContext {
+  /** This could be an absolute path, or a package import like "ts-morph-structures". */
+  pathToExportedModule: string;
+  /** The names to add to the import.  Pass an empty array for "*". */
+  exportNames: readonly string[];
+  /** True if the import is the default.  exportNames will then be the default export name. */
+  isDefaultExport: boolean;
+  /** True if the export names are types only. */
+  isType: boolean;
+}
+
+/** A description of the imports to add. */
+interface AddImportContext {
+  /** This could be an absolute path, or a package import like "ts-morph-structures". */
+  pathToImportedModule: string;
+  /**
+   * True if `this.pathToImportedModule` represents a package import.
+   * False if the imported module path should be relative to the
+   * manager's absolute path in generated code.
+   */
+  isPackageImport: boolean;
+  /** The names to add to the import.  Pass an empty array for "*". */
+  importNames: readonly string[];
+  /** True if the import is the default.  importNames will then be the default import. */
+  isDefaultImport: boolean;
+  /** True if the import names are types only. */
+  isTypeOnly: boolean;
 }
 
 interface AmbientableNodeStructureClassIfc {
@@ -175,6 +330,38 @@ interface AsyncableNodeStructureClassIfc {
 
 interface CallSignatureDeclarationStructureClassIfc {
   readonly kind: StructureKind.CallSignature;
+}
+
+interface ClassAbstractMemberQuestion {
+  isAbstract(
+    kind: Exclude<ClassMemberImpl, ConstructorDeclarationImpl>["kind"],
+    memberName: string,
+  ): boolean;
+}
+
+interface ClassAsyncMethodQuestion {
+  isAsync(isStatic: boolean, methodName: string): boolean;
+}
+
+/**
+ * Statements in a statement purpose block for a particular property and function.
+ *
+ * @remarks
+ * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.BodyStatements` must be non-zero.
+ */
+interface ClassBodyStatementsGetter {
+  /**
+   * @param key - The membered statement key.
+   * @returns true for a match against the key.
+   */
+  filterBodyStatements(key: MemberedStatementsKey): boolean;
+  /**
+   * @param key - The membered statement key.
+   * @returns statements to insert for the given field key and statement group key.
+   */
+  getBodyStatements(
+    key: MemberedStatementsKey,
+  ): readonly stringWriterOrStatementImpl[];
 }
 
 interface ClassDeclarationStructureClassIfc {
@@ -191,8 +378,117 @@ interface ClassDeclarationStructureClassIfc {
   readonly staticBlocks: ClassStaticBlockDeclarationImpl[];
 }
 
+interface ClassDeclarationWithImplementsTypeStructures {
+  implementsSequence: TypeStructureSequence;
+  implements: stringOrWriterFunction[];
+}
+
+interface ClassGeneratorMethodQuestion {
+  isGenerator(isStatic: boolean, methodName: string): boolean;
+}
+
+/**
+ * Statements at the start of a statement purpose block.
+ *
+ * @remarks
+ * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.HeadStatements` must be non-zero.
+ */
+interface ClassHeadStatementsGetter {
+  /**
+   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_HEAD_SUPER_CALL`.
+   * @returns true for a match against the key.
+   */
+  filterHeadStatements(key: MemberedStatementsKey): boolean;
+  /**
+   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_HEAD_SUPER_CALL`.
+   * @returns statements to insert before other statements in the purpose block.
+   */
+  getHeadStatements(
+    key: MemberedStatementsKey,
+  ): readonly stringWriterOrStatementImpl[];
+}
+
+interface ClassScopeMemberQuestion {
+  getScope(
+    isStatic: boolean,
+    kind: ClassMemberImpl["kind"],
+    memberName: string,
+  ): Scope | undefined;
+}
+
+/**
+ * Traps for getting statements, based on a `MemberedStatementsKey`.
+ */
+interface ClassStatementsGetter
+  extends
+    Partial<PropertyInitializerGetter>,
+    Partial<AccessorMirrorGetter>,
+    Partial<ClassHeadStatementsGetter>,
+    Partial<ClassBodyStatementsGetter>,
+    Partial<ClassTailStatementsGetter>,
+    Partial<ConstructorHeadStatementsGetter>,
+    Partial<ConstructorBodyStatementsGetter>,
+    Partial<ConstructorTailStatementsGetter> {
+  /** A human-readable string for debugging. */
+  keyword: readonly string;
+  /**
+   * Bitwise flags to determine which statement getter traps are active.
+   * @see ClassSupportsStatementsFlags
+   */
+  supportsStatementsFlags: readonly number;
+}
+
 interface ClassStaticBlockDeclarationStructureClassIfc {
   readonly kind: StructureKind.ClassStaticBlock;
+}
+
+/**
+ * Statements at the end of a statement purpose block.
+ *
+ * @remarks
+ * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.TailStatements` must be non-zero.
+ */
+interface ClassTailStatementsGetter {
+  /**
+   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN`.
+   * @returns true for a match against the key.
+   */
+  filterTailStatements(key: MemberedStatementsKey): boolean;
+  /**
+   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN`.
+   * @returns statements to insert after other statements in the purpose block.
+   */
+  getTailStatements(
+    key: MemberedStatementsKey,
+  ): readonly stringWriterOrStatementImpl[];
+}
+
+interface ConditionalTypeStructureParts {
+  checkType: TypeStructures;
+  extendsType: TypeStructures;
+  trueType: TypeStructures;
+  falseType: TypeStructures;
+}
+
+/**
+ * Statements in a statement purpose block for a particular property in the constructor.
+ *
+ * @remarks
+ * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.ConstructorBodyStatements` must be non-zero.
+ */
+interface ConstructorBodyStatementsGetter {
+  /**
+   * @param key - The membered statement key.  `statementGroupKey` will be "constructor".
+   * @returns true for a match against the key.
+   */
+  filterCtorBodyStatements(key: MemberedStatementsKey): boolean;
+  /**
+   * @param key - The membered statement key.  `statementGroupKey` will be "constructor".
+   * @returns statements to insert for the given field key and statement group key.
+   */
+  getCtorBodyStatements(
+    key: MemberedStatementsKey,
+  ): readonly stringWriterOrStatementImpl[];
 }
 
 interface ConstructorDeclarationOverloadStructureClassIfc {
@@ -204,8 +500,56 @@ interface ConstructorDeclarationStructureClassIfc {
   readonly overloads: ConstructorDeclarationOverloadImpl[];
 }
 
+/**
+ * Statements at the start of a constructor's statement purpose block.
+ *
+ * @remarks
+ * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.ConstructorHeadStatements` must be non-zero.
+ */
+interface ConstructorHeadStatementsGetter {
+  /**
+   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_HEAD_SUPER_CALL`.  `statementGroupKey` will be "constructor".
+   * @returns true for a match against the key.
+   */
+  filterCtorHeadStatements(key: MemberedStatementsKey): boolean;
+  /**
+   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_HEAD_SUPER_CALL`.  `statementGroupKey` will be "constructor".
+   * @returns statements to insert before other statements in the purpose block.
+   */
+  getCtorHeadStatements(
+    key: MemberedStatementsKey,
+  ): readonly stringWriterOrStatementImpl[];
+}
+
+/**
+ * Statements at the end of a constructor's statement purpose block.
+ *
+ * @remarks
+ * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.ConstructorTailStatements` must be non-zero.
+ */
+interface ConstructorTailStatementsGetter {
+  /**
+   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN`.  `statementGroupKey` will be "constructor".
+   * @returns true for a match against the key.
+   */
+  filterCtorTailStatements(key: MemberedStatementsKey): boolean;
+  /**
+   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN`.  `statementGroupKey` will be "constructor".
+   * @returns statements to insert before other statements in the purpose block.
+   */
+  getCtorTailStatements(
+    key: MemberedStatementsKey,
+  ): readonly stringWriterOrStatementImpl[];
+}
+
 interface ConstructSignatureDeclarationStructureClassIfc {
   readonly kind: StructureKind.ConstructSignature;
+}
+
+/** A string message and a type node. */
+interface ConversionFailureMessage {
+  message: string;
+  failingNode: Node;
 }
 
 interface DecoratableNodeStructureClassIfc {
@@ -273,6 +617,16 @@ interface FunctionDeclarationStructureClassIfc {
   readonly overloads: FunctionDeclarationOverloadImpl[];
 }
 
+interface FunctionTypeContext {
+  name: string | undefined;
+  isConstructor: boolean;
+  typeParameters: TypeParameterDeclarationImpl[];
+  parameters: ParameterTypeStructureImpl[];
+  restParameter: ParameterTypeStructureImpl | undefined;
+  returnType: TypeStructures | undefined;
+  writerStyle: FunctionWriterStyle;
+}
+
 interface GeneratorableNodeStructureClassIfc {
   isGenerator: boolean;
 }
@@ -311,8 +665,31 @@ interface IndexSignatureDeclarationStructureClassIfc {
   keyTypeStructure: TypeStructures | undefined;
 }
 
+interface IndexSignatureResolver {
+  resolveIndexSignature(signature: IndexSignatureDeclarationImpl): string[];
+}
+
 interface InitializerExpressionableNodeStructureClassIfc {
   initializer?: stringOrWriterFunction;
+}
+
+interface InnerTypeElement<OuterType> {
+  [GET_OUTER_TYPE](): OuterType;
+}
+
+interface InsertedMemberKey {
+  readonly isFieldStatic: boolean;
+  readonly fieldType:
+    | PropertySignatureImpl
+    | GetAccessorDeclarationImpl
+    | SetAccessorDeclarationImpl;
+  readonly isGroupStatic: boolean;
+  readonly groupType:
+    | GetAccessorDeclarationImpl
+    | SetAccessorDeclarationImpl
+    | MethodSignatureImpl
+    | "constructor"
+    | "(initializer or property reference)";
 }
 
 interface InterfaceDeclarationStructureClassIfc {
@@ -326,6 +703,11 @@ interface InterfaceDeclarationStructureClassIfc {
   readonly methods: MethodSignatureImpl[];
   readonly properties: PropertySignatureImpl[];
   readonly setAccessors: SetAccessorDeclarationImpl[];
+}
+
+interface InterfaceDeclarationWithExtendsTypeStructures {
+  extendsSequence: TypeStructureSequence;
+  extends: stringOrWriterFunction[];
 }
 
 interface JSDocableNodeStructureClassIfc {
@@ -374,6 +756,28 @@ interface JsxSpreadAttributeStructureClassIfc {
   expression: string;
 }
 
+interface KindedStatementStructure<
+  TKind extends StatementStructureKind,
+> extends NodeWriter {
+  readonly kind: TKind;
+}
+
+interface KindedTypeStructure<
+  TKind extends TypeStructureKind,
+> extends NodeWriter {
+  readonly kind: TKind;
+}
+
+interface MemberedStatementsKey {
+  readonly fieldKey: string;
+  readonly statementGroupKey: string;
+  readonly purpose: string;
+  readonly isFieldStatic: boolean;
+  readonly fieldType: TypeMemberImpl | undefined;
+  readonly isGroupStatic: boolean;
+  readonly groupType: TypeMemberImpl | undefined;
+}
+
 interface MethodDeclarationOverloadStructureClassIfc {
   readonly kind: StructureKind.MethodOverload;
   isStatic: boolean;
@@ -407,6 +811,10 @@ interface NamedNodeStructureClassIfc {
   name: string;
 }
 
+interface NodeWriter {
+  writerFunction: WriterFunction;
+}
+
 interface OverrideableNodeStructureClassIfc {
   hasOverrideKeyword: boolean;
 }
@@ -431,6 +839,27 @@ interface PropertyDeclarationStructureClassIfc {
   isStatic: boolean;
 }
 
+/**
+ * For the initial value of a property.
+ *
+ * @remarks
+ * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.PropertyInitializer` must be non-zero.
+ */
+interface PropertyInitializerGetter {
+  /**
+   * @param key - The property description key.  `statementGroupKey` will be `ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY`.
+   * @returns true for a match against the key.
+   */
+  filterPropertyInitializer(key: MemberedStatementsKey): boolean;
+  /**
+   * @param key - The property description key.  `statementGroupKey` will be `ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY`.
+   * @returns the value to write for the property initializer.
+   */
+  getPropertyInitializer(
+    key: MemberedStatementsKey,
+  ): stringWriterOrStatementImpl | undefined;
+}
+
 interface PropertySignatureStructureClassIfc {
   readonly kind: StructureKind.PropertySignature;
 }
@@ -446,6 +875,18 @@ interface ReadonlyableNodeStructureClassIfc {
 interface ReturnTypedNodeStructureClassIfc {
   returnType?: stringOrWriterFunction;
   returnTypeStructure: TypeStructures | undefined;
+}
+
+interface ReturnTypedNodeTypeStructure {
+  returnTypeStructure: TypeStructures | undefined;
+  returnType: stringOrWriterFunction | undefined;
+}
+
+interface RootStructureWithConvertFailures<
+  TKind extends StructureKind = StructureKind,
+> {
+  rootStructure: Extract<StructureImpls, KindedStructure<TKind>>;
+  failures: readonly ConversionFailureMessage[];
 }
 
 interface ScopedNodeStructureClassIfc {
@@ -492,6 +933,11 @@ interface TypedNodeStructureClassIfc {
   typeStructure: TypeStructures | undefined;
 }
 
+interface TypedNodeTypeStructure {
+  typeStructure: TypeStructures | undefined;
+  type: stringOrWriterFunction | undefined;
+}
+
 interface TypeParameterDeclarationStructureClassIfc {
   readonly kind: StructureKind.TypeParameter;
   constraint?: stringOrWriterFunction;
@@ -506,6 +952,13 @@ interface TypeParameteredNodeStructureClassIfc {
   readonly typeParameters: (TypeParameterDeclarationImpl | string)[];
 }
 
+interface TypeParameterWithTypeStructures {
+  constraintStructure: TypeStructures | undefined;
+  constraint: stringOrWriterFunction | undefined;
+  defaultStructure: TypeStructures | undefined;
+  default: stringOrWriterFunction | undefined;
+}
+
 interface VariableDeclarationStructureClassIfc {
   readonly kind: StructureKind.VariableDeclaration;
 }
@@ -517,195 +970,50 @@ interface VariableStatementStructureClassIfc {
 }
 
 declare const BUILD_ARRAY_WRAPPER: unique symbol;
-declare const GET_OUTER_TYPE: unique symbol;
 declare const CONVERT_OUTER_TO_INNER: unique symbol;
-
-interface InnerTypeElement<OuterType> {
-  [GET_OUTER_TYPE](): OuterType;
-}
-
 declare const COPY_FIELDS: unique symbol;
+declare const DEREGISTER_WRITER: unique symbol;
+declare const GET_OUTER_TYPE: unique symbol;
 declare const REPLACE_WRITER_WITH_STRING: unique symbol;
 declare const STRUCTURE_CHILDREN: unique symbol;
-
-declare class StructureBase {
-  /** @internal */
-  static [COPY_FIELDS](
-    source: OptionalKind<Structures>,
-    target: Structures,
-  ): void;
-  /** @internal */
-  static [REPLACE_WRITER_WITH_STRING](value: string | WriterFunction): string;
-  toJSON(): object;
-  /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
-}
-
-interface ConditionalTypeStructureParts {
-  checkType: TypeStructures;
-  extendsType: TypeStructures;
-  trueType: TypeStructures;
-  falseType: TypeStructures;
-}
-
-declare enum FunctionWriterStyle {
-  Arrow = "Arrow",
-  Method = "Method",
-  GetAccessor = "GetAccessor",
-  SetAccessor = "SetAccessor",
-}
-
-interface FunctionTypeContext {
-  name: string | undefined;
-  isConstructor: boolean;
-  typeParameters: TypeParameterDeclarationImpl[];
-  parameters: ParameterTypeStructureImpl[];
-  restParameter: ParameterTypeStructureImpl | undefined;
-  returnType: TypeStructures | undefined;
-  writerStyle: FunctionWriterStyle;
-}
-
-type PrefixUnaryOperator = "..." | "keyof" | "typeof" | "readonly" | "unique";
 declare const WRITER_FUNCTION_KEY: unique symbol;
-declare const DEREGISTER_WRITER: unique symbol;
-
-declare abstract class WriterStructuresBase {
-  #private;
-  readonly writerFunction: (writer: CodeBlockWriter) => void;
-  constructor();
-  static getWriterStructureForCallback(
-    writer: WriterFunction,
-  ): WriterStructuresBase | undefined;
-  /** @internal */
-  [DEREGISTER_WRITER](): void;
-  /** @internal */
-  protected abstract [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
-  /**
-   * Write a start token, invoke a block, and write the end token, in that order.
-   * @param writer - the code block writer.
-   * @param startToken - the start token.
-   * @param endToken - the end token.
-   * @param newLine - true if we should call `.newLine()` after the start and before the end.
-   * @param indent - true if we should indent the block statements.
-   * @param block - the callback to execute for the block statements.
-   * @see {@link https://github.com/dsherret/code-block-writer/issues/44}
-   */
-  protected static pairedWrite(
-    writer: CodeBlockWriter,
-    startToken: string,
-    endToken: string,
-    newLine: boolean,
-    indent: boolean,
-    block: () => void,
-  ): void;
-}
-
-type stringOrWriterFunction = string | WriterFunction;
-
-declare abstract class TypeStructuresBase<Kind extends TypeStructureKind>
-  extends WriterStructuresBase
-  implements KindedTypeStructure<Kind>, InnerTypeElement<stringOrWriterFunction>
-{
-  abstract readonly kind: Kind;
-  /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
-  [GET_OUTER_TYPE](): stringOrWriterFunction;
-}
-
-type TypeStructures =
-  | ArrayTypeStructureImpl
-  | ConditionalTypeStructureImpl
-  | FunctionTypeStructureImpl
-  | ImportTypeStructureImpl
-  | IndexedAccessTypeStructureImpl
-  | InferTypeStructureImpl
-  | IntersectionTypeStructureImpl
-  | LiteralTypeStructureImpl
-  | MappedTypeStructureImpl
-  | MemberedObjectTypeStructureImpl
-  | NamedTupleMemberTypeStructureImpl
-  | NumberTypeStructureImpl
-  | OptionalTypeStructureImpl
-  | ParameterTypeStructureImpl
-  | ParenthesesTypeStructureImpl
-  | PrefixOperatorsTypeStructureImpl
-  | QualifiedNameTypeStructureImpl
-  | StringTypeStructureImpl
-  | TemplateLiteralTypeStructureImpl
-  | TupleTypeStructureImpl
-  | TypeArgumentedTypeStructureImpl
-  | TypePredicateTypeStructureImpl
-  | UnionTypeStructureImpl
-  | WriterTypeStructureImpl;
-type TypeStructuresOrNull = TypeStructures | null;
-
-declare class TypeStructureSequence extends ShadowArrayImpl<
-  stringOrWriterFunction,
-  TypeStructures
-> {
-  static createProxy(innerElements: TypeStructures[]): stringOrWriterFunction[];
-  protected [BUILD_ARRAY_WRAPPER](
-    ...innerElements: TypeStructures[]
-  ): stringOrWriterFunction[];
-  protected [CONVERT_OUTER_TO_INNER](
-    outerType: stringOrWriterFunction,
-  ): TypeStructures;
-}
-
-declare class TypePrinterSettings {
-  indentChildren: boolean;
-  newLinesAroundChildren: boolean;
-  oneLinePerChild: boolean;
-}
-
-declare abstract class TypeStructuresWithChildren<
-  Kind extends TypeStructureKind,
-  Children extends readonly TypeStructures[],
-> extends TypeStructuresBase<Kind> {
-  #private;
-  abstract readonly kind: Kind;
-  /** This lives outside the start and end tokens.  Think of this as a parent type for the children, ie. `Partial`. */
-  protected abstract objectType: TypeStructuresOrNull;
-  /** The child types we join together, and wrap in the start and end tokens. */
-  abstract readonly childTypes: Children;
-  /** A very short string, one or two characters, before all child types. */
-  protected abstract readonly startToken: string;
-  /** A very short string, between all child types. */
-  protected abstract readonly joinChildrenToken: string;
-  /** A very short string, one or two characters, after all child types. */
-  protected abstract readonly endToken: string;
-  /** The maximum number of children to support. */
-  protected abstract readonly maxChildCount: number;
-  /** For customizing printing of the child types. */
-  readonly printerSettings: TypePrinterSettings;
-  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
-  /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
-}
-
-declare abstract class TypeStructuresWithTypeParameters<
-  Kind extends TypeStructureKind,
-> extends TypeStructuresBase<Kind> {
-  #private;
-  protected static writeTypeParameter(
-    typeParam: TypeParameterDeclarationImpl,
-    writer: CodeBlockWriter,
-    constraintMode: "extends" | "in",
-  ): void;
-}
-
-type OmitWriter<T> = T extends (infer A)[]
-  ? OmitWriter<A>[]
-  : Exclude<T, WriterFunction>;
-type OmitWriterFromFields<T extends object> = {
-  [key in keyof T]: OmitWriter<T[key]>;
-};
-type StructureClassToJSON<T extends object> = Writable<
-  Omit<
-    OmitWriterFromFields<T>,
-    "toJSON" | `${string}Structure` | `${string}Sequence`
-  >
->;
+/**
+ * Iterates over the children of a structure (or type structure), or the elements of an array of structures and type structures.
+ * @param structureOrArray - Structure or array of structures to iterate over.
+ * @param callback - Callback to do on each structure, until the callback returns a truthy result.
+ * @returns the first truthy result from the callback.
+ * @see {@link https://ts-morph.com/manipulation/structures#codeforeachstructurechildcode}
+ */
+declare function forEachAugmentedStructureChild<TStructure>(
+  structureOrArray: ArrayOrValue<AugmentedStructures>,
+  callback: (child: AugmentedStructures) => TStructure | void,
+): TStructure | undefined;
+/**
+ * Get a structure for a node, with type structures installed throughout its descendants.
+ * @param rootNode - The node to start from.
+ * @param userConsole - a callback for conversion failures.
+ * @param assertNoFailures - if true, assert there are no conversion failures.
+ * @returns the root structure, the root node, and any failures during recursion.
+ */
+declare function getAugmentedStructure(
+  rootNode: NodeWithStructures,
+  userConsole: NodeToStructureConsole,
+  assertNoFailures: boolean,
+): RootStructureWithConvertFailures;
+/**
+ * Get a structure for a node, with type structures installed throughout its descendants.
+ * @param rootNode - The node to start from.
+ * @param userConsole - a callback for conversion failures.
+ * @param assertNoFailures - if true, assert there are no conversion failures.
+ * @param kind - the expected structure kind to retrieve.
+ * @returns the root structure, the root node, and any failures during recursion.
+ */
+declare function getAugmentedStructure<TKind extends StructureKind>(
+  rootNode: NodeWithStructures,
+  userConsole: NodeToStructureConsole,
+  assertNoFailures: boolean,
+  kind: TKind,
+): RootStructureWithConvertFailures<TKind>;
 declare function isClassMemberStructure(
   structure: StructureImpls,
 ): structure is ClassMemberStructureImpls;
@@ -721,85 +1029,11 @@ declare function isStatementStructure(
 declare function isTypeElementMemberStructure(
   structure: StructureImpls,
 ): structure is TypeElementMemberStructureImpls;
-type ClassMemberStructureImpls =
-  | ClassStaticBlockDeclarationImpl
-  | ConstructorDeclarationImpl
-  | GetAccessorDeclarationImpl
-  | MethodDeclarationImpl
-  | PropertyDeclarationImpl
-  | SetAccessorDeclarationImpl;
-type InterfaceMemberStructureImpls = TypeElementMemberStructureImpls;
-type JsxStructureImpls =
-  | JsxAttributeImpl
-  | JsxElementImpl
-  | JsxSelfClosingElementImpl
-  | JsxSpreadAttributeImpl;
-type ObjectLiteralExpressionPropertyStructureImpls =
-  | GetAccessorDeclarationImpl
-  | MethodDeclarationImpl
-  | PropertyAssignmentImpl
-  | SetAccessorDeclarationImpl
-  | ShorthandPropertyAssignmentImpl
-  | SpreadAssignmentImpl;
-type StatementStructureImpls =
-  | ClassDeclarationImpl
-  | EnumDeclarationImpl
-  | ExportAssignmentImpl
-  | ExportDeclarationImpl
-  | FunctionDeclarationImpl
-  | ImportDeclarationImpl
-  | InterfaceDeclarationImpl
-  | ModuleDeclarationImpl
-  | TypeAliasDeclarationImpl
-  | VariableStatementImpl;
-type StructureImpls =
-  | ClassMemberStructureImpls
-  | ConstructorDeclarationOverloadImpl
-  | DecoratorImpl
-  | EnumMemberImpl
-  | ExportSpecifierImpl
-  | FunctionDeclarationOverloadImpl
-  | ImportAttributeImpl
-  | ImportSpecifierImpl
-  | InterfaceMemberStructureImpls
-  | JSDocImpl
-  | JSDocTagImpl
-  | JsxStructureImpls
-  | MethodDeclarationOverloadImpl
-  | ObjectLiteralExpressionPropertyStructureImpls
-  | ParameterDeclarationImpl
-  | SourceFileImpl
-  | StatementStructureImpls
-  | TypeParameterDeclarationImpl
-  | VariableDeclarationImpl;
-type TypeElementMemberStructureImpls =
-  | CallSignatureDeclarationImpl
-  | ConstructSignatureDeclarationImpl
-  | IndexSignatureDeclarationImpl
-  | MethodSignatureImpl
-  | PropertySignatureImpl;
-
-declare abstract class StatementStructuresBase<
-  Kind extends StatementStructureKind,
->
-  extends WriterStructuresBase
-  implements
-    KindedStatementStructure<Kind>,
-    InnerTypeElement<stringOrWriterFunction>
-{
-  abstract readonly kind: Kind;
-  /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | AugmentedStatementStructures
-  >;
-  [GET_OUTER_TYPE](): stringOrWriterFunction;
-}
-
-type AugmentedStatementStructures =
-  | StatementStructureImpls
-  | UnknownStringStatementImpl
-  | UnknownWriterStatementImpl
-  | never;
+declare function parseLiteralType(source: string): TypeStructures;
+declare function VoidNodeToStructureConsole(
+  message: string,
+  failingNode: Node,
+): void;
 
 /**
  * This is a map for specifying statements across several class members for a single class field.
@@ -943,10 +1177,6 @@ declare class ClassFieldStatementsMap {
   ): ReadonlyMap<string, ClassFieldStatement[]> | undefined;
 }
 
-declare class OrderedMap<K, V> extends Map<K, V> {
-  sortEntries(comparator: (a: [K, V], b: [K, V]) => number): void;
-}
-
 /**
  * A map for class methods, properties, accessors and a constructor.  This doesn't
  * replace `ClassDeclarationImpl`, rather, it _feeds_ `ClassDeclarationImpl`.
@@ -1087,308 +1317,6 @@ declare class ExportManager {
   getDeclarations(): ExportDeclarationImpl[];
 }
 
-type ArrayOrValue<T> = T | readonly T[];
-/**
- * Iterates over the children of a structure (or type structure), or the elements of an array of structures and type structures.
- * @param structureOrArray - Structure or array of structures to iterate over.
- * @param callback - Callback to do on each structure, until the callback returns a truthy result.
- * @returns the first truthy result from the callback.
- * @see {@link https://ts-morph.com/manipulation/structures#codeforeachstructurechildcode}
- */
-declare function forEachAugmentedStructureChild<TStructure>(
-  structureOrArray: ArrayOrValue<AugmentedStructures>,
-  callback: (child: AugmentedStructures) => TStructure | void,
-): TStructure | undefined;
-
-/** A description of the exports to add. */
-interface AddExportContext {
-  /** This could be an absolute path, or a package import like "ts-morph-structures". */
-  pathToExportedModule: string;
-  /** The names to add to the import.  Pass an empty array for "*". */
-  exportNames: readonly string[];
-  /** True if the import is the default.  exportNames will then be the default export name. */
-  isDefaultExport: boolean;
-  /** True if the export names are types only. */
-  isType: boolean;
-}
-
-/** A description of the imports to add. */
-interface AddImportContext {
-  /** This could be an absolute path, or a package import like "ts-morph-structures". */
-  pathToImportedModule: string;
-  /**
-   * True if `this.pathToImportedModule` represents a package import.
-   * False if the imported module path should be relative to the
-   * manager's absolute path in generated code.
-   */
-  isPackageImport: boolean;
-  /** The names to add to the import.  Pass an empty array for "*". */
-  importNames: readonly string[];
-  /** True if the import is the default.  importNames will then be the default import. */
-  isDefaultImport: boolean;
-  /** True if the import names are types only. */
-  isTypeOnly: boolean;
-}
-
-type ClassFieldStatement = string | WriterFunction | StatementStructureImpls;
-type ClassMemberImpl =
-  | ConstructorDeclarationImpl
-  | GetAccessorDeclarationImpl
-  | MethodDeclarationImpl
-  | PropertyDeclarationImpl
-  | SetAccessorDeclarationImpl;
-type NamedClassMemberImpl = Extract<
-  ClassMemberImpl,
-  {
-    name: string;
-  }
->;
-
-interface IndexSignatureResolver {
-  resolveIndexSignature(signature: IndexSignatureDeclarationImpl): string[];
-}
-
-interface MemberedStatementsKey {
-  readonly fieldKey: string;
-  readonly statementGroupKey: string;
-  readonly purpose: string;
-  readonly isFieldStatic: boolean;
-  readonly fieldType: TypeMemberImpl | undefined;
-  readonly isGroupStatic: boolean;
-  readonly groupType: TypeMemberImpl | undefined;
-}
-
-interface ClassAbstractMemberQuestion {
-  isAbstract(
-    kind: Exclude<ClassMemberImpl, ConstructorDeclarationImpl>["kind"],
-    memberName: string,
-  ): boolean;
-}
-
-interface ClassAsyncMethodQuestion {
-  isAsync(isStatic: boolean, methodName: string): boolean;
-}
-
-interface ClassGeneratorMethodQuestion {
-  isGenerator(isStatic: boolean, methodName: string): boolean;
-}
-
-interface ClassScopeMemberQuestion {
-  getScope(
-    isStatic: boolean,
-    kind: ClassMemberImpl["kind"],
-    memberName: string,
-  ): Scope | undefined;
-}
-
-type NamedTypeMemberImpl = Extract<
-  TypeMemberImpl,
-  {
-    name: string;
-  }
->;
-type TypeMemberImpl =
-  | CallSignatureDeclarationImpl
-  | ConstructSignatureDeclarationImpl
-  | GetAccessorDeclarationImpl
-  | IndexSignatureDeclarationImpl
-  | MethodSignatureImpl
-  | PropertySignatureImpl
-  | SetAccessorDeclarationImpl;
-type stringWriterOrStatementImpl =
-  | stringOrWriterFunction
-  | StatementStructureImpls;
-
-/**
- * For the initial value of a property.
- *
- * @remarks
- * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.PropertyInitializer` must be non-zero.
- */
-interface PropertyInitializerGetter {
-  /**
-   * @param key - The property description key.  `statementGroupKey` will be `ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY`.
-   * @returns true for a match against the key.
-   */
-  filterPropertyInitializer(key: MemberedStatementsKey): boolean;
-  /**
-   * @param key - The property description key.  `statementGroupKey` will be `ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY`.
-   * @returns the value to write for the property initializer.
-   */
-  getPropertyInitializer(
-    key: MemberedStatementsKey,
-  ): stringWriterOrStatementImpl | undefined;
-}
-
-/**
- * A value for getters and setters of a class to reflect.
- *
- * @remarks
- * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.AccessorMirror` must be non-zero.
- */
-interface AccessorMirrorGetter {
-  /**
-   * @param key - Describing the getter or setter to implement.  `statementGroupKey` will be `ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY`.
-   * @returns true for a match against the key.
-   */
-  filterAccessorMirror(key: MemberedStatementsKey): boolean;
-  /**
-   * @param key - Describing the getter or setter to implement.  `statementGroupKey` will be `ClassFieldStatementsMap.GROUP_INITIALIZER_OR_PROPERTY`.
-   * @returns the value to write for the getter and/or setter to mirror.
-   */
-  getAccessorMirror(
-    key: MemberedStatementsKey,
-  ): stringWriterOrStatementImpl | undefined;
-}
-
-/**
- * Statements at the start of a statement purpose block.
- *
- * @remarks
- * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.HeadStatements` must be non-zero.
- */
-interface ClassHeadStatementsGetter {
-  /**
-   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_HEAD_SUPER_CALL`.
-   * @returns true for a match against the key.
-   */
-  filterHeadStatements(key: MemberedStatementsKey): boolean;
-  /**
-   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_HEAD_SUPER_CALL`.
-   * @returns statements to insert before other statements in the purpose block.
-   */
-  getHeadStatements(
-    key: MemberedStatementsKey,
-  ): readonly stringWriterOrStatementImpl[];
-}
-
-/**
- * Statements in a statement purpose block for a particular property and function.
- *
- * @remarks
- * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.BodyStatements` must be non-zero.
- */
-interface ClassBodyStatementsGetter {
-  /**
-   * @param key - The membered statement key.
-   * @returns true for a match against the key.
-   */
-  filterBodyStatements(key: MemberedStatementsKey): boolean;
-  /**
-   * @param key - The membered statement key.
-   * @returns statements to insert for the given field key and statement group key.
-   */
-  getBodyStatements(
-    key: MemberedStatementsKey,
-  ): readonly stringWriterOrStatementImpl[];
-}
-
-/**
- * Statements at the end of a statement purpose block.
- *
- * @remarks
- * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.TailStatements` must be non-zero.
- */
-interface ClassTailStatementsGetter {
-  /**
-   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN`.
-   * @returns true for a match against the key.
-   */
-  filterTailStatements(key: MemberedStatementsKey): boolean;
-  /**
-   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN`.
-   * @returns statements to insert after other statements in the purpose block.
-   */
-  getTailStatements(
-    key: MemberedStatementsKey,
-  ): readonly stringWriterOrStatementImpl[];
-}
-
-/**
- * Statements at the start of a constructor's statement purpose block.
- *
- * @remarks
- * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.ConstructorHeadStatements` must be non-zero.
- */
-interface ConstructorHeadStatementsGetter {
-  /**
-   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_HEAD_SUPER_CALL`.  `statementGroupKey` will be "constructor".
-   * @returns true for a match against the key.
-   */
-  filterCtorHeadStatements(key: MemberedStatementsKey): boolean;
-  /**
-   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_HEAD_SUPER_CALL`.  `statementGroupKey` will be "constructor".
-   * @returns statements to insert before other statements in the purpose block.
-   */
-  getCtorHeadStatements(
-    key: MemberedStatementsKey,
-  ): readonly stringWriterOrStatementImpl[];
-}
-
-/**
- * Statements in a statement purpose block for a particular property in the constructor.
- *
- * @remarks
- * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.ConstructorBodyStatements` must be non-zero.
- */
-interface ConstructorBodyStatementsGetter {
-  /**
-   * @param key - The membered statement key.  `statementGroupKey` will be "constructor".
-   * @returns true for a match against the key.
-   */
-  filterCtorBodyStatements(key: MemberedStatementsKey): boolean;
-  /**
-   * @param key - The membered statement key.  `statementGroupKey` will be "constructor".
-   * @returns statements to insert for the given field key and statement group key.
-   */
-  getCtorBodyStatements(
-    key: MemberedStatementsKey,
-  ): readonly stringWriterOrStatementImpl[];
-}
-
-/**
- * Statements at the end of a constructor's statement purpose block.
- *
- * @remarks
- * To run these methods, `this.supportsStatementsFlags & ClassSupportsStatementsFlags.ConstructorTailStatements` must be non-zero.
- */
-interface ConstructorTailStatementsGetter {
-  /**
-   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN`.  `statementGroupKey` will be "constructor".
-   * @returns true for a match against the key.
-   */
-  filterCtorTailStatements(key: MemberedStatementsKey): boolean;
-  /**
-   * @param key - The membered statement key.  `fieldKey` will be `ClassFieldStatementsMap.FIELD_TAIL_FINAL_RETURN`.  `statementGroupKey` will be "constructor".
-   * @returns statements to insert before other statements in the purpose block.
-   */
-  getCtorTailStatements(
-    key: MemberedStatementsKey,
-  ): readonly stringWriterOrStatementImpl[];
-}
-
-/**
- * Traps for getting statements, based on a `MemberedStatementsKey`.
- */
-interface ClassStatementsGetter
-  extends
-    Partial<PropertyInitializerGetter>,
-    Partial<AccessorMirrorGetter>,
-    Partial<ClassHeadStatementsGetter>,
-    Partial<ClassBodyStatementsGetter>,
-    Partial<ClassTailStatementsGetter>,
-    Partial<ConstructorHeadStatementsGetter>,
-    Partial<ConstructorBodyStatementsGetter>,
-    Partial<ConstructorTailStatementsGetter> {
-  /** A human-readable string for debugging. */
-  keyword: readonly string;
-  /**
-   * Bitwise flags to determine which statement getter traps are active.
-   * @see ClassSupportsStatementsFlags
-   */
-  supportsStatementsFlags: readonly number;
-}
-
 /**
  * This manages import declarations and specifiers, for including in a source file.
  *
@@ -1437,43 +1365,6 @@ declare class ImportManager {
    * @returns `true` if this deleted a key, `false` otherwise.
    */
   removeImportName(name: string): boolean;
-}
-
-interface InsertedMemberKey {
-  readonly isFieldStatic: boolean;
-  readonly fieldType:
-    | PropertySignatureImpl
-    | GetAccessorDeclarationImpl
-    | SetAccessorDeclarationImpl;
-  readonly isGroupStatic: boolean;
-  readonly groupType:
-    | GetAccessorDeclarationImpl
-    | SetAccessorDeclarationImpl
-    | MethodSignatureImpl
-    | "constructor"
-    | "(initializer or property reference)";
-}
-
-/**
- * Bitwise flags to enable statement getter traps.
- */
-declare enum ClassSupportsStatementsFlags {
-  /** The initial value of a property. */
-  PropertyInitializer = 1,
-  /** Values for a class getter or class setter to mirror. */
-  AccessorMirror = 2,
-  /** Statements starting a statement purpose block. */
-  HeadStatements = 4,
-  /** Statements in a purpose block for a given property and class member. */
-  BodyStatements = 8,
-  /** Statements closing a statement purpose block. */
-  TailStatements = 16,
-  /** Statements starting a statement purpose block for the constructor. */
-  ConstructorHeadStatements = 32,
-  /** Statements in a purpose block for a given property on the constructor. */
-  ConstructorBodyStatements = 64,
-  /** Statements closing a statement purpose block for the constructor. */
-  ConstructorTailStatements = 128,
 }
 
 /** Convert type members to a class members map, including statements. */
@@ -1565,6 +1456,39 @@ declare class MemberedTypeToClass {
     isGroupStatic: boolean,
     groupType: InsertedMemberKey["groupType"],
   ): void;
+}
+
+declare class OrderedMap<K, V> extends Map<K, V> {
+  sortEntries(comparator: (a: [K, V], b: [K, V]) => number): void;
+}
+
+declare abstract class StatementStructuresBase<
+  Kind extends StatementStructureKind,
+>
+  extends WriterStructuresBase
+  implements
+    KindedStatementStructure<Kind>,
+    InnerTypeElement<stringOrWriterFunction>
+{
+  abstract readonly kind: Kind;
+  /** @internal */
+  [STRUCTURE_CHILDREN](): IterableIterator<
+    StructureImpls | AugmentedStatementStructures
+  >;
+  [GET_OUTER_TYPE](): stringOrWriterFunction;
+}
+
+declare class StructureBase {
+  /** @internal */
+  static [COPY_FIELDS](
+    source: OptionalKind<Structures>,
+    target: Structures,
+  ): void;
+  /** @internal */
+  static [REPLACE_WRITER_WITH_STRING](value: string | WriterFunction): string;
+  toJSON(): object;
+  /** @internal */
+  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
 }
 
 /**
@@ -1669,37 +1593,100 @@ declare class TypeMembersMap extends OrderedMap<string, TypeMemberImpl> {
   toJSON(): readonly TypeMemberImpl[];
 }
 
-type ReadonlyTypeMembersMap = Simplify<
-  ReadonlyMap<string, TypeMemberImpl> &
-    Pick<TypeMembersMap, "arrayOfKind" | "clone" | "getAsKind">
->;
-type AugmentedStructures = StructureImpls | TypeStructures;
-
-interface TypedNodeTypeStructure {
-  typeStructure: TypeStructures | undefined;
-  type: stringOrWriterFunction | undefined;
+declare class TypePrinterSettings {
+  indentChildren: boolean;
+  newLinesAroundChildren: boolean;
+  oneLinePerChild: boolean;
 }
 
-interface ReturnTypedNodeTypeStructure {
-  returnTypeStructure: TypeStructures | undefined;
-  returnType: stringOrWriterFunction | undefined;
+declare abstract class TypeStructuresBase<Kind extends TypeStructureKind>
+  extends WriterStructuresBase
+  implements KindedTypeStructure<Kind>, InnerTypeElement<stringOrWriterFunction>
+{
+  abstract readonly kind: Kind;
+  /** @internal */
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
+  [GET_OUTER_TYPE](): stringOrWriterFunction;
 }
 
-interface TypeParameterWithTypeStructures {
-  constraintStructure: TypeStructures | undefined;
-  constraint: stringOrWriterFunction | undefined;
-  defaultStructure: TypeStructures | undefined;
-  default: stringOrWriterFunction | undefined;
+declare class TypeStructureSequence extends ShadowArrayImpl<
+  stringOrWriterFunction,
+  TypeStructures
+> {
+  static createProxy(innerElements: TypeStructures[]): stringOrWriterFunction[];
+  protected [BUILD_ARRAY_WRAPPER](
+    ...innerElements: TypeStructures[]
+  ): stringOrWriterFunction[];
+  protected [CONVERT_OUTER_TO_INNER](
+    outerType: stringOrWriterFunction,
+  ): TypeStructures;
 }
 
-interface ClassDeclarationWithImplementsTypeStructures {
-  implementsSequence: TypeStructureSequence;
-  implements: stringOrWriterFunction[];
+declare abstract class TypeStructuresWithChildren<
+  Kind extends TypeStructureKind,
+  Children extends readonly TypeStructures[],
+> extends TypeStructuresBase<Kind> {
+  #private;
+  abstract readonly kind: Kind;
+  /** This lives outside the start and end tokens.  Think of this as a parent type for the children, ie. `Partial`. */
+  protected abstract objectType: TypeStructuresOrNull;
+  /** The child types we join together, and wrap in the start and end tokens. */
+  abstract readonly childTypes: Children;
+  /** A very short string, one or two characters, before all child types. */
+  protected abstract readonly startToken: string;
+  /** A very short string, between all child types. */
+  protected abstract readonly joinChildrenToken: string;
+  /** A very short string, one or two characters, after all child types. */
+  protected abstract readonly endToken: string;
+  /** The maximum number of children to support. */
+  protected abstract readonly maxChildCount: number;
+  /** For customizing printing of the child types. */
+  readonly printerSettings: TypePrinterSettings;
+  protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
+  /** @internal */
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
-interface InterfaceDeclarationWithExtendsTypeStructures {
-  extendsSequence: TypeStructureSequence;
-  extends: stringOrWriterFunction[];
+declare abstract class TypeStructuresWithTypeParameters<
+  Kind extends TypeStructureKind,
+> extends TypeStructuresBase<Kind> {
+  #private;
+  protected static writeTypeParameter(
+    typeParam: TypeParameterDeclarationImpl,
+    writer: CodeBlockWriter,
+    constraintMode: "extends" | "in",
+  ): void;
+}
+
+declare abstract class WriterStructuresBase {
+  #private;
+  readonly writerFunction: (writer: CodeBlockWriter) => void;
+  constructor();
+  static getWriterStructureForCallback(
+    writer: WriterFunction,
+  ): WriterStructuresBase | undefined;
+  /** @internal */
+  [DEREGISTER_WRITER](): void;
+  /** @internal */
+  protected abstract [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
+  /**
+   * Write a start token, invoke a block, and write the end token, in that order.
+   * @param writer - the code block writer.
+   * @param startToken - the start token.
+   * @param endToken - the end token.
+   * @param newLine - true if we should call `.newLine()` after the start and before the end.
+   * @param indent - true if we should indent the block statements.
+   * @param block - the callback to execute for the block statements.
+   * @see {@link https://github.com/dsherret/code-block-writer/issues/44}
+   */
+  protected static pairedWrite(
+    writer: CodeBlockWriter,
+    startToken: string,
+    endToken: string,
+    newLine: boolean,
+    indent: boolean,
+    block: () => void,
+  ): void;
 }
 
 //#region structure classes
@@ -1822,7 +1809,7 @@ declare const ConstructorDeclarationStructureBase: mixin_decorators.MixinClass<
     readonly parameters: ParameterDeclarationImpl[];
     returnType?: stringOrWriterFunction | undefined;
     returnTypeStructure: TypeStructures | undefined;
-    scope?: ts_morph.Scope | undefined;
+    scope?: Scope | undefined;
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly trailingTrivia: stringOrWriterFunction[];
     readonly typeParameters: (TypeParameterDeclarationImpl | string)[];
@@ -1862,7 +1849,7 @@ declare const ConstructorDeclarationOverloadStructureBase: mixin_decorators.Mixi
     readonly parameters: ParameterDeclarationImpl[];
     returnType?: stringOrWriterFunction | undefined;
     returnTypeStructure: TypeStructures | undefined;
-    scope?: ts_morph.Scope | undefined;
+    scope?: Scope | undefined;
     readonly trailingTrivia: stringOrWriterFunction[];
     readonly typeParameters: (TypeParameterDeclarationImpl | string)[];
   },
@@ -2221,7 +2208,7 @@ declare const GetAccessorDeclarationStructureBase: mixin_decorators.MixinClass<
     readonly parameters: ParameterDeclarationImpl[];
     returnType?: stringOrWriterFunction | undefined;
     returnTypeStructure: TypeStructures | undefined;
-    scope?: ts_morph.Scope | undefined;
+    scope?: Scope | undefined;
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly trailingTrivia: stringOrWriterFunction[];
     readonly typeParameters: (TypeParameterDeclarationImpl | string)[];
@@ -2663,7 +2650,7 @@ declare const MethodDeclarationStructureBase: mixin_decorators.MixinClass<
     readonly parameters: ParameterDeclarationImpl[];
     returnType?: stringOrWriterFunction | undefined;
     returnTypeStructure: TypeStructures | undefined;
-    scope?: ts_morph.Scope | undefined;
+    scope?: Scope | undefined;
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly trailingTrivia: stringOrWriterFunction[];
     readonly typeParameters: (TypeParameterDeclarationImpl | string)[];
@@ -2711,7 +2698,7 @@ declare const MethodDeclarationOverloadStructureBase: mixin_decorators.MixinClas
     readonly parameters: ParameterDeclarationImpl[];
     returnType?: stringOrWriterFunction | undefined;
     returnTypeStructure: TypeStructures | undefined;
-    scope?: ts_morph.Scope | undefined;
+    scope?: Scope | undefined;
     readonly trailingTrivia: stringOrWriterFunction[];
     readonly typeParameters: (TypeParameterDeclarationImpl | string)[];
   },
@@ -2823,7 +2810,7 @@ declare const ParameterDeclarationStructureBase: mixin_decorators.MixinClass<
     isReadonly: boolean;
     readonly leadingTrivia: stringOrWriterFunction[];
     name: string;
-    scope?: ts_morph.Scope | undefined;
+    scope?: Scope | undefined;
     readonly trailingTrivia: stringOrWriterFunction[];
     type?: stringOrWriterFunction | undefined;
     typeStructure: TypeStructures | undefined;
@@ -2899,7 +2886,7 @@ declare const PropertyDeclarationStructureBase: mixin_decorators.MixinClass<
     isReadonly: boolean;
     readonly leadingTrivia: stringOrWriterFunction[];
     name: string;
-    scope?: ts_morph.Scope | undefined;
+    scope?: Scope | undefined;
     readonly trailingTrivia: stringOrWriterFunction[];
     type?: stringOrWriterFunction | undefined;
     typeStructure: TypeStructures | undefined;
@@ -2977,7 +2964,7 @@ declare const SetAccessorDeclarationStructureBase: mixin_decorators.MixinClass<
     readonly parameters: ParameterDeclarationImpl[];
     returnType?: stringOrWriterFunction | undefined;
     returnTypeStructure: TypeStructures | undefined;
-    scope?: ts_morph.Scope | undefined;
+    scope?: Scope | undefined;
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
     readonly trailingTrivia: stringOrWriterFunction[];
     readonly typeParameters: (TypeParameterDeclarationImpl | string)[];
