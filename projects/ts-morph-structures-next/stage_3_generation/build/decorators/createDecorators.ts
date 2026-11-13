@@ -165,6 +165,8 @@ async function buildDecoratorInner(
     classMember => addImportsToModule(module, classMember)
   );
 
+  module.modifiers?.postProcessClassMembers?.(module);
+
   internalExports.addExports({
     pathToExportedModule: module.importManager.absolutePathToModule,
     isDefaultExport: false,

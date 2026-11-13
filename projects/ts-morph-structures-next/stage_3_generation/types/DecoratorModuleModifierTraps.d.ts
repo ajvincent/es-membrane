@@ -11,4 +11,8 @@ export interface DecoratorModuleModifierTraps {
     module: DecoratorModule,
     typeToClass: MemberedTypeToClass
   ): void;
+
+  postProcessClassMembers?(
+    module: DecoratorModule
+  ): void;
 }

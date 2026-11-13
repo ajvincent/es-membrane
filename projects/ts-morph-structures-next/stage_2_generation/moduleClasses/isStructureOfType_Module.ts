@@ -52,7 +52,7 @@ export class IsStructureOfType_Module extends BaseModule {
   }
 
   #getFunction(aliasName: string, typeUnion: UnionTypeStructureImpl): FunctionDeclarationImpl {
-    this.addImports("public", [], ["StructureImpls", aliasName]);
+    this.addImports("public", [], ["AugmentedStructures", aliasName]);
 
     const fnDecl = new FunctionDeclarationImpl();
     fnDecl.name = "is" + getStructureNameFromModified(aliasName).replace(/s$/, "");
@@ -62,7 +62,7 @@ export class IsStructureOfType_Module extends BaseModule {
     fnDecl.isExported = true;
 
     const param = new ParameterDeclarationImpl("structure");
-    param.typeStructure = LiteralTypeStructureImpl.get("StructureImpls");
+    param.typeStructure = LiteralTypeStructureImpl.get("AugmentedStructures");
     fnDecl.parameters.push(param);
 
     const block = new BlockStatementImpl("switch (structure.kind)", [

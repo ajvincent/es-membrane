@@ -1018,19 +1018,19 @@ declare function getAugmentedStructure<TKind extends StructureKind>(
   kind: TKind,
 ): RootStructureWithConvertFailures<TKind>;
 declare function isClassMemberStructure(
-  structure: StructureImpls,
+  structure: AugmentedStructures,
 ): structure is ClassMemberStructureImpls;
 declare function isJsxStructure(
-  structure: StructureImpls,
+  structure: AugmentedStructures,
 ): structure is JsxStructureImpls;
 declare function isObjectLiteralExpressionPropertyStructure(
-  structure: StructureImpls,
+  structure: AugmentedStructures,
 ): structure is ObjectLiteralExpressionPropertyStructureImpls;
 declare function isStatementStructure(
-  structure: StructureImpls,
+  structure: AugmentedStructures,
 ): structure is StatementStructureImpls;
 declare function isTypeElementMemberStructure(
-  structure: StructureImpls,
+  structure: AugmentedStructures,
 ): structure is TypeElementMemberStructureImpls;
 declare function parseLiteralType(source: string): TypeStructures;
 declare function VoidNodeToStructureConsole(

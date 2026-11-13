@@ -2,6 +2,7 @@
 import { StatementsSequence } from "../../base/StatementsSequence.js";
 import type {
   AugmentedStatementStructures,
+  AugmentedStructures,
   StatementedNodeStructureClassIfc,
   StatementStructureImpls,
   stringOrWriterFunction,
@@ -11,10 +12,12 @@ import {
   REPLACE_WRITER_WITH_STRING,
   type RightExtendsLeft,
   StatementStructureClassesMap,
+  STRUCTURE_CHILDREN,
   StructureBase,
   StructureClassesMap,
   type StructureClassToJSON,
 } from "../../internal-exports.js";
+import { isStatementStructure } from "../../structures/standard/isStructureOfType.js";
 import type {
   MixinClass,
   StaticAndInstance,
@@ -94,6 +97,16 @@ export function StatementedNodeStructureMixin(
         StatementStructures,
         StatementStructureImpls
       >(source);
+    }
+
+    /** @internal */
+    *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {
+      yield* this.statementsSequence;
+      for (const structure of super[STRUCTURE_CHILDREN]()) {
+        if (!isStatementStructure(structure)) {
+          yield structure;
+        }
+      }
     }
 
     public toJSON(): StructureClassToJSON<StatementedNodeStructureMixin> {

@@ -1,15 +1,15 @@
 import type {
+  AugmentedStructures,
   ClassMemberStructureImpls,
   JsxStructureImpls,
   ObjectLiteralExpressionPropertyStructureImpls,
   StatementStructureImpls,
-  StructureImpls,
   TypeElementMemberStructureImpls,
 } from "../../exports.js";
 import { StructureKind } from "ts-morph";
 
 export function isClassMemberStructure(
-  structure: StructureImpls,
+  structure: AugmentedStructures,
 ): structure is ClassMemberStructureImpls {
   switch (structure.kind) {
     case StructureKind.ClassStaticBlock:
@@ -25,7 +25,7 @@ export function isClassMemberStructure(
 }
 
 export function isJsxStructure(
-  structure: StructureImpls,
+  structure: AugmentedStructures,
 ): structure is JsxStructureImpls {
   switch (structure.kind) {
     case StructureKind.JsxAttribute:
@@ -39,7 +39,7 @@ export function isJsxStructure(
 }
 
 export function isObjectLiteralExpressionPropertyStructure(
-  structure: StructureImpls,
+  structure: AugmentedStructures,
 ): structure is ObjectLiteralExpressionPropertyStructureImpls {
   switch (structure.kind) {
     case StructureKind.GetAccessor:
@@ -55,7 +55,7 @@ export function isObjectLiteralExpressionPropertyStructure(
 }
 
 export function isStatementStructure(
-  structure: StructureImpls,
+  structure: AugmentedStructures,
 ): structure is StatementStructureImpls {
   switch (structure.kind) {
     case StructureKind.Class:
@@ -75,7 +75,7 @@ export function isStatementStructure(
 }
 
 export function isTypeElementMemberStructure(
-  structure: StructureImpls,
+  structure: AugmentedStructures,
 ): structure is TypeElementMemberStructureImpls {
   switch (structure.kind) {
     case StructureKind.CallSignature:

@@ -99,12 +99,29 @@ abstract class BaseModule
   protected abstract getSourceFileImpl(): SourceFileImpl;
 
   public addImports(
-    fromModule: "ts-morph" | "mixin-decorators" | "type-fest" | "public" | "internal",
+    fromModule: "ts-morph" | "mixin-decorators" | "type-fest" | "public" | "internal" | `source/${string}`,
     values: string[],
     types: string[]
   ): void
   {
-    const pathToImportedModule: string = BaseModule.#importsEnum[fromModule];
+    let pathToImportedModule: string;
+
+    switch (fromModule) {
+      case "ts-morph":
+      case "mixin-decorators":
+      case "type-fest":
+      case "public":
+      case "internal":
+        pathToImportedModule = BaseModule.#importsEnum[fromModule];
+        break;
+      default:
+        pathToImportedModule = path.relative(
+          path.dirname(this.importManager.absolutePathToModule),
+          pathToModule(distDir, fromModule)
+        );
+        break;
+    }
+
     const isPackageImport = (fromModule !== "public") && (fromModule !== "internal");
 
     if (values.length > 0) {

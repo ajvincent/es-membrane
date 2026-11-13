@@ -11,13 +11,17 @@ import {
   type ClassTailStatementsGetter,
   ConstructorBodyStatementsGetter,
   ConstructorHeadStatementsGetter,
+  JSDocImpl,
+  JSDocTagImpl,
   LiteralTypeStructureImpl,
   type MemberedStatementsKey,
   type MemberedTypeToClass,
+  MethodDeclarationImpl,
   MethodSignatureImpl,
   ParameterDeclarationImpl,
   PropertyInitializerGetter,
   PropertySignatureImpl,
+  TypeArgumentedTypeStructureImpl,
   UnionTypeStructureImpl,
   type stringWriterOrStatementImpl,
 } from "#stage_two/snapshot/source/exports.js";
@@ -79,6 +83,54 @@ export const StatementedNodeSpecialCases: DecoratorModuleModifierTraps = {
     typeToClass.addStatementGetters(StatementsPriority.DECORATOR_SPECIFIC, [
       sequenceInitializer, statementsInitializer, cloneStatementFilter, toJSONStatements
     ]);
+  },
+
+  postProcessClassMembers(
+    module: DecoratorModule,
+  ): void
+  {
+    module.addImports(
+      "public",
+      [],
+      [ "AugmentedStructures" ]
+    );
+
+    module.addImports(
+      "internal",
+      [ "STRUCTURE_CHILDREN" ],
+      []
+    );
+
+    module.addImports(
+      "source/structures/standard/isStructureOfType.ts",
+      ["isStatementStructure"],
+      []
+    );
+
+    const structureChildren: MethodDeclarationImpl = new MethodDeclarationImpl(false, "[STRUCTURE_CHILDREN]");
+
+    const doc = new JSDocImpl();
+    structureChildren.docs.push(doc);
+    doc.tags.push(new JSDocTagImpl("internal"));
+
+    structureChildren.isGenerator = true;
+    structureChildren.returnTypeStructure = new TypeArgumentedTypeStructureImpl(
+      LiteralTypeStructureImpl.get("IterableIterator"),
+      [
+        LiteralTypeStructureImpl.get("AugmentedStructures"),
+      ]
+    );
+
+    structureChildren.statements.push(`
+      yield * this.statementsSequence;
+      for (const structure of super[STRUCTURE_CHILDREN]()) {
+        if (!isStatementStructure(structure)) {
+          yield structure;
+        }
+      }
+    `.trim());
+
+    module.classMembersMap!.addMembers([structureChildren]);
   }
 };
 
