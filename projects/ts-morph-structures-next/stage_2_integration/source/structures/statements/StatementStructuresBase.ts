@@ -1,8 +1,4 @@
 import {
-  type StructureImpls,
-} from "../../../snapshot/source/exports.js";
-
-import {
   STRUCTURE_CHILDREN
 } from "../../../snapshot/source/internal-exports.js";
 
@@ -17,16 +13,16 @@ import {
 } from "../../base/StatementStructureKind.js";
 
 import type {
+  AugmentedStructures
+} from "../../types/AugmentedStructures.js";
+
+import type {
   stringOrWriterFunction
 } from "../../types/stringOrWriterFunction.js";
 
 import {
   WriterStructuresBase
 } from "../WriterStructuresBase.js";
-
-import type {
-  AugmentedStatementStructures
-} from "./AugmentedStatements.js";
 
 export abstract class StatementStructuresBase<Kind extends StatementStructureKind>
 extends WriterStructuresBase
@@ -35,9 +31,7 @@ implements KindedStatementStructure<Kind>, InnerTypeElement<stringOrWriterFuncti
   public abstract readonly kind: Kind;
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | AugmentedStatementStructures
-  >
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>
   {
 
   }

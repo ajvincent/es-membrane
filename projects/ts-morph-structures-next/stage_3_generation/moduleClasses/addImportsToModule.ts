@@ -1,7 +1,6 @@
 import {
-  type TypeStructures,
+  type AugmentedStructures,
   forEachAugmentedStructureChild,
-  StructureImpls,
   TypeStructureKind
 } from "#stage_two/snapshot/source/exports.js";
 
@@ -14,7 +13,7 @@ import BaseModule from "./BaseModule.js";
 
 export default function addImportsToModule(
   module: BaseModule,
-  structure: StructureImpls | TypeStructures,
+  structure: AugmentedStructures,
 ): void
 {
   if (structure.kind === TypeStructureKind.Literal) {

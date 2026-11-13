@@ -24,14 +24,13 @@ import { pathToModule } from "#utilities/source/AsyncSpecModules.js";
 import getTS_SourceFile from "#utilities/source/getTS_SourceFile.js";
 
 import {
-  forEachAugmentedStructureChild,
-  getAugmentedStructure,
+  type AugmentedStructures,
   type MemberedObjectTypeStructureImpl,
   type NodeToStructureConsole,
   QualifiedNameTypeStructureImpl,
-  type StructureImpls,
   TypeStructureKind,
-  type TypeStructures,
+  forEachAugmentedStructureChild,
+  getAugmentedStructure,
 } from "#stage_two/snapshot/source/exports.js";
 
 import {
@@ -81,7 +80,7 @@ export async function fixExportTypes(): Promise<void>
   await runPrettify(pathToModule(stageDir, "snapshot/dist"));
 }
 
-function recurseStructures(child: StructureImpls | TypeStructures): void {
+function recurseStructures(child: AugmentedStructures): void {
   switch (child.kind) {
     case TypeStructureKind.MemberedObject:
       sortMemberedObjectType(child);

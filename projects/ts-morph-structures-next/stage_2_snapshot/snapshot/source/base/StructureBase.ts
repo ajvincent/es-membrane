@@ -11,7 +11,7 @@ import {
   STRUCTURE_CHILDREN,
 } from "./symbolKeys.js";
 
-import type { StructureImpls, TypeStructures } from "../exports.js";
+import type { AugmentedStructures } from "../types/AugmentedStructures.js";
 
 export default class StructureBase {
   /** @internal */
@@ -41,7 +41,5 @@ export default class StructureBase {
   }
 
   /** @internal */
-  public *[STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | TypeStructures
-  > {}
+  public *[STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures> {}
 }

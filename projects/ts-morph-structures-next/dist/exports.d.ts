@@ -124,7 +124,10 @@ type AugmentedStatementStructures =
   | UnknownStringStatementImpl
   | UnknownWriterStatementImpl
   | never;
-type AugmentedStructures = StructureImpls | TypeStructures;
+type AugmentedStructures =
+  | StructureImpls
+  | TypeStructures
+  | AugmentedStatementStructures;
 type ClassFieldStatement = string | WriterFunction | StatementStructureImpls;
 type ClassMemberImpl =
   | ConstructorDeclarationImpl
@@ -1472,9 +1475,7 @@ declare abstract class StatementStructuresBase<
 {
   abstract readonly kind: Kind;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<
-    StructureImpls | AugmentedStatementStructures
-  >;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
   [GET_OUTER_TYPE](): stringOrWriterFunction;
 }
 
@@ -1488,7 +1489,7 @@ declare class StructureBase {
   static [REPLACE_WRITER_WITH_STRING](value: string | WriterFunction): string;
   toJSON(): object;
   /** @internal */
-  [STRUCTURE_CHILDREN](): IterableIterator<StructureImpls | TypeStructures>;
+  [STRUCTURE_CHILDREN](): IterableIterator<AugmentedStructures>;
 }
 
 /**

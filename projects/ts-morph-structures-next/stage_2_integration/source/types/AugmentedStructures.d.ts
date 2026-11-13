@@ -10,4 +10,4 @@ import type {
   TypeStructures
 } from "../structures/type/TypeStructures.ts";
 
-export type AugmentedStructures = StructureImpls | TypeStructures
+export type AugmentedStructures = StructureImpls | TypeStructures | AugmentedStatementStructures;

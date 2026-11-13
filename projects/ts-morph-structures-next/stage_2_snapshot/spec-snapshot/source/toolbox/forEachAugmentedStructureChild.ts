@@ -5,6 +5,7 @@ import {
 
 import {
   ArrayTypeStructureImpl,
+  type AugmentedStructures,
   ClassDeclarationImpl,
   ConditionalTypeStructureImpl,
   FunctionTypeStructureImpl,
@@ -30,11 +31,10 @@ import {
   forEachAugmentedStructureChild,
 } from "#stage_two/snapshot/source/exports.js";
 
-type ChildStructure = StructureImpls | TypeStructures;
-type ForEachStructureCallback<TStructure> = (child: ChildStructure) => TStructure | void;
+type ForEachStructureCallback<TStructure> = (child: AugmentedStructures) => TStructure | void;
 
 describe("forEachAugmentedStructureImpl (source)", () => {
-  const visited = new Set<ChildStructure>;
+  const visited = new Set<AugmentedStructures>;
   const expected = Symbol("expected");
 
   beforeEach(() => {
@@ -48,15 +48,15 @@ describe("forEachAugmentedStructureImpl (source)", () => {
     firstType.childTypes.push(thirdType);
 
     function callback(
-      child: ChildStructure
-    ): ChildStructure | undefined
+      child: AugmentedStructures
+    ): AugmentedStructures | undefined
     {
       visited.add(child);
       return child === secondClass ? child : undefined;
     }
-    callback satisfies ForEachStructureCallback<ChildStructure>;
+    callback satisfies ForEachStructureCallback<AugmentedStructures>;
 
-    const result = forEachAugmentedStructureChild<ChildStructure>([
+    const result = forEachAugmentedStructureChild<AugmentedStructures>([
       firstClass, firstType, secondClass, secondType, thirdClass,
     ], callback);
 
@@ -88,12 +88,12 @@ describe("forEachAugmentedStructureImpl (source)", () => {
     classDecl.methods.push(methodOne, methodTwo);
 
     function callback(
-      child: ChildStructure
+      child: AugmentedStructures
     ): void
     {
       visited.add(child);
     }
-    callback satisfies ForEachStructureCallback<ChildStructure>;
+    callback satisfies ForEachStructureCallback<AugmentedStructures>;
 
     const result = forEachAugmentedStructureChild(classDecl, callback);
     expect(result).toBeUndefined();
@@ -127,7 +127,7 @@ describe("forEachAugmentedStructureImpl (source)", () => {
     visited.clear();
 
     function augmentedCallback(
-      child: ChildStructure
+      child: AugmentedStructures
     ): typeof expected | undefined
     {
       visited.add(child);
@@ -160,7 +160,7 @@ describe("forEachAugmentedStructureImpl (source)", () => {
     classDecl.implementsSequence.push(firstType, secondType, thirdType);
 
     function augmentedCallback(
-      child: ChildStructure
+      child: AugmentedStructures
     ): typeof expected | undefined
     {
       visited.add(child);
@@ -182,7 +182,7 @@ describe("forEachAugmentedStructureImpl (source)", () => {
     thirdType = new UnionTypeStructureImpl;
 
     function skipCallback(
-      child: ChildStructure
+      child: AugmentedStructures
     ): void
     {
       visited.add(child);
@@ -190,7 +190,7 @@ describe("forEachAugmentedStructureImpl (source)", () => {
 
     function forEachChildSkipAll(
       parentType: TypeStructures,
-      expectVisited: ChildStructure[]
+      expectVisited: AugmentedStructures[]
     ): void
     {
       const result = forEachAugmentedStructureChild<typeof expected>(parentType, skipCallback);
@@ -200,7 +200,7 @@ describe("forEachAugmentedStructureImpl (source)", () => {
     }
 
     function acceptCallback(
-      child: ChildStructure
+      child: AugmentedStructures
     ): typeof expected | undefined
     {
       visited.add(child);
