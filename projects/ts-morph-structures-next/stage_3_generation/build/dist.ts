@@ -14,6 +14,7 @@ import {
 import createDecorators from "./decorators/createDecorators.js";
 import createInterfaces from "./interfaces/createInterfaces.js";
 import createStructures from "./structures/createStructures.js";
+import { createIsStructureOfTypeModule } from "./structures/isStructureOfType.js";
 import defineExistingExports from "./publicAndInternalExports.js";
 import fillStructureUnions from "./structureUnions.js";
 
@@ -45,6 +46,7 @@ export default async function buildDist(): Promise<void>
   await Promise.all([
     createDecorators(),
     createStructures(),
+    createIsStructureOfTypeModule(),
   ]);
 
   await defineExistingExports();

@@ -706,6 +706,21 @@ type StructureClassToJSON<T extends object> = Writable<
     "toJSON" | `${string}Structure` | `${string}Sequence`
   >
 >;
+declare function isClassMemberStructure(
+  structure: StructureImpls,
+): structure is ClassMemberStructureImpls;
+declare function isJsxStructure(
+  structure: StructureImpls,
+): structure is JsxStructureImpls;
+declare function isObjectLiteralExpressionPropertyStructure(
+  structure: StructureImpls,
+): structure is ObjectLiteralExpressionPropertyStructureImpls;
+declare function isStatementStructure(
+  structure: StructureImpls,
+): structure is StatementStructureImpls;
+declare function isTypeElementMemberStructure(
+  structure: StructureImpls,
+): structure is TypeElementMemberStructureImpls;
 type ClassMemberStructureImpls =
   | ClassStaticBlockDeclarationImpl
   | ConstructorDeclarationImpl
@@ -3955,6 +3970,11 @@ export {
   WriterTypeStructureImpl,
   forEachAugmentedStructureChild,
   getAugmentedStructure,
+  isClassMemberStructure,
+  isJsxStructure,
+  isObjectLiteralExpressionPropertyStructure,
+  isStatementStructure,
+  isTypeElementMemberStructure,
   parseLiteralType,
 };
 export type {

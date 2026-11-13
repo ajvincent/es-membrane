@@ -92,6 +92,13 @@ function definePublicExports(): void
   });
 
   publicExports.addExports({
+    pathToExportedModule: pathToModule(distDir, "source/structures/standard/isStructureOfType.ts"),
+    exportNames: [],
+    isDefaultExport: false,
+    isType: false
+  });
+
+  publicExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/structures/statements/AugmentedStatements.ts"),
     exportNames: ["AugmentedStatementStructures"], // export all the union types
     isDefaultExport: false,

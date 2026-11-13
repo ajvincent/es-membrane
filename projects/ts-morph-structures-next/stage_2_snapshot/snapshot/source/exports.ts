@@ -96,6 +96,7 @@ export { ImportDeclarationImpl } from "./structures/standard/ImportDeclarationIm
 export { ImportSpecifierImpl } from "./structures/standard/ImportSpecifierImpl.js";
 export { IndexSignatureDeclarationImpl } from "./structures/standard/IndexSignatureDeclarationImpl.js";
 export { InterfaceDeclarationImpl } from "./structures/standard/InterfaceDeclarationImpl.js";
+export * from "./structures/standard/isStructureOfType.js";
 export { JSDocImpl } from "./structures/standard/JSDocImpl.js";
 export { JSDocTagImpl } from "./structures/standard/JSDocTagImpl.js";
 export { JsxAttributeImpl } from "./structures/standard/JsxAttributeImpl.js";

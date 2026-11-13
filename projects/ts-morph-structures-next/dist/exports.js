@@ -3777,6 +3777,68 @@ class InterfaceDeclarationImpl extends InterfaceDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.Interface, InterfaceDeclarationImpl);
 
+function isClassMemberStructure(structure) {
+    switch (structure.kind) {
+        case StructureKind.ClassStaticBlock:
+        case StructureKind.Constructor:
+        case StructureKind.GetAccessor:
+        case StructureKind.Method:
+        case StructureKind.Property:
+        case StructureKind.SetAccessor:
+            return true;
+    }
+    return false;
+}
+function isJsxStructure(structure) {
+    switch (structure.kind) {
+        case StructureKind.JsxAttribute:
+        case StructureKind.JsxElement:
+        case StructureKind.JsxSelfClosingElement:
+        case StructureKind.JsxSpreadAttribute:
+            return true;
+    }
+    return false;
+}
+function isObjectLiteralExpressionPropertyStructure(structure) {
+    switch (structure.kind) {
+        case StructureKind.GetAccessor:
+        case StructureKind.Method:
+        case StructureKind.PropertyAssignment:
+        case StructureKind.SetAccessor:
+        case StructureKind.ShorthandPropertyAssignment:
+        case StructureKind.SpreadAssignment:
+            return true;
+    }
+    return false;
+}
+function isStatementStructure(structure) {
+    switch (structure.kind) {
+        case StructureKind.Class:
+        case StructureKind.Enum:
+        case StructureKind.ExportAssignment:
+        case StructureKind.ExportDeclaration:
+        case StructureKind.Function:
+        case StructureKind.ImportDeclaration:
+        case StructureKind.Interface:
+        case StructureKind.Module:
+        case StructureKind.TypeAlias:
+        case StructureKind.VariableStatement:
+            return true;
+    }
+    return false;
+}
+function isTypeElementMemberStructure(structure) {
+    switch (structure.kind) {
+        case StructureKind.CallSignature:
+        case StructureKind.ConstructSignature:
+        case StructureKind.IndexSignature:
+        case StructureKind.MethodSignature:
+        case StructureKind.PropertySignature:
+            return true;
+    }
+    return false;
+}
+
 //#endregion preamble
 const JSDocStructureBase = MultiMixinBuilder([StructureMixin], StructureBase);
 class JSDocImpl extends JSDocStructureBase {
@@ -7739,4 +7801,4 @@ class TypeMembersMap extends OrderedMap {
 }
 _a = TypeMembersMap;
 
-export { ArrayTypeStructureImpl, CallSignatureDeclarationImpl, ClassDeclarationImpl, ClassFieldStatementsMap, ClassMembersMap, ClassStaticBlockDeclarationImpl, ClassSupportsStatementsFlags, ConditionalTypeStructureImpl, ConstructSignatureDeclarationImpl, ConstructorDeclarationImpl, ConstructorDeclarationOverloadImpl, DecoratorImpl, EnumDeclarationImpl, EnumMemberImpl, ExportAssignmentImpl, ExportDeclarationImpl, ExportManager, ExportSpecifierImpl, FunctionDeclarationImpl, FunctionDeclarationOverloadImpl, FunctionTypeStructureImpl, FunctionWriterStyle, GetAccessorDeclarationImpl, ImportAttributeImpl, ImportDeclarationImpl, ImportManager, ImportSpecifierImpl, ImportTypeStructureImpl, IndexSignatureDeclarationImpl, IndexedAccessTypeStructureImpl, InferTypeStructureImpl, InterfaceDeclarationImpl, IntersectionTypeStructureImpl, JSDocImpl, JSDocTagImpl, JsxAttributeImpl, JsxElementImpl, JsxSelfClosingElementImpl, JsxSpreadAttributeImpl, LiteralTypeStructureImpl, MappedTypeStructureImpl, MemberedObjectTypeStructureImpl, MemberedTypeToClass, MethodDeclarationImpl, MethodDeclarationOverloadImpl, MethodSignatureImpl, ModuleDeclarationImpl, NamedTupleMemberTypeStructureImpl, NumberTypeStructureImpl, OptionalTypeStructureImpl, ParameterDeclarationImpl, ParameterTypeStructureImpl, ParenthesesTypeStructureImpl, PrefixOperatorsTypeStructureImpl, PropertyAssignmentImpl, PropertyDeclarationImpl, PropertySignatureImpl, QualifiedNameTypeStructureImpl, SetAccessorDeclarationImpl, ShorthandPropertyAssignmentImpl, SourceFileImpl, SpreadAssignmentImpl, StatementStructureKind, StringTypeStructureImpl, TemplateLiteralTypeStructureImpl, TupleTypeStructureImpl, TypeAliasDeclarationImpl, TypeArgumentedTypeStructureImpl, TypeMembersMap, TypeParameterDeclarationImpl, TypePredicateTypeStructureImpl, TypeStructureKind, UnionTypeStructureImpl, UnknownStringStatementImpl, UnknownWriterStatementImpl, VariableDeclarationImpl, VariableStatementImpl, VoidNodeToStructureConsole, WriterTypeStructureImpl, forEachAugmentedStructureChild, getAugmentedStructure, parseLiteralType };
+export { ArrayTypeStructureImpl, CallSignatureDeclarationImpl, ClassDeclarationImpl, ClassFieldStatementsMap, ClassMembersMap, ClassStaticBlockDeclarationImpl, ClassSupportsStatementsFlags, ConditionalTypeStructureImpl, ConstructSignatureDeclarationImpl, ConstructorDeclarationImpl, ConstructorDeclarationOverloadImpl, DecoratorImpl, EnumDeclarationImpl, EnumMemberImpl, ExportAssignmentImpl, ExportDeclarationImpl, ExportManager, ExportSpecifierImpl, FunctionDeclarationImpl, FunctionDeclarationOverloadImpl, FunctionTypeStructureImpl, FunctionWriterStyle, GetAccessorDeclarationImpl, ImportAttributeImpl, ImportDeclarationImpl, ImportManager, ImportSpecifierImpl, ImportTypeStructureImpl, IndexSignatureDeclarationImpl, IndexedAccessTypeStructureImpl, InferTypeStructureImpl, InterfaceDeclarationImpl, IntersectionTypeStructureImpl, JSDocImpl, JSDocTagImpl, JsxAttributeImpl, JsxElementImpl, JsxSelfClosingElementImpl, JsxSpreadAttributeImpl, LiteralTypeStructureImpl, MappedTypeStructureImpl, MemberedObjectTypeStructureImpl, MemberedTypeToClass, MethodDeclarationImpl, MethodDeclarationOverloadImpl, MethodSignatureImpl, ModuleDeclarationImpl, NamedTupleMemberTypeStructureImpl, NumberTypeStructureImpl, OptionalTypeStructureImpl, ParameterDeclarationImpl, ParameterTypeStructureImpl, ParenthesesTypeStructureImpl, PrefixOperatorsTypeStructureImpl, PropertyAssignmentImpl, PropertyDeclarationImpl, PropertySignatureImpl, QualifiedNameTypeStructureImpl, SetAccessorDeclarationImpl, ShorthandPropertyAssignmentImpl, SourceFileImpl, SpreadAssignmentImpl, StatementStructureKind, StringTypeStructureImpl, TemplateLiteralTypeStructureImpl, TupleTypeStructureImpl, TypeAliasDeclarationImpl, TypeArgumentedTypeStructureImpl, TypeMembersMap, TypeParameterDeclarationImpl, TypePredicateTypeStructureImpl, TypeStructureKind, UnionTypeStructureImpl, UnknownStringStatementImpl, UnknownWriterStatementImpl, VariableDeclarationImpl, VariableStatementImpl, VoidNodeToStructureConsole, WriterTypeStructureImpl, forEachAugmentedStructureChild, getAugmentedStructure, isClassMemberStructure, isJsxStructure, isObjectLiteralExpressionPropertyStructure, isStatementStructure, isTypeElementMemberStructure, parseLiteralType };
