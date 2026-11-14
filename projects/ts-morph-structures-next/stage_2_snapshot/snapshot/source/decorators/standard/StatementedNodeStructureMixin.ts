@@ -17,7 +17,7 @@ import {
   StructureClassesMap,
   type StructureClassToJSON,
 } from "../../internal-exports.js";
-import { isStatementStructure } from "../../structures/standard/isStructureOfType.js";
+import { isStatementStructure } from "../../structures/statements/isStatementStructure.js";
 import type {
   MixinClass,
   StaticAndInstance,

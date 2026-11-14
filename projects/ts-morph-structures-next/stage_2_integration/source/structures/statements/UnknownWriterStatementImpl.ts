@@ -30,7 +30,7 @@ import {
 
 /** For `WriterFunction` objects the user provides.  You should never need to construct these manually.  */
 export class UnknownWriterStatementImpl
-extends StatementStructuresBase<StatementStructureKind.UnknownString>
+extends StatementStructuresBase<StatementStructureKind.UnknownWriter>
 implements InnerTypeElement<WriterFunction>
 {
   static clone(
@@ -40,7 +40,7 @@ implements InnerTypeElement<WriterFunction>
     return new UnknownWriterStatementImpl(other[GET_OUTER_TYPE]());
   }
 
-  public readonly kind = StatementStructureKind.UnknownString;
+  public readonly kind = StatementStructureKind.UnknownWriter;
 
   constructor(writer: WriterFunction)
   {

@@ -1027,7 +1027,7 @@ declare function isObjectLiteralExpressionPropertyStructure(
 ): structure is ObjectLiteralExpressionPropertyStructureImpls;
 declare function isStatementStructure(
   structure: AugmentedStructures,
-): structure is StatementStructureImpls;
+): structure is AugmentedStatementStructures;
 declare function isTypeElementMemberStructure(
   structure: AugmentedStructures,
 ): structure is TypeElementMemberStructureImpls;
@@ -3846,10 +3846,10 @@ declare class UnknownStringStatementImpl
 
 /** For `WriterFunction` objects the user provides.  You should never need to construct these manually. */
 declare class UnknownWriterStatementImpl
-  extends StatementStructuresBase<StatementStructureKind.UnknownString>
+  extends StatementStructuresBase<StatementStructureKind.UnknownWriter>
   implements InnerTypeElement<WriterFunction>
 {
-  readonly kind = StatementStructureKind.UnknownString;
+  readonly kind = StatementStructureKind.UnknownWriter;
   /** @internal */
   protected [WRITER_FUNCTION_KEY]: (writer: CodeBlockWriter) => void;
   constructor(writer: WriterFunction);

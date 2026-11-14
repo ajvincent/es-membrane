@@ -54,7 +54,7 @@ export function isObjectLiteralExpressionPropertyStructure(
   return false;
 }
 
-export function isStatementStructure(
+export function isTSMorphStatementStructure(
   structure: AugmentedStructures,
 ): structure is StatementStructureImpls {
   switch (structure.kind) {

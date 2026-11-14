@@ -102,7 +102,7 @@ export const StatementedNodeSpecialCases: DecoratorModuleModifierTraps = {
     );
 
     module.addImports(
-      "source/structures/standard/isStructureOfType.ts",
+      "source/structures/statements/isStatementStructure.ts",
       ["isStatementStructure"],
       []
     );

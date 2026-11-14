@@ -18,9 +18,13 @@ import {
 
 import BlockStatementImpl from "../pseudoExpressions/statements/BlockStatement.js";
 
-import BaseModule from "./BaseModule.js";
-
 import FlatInterfaceMap from "../vanilla/FlatInterfaceMap.js";
+
+import BaseModule from "./BaseModule.js";
+import {
+  publicExports
+} from "./ExportsModule.js";
+
 import UnionModule from "./UnionModule.js";
 
 export class IsStructureOfType_Module extends BaseModule {
@@ -70,6 +74,17 @@ export class IsStructureOfType_Module extends BaseModule {
       "return true;"
     ]);
     fnDecl.statements.push(block.writerFunction, "return false;");
+
+    if (fnDecl.name !== "isStatementStructure") {
+      publicExports.addExports({
+        pathToExportedModule: this.importManager.absolutePathToModule,
+        isDefaultExport: false,
+        isType: false,
+        exportNames: [fnDecl.name]
+      });
+    } else {
+      fnDecl.name = "isTSMorphStatementStructure";
+    }
 
     return fnDecl;
   }

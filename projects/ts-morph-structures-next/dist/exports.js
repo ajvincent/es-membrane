@@ -1234,7 +1234,7 @@ class UnknownWriterStatementImpl extends StatementStructuresBase {
     static clone(other) {
         return new UnknownWriterStatementImpl(other[GET_OUTER_TYPE]());
     }
-    kind = StatementStructureKind.UnknownString;
+    kind = StatementStructureKind.UnknownWriter;
     constructor(writer) {
         super();
         this[WRITER_FUNCTION_KEY] = writer;
@@ -1316,7 +1316,7 @@ function isObjectLiteralExpressionPropertyStructure(structure) {
     }
     return false;
 }
-function isStatementStructure(structure) {
+function isTSMorphStatementStructure(structure) {
     switch (structure.kind) {
         case StructureKind.Class:
         case StructureKind.Enum:
@@ -1342,6 +1342,15 @@ function isTypeElementMemberStructure(structure) {
             return true;
     }
     return false;
+}
+
+function isStatementStructure(structure) {
+    switch (structure.kind) {
+        case StatementStructureKind.UnknownString:
+        case StatementStructureKind.UnknownWriter:
+            return true;
+    }
+    return isTSMorphStatementStructure(structure);
 }
 
 //#region preamble

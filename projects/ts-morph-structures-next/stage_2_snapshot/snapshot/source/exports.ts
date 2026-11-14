@@ -96,7 +96,12 @@ export { ImportDeclarationImpl } from "./structures/standard/ImportDeclarationIm
 export { ImportSpecifierImpl } from "./structures/standard/ImportSpecifierImpl.js";
 export { IndexSignatureDeclarationImpl } from "./structures/standard/IndexSignatureDeclarationImpl.js";
 export { InterfaceDeclarationImpl } from "./structures/standard/InterfaceDeclarationImpl.js";
-export * from "./structures/standard/isStructureOfType.js";
+export {
+  isClassMemberStructure,
+  isJsxStructure,
+  isObjectLiteralExpressionPropertyStructure,
+  isTypeElementMemberStructure,
+} from "./structures/standard/isStructureOfType.js";
 export { JSDocImpl } from "./structures/standard/JSDocImpl.js";
 export { JSDocTagImpl } from "./structures/standard/JSDocTagImpl.js";
 export { JsxAttributeImpl } from "./structures/standard/JsxAttributeImpl.js";
@@ -120,6 +125,7 @@ export { TypeParameterDeclarationImpl } from "./structures/standard/TypeParamete
 export { VariableDeclarationImpl } from "./structures/standard/VariableDeclarationImpl.js";
 export { VariableStatementImpl } from "./structures/standard/VariableStatementImpl.js";
 export type { AugmentedStatementStructures } from "./structures/statements/AugmentedStatements.js";
+export { isStatementStructure } from "./structures/statements/isStatementStructure.js";
 export { UnknownStringStatementImpl } from "./structures/statements/UnknownStringStatementImpl.js";
 export { UnknownWriterStatementImpl } from "./structures/statements/UnknownWriterStatementImpl.js";
 export { ArrayTypeStructureImpl } from "./structures/type/ArrayTypeStructureImpl.js";

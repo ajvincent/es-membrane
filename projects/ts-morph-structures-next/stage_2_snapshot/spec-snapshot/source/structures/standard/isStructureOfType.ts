@@ -4,7 +4,7 @@ import {
   isStatementStructure,
 } from "#stage_two/snapshot/source/exports.js";
 
-it("isStructureOfType exports: isStatementStructure", () => {
+it("isStructureOfType exports: isStatementStructure (ts-morph native structure types)", () => {
   const fnDecl = new FunctionDeclarationImpl();
   expect(isStatementStructure(fnDecl)).toBeTrue();
 
