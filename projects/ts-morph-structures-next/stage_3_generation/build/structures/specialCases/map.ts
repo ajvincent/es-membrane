@@ -17,7 +17,7 @@ import {
 
 import {
   ImportDeclarationSpecialCases
-} from "./ImportDeclarationImpl.js";
+} from "./ImportDeclaration.js";
 
 import {
   IndexSignatureDeclarationSpecialCases,
@@ -42,6 +42,10 @@ import {
 import {
   TypeAliasDeclarationSpecialCases
 } from "./TypeAliasDeclaration.js";
+
+import {
+  VariableDeclarationSpecialCases
+} from "./VariableDeclaration.js";
 //#endregion preamble
 
 export const StructureModifiersMap: ReadonlyMap<string, StructureModuleModifierTraps> = new Map([
@@ -55,4 +59,5 @@ export const StructureModifiersMap: ReadonlyMap<string, StructureModuleModifierT
   ["PropertyDeclarationImpl", PropertyDeclarationSpecialCases],
   ["SetAccessorDeclarationImpl", SetAccessorDeclarationSpecialCases],
   ["TypeAliasDeclarationImpl", TypeAliasDeclarationSpecialCases],
+  ["VariableDeclarationImpl", VariableDeclarationSpecialCases],
 ]);

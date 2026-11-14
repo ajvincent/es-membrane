@@ -1,5 +1,9 @@
 //#region preamble
-import type { VariableDeclarationStructureClassIfc } from "../../exports.js";
+import type {
+  stringOrWriterFunction,
+  TypeStructures,
+  VariableDeclarationStructureClassIfc,
+} from "../../exports.js";
 import {
   type CloneableStructure,
   COPY_FIELDS,
@@ -53,9 +57,15 @@ export class VariableDeclarationImpl
   readonly kind: StructureKind.VariableDeclaration =
     StructureKind.VariableDeclaration;
 
-  constructor(name: string) {
+  constructor(
+    name: string,
+    typeStructure?: TypeStructures,
+    initializer?: stringOrWriterFunction,
+  ) {
     super();
     this.name = name;
+    if (typeStructure !== undefined) this.typeStructure = typeStructure;
+    if (initializer !== undefined) this.initializer = initializer;
   }
 
   /**

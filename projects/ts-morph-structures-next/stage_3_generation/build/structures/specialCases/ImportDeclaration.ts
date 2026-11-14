@@ -24,9 +24,9 @@ import {
 
 import {
   StatementsPriority
-} from "../../../build/fieldStatements/StatementsPriority.js";
+} from "../../fieldStatements/StatementsPriority.js";
 
-import StatementGetterBase from "../../../build/fieldStatements/GetterBase.js";
+import StatementGetterBase from "../../fieldStatements/GetterBase.js";
 
 import InterfaceModule from "../../../moduleClasses/InterfaceModule.js";
 import type {

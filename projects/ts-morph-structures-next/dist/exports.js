@@ -4838,9 +4838,13 @@ const VariableDeclarationStructureBase = MultiMixinBuilder([
 ], StructureBase);
 class VariableDeclarationImpl extends VariableDeclarationStructureBase {
     kind = StructureKind.VariableDeclaration;
-    constructor(name) {
+    constructor(name, typeStructure, initializer) {
         super();
         this.name = name;
+        if (typeStructure !== undefined)
+            this.typeStructure = typeStructure;
+        if (initializer !== undefined)
+            this.initializer = initializer;
     }
     /**
      * Create a `VariableDeclarationImpl` from a `VariableDeclarationStructure`.

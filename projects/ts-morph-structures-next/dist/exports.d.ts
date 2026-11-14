@@ -3345,7 +3345,11 @@ declare class VariableDeclarationImpl
   implements VariableDeclarationStructureClassIfc
 {
   readonly kind: StructureKind.VariableDeclaration;
-  constructor(name: string);
+  constructor(
+    name: string,
+    typeStructure?: TypeStructures,
+    initializer?: stringOrWriterFunction,
+  );
   /**
    * Create a `VariableDeclarationImpl` from a `VariableDeclarationStructure`.
    * @param source - The structure to clone.
