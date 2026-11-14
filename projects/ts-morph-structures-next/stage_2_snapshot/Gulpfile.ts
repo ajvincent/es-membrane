@@ -22,7 +22,7 @@ async function eslint(): Promise<void> {
     "Gulpfile.ts",
     "build/**/*.ts",
     // "fixtures/**/*.ts",
-    //"snapshot/source/**/*.ts",
+    "snapshot/source/**/*.ts",
     "spec-snapshot/**/*.ts",
     "utilities/**/*.ts",
   ]);

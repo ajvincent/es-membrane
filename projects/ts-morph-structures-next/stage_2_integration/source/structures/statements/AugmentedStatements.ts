@@ -5,7 +5,7 @@ import type {
 import type { UnknownStringStatementImpl } from "./UnknownStringStatementImpl.js";
 import type { UnknownWriterStatementImpl } from "./UnknownWriterStatementImpl.js";
 
-export type AugmentedStatementStructures = StatementStructureImpls |
+export type AugmentedStatementStructures =
   UnknownStringStatementImpl |
   UnknownWriterStatementImpl |
-  never;
+  StatementStructureImpls;

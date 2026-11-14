@@ -88,7 +88,7 @@ export abstract class ShadowArrayImpl<
     Reflect.setPrototypeOf(this.#shadow, ArrayPrototypeProxyHandler.proto);
 
     this.proxy = new Proxy(
-      this.#shadow as OuterType[],
+      this.#shadow,
       ShadowArrayImpl.#arrayElementsHandler,
     ) as OuterType[];
 
@@ -191,9 +191,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  public sort(
-    compareFn?: ((a: OuterType, b: OuterType) => number) | undefined,
-  ): OuterType[] {
+  public sort(compareFn?: (a: OuterType, b: OuterType) => number): OuterType[] {
     const outerElements: OuterType[] = this.#innerElements.map((element) =>
       element[GET_OUTER_TYPE](),
     );
@@ -221,7 +219,7 @@ export abstract class ShadowArrayImpl<
   // OuterType[]
   public splice(
     start: number,
-    deleteCount?: number | undefined,
+    deleteCount?: number,
     ...outerItems: OuterType[]
   ): OuterType[] {
     const newInnerItems: InnerType[] = outerItems.map(
@@ -242,10 +240,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  public indexOf(
-    searchElement: OuterType,
-    fromIndex?: number | undefined,
-  ): number {
+  public indexOf(searchElement: OuterType, fromIndex?: number): number {
     return this.#innerElements.findIndex(
       this.#innerFinder.bind(this, searchElement),
       fromIndex,
@@ -434,8 +429,8 @@ export abstract class ShadowArrayImpl<
   // OuterType[]
   public fill(
     outerValue: OuterType,
-    start?: number | undefined,
-    end?: number | undefined,
+    start?: number,
+    end?: number,
   ): OuterType[] {
     const innerValue: InnerType = this.#convertOuterTypeToInner(outerValue);
     this.#innerElements.fill(innerValue, start, end);
@@ -443,11 +438,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  public copyWithin(
-    target: number,
-    start: number,
-    end?: number | undefined,
-  ): OuterType[] {
+  public copyWithin(target: number, start: number, end?: number): OuterType[] {
     this.#innerElements.copyWithin(target, start, end);
     return this.proxy;
   }
@@ -482,7 +473,7 @@ export abstract class ShadowArrayImpl<
       index: number,
       array: OuterType[],
     ) => U | readonly U[],
-    thisArg?: This | undefined,
+    thisArg?: This,
   ): U[] {
     void callback;
     void thisArg;
@@ -490,10 +481,7 @@ export abstract class ShadowArrayImpl<
   }
 
   // OuterType[]
-  public flat<A, D extends number = 1>(
-    this: A,
-    depth?: D | undefined,
-  ): FlatArray<A, D>[] {
+  public flat<A, D extends number = 1>(this: A, depth?: D): FlatArray<A, D>[] {
     void depth;
     throw new Error("not yet implemented");
   }
@@ -509,7 +497,7 @@ export abstract class ShadowArrayImpl<
   ): OuterType | S | undefined {
     return this.#innerElements
       .findLast(this.#finder.bind(this, predicate), thisArg)
-      ?.[GET_OUTER_TYPE]() as S | undefined;
+      ?.[GET_OUTER_TYPE]();
   }
 
   // OuterType[]
@@ -530,7 +518,7 @@ export abstract class ShadowArrayImpl<
 
   // OuterType[]
   public toSorted(
-    compareFn?: ((a: OuterType, b: OuterType) => number) | undefined,
+    compareFn?: (a: OuterType, b: OuterType) => number,
   ): OuterType[] {
     return this.slice().sort(compareFn);
   }

@@ -61,13 +61,13 @@ implements Omit<
   {
     const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget)!;
     if (property === "length") {
-      arrayImpl.setLength(attributes.get === undefined ? attributes.value! : attributes.get());
+      arrayImpl.setLength((attributes.get === undefined ? attributes.value! : attributes.get()) as number);
       return true;
     }
 
     const index = ArrayElementsProxyHandler.#getIndex(property);
     if (typeof index === "number") {
-      arrayImpl.replaceAt(index, attributes.get === undefined ? attributes.value! : attributes.get());
+      arrayImpl.replaceAt(index, (attributes.get === undefined ? attributes.value! : attributes.get()) as OuterType);
       return true;
     }
 

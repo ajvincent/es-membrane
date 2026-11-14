@@ -23,6 +23,15 @@ export default defineConfig(
     {
       rules: {
         "semi": ["error", "always"],
+        "no-unexpected-multiline": "off",
+
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            // Decorators use these to define unique mixin interfaces.
+            "varsIgnorePattern": "StructureKey$"
+          }
+        ]
       }
     },
   ]

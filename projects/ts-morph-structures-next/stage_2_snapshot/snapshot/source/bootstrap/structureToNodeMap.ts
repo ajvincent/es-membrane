@@ -373,7 +373,7 @@ class StructureAndNodeData {
     if (!hash) {
       hash = StructureKind[structure.kind];
       if ("name" in structure) {
-        hash += ":" + structure.name?.toString();
+        hash += ":" + (structure.name as string | undefined)?.toString();
       }
       hash = this.#appendCounterPostfix(hash);
     }
@@ -393,13 +393,12 @@ class StructureAndNodeData {
       "node hash must not contain two consecutive slashes: " + nodeHash,
     );
 
-    let parentStructure: Structures | null = null;
-
     // these are outside the statement block for debugging purposes.
     let parentNode: Node | null = null;
     let parentNodeHash = "";
     if (structure !== this.#rootStructure) {
-      parentStructure = this.#structureToParent.get(structure)!;
+      const parentStructure: Structures | null =
+        this.#structureToParent.get(structure)!;
       assert(parentStructure, "must have a parent structure");
 
       parentNode = this.structureToNodeMap.get(parentStructure) ?? null;
@@ -420,7 +419,7 @@ class StructureAndNodeData {
       3. The node hash from the structure is wrong.  `#createNodeHashFromStructure()`.
       */
 
-      let parentMsg = "";
+      let parentMsg: string;
       const sourceFile = this.#rootNode!.getSourceFile();
       if (parentNode) {
         const { line, column } = sourceFile.getLineAndColumnAtPos(
@@ -485,7 +484,8 @@ class StructureAndNodeData {
     }
 
     let hash: string = parentHash + "/" + localKind;
-    if ("name" in structure) hash += ":" + structure.name?.toString();
+    if ("name" in structure)
+      hash += ":" + (structure.name as string | undefined)?.toString();
     return hash;
   }
 

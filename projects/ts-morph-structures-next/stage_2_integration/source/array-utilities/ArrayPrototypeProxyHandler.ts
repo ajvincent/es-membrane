@@ -106,6 +106,7 @@ implements Pick<ProxyHandler<CallableFunction>, "apply">
     const methodName = ArrayPrototypeProxyHandler.#shadowToMethodName.get(shadowTarget)!;
     const arrayImpl = ArrayPrototypeProxyHandler.#proxyToArrayImpl.get(thisArg) as ShadowArrayImpl<OuterType, InnerTypeElement<OuterType>>;
     // @ts-expect-error methodName is not a number, damn it
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     return arrayImpl[methodName](...argArray);
   }
 }

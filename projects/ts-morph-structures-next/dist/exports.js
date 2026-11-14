@@ -110,6 +110,7 @@ class ArrayPrototypeProxyHandler {
         const methodName = ArrayPrototypeProxyHandler.#shadowToMethodName.get(shadowTarget);
         const arrayImpl = ArrayPrototypeProxyHandler.#proxyToArrayImpl.get(thisArg);
         // @ts-expect-error methodName is not a number, damn it
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         return arrayImpl[methodName](...argArray);
     }
 }
@@ -142,12 +143,16 @@ class ArrayElementsProxyHandler {
     defineProperty(shadowTarget, property, attributes) {
         const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
         if (property === "length") {
-            arrayImpl.setLength(attributes.get === undefined ? attributes.value : attributes.get());
+            arrayImpl.setLength((attributes.get === undefined
+                ? attributes.value
+                : attributes.get()));
             return true;
         }
         const index = ArrayElementsProxyHandler.#getIndex(property);
         if (typeof index === "number") {
-            arrayImpl.replaceAt(index, attributes.get === undefined ? attributes.value : attributes.get());
+            arrayImpl.replaceAt(index, (attributes.get === undefined
+                ? attributes.value
+                : attributes.get()));
             return true;
         }
         return false;
@@ -1267,7 +1272,7 @@ class StatementsSequence extends ShadowArrayImpl {
                 case StructureKind.VariableStatement:
                     return outerType;
                 default:
-                    throw new Error("unknown statement: " + outerType);
+                    throw new Error("unknown statement: " + JSON.stringify(outerType));
             }
         }
         const structure = WriterStructuresBase.getWriterStructureForCallback(outerType);
@@ -2072,12 +2077,11 @@ class StructureAndNodeData {
         const structureHash = this.#hashStructureLocal(structure);
         const nodeHash = this.#createNodeHashFromStructure(structure);
         assert(nodeHash.includes("//") === false, "node hash must not contain two consecutive slashes: " + nodeHash);
-        let parentStructure = null;
         // these are outside the statement block for debugging purposes.
         let parentNode = null;
         let parentNodeHash = "";
         if (structure !== this.#rootStructure) {
-            parentStructure = this.#structureToParent.get(structure);
+            const parentStructure = this.#structureToParent.get(structure);
             assert(parentStructure, "must have a parent structure");
             parentNode = this.structureToNodeMap.get(parentStructure) ?? null;
             assert(parentNode, "must find a parent node");
@@ -2091,7 +2095,7 @@ class StructureAndNodeData {
             2. Iterating over the structures, we hit the target structure with a different parent structure. `#collectDescendantStructures()`.
             3. The node hash from the structure is wrong.  `#createNodeHashFromStructure()`.
             */
-            let parentMsg = "";
+            let parentMsg;
             const sourceFile = this.#rootNode.getSourceFile();
             if (parentNode) {
                 const { line, column } = sourceFile.getLineAndColumnAtPos(parentNode.getPos());
@@ -2473,7 +2477,7 @@ function convertConditionalTypeNode(condition, consoleTrap, subStructureResolver
     });
 }
 function convertFunctionTypeNode(typeNode, consoleTrap, subStructureResolver) {
-    let typeParameterNodes = [];
+    let typeParameterNodes;
     try {
         // https://github.com/dsherret/ts-morph/issues/1434
         typeParameterNodes = typeNode.getTypeParameters();

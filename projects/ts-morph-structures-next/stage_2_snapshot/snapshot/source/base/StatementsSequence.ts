@@ -58,7 +58,7 @@ export class StatementsSequence extends ShadowArrayImpl<
           return outerType;
 
         default:
-          throw new Error("unknown statement: " + outerType);
+          throw new Error("unknown statement: " + JSON.stringify(outerType));
       }
     }
 

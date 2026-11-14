@@ -52,7 +52,9 @@ export class ArrayElementsProxyHandler<
     const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget)!;
     if (property === "length") {
       arrayImpl.setLength(
-        attributes.get === undefined ? attributes.value! : attributes.get(),
+        (attributes.get === undefined
+          ? attributes.value!
+          : attributes.get()) as number,
       );
       return true;
     }
@@ -61,7 +63,9 @@ export class ArrayElementsProxyHandler<
     if (typeof index === "number") {
       arrayImpl.replaceAt(
         index,
-        attributes.get === undefined ? attributes.value! : attributes.get(),
+        (attributes.get === undefined
+          ? attributes.value!
+          : attributes.get()) as OuterType,
       );
       return true;
     }

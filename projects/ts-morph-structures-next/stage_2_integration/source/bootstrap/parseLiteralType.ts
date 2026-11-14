@@ -35,7 +35,7 @@ export default function parseLiteralType(
       true
     ).rootStructure as TypeAliasDeclarationImpl;
 
-    return aliasStructure.typeStructure!;
+    return aliasStructure.typeStructure;
   }
   finally {
     // You might wonder, "why not just empty the file and reuse it?" - this is safer.

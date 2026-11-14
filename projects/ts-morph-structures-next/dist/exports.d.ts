@@ -120,10 +120,9 @@ declare enum TypeStructureKind {
 
 type ArrayOrValue<T> = T | readonly T[];
 type AugmentedStatementStructures =
-  | StatementStructureImpls
   | UnknownStringStatementImpl
   | UnknownWriterStatementImpl
-  | never;
+  | StatementStructureImpls;
 type AugmentedStructures =
   | StructureImpls
   | TypeStructures
@@ -3052,16 +3051,14 @@ declare abstract class ShadowArrayImpl<
   reverse(): OuterType[];
   shift(): OuterType | undefined;
   slice(start?: number, end?: number): OuterType[];
-  sort(
-    compareFn?: ((a: OuterType, b: OuterType) => number) | undefined,
-  ): OuterType[];
+  sort(compareFn?: (a: OuterType, b: OuterType) => number): OuterType[];
   splice(
     start: number,
-    deleteCount?: number | undefined,
+    deleteCount?: number,
     ...outerItems: OuterType[]
   ): OuterType[];
   unshift(...outerItems: OuterType[]): number;
-  indexOf(searchElement: OuterType, fromIndex?: number | undefined): number;
+  indexOf(searchElement: OuterType, fromIndex?: number): number;
   lastIndexOf(searchElement: OuterType, fromIndex?: number): number;
   every<S extends OuterType>(
     predicate: (
@@ -3123,16 +3120,8 @@ declare abstract class ShadowArrayImpl<
     predicate: (value: OuterType, index: number, obj: OuterType[]) => unknown,
     thisArg?: unknown,
   ): number;
-  fill(
-    outerValue: OuterType,
-    start?: number | undefined,
-    end?: number | undefined,
-  ): OuterType[];
-  copyWithin(
-    target: number,
-    start: number,
-    end?: number | undefined,
-  ): OuterType[];
+  fill(outerValue: OuterType, start?: number, end?: number): OuterType[];
+  copyWithin(target: number, start: number, end?: number): OuterType[];
   entries(): ArrayIterator<[number, OuterType]>;
   keys(): ArrayIterator<number>;
   values(): ArrayIterator<OuterType>;
@@ -3144,12 +3133,9 @@ declare abstract class ShadowArrayImpl<
       index: number,
       array: OuterType[],
     ) => U | readonly U[],
-    thisArg?: This | undefined,
+    thisArg?: This,
   ): U[];
-  flat<A, D extends number = 1>(
-    this: A,
-    depth?: D | undefined,
-  ): FlatArray<A, D>[];
+  flat<A, D extends number = 1>(this: A, depth?: D): FlatArray<A, D>[];
   findLast<S extends OuterType>(
     predicate: (
       value: OuterType,
@@ -3163,9 +3149,7 @@ declare abstract class ShadowArrayImpl<
     thisArg?: unknown,
   ): number;
   toReversed(): OuterType[];
-  toSorted(
-    compareFn?: ((a: OuterType, b: OuterType) => number) | undefined,
-  ): OuterType[];
+  toSorted(compareFn?: (a: OuterType, b: OuterType) => number): OuterType[];
   toSpliced(
     start: number,
     deleteCount: number,

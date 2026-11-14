@@ -97,7 +97,7 @@ implements Omit<OuterType[], number | "length">
     Reflect.defineProperty(this.#shadow, "length", { configurable: false, enumerable: false});
     Reflect.setPrototypeOf(this.#shadow, ArrayPrototypeProxyHandler.proto);
 
-    this.proxy = new Proxy(this.#shadow as OuterType[], ShadowArrayImpl.#arrayElementsHandler) as OuterType[];
+    this.proxy = new Proxy(this.#shadow, ShadowArrayImpl.#arrayElementsHandler) as OuterType[];
 
     ShadowArrayImpl.#arrayElementsHandler.assignShadowToArrayImpl(
       this.#shadow, this as ShadowArrayImpl<unknown, InnerTypeElement<unknown>>
@@ -201,7 +201,7 @@ implements Omit<OuterType[], number | "length">
 
   // OuterType[]
   public sort(
-    compareFn?: ((a: OuterType, b: OuterType) => number) | undefined
+    compareFn?: ((a: OuterType, b: OuterType) => number)
   ): OuterType[]
   {
     const outerElements: OuterType[] = this.#innerElements.map(element => element[GET_OUTER_TYPE]());
@@ -225,7 +225,7 @@ implements Omit<OuterType[], number | "length">
   // OuterType[]
   public splice(
     start: number,
-    deleteCount?: number | undefined,
+    deleteCount?: number,
     ...outerItems: OuterType[]
   ): OuterType[]
   {
@@ -246,7 +246,7 @@ implements Omit<OuterType[], number | "length">
   // OuterType[]
   public indexOf(
     searchElement: OuterType,
-    fromIndex?: number | undefined
+    fromIndex?: number
   ): number
   {
     return this.#innerElements.findIndex(this.#innerFinder.bind(this, searchElement), fromIndex);
@@ -406,8 +406,8 @@ implements Omit<OuterType[], number | "length">
   // OuterType[]
   public fill(
     outerValue: OuterType,
-    start?: number | undefined,
-    end?: number | undefined,
+    start?: number,
+    end?: number,
   ): OuterType[]
   {
     const innerValue: InnerType = this.#convertOuterTypeToInner(outerValue);
@@ -419,7 +419,7 @@ implements Omit<OuterType[], number | "length">
   public copyWithin(
     target: number,
     start: number,
-    end?: number | undefined,
+    end?: number,
   ): OuterType[]
   {
     this.#innerElements.copyWithin(target, start, end);
@@ -455,7 +455,7 @@ implements Omit<OuterType[], number | "length">
   // OuterType[]
   public flatMap<U, This = undefined>(
     callback: (this: This, value: OuterType, index: number, array: OuterType[]) => U | readonly U[],
-    thisArg?: This | undefined
+    thisArg?: This
   ): U[]
   {
     void callback;
@@ -466,7 +466,7 @@ implements Omit<OuterType[], number | "length">
   // OuterType[]
   public flat<A, D extends number = 1>(
     this: A,
-    depth?: D | undefined
+    depth?: D
   ): FlatArray<A, D>[]
   {
     void depth;
@@ -482,7 +482,7 @@ implements Omit<OuterType[], number | "length">
     return this.#innerElements.findLast(
       this.#finder.bind(this, predicate),
       thisArg
-    )?.[GET_OUTER_TYPE]() as S | undefined
+    )?.[GET_OUTER_TYPE]();
   }
 
   // OuterType[]
@@ -504,7 +504,7 @@ implements Omit<OuterType[], number | "length">
 
   // OuterType[]
   public toSorted(
-    compareFn?: ((a: OuterType, b: OuterType) => number) | undefined
+    compareFn?: ((a: OuterType, b: OuterType) => number)
   ): OuterType[]
   {
     return this.slice().sort(compareFn);

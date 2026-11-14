@@ -89,7 +89,7 @@ export class TypeAliasDeclarationImpl
   }
 
   set typeStructure(value: TypeStructures) {
-    this.#typeAccessors.typeStructure! = value;
+    this.#typeAccessors.typeStructure = value;
   }
 
   /** @internal */

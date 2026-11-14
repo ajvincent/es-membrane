@@ -50,10 +50,9 @@ export const TypeAliasDeclarationSpecialCases: StructureModuleModifierTraps = {
   },
 
   postProcessClassMembers(module: StructureModule): void {
+    assert(module.classMembersMap);
     // allowTypeStructureInConstructor
     {
-      assert(module.classMembersMap);
-
       const ctor = module.classMembersMap.getAsKind(StructureKind.Constructor, false, "constructor")!;
 
       module.addImports("public", [], ["stringOrWriterFunction", "TypeStructures"]);
@@ -76,6 +75,15 @@ export const TypeAliasDeclarationSpecialCases: StructureModuleModifierTraps = {
           [ `this.type = type;`]
         ).writerFunction,
       );
+    }
+
+    // get typeStructure() needs to assert that it returns a real boy
+    {
+      const typeStructureGetter = module.classMembersMap.getAsKind(StructureKind.GetAccessor, false, "typeStructure")!;
+      assert(typeof typeStructureGetter.statements[0] === "string");
+      let statement: string = typeStructureGetter.statements[0];
+      statement = statement.replace(";", "!;");
+      typeStructureGetter.statements[0] = statement;
     }
   }
 };

@@ -101,7 +101,7 @@ export default class MemberedTypeToClass {
   static {
     this.#supportsFlagsNumbers = Array.from(
       Object.values(ClassSupportsStatementsFlags),
-    ).filter((n) => typeof n === "number") as number[];
+    ).filter((n) => typeof n === "number");
   }
 
   static #getFlagForFieldAndGroup(

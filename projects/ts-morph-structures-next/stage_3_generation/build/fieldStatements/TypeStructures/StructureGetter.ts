@@ -43,11 +43,6 @@ implements AccessorMirrorGetter
   ): string
   {
     this.module.addImports("public", [], ["TypeStructures"]);
-    let value = `this.#${key.fieldKey.replace("Structure", "Accessors")}.typeStructure`;
-    if (this.module.baseName.startsWith("TypeAliasDeclaration")) {
-      // special case: type can never be undefined
-      value += "!";
-    }
-    return value;
+    return `this.#${key.fieldKey.replace("Structure", "Accessors")}.typeStructure`;
   }
 }
