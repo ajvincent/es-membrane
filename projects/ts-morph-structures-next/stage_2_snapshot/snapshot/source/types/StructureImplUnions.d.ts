@@ -93,6 +93,15 @@ export type StructureImpls =
   | StatementStructureImpls
   | TypeParameterDeclarationImpl
   | VariableDeclarationImpl;
+export type TSMorphStatementedStructureImpls =
+  | ClassStaticBlockDeclarationImpl
+  | ConstructorDeclarationImpl
+  | FunctionDeclarationImpl
+  | GetAccessorDeclarationImpl
+  | MethodDeclarationImpl
+  | ModuleDeclarationImpl
+  | SetAccessorDeclarationImpl
+  | SourceFileImpl;
 export type TypeElementMemberStructureImpls =
   | CallSignatureDeclarationImpl
   | ConstructSignatureDeclarationImpl

@@ -6,6 +6,7 @@ import {
 
 import {
   InterfaceDeclarationImpl,
+  LiteralTypeStructureImpl,
   TypeStructureKind,
 } from "#stage_one/snapshot/source/exports.js";
 
@@ -15,12 +16,15 @@ import {
 
 import {
   getClassInterfaceName,
+  getStructureImplName,
+  getStructureNameFromModified,
 } from "#utilities/source/StructureNameTransforms.js";
 
 import {
   addImportsToModule,
   InterfaceModule,
   publicExports,
+  UnionModule,
 } from "../../moduleClasses/exports.js";
 
 import InterfaceMap from "../../vanilla/InterfaceMap.js";
@@ -71,6 +75,8 @@ export default async function createInterfaces(
   modules.forEach(definePublicExport);
   await PromiseAllParallel(modules, module => module.saveFile());
 
+  const statementedNodeStructures: LiteralTypeStructureImpl[] = [];
+
   InterfaceModule.structuresMap.forEach((baseModule: InterfaceModule, key: string): void => {
     const typeMembers = baseModule.typeMembers.clone();
     InterfaceModule.flatTypesMap.set(key, typeMembers);
@@ -80,7 +86,15 @@ export default async function createInterfaces(
         InterfaceModule.decoratorsMap.get(getClassInterfaceName(extendsName))!.typeMembers.values()
       ));
     });
+
+    if (baseModule.extendsSet.has("StatementedNodeStructure")) {
+      statementedNodeStructures.push(LiteralTypeStructureImpl.get(
+        getStructureImplName(getStructureNameFromModified((baseModule.defaultExportName)))
+      ));
+    }
   });
+
+  UnionModule.defineAlias("TSMorphStatementedStructureImpls", statementedNodeStructures);
 }
 
 function createStructureInterface(

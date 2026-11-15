@@ -119,6 +119,7 @@ declare enum TypeStructureKind {
 }
 
 type ArrayOrValue<T> = T | readonly T[];
+type AugmentedStatementedStructures = TSMorphStatementedStructureImpls;
 type AugmentedStatementStructures =
   | UnknownStringStatementImpl
   | UnknownWriterStatementImpl
@@ -226,6 +227,15 @@ type StructureImpls =
   | StatementStructureImpls
   | TypeParameterDeclarationImpl
   | VariableDeclarationImpl;
+type TSMorphStatementedStructureImpls =
+  | ClassStaticBlockDeclarationImpl
+  | ConstructorDeclarationImpl
+  | FunctionDeclarationImpl
+  | GetAccessorDeclarationImpl
+  | MethodDeclarationImpl
+  | ModuleDeclarationImpl
+  | SetAccessorDeclarationImpl
+  | SourceFileImpl;
 type TypeElementMemberStructureImpls =
   | CallSignatureDeclarationImpl
   | ConstructSignatureDeclarationImpl
@@ -1025,9 +1035,15 @@ declare function isJsxStructure(
 declare function isObjectLiteralExpressionPropertyStructure(
   structure: AugmentedStructures,
 ): structure is ObjectLiteralExpressionPropertyStructureImpls;
+declare function isStatementedStructure(
+  structure: AugmentedStructures,
+): structure is AugmentedStatementedStructures;
 declare function isStatementStructure(
   structure: AugmentedStructures,
 ): structure is AugmentedStatementStructures;
+declare function isTSMorphStatementedStructure(
+  structure: AugmentedStructures,
+): structure is TSMorphStatementedStructureImpls;
 declare function isTypeElementMemberStructure(
   structure: AugmentedStructures,
 ): structure is TypeElementMemberStructureImpls;
@@ -3950,6 +3966,8 @@ export {
   isJsxStructure,
   isObjectLiteralExpressionPropertyStructure,
   isStatementStructure,
+  isStatementedStructure,
+  isTSMorphStatementedStructure,
   isTypeElementMemberStructure,
   parseLiteralType,
 };
@@ -3961,6 +3979,7 @@ export type {
   AmbientableNodeStructureClassIfc,
   AsyncableNodeStructureClassIfc,
   AugmentedStatementStructures,
+  AugmentedStatementedStructures,
   AugmentedStructures,
   CallSignatureDeclarationStructureClassIfc,
   ClassAbstractMemberQuestion,
@@ -4050,6 +4069,7 @@ export type {
   StatementedNodeStructureClassIfc,
   StructureClassIfc,
   StructureImpls,
+  TSMorphStatementedStructureImpls,
   TypeAliasDeclarationStructureClassIfc,
   TypeElementMemberStructureImpls,
   TypeMemberImpl,

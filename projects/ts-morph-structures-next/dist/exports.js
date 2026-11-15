@@ -1316,6 +1316,20 @@ function isObjectLiteralExpressionPropertyStructure(structure) {
     }
     return false;
 }
+function isTSMorphStatementedStructure(structure) {
+    switch (structure.kind) {
+        case StructureKind.ClassStaticBlock:
+        case StructureKind.Constructor:
+        case StructureKind.Function:
+        case StructureKind.GetAccessor:
+        case StructureKind.Method:
+        case StructureKind.Module:
+        case StructureKind.SetAccessor:
+        case StructureKind.SourceFile:
+            return true;
+    }
+    return false;
+}
 function isTSMorphStatementStructure(structure) {
     switch (structure.kind) {
         case StructureKind.Class:
@@ -4910,6 +4924,17 @@ class VariableStatementImpl extends VariableStatementStructureBase {
 }
 StructureClassesMap.set(StructureKind.VariableStatement, VariableStatementImpl);
 
+function isStatementedStructure(structure) {
+    /*
+    switch (structure.kind) {
+      case StatementStructureKind.UnknownString:
+      case StatementStructureKind.UnknownWriter:
+        return true;
+    }
+    */
+    return isTSMorphStatementedStructure(structure);
+}
+
 /**
  * `boolean[]`
  *
@@ -7827,4 +7852,4 @@ class TypeMembersMap extends OrderedMap {
 }
 _a = TypeMembersMap;
 
-export { ArrayTypeStructureImpl, CallSignatureDeclarationImpl, ClassDeclarationImpl, ClassFieldStatementsMap, ClassMembersMap, ClassStaticBlockDeclarationImpl, ClassSupportsStatementsFlags, ConditionalTypeStructureImpl, ConstructSignatureDeclarationImpl, ConstructorDeclarationImpl, ConstructorDeclarationOverloadImpl, DecoratorImpl, EnumDeclarationImpl, EnumMemberImpl, ExportAssignmentImpl, ExportDeclarationImpl, ExportManager, ExportSpecifierImpl, FunctionDeclarationImpl, FunctionDeclarationOverloadImpl, FunctionTypeStructureImpl, FunctionWriterStyle, GetAccessorDeclarationImpl, ImportAttributeImpl, ImportDeclarationImpl, ImportManager, ImportSpecifierImpl, ImportTypeStructureImpl, IndexSignatureDeclarationImpl, IndexedAccessTypeStructureImpl, InferTypeStructureImpl, InterfaceDeclarationImpl, IntersectionTypeStructureImpl, JSDocImpl, JSDocTagImpl, JsxAttributeImpl, JsxElementImpl, JsxSelfClosingElementImpl, JsxSpreadAttributeImpl, LiteralTypeStructureImpl, MappedTypeStructureImpl, MemberedObjectTypeStructureImpl, MemberedTypeToClass, MethodDeclarationImpl, MethodDeclarationOverloadImpl, MethodSignatureImpl, ModuleDeclarationImpl, NamedTupleMemberTypeStructureImpl, NumberTypeStructureImpl, OptionalTypeStructureImpl, ParameterDeclarationImpl, ParameterTypeStructureImpl, ParenthesesTypeStructureImpl, PrefixOperatorsTypeStructureImpl, PropertyAssignmentImpl, PropertyDeclarationImpl, PropertySignatureImpl, QualifiedNameTypeStructureImpl, SetAccessorDeclarationImpl, ShorthandPropertyAssignmentImpl, SourceFileImpl, SpreadAssignmentImpl, StatementStructureKind, StringTypeStructureImpl, TemplateLiteralTypeStructureImpl, TupleTypeStructureImpl, TypeAliasDeclarationImpl, TypeArgumentedTypeStructureImpl, TypeMembersMap, TypeParameterDeclarationImpl, TypePredicateTypeStructureImpl, TypeStructureKind, UnionTypeStructureImpl, UnknownStringStatementImpl, UnknownWriterStatementImpl, VariableDeclarationImpl, VariableStatementImpl, VoidNodeToStructureConsole, WriterTypeStructureImpl, forEachAugmentedStructureChild, getAugmentedStructure, isClassMemberStructure, isJsxStructure, isObjectLiteralExpressionPropertyStructure, isStatementStructure, isTypeElementMemberStructure, parseLiteralType };
+export { ArrayTypeStructureImpl, CallSignatureDeclarationImpl, ClassDeclarationImpl, ClassFieldStatementsMap, ClassMembersMap, ClassStaticBlockDeclarationImpl, ClassSupportsStatementsFlags, ConditionalTypeStructureImpl, ConstructSignatureDeclarationImpl, ConstructorDeclarationImpl, ConstructorDeclarationOverloadImpl, DecoratorImpl, EnumDeclarationImpl, EnumMemberImpl, ExportAssignmentImpl, ExportDeclarationImpl, ExportManager, ExportSpecifierImpl, FunctionDeclarationImpl, FunctionDeclarationOverloadImpl, FunctionTypeStructureImpl, FunctionWriterStyle, GetAccessorDeclarationImpl, ImportAttributeImpl, ImportDeclarationImpl, ImportManager, ImportSpecifierImpl, ImportTypeStructureImpl, IndexSignatureDeclarationImpl, IndexedAccessTypeStructureImpl, InferTypeStructureImpl, InterfaceDeclarationImpl, IntersectionTypeStructureImpl, JSDocImpl, JSDocTagImpl, JsxAttributeImpl, JsxElementImpl, JsxSelfClosingElementImpl, JsxSpreadAttributeImpl, LiteralTypeStructureImpl, MappedTypeStructureImpl, MemberedObjectTypeStructureImpl, MemberedTypeToClass, MethodDeclarationImpl, MethodDeclarationOverloadImpl, MethodSignatureImpl, ModuleDeclarationImpl, NamedTupleMemberTypeStructureImpl, NumberTypeStructureImpl, OptionalTypeStructureImpl, ParameterDeclarationImpl, ParameterTypeStructureImpl, ParenthesesTypeStructureImpl, PrefixOperatorsTypeStructureImpl, PropertyAssignmentImpl, PropertyDeclarationImpl, PropertySignatureImpl, QualifiedNameTypeStructureImpl, SetAccessorDeclarationImpl, ShorthandPropertyAssignmentImpl, SourceFileImpl, SpreadAssignmentImpl, StatementStructureKind, StringTypeStructureImpl, TemplateLiteralTypeStructureImpl, TupleTypeStructureImpl, TypeAliasDeclarationImpl, TypeArgumentedTypeStructureImpl, TypeMembersMap, TypeParameterDeclarationImpl, TypePredicateTypeStructureImpl, TypeStructureKind, UnionTypeStructureImpl, UnknownStringStatementImpl, UnknownWriterStatementImpl, VariableDeclarationImpl, VariableStatementImpl, VoidNodeToStructureConsole, WriterTypeStructureImpl, forEachAugmentedStructureChild, getAugmentedStructure, isClassMemberStructure, isJsxStructure, isObjectLiteralExpressionPropertyStructure, isStatementStructure, isStatementedStructure, isTSMorphStatementedStructure, isTypeElementMemberStructure, parseLiteralType };

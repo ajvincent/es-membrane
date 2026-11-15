@@ -6,6 +6,7 @@ import {
 } from "#utilities/source/AsyncSpecModules.js";
 
 import BaseModule from "../moduleClasses/BaseModule.js";
+import UnionModule from "../moduleClasses/UnionModule.js";
 
 import {
   stageDir,
@@ -16,7 +17,6 @@ import createInterfaces from "./interfaces/createInterfaces.js";
 import createStructures from "./structures/createStructures.js";
 import { createIsStructureOfTypeModule } from "./structures/isStructureOfType.js";
 import defineExistingExports from "./publicAndInternalExports.js";
-import fillStructureUnions from "./structureUnions.js";
 
 const distDir = pathToModule(stageDir, "dist");
 
@@ -41,9 +41,11 @@ export default async function buildDist(): Promise<void>
   await cleanDist();
   await fs.mkdir(distDir);
 
-  const structureNames = await fillStructureUnions();
+  const structureNames = UnionModule.fillAliases();
   await createInterfaces(structureNames);
+
   await Promise.all([
+    UnionModule.saveFile(),
     createDecorators(),
     createStructures(),
     createIsStructureOfTypeModule(),

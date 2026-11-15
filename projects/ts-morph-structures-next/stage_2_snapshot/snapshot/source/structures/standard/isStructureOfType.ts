@@ -4,6 +4,7 @@ import type {
   JsxStructureImpls,
   ObjectLiteralExpressionPropertyStructureImpls,
   StatementStructureImpls,
+  TSMorphStatementedStructureImpls,
   TypeElementMemberStructureImpls,
 } from "../../exports.js";
 import { StructureKind } from "ts-morph";
@@ -48,6 +49,24 @@ export function isObjectLiteralExpressionPropertyStructure(
     case StructureKind.SetAccessor:
     case StructureKind.ShorthandPropertyAssignment:
     case StructureKind.SpreadAssignment:
+      return true;
+  }
+
+  return false;
+}
+
+export function isTSMorphStatementedStructure(
+  structure: AugmentedStructures,
+): structure is TSMorphStatementedStructureImpls {
+  switch (structure.kind) {
+    case StructureKind.ClassStaticBlock:
+    case StructureKind.Constructor:
+    case StructureKind.Function:
+    case StructureKind.GetAccessor:
+    case StructureKind.Method:
+    case StructureKind.Module:
+    case StructureKind.SetAccessor:
+    case StructureKind.SourceFile:
       return true;
   }
 

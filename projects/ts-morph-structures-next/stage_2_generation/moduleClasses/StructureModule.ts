@@ -103,7 +103,7 @@ export class StructureModule extends BaseClassModule
     return method;
   }
 
-  getFlatTypeMembers(): TypeMembersMap
+  public getFlatTypeMembers(): TypeMembersMap
   {
     if (this.#flatTypeMembers)
       return this.#flatTypeMembers;
@@ -117,6 +117,10 @@ export class StructureModule extends BaseClassModule
 
     this.#flatTypeMembers = map;
     return map;
+  }
+
+  public isStatemented(): boolean {
+    return this.#interfaceModule.extendsSet.has("StatementedNodeStructure");
   }
 
   protected getSourceFileImpl(): SourceFileImpl {

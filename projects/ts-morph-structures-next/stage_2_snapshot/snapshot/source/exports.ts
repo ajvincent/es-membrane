@@ -100,6 +100,7 @@ export {
   isClassMemberStructure,
   isJsxStructure,
   isObjectLiteralExpressionPropertyStructure,
+  isTSMorphStatementedStructure,
   isTypeElementMemberStructure,
 } from "./structures/standard/isStructureOfType.js";
 export { JSDocImpl } from "./structures/standard/JSDocImpl.js";
@@ -124,7 +125,11 @@ export { TypeAliasDeclarationImpl } from "./structures/standard/TypeAliasDeclara
 export { TypeParameterDeclarationImpl } from "./structures/standard/TypeParameterDeclarationImpl.js";
 export { VariableDeclarationImpl } from "./structures/standard/VariableDeclarationImpl.js";
 export { VariableStatementImpl } from "./structures/standard/VariableStatementImpl.js";
-export type { AugmentedStatementStructures } from "./structures/statements/AugmentedStatements.js";
+export type {
+  AugmentedStatementedStructures,
+  AugmentedStatementStructures,
+} from "./structures/statements/AugmentedStatements.js";
+export { isStatementedStructure } from "./structures/statements/isStatementedStructure.js";
 export { isStatementStructure } from "./structures/statements/isStatementStructure.js";
 export { UnknownStringStatementImpl } from "./structures/statements/UnknownStringStatementImpl.js";
 export { UnknownWriterStatementImpl } from "./structures/statements/UnknownWriterStatementImpl.js";
