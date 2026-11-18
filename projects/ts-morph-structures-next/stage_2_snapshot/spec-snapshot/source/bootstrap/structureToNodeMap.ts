@@ -30,9 +30,8 @@ import {
 } from "#utilities/source/PromiseTypes.js";
 
 import {
-  structureToNodeMap,
-  structureImplToNodeMap,
-} from "#stage_two/snapshot/source/bootstrap/structureToNodeMap.js";
+  BaseStructureAndNodeData
+} from "#stage_two/snapshot/source/bootstrap/StructureToNodeData/Base.js";
 
 import StructureKindToSyntaxKindMap from "#stage_two/snapshot/source/bootstrap/structureToSyntax.js";
 import {
@@ -87,11 +86,10 @@ const fixturesDir: ModuleSourceDirectory = {
 };
 // #endregion preamble
 
-it("structureToNodeMap returns an accurate Map<Structure, Node>", () => {
+it("BaseStructureAndNodeData returns an accurate Map<Structure, Node>", () => {
   const remainingKeys = new Set(remainingKeysBase);
   function checkMap(
     relativePathToModuleFile: string,
-    hashNeedle?: string
   ): void
   {
     const pathToModuleFile = pathToModule(fixturesDir, relativePathToModuleFile);
@@ -100,7 +98,7 @@ it("structureToNodeMap returns an accurate Map<Structure, Node>", () => {
 
     let map: ReadonlyMap<Structures, Node>;
     try {
-      map = structureToNodeMap(sourceFile, false, hashNeedle);
+      map = (new BaseStructureAndNodeData(sourceFile)).structureToNodeMap;
     }
     catch (ex) {
       console.log(pathToModuleFile);
@@ -203,9 +201,6 @@ it("structureToNodeMap returns an accurate Map<Structure, Node>", () => {
 
       remainingKeys.delete(structure.kind);
     });
-
-    const mapWithTypes = structureImplToNodeMap(sourceFile);
-    expect(mapWithTypes.size).withContext(relativePathToModuleFile).toBe(map.size);
   }
 
   checkMap("ecma_references/classDecorators.ts");

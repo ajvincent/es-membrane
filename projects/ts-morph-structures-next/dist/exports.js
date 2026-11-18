@@ -1825,26 +1825,6 @@ function getOverloadIndex(node) {
 var _a$3;
 // #endregion preamble
 /**
- * Get structures for a node and its descendants.
- * @param nodeWithStructures - The node.
- * @returns a map of structures to their original nodes.
- * @internal
- */
-function structureImplToNodeMap(nodeWithStructures) {
-    return structureToNodeMap(nodeWithStructures, true);
-}
-/**
- * Get structures for a node and its descendants.
- * @param nodeWithStructures - The node.
- * @param useTypeAwareStructures - true if we should use the StructureImpls.
- * @param hashNeedle - A string to search for among hashes for nodes and structures.  Generates console logs.
- * @returns a map of structures to their original nodes.
- * @internal
- */
-function structureToNodeMap(nodeWithStructures, useTypeAwareStructures, hashNeedle) {
-    return new StructureAndNodeData(nodeWithStructures, useTypeAwareStructures, hashNeedle).structureToNodeMap;
-}
-/**
  * @internal
  *
  * Iterate over descendant nodes, then over descendant structures, and finally map each structure to a node.
@@ -1864,12 +1844,12 @@ function structureToNodeMap(nodeWithStructures, useTypeAwareStructures, hashNeed
  *
  * Hashes I generate are internal to this class, so if I need to change the hash, I can.
  */
-class StructureAndNodeData {
+class BaseStructureAndNodeData {
     static #knownSyntaxKinds;
     structureToNodeMap = new Map();
     // #region private fields, and life-cycle.
     #rootNode;
-    #rootStructure = null;
+    rootStructure;
     /** The structures we haven't matched yet,  This must be empty at the end of the run. */
     #unusedStructures = new Set();
     /** The root node and its descendants. */
@@ -1885,37 +1865,26 @@ class StructureAndNodeData {
         this.#hashCounter.set(hash, ++count);
         return hash + "#" + count;
     }
-    constructor(nodeWithStructures, useTypeAwareStructures, hashNeedle) {
+    constructor(nodeWithStructures) {
         this.#rootNode = nodeWithStructures;
         if (!_a$3.#knownSyntaxKinds) {
             _a$3.#knownSyntaxKinds = new Set(StructureKindToSyntaxKindMap.values());
         }
         this.#collectDescendantNodes(this.#rootNode, "");
-        if (hashNeedle) {
-            this.#nodeSetsByHash.forEach((nodeSet, hash) => {
-                if (hash.includes(hashNeedle))
-                    console.log("nodeSet: ", hash, Array.from(nodeSet));
-            });
-        }
-        this.#rootStructure = this.#rootNode.getStructure();
-        fixFunctionOverloads(this.#rootStructure);
-        if (useTypeAwareStructures)
-            this.#rootStructure = StructureClassesMap.get(this.#rootStructure.kind).clone(this.#rootStructure);
-        this.#collectDescendantStructures(this.#rootStructure, "");
-        if (hashNeedle) {
-            this.#structureToHash.forEach((hash, structure) => {
-                if (hash.includes(hashNeedle)) {
-                    console.log("structure hash: ", hash, structure);
-                }
-            });
-        }
+        const rootStructure = this.#rootNode.getStructure();
+        fixFunctionOverloads(rootStructure);
+        this.rootStructure = this.upgradeRoot(rootStructure);
+        this.#collectDescendantStructures(this.rootStructure, "");
         this.#unusedStructures.forEach((value) => this.#mapStructureToNode(value));
         assert(this.#unusedStructures.size === 0, "we should've resolved every structure");
         this.#cleanup();
     }
+    upgradeRoot(rootStructure) {
+        return rootStructure;
+    }
     #cleanup() {
         this.#rootNode = null;
-        this.#rootStructure = null;
+        this.rootStructure = null;
         this.#unusedNodes.clear();
         this.#unusedStructures.clear();
         this.#hashToStructureMap.clear();
@@ -2103,7 +2072,7 @@ class StructureAndNodeData {
         // these are outside the statement block for debugging purposes.
         let parentNode = null;
         let parentNodeHash = "";
-        if (structure !== this.#rootStructure) {
+        if (structure !== this.rootStructure) {
             const parentStructure = this.#structureToParent.get(structure);
             assert(parentStructure, "must have a parent structure");
             parentNode = this.structureToNodeMap.get(parentStructure) ?? null;
@@ -2148,7 +2117,7 @@ class StructureAndNodeData {
     #createNodeHashFromStructure(structure) {
         let parentHash = "";
         let parentStructure;
-        if (structure !== this.#rootStructure) {
+        if (structure !== this.rootStructure) {
             parentStructure = this.#structureToParent.get(structure);
             const parentNode = this.structureToNodeMap.get(parentStructure);
             const parentHashTemp = this.#nodeToHash.get(parentNode);
@@ -2175,7 +2144,25 @@ class StructureAndNodeData {
         return hash;
     }
 }
-_a$3 = StructureAndNodeData;
+_a$3 = BaseStructureAndNodeData;
+
+class AugmentedStructureAndNodeData extends BaseStructureAndNodeData {
+    upgradeRoot(rootStructure) {
+        return StructureClassesMap.get(rootStructure.kind).clone(rootStructure);
+    }
+}
+
+// #endregion preamble
+/**
+ * Get structures for a node and its descendants.
+ * @param nodeWithStructures - The node.
+ * @returns a map of structures to their original nodes.
+ * @internal
+ */
+function structureImplToNodeMap(nodeWithStructures) {
+    return new AugmentedStructureAndNodeData(nodeWithStructures)
+        .structureToNodeMap;
+}
 
 // #region preamble
 /**
