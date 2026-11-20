@@ -1,11 +1,4 @@
 import type {
-  MemberedTypeToClass,
-  PropertySignatureImpl,
-  stringOrWriterFunction,
-  TypeMembersMap,
-} from "#stage_two/snapshot/source/exports.js";
-
-import type {
   InterfaceModule
 } from "../moduleClasses/InterfaceModule.ts";
 
