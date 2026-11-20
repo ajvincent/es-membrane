@@ -28,6 +28,7 @@ async function eslint(): Promise<void> {
     "build/**/*.ts",
     "moduleClasses/**/*.ts",
     "pseudoExpressions/**/*.ts",
+    "types/**/*.ts",
     "vanilla/**/*.ts",
   ]);
 }
