@@ -4,7 +4,6 @@ import {
 } from "ts-morph";
 
 import {
-  ArrayTypeStructureImpl,
   ClassBodyStatementsGetter,
   ClassFieldStatementsMap,
   ClassSupportsStatementsFlags,
@@ -20,7 +19,6 @@ import {
   MethodSignatureImpl,
   ParameterDeclarationImpl,
   PropertyInitializerGetter,
-  PropertySignatureImpl,
   TypeArgumentedTypeStructureImpl,
   UnionTypeStructureImpl,
   type stringWriterOrStatementImpl,
@@ -77,7 +75,6 @@ export const StatementedNodeSpecialCases: DecoratorModuleModifierTraps = {
 
     const cloneStatementFilter = new CloneStatement_Statements(module);
 
-    typeToClass.addTypeMember(false, sequenceInitializer.getPropertySignature());
     typeToClass.addTypeMember(true, cloneStatementFilter.getMethodSignature());
 
     typeToClass.addStatementGetters(StatementsPriority.DECORATOR_SPECIFIC, [
@@ -146,12 +143,6 @@ implements PropertyInitializerGetter
       "StatementsSequenceInitializer",
       ClassSupportsStatementsFlags.PropertyInitializer
     );
-  }
-
-  getPropertySignature(): PropertySignatureImpl {
-    const property = new PropertySignatureImpl("statementsSequence");
-    property.typeStructure = new ArrayTypeStructureImpl(LiteralTypeStructureImpl.get("AugmentedStatementStructures"));
-    return property;
   }
 
   filterPropertyInitializer(key: MemberedStatementsKey): boolean {

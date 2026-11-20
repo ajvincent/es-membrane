@@ -73,6 +73,7 @@ export default async function createInterfaces(
   modules.forEach(addTypeStructures);
   modules.forEach(defineImportsForModule);
   modules.forEach(definePublicExport);
+  modules.forEach(module => module.applyModifiers());
   await PromiseAllParallel(modules, module => module.saveFile());
 
   const statementedNodeStructures: LiteralTypeStructureImpl[] = [];

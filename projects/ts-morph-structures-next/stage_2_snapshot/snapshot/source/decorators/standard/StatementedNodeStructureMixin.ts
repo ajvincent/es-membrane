@@ -51,7 +51,7 @@ export function StatementedNodeStructureMixin(
 
   class StatementedNodeStructureMixin extends baseClass {
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
-    statementsSequence: AugmentedStatementStructures[] = [];
+    readonly statementsSequence: AugmentedStatementStructures[] = [];
 
     constructor() {
       super();

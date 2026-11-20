@@ -17,6 +17,7 @@ it("isStructureOfType exports: isStatementStructure (ts-morph native structure t
 it("isStructureOfType exprots: isStatementedStructure (generated structure type)", () => {
   const fnDecl = new FunctionDeclarationImpl();
   expect(isStatementedStructure(fnDecl)).toBeTrue();
+  expect(Array.isArray(fnDecl.statementsSequence)).toBeTrue();
 
   const method = new MethodDeclarationImpl(false, "foo");
   expect(isStatementedStructure(method)).toBeTrue();

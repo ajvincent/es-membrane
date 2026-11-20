@@ -925,6 +925,7 @@ interface SpreadAssignmentStructureClassIfc {
 
 interface StatementedNodeStructureClassIfc {
   readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
+  readonly statementsSequence: AugmentedStatementStructures[];
 }
 
 interface StructureClassIfc {
@@ -1797,6 +1798,7 @@ declare const ClassStaticBlockDeclarationStructureBase: mixin_decorators.MixinCl
     readonly docs: (JSDocImpl | string)[];
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
+    readonly statementsSequence: AugmentedStatementStructures[];
     readonly trailingTrivia: stringOrWriterFunction[];
   },
   typeof StructureBase
@@ -1827,6 +1829,7 @@ declare const ConstructorDeclarationStructureBase: mixin_decorators.MixinClass<
     returnTypeStructure: TypeStructures | undefined;
     scope?: Scope | undefined;
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
+    readonly statementsSequence: AugmentedStatementStructures[];
     readonly trailingTrivia: stringOrWriterFunction[];
     readonly typeParameters: (TypeParameterDeclarationImpl | string)[];
   },
@@ -2148,6 +2151,7 @@ declare const FunctionDeclarationStructureBase: mixin_decorators.MixinClass<
     returnType?: stringOrWriterFunction | undefined;
     returnTypeStructure: TypeStructures | undefined;
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
+    readonly statementsSequence: AugmentedStatementStructures[];
     readonly trailingTrivia: stringOrWriterFunction[];
     readonly typeParameters: (TypeParameterDeclarationImpl | string)[];
   },
@@ -2226,6 +2230,7 @@ declare const GetAccessorDeclarationStructureBase: mixin_decorators.MixinClass<
     returnTypeStructure: TypeStructures | undefined;
     scope?: Scope | undefined;
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
+    readonly statementsSequence: AugmentedStatementStructures[];
     readonly trailingTrivia: stringOrWriterFunction[];
     readonly typeParameters: (TypeParameterDeclarationImpl | string)[];
   },
@@ -2668,6 +2673,7 @@ declare const MethodDeclarationStructureBase: mixin_decorators.MixinClass<
     returnTypeStructure: TypeStructures | undefined;
     scope?: Scope | undefined;
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
+    readonly statementsSequence: AugmentedStatementStructures[];
     readonly trailingTrivia: stringOrWriterFunction[];
     readonly typeParameters: (TypeParameterDeclarationImpl | string)[];
   },
@@ -2780,6 +2786,7 @@ declare const ModuleDeclarationStructureBase: mixin_decorators.MixinClass<
     readonly leadingTrivia: stringOrWriterFunction[];
     name: string;
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
+    readonly statementsSequence: AugmentedStatementStructures[];
     readonly trailingTrivia: stringOrWriterFunction[];
   },
   typeof StructureBase
@@ -2982,6 +2989,7 @@ declare const SetAccessorDeclarationStructureBase: mixin_decorators.MixinClass<
     returnTypeStructure: TypeStructures | undefined;
     scope?: Scope | undefined;
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
+    readonly statementsSequence: AugmentedStatementStructures[];
     readonly trailingTrivia: stringOrWriterFunction[];
     readonly typeParameters: (TypeParameterDeclarationImpl | string)[];
   },
@@ -3205,6 +3213,7 @@ declare const SourceFileStructureBase: mixin_decorators.MixinClass<
   {
     readonly leadingTrivia: stringOrWriterFunction[];
     readonly statements: (StatementStructureImpls | stringOrWriterFunction)[];
+    readonly statementsSequence: AugmentedStatementStructures[];
     readonly trailingTrivia: stringOrWriterFunction[];
   },
   typeof StructureBase

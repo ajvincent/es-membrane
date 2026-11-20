@@ -9,6 +9,14 @@ import {
   TypeMembersMap,
 } from "#stage_two/snapshot/source/exports.js";
 
+import {
+  InterfaceModifiersMap
+} from "../build/interfaces/specialCases/map.js";
+
+import type  {
+  InterfaceModuleModifierTraps
+} from "../types/InterfaceModuleModifierTraps.js";
+
 import BaseModule from "./BaseModule.js";
 import OrderedSet from "./OrderedSet.js";
 import SuffixMap from "./SuffixMap.js";
@@ -35,6 +43,8 @@ class InterfaceModule extends BaseModule {
   readonly typeMembers: TypeMembersMap;
   readonly extendsSet: OrderedSet<string>;
 
+  readonly modifiers: InterfaceModuleModifierTraps | undefined;
+
   #structureKindName?: string;
   get structureKindName(): string | undefined {
     return this.#structureKindName;
@@ -57,6 +67,12 @@ class InterfaceModule extends BaseModule {
     super("source/interfaces/standard", interfaceName, true);
     this.typeMembers = new TypeMembersMap;
     this.extendsSet = new OrderedSet<string>;
+
+    this.modifiers = InterfaceModifiersMap.get(this.defaultExportName.replace(/ClassIfc$/, ""));
+  }
+
+  public applyModifiers(): void {
+    this.modifiers?.modifyTypeMembers?.(this);
   }
 
   protected getSourceFileImpl(): SourceFileImpl {
