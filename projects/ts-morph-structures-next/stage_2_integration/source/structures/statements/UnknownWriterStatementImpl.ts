@@ -8,7 +8,7 @@ import {
   InnerTypeElement
  } from "../../array-utilities/ShadowArrayImpl.js";
 
- import {
+import {
   StatementStructureKind
 } from "../../base/StatementStructureKind.js";
 
@@ -28,7 +28,10 @@ import {
   StatementStructuresBase
 } from "./StatementStructuresBase.js";
 
-/** For `WriterFunction` objects the user provides.  You should never need to construct these manually.  */
+/**
+ * For `WriterFunction` objects the user provides.  You should never need to construct these manually.
+ * @deprecated
+ */
 export class UnknownWriterStatementImpl
 extends StatementStructuresBase<StatementStructureKind.UnknownWriter>
 implements InnerTypeElement<WriterFunction>

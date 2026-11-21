@@ -12,6 +12,7 @@ export function isStatementStructure(
 ): structure is AugmentedStatementStructures
 {
   switch (structure.kind) {
+    case StatementStructureKind.Empty:
     case StatementStructureKind.UnknownString:
     case StatementStructureKind.UnknownWriter:
       return true;

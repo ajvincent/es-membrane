@@ -3,7 +3,7 @@ import type {
 } from "../types/ts-morph-nodewriter.js";
 
 export enum ExpressionStructureKind {
-  Unknown = 1001000000 - 1,
+  UnknownString = 1001000000,
 }
 
 export interface KindedTypeStructure<

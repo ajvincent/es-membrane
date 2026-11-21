@@ -20,24 +20,26 @@ export class UnknownStringStatementImpl
   extends StatementStructuresBase<StatementStructureKind.UnknownString>
   implements InnerTypeElement<string>
 {
-  static clone(other: UnknownStringStatementImpl): UnknownStringStatementImpl {
-    return new UnknownStringStatementImpl(other[GET_OUTER_TYPE]());
+  public static clone(
+    other: UnknownStringStatementImpl,
+  ): UnknownStringStatementImpl {
+    return new UnknownStringStatementImpl(other.statement);
   }
 
-  #statement: string;
+  statement: string;
   public readonly kind = StatementStructureKind.UnknownString;
 
   public constructor(statement: string) {
     super();
-    this.#statement = statement;
+    this.statement = statement;
   }
 
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void {
-    writer.write(this.#statement);
+    writer.write(this.statement);
   }
 
   public [GET_OUTER_TYPE](): string {
-    return this.#statement;
+    return this.statement;
   }
 }
 UnknownStringStatementImpl satisfies CloneableStatementStructure<UnknownStringStatementImpl>;

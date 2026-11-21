@@ -15,7 +15,10 @@ import { WRITER_FUNCTION_KEY } from "../WriterStructuresBase.js";
 
 import { StatementStructuresBase } from "./StatementStructuresBase.js";
 
-/** For `WriterFunction` objects the user provides.  You should never need to construct these manually.  */
+/**
+ * For `WriterFunction` objects the user provides.  You should never need to construct these manually.
+ * @deprecated
+ */
 export class UnknownWriterStatementImpl
   extends StatementStructuresBase<StatementStructureKind.UnknownWriter>
   implements InnerTypeElement<WriterFunction>

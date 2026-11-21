@@ -1,11 +1,19 @@
 import {
+  CodeBlockWriter
+} from "ts-morph";
+
+import {
   STRUCTURE_CHILDREN
 } from "../../../snapshot/source/internal-exports.js";
 
 import {
   GET_OUTER_TYPE,
   type InnerTypeElement,
-} from "../../array-utilities/ShadowArrayImpl.js"
+} from "../../array-utilities/ShadowArrayImpl.js";
+
+import {
+  REPLACE_WRITER_WITH_STRING
+} from "../../base/symbolKeys.js";
 
 import {
   StatementStructureKind,
@@ -38,5 +46,17 @@ implements KindedStatementStructure<Kind>, InnerTypeElement<stringOrWriterFuncti
 
   public [GET_OUTER_TYPE](): stringOrWriterFunction {
     return this.writerFunction;
+  }
+
+  protected static [REPLACE_WRITER_WITH_STRING](
+    value: stringOrWriterFunction
+  ): string {
+    if (typeof value === "function") {
+      const writer = new CodeBlockWriter();
+      value(writer);
+      return writer.toString();
+    }
+
+    return value;
   }
 }

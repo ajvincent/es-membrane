@@ -129,6 +129,7 @@ export type {
   AugmentedStatementedStructures,
   AugmentedStatementStructures,
 } from "./structures/statements/AugmentedStatements.js";
+export { EmptyStatementImpl } from "./structures/statements/EmptyStatementImpl.js";
 export { isStatementedStructure } from "./structures/statements/isStatementedStructure.js";
 export { isStatementStructure } from "./structures/statements/isStatementStructure.js";
 export { UnknownStringStatementImpl } from "./structures/statements/UnknownStringStatementImpl.js";
