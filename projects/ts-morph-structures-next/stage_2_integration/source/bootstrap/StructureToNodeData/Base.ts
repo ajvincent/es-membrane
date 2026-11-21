@@ -11,11 +11,12 @@ import {
   StructureKind,
   SyntaxKind,
   forEachStructureChild,
+  SourceFile,
 } from "ts-morph";
 
 import {
   StructureKindToSyntaxKindMap,
-} from "../../../snapshot/source/internal-exports.js";
+} from "../structureToSyntax.js";
 
 import type {
   NodeWithStructures,
@@ -49,13 +50,15 @@ import {
  */
 export class BaseStructureAndNodeData
 {
-  static #knownSyntaxKinds?: ReadonlySet<SyntaxKind>;
+  static readonly #knownSyntaxKinds: ReadonlySet<SyntaxKind> = new Set<SyntaxKind>(
+    StructureKindToSyntaxKindMap.values()
+  );
 
   readonly structureToNodeMap = new Map<Structures, Node>;
 
   // #region private fields, and life-cycle.
 
-  #rootNode: NodeWithStructures | null;
+  readonly #rootNode: NodeWithStructures;
   protected rootStructure: Structures | null;
 
   /** The structures we haven't matched yet,  This must be empty at the end of the run. */
@@ -71,45 +74,45 @@ export class BaseStructureAndNodeData
   readonly #nodeSetsByHash = new Map<string, Set<Node>>;
   readonly #nodeToHash = new Map<Node, string>;
 
-  #hashCounter = new Map<string, number>;
-
-  #appendCounterPostfix(hash: string): string {
-    let count = this.#hashCounter.get(hash) ?? 0;
-    this.#hashCounter.set(hash, ++count);
-    return hash + "#" + count;
-  }
+  readonly #hashCounter = new Map<string, number>;
 
   constructor(
     nodeWithStructures: NodeWithStructures,
   )
   {
     this.#rootNode = nodeWithStructures;
-    if (!BaseStructureAndNodeData.#knownSyntaxKinds) {
-      BaseStructureAndNodeData.#knownSyntaxKinds = new Set<SyntaxKind>(StructureKindToSyntaxKindMap.values());
-    }
-
-    this.#collectDescendantNodes(this.#rootNode, "");
-
-    const rootStructure = this.#rootNode.getStructure();
-    fixFunctionOverloads(rootStructure);
-
-    this.rootStructure = this.upgradeRoot(rootStructure);
-
-    this.#collectDescendantStructures(this.rootStructure, "");
-
-    this.#unusedStructures.forEach(value => this.#mapStructureToNode(value));
-    assert(this.#unusedStructures.size === 0, "we should've resolved every structure");
-
-    this.#cleanup();
+    this.rootStructure = null;
   }
 
-  protected upgradeRoot(rootStructure: Structures): Structures {
+  public fill(): Structures {
+    try {
+      this.#collectDescendantNodes(this.#rootNode, "");
+
+      const rootStructure = this.#rootNode.getStructure();
+      fixFunctionOverloads(rootStructure);
+
+      this.rootStructure = this.upgradeRootStructure(rootStructure);
+
+      this.collectDescendantStructures(this.rootStructure, "");
+
+      this.#unusedStructures.forEach(value => this.mapStructureToNode(value));
+      assert(this.#unusedStructures.size === 0, "we should've resolved every structure");
+
+      this.#cleanup();
+      return this.rootStructure;
+    }
+    catch (ex) {
+      const sourceFile: SourceFile = this.#rootNode.getSourceFile();
+      const location = sourceFile.getFilePath();
+      throw new Error("failed to build structure from file " + location, { cause: ex });
+    }
+  }
+
+  protected upgradeRootStructure(rootStructure: Structures): Structures {
     return rootStructure;
   }
 
   #cleanup(): void {
-    this.#rootNode = null;
-    this.rootStructure = null;
     this.#unusedNodes.clear();
     this.#unusedStructures.clear();
     this.#hashToStructureMap.clear();
@@ -140,9 +143,9 @@ export class BaseStructureAndNodeData
     const kind: SyntaxKind = node.getKind();
 
     // Build the node hash, and register the node.
-    if (BaseStructureAndNodeData.#knownSyntaxKinds!.has(kind) && (this.#nodeToHash.has(node) === false)) {
+    if (BaseStructureAndNodeData.#knownSyntaxKinds.has(kind) && this.#nodeToHash.has(node) === false) {
       const localHash = this.#hashNodeLocal(node);
-      assert(localHash, "this.#hashNodeLocal() must return a non-empty string");
+      assert(localHash, "this.hashNodeLocal() must return a non-empty string");
 
       hash += "/" + localHash;
       assert.doesNotMatch(localHash, /^\//, "local hash part must not start with a slash: " + localHash);
@@ -272,7 +275,7 @@ export class BaseStructureAndNodeData
    * Each structure's hash will be the parent hash, then a slash, then the return from `this.#hashStructureLocal()`.
    * Structure hashes are unique.
    */
-  #collectDescendantStructures(
+  protected collectDescendantStructures(
     structure: Structures,
     hash: string,
   ): void
@@ -294,7 +297,7 @@ export class BaseStructureAndNodeData
       if (child.kind === StructureKind.FunctionOverload)
         return;
       this.#structureToParent.set(child, structure);
-      this.#collectDescendantStructures(child, hash);
+      this.collectDescendantStructures(child, hash);
     });
 
     if ((structure.kind === StructureKind.Function) && (structure.overloads?.length)) {
@@ -303,7 +306,7 @@ export class BaseStructureAndNodeData
         overloadStructure.kind = StructureKind.FunctionOverload;
 
         this.#structureToParent.set(overloadStructure, structure);
-        this.#collectDescendantStructures(overloadStructure, hash);
+        this.collectDescendantStructures(overloadStructure, hash);
       });
     }
   }
@@ -332,11 +335,17 @@ export class BaseStructureAndNodeData
     return hash;
   }
 
+  #appendCounterPostfix(hash: string): string {
+    let count = this.#hashCounter.get(hash) ?? 0;
+    this.#hashCounter.set(hash, ++count);
+    return hash + "#" + count;
+  }
+
   // #endregion structure traversal
 
   // #region structure-to-node
 
-  #mapStructureToNode(
+  protected mapStructureToNode(
     structure: Structures
   ): void
   {
@@ -373,7 +382,7 @@ export class BaseStructureAndNodeData
       */
 
       let parentMsg: string;
-      const sourceFile = this.#rootNode!.getSourceFile();
+      const sourceFile = this.#rootNode.getSourceFile();
       if (parentNode) {
         const { line, column } = sourceFile.getLineAndColumnAtPos(parentNode.getPos());
         parentMsg = `, parent at ${sourceFile.getFilePath()} line ${line} column ${column}`;

@@ -290,13 +290,6 @@ function defineInternalExports(): void
   });
 
   internalExports.addExports({
-    pathToExportedModule: pathToModule(distDir, "source/bootstrap/structureToSyntax.ts"),
-    exportNames: ["StructureKindToSyntaxKindMap"],
-    isDefaultExport: true,
-    isType: false,
-  });
-
-  internalExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/base/StatementStructureClassesMap.ts"),
     exportNames: ["StatementStructureClassesMap"],
     isDefaultExport: false,

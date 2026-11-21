@@ -14,7 +14,16 @@ import type {
 import {
   AugmentedStructureAndNodeData
 } from "./StructureToNodeData/Augmented.js";
+
+import {
+  AugmentedStructures
+} from "../types/AugmentedStructures.js";
 // #endregion preamble
+
+interface MapAndRootStructure {
+  readonly map: ReadonlyMap<AugmentedStructures, Node>;
+  readonly rootStructure: StructureImpls;
+}
 
 /**
  * Get structures for a node and its descendants.
@@ -24,9 +33,12 @@ import {
  */
 export function structureImplToNodeMap(
   nodeWithStructures: NodeWithStructures,
-): ReadonlyMap<StructureImpls, Node>
+): MapAndRootStructure
 {
-  return (new AugmentedStructureAndNodeData(
-    nodeWithStructures,
-  )).structureToNodeMap;
+  const data = new AugmentedStructureAndNodeData(nodeWithStructures);
+  const rootStructure = data.fill();
+  return {
+    map: data.augmentedStructureToNodeMap,
+    rootStructure
+  };
 }

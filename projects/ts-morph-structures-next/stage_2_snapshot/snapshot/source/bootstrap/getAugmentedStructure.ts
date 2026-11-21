@@ -1,13 +1,13 @@
 // #region preamble
 import assert from "node:assert/strict";
 
-import { Node, type StructureKind } from "ts-morph";
+import { type StructureKind } from "ts-morph";
 
 import type { StructureImpls } from "../exports.js";
 
-import { StructureKindToSyntaxKindMap } from "../internal-exports.js";
-
 import { structureImplToNodeMap } from "./structureToNodeMap.js";
+
+import { StructureKindToSyntaxKindMap } from "./structureToSyntax.js";
 
 import buildTypesForStructures from "./buildTypesForStructures.js";
 
@@ -63,18 +63,8 @@ function getAugmentedStructure(
     throw new Error("Root node kind does not match!");
   }
 
-  const map: ReadonlyMap<StructureImpls, Node> =
-    structureImplToNodeMap(rootNode);
+  const { map, rootStructure } = structureImplToNodeMap(rootNode);
   assert(map.size > 0, "we should have some structures");
-
-  let rootStructure: StructureImpls | undefined;
-  for (const [structure, node] of map.entries()) {
-    if (node === rootNode) {
-      rootStructure = structure;
-      break;
-    }
-  }
-  assert(rootStructure, "we should have a root structure");
 
   const subFailures: ConversionFailureMessage[] = [];
 

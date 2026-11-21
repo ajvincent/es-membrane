@@ -44,4 +44,4 @@ const StructureKindToSyntaxKindMap: ReadonlyMap<StructureKind, SyntaxKind> = new
   [StructureKind.TypeParameter, SyntaxKind.TypeParameter],
   [StructureKind.VariableDeclaration, SyntaxKind.VariableDeclaration],
 ]);
-export default StructureKindToSyntaxKindMap;
+export { StructureKindToSyntaxKindMap };

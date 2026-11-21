@@ -91,7 +91,7 @@ async function structureToSyntax(): Promise<void>
     }
   }
   fileWriter.writeLine("]);");
-  fileWriter.writeLine("export default StructureKindToSyntaxKindMap;");
+  fileWriter.writeLine("export { StructureKindToSyntaxKindMap };");
 
   const pathToMapFile = pathToModule(stageDir, "snapshot/source/bootstrap/structureToSyntax.ts");
   await fs.mkdir(path.dirname(pathToMapFile), { recursive: true });

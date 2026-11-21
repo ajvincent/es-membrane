@@ -25,6 +25,7 @@ import {
 export default
 async function structureToSyntax(): Promise<void>
 {
+  // TODO: stop using `CodeBlockWriter` to create source code.
   const fileWriter: CodeBlockWriter = new CodeBlockWriter({
     indentNumberOfSpaces: 2
   });
@@ -91,7 +92,7 @@ async function structureToSyntax(): Promise<void>
     }
   }
   fileWriter.writeLine("]);");
-  fileWriter.writeLine("export default StructureKindToSyntaxKindMap;");
+  fileWriter.writeLine("export { StructureKindToSyntaxKindMap };");
 
   const pathToMapFile = pathToModule(stageDir, "snapshot/source/bootstrap/structureToSyntax.ts");
   await fs.mkdir(path.dirname(pathToMapFile), { recursive: true });

@@ -34,6 +34,10 @@ import type {
   TypeStructureSequence
 } from "../base/TypeStructureSequence.js";
 
+import type {
+  AugmentedStructures
+} from "../types/AugmentedStructures.js";
+
 // #endregion preamble
 
 type TypeStructureKey<Key extends string> = {
@@ -54,7 +58,7 @@ type TypeStructureKey<Key extends string> = {
  * type structure to the appropriate structure field.
  */
 export default function buildTypesForStructures(
-  structureMap: ReadonlyMap<StructureImpls, Node>,
+  structureMap: ReadonlyMap<AugmentedStructures, Node>,
   userConsole: NodeToStructureConsole,
   subStructureResolver: SubstructureResolver,
   converter: TypeNodeToTypeStructure

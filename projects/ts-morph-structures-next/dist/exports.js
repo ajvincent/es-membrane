@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { StructureKind, CodeBlockWriter, ModuleResolutionKind, ScriptTarget, ModuleKind, Project, SyntaxKind, Structure, forEachStructureChild, Node, ConstructorTypeNode, Writers, printStructure } from 'ts-morph';
+import { StructureKind, SyntaxKind, Structure, forEachStructureChild, Node, ConstructorTypeNode, ModuleResolutionKind, ScriptTarget, ModuleKind, Project, CodeBlockWriter, Writers, printStructure } from 'ts-morph';
 import path from 'node:path';
 import MultiMixinBuilder from 'mixin-decorators';
 
@@ -36,484 +36,6 @@ var TypeStructureKind;
     TypeStructureKind[TypeStructureKind["NamedTupleMember"] = 1000000022] = "NamedTupleMember";
     TypeStructureKind[TypeStructureKind["Optional"] = 1000000023] = "Optional";
 })(TypeStructureKind || (TypeStructureKind = {}));
-
-const BUILD_ARRAY_WRAPPER = Symbol("build new array");
-const GET_OUTER_TYPE = Symbol("get outer type");
-const CONVERT_OUTER_TO_INNER = Symbol("convert outer type to inner type");
-
-/**
- * This is a minimalist ProxyHandler for methods of Array.prototype.
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy#handler_functions}
- *
- * @internal
- */
-class ArrayPrototypeProxyHandler {
-    static #shadowToMethodName = new WeakMap();
-    static #proxyToArrayImpl = new WeakMap();
-    /** The prototype to use for shadow targets. */
-    static proto = [];
-    static {
-        const handler = new ArrayPrototypeProxyHandler();
-        for (const key of Reflect.ownKeys(Array.prototype)) {
-            if (key === "length")
-                continue;
-            const shadow = function () {
-                // do nothing
-            };
-            const proxy = new Proxy(shadow, handler);
-            const desc = {
-                configurable: false,
-                enumerable: true,
-                writable: false,
-                value: proxy,
-            };
-            Reflect.defineProperty(this.proto, key, desc);
-            this.#shadowToMethodName.set(shadow, key);
-        }
-        // length get/set support
-        {
-            const shadowGetter = function () {
-                // do nothing
-            };
-            const proxyGetter = new Proxy(shadowGetter, handler);
-            this.#shadowToMethodName.set(shadowGetter, "getLength");
-            const shadowSetter = function () {
-                // do nothing
-            };
-            const proxySetter = new Proxy(shadowSetter, handler);
-            this.#shadowToMethodName.set(shadowSetter, "setLength");
-            const desc = {
-                configurable: false,
-                enumerable: false,
-                get: proxyGetter,
-                set: proxySetter,
-            };
-            Reflect.defineProperty(this.proto, "length", desc);
-        }
-    }
-    /**
-     * Tie a proxy to its shadow array implementation.
-     * @param proxyThis The proxy.
-     * @param arrayImpl The shadow array.
-     *
-     * @internal
-     */
-    static assignProxyToArrayImpl(proxyThis, arrayImpl) {
-        this.#proxyToArrayImpl.set(proxyThis, arrayImpl);
-    }
-    constructor() {
-        // do nothing
-    }
-    // ProxyHandler
-    apply(shadowTarget, thisArg, // a proxy
-    argArray) {
-        const methodName = ArrayPrototypeProxyHandler.#shadowToMethodName.get(shadowTarget);
-        const arrayImpl = ArrayPrototypeProxyHandler.#proxyToArrayImpl.get(thisArg);
-        // @ts-expect-error methodName is not a number, damn it
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        return arrayImpl[methodName](...argArray);
-    }
-}
-
-/**
- * A proxy handler for array.length, array[index].  The array prototype will be `ArrayPrototypeProxyHandler.proto`.
- * @internal
- */
-class ArrayElementsProxyHandler {
-    static #getIndex(p) {
-        if (typeof p === "string") {
-            const np = parseFloat(p);
-            if (np % 1 === 0 && np >= 0) {
-                return np;
-            }
-        }
-    }
-    #shadowToArrayImplMap = new WeakMap();
-    /**
-     * Tie a shadow array to the array implementation.
-     * @param shadowTarget
-     * @param arrayImpl
-     *
-     * @internal
-     */
-    assignShadowToArrayImpl(shadowTarget, arrayImpl) {
-        this.#shadowToArrayImplMap.set(shadowTarget, arrayImpl);
-    }
-    // ProxyHandler
-    defineProperty(shadowTarget, property, attributes) {
-        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
-        if (property === "length") {
-            arrayImpl.setLength((attributes.get === undefined
-                ? attributes.value
-                : attributes.get()));
-            return true;
-        }
-        const index = ArrayElementsProxyHandler.#getIndex(property);
-        if (typeof index === "number") {
-            arrayImpl.replaceAt(index, (attributes.get === undefined
-                ? attributes.value
-                : attributes.get()));
-            return true;
-        }
-        return false;
-    }
-    // ProxyHandler
-    deleteProperty(shadowTarget, p) {
-        return false;
-    }
-    // ProxyHandler
-    getOwnPropertyDescriptor(shadowTarget, p) {
-        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
-        if (p === "length") {
-            const value = arrayImpl.getLength();
-            return { value, writable: true, enumerable: false, configurable: false };
-        }
-        const np = ArrayElementsProxyHandler.#getIndex(p);
-        if (typeof np === "number" && np < arrayImpl.getLength()) {
-            const value = arrayImpl.at(np);
-            return { value, writable: true, enumerable: true, configurable: true };
-        }
-        return Reflect.getOwnPropertyDescriptor(shadowTarget, p);
-    }
-    // ProxyHandler
-    get(shadowTarget, p, receiver) {
-        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
-        if (p === "length") {
-            const value = arrayImpl.getLength();
-            /* arrayImpl should've updated shadowTarget.length
-            shadowTarget.length = value;
-            */
-            return value;
-        }
-        const np = ArrayElementsProxyHandler.#getIndex(p);
-        if (typeof np === "number" && np < arrayImpl.getLength()) {
-            const value = arrayImpl.at(np);
-            /* arrayImpl should've updated shadowTarget[np]
-            shadowTarget[np] = value;
-            */
-            return value;
-        }
-        return Reflect.get(shadowTarget, p, receiver);
-    }
-    // ProxyHandler
-    has(shadowTarget, p) {
-        if (p === "length")
-            return true;
-        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
-        const np = ArrayElementsProxyHandler.#getIndex(p);
-        if (typeof np === "number" && np < arrayImpl.getLength())
-            return true;
-        return Reflect.has(shadowTarget, p);
-    }
-    // ProxyHandler
-    ownKeys(shadowTarget) {
-        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
-        const keys = ShadowArrayImpl.indexRange(arrayImpl.getLength()).map(String);
-        keys.push("length");
-        // only length is not configurable, and the array is extensible
-        // so we don't need to update the shadow target specifically
-        // if someone makes innerElements non-extensible, this will cause problems
-        return keys;
-    }
-    // ProxyHandler
-    preventExtensions(shadowTarget) {
-        return false;
-    }
-    // ProxyHandler
-    set(shadowTarget, p, newValue, receiver) {
-        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
-        if (p === "length") {
-            arrayImpl.setLength(newValue);
-            return true;
-        }
-        const np = ArrayElementsProxyHandler.#getIndex(p);
-        if (typeof np === "number") {
-            arrayImpl.replaceAt(np, newValue);
-            return true;
-        }
-        return false;
-    }
-    // ProxyHandler
-    setPrototypeOf(shadowTarget, v) {
-        return false;
-    }
-}
-
-/**
- * This is a helper for implementing methods of an array, so the proxy can report the correct results.
- *
- * Subclass methods you must implement:
- *
- * - static createProxy (returns new ShadowArrayImpl(innerElements).proxy)
- * - [BUILD_ARRAY_WRAPPER]
- * - [CONVERT_OUTER_TO_INNER]
- *
- * Your constructor should be protected, not public.
- */
-class ShadowArrayImpl {
-    static #arrayElementsHandler = new ArrayElementsProxyHandler();
-    /**
-     * @param innerElements {InnerTypeElement<OuterType>[]} the elements implementing the native type
-     *
-     * @returns {OuterType[]} the proxy defining the wrapped type array.
-     *
-     * @remarks `return new ShadowArrayImplSubclass(innerElements).proxy;`
-     */
-    static createProxy(innerElements) {
-        throw new Error("override this method");
-    }
-    /**
-     * Utility to get a range of indexes for a given length.
-     *
-     * @internal
-     */
-    static indexRange(length) {
-        const indexes = [];
-        for (let i = 0; i < length; i++) {
-            indexes.push(i);
-        }
-        return indexes;
-    }
-    /** Our proxy to implement the array. */
-    proxy;
-    /** The _actual_ values we're reflecting.  This is a live pointer to the array, not a slice. */
-    #innerElements;
-    /** Convenience function to avoid binding over and over again. */
-    #convertOuterTypeToInner = (outerType) => this[CONVERT_OUTER_TO_INNER](outerType);
-    /** The shadow target. */
-    #shadow;
-    constructor(innerElements) {
-        /* You should have come here via ShadowArrayImpl::createProxy, which you should have overridden. */
-        this.#innerElements = innerElements;
-        this.#shadow = []; // necessary for Array.isArray()
-        Reflect.defineProperty(this.#shadow, "length", {
-            configurable: false,
-            enumerable: false,
-        });
-        Reflect.setPrototypeOf(this.#shadow, ArrayPrototypeProxyHandler.proto);
-        this.proxy = new Proxy(this.#shadow, ShadowArrayImpl.#arrayElementsHandler);
-        ShadowArrayImpl.#arrayElementsHandler.assignShadowToArrayImpl(this.#shadow, this);
-        ArrayPrototypeProxyHandler.assignProxyToArrayImpl(this.proxy, this);
-    }
-    /** proxy access to get length() */
-    getLength() {
-        // proxy invariant technically only applies for NWNC descriptors, but in our implementation we're not likely to care
-        return this.#innerElements.length;
-    }
-    /** proxy access to set length() */
-    setLength(newLength) {
-        this.#innerElements.length = newLength;
-    }
-    /** proxy prototype helper to set [index] */
-    replaceAt(index, value) {
-        this.#innerElements[index] = this.#convertOuterTypeToInner(value);
-    }
-    // OuterType[]
-    at(index) {
-        const innerElement = this.#innerElements.at(index);
-        // proxy invariant technically only applies for NWNC descriptors, but in our implementation we're not likely to care
-        return innerElement?.[GET_OUTER_TYPE]();
-    }
-    // OuterType[]
-    *[Symbol.iterator]() {
-        for (const innerValue of this.#innerElements)
-            yield innerValue[GET_OUTER_TYPE]();
-    }
-    // OuterType[]
-    get [Symbol.unscopables]() {
-        throw new Error("not yet implemented");
-    }
-    // OuterType[]
-    pop() {
-        return this.#innerElements.pop()?.[GET_OUTER_TYPE]();
-    }
-    // OuterType[]
-    push(...outerItems) {
-        const innerItems = outerItems.map(this.#convertOuterTypeToInner);
-        return this.#innerElements.push(...innerItems);
-    }
-    // OuterType[]
-    concat(...items) {
-        const newOuterItems = items.flatMap((item) => item.slice());
-        return this[BUILD_ARRAY_WRAPPER](...this.#innerElements, ...newOuterItems.map(this.#convertOuterTypeToInner));
-    }
-    // OuterType[]
-    join(separator) {
-        return this.#innerElements
-            .map((element) => element[GET_OUTER_TYPE]())
-            .join(separator);
-    }
-    // OuterType[]
-    reverse() {
-        this.#innerElements.reverse();
-        return this.proxy;
-    }
-    // OuterType[]
-    shift() {
-        return this.#innerElements.shift()?.[GET_OUTER_TYPE]();
-    }
-    // OuterType[]
-    slice(start, end) {
-        return this[BUILD_ARRAY_WRAPPER](...this.#innerElements.slice(start, end));
-    }
-    // OuterType[]
-    sort(compareFn) {
-        const outerElements = this.#innerElements.map((element) => element[GET_OUTER_TYPE]());
-        const sortOrder = ShadowArrayImpl.indexRange(outerElements.length);
-        if (compareFn) {
-            sortOrder.sort((a, b) => compareFn(outerElements[a], outerElements[b]));
-        }
-        else {
-            const stringifiedOuter = outerElements.map(String);
-            sortOrder.sort((a, b) => stringifiedOuter[a].localeCompare(stringifiedOuter[b]));
-        }
-        const innerSlice = this.#innerElements.slice();
-        for (let i = 0; i < this.#innerElements.length; i++) {
-            this.#innerElements[i] = innerSlice[sortOrder[i]];
-        }
-        return this.proxy;
-    }
-    // OuterType[]
-    splice(start, deleteCount, ...outerItems) {
-        const newInnerItems = outerItems.map(this.#convertOuterTypeToInner);
-        const extractedInnerItems = this.#innerElements.splice(start, deleteCount ?? 0, ...newInnerItems);
-        return this[BUILD_ARRAY_WRAPPER](...extractedInnerItems);
-    }
-    // OuterType[]
-    unshift(...outerItems) {
-        const innerItems = outerItems.map(this.#convertOuterTypeToInner);
-        return this.#innerElements.unshift(...innerItems);
-    }
-    // OuterType[]
-    indexOf(searchElement, fromIndex) {
-        return this.#innerElements.findIndex(this.#innerFinder.bind(this, searchElement), fromIndex);
-    }
-    #innerFinder(searchElement, inner) {
-        return inner[GET_OUTER_TYPE]() === searchElement;
-    }
-    // OuterType[]
-    lastIndexOf(searchElement, fromIndex) {
-        return this.#innerElements.findLastIndex(this.#innerFinder.bind(this, searchElement), fromIndex);
-    }
-    // OuterType[]
-    every(predicate, thisArg) {
-        return this.#innerElements.every(this.#innerPredicate.bind(this, predicate), thisArg);
-    }
-    #innerPredicate(predicate, innerElement, index) {
-        return predicate(innerElement[GET_OUTER_TYPE](), index, this.proxy);
-    }
-    // OuterType[]
-    some(predicate, thisArg) {
-        return this.#innerElements.some(this.#innerPredicate.bind(this, predicate), thisArg);
-    }
-    // OuterType[]
-    forEach(callbackfn, thisArg) {
-        this.#innerElements.forEach((innerValue, index) => callbackfn(innerValue[GET_OUTER_TYPE](), index, this.proxy), thisArg);
-    }
-    // OuterType[]
-    map(callbackfn, thisArg) {
-        return this.#innerElements.map((innerValue, index) => callbackfn(innerValue[GET_OUTER_TYPE](), index, this.proxy), thisArg);
-    }
-    // OuterType[]
-    filter(predicate, thisArg) {
-        const newElements = this.#innerElements.filter((innerValue, index) => predicate(innerValue[GET_OUTER_TYPE](), index, this.proxy), thisArg);
-        return this[BUILD_ARRAY_WRAPPER](...newElements);
-    }
-    // OuterType[]
-    reduce(callbackfn) {
-        return this.#innerElements
-            .reduce(this.#reducer.bind(this, callbackfn))[GET_OUTER_TYPE]();
-    }
-    // OuterType[]
-    reduceRight(callbackfn) {
-        return this.#innerElements
-            .reduceRight(this.#reducer.bind(this, callbackfn))[GET_OUTER_TYPE]();
-    }
-    #reducer(callbackfn, previousInner, currentInner, currentIndex) {
-        const previousOuter = previousInner[GET_OUTER_TYPE]();
-        const currentOuter = currentInner[GET_OUTER_TYPE]();
-        const newOuterType = callbackfn(previousOuter, currentOuter, currentIndex, this.proxy);
-        return this[CONVERT_OUTER_TO_INNER](newOuterType);
-    }
-    // OuterType[]
-    find(predicate, thisArg) {
-        return this.#innerElements
-            .find(this.#finder.bind(this, predicate), thisArg)?.[GET_OUTER_TYPE]();
-    }
-    // OuterType[]
-    findIndex(predicate, thisArg) {
-        return this.#innerElements.findIndex(this.#finder.bind(this, predicate), thisArg);
-    }
-    #finder(outerPredicate, innerValue, index) {
-        return outerPredicate(innerValue[GET_OUTER_TYPE](), index, this.proxy);
-    }
-    // OuterType[]
-    fill(outerValue, start, end) {
-        const innerValue = this.#convertOuterTypeToInner(outerValue);
-        this.#innerElements.fill(innerValue, start, end);
-        return this.proxy;
-    }
-    // OuterType[]
-    copyWithin(target, start, end) {
-        this.#innerElements.copyWithin(target, start, end);
-        return this.proxy;
-    }
-    // OuterType[]
-    *entries() {
-        for (const [index, innerValue] of this.#innerElements.entries()) {
-            yield [index, innerValue[GET_OUTER_TYPE]()];
-        }
-    }
-    // OuterType[]
-    keys() {
-        return this.#innerElements.keys();
-    }
-    // OuterType[]
-    values() {
-        return this[Symbol.iterator]();
-    }
-    // OuterType[]
-    includes(searchElement, fromIndex) {
-        return this.indexOf(searchElement, fromIndex) !== -1;
-    }
-    // OuterType[]
-    flatMap(callback, thisArg) {
-        throw new Error("not yet implemented");
-    }
-    // OuterType[]
-    flat(depth) {
-        throw new Error("not yet implemented");
-    }
-    // OuterType[]
-    findLast(predicate, thisArg) {
-        return this.#innerElements
-            .findLast(this.#finder.bind(this, predicate), thisArg)?.[GET_OUTER_TYPE]();
-    }
-    // OuterType[]
-    findLastIndex(predicate, thisArg) {
-        return this.#innerElements.findLastIndex(this.#finder.bind(this, predicate), thisArg);
-    }
-    // OuterType[]
-    toReversed() {
-        return this.slice().reverse();
-    }
-    // OuterType[]
-    toSorted(compareFn) {
-        return this.slice().sort(compareFn);
-    }
-    // OuterType[]
-    toSpliced(start, deleteCount, ...outerItems) {
-        const newInnerItems = outerItems.map(this.#convertOuterTypeToInner);
-        const allInnerItems = this.#innerElements.toSpliced(start, deleteCount, ...newInnerItems);
-        return this[BUILD_ARRAY_WRAPPER](...allInnerItems);
-    }
-    // OuterType[]
-    with(index, outerValue) {
-        const innerValue = this[CONVERT_OUTER_TO_INNER](outerValue);
-        const innerArray = this.#innerElements.with(index, innerValue);
-        return this[BUILD_ARRAY_WRAPPER](...innerArray);
-    }
-}
 
 /** @internal */
 class StructureClassesMapClass extends Map {
@@ -555,732 +77,6 @@ class StructureClassesMapClass extends Map {
     }
 }
 const StructureClassesMap = new StructureClassesMapClass();
-
-class StatementStructureClassesMapClass extends Map {
-    clone(structure) {
-        switch (structure.kind) {
-            case StructureKind.Class:
-            case StructureKind.Enum:
-            case StructureKind.ExportAssignment:
-            case StructureKind.ExportDeclaration:
-            case StructureKind.Function:
-            case StructureKind.ImportDeclaration:
-            case StructureKind.Interface:
-            case StructureKind.Module:
-            case StructureKind.TypeAlias:
-            case StructureKind.VariableStatement:
-                return StructureClassesMap.clone(structure);
-        }
-        return this.get(structure.kind).clone(structure);
-    }
-    cloneArray(structures) {
-        return structures.map((structure) => this.clone(structure));
-    }
-}
-const StatementStructureClassesMap = new StatementStructureClassesMapClass();
-
-const COPY_FIELDS = Symbol("copy fields");
-const REPLACE_WRITER_WITH_STRING = Symbol("replaceWriterWithString");
-const STRUCTURE_CHILDREN = Symbol("otherwise unreachable structure and type-structure children");
-
-class StructureBase {
-    /** @internal */
-    static [COPY_FIELDS](source, target) {
-    }
-    /** @internal */
-    static [REPLACE_WRITER_WITH_STRING](value) {
-        if (typeof value === "function") {
-            const writer = new CodeBlockWriter();
-            value(writer);
-            return writer.toString();
-        }
-        return value;
-    }
-    toJSON() {
-        return {};
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() { }
-}
-
-// #endregion preamble
-/**
- * This provides an API for converting between a type (`WriterFunction`) and a `TypeStructure`.
- *
- * For any class providing a type (return type, constraint, extends, etc.), you can have an instance of
- * `TypeAccessors` as a private class field, and provide getters and setters for type and typeStructure
- * referring to the private TypeAccessors.
- *
- * See `../decorators/TypedNode.ts` for an example.
- */
-class TypeAccessors {
-    static buildTypeAccessors(thisObj, fieldName, defaultValue) {
-        const accessors = new TypeAccessors();
-        Reflect.defineProperty(thisObj, fieldName, {
-            configurable: false,
-            enumerable: true,
-            get: function () {
-                return accessors.type;
-            },
-            set: function (value) {
-                accessors.type = value ?? defaultValue;
-            },
-        });
-        return accessors;
-    }
-    typeStructure = undefined;
-    get type() {
-        if (typeof this.typeStructure === "undefined")
-            return undefined;
-        if (this.typeStructure.kind === TypeStructureKind.Literal) {
-            return this.typeStructure.stringValue;
-        }
-        return this.typeStructure.writerFunction;
-    }
-    set type(value) {
-        if (typeof value === "undefined") {
-            this.typeStructure = undefined;
-            return;
-        }
-        if (typeof value === "string") {
-            this.typeStructure = LiteralTypeStructureImpl.get(value);
-            return;
-        }
-        const knownTypeStructure = TypeStructuresBase.getWriterStructureForCallback(value);
-        if (knownTypeStructure instanceof TypeStructuresBase) {
-            this.typeStructure = knownTypeStructure;
-            return;
-        }
-        this.typeStructure = new WriterTypeStructureImpl(value);
-        this.typeStructure[DEREGISTER_WRITER]();
-    }
-    /**
-     * Create a clone of an existing type, if it belongs to a type structure.
-     *
-     * If the underlying type structure exists, this will register the clone's type structure
-     * for later retrieval.
-     * @param type - the type to clone.
-     * @returns the cloned type, or the original type if the type is not cloneable.
-     */
-    static cloneType(type) {
-        if (typeof type !== "function")
-            return type;
-        const typeStructure = TypeStructuresBase.getWriterStructureForCallback(type);
-        if (typeStructure instanceof TypeStructuresBase) {
-            if (typeStructure.kind === TypeStructureKind.Literal)
-                return typeStructure.stringValue;
-            const value = TypeStructureClassesMap.clone(typeStructure);
-            return value.writerFunction;
-        }
-        return type;
-    }
-}
-
-class TypeStructureClassesMapClass extends Map {
-    clone(structure) {
-        return this.get(structure.kind).clone(structure);
-    }
-    cloneArray(structures) {
-        return structures.map((structure) => this.clone(structure));
-    }
-}
-const TypeStructureClassesMap = new TypeStructureClassesMapClass();
-
-let ParseLiteralProject;
-function parseLiteralType(source) {
-    let name = "SOMERANDOMSTRING_";
-    for (let i = 0; i < 10; i++) {
-        name += String.fromCharCode(Math.floor(Math.random() * 26) + 65);
-    }
-    ParseLiteralProject ??= defineProject();
-    const tempFile = ParseLiteralProject.createSourceFile("tempFile.ts");
-    try {
-        const aliasStructure = getAugmentedStructure(tempFile.addTypeAlias(new TypeAliasDeclarationImpl(name, source)), VoidNodeToStructureConsole, true).rootStructure;
-        return aliasStructure.typeStructure;
-    }
-    finally {
-        // You might wonder, "why not just empty the file and reuse it?" - this is safer.
-        ParseLiteralProject.removeSourceFile(tempFile);
-    }
-}
-function defineProject() {
-    const TSC_CONFIG = {
-        compilerOptions: {
-            lib: ["es2022"],
-            module: ModuleKind.ESNext,
-            target: ScriptTarget.ESNext,
-            moduleResolution: ModuleResolutionKind.NodeNext,
-            sourceMap: true,
-            declaration: true,
-        },
-        skipAddingFilesFromTsConfig: true,
-        skipFileDependencyResolution: true,
-        useInMemoryFileSystem: true,
-    };
-    return new Project(TSC_CONFIG);
-}
-
-const WRITER_FUNCTION_KEY = Symbol("writerFunction");
-const DEREGISTER_WRITER = Symbol("deregister writerFunction");
-class WriterStructuresBase {
-    static #writerToStructureMap = new WeakMap();
-    static getWriterStructureForCallback(writer) {
-        return WriterStructuresBase.#writerToStructureMap.get(writer);
-    }
-    writerFunction = (writer) => {
-        this[WRITER_FUNCTION_KEY](writer);
-    };
-    constructor() {
-        WriterStructuresBase.#writerToStructureMap.set(this.writerFunction, this);
-    }
-    /** @internal */
-    [DEREGISTER_WRITER]() {
-        WriterStructuresBase.#writerToStructureMap.delete(this.writerFunction);
-    }
-    /**
-     * Write a start token, invoke a block, and write the end token, in that order.
-     * @param writer - the code block writer.
-     * @param startToken - the start token.
-     * @param endToken - the end token.
-     * @param newLine - true if we should call `.newLine()` after the start and before the end.
-     * @param indent - true if we should indent the block statements.
-     * @param block - the callback to execute for the block statements.
-     *
-     * @see {@link https://github.com/dsherret/code-block-writer/issues/44}
-     */
-    static pairedWrite(writer, startToken, endToken, newLine, indent, block) {
-        writer.write(startToken);
-        if (newLine)
-            writer.newLine();
-        if (indent)
-            writer.indent(block);
-        else
-            block();
-        if (newLine)
-            writer.newLine();
-        writer.write(endToken);
-    }
-}
-
-class TypeStructuresBase extends WriterStructuresBase {
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() { }
-    [GET_OUTER_TYPE]() {
-        return this.writerFunction;
-    }
-}
-
-// #endregion preamble
-/** Wrappers for writer functions from external sources.  Leaf nodes. */
-class WriterTypeStructureImpl extends TypeStructuresBase {
-    static clone(other) {
-        return new WriterTypeStructureImpl(other[WRITER_FUNCTION_KEY]);
-    }
-    kind = TypeStructureKind.Writer;
-    constructor(writer) {
-        super();
-        this[WRITER_FUNCTION_KEY] = writer;
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY];
-}
-TypeStructureClassesMap.set(TypeStructureKind.Writer, WriterTypeStructureImpl);
-
-class TypeStructureSequence extends ShadowArrayImpl {
-    static createProxy(innerElements) {
-        return new TypeStructureSequence(innerElements).proxy;
-    }
-    [BUILD_ARRAY_WRAPPER](...innerElements) {
-        return TypeStructureSequence.createProxy(innerElements);
-    }
-    [CONVERT_OUTER_TO_INNER](outerType) {
-        // FIXME: writer functions often come from known type structures.
-        if (typeof outerType === "function") {
-            const structure = WriterStructuresBase.getWriterStructureForCallback(outerType);
-            if (structure)
-                return structure;
-            return new WriterTypeStructureImpl(outerType);
-        }
-        return parseLiteralType(outerType);
-    }
-}
-
-// This file is generated.  Do not edit.  See ../../build/structureToSyntax.ts instead.
-const StructureKindToSyntaxKindMap = new Map([
-    [StructureKind.Class, SyntaxKind.ClassDeclaration],
-    [StructureKind.ClassStaticBlock, SyntaxKind.ClassStaticBlockDeclaration],
-    [StructureKind.Constructor, SyntaxKind.Constructor],
-    [StructureKind.ConstructorOverload, SyntaxKind.Constructor],
-    [StructureKind.GetAccessor, SyntaxKind.GetAccessor],
-    [StructureKind.Method, SyntaxKind.MethodDeclaration],
-    [StructureKind.MethodOverload, SyntaxKind.MethodDeclaration],
-    [StructureKind.Property, SyntaxKind.PropertyDeclaration],
-    [StructureKind.SetAccessor, SyntaxKind.SetAccessor],
-    [StructureKind.Decorator, SyntaxKind.Decorator],
-    [StructureKind.JSDoc, SyntaxKind.JSDoc],
-    // no SyntaxKind found for StructureKind.JSDocTag
-    [StructureKind.Enum, SyntaxKind.EnumDeclaration],
-    [StructureKind.EnumMember, SyntaxKind.EnumMember],
-    [StructureKind.PropertyAssignment, SyntaxKind.PropertyAssignment],
-    [StructureKind.ShorthandPropertyAssignment, SyntaxKind.ShorthandPropertyAssignment],
-    [StructureKind.SpreadAssignment, SyntaxKind.SpreadAssignment],
-    [StructureKind.Function, SyntaxKind.FunctionDeclaration],
-    [StructureKind.FunctionOverload, SyntaxKind.FunctionDeclaration],
-    [StructureKind.Parameter, SyntaxKind.Parameter],
-    [StructureKind.CallSignature, SyntaxKind.CallSignature],
-    [StructureKind.ConstructSignature, SyntaxKind.ConstructSignature],
-    [StructureKind.IndexSignature, SyntaxKind.IndexSignature],
-    [StructureKind.Interface, SyntaxKind.InterfaceDeclaration],
-    [StructureKind.MethodSignature, SyntaxKind.MethodSignature],
-    [StructureKind.PropertySignature, SyntaxKind.PropertySignature],
-    [StructureKind.JsxAttribute, SyntaxKind.JsxAttribute],
-    [StructureKind.JsxElement, SyntaxKind.JsxElement],
-    [StructureKind.JsxSelfClosingElement, SyntaxKind.JsxSelfClosingElement],
-    [StructureKind.JsxSpreadAttribute, SyntaxKind.JsxSpreadAttribute],
-    [StructureKind.ExportAssignment, SyntaxKind.ExportAssignment],
-    [StructureKind.ExportDeclaration, SyntaxKind.ExportDeclaration],
-    [StructureKind.ExportSpecifier, SyntaxKind.ExportSpecifier],
-    [StructureKind.ImportAttribute, SyntaxKind.ImportAttribute],
-    [StructureKind.ImportDeclaration, SyntaxKind.ImportDeclaration],
-    [StructureKind.ImportSpecifier, SyntaxKind.ImportSpecifier],
-    [StructureKind.Module, SyntaxKind.ModuleDeclaration],
-    [StructureKind.SourceFile, SyntaxKind.SourceFile],
-    [StructureKind.VariableStatement, SyntaxKind.VariableStatement],
-    [StructureKind.TypeAlias, SyntaxKind.TypeAliasDeclaration],
-    [StructureKind.TypeParameter, SyntaxKind.TypeParameter],
-    [StructureKind.VariableDeclaration, SyntaxKind.VariableDeclaration],
-]);
-
-function AbstractableNodeStructureMixin(baseClass, context) {
-    class AbstractableNodeStructureMixin extends baseClass {
-        isAbstract = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.isAbstract = source.isAbstract ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.isAbstract = this.isAbstract;
-            return rv;
-        }
-    }
-    return AbstractableNodeStructureMixin;
-}
-
-function AmbientableNodeStructureMixin(baseClass, context) {
-    class AmbientableNodeStructureMixin extends baseClass {
-        hasDeclareKeyword = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.hasDeclareKeyword = source.hasDeclareKeyword ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.hasDeclareKeyword = this.hasDeclareKeyword;
-            return rv;
-        }
-    }
-    return AmbientableNodeStructureMixin;
-}
-
-function AsyncableNodeStructureMixin(baseClass, context) {
-    class AsyncableNodeStructureMixin extends baseClass {
-        isAsync = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.isAsync = source.isAsync ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.isAsync = this.isAsync;
-            return rv;
-        }
-    }
-    return AsyncableNodeStructureMixin;
-}
-
-function DecoratableNodeStructureMixin(baseClass, context) {
-    class DecoratableNodeStructureMixin extends baseClass {
-        decorators = [];
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            if (source.decorators) {
-                target.decorators.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.Decorator, StructureClassesMap.forceArray(source.decorators)));
-            }
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.decorators = this.decorators;
-            return rv;
-        }
-    }
-    return DecoratableNodeStructureMixin;
-}
-
-function ExclamationTokenableNodeStructureMixin(baseClass, context) {
-    class ExclamationTokenableNodeStructureMixin extends baseClass {
-        hasExclamationToken = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.hasExclamationToken = source.hasExclamationToken ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.hasExclamationToken = this.hasExclamationToken;
-            return rv;
-        }
-    }
-    return ExclamationTokenableNodeStructureMixin;
-}
-
-function ExportableNodeStructureMixin(baseClass, context) {
-    class ExportableNodeStructureMixin extends baseClass {
-        isDefaultExport = false;
-        isExported = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.isDefaultExport = source.isDefaultExport ?? false;
-            target.isExported = source.isExported ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.isDefaultExport = this.isDefaultExport;
-            rv.isExported = this.isExported;
-            return rv;
-        }
-    }
-    return ExportableNodeStructureMixin;
-}
-
-function GeneratorableNodeStructureMixin(baseClass, context) {
-    class GeneratorableNodeStructureMixin extends baseClass {
-        isGenerator = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.isGenerator = source.isGenerator ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.isGenerator = this.isGenerator;
-            return rv;
-        }
-    }
-    return GeneratorableNodeStructureMixin;
-}
-
-function InitializerExpressionableNodeStructureMixin(baseClass, context) {
-    class InitializerExpressionableNodeStructureMixin extends baseClass {
-        initializer = undefined;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            if (source.initializer) {
-                target.initializer = source.initializer;
-            }
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            if (this.initializer) {
-                rv.initializer = StructureBase[REPLACE_WRITER_WITH_STRING](this.initializer);
-            }
-            else {
-                rv.initializer = undefined;
-            }
-            return rv;
-        }
-    }
-    return InitializerExpressionableNodeStructureMixin;
-}
-
-function JSDocableNodeStructureMixin(baseClass, context) {
-    class JSDocableNodeStructureMixin extends baseClass {
-        docs = [];
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            if (source.docs) {
-                target.docs.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.JSDoc, StructureClassesMap.forceArray(source.docs)));
-            }
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.docs = this.docs;
-            return rv;
-        }
-    }
-    return JSDocableNodeStructureMixin;
-}
-
-function NameableNodeStructureMixin(baseClass, context) {
-    class NameableNodeStructureMixin extends baseClass {
-        name = undefined;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            if (source.name) {
-                target.name = source.name;
-            }
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            if (this.name) {
-                rv.name = this.name;
-            }
-            else {
-                rv.name = undefined;
-            }
-            return rv;
-        }
-    }
-    return NameableNodeStructureMixin;
-}
-
-function NamedNodeStructureMixin(baseClass, context) {
-    class NamedNodeStructureMixin extends baseClass {
-        name = "";
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.name = source.name;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.name = this.name;
-            return rv;
-        }
-    }
-    return NamedNodeStructureMixin;
-}
-
-function OverrideableNodeStructureMixin(baseClass, context) {
-    class OverrideableNodeStructureMixin extends baseClass {
-        hasOverrideKeyword = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.hasOverrideKeyword = source.hasOverrideKeyword ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.hasOverrideKeyword = this.hasOverrideKeyword;
-            return rv;
-        }
-    }
-    return OverrideableNodeStructureMixin;
-}
-
-function ParameteredNodeStructureMixin(baseClass, context) {
-    class ParameteredNodeStructureMixin extends baseClass {
-        parameters = [];
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            if (source.parameters) {
-                target.parameters.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.Parameter, StructureClassesMap.forceArray(source.parameters)));
-            }
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.parameters = this.parameters;
-            return rv;
-        }
-    }
-    return ParameteredNodeStructureMixin;
-}
-
-function QuestionTokenableNodeStructureMixin(baseClass, context) {
-    class QuestionTokenableNodeStructureMixin extends baseClass {
-        hasQuestionToken = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.hasQuestionToken = source.hasQuestionToken ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.hasQuestionToken = this.hasQuestionToken;
-            return rv;
-        }
-    }
-    return QuestionTokenableNodeStructureMixin;
-}
-
-function ReadonlyableNodeStructureMixin(baseClass, context) {
-    class ReadonlyableNodeStructureMixin extends baseClass {
-        isReadonly = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.isReadonly = source.isReadonly ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.isReadonly = this.isReadonly;
-            return rv;
-        }
-    }
-    return ReadonlyableNodeStructureMixin;
-}
-
-function ReturnTypedNodeStructureMixin(baseClass, context) {
-    class ReturnTypedNodeStructureMixin extends baseClass {
-        #returnTypeAccessors;
-        // overridden in constructor
-        returnType = undefined;
-        constructor() {
-            super();
-            // returnType is getting lost in ts-morph clone operations
-            this.#returnTypeAccessors = TypeAccessors.buildTypeAccessors(this, "returnType");
-        }
-        get returnTypeStructure() {
-            return this.#returnTypeAccessors.typeStructure;
-        }
-        set returnTypeStructure(value) {
-            this.#returnTypeAccessors.typeStructure = value;
-        }
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            const { returnTypeStructure } = source;
-            if (returnTypeStructure) {
-                target.returnTypeStructure =
-                    TypeStructureClassesMap.clone(returnTypeStructure);
-            }
-            else if (source.returnType) {
-                target.returnType = source.returnType;
-            }
-        }
-        /** @internal */
-        *[STRUCTURE_CHILDREN]() {
-            yield* super[STRUCTURE_CHILDREN]();
-            if (typeof this.returnTypeStructure === "object")
-                yield this.returnTypeStructure;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            if (this.returnType) {
-                rv.returnType = StructureBase[REPLACE_WRITER_WITH_STRING](this.returnType);
-            }
-            else {
-                rv.returnType = undefined;
-            }
-            return rv;
-        }
-    }
-    return ReturnTypedNodeStructureMixin;
-}
-
-function ScopedNodeStructureMixin(baseClass, context) {
-    class ScopedNodeStructureMixin extends baseClass {
-        scope = undefined;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            if (source.scope) {
-                target.scope = source.scope;
-            }
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            if (this.scope) {
-                rv.scope = this.scope;
-            }
-            else {
-                rv.scope = undefined;
-            }
-            return rv;
-        }
-    }
-    return ScopedNodeStructureMixin;
-}
-
-class StatementStructuresBase extends WriterStructuresBase {
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() { }
-    [GET_OUTER_TYPE]() {
-        return this.writerFunction;
-    }
-}
-
-/** For unparsed strings the user provides.  You should never need to construct these manually.  */
-class UnknownStringStatementImpl extends StatementStructuresBase {
-    static clone(other) {
-        return new UnknownStringStatementImpl(other[GET_OUTER_TYPE]());
-    }
-    #statement;
-    kind = StatementStructureKind.UnknownString;
-    constructor(statement) {
-        super();
-        this.#statement = statement;
-    }
-    [WRITER_FUNCTION_KEY](writer) {
-        writer.write(this.#statement);
-    }
-    [GET_OUTER_TYPE]() {
-        return this.#statement;
-    }
-}
-StatementStructureClassesMap.set(StatementStructureKind.UnknownString, UnknownStringStatementImpl);
-
-/** For `WriterFunction` objects the user provides.  You should never need to construct these manually.  */
-class UnknownWriterStatementImpl extends StatementStructuresBase {
-    static clone(other) {
-        return new UnknownWriterStatementImpl(other[GET_OUTER_TYPE]());
-    }
-    kind = StatementStructureKind.UnknownWriter;
-    constructor(writer) {
-        super();
-        this[WRITER_FUNCTION_KEY] = writer;
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY];
-    [GET_OUTER_TYPE]() {
-        return this[WRITER_FUNCTION_KEY];
-    }
-}
-StatementStructureClassesMap.set(StatementStructureKind.UnknownWriter, UnknownWriterStatementImpl);
-
-class StatementsSequence extends ShadowArrayImpl {
-    static createProxy(innerElements) {
-        return new StatementsSequence(innerElements).proxy;
-    }
-    [BUILD_ARRAY_WRAPPER](...innerElements) {
-        return StatementsSequence.createProxy(innerElements);
-    }
-    [CONVERT_OUTER_TO_INNER](outerType) {
-        if (typeof outerType === "string") {
-            return new UnknownStringStatementImpl(outerType);
-        }
-        if (typeof outerType === "object") {
-            switch (outerType.kind) {
-                case StructureKind.Class:
-                case StructureKind.Enum:
-                case StructureKind.ExportAssignment:
-                case StructureKind.ExportDeclaration:
-                case StructureKind.Function:
-                case StructureKind.ImportDeclaration:
-                case StructureKind.Interface:
-                case StructureKind.Module:
-                case StructureKind.TypeAlias:
-                case StructureKind.VariableStatement:
-                    return outerType;
-                default:
-                    throw new Error("unknown statement: " + JSON.stringify(outerType));
-            }
-        }
-        const structure = WriterStructuresBase.getWriterStructureForCallback(outerType);
-        if (structure)
-            return structure;
-        return new UnknownWriterStatementImpl(outerType);
-    }
-}
 
 function isClassMemberStructure(structure) {
     switch (structure.kind) {
@@ -1358,316 +154,55 @@ function isTypeElementMemberStructure(structure) {
     return false;
 }
 
-function isStatementStructure(structure) {
-    switch (structure.kind) {
-        case StatementStructureKind.UnknownString:
-        case StatementStructureKind.UnknownWriter:
-            return true;
-    }
-    return isTSMorphStatementStructure(structure);
+function isStatementedStructure(structure) {
+    return isTSMorphStatementedStructure(structure);
 }
 
-//#region preamble
-function StatementedNodeStructureMixin(baseClass, context) {
-    class StatementedNodeStructureMixin extends baseClass {
-        statements;
-        statementsSequence = [];
-        constructor() {
-            super();
-            this.statements = StatementsSequence.createProxy(this.statementsSequence);
-        }
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            if (source instanceof StatementedNodeStructureMixin) {
-                target.statementsSequence.push(...StatementStructureClassesMap.cloneArray(source.statementsSequence));
-                return;
-            }
-            let statementsArray = [];
-            if (Array.isArray(source.statements)) {
-                statementsArray = source.statements;
-            }
-            else if (source.statements !== undefined) {
-                statementsArray = [source.statements];
-            }
-            target.statements.push(...statementsArray.map((statement) => StatementedNodeStructureMixin.#cloneStatement(statement)));
-        }
-        static #cloneStatement(source) {
-            if (typeof source !== "object") {
-                return source;
-            }
-            return StructureClassesMap.clone(source);
-        }
-        /** @internal */
-        *[STRUCTURE_CHILDREN]() {
-            yield* this.statementsSequence;
-            for (const structure of super[STRUCTURE_CHILDREN]()) {
-                if (!isStatementStructure(structure)) {
-                    yield structure;
-                }
-            }
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.statements = this.statements.map((value) => {
-                if (typeof value === "object") {
-                    return value;
-                }
-                return StructureBase[REPLACE_WRITER_WITH_STRING](value);
-            });
-            return rv;
-        }
-    }
-    return StatementedNodeStructureMixin;
-}
-
-function StructureMixin(baseClass, context) {
-    class StructureMixin extends baseClass {
-        /** Leading comments or whitespace. */
-        leadingTrivia = [];
-        /** Trailing comments or whitespace. */
-        trailingTrivia = [];
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            if (Array.isArray(source.leadingTrivia)) {
-                target.leadingTrivia.push(...source.leadingTrivia);
-            }
-            else if (source.leadingTrivia !== undefined) {
-                target.leadingTrivia.push(source.leadingTrivia);
-            }
-            if (Array.isArray(source.trailingTrivia)) {
-                target.trailingTrivia.push(...source.trailingTrivia);
-            }
-            else if (source.trailingTrivia !== undefined) {
-                target.trailingTrivia.push(source.trailingTrivia);
-            }
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.leadingTrivia = this.leadingTrivia.map((value) => {
-                return StructureBase[REPLACE_WRITER_WITH_STRING](value);
-            });
-            rv.trailingTrivia = this.trailingTrivia.map((value) => {
-                return StructureBase[REPLACE_WRITER_WITH_STRING](value);
-            });
-            return rv;
-        }
-    }
-    return StructureMixin;
-}
-
-function TypedNodeStructureMixin(baseClass, context) {
-    class TypedNodeStructureMixin extends baseClass {
-        #typeAccessors;
-        // overridden in constructor
-        type = undefined;
-        constructor() {
-            super();
-            // type is getting lost in ts-morph clone operations
-            this.#typeAccessors = TypeAccessors.buildTypeAccessors(this, "type");
-        }
-        get typeStructure() {
-            return this.#typeAccessors.typeStructure;
-        }
-        set typeStructure(value) {
-            this.#typeAccessors.typeStructure = value;
-        }
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            const { typeStructure } = source;
-            if (typeStructure) {
-                target.typeStructure = TypeStructureClassesMap.clone(typeStructure);
-            }
-            else if (source.type) {
-                target.type = source.type;
-            }
-        }
-        /** @internal */
-        *[STRUCTURE_CHILDREN]() {
-            yield* super[STRUCTURE_CHILDREN]();
-            if (typeof this.typeStructure === "object")
-                yield this.typeStructure;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            if (this.type) {
-                rv.type = StructureBase[REPLACE_WRITER_WITH_STRING](this.type);
-            }
-            else {
-                rv.type = undefined;
-            }
-            return rv;
-        }
-    }
-    return TypedNodeStructureMixin;
-}
-
-function TypeParameteredNodeStructureMixin(baseClass, context) {
-    class TypeParameteredNodeStructureMixin extends baseClass {
-        typeParameters = [];
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            if (source.typeParameters) {
-                target.typeParameters.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.TypeParameter, StructureClassesMap.forceArray(source.typeParameters)));
-            }
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.typeParameters = this.typeParameters;
-            return rv;
-        }
-    }
-    return TypeParameteredNodeStructureMixin;
-}
-
-class TypePrinterSettings {
-    indentChildren = false;
-    newLinesAroundChildren = false;
-    oneLinePerChild = false;
-}
-class TypeStructuresWithChildren extends TypeStructuresBase {
-    /** For customizing printing of the child types. */
-    printerSettings = new TypePrinterSettings();
-    [WRITER_FUNCTION_KEY](writer) {
-        this.objectType?.writerFunction(writer);
-        TypeStructuresBase.pairedWrite(writer, this.startToken, this.endToken, this.printerSettings.newLinesAroundChildren, this.printerSettings.indentChildren, () => this.#writerFunctionInner(writer));
-    }
-    #writerFunctionInner(writer) {
-        let { childTypes } = this;
-        if (childTypes.length === 0)
-            return;
-        if (childTypes.length > this.maxChildCount)
-            childTypes = childTypes.slice(0, this.maxChildCount);
-        const lastIndex = childTypes.length - 1;
-        for (let index = 0; index <= lastIndex; index++) {
-            const child = childTypes[index];
-            child.writerFunction(writer);
-            if (index === lastIndex)
-                break;
-            if (this.printerSettings.oneLinePerChild) {
-                writer.write(this.joinChildrenToken.trimEnd());
-                writer.newLine();
-            }
-            else {
-                writer.write(this.joinChildrenToken);
-            }
-        }
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        if (typeof this.objectType === "object" && this.objectType)
-            yield this.objectType;
-        for (const child of this.childTypes) {
-            if (typeof child === "object")
-                yield child;
-        }
-    }
-}
-
-class TypeStructuresWithTypeParameters extends TypeStructuresBase {
-    static writeTypeParameter(typeParam, writer, constraintMode) {
-        writer.write(typeParam.name);
-        switch (constraintMode) {
-            case "extends":
-                TypeStructuresWithTypeParameters.#writeConstraintExtends(typeParam, writer);
-                break;
-            case "in":
-                TypeStructuresWithTypeParameters.#writeConstraintIn(typeParam, writer);
-                break;
-        }
-        // isConst, variance not supported yet... need examples to test against
-    }
-    static #writeConstraintExtends(typeParam, writer) {
-        const constraint = typeParam.constraint;
-        if (typeof constraint === "undefined")
-            return;
-        writer.write(" extends ");
-        if (typeof constraint === "string") {
-            writer.write(constraint);
-        }
-        else {
-            constraint(writer);
-        }
-        const _default = typeParam.default;
-        if (_default) {
-            writer.write(" = ");
-            if (typeof _default === "string") {
-                writer.write(_default);
-            }
-            else {
-                _default(writer);
-            }
-        }
-    }
-    static #writeConstraintIn(typeParam, writer) {
-        const constraint = typeParam.constraint;
-        if (typeof constraint === "undefined")
-            return;
-        writer.write(" in ");
-        if (typeof constraint === "string") {
-            writer.write(constraint);
-        }
-        else {
-            constraint(writer);
-        }
-    }
-}
-
-/** @deprecated Use `Map.prototype.getOrInsertComputed(), available in NodeJS 26`*/
-class DefaultMap extends Map {
-    getDefault(key, builder) {
-        let value = this.get(key);
-        if (!value) {
-            value = builder();
-            this.set(key, value);
-        }
-        return value;
-    }
-}
-/** @deprecated Use `WeakMap.prototype.getOrInsertComputed(), available in NodeJS 26`*/
-class DefaultWeakMap extends WeakMap {
-    getDefault(key, builder) {
-        let value = this.get(key);
-        if (!value) {
-            value = builder();
-            this.set(key, value);
-        }
-        return value;
-    }
-}
-
-/** @internal */
-class MemberedStatementsKeyClass {
-    fieldKey;
-    statementGroupKey;
-    purpose;
-    isFieldStatic;
-    fieldType;
-    isGroupStatic;
-    groupType;
-    constructor(fieldKey, statementGroupKey, purpose, fieldTypeContext, groupTypeContext) {
-        this.fieldKey = fieldKey;
-        this.statementGroupKey = statementGroupKey;
-        this.purpose = purpose;
-        const [isFieldStatic, fieldType] = fieldTypeContext ?? [false, undefined];
-        this.isFieldStatic = isFieldStatic;
-        this.fieldType = fieldType;
-        const [isGroupStatic, groupType] = groupTypeContext ?? [false, undefined];
-        this.isGroupStatic = isGroupStatic;
-        this.groupType = groupType;
-    }
-    toJSON() {
-        return {
-            fieldKey: this.fieldKey,
-            statementGroupKey: this.statementGroupKey,
-            purpose: this.purpose,
-        };
-    }
-}
+// This file is generated.  Do not edit.  See ../../build/structureToSyntax.ts instead.
+const StructureKindToSyntaxKindMap = new Map([
+    [StructureKind.Class, SyntaxKind.ClassDeclaration],
+    [StructureKind.ClassStaticBlock, SyntaxKind.ClassStaticBlockDeclaration],
+    [StructureKind.Constructor, SyntaxKind.Constructor],
+    [StructureKind.ConstructorOverload, SyntaxKind.Constructor],
+    [StructureKind.GetAccessor, SyntaxKind.GetAccessor],
+    [StructureKind.Method, SyntaxKind.MethodDeclaration],
+    [StructureKind.MethodOverload, SyntaxKind.MethodDeclaration],
+    [StructureKind.Property, SyntaxKind.PropertyDeclaration],
+    [StructureKind.SetAccessor, SyntaxKind.SetAccessor],
+    [StructureKind.Decorator, SyntaxKind.Decorator],
+    [StructureKind.JSDoc, SyntaxKind.JSDoc],
+    // no SyntaxKind found for StructureKind.JSDocTag
+    [StructureKind.Enum, SyntaxKind.EnumDeclaration],
+    [StructureKind.EnumMember, SyntaxKind.EnumMember],
+    [StructureKind.PropertyAssignment, SyntaxKind.PropertyAssignment],
+    [StructureKind.ShorthandPropertyAssignment, SyntaxKind.ShorthandPropertyAssignment],
+    [StructureKind.SpreadAssignment, SyntaxKind.SpreadAssignment],
+    [StructureKind.Function, SyntaxKind.FunctionDeclaration],
+    [StructureKind.FunctionOverload, SyntaxKind.FunctionDeclaration],
+    [StructureKind.Parameter, SyntaxKind.Parameter],
+    [StructureKind.CallSignature, SyntaxKind.CallSignature],
+    [StructureKind.ConstructSignature, SyntaxKind.ConstructSignature],
+    [StructureKind.IndexSignature, SyntaxKind.IndexSignature],
+    [StructureKind.Interface, SyntaxKind.InterfaceDeclaration],
+    [StructureKind.MethodSignature, SyntaxKind.MethodSignature],
+    [StructureKind.PropertySignature, SyntaxKind.PropertySignature],
+    [StructureKind.JsxAttribute, SyntaxKind.JsxAttribute],
+    [StructureKind.JsxElement, SyntaxKind.JsxElement],
+    [StructureKind.JsxSelfClosingElement, SyntaxKind.JsxSelfClosingElement],
+    [StructureKind.JsxSpreadAttribute, SyntaxKind.JsxSpreadAttribute],
+    [StructureKind.ExportAssignment, SyntaxKind.ExportAssignment],
+    [StructureKind.ExportDeclaration, SyntaxKind.ExportDeclaration],
+    [StructureKind.ExportSpecifier, SyntaxKind.ExportSpecifier],
+    [StructureKind.ImportAttribute, SyntaxKind.ImportAttribute],
+    [StructureKind.ImportDeclaration, SyntaxKind.ImportDeclaration],
+    [StructureKind.ImportSpecifier, SyntaxKind.ImportSpecifier],
+    [StructureKind.Module, SyntaxKind.ModuleDeclaration],
+    [StructureKind.SourceFile, SyntaxKind.SourceFile],
+    [StructureKind.VariableStatement, SyntaxKind.VariableStatement],
+    [StructureKind.TypeAlias, SyntaxKind.TypeAliasDeclaration],
+    [StructureKind.TypeParameter, SyntaxKind.TypeParameter],
+    [StructureKind.VariableDeclaration, SyntaxKind.VariableDeclaration],
+]);
 
 //#region move structure overloads inside their parent structures
 /**
@@ -1845,7 +380,7 @@ var _a$3;
  * Hashes I generate are internal to this class, so if I need to change the hash, I can.
  */
 class BaseStructureAndNodeData {
-    static #knownSyntaxKinds;
+    static #knownSyntaxKinds = new Set(StructureKindToSyntaxKindMap.values());
     structureToNodeMap = new Map();
     // #region private fields, and life-cycle.
     #rootNode;
@@ -1860,31 +395,34 @@ class BaseStructureAndNodeData {
     #nodeSetsByHash = new Map();
     #nodeToHash = new Map();
     #hashCounter = new Map();
-    #appendCounterPostfix(hash) {
-        let count = this.#hashCounter.get(hash) ?? 0;
-        this.#hashCounter.set(hash, ++count);
-        return hash + "#" + count;
-    }
     constructor(nodeWithStructures) {
         this.#rootNode = nodeWithStructures;
-        if (!_a$3.#knownSyntaxKinds) {
-            _a$3.#knownSyntaxKinds = new Set(StructureKindToSyntaxKindMap.values());
-        }
-        this.#collectDescendantNodes(this.#rootNode, "");
-        const rootStructure = this.#rootNode.getStructure();
-        fixFunctionOverloads(rootStructure);
-        this.rootStructure = this.upgradeRoot(rootStructure);
-        this.#collectDescendantStructures(this.rootStructure, "");
-        this.#unusedStructures.forEach((value) => this.#mapStructureToNode(value));
-        assert(this.#unusedStructures.size === 0, "we should've resolved every structure");
-        this.#cleanup();
+        this.rootStructure = null;
     }
-    upgradeRoot(rootStructure) {
+    fill() {
+        try {
+            this.#collectDescendantNodes(this.#rootNode, "");
+            const rootStructure = this.#rootNode.getStructure();
+            fixFunctionOverloads(rootStructure);
+            this.rootStructure = this.upgradeRootStructure(rootStructure);
+            this.collectDescendantStructures(this.rootStructure, "");
+            this.#unusedStructures.forEach((value) => this.mapStructureToNode(value));
+            assert(this.#unusedStructures.size === 0, "we should've resolved every structure");
+            this.#cleanup();
+            return this.rootStructure;
+        }
+        catch (ex) {
+            const sourceFile = this.#rootNode.getSourceFile();
+            const location = sourceFile.getFilePath();
+            throw new Error("failed to build structure from file " + location, {
+                cause: ex,
+            });
+        }
+    }
+    upgradeRootStructure(rootStructure) {
         return rootStructure;
     }
     #cleanup() {
-        this.#rootNode = null;
-        this.rootStructure = null;
         this.#unusedNodes.clear();
         this.#unusedStructures.clear();
         this.#hashToStructureMap.clear();
@@ -1910,7 +448,7 @@ class BaseStructureAndNodeData {
         if (_a$3.#knownSyntaxKinds.has(kind) &&
             this.#nodeToHash.has(node) === false) {
             const localHash = this.#hashNodeLocal(node);
-            assert(localHash, "this.#hashNodeLocal() must return a non-empty string");
+            assert(localHash, "this.hashNodeLocal() must return a non-empty string");
             hash += "/" + localHash;
             assert.doesNotMatch(localHash, /^\//, "local hash part must not start with a slash: " + localHash);
             this.#nodeToHash.set(node, hash);
@@ -2017,7 +555,7 @@ class BaseStructureAndNodeData {
      * Each structure's hash will be the parent hash, then a slash, then the return from `this.#hashStructureLocal()`.
      * Structure hashes are unique.
      */
-    #collectDescendantStructures(structure, hash) {
+    collectDescendantStructures(structure, hash) {
         if (structure.kind === StructureKind.JSDocTag)
             return;
         hash += "/" + this.#hashStructureLocal(structure);
@@ -2032,7 +570,7 @@ class BaseStructureAndNodeData {
             if (child.kind === StructureKind.FunctionOverload)
                 return;
             this.#structureToParent.set(child, structure);
-            this.#collectDescendantStructures(child, hash);
+            this.collectDescendantStructures(child, hash);
         });
         if (structure.kind === StructureKind.Function &&
             structure.overloads?.length) {
@@ -2040,7 +578,7 @@ class BaseStructureAndNodeData {
                 const overloadStructure = child;
                 overloadStructure.kind = StructureKind.FunctionOverload;
                 this.#structureToParent.set(overloadStructure, structure);
-                this.#collectDescendantStructures(overloadStructure, hash);
+                this.collectDescendantStructures(overloadStructure, hash);
             });
         }
     }
@@ -2063,9 +601,14 @@ class BaseStructureAndNodeData {
         }
         return hash;
     }
+    #appendCounterPostfix(hash) {
+        let count = this.#hashCounter.get(hash) ?? 0;
+        this.#hashCounter.set(hash, ++count);
+        return hash + "#" + count;
+    }
     // #endregion structure traversal
     // #region structure-to-node
-    #mapStructureToNode(structure) {
+    mapStructureToNode(structure) {
         const structureHash = this.#hashStructureLocal(structure);
         const nodeHash = this.#createNodeHashFromStructure(structure);
         assert(nodeHash.includes("//") === false, "node hash must not contain two consecutive slashes: " + nodeHash);
@@ -2146,13 +689,56 @@ class BaseStructureAndNodeData {
 }
 _a$3 = BaseStructureAndNodeData;
 
+// #region preamble
+// #endregion preamble
 class AugmentedStructureAndNodeData extends BaseStructureAndNodeData {
-    upgradeRoot(rootStructure) {
+    augmentedStructureToNodeMap;
+    #unresolvedStatementIndices = new Map();
+    constructor(nodeWithStructures) {
+        super(nodeWithStructures);
+        this.augmentedStructureToNodeMap = this.structureToNodeMap;
+    }
+    fill() {
+        return super.fill();
+    }
+    upgradeRootStructure(rootStructure) {
         return StructureClassesMap.get(rootStructure.kind).clone(rootStructure);
+    }
+    collectDescendantStructures(structure, hash) {
+        super.collectDescendantStructures(structure, hash);
+        if (isStatementedStructure(structure)) {
+            const unresolvedIndices = [];
+            for (let index = 0; index < structure.statements.length; index++) {
+                const statement = structure.statements[index];
+                if (typeof statement === "string") {
+                    unresolvedIndices.push(index);
+                }
+            }
+            if (unresolvedIndices.length) {
+                this.#unresolvedStatementIndices.set(structure, unresolvedIndices);
+            }
+        }
+    }
+    mapStructureToNode(structure) {
+        super.mapStructureToNode(structure);
+        if (isStatementedStructure(structure)) {
+            const unresolvedIndices = this.#unresolvedStatementIndices.get(structure);
+            if (!unresolvedIndices)
+                return;
+            const { statementsSequence } = structure;
+            const statementedNode = this.augmentedStructureToNodeMap.get(structure);
+            assert(Node.isStatemented(statementedNode));
+            const statementNodes = statementedNode.getStatements();
+            for (const index of unresolvedIndices) {
+                const statementStructure = statementsSequence[index];
+                const statementNode = statementNodes[index];
+                this.augmentedStructureToNodeMap.set(statementStructure, statementNode);
+            }
+            this.#unresolvedStatementIndices.delete(structure);
+        }
     }
 }
 
-// #endregion preamble
 /**
  * Get structures for a node and its descendants.
  * @param nodeWithStructures - The node.
@@ -2160,8 +746,12 @@ class AugmentedStructureAndNodeData extends BaseStructureAndNodeData {
  * @internal
  */
 function structureImplToNodeMap(nodeWithStructures) {
-    return new AugmentedStructureAndNodeData(nodeWithStructures)
-        .structureToNodeMap;
+    const data = new AugmentedStructureAndNodeData(nodeWithStructures);
+    const rootStructure = data.fill();
+    return {
+        map: data.augmentedStructureToNodeMap,
+        rootStructure,
+    };
 }
 
 // #region preamble
@@ -2788,16 +1378,8 @@ function getAugmentedStructure(rootNode, userConsole, assertNoFailures, kind) {
         StructureKindToSyntaxKindMap.get(kind) !== rootNode.getKind()) {
         throw new Error("Root node kind does not match!");
     }
-    const map = structureImplToNodeMap(rootNode);
+    const { map, rootStructure } = structureImplToNodeMap(rootNode);
     assert(map.size > 0, "we should have some structures");
-    let rootStructure;
-    for (const [structure, node] of map.entries()) {
-        if (node === rootNode) {
-            rootStructure = structure;
-            break;
-        }
-    }
-    assert(rootStructure, "we should have a root structure");
     const subFailures = [];
     const failures = buildTypesForStructures(map, userConsole, (nodeWithStructure) => {
         const subStructureResults = getAugmentedStructure(nodeWithStructure, userConsole, false);
@@ -2817,7 +1399,1476 @@ function getAugmentedStructure(rootNode, userConsole, assertNoFailures, kind) {
     };
 }
 
+let ParseLiteralProject;
+function parseLiteralType(source) {
+    let name = "SOMERANDOMSTRING_";
+    for (let i = 0; i < 10; i++) {
+        name += String.fromCharCode(Math.floor(Math.random() * 26) + 65);
+    }
+    ParseLiteralProject ??= defineProject();
+    const tempFile = ParseLiteralProject.createSourceFile("tempFile.ts");
+    try {
+        const aliasStructure = getAugmentedStructure(tempFile.addTypeAlias(new TypeAliasDeclarationImpl(name, source)), VoidNodeToStructureConsole, true).rootStructure;
+        return aliasStructure.typeStructure;
+    }
+    finally {
+        // You might wonder, "why not just empty the file and reuse it?" - this is safer.
+        ParseLiteralProject.removeSourceFile(tempFile);
+    }
+}
+function defineProject() {
+    const TSC_CONFIG = {
+        compilerOptions: {
+            lib: ["es2022"],
+            module: ModuleKind.ESNext,
+            target: ScriptTarget.ESNext,
+            moduleResolution: ModuleResolutionKind.NodeNext,
+            sourceMap: true,
+            declaration: true,
+        },
+        skipAddingFilesFromTsConfig: true,
+        skipFileDependencyResolution: true,
+        useInMemoryFileSystem: true,
+    };
+    return new Project(TSC_CONFIG);
+}
+
 function VoidNodeToStructureConsole(message, failingNode) {
+}
+
+const BUILD_ARRAY_WRAPPER = Symbol("build new array");
+const GET_OUTER_TYPE = Symbol("get outer type");
+const CONVERT_OUTER_TO_INNER = Symbol("convert outer type to inner type");
+
+/**
+ * This is a minimalist ProxyHandler for methods of Array.prototype.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy#handler_functions}
+ *
+ * @internal
+ */
+class ArrayPrototypeProxyHandler {
+    static #shadowToMethodName = new WeakMap();
+    static #proxyToArrayImpl = new WeakMap();
+    /** The prototype to use for shadow targets. */
+    static proto = [];
+    static {
+        const handler = new ArrayPrototypeProxyHandler();
+        for (const key of Reflect.ownKeys(Array.prototype)) {
+            if (key === "length")
+                continue;
+            const shadow = function () {
+                // do nothing
+            };
+            const proxy = new Proxy(shadow, handler);
+            const desc = {
+                configurable: false,
+                enumerable: true,
+                writable: false,
+                value: proxy,
+            };
+            Reflect.defineProperty(this.proto, key, desc);
+            this.#shadowToMethodName.set(shadow, key);
+        }
+        // length get/set support
+        {
+            const shadowGetter = function () {
+                // do nothing
+            };
+            const proxyGetter = new Proxy(shadowGetter, handler);
+            this.#shadowToMethodName.set(shadowGetter, "getLength");
+            const shadowSetter = function () {
+                // do nothing
+            };
+            const proxySetter = new Proxy(shadowSetter, handler);
+            this.#shadowToMethodName.set(shadowSetter, "setLength");
+            const desc = {
+                configurable: false,
+                enumerable: false,
+                get: proxyGetter,
+                set: proxySetter,
+            };
+            Reflect.defineProperty(this.proto, "length", desc);
+        }
+    }
+    /**
+     * Tie a proxy to its shadow array implementation.
+     * @param proxyThis The proxy.
+     * @param arrayImpl The shadow array.
+     *
+     * @internal
+     */
+    static assignProxyToArrayImpl(proxyThis, arrayImpl) {
+        this.#proxyToArrayImpl.set(proxyThis, arrayImpl);
+    }
+    constructor() {
+        // do nothing
+    }
+    // ProxyHandler
+    apply(shadowTarget, thisArg, // a proxy
+    argArray) {
+        const methodName = ArrayPrototypeProxyHandler.#shadowToMethodName.get(shadowTarget);
+        const arrayImpl = ArrayPrototypeProxyHandler.#proxyToArrayImpl.get(thisArg);
+        // @ts-expect-error methodName is not a number, damn it
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        return arrayImpl[methodName](...argArray);
+    }
+}
+
+/**
+ * A proxy handler for array.length, array[index].  The array prototype will be `ArrayPrototypeProxyHandler.proto`.
+ * @internal
+ */
+class ArrayElementsProxyHandler {
+    static #getIndex(p) {
+        if (typeof p === "string") {
+            const np = parseFloat(p);
+            if (np % 1 === 0 && np >= 0) {
+                return np;
+            }
+        }
+    }
+    #shadowToArrayImplMap = new WeakMap();
+    /**
+     * Tie a shadow array to the array implementation.
+     * @param shadowTarget
+     * @param arrayImpl
+     *
+     * @internal
+     */
+    assignShadowToArrayImpl(shadowTarget, arrayImpl) {
+        this.#shadowToArrayImplMap.set(shadowTarget, arrayImpl);
+    }
+    // ProxyHandler
+    defineProperty(shadowTarget, property, attributes) {
+        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
+        if (property === "length") {
+            arrayImpl.setLength((attributes.get === undefined
+                ? attributes.value
+                : attributes.get()));
+            return true;
+        }
+        const index = ArrayElementsProxyHandler.#getIndex(property);
+        if (typeof index === "number") {
+            arrayImpl.replaceAt(index, (attributes.get === undefined
+                ? attributes.value
+                : attributes.get()));
+            return true;
+        }
+        return false;
+    }
+    // ProxyHandler
+    deleteProperty(shadowTarget, p) {
+        return false;
+    }
+    // ProxyHandler
+    getOwnPropertyDescriptor(shadowTarget, p) {
+        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
+        if (p === "length") {
+            const value = arrayImpl.getLength();
+            return { value, writable: true, enumerable: false, configurable: false };
+        }
+        const np = ArrayElementsProxyHandler.#getIndex(p);
+        if (typeof np === "number" && np < arrayImpl.getLength()) {
+            const value = arrayImpl.at(np);
+            return { value, writable: true, enumerable: true, configurable: true };
+        }
+        return Reflect.getOwnPropertyDescriptor(shadowTarget, p);
+    }
+    // ProxyHandler
+    get(shadowTarget, p, receiver) {
+        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
+        if (p === "length") {
+            const value = arrayImpl.getLength();
+            /* arrayImpl should've updated shadowTarget.length
+            shadowTarget.length = value;
+            */
+            return value;
+        }
+        const np = ArrayElementsProxyHandler.#getIndex(p);
+        if (typeof np === "number" && np < arrayImpl.getLength()) {
+            const value = arrayImpl.at(np);
+            /* arrayImpl should've updated shadowTarget[np]
+            shadowTarget[np] = value;
+            */
+            return value;
+        }
+        return Reflect.get(shadowTarget, p, receiver);
+    }
+    // ProxyHandler
+    has(shadowTarget, p) {
+        if (p === "length")
+            return true;
+        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
+        const np = ArrayElementsProxyHandler.#getIndex(p);
+        if (typeof np === "number" && np < arrayImpl.getLength())
+            return true;
+        return Reflect.has(shadowTarget, p);
+    }
+    // ProxyHandler
+    ownKeys(shadowTarget) {
+        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
+        const keys = ShadowArrayImpl.indexRange(arrayImpl.getLength()).map(String);
+        keys.push("length");
+        // only length is not configurable, and the array is extensible
+        // so we don't need to update the shadow target specifically
+        // if someone makes innerElements non-extensible, this will cause problems
+        return keys;
+    }
+    // ProxyHandler
+    preventExtensions(shadowTarget) {
+        return false;
+    }
+    // ProxyHandler
+    set(shadowTarget, p, newValue, receiver) {
+        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
+        if (p === "length") {
+            arrayImpl.setLength(newValue);
+            return true;
+        }
+        const np = ArrayElementsProxyHandler.#getIndex(p);
+        if (typeof np === "number") {
+            arrayImpl.replaceAt(np, newValue);
+            return true;
+        }
+        return false;
+    }
+    // ProxyHandler
+    setPrototypeOf(shadowTarget, v) {
+        return false;
+    }
+}
+
+/**
+ * This is a helper for implementing methods of an array, so the proxy can report the correct results.
+ *
+ * Subclass methods you must implement:
+ *
+ * - static createProxy (returns new ShadowArrayImpl(innerElements).proxy)
+ * - [BUILD_ARRAY_WRAPPER]
+ * - [CONVERT_OUTER_TO_INNER]
+ *
+ * Your constructor should be protected, not public.
+ */
+class ShadowArrayImpl {
+    static #arrayElementsHandler = new ArrayElementsProxyHandler();
+    /**
+     * @param innerElements {InnerTypeElement<OuterType>[]} the elements implementing the native type
+     *
+     * @returns {OuterType[]} the proxy defining the wrapped type array.
+     *
+     * @remarks `return new ShadowArrayImplSubclass(innerElements).proxy;`
+     */
+    static createProxy(innerElements) {
+        throw new Error("override this method");
+    }
+    /**
+     * Utility to get a range of indexes for a given length.
+     *
+     * @internal
+     */
+    static indexRange(length) {
+        const indexes = [];
+        for (let i = 0; i < length; i++) {
+            indexes.push(i);
+        }
+        return indexes;
+    }
+    /** Our proxy to implement the array. */
+    proxy;
+    /** The _actual_ values we're reflecting.  This is a live pointer to the array, not a slice. */
+    #innerElements;
+    /** Convenience function to avoid binding over and over again. */
+    #convertOuterTypeToInner = (outerType) => this[CONVERT_OUTER_TO_INNER](outerType);
+    /** The shadow target. */
+    #shadow;
+    constructor(innerElements) {
+        /* You should have come here via ShadowArrayImpl::createProxy, which you should have overridden. */
+        this.#innerElements = innerElements;
+        this.#shadow = []; // necessary for Array.isArray()
+        Reflect.defineProperty(this.#shadow, "length", {
+            configurable: false,
+            enumerable: false,
+        });
+        Reflect.setPrototypeOf(this.#shadow, ArrayPrototypeProxyHandler.proto);
+        this.proxy = new Proxy(this.#shadow, ShadowArrayImpl.#arrayElementsHandler);
+        ShadowArrayImpl.#arrayElementsHandler.assignShadowToArrayImpl(this.#shadow, this);
+        ArrayPrototypeProxyHandler.assignProxyToArrayImpl(this.proxy, this);
+    }
+    /** proxy access to get length() */
+    getLength() {
+        // proxy invariant technically only applies for NWNC descriptors, but in our implementation we're not likely to care
+        return this.#innerElements.length;
+    }
+    /** proxy access to set length() */
+    setLength(newLength) {
+        this.#innerElements.length = newLength;
+    }
+    /** proxy prototype helper to set [index] */
+    replaceAt(index, value) {
+        this.#innerElements[index] = this.#convertOuterTypeToInner(value);
+    }
+    // OuterType[]
+    at(index) {
+        const innerElement = this.#innerElements.at(index);
+        // proxy invariant technically only applies for NWNC descriptors, but in our implementation we're not likely to care
+        return innerElement?.[GET_OUTER_TYPE]();
+    }
+    // OuterType[]
+    *[Symbol.iterator]() {
+        for (const innerValue of this.#innerElements)
+            yield innerValue[GET_OUTER_TYPE]();
+    }
+    // OuterType[]
+    get [Symbol.unscopables]() {
+        throw new Error("not yet implemented");
+    }
+    // OuterType[]
+    pop() {
+        return this.#innerElements.pop()?.[GET_OUTER_TYPE]();
+    }
+    // OuterType[]
+    push(...outerItems) {
+        const innerItems = outerItems.map(this.#convertOuterTypeToInner);
+        return this.#innerElements.push(...innerItems);
+    }
+    // OuterType[]
+    concat(...items) {
+        const newOuterItems = items.flatMap((item) => item.slice());
+        return this[BUILD_ARRAY_WRAPPER](...this.#innerElements, ...newOuterItems.map(this.#convertOuterTypeToInner));
+    }
+    // OuterType[]
+    join(separator) {
+        return this.#innerElements
+            .map((element) => element[GET_OUTER_TYPE]())
+            .join(separator);
+    }
+    // OuterType[]
+    reverse() {
+        this.#innerElements.reverse();
+        return this.proxy;
+    }
+    // OuterType[]
+    shift() {
+        return this.#innerElements.shift()?.[GET_OUTER_TYPE]();
+    }
+    // OuterType[]
+    slice(start, end) {
+        return this[BUILD_ARRAY_WRAPPER](...this.#innerElements.slice(start, end));
+    }
+    // OuterType[]
+    sort(compareFn) {
+        const outerElements = this.#innerElements.map((element) => element[GET_OUTER_TYPE]());
+        const sortOrder = ShadowArrayImpl.indexRange(outerElements.length);
+        if (compareFn) {
+            sortOrder.sort((a, b) => compareFn(outerElements[a], outerElements[b]));
+        }
+        else {
+            const stringifiedOuter = outerElements.map(String);
+            sortOrder.sort((a, b) => stringifiedOuter[a].localeCompare(stringifiedOuter[b]));
+        }
+        const innerSlice = this.#innerElements.slice();
+        for (let i = 0; i < this.#innerElements.length; i++) {
+            this.#innerElements[i] = innerSlice[sortOrder[i]];
+        }
+        return this.proxy;
+    }
+    // OuterType[]
+    splice(start, deleteCount, ...outerItems) {
+        const newInnerItems = outerItems.map(this.#convertOuterTypeToInner);
+        const extractedInnerItems = this.#innerElements.splice(start, deleteCount ?? 0, ...newInnerItems);
+        return this[BUILD_ARRAY_WRAPPER](...extractedInnerItems);
+    }
+    // OuterType[]
+    unshift(...outerItems) {
+        const innerItems = outerItems.map(this.#convertOuterTypeToInner);
+        return this.#innerElements.unshift(...innerItems);
+    }
+    // OuterType[]
+    indexOf(searchElement, fromIndex) {
+        return this.#innerElements.findIndex(this.#innerFinder.bind(this, searchElement), fromIndex);
+    }
+    #innerFinder(searchElement, inner) {
+        return inner[GET_OUTER_TYPE]() === searchElement;
+    }
+    // OuterType[]
+    lastIndexOf(searchElement, fromIndex) {
+        return this.#innerElements.findLastIndex(this.#innerFinder.bind(this, searchElement), fromIndex);
+    }
+    // OuterType[]
+    every(predicate, thisArg) {
+        return this.#innerElements.every(this.#innerPredicate.bind(this, predicate), thisArg);
+    }
+    #innerPredicate(predicate, innerElement, index) {
+        return predicate(innerElement[GET_OUTER_TYPE](), index, this.proxy);
+    }
+    // OuterType[]
+    some(predicate, thisArg) {
+        return this.#innerElements.some(this.#innerPredicate.bind(this, predicate), thisArg);
+    }
+    // OuterType[]
+    forEach(callbackfn, thisArg) {
+        this.#innerElements.forEach((innerValue, index) => callbackfn(innerValue[GET_OUTER_TYPE](), index, this.proxy), thisArg);
+    }
+    // OuterType[]
+    map(callbackfn, thisArg) {
+        return this.#innerElements.map((innerValue, index) => callbackfn(innerValue[GET_OUTER_TYPE](), index, this.proxy), thisArg);
+    }
+    // OuterType[]
+    filter(predicate, thisArg) {
+        const newElements = this.#innerElements.filter((innerValue, index) => predicate(innerValue[GET_OUTER_TYPE](), index, this.proxy), thisArg);
+        return this[BUILD_ARRAY_WRAPPER](...newElements);
+    }
+    // OuterType[]
+    reduce(callbackfn) {
+        return this.#innerElements
+            .reduce(this.#reducer.bind(this, callbackfn))[GET_OUTER_TYPE]();
+    }
+    // OuterType[]
+    reduceRight(callbackfn) {
+        return this.#innerElements
+            .reduceRight(this.#reducer.bind(this, callbackfn))[GET_OUTER_TYPE]();
+    }
+    #reducer(callbackfn, previousInner, currentInner, currentIndex) {
+        const previousOuter = previousInner[GET_OUTER_TYPE]();
+        const currentOuter = currentInner[GET_OUTER_TYPE]();
+        const newOuterType = callbackfn(previousOuter, currentOuter, currentIndex, this.proxy);
+        return this[CONVERT_OUTER_TO_INNER](newOuterType);
+    }
+    // OuterType[]
+    find(predicate, thisArg) {
+        return this.#innerElements
+            .find(this.#finder.bind(this, predicate), thisArg)?.[GET_OUTER_TYPE]();
+    }
+    // OuterType[]
+    findIndex(predicate, thisArg) {
+        return this.#innerElements.findIndex(this.#finder.bind(this, predicate), thisArg);
+    }
+    #finder(outerPredicate, innerValue, index) {
+        return outerPredicate(innerValue[GET_OUTER_TYPE](), index, this.proxy);
+    }
+    // OuterType[]
+    fill(outerValue, start, end) {
+        const innerValue = this.#convertOuterTypeToInner(outerValue);
+        this.#innerElements.fill(innerValue, start, end);
+        return this.proxy;
+    }
+    // OuterType[]
+    copyWithin(target, start, end) {
+        this.#innerElements.copyWithin(target, start, end);
+        return this.proxy;
+    }
+    // OuterType[]
+    *entries() {
+        for (const [index, innerValue] of this.#innerElements.entries()) {
+            yield [index, innerValue[GET_OUTER_TYPE]()];
+        }
+    }
+    // OuterType[]
+    keys() {
+        return this.#innerElements.keys();
+    }
+    // OuterType[]
+    values() {
+        return this[Symbol.iterator]();
+    }
+    // OuterType[]
+    includes(searchElement, fromIndex) {
+        return this.indexOf(searchElement, fromIndex) !== -1;
+    }
+    // OuterType[]
+    flatMap(callback, thisArg) {
+        throw new Error("not yet implemented");
+    }
+    // OuterType[]
+    flat(depth) {
+        throw new Error("not yet implemented");
+    }
+    // OuterType[]
+    findLast(predicate, thisArg) {
+        return this.#innerElements
+            .findLast(this.#finder.bind(this, predicate), thisArg)?.[GET_OUTER_TYPE]();
+    }
+    // OuterType[]
+    findLastIndex(predicate, thisArg) {
+        return this.#innerElements.findLastIndex(this.#finder.bind(this, predicate), thisArg);
+    }
+    // OuterType[]
+    toReversed() {
+        return this.slice().reverse();
+    }
+    // OuterType[]
+    toSorted(compareFn) {
+        return this.slice().sort(compareFn);
+    }
+    // OuterType[]
+    toSpliced(start, deleteCount, ...outerItems) {
+        const newInnerItems = outerItems.map(this.#convertOuterTypeToInner);
+        const allInnerItems = this.#innerElements.toSpliced(start, deleteCount, ...newInnerItems);
+        return this[BUILD_ARRAY_WRAPPER](...allInnerItems);
+    }
+    // OuterType[]
+    with(index, outerValue) {
+        const innerValue = this[CONVERT_OUTER_TO_INNER](outerValue);
+        const innerArray = this.#innerElements.with(index, innerValue);
+        return this[BUILD_ARRAY_WRAPPER](...innerArray);
+    }
+}
+
+class StatementStructureClassesMapClass extends Map {
+    clone(structure) {
+        switch (structure.kind) {
+            case StructureKind.Class:
+            case StructureKind.Enum:
+            case StructureKind.ExportAssignment:
+            case StructureKind.ExportDeclaration:
+            case StructureKind.Function:
+            case StructureKind.ImportDeclaration:
+            case StructureKind.Interface:
+            case StructureKind.Module:
+            case StructureKind.TypeAlias:
+            case StructureKind.VariableStatement:
+                return StructureClassesMap.clone(structure);
+        }
+        return this.get(structure.kind).clone(structure);
+    }
+    cloneArray(structures) {
+        return structures.map((structure) => this.clone(structure));
+    }
+}
+const StatementStructureClassesMap = new StatementStructureClassesMapClass();
+
+const COPY_FIELDS = Symbol("copy fields");
+const REPLACE_WRITER_WITH_STRING = Symbol("replaceWriterWithString");
+const STRUCTURE_CHILDREN = Symbol("otherwise unreachable structure and type-structure children");
+
+class StructureBase {
+    /** @internal */
+    static [COPY_FIELDS](source, target) {
+    }
+    /** @internal */
+    static [REPLACE_WRITER_WITH_STRING](value) {
+        if (typeof value === "function") {
+            const writer = new CodeBlockWriter();
+            value(writer);
+            return writer.toString();
+        }
+        return value;
+    }
+    toJSON() {
+        return {};
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() { }
+}
+
+// #endregion preamble
+/**
+ * This provides an API for converting between a type (`WriterFunction`) and a `TypeStructure`.
+ *
+ * For any class providing a type (return type, constraint, extends, etc.), you can have an instance of
+ * `TypeAccessors` as a private class field, and provide getters and setters for type and typeStructure
+ * referring to the private TypeAccessors.
+ *
+ * See `../decorators/TypedNode.ts` for an example.
+ */
+class TypeAccessors {
+    static buildTypeAccessors(thisObj, fieldName, defaultValue) {
+        const accessors = new TypeAccessors();
+        Reflect.defineProperty(thisObj, fieldName, {
+            configurable: false,
+            enumerable: true,
+            get: function () {
+                return accessors.type;
+            },
+            set: function (value) {
+                accessors.type = value ?? defaultValue;
+            },
+        });
+        return accessors;
+    }
+    typeStructure = undefined;
+    get type() {
+        if (typeof this.typeStructure === "undefined")
+            return undefined;
+        if (this.typeStructure.kind === TypeStructureKind.Literal) {
+            return this.typeStructure.stringValue;
+        }
+        return this.typeStructure.writerFunction;
+    }
+    set type(value) {
+        if (typeof value === "undefined") {
+            this.typeStructure = undefined;
+            return;
+        }
+        if (typeof value === "string") {
+            this.typeStructure = LiteralTypeStructureImpl.get(value);
+            return;
+        }
+        const knownTypeStructure = TypeStructuresBase.getWriterStructureForCallback(value);
+        if (knownTypeStructure instanceof TypeStructuresBase) {
+            this.typeStructure = knownTypeStructure;
+            return;
+        }
+        this.typeStructure = new WriterTypeStructureImpl(value);
+        this.typeStructure[DEREGISTER_WRITER]();
+    }
+    /**
+     * Create a clone of an existing type, if it belongs to a type structure.
+     *
+     * If the underlying type structure exists, this will register the clone's type structure
+     * for later retrieval.
+     * @param type - the type to clone.
+     * @returns the cloned type, or the original type if the type is not cloneable.
+     */
+    static cloneType(type) {
+        if (typeof type !== "function")
+            return type;
+        const typeStructure = TypeStructuresBase.getWriterStructureForCallback(type);
+        if (typeStructure instanceof TypeStructuresBase) {
+            if (typeStructure.kind === TypeStructureKind.Literal)
+                return typeStructure.stringValue;
+            const value = TypeStructureClassesMap.clone(typeStructure);
+            return value.writerFunction;
+        }
+        return type;
+    }
+}
+
+class TypeStructureClassesMapClass extends Map {
+    clone(structure) {
+        return this.get(structure.kind).clone(structure);
+    }
+    cloneArray(structures) {
+        return structures.map((structure) => this.clone(structure));
+    }
+}
+const TypeStructureClassesMap = new TypeStructureClassesMapClass();
+
+const WRITER_FUNCTION_KEY = Symbol("writerFunction");
+const DEREGISTER_WRITER = Symbol("deregister writerFunction");
+class WriterStructuresBase {
+    static #writerToStructureMap = new WeakMap();
+    static getWriterStructureForCallback(writer) {
+        return WriterStructuresBase.#writerToStructureMap.get(writer);
+    }
+    writerFunction = (writer) => {
+        this[WRITER_FUNCTION_KEY](writer);
+    };
+    constructor() {
+        WriterStructuresBase.#writerToStructureMap.set(this.writerFunction, this);
+    }
+    /** @internal */
+    [DEREGISTER_WRITER]() {
+        WriterStructuresBase.#writerToStructureMap.delete(this.writerFunction);
+    }
+    /**
+     * Write a start token, invoke a block, and write the end token, in that order.
+     * @param writer - the code block writer.
+     * @param startToken - the start token.
+     * @param endToken - the end token.
+     * @param newLine - true if we should call `.newLine()` after the start and before the end.
+     * @param indent - true if we should indent the block statements.
+     * @param block - the callback to execute for the block statements.
+     *
+     * @see {@link https://github.com/dsherret/code-block-writer/issues/44}
+     */
+    static pairedWrite(writer, startToken, endToken, newLine, indent, block) {
+        writer.write(startToken);
+        if (newLine)
+            writer.newLine();
+        if (indent)
+            writer.indent(block);
+        else
+            block();
+        if (newLine)
+            writer.newLine();
+        writer.write(endToken);
+    }
+}
+
+class TypeStructuresBase extends WriterStructuresBase {
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() { }
+    [GET_OUTER_TYPE]() {
+        return this.writerFunction;
+    }
+}
+
+// #endregion preamble
+/** Wrappers for writer functions from external sources.  Leaf nodes. */
+class WriterTypeStructureImpl extends TypeStructuresBase {
+    static clone(other) {
+        return new WriterTypeStructureImpl(other[WRITER_FUNCTION_KEY]);
+    }
+    kind = TypeStructureKind.Writer;
+    constructor(writer) {
+        super();
+        this[WRITER_FUNCTION_KEY] = writer;
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY];
+}
+TypeStructureClassesMap.set(TypeStructureKind.Writer, WriterTypeStructureImpl);
+
+class TypeStructureSequence extends ShadowArrayImpl {
+    static createProxy(innerElements) {
+        return new TypeStructureSequence(innerElements).proxy;
+    }
+    [BUILD_ARRAY_WRAPPER](...innerElements) {
+        return TypeStructureSequence.createProxy(innerElements);
+    }
+    [CONVERT_OUTER_TO_INNER](outerType) {
+        // FIXME: writer functions often come from known type structures.
+        if (typeof outerType === "function") {
+            const structure = WriterStructuresBase.getWriterStructureForCallback(outerType);
+            if (structure)
+                return structure;
+            return new WriterTypeStructureImpl(outerType);
+        }
+        return parseLiteralType(outerType);
+    }
+}
+
+function AbstractableNodeStructureMixin(baseClass, context) {
+    class AbstractableNodeStructureMixin extends baseClass {
+        isAbstract = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.isAbstract = source.isAbstract ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.isAbstract = this.isAbstract;
+            return rv;
+        }
+    }
+    return AbstractableNodeStructureMixin;
+}
+
+function AmbientableNodeStructureMixin(baseClass, context) {
+    class AmbientableNodeStructureMixin extends baseClass {
+        hasDeclareKeyword = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.hasDeclareKeyword = source.hasDeclareKeyword ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.hasDeclareKeyword = this.hasDeclareKeyword;
+            return rv;
+        }
+    }
+    return AmbientableNodeStructureMixin;
+}
+
+function AsyncableNodeStructureMixin(baseClass, context) {
+    class AsyncableNodeStructureMixin extends baseClass {
+        isAsync = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.isAsync = source.isAsync ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.isAsync = this.isAsync;
+            return rv;
+        }
+    }
+    return AsyncableNodeStructureMixin;
+}
+
+function DecoratableNodeStructureMixin(baseClass, context) {
+    class DecoratableNodeStructureMixin extends baseClass {
+        decorators = [];
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            if (source.decorators) {
+                target.decorators.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.Decorator, StructureClassesMap.forceArray(source.decorators)));
+            }
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.decorators = this.decorators;
+            return rv;
+        }
+    }
+    return DecoratableNodeStructureMixin;
+}
+
+function ExclamationTokenableNodeStructureMixin(baseClass, context) {
+    class ExclamationTokenableNodeStructureMixin extends baseClass {
+        hasExclamationToken = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.hasExclamationToken = source.hasExclamationToken ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.hasExclamationToken = this.hasExclamationToken;
+            return rv;
+        }
+    }
+    return ExclamationTokenableNodeStructureMixin;
+}
+
+function ExportableNodeStructureMixin(baseClass, context) {
+    class ExportableNodeStructureMixin extends baseClass {
+        isDefaultExport = false;
+        isExported = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.isDefaultExport = source.isDefaultExport ?? false;
+            target.isExported = source.isExported ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.isDefaultExport = this.isDefaultExport;
+            rv.isExported = this.isExported;
+            return rv;
+        }
+    }
+    return ExportableNodeStructureMixin;
+}
+
+function GeneratorableNodeStructureMixin(baseClass, context) {
+    class GeneratorableNodeStructureMixin extends baseClass {
+        isGenerator = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.isGenerator = source.isGenerator ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.isGenerator = this.isGenerator;
+            return rv;
+        }
+    }
+    return GeneratorableNodeStructureMixin;
+}
+
+function InitializerExpressionableNodeStructureMixin(baseClass, context) {
+    class InitializerExpressionableNodeStructureMixin extends baseClass {
+        initializer = undefined;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            if (source.initializer) {
+                target.initializer = source.initializer;
+            }
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            if (this.initializer) {
+                rv.initializer = StructureBase[REPLACE_WRITER_WITH_STRING](this.initializer);
+            }
+            else {
+                rv.initializer = undefined;
+            }
+            return rv;
+        }
+    }
+    return InitializerExpressionableNodeStructureMixin;
+}
+
+function JSDocableNodeStructureMixin(baseClass, context) {
+    class JSDocableNodeStructureMixin extends baseClass {
+        docs = [];
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            if (source.docs) {
+                target.docs.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.JSDoc, StructureClassesMap.forceArray(source.docs)));
+            }
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.docs = this.docs;
+            return rv;
+        }
+    }
+    return JSDocableNodeStructureMixin;
+}
+
+function NameableNodeStructureMixin(baseClass, context) {
+    class NameableNodeStructureMixin extends baseClass {
+        name = undefined;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            if (source.name) {
+                target.name = source.name;
+            }
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            if (this.name) {
+                rv.name = this.name;
+            }
+            else {
+                rv.name = undefined;
+            }
+            return rv;
+        }
+    }
+    return NameableNodeStructureMixin;
+}
+
+function NamedNodeStructureMixin(baseClass, context) {
+    class NamedNodeStructureMixin extends baseClass {
+        name = "";
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.name = source.name;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.name = this.name;
+            return rv;
+        }
+    }
+    return NamedNodeStructureMixin;
+}
+
+function OverrideableNodeStructureMixin(baseClass, context) {
+    class OverrideableNodeStructureMixin extends baseClass {
+        hasOverrideKeyword = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.hasOverrideKeyword = source.hasOverrideKeyword ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.hasOverrideKeyword = this.hasOverrideKeyword;
+            return rv;
+        }
+    }
+    return OverrideableNodeStructureMixin;
+}
+
+function ParameteredNodeStructureMixin(baseClass, context) {
+    class ParameteredNodeStructureMixin extends baseClass {
+        parameters = [];
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            if (source.parameters) {
+                target.parameters.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.Parameter, StructureClassesMap.forceArray(source.parameters)));
+            }
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.parameters = this.parameters;
+            return rv;
+        }
+    }
+    return ParameteredNodeStructureMixin;
+}
+
+function QuestionTokenableNodeStructureMixin(baseClass, context) {
+    class QuestionTokenableNodeStructureMixin extends baseClass {
+        hasQuestionToken = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.hasQuestionToken = source.hasQuestionToken ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.hasQuestionToken = this.hasQuestionToken;
+            return rv;
+        }
+    }
+    return QuestionTokenableNodeStructureMixin;
+}
+
+function ReadonlyableNodeStructureMixin(baseClass, context) {
+    class ReadonlyableNodeStructureMixin extends baseClass {
+        isReadonly = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.isReadonly = source.isReadonly ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.isReadonly = this.isReadonly;
+            return rv;
+        }
+    }
+    return ReadonlyableNodeStructureMixin;
+}
+
+function ReturnTypedNodeStructureMixin(baseClass, context) {
+    class ReturnTypedNodeStructureMixin extends baseClass {
+        #returnTypeAccessors;
+        // overridden in constructor
+        returnType = undefined;
+        constructor() {
+            super();
+            // returnType is getting lost in ts-morph clone operations
+            this.#returnTypeAccessors = TypeAccessors.buildTypeAccessors(this, "returnType");
+        }
+        get returnTypeStructure() {
+            return this.#returnTypeAccessors.typeStructure;
+        }
+        set returnTypeStructure(value) {
+            this.#returnTypeAccessors.typeStructure = value;
+        }
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            const { returnTypeStructure } = source;
+            if (returnTypeStructure) {
+                target.returnTypeStructure =
+                    TypeStructureClassesMap.clone(returnTypeStructure);
+            }
+            else if (source.returnType) {
+                target.returnType = source.returnType;
+            }
+        }
+        /** @internal */
+        *[STRUCTURE_CHILDREN]() {
+            yield* super[STRUCTURE_CHILDREN]();
+            if (typeof this.returnTypeStructure === "object")
+                yield this.returnTypeStructure;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            if (this.returnType) {
+                rv.returnType = StructureBase[REPLACE_WRITER_WITH_STRING](this.returnType);
+            }
+            else {
+                rv.returnType = undefined;
+            }
+            return rv;
+        }
+    }
+    return ReturnTypedNodeStructureMixin;
+}
+
+function ScopedNodeStructureMixin(baseClass, context) {
+    class ScopedNodeStructureMixin extends baseClass {
+        scope = undefined;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            if (source.scope) {
+                target.scope = source.scope;
+            }
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            if (this.scope) {
+                rv.scope = this.scope;
+            }
+            else {
+                rv.scope = undefined;
+            }
+            return rv;
+        }
+    }
+    return ScopedNodeStructureMixin;
+}
+
+class StatementStructuresBase extends WriterStructuresBase {
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() { }
+    [GET_OUTER_TYPE]() {
+        return this.writerFunction;
+    }
+}
+
+/** For unparsed strings the user provides.  You should never need to construct these manually.  */
+class UnknownStringStatementImpl extends StatementStructuresBase {
+    static clone(other) {
+        return new UnknownStringStatementImpl(other[GET_OUTER_TYPE]());
+    }
+    #statement;
+    kind = StatementStructureKind.UnknownString;
+    constructor(statement) {
+        super();
+        this.#statement = statement;
+    }
+    [WRITER_FUNCTION_KEY](writer) {
+        writer.write(this.#statement);
+    }
+    [GET_OUTER_TYPE]() {
+        return this.#statement;
+    }
+}
+StatementStructureClassesMap.set(StatementStructureKind.UnknownString, UnknownStringStatementImpl);
+
+/** For `WriterFunction` objects the user provides.  You should never need to construct these manually.  */
+class UnknownWriterStatementImpl extends StatementStructuresBase {
+    static clone(other) {
+        return new UnknownWriterStatementImpl(other[GET_OUTER_TYPE]());
+    }
+    kind = StatementStructureKind.UnknownWriter;
+    constructor(writer) {
+        super();
+        this[WRITER_FUNCTION_KEY] = writer;
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY];
+    [GET_OUTER_TYPE]() {
+        return this[WRITER_FUNCTION_KEY];
+    }
+}
+StatementStructureClassesMap.set(StatementStructureKind.UnknownWriter, UnknownWriterStatementImpl);
+
+class StatementsSequence extends ShadowArrayImpl {
+    static createProxy(innerElements) {
+        return new StatementsSequence(innerElements).proxy;
+    }
+    [BUILD_ARRAY_WRAPPER](...innerElements) {
+        return StatementsSequence.createProxy(innerElements);
+    }
+    [CONVERT_OUTER_TO_INNER](outerType) {
+        if (typeof outerType === "string") {
+            return new UnknownStringStatementImpl(outerType);
+        }
+        if (typeof outerType === "object") {
+            switch (outerType.kind) {
+                case StructureKind.Class:
+                case StructureKind.Enum:
+                case StructureKind.ExportAssignment:
+                case StructureKind.ExportDeclaration:
+                case StructureKind.Function:
+                case StructureKind.ImportDeclaration:
+                case StructureKind.Interface:
+                case StructureKind.Module:
+                case StructureKind.TypeAlias:
+                case StructureKind.VariableStatement:
+                    return outerType;
+                default:
+                    throw new Error("unknown statement: " + JSON.stringify(outerType));
+            }
+        }
+        const structure = WriterStructuresBase.getWriterStructureForCallback(outerType);
+        if (structure)
+            return structure;
+        return new UnknownWriterStatementImpl(outerType);
+    }
+}
+
+function isStatementStructure(structure) {
+    switch (structure.kind) {
+        case StatementStructureKind.UnknownString:
+        case StatementStructureKind.UnknownWriter:
+            return true;
+    }
+    return isTSMorphStatementStructure(structure);
+}
+
+//#region preamble
+function StatementedNodeStructureMixin(baseClass, context) {
+    class StatementedNodeStructureMixin extends baseClass {
+        statements;
+        statementsSequence = [];
+        constructor() {
+            super();
+            this.statements = StatementsSequence.createProxy(this.statementsSequence);
+        }
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            if (source instanceof StatementedNodeStructureMixin) {
+                target.statementsSequence.push(...StatementStructureClassesMap.cloneArray(source.statementsSequence));
+                return;
+            }
+            let statementsArray = [];
+            if (Array.isArray(source.statements)) {
+                statementsArray = source.statements;
+            }
+            else if (source.statements !== undefined) {
+                statementsArray = [source.statements];
+            }
+            target.statements.push(...statementsArray.map((statement) => StatementedNodeStructureMixin.#cloneStatement(statement)));
+        }
+        static #cloneStatement(source) {
+            if (typeof source !== "object") {
+                return source;
+            }
+            return StructureClassesMap.clone(source);
+        }
+        /** @internal */
+        *[STRUCTURE_CHILDREN]() {
+            yield* this.statementsSequence;
+            for (const structure of super[STRUCTURE_CHILDREN]()) {
+                if (!isStatementStructure(structure)) {
+                    yield structure;
+                }
+            }
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.statements = this.statements.map((value) => {
+                if (typeof value === "object") {
+                    return value;
+                }
+                return StructureBase[REPLACE_WRITER_WITH_STRING](value);
+            });
+            return rv;
+        }
+    }
+    return StatementedNodeStructureMixin;
+}
+
+function StructureMixin(baseClass, context) {
+    class StructureMixin extends baseClass {
+        /** Leading comments or whitespace. */
+        leadingTrivia = [];
+        /** Trailing comments or whitespace. */
+        trailingTrivia = [];
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            if (Array.isArray(source.leadingTrivia)) {
+                target.leadingTrivia.push(...source.leadingTrivia);
+            }
+            else if (source.leadingTrivia !== undefined) {
+                target.leadingTrivia.push(source.leadingTrivia);
+            }
+            if (Array.isArray(source.trailingTrivia)) {
+                target.trailingTrivia.push(...source.trailingTrivia);
+            }
+            else if (source.trailingTrivia !== undefined) {
+                target.trailingTrivia.push(source.trailingTrivia);
+            }
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.leadingTrivia = this.leadingTrivia.map((value) => {
+                return StructureBase[REPLACE_WRITER_WITH_STRING](value);
+            });
+            rv.trailingTrivia = this.trailingTrivia.map((value) => {
+                return StructureBase[REPLACE_WRITER_WITH_STRING](value);
+            });
+            return rv;
+        }
+    }
+    return StructureMixin;
+}
+
+function TypedNodeStructureMixin(baseClass, context) {
+    class TypedNodeStructureMixin extends baseClass {
+        #typeAccessors;
+        // overridden in constructor
+        type = undefined;
+        constructor() {
+            super();
+            // type is getting lost in ts-morph clone operations
+            this.#typeAccessors = TypeAccessors.buildTypeAccessors(this, "type");
+        }
+        get typeStructure() {
+            return this.#typeAccessors.typeStructure;
+        }
+        set typeStructure(value) {
+            this.#typeAccessors.typeStructure = value;
+        }
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            const { typeStructure } = source;
+            if (typeStructure) {
+                target.typeStructure = TypeStructureClassesMap.clone(typeStructure);
+            }
+            else if (source.type) {
+                target.type = source.type;
+            }
+        }
+        /** @internal */
+        *[STRUCTURE_CHILDREN]() {
+            yield* super[STRUCTURE_CHILDREN]();
+            if (typeof this.typeStructure === "object")
+                yield this.typeStructure;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            if (this.type) {
+                rv.type = StructureBase[REPLACE_WRITER_WITH_STRING](this.type);
+            }
+            else {
+                rv.type = undefined;
+            }
+            return rv;
+        }
+    }
+    return TypedNodeStructureMixin;
+}
+
+function TypeParameteredNodeStructureMixin(baseClass, context) {
+    class TypeParameteredNodeStructureMixin extends baseClass {
+        typeParameters = [];
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            if (source.typeParameters) {
+                target.typeParameters.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.TypeParameter, StructureClassesMap.forceArray(source.typeParameters)));
+            }
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.typeParameters = this.typeParameters;
+            return rv;
+        }
+    }
+    return TypeParameteredNodeStructureMixin;
+}
+
+class TypePrinterSettings {
+    indentChildren = false;
+    newLinesAroundChildren = false;
+    oneLinePerChild = false;
+}
+class TypeStructuresWithChildren extends TypeStructuresBase {
+    /** For customizing printing of the child types. */
+    printerSettings = new TypePrinterSettings();
+    [WRITER_FUNCTION_KEY](writer) {
+        this.objectType?.writerFunction(writer);
+        TypeStructuresBase.pairedWrite(writer, this.startToken, this.endToken, this.printerSettings.newLinesAroundChildren, this.printerSettings.indentChildren, () => this.#writerFunctionInner(writer));
+    }
+    #writerFunctionInner(writer) {
+        let { childTypes } = this;
+        if (childTypes.length === 0)
+            return;
+        if (childTypes.length > this.maxChildCount)
+            childTypes = childTypes.slice(0, this.maxChildCount);
+        const lastIndex = childTypes.length - 1;
+        for (let index = 0; index <= lastIndex; index++) {
+            const child = childTypes[index];
+            child.writerFunction(writer);
+            if (index === lastIndex)
+                break;
+            if (this.printerSettings.oneLinePerChild) {
+                writer.write(this.joinChildrenToken.trimEnd());
+                writer.newLine();
+            }
+            else {
+                writer.write(this.joinChildrenToken);
+            }
+        }
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        if (typeof this.objectType === "object" && this.objectType)
+            yield this.objectType;
+        for (const child of this.childTypes) {
+            if (typeof child === "object")
+                yield child;
+        }
+    }
+}
+
+class TypeStructuresWithTypeParameters extends TypeStructuresBase {
+    static writeTypeParameter(typeParam, writer, constraintMode) {
+        writer.write(typeParam.name);
+        switch (constraintMode) {
+            case "extends":
+                TypeStructuresWithTypeParameters.#writeConstraintExtends(typeParam, writer);
+                break;
+            case "in":
+                TypeStructuresWithTypeParameters.#writeConstraintIn(typeParam, writer);
+                break;
+        }
+        // isConst, variance not supported yet... need examples to test against
+    }
+    static #writeConstraintExtends(typeParam, writer) {
+        const constraint = typeParam.constraint;
+        if (typeof constraint === "undefined")
+            return;
+        writer.write(" extends ");
+        if (typeof constraint === "string") {
+            writer.write(constraint);
+        }
+        else {
+            constraint(writer);
+        }
+        const _default = typeParam.default;
+        if (_default) {
+            writer.write(" = ");
+            if (typeof _default === "string") {
+                writer.write(_default);
+            }
+            else {
+                _default(writer);
+            }
+        }
+    }
+    static #writeConstraintIn(typeParam, writer) {
+        const constraint = typeParam.constraint;
+        if (typeof constraint === "undefined")
+            return;
+        writer.write(" in ");
+        if (typeof constraint === "string") {
+            writer.write(constraint);
+        }
+        else {
+            constraint(writer);
+        }
+    }
+}
+
+/** @deprecated Use `Map.prototype.getOrInsertComputed(), available in NodeJS 26`*/
+class DefaultMap extends Map {
+    getDefault(key, builder) {
+        let value = this.get(key);
+        if (!value) {
+            value = builder();
+            this.set(key, value);
+        }
+        return value;
+    }
+}
+/** @deprecated Use `WeakMap.prototype.getOrInsertComputed(), available in NodeJS 26`*/
+class DefaultWeakMap extends WeakMap {
+    getDefault(key, builder) {
+        let value = this.get(key);
+        if (!value) {
+            value = builder();
+            this.set(key, value);
+        }
+        return value;
+    }
+}
+
+/** @internal */
+class MemberedStatementsKeyClass {
+    fieldKey;
+    statementGroupKey;
+    purpose;
+    isFieldStatic;
+    fieldType;
+    isGroupStatic;
+    groupType;
+    constructor(fieldKey, statementGroupKey, purpose, fieldTypeContext, groupTypeContext) {
+        this.fieldKey = fieldKey;
+        this.statementGroupKey = statementGroupKey;
+        this.purpose = purpose;
+        const [isFieldStatic, fieldType] = fieldTypeContext ?? [false, undefined];
+        this.isFieldStatic = isFieldStatic;
+        this.fieldType = fieldType;
+        const [isGroupStatic, groupType] = groupTypeContext ?? [false, undefined];
+        this.isGroupStatic = isGroupStatic;
+        this.groupType = groupType;
+    }
+    toJSON() {
+        return {
+            fieldKey: this.fieldKey,
+            statementGroupKey: this.statementGroupKey,
+            purpose: this.purpose,
+        };
+    }
 }
 
 //#endregion preamble
@@ -4910,17 +4961,6 @@ class VariableStatementImpl extends VariableStatementStructureBase {
     }
 }
 StructureClassesMap.set(StructureKind.VariableStatement, VariableStatementImpl);
-
-function isStatementedStructure(structure) {
-    /*
-    switch (structure.kind) {
-      case StatementStructureKind.UnknownString:
-      case StatementStructureKind.UnknownWriter:
-        return true;
-    }
-    */
-    return isTSMorphStatementedStructure(structure);
-}
 
 /**
  * `boolean[]`

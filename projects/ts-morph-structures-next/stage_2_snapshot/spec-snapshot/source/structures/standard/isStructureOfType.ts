@@ -10,6 +10,9 @@ it("isStructureOfType exports: isStatementStructure (ts-morph native structure t
   const fnDecl = new FunctionDeclarationImpl();
   expect(isStatementStructure(fnDecl)).toBeTrue();
 
+  expect("statementsSequence" in fnDecl).toBeTrue();
+  expect(Array.isArray(fnDecl.statementsSequence)).toBeTrue();
+
   const method = new MethodDeclarationImpl(false, "foo");
   expect(isStatementStructure(method)).toBeFalse();
 });

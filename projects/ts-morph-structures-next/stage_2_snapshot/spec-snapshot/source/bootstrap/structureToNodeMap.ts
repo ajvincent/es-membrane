@@ -30,13 +30,32 @@ import {
 } from "#utilities/source/PromiseTypes.js";
 
 import {
+  StatementStructureKind
+} from "#stage_two/snapshot/source/base/StatementStructureKind.js";
+
+import {
+  AugmentedStructureAndNodeData
+} from "#stage_two/snapshot/source/bootstrap/StructureToNodeData/Augmented.js";
+
+import {
   BaseStructureAndNodeData
 } from "#stage_two/snapshot/source/bootstrap/StructureToNodeData/Base.js";
 
-import StructureKindToSyntaxKindMap from "#stage_two/snapshot/source/bootstrap/structureToSyntax.js";
 import {
   fixFunctionOverloads,
 } from "#stage_two/snapshot/source/bootstrap/adjustForOverloads.js";
+
+import {
+  StructureKindToSyntaxKindMap
+} from "#stage_two/snapshot/source/bootstrap/structureToSyntax.js";
+
+import type {
+  AugmentedStructures
+} from "#stage_two/snapshot/source/types/AugmentedStructures.js";
+
+import type {
+  StructureImpls,
+} from "#stage_two/snapshot/source/types/StructureImplUnions.js";
 
 async function getSupportedKindSet(): Promise<Set<StructureKind>> {
   const stageDir: ModuleSourceDirectory = {
@@ -86,7 +105,7 @@ const fixturesDir: ModuleSourceDirectory = {
 };
 // #endregion preamble
 
-it("BaseStructureAndNodeData returns an accurate Map<Structure, Node>", () => {
+it("BaseStructureAndNodeData builds an accurate Map<Structure, Node>", () => {
   const remainingKeys = new Set(remainingKeysBase);
   function checkMap(
     relativePathToModuleFile: string,
@@ -98,7 +117,9 @@ it("BaseStructureAndNodeData returns an accurate Map<Structure, Node>", () => {
 
     let map: ReadonlyMap<Structures, Node>;
     try {
-      map = (new BaseStructureAndNodeData(sourceFile)).structureToNodeMap;
+      const data = new BaseStructureAndNodeData(sourceFile);
+      data.fill();
+      map = data.structureToNodeMap;
     }
     catch (ex) {
       console.log(pathToModuleFile);
@@ -240,4 +261,41 @@ it("BaseStructureAndNodeData returns an accurate Map<Structure, Node>", () => {
   remainingKinds.sort();
 
   expect(remainingKinds).withContext("we didn't find examples of these kinds in the fixtures").toEqual([]);
+});
+
+it("AugmentedStructureAndNodeData builds a map with structures for statements that don't natively create structures", () => {
+  const pathToModuleFile = pathToModule(fixturesDir, "stage_utilities/DefaultMap.ts");
+  project.addSourceFileAtPath(pathToModuleFile);
+  const sourceFile = project.getSourceFileOrThrow(pathToModuleFile);
+
+  const DefaultWeakMapClass = sourceFile.getClassOrThrow("DefaultWeakMap");
+  const getDefault = DefaultWeakMapClass.getMethodOrThrow("getDefault");
+
+  const data = new AugmentedStructureAndNodeData(getDefault);
+  const rootStructure: StructureImpls = data.fill();
+  const map: ReadonlyMap<AugmentedStructures, Node> = data.augmentedStructureToNodeMap;
+
+  expect(rootStructure.kind).toBe(StructureKind.Method);
+  if (rootStructure.kind !== StructureKind.Method)
+    return;
+
+  const { statementsSequence } = rootStructure;
+  expect(statementsSequence.length).toBe(3);
+  expect(statementsSequence[0].kind).toBe(StructureKind.VariableStatement);
+
+  {
+    const secondStatementNode: Node | undefined = map.get(statementsSequence[1]);
+    expect(Node.isIfStatement(secondStatementNode)).toBeTrue();
+
+    // temporary
+    expect(statementsSequence[1].kind).toBe(StatementStructureKind.UnknownString);
+  }
+
+  {
+    const secondStatementNode: Node | undefined = map.get(statementsSequence[2]);
+    expect(Node.isReturnStatement(secondStatementNode)).toBeTrue();
+
+    // temporary
+    expect(statementsSequence[2].kind).toBe(StatementStructureKind.UnknownString);
+  }
 });
