@@ -690,13 +690,14 @@ class BaseStructureAndNodeData {
 _a$3 = BaseStructureAndNodeData;
 
 // #region preamble
-// #endregion preamble
 class AugmentedStructureAndNodeData extends BaseStructureAndNodeData {
     augmentedStructureToNodeMap;
     #unresolvedStatementIndices = new Map();
-    constructor(nodeWithStructures) {
+    #statementResolver;
+    constructor(nodeWithStructures, statementResolver) {
         super(nodeWithStructures);
         this.augmentedStructureToNodeMap = this.structureToNodeMap;
+        this.#statementResolver = statementResolver;
     }
     fill() {
         return super.fill();
@@ -730,9 +731,12 @@ class AugmentedStructureAndNodeData extends BaseStructureAndNodeData {
             assert(Node.isStatemented(statementedNode));
             const statementNodes = statementedNode.getStatements();
             for (const index of unresolvedIndices) {
-                const statementStructure = statementsSequence[index];
                 const statementNode = statementNodes[index];
-                this.augmentedStructureToNodeMap.set(statementStructure, statementNode);
+                const resolvedStatement = this.#statementResolver(statementNode);
+                if (resolvedStatement) {
+                    statementsSequence[index] = resolvedStatement;
+                }
+                this.augmentedStructureToNodeMap.set(statementsSequence[index], statementNode);
             }
             this.#unresolvedStatementIndices.delete(structure);
         }
@@ -745,8 +749,8 @@ class AugmentedStructureAndNodeData extends BaseStructureAndNodeData {
  * @returns a map of structures to their original nodes.
  * @internal
  */
-function structureImplToNodeMap(nodeWithStructures) {
-    const data = new AugmentedStructureAndNodeData(nodeWithStructures);
+function structureImplToNodeMap(nodeWithStructures, statementResolver) {
+    const data = new AugmentedStructureAndNodeData(nodeWithStructures, statementResolver);
     const rootStructure = data.fill();
     return {
         map: data.augmentedStructureToNodeMap,
@@ -1373,12 +1377,15 @@ function reportConversionFailure(prefixMessage, failingNode, failingTypeNode, co
 }
 
 // #region preamble
+function VoidStatementResolver(statement) {
+    return undefined;
+}
 function getAugmentedStructure(rootNode, userConsole, assertNoFailures, kind) {
     if (kind !== undefined &&
         StructureKindToSyntaxKindMap.get(kind) !== rootNode.getKind()) {
         throw new Error("Root node kind does not match!");
     }
-    const { map, rootStructure } = structureImplToNodeMap(rootNode);
+    const { map, rootStructure } = structureImplToNodeMap(rootNode, VoidStatementResolver);
     assert(map.size > 0, "we should have some structures");
     const subFailures = [];
     const failures = buildTypesForStructures(map, userConsole, (nodeWithStructure) => {

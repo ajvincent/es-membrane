@@ -2,12 +2,21 @@
 import assert from "node:assert/strict";
 
 import {
+  Statement,
   type StructureKind
 } from "ts-morph";
 
 import type {
   StructureImpls,
-} from "../../snapshot/source/exports.js";
+} from "../types/StructureImplUnions.js";
+
+import type {
+  AugmentedStatementStructures
+} from "../structures/statements/AugmentedStatements.js";
+
+import type {
+  StatementResolver
+} from "./StructureToNodeData/Augmented.js";
 
 import {
   structureImplToNodeMap
@@ -32,6 +41,15 @@ import type {
 export type {
   NodeToStructureConsole
 };
+
+function VoidStatementResolver(
+  statement: Statement
+): AugmentedStatementStructures | undefined
+{
+  void statement;
+  return undefined;
+}
+VoidStatementResolver satisfies StatementResolver;
 
 /**
  * Get a structure for a node, with type structures installed throughout its descendants.
@@ -71,7 +89,7 @@ function getAugmentedStructure(
     throw new Error("Root node kind does not match!");
   }
 
-  const {map, rootStructure} = structureImplToNodeMap(rootNode);
+  const {map, rootStructure} = structureImplToNodeMap(rootNode, VoidStatementResolver);
   assert(map.size > 0, "we should have some structures");
 
   const subFailures: ConversionFailureMessage[] = [];

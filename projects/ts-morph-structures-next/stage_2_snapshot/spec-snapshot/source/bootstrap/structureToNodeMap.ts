@@ -3,6 +3,7 @@ import fs from "fs/promises";
 import path from "path";
 
 import {
+  CodeBlockWriter,
   type ConstructorDeclarationOverloadStructure,
   type ConstructorDeclarationStructure,
   type FunctionDeclarationOverloadStructure,
@@ -15,9 +16,11 @@ import {
   Project,
   ProjectOptions,
   ScriptTarget,
+  Statement,
   StructureKind,
   type Structures,
   SyntaxKind,
+  WriterFunction,
 } from "ts-morph";
 
 import {
@@ -34,7 +37,8 @@ import {
 } from "#stage_two/snapshot/source/base/StatementStructureKind.js";
 
 import {
-  AugmentedStructureAndNodeData
+  AugmentedStructureAndNodeData,
+  type StatementResolver,
 } from "#stage_two/snapshot/source/bootstrap/StructureToNodeData/Augmented.js";
 
 import {
@@ -48,6 +52,10 @@ import {
 import {
   StructureKindToSyntaxKindMap
 } from "#stage_two/snapshot/source/bootstrap/structureToSyntax.js";
+
+import {
+  UnknownWriterStatementImpl
+} from "#stage_two/snapshot/source/structures/statements/UnknownWriterStatementImpl.js";
 
 import type {
   AugmentedStructures
@@ -271,7 +279,19 @@ it("AugmentedStructureAndNodeData builds a map with structures for statements th
   const DefaultWeakMapClass = sourceFile.getClassOrThrow("DefaultWeakMap");
   const getDefault = DefaultWeakMapClass.getMethodOrThrow("getDefault");
 
-  const data = new AugmentedStructureAndNodeData(getDefault);
+  function WriterResolver(statement: Statement): UnknownWriterStatementImpl {
+    const text = statement.getText();
+    function actualWriter(writer: CodeBlockWriter) {
+      writer.write(text);
+    }
+    actualWriter satisfies WriterFunction;
+
+    const unknownWriter = new UnknownWriterStatementImpl(actualWriter);
+    return unknownWriter;
+  }
+  WriterResolver satisfies StatementResolver;
+
+  const data = new AugmentedStructureAndNodeData(getDefault, WriterResolver);
   const rootStructure: StructureImpls = data.fill();
   const map: ReadonlyMap<AugmentedStructures, Node> = data.augmentedStructureToNodeMap;
 
@@ -288,7 +308,7 @@ it("AugmentedStructureAndNodeData builds a map with structures for statements th
     expect(Node.isIfStatement(secondStatementNode)).toBeTrue();
 
     // temporary
-    expect(statementsSequence[1].kind).toBe(StatementStructureKind.UnknownString);
+    expect(statementsSequence[1].kind).toBe(StatementStructureKind.UnknownWriter);
   }
 
   {
@@ -296,6 +316,6 @@ it("AugmentedStructureAndNodeData builds a map with structures for statements th
     expect(Node.isReturnStatement(secondStatementNode)).toBeTrue();
 
     // temporary
-    expect(statementsSequence[2].kind).toBe(StatementStructureKind.UnknownString);
+    expect(statementsSequence[2].kind).toBe(StatementStructureKind.UnknownWriter);
   }
 });

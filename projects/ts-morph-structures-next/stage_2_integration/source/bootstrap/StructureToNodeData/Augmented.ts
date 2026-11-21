@@ -41,6 +41,8 @@ import {
 } from "./Base.js";
 // #endregion preamble
 
+export type StatementResolver = (statement: Statement) => AugmentedStatementStructures | undefined;
+
 export class AugmentedStructureAndNodeData extends BaseStructureAndNodeData {
   declare protected rootStructure: StructureImpls | null;
 
@@ -48,12 +50,16 @@ export class AugmentedStructureAndNodeData extends BaseStructureAndNodeData {
   readonly augmentedStructureToNodeMap:Map<AugmentedStatementStructures | StructureImpls, Node>;
   readonly #unresolvedStatementIndices: Map<TSMorphStatementedStructureImpls, readonly number[]> = new Map;
 
+  readonly #statementResolver: StatementResolver;
+
   constructor(
     nodeWithStructures: NodeWithStructures,
+    statementResolver: StatementResolver,
   )
   {
     super(nodeWithStructures);
     this.augmentedStructureToNodeMap = this.structureToNodeMap;
+    this.#statementResolver = statementResolver;
   }
 
   public fill(): StructureImpls {
@@ -105,9 +111,14 @@ export class AugmentedStructureAndNodeData extends BaseStructureAndNodeData {
       const statementNodes: readonly Statement[] = statementedNode.getStatements();
 
       for (const index of unresolvedIndices) {
-        const statementStructure: AugmentedStatementStructures = statementsSequence[index];
         const statementNode: Statement = statementNodes[index];
-        this.augmentedStructureToNodeMap.set(statementStructure, statementNode);
+
+        const resolvedStatement: AugmentedStatementStructures | undefined = this.#statementResolver(statementNode);
+        if (resolvedStatement) {
+          statementsSequence[index] = resolvedStatement;
+        }
+
+        this.augmentedStructureToNodeMap.set(statementsSequence[index], statementNode);
       }
 
       this.#unresolvedStatementIndices.delete(structure);

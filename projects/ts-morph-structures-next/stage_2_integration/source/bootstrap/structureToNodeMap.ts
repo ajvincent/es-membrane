@@ -12,11 +12,12 @@ import type {
 } from "./types/conversions.js";
 
 import {
-  AugmentedStructureAndNodeData
+  AugmentedStructureAndNodeData,
+  type StatementResolver,
 } from "./StructureToNodeData/Augmented.js";
 
 import {
-  AugmentedStructures
+  AugmentedStructures,
 } from "../types/AugmentedStructures.js";
 // #endregion preamble
 
@@ -33,9 +34,10 @@ interface MapAndRootStructure {
  */
 export function structureImplToNodeMap(
   nodeWithStructures: NodeWithStructures,
+  statementResolver: StatementResolver,
 ): MapAndRootStructure
 {
-  const data = new AugmentedStructureAndNodeData(nodeWithStructures);
+  const data = new AugmentedStructureAndNodeData(nodeWithStructures, statementResolver);
   const rootStructure = data.fill();
   return {
     map: data.augmentedStructureToNodeMap,
