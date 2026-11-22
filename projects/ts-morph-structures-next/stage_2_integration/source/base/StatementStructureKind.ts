@@ -4,25 +4,28 @@ import type {
 
 export enum StatementStructureKind {
   UnknownString = 1002000000,
-  /* @deprecated */
-  UnknownWriter,
-  Empty,
   Comment,
-  Keyword, // break, continue, debugger, etc.
+  Keyword, // break, continue, debugger, `;`, etc.
   Expression, // return, yield, await, throw, void, etc., or "none" for a simple ExpressionStatement
   Block,
+  If,
+  Switch,
+  Case,
+  While,
+  Try,
   ForCondition,
   ForIn,
   ForOf,
-  If,
-  Switch,
-  While,
-  Try,
   Label,
   ImportEquals,
   Module,
   With,
   NotEmitted,
+
+  /** @deprecated */
+  UnknownWriter,
+  /** @deprecated */
+  Empty,
 }
 
 export interface KindedStatementStructure<

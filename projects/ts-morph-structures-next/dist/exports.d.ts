@@ -88,24 +88,27 @@ declare enum FunctionWriterStyle {
 
 declare enum StatementStructureKind {
   UnknownString = 1002000000,
-  UnknownWriter = 1002000001,
-  Empty = 1002000002,
-  Comment = 1002000003,
-  Keyword = 1002000004,
-  Expression = 1002000005,
-  Block = 1002000006,
-  ForCondition = 1002000007,
-  ForIn = 1002000008,
-  ForOf = 1002000009,
-  If = 1002000010,
-  Switch = 1002000011,
-  While = 1002000012,
-  Try = 1002000013,
-  Label = 1002000014,
-  ImportEquals = 1002000015,
-  Module = 1002000016,
-  With = 1002000017,
-  NotEmitted = 1002000018,
+  Comment = 1002000001,
+  Keyword = 1002000002,
+  Expression = 1002000003,
+  Block = 1002000004,
+  If = 1002000005,
+  Switch = 1002000006,
+  Case = 1002000007,
+  While = 1002000008,
+  Try = 1002000009,
+  ForCondition = 1002000010,
+  ForIn = 1002000011,
+  ForOf = 1002000012,
+  Label = 1002000013,
+  ImportEquals = 1002000014,
+  Module = 1002000015,
+  With = 1002000016,
+  NotEmitted = 1002000017,
+  /** @deprecated */
+  UnknownWriter = 1002000018,
+  /** @deprecated */
+  Empty = 1002000019,
 }
 
 declare enum TypeStructureKind {
@@ -1008,6 +1011,7 @@ declare const GET_OUTER_TYPE: unique symbol;
 declare const REPLACE_WRITER_WITH_STRING: unique symbol;
 declare const STRUCTURE_CHILDREN: unique symbol;
 declare const WRITE_BETWEEN_TRIVIA: unique symbol;
+declare const WRITE_STATEMENTS_SEQUENCE: unique symbol;
 declare const WRITER_FUNCTION_KEY: unique symbol;
 /**
  * Iterates over the children of a structure (or type structure), or the elements of an array of structures and type structures.
@@ -1529,6 +1533,14 @@ declare abstract class StatementWithTrivia<
   protected static [COPY_FIELDS](
     source: StatementWithTrivia<StatementStructureKind>,
     target: StatementWithTrivia<StatementStructureKind>,
+  ): void;
+  protected static [WRITE_STATEMENTS_SEQUENCE](
+    keyword: string,
+    writeExpressions: [never[], string] | null,
+    useBlock: boolean,
+    statements: readonly AugmentedStatementStructures[],
+    trailingSemi: boolean,
+    writer: CodeBlockWriter,
   ): void;
   /** @internal */
   protected [WRITER_FUNCTION_KEY](writer: CodeBlockWriter): void;
@@ -3901,7 +3913,10 @@ declare class WriterTypeStructureImpl extends TypeStructuresBase<TypeStructureKi
 //#endregion type structure classes
 //#region statement structure classes
 
-/** @example `;` */
+/**
+ * @example `;`
+ * @deprecated
+ */
 declare class EmptyStatementImpl extends StatementWithTrivia<StatementStructureKind.Empty> {
   readonly kind = StatementStructureKind.Empty;
   static clone(source: EmptyStatementImpl): EmptyStatementImpl;

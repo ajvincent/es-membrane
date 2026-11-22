@@ -10,7 +10,10 @@ import type { CloneableStatementStructure } from "../../types/CloneableStructure
 
 import { StatementWithTrivia } from "./StatementWithTrivia.js";
 
-/** @example `;` */
+/**
+ * @example `;`
+ * @deprecated
+ */
 export class EmptyStatementImpl extends StatementWithTrivia<StatementStructureKind.Empty> {
   public static clone(source: EmptyStatementImpl): EmptyStatementImpl {
     const target = new EmptyStatementImpl();

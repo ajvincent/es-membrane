@@ -4,3 +4,4 @@ export const STRUCTURE_CHILDREN = Symbol(
   "otherwise unreachable structure and type-structure children",
 );
 export const WRITE_BETWEEN_TRIVIA = Symbol("write contents between trivia");
+export const WRITE_STATEMENTS_SEQUENCE = Symbol("write statements sequence");

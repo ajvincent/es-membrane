@@ -1,30 +1,32 @@
 import assert from 'node:assert/strict';
-import { StructureKind, SyntaxKind, Structure, forEachStructureChild, Node, ConstructorTypeNode, ModuleResolutionKind, ScriptTarget, ModuleKind, Project, CodeBlockWriter, Writers, printStructure } from 'ts-morph';
+import { StructureKind, SyntaxKind, Structure, forEachStructureChild, Node, ConstructorTypeNode, ModuleResolutionKind, ScriptTarget, ModuleKind, Project, CodeBlockWriter, printStructure, Writers } from 'ts-morph';
 import path from 'node:path';
 import MultiMixinBuilder from 'mixin-decorators';
 
 var StatementStructureKind;
 (function (StatementStructureKind) {
     StatementStructureKind[StatementStructureKind["UnknownString"] = 1002000000] = "UnknownString";
-    /* @deprecated */
-    StatementStructureKind[StatementStructureKind["UnknownWriter"] = 1002000001] = "UnknownWriter";
-    StatementStructureKind[StatementStructureKind["Empty"] = 1002000002] = "Empty";
-    StatementStructureKind[StatementStructureKind["Comment"] = 1002000003] = "Comment";
-    StatementStructureKind[StatementStructureKind["Keyword"] = 1002000004] = "Keyword";
-    StatementStructureKind[StatementStructureKind["Expression"] = 1002000005] = "Expression";
-    StatementStructureKind[StatementStructureKind["Block"] = 1002000006] = "Block";
-    StatementStructureKind[StatementStructureKind["ForCondition"] = 1002000007] = "ForCondition";
-    StatementStructureKind[StatementStructureKind["ForIn"] = 1002000008] = "ForIn";
-    StatementStructureKind[StatementStructureKind["ForOf"] = 1002000009] = "ForOf";
-    StatementStructureKind[StatementStructureKind["If"] = 1002000010] = "If";
-    StatementStructureKind[StatementStructureKind["Switch"] = 1002000011] = "Switch";
-    StatementStructureKind[StatementStructureKind["While"] = 1002000012] = "While";
-    StatementStructureKind[StatementStructureKind["Try"] = 1002000013] = "Try";
-    StatementStructureKind[StatementStructureKind["Label"] = 1002000014] = "Label";
-    StatementStructureKind[StatementStructureKind["ImportEquals"] = 1002000015] = "ImportEquals";
-    StatementStructureKind[StatementStructureKind["Module"] = 1002000016] = "Module";
-    StatementStructureKind[StatementStructureKind["With"] = 1002000017] = "With";
-    StatementStructureKind[StatementStructureKind["NotEmitted"] = 1002000018] = "NotEmitted";
+    StatementStructureKind[StatementStructureKind["Comment"] = 1002000001] = "Comment";
+    StatementStructureKind[StatementStructureKind["Keyword"] = 1002000002] = "Keyword";
+    StatementStructureKind[StatementStructureKind["Expression"] = 1002000003] = "Expression";
+    StatementStructureKind[StatementStructureKind["Block"] = 1002000004] = "Block";
+    StatementStructureKind[StatementStructureKind["If"] = 1002000005] = "If";
+    StatementStructureKind[StatementStructureKind["Switch"] = 1002000006] = "Switch";
+    StatementStructureKind[StatementStructureKind["Case"] = 1002000007] = "Case";
+    StatementStructureKind[StatementStructureKind["While"] = 1002000008] = "While";
+    StatementStructureKind[StatementStructureKind["Try"] = 1002000009] = "Try";
+    StatementStructureKind[StatementStructureKind["ForCondition"] = 1002000010] = "ForCondition";
+    StatementStructureKind[StatementStructureKind["ForIn"] = 1002000011] = "ForIn";
+    StatementStructureKind[StatementStructureKind["ForOf"] = 1002000012] = "ForOf";
+    StatementStructureKind[StatementStructureKind["Label"] = 1002000013] = "Label";
+    StatementStructureKind[StatementStructureKind["ImportEquals"] = 1002000014] = "ImportEquals";
+    StatementStructureKind[StatementStructureKind["Module"] = 1002000015] = "Module";
+    StatementStructureKind[StatementStructureKind["With"] = 1002000016] = "With";
+    StatementStructureKind[StatementStructureKind["NotEmitted"] = 1002000017] = "NotEmitted";
+    /** @deprecated */
+    StatementStructureKind[StatementStructureKind["UnknownWriter"] = 1002000018] = "UnknownWriter";
+    /** @deprecated */
+    StatementStructureKind[StatementStructureKind["Empty"] = 1002000019] = "Empty";
 })(StatementStructureKind || (StatementStructureKind = {}));
 
 var TypeStructureKind;
@@ -1966,6 +1968,7 @@ const COPY_FIELDS = Symbol("copy fields");
 const REPLACE_WRITER_WITH_STRING = Symbol("replaceWriterWithString");
 const STRUCTURE_CHILDREN = Symbol("otherwise unreachable structure and type-structure children");
 const WRITE_BETWEEN_TRIVIA = Symbol("write contents between trivia");
+const WRITE_STATEMENTS_SEQUENCE = Symbol("write statements sequence");
 
 class StructureBase {
     /** @internal */
@@ -5016,6 +5019,34 @@ class StatementWithTrivia extends StatementStructuresBase {
             target.trailingTrivia.push(source.trailingTrivia);
         }
     }
+    static [WRITE_STATEMENTS_SEQUENCE](keyword, writeExpressions, useBlock, statements, trailingSemi, writer) {
+        writer.write(keyword);
+        writer.conditionalWrite(writeExpressions !== null || statements.length > 0, " ");
+        if (writeExpressions) {
+            this.#writeExpressionsSequence(...writeExpressions);
+        }
+        if (useBlock) {
+            writer.block(() => this.#writeStatementsSequence(statements, writer));
+        }
+        else {
+            this.#writeStatementsSequence(statements, writer);
+        }
+        writer.conditionalWrite(trailingSemi, ";");
+        writer.newLineIfLastNot();
+    }
+    static #writeStatementsSequence(statements, writer) {
+        for (const statement of statements) {
+            if (isTSMorphStatementStructure(statement)) {
+                writer.write(printStructure(statement));
+            }
+            else {
+                statement.writerFunction(writer);
+            }
+        }
+    }
+    static #writeExpressionsSequence(expressions, delimiter) {
+        throw new Error("not yet implemented");
+    }
     /** Leading comments or whitespace. */
     leadingTrivia = [];
     /** Trailing comments or whitespace. */
@@ -5037,7 +5068,10 @@ class StatementWithTrivia extends StatementStructuresBase {
     }
 }
 
-/** @example `;` */
+/**
+ * @example `;`
+ * @deprecated
+ */
 class EmptyStatementImpl extends StatementWithTrivia {
     static clone(source) {
         const target = new EmptyStatementImpl();
