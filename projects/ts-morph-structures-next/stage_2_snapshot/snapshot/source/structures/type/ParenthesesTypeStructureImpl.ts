@@ -1,10 +1,12 @@
-import { TypeStructureKind, type TypeStructures } from "../../exports.js";
+import { TypeStructureKind } from "../../base/TypeStructureKind.js";
 
-import {
-  type CloneableTypeStructure,
-  TypeStructureClassesMap,
-  TypeStructuresWithChildren,
-} from "../../internal-exports.js";
+import type { CloneableTypeStructure } from "../../types/CloneableStructure.js";
+
+import TypeStructureClassesMap from "../../base/TypeStructureClassesMap.js";
+
+import type { TypeStructures } from "./TypeStructures.js";
+
+import TypeStructuresWithChildren from "./TypeStructuresWithChildren.js";
 
 /** Wrap the child type in parentheses. */
 export class ParenthesesTypeStructureImpl extends TypeStructuresWithChildren<

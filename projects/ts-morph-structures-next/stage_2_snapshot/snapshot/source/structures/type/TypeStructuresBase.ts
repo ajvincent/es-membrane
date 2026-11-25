@@ -1,13 +1,14 @@
-import type {
-  AugmentedStructures,
-  KindedTypeStructure,
-  TypeStructureKind,
-} from "../../exports.js";
+import type { AugmentedStructures } from "../../exports.js";
 
 import {
   GET_OUTER_TYPE,
   type InnerTypeElement,
 } from "../../array-utilities/ShadowArrayImpl.js";
+
+import type {
+  KindedTypeStructure,
+  TypeStructureKind,
+} from "../../base/TypeStructureKind.js";
 
 import { STRUCTURE_CHILDREN } from "../../base/symbolKeys.js";
 

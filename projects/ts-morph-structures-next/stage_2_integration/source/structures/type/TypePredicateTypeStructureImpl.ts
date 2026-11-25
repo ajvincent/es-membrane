@@ -2,20 +2,37 @@ import {
   type CodeBlockWriter,
 } from "ts-morph";
 
-import {
-  type AugmentedStructures,
-  LiteralTypeStructureImpl,
-  TypeStructureKind,
-  type TypeStructures,
+import type {
+  AugmentedStructures,
 } from "../../../snapshot/source/exports.js";
 
 import {
-  STRUCTURE_CHILDREN,
-  type CloneableTypeStructure,
-  TypeStructuresBase,
-  TypeStructureClassesMap,
-  WRITER_FUNCTION_KEY,
-} from "../../../snapshot/source/internal-exports.js";
+  TypeStructureKind
+} from "../../base/TypeStructureKind.js";
+
+import TypeStructureClassesMap from "../../base/TypeStructureClassesMap.js";
+
+import {
+  STRUCTURE_CHILDREN
+} from "../../base/symbolKeys.js";
+
+import type {
+  CloneableTypeStructure,
+} from "../../types/CloneableStructure.js";
+
+import {
+  WRITER_FUNCTION_KEY
+} from "../WriterStructuresBase.js";
+
+import {
+  LiteralTypeStructureImpl
+} from "./LiteralTypeStructureImpl.js";
+
+import type {
+  TypeStructures
+} from "./TypeStructures.js";
+
+import TypeStructuresBase from "./TypeStructuresBase.js";
 
 /** @example assert condition is true */
 export class TypePredicateTypeStructureImpl

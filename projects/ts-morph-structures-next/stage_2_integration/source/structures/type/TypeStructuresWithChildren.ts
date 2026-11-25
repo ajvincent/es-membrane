@@ -4,15 +4,24 @@ import type {
 
 import type {
   AugmentedStructures,
-  TypeStructureKind,
-  TypeStructures,
-  TypeStructuresOrNull,
 } from "../../../snapshot/source/exports.js";
 
+import type {
+  TypeStructureKind
+} from "../../base/TypeStructureKind.js"
+
 import {
-  STRUCTURE_CHILDREN,
-  WRITER_FUNCTION_KEY,
-} from "../../../snapshot/source/internal-exports.js";
+  STRUCTURE_CHILDREN
+} from "../../base/symbolKeys.js";
+
+import {
+  WRITER_FUNCTION_KEY
+} from "../WriterStructuresBase.js";
+
+import type {
+  TypeStructures,
+  TypeStructuresOrNull,
+} from "./TypeStructures.js";
 
 import TypeStructuresBase from "./TypeStructuresBase.js";
 

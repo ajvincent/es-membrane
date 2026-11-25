@@ -4,8 +4,11 @@ import type {
 
 import type {
   TypeParameterDeclarationImpl,
-  TypeStructureKind,
 } from "../../../snapshot/source/exports.js";
+
+import type {
+  TypeStructureKind
+} from "../../base/TypeStructureKind.js"
 
 import TypeStructuresBase from "./TypeStructuresBase.js"
 

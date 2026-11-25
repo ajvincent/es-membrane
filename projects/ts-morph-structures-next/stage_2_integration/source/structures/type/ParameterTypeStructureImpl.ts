@@ -5,7 +5,6 @@ import type {
 
 import type {
   AugmentedStructures,
-  TypeStructures,
 } from "../../../snapshot/source/exports.js";
 
 import TypeStructureClassesMap from "../../base/TypeStructureClassesMap.js";
@@ -23,6 +22,10 @@ import type {
 } from "../../types/CloneableStructure.js";
 
 import { WRITER_FUNCTION_KEY } from "../WriterStructuresBase.js";
+
+import type {
+  TypeStructures
+} from "./TypeStructures.js";
 
 import TypeStructuresBase from "./TypeStructuresBase.js";
 // #endregion preamble

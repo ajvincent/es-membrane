@@ -1,24 +1,32 @@
 import { CodeBlockWriter, Writers } from "ts-morph";
 
-import {
-  type AugmentedStructures,
-  CallSignatureDeclarationImpl,
-  ConstructSignatureDeclarationImpl,
-  GetAccessorDeclarationImpl,
-  IndexSignatureDeclarationImpl,
-  MethodSignatureImpl,
-  PropertySignatureImpl,
-  SetAccessorDeclarationImpl,
-  TypeStructureKind,
-} from "../../exports.js";
+import type { AugmentedStructures } from "../../exports.js";
 
-import {
-  type CloneableTypeStructure,
-  STRUCTURE_CHILDREN,
-  TypeStructureClassesMap,
-  TypeStructuresBase,
-  WRITER_FUNCTION_KEY,
-} from "../../internal-exports.js";
+import { TypeStructureKind } from "../../base/TypeStructureKind.js";
+
+import TypeStructureClassesMap from "../../base/TypeStructureClassesMap.js";
+
+import { STRUCTURE_CHILDREN } from "../../base/symbolKeys.js";
+
+import type { CloneableTypeStructure } from "../../types/CloneableStructure.js";
+
+import { WRITER_FUNCTION_KEY } from "../WriterStructuresBase.js";
+
+import { CallSignatureDeclarationImpl } from "../standard/CallSignatureDeclarationImpl.js";
+
+import { ConstructSignatureDeclarationImpl } from "../standard/ConstructSignatureDeclarationImpl.js";
+
+import { GetAccessorDeclarationImpl } from "../standard/GetAccessorDeclarationImpl.js";
+
+import { IndexSignatureDeclarationImpl } from "../standard/IndexSignatureDeclarationImpl.js";
+
+import { MethodSignatureImpl } from "../standard/MethodSignatureImpl.js";
+
+import { PropertySignatureImpl } from "../standard/PropertySignatureImpl.js";
+
+import { SetAccessorDeclarationImpl } from "../standard/SetAccessorDeclarationImpl.js";
+
+import TypeStructuresBase from "./TypeStructuresBase.js";
 
 /**
  * Properties, methods, getters, setters, and index signatures.  Very much like interfaces.  Usually in type aliases.
