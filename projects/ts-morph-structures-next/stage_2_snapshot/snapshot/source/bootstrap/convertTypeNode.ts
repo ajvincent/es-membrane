@@ -23,7 +23,7 @@ import {
 
 import type { ImportAttributeImpl } from "../structures/standard/ImportAttributeImpl.js";
 
-import { TypeParameterDeclarationImpl } from "../structures/standard/TypeParameterDeclarationImpl.js";
+import type { TypeParameterDeclarationImpl } from "../structures/standard/TypeParameterDeclarationImpl.js";
 
 import {
   ArrayTypeStructureImpl,

@@ -25,7 +25,7 @@ import type {
   ImportAttributeImpl
 } from "../structures/standard/ImportAttributeImpl.js";
 
-import {
+import type {
   TypeParameterDeclarationImpl
 } from "../structures/standard/TypeParameterDeclarationImpl.js";
 

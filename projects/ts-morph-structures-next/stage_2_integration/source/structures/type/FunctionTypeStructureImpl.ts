@@ -1,6 +1,7 @@
 // #region preamble
-import type {
-  CodeBlockWriter,
+import {
+  StructureKind,
+  type CodeBlockWriter,
 } from "ts-morph";
 
 import type {
@@ -8,6 +9,7 @@ import type {
   TypeStructures,
 } from "../../../snapshot/source/exports.js";
 
+import StructureClassesMap from "../../base/StructureClassesMap.js";
 import TypeStructureClassesMap from "../../base/TypeStructureClassesMap.js";
 
 import {
@@ -22,7 +24,7 @@ import type {
   CloneableTypeStructure,
 } from "../../types/CloneableStructure.js";
 
-import {
+import type {
   TypeParameterDeclarationImpl
 } from "../standard/TypeParameterDeclarationImpl.js";
 
@@ -70,7 +72,7 @@ extends TypeStructuresWithTypeParameters<TypeStructureKind.Function>
     return new FunctionTypeStructureImpl({
       name: other.name,
       isConstructor: other.isConstructor,
-      typeParameters: other.typeParameters.map(typeParam => TypeParameterDeclarationImpl.clone(typeParam)),
+      typeParameters: StructureClassesMap.cloneArrayWithKind(StructureKind.TypeParameter, other.typeParameters),
       parameters: other.parameters.map(param => ParameterTypeStructureImpl.clone(param)),
       restParameter: (other.restParameter ? ParameterTypeStructureImpl.clone(other.restParameter) : undefined),
       returnType: other.returnType ? TypeStructureClassesMap.clone(other.returnType) : undefined,

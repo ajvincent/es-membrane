@@ -14,7 +14,7 @@ import type { CloneableTypeStructure } from "../../types/CloneableStructure.js";
 
 import { WRITER_FUNCTION_KEY } from "../WriterStructuresBase.js";
 
-import { ImportAttributeImpl } from "../standard/ImportAttributeImpl.js";
+import type { ImportAttributeImpl } from "../standard/ImportAttributeImpl.js";
 
 import { LiteralTypeStructureImpl } from "./LiteralTypeStructureImpl.js";
 
@@ -49,7 +49,10 @@ export class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKin
   ) {
     super();
     this.argument = argument;
-    this.attributes = attributes.map((attr) => ImportAttributeImpl.clone(attr));
+    this.attributes = StructureClassesMap.cloneArrayWithKind(
+      StructureKind.ImportAttribute,
+      attributes,
+    );
 
     typeArguments = typeArguments.slice();
     this.#typeArguments = new TypeArgumentedTypeStructureImpl(

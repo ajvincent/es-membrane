@@ -1,9 +1,19 @@
-import { CodeBlockWriter, Writers } from "ts-morph";
+import { CodeBlockWriter, StructureKind, Writers } from "ts-morph";
 
-import type { AugmentedStructures } from "../../exports.js";
+import type {
+  AugmentedStructures,
+  CallSignatureDeclarationImpl,
+  ConstructSignatureDeclarationImpl,
+  GetAccessorDeclarationImpl,
+  IndexSignatureDeclarationImpl,
+  MethodSignatureImpl,
+  PropertySignatureImpl,
+  SetAccessorDeclarationImpl,
+} from "../../exports.js";
 
 import { TypeStructureKind } from "../../base/TypeStructureKind.js";
 
+import StructureClassesMap from "../../base/StructureClassesMap.js";
 import TypeStructureClassesMap from "../../base/TypeStructureClassesMap.js";
 
 import { STRUCTURE_CHILDREN } from "../../base/symbolKeys.js";
@@ -11,20 +21,6 @@ import { STRUCTURE_CHILDREN } from "../../base/symbolKeys.js";
 import type { CloneableTypeStructure } from "../../types/CloneableStructure.js";
 
 import { WRITER_FUNCTION_KEY } from "../WriterStructuresBase.js";
-
-import { CallSignatureDeclarationImpl } from "../standard/CallSignatureDeclarationImpl.js";
-
-import { ConstructSignatureDeclarationImpl } from "../standard/ConstructSignatureDeclarationImpl.js";
-
-import { GetAccessorDeclarationImpl } from "../standard/GetAccessorDeclarationImpl.js";
-
-import { IndexSignatureDeclarationImpl } from "../standard/IndexSignatureDeclarationImpl.js";
-
-import { MethodSignatureImpl } from "../standard/MethodSignatureImpl.js";
-
-import { PropertySignatureImpl } from "../standard/PropertySignatureImpl.js";
-
-import { SetAccessorDeclarationImpl } from "../standard/SetAccessorDeclarationImpl.js";
 
 import TypeStructuresBase from "./TypeStructuresBase.js";
 
@@ -52,37 +48,46 @@ export class MemberedObjectTypeStructureImpl extends TypeStructuresBase<TypeStru
     const membered = new MemberedObjectTypeStructureImpl();
 
     membered.callSignatures.push(
-      ...other.callSignatures.map((signature) =>
-        CallSignatureDeclarationImpl.clone(signature),
-      ),
+      ...(StructureClassesMap.cloneArrayWithKind(
+        StructureKind.CallSignature,
+        other.callSignatures,
+      ) as CallSignatureDeclarationImpl[]),
     );
     membered.constructSignatures.push(
-      ...other.constructSignatures.map((signature) =>
-        ConstructSignatureDeclarationImpl.clone(signature),
-      ),
+      ...(StructureClassesMap.cloneArrayWithKind(
+        StructureKind.ConstructSignature,
+        other.constructSignatures,
+      ) as ConstructSignatureDeclarationImpl[]),
     );
     membered.getAccessors.push(
-      ...other.getAccessors.map((accessor) =>
-        GetAccessorDeclarationImpl.clone(accessor),
-      ),
+      ...(StructureClassesMap.cloneArrayWithKind(
+        StructureKind.GetAccessor,
+        other.getAccessors,
+      ) as GetAccessorDeclarationImpl[]),
     );
     membered.indexSignatures.push(
-      ...other.indexSignatures.map((signature) =>
-        IndexSignatureDeclarationImpl.clone(signature),
-      ),
+      ...(StructureClassesMap.cloneArrayWithKind(
+        StructureKind.IndexSignature,
+        other.indexSignatures,
+      ) as IndexSignatureDeclarationImpl[]),
     );
     membered.properties.push(
-      ...other.properties.map((signature) =>
-        PropertySignatureImpl.clone(signature),
-      ),
+      ...(StructureClassesMap.cloneArrayWithKind(
+        StructureKind.PropertySignature,
+        other.properties,
+      ) as PropertySignatureImpl[]),
     );
     membered.methods.push(
-      ...other.methods.map((signature) => MethodSignatureImpl.clone(signature)),
+      ...(StructureClassesMap.cloneArrayWithKind(
+        StructureKind.MethodSignature,
+        other.methods,
+      ) as MethodSignatureImpl[]),
     );
     membered.setAccessors.push(
-      ...other.setAccessors.map((accessor) =>
-        SetAccessorDeclarationImpl.clone(accessor),
-      ),
+      ...(StructureClassesMap.cloneArrayWithKind(
+        StructureKind.SetAccessor,
+        other.setAccessors,
+      ) as SetAccessorDeclarationImpl[]),
     );
 
     return membered;

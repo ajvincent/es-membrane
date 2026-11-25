@@ -27,7 +27,7 @@ import {
   WRITER_FUNCTION_KEY
 } from "../WriterStructuresBase.js";
 
-import {
+import type {
   ImportAttributeImpl,
 } from "../standard/ImportAttributeImpl.js";
 
@@ -76,7 +76,7 @@ export class ImportTypeStructureImpl extends TypeStructuresBase<TypeStructureKin
   {
     super();
     this.argument = argument;
-    this.attributes = attributes.map(attr => ImportAttributeImpl.clone(attr));
+    this.attributes = StructureClassesMap.cloneArrayWithKind(StructureKind.ImportAttribute, attributes);
 
     typeArguments = typeArguments.slice();
     this.#typeArguments = new TypeArgumentedTypeStructureImpl(
