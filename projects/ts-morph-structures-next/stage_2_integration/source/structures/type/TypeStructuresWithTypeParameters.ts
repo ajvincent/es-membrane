@@ -7,9 +7,7 @@ import type {
   TypeStructureKind,
 } from "../../../snapshot/source/exports.js";
 
-import {
-  TypeStructuresBase
-} from "../../../snapshot/source/internal-exports.js"
+import TypeStructuresBase from "./TypeStructuresBase.js"
 
 export default
 abstract class TypeStructuresWithTypeParameters<

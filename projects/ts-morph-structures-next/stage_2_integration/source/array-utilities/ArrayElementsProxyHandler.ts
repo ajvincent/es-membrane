@@ -6,9 +6,13 @@ import type {
   InnerTypeElement
 } from "./types/InnerTypeElements.js";
 
-import {
+import type {
   ShadowArrayImpl
 } from "./ShadowArrayImpl.js";
+
+import {
+  indexRange
+} from "./indexRange.js";
 
 /**
  * A proxy handler for array.length, array[index].  The array prototype will be `ArrayPrototypeProxyHandler.proto`.
@@ -160,7 +164,7 @@ implements Omit<
   ): ArrayLike<string | symbol>
   {
     const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget)!;
-    const keys: string[] = ShadowArrayImpl.indexRange(arrayImpl.getLength()).map(String);
+    const keys: string[] = indexRange(arrayImpl.getLength()).map(String);
     keys.push("length");
     // only length is not configurable, and the array is extensible
     // so we don't need to update the shadow target specifically

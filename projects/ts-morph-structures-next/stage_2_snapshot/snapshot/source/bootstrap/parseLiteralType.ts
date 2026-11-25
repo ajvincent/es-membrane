@@ -5,18 +5,18 @@ import {
   type ProjectOptions,
   ScriptTarget,
   SourceFile,
+  StructureKind,
+  type TypeAliasDeclaration,
 } from "ts-morph";
 
-import {
-  getAugmentedStructure,
-  TypeAliasDeclarationImpl,
-  TypeStructures,
-  VoidNodeToStructureConsole,
-} from "../exports.js";
+import type { TypeStructures } from "../exports.js";
+
+import getAugmentedStructure from "./getAugmentedStructure.js";
+import { VoidNodeToStructureConsole } from "./typeNodeConsoles.js";
 
 let ParseLiteralProject: Project;
 
-export default function parseLiteralType(source: string): TypeStructures {
+export default function parseLiteralType(type: string): TypeStructures {
   let name = "SOMERANDOMSTRING_";
   for (let i = 0; i < 10; i++) {
     name += String.fromCharCode(Math.floor(Math.random() * 26) + 65);
@@ -27,13 +27,18 @@ export default function parseLiteralType(source: string): TypeStructures {
     ParseLiteralProject.createSourceFile("tempFile.ts");
 
   try {
-    const aliasStructure = getAugmentedStructure(
-      tempFile.addTypeAlias(new TypeAliasDeclarationImpl(name, source)),
+    const typeAlias: TypeAliasDeclaration = tempFile.addTypeAlias({
+      name,
+      type,
+    });
+    const { typeStructure } = getAugmentedStructure(
+      typeAlias,
       VoidNodeToStructureConsole,
       true,
-    ).rootStructure as TypeAliasDeclarationImpl;
+      StructureKind.TypeAlias,
+    ).rootStructure;
 
-    return aliasStructure.typeStructure;
+    return typeStructure;
   } finally {
     // You might wonder, "why not just empty the file and reuse it?" - this is safer.
     ParseLiteralProject.removeSourceFile(tempFile);

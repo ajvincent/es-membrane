@@ -4,16 +4,16 @@ import type {
   TypeStructureKind,
 } from "../../exports.js";
 
-import { STRUCTURE_CHILDREN } from "../../internal-exports.js";
-
-import { WriterStructuresBase } from "../WriterStructuresBase.js";
-
 import {
   GET_OUTER_TYPE,
   type InnerTypeElement,
 } from "../../array-utilities/ShadowArrayImpl.js";
 
+import { STRUCTURE_CHILDREN } from "../../base/symbolKeys.js";
+
 import type { stringOrWriterFunction } from "../../types/stringOrWriterFunction.js";
+
+import { WriterStructuresBase } from "../WriterStructuresBase.js";
 
 export default abstract class TypeStructuresBase<Kind extends TypeStructureKind>
   extends WriterStructuresBase

@@ -5,7 +5,7 @@ import type {
   TypeStructureKind,
 } from "../../exports.js";
 
-import { TypeStructuresBase } from "../../internal-exports.js";
+import TypeStructuresBase from "./TypeStructuresBase.js";
 
 export default abstract class TypeStructuresWithTypeParameters<
   Kind extends TypeStructureKind,

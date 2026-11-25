@@ -4,15 +4,19 @@ import type {
   WriterFunction,
 } from "ts-morph";
 
-import {
-  TypeStructureKind,
-} from "../../../snapshot/source/exports.js";
+import TypeStructureClassesMap from "../../base/TypeStructureClassesMap.js";
 
 import {
-  type CloneableTypeStructure,
-  TypeStructureClassesMap,
+  TypeStructureKind
+} from "../../base/TypeStructureKind.js";
+
+import type {
+  CloneableTypeStructure
+} from "../../types/CloneableStructure.js";
+
+import {
   WRITER_FUNCTION_KEY
-} from "../../../snapshot/source/internal-exports.js";
+} from "../WriterStructuresBase.js";
 
 import TypeStructuresBase from "./TypeStructuresBase.js";
 // #endregion preamble

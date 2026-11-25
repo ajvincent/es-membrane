@@ -3,20 +3,28 @@ import type {
   CodeBlockWriter,
 } from "ts-morph";
 
-import {
-  type AugmentedStructures,
-  TypeStructureKind,
-  type TypeStructures,
+import type {
+  AugmentedStructures,
+  TypeStructures,
 } from "../../../snapshot/source/exports.js";
 
-import {
-  type CloneableTypeStructure,
-  STRUCTURE_CHILDREN,
-  TypeStructureClassesMap,
-  TypeStructuresBase,
-  WRITER_FUNCTION_KEY,
-} from "../../../snapshot/source/internal-exports.js";
+import TypeStructureClassesMap from "../../base/TypeStructureClassesMap.js";
 
+import {
+  TypeStructureKind
+} from "../../base/TypeStructureKind.js";
+
+import {
+  STRUCTURE_CHILDREN
+} from "../../base/symbolKeys.js";
+
+import type {
+  CloneableTypeStructure,
+} from "../../types/CloneableStructure.js";
+
+import { WRITER_FUNCTION_KEY } from "../WriterStructuresBase.js";
+
+import TypeStructuresBase from "./TypeStructuresBase.js";
 // #endregion preamble
 
 /** Just a parameter name and type for a `FunctionTypeStructureImpl`. */

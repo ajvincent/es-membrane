@@ -20,6 +20,10 @@ import {
   ArrayElementsProxyHandler
 } from "./ArrayElementsProxyHandler.js";
 
+import {
+  indexRange
+} from "./indexRange.js";
+
 export {
   type InnerTypeElement,
   BUILD_ARRAY_WRAPPER,
@@ -56,22 +60,6 @@ implements Omit<OuterType[], number | "length">
   {
     void innerElements;
     throw new Error("override this method");
-  }
-
-  /**
-   * Utility to get a range of indexes for a given length.
-   *
-   * @internal
-   */
-  public static indexRange(
-    length: number
-  ): number[]
-  {
-    const indexes: number[] = [];
-    for (let i = 0; i < length; i++) {
-      indexes.push(i);
-    }
-    return indexes;
   }
 
   /** Our proxy to implement the array. */
@@ -205,7 +193,7 @@ implements Omit<OuterType[], number | "length">
   ): OuterType[]
   {
     const outerElements: OuterType[] = this.#innerElements.map(element => element[GET_OUTER_TYPE]());
-    const sortOrder: number[] = ShadowArrayImpl.indexRange(outerElements.length);
+    const sortOrder: number[] = indexRange(outerElements.length);
 
     if (compareFn) {
       sortOrder.sort((a, b) => compareFn(outerElements[a], outerElements[b]));
