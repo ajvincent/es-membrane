@@ -6,11 +6,17 @@ import {
   type ImportDeclarationStructure,
 } from "ts-morph";
 
-import {
-  ImportDeclarationImpl,
-  ImportSpecifierImpl,
-  type SourceFileImpl,
+import type {
+  SourceFileImpl,
 } from "../../snapshot/source/exports.js";
+
+import {
+  ImportDeclarationImpl
+} from "../structures/standard/ImportDeclarationImpl.js";
+
+import {
+  ImportSpecifierImpl
+} from "../structures/standard/ImportSpecifierImpl.js";
 
 import type {
   AddImportContext,

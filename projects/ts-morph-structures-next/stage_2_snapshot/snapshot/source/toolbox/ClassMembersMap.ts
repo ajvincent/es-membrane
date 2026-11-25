@@ -1,26 +1,29 @@
 import { KindedStructure, StructureKind } from "ts-morph";
 
-import {
+import type {
   ClassDeclarationImpl,
-  ClassFieldStatementsMap,
-  type ClassMemberImpl,
-  type NamedClassMemberImpl,
+  ClassMemberImpl,
+  NamedClassMemberImpl,
   ConstructorDeclarationImpl,
-  GetAccessorDeclarationImpl,
   JSDocImpl,
-  MethodDeclarationImpl,
-  ParameterDeclarationImpl,
-  PropertyDeclarationImpl,
-  SetAccessorDeclarationImpl,
-  type NamedTypeMemberImpl,
-  type TypeMemberImpl,
+  NamedTypeMemberImpl,
+  TypeMemberImpl,
 } from "../exports.js";
 
-import {
-  StructureClassesMap,
-  TypeStructureClassesMap,
-} from "../internal-exports.js";
+import { GetAccessorDeclarationImpl } from "../structures/standard/GetAccessorDeclarationImpl.js";
 
+import { MethodDeclarationImpl } from "../structures/standard/MethodDeclarationImpl.js";
+
+import { ParameterDeclarationImpl } from "../structures/standard/ParameterDeclarationImpl.js";
+
+import { PropertyDeclarationImpl } from "../structures/standard/PropertyDeclarationImpl.js";
+
+import { SetAccessorDeclarationImpl } from "../structures/standard/SetAccessorDeclarationImpl.js";
+
+import StructureClassesMap from "../base/StructureClassesMap.js";
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.js";
+
+import ClassFieldStatementsMap from "./ClassFieldStatementsMap.js";
 import OrderedMap from "./OrderedMap.js";
 
 /**
@@ -123,12 +126,12 @@ export default class ClassMembersMap extends OrderedMap<
     let classMember: NamedClassMemberImpl;
     switch (typeMember.kind) {
       case StructureKind.GetAccessor: {
-        classMember = GetAccessorDeclarationImpl.clone(typeMember);
+        classMember = StructureClassesMap.clone(typeMember);
         classMember.isStatic = isStatic;
         break;
       }
       case StructureKind.SetAccessor: {
-        classMember = SetAccessorDeclarationImpl.clone(typeMember);
+        classMember = StructureClassesMap.clone(typeMember);
         classMember.isStatic = isStatic;
         break;
       }

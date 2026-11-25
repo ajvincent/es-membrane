@@ -4,36 +4,37 @@ import {
   StructureKind
 } from "ts-morph";
 
-import {
-  ClassFieldStatementsMap,
-  type ClassAbstractMemberQuestion,
-  type ClassAsyncMethodQuestion,
-  type ClassGeneratorMethodQuestion,
-  type ClassMemberImpl,
-  type ClassScopeMemberQuestion,
-  type ClassStatementsGetter,
-  ClassMembersMap,
-  ConstructorDeclarationImpl,
-  type GetAccessorDeclarationImpl,
+import type {
+  ClassAbstractMemberQuestion,
+  ClassAsyncMethodQuestion,
+  ClassGeneratorMethodQuestion,
+  ClassMemberImpl,
+  ClassScopeMemberQuestion,
+  ClassStatementsGetter,
+  GetAccessorDeclarationImpl,
   IndexSignatureResolver,
-  type InterfaceDeclarationImpl,
-  type MethodDeclarationImpl,
-  type MethodSignatureImpl,
+  InterfaceDeclarationImpl,
+  MethodDeclarationImpl,
+  MethodSignatureImpl,
   MemberedStatementsKey,
-  type MemberedObjectTypeStructureImpl,
+  MemberedObjectTypeStructureImpl,
   NamedTypeMemberImpl,
   ParameterDeclarationImpl,
-  type PropertyDeclarationImpl,
-  type PropertySignatureImpl,
-  type SetAccessorDeclarationImpl,
-  type TypeMemberImpl,
-  TypeMembersMap,
-  type stringWriterOrStatementImpl,
+  PropertyDeclarationImpl,
+  PropertySignatureImpl,
+  SetAccessorDeclarationImpl,
+  TypeMemberImpl,
+  stringWriterOrStatementImpl,
 } from "../../snapshot/source/exports.js";
 
 import {
-  MemberedStatementsKeyClass,
-} from "../../snapshot/source/internal-exports.js";
+  ConstructorDeclarationImpl
+} from "../structures/standard/ConstructorDeclarationImpl.js";
+
+import ClassFieldStatementsMap from "./ClassFieldStatementsMap.js"
+import ClassMembersMap from "./ClassMembersMap.js";
+import MemberedStatementsKeyClass from "./MemberedStatementsKeyClass.js";
+import TypeMembersMap from "./TypeMembersMap.js";
 
 /** @internal */
 interface ClassMembersByKind {

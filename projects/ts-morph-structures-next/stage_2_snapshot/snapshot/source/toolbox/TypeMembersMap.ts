@@ -4,30 +4,37 @@ import { type KindedStructure, StructureKind } from "ts-morph";
 
 import type { Simplify } from "type-fest";
 
-import {
-  GetAccessorDeclarationImpl,
+import type {
   JSDocImpl,
   InterfaceDeclarationImpl,
   IndexSignatureDeclarationImpl,
-  FunctionTypeStructureImpl,
-  LiteralTypeStructureImpl,
   MemberedObjectTypeStructureImpl,
-  MethodSignatureImpl,
-  type NamedTypeMemberImpl,
-  ParameterDeclarationImpl,
-  ParameterTypeStructureImpl,
-  PropertySignatureImpl,
-  SetAccessorDeclarationImpl,
-  type TypeMemberImpl,
-  TypeStructureKind,
-  TypeStructures,
-  UnionTypeStructureImpl,
+  NamedTypeMemberImpl,
+  TypeMemberImpl,
 } from "../exports.js";
 
+import StructureClassesMap from "../base/StructureClassesMap.js";
+import TypeStructureClassesMap from "../base/TypeStructureClassesMap.js";
+
+import { TypeStructureKind } from "../base/TypeStructureKind.js";
+
+import { GetAccessorDeclarationImpl } from "../structures/standard/GetAccessorDeclarationImpl.js";
+
+import { MethodSignatureImpl } from "../structures/standard/MethodSignatureImpl.js";
+
+import { ParameterDeclarationImpl } from "../structures/standard/ParameterDeclarationImpl.js";
+
+import { PropertySignatureImpl } from "../structures/standard/PropertySignatureImpl.js";
+
+import { SetAccessorDeclarationImpl } from "../structures/standard/SetAccessorDeclarationImpl.js";
+
 import {
-  StructureClassesMap,
-  TypeStructureClassesMap,
-} from "../internal-exports.js";
+  FunctionTypeStructureImpl,
+  LiteralTypeStructureImpl,
+  type ParameterTypeStructureImpl,
+  type TypeStructures,
+  UnionTypeStructureImpl,
+} from "../structures/type/allTypeStructures.js";
 
 import OrderedMap from "./OrderedMap.js";
 

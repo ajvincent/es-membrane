@@ -6,11 +6,11 @@ import {
   type ImportDeclarationStructure,
 } from "ts-morph";
 
-import {
-  ImportDeclarationImpl,
-  ImportSpecifierImpl,
-  type SourceFileImpl,
-} from "../exports.js";
+import type { SourceFileImpl } from "../exports.js";
+
+import { ImportDeclarationImpl } from "../structures/standard/ImportDeclarationImpl.js";
+
+import { ImportSpecifierImpl } from "../structures/standard/ImportSpecifierImpl.js";
 
 import type { AddImportContext } from "./types/toolbox.js";
 
