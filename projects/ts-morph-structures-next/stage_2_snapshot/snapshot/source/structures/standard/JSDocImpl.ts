@@ -1,19 +1,23 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import {
+  COPY_FIELDS,
+  REPLACE_WRITER_WITH_STRING,
+} from "../../base/symbolKeys.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
 import type {
   JSDocStructureClassIfc,
   JSDocTagImpl,
   stringOrWriterFunction,
 } from "../../exports.js";
-import {
-  type CloneableStructure,
-  COPY_FIELDS,
-  type ExtractStructure,
-  REPLACE_WRITER_WITH_STRING,
-  StructureBase,
-  StructureClassesMap,
-  type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

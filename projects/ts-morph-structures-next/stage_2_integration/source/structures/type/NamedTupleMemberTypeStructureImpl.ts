@@ -4,21 +4,37 @@ import {
   printStructure,
 } from "ts-morph";
 
-import {
-  type AugmentedStructures,
-  type JSDocImpl,
-  TypeStructureKind,
-  type TypeStructures,
+import type {
+  AugmentedStructures,
+  JSDocImpl,
+  TypeStructures,
 } from "../../../snapshot/source/exports.js";
 
 import {
-  type CloneableTypeStructure,
-  StructureClassesMap,
-  STRUCTURE_CHILDREN,
-  TypeStructuresBase,
-  TypeStructureClassesMap,
-  WRITER_FUNCTION_KEY,
-} from "../../../snapshot/source/internal-exports.js";
+  StructureClassesMap
+} from "../../base/StructureClassesMap.js";
+
+import {
+  TypeStructureClassesMap
+} from "../../base/TypeStructureClassesMap.js";
+
+import {
+  TypeStructureKind
+} from "../../base/TypeStructureKind.js";
+
+import {
+  STRUCTURE_CHILDREN
+} from "../../base/symbolKeys.js";
+
+import type {
+  CloneableTypeStructure,
+} from "../../types/CloneableStructure.js";
+
+import {
+  WRITER_FUNCTION_KEY
+} from "../WriterStructuresBase.js";
+
+import TypeStructuresBase from "./TypeStructuresBase.js";
 
 /** @example `[a: number]` */
 export class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.NamedTupleMember> {

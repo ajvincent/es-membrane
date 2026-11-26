@@ -153,13 +153,21 @@ export class StructureModule extends BaseClassModule
     const extendsMixins = extendsKeys.map(getStructureMixinName);
 
     this.addImports(
-      "internal",
+      "source/base/StructureBase.js",
       [
-        "StructureBase",
-        ...extendsMixins
+        "StructureBase"
       ],
-      extendsFields
+      []
     );
+    for (const key of extendsKeys) {
+      const mixin = getStructureMixinName(key);
+      const field = StructureModule.#getFieldsName(key);
+      this.addImports(
+        `source/decorators/standard/${mixin}.js`,
+        [mixin],
+        [field]
+      );
+    }
 
     this.importManager.addImports({
       pathToImportedModule: "mixin-decorators",
@@ -287,7 +295,7 @@ export class StructureModule extends BaseClassModule
   #addToStructureClassesMapStatement(): WriterFunction
   {
     this.addImports("ts-morph", ["StructureKind"], []);
-    this.addImports("internal", ["StructureClassesMap"], []);
+    this.addImports("source/base/StructureClassesMap.js", ["StructureClassesMap"], []);
     return new CallExpressionStatementImpl({
       name: "StructureClassesMap.set",
       parameters: [

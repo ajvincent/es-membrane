@@ -1,24 +1,36 @@
 //#region preamble
-import type { ConstructorDeclarationOverloadStructureClassIfc } from "../../exports.js";
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import { COPY_FIELDS } from "../../base/symbolKeys.js";
 import {
-  type CloneableStructure,
-  COPY_FIELDS,
-  type ExtractStructure,
   type JSDocableNodeStructureFields,
   JSDocableNodeStructureMixin,
+} from "../../decorators/standard/JSDocableNodeStructureMixin.js";
+import {
   type ParameteredNodeStructureFields,
   ParameteredNodeStructureMixin,
+} from "../../decorators/standard/ParameteredNodeStructureMixin.js";
+import {
   type ReturnTypedNodeStructureFields,
   ReturnTypedNodeStructureMixin,
+} from "../../decorators/standard/ReturnTypedNodeStructureMixin.js";
+import {
   type ScopedNodeStructureFields,
   ScopedNodeStructureMixin,
-  StructureBase,
-  StructureClassesMap,
-  type StructureClassToJSON,
+} from "../../decorators/standard/ScopedNodeStructureMixin.js";
+import {
   type StructureFields,
   StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import {
   type TypeParameteredNodeStructureFields,
   TypeParameteredNodeStructureMixin,
+} from "../../decorators/standard/TypeParameteredNodeStructureMixin.js";
+import type { ConstructorDeclarationOverloadStructureClassIfc } from "../../exports.js";
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

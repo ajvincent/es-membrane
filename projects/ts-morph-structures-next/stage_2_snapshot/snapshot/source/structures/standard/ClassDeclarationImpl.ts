@@ -1,4 +1,45 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import {
+  COPY_FIELDS,
+  REPLACE_WRITER_WITH_STRING,
+  STRUCTURE_CHILDREN,
+} from "../../base/symbolKeys.js";
+import { TypeAccessors } from "../../base/TypeAccessors.js";
+import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+import {
+  type AbstractableNodeStructureFields,
+  AbstractableNodeStructureMixin,
+} from "../../decorators/standard/AbstractableNodeStructureMixin.js";
+import {
+  type AmbientableNodeStructureFields,
+  AmbientableNodeStructureMixin,
+} from "../../decorators/standard/AmbientableNodeStructureMixin.js";
+import {
+  type DecoratableNodeStructureFields,
+  DecoratableNodeStructureMixin,
+} from "../../decorators/standard/DecoratableNodeStructureMixin.js";
+import {
+  type ExportableNodeStructureFields,
+  ExportableNodeStructureMixin,
+} from "../../decorators/standard/ExportableNodeStructureMixin.js";
+import {
+  type JSDocableNodeStructureFields,
+  JSDocableNodeStructureMixin,
+} from "../../decorators/standard/JSDocableNodeStructureMixin.js";
+import {
+  type NameableNodeStructureFields,
+  NameableNodeStructureMixin,
+} from "../../decorators/standard/NameableNodeStructureMixin.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import {
+  type TypeParameteredNodeStructureFields,
+  TypeParameteredNodeStructureMixin,
+} from "../../decorators/standard/TypeParameteredNodeStructureMixin.js";
 import type {
   AugmentedStructures,
   ClassDeclarationStructureClassIfc,
@@ -12,34 +53,11 @@ import type {
   TypeStructures,
 } from "../../exports.js";
 import {
-  type AbstractableNodeStructureFields,
-  AbstractableNodeStructureMixin,
-  type AmbientableNodeStructureFields,
-  AmbientableNodeStructureMixin,
   type CloneableStructure,
-  COPY_FIELDS,
-  type DecoratableNodeStructureFields,
-  DecoratableNodeStructureMixin,
-  type ExportableNodeStructureFields,
-  ExportableNodeStructureMixin,
   type ExtractStructure,
   GET_OUTER_TYPE,
   type InnerTypeElement,
-  type JSDocableNodeStructureFields,
-  JSDocableNodeStructureMixin,
-  type NameableNodeStructureFields,
-  NameableNodeStructureMixin,
-  REPLACE_WRITER_WITH_STRING,
-  STRUCTURE_CHILDREN,
-  StructureBase,
-  StructureClassesMap,
   type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
-  TypeAccessors,
-  type TypeParameteredNodeStructureFields,
-  TypeParameteredNodeStructureMixin,
-  TypeStructureClassesMap,
   TypeStructureSequence,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";

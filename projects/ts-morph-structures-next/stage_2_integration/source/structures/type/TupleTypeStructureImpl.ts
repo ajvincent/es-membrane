@@ -1,14 +1,20 @@
 import {
-  TypeStructureKind,
-  type TypeStructures,
-} from "../../../snapshot/source/exports.js";
+  TypeStructureClassesMap
+} from "../../base/TypeStructureClassesMap.js";
 
 import {
-  type CloneableTypeStructure,
-  TypeStructureClassesMap,
-  TypeStructuresWithChildren,
-} from "../../../snapshot/source/internal-exports.js";
+  TypeStructureKind
+} from "../../base/TypeStructureKind.js";
 
+import type {
+  CloneableTypeStructure,
+} from "../../types/CloneableStructure.js";
+
+import type {
+  TypeStructures
+} from "./TypeStructures.js";
+
+import TypeStructuresWithChildren from "./TypeStructuresWithChildren.js";
 /**
  * @example
  * `[number, boolean]`

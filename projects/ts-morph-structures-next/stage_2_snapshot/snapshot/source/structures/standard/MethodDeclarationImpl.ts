@@ -1,49 +1,77 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import { COPY_FIELDS } from "../../base/symbolKeys.js";
+import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+import {
+  type AbstractableNodeStructureFields,
+  AbstractableNodeStructureMixin,
+} from "../../decorators/standard/AbstractableNodeStructureMixin.js";
+import {
+  type AsyncableNodeStructureFields,
+  AsyncableNodeStructureMixin,
+} from "../../decorators/standard/AsyncableNodeStructureMixin.js";
+import {
+  type DecoratableNodeStructureFields,
+  DecoratableNodeStructureMixin,
+} from "../../decorators/standard/DecoratableNodeStructureMixin.js";
+import {
+  type GeneratorableNodeStructureFields,
+  GeneratorableNodeStructureMixin,
+} from "../../decorators/standard/GeneratorableNodeStructureMixin.js";
+import {
+  type JSDocableNodeStructureFields,
+  JSDocableNodeStructureMixin,
+} from "../../decorators/standard/JSDocableNodeStructureMixin.js";
+import {
+  type NamedNodeStructureFields,
+  NamedNodeStructureMixin,
+} from "../../decorators/standard/NamedNodeStructureMixin.js";
+import {
+  type OverrideableNodeStructureFields,
+  OverrideableNodeStructureMixin,
+} from "../../decorators/standard/OverrideableNodeStructureMixin.js";
+import {
+  type ParameteredNodeStructureFields,
+  ParameteredNodeStructureMixin,
+} from "../../decorators/standard/ParameteredNodeStructureMixin.js";
+import {
+  type QuestionTokenableNodeStructureFields,
+  QuestionTokenableNodeStructureMixin,
+} from "../../decorators/standard/QuestionTokenableNodeStructureMixin.js";
+import {
+  type ReturnTypedNodeStructureFields,
+  ReturnTypedNodeStructureMixin,
+} from "../../decorators/standard/ReturnTypedNodeStructureMixin.js";
+import {
+  type ScopedNodeStructureFields,
+  ScopedNodeStructureMixin,
+} from "../../decorators/standard/ScopedNodeStructureMixin.js";
+import {
+  type StatementedNodeStructureFields,
+  StatementedNodeStructureMixin,
+} from "../../decorators/standard/StatementedNodeStructureMixin.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import {
+  type TypeParameteredNodeStructureFields,
+  TypeParameteredNodeStructureMixin,
+} from "../../decorators/standard/TypeParameteredNodeStructureMixin.js";
 import type {
   JSDocImpl,
   MethodDeclarationOverloadImpl,
   MethodDeclarationStructureClassIfc,
   MethodSignatureImpl,
-  ParameterDeclarationImpl,
-  TypeParameterDeclarationImpl,
 } from "../../exports.js";
-import {
-  type AbstractableNodeStructureFields,
-  AbstractableNodeStructureMixin,
-  type AsyncableNodeStructureFields,
-  AsyncableNodeStructureMixin,
-  type CloneableStructure,
-  COPY_FIELDS,
-  type DecoratableNodeStructureFields,
-  DecoratableNodeStructureMixin,
-  type ExtractStructure,
-  type GeneratorableNodeStructureFields,
-  GeneratorableNodeStructureMixin,
-  type JSDocableNodeStructureFields,
-  JSDocableNodeStructureMixin,
-  type NamedNodeStructureFields,
-  NamedNodeStructureMixin,
-  type OverrideableNodeStructureFields,
-  OverrideableNodeStructureMixin,
-  type ParameteredNodeStructureFields,
-  ParameteredNodeStructureMixin,
-  type QuestionTokenableNodeStructureFields,
-  QuestionTokenableNodeStructureMixin,
-  type ReturnTypedNodeStructureFields,
-  ReturnTypedNodeStructureMixin,
-  type ScopedNodeStructureFields,
-  ScopedNodeStructureMixin,
-  type StatementedNodeStructureFields,
-  StatementedNodeStructureMixin,
-  StructureBase,
-  StructureClassesMap,
-  type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
-  type TypeParameteredNodeStructureFields,
-  TypeParameteredNodeStructureMixin,
-  TypeStructureClassesMap,
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
+import { ParameterDeclarationImpl } from "./ParameterDeclarationImpl.js";
+import { TypeParameterDeclarationImpl } from "./TypeParameterDeclarationImpl.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {
   type MethodDeclarationOverloadStructure,

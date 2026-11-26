@@ -1,10 +1,11 @@
 import {
   CodeBlockWriter,
+  StructureKind,
   Writers,
 } from "ts-morph";
 
-import {
-  type AugmentedStructures,
+import type {
+  AugmentedStructures,
   CallSignatureDeclarationImpl,
   ConstructSignatureDeclarationImpl,
   GetAccessorDeclarationImpl,
@@ -12,16 +13,33 @@ import {
   MethodSignatureImpl,
   PropertySignatureImpl,
   SetAccessorDeclarationImpl,
-  TypeStructureKind,
 } from "../../../snapshot/source/exports.js";
 
 import {
-  type CloneableTypeStructure,
-  STRUCTURE_CHILDREN,
-  TypeStructureClassesMap,
-  TypeStructuresBase,
-  WRITER_FUNCTION_KEY,
-} from "../../../snapshot/source/internal-exports.js";
+  TypeStructureKind
+} from "../../base/TypeStructureKind.js";
+
+import {
+  StructureClassesMap
+} from "../../base/StructureClassesMap.js";
+
+import {
+  TypeStructureClassesMap
+} from "../../base/TypeStructureClassesMap.js";
+
+import {
+  STRUCTURE_CHILDREN
+} from "../../base/symbolKeys.js";
+
+import type {
+  CloneableTypeStructure,
+} from "../../types/CloneableStructure.js";
+
+import {
+  WRITER_FUNCTION_KEY
+} from "../WriterStructuresBase.js";
+
+import TypeStructuresBase from "./TypeStructuresBase.js";
 
 /**
  * Properties, methods, getters, setters, and index signatures.  Very much like interfaces.  Usually in type aliases.
@@ -49,27 +67,68 @@ extends TypeStructuresBase<TypeStructureKind.MemberedObject>
   {
     const membered = new MemberedObjectTypeStructureImpl;
 
-    membered.callSignatures.push(...other.callSignatures.map(
-      signature => CallSignatureDeclarationImpl.clone(signature)
-    ));
-    membered.constructSignatures.push(...other.constructSignatures.map(
-      signature => ConstructSignatureDeclarationImpl.clone(signature)
-    ));
-    membered.getAccessors.push(...other.getAccessors.map(
-      accessor => GetAccessorDeclarationImpl.clone(accessor)
-    ));
-    membered.indexSignatures.push(...other.indexSignatures.map(
-      signature => IndexSignatureDeclarationImpl.clone(signature)
-    ));
-    membered.properties.push(...other.properties.map(
-      signature => PropertySignatureImpl.clone(signature)
-    ));
-    membered.methods.push(...other.methods.map(
-      signature => MethodSignatureImpl.clone(signature)
-    ));
-    membered.setAccessors.push(...other.setAccessors.map(
-      accessor => SetAccessorDeclarationImpl.clone(accessor)
-    ));
+    membered.callSignatures.push(
+      ...StructureClassesMap.cloneArrayWithKind<
+        CallSignatureDeclarationImpl, StructureKind.CallSignature, CallSignatureDeclarationImpl
+      >
+      (
+        StructureKind.CallSignature, other.callSignatures
+      )
+    );
+
+    membered.constructSignatures.push(
+      ...StructureClassesMap.cloneArrayWithKind<
+        ConstructSignatureDeclarationImpl, StructureKind.ConstructSignature, ConstructSignatureDeclarationImpl
+      >
+      (
+        StructureKind.ConstructSignature, other.constructSignatures
+      )
+    );
+
+    membered.getAccessors.push(
+      ...StructureClassesMap.cloneArrayWithKind<
+        GetAccessorDeclarationImpl, StructureKind.GetAccessor, GetAccessorDeclarationImpl
+      >
+      (
+        StructureKind.GetAccessor, other.getAccessors
+      )
+    );
+
+    membered.indexSignatures.push(
+      ...StructureClassesMap.cloneArrayWithKind<
+      IndexSignatureDeclarationImpl, StructureKind.IndexSignature, IndexSignatureDeclarationImpl
+      >
+      (
+        StructureKind.IndexSignature, other.indexSignatures
+      )
+    );
+
+    membered.properties.push(
+      ...StructureClassesMap.cloneArrayWithKind<
+        PropertySignatureImpl, StructureKind.PropertySignature, PropertySignatureImpl
+      >
+      (
+        StructureKind.PropertySignature, other.properties
+      )
+    );
+
+    membered.methods.push(
+      ...StructureClassesMap.cloneArrayWithKind<
+      MethodSignatureImpl, StructureKind.MethodSignature, MethodSignatureImpl
+      >
+      (
+        StructureKind.MethodSignature, other.methods
+      )
+    );
+
+    membered.setAccessors.push(
+      ...StructureClassesMap.cloneArrayWithKind<
+        SetAccessorDeclarationImpl, StructureKind.SetAccessor, SetAccessorDeclarationImpl
+      >
+      (
+        StructureKind.SetAccessor, other.setAccessors
+      )
+    );
 
     return membered;
   }

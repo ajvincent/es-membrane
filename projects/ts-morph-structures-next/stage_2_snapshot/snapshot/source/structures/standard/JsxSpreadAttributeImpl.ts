@@ -1,14 +1,16 @@
 //#region preamble
-import type { JsxSpreadAttributeStructureClassIfc } from "../../exports.js";
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import { COPY_FIELDS } from "../../base/symbolKeys.js";
 import {
-  type CloneableStructure,
-  COPY_FIELDS,
-  type ExtractStructure,
-  StructureBase,
-  StructureClassesMap,
-  type StructureClassToJSON,
   type StructureFields,
   StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import type { JsxSpreadAttributeStructureClassIfc } from "../../exports.js";
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

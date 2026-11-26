@@ -1,5 +1,13 @@
 //#region preamble
 import { StatementsSequence } from "../../base/StatementsSequence.js";
+import { StatementStructureClassesMap } from "../../base/StatementStructureClassesMap.js";
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import {
+  COPY_FIELDS,
+  REPLACE_WRITER_WITH_STRING,
+  STRUCTURE_CHILDREN,
+} from "../../base/symbolKeys.js";
 import type {
   AugmentedStatementStructures,
   AugmentedStructures,
@@ -7,15 +15,9 @@ import type {
   StatementStructureImpls,
   stringOrWriterFunction,
 } from "../../exports.js";
-import {
-  COPY_FIELDS,
-  REPLACE_WRITER_WITH_STRING,
-  type RightExtendsLeft,
-  StatementStructureClassesMap,
-  STRUCTURE_CHILDREN,
-  StructureBase,
-  StructureClassesMap,
-  type StructureClassToJSON,
+import type {
+  RightExtendsLeft,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import { isStatementStructure } from "../../structures/statements/isStatementStructure.js";
 import type {

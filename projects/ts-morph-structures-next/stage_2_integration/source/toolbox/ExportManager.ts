@@ -1,16 +1,22 @@
 // #region preamble
 import path from "node:path";
 
-import {
-  type AddExportContext,
-  ExportDeclarationImpl,
-  ExportSpecifierImpl,
+import type {
+  AddExportContext,
 } from "../../snapshot/source/exports.js";
 
 import {
   DefaultMap,
   DefaultWeakMap,
 } from "../../snapshot/source/internal-exports.js";
+
+import {
+  ExportDeclarationImpl
+} from "../structures/standard/ExportDeclarationImpl.js";
+
+import {
+  ExportSpecifierImpl,
+} from "../structures/standard/ExportSpecifierImpl.js";
 
 // #endregion preamble
 

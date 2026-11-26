@@ -10,7 +10,7 @@ import type {
   StructureKind,
 } from "ts-morph";
 
-import StructureClassesMap from "../../base/StructureClassesMap.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
 
 import type { AugmentedStatementStructures } from "../../structures/statements/AugmentedStatements.js";
 

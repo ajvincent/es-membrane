@@ -21,13 +21,16 @@ import {
   TypeParameterDeclaration,
 } from "ts-morph";
 
+import type { ImportAttributeImpl } from "../structures/standard/ImportAttributeImpl.js";
+
+import type { TypeParameterDeclarationImpl } from "../structures/standard/TypeParameterDeclarationImpl.js";
+
 import {
   ArrayTypeStructureImpl,
   ConditionalTypeStructureImpl,
   FunctionTypeContext,
   FunctionTypeStructureImpl,
   FunctionWriterStyle,
-  type ImportAttributeImpl,
   ImportTypeStructureImpl,
   IndexedAccessTypeStructureImpl,
   InferTypeStructureImpl,
@@ -47,13 +50,12 @@ import {
   TemplateLiteralTypeStructureImpl,
   TupleTypeStructureImpl,
   TypeArgumentedTypeStructureImpl,
-  TypeParameterDeclarationImpl,
   TypePredicateTypeStructureImpl,
   TypeStructureKind,
-  TypeStructures,
+  type TypeStructures,
   UnionTypeStructureImpl,
   type TypeStructuresOrNull,
-} from "../exports.js";
+} from "../structures/type/allTypeStructures.js";
 
 import type {
   SubstructureResolver,

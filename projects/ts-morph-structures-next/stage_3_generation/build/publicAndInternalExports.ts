@@ -78,7 +78,7 @@ function definePublicExports(): void
     exportNames: [
       "parseLiteralType"
     ],
-    isDefaultExport: true,
+    isDefaultExport: false,
     isType: false
   });
 
@@ -299,22 +299,15 @@ function defineInternalExports(): void
   internalExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/base/StructureBase.ts"),
     exportNames: ["StructureBase"],
-    isDefaultExport: true,
+    isDefaultExport: false,
     isType: false
   });
 
   internalExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/base/StructureClassesMap.ts"),
     exportNames: ["StructureClassesMap"],
-    isDefaultExport: true,
+    isDefaultExport: false,
     isType: false
-  });
-
-  internalExports.addExports({
-    pathToExportedModule: pathToModule(distDir, "source/base/TypeAccessors.ts"),
-    exportNames: ["TypeAccessors"],
-    isDefaultExport: true,
-    isType: false,
   });
 
   internalExports.addExports({
@@ -332,13 +325,6 @@ function defineInternalExports(): void
       "STRUCTURE_CHILDREN"
     ],
     isDefaultExport: false,
-    isType: false
-  });
-
-  internalExports.addExports({
-    pathToExportedModule: pathToModule(distDir, "source/base/TypeStructureClassesMap.ts"),
-    exportNames: ["TypeStructureClassesMap"],
-    isDefaultExport: true,
     isType: false
   });
 

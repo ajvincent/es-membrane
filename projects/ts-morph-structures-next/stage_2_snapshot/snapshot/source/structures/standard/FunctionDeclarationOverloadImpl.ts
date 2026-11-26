@@ -1,30 +1,48 @@
 //#region preamble
-import type { FunctionDeclarationOverloadStructureClassIfc } from "../../exports.js";
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import { COPY_FIELDS } from "../../base/symbolKeys.js";
 import {
   type AmbientableNodeStructureFields,
   AmbientableNodeStructureMixin,
+} from "../../decorators/standard/AmbientableNodeStructureMixin.js";
+import {
   type AsyncableNodeStructureFields,
   AsyncableNodeStructureMixin,
-  type CloneableStructure,
-  COPY_FIELDS,
+} from "../../decorators/standard/AsyncableNodeStructureMixin.js";
+import {
   type ExportableNodeStructureFields,
   ExportableNodeStructureMixin,
-  type ExtractStructure,
+} from "../../decorators/standard/ExportableNodeStructureMixin.js";
+import {
   type GeneratorableNodeStructureFields,
   GeneratorableNodeStructureMixin,
+} from "../../decorators/standard/GeneratorableNodeStructureMixin.js";
+import {
   type JSDocableNodeStructureFields,
   JSDocableNodeStructureMixin,
+} from "../../decorators/standard/JSDocableNodeStructureMixin.js";
+import {
   type ParameteredNodeStructureFields,
   ParameteredNodeStructureMixin,
+} from "../../decorators/standard/ParameteredNodeStructureMixin.js";
+import {
   type ReturnTypedNodeStructureFields,
   ReturnTypedNodeStructureMixin,
-  StructureBase,
-  StructureClassesMap,
-  type StructureClassToJSON,
+} from "../../decorators/standard/ReturnTypedNodeStructureMixin.js";
+import {
   type StructureFields,
   StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import {
   type TypeParameteredNodeStructureFields,
   TypeParameteredNodeStructureMixin,
+} from "../../decorators/standard/TypeParameteredNodeStructureMixin.js";
+import type { FunctionDeclarationOverloadStructureClassIfc } from "../../exports.js";
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

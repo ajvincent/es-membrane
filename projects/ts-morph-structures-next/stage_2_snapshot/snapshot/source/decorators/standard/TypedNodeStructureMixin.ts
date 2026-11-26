@@ -1,19 +1,21 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import {
+  COPY_FIELDS,
+  REPLACE_WRITER_WITH_STRING,
+  STRUCTURE_CHILDREN,
+} from "../../base/symbolKeys.js";
+import { TypeAccessors } from "../../base/TypeAccessors.js";
+import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
 import type {
   AugmentedStructures,
   stringOrWriterFunction,
   TypedNodeStructureClassIfc,
   TypeStructures,
 } from "../../exports.js";
-import {
-  COPY_FIELDS,
-  REPLACE_WRITER_WITH_STRING,
-  type RightExtendsLeft,
-  STRUCTURE_CHILDREN,
-  StructureBase,
-  type StructureClassToJSON,
-  TypeAccessors,
-  TypeStructureClassesMap,
+import type {
+  RightExtendsLeft,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import type {
   MixinClass,

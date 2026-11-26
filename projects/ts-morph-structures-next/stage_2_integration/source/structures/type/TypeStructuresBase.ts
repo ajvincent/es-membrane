@@ -1,16 +1,6 @@
 import type {
   AugmentedStructures,
-  KindedTypeStructure,
-  TypeStructureKind,
 } from "../../../snapshot/source/exports.js";
-
-import {
-  STRUCTURE_CHILDREN
-} from "../../../snapshot/source/internal-exports.js";
-
-import {
-  WriterStructuresBase
-} from "../WriterStructuresBase.js";
 
 import {
   GET_OUTER_TYPE,
@@ -18,8 +8,21 @@ import {
 } from "../../array-utilities/ShadowArrayImpl.js"
 
 import type {
+  KindedTypeStructure,
+  TypeStructureKind
+} from "../../base/TypeStructureKind.js";
+
+import {
+  STRUCTURE_CHILDREN
+} from "../../base/symbolKeys.js";
+
+import type {
   stringOrWriterFunction
 } from "../../types/stringOrWriterFunction.js";
+
+import {
+  WriterStructuresBase
+} from "../WriterStructuresBase.js";
 
 export default
 abstract class TypeStructuresBase<Kind extends TypeStructureKind>

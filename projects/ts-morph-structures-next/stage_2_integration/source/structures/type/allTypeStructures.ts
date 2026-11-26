@@ -1,0 +1,27 @@
+export * from "./ArrayTypeStructureImpl.js";
+export * from "./ConditionalTypeStructureImpl.js";
+export * from "./FunctionTypeStructureImpl.js";
+export * from "./ImportTypeStructureImpl.js";
+export * from "./IndexedAccessTypeStructureImpl.js";
+export * from "./InferTypeStructureImpl.js";
+export * from "./IntersectionTypeStructureImpl.js";
+export * from "./LiteralTypeStructureImpl.js";
+export * from "./MappedTypeStructureImpl.js";
+export * from "./MemberedObjectTypeStructureImpl.js";
+export * from "./NamedTupleMemberTypeStructureImpl.js";
+export * from "./NumberTypeStructureImpl.js";
+export * from "./OptionalTypeStructureImpl.js";
+export * from "./ParameterTypeStructureImpl.js";
+export * from "./ParenthesesTypeStructureImpl.js";
+export * from "./PrefixOperatorsTypeStructureImpl.js";
+export * from "./QualifiedNameTypeStructureImpl.js";
+export * from "./StringTypeStructureImpl.js";
+export * from "./TemplateLiteralTypeStructureImpl.js";
+export * from "./TupleTypeStructureImpl.js";
+export * from "./TypeArgumentedTypeStructureImpl.js";
+export * from "./TypePredicateTypeStructureImpl.js";
+export * from "./UnionTypeStructureImpl.js";
+export * from "./WriterTypeStructureImpl.js";
+
+export { TypeStructureKind } from "../../base/TypeStructureKind.js";
+export * from "./TypeStructures.js";

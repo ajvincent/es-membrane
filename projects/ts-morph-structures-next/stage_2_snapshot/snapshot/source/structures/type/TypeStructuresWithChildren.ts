@@ -1,16 +1,14 @@
 import type { CodeBlockWriter } from "ts-morph";
 
-import type {
-  AugmentedStructures,
-  TypeStructureKind,
-  TypeStructures,
-  TypeStructuresOrNull,
-} from "../../exports.js";
+import type { AugmentedStructures } from "../../exports.js";
 
-import {
-  STRUCTURE_CHILDREN,
-  WRITER_FUNCTION_KEY,
-} from "../../internal-exports.js";
+import type { TypeStructureKind } from "../../base/TypeStructureKind.js";
+
+import { STRUCTURE_CHILDREN } from "../../base/symbolKeys.js";
+
+import { WRITER_FUNCTION_KEY } from "../WriterStructuresBase.js";
+
+import type { TypeStructures, TypeStructuresOrNull } from "./TypeStructures.js";
 
 import TypeStructuresBase from "./TypeStructuresBase.js";
 

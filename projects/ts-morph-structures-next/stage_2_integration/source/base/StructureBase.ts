@@ -15,7 +15,7 @@ import type {
   AugmentedStructures
 } from "../types/AugmentedStructures.js";
 
-export default class StructureBase
+export class StructureBase
 {
   /** @internal */
   public static [COPY_FIELDS](

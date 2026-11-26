@@ -16,7 +16,7 @@ import type {
   CloneableStatementStructure
 } from "../../snapshot/source/internal-exports.js";
 
-import StructureClassesMap from "./StructureClassesMap.js";
+import { StructureClassesMap } from "./StructureClassesMap.js";
 
 class StatementStructureClassesMapClass extends Map<
   StatementStructureKind,

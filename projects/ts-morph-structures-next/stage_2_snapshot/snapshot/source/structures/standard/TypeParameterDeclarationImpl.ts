@@ -1,25 +1,31 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import {
+  COPY_FIELDS,
+  REPLACE_WRITER_WITH_STRING,
+  STRUCTURE_CHILDREN,
+} from "../../base/symbolKeys.js";
+import { TypeAccessors } from "../../base/TypeAccessors.js";
+import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+import {
+  type NamedNodeStructureFields,
+  NamedNodeStructureMixin,
+} from "../../decorators/standard/NamedNodeStructureMixin.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
 import type {
   AugmentedStructures,
   stringOrWriterFunction,
   TypeParameterDeclarationStructureClassIfc,
   TypeStructures,
 } from "../../exports.js";
-import {
-  type CloneableStructure,
-  COPY_FIELDS,
-  type ExtractStructure,
-  type NamedNodeStructureFields,
-  NamedNodeStructureMixin,
-  REPLACE_WRITER_WITH_STRING,
-  STRUCTURE_CHILDREN,
-  StructureBase,
-  StructureClassesMap,
-  type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
-  TypeAccessors,
-  TypeStructureClassesMap,
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

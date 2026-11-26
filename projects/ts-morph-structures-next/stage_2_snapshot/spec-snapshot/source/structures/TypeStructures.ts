@@ -7,6 +7,10 @@ import type {
 } from "type-fest";
 
 import {
+  TypeStructureClassesMap
+} from "#stage_two/snapshot/source/base/TypeStructureClassesMap.js";
+
+import {
   ArrayTypeStructureImpl,
   ConditionalTypeStructureImpl,
   type ConditionalTypeStructureParts,
@@ -41,10 +45,7 @@ import {
   WriterTypeStructureImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
-import {
-  TypeStructuresBase,
-  TypeStructureClassesMap
-} from "#stage_two/snapshot/source/internal-exports.js";
+import TypeStructuresBase from "#stage_two/snapshot/source/structures/type/TypeStructuresBase.js";
 
 import {
   serializeWriter

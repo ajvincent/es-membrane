@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { StructureKind, SyntaxKind, Structure, forEachStructureChild, Node, ConstructorTypeNode, ModuleResolutionKind, ScriptTarget, ModuleKind, Project, CodeBlockWriter, printStructure, Writers } from 'ts-morph';
-import path from 'node:path';
+import { StructureKind, SyntaxKind, Structure, forEachStructureChild, Node, CodeBlockWriter, Writers, printStructure, ConstructorTypeNode, ModuleResolutionKind, ScriptTarget, ModuleKind, Project } from 'ts-morph';
 import MultiMixinBuilder from 'mixin-decorators';
+import path from 'node:path';
 
 var StatementStructureKind;
 (function (StatementStructureKind) {
@@ -901,6 +901,1791 @@ function runConversion(typeNode, consoleTrap, subStructureResolver, converter, c
         callback(typeStructure);
 }
 
+const COPY_FIELDS = Symbol("copy fields");
+const REPLACE_WRITER_WITH_STRING = Symbol("replaceWriterWithString");
+const STRUCTURE_CHILDREN = Symbol("otherwise unreachable structure and type-structure children");
+const WRITE_BETWEEN_TRIVIA = Symbol("write contents between trivia");
+const WRITE_STATEMENTS_SEQUENCE = Symbol("write statements sequence");
+
+class TypeStructureClassesMapClass extends Map {
+    clone(structure) {
+        return this.get(structure.kind).clone(structure);
+    }
+    cloneArray(structures) {
+        return structures.map((structure) => this.clone(structure));
+    }
+}
+const TypeStructureClassesMap = new TypeStructureClassesMapClass();
+
+const WRITER_FUNCTION_KEY = Symbol("writerFunction");
+const DEREGISTER_WRITER = Symbol("deregister writerFunction");
+class WriterStructuresBase {
+    static #writerToStructureMap = new WeakMap();
+    static getWriterStructureForCallback(writer) {
+        return WriterStructuresBase.#writerToStructureMap.get(writer);
+    }
+    writerFunction = (writer) => {
+        this[WRITER_FUNCTION_KEY](writer);
+    };
+    constructor() {
+        WriterStructuresBase.#writerToStructureMap.set(this.writerFunction, this);
+    }
+    /** @internal */
+    [DEREGISTER_WRITER]() {
+        WriterStructuresBase.#writerToStructureMap.delete(this.writerFunction);
+    }
+    /**
+     * Write a start token, invoke a block, and write the end token, in that order.
+     * @param writer - the code block writer.
+     * @param startToken - the start token.
+     * @param endToken - the end token.
+     * @param newLine - true if we should call `.newLine()` after the start and before the end.
+     * @param indent - true if we should indent the block statements.
+     * @param block - the callback to execute for the block statements.
+     *
+     * @see {@link https://github.com/dsherret/code-block-writer/issues/44}
+     */
+    static pairedWrite(writer, startToken, endToken, newLine, indent, block) {
+        writer.write(startToken);
+        if (newLine)
+            writer.newLine();
+        if (indent)
+            writer.indent(block);
+        else
+            block();
+        if (newLine)
+            writer.newLine();
+        writer.write(endToken);
+    }
+}
+
+const BUILD_ARRAY_WRAPPER = Symbol("build new array");
+const GET_OUTER_TYPE = Symbol("get outer type");
+const CONVERT_OUTER_TO_INNER = Symbol("convert outer type to inner type");
+
+/**
+ * This is a minimalist ProxyHandler for methods of Array.prototype.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy#handler_functions}
+ *
+ * @internal
+ */
+class ArrayPrototypeProxyHandler {
+    static #shadowToMethodName = new WeakMap();
+    static #proxyToArrayImpl = new WeakMap();
+    /** The prototype to use for shadow targets. */
+    static proto = [];
+    static {
+        const handler = new ArrayPrototypeProxyHandler();
+        for (const key of Reflect.ownKeys(Array.prototype)) {
+            if (key === "length")
+                continue;
+            const shadow = function () {
+                // do nothing
+            };
+            const proxy = new Proxy(shadow, handler);
+            const desc = {
+                configurable: false,
+                enumerable: true,
+                writable: false,
+                value: proxy,
+            };
+            Reflect.defineProperty(this.proto, key, desc);
+            this.#shadowToMethodName.set(shadow, key);
+        }
+        // length get/set support
+        {
+            const shadowGetter = function () {
+                // do nothing
+            };
+            const proxyGetter = new Proxy(shadowGetter, handler);
+            this.#shadowToMethodName.set(shadowGetter, "getLength");
+            const shadowSetter = function () {
+                // do nothing
+            };
+            const proxySetter = new Proxy(shadowSetter, handler);
+            this.#shadowToMethodName.set(shadowSetter, "setLength");
+            const desc = {
+                configurable: false,
+                enumerable: false,
+                get: proxyGetter,
+                set: proxySetter,
+            };
+            Reflect.defineProperty(this.proto, "length", desc);
+        }
+    }
+    /**
+     * Tie a proxy to its shadow array implementation.
+     * @param proxyThis The proxy.
+     * @param arrayImpl The shadow array.
+     *
+     * @internal
+     */
+    static assignProxyToArrayImpl(proxyThis, arrayImpl) {
+        this.#proxyToArrayImpl.set(proxyThis, arrayImpl);
+    }
+    constructor() {
+        // do nothing
+    }
+    // ProxyHandler
+    apply(shadowTarget, thisArg, // a proxy
+    argArray) {
+        const methodName = ArrayPrototypeProxyHandler.#shadowToMethodName.get(shadowTarget);
+        const arrayImpl = ArrayPrototypeProxyHandler.#proxyToArrayImpl.get(thisArg);
+        // @ts-expect-error methodName is not a number, damn it
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        return arrayImpl[methodName](...argArray);
+    }
+}
+
+/**
+ * Utility to get a range of indexes for a given length.
+ *
+ * @internal
+ */
+function indexRange(length) {
+    const indexes = [];
+    for (let i = 0; i < length; i++) {
+        indexes.push(i);
+    }
+    return indexes;
+}
+
+/**
+ * A proxy handler for array.length, array[index].  The array prototype will be `ArrayPrototypeProxyHandler.proto`.
+ * @internal
+ */
+class ArrayElementsProxyHandler {
+    static #getIndex(p) {
+        if (typeof p === "string") {
+            const np = parseFloat(p);
+            if (np % 1 === 0 && np >= 0) {
+                return np;
+            }
+        }
+    }
+    #shadowToArrayImplMap = new WeakMap();
+    /**
+     * Tie a shadow array to the array implementation.
+     * @param shadowTarget
+     * @param arrayImpl
+     *
+     * @internal
+     */
+    assignShadowToArrayImpl(shadowTarget, arrayImpl) {
+        this.#shadowToArrayImplMap.set(shadowTarget, arrayImpl);
+    }
+    // ProxyHandler
+    defineProperty(shadowTarget, property, attributes) {
+        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
+        if (property === "length") {
+            arrayImpl.setLength((attributes.get === undefined
+                ? attributes.value
+                : attributes.get()));
+            return true;
+        }
+        const index = ArrayElementsProxyHandler.#getIndex(property);
+        if (typeof index === "number") {
+            arrayImpl.replaceAt(index, (attributes.get === undefined
+                ? attributes.value
+                : attributes.get()));
+            return true;
+        }
+        return false;
+    }
+    // ProxyHandler
+    deleteProperty(shadowTarget, p) {
+        return false;
+    }
+    // ProxyHandler
+    getOwnPropertyDescriptor(shadowTarget, p) {
+        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
+        if (p === "length") {
+            const value = arrayImpl.getLength();
+            return { value, writable: true, enumerable: false, configurable: false };
+        }
+        const np = ArrayElementsProxyHandler.#getIndex(p);
+        if (typeof np === "number" && np < arrayImpl.getLength()) {
+            const value = arrayImpl.at(np);
+            return { value, writable: true, enumerable: true, configurable: true };
+        }
+        return Reflect.getOwnPropertyDescriptor(shadowTarget, p);
+    }
+    // ProxyHandler
+    get(shadowTarget, p, receiver) {
+        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
+        if (p === "length") {
+            const value = arrayImpl.getLength();
+            /* arrayImpl should've updated shadowTarget.length
+            shadowTarget.length = value;
+            */
+            return value;
+        }
+        const np = ArrayElementsProxyHandler.#getIndex(p);
+        if (typeof np === "number" && np < arrayImpl.getLength()) {
+            const value = arrayImpl.at(np);
+            /* arrayImpl should've updated shadowTarget[np]
+            shadowTarget[np] = value;
+            */
+            return value;
+        }
+        return Reflect.get(shadowTarget, p, receiver);
+    }
+    // ProxyHandler
+    has(shadowTarget, p) {
+        if (p === "length")
+            return true;
+        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
+        const np = ArrayElementsProxyHandler.#getIndex(p);
+        if (typeof np === "number" && np < arrayImpl.getLength())
+            return true;
+        return Reflect.has(shadowTarget, p);
+    }
+    // ProxyHandler
+    ownKeys(shadowTarget) {
+        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
+        const keys = indexRange(arrayImpl.getLength()).map(String);
+        keys.push("length");
+        // only length is not configurable, and the array is extensible
+        // so we don't need to update the shadow target specifically
+        // if someone makes innerElements non-extensible, this will cause problems
+        return keys;
+    }
+    // ProxyHandler
+    preventExtensions(shadowTarget) {
+        return false;
+    }
+    // ProxyHandler
+    set(shadowTarget, p, newValue, receiver) {
+        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
+        if (p === "length") {
+            arrayImpl.setLength(newValue);
+            return true;
+        }
+        const np = ArrayElementsProxyHandler.#getIndex(p);
+        if (typeof np === "number") {
+            arrayImpl.replaceAt(np, newValue);
+            return true;
+        }
+        return false;
+    }
+    // ProxyHandler
+    setPrototypeOf(shadowTarget, v) {
+        return false;
+    }
+}
+
+/**
+ * This is a helper for implementing methods of an array, so the proxy can report the correct results.
+ *
+ * Subclass methods you must implement:
+ *
+ * - static createProxy (returns new ShadowArrayImpl(innerElements).proxy)
+ * - [BUILD_ARRAY_WRAPPER]
+ * - [CONVERT_OUTER_TO_INNER]
+ *
+ * Your constructor should be protected, not public.
+ */
+class ShadowArrayImpl {
+    static #arrayElementsHandler = new ArrayElementsProxyHandler();
+    /**
+     * @param innerElements {InnerTypeElement<OuterType>[]} the elements implementing the native type
+     *
+     * @returns {OuterType[]} the proxy defining the wrapped type array.
+     *
+     * @remarks `return new ShadowArrayImplSubclass(innerElements).proxy;`
+     */
+    static createProxy(innerElements) {
+        throw new Error("override this method");
+    }
+    /** Our proxy to implement the array. */
+    proxy;
+    /** The _actual_ values we're reflecting.  This is a live pointer to the array, not a slice. */
+    #innerElements;
+    /** Convenience function to avoid binding over and over again. */
+    #convertOuterTypeToInner = (outerType) => this[CONVERT_OUTER_TO_INNER](outerType);
+    /** The shadow target. */
+    #shadow;
+    constructor(innerElements) {
+        /* You should have come here via ShadowArrayImpl::createProxy, which you should have overridden. */
+        this.#innerElements = innerElements;
+        this.#shadow = []; // necessary for Array.isArray()
+        Reflect.defineProperty(this.#shadow, "length", {
+            configurable: false,
+            enumerable: false,
+        });
+        Reflect.setPrototypeOf(this.#shadow, ArrayPrototypeProxyHandler.proto);
+        this.proxy = new Proxy(this.#shadow, ShadowArrayImpl.#arrayElementsHandler);
+        ShadowArrayImpl.#arrayElementsHandler.assignShadowToArrayImpl(this.#shadow, this);
+        ArrayPrototypeProxyHandler.assignProxyToArrayImpl(this.proxy, this);
+    }
+    /** proxy access to get length() */
+    getLength() {
+        // proxy invariant technically only applies for NWNC descriptors, but in our implementation we're not likely to care
+        return this.#innerElements.length;
+    }
+    /** proxy access to set length() */
+    setLength(newLength) {
+        this.#innerElements.length = newLength;
+    }
+    /** proxy prototype helper to set [index] */
+    replaceAt(index, value) {
+        this.#innerElements[index] = this.#convertOuterTypeToInner(value);
+    }
+    // OuterType[]
+    at(index) {
+        const innerElement = this.#innerElements.at(index);
+        // proxy invariant technically only applies for NWNC descriptors, but in our implementation we're not likely to care
+        return innerElement?.[GET_OUTER_TYPE]();
+    }
+    // OuterType[]
+    *[Symbol.iterator]() {
+        for (const innerValue of this.#innerElements)
+            yield innerValue[GET_OUTER_TYPE]();
+    }
+    // OuterType[]
+    get [Symbol.unscopables]() {
+        throw new Error("not yet implemented");
+    }
+    // OuterType[]
+    pop() {
+        return this.#innerElements.pop()?.[GET_OUTER_TYPE]();
+    }
+    // OuterType[]
+    push(...outerItems) {
+        const innerItems = outerItems.map(this.#convertOuterTypeToInner);
+        return this.#innerElements.push(...innerItems);
+    }
+    // OuterType[]
+    concat(...items) {
+        const newOuterItems = items.flatMap((item) => item.slice());
+        return this[BUILD_ARRAY_WRAPPER](...this.#innerElements, ...newOuterItems.map(this.#convertOuterTypeToInner));
+    }
+    // OuterType[]
+    join(separator) {
+        return this.#innerElements
+            .map((element) => element[GET_OUTER_TYPE]())
+            .join(separator);
+    }
+    // OuterType[]
+    reverse() {
+        this.#innerElements.reverse();
+        return this.proxy;
+    }
+    // OuterType[]
+    shift() {
+        return this.#innerElements.shift()?.[GET_OUTER_TYPE]();
+    }
+    // OuterType[]
+    slice(start, end) {
+        return this[BUILD_ARRAY_WRAPPER](...this.#innerElements.slice(start, end));
+    }
+    // OuterType[]
+    sort(compareFn) {
+        const outerElements = this.#innerElements.map((element) => element[GET_OUTER_TYPE]());
+        const sortOrder = indexRange(outerElements.length);
+        if (compareFn) {
+            sortOrder.sort((a, b) => compareFn(outerElements[a], outerElements[b]));
+        }
+        else {
+            const stringifiedOuter = outerElements.map(String);
+            sortOrder.sort((a, b) => stringifiedOuter[a].localeCompare(stringifiedOuter[b]));
+        }
+        const innerSlice = this.#innerElements.slice();
+        for (let i = 0; i < this.#innerElements.length; i++) {
+            this.#innerElements[i] = innerSlice[sortOrder[i]];
+        }
+        return this.proxy;
+    }
+    // OuterType[]
+    splice(start, deleteCount, ...outerItems) {
+        const newInnerItems = outerItems.map(this.#convertOuterTypeToInner);
+        const extractedInnerItems = this.#innerElements.splice(start, deleteCount ?? 0, ...newInnerItems);
+        return this[BUILD_ARRAY_WRAPPER](...extractedInnerItems);
+    }
+    // OuterType[]
+    unshift(...outerItems) {
+        const innerItems = outerItems.map(this.#convertOuterTypeToInner);
+        return this.#innerElements.unshift(...innerItems);
+    }
+    // OuterType[]
+    indexOf(searchElement, fromIndex) {
+        return this.#innerElements.findIndex(this.#innerFinder.bind(this, searchElement), fromIndex);
+    }
+    #innerFinder(searchElement, inner) {
+        return inner[GET_OUTER_TYPE]() === searchElement;
+    }
+    // OuterType[]
+    lastIndexOf(searchElement, fromIndex) {
+        return this.#innerElements.findLastIndex(this.#innerFinder.bind(this, searchElement), fromIndex);
+    }
+    // OuterType[]
+    every(predicate, thisArg) {
+        return this.#innerElements.every(this.#innerPredicate.bind(this, predicate), thisArg);
+    }
+    #innerPredicate(predicate, innerElement, index) {
+        return predicate(innerElement[GET_OUTER_TYPE](), index, this.proxy);
+    }
+    // OuterType[]
+    some(predicate, thisArg) {
+        return this.#innerElements.some(this.#innerPredicate.bind(this, predicate), thisArg);
+    }
+    // OuterType[]
+    forEach(callbackfn, thisArg) {
+        this.#innerElements.forEach((innerValue, index) => callbackfn(innerValue[GET_OUTER_TYPE](), index, this.proxy), thisArg);
+    }
+    // OuterType[]
+    map(callbackfn, thisArg) {
+        return this.#innerElements.map((innerValue, index) => callbackfn(innerValue[GET_OUTER_TYPE](), index, this.proxy), thisArg);
+    }
+    // OuterType[]
+    filter(predicate, thisArg) {
+        const newElements = this.#innerElements.filter((innerValue, index) => predicate(innerValue[GET_OUTER_TYPE](), index, this.proxy), thisArg);
+        return this[BUILD_ARRAY_WRAPPER](...newElements);
+    }
+    // OuterType[]
+    reduce(callbackfn) {
+        return this.#innerElements
+            .reduce(this.#reducer.bind(this, callbackfn))[GET_OUTER_TYPE]();
+    }
+    // OuterType[]
+    reduceRight(callbackfn) {
+        return this.#innerElements
+            .reduceRight(this.#reducer.bind(this, callbackfn))[GET_OUTER_TYPE]();
+    }
+    #reducer(callbackfn, previousInner, currentInner, currentIndex) {
+        const previousOuter = previousInner[GET_OUTER_TYPE]();
+        const currentOuter = currentInner[GET_OUTER_TYPE]();
+        const newOuterType = callbackfn(previousOuter, currentOuter, currentIndex, this.proxy);
+        return this[CONVERT_OUTER_TO_INNER](newOuterType);
+    }
+    // OuterType[]
+    find(predicate, thisArg) {
+        return this.#innerElements
+            .find(this.#finder.bind(this, predicate), thisArg)?.[GET_OUTER_TYPE]();
+    }
+    // OuterType[]
+    findIndex(predicate, thisArg) {
+        return this.#innerElements.findIndex(this.#finder.bind(this, predicate), thisArg);
+    }
+    #finder(outerPredicate, innerValue, index) {
+        return outerPredicate(innerValue[GET_OUTER_TYPE](), index, this.proxy);
+    }
+    // OuterType[]
+    fill(outerValue, start, end) {
+        const innerValue = this.#convertOuterTypeToInner(outerValue);
+        this.#innerElements.fill(innerValue, start, end);
+        return this.proxy;
+    }
+    // OuterType[]
+    copyWithin(target, start, end) {
+        this.#innerElements.copyWithin(target, start, end);
+        return this.proxy;
+    }
+    // OuterType[]
+    *entries() {
+        for (const [index, innerValue] of this.#innerElements.entries()) {
+            yield [index, innerValue[GET_OUTER_TYPE]()];
+        }
+    }
+    // OuterType[]
+    keys() {
+        return this.#innerElements.keys();
+    }
+    // OuterType[]
+    values() {
+        return this[Symbol.iterator]();
+    }
+    // OuterType[]
+    includes(searchElement, fromIndex) {
+        return this.indexOf(searchElement, fromIndex) !== -1;
+    }
+    // OuterType[]
+    flatMap(callback, thisArg) {
+        throw new Error("not yet implemented");
+    }
+    // OuterType[]
+    flat(depth) {
+        throw new Error("not yet implemented");
+    }
+    // OuterType[]
+    findLast(predicate, thisArg) {
+        return this.#innerElements
+            .findLast(this.#finder.bind(this, predicate), thisArg)?.[GET_OUTER_TYPE]();
+    }
+    // OuterType[]
+    findLastIndex(predicate, thisArg) {
+        return this.#innerElements.findLastIndex(this.#finder.bind(this, predicate), thisArg);
+    }
+    // OuterType[]
+    toReversed() {
+        return this.slice().reverse();
+    }
+    // OuterType[]
+    toSorted(compareFn) {
+        return this.slice().sort(compareFn);
+    }
+    // OuterType[]
+    toSpliced(start, deleteCount, ...outerItems) {
+        const newInnerItems = outerItems.map(this.#convertOuterTypeToInner);
+        const allInnerItems = this.#innerElements.toSpliced(start, deleteCount, ...newInnerItems);
+        return this[BUILD_ARRAY_WRAPPER](...allInnerItems);
+    }
+    // OuterType[]
+    with(index, outerValue) {
+        const innerValue = this[CONVERT_OUTER_TO_INNER](outerValue);
+        const innerArray = this.#innerElements.with(index, innerValue);
+        return this[BUILD_ARRAY_WRAPPER](...innerArray);
+    }
+}
+
+class TypeStructuresBase extends WriterStructuresBase {
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() { }
+    [GET_OUTER_TYPE]() {
+        return this.writerFunction;
+    }
+}
+
+/**
+ * `boolean[]`
+ *
+ * @see `IndexedAccessTypeStructureImpl` for `Foo["index"]`
+ * @see `TupleTypeStructureImpl` for `[number, boolean]`
+ */
+class ArrayTypeStructureImpl extends TypeStructuresBase {
+    static clone(other) {
+        return new ArrayTypeStructureImpl(TypeStructureClassesMap.clone(other.objectType));
+    }
+    kind = TypeStructureKind.Array;
+    objectType;
+    constructor(objectType) {
+        super();
+        this.objectType = objectType;
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
+        this.objectType.writerFunction(writer);
+        writer.write("[]");
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        yield this.objectType;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.Array, ArrayTypeStructureImpl);
+
+// #endregion preamble
+/**
+ * Literals (boolean, number, string, void, etc.), without quotes, brackets, or
+ * anything else around them.  Leaf nodes.
+ */
+class LiteralTypeStructureImpl extends TypeStructuresBase {
+    static #cache = new Map();
+    /**
+     * Gets a singleton `LiteralTypeStructureImpl` for the given name.
+     */
+    static get(name) {
+        if (name === "")
+            throw new Error("the empty string is not a legal literal type structure");
+        if (!this.#cache.has(name)) {
+            this.#cache.set(name, new LiteralTypeStructureImpl(name));
+        }
+        return this.#cache.get(name);
+    }
+    static clone(other) {
+        return LiteralTypeStructureImpl.get(other.stringValue);
+    }
+    kind = TypeStructureKind.Literal;
+    stringValue;
+    constructor(literal) {
+        super();
+        this.stringValue = literal;
+        Reflect.defineProperty(this, "stringValue", {
+            writable: false,
+            configurable: false,
+        });
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
+        writer.write(this.stringValue);
+    }
+    [GET_OUTER_TYPE]() {
+        return this.stringValue;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.Literal, LiteralTypeStructureImpl);
+
+/** `checkType` extends `extendsType` ? `trueType` : `falseType` */
+class ConditionalTypeStructureImpl extends TypeStructuresBase {
+    static clone(other) {
+        const parts = {
+            checkType: TypeStructureClassesMap.clone(other.checkType),
+            extendsType: TypeStructureClassesMap.clone(other.extendsType),
+            trueType: TypeStructureClassesMap.clone(other.trueType),
+            falseType: TypeStructureClassesMap.clone(other.falseType),
+        };
+        return new ConditionalTypeStructureImpl(parts);
+    }
+    kind = TypeStructureKind.Conditional;
+    checkType;
+    extendsType;
+    trueType;
+    falseType;
+    constructor(conditionalParts) {
+        super();
+        this.checkType =
+            conditionalParts.checkType ?? LiteralTypeStructureImpl.get("never");
+        this.extendsType =
+            conditionalParts.extendsType ?? LiteralTypeStructureImpl.get("never");
+        this.trueType =
+            conditionalParts.trueType ?? LiteralTypeStructureImpl.get("never");
+        this.falseType =
+            conditionalParts.falseType ?? LiteralTypeStructureImpl.get("never");
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
+        this.checkType.writerFunction(writer);
+        writer.write(" extends ");
+        this.extendsType.writerFunction(writer);
+        writer.write(" ? ");
+        this.trueType.writerFunction(writer);
+        writer.write(" : ");
+        this.falseType.writerFunction(writer);
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        if (typeof this.checkType === "object")
+            yield this.checkType;
+        if (typeof this.extendsType === "object")
+            yield this.extendsType;
+        if (typeof this.trueType === "object")
+            yield this.trueType;
+        if (typeof this.falseType === "object")
+            yield this.falseType;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.Conditional, ConditionalTypeStructureImpl);
+
+// #endregion preamble
+/** Just a parameter name and type for a `FunctionTypeStructureImpl`. */
+class ParameterTypeStructureImpl extends TypeStructuresBase {
+    static clone(other) {
+        let typeClone;
+        if (other.typeStructure)
+            typeClone = TypeStructureClassesMap.clone(other.typeStructure);
+        return new ParameterTypeStructureImpl(other.name, typeClone);
+    }
+    kind = TypeStructureKind.Parameter;
+    name;
+    typeStructure;
+    constructor(name, typeStructure) {
+        super();
+        this.name = name;
+        this.typeStructure = typeStructure;
+    }
+    [WRITER_FUNCTION_KEY](writer) {
+        writer.write(this.name);
+        if (this.typeStructure) {
+            writer.write(": ");
+            this.typeStructure.writerFunction(writer);
+        }
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        if (typeof this.typeStructure === "object")
+            yield this.typeStructure;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.Parameter, ParameterTypeStructureImpl);
+
+/** `("..." | "keyof" | "typeof" | "readonly" | "unique")[]` (object type) */
+class PrefixOperatorsTypeStructureImpl extends TypeStructuresBase {
+    static clone(other) {
+        return new PrefixOperatorsTypeStructureImpl(other.operators, TypeStructureClassesMap.clone(other.objectType));
+    }
+    kind = TypeStructureKind.PrefixOperators;
+    operators;
+    objectType;
+    constructor(operators, objectType) {
+        super();
+        this.operators = operators.slice();
+        this.objectType = objectType;
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
+        if (this.operators.length) {
+            writer.write(this.operators.map((op) => (op === "..." ? op : op + " ")).join(""));
+        }
+        this.objectType.writerFunction(writer);
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        if (typeof this.objectType === "object")
+            yield this.objectType;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.PrefixOperators, PrefixOperatorsTypeStructureImpl);
+
+class TypeStructuresWithTypeParameters extends TypeStructuresBase {
+    static writeTypeParameter(typeParam, writer, constraintMode) {
+        writer.write(typeParam.name);
+        switch (constraintMode) {
+            case "extends":
+                TypeStructuresWithTypeParameters.#writeConstraintExtends(typeParam, writer);
+                break;
+            case "in":
+                TypeStructuresWithTypeParameters.#writeConstraintIn(typeParam, writer);
+                break;
+        }
+        // isConst, variance not supported yet... need examples to test against
+    }
+    static #writeConstraintExtends(typeParam, writer) {
+        const constraint = typeParam.constraint;
+        if (typeof constraint === "undefined")
+            return;
+        writer.write(" extends ");
+        if (typeof constraint === "string") {
+            writer.write(constraint);
+        }
+        else {
+            constraint(writer);
+        }
+        const _default = typeParam.default;
+        if (_default) {
+            writer.write(" = ");
+            if (typeof _default === "string") {
+                writer.write(_default);
+            }
+            else {
+                _default(writer);
+            }
+        }
+    }
+    static #writeConstraintIn(typeParam, writer) {
+        const constraint = typeParam.constraint;
+        if (typeof constraint === "undefined")
+            return;
+        writer.write(" in ");
+        if (typeof constraint === "string") {
+            writer.write(constraint);
+        }
+        else {
+            constraint(writer);
+        }
+    }
+}
+
+// #region preamble
+// #endregion preamble
+var FunctionWriterStyle;
+(function (FunctionWriterStyle) {
+    FunctionWriterStyle["Arrow"] = "Arrow";
+    FunctionWriterStyle["Method"] = "Method";
+    FunctionWriterStyle["GetAccessor"] = "GetAccessor";
+    FunctionWriterStyle["SetAccessor"] = "SetAccessor";
+})(FunctionWriterStyle || (FunctionWriterStyle = {}));
+/** ("new" | "get" | "set" | "") name<typeParameters>(parameters, ...restParameter) ("=\>" | ":" ) returnType */
+class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters {
+    static clone(other) {
+        return new FunctionTypeStructureImpl({
+            name: other.name,
+            isConstructor: other.isConstructor,
+            typeParameters: StructureClassesMap.cloneArrayWithKind(StructureKind.TypeParameter, other.typeParameters),
+            parameters: other.parameters.map((param) => ParameterTypeStructureImpl.clone(param)),
+            restParameter: other.restParameter
+                ? ParameterTypeStructureImpl.clone(other.restParameter)
+                : undefined,
+            returnType: other.returnType
+                ? TypeStructureClassesMap.clone(other.returnType)
+                : undefined,
+            writerStyle: other.writerStyle,
+        });
+    }
+    kind = TypeStructureKind.Function;
+    name;
+    isConstructor;
+    typeParameters;
+    parameters;
+    restParameter;
+    returnType;
+    writerStyle = FunctionWriterStyle.Arrow;
+    constructor(context) {
+        super();
+        this.name = context.name ?? "";
+        this.isConstructor = context.isConstructor ?? false;
+        this.typeParameters = context.typeParameters?.slice() ?? [];
+        this.parameters = context.parameters?.slice() ?? [];
+        this.restParameter = context.restParameter;
+        this.returnType = context.returnType;
+        this.writerStyle = context.writerStyle ?? FunctionWriterStyle.Arrow;
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
+        if (this.writerStyle === FunctionWriterStyle.GetAccessor) {
+            writer.write("get ");
+            if (this.name)
+                writer.write(this.name);
+        }
+        else if (this.writerStyle === FunctionWriterStyle.SetAccessor) {
+            writer.write("set ");
+            if (this.name)
+                writer.write(this.name);
+        }
+        else if (this.writerStyle === FunctionWriterStyle.Method) {
+            if (this.name)
+                writer.write(this.name);
+        }
+        else if (this.isConstructor)
+            writer.write("new ");
+        if (this.typeParameters.length) {
+            FunctionTypeStructureImpl.pairedWrite(writer, "<", ">", false, false, () => {
+                const lastChild = this.typeParameters[this.typeParameters.length - 1];
+                for (const typeParam of this.typeParameters) {
+                    TypeStructuresWithTypeParameters.writeTypeParameter(typeParam, writer, "extends");
+                    if (typeParam !== lastChild) {
+                        writer.write(", ");
+                    }
+                }
+            });
+        }
+        FunctionTypeStructureImpl.pairedWrite(writer, "(", ")", false, false, () => {
+            let lastType;
+            if (this.restParameter)
+                lastType = new PrefixOperatorsTypeStructureImpl(["..."], this.restParameter);
+            else if (this.parameters.length > 0)
+                lastType = this.parameters[this.parameters.length - 1];
+            for (const type of this.parameters) {
+                type.writerFunction(writer);
+                if (type !== lastType)
+                    writer.write(", ");
+            }
+            if (this.restParameter) {
+                lastType.writerFunction(writer);
+            }
+        });
+        if (this.returnType) {
+            switch (this.writerStyle) {
+                case FunctionWriterStyle.Arrow:
+                    writer.write(" => ");
+                    this.returnType.writerFunction(writer);
+                    break;
+                case FunctionWriterStyle.GetAccessor:
+                case FunctionWriterStyle.Method:
+                    writer.write(": ");
+                    this.returnType.writerFunction(writer);
+                    break;
+            }
+        }
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        yield* this.typeParameters.values();
+        yield* this.parameters.values();
+        if (this.restParameter)
+            yield this.restParameter;
+        if (typeof this.returnType === "object")
+            yield this.returnType;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.Function, FunctionTypeStructureImpl);
+
+/** @example `Foo.bar.baz...` */
+class QualifiedNameTypeStructureImpl extends TypeStructuresBase {
+    static clone(other) {
+        return new QualifiedNameTypeStructureImpl(other.childTypes.slice());
+    }
+    kind = TypeStructureKind.QualifiedName;
+    childTypes;
+    constructor(childTypes = []) {
+        super();
+        this.childTypes = childTypes;
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
+        writer.write(this.childTypes.join("."));
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.QualifiedName, QualifiedNameTypeStructureImpl);
+
+class TypePrinterSettings {
+    indentChildren = false;
+    newLinesAroundChildren = false;
+    oneLinePerChild = false;
+}
+class TypeStructuresWithChildren extends TypeStructuresBase {
+    /** For customizing printing of the child types. */
+    printerSettings = new TypePrinterSettings();
+    [WRITER_FUNCTION_KEY](writer) {
+        this.objectType?.writerFunction(writer);
+        TypeStructuresBase.pairedWrite(writer, this.startToken, this.endToken, this.printerSettings.newLinesAroundChildren, this.printerSettings.indentChildren, () => this.#writerFunctionInner(writer));
+    }
+    #writerFunctionInner(writer) {
+        let { childTypes } = this;
+        if (childTypes.length === 0)
+            return;
+        if (childTypes.length > this.maxChildCount)
+            childTypes = childTypes.slice(0, this.maxChildCount);
+        const lastIndex = childTypes.length - 1;
+        for (let index = 0; index <= lastIndex; index++) {
+            const child = childTypes[index];
+            child.writerFunction(writer);
+            if (index === lastIndex)
+                break;
+            if (this.printerSettings.oneLinePerChild) {
+                writer.write(this.joinChildrenToken.trimEnd());
+                writer.newLine();
+            }
+            else {
+                writer.write(this.joinChildrenToken);
+            }
+        }
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        if (typeof this.objectType === "object" && this.objectType)
+            yield this.objectType;
+        for (const child of this.childTypes) {
+            if (typeof child === "object")
+                yield child;
+        }
+    }
+}
+
+/**
+ * This resolves type parameters, as opposed to defining them.
+ *
+ * @example
+ * `Pick<NumberStringType, "repeatForward">`
+ *
+ * @see `TypeParameterDeclarationImpl` for `Type<Foo extends object>`
+ */
+class TypeArgumentedTypeStructureImpl extends TypeStructuresWithChildren {
+    static clone(other) {
+        return new TypeArgumentedTypeStructureImpl(TypeStructureClassesMap.clone(other.objectType), TypeStructureClassesMap.cloneArray(other.childTypes));
+    }
+    kind = TypeStructureKind.TypeArgumented;
+    objectType;
+    childTypes;
+    startToken = "<";
+    joinChildrenToken = ", ";
+    endToken = ">";
+    maxChildCount = Infinity;
+    constructor(objectType, childTypes = []) {
+        super();
+        this.objectType = objectType;
+        this.childTypes = childTypes;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.TypeArgumented, TypeArgumentedTypeStructureImpl);
+
+/** @example `import("ts-morph", { with: { "resolution-mode": "import" } }).StatementStructures` */
+class ImportTypeStructureImpl extends TypeStructuresBase {
+    // not using LiteralTypeStructureImpl.get() to avoid caching this
+    static #nullIdentifier = new LiteralTypeStructureImpl("");
+    #typeArguments;
+    argument;
+    kind = TypeStructureKind.Import;
+    attributes;
+    childTypes;
+    constructor(argument, attributes, qualifier, typeArguments) {
+        super();
+        this.argument = argument;
+        this.attributes = StructureClassesMap.cloneArrayWithKind(StructureKind.ImportAttribute, attributes);
+        typeArguments = typeArguments.slice();
+        this.#typeArguments = new TypeArgumentedTypeStructureImpl(qualifier ?? ImportTypeStructureImpl.#nullIdentifier, typeArguments);
+        this.childTypes = typeArguments;
+    }
+    get qualifier() {
+        if (this.#typeArguments.objectType === ImportTypeStructureImpl.#nullIdentifier)
+            return null;
+        return this.#typeArguments.objectType;
+    }
+    set qualifier(value) {
+        this.#typeArguments.objectType =
+            value ?? ImportTypeStructureImpl.#nullIdentifier;
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
+        ImportTypeStructureImpl.pairedWrite(writer, "import(", ")", false, false, () => {
+            this.argument.writerFunction(writer);
+            if (this.attributes.length) {
+                writer.write(", ");
+                writer.inlineBlock(() => {
+                    writer.write("with: ");
+                    writer.inlineBlock(() => {
+                        let isFirst = true;
+                        for (const attr of this.attributes) {
+                            if (isFirst === false) {
+                                writer.write(",");
+                            }
+                            writer.quote(attr.name);
+                            writer.write(": ");
+                            writer.quote(attr.value);
+                            isFirst = false;
+                        }
+                    });
+                });
+            }
+        });
+        if (this.qualifier) {
+            writer.write(".");
+            this.#typeArguments.writerFunction(writer);
+        }
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        yield this.argument;
+        yield* this.attributes;
+        const qualifier = this.qualifier;
+        if (qualifier)
+            yield qualifier;
+        yield* this.childTypes;
+    }
+    static clone(other) {
+        let { qualifier } = other;
+        if (qualifier?.kind === TypeStructureKind.Literal) {
+            qualifier = LiteralTypeStructureImpl.clone(qualifier);
+        }
+        else if (qualifier?.kind === TypeStructureKind.QualifiedName) {
+            qualifier = QualifiedNameTypeStructureImpl.clone(qualifier);
+        }
+        return new ImportTypeStructureImpl(other.argument, StructureClassesMap.cloneArrayWithKind(StructureKind.ImportAttribute, other.attributes), qualifier, TypeStructureClassesMap.cloneArray(other.childTypes));
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.Import, ImportTypeStructureImpl);
+
+/**
+ * @example
+ * `Foo["index"]`
+ *
+ * @see `ArrayTypeStructureImpl` for `boolean[]`
+ * @see `MappedTypeStructureImpl` for `{ [key in keyof Foo]: boolean}`
+ * @see `MemberedObjectTypeStructureImpl` for `{ [key: string]: boolean }`
+ */
+class IndexedAccessTypeStructureImpl extends TypeStructuresWithChildren {
+    static clone(other) {
+        return new IndexedAccessTypeStructureImpl(other.objectType, other.childTypes[0]);
+    }
+    kind = TypeStructureKind.IndexedAccess;
+    objectType;
+    childTypes;
+    startToken = "[";
+    joinChildrenToken = "";
+    endToken = "]";
+    maxChildCount = 1;
+    constructor(objectType, indexType) {
+        super();
+        this.objectType = objectType;
+        this.childTypes = [indexType];
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.IndexedAccess, IndexedAccessTypeStructureImpl);
+
+class StructureBase {
+    /** @internal */
+    static [COPY_FIELDS](source, target) {
+    }
+    /** @internal */
+    static [REPLACE_WRITER_WITH_STRING](value) {
+        if (typeof value === "function") {
+            const writer = new CodeBlockWriter();
+            value(writer);
+            return writer.toString();
+        }
+        return value;
+    }
+    toJSON() {
+        return {};
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() { }
+}
+
+// #endregion preamble
+/** Wrappers for writer functions from external sources.  Leaf nodes. */
+class WriterTypeStructureImpl extends TypeStructuresBase {
+    static clone(other) {
+        return new WriterTypeStructureImpl(other[WRITER_FUNCTION_KEY]);
+    }
+    kind = TypeStructureKind.Writer;
+    constructor(writer) {
+        super();
+        this[WRITER_FUNCTION_KEY] = writer;
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY];
+}
+TypeStructureClassesMap.set(TypeStructureKind.Writer, WriterTypeStructureImpl);
+
+// #endregion preamble
+/**
+ * This provides an API for converting between a type (`WriterFunction`) and a `TypeStructure`.
+ *
+ * For any class providing a type (return type, constraint, extends, etc.), you can have an instance of
+ * `TypeAccessors` as a private class field, and provide getters and setters for type and typeStructure
+ * referring to the private TypeAccessors.
+ *
+ * See `../decorators/TypedNode.ts` for an example.
+ */
+class TypeAccessors {
+    static buildTypeAccessors(thisObj, fieldName, defaultValue) {
+        const accessors = new TypeAccessors();
+        Reflect.defineProperty(thisObj, fieldName, {
+            configurable: false,
+            enumerable: true,
+            get: function () {
+                return accessors.type;
+            },
+            set: function (value) {
+                accessors.type = value ?? defaultValue;
+            },
+        });
+        return accessors;
+    }
+    typeStructure = undefined;
+    get type() {
+        if (typeof this.typeStructure === "undefined")
+            return undefined;
+        if (this.typeStructure.kind === TypeStructureKind.Literal) {
+            return this.typeStructure.stringValue;
+        }
+        return this.typeStructure.writerFunction;
+    }
+    set type(value) {
+        if (typeof value === "undefined") {
+            this.typeStructure = undefined;
+            return;
+        }
+        if (typeof value === "string") {
+            this.typeStructure = LiteralTypeStructureImpl.get(value);
+            return;
+        }
+        const knownTypeStructure = TypeStructuresBase.getWriterStructureForCallback(value);
+        if (knownTypeStructure instanceof TypeStructuresBase) {
+            this.typeStructure = knownTypeStructure;
+            return;
+        }
+        this.typeStructure = new WriterTypeStructureImpl(value);
+        this.typeStructure[DEREGISTER_WRITER]();
+    }
+    /**
+     * Create a clone of an existing type, if it belongs to a type structure.
+     *
+     * If the underlying type structure exists, this will register the clone's type structure
+     * for later retrieval.
+     * @param type - the type to clone.
+     * @returns the cloned type, or the original type if the type is not cloneable.
+     */
+    static cloneType(type) {
+        if (typeof type !== "function")
+            return type;
+        const typeStructure = TypeStructuresBase.getWriterStructureForCallback(type);
+        if (typeStructure instanceof TypeStructuresBase) {
+            if (typeStructure.kind === TypeStructureKind.Literal)
+                return typeStructure.stringValue;
+            const value = TypeStructureClassesMap.clone(typeStructure);
+            return value.writerFunction;
+        }
+        return type;
+    }
+}
+
+function NamedNodeStructureMixin(baseClass, context) {
+    class NamedNodeStructureMixin extends baseClass {
+        name = "";
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.name = source.name;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.name = this.name;
+            return rv;
+        }
+    }
+    return NamedNodeStructureMixin;
+}
+
+//#region preamble
+function StructureMixin(baseClass, context) {
+    class StructureMixin extends baseClass {
+        /** Leading comments or whitespace. */
+        leadingTrivia = [];
+        /** Trailing comments or whitespace. */
+        trailingTrivia = [];
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            if (Array.isArray(source.leadingTrivia)) {
+                target.leadingTrivia.push(...source.leadingTrivia);
+            }
+            else if (source.leadingTrivia !== undefined) {
+                target.leadingTrivia.push(source.leadingTrivia);
+            }
+            if (Array.isArray(source.trailingTrivia)) {
+                target.trailingTrivia.push(...source.trailingTrivia);
+            }
+            else if (source.trailingTrivia !== undefined) {
+                target.trailingTrivia.push(source.trailingTrivia);
+            }
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.leadingTrivia = this.leadingTrivia.map((value) => {
+                return StructureBase[REPLACE_WRITER_WITH_STRING](value);
+            });
+            rv.trailingTrivia = this.trailingTrivia.map((value) => {
+                return StructureBase[REPLACE_WRITER_WITH_STRING](value);
+            });
+            return rv;
+        }
+    }
+    return StructureMixin;
+}
+
+//#region preamble
+//#endregion preamble
+const TypeParameterDeclarationStructureBase = MultiMixinBuilder([NamedNodeStructureMixin, StructureMixin], StructureBase);
+class TypeParameterDeclarationImpl extends TypeParameterDeclarationStructureBase {
+    kind = StructureKind.TypeParameter;
+    #constraintAccessors;
+    #defaultAccessors;
+    // overridden in constructor
+    constraint = undefined;
+    // overridden in constructor
+    default = undefined;
+    isConst = false;
+    variance = undefined;
+    constructor(name) {
+        super();
+        // constraint is getting lost in ts-morph clone operations
+        this.#constraintAccessors = TypeAccessors.buildTypeAccessors(this, "constraint");
+        // default is getting lost in ts-morph clone operations
+        this.#defaultAccessors = TypeAccessors.buildTypeAccessors(this, "default");
+        this.name = name;
+    }
+    get constraintStructure() {
+        return this.#constraintAccessors.typeStructure;
+    }
+    set constraintStructure(value) {
+        this.#constraintAccessors.typeStructure = value;
+    }
+    get defaultStructure() {
+        return this.#defaultAccessors.typeStructure;
+    }
+    set defaultStructure(value) {
+        this.#defaultAccessors.typeStructure = value;
+    }
+    /** @internal */
+    static [COPY_FIELDS](source, target) {
+        super[COPY_FIELDS](source, target);
+        const { constraintStructure } = source;
+        if (constraintStructure) {
+            target.constraintStructure =
+                TypeStructureClassesMap.clone(constraintStructure);
+        }
+        else if (source.constraint) {
+            target.constraint = source.constraint;
+        }
+        const { defaultStructure } = source;
+        if (defaultStructure) {
+            target.defaultStructure = TypeStructureClassesMap.clone(defaultStructure);
+        }
+        else if (source.default) {
+            target.default = source.default;
+        }
+        target.isConst = source.isConst ?? false;
+        if (source.variance) {
+            target.variance = source.variance;
+        }
+    }
+    /**
+     * Create a `TypeParameterDeclarationImpl` from a `TypeParameterDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
+    static clone(source) {
+        const target = new TypeParameterDeclarationImpl(source.name);
+        this[COPY_FIELDS](source, target);
+        return target;
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        if (typeof this.constraintStructure === "object")
+            yield this.constraintStructure;
+        if (typeof this.defaultStructure === "object")
+            yield this.defaultStructure;
+    }
+    toJSON() {
+        const rv = super.toJSON();
+        if (this.constraint) {
+            rv.constraint = StructureBase[REPLACE_WRITER_WITH_STRING](this.constraint);
+        }
+        else {
+            rv.constraint = undefined;
+        }
+        if (this.default) {
+            rv.default = StructureBase[REPLACE_WRITER_WITH_STRING](this.default);
+        }
+        else {
+            rv.default = undefined;
+        }
+        rv.isConst = this.isConst;
+        rv.kind = this.kind;
+        if (this.variance) {
+            rv.variance = this.variance;
+        }
+        else {
+            rv.variance = undefined;
+        }
+        return rv;
+    }
+}
+StructureClassesMap.set(StructureKind.TypeParameter, TypeParameterDeclarationImpl);
+
+// #endregion preamble
+/** @example infer \<type\> (extends \<type\>)? */
+class InferTypeStructureImpl extends TypeStructuresWithTypeParameters {
+    kind = TypeStructureKind.Infer;
+    typeParameter;
+    constructor(typeParameter) {
+        super();
+        this.typeParameter = typeParameter;
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
+        writer.write("infer ");
+        TypeStructuresWithTypeParameters.writeTypeParameter(this.typeParameter, writer, "extends");
+    }
+    static clone(other) {
+        return new InferTypeStructureImpl(TypeParameterDeclarationImpl.clone(other.typeParameter));
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        yield this.typeParameter;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.Infer, InferTypeStructureImpl);
+
+/** @example `Foo & Bar & ...` */
+class IntersectionTypeStructureImpl extends TypeStructuresWithChildren {
+    static clone(other) {
+        return new IntersectionTypeStructureImpl(TypeStructureClassesMap.cloneArray(other.childTypes));
+    }
+    kind = TypeStructureKind.Intersection;
+    objectType = null;
+    childTypes;
+    startToken = "";
+    joinChildrenToken = " & ";
+    endToken = "";
+    maxChildCount = Infinity;
+    constructor(childTypes = []) {
+        super();
+        this.childTypes = childTypes;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.Intersection, IntersectionTypeStructureImpl);
+
+// #endregion preamble
+/**
+ * @example `{ readonly [key in keyof Foo]: boolean }`
+ *
+ * @see `IndexedAccessTypedStructureImpl` for `Foo["index"]`
+ * @see `ObjectLiteralTypedStructureImpl` for `{ [key: string]: boolean }`
+ */
+class MappedTypeStructureImpl extends TypeStructuresWithTypeParameters {
+    kind = TypeStructureKind.Mapped;
+    readonlyToken;
+    parameter;
+    asName = undefined;
+    questionToken;
+    type;
+    constructor(parameter) {
+        super();
+        this.parameter = parameter;
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
+        writer.block(() => {
+            if (this.readonlyToken) {
+                writer.write(this.readonlyToken + " ");
+            }
+            writer.write("[");
+            TypeStructuresWithTypeParameters.writeTypeParameter(this.parameter, writer, "in");
+            if (this.asName) {
+                writer.write(" as ");
+                this.asName.writerFunction(writer);
+            }
+            writer.write("]");
+            if (this.questionToken) {
+                writer.write(this.questionToken);
+            }
+            if (this.type) {
+                writer.write(": ");
+                this.type.writerFunction(writer);
+            }
+            writer.write(";");
+        });
+    }
+    static clone(other) {
+        const clone = new MappedTypeStructureImpl(TypeParameterDeclarationImpl.clone(other.parameter));
+        if (other.asName) {
+            clone.asName = TypeStructureClassesMap.clone(other.asName);
+        }
+        if (other.type) {
+            clone.type = TypeStructureClassesMap.clone(other.type);
+        }
+        clone.readonlyToken = other.readonlyToken;
+        clone.questionToken = other.questionToken;
+        return clone;
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        yield this.parameter;
+        if (typeof this.asName === "object")
+            yield this.asName;
+        if (typeof this.type === "object")
+            yield this.type;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.Mapped, MappedTypeStructureImpl);
+
+/**
+ * Properties, methods, getters, setters, and index signatures.  Very much like interfaces.  Usually in type aliases.
+ * @example
+ * ```typescript
+ * {
+ *    (callSignatureArgument) => string;
+ *    new (constructSignatureArgument) => ClassName;
+ *    get getterName(): symbol;
+ *    [indexSignatureKey: string]: boolean;
+ *    property: number;
+ *    method(): void;
+ *    set setterName(value: symbol);
+ * }
+ * ```
+ *
+ * @see `MappedTypeStructureImpl` for `{ readonly [key in keyof Foo]: boolean }`
+ */
+class MemberedObjectTypeStructureImpl extends TypeStructuresBase {
+    static clone(other) {
+        const membered = new MemberedObjectTypeStructureImpl();
+        membered.callSignatures.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.CallSignature, other.callSignatures));
+        membered.constructSignatures.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.ConstructSignature, other.constructSignatures));
+        membered.getAccessors.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.GetAccessor, other.getAccessors));
+        membered.indexSignatures.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.IndexSignature, other.indexSignatures));
+        membered.properties.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.PropertySignature, other.properties));
+        membered.methods.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.MethodSignature, other.methods));
+        membered.setAccessors.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.SetAccessor, other.setAccessors));
+        return membered;
+    }
+    kind = TypeStructureKind.MemberedObject;
+    callSignatures = [];
+    constructSignatures = [];
+    getAccessors = [];
+    indexSignatures = [];
+    methods = [];
+    properties = [];
+    setAccessors = [];
+    [WRITER_FUNCTION_KEY](writer) {
+        Writers.objectType(this)(writer);
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        yield* this.callSignatures.values();
+        yield* this.constructSignatures.values();
+        yield* this.getAccessors.values();
+        yield* this.indexSignatures.values();
+        yield* this.methods.values();
+        yield* this.properties.values();
+        yield* this.setAccessors.values();
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.MemberedObject, MemberedObjectTypeStructureImpl);
+
+/** @example `[a: number]` */
+class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase {
+    static clone(other) {
+        const namedTuple = new NamedTupleMemberTypeStructureImpl(other.name, TypeStructureClassesMap.clone(other.objectType));
+        StructureClassesMap.cloneArrayWithKind(StructureKind.JSDoc, other.docs);
+        namedTuple.hasDotDotDotToken = other.hasDotDotDotToken;
+        namedTuple.hasQuestionToken = other.hasQuestionToken;
+        return namedTuple;
+    }
+    kind = TypeStructureKind.NamedTupleMember;
+    docs = [];
+    hasDotDotDotToken = false;
+    name;
+    hasQuestionToken = false;
+    objectType;
+    constructor(name, objectType) {
+        super();
+        this.name = name;
+        this.objectType = objectType;
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
+        for (const doc of this.docs) {
+            printStructure(doc, {
+                indentNumberOfSpaces: writer.getIndentationLevel() * 2,
+            });
+        }
+        writer.conditionalWrite(this.hasDotDotDotToken, "...");
+        writer.write(this.name);
+        writer.conditionalWrite(this.hasQuestionToken, "?");
+        writer.write(": ");
+        this.objectType.writerFunction(writer);
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        yield this.objectType;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.NamedTupleMember, NamedTupleMemberTypeStructureImpl);
+
+// #endregion preamble
+/**
+ * Numbers (boolean, number, string, void, etc.), without quotes, brackets, or
+ * anything else around them.  Leaf nodes.
+ */
+class NumberTypeStructureImpl extends TypeStructuresBase {
+    static #cache = new Map();
+    /**
+     * Gets a singleton `NumberTypeStructureImpl` for the given name.
+     */
+    static get(name) {
+        if (!this.#cache.has(name)) {
+            this.#cache.set(name, new NumberTypeStructureImpl(name));
+        }
+        return this.#cache.get(name);
+    }
+    static clone(other) {
+        return NumberTypeStructureImpl.get(other.numberValue);
+    }
+    kind = TypeStructureKind.Number;
+    numberValue;
+    constructor(value) {
+        super();
+        this.numberValue = value;
+        Reflect.defineProperty(this, "numberValue", {
+            writable: false,
+            configurable: false,
+        });
+    }
+    /** @internal */
+    [WRITER_FUNCTION_KEY](writer) {
+        writer.write(this.numberValue.toString());
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.Number, NumberTypeStructureImpl);
+
+/** @example `[boolean?]` */
+class OptionalTypeStructureImpl extends TypeStructuresBase {
+    static clone(other) {
+        return new OptionalTypeStructureImpl(TypeStructureClassesMap.clone(other.objectType));
+    }
+    kind = TypeStructureKind.Optional;
+    objectType;
+    constructor(objectType) {
+        super();
+        this.objectType = objectType;
+    }
+    [WRITER_FUNCTION_KEY](writer) {
+        this.objectType.writerFunction(writer);
+        writer.write("?");
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        yield this.objectType;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.Optional, OptionalTypeStructureImpl);
+
+/** Wrap the child type in parentheses. */
+class ParenthesesTypeStructureImpl extends TypeStructuresWithChildren {
+    static clone(other) {
+        return new ParenthesesTypeStructureImpl(other.childTypes[0]);
+    }
+    kind = TypeStructureKind.Parentheses;
+    objectType = null;
+    childTypes;
+    startToken = "(";
+    joinChildrenToken = "";
+    endToken = ")";
+    maxChildCount = 1;
+    constructor(childType) {
+        super();
+        this.childTypes = [childType];
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.Parentheses, ParenthesesTypeStructureImpl);
+
+// #endregion preamble
+/** Strings, encased in double quotes.  Leaf nodes. */
+class StringTypeStructureImpl extends TypeStructuresBase {
+    static #cache = new Map();
+    /**
+     * Gets a singleton `StringTypeStructureImpl` for the given name.
+     */
+    static get(name) {
+        if (!this.#cache.has(name)) {
+            this.#cache.set(name, new StringTypeStructureImpl(name));
+        }
+        return this.#cache.get(name);
+    }
+    static clone(other) {
+        return StringTypeStructureImpl.get(other.stringValue);
+    }
+    kind = TypeStructureKind.String;
+    stringValue;
+    constructor(literal) {
+        super();
+        this.stringValue = literal;
+        Reflect.defineProperty(this, "stringValue", {
+            writable: false,
+            configurable: false,
+        });
+    }
+    [WRITER_FUNCTION_KEY](writer) {
+        writer.quote(this.stringValue);
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.String, StringTypeStructureImpl);
+
+/** @example `one${"A" | "B"}two${"C" | "D"}three` */
+class TemplateLiteralTypeStructureImpl extends TypeStructuresBase {
+    static clone(other) {
+        const spans = other.spans.map((span) => [
+            TypeStructureClassesMap.clone(span[0]),
+            span[1],
+        ]);
+        return new TemplateLiteralTypeStructureImpl(other.head, spans);
+    }
+    kind = TypeStructureKind.TemplateLiteral;
+    head;
+    spans;
+    constructor(head, spans) {
+        super();
+        this.head = head;
+        this.spans = spans;
+    }
+    [WRITER_FUNCTION_KEY](writer) {
+        TypeStructuresBase.pairedWrite(writer, "`", "`", false, false, () => {
+            writer.write(this.head);
+            this.spans.forEach((span) => {
+                TypeStructuresBase.pairedWrite(writer, "${", "}", false, false, () => span[0].writerFunction(writer));
+                writer.write(span[1]);
+            });
+        });
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        for (const span of this.spans) {
+            const type = span[0];
+            if (typeof type === "object")
+                yield type;
+        }
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.TemplateLiteral, TemplateLiteralTypeStructureImpl);
+
+/**
+ * @example
+ * `[number, boolean]`
+ *
+ * @see `ArrayTypeStructureImpl` for `boolean[]`
+ * @see `IndexedAccessTypeStructureImpl` for `Foo["index"]`
+ * @see `NamedTupleMemberTypeStructureImpl` for `[foo: boolean]`
+ */
+class TupleTypeStructureImpl extends TypeStructuresWithChildren {
+    static clone(other) {
+        return new TupleTypeStructureImpl(TypeStructureClassesMap.cloneArray(other.childTypes));
+    }
+    kind = TypeStructureKind.Tuple;
+    objectType = null;
+    childTypes;
+    startToken = "[";
+    joinChildrenToken = ", ";
+    endToken = "]";
+    maxChildCount = Infinity;
+    constructor(childTypes = []) {
+        super();
+        this.childTypes = childTypes;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.Tuple, TupleTypeStructureImpl);
+
+/** @example assert condition is true */
+class TypePredicateTypeStructureImpl extends TypeStructuresBase {
+    kind = TypeStructureKind.TypePredicate;
+    hasAssertsKeyword;
+    parameterName;
+    isType;
+    constructor(hasAssertsKeyword, parameterName, isType) {
+        super();
+        this.hasAssertsKeyword = hasAssertsKeyword;
+        this.parameterName = parameterName;
+        this.isType = isType ?? null;
+    }
+    [WRITER_FUNCTION_KEY](writer) {
+        if (this.hasAssertsKeyword) {
+            writer.write("asserts ");
+        }
+        this.parameterName.writerFunction(writer);
+        if (this.isType) {
+            writer.write(" is ");
+            this.isType.writerFunction(writer);
+        }
+    }
+    static clone(other) {
+        let isType;
+        if (other.isType) {
+            isType = TypeStructureClassesMap.clone(other.isType);
+        }
+        return new TypePredicateTypeStructureImpl(other.hasAssertsKeyword, other.parameterName, isType);
+    }
+    /** @internal */
+    *[STRUCTURE_CHILDREN]() {
+        yield* super[STRUCTURE_CHILDREN]();
+        if (this.isType)
+            yield this.isType;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.TypePredicate, TypePredicateTypeStructureImpl);
+
+/** @example `Foo | Bar | ...` */
+class UnionTypeStructureImpl extends TypeStructuresWithChildren {
+    static clone(other) {
+        return new UnionTypeStructureImpl(TypeStructureClassesMap.cloneArray(other.childTypes));
+    }
+    kind = TypeStructureKind.Union;
+    objectType = null;
+    childTypes;
+    startToken = "";
+    joinChildrenToken = " | ";
+    endToken = "";
+    maxChildCount = Infinity;
+    constructor(childTypes = []) {
+        super();
+        this.childTypes = childTypes;
+    }
+}
+TypeStructureClassesMap.set(TypeStructureKind.Union, UnionTypeStructureImpl);
+
 const LiteralKeywords = new Map([
     [SyntaxKind.AnyKeyword, "any"],
     [SyntaxKind.BooleanKeyword, "boolean"],
@@ -1426,8 +3211,11 @@ function getAugmentedStructure(rootNode, userConsole, assertNoFailures, kind) {
     };
 }
 
+function VoidNodeToStructureConsole(message, failingNode) {
+}
+
 let ParseLiteralProject;
-function parseLiteralType(source) {
+function parseLiteralType(type) {
     let name = "SOMERANDOMSTRING_";
     for (let i = 0; i < 10; i++) {
         name += String.fromCharCode(Math.floor(Math.random() * 26) + 65);
@@ -1435,8 +3223,12 @@ function parseLiteralType(source) {
     ParseLiteralProject ??= defineProject();
     const tempFile = ParseLiteralProject.createSourceFile("tempFile.ts");
     try {
-        const aliasStructure = getAugmentedStructure(tempFile.addTypeAlias(new TypeAliasDeclarationImpl(name, source)), VoidNodeToStructureConsole, true).rootStructure;
-        return aliasStructure.typeStructure;
+        const typeAlias = tempFile.addTypeAlias({
+            name,
+            type,
+        });
+        const { typeStructure } = getAugmentedStructure(typeAlias, VoidNodeToStructureConsole, true, StructureKind.TypeAlias).rootStructure;
+        return typeStructure;
     }
     finally {
         // You might wonder, "why not just empty the file and reuse it?" - this is safer.
@@ -1460,852 +3252,6 @@ function defineProject() {
     return new Project(TSC_CONFIG);
 }
 
-function VoidNodeToStructureConsole(message, failingNode) {
-}
-
-const BUILD_ARRAY_WRAPPER = Symbol("build new array");
-const GET_OUTER_TYPE = Symbol("get outer type");
-const CONVERT_OUTER_TO_INNER = Symbol("convert outer type to inner type");
-
-/**
- * This is a minimalist ProxyHandler for methods of Array.prototype.
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy#handler_functions}
- *
- * @internal
- */
-class ArrayPrototypeProxyHandler {
-    static #shadowToMethodName = new WeakMap();
-    static #proxyToArrayImpl = new WeakMap();
-    /** The prototype to use for shadow targets. */
-    static proto = [];
-    static {
-        const handler = new ArrayPrototypeProxyHandler();
-        for (const key of Reflect.ownKeys(Array.prototype)) {
-            if (key === "length")
-                continue;
-            const shadow = function () {
-                // do nothing
-            };
-            const proxy = new Proxy(shadow, handler);
-            const desc = {
-                configurable: false,
-                enumerable: true,
-                writable: false,
-                value: proxy,
-            };
-            Reflect.defineProperty(this.proto, key, desc);
-            this.#shadowToMethodName.set(shadow, key);
-        }
-        // length get/set support
-        {
-            const shadowGetter = function () {
-                // do nothing
-            };
-            const proxyGetter = new Proxy(shadowGetter, handler);
-            this.#shadowToMethodName.set(shadowGetter, "getLength");
-            const shadowSetter = function () {
-                // do nothing
-            };
-            const proxySetter = new Proxy(shadowSetter, handler);
-            this.#shadowToMethodName.set(shadowSetter, "setLength");
-            const desc = {
-                configurable: false,
-                enumerable: false,
-                get: proxyGetter,
-                set: proxySetter,
-            };
-            Reflect.defineProperty(this.proto, "length", desc);
-        }
-    }
-    /**
-     * Tie a proxy to its shadow array implementation.
-     * @param proxyThis The proxy.
-     * @param arrayImpl The shadow array.
-     *
-     * @internal
-     */
-    static assignProxyToArrayImpl(proxyThis, arrayImpl) {
-        this.#proxyToArrayImpl.set(proxyThis, arrayImpl);
-    }
-    constructor() {
-        // do nothing
-    }
-    // ProxyHandler
-    apply(shadowTarget, thisArg, // a proxy
-    argArray) {
-        const methodName = ArrayPrototypeProxyHandler.#shadowToMethodName.get(shadowTarget);
-        const arrayImpl = ArrayPrototypeProxyHandler.#proxyToArrayImpl.get(thisArg);
-        // @ts-expect-error methodName is not a number, damn it
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        return arrayImpl[methodName](...argArray);
-    }
-}
-
-/**
- * A proxy handler for array.length, array[index].  The array prototype will be `ArrayPrototypeProxyHandler.proto`.
- * @internal
- */
-class ArrayElementsProxyHandler {
-    static #getIndex(p) {
-        if (typeof p === "string") {
-            const np = parseFloat(p);
-            if (np % 1 === 0 && np >= 0) {
-                return np;
-            }
-        }
-    }
-    #shadowToArrayImplMap = new WeakMap();
-    /**
-     * Tie a shadow array to the array implementation.
-     * @param shadowTarget
-     * @param arrayImpl
-     *
-     * @internal
-     */
-    assignShadowToArrayImpl(shadowTarget, arrayImpl) {
-        this.#shadowToArrayImplMap.set(shadowTarget, arrayImpl);
-    }
-    // ProxyHandler
-    defineProperty(shadowTarget, property, attributes) {
-        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
-        if (property === "length") {
-            arrayImpl.setLength((attributes.get === undefined
-                ? attributes.value
-                : attributes.get()));
-            return true;
-        }
-        const index = ArrayElementsProxyHandler.#getIndex(property);
-        if (typeof index === "number") {
-            arrayImpl.replaceAt(index, (attributes.get === undefined
-                ? attributes.value
-                : attributes.get()));
-            return true;
-        }
-        return false;
-    }
-    // ProxyHandler
-    deleteProperty(shadowTarget, p) {
-        return false;
-    }
-    // ProxyHandler
-    getOwnPropertyDescriptor(shadowTarget, p) {
-        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
-        if (p === "length") {
-            const value = arrayImpl.getLength();
-            return { value, writable: true, enumerable: false, configurable: false };
-        }
-        const np = ArrayElementsProxyHandler.#getIndex(p);
-        if (typeof np === "number" && np < arrayImpl.getLength()) {
-            const value = arrayImpl.at(np);
-            return { value, writable: true, enumerable: true, configurable: true };
-        }
-        return Reflect.getOwnPropertyDescriptor(shadowTarget, p);
-    }
-    // ProxyHandler
-    get(shadowTarget, p, receiver) {
-        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
-        if (p === "length") {
-            const value = arrayImpl.getLength();
-            /* arrayImpl should've updated shadowTarget.length
-            shadowTarget.length = value;
-            */
-            return value;
-        }
-        const np = ArrayElementsProxyHandler.#getIndex(p);
-        if (typeof np === "number" && np < arrayImpl.getLength()) {
-            const value = arrayImpl.at(np);
-            /* arrayImpl should've updated shadowTarget[np]
-            shadowTarget[np] = value;
-            */
-            return value;
-        }
-        return Reflect.get(shadowTarget, p, receiver);
-    }
-    // ProxyHandler
-    has(shadowTarget, p) {
-        if (p === "length")
-            return true;
-        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
-        const np = ArrayElementsProxyHandler.#getIndex(p);
-        if (typeof np === "number" && np < arrayImpl.getLength())
-            return true;
-        return Reflect.has(shadowTarget, p);
-    }
-    // ProxyHandler
-    ownKeys(shadowTarget) {
-        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
-        const keys = ShadowArrayImpl.indexRange(arrayImpl.getLength()).map(String);
-        keys.push("length");
-        // only length is not configurable, and the array is extensible
-        // so we don't need to update the shadow target specifically
-        // if someone makes innerElements non-extensible, this will cause problems
-        return keys;
-    }
-    // ProxyHandler
-    preventExtensions(shadowTarget) {
-        return false;
-    }
-    // ProxyHandler
-    set(shadowTarget, p, newValue, receiver) {
-        const arrayImpl = this.#shadowToArrayImplMap.get(shadowTarget);
-        if (p === "length") {
-            arrayImpl.setLength(newValue);
-            return true;
-        }
-        const np = ArrayElementsProxyHandler.#getIndex(p);
-        if (typeof np === "number") {
-            arrayImpl.replaceAt(np, newValue);
-            return true;
-        }
-        return false;
-    }
-    // ProxyHandler
-    setPrototypeOf(shadowTarget, v) {
-        return false;
-    }
-}
-
-/**
- * This is a helper for implementing methods of an array, so the proxy can report the correct results.
- *
- * Subclass methods you must implement:
- *
- * - static createProxy (returns new ShadowArrayImpl(innerElements).proxy)
- * - [BUILD_ARRAY_WRAPPER]
- * - [CONVERT_OUTER_TO_INNER]
- *
- * Your constructor should be protected, not public.
- */
-class ShadowArrayImpl {
-    static #arrayElementsHandler = new ArrayElementsProxyHandler();
-    /**
-     * @param innerElements {InnerTypeElement<OuterType>[]} the elements implementing the native type
-     *
-     * @returns {OuterType[]} the proxy defining the wrapped type array.
-     *
-     * @remarks `return new ShadowArrayImplSubclass(innerElements).proxy;`
-     */
-    static createProxy(innerElements) {
-        throw new Error("override this method");
-    }
-    /**
-     * Utility to get a range of indexes for a given length.
-     *
-     * @internal
-     */
-    static indexRange(length) {
-        const indexes = [];
-        for (let i = 0; i < length; i++) {
-            indexes.push(i);
-        }
-        return indexes;
-    }
-    /** Our proxy to implement the array. */
-    proxy;
-    /** The _actual_ values we're reflecting.  This is a live pointer to the array, not a slice. */
-    #innerElements;
-    /** Convenience function to avoid binding over and over again. */
-    #convertOuterTypeToInner = (outerType) => this[CONVERT_OUTER_TO_INNER](outerType);
-    /** The shadow target. */
-    #shadow;
-    constructor(innerElements) {
-        /* You should have come here via ShadowArrayImpl::createProxy, which you should have overridden. */
-        this.#innerElements = innerElements;
-        this.#shadow = []; // necessary for Array.isArray()
-        Reflect.defineProperty(this.#shadow, "length", {
-            configurable: false,
-            enumerable: false,
-        });
-        Reflect.setPrototypeOf(this.#shadow, ArrayPrototypeProxyHandler.proto);
-        this.proxy = new Proxy(this.#shadow, ShadowArrayImpl.#arrayElementsHandler);
-        ShadowArrayImpl.#arrayElementsHandler.assignShadowToArrayImpl(this.#shadow, this);
-        ArrayPrototypeProxyHandler.assignProxyToArrayImpl(this.proxy, this);
-    }
-    /** proxy access to get length() */
-    getLength() {
-        // proxy invariant technically only applies for NWNC descriptors, but in our implementation we're not likely to care
-        return this.#innerElements.length;
-    }
-    /** proxy access to set length() */
-    setLength(newLength) {
-        this.#innerElements.length = newLength;
-    }
-    /** proxy prototype helper to set [index] */
-    replaceAt(index, value) {
-        this.#innerElements[index] = this.#convertOuterTypeToInner(value);
-    }
-    // OuterType[]
-    at(index) {
-        const innerElement = this.#innerElements.at(index);
-        // proxy invariant technically only applies for NWNC descriptors, but in our implementation we're not likely to care
-        return innerElement?.[GET_OUTER_TYPE]();
-    }
-    // OuterType[]
-    *[Symbol.iterator]() {
-        for (const innerValue of this.#innerElements)
-            yield innerValue[GET_OUTER_TYPE]();
-    }
-    // OuterType[]
-    get [Symbol.unscopables]() {
-        throw new Error("not yet implemented");
-    }
-    // OuterType[]
-    pop() {
-        return this.#innerElements.pop()?.[GET_OUTER_TYPE]();
-    }
-    // OuterType[]
-    push(...outerItems) {
-        const innerItems = outerItems.map(this.#convertOuterTypeToInner);
-        return this.#innerElements.push(...innerItems);
-    }
-    // OuterType[]
-    concat(...items) {
-        const newOuterItems = items.flatMap((item) => item.slice());
-        return this[BUILD_ARRAY_WRAPPER](...this.#innerElements, ...newOuterItems.map(this.#convertOuterTypeToInner));
-    }
-    // OuterType[]
-    join(separator) {
-        return this.#innerElements
-            .map((element) => element[GET_OUTER_TYPE]())
-            .join(separator);
-    }
-    // OuterType[]
-    reverse() {
-        this.#innerElements.reverse();
-        return this.proxy;
-    }
-    // OuterType[]
-    shift() {
-        return this.#innerElements.shift()?.[GET_OUTER_TYPE]();
-    }
-    // OuterType[]
-    slice(start, end) {
-        return this[BUILD_ARRAY_WRAPPER](...this.#innerElements.slice(start, end));
-    }
-    // OuterType[]
-    sort(compareFn) {
-        const outerElements = this.#innerElements.map((element) => element[GET_OUTER_TYPE]());
-        const sortOrder = ShadowArrayImpl.indexRange(outerElements.length);
-        if (compareFn) {
-            sortOrder.sort((a, b) => compareFn(outerElements[a], outerElements[b]));
-        }
-        else {
-            const stringifiedOuter = outerElements.map(String);
-            sortOrder.sort((a, b) => stringifiedOuter[a].localeCompare(stringifiedOuter[b]));
-        }
-        const innerSlice = this.#innerElements.slice();
-        for (let i = 0; i < this.#innerElements.length; i++) {
-            this.#innerElements[i] = innerSlice[sortOrder[i]];
-        }
-        return this.proxy;
-    }
-    // OuterType[]
-    splice(start, deleteCount, ...outerItems) {
-        const newInnerItems = outerItems.map(this.#convertOuterTypeToInner);
-        const extractedInnerItems = this.#innerElements.splice(start, deleteCount ?? 0, ...newInnerItems);
-        return this[BUILD_ARRAY_WRAPPER](...extractedInnerItems);
-    }
-    // OuterType[]
-    unshift(...outerItems) {
-        const innerItems = outerItems.map(this.#convertOuterTypeToInner);
-        return this.#innerElements.unshift(...innerItems);
-    }
-    // OuterType[]
-    indexOf(searchElement, fromIndex) {
-        return this.#innerElements.findIndex(this.#innerFinder.bind(this, searchElement), fromIndex);
-    }
-    #innerFinder(searchElement, inner) {
-        return inner[GET_OUTER_TYPE]() === searchElement;
-    }
-    // OuterType[]
-    lastIndexOf(searchElement, fromIndex) {
-        return this.#innerElements.findLastIndex(this.#innerFinder.bind(this, searchElement), fromIndex);
-    }
-    // OuterType[]
-    every(predicate, thisArg) {
-        return this.#innerElements.every(this.#innerPredicate.bind(this, predicate), thisArg);
-    }
-    #innerPredicate(predicate, innerElement, index) {
-        return predicate(innerElement[GET_OUTER_TYPE](), index, this.proxy);
-    }
-    // OuterType[]
-    some(predicate, thisArg) {
-        return this.#innerElements.some(this.#innerPredicate.bind(this, predicate), thisArg);
-    }
-    // OuterType[]
-    forEach(callbackfn, thisArg) {
-        this.#innerElements.forEach((innerValue, index) => callbackfn(innerValue[GET_OUTER_TYPE](), index, this.proxy), thisArg);
-    }
-    // OuterType[]
-    map(callbackfn, thisArg) {
-        return this.#innerElements.map((innerValue, index) => callbackfn(innerValue[GET_OUTER_TYPE](), index, this.proxy), thisArg);
-    }
-    // OuterType[]
-    filter(predicate, thisArg) {
-        const newElements = this.#innerElements.filter((innerValue, index) => predicate(innerValue[GET_OUTER_TYPE](), index, this.proxy), thisArg);
-        return this[BUILD_ARRAY_WRAPPER](...newElements);
-    }
-    // OuterType[]
-    reduce(callbackfn) {
-        return this.#innerElements
-            .reduce(this.#reducer.bind(this, callbackfn))[GET_OUTER_TYPE]();
-    }
-    // OuterType[]
-    reduceRight(callbackfn) {
-        return this.#innerElements
-            .reduceRight(this.#reducer.bind(this, callbackfn))[GET_OUTER_TYPE]();
-    }
-    #reducer(callbackfn, previousInner, currentInner, currentIndex) {
-        const previousOuter = previousInner[GET_OUTER_TYPE]();
-        const currentOuter = currentInner[GET_OUTER_TYPE]();
-        const newOuterType = callbackfn(previousOuter, currentOuter, currentIndex, this.proxy);
-        return this[CONVERT_OUTER_TO_INNER](newOuterType);
-    }
-    // OuterType[]
-    find(predicate, thisArg) {
-        return this.#innerElements
-            .find(this.#finder.bind(this, predicate), thisArg)?.[GET_OUTER_TYPE]();
-    }
-    // OuterType[]
-    findIndex(predicate, thisArg) {
-        return this.#innerElements.findIndex(this.#finder.bind(this, predicate), thisArg);
-    }
-    #finder(outerPredicate, innerValue, index) {
-        return outerPredicate(innerValue[GET_OUTER_TYPE](), index, this.proxy);
-    }
-    // OuterType[]
-    fill(outerValue, start, end) {
-        const innerValue = this.#convertOuterTypeToInner(outerValue);
-        this.#innerElements.fill(innerValue, start, end);
-        return this.proxy;
-    }
-    // OuterType[]
-    copyWithin(target, start, end) {
-        this.#innerElements.copyWithin(target, start, end);
-        return this.proxy;
-    }
-    // OuterType[]
-    *entries() {
-        for (const [index, innerValue] of this.#innerElements.entries()) {
-            yield [index, innerValue[GET_OUTER_TYPE]()];
-        }
-    }
-    // OuterType[]
-    keys() {
-        return this.#innerElements.keys();
-    }
-    // OuterType[]
-    values() {
-        return this[Symbol.iterator]();
-    }
-    // OuterType[]
-    includes(searchElement, fromIndex) {
-        return this.indexOf(searchElement, fromIndex) !== -1;
-    }
-    // OuterType[]
-    flatMap(callback, thisArg) {
-        throw new Error("not yet implemented");
-    }
-    // OuterType[]
-    flat(depth) {
-        throw new Error("not yet implemented");
-    }
-    // OuterType[]
-    findLast(predicate, thisArg) {
-        return this.#innerElements
-            .findLast(this.#finder.bind(this, predicate), thisArg)?.[GET_OUTER_TYPE]();
-    }
-    // OuterType[]
-    findLastIndex(predicate, thisArg) {
-        return this.#innerElements.findLastIndex(this.#finder.bind(this, predicate), thisArg);
-    }
-    // OuterType[]
-    toReversed() {
-        return this.slice().reverse();
-    }
-    // OuterType[]
-    toSorted(compareFn) {
-        return this.slice().sort(compareFn);
-    }
-    // OuterType[]
-    toSpliced(start, deleteCount, ...outerItems) {
-        const newInnerItems = outerItems.map(this.#convertOuterTypeToInner);
-        const allInnerItems = this.#innerElements.toSpliced(start, deleteCount, ...newInnerItems);
-        return this[BUILD_ARRAY_WRAPPER](...allInnerItems);
-    }
-    // OuterType[]
-    with(index, outerValue) {
-        const innerValue = this[CONVERT_OUTER_TO_INNER](outerValue);
-        const innerArray = this.#innerElements.with(index, innerValue);
-        return this[BUILD_ARRAY_WRAPPER](...innerArray);
-    }
-}
-
-class StatementStructureClassesMapClass extends Map {
-    clone(structure) {
-        switch (structure.kind) {
-            case StructureKind.Class:
-            case StructureKind.Enum:
-            case StructureKind.ExportAssignment:
-            case StructureKind.ExportDeclaration:
-            case StructureKind.Function:
-            case StructureKind.ImportDeclaration:
-            case StructureKind.Interface:
-            case StructureKind.Module:
-            case StructureKind.TypeAlias:
-            case StructureKind.VariableStatement:
-                return StructureClassesMap.clone(structure);
-        }
-        return this.get(structure.kind).clone(structure);
-    }
-    cloneArray(structures) {
-        return structures.map((structure) => this.clone(structure));
-    }
-}
-const StatementStructureClassesMap = new StatementStructureClassesMapClass();
-
-const COPY_FIELDS = Symbol("copy fields");
-const REPLACE_WRITER_WITH_STRING = Symbol("replaceWriterWithString");
-const STRUCTURE_CHILDREN = Symbol("otherwise unreachable structure and type-structure children");
-const WRITE_BETWEEN_TRIVIA = Symbol("write contents between trivia");
-const WRITE_STATEMENTS_SEQUENCE = Symbol("write statements sequence");
-
-class StructureBase {
-    /** @internal */
-    static [COPY_FIELDS](source, target) {
-    }
-    /** @internal */
-    static [REPLACE_WRITER_WITH_STRING](value) {
-        if (typeof value === "function") {
-            const writer = new CodeBlockWriter();
-            value(writer);
-            return writer.toString();
-        }
-        return value;
-    }
-    toJSON() {
-        return {};
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() { }
-}
-
-// #endregion preamble
-/**
- * This provides an API for converting between a type (`WriterFunction`) and a `TypeStructure`.
- *
- * For any class providing a type (return type, constraint, extends, etc.), you can have an instance of
- * `TypeAccessors` as a private class field, and provide getters and setters for type and typeStructure
- * referring to the private TypeAccessors.
- *
- * See `../decorators/TypedNode.ts` for an example.
- */
-class TypeAccessors {
-    static buildTypeAccessors(thisObj, fieldName, defaultValue) {
-        const accessors = new TypeAccessors();
-        Reflect.defineProperty(thisObj, fieldName, {
-            configurable: false,
-            enumerable: true,
-            get: function () {
-                return accessors.type;
-            },
-            set: function (value) {
-                accessors.type = value ?? defaultValue;
-            },
-        });
-        return accessors;
-    }
-    typeStructure = undefined;
-    get type() {
-        if (typeof this.typeStructure === "undefined")
-            return undefined;
-        if (this.typeStructure.kind === TypeStructureKind.Literal) {
-            return this.typeStructure.stringValue;
-        }
-        return this.typeStructure.writerFunction;
-    }
-    set type(value) {
-        if (typeof value === "undefined") {
-            this.typeStructure = undefined;
-            return;
-        }
-        if (typeof value === "string") {
-            this.typeStructure = LiteralTypeStructureImpl.get(value);
-            return;
-        }
-        const knownTypeStructure = TypeStructuresBase.getWriterStructureForCallback(value);
-        if (knownTypeStructure instanceof TypeStructuresBase) {
-            this.typeStructure = knownTypeStructure;
-            return;
-        }
-        this.typeStructure = new WriterTypeStructureImpl(value);
-        this.typeStructure[DEREGISTER_WRITER]();
-    }
-    /**
-     * Create a clone of an existing type, if it belongs to a type structure.
-     *
-     * If the underlying type structure exists, this will register the clone's type structure
-     * for later retrieval.
-     * @param type - the type to clone.
-     * @returns the cloned type, or the original type if the type is not cloneable.
-     */
-    static cloneType(type) {
-        if (typeof type !== "function")
-            return type;
-        const typeStructure = TypeStructuresBase.getWriterStructureForCallback(type);
-        if (typeStructure instanceof TypeStructuresBase) {
-            if (typeStructure.kind === TypeStructureKind.Literal)
-                return typeStructure.stringValue;
-            const value = TypeStructureClassesMap.clone(typeStructure);
-            return value.writerFunction;
-        }
-        return type;
-    }
-}
-
-class TypeStructureClassesMapClass extends Map {
-    clone(structure) {
-        return this.get(structure.kind).clone(structure);
-    }
-    cloneArray(structures) {
-        return structures.map((structure) => this.clone(structure));
-    }
-}
-const TypeStructureClassesMap = new TypeStructureClassesMapClass();
-
-const WRITER_FUNCTION_KEY = Symbol("writerFunction");
-const DEREGISTER_WRITER = Symbol("deregister writerFunction");
-class WriterStructuresBase {
-    static #writerToStructureMap = new WeakMap();
-    static getWriterStructureForCallback(writer) {
-        return WriterStructuresBase.#writerToStructureMap.get(writer);
-    }
-    writerFunction = (writer) => {
-        this[WRITER_FUNCTION_KEY](writer);
-    };
-    constructor() {
-        WriterStructuresBase.#writerToStructureMap.set(this.writerFunction, this);
-    }
-    /** @internal */
-    [DEREGISTER_WRITER]() {
-        WriterStructuresBase.#writerToStructureMap.delete(this.writerFunction);
-    }
-    /**
-     * Write a start token, invoke a block, and write the end token, in that order.
-     * @param writer - the code block writer.
-     * @param startToken - the start token.
-     * @param endToken - the end token.
-     * @param newLine - true if we should call `.newLine()` after the start and before the end.
-     * @param indent - true if we should indent the block statements.
-     * @param block - the callback to execute for the block statements.
-     *
-     * @see {@link https://github.com/dsherret/code-block-writer/issues/44}
-     */
-    static pairedWrite(writer, startToken, endToken, newLine, indent, block) {
-        writer.write(startToken);
-        if (newLine)
-            writer.newLine();
-        if (indent)
-            writer.indent(block);
-        else
-            block();
-        if (newLine)
-            writer.newLine();
-        writer.write(endToken);
-    }
-}
-
-class TypeStructuresBase extends WriterStructuresBase {
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() { }
-    [GET_OUTER_TYPE]() {
-        return this.writerFunction;
-    }
-}
-
-// #endregion preamble
-/** Wrappers for writer functions from external sources.  Leaf nodes. */
-class WriterTypeStructureImpl extends TypeStructuresBase {
-    static clone(other) {
-        return new WriterTypeStructureImpl(other[WRITER_FUNCTION_KEY]);
-    }
-    kind = TypeStructureKind.Writer;
-    constructor(writer) {
-        super();
-        this[WRITER_FUNCTION_KEY] = writer;
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY];
-}
-TypeStructureClassesMap.set(TypeStructureKind.Writer, WriterTypeStructureImpl);
-
-class TypeStructureSequence extends ShadowArrayImpl {
-    static createProxy(innerElements) {
-        return new TypeStructureSequence(innerElements).proxy;
-    }
-    [BUILD_ARRAY_WRAPPER](...innerElements) {
-        return TypeStructureSequence.createProxy(innerElements);
-    }
-    [CONVERT_OUTER_TO_INNER](outerType) {
-        // FIXME: writer functions often come from known type structures.
-        if (typeof outerType === "function") {
-            const structure = WriterStructuresBase.getWriterStructureForCallback(outerType);
-            if (structure)
-                return structure;
-            return new WriterTypeStructureImpl(outerType);
-        }
-        return parseLiteralType(outerType);
-    }
-}
-
-function AbstractableNodeStructureMixin(baseClass, context) {
-    class AbstractableNodeStructureMixin extends baseClass {
-        isAbstract = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.isAbstract = source.isAbstract ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.isAbstract = this.isAbstract;
-            return rv;
-        }
-    }
-    return AbstractableNodeStructureMixin;
-}
-
-function AmbientableNodeStructureMixin(baseClass, context) {
-    class AmbientableNodeStructureMixin extends baseClass {
-        hasDeclareKeyword = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.hasDeclareKeyword = source.hasDeclareKeyword ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.hasDeclareKeyword = this.hasDeclareKeyword;
-            return rv;
-        }
-    }
-    return AmbientableNodeStructureMixin;
-}
-
-function AsyncableNodeStructureMixin(baseClass, context) {
-    class AsyncableNodeStructureMixin extends baseClass {
-        isAsync = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.isAsync = source.isAsync ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.isAsync = this.isAsync;
-            return rv;
-        }
-    }
-    return AsyncableNodeStructureMixin;
-}
-
-function DecoratableNodeStructureMixin(baseClass, context) {
-    class DecoratableNodeStructureMixin extends baseClass {
-        decorators = [];
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            if (source.decorators) {
-                target.decorators.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.Decorator, StructureClassesMap.forceArray(source.decorators)));
-            }
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.decorators = this.decorators;
-            return rv;
-        }
-    }
-    return DecoratableNodeStructureMixin;
-}
-
-function ExclamationTokenableNodeStructureMixin(baseClass, context) {
-    class ExclamationTokenableNodeStructureMixin extends baseClass {
-        hasExclamationToken = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.hasExclamationToken = source.hasExclamationToken ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.hasExclamationToken = this.hasExclamationToken;
-            return rv;
-        }
-    }
-    return ExclamationTokenableNodeStructureMixin;
-}
-
-function ExportableNodeStructureMixin(baseClass, context) {
-    class ExportableNodeStructureMixin extends baseClass {
-        isDefaultExport = false;
-        isExported = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.isDefaultExport = source.isDefaultExport ?? false;
-            target.isExported = source.isExported ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.isDefaultExport = this.isDefaultExport;
-            rv.isExported = this.isExported;
-            return rv;
-        }
-    }
-    return ExportableNodeStructureMixin;
-}
-
-function GeneratorableNodeStructureMixin(baseClass, context) {
-    class GeneratorableNodeStructureMixin extends baseClass {
-        isGenerator = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.isGenerator = source.isGenerator ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.isGenerator = this.isGenerator;
-            return rv;
-        }
-    }
-    return GeneratorableNodeStructureMixin;
-}
-
-function InitializerExpressionableNodeStructureMixin(baseClass, context) {
-    class InitializerExpressionableNodeStructureMixin extends baseClass {
-        initializer = undefined;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            if (source.initializer) {
-                target.initializer = source.initializer;
-            }
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            if (this.initializer) {
-                rv.initializer = StructureBase[REPLACE_WRITER_WITH_STRING](this.initializer);
-            }
-            else {
-                rv.initializer = undefined;
-            }
-            return rv;
-        }
-    }
-    return InitializerExpressionableNodeStructureMixin;
-}
-
 function JSDocableNodeStructureMixin(baseClass, context) {
     class JSDocableNodeStructureMixin extends baseClass {
         docs = [];
@@ -2323,64 +3269,6 @@ function JSDocableNodeStructureMixin(baseClass, context) {
         }
     }
     return JSDocableNodeStructureMixin;
-}
-
-function NameableNodeStructureMixin(baseClass, context) {
-    class NameableNodeStructureMixin extends baseClass {
-        name = undefined;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            if (source.name) {
-                target.name = source.name;
-            }
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            if (this.name) {
-                rv.name = this.name;
-            }
-            else {
-                rv.name = undefined;
-            }
-            return rv;
-        }
-    }
-    return NameableNodeStructureMixin;
-}
-
-function NamedNodeStructureMixin(baseClass, context) {
-    class NamedNodeStructureMixin extends baseClass {
-        name = "";
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.name = source.name;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.name = this.name;
-            return rv;
-        }
-    }
-    return NamedNodeStructureMixin;
-}
-
-function OverrideableNodeStructureMixin(baseClass, context) {
-    class OverrideableNodeStructureMixin extends baseClass {
-        hasOverrideKeyword = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.hasOverrideKeyword = source.hasOverrideKeyword ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.hasOverrideKeyword = this.hasOverrideKeyword;
-            return rv;
-        }
-    }
-    return OverrideableNodeStructureMixin;
 }
 
 function ParameteredNodeStructureMixin(baseClass, context) {
@@ -2402,40 +3290,7 @@ function ParameteredNodeStructureMixin(baseClass, context) {
     return ParameteredNodeStructureMixin;
 }
 
-function QuestionTokenableNodeStructureMixin(baseClass, context) {
-    class QuestionTokenableNodeStructureMixin extends baseClass {
-        hasQuestionToken = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.hasQuestionToken = source.hasQuestionToken ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.hasQuestionToken = this.hasQuestionToken;
-            return rv;
-        }
-    }
-    return QuestionTokenableNodeStructureMixin;
-}
-
-function ReadonlyableNodeStructureMixin(baseClass, context) {
-    class ReadonlyableNodeStructureMixin extends baseClass {
-        isReadonly = false;
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            target.isReadonly = source.isReadonly ?? false;
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.isReadonly = this.isReadonly;
-            return rv;
-        }
-    }
-    return ReadonlyableNodeStructureMixin;
-}
-
+//#region preamble
 function ReturnTypedNodeStructureMixin(baseClass, context) {
     class ReturnTypedNodeStructureMixin extends baseClass {
         #returnTypeAccessors;
@@ -2482,6 +3337,319 @@ function ReturnTypedNodeStructureMixin(baseClass, context) {
         }
     }
     return ReturnTypedNodeStructureMixin;
+}
+
+function TypeParameteredNodeStructureMixin(baseClass, context) {
+    class TypeParameteredNodeStructureMixin extends baseClass {
+        typeParameters = [];
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            if (source.typeParameters) {
+                target.typeParameters.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.TypeParameter, StructureClassesMap.forceArray(source.typeParameters)));
+            }
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.typeParameters = this.typeParameters;
+            return rv;
+        }
+    }
+    return TypeParameteredNodeStructureMixin;
+}
+
+//#region preamble
+//#endregion preamble
+const CallSignatureDeclarationStructureBase = MultiMixinBuilder([
+    ParameteredNodeStructureMixin,
+    ReturnTypedNodeStructureMixin,
+    TypeParameteredNodeStructureMixin,
+    JSDocableNodeStructureMixin,
+    StructureMixin,
+], StructureBase);
+class CallSignatureDeclarationImpl extends CallSignatureDeclarationStructureBase {
+    kind = StructureKind.CallSignature;
+    /**
+     * Create a `CallSignatureDeclarationImpl` from a `CallSignatureDeclarationStructure`.
+     * @param source - The structure to clone.
+     */
+    static clone(source) {
+        const target = new CallSignatureDeclarationImpl();
+        this[COPY_FIELDS](source, target);
+        return target;
+    }
+    toJSON() {
+        const rv = super.toJSON();
+        rv.kind = this.kind;
+        return rv;
+    }
+}
+StructureClassesMap.set(StructureKind.CallSignature, CallSignatureDeclarationImpl);
+
+function AbstractableNodeStructureMixin(baseClass, context) {
+    class AbstractableNodeStructureMixin extends baseClass {
+        isAbstract = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.isAbstract = source.isAbstract ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.isAbstract = this.isAbstract;
+            return rv;
+        }
+    }
+    return AbstractableNodeStructureMixin;
+}
+
+function AmbientableNodeStructureMixin(baseClass, context) {
+    class AmbientableNodeStructureMixin extends baseClass {
+        hasDeclareKeyword = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.hasDeclareKeyword = source.hasDeclareKeyword ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.hasDeclareKeyword = this.hasDeclareKeyword;
+            return rv;
+        }
+    }
+    return AmbientableNodeStructureMixin;
+}
+
+function DecoratableNodeStructureMixin(baseClass, context) {
+    class DecoratableNodeStructureMixin extends baseClass {
+        decorators = [];
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            if (source.decorators) {
+                target.decorators.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.Decorator, StructureClassesMap.forceArray(source.decorators)));
+            }
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.decorators = this.decorators;
+            return rv;
+        }
+    }
+    return DecoratableNodeStructureMixin;
+}
+
+function ExportableNodeStructureMixin(baseClass, context) {
+    class ExportableNodeStructureMixin extends baseClass {
+        isDefaultExport = false;
+        isExported = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.isDefaultExport = source.isDefaultExport ?? false;
+            target.isExported = source.isExported ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.isDefaultExport = this.isDefaultExport;
+            rv.isExported = this.isExported;
+            return rv;
+        }
+    }
+    return ExportableNodeStructureMixin;
+}
+
+function NameableNodeStructureMixin(baseClass, context) {
+    class NameableNodeStructureMixin extends baseClass {
+        name = undefined;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            if (source.name) {
+                target.name = source.name;
+            }
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            if (this.name) {
+                rv.name = this.name;
+            }
+            else {
+                rv.name = undefined;
+            }
+            return rv;
+        }
+    }
+    return NameableNodeStructureMixin;
+}
+
+class StatementStructureClassesMapClass extends Map {
+    clone(structure) {
+        switch (structure.kind) {
+            case StructureKind.Class:
+            case StructureKind.Enum:
+            case StructureKind.ExportAssignment:
+            case StructureKind.ExportDeclaration:
+            case StructureKind.Function:
+            case StructureKind.ImportDeclaration:
+            case StructureKind.Interface:
+            case StructureKind.Module:
+            case StructureKind.TypeAlias:
+            case StructureKind.VariableStatement:
+                return StructureClassesMap.clone(structure);
+        }
+        return this.get(structure.kind).clone(structure);
+    }
+    cloneArray(structures) {
+        return structures.map((structure) => this.clone(structure));
+    }
+}
+const StatementStructureClassesMap = new StatementStructureClassesMapClass();
+
+class TypeStructureSequence extends ShadowArrayImpl {
+    static createProxy(innerElements) {
+        return new TypeStructureSequence(innerElements).proxy;
+    }
+    [BUILD_ARRAY_WRAPPER](...innerElements) {
+        return TypeStructureSequence.createProxy(innerElements);
+    }
+    [CONVERT_OUTER_TO_INNER](outerType) {
+        // FIXME: writer functions often come from known type structures.
+        if (typeof outerType === "function") {
+            const structure = WriterStructuresBase.getWriterStructureForCallback(outerType);
+            if (structure)
+                return structure;
+            return new WriterTypeStructureImpl(outerType);
+        }
+        return parseLiteralType(outerType);
+    }
+}
+
+function AsyncableNodeStructureMixin(baseClass, context) {
+    class AsyncableNodeStructureMixin extends baseClass {
+        isAsync = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.isAsync = source.isAsync ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.isAsync = this.isAsync;
+            return rv;
+        }
+    }
+    return AsyncableNodeStructureMixin;
+}
+
+function ExclamationTokenableNodeStructureMixin(baseClass, context) {
+    class ExclamationTokenableNodeStructureMixin extends baseClass {
+        hasExclamationToken = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.hasExclamationToken = source.hasExclamationToken ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.hasExclamationToken = this.hasExclamationToken;
+            return rv;
+        }
+    }
+    return ExclamationTokenableNodeStructureMixin;
+}
+
+function GeneratorableNodeStructureMixin(baseClass, context) {
+    class GeneratorableNodeStructureMixin extends baseClass {
+        isGenerator = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.isGenerator = source.isGenerator ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.isGenerator = this.isGenerator;
+            return rv;
+        }
+    }
+    return GeneratorableNodeStructureMixin;
+}
+
+//#region preamble
+function InitializerExpressionableNodeStructureMixin(baseClass, context) {
+    class InitializerExpressionableNodeStructureMixin extends baseClass {
+        initializer = undefined;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            if (source.initializer) {
+                target.initializer = source.initializer;
+            }
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            if (this.initializer) {
+                rv.initializer = StructureBase[REPLACE_WRITER_WITH_STRING](this.initializer);
+            }
+            else {
+                rv.initializer = undefined;
+            }
+            return rv;
+        }
+    }
+    return InitializerExpressionableNodeStructureMixin;
+}
+
+function OverrideableNodeStructureMixin(baseClass, context) {
+    class OverrideableNodeStructureMixin extends baseClass {
+        hasOverrideKeyword = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.hasOverrideKeyword = source.hasOverrideKeyword ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.hasOverrideKeyword = this.hasOverrideKeyword;
+            return rv;
+        }
+    }
+    return OverrideableNodeStructureMixin;
+}
+
+function QuestionTokenableNodeStructureMixin(baseClass, context) {
+    class QuestionTokenableNodeStructureMixin extends baseClass {
+        hasQuestionToken = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.hasQuestionToken = source.hasQuestionToken ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.hasQuestionToken = this.hasQuestionToken;
+            return rv;
+        }
+    }
+    return QuestionTokenableNodeStructureMixin;
+}
+
+function ReadonlyableNodeStructureMixin(baseClass, context) {
+    class ReadonlyableNodeStructureMixin extends baseClass {
+        isReadonly = false;
+        /** @internal */
+        static [COPY_FIELDS](source, target) {
+            super[COPY_FIELDS](source, target);
+            target.isReadonly = source.isReadonly ?? false;
+        }
+        toJSON() {
+            const rv = super.toJSON();
+            rv.isReadonly = this.isReadonly;
+            return rv;
+        }
+    }
+    return ReadonlyableNodeStructureMixin;
 }
 
 function ScopedNodeStructureMixin(baseClass, context) {
@@ -2664,42 +3832,7 @@ function StatementedNodeStructureMixin(baseClass, context) {
     return StatementedNodeStructureMixin;
 }
 
-function StructureMixin(baseClass, context) {
-    class StructureMixin extends baseClass {
-        /** Leading comments or whitespace. */
-        leadingTrivia = [];
-        /** Trailing comments or whitespace. */
-        trailingTrivia = [];
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            if (Array.isArray(source.leadingTrivia)) {
-                target.leadingTrivia.push(...source.leadingTrivia);
-            }
-            else if (source.leadingTrivia !== undefined) {
-                target.leadingTrivia.push(source.leadingTrivia);
-            }
-            if (Array.isArray(source.trailingTrivia)) {
-                target.trailingTrivia.push(...source.trailingTrivia);
-            }
-            else if (source.trailingTrivia !== undefined) {
-                target.trailingTrivia.push(source.trailingTrivia);
-            }
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.leadingTrivia = this.leadingTrivia.map((value) => {
-                return StructureBase[REPLACE_WRITER_WITH_STRING](value);
-            });
-            rv.trailingTrivia = this.trailingTrivia.map((value) => {
-                return StructureBase[REPLACE_WRITER_WITH_STRING](value);
-            });
-            return rv;
-        }
-    }
-    return StructureMixin;
-}
-
+//#region preamble
 function TypedNodeStructureMixin(baseClass, context) {
     class TypedNodeStructureMixin extends baseClass {
         #typeAccessors;
@@ -2745,119 +3878,6 @@ function TypedNodeStructureMixin(baseClass, context) {
         }
     }
     return TypedNodeStructureMixin;
-}
-
-function TypeParameteredNodeStructureMixin(baseClass, context) {
-    class TypeParameteredNodeStructureMixin extends baseClass {
-        typeParameters = [];
-        /** @internal */
-        static [COPY_FIELDS](source, target) {
-            super[COPY_FIELDS](source, target);
-            if (source.typeParameters) {
-                target.typeParameters.push(...StructureClassesMap.cloneArrayWithKind(StructureKind.TypeParameter, StructureClassesMap.forceArray(source.typeParameters)));
-            }
-        }
-        toJSON() {
-            const rv = super.toJSON();
-            rv.typeParameters = this.typeParameters;
-            return rv;
-        }
-    }
-    return TypeParameteredNodeStructureMixin;
-}
-
-class TypePrinterSettings {
-    indentChildren = false;
-    newLinesAroundChildren = false;
-    oneLinePerChild = false;
-}
-class TypeStructuresWithChildren extends TypeStructuresBase {
-    /** For customizing printing of the child types. */
-    printerSettings = new TypePrinterSettings();
-    [WRITER_FUNCTION_KEY](writer) {
-        this.objectType?.writerFunction(writer);
-        TypeStructuresBase.pairedWrite(writer, this.startToken, this.endToken, this.printerSettings.newLinesAroundChildren, this.printerSettings.indentChildren, () => this.#writerFunctionInner(writer));
-    }
-    #writerFunctionInner(writer) {
-        let { childTypes } = this;
-        if (childTypes.length === 0)
-            return;
-        if (childTypes.length > this.maxChildCount)
-            childTypes = childTypes.slice(0, this.maxChildCount);
-        const lastIndex = childTypes.length - 1;
-        for (let index = 0; index <= lastIndex; index++) {
-            const child = childTypes[index];
-            child.writerFunction(writer);
-            if (index === lastIndex)
-                break;
-            if (this.printerSettings.oneLinePerChild) {
-                writer.write(this.joinChildrenToken.trimEnd());
-                writer.newLine();
-            }
-            else {
-                writer.write(this.joinChildrenToken);
-            }
-        }
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        if (typeof this.objectType === "object" && this.objectType)
-            yield this.objectType;
-        for (const child of this.childTypes) {
-            if (typeof child === "object")
-                yield child;
-        }
-    }
-}
-
-class TypeStructuresWithTypeParameters extends TypeStructuresBase {
-    static writeTypeParameter(typeParam, writer, constraintMode) {
-        writer.write(typeParam.name);
-        switch (constraintMode) {
-            case "extends":
-                TypeStructuresWithTypeParameters.#writeConstraintExtends(typeParam, writer);
-                break;
-            case "in":
-                TypeStructuresWithTypeParameters.#writeConstraintIn(typeParam, writer);
-                break;
-        }
-        // isConst, variance not supported yet... need examples to test against
-    }
-    static #writeConstraintExtends(typeParam, writer) {
-        const constraint = typeParam.constraint;
-        if (typeof constraint === "undefined")
-            return;
-        writer.write(" extends ");
-        if (typeof constraint === "string") {
-            writer.write(constraint);
-        }
-        else {
-            constraint(writer);
-        }
-        const _default = typeParam.default;
-        if (_default) {
-            writer.write(" = ");
-            if (typeof _default === "string") {
-                writer.write(_default);
-            }
-            else {
-                _default(writer);
-            }
-        }
-    }
-    static #writeConstraintIn(typeParam, writer) {
-        const constraint = typeParam.constraint;
-        if (typeof constraint === "undefined")
-            return;
-        writer.write(" in ");
-        if (typeof constraint === "string") {
-            writer.write(constraint);
-        }
-        else {
-            constraint(writer);
-        }
-    }
 }
 
 /** @deprecated Use `Map.prototype.getOrInsertComputed(), available in NodeJS 26`*/
@@ -2912,33 +3932,7 @@ class MemberedStatementsKeyClass {
     }
 }
 
-//#endregion preamble
-const CallSignatureDeclarationStructureBase = MultiMixinBuilder([
-    ParameteredNodeStructureMixin,
-    ReturnTypedNodeStructureMixin,
-    TypeParameteredNodeStructureMixin,
-    JSDocableNodeStructureMixin,
-    StructureMixin,
-], StructureBase);
-class CallSignatureDeclarationImpl extends CallSignatureDeclarationStructureBase {
-    kind = StructureKind.CallSignature;
-    /**
-     * Create a `CallSignatureDeclarationImpl` from a `CallSignatureDeclarationStructure`.
-     * @param source - The structure to clone.
-     */
-    static clone(source) {
-        const target = new CallSignatureDeclarationImpl();
-        this[COPY_FIELDS](source, target);
-        return target;
-    }
-    toJSON() {
-        const rv = super.toJSON();
-        rv.kind = this.kind;
-        return rv;
-    }
-}
-StructureClassesMap.set(StructureKind.CallSignature, CallSignatureDeclarationImpl);
-
+//#region preamble
 //#endregion preamble
 const ClassDeclarationStructureBase = MultiMixinBuilder([
     NameableNodeStructureMixin,
@@ -3056,6 +4050,7 @@ class ClassDeclarationImpl extends ClassDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.Class, ClassDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const ClassStaticBlockDeclarationStructureBase = MultiMixinBuilder([StatementedNodeStructureMixin, JSDocableNodeStructureMixin, StructureMixin], StructureBase);
 class ClassStaticBlockDeclarationImpl extends ClassStaticBlockDeclarationStructureBase {
@@ -3077,6 +4072,7 @@ class ClassStaticBlockDeclarationImpl extends ClassStaticBlockDeclarationStructu
 }
 StructureClassesMap.set(StructureKind.ClassStaticBlock, ClassStaticBlockDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const ConstructorDeclarationStructureBase = MultiMixinBuilder([
     ScopedNodeStructureMixin,
@@ -3127,6 +4123,7 @@ class ConstructorDeclarationImpl extends ConstructorDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.Constructor, ConstructorDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const ConstructorDeclarationOverloadStructureBase = MultiMixinBuilder([
     ScopedNodeStructureMixin,
@@ -3155,6 +4152,7 @@ class ConstructorDeclarationOverloadImpl extends ConstructorDeclarationOverloadS
 }
 StructureClassesMap.set(StructureKind.ConstructorOverload, ConstructorDeclarationOverloadImpl);
 
+//#region preamble
 //#endregion preamble
 const ConstructSignatureDeclarationStructureBase = MultiMixinBuilder([
     ParameteredNodeStructureMixin,
@@ -3182,6 +4180,7 @@ class ConstructSignatureDeclarationImpl extends ConstructSignatureDeclarationStr
 }
 StructureClassesMap.set(StructureKind.ConstructSignature, ConstructSignatureDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const DecoratorStructureBase = MultiMixinBuilder([NamedNodeStructureMixin, StructureMixin], StructureBase);
 class DecoratorImpl extends DecoratorStructureBase {
@@ -3233,6 +4232,7 @@ class DecoratorImpl extends DecoratorStructureBase {
 }
 StructureClassesMap.set(StructureKind.Decorator, DecoratorImpl);
 
+//#region preamble
 //#endregion preamble
 const EnumDeclarationStructureBase = MultiMixinBuilder([
     ExportableNodeStructureMixin,
@@ -3280,6 +4280,7 @@ class EnumDeclarationImpl extends EnumDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.Enum, EnumDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const EnumMemberStructureBase = MultiMixinBuilder([
     InitializerExpressionableNodeStructureMixin,
@@ -3325,6 +4326,7 @@ class EnumMemberImpl extends EnumMemberStructureBase {
 }
 StructureClassesMap.set(StructureKind.EnumMember, EnumMemberImpl);
 
+//#region preamble
 //#endregion preamble
 const ExportAssignmentStructureBase = MultiMixinBuilder([JSDocableNodeStructureMixin, StructureMixin], StructureBase);
 class ExportAssignmentImpl extends ExportAssignmentStructureBase {
@@ -3364,6 +4366,7 @@ class ExportAssignmentImpl extends ExportAssignmentStructureBase {
 }
 StructureClassesMap.set(StructureKind.ExportAssignment, ExportAssignmentImpl);
 
+//#region preamble
 //#endregion preamble
 const ExportDeclarationStructureBase = MultiMixinBuilder([StructureMixin], StructureBase);
 class ExportDeclarationImpl extends ExportDeclarationStructureBase {
@@ -3437,6 +4440,7 @@ class ExportDeclarationImpl extends ExportDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.ExportDeclaration, ExportDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const ExportSpecifierStructureBase = MultiMixinBuilder([NamedNodeStructureMixin, StructureMixin], StructureBase);
 class ExportSpecifierImpl extends ExportSpecifierStructureBase {
@@ -3479,6 +4483,7 @@ class ExportSpecifierImpl extends ExportSpecifierStructureBase {
 }
 StructureClassesMap.set(StructureKind.ExportSpecifier, ExportSpecifierImpl);
 
+//#region preamble
 //#endregion preamble
 const FunctionDeclarationStructureBase = MultiMixinBuilder([
     NameableNodeStructureMixin,
@@ -3525,6 +4530,7 @@ class FunctionDeclarationImpl extends FunctionDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.Function, FunctionDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const FunctionDeclarationOverloadStructureBase = MultiMixinBuilder([
     AsyncableNodeStructureMixin,
@@ -3556,6 +4562,7 @@ class FunctionDeclarationOverloadImpl extends FunctionDeclarationOverloadStructu
 }
 StructureClassesMap.set(StructureKind.FunctionOverload, FunctionDeclarationOverloadImpl);
 
+//#region preamble
 //#endregion preamble
 const GetAccessorDeclarationStructureBase = MultiMixinBuilder([
     AbstractableNodeStructureMixin,
@@ -3598,6 +4605,7 @@ class GetAccessorDeclarationImpl extends GetAccessorDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.GetAccessor, GetAccessorDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const ImportAttributeStructureBase = MultiMixinBuilder([NamedNodeStructureMixin, StructureMixin], StructureBase);
 class ImportAttributeImpl extends ImportAttributeStructureBase {
@@ -3632,6 +4640,7 @@ class ImportAttributeImpl extends ImportAttributeStructureBase {
 }
 StructureClassesMap.set(StructureKind.ImportAttribute, ImportAttributeImpl);
 
+//#region preamble
 //#endregion preamble
 const ImportDeclarationStructureBase = MultiMixinBuilder([StructureMixin], StructureBase);
 class ImportDeclarationImpl extends ImportDeclarationStructureBase {
@@ -3730,6 +4739,7 @@ class ImportDeclarationImpl extends ImportDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.ImportDeclaration, ImportDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const ImportSpecifierStructureBase = MultiMixinBuilder([NamedNodeStructureMixin, StructureMixin], StructureBase);
 class ImportSpecifierImpl extends ImportSpecifierStructureBase {
@@ -3772,6 +4782,7 @@ class ImportSpecifierImpl extends ImportSpecifierStructureBase {
 }
 StructureClassesMap.set(StructureKind.ImportSpecifier, ImportSpecifierImpl);
 
+//#region preamble
 //#endregion preamble
 const IndexSignatureDeclarationStructureBase = MultiMixinBuilder([
     ReadonlyableNodeStructureMixin,
@@ -3859,6 +4870,7 @@ class IndexSignatureDeclarationImpl extends IndexSignatureDeclarationStructureBa
 }
 StructureClassesMap.set(StructureKind.IndexSignature, IndexSignatureDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const InterfaceDeclarationStructureBase = MultiMixinBuilder([
     ExportableNodeStructureMixin,
@@ -3954,6 +4966,7 @@ class InterfaceDeclarationImpl extends InterfaceDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.Interface, InterfaceDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const JSDocStructureBase = MultiMixinBuilder([StructureMixin], StructureBase);
 class JSDocImpl extends JSDocStructureBase {
@@ -4109,6 +5122,7 @@ class JSDocTagImpl extends JSDocTagStructureBase {
 }
 StructureClassesMap.set(StructureKind.JSDocTag, JSDocTagImpl);
 
+//#region preamble
 //#endregion preamble
 const JsxAttributeStructureBase = MultiMixinBuilder([StructureMixin], StructureBase);
 class JsxAttributeImpl extends JsxAttributeStructureBase {
@@ -4151,6 +5165,7 @@ class JsxAttributeImpl extends JsxAttributeStructureBase {
 }
 StructureClassesMap.set(StructureKind.JsxAttribute, JsxAttributeImpl);
 
+//#region preamble
 //#endregion preamble
 const JsxElementStructureBase = MultiMixinBuilder([NamedNodeStructureMixin, StructureMixin], StructureBase);
 class JsxElementImpl extends JsxElementStructureBase {
@@ -4200,6 +5215,7 @@ class JsxElementImpl extends JsxElementStructureBase {
 }
 StructureClassesMap.set(StructureKind.JsxElement, JsxElementImpl);
 
+//#region preamble
 //#endregion preamble
 const JsxSelfClosingElementStructureBase = MultiMixinBuilder([NamedNodeStructureMixin, StructureMixin], StructureBase);
 class JsxSelfClosingElementImpl extends JsxSelfClosingElementStructureBase {
@@ -4234,6 +5250,7 @@ class JsxSelfClosingElementImpl extends JsxSelfClosingElementStructureBase {
 }
 StructureClassesMap.set(StructureKind.JsxSelfClosingElement, JsxSelfClosingElementImpl);
 
+//#region preamble
 //#endregion preamble
 const JsxSpreadAttributeStructureBase = MultiMixinBuilder([StructureMixin], StructureBase);
 class JsxSpreadAttributeImpl extends JsxSpreadAttributeStructureBase {
@@ -4266,6 +5283,7 @@ class JsxSpreadAttributeImpl extends JsxSpreadAttributeStructureBase {
 }
 StructureClassesMap.set(StructureKind.JsxSpreadAttribute, JsxSpreadAttributeImpl);
 
+//#region preamble
 //#endregion preamble
 const MethodDeclarationStructureBase = MultiMixinBuilder([
     AsyncableNodeStructureMixin,
@@ -4331,6 +5349,7 @@ class MethodDeclarationImpl extends MethodDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.Method, MethodDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const MethodDeclarationOverloadStructureBase = MultiMixinBuilder([
     AsyncableNodeStructureMixin,
@@ -4370,6 +5389,7 @@ class MethodDeclarationOverloadImpl extends MethodDeclarationOverloadStructureBa
 }
 StructureClassesMap.set(StructureKind.MethodOverload, MethodDeclarationOverloadImpl);
 
+//#region preamble
 //#endregion preamble
 const MethodSignatureStructureBase = MultiMixinBuilder([
     QuestionTokenableNodeStructureMixin,
@@ -4403,6 +5423,7 @@ class MethodSignatureImpl extends MethodSignatureStructureBase {
 }
 StructureClassesMap.set(StructureKind.MethodSignature, MethodSignatureImpl);
 
+//#region preamble
 //#endregion preamble
 const ModuleDeclarationStructureBase = MultiMixinBuilder([
     ExportableNodeStructureMixin,
@@ -4458,6 +5479,7 @@ class ModuleDeclarationImpl extends ModuleDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.Module, ModuleDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const ParameterDeclarationStructureBase = MultiMixinBuilder([
     OverrideableNodeStructureMixin,
@@ -4500,6 +5522,7 @@ class ParameterDeclarationImpl extends ParameterDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.Parameter, ParameterDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const PropertyAssignmentStructureBase = MultiMixinBuilder([NamedNodeStructureMixin, StructureMixin], StructureBase);
 class PropertyAssignmentImpl extends PropertyAssignmentStructureBase {
@@ -4533,6 +5556,7 @@ class PropertyAssignmentImpl extends PropertyAssignmentStructureBase {
 }
 StructureClassesMap.set(StructureKind.PropertyAssignment, PropertyAssignmentImpl);
 
+//#region preamble
 //#endregion preamble
 const PropertyDeclarationStructureBase = MultiMixinBuilder([
     ExclamationTokenableNodeStructureMixin,
@@ -4594,6 +5618,7 @@ class PropertyDeclarationImpl extends PropertyDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.Property, PropertyDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const PropertySignatureStructureBase = MultiMixinBuilder([
     ReadonlyableNodeStructureMixin,
@@ -4674,6 +5699,7 @@ class SetAccessorDeclarationImpl extends SetAccessorDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.SetAccessor, SetAccessorDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const ShorthandPropertyAssignmentStructureBase = MultiMixinBuilder([NamedNodeStructureMixin, StructureMixin], StructureBase);
 class ShorthandPropertyAssignmentImpl extends ShorthandPropertyAssignmentStructureBase {
@@ -4699,6 +5725,7 @@ class ShorthandPropertyAssignmentImpl extends ShorthandPropertyAssignmentStructu
 }
 StructureClassesMap.set(StructureKind.ShorthandPropertyAssignment, ShorthandPropertyAssignmentImpl);
 
+//#region preamble
 //#endregion preamble
 const SourceFileStructureBase = MultiMixinBuilder([StatementedNodeStructureMixin, StructureMixin], StructureBase);
 class SourceFileImpl extends SourceFileStructureBase {
@@ -4720,6 +5747,7 @@ class SourceFileImpl extends SourceFileStructureBase {
 }
 StructureClassesMap.set(StructureKind.SourceFile, SourceFileImpl);
 
+//#region preamble
 //#endregion preamble
 const SpreadAssignmentStructureBase = MultiMixinBuilder([StructureMixin], StructureBase);
 class SpreadAssignmentImpl extends SpreadAssignmentStructureBase {
@@ -4752,6 +5780,7 @@ class SpreadAssignmentImpl extends SpreadAssignmentStructureBase {
 }
 StructureClassesMap.set(StructureKind.SpreadAssignment, SpreadAssignmentImpl);
 
+//#region preamble
 //#endregion preamble
 const TypeAliasDeclarationStructureBase = MultiMixinBuilder([
     ExportableNodeStructureMixin,
@@ -4822,105 +5851,7 @@ class TypeAliasDeclarationImpl extends TypeAliasDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.TypeAlias, TypeAliasDeclarationImpl);
 
-//#endregion preamble
-const TypeParameterDeclarationStructureBase = MultiMixinBuilder([NamedNodeStructureMixin, StructureMixin], StructureBase);
-class TypeParameterDeclarationImpl extends TypeParameterDeclarationStructureBase {
-    kind = StructureKind.TypeParameter;
-    #constraintAccessors;
-    #defaultAccessors;
-    // overridden in constructor
-    constraint = undefined;
-    // overridden in constructor
-    default = undefined;
-    isConst = false;
-    variance = undefined;
-    constructor(name) {
-        super();
-        // constraint is getting lost in ts-morph clone operations
-        this.#constraintAccessors = TypeAccessors.buildTypeAccessors(this, "constraint");
-        // default is getting lost in ts-morph clone operations
-        this.#defaultAccessors = TypeAccessors.buildTypeAccessors(this, "default");
-        this.name = name;
-    }
-    get constraintStructure() {
-        return this.#constraintAccessors.typeStructure;
-    }
-    set constraintStructure(value) {
-        this.#constraintAccessors.typeStructure = value;
-    }
-    get defaultStructure() {
-        return this.#defaultAccessors.typeStructure;
-    }
-    set defaultStructure(value) {
-        this.#defaultAccessors.typeStructure = value;
-    }
-    /** @internal */
-    static [COPY_FIELDS](source, target) {
-        super[COPY_FIELDS](source, target);
-        const { constraintStructure } = source;
-        if (constraintStructure) {
-            target.constraintStructure =
-                TypeStructureClassesMap.clone(constraintStructure);
-        }
-        else if (source.constraint) {
-            target.constraint = source.constraint;
-        }
-        const { defaultStructure } = source;
-        if (defaultStructure) {
-            target.defaultStructure = TypeStructureClassesMap.clone(defaultStructure);
-        }
-        else if (source.default) {
-            target.default = source.default;
-        }
-        target.isConst = source.isConst ?? false;
-        if (source.variance) {
-            target.variance = source.variance;
-        }
-    }
-    /**
-     * Create a `TypeParameterDeclarationImpl` from a `TypeParameterDeclarationStructure`.
-     * @param source - The structure to clone.
-     */
-    static clone(source) {
-        const target = new TypeParameterDeclarationImpl(source.name);
-        this[COPY_FIELDS](source, target);
-        return target;
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        if (typeof this.constraintStructure === "object")
-            yield this.constraintStructure;
-        if (typeof this.defaultStructure === "object")
-            yield this.defaultStructure;
-    }
-    toJSON() {
-        const rv = super.toJSON();
-        if (this.constraint) {
-            rv.constraint = StructureBase[REPLACE_WRITER_WITH_STRING](this.constraint);
-        }
-        else {
-            rv.constraint = undefined;
-        }
-        if (this.default) {
-            rv.default = StructureBase[REPLACE_WRITER_WITH_STRING](this.default);
-        }
-        else {
-            rv.default = undefined;
-        }
-        rv.isConst = this.isConst;
-        rv.kind = this.kind;
-        if (this.variance) {
-            rv.variance = this.variance;
-        }
-        else {
-            rv.variance = undefined;
-        }
-        return rv;
-    }
-}
-StructureClassesMap.set(StructureKind.TypeParameter, TypeParameterDeclarationImpl);
-
+//#region preamble
 //#endregion preamble
 const VariableDeclarationStructureBase = MultiMixinBuilder([
     ExclamationTokenableNodeStructureMixin,
@@ -4956,6 +5887,7 @@ class VariableDeclarationImpl extends VariableDeclarationStructureBase {
 }
 StructureClassesMap.set(StructureKind.VariableDeclaration, VariableDeclarationImpl);
 
+//#region preamble
 //#endregion preamble
 const VariableStatementStructureBase = MultiMixinBuilder([
     ExportableNodeStructureMixin,
@@ -5084,888 +6016,6 @@ class EmptyStatementImpl extends StatementWithTrivia {
     }
 }
 StatementStructureClassesMap.set(StatementStructureKind.Empty, EmptyStatementImpl);
-
-/**
- * `boolean[]`
- *
- * @see `IndexedAccessTypeStructureImpl` for `Foo["index"]`
- * @see `TupleTypeStructureImpl` for `[number, boolean]`
- */
-class ArrayTypeStructureImpl extends TypeStructuresBase {
-    static clone(other) {
-        return new ArrayTypeStructureImpl(TypeStructureClassesMap.clone(other.objectType));
-    }
-    kind = TypeStructureKind.Array;
-    objectType;
-    constructor(objectType) {
-        super();
-        this.objectType = objectType;
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY](writer) {
-        this.objectType.writerFunction(writer);
-        writer.write("[]");
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        yield this.objectType;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.Array, ArrayTypeStructureImpl);
-
-/** `checkType` extends `extendsType` ? `trueType` : `falseType` */
-class ConditionalTypeStructureImpl extends TypeStructuresBase {
-    static clone(other) {
-        const parts = {
-            checkType: TypeStructureClassesMap.clone(other.checkType),
-            extendsType: TypeStructureClassesMap.clone(other.extendsType),
-            trueType: TypeStructureClassesMap.clone(other.trueType),
-            falseType: TypeStructureClassesMap.clone(other.falseType),
-        };
-        return new ConditionalTypeStructureImpl(parts);
-    }
-    kind = TypeStructureKind.Conditional;
-    checkType;
-    extendsType;
-    trueType;
-    falseType;
-    constructor(conditionalParts) {
-        super();
-        this.checkType =
-            conditionalParts.checkType ?? LiteralTypeStructureImpl.get("never");
-        this.extendsType =
-            conditionalParts.extendsType ?? LiteralTypeStructureImpl.get("never");
-        this.trueType =
-            conditionalParts.trueType ?? LiteralTypeStructureImpl.get("never");
-        this.falseType =
-            conditionalParts.falseType ?? LiteralTypeStructureImpl.get("never");
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY](writer) {
-        this.checkType.writerFunction(writer);
-        writer.write(" extends ");
-        this.extendsType.writerFunction(writer);
-        writer.write(" ? ");
-        this.trueType.writerFunction(writer);
-        writer.write(" : ");
-        this.falseType.writerFunction(writer);
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        if (typeof this.checkType === "object")
-            yield this.checkType;
-        if (typeof this.extendsType === "object")
-            yield this.extendsType;
-        if (typeof this.trueType === "object")
-            yield this.trueType;
-        if (typeof this.falseType === "object")
-            yield this.falseType;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.Conditional, ConditionalTypeStructureImpl);
-
-// #endregion preamble
-var FunctionWriterStyle;
-(function (FunctionWriterStyle) {
-    FunctionWriterStyle["Arrow"] = "Arrow";
-    FunctionWriterStyle["Method"] = "Method";
-    FunctionWriterStyle["GetAccessor"] = "GetAccessor";
-    FunctionWriterStyle["SetAccessor"] = "SetAccessor";
-})(FunctionWriterStyle || (FunctionWriterStyle = {}));
-/** ("new" | "get" | "set" | "") name<typeParameters>(parameters, ...restParameter) ("=\>" | ":" ) returnType */
-class FunctionTypeStructureImpl extends TypeStructuresWithTypeParameters {
-    static clone(other) {
-        return new FunctionTypeStructureImpl({
-            name: other.name,
-            isConstructor: other.isConstructor,
-            typeParameters: other.typeParameters.map((typeParam) => TypeParameterDeclarationImpl.clone(typeParam)),
-            parameters: other.parameters.map((param) => ParameterTypeStructureImpl.clone(param)),
-            restParameter: other.restParameter
-                ? ParameterTypeStructureImpl.clone(other.restParameter)
-                : undefined,
-            returnType: other.returnType
-                ? TypeStructureClassesMap.clone(other.returnType)
-                : undefined,
-            writerStyle: other.writerStyle,
-        });
-    }
-    kind = TypeStructureKind.Function;
-    name;
-    isConstructor;
-    typeParameters;
-    parameters;
-    restParameter;
-    returnType;
-    writerStyle = FunctionWriterStyle.Arrow;
-    constructor(context) {
-        super();
-        this.name = context.name ?? "";
-        this.isConstructor = context.isConstructor ?? false;
-        this.typeParameters = context.typeParameters?.slice() ?? [];
-        this.parameters = context.parameters?.slice() ?? [];
-        this.restParameter = context.restParameter;
-        this.returnType = context.returnType;
-        this.writerStyle = context.writerStyle ?? FunctionWriterStyle.Arrow;
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY](writer) {
-        if (this.writerStyle === FunctionWriterStyle.GetAccessor) {
-            writer.write("get ");
-            if (this.name)
-                writer.write(this.name);
-        }
-        else if (this.writerStyle === FunctionWriterStyle.SetAccessor) {
-            writer.write("set ");
-            if (this.name)
-                writer.write(this.name);
-        }
-        else if (this.writerStyle === FunctionWriterStyle.Method) {
-            if (this.name)
-                writer.write(this.name);
-        }
-        else if (this.isConstructor)
-            writer.write("new ");
-        if (this.typeParameters.length) {
-            FunctionTypeStructureImpl.pairedWrite(writer, "<", ">", false, false, () => {
-                const lastChild = this.typeParameters[this.typeParameters.length - 1];
-                for (const typeParam of this.typeParameters) {
-                    TypeStructuresWithTypeParameters.writeTypeParameter(typeParam, writer, "extends");
-                    if (typeParam !== lastChild) {
-                        writer.write(", ");
-                    }
-                }
-            });
-        }
-        FunctionTypeStructureImpl.pairedWrite(writer, "(", ")", false, false, () => {
-            let lastType;
-            if (this.restParameter)
-                lastType = new PrefixOperatorsTypeStructureImpl(["..."], this.restParameter);
-            else if (this.parameters.length > 0)
-                lastType = this.parameters[this.parameters.length - 1];
-            for (const type of this.parameters) {
-                type.writerFunction(writer);
-                if (type !== lastType)
-                    writer.write(", ");
-            }
-            if (this.restParameter) {
-                lastType.writerFunction(writer);
-            }
-        });
-        if (this.returnType) {
-            switch (this.writerStyle) {
-                case FunctionWriterStyle.Arrow:
-                    writer.write(" => ");
-                    this.returnType.writerFunction(writer);
-                    break;
-                case FunctionWriterStyle.GetAccessor:
-                case FunctionWriterStyle.Method:
-                    writer.write(": ");
-                    this.returnType.writerFunction(writer);
-                    break;
-            }
-        }
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        yield* this.typeParameters.values();
-        yield* this.parameters.values();
-        if (this.restParameter)
-            yield this.restParameter;
-        if (typeof this.returnType === "object")
-            yield this.returnType;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.Function, FunctionTypeStructureImpl);
-
-// #endregion preamble
-/**
- * Literals (boolean, number, string, void, etc.), without quotes, brackets, or
- * anything else around them.  Leaf nodes.
- */
-class LiteralTypeStructureImpl extends TypeStructuresBase {
-    static #cache = new Map();
-    /**
-     * Gets a singleton `LiteralTypeStructureImpl` for the given name.
-     */
-    static get(name) {
-        if (name === "")
-            throw new Error("the empty string is not a legal literal type structure");
-        if (!this.#cache.has(name)) {
-            this.#cache.set(name, new LiteralTypeStructureImpl(name));
-        }
-        return this.#cache.get(name);
-    }
-    static clone(other) {
-        return LiteralTypeStructureImpl.get(other.stringValue);
-    }
-    kind = TypeStructureKind.Literal;
-    stringValue;
-    constructor(literal) {
-        super();
-        this.stringValue = literal;
-        Reflect.defineProperty(this, "stringValue", {
-            writable: false,
-            configurable: false,
-        });
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY](writer) {
-        writer.write(this.stringValue);
-    }
-    [GET_OUTER_TYPE]() {
-        return this.stringValue;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.Literal, LiteralTypeStructureImpl);
-
-/** @example `import("ts-morph", { with: { "resolution-mode": "import" } }).StatementStructures` */
-class ImportTypeStructureImpl extends TypeStructuresBase {
-    // not using LiteralTypeStructureImpl.get() to avoid caching this
-    static #nullIdentifier = new LiteralTypeStructureImpl("");
-    #typeArguments;
-    argument;
-    kind = TypeStructureKind.Import;
-    attributes;
-    childTypes;
-    constructor(argument, attributes, qualifier, typeArguments) {
-        super();
-        this.argument = argument;
-        this.attributes = attributes.map((attr) => ImportAttributeImpl.clone(attr));
-        typeArguments = typeArguments.slice();
-        this.#typeArguments = new TypeArgumentedTypeStructureImpl(qualifier ?? ImportTypeStructureImpl.#nullIdentifier, typeArguments);
-        this.childTypes = typeArguments;
-    }
-    get qualifier() {
-        if (this.#typeArguments.objectType === ImportTypeStructureImpl.#nullIdentifier)
-            return null;
-        return this.#typeArguments.objectType;
-    }
-    set qualifier(value) {
-        this.#typeArguments.objectType =
-            value ?? ImportTypeStructureImpl.#nullIdentifier;
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY](writer) {
-        ImportTypeStructureImpl.pairedWrite(writer, "import(", ")", false, false, () => {
-            this.argument.writerFunction(writer);
-            if (this.attributes.length) {
-                writer.write(", ");
-                writer.inlineBlock(() => {
-                    writer.write("with: ");
-                    writer.inlineBlock(() => {
-                        let isFirst = true;
-                        for (const attr of this.attributes) {
-                            if (isFirst === false) {
-                                writer.write(",");
-                            }
-                            writer.quote(attr.name);
-                            writer.write(": ");
-                            writer.quote(attr.value);
-                            isFirst = false;
-                        }
-                    });
-                });
-            }
-        });
-        if (this.qualifier) {
-            writer.write(".");
-            this.#typeArguments.writerFunction(writer);
-        }
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        yield this.argument;
-        yield* this.attributes;
-        const qualifier = this.qualifier;
-        if (qualifier)
-            yield qualifier;
-        yield* this.childTypes;
-    }
-    static clone(other) {
-        let { qualifier } = other;
-        if (qualifier?.kind === TypeStructureKind.Literal) {
-            qualifier = LiteralTypeStructureImpl.clone(qualifier);
-        }
-        else if (qualifier?.kind === TypeStructureKind.QualifiedName) {
-            qualifier = QualifiedNameTypeStructureImpl.clone(qualifier);
-        }
-        return new ImportTypeStructureImpl(other.argument, StructureClassesMap.cloneArrayWithKind(StructureKind.ImportAttribute, other.attributes), qualifier, TypeStructureClassesMap.cloneArray(other.childTypes));
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.Import, ImportTypeStructureImpl);
-
-/**
- * @example
- * `Foo["index"]`
- *
- * @see `ArrayTypeStructureImpl` for `boolean[]`
- * @see `MappedTypeStructureImpl` for `{ [key in keyof Foo]: boolean}`
- * @see `MemberedObjectTypeStructureImpl` for `{ [key: string]: boolean }`
- */
-class IndexedAccessTypeStructureImpl extends TypeStructuresWithChildren {
-    static clone(other) {
-        return new IndexedAccessTypeStructureImpl(other.objectType, other.childTypes[0]);
-    }
-    kind = TypeStructureKind.IndexedAccess;
-    objectType;
-    childTypes;
-    startToken = "[";
-    joinChildrenToken = "";
-    endToken = "]";
-    maxChildCount = 1;
-    constructor(objectType, indexType) {
-        super();
-        this.objectType = objectType;
-        this.childTypes = [indexType];
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.IndexedAccess, IndexedAccessTypeStructureImpl);
-
-// #endregion preamble
-/** @example infer \<type\> (extends \<type\>)? */
-class InferTypeStructureImpl extends TypeStructuresWithTypeParameters {
-    kind = TypeStructureKind.Infer;
-    typeParameter;
-    constructor(typeParameter) {
-        super();
-        this.typeParameter = typeParameter;
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY](writer) {
-        writer.write("infer ");
-        TypeStructuresWithTypeParameters.writeTypeParameter(this.typeParameter, writer, "extends");
-    }
-    static clone(other) {
-        return new InferTypeStructureImpl(TypeParameterDeclarationImpl.clone(other.typeParameter));
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        yield this.typeParameter;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.Infer, InferTypeStructureImpl);
-
-/** @example `Foo & Bar & ...` */
-class IntersectionTypeStructureImpl extends TypeStructuresWithChildren {
-    static clone(other) {
-        return new IntersectionTypeStructureImpl(TypeStructureClassesMap.cloneArray(other.childTypes));
-    }
-    kind = TypeStructureKind.Intersection;
-    objectType = null;
-    childTypes;
-    startToken = "";
-    joinChildrenToken = " & ";
-    endToken = "";
-    maxChildCount = Infinity;
-    constructor(childTypes = []) {
-        super();
-        this.childTypes = childTypes;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.Intersection, IntersectionTypeStructureImpl);
-
-// #endregion preamble
-/**
- * @example `{ readonly [key in keyof Foo]: boolean }`
- *
- * @see `IndexedAccessTypedStructureImpl` for `Foo["index"]`
- * @see `ObjectLiteralTypedStructureImpl` for `{ [key: string]: boolean }`
- */
-class MappedTypeStructureImpl extends TypeStructuresWithTypeParameters {
-    kind = TypeStructureKind.Mapped;
-    readonlyToken;
-    parameter;
-    asName = undefined;
-    questionToken;
-    type;
-    constructor(parameter) {
-        super();
-        this.parameter = parameter;
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY](writer) {
-        writer.block(() => {
-            if (this.readonlyToken) {
-                writer.write(this.readonlyToken + " ");
-            }
-            writer.write("[");
-            TypeStructuresWithTypeParameters.writeTypeParameter(this.parameter, writer, "in");
-            if (this.asName) {
-                writer.write(" as ");
-                this.asName.writerFunction(writer);
-            }
-            writer.write("]");
-            if (this.questionToken) {
-                writer.write(this.questionToken);
-            }
-            if (this.type) {
-                writer.write(": ");
-                this.type.writerFunction(writer);
-            }
-            writer.write(";");
-        });
-    }
-    static clone(other) {
-        const clone = new MappedTypeStructureImpl(TypeParameterDeclarationImpl.clone(other.parameter));
-        if (other.asName) {
-            clone.asName = TypeStructureClassesMap.clone(other.asName);
-        }
-        if (other.type) {
-            clone.type = TypeStructureClassesMap.clone(other.type);
-        }
-        clone.readonlyToken = other.readonlyToken;
-        clone.questionToken = other.questionToken;
-        return clone;
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        yield this.parameter;
-        if (typeof this.asName === "object")
-            yield this.asName;
-        if (typeof this.type === "object")
-            yield this.type;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.Mapped, MappedTypeStructureImpl);
-
-/**
- * Properties, methods, getters, setters, and index signatures.  Very much like interfaces.  Usually in type aliases.
- * @example
- * ```typescript
- * {
- *    (callSignatureArgument) => string;
- *    new (constructSignatureArgument) => ClassName;
- *    get getterName(): symbol;
- *    [indexSignatureKey: string]: boolean;
- *    property: number;
- *    method(): void;
- *    set setterName(value: symbol);
- * }
- * ```
- *
- * @see `MappedTypeStructureImpl` for `{ readonly [key in keyof Foo]: boolean }`
- */
-class MemberedObjectTypeStructureImpl extends TypeStructuresBase {
-    static clone(other) {
-        const membered = new MemberedObjectTypeStructureImpl();
-        membered.callSignatures.push(...other.callSignatures.map((signature) => CallSignatureDeclarationImpl.clone(signature)));
-        membered.constructSignatures.push(...other.constructSignatures.map((signature) => ConstructSignatureDeclarationImpl.clone(signature)));
-        membered.getAccessors.push(...other.getAccessors.map((accessor) => GetAccessorDeclarationImpl.clone(accessor)));
-        membered.indexSignatures.push(...other.indexSignatures.map((signature) => IndexSignatureDeclarationImpl.clone(signature)));
-        membered.properties.push(...other.properties.map((signature) => PropertySignatureImpl.clone(signature)));
-        membered.methods.push(...other.methods.map((signature) => MethodSignatureImpl.clone(signature)));
-        membered.setAccessors.push(...other.setAccessors.map((accessor) => SetAccessorDeclarationImpl.clone(accessor)));
-        return membered;
-    }
-    kind = TypeStructureKind.MemberedObject;
-    callSignatures = [];
-    constructSignatures = [];
-    getAccessors = [];
-    indexSignatures = [];
-    methods = [];
-    properties = [];
-    setAccessors = [];
-    [WRITER_FUNCTION_KEY](writer) {
-        Writers.objectType(this)(writer);
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        yield* this.callSignatures.values();
-        yield* this.constructSignatures.values();
-        yield* this.getAccessors.values();
-        yield* this.indexSignatures.values();
-        yield* this.methods.values();
-        yield* this.properties.values();
-        yield* this.setAccessors.values();
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.MemberedObject, MemberedObjectTypeStructureImpl);
-
-/** @example `[a: number]` */
-class NamedTupleMemberTypeStructureImpl extends TypeStructuresBase {
-    static clone(other) {
-        const namedTuple = new NamedTupleMemberTypeStructureImpl(other.name, TypeStructureClassesMap.clone(other.objectType));
-        StructureClassesMap.cloneArrayWithKind(StructureKind.JSDoc, other.docs);
-        namedTuple.hasDotDotDotToken = other.hasDotDotDotToken;
-        namedTuple.hasQuestionToken = other.hasQuestionToken;
-        return namedTuple;
-    }
-    kind = TypeStructureKind.NamedTupleMember;
-    docs = [];
-    hasDotDotDotToken = false;
-    name;
-    hasQuestionToken = false;
-    objectType;
-    constructor(name, objectType) {
-        super();
-        this.name = name;
-        this.objectType = objectType;
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY](writer) {
-        for (const doc of this.docs) {
-            printStructure(doc, {
-                indentNumberOfSpaces: writer.getIndentationLevel() * 2,
-            });
-        }
-        writer.conditionalWrite(this.hasDotDotDotToken, "...");
-        writer.write(this.name);
-        writer.conditionalWrite(this.hasQuestionToken, "?");
-        writer.write(": ");
-        this.objectType.writerFunction(writer);
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        yield this.objectType;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.NamedTupleMember, NamedTupleMemberTypeStructureImpl);
-
-// #endregion preamble
-/**
- * Numbers (boolean, number, string, void, etc.), without quotes, brackets, or
- * anything else around them.  Leaf nodes.
- */
-class NumberTypeStructureImpl extends TypeStructuresBase {
-    static #cache = new Map();
-    /**
-     * Gets a singleton `NumberTypeStructureImpl` for the given name.
-     */
-    static get(name) {
-        if (!this.#cache.has(name)) {
-            this.#cache.set(name, new NumberTypeStructureImpl(name));
-        }
-        return this.#cache.get(name);
-    }
-    static clone(other) {
-        return NumberTypeStructureImpl.get(other.numberValue);
-    }
-    kind = TypeStructureKind.Number;
-    numberValue;
-    constructor(value) {
-        super();
-        this.numberValue = value;
-        Reflect.defineProperty(this, "numberValue", {
-            writable: false,
-            configurable: false,
-        });
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY](writer) {
-        writer.write(this.numberValue.toString());
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.Number, NumberTypeStructureImpl);
-
-/** @example `[boolean?]` */
-class OptionalTypeStructureImpl extends TypeStructuresBase {
-    static clone(other) {
-        return new OptionalTypeStructureImpl(TypeStructureClassesMap.clone(other.objectType));
-    }
-    kind = TypeStructureKind.Optional;
-    objectType;
-    constructor(objectType) {
-        super();
-        this.objectType = objectType;
-    }
-    [WRITER_FUNCTION_KEY](writer) {
-        this.objectType.writerFunction(writer);
-        writer.write("?");
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        yield this.objectType;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.Optional, OptionalTypeStructureImpl);
-
-// #endregion preamble
-/** Just a parameter name and type for a `FunctionTypeStructureImpl`. */
-class ParameterTypeStructureImpl extends TypeStructuresBase {
-    static clone(other) {
-        let typeClone;
-        if (other.typeStructure)
-            typeClone = TypeStructureClassesMap.clone(other.typeStructure);
-        return new ParameterTypeStructureImpl(other.name, typeClone);
-    }
-    kind = TypeStructureKind.Parameter;
-    name;
-    typeStructure;
-    constructor(name, typeStructure) {
-        super();
-        this.name = name;
-        this.typeStructure = typeStructure;
-    }
-    [WRITER_FUNCTION_KEY](writer) {
-        writer.write(this.name);
-        if (this.typeStructure) {
-            writer.write(": ");
-            this.typeStructure.writerFunction(writer);
-        }
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        if (typeof this.typeStructure === "object")
-            yield this.typeStructure;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.Parameter, ParameterTypeStructureImpl);
-
-/** Wrap the child type in parentheses. */
-class ParenthesesTypeStructureImpl extends TypeStructuresWithChildren {
-    static clone(other) {
-        return new ParenthesesTypeStructureImpl(other.childTypes[0]);
-    }
-    kind = TypeStructureKind.Parentheses;
-    objectType = null;
-    childTypes;
-    startToken = "(";
-    joinChildrenToken = "";
-    endToken = ")";
-    maxChildCount = 1;
-    constructor(childType) {
-        super();
-        this.childTypes = [childType];
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.Parentheses, ParenthesesTypeStructureImpl);
-
-/** `("..." | "keyof" | "typeof" | "readonly" | "unique")[]` (object type) */
-class PrefixOperatorsTypeStructureImpl extends TypeStructuresBase {
-    static clone(other) {
-        return new PrefixOperatorsTypeStructureImpl(other.operators, TypeStructureClassesMap.clone(other.objectType));
-    }
-    kind = TypeStructureKind.PrefixOperators;
-    operators;
-    objectType;
-    constructor(operators, objectType) {
-        super();
-        this.operators = operators.slice();
-        this.objectType = objectType;
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY](writer) {
-        if (this.operators.length) {
-            writer.write(this.operators.map((op) => (op === "..." ? op : op + " ")).join(""));
-        }
-        this.objectType.writerFunction(writer);
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        if (typeof this.objectType === "object")
-            yield this.objectType;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.PrefixOperators, PrefixOperatorsTypeStructureImpl);
-
-/** @example `Foo.bar.baz...` */
-class QualifiedNameTypeStructureImpl extends TypeStructuresBase {
-    static clone(other) {
-        return new QualifiedNameTypeStructureImpl(other.childTypes.slice());
-    }
-    kind = TypeStructureKind.QualifiedName;
-    childTypes;
-    constructor(childTypes = []) {
-        super();
-        this.childTypes = childTypes;
-    }
-    /** @internal */
-    [WRITER_FUNCTION_KEY](writer) {
-        writer.write(this.childTypes.join("."));
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.QualifiedName, QualifiedNameTypeStructureImpl);
-
-// #endregion preamble
-/** Strings, encased in double quotes.  Leaf nodes. */
-class StringTypeStructureImpl extends TypeStructuresBase {
-    static #cache = new Map();
-    /**
-     * Gets a singleton `StringTypeStructureImpl` for the given name.
-     */
-    static get(name) {
-        if (!this.#cache.has(name)) {
-            this.#cache.set(name, new StringTypeStructureImpl(name));
-        }
-        return this.#cache.get(name);
-    }
-    static clone(other) {
-        return StringTypeStructureImpl.get(other.stringValue);
-    }
-    kind = TypeStructureKind.String;
-    stringValue;
-    constructor(literal) {
-        super();
-        this.stringValue = literal;
-        Reflect.defineProperty(this, "stringValue", {
-            writable: false,
-            configurable: false,
-        });
-    }
-    [WRITER_FUNCTION_KEY](writer) {
-        writer.quote(this.stringValue);
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.String, StringTypeStructureImpl);
-
-/** @example `one${"A" | "B"}two${"C" | "D"}three` */
-class TemplateLiteralTypeStructureImpl extends TypeStructuresBase {
-    static clone(other) {
-        const spans = other.spans.map((span) => [
-            TypeStructureClassesMap.clone(span[0]),
-            span[1],
-        ]);
-        return new TemplateLiteralTypeStructureImpl(other.head, spans);
-    }
-    kind = TypeStructureKind.TemplateLiteral;
-    head;
-    spans;
-    constructor(head, spans) {
-        super();
-        this.head = head;
-        this.spans = spans;
-    }
-    [WRITER_FUNCTION_KEY](writer) {
-        TypeStructuresBase.pairedWrite(writer, "`", "`", false, false, () => {
-            writer.write(this.head);
-            this.spans.forEach((span) => {
-                TypeStructuresBase.pairedWrite(writer, "${", "}", false, false, () => span[0].writerFunction(writer));
-                writer.write(span[1]);
-            });
-        });
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        for (const span of this.spans) {
-            const type = span[0];
-            if (typeof type === "object")
-                yield type;
-        }
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.TemplateLiteral, TemplateLiteralTypeStructureImpl);
-
-/**
- * @example
- * `[number, boolean]`
- *
- * @see `ArrayTypeStructureImpl` for `boolean[]`
- * @see `IndexedAccessTypeStructureImpl` for `Foo["index"]`
- * @see `NamedTupleMemberTypeStructureImpl` for `[foo: boolean]`
- */
-class TupleTypeStructureImpl extends TypeStructuresWithChildren {
-    static clone(other) {
-        return new TupleTypeStructureImpl(TypeStructureClassesMap.cloneArray(other.childTypes));
-    }
-    kind = TypeStructureKind.Tuple;
-    objectType = null;
-    childTypes;
-    startToken = "[";
-    joinChildrenToken = ", ";
-    endToken = "]";
-    maxChildCount = Infinity;
-    constructor(childTypes = []) {
-        super();
-        this.childTypes = childTypes;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.Tuple, TupleTypeStructureImpl);
-
-/**
- * This resolves type parameters, as opposed to defining them.
- *
- * @example
- * `Pick<NumberStringType, "repeatForward">`
- *
- * @see `TypeParameterDeclarationImpl` for `Type<Foo extends object>`
- */
-class TypeArgumentedTypeStructureImpl extends TypeStructuresWithChildren {
-    static clone(other) {
-        return new TypeArgumentedTypeStructureImpl(TypeStructureClassesMap.clone(other.objectType), TypeStructureClassesMap.cloneArray(other.childTypes));
-    }
-    kind = TypeStructureKind.TypeArgumented;
-    objectType;
-    childTypes;
-    startToken = "<";
-    joinChildrenToken = ", ";
-    endToken = ">";
-    maxChildCount = Infinity;
-    constructor(objectType, childTypes = []) {
-        super();
-        this.objectType = objectType;
-        this.childTypes = childTypes;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.TypeArgumented, TypeArgumentedTypeStructureImpl);
-
-/** @example assert condition is true */
-class TypePredicateTypeStructureImpl extends TypeStructuresBase {
-    kind = TypeStructureKind.TypePredicate;
-    hasAssertsKeyword;
-    parameterName;
-    isType;
-    constructor(hasAssertsKeyword, parameterName, isType) {
-        super();
-        this.hasAssertsKeyword = hasAssertsKeyword;
-        this.parameterName = parameterName;
-        this.isType = isType ?? null;
-    }
-    [WRITER_FUNCTION_KEY](writer) {
-        if (this.hasAssertsKeyword) {
-            writer.write("asserts ");
-        }
-        this.parameterName.writerFunction(writer);
-        if (this.isType) {
-            writer.write(" is ");
-            this.isType.writerFunction(writer);
-        }
-    }
-    static clone(other) {
-        let isType;
-        if (other.isType) {
-            isType = TypeStructureClassesMap.clone(other.isType);
-        }
-        return new TypePredicateTypeStructureImpl(other.hasAssertsKeyword, other.parameterName, isType);
-    }
-    /** @internal */
-    *[STRUCTURE_CHILDREN]() {
-        yield* super[STRUCTURE_CHILDREN]();
-        if (this.isType)
-            yield this.isType;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.TypePredicate, TypePredicateTypeStructureImpl);
-
-/** @example `Foo | Bar | ...` */
-class UnionTypeStructureImpl extends TypeStructuresWithChildren {
-    static clone(other) {
-        return new UnionTypeStructureImpl(TypeStructureClassesMap.cloneArray(other.childTypes));
-    }
-    kind = TypeStructureKind.Union;
-    objectType = null;
-    childTypes;
-    startToken = "";
-    joinChildrenToken = " | ";
-    endToken = "";
-    maxChildCount = Infinity;
-    constructor(childTypes = []) {
-        super();
-        this.childTypes = childTypes;
-    }
-}
-TypeStructureClassesMap.set(TypeStructureKind.Union, UnionTypeStructureImpl);
 
 /**
  * This is a map for specifying statements across several class members for a single class field.
@@ -6266,12 +6316,12 @@ class ClassMembersMap extends OrderedMap {
         let classMember;
         switch (typeMember.kind) {
             case StructureKind.GetAccessor: {
-                classMember = GetAccessorDeclarationImpl.clone(typeMember);
+                classMember = StructureClassesMap.clone(typeMember);
                 classMember.isStatic = isStatic;
                 break;
             }
             case StructureKind.SetAccessor: {
-                classMember = SetAccessorDeclarationImpl.clone(typeMember);
+                classMember = StructureClassesMap.clone(typeMember);
                 classMember.isStatic = isStatic;
                 break;
             }
@@ -7024,6 +7074,317 @@ class ImportManager {
 
 var _a$1;
 /**
+ * A map for members of `InterfaceDeclarationImpl` and `MemberedObjectTypeStructureImpl`.  This
+ * doesn't replace the structures, rather it _feeds_ them.
+ *
+ * @example
+ *
+ * const map = new TypeMembersMap;
+ * const foo = new PropertySignatureImpl(false, "foo");
+ * map.addMembers([foo]);
+ * // ...
+ * const interfaceDecl = new InterfaceDeclarationImpl("FooInterface");
+ * map.moveMembersToType(interfaceDecl);
+ * // interfaceDecl.properties === [foo];
+ */
+class TypeMembersMap extends OrderedMap {
+    static #uniqueKey = new WeakMap();
+    static #uniqueKeyCounter = 0;
+    /**
+     * Get a map key from a potential type member.
+     * @param member - the type member
+     */
+    static keyFromMember(member) {
+        let key = _a$1.#uniqueKey.get(member);
+        if (key)
+            return key;
+        key = _a$1.#keyFromMember(member);
+        _a$1.#uniqueKey.set(member, key);
+        return key;
+    }
+    static #keyFromMember(member) {
+        if (member.kind === StructureKind.ConstructSignature)
+            return "constructor";
+        if (member.kind === StructureKind.IndexSignature)
+            return `(index ${_a$1.#uniqueKeyCounter++})`;
+        if (member.kind === StructureKind.CallSignature)
+            return `(callsignature ${_a$1.#uniqueKeyCounter++})`;
+        return this.keyFromName(member.kind, member.name);
+    }
+    /**
+     * @param kind - the structure kind.
+     * @param name - the name of the type member.
+     * @returns the map key to use.
+     */
+    static keyFromName(kind, name) {
+        let rv = "";
+        if (kind === StructureKind.GetAccessor)
+            rv += "get ";
+        else if (kind === StructureKind.SetAccessor)
+            rv += "set ";
+        rv += name;
+        return rv;
+    }
+    /**
+     * Create a `TypeMembersMap` from an interface or membered object.
+     * @param membered - the membered object.
+     * @returns the type members map.
+     */
+    static fromMemberedObject(membered) {
+        const map = new _a$1();
+        const members = [
+            ...membered.callSignatures,
+            ...membered.constructSignatures,
+            ...membered.getAccessors,
+            ...membered.indexSignatures,
+            ...membered.methods,
+            ...membered.properties,
+            ...membered.setAccessors,
+        ];
+        map.addMembers(members);
+        return map;
+    }
+    static #convertParameterFromTypeToImpl(source) {
+        const impl = new ParameterDeclarationImpl(source.name);
+        if (source.typeStructure)
+            impl.typeStructure = TypeStructureClassesMap.clone(source.typeStructure);
+        return impl;
+    }
+    /**
+     * Add type members as values of this map, using standard keys.
+     *
+     * @param members - the type members to add.
+     */
+    addMembers(members) {
+        members.forEach((member) => {
+            this.set(_a$1.keyFromMember(member), member);
+        });
+    }
+    /**
+     * Get type members of a particular kind.
+     *
+     * @param kind - the structure kind to get.
+     * @returns all current members of that kind.
+     */
+    arrayOfKind(kind) {
+        let items = Array.from(this.values());
+        items = items.filter((item) => item.kind === kind);
+        return items;
+    }
+    /** Get a clone of this map. */
+    clone() {
+        const members = StructureClassesMap.cloneArray(Array.from(this.values()));
+        const newMap = new _a$1();
+        newMap.addMembers(members);
+        return newMap;
+    }
+    /**
+     * Convert get and/or set accessors to a property.  This may be lossy, but we try to be faithful.
+     * @param name - the property name
+     */
+    convertAccessorsToProperty(name) {
+        const getter = this.getAsKind(StructureKind.GetAccessor, name);
+        const setter = this.getAsKind(StructureKind.SetAccessor, name);
+        if (!getter && !setter) {
+            throw new Error(name + " accessors not found!");
+        }
+        const prop = new PropertySignatureImpl(getter?.name ?? setter.name);
+        // This is a merge operation: prefer getter fields over setter fields
+        const docs = getter?.docs ?? setter.docs;
+        if (docs) {
+            prop.docs.push(...StructureClassesMap.cloneArray(docs));
+        }
+        prop.leadingTrivia.push(...(getter?.leadingTrivia ?? setter.leadingTrivia));
+        prop.trailingTrivia.push(...(getter?.leadingTrivia ?? setter.leadingTrivia));
+        if (getter?.returnTypeStructure) {
+            prop.typeStructure = TypeStructureClassesMap.clone(getter.returnTypeStructure);
+        }
+        else if (setter) {
+            const setterParam = setter.parameters[0];
+            if (setterParam.typeStructure) {
+                prop.typeStructure = TypeStructureClassesMap.clone(setterParam.typeStructure);
+            }
+        }
+        this.addMembers([prop]);
+        if (getter) {
+            this.delete(_a$1.keyFromMember(getter));
+        }
+        if (setter) {
+            this.delete(_a$1.keyFromMember(setter));
+        }
+    }
+    /**
+     * Convert a property signature to get and/or set accessors.  This may be lossy, but we try to be faithful.
+     * @param name - the property name
+     * @param toGetter - true if the caller wants a getter
+     * @param toSetter - true if the caller wants a setter
+     */
+    convertPropertyToAccessors(name, toGetter, toSetter) {
+        if (!toGetter && !toSetter)
+            throw new Error("You must request either a get accessor or a set accessor!");
+        const prop = this.getAsKind(StructureKind.PropertySignature, name);
+        if (!prop) {
+            throw new Error(name + " property not found!");
+        }
+        if (toGetter) {
+            const getter = new GetAccessorDeclarationImpl(false, prop.name, prop.typeStructure);
+            if (prop.docs) {
+                getter.docs.push(...StructureClassesMap.cloneArray(prop.docs));
+            }
+            getter.leadingTrivia.push(...prop.leadingTrivia);
+            getter.trailingTrivia.push(...prop.trailingTrivia);
+            if (prop.hasQuestionToken && getter.returnTypeStructure) {
+                getter.returnTypeStructure = _a$1.#getUnionWithUndefined(getter.returnTypeStructure);
+            }
+            this.addMembers([getter]);
+        }
+        if (toSetter) {
+            const param = new ParameterDeclarationImpl("value");
+            if (prop.typeStructure)
+                param.typeStructure = TypeStructureClassesMap.clone(prop.typeStructure);
+            const setter = new SetAccessorDeclarationImpl(false, prop.name, param);
+            if (prop.docs && !toGetter) {
+                setter.docs.push(...StructureClassesMap.cloneArray(prop.docs));
+            }
+            setter.leadingTrivia.push(...prop.leadingTrivia);
+            setter.trailingTrivia.push(...prop.trailingTrivia);
+            if (prop.hasQuestionToken && param.typeStructure) {
+                param.typeStructure = _a$1.#getUnionWithUndefined(param.typeStructure);
+            }
+            this.addMembers([setter]);
+        }
+        this.delete(_a$1.keyFromMember(prop));
+    }
+    static #getUnionWithUndefined(typeStructure) {
+        if (typeStructure.kind !== TypeStructureKind.Union) {
+            typeStructure = new UnionTypeStructureImpl([typeStructure]);
+        }
+        const undefType = LiteralTypeStructureImpl.get("undefined");
+        if (typeStructure.childTypes.includes(undefType) === false)
+            typeStructure.childTypes.push(undefType);
+        return typeStructure;
+    }
+    /**
+     * A typed call to `this.get()` for a given kind.
+     * @param kind - the structure kind.
+     * @param name - the key to get.
+     * @returns - the type member, as the right type, or undefined if the wrong type.
+     *
+     * @see `TypeMembersMap::keyFromName`
+     */
+    getAsKind(kind, name) {
+        const key = _a$1.keyFromName(kind, name);
+        const rv = this.get(key);
+        if (rv?.kind === kind)
+            return rv;
+        return undefined;
+    }
+    /**
+     * Move type members from this map to an interface or type literal, and clear this map.
+     *
+     * @param owner - the target interface or type literal declaration.
+     */
+    moveMembersToType(owner) {
+        this.forEach((member) => this.#moveMemberToOwner(owner, member));
+        this.clear();
+    }
+    #moveMemberToOwner(owner, member) {
+        switch (member.kind) {
+            case StructureKind.CallSignature:
+                owner.callSignatures.push(member);
+                return;
+            case StructureKind.ConstructSignature:
+                owner.constructSignatures.push(member);
+                return;
+            case StructureKind.GetAccessor:
+                owner.getAccessors.push(member);
+                return;
+            case StructureKind.IndexSignature:
+                owner.indexSignatures.push(member);
+                return;
+            case StructureKind.MethodSignature:
+                owner.methods.push(member);
+                return;
+            case StructureKind.PropertySignature:
+                owner.properties.push(member);
+                return;
+            case StructureKind.SetAccessor:
+                owner.setAccessors.push(member);
+                return;
+            default:
+                throw new Error("unreachable");
+        }
+    }
+    /**
+     * Replace an index signature with other methods/properties matching the signature's return type.
+     *
+     * It is up to you to ensure the names match the key type of the index signature.
+     *
+     * @param signature - the signature (which must be a member of this) to resolve.
+     * @param names - the names to replace the signature's key with.
+     */
+    resolveIndexSignature(signature, names) {
+        const indexKey = _a$1.keyFromMember(signature);
+        if (!this.has(indexKey))
+            throw new Error("index signature is not part of this");
+        if (typeof signature.returnTypeStructure === "object" &&
+            signature.returnTypeStructure?.kind === TypeStructureKind.Function &&
+            !signature.isReadonly) {
+            return this.#resolveIndexSignatureToMethods(signature, names, indexKey);
+        }
+        return this.#resolveIndexSignatureToProperties(signature, names, indexKey);
+    }
+    #resolveIndexSignatureToMethods(signature, names, indexKey) {
+        const baseMethodSignature = new MethodSignatureImpl("");
+        const { returnTypeStructure } = signature;
+        assert(returnTypeStructure instanceof FunctionTypeStructureImpl, "how'd we get here?");
+        returnTypeStructure.typeParameters.forEach((typeParam) => {
+            baseMethodSignature.typeParameters.push(typeParam);
+        });
+        returnTypeStructure.parameters.forEach((param) => {
+            baseMethodSignature.parameters.push(_a$1.#convertParameterFromTypeToImpl(param));
+        });
+        if (returnTypeStructure.restParameter) {
+            const restParameter = _a$1.#convertParameterFromTypeToImpl(returnTypeStructure.restParameter);
+            restParameter.isRestParameter = true;
+            baseMethodSignature.parameters.push(restParameter);
+        }
+        if (returnTypeStructure.returnType)
+            baseMethodSignature.returnTypeStructure = returnTypeStructure.returnType;
+        const addedMembers = [];
+        names.forEach((name) => {
+            const methodSignature = MethodSignatureImpl.clone(baseMethodSignature);
+            methodSignature.name = name;
+            addedMembers.push(methodSignature);
+        });
+        this.addMembers(addedMembers);
+        this.delete(indexKey);
+        return addedMembers;
+    }
+    #resolveIndexSignatureToProperties(signature, names, indexKey) {
+        const baseProp = new PropertySignatureImpl("");
+        if (signature.isReadonly)
+            baseProp.isReadonly = true;
+        if (signature.returnTypeStructure)
+            baseProp.typeStructure = signature.returnTypeStructure;
+        const addedMembers = [];
+        names.forEach((name) => {
+            const prop = PropertySignatureImpl.clone(baseProp);
+            prop.name = name;
+            addedMembers.push(prop);
+        });
+        this.addMembers(addedMembers);
+        this.delete(indexKey);
+        return addedMembers;
+    }
+    toJSON() {
+        return Array.from(this.values());
+    }
+}
+_a$1 = TypeMembersMap;
+
+var _a;
+/**
  * Bitwise flags to enable statement getter traps.
  */
 var ClassSupportsStatementsFlags;
@@ -7379,7 +7740,7 @@ class MemberedTypeToClass {
             if (this.#statementsGettersToPriorityAndPositionMap.has(getter))
                 knownGetters.push(getter.keyword);
             else
-                invalidGetterErrors.push(..._a$1.#validateStatementsGetter(getter));
+                invalidGetterErrors.push(..._a.#validateStatementsGetter(getter));
         }
         if (knownGetters.length > 0) {
             invalidGetterErrors.unshift(new Error("The following getters are already known: " + knownGetters.join(", ")));
@@ -7392,7 +7753,7 @@ class MemberedTypeToClass {
                 priority,
                 this.#statementsGettersToPriorityAndPositionMap.size,
             ]);
-            for (const flag of _a$1.#supportsFlagsNumbers) {
+            for (const flag of _a.#supportsFlagsNumbers) {
                 if (flag & getter.supportsStatementsFlags) {
                     let getterArray = this.#statementsGettersBySupportFlag.get(flag);
                     if (!getterArray) {
@@ -7440,7 +7801,7 @@ class MemberedTypeToClass {
         });
         this.#insertedMemberKeys.forEach((addedKey) => this.#applyInsertedKeys(addedKey, keyClassMap, purposeKeys));
         const result = Array.from(keyClassMap.values());
-        result.sort(_a$1.#compareKeys);
+        result.sort(_a.#compareKeys);
         return result;
     }
     /**
@@ -7507,7 +7868,7 @@ class MemberedTypeToClass {
             this.#memberKeyToClassMember.set(groupName, methodOrCtor);
         for (const fieldName of propertyNames) {
             const [formattedFieldName, formattedGroupName] = ClassFieldStatementsMap.normalizeKeys(fieldName, groupName);
-            const flag = _a$1.#getFlagForFieldAndGroup(formattedFieldName, formattedGroupName);
+            const flag = _a.#getFlagForFieldAndGroup(formattedFieldName, formattedGroupName);
             for (const purposeKey of purposeKeys) {
                 this.#addKeyClass(flag, formattedFieldName, formattedGroupName, purposeKey, keyClassMap);
             }
@@ -7528,7 +7889,7 @@ class MemberedTypeToClass {
         if (!this.#memberKeyToClassMember.has(accessorName))
             this.#memberKeyToClassMember.set(accessorName, accessor);
         for (const propertyName of propertyNames) {
-            const flag = _a$1.#getFlagForFieldAndGroup(propertyName, accessorName);
+            const flag = _a.#getFlagForFieldAndGroup(propertyName, accessorName);
             for (const purposeKey of purposeKeys) {
                 this.#addKeyClass(flag, propertyName, accessorName, purposeKey, keyClassMap);
             }
@@ -7548,7 +7909,7 @@ class MemberedTypeToClass {
             }
         }
         const [formattedFieldName, formattedGroupName] = ClassFieldStatementsMap.normalizeKeys(fieldName, groupName);
-        const flag = _a$1.#getFlagForFieldAndGroup(formattedFieldName, formattedGroupName);
+        const flag = _a.#getFlagForFieldAndGroup(formattedFieldName, formattedGroupName);
         for (const purposeKey of purposeKeys) {
             this.#addKeyClass(flag, formattedFieldName, formattedGroupName, purposeKey, keyClassMap);
         }
@@ -7689,317 +8050,6 @@ class MemberedTypeToClass {
         statementsMap.set(keyClass.fieldKey, keyClass.statementGroupKey, statementsArray.slice());
     }
 }
-_a$1 = MemberedTypeToClass;
-
-var _a;
-/**
- * A map for members of `InterfaceDeclarationImpl` and `MemberedObjectTypeStructureImpl`.  This
- * doesn't replace the structures, rather it _feeds_ them.
- *
- * @example
- *
- * const map = new TypeMembersMap;
- * const foo = new PropertySignatureImpl(false, "foo");
- * map.addMembers([foo]);
- * // ...
- * const interfaceDecl = new InterfaceDeclarationImpl("FooInterface");
- * map.moveMembersToType(interfaceDecl);
- * // interfaceDecl.properties === [foo];
- */
-class TypeMembersMap extends OrderedMap {
-    static #uniqueKey = new WeakMap();
-    static #uniqueKeyCounter = 0;
-    /**
-     * Get a map key from a potential type member.
-     * @param member - the type member
-     */
-    static keyFromMember(member) {
-        let key = _a.#uniqueKey.get(member);
-        if (key)
-            return key;
-        key = _a.#keyFromMember(member);
-        _a.#uniqueKey.set(member, key);
-        return key;
-    }
-    static #keyFromMember(member) {
-        if (member.kind === StructureKind.ConstructSignature)
-            return "constructor";
-        if (member.kind === StructureKind.IndexSignature)
-            return `(index ${_a.#uniqueKeyCounter++})`;
-        if (member.kind === StructureKind.CallSignature)
-            return `(callsignature ${_a.#uniqueKeyCounter++})`;
-        return this.keyFromName(member.kind, member.name);
-    }
-    /**
-     * @param kind - the structure kind.
-     * @param name - the name of the type member.
-     * @returns the map key to use.
-     */
-    static keyFromName(kind, name) {
-        let rv = "";
-        if (kind === StructureKind.GetAccessor)
-            rv += "get ";
-        else if (kind === StructureKind.SetAccessor)
-            rv += "set ";
-        rv += name;
-        return rv;
-    }
-    /**
-     * Create a `TypeMembersMap` from an interface or membered object.
-     * @param membered - the membered object.
-     * @returns the type members map.
-     */
-    static fromMemberedObject(membered) {
-        const map = new _a();
-        const members = [
-            ...membered.callSignatures,
-            ...membered.constructSignatures,
-            ...membered.getAccessors,
-            ...membered.indexSignatures,
-            ...membered.methods,
-            ...membered.properties,
-            ...membered.setAccessors,
-        ];
-        map.addMembers(members);
-        return map;
-    }
-    static #convertParameterFromTypeToImpl(source) {
-        const impl = new ParameterDeclarationImpl(source.name);
-        if (source.typeStructure)
-            impl.typeStructure = TypeStructureClassesMap.clone(source.typeStructure);
-        return impl;
-    }
-    /**
-     * Add type members as values of this map, using standard keys.
-     *
-     * @param members - the type members to add.
-     */
-    addMembers(members) {
-        members.forEach((member) => {
-            this.set(_a.keyFromMember(member), member);
-        });
-    }
-    /**
-     * Get type members of a particular kind.
-     *
-     * @param kind - the structure kind to get.
-     * @returns all current members of that kind.
-     */
-    arrayOfKind(kind) {
-        let items = Array.from(this.values());
-        items = items.filter((item) => item.kind === kind);
-        return items;
-    }
-    /** Get a clone of this map. */
-    clone() {
-        const members = StructureClassesMap.cloneArray(Array.from(this.values()));
-        const newMap = new _a();
-        newMap.addMembers(members);
-        return newMap;
-    }
-    /**
-     * Convert get and/or set accessors to a property.  This may be lossy, but we try to be faithful.
-     * @param name - the property name
-     */
-    convertAccessorsToProperty(name) {
-        const getter = this.getAsKind(StructureKind.GetAccessor, name);
-        const setter = this.getAsKind(StructureKind.SetAccessor, name);
-        if (!getter && !setter) {
-            throw new Error(name + " accessors not found!");
-        }
-        const prop = new PropertySignatureImpl(getter?.name ?? setter.name);
-        // This is a merge operation: prefer getter fields over setter fields
-        const docs = getter?.docs ?? setter.docs;
-        if (docs) {
-            prop.docs.push(...StructureClassesMap.cloneArray(docs));
-        }
-        prop.leadingTrivia.push(...(getter?.leadingTrivia ?? setter.leadingTrivia));
-        prop.trailingTrivia.push(...(getter?.leadingTrivia ?? setter.leadingTrivia));
-        if (getter?.returnTypeStructure) {
-            prop.typeStructure = TypeStructureClassesMap.clone(getter.returnTypeStructure);
-        }
-        else if (setter) {
-            const setterParam = setter.parameters[0];
-            if (setterParam.typeStructure) {
-                prop.typeStructure = TypeStructureClassesMap.clone(setterParam.typeStructure);
-            }
-        }
-        this.addMembers([prop]);
-        if (getter) {
-            this.delete(_a.keyFromMember(getter));
-        }
-        if (setter) {
-            this.delete(_a.keyFromMember(setter));
-        }
-    }
-    /**
-     * Convert a property signature to get and/or set accessors.  This may be lossy, but we try to be faithful.
-     * @param name - the property name
-     * @param toGetter - true if the caller wants a getter
-     * @param toSetter - true if the caller wants a setter
-     */
-    convertPropertyToAccessors(name, toGetter, toSetter) {
-        if (!toGetter && !toSetter)
-            throw new Error("You must request either a get accessor or a set accessor!");
-        const prop = this.getAsKind(StructureKind.PropertySignature, name);
-        if (!prop) {
-            throw new Error(name + " property not found!");
-        }
-        if (toGetter) {
-            const getter = new GetAccessorDeclarationImpl(false, prop.name, prop.typeStructure);
-            if (prop.docs) {
-                getter.docs.push(...StructureClassesMap.cloneArray(prop.docs));
-            }
-            getter.leadingTrivia.push(...prop.leadingTrivia);
-            getter.trailingTrivia.push(...prop.trailingTrivia);
-            if (prop.hasQuestionToken && getter.returnTypeStructure) {
-                getter.returnTypeStructure = _a.#getUnionWithUndefined(getter.returnTypeStructure);
-            }
-            this.addMembers([getter]);
-        }
-        if (toSetter) {
-            const param = new ParameterDeclarationImpl("value");
-            if (prop.typeStructure)
-                param.typeStructure = TypeStructureClassesMap.clone(prop.typeStructure);
-            const setter = new SetAccessorDeclarationImpl(false, prop.name, param);
-            if (prop.docs && !toGetter) {
-                setter.docs.push(...StructureClassesMap.cloneArray(prop.docs));
-            }
-            setter.leadingTrivia.push(...prop.leadingTrivia);
-            setter.trailingTrivia.push(...prop.trailingTrivia);
-            if (prop.hasQuestionToken && param.typeStructure) {
-                param.typeStructure = _a.#getUnionWithUndefined(param.typeStructure);
-            }
-            this.addMembers([setter]);
-        }
-        this.delete(_a.keyFromMember(prop));
-    }
-    static #getUnionWithUndefined(typeStructure) {
-        if (typeStructure.kind !== TypeStructureKind.Union) {
-            typeStructure = new UnionTypeStructureImpl([typeStructure]);
-        }
-        const undefType = LiteralTypeStructureImpl.get("undefined");
-        if (typeStructure.childTypes.includes(undefType) === false)
-            typeStructure.childTypes.push(undefType);
-        return typeStructure;
-    }
-    /**
-     * A typed call to `this.get()` for a given kind.
-     * @param kind - the structure kind.
-     * @param name - the key to get.
-     * @returns - the type member, as the right type, or undefined if the wrong type.
-     *
-     * @see `TypeMembersMap::keyFromName`
-     */
-    getAsKind(kind, name) {
-        const key = _a.keyFromName(kind, name);
-        const rv = this.get(key);
-        if (rv?.kind === kind)
-            return rv;
-        return undefined;
-    }
-    /**
-     * Move type members from this map to an interface or type literal, and clear this map.
-     *
-     * @param owner - the target interface or type literal declaration.
-     */
-    moveMembersToType(owner) {
-        this.forEach((member) => this.#moveMemberToOwner(owner, member));
-        this.clear();
-    }
-    #moveMemberToOwner(owner, member) {
-        switch (member.kind) {
-            case StructureKind.CallSignature:
-                owner.callSignatures.push(member);
-                return;
-            case StructureKind.ConstructSignature:
-                owner.constructSignatures.push(member);
-                return;
-            case StructureKind.GetAccessor:
-                owner.getAccessors.push(member);
-                return;
-            case StructureKind.IndexSignature:
-                owner.indexSignatures.push(member);
-                return;
-            case StructureKind.MethodSignature:
-                owner.methods.push(member);
-                return;
-            case StructureKind.PropertySignature:
-                owner.properties.push(member);
-                return;
-            case StructureKind.SetAccessor:
-                owner.setAccessors.push(member);
-                return;
-            default:
-                throw new Error("unreachable");
-        }
-    }
-    /**
-     * Replace an index signature with other methods/properties matching the signature's return type.
-     *
-     * It is up to you to ensure the names match the key type of the index signature.
-     *
-     * @param signature - the signature (which must be a member of this) to resolve.
-     * @param names - the names to replace the signature's key with.
-     */
-    resolveIndexSignature(signature, names) {
-        const indexKey = _a.keyFromMember(signature);
-        if (!this.has(indexKey))
-            throw new Error("index signature is not part of this");
-        if (typeof signature.returnTypeStructure === "object" &&
-            signature.returnTypeStructure?.kind === TypeStructureKind.Function &&
-            !signature.isReadonly) {
-            return this.#resolveIndexSignatureToMethods(signature, names, indexKey);
-        }
-        return this.#resolveIndexSignatureToProperties(signature, names, indexKey);
-    }
-    #resolveIndexSignatureToMethods(signature, names, indexKey) {
-        const baseMethodSignature = new MethodSignatureImpl("");
-        const { returnTypeStructure } = signature;
-        assert(returnTypeStructure instanceof FunctionTypeStructureImpl, "how'd we get here?");
-        returnTypeStructure.typeParameters.forEach((typeParam) => {
-            baseMethodSignature.typeParameters.push(typeParam);
-        });
-        returnTypeStructure.parameters.forEach((param) => {
-            baseMethodSignature.parameters.push(_a.#convertParameterFromTypeToImpl(param));
-        });
-        if (returnTypeStructure.restParameter) {
-            const restParameter = _a.#convertParameterFromTypeToImpl(returnTypeStructure.restParameter);
-            restParameter.isRestParameter = true;
-            baseMethodSignature.parameters.push(restParameter);
-        }
-        if (returnTypeStructure.returnType)
-            baseMethodSignature.returnTypeStructure = returnTypeStructure.returnType;
-        const addedMembers = [];
-        names.forEach((name) => {
-            const methodSignature = MethodSignatureImpl.clone(baseMethodSignature);
-            methodSignature.name = name;
-            addedMembers.push(methodSignature);
-        });
-        this.addMembers(addedMembers);
-        this.delete(indexKey);
-        return addedMembers;
-    }
-    #resolveIndexSignatureToProperties(signature, names, indexKey) {
-        const baseProp = new PropertySignatureImpl("");
-        if (signature.isReadonly)
-            baseProp.isReadonly = true;
-        if (signature.returnTypeStructure)
-            baseProp.typeStructure = signature.returnTypeStructure;
-        const addedMembers = [];
-        names.forEach((name) => {
-            const prop = PropertySignatureImpl.clone(baseProp);
-            prop.name = name;
-            addedMembers.push(prop);
-        });
-        this.addMembers(addedMembers);
-        this.delete(indexKey);
-        return addedMembers;
-    }
-    toJSON() {
-        return Array.from(this.values());
-    }
-}
-_a = TypeMembersMap;
+_a = MemberedTypeToClass;
 
 export { ArrayTypeStructureImpl, CallSignatureDeclarationImpl, ClassDeclarationImpl, ClassFieldStatementsMap, ClassMembersMap, ClassStaticBlockDeclarationImpl, ClassSupportsStatementsFlags, ConditionalTypeStructureImpl, ConstructSignatureDeclarationImpl, ConstructorDeclarationImpl, ConstructorDeclarationOverloadImpl, DecoratorImpl, EmptyStatementImpl, EnumDeclarationImpl, EnumMemberImpl, ExportAssignmentImpl, ExportDeclarationImpl, ExportManager, ExportSpecifierImpl, FunctionDeclarationImpl, FunctionDeclarationOverloadImpl, FunctionTypeStructureImpl, FunctionWriterStyle, GetAccessorDeclarationImpl, ImportAttributeImpl, ImportDeclarationImpl, ImportManager, ImportSpecifierImpl, ImportTypeStructureImpl, IndexSignatureDeclarationImpl, IndexedAccessTypeStructureImpl, InferTypeStructureImpl, InterfaceDeclarationImpl, IntersectionTypeStructureImpl, JSDocImpl, JSDocTagImpl, JsxAttributeImpl, JsxElementImpl, JsxSelfClosingElementImpl, JsxSpreadAttributeImpl, LiteralTypeStructureImpl, MappedTypeStructureImpl, MemberedObjectTypeStructureImpl, MemberedTypeToClass, MethodDeclarationImpl, MethodDeclarationOverloadImpl, MethodSignatureImpl, ModuleDeclarationImpl, NamedTupleMemberTypeStructureImpl, NumberTypeStructureImpl, OptionalTypeStructureImpl, ParameterDeclarationImpl, ParameterTypeStructureImpl, ParenthesesTypeStructureImpl, PrefixOperatorsTypeStructureImpl, PropertyAssignmentImpl, PropertyDeclarationImpl, PropertySignatureImpl, QualifiedNameTypeStructureImpl, SetAccessorDeclarationImpl, ShorthandPropertyAssignmentImpl, SourceFileImpl, SpreadAssignmentImpl, StatementStructureKind, StringTypeStructureImpl, TemplateLiteralTypeStructureImpl, TupleTypeStructureImpl, TypeAliasDeclarationImpl, TypeArgumentedTypeStructureImpl, TypeMembersMap, TypeParameterDeclarationImpl, TypePredicateTypeStructureImpl, TypeStructureKind, UnionTypeStructureImpl, UnknownStringStatementImpl, UnknownWriterStatementImpl, VariableDeclarationImpl, VariableStatementImpl, VoidNodeToStructureConsole, WriterTypeStructureImpl, forEachAugmentedStructureChild, getAugmentedStructure, isClassMemberStructure, isJsxStructure, isObjectLiteralExpressionPropertyStructure, isStatementStructure, isStatementedStructure, isTSMorphStatementedStructure, isTypeElementMemberStructure, parseLiteralType };

@@ -1071,7 +1071,7 @@ declare function isTSMorphStatementedStructure(
 declare function isTypeElementMemberStructure(
   structure: AugmentedStructures,
 ): structure is TypeElementMemberStructureImpls;
-declare function parseLiteralType(source: string): TypeStructures;
+declare function parseLiteralType(type: string): TypeStructures;
 declare function VoidNodeToStructureConsole(
   message: string,
   failingNode: Node,
@@ -3098,12 +3098,6 @@ declare abstract class ShadowArrayImpl<
    * @remarks `return new ShadowArrayImplSubclass(innerElements).proxy;`
    */
   static createProxy(innerElements: InnerTypeElement<unknown>[]): unknown[];
-  /**
-   * Utility to get a range of indexes for a given length.
-   *
-   * @internal
-   */
-  static indexRange(length: number): number[];
   /**
    * abstract to preserve subclass types
    *

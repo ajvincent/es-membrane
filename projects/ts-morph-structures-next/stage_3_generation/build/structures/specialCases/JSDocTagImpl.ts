@@ -71,13 +71,25 @@ export const JSDocTagSpecialCases: StructureModuleModifierTraps = {
 
     module.addImports(
       "public",
-      [ "parseLiteralType" ],
+      [ ],
       [ "TypeStructures", "TypeStructuresOrNull", ]
     );
 
     module.addImports(
-      "internal",
-      ["REPLACE_WRITER_WITH_STRING", "TypeStructureClassesMap"],
+      "source/base/symbolKeys.js",
+      ["REPLACE_WRITER_WITH_STRING"],
+      []
+    );
+
+    module.addImports(
+      "source/base/TypeStructureClassesMap.js",
+      ["TypeStructureClassesMap"],
+      []
+    );
+
+    module.addImports(
+      "source/bootstrap/parseLiteralType.js",
+      [ "parseLiteralType" ],
       []
     );
 

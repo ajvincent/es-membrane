@@ -3,20 +3,33 @@ import type {
   TypedNodeStructure,
 } from "ts-morph";
 
-import {
-  LiteralTypeStructureImpl,
+import type {
   TypeStructures,
-  TypeStructureKind,
-  type TypedNodeTypeStructure,
-  type stringOrWriterFunction,
-  WriterTypeStructureImpl,
+  TypedNodeTypeStructure,
+  stringOrWriterFunction,
 } from "../../snapshot/source/exports.js";
 
 import {
-  TypeStructureClassesMap,
-  TypeStructuresBase,
-  DEREGISTER_WRITER,
-} from "../../snapshot/source/internal-exports.js";
+  DEREGISTER_WRITER
+} from "../structures/WriterStructuresBase.js";
+
+import {
+  LiteralTypeStructureImpl
+} from "../structures/type/LiteralTypeStructureImpl.js";
+
+import TypeStructuresBase from "../structures/type/TypeStructuresBase.js";
+
+import {
+  WriterTypeStructureImpl
+} from "../structures/type/WriterTypeStructureImpl.js";
+
+import {
+  TypeStructureClassesMap
+} from "./TypeStructureClassesMap.js";
+
+import {
+  TypeStructureKind
+} from "./TypeStructureKind.js";
 
 // #endregion preamble
 
@@ -29,7 +42,7 @@ import {
  *
  * See `../decorators/TypedNode.ts` for an example.
  */
-export default class TypeAccessors
+export class TypeAccessors
 implements TypedNodeStructure, TypedNodeTypeStructure
 {
   static buildTypeAccessors(

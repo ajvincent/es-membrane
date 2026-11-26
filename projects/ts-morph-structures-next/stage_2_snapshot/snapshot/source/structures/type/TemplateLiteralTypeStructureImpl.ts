@@ -1,18 +1,20 @@
 import { CodeBlockWriter } from "ts-morph";
 
-import {
-  type AugmentedStructures,
-  TypeStructureKind,
-  type TypeStructures,
-} from "../../exports.js";
+import { type AugmentedStructures } from "../../exports.js";
 
-import {
-  type CloneableTypeStructure,
-  STRUCTURE_CHILDREN,
-  TypeStructureClassesMap,
-  TypeStructuresBase,
-  WRITER_FUNCTION_KEY,
-} from "../../internal-exports.js";
+import { TypeStructureKind } from "../../base/TypeStructureKind.js";
+
+import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+
+import { STRUCTURE_CHILDREN } from "../../base/symbolKeys.js";
+
+import type { CloneableTypeStructure } from "../../types/CloneableStructure.js";
+
+import { WRITER_FUNCTION_KEY } from "../WriterStructuresBase.js";
+
+import type { TypeStructures } from "./TypeStructures.js";
+
+import TypeStructuresBase from "./TypeStructuresBase.js";
 
 /** @example `one${"A" | "B"}two${"C" | "D"}three` */
 export class TemplateLiteralTypeStructureImpl extends TypeStructuresBase<TypeStructureKind.TemplateLiteral> {

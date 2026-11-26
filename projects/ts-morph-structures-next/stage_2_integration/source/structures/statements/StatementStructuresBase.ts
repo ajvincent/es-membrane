@@ -4,7 +4,7 @@ import {
 
 import {
   STRUCTURE_CHILDREN
-} from "../../../snapshot/source/internal-exports.js";
+} from "../../base/symbolKeys.js";
 
 import {
   GET_OUTER_TYPE,

@@ -1,11 +1,10 @@
 import type { CodeBlockWriter } from "ts-morph";
 
-import type {
-  TypeParameterDeclarationImpl,
-  TypeStructureKind,
-} from "../../exports.js";
+import type { TypeParameterDeclarationImpl } from "../../exports.js";
 
-import { TypeStructuresBase } from "../../internal-exports.js";
+import type { TypeStructureKind } from "../../base/TypeStructureKind.js";
+
+import TypeStructuresBase from "./TypeStructuresBase.js";
 
 export default abstract class TypeStructuresWithTypeParameters<
   Kind extends TypeStructureKind,

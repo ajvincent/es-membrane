@@ -1,14 +1,14 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import { COPY_FIELDS } from "../../base/symbolKeys.js";
 import type {
   TypeParameterDeclarationImpl,
   TypeParameteredNodeStructureClassIfc,
 } from "../../exports.js";
-import {
-  COPY_FIELDS,
-  type RightExtendsLeft,
-  StructureBase,
-  StructureClassesMap,
-  type StructureClassToJSON,
+import type {
+  RightExtendsLeft,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import type {
   MixinClass,

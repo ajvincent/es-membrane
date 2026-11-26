@@ -105,43 +105,52 @@ abstract class BaseModule
   ): void
   {
     let pathToImportedModule: string;
+    let isPackageImport= false;
 
     switch (fromModule) {
       case "ts-morph":
       case "mixin-decorators":
       case "type-fest":
+        isPackageImport = true;
+        // fall through
       case "public":
       case "internal":
         pathToImportedModule = BaseModule.#importsEnum[fromModule];
         break;
       default:
-        pathToImportedModule = path.relative(
-          path.dirname(this.importManager.absolutePathToModule),
-          pathToModule(distDir, fromModule)
-        );
+        pathToImportedModule = pathToModule(distDir, fromModule);
         break;
     }
 
-    const isPackageImport = (fromModule !== "public") && (fromModule !== "internal");
+    try {
+      if (values.length > 0) {
+        this.importManager.addImports({
+          pathToImportedModule,
+          isPackageImport,
+          isDefaultImport: false,
+          isTypeOnly: false,
+          importNames: values
+        });
+      }
 
-    if (values.length > 0) {
-      this.importManager.addImports({
-        pathToImportedModule,
-        isPackageImport,
-        isDefaultImport: false,
-        isTypeOnly: false,
-        importNames: values
-      });
+      if (types.length > 0) {
+        this.importManager.addImports({
+          pathToImportedModule,
+          isPackageImport,
+          isDefaultImport: false,
+          isTypeOnly: true,
+          importNames: types
+        });
+      }
     }
-
-    if (types.length > 0) {
-      this.importManager.addImports({
-        pathToImportedModule,
-        isPackageImport,
-        isDefaultImport: false,
-        isTypeOnly: true,
-        importNames: types
-      });
+    catch (ex) {
+      console.error(ex);
+      throw new Error(
+        `failed on addImports at ${this.importManager.absolutePathToModule}, adding ${
+          JSON.stringify({fromModule, values, types})
+        }`,
+        { cause: ex }
+      );
     }
   }
 

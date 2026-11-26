@@ -1,30 +1,48 @@
 //#region preamble
-import type { ParameterDeclarationStructureClassIfc } from "../../exports.js";
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import { COPY_FIELDS } from "../../base/symbolKeys.js";
 import {
-  type CloneableStructure,
-  COPY_FIELDS,
   type DecoratableNodeStructureFields,
   DecoratableNodeStructureMixin,
-  type ExtractStructure,
+} from "../../decorators/standard/DecoratableNodeStructureMixin.js";
+import {
   type InitializerExpressionableNodeStructureFields,
   InitializerExpressionableNodeStructureMixin,
+} from "../../decorators/standard/InitializerExpressionableNodeStructureMixin.js";
+import {
   type NamedNodeStructureFields,
   NamedNodeStructureMixin,
+} from "../../decorators/standard/NamedNodeStructureMixin.js";
+import {
   type OverrideableNodeStructureFields,
   OverrideableNodeStructureMixin,
+} from "../../decorators/standard/OverrideableNodeStructureMixin.js";
+import {
   type QuestionTokenableNodeStructureFields,
   QuestionTokenableNodeStructureMixin,
+} from "../../decorators/standard/QuestionTokenableNodeStructureMixin.js";
+import {
   type ReadonlyableNodeStructureFields,
   ReadonlyableNodeStructureMixin,
+} from "../../decorators/standard/ReadonlyableNodeStructureMixin.js";
+import {
   type ScopedNodeStructureFields,
   ScopedNodeStructureMixin,
-  StructureBase,
-  StructureClassesMap,
-  type StructureClassToJSON,
+} from "../../decorators/standard/ScopedNodeStructureMixin.js";
+import {
   type StructureFields,
   StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import {
   type TypedNodeStructureFields,
   TypedNodeStructureMixin,
+} from "../../decorators/standard/TypedNodeStructureMixin.js";
+import type { ParameterDeclarationStructureClassIfc } from "../../exports.js";
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

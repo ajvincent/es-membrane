@@ -161,7 +161,12 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter, ClassTailStatem
 
     if (hasWriter) {
       this.module.addImports(
-        "internal", ["StructureBase", "REPLACE_WRITER_WITH_STRING"], []
+        "source/base/StructureBase.js",
+        ["StructureBase"],
+        []
+      );
+      this.module.addImports(
+        "source/base/symbolKeys.js", ["REPLACE_WRITER_WITH_STRING"], []
       );
     }
 

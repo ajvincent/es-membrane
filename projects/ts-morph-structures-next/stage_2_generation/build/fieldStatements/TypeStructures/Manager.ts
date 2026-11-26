@@ -50,7 +50,7 @@ implements ConstructorBodyStatementsGetter
     assert(key.fieldType?.kind === StructureKind.PropertySignature);
 
     const fieldKey = key.fieldKey.match(/^#(.*)Accessors$/)![1];
-    this.module.addImports("internal", ["TypeAccessors"], []);
+    this.module.addImports("source/base/TypeAccessors.js", ["TypeAccessors"], []);
 
     const callExpression = new CallExpressionStatementImpl({
       name: "TypeAccessors.buildTypeAccessors",

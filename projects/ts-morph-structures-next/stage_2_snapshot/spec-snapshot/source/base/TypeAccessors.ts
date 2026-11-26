@@ -4,13 +4,16 @@ import type {
 } from "ts-morph";
 
 import {
+  TypeAccessors
+} from "#stage_two/snapshot/source/base/TypeAccessors.js";
+
+import {
   LiteralTypeStructureImpl,
   StringTypeStructureImpl,
   WriterTypeStructureImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
 import {
-  TypeAccessors,
   TypeStructuresBase,
 } from "#stage_two/snapshot/source/internal-exports.js";
 
