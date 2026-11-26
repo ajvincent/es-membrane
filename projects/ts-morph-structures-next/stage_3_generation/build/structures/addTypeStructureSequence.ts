@@ -44,7 +44,8 @@ export function addTypeStructureSequence(
         new TypeArrayInitializer(module, property),
       ]);
 
-      module.addImports("internal", ["TypeStructureSequence", "TypeStructureClassesMap"], []);
+      module.addImports("internal", ["TypeStructureSequence"], []);
+      module.addImports("source/base/TypeStructureClassesMap.js", ["TypeStructureClassesMap"], []);
       return;
     }
 

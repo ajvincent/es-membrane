@@ -227,7 +227,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
       return [];
     }
 
-    this.module.addImports("internal", ["TypeStructureClassesMap"], []);
+    this.module.addImports("source/base/TypeStructureClassesMap.js", ["TypeStructureClassesMap"], []);
 
     const name_Structure = name + "Structure";
 
@@ -298,7 +298,7 @@ implements ClassHeadStatementsGetter, ClassBodyStatementsGetter
         assert(generatedClassName === "", "generatedClassName: " + generatedClassName + ", string value: " + childType.stringValue);
 
         this.module.addImports("public", [], [childType.stringValue]);
-        this.module.addImports("internal", ["StructureClassesMap"], []);
+        this.module.addImports("source/base/StructureClassesMap.js", ["StructureClassesMap"], []);
 
         generatedClassName = childType.stringValue;
       }

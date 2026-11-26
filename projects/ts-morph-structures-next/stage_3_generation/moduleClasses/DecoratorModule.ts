@@ -84,7 +84,8 @@ class DecoratorModule extends BaseClassModule
       "MixinClass", "StaticAndInstance", "SubclassDecorator"
     ]);
     this.addImports("public", [], [getClassInterfaceName(baseName)]);
-    this.addImports("internal", ["StructureBase"], ["RightExtendsLeft"]);
+    this.addImports("source/base/StructureBase.js", ["StructureBase"], []);
+    this.addImports("internal", [], ["RightExtendsLeft"]);
 
     this.modifiers = DecoratorModifiersMap.get(this.exportName);
   }

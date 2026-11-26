@@ -54,7 +54,7 @@ abstract class BaseClassModule extends BaseModule
     methodSignature.parameters.push(sourceParam, targetParam);
     methodSignature.returnTypeStructure = LiteralTypeStructureImpl.get("void");
 
-    this.addImports("internal", ["COPY_FIELDS"], []);
+    this.addImports("source/base/symbolKeys.js", ["COPY_FIELDS"], []);
     this.addImports("ts-morph", [], [ this.baseName ]);
 
     return methodSignature;
@@ -77,7 +77,7 @@ abstract class BaseClassModule extends BaseModule
   createStructureIteratorMethod(): MethodSignatureImpl
   {
     this.addImports("public", [], ["AugmentedStructures"]);
-    this.addImports("internal", ["STRUCTURE_CHILDREN"], []);
+    this.addImports("source/base/symbolKeys.js", ["STRUCTURE_CHILDREN"], []);
 
     const methodSignature = new MethodSignatureImpl("[STRUCTURE_CHILDREN]");
     methodSignature.docs.push(InternalJSDocTag);

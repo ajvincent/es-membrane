@@ -75,7 +75,11 @@ implements ConstructorBodyStatementsGetter, ClassHeadStatementsGetter
     }
 
     if (key.fieldKey === "setterParameter") {
-      this.module.addImports("public", ["ParameterDeclarationImpl"], []);
+      this.module.addImports(
+        "source/structures/standard/ParameterDeclarationImpl.js",
+        ["ParameterDeclarationImpl"],
+        []
+      );
 
       const parameter = new ParameterDeclarationImpl("setterParameter");
       parameter.typeStructure = LiteralTypeStructureImpl.get("ParameterDeclarationImpl");
