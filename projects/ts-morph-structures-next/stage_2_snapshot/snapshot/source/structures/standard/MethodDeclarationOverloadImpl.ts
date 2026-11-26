@@ -1,4 +1,7 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import { COPY_FIELDS } from "../../base/symbolKeys.js";
 import type { MethodDeclarationOverloadStructureClassIfc } from "../../exports.js";
 import {
   type AbstractableNodeStructureFields,
@@ -6,7 +9,6 @@ import {
   type AsyncableNodeStructureFields,
   AsyncableNodeStructureMixin,
   type CloneableStructure,
-  COPY_FIELDS,
   type ExtractStructure,
   type GeneratorableNodeStructureFields,
   GeneratorableNodeStructureMixin,
@@ -22,8 +24,6 @@ import {
   ReturnTypedNodeStructureMixin,
   type ScopedNodeStructureFields,
   ScopedNodeStructureMixin,
-  StructureBase,
-  StructureClassesMap,
   type StructureClassToJSON,
   type StructureFields,
   StructureMixin,

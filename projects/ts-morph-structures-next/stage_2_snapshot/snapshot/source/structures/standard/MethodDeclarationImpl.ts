@@ -1,11 +1,13 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import { COPY_FIELDS } from "../../base/symbolKeys.js";
+import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
 import type {
   JSDocImpl,
   MethodDeclarationOverloadImpl,
   MethodDeclarationStructureClassIfc,
   MethodSignatureImpl,
-  ParameterDeclarationImpl,
-  TypeParameterDeclarationImpl,
 } from "../../exports.js";
 import {
   type AbstractableNodeStructureFields,
@@ -13,7 +15,6 @@ import {
   type AsyncableNodeStructureFields,
   AsyncableNodeStructureMixin,
   type CloneableStructure,
-  COPY_FIELDS,
   type DecoratableNodeStructureFields,
   DecoratableNodeStructureMixin,
   type ExtractStructure,
@@ -35,15 +36,14 @@ import {
   ScopedNodeStructureMixin,
   type StatementedNodeStructureFields,
   StatementedNodeStructureMixin,
-  StructureBase,
-  StructureClassesMap,
   type StructureClassToJSON,
   type StructureFields,
   StructureMixin,
   type TypeParameteredNodeStructureFields,
   TypeParameteredNodeStructureMixin,
-  TypeStructureClassesMap,
 } from "../../internal-exports.js";
+import { ParameterDeclarationImpl } from "./ParameterDeclarationImpl.js";
+import { TypeParameterDeclarationImpl } from "./TypeParameterDeclarationImpl.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {
   type MethodDeclarationOverloadStructure,

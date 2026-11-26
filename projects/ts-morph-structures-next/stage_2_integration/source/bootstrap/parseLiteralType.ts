@@ -20,7 +20,7 @@ import {
 
 let ParseLiteralProject: Project;
 
-export default function parseLiteralType(
+export function parseLiteralType(
   type: string
 ): TypeStructures
 {

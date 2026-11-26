@@ -20,8 +20,8 @@ import { PropertyDeclarationImpl } from "../structures/standard/PropertyDeclarat
 
 import { SetAccessorDeclarationImpl } from "../structures/standard/SetAccessorDeclarationImpl.js";
 
-import StructureClassesMap from "../base/StructureClassesMap.js";
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.js";
+import { StructureClassesMap } from "../base/StructureClassesMap.js";
+import { TypeStructureClassesMap } from "../base/TypeStructureClassesMap.js";
 
 import ClassFieldStatementsMap from "./ClassFieldStatementsMap.js";
 import OrderedMap from "./OrderedMap.js";

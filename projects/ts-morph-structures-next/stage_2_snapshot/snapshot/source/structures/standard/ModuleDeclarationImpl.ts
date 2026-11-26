@@ -1,10 +1,12 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import { COPY_FIELDS } from "../../base/symbolKeys.js";
 import type { ModuleDeclarationStructureClassIfc } from "../../exports.js";
 import {
   type AmbientableNodeStructureFields,
   AmbientableNodeStructureMixin,
   type CloneableStructure,
-  COPY_FIELDS,
   type ExportableNodeStructureFields,
   ExportableNodeStructureMixin,
   type ExtractStructure,
@@ -16,8 +18,6 @@ import {
   NamedNodeStructureMixin,
   type StatementedNodeStructureFields,
   StatementedNodeStructureMixin,
-  StructureBase,
-  StructureClassesMap,
   type StructureClassToJSON,
   type StructureFields,
   StructureMixin,

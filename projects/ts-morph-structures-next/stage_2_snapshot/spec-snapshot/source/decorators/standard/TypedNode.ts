@@ -4,7 +4,9 @@ import type {
   WriterFunction,
 } from "ts-morph";
 
-import StructureBase from "#stage_two/snapshot/source/base/StructureBase.js";
+import {
+  StructureBase
+}from "#stage_two/snapshot/source/base/StructureBase.js";
 
 import {
   TypedNodeStructureMixin,

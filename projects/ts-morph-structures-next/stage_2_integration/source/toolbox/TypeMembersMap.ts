@@ -18,8 +18,8 @@ import type {
   TypeMemberImpl,
 } from "../../snapshot/source/exports.js";
 
-import StructureClassesMap from "../base/StructureClassesMap.js";
-import TypeStructureClassesMap from "../base/TypeStructureClassesMap.js";
+import { StructureClassesMap } from "../base/StructureClassesMap.js";
+import { TypeStructureClassesMap } from "../base/TypeStructureClassesMap.js";
 
 import {
   TypeStructureKind,

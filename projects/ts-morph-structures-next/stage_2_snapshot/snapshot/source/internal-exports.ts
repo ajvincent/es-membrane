@@ -4,15 +4,13 @@ export {
   type InnerTypeElement,
 } from "./array-utilities/ShadowArrayImpl.js";
 export { StatementStructureClassesMap } from "./base/StatementStructureClassesMap.js";
-export { default as StructureBase } from "./base/StructureBase.js";
-export { default as StructureClassesMap } from "./base/StructureClassesMap.js";
+export { StructureBase } from "./base/StructureBase.js";
+export { StructureClassesMap } from "./base/StructureClassesMap.js";
 export {
   COPY_FIELDS,
   REPLACE_WRITER_WITH_STRING,
   STRUCTURE_CHILDREN,
 } from "./base/symbolKeys.js";
-export { default as TypeAccessors } from "./base/TypeAccessors.js";
-export { default as TypeStructureClassesMap } from "./base/TypeStructureClassesMap.js";
 export { TypeStructureSequence } from "./base/TypeStructureSequence.js";
 export {
   type AbstractableNodeStructureFields,

@@ -1,7 +1,7 @@
 // #region preamble
 import type { CodeBlockWriter, WriterFunction } from "ts-morph";
 
-import TypeStructureClassesMap from "../../base/TypeStructureClassesMap.js";
+import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
 
 import { TypeStructureKind } from "../../base/TypeStructureKind.js";
 

@@ -1,8 +1,10 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import { COPY_FIELDS } from "../../base/symbolKeys.js";
 import type { ConstructSignatureDeclarationStructureClassIfc } from "../../exports.js";
 import {
   type CloneableStructure,
-  COPY_FIELDS,
   type ExtractStructure,
   type JSDocableNodeStructureFields,
   JSDocableNodeStructureMixin,
@@ -10,8 +12,6 @@ import {
   ParameteredNodeStructureMixin,
   type ReturnTypedNodeStructureFields,
   ReturnTypedNodeStructureMixin,
-  StructureBase,
-  StructureClassesMap,
   type StructureClassToJSON,
   type StructureFields,
   StructureMixin,

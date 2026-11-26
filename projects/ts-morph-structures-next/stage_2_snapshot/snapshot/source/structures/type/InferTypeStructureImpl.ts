@@ -3,7 +3,7 @@ import type { CodeBlockWriter } from "ts-morph";
 
 import type { AugmentedStructures } from "../../exports.js";
 
-import TypeStructureClassesMap from "../../base/TypeStructureClassesMap.js";
+import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
 
 import { TypeStructureKind } from "../../base/TypeStructureKind.js";
 

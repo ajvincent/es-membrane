@@ -41,10 +41,11 @@ import {
   WriterTypeStructureImpl,
 } from "#stage_two/snapshot/source/exports.js";
 
+import TypeStructuresBase from "#stage_two/snapshot/source/structures/type/TypeStructuresBase.js";
+
 import {
-  TypeStructuresBase,
   TypeStructureClassesMap
-} from "#stage_two/snapshot/source/internal-exports.js";
+} from "#stage_two/snapshot/source/base/TypeStructureClassesMap.js";
 
 import {
   serializeWriter

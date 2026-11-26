@@ -1,17 +1,19 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import {
+  COPY_FIELDS,
+  REPLACE_WRITER_WITH_STRING,
+} from "../../base/symbolKeys.js";
 import type {
   DecoratorStructureClassIfc,
   stringOrWriterFunction,
 } from "../../exports.js";
 import {
   type CloneableStructure,
-  COPY_FIELDS,
   type ExtractStructure,
   type NamedNodeStructureFields,
   NamedNodeStructureMixin,
-  REPLACE_WRITER_WITH_STRING,
-  StructureBase,
-  StructureClassesMap,
   type StructureClassToJSON,
   type StructureFields,
   StructureMixin,

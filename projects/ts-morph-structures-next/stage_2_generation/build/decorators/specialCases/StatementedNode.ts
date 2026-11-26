@@ -67,7 +67,11 @@ export const StatementedNodeSpecialCases: DecoratorModuleModifierTraps = {
       isPackageImport: false,
     });
 
-    module.addImports("internal", ["StatementStructureClassesMap"], []);
+    module.addImports(
+      "source/base/StatementStructureClassesMap.js",
+      ["StatementStructureClassesMap"],
+      []
+    );
 
     const sequenceInitializer = new StatementsSequenceInitializer(module);
     const statementsInitializer = new StatementsInitializer(module);
@@ -93,7 +97,7 @@ export const StatementedNodeSpecialCases: DecoratorModuleModifierTraps = {
     );
 
     module.addImports(
-      "internal",
+      "source/base/symbolKeys.js",
       [ "STRUCTURE_CHILDREN" ],
       []
     );
@@ -294,7 +298,7 @@ implements ClassTailStatementsGetter
   ): readonly stringWriterOrStatementImpl[]
   {
     void(key);
-    this.module.addImports("internal", ["StructureClassesMap"], []);
+    this.module.addImports("source/base/StructureClassesMap.js", ["StructureClassesMap"], []);
 
     return [
       new BlockStatementImpl(

@@ -39,8 +39,10 @@ export default function addImportsToModule(
         return;
     }
 
-    if (rawName !== structure.stringValue)
+    if (rawName !== structure.stringValue &&
+        module.importManager.getNameContext(structure.stringValue) === undefined) {
       module.addImports("public", [], [structure.stringValue]);
+    }
     return;
   }
 

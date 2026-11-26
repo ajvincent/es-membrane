@@ -6,8 +6,8 @@ import type {
   TypeStructures,
 } from "../../exports.js";
 
-import StructureClassesMap from "../../base/StructureClassesMap.js";
-import TypeStructureClassesMap from "../../base/TypeStructureClassesMap.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
 
 import { TypeStructureKind } from "../../base/TypeStructureKind.js";
 

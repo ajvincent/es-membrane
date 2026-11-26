@@ -1,6 +1,6 @@
 import { CodeBlockWriter } from "ts-morph";
 
-import { STRUCTURE_CHILDREN } from "../../internal-exports.js";
+import { STRUCTURE_CHILDREN } from "../../base/symbolKeys.js";
 
 import {
   GET_OUTER_TYPE,

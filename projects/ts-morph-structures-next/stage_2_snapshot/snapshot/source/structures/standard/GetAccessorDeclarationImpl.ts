@@ -1,4 +1,7 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import { COPY_FIELDS } from "../../base/symbolKeys.js";
 import type {
   GetAccessorDeclarationStructureClassIfc,
   TypeStructures,
@@ -7,7 +10,6 @@ import {
   type AbstractableNodeStructureFields,
   AbstractableNodeStructureMixin,
   type CloneableStructure,
-  COPY_FIELDS,
   type DecoratableNodeStructureFields,
   DecoratableNodeStructureMixin,
   type ExtractStructure,
@@ -23,8 +25,6 @@ import {
   ScopedNodeStructureMixin,
   type StatementedNodeStructureFields,
   StatementedNodeStructureMixin,
-  StructureBase,
-  StructureClassesMap,
   type StructureClassToJSON,
   type StructureFields,
   StructureMixin,

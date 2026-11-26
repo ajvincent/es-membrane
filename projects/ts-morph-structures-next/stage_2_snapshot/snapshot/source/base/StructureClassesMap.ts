@@ -148,4 +148,4 @@ class StructureClassesMapClass extends Map<
 }
 
 const StructureClassesMap = new StructureClassesMapClass();
-export default StructureClassesMap;
+export { StructureClassesMap };

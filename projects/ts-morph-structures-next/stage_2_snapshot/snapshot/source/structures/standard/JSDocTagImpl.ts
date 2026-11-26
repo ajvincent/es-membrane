@@ -1,22 +1,24 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
 import {
-  type JSDocTagStructureClassIfc,
-  parseLiteralType,
-  type stringOrWriterFunction,
-  type TypeStructures,
-  type TypeStructuresOrNull,
+  COPY_FIELDS,
+  REPLACE_WRITER_WITH_STRING,
+} from "../../base/symbolKeys.js";
+import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+import { parseLiteralType } from "../../bootstrap/parseLiteralType.js";
+import type {
+  JSDocTagStructureClassIfc,
+  stringOrWriterFunction,
+  TypeStructures,
+  TypeStructuresOrNull,
 } from "../../exports.js";
 import {
   type CloneableStructure,
-  COPY_FIELDS,
   type ExtractStructure,
-  REPLACE_WRITER_WITH_STRING,
-  StructureBase,
-  StructureClassesMap,
   type StructureClassToJSON,
   type StructureFields,
   StructureMixin,
-  TypeStructureClassesMap,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

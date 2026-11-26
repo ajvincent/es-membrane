@@ -1,14 +1,16 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import {
+  COPY_FIELDS,
+  REPLACE_WRITER_WITH_STRING,
+} from "../../base/symbolKeys.js";
 import type {
   InitializerExpressionableNodeStructureClassIfc,
   stringOrWriterFunction,
 } from "../../exports.js";
-import {
-  COPY_FIELDS,
-  REPLACE_WRITER_WITH_STRING,
-  type RightExtendsLeft,
-  StructureBase,
-  type StructureClassToJSON,
+import type {
+  RightExtendsLeft,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import type {
   MixinClass,

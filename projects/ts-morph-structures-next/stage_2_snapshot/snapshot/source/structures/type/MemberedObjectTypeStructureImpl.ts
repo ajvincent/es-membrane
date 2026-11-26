@@ -13,8 +13,8 @@ import type {
 
 import { TypeStructureKind } from "../../base/TypeStructureKind.js";
 
-import StructureClassesMap from "../../base/StructureClassesMap.js";
-import TypeStructureClassesMap from "../../base/TypeStructureClassesMap.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
 
 import { STRUCTURE_CHILDREN } from "../../base/symbolKeys.js";
 

@@ -24,7 +24,7 @@ import {
 } from "../structures/type/WriterTypeStructureImpl.js";
 
 
-import TypeStructureClassesMap from "./TypeStructureClassesMap.js";
+import { TypeStructureClassesMap } from "./TypeStructureClassesMap.js";
 
 import {
   TypeStructureKind
@@ -41,7 +41,7 @@ import {
  *
  * See `../decorators/TypedNode.ts` for an example.
  */
-export default class TypeAccessors
+export class TypeAccessors
 implements TypedNodeStructure, TypedNodeTypeStructure
 {
   static buildTypeAccessors(

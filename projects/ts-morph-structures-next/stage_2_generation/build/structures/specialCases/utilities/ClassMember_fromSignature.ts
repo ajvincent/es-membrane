@@ -89,9 +89,19 @@ function getFromSignatureMethod(
   const signatureName = DeclarationToSignature.get(module.defaultExportName)!;
 
   module.addImports("public", [], [signatureName, "JSDocImpl"]);
-  module.addImports("internal", ["TypeStructureClassesMap"], []);
+  module.addImports("source/base/TypeStructureClassesMap.js", ["TypeStructureClassesMap"], []);
+
   if (module.defaultExportName !== "PropertyDeclarationImpl") {
-    module.addImports("public", [], ["ParameterDeclarationImpl", "TypeParameterDeclarationImpl"]);
+    module.addImports(
+      "source/structures/standard/ParameterDeclarationImpl.js",
+      ["ParameterDeclarationImpl"],
+      []
+    );
+    module.addImports(
+      "source/structures/standard/TypeParameterDeclarationImpl.js",
+      ["TypeParameterDeclarationImpl"],
+      []
+    );
   }
 
   const fromSignature = new MethodSignatureImpl("fromSignature");

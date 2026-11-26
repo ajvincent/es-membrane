@@ -1,10 +1,10 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import { COPY_FIELDS } from "../../base/symbolKeys.js";
 import type { OverrideableNodeStructureClassIfc } from "../../exports.js";
-import {
-  COPY_FIELDS,
-  type RightExtendsLeft,
-  StructureBase,
-  type StructureClassToJSON,
+import type {
+  RightExtendsLeft,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import type {
   MixinClass,

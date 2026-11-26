@@ -16,7 +16,7 @@ import { VoidNodeToStructureConsole } from "./typeNodeConsoles.js";
 
 let ParseLiteralProject: Project;
 
-export default function parseLiteralType(type: string): TypeStructures {
+export function parseLiteralType(type: string): TypeStructures {
   let name = "SOMERANDOMSTRING_";
   for (let i = 0; i < 10; i++) {
     name += String.fromCharCode(Math.floor(Math.random() * 26) + 65);

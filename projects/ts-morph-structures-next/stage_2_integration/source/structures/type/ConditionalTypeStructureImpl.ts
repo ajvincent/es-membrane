@@ -7,7 +7,7 @@ import type {
   TypeStructures,
 } from "../../../snapshot/source/exports.js";
 
-import TypeStructureClassesMap from "../../base/TypeStructureClassesMap.js";
+import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
 
 import {
   TypeStructureKind

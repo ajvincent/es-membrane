@@ -4,7 +4,7 @@ import {
   ShadowArrayImpl,
 } from "../array-utilities/ShadowArrayImpl.js";
 
-import parseLiteralType from "../bootstrap/parseLiteralType.js";
+import { parseLiteralType } from "../bootstrap/parseLiteralType.js";
 
 import type { TypeStructures } from "../structures/type/TypeStructures.js";
 

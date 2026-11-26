@@ -23,5 +23,4 @@ class TypeStructureClassesMapClass extends Map<
 }
 
 const TypeStructureClassesMap = new TypeStructureClassesMapClass();
-
-export default TypeStructureClassesMap;
+export { TypeStructureClassesMap };

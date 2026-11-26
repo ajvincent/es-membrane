@@ -1,4 +1,8 @@
 //#region preamble
+import { StructureBase } from "../../base/StructureBase.js";
+import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import { COPY_FIELDS } from "../../base/symbolKeys.js";
+import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
 import type {
   JSDocImpl,
   PropertyDeclarationStructureClassIfc,
@@ -10,7 +14,6 @@ import {
   type AmbientableNodeStructureFields,
   AmbientableNodeStructureMixin,
   type CloneableStructure,
-  COPY_FIELDS,
   type DecoratableNodeStructureFields,
   DecoratableNodeStructureMixin,
   type ExclamationTokenableNodeStructureFields,
@@ -30,14 +33,11 @@ import {
   ReadonlyableNodeStructureMixin,
   type ScopedNodeStructureFields,
   ScopedNodeStructureMixin,
-  StructureBase,
-  StructureClassesMap,
   type StructureClassToJSON,
   type StructureFields,
   StructureMixin,
   type TypedNodeStructureFields,
   TypedNodeStructureMixin,
-  TypeStructureClassesMap,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

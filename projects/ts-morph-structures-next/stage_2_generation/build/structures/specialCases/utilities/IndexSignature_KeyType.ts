@@ -44,7 +44,10 @@ implements PropertyInitializerGetter, ConstructorBodyStatementsGetter
   {
     void key;
     this.module.addImports(
-      "internal", [`REPLACE_WRITER_WITH_STRING`, `TypeAccessors`], []
+      "source/base/symbolKeys.js", ["REPLACE_WRITER_WITH_STRING"], []
+    );
+    this.module.addImports(
+      "source/base/TypeAccessors.js", [`TypeAccessors`], []
     );
     return [
       `// keyType is getting lost in ts-morph clone operations`,
