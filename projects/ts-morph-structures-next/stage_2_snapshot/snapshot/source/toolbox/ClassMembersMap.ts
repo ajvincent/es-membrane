@@ -10,6 +10,10 @@ import type {
   TypeMemberImpl,
 } from "../exports.js";
 
+import { StructureClassesMap } from "../base/StructureClassesMap.js";
+
+import { TypeStructureClassesMap } from "../base/TypeStructureClassesMap.js";
+
 import { GetAccessorDeclarationImpl } from "../structures/standard/GetAccessorDeclarationImpl.js";
 
 import { MethodDeclarationImpl } from "../structures/standard/MethodDeclarationImpl.js";
@@ -19,9 +23,6 @@ import { ParameterDeclarationImpl } from "../structures/standard/ParameterDeclar
 import { PropertyDeclarationImpl } from "../structures/standard/PropertyDeclarationImpl.js";
 
 import { SetAccessorDeclarationImpl } from "../structures/standard/SetAccessorDeclarationImpl.js";
-
-import { StructureClassesMap } from "../base/StructureClassesMap.js";
-import { TypeStructureClassesMap } from "../base/TypeStructureClassesMap.js";
 
 import ClassFieldStatementsMap from "./ClassFieldStatementsMap.js";
 import OrderedMap from "./OrderedMap.js";

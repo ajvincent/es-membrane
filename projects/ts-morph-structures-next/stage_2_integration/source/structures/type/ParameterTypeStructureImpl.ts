@@ -7,7 +7,9 @@ import type {
   AugmentedStructures,
 } from "../../../snapshot/source/exports.js";
 
-import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+import {
+  TypeStructureClassesMap
+} from "../../base/TypeStructureClassesMap.js";
 
 import {
   TypeStructureKind
@@ -21,7 +23,9 @@ import type {
   CloneableTypeStructure,
 } from "../../types/CloneableStructure.js";
 
-import { WRITER_FUNCTION_KEY } from "../WriterStructuresBase.js";
+import {
+  WRITER_FUNCTION_KEY
+} from "../WriterStructuresBase.js";
 
 import type {
   TypeStructures

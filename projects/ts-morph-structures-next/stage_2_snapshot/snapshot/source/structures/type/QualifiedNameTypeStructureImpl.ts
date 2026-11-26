@@ -7,6 +7,7 @@ import { TypeStructureKind } from "../../base/TypeStructureKind.js";
 import type { CloneableTypeStructure } from "../../types/CloneableStructure.js";
 
 import { WRITER_FUNCTION_KEY } from "../WriterStructuresBase.js";
+
 import TypeStructuresBase from "./TypeStructuresBase.js";
 
 /** @example `Foo.bar.baz...` */

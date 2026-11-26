@@ -11,9 +11,13 @@ import {
   STRUCTURE_CHILDREN
 } from "../../base/symbolKeys.js";
 
-import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+import {
+  StructureClassesMap
+} from "../../base/StructureClassesMap.js";
 
-import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+import {
+  TypeStructureClassesMap
+} from "../../base/TypeStructureClassesMap.js";
 
 import {
   TypeStructureKind

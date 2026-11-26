@@ -4,7 +4,9 @@ import type {
   WriterFunction,
 } from "ts-morph";
 
-import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+import {
+  TypeStructureClassesMap
+} from "../../base/TypeStructureClassesMap.js";
 
 import {
   TypeStructureKind

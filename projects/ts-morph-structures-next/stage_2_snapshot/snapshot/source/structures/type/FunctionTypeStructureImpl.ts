@@ -4,6 +4,7 @@ import { StructureKind, type CodeBlockWriter } from "ts-morph";
 import type { AugmentedStructures, TypeStructures } from "../../exports.js";
 
 import { StructureClassesMap } from "../../base/StructureClassesMap.js";
+
 import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
 
 import { TypeStructureKind } from "../../base/TypeStructureKind.js";

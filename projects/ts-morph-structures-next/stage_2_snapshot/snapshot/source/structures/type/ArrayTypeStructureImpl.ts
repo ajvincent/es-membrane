@@ -4,9 +4,9 @@ import type { AugmentedStructures } from "../../exports.js";
 
 import { TypeStructureKind } from "../../base/TypeStructureKind.js";
 
-import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
-
 import { STRUCTURE_CHILDREN } from "../../base/symbolKeys.js";
+
+import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
 
 import type { CloneableTypeStructure } from "../../types/CloneableStructure.js";
 

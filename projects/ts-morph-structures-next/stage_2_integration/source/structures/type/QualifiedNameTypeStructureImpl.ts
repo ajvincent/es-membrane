@@ -2,7 +2,9 @@ import type {
   CodeBlockWriter,
 } from "ts-morph";
 
-import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+import {
+  TypeStructureClassesMap
+} from "../../base/TypeStructureClassesMap.js";
 
 import {
   TypeStructureKind,
@@ -15,6 +17,7 @@ import type {
 import {
   WRITER_FUNCTION_KEY
 } from "../WriterStructuresBase.js";
+
 import TypeStructuresBase from "./TypeStructuresBase.js";
 
 /** @example `Foo.bar.baz...` */

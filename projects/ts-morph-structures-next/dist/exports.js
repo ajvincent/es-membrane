@@ -901,6 +901,12 @@ function runConversion(typeNode, consoleTrap, subStructureResolver, converter, c
         callback(typeStructure);
 }
 
+const COPY_FIELDS = Symbol("copy fields");
+const REPLACE_WRITER_WITH_STRING = Symbol("replaceWriterWithString");
+const STRUCTURE_CHILDREN = Symbol("otherwise unreachable structure and type-structure children");
+const WRITE_BETWEEN_TRIVIA = Symbol("write contents between trivia");
+const WRITE_STATEMENTS_SEQUENCE = Symbol("write statements sequence");
+
 class TypeStructureClassesMapClass extends Map {
     clone(structure) {
         return this.get(structure.kind).clone(structure);
@@ -910,12 +916,6 @@ class TypeStructureClassesMapClass extends Map {
     }
 }
 const TypeStructureClassesMap = new TypeStructureClassesMapClass();
-
-const COPY_FIELDS = Symbol("copy fields");
-const REPLACE_WRITER_WITH_STRING = Symbol("replaceWriterWithString");
-const STRUCTURE_CHILDREN = Symbol("otherwise unreachable structure and type-structure children");
-const WRITE_BETWEEN_TRIVIA = Symbol("write contents between trivia");
-const WRITE_STATEMENTS_SEQUENCE = Symbol("write statements sequence");
 
 const WRITER_FUNCTION_KEY = Symbol("writerFunction");
 const DEREGISTER_WRITER = Symbol("deregister writerFunction");

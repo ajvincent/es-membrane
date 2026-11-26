@@ -18,8 +18,13 @@ import type {
   TypeMemberImpl,
 } from "../../snapshot/source/exports.js";
 
-import { StructureClassesMap } from "../base/StructureClassesMap.js";
-import { TypeStructureClassesMap } from "../base/TypeStructureClassesMap.js";
+import {
+  StructureClassesMap
+} from "../base/StructureClassesMap.js";
+
+import {
+  TypeStructureClassesMap
+} from "../base/TypeStructureClassesMap.js";
 
 import {
   TypeStructureKind,
@@ -52,7 +57,6 @@ import {
   type TypeStructures,
   UnionTypeStructureImpl,
 } from "../structures/type/allTypeStructures.js";
-
 
 import OrderedMap from "./OrderedMap.js";
 

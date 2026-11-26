@@ -23,8 +23,9 @@ import {
   WriterTypeStructureImpl
 } from "../structures/type/WriterTypeStructureImpl.js";
 
-
-import { TypeStructureClassesMap } from "./TypeStructureClassesMap.js";
+import {
+  TypeStructureClassesMap
+} from "./TypeStructureClassesMap.js";
 
 import {
   TypeStructureKind

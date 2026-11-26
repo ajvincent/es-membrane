@@ -4,6 +4,10 @@ import type {
 } from "ts-morph";
 
 import {
+  TypeAccessors
+} from "#stage_two/snapshot/source/base/TypeAccessors.js";
+
+import {
   LiteralTypeStructureImpl,
   StringTypeStructureImpl,
   WriterTypeStructureImpl,
@@ -12,10 +16,6 @@ import {
 import {
   TypeStructuresBase,
 } from "#stage_two/snapshot/source/internal-exports.js";
-
-import {
-  TypeAccessors
-} from "#stage_two/snapshot/source/base/TypeAccessors.js";
 
 import {
   serializeWriter

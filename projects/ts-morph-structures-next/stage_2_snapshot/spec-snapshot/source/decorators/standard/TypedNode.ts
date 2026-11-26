@@ -6,7 +6,7 @@ import type {
 
 import {
   StructureBase
-}from "#stage_two/snapshot/source/base/StructureBase.js";
+} from "#stage_two/snapshot/source/base/StructureBase.js";
 
 import {
   TypedNodeStructureMixin,

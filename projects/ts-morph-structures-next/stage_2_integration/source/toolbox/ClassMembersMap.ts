@@ -14,6 +14,14 @@ import type {
 } from "../../snapshot/source/exports.js";
 
 import {
+  StructureClassesMap
+} from "../base/StructureClassesMap.js";
+
+import {
+  TypeStructureClassesMap
+} from "../base/TypeStructureClassesMap.js";
+
+import {
   GetAccessorDeclarationImpl
 } from "../structures/standard/GetAccessorDeclarationImpl.js";
 
@@ -32,9 +40,6 @@ import {
 import {
   SetAccessorDeclarationImpl
 } from "../structures/standard/SetAccessorDeclarationImpl.js";
-
-import { StructureClassesMap } from "../base/StructureClassesMap.js";
-import { TypeStructureClassesMap } from "../base/TypeStructureClassesMap.js";
 
 import ClassFieldStatementsMap from "./ClassFieldStatementsMap.js";
 import OrderedMap from "./OrderedMap.js";

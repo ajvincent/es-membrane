@@ -310,15 +310,6 @@ function defineInternalExports(): void
     isType: false
   });
 
-  /*
-  internalExports.addExports({
-    pathToExportedModule: pathToModule(distDir, "source/base/TypeAccessors.ts"),
-    exportNames: ["TypeAccessors"],
-    isDefaultExport: true,
-    isType: false,
-  });
-  */
-
   internalExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/base/TypeStructureSequence.ts"),
     exportNames: ["TypeStructureSequence"],
@@ -336,15 +327,6 @@ function defineInternalExports(): void
     isDefaultExport: false,
     isType: false
   });
-
-  /*
-  internalExports.addExports({
-    pathToExportedModule: pathToModule(distDir, "source/base/TypeStructureClassesMap.ts"),
-    exportNames: ["TypeStructureClassesMap"],
-    isDefaultExport: false,
-    isType: false
-  });
-  */
 
   internalExports.addExports({
     pathToExportedModule: pathToModule(distDir, "source/structures/type/TypeStructuresBase.ts"),
