@@ -3,41 +3,67 @@ import { StructureBase } from "../../base/StructureBase.js";
 import { StructureClassesMap } from "../../base/StructureClassesMap.js";
 import { COPY_FIELDS } from "../../base/symbolKeys.js";
 import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+import {
+  type AbstractableNodeStructureFields,
+  AbstractableNodeStructureMixin,
+} from "../../decorators/standard/AbstractableNodeStructureMixin.js";
+import {
+  type AmbientableNodeStructureFields,
+  AmbientableNodeStructureMixin,
+} from "../../decorators/standard/AmbientableNodeStructureMixin.js";
+import {
+  type DecoratableNodeStructureFields,
+  DecoratableNodeStructureMixin,
+} from "../../decorators/standard/DecoratableNodeStructureMixin.js";
+import {
+  type ExclamationTokenableNodeStructureFields,
+  ExclamationTokenableNodeStructureMixin,
+} from "../../decorators/standard/ExclamationTokenableNodeStructureMixin.js";
+import {
+  type InitializerExpressionableNodeStructureFields,
+  InitializerExpressionableNodeStructureMixin,
+} from "../../decorators/standard/InitializerExpressionableNodeStructureMixin.js";
+import {
+  type JSDocableNodeStructureFields,
+  JSDocableNodeStructureMixin,
+} from "../../decorators/standard/JSDocableNodeStructureMixin.js";
+import {
+  type NamedNodeStructureFields,
+  NamedNodeStructureMixin,
+} from "../../decorators/standard/NamedNodeStructureMixin.js";
+import {
+  type OverrideableNodeStructureFields,
+  OverrideableNodeStructureMixin,
+} from "../../decorators/standard/OverrideableNodeStructureMixin.js";
+import {
+  type QuestionTokenableNodeStructureFields,
+  QuestionTokenableNodeStructureMixin,
+} from "../../decorators/standard/QuestionTokenableNodeStructureMixin.js";
+import {
+  type ReadonlyableNodeStructureFields,
+  ReadonlyableNodeStructureMixin,
+} from "../../decorators/standard/ReadonlyableNodeStructureMixin.js";
+import {
+  type ScopedNodeStructureFields,
+  ScopedNodeStructureMixin,
+} from "../../decorators/standard/ScopedNodeStructureMixin.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import {
+  type TypedNodeStructureFields,
+  TypedNodeStructureMixin,
+} from "../../decorators/standard/TypedNodeStructureMixin.js";
 import type {
   JSDocImpl,
   PropertyDeclarationStructureClassIfc,
   PropertySignatureImpl,
 } from "../../exports.js";
-import {
-  type AbstractableNodeStructureFields,
-  AbstractableNodeStructureMixin,
-  type AmbientableNodeStructureFields,
-  AmbientableNodeStructureMixin,
-  type CloneableStructure,
-  type DecoratableNodeStructureFields,
-  DecoratableNodeStructureMixin,
-  type ExclamationTokenableNodeStructureFields,
-  ExclamationTokenableNodeStructureMixin,
-  type ExtractStructure,
-  type InitializerExpressionableNodeStructureFields,
-  InitializerExpressionableNodeStructureMixin,
-  type JSDocableNodeStructureFields,
-  JSDocableNodeStructureMixin,
-  type NamedNodeStructureFields,
-  NamedNodeStructureMixin,
-  type OverrideableNodeStructureFields,
-  OverrideableNodeStructureMixin,
-  type QuestionTokenableNodeStructureFields,
-  QuestionTokenableNodeStructureMixin,
-  type ReadonlyableNodeStructureFields,
-  ReadonlyableNodeStructureMixin,
-  type ScopedNodeStructureFields,
-  ScopedNodeStructureMixin,
-  type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
-  type TypedNodeStructureFields,
-  TypedNodeStructureMixin,
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

@@ -8,20 +8,24 @@ import {
 } from "../../base/symbolKeys.js";
 import { TypeAccessors } from "../../base/TypeAccessors.js";
 import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+import {
+  type NamedNodeStructureFields,
+  NamedNodeStructureMixin,
+} from "../../decorators/standard/NamedNodeStructureMixin.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
 import type {
   AugmentedStructures,
   stringOrWriterFunction,
   TypeParameterDeclarationStructureClassIfc,
   TypeStructures,
 } from "../../exports.js";
-import {
-  type CloneableStructure,
-  type ExtractStructure,
-  type NamedNodeStructureFields,
-  NamedNodeStructureMixin,
-  type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

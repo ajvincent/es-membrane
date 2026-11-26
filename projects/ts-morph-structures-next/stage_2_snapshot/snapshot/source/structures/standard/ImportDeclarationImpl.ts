@@ -5,6 +5,10 @@ import {
   COPY_FIELDS,
   REPLACE_WRITER_WITH_STRING,
 } from "../../base/symbolKeys.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
 import type {
   ImportAttributeImpl,
   ImportDeclarationStructureClassIfc,
@@ -17,8 +21,6 @@ import {
   GET_OUTER_TYPE,
   type InnerTypeElement,
   type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

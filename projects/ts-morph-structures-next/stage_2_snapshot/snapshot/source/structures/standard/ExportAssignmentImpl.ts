@@ -5,6 +5,14 @@ import {
   COPY_FIELDS,
   REPLACE_WRITER_WITH_STRING,
 } from "../../base/symbolKeys.js";
+import {
+  type JSDocableNodeStructureFields,
+  JSDocableNodeStructureMixin,
+} from "../../decorators/standard/JSDocableNodeStructureMixin.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
 import type {
   ExportAssignmentStructureClassIfc,
   stringOrWriterFunction,
@@ -14,11 +22,7 @@ import {
   type ExtractStructure,
   GET_OUTER_TYPE,
   type InnerTypeElement,
-  type JSDocableNodeStructureFields,
-  JSDocableNodeStructureMixin,
   type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

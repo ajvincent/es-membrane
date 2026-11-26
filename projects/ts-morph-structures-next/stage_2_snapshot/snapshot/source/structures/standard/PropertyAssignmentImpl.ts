@@ -5,18 +5,22 @@ import {
   COPY_FIELDS,
   REPLACE_WRITER_WITH_STRING,
 } from "../../base/symbolKeys.js";
+import {
+  type NamedNodeStructureFields,
+  NamedNodeStructureMixin,
+} from "../../decorators/standard/NamedNodeStructureMixin.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
 import type {
   PropertyAssignmentStructureClassIfc,
   stringOrWriterFunction,
 } from "../../exports.js";
-import {
-  type CloneableStructure,
-  type ExtractStructure,
-  type NamedNodeStructureFields,
-  NamedNodeStructureMixin,
-  type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

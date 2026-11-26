@@ -159,13 +159,15 @@ export class StructureModule extends BaseClassModule
       ],
       []
     );
-    this.addImports(
-      "internal",
-      [
-        ...extendsMixins
-      ],
-      extendsFields
-    );
+    for (const key of extendsKeys) {
+      const mixin = getStructureMixinName(key);
+      const field = StructureModule.#getFieldsName(key);
+      this.addImports(
+        `source/decorators/standard/${mixin}.js`,
+        [mixin],
+        [field]
+      );
+    }
 
     this.importManager.addImports({
       pathToImportedModule: "mixin-decorators",

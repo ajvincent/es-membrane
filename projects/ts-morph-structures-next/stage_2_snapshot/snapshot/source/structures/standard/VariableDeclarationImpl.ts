@@ -2,25 +2,35 @@
 import { StructureBase } from "../../base/StructureBase.js";
 import { StructureClassesMap } from "../../base/StructureClassesMap.js";
 import { COPY_FIELDS } from "../../base/symbolKeys.js";
+import {
+  type ExclamationTokenableNodeStructureFields,
+  ExclamationTokenableNodeStructureMixin,
+} from "../../decorators/standard/ExclamationTokenableNodeStructureMixin.js";
+import {
+  type InitializerExpressionableNodeStructureFields,
+  InitializerExpressionableNodeStructureMixin,
+} from "../../decorators/standard/InitializerExpressionableNodeStructureMixin.js";
+import {
+  type NamedNodeStructureFields,
+  NamedNodeStructureMixin,
+} from "../../decorators/standard/NamedNodeStructureMixin.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import {
+  type TypedNodeStructureFields,
+  TypedNodeStructureMixin,
+} from "../../decorators/standard/TypedNodeStructureMixin.js";
 import type {
   stringOrWriterFunction,
   TypeStructures,
   VariableDeclarationStructureClassIfc,
 } from "../../exports.js";
-import {
-  type CloneableStructure,
-  type ExclamationTokenableNodeStructureFields,
-  ExclamationTokenableNodeStructureMixin,
-  type ExtractStructure,
-  type InitializerExpressionableNodeStructureFields,
-  InitializerExpressionableNodeStructureMixin,
-  type NamedNodeStructureFields,
-  NamedNodeStructureMixin,
-  type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
-  type TypedNodeStructureFields,
-  TypedNodeStructureMixin,
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

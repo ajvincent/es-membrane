@@ -7,18 +7,20 @@ import {
 } from "../../base/symbolKeys.js";
 import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
 import { parseLiteralType } from "../../bootstrap/parseLiteralType.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
 import type {
   JSDocTagStructureClassIfc,
   stringOrWriterFunction,
   TypeStructures,
   TypeStructuresOrNull,
 } from "../../exports.js";
-import {
-  type CloneableStructure,
-  type ExtractStructure,
-  type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

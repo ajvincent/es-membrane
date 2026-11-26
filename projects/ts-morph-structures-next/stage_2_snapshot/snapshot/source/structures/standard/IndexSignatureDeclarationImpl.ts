@@ -8,23 +8,31 @@ import {
 } from "../../base/symbolKeys.js";
 import { TypeAccessors } from "../../base/TypeAccessors.js";
 import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+import {
+  type JSDocableNodeStructureFields,
+  JSDocableNodeStructureMixin,
+} from "../../decorators/standard/JSDocableNodeStructureMixin.js";
+import {
+  type ReadonlyableNodeStructureFields,
+  ReadonlyableNodeStructureMixin,
+} from "../../decorators/standard/ReadonlyableNodeStructureMixin.js";
+import {
+  type ReturnTypedNodeStructureFields,
+  ReturnTypedNodeStructureMixin,
+} from "../../decorators/standard/ReturnTypedNodeStructureMixin.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
 import type {
   AugmentedStructures,
   IndexSignatureDeclarationStructureClassIfc,
   TypeStructures,
 } from "../../exports.js";
-import {
-  type CloneableStructure,
-  type ExtractStructure,
-  type JSDocableNodeStructureFields,
-  JSDocableNodeStructureMixin,
-  type ReadonlyableNodeStructureFields,
-  ReadonlyableNodeStructureMixin,
-  type ReturnTypedNodeStructureFields,
-  ReturnTypedNodeStructureMixin,
-  type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

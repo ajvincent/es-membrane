@@ -2,17 +2,23 @@
 import { StructureBase } from "../../base/StructureBase.js";
 import { StructureClassesMap } from "../../base/StructureClassesMap.js";
 import { COPY_FIELDS } from "../../base/symbolKeys.js";
-import type { ClassStaticBlockDeclarationStructureClassIfc } from "../../exports.js";
 import {
-  type CloneableStructure,
-  type ExtractStructure,
   type JSDocableNodeStructureFields,
   JSDocableNodeStructureMixin,
+} from "../../decorators/standard/JSDocableNodeStructureMixin.js";
+import {
   type StatementedNodeStructureFields,
   StatementedNodeStructureMixin,
-  type StructureClassToJSON,
+} from "../../decorators/standard/StatementedNodeStructureMixin.js";
+import {
   type StructureFields,
   StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import type { ClassStaticBlockDeclarationStructureClassIfc } from "../../exports.js";
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

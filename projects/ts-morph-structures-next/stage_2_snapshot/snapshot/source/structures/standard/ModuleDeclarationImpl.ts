@@ -2,25 +2,37 @@
 import { StructureBase } from "../../base/StructureBase.js";
 import { StructureClassesMap } from "../../base/StructureClassesMap.js";
 import { COPY_FIELDS } from "../../base/symbolKeys.js";
-import type { ModuleDeclarationStructureClassIfc } from "../../exports.js";
 import {
   type AmbientableNodeStructureFields,
   AmbientableNodeStructureMixin,
-  type CloneableStructure,
+} from "../../decorators/standard/AmbientableNodeStructureMixin.js";
+import {
   type ExportableNodeStructureFields,
   ExportableNodeStructureMixin,
+} from "../../decorators/standard/ExportableNodeStructureMixin.js";
+import {
+  type JSDocableNodeStructureFields,
+  JSDocableNodeStructureMixin,
+} from "../../decorators/standard/JSDocableNodeStructureMixin.js";
+import {
+  type NamedNodeStructureFields,
+  NamedNodeStructureMixin,
+} from "../../decorators/standard/NamedNodeStructureMixin.js";
+import {
+  type StatementedNodeStructureFields,
+  StatementedNodeStructureMixin,
+} from "../../decorators/standard/StatementedNodeStructureMixin.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import type { ModuleDeclarationStructureClassIfc } from "../../exports.js";
+import {
+  type CloneableStructure,
   type ExtractStructure,
   GET_OUTER_TYPE,
   type InnerTypeElement,
-  type JSDocableNodeStructureFields,
-  JSDocableNodeStructureMixin,
-  type NamedNodeStructureFields,
-  NamedNodeStructureMixin,
-  type StatementedNodeStructureFields,
-  StatementedNodeStructureMixin,
   type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

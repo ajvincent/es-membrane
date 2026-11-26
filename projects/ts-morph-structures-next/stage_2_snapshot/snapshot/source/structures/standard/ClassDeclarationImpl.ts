@@ -8,6 +8,38 @@ import {
 } from "../../base/symbolKeys.js";
 import { TypeAccessors } from "../../base/TypeAccessors.js";
 import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+import {
+  type AbstractableNodeStructureFields,
+  AbstractableNodeStructureMixin,
+} from "../../decorators/standard/AbstractableNodeStructureMixin.js";
+import {
+  type AmbientableNodeStructureFields,
+  AmbientableNodeStructureMixin,
+} from "../../decorators/standard/AmbientableNodeStructureMixin.js";
+import {
+  type DecoratableNodeStructureFields,
+  DecoratableNodeStructureMixin,
+} from "../../decorators/standard/DecoratableNodeStructureMixin.js";
+import {
+  type ExportableNodeStructureFields,
+  ExportableNodeStructureMixin,
+} from "../../decorators/standard/ExportableNodeStructureMixin.js";
+import {
+  type JSDocableNodeStructureFields,
+  JSDocableNodeStructureMixin,
+} from "../../decorators/standard/JSDocableNodeStructureMixin.js";
+import {
+  type NameableNodeStructureFields,
+  NameableNodeStructureMixin,
+} from "../../decorators/standard/NameableNodeStructureMixin.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import {
+  type TypeParameteredNodeStructureFields,
+  TypeParameteredNodeStructureMixin,
+} from "../../decorators/standard/TypeParameteredNodeStructureMixin.js";
 import type {
   AugmentedStructures,
   ClassDeclarationStructureClassIfc,
@@ -21,27 +53,11 @@ import type {
   TypeStructures,
 } from "../../exports.js";
 import {
-  type AbstractableNodeStructureFields,
-  AbstractableNodeStructureMixin,
-  type AmbientableNodeStructureFields,
-  AmbientableNodeStructureMixin,
   type CloneableStructure,
-  type DecoratableNodeStructureFields,
-  DecoratableNodeStructureMixin,
-  type ExportableNodeStructureFields,
-  ExportableNodeStructureMixin,
   type ExtractStructure,
   GET_OUTER_TYPE,
   type InnerTypeElement,
-  type JSDocableNodeStructureFields,
-  JSDocableNodeStructureMixin,
-  type NameableNodeStructureFields,
-  NameableNodeStructureMixin,
   type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
-  type TypeParameteredNodeStructureFields,
-  TypeParameteredNodeStructureMixin,
   TypeStructureSequence,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";

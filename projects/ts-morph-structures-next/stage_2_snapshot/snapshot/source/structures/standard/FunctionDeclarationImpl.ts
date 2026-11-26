@@ -2,38 +2,60 @@
 import { StructureBase } from "../../base/StructureBase.js";
 import { StructureClassesMap } from "../../base/StructureClassesMap.js";
 import { COPY_FIELDS } from "../../base/symbolKeys.js";
+import {
+  type AmbientableNodeStructureFields,
+  AmbientableNodeStructureMixin,
+} from "../../decorators/standard/AmbientableNodeStructureMixin.js";
+import {
+  type AsyncableNodeStructureFields,
+  AsyncableNodeStructureMixin,
+} from "../../decorators/standard/AsyncableNodeStructureMixin.js";
+import {
+  type ExportableNodeStructureFields,
+  ExportableNodeStructureMixin,
+} from "../../decorators/standard/ExportableNodeStructureMixin.js";
+import {
+  type GeneratorableNodeStructureFields,
+  GeneratorableNodeStructureMixin,
+} from "../../decorators/standard/GeneratorableNodeStructureMixin.js";
+import {
+  type JSDocableNodeStructureFields,
+  JSDocableNodeStructureMixin,
+} from "../../decorators/standard/JSDocableNodeStructureMixin.js";
+import {
+  type NameableNodeStructureFields,
+  NameableNodeStructureMixin,
+} from "../../decorators/standard/NameableNodeStructureMixin.js";
+import {
+  type ParameteredNodeStructureFields,
+  ParameteredNodeStructureMixin,
+} from "../../decorators/standard/ParameteredNodeStructureMixin.js";
+import {
+  type ReturnTypedNodeStructureFields,
+  ReturnTypedNodeStructureMixin,
+} from "../../decorators/standard/ReturnTypedNodeStructureMixin.js";
+import {
+  type StatementedNodeStructureFields,
+  StatementedNodeStructureMixin,
+} from "../../decorators/standard/StatementedNodeStructureMixin.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import {
+  type TypeParameteredNodeStructureFields,
+  TypeParameteredNodeStructureMixin,
+} from "../../decorators/standard/TypeParameteredNodeStructureMixin.js";
 import type {
   FunctionDeclarationOverloadImpl,
   FunctionDeclarationStructureClassIfc,
 } from "../../exports.js";
 import {
-  type AmbientableNodeStructureFields,
-  AmbientableNodeStructureMixin,
-  type AsyncableNodeStructureFields,
-  AsyncableNodeStructureMixin,
   type CloneableStructure,
-  type ExportableNodeStructureFields,
-  ExportableNodeStructureMixin,
   type ExtractStructure,
-  type GeneratorableNodeStructureFields,
-  GeneratorableNodeStructureMixin,
   GET_OUTER_TYPE,
   type InnerTypeElement,
-  type JSDocableNodeStructureFields,
-  JSDocableNodeStructureMixin,
-  type NameableNodeStructureFields,
-  NameableNodeStructureMixin,
-  type ParameteredNodeStructureFields,
-  ParameteredNodeStructureMixin,
-  type ReturnTypedNodeStructureFields,
-  ReturnTypedNodeStructureMixin,
-  type StatementedNodeStructureFields,
-  StatementedNodeStructureMixin,
   type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
-  type TypeParameteredNodeStructureFields,
-  TypeParameteredNodeStructureMixin,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

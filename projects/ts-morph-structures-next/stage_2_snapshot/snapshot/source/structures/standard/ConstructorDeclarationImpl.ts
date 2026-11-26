@@ -3,30 +3,44 @@ import { StructureBase } from "../../base/StructureBase.js";
 import { StructureClassesMap } from "../../base/StructureClassesMap.js";
 import { COPY_FIELDS } from "../../base/symbolKeys.js";
 import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+import {
+  type JSDocableNodeStructureFields,
+  JSDocableNodeStructureMixin,
+} from "../../decorators/standard/JSDocableNodeStructureMixin.js";
+import {
+  type ParameteredNodeStructureFields,
+  ParameteredNodeStructureMixin,
+} from "../../decorators/standard/ParameteredNodeStructureMixin.js";
+import {
+  type ReturnTypedNodeStructureFields,
+  ReturnTypedNodeStructureMixin,
+} from "../../decorators/standard/ReturnTypedNodeStructureMixin.js";
+import {
+  type ScopedNodeStructureFields,
+  ScopedNodeStructureMixin,
+} from "../../decorators/standard/ScopedNodeStructureMixin.js";
+import {
+  type StatementedNodeStructureFields,
+  StatementedNodeStructureMixin,
+} from "../../decorators/standard/StatementedNodeStructureMixin.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import {
+  type TypeParameteredNodeStructureFields,
+  TypeParameteredNodeStructureMixin,
+} from "../../decorators/standard/TypeParameteredNodeStructureMixin.js";
 import type {
   ConstructorDeclarationOverloadImpl,
   ConstructorDeclarationStructureClassIfc,
   ConstructSignatureDeclarationImpl,
   JSDocImpl,
 } from "../../exports.js";
-import {
-  type CloneableStructure,
-  type ExtractStructure,
-  type JSDocableNodeStructureFields,
-  JSDocableNodeStructureMixin,
-  type ParameteredNodeStructureFields,
-  ParameteredNodeStructureMixin,
-  type ReturnTypedNodeStructureFields,
-  ReturnTypedNodeStructureMixin,
-  type ScopedNodeStructureFields,
-  ScopedNodeStructureMixin,
-  type StatementedNodeStructureFields,
-  StatementedNodeStructureMixin,
-  type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
-  type TypeParameteredNodeStructureFields,
-  TypeParameteredNodeStructureMixin,
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import { ParameterDeclarationImpl } from "./ParameterDeclarationImpl.js";
 import { TypeParameterDeclarationImpl } from "./TypeParameterDeclarationImpl.js";

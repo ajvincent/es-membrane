@@ -48,46 +48,59 @@ export class MemberedObjectTypeStructureImpl extends TypeStructuresBase<TypeStru
     const membered = new MemberedObjectTypeStructureImpl();
 
     membered.callSignatures.push(
-      ...(StructureClassesMap.cloneArrayWithKind(
+      ...StructureClassesMap.cloneArrayWithKind<
+        CallSignatureDeclarationImpl,
         StructureKind.CallSignature,
-        other.callSignatures,
-      ) as CallSignatureDeclarationImpl[]),
+        CallSignatureDeclarationImpl
+      >(StructureKind.CallSignature, other.callSignatures),
     );
+
     membered.constructSignatures.push(
-      ...(StructureClassesMap.cloneArrayWithKind(
+      ...StructureClassesMap.cloneArrayWithKind<
+        ConstructSignatureDeclarationImpl,
         StructureKind.ConstructSignature,
-        other.constructSignatures,
-      ) as ConstructSignatureDeclarationImpl[]),
+        ConstructSignatureDeclarationImpl
+      >(StructureKind.ConstructSignature, other.constructSignatures),
     );
+
     membered.getAccessors.push(
-      ...(StructureClassesMap.cloneArrayWithKind(
+      ...StructureClassesMap.cloneArrayWithKind<
+        GetAccessorDeclarationImpl,
         StructureKind.GetAccessor,
-        other.getAccessors,
-      ) as GetAccessorDeclarationImpl[]),
+        GetAccessorDeclarationImpl
+      >(StructureKind.GetAccessor, other.getAccessors),
     );
+
     membered.indexSignatures.push(
-      ...(StructureClassesMap.cloneArrayWithKind(
+      ...StructureClassesMap.cloneArrayWithKind<
+        IndexSignatureDeclarationImpl,
         StructureKind.IndexSignature,
-        other.indexSignatures,
-      ) as IndexSignatureDeclarationImpl[]),
+        IndexSignatureDeclarationImpl
+      >(StructureKind.IndexSignature, other.indexSignatures),
     );
+
     membered.properties.push(
-      ...(StructureClassesMap.cloneArrayWithKind(
+      ...StructureClassesMap.cloneArrayWithKind<
+        PropertySignatureImpl,
         StructureKind.PropertySignature,
-        other.properties,
-      ) as PropertySignatureImpl[]),
+        PropertySignatureImpl
+      >(StructureKind.PropertySignature, other.properties),
     );
+
     membered.methods.push(
-      ...(StructureClassesMap.cloneArrayWithKind(
+      ...StructureClassesMap.cloneArrayWithKind<
+        MethodSignatureImpl,
         StructureKind.MethodSignature,
-        other.methods,
-      ) as MethodSignatureImpl[]),
+        MethodSignatureImpl
+      >(StructureKind.MethodSignature, other.methods),
     );
+
     membered.setAccessors.push(
-      ...(StructureClassesMap.cloneArrayWithKind(
+      ...StructureClassesMap.cloneArrayWithKind<
+        SetAccessorDeclarationImpl,
         StructureKind.SetAccessor,
-        other.setAccessors,
-      ) as SetAccessorDeclarationImpl[]),
+        SetAccessorDeclarationImpl
+      >(StructureKind.SetAccessor, other.setAccessors),
     );
 
     return membered;

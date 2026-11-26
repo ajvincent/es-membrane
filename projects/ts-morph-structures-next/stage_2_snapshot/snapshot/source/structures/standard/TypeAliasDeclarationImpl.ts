@@ -8,6 +8,30 @@ import {
 } from "../../base/symbolKeys.js";
 import { TypeAccessors } from "../../base/TypeAccessors.js";
 import { TypeStructureClassesMap } from "../../base/TypeStructureClassesMap.js";
+import {
+  type AmbientableNodeStructureFields,
+  AmbientableNodeStructureMixin,
+} from "../../decorators/standard/AmbientableNodeStructureMixin.js";
+import {
+  type ExportableNodeStructureFields,
+  ExportableNodeStructureMixin,
+} from "../../decorators/standard/ExportableNodeStructureMixin.js";
+import {
+  type JSDocableNodeStructureFields,
+  JSDocableNodeStructureMixin,
+} from "../../decorators/standard/JSDocableNodeStructureMixin.js";
+import {
+  type NamedNodeStructureFields,
+  NamedNodeStructureMixin,
+} from "../../decorators/standard/NamedNodeStructureMixin.js";
+import {
+  type StructureFields,
+  StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import {
+  type TypeParameteredNodeStructureFields,
+  TypeParameteredNodeStructureMixin,
+} from "../../decorators/standard/TypeParameteredNodeStructureMixin.js";
 import type {
   AugmentedStructures,
   stringOrWriterFunction,
@@ -15,23 +39,11 @@ import type {
   TypeStructures,
 } from "../../exports.js";
 import {
-  type AmbientableNodeStructureFields,
-  AmbientableNodeStructureMixin,
   type CloneableStructure,
-  type ExportableNodeStructureFields,
-  ExportableNodeStructureMixin,
   type ExtractStructure,
   GET_OUTER_TYPE,
   type InnerTypeElement,
-  type JSDocableNodeStructureFields,
-  JSDocableNodeStructureMixin,
-  type NamedNodeStructureFields,
-  NamedNodeStructureMixin,
   type StructureClassToJSON,
-  type StructureFields,
-  StructureMixin,
-  type TypeParameteredNodeStructureFields,
-  TypeParameteredNodeStructureMixin,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {

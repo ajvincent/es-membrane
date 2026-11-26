@@ -2,19 +2,27 @@
 import { StructureBase } from "../../base/StructureBase.js";
 import { StructureClassesMap } from "../../base/StructureClassesMap.js";
 import { COPY_FIELDS } from "../../base/symbolKeys.js";
-import type { EnumMemberStructureClassIfc } from "../../exports.js";
 import {
-  type CloneableStructure,
-  type ExtractStructure,
   type InitializerExpressionableNodeStructureFields,
   InitializerExpressionableNodeStructureMixin,
+} from "../../decorators/standard/InitializerExpressionableNodeStructureMixin.js";
+import {
   type JSDocableNodeStructureFields,
   JSDocableNodeStructureMixin,
+} from "../../decorators/standard/JSDocableNodeStructureMixin.js";
+import {
   type NamedNodeStructureFields,
   NamedNodeStructureMixin,
-  type StructureClassToJSON,
+} from "../../decorators/standard/NamedNodeStructureMixin.js";
+import {
   type StructureFields,
   StructureMixin,
+} from "../../decorators/standard/StructureMixin.js";
+import type { EnumMemberStructureClassIfc } from "../../exports.js";
+import type {
+  CloneableStructure,
+  ExtractStructure,
+  StructureClassToJSON,
 } from "../../internal-exports.js";
 import MultiMixinBuilder from "mixin-decorators";
 import {
